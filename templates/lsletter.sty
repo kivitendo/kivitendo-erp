@@ -1,0 +1,42 @@
+\ProvidesFile{lsletter.sty}
+ [2002/07/12 LINET-Services-Brief-Style]
+\usepackage[pdftex]{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png}
+\graphicspath{{PNG/}}
+\firsthead{%
+ \hspace*{-0.1cm}
+ \includegraphics{header}}
+\firstfoot{%
+ \hspace*{-0.1cm}
+ \parbox[b]{\textwidth}{
+ \hfil Seite \thepage\hfil\\[0.3cm]
+ \includegraphics{lsbp-footer}}}
+\nexthead{}
+\nextfoot{%
+ \hspace*{-0.1cm}
+ \parbox[b]{\textwidth}{
+ \hfil Seite \thepage\hfil\\[0.3cm]
+ \includegraphics{footer}}}
+\name{Lx-System GbR}
+\address{Ensingerstraﬂe 19\\ 89073 Ulm}
+\backaddress{Lx-System GbR, Ensingerstraﬂe 19, 89073 Ulm}
+\place{Ulm, }
+
+\setlength{\voffset}{-2.5cm}
+\setlength{\topmargin}{1.2cm}
+\setlength{\headheight}{0cm}
+\setlength{\headsep}{0.5cm}
+\setlength{\topskip}{0pt}
+
+\setlength{\textheight}{24.2cm}
+\setlength{\textwidth}{17.6cm}
+
+\setlength{\footskip}{1.7cm}
+
+\setlength{\hoffset}{-2.5cm}
+\setlength{\oddsidemargin}{1.6cm}
+\setlength{\evensidemargin}{1.6cm}
+
+\setlength{\parindent}{0pt}
+
+\pagestyle{headings}

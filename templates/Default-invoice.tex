@@ -1,0 +1,231 @@
+\documentclass[twoside]{scrartcl}
+\usepackage[frame]{xy}
+\usepackage{tabularx}
+\usepackage[latin1]{inputenc}
+\setlength{\voffset}{0.5cm}
+\setlength{\hoffset}{-2.0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{1.0cm}
+\setlength{\evensidemargin}{1.0cm}
+\setlength{\textwidth}{19.2cm}
+\setlength{\textheight}{24.5cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1}
+\begin{document}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+
+\newsavebox{\hdr}
+\sbox{\hdr}{
+  \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+  \parbox{\textwidth}{
+    \parbox[b]{12cm}{
+      <%company%>
+      
+      <%address%>}\hfill
+    \begin{tabular}[b]{rr@{}}
+    Telephone & <%tel%>\\
+    Facsimile & <%fax%>
+    \end{tabular}
+
+    \rule[1.5ex]{\textwidth}{0.5pt}
+  }
+}
+    
+\fontfamily{cmss}\fontshape{n}\selectfont
+
+\markboth{<%company%>\hfill <%invnumber%>}{\usebox{\hdr}}
+
+\pagestyle{myheadings}
+%\thispagestyle{empty}     use this with letterhead paper
+
+<%pagebreak 90 27 37%>
+\end{tabular*}
+
+  \rule{\textwidth}{2pt}
+  
+  \hfill
+  \begin{tabularx}{7cm}{Xr@{}}
+  \textbf{Subtotal} & \textbf{<%sumcarriedforward%>} \\
+  \end{tabularx}
+
+\newpage
+
+\markright{<%company%>\hfill <%invnumber%>}
+
+\vspace*{-12pt}
+
+\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
+  \textbf{Number} & \textbf{Description} & \textbf{Qt'y} &
+    \textbf{Unit} & \textbf{Price} & \textbf{Disc} & \textbf{Amount} \\
+  & carried forward from page <%lastpage%> & & & & & <%sumcarriedforward%> \\
+<%end pagebreak%>
+
+
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\vspace*{0.5cm}
+
+\parbox[t]{1cm}{\hfill}
+  \parbox[t]{10.5cm}{
+  \textbf{To}
+  \vspace{0.5cm}
+
+<%name%>
+
+<%street%>
+
+<%zipcode%>
+
+<%city%>
+
+<%country%>
+
+\vspace{0.3cm}
+
+%<%if contact%>
+%Attn: <%contact%>
+%\vspace{0.3cm}
+%<%end contact%>
+\vspace{0.5cm}
+
+<%if customerphone%>
+Tel: <%customerphone%>
+<%end customerphone%>
+
+<%if customerfax%>
+Fax: <%customerfax%>
+<%end customerfax%>
+
+<%email%>
+}
+\parbox[t]{7.5cm}{
+\textbf{Ship To}
+\vspace{0.5cm}
+
+<%shiptoname%>
+
+<%shiptostreet%>
+
+<%shiptozipcode%>
+
+<%shiptocity%>
+
+<%shiptocountry%>
+
+\vspace{0.3cm}
+
+\vspace{0.3cm}
+
+<%if shiptocontact%>
+Attn: <%shiptocontact%>
+\vspace{0.3cm}
+<%end shiptocontact%>
+
+<%if shiptophone%>
+Tel: <%shiptophone%>
+<%end shiptophone%>
+
+<%if shiptofax%>
+Fax: <%shiptofax%>
+<%end shiptofax%>
+
+<%shiptoemail%>
+}
+\hfill
+
+\vspace{1cm}
+
+\textbf{I N V O I C E}
+\hfill
+
+\vspace{1cm}
+
+\begin{tabular}[t]{l@{\hspace{0.3cm}}l}
+  \textbf{Date} & <%invdate%> \\
+  \textbf{Number} & <%invnumber%> \\
+  \textbf{Order} & <%ordnumber%> \\
+  \textbf{Clerk} & <%employee%>
+\end{tabular}
+
+\vspace{1cm}
+
+\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
+  \textbf{Number} & \textbf{Description} & \textbf{Qt'y} &
+    \textbf{Unit} & \textbf{Price} & \textbf{Disc} & \textbf{Amount} \\
+<%foreach number%>
+  <%number%> & <%description%> & <%qty%> &
+    <%unit%> & <%sellprice%> & <%discount%> & <%linetotal%> \\
+<%end number%>
+\end{tabular*}
+
+
+\parbox{\textwidth}{
+\rule{\textwidth}{2pt}
+
+\vspace{0.2cm}
+
+\hfill
+\begin{tabularx}{7cm}{Xr@{}}
+  \textbf{Subtotal} & \textbf{<%subtotal%>} \\
+<%foreach tax%>
+  <%taxdescription%> on <%taxbase%> & <%tax%> \\
+<%end tax%>
+<%if paid%>
+  \textbf{Paid} & - <%paid%> \\
+<%end paid%>
+  \hline
+  \textbf{Balance Owing} & \textbf{<%total%>} \\
+\end{tabularx}
+
+\vspace{0.3cm}
+
+\hfill
+  All prices in \textbf{<%currency%>} funds.
+
+\vspace{12pt}
+
+<%if notes%>
+  <%notes%>
+<%end if%>
+
+}
+
+\vfill
+
+<%if paid%>
+\begin{tabularx}{10cm}{@{}lXlr@{}}
+  \textbf{Payments} & & & \\
+  \hline
+  \textbf{Date} & \textbf{Account} & \textbf{Source} & \textbf{Amount} \\
+<%end paid%>
+<%foreach payment%>
+  <%paymentdate%> & <%paymentaccount%> & <%paymentsource%> & <%payment%> \\
+<%end payment%>
+<%if paid%>
+\end{tabularx}
+<%end paid%>
+
+\vspace{1cm}
+
+\centerline{\textbf{Thank You for your valued business!}}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\footnotetext[1]{\tiny
+Payment due NET <%terms%> Days from date of Invoice. Interest on overdue
+amounts will acrue at the rate of 1.5\% per month starting <%duedate%>
+until paid in full. Items returned are subject to a 10\% restocking charge.
+A return authorization must be obtained from <%company%> before goods are
+returned. Returns must be shipped prepaid and properly insured.
+<%company%> will not be responsible for damages during transit.}
+
+\end{document}
+
+
+

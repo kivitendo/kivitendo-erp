@@ -1,0 +1,46 @@
+use vars qw($userspath $spool $memberfile $templates $sendmail $language $sid $latex $eur $webdav $lizenzen $jscalendar);
+
+# path to user configuration files
+$userspath = "users";
+
+# spool directory for batch printing
+$spool = "spool";
+
+# templates base directory
+$templates = "templates";
+
+# member file
+$memberfile = "users/members";
+
+# Wenn nicht Bilanzierung dann auf 1 setzen
+$eur= 1;
+
+# location of sendmail
+$sendmail = "| /usr/sbin/sendmail -t";
+
+# set language for login and admin
+$language = "de";
+
+# Oracle
+$sid = "T80509";
+$ENV{"ORACLE_HOME"} = "/usr/local/oracle";
+
+# if you have latex installed set to 1
+$latex = 1;
+
+# if the server can't find gzip, latex, dvips or pdflatex, add the path
+$ENV{PATH} .= ":/usr/local/bin";
+
+# on mac os X using Fink's Perl libs, add the path
+$ENV{PERL5LIB} .= ":/sw/lib/perl5";
+
+# Aktivierung der verschiedenen Spezialmodule
+$webdav = 0;
+$lizenzen = 0;
+$vertreter = 0;
+
+# Jscalendar an/aus
+$jscalendar = 1;
+
+1;
+

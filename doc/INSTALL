@@ -1,0 +1,116 @@
+
+Lx-Office ERP
+Installationsanleitung
+
+
+Folgende Pakete müssen installiert sein:
+========================================
+Webserver (Apache)
+PostgreSQL - Datenbank 
+Perl - DBI und Perl - DBD 
+Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
+(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl) 
+(Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
+(SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg)
+
+
+Die PostgreSQL Konfiguration muß angepasst werden.
+==================================================
+In der Datei postgresql.conf (/var/lib/pgsql/data/ oder /etc/postgresql/) muß folgender Wert verändert werden:
+
+TCPIP_SOCKET = 1
+
+In der Datei pg_hba.conf (/var/lib/pgsql/data/ oder /etc/postgresql/) müssen die Berichtigungen für den 
+Zugriff geändert werden:
+
+alte Eintragung: 
+----------------
+local	all all	ident sameuser
+host all all 127.0.0.1 255.0.0.0	ident sameuser
+
+Änderung: 
+---------
+local	all all	trust
+host all all 127.0.0.1 255.0.0.0	trust
+
+
+Installation des Programmpaketes 
+================================
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.0.0.tgz) in den DocumentRoot des Webservers
+(/var/www/html/ oder /srv/www/htdocs oder /var/www/) entpacken.
+
+tar xvzf lxoffice-erp-2.0.0.tgz
+
+Verändern Sie evtl. noch den Namen des Verzeichnisses
+
+mv lxoffice-erp/ lx-erp/
+
+Das Verzeichnis muß dem Webserverbenutzer (Debian: www-data, Fedora: apache, SuSE: wwwrun) übergeben werden:
+
+chown apache: -R lx-erp/
+
+
+Datenbankbenutzer anlegen
+=========================
+
+Es sollte zum Zugriff auf die PostgreSQL Datenbank ein Datenbankbenutzer angelegt werden. Führen Sie dazu 
+folgende Befehle nacheinander aus.
+
+su - postgres
+createuser -d lxoffice (ohne Passwort) 
+oder createuser -d -P lxoffice (mit Passwort)
+
+Wenn Sie später einen Datenbankzugriff konfigurieren, verändern Sie den evtl. voreingestellten Benutzer 
+"postgres" auf "lxoffice".
+
+
+PostgreSQL - Datenbank erweitern 
+================================
+In der Datenbank "template1" sollte bevor die restliche Konfiguration von LxOffice ERP erfolgt noch folgende
+Funktion hinzugefügt werden:
+
+psql template1 postgres (Zugriff über Admintool auf die Datenbank)
+create function plpgsql_call_handler ()
+returns opaque
+as '/usr/lib/pgsql/plpgsql.so'
+language 'c';
+
+create language 'plpgsql' handler plpgsql_call_handler
+lancompiler 'pl/pgsql';
+
+Bitte beachten Sie, das der Pfad zur Datei plpgsql.so von Distribution zu Distribution verschieden sein kann.
+Bei z.B. Debian befindet sie sich unter '/usr/lib/postgresql/lib/plpgsql.so'.
+
+
+Apache Konfiguration 
+====================
+Der Zugriff auf das Programmverzeichnis muß in der Apache Webserver- konfiguration httpd.conf 
+(/etc/httpd/conf/) [bei SuSE evtl. httpd2.conf] konfiguriert werden:
+
+AddHandler cgi-script .pl
+Alias /lx-erp/ /var/www/lx-erp/
+<Directory /var/www/lx-erp>
+  Options ExecCGI Includes FollowSymlinks
+</Directory>
+
+<Directory /var/www/lx-erp/users>
+  Order Deny,Allow
+  Deny from All
+</Directory>
+
+
+Datenbank anlegen 
+=================
+Das Administrationsmenü finden Sie unter: 
+
+http://localhost/lx-erp/admin.pl
+
+Zuerst muß eine Datenbank angelegt werden. Anschließend ein Benutzer. Verwenden Sie für den 
+Datenbankzugriff den eben angelegten Benutzer lxoffice. 
+
+
+Lx-Office ERP verwenden 
+=======================
+Einloggen können Sie sich unter: 
+
+http://localhost/lx-erp/login.pl

@@ -1,0 +1,365 @@
+<style type="text/css">
+<!--
+
+h1.help {font-family: Verdana, Arial, Helvetica;
+  font-size: 12pt;
+  color: black
+        }
+h2.help {font-family: Verdana, Arial, Helvetica;
+  font-size: 12pt;
+  color: black
+        }
+h3.help {font-family: Verdana, Arial, Helvetica;
+  font-size: 10pt;
+  color: black;
+  fornt-weight: bolder
+        }
+h4.help {font-family: Verdana, Arial, Helvetica;
+  font-size: 10pt;
+  color: black;
+  font-style:italic
+        }
+p.help {font-family: Verdana, Arial, Helvetica;
+  font-size: 10pt;
+  color: black
+        }
+p.help.alert { color: red }
+.lx { font-family:'Times New Roman', Times, serif }
+A { font-family: Verdana, Arial, Helvetica;
+  font-size: 10pt
+}
+A.help {color: darkred; text-decoration: none;}
+A.help:visited {color: midnightblue; text-decoration: none;}
+A.help:active {text-decoration: none;}
+A.help:hover {color: blue; text-decoration: none;}
+
+-->
+</style>
+<body>
+<table width=100%>
+  <tr><a name="top">
+    <a name="top"><th class=listtop><h1 class="help">Hilfe zur Umsatzteuer-Voranmeldung mit <span class="lx"><i>Lx</i>-Office</a></span></h1></th>
+  </tr>
+<table>
+<p class="help alert">HINWEIS: In der Berechnungsroutine zur UStVa hat sich ein Probem herausgestellt, das unter gewissen Bedingungen um einige Cent differierende Werte im Vergleich zur exakten Berechnung liefert. Dieser Fehler betrifft nur Buchungen, deren Steuerbetrag manuell ver&auml;ndert und nicht automatisch w&auml;hrend der Buchung berechnet wurde. (N&auml;heres auf Anfrage bei der <a class="help" target="_blank" href="https://lists.sourceforge.net/lists/listinfo/lx-office-devel">lx-office-devel Mailingliste</a> oder unter<a class="help" target="_blank" href="http://lx-office.linet-services.de/anthill/query.php?bug=49"> Anthill Bug 49</a>)</p>
+<h2 class="help">Inhalt</h2>
+<ul>
+<li><a class="help" href="#overview">&Uuml;berblick</a></li>
+<li><a class="help" href="#paperustva">Papiergebundene Umsatzsteuer-Voranmeldung</a></li>
+<li><a class="help" href="#winstonustva">ELSTER Umsatzsteuer-Voranmeldung mit Winston</a></li>
+<ul>
+<li><a class="help" href="#winstoninstall">Hinweise zur Installation von Winston</a></li></li>
+</ul>
+<li><a class="help" href="#tutorial">Tutorial zur UStVa mit <span class="lx"><i>Lx</i>-Office</span ></a></li>
+<ul>
+<li><a class="help" href="#config">UStVa Einstellungen</a></li>
+<li><a class="help" href="#create">Eine UStVa mit <span class="lx"><i>Lx</i>-Office</span > erstellen</a></li>
+</ul>
+<li><a class="help" href="#appendix">Anhang</a></li>
+<ul>
+<li><a class="help" href="#appendix1">UStVa Kennziffern die von <span class="lx"><i>Lx</i>-Office</span > unterst&uuml;tzt werden</a></li>
+</ul>
+</ul>
+<a name="overview">
+<h2 class="help">&Uuml;berblick</h2></a>
+<p class="help">Die Umsatzsteuer Voranmeldung mit <span class="lx"><i>Lx</i>-Office</span > hat das Ziel, den gesamten Ablauf von der Steuerberechnug bis zur Anmeldung beim Finanzamt zu automatisieren.
+<p class="help">Es besteht die klassische M&ouml;glichkeit ein amtliches Steuerformular mit den g&auml;ngigsten Angaben auszudrucken oder die Steuerdaten via <a class="help" target="_blank" href="https://www.elster.de/faq_elster.php">ELSTER</a> (Elektronische Steuererkl&auml;rung) online an das Finanzamt zu senden. Dabei wird die ELSTER Software <a class="help" target="_blank" href="http://www.felfri.de/winston/">Winston</a> zur &Uuml;bertragung der Daten aus <span class="lx"><i>Lx</i>-Office</span > genutzt. Winston ist f&uuml;r Linux (unter  <a class="help" target="_blank" href="http://www.winehq.org">Wine</a>) oder Windows als <a class="help" target="_blank" href="http://felfri.de/winston/hilfe/faq.htm#Freeware">kostenloses Freewareprogramm</a> erh&auml;ltlich.</p>
+<br />
+<table bgcolor="lightgrey" width="100%">
+<tr align="right" valign="bottom">
+ <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ </td>
+</tr>
+</table>
+<br />
+<br />
+<a name="paperustva">
+<h2 class="help">Papiergebundene Umsatzsteuer Voranmeldung</h2></a>
+<p class="help">Die Papiergebundene UStVa ist die klassische Variante einer Voranmeldung, die fr&uuml;her von Hand ausgef&uuml;llt werden musste und dem Finanzamt postalisch zugesendet wurde. <span class="lx"><i>Lx</i>-Office</span > unterst&uuml;tzt den Benutzer dabei das Dokument mit Voreinstellungen und Buchhaltungsdaten auszuf&uuml;llen.</p>
+
+<a name="winstonustva">
+<h2 class="help">ELSTER Umsatzsteuer Voranmeldung mit Winston</h2></a>
+<p class="help">Das neue UStVa Verfahren via ELSTER wird ab dem 1. 1. 2005 verpflichtend f&uuml;r alle Gewerbetreibenden bundesweit eingef&uuml;hrt. <!--[stimmt das?, wo stehts?]-->
+Um eine ELSTER Schnittstelle zu realisieren, greift <span class="lx"><i>Lx</i>-Office</span > auf die Software Winston zur&uuml;ck, die getrennt installiert werden mu&szlig;.</p>
+<p class="help">Die eigentliche Schnittstelle zu Winston bildet eine XML-Datei, die in <span class="lx"><i>Lx</i>-Office</span >
+generiert wird und mittels 'Speichern unter...' in den Ordner 'Ausgang' der Winstoninstallation abgelegt werden muss.</p>
+<p class="help">Nach dem Programmstart von Winston ist der Datensatz der UStVa unter Datei-&gt;Ausgangskorb zu finden. Von dort kann er dann bearbeitet oder direkt gesendet werden.</p>
+<p class="help alert">Vorsicht, die Umsatzsteuer Voranmeldung bitte immer vor dem Absenden in Winston &uuml;berpr&uuml;fen.</p>
+
+<a name="winstoninstall">
+<h3 class="help">Hinweise<i></i> zur Installation von Winston</h3></a>
+<p class="help">Da Winston nur &uuml;ber eine grafische Benutzerschnittstelle zu bedienen ist, sollte die Installation auf einem Clientrechner mit Internetzugang und Anbindung an <span class="lx"><i>Lx</i>-Office</span > erfolgen.</p>
+<p class="help">Nach dem <a target="_blank" class="help" href="http://www.felfri.de/winston/download.htm">Download</a> von Winston das Programm installieren. Weitere Hinweise zur <a target="_blank" class="help" href="http://www.felfri.de/winston/download.htm" target="_blank">Installation</a> sind auf der Homepage von Winston zu finden. </p>
+<br>
+<table bgcolor="lightgrey" width="100%">
+<tr align="right" valign="bottom">
+ <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ </td>
+</tr>
+</table>
+<br>
+<a name="tutorial">
+<h3 class="help">Tutorial zur UStVa mit <span class="lx"><i>Lx</i>-Office</span ></h3></a>
+<a name="config"><h4 class="help">UStVa Einstellungen</h4></a>
+<p class="help">Starten Sie die UStVa Funktion von <span class="lx"><i>Lx</i>-Office</span > unter Berichte -&gt; UStVa.</p>
+<p class="help">Beim ersten Start des UStVa Moduls ist es notwendig, einige Einstellungen vorzunehmen. W&auml;hlen Sie den Knopf 'Einstellungen'.</p>
+<p class="help">Im 'Einstellungen' Men&uuml; w&auml;hlen Sie das Bundesland in dem Ihr Finanzamt sitzt. Dann w&auml;hlen Sie ihr Finanzamt aus.</p>
+<p class="help">Das Berechnungsverfahren f&uuml;r die UStVa h&auml;ngt davon ab, ob sie Ist oder Soll Versteuert werden. Wenn sie Ist-Versteuert werden, w&auml;hlen sie die Einnahmen/&Uuml;berschu&szlig;-Rechnung aus. Werden Sie Soll-Versteuert oder bilanzverpflichtet, dann w&auml;hlen Sie Bilanz aus.</p>
+<p class="help">Die Einstellungen zum Voranmeldungszeitraum entsprechend vornehmen.</p>
+<p class="help">Wenn Sie einen Steuerberater zu Rate ziehen, k&ouml;nnen Sie diese Information ebenfalls hinterlegen. Auf 'weiter' ticken.</p>
+<p class="help">Auf der zweiten Seite des Konfigurationsmen&uuml;s sehen Sie einige Kontaktdaten zu ihrem Finanzamt. Unten erg&auml;nzen Sie bitte die Steuernummer. Mit der Tabulator Taste k&ouml;nnen Sie bequem die einzelnen Ziffern eingeben.</p>
+<p class="help alert">Hinweis: Die Steuernummer wird nicht auf Plausibilit&auml;t gepr&uuml;ft.</p>
+<p class="help">Wenn alle Eingaben &uuml;berpr&uuml;ft sind, speichern ausw&auml;hlen.</p>
+<br />
+<table bgcolor="lightgrey" width="100%">
+<tr align="right" valign="bottom">
+ <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ </td>
+</tr>
+</table>
+<br />
+<a name="create"><h4 class="help">Eine UStVa mit <span class="lx"><i>Lx</i>-Office</span > erstellen</h4></a>
+<p class="help">Starten Sie die UStVa Funktion von <span class="lx"><i>Lx</i>-Office</span > unter Berichte -&gt; UStVa.</p>
+<p class="help">Das Feld <b>Firma</b> beinhaltet Daten &uuml;ber die eigene Firma. Dort sollten Firmenname, Anschrift, Telefon, Fax und ihre Steuernummer eingetragen sein. Wenn der Eintrag f&uuml;r die Steuernummer nicht vorhanden ist, dann wird die Auswahl 'Ausgabeformat' ausgeblendet und der 'Anzeigen' Knopf deaktiviert. Anstatt dessen erscheint eine Fehlermeldung. Ticken Sie einfach auf die Fehlermeldung, dann gelangen Sie zu den jeweiligen <a class="help" href="#config">Einstellungen</a>. Dort k&ouml;nnen dann alle fehlenden Eintr&auml;ge Vorgenommen werden.</p>
+<p class="help">W&auml;hlen Sie das Ausgabeformat 'Vorschau' aus f&uuml;r einen schnellen HTML &Uuml;berblick.</p>
+<p class="help">Das Ausgabeformat 'UStVA als PDF Dokument' gibt ein PDF Dokument aus, das beispielsweise mir dem <a class="help" target="_blank" href="http://www.adobe.de/products/acrobat/readstep2.html">Adobe Reader</a> dargestellt werden kann.</p>
+<p class="help">W&auml;hlen Sie den ELSTER Export nach Winston um eine elektrische Steuererkl&auml;rung zu erzeugen. Dabei erscheint ein 'Datei speichern unter...' Dialog Ihres Browsers, der Sie auffordert, eine xml-Datei zu speichern.</p>
+<p class="help">W&auml;hlen Sie als Speicherort das Verzeichnis 'Ausgang' ihrer Winston Installation.</p>
+<p class="help">Der Speicherort des Ordners 'Ausgang' h&auml;ngt von ihrer Installation ab. Dieser Ordner liegt normalerweise im Winston Programmverzeichnis.</p>
+<p class="help">Sollte sich der Ordner 'Ausgang' nicht im Programmverzeichnis von Winston befinden, dann kann er in Winston unter Optionen-&gt;Einstellungen-&gt;Benutzereinstellungen aktiviert werden. Unter Optionen-&gt;Einstellungen-&gt;Sondereinstellungen kann nachgeschaut werden in welchem Verzeichnis sich das Unterverzeichnis Ausgang befindet. Dort wird die xml-Datei dann gespeichert.
+</p>
+<p class="help">Legen Sie eine Verkn&uuml;pfung auf dem Desktop zum Winston Augangsordner, um diesen in Zukunft schneller zu finden.</p>
+<p class="help">Weitere <a class="help" target="_blank" href="http://www.felfri.de/winston/hilfe/index.htm">Hilfe</a> zur Bedienung von Winston finden Sie auf der <a class="help" target="_blank" href="http://www.felfri.de/winston"></a>Winston Homepage</a>.</p>
+<!--<img src="templates/helppics/ustva/ustva1.00.png" alt="Textillustration" border="1">-->
+<br>
+<table bgcolor="lightgrey" width="100%">
+<tr align="right" valign="bottom">
+ <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ </td>
+</tr>
+</table>
+<br>
+<a name="appendix">
+<h2 class="help">Anhang</h2></a>
+<a name="appendix1">
+<h3 class="help">UStVa Kennziffern die von <span class="lx"><i>Lx</i>-Office</span > unterst&uuml;tzt werden</h3></a>
+<p class="help">Hier sind Finanzdaten und Voreinstellungen aus Lx-office aufgelistet. Dabei
+werden zur Orientierung auch die aktuellen Werte angezeigt.</p>
+<p class="help"><small>Zeilennummern beziehen sich auf das UStVa Formular 2005</small></p>
+
+<table width="100%">
+<tr>
+ <th colspan="3" class="listheading">UStVa Kennziffern</th>
+</tr>
+<tr>
+ <th class="listheading">Kennziffer</th>
+ <th class="listheading">Bemerkung</th>
+ <th class="listheading">aktueller Wert</th>
+</tr>
+<tr class="listrow0">
+ <td>10 </td>
+ <td> </td>
+ <td>
+    <%10%>
+  </td>
+</tr>
+<tr class="listrow1">
+ <td>71 </td>
+ <td>noch nicht verf&uuml;gbar</td>
+ <td>
+    <%71%>
+  </td>
+</tr>
+<tr class="listrow0">
+ <td>43 </td>
+ <td> </td>
+ <td>
+    <%43%>
+  </td>
+</tr>
+<tr class="listrow1">
+ <td>45</td>
+ <td> </td>
+ <td>
+   <%45%>
+ </td>
+</tr>
+<tr class="listrow0">
+ <td>51r</td>
+ <td></td>
+ <td>
+   <%51r%>
+ </td>
+</tr>
+<tr class="listrow1">
+ <td>62 </td>
+ <td> </td>
+ <td><%62%> </td>
+</tr>
+<tr class="listrow0">
+ <td>66 </td>
+ <td> </td>
+ <td><%66%> </td>
+</tr>
+<tr class="listrow1">
+ <td>67 </td>
+ <td> </td>
+ <td><%67%> </td>
+</tr>
+<tr class="listrow0">
+ <td>86r </td>
+ <td> </td>
+ <td> </td>
+</tr>
+<tr class="listrow1">
+ <td>93r </td>
+ <td> </td>
+ <td><%93r%> </td>
+</tr>
+<tr class="listrow0">
+ <td>96 </td>
+ <td> </td>
+ <td><%96%> </td>
+</tr>
+<tr class="listrow1">
+ <td>97r </td>
+ <td> </td>
+ <td><%97r%> </td>
+</tr>
+</table>
+<br />
+<table width="100%">
+<tr>
+ <th colspan="3" class="listheading">Finanzamt (Zeile 5 bis 10)</th>
+</tr>
+<tr>
+ <th class="listheading">Feldname </th>
+ <th class="listheading">Bemerkung </th>
+ <th class="listheading">aktueller Wert</th>
+</tr>
+<tr class="listrow0">
+ <td>Name</td>
+ <td></td>
+ <td><%FA_Name%></td>
+</tr>
+<tr class="listrow1">
+ <td>Stra&szlig;e </td>
+ <td> </td>
+ <td><%FA_Strasse%> </td>
+</tr>
+<tr class="listrow0">
+ <td>PLZ</td>
+ <td> </td>
+ <td><%FA_PLZ%> </td>
+</tr>
+<tr class="listrow1">
+ <td>Stadt</td>
+ <td> </td>
+ <td><%FA_Ort%> </td>
+</tr>
+<tr class="listrow0">
+ <td>Fax</td>
+ <td> </td>
+ <td><%FA_FAX%> </td>
+</tr>
+</table>
+<br>
+<table bgcolor="lightgrey" width="100%">
+<tr align="right" valign="bottom">
+ <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ </td>
+</tr>
+</table>
+<br>
+<br />
+<table width="100%">
+<tr>
+ <th colspan="3" class="listheading">Firma (Zeile 12 bis 16)</th>
+</tr>
+<tr>
+ <th class="listheading">Feldname </th>
+ <th class="listheading">Bemerkung </th>
+ <th class="listheading">aktueller Wert</th>
+</tr>
+<tr class="listrow0">
+ <td>Name</td>
+ <td> </td>
+ <td><%company%> </td>
+</tr>
+<tr class="listrow1">
+ <td>Stra&szlig;e </td>
+ <td> </td>
+ <td><%company_street%> </td>
+</tr>
+<tr class="listrow0">
+ <td>Stadt</td>
+ <td> </td>
+ <td><%company_cty%> </td>
+</tr>
+<tr class="listrow1">
+ <td>Steuernummer</td>
+ <td> </td>
+ <td><%steuernummer%> </td>
+</tr>
+</table>
+<p class="listheading0">Firmenadresse:<br />
+<%address%></p>
+<br />
+<table width=100%>
+<tr>
+ <th colspan="3" class="listheading">Steuerberater/-in (Zeile 78 bis 82)</th>
+</tr>
+<tr>
+ <th class="listheading">Feldname </th>
+ <th class="listheading">Bemerkung </th>
+ <th class="listheading">aktueller Wert</th>
+</tr>
+<tr class="listrow0">
+ <td>Name</td>
+ <td> </td>
+ <td><%FA_steuerberater_name%> </td>
+</tr>
+<tr class="listrow1">
+ <td>Stra&szlig;e </td>
+ <td> </td>
+ <td><%FA_steuerberater_street%> </td>
+</tr>
+<tr class="listrow0">
+ <td>Stadt</td>
+ <td> </td>
+ <td><%FA_steuerberater_city%> </td>
+</tr>
+<tr class="listrow1">
+ <td>Telefon</td>
+ <td> </td>
+ <td><%FA_steuerberater_tel%> </td>
+</tr>
+</table>
+<br />
+<table width="100%">
+<tr>
+ <th colspan="3" class="listheading">Sonstiges</th>
+</tr>
+<tr>
+ <th class="listheading">Feld</th>
+ <th class="listheading">Beschreibung</th>
+ <th class="listheading">aktueller Wert</th>
+</tr>
+<tr class="listrow0">
+ <td>Datum</td>
+ <td>aktuelles Tagesdatum</td>
+ <td><%Datum_heute%></td>
+</tr>
+</table>
+<br />
+<a name="bottom">&nbsp</a>
+<br>
+<table bgcolor="lightgrey" width="100%">
+<tr align="right" valign="bottom">
+ <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="">[Ende]</a>
+ </td>
+</tr>
+</table>
+<br>
+</body>
+</html>

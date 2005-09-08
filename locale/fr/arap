@@ -1,0 +1,30 @@
+$self{texts} = {
+  'Address'                     => 'Adresse',
+  'Continue'                    => 'Continuer',
+  'Customer not on file!'       => 'Client absent du fichier!',
+  'Description'                 => 'Description',
+  'Number'                      => 'Numéro',
+  'Project not on file!'        => 'Projet absent du fichier!',
+  'Select from one of the names below' => 'Sélectionner un des noms ci-dessous',
+  'Select from one of the projects below' => 'Sélectionner un des projets ci-dessous',
+  'Vendor not on file!'         => 'Fournisseur absent du fichier!',
+};
+
+$self{subs} = {
+  'add_transaction'             => 'add_transaction',
+  'ap_transaction'              => 'ap_transaction',
+  'ar_transaction'              => 'ar_transaction',
+  'check_name'                  => 'check_name',
+  'check_project'               => 'check_project',
+  'continue'                    => 'continue',
+  'gl_transaction'              => 'gl_transaction',
+  'name_selected'               => 'name_selected',
+  'project_selected'            => 'project_selected',
+  'sales_invoice'               => 'sales_invoice',
+  'select_name'                 => 'select_name',
+  'select_project'              => 'select_project',
+  'vendor_invoice'              => 'vendor_invoice',
+  'continuer'                   => 'continue',
+};
+
+1;

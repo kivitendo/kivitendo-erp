@@ -1,0 +1,27 @@
+####################################
+# Veraenderungen von Lx-Office ERP #
+####################################
+
+2005-01-03 - Version 2.1.0
+  - Export von UStVA - Daten für ELSTER
+  - DATEV Exportschnittstelle
+  - Neue Optik
+  - Automatische Kunden-, Lieferanten- und Artikelnummervergabe
+  - umfangreiche Lizenz(Serien-)nummernverwaltung
+  - Javascript Kalendar, bei allen Datumsfelder. Global ein-/auschaltbar
+  - zuweisen von Kontaktpersonen zu Rechnungen,,Angeboten,Aufträgen
+  - Bugfixes
+
+2005-02-08 - Version 2.1.1
+  - Im Datenbankschema Geldbeträge vom Datentyp float nach numeric umgestellt
+  - UStVa - Modul überarbeitet
+  - Menuicons überarbeitet
+  - zusätzliche Felder beim Kunden/Lieferanten
+  - Bugfixes
+    Bug#145: Fehler bei der Sucher nach Waren über den Hersteller
+    Bug#144: Fehler bei der Stringbehandlung in Form.pm
+    Bug#137: Fehler im Datenbankschema bei der Speicherung von Einheiten
+    Bug#136: cc Beim Versenden von eMails nicht gesetzt
+    Bug#123: Javascript-Kalender berücksichtig nur deutsches Datumsformat
+    Bug#119: Fehler in der Backuproutine verhindert Rückspielen des Backups
+    Kontakte konnten nicht richtig ausgewählt werden

@@ -1,0 +1,129 @@
+\documentclass{scrartcl}
+\usepackage[latin1]{inputenc}
+\usepackage[frame]{xy}
+\usepackage{tabularx}
+\setlength{\voffset}{0cm}
+\setlength{\hoffset}{-2.5cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{0.5cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{2cm}
+\setlength{\evensidemargin}{2cm}
+\setlength{\textwidth}{16,4cm}
+\setlength{\textheight}{23.5cm}
+\setlength{\footskip}{0.5cm}
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1}
+\begin{document}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{8.75cm}
+
+\parbox{\textwidth}{
+  \parbox[b]{.42\textwidth}{
+    <%company%>
+
+    <%address%>
+  }
+  \hfill
+  \begin{tabular}[b]{rr@{}}
+  Tel & <%tel%>\\
+  Fax & <%fax%>
+  \end{tabular}
+
+  \rule[1.5ex]{\textwidth}{0.5pt}
+}
+
+
+<%pagebreak 50 30 52%>
+  \multicolumn{5}{l}{\rule{\linewidth}{2pt}}\\
+  \multicolumn{4}{r}{Zwischensumme:} & <%sumcarriedforward%>
+\end{tabular}
+
+\newpage
+
+\vspace*{-12pt}
+%\newlength{\dlpos}\settowidth{\dlpos}{\textbf{Pos.}}
+%\newlength{\dlanz}\settowidth{\dlanz}{\textbf{Anzahl}}
+%\newlength{\dlein}\settowidth{\dlein}{\textbf{Einzelpreis}}
+%\newlength{\dlpre}\settowidth{\dlpre}{\textbf{Preis in Euro}}
+
+\begin{tabular}{lp{\descrwidth}rrr}
+  \textbf{Pos.} & \textbf{Beschreibung} & \textbf{Anzahl} &
+    \textbf{Einzelpreis} & \textbf{Preis in Euro} \\
+%  \hspace*{\dlpos} & & \hspace*{\dlanz} &
+%    \hspace*{\dlein} & \hspace*{\dlpre}\\
+%  & \textbf{\"Ubertrag von Seite <%lastpage%>} & & &
+%    \textbf{<%sumcarriedforward%>}\\
+  & \"Ubertrag von Seite <%lastpage%> & & & <%sumcarriedforward%>\\
+<%end pagebreak%>
+
+\markright{%
+\fontfamily{cmss}\fontshape{n}\selectfont%
+}
+
+\pagestyle{myheadings}
+\thispagestyle{empty}
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+
+
+\vspace*{1.6cm}
+
+<%name%>
+
+<%street%>
+
+<%zipcode%> <%city%>
+
+<%addr4%>
+\vspace{1.5cm}
+
+\textbf{A N G E B O T}
+\hfill
+\begin{tabular}[t]{l@{\hspace{0,3cm}}l}
+  \textbf{Angebotsdatum} & <%quodate%>\\
+  \textbf{Angebotsnummer} & <%quonumber%>\\
+  \textbf{Kundennummer} & <%customer_id%>
+\end{tabular}
+
+\vspace{1cm}
+
+\begin{tabular}{lp{\descrwidth}rrr}
+  \textbf{Pos.} & \textbf{Beschreibung} & \textbf{Anzahl} &
+    \textbf{Einzelpreis} & \textbf{Preis in Euro} \\
+<%foreach number%>
+  <%runningnumber%> & <%description%> & <%qty%> & <%sellprice%> &
+    <%linetotal%>\\
+<%end number%>
+\end{tabular}
+
+\parbox{\linewidth}{%
+\rule{\linewidth}{2pt}
+
+\vspace{0,2cm}
+
+Das Angebot ist gültig bis <%reqdate%>
+
+\hfill
+\begin{tabularx}{7cm}{Xr}
+  \textbf{Nettobetrag} & \textbf{<%subtotal%>} \\
+<%foreach tax%>
+  MwSt. 16\% & <%tax%>\\\hline
+<%end tax%>
+  \textbf{Gesamtbetrag in Euro} & \textbf{<%ordtotal%>}
+\end{tabularx}
+
+\vspace{12pt}
+
+Wir danken für Ihre Anfrage und hoffen, Ihnen hiermit ein interessantes Angebot
+gemacht zu haben. Sollten Sie noch Fragen oder Änderungswünsche haben,
+können Sie uns gerne jederzeit unter den oben genannten Telefonnummern kontaktieren.
+
+Bei der Durchführung des Auftrags gelten unsere AGB, die wir Ihnen gerne
+zuschicken.
+
+
+}
+
+\end{document}

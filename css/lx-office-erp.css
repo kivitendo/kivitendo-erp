@@ -1,0 +1,233 @@
+/* stylesheet for LX-Office ERP */
+
+/* general stuff */
+/*
+A:link { color: #a0522d; text-decoration: none; }
+A:visited { color: #0522d; text-decoration: none; }
+A:active { color: #a0522d; text-decoration: underline; }
+A:hover { color: white;
+          background-color: rgb(187,187,187);
+	  text-decoration: none;
+}
+*/
+A:link { color: black; text-decoration: none; }
+A:visited { color: black; text-decoration: none; }
+A:active { color: black; text-decoration: underline; }
+//A:hover { color: white;
+//          background-color: rgb(187,187,187);
+//	  text-decoration: none;
+//}
+
+
+/*
+	Menu: oberste Linkebene
+*/
+A.nohover:hover { 
+	/* color: black;*/
+	color:#8c1919;
+	/* font-weight: bolder;
+	background-image: url("px_3.gif");
+	text-decoration:none; 
+	*/
+}
+
+
+/*
+	Menu : Unterpunkte
+*/
+A:hover { 
+	color:#8c1919;
+/*	color: black;
+	font-weight: bolder;
+	background-color: #FFFFCC;
+	text-decoration:none; 
+*/
+}
+
+
+body {
+  font-family: Verdana, Arial, Helvetica;
+  font-size: 10pt;
+  //background-color: white;
+  background-image: url("../image/fade.png"); background-repeat:repeat-x;
+  color: black
+}
+// .bg { background-image: url("mn_hauptmenu.png");}
+td {
+  font-family: Verdana, Arial, Helvetica;
+  color: black;
+  font-size: 8pt;
+  font-weight: normal;
+}
+td.hover:hover { 
+	color: black;
+/*          background-color: #FFFFCC;
+          font-size: 8pt;
+          text-decoration: none;
+          border:none;
+          borderWidth:0px;
+          borderColor:2557AD;
+*/
+}
+
+//td {
+//  font-family: Verdana, Arial, Helvetica;
+//  font-size: 8pt;
+//}
+
+th {
+  font-family: Verdana, Arial, Helvetica;
+  color: black;
+  font-size: 8pt;
+  font-weight: normal;
+}
+
+/* login and admin */
+.login {
+  font-family: Verdana, Arial, Helvetica;
+}
+body.login {
+  background: #b8d1f3;
+  color: #A0A0A0;
+}
+h1.login {
+  font-size: 18pt;
+}
+table.login {
+  background-color: #efedde;
+  padding: 20px;
+}
+td.login {
+  text-align: center;
+}
+th.login {
+  text-align: right;
+}
+
+body.admin {
+  background-color: #FFFFF;
+  color: black;
+}
+
+body.menu {
+  background-image: url("../image/fade.png");background-repeat:repeat-x;
+  font-family: Verdana, Arial, Helvetica;
+  font-size: 8t;
+  color: black;
+}
+
+
+/*
+	�erschriftsbalken
+*/
+.listtop { 
+	background-color: rgb(236,233,216); 
+	text-align:left;
+	padding:5px;
+	font-size: 10pt; 
+	color: black; 
+	font-weight: bolder;
+	border-style:dashed;
+	border-width:thin;
+}
+
+
+.listelement {
+	 background-image: url("../image/fade2.png");
+	//background-image: url("../image/fade.png");
+	background-repeat:repeat-x;
+	border-style:dashed;
+	border-width:thin;
+}
+
+.listelement2 {
+	//background-image: url("../image/fade_short.png");
+	background-image: url("../image/fade2.png");
+	background-repeat:repeat-x;
+	border-style:dashed;
+	border-width:thin;
+}
+
+.listheading { 
+	font-size: 9pt; 
+	padding:3px;
+	background-color: 
+	rgb(236,233,216); 
+	color: black; 
+	font-weight: bolder;
+	text-align:left;
+	background-image: url("../image/fade.png");
+	border-style:dotted;
+	border-width:thin;
+}
+	
+	
+.optionen {
+	border:dashed;
+/*	padding-top:10px;
+	padding-bottom:10px;
+	padding-left:10px;
+*/
+	border-width:1px;
+	background:efedde;
+}
+
+	
+A.listheading:link, A.listheading:active, A.listheading:visited {
+  color: black;
+  text-decoration: none; 
+ }
+
+.listrow1 { 
+	background-color: rgb(208,207,201); 
+	color: black; 
+	vertical-align: top; 
+}
+
+.listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
+
+.listsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+
+.listtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+
+.submit {
+  font-family: Verdana, Arial, Helvetica;
+  color: #000000;
+}
+.checkbox, .radio {
+  font-family: Verdana, Arial, Helvetica;
+  color: #778899;
+}
+
+.plus0 {    /* font color for negative numbers */
+  color: red;
+}
+
+.plus1 {
+  color: green;
+}
+
+h2.confirm {
+  color: blue;
+  font-size: 14pt;
+}
+
+h2.error {
+  color: red;
+  font-size: 14pt;
+}
+
+
+/* media stuff */
+
+@media screen {
+  .noscreen {   /* items with this class won't display */
+    display: none;
+  }
+}
+
+@media print {
+  .noprint {   /* items with this class won't print */
+    display: none;
+  }
+}

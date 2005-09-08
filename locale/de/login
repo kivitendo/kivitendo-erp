@@ -1,0 +1,25 @@
+$self{texts} = {
+  'About'                       => 'über',
+  'Database Host'               => 'Datenbankcomputer',
+  'Dataset'                     => 'Datenbank',
+  'Incorrect username or password!' => 'Ungültiger Benutzername oder falsches Passwort!',
+  'Licensed to'                 => 'Lizensiert für',
+  'Login'                       => 'Anmeldung',
+  'Login Name'                  => 'Benutzername',
+  'Password'                    => 'Passwort',
+  'User'                        => 'Benutzer',
+  'Version'                     => 'Version',
+  'You are logged out!'         => 'Auf Wiedersehen!',
+  'You did not enter a name!'   => 'Sie haben keinen Namen eingegeben!',
+  'localhost'                   => 'lokaler Rechner',
+};
+
+$self{subs} = {
+  'company_logo'                => 'company_logo',
+  'login'                       => 'login',
+  'login_screen'                => 'login_screen',
+  'logout'                      => 'logout',
+  'anmeldung'                   => 'login',
+};
+
+1;
