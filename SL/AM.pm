@@ -76,7 +76,7 @@ sub get_account {
   $sth->finish;
 
   # get taxkeys and description
-  $query = qq|SELECT taxkey, taxdescription 
+  $query = qq|SELECT taxkey, taxdescription
               FROM tax|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -163,7 +163,7 @@ sub save_account {
 		WHERE id = $form->{id}|;
   } else {
 
-    $query = qq|INSERT INTO chart 
+    $query = qq|INSERT INTO chart
                 (accno, description, charttype, gifi_accno, category, link, taxkey_id, pos_ustva, pos_bwa, pos_bilanz,pos_eur)
                 VALUES ('$form->{accno}', '$form->{description}',
 		'$form->{charttype}', '$form->{gifi_accno}',
@@ -251,7 +251,7 @@ sub delete_account {
 
   # set inventory_accno_id, income_accno_id, expense_accno_id to defaults
   $query = qq|UPDATE parts
-              SET inventory_accno_id = 
+              SET inventory_accno_id =
 	                 (SELECT inventory_accno_id FROM defaults)
 	      WHERE inventory_accno_id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
@@ -362,7 +362,7 @@ sub save_gifi {
 		description = '$form->{description}'
 		WHERE accno = '$form->{id}'|;
   } else {
-    $query = qq|INSERT INTO gifi 
+    $query = qq|INSERT INTO gifi
                 (accno, description)
                 VALUES ('$form->{accno}', '$form->{description}')|;
   }
@@ -570,7 +570,7 @@ sub save_department {
 		role = '$form->{role}'
 		WHERE id = $form->{id}|;
   } else {
-    $query = qq|INSERT INTO department 
+    $query = qq|INSERT INTO department
                 (description, role)
                 VALUES ('$form->{description}', '$form->{role}')|;
   }
@@ -670,7 +670,7 @@ sub save_business {
                 salesman = '$form->{salesman}'
 		WHERE id = $form->{id}|;
   } else {
-    $query = qq|INSERT INTO business 
+    $query = qq|INSERT INTO business
                 (description, discount, customernumberinit, salesman)
                 VALUES ('$form->{description}', $form->{discount}, '$form->{customernumberinit}', '$form->{salesman}')|;
   }
@@ -767,7 +767,7 @@ sub save_sic {
 		description = '$form->{description}'
 		WHERE code = '$form->{id}'|;
   } else {
-    $query = qq|INSERT INTO sic 
+    $query = qq|INSERT INTO sic
                 (code, sictype, description)
                 VALUES ('$form->{code}', '$form->{sictype}', '$form->{description}')|;
   }
@@ -847,7 +847,7 @@ sub save_preferences {
   # user specific variables are in myconfig
   # save defaults
   my $query = qq|UPDATE defaults SET
-                 inventory_accno_id = 
+                 inventory_accno_id =
 		     (SELECT c.id FROM chart c
 		                WHERE c.accno = '$form->{inventory_accno}'),
                  income_accno_id =
@@ -1356,4 +1356,3 @@ sub closebooks {
 }
 
 1;
-

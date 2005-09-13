@@ -99,7 +99,7 @@ sub login_screen {
 	      <tr>
 		<th align=right>| . $locale->text('Login Name') . qq|</th>
 		<td><input class=login name=login size=30 tabindex="1"></td>
-	      </tr> 
+	      </tr>
 	      <tr>
 		<th align=right>| . $locale->text('Password') . qq|</th>
 		<td><input class=login type=password name=password size=30 tabindex="2"></td>
@@ -119,7 +119,7 @@ sub login_screen {
     </td>
   </tr>
 </table>
-  
+
 </body>
 </html>
 |;
@@ -238,4 +238,3 @@ $myconfig{company}
 
   $lxdebug->leave_sub();
 }
-

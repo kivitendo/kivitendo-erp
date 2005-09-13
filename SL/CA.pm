@@ -369,7 +369,7 @@ sub all_transactions {
       $query .= qq|
 
              UNION ALL
-      
+
                  SELECT a.id, a.invnumber, c.name, a.transdate,
 	         a.invoice, ac.sellprice, 'ar' as module
 		 FROM ar a
@@ -382,9 +382,9 @@ sub all_transactions {
 		 $todate_where
 		 $dpt_where
 		 $project
-      
+
              UNION ALL
-      
+
                  SELECT a.id, a.invnumber, v.name, a.transdate,
 	         a.invoice, ac.sellprice, 'ap' as module
 		 FROM ap a
@@ -451,4 +451,3 @@ sub all_transactions {
 }
 
 1;
-

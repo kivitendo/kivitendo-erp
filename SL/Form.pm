@@ -439,7 +439,7 @@ sub write_trigger {
        <!--
        $trigger_1
        $trigger_2
-        //-->          
+        //-->
         </script>
         |;
 
@@ -1300,7 +1300,7 @@ sub get_contact {
   my ($self, $dbh, $id) = @_;
 
   my $query = qq|SELECT c.*
-              FROM contacts c 
+              FROM contacts c
               WHERE cp_id=$id|;
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
@@ -1319,8 +1319,8 @@ sub get_contacts {
 
   my ($self, $dbh, $id) = @_;
 
-  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname 
-              FROM contacts c 
+  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname
+              FROM contacts c
               WHERE cp_cv_id=$id|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
@@ -1687,7 +1687,7 @@ sub lastname_used {
     $where = "quotation = '1'";
   }
 
-  my $query = qq|SELECT id FROM $arap 
+  my $query = qq|SELECT id FROM $arap
                  WHERE id IN (SELECT MAX(id) FROM $arap
 		              WHERE $where
 			      AND ${table}_id > 0)|;
@@ -2211,4 +2211,3 @@ sub parse_date {
 }
 
 1;
-

@@ -235,17 +235,17 @@ sub post_invoice {
 
             # add entry for inventory, this one is for the sold item
             if ($linetotal != 0) {
-              $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, 
+              $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
 			  transdate)
 			  VALUES ($ref->{trans_id}, $ref->{inventory_accno_id},
 			  $linetotal, '$ref->{transdate}')|;
               $dbh->do($query) || $form->dberror($query);
 
               # add expense
-              $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, 
+              $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
 			  transdate, taxkey)
 			  VALUES ($ref->{trans_id}, $ref->{expense_accno_id},
-			  | . ($linetotal * -1) . qq|, '$ref->{transdate}', 
+			  | . ($linetotal * -1) . qq|, '$ref->{transdate}',
                           (SELECT taxkey from tax WHERE chart_id = $ref->{expense_accno_id}))|;
               $dbh->do($query) || $form->dberror($query);
             }
@@ -443,7 +443,7 @@ sub post_invoice {
            $form->round_amount($form->{amount}{$trans_id}{$accno}, 2)
           ) != 0
         ) {
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, 
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
 		    transdate, taxkey)
 		    VALUES ($trans_id, (SELECT c.id FROM chart c
 		                         WHERE c.accno = '$accno'),
@@ -1220,4 +1220,3 @@ SWITCH: {
 }
 
 1;
-

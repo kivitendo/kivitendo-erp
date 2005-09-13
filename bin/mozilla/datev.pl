@@ -61,30 +61,30 @@ sub export {
 	<tr>
 	  <td align=left nowrap>| . $locale->text("Beraternummer") . qq|</td>
 	  <td><input name=beraternr size=10 maxlength=7 value="$form->{beraternr}"></td>
-	
+
 	  <td align=left nowrap>| . $locale->text("DFV-Kennzeichen") . qq|</td>
 	  <td><input name=dfvkz size=5 maxlength=2 value="$form->{dfvkz}"></td>
 	</tr>
 	<tr>
 	  <td align=left nowrap>| . $locale->text("Beratername") . qq|</td>
 	  <td><input name=beratername size=10 maxlength=9 value="$form->{beratername}"></td>
-	
+
 	  <td align=left nowrap>| . $locale->text("Password") . qq|</td>
 	  <td><input name=passwort size=5 maxlength=4 value="$form->{passwort}"></td>
 	</tr>
 	<tr>
 	  <td align=left nowrap>| . $locale->text("Mandantennummer") . qq|</td>
 	  <td><input name=mandantennr size=10 maxlength=5 value="$form->{mandantennr}"></td>
-	
+
 	  <td align=left nowrap>| . $locale->text("Datenträgernummer") . qq|</td>
 	  <td><input name=datentraegernr size=5 maxlength=3 value="$form->{datentraegernr}"></td>
-	</tr>	
+	</tr>
 	<tr>
 	  <td><input checked name=kne type=checkbox class=checkbox value=1> |
     . $locale->text("Kontonummernerweiterung (KNE)")
     . qq|</td>
           <td></td>
-	
+
 	  <td align=left nowrap>| . $locale->text("Abrechnungsnummer") . qq|</td>
 	  <td><input name=abrechnungsnr size=5 maxlength=3 value="$form->{abrechnungsnr}"></td>
 	</tr>
@@ -93,7 +93,7 @@ sub export {
     . $locale->text("Export Buchungsdaten")
     . qq|</td>
           <td></td>
-          
+
 	  <td><input name=exporttype type=radio class=radio value=1> |
     . $locale->text("Export Stammdaten")
     . qq|</td>
@@ -216,7 +216,7 @@ sub export_bewegungsdaten {
 	  <td align=left></td>
           <td align=left><select name=monat>$form->{allemonate}</select></td>
         </tr>
-        <tr>  
+        <tr>
           <td align=left><input name=zeitraum class=radio type=radio value=quartal>&nbsp;</td><td align=left>|
     . $locale->text('Quartal')
     . qq|</td>
@@ -224,13 +224,13 @@ sub export_bewegungsdaten {
           <td align=left></td>
           <td align=left><select name=quartal>$form->{allequartale}</select></td>
         </tr>
-        <tr> 
+        <tr>
           <td align=left><input name=zeitraum class=radio type=radio value=zeit>&nbsp;</td><td align=left>|
     . $locale->text('Datum von')
     . qq|</td>
           <td align=left><input name=transdatefrom size=8></td>
 	  <td align=left>| . $locale->text('bis') . qq|</td>
-          <td align=left><input name=transdateto size=8></td>         	
+          <td align=left><input name=transdateto size=8></td>
 	</tr>
       </table>
     </td>

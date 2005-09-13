@@ -124,7 +124,7 @@ sub post_transaction {
   if ($form->{id}) {
 
     # delete individual transactions
-    $query = qq|DELETE FROM acc_trans 
+    $query = qq|DELETE FROM acc_trans
                 WHERE trans_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
 
@@ -149,7 +149,7 @@ sub post_transaction {
   my ($null, $department_id) = split /--/, $form->{department};
   $department_id *= 1;
 
-  $query = qq|UPDATE gl SET 
+  $query = qq|UPDATE gl SET
 	      reference = '$form->{reference}',
 	      description = '$form->{description}',
 	      notes = '$form->{notes}',
@@ -584,8 +584,8 @@ sub transaction {
     $query = "SELECT g.reference, g.description, g.notes, g.transdate,
               d.description AS department, e.name as employee, g.taxincluded, g.gldate
               FROM gl g
-	    LEFT JOIN department d ON (d.id = g.department_id)  
-	    LEFT JOIN employee e ON (e.id = g.employee_id)  
+	    LEFT JOIN department d ON (d.id = g.department_id)
+	    LEFT JOIN employee e ON (e.id = g.employee_id)
 	    WHERE g.id = $form->{id}";
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
@@ -722,4 +722,3 @@ sub debug {
 }
 
 1;
-

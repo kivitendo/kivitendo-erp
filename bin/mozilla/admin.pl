@@ -647,7 +647,7 @@ sub form_header {
 	  <td><input name="${item}_dbuser" size=15 value=$form->{"${item}_dbuser"}></td>
 	  <th align=right>| . $locale->text('Password') . qq|</th>
 	  <td><input name="${item}_dbpasswd" type=password size=10 value=$form->{"${item}_dbpasswd"}></td>
-	  
+
 	</tr>|;
     }
 
@@ -777,7 +777,7 @@ sub form_header {
         $webdav{"${directory}c"} = "";
       }
     }
-    print qq|  
+    print qq|
    <tr>
     <td colspan=2><hr size=3 noshade></td>
   </tr>
@@ -787,15 +787,15 @@ sub form_header {
   <table width=100%>
 	<tr>
 	<td><input name=angebote class=checkbox type=checkbox value=1 $webdav{angebotec}>&nbsp;Angebot</td>
-	<td><input name=bestellungen class=checkbox type=checkbox value=1 $webdav{bestellungenc}>&nbsp;Bestellung</td> 
+	<td><input name=bestellungen class=checkbox type=checkbox value=1 $webdav{bestellungenc}>&nbsp;Bestellung</td>
 	<td><input name=rechnungen class=checkbox type=checkbox value=1 $webdav{rechnungenc}>&nbsp;Rechnung</td>
 	</tr>
 	<tr>
 	<td><input name=anfragen class=checkbox type=checkbox value=1 $webdav{anfragenc}>&nbsp;Angebot</td>
-	<td><input name=lieferantenbestellungen class=checkbox type=checkbox value=1 $webdav{lieferantenbestellungenc}>&nbsp;Lieferantenbestellung</td> 
+	<td><input name=lieferantenbestellungen class=checkbox type=checkbox value=1 $webdav{lieferantenbestellungenc}>&nbsp;Lieferantenbestellung</td>
 	<td><input name=einkaufsrechnungen class=checkbox type=checkbox value=1 $webdav{einkaufsrechnungenc}>&nbsp;Einkaufsrechnung</td>
 	</tr>
-  </table>    
+  </table>
   <tr>
     <td colspan=2><hr size=3 noshade></td>
   </tr>
@@ -1247,7 +1247,7 @@ sub dbselect_source {
     <td><input type=password name=dbpasswd size=10></td>
 
   </tr>
-  
+
   <tr>
 
     <th align=right>$form->{connectstring}</th>
@@ -1457,7 +1457,7 @@ sub create_dataset {
     <td>$dbsources</td>
 
   </tr>
-  
+
   <tr>
 
     <th align=right nowrap>| . $locale->text('Create Dataset') . qq|</th>
@@ -1471,7 +1471,7 @@ sub create_dataset {
     <td><select name=encoding>$selectencoding</select></td>
 
   </tr>
- 
+
   <tr>
 
     <th align=right nowrap>|
@@ -1480,7 +1480,7 @@ sub create_dataset {
     <td>@charts</td>
 
   </tr>
- 
+
   <tr><td colspan=2>
 <p>
 <input type=hidden name=dbdriver value=$form->{dbdriver}>
@@ -1598,7 +1598,7 @@ sub delete_dataset {
     $dbsources
     </td>
   </tr>
-  
+
   <tr><td>
 <p>
 <input type=hidden name=dbdriver value=$form->{dbdriver}>
@@ -1701,4 +1701,3 @@ sub lock_system {
   $form->redirect($locale->text('Lockfile created!'));
 
 }
-

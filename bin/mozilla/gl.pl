@@ -248,7 +248,7 @@ sub search {
        <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=datefrom id="trigger1" value=|
       . $locale->text('button')
-      . qq|></td>  
+      . qq|></td>
        |;
     $button2 = qq|
        <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}">
@@ -1056,7 +1056,7 @@ sub form_header {
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} tabindex="2" $readonly></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button')
-      . qq|></td>  
+      . qq|></td>
        |;
 
     #write Trigger
@@ -1124,7 +1124,7 @@ sub form_header {
 	  </td>
 	</tr>|;
   }
-  print qq|	
+  print qq|
 	$department|;
   if ($form->{id}) {
     print qq|
@@ -1215,7 +1215,7 @@ sub form_header {
       . $locale->text('Split Debit')
       . qq|"></td>
           <input  name=debit_splited type=hidden size=10 value=$form->{debit_splited}>
-	  </tr>          
+	  </tr>
           <tr>
 	  <th align=right>| . $locale->text('Credit') . qq|</th>
 	  <td><select name=creditchartselected tabindex="6">$form->{creditchart}</select></td>
@@ -1288,7 +1288,7 @@ sub form_footer {
       |;
     }
   }
-  print qq| 
+  print qq|
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
@@ -1598,7 +1598,7 @@ sub display_split_credit {
            function update_stilltopost (betrag){
            remaining = parseFloat(document.split_credit.creditpost.value) - parseFloat(betrag);
            document.split_credit.creditpost.value= remaining;
-           }           
+           }
 </script>
 
 <table>|;
@@ -1690,7 +1690,7 @@ sub display_split_debit {
            function update_stilltopost (betrag){
            remaining = parseFloat(document.split_debit.debitpost.value) - parseFloat(betrag);
            document.split_debit.debitpost.value= remaining;
-           }           
+           }
 </script>
 
 <table>|;

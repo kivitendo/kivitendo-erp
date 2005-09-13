@@ -392,7 +392,7 @@ sub form_header {
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}> $readonly</td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button')
-      . qq|></td>  
+      . qq|></td>
        |;
     $button2 = qq|
        <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}> $readonly</td>
@@ -504,7 +504,7 @@ sub form_header {
     <td>
       <table width=100%>
 
-$jsscript  
+$jsscript
 |;
 
   $amount  = $locale->text('Amount');
@@ -561,13 +561,13 @@ $jsscript
 
 	  <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
 	  <input type=hidden name=oldtotalpaid value=$form->{oldtotalpaid}>
-	  
+
 	  <input type=hidden name=taxaccounts value="$form->{taxaccounts}">
-	  
+
 	  <td colspan=2></td>
           <td><select name=APselected>$form->{selectAP}</select></td>
 	  <input type=hidden name=AP value="$form->{AP}">
-	  
+
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
@@ -658,7 +658,7 @@ $jsscript
   print qq|
     <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
     <input type=hidden name=selectAP_paid value="$form->{selectAP_paid}">
-    
+
       </table>
     </td>
   </tr>
@@ -1446,18 +1446,18 @@ sub ap_transactions {
   </tr>
   <tr>
     <td><hr size=3 noshade></td>
-  </tr>  
+  </tr>
 </table>
 
 <br>
 <form method=post action=$form->{script}>
- 
+
 <input name=callback type=hidden value="$form->{callback}">
-  
+
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-   
+
 <input class=submit type=submit name=action value="|
     . $locale->text('AP Transaction') . qq|">
 
@@ -1517,4 +1517,3 @@ sub ap_subtotal {
 
   $lxdebug->leave_sub();
 }
-

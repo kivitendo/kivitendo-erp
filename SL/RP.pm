@@ -600,7 +600,7 @@ sub get_accounts {
     if ($form->{method} eq 'cash') {
 
       $query = qq|
-	
+
 	         SELECT g.accno, sum(ac.amount) AS amount,
 		 g.description, c.category
 		 FROM acc_trans ac
@@ -621,9 +621,9 @@ sub get_accounts {
 		   )
 		 $project
 		 GROUP BY g.accno, g.description, c.category
-		 
+
        UNION ALL
-       
+
 		 SELECT '' AS accno, SUM(ac.amount) AS amount,
 		 '' AS description, c.category
 		 FROM acc_trans ac
@@ -667,9 +667,9 @@ sub get_accounts {
 		   )
 		 $project
 		 GROUP BY g.accno, g.description, c.category
-		 
+
        UNION ALL
-       
+
 		 SELECT '' AS accno, SUM(ac.amount) AS amount,
 		 '' AS description, c.category
 		 FROM acc_trans ac
@@ -694,7 +694,7 @@ sub get_accounts {
        UNION ALL
 
 -- add gl
-	
+
 	         SELECT g.accno, sum(ac.amount) AS amount,
 		 g.description, c.category
 		 FROM acc_trans ac
@@ -709,9 +709,9 @@ sub get_accounts {
 		 AND NOT (c.link = 'AR' OR c.link = 'AP')
 		 $project
 		 GROUP BY g.accno, g.description, c.category
-		 
+
        UNION ALL
-       
+
 		 SELECT '' AS accno, SUM(ac.amount) AS amount,
 		 '' AS description, c.category
 		 FROM acc_trans ac
@@ -731,9 +731,9 @@ sub get_accounts {
       if ($form->{project_id}) {
 
         $query .= qq|
-	  
+
        UNION ALL
-       
+
 		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) AS amount,
 		 g.description AS description, c.category
 		 FROM invoice ac
@@ -758,7 +758,7 @@ sub get_accounts {
 		 GROUP BY g.accno, g.description, c.category
 
        UNION ALL
-       
+
 		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) * -1 AS amount,
 		 g.description AS description, c.category
 		 FROM invoice ac
@@ -796,7 +796,7 @@ sub get_accounts {
       }
 
       $query = qq|
-      
+
 	      SELECT g.accno, SUM(ac.amount) AS amount,
 	      g.description, c.category
 	      FROM acc_trans ac
@@ -808,9 +808,9 @@ sub get_accounts {
 	      $category
 	      $project
 	      GROUP BY g.accno, g.description, c.category
-	      
+
 	   UNION ALL
-	   
+
 	      SELECT '' AS accno, SUM(ac.amount) AS amount,
 	      '' AS description, c.category
 	      FROM acc_trans ac
@@ -827,9 +827,9 @@ sub get_accounts {
       if ($form->{project_id}) {
 
         $query .= qq|
-	  
+
 	 UNION ALL
-       
+
 		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) AS amount,
 		 g.description AS description, c.category
 		 FROM invoice ac
@@ -846,7 +846,7 @@ sub get_accounts {
 		 GROUP BY g.accno, g.description, c.category
 
        UNION ALL
-       
+
 		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) * -1 AS amount,
 		 g.description AS description, c.category
 		 FROM invoice ac
@@ -870,7 +870,7 @@ sub get_accounts {
     if ($form->{method} eq 'cash') {
 
       $query = qq|
-	
+
 	         SELECT c.accno, sum(ac.amount) AS amount,
 		 c.description, c.category
 		 FROM acc_trans ac
@@ -888,12 +888,12 @@ sub get_accounts {
 		     WHERE link LIKE '%AR_paid%'
 		     $subwhere
 		   )
-		     
+
 		 $project
 		 GROUP BY c.accno, c.description, c.category
-		 
+
 	UNION ALL
-	
+
 	         SELECT c.accno, sum(ac.amount) AS amount,
 		 c.description, c.category
 		 FROM acc_trans ac
@@ -911,10 +911,10 @@ sub get_accounts {
 		     WHERE link LIKE '%AP_paid%'
 		     $subwhere
 		   )
-		     
+
 		 $project
 		 GROUP BY c.accno, c.description, c.category
-		 
+
         UNION ALL
 
 		 SELECT c.accno, sum(ac.amount) AS amount,
@@ -935,9 +935,9 @@ sub get_accounts {
       if ($form->{project_id}) {
 
         $query .= qq|
-	  
+
 	 UNION ALL
-       
+
 		 SELECT c.accno AS accno, SUM(ac.sellprice * ac.qty) AS amount,
 		 c.description AS description, c.category
 		 FROM invoice ac
@@ -962,7 +962,7 @@ sub get_accounts {
 		 GROUP BY c.accno, c.description, c.category
 
 	 UNION ALL
-       
+
 		 SELECT c.accno AS accno, SUM(ac.sellprice) AS amount,
 		 c.description AS description, c.category
 		 FROM invoice ac
@@ -999,7 +999,7 @@ sub get_accounts {
       }
 
       $query = qq|
-      
+
 		 SELECT c.accno, sum(ac.amount) AS amount,
 		 c.description, c.category
 		 FROM acc_trans ac
@@ -1015,9 +1015,9 @@ sub get_accounts {
       if ($form->{project_id}) {
 
         $query .= qq|
-	  
+
 	UNION ALL
-       
+
 		 SELECT c.accno AS accno, SUM(ac.sellprice * ac.qty) AS amount,
 		 c.description AS description, c.category
 		 FROM invoice ac
@@ -1033,7 +1033,7 @@ sub get_accounts {
 		 GROUP BY c.accno, c.description, c.category
 
 	UNION ALL
-       
+
 		 SELECT c.accno AS accno, SUM(ac.sellprice * ac.qty) * -1 AS amount,
 		 c.description AS description, c.category
 		 FROM invoice ac
@@ -1156,7 +1156,7 @@ sub get_accounts_g {
   if ($form->{method} eq 'cash') {
 
     $query = qq|
-	
+
 	         SELECT sum(ac.amount) AS amount,
 		 c.$category
 		 FROM acc_trans ac
@@ -1173,12 +1173,12 @@ sub get_accounts_g {
 		     WHERE link LIKE '%AR_paid%'
 		     $subwhere
 		   )
-		     
+
 		 $project
 		 GROUP BY c.$category
-		 
+
 	UNION
-	
+
 	         SELECT sum(ac.amount) AS amount,
 		 c.$category
 		 FROM acc_trans ac
@@ -1195,10 +1195,10 @@ sub get_accounts_g {
 		     WHERE link LIKE '%AP_paid%'
 		     $subwhere
 		   )
-		     
+
 		 $project
 		 GROUP BY c.$category
-		 
+
         UNION
 
 		 SELECT sum(ac.amount) AS amount,
@@ -1218,9 +1218,9 @@ sub get_accounts_g {
     if ($form->{project_id}) {
 
       $query .= qq|
-	  
+
 	 UNION
-       
+
 		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
 		 c.$category
 		 FROM invoice ac
@@ -1245,7 +1245,7 @@ sub get_accounts_g {
 		 GROUP BY c.$category
 
 	 UNION
-       
+
 		 SELECT SUM(ac.sellprice) AS amount,
 		 c.$category
 		 FROM invoice ac
@@ -1282,7 +1282,7 @@ sub get_accounts_g {
     }
 
     $query = qq|
-      
+
 		 SELECT sum(ac.amount) AS amount,
 		 c.$category
 		 FROM acc_trans ac
@@ -1297,9 +1297,9 @@ sub get_accounts_g {
     if ($form->{project_id}) {
 
       $query .= qq|
-	  
+
 	UNION
-       
+
 		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
 		 c.$category
 		 FROM invoice ac
@@ -1315,7 +1315,7 @@ sub get_accounts_g {
 		 GROUP BY c.$category
 
 	UNION
-       
+
 		 SELECT SUM(ac.sellprice * ac.qty) * -1 AS amount,
 		 c.$category
 		 FROM invoice ac
@@ -1531,9 +1531,9 @@ sub trial_balance {
       $query .= qq|
 
 	-- add project transactions from invoice
-	
+
 	UNION ALL
-	
+
 	        SELECT g.accno, g.description, c.category,
 		SUM(ac.sellprice * ac.qty) AS amount
 		FROM invoice ac
@@ -1548,7 +1548,7 @@ sub trial_balance {
 		GROUP BY g.accno, g.description, c.category
 
 	UNION ALL
-	
+
 	        SELECT g.accno, g.description, c.category,
 		SUM(ac.sellprice * ac.qty) * -1 AS amount
 		FROM invoice ac
@@ -1585,9 +1585,9 @@ sub trial_balance {
       $query .= qq|
 
 	-- add project transactions from invoice
-	
+
 	UNION ALL
-	
+
 	        SELECT c.accno, c.description, c.category,
 		SUM(ac.sellprice * ac.qty) AS amount
 		FROM invoice ac
@@ -1601,7 +1601,7 @@ sub trial_balance {
 		GROUP BY c.accno, c.description, c.category
 
 	UNION ALL
-	
+
 	        SELECT c.accno, c.description, c.category,
 		SUM(ac.sellprice * ac.qty) * -1 AS amount
 		FROM invoice ac
@@ -1634,7 +1634,7 @@ sub trial_balance {
 	      $project
 	      AND ac.amount < 0
 	      AND c.accno = ?) AS debit,
-	      
+
 	     (SELECT SUM(ac.amount)
 	      FROM acc_trans ac
 	      JOIN chart c ON (c.id = ac.chart_id)
@@ -1657,7 +1657,7 @@ sub trial_balance {
 		$project
 		AND ac.amount < 0
 		AND c.gifi_accno = ?) AS debit,
-		
+
 	       (SELECT SUM(ac.amount)
 		FROM acc_trans ac
 		JOIN chart c ON (c.id = ac.chart_id)
@@ -1685,7 +1685,7 @@ sub trial_balance {
 	      $dpt_where
 	      $project
 	      AND c.accno = ?) AS debit,
-	      
+
 	     (SELECT SUM(ac.sellprice * ac.qty)
 	      FROM invoice ac
 	      JOIN parts p ON (ac.parts_id = p.id)
@@ -1844,15 +1844,15 @@ sub aging {
 	  (SELECT $buysell FROM exchangerate
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
-  FROM $form->{arap}, $form->{ct} 
+  FROM $form->{arap}, $form->{ct}
 	WHERE paid != amount
 	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND (
-	        transdate <= (date '$form->{todate}' - interval '0 days') 
+	        transdate <= (date '$form->{todate}' - interval '0 days')
 	        AND transdate >= (date '$form->{todate}' - interval '30 days')
 	    )
-	
+
 	UNION
 
 -- between 31-60 days
@@ -1860,66 +1860,66 @@ sub aging {
 	SELECT $form->{ct}.id AS ctid, $form->{ct}.name,
 	street, zipcode, city, country, contact, email,
 	phone as customerphone, fax as customerfax, $form->{ct}number,
-	"invnumber", "transdate", 
+	"invnumber", "transdate",
 	0.00 as "c0", (amount - paid) as "c30", 0.00 as "c60", 0.00 as "c90",
 	"duedate", invoice, $form->{arap}.id,
 	  (SELECT $buysell FROM exchangerate
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
   FROM $form->{arap}, $form->{ct}
-	WHERE paid != amount 
-	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id 
+	WHERE paid != amount
+	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND (
-		transdate < (date '$form->{todate}' - interval '30 days') 
+		transdate < (date '$form->{todate}' - interval '30 days')
 		AND transdate >= (date '$form->{todate}' - interval '60 days')
 		)
 
 	UNION
-  
+
 -- between 61-90 days
 
 	SELECT $form->{ct}.id AS ctid, $form->{ct}.name,
 	street, zipcode, city, country, contact, email,
 	phone as customerphone, fax as customerfax, $form->{ct}number,
-	"invnumber", "transdate", 
+	"invnumber", "transdate",
 	0.00 as "c0", 0.00 as "c30", (amount - paid) as "c60", 0.00 as "c90",
 	"duedate", invoice, $form->{arap}.id,
 	  (SELECT $buysell FROM exchangerate
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
-	FROM $form->{arap}, $form->{ct} 
+	FROM $form->{arap}, $form->{ct}
 	WHERE paid != amount
-	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id 
+	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND (
-		transdate < (date '$form->{todate}' - interval '60 days') 
+		transdate < (date '$form->{todate}' - interval '60 days')
 		AND transdate >= (date '$form->{todate}' - interval '90 days')
 		)
 
 	UNION
-  
+
 -- over 90 days
 
 	SELECT $form->{ct}.id AS ctid, $form->{ct}.name,
 	street, zipcode, city, country, contact, email,
 	phone as customerphone, fax as customerfax, $form->{ct}number,
-	"invnumber", "transdate", 
+	"invnumber", "transdate",
 	0.00 as "c0", 0.00 as "c30", 0.00 as "c60", (amount - paid) as "c90",
 	"duedate", invoice, $form->{arap}.id,
 	  (SELECT $buysell FROM exchangerate
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
-	FROM $form->{arap}, $form->{ct} 
+	FROM $form->{arap}, $form->{ct}
 	WHERE paid != amount
-	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id 
+	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
-	AND transdate < (date '$form->{todate}' - interval '90 days') 
+	AND transdate < (date '$form->{todate}' - interval '90 days')
 
 	ORDER BY
-  
+
   ctid, transdate, invnumber
-  
+
 		|;
 
     my $sth = $dbh->prepare($query);
@@ -2271,7 +2271,7 @@ sub payments {
 		WHERE ac.chart_id = $ref->{id}
 		$where
 		$invnumber
-		
+
  	UNION
 		SELECT g.description, g.reference, NULL AS ordnumber,
 		ac.transdate, ac.amount * $ml AS paid, ac.source,
@@ -2617,4 +2617,3 @@ sub income_statement {
   $main::lxdebug->leave_sub();
 }
 1;
-

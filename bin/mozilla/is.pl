@@ -316,7 +316,7 @@ sub form_header {
        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
        <td><input type=button name=invdate id="trigger1" value=|
       . $locale->text('button')
-      . qq|></td>  
+      . qq|></td>
        |;
     $button2 = qq|
        <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
@@ -477,7 +477,7 @@ sub form_header {
   </tr>
 
 $jsscript
-  
+
 <!-- shipto are in hidden variables -->
 
 <input type=hidden name=shiptoname value="$form->{shiptoname}">
@@ -645,7 +645,7 @@ sub form_footer {
   <tr>
     <td><hr size=3 noshade></td>
   </tr>
-  <tr>   
+  <tr>
     <th class=listtop align=left>Dokumente im Webdav-Repository</th>
   </tr>
     <table width=100%>
@@ -654,7 +654,7 @@ sub form_footer {
 |;
     foreach $file (keys %{ $form->{WEBDAV} }) {
       $webdav_list .= qq|
-      <tr>	
+      <tr>
         <td align=left>$file</td>
         <td align=left><a href="$form->{WEBDAV}{$file}">$form->{WEBDAV}{$file}</a></td>
       </tr>
@@ -1101,4 +1101,3 @@ sub yes {
 
   $lxdebug->leave_sub();
 }
-

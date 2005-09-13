@@ -139,7 +139,7 @@ SWITCH: {
            <input type=hidden name="patterncount" value="$patterncount">
            <input type=hidden name="patternlength" value="$patterncount">
            <input type=hidden name="delimiter" value="$delimiter">
-           <input type=hidden name="part" value="$part">  
+           <input type=hidden name="part" value="$part">
   |;
   my $h = 0;
   my $i = 0;
@@ -191,7 +191,7 @@ sub fa_auswahl {
   #}
 
   #if ( $terminal eq 'mozilla' or $terminal eq 'js' ) {
-  print qq|    
+  print qq|
         <br>
         <script language="Javascript">
         function update_auswahl()
@@ -223,7 +223,7 @@ sub fa_auswahl {
     print qq|
                }|;
   }
-  print qq| 
+  print qq|
         }
         </script>
 
@@ -261,7 +261,7 @@ sub fa_auswahl {
   print qq|
            <tr>
               <td>Finanzamt
-              </td> 
+              </td>
               <td>
                  <select size="1" name="elsterFFFF_new">|;
   if ($elsterFFFF eq '') {
@@ -281,7 +281,7 @@ sub fa_auswahl {
   print qq|
                  </td>
               </tr>
-            </table>    
+            </table>
             </select>|;
 
   $main::lxdebug->leave_sub();
@@ -410,7 +410,7 @@ sub query_finanzamt {
   if ($DBI::err) {
 
     #There is no table, read the table from sql/finanzamt.sql
-    print qq|<p>Bitte warten, Tabelle $table wird einmalig in Datenbank: 
+    print qq|<p>Bitte warten, Tabelle $table wird einmalig in Datenbank:
     $myconfig->{dbname} als Benutzer: $myconfig->{dbuser} hinzugefügt...</p>|;
     process_query($form, $dbh, $filename) || $self->error(DBI->errstr);
 
@@ -557,4 +557,3 @@ sub process_query {
 }
 
 1;
-

@@ -92,7 +92,7 @@ sub chart_of_accounts {
 
   print qq|
 <body>
-  
+
 <table border=0 width=100%>
   <tr><th class=listtop colspan=$colspan>$form->{title}</th></tr>
   <tr height="5"></tr>
@@ -513,4 +513,3 @@ sub ca_subtotal {
 
   $lxdebug->leave_sub();
 }
-

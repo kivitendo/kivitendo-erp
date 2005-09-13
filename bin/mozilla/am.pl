@@ -385,8 +385,8 @@ sub account_header {
 		</td>
 	      </tr>
 	    </table>
-	  </td>  
-	</tr>  
+	  </td>
+	</tr>
 |;
   }
 
@@ -944,9 +944,9 @@ sub list_department {
 
   print qq|
   </form>
-  
+
   </body>
-  </html> 
+  </html>
 |;
 
   $lxdebug->leave_sub();
@@ -1163,11 +1163,11 @@ sub list_business {
   }
 
   print qq|
-  
+
   </form>
-  
+
   </body>
-  </html> 
+  </html>
 |;
 
   $lxdebug->leave_sub();
@@ -1216,7 +1216,7 @@ sub business_header {
   <tr>
     <td align=right>| . $locale->text('Salesman') . qq|</td>
     <td><input name=salesman class=checkbox type=checkbox value=1 $form->{salesman}></td>
-  </tr> 
+  </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>
 </table>
@@ -1376,9 +1376,9 @@ sub list_sic {
 
   print qq|
   </form>
-  
+
   </body>
-  </html> 
+  </html>
 |;
 
   $lxdebug->leave_sub();
@@ -2119,9 +2119,9 @@ sub list_warehouse {
 
   print qq|
   </form>
-  
+
   </body>
-  </html> 
+  </html>
 |;
 
   $lxdebug->leave_sub();
@@ -2199,4 +2199,3 @@ sub continue {
 
   $lxdebug->leave_sub();
 }
-

@@ -157,10 +157,10 @@ sub report {
 	  $form->{tel}
 	  <br>
 	  | . $locale->text('Fax.: ') . qq|
-	  $form->{fax}	  
+	  $form->{fax}
 	  <br>
 	  <br>
-	  $form->{email}	  
+	  $form->{email}
 	  <br>
 	  <br>
 	  | . $locale->text('Steuernummer: ') . qq|
@@ -192,7 +192,7 @@ sub report {
       . qq|" name="FA_steuerberater" id=steuerberater class=checkbox type=checkbox value="1">&nbsp;
             <b>| . $locale->text('Steuerberater/-in') . qq|</b>
             </legend>
-            
+
             $form->{FA_steuerberater_name}<br>
             $form->{FA_steuerberater_street}<br>
             $form->{FA_steuerberater_city}<br>
@@ -267,7 +267,7 @@ sub report {
 
   if ($form->{FA_Name} ne '') {
     print qq|
-    <td width="50%" valign="top">	  
+    <td width="50%" valign="top">
 	  <fieldset>
 	  <legend>
 	  <b>| . $locale->text('Finanzamt') . qq|</b>
@@ -289,7 +289,7 @@ sub report {
           <br>
           | . $locale->text('Tel. : ') . qq|
           $form->{FA_Telefon}
-          <br> 
+          <br>
           | . $locale->text('Fax. : ') . qq|
           $form->{FA_Fax}
           <br>
@@ -331,7 +331,7 @@ sub report {
           <tr>
           <td>
           $form->{FA_Bankbezeichnung_1}
-          <br>                  
+          <br>
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_1}
           <br>
@@ -343,7 +343,7 @@ sub report {
           <br>
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_2}
-          <br> 
+          <br>
           | . $locale->text('BLZ: ') . qq|
           $form->{FA_BLZ_2}
           </td>
@@ -357,10 +357,10 @@ sub report {
           <br>
           <br>
           $form->{FA_Bankbezeichnung_1}
-          <br>                  
+          <br>
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_1}
-          <br> 
+          <br>
           | . $locale->text('BLZ: ') . qq|
           $form->{FA_BLZ_1}          <br>
           <br>|;
@@ -371,10 +371,10 @@ sub report {
           <br>
           <br>
           $form->{FA_Bankbezeichnung_oertlich}
-          <br>                  
+          <br>
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_2}
-          <br> 
+          <br>
           | . $locale->text('BLZ: ') . qq|
           $form->{FA_BLZ_2}
      |;
@@ -640,7 +640,7 @@ sub ustva_vorauswahl {
          <option value="$key" $selected>|
         . $locale->text("$liste{$key}")
         . qq|</option>
-         
+
    |;
     }
     print qq|</select>|;
@@ -726,14 +726,14 @@ sub ustva_vorauswahl {
          <option value="$key">$listea{$key} |
         . $locale->text('Quarter')
         . qq|</option>
-         
+
      |;
     }
 
     foreach $key (sort keys %listeb) {
       print qq|
          <option value="$key">| . $locale->text("$listeb{$key}") . qq|</option>
-         
+
      |;
     }
     print qq|</select>|;
@@ -1113,7 +1113,7 @@ sub edit {
            <label for="">|
     . $locale->text('Dauerfristverlängerung')
     . qq|</label>
-           
+
            </fieldset>
            <br>
            <fieldset>
@@ -1158,7 +1158,7 @@ sub edit {
            <input name="FA_steuerberater_tel" id=steuerberater size=25 value="$form->{FA_steuerberater_tel}">
            </tr>
            </table>
-           
+
            </fieldset>
 
            <br>
@@ -1177,7 +1177,7 @@ sub edit {
   my @variables = qw( steuernummer elsterland elstersteuernummer elsterFFFF);
   my $variable  = '';
   foreach $variable (@variables) {
-    print qq|	
+    print qq|
           <input name=$variable type=hidden value="$form->{$variable}">|;
   }
   my $steuernummer_new = '';
@@ -1202,7 +1202,7 @@ sub edit {
     FA_Email FA_Internet);
 
   foreach $variable (@variables) {
-    print qq|	
+    print qq|
           <input name=$variable type=hidden value="$form->{$variable}">|;
   }
 
@@ -1235,8 +1235,8 @@ sub edit_form {
         || $form->{elsterland_new} eq 'Auswahl');
   USTVA::info(
     $locale->text(
-      'Es fehlen Angaben zur Versteuerung. 
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
+      'Es fehlen Angaben zur Versteuerung.
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
   Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.'
     ))
     if ($form->{method} eq '');
@@ -1581,7 +1581,7 @@ sub show_fa_daten {
                       | . $locale->text('Telefon') . qq|<br>
                       <input name="FA_Telefon" size="40" title="FA_Telefon" value="$form->{FA_Telefon}" $readonly>
                       <br>
-                      <br> 
+                      <br>
                       | . $locale->text('Fax') . qq|<br>
                       <input name="FA_Fax" size="40" title="FA_Fax" value="$form->{FA_Fax}" $readonly>
                       <br>
@@ -1620,7 +1620,7 @@ sub show_fa_daten {
                     <b>|
       . $locale->text('Bankverbindungen des Finanzamts') . qq|</b>
                     <legend>
-                    <table>   
+                    <table>
                     <tr>
                      <td>
                         | . $locale->text('Kreditinstitut') . qq|
@@ -1632,7 +1632,7 @@ sub show_fa_daten {
                         <br>
                         <input name="FA_Kontonummer_1" size="15" value="$form->{FA_Kontonummer_1}" $readonly>
                         <br>
-                        <br> 
+                        <br>
                         | . $locale->text('Bankleitzahl') . qq|
                         <br>
                         <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
@@ -1647,7 +1647,7 @@ sub show_fa_daten {
                         <br>
                         <input name="FA_Kontonummer_2" size="15" value="$form->{FA_Kontonummer_2}" $readonly>
                         <br>
-                        <br> 
+                        <br>
                         | . $locale->text('Bankleitzahl') . qq|
                         <br>
                         <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
@@ -1667,7 +1667,7 @@ sub show_fa_daten {
                     <br>
                     <input name="FA_Kontonummer_1" size="30" value="$form->{FA_Kontonummer_1}" $readonly>
                     <br>
-                    <br> 
+                    <br>
                     | . $locale->text('Bankleitzahl (BLZ)') . qq|
                     <br>
                     <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
@@ -1685,12 +1685,12 @@ sub show_fa_daten {
                     <legend>
                       <b>|
       . $locale->text('Bankverbindung des Finanzamts') . qq|</b>
-                    <legend> 
+                    <legend>
                     | . $locale->text('Kontonummer') . qq|
                     <br>
                     <input name="FA_Kontonummer_2" size="30" value="$form->{FA_Kontonummer_2}" $readonly>
                     <br>
-                    <br> 
+                    <br>
                     | . $locale->text('Bankleitzahl (BLZ)') . qq|
                     <br>
                     <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
@@ -1704,7 +1704,7 @@ sub show_fa_daten {
   }
   print qq|
                  </td>
-               </tr>              
+               </tr>
           </table>
   </fieldset>
   |;
@@ -1801,7 +1801,7 @@ SWITCH:
     do {
       $form->error(
         "Ungültiger Anmeldezeitraum.\n
-                                        Sie können für ELSTER nur einen monatlichen oder 
+                                        Sie können für ELSTER nur einen monatlichen oder
                                         quartalsweisen Anmeldezeitraum auswählen."
       );
     };
@@ -2147,4 +2147,3 @@ sub elster_xml {
   close XML;
   $lxdebug->leave_sub();
 }
-

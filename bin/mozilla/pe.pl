@@ -283,7 +283,7 @@ sub project_report {
 
   print qq|
   </form>
-  
+
 </body>
 </html>
 |;
@@ -611,4 +611,3 @@ sub form_partsgroup_footer {
 
   $lxdebug->leave_sub();
 }
-

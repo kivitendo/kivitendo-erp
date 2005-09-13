@@ -316,7 +316,7 @@ sub form_header {
       </table>
     </td>
   </tr>
-  
+
 $jsscript
 |;
 
@@ -781,4 +781,3 @@ sub check_form {
 
   $lxdebug->leave_sub();
 }
-

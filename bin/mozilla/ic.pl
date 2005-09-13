@@ -527,7 +527,7 @@ sub choice {
 
   print qq|
      <input class=submit type=submit name=action value="|
-    . $locale->text('list') . qq|"> 
+    . $locale->text('list') . qq|">
     </form>
 
    </body>
@@ -1262,7 +1262,7 @@ sub addtop100 {
 
   print qq|
     <input type=hidden name=ndxs_counter value="$form->{ndxs_counter}">
-    
+
     <input class=submit type=submit name=action value="|
     . $locale->text('choice') . qq|">|;
 
@@ -2259,7 +2259,7 @@ sub form_header {
 
   print qq|
   <body onLoad="fokus()">
- 
+
 
 <form method=post name="ic" action=$form->{script}>
 
@@ -2325,7 +2325,7 @@ sub form_header {
     . $locale->text('Updated')
     . qq|</th>
                 $button1
-              </tr>  
+              </tr>
 	      <tr>
 		<th align="right" nowrap="true">| . $locale->text('List Price') . qq|</th>
 		<td><input name=listprice size=11 value=$form->{listprice}></td>
@@ -2351,7 +2351,7 @@ sub form_header {
     </td>
   </tr>
   $imagelinks
-  
+
 $jsscript
 |;
   $lxdebug->leave_sub();
@@ -3044,4 +3044,3 @@ sub restock_assemblies {
 }
 
 sub continue { &{ $form->{nextsub} } }
-

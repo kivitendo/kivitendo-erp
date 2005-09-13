@@ -242,7 +242,7 @@ sub form_header {
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button')
-      . qq|></td>	      
+      . qq|></td>
       |;
     $button2 = qq|
        <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate}></td>
@@ -573,7 +573,7 @@ sub form_header {
       </table>
     </td>
   </tr>
-  
+
 $jsscript
 
 <!-- shipto are in hidden variables -->
@@ -589,7 +589,7 @@ $jsscript
 <input type=hidden name=shiptoemail value="$form->{shiptoemail}">
 
 <!-- email variables -->
-<input type=hidden name=message value="$form->{message}"> 
+<input type=hidden name=message value="$form->{message}">
 <input type=hidden name=email value="$form->{email}">
 <input type=hidden name=subject value="$form->{subject}">
 <input type=hidden name=cc value="$form->{cc}">
@@ -749,7 +749,7 @@ sub form_footer {
   if ($webdav) {
     $webdav_list = qq|
 
-  <tr>   
+  <tr>
     <th class=listtop align=left>Dokumente im Webdav-Repository</th>
   </tr>
     <table width=100%>
@@ -758,7 +758,7 @@ sub form_footer {
 |;
     foreach $file (keys %{ $form->{WEBDAV} }) {
       $webdav_list .= qq|
-      <tr>	
+      <tr>
         <td align=left>$file</td>
         <td align=left><a href="$form->{WEBDAV}{$file}">$form->{WEBDAV}{$file}</a></td>
       </tr>
@@ -813,7 +813,7 @@ Bearbeiten des $form->{heading}<br>
 <input class=submit type=submit name=action value="|
         . $locale->text('Order') . qq|">|;
     }
-    print qq|   
+    print qq|
 <input class=submit type=submit name=action value="|
       . $locale->text('Invoice') . qq|">
 |;
@@ -850,7 +850,7 @@ Bearbeiten des $form->{heading}<br>
     &menubar;
   }
 
-  print qq| 
+  print qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
@@ -1088,8 +1088,8 @@ sub search {
     } (@{ $form->{all_departments} });
   }
 
-  $department = qq|  
-        <tr>  
+  $department = qq|
+        <tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
 	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
 	</tr>
@@ -2271,7 +2271,7 @@ sub display_ship_receive {
 <input type=hidden name=shiptoemail value="$form->{shiptoemail}">
 
 <!-- email variables -->
-<input type=hidden name=message value="$form->{message}"> 
+<input type=hidden name=message value="$form->{message}">
 <input type=hidden name=email value="$form->{email}">
 <input type=hidden name=subject value="$form->{subject}">
 <input type=hidden name=cc value="$form->{cc}">
@@ -2422,7 +2422,7 @@ sub display_ship_receive {
   }
 
   print qq|
-  
+
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
 <input name=callback type=hidden value="$callback">
@@ -2676,7 +2676,7 @@ sub list_transfer {
       </table>
     </td>
   </tr>
-  
+
   <tr>
     <td><hr size=3 noshade></td>
   </tr>
@@ -2719,4 +2719,3 @@ sub transfer {
 
   $lxdebug->leave_sub();
 }
-

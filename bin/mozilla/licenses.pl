@@ -493,7 +493,7 @@ sub search {
       </tr>
     </table>
   </tr>
-  <tr><td colspan=4><hr size=3 noshade></td></tr>                               
+  <tr><td colspan=4><hr size=3 noshade></td></tr>
 </table>
 
 <input type=hidden name=nextsub value=\"do_search\">

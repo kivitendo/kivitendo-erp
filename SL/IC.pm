@@ -300,7 +300,7 @@ sub save {
     ($partsgroup, $partsgroup_id) = split /--/, $form->{partsgroup};
   }
 
-  $query = qq|UPDATE parts SET 
+  $query = qq|UPDATE parts SET
 	      partnumber = '$form->{partnumber}',
 	      description = '$form->{description}',
 	      makemodel = '$form->{makemodel}',
@@ -350,7 +350,7 @@ sub save {
   foreach $item (split / /, $form->{taxaccounts}) {
     if ($form->{"IC_tax_$item"}) {
       $query = qq|INSERT INTO partstax (parts_id, chart_id)
-                  VALUES ($form->{id}, 
+                  VALUES ($form->{id},
 		          (SELECT c.id
 			   FROM chart c
 			   WHERE c.accno = '$item'))|;
@@ -1287,4 +1287,3 @@ sub retrieve_item {
 }
 
 1;
-

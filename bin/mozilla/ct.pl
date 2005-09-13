@@ -641,7 +641,7 @@ sub form_header {
 	  <input name=department_2 size=16 maxlength=75 tabindex=3 value="$form->{department_2}"></td>
           <td><input name=shiptodepartment_1 size=16 maxlength=75 value="$form->{shiptodepartment_1}">
 	  <input name=shiptodepartment_2 size=16 maxlength=75 value="$form->{shiptodepartment_2}"></td>
-	</tr>        
+	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Street') . qq|</th>
 	  <td><input name=street size=35 tabindex=4 maxlength=75 value="$form->{street}"></td>
@@ -766,7 +766,7 @@ sub form_header {
           <th align=right>| . $locale->text('Bank Code Number') . qq|</th>
           <td><input name=bank_code size=10 tabindex=20 value="$form->{bank_code}"></td>
           <th align=right>| . $locale->text('Bank') . qq|</th>
-          <td><input name=bank size=30 tabindex=21 value="$form->{bank}"></td>          
+          <td><input name=bank size=30 tabindex=21 value="$form->{bank}"></td>
         </tr>
 	<tr>
           $business
@@ -859,7 +859,7 @@ $update_button
   }
 
   print qq|
- 
+
   </form>
 
 </body>
@@ -1171,4 +1171,3 @@ sub salesman_selected {
 }
 
 sub continue { &{ $form->{nextsub} } }
-

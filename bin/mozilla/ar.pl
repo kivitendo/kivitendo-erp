@@ -410,7 +410,7 @@ sub form_header {
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button')
-      . qq|></td>  
+      . qq|></td>
        |;
     $button2 = qq|
        <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
@@ -522,7 +522,7 @@ sub form_header {
       <table width=100%>
 
 $jsscript
-          
+
   <input type=hidden name=AR_amount value="$form->{AR_amount}">
   <input type=hidden name=taxchart value="$form->{taxchart}">
   <input type=hidden name=rowcount value=$form->{rowcount}>
@@ -585,7 +585,7 @@ $jsscript
 	  <td colspan=2></td>
 	  <td><select name=ARselected>$form->{selectAR}</select></td>
           <input type=hidden name=AR value="$form->{AR}">
-  
+
         </tr>
         <tr>
 	  <th align=right>| . $locale->text('Notes') . qq|</th>
@@ -1030,8 +1030,8 @@ sub search {
     } (@{ $form->{all_departments} });
   }
 
-  $department = qq| 
-        <tr> 
+  $department = qq|
+        <tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
 	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
 	</tr>
@@ -1559,4 +1559,3 @@ sub ar_subtotal {
 
   $lxdebug->leave_sub();
 }
-

@@ -200,7 +200,7 @@ sub report {
         . $locale->text('button') . qq|>|;
       $button2 = qq|
          <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}">|;
-      $button2_2 = qq|  
+      $button2_2 = qq|
          <input type=button name=$name_2 id="$trigger_2" value=|
         . $locale->text('button') . qq|>
        |;
@@ -394,7 +394,7 @@ $jsscript
         </tr>
 	<tr>
    		<td colspan=5><hr size=3 noshade></td>
-	</tr>	
+	</tr>
 	<tr>
 	  <th align=leftt>| . $locale->text('Method') . qq|</th>
 	  <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
@@ -524,7 +524,7 @@ $checked></td>
         </tr>
 	<tr>
    		<td colspan=5><hr size=3 noshade></td>
-	</tr>	
+	</tr>
 	<tr>
 	  <th align=leftt>| . $locale->text('Method') . qq|</th>
 	  <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
@@ -533,15 +533,15 @@ $checked></td>
       . $locale->text('EUR')
       . qq|</td>
 	</tr>
-        
-$jsscript    
+
+$jsscript
 |;
   }
 
   if ($form->{report} eq "ustva") {
 
     print qq|
-    
+
         <br>
         <input type=hidden name=nextsub value=generate_ustva>
 </table>
@@ -638,7 +638,7 @@ $checked></td>
 	</tr>
 	<tr>
    		<td colspan=5><hr size=3 noshade></td>
-	</tr>	
+	</tr>
 	<tr>
 	  <th align=left>| . $locale->text('Method') . qq|</th>
 	  <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
@@ -702,7 +702,7 @@ $checked></td>
       . $locale->text('Account Number')
       . qq|</td>
 	</tr>
-        
+
 $jsscript
 |;
   }
@@ -739,7 +739,7 @@ $jsscript
       . $locale->text('All Accounts')
       . qq|</td>
 	</tr>
-        
+
 $jsscript
 |;
   }
@@ -974,7 +974,7 @@ $jsscript
 
 	<input type=hidden name=nextsub value=$nextsub>
 	<input type=hidden name=action value=$nextsub>
-        
+
 $jsscript
 |;
   }
@@ -1035,8 +1035,8 @@ $jsscript
       . qq|</td>
 	</tr>
 
-$jsscript 
-        
+$jsscript
+
 	  <input type=hidden name=db value=$form->{db}>
 	  <input type=hidden name=sort value=transdate>
 |;
@@ -1906,7 +1906,7 @@ sub aging {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-  
+
 <br>
 <input class=submit type=submit name=action value="|
       . $locale->text('Select all') . qq|">
@@ -3261,4 +3261,3 @@ sub generate_ustva {
   }
   $lxdebug->leave_sub();
 }
-

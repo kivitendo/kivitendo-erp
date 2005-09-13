@@ -117,11 +117,11 @@ sub payment_transactions {
   $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
 
   $query .= qq|
-  
+
       UNION
               SELECT v.name, ac.source, ac.transdate, ac.cleared,
 	      ac.fx_transaction, ac.amount, a.id,
-	      $oid{$myconfig->{dbdriver}} AS oid 
+	      $oid{$myconfig->{dbdriver}} AS oid
 	      FROM vendor v, acc_trans ac, ap a, chart ch
 	      WHERE v.id = a.vendor_id
 --	      AND NOT ac.fx_transaction
@@ -135,11 +135,11 @@ sub payment_transactions {
   $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
 
   $query .= qq|
-  
+
       UNION
 	      SELECT g.description, ac.source, ac.transdate, ac.cleared,
 	      ac.fx_transaction, ac.amount, g.id,
-	      $oid{$myconfig->{dbdriver}} AS oid 
+	      $oid{$myconfig->{dbdriver}} AS oid
 	      FROM gl g, acc_trans ac, chart ch
 	      WHERE g.id = ac.trans_id
 --	      AND NOT ac.fx_transaction
@@ -201,4 +201,3 @@ sub reconcile {
 }
 
 1;
-
