@@ -1,0 +1,37 @@
+$self{texts} = {
+  'Account'                     => 'Account',
+  'Balance'                     => 'Balance',
+  'Cleared Balance'             => 'Cleared Balance',
+  'Continue'                    => 'Continue',
+  'Date'                        => 'Date',
+  'Deposit'                     => 'Deposit',
+  'Description'                 => 'Description',
+  'Difference'                  => 'Difference',
+  'Done'                        => 'Done',
+  'Exchangerate Difference'     => 'Exchangerate Difference',
+  'From'                        => 'From',
+  'Out of balance!'             => 'Out of balance!',
+  'Payment'                     => 'Payment',
+  'Reconciliation'              => 'Reconciliation',
+  'Select all'                  => 'Select all',
+  'Source'                      => 'Source',
+  'Statement Balance'           => 'Statement Balance',
+  'Update'                      => 'Update',
+  'to'                          => 'to',
+};
+
+$self{subs} = {
+  'continue'                    => 'continue',
+  'display_form'                => 'display_form',
+  'done'                        => 'done',
+  'get_payments'                => 'get_payments',
+  'reconciliation'              => 'reconciliation',
+  'select_all'                  => 'select_all',
+  'update'                      => 'update',
+  'continue'                    => 'continue',
+  'done'                        => 'done',
+  'select_all'                  => 'select_all',
+  'update'                      => 'update',
+};
+
+1;

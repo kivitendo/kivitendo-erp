@@ -1,0 +1,27 @@
+$self{texts} = {
+  'About'                       => 'About',
+  'Database Host'               => 'Database Host',
+  'Dataset'                     => 'Dataset',
+  'Incorrect Dataset version!'  => 'Incorrect Dataset version!',
+  'Incorrect Password!'         => 'Incorrect Password!',
+  'Licensed to'                 => 'Licensed to',
+  'Login'                       => 'Login',
+  'Name'                        => 'Name',
+  'Password'                    => 'Password',
+  'User'                        => 'User',
+  'Version'                     => 'Version',
+  'You are logged out!'         => 'You are logged out!',
+  'You did not enter a name!'   => 'You did not enter a name!',
+  'is not a member!'            => 'is not a member!',
+  'localhost'                   => 'localhost',
+};
+
+$self{subs} = {
+  'company_logo'                => 'company_logo',
+  'login'                       => 'login',
+  'login_screen'                => 'login_screen',
+  'logout'                      => 'logout',
+  'login'                       => 'login',
+};
+
+1;

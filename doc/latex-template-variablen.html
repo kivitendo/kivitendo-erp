@@ -1,0 +1,744 @@
+<html>
+ <head>
+  <title>LaTeX-Vorlagen und verf&uuml;gbare Variablen</title>
+  <style type="text/css">
+  <!--
+.blue { 
+           color: #000000;
+           background-color: #b0ecff;
+           border: 1px solid blue;
+           padding-left: 2px;
+           padding-right: 2px;
+           }
+
+table {
+        color: #000000;
+        background-color: #fae8b8;
+        border: 1px solid #be5303;
+        border-collapse: collapse;
+        }
+
+td { 
+     border: 1px solid #be5303;
+     padding: 3px;
+     }
+    -->
+  </style>
+
+ </head>
+
+<body>
+
+ <h1>LaTeX-Vorlagen und verf&uuml;gbare Variablen</h1>
+
+ <p>geschrieben von <a href="mailto:m.bunkus@linet-services.de">Moritz
+   Bunkus</a>. Version: $Id$ </p>
+
+ <hr>
+
+ <h2><a name="inhaltsverzeichnis">Inhaltsverzeichnis</a></h2>
+
+ <ol>
+  <li><a href="latex-template-variablen.html#inhaltsverzeichnis">
+    Inhaltsverzeichnis</a></li>
+
+  <li><a href="latex-template-variablen.html#einfuehrung">Einf&uuml;hrung</a>
+  </li>
+
+  <li><a href="latex-template-variablen.html#zuordnung_dateinamen">
+    Zuordnung von Dateinamen zu den Funktionen</a></li>
+
+  <li><a href="latex-template-variablen.html#allgemeine_variablen">
+    Allgemeine Variablen, die in allen Vorlagen vorhanden sind</a><br>
+
+   <ol>
+    <li><a href="latex-template-variablen.html#allgemein_stammdaten">
+      Stammdaten von Kunden und Lieferanten</a></li>
+
+    <li><a href="latex-template-variablen.html#allgemein_verkaeufer">
+      Informationen &uuml;ber den Verk&auml;ufer</a></li>
+
+    <li><a href="latex-template-variablen.html#allgemein_steuern">
+      Variablen f&uuml;r jede Steuer</a></li>
+   </ol>
+  </li>
+
+  <li><a href="latex-template-variablen.html#invoice">
+    Variablen in Rechnungen</a>
+
+   <ol>
+    <li><a href="latex-template-variablen.html#invoice_allgemein">
+      Allgemeine Variablen</a></li>
+
+    <li><a href="latex-template-variablen.html#invoice_posten">
+      Variablen f&uuml;r jeden Posten auf der Rechnung</a></li>
+
+    <li><a href="latex-template-variablen.html#invoice_zahlungen">
+      Variablen f&uuml;r die Zahlungseing&auml;nge</a></li>
+   </ol>
+  </li>
+
+  <li><a href="latex-template-variablen.html#anderevorlagen">
+    Variablen in anderen Vorlagen</a></li>
+
+  <li><a href="latex-template-variablen.html#bloecke">
+    Bl&ouml;cke, bedingte Anweisungen und Schleifen</a>
+
+   <ol>
+    <li><a href="latex-template-variablen.html#bloecke_include">
+      Die <code>include</code>-Anweisung</a></li>
+
+    <li><a href="latex-template-variablen.html#bloecke_ifnot">
+      Der <code>if not</code>-Block</a></li>
+
+    <li><a href="latex-template-variablen.html#bloecke_if">
+      Der <code>if</code>-Block</a></li>
+
+    <li><a href="latex-template-variablen.html#bloecke_foreach">
+      Die <code>foreach</code>-Schleife</a></li>
+
+    <li><a href="latex-template-variablen.html#bloecke_pagebreak">
+      Der <code>pagebreak</code>-Block</a></li>
+   </ol>
+  </li>
+
+ </ol>
+
+ <hr>
+
+ <h2><a name="einfuehrung">Einf&uuml;hrung</a></h2>
+
+ <p>Dies ist eine Auflistung der Standard-LaTeX-Vorlagen und aller zur
+  Bearbeitung verf&uuml;gbare Variablen. Eine Variable wird in einer Vorlage
+  durch ihren Inhalt ersetzt, wenn sie in der Form
+  <code>&lt;%variablenname%&gt;</code> verwendet wird.</p>
+
+ <p>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
+  verf&uuml;gbar als hier aufgelistet werden. Die meisten davon k&ouml;nnen
+  allerdings innerhalb einer solchen Vorlage nicht sinnvoll verwendet
+  werden. Wenn eine Auflistung dieser Variablen gewollt ist, so kann diese wie
+  folgt erhalten werden:</p>
+
+ <ol>
+
+  <li><code>SL/Form.pm</code> &ouml;ffnen und am Anfang die Zeile
+   <pre>"use Data::Dumper;"</pre> einf&uuml;gen.</li>
+
+  <li>In <code>Form.pm</code> die Funktion <code>parse_template</code>
+   suchen und hier die Zeile <pre>print(STDERR Dumper($self));</pre>
+   einf&uuml;gen.</li>
+
+  <li>Einmal per Browser die gew&uuml;nschte Vorlage "benutzen", z.B. ein PDF
+   f&uuml;r eine Rechnung erzeugen.</li>
+
+  <li>Im <code>error.log</code> vom Apache steht die Ausgabe der Variablen
+   <code>$self</code> in der Form <code>'key' =&gt; 'value',</code>. Alle
+   <code>key</code>s sind verf&uuml;gbar.</li>
+
+ </ol>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="zuordnung_dateinamen">
+   Zuordnung von den Dateinamen zu den Funktionen</a></h2>
+
+ <p>Diese kurze Auflistung zeigt, welche Vorlage bei welcher Funktion
+  ausgelesen wird:</p>
+
+ <ul>
+  <li><code>bin_list.tex</code> -- Lagerliste</li>
+  <li><code>check.tex</code> -- ?</li>
+  <li><code>invoice.tex</code> -- Rechnung</li>
+  <li><code>packing_list.tex</code> -- Verpackungsliste</li>
+  <li><code>pick_list.tex</code> -- Sammelliste</li>
+  <li><code>purcharse_order.tex</code> -- Bestellung an Lieferanten</li>
+  <li><code>request_quotation.tex</code> -- Anfrage an Lieferanten</li>
+  <li><code>sales_order.tex</code> -- Bestellung</li>
+  <li><code>sales_quotation.tex</code> -- Angebot an Kunden</li>
+ </ul>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="allgemeine_variablen">
+   Allgemeine Variablen, die in allen Vorlagen vorhanden sind</a></h2>
+
+ <h3><a name="allgemein_stammdaten">
+   Stammdaten von Kunden und Lieferanten:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>account_number</code></td>
+    <td>Kontonummer</td>
+   </tr>
+   <tr>
+    <td><code>bank</code></td>
+    <td>Name der Bank</td>
+   </tr>
+   <tr>
+    <td><code>bank_code</code></td>
+    <td>Bankleitzahl</td>
+   </tr>
+   <tr>
+    <td><code>business</code></td>
+    <td>Kundentyp</td>
+   </tr>
+   <tr>
+    <td><code>city</code></td>
+    <td>Stadt</td>
+   </tr>
+   <tr>
+    <td><code>contact</code></td>
+    <td>Kontakt</td>
+   </tr>
+   <tr>
+    <td><code>country</code></td>
+    <td>Land</td>
+   </tr>
+   <tr>
+    <td><code>cp_email</code></td>
+    <td>Email des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>cp_givenname</code></td>
+    <td>Vorname des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>cp_greeting</code></td>
+    <td>Anrede des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>cp_name</code></td>
+    <td>Name des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>cp_phone1</code></td>
+    <td>Telefonnummer 1 des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>cp_phone2</code></td>
+    <td>Telefonnummer 2 des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>cp_title</code></td>
+    <td>Titel des Ansprechpartners</td>
+   </tr>
+   <tr>
+    <td><code>creditlimit</code></td>
+    <td>Kreditlimit</td>
+   </tr>
+   <tr>
+    <td><code>customernumber</code></td>
+    <td>Kundennummer; nur f&uuml;r Kunden</td>
+   </tr>
+   <tr>
+    <td><code>customernotes</code></td>
+    <td>Bemerkungen beim Kunden; nur f&uuml;r Kunden</td>
+   </tr>
+   <tr>
+    <td><code>discount</code></td>
+    <td>Rabatt</td>
+   </tr>
+   <tr>
+    <td><code>email</code></td>
+    <td>Emailadresse</td>
+   </tr>
+   <tr>
+    <td><code>fax</code></td>
+    <td>Faxnummer</td>
+   </tr>
+   <tr>
+    <td><code>homepage</code></td>
+    <td>Homepage</td>
+   </tr>
+   <tr>
+    <td><code>language</code></td>
+    <td>Sprache</td>
+   </tr>
+   <tr>
+    <td><code>name</code></td>
+    <td>Firmenname</td>
+   </tr>
+   <tr>
+    <td><code>phone</code></td>
+    <td>Telefonnummer</td>
+   </tr>
+   <tr>
+    <td><code>shiptocity</code></td>
+    <td>Stadt (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptocontact</code></td>
+    <td>Kontakt (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptocountry</code></td>
+    <td>Land (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptoemail</code></td>
+    <td>Email (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptofax</code></td>
+    <td>Fax (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptoname</code></td>
+    <td>Firmenname (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptophone</code></td>
+    <td>Telefonnummer (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptostreet</code></td>
+    <td>Straﬂe und Hausnummer (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>shiptozipcode</code></td>
+    <td>Postleitzahl (Lieferadresse)
+     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+   </tr>
+   <tr>
+    <td><code>street</code></td>
+    <td>Straﬂe und Hausnummer</td>
+   </tr>
+   <tr>
+    <td><code>taxnumber</code></td>
+    <td>Steuernummer</td>
+   </tr>
+   <tr>
+    <td><code>terms</code></td>
+    <td>Zahlungsziel</td>
+   </tr>
+   <tr>
+    <td><code>vendoremail</code></td>
+    <td>Email des Lieferanten; nur f&uuml;r Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>vendorfax</code></td>
+    <td>Faxnummer des Lieferanten; nur f&uuml;r Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>vendornotes</code></td>
+    <td>Bemerkungen beim Lieferanten; nur f&uuml;r Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>vendornumber</code></td>
+    <td>Lieferantennummer; nur f&uuml;r Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>vendorphone</code></td>
+    <td>Telefonnummer des Lieferanten; nur f&uuml;r Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>zipcode</code></td>
+    <td>Postleitzahl</td>
+   </tr>
+  </table>
+ </p>
+
+ <p><a name="anmerkung_shipto"><em>Anmerkung</em></a>: Sind die
+  <code>shipto*</code>-Felder in den Stammdaten nicht eingetragen, so haben
+  die Variablen <code>shipto*</code> den gleichen Wert wie die die
+  entsprechenden Variablen der Lieferdaten. Das bedeutet, dass sich einige
+  <code>shipto*</code>-Variablen so nicht in den Stammdaten wiederfinden
+  sondern schlicht Kopien der Lieferdatenvariablen sind
+  (z.B. <code>shiptocontact</code>).</p>
+
+ <h3><a name="allgemein_verkaeufer">
+   Informationen &uuml;ber den Verk‰ufer:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>employee_email</code></td>
+    <td>Email</td>
+   </tr>
+   <tr>
+    <td><code>employee_fax</code></td>
+    <td>Fax</td>
+   </tr>
+   <tr>
+    <td><code>employee_name</code></td>
+    <td>voller Name</td>
+   </tr>
+   <tr>
+    <td><code>employee_signature</code></td>
+    <td>Signatur</td>
+   </tr>
+   <tr>
+    <td><code>employee_tel</code></td>
+    <td>Telefonnummer</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="allgemein_steuern">
+   Variablen f&uuml;r die einzelnen Steuern:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>tax</code></td>
+    <td>Steuer</td>
+   </tr>
+   <tr>
+    <td><code>taxbase</code></td>
+    <td>zu versteuernder Betrag</td>
+   </tr>
+   <tr>
+    <td><code>taxdescription</code></td>
+    <td>Name der Steuer</td>
+   </tr>
+   <tr>
+    <td><code>taxrate</code></td>
+    <td>Steuersatz</td>
+   </tr>
+  </table>
+ </p>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="invoice">Variablen in Rechnungen</a></h2>
+
+ <h3><a name="invoice_allgemein">Allgemeine Variablen:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>creditremaining</code></td>
+    <td>Verbleibender Kredit</td>
+   </tr>
+   <tr>
+    <td><code>currency</code></td>
+    <td>W‰hrung</td>
+   </tr>
+   <tr>
+    <td><code>cusordnumber</code></td>
+    <td>Bestellnummer beim Kunden</td>
+   </tr>
+   <tr>
+    <td><code>duedate</code></td>
+    <td>F‰lligkeitsdatum</td>
+   </tr>
+   <tr>
+    <td><code>intnotes</code></td>
+    <td>Interne Bemerkungen</td>
+   </tr>
+   <tr>
+    <td><code>invdate</code></td>
+    <td>Rechnungsdatum</td>
+   </tr>
+   <tr>
+    <td><code>invnumber</code></td>
+    <td>Rechnungsnummer</td>
+   </tr>
+   <tr>
+    <td><code>invtotal</code></td>
+    <td>gesamter Rechnungsbetrag</td>
+   </tr>
+   <tr>
+    <td><code>notes</code></td>
+    <td>Bemerkungen der Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>ordnumber</code></td>
+    <td>Auftragsnummer</td>
+   </tr>
+   <tr>
+    <td><code>quonumber</code></td>
+    <td>Angebotsnummer</td>
+   </tr>
+   <tr>
+    <td><code>shippingdate</code></td>
+    <td>Lieferdatum</td>
+   </tr>
+   <tr>
+    <td><code>shippingpoint</code></td>
+    <td>Versandort</td>
+   </tr>
+   <tr>
+    <td><code>shipvia</code></td>
+    <td>Transportmittel</td>
+   </tr>
+   <tr>
+    <td><code>subtotal</code></td>
+    <td>Zwischensumme aller Posten ohne Steuern</td>
+   </tr>
+   <tr>
+    <td><code>sumcarriedforward</code></td>
+    <td>Zwischensumme aller bisher ausgegebenen Posten. Sollte nur in einem
+     <a href="latex-template-variablen.html#bloecke_pagebreak">
+      <code>pagebreak</code></a>-Block verwendet werden.</td>
+   </tr>
+   <tr>
+    <td><code>total</code></td>
+    <td>Restsumme der Rechnung (Summe abz&uuml;glich bereits bezahlter Posten)</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="invoice_posten">
+   Variablen f&uuml;r jeden Posten auf der Rechnung:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>assembly</code></td>
+    <td>Erzeugnis</td>
+   </tr>
+   <tr>
+    <td><code>bin</code></td>
+    <td>Stellage</td>
+   </tr>
+   <tr>
+    <td><code>deliverydate</code></td>
+    <td>Lieferdatum</td>
+   </tr>
+   <tr>
+    <td><code>description</code></td>
+    <td>Artikelbeschreibung</td>
+   </tr>
+   <tr>
+    <td><code>linetotal</code></td>
+    <td>Zeilensumme (Anzahl * Einzelpreis)</td>
+   </tr>
+   <tr>
+    <td><code>listprice</code></td>
+    <td>Listenpreis</td>
+   </tr>
+   <tr>
+    <td><code>netprice</code></td>
+    <td>Nettopreis</td>
+   </tr>
+   <tr>
+    <td><code>number</code></td>
+    <td>Artikelnummer</td>
+   </tr>
+   <tr>
+    <td><code>partnotes</code></td>
+    <td>Die beim Artikel gespeicherten Bemerkungen</td>
+   </tr>
+   <tr>
+    <td><code>partsgroup</code></td>
+    <td>Warengruppe</td>
+   </tr>
+   <tr>
+    <td><code>projectnumber</code></td>
+    <td>Projektnummer</td>
+   </tr>
+   <tr>
+    <td><code>qty</code></td>
+    <td>Anzahl</td>
+   </tr>
+   <tr>
+    <td><code>runningnumber</code></td>
+    <td>Position auf der Rechnung (1, 2, 3...)</td>
+   </tr>
+   <tr>
+    <td><code>sellprice</code></td>
+    <td>Verkaufspreis</td>
+   </tr>
+   <tr>
+    <td><code>serialnumber</code></td>
+    <td>Seriennummer</td>
+   </tr>
+   <tr>
+    <td><code>unit</code></td>
+    <td>Einheit</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="invoice_zahlungen">
+   Variablen f&uuml;r die einzelnen Zahlungseing‰nge:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>datepaid</code></td>
+    <td>Datum</td>
+   </tr>
+   <tr>
+    <td><code>memo</code></td>
+    <td>Memo</td>
+   </tr>
+   <tr>
+    <td><code>paid</code></td>
+    <td>Betrag</td>
+   </tr>
+   <tr>
+    <td><code>source</code></td>
+    <td>Beleg</td>
+   </tr>
+   <tr>
+    <td><code>exchangerate</code></td>
+    <td>Wechselkurs</td>
+   </tr>
+   <tr>
+    <td><code>forex</code></td>
+    <td>Konto</td>
+   </tr>
+  </table>
+ </p>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="anderevorlagen">
+   Variablen in anderen Vorlagen</a></h2>
+
+ <p>Die Variablen in anderen Vorlagen sind &auml;hnlich wie in der
+  Rechnung. Allerdings hei&szlig;en die Variablen, die mit <code>inv</code>
+  beginnen, jetzt anders. Bei den Angeboten fangen sie mit <code>quo</code>
+  f&uuml;r "quotation" an: <code>quodate</code> f&uuml;r Angebotsdatum
+  etc. Bei Bestellungen wiederum fangen sie mit <code>ord</code> f&uuml;r
+  "order" an: <code>ordnumber</code> f&uuml;r Bestellnummer etc.</p>
+
+ <p>Manche Variablen sind in anderen Vorlagen hingegen gar nicht vorhanden wie
+  z.B. die f&uuml;r bereits verbuchte Zahlungseing&auml;nge. Dies sind
+  Variablen, die vom Gesch&auml;ftsablauf her in der entsprechenden Vorlage
+  keine Bedeutung haben oder noch nicht belegt sein k&ouml;nnen.</p>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="bloecke">
+   Bl&ouml;cke, bedingte Anweisungen und Schleifen</a></h2>
+
+ <p>Der Parser kennt neben den Variablen einige weitere Konstrukte, die
+  gesondert behandelt werden. Diese sind wie Variablennamen in spezieller
+  Weise markiert: <code>&lt;%anweisung%&gt;</code></p>
+
+ <p><b>Achtung: Bl&ouml;cke k&ouml;nnen momentan nicht verschachtelt
+   werden.</b> Das bedeutet, dass innerhalb einer
+   <code>&lt;%foreach%&gt;</code>-Schleife keine
+   <code>&lt;%if%&gt;</code>-Abfragen verwendet werden k&ouml;nnen. Dieses
+   kann man aber mit LaTeX-Bordmitteln selber nachgebildet werden. Dazu muss
+   im Vorspann das Paket <code>ifthen</code> eingebunden werden. Das Konstrukt
+   selber sieht dann wie folgt aus:</p>
+
+ <p class="blue"><code>\ifthenelse{\equal{&lt;%variable%&gt;}{}}{}{Dieser
+   Text erscheint nur, wenn &lt;%variable%&gt; nicht leer ist.}</code></p>
+
+ <h3><a name="bloecke_include">Die <code>include</code>-Anweisung</a></h3>
+
+ <p class="blue"><code>&lt;%include dateiname.ext%&gt;</code></p>
+
+ <p>F&uuml;gt den Inhalt einer Datei an der entsprechenden Stelle ein. Der
+  eingef&uuml;gte Text wird ganz normal durch den Parser behandelt und kann
+  Variablen und Bl&ouml;cke enthalten.</p>
+
+ <h3><a name="bloecke_ifnot">Der <code>if not</code>-Block</a></h3>
+
+ <p class="blue"><code>&lt;%if not variablenname%&gt;<br>
+   ...<br>
+   &lt;%end if&gt;</code></p>
+
+ <p>Eine normale "if-not-then"-Bedingung. Die Zeilen zwischen dem "if not" und
+  dem "end" werden nur ausgegeben, wenn die Variable "variablenname" nicht
+  gesetzt oder gleich 0 ist.</p>
+
+ <h3><a name="bloecke_if">Der <code>if</code>-Block</a></h3>
+
+ <p class="blue"><code>&lt;%if variablenname%&gt;<br>
+   ...<br>
+   &lt;%end if&gt;</code></p>
+
+ <p>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if" und dem
+  "end" werden nur ausgegeben, wenn die Variable "variablenname" gesetzt und
+  ungleich 0 ist.</p>
+
+ <h3><a name="bloecke_foreach">Die <code>foreach</code>-Schleife</a></h3>
+
+ <p class="blue"><code>&lt;%foreach variablenname%&gt;<br>
+   ...<br>
+   &lt;%end foreach&gt;</code></p>
+
+ <p>F&uuml;gt die Zeilen zwischen den beiden Anweisungen so oft ein, wie das
+  Perl-Array der Variablen "variablenname" Elemente enth&auml;t. Dieses
+  Konstrukt wird zur Ausgabe der einzelnen Posten einer Rechnung / eines
+  Angebots sowie zur Ausgabe der Steuern benutzt. In jedem Durchlauf werden
+  die <a href="latex-template-variablen.html#invoice_posten">zeilenbezogenen
+  Variablen</a> jeweils auf den Wert f&uuml;r die aktuelle Position
+  gesetzt.</p>
+
+ <p>Die Syntax sieht normalerweise wie folgt aus:</p>
+
+ <p class="blue"><code>&lt;%foreach number%&gt;<br>
+   Position: &lt;%runningnumber%&gt;<br>
+   Anzahl: &lt;%qty%&gt;<br>
+   Artikelnummer: &lt;%number%&gt;<br>
+   Beschreibung: &lt;%description%&gt;<br>
+   ...<br>
+   &lt;%end foreach&gt;</code></p>
+
+ <h3><a name="bloecke_pagebreak">Der <code>pagebreak</code>-Block</a></h3>
+
+ <p class="blue"><code>&lt;%pagebreak ZpZ ZeS ZzS%&gt;<br>
+   ...<br>
+   &lt;%end pagebreak%&gt;</code></p>
+
+ <p>Dieser Block legt das Verhalten beim manuellen Einf&uuml;gen eines
+  Seitenumbruchs fest. Normalerweise bricht LaTeX die Seiten selber um. Beim
+  Rechnungsdruck ist das oft nicht gew&uuml;nscht, oder man m&ouml;chte im
+  Falle eines Seitenumbruchs den &Uuml;bertrag etc. mit ausgeben. Deswegen
+  versucht der Parser, manuell Seitenumbr&uuml;che einzuf&uuml;gen,
+  w&auml;hrend er einen <code>foreach</code>-Block auswertet, weil hier die
+  manuellen Seitenumbr&uuml;che erforderlich werden. Daf&uuml;r ben&ouml;tigt
+  der Parser aber drei Informationen:</p>
+
+ <p>
+  <ol>
+   <li>Wieviele Zeichen passen bei der Variablen "description" pro Posten
+    in eine Zeile? Das ist der Parameter "ZpZ" (Zeichen pro Zeile).</li>
+   <li>Wieviele Zeilen/Posten passen auf die erste Seite? Das
+    ist der Parameter "ZeS" (Zeilen erste Seite).</li>
+   <li>Wieviele Zeilen/Posten passen auf die zweite und alle nachfolgenden
+    Seiten? Das ist der Parameter "ZzS" (Zeilen zweite Seite).</li>
+  </ol>
+ </p>
+
+ <p>Diese Parameter sind drei Zahlen, die manuell durch Verwendung von langen
+  Warenbezeichnungen und Rechnungen mit vielen Posten bestimmt werden
+  m&uuml;ssen.</p>
+
+ <p>&Uuml;blicherweise wird in diesem Block zuerst die aktuelle Tabelle
+  geschlossen, eventuell Text eingef&uuml;gt (z.B. "Fortsetzung auf der
+  n&auml;chsten Seite"), dann ein Seitenumbruch erzwungen, eventuell Text
+  eingef&uuml;gt (z.B. "&Uuml;bertrag von der vorherigen Seite:
+  &lt;%sumcarriedforward%&gt; EUR") und die Tabelle wieder ge&ouml;ffnet.</p>
+
+ <p>Wird kein manueller Seitenumbruch gew&uuml;scht, so kann dieser Block
+  komplett entfallen.</p>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+</body>
+</html>

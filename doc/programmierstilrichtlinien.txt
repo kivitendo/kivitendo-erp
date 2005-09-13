@@ -1,0 +1,197 @@
+Lx-Office Style Guide
+---------------------
+
+Die folgenden Regeln haben das Ziel, den Code möglichst gut les- und wartbar
+zu machen. Dazu gehört zum Einen, dass der Code einheitlich eingerückt ist,
+aber auch, dass Mehrdeutigkeit so weit es geht vermieden wird (Stichworte
+"Klammern" oder "Hash-Keys").
+
+Diese Regeln sind keine Schikane, sondern erleichtern allen das Leben!
+
+Zum einfachen Formartieren von Perl-Scripten gibt es das Tool "perltidy",
+das man weitgehend konfigurieren kann. Bei fast allen nachfolgenden Punkten
+sind die dazugehörigen perltidy-Optionen angegeben. perltidy ist bei den
+meisten Linux-Distributionen enthalten und kann ansonten unter
+http://perltidy.sourceforge.net heruntergeladen werden.
+
+Jeder, der einen Patch schickt, sollte sein Script vorher durch perltidy
+laufen lassen. Damit werden einige der nachfolgenden Regeln automatisch
+befolgt, andere hingegen nicht. Dort, wo keine perltidy-Optionen angegeben
+sind, muss der Programmierer selbst für die Einhaltung sorgen.
+
+--------------------------------------------------------------------------
+
+1. Es werden keine "echten" TAB-Zeichen sondern Leerzeichen verwendet.
+   Perltidy: -nt
+
+2. Die Einrückung beträgt zwei Leerzeichen.
+   Perltidy: -i=2
+   Beispiel:
+
+   sub debug {
+     print(STDERR "Debugging.\n");
+   }
+
+3. Öffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie
+   der letzte Befehl.
+   Perltidy: -nbl -nsbl -bar
+   Beispiele:
+
+   sub debug {
+   ...
+   }
+
+   oder
+
+   if ($form->{"path"} eq "bin/mozilla") {
+     ...
+   }
+
+4. Schließende geschweifte Klammern sind so weit eingerückt wie der Befehl/
+   die öffnende schließende Klammer, die den Block gestartet hat, und nicht
+   auf der Ebene des Inhalts. Die gleichen Beispiele wie bei 3. gelten.
+   Perltidy: macht's automatisch
+
+5. Die Wörter "else" "elsif", "while" befinden sich auf der gleichen
+   Zeile wie schließende geschweifte Klammern.
+   Perltidy: -ce
+   Beispiele:
+
+   if ($form->{"sum"} > 1000) {
+     ...
+   } elsif ($form->{"sum"} > 0) {
+     ...
+   } else {
+     ...
+   }
+
+   do {
+     ...
+   } while ($a > 0);
+
+6. Parameter von Funktionsaufrufen müssen mit runden Klammern versehen
+   werden.
+
+   Achtung: perltidy kann dieses nicht erledigen. Der Programmierer muss
+   selber darauf achten!
+
+   Beispiel:
+
+   debug("Konnte Datei nicht oeffnen.\n");
+
+7. Verschiedene Klammern
+
+  7.1 Aufeinander folgende runde Klammern sollten nicht durch Leerzeichen
+      abgesetzt werden.
+      Perltidy: -pt=2
+      Beispiel:
+
+      if (($form->{"debug"} == 1) && (($form->{"sum"} - 100) < 0)) {
+        ...
+      }
+
+  7.2 Nach und vor eckigen Klammern sollten keine Leerzeichen stehen.
+      Perltidy: -sbt=2
+      Beispiel:
+
+      $array[$i + 1] = 4;
+
+  7.3 Nach und vor geschweiften Klammern sollten keine Leerzeichen stehen,
+      es sei denn, sie sind verschachtelt.
+      Beispiel:
+
+      $form->{"sum"} += $form->{"row_${i}"};
+
+      $form->{ $form->{"index"} } += 1;
+
+  7.4 Nach und vor geschweiften Klammern, die Codeblöcke beschränken,
+      sollten Leerzeichen stehen, wenn sich der Codeblock über nur eine
+      Zeile erstreckt.
+      Perltidy: -bbt=0
+      Beispiel:
+
+      map({ $form->{"sum"} += $form->{"row_$_"}; } (1..$rowcount));
+      $form->{ $row + 1 } = 5;
+
+8. Mehrzeilige Befehle
+
+  8.1 Werden die Parameter eines Funktionsaufrufes auf mehrere Zeilen
+      aufgeteilt, so m[ssen diese bis zu der Spalte eingerückt werden,
+      in der die ersten Funktionsparameter in der ersten Zeile stehen.
+      Perltidy: -lp -vt=1 -vtc=1
+      Beispiel:
+
+      $sth = $dbh->prepare("SELECT * FROM some_table WHERE col = ?",
+                           $form->{"some_col_value"});
+
+  8.2 Wird ein Befehl auf einer neuen Zeile forgesetzt, so ist ab der
+      zweiten Zeile zusätzlich zwei Leerzeichen einzurücken.
+      Perltidy: -ci=2
+      Beispiel:
+
+      my $rowcount =
+        $form->{"row_$i"} ? $i : $form->{"rowcount"} - $form->{"rowbase"};
+
+9. Kommentare
+
+  9.1 Kommentare, die alleine in einer Zeile stehen, sollten soweit wie der
+      Code eingerückt sein.
+      Perltidy: -ibc
+
+  9.2 Seitliche hängende Kommentare sollten einheitlich formatiert werden.
+      Perltidy: -hsc
+
+10. Hash-Keys sind, sofern es sich um Zeichenketten und nicht um
+    Nummern handelt, in Anführungszeichen zu setzen.
+
+    Achtung: perltidy kann dieses nicht erledigen. Der Programmierer muss
+    selber darauf achten!
+
+    Beispiele:
+
+    $form->{"sum"} = 0;
+    $form->{"row_$i"} = $form->{"row_$i"} - 5;
+    $some_hash{42} = 54;
+
+11. Die Maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen <= 79
+    helfen, weil sie dann im Textmodus / per SSH deutlich besser lesbar
+    sind. Oft genug ist es aber nicht möglich oder nur unter großen
+    Verrenkungen, diese Vorgabe einzuhalten.
+
+    Zeilen sollten nicht länger als 79 Zeichen sein.
+    Perltidy: -l=79
+
+--------------------------------------------------------------------------
+
+Vollständige Liste aller Optionen, die ich für perltidy benutze. Diese
+können in ~/.perltidyrc geschrieben werden:
+
+-syn
+-i=2
+-nt
+-pt=2
+-sbt=2
+-ci=2
+-ibc
+-hsc
+-noll
+-nsts
+-nsfs
+-asc
+-dsm
+-aws
+-bbc
+-bbs
+-bbb
+-mbl=1
+-nsob
+-ce
+-nbl
+-nsbl
+-cti=0
+-bbt=0
+-bar
+-l=79
+-lp
+-vt=1
+-vtc=1
