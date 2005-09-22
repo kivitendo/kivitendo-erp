@@ -1759,9 +1759,7 @@ sub config {
 	      </tr>
 	      <tr>
 		<td colspan=2>|
-    . $locale->text(
-    'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies'
-    )
+    . $locale->text('Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies')
     . qq|<br><input name=curr size=40 value="$form->{defaults}{curr}"></td>
 	      </tr>
             </table>

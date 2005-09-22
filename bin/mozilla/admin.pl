@@ -344,9 +344,7 @@ $nologin
 | . $locale->text('Click on login name to edit!') . qq|
 <br>
 |
-    . $locale->text(
-    'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.'
-    )
+    . $locale->text('To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.')
     . qq|
 
 <p>
@@ -1195,12 +1193,9 @@ sub dbselect_source {
   &dbdriver_defaults;
 
   $msg{Pg} =
-    $locale->text(
-    'Leave host and port field empty unless you want to make a remote connection.'
-    );
+    $locale->text('Leave host and port field empty unless you want to make a remote connection.');
   $msg{Oracle} =
-    $locale->text(
-           'You must enter a host and port for local and remote connections!');
+    $locale->text('You must enter a host and port for local and remote connections!');
 
   $form->{title} =
     "Lx-Office ERP / " . $locale->text('Database Administration');
@@ -1280,9 +1275,7 @@ sub dbselect_source {
 </table>
 
 <p>|
-    . $locale->text(
-    'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!'
-    )
+    . $locale->text('This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!')
 
     . qq|
 <br>$msg{$form->{dbdriver}}
