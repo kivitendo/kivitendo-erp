@@ -170,6 +170,7 @@ $self{subs} = {
   'alle_auswählen'              => 'select_all',
   'konfiguration'               => 'config',
   'debug'                       => 'debug',
+  'winston_export'              => 'winston_export',
 };
 
 1;
