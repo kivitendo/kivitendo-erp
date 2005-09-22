@@ -291,8 +291,7 @@ sub add {
   $lxdebug->enter_sub();
   if (!$lizenzen) {
     $form->error(
-                 $locale->text(
-                   'The licensing module has been deactivated in lx-erp.conf.')
+                 $locale->text('The licensing module has been deactivated in lx-erp.conf.')
     );
   }
 
@@ -543,8 +542,7 @@ sub do_search {
         |);
   if (scalar(@{ $form->{"licenses"} }) == 0) {
     print(qq|</table>|
-            . $locale->text(
-                      "No licenses were found that match the search criteria.")
+            . $locale->text("No licenses were found that match the search criteria.")
             . qq|</body></html>|);
     exit(0);
   }

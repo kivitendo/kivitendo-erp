@@ -281,8 +281,7 @@ sub remove {
 <h2 class=confirm>$form->{title}</h2>
 
 <h4>|
-    . $locale->text(
-          'Are you sure you want to remove the marked entries from the queue?')
+    . $locale->text('Are you sure you want to remove the marked entries from the queue?')
     . qq|</h4>
 
 <input name=action class=submit type=submit value="|

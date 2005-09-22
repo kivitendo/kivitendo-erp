@@ -218,7 +218,10 @@ sub scanfile {
   my $fh = new FileHandle;
   open $fh, "$file" or die "$! : $file";
 
+  my ($is_submit, $line_no, $sub_line_no) = (0, 0, 0);
+	
   while (<$fh>) {
+    $line_no++;
     # is this another file
     if (/require\s+\W.*\.pl/) {
       my $newfile = $&;
@@ -240,14 +243,27 @@ sub scanfile {
       if (/Locale/) {
 	unless (/^use /) {
 	  my ($null, $country) = split /,/;
-	  $country =~ s/^ +["']//;
-	  $country =~ s/["'].*//;
+	  $country =~ s/^ +[\"\']//;
+	  $country =~ s/[\"\'].*//;
 	}
       }
 
-      if (/\$locale->text.*?\W\)/) {
+      my $postmatch = "";
+      # is it a submit button before $locale->
+      if (/type\s*=\s*submit/i) {
+        $postmatch = $';
+        if ($` !~ /\$locale->text/) {
+          $is_submit = 1;
+          $sub_line_no = $line_no;
+        }
+      }
+
+      my ($found) = /\$locale->text.*?\W\)/;
+      my $postmatch = $';
+
+      if ($found) {
 	my $string = $&;
-	$string =~ s/\$locale->text\(\s*['"(q|qq)]['\/\\\|~]*//;
+	$string =~ s/\$locale->text\(\s*[\'\"(q|qq)][\'\/\\\|~]*//;
 	$string =~ s/\W\)+.*$//;
 
         # if there is no $ in the string record it
@@ -259,16 +275,23 @@ sub scanfile {
 	  $alllocales{$string} = 1;
 
           # is it a submit button before $locale->
-          if (/type=submit/) {
+          if ($is_submit) {
 	    $submit{$string} = 1;
           }
 	}
+      } elsif ($postmatch =~ />/) {
+        $is_submit = 0;
       }
 
       # exit loop if there are no more locales on this line
-      ($rc) = ($' =~ /\$locale->text/);
+      ($rc) = ($postmatch =~ /\$locale->text/);
       # strip text
       s/^.*?\$locale->text.*?\)//;
+
+      if (($postmatch =~ />/) ||
+          (!$found && ($sub_line_no != $line_no) && />/)) {
+        $is_submit = 0;
+      }
     }
   }
 

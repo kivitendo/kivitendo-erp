@@ -236,8 +236,7 @@ sub report {
   $checked = "checked" if ($form->{kz10} eq '1');
   print qq|
            <input name="FA_10" id=FA_10 class=checkbox type=checkbox value="1" $checked title = "|
-    . $locale->text(
-      'Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)')
+    . $locale->text('Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)')
     . qq|">
             | . $locale->text('Berichtigte Anmeldung') . qq|
           <br>
@@ -1228,9 +1227,7 @@ sub edit_form {
 
   # Auf Übergabefehler checken
   USTVA::info(
-    $locale->text(
-      'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.'
-    ))
+    $locale->text('Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.'))
     if (   $form->{elsterFFFF_new} eq 'Auswahl'
         || $form->{elsterland_new} eq 'Auswahl');
   USTVA::info(
