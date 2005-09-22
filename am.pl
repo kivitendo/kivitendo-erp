@@ -31,12 +31,11 @@
 #######################################################################
 
 # setup defaults, DO NOT CHANGE
-$userspath = "users";
-$templates = "templates";
+$userspath  = "users";
+$templates  = "templates";
 $memberfile = "users/members";
-$sendmail = "| /usr/sbin/sendmail -t";
+$sendmail   = "| /usr/sbin/sendmail -t";
 ########## end ###########################################
-
 
 $| = 1;
 
@@ -47,7 +46,6 @@ use SL::Form;
 
 eval { require "lx-erp.conf"; };
 
-
 $form = new Form;
 
 # name of this script
@@ -57,6 +55,7 @@ $script = substr($0, $pos + 1);
 
 # we use $script for the language module
 $form->{script} = $script;
+
 # strip .pl for translation files
 $script =~ s/\.pl//;
 
@@ -67,34 +66,33 @@ use DBI;
 eval { require("$userspath/$form->{login}.conf"); };
 if ($@) {
   $locale = new Locale "$language", "$script";
-  
+
   $form->{callback} = "";
-  $msg1 = $locale->text('You are logged out!');
-  $msg2 = $locale->text('Login');
+  $msg1             = $locale->text('You are logged out!');
+  $msg2             = $locale->text('Login');
   $form->redirect("$msg1 <p><a href=login.pl target=_top>$msg2</a>");
 }
 
-
 $myconfig{dbpasswd} = unpack 'u', $myconfig{dbpasswd};
-map { $form->{$_} = $myconfig{$_} } qw(stylesheet charset) unless (($form->{action} eq 'save') && ($form->{type} eq 'preferences'));
+map { $form->{$_} = $myconfig{$_} } qw(stylesheet charset)
+  unless (($form->{action} eq 'save') && ($form->{type} eq 'preferences'));
 
 # locale messages
 $locale = new Locale "$myconfig{countrycode}", "$script";
 
 # check password
-$form->error($locale->text('Incorrect Password!')) if ($form->{password} ne $myconfig{password});
- 
+$form->error($locale->text('Incorrect Password!'))
+  if ($form->{password} ne $myconfig{password});
 
 $form->{path} =~ s/\.\.\///g;
 if ($form->{path} !~ /^bin\//) {
-  $form->error($locale->text('Invalid path!')."\n");
+  $form->error($locale->text('Invalid path!') . "\n");
 }
 
 # did sysadmin lock us out
 if (-e "$userspath/nologin") {
   $form->error($locale->text('System currently down for maintenance!'));
 }
-
 
 # pull in the main code
 require "$form->{path}/$form->{script}";
@@ -112,14 +110,17 @@ if (-f "$form->{path}/$form->{login}_$form->{script}") {
 }
 
 if ($form->{action}) {
+
   # window title bar, user info
-  $form->{titlebar} = "Lx-Office ".$locale->text('Version'). " $form->{version} - $myconfig{name} - $myconfig{dbname}";
+  $form->{titlebar} =
+      "Lx-Office "
+    . $locale->text('Version')
+    . " $form->{version} - $myconfig{name} - $myconfig{dbname}";
 
   &{ $locale->findsub($form->{action}) };
 } else {
   $form->error($locale->text('action= not defined!'));
 }
-
 
 # end
 

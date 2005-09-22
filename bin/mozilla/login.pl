@@ -27,11 +27,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #######################################################################
 
-
 use DBI;
 use SL::User;
 use SL::Form;
-
 
 $form = new Form;
 
@@ -50,7 +48,8 @@ if (-f "$form->{path}/$form->{login}_$form->{script}") {
 }
 
 # window title bar, user info
-$form->{titlebar} = "Lx-Office ".$locale->text('Version'). " $form->{version}";
+$form->{titlebar} =
+  "Lx-Office " . $locale->text('Version') . " $form->{version}";
 
 if ($form->{action}) {
   $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
@@ -59,17 +58,15 @@ if ($form->{action}) {
   &login_screen;
 }
 
-
 1;
-
 
 sub login_screen {
   $lxdebug->enter_sub();
-  
+
   if (-f "css/lx-office-erp.css") {
     $form->{stylesheet} = "lx-office-erp.css";
   }
-  
+
   $form->{fokus} = "loginscreen.login";
   $form->header;
 
@@ -86,7 +83,9 @@ sub login_screen {
 <table class=login border=3 cellpadding=20>
   <tr>
     <td class=login align=center><a href="http://www.lx-office.org" target=_top><img src="image/lx-office-erp.png" border=0></a>
-<h1 class=login align=center>|.$locale->text('Version').qq| $form->{version}
+<h1 class=login align=center>|
+    . $locale->text('Version')
+    . qq| $form->{version}
 </h1>
 
 <p>
@@ -98,18 +97,18 @@ sub login_screen {
 	  <td align=center>
 	    <table>
 	      <tr>
-		<th align=right>|.$locale->text('Login Name').qq|</th>
+		<th align=right>| . $locale->text('Login Name') . qq|</th>
 		<td><input class=login name=login size=30 tabindex="1"></td>
-	      </tr> 
+	      </tr>
 	      <tr>
-		<th align=right>|.$locale->text('Password').qq|</th>
+		<th align=right>| . $locale->text('Password') . qq|</th>
 		<td><input class=login type=password name=password size=30 tabindex="2"></td>
 	      </tr>
 	      <input type=hidden name=path value=$form->{path}>
 	    </table>
 
 	    <br>
-	    <input type=submit name=action value="|.$locale->text('Login').qq|">
+	    <input type=submit name=action value="| . $locale->text('Login') . qq|">
 
 	  </td>
 	</tr>
@@ -120,7 +119,7 @@ sub login_screen {
     </td>
   </tr>
 </table>
-  
+
 </body>
 </html>
 |;
@@ -128,11 +127,11 @@ sub login_screen {
   $lxdebug->leave_sub();
 }
 
-
 sub login {
   $lxdebug->enter_sub();
 
-  $form->error($locale->text('You did not enter a name!')) unless ($form->{login});
+  $form->error($locale->text('You did not enter a name!'))
+    unless ($form->{login});
 
   $user = new User $memberfile, $form->{login};
 
@@ -140,31 +139,33 @@ sub login {
   if (($errno = $user->login(\%$form, $userspath)) <= -1) {
     $errno *= -1;
     $err[1] = $err[3] = $locale->text('Incorrect username or password!');
-    
+
     if ($errno == 2) {
+
       # upgraded dataset, login again
-      $form->redirect("<a href=menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display>Continue</a>");
+      $form->redirect(
+        "<a href=menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display>Continue</a>"
+      );
       exit;
     }
-    
+
     $form->error($err[$errno]);
   }
-  
+
   # made it this far, execute the menu
-  $form->{callback} = "menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  $form->{callback} =
+    "menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
 
   $form->redirect;
-  
+
   $lxdebug->leave_sub();
 }
-
-
 
 sub logout {
   $lxdebug->enter_sub();
 
   unlink "$userspath/$form->{login}.conf";
-  
+
   # remove the callback to display the message
   $form->{callback} = "login.pl?path=$form->{path}&action=&login=";
   $form->redirect($locale->text('You are logged out!'));
@@ -172,22 +173,20 @@ sub logout {
   $lxdebug->leave_sub();
 }
 
-
-    
 sub company_logo {
   $lxdebug->enter_sub();
-  
+
   require "$userspath/$form->{login}.conf";
-  $locale = new Locale $myconfig{countrycode}, "login" unless ($language eq $myconfig{countrycode});
+  $locale = new Locale $myconfig{countrycode}, "login"
+    unless ($language eq $myconfig{countrycode});
 
   $myconfig{address} =~ s/\\n/<br>/g;
   $myconfig{dbhost} = $locale->text('localhost') unless $myconfig{dbhost};
 
   map { $form->{$_} = $myconfig{$_} } qw(charset stylesheet);
-  
+
   $form->{title} = $locale->text('About');
-  
- 
+
   # create the logo screen
   $form->header unless $form->{noheader};
 
@@ -195,9 +194,9 @@ sub company_logo {
 <body>
 <center>
 <a href="http://www.lx-office.org" target=_top><img src="image/lx-office-erp.png" border=0></a>
-<h2 class=login>|.$locale->text('Version').qq| $form->{version}</h2>
+<h2 class=login>| . $locale->text('Version') . qq| $form->{version}</h2>
 
-|.$locale->text('Licensed to').qq|
+| . $locale->text('Licensed to') . qq|
 <p>
 <b>
 $myconfig{company}
@@ -208,15 +207,15 @@ $myconfig{company}
 <br>
 <table border=0>
   <tr>
-    <th align=left>|.$locale->text('User').qq|</th>
+    <th align=left>| . $locale->text('User') . qq|</th>
     <td>$myconfig{name}</td>
   </tr>
   <tr>
-    <th align=left>|.$locale->text('Dataset').qq|</th>
+    <th align=left>| . $locale->text('Dataset') . qq|</th>
     <td>$myconfig{dbname}</td>
   </tr>
   <tr>
-    <th align=left>|.$locale->text('Database Host').qq|</th>
+    <th align=left>| . $locale->text('Database Host') . qq|</th>
     <td>$myconfig{dbhost}</td>
   </tr>
   <tr>
@@ -239,6 +238,3 @@ $myconfig{company}
 
   $lxdebug->leave_sub();
 }
-
-
-

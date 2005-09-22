@@ -34,7 +34,6 @@
 #
 #======================================================================
 
-
 package CA;
 use Data::Dumper;
 
@@ -44,6 +43,7 @@ sub all_accounts {
   my ($self, $myconfig, $form) = @_;
 
   my $amount = ();
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
@@ -56,10 +56,10 @@ sub all_accounts {
   $sth->execute || $form->dberror($query);
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    $amount{$ref->{accno}} = $ref->{amount}
+    $amount{ $ref->{accno} } = $ref->{amount};
   }
   $sth->finish;
- 
+
   $query = qq|SELECT accno, description
               FROM gifi|;
   $sth = $dbh->prepare($query);
@@ -77,10 +77,10 @@ sub all_accounts {
 	      ORDER BY accno|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
- 
+
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
-    $ca->{amount} = $amount{$ca->{accno}};
-    $ca->{gifi_description} = $gifi{$ca->{gifi_accno}};
+    $ca->{amount}           = $amount{ $ca->{accno} };
+    $ca->{gifi_description} = $gifi{ $ca->{gifi_accno} };
     if ($ca->{amount} < 0) {
       $ca->{debit} = $ca->{amount} * -1;
     } else {
@@ -94,7 +94,6 @@ sub all_accounts {
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub all_transactions {
   $main::lxdebug->enter_sub();
@@ -122,24 +121,25 @@ sub all_transactions {
 
   my $fromdate_where;
   my $todate_where;
-  
+
   my $where = '1 = 1';
+
   # build WHERE clause from dates if any
-#  if ($form->{fromdate}) {
-#    $where .= " AND ac.transdate >= '$form->{fromdate}'";
-#  }
-#  if ($form->{todate}) {
-#    $where .= " AND ac.transdate <= '$form->{todate}'";
-#  }
-  
+  #  if ($form->{fromdate}) {
+  #    $where .= " AND ac.transdate >= '$form->{fromdate}'";
+  #  }
+  #  if ($form->{todate}) {
+  #    $where .= " AND ac.transdate <= '$form->{todate}'";
+  #  }
+
   if ($form->{fromdate}) {
-      $fromto = " AND ac.transdate >= '$form->{fromdate}'";
-      $subwhere .= " AND transdate >= '$form->{fromdate}'";
-      $glwhere = " AND ac.transdate >= '$form->{fromdate}'";
+    $fromto = " AND ac.transdate >= '$form->{fromdate}'";
+    $subwhere .= " AND transdate >= '$form->{fromdate}'";
+    $glwhere = " AND ac.transdate >= '$form->{fromdate}'";
   }
 
   if ($form->{todate}) {
-    $fromto .= " AND ac.transdate <= '$form->{todate}'";
+    $fromto   .= " AND ac.transdate <= '$form->{todate}'";
     $subwhere .= " AND transdate <= '$form->{todate}'";
   }
 
@@ -160,21 +160,21 @@ sub all_transactions {
 		     WHERE link LIKE '%AP_paid%'
 		     $subwhere
 		   )|;
-    } else {
-      $where .= $fromto;
-      $AR_PAID = "";
-      $AP_PAID = "";
-      $glwhere = "";
+  } else {
+    $where .= $fromto;
+    $AR_PAID = "";
+    $AP_PAID = "";
+    $glwhere = "";
   }
-  my $sortorder = join ', ', $form->sort_columns(qw(transdate reference description));
-  my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE : q|'0'|;
-  
-  # Oracle workaround, use ordinal positions
-  my %ordinal = ( transdate => 4,
-		  reference => 2,
-		  description => 3 );
-  map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
+  my $sortorder = join ', ',
+    $form->sort_columns(qw(transdate reference description));
+  my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
 
+  # Oracle workaround, use ordinal positions
+  my %ordinal = (transdate   => 4,
+                 reference   => 2,
+                 description => 3);
+  map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
 
   my ($null, $department_id) = split /--/, $form->{department};
   my $dpt_where;
@@ -196,6 +196,7 @@ sub all_transactions {
   }
 
   if ($form->{accno} || $form->{gifi_accno}) {
+
     # get category for account
     $query = qq|SELECT c.category
                 FROM chart c
@@ -213,7 +214,7 @@ sub all_transactions {
     $sth->execute || $form->dberror($query);
     ($form->{category}) = $sth->fetchrow_array;
     $sth->finish;
-    
+
     if ($form->{fromdate}) {
 
       # get beginning balance
@@ -229,7 +230,7 @@ sub all_transactions {
 
       if ($form->{project_id}) {
 
-	$query .= qq|
+        $query .= qq|
 
 	       UNION
 
@@ -272,10 +273,10 @@ sub all_transactions {
 		  $dpt_where
 		  $project
 		  |;
-		  
-	if ($form->{project_id}) {
 
-	  $query .= qq|
+        if ($form->{project_id}) {
+
+          $query .= qq|
 
 	       UNION
 
@@ -306,9 +307,9 @@ sub all_transactions {
 		  $project
 		  |;
 
-	}
+        }
       }
-      
+
       $sth = $dbh->prepare($query);
 
       $sth->execute || $form->dberror($query);
@@ -320,8 +321,8 @@ sub all_transactions {
   $query = "";
   my $union = "";
 
-   foreach my $id (@id) {
-    
+  foreach my $id (@id) {
+
     # get all transactions
     $query .= qq|$union
       SELECT g.id, g.reference, g.description, ac.transdate,
@@ -356,19 +357,19 @@ sub all_transactions {
 		$AP_PAID
 		AND a.vendor_id = v.id
 		|;
-      $union = qq|
+    $union = qq|
       UNION ALL
       |;
 
     if ($form->{project_id}) {
 
       $fromdate_where =~ s/ac\./a\./;
-      $todate_where =~ s/ac\./a\./;
-      
+      $todate_where   =~ s/ac\./a\./;
+
       $query .= qq|
 
              UNION ALL
-      
+
                  SELECT a.id, a.invnumber, c.name, a.transdate,
 	         a.invoice, ac.sellprice, 'ar' as module
 		 FROM ar a
@@ -381,9 +382,9 @@ sub all_transactions {
 		 $todate_where
 		 $dpt_where
 		 $project
-      
+
              UNION ALL
-      
+
                  SELECT a.id, a.invnumber, v.name, a.transdate,
 	         a.invoice, ac.sellprice, 'ap' as module
 		 FROM ap a
@@ -397,13 +398,13 @@ sub all_transactions {
 		 $dpt_where
 		 $project
 		 |;
-		 
+
       $fromdate_where =~ s/a\./ac\./;
-      $todate_where =~ s/a\./ac\./;
- 
+      $todate_where   =~ s/a\./ac\./;
+
     }
-		 
-      $union = qq|
+
+    $union = qq|
              UNION ALL
                  |;
   }
@@ -415,7 +416,7 @@ sub all_transactions {
   $sth->execute || $form->dberror($query);
 
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
-    
+
     # gl
     if ($ca->{module} eq "gl") {
       $ca->{module} = "gl";
@@ -432,17 +433,17 @@ sub all_transactions {
     }
 
     if ($ca->{amount} < 0) {
-      $ca->{debit} = $ca->{amount} * -1;
+      $ca->{debit}  = $ca->{amount} * -1;
       $ca->{credit} = 0;
     } else {
       $ca->{credit} = $ca->{amount};
-      $ca->{debit} = 0;
+      $ca->{debit}  = 0;
     }
 
     push @{ $form->{CA} }, $ca;
-    
+
   }
- 
+
   $sth->finish;
   $dbh->disconnect;
 
@@ -450,4 +451,3 @@ sub all_transactions {
 }
 
 1;
-

@@ -41,11 +41,11 @@ sub _input_to_hash {
   $main::lxdebug->enter_sub();
 
   my $input = $_[0];
-  my %in = ();
+  my %in    = ();
   my @pairs = split(/&/, $input);
 
   foreach (@pairs) {
-    my ($name, $value) = split(/=/,$_,2);
+    my ($name, $value) = split(/=/, $_, 2);
     $in{$name} = unescape(undef, $value);
   }
 
@@ -58,33 +58,38 @@ sub _request_to_hash {
   $main::lxdebug->enter_sub();
 
   my ($input) = @_;
-  my ($i, $loc, $key, $val);
-  my (%ATTACH, $f, $header, $header_body, $len, $buf);
-  my ($boundary, @list, $size, $body, $x, $blah, $name);
+  my ($i,        $loc,  $key,    $val);
+  my (%ATTACH,   $f,    $header, $header_body, $len, $buf);
+  my ($boundary, @list, $size,   $body, $x, $blah, $name);
 
-  if ($ENV{'CONTENT_TYPE'} &&
-      ($ENV{'CONTENT_TYPE'} =~ /multipart\/form-data; boundary=(.+)$/)) {
+  if ($ENV{'CONTENT_TYPE'}
+      && ($ENV{'CONTENT_TYPE'} =~ /multipart\/form-data; boundary=(.+)$/)) {
     $boundary = quotemeta('--' . $1);
-    @list = split(/$boundary/, $input);
+    @list     = split(/$boundary/, $input);
+
     # For some reason there are always 2 extra, that are empty
-    $size = @list -2 ;
+    $size = @list - 2;
 
     for ($x = 1; $x <= $size; $x++) {
       $header_body = $list[$x];
       $header_body =~ /\r\n\r\n|\n\n/;
+
       # Here we split the header and body
       $header = $`;
-      $body = $'; #'
+      $body   = $';    #'
       $body =~ s/\r\n$//;
+
       # Now we try to get the file name
       $name = $header;
       $name =~ /name=\"(.+)\"/;
       ($name, $blah) = split(/\"/, $1);
+
       # If the form name is not attach, then we need to parse this like
       # regular form data
       if ($name ne "attach") {
         $body =~ s/%([0-9a-fA-Z]{2})/pack("c",hex($1))/eg;
         $ATTACH{$name} = $body;
+
         # Otherwise it is an attachment and we need to finish it up
       } elsif ($name eq "attach") {
         $header =~ /filename=\"(.+)\"/;
@@ -93,10 +98,10 @@ sub _request_to_hash {
         $ATTACH{'FILE_NAME'} =~ s/\s//g;
         $ATTACH{'FILE_CONTENT'} = $body;
 
-        for($i = $x; $list[$i]; $i++) {
+        for ($i = $x; $list[$i]; $i++) {
           $list[$i] =~ s/^.+name=$//;
           $list[$i] =~ /\"(\w+)\"/;
-          $ATTACH{$1} = $'; #'
+          $ATTACH{$1} = $';    #'
         }
       }
     }
@@ -104,7 +109,7 @@ sub _request_to_hash {
     $main::lxdebug->leave_sub();
     return %ATTACH;
 
-  } else {
+      } else {
     $main::lxdebug->leave_sub();
     return _input_to_hash($input);
   }
@@ -135,14 +140,13 @@ sub new {
   $self->{action} = lc $self->{action};
   $self->{action} =~ s/( |-|,|#)/_/g;
 
-  $self->{version} = "2.1.2";
+  $self->{version}   = "2.1.2";
   $self->{dbversion} = "2.1.2";
 
   $main::lxdebug->leave_sub();
 
   bless $self, $type;
 }
-
 
 sub debug {
   $main::lxdebug->enter_sub();
@@ -155,7 +159,6 @@ sub debug {
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub escape {
   $main::lxdebug->enter_sub();
@@ -174,7 +177,6 @@ sub escape {
   return $str;
 }
 
-
 sub unescape {
   $main::lxdebug->enter_sub();
 
@@ -189,7 +191,6 @@ sub unescape {
 
   return $str;
 }
-
 
 sub error {
   $main::lxdebug->enter_sub();
@@ -226,7 +227,6 @@ sub error {
   $main::lxdebug->leave_sub();
 }
 
-
 sub info {
   $main::lxdebug->enter_sub();
 
@@ -258,9 +258,6 @@ sub info {
   $main::lxdebug->leave_sub();
 }
 
-
-
-
 sub numtextrows {
   $main::lxdebug->enter_sub();
 
@@ -268,7 +265,7 @@ sub numtextrows {
 
   my $rows = 0;
 
-  map { $rows += int (((length) - 2)/$cols) + 1 } split /\r/, $str;
+  map { $rows += int(((length) - 2) / $cols) + 1 } split /\r/, $str;
 
   $maxrows = $rows unless defined $maxrows;
 
@@ -277,17 +274,15 @@ sub numtextrows {
   return ($rows > $maxrows) ? $maxrows : $rows;
 }
 
-
 sub dberror {
   $main::lxdebug->enter_sub();
 
   my ($self, $msg) = @_;
 
-  $self->error("$msg\n".$DBI::errstr);
+  $self->error("$msg\n" . $DBI::errstr);
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub isblank {
   $main::lxdebug->enter_sub();
@@ -299,7 +294,6 @@ sub isblank {
   }
   $main::lxdebug->leave_sub();
 }
-
 
 sub header {
   $main::lxdebug->enter_sub();
@@ -316,24 +310,27 @@ sub header {
   if ($ENV{HTTP_USER_AGENT}) {
 
     if ($self->{stylesheet} && (-f "css/$self->{stylesheet}")) {
-      $stylesheet = qq|<LINK REL="stylesheet" HREF="css/$self->{stylesheet}" TYPE="text/css" TITLE="Lx-Office stylesheet">
+      $stylesheet =
+        qq|<LINK REL="stylesheet" HREF="css/$self->{stylesheet}" TYPE="text/css" TITLE="Lx-Office stylesheet">
  |;
     }
 
     if ($self->{favicon} && (-f "$self->{favicon}")) {
-      $favicon = qq|<LINK REL="shortcut icon" HREF="$self->{favicon}" TYPE="image/x-icon">
+      $favicon =
+        qq|<LINK REL="shortcut icon" HREF="$self->{favicon}" TYPE="image/x-icon">
   |;
     }
 
     if ($self->{charset}) {
-      $charset = qq|<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=$self->{charset}">
+      $charset =
+        qq|<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=$self->{charset}">
   |;
     }
-  if ($self->{landscape}) {
+    if ($self->{landscape}) {
       $pagelayout = qq|<style type="text/css">
                         \@page { size:landscape; }
                         </style>|;
-  }  
+    }
     if ($self->{fokus}) {
       $fokus = qq|<script type="text/javascript">
 <!--
@@ -341,20 +338,23 @@ function fokus(){document.$self->{fokus}.focus();}
 //-->
 </script>|;
     }
-    
+
     #Set Calendar
     $jsscript = "";
-    if ($self->{jsscript} == 1){
+    if ($self->{jsscript} == 1) {
 
       $jsscript = qq|
         <style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>
         <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
         <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
         <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
-       |;      
-   }
+       |;
+    }
 
-    $self->{titlebar} = ($self->{title}) ? "$self->{title} - $self->{titlebar}" : $self->{titlebar};
+    $self->{titlebar} =
+      ($self->{title})
+      ? "$self->{title} - $self->{titlebar}"
+      : $self->{titlebar};
 
     print qq|Content-Type: text/html
 
@@ -379,32 +379,30 @@ function fokus(){document.$self->{fokus}.focus();}
 sub write_trigger {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $qty, $inputField_1, $align_1, $button_1, $inputField_2, $align_2, $button_2) = @_;
- 
-  # set dateform for jsscript 
+  my ($self,         $myconfig, $qty,
+      $inputField_1, $align_1,  $button_1,
+      $inputField_2, $align_2,  $button_2)
+    = @_;
+
+  # set dateform for jsscript
   # default
   $ifFormat = "%d.%m.%Y";
-  if ($myconfig->{dateformat} eq "dd.mm.yy"){
+  if ($myconfig->{dateformat} eq "dd.mm.yy") {
     $ifFormat = "%d.%m.%Y";
-  }
-  else {
-    if ($myconfig->{dateformat} eq "dd-mm-yy"){
+  } else {
+    if ($myconfig->{dateformat} eq "dd-mm-yy") {
       $ifFormat = "%d-%m-%Y";
-    }
-    else {
-      if ($myconfig->{dateformat} eq "dd/mm/yy"){
+    } else {
+      if ($myconfig->{dateformat} eq "dd/mm/yy") {
         $ifFormat = "%d/%m/%Y";
-      }
-      else {
-        if ($myconfig->{dateformat} eq "mm/dd/yy"){
+      } else {
+        if ($myconfig->{dateformat} eq "mm/dd/yy") {
           $ifFormat = "%m/%d/%Y";
-        }
-        else {
-          if ($myconfig->{dateformat} eq "mm-dd-yy"){
+        } else {
+          if ($myconfig->{dateformat} eq "mm-dd-yy") {
             $ifFormat = "%m-%d-%Y";
-          }
-          else {
-            if ($myconfig->{dateformat} eq "yyyy-mm-dd"){
+          } else {
+            if ($myconfig->{dateformat} eq "yyyy-mm-dd") {
               $ifFormat = "%Y-%m-%d";
             }
           }
@@ -412,7 +410,7 @@ sub write_trigger {
       }
     }
   }
-  
+
   $trigger_1 = qq|
        Calendar.setup(
        {
@@ -423,8 +421,8 @@ sub write_trigger {
        }
        );
        |;
-       
-  if ($qty ==2){
+
+  if ($qty == 2) {
     $trigger_2 = qq|
        Calendar.setup(
        {
@@ -434,21 +432,21 @@ sub write_trigger {
          button      : "$button_2"
        }
        );
-        |;       
-       };
-    $jsscript= qq|
+        |;
+  }
+  $jsscript = qq|
        <script type="text/javascript">
        <!--
        $trigger_1
        $trigger_2
-        //-->          
+        //-->
         </script>
         |;
 
   $main::lxdebug->leave_sub();
 
   return $jsscript;
-}#end sub write_trigger
+}    #end sub write_trigger
 
 sub redirect {
   $main::lxdebug->enter_sub();
@@ -458,7 +456,7 @@ sub redirect {
   if ($self->{callback}) {
 
     ($script, $argv) = split(/\?/, $self->{callback});
-    exec ("perl", "$script", $argv);
+    exec("perl", "$script", $argv);
 
   } else {
 
@@ -480,7 +478,6 @@ sub sort_columns {
   return @columns;
 }
 
-
 sub format_amount {
   $main::lxdebug->enter_sub();
 
@@ -494,44 +491,45 @@ sub format_amount {
   my $negative = ($amount < 0);
 
   if ($amount != 0) {
-    if ($myconfig->{numberformat} && ($myconfig->{numberformat} ne '1000.00')) {
+    if ($myconfig->{numberformat} && ($myconfig->{numberformat} ne '1000.00'))
+    {
       my ($whole, $dec) = split /\./, "$amount";
       $whole =~ s/-//;
       $amount = join '', reverse split //, $whole;
 
       if ($myconfig->{numberformat} eq '1,000.00') {
-	$amount =~ s/\d{3,}?/$&,/g;
-	$amount =~ s/,$//;
-	$amount = join '', reverse split //, $amount;
-	$amount .= "\.$dec" if ($dec ne "");
+        $amount =~ s/\d{3,}?/$&,/g;
+        $amount =~ s/,$//;
+        $amount = join '', reverse split //, $amount;
+        $amount .= "\.$dec" if ($dec ne "");
       }
 
       if ($myconfig->{numberformat} eq '1.000,00') {
-	$amount =~ s/\d{3,}?/$&./g;
-	$amount =~ s/\.$//;
-	$amount = join '', reverse split //, $amount;
-	$amount .= ",$dec" if ($dec ne "");
+        $amount =~ s/\d{3,}?/$&./g;
+        $amount =~ s/\.$//;
+        $amount = join '', reverse split //, $amount;
+        $amount .= ",$dec" if ($dec ne "");
       }
 
       if ($myconfig->{numberformat} eq '1000,00') {
-	$amount = "$whole";
-	$amount .= ",$dec" if ($dec ne "");
+        $amount = "$whole";
+        $amount .= ",$dec" if ($dec ne "");
       }
 
       if ($dash =~ /-/) {
-	$amount = ($negative) ? "($amount)" : "$amount";
+        $amount = ($negative) ? "($amount)" : "$amount";
       } elsif ($dash =~ /DRCR/) {
-	$amount = ($negative) ? "$amount DR" : "$amount CR";
+        $amount = ($negative) ? "$amount DR" : "$amount CR";
       } else {
-	$amount = ($negative) ? "-$amount" : "$amount";
+        $amount = ($negative) ? "-$amount" : "$amount";
       }
     }
   } else {
     if ($dash eq "0" && $places) {
       if ($myconfig->{numberformat} eq '1.000,00') {
-	$amount = "0".","."0" x $places;
+        $amount = "0" . "," . "0" x $places;
       } else {
-	$amount = "0"."."."0" x $places;
+        $amount = "0" . "." . "0" x $places;
       }
     } else {
       $amount = ($dash ne "") ? "$dash" : "0";
@@ -543,15 +541,14 @@ sub format_amount {
   return $amount;
 }
 
-
 sub parse_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $amount) = @_;
-  
-  if (!(substr($amount, -3,1) eq ".")) {
-    if (($myconfig->{numberformat} eq '1.000,00') ||
-        ($myconfig->{numberformat} eq '1000,00')) {
+
+  if (!(substr($amount, -3, 1) eq ".")) {
+    if (   ($myconfig->{numberformat} eq '1.000,00')
+        || ($myconfig->{numberformat} eq '1000,00')) {
       $amount =~ s/\.//g;
       $amount =~ s/,/\./;
     }
@@ -564,21 +561,25 @@ sub parse_amount {
   return ($amount * 1);
 }
 
-
 sub round_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $amount, $places) = @_;
   my $rc;
 
-#  $places = 3 if $places == 2;
+  #  $places = 3 if $places == 2;
 
   if (($places * 1) >= 0) {
+
     # add 1/10^$places+3
-    $rc = sprintf("%.${places}f", $amount + (1 / (10 ** ($places + 3))) * (($amount > 0) ? 1 : -1));
+    $rc =
+      sprintf("%.${places}f",
+              $amount + (1 / (10**($places + 3))) * (($amount > 0) ? 1 : -1));
   } else {
     $places *= -1;
-    $rc = sprintf("%.f", $amount / (10 ** $places) + (($amount > 0) ? 0.1 : -0.1)) * (10 ** $places);
+    $rc =
+      sprintf("%.f", $amount / (10**$places) + (($amount > 0) ? 0.1 : -0.1)) *
+      (10**$places);
   }
 
   $main::lxdebug->leave_sub();
@@ -593,20 +594,25 @@ sub parse_template {
 
   # { Moritz Bunkus
   # Some variables used for page breaks
-  my ($chars_per_line, $lines_on_first_page, $lines_on_second_page) = (0, 0, 0);
+  my ($chars_per_line, $lines_on_first_page, $lines_on_second_page) =
+    (0, 0, 0);
   my ($current_page, $current_line) = (1, 1);
   my $pagebreak = "";
-  my $sum = 0;
+  my $sum       = 0;
+
   # } Moritz Bunkus
 
   # Make sure that all *notes* (intnotes, partnotes_*, notes etc) are converted to markup correctly.
   $self->format_string(grep(/notes/, keys(%{$self})));
+
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
-  $self->{"notes"} = $self->{$self->{"formname"} . "notes"};
+  $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
-  map({ $self->{"employee_${_}"} = $myconfig->{$_}; } qw(email tel fax name signature));
+  map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
+      qw(email tel fax name signature));
 
-  open(IN, "$self->{templates}/$self->{IN}") or $self->error("$self->{IN} : $!");
+  open(IN, "$self->{templates}/$self->{IN}")
+    or $self->error("$self->{IN} : $!");
 
   @_ = <IN>;
   close(IN);
@@ -645,8 +651,8 @@ sub parse_template {
     # { Moritz Bunkus
     # detect pagebreak block and its parameters
     if (/\s*<%pagebreak ([0-9]+) ([0-9]+) ([0-9]+)%>/) {
-      $chars_per_line = $1;
-      $lines_on_first_page = $2;
+      $chars_per_line       = $1;
+      $lines_on_first_page  = $2;
       $lines_on_second_page = $3;
 
       while ($_ = shift) {
@@ -654,8 +660,8 @@ sub parse_template {
         $pagebreak .= $_;
       }
     }
-    # } Moritz Bunkus
 
+    # } Moritz Bunkus
 
     if (/\s*<%foreach /) {
 
@@ -663,10 +669,10 @@ sub parse_template {
       chomp $var;
       $var =~ s/\s*<%foreach (.+?)%>/$1/;
       while ($_ = shift) {
-	last if (/\s*<%end /);
+        last if (/\s*<%end /);
 
-	# store line in $par
-	$par .= $_;
+        # store line in $par
+        $par .= $_;
       }
 
       # display contents of $self->{number}[] array
@@ -675,9 +681,10 @@ sub parse_template {
         # { Moritz Bunkus
         # Try to detect whether a manual page break is necessary
         # but only if there was a <%pagebreak ...%> block before
-	
+
         if ($chars_per_line) {
-          my $lines = int(length($self->{"description"}[$i]) / $chars_per_line + 0.95);
+          my $lines =
+            int(length($self->{"description"}[$i]) / $chars_per_line + 0.95);
           my $lpp;
 
           my $_description = $self->{"description"}[$i];
@@ -686,7 +693,7 @@ sub parse_template {
             $_description =~ s/\\newline//;
           }
           $self->{"description"}[$i] =~ s/(\\newline\s?)*$//;
-	  
+
           if ($current_page == 1) {
             $lpp = $lines_on_first_page;
           } else {
@@ -696,20 +703,20 @@ sub parse_template {
           # Yes we need a manual page break
           if (($current_line + $lines) > $lpp) {
             my $pb = $pagebreak;
-	    
+
             # replace the special variables <%sumcarriedforward%>
             # and <%lastpage%>
-	    
+
             my $psum = $self->format_amount($myconfig, $sum, 2);
             $pb =~ s/<%sumcarriedforward%>/$psum/g;
             $pb =~ s/<%lastpage%>/$current_page/g;
-            
-	    # only "normal" variables are supported here
+
+            # only "normal" variables are supported here
             # (no <%if, no <%foreach, no <%include)
-            
-	    $pb =~ s/<%(.+?)%>/$self->{$1}/g;
-            
-	    # page break block is ready to rock
+
+            $pb =~ s/<%(.+?)%>/$self->{$1}/g;
+
+            # page break block is ready to rock
             print(OUT $pb);
             $current_page++;
             $current_line = 1;
@@ -717,67 +724,69 @@ sub parse_template {
           $current_line += $lines;
         }
         $sum += $self->parse_amount($myconfig, $self->{"linetotal"}[$i]);
+
         # } Moritz Bunkus
 
-
-	# don't parse par, we need it for each line
-	$_ = $par;
-	s/<%(.+?)%>/$self->{$1}[$i]/mg;
-	print OUT;
+        # don't parse par, we need it for each line
+        $_ = $par;
+        s/<%(.+?)%>/$self->{$1}[$i]/mg;
+        print OUT;
       }
       next;
     }
 
     # if not comes before if!
     if (/\s*<%if not /) {
+
       # check if it is not set and display
       chop;
       s/\s*<%if not (.+?)%>/$1/;
 
       unless ($self->{$_}) {
-	while ($_ = shift) {
-	  last if (/\s*<%end /);
+        while ($_ = shift) {
+          last if (/\s*<%end /);
 
-	  # store line in $par
-	  $par .= $_;
-	}
-	
-	$_ = $par;
-	
+          # store line in $par
+          $par .= $_;
+        }
+
+        $_ = $par;
+
       } else {
-	while ($_ = shift) {
-	  last if (/\s*<%end /);
-	}
-	next;
+        while ($_ = shift) {
+          last if (/\s*<%end /);
+        }
+        next;
       }
     }
- 
+
     if (/\s*<%if /) {
+
       # check if it is set and display
       chop;
       s/\s*<%if (.+?)%>/$1/;
 
       if ($self->{$_}) {
-	while ($_ = shift) {
-	  last if (/\s*<%end /);
+        while ($_ = shift) {
+          last if (/\s*<%end /);
 
-	  # store line in $par
-	  $par .= $_;
-	}
-	
-	$_ = $par;
-	
+          # store line in $par
+          $par .= $_;
+        }
+
+        $_ = $par;
+
       } else {
-	while ($_ = shift) {
-	  last if (/\s*<%end /);
-	}
-	next;
+        while ($_ = shift) {
+          last if (/\s*<%end /);
+        }
+        next;
       }
     }
-   
+
     # check for <%include filename%>
     if (/\s*<%include /) {
-      
+
       # get the filename
       chomp $var;
       $var =~ s/\s*<%include (.+?)%>/$1/;
@@ -788,7 +797,8 @@ sub parse_template {
       # prevent the infinite loop!
       next if ($self->{"$var"});
 
-      open(INC, "$self->{templates}/$var") or $self->error($self->cleanup."$self->{templates}/$var : $!");
+      open(INC, "$self->{templates}/$var")
+        or $self->error($self->cleanup . "$self->{templates}/$var : $!");
       unshift(@_, <INC>);
       close(INC);
 
@@ -796,45 +806,52 @@ sub parse_template {
 
       next;
     }
-    
+
     s/<%(.+?)%>/$self->{$1}/g;
     print OUT;
   }
 
   close(OUT);
 
-
   # { Moritz Bunkus
   # Convert the tex file to postscript
   if ($self->{format} =~ /(postscript|pdf)/) {
 
     use Cwd;
-    $self->{cwd} = cwd();
+    $self->{cwd}    = cwd();
     $self->{tmpdir} = "$self->{cwd}/$userspath";
-    
-    chdir("$userspath") or $self->error($self->cleanup."chdir : $!");
+
+    chdir("$userspath") or $self->error($self->cleanup . "chdir : $!");
 
     $self->{tmpfile} =~ s/$userspath\///g;
 
     if ($self->{format} eq 'postscript') {
-      system("latex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err");
+      system(
+        "latex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
+      );
       $self->error($self->cleanup) if ($?);
       if ($two_passes) {
-        system("latex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err");
+        system(
+          "latex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
+        );
         $self->error($self->cleanup) if ($?);
       }
- 
+
       $self->{tmpfile} =~ s/tex$/dvi/;
- 
+
       system("dvips $self->{tmpfile} -o -q > /dev/null");
-      $self->error($self->cleanup."dvips : $!") if ($?);
+      $self->error($self->cleanup . "dvips : $!") if ($?);
       $self->{tmpfile} =~ s/dvi$/ps/;
     }
     if ($self->{format} eq 'pdf') {
-      system("pdflatex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err");
+      system(
+        "pdflatex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
+      );
       $self->error($self->cleanup) if ($?);
       if ($two_passes) {
-        system("pdflatex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err");
+        system(
+          "pdflatex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
+        );
         $self->error($self->cleanup) if ($?);
       }
       $self->{tmpfile} =~ s/tex$/pdf/;
@@ -845,77 +862,81 @@ sub parse_template {
   if ($self->{format} =~ /(postscript|pdf)/ || $self->{media} eq 'email') {
 
     if ($self->{media} eq 'email') {
-      
+
       use SL::Mailer;
 
       my $mail = new Mailer;
-      
-      map { $mail->{$_} = $self->{$_} } qw(cc bcc subject message version format charset);
-      $mail->{to} = qq|$self->{email}|;
-      $mail->{from} = qq|"$myconfig->{name}" <$myconfig->{email}>|;
+
+      map { $mail->{$_} = $self->{$_} }
+        qw(cc bcc subject message version format charset);
+      $mail->{to}     = qq|$self->{email}|;
+      $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";
 
       # if we send html or plain text inline
       if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-	$mail->{contenttype} = "text/html";
+        $mail->{contenttype} = "text/html";
 
-        $mail->{message} =~ s/\r\n/<br>\n/g;
-	$myconfig->{signature} =~ s/\\n/<br>\n/g;
-	$mail->{message} .= "<br>\n--<br>\n$myconfig->{signature}\n<br>";
-	
-	open(IN, $self->{tmpfile}) or $self->error($self->cleanup."$self->{tmpfile} : $!");
-	while (<IN>) {
-	  $mail->{message} .= $_;
-	}
+        $mail->{message}       =~ s/\r\n/<br>\n/g;
+        $myconfig->{signature} =~ s/\\n/<br>\n/g;
+        $mail->{message} .= "<br>\n--<br>\n$myconfig->{signature}\n<br>";
 
-	close(IN);
+        open(IN, $self->{tmpfile})
+          or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+        while (<IN>) {
+          $mail->{message} .= $_;
+        }
+
+        close(IN);
 
       } else {
-	
-	@{ $mail->{attachments} } = ($self->{tmpfile});
 
-	$myconfig->{signature} =~ s/\\n/\r\n/g;
-	$mail->{message} .= "\r\n--\r\n$myconfig->{signature}";
+        @{ $mail->{attachments} } = ($self->{tmpfile});
+
+        $myconfig->{signature} =~ s/\\n/\r\n/g;
+        $mail->{message} .= "\r\n--\r\n$myconfig->{signature}";
 
       }
- 
+
       my $err = $mail->send($out);
-      $self->error($self->cleanup."$err") if ($err);
-      
+      $self->error($self->cleanup . "$err") if ($err);
+
     } else {
-      
+
       $self->{OUT} = $out;
-      
+
       my $numbytes = (-s $self->{tmpfile});
-      open(IN, $self->{tmpfile}) or $self->error($self->cleanup."$self->{tmpfile} : $!");
+      open(IN, $self->{tmpfile})
+        or $self->error($self->cleanup . "$self->{tmpfile} : $!");
 
       $self->{copies} = 1 unless $self->{media} eq 'printer';
 
       chdir("$self->{cwd}");
-      
-      for my $i (1 .. $self->{copies}) {
-	if ($self->{OUT}) {
-	  open(OUT, $self->{OUT}) or $self->error($self->cleanup."$self->{OUT} : $!");
-	} else {
 
-	  # launch application
-	  print qq|Content-Type: application/$self->{format}
+      for my $i (1 .. $self->{copies}) {
+        if ($self->{OUT}) {
+          open(OUT, $self->{OUT})
+            or $self->error($self->cleanup . "$self->{OUT} : $!");
+        } else {
+
+          # launch application
+          print qq|Content-Type: application/$self->{format}
 Content-Disposition: attachment; filename="$self->{tmpfile}"
 Content-Length: $numbytes
 
 |;
 
-	  open(OUT, ">-") or $self->error($self->cleanup."$!: STDOUT");
+          open(OUT, ">-") or $self->error($self->cleanup . "$!: STDOUT");
 
-	}
-       
-	while (<IN>) {
-	  print OUT $_;
-	}
-	
-	close(OUT);
-	
-	seek IN, 0, 0;
+        }
+
+        while (<IN>) {
+          print OUT $_;
+        }
+
+        close(OUT);
+
+        seek IN, 0, 0;
       }
 
       close(IN);
@@ -928,7 +949,6 @@ Content-Length: $numbytes
   chdir("$self->{cwd}");
   $main::lxdebug->leave_sub();
 }
-
 
 sub cleanup {
   $main::lxdebug->enter_sub();
@@ -945,6 +965,7 @@ sub cleanup {
   }
 
   if ($self->{tmpfile}) {
+
     # strip extension
     $self->{tmpfile} =~ s/\.\w+$//g;
     my $tmpfile = $self->{tmpfile};
@@ -957,7 +978,6 @@ sub cleanup {
 
   return "@err";
 }
-
 
 sub format_string {
   $main::lxdebug->enter_sub();
@@ -972,25 +992,44 @@ sub format_string {
     $format = 'tex';
   }
 
-  my %replace = ( 'order' => { 'html' => [ '<', '>', quotemeta('\n'), '
-' ],
-                               'tex'  => [ '&', quotemeta('\n'), '
+  my %replace = (
+    'order' => {
+      'html' => [
+        '<', '>', quotemeta('\n'), '
+'
+      ],
+      'tex' => [
+        '&', quotemeta('\n'), '
 ',
-					   '"', '\$', '%', '_', '#', quotemeta('^'),
-					   '{', '}', '<', '>', '£', "\r" ] },
-                  'html' => { '<' => '&lt;', '>' => '&gt;',
-                quotemeta('\n') => '<br>', '
+        '"', '\$', '%', '_', '#', quotemeta('^'),
+        '{', '}',  '<', '>', '£', "\r"
+      ]
+    },
+    'html' => {
+      '<'             => '&lt;',
+      '>'             => '&gt;',
+      quotemeta('\n') => '<br>',
+      '
 ' => '<br>'
-		            },
-	           'tex' => {
-	        '"' => "''", '&' => '\&', '\$' => '\$', '%' => '\%', '_' => '\_',
-		'#' => '\#', quotemeta('^') => '\^\\', '{' => '\{', '}' => '\}',
-		'<' => '$<$', '>' => '$>$',
-		quotemeta('\n') => '\newline ', '
-' => '\newline ',
-		'£' => '\pounds ', "\r" => ""
-                            }
-	        );
+    },
+    'tex' => {
+      '"'             => "''",
+      '&'             => '\&',
+      '\$'            => '\$',
+      '%'             => '\%',
+      '_'             => '\_',
+      '#'             => '\#',
+      quotemeta('^')  => '\^\\',
+      '{'             => '\{',
+      '}'             => '\}',
+      '<'             => '$<$',
+      '>'             => '$>$',
+      quotemeta('\n') => '\newline ',
+      '
+'          => '\newline ',
+      '£'  => '\pounds ',
+      "\r" => ""
+    });
 
   foreach my $key (@{ $replace{order}{$format} }) {
     map { $self->{$_} =~ s/$key/$replace{$format}{$key}/g; } @fields;
@@ -998,7 +1037,6 @@ sub format_string {
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub datetonum {
   $main::lxdebug->enter_sub();
@@ -1024,7 +1062,7 @@ sub datetonum {
 
     $dd = "0$dd" if ($dd < 10);
     $mm = "0$mm" if ($mm < 10);
-    
+
     $date = "$yy$mm$dd";
   }
 
@@ -1032,8 +1070,6 @@ sub datetonum {
 
   return $date;
 }
-
-
 
 # Database routines used throughout
 
@@ -1043,7 +1079,10 @@ sub dbconnect {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}) or $self->dberror;
+  my $dbh =
+    DBI->connect($myconfig->{dbconnect},
+                 $myconfig->{dbuser}, $myconfig->{dbpasswd})
+    or $self->dberror;
 
   # set db options
   if ($myconfig->{dboptions}) {
@@ -1054,7 +1093,6 @@ sub dbconnect {
 
   return $dbh;
 }
-
 
 sub dbconnect_noauto {
   $main::lxdebug->enter_sub();
@@ -1062,7 +1100,10 @@ sub dbconnect_noauto {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  $dbh = DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, {AutoCommit => 0}) or $self->dberror;
+  $dbh =
+    DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser},
+                 $myconfig->{dbpasswd}, { AutoCommit => 0 })
+    or $self->dberror;
 
   # set db options
   if ($myconfig->{dboptions}) {
@@ -1073,7 +1114,6 @@ sub dbconnect_noauto {
 
   return $dbh;
 }
-
 
 sub update_balance {
   $main::lxdebug->enter_sub();
@@ -1082,23 +1122,23 @@ sub update_balance {
 
   # if we have a value, go do it
   if ($value != 0) {
+
     # retrieve balance from table
     my $query = "SELECT $field FROM $table WHERE $where FOR UPDATE";
-    my $sth = $dbh->prepare($query);
+    my $sth   = $dbh->prepare($query);
 
     $sth->execute || $self->dberror($query);
     my ($balance) = $sth->fetchrow_array;
     $sth->finish;
 
     $balance += $value;
+
     # update balance
     $query = "UPDATE $table SET $field = $balance WHERE $where";
     $dbh->do($query) || $self->dberror($query);
   }
   $main::lxdebug->leave_sub();
 }
-
-
 
 sub update_exchangerate {
   $main::lxdebug->enter_sub();
@@ -1117,7 +1157,7 @@ sub update_exchangerate {
 		 FOR UPDATE|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
-  
+
   my $set;
   if ($buy != 0 && $sell != 0) {
     $set = "buy = $buy, sell = $sell";
@@ -1126,7 +1166,7 @@ sub update_exchangerate {
   } elsif ($sell != 0) {
     $set = "sell = $sell";
   }
-  
+
   if ($sth->fetchrow_array) {
     $query = qq|UPDATE exchangerate
                 SET $set
@@ -1138,10 +1178,9 @@ sub update_exchangerate {
   }
   $sth->finish;
   $dbh->do($query) || $self->dberror($query);
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub save_exchangerate {
   $main::lxdebug->enter_sub();
@@ -1151,16 +1190,15 @@ sub save_exchangerate {
   my $dbh = $self->dbconnect($myconfig);
 
   my ($buy, $sell) = (0, 0);
-  $buy = $rate if $fld eq 'buy';
+  $buy  = $rate if $fld eq 'buy';
   $sell = $rate if $fld eq 'sell';
-  
+
   $self->update_exchangerate($dbh, $currency, $transdate, $buy, $sell);
 
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub get_exchangerate {
   $main::lxdebug->enter_sub();
@@ -1181,7 +1219,6 @@ sub get_exchangerate {
   return $exchangerate;
 }
 
-
 sub check_exchangerate {
   $main::lxdebug->enter_sub();
 
@@ -1192,7 +1229,6 @@ sub check_exchangerate {
     return "";
   }
 
-  
   my $dbh = $self->dbconnect($myconfig);
 
   my $query = qq|SELECT e.$fld FROM exchangerate e
@@ -1204,12 +1240,11 @@ sub check_exchangerate {
   my ($exchangerate) = $sth->fetchrow_array;
   $sth->finish;
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 
   return $exchangerate;
 }
-
 
 sub add_shipto {
   $main::lxdebug->enter_sub();
@@ -1217,7 +1252,8 @@ sub add_shipto {
   my ($self, $dbh, $id) = @_;
 ##LINET
   my $shipto;
-  foreach my $item (qw(name street zipcode city country contact phone fax email)) {
+  foreach
+    my $item (qw(name street zipcode city country contact phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
@@ -1238,7 +1274,6 @@ sub add_shipto {
 ##/LINET
   $main::lxdebug->leave_sub();
 }
-
 
 sub get_employee {
   $main::lxdebug->enter_sub();
@@ -1262,16 +1297,16 @@ sub get_employee {
 sub get_contact {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh,$id) = @_;
-  
+  my ($self, $dbh, $id) = @_;
+
   my $query = qq|SELECT c.*
-              FROM contacts c 
+              FROM contacts c
               WHERE cp_id=$id|;
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
-    
+
   $ref = $sth->fetchrow_hashref(NAME_lc);
-  
+
   push @{ $self->{$_} }, $ref;
 
   $sth->finish;
@@ -1284,38 +1319,37 @@ sub get_contacts {
 
   my ($self, $dbh, $id) = @_;
 
-  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname 
-              FROM contacts c 
+  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname
+              FROM contacts c
               WHERE cp_cv_id=$id|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
-  
-    my $i = 0;
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+
+  my $i = 0;
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{all_contacts} }, $ref;
     $i++;
   }
-  
-  if ($i == 0) 
-  {
-    push @{ $self->{all_contacts} }, {{"","","","",""}};
+
+  if ($i == 0) {
+    push @{ $self->{all_contacts} }, { { "", "", "", "", "" } };
   }
   $sth->finish;
   $main::lxdebug->leave_sub();
 }
-
 
 # this sub gets the id and name from $table
 sub get_name {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $table) = @_;
+
   # connect to database
   my $dbh = $self->dbconnect($myconfig);
 
-  my $name = $self->like(lc $self->{$table});
+  my $name           = $self->like(lc $self->{$table});
   my $customernumber = $self->like(lc $self->{customernumber});
-  
+
   if ($self->{customernumber} ne "") {
     $query = qq~SELECT c.id, c.name,
                   c.street || ' ' || c.zipcode || ' ' || c.city || ' ' || c.country AS address
@@ -1328,7 +1362,7 @@ sub get_name {
                  FROM $table c
 		 WHERE (lower(c.name) LIKE '$name') AND (not c.obsolete)
 		 ORDER BY c.name~;
-    }
+  }
 
   if ($self->{openinvoices}) {
     $query = qq~SELECT DISTINCT c.id, c.name,
@@ -1356,7 +1390,6 @@ sub get_name {
   return $i;
 }
 
-
 # the selection sub is used in the AR, AP, IS, IR and OE module
 #
 sub all_vc {
@@ -1368,7 +1401,7 @@ sub all_vc {
   my $dbh = $self->dbconnect($myconfig);
 
   my $query = qq|SELECT count(*) FROM $table|;
-  my $sth = $dbh->prepare($query);
+  my $sth   = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
   my ($count) = $sth->fetchrow_array;
   $sth->finish;
@@ -1406,12 +1439,16 @@ sub all_vc {
   $sth->finish;
 
   # this is for self
-  push @{ $self->{all_employees} }, { id => $self->{employee_id},
-				    name => $self->{employee} };
+  push @{ $self->{all_employees} },
+    { id   => $self->{employee_id},
+      name => $self->{employee} };
+
   # sort the whole thing
-  @{ $self->{all_employees} } = sort { $a->{name} cmp $b->{name} } @{ $self->{all_employees} };
+  @{ $self->{all_employees} } =
+    sort { $a->{name} cmp $b->{name} } @{ $self->{all_employees} };
 
   if ($module eq 'AR') {
+
     # prepare query for departments
     $query = qq|SELECT d.id, d.description
 		FROM department d
@@ -1432,11 +1469,9 @@ sub all_vc {
   }
   $sth->finish;
 
-
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
-
 
 # this is only used for reports
 sub all_departments {
@@ -1444,7 +1479,7 @@ sub all_departments {
 
   my ($self, $myconfig, $table) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh   = $self->dbconnect($myconfig);
   my $where = "1 = 1";
 
   if (defined $table) {
@@ -1470,7 +1505,6 @@ sub all_departments {
   $main::lxdebug->leave_sub();
 }
 
-
 sub create_links {
   $main::lxdebug->enter_sub();
 
@@ -1485,13 +1519,13 @@ sub create_links {
 
   my %xkeyref = ();
 
-
   # now get the account numbers
-  $query = qq|SELECT c.accno, SUBSTRING(c.description,1,50) as description, c.link, c.taxkey_id
+  $query =
+    qq|SELECT c.accno, SUBSTRING(c.description,1,50) as description, c.link, c.taxkey_id
               FROM chart c
 	      WHERE c.link LIKE '%$module%'
 	      ORDER BY c.accno|;
-  
+
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
@@ -1500,11 +1534,14 @@ sub create_links {
 
     foreach my $key (split /:/, $ref->{link}) {
       if ($key =~ /$module/) {
-	# cross reference for keys
-	$xkeyref{$ref->{accno}} = $key;
 
-	push @{ $self->{"${module}_links"}{$key} }, { accno => $ref->{accno},
-                                       description => $ref->{description}, taxkey => $ref->{taxkey_id} };
+        # cross reference for keys
+        $xkeyref{ $ref->{accno} } = $key;
+
+        push @{ $self->{"${module}_links"}{$key} },
+          { accno       => $ref->{accno},
+            description => $ref->{description},
+            taxkey      => $ref->{taxkey_id} };
 
         $self->{accounts} .= "$ref->{accno} " unless $key =~ /tax/;
       }
@@ -1516,8 +1553,8 @@ sub create_links {
 
     # get tax rates and description
     $query = qq| SELECT * FROM tax t|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);  
+    $sth   = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
     $form->{TAX} = ();
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $self->{TAX} }, $ref;
@@ -1541,7 +1578,7 @@ sub create_links {
 		WHERE a.id = $self->{id}|;
     $sth = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
-    
+
     $ref = $sth->fetchrow_hashref(NAME_lc);
     foreach $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
@@ -1562,14 +1599,19 @@ sub create_links {
     $sth->execute || $self->dberror($query);
 
     my $fld = ($table eq 'customer') ? 'buy' : 'sell';
+
     # get exchangerate for currency
-    $self->{exchangerate} = $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate}, $fld);
+    $self->{exchangerate} =
+      $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate},
+                              $fld);
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      $ref->{exchangerate} = $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate}, $fld);
+      $ref->{exchangerate} =
+        $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate},
+                                $fld);
 
-      push @{ $self->{acc_trans}{$xkeyref{$ref->{accno}}} }, $ref;
+      push @{ $self->{acc_trans}{ $xkeyref{ $ref->{accno} } } }, $ref;
     }
     $sth->finish;
 
@@ -1585,7 +1627,6 @@ sub create_links {
     $ref = $sth->fetchrow_hashref(NAME_lc);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
     $sth->finish;
-
 
   } else {
 
@@ -1605,6 +1646,7 @@ sub create_links {
     $sth->finish;
 
     if ($self->{"$self->{vc}_id"}) {
+
       # only setup currency
       ($self->{currency}) = split /:/, $self->{currencies};
 
@@ -1613,8 +1655,11 @@ sub create_links {
       $self->lastname_used($dbh, $myconfig, $table, $module);
 
       my $fld = ($table eq 'customer') ? 'buy' : 'sell';
+
       # get exchangerate for currency
-      $self->{exchangerate} = $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate}, $fld);
+      $self->{exchangerate} =
+        $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate},
+                                $fld);
 
     }
 
@@ -1625,25 +1670,24 @@ sub create_links {
   $main::lxdebug->leave_sub();
 }
 
-
 sub lastname_used {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $myconfig, $table, $module) = @_;
 
-  my $arap = ($table eq 'customer') ? "ar" : "ap";
+  my $arap  = ($table eq 'customer') ? "ar" : "ap";
   my $where = "1 = 1";
 
   if ($self->{type} =~ /_order/) {
-    $arap = 'oe';
+    $arap  = 'oe';
     $where = "quotation = '0'";
   }
   if ($self->{type} =~ /_quotation/) {
-    $arap = 'oe';
+    $arap  = 'oe';
     $where = "quotation = '1'";
   }
 
-  my $query = qq|SELECT id FROM $arap 
+  my $query = qq|SELECT id FROM $arap
                  WHERE id IN (SELECT MAX(id) FROM $arap
 		              WHERE $where
 			      AND ${table}_id > 0)|;
@@ -1664,13 +1708,13 @@ sub lastname_used {
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
-  ($self->{$table}, $self->{currency}, $self->{"${table}_id"}, $self->{duedate}, $self->{department_id}, $self->{department}) = $sth->fetchrow_array;
+  ($self->{$table},  $self->{currency},      $self->{"${table}_id"},
+   $self->{duedate}, $self->{department_id}, $self->{department})
+    = $sth->fetchrow_array;
   $sth->finish;
 
   $main::lxdebug->leave_sub();
 }
-
-
 
 sub current_date {
   $main::lxdebug->enter_sub();
@@ -1687,13 +1731,13 @@ sub current_date {
 
     $query = qq|SELECT to_date('$thisdate', '$dateformat') + $days AS thisdate
                 FROM defaults|;
-     $sth = $dbh->prepare($query);
-     $sth->execute || $self->dberror($query);
+    $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
   } else {
     $query = qq|SELECT current_date AS thisdate
                 FROM defaults|;
-     $sth = $dbh->prepare($query);
-     $sth->execute || $self->dberror($query);
+    $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
   }
 
   ($thisdate) = $sth->fetchrow_array;
@@ -1705,7 +1749,6 @@ sub current_date {
 
   return $thisdate;
 }
-
 
 sub like {
   $main::lxdebug->enter_sub();
@@ -1723,7 +1766,6 @@ sub like {
   return $string;
 }
 
-
 sub redo_rows {
   $main::lxdebug->enter_sub();
 
@@ -1731,9 +1773,11 @@ sub redo_rows {
 
   my @ndx = ();
 
-  map { push @ndx, { num => $new->[$_-1]->{runningnumber}, ndx => $_ } } (1 .. $count);
+  map { push @ndx, { num => $new->[$_ - 1]->{runningnumber}, ndx => $_ } }
+    (1 .. $count);
 
   my $i = 0;
+
   # fill rows
   foreach my $item (sort { $a->{num} <=> $b->{num} } @ndx) {
     $i++;
@@ -1748,7 +1792,6 @@ sub redo_rows {
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub update_status {
   $main::lxdebug->enter_sub();
@@ -1780,6 +1823,7 @@ sub update_status {
   my %queued = split / /, $self->{queued};
 
   if ($self->{formname} =~ /(check|receipt)/) {
+
     # this is a check or receipt, add one entry for each lineitem
     my ($accno) = split /--/, $self->{account};
     $query = qq|INSERT INTO status (trans_id, printed, spoolfile, formname,
@@ -1790,8 +1834,8 @@ sub update_status {
 
     for $i (1 .. $self->{rowcount}) {
       if ($self->{"checked_$i"}) {
-	$sth->execute($self->{"id_$i"}) || $self->dberror($query);
-	$sth->finish;
+        $sth->execute($self->{"id_$i"}) || $self->dberror($query);
+        $sth->finish;
       }
     }
   } else {
@@ -1808,7 +1852,6 @@ sub update_status {
   $main::lxdebug->leave_sub();
 }
 
-
 sub save_status {
   $main::lxdebug->enter_sub();
 
@@ -1816,7 +1859,7 @@ sub save_status {
 
   my ($query, $printed, $emailed);
 
-  my $formnames = $self->{printed};
+  my $formnames  = $self->{printed};
   my $emailforms = $self->{emailed};
 
   my $query = qq|DELETE FROM status
@@ -1840,14 +1883,14 @@ sub save_status {
 		  '$queued{$formname}', '$formname')|;
       $dbh->do($query) || $self->dberror($query);
 
-      $formnames =~ s/$self->{formname}//;
+      $formnames  =~ s/$self->{formname}//;
       $emailforms =~ s/$self->{formname}//;
 
     }
   }
 
   # save printed, emailed info
-  $formnames =~ s/^ +//g;
+  $formnames  =~ s/^ +//g;
   $emailforms =~ s/^ +//g;
 
   my %status = ();
@@ -1855,7 +1898,7 @@ sub save_status {
   map { $status{$_}{emailed} = 1 } split / +/, $emailforms;
 
   foreach my $formname (keys %status) {
-    $printed = ($formnames =~ /$self->{formname}/) ? "1" : "0";
+    $printed = ($formnames  =~ /$self->{formname}/) ? "1" : "0";
     $emailed = ($emailforms =~ /$self->{formname}/) ? "1" : "0";
 
     $query = qq|INSERT INTO status (trans_id, printed, emailed, formname)
@@ -1866,15 +1909,14 @@ sub save_status {
   $main::lxdebug->leave_sub();
 }
 
-
 sub update_defaults {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $fld) = @_;
 
-  my $dbh = $self->dbconnect_noauto($myconfig);
+  my $dbh   = $self->dbconnect_noauto($myconfig);
   my $query = qq|SELECT $fld FROM defaults FOR UPDATE|;
-  my $sth = $dbh->prepare($query);
+  my $sth   = $dbh->prepare($query);
 
   $sth->execute || $self->dberror($query);
   my ($var) = $sth->fetchrow_array;
@@ -1899,8 +1941,9 @@ sub update_business {
 
   my ($self, $myconfig, $business_id) = @_;
 
-  my $dbh = $self->dbconnect_noauto($myconfig);
-  my $query = qq|SELECT customernumberinit FROM business  WHERE id=$business_id FOR UPDATE|;
+  my $dbh   = $self->dbconnect_noauto($myconfig);
+  my $query =
+    qq|SELECT customernumberinit FROM business  WHERE id=$business_id FOR UPDATE|;
   my $sth = $dbh->prepare($query);
 
   $sth->execute || $self->dberror($query);
@@ -1926,8 +1969,9 @@ sub get_salesman {
 
   my ($self, $myconfig, $salesman) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
-  my $query = qq|SELECT id, name FROM customer  WHERE (customernumber ilike '%$salesman%' OR name ilike '%$salesman%') AND business_id in (SELECT id from business WHERE salesman)|;
+  my $dbh   = $self->dbconnect($myconfig);
+  my $query =
+    qq|SELECT id, name FROM customer  WHERE (customernumber ilike '%$salesman%' OR name ilike '%$salesman%') AND business_id in (SELECT id from business WHERE salesman)|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
@@ -1935,12 +1979,12 @@ sub get_salesman {
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push(@{ $self->{salesman_list} }, $ref);
     $i++;
-  }  
+  }
   $dbh->commit;
   $main::lxdebug->leave_sub();
 
   return $i;
-}  
+}
 
 sub get_partsgroup {
   $main::lxdebug->enter_sub();
@@ -1976,7 +2020,7 @@ sub get_partsgroup {
   if ($p->{all}) {
     $query = qq|SELECT id, partsgroup FROM partsgroup
                 ORDER BY partsgroup|;
-  } 
+  }
 
   if ($p->{language_code}) {
     $query = qq|SELECT DISTINCT pg.id, pg.partsgroup,
@@ -2001,7 +2045,6 @@ sub get_partsgroup {
 
 package Locale;
 
-
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -2016,21 +2059,23 @@ sub new {
 
   $self->{NLS_file} = $NLS_file;
 
-  push @{ $self->{LONG_MONTH} }, ("January", "February", "March", "April", "May ", "June", "July", "August", "September", "October", "November", "December");
-  push @{ $self->{SHORT_MONTH} }, (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec));
+  push @{ $self->{LONG_MONTH} },
+    ("January",   "February", "March",    "April",
+     "May ",      "June",     "July",     "August",
+     "September", "October",  "November", "December");
+  push @{ $self->{SHORT_MONTH} },
+    (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec));
 
   $main::lxdebug->leave_sub();
 
   bless $self, $type;
 }
 
-
 sub text {
   my ($self, $text) = @_;
 
   return (exists $self{texts}{$text}) ? $self{texts}{$text} : $text;
 }
-
 
 sub findsub {
   $main::lxdebug->enter_sub();
@@ -2041,7 +2086,8 @@ sub findsub {
     $text = $self{subs}{$text};
   } else {
     if ($self->{countrycode} && $self->{NLS_file}) {
-      Form->error("$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
+      Form->error(
+         "$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
     }
   }
 
@@ -2050,16 +2096,16 @@ sub findsub {
   return $text;
 }
 
-
 sub date {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $date, $longformat) = @_;
 
-  my $longdate = "";
+  my $longdate  = "";
   my $longmonth = ($longformat) ? 'LONG_MONTH' : 'SHORT_MONTH';
 
   if ($date) {
+
     # get separator
     $spc = $myconfig->{dateformat};
     $spc =~ s/\w//g;
@@ -2067,13 +2113,13 @@ sub date {
 
     if ($date =~ /\D/) {
       if ($myconfig->{dateformat} =~ /^yy/) {
-	($yy, $mm, $dd) = split /\D/, $date;
+        ($yy, $mm, $dd) = split /\D/, $date;
       }
       if ($myconfig->{dateformat} =~ /^mm/) {
-	($mm, $dd, $yy) = split /\D/, $date;
+        ($mm, $dd, $yy) = split /\D/, $date;
       }
       if ($myconfig->{dateformat} =~ /^dd/) {
-	($dd, $mm, $yy) = split /\D/, $date;
+        ($dd, $mm, $yy) = split /\D/, $date;
       }
     } else {
       $date = substr($date, 2);
@@ -2087,16 +2133,17 @@ sub date {
 
     if ($myconfig->{dateformat} =~ /^dd/) {
       if (defined $longformat && $longformat == 0) {
-	$mm++;
-	$dd = "0$dd" if ($dd < 10);
-	$mm = "0$mm" if ($mm < 10);
-	$longdate = "$dd$spc$mm$spc$yy";
+        $mm++;
+        $dd = "0$dd" if ($dd < 10);
+        $mm = "0$mm" if ($mm < 10);
+        $longdate = "$dd$spc$mm$spc$yy";
       } else {
-	$longdate = "$dd";
-	$longdate .= ($spc eq '.') ? ". " : " ";
-	$longdate .= &text($self, $self->{$longmonth}[$mm])." $yy";
+        $longdate = "$dd";
+        $longdate .= ($spc eq '.') ? ". " : " ";
+        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
       }
     } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
+
       # Use German syntax with the ISO date style "yyyy-mm-dd" because
       # Lx-Office is mainly used in Germany or German speaking countries.
       if (defined $longformat && $longformat == 0) {
@@ -2106,16 +2153,16 @@ sub date {
         $longdate = "$yy-$mm-$dd";
       } else {
         $longdate = "$dd. ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm])." $yy";
+        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
       }
     } else {
       if (defined $longformat && $longformat == 0) {
-	$mm++;
-	$dd = "0$dd" if ($dd < 10);
-	$mm = "0$mm" if ($mm < 10);
-	$longdate = "$mm$spc$dd$spc$yy";
+        $mm++;
+        $dd = "0$dd" if ($dd < 10);
+        $mm = "0$mm" if ($mm < 10);
+        $longdate = "$mm$spc$dd$spc$yy";
       } else {
-	$longdate = &text($self, $self->{$longmonth}[$mm])." $dd, $yy";
+        $longdate = &text($self, $self->{$longmonth}[$mm]) . " $dd, $yy";
       }
     }
 
@@ -2164,4 +2211,3 @@ sub parse_date {
 }
 
 1;
-

@@ -34,7 +34,6 @@
 
 package RC;
 
-
 sub paymentaccounts {
   $main::lxdebug->enter_sub();
 
@@ -60,7 +59,6 @@ sub paymentaccounts {
   $main::lxdebug->leave_sub();
 }
 
-
 sub payment_transactions {
   $main::lxdebug->enter_sub();
 
@@ -70,7 +68,7 @@ sub payment_transactions {
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   my ($query, $sth);
-  
+
   # get cleared balance
   if ($form->{fromdate}) {
     $query = qq|SELECT sum(a.amount),
@@ -92,7 +90,7 @@ sub payment_transactions {
 		AND c.accno = '$form->{accno}'
 		|;
   }
-  
+
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -100,9 +98,9 @@ sub payment_transactions {
 
   $sth->finish;
 
-  my %oid = ( 'Pg'	=> 'ac.oid',
-              'Oracle'	=> 'ac.rowid');
-  
+  my %oid = ('Pg'     => 'ac.oid',
+             'Oracle' => 'ac.rowid');
+
   $query = qq|SELECT c.name, ac.source, ac.transdate, ac.cleared,
 	      ac.fx_transaction, ac.amount, a.id,
 	      $oid{$myconfig->{dbdriver}} AS oid
@@ -114,17 +112,16 @@ sub payment_transactions {
 	      AND ac.chart_id = ch.id
 	      AND ch.accno = '$form->{accno}'
 	      |;
-	      
-  $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
-  $query .= " AND ac.transdate <= '$form->{todate}'" if $form->{todate};
 
+  $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
+  $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
 
   $query .= qq|
-  
+
       UNION
               SELECT v.name, ac.source, ac.transdate, ac.cleared,
 	      ac.fx_transaction, ac.amount, a.id,
-	      $oid{$myconfig->{dbdriver}} AS oid 
+	      $oid{$myconfig->{dbdriver}} AS oid
 	      FROM vendor v, acc_trans ac, ap a, chart ch
 	      WHERE v.id = a.vendor_id
 --	      AND NOT ac.fx_transaction
@@ -133,16 +130,16 @@ sub payment_transactions {
 	      AND ac.chart_id = ch.id
 	      AND ch.accno = '$form->{accno}'
 	     |;
-	      
+
   $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
-  $query .= " AND ac.transdate <= '$form->{todate}'" if $form->{todate};
+  $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
 
   $query .= qq|
-  
+
       UNION
 	      SELECT g.description, ac.source, ac.transdate, ac.cleared,
 	      ac.fx_transaction, ac.amount, g.id,
-	      $oid{$myconfig->{dbdriver}} AS oid 
+	      $oid{$myconfig->{dbdriver}} AS oid
 	      FROM gl g, acc_trans ac, chart ch
 	      WHERE g.id = ac.trans_id
 --	      AND NOT ac.fx_transaction
@@ -153,7 +150,7 @@ sub payment_transactions {
 	      |;
 
   $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
-  $query .= " AND ac.transdate <= '$form->{todate}'" if $form->{todate};
+  $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
 
   $query .= " ORDER BY 3,7,8";
 
@@ -166,10 +163,9 @@ sub payment_transactions {
   $sth->finish;
 
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub reconcile {
   $main::lxdebug->enter_sub();
@@ -180,9 +176,9 @@ sub reconcile {
   my $dbh = $form->dbconnect($myconfig);
 
   my ($query, $i);
-  my %oid = ( 'Pg'	=> 'oid',
-              'Oracle'	=> 'rowid');
-  
+  my %oid = ('Pg'     => 'oid',
+             'Oracle' => 'rowid');
+
   # clear flags
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"cleared_$i"}) {
@@ -192,9 +188,9 @@ sub reconcile {
 
       # clear fx_transaction
       if ($form->{"fxoid_$i"}) {
-	$query = qq|UPDATE acc_trans SET cleared = '1'
+        $query = qq|UPDATE acc_trans SET cleared = '1'
 		    WHERE $oid{$myconfig->{dbdriver}} = $form->{"fxoid_$i"}|;
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
       }
     }
   }
@@ -205,4 +201,3 @@ sub reconcile {
 }
 
 1;
-

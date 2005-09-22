@@ -32,7 +32,6 @@
 #
 #======================================================================
 
-
 package AP;
 
 sub post_transaction {
@@ -42,24 +41,33 @@ sub post_transaction {
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
-  
+
   my ($null, $taxrate, $amount);
   my $exchangerate = 0;
-  
+
   ($null, $form->{department_id}) = split(/--/, $form->{department});
   $form->{department_id} *= 1;
 
   if ($form->{currency} eq $form->{defaultcurrency}) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'sell');
+    $exchangerate =
+      $form->check_exchangerate($myconfig, $form->{currency},
+                                $form->{transdate}, 'sell');
 
-    $form->{exchangerate} = ($exchangerate) ? $exchangerate : $form->parse_amount($myconfig, $form->{exchangerate});
+    $form->{exchangerate} =
+      ($exchangerate)
+      ? $exchangerate
+      : $form->parse_amount($myconfig, $form->{exchangerate});
   }
 
   # reverse and parse amounts
   for my $i (1 .. 1) {
-    $form->{"amount_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"amount_$i"}) * $form->{exchangerate} * -1, 2);
+    $form->{"amount_$i"} =
+      $form->round_amount(
+                         $form->parse_amount($myconfig, $form->{"amount_$i"}) *
+                           $form->{exchangerate} * -1,
+                         2);
     $amount += ($form->{"amount_$i"} * -1);
   }
 
@@ -68,55 +76,61 @@ sub post_transaction {
 
   # taxincluded doesn't make sense if there is no amount
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
-  
-  $query = qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{taxkey}|;
+
+  $query =
+    qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{taxkey}|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);  
-  ($form->{AP}{"tax"}, $form->{taxrate}) =  $sth->fetchrow_array;
+  $sth->execute || $form->dberror($query);
+  ($form->{AP}{"tax"}, $form->{taxrate}) = $sth->fetchrow_array;
   $sth->finish;
-  
+
   $formtax = $form->parse_amount($myconfig, $form->{"tax"});
-  
+
   $form->{"tax"} = $form->{amount} * $form->{taxrate};
-  $form->{"tax"} = $form->round_amount($form->{"tax"} * $form->{exchangerate}, 2) * -1;
-  
+  $form->{"tax"} =
+    $form->round_amount($form->{"tax"} * $form->{exchangerate}, 2) * -1;
+
   if ($form->{taxcheck}) {
     $form->{"tax"} = $formtax * -1;
   }
-  
+
   $form->{total_tax} += ($form->{"tax"} * -1);
-  
- 
 
   # adjust paidaccounts if there is no date in the last row
   $form->{paidaccounts}-- unless ($form->{"datepaid_$form->{paidaccounts}"});
-  
+
   $form->{invpaid} = 0;
+
   # add payments
   for my $i (1 .. $form->{paidaccounts}) {
-    $form->{"paid_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"paid_$i"}), 2);
-    
+    $form->{"paid_$i"} =
+      $form->round_amount($form->parse_amount($myconfig, $form->{"paid_$i"}),
+                          2);
+
     $form->{invpaid} += $form->{"paid_$i"};
     $form->{datepaid} = $form->{"datepaid_$i"};
 
   }
-  
-  $form->{invpaid} = $form->round_amount($form->{invpaid} * $form->{exchangerate}, 2);
-  
+
+  $form->{invpaid} =
+    $form->round_amount($form->{invpaid} * $form->{exchangerate}, 2);
+
   if ($form->{taxincluded} *= 1) {
     for $i (1 .. 1) {
-      $tax = $form->{"amount_$i"} - ( $form->{"amount_$i"} / ($form->{taxrate} + 1)) ;
+      $tax =
+        $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{taxrate} + 1));
       if ($form->{taxcheck}) {
-       $tax = $formtax *- 1;
+        $tax = $formtax * -1;
       }
       $amount = $form->{"amount_$i"} - $tax;
       $form->{"amount_$i"} = $form->round_amount($amount, 2);
       $diff += $amount - $form->{"amount_$i"};
-      $form->{tax} = $form->round_amount($tax,2);
+      $form->{tax} = $form->round_amount($tax, 2);
       $form->{total_tax} = $form->{tax} * -1;
     }
-    print (STDERR "Steuer $form->{tax}\n");
-    print (STDERR "TotalSteuer $form->{total_tax}\n");
+    print(STDERR "Steuer $form->{tax}\n");
+    print(STDERR "TotalSteuer $form->{total_tax}\n");
+
     # deduct taxes from amount
     # $form->{amount} -= $form->{total_tax};
     # deduct difference from amount_1
@@ -125,13 +139,12 @@ sub post_transaction {
   }
 
   $form->{netamount} = $form->{amount};
-  
+
   # store invoice total, this goes into ap table
   $form->{invtotal} = $form->{amount} + $form->{total_tax};
-  
+
   # amount for total AP
   $form->{payables} = $form->{invtotal};
- 
 
   my ($query, $sth);
 
@@ -142,19 +155,19 @@ sub post_transaction {
     $query = qq|DELETE FROM acc_trans WHERE trans_id = $form->{id}|;
 
     $dbh->do($query) || $form->dberror($query);
-    
+
   } else {
-    my $uid = rand().time;
+    my $uid = rand() . time;
 
     $uid .= $form->{login};
 
-    $uid = substr($uid,2,75);
+    $uid = substr($uid, 2, 75);
 
     $query = qq|INSERT INTO ap (invnumber, employee_id)
                 VALUES ('$uid', (SELECT e.id FROM employee e
 		                 WHERE e.login = '$form->{login}') )|;
     $dbh->do($query) || $form->dberror($query);
-    
+
     $query = qq|SELECT a.id FROM ap a
                 WHERE a.invnumber = '$uid'|;
     $sth = $dbh->prepare($query);
@@ -162,14 +175,14 @@ sub post_transaction {
 
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
-   
+
   }
 
   $form->{invnumber} = $form->{id} unless $form->{invnumber};
-  
+
   # escape '
   map { $form->{$_} =~ s/\'/\'\'/g } qw(invnumber ordnumber notes);
-    
+
   $form->{datepaid} = $form->{transdate} unless ($form->{datepaid});
   my $datepaid = ($form->{invpaid} != 0) ? qq|'$form->{datepaid}'| : 'NULL';
 
@@ -191,10 +204,10 @@ sub post_transaction {
 	     |;
   $dbh->do($query) || $form->dberror($query);
 
-
   # update exchangerate
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-    $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, 0, $form->{exchangerate});
+    $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, 0,
+                               $form->{exchangerate});
   }
 
   # add individual transactions
@@ -202,9 +215,9 @@ sub post_transaction {
     if ($form->{$item} != 0) {
       $project_id = 'NULL';
       if ($item =~ /amount_/) {
-	if ($form->{"project_id_$'"} && $form->{"projectnumber_$'"}) { 
-	  $project_id = $form->{"project_id_$'"};
-	}
+        if ($form->{"project_id_$'"} && $form->{"projectnumber_$'"}) {
+          $project_id = $form->{"project_id_$'"};
+        }
       }
 
       # insert detail records in acc_trans
@@ -222,43 +235,53 @@ sub post_transaction {
   if ($form->{amount} == 0 && $form->{invtotal} == 0) {
     $form->{payables} = $form->{invpaid};
   }
- 
+
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->{"paid_$i"} != 0) {
 
       $exchangerate = 0;
       if ($form->{currency} eq $form->{defaultcurrency}) {
-	$form->{"exchangerate_$i"} = 1;
+        $form->{"exchangerate_$i"} = 1;
       } else {
-	$exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+        $exchangerate =
+          $form->check_exchangerate($myconfig, $form->{currency},
+                                    $form->{"datepaid_$i"}, 'sell');
 
-	$form->{"exchangerate_$i"} = ($exchangerate) ? $exchangerate : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
+        $form->{"exchangerate_$i"} =
+          ($exchangerate)
+          ? $exchangerate
+          : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
       }
       $form->{"AP_paid_$i"} =~ s/\"//g;
+
       # get paid account
 
       ($form->{AP}{"paid_$i"}) = split(/--/, $form->{"AP_paid_$i"});
-      $form->{"datepaid_$i"} = $form->{transdate} unless ($form->{"datepaid_$i"});
+      $form->{"datepaid_$i"} = $form->{transdate}
+        unless ($form->{"datepaid_$i"});
 
       # if there is no amount and invtotal is zero there is no exchangerate
       if ($form->{amount} == 0 && $form->{invtotal} == 0) {
-	$form->{exchangerate} = $form->{"exchangerate_$i"};
+        $form->{exchangerate} = $form->{"exchangerate_$i"};
       }
-      
-      $amount = $form->round_amount($form->{"paid_$i"} * $form->{exchangerate} * -1, 2);
+
+      $amount =
+        $form->round_amount($form->{"paid_$i"} * $form->{exchangerate} * -1,
+                            2);
       if ($form->{payables}) {
-	$query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
 		    transdate)
 		    VALUES ($form->{id},
 		           (SELECT c.id FROM chart c
 			    WHERE c.accno = '$form->{AP}{payables}'),
 		    $amount, '$form->{"datepaid_$i"}')|;
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
       }
       $form->{payables} = $amount;
 
       $form->{"memo_$i"} =~ s/\'/\'\'/g;
+
       # add payment
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
                   transdate, source, memo)
@@ -268,40 +291,49 @@ sub post_transaction {
 		  $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
 		  '$form->{"source_$i"}', '$form->{"memo_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
-      
+
       # add exchange rate difference
-      $amount = $form->round_amount($form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1), 2);
+      $amount =
+        $form->round_amount(
+                         $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1),
+                         2);
       if ($amount != 0) {
-	$query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
 		    transdate, fx_transaction, cleared)
 		    VALUES ($form->{id},
 		           (SELECT c.id FROM chart c
 			    WHERE c.accno = '$form->{AP}{"paid_$i"}'),
 		    $amount, '$form->{"datepaid_$i"}', '1', '0')|;
 
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
       }
 
       # exchangerate gain/loss
-      $amount = $form->round_amount($form->{"paid_$i"} * ($form->{exchangerate} - $form->{"exchangerate_$i"}), 2);
+      $amount =
+        $form->round_amount(
+                        $form->{"paid_$i"} *
+                          ($form->{exchangerate} - $form->{"exchangerate_$i"}),
+                        2);
 
       if ($amount != 0) {
-	$accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
-	$query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
+        $accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
 		    transdate, fx_transaction, cleared)
 		    VALUES ($form->{id}, (SELECT c.id FROM chart c
 					  WHERE c.accno = '$accno'),
 		    $amount, '$form->{"datepaid_$i"}', '1', '0')|;
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
       }
 
       # update exchange rate record
       if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-	$form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, 0, $form->{"exchangerate_$i"});
+        $form->update_exchangerate($dbh, $form->{currency},
+                                   $form->{"datepaid_$i"},
+                                   0, $form->{"exchangerate_$i"});
       }
     }
   }
-  
+
   my $rc = $dbh->commit;
   $dbh->disconnect;
 
@@ -309,9 +341,6 @@ sub post_transaction {
 
   return $rc;
 }
-
-
-
 
 sub delete_transaction {
   $main::lxdebug->enter_sub();
@@ -326,7 +355,7 @@ sub delete_transaction {
 
   $query = qq|DELETE FROM acc_trans WHERE trans_id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
-  
+
   # commit and redirect
   my $rc = $dbh->commit;
   $dbh->disconnect;
@@ -335,9 +364,6 @@ sub delete_transaction {
 
   return $rc;
 }
-
-
-
 
 sub ap_transactions {
   $main::lxdebug->enter_sub();
@@ -355,7 +381,7 @@ sub ap_transactions {
 	      LEFT JOIN employee e ON (a.employee_id = e.id)|;
 
   my $where = "1 = 1";
-  
+
   if ($form->{vendor_id}) {
     $where .= " AND a.vendor_id = $form->{vendor_id}";
   } else {
@@ -381,12 +407,14 @@ sub ap_transactions {
     $where .= " AND lower(a.notes) LIKE '$notes'";
   }
 
-  $where .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
-  $where .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+  $where .= " AND a.transdate >= '$form->{transdatefrom}'"
+    if $form->{transdatefrom};
+  $where .= " AND a.transdate <= '$form->{transdateto}'"
+    if $form->{transdateto};
   if ($form->{open} || $form->{closed}) {
     unless ($form->{open} && $form->{closed}) {
       $where .= " AND a.amount <> a.paid" if ($form->{open});
-      $where .= " AND a.amount = a.paid" if ($form->{closed});
+      $where .= " AND a.amount = a.paid"  if ($form->{closed});
     }
   }
 
@@ -404,13 +432,12 @@ sub ap_transactions {
   while (my $ap = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{AP} }, $ap;
   }
-  
+
   $sth->finish;
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 1;
 

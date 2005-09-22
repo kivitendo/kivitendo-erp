@@ -38,10 +38,9 @@ if (-f "$form->{path}/$form->{login}_arap.pl") {
   eval { require "$form->{path}/$form->{login}_arap.pl"; };
 }
 
-
 1;
-# end of main
 
+# end of main
 
 sub check_name {
   $lxdebug->enter_sub();
@@ -54,13 +53,14 @@ sub check_name {
   # if we use a selection
   if ($form->{"select$name"}) {
     if ($form->{"old$name"} ne $form->{$name}) {
+
       # this is needed for is, ir and oe
 
       # for credit calculations
-      $form->{oldinvtotal} = 0;
+      $form->{oldinvtotal}  = 0;
       $form->{oldtotalpaid} = 0;
-      $form->{calctax} = 1;
-      
+      $form->{calctax}      = 1;
+
       $form->{"${name}_id"} = $new_id;
 
       IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
@@ -74,32 +74,35 @@ sub check_name {
 
     # check name, combine name and id
     if ($form->{"old$name"} ne qq|$form->{$name}--$form->{"${name}_id"}|) {
+
       # this is needed for is, ir and oe
-      
+
       # for credit calculations
-      $form->{oldinvtotal} = 0;
+      $form->{oldinvtotal}  = 0;
       $form->{oldtotalpaid} = 0;
-      $form->{calctax} = 1;
+      $form->{calctax}      = 1;
 
       # return one name or a list of names in $form->{name_list}
       if (($i = $form->get_name(\%myconfig, $name)) > 1) {
-	&select_name($name);
-	exit;
+        &select_name($name);
+        exit;
       }
 
       if ($i == 1) {
-	# we got one name
-	$form->{"${name}_id"} = $form->{name_list}[0]->{id};
-	$form->{$name} = $form->{name_list}[0]->{name};
-	$form->{"old$name"} = qq|$form->{$name}--$form->{"${name}_id"}|;
-	
-	IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
-	IR->get_vendor(\%myconfig, \%$form) if ($name eq 'vendor');
-	
+
+        # we got one name
+        $form->{"${name}_id"} = $form->{name_list}[0]->{id};
+        $form->{$name}        = $form->{name_list}[0]->{name};
+        $form->{"old$name"}   = qq|$form->{$name}--$form->{"${name}_id"}|;
+
+        IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
+        IR->get_vendor(\%myconfig, \%$form) if ($name eq 'vendor');
+
       } else {
-	# name is not on file
-	$msg = ucfirst $name . " not on file or locked!";
-	$form->error($locale->text($msg));
+
+        # name is not on file
+        $msg = ucfirst $name . " not on file or locked!";
+        $form->error($locale->text($msg));
       }
     }
   }
@@ -112,20 +115,20 @@ sub check_name {
 # $locale->text('Customer not on file!')
 # $locale->text('Vendor not on file!')
 
-
-
 sub select_name {
   $lxdebug->enter_sub();
 
   my ($table) = @_;
-  
+
   @column_index = qw(ndx name address);
 
-  $label = ucfirst $table;
-  $column_data{ndx} = qq|<th>&nbsp;</th>|;
-  $column_data{name} = qq|<th class=listheading>|.$locale->text($label).qq|</th>|;
-  $column_data{address} = qq|<th class=listheading>|.$locale->text('Address').qq|</th>|;
-  
+  $label             = ucfirst $table;
+  $column_data{ndx}  = qq|<th>&nbsp;</th>|;
+  $column_data{name} =
+    qq|<th class=listheading>| . $locale->text($label) . qq|</th>|;
+  $column_data{address} =
+    qq|<th class=listheading>| . $locale->text('Address') . qq|</th>|;
+
   # list items with radio button on a form
   $form->header;
 
@@ -147,7 +150,7 @@ sub select_name {
 	<tr class=listheading>|;
 
   map { print "\n$column_data{$_}" } @column_index;
-  
+
   print qq|
 	</tr>
 |;
@@ -157,12 +160,15 @@ sub select_name {
     $checked = ($i++) ? "" : "checked";
 
     $ref->{name} =~ s/\"/&quot;/g;
-    
-   $column_data{ndx} = qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
-   $column_data{name} = qq|<td><input name="new_name_$i" type=hidden value="$ref->{name}">$ref->{name}</td>|;
-   $column_data{address} = qq|<td>$ref->{address}&nbsp;</td>|;
-    
-    $j++; $j %= 2;
+
+    $column_data{ndx} =
+      qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
+    $column_data{name} =
+      qq|<td><input name="new_name_$i" type=hidden value="$ref->{name}">$ref->{name}</td>|;
+    $column_data{address} = qq|<td>$ref->{address}&nbsp;</td>|;
+
+    $j++;
+    $j %= 2;
     print qq|
 	<tr class=listrow$j>|;
 
@@ -176,7 +182,7 @@ sub select_name {
 |;
 
   }
-  
+
   print qq|
       </table>
     </td>
@@ -192,7 +198,7 @@ sub select_name {
 
   # delete variables
   map { delete $form->{$_} } qw(action name_list header);
-    
+
   # save all other form variables
   foreach $key (keys %${form}) {
     $form->{$key} =~ s/\"/&quot;/g;
@@ -204,7 +210,8 @@ sub select_name {
 
 <input type=hidden name=vc value=$table>
 <br>
-<input class=submit type=submit name=action value="|.$locale->text('Continue').qq|">
+<input class=submit type=submit name=action value="|
+    . $locale->text('Continue') . qq|">
 </form>
 
 </body>
@@ -214,26 +221,24 @@ sub select_name {
   $lxdebug->leave_sub();
 }
 
-
-
 sub name_selected {
   $lxdebug->enter_sub();
-
 
   # replace the variable with the one checked
 
   # index for new item
   $i = $form->{ndx};
-  
-  $form->{$form->{vc}} = $form->{"new_name_$i"};
+
+  $form->{ $form->{vc} }    = $form->{"new_name_$i"};
   $form->{"$form->{vc}_id"} = $form->{"new_id_$i"};
-  $form->{"old$form->{vc}"} = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
+  $form->{"old$form->{vc}"} =
+    qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
 
   # delete all the new_ variables
   for $i (1 .. $form->{lastndx}) {
     map { delete $form->{"new_${_}_$i"} } (id, name);
   }
-  
+
   map { delete $form->{$_} } qw(ndx lastndx nextsub);
 
   IS->get_customer(\%myconfig, \%$form) if ($form->{vc} eq 'customer');
@@ -244,7 +249,6 @@ sub name_selected {
   $lxdebug->leave_sub();
 }
 
-
 sub add_transaction {
   $lxdebug->enter_sub();
 
@@ -252,47 +256,49 @@ sub add_transaction {
 
   delete $form->{script};
   $form->{action} = "add";
-  $form->{type} = "invoice" if $module =~ /(is|ir)/;
+  $form->{type}   = "invoice" if $module =~ /(is|ir)/;
 
-  $form->{callback} = $form->escape($form->{callback},1);
+  $form->{callback} = $form->escape($form->{callback}, 1);
   map { $argv .= "$_=$form->{$_}&" } keys %$form;
 
   $form->{callback} = "$module.pl?$argv";
 
   $form->redirect;
-  
+
   $lxdebug->leave_sub();
 }
 
-
-
 sub check_project {
   $lxdebug->enter_sub();
-
 
   for $i (1 .. $form->{rowcount}) {
     $form->{"project_id_$i"} = "" unless $form->{"projectnumber_$i"};
     if ($form->{"projectnumber_$i"} ne $form->{"oldprojectnumber_$i"}) {
       if ($form->{"projectnumber_$i"}) {
-	# get new project
-	$form->{projectnumber} = $form->{"projectnumber_$i"};
-	if (($rows = PE->projects(\%myconfig, $form)) > 1) {
-	  # check form->{project_list} how many there are
-	  $form->{rownumber} = $i;
-	  &select_project;
-	  exit;
-	}
 
-	if ($rows == 1) {
-	  $form->{"project_id_$i"} = $form->{project_list}->[0]->{id};
-	  $form->{"projectnumber_$i"} = $form->{project_list}->[0]->{projectnumber};
-	  $form->{"oldprojectnumber_$i"} = $form->{project_list}->[0]->{projectnumber};
-	} else {
-	  # not on file
-	  $form->error($locale->text('Project not on file!'));
-	}
+        # get new project
+        $form->{projectnumber} = $form->{"projectnumber_$i"};
+        if (($rows = PE->projects(\%myconfig, $form)) > 1) {
+
+          # check form->{project_list} how many there are
+          $form->{rownumber} = $i;
+          &select_project;
+          exit;
+        }
+
+        if ($rows == 1) {
+          $form->{"project_id_$i"}    = $form->{project_list}->[0]->{id};
+          $form->{"projectnumber_$i"} =
+            $form->{project_list}->[0]->{projectnumber};
+          $form->{"oldprojectnumber_$i"} =
+            $form->{project_list}->[0]->{projectnumber};
+        } else {
+
+          # not on file
+          $form->error($locale->text('Project not on file!'));
+        }
       } else {
-	$form->{"oldprojectnumber_$i"} = "";
+        $form->{"oldprojectnumber_$i"} = "";
       }
     }
   }
@@ -300,17 +306,16 @@ sub check_project {
   $lxdebug->leave_sub();
 }
 
-
 sub select_project {
   $lxdebug->enter_sub();
 
-  
   @column_index = qw(ndx projectnumber description);
 
-  $column_data{ndx} = qq|<th>&nbsp;</th>|;
-  $column_data{projectnumber} = qq|<th>|.$locale->text('Number').qq|</th>|;
-  $column_data{description} = qq|<th>|.$locale->text('Description').qq|</th>|;
-  
+  $column_data{ndx}           = qq|<th>&nbsp;</th>|;
+  $column_data{projectnumber} = qq|<th>| . $locale->text('Number') . qq|</th>|;
+  $column_data{description}   =
+    qq|<th>| . $locale->text('Description') . qq|</th>|;
+
   # list items with radio button on a form
   $form->header;
 
@@ -334,7 +339,7 @@ sub select_project {
 	<tr class=listheading>|;
 
   map { print "\n$column_data{$_}" } @column_index;
-  
+
   print qq|
         </tr>
 |;
@@ -344,12 +349,15 @@ sub select_project {
     $checked = ($i++) ? "" : "checked";
 
     $ref->{name} =~ s/\"/&quot;/g;
-    
-   $column_data{ndx} = qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
-   $column_data{projectnumber} = qq|<td><input name="new_projectnumber_$i" type=hidden value="$ref->{projectnumber}">$ref->{projectnumber}</td>|;
-   $column_data{description} = qq|<td>$ref->{description}</td>|;
-    
-    $j++; $j %= 2;
+
+    $column_data{ndx} =
+      qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
+    $column_data{projectnumber} =
+      qq|<td><input name="new_projectnumber_$i" type=hidden value="$ref->{projectnumber}">$ref->{projectnumber}</td>|;
+    $column_data{description} = qq|<td>$ref->{description}</td>|;
+
+    $j++;
+    $j %= 2;
     print qq|
         <tr class=listrow$j>|;
 
@@ -363,7 +371,7 @@ sub select_project {
 |;
 
   }
-  
+
   print qq|
       </table>
     </td>
@@ -379,7 +387,7 @@ sub select_project {
 
   # delete action variable
   map { delete $form->{$_} } qw(action project_list header);
-    
+
   # save all other form variables
   foreach $key (keys %${form}) {
     $form->{$key} =~ s/\"/&quot;/g;
@@ -390,7 +398,8 @@ sub select_project {
 <input type=hidden name=nextsub value=project_selected>
 
 <br>
-<input class=submit type=submit name=action value="|.$locale->text('Continue').qq|">
+<input class=submit type=submit name=action value="|
+    . $locale->text('Continue') . qq|">
 </form>
 
 </body>
@@ -400,25 +409,25 @@ sub select_project {
   $lxdebug->leave_sub();
 }
 
-
 sub project_selected {
   $lxdebug->enter_sub();
 
-  
   # replace the variable with the one checked
 
   # index for new item
   $i = $form->{ndx};
-  
-  $form->{"projectnumber_$form->{rownumber}"} = $form->{"new_projectnumber_$i"};
-  $form->{"oldprojectnumber_$form->{rownumber}"} = $form->{"new_projectnumber_$i"};
+
+  $form->{"projectnumber_$form->{rownumber}"} =
+    $form->{"new_projectnumber_$i"};
+  $form->{"oldprojectnumber_$form->{rownumber}"} =
+    $form->{"new_projectnumber_$i"};
   $form->{"project_id_$form->{rownumber}"} = $form->{"new_id_$i"};
 
   # delete all the new_ variables
   for $i (1 .. $form->{lastndx}) {
     map { delete $form->{"new_${_}_$i"} } qw(id projectnumber description);
   }
-  
+
   map { delete $form->{$_} } qw(ndx lastndx nextsub);
 
   if ($form->{update}) {
@@ -430,11 +439,10 @@ sub project_selected {
   $lxdebug->leave_sub();
 }
 
-
-sub continue { &{ $form->{nextsub} } };
-sub gl_transaction { &add };
-sub ar_transaction { &add_transaction(ar) };
-sub ap_transaction { &add_transaction(ap) };
-sub sales_invoice { &add_transaction(is) };
-sub vendor_invoice { &add_transaction(ir) };
+sub continue       { &{ $form->{nextsub} } }
+sub gl_transaction { &add }
+sub ar_transaction { &add_transaction(ar) }
+sub ap_transaction { &add_transaction(ap) }
+sub sales_invoice  { &add_transaction(is) }
+sub vendor_invoice { &add_transaction(ir) }
 

@@ -58,13 +58,12 @@ sub get_part {
   my $ref = $sth->fetchrow_hashref(NAME_lc);
 
   # copy to $form variables
-  map { $form->{$_} = $ref->{$_} } ( keys %{ $ref } );
+  map { $form->{$_} = $ref->{$_} } (keys %{$ref});
 
   $sth->finish;
 
-  my %oid = ('Pg'	=> 'a.oid',
-             'Oracle'	=> 'a.rowid'
-	    );
+  my %oid = ('Pg'     => 'a.oid',
+             'Oracle' => 'a.rowid');
 
   # part or service item
   $form->{item} = ($form->{inventory_accno}) ? 'part' : 'service';
@@ -87,8 +86,8 @@ sub get_part {
     $form->{assembly_rows} = 0;
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       $form->{assembly_rows}++;
-      foreach my $key ( keys %{ $ref } ) {
-	$form->{"${key}_$form->{assembly_rows}"} = $ref->{$key};
+      foreach my $key (keys %{$ref}) {
+        $form->{"${key}_$form->{assembly_rows}"} = $ref->{$key};
       }
     }
     $sth->finish;
@@ -96,14 +95,14 @@ sub get_part {
   }
 
   # setup accno hash for <option checked> {amount} is used in create_links
-  $form->{amount}{IC} = $form->{inventory_accno};
-  $form->{amount}{IC_income} = $form->{income_accno};
-  $form->{amount}{IC_sale} = $form->{income_accno};
+  $form->{amount}{IC}         = $form->{inventory_accno};
+  $form->{amount}{IC_income}  = $form->{income_accno};
+  $form->{amount}{IC_sale}    = $form->{income_accno};
   $form->{amount}{IC_expense} = $form->{expense_accno};
-  $form->{amount}{IC_cogs} = $form->{expense_accno};
-
+  $form->{amount}{IC_cogs}    = $form->{expense_accno};
 
   unless ($form->{item} eq 'service') {
+
     # get makes
     if ($form->{makemodel}) {
       $query = qq|SELECT m.make, m.model FROM makemodel m
@@ -111,10 +110,11 @@ sub get_part {
 
       $sth = $dbh->prepare($query);
       $sth->execute || $form->dberror($query);
-      
+
       my $i = 1;
-      while (($form->{"make_$i"}, $form->{"model_$i"}) = $sth->fetchrow_array) {
-	$i++;
+      while (($form->{"make_$i"}, $form->{"model_$i"}) = $sth->fetchrow_array)
+      {
+        $i++;
       }
       $sth->finish;
       $form->{makemodel_rows} = $i - 1;
@@ -127,7 +127,7 @@ sub get_part {
               FROM chart c, partstax pt
 	      WHERE pt.chart_id = c.id
 	      AND pt.parts_id = $form->{id}|;
-  
+
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -155,26 +155,24 @@ sub get_part {
   ($form->{orphaned}) = $sth->fetchrow_array;
   $form->{orphaned} = !$form->{orphaned};
   $sth->finish;
-  
+
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub save {
   $main::lxdebug->enter_sub();
 
-
   my ($self, $myconfig, $form) = @_;
-  
+
   if ($form->{eur} && ($form->{item} ne 'service')) {
     $form->{IC} = $form->{IC_expense};
   }
-  
+
   ($form->{inventory_accno}) = split(/--/, $form->{IC});
-  ($form->{expense_accno}) = split(/--/, $form->{IC_expense});
-  ($form->{income_accno}) = split(/--/, $form->{IC_income});
+  ($form->{expense_accno})   = split(/--/, $form->{IC_expense});
+  ($form->{income_accno})    = split(/--/, $form->{IC_income});
 
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -192,21 +190,23 @@ sub save {
   map { $form->{$_} =~ s/\'/\'\'/g } qw(partnumber description notes unit);
 
   # undo amount formatting
-  map { $form->{$_} = $form->parse_amount($myconfig, $form->{$_}) } qw(rop weight listprice sellprice gv lastcost stock);
-  
+  map { $form->{$_} = $form->parse_amount($myconfig, $form->{$_}) }
+    qw(rop weight listprice sellprice gv lastcost stock);
+
   # set date to NULL if nothing entered
-  $form->{priceupdate} = ($form->{priceupdate}) ? qq|'$form->{priceupdate}'| : "NULL";
-  
+  $form->{priceupdate} =
+    ($form->{priceupdate}) ? qq|'$form->{priceupdate}'| : "NULL";
+
   $form->{makemodel} = (($form->{make_1}) || ($form->{model_1})) ? 1 : 0;
 
   $form->{alternate} = 0;
   $form->{assembly} = ($form->{item} eq 'assembly') ? 1 : 0;
   $form->{obsolete} *= 1;
-  $form->{shop} *= 1;
-  $form->{onhand} *= 1;
-  $form->{ve} *= 1;
-  $form->{ge} *= 1;
- 
+  $form->{shop}     *= 1;
+  $form->{onhand}   *= 1;
+  $form->{ve}       *= 1;
+  $form->{ge}       *= 1;
+
   my ($query, $sth);
 
   if ($form->{id}) {
@@ -231,8 +231,8 @@ sub save {
     }
     $sth->finish;
 
-
     if ($form->{item} ne 'service') {
+
       # delete makemodel records
       $query = qq|DELETE FROM makemodel
 		  WHERE parts_id = $form->{id}|;
@@ -241,9 +241,9 @@ sub save {
 
     if ($form->{item} eq 'assembly') {
       if ($form->{onhand} != 0) {
-	&adjust_inventory($dbh, $form, $form->{id}, $form->{onhand} * -1);
+        &adjust_inventory($dbh, $form, $form->{id}, $form->{onhand} * -1);
       }
-      
+
       # delete assembly records
       $query = qq|DELETE FROM assembly
 		  WHERE id = $form->{id}|;
@@ -251,7 +251,7 @@ sub save {
 
       $form->{onhand} += $form->{stock};
     }
-    
+
     # delete tax records
     $query = qq|DELETE FROM partstax
 		WHERE parts_id = $form->{id}|;
@@ -260,14 +260,14 @@ sub save {
   } else {
     my $uid = time;
     $uid .= $form->{login};
-    
+
     $query = qq|SELECT p.id FROM parts p
                 WHERE p.partnumber = '$form->{partnumber}'|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
-    
+
     if ($form->{id} ne "") {
       $main::lxdebug->leave_sub();
       return 3;
@@ -292,15 +292,15 @@ sub save {
     if ($form->{partnumber} eq "" && $form->{inventory_accno} ne "") {
       $form->{partnumber} = $form->update_defaults($myconfig, "articlenumber");
     }
-    
+
   }
   my $partsgroup_id = 0;
 
   if ($form->{partsgroup}) {
     ($partsgroup, $partsgroup_id) = split /--/, $form->{partsgroup};
   }
-  
-  $query = qq|UPDATE parts SET 
+
+  $query = qq|UPDATE parts SET
 	      partnumber = '$form->{partnumber}',
 	      description = '$form->{description}',
 	      makemodel = '$form->{makemodel}',
@@ -332,27 +332,25 @@ sub save {
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 
- 
   # insert makemodel records
   unless ($form->{item} eq 'service') {
     for my $i (1 .. $form->{makemodel_rows}) {
       if (($form->{"make_$i"}) || ($form->{"model_$i"})) {
-	map { $form->{"${_}_$i"} =~ s/\'/\'\'/g } qw(make model);
-	
-	$query = qq|INSERT INTO makemodel (parts_id, make, model)
+        map { $form->{"${_}_$i"} =~ s/\'/\'\'/g } qw(make model);
+
+        $query = qq|INSERT INTO makemodel (parts_id, make, model)
 		    VALUES ($form->{id},
 		    '$form->{"make_$i"}', '$form->{"model_$i"}')|;
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
       }
     }
   }
-
 
   # insert taxes
   foreach $item (split / /, $form->{taxaccounts}) {
     if ($form->{"IC_tax_$item"}) {
       $query = qq|INSERT INTO partstax (parts_id, chart_id)
-                  VALUES ($form->{id}, 
+                  VALUES ($form->{id},
 		          (SELECT c.id
 			   FROM chart c
 			   WHERE c.accno = '$item'))|;
@@ -362,64 +360,71 @@ sub save {
 
   # add assembly records
   if ($form->{item} eq 'assembly') {
-    
+
     for my $i (1 .. $form->{assembly_rows}) {
       $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
-      
+
       if ($form->{"qty_$i"} != 0) {
-	$form->{"bom_$i"} *= 1;
-	$query = qq|INSERT INTO assembly (id, parts_id, qty, bom)
+        $form->{"bom_$i"} *= 1;
+        $query = qq|INSERT INTO assembly (id, parts_id, qty, bom)
 		    VALUES ($form->{id}, $form->{"id_$i"},
 		    $form->{"qty_$i"}, '$form->{"bom_$i"}')|;
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
       }
     }
-    
+
     # adjust onhand for the parts
     if ($form->{onhand} != 0) {
       &adjust_inventory($dbh, $form, $form->{id}, $form->{onhand});
     }
 
-    @a = localtime; $a[5] += 1900; $a[4]++;
+    @a = localtime;
+    $a[5] += 1900;
+    $a[4]++;
     my $shippingdate = "$a[5]-$a[4]-$a[3]";
-    
+
     $form->get_employee($dbh);
-    
+
     # add inventory record
     $query = qq|INSERT INTO inventory (warehouse_id, parts_id, qty,
                 shippingdate, employee_id) VALUES (
 		0, $form->{id}, $form->{stock}, '$shippingdate',
 		$form->{employee_id})|;
     $dbh->do($query) || $form->dberror($query);
-		
-  }
-  #set expense_accno=inventory_accno if they are different => bilanz     
-  $vendor_accno = ($form->{expense_accno}!=$form->{inventory_accno}) ? $form->{inventory_accno} :$form->{expense_accno};
 
+  }
+
+  #set expense_accno=inventory_accno if they are different => bilanz
+  $vendor_accno =
+    ($form->{expense_accno} != $form->{inventory_accno})
+    ? $form->{inventory_accno}
+    : $form->{expense_accno};
 
   # get tax rates and description
-  $accno_id = ($form->{vc} eq "customer") ? $form->{income_accno} : $vendor_accno;
+  $accno_id =
+    ($form->{vc} eq "customer") ? $form->{income_accno} : $vendor_accno;
   $query = qq|SELECT c.accno, c.description, t.rate, t.taxnumber
 	      FROM chart c, tax t
 	      WHERE c.id=t.chart_id AND t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
 	      ORDER BY c.accno|;
   $stw = $dbh->prepare($query);
-  
+
   $stw->execute || $form->dberror($query);
 
   $form->{taxaccount} = "";
   while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
-#    if ($customertax{$ref->{accno}}) {
-      $form->{taxaccount} .= "$ptr->{accno} ";
-      if (!($form->{taxaccount2}=~/$ptr->{accno}/)) {
-        $form->{"$ptr->{accno}_rate"} = $ptr->{rate};
-        $form->{"$ptr->{accno}_description"} = $ptr->{description};
-        $form->{"$ptr->{accno}_taxnumber"} = $ptr->{taxnumber};
-        $form->{taxaccount2} .= " $ptr->{accno} ";
-      }
 
- }
- 
+    #    if ($customertax{$ref->{accno}}) {
+    $form->{taxaccount} .= "$ptr->{accno} ";
+    if (!($form->{taxaccount2} =~ /$ptr->{accno}/)) {
+      $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
+      $form->{"$ptr->{accno}_description"} = $ptr->{description};
+      $form->{"$ptr->{accno}_taxnumber"}   = $ptr->{taxnumber};
+      $form->{taxaccount2} .= " $ptr->{accno} ";
+    }
+
+  }
+
   # commit
   my $rc = $dbh->commit;
   $dbh->disconnect;
@@ -428,8 +433,6 @@ sub save {
 
   return $rc;
 }
-
-
 
 sub update_assembly {
   $main::lxdebug->enter_sub();
@@ -457,8 +460,6 @@ sub update_assembly {
 
   $main::lxdebug->leave_sub();
 }
-
-
 
 sub retrieve_assemblies {
   $main::lxdebug->enter_sub();
@@ -501,10 +502,9 @@ sub retrieve_assemblies {
   $sth->finish;
 
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub restock_assemblies {
   $main::lxdebug->enter_sub();
@@ -523,7 +523,7 @@ sub restock_assemblies {
     }
 
   }
-  
+
   my $rc = $dbh->commit;
   $dbh->disconnect;
 
@@ -531,7 +531,6 @@ sub restock_assemblies {
 
   return $rc;
 }
-
 
 sub adjust_inventory {
   $main::lxdebug->enter_sub();
@@ -548,33 +547,26 @@ sub adjust_inventory {
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
 
     my $allocate = $qty * $ref->{qty};
-    
+
     # is it a service item, then loop
     $ref->{inventory_accno_id} *= 1;
     next if (($ref->{inventory_accno_id} == 0) && !$ref->{assembly});
-    
+
     # adjust parts onhand
-    $form->update_balance($dbh,
-			  "parts",
-			  "onhand",
-			  qq|id = $ref->{id}|,
-			  $allocate * -1);
+    $form->update_balance($dbh, "parts", "onhand",
+                          qq|id = $ref->{id}|,
+                          $allocate * -1);
   }
 
   $sth->finish;
 
   # update assembly
-  my $rc = $form->update_balance($dbh,
-			"parts",
-			"onhand",
-			qq|id = $id|,
-			$qty);
+  my $rc = $form->update_balance($dbh, "parts", "onhand", qq|id = $id|, $qty);
 
   $main::lxdebug->leave_sub();
 
   return $rc;
 }
-
 
 sub delete {
   $main::lxdebug->enter_sub();
@@ -600,16 +592,17 @@ sub delete {
   }
 
   if ($form->{item} eq 'assembly') {
+
     # delete inventory
     $query = qq|DELETE FROM inventory
                 WHERE parts_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
-    
+
     $query = qq|DELETE FROM assembly
 		WHERE id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
   }
-  
+
   if ($form->{item} eq 'alternate') {
     $query = qq|DELETE FROM alternate
 		WHERE id = $form->{id}|;
@@ -624,7 +617,6 @@ sub delete {
 
   return $rc;
 }
-
 
 sub assembly_item {
   $main::lxdebug->enter_sub();
@@ -680,7 +672,6 @@ sub assembly_item {
   $main::lxdebug->leave_sub();
 }
 
-
 sub all_parts {
   $main::lxdebug->enter_sub();
 
@@ -695,19 +686,27 @@ sub all_parts {
   foreach my $item (qw(partnumber drawing microfiche make model)) {
     if ($form->{$item}) {
       $var = $form->like(lc $form->{$item});
-     # make will build later Bugfix 145
-      if ($item ne 'make'){
-          $where .= " AND lower(p.$item) LIKE '$var'";
+
+      # make will build later Bugfix 145
+      if ($item ne 'make') {
+        $where .= " AND lower(p.$item) LIKE '$var'";
       }
     }
   }
+
   # special case for description
   if ($form->{description}) {
-    unless ($form->{bought} || $form->{sold} || $form->{onorder} || $form->{ordered} || $form->{rfq} || $form->{quoted}) {
+    unless (   $form->{bought}
+            || $form->{sold}
+            || $form->{onorder}
+            || $form->{ordered}
+            || $form->{rfq}
+            || $form->{quoted}) {
       $var = $form->like(lc $form->{description});
       $where .= " AND lower(p.description) LIKE '$var'";
     }
   }
+
   # special case for serialnumber
   if ($form->{l_serialnumber}) {
     if ($form->{serialnumber}) {
@@ -725,16 +724,17 @@ sub all_parts {
   }
   if ($form->{searchitems} eq 'service') {
     $where .= " AND p.inventory_accno_id IS NULL AND NOT p.assembly = '1'";
+
     # irrelevant for services
     $form->{make} = $form->{model} = "";
   }
 
   # items which were never bought, sold or on an order
   if ($form->{itemstatus} eq 'orphaned') {
-    $form->{onhand} = $form->{short} = 0;
-    $form->{bought} = $form->{sold} = 0;
+    $form->{onhand}  = $form->{short}   = 0;
+    $form->{bought}  = $form->{sold}    = 0;
     $form->{onorder} = $form->{ordered} = 0;
-    $form->{rfq} = $form->{quoted} = 0;
+    $form->{rfq}     = $form->{quoted}  = 0;
 
     $form->{transdatefrom} = $form->{transdateto} = "";
 
@@ -776,19 +776,17 @@ sub all_parts {
   }
   if ($form->{l_soldtotal}) {
     $where .= " AND p.id=i.parts_id AND  i.qty >= 0";
-    $group = " GROUP BY  p.id,p.partnumber,p.description,p.onhand,p.unit,p.bin, p.sellprice,p.listprice,p.lastcost,p.priceupdate,pg.partsgroup";
+    $group =
+      " GROUP BY  p.id,p.partnumber,p.description,p.onhand,p.unit,p.bin, p.sellprice,p.listprice,p.lastcost,p.priceupdate,pg.partsgroup";
   }
-  if ($form->{top100})
-  {
+  if ($form->{top100}) {
     $limit = " LIMIT 100";
   }
+
   # tables revers?
-  if ($form->{revers}==1)
-  {
+  if ($form->{revers} == 1) {
     $form->{desc} = " DESC";
-  }
-  else
-  {
+  } else {
     $form->{desc} = "";
   }
 
@@ -801,20 +799,18 @@ sub all_parts {
 
   my $query = "";
 
-  if ($form->{l_soldtotal})
-  {
-    $form->{soldtotal}='soldtotal';
-    $query = qq|SELECT p.id,p.partnumber,p.description,p.onhand,p.unit,p.bin,p.sellprice,p.listprice,
+  if ($form->{l_soldtotal}) {
+    $form->{soldtotal} = 'soldtotal';
+    $query =
+      qq|SELECT p.id,p.partnumber,p.description,p.onhand,p.unit,p.bin,p.sellprice,p.listprice,
 		p.lastcost,p.priceupdate,pg.partsgroup,sum(i.qty) as soldtotal FROM parts
 		p LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id), invoice i
 		WHERE $where
 		$group
 		ORDER BY $sortorder
 		$limit|;
-  }
-  else
-  {
-   $query = qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit,
+  } else {
+    $query = qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit,
                  p.bin, p.sellprice, p.listprice, p.lastcost, p.rop, p.weight,
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
 		 pg.partsgroup
@@ -826,13 +822,18 @@ sub all_parts {
   }
 
   # rebuild query for bought and sold items
-  if ($form->{bought} || $form->{sold} || $form->{onorder} || $form->{ordered} || $form->{rfq} || $form->{quoted}) {
+  if (   $form->{bought}
+      || $form->{sold}
+      || $form->{onorder}
+      || $form->{ordered}
+      || $form->{rfq}
+      || $form->{quoted}) {
 
     my @a = qw(partnumber description bin priceupdate name);
 
     push @a, qw(invnumber serialnumber) if ($form->{bought} || $form->{sold});
     push @a, "ordnumber" if ($form->{onorder} || $form->{ordered});
-    push @a, "quonumber" if ($form->{rfq} || $form->{quoted});
+    push @a, "quonumber" if ($form->{rfq}     || $form->{quoted});
 
     my $union = "";
     $query = "";
@@ -841,12 +842,14 @@ sub all_parts {
 
       my $invwhere = "$where";
       $invwhere .= " AND i.assemblyitem = '0'";
-      $invwhere .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
-      $invwhere .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+      $invwhere .= " AND a.transdate >= '$form->{transdatefrom}'"
+        if $form->{transdatefrom};
+      $invwhere .= " AND a.transdate <= '$form->{transdateto}'"
+        if $form->{transdateto};
 
       if ($form->{description}) {
-	$var = $form->like(lc $form->{description});
-	$invwhere .= " AND lower(i.description) LIKE '$var'";
+        $var = $form->like(lc $form->{description});
+        $invwhere .= " AND lower(i.description) LIKE '$var'";
       }
 
       my $flds = qq|p.id, p.partnumber, i.description, i.serialnumber,
@@ -858,7 +861,7 @@ sub all_parts {
 		    ct.name|;
 
       if ($form->{bought}) {
-	$query = qq|
+        $query = qq|
 	            SELECT $flds, 'ir' AS module, '' AS type,
 		    1 AS exchangerate
 		    FROM invoice i
@@ -867,12 +870,12 @@ sub all_parts {
 		    JOIN vendor ct ON (a.vendor_id = ct.id)
 		    LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
 		    WHERE $invwhere|;
-	$union = "
+        $union = "
 	          UNION";
       }
 
       if ($form->{sold}) {
-	$query .= qq|$union
+        $query .= qq|$union
                      SELECT $flds, 'is' AS module, '' AS type,
 		     1 As exchangerate
 		     FROM invoice i
@@ -881,7 +884,7 @@ sub all_parts {
 		     JOIN customer ct ON (a.customer_id = ct.id)
 		     LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
 		     WHERE $invwhere|;
-	$union = "
+        $union = "
 	          UNION";
       }
     }
@@ -889,12 +892,14 @@ sub all_parts {
     if ($form->{onorder} || $form->{ordered}) {
       my $ordwhere = "$where
 		     AND o.quotation = '0'";
-      $ordwhere .= " AND o.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
-      $ordwhere .= " AND o.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+      $ordwhere .= " AND o.transdate >= '$form->{transdatefrom}'"
+        if $form->{transdatefrom};
+      $ordwhere .= " AND o.transdate <= '$form->{transdateto}'"
+        if $form->{transdateto};
 
       if ($form->{description}) {
-	$var = $form->like(lc $form->{description});
-	$ordwhere .= " AND lower(oi.description) LIKE '$var'";
+        $var = $form->like(lc $form->{description});
+        $ordwhere .= " AND lower(oi.description) LIKE '$var'";
       }
 
       $flds = qq|p.id, p.partnumber, oi.description, '' AS serialnumber,
@@ -906,7 +911,7 @@ sub all_parts {
 		 ct.name|;
 
       if ($form->{ordered}) {
-	$query .= qq|$union
+        $query .= qq|$union
                      SELECT $flds, 'oe' AS module, 'sales_order' AS type,
 		    (SELECT buy FROM exchangerate ex
 		     WHERE ex.curr = o.curr
@@ -918,7 +923,7 @@ sub all_parts {
 		     LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
 		     WHERE $ordwhere
 		     AND o.customer_id > 0|;
-	$union = "
+        $union = "
 	          UNION";
       }
 
@@ -931,7 +936,7 @@ sub all_parts {
 		   '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
 		   ct.name|;
 
-	$query .= qq|$union
+        $query .= qq|$union
 	            SELECT $flds, 'oe' AS module, 'purchase_order' AS type,
 		    (SELECT sell FROM exchangerate ex
 		     WHERE ex.curr = o.curr
@@ -950,12 +955,14 @@ sub all_parts {
     if ($form->{rfq} || $form->{quoted}) {
       my $quowhere = "$where
 		     AND o.quotation = '1'";
-      $quowhere .= " AND o.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
-      $quowhere .= " AND o.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+      $quowhere .= " AND o.transdate >= '$form->{transdatefrom}'"
+        if $form->{transdatefrom};
+      $quowhere .= " AND o.transdate <= '$form->{transdateto}'"
+        if $form->{transdateto};
 
       if ($form->{description}) {
-	$var = $form->like(lc $form->{description});
-	$quowhere .= " AND lower(oi.description) LIKE '$var'";
+        $var = $form->like(lc $form->{description});
+        $quowhere .= " AND lower(oi.description) LIKE '$var'";
       }
 
       $flds = qq|p.id, p.partnumber, oi.description, '' AS serialnumber,
@@ -967,7 +974,7 @@ sub all_parts {
 		 ct.name|;
 
       if ($form->{quoted}) {
-	$query .= qq|$union
+        $query .= qq|$union
                      SELECT $flds, 'oe' AS module, 'sales_quotation' AS type,
 		    (SELECT buy FROM exchangerate ex
 		     WHERE ex.curr = o.curr
@@ -979,7 +986,7 @@ sub all_parts {
 		     LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
 		     WHERE $quowhere
 		     AND o.customer_id > 0|;
-	$union = "
+        $union = "
 	          UNION";
       }
 
@@ -992,7 +999,7 @@ sub all_parts {
 		   '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
 		   ct.name|;
 
-	$query .= qq|$union
+        $query .= qq|$union
 	            SELECT $flds, 'oe' AS module, 'request_quotation' AS type,
 		    (SELECT sell FROM exchangerate ex
 		     WHERE ex.curr = o.curr
@@ -1020,7 +1027,6 @@ sub all_parts {
 
   $sth->finish;
 
-
   # include individual items for assemblies
   if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
     foreach $item (@{ $form->{parts} }) {
@@ -1033,17 +1039,17 @@ sub all_parts {
 		  FROM parts p, assembly a
 		  WHERE p.id = a.parts_id
 		  AND a.id = $item->{id}|;
-      
+
       $sth = $dbh->prepare($query);
       $sth->execute || $form->dberror($query);
 
       while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-	$ref->{assemblyitem} = 1;
-	push @assemblies, $ref;
+        $ref->{assemblyitem} = 1;
+        push @assemblies, $ref;
       }
       $sth->finish;
 
-      push @assemblies, {id => $item->{id}};
+      push @assemblies, { id => $item->{id} };
 
     }
 
@@ -1055,40 +1061,46 @@ sub all_parts {
   $main::lxdebug->leave_sub();
 }
 
-
 sub create_links {
   $main::lxdebug->enter_sub();
 
   my ($self, $module, $myconfig, $form) = @_;
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   if ($form->{id}) {
-	$query = qq|SELECT c.accno, c.description, c.link, c.id,
+    $query = qq|SELECT c.accno, c.description, c.link, c.id,
 			p.inventory_accno_id, p.income_accno_id, p.expense_accno_id
 			FROM chart c, parts p
 			WHERE c.link LIKE '%$module%'
 			AND p.id = $form->{id}
 			ORDER BY c.accno|;
   } else {
-  	$query = qq|SELECT c.accno, c.description, c.link, c.id,
+    $query = qq|SELECT c.accno, c.description, c.link, c.id,
 		d.inventory_accno_id, d.income_accno_id, d.expense_accno_id
 		FROM chart c, defaults d
 		WHERE c.link LIKE '%$module%'
 		ORDER BY c.accno|;
   }
-  
+
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);  
+  $sth->execute || $form->dberror($query);
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     foreach my $key (split /:/, $ref->{link}) {
       if ($key =~ /$module/) {
-        if (($ref->{id} eq $ref->{inventory_accno_id}) || ($ref->{id} eq $ref->{income_accno_id}) || ($ref->{id} eq $ref->{expense_accno_id})) {
-		push @{ $form->{"${module}_links"}{$key} }, { accno => $ref->{accno},
-					      description => $ref->{description}, selected =>"selected" };
-	} else {
-		push @{ $form->{"${module}_links"}{$key} }, { accno => $ref->{accno},
-					      description => $ref->{description}, selected =>"" };
+        if (   ($ref->{id} eq $ref->{inventory_accno_id})
+            || ($ref->{id} eq $ref->{income_accno_id})
+            || ($ref->{id} eq $ref->{expense_accno_id})) {
+          push @{ $form->{"${module}_links"}{$key} },
+            { accno       => $ref->{accno},
+              description => $ref->{description},
+              selected    => "selected" };
+            } else {
+          push @{ $form->{"${module}_links"}{$key} },
+            { accno       => $ref->{accno},
+              description => $ref->{description},
+              selected    => "" };
         }
       }
     }
@@ -1123,15 +1135,14 @@ sub get_parts {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $sortorder) = @_;
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh   = $form->dbconnect($myconfig);
   my $order = " p.partnumber";
   my $where = "1 = 1";
-  
+
   if ($sortorder eq "all") {
     $where .= " AND p.partnumber LIKE '%$form->{partnumber}%'";
     $where .= " AND p.description LIKE '%$form->{description}%'";
-  }
-  else {
+  } else {
     if ($sortorder eq "partnumber") {
       $where .= " AND p.partnumber LIKE '%$form->{partnumber}%'";
       $order = qq|p.$sortorder|;
@@ -1140,69 +1151,66 @@ sub get_parts {
       $where .= " AND p.description LIKE '%$form->{description}%'";
     }
   }
-  
-  my $query = qq|SELECT p.id, p.partnumber, p.description, p.unit, p.sellprice FROM parts p WHERE $where ORDER BY $order|;
+
+  my $query =
+    qq|SELECT p.id, p.partnumber, p.description, p.unit, p.sellprice FROM parts p WHERE $where ORDER BY $order|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
   my $j = 0;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    if (($ref->{partnumber}eq "*")&&($ref->{description}eq ""))
-    {
-    }
-    else
-    {
+    if (($ref->{partnumber} eq "*") && ($ref->{description} eq "")) {
+    } else {
       $j++;
-      $form->{"id_$j"}= $ref->{id};
-      $form->{"partnumber_$j"} = $ref->{partnumber};
+      $form->{"id_$j"}          = $ref->{id};
+      $form->{"partnumber_$j"}  = $ref->{partnumber};
       $form->{"description_$j"} = $ref->{description};
-      $form->{"unit_$j"} = $ref->{unit};
-      $form->{"sellprice_$j"} = $ref->{sellprice};
-      $form->{"soldtotal_$j"} = get_soldtotal($dbh, $ref->{id});
-    }#fi
-  }#while
-  $form->{rows}=$j;
+      $form->{"unit_$j"}        = $ref->{unit};
+      $form->{"sellprice_$j"}   = $ref->{sellprice};
+      $form->{"soldtotal_$j"}   = get_soldtotal($dbh, $ref->{id});
+    }    #fi
+  }    #while
+  $form->{rows} = $j;
   $sth->finish;
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
   return $self;
-}#end get_parts()
+}    #end get_parts()
 
 # gets sum of sold part with part_id
-sub get_soldtotal{
+sub get_soldtotal {
   $main::lxdebug->enter_sub();
 
-  my ($dbh,$id) = @_;
-  
-  my $query = qq|SELECT sum(i.qty) as totalsold FROM invoice i WHERE i.parts_id = $id|;
-  
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-    
-     my $sum = 0;
-     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-     
-       $sum = $ref->{totalsold};
-     }#while
-     $sth->finish;
-     
-     if ($sum eq undef)
-     {
-       $sum = 0;
-     }#fi
+  my ($dbh, $id) = @_;
+
+  my $query =
+    qq|SELECT sum(i.qty) as totalsold FROM invoice i WHERE i.parts_id = $id|;
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  my $sum = 0;
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+
+    $sum = $ref->{totalsold};
+  }    #while
+  $sth->finish;
+
+  if ($sum eq undef) {
+    $sum = 0;
+  }    #fi
 
   $main::lxdebug->leave_sub();
 
   return $sum;
-}#end get_soldtotal
-
+}    #end get_soldtotal
 
 sub retrieve_item {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  my $i = $form->{rowcount};
+  my $i     = $form->{rowcount};
   my $where = "NOT p.obsolete = '1'";
 
   if ($form->{"partnumber_$i"}) {
@@ -1249,27 +1257,27 @@ sub retrieve_item {
   # get tax rates and description
   #$accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{inventory_accno};
   #$query = qq|SELECT c.accno, c.description, t.rate, t.taxnumber
-#	      FROM chart c, tax t
-#	      WHERE c.id=t.chart_id AND t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
-#	      ORDER BY accno|;
- # $stw = $dbh->prepare($query);
+  #	      FROM chart c, tax t
+  #	      WHERE c.id=t.chart_id AND t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
+  #	      ORDER BY accno|;
+  # $stw = $dbh->prepare($query);
   #$stw->execute || $form->dberror($query);
 
   #$ref->{taxaccounts} = "";
   #while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
 
-   #   $form->{"$ptr->{accno}_rate"} = $ptr->{rate};
-    #  $form->{"$ptr->{accno}_description"} = $ptr->{description};
-   #   $form->{"$ptr->{accno}_taxnumber"} = $ptr->{taxnumber};
-   #   $form->{taxaccounts} .= "$ptr->{accno} ";
-   #   $ref->{taxaccounts} .= "$ptr->{accno} ";
+  #   $form->{"$ptr->{accno}_rate"} = $ptr->{rate};
+  #  $form->{"$ptr->{accno}_description"} = $ptr->{description};
+  #   $form->{"$ptr->{accno}_taxnumber"} = $ptr->{taxnumber};
+  #   $form->{taxaccounts} .= "$ptr->{accno} ";
+  #   $ref->{taxaccounts} .= "$ptr->{accno} ";
 
   #}
 
-    #$stw->finish;
-    #chop $ref->{taxaccounts};
+  #$stw->finish;
+  #chop $ref->{taxaccounts};
 
-    push @{ $form->{item_list} }, $ref;
+  push @{ $form->{item_list} }, $ref;
 
   #}
   $sth->finish;
@@ -1279,4 +1287,3 @@ sub retrieve_item {
 }
 
 1;
-

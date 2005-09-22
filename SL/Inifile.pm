@@ -18,7 +18,7 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -35,17 +35,16 @@
 
 package Inifile;
 
-
 sub new {
   $main::lxdebug->enter_sub();
 
   my ($type, $file, $level) = @_;
-  
+
   my $id = "";
   my $skip;
-  
+
   $type = ref($self) || $self;
-  
+
   open FH, "$file" or Form->error("$file : $!");
 
   while (<FH>) {
@@ -56,7 +55,7 @@ sub new {
 
     # strip comments
     s/\s*(#|;).*//g;
-    
+
     # remove any trailing whitespace
     s/^\s*(.*?)\s*$/$1/;
 
@@ -67,30 +66,30 @@ sub new {
 
       # if there is a level skip
       if ($skip = ($id !~ /^$level/)) {
-	next;
+        next;
       }
 
-      push @{$self->{ORDER}}, $_;
-      
+      push @{ $self->{ORDER} }, $_;
+
       next;
-      
+
     }
 
     if (!$skip) {
+
       # add key=value to $id
       my ($key, $value) = split /=/, $_, 2;
-      
+
       $self->{$id}{$key} = $value;
     }
 
   }
   close FH;
-  
+
   $main::lxdebug->leave_sub();
 
   bless $self, $type;
 }
-
 
 1;
 

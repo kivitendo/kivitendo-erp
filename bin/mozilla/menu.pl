@@ -39,9 +39,10 @@ $menufile = "menu.ini";
 use SL::Menu;
 
 1;
+
 # end of main
 
-  $framesize = ($ENV{HTTP_USER_AGENT} =~ /links/i) ? "240" : "190"; 
+$framesize = ($ENV{HTTP_USER_AGENT} =~ /links/i) ? "240" : "190";
 
 sub display {
   $lxdebug->enter_sub();
@@ -65,15 +66,14 @@ sub display {
   $lxdebug->leave_sub();
 }
 
-
-
 sub acc_menu {
   $lxdebug->enter_sub();
-  $mainlevel=$form->{level};
+  $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
   $menu = new Menu "custom_$menufile" if (-f "custom_$menufile");
-  $menu = new Menu "$form->{login}_$menufile" if (-f "$form->{login}_$menufile");
+  $menu = new Menu "$form->{login}_$menufile"
+    if (-f "$form->{login}_$menufile");
 
   $form->{title} = $locale->text('Accounting Menu');
 
@@ -83,7 +83,9 @@ sub acc_menu {
 <body class="menu">
 
 |;
-  print qq|<div align="left">\n<table width="|.$framesize.qq|" border=0>\n|;
+  print qq|<div align="left">\n<table width="|
+    . $framesize
+    . qq|" border=0>\n|;
 
   &section_menu($menu);
 
@@ -96,59 +98,82 @@ sub acc_menu {
   $lxdebug->leave_sub();
 }
 
-
 sub section_menu {
   $lxdebug->enter_sub();
-	my ($menu, $level) = @_;
-	# build tiered menus
-	my @menuorder = $menu->access_control(\%myconfig, $level);
-	while (@menuorder) {
-		$item = shift @menuorder;
-		$label = $item;
-		$ml = $item;
-		$label =~ s/$level--//g;
-		$ml=~ s/--.*//;
-		if ($ml eq $mainlevel) { $zeige=1; } else { $zeige=0; };
-		my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 1);
-		$label =~ s/.*--//g;
-		$label_icon = $label.".gif";
-		$mlab = $label;
-		$label = $locale->text($label);
-		$label =~ s/ /&nbsp;/g;
-		$menu->{$item}{target} = "main_window" unless $menu->{$item}{target};
-		if ($menu->{$item}{submenu}) {
-			$menu->{$item}{$item} = !$form->{$item};
-			if ($form->{level} && $item =~ /^$form->{level}/) {
-				# expand menu
-				if ($zeige) { print qq|<tr><td valign=bottom><b>$spacer<img src="image/unterpunkt.png">$label</b></td></tr>\n|;}
-				# remove same level items
-				map { shift @menuorder } grep /^$item/, @menuorder;
-				&section_menu($menu, $item);
-			} else {
-				if ($zeige) { print qq|<tr><td>|.$menu->menuitem(\%myconfig, \%$form, $item, $level).qq|$label&nbsp;...</a></td></tr>\n|;}
-				# remove same level items
-				map { shift @menuorder } grep /^$item/, @menuorder;
-			}
-		} else {
-			if ($menu->{$item}{module}) {
-				if ($form->{$item} && $form->{level} eq $item) {
-					$menu->{$item}{$item} = !$form->{$item};
-					if ($zeige) { print qq|<tr><td valign=bottom>$spacer<img src="image/unterpunkt.png">|.$menu->menuitem(\%myconfig, \%$form, $item, $level).qq|$label</a></td></tr>\n|;}
-					# remove same level items
-					map { shift @menuorder } grep /^$item/, @menuorder;
-					&section_menu($menu, $item);
-				} else {
-					if ($zeige) {
-						print qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|.$menu->menuitem(\%myconfig, \%$form, $item, $level).qq|$label</a></td></tr>\n|;
-					}
-				}
-			} else {
-				my $ml_ = $form->escape($ml);			
-				print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
-				&section_menu($menu, $item);
-				#print qq|<br>\n|;
-			}
-		}
-	}
+  my ($menu, $level) = @_;
+
+  # build tiered menus
+  my @menuorder = $menu->access_control(\%myconfig, $level);
+  while (@menuorder) {
+    $item  = shift @menuorder;
+    $label = $item;
+    $ml    = $item;
+    $label =~ s/$level--//g;
+    $ml    =~ s/--.*//;
+    if ($ml eq $mainlevel) { $zeige = 1; }
+    else { $zeige = 0; }
+    my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 1);
+    $label =~ s/.*--//g;
+    $label_icon = $label . ".gif";
+    $mlab       = $label;
+    $label      = $locale->text($label);
+    $label =~ s/ /&nbsp;/g;
+    $menu->{$item}{target} = "main_window" unless $menu->{$item}{target};
+
+    if ($menu->{$item}{submenu}) {
+      $menu->{$item}{$item} = !$form->{$item};
+      if ($form->{level} && $item =~ /^$form->{level}/) {
+
+        # expand menu
+        if ($zeige) {
+          print
+            qq|<tr><td valign=bottom><b>$spacer<img src="image/unterpunkt.png">$label</b></td></tr>\n|;
+        }
+
+        # remove same level items
+        map { shift @menuorder } grep /^$item/, @menuorder;
+        &section_menu($menu, $item);
+      } else {
+        if ($zeige) {
+          print qq|<tr><td>|
+            . $menu->menuitem(\%myconfig, \%$form, $item, $level)
+            . qq|$label&nbsp;...</a></td></tr>\n|;
+        }
+
+        # remove same level items
+        map { shift @menuorder } grep /^$item/, @menuorder;
+      }
+    } else {
+      if ($menu->{$item}{module}) {
+        if ($form->{$item} && $form->{level} eq $item) {
+          $menu->{$item}{$item} = !$form->{$item};
+          if ($zeige) {
+            print
+              qq|<tr><td valign=bottom>$spacer<img src="image/unterpunkt.png">|
+              . $menu->menuitem(\%myconfig, \%$form, $item, $level)
+              . qq|$label</a></td></tr>\n|;
+          }
+
+          # remove same level items
+          map { shift @menuorder } grep /^$item/, @menuorder;
+          &section_menu($menu, $item);
+        } else {
+          if ($zeige) {
+            print
+              qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
+              . $menu->menuitem(\%myconfig, \%$form, $item, $level)
+              . qq|$label</a></td></tr>\n|;
+          }
+        }
+      } else {
+        my $ml_ = $form->escape($ml);
+        print
+          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+        &section_menu($menu, $item);
+
+        #print qq|<br>\n|;
+      }
+    }
+  }
   $lxdebug->leave_sub();
 }

@@ -18,7 +18,7 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -42,55 +42,53 @@ sub new {
 
   if ($login ne "") {
     &error("", "$memfile locked!") if (-f "${memfile}.LCK");
-    
+
     open(MEMBER, "$memfile") or &error("", "$memfile : $!");
-    
+
     while (<MEMBER>) {
       if (/^\[$login\]/) {
-	while (<MEMBER>) {
-	  last if /^\[/;
-	  next if /^(#|\s)/;
-	  
-	  # remove comments
-	  s/\s#.*//g;
+        while (<MEMBER>) {
+          last if /^\[/;
+          next if /^(#|\s)/;
 
-	  # remove any trailing whitespace
-	  s/^\s*(.*?)\s*$/$1/;
+          # remove comments
+          s/\s#.*//g;
 
-	  ($key, $value) = split /=/, $_, 2;
+          # remove any trailing whitespace
+          s/^\s*(.*?)\s*$/$1/;
 
-	  if (($key eq "stylesheet") && ($value eq "sql-ledger.css")) {
-	    $value = "lx-office-erp.css";
-	  }
+          ($key, $value) = split /=/, $_, 2;
 
-	  $self->{$key} = $value;
-	}
-	
-	$self->{login} = $login;
+          if (($key eq "stylesheet") && ($value eq "sql-ledger.css")) {
+            $value = "lx-office-erp.css";
+          }
 
-	last;
+          $self->{$key} = $value;
+        }
+
+        $self->{login} = $login;
+
+        last;
       }
     }
     close MEMBER;
   }
-  
+
   $main::lxdebug->leave_sub();
   bless $self, $type;
 }
 
-
 sub country_codes {
   $main::lxdebug->enter_sub();
 
-
-  my %cc = ();
+  my %cc       = ();
   my @language = ();
-  
+
   # scan the locale directory and read in the LANGUAGE files
   opendir DIR, "locale";
 
   my @dir = grep !/(^\.\.?$|\..*)/, readdir DIR;
-  
+
   foreach my $dir (@dir) {
     next unless open(FH, "locale/$dir/LANGUAGE");
     @language = <FH>;
@@ -100,12 +98,11 @@ sub country_codes {
   }
 
   closedir(DIR);
-  
+
   $main::lxdebug->leave_sub();
 
   return %cc;
 }
-
 
 sub login {
   $main::lxdebug->enter_sub();
@@ -113,30 +110,34 @@ sub login {
   my ($self, $form, $userspath) = @_;
 
   my $rc = -3;
-  
+
   if ($self->{login}) {
-    
+
     if ($self->{password}) {
-      $form->{password} = crypt $form->{password}, substr($self->{login}, 0, 2);
+      $form->{password} = crypt $form->{password},
+        substr($self->{login}, 0, 2);
       if ($self->{password} ne $form->{password}) {
         $main::lxdebug->leave_sub();
-	return -1;
+        return -1;
       }
     }
-    
+
     unless (-e "$userspath/$self->{login}.conf") {
       $self->create_config("$userspath/$self->{login}.conf");
     }
-    
+
     do "$userspath/$self->{login}.conf";
     $myconfig{dbpasswd} = unpack 'u', $myconfig{dbpasswd};
-  
+
     # check if database is down
-    my $dbh = DBI->connect($myconfig{dbconnect}, $myconfig{dbuser}, $myconfig{dbpasswd}) or $self->error(DBI::errstr);
+    my $dbh =
+      DBI->connect($myconfig{dbconnect}, $myconfig{dbuser},
+                   $myconfig{dbpasswd})
+      or $self->error(DBI::errstr);
 
     # we got a connection, check the version
     my $query = qq|SELECT version FROM defaults|;
-    my $sth = $dbh->prepare($query);
+    my $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
     my ($dbversion) = $sth->fetchrow_array;
@@ -145,7 +146,7 @@ sub login {
     # add login to employee table if it does not exist
     # no error check for employee table, ignore if it does not exist
     $query = qq|SELECT e.id FROM employee e WHERE e.login = '$self->{login}'|;
-    $sth = $dbh->prepare($query);
+    $sth   = $dbh->prepare($query);
     $sth->execute;
 
     my ($login) = $sth->fetchrow_array;
@@ -162,24 +163,26 @@ sub login {
     $rc = 0;
 
     if ($form->{dbversion} ne $dbversion) {
+
       # update the tables
       open FH, ">$userspath/nologin" or die "
 $!";
 
-      map { $form->{$_} = $myconfig{$_} } qw(dbname dbhost dbport dbdriver dbuser dbpasswd);
-      
+      map { $form->{$_} = $myconfig{$_} }
+        qw(dbname dbhost dbport dbdriver dbuser dbpasswd);
+
       $form->{dbupdate} = "db$myconfig{dbname}";
-      $form->{$form->{dbupdate}} = 1;
+      $form->{ $form->{dbupdate} } = 1;
 
       $form->info("Upgrading Dataset $myconfig{dbname} ...");
-      
+
       # required for Oracle
       $form->{dbdefault} = $sid;
 
       # ignore HUP, QUIT in case the webserver times out
-      $SIG{HUP} = 'IGNORE';
+      $SIG{HUP}  = 'IGNORE';
       $SIG{QUIT} = 'IGNORE';
-      
+
       $self->dbupdate($form);
 
       # remove lock file
@@ -197,35 +200,31 @@ $!";
   return $rc;
 }
 
-
-
 sub dbconnect_vars {
   $main::lxdebug->enter_sub();
 
   my ($form, $db) = @_;
-  
+
   my %dboptions = (
-     'Pg' => {
-        'yy-mm-dd' => 'set DateStyle to \'ISO\'',
-        'yyyy-mm-dd' => 'set DateStyle to \'ISO\'',
-	'mm/dd/yy' => 'set DateStyle to \'SQL, US\'',
-	'mm-dd-yy' => 'set DateStyle to \'POSTGRES, US\'',
-	'dd/mm/yy' => 'set DateStyle to \'SQL, EUROPEAN\'',
-	'dd-mm-yy' => 'set DateStyle to \'POSTGRES, EUROPEAN\'',
-	'dd.mm.yy' => 'set DateStyle to \'GERMAN\''
-	     },
-     'Oracle' => {
-	'yy-mm-dd' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YY-MM-DD\'',
-	'yyyy-mm-dd' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YYYY-MM-DD\'',
-	'mm/dd/yy' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM/DD/YY\'',
-	'mm-dd-yy' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM-DD-YY\'',
-	'dd/mm/yy' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD/MM/YY\'',
-	'dd-mm-yy' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD-MM-YY\'',
-	'dd.mm.yy' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD.MM.YY\'',
-	         }
-     );
-			     
-  $form->{dboptions} = $dboptions{$form->{dbdriver}}{$form->{dateformat}};
+        'Pg' => { 'yy-mm-dd'   => 'set DateStyle to \'ISO\'',
+                  'yyyy-mm-dd' => 'set DateStyle to \'ISO\'',
+                  'mm/dd/yy'   => 'set DateStyle to \'SQL, US\'',
+                  'mm-dd-yy'   => 'set DateStyle to \'POSTGRES, US\'',
+                  'dd/mm/yy'   => 'set DateStyle to \'SQL, EUROPEAN\'',
+                  'dd-mm-yy'   => 'set DateStyle to \'POSTGRES, EUROPEAN\'',
+                  'dd.mm.yy'   => 'set DateStyle to \'GERMAN\''
+        },
+        'Oracle' => {
+          'yy-mm-dd'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YY-MM-DD\'',
+          'yyyy-mm-dd' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YYYY-MM-DD\'',
+          'mm/dd/yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM/DD/YY\'',
+          'mm-dd-yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM-DD-YY\'',
+          'dd/mm/yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD/MM/YY\'',
+          'dd-mm-yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD-MM-YY\'',
+          'dd.mm.yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD.MM.YY\'',
+        });
+
+  $form->{dboptions} = $dboptions{ $form->{dbdriver} }{ $form->{dateformat} };
 
   if ($form->{dbdriver} eq 'Pg') {
     $form->{dbconnect} = "dbi:Pg:dbname=$db";
@@ -241,14 +240,12 @@ sub dbconnect_vars {
   if ($form->{dbport}) {
     $form->{dbconnect} .= ";port=$form->{dbport}";
   }
-  
+
   $main::lxdebug->leave_sub();
 }
 
-
 sub dbdrivers {
   $main::lxdebug->enter_sub();
-
 
   my @drivers = DBI->available_drivers();
 
@@ -257,7 +254,6 @@ sub dbdrivers {
   return (grep { /(Pg|Oracle)/ } @drivers);
 }
 
-
 sub dbsources {
   $main::lxdebug->enter_sub();
 
@@ -265,41 +261,44 @@ sub dbsources {
 
   my @dbsources = ();
   my ($sth, $query);
-  
+
   $form->{dbdefault} = $form->{dbuser} unless $form->{dbdefault};
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
 
-  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
-
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
 
   if ($form->{dbdriver} eq 'Pg') {
 
     $query = qq|SELECT datname FROM pg_database|;
-    $sth = $dbh->prepare($query);
+    $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    
+
     while (my ($db) = $sth->fetchrow_array) {
 
       if ($form->{only_acc_db}) {
-	
-	next if ($db =~ /^template/);
 
-	&dbconnect_vars($form, $db);
-	my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+        next if ($db =~ /^template/);
 
-	$query = qq|SELECT p.tablename FROM pg_tables p
+        &dbconnect_vars($form, $db);
+        my $dbh =
+          DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+          or $form->dberror;
+
+        $query = qq|SELECT p.tablename FROM pg_tables p
 		    WHERE p.tablename = 'defaults'
 		    AND p.tableowner = '$form->{dbuser}'|;
-	my $sth = $dbh->prepare($query);
-	$sth->execute || $form->dberror($query);
+        my $sth = $dbh->prepare($query);
+        $sth->execute || $form->dberror($query);
 
-	if ($sth->fetchrow_array) {
-	  push @dbsources, $db;
-	}
-	$sth->finish;
-	$dbh->disconnect;
-	next;
+        if ($sth->fetchrow_array) {
+          push @dbsources, $db;
+        }
+        $sth->finish;
+        $dbh->disconnect;
+        next;
       }
       push @dbsources, $db;
     }
@@ -324,26 +323,30 @@ sub dbsources {
 
   $sth->finish;
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 
   return @dbsources;
 }
-
 
 sub dbcreate {
   $main::lxdebug->enter_sub();
 
   my ($self, $form) = @_;
 
-  my %dbcreate = ( 'Pg' => qq|CREATE DATABASE "$form->{db}"|,
-               'Oracle' => qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|);
+  my %dbcreate = (
+    'Pg'     => qq|CREATE DATABASE "$form->{db}"|,
+    'Oracle' =>
+      qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|
+  );
 
   $dbcreate{Pg} .= " WITH ENCODING = '$form->{encoding}'" if $form->{encoding};
 
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
-  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
   my $query = qq|$dbcreate{$form->{dbdriver}}|;
   $dbh->do($query) || $form->dberror($query);
 
@@ -353,18 +356,17 @@ sub dbcreate {
   }
   $dbh->disconnect;
 
-
   # setup variables for the new database
   if ($form->{dbdriver} eq 'Oracle') {
-    $form->{dbuser} = $form->{db};
+    $form->{dbuser}   = $form->{db};
     $form->{dbpasswd} = $form->{db};
   }
-  
-  
+
   &dbconnect_vars($form, $form->{db});
-  
-  $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
-  
+
+  $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
+
   # create the tables
   my $filename = qq|sql/lx-office.sql|;
   $self->process_query($form, $dbh, $filename);
@@ -382,27 +384,26 @@ sub dbcreate {
   # Indices sind auch in lx-office.sql
   # $filename = qq|sql/$form->{dbdriver}-indices.sql|;
   # $self->process_query($form, $dbh, $filename);
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
 
-
-
 sub process_query {
   $main::lxdebug->enter_sub();
 
   my ($self, $form, $dbh, $filename) = @_;
-  
-#  return unless (-f $filename);
-  
+
+  #  return unless (-f $filename);
+
   open(FH, "$filename") or $form->error("$filename : $!\n");
   my $query = "";
   my $sth;
   my @quote_chars;
 
   while (<FH>) {
+
     # Remove DOS and Unix style line endings.
     s/[\r\n]//g;
 
@@ -424,13 +425,14 @@ sub process_query {
           push(@quote_chars, $char);
 
         } elsif ($char eq ";") {
+
           # Query is complete. Send it.
 
           $sth = $dbh->prepare($query);
           $sth->execute || $form->dberror($query);
           $sth->finish;
 
-          $char = "";
+          $char  = "";
           $query = "";
         }
 
@@ -443,21 +445,20 @@ sub process_query {
 
   $main::lxdebug->leave_sub();
 }
-  
-
 
 sub dbdelete {
   $main::lxdebug->enter_sub();
 
   my ($self, $form) = @_;
 
-  my %dbdelete = ( 'Pg' => qq|DROP DATABASE "$form->{db}"|,
-               'Oracle' => qq|DROP USER $form->{db} CASCADE|
-	         );
-  
+  my %dbdelete = ('Pg'     => qq|DROP DATABASE "$form->{db}"|,
+                  'Oracle' => qq|DROP USER $form->{db} CASCADE|);
+
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
-  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
   my $query = qq|$dbdelete{$form->{dbdriver}}|;
   $dbh->do($query) || $form->dberror($query);
 
@@ -465,25 +466,23 @@ sub dbdelete {
 
   $main::lxdebug->leave_sub();
 }
-  
-
 
 sub dbsources_unused {
   $main::lxdebug->enter_sub();
 
   my ($self, $form, $memfile) = @_;
 
-  my @dbexcl = ();
+  my @dbexcl    = ();
   my @dbsources = ();
-  
+
   $form->error('File locked!') if (-f "${memfile}.LCK");
-  
+
   # open members file
   open(FH, "$memfile") or $form->error("$memfile : $!");
 
   while (<FH>) {
     if (/^dbname=/) {
-      my ($null,$item) = split /=/;
+      my ($null, $item) = split /=/;
       push @dbexcl, $item;
     }
   }
@@ -506,7 +505,6 @@ sub dbsources_unused {
   return @dbsources;
 }
 
-
 sub dbneedsupdate {
   $main::lxdebug->enter_sub();
 
@@ -514,11 +512,13 @@ sub dbneedsupdate {
 
   my %dbsources = ();
   my $query;
-  
+
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
 
-  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
 
   if ($form->{dbdriver} eq 'Pg') {
 
@@ -527,14 +527,16 @@ sub dbneedsupdate {
 		AND u.usename = '$form->{dbuser}'|;
     my $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    
+
     while (my ($db) = $sth->fetchrow_array) {
 
       next if ($db =~ /^template/);
 
       &dbconnect_vars($form, $db);
-      
-      my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+
+      my $dbh =
+        DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+        or $form->dberror;
 
       $query = qq|SELECT t.tablename FROM pg_tables t
 		  WHERE t.tablename = 'defaults'|;
@@ -542,21 +544,20 @@ sub dbneedsupdate {
       $sth->execute || $form->dberror($query);
 
       if ($sth->fetchrow_array) {
-	$query = qq|SELECT version FROM defaults|;
-	my $sth = $dbh->prepare($query);
-	$sth->execute;
-	
-	if (my ($version) = $sth->fetchrow_array) {
-	  $dbsources{$db} = $version;
-	}
-	$sth->finish;
+        $query = qq|SELECT version FROM defaults|;
+        my $sth = $dbh->prepare($query);
+        $sth->execute;
+
+        if (my ($version) = $sth->fetchrow_array) {
+          $dbsources{$db} = $version;
+        }
+        $sth->finish;
       }
       $sth->finish;
       $dbh->disconnect;
     }
     $sth->finish;
   }
-
 
   if ($form->{dbdriver} eq 'Oracle') {
     $query = qq|SELECT o.owner FROM dba_objects o
@@ -567,27 +568,29 @@ sub dbneedsupdate {
     $sth->execute || $form->dberror($query);
 
     while (my ($db) = $sth->fetchrow_array) {
-      
+
       $form->{dbuser} = $db;
       &dbconnect_vars($form, $db);
-      
-      my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+
+      my $dbh =
+        DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+        or $form->dberror;
 
       $query = qq|SELECT version FROM defaults|;
       my $sth = $dbh->prepare($query);
       $sth->execute;
-      
+
       if (my ($version) = $sth->fetchrow_array) {
-	$dbsources{$db} = $version;
+        $dbsources{$db} = $version;
       }
       $sth->finish;
       $dbh->disconnect;
     }
     $sth->finish;
   }
-  
+
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 
   return %dbsources;
@@ -643,20 +646,22 @@ sub dbupdate {
   my ($self, $form) = @_;
 
   $form->{sid} = $form->{dbdefault};
-  
+
   my @upgradescripts = ();
   my $query;
   my $rc = -2;
-  
+
   if ($form->{dbupdate}) {
+
     # read update scripts into memory
-    opendir SQLDIR, "sql/." or $form-error($!);
+    opendir SQLDIR, "sql/." or $form - error($!);
     ## LINET
-    @upgradescripts = sort(cmp_script_version grep(/$form->{dbdriver}-upgrade-.*?\.sql$/, readdir(SQLDIR)));
+    @upgradescripts =
+      sort(cmp_script_version
+           grep(/$form->{dbdriver}-upgrade-.*?\.sql$/, readdir(SQLDIR)));
     ## /LINET
     closedir SQLDIR;
   }
-
 
   foreach my $db (split / /, $form->{dbupdate}) {
 
@@ -665,18 +670,21 @@ sub dbupdate {
     # strip db from dataset
     $db =~ s/^db//;
     &dbconnect_vars($form, $db);
-    
-    my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+
+    my $dbh =
+      DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+      or $form->dberror;
 
     # check version
     $query = qq|SELECT version FROM defaults|;
     my $sth = $dbh->prepare($query);
+
     # no error check, let it fall through
     $sth->execute;
 
     my $version = $sth->fetchrow_array;
     $sth->finish;
-    
+
     next unless $version;
 
     ## LINET
@@ -686,7 +694,7 @@ sub dbupdate {
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
       $a =~ s/^$form->{dbdriver}-upgrade-|\.sql$//g;
-      
+
       my ($mindb, $maxdb) = split /-/, $a;
       ## LINET
       $mindb = calc_version($mindb);
@@ -702,31 +710,28 @@ sub dbupdate {
       $self->process_query($form, $dbh, "sql/$upgradescript");
 
       $version = $maxdb;
- 
+
     }
-    
+
     $rc = 0;
     $dbh->disconnect;
-    
+
   }
 
   $main::lxdebug->leave_sub();
 
   return $rc;
 }
-  
-
 
 sub create_config {
   $main::lxdebug->enter_sub();
 
   my ($self, $filename) = @_;
 
-
   @config = &config_vars;
-  
+
   open(CONF, ">$filename") or $self->error("$filename : $!");
-  
+
   # create the config file
   print CONF qq|# configuration file for $self->{login}
 
@@ -738,7 +743,6 @@ sub create_config {
     print CONF qq|  $key => '$self->{$key}',\n|;
   }
 
-   
   print CONF qq|);\n\n|;
 
   close CONF;
@@ -746,29 +750,27 @@ sub create_config {
   $main::lxdebug->leave_sub();
 }
 
-
 sub save_member {
   $main::lxdebug->enter_sub();
 
   my ($self, $memberfile, $userspath) = @_;
 
   my $newmember = 1;
-  
- 
+
   # format dbconnect and dboptions string
   &dbconnect_vars($self, $self->{dbname});
-  
+
   $self->error('File locked!') if (-f "${memberfile}.LCK");
   open(FH, ">${memberfile}.LCK") or $self->error("${memberfile}.LCK : $!");
   close(FH);
-  
+
   open(CONF, "+<$memberfile") or $self->error("$memberfile : $!");
-  
+
   @config = <CONF>;
-  
+
   seek(CONF, 0, 0);
   truncate(CONF, 0);
-  
+
   while ($line = shift @config) {
     if ($line =~ /^\[$self->{login}\]/) {
       $newmember = 0;
@@ -790,27 +792,31 @@ sub save_member {
   }
 
   print CONF qq|[$self->{login}]\n|;
-  
-  if ((($self->{dbpasswd} ne $self->{old_dbpasswd}) || $newmember) && $self->{root}) {
+
+  if ((($self->{dbpasswd} ne $self->{old_dbpasswd}) || $newmember)
+      && $self->{root}) {
     $self->{dbpasswd} = pack 'u', $self->{dbpasswd};
     chop $self->{dbpasswd};
   }
   if (defined($self->{new_password})) {
     if ($self->{new_password} ne $self->{old_password}) {
-      $self->{password} = crypt $self->{new_password}, substr($self->{login}, 0, 2) if $self->{new_password};
+      $self->{password} = crypt $self->{new_password},
+        substr($self->{login}, 0, 2)
+        if $self->{new_password};
     }
   } else {
     if ($self->{password} ne $self->{old_password}) {
-      $self->{password} = crypt $self->{password}, substr($self->{login}, 0, 2) if $self->{password};
+      $self->{password} = crypt $self->{password}, substr($self->{login}, 0, 2)
+        if $self->{password};
     }
   }
-  
+
   if ($self->{'root login'}) {
     @config = ("password");
   } else {
     @config = &config_vars;
   }
- 
+
   # replace \r\n with \n
   map { $self->{$_} =~ s/\r\n/\\n/g } qw(address signature);
   foreach $key (sort @config) {
@@ -820,29 +826,27 @@ sub save_member {
   print CONF "\n";
   close CONF;
   unlink "${memberfile}.LCK";
-  
+
   # create conf file
-  $self->create_config("$userspath/$self->{login}.conf") unless $self->{'root login'};
- 
+  $self->create_config("$userspath/$self->{login}.conf")
+    unless $self->{'root login'};
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub config_vars {
   $main::lxdebug->enter_sub();
 
-  
   my @conf = qw(acs address admin businessnumber charset company countrycode
-             currency dateformat dbconnect dbdriver dbhost dbport dboptions
-	     dbname dbuser dbpasswd email fax name numberformat password
-	     printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
-	     anfragen lieferantenbestellungen einkaufsrechnungen steuernummer ustid duns);
+    currency dateformat dbconnect dbdriver dbhost dbport dboptions
+    dbname dbuser dbpasswd email fax name numberformat password
+    printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
+    anfragen lieferantenbestellungen einkaufsrechnungen steuernummer ustid duns);
 
   $main::lxdebug->leave_sub();
 
   return @conf;
 }
-
 
 sub error {
   $main::lxdebug->enter_sub();
@@ -860,12 +864,11 @@ sub error {
 <p><b>$msg</b>|;
 
   }
-  
+
   die "Error: $msg\n";
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 1;
 

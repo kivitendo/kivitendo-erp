@@ -35,12 +35,11 @@
 
 package PE;
 
-
 sub projects {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
@@ -84,12 +83,11 @@ sub projects {
 
   $sth->finish;
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 
   return $i;
 }
-
 
 sub get_project {
   $main::lxdebug->enter_sub();
@@ -98,7 +96,7 @@ sub get_project {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   my $query = qq|SELECT p.*
                  FROM project p
 	         WHERE p.id = $form->{id}|;
@@ -106,7 +104,7 @@ sub get_project {
   $sth->execute || $form->dberror($query);
 
   my $ref = $sth->fetchrow_hashref(NAME_lc);
-  
+
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
@@ -120,23 +118,22 @@ sub get_project {
 
   ($form->{orphaned}) = $sth->fetchrow_array;
   $form->{orphaned} = !$form->{orphaned};
-       
+
   $sth->finish;
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
 
-
 sub save_project {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   map { $form->{$_} =~ s/\'/\'\'/g } (projectnumber, description);
 
   if ($form->{id}) {
@@ -150,20 +147,19 @@ sub save_project {
                 VALUES ('$form->{projectnumber}', '$form->{description}')|;
   }
   $dbh->do($query) || $form->dberror($query);
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
 
-
 sub partsgroups {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   my $var;
-  
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
@@ -173,7 +169,7 @@ sub partsgroups {
                  FROM partsgroup g|;
 
   my $where = "1 = 1";
-  
+
   if ($form->{partsgroup}) {
     $var = $form->like(lc $form->{partsgroup});
     $where .= " AND lower(g.partsgroup) LIKE '$var'";
@@ -181,7 +177,7 @@ sub partsgroups {
   $query .= qq|
                WHERE $where
 	       ORDER BY $sortorder|;
-  
+
   if ($form->{status} eq 'orphaned') {
     $query = qq|SELECT g.*
                 FROM partsgroup g
@@ -206,21 +202,20 @@ sub partsgroups {
 
   $sth->finish;
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 
   return $i;
 }
 
-
 sub save_partsgroup {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   map { $form->{$_} =~ s/\'/\'\'/g } (partsgroup);
 
   $form->{discount} /= 100;
@@ -235,12 +230,11 @@ sub save_partsgroup {
                 VALUES ('$form->{partsgroup}')|;
   }
   $dbh->do($query) || $form->dberror($query);
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub get_partsgroup {
   $main::lxdebug->enter_sub();
@@ -249,7 +243,7 @@ sub get_partsgroup {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   my $query = qq|SELECT p.*
                  FROM partsgroup p
 	         WHERE p.id = $form->{id}|;
@@ -257,7 +251,7 @@ sub get_partsgroup {
   $sth->execute || $form->dberror($query);
 
   my $ref = $sth->fetchrow_hashref(NAME_lc);
- 
+
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
@@ -271,34 +265,30 @@ sub get_partsgroup {
 
   ($form->{orphaned}) = $sth->fetchrow_array;
   $form->{orphaned} = !$form->{orphaned};
-       
+
   $sth->finish;
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
-
-
 
 sub delete_tuple {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   $query = qq|DELETE FROM $form->{type}
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
-
-
 
 1;
 

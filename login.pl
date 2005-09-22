@@ -30,14 +30,12 @@
 #
 #######################################################################
 
-
 # setup defaults, DO NOT CHANGE
-$userspath = "users";
-$templates = "templates";
+$userspath  = "users";
+$templates  = "templates";
 $memberfile = "users/members";
-$sendmail = "| /usr/sbin/sendmail -t";
+$sendmail   = "| /usr/sbin/sendmail -t";
 ########## end ###########################################
-
 
 $| = 1;
 
@@ -58,7 +56,6 @@ if ($ARGV[0]) {
   $_ = $ARGV[0];
 }
 
-
 %form = split /[&=]/;
 
 # fix for apache 2.0 bug
@@ -69,7 +66,6 @@ $0 =~ tr/\\/\//;
 $pos = rindex $0, '/';
 $script = substr($0, $pos + 1);
 
-
 if (-e "$userspath/nologin" && $script ne 'admin.pl') {
   print "content-type: text/plain
 
@@ -77,7 +73,6 @@ Login disabled!\n";
 
   exit;
 }
-
 
 if ($form{path}) {
   $form{path} =~ s/%2f/\//gi;
@@ -90,31 +85,30 @@ Invalid path!\n";
     die;
   }
 
-
   $ARGV[0] = "$_&script=$script";
   require "$form{path}/$script";
 } else {
 
   if (!$form{terminal}) {
     if ($ENV{HTTP_USER_AGENT}) {
+
       # web browser
       if ($ENV{HTTP_USER_AGENT} =~ /(mozilla|links|opera|w3m)/i) {
-	$form{terminal} = "mozilla";
+        $form{terminal} = "mozilla";
       }
 
       if ($ENV{HTTP_USER_AGENT} =~ /lynx/i) {
-	$form{terminal} = "lynx";
+        $form{terminal} = "lynx";
       }
     } else {
       if ($ENV{TERM} =~ /xterm/) {
-	$form{terminal} = "xterm";
+        $form{terminal} = "xterm";
       }
       if ($ENV{TERM} =~ /(console|linux|vt.*)/i) {
-	$form{terminal} = "console";
+        $form{terminal} = "console";
       }
     }
   }
-
 
   if ($form{terminal}) {
 
@@ -122,7 +116,7 @@ Invalid path!\n";
     map { $ARGV[0] .= "&${_}=$form{$_}" } keys %form;
 
     require "bin/$form{terminal}/$script";
-    
+
   } else {
 
     print qq|

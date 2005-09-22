@@ -18,7 +18,7 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -34,7 +34,6 @@
 
 package Menu;
 
-
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -42,12 +41,11 @@ sub new {
 
   use SL::Inifile;
   my $self = Inifile->new($menufile, $level);
-  
+
   $main::lxdebug->leave_sub();
 
   bless $self, $type;
 }
-
 
 sub menuitem {
   $main::lxdebug->enter_sub();
@@ -69,22 +67,22 @@ sub menuitem {
   }
 
   my $level = $form->escape($item);
-  my $str = qq|<a href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+  my $str   =
+    qq|<a href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
   my @vars = qw(module action target href);
-  
+
   if ($self->{$item}{href}) {
-    $str = qq|<a href=$self->{$item}{href}|;
+    $str  = qq|<a href=$self->{$item}{href}|;
     @vars = qw(module target href);
   }
 
   map { delete $self->{$item}{$_} } @vars;
-  
-  
+
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
-    $str .= "&".$form->escape($key,1)."=";
+    $str .= "&" . $form->escape($key, 1) . "=";
     ($value, $conf) = split /=/, $self->{$item}{$key}, 2;
-    $value = $myconfig->{$value}."/$conf" if ($conf);
+    $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
 
@@ -99,12 +97,11 @@ sub menuitem {
   return $str;
 }
 
-
 sub access_control {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $menulevel) = @_;
-  
+
   my @menu = ();
 
   if ($menulevel eq "") {
@@ -113,7 +110,7 @@ sub access_control {
     @menu = grep { /^${menulevel}--/ } @{ $self->{ORDER} };
   }
 
-  my @a = split /;/, $myconfig->{acs};
+  my @a    = split /;/, $myconfig->{acs};
   my $excl = ();
 
   # remove --AR, --AP from array
@@ -128,7 +125,6 @@ sub access_control {
 
   return @a;
 }
-
 
 1;
 

@@ -1,14 +1,13 @@
 package LXDebug;
 
 use constant {
-  NONE => 0,
-  INFO => 1,
+  NONE   => 0,
+  INFO   => 1,
   DEBUG1 => 2,
   DEBUG2 => 3,
 
-  FILE_TARGET => 0,
-  STDERR_TARGET => 1
-  };
+  FILE_TARGET   => 0,
+  STDERR_TARGET => 1 };
 
 use POSIX qw(strftime);
 
@@ -18,7 +17,7 @@ BEGIN {
   eval("use Data::Dumper");
   $data_dumper_available = $@ ? 0 : 1;
 
-  $global_level = NONE;
+  $global_level      = NONE;
   $global_trace_subs = 0;
 }
 
@@ -26,14 +25,14 @@ sub new {
   my $type = shift;
   my $self = {};
 
-  $self->{"calldepth"} = 0;
-  $self->{"file"} = "/tmp/lx-office-debug.log";
-  $self->{"target"} = FILE_TARGET;
-  $self->{"level"} = 0;
+  $self->{"calldepth"}  = 0;
+  $self->{"file"}       = "/tmp/lx-office-debug.log";
+  $self->{"target"}     = FILE_TARGET;
+  $self->{"level"}      = 0;
   $self->{"trace_subs"} = 0;
 
   while ($_[0]) {
-    $self->{$_[0]} = $_[1];
+    $self->{ $_[0] } = $_[1];
     shift;
     shift;
   }
@@ -45,7 +44,7 @@ sub set_target {
   my ($self, $target, $file) = @_;
 
   if ((FILE_TARGET == $target) && $file) {
-    $self->{"file"} = $file;
+    $self->{"file"}   = $file;
     $self->{"target"} = FILE_TARGET;
 
   } elsif (STDERR_TARGET == $target) {
@@ -69,9 +68,11 @@ sub enter_sub {
   if (!defined($package)) {
     $self->_write("enter_sub", $indent . "top-level?\n");
   } else {
-    $self->_write("enter_sub", $indent . "${subroutine} in " .
-                  "${self_filename}:${self_line} called from " .
-                  "${filename}:${line}\n");
+    $self->_write("enter_sub",
+                  $indent
+                    . "${subroutine} in "
+                    . "${self_filename}:${self_line} called from "
+                    . "${filename}:${line}\n");
   }
 }
 
@@ -91,8 +92,8 @@ sub leave_sub {
   if (!defined($package)) {
     $self->_write("leave_sub", $indent . "top-level?\n");
   } else {
-    $self->_write("leave_sub", $indent . "${subroutine} in " .
-                  "${self_filename}:${self_line}\n");
+    $self->_write("leave_sub",
+            $indent . "${subroutine} in " . "${self_filename}:${self_line}\n");
   }
 }
 
@@ -105,8 +106,9 @@ sub message {
   }
 
   if ($log_level >= $level) {
-    $self->_write(INFO == $level ? "info" :
-                  DEBUG1 == $level ? "debug1" : "debug2",
+    $self->_write(INFO == $level
+                  ? "info"
+                  : DEBUG1 == $level ? "debug1" : "debug2",
                   $message);
   }
 }
@@ -117,8 +119,9 @@ sub dump {
   if ($data_dumper_available) {
     $self->message($level, "dumping ${name}:\n" . Dumper($variable));
   } else {
-    $self->message($level, "dumping ${name}: Data::Dumper not available; " .
-                   "variable cannot be dumped");
+    $self->message($level,
+                   "dumping ${name}: Data::Dumper not available; "
+                     . "variable cannot be dumped");
   }
 }
 
@@ -139,12 +142,12 @@ sub _write {
 
   chomp($message);
 
-  if ((FILE_TARGET == $self->{"target"}) &&
-      open(FILE, ">>" . $self->{"file"})) {
+  if ((FILE_TARGET == $self->{"target"})
+      && open(FILE, ">>" . $self->{"file"})) {
     print(FILE "${date}${message}\n");
     close(FILE);
 
-  } elsif (STDERR_TARGET == $self->{"target"}) {
+      } elsif (STDERR_TARGET == $self->{"target"}) {
     print(STDERR "${date}${message}\n");
   }
 }

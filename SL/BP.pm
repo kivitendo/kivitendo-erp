@@ -34,7 +34,6 @@
 
 package BP;
 
-
 sub get_vc {
   $main::lxdebug->enter_sub();
 
@@ -42,17 +41,16 @@ sub get_vc {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
-  my %arap = ( invoice => 'ar',
-               packing_list => 'ar',
-	       sales_order => 'oe',
-	       purchase_order => 'oe',
-	       sales_quotation => 'oe',
-	       request_quotation => 'oe',
-	       check => 'ap',
-	       receipt => 'ar'
-	     );
-  
+
+  my %arap = (invoice           => 'ar',
+              packing_list      => 'ar',
+              sales_order       => 'oe',
+              purchase_order    => 'oe',
+              sales_quotation   => 'oe',
+              request_quotation => 'oe',
+              check             => 'ap',
+              receipt           => 'ar');
+
   $query = qq|SELECT count(*)
 	      FROM (SELECT DISTINCT ON (vc.id) vc.id
 		    FROM $form->{vc} vc, $arap{$form->{type}} a, status s
@@ -81,20 +79,18 @@ sub get_vc {
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{"all_$form->{vc}"} }, $ref;
   }
-  
+
   $sth->finish;
   $dbh->disconnect;
- 
+
   $main::lxdebug->leave_sub();
 }
-		 
-  
 
 sub payment_accounts {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
@@ -108,14 +104,13 @@ sub payment_accounts {
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{accounts} }, $ref;
   }
-  
+
   $sth->finish;
   $dbh->disconnect;
-  
+
   $main::lxdebug->leave_sub();
 }
 
- 
 sub get_spoolfiles {
   $main::lxdebug->enter_sub();
 
@@ -128,10 +123,10 @@ sub get_spoolfiles {
   my $invnumber = "invnumber";
 
   if ($form->{type} eq 'check' || $form->{type} eq 'receipt') {
-    
+
     $arap = ($form->{type} eq 'check') ? "ap" : "ar";
     my ($accno) = split /--/, $form->{account};
-    
+
     $query = qq|SELECT a.id, s.spoolfile, vc.name, ac.transdate, a.invnumber,
                 a.invoice, '$arap' AS module
                 FROM status s, chart c, $form->{vc} vc, $arap a, acc_trans ac
@@ -144,16 +139,16 @@ sub get_spoolfiles {
 		AND ac.chart_id = c.id
 		AND NOT ac.fx_transaction|;
   } else {
- 
+
     $arap = "ar";
     my $invoice = "a.invoice";
-    
+
     if ($form->{type} =~ /_(order|quotation)$/) {
       $invnumber = "ordnumber";
-      $arap = "oe";
-      $invoice = '0';
+      $arap      = "oe";
+      $invoice   = '0';
     }
-      
+
     $query = qq|SELECT a.id, a.$invnumber AS invnumber, a.ordnumber,
 		a.quonumber, a.transdate, $invoice AS invoice,
 		'$arap' AS module, vc.name, s.spoolfile
@@ -167,8 +162,8 @@ sub get_spoolfiles {
   if ($form->{"$form->{vc}_id"}) {
     $query .= qq| AND a.$form->{vc}_id = $form->{"$form->{vc}_id"}|;
   } else {
-    if ($form->{$form->{vc}}) {
-      my $name = $form->like(lc $form->{$form->{vc}});
+    if ($form->{ $form->{vc} }) {
+      my $name = $form->like(lc $form->{ $form->{vc} });
       $query .= " AND lower(vc.name) LIKE '$name'";
     }
   }
@@ -185,15 +180,14 @@ sub get_spoolfiles {
     $query .= " AND lower(a.quonumber) LIKE '$quonumber'";
   }
 
-#  $query .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
-#  $query .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+  #  $query .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
+  #  $query .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
 
   my @a = (transdate, $invnumber, name);
   my $sortorder = join ', ', $form->sort_columns(@a);
   $sortorder = $form->{sort} unless $sortorder;
-  
-  $query .= " ORDER by $sortorder";
 
+  $query .= " ORDER by $sortorder";
 
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -201,13 +195,12 @@ sub get_spoolfiles {
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{SPOOL} }, $ref;
   }
-  
+
   $sth->finish;
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub delete_spool {
   $main::lxdebug->enter_sub();
@@ -218,7 +211,7 @@ sub delete_spool {
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   my $query;
-  
+
   if ($form->{type} =~ /(check|receipt)/) {
     $query = qq|DELETE FROM status
                 WHERE spoolfile = ?|;
@@ -229,14 +222,14 @@ sub delete_spool {
                  WHERE spoolfile = ?|;
   }
   my $sth = $dbh->prepare($query) || $form->dberror($query);
-  
+
   foreach my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       $sth->execute($form->{"spoolfile_$i"}) || $form->dberror($query);
       $sth->finish;
     }
   }
-    
+
   # commit
   my $rc = $dbh->commit;
   $dbh->disconnect;
@@ -245,7 +238,7 @@ sub delete_spool {
     foreach my $i (1 .. $form->{rowcount}) {
       $_ = qq|$spool/$form->{"spoolfile_$i"}|;
       if ($form->{"checked_$i"}) {
-	unlink;
+        unlink;
       }
     }
   }
@@ -254,7 +247,6 @@ sub delete_spool {
 
   return $rc;
 }
-
 
 sub print_spool {
   $main::lxdebug->enter_sub();
@@ -269,25 +261,25 @@ sub print_spool {
                  WHERE formname = '$form->{type}'
 		 AND spoolfile = ?|;
   my $sth = $dbh->prepare($query) || $form->dberror($query);
-  
+
   foreach my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       open(OUT, $form->{OUT}) or $form->error("$form->{OUT} : $!");
-      
+
       $spoolfile = qq|$spool/$form->{"spoolfile_$i"}|;
-      
+
       # send file to printer
       open(IN, $spoolfile) or $form->error("$spoolfile : $!");
 
       while (<IN>) {
-	print OUT $_;
+        print OUT $_;
       }
       close(IN);
       close(OUT);
 
       $sth->execute($form->{"spoolfile_$i"}) || $form->dberror($query);
       $sth->finish;
-      
+
     }
   }
 
@@ -295,7 +287,6 @@ sub print_spool {
 
   $main::lxdebug->leave_sub();
 }
-
 
 1;
 

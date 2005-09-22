@@ -36,7 +36,6 @@
 
 package CP;
 
-
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -59,7 +58,6 @@ sub new {
   bless $self, $type;
 }
 
-
 sub paymentaccounts {
   $main::lxdebug->enter_sub();
 
@@ -67,7 +65,7 @@ sub paymentaccounts {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  
+
   my $query = qq|SELECT c.accno, c.description, c.link
                  FROM chart c
 		 WHERE c.link LIKE '%$form->{ARAP}%'
@@ -75,27 +73,27 @@ sub paymentaccounts {
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  $form->{PR}{$form->{ARAP}} = ();
+  $form->{PR}{ $form->{ARAP} } = ();
   $form->{PR}{"$form->{ARAP}_paid"} = ();
-  
+
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     foreach my $item (split /:/, $ref->{link}) {
       if ($item eq $form->{ARAP}) {
-	push @{ $form->{PR}{$form->{ARAP}} }, $ref;
+        push @{ $form->{PR}{ $form->{ARAP} } }, $ref;
       }
       if ($item eq "$form->{ARAP}_paid") {
-	push @{ $form->{PR}{"$form->{ARAP}_paid"} }, $ref;
+        push @{ $form->{PR}{"$form->{ARAP}_paid"} }, $ref;
       }
     }
   }
   $sth->finish;
-  
+
   # get currencies and closedto
   $query = qq|SELECT curr, closedto
               FROM defaults|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-  
+
   ($form->{currencies}, $form->{closedto}) = $sth->fetchrow_array;
   $sth->finish;
 
@@ -104,7 +102,6 @@ sub paymentaccounts {
   $main::lxdebug->leave_sub();
 }
 
-
 sub get_openvc {
   $main::lxdebug->enter_sub();
 
@@ -112,7 +109,7 @@ sub get_openvc {
 
   my $dbh = $form->dbconnect($myconfig);
 
-  my $arap = ($form->{vc} eq 'customer') ? 'ar' : 'ap';
+  my $arap  = ($form->{vc} eq 'customer') ? 'ar' : 'ap';
   my $query = qq|SELECT count(*)
                  FROM $form->{vc} ct, $arap a
 		 WHERE a.$form->{vc}_id = ct.id
@@ -159,12 +156,11 @@ sub get_openvc {
     push @{ $form->{all_departments} }, $ref;
   }
   $sth->finish;
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub get_openinvoices {
   $main::lxdebug->enter_sub();
@@ -177,15 +173,16 @@ sub get_openinvoices {
   my $where = qq|WHERE a.$form->{vc}_id = $form->{"$form->{vc}_id"}
                  AND a.curr = '$form->{currency}'
 	         AND NOT a.amount = paid|;
-  
+
   my ($buysell);
   if ($form->{vc} eq 'customer') {
     $buysell = "buy";
   } else {
     $buysell = "sell";
   }
-  
-  my $query = qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, a.curr
+
+  my $query =
+    qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, a.curr
 	         FROM $form->{arap} a
 		 $where
 		 ORDER BY a.id|;
@@ -193,37 +190,41 @@ sub get_openinvoices {
   $sth->execute || $form->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+
     # if this is a foreign currency transaction get exchangerate
-    $ref->{exchangerate} = $form->get_exchangerate($dbh, $ref->{curr}, $ref->{transdate}, $buysell) if ($form->{currency} ne $form->{defaultcurrency});
+    $ref->{exchangerate} =
+      $form->get_exchangerate($dbh, $ref->{curr}, $ref->{transdate}, $buysell)
+      if ($form->{currency} ne $form->{defaultcurrency});
     push @{ $form->{PR} }, $ref;
   }
-  
+
   $sth->finish;
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
 
-
-
 sub process_payment {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-    
+
   # connect to database, turn AutoCommit off
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   my ($paymentaccno) = split /--/, $form->{account};
-  
+
   # if currency ne defaultcurrency update exchangerate
   if ($form->{currency} ne $form->{defaultcurrency}) {
-    $form->{exchangerate} = $form->parse_amount($myconfig, $form->{exchangerate});
+    $form->{exchangerate} =
+      $form->parse_amount($myconfig, $form->{exchangerate});
 
     if ($form->{vc} eq 'customer') {
-      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid}, $form->{exchangerate}, 0);
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid},
+                                 $form->{exchangerate}, 0);
     } else {
-      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid}, 0, $form->{exchangerate});
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid}, 0,
+                                 $form->{exchangerate});
     }
   } else {
     $form->{exchangerate} = 1;
@@ -238,7 +239,7 @@ sub process_payment {
   $sth->finish;
 
   my ($buysell);
-  
+
   if ($form->{vc} eq 'customer') {
     $buysell = "buy";
   } else {
@@ -247,29 +248,28 @@ sub process_payment {
 
   my $ml;
   my $where;
-  
+
   if ($form->{ARAP} eq 'AR') {
-    $ml = 1;
+    $ml    = 1;
     $where = qq|
 		(c.link = 'AR'
 		OR c.link LIKE 'AR:%')
 		|;
   } else {
-    $ml = -1;
+    $ml    = -1;
     $where = qq|
                 (c.link = 'AP'
                 OR c.link LIKE '%:AP'
 		OR c.link LIKE '%:AP:%')
 		|;
   }
-  
-  $paymentamount = $form->{amount}; 
-  
-#  $paymentamount = $form->{amount};  
+
+  $paymentamount = $form->{amount};
+
+  #  $paymentamount = $form->{amount};
   my $null;
   ($null, $form->{department_id}) = split /--/, $form->{department};
   $form->{department_id} *= 1;
-
 
   # query to retrieve paid amount
   $query = qq|SELECT a.paid FROM ar a
@@ -281,12 +281,13 @@ sub process_payment {
   for my $i (1 .. $form->{rowcount}) {
 
     $form->{"paid_$i"} = $form->parse_amount($myconfig, $form->{"paid_$i"});
-    $form->{"due_$i"} = $form->parse_amount($myconfig, $form->{"due_$i"});
-    
-    if ($form->{"checked_$i"} && $form->{"paid_$i"}) {     
-      $paymentamount = (($paymentamount * 1000) - ($form->{"paid_$i"} * 1000)) / 1000;
+    $form->{"due_$i"}  = $form->parse_amount($myconfig, $form->{"due_$i"});
 
-      # get exchangerate for original 
+    if ($form->{"checked_$i"} && $form->{"paid_$i"}) {
+      $paymentamount =
+        (($paymentamount * 1000) - ($form->{"paid_$i"} * 1000)) / 1000;
+
+      # get exchangerate for original
       $query = qq|SELECT $buysell
                   FROM exchangerate e
                   JOIN $form->{arap} a ON (a.transdate = e.transdate)
@@ -311,15 +312,15 @@ sub process_payment {
       my ($id) = $sth->fetchrow_array;
       $sth->finish;
 
-     
       $amount = $form->round_amount($form->{"paid_$i"} * $exchangerate, 2);
-      
+
       # add AR/AP
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
                   amount)
                   VALUES ($form->{"id_$i"}, $id, '$form->{datepaid}',
 		  $amount * $ml)|;
       $dbh->do($query) || $form->dberror($query);
+
       # add payment
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
                   amount, source, memo)
@@ -329,39 +330,47 @@ sub process_payment {
 		  '$form->{datepaid}', $form->{"paid_$i"} * $ml * -1,
 		  '$form->{source}', '$form->{memo}')|;
       $dbh->do($query) || $form->dberror($query);
+
       # add exchangerate difference if currency ne defaultcurrency
-      $amount = $form->round_amount($form->{"paid_$i"} * ($form->{exchangerate} - 1), 2);
+      $amount =
+        $form->round_amount($form->{"paid_$i"} * ($form->{exchangerate} - 1),
+                            2);
       if ($amount != 0) {
+
         # exchangerate difference
-	$query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
 		    amount, cleared, fx_transaction)
 		    VALUES ($form->{"id_$i"},
 		           (SELECT c.id FROM chart c
 			    WHERE c.accno = '$paymentaccno'),
 		  '$form->{datepaid}', $amount * $ml * -1, '0', '1')|;
-	$dbh->do($query) || $form->dberror($query);
+        $dbh->do($query) || $form->dberror($query);
 
         # gain/loss
-        
-	$amount = $form->round_amount($form->{"paid_$i"} * ($exchangerate - $form->{exchangerate}), 2);
-	if ($amount != 0) {
-	  my $accno_id = ($amount < 0) ? $fxgain_accno_id : $fxloss_accno_id;
-	  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
+
+        $amount =
+          $form->round_amount(
+                  $form->{"paid_$i"} * ($exchangerate - $form->{exchangerate}),
+                  2);
+        if ($amount != 0) {
+          my $accno_id = ($amount < 0) ? $fxgain_accno_id : $fxloss_accno_id;
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
 		      amount, cleared, fx_transaction)
 		      VALUES ($form->{"id_$i"}, $accno_id,
 		      '$form->{datepaid}', $amount * $ml * -1, '0', '1')|;
-	  $dbh->do($query) || $form->dberror($query);
-	}
+          $dbh->do($query) || $form->dberror($query);
+        }
       }
 
-      $form->{"paid_$i"} = $form->round_amount($form->{"paid_$i"} * $exchangerate, 2);
+      $form->{"paid_$i"} =
+        $form->round_amount($form->{"paid_$i"} * $exchangerate, 2);
 
       $pth->execute($form->{"id_$i"}) || $form->dberror;
       ($amount) = $pth->fetchrow_array;
       $pth->finish;
 
       $amount += $form->{"paid_$i"};
-		  
+
       # update AR/AP transaction
       $query = qq|UPDATE $form->{arap} set
 		  paid = $amount,
@@ -371,28 +380,26 @@ sub process_payment {
     }
   }
 
-
   # record a AR/AP with a payment
   if ($form->round_amount($paymentamount, 2) > 0) {
     $form->{invnumber} = "";
     OP::overpayment("", $myconfig, $form, $dbh, $paymentamount, $ml, 1);
   }
-  
+
   if ($form->round_amount($paymentamount, 2) < 0) {
     $dbh->rollback;
     $rc = 0;
-  }  
+  }
   if ($form->round_amount($paymentamount, 2) == 0) {
     $rc = $dbh->commit;
-  } 
-  
+  }
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
   return $rc;
 }
-
 
 1;
 

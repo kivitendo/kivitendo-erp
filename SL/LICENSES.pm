@@ -39,20 +39,22 @@ sub save_license {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  
+
   $dbh = $form->dbconnect($myconfig);
-  
-  $query = qq| INSERT INTO license (licensenumber) VALUES ('$form->{licensenumber}')|;
+
+  $query =
+    qq| INSERT INTO license (licensenumber) VALUES ('$form->{licensenumber}')|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $sth->finish();
-  
-  $query = qq|SELECT l.id FROM license l WHERE l.licensenumber = '$form->{licensenumber}'|;
+
+  $query =
+    qq|SELECT l.id FROM license l WHERE l.licensenumber = '$form->{licensenumber}'|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   ($license_id) = $sth->fetchrow_array;
   $sth->finish();
-  
+
   # save license
   $query = qq|UPDATE license SET
               validuntil = '$form->{validuntil}',
@@ -65,18 +67,14 @@ sub save_license {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $sth->finish();
-  
+
   if ($form->{own_product}) {
-    $form->update_balance($dbh,
-                          "parts",
-                          "onhand",
-                          qq|id = $form->{parts_id}|,
+    $form->update_balance($dbh, "parts", "onhand", qq|id = $form->{parts_id}|,
                           1);
   }
-  
-  
-  $dbh->disconnect();  
-  
+
+  $dbh->disconnect();
+
   $main::lxdebug->leave_sub();
 
   return $license_id;
@@ -90,13 +88,13 @@ sub get_customers {
   my $ref;
   my $dbh = $form->dbconnect($myconfig);
 
-  my $f = $dbh->quote('%' . $form->{"customer_name"} . '%');
+  my $f     = $dbh->quote('%' . $form->{"customer_name"} . '%');
   my $query = qq|SELECT * FROM customer WHERE name ilike $f|;
-  my $sth = $dbh->prepare($query);
+  my $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $form->{"all_customers"} = [];
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push(@{$form->{"all_customers"}}, $ref);
+    push(@{ $form->{"all_customers"} }, $ref);
   }
   $sth->finish();
   $dbh->disconnect();
@@ -113,34 +111,38 @@ sub search {
   if ($form->{"partnumber"} || $form->{"description"}) {
     $f = "(parts_id IN (SELECT id FROM parts WHERE ";
     if ($form->{"partnumber"}) {
-      $f .= "(partnumber ILIKE " .
-        $dbh->quote('%' . $form->{"partnumber"} . '%') . ")";
+      $f .=
+        "(partnumber ILIKE "
+        . $dbh->quote('%' . $form->{"partnumber"} . '%') . ")";
     }
     if ($form->{"description"}) {
       $f .= " AND " if ($form->{"partnumber"});
-      $f .= "(description ILIKE " .
-        $dbh->quote('%' . $form->{"description"} . '%') . ")";
+      $f .=
+        "(description ILIKE "
+        . $dbh->quote('%' . $form->{"description"} . '%') . ")";
     }
     $f .= "))";
   }
 
   if ($form->{"customer_name"}) {
     $f .= " AND " if ($f);
-    $f .= "(customer_id IN (SELECT id FROM customer WHERE name ILIKE " .
-      $dbh->quote('%' . $form->{"customer_name"} . '%') . "))";
+    $f .=
+      "(customer_id IN (SELECT id FROM customer WHERE name ILIKE "
+      . $dbh->quote('%' . $form->{"customer_name"} . '%') . "))";
   }
 
   if (!$form->{"all"} && $form->{"expiring_in"}) {
     $f .= " AND " if ($f);
-    $f .= "(validuntil < now() + " .
-      $dbh->quote("" . $form->{"expiring_in"} . " months") . ")";
+    $f .=
+      "(validuntil < now() + "
+      . $dbh->quote("" . $form->{"expiring_in"} . " months") . ")";
   }
 
   if (!$form->{"show_expired"}) {
     $f .= " AND " if ($f);
     $f .= "(validuntil >= now())";
   }
-  
+
   if ($f) {
     $f = "WHERE (inventory_accno_id notnull) AND $f";
   } else {
@@ -164,27 +166,27 @@ sub search {
     $s .= " DESC";
   }
 
-  $query = "SELECT l.*, p.partnumber, p.description, c.name, a.invnumber " .
-    "FROM license l " .
-    "LEFT JOIN parts p ON (p.id = l.parts_id) " .
-    "LEFT JOIN customer c ON (c.id = l.customer_id) " .
-    "LEFT JOIN ar a ON " .
-    "(a.id = (SELECT i.trans_id FROM invoice i WHERE i.id = " .
-    "(SELECT li.trans_id FROM licenseinvoice li WHERE li.license_id = l.id))) " .
-    "$f ORDER BY $s";
+  $query =
+      "SELECT l.*, p.partnumber, p.description, c.name, a.invnumber "
+    . "FROM license l "
+    . "LEFT JOIN parts p ON (p.id = l.parts_id) "
+    . "LEFT JOIN customer c ON (c.id = l.customer_id) "
+    . "LEFT JOIN ar a ON "
+    . "(a.id = (SELECT i.trans_id FROM invoice i WHERE i.id = "
+    . "(SELECT li.trans_id FROM licenseinvoice li WHERE li.license_id = l.id))) "
+    . "$f ORDER BY $s";
 
   $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
   $form->{"licenses"} = [];
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push(@{$form->{"licenses"}}, $ref);
+    push(@{ $form->{"licenses"} }, $ref);
   }
 
   $sth->finish();
   $dbh->disconnect();
   $main::lxdebug->leave_sub();
 }
-
 
 sub get_license {
   $main::lxdebug->enter_sub();
@@ -193,19 +195,21 @@ sub get_license {
   my ($ref, $sth, $query);
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = "SELECT l.*, p.partnumber, p.description, c.name, c.street, " .
-    "c.zipcode, c.city, c.country, c.contact, c.phone, c.fax, c.homepage, " .
-    "c.email, c.notes, c.customernumber, c.language, a.invnumber " .
-    "FROM license l " .
-    "LEFT JOIN parts p ON (p.id = l.parts_id) " .
-    "LEFT JOIN customer c ON (c.id = l.customer_id) " .
-    "LEFT JOIN ar a ON " .
-    "(a.id = (SELECT i.trans_id FROM invoice i WHERE i.id = " .
-    "(SELECT li.trans_id FROM licenseinvoice li WHERE li.license_id = l.id))) " .
-    "LEFT JOIN invoice i ON " .
-    "(i.id = " .
-    "(SELECT li.trans_id FROM licenseinvoice li WHERE li.license_id = l.id)) " .
-    "WHERE l.id = " . $form->{"id"};
+  $query =
+      "SELECT l.*, p.partnumber, p.description, c.name, c.street, "
+    . "c.zipcode, c.city, c.country, c.contact, c.phone, c.fax, c.homepage, "
+    . "c.email, c.notes, c.customernumber, c.language, a.invnumber "
+    . "FROM license l "
+    . "LEFT JOIN parts p ON (p.id = l.parts_id) "
+    . "LEFT JOIN customer c ON (c.id = l.customer_id) "
+    . "LEFT JOIN ar a ON "
+    . "(a.id = (SELECT i.trans_id FROM invoice i WHERE i.id = "
+    . "(SELECT li.trans_id FROM licenseinvoice li WHERE li.license_id = l.id))) "
+    . "LEFT JOIN invoice i ON "
+    . "(i.id = "
+    . "(SELECT li.trans_id FROM licenseinvoice li WHERE li.license_id = l.id)) "
+    . "WHERE l.id = "
+    . $form->{"id"};
   $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
   $form->{"license"} = $sth->fetchrow_hashref(NAME_lc);

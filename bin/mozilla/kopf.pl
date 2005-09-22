@@ -4,28 +4,47 @@
 $| = 1;
 
 use CGI::Carp qw(fatalsToBrowser);
-                                                                                                                
+
 $form->header;
 $paramstring = $ENV{"QUERY_STRING"};
 @felder = split "&", $paramstring;
 foreach (@felder) {
-	($name, $wert) = split "=", $_;
-	$wert =~ tr/+/ /;
-	$$name = $wert;
+  ($name, $wert) = split "=", $_;
+  $wert =~ tr/+/ /;
+  $$name = $wert;
 }
-$login="[".$login." - <a href=\"login.pl?path=" . $form->{"path"} . "&password=" . $form->{"password"} . "&action=logout\" target=\"_top\">" . $locale->text('Logout') . "</a>] ";
-my ($Sekunden, $Minuten, $Stunden, $Monatstag, $Monat, $Jahr, $Wochentag, $Jahrestag, $Sommerzeit) = localtime(time);
+$login =
+    "[" . $login
+  . " - <a href=\"login.pl?path="
+  . $form->{"path"}
+  . "&password="
+  . $form->{"password"}
+  . "&action=logout\" target=\"_top\">"
+  . $locale->text('Logout')
+  . "</a>] ";
+my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
+    $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
+  = localtime(time);
 my $CTIME_String = localtime(time);
-$Monat+=1;
-$Jahrestag+=1;
-$Monat = $Monat < 10 ? $Monat = "0".$Monat : $Monat;
-$Monatstag = $Monatstag < 10 ? $Monatstag = "0".$Monatstag : $Monatstag;
-$Jahr+=1900;
-my @Wochentage = ("Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag");
-my @Monatsnamen = ("","Januar","Februar","M&auml;rz","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember");
-$datum=$Wochentage[$Wochentag].", der ".$Monatstag.".".$Monat.".".$Jahr." - ";
+$Monat     += 1;
+$Jahrestag += 1;
+$Monat     = $Monat < 10     ? $Monat     = "0" . $Monat     : $Monat;
+$Monatstag = $Monatstag < 10 ? $Monatstag = "0" . $Monatstag : $Monatstag;
+$Jahr += 1900;
+my @Wochentage = ("Sonntag",    "Montag",  "Dienstag", "Mittwoch",
+                  "Donnerstag", "Freitag", "Samstag");
+my @Monatsnamen = ("",       "Januar",    "Februar", "M&auml;rz",
+                   "April",  "Mai",       "Juni",    "Juli",
+                   "August", "September", "Oktober", "November",
+                   "Dezember");
+$datum =
+    $Wochentage[$Wochentag] . ", der "
+  . $Monatstag . "."
+  . $Monat . "."
+  . $Jahr . " - ";
+
 #$zeit="<div id='Uhr'>".$Stunden.":".$Minuten.":".$Sekunden."</div>";
-$zeit="<div id='Uhr'>".$Stunden.":".$Minuten."</div>";
+$zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
 
 print qq|
 <script type="text/javascript">
@@ -34,9 +53,9 @@ var clockid=new Array()
 var clockidoutside=new Array()
 var i_clock=-1
 var thistime= new Date()
-var hours= |.$Stunden.qq|;
-var minutes= |.$Minuten.qq|;
-var seconds= |.$Sekunden.qq|;
+var hours= | . $Stunden . qq|;
+var minutes= | . $Minuten . qq|;
+var seconds= | . $Sekunden . qq|;
 if (eval(hours) <10) {hours="0"+hours}
 if (eval(minutes) < 10) {minutes="0"+minutes}
 if (seconds < 10) {seconds="0"+seconds}
@@ -80,17 +99,22 @@ window.onload=clockon
 //-->
 </script>
 |;
+
 #
 print qq|
 <body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0">
 
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
 	<tr>
-		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|.$login.$datum.qq| <script>writeclock()</script>&nbsp;
+		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
+  . $login
+  . $datum
+  . qq| <script>writeclock()</script>&nbsp;
 		</td>
 	</tr>
 </table>
 </body>
 </html>
 |;
+
 #

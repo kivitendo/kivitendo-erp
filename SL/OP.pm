@@ -34,8 +34,6 @@
 
 package OP;
 
-
-
 sub overpayment {
   $main::lxdebug->enter_sub();
 
@@ -43,7 +41,7 @@ sub overpayment {
 
   my $fxamount = $form->round_amount($amount * $form->{exchangerate}, 2);
   my ($paymentaccno) = split /--/, $form->{account};
-  
+
   my $vc_id = "$form->{vc}_id";
 
   my $uid = time;
@@ -79,8 +77,8 @@ sub overpayment {
   $dbh->do($query) || $form->dberror($query);
 
   # add AR/AP
-  ($accno) = split /--/, $form->{$form->{ARAP}};
-  
+  ($accno) = split /--/, $form->{ $form->{ARAP} };
+
   $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount)
 	      VALUES ($uid, (SELECT c.id FROM chart c
 			     WHERE c.accno = '$accno'),
@@ -106,10 +104,9 @@ sub overpayment {
 	      '1', '1')|;
     $dbh->do($query) || $form->dberror($query);
   }
-  
+
   $main::lxdebug->leave_sub();
 }
-
 
 1;
 

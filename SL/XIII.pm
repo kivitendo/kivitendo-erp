@@ -11,13 +11,12 @@
 
 package XIII;
 
-
 sub retrieve_form {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh   = $form->dbconnect($myconfig);
   my $query = qq|SELECT f.line
                  FROM xiii_forms f
                  WHERE f.file = '$form->{file}'
@@ -25,21 +24,19 @@ sub retrieve_form {
 		 ORDER BY f.oid|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-  
+
   my $ref;
-  
+
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{body} }, $ref->{line};
   }
-  
+
   $sth->finish;
 
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
-
-
 
 sub delete_form {
   $main::lxdebug->enter_sub();
@@ -53,16 +50,15 @@ sub delete_form {
                  WHERE file = '$form->{file}'
 		 AND dbname = '$myconfig->{dbname}'|;
   $dbh->do($query) || $form->dberror($query);
-  
+
   # commit and redirect
   $rc = $dbh->commit;
   $dbh->disconnect;
-    
+
   $main::lxdebug->leave_sub();
 
   return $rc;
 }
-
 
 sub save_form {
   $main::lxdebug->enter_sub();
@@ -76,13 +72,11 @@ sub save_form {
                  WHERE file = '$form->{file}'
 		 AND dbname = '$myconfig->{dbname}'|;
   $dbh->do($query) || $form->dberror($query);
-  
- 
+
   $query = qq|INSERT INTO xiii_forms (line, file, dbname)
               VALUES (?, '$form->{file}', '$myconfig->{dbname}')|;
-    
-  $sth = $dbh->prepare($query);
 
+  $sth = $dbh->prepare($query);
 
   foreach $line (split /\r/, $form->{body}) {
     $sth->execute($line) || $form->dberror($query);
@@ -96,7 +90,6 @@ sub save_form {
 
   return $rc;
 }
-
 
 1;
 
