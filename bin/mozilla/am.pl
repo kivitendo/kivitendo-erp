@@ -282,27 +282,21 @@ sub account_header {
 	    <table>
 	      <tr valign=top>
 		<td><input name=category type=radio class=radio value=A $checked{A_}>&nbsp;|
-    . $locale->text('Asset')
-    . qq|\n<br>
+    . $locale->text('Asset') . qq|\n<br>
 		<input name=category type=radio class=radio value=L $checked{L_}>&nbsp;|
-    . $locale->text('Liability')
-    . qq|\n<br>
+    . $locale->text('Liability') . qq|\n<br>
 		<input name=category type=radio class=radio value=Q $checked{Q_}>&nbsp;|
-    . $locale->text('Equity')
-    . qq|\n<br>
+    . $locale->text('Equity') . qq|\n<br>
 		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
-    . $locale->text('Revenue')
-    . qq|\n<br>
+    . $locale->text('Revenue') . qq|\n<br>
 		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
-    . $locale->text('Expense')
-    . qq|</td>
+    . $locale->text('Expense') . qq|</td>
 		<td width=50>&nbsp;</td>
 		<td>
 		<input name=charttype type=radio class=radio value="H" $checked{H}>&nbsp;|
     . $locale->text('Heading') . qq|<br>
 		<input name=charttype type=radio class=radio value="A" $checked{A}>&nbsp;|
-    . $locale->text('Account')
-    . qq|</td>
+    . $locale->text('Account') . qq|</td>
 	      </tr>
 	    </table>
 	  </td>
@@ -316,8 +310,7 @@ sub account_header {
 	    <table>
 	      <tr>
 		<th align=left>|
-      . $locale->text('Is this a summary account to record')
-      . qq|</th>
+      . $locale->text('Is this a summary account to record') . qq|</th>
 		<td>
 		<input name=AR type=checkbox class=checkbox value=AR $form->{AR}>&nbsp;|
       . $locale->text('AR')
@@ -345,41 +338,33 @@ sub account_header {
 	      <tr>
 		<td>
 		<input name=AR_amount type=checkbox class=checkbox value=AR_amount $form->{AR_amount}>&nbsp;|
-      . $locale->text('Revenue')
-      . qq|\n<br>
+      . $locale->text('Revenue') . qq|\n<br>
 		<input name=AR_paid type=checkbox class=checkbox value=AR_paid $form->{AR_paid}>&nbsp;|
-      . $locale->text('Receipt')
-      . qq|\n<br>
+      . $locale->text('Receipt') . qq|\n<br>
 		<input name=AR_tax type=checkbox class=checkbox value=AR_tax $form->{AR_tax}>&nbsp;|
       . $locale->text('Tax') . qq|
 		</td>
 		<td>
 		<input name=AP_amount type=checkbox class=checkbox value=AP_amount $form->{AP_amount}>&nbsp;|
-      . $locale->text('Expense/Asset')
-      . qq|\n<br>
+      . $locale->text('Expense/Asset') . qq|\n<br>
 		<input name=AP_paid type=checkbox class=checkbox value=AP_paid $form->{AP_paid}>&nbsp;|
-      . $locale->text('Payment')
-      . qq|\n<br>
+      . $locale->text('Payment') . qq|\n<br>
 		<input name=AP_tax type=checkbox class=checkbox value=AP_tax $form->{AP_tax}>&nbsp;|
       . $locale->text('Tax') . qq|
 		</td>
 		<td>
 		<input name=IC_sale type=checkbox class=checkbox value=IC_sale $form->{IC_sale}>&nbsp;|
-      . $locale->text('Revenue')
-      . qq|\n<br>
+      . $locale->text('Revenue') . qq|\n<br>
 		<input name=IC_cogs type=checkbox class=checkbox value=IC_cogs $form->{IC_cogs}>&nbsp;|
-      . $locale->text('COGS')
-      . qq|\n<br>
+      . $locale->text('COGS') . qq|\n<br>
 		<input name=IC_taxpart type=checkbox class=checkbox value=IC_taxpart $form->{IC_taxpart}>&nbsp;|
       . $locale->text('Tax') . qq|
 		</td>
 		<td>
 		<input name=IC_income type=checkbox class=checkbox value=IC_income $form->{IC_income}>&nbsp;|
-      . $locale->text('Revenue')
-      . qq|\n<br>
+      . $locale->text('Revenue') . qq|\n<br>
 		<input name=IC_expense type=checkbox class=checkbox value=IC_expense $form->{IC_expense}>&nbsp;|
-      . $locale->text('Expense')
-      . qq|\n<br>
+      . $locale->text('Expense') . qq|\n<br>
 		<input name=IC_taxservice type=checkbox class=checkbox value=IC_taxservice $form->{IC_taxservice}>&nbsp;|
       . $locale->text('Tax') . qq|
 		</td>
@@ -1419,8 +1404,7 @@ sub sic_header {
   <tr>
     <td></td>
     <th align=left><input name=sictype type=checkbox style=checkbox value="H" $checked> |
-    . $locale->text('Heading')
-    . qq|</th>
+    . $locale->text('Heading') . qq|</th>
   <tr>
   <tr>
     <th align=right>| . $locale->text('Description') . qq|</th>
@@ -1605,7 +1589,8 @@ sub config {
   %countrycodes = User->country_codes;
   $countrycodes = '';
   foreach $key (sort { $countrycodes{$a} cmp $countrycodes{$b} }
-                keys %countrycodes) {
+                keys %countrycodes
+    ) {
     $countrycodes .=
       ($myconfig{countrycode} eq $key)
       ? "<option selected value=$key>$countrycodes{$key}\n"
@@ -1638,6 +1623,9 @@ sub config {
   $form->{title} = $locale->text('Edit Preferences for') . qq| $form->{login}|;
 
   $form->header;
+
+  if ($myconfig{menustyle} eq "old") { $oldS = "checked"; }
+  else { $newS = "checked"; }
 
   print qq|
 <body>
@@ -1709,6 +1697,11 @@ sub config {
 	  <th align=right>| . $locale->text('Stylesheet') . qq|</th>
 	  <td><select name=usestylesheet>$selectstylesheet</select></td>
 	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Setup Menu') . qq|</th>
+	  <td><input name=menustyle type=radio class=radio value=neu $newS>&nbsp;New
+  		  <input name=menustyle type=radio class=radio value=old $oldS>&nbsp;Old</td>
+	</tr>	
 	<input name=printer type=hidden value="$myconfig{printer}">
 	<tr class=listheading>
 	  <th colspan=2>&nbsp;</th>
@@ -1731,8 +1724,7 @@ sub config {
 	</tr>
 	<tr class=listheading>
 	  <th colspan=2>|
-    . $locale->text('Last Numbers & Default Accounts')
-    . qq|</th>
+    . $locale->text('Last Numbers & Default Accounts') . qq|</th>
 	</tr>
 	<tr>
 	  <td colspan=2>
@@ -1759,7 +1751,9 @@ sub config {
 	      </tr>
 	      <tr>
 		<td colspan=2>|
-    . $locale->text('Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies')
+    . $locale->text(
+    'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies'
+    )
     . qq|<br><input name=curr size=40 value="$form->{defaults}{curr}"></td>
 	      </tr>
             </table>
@@ -1772,38 +1766,31 @@ sub config {
 		<th align=right nowrap>| . $locale->text('Last Invoice Number') . qq|</th>
 		<td><input name=invnumber size=10 value=$form->{defaults}{invnumber}></td>
                 <th align=right nowrap>|
-    . $locale->text('Last Customer Number')
-    . qq|</th>
+    . $locale->text('Last Customer Number') . qq|</th>
 		<td><input name=customernumber size=10 value=$form->{defaults}{customernumber}></td>
 	      </tr>
 	      <tr>
 		<th align=right nowrap>|
-    . $locale->text('Last Sales Order Number')
-    . qq|</th>
+    . $locale->text('Last Sales Order Number') . qq|</th>
 		<td><input name=sonumber size=10 value=$form->{defaults}{sonumber}></td>
                 <th align=right nowrap>|
-    . $locale->text('Last Vendor Number')
-    . qq|</th>
+    . $locale->text('Last Vendor Number') . qq|</th>
 		<td><input name=vendornumber size=10 value=$form->{defaults}{vendornumber}></td>
 	      </tr>
 	      <tr>
 		<th align=right nowrap>|
-    . $locale->text('Last Purchase Order Number')
-    . qq|</th>
+    . $locale->text('Last Purchase Order Number') . qq|</th>
 		<td><input name=ponumber size=10 value=$form->{defaults}{ponumber}></td>
                 <th align=right nowrap>|
-    . $locale->text('Last Article Number')
-    . qq|</th>
+    . $locale->text('Last Article Number') . qq|</th>
 		<td><input name=articlenumber size=10 value=$form->{defaults}{articlenumber}></td>
 	      </tr>
 	      <tr>
 		<th align=right nowrap>|
-    . $locale->text('Last Sales Quotation Number')
-    . qq|</th>
+    . $locale->text('Last Sales Quotation Number') . qq|</th>
 		<td><input name=sqnumber size=10 value=$form->{defaults}{sqnumber}></td>
                 <th align=right nowrap>|
-    . $locale->text('Last Service Number')
-    . qq|</th>
+    . $locale->text('Last Service Number') . qq|</th>
 		<td><input name=servicenumber size=10 value=$form->{defaults}{servicenumber}></td>
 	      </tr>
 	      <tr>
@@ -1944,8 +1931,7 @@ sub audit_control {
       <table>
 	<tr>
 	  <td>|
-    . $locale->text('Enforce transaction reversal for all dates')
-    . qq|</th>
+    . $locale->text('Enforce transaction reversal for all dates') . qq|</th>
 	  <td><input name=revtrans class=radio type=radio value="1" $checked{Y}> |
     . $locale->text('Yes')
     . qq| <input name=revtrans class=radio type=radio value="0" $checked{N}> |
