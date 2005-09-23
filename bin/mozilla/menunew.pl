@@ -398,7 +398,7 @@ sub section_menu {
       $sm = 1;
       print qq|menu[$pm] = new Array();\n|;
       print
-        qq|menu[$pm][0] = new Menu(true, '', 85, 0, 140, defOver, defBack, 'itemBorder', 'itemText');\n|;
+        qq|menu[$pm][0] = new Menu(true, '', 85, 0, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;
       map { shift @menuorder } grep /^$item/, @menuorder;
       &section_menu($menu, $item);
       map { shift @menuorder } grep /^$item/, @menuorder;
@@ -419,12 +419,12 @@ sub section_menu {
         $pm++;
         %mlz   = ($ml, $pm, "s$ml", 1);
         $sm    = 1;
-        $breit = 20 + length($label) * 5;
+        $breit = 20 + length($label) * 7;
         print
           qq|menu[0][$mm] = new Item('  $label', '#', '', $breit, 10, $pm);	\n|;
         print qq|menu[$pm] = new Array();\n|;
         print
-          qq|menu[$pm][0] = new Menu(true, '>', 0, 22, 160, defOver, defBack, 'itemBorder', 'itemText');\n|;
+          qq|menu[$pm][0] = new Menu(true, '>', 0, 22, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;
 
         #print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
