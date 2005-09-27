@@ -1,13 +1,12 @@
 package LXDebug;
 
-use constant {
-  NONE   => 0,
-  INFO   => 1,
-  DEBUG1 => 2,
-  DEBUG2 => 3,
+use constant NONE => 0;
+use constant INFO => 1;
+use constant DEBUG1 => 2;
+use constant DEBUG2 => 3;
 
-  FILE_TARGET   => 0,
-  STDERR_TARGET => 1 };
+use constant FILE_TARGET   => 0;
+use constant STDERR_TARGET => 1;
 
 use POSIX qw(strftime);
 
