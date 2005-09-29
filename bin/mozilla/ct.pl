@@ -595,8 +595,7 @@ sub form_header {
 
   $select_greeting =
     qq|&nbsp;<select name=selected_cp_greeting><option></option>|;
-  map(
-     { $select_greeting .= qq|<option>$_</option>|; } @{ $form->{GREETINGS} });
+  map({ $select_greeting .= qq|<option>$_</option>|; } @{ $form->{GREETINGS} });
   $select_greeting .= qq|</select>|;
 ## /LINET
 
