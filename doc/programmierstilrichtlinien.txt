@@ -116,7 +116,7 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
 8. Mehrzeilige Befehle
 
   8.1 Werden die Parameter eines Funktionsaufrufes auf mehrere Zeilen
-      aufgeteilt, so m[ssen diese bis zu der Spalte eingerückt werden,
+      aufgeteilt, so müssen diese bis zu der Spalte eingerückt werden,
       in der die ersten Funktionsparameter in der ersten Zeile stehen.
       Perltidy: -lp -vt=1 -vtc=1
       Beispiel:
