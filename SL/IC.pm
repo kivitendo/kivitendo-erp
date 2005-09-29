@@ -272,8 +272,8 @@ sub save {
       $main::lxdebug->leave_sub();
       return 3;
     }
-    $query = qq|INSERT INTO parts (partnumber)
-                VALUES ('$uid')|;
+    $query = qq|INSERT INTO parts (partnumber, description)
+                VALUES ('$uid', 'dummy')|;
     $dbh->do($query) || $form->dberror($query);
 
     $query = qq|SELECT p.id FROM parts p
