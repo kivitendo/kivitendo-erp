@@ -30,6 +30,11 @@ $self{texts} = {
   'Description'                 => 'Beschreibung',
   'ELSTER Export nach Winston'  => 'ELSTER Export nach Winston',
   'ELSTER-Steuernummer: '       => 'ELSTER-Steuernummer: ',
+  'Es fehlen Angaben zur Versteuerung.
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung.
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.',
   'Fax'                         => 'Fax',
   'Fax. : '                     => 'Fax. : ',
   'Fax.: '                      => 'Fax.: ',

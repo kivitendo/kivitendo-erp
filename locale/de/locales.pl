@@ -4,9 +4,8 @@
 
 use FileHandle;
 
-
-$basedir = "../..";
-$bindir = "$basedir/bin/mozilla";
+$basedir  = "../..";
+$bindir   = "$basedir/bin/mozilla";
 $menufile = "menu.ini";
 
 foreach $item (@ARGV) {
@@ -32,30 +31,28 @@ if ($arg{n}) {
   unshift @menufiles, $menufile;
 }
 
-
 # slurp the translations in
 if (-f 'all') {
   require "all";
 }
 
-
 foreach $file (@progfiles) {
-  
+
   %locale = ();
   %submit = ();
-  %subrt = ();
-  
+  %subrt  = ();
+
   &scanfile("$bindir/$file");
 
   # scan custom_{module}.pl or {login}_{module}.pl files
   foreach $customfile (@customfiles) {
     if ($customfile =~ /_$file/) {
       if (-f "$bindir/$customfile") {
-	&scanfile("$bindir/$customfile");
+        &scanfile("$bindir/$customfile");
       }
     }
   }
-  
+
   # if this is the menu.pl file
   if ($file eq 'menu.pl') {
     foreach $item (@menufiles) {
@@ -65,18 +62,16 @@ foreach $file (@progfiles) {
   
   $file =~ s/\.pl//;
 
-
   eval { require 'missing'; };
   unlink 'missing';
 
   foreach $text (keys %$missing) {
     if ($locale{$text}) {
       unless ($self{texts}{$text}) {
-	$self{texts}{$text} = $missing->{$text};
+        $self{texts}{$text} = $missing->{$text};
       }
     }
   }
-
 
   open FH, ">$file" or die "$! : $file";
 
@@ -95,20 +90,22 @@ foreach $file (@progfiles) {
     $keytext = $key;
     $keytext =~ s/'/\\'/g;
     $keytext =~ s/\\$/\\\\/;
-    
-    print FH qq|  '$keytext'|.(' ' x (27-length($keytext))).qq| => '$text',\n|;
+
+    print FH qq|  '$keytext'|
+      . (' ' x (27 - length($keytext)))
+      . qq| => '$text',\n|;
   }
 
   print FH q|};
 
 $self{subs} = {
 |;
-  
+
   foreach $key (sort keys %subrt) {
     $text = $key;
     $text =~ s/'/\\'/g;
     $text =~ s/\\$/\\\\/;
-    print FH qq|  '$text'|.(' ' x (27-length($text))).qq| => '$text',\n|;
+    print FH qq|  '$text'| . (' ' x (27 - length($text))) . qq| => '$text',\n|;
   }
 
   foreach $key (sort keys %submit) {
@@ -120,13 +117,15 @@ $self{subs} = {
     $english_sub =~ s/'/\\'/g;
     $english_sub =~ s/\\$/\\\\/;
     $english_sub = lc $key;
-    
+
     $translated_sub = lc $text;
-    $english_sub =~ s/( |-|,)/_/g;
+    $english_sub    =~ s/( |-|,)/_/g;
     $translated_sub =~ s/( |-|,)/_/g;
-    print FH qq|  '$translated_sub'|.(' ' x (27-length($translated_sub))).qq| => '$english_sub',\n|;
+    print FH qq|  '$translated_sub'|
+      . (' ' x (27 - length($translated_sub)))
+      . qq| => '$english_sub',\n|;
   }
-  
+
   print FH q|};
 
 1;
@@ -134,7 +133,6 @@ $self{subs} = {
 
   close FH;
 }
-
 
 # now print out all
 
@@ -148,23 +146,22 @@ print FH q|# These are all the texts to build the translations files.
 $self{texts} = {
 |;
 
-
 foreach $key (sort keys %alllocales) {
   $text = $self{texts}{$key};
 
   $count++;
-  
+
   $text =~ s/'/\\'/g;
   $text =~ s/\\$/\\\\/;
-  $key =~ s/'/\\'/g;
-  $key =~ s/\\$/\\\\/;
+  $key  =~ s/'/\\'/g;
+  $key  =~ s/\\$/\\\\/;
 
   unless ($text) {
     $notext++;
     push @missing, $key;
   }
 
-  print FH qq|  '$key'|.(' ' x (27-length($key))).qq| => '$text',\n|;
+  print FH qq|  '$key'| . (' ' x (27 - length($key))) . qq| => '$text',\n|;
 
 }
 
@@ -175,7 +172,6 @@ print FH q|};
 
 close FH;
 
-
 if (@missing) {
   open FH, ">missing" or die "$! : missing";
 
@@ -185,7 +181,7 @@ $missing = {
 |;
 
   foreach $text (@missing) {
-    print FH qq|  '$text'|.(' ' x (27-length($text))).qq| => '',\n|;
+    print FH qq|  '$text'| . (' ' x (27 - length($text))) . qq| => '',\n|;
   }
 
   print FH q|};
@@ -194,7 +190,7 @@ $missing = {
 |;
 
   close FH;
-  
+
 }
 
 open(FH, "LANGUAGE");
@@ -207,21 +203,73 @@ $per = sprintf("%.1f", ($count - $notext) / $count * 100);
 print "\n$trlanguage - ${per}%\n";
 
 exit;
+
 # eom
 
+sub extract_text_between_parenthesis {
+  my ($fh, $line) = @_;
+  my ($inside_string, $pos, $text, $quote_next) = (undef, 0, "", 0);
+
+  while (1) {
+    if (length($line) <= $pos) {
+      $line = <$fh>;
+      return ($text, "") unless ($line);
+      $pos = 0;
+    }
+
+    my $cur_char = substr($line, $pos, 1);
+
+    if (!$inside_string) {
+      if ((length($line) >= ($pos + 3)) && (substr($line, $pos, 2)) eq "qq") {
+        $inside_string = substr($line, $pos + 2, 1);
+        $pos += 2;
+
+      } elsif ((length($line) >= ($pos + 2)) &&
+               (substr($line, $pos, 1) eq "q")) {
+        $inside_string = substr($line, $pos + 1, 1);
+        $pos++;
+
+      } elsif (($cur_char eq '"') || ($cur_char eq '\'')) {
+        $inside_string = $cur_char;
+
+      } elsif ($cur_char eq ")") {
+        return ($text, substr($line, $pos + 1));
+      }
+
+    } else {
+      if ($quote_next) {
+        $text .= $cur_char;
+        $quote_next = 0;
+
+      } elsif ($cur_char eq '\\') {
+        $text .= $cur_char;
+        $quote_next = 1;
+
+      } elsif ($cur_char eq $inside_string) {
+        undef($inside_string);
+
+      } else {
+        $text .= $cur_char;
+
+      }
+    }
+    $pos++;
+  }
+}
 
 sub scanfile {
   my $file = shift;
 
   return unless (-f "$file");
-  
+
   my $fh = new FileHandle;
   open $fh, "$file" or die "$! : $file";
 
   my ($is_submit, $line_no, $sub_line_no) = (0, 0, 0);
-	
+
   while (<$fh>) {
     $line_no++;
+
     # is this another file
     if (/require\s+\W.*\.pl/) {
       my $newfile = $&;
@@ -229,67 +277,70 @@ sub scanfile {
       $newfile =~ s/\$form->{path}\///;
       &scanfile("$bindir/$newfile");
     }
-   
+
     # is this a sub ?
     if (/^sub /) {
       ($null, $subrt) = split / +/;
       $subrt{$subrt} = 1;
       next;
     }
-    
+
     my $rc = 1;
-    
+
     while ($rc) {
       if (/Locale/) {
-	unless (/^use /) {
-	  my ($null, $country) = split /,/;
-	  $country =~ s/^ +[\"\']//;
-	  $country =~ s/[\"\'].*//;
-	}
+        unless (/^use /) {
+          my ($null, $country) = split /,/;
+          $country =~ s/^ +[\"\']//;
+          $country =~ s/[\"\'].*//;
+        }
       }
 
       my $postmatch = "";
+
       # is it a submit button before $locale->
       if (/type\s*=\s*submit/i) {
         $postmatch = $';
         if ($` !~ /\$locale->text/) {
-          $is_submit = 1;
+          $is_submit   = 1;
           $sub_line_no = $line_no;
         }
       }
 
-      my ($found) = /\$locale->text.*?\W\)/;
+      my ($found) = /\$locale->text.*?\(/;
       my $postmatch = $';
 
       if ($found) {
-	my $string = $&;
-	$string =~ s/\$locale->text\(\s*[\'\"(q|qq)][\'\/\\\|~]*//;
-	$string =~ s/\W\)+.*$//;
+        my $string;
+        ($string, $_) = extract_text_between_parenthesis($fh, $postmatch);
+        $postmatch = $_;
 
         # if there is no $ in the string record it
-	unless ($string =~ /\$\D.*/) {
-	  # this guarantees one instance of string
-	  $locale{$string} = 1;
+        unless (($string =~ /\$\D.*/) || ("" eq $string)) {
+
+          # this guarantees one instance of string
+          $locale{$string} = 1;
 
           # this one is for all the locales
-	  $alllocales{$string} = 1;
+          $alllocales{$string} = 1;
 
           # is it a submit button before $locale->
           if ($is_submit) {
-	    $submit{$string} = 1;
+            $submit{$string} = 1;
           }
-	}
+        }
       } elsif ($postmatch =~ />/) {
         $is_submit = 0;
       }
 
       # exit loop if there are no more locales on this line
       ($rc) = ($postmatch =~ /\$locale->text/);
+
       # strip text
       s/^.*?\$locale->text.*?\)//;
 
-      if (($postmatch =~ />/) ||
-          (!$found && ($sub_line_no != $line_no) && />/)) {
+      if (   ($postmatch =~ />/)
+          || (!$found && ($sub_line_no != $line_no) && />/)) {
         $is_submit = 0;
       }
     }
@@ -298,7 +349,6 @@ sub scanfile {
   close($fh);
 
 }
-
 
 sub scanmenu {
   my $file = shift;
@@ -311,16 +361,15 @@ sub scanmenu {
 
   # strip []
   grep { s/(\[|\])//g } @a;
-  
+
   foreach my $item (@a) {
     @b = split /--/, $item;
     foreach $string (@b) {
       chomp $string;
-      $locale{$string} = 1;
+      $locale{$string}     = 1;
       $alllocales{$string} = 1;
     }
   }
-  
-}
 
+}
 
