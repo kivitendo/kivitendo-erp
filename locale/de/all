@@ -4,6 +4,10 @@
 # run locales.pl from this directory to rebuild the translation files
 
 $self{texts} = {
+  ' Date missing!'              => ' Datum fehlt!',
+  ' Number'                     => '',
+  ' Part Number missing!'       => ' Artikelnummer fehlt!',
+  ' missing!'                   => ' fehlt!',
   'AP'                          => 'Einkauf',
   'AP Aging'                    => 'Offene Verbindlichkeiten',
   'AP Transaction'              => 'Kreditorenbuchung',
@@ -27,6 +31,7 @@ $self{texts} = {
   'Accrual'                     => 'Bilanzierung',
   'Active'                      => 'Aktiv',
   'Add'                         => 'Erfassen',
+  'Add '                        => '',
   'Add AP Transaction'          => 'Kreditorenbuchung',
   'Add AR Transaction'          => 'Debitorenbuchung',
   'Add Account'                 => 'Konto erfassen',
@@ -270,6 +275,7 @@ $self{texts} = {
   'ELSTER-Steuernummer: '       => 'ELSTER-Steuernummer: ',
   'EUR'                         => 'E/Ü-Rechnung',
   'Edit'                        => 'Bearbeiten',
+  'Edit '                       => '',
   'Edit Account'                => 'Kontodaten bearbeiten',
   'Edit Accounts Payables Transaction' => 'Kreditorenbuchung bearbeiten',
   'Edit Accounts Receivables Transaction' => 'Debitorenbuchung bearbeiten',
@@ -297,8 +303,11 @@ $self{texts} = {
   'Edit Warehouse'              => 'Lager bearbeiten',
   'Employee'                    => 'Bearbeiter',
   'Enforce transaction reversal for all dates' => 'Gegenbuchungen für jeden Zeitraum aktualisieren',
-  'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' => 'Durch Doppelpunkte getrennte Währungskürzel mit maximal 3 Buchstaben aufführen; Ihre eigene LandesWährung zuerst (z.B. EUR:USD:CAD)',
+  'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' => 'Geben Sie Ihre und weitere Währungen mit bis zu drei Buchstaben pro Währung und Währungen durch Doppelpunkte getrennt ein (z.B. EUR:USD:CAD)',
   'Equity'                      => 'Passiva',
+  'Es fehlen Angaben zur Versteuerung.
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => '',
   'Exch'                        => 'Wechselkurs.',
   'Exchangerate'                => 'Wechselkurs',
   'Exchangerate Difference'     => 'Wechselkursunterschied',
@@ -462,7 +471,7 @@ $self{texts} = {
   'N/A'                         => 'N.Z.',
   'Name'                        => 'Name',
   'Name missing!'               => 'Name fehlt!',
-  'New Account'                 => '',
+  'New Account'                 => 'Neues Konto',
   'New Templates'               => 'neue Vorlagen',
   'No'                          => 'Nein',
   'No Database Drivers available!' => 'Kein Datenbanktreiber verfügbar!',
@@ -790,6 +799,7 @@ $self{texts} = {
   'number'                      => 'Nummer',
   'posted!'                     => 'gebucht',
   'quarter'                     => 'vierteljährliche (quartalsweise) Abgabe',
+  's'                           => '',
   'save'                        => 'speichern',
   'saved'                       => 'gespeichert',
   'saved!'                      => 'gespeichert',

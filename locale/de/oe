@@ -1,4 +1,6 @@
 $self{texts} = {
+  ' Date missing!'              => ' Datum fehlt!',
+  ' missing!'                   => ' fehlt!',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Add'                         => 'Erfassen',
   'Add Exchangerate'            => 'Wechselkurs erfassen',

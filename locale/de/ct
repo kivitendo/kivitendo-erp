@@ -1,4 +1,5 @@
 $self{texts} = {
+  ' Number'                     => ' Number',
   'Abteilung'                   => 'Abteilung',
   'Account Number'              => 'Kontonummer',
   'Accounting Menu'             => 'Kontoverwaltung',
@@ -87,6 +88,7 @@ $self{texts} = {
   'Vendors'                     => 'Lieferanten',
   'Zipcode'                     => 'PLZ',
   'days'                        => 'Tage',
+  's'                           => 's',
 };
 
 $self{subs} = {
