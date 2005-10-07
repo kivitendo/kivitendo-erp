@@ -212,6 +212,57 @@ exit;
 
 # eom
 
+sub extract_text_between_parenthesis {
+  my ($fh, $line) = @_;
+  my ($inside_string, $pos, $text, $quote_next) = (undef, 0, "", 0);
+
+  while (1) {
+    if (length($line) <= $pos) {
+      $line = <$fh>;
+      return ($text, "") unless ($line);
+      $pos = 0;
+    }
+
+    my $cur_char = substr($line, $pos, 1);
+
+    if (!$inside_string) {
+      if ((length($line) >= ($pos + 3)) && (substr($line, $pos, 2)) eq "qq") {
+        $inside_string = substr($line, $pos + 2, 1);
+        $pos += 2;
+
+      } elsif ((length($line) >= ($pos + 2)) &&
+               (substr($line, $pos, 1) eq "q")) {
+        $inside_string = substr($line, $pos + 1, 1);
+        $pos++;
+
+      } elsif (($cur_char eq '"') || ($cur_char eq '\'')) {
+        $inside_string = $cur_char;
+
+      } elsif ($cur_char eq ")") {
+        return ($text, substr($line, $pos + 1));
+      }
+
+    } else {
+      if ($quote_next) {
+        $text .= $cur_char;
+        $quote_next = 0;
+
+      } elsif ($cur_char eq '\\') {
+        $text .= $cur_char;
+        $quote_next = 1;
+
+      } elsif ($cur_char eq $inside_string) {
+        undef($inside_string);
+
+      } else {
+        $text .= $cur_char;
+
+      }
+    }
+    $pos++;
+  }
+}
+
 sub scanfile {
   my $file = shift;
 
@@ -262,16 +313,16 @@ sub scanfile {
         }
       }
 
-      my ($found) = /\$locale->text.*?\W\)/;
+      my ($found) = /\$locale->text.*?\(/;
       my $postmatch = $';
 
       if ($found) {
-        my $string = $&;
-        $string =~ s/\$locale->text\(\s*[\'\"(q|qq)][\'\/\\\|~]*//;
-        $string =~ s/\W\)+.*$//;
+        my $string;
+        ($string, $_) = extract_text_between_parenthesis($fh, $postmatch);
+        $postmatch = $_;
 
         # if there is no $ in the string record it
-        unless ($string =~ /\$\D.*/) {
+        unless (($string =~ /\$\D.*/) || ("" eq $string)) {
 
           # this guarantees one instance of string
           $locale{$string} = 1;

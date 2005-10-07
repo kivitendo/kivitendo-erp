@@ -1,4 +1,5 @@
 $self{texts} = {
+  ' Date missing!'              => ' Datum fehlt!',
   'Account'                     => 'Konto',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Add Purchase Order'          => 'Lieferantenauftrag erfassen',
