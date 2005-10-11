@@ -417,6 +417,8 @@ CREATE TABLE "employee" (
 CREATE TABLE "shipto" (
 	"trans_id" integer,
 	"shiptoname" character varying(75),
+        "shiptodepartment_1" character varying(75),
+        "shiptodepartment_2" character varying(75),
 	"shiptostreet" character varying(75),
 	"shiptozipcode" character varying(75),
 	"shiptocity" character varying(75),

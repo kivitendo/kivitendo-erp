@@ -128,6 +128,10 @@ alter table vendor add column user_password varchar(12);
 alter table customer add column salesman_id integer;
 alter table vendor add column salesman_id integer;
 
+-- Shipto
+alter table shipto add column shiptodepartment_1 varchar(75);
+alter table shipto add column shiptodepartment_2 varchar(75);
+
 -- Addon for business
 alter table business add column salesman boolean;
 alter table business alter column salesman set default 'false';
