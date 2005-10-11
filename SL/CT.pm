@@ -391,7 +391,9 @@ sub save_vendor {
   } else {
     my $uid = time;
     $uid .= $form->{login};
-
+    my $uid = rand() . time;
+    $uid .= $form->{login};
+    $uid = substr($uid, 2, 75);
     $query = qq|INSERT INTO vendor (name)
                 VALUES ('$uid')|;
     $dbh->do($query) || $form->dberror($query);
