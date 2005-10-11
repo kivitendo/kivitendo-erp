@@ -170,7 +170,6 @@ alter table acc_trans add foreign key (chart_id) references chart (id);
 alter table invoice add foreign key (parts_id) references parts (id);
 alter table ar add foreign key (customer_id) references customer (id);
 alter table ap add foreign key (vendor_id) references vendor (id);
-alter table orderitems add foreign key (trans_id) references oe (id);
 alter table orderitems add foreign key (parts_id) references parts (id);
 
 --Modify the possible length of bank account numbers

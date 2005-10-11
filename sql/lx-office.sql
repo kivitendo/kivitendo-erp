@@ -370,7 +370,7 @@ CREATE TABLE "oe" (
 );
 
 CREATE TABLE "orderitems" (
-	"trans_id" integer REFERENCES oe (id),
+	"trans_id" integer,
 	"parts_id" integer REFERENCES parts (id),
 	"description" text,
 	"qty" real,
