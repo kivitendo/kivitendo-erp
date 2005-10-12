@@ -565,26 +565,20 @@ sub round_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $amount, $places) = @_;
-  my $rc;
+  my $round_amount;
 
-  #  $places = 3 if $places == 2;
-
-  if (($places * 1) >= 0) {
-
-    # add 1/10^$places+3
-    $rc =
-      sprintf("%.${places}f",
-              $amount + (1 / (10**($places + 3))) * (($amount > 0) ? 1 : -1));
-  } else {
-    $places *= -1;
-    $rc =
-      sprintf("%.f", $amount / (10**$places) + (($amount > 0) ? 0.1 : -0.1)) *
-      (10**$places);
-  }
+  # Rounding like "Kaufmannsrunden"
+  # Descr. http://de.wikipedia.org/wiki/Rundung
+  # Inspired by 
+  # http://www.perl.com/doc/FAQs/FAQ/oldfaq-html/Q4.13.html
+  # Solves Bug: 189
+  # Udo Spallek
+  $amount       = $amount * (10 ** ($places));
+  $round_amount = int($amount + .5 * ($amount <=> 0))/(10**($places));
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return $round_amount;
 }
 
 sub parse_template {
