@@ -109,12 +109,23 @@ CREATE TABLE "defaults" (
 	"rfqnumber" text,
         "customernumber" text,
         "vendornumber" text,
+        "audittrail" bool default 'f',
         "articlenumber" text,
         "servicenumber" text,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp
 );
-INSERT INTO defaults (version) VALUES ('2.1.2');
+INSERT INTO defaults (version,audittrail) VALUES ('2.1.2', 't');
+
+CREATE TABLE audittrail (
+        "trans_id" int,
+        "tablename" text,
+        "reference" text,
+        "formname" text,
+        "action" text,
+        "transdate" timestamp default current_timestamp,
+        "employee_id" int
+);
 
 CREATE TABLE "acc_trans" (
 	"trans_id" integer,

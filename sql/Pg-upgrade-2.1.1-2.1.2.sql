@@ -132,6 +132,8 @@ alter table vendor add column salesman_id integer;
 alter table shipto add column shiptodepartment_1 varchar(75);
 alter table shipto add column shiptodepartment_2 varchar(75);
 
+
+
 -- Addon for business
 alter table business add column salesman boolean;
 alter table business alter column salesman set default 'false';
@@ -183,6 +185,18 @@ update vendor set temp_account_number=account_number;
 alter table vendor drop column account_number;
 alter table vendor rename temp_account_number to  account_number;
 
-update defaults set version = '2.1.2';
+-- audit
+alter table defaults add column audittrail bool;
+CREATE TABLE audittrail (
+  trans_id int,
+  tablename text,
+  reference text,
+  formname text,
+  action text,
+  transdate timestamp default current_timestamp,
+  employee_id int
+);
+
+update defaults set version = '2.1.2', audittrail = 't';
 --
 
