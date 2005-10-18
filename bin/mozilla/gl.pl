@@ -122,19 +122,11 @@ sub edit {
   $lxdebug->enter_sub();
 
   GL->transaction(\%myconfig, \%$form);
+  map {
+    $chart .=
+      "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}</option>"
+  } @{ $form->{chart} };
 
-  map {
-    if ($form->{debitaccno} eq $_->{accno}) {
-      $form->{debitchart} .=
-        "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}";
-    }
-  } @{ $form->{chart} };
-  map {
-    if ($form->{creditaccno} eq $_->{accno}) {
-      $form->{creditchart} .=
-        "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}";
-    }
-  } @{ $form->{chart} };
   map {
     $tax .=
       qq|<option value="$_->{taxkey}--$_->{rate}">$_->{taxdescription}  |
@@ -144,10 +136,6 @@ sub edit {
   $form->{chart} = $chart;
 
   $form->{taxchart} = $tax;
-
-  if ($form->{tax} < 0) {
-    $form->{tax} = $form->{tax} * (-1);
-  }
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
@@ -162,22 +150,36 @@ sub edit {
     } (@{ $form->{all_departments} });
   }
 
-  $i = 1;
+  my $i        = 1;
+  my $tax      = 0;
+  my $taxaccno = "";
   foreach $ref (@{ $form->{GL} }) {
-    $form->{"accno_$i"} = "$ref->{accno}--$ref->{description}";
-
     $form->{"projectnumber_$i"} = "$ref->{projectnumber}--$ref->{project_id}";
-    for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
 
-    if ($ref->{amount} < 0) {
-      $form->{totaldebit} -= $ref->{amount};
-      $form->{"debit_$i"} = $ref->{amount} * -1;
+    $j = $i - 1;
+    if ($tax && ($ref->{accno} eq $taxaccno)) {
+      $form->{"tax_$j"}      = abs($ref->{amount});
+      $form->{"taxchart_$j"} = $ref->{taxkey} . "--" . $ref->{taxrate};
     } else {
-      $form->{totalcredit} += $ref->{amount};
-      $form->{"credit_$i"} = $ref->{amount};
+      $form->{"accno_$i"} = "$ref->{accno}--$ref->{accnotaxkey}";
+      for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
+      if ($ref->{amount} < 0) {
+        $form->{totaldebit} -= $ref->{amount};
+        $form->{"debit_$i"} = $ref->{amount} * -1;
+      } else {
+        $form->{totalcredit} += $ref->{amount};
+        $form->{"credit_$i"} = $ref->{amount};
+      }
+      $i++;
+    }
+    if ($ref->{taxaccno} && !$tax) {
+      $taxaccno = $ref->{taxaccno};
+      $tax      = 1;
+    } else {
+      $taxaccno = "";
+      $tax      = 0;
     }
 
-    $i++;
   }
 
   $form->{rowcount} = $i;
@@ -227,14 +229,12 @@ sub search {
     $button1 = qq|
        <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=datefrom id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>  
+      . $locale->text('button') . qq|></td>  
        |;
     $button2 = qq|
        <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}">
        <input type=button name=dateto id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -465,10 +465,9 @@ sub generate_report {
       . $locale->date(\%myconfig, $form->{dateto}, 1);
   }
 
-  @columns =
-    $form->sort_columns(
+  @columns = $form->sort_columns(
     qw(transdate id reference description notes source debit debit_accno credit credit_accno debit_tax debit_tax_accno credit_tax credit_tax_accno accno gifi_accno)
-    );
+  );
 
   if ($form->{accno} || $form->{gifi_accno}) {
     @columns = grep !/(accno|gifi_accno)/, @columns;
@@ -1000,18 +999,15 @@ sub display_rows {
 
     $source = qq|
     <td><input name="source_$i" value="$form->{"source_$i"}" tabindex=|
-      . ($i + 11 + (($i - 1) * 8))
-      . qq|></td>|;
+      . ($i + 11 + (($i - 1) * 8)) . qq|></td>|;
     $memo = qq|
     <td><input name="memo_$i" value="$form->{"memo_$i"}" tabindex=|
-      . ($i + 12 + (($i - 1) * 8))
-      . qq|></td>|;
+      . ($i + 12 + (($i - 1) * 8)) . qq|></td>|;
 
     if ($init) {
       $accno = qq|
       <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
-        . ($i + 5 + (($i - 1) * 8))
-        . qq|>$form->{chartinit}</select></td>|;
+        . ($i + 5 + (($i - 1) * 8)) . qq|>$form->{chartinit}</select></td>|;
       $tax =
           qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
         . ($i + 10 + (($i - 1) * 8))
@@ -1087,12 +1083,10 @@ sub display_rows {
 
         $accno = qq|
       <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
-          . ($i + 5 + (($i - 1) * 8))
-          . qq|>$chart</select></td>|;
+          . ($i + 5 + (($i - 1) * 8)) . qq|>$chart</select></td>|;
         $tax = qq|
       <td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
-          . ($i + 10 + (($i - 1) * 8))
-          . qq|>$taxchart</select></td>|;
+          . ($i + 10 + (($i - 1) * 8)) . qq|>$taxchart</select></td>|;
         if ($form->{selectprojectnumber}) {
           $project = qq|
       <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
@@ -1113,14 +1107,11 @@ sub display_rows {
     $accno
     $fx_transaction
     <td><input name="debit_$i" size=10 value="$form->{"debit_$i"}" accesskey=$i tabindex=|
-      . ($i + 6 + (($i - 1) * 8))
-      . qq|></td>
+      . ($i + 6 + (($i - 1) * 8)) . qq|></td>
     <td><input name="credit_$i" size=10 value="$form->{"credit_$i"}" tabindex=|
-      . ($i + 7 + (($i - 1) * 8))
-      . qq|></td>
+      . ($i + 7 + (($i - 1) * 8)) . qq|></td>
     <td><input name="tax_$i" size=8 value="$form->{"tax_$i"}" tabindex=|
-      . ($i + 8 + (($i - 1) * 8))
-      . qq|></td>
+      . ($i + 8 + (($i - 1) * 8)) . qq|></td>
     $korrektur
     $tax
     $source
@@ -1189,9 +1180,6 @@ sub form_header {
     $taxincluded = "checked";
   }
 
-  $amount =
-    qq|<input name=amount size=20 value="$form->{amount}" tabindex="4" $readonly>|;
-
   $department = qq|
   	<tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
@@ -1214,8 +1202,7 @@ sub form_header {
     $button1 = qq|
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} tabindex="2" $readonly>
        <input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>  
+      . $locale->text('button') . qq|></td>  
        |;
 
     #write Trigger
@@ -1287,6 +1274,14 @@ sub form_header {
 	<tr>
 	  <th align=right>| . $locale->text('Description') . qq|</th>
 	  <td>$description</td>
+          <td>
+	    <table>
+	      <tr>
+		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
+		<td><input type=checkbox name=taxincluded value=1 tabindex="5" $taxincluded></td>
+	      </tr>
+	    </table>
+	 </td>
 	  <td align=left>
 	    <table width=100%>
 	      <tr>
@@ -1301,13 +1296,7 @@ sub form_header {
 	<tr>
 	  <th align=right>| . $locale->text('Description') . qq|</th>
 	  <td colspan=2>$description</td>
-	</tr>|;
-  }
-  print qq|
-	<tr>
-	  <th align=right>| . $locale->text('Betrag') . qq|</th>
-	  <td>$amount</td>
-	  <td align=left>
+	  <td>
 	    <table>
 	      <tr>
 		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
@@ -1315,31 +1304,26 @@ sub form_header {
 	      </tr>
 	    </table>
 	 </td>
-      </tr>
+	</tr>|;
+  }
+  print qq|
       <tr>
           <table width=100%>
 	   <tr class=listheading>
 	  <th class=listheading style="width:15%">|
-    . $locale->text('Account')
-    . qq|</th>
+    . $locale->text('Account') . qq|</th>
 	  <th class=listheading style="width:10%">|
-    . $locale->text('Debit')
-    . qq|</th>
+    . $locale->text('Debit') . qq|</th>
 	  <th class=listheading style="width:10%">|
-    . $locale->text('Credit')
-    . qq|</th>
+    . $locale->text('Credit') . qq|</th>
           <th class=listheading style="width:10%">|
-    . $locale->text('Tax')
-    . qq|</th>
+    . $locale->text('Tax') . qq|</th>
           <th class=listheading style="width:5%">|
-    . $locale->text('Korrektur')
-    . qq|</th>
+    . $locale->text('Korrektur') . qq|</th>
           <th class=listheading style="width:10%">|
-    . $locale->text('Taxkey')
-    . qq|</th>
+    . $locale->text('Taxkey') . qq|</th>
 	  <th class=listheading style="width:20%">|
-    . $locale->text('Source')
-    . qq|</th>
+    . $locale->text('Source') . qq|</th>
 	  <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
 	  $project
 	</tr>
@@ -1388,8 +1372,7 @@ sub form_footer {
     if (!$form->{locked} && $radieren) {
       print qq|
 		<input class=submit type=submit name=action value="|
-        . $locale->text('Post')
-        . qq|" accesskey="b">
+        . $locale->text('Post') . qq|" accesskey="b">
 		<input class=submit type=submit name=action value="|
         . $locale->text('Delete') . qq|">|;
     }

@@ -40,7 +40,7 @@ package GL;
 
 sub delete_transaction {
   my ($self, $myconfig, $form) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -54,7 +54,7 @@ sub delete_transaction {
   # commit and redirect
   my $rc = $dbh->commit;
   $dbh->disconnect;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   $rc;
 
@@ -62,7 +62,7 @@ sub delete_transaction {
 
 sub post_transaction {
   my ($self, $myconfig, $form) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($debit, $credit) = (0, 0);
   my $project_id;
@@ -213,7 +213,7 @@ sub post_transaction {
   # commit and redirect
   my $rc = $dbh->commit;
   $dbh->disconnect;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   $rc;
 
@@ -221,7 +221,7 @@ sub post_transaction {
 
 sub all_transactions {
   my ($self, $myconfig, $form) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -489,7 +489,7 @@ sub all_transactions {
     ($form->{gifi_account_description}) = $sth->fetchrow_array;
     $sth->finish;
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
 
@@ -497,7 +497,7 @@ sub all_transactions {
 
 sub transaction {
   my ($self, $myconfig, $form) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($query, $sth, $ref);
 
@@ -526,9 +526,9 @@ sub transaction {
     $sth->finish;
 
     # retrieve individual rows
-    $query = "SELECT c.accno, a.amount, project_id,
+    $query = "SELECT c.accno, c.taxkey_id AS accnotaxkey, a.amount, project_id,
                 (SELECT p.projectnumber FROM project p
-		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, (SELECT c1.accno FROM chart c1, tax t WHERE t.taxkey=a.taxkey AND c1.id=t.chart_id) AS taxaccno
+		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, (SELECT c1.accno FROM chart c1, tax t WHERE t.taxkey=a.taxkey AND c1.id=t.chart_id) AS taxaccno, (SELECT t1.rate FROM tax t1 WHERE t1.taxkey=a.taxkey) AS taxrate 
 	      FROM acc_trans a, chart c
 	      WHERE a.chart_id = c.id
 	      AND a.trans_id = $form->{id}
@@ -585,7 +585,7 @@ sub transaction {
   $sth->finish;
 
   $sth->finish;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
 
