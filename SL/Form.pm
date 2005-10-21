@@ -1070,6 +1070,32 @@ sub format_string {
     map { $self->{$_} =~ s/$key/$replace{$format}{$key}/g; } @fields;
   }
 
+  # Allow some HTML markup to be converted into the output format's
+  # corresponding markup code, e.g. bold or italic.
+  if ('html' eq $format) {
+    my @markup_replace = ('b', 'i', 's', 'u');
+
+    foreach my $key (@markup_replace) {
+      map({ $self->{$_} =~ s/\&lt;(\/?)${key}\&gt;/<$1${key}>/g } @fields);
+    }
+
+  } elsif ('tex' eq $format) {
+    my %markup_replace = ('b' => 'textbf',
+                          'i' => 'textit',
+                          'u' => 'underline');
+
+    foreach my $field (@fields) {
+      if ($field =~ /descrip/) {
+        print(STDERR "QFT: ${field}: " . $self->{$field} . "\n");
+      }
+      foreach my $key (keys(%markup_replace)) {
+        my $new = $markup_replace{$key};
+        $self->{$field} =~
+          s/\$\<\$${key}\$\>\$(.*?)\$<\$\/${key}\$>\$/\\${new}\{$1\}/gi;
+      }
+    }
+  }
+
   $main::lxdebug->leave_sub();
 }
 
