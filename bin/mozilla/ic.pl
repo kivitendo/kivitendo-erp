@@ -1955,6 +1955,16 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
+  my $dec = '';
+  
+  #decimalplaces for listprice
+  ($dec) = ($form->{listprice} =~ /\.(\d+)/);
+  $dec = length $dec;
+  my $decimalplaces = ($dec > 2) ? $dec : 2;
+  $form->{listprice} =
+    $form->format_amount(\%myconfig, $form->{listprice}, $decimalplaces);
+
+  #decimalplaces for sellprice and gv
   ($dec) = ($form->{sellprice} =~ /\.(\d+)/);
   $dec = length $dec;
   my $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -1962,7 +1972,7 @@ sub form_header {
   map {
     $form->{$_} =
       $form->format_amount(\%myconfig, $form->{$_}, $decimalplaces)
-  } qw(listprice sellprice gv);
+  } qw(sellprice gv);
 
   ($dec) = ($form->{lastcost} =~ /\.(\d+)/);
   $dec = length $dec;
