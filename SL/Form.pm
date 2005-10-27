@@ -610,16 +610,11 @@ sub round_amount {
   # Descr. http://de.wikipedia.org/wiki/Rundung
   # Inspired by 
   # http://www.perl.com/doc/FAQs/FAQ/oldfaq-html/Q4.13.html
-  # Solves Bug: 189
+  # Version 1.0 try to solve Bug: 189
   # Udo Spallek
   $amount       = $amount * (10 ** ($places));
   $round_amount = int($amount + .5 * ($amount <=> 0))/(10**($places));
   
-  while ($places > 0 && $round_amount=~ /\./){
-  $round_amount =~ s/[0]$//g;
-  $places--;
-  } ;
-  #$round_amount =~ s/\.$//g;
   $main::lxdebug->leave_sub();
 
   return $round_amount;
