@@ -540,19 +540,19 @@ sub format_amount {
         $amount =~ s/\d{3,}?/$&,/g;
         $amount =~ s/,$//;
         $amount = join '', reverse split //, $amount;
-        $amount .= "\.$dec".$fillup;
+        $amount .= "\.$dec".$fillup if ($places ne '' && $places*1 != 0);
       }
 
       if ($myconfig->{numberformat} eq '1.000,00') {
         $amount =~ s/\d{3,}?/$&./g;
         $amount =~ s/\.$//;
         $amount = join '', reverse split //, $amount;
-        $amount .= ",$dec" .$fillup;
+        $amount .= ",$dec".$fillup if ($places ne '' && $places*1 != 0);
       }
 
       if ($myconfig->{numberformat} eq '1000,00') {
         $amount = "$whole";
-        $amount .= ",$dec" .$fillup;
+        $amount .= ",$dec" .$fillup if ($places ne '' && $places*1 != 0);
       }
 
       if ($dash =~ /-/) {
@@ -610,14 +610,15 @@ sub round_amount {
   # Descr. http://de.wikipedia.org/wiki/Rundung
   # Inspired by 
   # http://www.perl.com/doc/FAQs/FAQ/oldfaq-html/Q4.13.html
-  # Version 1.0 try to solve Bug: 189
+  # Solves Bug: 189
   # Udo Spallek
   $amount       = $amount * (10 ** ($places));
   $round_amount = int($amount + .5 * ($amount <=> 0))/(10**($places));
-  
+
   $main::lxdebug->leave_sub();
 
   return $round_amount;
+  
 }
 
 
