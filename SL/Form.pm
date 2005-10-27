@@ -615,11 +615,11 @@ sub round_amount {
   $amount       = $amount * (10 ** ($places));
   $round_amount = int($amount + .5 * ($amount <=> 0))/(10**($places));
   
-    do {
-         $round_amount =~ s/(0|\.)$//g;
-         $places--;
-       } while ($places > 0);
-
+  while ($places > 0 && $round_amount=~ /\./){
+  $round_amount =~ s/[0]$//g;
+  $places--;
+  } ;
+  $round_amount =~ s/\.$//g;
   $main::lxdebug->leave_sub();
 
   return $round_amount;
