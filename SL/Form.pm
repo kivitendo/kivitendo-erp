@@ -619,7 +619,7 @@ sub round_amount {
   $round_amount =~ s/[0]$//g;
   $places--;
   } ;
-  $round_amount =~ s/\.$//g;
+  #$round_amount =~ s/\.$//g;
   $main::lxdebug->leave_sub();
 
   return $round_amount;
