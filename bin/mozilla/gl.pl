@@ -899,11 +899,16 @@ sub update {
     $form->{oldtransdate} = $form->{transdate};
   }
 
-  my @a         = ();
-  my $count     = 0;
-  my $debittax  = 0;
-  my $credittax = 0;
-  my @flds      =
+  my @a           = ();
+  my $count       = 0;
+  my $debittax    = 0;
+  my $credittax   = 0;
+  my $debitcount  = 0;
+  my $creditcount = 0;
+  $debitlock  = 0;
+  $creditlock = 0;
+
+  my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
@@ -916,6 +921,36 @@ sub update {
 
       push @a, {};
       $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
+      if ($debitcredit) {
+        $debitcount++;
+      } else {
+        $creditcount++;
+      }
+
+      if (($debitcount >= 2) && ($creditcount == 2)) {
+        $form->{"credit_$i"} = 0;
+        $form->{"tax_$i"}    = 0;
+        $creditcount--;
+        $creditlock = 1;
+      }
+      if (($creditcount >= 2) && ($debitcount == 2)) {
+        $form->{"debit_$i"} = 0;
+        $form->{"tax_$i"}   = 0;
+        $debitcount--;
+        $debitlock = 1;
+      }
+      if (($creditcount == 1) && ($debitcount == 2)) {
+        $creditlock = 1;
+      }
+      if (($creditcount == 2) && ($debitcount == 1)) {
+        $debitlock = 1;
+      }
+      if ($debitcredit && $credittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
+      if (!$debitcredit && $debittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
       $amount =
         ($form->{"debit_$i"} == 0)
         ? $form->{"credit_$i"}
@@ -1027,9 +1062,13 @@ sub display_rows {
       }
 
     } else {
-
-      $form->{totaldebit}  += $form->{"debit_$i"};
-      $form->{totalcredit} += $form->{"credit_$i"};
+      if ($form->{"debit_$i"} != 0) {
+        $form->{totaldebit} += $form->{"debit_$i"};
+        $form->{totaldebit} += $form->{"tax_$i"};
+      } else {
+        $form->{totalcredit} += $form->{"credit_$i"};
+        $form->{totalcredit} += $form->{"tax_$i"};
+      }
 
       for (qw(debit credit tax)) {
         $form->{"${_}_$i"} =
@@ -1102,14 +1141,23 @@ sub display_rows {
         }
       }
     }
+    my $debitreadonly  = "";
+    my $creditreadonly = "";
+    if ($i == $form->{rowcount}) {
+      if ($debitlock) {
+        $debitreadonly = "readonly";
+      } elsif ($creditlock) {
+        $creditreadonly = "readonly";
+      }
+    }
 
     print qq|<tr valign=top>
     $accno
     $fx_transaction
     <td><input name="debit_$i" size=10 value="$form->{"debit_$i"}" accesskey=$i tabindex=|
-      . ($i + 6 + (($i - 1) * 8)) . qq|></td>
+      . ($i + 6 + (($i - 1) * 8)) . qq| $debitreadonly></td>
     <td><input name="credit_$i" size=10 value="$form->{"credit_$i"}" tabindex=|
-      . ($i + 7 + (($i - 1) * 8)) . qq|></td>
+      . ($i + 7 + (($i - 1) * 8)) . qq| $creditreadonly></td>
     <td><input name="tax_$i" size=8 value="$form->{"tax_$i"}" tabindex=|
       . ($i + 8 + (($i - 1) * 8)) . qq|></td>
     $korrektur
@@ -1241,10 +1289,10 @@ sub form_header {
     <td>
       <table width=100%>
 	<tr>
-	  <th align=right>| . $locale->text('Reference') . qq|</th>
+	  <th align=left>| . $locale->text('Reference') . qq|</th>
 	  <td><input name=reference size=20 value="$form->{reference}" tabindex="1" $readonly></td>
 	  <td align=left>
-	    <table width=100%>
+	    <table>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Date') . qq|</th>
                 $button1
@@ -1258,7 +1306,7 @@ sub form_header {
 	  <th align=right>| . $locale->text('Belegnummer') . qq|</th>
 	  <td><input name=id size=20 value="$form->{id}" $readonly></td>
 	  <td align=left>
-	  <table width=100%>
+	  <table>
 	      <tr>
 		<th align=right width=50%>| . $locale->text('Buchungsdatum') . qq|</th>
 		<td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly></td>
@@ -1272,8 +1320,8 @@ sub form_header {
   if ($form->{id}) {
     print qq|
 	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td>$description</td>
+	  <th align=left width=1%>| . $locale->text('Description') . qq|</th>
+	  <td width=1%>$description</td>
           <td>
 	    <table>
 	      <tr>
@@ -1294,8 +1342,8 @@ sub form_header {
   } else {
     print qq|
 	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td colspan=2>$description</td>
+	  <th align=left width=1%>| . $locale->text('Description') . qq|</th>
+	  <td width=1%>$description</td>
 	  <td>
 	    <table>
 	      <tr>
@@ -1308,6 +1356,7 @@ sub form_header {
   }
   print qq|
       <tr>
+      <td colspan=4>
           <table width=100%>
 	   <tr class=listheading>
 	  <th class=listheading style="width:15%">|
@@ -1343,11 +1392,19 @@ sub form_footer {
 
   map {
     $form->{$_} =
-      $form->format_amount(\%myconfig, $form->{$_}, $decimalplaces, "&nbsp;")
+      $form->format_amount(\%myconfig, $form->{$_}, 2, "&nbsp;")
   } qw(totaldebit totalcredit);
 
   print qq|
+    <tr class=listtotal>
+    <td></td>
+    <th align=right class=listtotal> $form->{totaldebit}</th>
+    <th align=right class=listtotal> $form->{totalcredit}</th> 
+    <td colspan=5></td>
+    </tr>
   </table>
+  </td>
+  </tr>
 </table>
 
 <input type=hidden name=path value=$form->{path}>
@@ -1463,11 +1520,16 @@ sub post {
   # check project
   &check_project;
 
-  my @a         = ();
-  my $count     = 0;
-  my $debittax  = 0;
-  my $credittax = 0;
-  my @flds      =
+  my @a           = ();
+  my $count       = 0;
+  my $debittax    = 0;
+  my $credittax   = 0;
+  my $debitcount  = 0;
+  my $creditcount = 0;
+  $creditlock = 0;
+  $debitlock  = 0;
+
+  my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
@@ -1480,6 +1542,37 @@ sub post {
 
       push @a, {};
       $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
+
+      if ($debitcredit) {
+        $debitcount++;
+      } else {
+        $creditcount++;
+      }
+
+      if (($debitcount >= 2) && ($creditcount == 2)) {
+        $form->{"credit_$i"} = 0;
+        $form->{"tax_$i"}    = 0;
+        $creditcount--;
+        $creditlock = 1;
+      }
+      if (($creditcount >= 2) && ($debitcount == 2)) {
+        $form->{"debit_$i"} = 0;
+        $form->{"tax_$i"}   = 0;
+        $debitcount--;
+        $debitlock = 1;
+      }
+      if (($creditcount == 1) && ($debitcount == 2)) {
+        $creditlock = 1;
+      }
+      if (($creditcount == 2) && ($debitcount == 1)) {
+        $debitlock = 1;
+      }
+      if ($debitcredit && $credittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
+      if (!$debitcredit && $debittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
       $amount =
         ($form->{"debit_$i"} == 0)
         ? $form->{"credit_$i"}
