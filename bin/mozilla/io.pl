@@ -199,7 +199,8 @@ sub display_row {
 
     # undo formatting
     map {
-      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
     } qw(qty ship discount sellprice);
 
     ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
@@ -643,7 +644,32 @@ sub display_form {
     &{"$form->{display_form}"};
     exit;
   }
+  if (   $form->{print_and_post}
+      && $form->{second_run}
+      && ($form->{action} eq "display_form")) {
+    for (keys %$form) { $old_form->{$_} = $form->{$_} }
+    $old_form->{rowcount}++;
 
+    #$form->{rowcount}--;
+    #$form->{rowcount}--;
+
+    $form->{print_and_post} = 0;
+
+    &print_form($old_form);
+    exit;
+  }
+
+  $form->{action}   = "";
+  $form->{resubmit} = 0;
+
+  if ($form->{print_and_post} && !$form->{second_run}) {
+    $form->{second_run} = 1;
+    $form->{action}     = "display_form";
+    $form->{rowcount}--;
+
+    $form->{resubmit} = 1;
+
+  }
   &form_header;
 
   $numrows    = ++$form->{rowcount};
@@ -672,6 +698,10 @@ sub display_form {
 
   &form_footer;
 
+  #   if ($form->{print_and_post}) {
+  #     &display_form;
+  #   }
+
   $lxdebug->leave_sub();
 }
 
@@ -680,7 +710,7 @@ sub check_form {
 
   my @a     = ();
   my $count = 0;
-  my @flds = (
+  my @flds  = (
     qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup)
   );
 
@@ -1323,7 +1353,7 @@ sub print_form {
   # $locale->text('Quotation Date missing!')
 
   # assign number
-  if (!$form->{"${inv}number"}) {
+  if (!$form->{"${inv}number"} && !$form->{preview}) {
     $form->{"${inv}number"} = $form->update_defaults(\%myconfig, $numberfld);
     if ($form->{media} ne 'email') {
       $form->{rowcount}--;
@@ -1513,6 +1543,8 @@ sub print_form {
       ? $locale->text('sent to printer')
       : $locale->text('emailed to') . " $form->{email}";
     $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
+  } else {
+    &{"$display_form"};
   }
 
   $lxdebug->leave_sub();
@@ -1553,6 +1585,7 @@ sub ship_to {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
   $form_id = $form->{id};
+
   # get details for name
   &{"$form->{vc}_details"};
   $form->{id} = $form_id;
@@ -1579,11 +1612,9 @@ sub ship_to {
       <table>
 	<tr class=listheading>
 	  <th class=listheading colspan=2 width=50%>|
-    . $locale->text('Billing Address')
-    . qq|</th>
+    . $locale->text('Billing Address') . qq|</th>
 	  <th class=listheading width=50%>|
-    . $locale->text('Shipping Address')
-    . qq|</th>
+    . $locale->text('Shipping Address') . qq|</th>
 	</tr>
 	<tr height="5"></tr>
 	<tr>

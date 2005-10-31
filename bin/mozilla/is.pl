@@ -315,14 +315,12 @@ sub form_header {
     $button1 = qq|
        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
        <td><input type=button name=invdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
        <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
        <td width="4"><input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td></td>
+      . $locale->text('button') . qq|></td></td>
      |;
 
     #write Trigger
@@ -337,16 +335,21 @@ sub form_header {
     $button2 =
       qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
   }
-
+  if ($form->{resubmit}) {
+    $onload = "document.invoice.submit()";
+  } else {
+    $onload = "fokus()";
+  }
   $form->header;
 
   print qq|
-<body onLoad="fokus()">
+<body onLoad="$onload">
 
 <form method=post name="invoice" action=$form->{script}>
 
 
 <input type=hidden name=id value=$form->{id}>
+<input type=hidden name=action value=$form->{action}>
 
 <input type=hidden name=type value=$form->{type}>
 <input type=hidden name=media value=$form->{media}>
@@ -389,8 +392,7 @@ sub form_header {
 		<input type=hidden name=customer_id value=$form->{customer_id}>
 		<input type=hidden name=oldcustomer value="$form->{oldcustomer}">
                 <th align=richt nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 	      </tr>
 	      <tr>
@@ -533,8 +535,7 @@ sub form_footer {
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
 	        <input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}> <b>|
-      . $locale->text('Tax Included')
-      . qq|</b><br><br>|;
+      . $locale->text('Tax Included') . qq|</b><br><br>|;
   }
 
   if (!$form->{taxincluded}) {
@@ -673,8 +674,7 @@ sub form_footer {
       <table width=100%>
 	<tr class=listheading>
 	  <th colspan=6 class=listheading>|
-    . $locale->text('Incoming Payments')
-    . qq|</th>
+    . $locale->text('Incoming Payments') . qq|</th>
 	</tr>
 |;
 
@@ -753,7 +753,9 @@ sub form_footer {
 <input type=hidden name=selectAR_paid value="$form->{selectAR_paid}">
 <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
 <input type=hidden name=oldtotalpaid value=$totalpaid>
-      </table>
+<input type=hidden name=print_and_post value=$form->{print_and_post}>
+<input type=hidden name=second_run value=$form->{second_run}>
+    </table>
     </td>
   </tr>
   <tr>
@@ -813,9 +815,11 @@ sub form_footer {
       <input class=submit type=submit name=action value="|
         . $locale->text('Ship to') . qq|">
       <input class=submit type=submit name=action value="|
-        . $locale->text('Print') . qq|">
+        . $locale->text('Preview') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('E-mail') . qq|">
+      <input class=submit type=submit name=action value="|
+        . $locale->text('Print and Post') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('Post') . qq|">|;
     }
@@ -1047,13 +1051,43 @@ sub post {
 
   $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
     unless $form->{invnumber};
-
-  $form->redirect(
+  if ($print_post) {
+    if (!(IS->post_invoice(\%myconfig, \%$form))) {
+      $form->error($locale->text('Cannot post invoice!'));
+    }
+  } else {
+    $form->redirect(
             $form->{label} . " $form->{invnumber} " . $locale->text('posted!'))
-    if (IS->post_invoice(\%myconfig, \%$form));
-  $form->error($locale->text('Cannot post invoice!'));
+      if (IS->post_invoice(\%myconfig, \%$form));
+    $form->error($locale->text('Cannot post invoice!'));
+  }
 
   $lxdebug->leave_sub();
+}
+
+sub print_and_post {
+  $lxdebug->enter_sub();
+
+  $old_form               = new Form;
+  $print_post             = 1;
+  $form->{print_and_post} = 1;
+  &post();
+  &display_form();
+  $lxdebug->leave_sub();
+
+}
+
+sub preview {
+  $lxdebug->enter_sub();
+
+  $form->{preview} = 1;
+  $old_form = new Form;
+  for (keys %$form) { $old_form->{$_} = $form->{$_} }
+  $old_form->{rowcount}++;
+
+  &print_form($old_form);
+  $lxdebug->leave_sub();
+
 }
 
 sub delete {
