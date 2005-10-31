@@ -241,14 +241,12 @@ sub form_header {
     $button1 = qq|
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>
        <td><input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate}></td>
        <td width="4"><input type=button name=reqdate name=reqdate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -272,11 +270,9 @@ sub form_header {
 	  <table>
 	    <tr>
 	      <th nowrap><input name=closed type=radio class=radio value=0 $checkedopen> |
-      . $locale->text('Open')
-      . qq|</th>
+      . $locale->text('Open') . qq|</th>
 	      <th nowrap><input name=closed type=radio class=radio value=1 $checkedclosed> |
-      . $locale->text('Closed')
-      . qq|</th>
+      . $locale->text('Closed') . qq|</th>
 	    </tr>
 	  </table>
 	</td>
@@ -345,8 +341,7 @@ sub form_header {
                     <tr>
 		      <th align=right nowrap>| . $locale->text('Terms: Net') . qq|</th>
 		      <td nowrap><input name=terms size="3" maxlength="3" value=$form->{terms}> |
-    . $locale->text('days')
-    . qq|</td>
+    . $locale->text('days') . qq|</td>
                     </tr>
 |;
 
@@ -371,14 +366,12 @@ sub form_header {
 	      </tr>
 	      <tr>
 		<th width=70% align=right nowrap>|
-      . $locale->text('Quotation Number')
-      . qq|</th>
+      . $locale->text('Quotation Number') . qq|</th>
                 <td><input name=quonumber size=11 value="$form->{quonumber}"></td>
 	      </tr>
               <tr>
 		<th width=70% align=right nowrap>|
-      . $locale->text('Customer Order Number')
-      . qq|</th>
+      . $locale->text('Customer Order Number') . qq|</th>
                 <td><input name=cusordnumber size=11 value="$form->{cusordnumber}"></td>
 	      </tr>
 	      <tr>
@@ -419,8 +412,7 @@ sub form_header {
       $ordnumber = qq|
 	      <tr>
 		<th width=70% align=right nowrap>|
-        . $locale->text('Quotation Number')
-        . qq|</th>
+        . $locale->text('Quotation Number') . qq|</th>
 		<td><input name=quonumber size=11 value="$form->{quonumber}"></td>
 		<input type=hidden name=ordnumber value="$form->{ordnumber}">
 	      </tr>
@@ -471,6 +463,7 @@ sub form_header {
   if ($form->{type} eq 'sales_order') {
     if ($form->{selectemployee}) {
       $employee = qq|
+    <input type=hidden name=customer_klass value=$form->{customer_klass}>
  	      <tr>
 	        <th align=right nowrap>| . $locale->text('Salesperson') . qq|</th>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
@@ -481,6 +474,7 @@ sub form_header {
     }
   } else {
     $employee = qq|
+    <input type=hidden name=customer_klass value=$form->{customer_klass}>
  	      <tr>
 	        <th align=right nowrap>| . $locale->text('Employee') . qq|</th>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
@@ -537,8 +531,7 @@ sub form_header {
 		<input type=hidden name=$form->{vc}_id value=$form->{"$form->{vc}_id"}>
 		<input type=hidden name="old$form->{vc}" value="$form->{"old$form->{vc}"}">
                 <th align=richt nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 	      </tr>
 	      $creditremaining
@@ -633,8 +626,7 @@ sub form_footer {
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
 	      <input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}> <b>|
-      . $locale->text('Tax Included')
-      . qq|</b><br><br>
+      . $locale->text('Tax Included') . qq|</b><br><br>
 |;
   }
 
@@ -888,7 +880,9 @@ sub update {
                     \%myconfig, $form->{currency}, $form->{transdate}, $buysell
                     )));
 
-  my $i = $form->{rowcount};
+  # for pricegroups
+  $i = $form->{rowcount};
+
   $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
 
   if (   ($form->{"partnumber_$i"} eq "")
@@ -940,6 +934,7 @@ sub update {
           $form->{"sellprice_$i"} = $sellprice;
         } else {
 
+          $form->{"sellprice_$i"} *= (1 - $form->{tradediscount});
           # if there is an exchange rate adjust sellprice
           $form->{"sellprice_$i"} /= $exchangerate;
         }
@@ -961,6 +956,12 @@ sub update {
                                $decimalplaces);
         $form->{"qty_$i"} =
           $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+        # get pricegroups for parts
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+        # build up html code for prices_$i
+        set_pricegroup();
       }
 
       &display_form;
@@ -1046,7 +1047,8 @@ sub search {
       $form->{warehouse}       = qq|$form->{warehouse}--$form->{warehouse_id}|;
 
       map {
-        $form->{selectwarehouse} .= "<option>$_->{description}--$_->{id}\n"
+        $form->{selectwarehouse} .=
+          "<option>$_->{description}--$_->{id}\n"
       } (@{ $form->{all_warehouses} });
 
       $warehouse = qq|
@@ -1099,11 +1101,9 @@ sub search {
     $openclosed = qq|
 	      <tr>
 	        <td><input name="open" class=checkbox type=checkbox value=1 checked> |
-      . $locale->text('Open')
-      . qq|</td>
+      . $locale->text('Open') . qq|</td>
 	        <td><input name="closed" class=checkbox type=checkbox value=1 $form->{closed}> |
-      . $locale->text('Closed')
-      . qq|</td>
+      . $locale->text('Closed') . qq|</td>
 	      </tr>
 |;
   } else {
@@ -1122,14 +1122,12 @@ sub search {
     $button1 = qq|
        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=transdatefrom id="trigger3" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
        <input type=button name=transdateto name=transdateto id="trigger4" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -1187,34 +1185,27 @@ sub search {
 		| . $locale->text('ID') . qq|</td>
 		<td><input name="l_$ordnumber" class=checkbox type=checkbox value=Y checked> $ordlabel</td>
 		<td><input name="l_transdate" class=checkbox type=checkbox value=Y checked> |
-    . $locale->text('Date')
-    . qq|</td>
+    . $locale->text('Date') . qq|</td>
 		<td><input name="l_reqdate" class=checkbox type=checkbox value=Y checked> |
-    . $locale->text('Required by')
-    . qq|</td>
+    . $locale->text('Required by') . qq|</td>
 	      </tr>
 	      <tr>
 	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vclabel</td>
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Ship via')
-    . qq|</td>
+    . $locale->text('Ship via') . qq|</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_netamount" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Amount')
-    . qq|</td>
+    . $locale->text('Amount') . qq|</td>
 		<td><input name="l_tax" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Tax')
-    . qq|</td>
+    . $locale->text('Tax') . qq|</td>
 		<td><input name="l_amount" class=checkbox type=checkbox value=Y checked> |
-    . $locale->text('Total')
-    . qq|</td>
+    . $locale->text('Total') . qq|</td>
 	      </tr>
 	      <tr>
 	        <td><input name="l_subtotal" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Subtotal')
-    . qq|</td>
+    . $locale->text('Subtotal') . qq|</td>
 	      </tr>
 	    </table>
           </td>
@@ -2119,7 +2110,8 @@ sub ship_receive {
 
     # undo formatting from prepare_order
     map {
-      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
     $n = ($form->{"qty_$i"} -= $form->{"ship_$i"});
     if (abs($n) > 0

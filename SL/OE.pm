@@ -311,11 +311,14 @@ sub save {
       $reqdate =
         ($form->{"reqdate_$i"}) ? qq|'$form->{"reqdate_$i"}'| : "NULL";
 
+      # get pricegroup_id and save ist
+      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+
       # save detail record in orderitems table
       $query = qq|INSERT INTO orderitems (|;
       $query .= "id, " if $form->{"orderitems_id_$i"};
       $query .= qq|trans_id, parts_id, description, qty, sellprice, discount,
-		   unit, reqdate, project_id, serialnumber, ship)
+		   unit, reqdate, project_id, serialnumber, ship, pricegroup_id)
                    VALUES (|;
       $query .= qq|$form->{"orderitems_id_$i"},|
         if $form->{"orderitems_id_$i"};
@@ -323,7 +326,8 @@ sub save {
 		   '$form->{"description_$i"}', $form->{"qty_$i"},
 		   $fxsellprice, $form->{"discount_$i"},
 		   '$form->{"unit_$i"}', $reqdate, (SELECT id from project where projectnumber = '$project_id'),
-		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"})|;
+		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"},
+       '$pricegroup_id')|;
       $dbh->do($query) || $form->dberror($query);
 
       $form->{"sellprice_$i"} = $fxsellprice;
@@ -631,7 +635,7 @@ sub retrieve {
 		o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes,
                 o.reqdate, o.project_id, o.serialnumber, o.ship,
 		pr.projectnumber,
-		pg.partsgroup
+		pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
 		FROM orderitems o
 		JOIN parts p ON (o.parts_id = p.id)
 		LEFT JOIN chart c1 ON (p.inventory_accno_id = c1.id)

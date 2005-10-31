@@ -382,8 +382,8 @@ function fokus(){document.$self->{fokus}.focus();}
       $jsscript = qq|
         <style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>
         <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
-        <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
-        <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+        <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
+        <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
         $self->{javascript}
        |;
     }
@@ -450,25 +450,25 @@ sub write_trigger {
 
   $trigger_1 = qq|
        Calendar.setup(
-       {
-         inputField  : "$inputField_1",
-         ifFormat    :"$ifFormat",
-         align    : "$align_1",     
-         button      : "$button_1"
-       }
-       );
+      {
+      inputField : "$inputField_1",
+      ifFormat :"$ifFormat",
+      align : "$align_1", 
+      button : "$button_1"
+      }
+      );
        |;
 
   if ($qty == 2) {
     $trigger_2 = qq|
        Calendar.setup(
        {
-         inputField  : "$inputField_2",
-         ifFormat    :"$ifFormat",
-         align    : "$align_2",     
-         button      : "$button_2"
-       }
-       );
+      inputField : "$inputField_2",
+      ifFormat :"$ifFormat",
+      align : "$align_2", 
+      button : "$button_2"
+      }
+      );
         |;
   }
   $jsscript = qq|
@@ -2116,6 +2116,38 @@ sub get_partsgroup {
   }
   $sth->finish;
   $dbh->disconnect;
+  $main::lxdebug->leave_sub();
+}
+
+
+sub get_pricegroup {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $p) = @_;
+
+  my $dbh = $self->dbconnect($myconfig);
+
+  my $query = qq|SELECT p.id, p.pricegroup
+                 FROM pricegroup p|;
+
+  $query .= qq|
+		 ORDER BY pricegroup|;
+
+  if ($p->{all}) {
+    $query = qq|SELECT id, pricegroup FROM pricegroup
+                ORDER BY pricegroup|;
+  }
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $self->dberror($query);
+
+  $self->{all_pricegroup} = ();
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{all_pricegroup} }, $ref;
+  }
+  $sth->finish;
+  $dbh->disconnect;
+
   $main::lxdebug->leave_sub();
 }
 

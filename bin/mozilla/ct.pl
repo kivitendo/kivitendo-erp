@@ -69,8 +69,7 @@ sub search {
   if ($form->{db} eq 'vendor') {
     $gifi = qq|
 		<td><input name="l_gifi_accno" type=checkbox class=checkbox value=Y> |
-      . $locale->text('GIFI')
-      . qq|</td>
+      . $locale->text('GIFI') . qq|</td>
 |;
   }
 
@@ -112,8 +111,7 @@ sub search {
 	  <td><input name=status class=radio type=radio value=all checked>&nbsp;|
     . $locale->text('All') . qq|
 	  <input name=status class=radio type=radio value=orphaned>&nbsp;|
-    . $locale->text('Orphaned')
-    . qq|</td>
+    . $locale->text('Orphaned') . qq|</td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
@@ -121,54 +119,40 @@ sub search {
 	    <table>
 	      <tr>
 	        <td><input name="l_id" type=checkbox class=checkbox value=Y> |
-    . $locale->text('ID')
-    . qq|</td>
+    . $locale->text('ID') . qq|</td>
 		<td><input name="l_$form->{db}number" type=checkbox class=checkbox value=Y> |
-    . $locale->text($label . ' Number')
-    . qq|</td>
+    . $locale->text($label . ' Number') . qq|</td>
 		<td><input name="l_name" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('Company Name')
-    . qq|</td>
+    . $locale->text('Company Name') . qq|</td>
 		<td><input name="l_address" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Address')
-    . qq|</td>
+    . $locale->text('Address') . qq|</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_contact" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('Contact')
-    . qq|</td>
+    . $locale->text('Contact') . qq|</td>
 		<td><input name="l_phone" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('Phone')
-    . qq|</td>
+    . $locale->text('Phone') . qq|</td>
 		<td><input name="l_fax" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Fax')
-    . qq|</td>
+    . $locale->text('Fax') . qq|</td>
 		<td><input name="l_email" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('E-mail')
-    . qq|</td>
+    . $locale->text('E-mail') . qq|</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_taxnumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Tax Number')
-    . qq|</td>
+    . $locale->text('Tax Number') . qq|</td>
 		$gifi
 		<td><input name="l_sic_code" type=checkbox class=checkbox value=Y> |
-    . $locale->text('SIC')
-    . qq|</td>
+    . $locale->text('SIC') . qq|</td>
 		<td><input name="l_business" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Type of Business')
-    . qq|</td>
+    . $locale->text('Type of Business') . qq|</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_invnumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Invoices')
-    . qq|</td>
+    . $locale->text('Invoices') . qq|</td>
 		<td><input name="l_ordnumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Orders')
-    . qq|</td>
+    . $locale->text('Orders') . qq|</td>
 		<td><input name="l_quonumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Quotations')
-    . qq|</td>
+    . $locale->text('Quotations') . qq|</td>
 	      </tr>
 	    </table>
 	  </td>
@@ -363,7 +347,6 @@ sub list_names {
 
     if ($ref->{id} eq $sameid) {
       map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } (invnumber, ordnumber, quonumber);
     } else {
       map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
 
@@ -529,10 +512,10 @@ sub form_header {
   </tr>
 |;
   }
-
   $form->{selectbusiness} = qq|<option>\n|;
   map {
-    $form->{selectbusiness} .= qq|<option value=$_->{id}>$_->{description}\n|
+    $form->{selectbusiness} .=
+      qq|<option value=$_->{id}>$_->{description}\n|
   } @{ $form->{all_business} };
   if ($form->{business_save}) {
     $form->{selectbusiness} = $form->{business_save};
@@ -596,10 +579,42 @@ sub form_header {
 
   $select_greeting =
     qq|&nbsp;<select name=selected_cp_greeting><option></option>|;
-  map({ $select_greeting .= qq|<option>$_</option>|; } @{ $form->{GREETINGS} });
+  map(
+     { $select_greeting .= qq|<option>$_</option>|; } @{ $form->{GREETINGS} });
   $select_greeting .= qq|</select>|;
 ## /LINET
 
+  if ($form->{db} eq 'customer') {
+  #get pricegroup and form it
+  $form->get_pricegroup(\%myconfig, { all => 1 });
+
+  $form->{pricegroup}    = "$form->{klass}";
+  $form->{pricegroup_id} = "$form->{klass}";
+
+  if (@{ $form->{all_pricegroup} }) {
+
+    $form->{selectpricegroup} = qq|<option>\n|;
+    map {
+      $form->{selectpricegroup} .=
+        qq|<option value="$_->{id}">$_->{pricegroup}\n|
+    } @{ $form->{all_pricegroup} };
+  }
+
+  if ($form->{selectpricegroup}) {
+    $form->{selectpricegroup} = $form->unescape($form->{selectpricegroup});
+
+    $pricegroup =
+      qq|<input type=hidden name=selectpricegroup value="|
+      . $form->escape($form->{selectpricegroup}, 1) . qq|">|;
+
+    $form->{selectpricegroup} =~
+      s/(<option value="\Q$form->{klass}\E")/$1 selected/;
+
+    $pricegroup .= qq|<select name=klass>$form->{selectpricegroup}</select>|;
+
+    $group = $locale->text('Hola');
+  }
+ }
   # $locale->text('Customer Number')
   # $locale->text('Vendor Number')
   $form->{fokus} = "ct.name";
@@ -618,11 +633,9 @@ sub form_header {
       <table width=100%>
 	<tr class=listheading>
 	  <th class=listheading colspan=2 width=50%>|
-    . $locale->text('Billing Address')
-    . qq|</th>
+    . $locale->text('Billing Address') . qq|</th>
 	  <th class=listheading width=50%>|
-    . $locale->text('Shipping Address')
-    . qq|</th>
+    . $locale->text('Shipping Address') . qq|</th>
 	</tr>
 	<tr height="5"></tr>
         $business_salesman
@@ -649,9 +662,7 @@ sub form_header {
 	</tr>
 	<tr>
 	  <th align=right nowrap>|
-    . $locale->text('Zipcode') . "/"
-    . $locale->text('City')
-    . qq|</th>
+    . $locale->text('Zipcode') . "/" . $locale->text('City') . qq|</th>
 	  <td><input name=zipcode size=5 tabindex=5 maxlength=10 value="$form->{zipcode}">
           <input name=city size=30 tabindex=6 maxlength=75 value="$form->{city}"></td>
 	  <td><input name=shiptozipcode size=5 maxlength=10 value="$form->{shiptozipcode}">
@@ -695,8 +706,7 @@ sub form_header {
                 <table>
                 <tr>
 	          <th align=right nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 </tr>
                 <tr>
                   <th></th>
@@ -710,8 +720,7 @@ sub form_header {
                 <tr>
                   <th></th>
                   <th align=left nowrap>|
-    . $locale->text('Given Name')
-    . qq|</th>
+    . $locale->text('Given Name') . qq|</th>
                   <td><input name=cp_givenname size=30 maxlength=40 value="$form->{cp_givenname}"></td>
 	          <th align=left nowrap>| . $locale->text('Name') . qq|</th>
                   <td><input name=cp_name size=30 maxlength=40 value="$form->{cp_name}"></td>
@@ -747,8 +756,7 @@ sub form_header {
 	  <td><input name=creditlimit tabindex=13 size=9 value="$form->{creditlimit}"></td>
 	  <th align=right>| . $locale->text('Terms: Net') . qq|</th>
 	  <td><input name=terms tabindex=14 size=2 value="$form->{terms}">|
-    . $locale->text('days')
-    . qq|</td>
+    . $locale->text('days') . qq|</td>
 	  <th align=right>| . $locale->text('Discount') . qq|</th>
 	  <td><input name=discount tabindex=15 size=4 value="$form->{discount}">
 	  %</td>
@@ -773,7 +781,12 @@ sub form_header {
 	  <th align=right>| . $locale->text('Language') . qq|</th>
 	  <td><select name=language tabindex=23>$lang
                           </select></td>|;
+if ($form->{db} eq 'customer'){
 
+print qq|
+          <th align=right>| . $locale->text('Preisklasse') . qq|</th>
+          <td>$pricegroup</td>|;
+}
   print qq|        </tr>
         <tr>
           <td align=right>| . $locale->text('Obsolete') . qq|</td>
@@ -834,6 +847,8 @@ sub form_footer {
 
 <input type=hidden name=callback value="$form->{callback}">
 <input type=hidden name=db value=$form->{db}>
+
+
 
 <br>
 $update_button

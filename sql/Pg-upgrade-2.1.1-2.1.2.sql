@@ -197,6 +197,27 @@ CREATE TABLE audittrail (
   employee_id int
 );
 
+-- pricegroups
+
+CREATE TABLE "pricegroup" (
+  "id" integer DEFAULT nextval('id'::text),
+  "pricegroup" text not null,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE "prices" (
+  "parts_id" integer REFERENCES parts(id),
+  "pricegroup_id" integer REFERENCES pricegroup(id),
+  "price" numeric(15,5)
+);
+
+ALTER TABLE customer ADD column klass integer;
+ALTER TABLE customer ALTER column klass set default 0;
+
+-- 
+ALTER TABLE invoice ADD column pricegroup_id integer;
+ALTER TABLE orderitems ADD column pricegroup_id integer;
+
 update defaults set version = '2.1.2', audittrail = 't';
 --
 

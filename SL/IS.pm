@@ -34,6 +34,8 @@
 
 package IS;
 
+use Data::Dumper;
+
 sub invoice_details {
   $main::lxdebug->enter_sub();
 
@@ -365,7 +367,7 @@ sub customer_details {
 
 sub post_invoice {
   $main::lxdebug->enter_sub();
-
+print STDERR "IS.pm-post_invoice\n";
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn off autocommit
@@ -549,16 +551,21 @@ sub post_invoice {
         ? qq|'$form->{"deliverydate_$i"}'|
         : "NULL";
 
+
+      # get pricegroup_id and save ist
+      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+
       # save detail record in invoice table
       $query = qq|INSERT INTO invoice (trans_id, parts_id, description, qty,
                   sellprice, fxsellprice, discount, allocated, assemblyitem,
-		  unit, deliverydate, project_id, serialnumber)
+		  unit, deliverydate, project_id, serialnumber, pricegroup_id)
 		  VALUES ($form->{id}, $form->{"id_$i"},
 		  '$form->{"description_$i"}', $form->{"qty_$i"},
 		  $form->{"sellprice_$i"}, $fxsellprice,
 		  $form->{"discount_$i"}, $allocated, 'f',
 		  '$form->{"unit_$i"}', $deliverydate, (SELECT id from project where projectnumber = '$project_id'),
-		  '$form->{"serialnumber_$i"}')|;
+		  '$form->{"serialnumber_$i"}',
+      '$pricegroup_id')|;
       $dbh->do($query) || $form->dberror($query);
 
       if ($form->{lizenzen}) {
@@ -1105,7 +1112,7 @@ sub delete_invoice {
 
 sub retrieve_invoice {
   $main::lxdebug->enter_sub();
-
+print STDERR "IS.pm-retrieve_invoice\n";
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
@@ -1211,7 +1218,7 @@ sub retrieve_invoice {
 		i.discount, i.parts_id AS id, i.unit, i.deliverydate,
 		i.project_id, pr.projectnumber, i.serialnumber,
 		p.partnumber, p.assembly, p.bin, p.notes AS partnotes, i.id AS invoice_pos,
-		pg.partsgroup
+		pg.partsgroup, i.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=i.pricegroup_id) as pricegroup
 		FROM invoice i
 	        JOIN parts p ON (i.parts_id = p.id)
 	        LEFT JOIN project pr ON (i.project_id = pr.id)
@@ -1306,7 +1313,7 @@ sub get_customer {
                  c.email, c.cc, c.bcc, c.language,
 		 c.street, c.zipcode, c.city, c.country,
 	         $duedate + c.terms AS duedate, c.notes AS intnotes,
-		 b.discount AS tradediscount, b.description AS business
+		 b.discount AS tradediscount, b.description AS business, c.klass as customer_klass
                  FROM customer c
 		 LEFT JOIN business b ON (b.id = c.business_id)
 	         WHERE c.id = $form->{customer_id}|;
@@ -1513,11 +1520,158 @@ sub retrieve_item {
         $stw->finish;
       }
     }
-
   }
   $sth->finish;
   $dbh->disconnect;
 
+  $main::lxdebug->leave_sub();
+}
+
+##########################
+# get pricegroups from database
+# build up selected pricegroup
+# if an exchange rate - change price 
+# for each part
+#
+sub get_pricegroups_for_parts {
+print STDERR "IS.pm - get_pricegroups_for_parts\n";
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $i  = 1;
+  my $id = 0;
+
+  while (($form->{"id_$i"}) or ($form->{"new_id_$i"})) {
+
+    $id = $form->{"id_$i"};
+
+    if (!($form->{"id_$i"}) and $form->{"new_id_$i"}) {
+
+      $id = $form->{"new_id_$i"};
+    }
+
+    ($price, $selectedpricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+#  print (STDERR "sellprice_drag_$i", Dumper($form->{"sellprice_drag_$i"}));
+
+    $pricegroup_old = $form->{"pricegroup_old_$i"};
+#  print (STDERR "pricegroup_old_i-$i", Dumper($pricegroup_old));
+
+    $price_new = $form->{"price_new_$i"};
+
+    $price_old = $form->{"price_old_$i"};
+
+ 
+    $query = qq|SELECT pricegroup_id, (SELECT p.sellprice from parts p where p.id = $id) as default_sellprice,(SELECT pg.pricegroup FROM pricegroup pg WHERE id=pricegroup_id) AS pricegroup, price, '' AS selected FROM prices WHERE parts_id = $id UNION SELECT 0 as pricegroup_id,(SELECT sellprice FROM parts WHERE id=$id) as default_sellprice,'' as pricegroup, (SELECT DISTINCT sellprice from parts where id=$id) as price, 'selected' AS selected from prices ORDER BY pricegroup|;
+
+    $pkq = $dbh->prepare($query);
+    $pkq->execute || $form->dberror($query);
+    while ($pkr = $pkq->fetchrow_hashref(NAME_lc)) {
+#       push @{ $form->{PRICES}{$id} }, $pkr;
+        push @{ $form->{PRICES}{$i} }, $pkr;
+        $pkr->{id} = $id;
+        $pkr->{selected}  = '';
+
+    # if there is an exchange rate change price
+      if (($form->{exchangerate} * 1) != 0) {
+# print STDERR "WECHSELKURS?-$form->{exchangerate}\n";
+        $pkr->{price} /= $form->{exchangerate};
+      }
+      $pkr->{price} = $form->format_amount($myconfig,$pkr->{price},5);
+
+
+      if ($selectedpricegroup_id eq undef) {
+        if ($pkr->{pricegroup_id} eq $form->{customer_klass}) {
+print STDERR "   INIT ROW \n";
+#print (STDERR "   PREIS", Dumper($pkr->{price}));
+          $pkr->{selected}  = ' selected';
+          $last->{selected} = '';
+# print (STDERR "   SELLPRICE", Dumper($form->{"sellprice_$i"}));
+
+        # no customer pricesgroup set 
+          if ($pkr->{price} == $pkr->{default_sellprice}) {
+print (STDERR "   PREIS IST DEFAULT-SELLPRICE", Dumper($form->{"sellprice_$i"}));
+           $pkr->{price} = $form->{"sellprice_$i"};
+
+#  if ($form->{tradediscount}){
+#  print (STDERR "TRADE--", Dumper($pkr->{price}));
+#               $pkr->{price} =$pkr->{price} * (1 - $form->{tradediscount});
+#               $pkr->{price} = $form->format_amount($myconfig,$pkr->{price},5);
+#  print (STDERR "TRADE--", Dumper($pkr->{price}));
+#  }
+
+          } else {
+print STDERR "   PREIS IST NICHT NULL\n";
+             $form->{"sellprice_$i"} = $pkr->{price};
+          }
+# print (STDERR "           PRICE", Dumper($pkr->{price}));
+
+        } else {
+print STDERR "   INIT ROW but what\n";
+print (STDERR "   PREIS -", Dumper($pkr->{price}), "Default", Dumper($pkr->{default_sellprice}));
+          if ($pkr->{price} == $pkr->{default_sellprice}) {
+print (STDERR "   PREIS IST DEFAULT-", Dumper($form->{"sellprice_$i"}));
+            $pkr->{price} = $form->{"sellprice_$i"};
+            $pkr->{selected}                    = ' selected';
+          }
+        }
+      }
+      if ($selectedpricegroup_id or $selectedpricegroup_id == 0){
+        if ($selectedpricegroup_id ne $pricegroup_old) {
+          if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
+            if ($price_new != $form->{"sellprice_$i"}) {
+print STDERR "   MANUELLEN PREIS WÄHLEN\n";
+            } else {
+print STDERR "   UPDATE CHANGE PRICEGROUP\n";
+              $pkr->{selected}                    = ' selected';
+              $last->{selected}                   = '';
+#$form->{"pricegroup_old_$i"} = $pkr->{$pricegroup_id};
+            }
+          }
+        } else { 
+          if (($price_new != $form->{"sellprice_$i"}) and ($price_new ne 0)) {
+            if ($pkr->{pricegroup_id} == 0) {
+print STDERR "   UPDATE CHANGE PRICEGROUP with price manuelly\n";
+print (STDERR "  SELLPRICE??? ---", Dumper($form->{"sellprice_$i"}));
+print (STDERR "  NEWPRICE??? ---", Dumper($price_new));
+              $pkr->{price} = $form->{"sellprice_$i"};
+              $pkr->{selected}                    = ' selected';
+              $last->{selected}                   = '';
+       #$form->{"sellprice_$i"} = $form->format_amount($myconfig, $price_new, 2);
+# print (STDERR "----5555---", Dumper($pkr));
+            }
+          } else {
+            if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
+print STDERR "   UPDATE NO CHANGE\n";
+              $pkr->{selected}                    = ' selected';
+              $last->{selected}                   = '';
+print STDERR "  DEFAULTPRICE??? ---$pkr->{default_sellprice}\n";
+print (STDERR "  SELLPRICE??? ---", Dumper($form->{"sellprice_$i"}));
+# print (STDERR "  HIER DER SELLPRICE DEFAULT??? ---", Dumper($form));
+print STDERR "  NEWPRICE??? ---$price_new_\n";
+              if (($pkr->{pricegroup_id} == 0) and ($pkr->{price} == $form->{"sellprice_$i"})) {
+print (STDERR "  UPDATE NO CHANGE BUT PRICE MANUELLY SET", Dumper($pkr->{price}));
+                # $pkr->{price}                         = $form->{"sellprice_$i"};
+              } else {
+                $pkr->{price} = $form->{"sellprice_$i"};
+              }
+#print (STDERR "   FEHLER", Dumper($form->{"sellprice_$i"}));
+            }
+          }
+        }
+      }
+    }
+    $i++;
+
+    $pkq->finish;
+  }
+
+  $dbh->disconnect;
+
+#        print (STDERR "TEST", Dumper($form->{PRICES}));
+# print (STDERR "TEST id_$i", Dumper($form->{"id_$i"}));
   $main::lxdebug->leave_sub();
 }
 
