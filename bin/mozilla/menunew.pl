@@ -419,7 +419,7 @@ sub section_menu {
         $pm++;
         %mlz   = ($ml, $pm, "s$ml", 1);
         $sm    = 1;
-        $breit = 20 + length($label) * 7;
+        $breit = 15 + length($label) * 6;
         print
           qq|menu[0][$mm] = new Item('  $label', '#', '', $breit, 10, $pm);	\n|;
         print qq|menu[$pm] = new Array();\n|;
