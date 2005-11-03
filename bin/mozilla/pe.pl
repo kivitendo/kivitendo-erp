@@ -560,7 +560,7 @@ sub partsgroup_report {
 sub form_partsgroup_header {
   $lxdebug->enter_sub();
 
-  $form->{title} = $locale->text("$form->{title} Pricegroup");
+  $form->{title} = $locale->text("$form->{title} Group");
 
   # $locale->text('Add Group')
   # $locale->text('Edit Group')
@@ -586,7 +586,7 @@ sub form_partsgroup_header {
     <td>
       <table width=100%>
 	<tr>
-	  <th align=right>| . $locale->text('Pricegroup') . qq|</th>
+	  <th align=right>| . $locale->text('Group') . qq|</th>
 
           <td><input name=partsgroup size=30 value="$form->{partsgroup}"></td>
 	</tr>
@@ -764,7 +764,10 @@ sub pricegroup_report {
 sub form_pricegroup_header {
   $lxdebug->enter_sub();
 
-  $form->{title} = $locale->text("$form->{title} Group");
+  # $locale->text('Add Pricegroup')
+  # $locale->text('Edit Pricegroup')
+
+  $form->{title} = $locale->text("$form->{title} Pricegroup");
 
   $form->{pricegroup} =~ s/\"/&quot;/g;
 
