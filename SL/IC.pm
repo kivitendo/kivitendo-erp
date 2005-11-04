@@ -231,6 +231,52 @@ sub get_part {
   $main::lxdebug->leave_sub();
 }
 
+sub get_pricegroups {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  my $dbh = $form->dbconnect($myconfig);
+  my $i = 1;
+  my @pricegroups_not_used = ();
+
+  # get pricegroups
+  my $query = qq|SELECT p.id, p.pricegroup FROM pricegroup p|;
+
+  my $pkq = $dbh->prepare($query);
+  $pkq->execute || $form->dberror($query);
+  while ($pkr = $pkq->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{PRICEGROUPS} }, $pkr;
+  }
+  $pkq->finish;
+
+  #find not used pricegroups
+  while ($tmp = pop @{ $form->{PRICEGROUPS} }) {
+    push @pricegroups_not_used, $tmp;
+  }
+
+  # if not used pricegroups are avaible
+  if (@pricegroups_not_used) {
+
+    foreach $name (@pricegroups_not_used) {
+      $form->{"klass_$i"} = "$name->{id}";
+      $form->{"price_$i"} = $form->round_amount($form->{sellprice}, 5);
+      $form->{"price_$i"} =
+        $form->format_amount($myconfig, $form->{"price_$i"}, 5);
+      $form->{"pricegroup_id_$i"} = "$name->{id}";
+      $form->{"pricegroup_$i"}    = "$name->{pricegroup}\n";
+      $i++;
+    }
+  }
+
+  #correct rows
+  $form->{price_rows} = $i - 1;
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+
 sub save {
   $main::lxdebug->enter_sub();
 
@@ -409,6 +455,9 @@ sub save {
 
   # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
+    if ($form->{"price_$i"} eq "0") {
+       $form->{"price_$i"} = $form->{sellprice};
+    }
     if ((   $form->{"price_$i"} 
         || $form->{"klass_$i"}
         || $form->{"pricegroup_id_$i"}) and $form->{"price_$i"} != $form->{sellprice}) {

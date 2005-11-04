@@ -51,7 +51,7 @@ sub add {
 
   $form->{unit} =
     ($form->{item} eq 'service') ? $locale->text('hr') : $locale->text('ea');
-
+  IC->get_pricegroups(\%myconfig, \%$form);
   &link_part;
   &display_form;
 
