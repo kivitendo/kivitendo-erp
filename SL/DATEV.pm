@@ -256,10 +256,16 @@ sub get_transactions {
   $sth->execute || $form->dberror($query);
   $i = 0;
   $g = 0;
+  my $counter = 0;
   @splits;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     $count    = 0;
     $firstrun = 1;
+    $counter++;
+    if (($counter % 500) == 0) {
+      print("$counter ");
+    }
+
     $count += $ref->{amount};
     push @{$i}, $ref;
     while (abs($count) > 0.01 || $firstrun) {
@@ -587,13 +593,21 @@ sub kne_buchungsexport {
   my $evfile      = "EV01";
   my @ed_versionsets;
   my $fileno = 0;
+  
+  $form->header;
+  print qq|
+  <html>
+  <body>Export in Bearbeitung<br>
+  Buchungss&auml;tze verarbeitet:
+|;
 
   $fromto =
     &get_dates($form->{zeitraum}, $form->{monat},
                $form->{quartal},  $form->{transdatefrom},
                $form->{transdateto});
   &get_transactions($myconfig, $form, $fromto);
-
+  my $counter = 0;
+  print qq|<br>2. Durchlauf:|;
   while (scalar(@{ $form->{DATEV} })) {
     my $blockcount      = 1;
     my $remaining_bytes = 256;
@@ -609,6 +623,11 @@ sub kne_buchungsexport {
     while (scalar(@{ $form->{DATEV} }) > 0) {
       $transaction    = shift @{ $form->{DATEV} };
       $trans_lines    = scalar(@{$transaction});
+      $counter++;
+      if (($counter % 500) == 0) {
+        print("$counter ");
+      }
+
       $umsatz         = 0;
       $gegenkonto     = "";
       $konto          = "";
@@ -809,6 +828,9 @@ sub kne_buchungsexport {
     print(EV $ed_versionset[$file]);
   }
   close(EV);
+print qq|<br>Done. <br></body>
+</html>
+|;
   ###
   $main::lxdebug->leave_sub();
 }
