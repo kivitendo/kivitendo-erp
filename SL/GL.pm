@@ -548,7 +548,7 @@ sub transaction {
     }
 
     # get tax description
-    $query = qq| SELECT * FROM tax t|;
+    $query = qq| SELECT * FROM tax t order by t.taxkey|;
     $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
     $form->{TAX} = ();
