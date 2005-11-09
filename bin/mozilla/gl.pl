@@ -160,6 +160,13 @@ sub edit {
     if ($tax && ($ref->{accno} eq $taxaccno)) {
       $form->{"tax_$j"}      = abs($ref->{amount});
       $form->{"taxchart_$j"} = $ref->{taxkey} . "--" . $ref->{taxrate};
+      if ($form->{taxincluded}) {
+        if ($ref->{amount} < 0) {
+          $form->{"debit_$j"} += $form->{"tax_$j"};
+        } else {
+          $form->{"credit_$j"} += $form->{"tax_$j"};
+        }
+      }
     } else {
       $form->{"accno_$i"} = "$ref->{accno}--$ref->{accnotaxkey}";
       for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
@@ -1068,10 +1075,14 @@ sub display_rows {
     } else {
       if ($form->{"debit_$i"} != 0) {
         $form->{totaldebit} += $form->{"debit_$i"};
-        $form->{totaldebit} += $form->{"tax_$i"};
+        if (!$form->{taxincluded}) {
+          $form->{totaldebit} += $form->{"tax_$i"};
+        }
       } else {
         $form->{totalcredit} += $form->{"credit_$i"};
-        $form->{totalcredit} += $form->{"tax_$i"};
+        if (!$form->{taxincluded}) {
+          $form->{totalcredit} += $form->{"tax_$i"};
+        }
       }
 
       for (qw(debit credit tax)) {
@@ -1596,6 +1607,11 @@ sub post {
           }
           if ($form->{taxincluded}) {
             $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+            if ($debitcredit) {
+              $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+            } else {
+              $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+            }
           } else {
             $form->{"tax_$i"} = $amount * $rate;
           }
@@ -1629,8 +1645,12 @@ sub post {
         ));
     }
     if ($form->{taxincluded}) {
-      $debit    += $dr;
-      $credit   += $cr;
+      if ($dr) {
+        $debit += $dr + $tax;
+      }
+      if ($cr) {
+        $credit += $cr + $tax;
+      }
       $taxtotal += $tax;
     } else {
       if ($dr) {
