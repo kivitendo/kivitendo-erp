@@ -313,6 +313,7 @@ sub save {
 
       # get pricegroup_id and save ist
       ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+      $pricegroup_id *= 1;
 
       # save detail record in orderitems table
       $query = qq|INSERT INTO orderitems (|;
