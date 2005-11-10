@@ -961,7 +961,7 @@ sub update {
         IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
         # build up html code for prices_$i
-        set_pricegroup();
+        &set_pricegroup($i);
       }
 
       &display_form;

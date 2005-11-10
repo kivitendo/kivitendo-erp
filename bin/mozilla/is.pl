@@ -216,9 +216,6 @@ print STDERR "is.pl-prepare_invoice\n";
         qw(partnumber description unit partnotes);
       $form->{rowcount} = $i;
 
-#      # build up html code for prices_$i
-# print STDERR "set_pricegroup aus is.pl-prepare_invoice\n";
-#      set_pricegroup();
     }
   }
   $lxdebug->leave_sub();
@@ -860,10 +857,12 @@ print STDERR "is.pl-form_footer\n";
 
 sub update {
   $lxdebug->enter_sub();
-print STDERR "is.pl-update\n";
+
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   &check_name(customer);
 
   &check_project;
@@ -985,7 +984,7 @@ print STDERR "is.pl-update\n";
         IS->get_pricegroups_for_parts(\%myconfig, \%$form, "new");
 
         # build up html code for prices_$i
-        set_pricegroup();
+        &set_pricegroup($i);
       }
 
       &display_form;
@@ -1016,7 +1015,6 @@ print STDERR "is.pl-update\n";
 
 sub post {
   $lxdebug->enter_sub();
-print STDERR "is.pl-post\n";
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer", $locale->text('Customer missing!'));
 
@@ -1024,6 +1022,9 @@ print STDERR "is.pl-post\n";
   if (&check_name(customer)) {
     &update;
     exit;
+  }
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
   }
 
   &validate_items;
@@ -1085,6 +1086,7 @@ sub print_and_post {
   $print_post             = 1;
   $form->{print_and_post} = 1;
   &post();
+
   &display_form();
   $lxdebug->leave_sub();
 
@@ -1105,7 +1107,9 @@ sub preview {
 
 sub delete {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   $form->header;
 
   print qq|

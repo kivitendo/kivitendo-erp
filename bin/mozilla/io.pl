@@ -416,9 +416,9 @@ print (STDERR "sellprice_$i   ", Dumper($form->{"sellprice_$i"}), " pricegroup_i
 # build html-code for pricegroups in variable $form->{prices_$j}
 
 sub set_pricegroup {
+  my $rowcount = shift;
   $lxdebug->enter_sub();
-print STDERR "io.pl-set_pricegroup-i-$i\n";
-  for $j (1 .. $i) {
+  for $j (1 .. $rowcount) {
 
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
     if ($form->{PRICES}{ $j }) {
@@ -426,7 +426,6 @@ print STDERR "io.pl-set_pricegroup-i-$i\n";
       $prices = '';
       $price = 0;
       foreach $item (@{ $form->{PRICES}{ $j } }) {
-print STDERR "TEST--i--$i--jjj-$j\n";
 # print STDERR "-VOR   PREIS--$item->{price}--PREISGRUOP-$item->{pricegroup_id}\n";
         $price         = $form->round_amount($myconfig, $item->{price},5);
         $price         = $form->format_amount($myconfig, $item->{price},2);
@@ -452,7 +451,6 @@ print STDERR "TEST--i--$i--jjj-$j\n";
       }
     }
   }
-  print (STDERR "", Dumper($form->{PRICES}));
   $lxdebug->leave_sub();
 }
 
@@ -748,11 +746,10 @@ sub new_item {
 
 sub display_form {
   $lxdebug->enter_sub();
-print STDERR "io.pl-display_form\n";
+
   # if we have a display_form
   if ($form->{display_form}) {
     &{"$form->{display_form}"};
-print STDERR "        --------------------- exit\n";
     exit;
   }
   if (   $form->{print_and_post}
@@ -777,6 +774,12 @@ print STDERR "        --------------------- exit\n";
     $form->{second_run} = 1;
     $form->{action}     = "display_form";
     $form->{rowcount}--;
+    my $rowcount =  $form->{rowcount};
+    # get pricegroups for parts
+    IS->get_pricegroups_for_parts(\%myconfig, \%$form, "new");
+    # build up html code for prices_$i
+    set_pricegroup($rowcount);
+  
 
     $form->{resubmit} = 1;
 
@@ -787,7 +790,6 @@ print STDERR "        --------------------- exit\n";
   $subroutine = "display_row";
 
   if ($form->{item} eq 'part') {
-print STDERR "  part\n";
     #set preisgruppenanzahl
     $numrows    = $form->{price_rows};
     $subroutine = "price_row";
@@ -798,7 +800,6 @@ print STDERR "  part\n";
     $subroutine = "makemodel_row";
   }
   if ($form->{item} eq 'assembly') {
-print STDERR "  assembly\n";
     $numrows    = ++$form->{price_rows};
     $subroutine = "price_row";
 
@@ -814,7 +815,6 @@ print STDERR "  assembly\n";
     $subroutine = "assembly_row";
   }
   if ($form->{item} eq 'service') {
-print STDERR "  service\n";
     $numrows    = ++$form->{price_rows};
     $subroutine = "price_row";
 
@@ -827,10 +827,6 @@ print STDERR "  service\n";
   &{$subroutine}($numrows) if $numrows;
 
   &form_footer;
-
-  #   if ($form->{print_and_post}) {
-  #     &display_form;
-  #   }
 
   $lxdebug->leave_sub();
 }
@@ -942,8 +938,6 @@ print STDERR "io.pl-check_form\n";
   }
   
   #sk 
-print STDERR "LEVEL--$form->{level}\n";
-print STDERR "Type--$form->{type}\n";
   # if pricegroups
   if ($form->{type} =~ (/sales_quotation/) or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/)) or (($form->{level} eq undef) and ($form->{type} =~ /invoice/)) or ($form->{type} =~ /sales_order/)) {
   
@@ -1017,7 +1011,9 @@ print STDERR "io.pl-validate_items\n";
 
 sub order {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   $form->{ordnumber} = $form->{invnumber};
 
   map { delete $form->{$_} } qw(id printed emailed queued);
@@ -1070,7 +1066,9 @@ sub order {
 
 sub quotation {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   map { delete $form->{$_} } qw(id printed emailed queued);
 
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'purchase_order') {
@@ -1122,7 +1120,10 @@ sub quotation {
 
 sub e_mail {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+    $form->{resubmit} = 0;
+  }
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
  	  <th align=right nowrap=true>| . $locale->text('Bcc') . qq|</th>
@@ -1391,7 +1392,9 @@ print STDERR "io.pl-print_options\n";
 
 sub print {
   $lxdebug->enter_sub();
-print STDERR "io.pl-print\n";
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   # if this goes to the printer pass through
   if ($form->{media} eq 'printer' || $form->{media} eq 'queue') {
     $form->error($locale->text('Select postscript or PDF!'))
@@ -1409,10 +1412,9 @@ print STDERR "io.pl-print\n";
 sub print_form {
   $lxdebug->enter_sub();
   my ($old_form) = @_;
-print STDERR "io.pl-print_form\n";
+
   $inv = "inv";
   $due = "due";
-#print (STDERR "", Dumper($form));
   $numberfld = "invnumber";
 
   $display_form =
@@ -1735,7 +1737,10 @@ sub post_as_new {
 
 sub ship_to {
   $lxdebug->enter_sub();
-print STDERR "io.pl-ship_to\n";
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
+
   $title = $form->{title};
   $form->{title} = $locale->text('Ship to');
 
