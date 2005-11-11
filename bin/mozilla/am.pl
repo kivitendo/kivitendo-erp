@@ -285,8 +285,6 @@ sub account_header {
     . $locale->text('Asset') . qq|\n<br>
 		<input name=category type=radio class=radio value=L $checked{L_}>&nbsp;|
     . $locale->text('Liability') . qq|\n<br>
-		<input name=category type=radio class=radio value=Q $checked{Q_}>&nbsp;|
-    . $locale->text('Equity') . qq|\n<br>
 		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
     . $locale->text('Revenue') . qq|\n<br>
 		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
