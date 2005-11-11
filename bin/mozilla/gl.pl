@@ -1631,6 +1631,12 @@ sub post {
         } else {
           $form->{"tax_$i"} = 0;
         }
+      } elsif ($form->{taxincluded}) {
+        if ($debitcredit) {
+          $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+        } else {
+          $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+        }
       }
 
       for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
