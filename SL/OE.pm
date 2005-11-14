@@ -182,6 +182,7 @@ sub save {
     $query = qq|DELETE FROM shipto
                 WHERE trans_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
+    $delete_oe_id = 0;
 
   } else {
 
@@ -199,6 +200,7 @@ sub save {
                 WHERE o.ordnumber = '$uid'|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
+    $delete_oe_id = 1;
 
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
@@ -225,6 +227,9 @@ sub save {
     map {
       $form->{"${_}_$i"} = $form->parse_amount($myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
+    if ($delete_oe_id) {
+      $form->{"orderitems_id_$i"} = "";
+    }
 
     if ($form->{"qty_$i"}) {
 
