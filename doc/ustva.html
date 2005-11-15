@@ -67,7 +67,7 @@ A.help:hover {color: blue; text-decoration: none;}
 <br />
 <table bgcolor="lightgrey" width="100%">
 <tr align="right" valign="bottom">
- <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ <td align="left"><a class="help" href="ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
  </td>
 </tr>
 </table>
@@ -83,6 +83,11 @@ A.help:hover {color: blue; text-decoration: none;}
 Um eine ELSTER Schnittstelle zu realisieren, greift <span class="lx"><i>Lx</i>-Office</span > auf die Software Winston zur&uuml;ck, die getrennt installiert werden mu&szlig;.</p>
 <p class="help">Die eigentliche Schnittstelle zu Winston bildet eine XML-Datei, die in <span class="lx"><i>Lx</i>-Office</span >
 generiert wird und mittels 'Speichern unter...' in den Ordner 'Ausgang' der Winstoninstallation abgelegt werden muss.</p>
+<p class="help">Der Ordner 'Ausgang' muss in Winston ggf. aktiviert werden. Dazu schalten Sie
+in Winston unter Optionen/Einstellungen/Benutzereinstellungen den
+Ausgangskorb ein. Unter Optionen/Einstellungen/Sondereinstellungen k&ouml;nnen Sie sehen,
+in welchem Verzeichnis sich Winston befindet. In das Unterverzeichnis Ausgang muss
+die Lx XML-Datei dann hineingespeichert werden.</p>
 <p class="help">Nach dem Programmstart von Winston ist der Datensatz der UStVa unter Datei-&gt;Ausgangskorb zu finden. Von dort kann er dann bearbeitet oder direkt gesendet werden.</p>
 <p class="help alert">Vorsicht, die Umsatzsteuer Voranmeldung bitte immer vor dem Absenden in Winston &uuml;berpr&uuml;fen.</p>
 
@@ -90,10 +95,11 @@ generiert wird und mittels 'Speichern unter...' in den Ordner 'Ausgang' der Wins
 <h3 class="help">Hinweise<i></i> zur Installation von Winston</h3></a>
 <p class="help">Da Winston nur &uuml;ber eine grafische Benutzerschnittstelle zu bedienen ist, sollte die Installation auf einem Clientrechner mit Internetzugang und Anbindung an <span class="lx"><i>Lx</i>-Office</span > erfolgen.</p>
 <p class="help">Nach dem <a target="_blank" class="help" href="http://www.felfri.de/winston/download.htm">Download</a> von Winston das Programm installieren. Weitere Hinweise zur <a target="_blank" class="help" href="http://www.felfri.de/winston/download.htm" target="_blank">Installation</a> sind auf der Homepage von Winston zu finden. </p>
+
 <br>
 <table bgcolor="lightgrey" width="100%">
 <tr align="right" valign="bottom">
- <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ <td align="left"><a class="help" href="ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
  </td>
 </tr>
 </table>
@@ -101,19 +107,31 @@ generiert wird und mittels 'Speichern unter...' in den Ordner 'Ausgang' der Wins
 <a name="tutorial">
 <h3 class="help">Tutorial zur UStVa mit <span class="lx"><i>Lx</i>-Office</span ></h3></a>
 <a name="config"><h4 class="help">UStVa Einstellungen</h4></a>
-<p class="help">Starten Sie die UStVa Funktion von <span class="lx"><i>Lx</i>-Office</span > unter Berichte -&gt; UStVa.</p>
-<p class="help">Beim ersten Start des UStVa Moduls ist es notwendig, einige Einstellungen vorzunehmen. W&auml;hlen Sie den Knopf 'Einstellungen'.</p>
-<p class="help">Im 'Einstellungen' Men&uuml; w&auml;hlen Sie das Bundesland in dem Ihr Finanzamt sitzt. Dann w&auml;hlen Sie ihr Finanzamt aus.</p>
+<p class="help">Beim ersten Start des UStVa Moduls ist es notwendig, einige Einstellungen vorzunehmen.
+Dazu gehen Sie bitte in das Administrationsmen&uuml; (admin.pl).</p>
+<p class="help">W&auml;hlen Sie den Benutzer, für den Sie die USTVA-Funktion
+aktivieren m&ouml;chten. </p>
+<p class="help">In den Benutzereinstellungen tragen Sie bitte alle n&ouml;tigen Firmendaten ein.
+Das sind: Firmenname, Strasse, PLZ, Ort und die Steuernummer. Die
+Steuernummer kann über ein getrenntes Konfigurationsmen&uuml; (Einstellungen)
+ver&auml;ndert werden.</p>
+<p class="help">Im 'Einstellungen' Men&uuml; der Steuernummer w&auml;hlen Sie das Bundesland in dem Ihr Finanzamt sitzt. Dann w&auml;hlen Sie ihr Finanzamt aus.</p>
 <p class="help">Das Berechnungsverfahren f&uuml;r die UStVa h&auml;ngt davon ab, ob sie Ist oder Soll Versteuert werden. Wenn sie Ist-Versteuert werden, w&auml;hlen sie die Einnahmen/&Uuml;berschu&szlig;-Rechnung aus. Werden Sie Soll-Versteuert oder bilanzverpflichtet, dann w&auml;hlen Sie Bilanz aus.</p>
 <p class="help">Die Einstellungen zum Voranmeldungszeitraum entsprechend vornehmen.</p>
 <p class="help">Wenn Sie einen Steuerberater zu Rate ziehen, k&ouml;nnen Sie diese Information ebenfalls hinterlegen. Auf 'weiter' ticken.</p>
 <p class="help">Auf der zweiten Seite des Konfigurationsmen&uuml;s sehen Sie einige Kontaktdaten zu ihrem Finanzamt. Unten erg&auml;nzen Sie bitte die Steuernummer. Mit der Tabulator Taste k&ouml;nnen Sie bequem die einzelnen Ziffern eingeben.</p>
 <p class="help alert">Hinweis: Die Steuernummer wird nicht auf Plausibilit&auml;t gepr&uuml;ft.</p>
-<p class="help">Wenn alle Eingaben &uuml;berpr&uuml;ft sind, speichern ausw&auml;hlen.</p>
+<p class="help">Wenn alle Eingaben &uuml;berpr&uuml;ft sind, speichern
+ausw&auml;hlen.</p>
+<p class="help">Dann w&auml;hlen Sie 'Zur&uuml;ck' um zu den Benutzereinstellungen zu
+gelangen. Beenden Sie die Maske mit 'Speichern'</p>
+<p class="help">(Die einmal angelegten Daten eines Benutzers k&ouml;nnen Sie als
+Vorlage f&uuml;r weitere Benutzer verwenden. Dazu brauchen Sie nur den
+Benutzernamen zu &auml;ndern und zu speichern.)</p>
 <br />
 <table bgcolor="lightgrey" width="100%">
 <tr align="right" valign="bottom">
- <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ <td align="left"><a class="help" href="ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
  </td>
 </tr>
 </table>
@@ -134,7 +152,7 @@ generiert wird und mittels 'Speichern unter...' in den Ordner 'Ausgang' der Wins
 <br>
 <table bgcolor="lightgrey" width="100%">
 <tr align="right" valign="bottom">
- <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ <td align="left"><a class="help" href="ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
  </td>
 </tr>
 </table>
@@ -266,7 +284,7 @@ werden zur Orientierung auch die aktuellen Werte angezeigt.</p>
 <br>
 <table bgcolor="lightgrey" width="100%">
 <tr align="right" valign="bottom">
- <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
+ <td align="left"><a class="help" href="ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="#bottom">[Ende]</a>
  </td>
 </tr>
 </table>
@@ -356,7 +374,7 @@ werden zur Orientierung auch die aktuellen Werte angezeigt.</p>
 <br>
 <table bgcolor="lightgrey" width="100%">
 <tr align="right" valign="bottom">
- <td align="left"><a class="help" href="http://homer/lx-erp/ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="">[Ende]</a>
+ <td align="left"><a class="help" href="ustva.pl?path=<%path%>&action=report&level=Reports&login=<%login%>&password=<%password%>">[zur&uuml;ck zur UStVa]</a></td><td><a class="help" href="#top">[Anfang/Inhalt]</a>&nbsp;<a class="help" href="">[Ende]</a>
  </td>
 </tr>
 </table>
