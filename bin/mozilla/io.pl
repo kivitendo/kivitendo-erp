@@ -274,7 +274,6 @@ sub display_row {
       # for last row and report
       # set pricegroup dragdrop from report menu
       if ($form->{"sellprice_$i"} != 0) {
- Dumper($form->{"pricegroup_id_$i"}));
         $prices =
              qq|<option value="$form->{"sellprice_$i"}--$form->{"pricegroup_id_$i"}" selected>$form->{"pricegroup_$i"}</option>\n|;
 
