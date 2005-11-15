@@ -109,9 +109,17 @@ sub report {
   # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
   # Einlesen der Finanzamtdaten
   &get_config($userspath, 'finanzamt.ini');
-
+  
+  # Hier Einlesen der user-config
+  # steuernummer entfernt für prerelease
   my @a = qw(signature name company address businessnumber tel fax email
-    company_street company_city company_email);
+    co_chief co_department co_custom1 co_custom2 co_custom3 co_custom4 co_custom5
+    co_name1 co_name2
+    co_street co_street1 co_zip co_city co_city1 co_country co_tel co_tel1 co_tel2
+    co_fax co_fax1 co_email co_email1 co_url co_url1 ustid duns
+    co_bankname co_bankname1 co_bankname2 co_bankname3 co_blz co_blz1
+    co_blz2 co_blz3 co_accountnr co_accountnr1 co_accountnr2 co_accountnr3);
+
   map { $form->{$_} = $myconfig->{$_} } @a;
 
   my $oeffnungszeiten = $form->{FA_Oeffnungszeiten};
@@ -132,35 +140,46 @@ sub report {
 	    | . $locale->text('Kein Firmenname hinterlegt!') . qq|</a><br>
     |;
   }
+  
+  # Anpassungen der Variablennamen auf pre 2.1.1 Namen
+  # klären, ob $form->{company_street|_address} gesetzt sind
+  #
 
-  #klären, ob $form->{company_street|_address} gesetzt sind
-  ###
   if ($form->{address} ne '') {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
-    print qq|$temp|;
-    ($form->{company_street}, $form->{company_city}) = split("<br \/", $temp);
-  } elsif ($form->{address} eq ''
-         and ($form->{company_street} ne '' and $form->{company_city} ne '')) {
-    print qq|$form->{company_street}<br>\n| if ($form->{company_street} ne '');
-    print qq|$form->{company_city}\n|       if ($form->{company_city}   ne '');
-         } elsif ($form->{company_street} eq '' or $form->{company_city} eq '') {
+    ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
+  }
+
+  if (    $form->{co_street} ne ''
+      and ($form->{co_zip} ne ''
+      or $form->{co_city} ne '') ) {
+    print qq|
+    $form->{co_street}<br>
+    $form->{co_street1}<br>
+    $form->{co_zip} $form->{co_city}|;
+      } else {
     print qq|
 	  <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
 	  | . $locale->text('Keine Firmenadresse hinterlegt!') . qq|</a>\n|;
   }
-
+  $form->{co_email}=$form->{email} unless $form->{co_email}='';
+  $form->{co_tel}=$form->{tel} unless $form->{co_tel}='';
+  $form->{co_fax}=$form->{fax} unless $form->{co_fax}='';
+  $form->{co_url}=$form->{urlx} unless $form->{co_url}='';
+  
+  
   print qq|
 	  <br>
 	  <br>
 	  | . $locale->text('Tel.: ') . qq|
-	  $form->{tel}
+	  $form->{co_tel}
 	  <br>
 	  | . $locale->text('Fax.: ') . qq|
-	  $form->{fax}
+	  $form->{co_fax}	  
 	  <br>
 	  <br>
-	  $form->{email}
+	  $form->{co_email}	  
 	  <br>
 	  <br>
 	  | . $locale->text('Steuernummer: ') . qq|
@@ -192,7 +211,7 @@ sub report {
       . qq|" name="FA_steuerberater" id=steuerberater class=checkbox type=checkbox value="1">&nbsp;
             <b>| . $locale->text('Steuerberater/-in') . qq|</b>
             </legend>
-
+            
             $form->{FA_steuerberater_name}<br>
             $form->{FA_steuerberater_street}<br>
             $form->{FA_steuerberater_city}<br>
@@ -214,7 +233,7 @@ sub report {
 
     # accounting years if SQL-Ledger Version < 2.4.1
     #    $year = $form->{year} * 1;
-    @years = sort { $b <=> $a } (2000 .. ($year));
+    @years = sort { $b <=> $a } (2000 .. ($year+1));
     $form->{all_years} = \@years;
   }
   map { $form->{selectaccountingyear} .= qq|<option>$_\n| }
@@ -236,7 +255,8 @@ sub report {
   $checked = "checked" if ($form->{kz10} eq '1');
   print qq|
            <input name="FA_10" id=FA_10 class=checkbox type=checkbox value="1" $checked title = "|
-    . $locale->text('Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)')
+    . $locale->text(
+      'Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)')
     . qq|">
             | . $locale->text('Berichtigte Anmeldung') . qq|
           <br>
@@ -266,7 +286,7 @@ sub report {
 
   if ($form->{FA_Name} ne '') {
     print qq|
-    <td width="50%" valign="top">
+    <td width="50%" valign="top">	  
 	  <fieldset>
 	  <legend>
 	  <b>| . $locale->text('Finanzamt') . qq|</b>
@@ -288,7 +308,7 @@ sub report {
           <br>
           | . $locale->text('Tel. : ') . qq|
           $form->{FA_Telefon}
-          <br>
+          <br> 
           | . $locale->text('Fax. : ') . qq|
           $form->{FA_Fax}
           <br>
@@ -330,7 +350,7 @@ sub report {
           <tr>
           <td>
           $form->{FA_Bankbezeichnung_1}
-          <br>
+          <br>                  
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_1}
           <br>
@@ -342,7 +362,7 @@ sub report {
           <br>
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_2}
-          <br>
+          <br> 
           | . $locale->text('BLZ: ') . qq|
           $form->{FA_BLZ_2}
           </td>
@@ -356,10 +376,10 @@ sub report {
           <br>
           <br>
           $form->{FA_Bankbezeichnung_1}
-          <br>
+          <br>                  
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_1}
-          <br>
+          <br> 
           | . $locale->text('BLZ: ') . qq|
           $form->{FA_BLZ_1}          <br>
           <br>|;
@@ -370,10 +390,10 @@ sub report {
           <br>
           <br>
           $form->{FA_Bankbezeichnung_oertlich}
-          <br>
+          <br>                  
           | . $locale->text('Konto: ') . qq|
           $form->{FA_Kontonummer_2}
-          <br>
+          <br> 
           | . $locale->text('BLZ: ') . qq|
           $form->{FA_BLZ_2}
      |;
@@ -426,14 +446,12 @@ sub report {
      <legend>
      <b>| . $locale->text('Hinweise') . qq|</b>
      </legend>
-      <h2 class="confirm">Die Ausgabefunktionen sind wegen fehlender Daten deaktiviert.</h2>
+      <h2 class="confirm">Die Ausgabefunktionen sind wegen unzureichender Voreinstellungen deaktiviert.</h2>
       <h3>Hilfe:</h3>
       <ul>
-      <li><a href="ustva.pl?path=$form->{path}&action=edit&level=Programm--Finanzamteinstellungen&login=$form->{login}&password=$form->{password}">
-      Bitte 'Einstellungen' wählen um die Erweiterten UStVa Funktionen nutzen zu können.</a></li>
-      <br>
-      <li><a href="am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}">
-      Firmendaten können bei den Benutzereinstellungen verändert werden.</a></li>
+      <li> Wählen Sie im Administrationsmenü den momentanen Benutzer aus 
+           (siehe Kopfzeile). Dort können Sie fehlende Firmenangaben bzw. 
+           die Steuernummer ergänzen.</li>
       </ul>
       </fieldset>
      |;
@@ -460,8 +478,8 @@ sub report {
   <br>
   <input type="hidden" name="address" value="$form->{address}">
   <input type="hidden" name="reporttype" value="custom">
-  <input type="hidden" name="company_street" value="$form->{company_street}">
-  <input type="hidden" name="company_city" value="$form->{company_city}">
+  <input type="hidden" name="co_street" value="$form->{co_street}">
+  <input type="hidden" name="co_city" value="$form->{co_city}">
   <input type="hidden" name="path" value="$form->{path}">
   <input type="hidden" name="login" value="$form->{login}">
   <input type="hidden" name="password" value="$form->{password}">
@@ -471,8 +489,6 @@ sub report {
      <input type=hidden name=nextsub value=generate_ustva>
      <input $hide type=submit class=submit name=action value="|
     . $locale->text('Show') . qq|">
-     <input type=submit class=submit name=action value="|
-    . $locale->text('Config') . qq|">
    </td>
    <td align="right">
 
@@ -492,7 +508,6 @@ sub report {
   </body>
   </html>
   |;
-
   $lxdebug->leave_sub();
 }
 
@@ -500,7 +515,6 @@ sub report {
 
 sub help {
   $lxdebug->enter_sub();
-
   # parse help documents under doc
   my $tmp = $form->{templates};
   $form->{templates} = 'doc';
@@ -515,17 +529,15 @@ sub help {
 
 sub show {
   $lxdebug->enter_sub();
-
   #&generate_ustva();
   no strict 'refs';
+  $lxdebug->leave_sub();
   &{ $form->{nextsub} };
   use strict 'refs';
-  $lxdebug->leave_sub();
 }
 
 sub ustva_vorauswahl {
   $lxdebug->enter_sub();
-
   #Aktuelles Datum zerlegen:
   $locale->date(\%myconfig, $form->current_date(\%myconfig, '0', '0'), 0) =~
     /(\d\d).(\d\d).(\d\d\d\d)/;
@@ -639,7 +651,7 @@ sub ustva_vorauswahl {
          <option value="$key" $selected>|
         . $locale->text("$liste{$key}")
         . qq|</option>
-
+         
    |;
     }
     print qq|</select>|;
@@ -725,14 +737,14 @@ sub ustva_vorauswahl {
          <option value="$key">$listea{$key} |
         . $locale->text('Quarter')
         . qq|</option>
-
+         
      |;
     }
 
     foreach $key (sort keys %listeb) {
       print qq|
          <option value="$key">| . $locale->text("$listeb{$key}") . qq|</option>
-
+         
      |;
     }
     print qq|</select>|;
@@ -747,7 +759,9 @@ sub config {
 }
 
 sub debug {
+  $lxdebug->enter_sub();
   $form->debug();
+  $lxdebug->leave_sub();
 }
 
 sub show_options {
@@ -974,14 +988,20 @@ sub generate_ustva {
     $locale->date(\%myconfig, $form->current_date(\%myconfig), 0, 0, 0);
 
   # setup variables for the form
-  my @a = ();
-  @a = qw(company businessnumber tel fax email company_email);
+  # steuernummer für prerelease entfernt
+  my @a = qw(company businessnumber tel fax email
+    co_chief co_department co_custom1 co_custom2 co_custom3 co_custom4 co_custom5
+    co_name1 co_name2  co_street co_street1 co_zip co_city co_city1 co_country co_tel co_tel1 co_tel2
+    co_fax co_fax1 co_email co_email1 co_url co_url1 ustid duns
+    co_bankname co_bankname1 co_bankname2 co_bankname3 co_blz co_blz1
+    co_blz2 co_blz3 co_accountnr co_accountnr1 co_accountnr2 co_accountnr3);
+
   map { $form->{$_} = $myconfig{$_} } @a;
 
   if ($form->{address} ne '') {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
-    ($form->{company_street}, $form->{company_city}) = split("<br \/>", $temp);
+    ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
   }
 
   if (   $form->{format} eq 'pdf'
@@ -1033,7 +1053,6 @@ sub generate_ustva {
 
 sub edit {
   $lxdebug->enter_sub();
-
   # edit all taxauthority prefs
 
   $form->header;
@@ -1043,6 +1062,11 @@ sub edit {
 
   my $land = $form->{elsterland};
   my $amt  = $form->{elsterFFFF};
+
+  my $callback = '';
+  $callback =
+    "$form->{cbscript}?action=edit&login=$form->{cblogin}&path=$form->{cbpath}&root=$form->{cbroot}&rpw=$form->{cbrpw}"
+    if ($form->{cbscript} ne '' and $form->{cblogin} ne '');
 
   $form->{title} = $locale->text('Finanzamt - Einstellungen');
   print qq|
@@ -1112,7 +1136,7 @@ sub edit {
            <label for="">|
     . $locale->text('Dauerfristverlängerung')
     . qq|</label>
-
+           
            </fieldset>
            <br>
            <fieldset>
@@ -1157,7 +1181,7 @@ sub edit {
            <input name="FA_steuerberater_tel" id=steuerberater size=25 value="$form->{FA_steuerberater_tel}">
            </tr>
            </table>
-
+           
            </fieldset>
 
            <br>
@@ -1166,8 +1190,16 @@ sub edit {
            <!--<input type=submit class=submit name=action value="|
     . $locale->text('debug')
     . qq|">-->
+           |;
+  print qq|
+           <input type="button" name="Verweis" value="|
+    . $locale->text('Back to user config...') . qq|" 
+            onClick="self.location.href='$callback'">| if ($callback ne '');
+  print qq|
+           &nbsp; &nbsp;
            <input type=submit class=submit name=action value="|
     . $locale->text('continue') . qq|">
+
          </td>
        </tr>
      </table>
@@ -1176,14 +1208,14 @@ sub edit {
   my @variables = qw( steuernummer elsterland elstersteuernummer elsterFFFF);
   my $variable  = '';
   foreach $variable (@variables) {
-    print qq|
+    print qq|	
           <input name=$variable type=hidden value="$form->{$variable}">|;
   }
   my $steuernummer_new = '';
 
   #<input type=hidden name="steuernummer_new" value="$form->{$steuernummer_new}">
   print qq|
-
+          <input type=hidden name="callback" value="$callback">
           <input type=hidden name="nextsub" value="edit_form">
           <input type=hidden name="warnung" value="1">
           <input type=hidden name="saved" value="|
@@ -1201,7 +1233,7 @@ sub edit {
     FA_Email FA_Internet);
 
   foreach $variable (@variables) {
-    print qq|
+    print qq|	
           <input name=$variable type=hidden value="$form->{$variable}">|;
   }
 
@@ -1227,13 +1259,15 @@ sub edit_form {
 
   # Auf Übergabefehler checken
   USTVA::info(
-    $locale->text('Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.'))
+    $locale->text(
+      'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.'
+    ))
     if (   $form->{elsterFFFF_new} eq 'Auswahl'
         || $form->{elsterland_new} eq 'Auswahl');
   USTVA::info(
     $locale->text(
-      'Es fehlen Angaben zur Versteuerung.
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+      'Es fehlen Angaben zur Versteuerung. 
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
   Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.'
     ))
     if ($form->{method} eq '');
@@ -1338,18 +1372,17 @@ sub edit_form {
       <tr>
          <td align="left">
 
-
-          <!--<input type=hidden name=nextsub value="debug">
-          <input type=submit class=submit name=action value="|
-    . $locale->text('debug') . qq|">
-          <input type=hidden name=nextsub value="test">
-          <input type=submit class=submit name=action value="|
-    . $locale->text('test')
-    . qq|">-->
           <input type=hidden name=lastsub value="edit">
-          <input type=submit class=submit name=action value="|
-    . $locale->text('back') . qq|">
-  |;
+          |;
+  print qq|<input type=submit class=submit name=action value="|
+    . $locale->text('back') . qq|">|
+    if ($form->{callback} eq '');
+
+  print qq|
+           <input type="button" name="Verweis" value="|
+    . $locale->text('Back to user config...') . qq|" 
+            onClick="self.location.href='$form->{callback}'">|
+    if ($form->{callback} ne '');
 
   if ($form->{warnung} eq "1") {
     print qq|
@@ -1380,7 +1413,7 @@ sub edit_form {
   my @variables = qw(FA_steuerberater_name FA_steuerberater_street
     FA_steuerberater_city FA_steuerberater_tel
     FA_voranmeld method
-    FA_dauerfrist FA_71 FA_Name elster
+    FA_dauerfrist FA_71 elster
     path login password type elster_init saved
   );
   my $variable = '';
@@ -1394,6 +1427,7 @@ sub edit_form {
           <input type=hidden name="warnung" value="$warnung">
           <input type=hidden name="elstersteuernummer" value="$elstersteuernummer">
           <input type=hidden name="steuernummer" value="$stnr">
+          <input type=hidden name="callback" value="$form->{callback}">
   </form>
   |;
   $lxdebug->leave_sub();
@@ -1440,8 +1474,15 @@ sub get_config {
 
   my ($userpath, $filename) = @_;
   my ($key,      $value)    = '';
-  open(FACONF, "$userpath/$filename")
-    or $form->error("$userpath/$filename : $!");
+  open(FACONF, "$userpath/$form->{login}_$filename")
+    or    #falls Datei nicht vorhanden ist
+    sub {
+    open(FANEW, ">$userpath/$form->{login}_$filename")
+      or $form->error("$userpath/$filename : $!");
+    close FANEW;
+    open(FACONF, "$userpath/$form->{login}_$filename")
+      or $form->error("$userpath/$form->{username}_$filename : $!");
+    };
   while (<FACONF>) {
     last if /^\[/;
     next if /^(#|\s)/;
@@ -1470,7 +1511,7 @@ sub get_config {
 
 sub save {
   $lxdebug->enter_sub();
-  my $filename = $form->{filename};
+  my $filename = "$form->{login}_$form->{filename}";
 
   #zuerst die steuernummer aus den part, parts_X_Y und delimiter herstellen
   create_steuernummer;
@@ -1556,6 +1597,16 @@ sub show_fa_daten {
 
                   <table width="100%">
                    <tr>
+                    <td>
+                    | . $locale->text('Finanzamt') . qq|
+                    </td>
+                   </tr>
+                   <tr>
+                    <td colspan="2">
+                     <input name="FA_Name" size="40" title="FA_Name" value="$form->{FA_Name}" $readonly>
+                    <td>
+                   </tr>
+                   <tr>
                     <td colspan="2">
                      <input name="FA_Strasse" size="40" title="FA_Strasse" value="$form->{FA_Strasse}" $readonly>
                     </td width="100%">
@@ -1578,7 +1629,7 @@ sub show_fa_daten {
                       | . $locale->text('Telefon') . qq|<br>
                       <input name="FA_Telefon" size="40" title="FA_Telefon" value="$form->{FA_Telefon}" $readonly>
                       <br>
-                      <br>
+                      <br> 
                       | . $locale->text('Fax') . qq|<br>
                       <input name="FA_Fax" size="40" title="FA_Fax" value="$form->{FA_Fax}" $readonly>
                       <br>
@@ -1617,7 +1668,7 @@ sub show_fa_daten {
                     <b>|
       . $locale->text('Bankverbindungen des Finanzamts') . qq|</b>
                     <legend>
-                    <table>
+                    <table>   
                     <tr>
                      <td>
                         | . $locale->text('Kreditinstitut') . qq|
@@ -1629,7 +1680,7 @@ sub show_fa_daten {
                         <br>
                         <input name="FA_Kontonummer_1" size="15" value="$form->{FA_Kontonummer_1}" $readonly>
                         <br>
-                        <br>
+                        <br> 
                         | . $locale->text('Bankleitzahl') . qq|
                         <br>
                         <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
@@ -1644,7 +1695,7 @@ sub show_fa_daten {
                         <br>
                         <input name="FA_Kontonummer_2" size="15" value="$form->{FA_Kontonummer_2}" $readonly>
                         <br>
-                        <br>
+                        <br> 
                         | . $locale->text('Bankleitzahl') . qq|
                         <br>
                         <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
@@ -1664,7 +1715,7 @@ sub show_fa_daten {
                     <br>
                     <input name="FA_Kontonummer_1" size="30" value="$form->{FA_Kontonummer_1}" $readonly>
                     <br>
-                    <br>
+                    <br> 
                     | . $locale->text('Bankleitzahl (BLZ)') . qq|
                     <br>
                     <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
@@ -1682,12 +1733,12 @@ sub show_fa_daten {
                     <legend>
                       <b>|
       . $locale->text('Bankverbindung des Finanzamts') . qq|</b>
-                    <legend>
+                    <legend> 
                     | . $locale->text('Kontonummer') . qq|
                     <br>
                     <input name="FA_Kontonummer_2" size="30" value="$form->{FA_Kontonummer_2}" $readonly>
                     <br>
-                    <br>
+                    <br> 
                     | . $locale->text('Bankleitzahl (BLZ)') . qq|
                     <br>
                     <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
@@ -1701,7 +1752,7 @@ sub show_fa_daten {
   }
   print qq|
                  </td>
-               </tr>
+               </tr>              
           </table>
   </fieldset>
   |;
@@ -1798,7 +1849,7 @@ SWITCH:
     do {
       $form->error(
         "Ungültiger Anmeldezeitraum.\n
-                                        Sie können für ELSTER nur einen monatlichen oder
+                                        Sie können für ELSTER nur einen monatlichen oder 
                                         quartalsweisen Anmeldezeitraum auswählen."
       );
     };
@@ -1890,7 +1941,6 @@ Content-Disposition: attachment; filename="$elsterfile"\n\n|;
 
 sub continue {
   $lxdebug->enter_sub();
-
   # allow Symbolic references just here:
   no strict 'refs';
   &{ $form->{nextsub} };
@@ -1898,7 +1948,11 @@ sub continue {
   $lxdebug->leave_sub();
 }
 
-sub back { &{ $form->{lastsub} } }
+sub back { 
+  $lxdebug->enter_sub();
+  &{ $form->{lastsub} }; 
+  $lxdebug->leave_sub();
+}
 
 sub elster_hash {
   $lxdebug->enter_sub();
@@ -2036,15 +2090,13 @@ sub elster_conf {
                       'logfile'  => 'log/faxmlsend.log',
                       'conffile' => 'faxmlsend.cnf',
                       'debug'    => '-debug' };
-
   $lxdebug->leave_sub();
-
   return $elster_conf;
+
 }
 
 sub elster_xml {
   $lxdebug->enter_sub();
-
   my $elster_conf = &elster_conf();
 
   #  $k51 = sprintf("%d", $form->parse_amount(\%myconfig, $form->{"51"})); # Umsätze zu 16% USt
@@ -2144,3 +2196,4 @@ sub elster_xml {
   close XML;
   $lxdebug->leave_sub();
 }
+
