@@ -115,6 +115,7 @@ sub order_links {
   # retrieve order/quotation
   $form->{webdav} = $webdav;
 
+
   # set jscalendar
   $form->{jscalendar} = $jscalendar;
 
@@ -219,6 +220,23 @@ sub prepare_order {
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit);
       $form->{rowcount} = $i;
+    }
+  } elsif ($form->{rowcount}) {
+    for my $i (1 .. $form->{rowcount}) {
+       $form->{"discount_$i"} =
+        $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
+
+      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+      $dec           = length $dec;
+      $decimalplaces = ($dec > 2) ? $dec : 2;
+
+      $form->{"sellprice_$i"} =
+        $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
+                             $decimalplaces);
+      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+      map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
+        qw(partnumber description unit);
     }
   }
 
@@ -987,6 +1005,8 @@ sub update {
       }
     }
   }
+
+
   $lxdebug->leave_sub();
 }
 
