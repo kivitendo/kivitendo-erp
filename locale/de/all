@@ -5,7 +5,7 @@
 
 $self{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
-  ' Number'                     => '',
+  ' Number'                     => ' Nummer',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   ' missing!'                   => ' fehlt!',
   'AP'                          => 'Einkauf',
@@ -31,7 +31,7 @@ $self{texts} = {
   'Accrual'                     => 'Bilanzierung',
   'Active'                      => 'Aktiv',
   'Add'                         => 'Erfassen',
-  'Add '                        => '',
+  'Add '                        => 'Hinzufügen',
   'Add AP Transaction'          => 'Kreditorenbuchung',
   'Add AR Transaction'          => 'Debitorenbuchung',
   'Add Account'                 => 'Konto erfassen',
@@ -92,6 +92,7 @@ $self{texts} = {
   'BLZ: '                       => 'BLZ: ',
   'BOM'                         => 'Stückliste',
   'BWA'                         => 'BWA',
+  'Back to user config...'      => 'Benutzereinstellungen',
   'Backup sent to'              => 'Eine Sicherungskopie wurde gesandt an',
   'Balance'                     => 'Bilanz',
   'Balance Sheet'               => 'Bilanz',
@@ -149,7 +150,7 @@ $self{texts} = {
   'Cannot post payment for a closed period!' => 'Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!',
   'Cannot post payment!'        => 'Zahlung kann nicht gebucht werden!',
   'Cannot post transaction for a closed period!' => 'Für einen bereits abgeschlossenen Zeitraum kann keine Buchung angelegt werden!',
-  'Cannot post transaction with a debit and credit entry for the same account!' => '',
+  'Cannot post transaction with a debit and credit entry for the same account!' => 'Kann Soll und Haben nicht auf dasselbe Konto buchen!',
   'Cannot post transaction!'    => 'Rechnung kann nicht gebucht werden!',
   'Cannot process payment for a closed period!' => 'Es kann keine Zahlung in einem abgeschlossenen Zeitraum verbucht werden!',
   'Cannot remove files!'        => 'Dateien können nicht gelöscht werden!',
@@ -274,7 +275,7 @@ $self{texts} = {
   'ELSTER-Steuernummer: '       => 'ELSTER-Steuernummer: ',
   'EUR'                         => 'E/Ü-Rechnung',
   'Edit'                        => 'Bearbeiten',
-  'Edit '                       => '',
+  'Edit '                       => 'Bearbeiten',
   'Edit Account'                => 'Kontodaten bearbeiten',
   'Edit Accounts Payables Transaction' => 'Kreditorenbuchung bearbeiten',
   'Edit Accounts Receivables Transaction' => 'Debitorenbuchung bearbeiten',
@@ -307,7 +308,14 @@ $self{texts} = {
   'Equity'                      => 'Passiva',
   'Es fehlen Angaben zur Versteuerung.
   Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
-  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => '',
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung.
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.',
+  'Es fehlen Angaben zur Versteuerung. 
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung. 
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.',
   'Exch'                        => 'Wechselkurs.',
   'Exchangerate'                => 'Wechselkurs',
   'Exchangerate Difference'     => 'Wechselkursunterschied',
@@ -412,7 +420,7 @@ $self{texts} = {
   'Konto: '                     => 'Konto: ',
   'Kontonummer'                 => 'Kontonummer',
   'Kontonummernerweiterung (KNE)' => 'Kontonummernerweiterung (KNE)',
-  'Korrektur'                   => '',
+  'Korrektur'                   => 'Korrektur',
   'Kreditinstitut'              => 'Kreditinstitut',
   'Kundennummer'                => 'Kundennummer',
   'LaTeX Templates'             => 'LaTeX-Vorlagen',
@@ -509,7 +517,7 @@ $self{texts} = {
   'Ordered'                     => 'Vom Kunde bestellt',
   'Orders'                      => 'Aufträge',
   'Orphaned'                    => 'Nie benutzt',
-  'Out of balance transaction!' => '',
+  'Out of balance transaction!' => 'Buchung ist nicht ausgeglichen!',
   'Out of balance!'             => 'Summen stimmen nicht berein!',
   'Own Product'                 => 'eigenes Produkt',
   'PDF'                         => 'PDF',
@@ -602,7 +610,7 @@ $self{texts} = {
   'Receipts'                    => 'Zahlungseingänge',
   'Receivables'                 => 'Forderungen',
   'Receive Merchandise'         => 'Waren einlagern',
-  'Reconciliation'              => 'Kontenabstimmung',
+  'Reconciliation'              => 'Kontenabgleich',
   'Record in'                   => 'Buchen auf',
   'Reference'                   => 'Referenz',
   'Reference missing!'          => 'Referenz fehlt!',
@@ -806,7 +814,7 @@ $self{texts} = {
   'number'                      => 'Nummer',
   'posted!'                     => 'gebucht',
   'quarter'                     => 'vierteljährliche (quartalsweise) Abgabe',
-  's'                           => '',
+  's'                           => 's',
   'save'                        => 'speichern',
   'saved'                       => 'gespeichert',
   'saved!'                      => 'gespeichert',

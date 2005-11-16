@@ -9,6 +9,7 @@ $self{texts} = {
   'Ausgabeformat'               => 'Ausgabeformat',
   'Ausgabeformat auswählen...'  => 'Ausgabeformat auswählen...',
   'BLZ: '                       => 'BLZ: ',
+  'Back to user config...'      => 'Benutzereinstellungen',
   'Bankleitzahl'                => 'Bankleitzahl',
   'Bankleitzahl (BLZ)'          => 'Bankleitzahl (BLZ)',
   'Bankverbindung'              => 'Bankverbindung',
@@ -21,7 +22,6 @@ $self{texts} = {
   'Bitte alle Angaben überprüfen' => 'Bitte alle Angaben überprüfen',
   'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.' => 'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.',
   'Bitte eine Steuernummer angeben' => 'Bitte eine Steuernummer angeben',
-  'Config'                      => 'Konfiguration',
   'Continue'                    => 'Weiter',
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
   'Dauerfristverlängerung'      => 'Dauerfristverlängerung',
@@ -30,10 +30,10 @@ $self{texts} = {
   'Description'                 => 'Beschreibung',
   'ELSTER Export nach Winston'  => 'ELSTER Export nach Winston',
   'ELSTER-Steuernummer: '       => 'ELSTER-Steuernummer: ',
-  'Es fehlen Angaben zur Versteuerung.
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
-  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung.
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+  'Es fehlen Angaben zur Versteuerung. 
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung. 
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
   Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.',
   'Fax'                         => 'Fax',
   'Fax. : '                     => 'Fax. : ',
@@ -107,7 +107,6 @@ $self{texts} = {
   'quarter'                     => 'vierteljährliche (quartalsweise) Abgabe',
   'save'                        => 'speichern',
   'saved'                       => 'gespeichert',
-  'test'                        => 'test',
   'Öffnungszeiten'              => 'Öffnungszeiten',
 };
 
@@ -149,7 +148,6 @@ $self{subs} = {
   'test'                        => 'test',
   'ustva_vorauswahl'            => 'ustva_vorauswahl',
   'vendor_invoice'              => 'vendor_invoice',
-  'konfiguration'               => 'config',
   'weiter'                      => 'continue',
   'hilfe'                       => 'help',
   'zeigen'                      => 'show',
@@ -157,7 +155,6 @@ $self{subs} = {
   'weiter'                      => 'continue',
   'debug'                       => 'debug',
   'speichern'                   => 'save',
-  'test'                        => 'test',
 };
 
 1;
