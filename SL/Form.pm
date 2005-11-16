@@ -1030,7 +1030,7 @@ sub format_string {
     next unless ($self->{$field} =~ /\<pagebreak\>/);
     $self->{$field} =~ s/\<pagebreak\>//g;
     if ($field =~ /.*_(\d+)$/) {
-      if ($self->{"_forced_pagebreaks"}) {
+      if (!$self->{"_forced_pagebreaks"}) {
         $self->{"_forced_pagebreaks"} = [];
       }
       push(@{ $self->{"_forced_pagebreaks"} }, "$1");
@@ -1100,9 +1100,6 @@ sub format_string {
                           'u' => 'underline');
 
     foreach my $field (@fields) {
-      if ($field =~ /descrip/) {
-        print(STDERR "QFT: ${field}: " . $self->{$field} . "\n");
-      }
       foreach my $key (keys(%markup_replace)) {
         my $new = $markup_replace{$key};
         $self->{$field} =~
