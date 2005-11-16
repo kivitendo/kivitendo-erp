@@ -1011,13 +1011,25 @@ sub generate_ustva {
     $form->{endbold} = "}";
     $form->{br}      = '\\\\';
 
+    
     my @numbers = qw(51r 86r 97r 93r 96 43 45
       66 62 67);
     my $number = '';
-    foreach $number (@numbers) {
-      $form->{$number} =~ s/,/~~/g;
+    # Zahlenformatierung für Latex USTVA Formulare
+    if ($myconfig{numberformat} eq '1.000,00' or 
+         $myconfig{numberformat} eq '1000,00') {
+      foreach $number (@numbers) {
+        $form->{$number} =~ s/,/~~/g;
+      }
+    }  
+    if ($myconfig{numberformat} eq '1000.00' or 
+         $myconfig{numberformat} eq '1,000.00') {
+      foreach $number (@numbers) {
+        $form->{$number} =~ s/\./~~/g;
+      }
     }
-      } elsif ($form->{format} eq 'html') {
+  # Formatierungen für HTML Ausgabe
+  } elsif ($form->{format} eq 'html') {
     $form->{padding} = "&nbsp;&nbsp;";
     $form->{bold}    = "<b>";
     $form->{endbold} = "</b>";
