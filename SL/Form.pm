@@ -2209,7 +2209,7 @@ sub audittrail {
 	$query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
 		    formname, action, employee_id, transdate) VALUES (
 		    $audittrail->{id}, '$audittrail->{tablename}', |
-		    .$dbh->quote($audittrail->{reference}).qq|',
+		    .$dbh->quote($audittrail->{reference}).qq|,
 		    '$audittrail->{formname}', '$audittrail->{action}',
 		    $employee_id, '$audittrail->{transdate}')|;
       } else {
