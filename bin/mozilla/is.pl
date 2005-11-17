@@ -67,7 +67,7 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-print STDERR "is.pl-edit\n";
+  print STDERR "is.pl-edit\n";
   $form->{title} = $locale->text('Edit Sales Invoice');
 
   if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
@@ -84,7 +84,7 @@ print STDERR "is.pl-edit\n";
 
 sub invoice_links {
   $lxdebug->enter_sub();
-print STDERR "is.pl-invoice_links\n";
+  print STDERR "is.pl-invoice_links\n";
   $form->{vc} = 'customer';
 
   # create links
@@ -184,7 +184,7 @@ print STDERR "is.pl-invoice_links\n";
 
 sub prepare_invoice {
   $lxdebug->enter_sub();
-print STDERR "is.pl-prepare_invoice\n";
+  print STDERR "is.pl-prepare_invoice\n";
   $form->{type}     = "invoice";
   $form->{formname} = "invoice";
   $form->{format}   = "html";
@@ -195,8 +195,8 @@ print STDERR "is.pl-prepare_invoice\n";
     map { $form->{$_} =~ s/\"/&quot;/g }
       qw(invnumber ordnumber quonumber shippingpoint shipvia notes intnotes);
 
-#     # get pricegroups for parts
-#     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+    #     # get pricegroups for parts
+    #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
     foreach $ref (@{ $form->{invoice_details} }) {
       $i++;
@@ -223,7 +223,8 @@ print STDERR "is.pl-prepare_invoice\n";
 
 sub form_header {
   $lxdebug->enter_sub();
-print STDERR "is.pl-form_header\n";
+  print STDERR "is.pl-form_header\n";
+
   # set option selected
   foreach $item (qw(AR customer currency department employee contact)) {
     $form->{"select$item"} =~ s/ selected//;
@@ -519,7 +520,7 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
-print STDERR "is.pl-form_footer\n";
+  print STDERR "is.pl-form_footer\n";
   $form->{invtotal} = $form->{invsubtotal};
 
   if (($rows = $form->numtextrows($form->{notes}, 26, 8)) < 2) {
@@ -923,7 +924,8 @@ sub update {
       } else {
 
         $sellprice = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
-#print STDERR " SELLPRICE-111- $sellprice\n";
+
+        #print STDERR " SELLPRICE-111- $sellprice\n";
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
           qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
@@ -981,7 +983,7 @@ sub update {
         }
 
         # get pricegroups for parts
-        IS->get_pricegroups_for_parts(\%myconfig, \%$form, "new");
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
         # build up html code for prices_$i
         &set_pricegroup($i);
