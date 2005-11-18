@@ -210,7 +210,12 @@ sub prepare_invoice {
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+      
+      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty      = length $dec_qty;
+      
+      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"},
+        $dec_qty);
 
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit partnotes);

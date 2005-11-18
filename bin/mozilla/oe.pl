@@ -215,7 +215,11 @@ sub prepare_order {
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty      = length $dec_qty;
+
+      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit);
@@ -233,7 +237,10 @@ sub prepare_order {
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+      
+      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty      = length $dec_qty;
+      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit);
@@ -973,7 +980,7 @@ sub update {
           $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                                $decimalplaces);
         $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"});
+          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
         # get pricegroups for parts
         IS->get_pricegroups_for_parts(\%myconfig, \%$form);
@@ -1857,7 +1864,10 @@ sub invoice {
     $form->{"sellprice_$i"} =
       $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                            $decimalplaces);
-    $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+    
+    (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty      = length $dec_qty;
+    $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
       qw(partnumber description unit);
@@ -2356,7 +2366,7 @@ sub display_ship_receive {
       qq|<td>$description<input type=hidden name="description_$i" value="$form->{"description_$i"}"></td>|;
     $column_data{qty} =
         qq|<td align=right>|
-      . $form->format_amount(\%myconfig, $form->{"qty_$i"})
+      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty)
       . qq|<input type=hidden name="qty_$i" value="$form->{"qty_$i"}"></td>|;
     $column_data{ship} =
         qq|<td align=right><input name="ship_$i" size=5 value=|
@@ -2667,7 +2677,7 @@ sub list_transfer {
       qq|<td><input type=hidden name="warehouse_id_$i" value=$ref->{warehouse_id}>$ref->{warehouse}&nbsp;</td>|;
     $column_data{qty} =
         qq|<td><input type=hidden name="qty_$i" value=$ref->{qty}>|
-      . $form->format_amount(\%myconfig, $ref->{qty})
+      . $form->format_amount(\%myconfig, $ref->{qty}, $dec_qty)
       . qq|</td>|;
     $column_data{transfer} = qq|<td><input name="transfer_$i" size=4></td>|;
 
