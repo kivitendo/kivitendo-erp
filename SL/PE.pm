@@ -332,7 +332,6 @@ sub pricegroups {
 	        WHERE $where
 		ORDER BY $sortorder|;
   }
-print STDERR "asdfasdf-$query\n";
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -385,7 +384,7 @@ sub save_pricegroup {
 #
 sub get_pricegroup {
   $main::lxdebug->enter_sub();
-print STDERR "PE.pm-get_pricegroup\n";
+
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
@@ -416,7 +415,7 @@ print STDERR "PE.pm-get_pricegroup\n";
   $sth->finish;
 
   $dbh->disconnect;
-#print (STDERR "   ", Dumper($form));
+
   $main::lxdebug->leave_sub();
 }
 
