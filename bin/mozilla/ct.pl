@@ -363,6 +363,7 @@ sub list_names {
 
     if ($ref->{id} eq $sameid) {
       map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } (invnumber, ordnumber, quonumber);
     } else {
       map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
 
