@@ -117,6 +117,7 @@ $self{texts} = {
   'Salesman'                    => 'Vertreter',
   'Save'                        => 'Speichern',
   'Service Items'               => 'Dienstleistungen',
+  'Setup Menu'                  => 'Setup Menu',
   'Signature'                   => 'Unterschrift',
   'Standard Industrial Codes'   => 'SIC',
   'Steuersatz'                  => 'Steuersatz',

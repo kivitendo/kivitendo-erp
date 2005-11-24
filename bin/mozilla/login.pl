@@ -84,8 +84,7 @@ sub login_screen {
   <tr>
     <td class=login align=center><a href="http://www.lx-office.org" target=_top><img src="image/lx-office-erp.png" border=0></a>
 <h1 class=login align=center>|
-    . $locale->text('Version')
-    . qq| $form->{version}
+    . $locale->text('Version') . qq| $form->{version}
 </h1>
 
 <p>
@@ -153,8 +152,13 @@ sub login {
   }
 
   # made it this far, execute the menu
-  $form->{callback} =
-    "menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  if ($user->{menustyle} eq "neu") {
+    $form->{callback} =
+      "menunew.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  } else {
+    $form->{callback} =
+      "menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  }
 
   $form->redirect;
 

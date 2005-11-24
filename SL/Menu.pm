@@ -67,8 +67,10 @@ sub menuitem {
   }
 
   my $level = $form->escape($item);
-  my $str   =
+
+  my $str =
     qq|<a href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+
   my @vars = qw(module action target href);
 
   if ($self->{$item}{href}) {
@@ -95,6 +97,44 @@ sub menuitem {
   $main::lxdebug->leave_sub();
 
   return $str;
+}
+
+sub menuitemNew {
+  my ($self, $myconfig, $form, $item) = @_;
+
+  my $module = $form->{script};
+  my $action = "section_menu";
+
+  #if ($self->{$item}{module}) {
+  $module = $self->{$item}{module};
+
+  #}
+  if ($self->{$item}{action}) {
+    $action = $self->{$item}{action};
+  }
+
+  my $level = $form->escape($item);
+  my $str   =
+    qq|$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+  my @vars = qw(module action target href);
+
+  if ($self->{$item}{href}) {
+    $str  = qq|$self->{$item}{href}|;
+    @vars = qw(module target href);
+  }
+
+  map { delete $self->{$item}{$_} } @vars;
+
+  # add other params
+  foreach my $key (keys %{ $self->{$item} }) {
+    $str .= "&" . $form->escape($key, 1) . "=";
+    ($value, $conf) = split /=/, $self->{$item}{$key}, 2;
+    $value = $myconfig->{$value} . "/$conf" if ($conf);
+    $str .= $form->escape($value, 1);
+  }
+
+  $str .= " ";
+
 }
 
 sub access_control {

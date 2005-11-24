@@ -59,7 +59,13 @@ foreach $file (@progfiles) {
       &scanmenu("$basedir/$item");
     }
   }
-  
+
+  if ($file eq 'menunew.pl') {
+    foreach $item (@menufiles) {
+      &scanmenu("$basedir/$item");
+    }
+  }
+
   $file =~ s/\.pl//;
 
   eval { require 'missing'; };
