@@ -1552,9 +1552,10 @@ sub ship_to {
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
-
+  $form_id = $form->{id};
   # get details for name
   &{"$form->{vc}_details"};
+  $form->{id} = $form_id;
 
   $number =
     ($form->{vc} eq 'customer')
