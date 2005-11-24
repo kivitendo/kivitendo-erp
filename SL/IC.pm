@@ -258,7 +258,7 @@ sub save {
     $dbh->do($query) || $form->dberror($query);
 
   } else {
-    my $uid = time;
+    my $uid = rand() . time;
     $uid .= $form->{login};
 
     $query = qq|SELECT p.id FROM parts p
