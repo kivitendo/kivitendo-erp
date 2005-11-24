@@ -1357,7 +1357,7 @@ sub get_customer {
   # get shipto if we did not converted an order or invoice
   if (!$form->{shipto}) {
     map { delete $form->{$_} }
-      qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
+      qw(shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
 
     $query = qq|SELECT s.* FROM shipto s
                 WHERE s.trans_id = $form->{customer_id}|;

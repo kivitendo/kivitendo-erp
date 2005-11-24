@@ -1253,7 +1253,7 @@ sub add_shipto {
 ##LINET
   my $shipto;
   foreach
-    my $item (qw(name street zipcode city country contact phone fax email)) {
+    my $item (qw(name department_1 department_2 street zipcode city country contact phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
@@ -1261,10 +1261,10 @@ sub add_shipto {
   }
 
   if ($shipto) {
-    my $query = qq|INSERT INTO shipto (trans_id, shiptoname, shiptostreet,
+    my $query = qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2, shiptostreet,
                    shiptozipcode, shiptocity, shiptocountry, shiptocontact,
 		   shiptophone, shiptofax, shiptoemail) VALUES ($id,
-		   '$self->{shiptoname}', '$self->{shiptostreet}',
+		   '$self->{shiptoname}', '$self->{shiptodepartment_1}', '$self->{shiptodepartment_2}', '$self->{shiptostreet}',
 		   '$self->{shiptozipcode}', '$self->{shiptocity}',
 		   '$self->{shiptocountry}', '$self->{shiptocontact}',
 		   '$self->{shiptophone}', '$self->{shiptofax}',
