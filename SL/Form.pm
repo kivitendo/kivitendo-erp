@@ -596,7 +596,7 @@ sub parse_template {
   # Some variables used for page breaks
   my ($chars_per_line, $lines_on_first_page, $lines_on_second_page) =
     (0, 0, 0);
-  my ($current_page, $current_line) = (1, 1);
+  my ($current_page, $current_line, $current_row) = (1, 1, 0);
   my $pagebreak = "";
   my $sum       = 0;
 
@@ -700,8 +700,9 @@ sub parse_template {
             $lpp = $lines_on_second_page;
           }
 
-          # Yes we need a manual page break
-          if (($current_line + $lines) > $lpp) {
+          # Yes we need a manual page break -- or the user has forced one
+          if ((($current_line + $lines) > $lpp) ||
+              ($self->{"_forced_pagebreaks"} && grep(/^${current_row}$/, @{$self->{"_forced_pagebreaks"}}))) {
             my $pb = $pagebreak;
 
             # replace the special variables <%sumcarriedforward%>
@@ -722,6 +723,7 @@ sub parse_template {
             $current_line = 1;
           }
           $current_line += $lines;
+          $current_row++;
         }
         $sum += $self->parse_amount($myconfig, $self->{"linetotal"}[$i]);
 
@@ -987,6 +989,18 @@ sub format_string {
 
   %unique_fields = map({ $_ => 1 } @fields);
   @fields = keys(%unique_fields);
+
+  foreach my $field (@fields) {
+    next unless ($self->{$field} =~ /\<pagebreak\>/);
+    $self->{$field} =~ s/\<pagebreak\>//g;
+    if ($field =~ /.*_(\d+)$/) {
+      if ($self->{"_forced_pagebreaks"}) {
+        $self->{"_forced_pagebreaks"} = [];
+      }
+      push(@{ $self->{"_forced_pagebreaks"} }, "$1");
+    }
+  }
+
   my $format = $self->{format};
   if ($self->{format} =~ /(postscript|pdf)/) {
     $format = 'tex';
