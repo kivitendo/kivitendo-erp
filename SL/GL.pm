@@ -38,12 +38,9 @@
 
 package GL;
 
-use Data::Dumper;
-
 sub delete_transaction {
-  $main::lxdebug->enter_sub();
-
   my ($self, $myconfig, $form) = @_;
+  $main::lxdebug->enter_sub();
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -57,16 +54,15 @@ sub delete_transaction {
   # commit and redirect
   my $rc = $dbh->commit;
   $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  $rc;
+
 }
 
 sub post_transaction {
-  $main::lxdebug->enter_sub();
-
   my ($self, $myconfig, $form) = @_;
+  $main::lxdebug->enter_sub();
 
   my ($debit, $credit) = (0, 0);
   my $project_id;
@@ -74,24 +70,6 @@ sub post_transaction {
   my $i;
 
   # check if debit and credit balances
-
-  $debit  = abs(int($form->round_amount($form->{debit},  3) * 1000));
-  $credit = abs(int($form->round_amount($form->{credit}, 3) * 1000));
-  $tax    = abs(int($form->round_amount($form->{tax},    3) * 1000));
-
-  if (   (($debit >= $credit) && (abs($debit - ($credit + $tax)) > 4))
-      || (($debit < $credit) && (abs(($debit + $tax) - $credit) > 4))) {
-    return -2;
-  }
-
-  if (($debit + $credit + $tax) == 0) {
-    return -3;
-  }
-
-  $debit  = $form->round_amount($form->{debit},  2);
-  $credit = $form->round_amount($form->{credit}, 2);
-  $tax    = $form->round_amount($form->{tax},    2);
-  debug($debit, $credit, $tax, "Betraege");
 
   if ($form->{storno}) {
     $debit               = $debit * -1;
@@ -121,10 +99,11 @@ sub post_transaction {
   }
 
   my ($query, $sth);
+
   if ($form->{id}) {
 
     # delete individual transactions
-    $query = qq|DELETE FROM acc_trans
+    $query = qq|DELETE FROM acc_trans 
                 WHERE trans_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
 
@@ -146,10 +125,11 @@ sub post_transaction {
     $sth->finish;
 
   }
+
   my ($null, $department_id) = split /--/, $form->{department};
   $department_id *= 1;
 
-  $query = qq|UPDATE gl SET
+  $query = qq|UPDATE gl SET 
 	      reference = '$form->{reference}',
 	      description = '$form->{description}',
 	      notes = '$form->{notes}',
@@ -162,132 +142,86 @@ sub post_transaction {
   ($taxkey, $rate) = split(/--/, $form->{taxkey});
 
   # insert acc_trans transactions
-  foreach $i ((credit, debit)) {
+  for $i (1 .. $form->{rowcount}) {
 
     # extract accno
-    ($accno) = split(/--/, $form->{"${i}chartselected"});
+    my ($accno) = split(/--/, $form->{"accno_$i"});
+    my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
     my $amount = 0;
-    debug("$accno $i Kontonummer");
-    if ($i eq "credit") {
+    my $debit  = $form->{"debit_$i"};
+    my $credit = $form->{"credit_$i"};
+    my $tax    = $form->{"tax_$i"};
+
+    if ($credit) {
       $amount = $credit;
+      $posted = 0;
     }
-    if ($i eq "debit") {
+    if ($debit) {
       $amount = $debit * -1;
+      $tax    = $tax * -1;
+      $posted = 0;
     }
 
-    if ($form->{"${i}_splited"}) {
+    # if there is an amount, add the record
+    if ($amount != 0) {
+      $project_id =
+        ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                  source, memo, project_id, taxkey)
+		  VALUES
+		  ($form->{id}, (SELECT c.id
+		                 FROM chart c
+				 WHERE c.accno = '$accno'),
+		   $amount, '$form->{transdate}', |
+        . $dbh->quote($form->{"source_$i"}) . qq|, |
+        . $dbh->quote($form->{"memo_$i"}) . qq|,
+		  $project_id, $taxkey)|;
 
-      # if there is an amount, add the record
-      for $j (2 .. $form->{"${i}rowcount"}) {
-        ($accno) = split(/--/, $form->{"${i}chartselected_$j"});
-
-        $amount = $form->{"${i}_$j"};
-
-        ($taxkey, $taxrate) = split(/--/, $form->{"taxchartselected_$j"});
-
-        if ($i eq "debit") {
-          $amount *= -1;
-        }
-        if ($amount != 0) {
-          $project_id =
-            ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
-          $query =
-            qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                      source, project_id, taxkey)
-                      VALUES
-                      ($form->{id}, (SELECT c.id
-                                    FROM chart c
-                                    WHERE c.accno = '$accno'),
-                      $amount, '$form->{transdate}', '$form->{reference}',
-                      $project_id, $taxkey)|;
-
-          $dbh->do($query) || $form->dberror($query);
-        }
-
-        $tax = $form->{"tax_$j"};
-        print(STDERR $tax, " Steuer bei Durchlauf $j\n\n");
-        if ($tax != 0) {
-
-          # add taxentry
-          if ($i eq "debit") {
-            $tax = $tax * (-1);
-          }
-          $amount = $tax;
-
-          $project_id =
-            ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
-          $query =
-            qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                    source, project_id, taxkey)
-                    VALUES
-                    ($form->{id}, (SELECT t.chart_id
-                    FROM tax t
-                    WHERE t.taxkey = $taxkey),
-                    $amount, '$form->{transdate}', '$form->{reference}',
-                            $project_id, $taxkey)|;
-
-          $dbh->do($query) || $form->dberror($query);
-        }
-      }
-    } else {
-
-      # if there is an amount, add the record
-      ($taxkey, $taxrate) = split(/--/, $form->{"taxchartselected"});
-      $taxkey *= 1;
-      debug("$amount auf $accno buchen");
-      if ($amount != 0) {
-        $project_id =
-          ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
-        $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                      source, project_id, taxkey)
-                      VALUES
-                      ($form->{id}, (SELECT c.id
-                                    FROM chart c
-                                    WHERE c.accno = '$accno'),
-                      $amount, '$form->{transdate}', '$form->{reference}',
-                      $project_id, $taxkey)|;
-
-        $dbh->do($query) || $form->dberror($query);
-      }
+      $dbh->do($query) || $form->dberror($query);
     }
-  }
-  if ($tax != 0 && !($form->{credit_splited} || $form->{debit_splited})) {
 
-    # add taxentry
-    if ($form->{debittaxkey}) {
-      $tax = $tax * (-1);
-    }
-    $amount = $tax;
-    debug("$amount Steuern buchen");
+    if ($tax != 0) {
 
-    $project_id =
-      ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
-    $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, project_id, taxkey)
+      # add taxentry
+      $amount = $tax;
+
+      $project_id =
+        ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                  source, memo, project_id, taxkey)
                   VALUES
                   ($form->{id}, (SELECT t.chart_id
                   FROM tax t
                   WHERE t.taxkey = $taxkey),
-                  $amount, '$form->{transdate}', '$form->{reference}',
+                  $amount, '$form->{transdate}', |
+        . $dbh->quote($form->{"source_$i"}) . qq|, |
+        . $dbh->quote($form->{"memo_$i"}) . qq|,
                           $project_id, $taxkey)|;
 
-    $dbh->do($query) || $form->dberror($query);
+      $dbh->do($query) || $form->dberror($query);
+    }
   }
+
+  my %audittrail = (tablename => 'gl',
+                    reference => $form->{reference},
+                    formname  => 'transaction',
+                    action    => 'posted',
+                    id        => $form->{id});
+
+  # $form->audittrail($dbh, "", \%audittrail);
 
   # commit and redirect
   my $rc = $dbh->commit;
   $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  $rc;
+
 }
 
 sub all_transactions {
-  $main::lxdebug->enter_sub();
-
   my ($self, $myconfig, $form) = @_;
+  $main::lxdebug->enter_sub();
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -555,23 +489,21 @@ sub all_transactions {
     ($form->{gifi_account_description}) = $sth->fetchrow_array;
     $sth->finish;
   }
+  $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
 
-  $main::lxdebug->leave_sub();
 }
 
 sub transaction {
-  $main::lxdebug->enter_sub();
-
   my ($self, $myconfig, $form) = @_;
+  $main::lxdebug->enter_sub();
 
   my ($query, $sth, $ref);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  $form->{creditrowcount} = 1;
-  $form->{debitrowcount}  = 1;
+
   if ($form->{id}) {
     $query = "SELECT closedto, revtrans
               FROM defaults";
@@ -584,8 +516,8 @@ sub transaction {
     $query = "SELECT g.reference, g.description, g.notes, g.transdate,
               d.description AS department, e.name as employee, g.taxincluded, g.gldate
               FROM gl g
-	    LEFT JOIN department d ON (d.id = g.department_id)
-	    LEFT JOIN employee e ON (e.id = g.employee_id)
+	    LEFT JOIN department d ON (d.id = g.department_id)  
+	    LEFT JOIN employee e ON (e.id = g.employee_id)  
 	    WHERE g.id = $form->{id}";
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
@@ -594,68 +526,18 @@ sub transaction {
     $sth->finish;
 
     # retrieve individual rows
-    $query = "SELECT c.accno, a.amount, project_id,
+    $query = "SELECT c.accno, c.taxkey_id AS accnotaxkey, a.amount, project_id,
                 (SELECT p.projectnumber FROM project p
-		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, (SELECT c1.accno FROM chart c1, tax t WHERE t.taxkey=a.taxkey AND c1.id=t.chart_id) AS taxaccno
+		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, (SELECT c1.accno FROM chart c1, tax t WHERE t.taxkey=a.taxkey AND c1.id=t.chart_id) AS taxaccno, (SELECT t1.rate FROM tax t1 WHERE t1.taxkey=a.taxkey) AS taxrate 
 	      FROM acc_trans a, chart c
 	      WHERE a.chart_id = c.id
 	      AND a.trans_id = $form->{id}
-	      ORDER BY accno";
+	      ORDER BY a.oid";
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
-    $debitcount  = 2;
-    $creditcount = 2;
-    $taxcount    = 2;
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-
-      if ($ref->{accno} eq $ref->{taxaccno}) {
-        $form->{"tax_$taxcount"} = $ref->{amount};
-        $form->{"tax"} += $ref->{amount};
-        $form->{"taxchartselected_$taxcount"} = $ref->{taxkey};
-        $taxcount++;
-      } else {
-
-        if ($ref->{amount} < 0) {
-          $form->{"debit_$debitcount"} = $ref->{amount} * -1;
-          $form->{"debit"} += $ref->{amount} * -1;
-          $form->{"debitchartselected_$debitcount"} = $ref->{accno};
-          $debitcount++;
-        }
-        if ($ref->{amount} > 0) {
-
-          $form->{"credit_$creditcount"} = $ref->{amount};
-          $form->{"credit"} += $ref->{amount};
-          $form->{"creditchartselected_$creditcount"} = $ref->{accno};
-          $creditcount++;
-        }
-      }
-
-      $taxkey = $ref->{taxkey} * 1;
-    }
-    if ($creditcount > 3) {
-      $form->{credit_splited} = 1;
-      $form->{credit}         = $form->{credit} + $form->{tax};
-      $form->{creditrowcount} = $creditcount - 1;
-    } else {
-      $form->{credit}      = $form->{credit_2};
-      $form->{amount}      = $form->{amount_2};
-      $form->{creditaccno} = $form->{creditchartselected_2};
-    }
-    if ($debitcount > 3) {
-      $form->{debit_splited} = 1;
-      $form->{debit}         = $form->{debit} + $form->{tax};
-      $form->{debitrowcount} = $debitcount - 1;
-    } else {
-      $form->{debit}      = $form->{debit_2};
-      $form->{debitaccno} = $form->{debitchartselected_2};
-    }
-
-    if (   (($form->{credit} > $form->{debit}) && (!$form->{taxincluded}))
-        || (($form->{credit} > $form->{debit}) && ($form->{taxincluded}))) {
-      $form->{amount} = $form->{debit};
-        } else {
-      $form->{amount} = $form->{credit};
+      push @{ $form->{GL} }, $ref;
     }
 
     # get tax description
@@ -703,22 +585,11 @@ sub transaction {
   $sth->finish;
 
   $sth->finish;
+  $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
 
-  $main::lxdebug->leave_sub();
-}
-
-sub debug {
-  local *OUT;
-  if (open(OUT, ">>/tmp/linet.log")) {
-
-    #    chomp(@_);
-    print(OUT join("\n", @_), "\n");
-    close(OUT);
-  } else {
-    print(STDERR "noe: $!\n");
-  }
 }
 
 1;
+

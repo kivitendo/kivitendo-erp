@@ -34,8 +34,6 @@
 use SL::GL;
 use SL::PE;
 
-use Data::Dumper;
-
 require "$form->{path}/arap.pl";
 
 1;
@@ -92,7 +90,9 @@ sub add {
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
 
-  $form->{chart} = $chart;
+  $form->{chart}     = $chart;
+  $form->{chartinit} = $chart;
+  $form->{rowcount}  = 2;
 
   $form->{debitchart}  = $chart;
   $form->{creditchart} = $chart;
@@ -101,9 +101,6 @@ sub add {
   $form->{debit}  = 0;
   $form->{credit} = 0;
   $form->{tax}    = 0;
-
-  $form->{creditrowcount} = 2;
-  $form->{debitrowcount}  = 2;
 
   # departments
   $form->all_departments(\%myconfig);
@@ -116,77 +113,29 @@ sub add {
     } (@{ $form->{all_departments} });
   }
 
-  &display_form;
-
+  &display_form(1);
   $lxdebug->leave_sub();
+
 }
 
 sub edit {
   $lxdebug->enter_sub();
 
   GL->transaction(\%myconfig, \%$form);
-
-  map {
-    if ($form->{debitaccno} eq $_->{accno}) {
-      $form->{debitchart} .=
-        "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}";
-    }
-  } @{ $form->{chart} };
-  map {
-    if ($form->{creditaccno} eq $_->{accno}) {
-      $form->{creditchart} .=
-        "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}";
-    }
-  } @{ $form->{chart} };
-  map {
-    $tax .=
-      qq|<option value="$_->{taxkey}--$_->{rate}">$_->{taxdescription}  |
-      . ($_->{rate} * 100) . qq| %|
-  } @{ $form->{TAX} };
-
-  if ($form->{creditrowcount} > 2) {
-    for $i (2 .. $form->{creditrowcount}) {
-      map {
-        if ($form->{"creditchartselected_$i"} eq $_->{accno}) {
-          $form->{"creditchartselected_$i"} = "$_->{accno}--$_->{taxkey_id}";
-        }
-      } @{ $form->{chart} };
-      map {
-        if ($form->{"taxchartselected_$i"} eq $_->{taxkey}) {
-          $form->{"taxchartselected_$i"} = "$_->{taxkey}--$_->{rate}";
-        }
-      } @{ $form->{TAX} };
-    }
-  }
-  if ($form->{debitrowcount} > 2) {
-    for $i (2 .. $form->{debitrowcount}) {
-      map {
-        if ($form->{"debitchartselected_$i"} eq $_->{accno}) {
-          $form->{"debitchartselected_$i"} = "$_->{accno}--$_->{taxkey_id}";
-        }
-      } @{ $form->{chart} };
-      map {
-        if ($form->{"taxchartselected_$i"} eq $_->{taxkey}) {
-          $form->{"taxchartselected_$i"} = "$_->{taxkey}--$_->{rate}";
-        }
-      } @{ $form->{TAX} };
-    }
-  }
   map {
     $chart .=
       "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}</option>"
   } @{ $form->{chart} };
-  $form->{chart} = $chart;
+
   map {
     $tax .=
       qq|<option value="$_->{taxkey}--$_->{rate}">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
-  $form->{taxchart} = $tax;
 
-  if ($form->{tax} < 0) {
-    $form->{tax} = $form->{tax} * (-1);
-  }
+  $form->{chart} = $chart;
+
+  $form->{taxchart} = $tax;
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
@@ -201,17 +150,50 @@ sub edit {
     } (@{ $form->{all_departments} });
   }
 
-  $form->{locked} =
+  my $i        = 1;
+  my $tax      = 0;
+  my $taxaccno = "";
+  foreach $ref (@{ $form->{GL} }) {
+    $form->{"projectnumber_$i"} = "$ref->{projectnumber}--$ref->{project_id}";
+
+    $j = $i - 1;
+    if ($tax && ($ref->{accno} eq $taxaccno)) {
+      $form->{"tax_$j"}      = abs($ref->{amount});
+      $form->{"taxchart_$j"} = $ref->{taxkey} . "--" . $ref->{taxrate};
+    } else {
+      $form->{"accno_$i"} = "$ref->{accno}--$ref->{accnotaxkey}";
+      for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
+      if ($ref->{amount} < 0) {
+        $form->{totaldebit} -= $ref->{amount};
+        $form->{"debit_$i"} = $ref->{amount} * -1;
+      } else {
+        $form->{totalcredit} += $ref->{amount};
+        $form->{"credit_$i"} = $ref->{amount};
+      }
+      $i++;
+    }
+    if ($ref->{taxaccno} && !$tax) {
+      $taxaccno = $ref->{taxaccno};
+      $tax      = 1;
+    } else {
+      $taxaccno = "";
+      $tax      = 0;
+    }
+
+  }
+
+  $form->{rowcount} = $i;
+  $form->{locked}   =
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
   $form->{title} = "Edit";
 
   &form_header;
-
+  &display_rows;
   &form_footer;
-
   $lxdebug->leave_sub();
+
 }
 
 sub search {
@@ -247,14 +229,12 @@ sub search {
     $button1 = qq|
        <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=datefrom id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>  
        |;
     $button2 = qq|
        <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}">
        <input type=button name=dateto id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -317,8 +297,12 @@ sub search {
     . $locale->text('All') . qq|
 		  <input name="category" class=radio type=radio value=A>&nbsp;|
     . $locale->text('Asset') . qq|
-       		  <input name="category" class=radio type=radio value=L>&nbsp;|
+		  <input name="category" class=radio type=radio value=C>&nbsp;|
+    . $locale->text('Contra') . qq|
+		  <input name="category" class=radio type=radio value=L>&nbsp;|
     . $locale->text('Liability') . qq|
+		  <input name="category" class=radio type=radio value=Q>&nbsp;|
+    . $locale->text('Equity') . qq|
 		  <input name="category" class=radio type=radio value=I>&nbsp;|
     . $locale->text('Revenue') . qq|
 		  <input name="category" class=radio type=radio value=E>&nbsp;|
@@ -481,10 +465,9 @@ sub generate_report {
       . $locale->date(\%myconfig, $form->{dateto}, 1);
   }
 
-  @columns =
-    $form->sort_columns(
+  @columns = $form->sort_columns(
     qw(transdate id reference description notes source debit debit_accno credit credit_accno debit_tax debit_tax_accno credit_tax credit_tax_accno accno gifi_accno)
-    );
+  );
 
   if ($form->{accno} || $form->{gifi_accno}) {
     @columns = grep !/(accno|gifi_accno)/, @columns;
@@ -868,8 +851,8 @@ sub generate_report {
 </body>
 </html>
 |;
-
   $lxdebug->leave_sub();
+
 }
 
 sub gl_subtotal {
@@ -893,97 +876,134 @@ sub gl_subtotal {
   $subtotalcredit = 0;
 
   $sameitem = $ref->{ $form->{sort} };
-
   $lxdebug->leave_sub();
 
-  return $sameitem;
 }
 
 sub update {
   $lxdebug->enter_sub();
 
-  @a     = ();
-  $count = 0;
-  @flds  = (qw(accno debit credit projectnumber project_id oldprojectnumber));
-  $credit_save = $form->{credit};
-  $debit_save  = $form->{debit};
-
-  if ($form->{chart} eq "") {
-    $form->{creditchart} =
-      "<option>" . $form->{creditchartselected} . "</option>";
-    $form->{debitchart} =
-      "<option>" . $form->{debitchartselected} . "</option>";
-  } else {
-    $form->{creditchart} = $form->{chart};
-    $form->{creditchart} =~
-      s/value=\"$form->{creditchartselected}\"/value=\"$form->{creditchartselected}\" selected/;
-
-    $form->{debitchart} = $form->{chart};
-    $form->{debitchart} =~
-      s/value=\"$form->{debitchartselected}\"/value=\"$form->{debitchartselected}\" selected/;
-  }
-  ($debitaccno,  $debittaxkey)  = split(/--/, $form->{debitchartselected});
-  ($creditaccno, $credittaxkey) = split(/--/, $form->{creditchartselected});
-  if ($debittaxkey > 0) {
-    $form->{taxchart} = $form->unescape($form->{taxchart});
-    $form->{taxchart} =~ s/selected//ig;
-    $form->{taxchart} =~
-      s/\"$debittaxkey--([^\"]*)\"/\"$debittaxkey--$1\" selected/;
-
-    $rate = $1;
-
-    if ($form->{taxincluded}) {
-      $form->{debit} =
-        $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1);
-      $form->{credit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-      $form->{tax} =
-        $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1) * $rate;
-    } else {
-      $form->{debit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-      $form->{credit} =
-        $form->parse_amount(\%myconfig, $form->{amount}) * ($rate + 1);
-      $form->{tax} = $form->parse_amount(\%myconfig, $form->{amount}) * $rate;
+  if ($form->{transdate} ne $form->{oldtransdate}) {
+    if ($form->{selectprojectnumber}) {
+      $form->all_projects(\%myconfig, undef, $form->{transdate});
+      if (@{ $form->{all_project} }) {
+        $form->{selectprojectnumber} = "<option>\n";
+        for (@{ $form->{all_project} }) {
+          $form->{selectprojectnumber} .=
+            qq|<option value="$_->{projectnumber}--$_->{id}">$_->{projectnumber}\n|;
+        }
+        $form->{selectprojectnumber} =
+          $form->escape($form->{selectprojectnumber}, 1);
+      }
     }
-  } else {
-    $form->{taxchart} = $form->unescape($form->{taxchart});
-    $form->{taxchart} =~ s/selected//ig;
-    $form->{taxchart} =~
-      s/\"$credittaxkey--([^\"]*)\"/\"$credittaxkey--$1\" selected/;
-    $rate = $1;
+    $form->{oldtransdate} = $form->{transdate};
+  }
 
-    if ($form->{taxincluded}) {
-      $form->{debit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-      $form->{credit} =
-        $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1);
-      $form->{tax} =
-        $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1) * $rate;
-    } else {
-      $form->{debit} =
-        $form->parse_amount(\%myconfig, $form->{amount}) * ($rate + 1);
-      $form->{credit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-      $form->{tax} = $form->parse_amount(\%myconfig, $form->{amount}) * $rate;
+  my @a           = ();
+  my $count       = 0;
+  my $debittax    = 0;
+  my $credittax   = 0;
+  my $debitcount  = 0;
+  my $creditcount = 0;
+  $debitlock  = 0;
+  $creditlock = 0;
+
+  my @flds =
+    qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
+
+  for my $i (1 .. $form->{rowcount}) {
+
+    unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
+      for (qw(debit credit tax)) {
+        $form->{"${_}_$i"} =
+          $form->parse_amount(\%myconfig, $form->{"${_}_$i"});
+      }
+
+      push @a, {};
+      $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
+      if ($debitcredit) {
+        $debitcount++;
+      } else {
+        $creditcount++;
+      }
+
+      if (($debitcount >= 2) && ($creditcount == 2)) {
+        $form->{"credit_$i"} = 0;
+        $form->{"tax_$i"}    = 0;
+        $creditcount--;
+        $creditlock = 1;
+      }
+      if (($creditcount >= 2) && ($debitcount == 2)) {
+        $form->{"debit_$i"} = 0;
+        $form->{"tax_$i"}   = 0;
+        $debitcount--;
+        $debitlock = 1;
+      }
+      if (($creditcount == 1) && ($debitcount == 2)) {
+        $creditlock = 1;
+      }
+      if (($creditcount == 2) && ($debitcount == 1)) {
+        $debitlock = 1;
+      }
+      if ($debitcredit && $credittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
+      if (!$debitcredit && $debittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
+      $amount =
+        ($form->{"debit_$i"} == 0)
+        ? $form->{"credit_$i"}
+        : $form->{"debit_$i"};
+      $j = $#a;
+      if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
+        $form->{"taxchart_$i"} = "0--";
+        $form->{"tax_$i"}      = 0;
+      }
+      if (!$form->{"korrektur_$i"}) {
+        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+        if ($taxkey > 1) {
+          if ($debitcredit) {
+            $debittax = 1;
+          } else {
+            $credittax = 1;
+          }
+          if ($form->{taxincluded}) {
+            $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+          } else {
+            $form->{"tax_$i"} = $amount * $rate;
+          }
+        } else {
+          $form->{"tax_$i"} = 0;
+        }
+      }
+
+      for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
+      $count++;
     }
   }
-  if ($form->{credit_splited}) {
-    $form->{debit}  = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-    $form->{credit} = $credit_save;
-    $form->{tax}    = 0;
-  } elsif ($form->{debit_splited}) {
-    $form->{credit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-    $form->{debit}  = $debit_save;
-    $form->{tax}    = 0;
+
+  for $i (1 .. $count) {
+    $j = $i - 1;
+    for (@flds) { $form->{"${_}_$i"} = $a[$j]->{$_} }
   }
-  &check_project;
+
+  for $i ($count + 1 .. $form->{rowcount}) {
+    for (@flds) { delete $form->{"${_}_$i"} }
+  }
+
+  $form->{rowcount} = $count + 1;
 
   &display_form;
-
   $lxdebug->leave_sub();
+
 }
 
 sub display_form {
+  my ($init) = @_;
   $lxdebug->enter_sub();
 
-  &form_header;
+  &form_header($init);
 
   #   for $i (1 .. $form->{rowcount}) {
   #     $form->{totaldebit} += $form->parse_amount(\%myconfig, $form->{"debit_$i"});
@@ -991,30 +1011,206 @@ sub display_form {
   #
   #     &form_row($i);
   #   }
-
+  &display_rows($init);
   &form_footer;
-
   $lxdebug->leave_sub();
+
+}
+
+sub display_rows {
+  my ($init) = @_;
+  $lxdebug->enter_sub();
+
+  $form->{selectprojectnumber} = $form->unescape($form->{selectprojectnumber})
+    if $form->{selectprojectnumber};
+
+  $form->{totaldebit}  = 0;
+  $form->{totalcredit} = 0;
+  my $chart = $form->{chart};
+  $chart            = $form->unquote($chart);
+  $form->{taxchart} = $form->unquote($form->{taxchart});
+  $taxchart         = $form->{taxchart};
+  for $i (1 .. $form->{rowcount}) {
+
+    $source = qq|
+    <td><input name="source_$i" value="$form->{"source_$i"}" tabindex=|
+      . ($i + 11 + (($i - 1) * 8)) . qq|></td>|;
+    $memo = qq|
+    <td><input name="memo_$i" value="$form->{"memo_$i"}" tabindex=|
+      . ($i + 12 + (($i - 1) * 8)) . qq|></td>|;
+
+    if ($init) {
+      $accno = qq|
+      <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
+        . ($i + 5 + (($i - 1) * 8)) . qq|>$form->{chartinit}</select></td>|;
+      $tax =
+          qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
+        . ($i + 10 + (($i - 1) * 8))
+        . qq|>$form->{taxchart}</select></td>|;
+      if ($form->{selectprojectnumber}) {
+        $project = qq|
+    <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
+      }
+      $korrektur =
+        qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
+        . ($i + 9 + (($i - 1) * 8))
+        . qq|></td>|;
+      if ($form->{transfer}) {
+        $fx_transaction = qq|
+        <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
+    |;
+      }
+
+    } else {
+      if ($form->{"debit_$i"} != 0) {
+        $form->{totaldebit} += $form->{"debit_$i"};
+        $form->{totaldebit} += $form->{"tax_$i"};
+      } else {
+        $form->{totalcredit} += $form->{"credit_$i"};
+        $form->{totalcredit} += $form->{"tax_$i"};
+      }
+
+      for (qw(debit credit tax)) {
+        $form->{"${_}_$i"} =
+          ($form->{"${_}_$i"})
+          ? $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2)
+          : "";
+      }
+
+      if ($i < $form->{rowcount}) {
+
+        $accno          = $chart;
+        $chart_selected = $form->{"accno_$i"};
+        $accno =~
+          s/value=\"$chart_selected\"/value=\"$chart_selected\" selected/;
+        $accno =
+          qq|<td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
+          . ($i + 5 + (($i - 1) * 8))
+          . qq|>$accno</select></td>|;
+        $tax          = $taxchart;
+        $tax_selected = $form->{"taxchart_$i"};
+        $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
+        $tax =
+            qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
+          . ($i + 10 + (($i - 1) * 8))
+          . qq|>$tax</select></td>|;
+
+        if ($form->{selectprojectnumber}) {
+          $form->{"projectnumber_$i"} = ""
+            if $form->{selectprojectnumber} !~ /$form->{"projectnumber_$i"}/;
+
+          $project = $form->{"projectnumber_$i"};
+          $project =~ s/--.*//;
+          $project = qq|<td>$project</td>|;
+        }
+
+        if ($form->{transfer}) {
+          $checked = ($form->{"fx_transaction_$i"}) ? "1" : "";
+          $x = ($checked) ? "x" : "";
+          $fx_transaction = qq|
+      <td><input type=hidden name="fx_transaction_$i" value="$checked">$x</td>
+    |;
+        }
+        $checked = ($form->{"korrektur_$i"}) ? "checked" : "";
+        $korrektur =
+          qq|<td><input type="checkbox" name="korrektur_$i" value="1" $checked tabindex=|
+          . ($i + 9 + (($i - 1) * 8))
+          . qq|></td>|;
+        $form->hide_form("accno_$i", "projectnumber_$i");
+
+      } else {
+
+        $accno = qq|
+      <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
+          . ($i + 5 + (($i - 1) * 8)) . qq|>$chart</select></td>|;
+        $tax = qq|
+      <td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
+          . ($i + 10 + (($i - 1) * 8)) . qq|>$taxchart</select></td>|;
+        if ($form->{selectprojectnumber}) {
+          $project = qq|
+      <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
+        }
+        $korrektur =
+          qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
+          . ($i + 9 + (($i - 1) * 8))
+          . qq|></td>|;
+        if ($form->{transfer}) {
+          $fx_transaction = qq|
+      <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
+    |;
+        }
+      }
+    }
+    my $debitreadonly  = "";
+    my $creditreadonly = "";
+    if ($i == $form->{rowcount}) {
+      if ($debitlock) {
+        $debitreadonly = "readonly";
+      } elsif ($creditlock) {
+        $creditreadonly = "readonly";
+      }
+    }
+
+    print qq|<tr valign=top>
+    $accno
+    $fx_transaction
+    <td><input name="debit_$i" size=10 value="$form->{"debit_$i"}" accesskey=$i tabindex=|
+      . ($i + 6 + (($i - 1) * 8)) . qq| $debitreadonly></td>
+    <td><input name="credit_$i" size=10 value="$form->{"credit_$i"}" tabindex=|
+      . ($i + 7 + (($i - 1) * 8)) . qq| $creditreadonly></td>
+    <td><input name="tax_$i" size=8 value="$form->{"tax_$i"}" tabindex=|
+      . ($i + 8 + (($i - 1) * 8)) . qq|></td>
+    $korrektur
+    $tax
+    $source
+    $memo
+    $project
+  </tr>
+
+  |;
+  }
+
+  $form->hide_form(qw(rowcount selectaccno));
+  print qq|
+<input type=hidden name=selectprojectnumber value="|
+    . $form->escape($form->{selectprojectnumber}, 1) . qq|">|;
+  $lxdebug->leave_sub();
+
 }
 
 sub form_header {
+  my ($init) = @_;
   $lxdebug->enter_sub();
-
   $title         = $form->{title};
   $form->{title} = $locale->text("$title General Ledger Transaction");
   $readonly      = ($form->{id}) ? "readonly" : "";
 
-  $form->{urldebit} =
-    "$form->{script}?action=split_debit&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-  $form->{urlcredit} =
-    "$form->{script}?action=split_credit&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-
   # $locale->text('Add General Ledger Transaction')
   # $locale->text('Edit General Ledger Transaction')
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description chart);
+
+  map { $form->{$_} =~ s/\"/&quot;/g }
+    qw(reference description chart taxchart);
+  $form->{javascript} = qq|<script type="text/javascript">
+  <!--
+  function setTaxkey(accno, row) {
+    var taxkey = accno.options[accno.selectedIndex].value;
+    var reg = /--([0-9])*/;
+    var found = reg.exec(taxkey);
+    var index = found[1];
+    index = parseInt(index);
+    var tax = 'taxchart_' + row;
+    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
+      var reg2 = new RegExp("^"+ index, "");
+      if (reg2.exec(document.getElementById(tax).options[i].value)) {
+        document.getElementById(tax).options[i].selected = true;
+        break;
+      }
+    }
+  };
+  //-->
+  </script>|;
 
   $form->{selectdepartment} =~ s/ selected//;
-  $form->{taxchart}         =~ s/ selected//;
   $form->{selectdepartment} =~
     s/option>\Q$form->{department}\E/option selected>$form->{department}/;
 
@@ -1028,12 +1224,9 @@ sub form_header {
 
   $taxincluded = ($form->{taxincluded}) ? "checked" : "";
 
-  if (!$form->{id}) {
+  if ($init) {
     $taxincluded = "checked";
   }
-
-  $amount =
-    qq|<input name=amount size=20 value="$form->{amount}" tabindex="4" $readonly>|;
 
   $department = qq|
   	<tr>
@@ -1042,9 +1235,11 @@ sub form_header {
 	  <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
 	</tr>
 | if $form->{selectdepartment};
-
-  $form->{fokus}  = "gl.reference";
-  $form->{remote} = 1;
+  if ($init) {
+    $form->{fokus} = "gl.reference";
+  } else {
+    $form->{fokus} = qq|gl.accno_$form->{rowcount}|;
+  }
 
   # use JavaScript Calendar or not
   $form->{jsscript} = $jscalendar;
@@ -1053,10 +1248,9 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} tabindex="2" $readonly></td>
-       <td><input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} tabindex="2" $readonly>
+       <input type=button name=transdate id="trigger1" value=|
+      . $locale->text('button') . qq|></td>  
        |;
 
     #write Trigger
@@ -1082,11 +1276,8 @@ sub form_header {
 <input type=hidden name=closedto value=$form->{closedto}>
 <input type=hidden name=locked value=$form->{locked}>
 <input type=hidden name=title value="$title">
-<input type=hidden name=taxchart value=|
-    . $form->escape($form->{taxchart}) . qq|>
+<input type=hidden name=taxchart value="$form->{taxchart}">
 <input type=hidden name=chart value="$form->{chart}">
-<input type=hidden name=creditrowcount value="$form->{creditrowcount}">
-<input type=hidden name=debitrowcount value="$form->{debitrowcount}">
 
 
 <table width=100%>
@@ -1098,10 +1289,10 @@ sub form_header {
     <td>
       <table width=100%>
 	<tr>
-	  <th align=right>| . $locale->text('Reference') . qq|</th>
+	  <th align=left>| . $locale->text('Reference') . qq|</th>
 	  <td><input name=reference size=20 value="$form->{reference}" tabindex="1" $readonly></td>
 	  <td align=left>
-	    <table width=100%>
+	    <table>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Date') . qq|</th>
                 $button1
@@ -1115,7 +1306,7 @@ sub form_header {
 	  <th align=right>| . $locale->text('Belegnummer') . qq|</th>
 	  <td><input name=id size=20 value="$form->{id}" $readonly></td>
 	  <td align=left>
-	  <table width=100%>
+	  <table>
 	      <tr>
 		<th align=right width=50%>| . $locale->text('Buchungsdatum') . qq|</th>
 		<td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly></td>
@@ -1124,13 +1315,21 @@ sub form_header {
 	  </td>
 	</tr>|;
   }
-  print qq|
+  print qq|	
 	$department|;
   if ($form->{id}) {
     print qq|
 	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td>$description</td>
+	  <th align=left width=1%>| . $locale->text('Description') . qq|</th>
+	  <td width=1%>$description</td>
+          <td>
+	    <table>
+	      <tr>
+		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
+		<td><input type=checkbox name=taxincluded value=1 tabindex="5" $taxincluded></td>
+	      </tr>
+	    </table>
+	 </td>
 	  <td align=left>
 	    <table width=100%>
 	      <tr>
@@ -1143,157 +1342,77 @@ sub form_header {
   } else {
     print qq|
 	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td colspan=3>$description</td>
-	</tr>|;
-  }
-  print qq|
-	<tr>
-	  <th align=right>| . $locale->text('Betrag') . qq|</th>
-	  <td>$amount</td>
-	  <td align=left colspan=2>
+	  <th align=left width=1%>| . $locale->text('Description') . qq|</th>
+	  <td width=1%>$description</td>
+	  <td>
 	    <table>
 	      <tr>
 		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-		<td><input type=checkbox name=taxincluded value=1 tabindex="8" $taxincluded></td>
+		<td><input type=checkbox name=taxincluded value=1 tabindex="5" $taxincluded></td>
 	      </tr>
 	    </table>
 	 </td>
 	</tr>|;
-  if ($form->{debit_splited}) {
-    print qq|
-	<tr>
-	  <th align=right>| . $locale->text('Debit') . qq|</th>
-	  <td>Betrag gesplittet</td>
-	  <td><input  name=debit size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{debit}, 2)
-      . qq|" readonly> EUR</td>
-          <td><input class=submit type=submit name=action value="|
-      . $locale->text('Split Debit')
-      . qq|"></td>
-          <input  name=debit_splited type=hidden size=10 value=$form->{debit_splited}>
-	</tr>
-        <tr>
-          <th align=right>| . $locale->text('Credit') . qq|</th>
-	  <td><select name=creditchartselected tabindex="6">$form->{creditchart}</select></td>
-	  <td><input name=credit size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{credit}, 2)
-      . qq|" readonly > EUR</td>
-          <input  name=credit_splited type=hidden size=10 value=$form->{credit_splited}>
-        </tr>
-        |;
-  } elsif ($form->{credit_splited}) {
-    print qq|
-          <tr>
-	  <th align=right>| . $locale->text('Debit') . qq|</th>
-	  <td><select name=debitchartselected tabindex="6">$form->{debitchart}</select></td>
-	  <td><input  name=debit size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{debit}, 2)
-      . qq|" readonly> EUR</td>
-          <input  name=debit_splited type=hidden size=10 value=$form->{debit_splited}>
-	  </tr>
-          <tr>
-          <th align=right>| . $locale->text('Credit') . qq|</th>
-          <td>Betrag gesplittet</td>
-	  <td><input name=credit size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{credit}, 2)
-      . qq|" readonly > EUR</td>
-          <td><input class=submit type=submit name=action value="|
-      . $locale->text('Split Credit')
-      . qq|"></td>
-          <input  name=credit_splited type=hidden size=10 value=$form->{credit_splited}>
-          |;
-  } else {
-    print qq|
-          <tr>
-	  <th align=right>| . $locale->text('Debit') . qq|</th>
-	  <td><select name=debitchartselected tabindex="6">$form->{debitchart}</select></td>
-	  <td><input  name=debit size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{debit}, 2)
-      . qq|" readonly> EUR</td>
-          <td><input class=submit type=submit name=action value="|
-      . $locale->text('Split Debit')
-      . qq|"></td>
-          <input  name=debit_splited type=hidden size=10 value=$form->{debit_splited}>
-	  </tr>
-          <tr>
-	  <th align=right>| . $locale->text('Credit') . qq|</th>
-	  <td><select name=creditchartselected tabindex="6">$form->{creditchart}</select></td>
-	  <td><input name=credit size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{credit}, 2)
-      . qq|" readonly > EUR</td>
-          <td><input class=submit type=submit name=action value="|
-      . $locale->text('Split Credit')
-      . qq|"></td>
-          <input  name=credit_splited type=hidden size=10 value=$form->{credit_splited}>
-	  </tr>
-	  <tr>
-	  <th align=right>| . $locale->text('Tax') . qq|</th>
-	  <td><select name=taxchartselected tabindex="7">$form->{taxchart}</select></td>
-	  <td><input name=tax size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{tax}, 2)
-      . qq|" readonly > EUR</td>
-          <td></td>
-	  </tr>|;
   }
   print qq|
-	</tr>      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
+      <tr>
+      <td colspan=4>
+          <table width=100%>
+	   <tr class=listheading>
+	  <th class=listheading style="width:15%">|
+    . $locale->text('Account') . qq|</th>
+	  <th class=listheading style="width:10%">|
+    . $locale->text('Debit') . qq|</th>
+	  <th class=listheading style="width:10%">|
+    . $locale->text('Credit') . qq|</th>
+          <th class=listheading style="width:10%">|
+    . $locale->text('Tax') . qq|</th>
+          <th class=listheading style="width:5%">|
+    . $locale->text('Korrektur') . qq|</th>
+          <th class=listheading style="width:10%">|
+    . $locale->text('Taxkey') . qq|</th>
+	  <th class=listheading style="width:20%">|
+    . $locale->text('Source') . qq|</th>
+	  <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
+	  $project
+	</tr>
+
 $jsscript
 |;
-
   $lxdebug->leave_sub();
+
 }
 
 sub form_footer {
   $lxdebug->enter_sub();
   ($dec) = ($form->{totaldebit} =~ /\.(\d+)/);
-  $dec           = length $dec;
+  $dec = length $dec;
   $decimalplaces = ($dec > 2) ? $dec : 2;
-  $taxrowcount   =
-    ($form->{creditrowcount} > $form->{debitrowcount})
-    ? $form->{creditrowcount}
-    : $form->{debitrowcount};
   $radieren = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   map {
     $form->{$_} =
-      $form->format_amount(\%myconfig, $form->{$_}, $decimalplaces, "&nbsp;")
+      $form->format_amount(\%myconfig, $form->{$_}, 2, "&nbsp;")
   } qw(totaldebit totalcredit);
 
   print qq|
+    <tr class=listtotal>
+    <td></td>
+    <th align=right class=listtotal> $form->{totaldebit}</th>
+    <th align=right class=listtotal> $form->{totalcredit}</th> 
+    <td colspan=5></td>
+    </tr>
+  </table>
+  </td>
+  </tr>
 </table>
-|;
-  for $i (2 .. $form->{creditrowcount}) {
-    print qq|
-    <input type=hidden name=creditchartselected_$i value="$form->{"creditchartselected_$i"}">
-    <input type=hidden name=credit_$i value="$form->{"credit_$i"}">
-    |;
-  }
-  for $i (2 .. $form->{debitrowcount}) {
-    print qq|
-    <input type=hidden name=debitchartselected_$i value="$form->{"debitchartselected_$i"}">
-    <input type=hidden name=debit_$i value="$form->{"debit_$i"}">
-    |;
-  }
-  if ($taxrowcount > 1) {
-    for $i (2 .. $taxrowcount) {
-      print qq|
-      <input type=hidden name=taxchartselected_$i value="$form->{"taxchartselected_$i"}">
-      <input type=hidden name=tax_$i value="$form->{"tax_$i"}">
-      |;
-    }
-  }
-  print qq|
+
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input name=callback type=hidden value="$form->{callback}">
+
 <br>
 |;
 
@@ -1310,8 +1429,7 @@ sub form_footer {
     if (!$form->{locked} && $radieren) {
       print qq|
 		<input class=submit type=submit name=action value="|
-        . $locale->text('Post')
-        . qq|" accesskey="b">
+        . $locale->text('Post') . qq|" accesskey="b">
 		<input class=submit type=submit name=action value="|
         . $locale->text('Delete') . qq|">|;
     }
@@ -1340,8 +1458,8 @@ sub form_footer {
 </body>
 </html>
 ";
-
   $lxdebug->leave_sub();
+
 }
 
 sub delete {
@@ -1374,8 +1492,8 @@ sub delete {
     . $locale->text('Yes') . qq|">
 </form>
 |;
-
   $lxdebug->leave_sub();
+
 }
 
 sub yes {
@@ -1384,8 +1502,8 @@ sub yes {
   $form->redirect($locale->text('Transaction deleted!'))
     if (GL->delete_transaction(\%myconfig, \%$form));
   $form->error($locale->text('Cannot delete transaction!'));
-
   $lxdebug->leave_sub();
+
 }
 
 sub post {
@@ -1399,95 +1517,136 @@ sub post {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  ($debitaccno,  $debittaxkey)  = split(/--/, $form->{debitchartselected});
-  ($creditaccno, $credittaxkey) = split(/--/, $form->{creditchartselected});
-
-  $credit_save = $form->{credit};
-  $debit_save  = $form->{debit};
-
   # check project
   &check_project;
-  ($taxkey, $taxrate) = split(/--/, $form->{taxchartselected});
 
-  if ($debittaxkey > 0) {
-    $form->{taxchart} = $form->unescape($form->{taxchart});
-    $form->{taxchart} =~ s/\"$debittaxkey--([^\"]*)\"/\"$debittaxkey--$1\"/;
+  my @a           = ();
+  my $count       = 0;
+  my $debittax    = 0;
+  my $credittax   = 0;
+  my $debitcount  = 0;
+  my $creditcount = 0;
+  $creditlock = 0;
+  $debitlock  = 0;
 
-    $rate = ($form->{taxchart} =~ /selected/) ? $taxrate : $1;
-    $form->{taxkey} =
-      ($form->{taxchart} =~ /selected/) ? $taxkey : $debittaxkey;
+  my @flds =
+    qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
-    if ($form->{storno}) {
-      $form->{debit}  = $form->parse_amount(\%myconfig, $form->{debit});
-      $form->{credit} = $form->parse_amount(\%myconfig, $form->{credit});
-      $form->{tax}    = $form->parse_amount(\%myconfig, $form->{tax});
-    } else {
-      if ($form->{taxincluded}) {
-        $form->{debit} =
-          $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1);
-        $form->{credit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-        $form->{tax} =
-          $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1) *
-          $rate;
-      } else {
-        $form->{debit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-        $form->{credit} =
-          $form->parse_amount(\%myconfig, $form->{amount}) * ($rate + 1);
-        $form->{tax} =
-          $form->parse_amount(\%myconfig, $form->{amount}) * $rate;
+  for my $i (1 .. $form->{rowcount}) {
+
+    unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
+      for (qw(debit credit tax)) {
+        $form->{"${_}_$i"} =
+          $form->parse_amount(\%myconfig, $form->{"${_}_$i"});
       }
-    }
-    $form->{debittaxkey} = 1;
 
-  } else {
-    $form->{taxchart} = $form->unescape($form->{taxchart});
-    $form->{taxchart} =~ s/\"$credittaxkey--([^\"]*)\"/\"$credittaxkey--$1\"/;
+      push @a, {};
+      $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
 
-    $rate = ($form->{taxchart} =~ /selected/) ? $taxrate : $1;
-    $form->{taxkey} =
-      ($form->{taxchart} =~ /selected/) ? $taxkey : $credittaxkey;
-
-    if ($form->{storno}) {
-      $form->{debit}  = $form->parse_amount(\%myconfig, $form->{debit});
-      $form->{credit} = $form->parse_amount(\%myconfig, $form->{credit});
-      $form->{tax}    = $form->parse_amount(\%myconfig, $form->{tax});
-    } else {
-      if ($form->{taxincluded}) {
-        $form->{debit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-        $form->{credit} =
-          $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1);
-        $form->{tax} =
-          $form->parse_amount(\%myconfig, $form->{amount}) / ($rate + 1) *
-          $rate;
+      if ($debitcredit) {
+        $debitcount++;
       } else {
-        $form->{debit} =
-          $form->parse_amount(\%myconfig, $form->{amount}) * ($rate + 1);
-        $form->{credit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-        $form->{tax} =
-          $form->parse_amount(\%myconfig, $form->{amount}) * $rate;
+        $creditcount++;
       }
-    }
-    $form->{debittaxkey} = 0;
 
+      if (($debitcount >= 2) && ($creditcount == 2)) {
+        $form->{"credit_$i"} = 0;
+        $form->{"tax_$i"}    = 0;
+        $creditcount--;
+        $creditlock = 1;
+      }
+      if (($creditcount >= 2) && ($debitcount == 2)) {
+        $form->{"debit_$i"} = 0;
+        $form->{"tax_$i"}   = 0;
+        $debitcount--;
+        $debitlock = 1;
+      }
+      if (($creditcount == 1) && ($debitcount == 2)) {
+        $creditlock = 1;
+      }
+      if (($creditcount == 2) && ($debitcount == 1)) {
+        $debitlock = 1;
+      }
+      if ($debitcredit && $credittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
+      if (!$debitcredit && $debittax) {
+        $form->{"taxchart_$i"} = "0--0.00";
+      }
+      $amount =
+        ($form->{"debit_$i"} == 0)
+        ? $form->{"credit_$i"}
+        : $form->{"debit_$i"};
+      $j = $#a;
+      if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
+        $form->{"taxchart_$i"} = "0--";
+        $form->{"tax_$i"}      = 0;
+      }
+      if (!$form->{"korrektur_$i"}) {
+        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+        if ($taxkey > 1) {
+          if ($debitcredit) {
+            $debittax = 1;
+          } else {
+            $credittax = 1;
+          }
+          if ($form->{taxincluded}) {
+            $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+          } else {
+            $form->{"tax_$i"} = $amount * $rate;
+          }
+        } else {
+          $form->{"tax_$i"} = 0;
+        }
+      }
+
+      for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
+      $count++;
+    }
   }
-  if ($form->{credit_splited}) {
-    $form->{debit}  = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-    $form->{credit} = $credit_save;
-    $form->{tax}    = 0;
-  } elsif ($form->{debit_splited}) {
-    $form->{credit} = $form->parse_amount(\%myconfig, $form->{amount}) * 1;
-    $form->{debit}  = $debit_save;
-    $form->{tax}    = 0;
+
+  for $i (1 .. $count) {
+    $j = $i - 1;
+    for (@flds) { $form->{"${_}_$i"} = $a[$j]->{$_} }
+  }
+
+  for $i ($count + 1 .. $form->{rowcount}) {
+    for (@flds) { delete $form->{"${_}_$i"} }
+  }
+
+  for $i (1 .. $form->{rowcount}) {
+    $dr  = $form->{"debit_$i"};
+    $cr  = $form->{"credit_$i"};
+    $tax = $form->{"tax_$i"};
+    if ($dr && $cr) {
+      $form->error(
+        $locale->text(
+          'Cannot post transaction with a debit and credit entry for the same account!'
+        ));
+    }
+    if ($form->{taxincluded}) {
+      $debit    += $dr;
+      $credit   += $cr;
+      $taxtotal += $tax;
+    } else {
+      if ($dr) {
+        $debit += $dr + $tax;
+      }
+      if ($cr) {
+        $credit += $cr + $tax;
+      }
+    }
+  }
+  if (!$taxtotal) {
+    $form->{taxincluded} = 0;
   }
 
   # this is just for the wise guys
   $form->error($locale->text('Cannot post transaction for a closed period!'))
     if ($transdate <= $closedto);
-  $form->error($locale->text('Soll- und Habenkonto sind gleich!'))
-    if ($debitaccno eq $creditaccno);
-  $form->error($locale->text('Keine Steuerautomatik möglich!'))
-    if ($debittaxkey && $credittaxkey && !($taxkey == 0));
-
+  if ($form->round_amount($debit, 2) != $form->round_amount($credit, 2)) {
+    $form->error($locale->text('Out of balance transaction!'));
+  }
   if (($errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
     $errno *= -1;
     $err[1] = $locale->text('Cannot have a value in both Debit and Credit!');
@@ -1498,8 +1657,8 @@ sub post {
   }
   undef($form->{callback});
   $form->redirect("Buchung gespeichert. Buchungsnummer = " . $form->{id});
-
   $lxdebug->leave_sub();
+
 }
 
 sub post_as_new {
@@ -1507,8 +1666,8 @@ sub post_as_new {
 
   $form->{id} = 0;
   &add;
-
   $lxdebug->leave_sub();
+
 }
 
 sub storno {
@@ -1517,375 +1676,7 @@ sub storno {
   $form->{id}     = 0;
   $form->{storno} = 1;
   &post;
-
   $lxdebug->leave_sub();
+
 }
 
-sub split_debit {
-  $lxdebug->enter_sub();
-
-  # change callback
-  $form->{old_callback} = $form->escape($form->{callback}, 1);
-  $form->{callback} = $form->escape("$form->{script}?action=update", 1);
-
-  # delete action
-  delete $form->{action};
-
-  # save all other form variables in a previousform variable
-  foreach $key (keys %$form) {
-
-    # escape ampersands
-    $form->{$key} =~ s/&/%26/g;
-    $previousform .= qq|$key=$form->{$key}&|;
-  }
-  chop $previousform;
-  $previousform = $form->escape($previousform, 1);
-  if (!$form->{debitpost}) {
-    $form->{debitpost} = $form->{amount};
-  }
-  $form->{previousform} = $previousform;
-  &display_split_debit();
-
-  $lxdebug->leave_sub();
-}
-
-sub split_credit {
-  $lxdebug->enter_sub();
-
-  # change callback
-  $form->{old_callback} = $form->escape($form->{callback}, 1);
-  $form->{callback} = $form->escape("$form->{script}?action=update", 1);
-
-  # delete action
-  delete $form->{action};
-
-  # save all other form variables in a previousform variable
-  foreach $key (keys %$form) {
-
-    # escape ampersands
-    $form->{$key} =~ s/&/%26/g;
-    $previousform .= qq|$key=$form->{$key}&|;
-  }
-  chop $previousform;
-  $previousform = $form->escape($previousform, 1);
-  if (!$form->{creditpost}) {
-    $form->{creditpost} = $form->{amount};
-  }
-  $form->{previousform} = $previousform;
-  &display_split_credit();
-  $lxdebug->leave_sub();
-}
-
-sub display_split_credit {
-  $lxdebug->enter_sub();
-  $form->{taxchart} = $form->unescape($form->{taxchart});
-
-  $form->header;
-
-  print qq|
-<body>
-<form method=post name=split_credit action=gl.pl>
-|
-    . $locale->text('Credit') . qq|: |
-    . $form->format_amount(\%myconfig, $form->{amount}, 2)
-    . qq| EUR<br>
-|
-    . $locale->text('Still to post')
-    . qq|:<input name=creditpost size=10 value="|
-    . $form->format_amount(\%myconfig, $form->{creditpost}, 2)
-    . qq|"> EUR<br>
-<script type="text/javascript">
-           function update_stilltopost (betrag){
-           remaining = parseFloat(document.split_credit.creditpost.value) - parseFloat(betrag);
-           document.split_credit.creditpost.value= remaining;
-           }
-</script>
-
-<table>|;
-  for $i (2 .. $form->{creditrowcount}) {
-    $form->{"creditchart_$i"} = $form->{chart};
-    $form->{"creditchart_$i"} =~
-      s/value=\"$form->{"creditchartselected_$i"}\"/value=\"$form->{"creditchartselected_$i"}\" selected/;
-
-    $form->{"taxchart_$i"} = $form->{taxchart};
-    $form->{"taxchart_$i"} =~
-      s/value=\"$form->{"taxchartselected_$i"}\"/value=\"$form->{"taxchartselected_$i"}\" selected/;
-    $position = $i - 1;
-    print qq|
-  <tr><td></td></tr>
-  <tr>
-    <th>Position $position</th>
-    <td><select name=creditchartselected_$i>$form->{"creditchart_$i"}</select></td>
-    <th align=right>| . $locale->text('Amount') . qq| $1</th>
-    <td><input name=credit_$i size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{"credit_$i"}, 2)
-      . qq|" onBlur="update_stilltopost(this.value)"> EUR</td>
-  </tr>
-  <tr>
-    <th></th>
-    <td><select name=taxchartselected_$i>$form->{"taxchart_$i"}</select></td>
-    <th align=right>| . $locale->text('Tax') . qq|</th>
-    <td><input name=tax_$i size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2)
-      . qq|"> EUR</td>
-    <td><input type=checkbox name=tax_manual_$i value=1> Steuerkorrektur</td>
-  </tr>
-  <td></td>
-  <tr>
-  </tr>
-  <tr>
-    <td colspan=5><hr size=3 noshade></td>
-  </tr>
-
-|;
-  }
-  print qq|
-</table>
-<input type=hidden name=previousform value="$form->{previousform}">
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-<input type=hidden name=callback value=$form->{callback}>
-<input type=hidden name=old_callback value=$form->{old_callback}>
-<input type=hidden name=amount value=$form->{amount}>
-<input type=hidden name=credit_splited value=1>
-<input type=hidden name=creditrowcount value="$form->{creditrowcount}">
-<input type=hidden name=chart value=| . $form->escape($form->{chart}) . qq|>
-<input type=hidden name=taxchart value=|
-    . $form->escape($form->{taxchart}) . qq|>
-<p>
-<input class=submit type=submit name=action value="|
-    . $locale->text('New Account') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('Close') . qq|">
-</form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub display_split_debit {
-  $lxdebug->enter_sub();
-  $form->{taxchart} = $form->unescape($form->{taxchart});
-
-  $form->header;
-
-  print qq|
-<body>
-<form method=post name=split_debit action=gl.pl>
-|
-    . $locale->text('Debit') . qq|: |
-    . $form->format_amount(\%myconfig, $form->{amount}, 2)
-    . qq| EUR<br>
-|
-    . $locale->text('Still to post')
-    . qq|:<input name=debitpost size=10 value="|
-    . $form->format_amount(\%myconfig, $form->{debitpost}, 2)
-    . qq|"> EUR<br>
-<script type="text/javascript">
-           function update_stilltopost (betrag){
-           remaining = parseFloat(document.split_debit.debitpost.value) - parseFloat(betrag);
-           document.split_debit.debitpost.value= remaining;
-           }
-</script>
-
-<table>|;
-  for $i (2 .. $form->{debitrowcount}) {
-    $form->{"debitchart_$i"} = $form->{chart};
-    $form->{"debitchart_$i"} =~
-      s/value=\"$form->{"debitchartselected_$i"}\"/value=\"$form->{"debitchartselected_$i"}\" selected/;
-
-    $form->{"taxchart_$i"} = $form->{taxchart};
-    $form->{"taxchart_$i"} =~
-      s/value=\"$form->{"taxchartselected_$i"}\"/value=\"$form->{"taxchartselected_$i"}\" selected/;
-    $position = $i - 1;
-    print qq|
-  <tr><td></td></tr>
-  <tr>
-    <th>Position $position</th>
-    <td><select name=debitchartselected_$i>$form->{"debitchart_$i"}</select></td>
-    <th align=right>| . $locale->text('Amount') . qq| $1</th>
-    <td><input name=debit_$i size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{"debit_$i"}, 2)
-      . qq|" onBlur="update_stilltopost(this.value)"> EUR</td>
-  </tr>
-  <tr>
-    <th></th>
-    <td><select name=taxchartselected_$i>$form->{"taxchart_$i"}</select></td>
-    <th align=right>| . $locale->text('Tax') . qq|</th>
-    <td><input name=tax_$i size=10 value="|
-      . $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2)
-      . qq|"> EUR</td>
-    <td><input type=checkbox name=tax_manual_$i value=1> Steuerkorrektur</td>
-  </tr>
-  <td></td>
-  <tr>
-  </tr>
-  <tr>
-    <td colspan=5><hr size=3 noshade></td>
-  </tr>
-
-|;
-  }
-  print qq|
-</table>
-<input type=hidden name=previousform value="$form->{previousform}">
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-<input type=hidden name=callback value=$form->{callback}>
-<input type=hidden name=old_callback value=$form->{old_callback}>
-<input type=hidden name=amount value=$form->{amount}>
-<input type=hidden name=debit_splited value=1>
-<input type=hidden name=debitrowcount value="$form->{debitrowcount}">
-<input type=hidden name=chart value=| . $form->escape($form->{chart}) . qq|>
-<input type=hidden name=taxchart value=|
-    . $form->escape($form->{taxchart}) . qq|>
-<p>
-<input class=submit type=submit name=action value="|
-    . $locale->text('New Account') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('Close') . qq|">
-</form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub new_account {
-  $lxdebug->enter_sub();
-
-  $form->{chart} = $form->unescape($form->{chart});
-
-  if ($form->{credit_splited}) {
-    $form->{creditpost} = $form->{amount};
-
-    for $i (2 .. $form->{creditrowcount}) {
-      $form->{"credit_$i"} =
-        $form->parse_amount(\%myconfig, $form->{"credit_$i"});
-      $form->{creditpost} -= $form->{"credit_$i"};
-      ($taxkey, $taxrate) = split(/--/, $form->{"taxchartselected_$i"});
-      if ($form->{"tax_manual_$i"}) {
-        $form->{"tax_$i"} = $form->parse_amount(\%myconfig, $form->{"tax_$i"});
-      } else {
-        $form->{"tax_$i"} = $form->{"credit_$i"} * $taxrate;
-      }
-      $form->{creditpost} -= $form->{"tax_$i"};
-
-    }
-    if ($form->{"credit_$form->{creditrowcount}"}) {
-      $form->{creditrowcount}++;
-    }
-
-    &display_split_credit;
-  }
-  if ($form->{debit_splited}) {
-    $form->{debitpost} = $form->{amount};
-
-    for $i (2 .. $form->{debitrowcount}) {
-      $form->{"debit_$i"} =
-        $form->parse_amount(\%myconfig, $form->{"debit_$i"});
-      $form->{debitpost} -= $form->{"debit_$i"};
-      ($taxkey, $taxrate) = split(/--/, $form->{"taxchartselected_$i"});
-      if ($form->{"tax_manual_$i"}) {
-        $form->{"tax_$i"} = $form->parse_amount(\%myconfig, $form->{"tax_$i"});
-      } else {
-        $form->{"tax_$i"} = $form->{"debit_$i"} * $taxrate;
-      }
-      $form->{debitpost} -= $form->{"tax_$i"};
-
-    }
-    if ($form->{"debit_$form->{debitrowcount}"}) {
-      $form->{debitrowcount}++;
-    }
-
-    &display_split_debit;
-  }
-  $lxdebug->leave_sub();
-}
-
-sub close {
-  $lxdebug->enter_sub();
-
-  # save the new form variables before splitting previousform
-  map { $newform{$_} = $form->{$_} } keys %$form;
-
-  $previousform = $form->unescape($form->{previousform});
-
-  # don't trample on previous variables
-  map { delete $form->{$_} } keys %newform;
-
-  # now take it apart and restore original values
-  foreach $item (split /&/, $previousform) {
-    ($key, $value) = split /=/, $item, 2;
-    $value =~ s/%26/&/g;
-    $form->{$key} = $value;
-  }
-  if ($newform{credit_splited}) {
-    $form->{credit}         = 0;
-    $form->{credit_splited} = $newform{credit_splited};
-    $form->{creditrowcount} = $newform{creditrowcount};
-    for $i (2 .. $form->{creditrowcount}) {
-      $form->{"creditchartselected_$i"} = $newform{"creditchartselected_$i"};
-      $form->{"credit_$i"}              = $newform{"credit_$i"};
-      $form->{"credit_$i"}              =
-        $form->parse_amount(\%myconfig, $form->{"credit_$i"});
-      $form->{"taxchartselected_$i"} = $newform{"taxchartselected_$i"};
-      ($taxkey, $taxrate) = split(/--/, $form->{"taxchartselected_$i"});
-      if ($newform{"tax_manual_$i"}) {
-        $form->{"tax_$i"} =
-          $form->parse_amount(\%myconfig, $newform{"tax_$i"});
-      } else {
-        $form->{"tax_$i"} = $form->{"credit_$i"} * $taxrate;
-      }
-      $form->{credit} += $form->round_amount($form->{"credit_$i"}, 2);
-      $form->{credit} += $form->round_amount($form->{"tax_$i"},    2);
-
-    }
-  } else {
-    $form->{debit}         = 0;
-    $form->{debit_splited} = $newform{debit_splited};
-    $form->{debitrowcount} = $newform{debitrowcount};
-    for $i (2 .. $form->{debitrowcount}) {
-      $form->{"debitchartselected_$i"} = $newform{"debitchartselected_$i"};
-      $form->{"debit_$i"}              = $newform{"debit_$i"};
-      $form->{"debit_$i"}              =
-        $form->parse_amount(\%myconfig, $form->{"debit_$i"});
-      $form->{"taxchartselected_$i"} = $newform{"taxchartselected_$i"};
-      ($taxkey, $taxrate) = split(/--/, $form->{"taxchartselected_$i"});
-      if ($newform{"tax_manual_$i"}) {
-        $form->{"tax_$i"} =
-          $form->parse_amount(\%myconfig, $newform{"tax_$i"});
-      } else {
-        $form->{"tax_$i"} = $form->{"debit_$i"} * $taxrate;
-      }
-      $form->{debit} += $form->round_amount($form->{"debit_$i"}, 2);
-      $form->{debit} += $form->round_amount($form->{"tax_$i"},   2);
-    }
-  }
-  delete $form->{action};
-  $callback = $form->unescape($form->{callback});
-  $form->{callback} = $form->unescape($form->{old_callback});
-  delete $form->{old_callback};
-
-  # put callback together
-  foreach $key (keys %$form) {
-
-    # do single escape for Apache 2.0
-    $value = $form->escape($form->{$key}, 1);
-    $callback .= qq|&$key=$value|;
-  }
-  $form->{callback} = $callback;
-
-  # redirect
-  $form->redirect;
-  $lxdebug->leave_sub();
-}
