@@ -192,6 +192,42 @@ sub unescape {
   return $str;
 }
 
+sub quote {
+  my ($self, $str) = @_;
+
+  if ($str && ! ref($str)) {
+    $str =~ s/"/&quot;/g;
+  }
+
+  $str;
+
+}
+
+
+sub unquote {
+  my ($self, $str) = @_;
+
+  if ($str && ! ref($str)) {
+    $str =~ s/&quot;/"/g;
+  }
+
+  $str;
+
+}
+
+ 
+sub hide_form {
+  my $self = shift;
+
+  if (@_) {
+    for (@_) { print qq|<input type=hidden name="$_" value="|.$self->quote($self->{$_}).qq|">\n| }
+  } else {
+    delete $self->{header};
+    for (sort keys %$self) { print qq|<input type=hidden name="$_" value="|.$self->quote($self->{$_}).qq|">\n| }
+  }
+  
+}
+
 sub error {
   $main::lxdebug->enter_sub();
 
@@ -348,6 +384,7 @@ function fokus(){document.$self->{fokus}.focus();}
         <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
         <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
         <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+        $self->{javascript}
        |;
     }
 
@@ -489,6 +526,7 @@ sub format_amount {
 
   # is the amount negative
   my $negative = ($amount < 0);
+  my $fillup = "";
 
   if ($amount != 0) {
     if ($myconfig->{numberformat} && ($myconfig->{numberformat} ne '1000.00'))
@@ -496,24 +534,25 @@ sub format_amount {
       my ($whole, $dec) = split /\./, "$amount";
       $whole =~ s/-//;
       $amount = join '', reverse split //, $whole;
+      $fillup = "0" x ($places - length($dec));
 
       if ($myconfig->{numberformat} eq '1,000.00') {
         $amount =~ s/\d{3,}?/$&,/g;
         $amount =~ s/,$//;
         $amount = join '', reverse split //, $amount;
-        $amount .= "\.$dec" if ($dec ne "");
+        $amount .= "\.$dec".$fillup;
       }
 
       if ($myconfig->{numberformat} eq '1.000,00') {
         $amount =~ s/\d{3,}?/$&./g;
         $amount =~ s/\.$//;
         $amount = join '', reverse split //, $amount;
-        $amount .= ",$dec" if ($dec ne "");
+        $amount .= ",$dec" .$fillup;
       }
 
       if ($myconfig->{numberformat} eq '1000,00') {
         $amount = "$whole";
-        $amount .= ",$dec" if ($dec ne "");
+        $amount .= ",$dec" .$fillup;
       }
 
       if ($dash =~ /-/) {
@@ -586,6 +625,8 @@ sub round_amount {
 
   return $rc;
 }
+
+
 
 sub parse_template {
   $main::lxdebug->enter_sub();
@@ -2081,6 +2122,94 @@ sub get_partsgroup {
   $sth->finish;
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
+}
+
+
+sub audittrail {
+  my ($self, $dbh, $myconfig, $audittrail) = @_;
+  
+# table, $reference, $formname, $action, $id, $transdate) = @_;
+
+  my $query;
+  my $rv;
+  my $disconnect;
+
+  if (! $dbh) {
+    $dbh = $self->dbconnect($myconfig);
+    $disconnect = 1;
+  }
+    
+  # if we have an id add audittrail, otherwise get a new timestamp
+  
+  if ($audittrail->{id}) {
+    
+    $query = qq|SELECT audittrail FROM defaults|;
+    
+    if ($dbh->selectrow_array($query)) {
+      my ($null, $employee_id) = $self->get_employee($dbh);
+
+      if ($self->{audittrail} && !$myconfig) {
+	chop $self->{audittrail};
+	
+	my @a = split /\|/, $self->{audittrail};
+	my %newtrail = ();
+	my $key;
+	my $i;
+	my @flds = qw(tablename reference formname action transdate);
+
+	# put into hash and remove dups
+	while (@a) {
+	  $key = "$a[2]$a[3]";
+	  $i = 0;
+	  $newtrail{$key} = { map { $_ => $a[$i++] } @flds };
+	  splice @a, 0, 5;
+	}
+	
+	$query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
+		    formname, action, employee_id, transdate)
+	            VALUES ($audittrail->{id}, ?, ?,
+		    ?, ?, $employee_id, ?)|;
+	my $sth = $dbh->prepare($query) || $self->dberror($query);
+
+	foreach $key (sort { $newtrail{$a}{transdate} cmp $newtrail{$b}{transdate} } keys %newtrail) {
+	  $i = 1;
+	  for (@flds) { $sth->bind_param($i++, $newtrail{$key}{$_}) }
+
+	  $sth->execute || $self->dberror;
+	  $sth->finish;
+	}
+      }
+
+     
+      if ($audittrail->{transdate}) {
+	$query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
+		    formname, action, employee_id, transdate) VALUES (
+		    $audittrail->{id}, '$audittrail->{tablename}', |
+		    .$dbh->quote($audittrail->{reference}).qq|',
+		    '$audittrail->{formname}', '$audittrail->{action}',
+		    $employee_id, '$audittrail->{transdate}')|;
+      } else {
+	$query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
+		    formname, action, employee_id) VALUES ($audittrail->{id},
+		    '$audittrail->{tablename}', |
+		    .$dbh->quote($audittrail->{reference}).qq|,
+		    '$audittrail->{formname}', '$audittrail->{action}',
+		    $employee_id)|;
+      }
+      $dbh->do($query);
+    }
+  } else {
+    
+    $query = qq|SELECT current_timestamp FROM defaults|;
+    my ($timestamp) = $dbh->selectrow_array($query);
+
+    $rv = "$audittrail->{tablename}|$audittrail->{reference}|$audittrail->{formname}|$audittrail->{action}|$timestamp|";
+  }
+
+  $dbh->disconnect if $disconnect;
+  
+  $rv;
+  
 }
 
 package Locale;
