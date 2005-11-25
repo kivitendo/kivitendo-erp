@@ -160,6 +160,13 @@ sub edit {
     if ($tax && ($ref->{accno} eq $taxaccno)) {
       $form->{"tax_$j"}      = abs($ref->{amount});
       $form->{"taxchart_$j"} = $ref->{taxkey} . "--" . $ref->{taxrate};
+      if ($form->{taxincluded}) {
+        if ($ref->{amount} < 0) {
+          $form->{"debit_$j"} += $form->{"tax_$j"};
+        } else {
+          $form->{"credit_$j"} += $form->{"tax_$j"};
+        }
+      }
     } else {
       $form->{"accno_$i"} = "$ref->{accno}--$ref->{accnotaxkey}";
       for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
@@ -170,6 +177,7 @@ sub edit {
         $form->{totalcredit} += $ref->{amount};
         $form->{"credit_$i"} = $ref->{amount};
       }
+      $form->{"taxchart_$i"} = "0--";
       $i++;
     }
     if ($ref->{taxaccno} && !$tax) {
@@ -1047,10 +1055,10 @@ sub display_rows {
           qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
         . ($i + 10 + (($i - 1) * 8))
         . qq|>$form->{taxchart}</select></td>|;
-      if ($form->{selectprojectnumber}) {
-        $project = qq|
-    <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
-      }
+#       if ($form->{selectprojectnumber}) {
+#         $project = qq|
+#     <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
+#       }
       $korrektur =
         qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
         . ($i + 9 + (($i - 1) * 8))
@@ -1064,10 +1072,14 @@ sub display_rows {
     } else {
       if ($form->{"debit_$i"} != 0) {
         $form->{totaldebit} += $form->{"debit_$i"};
-        $form->{totaldebit} += $form->{"tax_$i"};
+        if (!$form->{taxincluded}) {
+          $form->{totaldebit} += $form->{"tax_$i"};
+        }
       } else {
         $form->{totalcredit} += $form->{"credit_$i"};
-        $form->{totalcredit} += $form->{"tax_$i"};
+        if (!$form->{taxincluded}) {
+          $form->{totalcredit} += $form->{"tax_$i"};
+        }
       }
 
       for (qw(debit credit tax)) {
@@ -1095,14 +1107,14 @@ sub display_rows {
           . ($i + 10 + (($i - 1) * 8))
           . qq|>$tax</select></td>|;
 
-        if ($form->{selectprojectnumber}) {
-          $form->{"projectnumber_$i"} = ""
-            if $form->{selectprojectnumber} !~ /$form->{"projectnumber_$i"}/;
-
-          $project = $form->{"projectnumber_$i"};
-          $project =~ s/--.*//;
-          $project = qq|<td>$project</td>|;
-        }
+#         if ($form->{selectprojectnumber}) {
+#           $form->{"projectnumber_$i"} = ""
+#             if $form->{selectprojectnumber} !~ /$form->{"projectnumber_$i"}/;
+# 
+#           $project = $form->{"projectnumber_$i"};
+#           $project =~ s/--.*//;
+#           $project = qq|<td>$project</td>|;
+#         }
 
         if ($form->{transfer}) {
           $checked = ($form->{"fx_transaction_$i"}) ? "1" : "";
@@ -1116,7 +1128,7 @@ sub display_rows {
           qq|<td><input type="checkbox" name="korrektur_$i" value="1" $checked tabindex=|
           . ($i + 9 + (($i - 1) * 8))
           . qq|></td>|;
-        $form->hide_form("accno_$i", "projectnumber_$i");
+        $form->hide_form("accno_$i");
 
       } else {
 
@@ -1126,10 +1138,10 @@ sub display_rows {
         $tax = qq|
       <td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
           . ($i + 10 + (($i - 1) * 8)) . qq|>$taxchart</select></td>|;
-        if ($form->{selectprojectnumber}) {
-          $project = qq|
-      <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
-        }
+#         if ($form->{selectprojectnumber}) {
+#           $project = qq|
+#       <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
+#         }
         $korrektur =
           qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
           . ($i + 9 + (($i - 1) * 8))
@@ -1164,16 +1176,15 @@ sub display_rows {
     $tax
     $source
     $memo
-    $project
   </tr>
 
   |;
   }
 
   $form->hide_form(qw(rowcount selectaccno));
-  print qq|
-<input type=hidden name=selectprojectnumber value="|
-    . $form->escape($form->{selectprojectnumber}, 1) . qq|">|;
+#   print qq|
+# <input type=hidden name=selectprojectnumber value="|
+#     . $form->escape($form->{selectprojectnumber}, 1) . qq|">|;
   $lxdebug->leave_sub();
 
 }
@@ -1531,6 +1542,19 @@ sub post {
 
   my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
+  if ($form->{storno}) {
+    for my $i (1 .. $form->{rowcount}) {
+      unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
+        if ($form->{"debit_$i"} ne "") {
+          $form->{"credit_$i"} = $form->{"debit_$i"};
+          $form->{"debit_$i"} = "";
+        } elsif ($form->{"credit_$i"} ne "") {
+          $form->{"debit_$i"} = $form->{"credit_$i"};
+          $form->{"credit_$i"} = "";
+        }
+      }
+    }
+  }
 
   for my $i (1 .. $form->{rowcount}) {
 
@@ -1592,11 +1616,22 @@ sub post {
           }
           if ($form->{taxincluded}) {
             $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+            if ($debitcredit) {
+              $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+            } else {
+              $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+            }
           } else {
             $form->{"tax_$i"} = $amount * $rate;
           }
         } else {
           $form->{"tax_$i"} = 0;
+        }
+      } elsif ($form->{taxincluded}) {
+        if ($debitcredit) {
+          $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+        } else {
+          $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
         }
       }
 
@@ -1625,8 +1660,12 @@ sub post {
         ));
     }
     if ($form->{taxincluded}) {
-      $debit    += $dr;
-      $credit   += $cr;
+      if ($dr) {
+        $debit += $dr + $tax;
+      }
+      if ($cr) {
+        $credit += $cr + $tax;
+      }
       $taxtotal += $tax;
     } else {
       if ($dr) {
