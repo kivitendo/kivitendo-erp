@@ -43,7 +43,7 @@ require "$form->{path}/arap.pl";
 
 sub add {
   $lxdebug->enter_sub();
-
+print STDERR "ir.pl-add\n";
   $form->{title} = $locale->text('Add Vendor Invoice');
 
   &invoice_links;
@@ -67,7 +67,7 @@ sub edit {
 
 sub invoice_links {
   $lxdebug->enter_sub();
-
+print STDERR "ir.pl-invoice_links\n";
   # create links
   $form->{webdav} = $webdav;
 
@@ -160,7 +160,7 @@ sub invoice_links {
 
 sub prepare_invoice {
   $lxdebug->enter_sub();
-
+print STDERR "ir.pl-prepare_invoice\n";
   if ($form->{id}) {
 
     map { $form->{$_} =~ s/\"/&quot;/g } qw(invnumber ordnumber quonumber);
@@ -188,7 +188,7 @@ sub prepare_invoice {
 
 sub form_header {
   $lxdebug->enter_sub();
-
+print STDERR "ir.pl-form_header\n";
   # set option selected
   foreach $item (qw(AP vendor currency department contact)) {
     $form->{"select$item"} =~ s/ selected//;
@@ -304,6 +304,7 @@ sub form_header {
 <input type=hidden name=title value="$form->{title}">
 <input type=hidden name=vc value="vendor">
 <input type=hidden name=type value=$form->{type}>
+<input type=hidden name=level value=$form->{level}>
 
 <input type=hidden name=creditlimit value=$form->{creditlimit}>
 <input type=hidden name=creditremaining value=$form->{creditremaining}>
@@ -416,7 +417,7 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
-
+print STDERR "ir.pl-form_footer\n";
   $form->{invtotal} = $form->{invsubtotal};
 
   if (($rows = $form->numtextrows($form->{notes}, 25, 8)) < 2) {

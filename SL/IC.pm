@@ -33,7 +33,7 @@
 #======================================================================
 
 package IC;
-
+use Data::Dumper;
 sub get_part {
   $main::lxdebug->enter_sub();
 
@@ -101,6 +101,76 @@ sub get_part {
   $form->{amount}{IC_expense} = $form->{expense_accno};
   $form->{amount}{IC_cogs}    = $form->{expense_accno};
 
+  # get prices
+  $query =
+    qq|SELECT p.parts_id, p.pricegroup_id, p.price, (SELECT pg.pricegroup FROM pricegroup pg WHERE pg.id=p.pricegroup_id) AS pricegroup FROM prices p
+              WHERE parts_id = $form->{id}
+              ORDER by pricegroup|;
+
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  @pricegroups          = ();
+  @pricegroups_not_used = ();
+
+  #for pricegroups
+  my $i = 1;
+  while (
+         ($form->{"klass_$i"}, $form->{"pricegroup_id_$i"},
+          $form->{"price_$i"}, $form->{"pricegroup_$i"})
+         = $sth->fetchrow_array
+    ) {
+    $form->{"price_$i"} = $form->round_amount($form->{"price_$i"}, 5);
+    $form->{"price_$i"} =
+      $form->format_amount($myconfig, $form->{"price_$i"}, 5);
+    push @pricegroups, $form->{"pricegroup_id_$i"};
+    $i++;
+  }
+
+  $sth->finish;
+
+  # get pricegroups
+  $query = qq|SELECT p.id, p.pricegroup FROM pricegroup p|;
+
+  $pkq = $dbh->prepare($query);
+  $pkq->execute || $form->dberror($query);
+  while ($pkr = $pkq->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{PRICEGROUPS} }, $pkr;
+  }
+  $pkq->finish;
+
+  #find not used pricegroups
+  while ($tmp = pop @{ $form->{PRICEGROUPS} }) {
+    my $insert = 0;
+    foreach $item (@pricegroups) {
+      if ($item eq $tmp->{id}) {
+
+        #drop
+        $insert = 1;
+      }
+    }
+    if ($insert == 0) {
+      push @pricegroups_not_used, $tmp;
+    }
+  }
+
+  # if not used pricegroups are avaible
+  if (@pricegroups_not_used) {
+
+    foreach $name (@pricegroups_not_used) {
+      $form->{"klass_$i"} = "$name->{id}";
+      $form->{"price_$i"} = $form->round_amount($form->{sellprice}, 5);
+      $form->{"price_$i"} =
+        $form->format_amount($myconfig, $form->{"price_$i"}, 5);
+      $form->{"pricegroup_id_$i"} = "$name->{id}";
+      $form->{"pricegroup_$i"}    = "$name->{pricegroup}\n";
+      $i++;
+    }
+  }
+
+  #correct rows
+  $form->{price_rows} = $i - 1;
+
   unless ($form->{item} eq 'service') {
 
     # get makes
@@ -160,6 +230,52 @@ sub get_part {
 
   $main::lxdebug->leave_sub();
 }
+
+sub get_pricegroups {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  my $dbh = $form->dbconnect($myconfig);
+  my $i = 1;
+  my @pricegroups_not_used = ();
+
+  # get pricegroups
+  my $query = qq|SELECT p.id, p.pricegroup FROM pricegroup p|;
+
+  my $pkq = $dbh->prepare($query);
+  $pkq->execute || $form->dberror($query);
+  while ($pkr = $pkq->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{PRICEGROUPS} }, $pkr;
+  }
+  $pkq->finish;
+
+  #find not used pricegroups
+  while ($tmp = pop @{ $form->{PRICEGROUPS} }) {
+    push @pricegroups_not_used, $tmp;
+  }
+
+  # if not used pricegroups are avaible
+  if (@pricegroups_not_used) {
+
+    foreach $name (@pricegroups_not_used) {
+      $form->{"klass_$i"} = "$name->{id}";
+      $form->{"price_$i"} = $form->round_amount($form->{sellprice}, 5);
+      $form->{"price_$i"} =
+        $form->format_amount($myconfig, $form->{"price_$i"}, 5);
+      $form->{"pricegroup_id_$i"} = "$name->{id}";
+      $form->{"pricegroup_$i"}    = "$name->{pricegroup}\n";
+      $i++;
+    }
+  }
+
+  #correct rows
+  $form->{price_rows} = $i - 1;
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
 
 sub save {
   $main::lxdebug->enter_sub();
@@ -331,6 +447,29 @@ sub save {
 	      partsgroup_id = $partsgroup_id
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
+
+  # delete price records
+  $query = qq|DELETE FROM prices
+              WHERE parts_id = $form->{id}|;
+  $dbh->do($query) || $form->dberror($query);
+
+  # insert price records only if different to sellprice
+  for my $i (1 .. $form->{price_rows}) {
+    if ($form->{"price_$i"} eq "0") {
+       $form->{"price_$i"} = $form->{sellprice};
+    }
+    if ((   $form->{"price_$i"} 
+        || $form->{"klass_$i"}
+        || $form->{"pricegroup_id_$i"}) and $form->{"price_$i"} != $form->{sellprice}) {
+      $klass = $form->parse_amount($myconfig, $form->{"klass_$i"});
+      $price = $form->parse_amount($myconfig, $form->{"price_$i"});
+      $pricegroup_id =
+        $form->parse_amount($myconfig, $form->{"pricegroup_id_$i"});
+      $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price)
+                  VALUES($form->{id},$pricegroup_id,$price)|;
+      $dbh->do($query) || $form->dberror($query);
+    }
+  }
 
   # insert makemodel records
   unless ($form->{item} eq 'service') {

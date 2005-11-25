@@ -160,7 +160,8 @@ CREATE TABLE "invoice" (
 	"deliverydate" date,
 	"serialnumber" text,
         "itime" timestamp DEFAULT now(),
-        "mtime" timestamp
+        "mtime" timestamp,
+        "pricegroup_id" integer
 );
 
 CREATE TABLE "vendor" (
@@ -241,7 +242,8 @@ CREATE TABLE "customer" (
         "username" varchar(50),
         "user_password" varchar(12),
         "salesman_id" integer,
-        "c_vendor_id" text
+        "c_vendor_id" text,
+        "klass" integer DEFAULT 0
         
 );
 
@@ -394,7 +396,8 @@ CREATE TABLE "orderitems" (
 	"serialnumber" text,
 	"id" integer DEFAULT nextval('orderitemsid'::text) PRIMARY KEY,
         "itime" timestamp DEFAULT now(),
-        "mtime" timestamp
+        "mtime" timestamp,
+        "pricegroup_id" integer
 );
 
 CREATE TABLE "exchangerate" (
@@ -550,6 +553,22 @@ CREATE TABLE "licenseinvoice" (
   trans_id integer,
   license_id integer
 );
+
+-- Preisgruppenverwaltung
+CREATE TABLE "pricegroup" (
+  "id" integer DEFAULT nextval('id'::text),
+  "pricegroup" text not null,
+  PRIMARY KEY (id)
+);
+--Preisverwaltung der Preisgruppen
+CREATE TABLE "prices" (
+  "parts_id" integer REFERENCES parts(id),
+  "pricegroup_id" integer REFERENCES pricegroup(id),
+  "price" numeric(15,5)
+);
+
+
+
 
 -- Table of tax authoritys
 -- for module ustva

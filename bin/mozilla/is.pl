@@ -33,6 +33,7 @@
 
 use SL::IS;
 use SL::PE;
+use Data::Dumper;
 
 require "$form->{path}/io.pl";
 require "$form->{path}/arap.pl";
@@ -66,7 +67,7 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-
+print STDERR "is.pl-edit\n";
   $form->{title} = $locale->text('Edit Sales Invoice');
 
   if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
@@ -83,7 +84,7 @@ sub edit {
 
 sub invoice_links {
   $lxdebug->enter_sub();
-
+print STDERR "is.pl-invoice_links\n";
   $form->{vc} = 'customer';
 
   # create links
@@ -183,7 +184,7 @@ sub invoice_links {
 
 sub prepare_invoice {
   $lxdebug->enter_sub();
-
+print STDERR "is.pl-prepare_invoice\n";
   $form->{type}     = "invoice";
   $form->{formname} = "invoice";
   $form->{format}   = "html";
@@ -194,12 +195,14 @@ sub prepare_invoice {
     map { $form->{$_} =~ s/\"/&quot;/g }
       qw(invnumber ordnumber quonumber shippingpoint shipvia notes intnotes);
 
+#     # get pricegroups for parts
+#     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
     foreach $ref (@{ $form->{invoice_details} }) {
       $i++;
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
       $form->{"discount_$i"} =
         $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-
       ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
       $dec           = length $dec;
       $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -212,6 +215,7 @@ sub prepare_invoice {
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit partnotes);
       $form->{rowcount} = $i;
+
     }
   }
   $lxdebug->leave_sub();
@@ -219,7 +223,7 @@ sub prepare_invoice {
 
 sub form_header {
   $lxdebug->enter_sub();
-
+print STDERR "is.pl-form_header\n";
   # set option selected
   foreach $item (qw(AR customer currency department employee contact)) {
     $form->{"select$item"} =~ s/ selected//;
@@ -389,6 +393,7 @@ sub form_header {
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Customer') . qq|</th>
 		<td colspan=3>$customer</td>
+    <input type=hidden name=customer_klass value=$form->{customer_klass}>
 		<input type=hidden name=customer_id value=$form->{customer_id}>
 		<input type=hidden name=oldcustomer value="$form->{oldcustomer}">
                 <th align=richt nowrap>|
@@ -514,7 +519,7 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
-
+print STDERR "is.pl-form_footer\n";
   $form->{invtotal} = $form->{invsubtotal};
 
   if (($rows = $form->numtextrows($form->{notes}, 26, 8)) < 2) {
@@ -855,7 +860,9 @@ sub update {
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   &check_name(customer);
 
   &check_project;
@@ -916,7 +923,7 @@ sub update {
       } else {
 
         $sellprice = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
-
+#print STDERR " SELLPRICE-111- $sellprice\n";
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
           qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
@@ -973,6 +980,11 @@ sub update {
           }
         }
 
+        # get pricegroups for parts
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form, "new");
+
+        # build up html code for prices_$i
+        &set_pricegroup($i);
       }
 
       &display_form;
@@ -1003,7 +1015,6 @@ sub update {
 
 sub post {
   $lxdebug->enter_sub();
-
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer", $locale->text('Customer missing!'));
 
@@ -1011,6 +1022,9 @@ sub post {
   if (&check_name(customer)) {
     &update;
     exit;
+  }
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
   }
 
   &validate_items;
@@ -1072,6 +1086,7 @@ sub print_and_post {
   $print_post             = 1;
   $form->{print_and_post} = 1;
   &post();
+
   &display_form();
   $lxdebug->leave_sub();
 
@@ -1092,7 +1107,9 @@ sub preview {
 
 sub delete {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   $form->header;
 
   print qq|

@@ -221,16 +221,21 @@ sub save_customer {
 
   my ($self, $myconfig, $form) = @_;
 
+  # set pricegroup to default
+  if ($form->{klass}) { }
+  else { $form->{klass} = 0; }
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 ##LINET
-  map({ $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
-          if ($form->{"selected_cp_${_}"});
+  map({
+      $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
+        if ($form->{"selected_cp_${_}"});
   } qw(title greeting));
-
+#
   # escape '
   map { $form->{$_} =~ s/\'/\'\'/g }
-    qw(customernumber name street zipcode city country homepage contact notes cp_title cp_greeting language);
+    qw(customernumber name street zipcode city country homepage contact notes cp_title cp_greeting language pricegroup);
 ##/LINET
   # assign value discount, terms, creditlimit
   $form->{discount} = $form->parse_amount($myconfig, $form->{discount});
@@ -314,7 +319,8 @@ sub save_customer {
               username = '$form->{username}',
               salesman_id = '$form->{salesman_id}',
               user_password = '$form->{user_password}',
-              c_vendor_id = '$form->{c_vendor_id}'
+              c_vendor_id = '$form->{c_vendor_id}',
+              klass = '$form->{klass}'
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 
@@ -362,8 +368,9 @@ sub save_vendor {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 ##LINET
-  map({ $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
-          if ($form->{"selected_cp_${_}"});
+  map({
+      $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
+        if ($form->{"selected_cp_${_}"});
   } qw(title greeting));
 
   # escape '

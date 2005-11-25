@@ -65,7 +65,9 @@ sub edit {
   if ($form->{type} eq 'partsgroup') {
     PE->get_partsgroup(\%myconfig, \%$form);
   }
-
+  if ($form->{type} eq 'pricegroup') {
+    PE->get_pricegroup(\%myconfig, \%$form);
+  }
   &{"form_$form->{type}_header"};
   &{"form_$form->{type}_footer"};
 
@@ -106,6 +108,21 @@ sub search {
 
   }
 
+  # for pricesgroups
+  if ($form->{type} eq 'pricegroup') {
+    $report        = "pricegroup_report";
+    $sort          = 'pricegroup';
+    $form->{title} = $locale->text('Pricegroup');
+
+    $number = qq|
+	<tr>
+	  <th align=right width=1%>| . $locale->text('Pricegroup') . qq|</th>
+	  <td><input name=pricegroup size=20></td>
+	</tr>
+|;
+
+  }
+
   $form->header;
 
   print qq|
@@ -130,8 +147,7 @@ sub search {
 	  <td><input name=status class=radio type=radio value=all checked>&nbsp;|
     . $locale->text('All') . qq|
 	  <input name=status class=radio type=radio value=orphaned>&nbsp;|
-    . $locale->text('Orphaned')
-    . qq|</td>
+    . $locale->text('Orphaned') . qq|</td>
 	</tr>
       </table>
     </td>
@@ -397,6 +413,13 @@ sub save {
     $form->redirect($locale->text('Group saved!'));
   }
 
+  # choice pricegroup and save
+  if ($form->{type} eq 'pricegroup') {
+    $form->isblank("pricegroup", $locale->text('Pricegroup missing!'));
+    PE->save_pricegroup(\%myconfig, \%$form);
+    $form->redirect($locale->text('Pricegroup saved!'));
+  }
+
   $lxdebug->leave_sub();
 }
 
@@ -410,6 +433,9 @@ sub delete {
   }
   if ($form->{type} eq 'partsgroup') {
     $form->redirect($locale->text('Group deleted!'));
+  }
+  if ($form->{type} eq 'pricegroup') {
+    $form->redirect($locale->text('Pricegroup deleted!'));
   }
 
   $lxdebug->leave_sub();
@@ -577,6 +603,211 @@ sub form_partsgroup_header {
 }
 
 sub form_partsgroup_footer {
+  $lxdebug->enter_sub();
+
+  print qq|
+
+<input name=callback type=hidden value="$form->{callback}">
+
+<input type=hidden name=path value=$form->{path}>
+<input type=hidden name=login value=$form->{login}>
+<input type=hidden name=password value=$form->{password}>
+
+<br><input type=submit class=submit name=action value="|
+    . $locale->text('Save') . qq|">
+|;
+
+  if ($form->{id} && $form->{orphaned}) {
+    print qq|
+<input type=submit class=submit name=action value="|
+      . $locale->text('Delete') . qq|">|;
+  }
+
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+
+  print qq|
+</form>
+
+</body>
+</html>
+|;
+
+  $lxdebug->leave_sub();
+}
+
+#################################
+# get pricesgroups and build up html-code
+#
+sub pricegroup_report {
+  $lxdebug->enter_sub();
+
+  map { $form->{$_} = $form->unescape($form->{$_}) } (pricegroup);
+  PE->pricegroups(\%myconfig, \%$form);
+
+  $callback =
+    "$form->{script}?action=pricegroup_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+
+  if ($form->{status} eq 'all') {
+    $option = $locale->text('All');
+  }
+  if ($form->{status} eq 'orphaned') {
+    $option .= $locale->text('Orphaned');
+  }
+  if ($form->{pricegroup}) {
+    $callback .= "&pricegroup=$form->{pricegroup}";
+    $option   .=
+      "\n<br>" . $locale->text('Pricegroup') . " : $form->{pricegroup}";
+  }
+
+  @column_index = $form->sort_columns(qw(pricegroup));
+
+  $column_header{pricegroup} =
+      qq|<th class=listheading width=90%>|
+    . $locale->text('Pricegroup')
+    . qq|</th>|;
+
+  $form->{title} = $locale->text('Pricegroup');
+
+  $form->header;
+
+  print qq|
+<body>
+
+<table width=100%>
+  <tr>
+    <th class=listtop>$form->{title}</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <td>$option</td>
+  </tr>
+  <tr>
+    <td>
+      <table width=100%>
+	<tr class=listheading>
+|;
+
+  map { print "$column_header{$_}\n" } @column_index;
+
+  print qq|
+        </tr>
+|;
+
+  # escape callback
+  $form->{callback} = $callback;
+
+  # escape callback for href
+  $callback = $form->escape($callback);
+
+  foreach $ref (@{ $form->{item_list} }) {
+
+    $i++;
+    $i %= 2;
+
+    print qq|
+        <tr valign=top class=listrow$i>
+|;
+    $column_data{pricegroup} =
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{pricegroup}</td>|;
+
+    map { print "$column_data{$_}\n" } @column_index;
+
+    print "
+        </tr>
+";
+  }
+
+  print qq|
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+<form method=post action=$form->{script}>
+
+<input name=callback type=hidden value="$form->{callback}">
+
+<input type=hidden name=type value=$form->{type}>
+
+<input type=hidden name=path value=$form->{path}>
+<input type=hidden name=login value=$form->{login}>
+<input type=hidden name=password value=$form->{password}>
+
+<input class=submit type=submit name=action value="|
+    . $locale->text('Add') . qq|">|;
+
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+
+  print qq|
+  </form>
+
+</body>
+</html>
+|;
+
+  $lxdebug->leave_sub();
+}
+
+#######################
+#build up pricegroup_header
+#
+sub form_pricegroup_header {
+  $lxdebug->enter_sub();
+
+  # $locale->text('Add Pricegroup')
+  # $locale->text('Edit Pricegroup')
+
+  $form->{title} = $locale->text("$form->{title} Pricegroup");
+
+  $form->{pricegroup} =~ s/\"/&quot;/g;
+
+  $form->header;
+
+  print qq|
+<body>
+
+<form method=post action=$form->{script}>
+
+<input type=hidden name=id value=$form->{id}>
+<input type=hidden name=type value=$form->{type}>
+
+<table width=100%>
+  <tr>
+    <th class=listtop>$form->{title}</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <td>
+      <table width=100%>
+	<tr>
+	  <th align=right>| . $locale->text('Preisgruppe') . qq|</th>
+          <td><input name=pricegroup size=30 value="$form->{pricegroup}"></td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2><hr size=3 noshade></td>
+  </tr>
+</table>
+|;
+
+  $lxdebug->leave_sub();
+}
+######################
+#build up pricegroup_footer
+#
+sub form_pricegroup_footer {
   $lxdebug->enter_sub();
 
   print qq|
