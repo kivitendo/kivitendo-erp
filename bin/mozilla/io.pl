@@ -82,7 +82,6 @@ use Data::Dumper;
 sub display_row {
   $lxdebug->enter_sub();
   my $numrows = shift;
-print STDERR "io.pl-display_row\n";
   if ($lizenzen && $form->{vc} eq "customer") {
     if ($form->{type} =~ /sales_order/) {
       @column_index = (runningnumber, partnumber, description, ship, qty);
@@ -263,10 +262,8 @@ print STDERR "io.pl-display_row\n";
 
 
 
- #print (STDERR "io.pl---111-i-$i", Dumper($form->{PRICES}));
     # build in dragdrop for pricesgroups
     if ($form->{"prices_$i"}) {
- print STDERR " YES  prices\n";
       $price_tmp = $form->format_amount(\%myconfig, $form->{"price_new_$i"}, 2);
 
       $column_data{sellprice_drag} =
@@ -274,12 +271,9 @@ print STDERR "io.pl-display_row\n";
       $column_data{sellprice} =
         qq|<td><input name="sellprice_$i" size=5 value=$price_tmp></td>|;
     } else {
-      print STDERR " NO prices\n";
       # for last row and report
       # set pricegroup dragdrop from report menu
       if ($form->{"sellprice_$i"} != 0) {
-print STDERR "   HIER NOCH FÜR RECHNUNGSAUFRUFE\n";
-print (STDERR "sellprice_$i   ", Dumper($form->{"sellprice_$i"}), " pricegroup_id_$i ", Dumper($form->{"pricegroup_id_$i"}));
         $prices =
              qq|<option value="$form->{"sellprice_$i"}--$form->{"pricegroup_id_$i"}" selected>$form->{"pricegroup_$i"}</option>\n|;
 
@@ -303,7 +297,6 @@ print (STDERR "sellprice_$i   ", Dumper($form->{"sellprice_$i"}), " pricegroup_i
                                $decimalplaces)
         . qq|></td>|;
     }
-#print (STDERR "io.pl---555-i-$i", Dumper($form->{"price_old_$i"}));
     $column_data{discount} =
         qq|<td align=right><input name="discount_$i" size=3 value=|
       . $form->format_amount(\%myconfig, $form->{"discount_$i"})
@@ -426,11 +419,9 @@ sub set_pricegroup {
       $prices = '';
       $price = 0;
       foreach $item (@{ $form->{PRICES}{ $j } }) {
-# print STDERR "-VOR   PREIS--$item->{price}--PREISGRUOP-$item->{pricegroup_id}\n";
         $price         = $form->round_amount($myconfig, $item->{price},5);
         $price         = $form->format_amount($myconfig, $item->{price},2);
         $price         = $item->{price};
-# print STDERR "-NACH PREIS--$price--PREISGRUOP-$item->{pricegroup_id}\n";
         $pricegroup_id = $item->{pricegroup_id};
         $pricegroup    = $item->{pricegroup};
         # build dragdrop for pricegroups
@@ -438,7 +429,6 @@ sub set_pricegroup {
              qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
 
         $len += 1;
-# print STDERR "prices---$prices\n";
         # set new selectedpricegroup_id and prices for "Preis"
         if ($item->{selected}) {
           $form->{"pricegroup_old_$j"} = $pricegroup_id;
@@ -456,7 +446,6 @@ sub set_pricegroup {
 
 sub select_item {
   $lxdebug->enter_sub();
-print STDERR "io.pl-select_item\n";
   @column_index = qw(ndx partnumber description onhand sellprice);
 
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
@@ -509,10 +498,8 @@ print STDERR "io.pl-select_item\n";
 
     map { $ref->{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
 #sk tradediscount
-print STDERR "TRADEDISCOUNT $ref->{sellprice}\n";
     $ref->{sellprice} =
       $form->round_amount($ref->{sellprice} * (1 - $form->{tradediscount}), 2);
-print STDERR "TRADEDISCOUNT $ref->{sellprice}\n";
     $column_data{ndx} =
       qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
     $column_data{partnumber} =
@@ -594,7 +581,6 @@ print STDERR "TRADEDISCOUNT $ref->{sellprice}\n";
 
 sub item_selected {
   $lxdebug->enter_sub();
-print STDERR "io.pl-item_selected\n";
   # replace the last row with the checked row
   $i = $form->{rowcount};
   $i = $form->{assembly_rows} if ($form->{item} eq 'assembly');
@@ -833,7 +819,6 @@ sub display_form {
 
 sub check_form {
   $lxdebug->enter_sub();
-print STDERR "io.pl-check_form\n";
   my @a     = ();
   my $count = 0;
   my @flds  = (
@@ -994,7 +979,6 @@ sub invoicetotal {
 
 sub validate_items {
   $lxdebug->enter_sub();
-print STDERR "io.pl-validate_items\n";
   # check if items are valid
   if ($form->{rowcount} == 1) {
     &update;
@@ -1017,7 +1001,6 @@ sub order {
   $form->{ordnumber} = $form->{invnumber};
 
   map { delete $form->{$_} } qw(id printed emailed queued);
-
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'request_quotation') {
     $form->{title} = $locale->text('Add Purchase Order');
     $form->{vc}    = 'vendor';
@@ -1235,7 +1218,6 @@ sub send_email {
 
 sub print_options {
   $lxdebug->enter_sub();
-print STDERR "io.pl-print_options\n";
   $form->{sendmode} = "attachment";
   $form->{copies}   = 3 unless $form->{copies};
 
@@ -1711,7 +1693,6 @@ sub print_form {
 
 sub customer_details {
   $lxdebug->enter_sub();
-print STDERR "io.pl-customer_details\n";
   IS->customer_details(\%myconfig, \%$form);
   $lxdebug->leave_sub();
 }
