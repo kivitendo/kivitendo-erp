@@ -176,8 +176,12 @@ print STDERR "ir.pl-prepare_invoice\n";
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
+      
+      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty      = length $dec_qty;
+      
       $form->{"qty_$i"} =
-        $form->format_amount(\%myconfig, ($form->{"qty_$i"} * -1));
+        $form->format_amount(\%myconfig, ($form->{"qty_$i"} * -1), $dec_qty);
 
       $form->{rowcount} = $i;
     }
@@ -823,7 +827,7 @@ sub update {
           $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                                $decimalplaces);
         $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"});
+          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
       }
 
       &display_form;
