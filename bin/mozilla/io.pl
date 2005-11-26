@@ -103,7 +103,10 @@ sub display_row {
   push @column_index, qw(unit);
 
   #for pricegroups column
-  if ($form->{type} =~ (/sales_quotation/) or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/)) or (($form->{level} eq undef) and ($form->{type} =~ /invoice/)) or ($form->{type} =~ /sales_order/)) {
+  if (   $form->{type} =~ (/sales_quotation/)
+      or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/))
+      or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
+      or ($form->{type} =~ /sales_order/)) {
     push @column_index, qw(sellprice_drag);
   }
 
@@ -252,7 +255,9 @@ sub display_row {
     }
 
     $column_data{qty} =
-        qq|<td align=right><input name="qty_$i" size=5 value=|.$form->format_amount(\%myconfig, $form->{"qty_$i"},0).qq|></td>|;
+        qq|<td align=right><input name="qty_$i" size=5 value=|
+      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, 0)
+      . qq|></td>|;
     $column_data{ship} =
         qq|<td align=right><input name="ship_$i" size=5 value=|
       . $form->format_amount(\%myconfig, $form->{"ship_$i"})
@@ -260,36 +265,37 @@ sub display_row {
     $column_data{unit} =
       qq|<td><input name="unit_$i" size=5 value="$form->{"unit_$i"}"></td>|;
 
-
-
     # build in dragdrop for pricesgroups
     if ($form->{"prices_$i"}) {
-      $price_tmp = $form->format_amount(\%myconfig, $form->{"price_new_$i"}, 2);
+      $price_tmp =
+        $form->format_amount(\%myconfig, $form->{"price_new_$i"}, 2);
 
       $column_data{sellprice_drag} =
         qq|<td align=right><select name="sellprice_drag_$i">$form->{"prices_$i"}</select></td>|;
       $column_data{sellprice} =
         qq|<td><input name="sellprice_$i" size=5 value=$price_tmp></td>|;
     } else {
+
       # for last row and report
       # set pricegroup dragdrop from report menu
       if ($form->{"sellprice_$i"} != 0) {
         $prices =
-             qq|<option value="$form->{"sellprice_$i"}--$form->{"pricegroup_id_$i"}" selected>$form->{"pricegroup_$i"}</option>\n|;
+          qq|<option value="$form->{"sellprice_$i"}--$form->{"pricegroup_id_$i"}" selected>$form->{"pricegroup_$i"}</option>\n|;
 
         $form->{"pricegroup_old_$i"} = $form->{"pricegroup_id_$i"};
 
         $column_data{sellprice_drag} =
           qq|<td align=right><select name="sellprice_drag_$i">$prices</select></td>|;
 
-        }else {
-          # for last row
-          $column_data{sellprice_drag} =
-            qq|<td align=right><input name="sellprice_$i" size=9 value=|
-              . $form->format_amount(\%myconfig, $form->{"prices_$i"},
-                               $decimalplaces)
-            . qq|></td>|;
-          }
+      } else {
+
+        # for last row
+        $column_data{sellprice_drag} =
+          qq|<td align=right><input name="sellprice_$i" size=9 value=|
+          . $form->format_amount(\%myconfig, $form->{"prices_$i"},
+                                 $decimalplaces)
+          . qq|></td>|;
+      }
 
       $column_data{sellprice} =
         qq|<td><input name="sellprice_$i" size=5 value=|
@@ -335,7 +341,8 @@ sub display_row {
 
 <input type=hidden name="pricegroup_old_$i" value=$form->{"pricegroup_old_$i"}>
 <input type=hidden name="price_old_$i" value=$form->{"price_old_$i"}>
-<input type=hidden name="price_new_$i" value=|.$form->format_amount(\%myconfig,$form->{"price_new_$i"}).qq|>
+<input type=hidden name="price_new_$i" value=|
+      . $form->format_amount(\%myconfig, $form->{"price_new_$i"}) . qq|>
 
 <input type=hidden name="id_$i" value=$form->{"id_$i"}>
 <input type=hidden name="inventory_accno_$i" value=$form->{"inventory_accno_$i"}>
@@ -414,26 +421,28 @@ sub set_pricegroup {
   for $j (1 .. $rowcount) {
 
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
-    if ($form->{PRICES}{ $j }) {
+    if ($form->{PRICES}{$j}) {
       $len    = 0;
       $prices = '';
-      $price = 0;
-      foreach $item (@{ $form->{PRICES}{ $j } }) {
-        $price         = $form->round_amount($myconfig, $item->{price},5);
-        $price         = $form->format_amount($myconfig, $item->{price},2);
-        $price         = $item->{price};
+      $price  = 0;
+      foreach $item (@{ $form->{PRICES}{$j} }) {
+        $price = $form->round_amount($myconfig,  $item->{price}, 5);
+        $price = $form->format_amount($myconfig, $item->{price}, 2);
+        $price = $item->{price};
         $pricegroup_id = $item->{pricegroup_id};
         $pricegroup    = $item->{pricegroup};
+
         # build dragdrop for pricegroups
         $prices .=
-             qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
+          qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
 
         $len += 1;
+
         # set new selectedpricegroup_id and prices for "Preis"
         if ($item->{selected}) {
           $form->{"pricegroup_old_$j"} = $pricegroup_id;
-          $form->{"price_new_$j"} = $price;
-           $form->{"sellprice_$j"} = $price;
+          $form->{"price_new_$j"}      = $price;
+          $form->{"sellprice_$j"}      = $price;
         }
         if ($len >= 1) {
           $form->{"prices_$j"} = $prices;
@@ -441,6 +450,8 @@ sub set_pricegroup {
       }
     }
   }
+
+  #print (STDERR "HIER", Dumper($prices) );
   $lxdebug->leave_sub();
 }
 
@@ -497,7 +508,8 @@ sub select_item {
     }
 
     map { $ref->{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
-#sk tradediscount
+
+    #sk tradediscount
     $ref->{sellprice} =
       $form->round_amount($ref->{sellprice} * (1 - $form->{tradediscount}), 2);
     $column_data{ndx} =
@@ -581,6 +593,7 @@ sub select_item {
 
 sub item_selected {
   $lxdebug->enter_sub();
+
   # replace the last row with the checked row
   $i = $form->{rowcount};
   $i = $form->{assembly_rows} if ($form->{item} eq 'assembly');
@@ -655,7 +668,7 @@ sub item_selected {
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
   # build up html code for prices_$i
-  set_pricegroup();
+  set_pricegroup($form->{rowcount});
 
   &display_form;
 
@@ -760,12 +773,13 @@ sub display_form {
     $form->{second_run} = 1;
     $form->{action}     = "display_form";
     $form->{rowcount}--;
-    my $rowcount =  $form->{rowcount};
+    my $rowcount = $form->{rowcount};
+
     # get pricegroups for parts
-    IS->get_pricegroups_for_parts(\%myconfig, \%$form, "new");
+    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
     # build up html code for prices_$i
     set_pricegroup($rowcount);
-  
 
     $form->{resubmit} = 1;
 
@@ -776,6 +790,7 @@ sub display_form {
   $subroutine = "display_row";
 
   if ($form->{item} eq 'part') {
+
     #set preisgruppenanzahl
     $numrows    = $form->{price_rows};
     $subroutine = "price_row";
@@ -921,17 +936,20 @@ sub check_form {
 
     }
   }
-  
-  #sk 
-  # if pricegroups
-  if ($form->{type} =~ (/sales_quotation/) or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/)) or (($form->{level} eq undef) and ($form->{type} =~ /invoice/)) or ($form->{type} =~ /sales_order/)) {
-  
-  # get pricegroups for parts
-  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
-  # build up html code for prices_$i
-  set_pricegroup();
- 
+  #sk
+  # if pricegroups
+  if (   $form->{type} =~ (/sales_quotation/)
+      or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/))
+      or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
+      or ($form->{type} =~ /sales_order/)) {
+
+    # get pricegroups for parts
+    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+    # build up html code for prices_$i
+    set_pricegroup($form->{rowcount});
+
   }
 
   &display_form;
@@ -979,6 +997,7 @@ sub invoicetotal {
 
 sub validate_items {
   $lxdebug->enter_sub();
+
   # check if items are valid
   if ($form->{rowcount} == 1) {
     &update;
@@ -1105,7 +1124,7 @@ sub e_mail {
   $lxdebug->enter_sub();
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
-    $form->{resubmit} = 0;
+    $form->{resubmit}       = 0;
   }
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
@@ -1377,6 +1396,7 @@ sub print {
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
+
   # if this goes to the printer pass through
   if ($form->{media} eq 'printer' || $form->{media} eq 'queue') {
     $form->error($locale->text('Select postscript or PDF!'))
@@ -1395,8 +1415,8 @@ sub print_form {
   $lxdebug->enter_sub();
   my ($old_form) = @_;
 
-  $inv = "inv";
-  $due = "due";
+  $inv       = "inv";
+  $due       = "due";
   $numberfld = "invnumber";
 
   $display_form =
@@ -1488,13 +1508,12 @@ sub print_form {
   if (!$form->{"${inv}number"} && !$form->{preview}) {
     $form->{"${inv}number"} = $form->update_defaults(\%myconfig, $numberfld);
     if ($form->{media} ne 'email') {
- 
-        $i = $form->{rowcount};
-        # get pricegroups for parts
-        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
-        # build up html code for prices_$i
-        set_pricegroup();
+      # get pricegroups for parts
+      IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+      # build up html code for prices_$i
+      set_pricegroup($form->{rowcount});
 
       $form->{rowcount}--;
 
@@ -1728,7 +1747,6 @@ sub ship_to {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-
   # get details for name
   &{"$form->{vc}_details"};
 
@@ -1737,12 +1755,11 @@ sub ship_to {
     ? $locale->text('Customer Number')
     : $locale->text('Vendor Number');
 
-  $i = $form->{rowcount};
   # get pricegroups for parts
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
   # build up html code for prices_$i
-  set_pricegroup();
+  set_pricegroup($form->{rowcount});
 
   $nextsub = ($form->{display_form}) ? $form->{display_form} : "display_form";
 
