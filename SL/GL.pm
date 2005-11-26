@@ -424,47 +424,54 @@ sub all_transactions {
         $ref->{credit_taxkey}{$l} = $ref->{taxkey};
       }
     }
-
-    while (abs($balance) >= 0.015) {
-      my $ref2 = $sth->fetchrow_hashref(NAME_lc)
-        || $form->error("Unbalanced ledger!");
-
-      $balance =
-        (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
-      print(STDERR $balance, " BAlance\n");
-      if ($ref2->{amount} < 0) {
-        if ($ref2->{chart_id} > 0) {
-          if ($ref->{debit_tax_accno}{$i} ne "") {
-            $i++;
-          }
-          $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
-          $ref->{debit_tax_accno}{$i} = $ref2->{accno};
-        } else {
-          if ($ref->{debit_accno}{$k} ne "") {
-            $k++;
-          }
-          $ref->{debit}{$k}        = $ref2->{amount} * -1;
-          $ref->{debit_accno}{$k}  = $ref2->{accno};
-          $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
-        }
-      } else {
-        if ($ref2->{chart_id} > 0) {
-          if ($ref->{credit_tax_accno}{$j} ne "") {
-            $j++;
-          }
-          $ref->{credit_tax}{$j}       = $ref2->{amount};
-          $ref->{credit_tax_accno}{$j} = $ref2->{accno};
-        } else {
-          if ($ref->{credit_accno}{$l} ne "") {
-            $l++;
-          }
-          $ref->{credit}{$l}        = $ref2->{amount};
-          $ref->{credit_accno}{$l}  = $ref2->{accno};
-          $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
-        }
-      }
-    }
-
+#    if ($form->{accno} eq ''){ # flo & udo: if general report,
+#                               # then check balance
+#      while (abs($balance) >= 0.015) {
+#        my $ref2 = $sth->fetchrow_hashref(NAME_lc)
+#          || $form->error("Unbalanced ledger!");
+#
+#        $balance =
+#          (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
+#        print(STDERR $balance, " BAlance\n");
+#        print(STDERR $ref2->{amount}, " Ref2->amount\n");
+#        if ($ref2->{amount} < 0) {
+#          if ($ref2->{chart_id} > 0) {
+#            if ($ref->{debit_tax_accno}{$i} ne "") {
+#              $i++;
+#            }
+#            $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
+#            $ref->{debit_tax_accno}{$i} = $ref2->{accno};
+#          } else {
+#            if ($ref->{debit_accno}{$k} ne "") {
+#              $k++;
+#            }
+#            $ref->{debit}{$k}        = $ref2->{amount} * -1;
+#            $ref->{debit_accno}{$k}  = $ref2->{accno};
+#            $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
+#          }
+#        } else {
+#          if ($ref2->{chart_id} > 0) {
+#            if ($ref->{credit_tax_accno}{$j} ne "") {
+#              $j++;
+#            }
+#            $ref->{credit_tax}{$j}       = $ref2->{amount};
+#            $ref->{credit_tax_accno}{$j} = $ref2->{accno};
+#          } else {
+#            if ($ref->{credit_accno}{$l} ne "") {
+#              $l++;
+#            }
+#            $ref->{credit}{$l}        = $ref2->{amount};
+#            $ref->{credit_accno}{$l}  = $ref2->{accno};
+#            $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
+#          }
+#        }
+#      }
+#    } else {
+#      # if account-report, then calculate the Balance?!
+#      # ToDo: Calculate the Balance
+#      1;
+#    }
+       
     #    print(STDERR Dumper($ref));
     push @{ $form->{GL} }, $ref;
     $balance = 0;

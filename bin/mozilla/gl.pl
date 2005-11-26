@@ -399,7 +399,7 @@ sub generate_report {
 
   $form->{title} = $locale->text('General Ledger');
 
-  $ml = ($form->{ml} =~ /(A|E)/) ? -1 : 1;
+  $ml = ($form->{ml} =~ /(A|E|Q)/) ? -1 : 1;
 
   unless ($form->{category} eq 'X') {
     $form->{title} .= " : " . $locale->text($acctype{ $form->{category} });
@@ -624,18 +624,18 @@ sub generate_report {
         </tr>
 |;
   }
-
+   $form->{balance} *= $ml;
   foreach $ref (@{ $form->{GL} }) {
-
+    $form->{balance} *= $ml;
     # if item ne sort print subtotal
     if ($form->{l_subtotal} eq 'Y') {
       if ($sameitem ne $ref->{ $form->{sort} }) {
         &gl_subtotal;
       }
     }
-    foreach $key (sort keys(%{ $ref->{amount} })) {
-      $form->{balance} += $ref->{amount}{$key};
-    }
+    #foreach $key (sort keys(%{ $ref->{amount} })) {
+    #  $form->{balance} += $ref->{amount}{$key};
+    #}
 
     $debit = "";
     foreach $key (sort keys(%{ $ref->{debit} })) {
@@ -647,6 +647,7 @@ sub generate_report {
         $debit .=
           "<br>" . $form->format_amount(\%myconfig, $ref->{debit}{$key}, 2, 0);
       }
+      $form->{balance} = abs($form->{balance}) - abs($ref->{debit}{$key});
     }
 
     $credit = "";
@@ -659,6 +660,7 @@ sub generate_report {
         $credit .= "<br>"
           . $form->format_amount(\%myconfig, $ref->{credit}{$key}, 2, 0);
       }
+      $form->{balance} = abs($form->{balance}) - abs( $ref->{credit}{$key});
     }
 
     $debittax = "";
@@ -672,6 +674,7 @@ sub generate_report {
         $debittax .= "<br>"
           . $form->format_amount(\%myconfig, $ref->{debit_tax}{$key}, 2, 0);
       }
+      $form->{balance} = abs($form->{balance}) - abs($ref->{debit_tax}{$key});
     }
 
     $credittax = "";
@@ -685,6 +688,7 @@ sub generate_report {
         $credittax .= "<br>"
           . $form->format_amount(\%myconfig, $ref->{credit_tax}{$key}, 2, 0);
       }
+      $form->{balance} = abs($form->{balance}) - abs($ref->{credit_tax}{$key});
     }
 
     $debitaccno  = "";
@@ -777,7 +781,7 @@ sub generate_report {
       "<td><a href=$href&gifi_accno=$ref->{gifi_accno}&callback=$callback>$ref->{gifi_accno}</a>&nbsp;</td>";
     $column_data{balance} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $form->{balance} * $ml, 2, 0)
+      . $form->format_amount(\%myconfig, $form->{balance}, 2, 0)
       . "</td>";
 
     $i++;
