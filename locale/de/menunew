@@ -70,6 +70,7 @@ $self{texts} = {
   'RFQs'                        => 'Anfragen',
   'Receipt'                     => 'Zahlungseingang',
   'Receipts'                    => 'Zahlungseingänge',
+  'Reconciliation'              => 'Kontenabgleich',
   'Reports'                     => 'Berichte',
   'SIC'                         => 'SIC',
   'Sales Invoices'              => 'Kundenrechnung',

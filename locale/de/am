@@ -65,7 +65,6 @@ $self{texts} = {
   'Edit Warehouse'              => 'Lager bearbeiten',
   'Enforce transaction reversal for all dates' => 'Gegenbuchungen für jeden Zeitraum aktualisieren',
   'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' => 'Geben Sie Ihre und weitere Währungen mit bis zu drei Buchstaben pro Währung und Währungen durch Doppelpunkte getrennt ein (z.B. EUR:USD:CAD)',
-  'Equity'                      => 'Passiva',
   'Expense'                     => 'Aufwandskonto',
   'Expense Account'             => 'Aufwandskonto',
   'Expense/Asset'               => 'Aufwand/Anlagen',
