@@ -152,6 +152,22 @@ alter table ar alter invnumber set NOT NULL;
 alter table ap alter invnumber set NOT NULL;
 alter table oe alter ordnumber set NOT NULL;
 
+alter table gl alter id set NOT NULL;
+alter table chart alter id set NOT NULL;
+alter table parts alter id set NOT NULL;
+alter table invoice alter id set NOT NULL;
+alter table vendor alter id set NOT NULL;
+alter table customer alter id set NOT NULL;
+alter table contacts alter cp_id set NOT NULL;
+alter table ar alter id set NOT NULL;
+alter table ap alter id set NOT NULL;
+alter table oe alter id set NOT NULL;
+alter table employee alter id set NOT NULL;
+alter table warehouse alter id set NOT NULL;
+alter table business alter id set NOT NULL;
+alter table license alter id set NOT NULL;
+alter table orderitems alter id set NOT NULL;
+
 alter table gl add primary key (id);
 alter table chart add primary key (id);
 alter table parts add primary key (id);
