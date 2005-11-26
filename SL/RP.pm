@@ -2557,12 +2557,12 @@ sub ustva {
 
   foreach $item (@categories_cent) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2), 2, '0');
   }
 
   foreach $item (@categories_euro) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0), 0, '0');
   }
 
   $dbh->disconnect;
