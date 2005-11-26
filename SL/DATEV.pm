@@ -651,7 +651,7 @@ sub kne_buchungsexport {
         }
       }
 
-      $umsatzsumme += $umsatz;
+      $umsatzsumme += abs($umsatz);
 
       # Umwandlung von Umlauten und Sonderzeichen in erlaubte Zeichen bei Textfeldern
       foreach $umlaut (keys(%umlaute)) {
@@ -696,6 +696,7 @@ sub kne_buchungsexport {
         $blockcount++;
         $total_bytes = ($blockcount) * 256;
       }
+      $umsatz = abs($umsatz);
       $vorzeichen = ($umsatz > 0) ? "+" : "-";
       $buchungssatz .= $vorzeichen . &formatumsatz($umsatz, 0);
       $remaining_bytes = $total_bytes - length($buchungssatz . $header);
