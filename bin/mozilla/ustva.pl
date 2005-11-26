@@ -163,10 +163,10 @@ sub report {
 	  <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
 	  | . $locale->text('Keine Firmenadresse hinterlegt!') . qq|</a>\n|;
   }
-  $form->{co_email}=$form->{email} unless $form->{co_email}='';
-  $form->{co_tel}=$form->{tel} unless $form->{co_tel}='';
-  $form->{co_fax}=$form->{fax} unless $form->{co_fax}='';
-  $form->{co_url}=$form->{urlx} unless $form->{co_url}='';
+  $form->{co_email}=$form->{email} unless $form->{co_email};
+  $form->{co_tel}=$form->{tel} unless $form->{co_tel};
+  $form->{co_fax}=$form->{fax} unless $form->{co_fax};
+  $form->{co_url}=$form->{urlx} unless $form->{co_url};
   
   
   print qq|
