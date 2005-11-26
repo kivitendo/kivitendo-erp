@@ -612,7 +612,6 @@ sub form_header {
 
     $pricegroup .= qq|<select name=klass>$form->{selectpricegroup}</select>|;
 
-    $group = $locale->text('Hola');
   }
  }
   # $locale->text('Customer Number')

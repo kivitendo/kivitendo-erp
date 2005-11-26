@@ -67,7 +67,7 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-  print STDERR "is.pl-edit\n";
+
   $form->{title} = $locale->text('Edit Sales Invoice');
 
   if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
@@ -84,7 +84,7 @@ sub edit {
 
 sub invoice_links {
   $lxdebug->enter_sub();
-  print STDERR "is.pl-invoice_links\n";
+
   $form->{vc} = 'customer';
 
   # create links
@@ -184,7 +184,7 @@ sub invoice_links {
 
 sub prepare_invoice {
   $lxdebug->enter_sub();
-  print STDERR "is.pl-prepare_invoice\n";
+
   $form->{type}     = "invoice";
   $form->{formname} = "invoice";
   $form->{format}   = "html";
@@ -210,12 +210,12 @@ sub prepare_invoice {
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
-      
+
       (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
-      $dec_qty      = length $dec_qty;
-      
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"},
-        $dec_qty);
+      $dec_qty = length $dec_qty;
+
+      $form->{"qty_$i"} =
+        $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit partnotes);
@@ -228,7 +228,6 @@ sub prepare_invoice {
 
 sub form_header {
   $lxdebug->enter_sub();
-  print STDERR "is.pl-form_header\n";
 
   # set option selected
   foreach $item (qw(AR customer currency department employee contact)) {
@@ -525,7 +524,7 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
-  print STDERR "is.pl-form_footer\n";
+
   $form->{invtotal} = $form->{invsubtotal};
 
   if (($rows = $form->numtextrows($form->{notes}, 26, 8)) < 2) {
@@ -930,7 +929,6 @@ sub update {
 
         $sellprice = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
 
-        #print STDERR " SELLPRICE-111- $sellprice\n";
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
           qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }

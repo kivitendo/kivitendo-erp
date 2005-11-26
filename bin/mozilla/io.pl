@@ -254,13 +254,13 @@ sub display_row {
         qq|<td><input name="description_$i" size=30 value="$form->{"description_$i"}"></td>|;
     }
 
-    (my $qty_dec)     = ($form->{"qty_$i"} =~ /\.(\d+)/);
-    $qty_dec          = length $qty_dec;
+    (my $qty_dec) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+    $qty_dec = length $qty_dec;
 
     $column_data{qty} =
-        qq|<td align=right><input name="qty_$i" size=5 value=|.
-          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec)
-       .qq|></td>|;
+        qq|<td align=right><input name="qty_$i" size=5 value=|
+      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec)
+      . qq|></td>|;
     $column_data{ship} =
         qq|<td align=right><input name="ship_$i" size=5 value=|
       . $form->format_amount(\%myconfig, $form->{"ship_$i"})
@@ -454,7 +454,6 @@ sub set_pricegroup {
     }
   }
 
-  #print (STDERR "HIER", Dumper($prices) );
   $lxdebug->leave_sub();
 }
 

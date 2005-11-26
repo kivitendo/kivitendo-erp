@@ -35,7 +35,6 @@ $self{texts} = {
   'GIFI'                        => 'GIFI',
   'Given Name'                  => 'Vorname',
   'Greeting'                    => 'Anrede',
-  'Hola'                        => 'Hola',
   'Homepage'                    => 'Homepage',
   'ID'                          => 'Buchungsnummer',
   'Include in Report'           => 'In Bericht aufnehmen',

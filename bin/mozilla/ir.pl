@@ -43,7 +43,7 @@ require "$form->{path}/arap.pl";
 
 sub add {
   $lxdebug->enter_sub();
-print STDERR "ir.pl-add\n";
+
   $form->{title} = $locale->text('Add Vendor Invoice');
 
   &invoice_links;
@@ -67,7 +67,7 @@ sub edit {
 
 sub invoice_links {
   $lxdebug->enter_sub();
-print STDERR "ir.pl-invoice_links\n";
+
   # create links
   $form->{webdav} = $webdav;
 
@@ -160,7 +160,7 @@ print STDERR "ir.pl-invoice_links\n";
 
 sub prepare_invoice {
   $lxdebug->enter_sub();
-print STDERR "ir.pl-prepare_invoice\n";
+
   if ($form->{id}) {
 
     map { $form->{$_} =~ s/\"/&quot;/g } qw(invnumber ordnumber quonumber);
@@ -176,10 +176,10 @@ print STDERR "ir.pl-prepare_invoice\n";
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
-      
+
       (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
-      $dec_qty      = length $dec_qty;
-      
+      $dec_qty = length $dec_qty;
+
       $form->{"qty_$i"} =
         $form->format_amount(\%myconfig, ($form->{"qty_$i"} * -1), $dec_qty);
 
@@ -192,7 +192,7 @@ print STDERR "ir.pl-prepare_invoice\n";
 
 sub form_header {
   $lxdebug->enter_sub();
-print STDERR "ir.pl-form_header\n";
+
   # set option selected
   foreach $item (qw(AP vendor currency department contact)) {
     $form->{"select$item"} =~ s/ selected//;
@@ -227,15 +227,13 @@ print STDERR "ir.pl-form_header\n";
     if ($form->{forex}) {
       $exchangerate .= qq|
                 <th align=right nowrap>|
-        . $locale->text('Exchangerate')
-        . qq|</th>
+        . $locale->text('Exchangerate') . qq|</th>
                 <td>$form->{exchangerate}<input type=hidden name=exchangerate value=$form->{exchangerate}></td>
 |;
     } else {
       $exchangerate .= qq|
                 <th align=right nowrap>|
-        . $locale->text('Exchangerate')
-        . qq|</th>
+        . $locale->text('Exchangerate') . qq|</th>
                 <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>
 |;
     }
@@ -274,14 +272,12 @@ print STDERR "ir.pl-form_header\n";
     $button1 = qq|
        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
        <td><input type=button name=invdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
        <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
        <td width="4"><input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td></td>
+      . $locale->text('button') . qq|></td></td>
      |;
 
     #write Trigger
@@ -335,8 +331,7 @@ print STDERR "ir.pl-form_header\n";
 		<td colspan=3>$vendor</td>
 
                 <th align=richt nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 
                 <input type=hidden name=vendor_id value=$form->{vendor_id}>
@@ -421,7 +416,7 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
-print STDERR "ir.pl-form_footer\n";
+
   $form->{invtotal} = $form->{invsubtotal};
 
   if (($rows = $form->numtextrows($form->{notes}, 25, 8)) < 2) {
