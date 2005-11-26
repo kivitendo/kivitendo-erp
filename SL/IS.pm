@@ -214,7 +214,8 @@ sub invoice_details {
           $taxbase{$item} += $taxbase;
         }
       }
-
+      $tax_rate = $taxrate*100;
+      push(@{ $form->{tax_rate} }, qq|$tax_rate|);
       if ($form->{"assembly_$i"}) {
         $sameitem = "";
 
