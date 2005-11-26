@@ -305,12 +305,8 @@ sub search {
     . $locale->text('All') . qq|
 		  <input name="category" class=radio type=radio value=A>&nbsp;|
     . $locale->text('Asset') . qq|
-		  <input name="category" class=radio type=radio value=C>&nbsp;|
-    . $locale->text('Contra') . qq|
 		  <input name="category" class=radio type=radio value=L>&nbsp;|
     . $locale->text('Liability') . qq|
-		  <input name="category" class=radio type=radio value=Q>&nbsp;|
-    . $locale->text('Equity') . qq|
 		  <input name="category" class=radio type=radio value=I>&nbsp;|
     . $locale->text('Revenue') . qq|
 		  <input name="category" class=radio type=radio value=E>&nbsp;|

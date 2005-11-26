@@ -281,9 +281,9 @@ sub all_transactions {
     $apwhere .= " AND c.gifi_accno = '$form->{gifi_accno}'";
   }
   if ($form->{category} ne 'X') {
-    $glwhere .= " AND c.category = '$form->{category}'";
-    $arwhere .= " AND c.category = '$form->{category}'";
-    $apwhere .= " AND c.category = '$form->{category}'";
+    $glwhere .= " AND gl.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+    $arwhere .= " AND ar.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+    $apwhere .= " AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
   }
 
   if ($form->{accno}) {
