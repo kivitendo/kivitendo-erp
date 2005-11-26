@@ -2343,6 +2343,10 @@ sub bwa {
   foreach $key (@periods) {
     $form->{ "$key" . "gesamtleistung" } = 0;
     $form->{ "$key" . "gesamtkosten" }   = 0;
+    foreach $kosten (@gesamtkosten) {
+      $form->{$kosten}{$key} *= -1;
+    }
+    $form->{4}{$key} *= -1;
 
     foreach $category (@categories) {
 
@@ -2357,6 +2361,7 @@ sub bwa {
       $form->{ "$key" . "gesamtleistung" } += $form->{$item}{$key};
     }
     foreach $item (@gesamtkosten) {
+      $form->{$item}{$key} *= -1;
       $form->{ "$key" . "gesamtkosten" } += $form->{$item}{$key};
     }
     $form->{ "$key" . "rohertrag" } =
