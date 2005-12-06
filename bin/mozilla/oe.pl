@@ -1,4 +1,4 @@
-#=====================================================================
+# #=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -77,6 +77,22 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
+  # editing without stuff to edit? try adding it first
+  if ($form->{rowcount}) {
+    map {$id++ if $form->{"id_$_"}} (1 .. $form->{rowcount});
+    if (!$id) {
+      # reset rowcount
+      undef $form->{rowcount};
+      &add;
+      return;
+    }
+  } else {
+    if (!$form->{id}) {
+      &add;
+      return;
+    }
+  }
+
   if ($form->{type} eq 'purchase_order') {
     $form->{title}   = $locale->text('Edit Purchase Order');
     $form->{heading} = $locale->text('Purchase Order');
@@ -120,6 +136,14 @@ sub order_links {
   $form->{jscalendar} = $jscalendar;
 
   OE->retrieve(\%myconfig, \%$form);
+
+  # if multiple rowcounts (== collective order) then check if the
+  # there were more than one customer (in that case OE::retrieve removes 
+  # the content from the field)
+  if ($form->{rowcount} && $form->{type} eq 'sales_order' && $form->{customer} eq '') {
+#    $main::lxdebug->message(0, "Detected Edit order with concurrent customers");
+    $form->error($locale->text('Collective Orders only work for orders from one customer!'));
+  }
 
   $taxincluded = $form->{taxincluded};
   $form->{shipto} = 1 if $form->{id};
@@ -197,40 +221,20 @@ sub prepare_order {
   $form->{media}    = "screen";
   $form->{formname} = $form->{type};
 
-  if ($form->{id}) {
-
     map { $form->{$_} =~ s/\"/&quot;/g }
       qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
 
     foreach $ref (@{ $form->{form_details} }) {
-      $i++;
+      $form->{rowcount} = ++$i;
+
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
-      $form->{"discount_$i"} =
-        $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-
-      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
-      $dec           = length $dec;
-      $decimalplaces = ($dec > 2) ? $dec : 2;
-
-      $form->{"sellprice_$i"} =
-        $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                             $decimalplaces);
-
-      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
-      $dec_qty      = length $dec_qty;
-
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
-
-      map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-        qw(partnumber description unit);
-      $form->{rowcount} = $i;
     }
-  } elsif ($form->{rowcount}) {
+    
     for my $i (1 .. $form->{rowcount}) {
        $form->{"discount_$i"} =
         $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
 
-      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);    
       $dec           = length $dec;
       $decimalplaces = ($dec > 2) ? $dec : 2;
 
@@ -245,7 +249,6 @@ sub prepare_order {
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit);
     }
-  }
 
   $lxdebug->leave_sub();
 }
@@ -860,7 +863,16 @@ Bearbeiten des $form->{heading}<br>
         . $locale->text('Order') . qq|">
 |;
     }
+  } elsif ($form->{type} =~ /sales_order$/ && $form->{rowcount}) {
+    print qq|
+<br>Workflow  $form->{heading}<br>
+<input class=submit type=submit name=action value="|
+      . $locale->text('Save as new') . qq|">
+<input class=submit type=submit name=action value="|
+      . $locale->text('Invoice') . qq|">
+|;
   }
+  
 
   if ($form->{menubar}) {
     require "$form->{path}/menu.pl";
@@ -1312,6 +1324,11 @@ sub orders {
     }
   }
 
+  # only show checkboxes if gotten here via sales_order form.
+  if ($form->{type} =~ /sales_order/) {
+    unshift @column_index, "ids";
+  }
+
   if ($form->{l_subtotal} eq 'Y') {
     $callback .= "&l_subtotal=Y";
     $href     .= "&l_subtotal=Y";
@@ -1384,6 +1401,8 @@ sub orders {
   $column_header{employee} =
     qq|<th><a class=listheading href=$href&sort=employee>$employee</a></th>|;
 
+  $column_header{ids} = qq|<th></th>|;
+
   if ($form->{ $form->{vc} }) {
     $option = $locale->text(ucfirst $form->{vc});
     $option .= " : $form->{$form->{vc}}";
@@ -1423,6 +1442,7 @@ sub orders {
   print qq|
 <body>
 
+<form method="post" action="oe.pl">
 <table width=100%>
   <tr>
     <th class=listtop>$form->{title}</th>
@@ -1443,7 +1463,7 @@ sub orders {
 |;
 
   # add sort and escape callback
-  $callback = $form->escape($callback . "&sort=$form->{sort}");
+  $callback_escaped = $form->escape($callback . "&sort=$form->{sort}");
 
   if (@{ $form->{OE} }) {
     $sameitem = $form->{OE}->[0]->{ $form->{sort} };
@@ -1455,6 +1475,7 @@ sub orders {
   $warehouse = $form->escape($form->{warehouse});
 
   foreach $oe (@{ $form->{OE} }) {
+    $form->{rowcount} = ++$j;
 
     if ($form->{l_subtotal} eq 'Y') {
       if ($sameitem ne $oe->{ $form->{sort} }) {
@@ -1483,12 +1504,13 @@ sub orders {
     $subtotalnetamount += $oe->{netamount};
     $subtotalamount    += $oe->{amount};
 
+    $column_data{ids}    = qq|<td><input name="id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
     $column_data{id}        = "<td>$oe->{id}</td>";
     $column_data{transdate} = "<td>$oe->{transdate}&nbsp;</td>";
     $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
 
     $column_data{$ordnumber} =
-      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&warehouse=$warehouse&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback>$oe->{$ordnumber}</a></td>";
+      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&warehouse=$warehouse&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
     $column_data{name} = "<td>$oe->{name}</td>";
 
     $column_data{employee} = "<td>$oe->{employee}&nbsp;</td>";
@@ -1546,7 +1568,27 @@ sub orders {
   <tr>
     <td><hr size=3 noshade></td>
   </tr>
-</table>
+</table>|;
+
+# multiple invoice edit button only if gotten there via sales_order form.
+
+if ($form->{type} =~ /sales_order/) {
+print qq|
+  <input type="hidden" name="path" value="$form->{path}">
+  <input class"submit" type="submit" name="action" value="|
+. $locale->text('Continue') .qq|">
+  <input type="hidden" name="nextsub" value="edit">
+  <input type="hidden" name="type" value="$form->{type}">
+  <input type="hidden" name="warehouse" value="$warehouse">
+  <input type="hidden" name="vc" value="$form->{vc}">
+  <input type="hidden" name="login" value="$form->{login}">
+  <input type="hidden" name="password" value="$form->{password}">
+  <input type="hidden" name="callback" value="$callback">
+  <input type="hidden" name="rowcount" value="$form->{rowcount}">|;
+}
+
+print qq|
+</form>
 
 <br>
 <form method=post action=$form->{script}>
@@ -1751,8 +1793,10 @@ sub invoice {
   $lxdebug->enter_sub();
 
   if ($form->{type} =~ /_order$/) {
-    $form->isblank("ordnumber", $locale->text('Order Number missing!'));
-    $form->isblank("transdate", $locale->text('Order Date missing!'));
+    # these checks only apply if the items don't bring their own ordnumbers/transdates.
+    # The if clause ensures that by searching for empty ordnumber_#/transdate_# fields.
+    $form->isblank("ordnumber", $locale->text('Order Number missing!')) if ( +{ map { $form->{"ordnumber_$_"}, 1 } ( 1 .. $form->{rowcount}-1 ) }->{''} );
+    $form->isblank("transdate", $locale->text('Order Date missing!'))   if ( +{ map { $form->{"transdate_$_"}, 1 } ( 1 .. $form->{rowcount}-1 ) }->{''} );
 
   } else {
     $form->isblank("quonumber", $locale->text('Quotation Number missing!'));
@@ -1788,7 +1832,15 @@ sub invoice {
 
   # close orders/quotations
   $form->{closed} = 1;
-  OE->save(\%myconfig, \%$form);
+
+  # save order iff one ordnumber has been given 
+  # if not it's most likely a collective order, which can't be saved back
+  # so they just have to be closed
+  if ($form->{ordnumber} ne '') {
+    OE->save(\%myconfig, \%$form);
+  } else {
+    OE->close_orders(\%myconfig, \%$form);
+  }
 
   $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} =

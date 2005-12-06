@@ -357,6 +357,9 @@ sub display_row {
 <input type=hidden name="listprice_$i" value="$form->{"listprice_$i"}">
 <input type=hidden name="assembly_$i" value="$form->{"assembly_$i"}">
 <input type=hidden name="taxaccounts_$i" value="$form->{"taxaccounts_$i"}">
+<input type=hidden name="ordnumber_$i" value="$form->{"ordnumber_$i"}">
+<input type=hidden name="transdate_$i" value="$form->{"transdate_$i"}">
+<input type=hidden name="cusordnumber_$i" value="$form->{"cusordnumber_$i"}">
 
 |;
 
