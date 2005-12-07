@@ -1765,10 +1765,9 @@ sub lastname_used {
     $where = "quotation = '1'";
   }
 
-  my $query = qq|SELECT id FROM $arap
-                 WHERE id IN (SELECT MAX(id) FROM $arap
+  my $query = qq|SELECT MAX(id) FROM $arap
 		              WHERE $where
-			      AND ${table}_id > 0)|;
+			      AND ${table}_id > 0|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
