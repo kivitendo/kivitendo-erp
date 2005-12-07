@@ -472,6 +472,43 @@ sub close_orders {
 
   my ($self, $myconfig ,$form) = @_;
 
+  for my $i (1 .. $form->{rowcount}) {
+
+    map {
+      $form->{"${_}_$i"} = $form->parse_amount($myconfig, $form->{"${_}_$i"})
+    } qw(qty ship);
+    if ($delete_oe_id) {
+      $form->{"orderitems_id_$i"} = "";
+    }
+
+    if ($form->{"qty_$i"}) {
+
+      map { $form->{"${_}_$i"} =~ s/\'/\'\'/g }
+        qw(partnumber description unit);
+
+      # set values to 0 if nothing entered
+      $form->{"discount_$i"} =
+        $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
+
+      $form->{"sellprice_$i"} =
+        $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+      $fxsellprice = $form->{"sellprice_$i"};
+
+      my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+      $dec = length $dec;
+      my $decimalplaces = ($dec > 2) ? $dec : 2;
+
+      $discount =
+        $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"},
+                            $decimalplaces);
+      $form->{"sellprice_$i"} =
+        $form->round_amount($form->{"sellprice_$i"} - $discount,
+                            $decimalplaces);
+
+      $form->{"inventory_accno_$i"} *= 1;
+      $form->{"expense_accno_$i"}   *= 1;
+    }
+  }
   # get ids from $form
   map { push @ids, $form->{"ordnumber_$_"} if $form->{"ordnumber_$_"} } (1 .. $form->{rowcount});
   
