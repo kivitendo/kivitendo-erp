@@ -425,7 +425,6 @@ sub set_pricegroup {
   my $rowcount = shift;
   $lxdebug->enter_sub();
   for $j (1 .. $rowcount) {
-
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
     if ($form->{PRICES}{$j}) {
       $len    = 0;
@@ -443,20 +442,26 @@ sub set_pricegroup {
           qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
 
         $len += 1;
+        map {
+              $form->{"${_}_$j"} =
+              $form->format_amount(\%myconfig, $form->{"${_}_$j"})
+             } qw(sellprice price_new price_old);
 
         # set new selectedpricegroup_id and prices for "Preis"
-        if ($item->{selected}) {
+        if ($item->{selected} && ($pricegroup_id != 0)) {
           $form->{"pricegroup_old_$j"} = $pricegroup_id;
           $form->{"price_new_$j"}      = $price;
           $form->{"sellprice_$j"}      = $price;
         }
-        if ($len >= 1) {
+        if ($pricegroup_id == 0) {
+          $form->{"price_new_$j"} = $form->{"sellprice_$j"};
+        }
+        if ($len > 1) {
           $form->{"prices_$j"} = $prices;
         }
       }
     }
   }
-
   $lxdebug->leave_sub();
 }
 
