@@ -161,7 +161,10 @@ CREATE TABLE "invoice" (
 	"serialnumber" text,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp,
-        "pricegroup_id" integer
+        "pricegroup_id" integer,
+        "ordnumber" text,
+        "transdate" text,
+        "cusordnumber" text
 );
 
 CREATE TABLE "vendor" (
@@ -397,7 +400,10 @@ CREATE TABLE "orderitems" (
 	"id" integer DEFAULT nextval('orderitemsid'::text) PRIMARY KEY,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp,
-        "pricegroup_id" integer
+        "pricegroup_id" integer,
+        "ordnumber" text,
+        "transdate" text,
+        "cusordnumber" text
 );
 
 CREATE TABLE "exchangerate" (

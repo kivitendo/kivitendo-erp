@@ -561,14 +561,15 @@ sub post_invoice {
       # save detail record in invoice table
       $query = qq|INSERT INTO invoice (trans_id, parts_id, description, qty,
                   sellprice, fxsellprice, discount, allocated, assemblyitem,
-		  unit, deliverydate, project_id, serialnumber, pricegroup_id)
+		  unit, deliverydate, project_id, serialnumber, pricegroup_id,
+		  ordnumber, transdate, cusordnumber)
 		  VALUES ($form->{id}, $form->{"id_$i"},
 		  '$form->{"description_$i"}', $form->{"qty_$i"},
 		  $form->{"sellprice_$i"}, $fxsellprice,
 		  $form->{"discount_$i"}, $allocated, 'f',
 		  '$form->{"unit_$i"}', $deliverydate, (SELECT id from project where projectnumber = '$project_id'),
-		  '$form->{"serialnumber_$i"}',
-      '$pricegroup_id')|;
+		  '$form->{"serialnumber_$i"}', '$pricegroup_id',
+		  '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
 
       if ($form->{lizenzen}) {
@@ -1221,7 +1222,8 @@ sub retrieve_invoice {
 		i.discount, i.parts_id AS id, i.unit, i.deliverydate,
 		i.project_id, pr.projectnumber, i.serialnumber,
 		p.partnumber, p.assembly, p.bin, p.notes AS partnotes, i.id AS invoice_pos,
-		pg.partsgroup, i.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=i.pricegroup_id) as pricegroup
+		pg.partsgroup, i.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=i.pricegroup_id) as pricegroup,
+		i.ordnumber, i.transdate, i.cusordnumber
 		FROM invoice i
 	        JOIN parts p ON (i.parts_id = p.id)
 	        LEFT JOIN project pr ON (i.project_id = pr.id)

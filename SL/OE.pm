@@ -324,7 +324,8 @@ sub save {
       $query = qq|INSERT INTO orderitems (|;
       $query .= "id, " if $form->{"orderitems_id_$i"};
       $query .= qq|trans_id, parts_id, description, qty, sellprice, discount,
-		   unit, reqdate, project_id, serialnumber, ship, pricegroup_id)
+		   unit, reqdate, project_id, serialnumber, ship, pricegroup_id,
+		   ordnumber, transdate, cusordnumber)
                    VALUES (|;
       $query .= qq|$form->{"orderitems_id_$i"},|
         if $form->{"orderitems_id_$i"};
@@ -332,8 +333,8 @@ sub save {
 		   '$form->{"description_$i"}', $form->{"qty_$i"},
 		   $fxsellprice, $form->{"discount_$i"},
 		   '$form->{"unit_$i"}', $reqdate, (SELECT id from project where projectnumber = '$project_id'),
-		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"},
-       '$pricegroup_id')|;
+		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"}, '$pricegroup_id',
+		   '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
 
       $form->{"sellprice_$i"} = $fxsellprice;
@@ -582,7 +583,7 @@ sub retrieve {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query;
+  my $query, @ids;
 
   # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
   map { push @ids, $form->{"trans_id_$_"} if ($form->{"id_$_"}) } (1 .. $form->{"rowcount"});
@@ -708,10 +709,11 @@ sub retrieve {
                 c1.accno AS inventory_accno,
                 c2.accno AS income_accno,
 		c3.accno AS expense_accno,
-		oe.ordnumber, oe.transdate, oe.cusordnumber, 
+		oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe, 
                 p.partnumber, p.assembly, o.description, o.qty,
 		o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes,
                 o.reqdate, o.project_id, o.serialnumber, o.ship,
+		o.ordnumber, o.transdate, o.cusordnumber,
 		pr.projectnumber,
 		pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
 		FROM orderitems o
@@ -732,6 +734,14 @@ sub retrieve {
     $sth->execute || $form->dberror($query);
 
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+     
+      # in collective order, copy global ordnumber, transdate, cusordnumber into item scope
+      #   unless already present there 
+      # remove _oe entries afterwards
+      map { $ref->{$_} = $ref->{"${_}_oe"} if ($ref->{$_} eq '') }
+        qw|ordnumber transdate cusordnumber| if (@ids);
+      map{ delete $ref->{$_} } 
+        qw|ordnumber_oe transdate_oe cusordnumber_oe|;
 
       #set expense_accno=inventory_accno if they are different => bilanz
       $vendor_accno =
