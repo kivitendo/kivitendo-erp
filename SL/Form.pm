@@ -1,4 +1,4 @@
-#=====================================================================
+#====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -1277,6 +1277,11 @@ sub get_exchangerate {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $curr, $transdate, $fld) = @_;
+  
+  unless ($transdate) {
+    $main::lxdebug->leave_sub();
+    return "";
+  }
 
   my $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.curr = '$curr'
