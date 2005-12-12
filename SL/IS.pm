@@ -110,6 +110,8 @@ sub invoice_details {
       push(@{ $form->{deliverydate} }, qq|$form->{"deliverydate_$i"}|);
 
       push(@{ $form->{sellprice} }, $form->{"sellprice_$i"});
+      push(@{ $form->{ordnumber_oe} }, qq|$form->{"ordnumber_$i"}|);
+      push(@{ $form->{transdate_oe} }, qq|$form->{"transdate_$i"}|);
 
       if ($form->{lizenzen}) {
         if ($form->{"licensenumber_$i"}) {

@@ -1546,7 +1546,8 @@ sub print_form {
     push @a,
       ("partnumber_$i", "description_$i",
        "partsgroup_$i", "serialnumber_$i",
-       "bin_$i",        "unit_$i");
+       "bin_$i",        "unit_$i",
+       "transdate_$i",  "ordnumber_$i");
   }
   map { push @a, "${_}_description" } split / /, $form->{taxaccounts};
 

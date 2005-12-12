@@ -1833,10 +1833,10 @@ sub invoice {
   # close orders/quotations
   $form->{closed} = 1;
 
-  # save order iff one ordnumber has been given 
+  # save order if one ordnumber has been given 
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
-  if ($form->{ordnumber} ne '') {
+  if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
     OE->save(\%myconfig, \%$form);
   } else {
     OE->close_orders(\%myconfig, \%$form);
