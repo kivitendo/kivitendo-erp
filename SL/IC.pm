@@ -1041,7 +1041,7 @@ sub all_parts {
         $ordwhere .= " AND lower(oi.description) LIKE '$var'";
       }
 
-      $flds = qq|p.id, p.partnumber, oi.description, '' AS serialnumber,
+      $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                  oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
 	         p.listprice, p.lastcost, p.rop, p.weight,
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
@@ -1067,7 +1067,7 @@ sub all_parts {
       }
 
       if ($form->{onorder}) {
-        $flds = qq|p.id, p.partnumber, oi.description, '' AS serialnumber,
+        $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                    oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
 		   p.listprice, p.lastcost, p.rop, p.weight,
 		   p.priceupdate, p.image, p.drawing, p.microfiche,
@@ -1104,7 +1104,7 @@ sub all_parts {
         $quowhere .= " AND lower(oi.description) LIKE '$var'";
       }
 
-      $flds = qq|p.id, p.partnumber, oi.description, '' AS serialnumber,
+      $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                  oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
 	         p.listprice, p.lastcost, p.rop, p.weight,
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
@@ -1130,7 +1130,7 @@ sub all_parts {
       }
 
       if ($form->{rfq}) {
-        $flds = qq|p.id, p.partnumber, oi.description, '' AS serialnumber,
+        $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                    oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
 		   p.listprice, p.lastcost, p.rop, p.weight,
 		   p.priceupdate, p.image, p.drawing, p.microfiche,
