@@ -2346,6 +2346,7 @@ sub bwa {
     foreach $kosten (@gesamtkosten) {
       $form->{$kosten}{$key} *= -1;
     }
+    
     $form->{4}{$key} *= -1;
 
     foreach $category (@categories) {
@@ -2354,7 +2355,7 @@ sub bwa {
         $form->{"$key$category"} =
           $form->format_amount($myconfig,
                                $form->round_amount($form->{$category}{$key}, 2
-                               ));
+                               ), $form->{decimalplaces}, '0');
       }
     }
     foreach $item (@gesamtleistung) {
@@ -2392,8 +2393,8 @@ sub bwa {
                                  ($form->{$category}{$key} /
                                     $form->{ "$key" . "gesamtleistung" } * 100
                                  ),
-                                 2
-                               ));
+                                 $form->{decimalplaces}
+                               ), $form->{decimalplaces}, '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2403,8 +2404,8 @@ sub bwa {
                                  ( $form->{ "$key" . "$item" } /
                                      $form->{ "$key" . "gesamtleistung" } * 100
                                  ),
-                                 2
-                               ));
+                                 $form->{decimalplaces}
+                               ), $form->{decimalplaces}, '0');
       }
     }
 
@@ -2417,8 +2418,8 @@ sub bwa {
                                    ($form->{$category}{$key} /
                                       $form->{ "$key" . "gesamtkosten" } * 100
                                    ),
-                                   2
-                                 ));
+                                   $form->{decimalplaces}
+                                 ), $form->{decimalplaces}, '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2428,8 +2429,8 @@ sub bwa {
                                    ($form->{ "$key" . "$item" } /
                                       $form->{ "$key" . "gesamtkosten" } * 100
                                    ),
-                                   2
-                               ));
+                                   $form->{decimalplaces}
+                               ), $form->{decimalplaces}, '0');
       }
     }
 
@@ -2440,8 +2441,9 @@ sub bwa {
             $form->format_amount(
                       $myconfig,
                       $form->round_amount(
-                        ($form->{$category}{$key} / $form->{10}{$key} * 100), 2
-                      ));
+                        ($form->{$category}{$key} / $form->{10}{$key} * 100), 
+                        $form->{decimalplaces}
+                      ), $form->{decimalplaces}, '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2451,8 +2453,8 @@ sub bwa {
                                                 ($form->{ "$key" . "$item" } /
                                                    $form->{10}{$key} * 100
                                                 ),
-                                                2
-                               ));
+                                                $form->{decimalplaces}
+                               ), $form->{decimalplaces}, '0');
       }
     }
 
@@ -2463,8 +2465,9 @@ sub bwa {
             $form->format_amount(
                        $myconfig,
                        $form->round_amount(
-                         ($form->{$category}{$key} / $form->{4}{$key} * 100), 2
-                       ));
+                         ($form->{$category}{$key} / $form->{4}{$key} * 100), 
+                         $form->{decimalplaces}
+                       ), $form->{decimalplaces}, '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2474,16 +2477,17 @@ sub bwa {
                                                 ($form->{ "$key" . "$item" } /
                                                    $form->{4}{$key} * 100
                                                 ),
-                                                2
-                               ));
+                                                $form->{decimalplaces}
+                               ), $form->{decimalplaces}, '0');
       }
     }
 
     foreach $item (@ergebnisse) {
       $form->{ "$key" . "$item" } =
         $form->format_amount($myconfig,
-                             $form->round_amount($form->{ "$key" . "$item" }, 2
-                             ));
+                             $form->round_amount($form->{ "$key" . "$item" }, 
+                             $form->{decimalplaces}
+                             ), $form->{decimalplaces}, '0');
     }
 
   }
