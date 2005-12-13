@@ -533,7 +533,11 @@ $checked></td>
       . $locale->text('EUR')
       . qq|</td>
 	</tr>
-
+        <tr>
+         <th align=right colspan=4>| . $locale->text('Decimalplaces') . qq|</th>
+             <td><input name=decimalplaces size=3></td>
+         </tr>
+                                    
 $jsscript
 |;
   }
