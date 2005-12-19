@@ -1041,18 +1041,18 @@ sub display_rows {
   for $i (1 .. $form->{rowcount}) {
 
     $source = qq|
-    <td><input name="source_$i" value="$form->{"source_$i"}" tabindex=|
+    <td><input name="source_$i" value="$form->{"source_$i"}" size="16" tabindex=|
       . ($i + 11 + (($i - 1) * 8)) . qq|></td>|;
     $memo = qq|
-    <td><input name="memo_$i" value="$form->{"memo_$i"}" tabindex=|
+    <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16" tabindex=|
       . ($i + 12 + (($i - 1) * 8)) . qq|></td>|;
 
     if ($init) {
       $accno = qq|
-      <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
+      <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:200px" tabindex=|
         . ($i + 5 + (($i - 1) * 8)) . qq|>$form->{chartinit}</select></td>|;
       $tax =
-          qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
+          qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px" tabindex=|
         . ($i + 10 + (($i - 1) * 8))
         . qq|>$form->{taxchart}</select></td>|;
 #       if ($form->{selectprojectnumber}) {
@@ -1096,7 +1096,7 @@ sub display_rows {
         $accno =~
           s/value=\"$chart_selected\"/value=\"$chart_selected\" selected/;
         $accno =
-          qq|<td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
+          qq|<td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:200px" tabindex=|
           . ($i + 5 + (($i - 1) * 8))
           . qq|>$accno</select></td>|;
         $tax          = $taxchart;
@@ -1166,11 +1166,11 @@ sub display_rows {
     print qq|<tr valign=top>
     $accno
     $fx_transaction
-    <td><input name="debit_$i" size=10 value="$form->{"debit_$i"}" accesskey=$i tabindex=|
+    <td><input name="debit_$i" size=8 value="$form->{"debit_$i"}" accesskey=$i tabindex=|
       . ($i + 6 + (($i - 1) * 8)) . qq| $debitreadonly></td>
-    <td><input name="credit_$i" size=10 value="$form->{"credit_$i"}" tabindex=|
+    <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" tabindex=|
       . ($i + 7 + (($i - 1) * 8)) . qq| $creditreadonly></td>
-    <td><input name="tax_$i" size=8 value="$form->{"tax_$i"}" tabindex=|
+    <td><input name="tax_$i" size=6 value="$form->{"tax_$i"}" tabindex=|
       . ($i + 8 + (($i - 1) * 8)) . qq|></td>
     $korrektur
     $tax
