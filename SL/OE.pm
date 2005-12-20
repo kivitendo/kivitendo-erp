@@ -586,7 +586,7 @@ sub retrieve {
   my $query, @ids;
 
   # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
-  map { push @ids, $form->{"trans_id_$_"} if ($form->{"id_$_"}) } (1 .. $form->{"rowcount"});
+  map { push @ids, $form->{"trans_id_$_"} if ($form->{"id_$_"} and $form->{"trans_id_$_"}) } (1 .. $form->{"rowcount"});
 
   # if called in multi id mode, and still only got one id, switch back to single id 
   if ($form->{"rowcount"} and $#ids == 0) {
@@ -662,9 +662,9 @@ sub retrieve {
     $ref = $sth->fetchrow_hashref(NAME_lc);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-    # destroy all entries for multiple ids that yield different information
+    # set all entries for multiple ids blank that yield different information
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-      map { undef $form->{$_} if ($ref->{$_} ne $form->{$_}) } keys %$ref;
+      map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
     }
 
     # if not given, fill transdate with current_date

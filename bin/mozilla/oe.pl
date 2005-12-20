@@ -140,7 +140,7 @@ sub order_links {
   # if multiple rowcounts (== collective order) then check if the
   # there were more than one customer (in that case OE::retrieve removes 
   # the content from the field)
-  if ($form->{rowcount} && $form->{type} eq 'sales_order' && $form->{customer} eq '') {
+  if ($form->{rowcount} && $form->{type} eq 'sales_order' && defined $form->{customer} && $form->{customer} eq '') {
 #    $main::lxdebug->message(0, "Detected Edit order with concurrent customers");
     $form->error($locale->text('Collective Orders only work for orders from one customer!'));
   }
