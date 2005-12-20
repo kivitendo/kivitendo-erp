@@ -235,10 +235,16 @@ ALTER TABLE invoice ADD column pricegroup_id integer;
 ALTER TABLE orderitems ADD column pricegroup_id integer;
 
 update defaults set version = '2.1.2', audittrail = 't';
---
+
+-- USTVA Update solve Bug 49 conributed by Andre Schubert
+update chart set pos_ustva='861' where accno='1771';
+update chart set pos_ustva='511' where accno='1775';
+update chart set pos_ustva='511' where pos_ustva='51r';
+update chart set pos_ustva='861' where pos_ustva='86r';
+update chart set pos_ustva='971' where pos_ustva='97r';
+update chart set pos_ustva='931' where pos_ustva='93r';
 
 -- add fields for ordnumber/transdate/cusordnumber in invoice/orderitems (r690 cleanup)
-
 alter table orderitems add column ordnumber text;
 alter table orderitems add column transdate text;
 alter table orderitems add column cusordnumber text;

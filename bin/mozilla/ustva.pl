@@ -831,106 +831,106 @@ sub generate_ustva {
 
     #yearly report
     if ($form->{duetyp} eq "13") {
-      $form->{fromdate} = "1.1.$form->{year}";
-      $form->{todate}   = "31.12.$form->{year}";
+      $form->{fromdate} = "$form->{year}-01-01";
+      $form->{todate}   = "$form->{year}-12-31";
     }
 
     #Quater reports
     if ($form->{duetyp} eq "A") {
-      $form->{fromdate} = "1.1.$form->{year}";
-      $form->{todate}   = "31.3.$form->{year}";
+      $form->{fromdate} = "$form->{year}-01-01";
+      $form->{todate}   = "$form->{year}-03-31";
       $form->{'0441'}   = "X";
     }
     if ($form->{duetyp} eq "B") {
-      $form->{fromdate} = "1.4.$form->{year}";
-      $form->{todate}   = "30.6.$form->{year}";
+      $form->{fromdate} = "$form->{year}-04-01";
+      $form->{todate}   = "$form->{year}-06-30";
       $form->{'0442'}   = "X";
     }
     if ($form->{duetyp} eq "C") {
-      $form->{fromdate} = "1.7.$form->{year}";
-      $form->{todate}   = "30.9.$form->{year}";
+      $form->{fromdate} = "$form->{year}-07-01";
+      $form->{todate}   = "$form->{year}-09-30";
       $form->{'0443'}   = "X";
     }
     if ($form->{duetyp} eq "D") {
-      $form->{fromdate} = "1.10.$form->{year}";
-      $form->{todate}   = "31.12.$form->{year}";
+      $form->{fromdate} = "$form->{year}-10-01";
+      $form->{todate}   = "$form->{year}-12-31";
       $form->{'0444'}   = "X";
     }
 
     #Monthly reports
   SWITCH: {
       $form->{duetyp} eq "01" && do {
-        $form->{fromdate} = "1.1.$form->{year}";
-        $form->{todate}   = "31.1.$form->{year}";
+        $form->{fromdate} = "$form->{year}-01-01";
+        $form->{todate}   = "$form->{year}-01-31";
         $form->{'0401'}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "02" && do {
-        $form->{fromdate} = "1.2.$form->{year}";
+        $form->{fromdate} = "$form->{year}-02-01";
 
         #this works from 1901 to 2099, 1900 and 2100 fail.
         my $leap = ($form->{year} % 4 == 0) ? "29" : "28";
-        $form->{todate} = "$leap.2.$form->{year}";
+        $form->{todate} = "$form->{year}-02-$leap";
         $form->{"0402"} = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "03" && do {
-        $form->{fromdate} = "1.3.$form->{year}";
-        $form->{todate}   = "31.3.$form->{year}";
+        $form->{fromdate} = "$form->{year}-03-01";
+        $form->{todate}   = "$form->{year}-03-31";
         $form->{"0403"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "04" && do {
-        $form->{fromdate} = "1.4.$form->{year}";
-        $form->{todate}   = "30.4.$form->{year}";
+        $form->{fromdate} = "$form->{year}-04-01";
+        $form->{todate}   = "$form->{year}-04-30";
         $form->{"0404"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "05" && do {
-        $form->{fromdate} = "1.5.$form->{year}";
-        $form->{todate}   = "31.5.$form->{year}";
+        $form->{fromdate} = "$form->{year}-05-01";
+        $form->{todate}   = "$form->{year}-05-31";
         $form->{"0405"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "06" && do {
-        $form->{fromdate} = "1.6.$form->{year}";
-        $form->{todate}   = "30.6.$form->{year}";
+        $form->{fromdate} = "$form->{year}-06-01";
+        $form->{todate}   = "$form->{year}-06-30";
         $form->{"0406"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "07" && do {
-        $form->{fromdate} = "1.7.$form->{year}";
-        $form->{todate}   = "31.7.$form->{year}";
+        $form->{fromdate} = "$form->{year}-07-01";
+        $form->{todate}   = "$form->{year}-07-31";
         $form->{"0407"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "08" && do {
-        $form->{fromdate} = "1.8.$form->{year}";
-        $form->{todate}   = "31.8.$form->{year}";
+        $form->{fromdate} = "$form->{year}-08-01";
+        $form->{todate}   = "$form->{year}-08-31";
         $form->{"0408"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "09" && do {
-        $form->{fromdate} = "1.9.$form->{year}";
-        $form->{todate}   = "30.9.$form->{year}";
+        $form->{fromdate} = "$form->{year}-09-01";
+        $form->{todate}   = "$form->{year}-09-30";
         $form->{"0409"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "10" && do {
-        $form->{fromdate} = "1.10.$form->{year}";
-        $form->{todate}   = "31.10.$form->{year}";
+        $form->{fromdate} = "$form->{year}-10-01";
+        $form->{todate}   = "$form->{year}-10-31";
         $form->{"0410"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "11" && do {
-        $form->{fromdate} = "1.11.$form->{year}";
-        $form->{todate}   = "30.11.$form->{year}";
+        $form->{fromdate} = "$form->{year}-11-01";
+        $form->{todate}   = "$form->{year}-11-30";
         $form->{"0411"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "12" && do {
-        $form->{fromdate} = "1.12.$form->{year}";
-        $form->{todate}   = "31.12.$form->{year}";
+        $form->{fromdate} = "$form->{year}-12-01";
+        $form->{todate}   = "$form->{year}-12-31";
         $form->{"0412"}   = "X";
         last SWITCH;
       };
@@ -938,7 +938,10 @@ sub generate_ustva {
   }
 
   #$myconfig = \%myconfig;
-  RP->ustva(\%myconfig, \%$form);
+  #$myconfig->{dateformat} = 'yyyy-mm-dd';
+  #$form->{fromdate}= $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
+  #$form->{todate}= $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
+  USTVA->ustva(\%myconfig, \%$form);
 
   #??($form->{department}) = split /--/, $form->{department};
 
@@ -1013,8 +1016,10 @@ sub generate_ustva {
     $form->{br}      = '\\\\';
 
     
-    my @numbers = qw(51r 86r 97r 93r 96 43 45
-      66 62 67);
+    my @numbers = qw(511 861 36 80 971 931 98 96 53 74
+                     85 65 66 61 62 Z67 63 64 59 69 39 83
+                     Z43 Z45 Z53 Z62 Z65);
+      
     my $number = '';
     # Zahlenformatierung für Latex USTVA Formulare
     if ($myconfig{numberformat} eq '1.000,00' or 

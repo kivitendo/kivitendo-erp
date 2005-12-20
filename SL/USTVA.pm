@@ -556,4 +556,332 @@ sub process_query {
   $main::lxdebug->leave_sub();
 }
 
+
+sub ustva {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $last_period     = 0;
+  my $category        = "pos_ustva";
+  my @categories_cent = qw(511 861 36 80 971 931 98 96 53 74 
+                           85 65 66 61 62 67 63 64 59 69 39 83 
+                           Z43 Z45 Z53 Z62 Z65 Z67);
+                           
+  my @categories_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93 
+                           95 94 42 60 45 52 73 84);
+
+  $form->{decimalplaces} *= 1;
+
+  foreach $item (@categories_cent) {
+    $form->{"$item"} = 0;
+  }
+  foreach $item (@categories_euro) {
+    $form->{"$item"} = 0;
+  }
+
+
+  &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
+                  $form, $category);
+
+
+  #
+  # Berechnung der USTVA Formularfelder
+  #
+  $form->{"51r"} = $form->{"511"};
+  $form->{"86r"} = $form->{"861"};
+  $form->{"97r"} = $form->{"971"};
+  $form->{"93r"} = $form->{"931"};
+  $form->{"Z43"} = $form->{"51r"}+ $form->{"86r"} + 
+                   $form->{"36"} + $form->{"80"}  +
+                   $form->{"97r"}+ $form->{"93r"} + 
+                   $form->{"96"} + $form->{"98"};
+  $form->{"Z45"} = $form->{"Z43"};
+  $form->{"Z53"} = $form->{"Z43"};
+  $form->{"Z62"} = $form->{"Z43"}- $form->{"66"} -
+                   $form->{"61"} - $form->{"62"} -
+                   $form->{"63"} - $form->{"64"} -
+                   $form->{"59"};
+  $form->{"Z65"} = $form->{"Z62"}- $form->{"69"};
+  $form->{"83"}  = $form->{"Z65"}- $form->{"39"};
+  
+  foreach $item (@categories_cent) {
+    $form->{$item} =
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2), 2, '0');
+  }
+
+  foreach $item (@categories_euro) {
+    $form->{$item} =
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0), 0, '0');
+  }
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_accounts_ustva {
+  $main::lxdebug->enter_sub();
+
+  my ($dbh, $last_period, $fromdate, $todate, $form, $category) = @_;
+
+  my ($null, $department_id) = split /--/, $form->{department};
+
+  my $query;
+  my $dpt_where;
+  my $dpt_join;
+  my $project;
+  my $where    = "1 = 1";
+  my $glwhere  = "";
+  my $subwhere = "";
+  my $ARwhere = "";
+  my $item;
+
+  if ($fromdate) {
+    if ($form->{method} eq 'cash') {
+      $subwhere .= " AND transdate >= '$fromdate'";
+      $glwhere = " AND ac.transdate >= '$fromdate'";
+      $ARwhere .= " AND acc.transdate >= '$fromdate'";
+      $where .= " AND ac.transdate >= '$fromdate'";
+    }
+  }
+
+  if ($todate) {
+    $where    .= " AND ac.transdate <= '$todate'";
+    $ARwhere    .= " AND acc.transdate <= '$todate'";
+    $arwhere    .= " AND ac.transdate <= '$todate'";    
+    $subwhere .= " AND transdate <= '$todate'";
+  }
+
+  if ($department_id) {
+    $dpt_join = qq|
+               JOIN department t ON (a.department_id = t.id)
+		  |;
+    $dpt_where = qq|
+               AND t.id = $department_id
+	           |;
+  }
+
+  if ($form->{project_id}) {
+    $project = qq|
+                 AND ac.project_id = $form->{project_id}
+		 |;
+  }
+
+  if ($form->{method} eq 'cash') {
+
+    $query = qq|
+
+ SELECT
+   SUM( ac.amount *
+      -- Bezahlt / Rechnungssumme
+     ( 
+       SELECT SUM(acc.amount)
+       FROM acc_trans acc
+       INNER JOIN chart c ON (acc.chart_id = c.id AND c.link like '%AR_paid%')
+       WHERE
+        1=1 
+        $ARwhere
+        AND acc.trans_id = ac.trans_id
+        )
+     / 
+     ( 
+      select amount from ar where id = ac.trans_id  
+     )
+   ) AS amount,
+   c.pos_ustva
+   FROM acc_trans ac
+   JOIN chart c ON (c.id = ac.chart_id)
+   JOIN ar ON (ar.id = ac.trans_id)
+   where 
+     1=1 
+     $arwhere
+   GROUP BY c.pos_ustva
+	UNION
+
+	         SELECT sum(ac.amount) AS amount,
+		 c.$category
+		 FROM acc_trans ac
+		 JOIN chart c ON (c.id = ac.chart_id)
+		 JOIN ap a ON (a.id = ac.trans_id)
+		 $dpt_join
+		 WHERE $where
+		 $dpt_where
+		 AND ac.trans_id IN
+		   (
+		     SELECT trans_id
+		     FROM acc_trans
+		     JOIN chart ON (chart_id = id)
+		     WHERE link LIKE '%AP_paid%'
+		     $subwhere
+		   )
+
+		 $project
+		 GROUP BY c.$category
+
+        UNION
+
+		 SELECT sum(ac.amount) AS amount,
+		 c.$category
+		 FROM acc_trans ac
+		 JOIN chart c ON (c.id = ac.chart_id)
+		 JOIN gl a ON (a.id = ac.trans_id)
+		 $dpt_join
+		 WHERE $where
+		 $glwhere
+		 $dpt_from
+		 AND NOT (c.link = 'AR' OR c.link = 'AP')
+		 $project
+		 GROUP BY c.$category
+
+		 |;
+
+    if ($form->{project_id}) {
+
+      $query .= qq|
+
+	 UNION
+
+		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ar a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.income_accno_id = c.id)
+	         $dpt_join
+	-- use transdate from subwhere
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'I'
+		 $dpt_where
+		 AND ac.trans_id IN
+		   (
+		     SELECT trans_id
+		     FROM acc_trans
+		     JOIN chart ON (chart_id = id)
+		     WHERE link LIKE '%AR_paid%'
+		     $subwhere
+		   )
+
+		 $project
+		 GROUP BY c.$category
+
+	 UNION
+
+		 SELECT SUM(ac.sellprice) AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ap a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.expense_accno_id = c.id)
+	         $dpt_join
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'E'
+		 $dpt_where
+		 AND ac.trans_id IN
+		   (
+		     SELECT trans_id
+		     FROM acc_trans
+		     JOIN chart ON (chart_id = id)
+		     WHERE link LIKE '%AP_paid%'
+		     $subwhere
+		   )
+
+		 $project
+		 GROUP BY c.$category
+		 |;
+    }
+
+  } else {
+
+    if ($department_id) {
+      $dpt_join = qq|
+	      JOIN dpt_trans t ON (t.trans_id = ac.trans_id)
+	      |;
+      $dpt_where = qq|
+               AND t.department_id = $department_id
+	      |;
+    }
+
+    $query = qq|
+
+		 SELECT sum(ac.amount) AS amount,
+		 c.$category
+		 FROM acc_trans ac
+		 JOIN chart c ON (c.id = ac.chart_id)
+		 $dpt_join
+		 WHERE $where
+		 $dpt_where
+		 $project
+		 GROUP BY c.$category
+		 |;
+
+    if ($form->{project_id}) {
+
+      $query .= qq|
+
+	UNION
+
+		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ar a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.income_accno_id = c.id)
+	         $dpt_join
+	-- use transdate from subwhere
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'I'
+		 $dpt_where
+		 $project
+		 GROUP BY c.$category
+
+	UNION
+
+		 SELECT SUM(ac.sellprice * ac.qty) * -1 AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ap a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.expense_accno_id = c.id)
+	         $dpt_join
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'E'
+		 $dpt_where
+		 $project
+		 GROUP BY c.$category
+		 |;
+
+    }
+  }
+
+  my @accno;
+  my $accno;
+  my $ref;
+  #print $query;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    if ($ref->{amount} < 0) {
+      $ref->{amount} *= -1;
+    }
+    if ($category eq "pos_bwa") {
+      if ($last_period) {
+        $form->{ $ref->{$category} }{kumm} += $ref->{amount};
+      } else {
+        $form->{ $ref->{$category} }{jetzt} += $ref->{amount};
+      }
+    } else {
+      $form->{ $ref->{$category} } += $ref->{amount};
+    }
+  }
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
+
 1;
