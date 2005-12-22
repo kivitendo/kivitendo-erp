@@ -595,9 +595,9 @@ sub ustva {
   $form->{"86r"} = $form->{"861"};
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
-  $form->{"Z43"} = $form->{"51r"}+ $form->{"86r"} + 
+  $form->{"Z43"} = $form->{"511"}+ $form->{"861"} + 
                    $form->{"36"} + $form->{"80"}  +
-                   $form->{"97r"}+ $form->{"93r"} + 
+                   $form->{"971"}+ $form->{"931"} + 
                    $form->{"96"} + $form->{"98"};
   $form->{"Z45"} = $form->{"Z43"};
   $form->{"Z53"} = $form->{"Z43"};
