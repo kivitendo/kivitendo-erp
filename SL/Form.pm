@@ -519,6 +519,12 @@ sub format_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
+  
+  #Workaround for $format_amount calls without $places
+  if (!defined $places){
+  (my $dec) = ($amount =~ /\.(\d+)/);
+  $places           = length $dec;
+  }                    
 
   if ($places =~ /\d/) {
     $amount = $self->round_amount($amount, $places);
