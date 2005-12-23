@@ -33,6 +33,7 @@ $self{texts} = {
   'Cc'                          => 'Cc',
   'City'                        => 'Stadt',
   'Closed'                      => 'Geschlossen',
+  'Collective Orders only work for orders from one customer!' => 'Sammelaufträge funktionieren nur für Aufträge von einem Kunden!',
   'Company Name'                => 'Firmenname',
   'Confirm!'                    => 'Bestätigen Sie!',
   'Confirmation'                => 'Auftragsbestätigung',
