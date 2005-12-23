@@ -67,6 +67,10 @@ alter table invoice add column fxsellprice numeric(15,5);
 update invoice set fxsellprice=fxsellpriceold;
 alter table invoice drop column fxsellpriceold;
 --
+alter table invoice add column ordnumber text;
+alter table invoice add column transdate text;
+alter table invoice add column cusordnumber text;
+--
 --TABLE oe
 alter table oe rename column amount to amountold;
 alter table oe add column amount numeric(15,5);
@@ -83,6 +87,10 @@ alter table orderitems rename column sellprice to sellpriceold;
 alter table orderitems add column sellprice numeric(15,5);
 update orderitems set sellprice=sellpriceold;
 alter table orderitems drop column sellpriceold;
+--
+alter table orderitems add column ordnumber text;
+alter table orderitems add column transdate text;
+alter table orderitems add column cusordnumber text;
 --
 --TABLE parts
 alter table parts rename column listprice to listpriceold;
