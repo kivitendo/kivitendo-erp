@@ -1606,7 +1606,7 @@ sub print_form {
 
   # some of the stuff could have umlauts so we translate them
   push @a,
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptoemail shippingpoint shipvia company address signature employee contact);
+    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptoemail shippingpoint shipvia company address signature employee contact department_1 department_2);
 
   push @a, ("${inv}date", "${due}date", email, cc, bcc);
 
