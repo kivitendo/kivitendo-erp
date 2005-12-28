@@ -8,6 +8,10 @@ $self{texts} = {
   ' Number'                     => ' Nummer',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   ' missing!'                   => ' fehlt!',
+  '1. Quarter'                  => '1. Quartal',
+  '2. Quarter'                  => '2. Quartal',
+  '3. Quarter'                  => '3. Quartal',
+  '4. Quarter'                  => '4. Quartal',
   'AP'                          => 'Einkauf',
   'AP Aging'                    => 'Offene Verbindlichkeiten',
   'AP Transaction'              => 'Kreditorenbuchung',
@@ -179,6 +183,7 @@ $self{texts} = {
   'Company'                     => 'Firma',
   'Company Name'                => 'Firmenname',
   'Compare to'                  => 'Gegenüberstellen zu',
+  'Config'                      => 'Config',
   'Confirm!'                    => 'Bestätigen Sie!',
   'Confirmation'                => 'Auftragsbestätigung',
   'Connect to'                  => 'Als Vorlage verwenden',
@@ -306,6 +311,9 @@ $self{texts} = {
   'Enforce transaction reversal for all dates' => 'Gegenbuchungen für jeden Zeitraum aktualisieren',
   'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' => 'Geben Sie Ihre und weitere Währungen mit bis zu drei Buchstaben pro Währung und Währungen durch Doppelpunkte getrennt ein (z.B. EUR:USD:CAD)',
   'Equity'                      => 'Passiva',
+  'Es fehlen Angaben zur Versteuerung.
+  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
+  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => '',
   'Es fehlen Angaben zur Versteuerung. 
   Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
   Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung. 
@@ -369,6 +377,9 @@ $self{texts} = {
   'III'                         => 'III',
   'IV'                          => 'IV',
   'Image'                       => 'Grafik',
+  'Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!' => 'Umsatzsteuer Jahreserklärung als PDF wird noch nicht unterstützt.<br \> Bitte benutzen Sie das Ausgabeformat
+Vorschau.',
+  'Impossible to create yearly Tax Report via Winston.<br \> Not yet implemented!' => 'Umsatzsteuer Jahreserklärung via Winston wird noch nicht unterstützt.<br \> Bitte benutzen Sie das Ausgabeformat Vorschau.',
   'In-line'                     => 'im Text',
   'Include Exchangerate Difference' => 'Wechselkursunterschied einbeziehen',
   'Include in Report'           => 'In Bericht aufnehmen',
@@ -819,6 +830,7 @@ $self{texts} = {
   'soldtotal'                   => 'Verkaufte Anzahl',
   'successfully created!'       => 'wurde erfolgreich erstellt',
   'successfully deleted!'       => 'wurde erfolgreich gelöscht',
+  'test'                        => 'test',
   'ustva'                       => 'UStVA',
   'website'                     => 'Webseite',
   'winston_export'              => 'Winston-Export',

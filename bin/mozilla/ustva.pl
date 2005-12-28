@@ -579,8 +579,10 @@ sub ustva_vorauswahl {
                  '09' => 'September',
                  '10' => 'October',
                  '11' => 'November',
-                 '12' => 'December');
-
+                 '12' => 'December',
+                 '13' => 'Yearly',
+                );
+       
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
     $sel    = '';
@@ -659,10 +661,12 @@ sub ustva_vorauswahl {
   } elsif ($form->{FA_voranmeld} eq 'quarter') {
 
     # Vorauswahl bei quartalsweisem Voranmeldungszeitraum
-    my %liste = ('A' => '1.',
-                 'B' => '2.',
-                 'C' => '3.',
-                 'D' => '4.',);
+    my %liste = ( 'A' => $locale->text('1. Quarter'),
+                  'B' => $locale->text('2. Quarter'),
+                  'C' => $locale->text('3. Quarter'),
+                  'D' => $locale->text('4. Quarter'),
+                 '13' => $locale->text('Yearly'),
+                 );
 
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
@@ -700,9 +704,7 @@ sub ustva_vorauswahl {
       my $selected = '';
       $selected = 'selected' if ($sel eq $key);
       print qq|
-         <option value="$key" $selected>$liste{$key} |
-        . $locale->text('Quarter')
-        . qq|</option>
+         <option value="$key" $selected>$liste{$key}</option>
      |;
     }
     print qq|\n</select>
@@ -714,10 +716,10 @@ sub ustva_vorauswahl {
     print qq|<select id="zeitraum" name="duetyp" title="|
       . $locale->text('Select a period') . qq|" >|;
 
-    my %listea = ('A' => '1.',
-                  'B' => '2.',
-                  'C' => '3.',
-                  'D' => '4.',);
+    my %listea = ('A' => '1. Quarter',
+                  'B' => '2. Quarter',
+                  'C' => '3. Quarter',
+                  'D' => '4. Quarter',);
 
     my %listeb = ('01' => 'January',
                   '02' => 'February',
@@ -730,15 +732,14 @@ sub ustva_vorauswahl {
                   '09' => 'September',
                   '10' => 'October',
                   '11' => 'November',
-                  '12' => 'December',);
+                  '12' => 'December',
+                  '13' => 'Yearly',
+                  );
     my $key = '';
     foreach $key (sort keys %listea) {
       print qq|
-         <option value="$key">$listea{$key} |
-        . $locale->text('Quarter')
-        . qq|</option>
-         
-     |;
+         <option value="$key">$listea{$key}</option>
+         |;
     }
 
     foreach $key (sort keys %listeb) {
@@ -1039,13 +1040,26 @@ sub generate_ustva {
   }
 
   if ($form->{format} eq 'elster') {
-    &create_winston();
+    if ($form->{duetyp} eq '13'){
+      $form->header;
+      USTVA::info($locale->text('Impossible to create yearly Tax Report via Winston.<br \> Not yet implemented!'));
+    } else {
+      &create_winston();
+    }
   } else {
     $form->{templates} = $myconfig{templates};
     $form->{templates} = "doc" if ($form->{type} eq 'help');
 
     $form->{IN} = "$form->{type}";
     $form->{IN} = "$form->{help}" if ($form->{type} eq 'help');
+    $form->{IN} = 'USTE' if ($form->{duetyp} eq '13' && 
+                             $form->{format} ne 'html');
+    
+    if ($form->{IN} eq 'USTE'){
+      $form->header;
+      USTVA::info($locale->text('Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!'));
+    }
+    
     $form->{IN} .= "-$form->{year}"
       if (   $form->{format} eq 'pdf'
           or $form->{format} eq 'postscript');
