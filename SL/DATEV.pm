@@ -648,8 +648,14 @@ sub kne_buchungsexport {
                   'ß' => 'sz');
 
       for (my $i = 0; $i < $trans_lines; $i++) {
-        if (abs($transaction->[$i]->{'umsatz'}) > abs($umsatz)) {
-          $umsatz = $transaction->[$i]->{'umsatz'};
+        if ($trans_lines == 2) {
+          if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {
+            $umsatz = $transaction->[$i]->{'amount'};
+          }
+        } else {
+          if (abs($transaction->[$i]->{'umsatz'}) > abs($umsatz)) {
+            $umsatz = $transaction->[$i]->{'umsatz'};
+          }
         }
         if ($transaction->[$i]->{'datevautomatik'}) {
           $datevautomatik = 1;
