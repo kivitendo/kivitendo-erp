@@ -693,10 +693,10 @@ sub generate_report {
     foreach $key (sort keys(%{ $ref->{debit_accno} })) {
       if ($key == 0) {
         $debitaccno =
-          "<a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{debit_accno}{$key}</a>";
+          "<a href=$href&accno=$ref->{debit_accno}{$key}&callback=$callback>$ref->{debit_accno}{$key}</a>";
       } else {
         $debitaccno .=
-          "<br><a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{debit_accno}{$key}</a>";
+          "<br><a href=$href&accno=$ref->{debit_accno}{$key}&callback=$callback>$ref->{debit_accno}{$key}</a>";
       }
       if ($ref->{debit_taxkey}{$key} eq $debittaxkey) {
         $ref->{debit_tax_accno}{$key} = $taxaccno;
@@ -711,10 +711,10 @@ sub generate_report {
     foreach $key (sort keys(%{ $ref->{credit_accno} })) {
       if ($key == 0) {
         $creditaccno =
-          "<a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{credit_accno}{$key}</a>";
+          "<a href=$href&accno=$ref->{credit_accno}{$key}&callback=$callback>$ref->{credit_accno}{$key}</a>";
       } else {
         $creditaccno .=
-          "<br><a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{credit_accno}{$key}</a>";
+          "<br><a href=$href&accno=$ref->{credit_accno}{$key}&callback=$callback>$ref->{credit_accno}{$key}</a>";
       }
       if ($ref->{credit_taxkey}{$key} eq $credittaxkey) {
         $ref->{credit_tax_accno}{$key} = $taxaccno;
@@ -727,10 +727,10 @@ sub generate_report {
     foreach $key (sort keys(%{ $ref->{debit_tax_accno} })) {
       if ($key == 0) {
         $debittaxaccno =
-          "<a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{debit_tax_accno}{$key}</a>";
+          "<a href=$href&accno=$ref->{debit_tax_accno}{$key}&callback=$callback>$ref->{debit_tax_accno}{$key}</a>";
       } else {
         $debittaxaccno .=
-          "<br><a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{debit_tax_accno}{$key}</a>";
+          "<br><a href=$href&accno=$ref->{debit_tax_accno}{$key}&callback=$callback>$ref->{debit_tax_accno}{$key}</a>";
       }
     }
 
@@ -738,10 +738,10 @@ sub generate_report {
     foreach $key (sort keys(%{ $ref->{credit_tax_accno} })) {
       if ($key == 0) {
         $credittaxaccno =
-          "<a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{credit_tax_accno}{$key}</a>";
+          "<a href=$href&accno=$ref->{credit_tax_accno}{$key}&callback=$callback>$ref->{credit_tax_accno}{$key}</a>";
       } else {
         $credittaxaccno .=
-          "<br><a href=$href&accno=$ref->{accno}&callback=$callback>$ref->{credit_tax_accno}{$key}</a>";
+          "<br><a href=$href&accno=$ref->{credit_tax_accno}{$key}&callback=$callback>$ref->{credit_tax_accno}{$key}</a>";
       }
     }
 
