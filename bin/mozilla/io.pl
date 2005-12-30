@@ -431,8 +431,8 @@ sub set_pricegroup {
       $prices = '';
       $price  = 0;
       foreach $item (@{ $form->{PRICES}{$j} }) {
-        $price = $form->round_amount($myconfig,  $item->{price}, 5);
-        $price = $form->format_amount($myconfig, $item->{price}, 2);
+        #$price = $form->round_amount($myconfig,  $item->{price}, 5);
+        #$price = $form->format_amount($myconfig, $item->{price}, 2);
         $price = $item->{price};
         $pricegroup_id = $item->{pricegroup_id};
         $pricegroup    = $item->{pricegroup};
@@ -442,10 +442,10 @@ sub set_pricegroup {
           qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
 
         $len += 1;
-        map {
-              $form->{"${_}_$j"} =
-              $form->format_amount(\%myconfig, $form->{"${_}_$j"})
-             } qw(sellprice price_new price_old);
+#        map {
+#               $form->{"${_}_$j"} =
+#               $form->format_amount(\%myconfig, $form->{"${_}_$j"})
+#              } qw(sellprice price_new price_old);
 
         # set new selectedpricegroup_id and prices for "Preis"
         if ($item->{selected} && ($pricegroup_id != 0)) {
