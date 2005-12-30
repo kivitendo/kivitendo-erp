@@ -2718,6 +2718,7 @@ sub save {
   # $locale->text('Assembly Number missing!')
 
   # save part
+  $lxdebug->message(LXDebug::DEBUG1, "ic.pl: sellprice in save = $form->{sellprice}\n");
   $rc = IC->save(\%myconfig, \%$form);
   if ($rc == 3) {
     $form->error($locale->text('Partnumber not unique!'));
@@ -2772,11 +2773,10 @@ sub save {
       map { $form->{"${_}_$i"} = $newform{$_} }
         qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice);
       $form->{"sellprice_$i"} = $newform{lastcost} if ($form->{vendor_id});
-
       if ($form->{exchangerate} != 0) {
         $form->{"sellprice_$i"} /= $form->{exchangerate};
       }
-
+      $lxdebug->message(LXDebug::DEBUG1, qq|sellprice_$i in previousform 2 = |.$form->{"sellprice_$i"}.qq|\n|);
       map { $form->{"taxaccounts_$i"} .= "$_ " } split / /,
         $newform{taxaccount};
       chop $form->{"taxaccounts_$i"};
@@ -2797,6 +2797,10 @@ sub save {
 
       $form->{creditremaining} -= $amount;
 
+    # redo number formatting, because invoice parse them!
+    $i = $form->{rowcount};
+    map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}) }
+    qw(weight listprice sellprice rop);
     }
 
     $form->{"id_$i"} = $parts_id;
@@ -2818,7 +2822,7 @@ sub save {
     }
     $form->{callback} = $callback;
   }
-
+  $lxdebug->message(LXDebug::DEBUG1, qq|ic.pl: sellprice_$i nach sub save = |.$form->{"sellprice_$i"}.qq|\n|);
   # redirect
   $form->redirect;
 
