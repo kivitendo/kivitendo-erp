@@ -638,6 +638,7 @@ sub get_accounts_ustva {
   my $glwhere  = "";
   my $subwhere = "";
   my $ARwhere = "";
+  my $arwhere = "";
   my $item;
 
   if ($fromdate) {
@@ -646,13 +647,13 @@ sub get_accounts_ustva {
       $glwhere = " AND ac.transdate >= '$fromdate'";
       $ARwhere .= " AND acc.transdate >= '$fromdate'";
       $where .= " AND ac.transdate >= '$fromdate'";
+      
     }
   }
 
   if ($todate) {
     $where    .= " AND ac.transdate <= '$todate'";
     $ARwhere    .= " AND acc.transdate <= '$todate'";
-    $arwhere    .= " AND ac.transdate <= '$todate'";    
     $subwhere .= " AND transdate <= '$todate'";
   }
 
@@ -695,10 +696,11 @@ sub get_accounts_ustva {
    c.pos_ustva
    FROM acc_trans ac
    JOIN chart c ON (c.id = ac.chart_id)
-   JOIN ar ON (ar.id = ac.trans_id)
+   --JOIN ar ON (ar.id = ac.trans_id)
    where 
      1=1 
-     $arwhere
+     -- Here no where, please. All Transactions ever should be
+     -- testet if they are paied in the USTVA report period.
    GROUP BY c.pos_ustva
 	UNION
 
