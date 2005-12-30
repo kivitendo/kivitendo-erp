@@ -1575,7 +1575,7 @@ sub config {
       ? "<option selected>$item\n"
       : "<option>$item\n";
   }
-
+  
   foreach $item (qw(name company address signature)) {
     $myconfig{$item} =~ s/\"/&quot;/g;
   }
@@ -1595,7 +1595,22 @@ sub config {
       : "<option value=$key>$countrycodes{$key}\n";
   }
   $countrycodes = "<option>American English\n$countrycodes";
+  
+  # use an other input number format than output numberformat
+  # look at Form.pm, sub parse_amount
+  my $ in_numberformat = '';
+  $text1 = qq|value="0">| . $locale->text('equal Outputformat');
+  $text2 = qq|value="1">| . $locale->text('1000,00 or 1000.00');
+  @in_nf = ($text1, $text2);
+  foreach $item ( @in_nf ) {
+    $in_numberformat .=
+      ( substr($item, 7, 1) eq $myconfig{in_numberformat})
+      ? "<option selected $item\n"
+      : "<option $item\n";
+  }
 
+
+  
   foreach $key (keys %{ $form->{IC} }) {
     foreach $accno (sort keys %{ $form->{IC}{$key} }) {
       $myconfig{$key} .=
@@ -1676,9 +1691,14 @@ sub config {
 	  <td><select name=dateformat>$dateformat</select></td>
 	</tr>
 	<tr>
-	  <th align=right>| . $locale->text('Number Format') . qq|</th>
+	  <th align=right>| . $locale->text('Output Number Format') . qq|</th>
 	  <td><select name=numberformat>$numberformat</select></td>
 	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Input Number Format') . qq|</th>
+	  <td><select name=in_numberformat>$in_numberformat</select></td>
+	</tr>
+
 	<tr>
 	  <th align=right>| . $locale->text('Dropdown Limit') . qq|</th>
 	  <td><input name=vclimit size=10 value="$myconfig{vclimit}"></td>

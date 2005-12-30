@@ -590,19 +590,44 @@ sub parse_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $amount) = @_;
+  $main::lxdebug->message(LXDebug::DEBUG2, "Start amount: $amount");  
+ 
+  if ($myconfig->{in_numberformat} == 1){
+    # Extra input number format 1000.00 or 1000,00
+    $main::lxdebug->message(LXDebug::DEBUG2, "in_numberformat: " . $main::locale->text('1000,00 or 1000.00'));
+    $amount =~ s/,/\./g;
+    #$main::lxdebug->message(LXDebug::DEBUG2, "1.Parsed Number: $amount") if ($amount);
+    $amount = scalar reverse $amount;
+    #$main::lxdebug->message(LXDebug::DEBUG2, "2.Parsed Number: $amount") if ($amount);
+    $amount =~ s/\./DOT/;
+    #$main::lxdebug->message(LXDebug::DEBUG2, "3.Parsed Number: $amount") if ($amount);
+    $amount =~ s/\.//g;
+    #$main::lxdebug->message(LXDebug::DEBUG2, "4.Parsed Number: $amount") if ($amount);
+    $amount =~ s/DOT/\./;
+    #$main::lxdebug->message(LXDebug::DEBUG2, "5.Parsed Number:" . $amount) if ($amount);
+    $amount = scalar reverse $amount ;
+    $main::lxdebug->message(LXDebug::DEBUG2, "Parsed amount:" . $amount . "\n");
 
-  if (!(substr($amount, -3, 1) eq ".")) {
-    if (   ($myconfig->{numberformat} eq '1.000,00')
-        || ($myconfig->{numberformat} eq '1000,00')) {
-      $amount =~ s/\.//g;
-      $amount =~ s/,/\./;
-    }
+    return ($amount * 1);
 
-    $amount =~ s/,//g;
+  }
+  $main::lxdebug->message(LXDebug::DEBUG2, "in_numberformat: " . $main::locale->text('equal Outputformat'));
+  $main::lxdebug->message(LXDebug::DEBUG2, " = numberformat: $myconfig->{numberformat}");
+  if (   ($myconfig->{numberformat} eq '1.000,00')
+      || ($myconfig->{numberformat} eq '1000,00')) {
+    $amount =~ s/\.//g;
+    $amount =~ s/,/\./;
   }
 
-  $main::lxdebug->leave_sub();
+  if ($myconfig->{numberformat} eq "1'000.00") {
+      $amount =~ s/'//g;
+  }
 
+  $amount =~ s/,//g;
+  
+  $main::lxdebug->message(LXDebug::DEBUG2, "Parsed amount:" . $amount. "\n") if ($amount);
+  $main::lxdebug->leave_sub();
+  
   return ($amount * 1);
 }
 
