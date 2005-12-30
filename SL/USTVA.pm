@@ -717,7 +717,7 @@ sub get_accounts_ustva {
 		     SELECT trans_id
 		     FROM acc_trans
 		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
+		     WHERE link LIKE '%AP_amount%'
 		     $subwhere
 		   )
 
