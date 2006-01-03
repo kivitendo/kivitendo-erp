@@ -202,6 +202,7 @@ sub display_row {
   $serialnumber  = $locale->text('Serial No.');
   $projectnumber = $locale->text('Project');
   $partsgroup    = $locale->text('Group');
+  $reqdate       = $locale->text('Reqdate');
 
   $delvar = 'deliverydate';
 
@@ -396,10 +397,19 @@ sub display_row {
           <b>$projectnumber</b>&nbsp;<input name="projectnumber_$i" size=10 value="$form->{"projectnumber_$i"}">
 		  <input type=hidden name="oldprojectnumber_$i" value="$form->{"oldprojectnumber_$i"}">
 		  <input type=hidden name="project_id_$i" value="$form->{"project_id_$i"}">
+|;
+    if ($form->{type} eq 'invoice' or $form->{type} =~ /order/) {
+      my $reqdate_term = ($form->{type} eq 'invoice')?'deliverydate':'reqdate'; # invoice uses a different term for the same thing.
+      print qq|
+        <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size=11 value="$form->{"${reqdate_term}_$i"}">
+|;
+
+    print qq|
 	  </td>
 	</tr>
 
 |;
+    }
 
 ############## ENDE Neueintrag ##################
 
