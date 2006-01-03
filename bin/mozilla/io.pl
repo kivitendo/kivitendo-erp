@@ -403,13 +403,13 @@ sub display_row {
       print qq|
         <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size=11 value="$form->{"${reqdate_term}_$i"}">
 |;
+    }
 
     print qq|
 	  </td>
 	</tr>
 
 |;
-    }
 
 ############## ENDE Neueintrag ##################
 
