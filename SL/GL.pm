@@ -342,6 +342,17 @@ sub all_transactions {
 
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
 
+     my $sortorder = join ', ', $form->sort_columns(qw(transdate reference source description accno));
+     my %ordinal = ( transdate => 6,
+                     reference => 4,
+                     source => 7,
+   		  description => 5 );
+     map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
+   
+     if ($form->{sort}) {
+         $sortorder = $form->{sort} . ',' . $sortorder;
+     }
+  
   my $query =
     qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, t.taxkey AS sorttax,
                  g.description, ac.transdate, ac.source, ac.trans_id,
@@ -371,7 +382,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND a.vendor_id = ct.id
 		 AND a.id = ac.trans_id
-	         ORDER BY transdate, trans_id, taxkey DESC, sorttax DESC, oid|;
+	         ORDER BY $sortorder, oid|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   my $trans_id = "";
