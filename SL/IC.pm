@@ -934,7 +934,7 @@ sub all_parts {
 
   my $sortorder = $form->{sort};
   $sortorder .= $form->{desc};
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   my $query = "";
 

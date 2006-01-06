@@ -2088,7 +2088,7 @@ sub tax_report {
   my $ml = ($form->{db} eq 'ar') ? 1 : -1;
 
   my $sortorder = join ', ', $form->sort_columns(qw(transdate invnumber name));
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query = qq|SELECT a.id, '0' AS invoice, $transdate AS transdate,
               a.invnumber, n.name, a.netamount,
