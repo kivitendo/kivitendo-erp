@@ -2247,7 +2247,8 @@ sub payments {
 
   my $sortorder = join ', ',
     $form->sort_columns(qw(name invnumber ordnumber transdate source));
-
+    $sortorder = $form->{sort} if $form->{sort};
+    
   # cycle through each id
   foreach my $accno (split(/ /, $form->{paymentaccounts})) {
 
