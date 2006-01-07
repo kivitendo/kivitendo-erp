@@ -836,7 +836,7 @@ sub display_form {
     $subroutine = "assembly_row";
   }
   if ($form->{item} eq 'service') {
-    $numrows    = ++$form->{price_rows};
+    $numrows    = $form->{price_rows};
     $subroutine = "price_row";
 
     &{$subroutine}($numrows);
