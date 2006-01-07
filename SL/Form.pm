@@ -1703,7 +1703,7 @@ sub create_links {
 		LEFT Join tax t ON (a.taxkey = t.taxkey)
 		WHERE a.trans_id = $self->{id}
 		AND a.fx_transaction = '0'
-		ORDER BY a.transdate|;
+		ORDER BY a.oid,a.transdate|;
     $sth = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
 
@@ -1713,12 +1713,17 @@ sub create_links {
     $self->{exchangerate} =
       $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate},
                               $fld);
+    my $index=0;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       $ref->{exchangerate} =
         $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate},
                                 $fld);
+      if ( !($xkeyref{ $ref->{accno} } =~ /tax/)) {
+        $index++;
+      }
+      $ref->{index} = $index;
 
       push @{ $self->{acc_trans}{ $xkeyref{ $ref->{accno} } } }, $ref;
     }

@@ -34,6 +34,7 @@
 use SL::AR;
 use SL::IS;
 use SL::PE;
+use Data::Dumper;
 
 require "$form->{path}/arap.pl";
 
@@ -115,7 +116,7 @@ sub create_links {
 
   $form->{duedate}     = $duedate if $duedate;
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
-
+  $form->{rowcount} = 1;
   # currencies
   @curr = split /:/, $form->{currencies};
   chomp $curr[0];
@@ -179,7 +180,9 @@ sub create_links {
     $form->{$key} = $form->{"select$key"};
 
     # if there is a value we have an old entry
-    $j = 0;
+    my $j = 0;
+    my $k = 0;
+    print(STDERR Dumper($form->{acc_trans}));
     for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
       if ($key eq "AR_paid") {
         $j++;
@@ -220,10 +223,15 @@ sub create_links {
               $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
             $withholdingrate +=
               $form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"};
-          }
+          }          
+          print(STDERR $form->{acc_trans}{$key}->[$i - 1]->{amount}, " ACC_TRANS\n");
+          print(STDERR "$key KEY, $k Zeile\n");
+          $index = $form->{acc_trans}{$key}->[$i - 1]->{index};
+          $form->{"tax_$index"} = $form->{acc_trans}{$key}->[$i - 1]->{amount};
 
         } else {
-          $form->{"${akey}_$i"} =
+          $k++;
+          $form->{"${akey}_$k"} =
             $form->round_amount(
                   $form->{acc_trans}{$key}->[$i - 1]->{amount} / $exchangerate,
                   2);
@@ -231,24 +239,25 @@ sub create_links {
             $form->{rowcount}++;
             $totalamount += $form->{"${akey}_$i"};
 
-            $form->{"oldprojectnumber_$i"} = $form->{"projectnumber_$i"} =
+            $form->{"oldprojectnumber_$k"} = $form->{"projectnumber_$k"} =
               "$form->{acc_trans}{$key}->[$i-1]->{projectnumber}";
             $form->{taxrate} = $form->{acc_trans}{$key}->[$i - 1]->{rate};
-            $form->{"project_id_$i"} =
+            $form->{"project_id_$k"} =
               "$form->{acc_trans}{$key}->[$i-1]->{project_id}";
           }
-          $form->{"${key}_$i"} =
+          $form->{"${key}_$k"} =
             "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
           $form->{"${key}_$i"} =
             "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
           $form->{"select${key}"} =~
-            /(<option value=\"$form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*\">$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}<\/option>\n)/;
+            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}<\/option>\n/;
           $test = $1;
-          $form->{"select${key}"} = $1;
+          $form->{"${key}_$k"} = $1;
           if ($akey eq 'amount') {
-            $form->{selecttaxchart} =~
-              /(<option value=\"$form->{acc_trans}{$key}->[$i-1]->{taxkey}--[^<]*)/;
-            $form->{selecttaxchart} = $1;
+            $form->{"taxchart_$k"} = $form->{taxchart};
+            $form->{"taxchart_$k"} =~
+              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{taxkey}--[^\"]*)/;
+            $form->{"taxchart_$k"} = $1;
           }
         }
       }
@@ -261,7 +270,7 @@ sub create_links {
   if ($form->{taxincluded} && $form->{taxrate} && $totalamount) {
 
     # add tax to amounts and invtotal
-    for $i (1 .. 1) {
+    for $i (1 .. $form->{rowcount}) {
       $taxamount =
         ($totaltax + $totalwithholding) * $form->{"amount_$i"} / $totalamount;
       $tax = $form->round_amount($taxamount, 2);
@@ -311,6 +320,25 @@ sub form_header {
 
   # $locale->text('Add Accounts Receivables Transaction')
   # $locale->text('Edit Accounts Receivables Transaction')
+  $form->{javascript} = qq|<script type="text/javascript">
+  <!--
+  function setTaxkey(accno, row) {
+    var taxkey = accno.options[accno.selectedIndex].value;
+    var reg = /--([0-9])*/;
+    var found = reg.exec(taxkey);
+    var index = found[1];
+    index = parseInt(index);
+    var tax = 'taxchart_' + row;
+    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
+      var reg2 = new RegExp("^"+ index, "");
+      if (reg2.exec(document.getElementById(tax).options[i].value)) {
+        document.getElementById(tax).options[i].selected = true;
+        break;
+      }
+    }
+  };
+  //-->
+  </script>|;
 
   $readonly = ($form->{id}) ? "readonly" : "";
 
@@ -324,8 +352,9 @@ sub form_header {
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
-
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(AR_amount AR taxchart);
+  $selectAR_amount_unquoted = $form->{selectAR_amount};
+  $taxchart = $form->{taxchart};
+  map { $form->{$_} =~ s/\"/&quot;/g } qw(AR_amount selectAR_amount AR taxchart);
 
   # format amounts
   $form->{exchangerate} =
@@ -517,64 +546,79 @@ sub form_header {
       </table>
     </td>
   </tr>
-  <tr>
-    <td>
-      <table width=100%>
 
 $jsscript
-
+  <input type=hidden name=selectAR_amount value="$form->{selectAR_amount}">
   <input type=hidden name=AR_amount value="$form->{AR_amount}">
   <input type=hidden name=taxchart value="$form->{taxchart}">
   <input type=hidden name=rowcount value=$form->{rowcount}>
+  <tr>
+      <td>
+          <table width=100%>
+	   <tr class=listheading>
+	  <th class=listheading style="width:15%">|
+    . $locale->text('Account') . qq|</th>
+	  <th class=listheading style="width:10%">|
+    . $locale->text('Amount') . qq|</th>
+          <th class=listheading style="width:10%">|
+    . $locale->text('Tax') . qq|</th>
+          <th class=listheading style="width:5%">|
+    . $locale->text('Korrektur') . qq|</th>
+          <th class=listheading style="width:10%">|
+    . $locale->text('Taxkey') . qq|</th>
+          <th class=listheading style="width:10%">|
+    . $locale->text('Project') . qq|</th>
+	</tr>
 |;
 
-  $form->{"tax"} = $form->format_amount(\%myconfig, $form->{"tax"}, 2);
+ 
 
   $amount  = $locale->text('Amount');
   $project = $locale->text('Project');
 
-  for $i (1 .. 1) {
+  for $i (1 .. $form->{rowcount}) {
 
     # format amounts
-    $form->{"amount_$i"} =
-      $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
+    $form->{"amount_$i"} = $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
+    $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
+    $selectAR_amount = $selectAR_amount_unquoted;
+    $selectAR_amount =~ s/option value=\"$form->{"AR_amount_$i"}\"/option value=\"$form->{"AR_amount_$i"}\" selected/;
+    $tax          = $taxchart;
+    $tax_selected = $form->{"taxchart_$i"};
+    $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
+    $tax =
+            qq|<td><select id="taxchart_$i" name="taxchart_$i">$tax</select></td>|;
 
     print qq|
 	<tr>
-	  <th align=right>$amount</th>
-	  <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
-	  <th>$project</th>
+          <td width=50%><select name="AR_amount_$i">$selectAR_amount</select></td>
+          <td><input name="amount_$i" onChange="setTaxkey(this, $i)" size=10 value=$form->{"amount_$i"}></td>
+          <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
+          <td><input type="checkbox" name="korrektur_$i" value="1"></td>
+          $tax
 	  <td><input name="projectnumber_$i" size=20 value="$form->{"projectnumber_$i"}">
 	      <input type=hidden name="project_id_$i" value=$form->{"project_id_$i"}>
 	      <input type=hidden name="oldprojectnumber_$i" value="$form->{"oldprojectnumber_$i"}"></td>
-	  <td width=50%><select name="AR_amountselected">$form->{"selectAR_amount"}</select></td>
 	</tr>
 |;
     $amount  = "";
     $project = "";
   }
 
-  $taxlabel =
-    ($form->{taxincluded})
-    ? $locale->text('Tax Included')
-    : $locale->text('Tax');
 
-  print qq|
-      <tr>
-	<th align=right nowrap>$taxlabel</th>
-	<td><input name="tax" size=10 value=$form->{"tax"}></td>
-	<td align=right></td>
-	<td></td>
-	<td><select name="taxchartselected">$form->{"selecttaxchart"}</select></td>
-      </tr>
-|;
+
 
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
   print qq|
         <tr>
-
-	  <th align=right>| . $locale->text('Total') . qq|</th>
+          <td colspan=6>
+            <hr noshade>
+          </td>
+        </tr>
+        <tr>
+	  <td><select name=ARselected>$form->{selectAR}</select></td>
+          <input type=hidden name=AR value="$form->{AR}">
 	  <th align=left>$form->{invtotal}</th>
 
 	  <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
@@ -582,14 +626,19 @@ $jsscript
 
 	  <input type=hidden name=taxaccounts value="$form->{taxaccounts}">
 
-	  <td colspan=2></td>
-	  <td><select name=ARselected>$form->{selectAR}</select></td>
-          <input type=hidden name=AR value="$form->{AR}">
+	  <td colspan=4></td>
+
 
         </tr>
+        </table>
+        </td>
+    </tr>
+    <tr>
+      <td>
+        <table width=100%>
         <tr>
-	  <th align=right>| . $locale->text('Notes') . qq|</th>
-	  <td colspan=4>$notes</td>
+	  <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
+	  <td align=left>$notes</td>
 	</tr>
       </table>
     </td>
@@ -767,9 +816,9 @@ sub update {
 
   $form->{invtotal} = 0;
 
-  $form->{selectAR_amount} = $form->{AR_amount};
-  $form->{selectAR_amount} =~
-    s/value=\"$form->{AR_amountselected}\"/value=\"$form->{AR_amountselected}\" selected/;
+#   $form->{selectAR_amount} = $form->{AR_amount};
+#   $form->{selectAR_amount} =~
+#     s/value=\"$form->{AR_amountselected}\"/value=\"$form->{AR_amountselected}\" selected/;
 
   $form->{selectAR} = $form->{AR};
 
@@ -790,21 +839,38 @@ sub update {
   @flds  = qw(amount AR_amount projectnumber oldprojectnumber project_id);
   $count = 0;
   @a     = ();
-  for $i (1 .. 1) {
+
+  for $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} =
       $form->parse_amount(\%myconfig, $form->{"amount_$i"});
+    $form->{"tax_$i"} =
+      $form->parse_amount(\%myconfig, $form->{"tax_$i"});
     if ($form->{"amount_$i"}) {
       push @a, {};
       $j = $#a;
+      if (!$form->{"korrektur_$i"}) {
+        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+        if ($taxkey > 1) {
+          if ($form->{taxincluded}) {
+            $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
+          } else {
+            $form->{"tax_$i"} = $form->{"amount_$i"} * $rate;
+          }
+        } else {
+          $form->{"tax_$i"} = 0;
+        }
+      }
+      $form->{"tax_$i"} = $form->round_amount($form->{"tax_$i"}, 2);
 
+      $totaltax += $form->{"tax_$i"};
       map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
       $count++;
     }
   }
 
   $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
-
-  map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. 1);
+  $form->{rowcount} = $count + 1;
+  map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. $form->{rowcount});
 
   $form->{exchangerate} = $exchangerate
     if (
@@ -821,37 +887,6 @@ sub update {
 
   &check_project;
 
-TAXCALC:
-
-  # recalculate taxes
-
-  @taxaccounts = split / /, $form->{taxaccounts};
-
-  $form->{"tax"} = $form->parse_amount(\%myconfig, $form->{"tax"});
-
-  if ($form->{taxincluded} && $form->{"rate"}) {
-    $taxrate         = $form->{"rate"};
-    $withholdingrate = 0;
-
-    $amount =
-      $form->round_amount(
-                    ($form->{invtotal} - ($form->{invtotal} / ($taxrate + 1))),
-                    2);
-    $form->{"tax"} = $form->round_amount($amount, 2);
-    $taxdiff += ($amount - $form->{"tax"});
-
-    if (abs $taxdiff >= 0.005) {
-      $form->{"tax"} += $form->round_amount($taxdiff, 2);
-      $taxdiff = 0;
-    }
-    $totaltax += $form->{"tax"};
-
-  } else {
-    $form->{"tax"} =
-      $form->round_amount($form->{invtotal} * $form->{"rate"}, 2);
-    $totaltax += $form->{"tax"};
-
-  }
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
