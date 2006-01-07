@@ -61,8 +61,15 @@ sub post_transaction {
       : $form->parse_amount($myconfig, $form->{exchangerate});
   }
 
+  for $i (1 .. $form->{rowcount}) {
+    $form->{AP_amounts}{"amount_$i"} =
+      (split(/--/, $form->{"AP_amount_$i"}))[0];
+  }
+  ($form->{AP_amounts}{payables}) = split(/--/, $form->{APselected});
+  ($form->{AP}{payables})         = split(/--/, $form->{APselected});
+
   # reverse and parse amounts
-  for my $i (1 .. 1) {
+  for my $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} =
       $form->round_amount(
                          $form->parse_amount($myconfig, $form->{"amount_$i"}) *
@@ -77,29 +84,44 @@ sub post_transaction {
   # taxincluded doesn't make sense if there is no amount
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
 
-  $query =
-    qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{taxkey}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-  ($form->{AP}{"tax"}, $form->{taxrate}) = $sth->fetchrow_array;
-  $sth->finish;
+  for $i (1 .. $form->{rowcount}) {
+    ($form->{"taxkey_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
 
-  $formtax = $form->parse_amount($myconfig, $form->{"tax"});
+    $query =
+      qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{"taxkey_$i"}|;
+    $sth = $dbh->prepare($query);
+    $sth->execute || $form->dberror($query);
+    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxrate_$i"}) =
+      $sth->fetchrow_array;
+    $form->{AP_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
+    $form->{AP_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
 
-  $form->{"tax"} = $form->{amount} * $form->{taxrate};
-  $form->{"tax"} =
-    $form->round_amount($form->{"tax"} * $form->{exchangerate}, 2) * -1;
-
-  if ($form->{taxcheck}) {
-    $form->{"tax"} = $formtax * -1;
+    $sth->finish;
+    if (!$form->{"korrektur_$i"}) {
+      if ($form->{taxincluded} *= 1) {
+        $tax =
+          $form->{"amount_$i"} -
+          ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
+        $amount = $form->{"amount_$i"} - $tax;
+        $form->{"amount_$i"} = $form->round_amount($amount, 2);
+        $diff += $amount - $form->{"amount_$i"};
+        $form->{"tax_$i"} = $form->round_amount($tax, 2);
+        $form->{netamount} += $form->{"amount_$i"};
+      } else {
+        $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
+        $form->{"tax_$i"} =
+          $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+        $form->{netamount} += $form->{"amount_$i"};
+      }
+    }
+    $form->{total_tax} += $form->{"tax_$i"} * -1;
   }
-
-  $form->{total_tax} += ($form->{"tax"} * -1);
 
   # adjust paidaccounts if there is no date in the last row
   $form->{paidaccounts}-- unless ($form->{"datepaid_$form->{paidaccounts}"});
 
   $form->{invpaid} = 0;
+  $form->{netamount} *= -1;
 
   # add payments
   for my $i (1 .. $form->{paidaccounts}) {
@@ -115,37 +137,19 @@ sub post_transaction {
   $form->{invpaid} =
     $form->round_amount($form->{invpaid} * $form->{exchangerate}, 2);
 
-  if ($form->{taxincluded} *= 1) {
-    for $i (1 .. 1) {
-      $tax =
-        $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{taxrate} + 1));
-      if ($form->{taxcheck}) {
-        $tax = $formtax * -1;
-      }
-      $amount = $form->{"amount_$i"} - $tax;
-      $form->{"amount_$i"} = $form->round_amount($amount, 2);
-      $diff += $amount - $form->{"amount_$i"};
-      $form->{tax} = $form->round_amount($tax, 2);
-      $form->{total_tax} = $form->{tax} * -1;
-    }
-    print(STDERR "Steuer $form->{tax}\n");
-    print(STDERR "TotalSteuer $form->{total_tax}\n");
-
-    # deduct taxes from amount
-    # $form->{amount} -= $form->{total_tax};
-    # deduct difference from amount_1
-    # $form->{amount_1} += $form->round_amount($diff, 2);
-    $form->{amount} = $form->{amount_1} * -1;
-  }
-
-  $form->{netamount} = $form->{amount};
-
   # store invoice total, this goes into ap table
-  $form->{invtotal} = $form->{amount} + $form->{total_tax};
+  $form->{invtotal} = $form->{netamount} + $form->{total_tax};
 
   # amount for total AP
   $form->{payables} = $form->{invtotal};
-
+  print(STDERR $form->{payables},
+        " Payables\n",
+        $form->{invtotal},
+        " Invtotal\n",
+        $form->{netamount},
+        " Netamount\n",
+        $form->{total_tax},
+        " Total_Tax\n\n");
   my ($query, $sth);
 
   # if we have an id delete old records
@@ -211,25 +215,48 @@ sub post_transaction {
   }
 
   # add individual transactions
-  foreach my $item (keys %{ $form->{AP} }) {
-    if ($form->{$item} != 0) {
+  for $i (1 .. $form->{rowcount}) {
+    if ($form->{"amount_$i"} != 0) {
       $project_id = 'NULL';
-      if ($item =~ /amount_/) {
-        if ($form->{"project_id_$'"} && $form->{"projectnumber_$'"}) {
-          $project_id = $form->{"project_id_$'"};
+      if ("amount_$i" =~ /amount_/) {
+        if ($form->{"project_id_$i"} && $form->{"projectnumber_$i"}) {
+          $project_id = $form->{"project_id_$i"};
         }
+      }
+      if ("amount_$i" =~ /amount/) {
+        $taxkey = $form->{AP_amounts}{"amount_$i"}{taxkey};
       }
 
       # insert detail records in acc_trans
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                                          project_id, taxkey)
                   VALUES ($form->{id}, (SELECT c.id FROM chart c
-		                        WHERE c.accno = '$form->{AP}{$item}'),
-		  $form->{$item}, '$form->{transdate}', $project_id, '$form->{taxkey}')|;
+                                         WHERE c.accno = '$form->{AP_amounts}{"amount_$i"}'),
+                    $form->{"amount_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
       $dbh->do($query) || $form->dberror($query);
+
+      if ($form->{"tax_$i"} != 0) {
+
+        # insert detail records in acc_trans
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                                          project_id, taxkey)
+                    VALUES ($form->{id}, (SELECT c.id FROM chart c
+                                          WHERE c.accno = '$form->{AP_amounts}{"tax_$i"}'),
+                    $form->{"tax_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
+        $dbh->do($query) || $form->dberror($query);
+      }
 
     }
   }
+
+  # add payables
+  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                                      project_id)
+              VALUES ($form->{id}, (SELECT c.id FROM chart c
+                                    WHERE c.accno = '$form->{AP_amounts}{payables}'),
+              $form->{payables}, '$form->{transdate}', $project_id)|;
+  $dbh->do($query) || $form->dberror($query);
 
   # if there is no amount but a payment record a payable
   if ($form->{amount} == 0 && $form->{invtotal} == 0) {
