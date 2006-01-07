@@ -163,7 +163,7 @@ sub get_part {
       $form->{"price_$i"} =
         $form->format_amount($myconfig, $form->{"price_$i"}, 5);
       $form->{"pricegroup_id_$i"} = "$name->{id}";
-      $form->{"pricegroup_$i"}    = "$name->{pricegroup}\n";
+      $form->{"pricegroup_$i"}    = "$name->{pricegroup}";
       $i++;
     }
   }
@@ -263,7 +263,7 @@ sub get_pricegroups {
       $form->{"price_$i"} =
         $form->format_amount($myconfig, $form->{"price_$i"}, 5);
       $form->{"pricegroup_id_$i"} = "$name->{id}";
-      $form->{"pricegroup_$i"}    = "$name->{pricegroup}\n";
+      $form->{"pricegroup_$i"}    = "$name->{pricegroup}";
       $i++;
     }
   }
