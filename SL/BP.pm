@@ -185,7 +185,7 @@ sub get_spoolfiles {
 
   my @a = (transdate, $invnumber, name);
   my $sortorder = join ', ', $form->sort_columns(@a);
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query .= " ORDER by $sortorder";
 

@@ -443,7 +443,7 @@ sub ar_transactions {
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $form->{l_employee};
   my $sortorder = join ', ', $form->sort_columns(@a);
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query .= "WHERE $where
              ORDER by $sortorder";

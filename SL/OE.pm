@@ -125,7 +125,7 @@ sub transactions {
 
   my $sortorder = join ', ',
     ("o.id", $form->sort_columns(transdate, $ordnumber, name));
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query .= " AND lower($ordnumber) LIKE '$number'" if $form->{$ordnumber};
   $query .= " AND o.transdate >= '$form->{transdatefrom}'"
