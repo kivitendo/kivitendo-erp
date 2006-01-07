@@ -17,6 +17,7 @@ $self{texts} = {
   'February'                    => 'Februar',
   'From'                        => 'Von',
   'GIFI'                        => 'GIFI',
+  'Gegenkonto'                  => 'Gegenkonto',
   'Include in Report'           => 'In Bericht aufnehmen',
   'Jan'                         => 'Jan',
   'January'                     => 'Januar',
