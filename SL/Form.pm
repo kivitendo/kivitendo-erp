@@ -877,6 +877,7 @@ sub parse_template {
     }
 
     s/<%(.+?)%>/$self->{$1}/g;
+    s/<nobr><\/nobr>/&nbsp;/g;
     print OUT;
   }
 

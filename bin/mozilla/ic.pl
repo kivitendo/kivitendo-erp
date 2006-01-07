@@ -3042,7 +3042,7 @@ sub price_row {
   for $i (1 .. $numrows) {
     print qq|
         <tr>
-          <td width=50%><input type=hidden name="pricegroup_$i" size=30  value=$form->{"pricegroup_$i"}>$form->{"pricegroup_$i"}</td>
+          <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
           <td width=50%><input name="price_$i" size=11 value="$form->{"price_$i"}"></td>
           <input type=hidden name="pricegroup_id_$i" value="$form->{"pricegroup_id_$i"}">
         </tr>
