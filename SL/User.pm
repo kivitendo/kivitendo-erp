@@ -841,7 +841,7 @@ sub config_vars {
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
     dbname dbuser dbpasswd email fax name numberformat in_numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
-    anfragen lieferantenbestellungen einkaufsrechnungen steuernummer ustid duns menustyle);
+    anfragen lieferantenbestellungen einkaufsrechnungen steuernummer co_ustid duns menustyle);
 
   $main::lxdebug->leave_sub();
 

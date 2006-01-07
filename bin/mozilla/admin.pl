@@ -539,7 +539,7 @@ sub form_header {
 	</tr>
         <tr valign=top>
 	  <th align=right>| . $locale->text('Ust-IDNr') . qq|</th>
-	  <td><input name=ustid size=14 value="$myconfig->{ustid}"></td>
+	  <td><input name=co_ustid size=14 value="$myconfig->{co_ustid}"></td>
 	</tr>
         <tr valign=top>
 	  <th align=right>| . $locale->text('DUNS-Nr') . qq|</th>
