@@ -1,3 +1,6 @@
+-- created by Yvonne Einberger
+-- contributed by Andre Schubert
+-- 
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0027', 'EDV-Software', 'A', 'A', 'AP_amount', '0027', 9, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0090', 'Geschäftsbauten', 'A', 'A', 'AP_amount', '0090', 9, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0200', 'Techn.Anlagen und Maschinen', 'A', 'A', 'AP_amount', '0200', 9, NULL, NULL, NULL, NULL, FALSE);
@@ -191,8 +194,8 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0650', 'Vblk.geg.Kreditinst.- Restlaufzeit grösser als 5 Jahre', 'A', 'A', '', '0650', 0, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('4510', 'Kfz-Steuer', 'A', 'E', 'AP_amount', '4510', 0, NULL, 19, NULL, 15, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('4520', 'Kfz-Versicherungen', 'A', 'E', 'AP_amount', '4520', 0, NULL, 14, NULL, 16, FALSE);
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1771', 'Umsatzsteuer 7%', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', '1771', 0, NULL, NULL, NULL, 5, FALSE);
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1775', 'Umsatzsteuer 16%', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', '1775', 0, NULL, NULL, NULL, 6, FALSE);
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1771', 'Umsatzsteuer 7%', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', '1771', 861, NULL, NULL, NULL, 5, FALSE);
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1775', 'Umsatzsteuer 16%', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', '1775', 511, NULL, NULL, NULL, 6, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1767', 'Im anderen EG-Staat steuerpfl. Lieferung', 'A', ' ', '', '1767', 10, NULL, 0, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0853', 'Satzungsm.Rücklagen 0% Vorbelast.(st.Einlagekto.)', 'A', 'Q', '', '0853', 0, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1607', 'Vblk.a.LuL ohne Vorsteuer (EÜR)', 'A', 'L', 'AP', '1607', 0, NULL, NULL, NULL, NULL, FALSE);

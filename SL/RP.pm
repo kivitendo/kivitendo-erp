@@ -1336,7 +1336,7 @@ sub get_accounts_g {
   my @accno;
   my $accno;
   my $ref;
-
+  #print $query;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -2506,7 +2506,8 @@ sub ustva {
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
-  my @categories_cent = qw(51r 86r 97r 93r 96 66 43 45 53 62 65 67);
+  my @categories_cent = qw(51r 511 86r 861 97r 971 93r 931
+                           96 66 43 45 53 62 65 67);
   my @categories_euro = qw(48 51 86 91 97 93 94);
   $form->{decimalplaces} *= 1;
 
@@ -2544,12 +2545,15 @@ sub ustva {
   #   }
   #
   #    }
-
-  $form->{"51r"} = $form->{"51"} * 0.16;
-  $form->{"86r"} = $form->{"86"} * 0.07;
-  $form->{"97r"} = $form->{"97"} * 0.16;
-  $form->{"93r"} = $form->{"93"} * 0.07;
-  $form->{"96"}  = $form->{"94"} * 0.16;
+  
+  #
+  # Berechnung der USTVA Formularfelder
+  #
+  $form->{"51r"} = $form->{"511"};
+  $form->{"86r"} = $form->{"861"};
+  $form->{"97r"} = $form->{"971"};
+  $form->{"93r"} = $form->{"931"};
+  #$form->{"96"}  = $form->{"94"} * 0.16;
   $form->{"43"}  =
     $form->{"51r"} + $form->{"86r"} + $form->{"97r"} + $form->{"93r"} +
     $form->{"96"};
