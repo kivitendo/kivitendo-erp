@@ -116,7 +116,8 @@ sub create_links {
 
   $form->{duedate}     = $duedate if $duedate;
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
-  $form->{rowcount} = 1;
+  $form->{rowcount}    = 1;
+
   # currencies
   @curr = split /:/, $form->{currencies};
   chomp $curr[0];
@@ -182,7 +183,7 @@ sub create_links {
     # if there is a value we have an old entry
     my $j = 0;
     my $k = 0;
-    print(STDERR Dumper($form->{acc_trans}));
+
     for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
       if ($key eq "AR_paid") {
         $j++;
@@ -205,7 +206,7 @@ sub create_links {
         $akey = $key;
         $akey =~ s/AR_//;
 
-        if ($key eq "AR_tax") {
+        if ($key eq "AR_tax" || $key eq "AP_tax") {
           $form->{"${key}_$form->{acc_trans}{$key}->[$i-1]->{accno}"} =
             "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
           $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"} =
@@ -223,11 +224,10 @@ sub create_links {
               $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
             $withholdingrate +=
               $form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"};
-          }          
-          print(STDERR $form->{acc_trans}{$key}->[$i - 1]->{amount}, " ACC_TRANS\n");
-          print(STDERR "$key KEY, $k Zeile\n");
+          }
           $index = $form->{acc_trans}{$key}->[$i - 1]->{index};
           $form->{"tax_$index"} = $form->{acc_trans}{$key}->[$i - 1]->{amount};
+          $totaltax += $form->{"tax_$index"};
 
         } else {
           $k++;
@@ -275,33 +275,15 @@ sub create_links {
         ($totaltax + $totalwithholding) * $form->{"amount_$i"} / $totalamount;
       $tax = $form->round_amount($taxamount, 2);
       $diff                += ($taxamount - $tax);
-      $form->{"amount_$i"} += $tax;
+      $form->{"amount_$i"} += $form->{"tax_$i"};
     }
     $form->{amount_1} += $form->round_amount($diff, 2);
   }
 
-  # check if calculated is equal to stored
-  if ($form->{taxincluded} && $form->{taxrate} && $withholdingrate) {
-    if ($form->{"taxrate"} > 0) {
-      $taxamount =
-        $form->round_amount(
-            ($form->{amount_1} - ($form->{amount_1} / ($form->{taxrate} + 1))),
-            2);
-    } else {
-      $taxamount =
-        $form->round_amount(
-            ($totalamount + $totaltax + $totalwithholding) * $withholdingrate /
-              (1 - $withholdingrate),
-            2
-        ) * $form->{"taxrate"} / $withholdingrate;
-    }
-  } else {
-    $taxamount = $totalamount * $form->{"taxrate"};
-  }
   $taxamount = $form->round_amount($taxamount, 2);
   $form->{tax} = $taxamount;
 
-  $form->{invtotal} = $totalamount + $totaltax + $totalwithholding;
+  $form->{invtotal} = $totalamount + $totaltax;
 
   $form->{locked} =
     ($form->datetonum($form->{transdate}, \%myconfig) <=
@@ -353,8 +335,9 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
   $selectAR_amount_unquoted = $form->{selectAR_amount};
-  $taxchart = $form->{taxchart};
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(AR_amount selectAR_amount AR taxchart);
+  $taxchart                 = $form->{taxchart};
+  map { $form->{$_} =~ s/\"/&quot;/g }
+    qw(AR_amount selectAR_amount AR taxchart);
 
   # format amounts
   $form->{exchangerate} =
@@ -438,14 +421,12 @@ sub form_header {
     $button1 = qq|
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>
        <td><input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
        <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
        <td><input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td></td>
+      . $locale->text('button') . qq|></td></td>
      |;
 
     #write Trigger
@@ -571,23 +552,23 @@ $jsscript
 	</tr>
 |;
 
- 
-
   $amount  = $locale->text('Amount');
   $project = $locale->text('Project');
 
   for $i (1 .. $form->{rowcount}) {
 
     # format amounts
-    $form->{"amount_$i"} = $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
+    $form->{"amount_$i"} =
+      $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
     $selectAR_amount = $selectAR_amount_unquoted;
-    $selectAR_amount =~ s/option value=\"$form->{"AR_amount_$i"}\"/option value=\"$form->{"AR_amount_$i"}\" selected/;
+    $selectAR_amount =~
+      s/option value=\"$form->{"AR_amount_$i"}\"/option value=\"$form->{"AR_amount_$i"}\" selected/;
     $tax          = $taxchart;
     $tax_selected = $form->{"taxchart_$i"};
     $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
     $tax =
-            qq|<td><select id="taxchart_$i" name="taxchart_$i">$tax</select></td>|;
+      qq|<td><select id="taxchart_$i" name="taxchart_$i">$tax</select></td>|;
 
     print qq|
 	<tr>
@@ -604,9 +585,6 @@ $jsscript
     $amount  = "";
     $project = "";
   }
-
-
-
 
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
@@ -648,8 +626,7 @@ $jsscript
       <table width=100%>
 	<tr class=listheading>
 	  <th colspan=6 class=listheading>|
-    . $locale->text('Incoming Payments')
-    . qq|</th>
+    . $locale->text('Incoming Payments') . qq|</th>
 	</tr>
 |;
 
@@ -816,9 +793,9 @@ sub update {
 
   $form->{invtotal} = 0;
 
-#   $form->{selectAR_amount} = $form->{AR_amount};
-#   $form->{selectAR_amount} =~
-#     s/value=\"$form->{AR_amountselected}\"/value=\"$form->{AR_amountselected}\" selected/;
+  #   $form->{selectAR_amount} = $form->{AR_amount};
+  #   $form->{selectAR_amount} =~
+  #     s/value=\"$form->{AR_amountselected}\"/value=\"$form->{AR_amountselected}\" selected/;
 
   $form->{selectAR} = $form->{AR};
 
@@ -843,8 +820,7 @@ sub update {
   for $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} =
       $form->parse_amount(\%myconfig, $form->{"amount_$i"});
-    $form->{"tax_$i"} =
-      $form->parse_amount(\%myconfig, $form->{"tax_$i"});
+    $form->{"tax_$i"} = $form->parse_amount(\%myconfig, $form->{"tax_$i"});
     if ($form->{"amount_$i"}) {
       push @a, {};
       $j = $#a;
@@ -886,7 +862,6 @@ sub update {
   $form->{AR} = $save_AR;
 
   &check_project;
-
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
@@ -1083,14 +1058,12 @@ sub search {
     $button1 = qq|
        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=transdatefrom id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
        <input type=button name=transdateto name=transdateto id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -1309,10 +1282,9 @@ sub ar_transactions {
     $option   .= $locale->text('Closed');
   }
 
-  @columns =
-    $form->sort_columns(
+  @columns = $form->sort_columns(
     qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee shippingpoint shipvia)
-    );
+  );
 
   foreach $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
