@@ -234,7 +234,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ar a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -248,7 +248,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ap a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -280,7 +280,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ar a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -294,7 +294,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ap a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -371,7 +371,7 @@ sub all_transactions {
              UNION ALL
 
                  SELECT a.id, a.invnumber, c.name, a.transdate,
-	         a.invoice, ac.sellprice, 'ar' as module
+	         a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module
 		 FROM ar a
 		 JOIN invoice ac ON (ac.trans_id = a.id)
 		 JOIN parts p ON (ac.parts_id = p.id)
@@ -386,7 +386,7 @@ sub all_transactions {
              UNION ALL
 
                  SELECT a.id, a.invnumber, v.name, a.transdate,
-	         a.invoice, ac.sellprice, 'ap' as module
+	         a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module
 		 FROM ap a
 		 JOIN invoice ac ON (ac.trans_id = a.id)
 		 JOIN parts p ON (ac.parts_id = p.id)
