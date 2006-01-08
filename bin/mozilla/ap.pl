@@ -548,8 +548,8 @@ $jsscript
 
     print qq|
 	<tr>
-          <td width=50%><select name="AP_amount_$i">$selectAP_amount</select></td>
-          <td><input name="amount_$i" onChange="setTaxkey(this, $i)" size=10 value=$form->{"amount_$i"}></td>
+          <td width=50%><select name="AP_amount_$i" onChange="setTaxkey(this, $i)">$selectAP_amount</select></td>
+          <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
           <td><input type="checkbox" name="korrektur_$i" value="1"></td>
           $tax
