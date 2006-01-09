@@ -2344,11 +2344,7 @@ sub bwa {
   foreach $key (@periods) {
     $form->{ "$key" . "gesamtleistung" } = 0;
     $form->{ "$key" . "gesamtkosten" }   = 0;
-    foreach $kosten (@gesamtkosten) {
-      $form->{$kosten}{$key} *= -1;
-    }
-    
-    $form->{4}{$key} *= -1;
+
 
     foreach $category (@categories) {
 
@@ -2363,7 +2359,6 @@ sub bwa {
       $form->{ "$key" . "gesamtleistung" } += $form->{$item}{$key};
     }
     foreach $item (@gesamtkosten) {
-      $form->{$item}{$key} *= -1;
       $form->{ "$key" . "gesamtkosten" } += $form->{$item}{$key};
     }
     $form->{ "$key" . "rohertrag" } =
@@ -2379,8 +2374,8 @@ sub bwa {
       $form->{32}{$key} + $form->{33}{$key} + $form->{34}{$key};
     $form->{ "$key" . "ergebnisvorsteuern" } =
       $form->{ "$key" . "betriebsergebnis" } -
-      ($form->{ "$key" . "neutraleraufwand" } +
-       $form->{ "$key" . "neutralertrag" });
+      $form->{ "$key" . "neutraleraufwand" } +
+       $form->{ "$key" . "neutralertrag" };
     $form->{ "$key" . "ergebnis" } =
       $form->{ "$key" . "ergebnisvorsteuern" } + $form->{35}{$key};
 
