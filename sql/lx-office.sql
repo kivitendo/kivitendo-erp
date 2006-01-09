@@ -397,7 +397,7 @@ CREATE TABLE "orderitems" (
 	"reqdate" date,
 	"ship" real,
 	"serialnumber" text,
-	"id" integer DEFAULT nextval('orderitemsid'::text) PRIMARY KEY,
+	"id" integer DEFAULT nextval('orderitemsid'::text),
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp,
         "pricegroup_id" integer,
