@@ -182,7 +182,6 @@ alter table employee add primary key (id);
 alter table warehouse add primary key (id);
 alter table business add primary key (id);
 alter table license add primary key (id);
-alter table orderitems add primary key (id);
 
 alter table acc_trans add foreign key (chart_id) references chart (id);
 alter table invoice add foreign key (parts_id) references parts (id);
@@ -234,15 +233,14 @@ ALTER TABLE customer ALTER column klass set default 0;
 ALTER TABLE invoice ADD column pricegroup_id integer;
 ALTER TABLE orderitems ADD column pricegroup_id integer;
 
-update defaults set version = '2.1.2', audittrail = 't';
 
 -- USTVA Update solve Bug 49 conributed by Andre Schubert
 update chart set pos_ustva='861' where accno='1771';
 update chart set pos_ustva='511' where accno='1775';
-update chart set pos_ustva='511' where pos_ustva='51r';
-update chart set pos_ustva='861' where pos_ustva='86r';
-update chart set pos_ustva='971' where pos_ustva='97r';
-update chart set pos_ustva='931' where pos_ustva='93r';
+-- update chart set pos_ustva='511' where pos_ustva='51r';
+-- update chart set pos_ustva='861' where pos_ustva='86r';
+-- update chart set pos_ustva='971' where pos_ustva='97r';
+-- update chart set pos_ustva='931' where pos_ustva='93r';
 
 -- add fields for ordnumber/transdate/cusordnumber in invoice/orderitems (r690 cleanup)
 alter table orderitems add column ordnumber text;
@@ -253,3 +251,4 @@ alter table invoice add column transdate text;
 alter table invoice add column cusordnumber text;
 --
 
+update defaults set version = '2.1.2';
