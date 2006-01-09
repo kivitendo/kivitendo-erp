@@ -544,11 +544,11 @@ $jsscript
     $tax_selected = $form->{"taxchart_$i"};
     $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
     $tax =
-      qq|<td><select id="taxchart_$i" name="taxchart_$i">$tax</select></td>|;
+      qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px">$tax</select></td>|;
 
     print qq|
 	<tr>
-          <td width=50%><select name="AP_amount_$i" onChange="setTaxkey(this, $i)">$selectAP_amount</select></td>
+          <td width=50%><select name="AP_amount_$i" onChange="setTaxkey(this, $i)" style="width:100%">$selectAP_amount</select></td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
           <td><input type="checkbox" name="korrektur_$i" value="1"></td>
