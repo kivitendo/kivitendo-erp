@@ -569,13 +569,14 @@ $jsscript
     $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
     $tax =
       qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px">$tax</select></td>|;
+    $korrektur_checked = ($form->{"korrektur_$i"}?'checked':'');
 
     print qq|
 	<tr>
           <td width=50%><select name="AR_amount_$i" onChange="setTaxkey(this, $i)" style="width:100%">$selectAR_amount</select></td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
-          <td><input type="checkbox" name="korrektur_$i" value="1"></td>
+          <td><input type="checkbox" name="korrektur_$i" value="1" $korrektur_checked></td>
           $tax
 	  <td><input name="projectnumber_$i" size=20 value="$form->{"projectnumber_$i"}">
 	      <input type=hidden name="project_id_$i" value=$form->{"project_id_$i"}>
