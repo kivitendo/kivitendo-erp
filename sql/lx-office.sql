@@ -243,7 +243,7 @@ CREATE TABLE "customer" (
         "obsolete" boolean DEFAULT 'f',
         "ustid" varchar(12),
         "username" varchar(50),
-        "user_password" varchar(12),
+        "user_password" text,
         "salesman_id" integer,
         "c_vendor_id" text,
         "klass" integer DEFAULT 0
