@@ -318,7 +318,7 @@ sub save_customer {
               ustid = '$form->{ustid}',
               username = '$form->{username}',
               salesman_id = '$form->{salesman_id}',
-              user_password = '$form->{user_password}',
+              user_password = | . $dbh->quote($form->{user_password}) .qq|,
               c_vendor_id = '$form->{c_vendor_id}',
               klass = '$form->{klass}'
 	      WHERE id = $form->{id}|;
