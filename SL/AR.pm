@@ -74,6 +74,9 @@ sub post_transaction {
                           2);
 
     $form->{netamount} += $form->{"amount_$i"};
+
+    # parse tax_$i for later
+    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"});
   }
 
   # this is for ar
