@@ -123,8 +123,8 @@ alter table vendor add column ustid varchar(12);
 
 alter table customer add column username varchar(50);
 alter table vendor add column username varchar(50);
-alter table customer add column user_password varchar(12);
-alter table vendor add column user_password varchar(12);
+alter table customer add column user_password text;
+alter table vendor add column user_password text;
 alter table customer add column salesman_id integer;
 alter table vendor add column salesman_id integer;
 
