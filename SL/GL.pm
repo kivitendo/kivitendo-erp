@@ -350,8 +350,10 @@ sub all_transactions {
      map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
    
      if ($form->{sort}) {
-         $sortorder = $form->{sort} . ',' . $sortorder;
-     }
+         $sortorder = $form->{sort} . ",";
+     } else {
+        $sortorder = "";
+      }
   
   my $query =
     qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, t.taxkey AS sorttax,
@@ -382,7 +384,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND a.vendor_id = ct.id
 		 AND a.id = ac.trans_id
-	         ORDER BY $sortorder, oid|;
+	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, sorttax DESC,oid|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   my $trans_id = "";
