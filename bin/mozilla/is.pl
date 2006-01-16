@@ -57,9 +57,10 @@ sub add {
   {
     $form->error("Access Denied");
   }
-
   &invoice_links;
   &prepare_invoice;
+  $form->{format} ="pdf";
+
   &display_form;
 
   $lxdebug->leave_sub();
@@ -74,7 +75,10 @@ sub edit {
   {
     $form->error("Access Denied");
   }
-
+  if ($form->{print_and_post}) {
+    $form->{action}     = "print";
+    $form->{resubmit} = 1;
+  }
   &invoice_links;
   &prepare_invoice;
   &display_form;
@@ -187,7 +191,6 @@ sub prepare_invoice {
 
   $form->{type}     = "invoice";
   $form->{formname} = "invoice";
-  $form->{format}   = "html";
   $form->{media}    = "screen";
 
   if ($form->{id}) {
@@ -344,8 +347,10 @@ sub form_header {
     $button2 =
       qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
   }
-  if ($form->{resubmit}) {
-    $onload = "document.invoice.submit()";
+  if ($form->{resubmit} && ($form->{format} eq "html")) {
+    $onload = qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
+  } elsif($form->{resubmit}) {
+    $onload = qq|document.invoice.submit()|;
   } else {
     $onload = "fokus()";
   }
@@ -763,8 +768,6 @@ sub form_footer {
 <input type=hidden name=selectAR_paid value="$form->{selectAR_paid}">
 <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
 <input type=hidden name=oldtotalpaid value=$totalpaid>
-<input type=hidden name=print_and_post value=$form->{print_and_post}>
-<input type=hidden name=second_run value=$form->{second_run}>
     </table>
     </td>
   </tr>
@@ -1092,7 +1095,7 @@ sub print_and_post {
   $form->{print_and_post} = 1;
   &post();
 
-  &display_form();
+  &edit();
   $lxdebug->leave_sub();
 
 }
