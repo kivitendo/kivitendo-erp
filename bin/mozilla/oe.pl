@@ -217,7 +217,7 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
-  $form->{format}   = "html";
+  $form->{format}   = "pdf";
   $form->{media}    = "screen";
   $form->{formname} = $form->{type};
 

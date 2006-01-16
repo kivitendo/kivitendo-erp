@@ -771,39 +771,39 @@ sub display_form {
     &{"$form->{display_form}"};
     exit;
   }
-  if (   $form->{print_and_post}
-      && $form->{second_run}
-      && ($form->{action} eq "display_form")) {
-    for (keys %$form) { $old_form->{$_} = $form->{$_} }
-    $old_form->{rowcount}++;
-
-    #$form->{rowcount}--;
-    #$form->{rowcount}--;
-
-    $form->{print_and_post} = 0;
-
-    &print_form($old_form);
-    exit;
-  }
-
-  $form->{action}   = "";
-  $form->{resubmit} = 0;
-
-  if ($form->{print_and_post} && !$form->{second_run}) {
-    $form->{second_run} = 1;
-    $form->{action}     = "display_form";
-    $form->{rowcount}--;
-    my $rowcount = $form->{rowcount};
-
-    # get pricegroups for parts
-    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
-    # build up html code for prices_$i
-    set_pricegroup($rowcount);
-
-    $form->{resubmit} = 1;
-
-  }
+#   if (   $form->{print_and_post}
+#       && $form->{second_run}
+#       && ($form->{action} eq "display_form")) {
+#     for (keys %$form) { $old_form->{$_} = $form->{$_} }
+#     $old_form->{rowcount}++;
+# 
+#     #$form->{rowcount}--;
+#     #$form->{rowcount}--;
+# 
+#     $form->{print_and_post} = 0;
+# 
+#     &print_form($old_form);
+#     exit;
+#   }
+# 
+#   $form->{action}   = "";
+#   $form->{resubmit} = 0;
+# 
+#   if ($form->{print_and_post} && !$form->{second_run}) {
+#     $form->{second_run} = 1;
+#     $form->{action}     = "display_form";
+#     $form->{rowcount}--;
+#     my $rowcount = $form->{rowcount};
+# 
+#     # get pricegroups for parts
+#     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+# 
+#     # build up html code for prices_$i
+#     set_pricegroup($rowcount);
+# 
+#     $form->{resubmit} = 1;
+# 
+#   }
   &form_header;
 
   $numrows    = ++$form->{rowcount};
@@ -1261,10 +1261,10 @@ sub print_options {
   $form->{copies}   = 3 unless $form->{copies};
 
   $form->{PD}{ $form->{formname} } = "selected";
-  $form->{DF}{ $form->{format} }   = "";
+  $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
   $form->{SM}{ $form->{sendmode} } = "selected";
-
+  print(STDERR $form->{format} , " Format\n");
   if ($form->{type} eq 'purchase_order') {
     $type = qq|<select name=formname>
 	    <option value=purchase_order $form->{PD}{purchase_order}>|
@@ -1413,9 +1413,7 @@ sub print_options {
 
 sub print {
   $lxdebug->enter_sub();
-  if ($form->{second_run}) {
-    $form->{print_and_post} = 0;
-  }
+
 
   # if this goes to the printer pass through
   if ($form->{media} eq 'printer' || $form->{media} eq 'queue') {
@@ -1724,8 +1722,6 @@ sub print_form {
       ? $locale->text('sent to printer')
       : $locale->text('emailed to') . " $form->{email}";
     $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
-  } else {
-    &{"$display_form"};
   }
 
   $lxdebug->leave_sub();
