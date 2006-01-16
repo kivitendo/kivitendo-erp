@@ -113,8 +113,8 @@ sub post_transaction {
         $form->{netamount} += $form->{"amount_$i"};
       } else {
         $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-        $form->{"tax_$i"} =
-          $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+        $form->{"tax_$i"} = $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+        $form->{netamount} += $form->{"amount_$i"};
       }
     }
     $form->{total_tax} += $form->{"tax_$i"};
