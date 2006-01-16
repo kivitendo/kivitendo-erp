@@ -30,6 +30,7 @@
 # Inventory Control module
 #
 #======================================================================
+#$locale->text('ea');
 
 use SL::IC;
 #use SL::PE;
