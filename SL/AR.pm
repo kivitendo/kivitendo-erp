@@ -84,7 +84,8 @@ sub post_transaction {
   $form->{amount} = $form->{netamount};
 
   $form->{tax} = 0;
-
+  $form->{netamount} = 0;
+  $form->{total_tax} = 0;
   # taxincluded doesn't make sense if there is no amount
 
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
