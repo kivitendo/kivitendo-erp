@@ -153,6 +153,7 @@ $self{texts} = {
   'Recd'                        => 'erhalten',
   'Receive Merchandise'         => 'Waren einlagern',
   'Remaining'                   => 'Rest',
+  'Reqdate'                     => 'Lieferdatum',
   'Request for Quotation'       => 'Anfrage',
   'Request for Quotations'      => 'Anfragen',
   'Required by'                 => 'Lieferdatum',

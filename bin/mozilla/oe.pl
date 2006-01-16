@@ -238,6 +238,9 @@ sub prepare_order {
       $dec           = length $dec;
       $decimalplaces = ($dec > 2) ? $dec : 2;
 
+      # copy reqdate from deliverydate for invoice -> order conversion
+      $form->{"reqdate_$i"} = $form->{"deliverydate_$i"} unless $form->{"reqdate_$i"};
+
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
@@ -1912,6 +1915,9 @@ sub invoice {
     ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec           = length $dec;
     $decimalplaces = ($dec > 2) ? $dec : 2;
+
+    # copy delivery date from reqdate for order -> invoice conversion
+    $form->{"deliverydate_$i"} = $form->{"reqdate_$i"} unless $form->{"deliverydate_$i"};
 
     $form->{"sellprice_$i"} =
       $form->format_amount(\%myconfig, $form->{"sellprice_$i"},

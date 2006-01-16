@@ -139,7 +139,6 @@ $self{texts} = {
   'Quoted'                      => 'Angeboten',
   'RFQ'                         => 'Anfrage',
   'ROP'                         => 'Mindestlagerbestand',
-  'Reqdate'                     => 'Lieferdatum',
   'Required by'                 => 'Lieferdatum',
   'Revenue'                     => 'Erlöskonto',
   'Sales Order'                 => 'Auftrag',
