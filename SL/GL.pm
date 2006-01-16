@@ -38,6 +38,8 @@
 
 package GL;
 
+use Data::Dumper;
+
 sub delete_transaction {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
@@ -518,6 +520,7 @@ sub all_transactions {
     ($form->{gifi_account_description}) = $sth->fetchrow_array;
     $sth->finish;
   }
+  print(STDERR Dumper($form->{GL}));
   $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
