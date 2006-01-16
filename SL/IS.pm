@@ -141,14 +141,14 @@ sub invoice_details {
       $dec = length $dec;
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      my $discount =
-        $form->round_amount(
-                            $sellprice * $form->parse_amount($myconfig,
-                                                 $form->{"discount_$i"}) / 100,
-                            $decimalplaces);
+      my $i_discount = $form->round_amount($sellprice * 
+                                           $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100, $decimalplaces);
+
+      my $discount = $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
 
       # keep a netprice as well, (sellprice - discount)
-      $form->{"netprice_$i"} = $sellprice - $discount;
+      $form->{"netprice_$i"} = $sellprice - $i_discount;
+
       push(@{ $form->{netprice} },
            ($form->{"netprice_$i"} != 0)
            ? $form->format_amount(
