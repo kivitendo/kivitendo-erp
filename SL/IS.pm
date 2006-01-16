@@ -167,6 +167,7 @@ sub invoice_details {
       $linetotal = ($linetotal != 0) ? $linetotal : " ";
 
       push(@{ $form->{discount} }, $discount);
+      push(@{ $form->{p_discount} }, $form->{"discount_$i"});
 
       $form->{total} += $linetotal;
 
