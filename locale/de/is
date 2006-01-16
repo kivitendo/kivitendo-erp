@@ -130,6 +130,7 @@ $self{texts} = {
   'Quotation Number missing!'   => 'Angebotsnummer fehlt!',
   'Record in'                   => 'Buchen auf',
   'Remaining'                   => 'Rest',
+  'Reqdate'                     => 'Lieferdatum',
   'Required by'                 => 'Lieferdatum',
   'Sales Order'                 => 'Auftrag',
   'Salesperson'                 => 'Verkäufer',

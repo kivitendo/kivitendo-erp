@@ -82,6 +82,7 @@ $self{texts} = {
   'Quotation'                   => 'Angebot',
   'Quotation Date missing!'     => 'Angebotsdatum fehlt!',
   'Quotation Number missing!'   => 'Angebotsnummer fehlt!',
+  'Reqdate'                     => 'Lieferdatum',
   'Required by'                 => 'Lieferdatum',
   'Sales Order'                 => 'Auftrag',
   'Screen'                      => 'Bildschirm',
