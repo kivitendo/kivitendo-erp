@@ -698,9 +698,9 @@ sub generate_report {
         $debitaccno .=
           "<br><a href=$href&accno=$ref->{debit_accno}{$key}&callback=$callback>$ref->{debit_accno}{$key}</a>";
       }
-      if ($ref->{debit_taxkey}{$key} eq $debittaxkey) {
-        $ref->{debit_tax_accno}{$key} = $taxaccno;
-      }
+#       if ($ref->{debit_taxkey}{$key} eq $debittaxkey) {
+#         $ref->{debit_tax_accno}{$key} = $taxaccno;
+#       }
       $taxaccno    = $ref->{debit_tax_accno}{$key};
       $debittaxkey = $ref->{debit_taxkey}{$key};
     }
@@ -716,9 +716,9 @@ sub generate_report {
         $creditaccno .=
           "<br><a href=$href&accno=$ref->{credit_accno}{$key}&callback=$callback>$ref->{credit_accno}{$key}</a>";
       }
-      if ($ref->{credit_taxkey}{$key} eq $credittaxkey) {
-        $ref->{credit_tax_accno}{$key} = $taxaccno;
-      }
+#       if ($ref->{credit_taxkey}{$key} eq $credittaxkey) {
+#         $ref->{credit_tax_accno}{$key} = $taxaccno;
+#       }
       $taxaccno     = $ref->{credit_tax_accno}{$key};
       $credittaxkey = $ref->{credit_taxkey}{$key};
     }
