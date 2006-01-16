@@ -142,14 +142,7 @@ sub post_transaction {
 
   # amount for total AP
   $form->{payables} = $form->{invtotal};
-  print(STDERR $form->{payables},
-        " Payables\n",
-        $form->{invtotal},
-        " Invtotal\n",
-        $form->{netamount},
-        " Netamount\n",
-        $form->{total_tax},
-        " Total_Tax\n\n");
+
   my ($query, $sth);
 
   # if we have an id delete old records
