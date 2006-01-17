@@ -136,7 +136,7 @@ sub save_project {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  map { $form->{$_} =~ s/\'/\'\'/g } (projectnumber, description);
+  map { $form->{$_} =~ s/\'/\'\'/g } qw(projectnumber description);
 
   if ($form->{id}) {
     $query = qq|UPDATE project SET
@@ -218,8 +218,7 @@ sub save_partsgroup {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  map { $form->{$_} =~ s/\'/\'\'/g } (partsgroup);
-
+  map { $form->{$_} =~ s/\'/\'\'/g } qw(partsgroup);
   $form->{discount} /= 100;
 
   if ($form->{id}) {
@@ -360,7 +359,7 @@ sub save_pricegroup {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  map { $form->{$_} =~ s/\'/\'\'/g } (pricegroup);
+  map { $form->{$_} =~ s/\'/\'\'/g } qw(pricegroup);
 
   $form->{discount} /= 100;
 
