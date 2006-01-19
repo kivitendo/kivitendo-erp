@@ -34,208 +34,6 @@
 
 package RP;
 
-sub income_statement {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $last_period = 0;
-  my @categories  = qw(I E);
-  my $category;
-
-  $form->{decimalplaces} *= 1;
-
-  &get_accounts($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form,
-                \@categories);
-
-  # if there are any compare dates
-  if ($form->{comparefromdate} || $form->{comparetodate}) {
-    $last_period = 1;
-
-    &get_accounts($dbh, $last_period,
-                  $form->{comparefromdate},
-                  $form->{comparetodate},
-                  $form, \@categories);
-  }
-
-  # disconnect
-  $dbh->disconnect;
-
-  # now we got $form->{I}{accno}{ }
-  # and $form->{E}{accno}{  }
-
-  my %account = (
-                 'I' => { 'label'  => 'income',
-                          'labels' => 'income',
-                          'ml'     => 1
-                 },
-                 'E' => { 'label'  => 'expense',
-                          'labels' => 'expenses',
-                          'ml'     => -1
-                 });
-
-  my $str;
-
-  foreach $category (@categories) {
-
-    foreach $key (sort keys %{ $form->{$category} }) {
-
-      # push description onto array
-
-      $str = ($form->{l_heading}) ? $form->{padding} : "";
-
-      if ($form->{$category}{$key}{charttype} eq "A") {
-        $str .=
-          ($form->{l_accno})
-          ? "$form->{$category}{$key}{accno} - $form->{$category}{$key}{description}"
-          : "$form->{$category}{$key}{description}";
-      }
-      if ($form->{$category}{$key}{charttype} eq "H") {
-        if ($account{$category}{subtotal} && $form->{l_subtotal}) {
-          $dash = "- ";
-          push(@{ $form->{"$account{$category}{label}_account"} },
-               "$str$form->{bold}$account{$category}{subdescription}$form->{endbold}"
-          );
-          push(@{ $form->{"$account{$category}{labels}_this_period"} },
-               $form->format_amount(
-                        $myconfig,
-                        $account{$category}{subthis} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-               ));
-
-          if ($last_period) {
-            push(@{ $form->{"$account{$category}{labels}_last_period"} },
-                 $form->format_amount(
-                        $myconfig,
-                        $account{$category}{sublast} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-                 ));
-          }
-
-        }
-
-        $str =
-          "$form->{br}$form->{bold}$form->{$category}{$key}{description}$form->{endbold}";
-
-        $account{$category}{subthis}        = $form->{$category}{$key}{this};
-        $account{$category}{sublast}        = $form->{$category}{$key}{last};
-        $account{$category}{subdescription} =
-          $form->{$category}{$key}{description};
-        $account{$category}{subtotal} = 1;
-
-        $form->{$category}{$key}{this} = 0;
-        $form->{$category}{$key}{last} = 0;
-
-        next unless $form->{l_heading};
-
-        $dash = " ";
-      }
-
-      push(@{ $form->{"$account{$category}{label}_account"} }, $str);
-
-      if ($form->{$category}{$key}{charttype} eq 'A') {
-        $form->{"total_$account{$category}{labels}_this_period"} +=
-          $form->{$category}{$key}{this} * $account{$category}{ml};
-        $dash = "- ";
-      }
-
-      push(@{ $form->{"$account{$category}{labels}_this_period"} },
-           $form->format_amount(
-                      $myconfig,
-                      $form->{$category}{$key}{this} * $account{$category}{ml},
-                      $form->{decimalplaces}, $dash
-           ));
-
-      # add amount or - for last period
-      if ($last_period) {
-        $form->{"total_$account{$category}{labels}_last_period"} +=
-          $form->{$category}{$key}{last} * $account{$category}{ml};
-
-        push(@{ $form->{"$account{$category}{labels}_last_period"} },
-             $form->format_amount(
-                      $myconfig,
-                      $form->{$category}{$key}{last} * $account{$category}{ml},
-                      $form->{decimalplaces}, $dash
-             ));
-      }
-    }
-
-    $str = ($form->{l_heading}) ? $form->{padding} : "";
-    if ($account{$category}{subtotal} && $form->{l_subtotal}) {
-      push(@{ $form->{"$account{$category}{label}_account"} },
-           "$str$form->{bold}$account{$category}{subdescription}$form->{endbold}"
-      );
-      push(@{ $form->{"$account{$category}{labels}_this_period"} },
-           $form->format_amount(
-                        $myconfig,
-                        $account{$category}{subthis} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-           ));
-
-      if ($last_period) {
-        push(@{ $form->{"$account{$category}{labels}_last_period"} },
-             $form->format_amount(
-                        $myconfig,
-                        $account{$category}{sublast} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-             ));
-      }
-    }
-
-  }
-
-  # totals for income and expenses
-  $form->{total_income_this_period} =
-    $form->round_amount($form->{total_income_this_period},
-                        $form->{decimalplaces});
-  $form->{total_expenses_this_period} =
-    $form->round_amount($form->{total_expenses_this_period},
-                        $form->{decimalplaces});
-
-  # total for income/loss
-  $form->{total_this_period} =
-    $form->{total_income_this_period} - $form->{total_expenses_this_period};
-
-  if ($last_period) {
-
-    # total for income/loss
-    $form->{total_last_period} =
-      $form->format_amount(
-       $myconfig,
-       $form->{total_income_last_period} - $form->{total_expenses_last_period},
-       $form->{decimalplaces},
-       "- ");
-
-    # totals for income and expenses for last_period
-    $form->{total_income_last_period} =
-      $form->format_amount($myconfig,
-                           $form->{total_income_last_period},
-                           $form->{decimalplaces}, "- ");
-    $form->{total_expenses_last_period} =
-      $form->format_amount($myconfig,
-                           $form->{total_expenses_last_period},
-                           $form->{decimalplaces}, "- ");
-
-  }
-
-  $form->{total_income_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_income_this_period},
-                         $form->{decimalplaces}, "- ");
-  $form->{total_expenses_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_expenses_this_period},
-                         $form->{decimalplaces}, "- ");
-  $form->{total_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_this_period},
-                         $form->{decimalplaces}, "- ");
-
-  $main::lxdebug->leave_sub();
-}
 
 sub balance_sheet {
   $main::lxdebug->enter_sub();
@@ -1989,7 +1787,7 @@ sub get_taxaccounts {
   $sth->finish;
 
   # get gifi tax accounts
-  my $query = qq|SELECT DISTINCT ON (g.accno) g.accno, g.description,
+  $query = qq|SELECT DISTINCT ON (g.accno) g.accno, g.description,
                  sum(t.rate) AS rate
                  FROM gifi g, chart c, tax t
 		 WHERE g.accno = c.gifi_accno
@@ -1997,7 +1795,7 @@ sub get_taxaccounts {
 		 AND c.link LIKE '%CT_tax%'
 		 GROUP BY g.accno, g.description
                  ORDER BY accno|;
-  my $sth = $dbh->prepare($query);
+  $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror;
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
