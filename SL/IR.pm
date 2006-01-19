@@ -1135,8 +1135,6 @@ sub vendor_details {
     $contact = "and cp.cp_id = $form->{cp_id}";
   }
 
-  $taxincluded = $form->{taxincluded};
-
   # get rest for the vendor
   # fax and phone and email as vendor*
   my $query =
@@ -1148,9 +1146,10 @@ sub vendor_details {
   $sth->execute || $form->dberror($query);
 
   $ref = $sth->fetchrow_hashref(NAME_lc);
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  $form->{taxincluded} = $taxincluded;
+  # remove id and taxincluded before copy back
+  delete @$ref{qw(id taxincluded)};
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
   $dbh->disconnect;

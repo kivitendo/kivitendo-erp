@@ -348,8 +348,6 @@ sub customer_details {
     $contact = "and cp.cp_id = $form->{cp_id}";
   }
 
-  $taxincluded = $form->{taxincluded};
-
   # get rest for the customer
   my $query = qq|SELECT ct.*, cp.*, ct.notes as customernotes
                  FROM customer ct
@@ -359,9 +357,10 @@ sub customer_details {
   $sth->execute || $form->dberror($query);
 
   $ref = $sth->fetchrow_hashref(NAME_lc);
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  $form->{taxincluded} = $taxincluded;
+  # remove id and taxincluded before copy back
+  delete @$ref{qw(id taxincluded)};
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
   $dbh->disconnect;
