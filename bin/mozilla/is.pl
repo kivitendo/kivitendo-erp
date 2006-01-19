@@ -1071,8 +1071,10 @@ sub post {
 
   $form->{id} = 0 if $form->{postasnew};
 
-  $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
-    unless $form->{invnumber};
+  # get new invnumber in sequence if no invnumber is given or if posasnew was requested
+  if (!$form->{invnumber} || $form->{postasnew}) {
+    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
+  }
   if ($print_post) {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {
       $form->error($locale->text('Cannot post invoice!'));
