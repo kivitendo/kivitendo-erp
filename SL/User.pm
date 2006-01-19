@@ -654,7 +654,7 @@ sub dbupdate {
   if ($form->{dbupdate}) {
 
     # read update scripts into memory
-    opendir SQLDIR, "sql/." or $form - error($!);
+    opendir SQLDIR, "sql/." or &error("", "$!");
     ## LINET
     @upgradescripts =
       sort(cmp_script_version
