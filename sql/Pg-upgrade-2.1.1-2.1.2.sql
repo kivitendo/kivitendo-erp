@@ -116,8 +116,10 @@ alter table vendor drop column creditlimitold;
 --New Fields for customer and vendor
 alter table vendor add column obsolete boolean;
 alter table vendor alter column obsolete set default 'false';
+update table vendor set obsolete='false';
 alter table customer add column obsolete boolean;
 alter table customer alter column obsolete set default 'false';
+update table customer set obsolete='false';
 alter table customer add column ustid varchar(12);
 alter table vendor add column ustid varchar(12);
 
@@ -222,7 +224,7 @@ CREATE TABLE "pricegroup" (
 
 CREATE TABLE "prices" (
   "parts_id" integer REFERENCES parts(id),
-  "pricegroup_id" integer REFERENCES pricegroup(id),
+  "pricegroup_id" integer,
   "price" numeric(15,5)
 );
 
