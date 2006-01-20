@@ -137,13 +137,13 @@ sub report {
     $department = "";
   } else {
     if ($form->{report} eq "balance_sheet") {
-      $name_1    = "compareasofdate";
-      $id_1      = "compareasofdate";
-      $value_1   = "";
+      $name_1    = "asofdate";
+      $id_1      = "asofdate";
+      $value_1   = "$form->{asofdate}";
       $trigger_1 = "trigger1";
-      $name_2    = "asofdate";
-      $id_2      = "asofdate";
-      $value_2   = "$form->{asofdate}";
+      $name_2    = "compareasofdate";
+      $id_2      = "compareasofdate";
+      $value_2   = "$form->{compareasofdate}";
       $trigger_2 = "trigger2";
     } elsif ($form->{report} =~ /(receipts|payments)$/) {
       $name_1    = "fromdate";
