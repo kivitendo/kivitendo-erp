@@ -377,18 +377,18 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('2215', 'Zinsabschlagsteuer', 'A', 'E', '', '2215', 0, NULL, 35, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('2218', 'Anrechb.Solidari.zuschlag a.Zinsabschlagst.', 'A', 'E', '', '2218', 0, NULL, 35, NULL, NULL, FALSE);
 
-INSERT INTO tax (rate, taxkey, taxdescription) values ('0','0','Keine Steuer');
-INSERT INTO tax (rate, taxkey, taxdescription) values ('0','1','Umsatzsteuerfrei');
-insert into tax VALUES ((select id from chart where accno = '1771'),'0.07','1771','2','Umsatzsteuer 7%');
-INSERT INTO tax VALUES ((select id from chart where accno = '1775'),'0.16','1775','3','Umsatzsteuer 16%');
-INSERT INTO tax VALUES ((select id from chart where accno = '1571'),'0.07','1571','8','Vorsteuer 7%');
-insert into tax VALUES ((select id from chart where accno = '1575'),'0.16','1575','9','Vorsteuer 16%');
-insert into tax (taxkey, taxdescription) values ('10','Im anderen EG-Staat steuerpfl. Lieferung');
-insert into tax (taxkey, taxdescription) values ('11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1772'),'0.07','1772','12','Steuerpflicht. EG-Lieferungen 7%');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1772'),'0.16','1773','13','Steuerpflicht. EG-Lieferungen 16%');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1572'),'0.07','1572','18','Steuerpflicht. EG-Erwerb 7%');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1572'),'0.16','1573','19','Steuerpflicht. EG-Erwerb 16%');
+INSERT INTO tax (rate, taxkey, taxdescription) VALUES ('0','0','Keine Steuer');
+INSERT INTO tax (rate, taxkey, taxdescription) VALUES ('0','1','Umsatzsteuerfrei (mit Vorsteuerabzug)');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1771'),'0.07','1771','2','Umsatzsteuer 7%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1775'),'0.16','1775','3','Umsatzsteuer 16%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1571'),'0.07','1571','8','Vorsteuer 7%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1575'),'0.16','1575','9','Vorsteuer 16%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1767'),'0.00','1767','10','Im anderen EG-Staat steuerpfl. Lieferung');
+INSERT INTO tax (taxkey, taxdescription) VALUES ('11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1772'),'0.07','1772','12','Umsatzsteuer 7% innergem. Erwerb');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1773'),'0.16','1773','13','Umsatzsteuer 16% innergem. Erwerb');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.07','1572','18','Steuerpfl. EG-Erwerb 7%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.16','1573','19','Steuerpfl. EG-Erwerb 16%');
 
 -- UStVA Link to SKR03/2006
 -- Let this structure like it is, please.

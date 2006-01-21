@@ -302,6 +302,21 @@ UPDATE chart SET pos_ustva=59  WHERE accno IN ('');
 UPDATE chart SET pos_ustva=69  WHERE accno IN ('1783');
 UPDATE chart SET pos_ustva=39  WHERE accno IN ('1781');
 --
+-- clear table tax
+DELETE from tax;
+-- insert actual values for SKR03
+INSERT INTO tax (rate, taxkey, taxdescription) VALUES ('0','0','Keine Steuer');
+INSERT INTO tax (rate, taxkey, taxdescription) VALUES ('0','1','Umsatzsteuerfrei (mit Vorsteuerabzug)');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1771'),'0.07','1771','2','Umsatzsteuer 7%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1775'),'0.16','1775','3','Umsatzsteuer 16%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1571'),'0.07','1571','8','Vorsteuer 7%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1575'),'0.16','1575','9','Vorsteuer 16%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1767'),'0.00','1767','10','Im anderen EG-Staat steuerpfl. Lieferung');
+INSERT INTO tax (taxkey, taxdescription) VALUES ('11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1772'),'0.07','1772','12','Umsatzsteuer 7% innergem. Erwerb');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1773'),'0.16','1773','13','Umsatzsteuer 16% innergem. Erwerb');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.07','1572','18','Steuerpfl. EG-Erwerb 7%');
+INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.16','1573','19','Steuerpfl. EG-Erwerb 16%');
 
 update defaults set version = '2.1.2';
 
