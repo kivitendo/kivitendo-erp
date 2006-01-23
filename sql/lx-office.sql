@@ -453,7 +453,7 @@ CREATE TABLE "shipto" (
 
 CREATE TABLE "project" (
 	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
-	"projectnumber" text,
+	"projectnumber" text UNIQUE,
 	"description" text,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp
