@@ -320,4 +320,6 @@ INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.16','1573
 
 update defaults set version = '2.1.2';
 
-
+--
+-- add unqiue constraint to project
+ALTER TABLE project ADD constraint project_projectnumber_key UNIQUE(projectnumber);
