@@ -318,8 +318,8 @@ INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1773'),'0.16','1773
 INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.07','1572','18','Steuerpfl. EG-Erwerb 7%');
 INSERT INTO tax VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.16','1573','19','Steuerpfl. EG-Erwerb 16%');
 
-update defaults set version = '2.1.2';
-
 --
 -- add unqiue constraint to project
 ALTER TABLE project ADD constraint project_projectnumber_key UNIQUE(projectnumber);
+
+update defaults set version = '2.1.2';
