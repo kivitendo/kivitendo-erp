@@ -1631,7 +1631,7 @@ sub create_links {
 
   # now get the account numbers
   $query =
-    qq|SELECT c.accno, SUBSTRING(c.description,1,50) as description, c.link, c.taxkey_id
+    qq|SELECT c.accno, c.description, c.link, c.taxkey_id
               FROM chart c
 	      WHERE c.link LIKE '%$module%'
 	      ORDER BY c.accno|;
