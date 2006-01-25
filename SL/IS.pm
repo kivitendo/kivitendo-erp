@@ -124,9 +124,7 @@ sub invoice_details {
           push(@{ $form->{licensenumber} }, $licensenumber);
           push(@{ $form->{validuntil} },
                $locale->date($myconfig, $validuntil, 0));
-          $licensenumber = "Lizenz: " . $licensenumber;
           $sth->finish;
-          push(@{ $form->{licensenumber} }, $licensenumber);
         } else {
           push(@{ $form->{licensenumber} }, "");
           push(@{ $form->{validuntil} },    "");
