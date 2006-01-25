@@ -231,9 +231,10 @@ sub prepare_order {
     }
     
     for my $i (1 .. $form->{rowcount}) {
-       $form->{"discount_$i"} =
-        $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-
+      if ($form->{id}) {
+        $form->{"discount_$i"} =
+          $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
+      }
       ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);    
       $dec           = length $dec;
       $decimalplaces = ($dec > 2) ? $dec : 2;
