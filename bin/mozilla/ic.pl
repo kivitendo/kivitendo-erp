@@ -2228,8 +2228,7 @@ sub form_header {
 
     #write Trigger
     $jsscript =
-      Form->write_trigger(\%myconfig, "1", "priceupdate", "BL", "trigger1", "",
-                          "", "");
+      Form->write_trigger(\%myconfig, "1", "priceupdate", "BL", "trigger1");
   } else {
 
     # without JavaScript Calendar
