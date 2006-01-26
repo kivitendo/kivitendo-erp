@@ -355,9 +355,10 @@ sub save_customer {
   # add shipto
   $form->add_shipto($dbh, $form->{id});
 
-  $dbh->disconnect;
+  $rc = $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+  return $rc;
 }
 
 sub save_vendor {
@@ -488,9 +489,10 @@ sub save_vendor {
   # add shipto
   $form->add_shipto($dbh, $form->{id});
 
-  $dbh->disconnect;
+  $rc = $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+  return $rc;
 }
 
 sub delete {
