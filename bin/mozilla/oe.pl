@@ -229,11 +229,13 @@ sub prepare_order {
 
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
     }
-    
     for my $i (1 .. $form->{rowcount}) {
       if ($form->{id}) {
         $form->{"discount_$i"} =
           $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
+      } else {
+        $form->{"discount_$i"} =
+          $form->format_amount(\%myconfig, $form->{"discount_$i"});
       }
       ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);    
       $dec           = length $dec;
@@ -244,7 +246,7 @@ sub prepare_order {
 
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                             $decimalplaces);
+                            $decimalplaces);
       
       (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
       $dec_qty      = length $dec_qty;
@@ -832,10 +834,15 @@ Bearbeiten des $form->{heading}<br>
       . $locale->text('Save as new') . qq|">
 <input class=submit type=submit name=action value="|
       . $locale->text('Delete') . qq|">|;
-    if ($form->{type} =~ /quotation$/) {
+    if ($form->{type} =~ /sales_quotation$/) {
       print qq|
 <input class=submit type=submit name=action value="|
-        . $locale->text('Order') . qq|">|;
+        . $locale->text('Sales Order') . qq|">|;
+    }
+    if ($form->{type} =~ /request_quotation$/) {
+      print qq|
+<input class=submit type=submit name=action value="|
+        . $locale->text('Purchase Order') . qq|">|;
     }
     print qq|
 <input class=submit type=submit name=action value="|
@@ -2100,6 +2107,15 @@ sub save_as_new {
 
 sub purchase_order {
   $lxdebug->enter_sub();
+
+  if (   $form->{type} eq 'sales_quotation'
+      || $form->{type} eq 'request_quotation') {
+    $form->{closed} = 1;
+    OE->save(\%myconfig, \%$form);
+  }
+
+  ($null, $form->{cp_id}) = split /--/, $form->{contact};
+  $form->{cp_id} *= 1;
 
   $form->{title} = $locale->text('Add Purchase Order');
   $form->{vc}    = "vendor";
