@@ -321,5 +321,8 @@ INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SEL
 --
 -- add unqiue constraint to project
 ALTER TABLE project ADD constraint project_projectnumber_key UNIQUE(projectnumber);
+--
+-- add column deliverydate to ar
+ALTER TABLE ar ADD COLUMN deliverydate date;
 
 update defaults set version = '2.1.2';

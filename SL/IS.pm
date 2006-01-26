@@ -803,8 +803,9 @@ sub post_invoice {
   # set values which could be empty to 0
   $form->{terms}       *= 1;
   $form->{taxincluded} *= 1;
-  my $datepaid = ($form->{paid})    ? qq|'$form->{datepaid}'| : "NULL";
-  my $duedate  = ($form->{duedate}) ? qq|'$form->{duedate}'|  : "NULL";
+  my $datepaid     = ($form->{paid})         ? qq|'$form->{datepaid}'| : "NULL";
+  my $duedate      = ($form->{duedate})      ? qq|'$form->{duedate}'|  : "NULL";
+  my $deliverydate = ($form->{deliverydate}) ? qq|'$form->{deliverydate}'| : "NULL";
 
   # fill in subject if there is none
   $form->{subject} = qq|$form->{label} $form->{invnumber}|
@@ -837,6 +838,7 @@ Message: $form->{message}\r| if $form->{message};
               paid = $form->{paid},
 	      datepaid = $datepaid,
 	      duedate = $duedate,
+              deliverydate = $deliverydate,
 	      invoice = '1',
 	      shippingpoint = '$form->{shippingpoint}',
 	      shipvia = '$form->{shipvia}',
@@ -1162,7 +1164,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
-                a.transdate AS invdate, a.paid,
+                a.transdate AS invdate, a.deliverydate, a.paid,
                 a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes,
 		a.duedate, a.taxincluded, a.curr AS currency,
 		a.employee_id, e.name AS employee

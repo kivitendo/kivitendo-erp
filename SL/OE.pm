@@ -633,6 +633,10 @@ sub retrieve {
 
   ($form->{currency}) = split /:/, $form->{currencies};
 
+  # set reqdate if this is an invoice->order conversion. If someone knows a better check to ensure 
+  # we come from invoices, feel free.
+  $form->{reqdate} = $form->{deliverydate} if ($form->{deliverydate} and $form->{callback} =~ /action=ar_transactions/);
+
   if ($form->{id} or @ids) {
 
     # retrieve order for single id

@@ -334,11 +334,17 @@ sub form_header {
        <td width="4"><input type=button name=duedate id="trigger2" value=|
       . $locale->text('button') . qq|></td></td>
      |;
+    $button3 = qq|
+       <td width="13"><input name=deliverydate id=deliverydate size=11 title="$myconfig{dateformat}" value=$form->{deliverydate}></td>
+       <td width="4"><input type=button name=deliverydate id="trigger3" value=|
+      . $locale->text('button') . qq|></td></td>
+     |;
 
     #write Trigger
     $jsscript =
-      Form->write_trigger(\%myconfig, "2", "invdate", "BL", "trigger1",
-                          "duedate", "BL", "trigger2");
+      Form->write_trigger(\%myconfig, "3", "invdate",      "BL", "trigger1",
+                                           "duedate",      "BL", "trigger2",
+                                           "deliverydate", "BL", "trigger3");
   } else {
 
     # without JavaScript Calendar
@@ -469,6 +475,10 @@ sub form_header {
 	      <tr>
 		<th align=right>| . $locale->text('Due Date') . qq|</th>
                 $button2
+	      </tr>
+	      <tr>
+		<th align=right>| . $locale->text('Delivery Date') . qq|</th>
+                $button3
 	      </tr>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Order Number') . qq|</th>

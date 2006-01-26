@@ -412,14 +412,14 @@ function fokus(){document.$self->{fokus}.focus();}
   $main::lxdebug->leave_sub();
 }
 
-# write Trigger JavaScript-Code ($qty = 1 - only one Trigger)
+# write Trigger JavaScript-Code ($qty = quantity of Triggers)
+# changed it to accept an arbitrary number of triggers - sschoeling
 sub write_trigger {
   $main::lxdebug->enter_sub();
 
-  my ($self,         $myconfig, $qty,
-      $inputField_1, $align_1,  $button_1,
-      $inputField_2, $align_2,  $button_2)
-    = @_;
+  my $self     = shift;
+  my $myconfig = shift;
+  my $qty      = shift;
 
   # set dateform for jsscript
   # default
@@ -448,35 +448,21 @@ sub write_trigger {
     }
   }
 
-  $trigger_1 = qq|
+  while ($#_ >= 2) {
+    push @triggers, qq|
        Calendar.setup(
       {
-      inputField : "$inputField_1",
+      inputField : "|.(shift).qq|",
       ifFormat :"$ifFormat",
-      align : "$align_1", 
-      button : "$button_1"
+      align : "|.(shift).qq|", 
+      button : "|.(shift).qq|"
       }
       );
        |;
-
-  if ($qty == 2) {
-    $trigger_2 = qq|
-       Calendar.setup(
-       {
-      inputField : "$inputField_2",
-      ifFormat :"$ifFormat",
-      align : "$align_2", 
-      button : "$button_2"
-      }
-      );
-        |;
   }
   $jsscript = qq|
        <script type="text/javascript">
-       <!--
-       $trigger_1
-       $trigger_2
-        //-->
+       <!--|.join("", @triggers).qq|//-->
         </script>
         |;
 
