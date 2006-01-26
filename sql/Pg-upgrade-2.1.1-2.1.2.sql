@@ -256,5 +256,8 @@ alter table invoice add column cusordnumber text;
 --
 -- add unqiue constraint to project
 ALTER TABLE project ADD constraint project_projectnumber_key UNIQUE(projectnumber);
+--
+-- add column deliverydate to ar
+ALTER TABLE ar ADD COLUMN deliverydate date;
 
 update defaults set version = '2.1.2';

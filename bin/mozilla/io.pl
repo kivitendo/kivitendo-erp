@@ -1586,7 +1586,7 @@ sub print_form {
   }
 
   map { $form->{$_} = $locale->date(\%myconfig, $form->{$_}, 1) }
-    ("${inv}date", "${due}date", "shippingdate");
+    ("${inv}date", "${due}date", "shippingdate", "deliverydate");
 
   @a = qw(name street zipcode city country);
 
@@ -1616,7 +1616,7 @@ sub print_form {
   push @a,
     qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptoemail shippingpoint shipvia company address signature employee contact department_1 department_2);
 
-  push @a, ("${inv}date", "${due}date", email, cc, bcc);
+  push @a, ("${inv}date", "${due}date", "deliverydate", email, cc, bcc);
 
   $form->format_string(@a);
 

@@ -1809,6 +1809,8 @@ sub invoice {
     $form->isblank("ordnumber", $locale->text('Order Number missing!')) if ( +{ map { $form->{"ordnumber_$_"}, 1 } ( 1 .. $form->{rowcount}-1 ) }->{''} );
     $form->isblank("transdate", $locale->text('Order Date missing!'))   if ( +{ map { $form->{"transdate_$_"}, 1 } ( 1 .. $form->{rowcount}-1 ) }->{''} );
 
+    # also copy deliverydate from the order
+    $form->{deliverydate} = $form->{reqdate} if $form->{reqdate};
   } else {
     $form->isblank("quonumber", $locale->text('Quotation Number missing!'));
     $form->isblank("transdate", $locale->text('Quotation Date missing!'));

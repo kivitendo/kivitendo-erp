@@ -285,6 +285,7 @@ CREATE TABLE "ar" (
 	"paid" numeric (15,5),
 	"datepaid" date,
 	"duedate" date,
+	"deliverydate" date,
 	"invoice" boolean DEFAULT 'f',
 	"shippingpoint" text,
 	"terms" smallint DEFAULT 0,
