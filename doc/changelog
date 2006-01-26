@@ -3,7 +3,7 @@
 ####################################
 
 
-2006-01-xy - Version 2.2.0 - Revision testing (542 - 810)
+2006-01-xy - Version 2.2.0 - Revision testing (542 - 839)
 
   - Neues Menü - horizontal Anordnung 
   - Splitbuchungen für Kreditoren-, Debitoren- und Dialogbuchungen
@@ -15,6 +15,7 @@
   - Zusätzliche Variablen für die Formulare
   - Backuproutine aus dem Menü entfernt
   - In Formularen verwendbares HTML-Markup
+  - Lieferdatum in Verkaufsrechnungen
   - Bugfixes
     Quoting überarbeitet
     Fix für Perl 5.6.x - Block Syntaxfehler
@@ -30,7 +31,10 @@
     Bug#125:  Buchungsjournal ließ sich nicht sortieren
     Bug#131:  Korrekturmöglichkeit für berechnete MwSt (Vorsteuer) fehlte
     Bug#154:  BWA hatte Vorzeichendreher
+    Bug#160:  Feld "Buchen auf" bei gebuchten Rechnungen falsch gesetzt
+    Bug#163:  Fehler im Workflow Lieferantenanfrage
     Bug#164:  Fehlerhafte UStVa-Berechnung
+    Bug#165:  Projektnummern eindeutig
     Bug#166:  UStVa Variable doppelt vergeben
     Bug#173:  UStVa
     Bug#179:  Sortierung in der Berichtsübersicht bei Angeboten und Aufträgen nur nach Datum möglich gewesen
@@ -44,6 +48,7 @@
     Bug#205:  In Dialogbuchungen MwSt. bei Buchungen nicht berücksichtigt
     Bug#206:  In Dialogbuchungen Fehler bei Korrektur und Steuerinklusive
     Bug#210, 212, 222:  Fibu verlinkte auf falsche Konten
+    Bug#214:  Falsche Anzeige der Projektbuchungen
     Bug#220:  Rabattbetrag in Vorlagen ohne Menge berechnet
     Bug#224:  Auftrag ließ sich aus Rechnung nicht generieren
     Bug#231:  Fehlerhaftes übernehmen von Zahlen (format_amount)
@@ -58,18 +63,9 @@
     Bug#258:  Abschneiden der Nachkommastelle nach Drucken und Buchen
     Bug#259:  Steuerkonten wurden nicht angezeigt, wenn Rechnung und Zahlung vom gleichen Tag
     Bug#260:  Debitorenbuchungen mit doppeltem Betrag
-    Bug#260:  Bei Bilanz waren Stichtag und Vergleichsstichtag vertauscht
-
-
-2005-01-03 - Version 2.1.0
-  - Export von UStVA - Daten für ELSTER
-  - DATEV Exportschnittstelle
-  - Neue Optik
-  - Automatische Kunden-, Lieferanten- und Artikelnummervergabe
-  - umfangreiche Lizenz(Serien-)nummernverwaltung
-  - Javascript Kalendar, bei allen Datumsfelder. Global ein-/auschaltbar
-  - zuweisen von Kontaktpersonen zu Rechnungen,,Angeboten,Aufträgen
-  - Bugfixes
+    Bug#266:  Lieferdatum in Rechnungen
+    Bug#267:  Bei Bilanz waren Stichtag und Vergleichsstichtag vertauscht
+    Bug#270:  Rabattfehler beim Umwandeln eines Angebotes in einen Auftrag
 
 
 2005-02-08 - Version 2.1.1
@@ -85,3 +81,14 @@
     Bug#123: Javascript-Kalender berücksichtig nur deutsches Datumsformat
     Bug#119: Fehler in der Backuproutine verhindert Rückspielen des Backups
     Kontakte konnten nicht richtig ausgewählt werden
+
+
+2005-01-03 - Version 2.1.0
+  - Export von UStVA - Daten für ELSTER
+  - DATEV Exportschnittstelle
+  - Neue Optik
+  - Automatische Kunden-, Lieferanten- und Artikelnummervergabe
+  - umfangreiche Lizenz(Serien-)nummernverwaltung
+  - Javascript Kalendar, bei allen Datumsfelder. Global ein-/auschaltbar
+  - zuweisen von Kontaktpersonen zu Rechnungen,,Angeboten,Aufträgen
+  - Bugfixes
