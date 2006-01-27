@@ -111,47 +111,51 @@ sub account_header {
 	      </tr>|;
 
   $form->{selectustva} = "<option>\n";
-  %ustva = (41  => "Steuerfrei IGL a. Abnehmer m. UStID (§4 Nr. 1b UStG), Nr. 41",
-            44  => "Steuerfrei IGL n. Fahrz. o. UStID (§4 Nr. 1b UStG), Nr. 44",
-            49  => "Steuerfrei IGL n. Fahrz. a. Unternehmen (§2a UStG), Nr. 49",
-            43  => "Weit Steuerfreie Umsätze m. VSt Abzug (Ausfuhr, Umsätze §4 Nr.2-7 UStG), Nr. 43",
-            48  => "Steuerfreie Umsätze ohne VSt.abzug (§4 Nr.8-28 UStG), Nr. 48",
-            51  => "Steuerpflichtige Umsätze 16%, Nr. 51",
-            511 => "Steuerpflichtige Umsätze 16%, Nr. 51 rechts",
-            86  => "Steuerpflichtige Umsätze 7%, Nr. 86",
-            861 => "Steuerpflichtige Umsätze 7%, Nr. 86 rechts",
-            35  => "Nr. 35",
-            77  => "Nr. 77",
-            76  => "Nr. 76",
-            80  => "Nr. 80",
-            91  => "Steuerfrei, Nr. 91",
-            97  => "Steuerpflichtig 16%, Nr. 97",
-            971 => "Steuerpflichtig 16%, Nr. 97 rechts",
-            93  => "Steuerpflichtig 7%, Nr. 93",
-            931 => "Steuerpflichtig 7%, Nr. 93 rechts",
-            95  => "Nr. 95",
-            94  => "Steuerpflichtig 16%, Nr. 94",            
-            96  => "Nr. 96",
-            42  => "Nr. 42",
-            60  => "Nr. 60",
-            45  => "Nr. 45",
-            52  => "Nr. 52",
-            53  => "Nr. 53",
-            73  => "Nr. 73",
-            74  => "Nr. 74",
-            84  => "Nr. 84",
-            85  => "Nr. 85",
-            65  => "Nr. 65",
-            66  => "Abziehbare Vorsteuerbeträge, Nr. 66",
-            61  => "Nr. 61",
-            62  => "Nr. 62",
-            67  => "Nr. 67",
-            63  => "Nr. 63",
-            64  => "Nr. 64",
-            59  => "Nr. 59",
-            69  => "Nr. 69",
-            39  => "Nr. 39");
-  foreach $item (sort({ $a <=> $b } keys %ustva)) {
+  
+  %ustva = (35  => $locale->text('UStVA-Nr. 35'),
+            36  => $locale->text('UStVA-Nr. 36'),
+            39  => $locale->text('UStVA-Nr. 39'),
+            41  => $locale->text('UStVA-Nr. 41'),
+            42  => $locale->text('UStVA-Nr. 42'),
+            43  => $locale->text('UStVA-Nr. 43'),
+            44  => $locale->text('UStVA-Nr. 44'),
+            45  => $locale->text('UStVA-Nr. 45'),
+            48  => $locale->text('UStVA-Nr. 48'),
+            49  => $locale->text('UStVA-Nr. 49'),
+            51  => $locale->text('UStVA-Nr. 51 left'),
+            511 => $locale->text('UStVA-Nr. 51 right'),
+            52  => $locale->text('UStVA-Nr. 52'),
+            53  => $locale->text('UStVA-Nr. 53'),
+            59  => $locale->text('UStVA-Nr. 59'),
+            60  => $locale->text('UStVA-Nr. 60'),
+            61  => $locale->text('UStVA-Nr. 61'),
+            62  => $locale->text('UStVA-Nr. 62'),
+            63  => $locale->text('UStVA-Nr. 63'),
+            64  => $locale->text('UStVA-Nr. 64'),
+            65  => $locale->text('UStVA-Nr. 65'),
+            66  => $locale->text('UStVA-Nr. 66'),
+            67  => $locale->text('UStVA-Nr. 67'),
+            69  => $locale->text('UStVA-Nr. 69'),
+            73  => $locale->text('UStVA-Nr. 73'),
+            74  => $locale->text('UStVA-Nr. 74'),
+            76  => $locale->text('UStVA-Nr. 76'),
+            77  => $locale->text('UStVA-Nr. 77'),
+            80  => $locale->text('UStVA-Nr. 80'),
+            84  => $locale->text('UStVA-Nr. 84'),
+            85  => $locale->text('UStVA-Nr. 85'),
+            86  => $locale->text('UStVA-Nr. 86 left'),
+            861 => $locale->text('UStVA-Nr. 86 right'),            
+            91  => $locale->text('UStVA-Nr. 91'),
+            93  => $locale->text('UStVA-Nr. 93 left'),
+            931 => $locale->text('UStVA-Nr. 93 right'),            
+            94  => $locale->text('UStVA-Nr. 94'),
+            95  => $locale->text('UStVA-Nr. 95'),
+            96  => $locale->text('UStVA-Nr. 96'),
+            97  => $locale->text('UStVA-Nr. 97 links'),
+            971 => $locale->text('UStVA-Nr. 97 rechts'),
+            98  => $locale->text('UStVA-Nr. 98'));
+            
+  foreach $item (sort({ $a cmp $b } keys %ustva)) {
     if ($item == $form->{pos_ustva}) {
       $form->{selectustva} .= "<option value=$item selected>$ustva{$item}\n";
     } else {
@@ -210,7 +214,7 @@ sub account_header {
 
   $eur = qq|
 	      <tr>
-		<th align=right>| . $locale->text('EÜR') . qq|</th>
+		<th align=right>| . $locale->text('EUER') . qq|</th>
 		<td><select name=pos_eur>$form->{selecteur}</select></td>
 		<input type=hidden name=selecteur value="$form->{selecteur}">
 	      </tr>|;
@@ -1738,10 +1742,6 @@ sub config {
 	<tr>
 	  <th align=right>| . $locale->text('Language') . qq|</th>
 	  <td><select name=countrycode>$countrycodes</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Character Set') . qq|</th>
-	  <td><input name=charset size=20 value="$myconfig{charset}"></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Stylesheet') . qq|</th>
