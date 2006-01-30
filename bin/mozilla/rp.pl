@@ -190,8 +190,7 @@ sub report {
 
       #write Trigger
       $jsscript =
-        Form->write_trigger(\%myconfig, "1", "$name_2", "BR", "$trigger_2", "",
-                            "", "");
+        Form->write_trigger(\%myconfig, "1", "$name_2", "BR", "$trigger_2");
     } else {
       $button1 = qq|
          <input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value=$value_1>|;
