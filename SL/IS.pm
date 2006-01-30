@@ -107,7 +107,7 @@ sub invoice_details {
       push(@{ $form->{qty} },
            $form->format_amount($myconfig, $form->{"qty_$i"}));
       push(@{ $form->{unit} },         qq|$form->{"unit_$i"}|);
-      push(@{ $form->{deliverydate} }, qq|$form->{"deliverydate_$i"}|);
+      push(@{ $form->{deliverydate_oe} }, qq|$form->{"deliverydate_$i"}|);
 
       push(@{ $form->{sellprice} }, $form->{"sellprice_$i"});
       push(@{ $form->{ordnumber_oe} }, qq|$form->{"ordnumber_$i"}|);

@@ -442,6 +442,10 @@ td {
     <td>Bestellnummer beim Kunden</td>
    </tr>
    <tr>
+    <td><code>deliverydate</code></td>
+    <td>Lieferdatum</td>
+   </tr>
+   <tr>
     <td><code>duedate</code></td>
     <td>Fälligkeitsdatum</td>
    </tr>
@@ -467,15 +471,11 @@ td {
    </tr>
    <tr>
     <td><code>ordnumber</code></td>
-    <td>Auftragsnummer</td>
+    <td>Auftragsnummer, wenn die Rechnung aus einem Auftrag erstellt wurde</td>
    </tr>
    <tr>
     <td><code>quonumber</code></td>
     <td>Angebotsnummer</td>
-   </tr>
-   <tr>
-    <td><code>deliverydate</code></td>
-    <td>Lieferdatum</td>
    </tr>
    <tr>
     <td><code>shippingpoint</code></td>
@@ -499,6 +499,10 @@ td {
     <td><code>total</code></td>
     <td>Restsumme der Rechnung (Summe abz&uuml;glich bereits bezahlter Posten)</td>
    </tr>
+   <tr>
+    <td><code>transdate</code></td>
+    <td>Auftragsdatum wenn die Rechnung aus einem Auftrag erstellt wurde</td>
+   </tr>
   </table>
  </p>
 
@@ -517,7 +521,7 @@ td {
     <td>Stellage</td>
    </tr>
    <tr>
-    <td><code>deliverydate</code></td>
+    <td><code>deliverydate_oe</code></td>
     <td>Lieferdatum</td>
    </tr>
    <tr>
@@ -543,6 +547,10 @@ td {
    <tr>
     <td><code>number</code></td>
     <td>Artikelnummer</td>
+   </tr>
+   <tr>
+    <td><code>ordnumber_oe</code></td>
+    <td>Auftragsnummer des Originalauftrags, wenn die Rechnung aus einem Sammelauftrag erstellt wurde</td>
    </tr>
    <tr>
    <td><code>p_discount</code></td>
@@ -574,6 +582,10 @@ td {
    <tr>
     <td><code>serialnumber</code></td>
     <td>Seriennummer</td>
+   </tr>
+   <tr>
+    <td><code>transdate_oe</code></td>
+    <td>Auftragsdatum des Originalauftrags, wenn die Rechnung aus einem Sammelauftrag erstellt wurde</td>
    </tr>
    <tr>
     <td><code>unit</code></td>
