@@ -1585,8 +1585,16 @@ sub print_form {
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
 
+  # format global dates 
   map { $form->{$_} = $locale->date(\%myconfig, $form->{$_}, 1) }
     ("${inv}date", "${due}date", "shippingdate", "deliverydate");
+
+  # format item dates
+  for my $field (qw(transdate_oe deliverydate_oe)) {
+    map { 
+      $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1); 
+    } 0..$#{$form->{$field}};
+  }
 
   @a = qw(name street zipcode city country);
 
