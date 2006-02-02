@@ -646,9 +646,8 @@ sub get_accounts_ustva {
       $subwhere .= " AND transdate >= '$fromdate'";
       $glwhere = " AND ac.transdate >= '$fromdate'";
       $ARwhere .= " AND acc.transdate >= '$fromdate'";
-      $where .= " AND ac.transdate >= '$fromdate'";
-      
     }
+    $where .= " AND ac.transdate >= '$fromdate'";
   }
 
   if ($todate) {
