@@ -29,7 +29,7 @@ require "$form->{path}/arap.pl";
 #use strict;
 #no strict 'refs';
 #use diagnostics;
-#use warnings FATAL=> 'all';
+#use warnings; # FATAL=> 'all';
 #use vars qw($locale $form %myconfig);
 #our ($myconfig);
 #use CGI::Carp "fatalsToBrowser";
@@ -76,13 +76,7 @@ sub report {
   $form->{title} = $locale->text('UStVA');
   $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1
 
-  #  $accrual = ($eur) ? "" : "checked";
-  #  $cash = ($eur) ? "checked" : "";
-  my $year = '';
-  my $null = '';
-  ($null, $null, $null, $null, $null, $year, $null, $null, $null) =
-    localtime();
-  $year += 1900;
+  my $year = substr($form->datetonum($form->current_date(\%myconfig), \%myconfig),0,4);
 
   my $department = '';
   local $hide = '';
@@ -233,7 +227,7 @@ sub report {
 
     # accounting years if SQL-Ledger Version < 2.4.1
     #    $year = $form->{year} * 1;
-    @years = sort { $b <=> $a } (2000 .. ($year+1));
+    @years = sort { $b <=> $a } (2003 .. ($year+1));
     $form->{all_years} = \@years;
   }
   map { $form->{selectaccountingyear} .= qq|<option>$_\n| }
@@ -539,13 +533,18 @@ sub show {
 sub ustva_vorauswahl {
   $lxdebug->enter_sub();
   #Aktuelles Datum zerlegen:
-  $locale->date(\%myconfig, $form->current_date(\%myconfig, '0', '0'), 0) =~
-    /(\d\d).(\d\d).(\d\d\d\d)/;
+  my $date = $form->datetonum($form->current_date(\%myconfig), \%myconfig);
 
   #$locale->date($myconfig, $form->current_date($myconfig), 0)=~ /(\d\d).(\d\d).(\d\d\d\d)/;
-  $form->{day}   = $1;
-  $form->{month} = $2;
-  $form->{year}  = $3;
+  $form->{day}   = substr($date, 6, 2);
+  $form->{month} = substr($date, 4, 2);
+  $form->{year}  = substr($date, 0, 4);
+  $lxdebug->message(LXDebug::DEBUG1, qq|
+    Actual date from Database: $date\n    
+    Actual year from Database: $form->{year}\n
+    Actual day from Database: $form->{day}\n
+    Actual month from Database: $form->{month}\n|);
+  
   my $sel    = '';
   my $yymmdd = '';
 
@@ -585,9 +584,12 @@ sub ustva_vorauswahl {
        
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
+    $yymmdd = 20060121;
     $sel    = '';
-    my $dfv = '0';    # Offset für Dauerfristverlängerung
-                      #$dfv = '100' if ($form->{FA_dauerfrist} eq '1');
+    my $dfv = '0';    
+    
+    # Offset für Dauerfristverlängerung
+    $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
 
   SWITCH: {
       $yymmdd <= ($yy + 110 + $dfv) && do {
@@ -824,130 +826,130 @@ sub generate_ustva {
 
     #forgotten the year --> thisyear
     if ($form->{year} !~ m/^\d\d\d\d$/) {
-      $locale->date(\$myconfig, $form->current_date(\$myconfig), 0) =~
-        /(\d\d\d\d)/;
-      $form->{year} = $1;
+      $form->{year} = substr($form->datetonum($form->current_date(\%myconfig), \%myconfig),0,4);
+      $lxdebug->message(LXDebug::DEBUG1, qq|Actual year from Database: $form->{year}\n|);
     }
 
     #yearly report
     if ($form->{duetyp} eq "13") {
-      $form->{fromdate} = "$form->{year}-01-01";
-      $form->{todate}   = "$form->{year}-12-31";
+      $form->{fromdate} = "$form->{year}0101";
+      $form->{todate}   = "$form->{year}1231";
     }
 
     #Quater reports
     if ($form->{duetyp} eq "A") {
-      $form->{fromdate} = "$form->{year}-01-01";
-      $form->{todate}   = "$form->{year}-03-31";
+      $form->{fromdate} = "$form->{year}0101";
+      $form->{todate}   = "$form->{year}0331";
       $form->{'0441'}   = "X";
     }
     if ($form->{duetyp} eq "B") {
-      $form->{fromdate} = "$form->{year}-04-01";
-      $form->{todate}   = "$form->{year}-06-30";
+      $form->{fromdate} = "$form->{year}0401";
+      $form->{todate}   = "$form->{year}0630";
       $form->{'0442'}   = "X";
     }
     if ($form->{duetyp} eq "C") {
-      $form->{fromdate} = "$form->{year}-07-01";
-      $form->{todate}   = "$form->{year}-09-30";
+      $form->{fromdate} = "$form->{year}0701";
+      $form->{todate}   = "$form->{year}0930";
       $form->{'0443'}   = "X";
     }
     if ($form->{duetyp} eq "D") {
-      $form->{fromdate} = "$form->{year}-10-01";
-      $form->{todate}   = "$form->{year}-12-31";
+      $form->{fromdate} = "$form->{year}1001";
+      $form->{todate}   = "$form->{year}1231";
       $form->{'0444'}   = "X";
     }
 
     #Monthly reports
   SWITCH: {
       $form->{duetyp} eq "01" && do {
-        $form->{fromdate} = "$form->{year}-01-01";
-        $form->{todate}   = "$form->{year}-01-31";
+        $form->{fromdate} = "$form->{year}0101";
+        $form->{todate}   = "$form->{year}0131";
         $form->{'0401'}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "02" && do {
-        $form->{fromdate} = "$form->{year}-02-01";
+        $form->{fromdate} = "$form->{year}0201";
 
         #this works from 1901 to 2099, 1900 and 2100 fail.
         my $leap = ($form->{year} % 4 == 0) ? "29" : "28";
-        $form->{todate} = "$form->{year}-02-$leap";
+        $form->{todate} = "$form->{year}02$leap";
         $form->{"0402"} = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "03" && do {
-        $form->{fromdate} = "$form->{year}-03-01";
-        $form->{todate}   = "$form->{year}-03-31";
+        $form->{fromdate} = "$form->{year}0301";
+        $form->{todate}   = "$form->{year}0331";
         $form->{"0403"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "04" && do {
-        $form->{fromdate} = "$form->{year}-04-01";
-        $form->{todate}   = "$form->{year}-04-30";
+        $form->{fromdate} = "$form->{year}0401";
+        $form->{todate}   = "$form->{year}0430";
         $form->{"0404"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "05" && do {
-        $form->{fromdate} = "$form->{year}-05-01";
-        $form->{todate}   = "$form->{year}-05-31";
+        $form->{fromdate} = "$form->{year}0501";
+        $form->{todate}   = "$form->{year}0531";
         $form->{"0405"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "06" && do {
-        $form->{fromdate} = "$form->{year}-06-01";
-        $form->{todate}   = "$form->{year}-06-30";
+        $form->{fromdate} = "$form->{year}0601";
+        $form->{todate}   = "$form->{year}0630";
         $form->{"0406"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "07" && do {
-        $form->{fromdate} = "$form->{year}-07-01";
-        $form->{todate}   = "$form->{year}-07-31";
+        $form->{fromdate} = "$form->{year}0701";
+        $form->{todate}   = "$form->{year}0731";
         $form->{"0407"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "08" && do {
-        $form->{fromdate} = "$form->{year}-08-01";
-        $form->{todate}   = "$form->{year}-08-31";
+        $form->{fromdate} = "$form->{year}0801";
+        $form->{todate}   = "$form->{year}0831";
         $form->{"0408"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "09" && do {
-        $form->{fromdate} = "$form->{year}-09-01";
-        $form->{todate}   = "$form->{year}-09-30";
+        $form->{fromdate} = "$form->{year}0901";
+        $form->{todate}   = "$form->{year}0930";
         $form->{"0409"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "10" && do {
-        $form->{fromdate} = "$form->{year}-10-01";
-        $form->{todate}   = "$form->{year}-10-31";
+        $form->{fromdate} = "$form->{year}1001";
+        $form->{todate}   = "$form->{year}1031";
         $form->{"0410"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "11" && do {
-        $form->{fromdate} = "$form->{year}-11-01";
-        $form->{todate}   = "$form->{year}-11-30";
+        $form->{fromdate} = "$form->{year}1101";
+        $form->{todate}   = "$form->{year}1130";
         $form->{"0411"}   = "X";
         last SWITCH;
       };
       $form->{duetyp} eq "12" && do {
-        $form->{fromdate} = "$form->{year}-12-01";
-        $form->{todate}   = "$form->{year}-12-31";
+        $form->{fromdate} = "$form->{year}1201";
+        $form->{todate}   = "$form->{year}1231";
         $form->{"0412"}   = "X";
         last SWITCH;
       };
     }
   }
 
-  #$myconfig = \%myconfig;
-  #$myconfig->{dateformat} = 'yyyy-mm-dd';
-  #$form->{fromdate}= $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
-  #$form->{todate}= $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
+  # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
   USTVA->ustva(\%myconfig, \%$form);
-
-  #??($form->{department}) = split /--/, $form->{department};
+  
+  # reformat Dates to dateformat
+  $form->{fromdate}= $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
+  
+  $form->{todate} = $form->current_date($myconfig) unless $form->{todate};
+  $form->{todate}= $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
 
   $form->{period} =
     $locale->date(\%myconfig, $form->current_date(\%myconfig), 1, 0, 0);
-  $form->{todate} = $form->current_date($myconfig) unless $form->{todate};
+
 
   # if there are any dates construct a where
   if ($form->{fromdate} || $form->{todate}) {

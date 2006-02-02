@@ -377,15 +377,67 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('2215', 'Zinsabschlagsteuer', 'A', 'E', '', '2215', 0, NULL, 35, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('2218', 'Anrechb.Solidari.zuschlag a.Zinsabschlagst.', 'A', 'E', '', '2218', 0, NULL, 35, NULL, NULL, FALSE);
 
-INSERT INTO tax (rate, taxkey, taxdescription) values ('0','0','Keine Steuer');
-INSERT INTO tax (rate, taxkey, taxdescription) values ('0','1','Umsatzsteuerfrei');
-insert into tax VALUES ((select id from chart where accno = '1771'),'0.07','1771','2','Umsatzsteuer 7%');
-INSERT INTO tax VALUES ((select id from chart where accno = '1775'),'0.16','1775','3','Umsatzsteuer 16%');
-INSERT INTO tax VALUES ((select id from chart where accno = '1571'),'0.07','1571','8','Vorsteuer 7%');
-insert into tax VALUES ((select id from chart where accno = '1575'),'0.16','1575','9','Vorsteuer 16%');
-insert into tax (taxkey, taxdescription) values ('10','Im anderen EG-Staat steuerpfl. Lieferung');
-insert into tax (taxkey, taxdescription) values ('11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1772'),'0.07','1772','12','Steuerpflicht. EG-Lieferungen 7%');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1772'),'0.16','1773','13','Steuerpflicht. EG-Lieferungen 16%');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1572'),'0.07','1572','18','Steuerpflicht. EG-Erwerb 7%');
-insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1572'),'0.16','1573','19','Steuerpflicht. EG-Erwerb 16%');
+-- insert actual tax values for SKR03
+INSERT INTO tax (rate, taxkey, taxdescription) VALUES ('0','0','Keine Steuer');
+INSERT INTO tax (rate, taxkey, taxdescription) VALUES ('0','1','Umsatzsteuerfrei (mit Vorsteuerabzug)');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1771'),'0.07','1771','2','Umsatzsteuer 7%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1775'),'0.16','1775','3','Umsatzsteuer 16%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1571'),'0.07','1571','8','Vorsteuer 7%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1575'),'0.16','1575','9','Vorsteuer 16%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1767'),'0.00','1767','10','Im anderen EG-Staat steuerpfl. Lieferung');
+INSERT INTO tax (taxkey, taxdescription) VALUES ('11','Steuerfreie EG-Lief. an Abn. mit UStIdNr');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1772'),'0.07','1772','12','Umsatzsteuer 7% innergem. Erwerb');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1773'),'0.16','1773','13','Umsatzsteuer 16% innergem. Erwerb');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.07','1572','18','Steuerpfl. EG-Erwerb 7%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.16','1573','19','Steuerpfl. EG-Erwerb 16%');
+
+-- UStVA Link to SKR03/2006
+-- Let this structure like it is, please.
+-- This structure is based on the sequence of the USTVA 2006
+-- Created by Udo Spallek
+--
+-- 1. Page UStVA
+
+UPDATE chart SET pos_ustva=41  WHERE accno IN ('8125', '8130', '8140', '8724', '8808', '8828');
+UPDATE chart SET pos_ustva=44  WHERE accno IN ('8135');
+UPDATE chart SET pos_ustva=49  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=43  WHERE accno IN ('2402', '8120', '8150', '8505', '8625', '8705', '8807', '8827');
+UPDATE chart SET pos_ustva=48  WHERE accno IN ('8100', '8110', '8504', '8609');
+UPDATE chart SET pos_ustva=51  WHERE accno IN ('1717', '2404', '2405', '2700', '2705', '2707', '2709', '8196', '8315', '8400', '8595', '8600', '8611', '8640', '8720', '8726', '8735', '8760', '8790', '8801', '8809', '8820', '8910', '8920', '8921', '8922', '8925', '8935', '8940');
+UPDATE chart SET pos_ustva=511 WHERE accno IN ('1775');
+UPDATE chart SET pos_ustva=86  WHERE accno IN ('1711', '2401', '2403', '8300', '8310', '8506', '8591', '8630', '8710', '8725', '8731', '8750', '8780', '8915', '8930', '8932', '8945');
+UPDATE chart SET pos_ustva=861 WHERE accno IN ('1771');
+UPDATE chart SET pos_ustva=35  WHERE accno IN ('2407', '2409', '8723', '8729', '8736', '8764', '8794');
+UPDATE chart SET pos_ustva=36  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=77  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=76  WHERE accno IN ('8190');
+UPDATE chart SET pos_ustva=80  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=91  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=97  WHERE accno IN ('3425', '3725');
+UPDATE chart SET pos_ustva=971 WHERE accno IN ('1773');
+UPDATE chart SET pos_ustva=93  WHERE accno IN ('3420', '3724');
+UPDATE chart SET pos_ustva=931 WHERE accno IN ('1772');
+UPDATE chart SET pos_ustva=95  WHERE accno IN ('3727');
+UPDATE chart SET pos_ustva=98  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=94  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=96  WHERE accno IN ('1784');
+UPDATE chart SET pos_ustva=42  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=60  WHERE accno IN ('8337');
+UPDATE chart SET pos_ustva=45  WHERE accno IN ('8338', '8339', '8950');
+-- 2. Seite UStVA
+UPDATE chart SET pos_ustva=52  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=53  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=73  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=74  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=84  WHERE accno IN ('3110', '3115', '3120', '3125');
+UPDATE chart SET pos_ustva=85  WHERE accno IN ('1785', '1786');
+UPDATE chart SET pos_ustva=65  WHERE accno IN ('1782');
+UPDATE chart SET pos_ustva=66  WHERE accno IN ('1570', '1571', '1575', '1576');
+UPDATE chart SET pos_ustva=61  WHERE accno IN ('1572', '1573');
+UPDATE chart SET pos_ustva=62  WHERE accno IN ('1588');
+UPDATE chart SET pos_ustva=67  WHERE accno IN ('1578', '1579');
+UPDATE chart SET pos_ustva=63  WHERE accno IN ('1577');
+UPDATE chart SET pos_ustva=64  WHERE accno IN ('1556', '1557', '1558', '1559');
+UPDATE chart SET pos_ustva=59  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=69  WHERE accno IN ('1783');
+UPDATE chart SET pos_ustva=39  WHERE accno IN ('1781');

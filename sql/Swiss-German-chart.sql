@@ -1,6 +1,6 @@
 -- Swiss chart of accounts
 -- adapted to numeric representation of chart no.
---
+-- contributed by Martin Krung
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('10000','AKTIVEN','H','1','A','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('11000','UMLAUFSVERMÖGEN','H','10000','A','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('11100','Flüssige Mittel','H','11000','A','');
@@ -151,10 +151,10 @@ INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES 
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21231','Passive Rechnungsabgrenzung','A','21230','L','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('67002','Produkteentwicklung','A','67000','E','');
 --
-insert into tax (chart_id,rate) values ((select id from chart where accno = '21222'),0.036);
-insert into tax (chart_id,rate) values ((select id from chart where accno = '21223'),0.076);
-insert into tax (chart_id,rate) values ((select id from chart where accno = '21221'),0.024);
-insert into tax (chart_id,rate) values ((select id from chart where accno = '21224'),0.076);
+insert into tax (taxdescription,taxkey,chart_id,rate) values ('MWST 3.6%',1,(select id from chart where accno = '21222'),0.036);
+insert into tax (taxdescription,taxkey,chart_id,rate) values ('MWST 7.6%',2,(select id from chart where accno = '21223'),0.076);
+insert into tax (taxdescription,taxkey,chart_id,rate) values ('MWST 2.4%',3,(select id from chart where accno = '21221'),0.024);
+insert into tax (taxdescription,taxkey,chart_id,rate) values ('MWST 7.6% 1/2',4,(select id from chart where accno = '21224'),0.076);
 --
 update defaults set inventory_accno_id = (select id from chart where accno = '11121'), income_accno_id = (select id from chart where accno = '34002'), expense_accno_id = (select id from chart where accno = '42005'), fxgain_accno_id = (select id from chart where accno = '36005'), fxloss_accno_id = (select id from chart where accno = '39006'), invnumber = '2002000', sonumber = '2002000', ponumber = '2002000', curr = 'EUR:USD', weightunit = 'kg';
 --
