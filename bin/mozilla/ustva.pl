@@ -408,31 +408,6 @@ sub report {
 	  </fieldset>
       |;
 
-    # Stichtag der nächsten USTVA berechnen
-    #
-    # ($stichtag, $tage_bis, $ical) = FA->stichtag($today[dd.mm.yyyy],
-    #                                              $FA_dauerfrist[1,0],
-    #                                              $FA_voranmeld[month, quarter])
-    #$tmpdateform= $myconfig{dateformat};
-    #  $myconfig{dateformat}= "dd.mm.yyyy";
-    #  $form->{today} = $form->datetonum($form->current_date(\%myconfig), \%myconfig);
-    #  ($stichtag, $description, $tage_bis, $ical) = FA::stichtag($form->{today}, $form->{FA_dauerfrist},$form->{FA_voranmeld});
-    #   $form->{today} = $form->date($stichtag, \%myconfig );
-    #$myconfig{dateformat}= $tmpdateform;
-
-    #print qq|
-    #   <br>
-    #   <br>
-    #   <fieldset>
-    #    <label>
-    #    |.$locale->text('Anstehende Voranmeldungen').qq|
-    #    </label>
-    #     <h2 class="confirm">$stichtag<h2>
-    #     <h3>$description</h3>
-    #     <h4>$form->{today}</h4>
-    #
-    #   </fieldset>|;
-
   } else {
     print qq|
      <td width="50%" valign="bottom">
@@ -440,12 +415,10 @@ sub report {
      <legend>
      <b>| . $locale->text('Hinweise') . qq|</b>
      </legend>
-      <h2 class="confirm">Die Ausgabefunktionen sind wegen unzureichender Voreinstellungen deaktiviert.</h2>
-      <h3>Hilfe:</h3>
+      <h2 class="confirm">| . $locale->text('Missing Preferences: Outputroutine disabled') . qq|</h2>
+      <h3>| . $locale->text('Help:') . qq|</h3>
       <ul>
-      <li> Wählen Sie im Administrationsmenü den momentanen Benutzer aus 
-           (siehe Kopfzeile). Dort können Sie fehlende Firmenangaben bzw. 
-           die Steuernummer ergänzen.</li>
+      <li>| . $locale->text('Hint-Missing-Preferences') . qq|</li>
       </ul>
       </fieldset>
      |;
@@ -740,15 +713,14 @@ sub ustva_vorauswahl {
     my $key = '';
     foreach $key (sort keys %listea) {
       print qq|
-         <option value="$key">$listea{$key}</option>
-         |;
+         <option value="$key">| . $locale->text("$listea{$key}"). 
+         qq|</option>\n|;
     }
 
     foreach $key (sort keys %listeb) {
       print qq|
-         <option value="$key">| . $locale->text("$listeb{$key}") . qq|</option>
-         
-     |;
+         <option value="$key">| . $locale->text("$listeb{$key}"). 
+         qq|</option>\n|;
     }
     print qq|</select>|;
   }
@@ -1292,17 +1264,13 @@ sub edit_form {
 
   # Auf Übergabefehler checken
   USTVA::info(
-    $locale->text(
-      'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.'
-    ))
+    $locale->text('Missing Tax Authoritys Preferences') . "\n" . 
+    $locale->text('USTVA-Hint: Tax Authoritys'))
     if (   $form->{elsterFFFF_new} eq 'Auswahl'
         || $form->{elsterland_new} eq 'Auswahl');
   USTVA::info(
-    $locale->text(
-      'Es fehlen Angaben zur Versteuerung. 
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus. 
-  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.'
-    ))
+    $locale->text('Missing Method!') . "\n" . 
+    $locale->text('USTVA-Hint: Method'))
     if ($form->{method} eq '');
 
   # Klären, ob Variablen bereits befüllt sind UND ob veräderungen auf
