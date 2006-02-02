@@ -1264,7 +1264,7 @@ sub print_options {
   $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
   $form->{SM}{ $form->{sendmode} } = "selected";
-  print(STDERR $form->{format} , " Format\n");
+  
   if ($form->{type} eq 'purchase_order') {
     $type = qq|<select name=formname>
 	    <option value=purchase_order $form->{PD}{purchase_order}>|

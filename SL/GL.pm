@@ -496,7 +496,6 @@ sub all_transactions {
 #       }
     }
        
-    #    print(STDERR Dumper($ref));
 
   }
   push @{ $form->{GL} }, $ref;
@@ -520,7 +519,6 @@ sub all_transactions {
     ($form->{gifi_account_description}) = $sth->fetchrow_array;
     $sth->finish;
   }
-  print(STDERR Dumper($form->{GL}));
   $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
