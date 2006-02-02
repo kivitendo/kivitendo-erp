@@ -314,16 +314,12 @@ sub get_transactions {
           $blubb{'amount'} =
             $form->round_amount(($i->[$j]->{'amount'} * $test * -1), 2);
 
-          #print(STDERR $test, " Taxrate\n\n");
           $blubb{'umsatz'} =
             abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
 
           $i->[$j]->{'umsatz'} =
             abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
 
-          #print(STDERR $i->[$j]->{'umsatz'}, " Steuer Umsatz\n");
-          #print(STDERR $i->[$j]->{'amount'}, " Steuer Betrag\n");
-          #print(STDERR $blubb{'umsatz'}, " Umsatz NOTSPLIT\n");
           push @{ $splits[$g] }, \%blubb;
           push @{ $splits[$g] }, $i->[$j];
           push @{ $form->{DATEV} }, \@{ $splits[$g] };
@@ -333,7 +329,6 @@ sub get_transactions {
         }
       }
       if (abs($absumsatz) > 0.01) {
-        print(STDERR $absumsatz, "ABSAUMSATZ\n");
         $form->error("Datev-Export fehlgeschlagen!");
       }
     } else {

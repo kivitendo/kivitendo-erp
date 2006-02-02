@@ -2758,7 +2758,6 @@ sub debug {
 
 sub winston_export {
   $lxdebug->enter_sub();
-  print(STDERR "Winston Export1\n");
 
   #create_winston();
   $form->{winston} = 1;
@@ -3036,7 +3035,6 @@ sub generate_ustva {
 
   # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
   # Einlesen der Finanzamtdaten
-  print(STDERR "Winston4\n");
   get_config($userspath, 'finanzamt.ini');
 
   #  &get_project(generate_bwa);
@@ -3046,7 +3044,6 @@ sub generate_ustva {
   foreach $item (@anmeldungszeitraum) {
     $form->{$item} = "";
   }
-  print(STDERR "Winston2\n");
   if ($form->{reporttype} eq "custom") {
 
     #forgotten the year --> thisyear
@@ -3247,7 +3244,6 @@ sub generate_ustva {
   $form->{address} =~ s/\\n/$form->{br}/g;
 
   if ($form->{winston} eq '1') {
-    print(STDERR "fast bei winston\n");
     create_winston();
 
   } else {

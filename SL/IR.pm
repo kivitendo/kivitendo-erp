@@ -337,7 +337,6 @@ sub post_invoice {
       if ($form->{"projectnumber_$i"}) {
         $project_id = $form->{"projectnumber_$i"};
       }
-      print(STDERR $project_id, " Project_id\n");
       $deliverydate =
         ($form->{"deliverydate_$i"})
         ? qq|'$form->{"deliverydate_$i"}'|
@@ -353,7 +352,6 @@ sub post_invoice {
 		  '$form->{"unit_$i"}', $deliverydate, (SELECT id FROM project WHERE projectnumber = '$project_id'),
 		  '$form->{"serialnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
-      print(STDERR $query, "\n\n");
     }
   }
 
