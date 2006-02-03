@@ -585,35 +585,37 @@ sub form_header {
 ## /LINET
 
   if ($form->{db} eq 'customer') {
-  #get pricegroup and form it
-  $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  $form->{pricegroup}    = "$form->{klass}";
-  $form->{pricegroup_id} = "$form->{klass}";
+    #get pricegroup and form it
+    $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  if (@{ $form->{all_pricegroup} }) {
+    $form->{pricegroup}    = "$form->{klass}";
+    $form->{pricegroup_id} = "$form->{klass}";
 
-    $form->{selectpricegroup} = qq|<option>\n|;
-    map {
-      $form->{selectpricegroup} .=
-        qq|<option value="$_->{id}">$_->{pricegroup}\n|
-    } @{ $form->{all_pricegroup} };
+    if (@{ $form->{all_pricegroup} }) {
+
+      $form->{selectpricegroup} = qq|<option>\n|;
+      map {
+        $form->{selectpricegroup} .=
+          qq|<option value="$_->{id}">$_->{pricegroup}\n|
+      } @{ $form->{all_pricegroup} };
+    }
+
+    if ($form->{selectpricegroup}) {
+      $form->{selectpricegroup} = $form->unescape($form->{selectpricegroup});
+
+      $pricegroup =
+        qq|<input type=hidden name=selectpricegroup value="|
+        . $form->escape($form->{selectpricegroup}, 1) . qq|">|;
+
+      $form->{selectpricegroup} =~
+        s/(<option value="\Q$form->{klass}\E")/$1 selected/;
+
+      $pricegroup .= qq|<select name=klass>$form->{selectpricegroup}</select>|;
+
+    }
   }
 
-  if ($form->{selectpricegroup}) {
-    $form->{selectpricegroup} = $form->unescape($form->{selectpricegroup});
-
-    $pricegroup =
-      qq|<input type=hidden name=selectpricegroup value="|
-      . $form->escape($form->{selectpricegroup}, 1) . qq|">|;
-
-    $form->{selectpricegroup} =~
-      s/(<option value="\Q$form->{klass}\E")/$1 selected/;
-
-    $pricegroup .= qq|<select name=klass>$form->{selectpricegroup}</select>|;
-
-  }
- }
   # $locale->text('Customer Number')
   # $locale->text('Vendor Number')
   $form->{fokus} = "ct.name";
@@ -780,12 +782,13 @@ sub form_header {
 	  <th align=right>| . $locale->text('Language') . qq|</th>
 	  <td><select name=language tabindex=23>$lang
                           </select></td>|;
-if ($form->{db} eq 'customer'){
 
-print qq|
+  if ($form->{db} eq 'customer') {
+
+    print qq|
           <th align=right>| . $locale->text('Preisklasse') . qq|</th>
           <td>$pricegroup</td>|;
-}
+  }
   print qq|        </tr>
         <tr>
           <td align=right>| . $locale->text('Obsolete') . qq|</td>

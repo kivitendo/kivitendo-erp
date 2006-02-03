@@ -76,7 +76,11 @@ sub report {
   $form->{title} = $locale->text('UStVA');
   $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1
 
-  my $year = substr($form->datetonum($form->current_date(\%myconfig), \%myconfig),0,4);
+  my $year = substr(
+                    $form->datetonum($form->current_date(\%myconfig),
+                                     \%myconfig
+                    ),
+                    0, 4);
 
   my $department = '';
   local $hide = '';
@@ -103,7 +107,7 @@ sub report {
   # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
   # Einlesen der Finanzamtdaten
   &get_config($userspath, 'finanzamt.ini');
-  
+
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
   my @a = qw(signature name company address businessnumber tel fax email
@@ -134,7 +138,7 @@ sub report {
 	    | . $locale->text('Kein Firmenname hinterlegt!') . qq|</a><br>
     |;
   }
-  
+
   # Anpassungen der Variablennamen auf pre 2.1.1 Namen
   # klären, ob $form->{company_street|_address} gesetzt sind
   #
@@ -145,24 +149,24 @@ sub report {
     ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
   }
 
-  if (    $form->{co_street} ne ''
-      and ($form->{co_zip} ne ''
-      or $form->{co_city} ne '') ) {
+  if ($form->{co_street} ne ''
+      and (   $form->{co_zip} ne ''
+           or $form->{co_city} ne '')
+    ) {
     print qq|
     $form->{co_street}<br>
     $form->{co_street1}<br>
     $form->{co_zip} $form->{co_city}|;
-      } else {
+    } else {
     print qq|
 	  <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
 	  | . $locale->text('Keine Firmenadresse hinterlegt!') . qq|</a>\n|;
   }
-  $form->{co_email}=$form->{email} unless $form->{co_email};
-  $form->{co_tel}=$form->{tel} unless $form->{co_tel};
-  $form->{co_fax}=$form->{fax} unless $form->{co_fax};
-  $form->{co_url}=$form->{urlx} unless $form->{co_url};
-  
-  
+  $form->{co_email} = $form->{email} unless $form->{co_email};
+  $form->{co_tel}   = $form->{tel}   unless $form->{co_tel};
+  $form->{co_fax}   = $form->{fax}   unless $form->{co_fax};
+  $form->{co_url}   = $form->{urlx}  unless $form->{co_url};
+
   print qq|
 	  <br>
 	  <br>
@@ -227,7 +231,7 @@ sub report {
 
     # accounting years if SQL-Ledger Version < 2.4.1
     #    $year = $form->{year} * 1;
-    @years = sort { $b <=> $a } (2003 .. ($year+1));
+    @years = sort { $b <=> $a } (2003 .. ($year + 1));
     $form->{all_years} = \@years;
   }
   map { $form->{selectaccountingyear} .= qq|<option>$_\n| }
@@ -415,7 +419,9 @@ sub report {
      <legend>
      <b>| . $locale->text('Hinweise') . qq|</b>
      </legend>
-      <h2 class="confirm">| . $locale->text('Missing Preferences: Outputroutine disabled') . qq|</h2>
+      <h2 class="confirm">|
+      . $locale->text('Missing Preferences: Outputroutine disabled')
+      . qq|</h2>
       <h3>| . $locale->text('Help:') . qq|</h3>
       <ul>
       <li>| . $locale->text('Hint-Missing-Preferences') . qq|</li>
@@ -482,6 +488,7 @@ sub report {
 
 sub help {
   $lxdebug->enter_sub();
+
   # parse help documents under doc
   my $tmp = $form->{templates};
   $form->{templates} = 'doc';
@@ -496,6 +503,7 @@ sub help {
 
 sub show {
   $lxdebug->enter_sub();
+
   #&generate_ustva();
   no strict 'refs';
   $lxdebug->leave_sub();
@@ -505,6 +513,7 @@ sub show {
 
 sub ustva_vorauswahl {
   $lxdebug->enter_sub();
+
   #Aktuelles Datum zerlegen:
   my $date = $form->datetonum($form->current_date(\%myconfig), \%myconfig);
 
@@ -517,7 +526,7 @@ sub ustva_vorauswahl {
     Actual year from Database: $form->{year}\n
     Actual day from Database: $form->{day}\n
     Actual month from Database: $form->{month}\n|);
-  
+
   my $sel    = '';
   my $yymmdd = '';
 
@@ -552,15 +561,14 @@ sub ustva_vorauswahl {
                  '10' => 'October',
                  '11' => 'November',
                  '12' => 'December',
-                 '13' => 'Yearly',
-                );
-       
+                 '13' => 'Yearly',);
+
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
     $yymmdd = 20060121;
     $sel    = '';
-    my $dfv = '0';    
-    
+    my $dfv = '0';
+
     # Offset für Dauerfristverlängerung
     $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
 
@@ -626,8 +634,7 @@ sub ustva_vorauswahl {
       $selected = 'selected' if ($sel eq $key);
       print qq|
          <option value="$key" $selected>|
-        . $locale->text("$liste{$key}")
-        . qq|</option>
+        . $locale->text("$liste{$key}") . qq|</option>
          
    |;
     }
@@ -636,12 +643,11 @@ sub ustva_vorauswahl {
   } elsif ($form->{FA_voranmeld} eq 'quarter') {
 
     # Vorauswahl bei quartalsweisem Voranmeldungszeitraum
-    my %liste = ( 'A' => $locale->text('1. Quarter'),
-                  'B' => $locale->text('2. Quarter'),
-                  'C' => $locale->text('3. Quarter'),
-                  'D' => $locale->text('4. Quarter'),
-                 '13' => $locale->text('Yearly'),
-                 );
+    my %liste = ('A'  => $locale->text('1. Quarter'),
+                 'B'  => $locale->text('2. Quarter'),
+                 'C'  => $locale->text('3. Quarter'),
+                 'D'  => $locale->text('4. Quarter'),
+                 '13' => $locale->text('Yearly'),);
 
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
@@ -708,19 +714,20 @@ sub ustva_vorauswahl {
                   '10' => 'October',
                   '11' => 'November',
                   '12' => 'December',
-                  '13' => 'Yearly',
-                  );
+                  '13' => 'Yearly',);
     my $key = '';
     foreach $key (sort keys %listea) {
       print qq|
-         <option value="$key">| . $locale->text("$listea{$key}"). 
-         qq|</option>\n|;
+         <option value="$key">|
+        . $locale->text("$listea{$key}")
+        . qq|</option>\n|;
     }
 
     foreach $key (sort keys %listeb) {
       print qq|
-         <option value="$key">| . $locale->text("$listeb{$key}"). 
-         qq|</option>\n|;
+         <option value="$key">|
+        . $locale->text("$listeb{$key}")
+        . qq|</option>\n|;
     }
     print qq|</select>|;
   }
@@ -773,8 +780,7 @@ sub show_options {
     $type
     $media
     <select name=format title = "|
-    . $locale->text('Ausgabeformat auswählen...')
-    . qq|">$format</select>
+    . $locale->text('Ausgabeformat auswählen...') . qq|">$format</select>
   |;
   $lxdebug->leave_sub();
 }
@@ -798,8 +804,13 @@ sub generate_ustva {
 
     #forgotten the year --> thisyear
     if ($form->{year} !~ m/^\d\d\d\d$/) {
-      $form->{year} = substr($form->datetonum($form->current_date(\%myconfig), \%myconfig),0,4);
-      $lxdebug->message(LXDebug::DEBUG1, qq|Actual year from Database: $form->{year}\n|);
+      $form->{year} = substr(
+                             $form->datetonum(
+                                    $form->current_date(\%myconfig), \%myconfig
+                             ),
+                             0, 4);
+      $lxdebug->message(LXDebug::DEBUG1,
+                        qq|Actual year from Database: $form->{year}\n|);
     }
 
     #yearly report
@@ -912,16 +923,15 @@ sub generate_ustva {
 
   # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
   USTVA->ustva(\%myconfig, \%$form);
-  
+
   # reformat Dates to dateformat
-  $form->{fromdate}= $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
-  
+  $form->{fromdate} = $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
+
   $form->{todate} = $form->current_date($myconfig) unless $form->{todate};
-  $form->{todate}= $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
+  $form->{todate} = $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
 
   $form->{period} =
     $locale->date(\%myconfig, $form->current_date(\%myconfig), 1, 0, 0);
-
 
   # if there are any dates construct a where
   if ($form->{fromdate} || $form->{todate}) {
@@ -989,27 +999,28 @@ sub generate_ustva {
     $form->{endbold} = "}";
     $form->{br}      = '\\\\';
 
-    
     my @numbers = qw(511 861 36 80 971 931 98 96 53 74
-                     85 65 66 61 62 Z67 63 64 59 69 39 83
-                     Z43 Z45 Z53 Z62 Z65);
-      
+      85 65 66 61 62 Z67 63 64 59 69 39 83
+      Z43 Z45 Z53 Z62 Z65);
+
     my $number = '';
+
     # Zahlenformatierung für Latex USTVA Formulare
-    if ($myconfig{numberformat} eq '1.000,00' or 
-         $myconfig{numberformat} eq '1000,00') {
+    if (   $myconfig{numberformat} eq '1.000,00'
+        or $myconfig{numberformat} eq '1000,00') {
       foreach $number (@numbers) {
         $form->{$number} =~ s/,/~~/g;
       }
-    }  
-    if ($myconfig{numberformat} eq '1000.00' or 
-         $myconfig{numberformat} eq '1,000.00') {
+    }
+    if (   $myconfig{numberformat} eq '1000.00'
+        or $myconfig{numberformat} eq '1,000.00') {
       foreach $number (@numbers) {
         $form->{$number} =~ s/\./~~/g;
       }
     }
-  # Formatierungen für HTML Ausgabe
-  } elsif ($form->{format} eq 'html') {
+
+    # Formatierungen für HTML Ausgabe
+      } elsif ($form->{format} eq 'html') {
     $form->{padding} = "&nbsp;&nbsp;";
     $form->{bold}    = "<b>";
     $form->{endbold} = "</b>";
@@ -1019,9 +1030,12 @@ sub generate_ustva {
   }
 
   if ($form->{format} eq 'elster') {
-    if ($form->{duetyp} eq '13'){
+    if ($form->{duetyp} eq '13') {
       $form->header;
-      USTVA::info($locale->text('Impossible to create yearly Tax Report via Winston.<br \> Not yet implemented!'));
+      USTVA::info(
+        $locale->text(
+          'Impossible to create yearly Tax Report via Winston.<br \> Not yet implemented!'
+        ));
     } else {
       &create_winston();
     }
@@ -1031,14 +1045,18 @@ sub generate_ustva {
 
     $form->{IN} = "$form->{type}";
     $form->{IN} = "$form->{help}" if ($form->{type} eq 'help');
-    $form->{IN} = 'USTE' if ($form->{duetyp} eq '13' && 
-                             $form->{format} ne 'html');
-    
-    if ($form->{IN} eq 'USTE'){
+    $form->{IN} = 'USTE'
+      if (   $form->{duetyp} eq '13'
+          && $form->{format} ne 'html');
+
+    if ($form->{IN} eq 'USTE') {
       $form->header;
-      USTVA::info($locale->text('Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!'));
+      USTVA::info(
+        $locale->text(
+          'Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!'
+        ));
     }
-    
+
     $form->{IN} .= "-$form->{year}"
       if (   $form->{format} eq 'pdf'
           or $form->{format} eq 'postscript');
@@ -1058,6 +1076,7 @@ sub generate_ustva {
 
 sub edit {
   $lxdebug->enter_sub();
+
   # edit all taxauthority prefs
 
   $form->header;
@@ -1080,16 +1099,14 @@ sub edit {
      <table width=100%>
 	<tr>
 	  <th class="listtop">|
-    . $locale->text('Finanzamt - Einstellungen')
-    . qq|</th>
+    . $locale->text('Finanzamt - Einstellungen') . qq|</th>
 	</tr>
         <tr>
          <td>
            <br>
            <fieldset>
            <legend><b>|
-    . $locale->text('Angaben zum Finanzamt')
-    . qq|</b></legend>
+    . $locale->text('Angaben zum Finanzamt') . qq|</b></legend>
   |;
 
   #print qq|$form->{terminal}|;
@@ -1139,8 +1156,7 @@ sub edit {
   print qq|
            <input name="FA_dauerfrist" id=FA_dauerfrist class=checkbox type=checkbox value="1" $checked>
            <label for="">|
-    . $locale->text('Dauerfristverlängerung')
-    . qq|</label>
+    . $locale->text('Dauerfristverlängerung') . qq|</label>
            
            </fieldset>
            <br>
@@ -1193,8 +1209,7 @@ sub edit {
            <br>
            <hr>
            <!--<input type=submit class=submit name=action value="|
-    . $locale->text('debug')
-    . qq|">-->
+    . $locale->text('debug') . qq|">-->
            |;
   print qq|
            <input type="button" name="Verweis" value="|
@@ -1263,22 +1278,19 @@ sub edit_form {
     if ($form->{saved} eq $locale->text('saved'));
 
   # Auf Übergabefehler checken
-  USTVA::info(
-    $locale->text('Missing Tax Authoritys Preferences') . "\n" . 
-    $locale->text('USTVA-Hint: Tax Authoritys'))
+  USTVA::info(  $locale->text('Missing Tax Authoritys Preferences') . "\n"
+              . $locale->text('USTVA-Hint: Tax Authoritys'))
     if (   $form->{elsterFFFF_new} eq 'Auswahl'
         || $form->{elsterland_new} eq 'Auswahl');
-  USTVA::info(
-    $locale->text('Missing Method!') . "\n" . 
-    $locale->text('USTVA-Hint: Method'))
+  USTVA::info(  $locale->text('Missing Method!') . "\n"
+              . $locale->text('USTVA-Hint: Method'))
     if ($form->{method} eq '');
 
   # Klären, ob Variablen bereits befüllt sind UND ob veräderungen auf
   # der vorherigen Maske stattfanden: $change = 1(in der edit sub,
   # mittels get_config)
 
-  my $change =
-       $form->{elsterland} eq $form->{elsterland_new}
+  my $change = $form->{elsterland} eq $form->{elsterland_new}
     && $form->{elsterFFFF} eq $form->{elsterFFFF_new} ? '0' : '1';
   $change = '0' if ($form->{saved} eq $locale->text('saved'));
   my $elster_init = &elster_hash();
@@ -1339,8 +1351,7 @@ sub edit_form {
    <table width="100%">
        <tr>
         <th colspan="2" class="listtop">|
-    . $locale->text('Finanzamt - Einstellungen')
-    . qq|</th>
+    . $locale->text('Finanzamt - Einstellungen') . qq|</th>
        </tr>
        <tr>
          <td colspan=2>
@@ -1579,8 +1590,7 @@ sub show_fa_daten {
                <fieldset>
                <legend>
                <font size="+1">|
-    . $locale->text('Finanzamt')
-    . qq| $form->{FA_Name}</font>
+    . $locale->text('Finanzamt') . qq| $form->{FA_Name}</font>
                </legend>
   |;
 
@@ -1942,6 +1952,7 @@ Content-Disposition: attachment; filename="$elsterfile"\n\n|;
 
 sub continue {
   $lxdebug->enter_sub();
+
   # allow Symbolic references just here:
   no strict 'refs';
   &{ $form->{nextsub} };
@@ -1949,9 +1960,9 @@ sub continue {
   $lxdebug->leave_sub();
 }
 
-sub back { 
+sub back {
   $lxdebug->enter_sub();
-  &{ $form->{lastsub} }; 
+  &{ $form->{lastsub} };
   $lxdebug->leave_sub();
 }
 

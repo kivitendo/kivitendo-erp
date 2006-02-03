@@ -569,7 +569,7 @@ $jsscript
     $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
     $tax =
       qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px">$tax</select></td>|;
-    $korrektur_checked = ($form->{"korrektur_$i"}?'checked':'');
+    $korrektur_checked = ($form->{"korrektur_$i"} ? 'checked' : '');
 
     print qq|
 	<tr>

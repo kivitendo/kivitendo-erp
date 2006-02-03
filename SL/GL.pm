@@ -283,9 +283,12 @@ sub all_transactions {
     $apwhere .= " AND c.gifi_accno = '$form->{gifi_accno}'";
   }
   if ($form->{category} ne 'X') {
-    $glwhere .= " AND gl.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
-    $arwhere .= " AND ar.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
-    $apwhere .= " AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+    $glwhere .=
+      " AND gl.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+    $arwhere .=
+      " AND ar.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+    $apwhere .=
+      " AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
   }
 
   if ($form->{accno}) {
@@ -344,19 +347,20 @@ sub all_transactions {
 
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
 
-     my $sortorder = join ', ', $form->sort_columns(qw(transdate reference source description accno));
-     my %ordinal = ( transdate => 6,
-                     reference => 4,
-                     source => 7,
-   		  description => 5 );
-     map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
-   
-     if ($form->{sort}) {
-         $sortorder = $form->{sort} . ",";
-     } else {
-        $sortorder = "";
-      }
-  
+  my $sortorder = join ', ',
+    $form->sort_columns(qw(transdate reference source description accno));
+  my %ordinal = (transdate   => 6,
+                 reference   => 4,
+                 source      => 7,
+                 description => 5);
+  map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
+
+  if ($form->{sort}) {
+    $sortorder = $form->{sort} . ",";
+  } else {
+    $sortorder = "";
+  }
+
   my $query =
     qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, t.taxkey AS sorttax,
                  g.description, ac.transdate, ac.source, ac.trans_id,
@@ -389,7 +393,7 @@ sub all_transactions {
 	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, sorttax DESC,oid|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-  my $trans_id = "";
+  my $trans_id  = "";
   my $trans_id2 = "";
   while (my $ref0 = $sth->fetchrow_hashref(NAME_lc)) {
     $trans_id = $ref0->{id};
@@ -398,13 +402,14 @@ sub all_transactions {
         push @{ $form->{GL} }, $ref;
         $balance = 0;
       }
-      $ref = $ref0;
+      $ref       = $ref0;
       $trans_id2 = $ref->{id};
-      
+
       # gl
       if ($ref->{type} eq "gl") {
         $ref->{module} = "gl";
       }
+
       # ap
       if ($ref->{type} eq "ap") {
         if ($ref->{invoice}) {
@@ -413,7 +418,7 @@ sub all_transactions {
           $ref->{module} = "ap";
         }
       }
-  
+
       # ar
       if ($ref->{type} eq "ar") {
         if ($ref->{invoice}) {
@@ -447,55 +452,56 @@ sub all_transactions {
         }
       }
     } else {
-      $ref2 = $ref0;
+      $ref2      = $ref0;
       $trans_id2 = $ref2->{id};
-#      if ($form->{accno} eq ''){ # flo & udo: if general report,
-                                  # then check balance
-#         while (abs($balance) >= 0.015) {
-#           my $ref2 = $sth->fetchrow_hashref(NAME_lc)
-#             || $form->error("Unbalanced ledger!");
-#     
-          $balance =
-            (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
-          if ($ref2->{amount} < 0) {
-            if ($ref2->{chart_id} > 0) {
-              if ($ref->{debit_tax_accno}{$i} ne "") {
-                $i++;
-              }
-              $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
-              $ref->{debit_tax_accno}{$i} = $ref2->{accno};
-            } else {
-              if ($ref->{debit_accno}{$k} ne "") {
-                $k++;
-              }
-              $ref->{debit}{$k}        = $ref2->{amount} * -1;
-              $ref->{debit_accno}{$k}  = $ref2->{accno};
-              $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
-            }
-          } else {
-            if ($ref2->{chart_id} > 0) {
-              if ($ref->{credit_tax_accno}{$j} ne "") {
-                $j++;
-              }
-              $ref->{credit_tax}{$j}       = $ref2->{amount};
-              $ref->{credit_tax_accno}{$j} = $ref2->{accno};
-            } else {
-              if ($ref->{credit_accno}{$l} ne "") {
-                $l++;
-              }
-              $ref->{credit}{$l}        = $ref2->{amount};
-              $ref->{credit_accno}{$l}  = $ref2->{accno};
-              $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
-            }
+
+      #      if ($form->{accno} eq ''){ # flo & udo: if general report,
+      # then check balance
+      #         while (abs($balance) >= 0.015) {
+      #           my $ref2 = $sth->fetchrow_hashref(NAME_lc)
+      #             || $form->error("Unbalanced ledger!");
+      #
+      $balance =
+        (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
+      if ($ref2->{amount} < 0) {
+        if ($ref2->{chart_id} > 0) {
+          if ($ref->{debit_tax_accno}{$i} ne "") {
+            $i++;
           }
-#         }
-#       } else {
-#         # if account-report, then calculate the Balance?!
-#         # ToDo: Calculate the Balance
-#         1;
-#       }
+          $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
+          $ref->{debit_tax_accno}{$i} = $ref2->{accno};
+        } else {
+          if ($ref->{debit_accno}{$k} ne "") {
+            $k++;
+          }
+          $ref->{debit}{$k}        = $ref2->{amount} * -1;
+          $ref->{debit_accno}{$k}  = $ref2->{accno};
+          $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
+        }
+      } else {
+        if ($ref2->{chart_id} > 0) {
+          if ($ref->{credit_tax_accno}{$j} ne "") {
+            $j++;
+          }
+          $ref->{credit_tax}{$j}       = $ref2->{amount};
+          $ref->{credit_tax_accno}{$j} = $ref2->{accno};
+        } else {
+          if ($ref->{credit_accno}{$l} ne "") {
+            $l++;
+          }
+          $ref->{credit}{$l}        = $ref2->{amount};
+          $ref->{credit_accno}{$l}  = $ref2->{accno};
+          $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
+        }
+      }
+
+      #         }
+      #       } else {
+      #         # if account-report, then calculate the Balance?!
+      #         # ToDo: Calculate the Balance
+      #         1;
+      #       }
     }
-       
 
   }
   push @{ $form->{GL} }, $ref;

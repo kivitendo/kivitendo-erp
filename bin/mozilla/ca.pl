@@ -235,8 +235,7 @@ sub list {
 	  <th align=right>| . $locale->text('Include in Report') . qq|</th>
 	  <td colspan=3>
 	  <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Subtotal')
-    . qq|</td>
+    . $locale->text('Subtotal') . qq|</td>
 	</tr>
       </table>
     </td>

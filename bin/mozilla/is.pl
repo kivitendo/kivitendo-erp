@@ -59,7 +59,7 @@ sub add {
   }
   &invoice_links;
   &prepare_invoice;
-  $form->{format} ="pdf";
+  $form->{format} = "pdf";
 
   &display_form;
 
@@ -76,7 +76,7 @@ sub edit {
     $form->error("Access Denied");
   }
   if ($form->{print_and_post}) {
-    $form->{action}     = "print";
+    $form->{action}   = "print";
     $form->{resubmit} = 1;
   }
   &invoice_links;
@@ -342,9 +342,12 @@ sub form_header {
 
     #write Trigger
     $jsscript =
-      Form->write_trigger(\%myconfig, "3", "invdate",      "BL", "trigger1",
-                                           "duedate",      "BL", "trigger2",
-                                           "deliverydate", "BL", "trigger3");
+      Form->write_trigger(\%myconfig,     "3",
+                          "invdate",      "BL",
+                          "trigger1",     "duedate",
+                          "BL",           "trigger2",
+                          "deliverydate", "BL",
+                          "trigger3");
   } else {
 
     # without JavaScript Calendar
@@ -354,8 +357,9 @@ sub form_header {
       qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
   }
   if ($form->{resubmit} && ($form->{format} eq "html")) {
-    $onload = qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
-  } elsif($form->{resubmit}) {
+    $onload =
+      qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
+  } elsif ($form->{resubmit}) {
     $onload = qq|document.invoice.submit()|;
   } else {
     $onload = "fokus()";
@@ -1083,7 +1087,7 @@ sub post {
 
   # get new invnumber in sequence if no invnumber is given or if posasnew was requested
   if (!$form->{invnumber} || $form->{postasnew}) {
-    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
+    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
   }
   if ($print_post) {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {

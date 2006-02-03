@@ -106,10 +106,10 @@ sub invoice_details {
       push(@{ $form->{description} },   qq|$form->{"description_$i"}|);
       push(@{ $form->{qty} },
            $form->format_amount($myconfig, $form->{"qty_$i"}));
-      push(@{ $form->{unit} },         qq|$form->{"unit_$i"}|);
+      push(@{ $form->{unit} },            qq|$form->{"unit_$i"}|);
       push(@{ $form->{deliverydate_oe} }, qq|$form->{"deliverydate_$i"}|);
 
-      push(@{ $form->{sellprice} }, $form->{"sellprice_$i"});
+      push(@{ $form->{sellprice} },    $form->{"sellprice_$i"});
       push(@{ $form->{ordnumber_oe} }, qq|$form->{"ordnumber_$i"}|);
       push(@{ $form->{transdate_oe} }, qq|$form->{"transdate_$i"}|);
 
@@ -139,10 +139,14 @@ sub invoice_details {
       $dec = length $dec;
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      my $i_discount = $form->round_amount($sellprice * 
-                                           $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100, $decimalplaces);
+      my $i_discount =
+        $form->round_amount(
+                            $sellprice * $form->parse_amount($myconfig,
+                                                 $form->{"discount_$i"}) / 100,
+                            $decimalplaces);
 
-      my $discount = $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
+      my $discount =
+        $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
 
       # keep a netprice as well, (sellprice - discount)
       $form->{"netprice_$i"} = $sellprice - $i_discount;
@@ -164,7 +168,7 @@ sub invoice_details {
         : " ";
       $linetotal = ($linetotal != 0) ? $linetotal : " ";
 
-      push(@{ $form->{discount} }, $discount);
+      push(@{ $form->{discount} },   $discount);
       push(@{ $form->{p_discount} }, $form->{"discount_$i"});
 
       $form->{total} += $linetotal;
@@ -803,9 +807,10 @@ sub post_invoice {
   # set values which could be empty to 0
   $form->{terms}       *= 1;
   $form->{taxincluded} *= 1;
-  my $datepaid     = ($form->{paid})         ? qq|'$form->{datepaid}'| : "NULL";
-  my $duedate      = ($form->{duedate})      ? qq|'$form->{duedate}'|  : "NULL";
-  my $deliverydate = ($form->{deliverydate}) ? qq|'$form->{deliverydate}'| : "NULL";
+  my $datepaid = ($form->{paid})    ? qq|'$form->{datepaid}'| : "NULL";
+  my $duedate  = ($form->{duedate}) ? qq|'$form->{duedate}'|  : "NULL";
+  my $deliverydate =
+    ($form->{deliverydate}) ? qq|'$form->{deliverydate}'| : "NULL";
 
   # fill in subject if there is none
   $form->{subject} = qq|$form->{label} $form->{invnumber}|

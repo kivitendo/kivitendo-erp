@@ -34,6 +34,7 @@
 
 package IC;
 use Data::Dumper;
+
 sub get_part {
   $main::lxdebug->enter_sub();
 
@@ -235,8 +236,8 @@ sub get_pricegroups {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  my $dbh = $form->dbconnect($myconfig);
-  my $i = 1;
+  my $dbh                  = $form->dbconnect($myconfig);
+  my $i                    = 1;
   my @pricegroups_not_used = ();
 
   # get pricegroups
@@ -275,7 +276,6 @@ sub get_pricegroups {
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub save {
   $main::lxdebug->enter_sub();
@@ -456,11 +456,14 @@ sub save {
   # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
     if ($form->{"price_$i"} eq "0") {
-       $form->{"price_$i"} = $form->{sellprice};
+      $form->{"price_$i"} = $form->{sellprice};
     }
-    if ((   $form->{"price_$i"} 
-        || $form->{"klass_$i"}
-        || $form->{"pricegroup_id_$i"}) and $form->{"price_$i"} != $form->{sellprice}) {
+    if (
+        (   $form->{"price_$i"}
+         || $form->{"klass_$i"}
+         || $form->{"pricegroup_id_$i"})
+        and $form->{"price_$i"} != $form->{sellprice}
+      ) {
       $klass = $form->parse_amount($myconfig, $form->{"klass_$i"});
       $price = $form->parse_amount($myconfig, $form->{"price_$i"});
       $pricegroup_id =
@@ -1041,7 +1044,8 @@ sub all_parts {
         $ordwhere .= " AND lower(oi.description) LIKE '$var'";
       }
 
-      $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+      $flds =
+        qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                  oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
 	         p.listprice, p.lastcost, p.rop, p.weight,
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
@@ -1067,7 +1071,8 @@ sub all_parts {
       }
 
       if ($form->{onorder}) {
-        $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+        $flds =
+          qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                    oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
 		   p.listprice, p.lastcost, p.rop, p.weight,
 		   p.priceupdate, p.image, p.drawing, p.microfiche,
@@ -1104,7 +1109,8 @@ sub all_parts {
         $quowhere .= " AND lower(oi.description) LIKE '$var'";
       }
 
-      $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+      $flds =
+        qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                  oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
 	         p.listprice, p.lastcost, p.rop, p.weight,
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
@@ -1130,7 +1136,8 @@ sub all_parts {
       }
 
       if ($form->{rfq}) {
-        $flds = qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+        $flds =
+          qq|p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
                    oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
 		   p.listprice, p.lastcost, p.rop, p.weight,
 		   p.priceupdate, p.image, p.drawing, p.microfiche,

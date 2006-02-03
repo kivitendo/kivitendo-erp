@@ -34,7 +34,6 @@
 
 package RP;
 
-
 sub balance_sheet {
   $main::lxdebug->enter_sub();
 
@@ -1134,6 +1133,7 @@ sub get_accounts_g {
   my @accno;
   my $accno;
   my $ref;
+
   #print $query;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -2045,8 +2045,8 @@ sub payments {
 
   my $sortorder = join ', ',
     $form->sort_columns(qw(name invnumber ordnumber transdate source));
-    $sortorder = $form->{sort} if $form->{sort};
-    
+  $sortorder = $form->{sort} if $form->{sort};
+
   # cycle through each id
   foreach my $accno (split(/ /, $form->{paymentaccounts})) {
 
@@ -2143,14 +2143,15 @@ sub bwa {
     $form->{ "$key" . "gesamtleistung" } = 0;
     $form->{ "$key" . "gesamtkosten" }   = 0;
 
-
     foreach $category (@categories) {
 
       if (defined($form->{$category}{$key})) {
         $form->{"$key$category"} =
           $form->format_amount($myconfig,
                                $form->round_amount($form->{$category}{$key}, 2
-                               ), $form->{decimalplaces}, '0');
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
     foreach $item (@gesamtleistung) {
@@ -2173,7 +2174,7 @@ sub bwa {
     $form->{ "$key" . "ergebnisvorsteuern" } =
       $form->{ "$key" . "betriebsergebnis" } -
       $form->{ "$key" . "neutraleraufwand" } +
-       $form->{ "$key" . "neutralertrag" };
+      $form->{ "$key" . "neutralertrag" };
     $form->{ "$key" . "ergebnis" } =
       $form->{ "$key" . "ergebnisvorsteuern" } + $form->{35}{$key};
 
@@ -2188,7 +2189,9 @@ sub bwa {
                                     $form->{ "$key" . "gesamtleistung" } * 100
                                  ),
                                  $form->{decimalplaces}
-                               ), $form->{decimalplaces}, '0');
+                               ),
+                               $form->{decimalplaces},
+                               '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2199,7 +2202,9 @@ sub bwa {
                                      $form->{ "$key" . "gesamtleistung" } * 100
                                  ),
                                  $form->{decimalplaces}
-                               ), $form->{decimalplaces}, '0');
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
@@ -2213,7 +2218,9 @@ sub bwa {
                                       $form->{ "$key" . "gesamtkosten" } * 100
                                    ),
                                    $form->{decimalplaces}
-                                 ), $form->{decimalplaces}, '0');
+                                 ),
+                                 $form->{decimalplaces},
+                                 '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2224,7 +2231,9 @@ sub bwa {
                                       $form->{ "$key" . "gesamtkosten" } * 100
                                    ),
                                    $form->{decimalplaces}
-                               ), $form->{decimalplaces}, '0');
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
@@ -2233,11 +2242,13 @@ sub bwa {
         if (defined($form->{$category}{$key})) {
           $form->{ "$key" . "pk" . "$category" } =
             $form->format_amount(
-                      $myconfig,
-                      $form->round_amount(
-                        ($form->{$category}{$key} / $form->{10}{$key} * 100), 
-                        $form->{decimalplaces}
-                      ), $form->{decimalplaces}, '0');
+                        $myconfig,
+                        $form->round_amount(
+                          ($form->{$category}{$key} / $form->{10}{$key} * 100),
+                          $form->{decimalplaces}
+                        ),
+                        $form->{decimalplaces},
+                        '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2248,7 +2259,9 @@ sub bwa {
                                                    $form->{10}{$key} * 100
                                                 ),
                                                 $form->{decimalplaces}
-                               ), $form->{decimalplaces}, '0');
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
@@ -2257,11 +2270,13 @@ sub bwa {
         if (defined($form->{$category}{$key})) {
           $form->{ "$key" . "auf" . "$category" } =
             $form->format_amount(
-                       $myconfig,
-                       $form->round_amount(
-                         ($form->{$category}{$key} / $form->{4}{$key} * 100), 
-                         $form->{decimalplaces}
-                       ), $form->{decimalplaces}, '0');
+                         $myconfig,
+                         $form->round_amount(
+                           ($form->{$category}{$key} / $form->{4}{$key} * 100),
+                           $form->{decimalplaces}
+                         ),
+                         $form->{decimalplaces},
+                         '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2272,16 +2287,20 @@ sub bwa {
                                                    $form->{4}{$key} * 100
                                                 ),
                                                 $form->{decimalplaces}
-                               ), $form->{decimalplaces}, '0');
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
     foreach $item (@ergebnisse) {
       $form->{ "$key" . "$item" } =
         $form->format_amount($myconfig,
-                             $form->round_amount($form->{ "$key" . "$item" }, 
-                             $form->{decimalplaces}
-                             ), $form->{decimalplaces}, '0');
+                             $form->round_amount($form->{ "$key" . "$item" },
+                                                 $form->{decimalplaces}
+                             ),
+                             $form->{decimalplaces},
+                             '0');
     }
 
   }
@@ -2301,7 +2320,7 @@ sub ustva {
   my $last_period     = 0;
   my $category        = "pos_ustva";
   my @categories_cent = qw(51r 511 86r 861 97r 971 93r 931
-                           96 66 43 45 53 62 65 67);
+    96 66 43 45 53 62 65 67);
   my @categories_euro = qw(48 51 86 91 97 93 94);
   $form->{decimalplaces} *= 1;
 
@@ -2339,7 +2358,7 @@ sub ustva {
   #   }
   #
   #    }
-  
+
   #
   # Berechnung der USTVA Formularfelder
   #
@@ -2347,8 +2366,9 @@ sub ustva {
   $form->{"86r"} = $form->{"861"};
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
+
   #$form->{"96"}  = $form->{"94"} * 0.16;
-  $form->{"43"}  =
+  $form->{"43"} =
     $form->{"51r"} + $form->{"86r"} + $form->{"97r"} + $form->{"93r"} +
     $form->{"96"};
   $form->{"45"} = $form->{"43"};
@@ -2359,12 +2379,14 @@ sub ustva {
 
   foreach $item (@categories_cent) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2), 2, '0');
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),
+                           2, '0');
   }
 
   foreach $item (@categories_euro) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0), 0, '0');
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0),
+                           0, '0');
   }
 
   $dbh->disconnect;

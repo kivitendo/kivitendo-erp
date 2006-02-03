@@ -399,7 +399,10 @@ sub display_row {
 		  <input type=hidden name="project_id_$i" value="$form->{"project_id_$i"}">
 |;
     if ($form->{type} eq 'invoice' or $form->{type} =~ /order/) {
-      my $reqdate_term = ($form->{type} eq 'invoice')?'deliverydate':'reqdate'; # invoice uses a different term for the same thing.
+      my $reqdate_term =
+        ($form->{type} eq 'invoice')
+        ? 'deliverydate'
+        : 'reqdate';    # invoice uses a different term for the same thing.
       print qq|
         <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size=11 value="$form->{"${reqdate_term}_$i"}">
 |;
@@ -441,9 +444,10 @@ sub set_pricegroup {
       $prices = '';
       $price  = 0;
       foreach $item (@{ $form->{PRICES}{$j} }) {
+
         #$price = $form->round_amount($myconfig,  $item->{price}, 5);
         #$price = $form->format_amount($myconfig, $item->{price}, 2);
-        $price = $item->{price};
+        $price         = $item->{price};
         $pricegroup_id = $item->{pricegroup_id};
         $pricegroup    = $item->{pricegroup};
 
@@ -452,10 +456,11 @@ sub set_pricegroup {
           qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
 
         $len += 1;
-#        map {
-#               $form->{"${_}_$j"} =
-#               $form->format_amount(\%myconfig, $form->{"${_}_$j"})
-#              } qw(sellprice price_new price_old);
+
+        #        map {
+        #               $form->{"${_}_$j"} =
+        #               $form->format_amount(\%myconfig, $form->{"${_}_$j"})
+        #              } qw(sellprice price_new price_old);
 
         # set new selectedpricegroup_id and prices for "Preis"
         if ($item->{selected} && ($pricegroup_id != 0)) {
@@ -771,39 +776,40 @@ sub display_form {
     &{"$form->{display_form}"};
     exit;
   }
-#   if (   $form->{print_and_post}
-#       && $form->{second_run}
-#       && ($form->{action} eq "display_form")) {
-#     for (keys %$form) { $old_form->{$_} = $form->{$_} }
-#     $old_form->{rowcount}++;
-# 
-#     #$form->{rowcount}--;
-#     #$form->{rowcount}--;
-# 
-#     $form->{print_and_post} = 0;
-# 
-#     &print_form($old_form);
-#     exit;
-#   }
-# 
-#   $form->{action}   = "";
-#   $form->{resubmit} = 0;
-# 
-#   if ($form->{print_and_post} && !$form->{second_run}) {
-#     $form->{second_run} = 1;
-#     $form->{action}     = "display_form";
-#     $form->{rowcount}--;
-#     my $rowcount = $form->{rowcount};
-# 
-#     # get pricegroups for parts
-#     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-# 
-#     # build up html code for prices_$i
-#     set_pricegroup($rowcount);
-# 
-#     $form->{resubmit} = 1;
-# 
-#   }
+
+  #   if (   $form->{print_and_post}
+  #       && $form->{second_run}
+  #       && ($form->{action} eq "display_form")) {
+  #     for (keys %$form) { $old_form->{$_} = $form->{$_} }
+  #     $old_form->{rowcount}++;
+  #
+  #     #$form->{rowcount}--;
+  #     #$form->{rowcount}--;
+  #
+  #     $form->{print_and_post} = 0;
+  #
+  #     &print_form($old_form);
+  #     exit;
+  #   }
+  #
+  #   $form->{action}   = "";
+  #   $form->{resubmit} = 0;
+  #
+  #   if ($form->{print_and_post} && !$form->{second_run}) {
+  #     $form->{second_run} = 1;
+  #     $form->{action}     = "display_form";
+  #     $form->{rowcount}--;
+  #     my $rowcount = $form->{rowcount};
+  #
+  #     # get pricegroups for parts
+  #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  #
+  #     # build up html code for prices_$i
+  #     set_pricegroup($rowcount);
+  #
+  #     $form->{resubmit} = 1;
+  #
+  #   }
   &form_header;
 
   $numrows    = ++$form->{rowcount};
@@ -1264,7 +1270,7 @@ sub print_options {
   $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
   $form->{SM}{ $form->{sendmode} } = "selected";
-  
+
   if ($form->{type} eq 'purchase_order') {
     $type = qq|<select name=formname>
 	    <option value=purchase_order $form->{PD}{purchase_order}>|
@@ -1413,7 +1419,6 @@ sub print_options {
 
 sub print {
   $lxdebug->enter_sub();
-
 
   # if this goes to the printer pass through
   if ($form->{media} eq 'printer' || $form->{media} eq 'queue') {
@@ -1585,15 +1590,15 @@ sub print_form {
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
 
-  # format global dates 
+  # format global dates
   map { $form->{$_} = $locale->date(\%myconfig, $form->{$_}, 1) }
     ("${inv}date", "${due}date", "shippingdate", "deliverydate");
 
   # format item dates
   for my $field (qw(transdate_oe deliverydate_oe)) {
-    map { 
-      $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1); 
-    } 0..$#{$form->{$field}};
+    map {
+      $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1);
+    } 0 .. $#{ $form->{$field} };
   }
 
   @a = qw(name street zipcode city country);

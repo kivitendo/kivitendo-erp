@@ -115,7 +115,7 @@ CREATE TABLE "defaults" (
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp
 );
-INSERT INTO defaults (version,audittrail) VALUES ('2.1.2', 't');
+INSERT INTO defaults (version,audittrail) VALUES ('2.2.0', 't');
 
 CREATE TABLE audittrail (
         "trans_id" int,

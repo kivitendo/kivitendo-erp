@@ -182,7 +182,6 @@ sub save {
     $query = qq|DELETE FROM shipto
                 WHERE trans_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
-    $delete_oe_id = 0;
 
   } else {
 
@@ -200,7 +199,6 @@ sub save {
                 WHERE o.ordnumber = '$uid'|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    $delete_oe_id = 1;
 
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
@@ -225,11 +223,9 @@ sub save {
   for my $i (1 .. $form->{rowcount}) {
 
     map {
-      $form->{"${_}_$i"} = $form->parse_amount($myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount($myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
-    if ($delete_oe_id) {
-      $form->{"orderitems_id_$i"} = "";
-    }
 
     if ($form->{"qty_$i"}) {
 
@@ -465,18 +461,19 @@ Message: $form->{message}\r| if $form->{message};
   return $rc;
 }
 
-# this function closes multiple orders given in $form->{ordnumber_#}. 
+# this function closes multiple orders given in $form->{ordnumber_#}.
 # use this for multiple orders that don't have to be saved back
 # single orders should use OE::save instead.
 sub close_orders {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig ,$form) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   for my $i (1 .. $form->{rowcount}) {
 
     map {
-      $form->{"${_}_$i"} = $form->parse_amount($myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount($myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
     if ($delete_oe_id) {
       $form->{"orderitems_id_$i"} = "";
@@ -492,13 +489,16 @@ sub close_orders {
         $form->parse_amount($myconfig, $form->{"sellprice_$i"});
     }
   }
+
   # get ids from $form
-  map { push @ids, $form->{"ordnumber_$_"} if $form->{"ordnumber_$_"} } (1 .. $form->{rowcount});
-  
+  map { push @ids, $form->{"ordnumber_$_"} if $form->{"ordnumber_$_"} }
+    (1 .. $form->{rowcount});
+
   my $dbh = $form->dbconnect($myconfig);
   $query = qq|UPDATE oe SET
               closed = TRUE
-              WHERE ordnumber IN (|.join(', ', map{ $dbh->quote($_) }@ids).qq|)|;
+              WHERE ordnumber IN (|
+    . join(', ', map { $dbh->quote($_) } @ids) . qq|)|;
   $dbh->do($query) || $form->dberror($query);
   $dbh->disconnect;
 
@@ -586,9 +586,12 @@ sub retrieve {
   my $query, @ids;
 
   # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
-  map { push @ids, $form->{"trans_id_$_"} if ($form->{"id_$_"} and $form->{"trans_id_$_"}) } (1 .. $form->{"rowcount"});
+  map {
+    push @ids, $form->{"trans_id_$_"}
+      if ($form->{"id_$_"} and $form->{"trans_id_$_"})
+  } (1 .. $form->{"rowcount"});
 
-  # if called in multi id mode, and still only got one id, switch back to single id 
+  # if called in multi id mode, and still only got one id, switch back to single id
   if ($form->{"rowcount"} and $#ids == 0) {
     $form->{"id"} = $ids[0];
     undef @ids;
@@ -633,15 +636,17 @@ sub retrieve {
 
   ($form->{currency}) = split /:/, $form->{currencies};
 
-  # set reqdate if this is an invoice->order conversion. If someone knows a better check to ensure 
+  # set reqdate if this is an invoice->order conversion. If someone knows a better check to ensure
   # we come from invoices, feel free.
-  $form->{reqdate} = $form->{deliverydate} if ($form->{deliverydate} and $form->{callback} =~ /action=ar_transactions/);
+  $form->{reqdate} = $form->{deliverydate}
+    if (    $form->{deliverydate}
+        and $form->{callback} =~ /action=ar_transactions/);
 
   if ($form->{id} or @ids) {
 
     # retrieve order for single id
     # NOTE: this query is intended to fetch all information only ONCE.
-    # so if any of these infos is important (or even different) for any item, 
+    # so if any of these infos is important (or even different) for any item,
     # it will be killed out and then has to be fetched from the item scope query further down
     $query = qq|SELECT o.cp_id, o.ordnumber, o.transdate, o.reqdate,
                 o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes,
@@ -653,12 +658,12 @@ sub retrieve {
 	        JOIN $form->{vc} cv ON (o.$form->{vc}_id = cv.id)
 	        LEFT JOIN employee e ON (o.employee_id = e.id)
 	        LEFT JOIN department d ON (o.department_id = d.id)
-		|. ($form->{id} 
-		   ? qq|WHERE o.id = $form->{id}| 
-                   : qq|WHERE o.id IN (|.join(', ', @ids).qq|)|
-		   );
+		|
+      . ($form->{id}
+         ? qq|WHERE o.id = $form->{id}|
+         : qq|WHERE o.id IN (| . join(', ', @ids) . qq|)|);
 
-#$main::lxdebug->message(0, $query);
+    #$main::lxdebug->message(0, $query);
 
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
@@ -672,11 +677,12 @@ sub retrieve {
     }
 
     # if not given, fill transdate with current_date
-    $form->{transdate} = $form->current_date($myconfig) unless $form->{transdate};
+    $form->{transdate} = $form->current_date($myconfig)
+      unless $form->{transdate};
 
     $sth->finish;
 
-    # shipto and pinted/mailed/queued status makes only sense for single id retrieve 
+    # shipto and pinted/mailed/queued status makes only sense for single id retrieve
     if (!@ids) {
       $query = qq|SELECT s.* FROM shipto s
                   WHERE s.trans_id = $form->{id}|;
@@ -697,11 +703,12 @@ sub retrieve {
       while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
         $form->{printed} .= "$ref->{formname} " if $ref->{printed};
         $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
-        $form->{queued} .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
+        $form->{queued} .= "$ref->{formname} $ref->{spoolfile} "
+          if $ref->{spoolfile};
       }
       $sth->finish;
       map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
-    } # if !@ids
+    }    # if !@ids
 
     my %oid = ('Pg'     => 'oid',
                'Oracle' => 'rowid');
@@ -728,24 +735,25 @@ sub retrieve {
 		LEFT JOIN chart c3 ON (p.expense_accno_id = c3.id)
 		LEFT JOIN project pr ON (o.project_id = pr.id)
 		LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-		|. ($form->{id} 
-		   ? qq|WHERE o.trans_id = $form->{id}| 
-		   : qq|WHERE o.trans_id IN (|.join(", ", @ids).qq|)| 
-		   ).qq|
+		|
+      . ($form->{id}
+         ? qq|WHERE o.trans_id = $form->{id}|
+         : qq|WHERE o.trans_id IN (| . join(", ", @ids) . qq|)|)
+      . qq|
                 ORDER BY o.$oid{$myconfig->{dbdriver}}|;
-    
+
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-     
+
       # in collective order, copy global ordnumber, transdate, cusordnumber into item scope
-      #   unless already present there 
+      #   unless already present there
       # remove _oe entries afterwards
       map { $ref->{$_} = $ref->{"${_}_oe"} if ($ref->{$_} eq '') }
-        qw|ordnumber transdate cusordnumber| if (@ids);
-      map{ delete $ref->{$_} } 
-        qw|ordnumber_oe transdate_oe cusordnumber_oe|;
+        qw|ordnumber transdate cusordnumber|
+        if (@ids);
+      map { delete $ref->{$_} } qw|ordnumber_oe transdate_oe cusordnumber_oe|;
 
       #set expense_accno=inventory_accno if they are different => bilanz
       $vendor_accno =
@@ -896,10 +904,14 @@ sub order_details {
       $dec = length $dec;
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      my $i_discount = $form->round_amount($sellprice *
-                                           $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100, $decimalplaces);
+      my $i_discount =
+        $form->round_amount(
+                            $sellprice * $form->parse_amount($myconfig,
+                                                 $form->{"discount_$i"}) / 100,
+                            $decimalplaces);
 
-      my $discount = $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
+      my $discount =
+        $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
 
       # keep a netprice as well, (sellprice - discount)
       #$form->{"netprice_$i"} = $sellprice - $discount;
@@ -922,7 +934,7 @@ sub order_details {
         : " ";
       $linetotal = ($linetotal != 0) ? $linetotal : " ";
 
-      push(@{ $form->{discount} }, $discount);
+      push(@{ $form->{discount} },   $discount);
       push(@{ $form->{p_discount} }, $form->{"discount_$i"});
 
       $form->{ordtotal} += $linetotal;
@@ -954,7 +966,7 @@ sub order_details {
         }
       }
 
-      $tax_rate = $taxrate*100;
+      $tax_rate = $taxrate * 100;
       push(@{ $form->{tax_rate} }, qq|$tax_rate|);
 
       if ($form->{"assembly_$i"}) {
