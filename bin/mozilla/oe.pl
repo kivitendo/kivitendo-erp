@@ -79,8 +79,9 @@ sub edit {
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount}) {
-    map {$id++ if $form->{"id_$_"}} (1 .. $form->{rowcount});
+    map { $id++ if $form->{"id_$_"} } (1 .. $form->{rowcount});
     if (!$id) {
+
       # reset rowcount
       undef $form->{rowcount};
       &add;
@@ -131,18 +132,24 @@ sub order_links {
   # retrieve order/quotation
   $form->{webdav} = $webdav;
 
-
   # set jscalendar
   $form->{jscalendar} = $jscalendar;
 
   OE->retrieve(\%myconfig, \%$form);
 
   # if multiple rowcounts (== collective order) then check if the
-  # there were more than one customer (in that case OE::retrieve removes 
+  # there were more than one customer (in that case OE::retrieve removes
   # the content from the field)
-  if ($form->{rowcount} && $form->{type} eq 'sales_order' && defined $form->{customer} && $form->{customer} eq '') {
-#    $main::lxdebug->message(0, "Detected Edit order with concurrent customers");
-    $form->error($locale->text('Collective Orders only work for orders from one customer!'));
+  if (   $form->{rowcount}
+      && $form->{type} eq 'sales_order'
+      && defined $form->{customer}
+      && $form->{customer} eq '') {
+
+    #    $main::lxdebug->message(0, "Detected Edit order with concurrent customers");
+    $form->error(
+                 $locale->text(
+                   'Collective Orders only work for orders from one customer!')
+    );
   }
 
   $taxincluded = $form->{taxincluded};
@@ -221,40 +228,42 @@ sub prepare_order {
   $form->{media}    = "screen";
   $form->{formname} = $form->{type};
 
-    map { $form->{$_} =~ s/\"/&quot;/g }
-      qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
+  map { $form->{$_} =~ s/\"/&quot;/g }
+    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
 
-    foreach $ref (@{ $form->{form_details} }) {
-      $form->{rowcount} = ++$i;
+  foreach $ref (@{ $form->{form_details} }) {
+    $form->{rowcount} = ++$i;
 
-      map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
+    map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
+  }
+  for my $i (1 .. $form->{rowcount}) {
+    if ($form->{id}) {
+      $form->{"discount_$i"} =
+        $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
+    } else {
+      $form->{"discount_$i"} =
+        $form->format_amount(\%myconfig, $form->{"discount_$i"});
     }
-    for my $i (1 .. $form->{rowcount}) {
-      if ($form->{id}) {
-        $form->{"discount_$i"} =
-          $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-      } else {
-        $form->{"discount_$i"} =
-          $form->format_amount(\%myconfig, $form->{"discount_$i"});
-      }
-      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);    
-      $dec           = length $dec;
-      $decimalplaces = ($dec > 2) ? $dec : 2;
+    ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+    $dec           = length $dec;
+    $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      # copy reqdate from deliverydate for invoice -> order conversion
-      $form->{"reqdate_$i"} = $form->{"deliverydate_$i"} unless $form->{"reqdate_$i"};
+    # copy reqdate from deliverydate for invoice -> order conversion
+    $form->{"reqdate_$i"} = $form->{"deliverydate_$i"}
+      unless $form->{"reqdate_$i"};
 
-      $form->{"sellprice_$i"} =
-        $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                            $decimalplaces);
-      
-      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
-      $dec_qty      = length $dec_qty;
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+    $form->{"sellprice_$i"} =
+      $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
+                           $decimalplaces);
 
-      map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-        qw(partnumber description unit);
-    }
+    (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+    $dec_qty = length $dec_qty;
+    $form->{"qty_$i"} =
+      $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+
+    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
+      qw(partnumber description unit);
+  }
 
   $lxdebug->leave_sub();
 }
@@ -883,7 +892,6 @@ Bearbeiten des $form->{heading}<br>
       . $locale->text('Invoice') . qq|">
 |;
   }
-  
 
   if ($form->{menubar}) {
     require "$form->{path}/menu.pl";
@@ -983,6 +991,7 @@ sub update {
         } else {
 
           $form->{"sellprice_$i"} *= (1 - $form->{tradediscount});
+
           # if there is an exchange rate adjust sellprice
           $form->{"sellprice_$i"} /= $exchangerate;
         }
@@ -1035,7 +1044,6 @@ sub update {
       }
     }
   }
-
 
   $lxdebug->leave_sub();
 }
@@ -1515,7 +1523,8 @@ sub orders {
     $subtotalnetamount += $oe->{netamount};
     $subtotalamount    += $oe->{amount};
 
-    $column_data{ids}    = qq|<td><input name="id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
+    $column_data{ids} =
+      qq|<td><input name="id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
     $column_data{id}        = "<td>$oe->{id}</td>";
     $column_data{transdate} = "<td>$oe->{transdate}&nbsp;</td>";
     $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
@@ -1581,13 +1590,13 @@ sub orders {
   </tr>
 </table>|;
 
-# multiple invoice edit button only if gotten there via sales_order form.
+  # multiple invoice edit button only if gotten there via sales_order form.
 
-if ($form->{type} =~ /sales_order/) {
-print qq|
+  if ($form->{type} =~ /sales_order/) {
+    print qq|
   <input type="hidden" name="path" value="$form->{path}">
   <input class"submit" type="submit" name="action" value="|
-. $locale->text('Continue') .qq|">
+      . $locale->text('Continue') . qq|">
   <input type="hidden" name="nextsub" value="edit">
   <input type="hidden" name="type" value="$form->{type}">
   <input type="hidden" name="warehouse" value="$warehouse">
@@ -1596,9 +1605,9 @@ print qq|
   <input type="hidden" name="password" value="$form->{password}">
   <input type="hidden" name="callback" value="$callback">
   <input type="hidden" name="rowcount" value="$form->{rowcount}">|;
-}
+  }
 
-print qq|
+  print qq|
 </form>
 
 <br>
@@ -1804,10 +1813,15 @@ sub invoice {
   $lxdebug->enter_sub();
 
   if ($form->{type} =~ /_order$/) {
+
     # these checks only apply if the items don't bring their own ordnumbers/transdates.
     # The if clause ensures that by searching for empty ordnumber_#/transdate_# fields.
-    $form->isblank("ordnumber", $locale->text('Order Number missing!')) if ( +{ map { $form->{"ordnumber_$_"}, 1 } ( 1 .. $form->{rowcount}-1 ) }->{''} );
-    $form->isblank("transdate", $locale->text('Order Date missing!'))   if ( +{ map { $form->{"transdate_$_"}, 1 } ( 1 .. $form->{rowcount}-1 ) }->{''} );
+    $form->isblank("ordnumber", $locale->text('Order Number missing!'))
+      if (+{ map { $form->{"ordnumber_$_"}, 1 } (1 .. $form->{rowcount} - 1) }
+          ->{''});
+    $form->isblank("transdate", $locale->text('Order Date missing!'))
+      if (+{ map { $form->{"transdate_$_"}, 1 } (1 .. $form->{rowcount} - 1) }
+          ->{''});
 
     # also copy deliverydate from the order
     $form->{deliverydate} = $form->{reqdate} if $form->{reqdate};
@@ -1846,7 +1860,7 @@ sub invoice {
   # close orders/quotations
   $form->{closed} = 1;
 
-  # save order if one ordnumber has been given 
+  # save order if one ordnumber has been given
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
   if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
@@ -1927,15 +1941,17 @@ sub invoice {
     $decimalplaces = ($dec > 2) ? $dec : 2;
 
     # copy delivery date from reqdate for order -> invoice conversion
-    $form->{"deliverydate_$i"} = $form->{"reqdate_$i"} unless $form->{"deliverydate_$i"};
+    $form->{"deliverydate_$i"} = $form->{"reqdate_$i"}
+      unless $form->{"deliverydate_$i"};
 
     $form->{"sellprice_$i"} =
       $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                            $decimalplaces);
-    
+
     (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
-      $dec_qty      = length $dec_qty;
-    $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+    $dec_qty = length $dec_qty;
+    $form->{"qty_$i"} =
+      $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
       qw(partnumber description unit);

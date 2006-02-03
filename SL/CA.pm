@@ -164,7 +164,7 @@ sub all_transactions {
     $where .= $fromto;
     $AR_PAID = "";
     $AP_PAID = "";
-    $glwhere = ""; # note! gl will be aliased as "a" later...
+    $glwhere = "";    # note! gl will be aliased as "a" later...
   }
   my $sortorder = join ', ',
     $form->sort_columns(qw(transdate reference description));
@@ -323,14 +323,14 @@ sub all_transactions {
 
   foreach my $id (@id) {
 
-      # NOTE: 
-      #  Postgres is really picky about the order of implicit CROSS JOINs with ','
-      #  if you alias the  tables and want to use the alias later in another JOIN.
-      #  the alias you want to use has to be the most recent in the list, otherwise
-      #  Postgres will overwrite the alias internally and complain.
-      #  For this reason, in the next 3 SELECTs, the 'a' alias is last in the list.
-      #  Don't change this, and if you do, substitute the ',' with CROSS JOIN
-      #  ... that also works.
+    # NOTE:
+    #  Postgres is really picky about the order of implicit CROSS JOINs with ','
+    #  if you alias the  tables and want to use the alias later in another JOIN.
+    #  the alias you want to use has to be the most recent in the list, otherwise
+    #  Postgres will overwrite the alias internally and complain.
+    #  For this reason, in the next 3 SELECTs, the 'a' alias is last in the list.
+    #  Don't change this, and if you do, substitute the ',' with CROSS JOIN
+    #  ... that also works.
 
     # get all transactions
     $query .= qq|$union

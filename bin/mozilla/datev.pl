@@ -81,8 +81,7 @@ sub export {
 	</tr>
 	<tr>
 	  <td><input checked name=kne type=checkbox class=checkbox value=1> |
-    . $locale->text("Kontonummernerweiterung (KNE)")
-    . qq|</td>
+    . $locale->text("Kontonummernerweiterung (KNE)") . qq|</td>
           <td></td>
 
 	  <td align=left nowrap>| . $locale->text("Abrechnungsnummer") . qq|</td>
@@ -90,13 +89,11 @@ sub export {
 	</tr>
         <tr>
           <td><input name=exporttype type=radio class=radio value=0 checked> |
-    . $locale->text("Export Buchungsdaten")
-    . qq|</td>
+    . $locale->text("Export Buchungsdaten") . qq|</td>
           <td></td>
 
 	  <td><input name=exporttype type=radio class=radio value=1> |
-    . $locale->text("Export Stammdaten")
-    . qq|</td>
+    . $locale->text("Export Stammdaten") . qq|</td>
           <td></td>
 	</td>
       </table>
@@ -145,38 +142,27 @@ sub export_bewegungsdaten {
     . $locale->text('January')
     . qq|</option>
                          <option value=2>|
-    . $locale->text('February')
-    . qq|</option>
+    . $locale->text('February') . qq|</option>
                          <option value=3>|
-    . $locale->text('March')
-    . qq|</option>
+    . $locale->text('March') . qq|</option>
                          <option value=4>|
-    . $locale->text('April')
-    . qq|</option>
+    . $locale->text('April') . qq|</option>
                          <option value=5>|
-    . $locale->text('May')
-    . qq|</option>
+    . $locale->text('May') . qq|</option>
                          <option value=6>|
-    . $locale->text('June')
-    . qq|</option>
+    . $locale->text('June') . qq|</option>
                          <option value=7>|
-    . $locale->text('July')
-    . qq|</option>
+    . $locale->text('July') . qq|</option>
                          <option value=8>|
-    . $locale->text('August')
-    . qq|</option>
+    . $locale->text('August') . qq|</option>
                          <option value=9>|
-    . $locale->text('September')
-    . qq|</option>
+    . $locale->text('September') . qq|</option>
                          <option value=10>|
-    . $locale->text('October')
-    . qq|</option>
+    . $locale->text('October') . qq|</option>
                          <option value=11>|
-    . $locale->text('November')
-    . qq|</option>
+    . $locale->text('November') . qq|</option>
                          <option value=12>|
-    . $locale->text('December')
-    . qq|</option>|;
+    . $locale->text('December') . qq|</option>|;
 
   $form->{allequartale} =
       qq|<option selected value=1>|
@@ -184,11 +170,9 @@ sub export_bewegungsdaten {
     . qq|</option>
                          <option value=2>| . $locale->text('II') . qq|</option>
                          <option value=3>|
-    . $locale->text('III')
-    . qq|</option>
+    . $locale->text('III') . qq|</option>
                          <option value=4>|
-    . $locale->text('IV')
-    . qq|</option>|;
+    . $locale->text('IV') . qq|</option>|;
   $form->header;
 
   print qq|
@@ -210,24 +194,21 @@ sub export_bewegungsdaten {
       <table>
 	<tr>
           <td align=left><input checked name=zeitraum class=radio type=radio value=monat>&nbsp;</td><td align=left>|
-    . $locale->text('Monat')
-    . qq|</td>
+    . $locale->text('Monat') . qq|</td>
           <td align=left></td>
 	  <td align=left></td>
           <td align=left><select name=monat>$form->{allemonate}</select></td>
         </tr>
         <tr>
           <td align=left><input name=zeitraum class=radio type=radio value=quartal>&nbsp;</td><td align=left>|
-    . $locale->text('Quartal')
-    . qq|</td>
+    . $locale->text('Quartal') . qq|</td>
 	  <td align=left></td>
           <td align=left></td>
           <td align=left><select name=quartal>$form->{allequartale}</select></td>
         </tr>
         <tr>
           <td align=left><input name=zeitraum class=radio type=radio value=zeit>&nbsp;</td><td align=left>|
-    . $locale->text('Datum von')
-    . qq|</td>
+    . $locale->text('Datum von') . qq|</td>
           <td align=left><input name=transdatefrom size=8></td>
 	  <td align=left>| . $locale->text('bis') . qq|</td>
           <td align=left><input name=transdateto size=8></td>

@@ -620,15 +620,17 @@ sub generate_report {
         </tr>
 |;
   }
-   $form->{balance} *= $ml;
+  $form->{balance} *= $ml;
   foreach $ref (@{ $form->{GL} }) {
     $form->{balance} *= $ml;
+
     # if item ne sort print subtotal
     if ($form->{l_subtotal} eq 'Y') {
       if ($sameitem ne $ref->{ $form->{sort} }) {
         &gl_subtotal;
       }
     }
+
     #foreach $key (sort keys(%{ $ref->{amount} })) {
     #  $form->{balance} += $ref->{amount}{$key};
     #}
@@ -656,7 +658,7 @@ sub generate_report {
         $credit .= "<br>"
           . $form->format_amount(\%myconfig, $ref->{credit}{$key}, 2, 0);
       }
-      $form->{balance} = abs($form->{balance}) - abs( $ref->{credit}{$key});
+      $form->{balance} = abs($form->{balance}) - abs($ref->{credit}{$key});
     }
 
     $debittax = "";
@@ -698,9 +700,10 @@ sub generate_report {
         $debitaccno .=
           "<br><a href=$href&accno=$ref->{debit_accno}{$key}&callback=$callback>$ref->{debit_accno}{$key}</a>";
       }
-#       if ($ref->{debit_taxkey}{$key} eq $debittaxkey) {
-#         $ref->{debit_tax_accno}{$key} = $taxaccno;
-#       }
+
+      #       if ($ref->{debit_taxkey}{$key} eq $debittaxkey) {
+      #         $ref->{debit_tax_accno}{$key} = $taxaccno;
+      #       }
       $taxaccno    = $ref->{debit_tax_accno}{$key};
       $debittaxkey = $ref->{debit_taxkey}{$key};
     }
@@ -716,9 +719,10 @@ sub generate_report {
         $creditaccno .=
           "<br><a href=$href&accno=$ref->{credit_accno}{$key}&callback=$callback>$ref->{credit_accno}{$key}</a>";
       }
-#       if ($ref->{credit_taxkey}{$key} eq $credittaxkey) {
-#         $ref->{credit_tax_accno}{$key} = $taxaccno;
-#       }
+
+      #       if ($ref->{credit_taxkey}{$key} eq $credittaxkey) {
+      #         $ref->{credit_tax_accno}{$key} = $taxaccno;
+      #       }
       $taxaccno     = $ref->{credit_tax_accno}{$key};
       $credittaxkey = $ref->{credit_taxkey}{$key};
     }
@@ -776,9 +780,8 @@ sub generate_report {
     $column_data{gifi_accno}       =
       "<td><a href=$href&gifi_accno=$ref->{gifi_accno}&callback=$callback>$ref->{gifi_accno}</a>&nbsp;</td>";
     $column_data{balance} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $form->{balance}, 2, 0)
-      . "</td>";
+      "<td align=right>"
+      . $form->format_amount(\%myconfig, $form->{balance}, 2, 0) . "</td>";
 
     $i++;
     $i %= 2;
@@ -1052,13 +1055,14 @@ sub display_rows {
       <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:200px" tabindex=|
         . ($i + 5 + (($i - 1) * 8)) . qq|>$form->{chartinit}</select></td>|;
       $tax =
-          qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px" tabindex=|
+        qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px" tabindex=|
         . ($i + 10 + (($i - 1) * 8))
         . qq|>$form->{taxchart}</select></td>|;
-#       if ($form->{selectprojectnumber}) {
-#         $project = qq|
-#     <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
-#       }
+
+      #       if ($form->{selectprojectnumber}) {
+      #         $project = qq|
+      #     <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
+      #       }
       $korrektur =
         qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
         . ($i + 9 + (($i - 1) * 8))
@@ -1107,14 +1111,14 @@ sub display_rows {
           . ($i + 10 + (($i - 1) * 8))
           . qq|>$tax</select></td>|;
 
-#         if ($form->{selectprojectnumber}) {
-#           $form->{"projectnumber_$i"} = ""
-#             if $form->{selectprojectnumber} !~ /$form->{"projectnumber_$i"}/;
-# 
-#           $project = $form->{"projectnumber_$i"};
-#           $project =~ s/--.*//;
-#           $project = qq|<td>$project</td>|;
-#         }
+        #         if ($form->{selectprojectnumber}) {
+        #           $form->{"projectnumber_$i"} = ""
+        #             if $form->{selectprojectnumber} !~ /$form->{"projectnumber_$i"}/;
+        #
+        #           $project = $form->{"projectnumber_$i"};
+        #           $project =~ s/--.*//;
+        #           $project = qq|<td>$project</td>|;
+        #         }
 
         if ($form->{transfer}) {
           $checked = ($form->{"fx_transaction_$i"}) ? "1" : "";
@@ -1138,10 +1142,11 @@ sub display_rows {
         $tax = qq|
       <td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
           . ($i + 10 + (($i - 1) * 8)) . qq|>$taxchart</select></td>|;
-#         if ($form->{selectprojectnumber}) {
-#           $project = qq|
-#       <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
-#         }
+
+        #         if ($form->{selectprojectnumber}) {
+        #           $project = qq|
+        #       <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
+        #         }
         $korrektur =
           qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
           . ($i + 9 + (($i - 1) * 8))
@@ -1182,9 +1187,10 @@ sub display_rows {
   }
 
   $form->hide_form(qw(rowcount selectaccno));
-#   print qq|
-# <input type=hidden name=selectprojectnumber value="|
-#     . $form->escape($form->{selectprojectnumber}, 1) . qq|">|;
+
+  #   print qq|
+  # <input type=hidden name=selectprojectnumber value="|
+  #     . $form->escape($form->{selectprojectnumber}, 1) . qq|">|;
   $lxdebug->leave_sub();
 
 }
@@ -1546,9 +1552,9 @@ sub post {
       unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
         if ($form->{"debit_$i"} ne "") {
           $form->{"credit_$i"} = $form->{"debit_$i"};
-          $form->{"debit_$i"} = "";
+          $form->{"debit_$i"}  = "";
         } elsif ($form->{"credit_$i"} ne "") {
-          $form->{"debit_$i"} = $form->{"credit_$i"};
+          $form->{"debit_$i"}  = $form->{"credit_$i"};
           $form->{"credit_$i"} = "";
         }
       }

@@ -87,8 +87,7 @@ sub print_part_selection {
 <table width=100%>
   <tr>
     <th class=listtop colspan=5>|
-      . $locale->text('Select from one of the items below')
-      . qq|</th>
+      . $locale->text('Select from one of the items below') . qq|</th>
   </tr>
   <tr height="5"></tr>
   <tr class=listheading>
@@ -111,13 +110,9 @@ sub print_part_selection {
       qq|<tr class=listrow$j>
       <td><input name=ndx class=radio type=radio value=$i $checked></td>
       <td><input name=\"new_partnumber_$i\" type=hidden value=\"|
-        . $p{"partnumber"} . qq|\">|
-        . $p{"partnumber"}
-        . qq|</td>
+        . $p{"partnumber"} . qq|\">| . $p{"partnumber"} . qq|</td>
       <td><input name=\"new_description_$i\" type=hidden value=\"|
-        . $p{"description"} . qq|\">|
-        . $p{"description"}
-        . qq|</td>
+        . $p{"description"} . qq|\">| . $p{"description"} . qq|</td>
       <input name=\"new_parts_id_$i\" type=hidden value=\"| . $p{"id"} . qq|\">
     </tr>|);
 
@@ -145,8 +140,7 @@ sub print_customer_selection {
 <table width=100%>
   <tr>
     <th class=listtop colspan=5>|
-      . $locale->text('Select from one of the names below')
-      . qq|</th>
+      . $locale->text('Select from one of the names below') . qq|</th>
   </tr>
   <tr height="5"></tr>
   <tr class=listheading>
@@ -174,11 +168,9 @@ sub print_customer_selection {
       qq|<tr class=listrow$j>
           <td><input name=ndx class=radio type=radio value=$i $checked></td>
           <td><input name=\"new_customer_id_$i\" type=hidden value=\"|
-        . $c{"id"}
-        . qq|\">$c{"customernumber"}</td>
+        . $c{"id"} . qq|\">$c{"customernumber"}</td>
           <td><input name=\"new_customer_name_$i\" type=hidden value=\"|
-        . $c{"name"}
-        . qq|\">$c{"name"}</td>
+        . $c{"name"} . qq|\">$c{"name"}</td>
           <td>$c{"street"}</td>
           <td>$c{"zipcode"}</td>
           <td>$c{"city"}</td>
@@ -211,14 +203,12 @@ sub print_license_form {
       <tr>
         <th align=right>| . $locale->text('Part Number') . qq|</th>
         <td><input name=partnumber value=\"|
-      . quot($form->{"partnumber"})
-      . qq|\"></td>
+      . quot($form->{"partnumber"}) . qq|\"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('Description') . qq|</th>
         <td><input name=description value=\"|
-      . quot($form->{"description"})
-      . qq|\"></td>
+      . quot($form->{"description"}) . qq|\"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('Company Name') . qq|</th>|);
@@ -242,26 +232,22 @@ sub print_license_form {
       <tr>
         <th align=right>| . $locale->text('Comment') . qq|</th>
         <td><input name=comment value=\"|
-      . quot($form->{"comment"})
-      . qq|\"></td>
+      . quot($form->{"comment"}) . qq|\"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('Valid until') . qq|</th>
         <td><input name=validuntil value=\"|
-      . quot($form->{"validuntil"})
-      . qq|\"></td>
+      . quot($form->{"validuntil"}) . qq|\"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('Quantity') . qq|</th>
         <td><input name=quantity value=\"|
-      . quot($form->{"quantity"})
-      . qq|\"></td>
+      . quot($form->{"quantity"}) . qq|\"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('License key') . qq|</th>
         <td><input name=licensenumber value=\"|
-      . quot($form->{"licensenumber"})
-      . qq|\"></td>
+      . quot($form->{"licensenumber"}) . qq|\"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('Own Product') . qq|</th>
@@ -276,8 +262,7 @@ sub print_license_form {
     print(
       qq|&nbsp;
           <input type=submit name=action value=\"|
-        . $locale->text('Save')
-        . qq|\">\n|);
+        . $locale->text('Save') . qq|\">\n|);
   }
   print(
     qq|
@@ -291,7 +276,8 @@ sub add {
   $lxdebug->enter_sub();
   if (!$lizenzen) {
     $form->error(
-                 $locale->text('The licensing module has been deactivated in lx-erp.conf.')
+                 $locale->text(
+                   'The licensing module has been deactivated in lx-erp.conf.')
     );
   }
 
@@ -487,8 +473,7 @@ sub search {
       . $locale->text('Expiring in x month(s)')
       . qq|&nbsp;<input size=4 name=expiring_in value="1"><br>
         <input type=checkbox name=show_expired value=1>|
-      . $locale->text('Expired licenses')
-      . qq|</td>
+      . $locale->text('Expired licenses') . qq|</td>
       </tr>
     </table>
   </tr>
@@ -542,7 +527,8 @@ sub do_search {
         |);
   if (scalar(@{ $form->{"licenses"} }) == 0) {
     print(qq|</table>|
-            . $locale->text("No licenses were found that match the search criteria.")
+            . $locale->text(
+                      "No licenses were found that match the search criteria.")
             . qq|</body></html>|);
     exit(0);
   }
@@ -561,9 +547,7 @@ sub do_search {
       . $locale->text('Description')
       . qq|</a></th>
         <th class=listtop><a class=listheading href=\"|
-      . $columns{"name"} . "\">"
-      . $locale->text('Company Name')
-      . qq|</a></th>
+      . $columns{"name"} . "\">" . $locale->text('Company Name') . qq|</a></th>
         <th class=listtop><a class=listheading href=\"|
       . $columns{"validuntil"} . "\">"
       . $locale->text('Valid until')

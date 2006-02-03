@@ -215,7 +215,8 @@ sub fa_auswahl {
       $elster_land_fa{$FFFF} = $elster_init->{$elster_land}->{$FFFF}->[0];
     }
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
-                   keys(%elster_land_fa)) {
+                   keys(%elster_land_fa)
+      ) {
       print qq|
                    elsterFAAuswahl.options[$j] = new Option("$elster_land_fa{$ffff} ($ffff)","$ffff");|;
       $j++;
@@ -268,7 +269,8 @@ sub fa_auswahl {
     print qq|<option value="Auswahl" $checked>hier auswählen...</option>|;
   } else {
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
-                   keys(%elster_land_fa)) {
+                   keys(%elster_land_fa)
+      ) {
 
       print qq|
                         <option value="$ffff"|;
@@ -556,7 +558,6 @@ sub process_query {
   $main::lxdebug->leave_sub();
 }
 
-
 sub ustva {
   $main::lxdebug->enter_sub();
 
@@ -567,12 +568,12 @@ sub ustva {
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
-  my @categories_cent = qw(511 861 36 80 971 931 98 96 53 74 
-                           85 65 66 61 62 67 63 64 59 69 39 83 
-                           Z43 Z45 Z53 Z62 Z65 Z67);
-                           
-  my @categories_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93 
-                           95 94 42 60 45 52 73 84);
+  my @categories_cent = qw(511 861 36 80 971 931 98 96 53 74
+    85 65 66 61 62 67 63 64 59 69 39 83
+    Z43 Z45 Z53 Z62 Z65 Z67);
+
+  my @categories_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93
+    95 94 42 60 45 52 73 84);
 
   $form->{decimalplaces} *= 1;
 
@@ -583,10 +584,8 @@ sub ustva {
     $form->{"$item"} = 0;
   }
 
-
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
-                  $form, $category);
-
+                      $form, $category);
 
   #
   # Berechnung der USTVA Formularfelder
@@ -595,27 +594,27 @@ sub ustva {
   $form->{"86r"} = $form->{"861"};
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
-  $form->{"Z43"} = $form->{"511"}+ $form->{"861"} + 
-                   $form->{"36"} + $form->{"80"}  +
-                   $form->{"971"}+ $form->{"931"} + 
-                   $form->{"96"} + $form->{"98"};
+  $form->{"Z43"} =
+    $form->{"511"} + $form->{"861"} + $form->{"36"} + $form->{"80"} +
+    $form->{"971"} + $form->{"931"} + $form->{"96"} + $form->{"98"};
   $form->{"Z45"} = $form->{"Z43"};
   $form->{"Z53"} = $form->{"Z43"};
-  $form->{"Z62"} = $form->{"Z43"}- $form->{"66"} -
-                   $form->{"61"} - $form->{"62"} -
-                   $form->{"63"} - $form->{"64"} -
-                   $form->{"59"};
-  $form->{"Z65"} = $form->{"Z62"}- $form->{"69"};
-  $form->{"83"}  = $form->{"Z65"}- $form->{"39"};
-  
+  $form->{"Z62"} =
+    $form->{"Z43"} - $form->{"66"} - $form->{"61"} - $form->{"62"} -
+    $form->{"63"} - $form->{"64"} - $form->{"59"};
+  $form->{"Z65"} = $form->{"Z62"} - $form->{"69"};
+  $form->{"83"}  = $form->{"Z65"} - $form->{"39"};
+
   foreach $item (@categories_cent) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2), 2, '0');
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),
+                           2, '0');
   }
 
   foreach $item (@categories_euro) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0), 0, '0');
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0),
+                           0, '0');
   }
 
   $dbh->disconnect;
@@ -637,8 +636,8 @@ sub get_accounts_ustva {
   my $where    = "1 = 1";
   my $glwhere  = "";
   my $subwhere = "";
-  my $ARwhere = "";
-  my $arwhere = "";
+  my $ARwhere  = "";
+  my $arwhere  = "";
   my $item;
 
   if ($fromdate) {
@@ -652,7 +651,7 @@ sub get_accounts_ustva {
 
   if ($todate) {
     $where    .= " AND ac.transdate <= '$todate'";
-    $ARwhere    .= " AND acc.transdate <= '$todate'";
+    $ARwhere  .= " AND acc.transdate <= '$todate'";
     $subwhere .= " AND transdate <= '$todate'";
   }
 
@@ -861,6 +860,7 @@ sub get_accounts_ustva {
   my @accno;
   my $accno;
   my $ref;
+
   #print $query;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -883,6 +883,5 @@ sub get_accounts_ustva {
 
   $main::lxdebug->leave_sub();
 }
-
 
 1;

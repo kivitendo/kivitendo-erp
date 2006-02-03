@@ -83,9 +83,10 @@ sub post_transaction {
 
   $form->{amount} = $form->{netamount};
 
-  $form->{tax} = 0;
+  $form->{tax}       = 0;
   $form->{netamount} = 0;
   $form->{total_tax} = 0;
+
   # taxincluded doesn't make sense if there is no amount
 
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
@@ -114,7 +115,8 @@ sub post_transaction {
         $form->{netamount} += $form->{"amount_$i"};
       } else {
         $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-        $form->{"tax_$i"} = $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+        $form->{"tax_$i"} =
+          $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
         $form->{netamount} += $form->{"amount_$i"};
       }
     }

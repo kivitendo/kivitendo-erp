@@ -160,14 +160,12 @@ sub search {
     $button1 = qq|
        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=transdatefrom id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
        <input type=button name=transdateto name=transdateto id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -281,7 +279,8 @@ sub remove {
 <h2 class=confirm>$form->{title}</h2>
 
 <h4>|
-    . $locale->text('Are you sure you want to remove the marked entries from the queue?')
+    . $locale->text(
+          'Are you sure you want to remove the marked entries from the queue?')
     . qq|</h4>
 
 <input name=action class=submit type=submit value="|

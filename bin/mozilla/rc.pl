@@ -298,11 +298,10 @@ sub display_form {
   $clearedbalance = $form->format_amount(\%myconfig, $clearedbalance, 2, 0);
 
   if ($fx) {
-    $fx = $form->format_amount(\%myconfig, $fx, 2, 0);
+    $fx       = $form->format_amount(\%myconfig, $fx, 2, 0);
     $exchdiff = qq|
 		<th align=right nowrap>|
-      . $locale->text('Exchangerate Difference')
-      . qq|</th>
+      . $locale->text('Exchangerate Difference') . qq|</th>
 		<td width=10%></td>
 		<td align=right>$fx</td>
 |;

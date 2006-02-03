@@ -588,7 +588,7 @@ sub kne_buchungsexport {
   my $evfile      = "EV01";
   my @ed_versionsets;
   my $fileno = 0;
-  
+
   $form->header;
   print qq|
   <html>
@@ -616,8 +616,8 @@ sub kne_buchungsexport {
     $remaining_bytes -= length($header);
 
     while (scalar(@{ $form->{DATEV} }) > 0) {
-      $transaction    = shift @{ $form->{DATEV} };
-      $trans_lines    = scalar(@{$transaction});
+      $transaction = shift @{ $form->{DATEV} };
+      $trans_lines = scalar(@{$transaction});
       $counter++;
       if (($counter % 500) == 0) {
         print("$counter ");
@@ -829,7 +829,7 @@ sub kne_buchungsexport {
     print(EV $ed_versionset[$file]);
   }
   close(EV);
-print qq|<br>Done. <br></body>
+  print qq|<br>Done. <br></body>
 </html>
 |;
   ###
@@ -865,8 +865,7 @@ sub kne_stammdatenexport {
     qq|SELECT c.accno, c.description FROM chart c WHERE c.accno >=|
     . $dbh->quote($form->{accnofrom}) . qq|
            AND c.accno <= |
-    . $dbh->quote($form->{accnoto})
-    . qq| ORDER BY c.accno|;
+    . $dbh->quote($form->{accnoto}) . qq| ORDER BY c.accno|;
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);

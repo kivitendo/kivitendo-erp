@@ -111,7 +111,7 @@ sub account_header {
 	      </tr>|;
 
   $form->{selectustva} = "<option>\n";
-  
+
   %ustva = (35  => $locale->text('UStVA-Nr. 35'),
             36  => $locale->text('UStVA-Nr. 36'),
             39  => $locale->text('UStVA-Nr. 39'),
@@ -144,17 +144,17 @@ sub account_header {
             84  => $locale->text('UStVA-Nr. 84'),
             85  => $locale->text('UStVA-Nr. 85'),
             86  => $locale->text('UStVA-Nr. 86 left'),
-            861 => $locale->text('UStVA-Nr. 86 right'),            
+            861 => $locale->text('UStVA-Nr. 86 right'),
             91  => $locale->text('UStVA-Nr. 91'),
             93  => $locale->text('UStVA-Nr. 93 left'),
-            931 => $locale->text('UStVA-Nr. 93 right'),            
+            931 => $locale->text('UStVA-Nr. 93 right'),
             94  => $locale->text('UStVA-Nr. 94'),
             95  => $locale->text('UStVA-Nr. 95'),
             96  => $locale->text('UStVA-Nr. 96'),
             97  => $locale->text('UStVA-Nr. 97 links'),
             971 => $locale->text('UStVA-Nr. 97 rechts'),
             98  => $locale->text('UStVA-Nr. 98'));
-            
+
   foreach $item (sort({ $a cmp $b } keys %ustva)) {
     if ($item == $form->{pos_ustva}) {
       $form->{selectustva} .= "<option value=$item selected>$ustva{$item}\n";
@@ -1611,7 +1611,7 @@ sub config {
       ? "<option selected>$item\n"
       : "<option>$item\n";
   }
-  
+
   foreach $item (qw(name company address signature)) {
     $myconfig{$item} =~ s/\"/&quot;/g;
   }
@@ -1631,22 +1631,20 @@ sub config {
       : "<option value=$key>$countrycodes{$key}\n";
   }
   $countrycodes = "<option>American English\n$countrycodes";
-  
+
   # use an other input number format than output numberformat
   # look at Form.pm, sub parse_amount
-  my $ in_numberformat = '';
+  my $in_numberformat = '';
   $text1 = qq|value="0">| . $locale->text('equal Outputformat');
   $text2 = qq|value="1">| . $locale->text('1000,00 or 1000.00');
   @in_nf = ($text1, $text2);
-  foreach $item ( @in_nf ) {
+  foreach $item (@in_nf) {
     $in_numberformat .=
-      ( substr($item, 7, 1) eq $myconfig{in_numberformat})
+      (substr($item, 7, 1) eq $myconfig{in_numberformat})
       ? "<option selected $item\n"
       : "<option $item\n";
   }
 
-
-  
   foreach $key (keys %{ $form->{IC} }) {
     foreach $accno (sort keys %{ $form->{IC}{$key} }) {
       $myconfig{$key} .=
