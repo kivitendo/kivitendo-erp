@@ -185,14 +185,12 @@ sub form_header {
     $button1 = qq|
        <td><input name=datepaid id=datepaid size=11 title="$myconfig{dateformat}" value="$form->{datepaid}">
        <input type=button name=datepaid id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
        |;
 
     #write Trigger
     $jsscript =
-      Form->write_trigger(\%myconfig, "1", "datepaid", "BL", "trigger1", "",
-                          "", "");
+      Form->write_trigger(\%myconfig, "1", "datepaid", "BL", "trigger1");
   } else {
 
     # without JavaScript Calendar
@@ -307,8 +305,7 @@ sub form_header {
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Amount') . qq|</th>
 		<td colspan=3><input name=amount size=10 value=|
-    . $form->format_amount(\%myconfig, $form->{amount}, 2)
-    . qq|></td>
+    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|></td>
 	      </tr>
 	    </table>
 	  </td>
@@ -366,7 +363,8 @@ sub list_invoices {
   for $i (1 .. $form->{rowcount}) {
 
     map {
-      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
     } qw(amount due paid);
 
     $totalamount += $form->{"amount_$i"};
@@ -609,7 +607,8 @@ sub update {
   for $i (1 .. $form->{rowcount}) {
 
     map {
-      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
     } qw(amount due paid);
 
     if ($form->{"checked_$i"}) {

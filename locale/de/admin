@@ -62,6 +62,7 @@ $self{texts} = {
   'Port missing!'               => 'Portangabe fehlt!',
   'Printer'                     => 'Drucker',
   'Save'                        => 'Speichern',
+  'Setup Menu'                  => 'Menüsetup',
   'Setup Templates'             => 'Vorlagen auswählen',
   'Signature'                   => 'Unterschrift',
   'Steuernummer'                => 'Steuernummer',
@@ -71,7 +72,8 @@ $self{texts} = {
   'The following Datasets are not in use and can be deleted' => 'Die folgenden Datenbanken sind nicht in Verwendung und können gelöscht werden',
   'The following Datasets need to be updated' => 'Folgende Datenbanken müssen aktualisiert werden',
   'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!' => 'In diesem Schritt werden bestehende Datenbanken gesucht. Es werden noch keine Änderungen vorgenommen!',
-  'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.' => 'Um einer Gruppe einen neuen Benutzer hinzuzufügen, ändern und speichern Sie am einfachsten einen bestehenden Zugriffsnamen. Unter dem neuen Namen wird dann ein Benutzer mit denselben Einstellungen angelegt.',
+  'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.' => 'Um einer Gruppe einen neuen Benutzer hinzuzufügen, ändern und speichern Sie am einfachsten einen bestehen
+  den Zugriffsnamen. Unter dem neuen Namen wird dann ein Benutzer mit denselben Einstellungen angelegt.',
   'Unlock System'               => 'System entsperren',
   'Update Dataset'              => 'Datenbank aktualisieren',
   'Use Templates'               => 'benutze Vorlagen',
@@ -81,7 +83,8 @@ $self{texts} = {
   'Ust-IDNr'                    => 'USt-IdNr.',
   'Version'                     => 'Version',
   'WEBDAV-Zugriff'              => 'WEBDAV-Zugriff',
-  'You must enter a host and port for local and remote connections!' => '"Rechner" und "Port" müssen für lokale und externe Verbindungen eingetragen werden!',
+  'You must enter a host and port for local and remote connections!' => '"Rechner" und "Port" müssen für lokale und externe Verbindu
+  ngen eingetragen werden!',
   'does not exist'              => 'existiert nicht',
   'is already a member!'        => 'ist bereits ein Mitglied!',
   'localhost'                   => 'lokaler Rechner',

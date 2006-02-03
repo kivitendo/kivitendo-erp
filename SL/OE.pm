@@ -1,4 +1,4 @@
-#=====================================================================
+#====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -125,7 +125,7 @@ sub transactions {
 
   my $sortorder = join ', ',
     ("o.id", $form->sort_columns(transdate, $ordnumber, name));
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query .= " AND lower($ordnumber) LIKE '$number'" if $form->{$ordnumber};
   $query .= " AND o.transdate >= '$form->{transdatefrom}'"
@@ -223,7 +223,8 @@ sub save {
   for my $i (1 .. $form->{rowcount}) {
 
     map {
-      $form->{"${_}_$i"} = $form->parse_amount($myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount($myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
 
     if ($form->{"qty_$i"}) {
@@ -311,11 +312,16 @@ sub save {
       $reqdate =
         ($form->{"reqdate_$i"}) ? qq|'$form->{"reqdate_$i"}'| : "NULL";
 
+      # get pricegroup_id and save ist
+      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+      $pricegroup_id *= 1;
+
       # save detail record in orderitems table
       $query = qq|INSERT INTO orderitems (|;
       $query .= "id, " if $form->{"orderitems_id_$i"};
       $query .= qq|trans_id, parts_id, description, qty, sellprice, discount,
-		   unit, reqdate, project_id, serialnumber, ship)
+		   unit, reqdate, project_id, serialnumber, ship, pricegroup_id,
+		   ordnumber, transdate, cusordnumber)
                    VALUES (|;
       $query .= qq|$form->{"orderitems_id_$i"},|
         if $form->{"orderitems_id_$i"};
@@ -323,7 +329,8 @@ sub save {
 		   '$form->{"description_$i"}', $form->{"qty_$i"},
 		   $fxsellprice, $form->{"discount_$i"},
 		   '$form->{"unit_$i"}', $reqdate, (SELECT id from project where projectnumber = '$project_id'),
-		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"})|;
+		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"}, '$pricegroup_id',
+		   '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
 
       $form->{"sellprice_$i"} = $fxsellprice;
@@ -454,6 +461,50 @@ Message: $form->{message}\r| if $form->{message};
   return $rc;
 }
 
+# this function closes multiple orders given in $form->{ordnumber_#}.
+# use this for multiple orders that don't have to be saved back
+# single orders should use OE::save instead.
+sub close_orders {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  for my $i (1 .. $form->{rowcount}) {
+
+    map {
+      $form->{"${_}_$i"} =
+        $form->parse_amount($myconfig, $form->{"${_}_$i"})
+    } qw(qty ship);
+    if ($delete_oe_id) {
+      $form->{"orderitems_id_$i"} = "";
+    }
+
+    if ($form->{"qty_$i"}) {
+
+      # set values to 0 if nothing entered
+      $form->{"discount_$i"} =
+        $form->parse_amount($myconfig, $form->{"discount_$i"});
+
+      $form->{"sellprice_$i"} =
+        $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+    }
+  }
+
+  # get ids from $form
+  map { push @ids, $form->{"ordnumber_$_"} if $form->{"ordnumber_$_"} }
+    (1 .. $form->{rowcount});
+
+  my $dbh = $form->dbconnect($myconfig);
+  $query = qq|UPDATE oe SET
+              closed = TRUE
+              WHERE ordnumber IN (|
+    . join(', ', map { $dbh->quote($_) } @ids) . qq|)|;
+  $dbh->do($query) || $form->dberror($query);
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub delete {
   $main::lxdebug->enter_sub();
 
@@ -532,7 +583,19 @@ sub retrieve {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query;
+  my $query, @ids;
+
+  # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
+  map {
+    push @ids, $form->{"trans_id_$_"}
+      if ($form->{"id_$_"} and $form->{"trans_id_$_"})
+  } (1 .. $form->{"rowcount"});
+
+  # if called in multi id mode, and still only got one id, switch back to single id
+  if ($form->{"rowcount"} and $#ids == 0) {
+    $form->{"id"} = $ids[0];
+    undef @ids;
+  }
 
   if ($form->{id}) {
 
@@ -573,10 +636,19 @@ sub retrieve {
 
   ($form->{currency}) = split /:/, $form->{currencies};
 
-  if ($form->{id}) {
+  # set reqdate if this is an invoice->order conversion. If someone knows a better check to ensure
+  # we come from invoices, feel free.
+  $form->{reqdate} = $form->{deliverydate}
+    if (    $form->{deliverydate}
+        and $form->{callback} =~ /action=ar_transactions/);
 
-    # retrieve order
-    $query = qq|SELECT o.cp_id,o.ordnumber, o.transdate, o.reqdate,
+  if ($form->{id} or @ids) {
+
+    # retrieve order for single id
+    # NOTE: this query is intended to fetch all information only ONCE.
+    # so if any of these infos is important (or even different) for any item,
+    # it will be killed out and then has to be fetched from the item scope query further down
+    $query = qq|SELECT o.cp_id, o.ordnumber, o.transdate, o.reqdate,
                 o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes,
 		o.curr AS currency, e.name AS employee, o.employee_id,
 		o.$form->{vc}_id, cv.name AS $form->{vc}, o.amount AS invtotal,
@@ -586,65 +658,102 @@ sub retrieve {
 	        JOIN $form->{vc} cv ON (o.$form->{vc}_id = cv.id)
 	        LEFT JOIN employee e ON (o.employee_id = e.id)
 	        LEFT JOIN department d ON (o.department_id = d.id)
-		WHERE o.id = $form->{id}|;
+		|
+      . ($form->{id}
+         ? qq|WHERE o.id = $form->{id}|
+         : qq|WHERE o.id IN (| . join(', ', @ids) . qq|)|);
+
+    #$main::lxdebug->message(0, $query);
+
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
     $ref = $sth->fetchrow_hashref(NAME_lc);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
 
-    $query = qq|SELECT s.* FROM shipto s
-                WHERE s.trans_id = $form->{id}|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    $ref = $sth->fetchrow_hashref(NAME_lc);
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
-
-    # get printed, emailed and queued
-    $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname
-                FROM status s
-		WHERE s.trans_id = $form->{id}|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
+    # set all entries for multiple ids blank that yield different information
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-      $form->{printed} .= "$ref->{formname} " if $ref->{printed};
-      $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
-      $form->{queued} .= "$ref->{formname} $ref->{spoolfile} "
-        if $ref->{spoolfile};
+      map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
     }
+
+    # if not given, fill transdate with current_date
+    $form->{transdate} = $form->current_date($myconfig)
+      unless $form->{transdate};
+
     $sth->finish;
-    map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
+
+    # shipto and pinted/mailed/queued status makes only sense for single id retrieve
+    if (!@ids) {
+      $query = qq|SELECT s.* FROM shipto s
+                  WHERE s.trans_id = $form->{id}|;
+      $sth = $dbh->prepare($query);
+      $sth->execute || $form->dberror($query);
+
+      $ref = $sth->fetchrow_hashref(NAME_lc);
+      map { $form->{$_} = $ref->{$_} } keys %$ref;
+      $sth->finish;
+
+      # get printed, emailed and queued
+      $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname
+                  FROM status s
+                  WHERE s.trans_id = $form->{id}|;
+      $sth = $dbh->prepare($query);
+      $sth->execute || $form->dberror($query);
+
+      while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+        $form->{printed} .= "$ref->{formname} " if $ref->{printed};
+        $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
+        $form->{queued} .= "$ref->{formname} $ref->{spoolfile} "
+          if $ref->{spoolfile};
+      }
+      $sth->finish;
+      map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
+    }    # if !@ids
 
     my %oid = ('Pg'     => 'oid',
                'Oracle' => 'rowid');
 
     # retrieve individual items
+    # this query looks up all information about the items
+    # stuff different from the whole will not be overwritten, but saved with a suffix.
     $query = qq|SELECT o.id AS orderitems_id,
                 c1.accno AS inventory_accno,
                 c2.accno AS income_accno,
 		c3.accno AS expense_accno,
+		oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe, 
                 p.partnumber, p.assembly, o.description, o.qty,
 		o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes,
                 o.reqdate, o.project_id, o.serialnumber, o.ship,
+		o.ordnumber, o.transdate, o.cusordnumber,
 		pr.projectnumber,
-		pg.partsgroup
+		pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
 		FROM orderitems o
 		JOIN parts p ON (o.parts_id = p.id)
+		JOIN oe ON (o.trans_id = oe.id)
 		LEFT JOIN chart c1 ON (p.inventory_accno_id = c1.id)
 		LEFT JOIN chart c2 ON (p.income_accno_id = c2.id)
 		LEFT JOIN chart c3 ON (p.expense_accno_id = c3.id)
 		LEFT JOIN project pr ON (o.project_id = pr.id)
 		LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-		WHERE o.trans_id = $form->{id}
+		|
+      . ($form->{id}
+         ? qq|WHERE o.trans_id = $form->{id}|
+         : qq|WHERE o.trans_id IN (| . join(", ", @ids) . qq|)|)
+      . qq|
                 ORDER BY o.$oid{$myconfig->{dbdriver}}|;
+
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+
+      # in collective order, copy global ordnumber, transdate, cusordnumber into item scope
+      #   unless already present there
+      # remove _oe entries afterwards
+      map { $ref->{$_} = $ref->{"${_}_oe"} if ($ref->{$_} eq '') }
+        qw|ordnumber transdate cusordnumber|
+        if (@ids);
+      map { delete $ref->{$_} } qw|ordnumber_oe transdate_oe cusordnumber_oe|;
 
       #set expense_accno=inventory_accno if they are different => bilanz
       $vendor_accno =
@@ -795,14 +904,18 @@ sub order_details {
       $dec = length $dec;
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      my $discount =
+      my $i_discount =
         $form->round_amount(
                             $sellprice * $form->parse_amount($myconfig,
                                                  $form->{"discount_$i"}) / 100,
                             $decimalplaces);
 
+      my $discount =
+        $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
+
       # keep a netprice as well, (sellprice - discount)
-      $form->{"netprice_$i"} = $sellprice - $discount;
+      #$form->{"netprice_$i"} = $sellprice - $discount;
+      $form->{"netprice_$i"} = $sellprice - $i_discount;
 
       my $linetotal =
         $form->round_amount($form->{"qty_$i"} * $form->{"netprice_$i"}, 2);
@@ -821,7 +934,8 @@ sub order_details {
         : " ";
       $linetotal = ($linetotal != 0) ? $linetotal : " ";
 
-      push(@{ $form->{discount} }, $discount);
+      push(@{ $form->{discount} },   $discount);
+      push(@{ $form->{p_discount} }, $form->{"discount_$i"});
 
       $form->{ordtotal} += $linetotal;
 
@@ -851,6 +965,9 @@ sub order_details {
           $taxbase{$item} += $taxbase;
         }
       }
+
+      $tax_rate = $taxrate * 100;
+      push(@{ $form->{tax_rate} }, qq|$tax_rate|);
 
       if ($form->{"assembly_$i"}) {
         $sameitem = "";

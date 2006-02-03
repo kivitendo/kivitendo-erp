@@ -654,7 +654,7 @@ sub dbupdate {
   if ($form->{dbupdate}) {
 
     # read update scripts into memory
-    opendir SQLDIR, "sql/." or $form - error($!);
+    opendir SQLDIR, "sql/." or &error("", "$!");
     ## LINET
     @upgradescripts =
       sort(cmp_script_version
@@ -839,9 +839,9 @@ sub config_vars {
 
   my @conf = qw(acs address admin businessnumber charset company countrycode
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
-    dbname dbuser dbpasswd email fax name numberformat password
+    dbname dbuser dbpasswd email fax name numberformat in_numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
-    anfragen lieferantenbestellungen einkaufsrechnungen steuernummer ustid duns);
+    anfragen lieferantenbestellungen einkaufsrechnungen steuernummer co_ustid duns menustyle);
 
   $main::lxdebug->leave_sub();
 

@@ -34,209 +34,6 @@
 
 package RP;
 
-sub income_statement {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $last_period = 0;
-  my @categories  = qw(I E);
-  my $category;
-
-  $form->{decimalplaces} *= 1;
-
-  &get_accounts($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form,
-                \@categories);
-
-  # if there are any compare dates
-  if ($form->{comparefromdate} || $form->{comparetodate}) {
-    $last_period = 1;
-
-    &get_accounts($dbh, $last_period,
-                  $form->{comparefromdate},
-                  $form->{comparetodate},
-                  $form, \@categories);
-  }
-
-  # disconnect
-  $dbh->disconnect;
-
-  # now we got $form->{I}{accno}{ }
-  # and $form->{E}{accno}{  }
-
-  my %account = (
-                 'I' => { 'label'  => 'income',
-                          'labels' => 'income',
-                          'ml'     => 1
-                 },
-                 'E' => { 'label'  => 'expense',
-                          'labels' => 'expenses',
-                          'ml'     => -1
-                 });
-
-  my $str;
-
-  foreach $category (@categories) {
-
-    foreach $key (sort keys %{ $form->{$category} }) {
-
-      # push description onto array
-
-      $str = ($form->{l_heading}) ? $form->{padding} : "";
-
-      if ($form->{$category}{$key}{charttype} eq "A") {
-        $str .=
-          ($form->{l_accno})
-          ? "$form->{$category}{$key}{accno} - $form->{$category}{$key}{description}"
-          : "$form->{$category}{$key}{description}";
-      }
-      if ($form->{$category}{$key}{charttype} eq "H") {
-        if ($account{$category}{subtotal} && $form->{l_subtotal}) {
-          $dash = "- ";
-          push(@{ $form->{"$account{$category}{label}_account"} },
-               "$str$form->{bold}$account{$category}{subdescription}$form->{endbold}"
-          );
-          push(@{ $form->{"$account{$category}{labels}_this_period"} },
-               $form->format_amount(
-                        $myconfig,
-                        $account{$category}{subthis} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-               ));
-
-          if ($last_period) {
-            push(@{ $form->{"$account{$category}{labels}_last_period"} },
-                 $form->format_amount(
-                        $myconfig,
-                        $account{$category}{sublast} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-                 ));
-          }
-
-        }
-
-        $str =
-          "$form->{br}$form->{bold}$form->{$category}{$key}{description}$form->{endbold}";
-
-        $account{$category}{subthis}        = $form->{$category}{$key}{this};
-        $account{$category}{sublast}        = $form->{$category}{$key}{last};
-        $account{$category}{subdescription} =
-          $form->{$category}{$key}{description};
-        $account{$category}{subtotal} = 1;
-
-        $form->{$category}{$key}{this} = 0;
-        $form->{$category}{$key}{last} = 0;
-
-        next unless $form->{l_heading};
-
-        $dash = " ";
-      }
-
-      push(@{ $form->{"$account{$category}{label}_account"} }, $str);
-
-      if ($form->{$category}{$key}{charttype} eq 'A') {
-        $form->{"total_$account{$category}{labels}_this_period"} +=
-          $form->{$category}{$key}{this} * $account{$category}{ml};
-        $dash = "- ";
-      }
-
-      push(@{ $form->{"$account{$category}{labels}_this_period"} },
-           $form->format_amount(
-                      $myconfig,
-                      $form->{$category}{$key}{this} * $account{$category}{ml},
-                      $form->{decimalplaces}, $dash
-           ));
-
-      # add amount or - for last period
-      if ($last_period) {
-        $form->{"total_$account{$category}{labels}_last_period"} +=
-          $form->{$category}{$key}{last} * $account{$category}{ml};
-
-        push(@{ $form->{"$account{$category}{labels}_last_period"} },
-             $form->format_amount(
-                      $myconfig,
-                      $form->{$category}{$key}{last} * $account{$category}{ml},
-                      $form->{decimalplaces}, $dash
-             ));
-      }
-    }
-
-    $str = ($form->{l_heading}) ? $form->{padding} : "";
-    if ($account{$category}{subtotal} && $form->{l_subtotal}) {
-      push(@{ $form->{"$account{$category}{label}_account"} },
-           "$str$form->{bold}$account{$category}{subdescription}$form->{endbold}"
-      );
-      push(@{ $form->{"$account{$category}{labels}_this_period"} },
-           $form->format_amount(
-                        $myconfig,
-                        $account{$category}{subthis} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-           ));
-
-      if ($last_period) {
-        push(@{ $form->{"$account{$category}{labels}_last_period"} },
-             $form->format_amount(
-                        $myconfig,
-                        $account{$category}{sublast} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-             ));
-      }
-    }
-
-  }
-
-  # totals for income and expenses
-  $form->{total_income_this_period} =
-    $form->round_amount($form->{total_income_this_period},
-                        $form->{decimalplaces});
-  $form->{total_expenses_this_period} =
-    $form->round_amount($form->{total_expenses_this_period},
-                        $form->{decimalplaces});
-
-  # total for income/loss
-  $form->{total_this_period} =
-    $form->{total_income_this_period} - $form->{total_expenses_this_period};
-
-  if ($last_period) {
-
-    # total for income/loss
-    $form->{total_last_period} =
-      $form->format_amount(
-       $myconfig,
-       $form->{total_income_last_period} - $form->{total_expenses_last_period},
-       $form->{decimalplaces},
-       "- ");
-
-    # totals for income and expenses for last_period
-    $form->{total_income_last_period} =
-      $form->format_amount($myconfig,
-                           $form->{total_income_last_period},
-                           $form->{decimalplaces}, "- ");
-    $form->{total_expenses_last_period} =
-      $form->format_amount($myconfig,
-                           $form->{total_expenses_last_period},
-                           $form->{decimalplaces}, "- ");
-
-  }
-
-  $form->{total_income_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_income_this_period},
-                         $form->{decimalplaces}, "- ");
-  $form->{total_expenses_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_expenses_this_period},
-                         $form->{decimalplaces}, "- ");
-  $form->{total_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_this_period},
-                         $form->{decimalplaces}, "- ");
-
-  $main::lxdebug->leave_sub();
-}
-
 sub balance_sheet {
   $main::lxdebug->enter_sub();
 
@@ -1337,6 +1134,7 @@ sub get_accounts_g {
   my $accno;
   my $ref;
 
+  #print $query;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -1989,7 +1787,7 @@ sub get_taxaccounts {
   $sth->finish;
 
   # get gifi tax accounts
-  my $query = qq|SELECT DISTINCT ON (g.accno) g.accno, g.description,
+  $query = qq|SELECT DISTINCT ON (g.accno) g.accno, g.description,
                  sum(t.rate) AS rate
                  FROM gifi g, chart c, tax t
 		 WHERE g.accno = c.gifi_accno
@@ -1997,7 +1795,7 @@ sub get_taxaccounts {
 		 AND c.link LIKE '%CT_tax%'
 		 GROUP BY g.accno, g.description
                  ORDER BY accno|;
-  my $sth = $dbh->prepare($query);
+  $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror;
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -2088,7 +1886,7 @@ sub tax_report {
   my $ml = ($form->{db} eq 'ar') ? 1 : -1;
 
   my $sortorder = join ', ', $form->sort_columns(qw(transdate invnumber name));
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query = qq|SELECT a.id, '0' AS invoice, $transdate AS transdate,
               a.invnumber, n.name, a.netamount,
@@ -2247,6 +2045,7 @@ sub payments {
 
   my $sortorder = join ', ',
     $form->sort_columns(qw(name invnumber ordnumber transdate source));
+  $sortorder = $form->{sort} if $form->{sort};
 
   # cycle through each id
   foreach my $accno (split(/ /, $form->{paymentaccounts})) {
@@ -2350,7 +2149,9 @@ sub bwa {
         $form->{"$key$category"} =
           $form->format_amount($myconfig,
                                $form->round_amount($form->{$category}{$key}, 2
-                               ));
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
     foreach $item (@gesamtleistung) {
@@ -2372,8 +2173,8 @@ sub bwa {
       $form->{32}{$key} + $form->{33}{$key} + $form->{34}{$key};
     $form->{ "$key" . "ergebnisvorsteuern" } =
       $form->{ "$key" . "betriebsergebnis" } -
-      ($form->{ "$key" . "neutraleraufwand" } +
-       $form->{ "$key" . "neutralertrag" });
+      $form->{ "$key" . "neutraleraufwand" } +
+      $form->{ "$key" . "neutralertrag" };
     $form->{ "$key" . "ergebnis" } =
       $form->{ "$key" . "ergebnisvorsteuern" } + $form->{35}{$key};
 
@@ -2387,8 +2188,10 @@ sub bwa {
                                  ($form->{$category}{$key} /
                                     $form->{ "$key" . "gesamtleistung" } * 100
                                  ),
-                                 2
-                               ));
+                                 $form->{decimalplaces}
+                               ),
+                               $form->{decimalplaces},
+                               '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2398,8 +2201,10 @@ sub bwa {
                                  ( $form->{ "$key" . "$item" } /
                                      $form->{ "$key" . "gesamtleistung" } * 100
                                  ),
-                                 2
-                               ));
+                                 $form->{decimalplaces}
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
@@ -2412,8 +2217,10 @@ sub bwa {
                                    ($form->{$category}{$key} /
                                       $form->{ "$key" . "gesamtkosten" } * 100
                                    ),
-                                   2
-                                 ));
+                                   $form->{decimalplaces}
+                                 ),
+                                 $form->{decimalplaces},
+                                 '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2423,8 +2230,10 @@ sub bwa {
                                    ($form->{ "$key" . "$item" } /
                                       $form->{ "$key" . "gesamtkosten" } * 100
                                    ),
-                                   2
-                               ));
+                                   $form->{decimalplaces}
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
@@ -2433,10 +2242,13 @@ sub bwa {
         if (defined($form->{$category}{$key})) {
           $form->{ "$key" . "pk" . "$category" } =
             $form->format_amount(
-                      $myconfig,
-                      $form->round_amount(
-                        ($form->{$category}{$key} / $form->{10}{$key} * 100), 2
-                      ));
+                        $myconfig,
+                        $form->round_amount(
+                          ($form->{$category}{$key} / $form->{10}{$key} * 100),
+                          $form->{decimalplaces}
+                        ),
+                        $form->{decimalplaces},
+                        '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2446,8 +2258,10 @@ sub bwa {
                                                 ($form->{ "$key" . "$item" } /
                                                    $form->{10}{$key} * 100
                                                 ),
-                                                2
-                               ));
+                                                $form->{decimalplaces}
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
@@ -2456,10 +2270,13 @@ sub bwa {
         if (defined($form->{$category}{$key})) {
           $form->{ "$key" . "auf" . "$category" } =
             $form->format_amount(
-                       $myconfig,
-                       $form->round_amount(
-                         ($form->{$category}{$key} / $form->{4}{$key} * 100), 2
-                       ));
+                         $myconfig,
+                         $form->round_amount(
+                           ($form->{$category}{$key} / $form->{4}{$key} * 100),
+                           $form->{decimalplaces}
+                         ),
+                         $form->{decimalplaces},
+                         '0');
         }
       }
       foreach $item (@ergebnisse) {
@@ -2469,16 +2286,21 @@ sub bwa {
                                                 ($form->{ "$key" . "$item" } /
                                                    $form->{4}{$key} * 100
                                                 ),
-                                                2
-                               ));
+                                                $form->{decimalplaces}
+                               ),
+                               $form->{decimalplaces},
+                               '0');
       }
     }
 
     foreach $item (@ergebnisse) {
       $form->{ "$key" . "$item" } =
         $form->format_amount($myconfig,
-                             $form->round_amount($form->{ "$key" . "$item" }, 2
-                             ));
+                             $form->round_amount($form->{ "$key" . "$item" },
+                                                 $form->{decimalplaces}
+                             ),
+                             $form->{decimalplaces},
+                             '0');
     }
 
   }
@@ -2497,7 +2319,8 @@ sub ustva {
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
-  my @categories_cent = qw(51r 86r 97r 93r 96 66 43 45 53 62 65 67);
+  my @categories_cent = qw(51r 511 86r 861 97r 971 93r 931
+    96 66 43 45 53 62 65 67);
   my @categories_euro = qw(48 51 86 91 97 93 94);
   $form->{decimalplaces} *= 1;
 
@@ -2536,12 +2359,16 @@ sub ustva {
   #
   #    }
 
-  $form->{"51r"} = $form->{"51"} * 0.16;
-  $form->{"86r"} = $form->{"86"} * 0.07;
-  $form->{"97r"} = $form->{"97"} * 0.16;
-  $form->{"93r"} = $form->{"93"} * 0.07;
-  $form->{"96"}  = $form->{"94"} * 0.16;
-  $form->{"43"}  =
+  #
+  # Berechnung der USTVA Formularfelder
+  #
+  $form->{"51r"} = $form->{"511"};
+  $form->{"86r"} = $form->{"861"};
+  $form->{"97r"} = $form->{"971"};
+  $form->{"93r"} = $form->{"931"};
+
+  #$form->{"96"}  = $form->{"94"} * 0.16;
+  $form->{"43"} =
     $form->{"51r"} + $form->{"86r"} + $form->{"97r"} + $form->{"93r"} +
     $form->{"96"};
   $form->{"45"} = $form->{"43"};
@@ -2552,12 +2379,14 @@ sub ustva {
 
   foreach $item (@categories_cent) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),
+                           2, '0');
   }
 
   foreach $item (@categories_euro) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0),
+                           0, '0');
   }
 
   $dbh->disconnect;

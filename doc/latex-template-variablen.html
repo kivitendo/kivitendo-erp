@@ -102,6 +102,10 @@ td {
    </ol>
   </li>
 
+  <li><a href="latex-template-variablen.html#markup">
+    Markup-Code, der innerhalb von Formularen zur Textformatierung verwendet
+    werden kann</a></li>
+
  </ol>
 
  <hr>
@@ -438,6 +442,10 @@ td {
     <td>Bestellnummer beim Kunden</td>
    </tr>
    <tr>
+    <td><code>deliverydate</code></td>
+    <td>Lieferdatum</td>
+   </tr>
+   <tr>
     <td><code>duedate</code></td>
     <td>Fälligkeitsdatum</td>
    </tr>
@@ -463,15 +471,11 @@ td {
    </tr>
    <tr>
     <td><code>ordnumber</code></td>
-    <td>Auftragsnummer</td>
+    <td>Auftragsnummer, wenn die Rechnung aus einem Auftrag erstellt wurde</td>
    </tr>
    <tr>
     <td><code>quonumber</code></td>
     <td>Angebotsnummer</td>
-   </tr>
-   <tr>
-    <td><code>shippingdate</code></td>
-    <td>Lieferdatum</td>
    </tr>
    <tr>
     <td><code>shippingpoint</code></td>
@@ -495,6 +499,10 @@ td {
     <td><code>total</code></td>
     <td>Restsumme der Rechnung (Summe abz&uuml;glich bereits bezahlter Posten)</td>
    </tr>
+   <tr>
+    <td><code>transdate</code></td>
+    <td>Auftragsdatum wenn die Rechnung aus einem Auftrag erstellt wurde</td>
+   </tr>
   </table>
  </p>
 
@@ -513,12 +521,16 @@ td {
     <td>Stellage</td>
    </tr>
    <tr>
-    <td><code>deliverydate</code></td>
+    <td><code>deliverydate_oe</code></td>
     <td>Lieferdatum</td>
    </tr>
    <tr>
     <td><code>description</code></td>
     <td>Artikelbeschreibung</td>
+   </tr>
+   <tr>
+    <td><code>discount</code></td>
+    <td>Rabatt als Betrag</td>
    </tr>
    <tr>
     <td><code>linetotal</code></td>
@@ -537,7 +549,14 @@ td {
     <td>Artikelnummer</td>
    </tr>
    <tr>
-    <td><code>partnotes</code></td>
+    <td><code>ordnumber_oe</code></td>
+    <td>Auftragsnummer des Originalauftrags, wenn die Rechnung aus einem Sammelauftrag erstellt wurde</td>
+   </tr>
+   <tr>
+   <td><code>p_discount</code></td>
+    <td>Rabatt in Prozent</td>
+   </tr>
+   <td><code>partnotes</code></td>
     <td>Die beim Artikel gespeicherten Bemerkungen</td>
    </tr>
    <tr>
@@ -563,6 +582,10 @@ td {
    <tr>
     <td><code>serialnumber</code></td>
     <td>Seriennummer</td>
+   </tr>
+   <tr>
+    <td><code>transdate_oe</code></td>
+    <td>Auftragsdatum des Originalauftrags, wenn die Rechnung aus einem Sammelauftrag erstellt wurde</td>
    </tr>
    <tr>
     <td><code>unit</code></td>
@@ -735,6 +758,55 @@ td {
 
  <p>Wird kein manueller Seitenumbruch gew&uuml;scht, so kann dieser Block
   komplett entfallen.</p>
+
+ <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="markup">
+   Markup-Code, der innerhalb von Formularen zur Textformatierung
+   verwendet werden kann</a></h2>
+
+ <p>Wenn der Benutzer innhalb von Formularen in Lx-Office Text anders
+  formatiert haben m&ouml;chte, so ist dies begrenzt m&ouml;glich. Lx-Office
+  unterst&uuml;tzt die Textformatierung mit HTML-&auml;hnlichen Tags. Der
+  Benutzer kann z.B. bei der Artikelbeschreibung auf einer Rechnung Teile des
+  Texts zwischen Start- und Endtags setzen. Dieser Teil wird dann automatisch
+  in Anweisungen f&uuml;r das ausgew&auml;hlte Vorlagenformat (HTML oder
+  PDF &uuml;ber LaTeX) umgesetzt.</p>
+
+ <p>Die unterst&uuml;tzen Formatierungen sind:</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Formatierung</th><th>Auswirkung</th></tr>
+   <tr>
+    <td><code>&lt;b&gt;Text&lt;/b&gt;</code></td>
+    <td>Text wird in <b>fettdruck</b> gesetzt.</td>
+   </tr>
+   <tr>
+    <td><code>&lt;u&gt;Text&lt;/u&gt;</code></td>
+    <td>Text wird <u>unterstrichen</u>.</td>
+   </tr>
+   <tr>
+    <td><code>&lt;s&gt;Text&lt;/s&gt;</code></td>
+    <td>Text wird <s>durchgestrichen</s>. Diese Formatierung ist nicht bei der
+     Ausgabe als PDF &uuml;ber LaTeX verf&uuml;gbar.</td>
+   </tr>
+   <tr>
+    <td><code>&lt;pagebreak&gt;</code></td>
+    <td>Erzwingt einen Seitenumbruch (siehe unten).</td>
+   </tr>
+  </table>
+ </p>
+
+ <p>Eine Besonderheit ist der Befehl <code>&lt;pagebreak&gt;</code>. Dieser
+  erzwingt unabh&auml;ngig von der im <a
+  href="latex-template-variablen.html#bloecke_pagebreak">pagebreak-Block</a>
+  voreingestellten Werte einen Seitenumbruch nach der aktuellen
+  Rechnungsposition. Dementsprechend funktioniert er nur innerhalb von
+  <code>&lt;foreach...&gt;</code>-Schleifen. Weiterhin ben&ouml;tigt er kein
+  Endtag.</p>
 
  <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>

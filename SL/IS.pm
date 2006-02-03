@@ -34,6 +34,8 @@
 
 package IS;
 
+use Data::Dumper;
+
 sub invoice_details {
   $main::lxdebug->enter_sub();
 
@@ -104,10 +106,12 @@ sub invoice_details {
       push(@{ $form->{description} },   qq|$form->{"description_$i"}|);
       push(@{ $form->{qty} },
            $form->format_amount($myconfig, $form->{"qty_$i"}));
-      push(@{ $form->{unit} },         qq|$form->{"unit_$i"}|);
-      push(@{ $form->{deliverydate} }, qq|$form->{"deliverydate_$i"}|);
+      push(@{ $form->{unit} },            qq|$form->{"unit_$i"}|);
+      push(@{ $form->{deliverydate_oe} }, qq|$form->{"deliverydate_$i"}|);
 
-      push(@{ $form->{sellprice} }, $form->{"sellprice_$i"});
+      push(@{ $form->{sellprice} },    $form->{"sellprice_$i"});
+      push(@{ $form->{ordnumber_oe} }, qq|$form->{"ordnumber_$i"}|);
+      push(@{ $form->{transdate_oe} }, qq|$form->{"transdate_$i"}|);
 
       if ($form->{lizenzen}) {
         if ($form->{"licensenumber_$i"}) {
@@ -120,9 +124,7 @@ sub invoice_details {
           push(@{ $form->{licensenumber} }, $licensenumber);
           push(@{ $form->{validuntil} },
                $locale->date($myconfig, $validuntil, 0));
-          $licensenumber = "Lizenz: " . $licensenumber;
           $sth->finish;
-          push(@{ $form->{licensenumber} }, $licensenumber);
         } else {
           push(@{ $form->{licensenumber} }, "");
           push(@{ $form->{validuntil} },    "");
@@ -137,14 +139,18 @@ sub invoice_details {
       $dec = length $dec;
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      my $discount =
+      my $i_discount =
         $form->round_amount(
                             $sellprice * $form->parse_amount($myconfig,
                                                  $form->{"discount_$i"}) / 100,
                             $decimalplaces);
 
+      my $discount =
+        $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
+
       # keep a netprice as well, (sellprice - discount)
-      $form->{"netprice_$i"} = $sellprice - $discount;
+      $form->{"netprice_$i"} = $sellprice - $i_discount;
+
       push(@{ $form->{netprice} },
            ($form->{"netprice_$i"} != 0)
            ? $form->format_amount(
@@ -162,7 +168,8 @@ sub invoice_details {
         : " ";
       $linetotal = ($linetotal != 0) ? $linetotal : " ";
 
-      push(@{ $form->{discount} }, $discount);
+      push(@{ $form->{discount} },   $discount);
+      push(@{ $form->{p_discount} }, $form->{"discount_$i"});
 
       $form->{total} += $linetotal;
 
@@ -212,7 +219,8 @@ sub invoice_details {
           $taxbase{$item} += $taxbase;
         }
       }
-
+      $tax_rate = $taxrate * 100;
+      push(@{ $form->{tax_rate} }, qq|$tax_rate|);
       if ($form->{"assembly_$i"}) {
         $sameitem = "";
 
@@ -267,7 +275,7 @@ sub invoice_details {
 
       $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
-      push(@{ $form->{tax} }, $form->format_amount($myconfig, $taxamount));
+      push(@{ $form->{tax} }, $form->format_amount($myconfig, $taxamount, 2));
       push(@{ $form->{taxdescription} }, $form->{"${item}_description"});
       push(@{ $form->{taxrate} },
            $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
@@ -342,8 +350,6 @@ sub customer_details {
     $contact = "and cp.cp_id = $form->{cp_id}";
   }
 
-  $taxincluded = $form->{taxincluded};
-
   # get rest for the customer
   my $query = qq|SELECT ct.*, cp.*, ct.notes as customernotes
                  FROM customer ct
@@ -353,9 +359,10 @@ sub customer_details {
   $sth->execute || $form->dberror($query);
 
   $ref = $sth->fetchrow_hashref(NAME_lc);
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  $form->{taxincluded} = $taxincluded;
+  # remove id and taxincluded before copy back
+  delete @$ref{qw(id taxincluded)};
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
   $dbh->disconnect;
@@ -549,16 +556,22 @@ sub post_invoice {
         ? qq|'$form->{"deliverydate_$i"}'|
         : "NULL";
 
+      # get pricegroup_id and save ist
+      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+      $pricegroup_id *= 1;
+
       # save detail record in invoice table
       $query = qq|INSERT INTO invoice (trans_id, parts_id, description, qty,
                   sellprice, fxsellprice, discount, allocated, assemblyitem,
-		  unit, deliverydate, project_id, serialnumber)
+		  unit, deliverydate, project_id, serialnumber, pricegroup_id,
+		  ordnumber, transdate, cusordnumber)
 		  VALUES ($form->{id}, $form->{"id_$i"},
 		  '$form->{"description_$i"}', $form->{"qty_$i"},
 		  $form->{"sellprice_$i"}, $fxsellprice,
 		  $form->{"discount_$i"}, $allocated, 'f',
 		  '$form->{"unit_$i"}', $deliverydate, (SELECT id from project where projectnumber = '$project_id'),
-		  '$form->{"serialnumber_$i"}')|;
+		  '$form->{"serialnumber_$i"}', '$pricegroup_id',
+		  '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
 
       if ($form->{lizenzen}) {
@@ -796,6 +809,8 @@ sub post_invoice {
   $form->{taxincluded} *= 1;
   my $datepaid = ($form->{paid})    ? qq|'$form->{datepaid}'| : "NULL";
   my $duedate  = ($form->{duedate}) ? qq|'$form->{duedate}'|  : "NULL";
+  my $deliverydate =
+    ($form->{deliverydate}) ? qq|'$form->{deliverydate}'| : "NULL";
 
   # fill in subject if there is none
   $form->{subject} = qq|$form->{label} $form->{invnumber}|
@@ -828,6 +843,7 @@ Message: $form->{message}\r| if $form->{message};
               paid = $form->{paid},
 	      datepaid = $datepaid,
 	      duedate = $duedate,
+              deliverydate = $deliverydate,
 	      invoice = '1',
 	      shippingpoint = '$form->{shippingpoint}',
 	      shipvia = '$form->{shipvia}',
@@ -1153,7 +1169,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
-                a.transdate AS invdate, a.paid,
+                a.transdate AS invdate, a.deliverydate, a.paid,
                 a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes,
 		a.duedate, a.taxincluded, a.curr AS currency,
 		a.employee_id, e.name AS employee
@@ -1211,7 +1227,8 @@ sub retrieve_invoice {
 		i.discount, i.parts_id AS id, i.unit, i.deliverydate,
 		i.project_id, pr.projectnumber, i.serialnumber,
 		p.partnumber, p.assembly, p.bin, p.notes AS partnotes, i.id AS invoice_pos,
-		pg.partsgroup
+		pg.partsgroup, i.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=i.pricegroup_id) as pricegroup,
+		i.ordnumber, i.transdate, i.cusordnumber
 		FROM invoice i
 	        JOIN parts p ON (i.parts_id = p.id)
 	        LEFT JOIN project pr ON (i.project_id = pr.id)
@@ -1306,7 +1323,7 @@ sub get_customer {
                  c.email, c.cc, c.bcc, c.language,
 		 c.street, c.zipcode, c.city, c.country,
 	         $duedate + c.terms AS duedate, c.notes AS intnotes,
-		 b.discount AS tradediscount, b.description AS business
+		 b.discount AS tradediscount, b.description AS business, c.klass as customer_klass
                  FROM customer c
 		 LEFT JOIN business b ON (b.id = c.business_id)
 	         WHERE c.id = $form->{customer_id}|;
@@ -1357,7 +1374,7 @@ sub get_customer {
   # get shipto if we did not converted an order or invoice
   if (!$form->{shipto}) {
     map { delete $form->{$_} }
-      qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
+      qw(shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
 
     $query = qq|SELECT s.* FROM shipto s
                 WHERE s.trans_id = $form->{customer_id}|;
@@ -1513,9 +1530,128 @@ sub retrieve_item {
         $stw->finish;
       }
     }
-
   }
   $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+##########################
+# get pricegroups from database
+# build up selected pricegroup
+# if an exchange rate - change price
+# for each part
+#
+sub get_pricegroups_for_parts {
+
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $i  = 1;
+  my $id = 0;
+
+  while (($form->{"id_$i"}) or ($form->{"new_id_$i"})) {
+
+    $id = $form->{"id_$i"};
+
+    if (!($form->{"id_$i"}) and $form->{"new_id_$i"}) {
+
+      $id = $form->{"new_id_$i"};
+    }
+
+    ($price, $selectedpricegroup_id) = split /--/,
+      $form->{"sellprice_drag_$i"};
+
+    $pricegroup_old = $form->{"pricegroup_old_$i"};
+
+    $price_new = $form->{"price_new_$i"};
+
+    $price_old = $form->{"price_old_$i"};
+
+    $query =
+      qq|SELECT pricegroup_id, (SELECT p.sellprice from parts p where p.id = $id) as default_sellprice,(SELECT pg.pricegroup FROM pricegroup pg WHERE id=pricegroup_id) AS pricegroup, price, '' AS selected FROM prices WHERE parts_id = $id UNION SELECT 0 as pricegroup_id,(SELECT sellprice FROM parts WHERE id=$id) as default_sellprice,'' as pricegroup, (SELECT DISTINCT sellprice from parts where id=$id) as price, 'selected' AS selected from prices ORDER BY pricegroup|;
+
+    $pkq = $dbh->prepare($query);
+    $pkq->execute || $form->dberror($query);
+    while ($pkr = $pkq->fetchrow_hashref(NAME_lc)) {
+
+      #       push @{ $form->{PRICES}{$id} }, $pkr;
+      push @{ $form->{PRICES}{$i} }, $pkr;
+      $pkr->{id}       = $id;
+      $pkr->{selected} = '';
+
+      # if there is an exchange rate change price
+      if (($form->{exchangerate} * 1) != 0) {
+
+        $pkr->{price} /= $form->{exchangerate};
+      }
+      $pkr->{price} = $form->format_amount($myconfig, $pkr->{price}, 5);
+
+      if ($selectedpricegroup_id eq undef) {
+        if ($pkr->{pricegroup_id} eq $form->{customer_klass}) {
+
+          $pkr->{selected}  = ' selected';
+          $last->{selected} = '';
+
+          # no customer pricesgroup set
+          if ($pkr->{price} == $pkr->{default_sellprice}) {
+
+            $pkr->{price} = $form->{"sellprice_$i"};
+
+          } else {
+
+            $form->{"sellprice_$i"} = $pkr->{price};
+          }
+
+        } else {
+          if ($pkr->{price} == $pkr->{default_sellprice}) {
+
+            $pkr->{price}    = $form->{"sellprice_$i"};
+            $pkr->{selected} = ' selected';
+          }
+        }
+      }
+      if ($selectedpricegroup_id or $selectedpricegroup_id == 0) {
+        if ($selectedpricegroup_id ne $pricegroup_old) {
+          if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
+            if ($price_new != $form->{"sellprice_$i"}) {
+            } else {
+              $pkr->{selected}  = ' selected';
+              $last->{selected} = '';
+            }
+          }
+        } else {
+          if (($price_new != $form->{"sellprice_$i"}) and ($price_new ne 0)) {
+            if ($pkr->{pricegroup_id} == 0) {
+              $pkr->{price}     = $form->{"sellprice_$i"};
+              $pkr->{selected}  = ' selected';
+              $last->{selected} = '';
+            }
+          } else {
+            if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
+              $pkr->{selected}  = ' selected';
+              $last->{selected} = '';
+              if (    ($pkr->{pricegroup_id} == 0)
+                  and ($pkr->{price} == $form->{"sellprice_$i"})) {
+
+                # $pkr->{price}                         = $form->{"sellprice_$i"};
+                  } else {
+                $pkr->{price} = $form->{"sellprice_$i"};
+              }
+            }
+          }
+        }
+      }
+    }
+    $i++;
+
+    $pkq->finish;
+  }
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

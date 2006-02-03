@@ -107,9 +107,7 @@ print qq|
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
 	<tr>
 		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
-  . $login
-  . $datum
-  . qq| <script>writeclock()</script>&nbsp;
+  . $login . $datum . qq| <script>writeclock()</script>&nbsp;
 		</td>
 	</tr>
 </table>

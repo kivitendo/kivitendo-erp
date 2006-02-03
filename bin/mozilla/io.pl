@@ -72,6 +72,8 @@ if (-f "$form->{path}/$form->{login}_io.pl") {
 # $locale->text('Oct')
 # $locale->text('Nov')
 # $locale->text('Dec')
+use SL::IS;
+use SL::PE;
 use Data::Dumper;
 ########################################
 # Eintrag fuer Version 2.2.0 geaendert #
@@ -80,7 +82,6 @@ use Data::Dumper;
 sub display_row {
   $lxdebug->enter_sub();
   my $numrows = shift;
-
   if ($lizenzen && $form->{vc} eq "customer") {
     if ($form->{type} =~ /sales_order/) {
       @column_index = (runningnumber, partnumber, description, ship, qty);
@@ -99,7 +100,17 @@ sub display_row {
   }
 ############## ENDE Neueintrag ##################
 
-  push @column_index, qw(unit sellprice);
+  push @column_index, qw(unit);
+
+  #for pricegroups column
+  if (   $form->{type} =~ (/sales_quotation/)
+      or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/))
+      or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
+      or ($form->{type} =~ /sales_order/)) {
+    push @column_index, qw(sellprice_drag);
+  }
+
+  push @column_index, qw(sellprice);
 
   if ($form->{vc} eq 'customer') {
     push @column_index, qw(discount);
@@ -153,8 +164,12 @@ sub display_row {
     . $locale->text('Project')
     . qq|</th>|;
   $column_data{sellprice} =
-      qq|<th align=left nowrap width=10 class=listheading>|
+      qq|<th align=left nowrap width=15 class=listheading>|
     . $locale->text('Price')
+    . qq|</th>|;
+  $column_data{sellprice_drag} =
+      qq|<th align=left nowrap width=15 class=listheading>|
+    . $locale->text('Pricegroup')
     . qq|</th>|;
   $column_data{discount} =
       qq|<th align=left class=listheading>|
@@ -187,6 +202,7 @@ sub display_row {
   $serialnumber  = $locale->text('Serial No.');
   $projectnumber = $locale->text('Project');
   $partsgroup    = $locale->text('Group');
+  $reqdate       = $locale->text('Reqdate');
 
   $delvar = 'deliverydate';
 
@@ -199,8 +215,9 @@ sub display_row {
 
     # undo formatting
     map {
-      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
-    } qw(qty ship discount sellprice);
+      $form->{"${_}_$i"} =
+        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
+    } qw(qty ship discount sellprice price_new price_old);
 
     ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec           = length $dec;
@@ -210,6 +227,7 @@ sub display_row {
       $form->round_amount(
                         $form->{"sellprice_$i"} * $form->{"discount_$i"} / 100,
                         $decimalplaces);
+
     $linetotal =
       $form->round_amount($form->{"sellprice_$i"} - $discount, $decimalplaces);
     $linetotal = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
@@ -237,9 +255,12 @@ sub display_row {
         qq|<td><input name="description_$i" size=30 value="$form->{"description_$i"}"></td>|;
     }
 
+    (my $qty_dec) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+    $qty_dec = length $qty_dec;
+
     $column_data{qty} =
         qq|<td align=right><input name="qty_$i" size=5 value=|
-      . $form->format_amount(\%myconfig, $form->{"qty_$i"})
+      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec)
       . qq|></td>|;
     $column_data{ship} =
         qq|<td align=right><input name="ship_$i" size=5 value=|
@@ -247,11 +268,45 @@ sub display_row {
       . qq|></td>|;
     $column_data{unit} =
       qq|<td><input name="unit_$i" size=5 value="$form->{"unit_$i"}"></td>|;
-    $column_data{sellprice} =
-      qq|<td align=right><input name="sellprice_$i" size=9 value=|
-      . $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                             $decimalplaces)
-      . qq|></td>|;
+
+    # build in dragdrop for pricesgroups
+    if ($form->{"prices_$i"}) {
+      $price_tmp =
+        $form->format_amount(\%myconfig, $form->{"price_new_$i"}, 2);
+
+      $column_data{sellprice_drag} =
+        qq|<td align=right><select name="sellprice_drag_$i">$form->{"prices_$i"}</select></td>|;
+      $column_data{sellprice} =
+        qq|<td><input name="sellprice_$i" size=5 value=$price_tmp></td>|;
+    } else {
+
+      # for last row and report
+      # set pricegroup dragdrop from report menu
+      if ($form->{"sellprice_$i"} != 0) {
+        $prices =
+          qq|<option value="$form->{"sellprice_$i"}--$form->{"pricegroup_id_$i"}" selected>$form->{"pricegroup_$i"}</option>\n|;
+
+        $form->{"pricegroup_old_$i"} = $form->{"pricegroup_id_$i"};
+
+        $column_data{sellprice_drag} =
+          qq|<td align=right><select name="sellprice_drag_$i">$prices</select></td>|;
+
+      } else {
+
+        # for last row
+        $column_data{sellprice_drag} =
+          qq|<td align=right><input name="sellprice_$i" size=9 value=|
+          . $form->format_amount(\%myconfig, $form->{"prices_$i"},
+                                 $decimalplaces)
+          . qq|></td>|;
+      }
+
+      $column_data{sellprice} =
+        qq|<td><input name="sellprice_$i" size=5 value=|
+        . $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
+                               $decimalplaces)
+        . qq|></td>|;
+    }
     $column_data{discount} =
         qq|<td align=right><input name="discount_$i" size=3 value=|
       . $form->format_amount(\%myconfig, $form->{"discount_$i"})
@@ -288,6 +343,11 @@ sub display_row {
 <input type=hidden name="orderitems_id_$i" value=$form->{"orderitems_id_$i"}>
 <input type=hidden name="bo_$i" value=$form->{"bo_$i"}>
 
+<input type=hidden name="pricegroup_old_$i" value=$form->{"pricegroup_old_$i"}>
+<input type=hidden name="price_old_$i" value=$form->{"price_old_$i"}>
+<input type=hidden name="price_new_$i" value=|
+      . $form->format_amount(\%myconfig, $form->{"price_new_$i"}) . qq|>
+
 <input type=hidden name="id_$i" value=$form->{"id_$i"}>
 <input type=hidden name="inventory_accno_$i" value=$form->{"inventory_accno_$i"}>
 <input type=hidden name="bin_$i" value="$form->{"bin_$i"}">
@@ -298,6 +358,9 @@ sub display_row {
 <input type=hidden name="listprice_$i" value="$form->{"listprice_$i"}">
 <input type=hidden name="assembly_$i" value="$form->{"assembly_$i"}">
 <input type=hidden name="taxaccounts_$i" value="$form->{"taxaccounts_$i"}">
+<input type=hidden name="ordnumber_$i" value="$form->{"ordnumber_$i"}">
+<input type=hidden name="transdate_$i" value="$form->{"transdate_$i"}">
+<input type=hidden name="cusordnumber_$i" value="$form->{"cusordnumber_$i"}">
 
 |;
 
@@ -334,6 +397,18 @@ sub display_row {
           <b>$projectnumber</b>&nbsp;<input name="projectnumber_$i" size=10 value="$form->{"projectnumber_$i"}">
 		  <input type=hidden name="oldprojectnumber_$i" value="$form->{"oldprojectnumber_$i"}">
 		  <input type=hidden name="project_id_$i" value="$form->{"project_id_$i"}">
+|;
+    if ($form->{type} eq 'invoice' or $form->{type} =~ /order/) {
+      my $reqdate_term =
+        ($form->{type} eq 'invoice')
+        ? 'deliverydate'
+        : 'reqdate';    # invoice uses a different term for the same thing.
+      print qq|
+        <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size=11 value="$form->{"${reqdate_term}_$i"}">
+|;
+    }
+
+    print qq|
 	  </td>
 	</tr>
 
@@ -356,9 +431,57 @@ sub display_row {
   $lxdebug->leave_sub();
 }
 
+##################################################
+# build html-code for pricegroups in variable $form->{prices_$j}
+
+sub set_pricegroup {
+  my $rowcount = shift;
+  $lxdebug->enter_sub();
+  for $j (1 .. $rowcount) {
+    my $pricegroup_old = $form->{"pricegroup_old_$i"};
+    if ($form->{PRICES}{$j}) {
+      $len    = 0;
+      $prices = '';
+      $price  = 0;
+      foreach $item (@{ $form->{PRICES}{$j} }) {
+
+        #$price = $form->round_amount($myconfig,  $item->{price}, 5);
+        #$price = $form->format_amount($myconfig, $item->{price}, 2);
+        $price         = $item->{price};
+        $pricegroup_id = $item->{pricegroup_id};
+        $pricegroup    = $item->{pricegroup};
+
+        # build dragdrop for pricegroups
+        $prices .=
+          qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
+
+        $len += 1;
+
+        #        map {
+        #               $form->{"${_}_$j"} =
+        #               $form->format_amount(\%myconfig, $form->{"${_}_$j"})
+        #              } qw(sellprice price_new price_old);
+
+        # set new selectedpricegroup_id and prices for "Preis"
+        if ($item->{selected} && ($pricegroup_id != 0)) {
+          $form->{"pricegroup_old_$j"} = $pricegroup_id;
+          $form->{"price_new_$j"}      = $price;
+          $form->{"sellprice_$j"}      = $price;
+        }
+        if ($pricegroup_id == 0) {
+          $form->{"price_new_$j"} = $form->{"sellprice_$j"};
+        }
+        if ($len > 1) {
+          $form->{"prices_$j"} = $prices;
+        }
+      }
+    }
+  }
+  $lxdebug->leave_sub();
+}
+
 sub select_item {
   $lxdebug->enter_sub();
-
   @column_index = qw(ndx partnumber description onhand sellprice);
 
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
@@ -411,9 +534,9 @@ sub select_item {
 
     map { $ref->{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
 
+    #sk tradediscount
     $ref->{sellprice} =
       $form->round_amount($ref->{sellprice} * (1 - $form->{tradediscount}), 2);
-
     $column_data{ndx} =
       qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
     $column_data{partnumber} =
@@ -503,6 +626,10 @@ sub item_selected {
   # index for new item
   $j = $form->{ndx};
 
+  #sk
+  #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
+  #$form->{"sellprice_$i"} = $form->{"sellprice_$i"};
+
   # if there was a price entered, override it
   $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
@@ -561,6 +688,12 @@ sub item_selected {
     $form->{"${_}_$i"} =
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
   } qw(sellprice listprice) if $form->{item} ne 'assembly';
+
+  # get pricegroups for parts
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+  # build up html code for prices_$i
+  set_pricegroup($form->{rowcount});
 
   &display_form;
 
@@ -644,16 +777,61 @@ sub display_form {
     exit;
   }
 
+  #   if (   $form->{print_and_post}
+  #       && $form->{second_run}
+  #       && ($form->{action} eq "display_form")) {
+  #     for (keys %$form) { $old_form->{$_} = $form->{$_} }
+  #     $old_form->{rowcount}++;
+  #
+  #     #$form->{rowcount}--;
+  #     #$form->{rowcount}--;
+  #
+  #     $form->{print_and_post} = 0;
+  #
+  #     &print_form($old_form);
+  #     exit;
+  #   }
+  #
+  #   $form->{action}   = "";
+  #   $form->{resubmit} = 0;
+  #
+  #   if ($form->{print_and_post} && !$form->{second_run}) {
+  #     $form->{second_run} = 1;
+  #     $form->{action}     = "display_form";
+  #     $form->{rowcount}--;
+  #     my $rowcount = $form->{rowcount};
+  #
+  #     # get pricegroups for parts
+  #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  #
+  #     # build up html code for prices_$i
+  #     set_pricegroup($rowcount);
+  #
+  #     $form->{resubmit} = 1;
+  #
+  #   }
   &form_header;
 
   $numrows    = ++$form->{rowcount};
   $subroutine = "display_row";
 
   if ($form->{item} eq 'part') {
+
+    #set preisgruppenanzahl
+    $numrows    = $form->{price_rows};
+    $subroutine = "price_row";
+
+    &{$subroutine}($numrows);
+
     $numrows    = ++$form->{makemodel_rows};
     $subroutine = "makemodel_row";
   }
   if ($form->{item} eq 'assembly') {
+    $numrows    = ++$form->{price_rows};
+    $subroutine = "price_row";
+
+    &{$subroutine}($numrows);
+
     $numrows    = ++$form->{makemodel_rows};
     $subroutine = "makemodel_row";
 
@@ -664,6 +842,11 @@ sub display_form {
     $subroutine = "assembly_row";
   }
   if ($form->{item} eq 'service') {
+    $numrows    = $form->{price_rows};
+    $subroutine = "price_row";
+
+    &{$subroutine}($numrows);
+
     $numrows = 0;
   }
 
@@ -677,10 +860,9 @@ sub display_form {
 
 sub check_form {
   $lxdebug->enter_sub();
-
   my @a     = ();
   my $count = 0;
-  my @flds = (
+  my @flds  = (
     qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup)
   );
 
@@ -721,6 +903,8 @@ sub check_form {
         $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
 
         map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
+
+        #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
 
         $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"});
         $form->{weight}    += ($form->{"qty_$i"} * $form->{"weight_$i"});
@@ -779,6 +963,21 @@ sub check_form {
     }
   }
 
+  #sk
+  # if pricegroups
+  if (   $form->{type} =~ (/sales_quotation/)
+      or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/))
+      or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
+      or ($form->{type} =~ /sales_order/)) {
+
+    # get pricegroups for parts
+    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+    # build up html code for prices_$i
+    set_pricegroup($form->{rowcount});
+
+  }
+
   &display_form;
 
   $lxdebug->leave_sub();
@@ -798,6 +997,8 @@ sub invoicetotal {
     $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
     $discount  = $form->parse_amount(\%myconfig, $form->{"discount_$i"});
     $qty       = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
+
+    #($form->{"sellprice_$i"}, $form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
 
     $amount = $sellprice * (1 - $discount / 100) * $qty;
     map { $form->{"${_}_base"} += $amount }
@@ -839,11 +1040,12 @@ sub validate_items {
 
 sub order {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   $form->{ordnumber} = $form->{invnumber};
 
   map { delete $form->{$_} } qw(id printed emailed queued);
-
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'request_quotation') {
     $form->{title} = $locale->text('Add Purchase Order');
     $form->{vc}    = 'vendor';
@@ -892,7 +1094,9 @@ sub order {
 
 sub quotation {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   map { delete $form->{$_} } qw(id printed emailed queued);
 
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'purchase_order') {
@@ -944,7 +1148,10 @@ sub quotation {
 
 sub e_mail {
   $lxdebug->enter_sub();
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+    $form->{resubmit}       = 0;
+  }
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
  	  <th align=right nowrap=true>| . $locale->text('Bcc') . qq|</th>
@@ -1056,12 +1263,11 @@ sub send_email {
 
 sub print_options {
   $lxdebug->enter_sub();
-
   $form->{sendmode} = "attachment";
   $form->{copies}   = 3 unless $form->{copies};
 
   $form->{PD}{ $form->{formname} } = "selected";
-  $form->{DF}{ $form->{format} }   = "";
+  $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
   $form->{SM}{ $form->{sendmode} } = "selected";
 
@@ -1232,9 +1438,8 @@ sub print_form {
   $lxdebug->enter_sub();
   my ($old_form) = @_;
 
-  $inv = "inv";
-  $due = "due";
-
+  $inv       = "inv";
+  $due       = "due";
   $numberfld = "invnumber";
 
   $display_form =
@@ -1323,10 +1528,18 @@ sub print_form {
   # $locale->text('Quotation Date missing!')
 
   # assign number
-  if (!$form->{"${inv}number"}) {
+  if (!$form->{"${inv}number"} && !$form->{preview}) {
     $form->{"${inv}number"} = $form->update_defaults(\%myconfig, $numberfld);
     if ($form->{media} ne 'email') {
+
+      # get pricegroups for parts
+      IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+      # build up html code for prices_$i
+      set_pricegroup($form->{rowcount});
+
       $form->{rowcount}--;
+
       &{"$display_form"};
       exit;
     }
@@ -1351,7 +1564,8 @@ sub print_form {
     push @a,
       ("partnumber_$i", "description_$i",
        "partsgroup_$i", "serialnumber_$i",
-       "bin_$i",        "unit_$i");
+       "bin_$i",        "unit_$i",
+       "transdate_$i",  "ordnumber_$i");
   }
   map { push @a, "${_}_description" } split / /, $form->{taxaccounts};
 
@@ -1376,8 +1590,16 @@ sub print_form {
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
 
+  # format global dates
   map { $form->{$_} = $locale->date(\%myconfig, $form->{$_}, 1) }
-    ("${inv}date", "${due}date", "shippingdate");
+    ("${inv}date", "${due}date", "shippingdate", "deliverydate");
+
+  # format item dates
+  for my $field (qw(transdate_oe deliverydate_oe)) {
+    map {
+      $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1);
+    } 0 .. $#{ $form->{$field} };
+  }
 
   @a = qw(name street zipcode city country);
 
@@ -1405,9 +1627,9 @@ sub print_form {
 
   # some of the stuff could have umlauts so we translate them
   push @a,
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptoemail shippingpoint shipvia company address signature employee contact);
+    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptoemail shippingpoint shipvia company address signature employee contact department_1 department_2);
 
-  push @a, ("${inv}date", "${due}date", email, cc, bcc);
+  push @a, ("${inv}date", "${due}date", "deliverydate", email, cc, bcc);
 
   $form->format_string(@a);
 
@@ -1520,7 +1742,6 @@ sub print_form {
 
 sub customer_details {
   $lxdebug->enter_sub();
-
   IS->customer_details(\%myconfig, \%$form);
   $lxdebug->leave_sub();
 }
@@ -1546,6 +1767,9 @@ sub post_as_new {
 
 sub ship_to {
   $lxdebug->enter_sub();
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
 
   $title = $form->{title};
   $form->{title} = $locale->text('Ship to');
@@ -1560,6 +1784,12 @@ sub ship_to {
     ($form->{vc} eq 'customer')
     ? $locale->text('Customer Number')
     : $locale->text('Vendor Number');
+
+  # get pricegroups for parts
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+  # build up html code for prices_$i
+  set_pricegroup($form->{rowcount});
 
   $nextsub = ($form->{display_form}) ? $form->{display_form} : "display_form";
 
@@ -1578,11 +1808,9 @@ sub ship_to {
       <table>
 	<tr class=listheading>
 	  <th class=listheading colspan=2 width=50%>|
-    . $locale->text('Billing Address')
-    . qq|</th>
+    . $locale->text('Billing Address') . qq|</th>
 	  <th class=listheading width=50%>|
-    . $locale->text('Shipping Address')
-    . qq|</th>
+    . $locale->text('Shipping Address') . qq|</th>
 	</tr>
 	<tr height="5"></tr>
 	<tr>

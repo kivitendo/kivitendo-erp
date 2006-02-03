@@ -236,7 +236,7 @@ sub name_selected {
 
   # delete all the new_ variables
   for $i (1 .. $form->{lastndx}) {
-    map { delete $form->{"new_${_}_$i"} } (id, name);
+    map { delete $form->{"new_${_}_$i"} } qw(id name);
   }
 
   map { delete $form->{$_} } qw(ndx lastndx nextsub);
@@ -441,8 +441,8 @@ sub project_selected {
 
 sub continue       { &{ $form->{nextsub} } }
 sub gl_transaction { &add }
-sub ar_transaction { &add_transaction(ar) }
-sub ap_transaction { &add_transaction(ap) }
-sub sales_invoice  { &add_transaction(is) }
-sub vendor_invoice { &add_transaction(ir) }
+sub ar_transaction { &add_transaction('ar') }
+sub ap_transaction { &add_transaction('ap') }
+sub sales_invoice  { &add_transaction('is') }
+sub vendor_invoice { &add_transaction('ir') }
 

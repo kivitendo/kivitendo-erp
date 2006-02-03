@@ -114,6 +114,7 @@ $self{texts} = {
   'Click on login name to edit!' => '',
   'Close Books up to'           => '',
   'Closed'                      => '',
+  'Collective Orders only work for orders from one customer!' => '',
   'Company'                     => '',
   'Compare to'                  => '',
   'Confirm!'                    => '',

@@ -30,8 +30,11 @@
 # Inventory Control module
 #
 #======================================================================
+#$locale->text('ea');
 
 use SL::IC;
+
+#use SL::PE;
 
 require "$form->{path}/io.pl";
 
@@ -50,7 +53,7 @@ sub add {
 
   $form->{unit} =
     ($form->{item} eq 'service') ? $locale->text('hr') : $locale->text('ea');
-
+  IC->get_pricegroups(\%myconfig, \%$form);
   &link_part;
   &display_form;
 
@@ -84,14 +87,12 @@ sub search {
     $button1 = qq|
        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>
        <td><input type=button name=transdatefrom id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>
        <td><input type=button name=transdateto name=transdateto id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -132,8 +133,7 @@ sub search {
 
     $l_serialnumber = qq|
         <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;|
-      . $locale->text('Serial Number')
-      . qq|</td>
+      . $locale->text('Serial Number') . qq|</td>
 |;
 
   }
@@ -272,8 +272,7 @@ sub search {
         </tr>
         <tr>
           <th align=right nowrap>|
-    . $locale->text('Part Description')
-    . qq|</th>
+    . $locale->text('Part Description') . qq|</th>
           <td colspan=3><input name=description size=40></td>
         </tr>
 	<tr>
@@ -310,71 +309,53 @@ sub search {
 	</tr>
 	<tr>
           <th align=right nowrap>|
-    . $locale->text('Include in Report')
-    . qq|</th>
+    . $locale->text('Include in Report') . qq|</th>
           <td colspan=3>
             <table>
               <tr>
                 <td><input name=l_partnumber class=checkbox type=checkbox value=Y checked>&nbsp;|
-    . $locale->text('Part Number')
-    . qq|</td>
+    . $locale->text('Part Number') . qq|</td>
 		<td><input name=l_description class=checkbox type=checkbox value=Y checked>&nbsp;|
-    . $locale->text('Part Description')
-    . qq|</td>
+    . $locale->text('Part Description') . qq|</td>
 		$l_serialnumber
 		<td><input name=l_unit class=checkbox type=checkbox value=Y checked>&nbsp;|
-    . $locale->text('Unit of measure')
-    . qq|</td>
+    . $locale->text('Unit of measure') . qq|</td>
 	      </tr>
 	      <tr>
                 <td><input name=l_listprice class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('List Price')
-    . qq|</td>
+    . $locale->text('List Price') . qq|</td>
 		<td><input name=l_sellprice class=checkbox type=checkbox value=Y checked>&nbsp;|
-    . $locale->text('Sell Price')
-    . qq|</td>
+    . $locale->text('Sell Price') . qq|</td>
 		<td><input name=l_lastcost class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Last Cost')
-    . qq|</td>
+    . $locale->text('Last Cost') . qq|</td>
 		<td><input name=l_linetotal class=checkbox type=checkbox value=Y checked>&nbsp;|
-    . $locale->text('Line Total')
-    . qq|</td>
+    . $locale->text('Line Total') . qq|</td>
 	      </tr>
 	      <tr>
                 <td><input name=l_priceupdate class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Updated')
-    . qq|</td>
+    . $locale->text('Updated') . qq|</td>
 		<td><input name=l_bin class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Bin')
-    . qq|</td>
+    . $locale->text('Bin') . qq|</td>
 		<td><input name=l_rop class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('ROP')
-    . qq|</td>
+    . $locale->text('ROP') . qq|</td>
 		<td><input name=l_weight class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Weight')
-    . qq|</td>
+    . $locale->text('Weight') . qq|</td>
               </tr>
 	      <tr>
                 <td><input name=l_image class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Image')
-    . qq|</td>
+    . $locale->text('Image') . qq|</td>
 		<td><input name=l_drawing class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Drawing')
-    . qq|</td>
+    . $locale->text('Drawing') . qq|</td>
 		<td><input name=l_microfiche class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Microfiche')
-    . qq|</td>
+    . $locale->text('Microfiche') . qq|</td>
 		<td><input name=l_partsgroup class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Group')
-    . qq|</td>
+    . $locale->text('Group') . qq|</td>
               </tr>
 	      <tr>
                 <td><input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('Subtotal')
-    . qq|</td>
+    . $locale->text('Subtotal') . qq|</td>
 		<td><input name=l_soldtotal class=checkbox type=checkbox value=Y>&nbsp;|
-    . $locale->text('soldtotal')
-    . qq|</td>
+    . $locale->text('soldtotal') . qq|</td>
 	      </tr>
             </table>
           </td>
@@ -433,11 +414,9 @@ sub choice {
       <table>
 	<tr class=listheading>
          <th class=listheading nowrap>|
-    . $locale->text('Part Number')
-    . qq|</th>
+    . $locale->text('Part Number') . qq|</th>
          <th class=listheading nowrap>|
-    . $locale->text('Part Description')
-    . qq|</th>
+    . $locale->text('Part Description') . qq|</th>
         </tr>
         <tr valign=top>
          <td><input type=text name=partnumber size=20 value=></td>
@@ -858,10 +837,9 @@ sub addtop100 {
     $option   .= $locale->text('soldtotal') . qq| : $form->{soldtotal}<br>|;
   }
 
-  @columns =
-    $form->sort_columns(
+  @columns = $form->sort_columns(
     qw(number partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
-    );
+  );
 
   if ($form->{l_linetotal}) {
     $form->{l_onhand} = "Y";
@@ -1441,10 +1419,9 @@ sub generate_report {
     $option   .= $locale->text('soldtotal') . qq| : $form->{soldtotal}<br>|;
   }
 
-  @columns =
-    $form->sort_columns(
+  @columns = $form->sort_columns(
     qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
-    );
+  );
 
   if ($form->{l_linetotal}) {
     $form->{l_onhand} = "Y";
@@ -1921,7 +1898,9 @@ sub link_part {
   delete $form->{amount};
 
   $form->get_partsgroup(\%myconfig, { all => 1 });
+
   $form->{partsgroup} = "$form->{partsgroup}--$form->{partsgroup_id}";
+
   if (@{ $form->{all_partsgroup} }) {
     $form->{selectpartsgroup} = qq|<option>\n|;
     map {
@@ -1955,6 +1934,16 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
+  my $dec = '';
+
+  #decimalplaces for listprice
+  ($dec) = ($form->{listprice} =~ /\.(\d+)/);
+  $dec = length $dec;
+  my $decimalplaces = ($dec > 2) ? $dec : 2;
+  $form->{listprice} =
+    $form->format_amount(\%myconfig, $form->{listprice}, $decimalplaces);
+
+  #decimalplaces for sellprice and gv
   ($dec) = ($form->{sellprice} =~ /\.(\d+)/);
   $dec = length $dec;
   my $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -1962,7 +1951,7 @@ sub form_header {
   map {
     $form->{$_} =
       $form->format_amount(\%myconfig, $form->{$_}, $decimalplaces)
-  } qw(listprice sellprice gv);
+  } qw(sellprice gv);
 
   ($dec) = ($form->{lastcost} =~ /\.(\d+)/);
   $dec = length $dec;
@@ -2008,6 +1997,7 @@ sub form_header {
       }
     }
   }
+
   if ($form->{selectpartsgroup}) {
     $form->{selectpartsgroup} = $form->unescape($form->{selectpartsgroup});
     $partsgroup =
@@ -2034,8 +2024,7 @@ sub form_header {
   $lastcost = qq|
  	      <tr>
                 <th align="right" nowrap="true">|
-    . $locale->text('Last Cost')
-    . qq|</th>
+    . $locale->text('Last Cost') . qq|</th>
                 <td><input name=lastcost size=11 value=$form->{lastcost}></td>
               </tr>
 |;
@@ -2143,8 +2132,7 @@ sub form_header {
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('On Hand') . qq|</th>
 		<th align=left nowrap class="plus$n">&nbsp;|
-      . $form->format_amount(\%myconfig, $form->{onhand})
-      . qq|</th>
+      . $form->format_amount(\%myconfig, $form->{onhand}) . qq|</th>
 	      </tr>
 |;
 
@@ -2173,14 +2161,12 @@ sub form_header {
     $vegv = qq|
  	      <tr>
 		<th align="right" nowrap="true">|
-      . $locale->text('Verrechnungseinheit')
-      . qq|</th>
+      . $locale->text('Verrechnungseinheit') . qq|</th>
 		<td><input name=ve size=10 value=$form->{ve}></td>
 	      </tr>
               <tr>
 		<th align="right" nowrap="true">|
-      . $locale->text('Geschäftsvolumen')
-      . qq|</th>
+      . $locale->text('Geschäftsvolumen') . qq|</th>
 		<td><input name=gv size=10 value=$form->{gv}></td>
 	      </tr>
 |;
@@ -2217,8 +2203,7 @@ sub form_header {
   $obsolete .= qq|
               <tr>
                 <th align=right nowrap>|
-    . $locale->text('Shopartikel')
-    . qq|</th>
+    . $locale->text('Shopartikel') . qq|</th>
                 <td><input class=checkbox type=checkbox name=shop value=1 $shopok></td>
              </tr>
 |;
@@ -2239,14 +2224,12 @@ sub form_header {
     $button1 = qq|
        <td width="13"><input name=priceupdate id=priceupdate size=11  title="$myconfig{dateformat}" value="$form->{priceupdate}"></td>
        <td width="4" align="left"><input type=button name=priceupdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
 
     #write Trigger
     $jsscript =
-      Form->write_trigger(\%myconfig, "1", "priceupdate", "BL", "trigger1", "",
-                          "", "");
+      Form->write_trigger(\%myconfig, "1", "priceupdate", "BL", "trigger1");
   } else {
 
     # without JavaScript Calendar
@@ -2304,8 +2287,7 @@ sub form_header {
             <table width="100%" height="100%">
               <tr class="listheading">
                 <th class="listheading" align="center" colspan=2>|
-    . $locale->text('Link Accounts')
-    . qq|</th>
+    . $locale->text('Link Accounts') . qq|</th>
               </tr>
               $linkaccounts
               <tr>
@@ -2322,8 +2304,7 @@ sub form_header {
 	    <table width="100%">
 	      <tr>
                 <th align="right" nowrap="true">|
-    . $locale->text('Updated')
-    . qq|</th>
+    . $locale->text('Updated') . qq|</th>
                 $button1
               </tr>
 	      <tr>
@@ -2368,11 +2349,9 @@ sub form_footer {
             <table width="100%">
               <tr>
                 <th colspan=2 align=right>|
-      . $locale->text('Total')
-      . qq|&nbsp;</th>
+      . $locale->text('Total') . qq|&nbsp;</th>
                 <th align=right>|
-      . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2)
-      . qq|</th>
+      . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2) . qq|</th>
               </tr>
             </table>
           </td>
@@ -2404,6 +2383,9 @@ sub form_footer {
       <input type=hidden name=makemodel_rows value=$form->{makemodel_rows}>
     |;
   }
+
+  print qq|
+     <input type=hidden name=price_rows value=$form->{price_rows}>|;
 
   print qq|
       <input class=submit type=submit name=action value="|
@@ -2708,7 +2690,6 @@ sub update {
   if ($form->{item} eq 'service') {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
       qw(sellprice listprice);
-
     &form_header;
     &form_footer;
   }
@@ -2738,6 +2719,8 @@ sub save {
   # $locale->text('Assembly Number missing!')
 
   # save part
+  $lxdebug->message(LXDebug::DEBUG1,
+                    "ic.pl: sellprice in save = $form->{sellprice}\n");
   $rc = IC->save(\%myconfig, \%$form);
   if ($rc == 3) {
     $form->error($locale->text('Partnumber not unique!'));
@@ -2792,11 +2775,12 @@ sub save {
       map { $form->{"${_}_$i"} = $newform{$_} }
         qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice);
       $form->{"sellprice_$i"} = $newform{lastcost} if ($form->{vendor_id});
-
       if ($form->{exchangerate} != 0) {
         $form->{"sellprice_$i"} /= $form->{exchangerate};
       }
-
+      $lxdebug->message(LXDebug::DEBUG1,
+                        qq|sellprice_$i in previousform 2 = |
+                          . $form->{"sellprice_$i"} . qq|\n|);
       map { $form->{"taxaccounts_$i"} .= "$_ " } split / /,
         $newform{taxaccount};
       chop $form->{"taxaccounts_$i"};
@@ -2817,6 +2801,12 @@ sub save {
 
       $form->{creditremaining} -= $amount;
 
+      # redo number formatting, because invoice parse them!
+      $i = $form->{rowcount};
+      map {
+        $form->{"${_}_$i"} =
+          $form->format_amount(\%myconfig, $form->{"${_}_$i"})
+      } qw(weight listprice sellprice rop);
     }
 
     $form->{"id_$i"} = $parts_id;
@@ -2838,6 +2828,9 @@ sub save {
     }
     $form->{callback} = $callback;
   }
+  $lxdebug->message(LXDebug::DEBUG1,
+                    qq|ic.pl: sellprice_$i nach sub save = |
+                      . $form->{"sellprice_$i"} . qq|\n|);
 
   # redirect
   $form->redirect;
@@ -2888,15 +2881,13 @@ sub stock_assembly {
       <table>
         <tr>
           <th align="right" nowrap="true">|
-    . $locale->text('Part Number')
-    . qq|</th>
+    . $locale->text('Part Number') . qq|</th>
           <td><input name=partnumber size=20></td>
           <td>&nbsp;</td>
         </tr>
         <tr>
           <th align="right" nowrap="true">|
-    . $locale->text('Part Description')
-    . qq|</th>
+    . $locale->text('Part Description') . qq|</th>
           <td><input name=description size=40></td>
         </tr>
       </table>
@@ -3039,6 +3030,39 @@ sub restock_assemblies {
   $form->redirect($locale->text('Assemblies restocked!'))
     if (IC->restock_assemblies(\%myconfig, \%$form));
   $form->error($locale->text('Cannot stock assemblies!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub price_row {
+  $lxdebug->enter_sub();
+
+  my ($numrows) = @_;
+
+  print qq|
+  <tr>
+    <td>
+      <table width=100%>
+        <tr>
+          <th class="listheading">| . $locale->text('Preisklasse') . qq|</th>
+          <th class="listheading">| . $locale->text('Preis') . qq|</th>
+        </tr>
+|;
+  for $i (1 .. $numrows) {
+    print qq|
+        <tr>
+          <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
+          <td width=50%><input name="price_$i" size=11 value="$form->{"price_$i"}"></td>
+          <input type=hidden name="pricegroup_id_$i" value="$form->{"pricegroup_id_$i"}">
+        </tr>
+|;
+  }
+
+  print qq|
+      </table>
+    </td>
+  </tr>
+|;
 
   $lxdebug->leave_sub();
 }

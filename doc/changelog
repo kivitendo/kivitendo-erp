@@ -2,6 +2,90 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 
+
+2006-02-03 - Version 2.2.0 - Revision testing (542 - 855)
+
+  - Neues Menü - horizontal Anordnung 
+  - Splitbuchungen für Kreditoren-, Debitoren- und Dialogbuchungen
+  - Preisgruppen für Waren und Erzeugnisse
+  - Sammelbestellungen aus Aufträgen generieren
+  - Verkauf Druckvorschau für Rechnungen
+  - Feld Drucken und Buchung für Verkauf Rechnung erfassen
+  - UStVa Jahresberichtsvorschau
+  - Zusätzliche Variablen für die Formulare
+  - Backuproutine aus dem Menü entfernt
+  - In Formularen verwendbares HTML-Markup
+  - Lieferdatum in Verkaufsrechnungen
+  - Bugfixes
+    Quoting überarbeitet
+    Fix für Perl 5.6.x - Block Syntaxfehler
+    SQL-Performance "Raussuchen letzter Kunde" optimiert
+    Fehlerhafte Seriennummernsuche bei Angeboten/Aufträgen 
+    DATEV Bug: Kein Timeout bei großen Exporten 
+    DATEV Bug: Fehler bei negativen Umsätzen
+    BWA Bug: Fehler bei der Berechnung der Summen
+    Kundenübersicht Auftragsnummer wurde nicht angezeigt 
+  - Bugfixes Bugzilla
+    Bug#49:   UStVa Rundungsfehler
+    Bug#124:  UBL behoben
+    Bug#125:  Buchungsjournal ließ sich nicht sortieren
+    Bug#131:  Korrekturmöglichkeit für berechnete MwSt (Vorsteuer) fehlte
+    Bug#154:  BWA hatte Vorzeichendreher
+    Bug#160:  Feld "Buchen auf" bei gebuchten Rechnungen falsch gesetzt
+    Bug#163:  Fehler im Workflow Lieferantenanfrage
+    Bug#164:  Fehlerhafte UStVa-Berechnung
+    Bug#165:  Projektnummern eindeutig
+    Bug#166:  UStVa Variable doppelt vergeben
+    Bug#173:  UStVa
+    Bug#179:  Sortierung in der Berichtsübersicht bei Angeboten und Aufträgen nur nach Datum möglich gewesen
+    Bug#183:  Rechtschreibfehler in German-income_statement.html
+    Bug#187:  UBL im Buchungsjournal, wenn nicht alle ausgewählt war
+    Bug#189:  Rundungsfehler behoben
+    Bug#190:  Abteilung1/2 bei Lieferadresse konnten nicht gespeichert werden
+    Bug#198:  Rechnung nicht angezeigt nach Eingabe einer Lieferanschrift 
+    Bug#199:  Speichern eines Lieferantenauftrages nicht möglich
+    Bug#204:  Storno bei Splitbuchungen fehlerhaft
+    Bug#205:  In Dialogbuchungen MwSt. bei Buchungen nicht berücksichtigt
+    Bug#206:  In Dialogbuchungen Fehler bei Korrektur und Steuerinklusive
+    Bug#210, 212, 222:  Fibu verlinkte auf falsche Konten
+    Bug#214:  Falsche Anzeige der Projektbuchungen
+    Bug#220:  Rabattbetrag in Vorlagen ohne Menge berechnet
+    Bug#224:  Auftrag ließ sich aus Rechnung nicht generieren
+    Bug#231:  Fehlerhaftes übernehmen von Zahlen (format_amount)
+    Bug#233:  Falsches Zahlenformat und Nachkommastelle wurde abgeschnitten (format_amount)
+    Bug#237:  UStVa Vorsteuer falsch berechnet
+    Bug#242:  2. Manuelle Auswahl der Steuer behoben
+                    3. Beim Buchen wurde der doppelte Betrag (Soll) gebucht
+    Bug#245:  Falsche Maske nach Auftrag erfassen
+    Bug#248:  Falsche Benennungen
+    Bug#252:  Rechnungsnummer nicht hochgezählt nach neu buchen
+    Bug#253:  Sammelrechnung falsche Logo geladen
+    Bug#258:  Abschneiden der Nachkommastelle nach Drucken und Buchen
+    Bug#259:  Steuerkonten wurden nicht angezeigt, wenn Rechnung und Zahlung vom gleichen Tag
+    Bug#260:  Debitorenbuchungen mit doppeltem Betrag
+    Bug#262:  Falsche Berechnung der MwSt
+    Bug#264:  Swiss-German-chart.sql mit fehlenden korekten Einträgen für MwSt
+    Bug#266:  Lieferdatum in Rechnungen
+    Bug#267:  Bei Bilanz waren Stichtag und Vergleichsstichtag vertauscht
+    Bug#270:  Rabattfehler beim Umwandeln eines Angebotes in einen Auftrag
+    Bug#275:  Es werden alle Umsätze bis zum gewählten Quartal berechnet!
+
+
+2005-02-08 - Version 2.1.1
+  - Im Datenbankschema Geldbeträge vom Datentyp float nach numeric umgestellt
+  - UStVa - Modul überarbeitet
+  - Menuicons überarbeitet
+  - zusätzliche Felder beim Kunden/Lieferanten
+  - Bugfixes
+    Bug#145: Fehler bei der Suche nach Waren über den Hersteller
+    Bug#144: Fehler bei der Stringbehandlung in Form.pm
+    Bug#137: Fehler im Datenbankschema bei der Speicherung von Einheiten
+    Bug#136: cc Beim Versenden von eMails nicht gesetzt
+    Bug#123: Javascript-Kalender berücksichtig nur deutsches Datumsformat
+    Bug#119: Fehler in der Backuproutine verhindert Rückspielen des Backups
+    Kontakte konnten nicht richtig ausgewählt werden
+
+
 2005-01-03 - Version 2.1.0
   - Export von UStVA - Daten für ELSTER
   - DATEV Exportschnittstelle
@@ -11,17 +95,3 @@
   - Javascript Kalendar, bei allen Datumsfelder. Global ein-/auschaltbar
   - zuweisen von Kontaktpersonen zu Rechnungen,,Angeboten,Aufträgen
   - Bugfixes
-
-2005-02-08 - Version 2.1.1
-  - Im Datenbankschema Geldbeträge vom Datentyp float nach numeric umgestellt
-  - UStVa - Modul überarbeitet
-  - Menuicons überarbeitet
-  - zusätzliche Felder beim Kunden/Lieferanten
-  - Bugfixes
-    Bug#145: Fehler bei der Sucher nach Waren über den Hersteller
-    Bug#144: Fehler bei der Stringbehandlung in Form.pm
-    Bug#137: Fehler im Datenbankschema bei der Speicherung von Einheiten
-    Bug#136: cc Beim Versenden von eMails nicht gesetzt
-    Bug#123: Javascript-Kalender berücksichtig nur deutsches Datumsformat
-    Bug#119: Fehler in der Backuproutine verhindert Rückspielen des Backups
-    Kontakte konnten nicht richtig ausgewählt werden

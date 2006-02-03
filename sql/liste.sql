@@ -83,7 +83,7 @@ UPDATE chart set taxkey_id=0, pos_eur=31 WHERE accno='4396';
 UPDATE chart set taxkey_id=0, pos_eur=31 WHERE accno='4397';
 UPDATE chart set taxkey_id=0, pos_eur=17 WHERE accno='4500';
 UPDATE chart set taxkey_id=9, pos_bwa=14, pos_eur=17 WHERE accno='4530';
-UPDATE chart set taxkey_id=0, pos_ustva=0, pos_bwa=1 WHERE accno='8100';
+UPDATE chart set taxkey_id=0, pos_ustva=48, pos_bwa=1 WHERE accno='8100';
 UPDATE chart set taxkey_id=0, pos_eur=1 WHERE accno='8110';
 UPDATE chart set taxkey_id=2, pos_ustva=86, pos_bwa=1, pos_eur=1 WHERE accno='8300';
 UPDATE chart set taxkey_id=9, pos_bwa=14, pos_eur=17 WHERE accno='4540';
@@ -141,7 +141,7 @@ UPDATE chart set taxkey_id=9, pos_bwa=20, pos_eur=24 WHERE accno='4969';
 UPDATE chart set taxkey_id=0, pos_bwa=20, pos_eur=24 WHERE accno='4970';
 UPDATE chart set taxkey_id=9, pos_bwa=20, pos_eur=24 WHERE accno='4980';
 UPDATE chart set taxkey_id=9, pos_eur=19 WHERE accno='4985';
-UPDATE chart set taxkey_id=0, pos_ustva=48, pos_bwa=1, pos_eur=1 WHERE accno='8120';
+UPDATE chart set taxkey_id=0, pos_ustva=43, pos_bwa=1, pos_eur=1 WHERE accno='8120';
 UPDATE chart set taxkey_id=0, pos_ustva=41, pos_bwa=1, pos_eur=1 WHERE accno='8125';
 UPDATE chart set taxkey_id=0, pos_eur=1 WHERE accno='8130';
 UPDATE chart set taxkey_id=0, pos_eur=1 WHERE accno='8135';
@@ -373,6 +373,54 @@ UPDATE chart set taxkey_id=0, pos_bwa=35 WHERE accno='2214';
 UPDATE chart set taxkey_id=0, pos_bwa=35 WHERE accno='2215';
 UPDATE chart set taxkey_id=0, pos_bwa=35 WHERE accno='2218';
 
+-- UStVA Link to SKR03/2006
+-- Let this structure like it is, please.
+-- This structure is based on the sequence of the USTVA 2006
+-- The old statements above, will be mixed in the next version
+-- Created by Udo Spallek
+--
+-- 1. Page UStVA
 
-
-
+UPDATE chart SET pos_ustva=41  WHERE accno IN ('8125', '8130', '8140', '8724', '8808', '8828');
+UPDATE chart SET pos_ustva=44  WHERE accno IN ('8135');
+UPDATE chart SET pos_ustva=49  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=43  WHERE accno IN ('2402', '8120', '8150', '8505', '8625', '8705', '8807', '8827');
+UPDATE chart SET pos_ustva=48  WHERE accno IN ('8100', '8110', '8504', '8609');
+UPDATE chart SET pos_ustva=51  WHERE accno IN ('1717', '2404', '2405', '2700', '2705', '2707', '2709', '8196', '8315', '8400', '8595', '8600', '8611', '8640', '8720', '8726', '8735', '8760', '8790', '8801', '8809', '8820', '8910', '8920', '8921', '8922', '8925', '8935', '8940');
+UPDATE chart SET pos_ustva=511 WHERE accno IN ('1775');
+UPDATE chart SET pos_ustva=86  WHERE accno IN ('1711', '2401', '2403', '8300', '8310', '8506', '8591', '8630', '8710', '8725', '8731', '8750', '8780', '8915', '8930', '8932', '8945');
+UPDATE chart SET pos_ustva=861 WHERE accno IN ('1771');
+UPDATE chart SET pos_ustva=35  WHERE accno IN ('2407', '2409', '8723', '8729', '8736', '8764', '8794');
+UPDATE chart SET pos_ustva=36  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=77  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=76  WHERE accno IN ('8190');
+UPDATE chart SET pos_ustva=80  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=91  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=97  WHERE accno IN ('3425', '3725');
+UPDATE chart SET pos_ustva=971 WHERE accno IN ('1773');
+UPDATE chart SET pos_ustva=93  WHERE accno IN ('3420', '3724');
+UPDATE chart SET pos_ustva=931 WHERE accno IN ('1772');
+UPDATE chart SET pos_ustva=95  WHERE accno IN ('3727');
+UPDATE chart SET pos_ustva=98  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=94  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=96  WHERE accno IN ('1784');
+UPDATE chart SET pos_ustva=42  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=60  WHERE accno IN ('8337');
+UPDATE chart SET pos_ustva=45  WHERE accno IN ('8338', '8339', '8950');
+-- 2. Seite UStVA
+UPDATE chart SET pos_ustva=52  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=53  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=73  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=74  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=84  WHERE accno IN ('3110', '3115', '3120', '3125');
+UPDATE chart SET pos_ustva=85  WHERE accno IN ('1785', '1786');
+UPDATE chart SET pos_ustva=65  WHERE accno IN ('1782');
+UPDATE chart SET pos_ustva=66  WHERE accno IN ('1570', '1571', '1575', '1576');
+UPDATE chart SET pos_ustva=61  WHERE accno IN ('1572', '1573');
+UPDATE chart SET pos_ustva=62  WHERE accno IN ('1588');
+UPDATE chart SET pos_ustva=67  WHERE accno IN ('1578', '1579');
+UPDATE chart SET pos_ustva=63  WHERE accno IN ('1577');
+UPDATE chart SET pos_ustva=64  WHERE accno IN ('1556', '1557', '1558', '1559');
+UPDATE chart SET pos_ustva=59  WHERE accno IN ('');
+UPDATE chart SET pos_ustva=69  WHERE accno IN ('1783');
+UPDATE chart SET pos_ustva=39  WHERE accno IN ('1781');

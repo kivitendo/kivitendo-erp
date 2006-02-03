@@ -221,16 +221,22 @@ sub save_customer {
 
   my ($self, $myconfig, $form) = @_;
 
+  # set pricegroup to default
+  if ($form->{klass}) { }
+  else { $form->{klass} = 0; }
+
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 ##LINET
-  map({ $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
-          if ($form->{"selected_cp_${_}"});
+  map({
+      $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
+        if ($form->{"selected_cp_${_}"});
   } qw(title greeting));
 
+  #
   # escape '
   map { $form->{$_} =~ s/\'/\'\'/g }
-    qw(customernumber name street zipcode city country homepage contact notes cp_title cp_greeting language);
+    qw(customernumber name street zipcode city country homepage contact notes cp_title cp_greeting language pricegroup);
 ##/LINET
   # assign value discount, terms, creditlimit
   $form->{discount} = $form->parse_amount($myconfig, $form->{discount});
@@ -313,8 +319,9 @@ sub save_customer {
               ustid = '$form->{ustid}',
               username = '$form->{username}',
               salesman_id = '$form->{salesman_id}',
-              user_password = '$form->{user_password}',
-              c_vendor_id = '$form->{c_vendor_id}'
+              user_password = | . $dbh->quote($form->{user_password}) . qq|,
+              c_vendor_id = '$form->{c_vendor_id}',
+              klass = '$form->{klass}'
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 
@@ -349,9 +356,10 @@ sub save_customer {
   # add shipto
   $form->add_shipto($dbh, $form->{id});
 
-  $dbh->disconnect;
+  $rc = $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+  return $rc;
 }
 
 sub save_vendor {
@@ -362,8 +370,9 @@ sub save_vendor {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 ##LINET
-  map({ $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
-          if ($form->{"selected_cp_${_}"});
+  map({
+      $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
+        if ($form->{"selected_cp_${_}"});
   } qw(title greeting));
 
   # escape '
@@ -391,7 +400,9 @@ sub save_vendor {
   } else {
     my $uid = time;
     $uid .= $form->{login};
-
+    my $uid = rand() . time;
+    $uid .= $form->{login};
+    $uid = substr($uid, 2, 75);
     $query = qq|INSERT INTO vendor (name)
                 VALUES ('$uid')|;
     $dbh->do($query) || $form->dberror($query);
@@ -479,9 +490,10 @@ sub save_vendor {
   # add shipto
   $form->add_shipto($dbh, $form->{id});
 
-  $dbh->disconnect;
+  $rc = $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+  return $rc;
 }
 
 sub delete {

@@ -1,7 +1,10 @@
 $self{texts} = {
+  '1. Quarter'                  => '1. Quartal',
+  '2. Quarter'                  => '2. Quartal',
+  '3. Quarter'                  => '3. Quartal',
+  '4. Quarter'                  => '4. Quartal',
   'Address'                     => 'Adresse',
   'Angaben zum Finanzamt'       => 'Angaben zum Finanzamt',
-  'Anstehende Voranmeldungen'   => 'Anstehende Voranmeldungen',
   'Apr'                         => 'Apr',
   'April'                       => 'April',
   'Aug'                         => 'Aug',
@@ -9,6 +12,7 @@ $self{texts} = {
   'Ausgabeformat'               => 'Ausgabeformat',
   'Ausgabeformat auswählen...'  => 'Ausgabeformat auswählen...',
   'BLZ: '                       => 'BLZ: ',
+  'Back to user config...'      => 'Benutzereinstellungen',
   'Bankleitzahl'                => 'Bankleitzahl',
   'Bankleitzahl (BLZ)'          => 'Bankleitzahl (BLZ)',
   'Bankverbindung'              => 'Bankverbindung',
@@ -19,9 +23,7 @@ $self{texts} = {
   'Berichtigte Anmeldung'       => 'Berichtigte Anmeldung',
   'Bitte Angaben überprüfen'    => 'Bitte Angaben überprüfen',
   'Bitte alle Angaben überprüfen' => 'Bitte alle Angaben überprüfen',
-  'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.' => 'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.',
   'Bitte eine Steuernummer angeben' => 'Bitte eine Steuernummer angeben',
-  'Config'                      => 'Konfiguration',
   'Continue'                    => 'Weiter',
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
   'Dauerfristverlängerung'      => 'Dauerfristverlängerung',
@@ -30,11 +32,6 @@ $self{texts} = {
   'Description'                 => 'Beschreibung',
   'ELSTER Export nach Winston'  => 'ELSTER Export nach Winston',
   'ELSTER-Steuernummer: '       => 'ELSTER-Steuernummer: ',
-  'Es fehlen Angaben zur Versteuerung.
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
-  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.' => 'Es fehlen Angaben zur Versteuerung.
-  Wenn Sie Ist Versteuert sind, wählen Sie die Einnahmen/Überschuß-Rechnung aus.
-  Sind Sie Soll-Versteuert und Bilanzverpflichtet, dann wählen Sie Bilanz aus.',
   'Fax'                         => 'Fax',
   'Fax. : '                     => 'Fax. : ',
   'Fax.: '                      => 'Fax.: ',
@@ -44,8 +41,13 @@ $self{texts} = {
   'Finanzamt - Einstellungen'   => 'Finanzamt - Einstellungen',
   'Firma'                       => 'Firma',
   'Help'                        => 'Hilfe',
+  'Help:'                       => 'Hilfe:',
   'Hier den Berechnungszeitraum auswählen...' => 'Hier den Berechnungszeitraum auswählen...',
+  'Hint-Missing-Preferences'    => 'Bitte fehlende USTVA Einstellungen ergänzen (Menüpunkt: Programm)',
   'Hinweise'                    => 'Hinweise',
+  'Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!' => 'Umsatzsteuer Jahreserklärung als PDF wird noch nicht unterstützt.<br \> Bitte benutzen Sie das Ausgabeformat
+Vorschau.',
+  'Impossible to create yearly Tax Report via Winston.<br \> Not yet implemented!' => 'Umsatzsteuer Jahreserklärung via Winston wird noch nicht unterstützt.<br \> Bitte benutzen Sie das Ausgabeformat Vorschau.',
   'Internet'                    => 'Internet',
   'Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)' => 'Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)',
   'Jan'                         => 'Jan',
@@ -65,6 +67,10 @@ $self{texts} = {
   'May'                         => 'Mai',
   'May '                        => 'Mai',
   'Method'                      => 'Verfahren',
+  'Missing Method!'             => 'Fehlender Voranmeldungszeitraum',
+  'Missing Preferences: Outputroutine disabled' => 'Die Ausgabefunktionen
+sind wegen unzureichender Voreinstellungen deaktiviert!',
+  'Missing Tax Authoritys Preferences' => 'Fehlende Angaben zum Finanzamt!',
   'Name'                        => 'Name',
   'Nov'                         => 'Nov',
   'November'                    => 'November',
@@ -73,7 +79,6 @@ $self{texts} = {
   'October'                     => 'Oktober',
   'PLZ, Ort'                    => 'PLZ, Ort',
   'Project not on file!'        => 'Dieses Projekt ist nicht in der Datenbank!',
-  'Quarter'                     => 'Quartal',
   'Select a period'             => 'Bitte Zeitraum auswählen',
   'Select from one of the names below' => 'Wählen Sie einen der untenstehenden Namen',
   'Select from one of the projects below' => 'Wählen Sie eines der untenstehenden Projekte',
@@ -87,6 +92,8 @@ $self{texts} = {
   'Tel. : '                     => 'Tel. : ',
   'Tel.: '                      => 'Tel.: ',
   'Telefon'                     => 'Telefon',
+  'USTVA-Hint: Method'          => 'Wenn Sie Ist-Versteuert sind, wählen Sie die Einnahmen-/Überschuß-Rechnung aus. Sind Sie Soll-Versteuert und bilanzverpflichtet, dann wählen Sie Bilanz aus.',
+  'USTVA-Hint: Tax Authoritys'  => 'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.',
   'UStVA'                       => 'UStVA',
   'UStVA als PDF-Dokument'      => 'UStVa als PDF-Dokument',
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
@@ -96,6 +103,7 @@ $self{texts} = {
   'Voranmeldungszeitraum'       => 'Voranmeldungszeitraum',
   'Vorschau'                    => 'Vorschau',
   'Year'                        => 'Jahr',
+  'Yearly'                      => 'jährlich',
   'accrual'                     => 'Bilanzierung (Soll-Versteuerung)',
   'back'                        => 'zurück',
   'bis'                         => 'bis',
@@ -107,7 +115,6 @@ $self{texts} = {
   'quarter'                     => 'vierteljährliche (quartalsweise) Abgabe',
   'save'                        => 'speichern',
   'saved'                       => 'gespeichert',
-  'test'                        => 'test',
   'Öffnungszeiten'              => 'Öffnungszeiten',
 };
 
@@ -149,7 +156,6 @@ $self{subs} = {
   'test'                        => 'test',
   'ustva_vorauswahl'            => 'ustva_vorauswahl',
   'vendor_invoice'              => 'vendor_invoice',
-  'konfiguration'               => 'config',
   'weiter'                      => 'continue',
   'hilfe'                       => 'help',
   'zeigen'                      => 'show',
@@ -157,7 +163,6 @@ $self{subs} = {
   'weiter'                      => 'continue',
   'debug'                       => 'debug',
   'speichern'                   => 'save',
-  'test'                        => 'test',
 };
 
 1;

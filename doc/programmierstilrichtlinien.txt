@@ -14,77 +14,12 @@ sind die dazugehörigen perltidy-Optionen angegeben. perltidy ist bei den
 meisten Linux-Distributionen enthalten und kann ansonten unter
 http://perltidy.sourceforge.net heruntergeladen werden.
 
-Jeder, der einen Patch schickt, sollte sein Script vorher durch
-perltidy laufen lassen -- und seine Veränderung danach noch einmal
-kurz testen! Damit werden einige der nachfolgenden Regeln automatisch
-befolgt, andere hingegen nicht. Dort, wo keine perltidy-Optionen
-angegeben sind, muss der Programmierer selbst für die Einhaltung
-sorgen.
+Jeder, der einen Patch schickt, sollte sein Script vorher durch perltidy
+laufen lassen. Damit werden einige der nachfolgenden Regeln automatisch
+befolgt, andere hingegen nicht. Dort, wo keine perltidy-Optionen angegeben
+sind, muss der Programmierer selbst für die Einhaltung sorgen.
 
-(A) "Inhalt"
-============
-
-1. Alle Variablen müssen in dem Block, in dem sie benutzt werden mit
-   "my $variable;" oder mit "local *FILEHANDLE;" deklariert werden.
-   Neue globale Variablen einzuführen ist nicht erlaubt!
-
-2. Variablennamen
-
-  2.1 Alle Variablennamen müssen sinnvoll sein. "$i" als Schleifenzähler zu
-      nehmen ist in Ordnung. Sobald es aber über einen trivialen Fall
-      hinausgeht ist der Variable ein Name zu geben, der den Inhalt wieder-
-      spiegelt. Beispielsweise "$rowcount" für die Anzahl der Zeilen/
-      Positionen in einer Rechnung oder "$net_price" für den Nettopreis.
-
-  2.2 Variablen, die einfach den Inhalt einer Datenbankspalte beeinhalten,
-      sollten so benannt werden, wie die Datenbankspalte ebenfalls heißt.
-
-  2.3 Variablennamen sollten in Englisch gehalten sein, weil der Rest
-      des Programms ebenfalls in Englisch gehalten ist. Für Begriffe,
-      für die es keine englischen Entsprechungen gibt, sind deutsche
-      Variablennamen in Ordnung.
-
-3. Die Schreibweise von Variablen sollte komplett klein ein. Zusammengesetzte
-   Namen sollten mit Unterstrichen getrennt werden. Beispiel: "$net_price".
-
-4. Kommentare
-
-  4.1 Kommentare beziehen sich immer auf Code in der gleichen Zeile, wenn
-      der Kommentar am rechten Rand steht, oder auf den nachfolgen Code.
-
-  4.2 Codeteile, deren Funktion nicht auf den ersten Blick ersichtlich ist,
-      sollten kommentiert werden. Der Kommentar sollte kurz beschreiben,
-      was der Codeteil macht, eventuelle Nebenwirkungen oder Probleme
-      auflisten.
-
-  4.3 Kommentare der Art, dass Benutzer X am Datum Y den Teil Z geändert
-      hat, sind nicht notwendig. Dafür gibt es die SVN-Commit-Nachrichten,
-      die all diese Informationen enthalten bzw. enthalten müssen.
-
-  4.4 Funktionen sollten kommentiert werden. Dazu wird vor der Funktion
-      ein Kommentarblock erstellt, der beschreibt, was diese Funktion
-      tut. Zusätzlich sollte aufgezählt werden, welche Parameter die
-      Funktion erwartet und welche Bedeutung diese haben. Der Rückgabewert
-      ist ebenfalls zu dokumentieren.
-
-5. Alle Texte/Begriffe, die ausgegeben werden, müssen mit
-   $text->locale('Begriff'); ausgegeben werden, damit diese Begriffe
-   übersetzt werden können. Das betrifft aber nur Begriffe, die einzeln
-   übersetzbar sind, natürlich nicht für z.B. HTML-Code.
-
-6. Änderungen in den Kernbestandteilen von Lx-Office, die nur der Anbindung
-   von Modulen dienen, die wiederum nicht Bestandteil der offiziellen
-   Distribution sind, müssen durch eine Konfigurationsvariable abschaltbar
-   sein. Damit soll verhindert werden, dass solcher Code ausgeführt wird,
-   wenn das Modul nicht installiert ist, da dieser Code ausschließlich von
-   den Programmierern dieses Moduls getestet werden kann.
-
-
-
-
-
-(B) "Optik" -- Sachen, die die Form betreffen
-=============================================
+--------------------------------------------------------------------------
 
 1. Es werden keine "echten" TAB-Zeichen sondern Leerzeichen verwendet.
    Perltidy: -nt
@@ -218,7 +153,7 @@ sorgen.
     $form->{"row_$i"} = $form->{"row_$i"} - 5;
     $some_hash{42} = 54;
 
-11. Die Maximale Zeilenlänge ist nicht beschränkt. Zeilenlängen <= 79
+11. Die Maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen <= 79
     helfen, weil sie dann im Textmodus / per SSH deutlich besser lesbar
     sind. Oft genug ist es aber nicht möglich oder nur unter großen
     Verrenkungen, diese Vorgabe einzuhalten.
@@ -226,11 +161,7 @@ sorgen.
     Zeilen sollten nicht länger als 79 Zeichen sein.
     Perltidy: -l=79
 
-
-
-
-(C) Liste der perltidy-Optionen
-===============================
+--------------------------------------------------------------------------
 
 Vollständige Liste aller Optionen, die ich für perltidy benutze. Diese
 können in ~/.perltidyrc geschrieben werden:
@@ -264,7 +195,3 @@ können in ~/.perltidyrc geschrieben werden:
 -lp
 -vt=1
 -vtc=1
-
-
-
-

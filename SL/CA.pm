@@ -164,7 +164,7 @@ sub all_transactions {
     $where .= $fromto;
     $AR_PAID = "";
     $AP_PAID = "";
-    $glwhere = "";
+    $glwhere = "";    # note! gl will be aliased as "a" later...
   }
   my $sortorder = join ', ',
     $form->sort_columns(qw(transdate reference description));
@@ -181,10 +181,10 @@ sub all_transactions {
   my $dpt_join;
   if ($department_id) {
     $dpt_join = qq|
-                   JOIN department t ON (t.trans_id = ac.trans_id)
+                   JOIN department t ON (t.id = a.department_id)
 		  |;
-    $dpt_where == qq|
-		   AND t.department_id = $department_id
+    $dpt_where = qq|
+		   AND t.id = $department_id
 		  |;
   }
 
@@ -234,7 +234,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ar a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -248,7 +248,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ap a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -280,7 +280,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ar a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -294,7 +294,7 @@ sub all_transactions {
 
 	       UNION
 
-	          SELECT SUM(ac.sellprice)
+	          SELECT SUM(ac.qty * ac.sellprice)
 		  FROM invoice ac
 		  JOIN ap a ON (ac.trans_id = a.id)
 		  JOIN parts p ON (ac.parts_id = p.id)
@@ -323,23 +323,32 @@ sub all_transactions {
 
   foreach my $id (@id) {
 
+    # NOTE:
+    #  Postgres is really picky about the order of implicit CROSS JOINs with ','
+    #  if you alias the  tables and want to use the alias later in another JOIN.
+    #  the alias you want to use has to be the most recent in the list, otherwise
+    #  Postgres will overwrite the alias internally and complain.
+    #  For this reason, in the next 3 SELECTs, the 'a' alias is last in the list.
+    #  Don't change this, and if you do, substitute the ',' with CROSS JOIN
+    #  ... that also works.
+
     # get all transactions
     $query .= qq|$union
-      SELECT g.id, g.reference, g.description, ac.transdate,
+      SELECT a.id, a.reference, a.description, ac.transdate,
 	     $false AS invoice, ac.amount, 'gl' as module
-		FROM gl g, acc_trans ac $dpt_from
+		FROM acc_trans ac, gl a $dpt_join
 		WHERE $where
 		$glwhere
-		$dpt_join
+		$dpt_where
 		$project
 		AND ac.chart_id = $id
-		AND ac.trans_id = g.id
+		AND ac.trans_id = a.id
       UNION
       SELECT a.id, a.invnumber, c.name, ac.transdate,
 	     a.invoice, ac.amount, 'ar' as module
-		FROM ar a, acc_trans ac, customer c $dpt_from
+		FROM acc_trans ac, customer c, ar a $dpt_join
 		WHERE $where
-		$dpt_join
+		$dpt_where
 		$project
 		AND ac.chart_id = $id
 		AND ac.trans_id = a.id
@@ -348,9 +357,9 @@ sub all_transactions {
       UNION
       SELECT a.id, a.invnumber, v.name, ac.transdate,
 	     a.invoice, ac.amount, 'ap' as module
-		FROM ap a, acc_trans ac, vendor v $dpt_from
+		FROM acc_trans ac, vendor v, ap a $dpt_join
 		WHERE $where
-		$dpt_join
+		$dpt_where
 		$project
 		AND ac.chart_id = $id
 		AND ac.trans_id = a.id
@@ -371,7 +380,7 @@ sub all_transactions {
              UNION ALL
 
                  SELECT a.id, a.invnumber, c.name, a.transdate,
-	         a.invoice, ac.sellprice, 'ar' as module
+	         a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module
 		 FROM ar a
 		 JOIN invoice ac ON (ac.trans_id = a.id)
 		 JOIN parts p ON (ac.parts_id = p.id)
@@ -386,7 +395,7 @@ sub all_transactions {
              UNION ALL
 
                  SELECT a.id, a.invnumber, v.name, a.transdate,
-	         a.invoice, ac.sellprice, 'ap' as module
+	         a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module
 		 FROM ap a
 		 JOIN invoice ac ON (ac.trans_id = a.id)
 		 JOIN parts p ON (ac.parts_id = p.id)

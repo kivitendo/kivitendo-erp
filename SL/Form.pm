@@ -1,4 +1,4 @@
-#=====================================================================
+#====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -140,8 +140,8 @@ sub new {
   $self->{action} = lc $self->{action};
   $self->{action} =~ s/( |-|,|#)/_/g;
 
-  $self->{version}   = "2.1.2";
-  $self->{dbversion} = "2.1.2";
+  $self->{version}   = "2.2.0";
+  $self->{dbversion} = "2.2.0";
 
   $main::lxdebug->leave_sub();
 
@@ -190,6 +190,48 @@ sub unescape {
   $main::lxdebug->leave_sub();
 
   return $str;
+}
+
+sub quote {
+  my ($self, $str) = @_;
+
+  if ($str && !ref($str)) {
+    $str =~ s/"/&quot;/g;
+  }
+
+  $str;
+
+}
+
+sub unquote {
+  my ($self, $str) = @_;
+
+  if ($str && !ref($str)) {
+    $str =~ s/&quot;/"/g;
+  }
+
+  $str;
+
+}
+
+sub hide_form {
+  my $self = shift;
+
+  if (@_) {
+    for (@_) {
+      print qq|<input type=hidden name="$_" value="|
+        . $self->quote($self->{$_})
+        . qq|">\n|;
+    }
+  } else {
+    delete $self->{header};
+    for (sort keys %$self) {
+      print qq|<input type=hidden name="$_" value="|
+        . $self->quote($self->{$_})
+        . qq|">\n|;
+    }
+  }
+
 }
 
 sub error {
@@ -346,8 +388,9 @@ function fokus(){document.$self->{fokus}.focus();}
       $jsscript = qq|
         <style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>
         <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
-        <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
-        <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+        <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
+        <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+        $self->{javascript}
        |;
     }
 
@@ -375,14 +418,14 @@ function fokus(){document.$self->{fokus}.focus();}
   $main::lxdebug->leave_sub();
 }
 
-# write Trigger JavaScript-Code ($qty = 1 - only one Trigger)
+# write Trigger JavaScript-Code ($qty = quantity of Triggers)
+# changed it to accept an arbitrary number of triggers - sschoeling
 sub write_trigger {
   $main::lxdebug->enter_sub();
 
-  my ($self,         $myconfig, $qty,
-      $inputField_1, $align_1,  $button_1,
-      $inputField_2, $align_2,  $button_2)
-    = @_;
+  my $self     = shift;
+  my $myconfig = shift;
+  my $qty      = shift;
 
   # set dateform for jsscript
   # default
@@ -411,35 +454,21 @@ sub write_trigger {
     }
   }
 
-  $trigger_1 = qq|
+  while ($#_ >= 2) {
+    push @triggers, qq|
        Calendar.setup(
-       {
-         inputField  : "$inputField_1",
-         ifFormat    :"$ifFormat",
-         align    : "$align_1",     
-         button      : "$button_1"
-       }
-       );
+      {
+      inputField : "| . (shift) . qq|",
+      ifFormat :"$ifFormat",
+      align : "| .  (shift) . qq|", 
+      button : "| . (shift) . qq|"
+      }
+      );
        |;
-
-  if ($qty == 2) {
-    $trigger_2 = qq|
-       Calendar.setup(
-       {
-         inputField  : "$inputField_2",
-         ifFormat    :"$ifFormat",
-         align    : "$align_2",     
-         button      : "$button_2"
-       }
-       );
-        |;
   }
   $jsscript = qq|
        <script type="text/javascript">
-       <!--
-       $trigger_1
-       $trigger_2
-        //-->
+       <!--| . join("", @triggers) . qq|//-->
         </script>
         |;
 
@@ -483,12 +512,19 @@ sub format_amount {
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
 
+  #Workaround for $format_amount calls without $places
+  if (!defined $places) {
+    (my $dec) = ($amount =~ /\.(\d+)/);
+    $places = length $dec;
+  }
+
   if ($places =~ /\d/) {
     $amount = $self->round_amount($amount, $places);
   }
 
   # is the amount negative
   my $negative = ($amount < 0);
+  my $fillup   = "";
 
   if ($amount != 0) {
     if ($myconfig->{numberformat} && ($myconfig->{numberformat} ne '1000.00'))
@@ -496,24 +532,25 @@ sub format_amount {
       my ($whole, $dec) = split /\./, "$amount";
       $whole =~ s/-//;
       $amount = join '', reverse split //, $whole;
+      $fillup = "0" x ($places - length($dec));
 
       if ($myconfig->{numberformat} eq '1,000.00') {
         $amount =~ s/\d{3,}?/$&,/g;
         $amount =~ s/,$//;
         $amount = join '', reverse split //, $amount;
-        $amount .= "\.$dec" if ($dec ne "");
+        $amount .= "\.$dec" . $fillup if ($places ne '' && $places * 1 != 0);
       }
 
       if ($myconfig->{numberformat} eq '1.000,00') {
         $amount =~ s/\d{3,}?/$&./g;
         $amount =~ s/\.$//;
         $amount = join '', reverse split //, $amount;
-        $amount .= ",$dec" if ($dec ne "");
+        $amount .= ",$dec" . $fillup if ($places ne '' && $places * 1 != 0);
       }
 
       if ($myconfig->{numberformat} eq '1000,00') {
         $amount = "$whole";
-        $amount .= ",$dec" if ($dec ne "");
+        $amount .= ",$dec" . $fillup if ($places ne '' && $places * 1 != 0);
       }
 
       if ($dash =~ /-/) {
@@ -545,17 +582,53 @@ sub parse_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $amount) = @_;
+  $main::lxdebug->message(LXDebug::DEBUG2, "Start amount: $amount");
 
-  if (!(substr($amount, -3, 1) eq ".")) {
-    if (   ($myconfig->{numberformat} eq '1.000,00')
-        || ($myconfig->{numberformat} eq '1000,00')) {
-      $amount =~ s/\.//g;
-      $amount =~ s/,/\./;
-    }
+  if ($myconfig->{in_numberformat} == 1) {
 
-    $amount =~ s/,//g;
+    # Extra input number format 1000.00 or 1000,00
+    $main::lxdebug->message(LXDebug::DEBUG2,
+              "in_numberformat: " . $main::locale->text('1000,00 or 1000.00'));
+    $amount =~ s/,/\./g;
+
+    #$main::lxdebug->message(LXDebug::DEBUG2, "1.Parsed Number: $amount") if ($amount);
+    $amount = scalar reverse $amount;
+
+    #$main::lxdebug->message(LXDebug::DEBUG2, "2.Parsed Number: $amount") if ($amount);
+    $amount =~ s/\./DOT/;
+
+    #$main::lxdebug->message(LXDebug::DEBUG2, "3.Parsed Number: $amount") if ($amount);
+    $amount =~ s/\.//g;
+
+    #$main::lxdebug->message(LXDebug::DEBUG2, "4.Parsed Number: $amount") if ($amount);
+    $amount =~ s/DOT/\./;
+
+    #$main::lxdebug->message(LXDebug::DEBUG2, "5.Parsed Number:" . $amount) if ($amount);
+    $amount = scalar reverse $amount;
+    $main::lxdebug->message(LXDebug::DEBUG2,
+                            "Parsed amount:" . $amount . "\n");
+
+    return ($amount * 1);
+
+  }
+  $main::lxdebug->message(LXDebug::DEBUG2,
+              "in_numberformat: " . $main::locale->text('equal Outputformat'));
+  $main::lxdebug->message(LXDebug::DEBUG2,
+                          " = numberformat: $myconfig->{numberformat}");
+  if (   ($myconfig->{numberformat} eq '1.000,00')
+      || ($myconfig->{numberformat} eq '1000,00')) {
+    $amount =~ s/\.//g;
+    $amount =~ s/,/\./;
   }
 
+  if ($myconfig->{numberformat} eq "1'000.00") {
+    $amount =~ s/'//g;
+  }
+
+  $amount =~ s/,//g;
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "Parsed amount:" . $amount . "\n")
+    if ($amount);
   $main::lxdebug->leave_sub();
 
   return ($amount * 1);
@@ -565,26 +638,21 @@ sub round_amount {
   $main::lxdebug->enter_sub();
 
   my ($self, $amount, $places) = @_;
-  my $rc;
+  my $round_amount;
 
-  #  $places = 3 if $places == 2;
-
-  if (($places * 1) >= 0) {
-
-    # add 1/10^$places+3
-    $rc =
-      sprintf("%.${places}f",
-              $amount + (1 / (10**($places + 3))) * (($amount > 0) ? 1 : -1));
-  } else {
-    $places *= -1;
-    $rc =
-      sprintf("%.f", $amount / (10**$places) + (($amount > 0) ? 0.1 : -0.1)) *
-      (10**$places);
-  }
+  # Rounding like "Kaufmannsrunden"
+  # Descr. http://de.wikipedia.org/wiki/Rundung
+  # Inspired by
+  # http://www.perl.com/doc/FAQs/FAQ/oldfaq-html/Q4.13.html
+  # Solves Bug: 189
+  # Udo Spallek
+  $amount = $amount * (10**($places));
+  $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return $round_amount;
+
 }
 
 sub parse_template {
@@ -596,7 +664,7 @@ sub parse_template {
   # Some variables used for page breaks
   my ($chars_per_line, $lines_on_first_page, $lines_on_second_page) =
     (0, 0, 0);
-  my ($current_page, $current_line) = (1, 1);
+  my ($current_page, $current_line, $current_row) = (1, 1, 0);
   my $pagebreak = "";
   my $sum       = 0;
 
@@ -700,8 +768,12 @@ sub parse_template {
             $lpp = $lines_on_second_page;
           }
 
-          # Yes we need a manual page break
-          if (($current_line + $lines) > $lpp) {
+          # Yes we need a manual page break -- or the user has forced one
+          if (
+             (($current_line + $lines) > $lpp)
+             || ($self->{"_forced_pagebreaks"}
+               && grep(/^${current_row}$/, @{ $self->{"_forced_pagebreaks"} }))
+            ) {
             my $pb = $pagebreak;
 
             # replace the special variables <%sumcarriedforward%>
@@ -722,6 +794,7 @@ sub parse_template {
             $current_line = 1;
           }
           $current_line += $lines;
+          $current_row++;
         }
         $sum += $self->parse_amount($myconfig, $self->{"linetotal"}[$i]);
 
@@ -808,6 +881,7 @@ sub parse_template {
     }
 
     s/<%(.+?)%>/$self->{$1}/g;
+    s/<nobr><\/nobr>/&nbsp;/g;
     print OUT;
   }
 
@@ -986,7 +1060,19 @@ sub format_string {
   my %unique_fields;
 
   %unique_fields = map({ $_ => 1 } @fields);
-  @fields = keys(%unique_fields);
+  @fields        = keys(%unique_fields);
+
+  foreach my $field (@fields) {
+    next unless ($self->{$field} =~ /\<pagebreak\>/);
+    $self->{$field} =~ s/\<pagebreak\>//g;
+    if ($field =~ /.*_(\d+)$/) {
+      if (!$self->{"_forced_pagebreaks"}) {
+        $self->{"_forced_pagebreaks"} = [];
+      }
+      push(@{ $self->{"_forced_pagebreaks"} }, "$1");
+    }
+  }
+
   my $format = $self->{format};
   if ($self->{format} =~ /(postscript|pdf)/) {
     $format = 'tex';
@@ -1033,6 +1119,29 @@ sub format_string {
 
   foreach my $key (@{ $replace{order}{$format} }) {
     map { $self->{$_} =~ s/$key/$replace{$format}{$key}/g; } @fields;
+  }
+
+  # Allow some HTML markup to be converted into the output format's
+  # corresponding markup code, e.g. bold or italic.
+  if ('html' eq $format) {
+    my @markup_replace = ('b', 'i', 's', 'u');
+
+    foreach my $key (@markup_replace) {
+      map({ $self->{$_} =~ s/\&lt;(\/?)${key}\&gt;/<$1${key}>/g } @fields);
+    }
+
+  } elsif ('tex' eq $format) {
+    my %markup_replace = ('b' => 'textbf',
+                          'i' => 'textit',
+                          'u' => 'underline');
+
+    foreach my $field (@fields) {
+      foreach my $key (keys(%markup_replace)) {
+        my $new = $markup_replace{$key};
+        $self->{$field} =~
+          s/\$\<\$${key}\$\>\$(.*?)\$<\$\/${key}\$>\$/\\${new}\{$1\}/gi;
+      }
+    }
   }
 
   $main::lxdebug->leave_sub();
@@ -1205,6 +1314,11 @@ sub get_exchangerate {
 
   my ($self, $dbh, $curr, $transdate, $fld) = @_;
 
+  unless ($transdate) {
+    $main::lxdebug->leave_sub();
+    return "";
+  }
+
   my $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.curr = '$curr'
 		 AND e.transdate = '$transdate'|;
@@ -1252,8 +1366,9 @@ sub add_shipto {
   my ($self, $dbh, $id) = @_;
 ##LINET
   my $shipto;
-  foreach
-    my $item (qw(name street zipcode city country contact phone fax email)) {
+  foreach my $item (
+    qw(name department_1 department_2 street zipcode city country contact phone fax email)
+    ) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
@@ -1261,10 +1376,11 @@ sub add_shipto {
   }
 
   if ($shipto) {
-    my $query = qq|INSERT INTO shipto (trans_id, shiptoname, shiptostreet,
+    my $query =
+      qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2, shiptostreet,
                    shiptozipcode, shiptocity, shiptocountry, shiptocontact,
 		   shiptophone, shiptofax, shiptoemail) VALUES ($id,
-		   '$self->{shiptoname}', '$self->{shiptostreet}',
+		   '$self->{shiptoname}', '$self->{shiptodepartment_1}', '$self->{shiptodepartment_2}', '$self->{shiptostreet}',
 		   '$self->{shiptozipcode}', '$self->{shiptocity}',
 		   '$self->{shiptocountry}', '$self->{shiptocontact}',
 		   '$self->{shiptophone}', '$self->{shiptofax}',
@@ -1520,8 +1636,7 @@ sub create_links {
   my %xkeyref = ();
 
   # now get the account numbers
-  $query =
-    qq|SELECT c.accno, SUBSTRING(c.description,1,50) as description, c.link, c.taxkey_id
+  $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id
               FROM chart c
 	      WHERE c.link LIKE '%$module%'
 	      ORDER BY c.accno|;
@@ -1594,7 +1709,7 @@ sub create_links {
 		LEFT Join tax t ON (a.taxkey = t.taxkey)
 		WHERE a.trans_id = $self->{id}
 		AND a.fx_transaction = '0'
-		ORDER BY a.transdate|;
+		ORDER BY a.oid,a.transdate|;
     $sth = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
 
@@ -1604,12 +1719,17 @@ sub create_links {
     $self->{exchangerate} =
       $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate},
                               $fld);
+    my $index = 0;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       $ref->{exchangerate} =
         $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate},
                                 $fld);
+      if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {
+        $index++;
+      }
+      $ref->{index} = $index;
 
       push @{ $self->{acc_trans}{ $xkeyref{ $ref->{accno} } } }, $ref;
     }
@@ -1687,10 +1807,9 @@ sub lastname_used {
     $where = "quotation = '1'";
   }
 
-  my $query = qq|SELECT id FROM $arap
-                 WHERE id IN (SELECT MAX(id) FROM $arap
+  my $query = qq|SELECT MAX(id) FROM $arap
 		              WHERE $where
-			      AND ${table}_id > 0)|;
+			      AND ${table}_id > 0|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
@@ -2041,6 +2160,128 @@ sub get_partsgroup {
   $sth->finish;
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
+}
+
+sub get_pricegroup {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $p) = @_;
+
+  my $dbh = $self->dbconnect($myconfig);
+
+  my $query = qq|SELECT p.id, p.pricegroup
+                 FROM pricegroup p|;
+
+  $query .= qq|
+		 ORDER BY pricegroup|;
+
+  if ($p->{all}) {
+    $query = qq|SELECT id, pricegroup FROM pricegroup
+                ORDER BY pricegroup|;
+  }
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $self->dberror($query);
+
+  $self->{all_pricegroup} = ();
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{all_pricegroup} }, $ref;
+  }
+  $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub audittrail {
+  my ($self, $dbh, $myconfig, $audittrail) = @_;
+
+  # table, $reference, $formname, $action, $id, $transdate) = @_;
+
+  my $query;
+  my $rv;
+  my $disconnect;
+
+  if (!$dbh) {
+    $dbh        = $self->dbconnect($myconfig);
+    $disconnect = 1;
+  }
+
+  # if we have an id add audittrail, otherwise get a new timestamp
+
+  if ($audittrail->{id}) {
+
+    $query = qq|SELECT audittrail FROM defaults|;
+
+    if ($dbh->selectrow_array($query)) {
+      my ($null, $employee_id) = $self->get_employee($dbh);
+
+      if ($self->{audittrail} && !$myconfig) {
+        chop $self->{audittrail};
+
+        my @a = split /\|/, $self->{audittrail};
+        my %newtrail = ();
+        my $key;
+        my $i;
+        my @flds = qw(tablename reference formname action transdate);
+
+        # put into hash and remove dups
+        while (@a) {
+          $key = "$a[2]$a[3]";
+          $i   = 0;
+          $newtrail{$key} = { map { $_ => $a[$i++] } @flds };
+          splice @a, 0, 5;
+        }
+
+        $query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
+		    formname, action, employee_id, transdate)
+	            VALUES ($audittrail->{id}, ?, ?,
+		    ?, ?, $employee_id, ?)|;
+        my $sth = $dbh->prepare($query) || $self->dberror($query);
+
+        foreach $key (
+          sort {
+            $newtrail{$a}{transdate} cmp $newtrail{$b}{transdate}
+          } keys %newtrail
+          ) {
+          $i = 1;
+          for (@flds) { $sth->bind_param($i++, $newtrail{$key}{$_}) }
+
+          $sth->execute || $self->dberror;
+          $sth->finish;
+        }
+      }
+
+      if ($audittrail->{transdate}) {
+        $query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
+		    formname, action, employee_id, transdate) VALUES (
+		    $audittrail->{id}, '$audittrail->{tablename}', |
+          . $dbh->quote($audittrail->{reference}) . qq|,
+		    '$audittrail->{formname}', '$audittrail->{action}',
+		    $employee_id, '$audittrail->{transdate}')|;
+      } else {
+        $query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
+		    formname, action, employee_id) VALUES ($audittrail->{id},
+		    '$audittrail->{tablename}', |
+          . $dbh->quote($audittrail->{reference}) . qq|,
+		    '$audittrail->{formname}', '$audittrail->{action}',
+		    $employee_id)|;
+      }
+      $dbh->do($query);
+    }
+  } else {
+
+    $query = qq|SELECT current_timestamp FROM defaults|;
+    my ($timestamp) = $dbh->selectrow_array($query);
+
+    $rv =
+      "$audittrail->{tablename}|$audittrail->{reference}|$audittrail->{formname}|$audittrail->{action}|$timestamp|";
+  }
+
+  $dbh->disconnect if $disconnect;
+
+  $rv;
+
 }
 
 package Locale;

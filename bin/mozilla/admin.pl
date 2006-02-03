@@ -120,8 +120,7 @@ sub adminlogin {
     <th>| . $locale->text('Password') . qq|</th>
     <td><input type=password name=rpw></td>
     <td><input type=submit class=submit name=action value="|
-    . $locale->text('Login')
-    . qq|"></td>
+    . $locale->text('Login') . qq|"></td>
   </tr>
 <input type=hidden name=action value=login>
 <input type=hidden name=root value="root login">
@@ -344,7 +343,9 @@ $nologin
 | . $locale->text('Click on login name to edit!') . qq|
 <br>
 |
-    . $locale->text('To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.')
+    . $locale->text(
+    'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.'
+    )
     . qq|
 
 <p>
@@ -367,8 +368,7 @@ $nologin
 	  <th align=right>| . $locale->text('Password') . qq|</th>
 	  <td><input class=login type=password name=password></td>
 	  <td><input type=submit name=action value="|
-    . $locale->text('Login')
-    . qq|"></td>
+    . $locale->text('Login') . qq|"></td>
 	</tr>
 <input type=hidden name=path value=$form->{path}>
       </table>
@@ -420,7 +420,8 @@ sub form_header {
   %countrycodes = User->country_codes;
   $countrycodes = "";
   foreach $key (sort { $countrycodes{$a} cmp $countrycodes{$b} }
-                keys %countrycodes) {
+                keys %countrycodes
+    ) {
     $countrycodes .=
       ($myconfig->{countrycode} eq $key)
       ? "<option selected value=$key>$countrycodes{$key}"
@@ -481,6 +482,9 @@ sub form_header {
 
   $form->header;
 
+  if ($myconfig->{menustyle} eq "neu") { $neu = "checked"; }
+  else { $old = "checked"; }
+
   print qq|
 <body class=admin>
 
@@ -535,7 +539,7 @@ sub form_header {
 	</tr>
         <tr valign=top>
 	  <th align=right>| . $locale->text('Ust-IDNr') . qq|</th>
-	  <td><input name=ustid size=14 value="$myconfig->{ustid}"></td>
+	  <td><input name=co_ustid size=14 value="$myconfig->{co_ustid}"></td>
 	</tr>
         <tr valign=top>
 	  <th align=right>| . $locale->text('DUNS-Nr') . qq|</th>
@@ -585,6 +589,11 @@ sub form_header {
 	  <th align=right>| . $locale->text('Setup Templates') . qq|</th>
 	  <td><select name=mastertemplates>$mastertemplates</select></td>
 	</tr>
+       <tr>
+           <th align=right>| . $locale->text('Setup Menu') . qq|</th>
+           <td><input name=menustyle type=radio class=radio value=neu $neu>&nbsp;New
+                 <input name=menustyle type=radio class=radio value=old $old>&nbsp;Old</td>
+         </tr>
 	<input type=hidden name=templates value=$myconfig->{templates}>
       </table>
     </td>
@@ -1193,9 +1202,12 @@ sub dbselect_source {
   &dbdriver_defaults;
 
   $msg{Pg} =
-    $locale->text('Leave host and port field empty unless you want to make a remote connection.');
+    $locale->text(
+    'Leave host and port field empty unless you want to make a remote connection.'
+    );
   $msg{Oracle} =
-    $locale->text('You must enter a host and port for local and remote connections!');
+    $locale->text(
+           'You must enter a host and port for local and remote connections!');
 
   $form->{title} =
     "Lx-Office ERP / " . $locale->text('Database Administration');
@@ -1275,7 +1287,9 @@ sub dbselect_source {
 </table>
 
 <p>|
-    . $locale->text('This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!')
+    . $locale->text(
+    'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!'
+    )
 
     . qq|
 <br>$msg{$form->{dbdriver}}
@@ -1468,8 +1482,7 @@ sub create_dataset {
   <tr>
 
     <th align=right nowrap>|
-    . $locale->text('Create Chart of Accounts')
-    . qq|</th>
+    . $locale->text('Create Chart of Accounts') . qq|</th>
     <td>@charts</td>
 
   </tr>

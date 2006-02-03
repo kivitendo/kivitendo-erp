@@ -176,8 +176,12 @@ sub prepare_invoice {
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
+
+      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty = length $dec_qty;
+
       $form->{"qty_$i"} =
-        $form->format_amount(\%myconfig, ($form->{"qty_$i"} * -1));
+        $form->format_amount(\%myconfig, ($form->{"qty_$i"} * -1), $dec_qty);
 
       $form->{rowcount} = $i;
     }
@@ -223,15 +227,13 @@ sub form_header {
     if ($form->{forex}) {
       $exchangerate .= qq|
                 <th align=right nowrap>|
-        . $locale->text('Exchangerate')
-        . qq|</th>
+        . $locale->text('Exchangerate') . qq|</th>
                 <td>$form->{exchangerate}<input type=hidden name=exchangerate value=$form->{exchangerate}></td>
 |;
     } else {
       $exchangerate .= qq|
                 <th align=right nowrap>|
-        . $locale->text('Exchangerate')
-        . qq|</th>
+        . $locale->text('Exchangerate') . qq|</th>
                 <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>
 |;
     }
@@ -270,14 +272,12 @@ sub form_header {
     $button1 = qq|
        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
        <td><input type=button name=invdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
        <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
        <td width="4"><input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td></td>
+      . $locale->text('button') . qq|></td></td>
      |;
 
     #write Trigger
@@ -304,6 +304,7 @@ sub form_header {
 <input type=hidden name=title value="$form->{title}">
 <input type=hidden name=vc value="vendor">
 <input type=hidden name=type value=$form->{type}>
+<input type=hidden name=level value=$form->{level}>
 
 <input type=hidden name=creditlimit value=$form->{creditlimit}>
 <input type=hidden name=creditremaining value=$form->{creditremaining}>
@@ -330,8 +331,7 @@ sub form_header {
 		<td colspan=3>$vendor</td>
 
                 <th align=richt nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 
                 <input type=hidden name=vendor_id value=$form->{vendor_id}>
@@ -822,7 +822,7 @@ sub update {
           $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                                $decimalplaces);
         $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"});
+          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
       }
 
       &display_form;

@@ -1,4 +1,4 @@
-#=====================================================================
+# #=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -77,6 +77,23 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
+  # editing without stuff to edit? try adding it first
+  if ($form->{rowcount}) {
+    map { $id++ if $form->{"id_$_"} } (1 .. $form->{rowcount});
+    if (!$id) {
+
+      # reset rowcount
+      undef $form->{rowcount};
+      &add;
+      return;
+    }
+  } else {
+    if (!$form->{id}) {
+      &add;
+      return;
+    }
+  }
+
   if ($form->{type} eq 'purchase_order') {
     $form->{title}   = $locale->text('Edit Purchase Order');
     $form->{heading} = $locale->text('Purchase Order');
@@ -119,6 +136,21 @@ sub order_links {
   $form->{jscalendar} = $jscalendar;
 
   OE->retrieve(\%myconfig, \%$form);
+
+  # if multiple rowcounts (== collective order) then check if the
+  # there were more than one customer (in that case OE::retrieve removes
+  # the content from the field)
+  if (   $form->{rowcount}
+      && $form->{type} eq 'sales_order'
+      && defined $form->{customer}
+      && $form->{customer} eq '') {
+
+    #    $main::lxdebug->message(0, "Detected Edit order with concurrent customers");
+    $form->error(
+                 $locale->text(
+                   'Collective Orders only work for orders from one customer!')
+    );
+  }
 
   $taxincluded = $form->{taxincluded};
   $form->{shipto} = 1 if $form->{id};
@@ -192,34 +224,45 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
-  $form->{format}   = "html";
+  $form->{format}   = "pdf";
   $form->{media}    = "screen";
   $form->{formname} = $form->{type};
 
-  if ($form->{id}) {
+  map { $form->{$_} =~ s/\"/&quot;/g }
+    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
 
-    map { $form->{$_} =~ s/\"/&quot;/g }
-      qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
+  foreach $ref (@{ $form->{form_details} }) {
+    $form->{rowcount} = ++$i;
 
-    foreach $ref (@{ $form->{form_details} }) {
-      $i++;
-      map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
+    map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
+  }
+  for my $i (1 .. $form->{rowcount}) {
+    if ($form->{id}) {
       $form->{"discount_$i"} =
         $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-
-      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
-      $dec           = length $dec;
-      $decimalplaces = ($dec > 2) ? $dec : 2;
-
-      $form->{"sellprice_$i"} =
-        $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                             $decimalplaces);
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
-
-      map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-        qw(partnumber description unit);
-      $form->{rowcount} = $i;
+    } else {
+      $form->{"discount_$i"} =
+        $form->format_amount(\%myconfig, $form->{"discount_$i"});
     }
+    ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+    $dec           = length $dec;
+    $decimalplaces = ($dec > 2) ? $dec : 2;
+
+    # copy reqdate from deliverydate for invoice -> order conversion
+    $form->{"reqdate_$i"} = $form->{"deliverydate_$i"}
+      unless $form->{"reqdate_$i"};
+
+    $form->{"sellprice_$i"} =
+      $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
+                           $decimalplaces);
+
+    (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+    $dec_qty = length $dec_qty;
+    $form->{"qty_$i"} =
+      $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+
+    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
+      qw(partnumber description unit);
   }
 
   $lxdebug->leave_sub();
@@ -241,14 +284,12 @@ sub form_header {
     $button1 = qq|
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>
        <td><input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate}></td>
        <td width="4"><input type=button name=reqdate name=reqdate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -272,11 +313,9 @@ sub form_header {
 	  <table>
 	    <tr>
 	      <th nowrap><input name=closed type=radio class=radio value=0 $checkedopen> |
-      . $locale->text('Open')
-      . qq|</th>
+      . $locale->text('Open') . qq|</th>
 	      <th nowrap><input name=closed type=radio class=radio value=1 $checkedclosed> |
-      . $locale->text('Closed')
-      . qq|</th>
+      . $locale->text('Closed') . qq|</th>
 	    </tr>
 	  </table>
 	</td>
@@ -345,8 +384,7 @@ sub form_header {
                     <tr>
 		      <th align=right nowrap>| . $locale->text('Terms: Net') . qq|</th>
 		      <td nowrap><input name=terms size="3" maxlength="3" value=$form->{terms}> |
-    . $locale->text('days')
-    . qq|</td>
+    . $locale->text('days') . qq|</td>
                     </tr>
 |;
 
@@ -371,14 +409,12 @@ sub form_header {
 	      </tr>
 	      <tr>
 		<th width=70% align=right nowrap>|
-      . $locale->text('Quotation Number')
-      . qq|</th>
+      . $locale->text('Quotation Number') . qq|</th>
                 <td><input name=quonumber size=11 value="$form->{quonumber}"></td>
 	      </tr>
               <tr>
 		<th width=70% align=right nowrap>|
-      . $locale->text('Customer Order Number')
-      . qq|</th>
+      . $locale->text('Customer Order Number') . qq|</th>
                 <td><input name=cusordnumber size=11 value="$form->{cusordnumber}"></td>
 	      </tr>
 	      <tr>
@@ -419,8 +455,7 @@ sub form_header {
       $ordnumber = qq|
 	      <tr>
 		<th width=70% align=right nowrap>|
-        . $locale->text('Quotation Number')
-        . qq|</th>
+        . $locale->text('Quotation Number') . qq|</th>
 		<td><input name=quonumber size=11 value="$form->{quonumber}"></td>
 		<input type=hidden name=ordnumber value="$form->{ordnumber}">
 	      </tr>
@@ -471,6 +506,7 @@ sub form_header {
   if ($form->{type} eq 'sales_order') {
     if ($form->{selectemployee}) {
       $employee = qq|
+    <input type=hidden name=customer_klass value=$form->{customer_klass}>
  	      <tr>
 	        <th align=right nowrap>| . $locale->text('Salesperson') . qq|</th>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
@@ -481,6 +517,7 @@ sub form_header {
     }
   } else {
     $employee = qq|
+    <input type=hidden name=customer_klass value=$form->{customer_klass}>
  	      <tr>
 	        <th align=right nowrap>| . $locale->text('Employee') . qq|</th>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
@@ -537,8 +574,7 @@ sub form_header {
 		<input type=hidden name=$form->{vc}_id value=$form->{"$form->{vc}_id"}>
 		<input type=hidden name="old$form->{vc}" value="$form->{"old$form->{vc}"}">
                 <th align=richt nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 	      </tr>
 	      $creditremaining
@@ -633,8 +669,7 @@ sub form_footer {
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
 	      <input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}> <b>|
-      . $locale->text('Tax Included')
-      . qq|</b><br><br>
+      . $locale->text('Tax Included') . qq|</b><br><br>
 |;
   }
 
@@ -808,10 +843,15 @@ Bearbeiten des $form->{heading}<br>
       . $locale->text('Save as new') . qq|">
 <input class=submit type=submit name=action value="|
       . $locale->text('Delete') . qq|">|;
-    if ($form->{type} =~ /quotation$/) {
+    if ($form->{type} =~ /sales_quotation$/) {
       print qq|
 <input class=submit type=submit name=action value="|
-        . $locale->text('Order') . qq|">|;
+        . $locale->text('Sales Order') . qq|">|;
+    }
+    if ($form->{type} =~ /request_quotation$/) {
+      print qq|
+<input class=submit type=submit name=action value="|
+        . $locale->text('Purchase Order') . qq|">|;
     }
     print qq|
 <input class=submit type=submit name=action value="|
@@ -843,6 +883,14 @@ Bearbeiten des $form->{heading}<br>
         . $locale->text('Order') . qq|">
 |;
     }
+  } elsif ($form->{type} =~ /sales_order$/ && $form->{rowcount}) {
+    print qq|
+<br>Workflow  $form->{heading}<br>
+<input class=submit type=submit name=action value="|
+      . $locale->text('Save as new') . qq|">
+<input class=submit type=submit name=action value="|
+      . $locale->text('Invoice') . qq|">
+|;
   }
 
   if ($form->{menubar}) {
@@ -888,7 +936,9 @@ sub update {
                     \%myconfig, $form->{currency}, $form->{transdate}, $buysell
                     )));
 
-  my $i = $form->{rowcount};
+  # for pricegroups
+  $i = $form->{rowcount};
+
   $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
 
   if (   ($form->{"partnumber_$i"} eq "")
@@ -940,6 +990,8 @@ sub update {
           $form->{"sellprice_$i"} = $sellprice;
         } else {
 
+          $form->{"sellprice_$i"} *= (1 - $form->{tradediscount});
+
           # if there is an exchange rate adjust sellprice
           $form->{"sellprice_$i"} /= $exchangerate;
         }
@@ -960,7 +1012,13 @@ sub update {
           $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                                $decimalplaces);
         $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"});
+          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+
+        # get pricegroups for parts
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+        # build up html code for prices_$i
+        &set_pricegroup($i);
       }
 
       &display_form;
@@ -986,6 +1044,7 @@ sub update {
       }
     }
   }
+
   $lxdebug->leave_sub();
 }
 
@@ -1046,7 +1105,8 @@ sub search {
       $form->{warehouse}       = qq|$form->{warehouse}--$form->{warehouse_id}|;
 
       map {
-        $form->{selectwarehouse} .= "<option>$_->{description}--$_->{id}\n"
+        $form->{selectwarehouse} .=
+          "<option>$_->{description}--$_->{id}\n"
       } (@{ $form->{all_warehouses} });
 
       $warehouse = qq|
@@ -1099,11 +1159,9 @@ sub search {
     $openclosed = qq|
 	      <tr>
 	        <td><input name="open" class=checkbox type=checkbox value=1 checked> |
-      . $locale->text('Open')
-      . qq|</td>
+      . $locale->text('Open') . qq|</td>
 	        <td><input name="closed" class=checkbox type=checkbox value=1 $form->{closed}> |
-      . $locale->text('Closed')
-      . qq|</td>
+      . $locale->text('Closed') . qq|</td>
 	      </tr>
 |;
   } else {
@@ -1122,14 +1180,12 @@ sub search {
     $button1 = qq|
        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
        <input type=button name=transdatefrom id="trigger3" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
        <input type=button name=transdateto name=transdateto id="trigger4" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
      |;
 
     #write Trigger
@@ -1187,34 +1243,27 @@ sub search {
 		| . $locale->text('ID') . qq|</td>
 		<td><input name="l_$ordnumber" class=checkbox type=checkbox value=Y checked> $ordlabel</td>
 		<td><input name="l_transdate" class=checkbox type=checkbox value=Y checked> |
-    . $locale->text('Date')
-    . qq|</td>
+    . $locale->text('Date') . qq|</td>
 		<td><input name="l_reqdate" class=checkbox type=checkbox value=Y checked> |
-    . $locale->text('Required by')
-    . qq|</td>
+    . $locale->text('Required by') . qq|</td>
 	      </tr>
 	      <tr>
 	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vclabel</td>
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Ship via')
-    . qq|</td>
+    . $locale->text('Ship via') . qq|</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_netamount" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Amount')
-    . qq|</td>
+    . $locale->text('Amount') . qq|</td>
 		<td><input name="l_tax" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Tax')
-    . qq|</td>
+    . $locale->text('Tax') . qq|</td>
 		<td><input name="l_amount" class=checkbox type=checkbox value=Y checked> |
-    . $locale->text('Total')
-    . qq|</td>
+    . $locale->text('Total') . qq|</td>
 	      </tr>
 	      <tr>
 	        <td><input name="l_subtotal" class=checkbox type=checkbox value=Y> |
-    . $locale->text('Subtotal')
-    . qq|</td>
+    . $locale->text('Subtotal') . qq|</td>
 	      </tr>
 	    </table>
           </td>
@@ -1294,6 +1343,11 @@ sub orders {
     }
   }
 
+  # only show checkboxes if gotten here via sales_order form.
+  if ($form->{type} =~ /sales_order/) {
+    unshift @column_index, "ids";
+  }
+
   if ($form->{l_subtotal} eq 'Y') {
     $callback .= "&l_subtotal=Y";
     $href     .= "&l_subtotal=Y";
@@ -1366,6 +1420,8 @@ sub orders {
   $column_header{employee} =
     qq|<th><a class=listheading href=$href&sort=employee>$employee</a></th>|;
 
+  $column_header{ids} = qq|<th></th>|;
+
   if ($form->{ $form->{vc} }) {
     $option = $locale->text(ucfirst $form->{vc});
     $option .= " : $form->{$form->{vc}}";
@@ -1405,6 +1461,7 @@ sub orders {
   print qq|
 <body>
 
+<form method="post" action="oe.pl">
 <table width=100%>
   <tr>
     <th class=listtop>$form->{title}</th>
@@ -1425,7 +1482,7 @@ sub orders {
 |;
 
   # add sort and escape callback
-  $callback = $form->escape($callback . "&sort=$form->{sort}");
+  $callback_escaped = $form->escape($callback . "&sort=$form->{sort}");
 
   if (@{ $form->{OE} }) {
     $sameitem = $form->{OE}->[0]->{ $form->{sort} };
@@ -1437,6 +1494,7 @@ sub orders {
   $warehouse = $form->escape($form->{warehouse});
 
   foreach $oe (@{ $form->{OE} }) {
+    $form->{rowcount} = ++$j;
 
     if ($form->{l_subtotal} eq 'Y') {
       if ($sameitem ne $oe->{ $form->{sort} }) {
@@ -1465,12 +1523,14 @@ sub orders {
     $subtotalnetamount += $oe->{netamount};
     $subtotalamount    += $oe->{amount};
 
+    $column_data{ids} =
+      qq|<td><input name="id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
     $column_data{id}        = "<td>$oe->{id}</td>";
     $column_data{transdate} = "<td>$oe->{transdate}&nbsp;</td>";
     $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
 
     $column_data{$ordnumber} =
-      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&warehouse=$warehouse&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback>$oe->{$ordnumber}</a></td>";
+      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&warehouse=$warehouse&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
     $column_data{name} = "<td>$oe->{name}</td>";
 
     $column_data{employee} = "<td>$oe->{employee}&nbsp;</td>";
@@ -1528,7 +1588,27 @@ sub orders {
   <tr>
     <td><hr size=3 noshade></td>
   </tr>
-</table>
+</table>|;
+
+  # multiple invoice edit button only if gotten there via sales_order form.
+
+  if ($form->{type} =~ /sales_order/) {
+    print qq|
+  <input type="hidden" name="path" value="$form->{path}">
+  <input class"submit" type="submit" name="action" value="|
+      . $locale->text('Continue') . qq|">
+  <input type="hidden" name="nextsub" value="edit">
+  <input type="hidden" name="type" value="$form->{type}">
+  <input type="hidden" name="warehouse" value="$warehouse">
+  <input type="hidden" name="vc" value="$form->{vc}">
+  <input type="hidden" name="login" value="$form->{login}">
+  <input type="hidden" name="password" value="$form->{password}">
+  <input type="hidden" name="callback" value="$callback">
+  <input type="hidden" name="rowcount" value="$form->{rowcount}">|;
+  }
+
+  print qq|
+</form>
 
 <br>
 <form method=post action=$form->{script}>
@@ -1733,9 +1813,18 @@ sub invoice {
   $lxdebug->enter_sub();
 
   if ($form->{type} =~ /_order$/) {
-    $form->isblank("ordnumber", $locale->text('Order Number missing!'));
-    $form->isblank("transdate", $locale->text('Order Date missing!'));
 
+    # these checks only apply if the items don't bring their own ordnumbers/transdates.
+    # The if clause ensures that by searching for empty ordnumber_#/transdate_# fields.
+    $form->isblank("ordnumber", $locale->text('Order Number missing!'))
+      if (+{ map { $form->{"ordnumber_$_"}, 1 } (1 .. $form->{rowcount} - 1) }
+          ->{''});
+    $form->isblank("transdate", $locale->text('Order Date missing!'))
+      if (+{ map { $form->{"transdate_$_"}, 1 } (1 .. $form->{rowcount} - 1) }
+          ->{''});
+
+    # also copy deliverydate from the order
+    $form->{deliverydate} = $form->{reqdate} if $form->{reqdate};
   } else {
     $form->isblank("quonumber", $locale->text('Quotation Number missing!'));
     $form->isblank("transdate", $locale->text('Quotation Date missing!'));
@@ -1770,7 +1859,15 @@ sub invoice {
 
   # close orders/quotations
   $form->{closed} = 1;
-  OE->save(\%myconfig, \%$form);
+
+  # save order if one ordnumber has been given
+  # if not it's most likely a collective order, which can't be saved back
+  # so they just have to be closed
+  if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
+    OE->save(\%myconfig, \%$form);
+  } else {
+    OE->close_orders(\%myconfig, \%$form);
+  }
 
   $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} =
@@ -1843,10 +1940,18 @@ sub invoice {
     $dec           = length $dec;
     $decimalplaces = ($dec > 2) ? $dec : 2;
 
+    # copy delivery date from reqdate for order -> invoice conversion
+    $form->{"deliverydate_$i"} = $form->{"reqdate_$i"}
+      unless $form->{"deliverydate_$i"};
+
     $form->{"sellprice_$i"} =
       $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                            $decimalplaces);
-    $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+    (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+    $dec_qty = length $dec_qty;
+    $form->{"qty_$i"} =
+      $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
       qw(partnumber description unit);
@@ -2021,6 +2126,15 @@ sub save_as_new {
 sub purchase_order {
   $lxdebug->enter_sub();
 
+  if (   $form->{type} eq 'sales_quotation'
+      || $form->{type} eq 'request_quotation') {
+    $form->{closed} = 1;
+    OE->save(\%myconfig, \%$form);
+  }
+
+  ($null, $form->{cp_id}) = split /--/, $form->{contact};
+  $form->{cp_id} *= 1;
+
   $form->{title} = $locale->text('Add Purchase Order');
   $form->{vc}    = "vendor";
   $form->{type}  = "purchase_order";
@@ -2119,7 +2233,8 @@ sub ship_receive {
 
     # undo formatting from prepare_order
     map {
-      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
+      $form->{"${_}_$i"} =
+        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
     $n = ($form->{"qty_$i"} -= $form->{"ship_$i"});
     if (abs($n) > 0
@@ -2344,7 +2459,7 @@ sub display_ship_receive {
       qq|<td>$description<input type=hidden name="description_$i" value="$form->{"description_$i"}"></td>|;
     $column_data{qty} =
         qq|<td align=right>|
-      . $form->format_amount(\%myconfig, $form->{"qty_$i"})
+      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty)
       . qq|<input type=hidden name="qty_$i" value="$form->{"qty_$i"}"></td>|;
     $column_data{ship} =
         qq|<td align=right><input name="ship_$i" size=5 value=|
@@ -2655,7 +2770,7 @@ sub list_transfer {
       qq|<td><input type=hidden name="warehouse_id_$i" value=$ref->{warehouse_id}>$ref->{warehouse}&nbsp;</td>|;
     $column_data{qty} =
         qq|<td><input type=hidden name="qty_$i" value=$ref->{qty}>|
-      . $form->format_amount(\%myconfig, $ref->{qty})
+      . $form->format_amount(\%myconfig, $ref->{qty}, $dec_qty)
       . qq|</td>|;
     $column_data{transfer} = qq|<td><input name="transfer_$i" size=4></td>|;
 

@@ -34,6 +34,8 @@
 
 package AR;
 
+use Data::Dumper;
+
 sub post_transaction {
   $main::lxdebug->enter_sub();
 
@@ -52,13 +54,19 @@ sub post_transaction {
       $form->check_exchangerate($myconfig, $form->{currency},
                                 $form->{transdate}, 'buy');
   }
+  for $i (1 .. $form->{rowcount}) {
+    $form->{AR_amounts}{"amount_$i"} =
+      (split(/--/, $form->{"AR_amount_$i"}))[0];
+  }
+  ($form->{AR_amounts}{receivables}) = split(/--/, $form->{ARselected});
+  ($form->{AR}{receivables})         = split(/--/, $form->{ARselected});
 
   $form->{exchangerate} =
     ($exchangerate)
     ? $exchangerate
     : $form->parse_amount($myconfig, $form->{exchangerate});
 
-  for $i (1 .. 1) {
+  for $i (1 .. $form->{rowcount}) {
 
     $form->{"amount_$i"} =
       $form->round_amount($form->parse_amount($myconfig, $form->{"amount_$i"})
@@ -66,28 +74,54 @@ sub post_transaction {
                           2);
 
     $form->{netamount} += $form->{"amount_$i"};
+
+    # parse tax_$i for later
+    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"});
   }
 
   # this is for ar
 
   $form->{amount} = $form->{netamount};
 
-  $form->{tax} = 0;
+  $form->{tax}       = 0;
+  $form->{netamount} = 0;
+  $form->{total_tax} = 0;
 
   # taxincluded doesn't make sense if there is no amount
 
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
+  for $i (1 .. $form->{rowcount}) {
+    ($form->{"taxkey_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
 
-  $query =
-    qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{taxkey}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-  ($form->{AR}{tax}, $form->{taxrate}) = $sth->fetchrow_array;
-  $sth->finish;
+    $query =
+      qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{"taxkey_$i"}|;
+    $sth = $dbh->prepare($query);
+    $sth->execute || $form->dberror($query);
+    ($form->{AR_amounts}{"tax_$i"}, $form->{"taxrate_$i"}) =
+      $sth->fetchrow_array;
+    $form->{AR_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
+    $form->{AR_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
 
-  $form->{tax} = $form->{amount_1} * $form->{taxrate};
-  $form->{tax} = $form->round_amount($form->{tax} * $form->{exchangerate}, 2);
-  $form->{total_tax} += $form->{tax};
+    $sth->finish;
+    if (!$form->{"korrektur_$i"}) {
+      if ($form->{taxincluded} *= 1) {
+        $tax =
+          $form->{"amount_$i"} -
+          ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
+        $amount = $form->{"amount_$i"} - $tax;
+        $form->{"amount_$i"} = $form->round_amount($amount, 2);
+        $diff += $amount - $form->{"amount_$i"};
+        $form->{"tax_$i"} = $form->round_amount($tax, 2);
+        $form->{netamount} += $form->{"amount_$i"};
+      } else {
+        $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
+        $form->{"tax_$i"} =
+          $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+        $form->{netamount} += $form->{"amount_$i"};
+      }
+    }
+    $form->{total_tax} += $form->{"tax_$i"};
+  }
 
   # adjust paidaccounts if there is no date in the last row
   $form->{paidaccounts}-- unless ($form->{"datepaid_$form->{paidaccounts}"});
@@ -101,23 +135,6 @@ sub post_transaction {
 
     $form->{paid} += $form->{"paid_$i"};
     $form->{datepaid} = $form->{"datepaid_$i"};
-
-  }
-
-  if ($form->{taxincluded} *= 1) {
-    for $i (1 .. 1) {
-      $tax =
-        $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{taxrate} + 1));
-      $amount = $form->{"amount_$i"} - $tax;
-      $form->{"amount_$i"} = $form->round_amount($amount, 2);
-      $diff += $amount - $form->{"amount_$i"};
-      $form->{tax} = $form->round_amount($tax, 2);
-      $form->{total_tax} = $form->{tax};
-    }
-
-    # deduct difference from amount_1
-    # $form->{amount_1} += $form->round_amount($diff, 2);
-    $form->{netamount} = $form->{amount_1};
 
   }
 
@@ -199,24 +216,46 @@ sub post_transaction {
   }
 
   # add individual transactions for AR, amount and taxes
-  foreach my $item (keys %{ $form->{AR} }) {
-    if ($form->{$item} != 0) {
+  for $i (1 .. $form->{rowcount}) {
+    if ($form->{"amount_$i"} != 0) {
       $project_id = 'NULL';
-      if ($item =~ /amount_/) {
-        if ($form->{"project_id_$'"} && $form->{"projectnumber_$'"}) {
-          $project_id = $form->{"project_id_$'"};
+      if ("amount_$i" =~ /amount_/) {
+        if ($form->{"project_id_$i"} && $form->{"projectnumber_$i"}) {
+          $project_id = $form->{"project_id_$i"};
         }
+      }
+      if ("amount_$i" =~ /amount/) {
+        $taxkey = $form->{AR_amounts}{"amount_$i"}{taxkey};
       }
 
       # insert detail records in acc_trans
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                                          project_id, taxkey)
 		  VALUES ($form->{id}, (SELECT c.id FROM chart c
-		                        WHERE c.accno = '$form->{AR}{$item}'),
-		  $form->{$item}, '$form->{transdate}', $project_id, '$form->{taxkey}')|;
+		                        WHERE c.accno = '$form->{AR_amounts}{"amount_$i"}'),
+		  $form->{"amount_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
       $dbh->do($query) || $form->dberror($query);
+      if ($form->{"tax_$i"} != 0) {
+
+        # insert detail records in acc_trans
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                                          project_id, taxkey)
+                    VALUES ($form->{id}, (SELECT c.id FROM chart c
+                                          WHERE c.accno = '$form->{AR_amounts}{"tax_$i"}'),
+                    $form->{"tax_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
+        $dbh->do($query) || $form->dberror($query);
+      }
     }
   }
+
+  # add recievables
+  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                                      project_id)
+              VALUES ($form->{id}, (SELECT c.id FROM chart c
+                                    WHERE c.accno = '$form->{AR_amounts}{receivables}'),
+              $form->{receivables}, '$form->{transdate}', $project_id)|;
+  $dbh->do($query) || $form->dberror($query);
 
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
@@ -410,7 +449,7 @@ sub ar_transactions {
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $form->{l_employee};
   my $sortorder = join ', ', $form->sort_columns(@a);
-  $sortorder = $form->{sort} unless $sortorder;
+  $sortorder = $form->{sort} if $form->{sort};
 
   $query .= "WHERE $where
              ORDER by $sortorder";

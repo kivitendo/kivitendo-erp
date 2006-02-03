@@ -33,6 +33,7 @@
 
 use SL::IS;
 use SL::PE;
+use Data::Dumper;
 
 require "$form->{path}/io.pl";
 require "$form->{path}/arap.pl";
@@ -56,9 +57,10 @@ sub add {
   {
     $form->error("Access Denied");
   }
-
   &invoice_links;
   &prepare_invoice;
+  $form->{format} = "pdf";
+
   &display_form;
 
   $lxdebug->leave_sub();
@@ -73,7 +75,10 @@ sub edit {
   {
     $form->error("Access Denied");
   }
-
+  if ($form->{print_and_post}) {
+    $form->{action}   = "print";
+    $form->{resubmit} = 1;
+  }
   &invoice_links;
   &prepare_invoice;
   &display_form;
@@ -186,7 +191,6 @@ sub prepare_invoice {
 
   $form->{type}     = "invoice";
   $form->{formname} = "invoice";
-  $form->{format}   = "html";
   $form->{media}    = "screen";
 
   if ($form->{id}) {
@@ -194,12 +198,14 @@ sub prepare_invoice {
     map { $form->{$_} =~ s/\"/&quot;/g }
       qw(invnumber ordnumber quonumber shippingpoint shipvia notes intnotes);
 
+    #     # get pricegroups for parts
+    #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
     foreach $ref (@{ $form->{invoice_details} }) {
       $i++;
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
       $form->{"discount_$i"} =
         $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-
       ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
       $dec           = length $dec;
       $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -207,11 +213,17 @@ sub prepare_invoice {
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                              $decimalplaces);
-      $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+
+      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty = length $dec_qty;
+
+      $form->{"qty_$i"} =
+        $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
       map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
         qw(partnumber description unit partnotes);
       $form->{rowcount} = $i;
+
     }
   }
   $lxdebug->leave_sub();
@@ -315,20 +327,27 @@ sub form_header {
     $button1 = qq|
        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
        <td><input type=button name=invdate id="trigger1" value=|
-      . $locale->text('button')
-      . qq|></td>
+      . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
        <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
        <td width="4"><input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button')
-      . qq|></td></td>
+      . $locale->text('button') . qq|></td></td>
+     |;
+    $button3 = qq|
+       <td width="13"><input name=deliverydate id=deliverydate size=11 title="$myconfig{dateformat}" value=$form->{deliverydate}></td>
+       <td width="4"><input type=button name=deliverydate id="trigger3" value=|
+      . $locale->text('button') . qq|></td></td>
      |;
 
     #write Trigger
     $jsscript =
-      Form->write_trigger(\%myconfig, "2", "invdate", "BL", "trigger1",
-                          "duedate", "BL", "trigger2");
+      Form->write_trigger(\%myconfig,     "3",
+                          "invdate",      "BL",
+                          "trigger1",     "duedate",
+                          "BL",           "trigger2",
+                          "deliverydate", "BL",
+                          "trigger3");
   } else {
 
     # without JavaScript Calendar
@@ -337,16 +356,24 @@ sub form_header {
     $button2 =
       qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
   }
-
+  if ($form->{resubmit} && ($form->{format} eq "html")) {
+    $onload =
+      qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
+  } elsif ($form->{resubmit}) {
+    $onload = qq|document.invoice.submit()|;
+  } else {
+    $onload = "fokus()";
+  }
   $form->header;
 
   print qq|
-<body onLoad="fokus()">
+<body onLoad="$onload">
 
 <form method=post name="invoice" action=$form->{script}>
 
 
 <input type=hidden name=id value=$form->{id}>
+<input type=hidden name=action value=$form->{action}>
 
 <input type=hidden name=type value=$form->{type}>
 <input type=hidden name=media value=$form->{media}>
@@ -386,11 +413,11 @@ sub form_header {
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Customer') . qq|</th>
 		<td colspan=3>$customer</td>
+    <input type=hidden name=customer_klass value=$form->{customer_klass}>
 		<input type=hidden name=customer_id value=$form->{customer_id}>
 		<input type=hidden name=oldcustomer value="$form->{oldcustomer}">
                 <th align=richt nowrap>|
-    . $locale->text('Contact Person')
-    . qq|</th>
+    . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 	      </tr>
 	      <tr>
@@ -452,6 +479,10 @@ sub form_header {
 	      <tr>
 		<th align=right>| . $locale->text('Due Date') . qq|</th>
                 $button2
+	      </tr>
+	      <tr>
+		<th align=right>| . $locale->text('Delivery Date') . qq|</th>
+                $button3
 	      </tr>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
@@ -533,8 +564,7 @@ sub form_footer {
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
 	        <input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}> <b>|
-      . $locale->text('Tax Included')
-      . qq|</b><br><br>|;
+      . $locale->text('Tax Included') . qq|</b><br><br>|;
   }
 
   if (!$form->{taxincluded}) {
@@ -673,8 +703,7 @@ sub form_footer {
       <table width=100%>
 	<tr class=listheading>
 	  <th colspan=6 class=listheading>|
-    . $locale->text('Incoming Payments')
-    . qq|</th>
+    . $locale->text('Incoming Payments') . qq|</th>
 	</tr>
 |;
 
@@ -753,7 +782,7 @@ sub form_footer {
 <input type=hidden name=selectAR_paid value="$form->{selectAR_paid}">
 <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
 <input type=hidden name=oldtotalpaid value=$totalpaid>
-      </table>
+    </table>
     </td>
   </tr>
   <tr>
@@ -813,9 +842,11 @@ sub form_footer {
       <input class=submit type=submit name=action value="|
         . $locale->text('Ship to') . qq|">
       <input class=submit type=submit name=action value="|
-        . $locale->text('Print') . qq|">
+        . $locale->text('Preview') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('E-mail') . qq|">
+      <input class=submit type=submit name=action value="|
+        . $locale->text('Print and Post') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('Post') . qq|">|;
     }
@@ -851,7 +882,9 @@ sub update {
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
-
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   &check_name(customer);
 
   &check_project;
@@ -969,6 +1002,11 @@ sub update {
           }
         }
 
+        # get pricegroups for parts
+        IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+
+        # build up html code for prices_$i
+        &set_pricegroup($i);
       }
 
       &display_form;
@@ -999,7 +1037,6 @@ sub update {
 
 sub post {
   $lxdebug->enter_sub();
-
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer", $locale->text('Customer missing!'));
 
@@ -1007,6 +1044,9 @@ sub post {
   if (&check_name(customer)) {
     &update;
     exit;
+  }
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
   }
 
   &validate_items;
@@ -1045,20 +1085,55 @@ sub post {
 
   $form->{id} = 0 if $form->{postasnew};
 
-  $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
-    unless $form->{invnumber};
-
-  $form->redirect(
+  # get new invnumber in sequence if no invnumber is given or if posasnew was requested
+  if (!$form->{invnumber} || $form->{postasnew}) {
+    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
+  }
+  if ($print_post) {
+    if (!(IS->post_invoice(\%myconfig, \%$form))) {
+      $form->error($locale->text('Cannot post invoice!'));
+    }
+  } else {
+    $form->redirect(
             $form->{label} . " $form->{invnumber} " . $locale->text('posted!'))
-    if (IS->post_invoice(\%myconfig, \%$form));
-  $form->error($locale->text('Cannot post invoice!'));
+      if (IS->post_invoice(\%myconfig, \%$form));
+    $form->error($locale->text('Cannot post invoice!'));
+  }
 
   $lxdebug->leave_sub();
 }
 
-sub delete {
+sub print_and_post {
   $lxdebug->enter_sub();
 
+  $old_form               = new Form;
+  $print_post             = 1;
+  $form->{print_and_post} = 1;
+  &post();
+
+  &edit();
+  $lxdebug->leave_sub();
+
+}
+
+sub preview {
+  $lxdebug->enter_sub();
+
+  $form->{preview} = 1;
+  $old_form = new Form;
+  for (keys %$form) { $old_form->{$_} = $form->{$_} }
+  $old_form->{rowcount}++;
+
+  &print_form($old_form);
+  $lxdebug->leave_sub();
+
+}
+
+sub delete {
+  $lxdebug->enter_sub();
+  if ($form->{second_run}) {
+    $form->{print_and_post} = 0;
+  }
   $form->header;
 
   print qq|

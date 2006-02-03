@@ -337,7 +337,6 @@ sub post_invoice {
       if ($form->{"projectnumber_$i"}) {
         $project_id = $form->{"projectnumber_$i"};
       }
-      print(STDERR $project_id, " Project_id\n");
       $deliverydate =
         ($form->{"deliverydate_$i"})
         ? qq|'$form->{"deliverydate_$i"}'|
@@ -353,7 +352,6 @@ sub post_invoice {
 		  '$form->{"unit_$i"}', $deliverydate, (SELECT id FROM project WHERE projectnumber = '$project_id'),
 		  '$form->{"serialnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
-      print(STDERR $query, "\n\n");
     }
   }
 
@@ -1135,8 +1133,6 @@ sub vendor_details {
     $contact = "and cp.cp_id = $form->{cp_id}";
   }
 
-  $taxincluded = $form->{taxincluded};
-
   # get rest for the vendor
   # fax and phone and email as vendor*
   my $query =
@@ -1148,9 +1144,10 @@ sub vendor_details {
   $sth->execute || $form->dberror($query);
 
   $ref = $sth->fetchrow_hashref(NAME_lc);
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  $form->{taxincluded} = $taxincluded;
+  # remove id and taxincluded before copy back
+  delete @$ref{qw(id taxincluded)};
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
   $dbh->disconnect;
