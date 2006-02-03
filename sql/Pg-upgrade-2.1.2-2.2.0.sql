@@ -325,6 +325,6 @@ ALTER TABLE project ADD constraint project_projectnumber_key UNIQUE(projectnumbe
 -- add column deliverydate to ar
 ALTER TABLE ar ADD COLUMN deliverydate date;
 
-update defaults set version = '2.1.2';
+update defaults set version = '2.2.0';
 
 

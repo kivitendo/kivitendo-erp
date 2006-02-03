@@ -140,8 +140,8 @@ sub new {
   $self->{action} = lc $self->{action};
   $self->{action} =~ s/( |-|,|#)/_/g;
 
-  $self->{version}   = "2.1.2";
-  $self->{dbversion} = "2.1.2";
+  $self->{version}   = "2.2.0";
+  $self->{dbversion} = "2.2.0";
 
   $main::lxdebug->leave_sub();
 

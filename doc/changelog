@@ -3,7 +3,7 @@
 ####################################
 
 
-2006-01-xy - Version 2.2.0 - Revision testing (542 - 839)
+2006-02-03 - Version 2.2.0 - Revision testing (542 - 855)
 
   - Neues Menü - horizontal Anordnung 
   - Splitbuchungen für Kreditoren-, Debitoren- und Dialogbuchungen
@@ -63,9 +63,12 @@
     Bug#258:  Abschneiden der Nachkommastelle nach Drucken und Buchen
     Bug#259:  Steuerkonten wurden nicht angezeigt, wenn Rechnung und Zahlung vom gleichen Tag
     Bug#260:  Debitorenbuchungen mit doppeltem Betrag
+    Bug#262:  Falsche Berechnung der MwSt
+    Bug#264:  Swiss-German-chart.sql mit fehlenden korekten Einträgen für MwSt
     Bug#266:  Lieferdatum in Rechnungen
     Bug#267:  Bei Bilanz waren Stichtag und Vergleichsstichtag vertauscht
     Bug#270:  Rabattfehler beim Umwandeln eines Angebotes in einen Auftrag
+    Bug#275:  Es werden alle Umsätze bis zum gewählten Quartal berechnet!
 
 
 2005-02-08 - Version 2.1.1
