@@ -37,6 +37,8 @@
 
 package Form;
 
+use HTML::Template;
+
 sub _input_to_hash {
   $main::lxdebug->enter_sub();
 
@@ -417,6 +419,46 @@ function fokus(){document.$self->{fokus}.focus();}
   $self->{header} = 1;
 
   $main::lxdebug->leave_sub();
+}
+
+sub parse_html_template {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $file) = @_;
+
+  my $template = HTML::Template->new("filename" => "templates/webpages/$file",
+                                     "die_on_bad_params" => 0,
+                                     "strict" => 0,
+                                     "case_sensitive" => 1,
+                                     "loop_context_vars" => 1,
+                                     "global_vars" => 1);
+  my @params = $template->param();
+
+  if (grep("DEBUG", @params) && $self->{"DEBUG"}) {
+    $template->param("DEBUG" => "<br><em>DEBUG INFORMATION:</em><pre>" .
+                     $self->{"DEBUG"} . "</pre>");
+  }
+
+  foreach my $key (keys(%{$self})) {
+    if (("DEBUG" ne $key) && grep(${key}, @params)) {
+      $template->param($key => $self->{$key});
+    }
+  }
+
+  my $output = $template->output();
+
+  $main::lxdebug->leave_sub();
+
+  return $output;
+}
+
+sub show_generic_error {
+  my ($self, $error, $title) = @_;
+
+  $self->{"title"} = $title if ($title);
+  $self->{"label_error"} = $error;
+
+  print($self->parse_html_template("generic/error.html"));
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
