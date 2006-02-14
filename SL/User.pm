@@ -393,7 +393,7 @@ sub dbcreate {
 sub process_query {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename) = @_;
+  my ($self, $form, $dbh, $filename, $version) = @_;
 
   #  return unless (-f $filename);
 
@@ -401,6 +401,8 @@ sub process_query {
   my $query = "";
   my $sth;
   my @quote_chars;
+
+  $dbh->begin_work();
 
   while (<FH>) {
 
@@ -429,8 +431,13 @@ sub process_query {
           # Query is complete. Send it.
 
           $sth = $dbh->prepare($query);
-          $sth->execute || $form->dberror($query);
-          $sth->finish;
+          if (!$sth->execute()) {
+            $sth->finish();
+            $dbh->rollback();
+            $form->dberror("The database update/creation did not succeed. The file ${filename} containing the following query failed:<br>${query}<br>" .
+                           "All changes in that file have been reverted.");
+          }
+          $sth->finish();
 
           $char  = "";
           $query = "";
@@ -440,6 +447,11 @@ sub process_query {
       }
     }
   }
+
+  if ($version) {
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  }
+  $dbh->commit();
 
   close FH;
 
@@ -696,6 +708,7 @@ sub dbupdate {
       $a =~ s/^$form->{dbdriver}-upgrade-|\.sql$//g;
 
       my ($mindb, $maxdb) = split /-/, $a;
+      my $str_maxdb = $maxdb;
       ## LINET
       $mindb = calc_version($mindb);
       $maxdb = calc_version($maxdb);
@@ -707,7 +720,7 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
-      $self->process_query($form, $dbh, "sql/$upgradescript");
+      $self->process_query($form, $dbh, "sql/$upgradescript", $str_maxdb);
 
       $version = $maxdb;
 
