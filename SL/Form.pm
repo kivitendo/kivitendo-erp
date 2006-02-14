@@ -401,6 +401,7 @@ function fokus(){document.$self->{fokus}.focus();}
 
     print qq|Content-Type: text/html
 
+<html>
 <head>
   <title>$self->{titlebar}</title>
   $stylesheet
