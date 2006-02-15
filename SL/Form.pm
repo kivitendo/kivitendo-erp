@@ -424,9 +424,19 @@ function fokus(){document.$self->{fokus}.focus();}
 sub parse_html_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $file) = @_;
+  my ($self, $myconfig, $file) = @_;
 
-  my $template = HTML::Template->new("filename" => "templates/webpages/$file",
+  if (-f "templates/webpages/${file}_" . $myconfig->{"countrycode"} .
+      ".html") {
+    $file = "templates/webpages/${file}_" . $myconfig->{"countrycode"} .
+      ".html";
+  } elsif (-f "templates/webpages/${file}.html") {
+    $file = "templates/webpages/${file}.html";
+  } else {
+    $self->error("Web page template '${file}' not found.");
+  }
+
+  my $template = HTML::Template->new("filename" => $file,
                                      "die_on_bad_params" => 0,
                                      "strict" => 0,
                                      "case_sensitive" => 1,
@@ -453,12 +463,12 @@ sub parse_html_template {
 }
 
 sub show_generic_error {
-  my ($self, $error, $title) = @_;
+  my ($self, $myconfig, $error, $title) = @_;
 
   $self->{"title"} = $title if ($title);
   $self->{"label_error"} = $error;
 
-  print($self->parse_html_template("generic/error.html"));
+  print($self->parse_html_template($myconfig, "generic/error"));
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
