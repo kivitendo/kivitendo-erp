@@ -245,17 +245,7 @@ sub error {
     $msg =~ s/\n/<br>/g;
 
     $self->header;
-
-    print qq|
-    <body>
-
-    <h2 class=error>Error!</h2>
-
-    <p><b>$msg</b>
-
-    </body>
-    </html>
-    |;
+    $self->show_generic_error($msg);
 
     die "Error: $msg\n";
 
