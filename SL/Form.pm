@@ -424,7 +424,7 @@ function fokus(){document.$self->{fokus}.focus();}
 sub parse_html_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $file) = @_;
+  my ($self, $myconfig, $file, $additional_params) = @_;
 
   if (-f "templates/webpages/${file}_" . $myconfig->{"countrycode"} .
       ".html") {
@@ -442,15 +442,23 @@ sub parse_html_template {
                                      "case_sensitive" => 1,
                                      "loop_context_vars" => 1,
                                      "global_vars" => 1);
-  my @params = $template->param();
 
-  if (grep("DEBUG", @params) && $self->{"DEBUG"}) {
-    $template->param("DEBUG" => "<br><em>DEBUG INFORMATION:</em><pre>" .
-                     $self->{"DEBUG"} . "</pre>");
+  $additional_params = {} unless ($additional_params);
+  if ($self->{"DEBUG"}) {
+    $additional_params->{"DEBUG"} = $self->{"DEBUG"};
   }
 
-  foreach my $key (keys(%{$self})) {
-    if (("DEBUG" ne $key) && grep(${key}, @params)) {
+  if ($additional_params->{"DEBUG"}) {
+    $additional_params->{"DEBUG"} =
+      "<br><em>DEBUG INFORMATION:</em><pre>" . $additional_params->{"DEBUG"} . "</pre>";
+  }
+
+  my @additional_param_names = keys(%{$additional_params});
+
+  foreach my $key ($template->param()) {
+    if (grep(/^${key}$/, @additional_param_names)) {
+      $template->param($key => $additional_params->{$key});
+    } else {
       $template->param($key => $self->{$key});
     }
   }
@@ -465,10 +473,11 @@ sub parse_html_template {
 sub show_generic_error {
   my ($self, $myconfig, $error, $title) = @_;
 
-  $self->{"title"} = $title if ($title);
+  my $add_params = {};
+  $add_params->{"title"} = $title if ($title);
   $self->{"label_error"} = $error;
 
-  print($self->parse_html_template($myconfig, "generic/error"));
+  print($self->parse_html_template($myconfig, "generic/error", $add_params));
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
