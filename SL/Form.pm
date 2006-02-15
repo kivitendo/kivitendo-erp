@@ -421,14 +421,15 @@ function fokus(){document.$self->{fokus}.focus();}
   $main::lxdebug->leave_sub();
 }
 
+use Data::Dumper;
 sub parse_html_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $file, $additional_params) = @_;
+  my ($self, $file, $additional_params) = @_;
 
-  if (-f "templates/webpages/${file}_" . $myconfig->{"countrycode"} .
+  if (-f "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
       ".html") {
-    $file = "templates/webpages/${file}_" . $myconfig->{"countrycode"} .
+    $file = "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
       ".html";
   } elsif (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
@@ -471,13 +472,13 @@ sub parse_html_template {
 }
 
 sub show_generic_error {
-  my ($self, $myconfig, $error, $title) = @_;
+  my ($self, $error, $title) = @_;
 
   my $add_params = {};
   $add_params->{"title"} = $title if ($title);
   $self->{"label_error"} = $error;
 
-  print($self->parse_html_template($myconfig, "generic/error", $add_params));
+  print($self->parse_html_template("generic/error", $add_params));
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
