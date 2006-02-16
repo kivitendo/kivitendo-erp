@@ -2,6 +2,7 @@
 
 # -n do not include custom_ scripts
 
+use POSIX;
 use FileHandle;
 
 $basedir  = "../..";
@@ -34,6 +35,13 @@ if ($arg{n}) {
 # slurp the translations in
 if (-f 'all') {
   require "all";
+}
+
+# Read HTML templates.
+%htmllocale = ();
+@htmltemplates = <../../templates/webpages/*/*_master.html>;
+foreach $file (@htmltemplates) {
+  scanhtmlfile($file);
 }
 
 foreach $file (@progfiles) {
@@ -72,7 +80,7 @@ foreach $file (@progfiles) {
   unlink 'missing';
 
   foreach $text (keys %$missing) {
-    if ($locale{$text}) {
+    if ($locale{$text} || $htmllocale{$text}) {
       unless ($self{texts}{$text}) {
         $self{texts}{$text} = $missing->{$text};
       }
@@ -138,6 +146,10 @@ $self{subs} = {
 |;
 
   close FH;
+}
+
+foreach $file (@htmltemplates) {
+  converthtmlfile($file);
 }
 
 # now print out all
@@ -379,3 +391,98 @@ sub scanmenu {
 
 }
 
+sub scanhtmlfile {
+  local *IN;
+
+  open(IN, $_[0]) || die;
+
+  my $copying = 0;
+  my $text = "";
+  while (my $line = <IN>) {
+    chomp($line);
+
+    while ("" ne $line) {
+      if (!$copying) {
+        if ($line =~ m|<translate>|i) {
+          substr($line, 0, $+[0]) = "";
+          $copying = 1;
+
+        } else {
+          $line = "";
+        }
+
+      } else {
+        if ($line =~ m|</translate>|i) {
+          $text .= $`;
+          substr($line, 0, $+[0]) = "";
+          $copying = 0;
+          $alllocales{$text} = 1;
+          $htmllocale{$text} = 1;
+          $text = "";
+
+        } else {
+          $text .= $line;
+          $line = "";
+        }
+      }
+    }
+  }
+
+  close(IN);
+}
+
+sub converthtmlfile {
+  local *IN;
+  local *OUT;
+
+  open(IN, $_[0]) || die;
+
+  my $langcode = (split("/", getcwd()))[-1];
+  $_[0] =~ s/_master.html$/_${langcode}.html/;
+
+  open(OUT, ">${_[0]}") || die;
+
+  my $copying = 0;
+  my $text = "";
+  while (my $line = <IN>) {
+    chomp($line);
+    if ("" eq $line) {
+      print(OUT "\n");
+      next;
+    }
+
+    while ("" ne $line) {
+      if (!$copying) {
+        if ($line =~ m|<translate>|i) {
+          print(OUT $`);
+          substr($line, 0, $+[0]) = "";
+          $copying = 1;
+          print(OUT "\n") if ("" eq $line);
+
+        } else {
+          print(OUT "${line}\n");
+          $line = "";
+        }
+
+      } else {
+        if ($line =~ m|</translate>|i) {
+          $text .= $`;
+          substr($line, 0, $+[0]) = "";
+          $copying = 0;
+          $alllocales{$text} = 1;
+          $htmllocale{$text} = 1;
+          print(OUT $self{"texts"}{$text});
+          print(OUT "\n") if ("" eq $line);
+          $text = "";
+
+        } else {
+          $text .= $line;
+          $line = "";
+        }
+      }
+    }
+  }
+
+  close(IN);
+  close(OUT);
+}
