@@ -434,7 +434,10 @@ sub parse_html_template {
   } elsif (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
   } else {
-    $self->error("Web page template '${file}' not found.");
+    my $info = "Web page template '${file}' not found.\n" .
+      "Please re-run 'locales.pl' in 'locale/" . $main::myconfig{"countrycode"} . "'.";
+    print(qq|<pre>$info</pre>|);
+    die($info);
   }
 
   my $template = HTML::Template->new("filename" => $file,
