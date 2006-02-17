@@ -418,7 +418,7 @@ sub parse_html_template {
 
   if (-f "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
       ".html") {
-    if ((-f ".developper") &&
+    if ((-f ".developer") &&
         (-f "templates/webpages/${file}_master.html") &&
         ((stat("templates/webpages/${file}_master.html"))[9] >
          (stat("templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
