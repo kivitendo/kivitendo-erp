@@ -143,7 +143,6 @@ sub new {
   $self->{action} =~ s/( |-|,|#)/_/g;
 
   $self->{version}   = "2.2.0";
-  $self->{dbversion} = "2.2.0";
 
   $main::lxdebug->leave_sub();
 

@@ -162,7 +162,7 @@ sub login {
 
     $rc = 0;
 
-    if ($form->{dbversion} ne $dbversion) {
+    if (&update_available($dbversion)) {
 
       # update the tables
       open FH, ">$userspath/nologin" or die "
@@ -651,6 +651,16 @@ sub cmp_script_version {
   return $res_a <=> $res_b;
 }
 ## /LINET
+
+sub update_available {
+  ($cur_version) = @_;
+    opendir SQLDIR, "sql/." or &error("", "$!");
+    my @upgradescripts = 
+      grep(/$form->{dbdriver}-upgrade-$cur_version.*\.sql/, readdir(SQLDIR));
+    closedir SQLDIR;
+    
+    return ($#upgradescripts > -1);
+}
 
 sub dbupdate {
   $main::lxdebug->enter_sub();
