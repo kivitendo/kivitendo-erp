@@ -418,6 +418,17 @@ sub parse_html_template {
 
   if (-f "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
       ".html") {
+    if ((-f ".developper") &&
+        (-f "templates/webpages/${file}_master.html") &&
+        ((stat("templates/webpages/${file}_master.html"))[9] >
+         (stat("templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
+               ".html"))[9])) {
+      my $info = "Developper information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
+        "Please re-run 'locales.pl' in 'locale/" . $main::myconfig{"countrycode"} . "'.";
+      print(qq|<pre>$info</pre>|);
+      die($info);
+    }
+
     $file = "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
       ".html";
   } elsif (-f "templates/webpages/${file}.html") {
