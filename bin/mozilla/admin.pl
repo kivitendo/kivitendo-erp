@@ -442,6 +442,7 @@ sub form_header {
 
   @allhtml = sort grep /\.html/, @all;
   @alldir = grep !/\.(html|tex)$/, @all;
+  @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
   push @allhtml, 'Default';
