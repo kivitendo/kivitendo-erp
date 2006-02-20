@@ -432,9 +432,11 @@ sub process_query {
 
           $sth = $dbh->prepare($query);
           if (!$sth->execute()) {
+            my $errstr = $dbh->errstr;
             $sth->finish();
             $dbh->rollback();
             $form->dberror("The database update/creation did not succeed. The file ${filename} containing the following query failed:<br>${query}<br>" .
+                           "The error message was: ${errstr}<br>" .
                            "All changes in that file have been reverted.");
           }
           $sth->finish();
