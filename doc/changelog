@@ -2,6 +2,10 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 
+2006-02-20 - Version 2.2.1
+
+  - Bugfix 288,290,296,297 - Upgradeskript fehlerhaft
+  - Bugfix Druck eines Lieferscheins fehlte in der Rechnungsmaske 
 
 2006-02-03 - Version 2.2.0 - Revision testing (542 - 855)
 
