@@ -1298,7 +1298,10 @@ sub print_options {
 
   if ($form->{type} eq 'invoice') {
     $type = qq|<select name=formname>
-	    <option value=invoice $form->{PD}{invoice}>| . $locale->text('Invoice');
+	    <option value=invoice $form->{PD}{invoice}>|
+      . $locale->text('Invoice') . qq|
+      <option value=packing_list $form->{PD}{packing_list}>|
+      . $locale->text('Packing List');
   }
 
   if ($form->{type} eq 'ship_order') {
