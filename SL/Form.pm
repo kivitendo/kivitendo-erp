@@ -415,27 +415,31 @@ sub parse_html_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $file, $additional_params) = @_;
+  my $language;
 
-  if (-f "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
-      ".html") {
+  if (!defined($main::myconfig) || !defined($main::myconfig{"countrycode"})) {
+    $language = $main::language;
+  } else {
+    $language = $main::myconfig{"countrycode"};
+  }
+
+  if (-f "templates/webpages/${file}_${language}.html") {
     if ((-f ".developer") &&
         (-f "templates/webpages/${file}_master.html") &&
         ((stat("templates/webpages/${file}_master.html"))[9] >
-         (stat("templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
-               ".html"))[9])) {
+         (stat("templates/webpages/${file}_${language}.html"))[9])) {
       my $info = "Developper information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
-        "Please re-run 'locales.pl' in 'locale/" . $main::myconfig{"countrycode"} . "'.";
+        "Please re-run 'locales.pl' in 'locale/${language}'.";
       print(qq|<pre>$info</pre>|);
       die($info);
     }
 
-    $file = "templates/webpages/${file}_" . $main::myconfig{"countrycode"} .
-      ".html";
+    $file = "templates/webpages/${file}_${language}.html";
   } elsif (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
   } else {
     my $info = "Web page template '${file}' not found.\n" .
-      "Please re-run 'locales.pl' in 'locale/" . $main::myconfig{"countrycode"} . "'.";
+      "Please re-run 'locales.pl' in 'locale/${language}'.";
     print(qq|<pre>$info</pre>|);
     die($info);
   }
