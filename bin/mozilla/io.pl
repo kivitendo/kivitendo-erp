@@ -1348,14 +1348,14 @@ sub print_options {
       . $locale->text('Postscript');
   }
 
-  $language = qq|<select name=language>
+  $language_select = qq|<select name=language>
                  <option value=""></option>|;
   %lang = (de => "deutsch", en => "englisch", fr => "französisch");
   foreach $item (keys %lang) {
     if ($form->{language} eq $item) {
-      $language .= qq|<option value="$item" selected>$lang{$item}</option>|;
+      $language_select .= qq|<option value="$item" selected>$lang{$item}</option>|;
     } else {
-      $language .= qq|<option value="$item">$lang{$item}</option>|;
+      $language_select .= qq|<option value="$item">$lang{$item}</option>|;
     }
   }
 
@@ -1366,7 +1366,7 @@ sub print_options {
       <table>
 	<tr>
 	  <td>$type</select></td>
-          <td>$language</select</td>
+          <td>${language_select}</select></td>
 	  <td>$format</select></td>
 	  <td>$media</select></td>
 |;
@@ -1554,9 +1554,9 @@ sub print_form {
   my ($saved_email, $saved_cc, $saved_bcc) =
     ($form->{"email"}, $form->{"cc"}, $form->{"bcc"});
 
-  $language = $form->{language};
+  $language_saved = $form->{language};
   &{"$form->{vc}_details"};
-  $form->{language} = $language;
+  $form->{language} = $language_saved;
 
   $form->{"email"} = $saved_email if ($saved_email);
   $form->{"cc"}    = $saved_cc    if ($saved_cc);
