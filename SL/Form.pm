@@ -197,7 +197,7 @@ sub quote {
   my ($self, $str) = @_;
 
   if ($str && !ref($str)) {
-    $str =~ s/"/&quot;/g;
+    $str =~ s/\"/&quot;/g;
   }
 
   $str;
@@ -208,7 +208,7 @@ sub unquote {
   my ($self, $str) = @_;
 
   if ($str && !ref($str)) {
-    $str =~ s/&quot;/"/g;
+    $str =~ s/&quot;/\"/g;
   }
 
   $str;
@@ -692,7 +692,7 @@ sub parse_amount {
   }
 
   if ($myconfig->{numberformat} eq "1'000.00") {
-    $amount =~ s/'//g;
+    $amount =~ s/\'//g;
   }
 
   $amount =~ s/,//g;
