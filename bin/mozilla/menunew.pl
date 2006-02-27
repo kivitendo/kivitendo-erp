@@ -52,7 +52,7 @@ sub display {
   &acc_menu;
 
   print qq|
-<iframe src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
+<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
 <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
 </p>
 </iframe>
@@ -175,6 +175,8 @@ sub acc_menu {
 var isDOM = (document.getElementById ? true : false); 
 var isIE4 = ((document.all && !isDOM) ? true : false);
 var isNS4 = (document.layers ? true : false);
+//var KO = (navigator.appName=="Konqueror" \|\| navigator.appName=="Opera") ;
+var KO = ((navigator.userAgent.indexOf('Opera',0) != -1) \|\| (navigator.userAgent.indexOf('Konqueror',0) != -1));
 function getRef(id) {
 	if (isDOM) return document.getElementById(id);
 	if (isIE4) return document.all[id];
@@ -186,6 +188,7 @@ function getSty(id) {
 var popTimer = 0;
 var litNow = new Array();
 function popOver(menuNum, itemNum) {
+	if (KO) document.getElementById("win1").style.visibility = "hidden";
 	clearTimeout(popTimer);
 	hideAllBut(menuNum);
 	litNow = getTree(menuNum, itemNum);
@@ -204,6 +207,7 @@ function popOver(menuNum, itemNum) {
 function popOut(menuNum, itemNum) {
 	if ((menuNum == 0) && !menu[menuNum][itemNum].target)
 		hideAllBut(0)
+		if (KO) document.getElementById("win1").style.visibility = "visible";
 	else
 		popTimer = setTimeout('hideAllBut(0)', 500);
 }
@@ -234,6 +238,7 @@ function hideAllBut(menuNum) {
 			menu[count][0].ref.visibility = 'hidden';
 	changeCol(litNow, false);
 }
+
 function Menu(isVert, popInd, x, y, width, overCol, backCol, borderClass, textClass) {
 	this.isVert = isVert;
 	this.popInd = popInd
@@ -334,6 +339,7 @@ document.onclick = clickHandle;
 function clickHandle(evt) {
 	if (isNS4) document.routeEvent(evt);
 	hideAllBut(0);
+	if (KO) document.getElementById("win1").style.visibility = "visible";
 }
 function moveRoot() {
 	with(menu[0][0].ref) left = ((parseInt(left) < 100) ? 100 : 5);
@@ -422,7 +428,7 @@ sub section_menu {
           qq|menu[0][$mm] = new Item('  $label', '#', '', $breit, 10, $pm);	\n|;
         print qq|menu[$pm] = new Array();\n|;
         print
-          qq|menu[$pm][0] = new Menu(true, '>', 0, 22, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;
+          qq|menu[$pm][0] = new Menu(true, '>', 0, 20, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;
 
         #print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
