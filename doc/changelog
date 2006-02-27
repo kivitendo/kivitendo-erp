@@ -2,10 +2,14 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 
-2006-02-20 - Version 2.2.1
+2006-02-27 - Version 2.2.1 (856 - 941)
 
   - Bugfix 288,290,296,297 - Upgradeskript fehlerhaft
-  - Bugfix Druck eines Lieferscheins fehlte in der Rechnungsmaske 
+  - Bugfix Druck eines Lieferscheins fehlte in der Rechnungsmaske
+  - Bugfix 300 - falsches Quoten bei Kreditorenbuchungen
+  - Bugfix 301 - Opera/Konqueror - fehlerhafte Anzeige des neuen Menus
+  - Bugfix - Kundenmaske falsche max. Laenge von Firmenname und Lieferstr.
+  - Bugfix - Zeilenumbrueche in locales entfernt
 
 2006-02-03 - Version 2.2.0 - Revision testing (542 - 855)
 
