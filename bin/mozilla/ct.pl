@@ -646,7 +646,7 @@ sub form_header {
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Company Name') . qq|</th>
-	  <td><input name=name size=35 maxlength=35 tabindex=1 value="$form->{name}"></td>
+	  <td><input name=name size=35 maxlength=75 tabindex=1 value="$form->{name}"></td>
 	  <td><input name=shiptoname size=35 maxlength=75 value="$form->{shiptoname}"></td>
 	</tr>
 	<tr>
@@ -659,7 +659,7 @@ sub form_header {
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Street') . qq|</th>
 	  <td><input name=street size=35 tabindex=4 maxlength=75 value="$form->{street}"></td>
-	  <td><input name=shiptostreet size=35 maxlength=35 value="$form->{shiptostreet}"></td>
+	  <td><input name=shiptostreet size=35 maxlength=75 value="$form->{shiptostreet}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>|
