@@ -783,7 +783,16 @@ sub parse_template {
 
     $par = "";
     $var = $_;
-
+ 
+    # Switch <%analyse%> for template checking
+    # If <%analyse%> is set in the template, you'll find the 
+    # parsed output in the user Directory for analysing
+    # Latex errors
+    # <%analyse%> is a switch (allways off, on if set), not a Variable
+    # Set $form->{analysing}="" for system state: never analyse.
+    # Set $form->{analysing}="1" for system state: ever analyse.
+    $self->{analysing} = "1" if (/<%analyse%>/ && !defined $self->{analysing});    
+    
     $two_passes = 1 if (/\\pageref/);
 
     # { Moritz Bunkus
@@ -1108,12 +1117,14 @@ sub cleanup {
     close(FH);
   }
 
-  if ($self->{tmpfile}) {
+  if ($self->{analysing} eq "") {
+    if ($self->{tmpfile}) {
 
-    # strip extension
-    $self->{tmpfile} =~ s/\.\w+$//g;
-    my $tmpfile = $self->{tmpfile};
-    unlink(<$tmpfile.*>);
+      # strip extension
+      $self->{tmpfile} =~ s/\.\w+$//g;  
+      my $tmpfile = $self->{tmpfile};
+      unlink(<$tmpfile.*>);
+    }
   }
 
   chdir("$self->{cwd}");
