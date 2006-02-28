@@ -939,12 +939,12 @@ sub parse_template {
     # check for <%include filename%>
     if (/\s*<%include /) {
 
-      # get the filename
+      # get the directory/filename
       chomp $var;
       $var =~ s/\s*<%include (.+?)%>/$1/;
 
-      # mangle filename
-      $var =~ s/(\/|\.\.)//g;
+      # mangle filename on basedir
+      $var =~ s/^(\/|\.\.)//g;
 
       # prevent the infinite loop!
       next if ($self->{"$var"});
