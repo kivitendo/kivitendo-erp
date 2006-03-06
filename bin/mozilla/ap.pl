@@ -540,7 +540,7 @@ $jsscript
     $selectAP_amount = $selectAP_amount_unquoted;
     $re_amount = quotemeta($form->{"AP_amount_$i"});
     $selectAP_amount =~
-      s/option value=\"${re_amount}\"/option value=\"${re_amount}\" selected/;
+      s/option value=\"${re_amount}\"/option value=\"$form->{"AP_amount_$i"}\" selected/;
     $tax          = $taxchart;
     $tax_selected = $form->{"taxchart_$i"};
     $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
