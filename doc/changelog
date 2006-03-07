@@ -2,6 +2,10 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 
+2006-03-07 - Version 2.2.2 (942 - 970) 
+  - Bugfix 308 - falsches Quoten bei Kreditorenbuchungen
+  - Bugfix 306 - UStVa Vorschau vervollstaendigt
+
 2006-02-27 - Version 2.2.1 (856 - 941)
 
   - Bugfix 288,290,296,297 - Upgradeskript fehlerhaft
