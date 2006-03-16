@@ -76,6 +76,9 @@ sub post_transaction {
                            $form->{exchangerate} * -1,
                          2);
     $amount += ($form->{"amount_$i"} * -1);
+
+    # parse tax_$i for later
+    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"}) * -1;
   }
 
   # this is for ap
