@@ -4,6 +4,7 @@ use constant NONE   => 0;
 use constant INFO   => 1;
 use constant DEBUG1 => 2;
 use constant DEBUG2 => 3;
+use constant QUERY  => 4;
 
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
@@ -105,10 +106,11 @@ sub message {
   }
 
   if ($log_level >= $level) {
-    $self->_write(INFO == $level
-                  ? "info"
-                  : DEBUG1 == $level ? "debug1" : "debug2",
-                  $message);
+    $self->_write(INFO   == $level ? "info"
+                : DEBUG1 == $level ? "debug1" 
+                : DEBUG2 == $level ? "debug2"
+                : QUERY  == $level ? "query":"",
+                $message );
   }
 }
 
@@ -131,7 +133,7 @@ sub enable_sub_tracing {
 
 sub disable_sub_tracing {
   my ($self) = @_;
-  $self->{"trace_subs"} = 1;
+  $self->{"trace_subs"} = 0;
 }
 
 sub _write {
