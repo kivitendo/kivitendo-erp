@@ -116,12 +116,14 @@ sub post_transaction {
     } else {
       if (!$form->{"korrektur_$i"}) {
         $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
+      } else {
+        $tax = $form->{"tax_$i"};
       }
       $form->{"tax_$i"} =
         $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
       $form->{netamount} += $form->{"amount_$i"};
     }
-    $form->{total_tax} += $form->{"tax_$i"};
+    $form->{total_tax} += $form->{"tax_$i"} * -1;
   }
 
   # adjust paidaccounts if there is no date in the last row
