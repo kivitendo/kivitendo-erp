@@ -538,7 +538,7 @@ sub all_transactions {
 
   if ($form->{accno}) {
     $query =
-      qq|SELECT c.description FROM chart c WHERE c.accno = '$form->{accno}
+      qq|SELECT c.description FROM chart c WHERE c.accno = '$form->{accno}'|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
