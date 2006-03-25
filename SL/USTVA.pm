@@ -861,7 +861,10 @@ sub get_accounts_ustva {
   my $accno;
   my $ref;
 
-  #print $query;
+  # Show all $query in Debuglevel LXDebug::QUERY
+  $callingdetails = (caller (0))[3];
+  $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
+              
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
