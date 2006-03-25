@@ -362,7 +362,7 @@ sub all_transactions {
   }
 
   my $query =
-    qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, t.type AS taxtype,
+    qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
                  g.description, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, g.notes, t.chart_id, ac.oid
                  FROM gl g, acc_trans ac, chart c LEFT JOIN tax t ON
@@ -371,7 +371,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND g.id = ac.trans_id
 	UNION
-	         SELECT a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, t.type AS taxtype,
+	         SELECT a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
 		 FROM ar a, acc_trans ac, customer ct, chart c LEFT JOIN tax t ON
@@ -381,7 +381,7 @@ sub all_transactions {
 		 AND a.customer_id = ct.id
 		 AND a.id = ac.trans_id
 	UNION
-	         SELECT a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, t.type AS taxtype,
+	         SELECT a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
 		 FROM ap a, acc_trans ac, vendor ct, chart c LEFT JOIN tax t ON
@@ -390,7 +390,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND a.vendor_id = ct.id
 		 AND a.id = ac.trans_id
-	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, taxtype DESC,oid|;
+	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, oid|;
 
   # Show all $query in Debuglevel LXDebug::QUERY
   $callingdetails = (caller (0))[3];
@@ -400,6 +400,7 @@ sub all_transactions {
   $sth->execute || $form->dberror($query);
   my $trans_id  = "";
   my $trans_id2 = "";
+
   while (my $ref0 = $sth->fetchrow_hashref(NAME_lc)) {
     
     $trans_id = $ref0->{id};
@@ -472,7 +473,7 @@ sub all_transactions {
       $ref2      = $ref0;
       $trans_old  =$trans_id2;
       $trans_id2 = $ref2->{id};
-
+  
       $balance =
         (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
 
@@ -483,15 +484,16 @@ sub all_transactions {
           if ($ref->{debit_tax_accno}{$i} ne "") {
             $i++;
           }
-          if ($ref2->{taxtype} eq 'U') {
+
+          if ($ref2->{link} =~ /AR_tax/) {
             $ref->{credit_tax}{$j}       = $ref2->{amount};
             $ref->{credit_tax_accno}{$j} = $ref2->{accno};              
           }
-          if ($ref2->{taxtype} eq 'V') {
+          if ($ref2->{link} =~ /AP_tax/) {
             $ref->{debit_tax}{$j}       = $ref2->{amount} * -1;
-            $ref->{debit_tax_accno}{$j} = $ref2->{accno};              
+            $ref->{debit_tax_accno}{$j} = $ref2->{accno};   
           }
-
+          
         } else {
 
           if ($ref->{debit_accno}{$k} ne "") {
@@ -509,13 +511,14 @@ sub all_transactions {
           if ($ref->{credit_tax_accno}{$j} ne "") {
             $j++;
           }
-          if ($ref2->{taxtype} eq 'U') {
+
+          if ($ref2->{link} =~ /AR_tax/) {
             $ref->{credit_tax}{$j}       = $ref2->{amount};
-            $ref->{credit_tax_accno}{$j} = $ref2->{accno};              
+            $ref->{credit_tax_accno}{$j} = $ref2->{accno}; 
           }
-          if ($ref2->{taxtype} eq 'V') {
+          if ($ref2->{link} =~ /AP_tax/) {
             $ref->{debit_tax}{$j}       = $ref2->{amount} * -1;
-            $ref->{debit_tax_accno}{$j} = $ref2->{accno};              
+            $ref->{debit_tax_accno}{$j} = $ref2->{accno};  
           }
 
         } else {
