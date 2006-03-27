@@ -792,6 +792,7 @@ $self{texts} = {
   'Unit'                        => 'Einheit',
   'Unit of measure'             => 'Maßeinheit',
   'Unlock System'               => 'System entsperren',
+  'Until'                       => 'Bis',
   'Update'                      => 'Erneuern',
   'Update Dataset'              => 'Datenbank aktualisieren',
   'Updated'                     => 'Erneuert am',
