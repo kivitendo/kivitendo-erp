@@ -259,22 +259,23 @@ sub account_header {
 		<input type=hidden name=selectbwa value="$form->{selectbwa}">
 	      </tr>|;
 
-  $form->{selectbilanz} = "<option>\n";
-  foreach $item ((1, 2, 3, 4)) {
-    if ($item == $form->{pos_bilanz}) {
-      $form->{selectbilanz} .= "<option value=$item selected>$item\n";
-    } else {
-      $form->{selectbilanz} .= "<option value=$item>$item\n";
-    }
-
-  }
-
-  $bilanz = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Bilanz') . qq|</th>
-		<td><select name=pos_bilanz>$form->{selectbilanz}</select></td>
-		<input type=hidden name=selectbilanz value="$form->{selectbilanz}">
-	      </tr>|;
+# Entfernt bis es ordentlich umgesetzt wird (hli) 30.03.2006
+#  $form->{selectbilanz} = "<option>\n";
+#  foreach $item ((1, 2, 3, 4)) {
+#    if ($item == $form->{pos_bilanz}) {
+#      $form->{selectbilanz} .= "<option value=$item selected>$item\n";
+#    } else {
+#      $form->{selectbilanz} .= "<option value=$item>$item\n";
+#    }
+#
+#  }
+#
+#  $bilanz = qq|
+#	      <tr>
+#		<th align=right>| . $locale->text('Bilanz') . qq|</th>
+#		<td><select name=pos_bilanz>$form->{selectbilanz}</select></td>
+#		<input type=hidden name=selectbilanz value="$form->{selectbilanz}">
+#	      </tr>|;
 
   # this is for our parser only!
   # type=submit $locale->text('Add Account')
@@ -321,6 +322,8 @@ sub account_header {
     . $locale->text('Asset') . qq|\n<br>
 		<input name=category type=radio class=radio value=L $checked{L_}>&nbsp;|
     . $locale->text('Liability') . qq|\n<br>
+		<input name=category type=radio class=radio value=Q $checked{Q_}>&nbsp;|
+    . $locale->text('Equity') . qq|\n<br>
 		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
     . $locale->text('Revenue') . qq|\n<br>
 		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
@@ -390,7 +393,7 @@ sub account_header {
 		<input name=IC_sale type=checkbox class=checkbox value=IC_sale $form->{IC_sale}>&nbsp;|
       . $locale->text('Revenue') . qq|\n<br>
 		<input name=IC_cogs type=checkbox class=checkbox value=IC_cogs $form->{IC_cogs}>&nbsp;|
-      . $locale->text('COGS') . qq|\n<br>
+      . $locale->text('Expense') . qq|\n<br>
 		<input name=IC_taxpart type=checkbox class=checkbox value=IC_taxpart $form->{IC_taxpart}>&nbsp;|
       . $locale->text('Tax') . qq|
 		</td>

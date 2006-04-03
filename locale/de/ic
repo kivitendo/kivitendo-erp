@@ -26,7 +26,6 @@ $self{texts} = {
   'Bin'                         => 'Lagerplatz',
   'Bin List'                    => 'Lagerliste',
   'Bought'                      => 'Gekauft',
-  'COGS'                        => 'Umsatzkosten',
   'Cannot delete item!'         => 'Artikel kann nicht gelöscht werden!',
   'Cannot stock assemblies!'    => 'Erzeugnisse können nicht ins Lager!',
   'Cc'                          => 'Cc',
