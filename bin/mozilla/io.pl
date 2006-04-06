@@ -1326,12 +1326,12 @@ sub print_options {
   } else {
     $media = qq|<select name=media>
 	    <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if ($myconfig{printer} && $latex) {
+    if ($myconfig{printer} && $latex_templates) {
       $media .= qq|
             <option value=printer $form->{OP}{printer}>|
         . $locale->text('Printer');
     }
-    if ($latex) {
+    if ($latex_templates) {
       $media .= qq|
             <option value=queue $form->{OP}{queue}>| . $locale->text('Queue');
     }
@@ -1340,12 +1340,19 @@ sub print_options {
   $format = qq|<select name=format>
             <option value=html $form->{DF}{html}>html|;
 
-  if ($latex) {
+  if ($latex_templates) {
     $format = qq|<select name=format>
             <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF') . qq|
             <option value=html $form->{DF}{html}>html
             <option value=postscript $form->{DF}{postscript}>|
       . $locale->text('Postscript');
+  }
+
+  $format .= qq|<option value=html $form->{DF}{html}>HTML</option>|;
+
+  if ($latex_templates) {
+    $format .= qq|<option value=postscript $form->{DF}{postscript}>| .
+      $locale->text('Postscript') . qq|</option>|;
   }
 
   $language_select = qq|<select name=language>
@@ -1371,7 +1378,7 @@ sub print_options {
 	  <td>$media</select></td>
 |;
 
-  if ($myconfig{printer} && $latex && $form->{media} ne 'email') {
+  if ($myconfig{printer} && $latex_templates && $form->{media} ne 'email') {
     print qq|
 	  <td>| . $locale->text('Copies') . qq|
 	  <input name=copies size=2 value=$form->{copies}></td>

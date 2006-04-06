@@ -443,12 +443,12 @@ sub form_footer {
   $media = qq|
           <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
 
-  if ($myconfig{printer} && $latex) {
+  if ($myconfig{printer} && $latex_templates) {
     $media .= qq|
           <option value=printer $form->{OP}{printer}>|
       . $locale->text('Printer');
   }
-  if ($latex) {
+  if ($latex_templates) {
     $media .= qq|
           <option value=queue $form->{OP}{queue}>| . $locale->text('Queue');
     $format .= qq|
@@ -474,7 +474,7 @@ sub form_footer {
 <input class=submit type=submit name=action value="|
     . $locale->text('Post') . qq|">|;
 
-  if ($latex) {
+  if ($latex_templates) {
     print qq|
 <input class=submit type=submit name=action value="|
       . $locale->text('Print') . qq|">|;

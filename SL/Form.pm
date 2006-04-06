@@ -38,6 +38,7 @@
 package Form;
 
 use HTML::Template;
+use SL::Menu;
 
 sub _input_to_hash {
   $main::lxdebug->enter_sub(2);
@@ -242,11 +243,7 @@ sub error {
 
   if ($ENV{HTTP_USER_AGENT}) {
     $msg =~ s/\n/<br>/g;
-
-    $self->header;
     $self->show_generic_error($msg);
-
-    die "Error: $msg\n";
 
   } else {
 
@@ -373,7 +370,7 @@ function fokus(){document.$self->{fokus}.focus();}
     }
 
     #Set Calendar
-    $jsscript = "";
+    my $jsscript = "";
     if ($self->{jsscript} == 1) {
 
       $jsscript = qq|
@@ -410,7 +407,6 @@ function fokus(){document.$self->{fokus}.focus();}
   $main::lxdebug->leave_sub();
 }
 
-use Data::Dumper;
 sub parse_html_template {
   $main::lxdebug->enter_sub();
 
@@ -461,6 +457,28 @@ sub parse_html_template {
       "<br><em>DEBUG INFORMATION:</em><pre>" . $additional_params->{"DEBUG"} . "</pre>";
   }
 
+  if (%main::myconfig) {
+    map({ $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys(%main::myconfig));
+    my $jsc_dateformat = $main::myconfig{"dateformat"};
+    $jsc_dateformat =~ s/d+/\%d/gi;
+    $jsc_dateformat =~ s/m+/\%m/gi;
+    $jsc_dateformat =~ s/y+/\%Y/gi;
+    $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
+  }
+
+  $additional_params->{"conf_jscalendar"} = $main::jscalendar;
+  $additional_params->{"conf_lizenzen"} = $main::lizenzen;
+  $additional_params->{"conf_latex_templates"} = $main::latex;
+  $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
+
+  my $menu;
+  if (-f $self->{"login"} . "_menu.ini") {
+    $menu = Menu->new($self->{"login"} . "_menu.ini");
+  } else {
+    $menu = Menu->new("menu.ini");
+  }
+  $menu->generate_acl("", $additional_params);
+
   my @additional_param_names = keys(%{$additional_params});
 
   foreach my $key ($template->param()) {
@@ -485,7 +503,23 @@ sub show_generic_error {
   $add_params->{"title"} = $title if ($title);
   $self->{"label_error"} = $error;
 
+  $self->header();
   print($self->parse_html_template("generic/error", $add_params));
+
+  die("Error: $error\n");
+}
+
+sub show_generic_information {
+  my ($self, $error, $title) = @_;
+
+  my $add_params = {};
+  $add_params->{"title"} = $title if ($title);
+  $self->{"label_information"} = $error;
+
+  $self->header();
+  print($self->parse_html_template("generic/information", $add_params));
+
+  die("Information: $error\n");
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
@@ -536,7 +570,7 @@ sub write_trigger {
       );
        |;
   }
-  $jsscript = qq|
+  my $jsscript = qq|
        <script type="text/javascript">
        <!--| . join("", @triggers) . qq|//-->
         </script>
@@ -715,7 +749,6 @@ sub parse_template {
   my ($current_page, $current_line, $current_row) = (1, 1, 0);
   my $pagebreak = "";
   my $sum       = 0;
-
   # } Moritz Bunkus
 
   # Make sure that all *notes* (intnotes, partnotes_*, notes etc) are converted to markup correctly.
@@ -1073,9 +1106,9 @@ Content-Length: $numbytes
       close(IN);
     }
 
-    $self->cleanup;
-
   }
+
+  $self->cleanup;
 
   chdir("$self->{cwd}");
   $main::lxdebug->leave_sub();
@@ -1730,7 +1763,7 @@ sub create_links {
     $query = qq| SELECT * FROM tax t|;
     $sth   = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
-    $form->{TAX} = ();
+    $self->{TAX} = ();
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $self->{TAX} }, $ref;
     }
@@ -2105,7 +2138,7 @@ sub update_defaults {
 
   $query = qq|UPDATE defaults
               SET $fld = '$var'|;
-  $dbh->do($query) || $form->dberror($query);
+  $dbh->do($query) || $self->dberror($query);
 
   $dbh->commit;
   $dbh->disconnect;
@@ -2133,7 +2166,7 @@ sub update_business {
   }
   $query = qq|UPDATE business
               SET customernumberinit = '$var' WHERE id=$business_id|;
-  $dbh->do($query) || $form->dberror($query);
+  $dbh->do($query) || $self->dberror($query);
 
   $dbh->commit;
   $dbh->disconnect;

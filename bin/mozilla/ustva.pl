@@ -760,7 +760,7 @@ sub show_options {
       qq|       <option value=html selected>|
     . $locale->text('Vorschau')
     . qq|</option>|;
-  if ($latex) {
+  if ($latex_templates) {
     $format .=
         qq|    <option value=pdf>|
       . $locale->text('UStVA als PDF-Dokument')
