@@ -162,7 +162,7 @@ sub login {
 
     $rc = 0;
 
-    if (&update_available($dbversion)) {
+    if (&update_available($myconfig{"dbdriver"}, $dbversion)) {
 
       # update the tables
       open FH, ">$userspath/nologin" or die "
@@ -407,10 +407,10 @@ sub process_query {
   while (<FH>) {
 
     # Remove DOS and Unix style line endings.
-    s/[\r\n]//g;
+    chomp;
 
-    # don't add comments or empty lines
-    next if /^(--.*|\s+)$/;
+    # remove comments
+    s/--.*$//;
 
     for (my $i = 0; $i < length($_); $i++) {
       my $char = substr($_, $i, 1);
@@ -655,13 +655,14 @@ sub cmp_script_version {
 ## /LINET
 
 sub update_available {
-  ($cur_version) = @_;
-    opendir SQLDIR, "sql/." or &error("", "$!");
-    my @upgradescripts = 
-      grep(/$form->{dbdriver}-upgrade-$cur_version.*\.sql/, readdir(SQLDIR));
-    closedir SQLDIR;
-    
-    return ($#upgradescripts > -1);
+  my ($dbdriver, $cur_version) = @_;
+
+  opendir SQLDIR, "sql/${dbdriver}-upgrade" or &error("", "sql/${dbdriver}-upgrade: $!");
+  my @upgradescripts =
+    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.sql/, readdir(SQLDIR));
+  closedir SQLDIR;
+
+  return ($#upgradescripts > -1);
 }
 
 sub dbupdate {
@@ -678,7 +679,7 @@ sub dbupdate {
   if ($form->{dbupdate}) {
 
     # read update scripts into memory
-    opendir SQLDIR, "sql/." or &error("", "$!");
+    opendir SQLDIR, "sql/" . $form->{dbdriver} . "-upgrade" or &error("", "sql/" . $form->{dbdriver} . "-upgrade : $!");
     ## LINET
     @upgradescripts =
       sort(cmp_script_version
@@ -732,7 +733,7 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
-      $self->process_query($form, $dbh, "sql/$upgradescript", $str_maxdb);
+      $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
 
       $version = $maxdb;
 
