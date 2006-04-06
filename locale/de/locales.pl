@@ -15,7 +15,7 @@ foreach $item (@ARGV) {
 }
 
 opendir DIR, "$bindir" or die "$!";
-@progfiles = grep { /\.pl/; !/(_|^\.)/ } readdir DIR;
+@progfiles = grep { /\.pl$/ && !/(_|^\.)/ } readdir DIR;
 seekdir DIR, 0;
 @customfiles = grep /_/, readdir DIR;
 closedir DIR;
