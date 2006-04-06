@@ -360,8 +360,8 @@ sub customer_details {
 
   $ref = $sth->fetchrow_hashref(NAME_lc);
 
-  # remove id and taxincluded before copy back
-  delete @$ref{qw(id taxincluded)};
+  # remove notes, id and taxincluded before copy back
+  delete @$ref{qw(id taxincluded notes)};
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
