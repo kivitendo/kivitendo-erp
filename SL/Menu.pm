@@ -138,7 +138,7 @@ sub menuitemNew {
 }
 
 sub access_control {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $menulevel) = @_;
 
@@ -161,7 +161,7 @@ sub access_control {
   @a = ();
   map { push @a, $_ unless $excl{$_} } (@menu);
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return @a;
 }

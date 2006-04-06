@@ -40,7 +40,7 @@ package Form;
 use HTML::Template;
 
 sub _input_to_hash {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my $input = $_[0];
   my %in    = ();
@@ -51,13 +51,13 @@ sub _input_to_hash {
     $in{$name} = unescape(undef, $value);
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return %in;
 }
 
 sub _request_to_hash {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($input) = @_;
   my ($i,        $loc,  $key,    $val);
@@ -108,11 +108,11 @@ sub _request_to_hash {
       }
     }
 
-    $main::lxdebug->leave_sub();
+    $main::lxdebug->leave_sub(2);
     return %ATTACH;
 
       } else {
-    $main::lxdebug->leave_sub();
+    $main::lxdebug->leave_sub(2);
     return _input_to_hash($input);
   }
 }
@@ -162,7 +162,7 @@ sub debug {
 }
 
 sub escape {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $str, $beenthere) = @_;
 
@@ -173,13 +173,13 @@ sub escape {
 
   $str =~ s/([^a-zA-Z0-9_.-])/sprintf("%%%02x", ord($1))/ge;
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $str;
 }
 
 sub unescape {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $str) = @_;
 
@@ -188,7 +188,7 @@ sub unescape {
 
   $str =~ s/%([0-9a-fA-Z]{2})/pack("c",hex($1))/eg;
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $str;
 }
@@ -578,7 +578,7 @@ sub sort_columns {
 }
 
 sub format_amount {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
 
@@ -643,48 +643,28 @@ sub format_amount {
     }
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $amount;
 }
 
 sub parse_amount {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount) = @_;
-  $main::lxdebug->message(LXDebug::DEBUG2, "Start amount: $amount");
 
   if ($myconfig->{in_numberformat} == 1) {
-
     # Extra input number format 1000.00 or 1000,00
-    $main::lxdebug->message(LXDebug::DEBUG2,
-              "in_numberformat: " . $main::locale->text('1000,00 or 1000.00'));
     $amount =~ s/,/\./g;
-
-    #$main::lxdebug->message(LXDebug::DEBUG2, "1.Parsed Number: $amount") if ($amount);
     $amount = scalar reverse $amount;
-
-    #$main::lxdebug->message(LXDebug::DEBUG2, "2.Parsed Number: $amount") if ($amount);
     $amount =~ s/\./DOT/;
-
-    #$main::lxdebug->message(LXDebug::DEBUG2, "3.Parsed Number: $amount") if ($amount);
     $amount =~ s/\.//g;
-
-    #$main::lxdebug->message(LXDebug::DEBUG2, "4.Parsed Number: $amount") if ($amount);
     $amount =~ s/DOT/\./;
-
-    #$main::lxdebug->message(LXDebug::DEBUG2, "5.Parsed Number:" . $amount) if ($amount);
     $amount = scalar reverse $amount;
-    $main::lxdebug->message(LXDebug::DEBUG2,
-                            "Parsed amount:" . $amount . "\n");
-
+    $main::lxdebug->leave_sub(2);
     return ($amount * 1);
-
   }
-  $main::lxdebug->message(LXDebug::DEBUG2,
-              "in_numberformat: " . $main::locale->text('equal Outputformat'));
-  $main::lxdebug->message(LXDebug::DEBUG2,
-                          " = numberformat: $myconfig->{numberformat}");
+
   if (   ($myconfig->{numberformat} eq '1.000,00')
       || ($myconfig->{numberformat} eq '1000,00')) {
     $amount =~ s/\.//g;
@@ -697,15 +677,13 @@ sub parse_amount {
 
   $amount =~ s/,//g;
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "Parsed amount:" . $amount . "\n")
-    if ($amount);
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return ($amount * 1);
 }
 
 sub round_amount {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $amount, $places) = @_;
   my $round_amount;
@@ -719,7 +697,7 @@ sub round_amount {
   $amount = $amount * (10**($places));
   $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $round_amount;
 

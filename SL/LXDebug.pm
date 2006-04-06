@@ -53,7 +53,9 @@ sub set_target {
 }
 
 sub enter_sub {
-  my ($self) = @_;
+  my ($self, $level) = @_;
+
+  return if $global_trace_subs < $level;
 
   if (!$self->{"trace_subs"} && !$global_trace_subs) {
     return;
@@ -77,7 +79,9 @@ sub enter_sub {
 }
 
 sub leave_sub {
-  my ($self) = @_;
+  my ($self, $level) = @_;
+
+  return if $global_trace_subs < $level;
 
   if (!$self->{"trace_subs"} && !$global_trace_subs) {
     return;

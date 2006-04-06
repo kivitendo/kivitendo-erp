@@ -612,7 +612,7 @@ sub dbneedsupdate {
 
 ## LINET
 sub calc_version {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my (@v, $version, $i);
 
@@ -626,7 +626,7 @@ sub calc_version {
     $version += $v[$i];
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
   return $version;
 }
 
@@ -733,6 +733,7 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
+      $main::lxdebug->message(DEBUG2, "Appliying Update $upgradescript");
       $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
 
       $version = $maxdb;
