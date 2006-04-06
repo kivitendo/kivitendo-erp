@@ -150,11 +150,8 @@ sub access_control {
     @menu = grep { /^${menulevel}--/ } @{ $self->{ORDER} };
   }
 
-  my @a    = split /;/, $myconfig->{acs};
-  my $excl = ();
-
-  # remove --AR, --AP from array
-  grep { ($a, $b) = split /--/; s/--$a$//; } @a;
+  my @a = split /;/, $myconfig->{acs};
+  my %excl;
 
   map { $excl{$_} = 1 } @a;
 
@@ -164,6 +161,19 @@ sub access_control {
   $main::lxdebug->leave_sub(2);
 
   return @a;
+}
+
+sub generate_acl {
+  my ($self, $menulevel, $hash) = @_;
+
+  my @items = $self->access_control(\%main::myconfig, $menulevel);
+
+  $menulevel =~ s/[^A-Za-z_\/\.\+\-]/_/g;
+  $hash->{"access_" . lc($menulevel)} = 1 if ($menulevel);
+
+  foreach my $item (@items) {
+    $self->generate_acl($item, $hash); #unless ($menulevel);
+  }
 }
 
 1;
