@@ -2,12 +2,17 @@
 
 # -n do not include custom_ scripts
 
+# this version of locles processes not only all required .pl files
+# but also all parse_html_templated files.
+
 use POSIX;
 use FileHandle;
+use Data::Dumper;
 
 $basedir  = "../..";
 $bindir   = "$basedir/bin/mozilla";
 $menufile = "menu.ini";
+$submitsearch = qr/type\s*=\s*["']?submit/i;
 
 foreach $item (@ARGV) {
   $item =~ s/-//g;
@@ -38,11 +43,11 @@ if (-f 'all') {
 }
 
 # Read HTML templates.
-%htmllocale = ();
-@htmltemplates = <../../templates/webpages/*/*_master.html>;
-foreach $file (@htmltemplates) {
-  scanhtmlfile($file);
-}
+#%htmllocale = ();
+#@htmltemplates = <../../templates/webpages/*/*_master.html>;
+#foreach $file (@htmltemplates) {
+#  scanhtmlfile($file);
+#}
 
 foreach $file (@progfiles) {
 
@@ -296,6 +301,15 @@ sub scanfile {
       &scanfile("$bindir/$newfile");
     }
 
+    # is this a template call?
+    if (/parse_html_template\s*\(\s*["']([\w\/]+)/) {
+      my $newfile = "$basedir/templates/webpages/$1_master.html";
+      if (-f $newfile) {
+        &scanhtmlfile($newfile);
+        &converthtmlfile($newfile);
+      }
+    }
+
     # is this a sub ?
     if (/^sub /) {
       ($null, $subrt) = split / +/;
@@ -317,7 +331,7 @@ sub scanfile {
       my $postmatch = "";
 
       # is it a submit button before $locale->
-      if (/type\s*=\s*submit/i) {
+      if (/$submitsearch/) {
         $postmatch = $';
         if ($` !~ /\$locale->text/) {
           $is_submit   = 1;
@@ -394,9 +408,10 @@ sub scanmenu {
 sub scanhtmlfile {
   local *IN;
 
-  open(IN, $_[0]) || die;
+  open(IN, $_[0]) || die $_[0];
 
   my $copying = 0;
+  my $issubmit = 0;
   my $text = "";
   while (my $line = <IN>) {
     chomp($line);
@@ -404,9 +419,12 @@ sub scanhtmlfile {
     while ("" ne $line) {
       if (!$copying) {
         if ($line =~ m|<translate>|i) {
-          substr($line, 0, $+[0]) = "";
+          my $eom = $+[0];
+          if ($` =~ /$submitsearch/) {
+            $issubmit = 1
+          }
+          substr($line, 0, $eom) = "";
           $copying = 1;
-
         } else {
           $line = "";
         }
@@ -415,7 +433,12 @@ sub scanhtmlfile {
         if ($line =~ m|</translate>|i) {
           $text .= $`;
           substr($line, 0, $+[0]) = "";
-          $copying = 0;
+          
+          $copying = 0; 
+          if ($issubmit) {
+            $submit{$text} = 1;
+            $issubmit = 0;
+          }
           $alllocales{$text} = 1;
           $htmllocale{$text} = 1;
           $text = "";
@@ -435,12 +458,14 @@ sub converthtmlfile {
   local *IN;
   local *OUT;
 
-  open(IN, $_[0]) || die;
+  my $file = shift;
+
+  open(IN, $file) || die;
 
   my $langcode = (split("/", getcwd()))[-1];
-  $_[0] =~ s/_master.html$/_${langcode}.html/;
+  $file =~ s/_master.html$/_${langcode}.html/;
 
-  open(OUT, ">${_[0]}") || die;
+  open(OUT, ">$file") || die;
 
   my $copying = 0;
   my $text = "";
