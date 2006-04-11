@@ -488,7 +488,7 @@ CREATE TABLE "status" (
 
 CREATE SEQUENCE "invoiceid" start 1 increment 1 maxvalue 9223372036854775807 minvalue 1 cache 1;
 
-CREATE SEQUENCE "orderitemsid" start 1 increment 1 maxvalue 100000 minvalue 1 cache 1 cycle;
+CREATE SEQUENCE "orderitemsid" start 1 increment 1 maxvalue 9223372036854775807 minvalue 1 cache 1 cycle;
 
 CREATE TABLE "warehouse" (
 	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
