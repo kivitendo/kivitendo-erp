@@ -304,9 +304,6 @@ sub invoice_details {
 
   $form->{paid} = $form->format_amount($myconfig, $form->{paid}, 2);
 
-  # myconfig variables
-  map { $form->{$_} = $myconfig->{$_} }
-    (qw(company address tel fax signature businessnumber));
   $form->{username} = $myconfig->{name};
 
   $dbh->disconnect;

@@ -758,7 +758,7 @@ sub parse_template {
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
   map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
-      qw(email tel fax name signature));
+      qw(email tel fax name signature company address businessnumber));
 
   open(IN, "$self->{templates}/$self->{IN}")
     or $self->error("$self->{IN} : $!");
