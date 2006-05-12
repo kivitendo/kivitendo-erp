@@ -751,6 +751,11 @@ sub parse_template {
   my $sum       = 0;
   # } Moritz Bunkus
 
+  # The old fixed notation of <%variable%> is changed to a new dynamic one.
+  my ${pre} = '<%'; # Variable Prefix, must be regex save!
+  my ${suf} = '%>'; # Variable Suffix, must be regex save!
+
+
   # Make sure that all *notes* (intnotes, partnotes_*, notes etc) are converted to markup correctly.
   $self->format_string(grep(/notes/, keys(%{$self})));
 
@@ -789,45 +794,45 @@ sub parse_template {
   $two_passes = 0;
 
   # first we generate a tmpfile
-  # read file and replace <%variable%>
+  # read file and replace ${pre}variable${suf}
   while ($_ = shift) {
 
     $par = "";
     $var = $_;
  
-    # Switch <%analyse%> for template checking
-    # If <%analyse%> is set in the template, you'll find the 
+    # Switch ${pre}analyse${suf} for template checking
+    # If ${pre}analyse${suf} is set in the template, you'll find the 
     # parsed output in the user Directory for analysing
     # Latex errors
-    # <%analyse%> is a switch (allways off, on if set), not a Variable
+    # ${pre}analyse${suf} is a switch (allways off, on if set), not a Variable
     # Set $form->{analysing}="" for system state: never analyse.
     # Set $form->{analysing}="1" for system state: ever analyse.
-    $self->{analysing} = "1" if (/<%analyse%>/ && !defined $self->{analysing});    
+    $self->{analysing} = "1" if (/${pre}analyse${suf}/ && !defined $self->{analysing});    
     
     $two_passes = 1 if (/\\pageref/);
 
     # { Moritz Bunkus
     # detect pagebreak block and its parameters
-    if (/\s*<%pagebreak ([0-9]+) ([0-9]+) ([0-9]+)%>/) {
+    if (/\s*${pre}pagebreak ([0-9]+) ([0-9]+) ([0-9]+)${suf}/) {
       $chars_per_line       = $1;
       $lines_on_first_page  = $2;
       $lines_on_second_page = $3;
 
       while ($_ = shift) {
-        last if (/\s*<%end pagebreak%>/);
+        last if (/\s*${pre}end pagebreak${suf}/);
         $pagebreak .= $_;
       }
     }
 
     # } Moritz Bunkus
-
-    if (/\s*<%foreach /) {
+    
+    if (/\s*${pre}foreach /) {
 
       # this one we need for the count
       chomp $var;
-      $var =~ s/\s*<%foreach (.+?)%>/$1/;
+      $var =~ s/\s*${pre}foreach (.+?)${suf}/$1/;
       while ($_ = shift) {
-        last if (/\s*<%end /);
+        last if (/\s*${pre}end /);
 
         # store line in $par
         $par .= $_;
@@ -838,7 +843,7 @@ sub parse_template {
 
         # { Moritz Bunkus
         # Try to detect whether a manual page break is necessary
-        # but only if there was a <%pagebreak ...%> block before
+        # but only if there was a ${pre}pagebreak ...${suf} block before
 
         if ($chars_per_line) {
           my $lines =
@@ -866,17 +871,17 @@ sub parse_template {
             ) {
             my $pb = $pagebreak;
 
-            # replace the special variables <%sumcarriedforward%>
-            # and <%lastpage%>
+            # replace the special variables ${pre}sumcarriedforward${suf}
+            # and ${pre}lastpage${suf}
 
             my $psum = $self->format_amount($myconfig, $sum, 2);
-            $pb =~ s/<%sumcarriedforward%>/$psum/g;
-            $pb =~ s/<%lastpage%>/$current_page/g;
+            $pb =~ s/${pre}sumcarriedforward${suf}/$psum/g;
+            $pb =~ s/${pre}lastpage${suf}/$current_page/g;
 
             # only "normal" variables are supported here
-            # (no <%if, no <%foreach, no <%include)
+            # (no ${pre}if, no ${pre}foreach, no ${pre}include)
 
-            $pb =~ s/<%(.+?)%>/$self->{$1}/g;
+            $pb =~ s/${pre}(.+?)${suf}/$self->{$1}/g;
 
             # page break block is ready to rock
             print(OUT $pb);
@@ -892,22 +897,22 @@ sub parse_template {
 
         # don't parse par, we need it for each line
         $_ = $par;
-        s/<%(.+?)%>/$self->{$1}[$i]/mg;
+        s/${pre}(.+?)${suf}/$self->{$1}[$i]/mg;
         print OUT;
       }
       next;
     }
 
     # if not comes before if!
-    if (/\s*<%if not /) {
+    if (/\s*${pre}if not /) {
 
       # check if it is not set and display
       chop;
-      s/\s*<%if not (.+?)%>/$1/;
+      s/\s*${pre}if not (.+?)${suf}/$1/;
 
       unless ($self->{$_}) {
         while ($_ = shift) {
-          last if (/\s*<%end /);
+          last if (/\s*${pre}end /);
 
           # store line in $par
           $par .= $_;
@@ -917,21 +922,21 @@ sub parse_template {
 
       } else {
         while ($_ = shift) {
-          last if (/\s*<%end /);
+          last if (/\s*${pre}end /);
         }
         next;
       }
     }
 
-    if (/\s*<%if /) {
+    if (/\s*${pre}if /) {
 
       # check if it is set and display
       chop;
-      s/\s*<%if (.+?)%>/$1/;
+      s/\s*${pre}if (.+?)${suf}/$1/;
 
       if ($self->{$_}) {
         while ($_ = shift) {
-          last if (/\s*<%end /);
+          last if (/\s*${pre}end /);
 
           # store line in $par
           $par .= $_;
@@ -941,18 +946,18 @@ sub parse_template {
 
       } else {
         while ($_ = shift) {
-          last if (/\s*<%end /);
+          last if (/\s*${pre}end /);
         }
         next;
       }
     }
 
-    # check for <%include filename%>
-    if (/\s*<%include /) {
+    # check for ${pre}include filename${suf}
+    if (/\s*${pre}include /) {
 
       # get the directory/filename
       chomp $var;
-      $var =~ s/\s*<%include (.+?)%>/$1/;
+      $var =~ s/\s*${pre}include (.+?)${suf}/$1/;
 
       # mangle filename on basedir
       $var =~ s/^(\/|\.\.)//g;
@@ -970,7 +975,7 @@ sub parse_template {
       next;
     }
 
-    s/<%(.+?)%>/$self->{$1}/g;
+    s/${pre}(.+?)${suf}/$self->{$1}/g;
     s/<nobr><\/nobr>/&nbsp;/g;
     print OUT;
   }
