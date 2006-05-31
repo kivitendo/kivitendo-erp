@@ -184,6 +184,7 @@ $self{texts} = {
   'button'                      => '?',
   'choice'                      => 'auswählen',
   'choice part'                 => 'Artikel auswählen',
+  'deliverydate'                => 'Lieferdatum',
   'ea'                          => 'St.',
   'emailed to'                  => 'gemailt an',
   'hr'                          => 'Stunde',
