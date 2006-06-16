@@ -869,9 +869,10 @@ sub get_accounts_ustva {
   $sth->execute || $form->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    if ($ref->{amount} < 0) {
+# Bug 365 solved?!
+#    if ($ref->{amount} < 0) {
       $ref->{amount} *= -1;
-    }
+#    }
     if ($category eq "pos_bwa") {
       if ($last_period) {
         $form->{ $ref->{$category} }{kumm} += $ref->{amount};
