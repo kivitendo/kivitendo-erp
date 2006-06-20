@@ -724,14 +724,17 @@ sub get_accounts_ustva {
 
         UNION
 
-		 SELECT sum(ac.amount) AS amount,
+		 SELECT sum(
+		   CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
+		        WHEN c.link LIKE '%AP%' THEN ac.amount * 1
+                   END
+		 ) AS amount,
 		 c.$category
 		 FROM acc_trans ac
 		 JOIN chart c ON (c.id = ac.chart_id)
 		 JOIN gl a ON (a.id = ac.trans_id)
 		 $dpt_join
 		 WHERE $where
-		 $glwhere
 		 $dpt_from
 		 AND NOT (c.link = 'AR' OR c.link = 'AP')
 		 $project
