@@ -724,7 +724,10 @@ sub get_accounts_ustva {
 
         UNION
 
-		 SELECT sum(ac.amount
+		 SELECT sum(
+		   CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
+		        WHEN c.link LIKE '%AP%' THEN ac.amount * 1
+                   END
 		 ) AS amount,
 		 c.$category
 		 FROM acc_trans ac
@@ -739,61 +742,6 @@ sub get_accounts_ustva {
 
 		 |;
 
-    if ($form->{project_id}) {
-
-      $query .= qq|
-
-	 UNION
-
-		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
-		 c.$category
-		 FROM invoice ac
-	         JOIN ar a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.income_accno_id = c.id)
-	         $dpt_join
-	-- use transdate from subwhere
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'I'
-		 $dpt_where
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AR_paid%'
-		     $subwhere
-		   )
-
-		 $project
-		 GROUP BY c.$category
-
-	 UNION
-
-		 SELECT SUM(ac.sellprice) AS amount,
-		 c.$category
-		 FROM invoice ac
-	         JOIN ap a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.expense_accno_id = c.id)
-	         $dpt_join
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'E'
-		 $dpt_where
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
-		     $subwhere
-		   )
-
-		 $project
-		 GROUP BY c.$category
-		 |;
-    }
-
   } else {
 
     if ($department_id) {
@@ -807,7 +755,12 @@ sub get_accounts_ustva {
 
     $query = qq|
 
-		 SELECT sum(ac.amount) AS amount,
+		 SELECT sum(
+		   CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
+		        WHEN c.link LIKE '%AP%' THEN ac.amount * 1
+                   END		 
+		 
+		 ) AS amount,
 		 c.$category
 		 FROM acc_trans ac
 		 JOIN chart c ON (c.id = ac.chart_id)
@@ -817,44 +770,6 @@ sub get_accounts_ustva {
 		 $project
 		 GROUP BY c.$category
 		 |;
-
-    if ($form->{project_id}) {
-
-      $query .= qq|
-
-	UNION
-
-		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
-		 c.$category
-		 FROM invoice ac
-	         JOIN ar a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.income_accno_id = c.id)
-	         $dpt_join
-	-- use transdate from subwhere
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'I'
-		 $dpt_where
-		 $project
-		 GROUP BY c.$category
-
-	UNION
-
-		 SELECT SUM(ac.sellprice * ac.qty) * -1 AS amount,
-		 c.$category
-		 FROM invoice ac
-	         JOIN ap a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.expense_accno_id = c.id)
-	         $dpt_join
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'E'
-		 $dpt_where
-		 $project
-		 GROUP BY c.$category
-		 |;
-
-    }
   }
 
   my @accno;
