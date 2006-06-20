@@ -724,10 +724,7 @@ sub get_accounts_ustva {
 
         UNION
 
-		 SELECT sum(
-		   CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-		        WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-                   END
+		 SELECT sum(ac.amount
 		 ) AS amount,
 		 c.$category
 		 FROM acc_trans ac
