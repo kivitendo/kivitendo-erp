@@ -2715,8 +2715,11 @@ sub update {
 sub save {
   $lxdebug->enter_sub();
 
-  # check if there is a part number
+  # check if there is a part number - commented out, cause there is an automatic allocation of numbers
   # $form->isblank("partnumber", $locale->text(ucfirst $form->{item}." Part Number missing!"));
+
+  # check if there is a description
+  $form->isblank("description", $locale->text("Part Description missing!"));
 
   if ($form->{obsolete}) {
     $form->error(
