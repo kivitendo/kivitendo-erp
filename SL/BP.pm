@@ -180,7 +180,7 @@ sub get_spoolfiles {
     $query .= " AND lower(a.quonumber) LIKE '$quonumber'";
   }
 
-  if ($form->{type} =~ /(invoice|sales_order|sales_quotation)$/) {
+   if ($form->{type} =~ /(invoice|sales_order|sales_quotation|packing_list|puchase_order|request_quotation)$/) {
     $query .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
     $query .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
   }
