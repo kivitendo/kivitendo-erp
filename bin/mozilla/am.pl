@@ -294,8 +294,8 @@ sub account_header {
 <input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>
 <input type=hidden name=income_accno_id value=$form->{income_accno_id}>
 <input type=hidden name=expense_accno_id value=$form->{expense_accno_id}>
-<input type=hidden name=fxgain_accno_id values=$form->{fxgain_accno_id}>
-<input type=hidden name=fxloss_accno_id values=$form->{fxloss_accno_id}>
+<input type=hidden name=fxgain_accno_id value=$form->{fxgain_accno_id}>
+<input type=hidden name=fxloss_accno_id value=$form->{fxloss_accno_id}>
 
 <table border=0 width=100%>
   <tr>
