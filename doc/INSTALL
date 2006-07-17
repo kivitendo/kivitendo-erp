@@ -7,7 +7,8 @@ Folgende Pakete müssen installiert sein:
 ========================================
 Webserver (Apache)
 PostgreSQL - Datenbank 
-Perl - DBI und Perl - DBD 
+Perl - DBI und Perl - DBD
+perl-HTML-Template
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
 (Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl) 
 (Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
