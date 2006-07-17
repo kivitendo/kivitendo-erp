@@ -248,9 +248,21 @@ sub save_customer {
   $form->{salesman_id} *= 1;
   $form->{creditlimit} = $form->parse_amount($myconfig, $form->{creditlimit});
 
-  my ($query, $sth);
+  my ($query, $sth, $f_id);
 
   if ($form->{id}) {
+
+    $query = qq|SELECT id FROM customer
+                WHERE customernumber = '$form->{customernumber}'|;
+    $sth = $dbh->prepare($query);
+    $sth->execute || $form->dberror($query);
+    (${f_id}) = $sth->fetchrow_array;
+    $sth->finish;
+    if ((${f_id} ne $form->{id}) and (${f_id} ne "")) {
+
+      $main::lxdebug->leave_sub();
+      return 3;
+    }
     $query = qq|DELETE FROM customertax
                 WHERE customer_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
@@ -259,11 +271,31 @@ sub save_customer {
                 WHERE trans_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
   } else {
+
     my $uid = rand() . time;
 
     $uid .= $form->{login};
 
     $uid = substr($uid, 2, 75);
+    if (!$form->{customernumber} && $form->{business}) {
+      $form->{customernumber} =
+        $form->update_business($myconfig, $form->{business});
+    }
+    if (!$form->{customernumber}) {
+      $form->{customernumber} =
+        $form->update_defaults($myconfig, "customernumber");
+    }
+
+    $query = qq|SELECT c.id FROM customer c
+                WHERE c.customernumber = '$form->{customernumber}'|;
+    $sth = $dbh->prepare($query);
+    $sth->execute || $form->dberror($query);
+    (${f_id}) = $sth->fetchrow_array;
+    $sth->finish;
+    if (${f_id} ne "") {
+      $main::lxdebug->leave_sub();
+      return 3;
+    }
 
     $query = qq|INSERT INTO customer (name)
                 VALUES ('$uid')|;
@@ -276,17 +308,7 @@ sub save_customer {
 
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
-    if (!$form->{customernumber} && $form->{business}) {
-      $form->{customernumber} =
-        $form->update_business($myconfig, $form->{business});
-    }
-    if (!$form->{customernumber}) {
-      $form->{customernumber} =
-        $form->update_defaults($myconfig, "customernumber");
-    }
-
   }
-
   $query = qq|UPDATE customer SET
               customernumber = '$form->{customernumber}',
 	      name = '$form->{name}',

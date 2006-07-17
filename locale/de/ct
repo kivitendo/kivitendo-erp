@@ -87,6 +87,7 @@ $self{texts} = {
   'Vendor saved!'               => 'Lieferant gespeichert!',
   'Vendors'                     => 'Lieferanten',
   'Zipcode'                     => 'PLZ',
+  'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
   'days'                        => 'Tage',
   's'                           => 's',
 };
