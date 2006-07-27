@@ -76,6 +76,11 @@ sub invoice_links {
 
   $form->create_links("AP", \%myconfig, "vendor");
 
+  #quote all_vendor Bug 133
+  foreach $ref (@{ $form->{all_vendor} }) {
+    $ref->{name} = $form->quote($ref->{name});
+  }
+
   if ($form->{all_vendor}) {
     unless ($form->{vendor_id}) {
       $form->{vendor_id} = $form->{all_vendor}->[0]->{id};
@@ -199,6 +204,9 @@ sub form_header {
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
+
+  #quote selectvendor Bug 133
+  $form->{"selectvendor"} = $form->quote($form->{"selectvendor"});
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});

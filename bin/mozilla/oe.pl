@@ -30,6 +30,7 @@
 # Order entry module
 # Quotation module
 #======================================================================
+use Data::Dumper;
 
 use SL::OE;
 use SL::IR;
@@ -167,9 +168,21 @@ sub order_links {
   # get customer / vendor
   if ($form->{type} =~ /(purchase_order|request_quotation|receive_order)/) {
     IR->get_vendor(\%myconfig, \%$form);
+
+    #quote all_vendor Bug 133
+    foreach $ref (@{ $form->{all_vendor} }) {
+      $ref->{name} = $form->quote($ref->{name});
+    }
+
   }
   if ($form->{type} =~ /(sales|ship)_(order|quotation)/) {
     IS->get_customer(\%myconfig, \%$form);
+
+    #quote all_vendor Bug 133
+    foreach $ref (@{ $form->{all_customer} }) {
+      $ref->{name} = $form->quote($ref->{name});
+    }
+
   }
   $form->{cp_id} = $cp_id;
 
@@ -329,6 +342,9 @@ sub form_header {
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
+
+  #quote select[customer|vendor] Bug 133
+  $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
 
   #build contacts
   if ($form->{all_contacts}) {
