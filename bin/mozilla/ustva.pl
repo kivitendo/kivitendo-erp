@@ -73,8 +73,9 @@ sub report {
   $lxdebug->enter_sub();
   my $myconfig = \%myconfig;
   use CGI;
+
   $form->{title} = $locale->text('UStVA');
-  $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1
+  $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1 Nein=0
 
   my $year = substr(
                     $form->datetonum($form->current_date(\%myconfig),
@@ -545,30 +546,26 @@ sub ustva_vorauswahl {
   if ($form->{FA_voranmeld} eq 'month') {
 
     # Vorauswahl bei monatlichem Voranmeldungszeitraum
-    print qq|
-     <select name="duetyp" id=zeitraum title="|
-      . $locale->text('Hier den Berechnungszeitraum auswählen...') . qq|">
-   |;
 
-    my %liste = ('01' => 'January',
-                 '02' => 'February',
-                 '03' => 'March',
-                 '04' => 'April',
-                 '05' => 'May',
-                 '06' => 'June',
-                 '07' => 'July',
-                 '08' => 'August',
-                 '09' => 'September',
-                 '10' => 'October',
-                 '11' => 'November',
-                 '12' => 'December',
-                 '13' => 'Yearly',);
+    my %liste = ('01' => $locale->text('January'),
+                 '02' => $locale->text('February'),
+                 '03' => $locale->text('March'),
+                 '04' => $locale->text('April'),
+                 '05' => $locale->text('May'),
+                 '06' => $locale->text('June'),
+                 '07' => $locale->text('July'),
+                 '08' => $locale->text('August'),
+                 '09' => $locale->text('September'),
+                 '10' => $locale->text('October'),
+                 '11' => $locale->text('November'),
+                 '12' => $locale->text('December'),
+                 '13' => $locale->text('Yearly'),
+                );
 
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
-    $yymmdd = 20060121;
     $sel    = '';
-    my $dfv = '0';
+    my $dfv = '';
 
     # Offset für Dauerfristverlängerung
     $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
@@ -629,14 +626,15 @@ sub ustva_vorauswahl {
       };
 
     }
+    print qq|<select id="zeitraum" name="duetyp" title="|
+  . $locale->text('Select a period') . qq|" >|;
+
     my $key = '';
     foreach $key (sort keys %liste) {
       my $selected = '';
       $selected = 'selected' if ($sel eq $key);
       print qq|
-         <option value="$key" $selected>|
-        . $locale->text("$liste{$key}") . qq|</option>
-         
+         <option value="$key" $selected> $liste{$key}</option>
    |;
     }
     print qq|</select>|;
