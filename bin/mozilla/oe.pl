@@ -1754,8 +1754,10 @@ sub save {
 
   }
 
-  $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld)
-    unless $form->{$ordnumber};
+  # get new number in sequence if no number is given or if saveasnew was requested
+  if (!$form->{$ordumber} || $form->{saveasnew}) {
+    $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld);
+  }
 
   $form->redirect(
             $form->{label} . " $form->{$ordnumber} " . $locale->text('saved!'))

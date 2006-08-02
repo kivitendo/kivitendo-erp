@@ -905,6 +905,11 @@ sub post {
 
   $form->{id} = 0 if $form->{postasnew};
 
+  # get new invnumber in sequence if no invnumber is given or if posasnew was requested
+  if (!$form->{invnumber} || $form->{postasnew}) {
+    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
+  }
+
   $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'))
