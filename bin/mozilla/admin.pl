@@ -1151,7 +1151,7 @@ sub change_password {
 sub check_password {
   $root = new User "$memberfile", $form->{root};
 
-  if (!$root->{password} || ($root->{password} ne $form->{rpw})) {
+  if (!defined($root->{password}) || ($root->{password} ne $form->{rpw})) {
     $form->error($locale->text('Incorrect Password!'));
   }
 
