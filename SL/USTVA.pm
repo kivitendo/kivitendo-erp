@@ -669,13 +669,18 @@ sub get_accounts_ustva {
                  AND ac.project_id = $form->{project_id}
 		 |;
   }
+#########################################
+# Method eq 'cash' = IST Versteuerung
+#########################################
 
-  if ($form->{method} eq 'cash') {
+  if ($form->{method} eq 'cash') {  
 
     $query = qq|
-
  SELECT
-   SUM( ac.amount *
+   -- Alle tatsaechlichen Zahlungseingaenge 
+   -- im Voranmeldezeitraum erfassen 
+   -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
+   SUM( ac.amount * 
       -- Bezahlt / Rechnungssumme
      ( 
        SELECT SUM(acc.amount)
@@ -700,49 +705,43 @@ sub get_accounts_ustva {
      -- Here no where, please. All Transactions ever should be
      -- testet if they are paied in the USTVA report period.
    GROUP BY c.pos_ustva
-	UNION
 
-	         SELECT sum(ac.amount) AS amount,
-		 c.$category
-		 FROM acc_trans ac
-		 JOIN chart c ON (c.id = ac.chart_id)
-		 JOIN ap a ON (a.id = ac.trans_id)
-		 $dpt_join
-		 WHERE $where
-		 $dpt_where
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_amount%'
-		     $subwhere
-		   )
+ UNION -- alle Ausgaben AP erfassen
 
-		 $project
-		 GROUP BY c.$category
+   SELECT sum(ac.amount) AS amount, c.$category
+   FROM acc_trans ac
+   JOIN chart c ON (c.id = ac.chart_id)
+   $dpt_join 
+   WHERE 
+   $where
+   AND c.link LIKE '%AP_amount%'
+   $dpt_where
+   $project
+   GROUP BY c.$category
 
-        UNION
+   UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
 
-		 SELECT sum(
-		   CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-		        WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-                   END
-		 ) AS amount,
-		 c.$category
-		 FROM acc_trans ac
-		 JOIN chart c ON (c.id = ac.chart_id)
-		 JOIN gl a ON (a.id = ac.trans_id)
-		 $dpt_join
-		 WHERE $where
-		 $dpt_from
-		 AND NOT (c.link = 'AR' OR c.link = 'AP')
-		 $project
-		 GROUP BY c.$category
+   SELECT sum
+   (
+     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
+          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
+     END
+   ) AS amount, c.$category
+   FROM acc_trans ac
+   JOIN chart c ON (c.id = ac.chart_id)
+   JOIN gl a ON (a.id = ac.trans_id)
+   $dpt_join
+   WHERE $where
+   $dpt_from
+   AND NOT (c.link = 'AR' OR c.link = 'AP')
+   $project
+   GROUP BY c.$category
+   |;
 
-		 |;
-
-  } else {
+  } else { 
+#########################################
+# Method eq 'accrual' = Soll Versteuerung
+#########################################
 
     if ($department_id) {
       $dpt_join = qq|
@@ -754,22 +753,20 @@ sub get_accounts_ustva {
     }
 
     $query = qq|
-
-		 SELECT sum(
-		   CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-		        WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-                   END		 
-		 
-		 ) AS amount,
-		 c.$category
-		 FROM acc_trans ac
-		 JOIN chart c ON (c.id = ac.chart_id)
-		 $dpt_join
-		 WHERE $where
-		 $dpt_where
-		 $project
-		 GROUP BY c.$category
-		 |;
+   SELECT sum
+   (
+     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
+          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
+     END		 
+   ) AS amount, c.$category
+   FROM acc_trans ac
+   JOIN chart c ON (c.id = ac.chart_id)
+   $dpt_join
+   WHERE $where
+   $dpt_where
+   $project
+   GROUP BY c.$category
+   |;
   }
 
   my @accno;
