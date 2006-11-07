@@ -1,0 +1,10 @@
+$self{texts} = {
+};
+
+$self{subs} = {
+  'H'                           => 'H',
+  'restore_form'                => 'restore_form',
+  'save_form'                   => 'save_form',
+};
+
+1;
