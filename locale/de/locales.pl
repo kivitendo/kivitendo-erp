@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 # -n do not include custom_ scripts
+# -v verbose mode, shows progress stuff
 
 # this version of locles processes not only all required .pl files
 # but also all parse_html_templated files.
@@ -9,10 +10,12 @@ use POSIX;
 use FileHandle;
 use Data::Dumper;
 
+$| = 1;
+
 $basedir  = "../..";
 $bindir   = "$basedir/bin/mozilla";
 $menufile = "menu.ini";
-$submitsearch = qr/type\s*=\s*["']?submit/i;
+$submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 
 foreach $item (@ARGV) {
   $item =~ s/-//g;
@@ -20,7 +23,7 @@ foreach $item (@ARGV) {
 }
 
 opendir DIR, "$bindir" or die "$!";
-@progfiles = grep { /\.pl$/ && !/(_|^\.)/ } readdir DIR;
+@progfiles = grep { /\.pl/; !/(_|^\.)/ } readdir DIR;
 seekdir DIR, 0;
 @customfiles = grep /_/, readdir DIR;
 closedir DIR;
@@ -51,6 +54,7 @@ if (-f 'all') {
 
 foreach $file (@progfiles) {
 
+  print "\n$file" if $arg{v};
   %locale = ();
   %submit = ();
   %subrt  = ();
@@ -76,6 +80,7 @@ foreach $file (@progfiles) {
   if ($file eq 'menunew.pl') {
     foreach $item (@menufiles) {
       &scanmenu("$basedir/$item");
+      print "." if $arg{v};
     }
   }
 
@@ -151,11 +156,12 @@ $self{subs} = {
 |;
 
   close FH;
+
 }
 
-foreach $file (@htmltemplates) {
-  converthtmlfile($file);
-}
+#foreach $file (@htmltemplates) {
+#  converthtmlfile($file);
+#}
 
 # now print out all
 
@@ -223,7 +229,9 @@ $trlanguage = $language[0];
 chomp $trlanguage;
 
 $per = sprintf("%.1f", ($count - $notext) / $count * 100);
-print "\n$trlanguage - ${per}%\n";
+print "\n$trlanguage - ${per}%";
+print " - $notext missing" if $notext;
+print "\n";
 
 exit;
 
@@ -282,104 +290,129 @@ sub extract_text_between_parenthesis {
 
 sub scanfile {
   my $file = shift;
+  my $dont_include_subs = shift;
+  my $scanned_files = shift;
 
-  return unless (-f "$file");
+  $scanned_files = {} unless ($scanned_files);
+  return if ($scanned_files->{$file});
+  $scanned_files->{$file} = 1;
 
-  my $fh = new FileHandle;
-  open $fh, "$file" or die "$! : $file";
+  if (!defined $cached{$file}) {
 
-  my ($is_submit, $line_no, $sub_line_no) = (0, 0, 0);
+    return unless (-f "$file");
 
-  while (<$fh>) {
-    $line_no++;
+    my $fh = new FileHandle;
+    open $fh, "$file" or die "$! : $file";
 
-    # is this another file
-    if (/require\s+\W.*\.pl/) {
-      my $newfile = $&;
-      $newfile =~ s/require\s+\W//;
-      $newfile =~ s/\$form->{path}\///;
-      &scanfile("$bindir/$newfile");
-    }
+    my ($is_submit, $line_no, $sub_line_no) = (0, 0, 0);
 
-    # is this a template call?
-    if (/parse_html_template\s*\(\s*["']([\w\/]+)/) {
-      my $newfile = "$basedir/templates/webpages/$1_master.html";
-      if (-f $newfile) {
-        &scanhtmlfile($newfile);
-        &converthtmlfile($newfile);
+    while (<$fh>) {
+      $line_no++;
+
+      # is this another file
+      if (/require\s+\W.*\.pl/) {
+        my $newfile = $&;
+        $newfile =~ s/require\s+\W//;
+        $newfile =~ s/\$form->{path}\///;
+#         &scanfile("$bindir/$newfile", 0, $scanned_files);
+         $cached{$file}{scan}{"$bindir/$newfile"} = 1;
+      } elsif (/use\s+SL::(.*?);/) {
+#         &scanfile("../../SL/${1}.pm", 1, $scanned_files);
+         $cached{$file}{scannosubs}{"../../SL/${1}.pm"} = 1;
       }
-    }
 
-    # is this a sub ?
-    if (/^sub /) {
-      ($null, $subrt) = split / +/;
-      $subrt{$subrt} = 1;
-      next;
-    }
-
-    my $rc = 1;
-
-    while ($rc) {
-      if (/Locale/) {
-        unless (/^use /) {
-          my ($null, $country) = split /,/;
-          $country =~ s/^ +[\"\']//;
-          $country =~ s/[\"\'].*//;
+      # is this a template call?
+      if (/parse_html_template\s*\(\s*[\"\']([\w\/]+)/) {
+        my $newfile = "$basedir/templates/webpages/$1_master.html";
+        if (-f $newfile) {
+#           &scanhtmlfile($newfile);
+#           &converthtmlfile($newfile);
+           $cached{$file}{scanh}{$newfile} = 1;
+          print "." if $arg{v};
         }
       }
 
-      my $postmatch = "";
-
-      # is it a submit button before $locale->
-      if (/$submitsearch/) {
-        $postmatch = $';
-        if ($` !~ /\$locale->text/) {
-          $is_submit   = 1;
-          $sub_line_no = $line_no;
-        }
+      # is this a sub ?
+      if (/^sub /) {
+        next if ($dont_include_subs);
+        ($null, $subrt) = split / +/;
+#        $subrt{$subrt} = 1;
+        $cached{$file}{subr}{$subrt} = 1;
+        next;
       }
 
-      my ($found) = /\$locale->text.*?\(/;
-      my $postmatch = $';
+      my $rc = 1;
 
-      if ($found) {
-        my $string;
-        ($string, $_) = extract_text_between_parenthesis($fh, $postmatch);
-        $postmatch = $_;
-
-        # if there is no $ in the string record it
-        unless (($string =~ /\$\D.*/) || ("" eq $string)) {
-
-          # this guarantees one instance of string
-          $locale{$string} = 1;
-
-          # this one is for all the locales
-          $alllocales{$string} = 1;
-
-          # is it a submit button before $locale->
-          if ($is_submit) {
-            $submit{$string} = 1;
+      while ($rc) {
+        if (/Locale/) {
+          unless (/^use /) {
+            my ($null, $country) = split /,/;
+            $country =~ s/^ +[\"\']//;
+            $country =~ s/[\"\'].*//;
           }
         }
-      } elsif ($postmatch =~ />/) {
-        $is_submit = 0;
-      }
 
-      # exit loop if there are no more locales on this line
-      ($rc) = ($postmatch =~ /\$locale->text/);
+        my $postmatch = "";
 
-      # strip text
-      s/^.*?\$locale->text.*?\)//;
+        # is it a submit button before $locale->
+        if (/$submitsearch/) {
+          $postmatch = "$'";
+          if ($` !~ /locale->text/) {
+            $is_submit   = 1;
+            $sub_line_no = $line_no;
+          }
+        }
 
-      if (   ($postmatch =~ />/)
-          || (!$found && ($sub_line_no != $line_no) && />/)) {
-        $is_submit = 0;
+        my ($found) = /locale->text.*?\(/;
+        my $postmatch = "$'";
+
+        if ($found) {
+          my $string;
+          ($string, $_) = extract_text_between_parenthesis($fh, $postmatch);
+          $postmatch = $_;
+
+          # if there is no $ in the string record it
+          unless (($string =~ /\$\D.*/) || ("" eq $string)) {
+
+            # this guarantees one instance of string
+#            $locale{$string} = 1;
+            $cached{$file}{locale}{$string} = 1;
+
+            # this one is for all the locales
+#            $alllocales{$string} = 1;
+            $cached{$file}{all}{$string} = 1;
+
+            # is it a submit button before $locale->
+            if ($is_submit) {
+#              $submit{$string} = 1;
+              $cached{$file}{submit}{$string} = 1;
+            }
+          }
+        } elsif ($postmatch =~ />/) {
+          $is_submit = 0;
+        }
+
+        # exit loop if there are no more locales on this line
+        ($rc) = ($postmatch =~ /locale->text/);
+
+        if (   ($postmatch =~ />/)
+            || (!$found && ($sub_line_no != $line_no) && />/)) {
+          $is_submit = 0;
+        }
       }
     }
+
+    close($fh);
+
   }
 
-  close($fh);
-
+  map { $alllocales{$_} = 1 }   keys %{$cached{$file}{all}};
+  map { $locale{$_} = 1 }       keys %{$cached{$file}{locale}};
+  map { $submit{$_} = 1 }       keys %{$cached{$file}{submit}};
+  map { $subrt{$_} = 1 }        keys %{$cached{$file}{subr}};
+  map { &scanfile($_, 0, $scanned_files) } keys %{$cached{$file}{scan}};
+  map { &scanfile($_, 1, $scanned_files) } keys %{$cached{$file}{scannosubs}};
+  map { &scanhtmlfile($_)  }    keys %{$cached{$file}{scanh}};
 }
 
 sub scanmenu {
@@ -407,51 +440,63 @@ sub scanmenu {
 
 sub scanhtmlfile {
   local *IN;
+ 
+  if (!defined $cached{$_[0]}) {
+ 
+    open(IN, $_[0]) || die $_[0];
 
-  open(IN, $_[0]) || die $_[0];
+    my $copying = 0;
+    my $issubmit = 0;
+    my $text = "";
+    while (my $line = <IN>) {
+      chomp($line);
 
-  my $copying = 0;
-  my $issubmit = 0;
-  my $text = "";
-  while (my $line = <IN>) {
-    chomp($line);
-
-    while ("" ne $line) {
-      if (!$copying) {
-        if ($line =~ m|<translate>|i) {
-          my $eom = $+[0];
-          if ($` =~ /$submitsearch/) {
-            $issubmit = 1
+      while ("" ne $line) {
+        if (!$copying) {
+          if ($line =~ m|<translate>|i) {
+            my $eom = $+[0];
+            if ($` =~ /$submitsearch/) {
+              $issubmit = 1
+            }
+            substr($line, 0, $eom) = "";
+            $copying = 1;
+          } else {
+            $line = "";
           }
-          substr($line, 0, $eom) = "";
-          $copying = 1;
-        } else {
-          $line = "";
-        }
-
-      } else {
-        if ($line =~ m|</translate>|i) {
-          $text .= $`;
-          substr($line, 0, $+[0]) = "";
-          
-          $copying = 0; 
-          if ($issubmit) {
-            $submit{$text} = 1;
-            $issubmit = 0;
-          }
-          $alllocales{$text} = 1;
-          $htmllocale{$text} = 1;
-          $text = "";
 
         } else {
-          $text .= $line;
-          $line = "";
+          if ($line =~ m|</translate>|i) {
+            $text .= $`;
+            substr($line, 0, $+[0]) = "";
+            
+            $copying = 0; 
+            if ($issubmit) {
+  #            $submit{$text} = 1;
+               $cached{$_[0]}{submit}{$text} = 1;
+              $issubmit = 0;
+            }
+  #          $alllocales{$text} = 1;
+             $cached{$_[0]}{all}{$text} = 1;
+  #          $htmllocale{$text} = 1;
+             $cached{$_[0]}{html}{$text} = 1;
+            $text = "";
+
+          } else {
+            $text .= $line;
+            $line = "";
+          }
         }
       }
     }
+
+    close(IN);
+    &converthtmlfile($_[0]);
   }
 
-  close(IN);
+  # copy back into global arrays
+  map { $alllocales{$_} = 1 }  keys %{$cached{$_[0]}{all}};
+  map { $htmllocales{$_} = 1 } keys %{$cached{$_[0]}{html}};
+  map { $submit{$_} = 1 }      keys %{$cached{$_[0]}{submit}};
 }
 
 sub converthtmlfile {
@@ -496,7 +541,7 @@ sub converthtmlfile {
           $copying = 0;
           $alllocales{$text} = 1;
           $htmllocale{$text} = 1;
-          print(OUT $self{"texts"}{$text});
+          print(OUT $self{"texts"}{$text} || $text);
           print(OUT "\n") if ("" eq $line);
           $text = "";
 

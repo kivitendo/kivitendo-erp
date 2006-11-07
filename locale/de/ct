@@ -15,6 +15,7 @@ $self{texts} = {
   'Cannot delete customer!'     => 'Kunde kann nicht gelöscht werden!',
   'Cannot delete vendor!'       => 'Lieferant kann nicht gelöscht werden!',
   'Cc'                          => 'Cc',
+  'City'                        => 'Stadt',
   'Company Name'                => 'Firmenname',
   'Contact'                     => 'Kontakt',
   'Contact Person'              => 'Ansprechpartner',

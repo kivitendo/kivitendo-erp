@@ -42,7 +42,6 @@ $self{texts} = {
   'Firma'                       => 'Firma',
   'Help'                        => 'Hilfe',
   'Help:'                       => 'Hilfe:',
-  'Hier den Berechnungszeitraum auswählen...' => 'Hier den Berechnungszeitraum auswählen...',
   'Hint-Missing-Preferences'    => 'Bitte fehlende USTVA Einstellungen ergänzen (Menüpunkt: Programm)',
   'Hinweise'                    => 'Hinweise',
   'Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!' => 'Umsatzsteuer Jahreserklärung als PDF wird noch nicht unterstützt.<br \> Bitte benutzen Sie das Ausgabeformat Vorschau.',
