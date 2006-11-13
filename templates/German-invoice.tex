@@ -1,156 +1,151 @@
 \documentclass[twoside]{scrartcl}
-\usepackage[frame]{xy}
+\usepackage{eurosym}
 \usepackage{tabularx}
 \usepackage[latin1]{inputenc}
-\setlength{\voffset}{0.5cm}
-\setlength{\hoffset}{-2.0cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.5cm}
-\setlength{\headsep}{1cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{1.0cm}
-\setlength{\evensidemargin}{1.0cm}
-\setlength{\textwidth}{17cm}
-\setlength{\textheight}{24.5cm}
-\setlength{\footskip}{1cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
+\usepackage{geyger}
 \begin{document}
 
-\newlength{\descrwidth}\setlength{\descrwidth}{9cm}
+\thispagestyle{plain}
 
-\newsavebox{\hdr}
-\sbox{\hdr}{
-  \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
 
-  \parbox{\textwidth}{
-    \parbox[b]{12cm}{
-      <%company%>
-      
-      <%address%>}\hfill
-    \begin{tabular}[b]{rr@{}}
-    Telefon & <%tel%>\\
-    Telefax & <%fax%>
-    \end{tabular}
-
-    \rule[1.5ex]{\textwidth}{0.5pt}
-  }
-}
-    
 \fontfamily{cmss}\fontshape{n}\selectfont
 
-\markboth{<%company%>\hfill <%invnumber%>}{\usebox{\hdr}}
-
-\pagestyle{myheadings}
-%\thispagestyle{empty}     use this with letterhead paper
-
-<%pagebreak 90 27 48%>
-\end{tabular*}
-
-  \rule{\textwidth}{2pt}
-  
-  \hfill
-  \begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Subtotal} & \textbf{<%sumcarriedforward%>} \\
-  \end{tabularx}
+<%pagebreak 80 28 37%>
+\end{tabularx}
 
 \newpage
 
-\markright{<%company%>\hfill <%invnumber%>}
-
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Preis} & \textbf{Rab} & \textbf{Total} \\
-  & Übertrag von Seite <%lastpage%> & & & & & <%sumcarriedforward%> \\
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    FIXME & <%linetotal%>\\
+  <%end number%>
 <%end pagebreak%>
-
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
-\vspace*{2cm}
+\vspace*{1.5cm}
 
-<%name%>
+\begin{minipage}{8cm}
+  \tiny
+  \underline{GEYGER GbR $\bullet$ Druckereistr. 9 $\bullet$ 05159
+    Leipzig-Stahmeln}
+  \normalsize
 
-<%street%>
+  <%name%>
 
-<%zipcode%>
+  <%street%>
 
-<%city%>
+  <%zipcode%> <%city%>
 
-<%country%>
-
-\vspace{3.5cm}
-
-\textbf{R E C H N U N G}
+  <%country%>
+\end{minipage}
 \hfill
-\begin{tabular}[t]{l@{\hspace{0.3cm}}l}
-  \textbf{Datum} & <%invdate%> \\
-  \textbf{Nummer} & <%invnumber%> \\
-  \textbf{Lieferdatum} & <%deliverydate%> \\
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Rechnung}}}
+  \rightline{\large\textbf{\textit{Nr. <%invnumber%>%
+  }}}
+
+  Rechnungsdatum:\hfill <%invdate%>
+
+  Auftrag-Nr:\hfill <%ordnumber%>
+
+  Telefon:\hfill FIXME <%phone%>
+
+  Telefax:\hfill FIXME <%fax%>
+
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
+
+Ihre Bestellung ex <%cusordnumber%> vom <%orddate%>
+\hfill
+Leipzig-Stahmeln, \today
+
+\vspace*{0.5cm}
+
+Sehr geehrte Damen und Herren,
+
+für unsere erbrachten Lieferungen und Leistungen erlauben wir uns,
+folgende Positionen in Rechnung zu stellen.
+
+\vspace{0.5cm}
+
+\begin{minipage}[t]{8cm}
+  \underline{Lieferadresse:}
+
+  <%dc_name%>
+
+  <%dc_street%>
+
+  <%dc_zipcode%> <%dc_city%>
+
+  <%dc_country%>
+\end{minipage}
+\begin{minipage}[t]{8cm}
+  \underline{Händler}
+
+  <%dv_name%>
+
+  <%dv_street%>
+
+  <%dv_zipcode%> <%dv_city%>
+
+  <%dv_country%>
+
+  Telefon: <%dv_phone%>
+\end{minipage}
+
+\vspace{0.5cm}
+
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    FIXME & <%linetotal%>\\
+  <%end number%>
+\end{tabularx}
+
+\begin{tabularx}{\textwidth}{Xrr}
+  Zwischensumme: & & <%subtotal%>\\
+  abbzüglich der nicht rabattierfähigen Positionen $(*)$ &
+  FIXME & FIXME \\
+  Rabatt bei vereinbarungsgemäßer Bezahlung\hfill
+    FIXME von & FIXME & FIXME\\
+\end{tabularx}
+
+\vspace{0.5cm}
+
+Liefertermin: <%deliverydate%>
+
+\vspace{0.5cm}
+
+\hrule
+
+\hfill
+\begin{tabular}{l@{\hspace*{0.2cm}\euro\hspace*{0.2cm}}r}
+  Nettobetrag & FIXME\\
+  <%foreach tax%>
+  <%taxrate%> <%taxdescription%> & <%tax%>\\
+  <%end tax%>
+  \textbf{Endbetrag} & \textbf{<%invtotal%>%
+  }
 \end{tabular}
-
-\vspace{1cm}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Preis} & \textbf{Rab} & \textbf{Total} \\
-<%foreach number%>
-  <%number%> & <%description%> & <%qty%> &
-    <%unit%> & <%sellprice%> & <%discount%> & <%linetotal%> \\
-<%end number%>
-\end{tabular*}
-
-
-\parbox{\textwidth}{
-\rule{\textwidth}{2pt}
+\hrule
 
 \vspace{0.2cm}
 
-\hfill
-\begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Zwischensumme} & \textbf{<%subtotal%>} \\
-<%foreach tax%>
-  <%taxdescription%> auf <%taxbase%> & <%tax%> \\
-<%end tax%>
-  \hline
-  \textbf{Total} & \textbf{<%invtotal%>} \\
-<%if paid%>
-  \textbf{Bezahlt} & <%paid%> \\
-<%end paid%>
-<%if total%>
-  \textbf{Bezahlbar} & \textbf{<%total%>} \\
-<%end total%>
-\end{tabularx}
-
-\vspace{0.3cm}
-
-\hfill
-  Alle Preise in \textbf{<%currency%>}.
-
-\vspace{12pt}
-
-<%if notes%>
-  <%notes%>
-<%end if%>
-
-}
-
-%\vfill
-%\centerline{\textbf{salute}}
-
-\renewcommand{\thefootnote}{\fnsymbol{footnote}}
-
-\footnotetext[1]{\tiny
-Rechnung ist bezahlbar innerhalb von <%terms%> Tagen.
-Nach dem <%duedate%> werden Zinsen zu einem
-monatlichen Satz von 1.5\% verrechnet.
-Waren bleiben im Besitz von <%company%> bis die Rechnung voll bezahlt ist.
-Rückgaben werden mit 10 Prozent Lagergebühren belastet. Beschädigte Waren
-und Waren ohne eine Rückgabenummer werden nicht entgegengenommen.
-}
+Zahlbar bis FIXME mit FIXME Skonto (FIXME) = FIXME \euro\\
+Zahlbar bis <%terms%> <%invtotal%> \euro\ ohne Abzüge
 
 \end{document}
-
 

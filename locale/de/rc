@@ -19,7 +19,7 @@ $self{texts} = {
   'Select all'                  => 'Alle auswählen',
   'Source'                      => 'Beleg',
   'Statement Balance'           => 'Sammelrechnungsbilanz',
-  'Until'                       => 'Bis',
+  'To'                          => 'An',
   'Update'                      => 'Erneuern',
 };
 

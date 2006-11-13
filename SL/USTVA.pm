@@ -669,18 +669,13 @@ sub get_accounts_ustva {
                  AND ac.project_id = $form->{project_id}
 		 |;
   }
-#########################################
-# Method eq 'cash' = IST Versteuerung
-#########################################
 
-  if ($form->{method} eq 'cash') {  
+  if ($form->{method} eq 'cash') {
 
     $query = qq|
+
  SELECT
-   -- Alle tatsaechlichen Zahlungseingaenge 
-   -- im Voranmeldezeitraum erfassen 
-   -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
-   SUM( ac.amount * 
+   SUM( ac.amount *
       -- Bezahlt / Rechnungssumme
      ( 
        SELECT SUM(acc.amount)
@@ -705,43 +700,101 @@ sub get_accounts_ustva {
      -- Here no where, please. All Transactions ever should be
      -- testet if they are paied in the USTVA report period.
    GROUP BY c.pos_ustva
+	UNION
 
- UNION -- alle Ausgaben AP erfassen
+	         SELECT sum(ac.amount) AS amount,
+		 c.$category
+		 FROM acc_trans ac
+		 JOIN chart c ON (c.id = ac.chart_id)
+		 JOIN ap a ON (a.id = ac.trans_id)
+		 $dpt_join
+		 WHERE $where
+		 $dpt_where
+		 AND ac.trans_id IN
+		   (
+		     SELECT trans_id
+		     FROM acc_trans
+		     JOIN chart ON (chart_id = id)
+		     WHERE link LIKE '%AP_amount%'
+		     $subwhere
+		   )
 
-   SELECT sum(ac.amount) AS amount, c.$category
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   $dpt_join 
-   WHERE 
-   $where
-   AND c.link LIKE '%AP_amount%'
-   $dpt_where
-   $project
-   GROUP BY c.$category
+		 $project
+		 GROUP BY c.$category
 
-   UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
+        UNION
 
-   SELECT sum
-   (
-     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-     END
-   ) AS amount, c.$category
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   JOIN gl a ON (a.id = ac.trans_id)
-   $dpt_join
-   WHERE $where
-   $dpt_from
-   AND NOT (c.link = 'AR' OR c.link = 'AP')
-   $project
-   GROUP BY c.$category
-   |;
+		 SELECT sum(ac.amount) AS amount,
+		 c.$category
+		 FROM acc_trans ac
+		 JOIN chart c ON (c.id = ac.chart_id)
+		 JOIN gl a ON (a.id = ac.trans_id)
+		 $dpt_join
+		 WHERE $where
+		 $glwhere
+		 $dpt_from
+		 AND NOT (c.link = 'AR' OR c.link = 'AP')
+		 $project
+		 GROUP BY c.$category
 
-  } else { 
-#########################################
-# Method eq 'accrual' = Soll Versteuerung
-#########################################
+		 |;
+
+    if ($form->{project_id}) {
+
+      $query .= qq|
+
+	 UNION
+
+		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ar a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.income_accno_id = c.id)
+	         $dpt_join
+	-- use transdate from subwhere
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'I'
+		 $dpt_where
+		 AND ac.trans_id IN
+		   (
+		     SELECT trans_id
+		     FROM acc_trans
+		     JOIN chart ON (chart_id = id)
+		     WHERE link LIKE '%AR_paid%'
+		     $subwhere
+		   )
+
+		 $project
+		 GROUP BY c.$category
+
+	 UNION
+
+		 SELECT SUM(ac.sellprice) AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ap a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.expense_accno_id = c.id)
+	         $dpt_join
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'E'
+		 $dpt_where
+		 AND ac.trans_id IN
+		   (
+		     SELECT trans_id
+		     FROM acc_trans
+		     JOIN chart ON (chart_id = id)
+		     WHERE link LIKE '%AP_paid%'
+		     $subwhere
+		   )
+
+		 $project
+		 GROUP BY c.$category
+		 |;
+    }
+
+  } else {
 
     if ($department_id) {
       $dpt_join = qq|
@@ -753,38 +806,69 @@ sub get_accounts_ustva {
     }
 
     $query = qq|
-   SELECT sum
-   (
-     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-     END		 
-   ) AS amount, c.$category
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   $dpt_join
-   WHERE $where
-   $dpt_where
-   $project
-   GROUP BY c.$category
-   |;
+
+		 SELECT sum(ac.amount) AS amount,
+		 c.$category
+		 FROM acc_trans ac
+		 JOIN chart c ON (c.id = ac.chart_id)
+		 $dpt_join
+		 WHERE $where
+		 $dpt_where
+		 $project
+		 GROUP BY c.$category
+		 |;
+
+    if ($form->{project_id}) {
+
+      $query .= qq|
+
+	UNION
+
+		 SELECT SUM(ac.sellprice * ac.qty) AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ar a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.income_accno_id = c.id)
+	         $dpt_join
+	-- use transdate from subwhere
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'I'
+		 $dpt_where
+		 $project
+		 GROUP BY c.$category
+
+	UNION
+
+		 SELECT SUM(ac.sellprice * ac.qty) * -1 AS amount,
+		 c.$category
+		 FROM invoice ac
+	         JOIN ap a ON (a.id = ac.trans_id)
+		 JOIN parts p ON (ac.parts_id = p.id)
+		 JOIN chart c on (p.expense_accno_id = c.id)
+	         $dpt_join
+		 WHERE 1 = 1 $subwhere
+		 AND c.category = 'E'
+		 $dpt_where
+		 $project
+		 GROUP BY c.$category
+		 |;
+
+    }
   }
 
   my @accno;
   my $accno;
   my $ref;
 
-  # Show all $query in Debuglevel LXDebug::QUERY
-  $callingdetails = (caller (0))[3];
-  $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
-              
+  #print $query;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-# Bug 365 solved?!
-#    if ($ref->{amount} < 0) {
+    if ($ref->{amount} < 0) {
       $ref->{amount} *= -1;
-#    }
+    }
     if ($category eq "pos_bwa") {
       if ($last_period) {
         $form->{ $ref->{$category} }{kumm} += $ref->{amount};

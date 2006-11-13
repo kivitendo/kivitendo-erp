@@ -1,6 +1,6 @@
 <html>
  <head>
-  <title>LaTeX-Vorlagen und verf&uuml;gbare Variablen</title>
+  <title>Dokumentenvorlagen und verf&uuml;gbare Variablen</title>
   <style type="text/css">
   <!--
 .blue { 
@@ -29,7 +29,7 @@ td {
 
 <body>
 
- <h1>LaTeX-Vorlagen und verf&uuml;gbare Variablen</h1>
+ <h1>Dokumentenvorlagen und verf&uuml;gbare Variablen</h1>
 
  <p>geschrieben von <a href="mailto:m.bunkus@linet-services.de">Moritz
    Bunkus</a>. Version: $Id$ </p>
@@ -39,70 +39,76 @@ td {
  <h2><a name="inhaltsverzeichnis">Inhaltsverzeichnis</a></h2>
 
  <ol>
-  <li><a href="latex-template-variablen.html#inhaltsverzeichnis">
+  <li><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
     Inhaltsverzeichnis</a></li>
 
-  <li><a href="latex-template-variablen.html#einfuehrung">Einf&uuml;hrung</a>
+  <li><a href="dokumentenvorlagen-und-variablen.html#einfuehrung">Einf&uuml;hrung</a>
   </li>
 
-  <li><a href="latex-template-variablen.html#zuordnung_dateinamen">
+  <li><a href="dokumentenvorlagen-und-variablen.html#zuordnung_dateinamen">
     Zuordnung von Dateinamen zu den Funktionen</a></li>
 
-  <li><a href="latex-template-variablen.html#allgemeine_variablen">
+  <li><a href="dokumentenvorlagen-und-variablen.html#allgemeine_variablen">
     Allgemeine Variablen, die in allen Vorlagen vorhanden sind</a><br>
 
    <ol>
-    <li><a href="latex-template-variablen.html#allgemein_stammdaten">
+    <li><a href="dokumentenvorlagen-und-variablen.html#allgemein_stammdaten">
       Stammdaten von Kunden und Lieferanten</a></li>
 
-    <li><a href="latex-template-variablen.html#allgemein_verkaeufer">
+    <li><a href="dokumentenvorlagen-und-variablen.html#allgemein_verkaeufer">
       Informationen &uuml;ber den Verk&auml;ufer</a></li>
 
-    <li><a href="latex-template-variablen.html#allgemein_steuern">
+    <li><a href="dokumentenvorlagen-und-variablen.html#allgemein_steuern">
       Variablen f&uuml;r jede Steuer</a></li>
    </ol>
   </li>
 
-  <li><a href="latex-template-variablen.html#invoice">
+  <li><a href="dokumentenvorlagen-und-variablen.html#invoice">
     Variablen in Rechnungen</a>
 
    <ol>
-    <li><a href="latex-template-variablen.html#invoice_allgemein">
+    <li><a href="dokumentenvorlagen-und-variablen.html#invoice_allgemein">
       Allgemeine Variablen</a></li>
 
-    <li><a href="latex-template-variablen.html#invoice_posten">
+    <li><a href="dokumentenvorlagen-und-variablen.html#invoice_posten">
       Variablen f&uuml;r jeden Posten auf der Rechnung</a></li>
 
-    <li><a href="latex-template-variablen.html#invoice_zahlungen">
+    <li><a href="dokumentenvorlagen-und-variablen.html#invoice_zahlungen">
       Variablen f&uuml;r die Zahlungseing&auml;nge</a></li>
    </ol>
   </li>
 
-  <li><a href="latex-template-variablen.html#anderevorlagen">
+  <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen">
     Variablen in anderen Vorlagen</a></li>
 
-  <li><a href="latex-template-variablen.html#bloecke">
+  <li><a href="dokumentenvorlagen-und-variablen.html#bloecke">
     Bl&ouml;cke, bedingte Anweisungen und Schleifen</a>
 
    <ol>
-    <li><a href="latex-template-variablen.html#bloecke_include">
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_einschr_latex">
+      Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in LaTeX-Vorlagen</a></li>
+
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_einschr_opendocument">
+      Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in OpenDocument-Vorlagen</a></li>
+
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_include">
       Die <code>include</code>-Anweisung</a></li>
 
-    <li><a href="latex-template-variablen.html#bloecke_ifnot">
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_ifnot">
       Der <code>if not</code>-Block</a></li>
 
-    <li><a href="latex-template-variablen.html#bloecke_if">
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_if">
       Der <code>if</code>-Block</a></li>
 
-    <li><a href="latex-template-variablen.html#bloecke_foreach">
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_foreach">
       Die <code>foreach</code>-Schleife</a></li>
 
-    <li><a href="latex-template-variablen.html#bloecke_pagebreak">
+    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_pagebreak">
       Der <code>pagebreak</code>-Block</a></li>
    </ol>
   </li>
 
-  <li><a href="latex-template-variablen.html#markup">
+  <li><a href="dokumentenvorlagen-und-variablen.html#markup">
     Markup-Code, der innerhalb von Formularen zur Textformatierung verwendet
     werden kann</a></li>
 
@@ -112,10 +118,15 @@ td {
 
  <h2><a name="einfuehrung">Einf&uuml;hrung</a></h2>
 
- <p>Dies ist eine Auflistung der Standard-LaTeX-Vorlagen und aller zur
-  Bearbeitung verf&uuml;gbare Variablen. Eine Variable wird in einer Vorlage
-  durch ihren Inhalt ersetzt, wenn sie in der Form
+ <p>Dies ist eine Auflistung der Standard-Dokumentenvorlagen und aller
+  zur Bearbeitung verf&uuml;gbaren Variablen. Eine Variable wird in
+  einer Vorlage durch ihren Inhalt ersetzt, wenn sie in der Form
   <code>&lt;%variablenname%&gt;</code> verwendet wird.</p>
+
+ <p>Fr&uuml;her wurde hier nur &uuml;ber LaTeX gesprochen. Inzwischen
+  unterst&uuml;tzt Lx-Office aber auch OpenDocument-Vorlagen. Sofern
+  es nicht ausdr&uuml;cklich eingeschr&auml;nkt wird, gilt das im
+  Folgenden gesagte f&uuml;r alle Vorlagenarten.</p>
 
  <p>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
   verf&uuml;gbar als hier aufgelistet werden. Die meisten davon k&ouml;nnen
@@ -141,29 +152,31 @@ td {
 
  </ol>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
  <h2><a name="zuordnung_dateinamen">
    Zuordnung von den Dateinamen zu den Funktionen</a></h2>
 
- <p>Diese kurze Auflistung zeigt, welche Vorlage bei welcher Funktion
-  ausgelesen wird:</p>
+ <p>Diese folgende kurze Auflistung zeigt, welche Vorlage bei welcher
+  Funktion ausgelesen wird. Dabei ist die Dateiendung &quot;.ext&quot;
+  geeignet zu ersetzen: &quot;.tex&quot; f&uuml; LaTeX-Vorlagen und
+  &quot;.odt&quot; f&uuml;r OpenDocument-Vorlagen.</p>
 
  <ul>
-  <li><code>bin_list.tex</code> -- Lagerliste</li>
-  <li><code>check.tex</code> -- ?</li>
-  <li><code>invoice.tex</code> -- Rechnung</li>
-  <li><code>packing_list.tex</code> -- Verpackungsliste</li>
-  <li><code>pick_list.tex</code> -- Sammelliste</li>
-  <li><code>purcharse_order.tex</code> -- Bestellung an Lieferanten</li>
-  <li><code>request_quotation.tex</code> -- Anfrage an Lieferanten</li>
-  <li><code>sales_order.tex</code> -- Bestellung</li>
-  <li><code>sales_quotation.tex</code> -- Angebot an Kunden</li>
+  <li><code>bin_list.ext</code> -- Lagerliste</li>
+  <li><code>check.ext</code> -- ?</li>
+  <li><code>invoice.ext</code> -- Rechnung</li>
+  <li><code>packing_list.ext</code> -- Verpackungsliste</li>
+  <li><code>pick_list.ext</code> -- Sammelliste</li>
+  <li><code>purcharse_order.ext</code> -- Bestellung an Lieferanten</li>
+  <li><code>request_quotation.ext</code> -- Anfrage an Lieferanten</li>
+  <li><code>sales_order.ext</code> -- Bestellung</li>
+  <li><code>sales_quotation.ext</code> -- Angebot an Kunden</li>
  </ul>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
@@ -275,47 +288,47 @@ td {
    <tr>
     <td><code>shiptocity</code></td>
     <td>Stadt (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptocontact</code></td>
     <td>Kontakt (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptocountry</code></td>
     <td>Land (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptoemail</code></td>
     <td>Email (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptofax</code></td>
     <td>Fax (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptoname</code></td>
     <td>Firmenname (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptophone</code></td>
     <td>Telefonnummer (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptostreet</code></td>
     <td>Straﬂe und Hausnummer (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>shiptozipcode</code></td>
     <td>Postleitzahl (Lieferadresse)
-     <a href="latex-template-variablen.html#anmerkung_shipto">*</a></td>
+     <a href="dokumentenvorlagen-und-variablen.html#anmerkung_shipto">*</a></td>
    </tr>
    <tr>
     <td><code>street</code></td>
@@ -344,10 +357,6 @@ td {
    <tr>
     <td><code>vendornumber</code></td>
     <td>Lieferantennummer; nur f&uuml;r Lieferanten</td>
-   </tr>
-   <tr>
-    <td><code>v_customer_id</code></td>
-    <td>Kundennummer beim Lieferanten; nur f&uuml;r Lieferanten</td>
    </tr>
    <tr>
     <td><code>vendorphone</code></td>
@@ -422,7 +431,7 @@ td {
   </table>
  </p>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
@@ -496,7 +505,7 @@ td {
    <tr>
     <td><code>sumcarriedforward</code></td>
     <td>Zwischensumme aller bisher ausgegebenen Posten. Sollte nur in einem
-     <a href="latex-template-variablen.html#bloecke_pagebreak">
+     <a href="dokumentenvorlagen-und-variablen.html#bloecke_pagebreak">
       <code>pagebreak</code></a>-Block verwendet werden.</td>
    </tr>
    <tr>
@@ -560,7 +569,8 @@ td {
    <td><code>p_discount</code></td>
     <td>Rabatt in Prozent</td>
    </tr>
-   <td><code>partnotes</code></td>
+   <tr>
+    <td><code>partnotes</code></td>
     <td>Die beim Artikel gespeicherten Bemerkungen</td>
    </tr>
    <tr>
@@ -631,7 +641,7 @@ td {
   </table>
  </p>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
@@ -650,7 +660,7 @@ td {
   Variablen, die vom Gesch&auml;ftsablauf her in der entsprechenden Vorlage
   keine Bedeutung haben oder noch nicht belegt sein k&ouml;nnen.</p>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
@@ -661,8 +671,11 @@ td {
   gesondert behandelt werden. Diese sind wie Variablennamen in spezieller
   Weise markiert: <code>&lt;%anweisung%&gt;</code></p>
 
- <p><b>Achtung: Bl&ouml;cke k&ouml;nnen momentan nicht verschachtelt
-   werden.</b> Das bedeutet, dass innerhalb einer
+ <h3><a name="bloecke_einschr_latex">
+   Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in LaTeX-Vorlagen</a></h3>
+
+ <p>Achtung: Bl&ouml;cke k&ouml;nnen in LaTeX-Vorlagen momentan nicht
+   verschachtelt werden. Das bedeutet, dass innerhalb einer
    <code>&lt;%foreach%&gt;</code>-Schleife keine
    <code>&lt;%if%&gt;</code>-Abfragen verwendet werden k&ouml;nnen. Dieses
    kann man aber mit LaTeX-Bordmitteln selber nachgebildet werden. Dazu muss
@@ -672,9 +685,23 @@ td {
  <p class="blue"><code>\ifthenelse{\equal{&lt;%variable%&gt;}{}}{}{Dieser
    Text erscheint nur, wenn &lt;%variable%&gt; nicht leer ist.}</code></p>
 
+ <h3><a name="bloecke_einschr_opendocument">
+   Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in OpenDocument-Vorlagen</a></h3>
+
+ <p>Die eben erw&auml;hnten Einschr&auml;nkungen f&uuml;r
+  LaTeX-Vorlagen gelten in abgeschw&auml;chter Form auch f&uuml;r
+  OpenDocument-Vorlagen. Auch bei OpenDocument-Vorlagen k&ouml;nnen
+  Bl&ouml;cke nicht verschachtelt werden. Einzige Ausnahme ist, dass
+  <code>&lt;if&gt;</code> und
+  <code>&lt;ifnot&gt;</code>-Bl&ouml;cke innerhalb von
+  <code>&lt;foreach&gt;</code>-Bl&ouml;cken auftreten
+  d&uuml;rfen.</p>
+
  <h3><a name="bloecke_include">Die <code>include</code>-Anweisung</a></h3>
 
  <p class="blue"><code>&lt;%include dateiname.ext%&gt;</code></p>
+
+ <p>Dieser Block funktioniert nur in LaTeX- und HTML-Vorlagen.</p>
 
  <p>F&uuml;gt den Inhalt einer Datei an der entsprechenden Stelle ein. Der
   eingef&uuml;gte Text wird ganz normal durch den Parser behandelt und kann
@@ -710,7 +737,7 @@ td {
   Perl-Array der Variablen "variablenname" Elemente enth&auml;t. Dieses
   Konstrukt wird zur Ausgabe der einzelnen Posten einer Rechnung / eines
   Angebots sowie zur Ausgabe der Steuern benutzt. In jedem Durchlauf werden
-  die <a href="latex-template-variablen.html#invoice_posten">zeilenbezogenen
+  die <a href="dokumentenvorlagen-und-variablen.html#invoice_posten">zeilenbezogenen
   Variablen</a> jeweils auf den Wert f&uuml;r die aktuelle Position
   gesetzt.</p>
 
@@ -724,11 +751,21 @@ td {
    ...<br>
    &lt;%end foreach&gt;</code></p>
 
+ <p>Besonderheit in OpenDocument-Vorlagen: Tritt ein
+  <code>&lt;foreach&gt;</code>-Blcok innerhalb einer Tabellenzelle
+  auf, so wird die komplette Tabellenzeile so oft wiederholt wie
+  notwendig. Tritt er au&szlig;erhalb auf, so wird nur der Inhalt
+  zwischen <code>&lt;foreach&gt;</code> und <code>&lt;end
+  foreach&gt;</code> wiederholt, nicht aber die komplette Zeile, in
+  der er steht.</p>
+
  <h3><a name="bloecke_pagebreak">Der <code>pagebreak</code>-Block</a></h3>
 
  <p class="blue"><code>&lt;%pagebreak ZpZ ZeS ZzS%&gt;<br>
    ...<br>
    &lt;%end pagebreak%&gt;</code></p>
+
+ <p>Dieser Block existiert nur in LaTeX-Vorlagen.</p>
 
  <p>Dieser Block legt das Verhalten beim manuellen Einf&uuml;gen eines
   Seitenumbruchs fest. Normalerweise bricht LaTeX die Seiten selber um. Beim
@@ -763,7 +800,7 @@ td {
  <p>Wird kein manueller Seitenumbruch gew&uuml;scht, so kann dieser Block
   komplett entfallen.</p>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
@@ -789,6 +826,10 @@ td {
     <td>Text wird in <b>fettdruck</b> gesetzt.</td>
    </tr>
    <tr>
+    <td><code>&lt;i&gt;Text&lt;/i&gt;</code></td>
+    <td>Text wird <i>kursiv</i> gesetzt.</td>
+   </tr>
+   <tr>
     <td><code>&lt;u&gt;Text&lt;/u&gt;</code></td>
     <td>Text wird <u>unterstrichen</u>.</td>
    </tr>
@@ -804,15 +845,17 @@ td {
   </table>
  </p>
 
- <p>Eine Besonderheit ist der Befehl <code>&lt;pagebreak&gt;</code>. Dieser
-  erzwingt unabh&auml;ngig von der im <a
-  href="latex-template-variablen.html#bloecke_pagebreak">pagebreak-Block</a>
+ <p>Eine Besonderheit ist der Befehl <code>&lt;pagebreak&gt;</code>,
+  der nur in LaTeX-Vorlagen funktioniert und in anderen Vorlagen
+  einfach gel&ouml;scht wird. Dieser erzwingt unabh&auml;ngig von der
+  im <a
+  href="dokumentenvorlagen-und-variablen.html#bloecke_pagebreak">pagebreak-Block</a>
   voreingestellten Werte einen Seitenumbruch nach der aktuellen
   Rechnungsposition. Dementsprechend funktioniert er nur innerhalb von
   <code>&lt;foreach...&gt;</code>-Schleifen. Weiterhin ben&ouml;tigt er kein
   Endtag.</p>
 
- <small><a href="latex-template-variablen.html#inhaltsverzeichnis">
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 

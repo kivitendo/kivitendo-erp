@@ -1489,12 +1489,12 @@ sub delete {
 <form method=post action=$form->{script}>
 |;
 
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description chart taxchart);
+  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description chart);
 
   delete $form->{header};
 
   foreach $key (keys %$form) {
-    print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
+    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
 
   print qq|

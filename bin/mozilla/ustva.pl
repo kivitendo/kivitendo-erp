@@ -73,9 +73,8 @@ sub report {
   $lxdebug->enter_sub();
   my $myconfig = \%myconfig;
   use CGI;
-
   $form->{title} = $locale->text('UStVA');
-  $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1 Nein=0
+  $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1
 
   my $year = substr(
                     $form->datetonum($form->current_date(\%myconfig),
@@ -148,7 +147,6 @@ sub report {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
     ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
-    $form->{co_city} =~ s/\\n//g;
   }
 
   if ($form->{co_street} ne ''
@@ -193,10 +191,10 @@ sub report {
 	  Keine Steuernummer hinterlegt!</a><br>|;
   }
   print qq|
-	  <br>
+	  <!--<br>
 	  | . $locale->text('ELSTER-Steuernummer: ') . qq|
 	  $form->{elstersteuernummer}
-          <br>
+          <br>-->
           <br>
 
 	  </fieldset>
@@ -546,26 +544,30 @@ sub ustva_vorauswahl {
   if ($form->{FA_voranmeld} eq 'month') {
 
     # Vorauswahl bei monatlichem Voranmeldungszeitraum
+    print qq|
+     <select name="duetyp" id=zeitraum title="|
+      . $locale->text('Hier den Berechnungszeitraum auswählen...') . qq|">
+   |;
 
-    my %liste = ('01' => $locale->text('January'),
-                 '02' => $locale->text('February'),
-                 '03' => $locale->text('March'),
-                 '04' => $locale->text('April'),
-                 '05' => $locale->text('May'),
-                 '06' => $locale->text('June'),
-                 '07' => $locale->text('July'),
-                 '08' => $locale->text('August'),
-                 '09' => $locale->text('September'),
-                 '10' => $locale->text('October'),
-                 '11' => $locale->text('November'),
-                 '12' => $locale->text('December'),
-                 '13' => $locale->text('Yearly'),
-                );
+    my %liste = ('01' => 'January',
+                 '02' => 'February',
+                 '03' => 'March',
+                 '04' => 'April',
+                 '05' => 'May',
+                 '06' => 'June',
+                 '07' => 'July',
+                 '08' => 'August',
+                 '09' => 'September',
+                 '10' => 'October',
+                 '11' => 'November',
+                 '12' => 'December',
+                 '13' => 'Yearly',);
 
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
+    $yymmdd = 20060121;
     $sel    = '';
-    my $dfv = '';
+    my $dfv = '0';
 
     # Offset für Dauerfristverlängerung
     $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
@@ -626,15 +628,14 @@ sub ustva_vorauswahl {
       };
 
     }
-    print qq|<select id="zeitraum" name="duetyp" title="|
-  . $locale->text('Select a period') . qq|" >|;
-
     my $key = '';
     foreach $key (sort keys %liste) {
       my $selected = '';
       $selected = 'selected' if ($sel eq $key);
       print qq|
-         <option value="$key" $selected> $liste{$key}</option>
+         <option value="$key" $selected>|
+        . $locale->text("$liste{$key}") . qq|</option>
+         
    |;
     }
     print qq|</select>|;
@@ -989,7 +990,6 @@ sub generate_ustva {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
     ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
-    $form->{co_city} =~ s/\\n//g;
   }
 
   if (   $form->{format} eq 'pdf'
@@ -1025,7 +1025,7 @@ sub generate_ustva {
     $form->{bold}    = "<b>";
     $form->{endbold} = "</b>";
     $form->{br}      = "<br>";
-    $form->{address} =~ s/\\n/<br \/>/g;
+    $form->{address} =~ s/\\n/<br \/>/;
 
   }
 
@@ -1904,7 +1904,7 @@ SWITCH:
     $form->parse_amount(\%myconfig, $form->{"66"}) *
     100;    # Vorsteuer 7% plus 16%
   my $k83 =
-    $form->parse_amount(\%myconfig, $form->{"83"}) * 100 ; # Endbetrag
+    $form->parse_amount(\%myconfig, $form->{"67"}) * 100;   # Umsätze zu 7% USt
   my $k96 = $form->parse_amount(\%myconfig, $form->{"96"}) * 100;    #
                                                                      #
         # Now build the xml content
@@ -1914,7 +1914,7 @@ SWITCH:
 <!-- Diese Datei ist mit Lx-Office $form->{version} generiert -->
 <WinstonAusgang>
  <Formular Typ="UST"></Formular>
- <Ordnungsnummer>$form->{elsterFFFF}$form->{elstersteuernummer}</Ordnungsnummer>
+ <Ordnungsnummer>$form->{elstersteuernummer}</Ordnungsnummer>
  <AnmeldeJahr>$form->{year}</AnmeldeJahr>
  <AnmeldeZeitraum>$azr</AnmeldeZeitraum>
   |;

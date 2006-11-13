@@ -69,7 +69,7 @@ sub menuitem {
   my $level = $form->escape($item);
 
   my $str =
-    qq|<a href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+    qq|<a style="vertical-align:top" href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
 
   my @vars = qw(module action target href);
 
@@ -150,8 +150,11 @@ sub access_control {
     @menu = grep { /^${menulevel}--/ } @{ $self->{ORDER} };
   }
 
-  my @a = split /;/, $myconfig->{acs};
-  my %excl;
+  my @a    = split /;/, $myconfig->{acs};
+  my $excl = ();
+
+  # remove --AR, --AP from array
+  grep { ($a, $b) = split /--/; s/--$a$//; } @a;
 
   map { $excl{$_} = 1 } @a;
 

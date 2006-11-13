@@ -71,7 +71,7 @@ sub reconciliation {
 	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
 	  <td><input name=fromdate size=11 title="$myconfig{dateformat}"></td>
-	  <th align=right>| . $locale->text('Until') . qq|</th>
+	  <th align=right>| . $locale->text('To') . qq|</th>
 	  <td><input name=todate size=11 title="$myconfig{dateformat}"></td>
 	</tr>
       </table>
@@ -147,13 +147,13 @@ sub display_form {
     $option .= "\n<br>" if ($option);
     $option .=
         $locale->text('From') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{fromdate}, 0);
+      . $locale->date(\%myconfig, $form->{fromdate}, 1);
   }
   if ($form->{todate}) {
     $option .= "\n<br>" if ($option);
     $option .=
-        $locale->text('Until') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{todate}, 0);
+        $locale->text('To') . "&nbsp;"
+      . $locale->date(\%myconfig, $form->{todate}, 1);
   }
 
   $form->{title} = "$form->{accno}--$form->{account}";

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Views" oor:package="org.openoffice.Office">
+ <node oor:name="Dialogs">
+  <node oor:name="16615" oor:op="replace">
+   <prop oor:name="WindowState" oor:type="xs:string">
+    <value>95,211,,;;,,,;</value>
+   </prop>
+  </node>
+ </node>
+ <node oor:name="Windows">
+  <node oor:name="SplitWindow0" oor:op="replace">
+   <prop oor:name="Visible" oor:type="xs:boolean">
+    <value xsi:nil="true"/>
+   </prop>
+   <prop oor:name="WindowState" oor:type="xs:string">
+    <value xsi:nil="true"/>
+   </prop>
+   <node oor:name="UserData">
+    <prop oor:name="UserItem" oor:op="replace" oor:type="xs:string">
+     <value>V1,2,0</value>
+    </prop>
+   </node>
+  </node>
+  <node oor:name="SplitWindow2" oor:op="replace">
+   <prop oor:name="Visible" oor:type="xs:boolean">
+    <value xsi:nil="true"/>
+   </prop>
+   <prop oor:name="WindowState" oor:type="xs:string">
+    <value xsi:nil="true"/>
+   </prop>
+   <node oor:name="UserData">
+    <prop oor:name="UserItem" oor:op="replace" oor:type="xs:string">
+     <value>V1,2,0</value>
+    </prop>
+   </node>
+  </node>
+  <node oor:name="SplitWindow1" oor:op="replace">
+   <prop oor:name="Visible" oor:type="xs:boolean">
+    <value xsi:nil="true"/>
+   </prop>
+   <prop oor:name="WindowState" oor:type="xs:string">
+    <value xsi:nil="true"/>
+   </prop>
+   <node oor:name="UserData">
+    <prop oor:name="UserItem" oor:op="replace" oor:type="xs:string">
+     <value>V1,2,0</value>
+    </prop>
+   </node>
+  </node>
+  <node oor:name="SplitWindow3" oor:op="replace">
+   <prop oor:name="Visible" oor:type="xs:boolean">
+    <value xsi:nil="true"/>
+   </prop>
+   <prop oor:name="WindowState" oor:type="xs:string">
+    <value xsi:nil="true"/>
+   </prop>
+   <node oor:name="UserData">
+    <prop oor:name="UserItem" oor:op="replace" oor:type="xs:string">
+     <value>V1,2,0</value>
+    </prop>
+   </node>
+  </node>
+ </node>
+</oor:component-data>

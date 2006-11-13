@@ -76,9 +76,6 @@ sub post_transaction {
                            $form->{exchangerate} * -1,
                          2);
     $amount += ($form->{"amount_$i"} * -1);
-
-    # parse tax_$i for later
-    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"}) * -1;
   }
 
   # this is for ap
@@ -100,28 +97,22 @@ sub post_transaction {
     $form->{AP_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
 
     $sth->finish;
-    if ($form->{taxincluded} *= 1) {
-      if (!$form->{"korrektur_$i"}) {
+    if (!$form->{"korrektur_$i"}) {
+      if ($form->{taxincluded} *= 1) {
         $tax =
           $form->{"amount_$i"} -
           ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
+        $amount = $form->{"amount_$i"} - $tax;
+        $form->{"amount_$i"} = $form->round_amount($amount, 2);
+        $diff += $amount - $form->{"amount_$i"};
+        $form->{"tax_$i"} = $form->round_amount($tax, 2);
+        $form->{netamount} += $form->{"amount_$i"};
       } else {
-        $tax = $form->{"tax_$i"};
-      }
-      $amount = $form->{"amount_$i"} - $tax;
-      $form->{"amount_$i"} = $form->round_amount($amount, 2);
-      $diff += $amount - $form->{"amount_$i"};
-      $form->{"tax_$i"} = $form->round_amount($tax, 2);
-      $form->{netamount} += $form->{"amount_$i"};
-    } else {
-      if (!$form->{"korrektur_$i"}) {
         $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-      } else {
-        $tax = $form->{"tax_$i"};
+        $form->{"tax_$i"} =
+          $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+        $form->{netamount} += $form->{"amount_$i"};
       }
-      $form->{"tax_$i"} =
-        $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
-      $form->{netamount} += $form->{"amount_$i"};
     }
     $form->{total_tax} += $form->{"tax_$i"} * -1;
   }

@@ -1,16 +1,3 @@
-Aktuelle Installations- und Konfigurationshinweise: 
-===================================================
-
-gibt es:
-
--auf der Lx-Office Homepage unter
-http://lx-office.org/index.php?id=dokumentation
--im Lx-Office-Wiki unter Dokumentation
-http://wiki.lx-office.org/index.php/Lx-Office_ERP
--im Lx-Office-Forum:
-http://www.lx-office.org/forum/
-
-=======================================
 
 Lx-Office ERP
 Installationsanleitung
@@ -20,8 +7,7 @@ Folgende Pakete müssen installiert sein:
 ========================================
 Webserver (Apache)
 PostgreSQL - Datenbank 
-Perl - DBI und Perl - DBD
-perl-HTML-Template
+Perl - DBI und Perl - DBD 
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
 (Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl) 
 (Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
@@ -121,6 +107,53 @@ http://localhost/lx-erp/admin.pl
 
 Zuerst muß eine Datenbank angelegt werden. Anschließend ein Benutzer. Verwenden Sie für den 
 Datenbankzugriff den eben angelegten Benutzer lxoffice. 
+
+
+OpenDocument-Vorlagen
+=====================
+Lx-Office unterstützt die Verwendung von Vorlagen im
+OpenDocument-Format, wie es OpenOffice.org ab Version 2
+erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
+auch aus diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
+OpenDocument-Vorlagen zu aktivieren muss in der Datei "lx-erp.conf"
+die Variable "$opendocument_templates" auf "1" stehen.  Dieses ist die
+Standardeinstellung.
+
+Weiterhin muss in der Datei "lx-erp.conf" die Variable "$dbcharset"
+auf die Zeichenkodierung gesetzt werden, die auch bei der Speicherung
+der Daten in der Datenbank verwendet wird. Diese ist in den meisten
+Fällen "ISO-8859-15".
+
+Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
+weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
+OpenOffice.org benötigt. Soll dieses Feature genutzt werden, so muss
+neben OpenOffice.org ab Version 2 auch der "X virtual frame buffer"
+(xvfb) installiert werden.  Bei Debian ist er im Paket "xvfb"
+enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
+
+Nach der Installation müssen in der Datei "lx-erp.conf" zwei weitere
+Variablen angepasst werden: "$openofficeorg_writer_bin" muss den
+vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
+"$xvfb_run_bin" muss den Pfad zu einem Script enthalten, dass den "X
+virtual frame buffer" startet und direkt danach ein Programm in ihm
+startet, das dem Script als Parameter übergeben wird. Lx-Office
+enthält bereits ein solches Script namens "xvfb-run", das
+standardmäßig verwendet wird. Es handelt sich dabei um eine gestutzte
+Version des Scripts "xvfb-run" aus dem Debian-Paket "xvfb".
+
+Als letztes muss herausgefunden werden, welchen Namen OpenOffice.org
+Writer dem Verzeichnis mit den Benutzereinstellungen gibt. Unter
+Debian ist dies momentan "~/.openoffice.org2". Sollte der Name bei
+Ihrer OpenOffice.org-Installation anders sein, so muss das Verzeichnis
+"users/.openoffice.org2" entsprechend umbenannt werden. Ist der Name
+z.B. einfach nur ".openoffice", so wäre folgender Befehl auszuführen:
+
+mv users/.openoffice.org2 users/.openoffice
+
+Dieses Verzeichnis, wie auch das komplette "users"-Verzeichnis, muss
+vom Webserver beschreibbar sein. Dieses wurde in Schritt "Installation
+des Programmpakets" oben bereits erledigt, kann aber erneut überprüft
+werden, wenn die Konvertierung nach PDF fehlschlägt.
 
 
 Lx-Office ERP verwenden 

@@ -164,6 +164,10 @@ sub add_user {
   }
   $myconfig->{vclimit} = 200;
 
+  $myconfig->{"countrycode"} = "de";
+  $myconfig->{"numberformat"} = "1000,00";
+  $myconfig->{"dateformat"} = "dd.mm.yy";
+
   &form_header;
   &form_footer;
 
@@ -440,7 +444,7 @@ sub form_header {
   closedir TEMPLATEDIR;
 
   @allhtml = sort grep /\.html/, @all;
-  @alldir = grep !/\.(html|tex)$/, @all;
+  @alldir = grep !/\.(html|tex|sty|odt)$/, @all;
   @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
@@ -462,7 +466,8 @@ sub form_header {
     $item =~ s/-.*//g;
 
     if ($item ne $lastitem) {
-      $mastertemplates .= qq|<option>$item\n|;
+      my $selected = $item eq "German" ? " selected" : "";
+      $mastertemplates .= qq|<option$selected>$item\n|;
       $lastitem = $item;
     }
   }
@@ -964,7 +969,7 @@ sub save {
 
       # copy templates to the directory
       opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $!");
-      @templates = grep /$form->{mastertemplates}.*?\.(html|tex)$/,
+      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
@@ -1065,6 +1070,7 @@ sub delete {
     if (-d "$dir") {
       unlink <$dir/*.html>;
       unlink <$dir/*.tex>;
+      unlink <$dir/*.sty>;
       rmdir "$dir";
     }
   }

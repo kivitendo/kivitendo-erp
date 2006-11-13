@@ -4,7 +4,6 @@ use constant NONE   => 0;
 use constant INFO   => 1;
 use constant DEBUG1 => 2;
 use constant DEBUG2 => 3;
-use constant QUERY  => 4;
 
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
@@ -55,50 +54,50 @@ sub set_target {
 sub enter_sub {
   my ($self, $level) = @_;
 
-  return if $global_trace_subs < $level;
+  return 1 if $global_trace_subs < $level;
 
   if (!$self->{"trace_subs"} && !$global_trace_subs) {
-    return;
+    return 1;
   }
 
   my ($package, $filename, $line, $subroutine) = caller(1);
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
-  my $indent = "  " x $self->{"calldepth"};
+  my $indent = " " x $self->{"calldepth"};
   $self->{"calldepth"} += 1;
 
   if (!defined($package)) {
-    $self->_write("enter_sub", $indent . "top-level?\n");
+    $self->_write('sub', $indent . "\\ top-level?\n");
   } else {
-    $self->_write("enter_sub",
-                  $indent
-                    . "${subroutine} in "
+    $self->_write('sub', $indent
+                    . "\\ ${subroutine} in "
                     . "${self_filename}:${self_line} called from "
                     . "${filename}:${line}\n");
   }
+  return 1;
 }
 
 sub leave_sub {
   my ($self, $level) = @_;
 
-  return if $global_trace_subs < $level;
+  return 1 if $global_trace_subs < $level;
 
   if (!$self->{"trace_subs"} && !$global_trace_subs) {
-    return;
+    return 1;
   }
 
   my ($package, $filename, $line, $subroutine) = caller(1);
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
   $self->{"calldepth"} -= 1;
-  my $indent = "  " x $self->{"calldepth"};
+  my $indent = " " x $self->{"calldepth"};
 
   if (!defined($package)) {
-    $self->_write("leave_sub", $indent . "top-level?\n");
+    $self->_write('sub', $indent . "/ top-level?\n");
   } else {
-    $self->_write("leave_sub",
-            $indent . "${subroutine} in " . "${self_filename}:${self_line}\n");
+    $self->_write('sub', $indent . "/ ${subroutine} in " . "${self_filename}:${self_line}\n");
   }
+  return 1;
 }
 
 sub message {
@@ -110,11 +109,10 @@ sub message {
   }
 
   if ($log_level >= $level) {
-    $self->_write(INFO   == $level ? "info"
-                : DEBUG1 == $level ? "debug1" 
-                : DEBUG2 == $level ? "debug2"
-                : QUERY  == $level ? "query":"",
-                $message );
+    $self->_write(INFO == $level
+                  ? "info"
+                  : DEBUG1 == $level ? "debug1" : "debug2",
+                  $message);
   }
 }
 
@@ -137,7 +135,7 @@ sub enable_sub_tracing {
 
 sub disable_sub_tracing {
   my ($self) = @_;
-  $self->{"trace_subs"} = 0;
+  $self->{"trace_subs"} = 1;
 }
 
 sub _write {

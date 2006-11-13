@@ -127,7 +127,7 @@ sub search {
   if ($form->{"customer_name"}) {
     $f .= " AND " if ($f);
     $f .=
-      "(l.customer_id IN (SELECT id FROM customer WHERE name ILIKE "
+      "(customer_id IN (SELECT id FROM customer WHERE name ILIKE "
       . $dbh->quote('%' . $form->{"customer_name"} . '%') . "))";
   }
 

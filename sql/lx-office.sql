@@ -115,7 +115,7 @@ CREATE TABLE "defaults" (
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp
 );
-INSERT INTO defaults (version,audittrail) VALUES ('2.2.0', 't');
+INSERT INTO defaults (version,audittrail) VALUES ('2.2.0.1', 't');
 
 CREATE TABLE audittrail (
         "trans_id" int,
@@ -197,6 +197,8 @@ CREATE TABLE "vendor" (
         "bank_code" varchar(10),
         "bank" text,
         "language" varchar(5),
+        "language_id" integer,
+        "payment_id" integer,
         "datevexport" integer,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp,
@@ -237,6 +239,8 @@ CREATE TABLE "customer" (
         "bank_code" varchar(10),
         "bank" text,
         "language" varchar(5),
+        "language_id" integer,
+        "payment_id" integer,
         "datevexport" integer,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp,
@@ -296,6 +300,10 @@ CREATE TABLE "ar" (
 	"quonumber" text,
         "cusordnumber" text,
 	"intnotes" text,
+        "language_id" integer,
+        "payment_id" integer,
+        "delivery_customer_id" integer,
+        "delivery_vendor_id" integer,
 	"department_id" integer DEFAULT 0,
 	"shipvia" text,
         "itime" timestamp DEFAULT now(),
@@ -322,6 +330,8 @@ CREATE TABLE "ap" (
 	"employee_id" integer,
 	"quonumber" text,
 	"intnotes" text,
+        "language_id" integer,
+        "payment_id" integer,
 	"department_id" integer DEFAULT 0,
         "itime" timestamp DEFAULT now(), 
         "mtime" timestamp,
@@ -360,6 +370,14 @@ CREATE TABLE "vendortax" (
         "mtime" timestamp
 );
 
+CREATE TABLE "translation" (
+	"parts_id" integer,
+	"language_id" integer,
+        "translation" text,
+        "itime" timestamp DEFAULT now(),
+        "mtime" timestamp
+);
+
 CREATE TABLE "oe" (
 	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
 	"ordnumber" text NOT NULL,
@@ -379,6 +397,10 @@ CREATE TABLE "oe" (
 	"quonumber" text,
         "cusordnumber" text,
 	"intnotes" text,
+        "delivery_customer_id" integer,
+        "delivery_vendor_id" integer,
+        "language_id" integer,
+        "payment_id" integer,
 	"department_id" integer DEFAULT 0,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp,
@@ -488,7 +510,7 @@ CREATE TABLE "status" (
 
 CREATE SEQUENCE "invoiceid" start 1 increment 1 maxvalue 9223372036854775807 minvalue 1 cache 1;
 
-CREATE SEQUENCE "orderitemsid" start 1 increment 1 maxvalue 9223372036854775807 minvalue 1 cache 1 cycle;
+CREATE SEQUENCE "orderitemsid" start 1 increment 1 maxvalue 100000 minvalue 1 cache 1 cycle;
 
 CREATE TABLE "warehouse" (
 	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
@@ -530,6 +552,27 @@ CREATE TABLE "business" (
 	"discount" real,
         "customernumberinit" text,
         "salesman" boolean DEFAULT 'f',
+        "itime" timestamp DEFAULT now(),
+        "mtime" timestamp
+);
+
+
+CREATE TABLE "language" (
+	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
+	"description" text,
+	"template_code" text,
+        "article_code" text,
+        "itime" timestamp DEFAULT now(),
+        "mtime" timestamp
+);
+
+CREATE TABLE "payment_terms" (
+	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
+	"description" text,
+	"description_long" text,
+	"terms_netto" integer,
+        "terms_skonto" integer,
+        "percent_skonto" real,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp
 );

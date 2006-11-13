@@ -36,9 +36,14 @@
 #======================================================================
 
 package Form;
+use Data::Dumper;
 
+use Cwd;
 use HTML::Template;
+use SL::Template;
+use CGI::Ajax;
 use SL::Menu;
+use CGI;
 
 sub _input_to_hash {
   $main::lxdebug->enter_sub(2);
@@ -141,9 +146,9 @@ sub new {
   $self->{menubar} = 1 if $self->{path} =~ /lynx/i;
 
   $self->{action} = lc $self->{action};
-  $self->{action} =~ s/( |-|,|#)/_/g;
+  $self->{action} =~ s/( |-|,|\#)/_/g;
 
-  $self->{version}   = "2.3.0";
+  $self->{version}   = "2.4.0";
 
   $main::lxdebug->leave_sub();
 
@@ -240,7 +245,6 @@ sub error {
   $main::lxdebug->enter_sub();
 
   my ($self, $msg) = @_;
-
   if ($ENV{HTTP_USER_AGENT}) {
     $msg =~ s/\n/<br>/g;
     $self->show_generic_error($msg);
@@ -386,7 +390,10 @@ function fokus(){document.$self->{fokus}.focus();}
       ($self->{title})
       ? "$self->{title} - $self->{titlebar}"
       : $self->{titlebar};
-
+    $ajax = "";
+    foreach $item (@ { $self->{AJAX} }) {
+      $ajax .= $item->show_javascript();
+    }
     print qq|Content-Type: text/html
 
 <html>
@@ -397,7 +404,21 @@ function fokus(){document.$self->{fokus}.focus();}
   $favicon
   $charset
   $jsscript
+  $ajax
   $fokus
+  <script type="text/javascript" src="js/highlight_input.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
+  
+  <script type="text/javascript" src="js/tabcontent.js">
+  
+  /***********************************************
+  * Tab Content script- © Dynamic Drive DHTML code library (www.dynamicdrive.com)
+  * This notice MUST stay intact for legal use
+  * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+  ***********************************************/
+  
+  </script>
+
 </head>
 
 |;
@@ -480,7 +501,6 @@ sub parse_html_template {
   $menu->generate_acl("", $additional_params);
 
   my @additional_param_names = keys(%{$additional_params});
-
   foreach my $key ($template->param()) {
     if (grep(/^${key}$/, @additional_param_names)) {
       $template->param($key => $additional_params->{$key});
@@ -488,7 +508,6 @@ sub parse_html_template {
       $template->param($key => $self->{$key});
     }
   }
-
   my $output = $template->output();
 
   $main::lxdebug->leave_sub();
@@ -610,33 +629,78 @@ sub sort_columns {
 
   return @columns;
 }
-#
+
 sub format_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
-  my $neg = ($amount =~ s/-//);
 
-  $amount = $self->round_amount($amount, $places) if ($places =~ /\d/);
+  #Workaround for $format_amount calls without $places
+  if (!defined $places) {
+    (my $dec) = ($amount =~ /\.(\d+)/);
+    $places = length $dec;
+  }
 
-  my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
-  my @p = split /\./, $amount ; # split amount at decimal point
+  if ($places =~ /\d/) {
+    $amount = $self->round_amount($amount, $places);
+  }
 
-  $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1]; # add 1,000 delimiters
+  # is the amount negative
+  my $negative = ($amount < 0);
+  my $fillup   = "";
 
-  $amount = $p[0];
-  $amount .= $d[0].$p[1].(0 x ($places - length $p[1])) if ($places || $p[1] ne '');
- 
-  $amount = do {
-    ($dash =~ /-/)    ? ($neg ? "($amount)"  : "$amount" )    :
-    ($dash =~ /DRCR/) ? ($neg ? "$amount DR" : "$amount CR" ) :
-                        ($neg ? "-$amount"   : "$amount" )    ;
-  };
-  
+  if ($amount != 0) {
+    if ($myconfig->{numberformat} && ($myconfig->{numberformat} ne '1000.00'))
+    {
+      my ($whole, $dec) = split /\./, "$amount";
+      $whole =~ s/-//;
+      $amount = join '', reverse split //, $whole;
+      $fillup = "0" x ($places - length($dec));
+
+      if ($myconfig->{numberformat} eq '1,000.00') {
+        $amount =~ s/\d{3,}?/$&,/g;
+        $amount =~ s/,$//;
+        $amount = join '', reverse split //, $amount;
+        $amount .= "\.$dec" . $fillup if ($places ne '' && $places * 1 != 0);
+      }
+
+      if ($myconfig->{numberformat} eq '1.000,00') {
+        $amount =~ s/\d{3,}?/$&./g;
+        $amount =~ s/\.$//;
+        $amount = join '', reverse split //, $amount;
+        $amount .= ",$dec" . $fillup if ($places ne '' && $places * 1 != 0);
+      }
+
+      if ($myconfig->{numberformat} eq '1000,00') {
+        $amount = "$whole";
+        $amount .= ",$dec" . $fillup if ($places ne '' && $places * 1 != 0);
+      }
+
+      if ($dash =~ /-/) {
+        $amount = ($negative) ? "($amount)" : "$amount";
+      } elsif ($dash =~ /DRCR/) {
+        $amount = ($negative) ? "$amount DR" : "$amount CR";
+      } else {
+        $amount = ($negative) ? "-$amount" : "$amount";
+      }
+    }
+  } else {
+    if ($dash eq "0" && $places) {
+      if ($myconfig->{numberformat} eq '1.000,00') {
+        $amount = "0" . "," . "0" x $places;
+      } else {
+        $amount = "0" . "." . "0" x $places;
+      }
+    } else {
+      $amount = ($dash ne "") ? "$dash" : "0";
+    }
+  }
+
   $main::lxdebug->leave_sub(2);
+
   return $amount;
 }
-#
+
 sub parse_amount {
   $main::lxdebug->enter_sub(2);
 
@@ -696,23 +760,20 @@ sub parse_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $userspath) = @_;
+  my $template;
 
-  # { Moritz Bunkus
-  # Some variables used for page breaks
-  my ($chars_per_line, $lines_on_first_page, $lines_on_second_page) =
-    (0, 0, 0);
-  my ($current_page, $current_line, $current_row) = (1, 1, 0);
-  my $pagebreak = "";
-  my $sum       = 0;
-  # } Moritz Bunkus
+  $self->{"cwd"} = getcwd();
+  $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
 
-  # The old fixed notation of <%variable%> is changed to a new dynamic one.
-  my ${pre} = '<%'; # Variable Prefix, must be regex save!
-  my ${suf} = '%>'; # Variable Suffix, must be regex save!
-
-
-  # Make sure that all *notes* (intnotes, partnotes_*, notes etc) are converted to markup correctly.
-  $self->format_string(grep(/notes/, keys(%{$self})));
+  if ($self->{"format"} =~ /(opendocument|oasis)/i) {
+    $template = OpenDocumentTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  } elsif ($self->{"format"} =~ /(postscript|pdf)/i) {
+    $ENV{"TEXINPUTS"} = ".:" . getcwd() . "/" . $myconfig->{"templates"} . ":" . $ENV{"TEXINPUTS"};
+    $template = LaTeXTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  } elsif (($self->{"format"} =~ /html/i) ||
+           (!$self->{"format"} && ($self->{"IN"} =~ /html$/i))) {
+    $template = HTMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  }
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
@@ -720,19 +781,13 @@ sub parse_template {
   map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
       qw(email tel fax name signature company address businessnumber));
 
-  open(IN, "$self->{templates}/$self->{IN}")
-    or $self->error("$self->{IN} : $!");
-
-  @_ = <IN>;
-  close(IN);
-
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
   my $fileid = time;
   $self->{tmpfile} = "$userspath/${fileid}.$self->{IN}";
-  if ($self->{format} =~ /(postscript|pdf)/ || $self->{media} eq 'email') {
+  if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
     $self->{OUT} = ">$self->{tmpfile}";
   }
@@ -744,246 +799,17 @@ sub parse_template {
     $self->header;
   }
 
-  # Do we have to run LaTeX two times? This is needed if
-  # the template contains page references.
-  $two_passes = 0;
-
-  # first we generate a tmpfile
-  # read file and replace ${pre}variable${suf}
-  while ($_ = shift) {
-
-    $par = "";
-    $var = $_;
- 
-    # Switch ${pre}analyse${suf} for template checking
-    # If ${pre}analyse${suf} is set in the template, you'll find the 
-    # parsed output in the user Directory for analysing
-    # Latex errors
-    # ${pre}analyse${suf} is a switch (allways off, on if set), not a Variable
-    # Set $form->{analysing}="" for system state: never analyse.
-    # Set $form->{analysing}="1" for system state: ever analyse.
-    $self->{analysing} = "1" if (/${pre}analyse${suf}/ && !defined $self->{analysing});    
-    
-    $two_passes = 1 if (/\\pageref/);
-
-    # { Moritz Bunkus
-    # detect pagebreak block and its parameters
-    if (/\s*${pre}pagebreak ([0-9]+) ([0-9]+) ([0-9]+)${suf}/) {
-      $chars_per_line       = $1;
-      $lines_on_first_page  = $2;
-      $lines_on_second_page = $3;
-
-      while ($_ = shift) {
-        last if (/\s*${pre}end pagebreak${suf}/);
-        $pagebreak .= $_;
-      }
-    }
-
-    # } Moritz Bunkus
-    
-    if (/\s*${pre}foreach /) {
-
-      # this one we need for the count
-      chomp $var;
-      $var =~ s/\s*${pre}foreach (.+?)${suf}/$1/;
-      while ($_ = shift) {
-        last if (/\s*${pre}end /);
-
-        # store line in $par
-        $par .= $_;
-      }
-
-      # display contents of $self->{number}[] array
-      for $i (0 .. $#{ $self->{$var} }) {
-
-        # { Moritz Bunkus
-        # Try to detect whether a manual page break is necessary
-        # but only if there was a ${pre}pagebreak ...${suf} block before
-
-        if ($chars_per_line) {
-          my $lines =
-            int(length($self->{"description"}[$i]) / $chars_per_line + 0.95);
-          my $lpp;
-
-          my $_description = $self->{"description"}[$i];
-          while ($_description =~ /\\newline/) {
-            $lines++;
-            $_description =~ s/\\newline//;
-          }
-          $self->{"description"}[$i] =~ s/(\\newline\s?)*$//;
-
-          if ($current_page == 1) {
-            $lpp = $lines_on_first_page;
-          } else {
-            $lpp = $lines_on_second_page;
-          }
-
-          # Yes we need a manual page break -- or the user has forced one
-          if (
-             (($current_line + $lines) > $lpp)
-             || ($self->{"_forced_pagebreaks"}
-               && grep(/^${current_row}$/, @{ $self->{"_forced_pagebreaks"} }))
-            ) {
-            my $pb = $pagebreak;
-
-            # replace the special variables ${pre}sumcarriedforward${suf}
-            # and ${pre}lastpage${suf}
-
-            my $psum = $self->format_amount($myconfig, $sum, 2);
-            $pb =~ s/${pre}sumcarriedforward${suf}/$psum/g;
-            $pb =~ s/${pre}lastpage${suf}/$current_page/g;
-
-            # only "normal" variables are supported here
-            # (no ${pre}if, no ${pre}foreach, no ${pre}include)
-
-            $pb =~ s/${pre}(.+?)${suf}/$self->{$1}/g;
-
-            # page break block is ready to rock
-            print(OUT $pb);
-            $current_page++;
-            $current_line = 1;
-          }
-          $current_line += $lines;
-          $current_row++;
-        }
-        $sum += $self->parse_amount($myconfig, $self->{"linetotal"}[$i]);
-
-        # } Moritz Bunkus
-
-        # don't parse par, we need it for each line
-        $_ = $par;
-        s/${pre}(.+?)${suf}/$self->{$1}[$i]/mg;
-        print OUT;
-      }
-      next;
-    }
-
-    # if not comes before if!
-    if (/\s*${pre}if not /) {
-
-      # check if it is not set and display
-      chop;
-      s/\s*${pre}if not (.+?)${suf}/$1/;
-
-      unless ($self->{$_}) {
-        while ($_ = shift) {
-          last if (/\s*${pre}end /);
-
-          # store line in $par
-          $par .= $_;
-        }
-
-        $_ = $par;
-
-      } else {
-        while ($_ = shift) {
-          last if (/\s*${pre}end /);
-        }
-        next;
-      }
-    }
-
-    if (/\s*${pre}if /) {
-
-      # check if it is set and display
-      chop;
-      s/\s*${pre}if (.+?)${suf}/$1/;
-
-      if ($self->{$_}) {
-        while ($_ = shift) {
-          last if (/\s*${pre}end /);
-
-          # store line in $par
-          $par .= $_;
-        }
-
-        $_ = $par;
-
-      } else {
-        while ($_ = shift) {
-          last if (/\s*${pre}end /);
-        }
-        next;
-      }
-    }
-
-    # check for ${pre}include filename${suf}
-    if (/\s*${pre}include /) {
-
-      # get the directory/filename
-      chomp $var;
-      $var =~ s/\s*${pre}include (.+?)${suf}/$1/;
-
-      # mangle filename on basedir
-      $var =~ s/^(\/|\.\.)//g;
-
-      # prevent the infinite loop!
-      next if ($self->{"$var"});
-
-      open(INC, "$self->{templates}/$var")
-        or $self->error($self->cleanup . "$self->{templates}/$var : $!");
-      unshift(@_, <INC>);
-      close(INC);
-
-      $self->{"$var"} = 1;
-
-      next;
-    }
-
-    s/${pre}(.+?)${suf}/$self->{$1}/g;
-    s/<nobr><\/nobr>/&nbsp;/g;
-    print OUT;
+  if (!$template->parse(*OUT)) {
+    $self->cleanup();
+    $self->error("$self->{IN} : " . $template->get_error());
   }
 
   close(OUT);
+  
+  use Data::Dumper;
+  #print(STDERR Dumper($self));
 
-  # { Moritz Bunkus
-  # Convert the tex file to postscript
-  if ($self->{format} =~ /(postscript|pdf)/) {
-
-    use Cwd;
-    $self->{cwd}    = cwd();
-    $self->{tmpdir} = "$self->{cwd}/$userspath";
-
-    chdir("$userspath") or $self->error($self->cleanup . "chdir : $!");
-
-    $self->{tmpfile} =~ s/$userspath\///g;
-
-    if ($self->{format} eq 'postscript') {
-      system(
-        "latex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
-      );
-      $self->error($self->cleanup) if ($?);
-      if ($two_passes) {
-        system(
-          "latex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
-        );
-        $self->error($self->cleanup) if ($?);
-      }
-
-      $self->{tmpfile} =~ s/tex$/dvi/;
-
-      system("dvips $self->{tmpfile} -o -q > /dev/null");
-      $self->error($self->cleanup . "dvips : $!") if ($?);
-      $self->{tmpfile} =~ s/dvi$/ps/;
-    }
-    if ($self->{format} eq 'pdf') {
-      system(
-        "pdflatex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
-      );
-      $self->error($self->cleanup) if ($?);
-      if ($two_passes) {
-        system(
-          "pdflatex --interaction=nonstopmode $self->{tmpfile} > $self->{tmpfile}.err"
-        );
-        $self->error($self->cleanup) if ($?);
-      }
-      $self->{tmpfile} =~ s/tex$/pdf/;
-    }
-
-  }
-
-  if ($self->{format} =~ /(postscript|pdf)/ || $self->{media} eq 'email') {
+  if ($template->uses_temp_file() || $self->{media} eq 'email') {
 
     if ($self->{media} eq 'email') {
 
@@ -1015,7 +841,7 @@ sub parse_template {
 
       } else {
 
-        @{ $mail->{attachments} } = ($self->{tmpfile});
+        @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($form->{do_not_attach});
 
         $myconfig->{signature} =~ s/\\n/\r\n/g;
         $mail->{message} .= "\r\n--\r\n$myconfig->{signature}";
@@ -1036,7 +862,8 @@ sub parse_template {
       $self->{copies} = 1 unless $self->{media} eq 'printer';
 
       chdir("$self->{cwd}");
-
+      #print(STDERR "Kopien $self->{copies}\n");
+      #print(STDERR "OUT $self->{OUT}\n");
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
           open(OUT, $self->{OUT})
@@ -1044,7 +871,7 @@ sub parse_template {
         } else {
 
           # launch application
-          print qq|Content-Type: application/$self->{format}
+          print qq|Content-Type: | . $template->get_mime_type() . qq|
 Content-Disposition: attachment; filename="$self->{tmpfile}"
 Content-Length: $numbytes
 
@@ -1088,14 +915,12 @@ sub cleanup {
     close(FH);
   }
 
-  if ($self->{analysing} eq "") {
-    if ($self->{tmpfile}) {
-
-      # strip extension
-      $self->{tmpfile} =~ s/\.\w+$//g;  
-      my $tmpfile = $self->{tmpfile};
-      unlink(<$tmpfile.*>);
-    }
+  if ($self->{tmpfile}) {
+    $self->{tmpfile} =~ s|.*/||g;
+    # strip extension
+    $self->{tmpfile} =~ s/\.\w+$//g;
+    my $tmpfile = $self->{tmpfile};
+    unlink(<$tmpfile.*>);
   }
 
   chdir("$self->{cwd}");
@@ -1103,101 +928,6 @@ sub cleanup {
   $main::lxdebug->leave_sub();
 
   return "@err";
-}
-
-sub format_string {
-  $main::lxdebug->enter_sub();
-
-  my ($self, @fields) = @_;
-  my %unique_fields;
-
-  %unique_fields = map({ $_ => 1 } @fields);
-  @fields        = keys(%unique_fields);
-
-  foreach my $field (@fields) {
-    next unless ($self->{$field} =~ /\<pagebreak\>/);
-    $self->{$field} =~ s/\<pagebreak\>//g;
-    if ($field =~ /.*_(\d+)$/) {
-      if (!$self->{"_forced_pagebreaks"}) {
-        $self->{"_forced_pagebreaks"} = [];
-      }
-      push(@{ $self->{"_forced_pagebreaks"} }, "$1");
-    }
-  }
-
-  my $format = $self->{format};
-  if ($self->{format} =~ /(postscript|pdf)/) {
-    $format = 'tex';
-  }
-
-  my %replace = (
-    'order' => {
-      'html' => [
-        '<', '>', quotemeta('\n'), '
-'
-      ],
-      'tex' => [
-        '&', quotemeta('\n'), '
-',
-        '"', '\$', '%', '_', '#', quotemeta('^'),
-        '{', '}',  '<', '>', '£', "\r", '²'
-      ]
-    },
-    'html' => {
-      '<'             => '&lt;',
-      '>'             => '&gt;',
-      quotemeta('\n') => '<br>',
-      '
-' => '<br>'
-    },
-    'tex' => {
-      '"'             => "''",
-      '&'             => '\&',
-      '\$'            => '\$',
-      '%'             => '\%',
-      '_'             => '\_',
-      '#'             => '\#',
-      quotemeta('^')  => '\^\\',
-      '{'             => '\{',
-      '}'             => '\}',
-      '<'             => '$<$',
-      '>'             => '$>$',
-      quotemeta('\n') => '\newline ',
-      '
-'          => '\newline ',
-      '£'  => '\pounds ',
-      '²'  => '$^2$',
-      "\r" => ""
-    });
-
-  foreach my $key (@{ $replace{order}{$format} }) {
-    map { $self->{$_} =~ s/$key/$replace{$format}{$key}/g; } @fields;
-  }
-
-  # Allow some HTML markup to be converted into the output format's
-  # corresponding markup code, e.g. bold or italic.
-  if ('html' eq $format) {
-    my @markup_replace = ('b', 'i', 's', 'u');
-
-    foreach my $key (@markup_replace) {
-      map({ $self->{$_} =~ s/\&lt;(\/?)${key}\&gt;/<$1${key}>/g } @fields);
-    }
-
-  } elsif ('tex' eq $format) {
-    my %markup_replace = ('b' => 'textbf',
-                          'i' => 'textit',
-                          'u' => 'underline');
-
-    foreach my $field (@fields) {
-      foreach my $key (keys(%markup_replace)) {
-        my $new = $markup_replace{$key};
-        $self->{$field} =~
-          s/\$\<\$${key}\$\>\$(.*?)\$<\$\/${key}\$>\$/\\${new}\{$1\}/gi;
-      }
-    }
-  }
-
-  $main::lxdebug->leave_sub();
 }
 
 sub datetonum {
@@ -1381,9 +1111,51 @@ sub get_exchangerate {
   my ($exchangerate) = $sth->fetchrow_array;
   $sth->finish;
 
+  if ($exchangerate == 0) {
+    $exchangerate = 1;
+  }
+
   $main::lxdebug->leave_sub();
 
   return $exchangerate;
+}
+
+sub set_payment_options {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $transdate) = @_;
+
+  if ($self->{payment_id}) {
+
+    my $dbh = $self->dbconnect($myconfig);
+
+
+    my $query = qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long FROM payment_terms p
+                  WHERE p.id = $self->{payment_id}|;
+    my $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+  
+    ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto}, $self->{payment_terms}) = $sth->fetchrow_array;
+
+    $sth->finish;
+    my $query = qq|SELECT date '$transdate' + $self->{terms_netto} AS netto_date,date '$transdate' + $self->{terms_skonto} AS skonto_date  FROM payment_terms
+                  LIMIT 1|;
+    my $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);    
+    ($self->{netto_date}, $self->{skonto_date}) = $sth->fetchrow_array;
+    $sth->finish;
+
+    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $self->{subtotal}) * $self->{percent_skonto}), 2);
+
+    $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
+    $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
+    $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
+
+    $dbh->disconnect;
+  }
+
+  $main::lxdebug->leave_sub();
+
 }
 
 sub check_exchangerate {
@@ -1413,10 +1185,90 @@ sub check_exchangerate {
   return $exchangerate;
 }
 
+sub get_template_language {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+
+  my $template_code = "";
+
+  if ($self->{language_id}) {
+
+    my $dbh = $self->dbconnect($myconfig);
+
+
+    my $query = qq|SELECT l.template_code FROM language l
+                  WHERE l.id = $self->{language_id}|;
+    my $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+  
+    ($template_code) = $sth->fetchrow_array;
+    $sth->finish;
+    $dbh->disconnect;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $template_code;
+}
+
+sub get_printer_code {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+
+  my $template_code = "";
+
+  if ($self->{printer_id}) {
+
+    my $dbh = $self->dbconnect($myconfig);
+
+
+    my $query = qq|SELECT p.template_code,p.printer_command FROM printers p
+                  WHERE p.id = $self->{printer_id}|;
+    my $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+  
+    ($template_code, $self->{printer_command}) = $sth->fetchrow_array;
+    $sth->finish;
+    $dbh->disconnect;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $template_code;
+}
+
+sub get_shipto {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+
+  my $template_code = "";
+
+  if ($self->{shipto_id}) {
+
+    my $dbh = $self->dbconnect($myconfig);
+
+
+    my $query = qq|SELECT s.* FROM shipto s
+                  WHERE s.id = $self->{shipto_id}|;
+    my $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+    $ref = $sth->fetchrow_hashref(NAME_lc);
+    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    $sth->finish;  
+    $dbh->disconnect;
+  }
+
+  $main::lxdebug->leave_sub();
+
+}
+
 sub add_shipto {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $id) = @_;
+  my ($self, $dbh, $id, $module) = @_;
 ##LINET
   my $shipto;
   foreach my $item (
@@ -1429,16 +1281,33 @@ sub add_shipto {
   }
 
   if ($shipto) {
-    my $query =
+    if ($self->{shipto_id}) {
+      my $query = qq| UPDATE shipto set
+                      shiptoname = '$self->{shiptoname}',
+                      shiptodepartment_1 = '$self->{shiptodepartment_1}',
+                      shiptodepartment_2 = '$self->{shiptodepartment_2}',
+                      shiptostreet = '$self->{shiptostreet}',
+                      shiptozipcode = '$self->{shiptozipcode}',
+                      shiptocity = '$self->{shiptocity}',
+                      shiptocountry = '$self->{shiptocountry}',
+                      shiptocontact = '$self->{shiptocontact}',
+                      shiptophone = '$self->{shiptophone}',
+                      shiptofax = '$self->{shiptofax}',
+                      shiptoemail = '$self->{shiptoemail}'
+                      WHERE id = $self->{shipto_id}|;
+      $dbh->do($query) || $self->dberror($query);
+    } else {
+      my $query =
       qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2, shiptostreet,
                    shiptozipcode, shiptocity, shiptocountry, shiptocontact,
-		   shiptophone, shiptofax, shiptoemail) VALUES ($id,
+		   shiptophone, shiptofax, shiptoemail, module) VALUES ($id,
 		   '$self->{shiptoname}', '$self->{shiptodepartment_1}', '$self->{shiptodepartment_2}', '$self->{shiptostreet}',
 		   '$self->{shiptozipcode}', '$self->{shiptocity}',
 		   '$self->{shiptocountry}', '$self->{shiptocontact}',
 		   '$self->{shiptophone}', '$self->{shiptofax}',
-		   '$self->{shiptoemail}')|;
-    $dbh->do($query) || $self->dberror($query);
+		   '$self->{shiptoemail}', '$module')|;
+      $dbh->do($query) || $self->dberror($query);
+    }
   }
 ##/LINET
   $main::lxdebug->leave_sub();
@@ -1488,7 +1357,7 @@ sub get_contacts {
 
   my ($self, $dbh, $id) = @_;
 
-  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname
+  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname, c.cp_abteilung
               FROM contacts c
               WHERE cp_cv_id=$id|;
   my $sth = $dbh->prepare($query);
@@ -1501,7 +1370,7 @@ sub get_contacts {
   }
 
   if ($i == 0) {
-    push @{ $self->{all_contacts} }, { { "", "", "", "", "" } };
+    push @{ $self->{all_contacts} }, { { "", "", "", "", "", "" } };
   }
   $sth->finish;
   $main::lxdebug->leave_sub();
@@ -1638,6 +1507,117 @@ sub all_vc {
   }
   $sth->finish;
 
+  # get languages
+  $query = qq|SELECT id, description
+              FROM language
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{languages} }, $ref;
+  }
+  $sth->finish;
+
+  # get printer
+  $query = qq|SELECT printer_description, id
+              FROM printers
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{printers} }, $ref;
+  }
+  $sth->finish;
+
+
+  # get payment terms
+  $query = qq|SELECT id, description
+              FROM payment_terms
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{payment_terms} }, $ref;
+  }
+  $sth->finish;
+  $dbh->disconnect;
+  $main::lxdebug->leave_sub();
+}
+
+
+sub language_payment {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+  undef $self->{languages};
+  undef $self->{payment_terms};
+  undef $self->{printers};
+
+  my $ref;
+  my $dbh = $self->dbconnect($myconfig);
+  # get languages
+  my $query = qq|SELECT id, description
+              FROM language
+	      ORDER BY 1|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{languages} }, $ref;
+  }
+  $sth->finish;
+
+  # get printer
+  $query = qq|SELECT printer_description, id
+              FROM printers
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{printers} }, $ref;
+  }
+  $sth->finish;
+
+  # get payment terms
+  $query = qq|SELECT id, description
+              FROM payment_terms
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{payment_terms} }, $ref;
+  }
+  $sth->finish;
+
+  # get buchungsgruppen
+  $query = qq|SELECT id, description
+              FROM buchungsgruppen|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  $self->{BUCHUNGSGRUPPEN} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{BUCHUNGSGRUPPEN} }, $ref;
+  }
+  $sth->finish;
+
+  # get adr
+  $query = qq|SELECT id, adr_description, adr_code
+              FROM adr|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  $self->{ADR} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{ADR} }, $ref;
+  }
+  $sth->finish;
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
@@ -1717,6 +1697,33 @@ sub create_links {
   }
   $sth->finish;
 
+  # get taxkeys and description
+  $query = qq|SELECT taxkey, taxdescription
+              FROM tax|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $self->dberror($query);
+
+  $ref = $sth->fetchrow_hashref(NAME_lc);
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{TAXKEY} }, $ref;
+  }
+
+  $sth->finish;
+
+
+  # get tax zones
+  $query = qq|SELECT id, description
+              FROM tax_zones|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{TAXZONE} }, $ref;
+  }
+  $sth->finish;
+
   if (($module eq "AP") || ($module eq "AR")) {
 
     # get tax rates and description
@@ -1738,7 +1745,7 @@ sub create_links {
 		a.taxincluded, a.curr AS currency, a.notes, a.intnotes,
 		c.name AS $table, a.department_id, d.description AS department,
 		a.amount AS oldinvtotal, a.paid AS oldtotalpaid,
-		a.employee_id, e.name AS employee, a.gldate
+		a.employee_id, e.name AS employee, a.gldate, a.type
 		FROM $arap a
 		JOIN $table c ON (a.${table}_id = c.id)
 		LEFT JOIN employee e ON (e.id = a.employee_id)
@@ -1781,6 +1788,9 @@ sub create_links {
                                 $fld);
       if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {
         $index++;
+      }
+      if (($xkeyref{ $ref->{accno} } =~ /paid/) && ($self->{type} eq "credit_note")) {
+        $ref->{amount} *= -1;
       }
       $ref->{index} = $index;
 

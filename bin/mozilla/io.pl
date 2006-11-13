@@ -74,6 +74,7 @@ if (-f "$form->{path}/$form->{login}_io.pl") {
 # $locale->text('Dec')
 use SL::IS;
 use SL::PE;
+use SL::AM;
 use Data::Dumper;
 ########################################
 # Eintrag fuer Version 2.2.0 geaendert #
@@ -99,6 +100,10 @@ sub display_row {
     }
   }
 ############## ENDE Neueintrag ##################
+
+  my $dimension_units = AM->retrieve_units(\%myconfig, $form, "dimension");
+  my $service_units = AM->retrieve_units(\%myconfig, $form, "service");
+  my $all_units = AM->retrieve_units(\%myconfig, $form);
 
   push @column_index, qw(unit);
 
@@ -217,8 +222,42 @@ sub display_row {
     map {
       $form->{"${_}_$i"} =
         $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
-    } qw(qty ship discount sellprice price_new price_old);
+    } qw(qty ship discount sellprice price_new price_old) unless ($form->{simple_save});
 
+    if (!$form->{"unit_old_$i"}) {
+      # Neue Ware aus der Datenbank. In diesem Fall ist unit_$i die
+      # Einheit, wie sie in den Stammdaten hinterlegt wurde.
+      # Es sollte also angenommen werden, dass diese ausgewaehlt war.
+      $form->{"unit_old_$i"} = $form->{"unit_$i"};
+    }
+
+
+
+    # Die zuletzt ausgewaehlte mit der aktuell ausgewaehlten Einheit
+    # vergleichen und bei Unterschied den Preis entsprechend umrechnen.
+    $form->{"selected_unit_$i"} = $form->{"unit_$i"} unless ($form->{"selected_unit_$i"});
+
+    my $check_units = $form->{"inventory_accno_$i"} ? $dimension_units : $service_units;
+    if (!$check_units->{$form->{"selected_unit_$i"}} ||
+        ($check_units->{$form->{"selected_unit_$i"}}->{"base_unit"} ne
+         $all_units->{$form->{"unit_old_$i"}}->{"base_unit"})) {
+      # Die ausgewaehlte Einheit ist fuer diesen Artikel nicht gueltig
+      # (z.B. Dimensionseinheit war ausgewaehlt, es handelt sich aber
+      # um eine Dienstleistung). Dann keinerlei Umrechnung vornehmen.
+      $form->{"unit_old_$i"} = $form->{"selected_unit_$i"} = $form->{"unit_$i"};
+    }
+    if ((!$form->{"prices_$i"}) || ($form->{"new_pricegroup_$i"} == $form->{"old_pricegroup_$i"})) {
+      if ($form->{"unit_old_$i"} ne $form->{"selected_unit_$i"}) {
+        my $basefactor = 1;
+        if (defined($all_units->{$form->{"unit_old_$i"}}->{"factor"}) &&
+            $all_units->{$form->{"unit_old_$i"}}->{"factor"}) {
+          $basefactor = $all_units->{$form->{"selected_unit_$i"}}->{"factor"} /
+            $all_units->{$form->{"unit_old_$i"}}->{"factor"};
+        }
+        $form->{"sellprice_$i"} *= $basefactor;
+        $form->{"unit_old_$i"} = $form->{"selected_unit_$i"};
+      }
+    }
     ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec           = length $dec;
     $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -234,7 +273,7 @@ sub display_row {
 
     # convert " to &quot;
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-      qw(partnumber description unit);
+      qw(partnumber description unit unit_old);
 
 ########################################
     # Eintrag fuer Version 2.2.0 geaendert #
@@ -249,10 +288,10 @@ sub display_row {
 
     if (($rows = $form->numtextrows($form->{"description_$i"}, 30, 6)) > 1) {
       $column_data{description} =
-        qq|<td><textarea name="description_$i" rows=$rows cols=30 wrap=soft>$form->{"description_$i"}</textarea></td>|;
+        qq|<td><textarea name="description_$i" rows=$rows cols=30 wrap=soft>$form->{"description_$i"}</textarea><button type="button" onclick="set_longdescription_window('longdescription_$i')">| . $locale->text('L') . qq|</button></td>|;
     } else {
       $column_data{description} =
-        qq|<td><input name="description_$i" size=30 value="$form->{"description_$i"}"></td>|;
+        qq|<td><input name="description_$i" size=30 value="$form->{"description_$i"}"><button type="button" onclick="set_longdescription_window('longdescription_$i')">| . $locale->text('L') . qq|</button></td>|;
     }
 
     (my $qty_dec) = ($form->{"qty_$i"} =~ /\.(\d+)/);
@@ -260,24 +299,48 @@ sub display_row {
 
     $column_data{qty} =
         qq|<td align=right><input name="qty_$i" size=5 value=|
-      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec)
-      . qq|></td>|;
+      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec) .qq|>|;
+    if ($form->{formel}) {
+    $column_data{qty} .= qq|<button type="button" onclick="calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)">| . $locale->text('*/') . qq|</button>
+          <input type=hidden name="formel_$i" value="$form->{"formel_$i"}"><input type=hidden name="alu_$i" value="$form->{"alu_$i"}"></td>|;
+    }
     $column_data{ship} =
         qq|<td align=right><input name="ship_$i" size=5 value=|
       . $form->format_amount(\%myconfig, $form->{"ship_$i"})
       . qq|></td>|;
-    $column_data{unit} =
-      qq|<td><input name="unit_$i" size=5 value="$form->{"unit_$i"}"></td>|;
+
+    my $is_part = $form->{"inventory_accno_$i"};
+    my $is_assigned = $form->{"id_$i"};
+    my $this_unit = $form->{"unit_$i"};
+    if ($form->{"selected_unit_$i"} && $this_unit &&
+        $all_units->{$form->{"selected_unit_$i"}} && $all_units->{$this_unit} &&
+        ($all_units->{$form->{"selected_unit_$i"}}->{"base_unit"} eq $all_units->{$this_unit}->{"base_unit"})) {
+      $this_unit = $form->{"selected_unit_$i"};
+    } elsif (!$is_assigned ||
+             ($is_part && !$this_unit && ($all_units->{$this_unit} && ($all_units->{$this_unit}->{"base_unit"} eq $all_units->{"kg"}->{"base_unit"})))) {
+      $this_unit = "kg";
+    }
+
+    $column_data{"unit"} = "<td>" .
+      ($qty_readonly ? "&nbsp;" :
+       AM->unit_select_html($is_part ? $dimension_units :
+                            $is_assigned ? $service_units : $all_units,
+                            "unit_$i", $this_unit,
+                            $is_assigned ? $form->{"unit_$i"} : undef))
+      . "</td>";
 
     # build in dragdrop for pricesgroups
     if ($form->{"prices_$i"}) {
-      $price_tmp =
-        $form->format_amount(\%myconfig, $form->{"price_new_$i"}, 2);
+      if  ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"}) {
+        $price_tmp = $form->format_amount(\%myconfig, $form->{"price_new_$i"}, $decimalplaces);
+      } else {
+        $price_tmp = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+      }
 
       $column_data{sellprice_drag} =
         qq|<td align=right><select name="sellprice_drag_$i">$form->{"prices_$i"}</select></td>|;
       $column_data{sellprice} =
-        qq|<td><input name="sellprice_$i" size=5 value=$price_tmp></td>|;
+        qq|<td><input name="sellprice_$i" size=10 value=$price_tmp></td>|;
     } else {
 
       # for last row and report
@@ -300,9 +363,10 @@ sub display_row {
                                  $decimalplaces)
           . qq|></td>|;
       }
+    print(STDERR "Sellprice vor Ausgabe: ",$form->{"sellprice_$i"},"\n"); 
 
       $column_data{sellprice} =
-        qq|<td><input name="sellprice_$i" size=5 value=|
+        qq|<td><input name="sellprice_$i" size=10 value=|
         . $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                                $decimalplaces)
         . qq|></td>|;
@@ -331,9 +395,10 @@ sub display_row {
     #
     #     $column_data{projectnr} = qq|<td><input name="projectnumber_$i" size=10 value="$form->{"projectnumber_$i"}"></td>|;
 ############## ENDE Neueintrag ##################
-
+    my $j = $i % 2;
     print qq|
-        <tr valign=top>|;
+
+        <tr valign=top class=listrow$j>|;
 
     map { print "\n$column_data{$_}" } @column_index;
 
@@ -345,6 +410,7 @@ sub display_row {
 
 <input type=hidden name="pricegroup_old_$i" value=$form->{"pricegroup_old_$i"}>
 <input type=hidden name="price_old_$i" value=$form->{"price_old_$i"}>
+<input type=hidden name="unit_old_$i" value="$form->{"selected_unit_$i"}">
 <input type=hidden name="price_new_$i" value=|
       . $form->format_amount(\%myconfig, $form->{"price_new_$i"}) . qq|>
 
@@ -361,6 +427,9 @@ sub display_row {
 <input type=hidden name="ordnumber_$i" value="$form->{"ordnumber_$i"}">
 <input type=hidden name="transdate_$i" value="$form->{"transdate_$i"}">
 <input type=hidden name="cusordnumber_$i" value="$form->{"cusordnumber_$i"}">
+<input type=hidden name="longdescription_$i" value="$form->{"longdescription_$i"}">
+<input type=hidden name="basefactor_$i" value="$form->{"basefactor_$i"}">
+<input type=hidden name="adr_description_$i" value="$form->{"adr_description_$i"}">
 
 |;
 
@@ -370,7 +439,7 @@ sub display_row {
 ########################################
     # print second row
     print qq|
-        <tr>
+        <tr  class=listrow$j>
 	  <td colspan=$colspan>
 |;
     if ($lizenzen && $form->{type} eq "invoice" && $form->{vc} eq "customer") {
@@ -407,8 +476,9 @@ sub display_row {
         <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size=11 value="$form->{"${reqdate_term}_$i"}">
 |;
     }
-
+    my $subtotalchecked = ($form->{"subtotal_$i"}) ? "checked" : "";
     print qq|
+          <b>|.$locale->text('Subtotal').qq|</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" "$subtotalchecked">
 	  </td>
 	</tr>
 
@@ -572,6 +642,12 @@ sub select_item {
 <input name="new_assembly_$i" type=hidden value="$ref->{assembly}">
 <input name="new_taxaccounts_$i" type=hidden value="$ref->{taxaccounts}">
 <input name="new_partsgroup_$i" type=hidden value="$ref->{partsgroup}">
+<input name="new_formel_$i" type=hidden value="$ref->{formel}">
+<input name="new_alu_$i" type=hidden value="$ref->{alu}">
+<input name="new_longdescription_$i" type=hidden value="$ref->{longdescription}">
+<input name="new_not_discountable_$i" type=hidden value="$ref->{not_discountable}">
+<input name="new_part_payment_id_$i" type=hidden value="$ref->{part_payment_id}">
+<input name="new_adr_description_$i" type=hidden value="$ref->{adr_description}">
 
 <input name="new_id_$i" type=hidden value=$ref->{id}>
 
@@ -634,7 +710,10 @@ sub item_selected {
   $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
   map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} }
-    qw(id partnumber description sellprice listprice inventory_accno income_accno expense_accno bin unit weight assembly taxaccounts partsgroup);
+    qw(id partnumber description sellprice listprice inventory_accno income_accno expense_accno bin unit weight assembly taxaccounts partsgroup formel alu longdescription not_discountable adr_description);
+  if ($form->{"part_payment_id_$i"} ne "") {
+    $form->{payment_id} = $form->{"part_payment_id_$i"};
+  }
 
   if ($lizenzen) {
     map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } qw(lizenzen);
@@ -661,6 +740,10 @@ sub item_selected {
 
   $form->{sellprice} += ($form->{"sellprice_$i"} * $form->{"qty_$i"});
   $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
+  
+  if ($form->{"not_discountable_$i"}) {
+    $form->{"discount_$i"} = 0;
+  }
 
   $amount =
     $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"} / 100) *
@@ -770,6 +853,7 @@ sub new_item {
 
 sub display_form {
   $lxdebug->enter_sub();
+  $form->language_payment(\%myconfig);
 
   # if we have a display_form
   if ($form->{display_form}) {
@@ -827,7 +911,7 @@ sub display_form {
     $subroutine = "makemodel_row";
   }
   if ($form->{item} eq 'assembly') {
-    $numrows    = ++$form->{price_rows};
+    $numrows    = $form->{price_rows};
     $subroutine = "price_row";
 
     &{$subroutine}($numrows);
@@ -863,8 +947,9 @@ sub check_form {
   my @a     = ();
   my $count = 0;
   my @flds  = (
-    qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup)
+    qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id adr_id language_values)
   );
+
 
   # remove any makes or model rows
   if ($form->{item} eq 'part') {
@@ -1064,7 +1149,6 @@ sub order {
 
   $form->{rowcount}--;
 
-  ($null, $form->{cp_id}) = split /--/, $form->{contact};
   $form->{cp_id} *= 1;
 
   require "$form->{path}/$form->{script}";
@@ -1112,7 +1196,6 @@ sub quotation {
     $buysell       = 'buy';
   }
 
-  ($null, $form->{cp_id}) = split /--/, $form->{contact};
   $form->{cp_id} *= 1;
 
   $form->{script} = 'oe.pl';
@@ -1279,29 +1362,57 @@ sub print_options {
       . $locale->text('Bin List');
   }
 
+  if ($form->{type} eq 'credit_note') {
+    $type = qq|<select name=formname>
+	    <option value=credit_note $form->{PD}{credit_note}>|
+      . $locale->text('Credit Note');
+  }
+
   if ($form->{type} eq 'sales_order') {
     $type = qq|<select name=formname>
 	    <option value=sales_order $form->{PD}{sales_order}>|
       . $locale->text('Confirmation') . qq|
+      <option value=proforma $form->{PD}{proforma}>|
+      . $locale->text('Proforma Invoice') . qq|
 	    <option value=pick_list $form->{PD}{pick_list}>|
       . $locale->text('Pick List') . qq|
 	    <option value=packing_list $form->{PD}{packing_list}>|
-      . $locale->text('Packing List');
+      . $locale->text('Packing List') . qq|
+	    <option value=agb $form->{PD}{agb}>|
+      . $locale->text('AGB') . qq|
+	    <option value=bunker_receipt $form->{PD}{bunker_receipt}>|
+      . $locale->text('Bunker Receipt');
   }
 
   if ($form->{type} =~ /_quotation$/) {
     $type = qq|<select name=formname>
 	    <option value="$`_quotation" $form->{PD}{"$`_quotation"}>|
-      . $locale->text('Quotation') . qq|
-|;
+      . $locale->text('Quotation')
+;
   }
 
   if ($form->{type} eq 'invoice') {
     $type = qq|<select name=formname>
 	    <option value=invoice $form->{PD}{invoice}>|
       . $locale->text('Invoice') . qq|
+      <option value=proforma $form->{PD}{proforma}>|
+      . $locale->text('Proforma Invoice') . qq|
       <option value=packing_list $form->{PD}{packing_list}>|
       . $locale->text('Packing List');
+  }
+
+  if ($form->{type} eq 'invoice' && $form->{storno}) {
+    $type = qq|<select name=formname>
+	    <option value=storno_invoice $form->{PD}{storno_invoice}>|
+      . $locale->text('Storno Invoice') . qq|
+      <option value=storno_packing_list $form->{PD}{storno_packing_list}>|
+      . $locale->text('Storno Packing List');
+  }
+
+  if ($form->{type} eq 'credit_note') {
+    $type = qq|<select name=formname>
+	    <option value=credit_note $form->{PD}{credit_note}>|
+      . $locale->text('Credit Note');
   }
 
   if ($form->{type} eq 'ship_order') {
@@ -1326,7 +1437,7 @@ sub print_options {
   } else {
     $media = qq|<select name=media>
 	    <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if ($myconfig{printer} && $latex_templates) {
+    if (scalar(keys (%{ $form->{printers} })) !=0 && $latex_templates) {
       $media .= qq|
             <option value=printer $form->{OP}{printer}>|
         . $locale->text('Printer');
@@ -1337,34 +1448,54 @@ sub print_options {
     }
   }
 
-  $format = qq|<select name=format>
-            <option value=html $form->{DF}{html}>html|;
+  $format = qq|<select name=format>|;
+  if ($opendocument_templates && $openofficeorg_writer_bin &&
+      $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)) {
+    $format .= qq|<option value=opendocument_pdf | .
+      $form->{DF}{"opendocument_pdf"} . qq|>| .
+      $locale->text("PDF (OpenDocument/OASIS)") . qq|</option>|;
+  }
 
   if ($latex_templates) {
-    $format = qq|<select name=format>
-            <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF') . qq|
-            <option value=html $form->{DF}{html}>html
-            <option value=postscript $form->{DF}{postscript}>|
-      . $locale->text('Postscript');
+    $format .= qq|<option value=pdf $form->{DF}{pdf}>| .
+      $locale->text('PDF') . qq|</option>|;
   }
 
   $format .= qq|<option value=html $form->{DF}{html}>HTML</option>|;
 
-  if ($latex_templates) {
+  if ($latex) {
     $format .= qq|<option value=postscript $form->{DF}{postscript}>| .
       $locale->text('Postscript') . qq|</option>|;
   }
 
-  $language_select = qq|<select name=language>
-                 <option value=""></option>|;
-  %lang = (de => "deutsch", en => "englisch", fr => "französisch");
-  foreach $item (keys %lang) {
-    if ($form->{language} eq $item) {
-      $language_select .= qq|<option value="$item" selected>$lang{$item}</option>|;
-    } else {
-      $language_select .= qq|<option value="$item">$lang{$item}</option>|;
+  if ($opendocument_templates) {
+    $format .= qq|<option value=opendocument $form->{DF}{opendocument}>| .
+      $locale->text("OpenDocument/OASIS") . qq|</option>|;
+  }
+  $format .= qq|</select>|;
+
+  if (scalar(keys (%{ $form->{languages} })) !=0) {
+
+    $language_select = qq|<select name=language_id>|;
+    foreach $item (@{ $form->{languages} }) {
+      if ($form->{language_id} eq $item->{id}) {
+        $language_select .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
+      } else {
+        $language_select .= qq|<option value="$item->{id}">$item->{description}</option>|;
+      }
     }
   }
+
+  if (scalar(keys (%{ $form->{printers} })) !=0) {
+
+    $printer_select = qq|<select name=printer_id>
+                  <option value=""></option>|;
+    foreach $item (@{ $form->{printers} }) {
+      $printer_select .= qq|<option value="$item->{id}">$item->{printer_description}</option>|;
+    }
+  }
+
+
 
   print qq|
 <table width=100% cellspacing=0 cellpadding=0>
@@ -1372,13 +1503,21 @@ sub print_options {
     <td>
       <table>
 	<tr>
-	  <td>$type</select></td>
-          <td>${language_select}</select></td>
+	  <td>$type</select></td>|;
+  if (scalar(keys (%{ $form->{languages} })) !=0) {
+  print qq|
+          <td>${language_select}</select></td>|;
+  }
+  print qq|
 	  <td>$format</select></td>
-	  <td>$media</select></td>
+	  <td>$media</select></td>|;
+  if (scalar(keys (%{ $form->{printers} })) !=0) {
+  print qq|
+	  <td>$printer_select</select></td>
 |;
+  }
 
-  if ($myconfig{printer} && $latex_templates && $form->{media} ne 'email') {
+  if (scalar(keys (%{ $form->{printers} })) !=0 && $latex_templates && $form->{media} ne 'email') {
     print qq|
 	  <td>| . $locale->text('Copies') . qq|
 	  <input name=copies size=2 value=$form->{copies}></td>
@@ -1439,6 +1578,18 @@ sub print {
     map { $old_form->{$_} = $form->{$_} } keys %$form;
   }
 
+  if (!$form->{id} || (($form->{formname} eq "proforma") && !$form->{proforma} && (($form->{type} =~ /_order$/) || ($form->{type} =~ /_quotation$/)))) {
+    if ($form->{formname} eq "proforma") {
+      $form->{proforma} = 1;
+    }
+    $form->{print_and_save} = 1;
+    my $formname = $form->{formname};
+    &save();
+    $form->{formname} = $formname;
+    &edit();
+    exit;
+  }
+
   &print_form($old_form);
 
   $lxdebug->leave_sub();
@@ -1466,7 +1617,7 @@ sub print_form {
     # this is from an invoice
     $form->{label} = $locale->text('Packing List');
   }
-  if ($form->{formname} eq 'sales_order') {
+  if (($form->{formname} eq 'sales_order') || ($form->{formname} eq 'agb') || ($form->{formname} eq 'bunker_receipt')) {
     $inv                  = "ord";
     $due                  = "req";
     $form->{"${inv}date"} = $form->{transdate};
@@ -1474,6 +1625,28 @@ sub print_form {
     $numberfld            = "sonumber";
     $order                = 1;
   }
+
+  if (($form->{type} eq 'invoice') && ($form->{formname} eq 'proforma') ) {
+    $inv                  = "inv";
+    $due                  = "due";
+    $form->{"${inv}date"} = $form->{transdate};
+    $form->{"invdate"}    = $form->{transdate};
+    $form->{label}        = $locale->text('Proforma Invoice');
+    $numberfld            = "sonumber";
+    $order                = 0;
+  }
+
+  if (($form->{type} eq 'sales_order') && ($form->{formname} eq 'proforma') ) {
+    $inv                  = "inv";
+    $due                  = "due";
+    $form->{"${inv}date"} = $form->{transdate};
+    $form->{"invdate"}    = $form->{transdate};
+    $form->{invnumber}    = $form->{ordnumber};
+    $form->{label}        = $locale->text('Proforma Invoice');
+    $numberfld            = "sonumber";
+    $order                = 1;
+  }
+
   if ($form->{formname} eq 'packing_list' && $form->{type} ne 'invoice') {
 
     # we use the same packing list as from an invoice
@@ -1482,8 +1655,6 @@ sub print_form {
     $form->{invdate} = $form->{"${inv}date"} = $form->{transdate};
     $form->{label} = $locale->text('Packing List');
     $order = 1;
-    # set invnumber for template packing_list 
-    $form->{invnumber}   = $form->{ordnumber};
   }
   if ($form->{formname} eq 'pick_list') {
     $inv                  = "ord";
@@ -1516,6 +1687,17 @@ sub print_form {
     $numberfld            = "sqnumber";
     $order                = 1;
   }
+
+  if (($form->{type} eq 'sales_quotation') && ($form->{formname} eq 'proforma') ) {
+    $inv                  = "quo";
+    $due                  = "req";
+    $form->{"${inv}date"} = $form->{transdate};
+    $form->{"invdate"} = $form->{transdate};
+    $form->{label}        = $locale->text('Proforma Invoice');
+    $numberfld            = "sqnumber";
+    $order                = 1;
+  }
+
   if ($form->{formname} eq 'request_quotation') {
     $inv                  = "quo";
     $due                  = "req";
@@ -1563,34 +1745,18 @@ sub print_form {
   my ($saved_email, $saved_cc, $saved_bcc) =
     ($form->{"email"}, $form->{"cc"}, $form->{"bcc"});
 
-  $language_saved = $form->{language};
+  $language_saved = $form->{language_id};
   &{"$form->{vc}_details"};
-  $form->{language} = $language_saved;
+  $form->{language_id} = $language_saved;
 
   $form->{"email"} = $saved_email if ($saved_email);
   $form->{"cc"}    = $saved_cc    if ($saved_cc);
   $form->{"bcc"}   = $saved_bcc   if ($saved_bcc);
 
-  @a = ();
-  foreach $i (1 .. $form->{rowcount}) {
-    push @a,
-      ("partnumber_$i", "description_$i",
-       "partsgroup_$i", "serialnumber_$i",
-       "bin_$i",        "unit_$i",
-       "transdate_$i",  "ordnumber_$i");
-  }
-  map { push @a, "${_}_description" } split / /, $form->{taxaccounts};
-
-  $ARAP = ($form->{vc} eq 'customer') ? "AR" : "AP";
-  push @a, $ARAP;
-
   # format payment dates
   for $i (1 .. $form->{paidaccounts} - 1) {
     $form->{"datepaid_$i"} = $locale->date(\%myconfig, $form->{"datepaid_$i"});
-    push @a, "${ARAP}_paid_$i", "source_$i", "memo_$i";
   }
-
-  $form->format_string(@a);
 
   ($form->{employee}) = split /--/, $form->{employee};
   ($form->{warehouse}, $form->{warehouse_id}) = split /--/, $form->{warehouse};
@@ -1611,6 +1777,10 @@ sub print_form {
     map {
       $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1);
     } 0 .. $#{ $form->{$field} };
+  }
+
+  if ($form->{shipto_id}) {
+    $form->get_shipto(\%myconfig);
   }
 
   @a = qw(name street zipcode city country);
@@ -1637,31 +1807,37 @@ sub print_form {
 
   $form->{notes} =~ s/^\s+//g;
 
-  # some of the stuff could have umlauts so we translate them
-  push @a,
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptoemail shippingpoint shipvia company address signature employee contact department_1 department_2);
-
-  push @a, ("${inv}date", "${due}date", "deliverydate", email, cc, bcc);
-
-  $form->format_string(@a);
-
   $form->{templates} = "$myconfig{templates}";
+
+  $form->{language} = $form->get_template_language(\%myconfig);
+  $form->{printer_code} = $form->get_printer_code(\%myconfig);
+
   if ($form->{language} ne "") {
     $form->{language} = "_" . $form->{language};
   }
 
-  $form->{IN} = "$form->{formname}$form->{language}.html";
+  if ($form->{printer_code} ne "") {
+    $form->{printer_code} = "_" . $form->{printer_code};
+  }
+
+  $form->{IN} = "$form->{formname}$form->{language}$form->{printer_code}.html";
   if ($form->{format} eq 'postscript') {
     $form->{postscript} = 1;
     $form->{IN} =~ s/html$/tex/;
-  }
-  if ($form->{format} eq 'pdf') {
+  } elsif ($form->{"format"} =~ /pdf/) {
     $form->{pdf} = 1;
-    $form->{IN} =~ s/html$/tex/;
+    if ($form->{"format"} =~ /opendocument/) {
+      $form->{IN} =~ s/html$/odt/;
+    } else {
+      $form->{IN} =~ s/html$/tex/;
+    }
+  } elsif ($form->{"format"} =~ /opendocument/) {
+    $form->{"opendocument"} = 1;
+    $form->{"IN"} =~ s/html$/odt/;
   }
 
   if ($form->{media} eq 'printer') {
-    $form->{OUT} = "| $myconfig{printer}";
+    $form->{OUT} = "| $form->{printer_command} &>/dev/null";
     $form->{printed} .= " $form->{formname}";
     $form->{printed} =~ s/^ //;
   }
@@ -1747,6 +1923,10 @@ sub print_form {
       ? $locale->text('sent to printer')
       : $locale->text('emailed to') . " $form->{email}";
     $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
+  }
+  if ($form->{printing}) {
+   &{"$display_form"};
+   exit; 
   }
 
   $lxdebug->leave_sub();

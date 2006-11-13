@@ -1,0 +1,37 @@
+<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+
+ <form name="Form">
+
+  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop"><TMPL_VAR NAME=title></th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr><td><translate>Please insert your longdescription below</translate></td></tr>
+
+   <tr>
+    <td>
+
+<textarea id="longdescription" name="longdescription" rows=4 cols=30 wrap=soft><TMPL_VAR NAME=longdescription ESCAPE=HTML></textarea>
+
+    </td>
+   </tr>
+  </table>
+ <button type="button" onclick="longdescription_updated()"><translate>Close</translate></button></td>
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      function longdescription_updated() {
+        window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = document.getElementsByName("longdescription")[0].value;
+
+        self.close();
+      }
+      //TESSSSST-->
+ </script>
+
+</body>
+</html>

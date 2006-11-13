@@ -76,21 +76,35 @@ sub invoice_links {
 
   $form->create_links("AP", \%myconfig, "vendor");
 
-  #quote all_vendor Bug 133
-  foreach $ref (@{ $form->{all_vendor} }) {
-    $ref->{name} = $form->quote($ref->{name});
-  }
-
   if ($form->{all_vendor}) {
     unless ($form->{vendor_id}) {
       $form->{vendor_id} = $form->{all_vendor}->[0]->{id};
     }
+  }
+  if ($form->{payment_id}) {
+    $payment_id = $form->{payment_id};
+  }
+  if ($form->{language_id}) {
+    $language_id = $form->{language_id};
+  }
+  if ($form->{taxzone_id}) {
+    $taxzone_id = $form->{taxzone_id};
   }
 
   $cp_id = $form->{cp_id};
   IR->get_vendor(\%myconfig, \%$form);
   IR->retrieve_invoice(\%myconfig, \%$form);
   $form->{cp_id} = $cp_id;
+ 
+  if ($payment_id) {
+    $form->{payment_id} = $payment_id;
+  }
+  if ($language_id) {
+    $form->{language_id} = $language_id;
+  }
+  if ($taxzone_id) {
+    $form->{taxzone_id} = $taxzone_id;
+  }
 
   # currencies
   @curr = split /:/, $form->{currencies};
@@ -205,9 +219,6 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  #quote selectvendor Bug 133
-  $form->{"selectvendor"} = $form->quote($form->{"selectvendor"});
-
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
 
@@ -249,6 +260,40 @@ sub form_header {
   $exchangerate .= qq|
 <input type=hidden name=forex value=$form->{forex}>
 |;
+
+
+  if (@{ $form->{TAXZONE} }) {
+    $form->{selecttaxzone} = "";
+    foreach $item (@{ $form->{TAXZONE} }) {
+      if ($item->{id} == $form->{taxzone_id}) {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id} selected>$item->{description}</option>";
+      } else {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id}>$item->{description}</option>";
+      }
+
+    }
+  } else {
+    $form->{selecttaxzone} =~ s/ selected//g;
+    if ($form->{taxzone_id} ne "") {
+      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
+    }
+  }
+  if ($form->{rowcount} >1) {
+    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
+    $form->{selecttaxzone} = $&;
+  }
+  
+
+  $taxzone = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
+		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
+		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
+	      </tr>|;
+
+
 
   $vendor =
     ($form->{selectvendor})
@@ -321,7 +366,8 @@ sub form_header {
 <input type=hidden name=locked value=$form->{locked}>
 
 <input type=hidden name=shipped value=$form->{shipped}>
-
+<input type=hidden name=storno value=$form->{storno}>
+<input type=hidden name=storno_id value=$form->{storno_id}>
 
 <table width=100%>
   <tr class=listtop>
@@ -364,6 +410,7 @@ sub form_header {
 		<td colspan=3><select name=AP>$form->{selectAP}</select></td>
 		<input type=hidden name=selectAP value="$form->{selectAP}">
 	      </tr>
+              $taxzone
               $department
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Currency') . qq|</th>
@@ -683,28 +730,11 @@ sub form_footer {
 
   if ($form->{id}) {
     print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Update') . qq|">
+      . $locale->text('Post Payment') . qq|">
 |;
-
-    if (!$form->{revtrans}) {
-      if (!$form->{locked}) {
-        print qq|
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Post') . qq|">
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Delete') . qq|">
-|;
-      }
-    }
-
-    if ($invdate > $closedto) {
-      print qq|
-      <input class=submit type=submit name=action value="|
-        . $locale->text('Post as new') . qq|">
-      <input class=submit type=submit name=action value="|
-        . $locale->text('Order') . qq|">
-|;
-    }
+    print qq|<input class=submit type=submit name=action value="|
+      . $locale->text('Storno') . qq|">
+| unless ($form->{storno});
 
   } else {
     if ($invdate > $closedto) {
@@ -783,7 +813,9 @@ sub update {
     $form->{creditremaining} += ($form->{oldinvtotal} - $form->{oldtotalpaid});
     &check_form;
 
-      } else {
+  } else {
+
+    $form->{"selected_unit_$i"} = $form->{"unit_$i"};
 
     IR->retrieve_item(\%myconfig, \%$form);
 
@@ -859,6 +891,54 @@ sub update {
   $lxdebug->leave_sub();
 }
 
+sub storno {
+  $lxdebug->enter_sub();
+
+  if ($form->{storno}) {
+    $form->error($locale->text('Cannot storno storno invoice!'));
+  }
+
+  $form->{storno_id} = $form->{id};
+  $form->{storno} = 1;
+  $form->{id} = "";
+  $form->{invnumber} = "Storno zu " . $form->{invnumber};
+  $form->{rowcount}--;
+
+  &post();
+  $lxdebug->leave_sub();
+
+}
+
+sub post_payment {
+  $lxdebug->enter_sub();
+  for $i (1 .. $form->{paidaccounts}) {
+    if ($form->{"paid_$i"}) {
+      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+
+      $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
+
+      $form->error($locale->text('Cannot post payment for a closed period!'))
+        if ($datepaid <= $closedto);
+
+      if ($form->{currency} ne $form->{defaultcurrency}) {
+        $form->{"exchangerate_$i"} = $form->{exchangerate}
+          if ($invdate == $datepaid);
+        $form->isblank("exchangerate_$i",
+                       $locale->text('Exchangerate for payment missing!'));
+      }
+    }
+  }
+
+  ($form->{AP})      = split /--/, $form->{AP};
+  ($form->{AP_paid}) = split /--/, $form->{AP_paid};
+  $form->redirect($locale->text(' Payment posted!'))
+      if (IR->post_payment(\%myconfig, \%$form));
+    $form->error($locale->text('Cannot post payment!'));
+
+
+  $lxdebug->leave_sub();
+}
+
 sub post {
   $lxdebug->enter_sub();
 
@@ -883,7 +963,7 @@ sub post {
     if ($form->{currency} ne $form->{defaultcurrency});
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
+    if ($form->{"paid_$i"}) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
@@ -904,11 +984,6 @@ sub post {
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
 
   $form->{id} = 0 if $form->{postasnew};
-
-  # get new invnumber in sequence if no invnumber is given or if posasnew was requested
-  if (!$form->{invnumber} || $form->{postasnew}) {
-    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
-  }
 
   $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "

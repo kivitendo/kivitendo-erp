@@ -193,6 +193,16 @@ sub get_part {
     }
   }
 
+  # get translations
+  $form->{language_values} = "";
+  $query = qq|SELECT language_id, translation FROM translation WHERE parts_id = $form->{id}|;
+  $trq = $dbh->prepare($query);
+  $trq->execute || $form->dberror($query);
+  while ($tr = $trq->fetchrow_hashref(NAME_lc)) {
+    $form->{language_values} .= "---+++---".$tr->{language_id}."--++--".$tr->{translation};
+  }
+  $trq->finish;
+
   # now get accno for taxes
   $query = qq|SELECT c.accno
               FROM chart c, partstax pt
@@ -226,6 +236,18 @@ sub get_part {
   ($form->{orphaned}) = $sth->fetchrow_array;
   $form->{orphaned} = !$form->{orphaned};
   $sth->finish;
+
+  $form->{"unit_changeable"} = 1;
+  foreach my $table (qw(invoice assembly orderitems inventory license)) {
+    $query = "SELECT COUNT(*) FROM $table WHERE parts_id = ?";
+    my ($count) = $dbh->selectrow_array($query, undef, $form->{"id"});
+    $form->dberror($query . " (" . $form->{"id"} . ")") if ($dbh->err);
+
+    if ($count) {
+      $form->{"unit_changeable"} = 0;
+      last;
+    }
+  }
 
   $dbh->disconnect;
 
@@ -277,12 +299,38 @@ sub get_pricegroups {
   $main::lxdebug->leave_sub();
 }
 
-sub save {
+sub retrieve_buchungsgruppen {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
 
-  if ($form->{eur} && ($form->{item} ne 'service')) {
+  my ($query, $sth);
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  # get buchungsgruppen
+  $query = qq|SELECT id, description
+              FROM buchungsgruppen|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  $form->{BUCHUNGSGRUPPEN} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{ $form->{BUCHUNGSGRUPPEN} }, $ref);
+  }
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub save {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  $form->{IC_expense} = "1000";
+  $form->{IC_income} = "2000";
+
+  if ($form->{item} ne 'service') {
     $form->{IC} = $form->{IC_expense};
   }
 
@@ -322,6 +370,11 @@ sub save {
   $form->{onhand}   *= 1;
   $form->{ve}       *= 1;
   $form->{ge}       *= 1;
+  $form->{alu}       *= 1;
+  $form->{buchungsgruppen_id}       *= 1;
+  $form->{adr_id}       *= 1;
+  $form->{not_discountable}       *= 1;
+  $form->{payment_id}       *= 1;
 
   my ($query, $sth);
 
@@ -370,6 +423,11 @@ sub save {
 
     # delete tax records
     $query = qq|DELETE FROM partstax
+		WHERE parts_id = $form->{id}|;
+    $dbh->do($query) || $form->dberror($query);
+
+    # delete translations
+    $query = qq|DELETE FROM translation
 		WHERE parts_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
 
@@ -429,8 +487,12 @@ sub save {
 	      priceupdate = $form->{priceupdate},
 	      unit = '$form->{unit}',
 	      notes = '$form->{notes}',
+	      formel = '$form->{formel}',
 	      rop = $form->{rop},
 	      bin = '$form->{bin}',
+	      buchungsgruppen_id = '$form->{buchungsgruppen_id}',
+	      adr_id = '$form->{adr_id}',
+	      payment_id = '$form->{payment_id}',
 	      inventory_accno_id = (SELECT c.id FROM chart c
 				    WHERE c.accno = '$form->{inventory_accno}'),
 	      income_accno_id = (SELECT c.id FROM chart c
@@ -443,16 +505,33 @@ sub save {
 	      shop = '$form->{shop}',
               ve = '$form->{ve}',
               gv = '$form->{gv}',
+              alu = '$form->{alu}',
+              not_discountable = '$form->{not_discountable}',
 	      microfiche = '$form->{microfiche}',
 	      partsgroup_id = $partsgroup_id
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 
+  # delete translation records
+  $query = qq|DELETE FROM translation
+              WHERE parts_id = $form->{id}|;
+  $dbh->do($query) || $form->dberror($query);
+
+  if ($form->{language_values} ne "") {
+    split /---\+\+\+---/,$form->{language_values};
+    foreach $item (@_) {
+      my ($language_id, $translation, $longdescription) = split /--\+\+--/, $item;
+      if ($translation ne "") {
+        $query = qq|INSERT into translation (parts_id, language_id, translation, longdescription) VALUES
+                    ($form->{id}, $language_id, | . $dbh->quote($translation) . qq|, | . $dbh->quote($longdescription) . qq| )|;
+        $dbh->do($query) || $form->dberror($query);
+      }
+    }
+  }
   # delete price records
   $query = qq|DELETE FROM prices
               WHERE parts_id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
-
   # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
     if ($form->{"price_$i"} eq "0") {
@@ -718,11 +797,6 @@ sub delete {
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  # first delete prices of pricegroup 
-  my $query = qq|DELETE FROM prices
-           WHERE parts_id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
-
   my $query = qq|DELETE FROM parts
  	         WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
@@ -830,10 +904,14 @@ sub all_parts {
   my $group;
   my $limit;
 
-  foreach my $item (qw(partnumber drawing microfiche)) {
+  foreach my $item (qw(partnumber drawing microfiche make model)) {
     if ($form->{$item}) {
       $var = $form->like(lc $form->{$item});
-      $where .= " AND lower(p.$item) LIKE '$var'";
+
+      # make will build later Bugfix 145
+      if ($item ne 'make') {
+        $where .= " AND lower(p.$item) LIKE '$var'";
+      }
     }
   }
 
@@ -1001,7 +1079,7 @@ sub all_parts {
 		    p.priceupdate, p.image, p.drawing, p.microfiche,
 		    pg.partsgroup,
 		    a.invnumber, a.ordnumber, a.quonumber, i.trans_id,
-		    ct.name, i.deliverydate|;
+		    ct.name|;
 
       if ($form->{bought}) {
         $query = qq|
@@ -1208,6 +1286,171 @@ sub all_parts {
   $main::lxdebug->leave_sub();
 }
 
+sub update_prices {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my $where = '1 = 1';
+  my $var;
+
+  my $group;
+  my $limit;
+
+  foreach my $item (qw(partnumber drawing microfiche make model)) {
+    if ($form->{$item}) {
+      $var = $form->like(lc $form->{$item});
+
+      # make will build later Bugfix 145
+      if ($item ne 'make') {
+        $where .= " AND lower(p.$item) LIKE '$var'";
+      }
+    }
+  }
+
+  # special case for description
+  if ($form->{description}) {
+    unless (   $form->{bought}
+            || $form->{sold}
+            || $form->{onorder}
+            || $form->{ordered}
+            || $form->{rfq}
+            || $form->{quoted}) {
+      $var = $form->like(lc $form->{description});
+      $where .= " AND lower(p.description) LIKE '$var'";
+    }
+  }
+
+  # special case for serialnumber
+  if ($form->{l_serialnumber}) {
+    if ($form->{serialnumber}) {
+      $var = $form->like(lc $form->{serialnumber});
+      $where .= " AND lower(serialnumber) LIKE '$var'";
+    }
+  }
+
+
+  # items which were never bought, sold or on an order
+  if ($form->{itemstatus} eq 'orphaned') {
+    $form->{onhand}  = $form->{short}   = 0;
+    $form->{bought}  = $form->{sold}    = 0;
+    $form->{onorder} = $form->{ordered} = 0;
+    $form->{rfq}     = $form->{quoted}  = 0;
+
+    $form->{transdatefrom} = $form->{transdateto} = "";
+
+    $where .= " AND p.onhand = 0
+                AND p.id NOT IN (SELECT p.id FROM parts p, invoice i
+				 WHERE p.id = i.parts_id)
+		AND p.id NOT IN (SELECT p.id FROM parts p, assembly a
+				 WHERE p.id = a.parts_id)
+                AND p.id NOT IN (SELECT p.id FROM parts p, orderitems o
+				 WHERE p.id = o.parts_id)";
+  }
+
+  if ($form->{itemstatus} eq 'active') {
+    $where .= " AND p.obsolete = '0'";
+  }
+  if ($form->{itemstatus} eq 'obsolete') {
+    $where .= " AND p.obsolete = '1'";
+    $form->{onhand} = $form->{short} = 0;
+  }
+  if ($form->{itemstatus} eq 'onhand') {
+    $where .= " AND p.onhand > 0";
+  }
+  if ($form->{itemstatus} eq 'short') {
+    $where .= " AND p.onhand < p.rop";
+  }
+  if ($form->{make}) {
+    $var = $form->like(lc $form->{make});
+    $where .= " AND p.id IN (SELECT DISTINCT ON (m.parts_id) m.parts_id
+                           FROM makemodel m WHERE lower(m.make) LIKE '$var')";
+  }
+  if ($form->{model}) {
+    $var = $form->like(lc $form->{model});
+    $where .= " AND p.id IN (SELECT DISTINCT ON (m.parts_id) m.parts_id
+                           FROM makemodel m WHERE lower(m.model) LIKE '$var')";
+  }
+  if ($form->{partsgroup}) {
+    $var = $form->like(lc $form->{partsgroup});
+    $where .= " AND lower(pg.partsgroup) LIKE '$var'";
+  }
+
+
+  # connect to database
+  my $dbh = $form->dbconnect_noauto($myconfig);
+
+  if ($form->{"sellprice"} ne "") {
+    my $update = "";
+    my $faktor = $form->parse_amount($myconfig,$form->{"sellprice"});
+    if ($form->{"sellprice_type"} eq "percent") {
+      my $faktor = $form->parse_amount($myconfig,$form->{"sellprice"})/100 +1;
+      $update = "sellprice* $faktor";
+    } else {
+      $update = "sellprice+$faktor";
+    }
+  
+    $query = qq|UPDATE parts set sellprice=$update WHERE id IN (SELECT p.id
+                  FROM parts p
+                  LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+                  WHERE $where)|;
+    $dbh->do($query);
+  }
+
+  if ($form->{"listprice"} ne "") {
+    my $update = "";
+    my $faktor = $form->parse_amount($myconfig,$form->{"listprice"});
+    if ($form->{"listprice_type"} eq "percent") {
+      my $faktor = $form->parse_amount($myconfig,$form->{"sellprice"})/100 +1;
+      $update = "listprice* $faktor";
+    } else {
+      $update = "listprice+$faktor";
+    }
+  
+    $query = qq|UPDATE parts set listprice=$update WHERE id IN (SELECT p.id
+                  FROM parts p
+                  LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+                  WHERE $where)|;
+  
+    $dbh->do($query);
+  }
+
+
+
+
+  for my $i (1 .. $form->{price_rows}) {
+
+    my $query = "";
+    
+  
+    if ($form->{"price_$i"} ne "") {
+      my $update = "";
+      my $faktor = $form->parse_amount($myconfig,$form->{"price_$i"});
+      if ($form->{"pricegroup_type_$i"} eq "percent") {
+        my $faktor = $form->parse_amount($myconfig,$form->{"sellprice"})/100 +1;
+        $update = "price* $faktor";
+      } else {
+        $update = "price+$faktor";
+      }
+    
+      $query = qq|UPDATE prices set price=$update WHERE parts_id IN (SELECT p.id
+                    FROM parts p
+                    LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+                    WHERE $where) AND pricegroup_id=$form->{"pricegroup_id_$i"}|;
+    
+      $dbh->do($query);
+    }
+  }
+
+
+
+  my $rc= $dbh->commit;
+  $dbh->disconnect;
+  $main::lxdebug->leave_sub();
+
+  return $rc;
+}
+
 sub create_links {
   $main::lxdebug->enter_sub();
 
@@ -1243,6 +1486,7 @@ sub create_links {
             { accno       => $ref->{accno},
               description => $ref->{description},
               selected    => "selected" };
+          $form->{"${key}_default"} = "$ref->{accno}--$ref->{description}";
             } else {
           push @{ $form->{"${module}_links"}{$key} },
             { accno       => $ref->{accno},
@@ -1251,6 +1495,43 @@ sub create_links {
         }
       }
     }
+  }
+  $sth->finish;
+
+  # get buchungsgruppen
+  $query = qq|SELECT id, description
+              FROM buchungsgruppen|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  $form->{BUCHUNGSGRUPPEN} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{BUCHUNGSGRUPPEN} }, $ref;
+  }
+  $sth->finish;
+
+  # get adr
+  $query = qq|SELECT id, adr_description, adr_code
+              FROM adr|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  $form->{ADR} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{ADR} }, $ref;
+  }
+  $sth->finish;
+
+  # get payment terms
+  $query = qq|SELECT id, description
+              FROM payment_terms
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $self->{payment_terms} }, $ref;
   }
   $sth->finish;
 
@@ -1431,6 +1712,41 @@ sub retrieve_item {
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+}
+
+sub retrieve_languages {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  if ($form->{id}) {
+    $where .= "tr.parts_id=$form->{id}";
+  }
+
+
+  if ($form->{language_values} ne "") {
+  $query = qq|SELECT l.id, l.description, tr.translation, tr.longdescription
+                 FROM language l LEFT OUTER JOIN translation tr ON (tr.language_id=l.id AND $where)|;
+  } else {
+  $query = qq|SELECT l.id, l.description
+                 FROM language l|;
+  }
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{$languages}, $ref);
+  }
+  $sth->finish;
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+  return $languages;
+
 }
 
 1;

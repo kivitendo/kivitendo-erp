@@ -49,13 +49,12 @@ sub check_name {
 
   my ($new_name, $new_id) = split /--/, $form->{$name};
   my $i = 0;
-
   # if we use a selection
   if ($form->{"select$name"}) {
     if ($form->{"old$name"} ne $form->{$name}) {
 
       # this is needed for is, ir and oe
-
+      $form->{update} = 0;
       # for credit calculations
       $form->{oldinvtotal}  = 0;
       $form->{oldtotalpaid} = 0;
@@ -76,6 +75,7 @@ sub check_name {
     if ($form->{"old$name"} ne qq|$form->{$name}--$form->{"${name}_id"}|) {
 
       # this is needed for is, ir and oe
+      $form->{update} = 0;
 
       # for credit calculations
       $form->{oldinvtotal}  = 0;
@@ -106,6 +106,7 @@ sub check_name {
       }
     }
   }
+  $form->language_payment(\%myconfig);
 
   $lxdebug->leave_sub();
 

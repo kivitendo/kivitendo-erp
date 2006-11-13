@@ -1,0 +1,129 @@
+<body>
+
+ <TMPL_IF NAME=saved_message>
+  <p><TMPL_VAR NAME=saved_message></p>
+
+  <hr>
+ </TMPL_IF>
+
+ <form method="post" action="<TMPL_VAR NAME=script ESCAPE=HTML>">
+
+ <input type="hidden" name="path" value="<TMPL_VAR NAME=path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
+ <input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
+
+ <input type="hidden" name="type" value="unit">
+ <input type="hidden" name="unit_type" value="<TMPL_VAR NAME=unit_type ESCAPE=HTML>">
+
+ <table width="100%">
+  <tr>
+   <th class="listtop" colspan="2"><TMPL_VAR NAME=title></th>
+  </tr>
+  <tr height="5"></tr>
+ </table>
+
+ <p>
+  Einheiten haben entweder keine oder genau eine Basiseinheit, von der
+  sie ein Vielfaches sind. Wenn Sie eine Basiseinheit ausw&auml;hlen,
+  dann m&uuml;ssen Sie auch einen Faktor eingeben. Sie m&uuml;ssen
+  Einheiten als ein Vielfaches einer kleineren Einheit eingeben. So
+  ist die Definition von &quot;kg&quot; mit der Basiseinheit
+  &quot;g&quot; und dem Faktor 1000 zul&auml;ssig, die Definition von
+  &quot;g&quot; mit der Basiseinheit &quot;kg&quot; und dem Faktor
+  &quot;0,001&quot; hingegen nicht.
+ </p>
+
+ <hr>
+
+ <table width="100%">
+  <tr><th class="listtop"><translate>Add unit</translate></th></tr>
+ </table>
+
+ <table>
+  <tr>
+   <th align="right"><translate>Unit</translate></th>
+   <td><input name="new_name" size="20" maxlength="20"></td>
+  </tr>
+  <tr>
+   <th align="right"><translate>Base unit</translate></th>
+   <td>
+    <select name="new_base_unit">
+     <TMPL_LOOP NAME=NEW_BASE_UNIT_DDBOX><option <TMPL_VAR NAME=selected>><TMPL_VAR NAME=name></option></TMPL_LOOP>
+    </select>
+   </td>
+  </tr>
+  <tr>
+   <th align="right"><translate>Factor</translate></th>
+   <td><input name="new_factor"></td>
+  </tr>
+ </table>
+
+ <input type="submit" class="submit" name="action" value="<translate>Add</translate>">
+
+ <hr>
+
+ <table width="100%">
+  <tr><th class="listtop"><translate>Edit units</translate></th></tr>
+ </table>
+
+ <p>
+  Einheiten, die bereits in Benutzung sind (z.B. bei einer
+  Warendefinition, einer Rechnung oder bei einer Lagerbuchung)
+  k&ouml;nnen nachtr&auml;glich nicht mehr ver&auml;ndert werden.
+ </p>
+
+ <p>
+  Einheiten, die zum L&ouml;schen markiert sind, werden beim Speichern
+  gel&ouml;scht.
+ </p>
+
+ <table>
+  <tr>
+   <th class="listheading">&nbsp;</th>
+   <th class="listheading"><translate>Delete</translate></th>
+   <th class="listheading"><translate>Unit</translate></th>
+   <th class="listheading"><translate>Base unit</translate></th>
+   <th class="listheading"><translate>Factor</translate></th>
+  </tr>
+
+  <TMPL_LOOP NAME=UNITS>
+   <tr>
+    <TMPL_IF NAME=in_use>
+     <td><TMPL_VAR NAME=__counter__></td>
+     <td>
+      <input type="hidden" name="unchangeable_<TMPL_VAR NAME=__counter__>" value="1">
+      <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">
+     </td>
+
+     <td><TMPL_VAR NAME=name ESCAPE=HTML></td>
+     <td><TMPL_IF NAME=base_unit><TMPL_VAR NAME=base_unit ESCAPE=HTML><TMPL_ELSE>---</TMPL_IF></td>
+     <td><TMPL_IF NAME=base_unit><TMPL_VAR NAME=factor ESCAPE=HTML><TMPL_ELSE>---</TMPL_IF></td>
+
+     <TMPL_ELSE>
+
+     <td><TMPL_VAR NAME=__counter__></td>
+     <td align="center"><input type="checkbox" name="delete_<TMPL_VAR NAME=__counter__>"></td>
+     <td>
+      <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">
+      <input name="name_<TMPL_VAR NAME=__counter__>" size="20" maxlength="20" value="<TMPL_VAR NAME=name>">
+     </td>
+     <td>
+      <select name="base_unit_<TMPL_VAR NAME=__counter__>">
+       <TMPL_LOOP NAME=BASE_UNIT_DDBOX><option <TMPL_VAR NAME=selected>><TMPL_VAR NAME=name></option></TMPL_LOOP>
+      </select>
+     </td>
+     <td><input name="factor_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=factor>"></td>
+
+    </TMPL_IF>
+   </tr>
+
+   <TMPL_IF NAME=__last__><input type="hidden" name="rowcount" value="<TMPL_VAR NAME=__counter__>"></TMPL_IF>
+  </TMPL_LOOP>
+ </table>
+
+ <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+
+ </form>
+
+</body>
+</html>
