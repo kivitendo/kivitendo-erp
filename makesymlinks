@@ -7,7 +7,3 @@ for i in ap ar bp ca cp ct cn dn gl ic ir is menu oe pe rc rp datev licenses fa 
   ln -vsf am.pl $i.pl
 done
 
-cd bin/lynx
-for i in admin  am  ap  ar  arap  bp  ca  cp  ct cn dn gl  ic  io  ir  is  login oe  pe  rc  rp datev  licenses fa ustva common; do
-  ln -vsf ../mozilla/$i.pl $i.pl
-done

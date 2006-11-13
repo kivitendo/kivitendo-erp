@@ -143,8 +143,6 @@ sub new {
   my %parameters = _request_to_hash($_);
   map({ $self->{$_} = $parameters{$_}; } keys(%parameters));
 
-  $self->{menubar} = 1 if $self->{path} =~ /lynx/i;
-
   $self->{action} = lc $self->{action};
   $self->{action} =~ s/( |-|,|\#)/_/g;
 
