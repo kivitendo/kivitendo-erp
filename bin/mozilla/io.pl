@@ -1655,6 +1655,8 @@ sub print_form {
     $form->{invdate} = $form->{"${inv}date"} = $form->{transdate};
     $form->{label} = $locale->text('Packing List');
     $order = 1;
+    # set invnumber for template packing_list 
+    $form->{invnumber}   = $form->{ordnumber};
   }
   if ($form->{formname} eq 'pick_list') {
     $inv                  = "ord";
