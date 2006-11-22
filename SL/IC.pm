@@ -1080,7 +1080,7 @@ sub all_parts {
 		    p.priceupdate, p.image, p.drawing, p.microfiche,
 		    pg.partsgroup,
 		    a.invnumber, a.ordnumber, a.quonumber, i.trans_id,
-		    ct.name|;
+		    ct.name, i.deliverydate|;
 
       if ($form->{bought}) {
         $query = qq|

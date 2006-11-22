@@ -356,6 +356,8 @@ sub search {
     . $locale->text('Subtotal') . qq|</td>
 		<td><input name=l_soldtotal class=checkbox type=checkbox value=Y>&nbsp;|
     . $locale->text('soldtotal') . qq|</td>
+		<td><input name=l_deliverydate class=checkbox type=checkbox value=Y>&nbsp;|
+    . $locale->text('deliverydate') . qq|</td>    
 	      </tr>
             </table>
           </td>
@@ -1646,8 +1648,12 @@ sub generate_report {
     $option   .= $locale->text('soldtotal') . qq| : $form->{soldtotal}<br>|;
   }
 
+  if ($form->{l_deliverydate}) {
+    $callback .= "&deliverydate=$form->{deliverydate}";
+  }
+
   @columns = $form->sort_columns(
-    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
+    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate)
   );
 
   if ($form->{l_linetotal}) {
@@ -1782,6 +1788,11 @@ sub generate_report {
   $column_header{soldtotal} =
     qq|<th nowrap><a class=listheading href=$callback&sort=soldtotal&revers=$form->{revers}&lastsort=$form->{lastsort}>|
     . $locale->text('soldtotal')
+    . qq|</a></th>|;
+
+  $column_header{deliverydate} =
+    qq|<th nowrap><a class=listheading href=$callback&sort=deliverydate&revers=$form->{revers}&lastsort=$form->{lastsort}>|
+    . $locale->text('deliverydate')
     . qq|</a></th>|;
 
   $form->header;
@@ -1934,6 +1945,8 @@ sub generate_report {
         "<td align=right>"
       . $form->format_amount(\%myconfig, $ref->{soldtotal}, '', "&nbsp;")
       . "</td>";
+
+    $column_data{deliverydate} = "<td>$ref->{deliverydate}</td>";
 
     $i++;
     $i %= 2;
@@ -2959,6 +2972,8 @@ sub assembly_row {
     }
 
     $column_data{total} = qq|<td align=right>$linetotal</td>|;
+
+    $column_data{deliverydate} = qq|<td align=right>$deliverydate</td>|;
 
     print qq|
         <tr>|;
