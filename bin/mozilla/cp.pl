@@ -603,7 +603,10 @@ sub update {
   }
 
   # recalculate
-  $amount = $form->{amount};
+
+  # Modified from $amount = $form->{amount} by J.Zach to update amount to total
+  # payment amount in Zahlungsausgang
+  $amount = 0;
   for $i (1 .. $form->{rowcount}) {
 
     map {
@@ -618,7 +621,9 @@ sub update {
         $form->{"paid_$i"} = $form->{"due_$i"};
       }
 
-      $amount -= $form->{"paid_$i"};
+      # Modified by J.Zach, see abovev
+      $amount += $form->{"paid_$i"}; 
+
     } else {
       $form->{"paid_$i"} = "";
     }
@@ -629,6 +634,9 @@ sub update {
     } qw(amount due paid);
 
   }
+
+  # Line added by J.Zach, see above
+  $form->{amount}=$amount; 
 
   &form_header;
   &list_invoices;
