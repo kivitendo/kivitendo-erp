@@ -904,11 +904,12 @@ sub all_parts {
   my $group;
   my $limit;
 
-  foreach my $item (qw(partnumber drawing microfiche make model)) {
+  foreach my $item (qw(partnumber drawing microfiche make)) {
     if ($form->{$item}) {
       $var = $form->like(lc $form->{$item});
 
       # make will build later Bugfix 145
+      # model will build later too - Bugfix 331
       if ($item ne 'make') {
         $where .= " AND lower(p.$item) LIKE '$var'";
       }
