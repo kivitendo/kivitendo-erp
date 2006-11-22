@@ -2325,7 +2325,7 @@ sub form_header {
 		<input name=selectIC_income type=hidden value="$form->{selectIC_income}">
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('COGS') . qq|</th>
+		<th align=right>| . $locale->text('Expense') . qq|</th>
 		<td><select name=IC_expense>$form->{selectIC_expense}</select></td>
 		<input name=selectIC_expense type=hidden value="$form->{selectIC_expense}">
 	      </tr>
