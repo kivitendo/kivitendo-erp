@@ -1072,7 +1072,8 @@ sub form_header {
       $form->{selectpricegroup} =~
         s/(<option value="\Q$form->{klass}\E")/$1 selected/;
 
-      $pricegroup .= qq|<select name=klass>$form->{selectpricegroup}</select>|;
+      $pricegroup .=
+        qq|<select name=klass tabindex=24>$form->{selectpricegroup}</select>|;
 
     }
   }
