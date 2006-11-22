@@ -362,7 +362,7 @@ sub all_transactions {
   }
 
   my $query =
-    qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, t.taxkey AS sorttax,
+    qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, t.type AS taxtype,
                  g.description, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, g.notes, t.chart_id, ac.oid
                  FROM gl g, acc_trans ac, chart c LEFT JOIN tax t ON
@@ -371,7 +371,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND g.id = ac.trans_id
 	UNION
-	         SELECT a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, t.taxkey AS sorttax,
+	         SELECT a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, t.type AS taxtype,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
 		 FROM ar a, acc_trans ac, customer ct, chart c LEFT JOIN tax t ON
@@ -381,7 +381,7 @@ sub all_transactions {
 		 AND a.customer_id = ct.id
 		 AND a.id = ac.trans_id
 	UNION
-	         SELECT a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, t.taxkey AS sorttax,
+	         SELECT a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, t.type AS taxtype,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
 		 FROM ap a, acc_trans ac, vendor ct, chart c LEFT JOIN tax t ON
@@ -390,18 +390,27 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND a.vendor_id = ct.id
 		 AND a.id = ac.trans_id
-	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, sorttax DESC,oid|;
+	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, taxtype DESC,oid|;
+
+  # Show all $query in Debuglevel LXDebug::QUERY
+  $callingdetails = (caller (0))[3];
+  $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
+      
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   my $trans_id  = "";
   my $trans_id2 = "";
   while (my $ref0 = $sth->fetchrow_hashref(NAME_lc)) {
+    
     $trans_id = $ref0->{id};
+    
     if ($trans_id != $trans_id2) {
+    
       if ($trans_id2) {
         push @{ $form->{GL} }, $ref;
         $balance = 0;
       }
+    
       $ref       = $ref0;
       $trans_id2 = $ref->{id};
 
@@ -427,11 +436,14 @@ sub all_transactions {
           $ref->{module} = "ar";
         }
       }
+    
       $balance = $ref->{amount};
+    
       $i       = 0;
       $j       = 0;
       $k       = 0;
       $l       = 0;
+
       if ($ref->{amount} < 0) {
         if ($ref->{chart_id} > 0) {
           $ref->{debit_tax}{$i}       = $ref->{amount} * -1;
@@ -441,7 +453,9 @@ sub all_transactions {
           $ref->{debit_accno}{$k}  = $ref->{accno};
           $ref->{debit_taxkey}{$k} = $ref->{taxkey};
         }
+
       } else {
+
         if ($ref->{chart_id} > 0) {
           $ref->{credit_tax}{$j}       = $ref->{amount};
           $ref->{credit_tax_accno}{$j} = $ref->{accno};
@@ -450,27 +464,36 @@ sub all_transactions {
           $ref->{credit_accno}{$l}  = $ref->{accno};
           $ref->{credit_taxkey}{$l} = $ref->{taxkey};
         }
+
       }
+
     } else {
+
       $ref2      = $ref0;
+      $trans_old  =$trans_id2;
       $trans_id2 = $ref2->{id};
 
-      #      if ($form->{accno} eq ''){ # flo & udo: if general report,
-      # then check balance
-      #         while (abs($balance) >= 0.015) {
-      #           my $ref2 = $sth->fetchrow_hashref(NAME_lc)
-      #             || $form->error("Unbalanced ledger!");
-      #
       $balance =
         (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
+
       if ($ref2->{amount} < 0) {
+
         if ($ref2->{chart_id} > 0) {
+
           if ($ref->{debit_tax_accno}{$i} ne "") {
             $i++;
           }
-          $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
-          $ref->{debit_tax_accno}{$i} = $ref2->{accno};
+          if ($ref2->{taxtype} eq 'U') {
+            $ref->{credit_tax}{$j}       = $ref2->{amount};
+            $ref->{credit_tax_accno}{$j} = $ref2->{accno};              
+          }
+          if ($ref2->{taxtype} eq 'V') {
+            $ref->{debit_tax}{$j}       = $ref2->{amount} * -1;
+            $ref->{debit_tax_accno}{$j} = $ref2->{accno};              
+          }
+
         } else {
+
           if ($ref->{debit_accno}{$k} ne "") {
             $k++;
           }
@@ -478,14 +501,25 @@ sub all_transactions {
           $ref->{debit_accno}{$k}  = $ref2->{accno};
           $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
         }
+
       } else {
+
         if ($ref2->{chart_id} > 0) {
+
           if ($ref->{credit_tax_accno}{$j} ne "") {
             $j++;
           }
-          $ref->{credit_tax}{$j}       = $ref2->{amount};
-          $ref->{credit_tax_accno}{$j} = $ref2->{accno};
+          if ($ref2->{taxtype} eq 'U') {
+            $ref->{credit_tax}{$j}       = $ref2->{amount};
+            $ref->{credit_tax_accno}{$j} = $ref2->{accno};              
+          }
+          if ($ref2->{taxtype} eq 'V') {
+            $ref->{debit_tax}{$j}       = $ref2->{amount} * -1;
+            $ref->{debit_tax_accno}{$j} = $ref2->{accno};              
+          }
+
         } else {
+
           if ($ref->{credit_accno}{$l} ne "") {
             $l++;
           }
@@ -494,15 +528,7 @@ sub all_transactions {
           $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
         }
       }
-
-      #         }
-      #       } else {
-      #         # if account-report, then calculate the Balance?!
-      #         # ToDo: Calculate the Balance
-      #         1;
-      #       }
     }
-
   }
   push @{ $form->{GL} }, $ref;
   $sth->finish;
