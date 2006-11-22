@@ -147,6 +147,7 @@ sub report {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
     ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
+    $form->{co_city} =~ s/\\n//g;
   }
 
   if ($form->{co_street} ne ''
@@ -990,6 +991,7 @@ sub generate_ustva {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
     ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
+    $form->{co_city} =~ s/\\n//g;
   }
 
   if (   $form->{format} eq 'pdf'
@@ -1025,7 +1027,7 @@ sub generate_ustva {
     $form->{bold}    = "<b>";
     $form->{endbold} = "</b>";
     $form->{br}      = "<br>";
-    $form->{address} =~ s/\\n/<br \/>/;
+    $form->{address} =~ s/\\n/<br \/>/g;
 
   }
 
