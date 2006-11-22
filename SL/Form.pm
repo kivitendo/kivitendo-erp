@@ -630,78 +630,32 @@ sub sort_columns {
 
   return @columns;
 }
-
+#
 sub format_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
+  my $neg = ($amount =~ s/-//);
 
-  #Workaround for $format_amount calls without $places
-  if (!defined $places) {
-    (my $dec) = ($amount =~ /\.(\d+)/);
-    $places = length $dec;
-  }
+  $amount = $self->round_amount($amount, $places) if ($places =~ /\d/);
 
-  if ($places =~ /\d/) {
-    $amount = $self->round_amount($amount, $places);
-  }
+  my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
+  my @p = split /\./, $amount ; # split amount at decimal point
 
-  # is the amount negative
-  my $negative = ($amount < 0);
-  my $fillup   = "";
+  $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1]; # add 1,000 delimiters
 
-  if ($amount != 0) {
-    if ($myconfig->{numberformat} && ($myconfig->{numberformat} ne '1000.00'))
-    {
-      my ($whole, $dec) = split /\./, "$amount";
-      $whole =~ s/-//;
-      $amount = join '', reverse split //, $whole;
-      $fillup = "0" x ($places - length($dec));
-
-      if ($myconfig->{numberformat} eq '1,000.00') {
-        $amount =~ s/\d{3,}?/$&,/g;
-        $amount =~ s/,$//;
-        $amount = join '', reverse split //, $amount;
-        $amount .= "\.$dec" . $fillup if ($places ne '' && $places * 1 != 0);
-      }
-
-      if ($myconfig->{numberformat} eq '1.000,00') {
-        $amount =~ s/\d{3,}?/$&./g;
-        $amount =~ s/\.$//;
-        $amount = join '', reverse split //, $amount;
-        $amount .= ",$dec" . $fillup if ($places ne '' && $places * 1 != 0);
-      }
-
-      if ($myconfig->{numberformat} eq '1000,00') {
-        $amount = "$whole";
-        $amount .= ",$dec" . $fillup if ($places ne '' && $places * 1 != 0);
-      }
-
-      if ($dash =~ /-/) {
-        $amount = ($negative) ? "($amount)" : "$amount";
-      } elsif ($dash =~ /DRCR/) {
-        $amount = ($negative) ? "$amount DR" : "$amount CR";
-      } else {
-        $amount = ($negative) ? "-$amount" : "$amount";
-      }
-    }
-  } else {
-    if ($dash eq "0" && $places) {
-      if ($myconfig->{numberformat} eq '1.000,00') {
-        $amount = "0" . "," . "0" x $places;
-      } else {
-        $amount = "0" . "." . "0" x $places;
-      }
-    } else {
-      $amount = ($dash ne "") ? "$dash" : "0";
-    }
-  }
-
+  $amount = $p[0];
+  $amount .= $d[0].$p[1].(0 x ($places - length $p[1])) if ($places || $p[1] ne '');
+ 
+  $amount = ($neg) ? "($amount)"  : "$amount"    if $dash =~ ?-?;
+  $amount = ($neg) ? "$amount DR" : "$amount CR" if $dash =~ ?DRCR?;
+  $amount = ($neg) ? "-$amount"   : "$amount"    if $dash =~ ??;
+  reset;
+  
   $main::lxdebug->leave_sub(2);
-
   return $amount;
 }
-
+#
 sub parse_amount {
   $main::lxdebug->enter_sub(2);
 
