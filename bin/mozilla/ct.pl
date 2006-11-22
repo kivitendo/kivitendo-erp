@@ -806,6 +806,8 @@ sub form_header {
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0);
+  $form->{discount} =
+    $form->format_amount(\%myconfig, $form->{discount});
 
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
