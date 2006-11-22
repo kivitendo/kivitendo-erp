@@ -797,6 +797,11 @@ sub delete {
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
+  # first delete prices of pricegroup 
+  my $query = qq|DELETE FROM prices
+           WHERE parts_id = $form->{id}|;
+  $dbh->do($query) || $form->dberror($query);
+
   my $query = qq|DELETE FROM parts
  	         WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
