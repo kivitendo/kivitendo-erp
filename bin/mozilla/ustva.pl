@@ -192,10 +192,10 @@ sub report {
 	  Keine Steuernummer hinterlegt!</a><br>|;
   }
   print qq|
-	  <!--<br>
+	  <br>
 	  | . $locale->text('ELSTER-Steuernummer: ') . qq|
 	  $form->{elstersteuernummer}
-          <br>-->
+          <br>
           <br>
 
 	  </fieldset>
@@ -1906,7 +1906,7 @@ SWITCH:
     $form->parse_amount(\%myconfig, $form->{"66"}) *
     100;    # Vorsteuer 7% plus 16%
   my $k83 =
-    $form->parse_amount(\%myconfig, $form->{"67"}) * 100;   # Umsätze zu 7% USt
+    $form->parse_amount(\%myconfig, $form->{"83"}) * 100 ; # Endbetrag
   my $k96 = $form->parse_amount(\%myconfig, $form->{"96"}) * 100;    #
                                                                      #
         # Now build the xml content
@@ -1916,7 +1916,7 @@ SWITCH:
 <!-- Diese Datei ist mit Lx-Office $form->{version} generiert -->
 <WinstonAusgang>
  <Formular Typ="UST"></Formular>
- <Ordnungsnummer>$form->{elstersteuernummer}</Ordnungsnummer>
+ <Ordnungsnummer>$form->{elsterFFFF}$form->{elstersteuernummer}</Ordnungsnummer>
  <AnmeldeJahr>$form->{year}</AnmeldeJahr>
  <AnmeldeZeitraum>$azr</AnmeldeZeitraum>
   |;
