@@ -1881,66 +1881,6 @@ sub select_all {
   $lxdebug->leave_sub();
 }
 
-sub print_options {
-  $lxdebug->enter_sub();
-
-  $form->{sendmode} = "attachment";
-  $form->{copies}   = 2 unless $form->{copies};
-
-  $form->{PD}{ $form->{type} }     = "selected";
-  $form->{DF}{ $form->{format} }   = "selected";
-  $form->{OP}{ $form->{media} }    = "selected";
-  $form->{SM}{ $form->{sendmode} } = "selected";
-
-  $type = qq|
-	    <option value=statement $form->{PD}{statement}>|
-    . $locale->text('Statement');
-
-  if ($form->{media} eq 'email') {
-    $media = qq|
-	    <option value=attachment $form->{SM}{attachment}>|
-      . $locale->text('Attachment') . qq|
-	    <option value=inline $form->{SM}{inline}>| . $locale->text('In-line');
-  } else {
-    $media = qq|
-	    <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if ($myconfig{printer} && $latex_templates) {
-      $media .= qq|
-            <option value=printer $form->{OP}{printer}>|
-        . $locale->text('Printer');
-    }
-  }
-
-  if ($latex_templates) {
-    $format .= qq|
-            <option value=postscript $form->{DF}{postscript}>|
-      . $locale->text('Postscript') . qq|
-	    <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF');
-  }
-
-  print qq|
-<table>
-  <tr>
-    <td><select name=type>$type</select></td>
-    <td><select name=format>$format</select></td>
-    <td><select name=media>$media</select></td>
-|;
-
-  if ($myconfig{printer} && $latex_templates && $form->{media} ne 'email') {
-    print qq|
-      <td>| . $locale->text('Copies') . qq|
-      <input name=copies size=2 value=$form->{copies}></td>
-|;
-  }
-
-  print qq|
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
-}
-
 sub e_mail {
   $lxdebug->enter_sub();
 
