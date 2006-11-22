@@ -490,22 +490,14 @@ sub parse_html_template {
   $additional_params->{"conf_latex_templates"} = $main::latex;
   $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
 
-  my $menu;
-  if (-f $self->{"login"} . "_menu.ini") {
-    $menu = Menu->new($self->{"login"} . "_menu.ini");
-  } else {
-    $menu = Menu->new("menu.ini");
-  }
-  $menu->generate_acl("", $additional_params);
-
   my @additional_param_names = keys(%{$additional_params});
   foreach my $key ($template->param()) {
-    if (grep(/^${key}$/, @additional_param_names)) {
-      $template->param($key => $additional_params->{$key});
-    } else {
-      $template->param($key => $self->{$key});
-    }
+    my $param = $self->{$key};
+    $param = $additional_params->{$key} if (grep(/^${key}$/, @additional_param_names));
+    $param = [] if (($template->query("name" => $key) eq "LOOP") && (ref($param) ne "ARRAY"));
+    $template->param($key => $param);
   }
+
   my $output = $template->output();
 
   $main::lxdebug->leave_sub();
@@ -514,11 +506,22 @@ sub parse_html_template {
 }
 
 sub show_generic_error {
-  my ($self, $error, $title) = @_;
+  my ($self, $error, $title, $action) = @_;
 
   my $add_params = {};
   $add_params->{"title"} = $title if ($title);
   $self->{"label_error"} = $error;
+
+  my @vars;
+  if ($action) {
+    map({ delete($self->{$_}); } qw(action));
+    map({ push(@vars, { "name" => $_, "value" => $self->{$_} })
+            if (!ref($self->{$_})); }
+        keys(%{$self}));
+    $add_params->{"SHOW_BUTTON"} = 1;
+    $add_params->{"BUTTON_LABEL"} = $action;
+  }
+  $add_params->{"VARIABLES"} = \@vars;
 
   $self->header();
   print($self->parse_html_template("generic/error", $add_params));
