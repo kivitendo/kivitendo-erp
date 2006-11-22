@@ -129,7 +129,7 @@ sub create_links {
   $form->{selecttaxchart} = $tax;
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
 
