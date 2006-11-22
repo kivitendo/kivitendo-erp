@@ -138,6 +138,10 @@ sub invoice_links {
 
   $cp_id = $form->{cp_id};
   IS->get_customer(\%myconfig, \%$form);
+  #quote all_customer Bug 133
+  foreach $ref (@{ $form->{all_customer} }) {
+    $ref->{name} = $form->quote($ref->{name});
+  }
   if ($id) {
     $form->{id} = $id;
   }
@@ -381,6 +385,9 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  #quote customer Bug 133
+  $form->{selectcustomer} = $form->quote($form->{selectcustomer});
+  
   #build contacts
   if ($form->{all_contacts}) {
 
