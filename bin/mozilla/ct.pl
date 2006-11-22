@@ -806,8 +806,7 @@ sub form_header {
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0);
-  $form->{discount} =
-    $form->format_amount(\%myconfig, $form->{discount});
+  $form->{discount} = $form->format_amount(\%myconfig, $form->{discount});
 
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
@@ -1573,8 +1572,10 @@ sub save_and_close {
   if ($vertreter && $form->{db} eq "customer") {
     $form->isblank("salesman_id", $locale->text("Salesman missing!"));
   }
-  &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
-
+  $rc = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+  if ($rc == 3) {
+    $form->error($locale->text('customernumber not unique!'));
+  }
   $form->redirect($locale->text($msg));
 
   $lxdebug->leave_sub();

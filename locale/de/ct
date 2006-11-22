@@ -116,6 +116,7 @@ $self{texts} = {
   'Year'                        => 'Jahr',
   'Zipcode'                     => 'PLZ',
   'button'                      => '?',
+  'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
   'days'                        => 'Tage',
   's'                           => 's',
 };
