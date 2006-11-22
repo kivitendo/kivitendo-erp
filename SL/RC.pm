@@ -73,7 +73,7 @@ sub payment_transactions {
   if ($form->{fromdate}) {
     $query = qq|SELECT sum(a.amount),
                      (SELECT DISTINCT c2.category FROM chart c2
-                      WHERE c2accno = '$form->{accno}') AS category
+                      WHERE c2.accno = '$form->{accno}') AS category
 		FROM acc_trans a
 		JOIN chart c ON (c.id = a.chart_id)
 		WHERE a.transdate < date '$form->{fromdate}'

@@ -147,13 +147,13 @@ sub display_form {
     $option .= "\n<br>" if ($option);
     $option .=
         $locale->text('From') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{fromdate}, 1);
+      . $locale->date(\%myconfig, $form->{fromdate}, 0);
   }
   if ($form->{todate}) {
     $option .= "\n<br>" if ($option);
     $option .=
-        $locale->text('To') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{todate}, 1);
+        $locale->text('Bis') . "&nbsp;"
+      . $locale->date(\%myconfig, $form->{todate}, 0);
   }
 
   $form->{title} = "$form->{accno}--$form->{account}";
