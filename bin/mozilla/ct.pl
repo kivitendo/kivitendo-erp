@@ -1488,6 +1488,9 @@ sub add_transaction {
   $lxdebug->enter_sub();
 
   $form->isblank("name", $locale->text("Name missing!"));
+  if ($vertreter && $form->{db} eq "customer") {
+    $form->isblank("salesman_id", $locale->text("Salesman missing!"));
+  }
   &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 
   $form->{callback} = $form->escape($form->{callback}, 1);
