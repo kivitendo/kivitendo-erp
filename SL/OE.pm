@@ -866,6 +866,9 @@ sub retrieve {
       $stw->finish;
     }
 
+      # delete orderitems_id in collective orders, so that they get cloned no matter what
+      delete $ref->{orderitems_id} if (@ids);
+
       #set expense_accno=inventory_accno if they are different => bilanz
       $vendor_accno =
         ($ref->{expense_accno} != $ref->{inventory_accno})
