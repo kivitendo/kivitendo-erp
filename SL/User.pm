@@ -57,7 +57,7 @@ sub new {
           # remove any trailing whitespace
           s/^\s*(.*?)\s*$/$1/;
 
-          ($key, $value) = split /=/, $_, 2;
+          ($key, $value) = split(/=/, $_, 2);
 
           if (($key eq "stylesheet") && ($value eq "sql-ledger.css")) {
             $value = "lx-office-erp.css";
@@ -496,7 +496,7 @@ sub dbsources_unused {
 
   while (<FH>) {
     if (/^dbname=/) {
-      my ($null, $item) = split /=/;
+      my ($null, $item) = split(/=/);
       push @dbexcl, $item;
     }
   }
