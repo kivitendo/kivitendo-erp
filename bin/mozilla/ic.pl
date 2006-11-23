@@ -2494,7 +2494,6 @@ sub form_header {
 
   $formel =
     qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br><br>For alu article:<br>Length:<br>Weight/m:<br>Length ist total length of article and weight/m ist the weight pro meter') . qq|')"><textarea name=formel rows=4 cols=60 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
-  $formel = "";
     $imagelinks = qq|
   <tr>
     <td>
@@ -2634,10 +2633,14 @@ sub form_header {
               </td>
               <tr>
                 <th align="left">| . $locale->text('Notes') . qq|</th>
+                <th align="left">| . $locale->text('Formula') . qq|</th>
               </tr>
               <tr>
                 <td>
                   $notes
+                </td>
+                <td>
+                  $formel
                 </td>
               </tr>
               <tr>
