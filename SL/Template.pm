@@ -87,11 +87,14 @@ sub format_string {
   my $form = $self->{"form"};
 
   my %replace =
-    ('order' => [
+    ('order' => [quotemeta("\\"),
+                 '<pagebreak>',
                  '&', quotemeta("\n"),
                  '"', '\$', '%', '_', '#', quotemeta('^'),
                  '{', '}',  '<', '>', '£', "\r"
                  ],
+     quotemeta("\\") => '\\textbackslash ',
+     '<pagebreak>'   => '',
      '"'             => "''",
      '&'             => '\&',
      '\$'            => '\$',
@@ -124,21 +127,239 @@ sub format_string {
   return $variable;
 }
 
+sub substitute_vars {
+  my ($self, $text, @indices) = @_;
+
+  my $form = $self->{"form"};
+
+  while ($text =~ /<\%(.*?)\%>/) {
+    my ($var, @options) = split(/\s+/, $1);
+    my $value = $form->{$var};
+
+    for (my $i = 0; $i < scalar(@indices); $i++) {
+      last unless (ref($value) eq "ARRAY");
+      $value = $value->[$indices[$i]];
+    }
+    $value = $self->format_string($value) unless (grep(/^NOESCAPE$/, @options));
+    substr($text, $-[0], $+[0] - $-[0]) = $value;
+  }
+
+  return $text;
+}
+
+sub parse_foreach {
+  my ($self, $var, $text, $start_tag, $end_tag, @indices) = @_;
+
+  my ($form, $new_contents) = ($self->{"form"}, "");
+
+  my $ary = $form->{$var};
+  for (my $i = 0; $i < scalar(@indices); $i++) {
+    last unless (ref($ary) eq "ARRAY");
+    $ary = $ary->[$indices[$i]];
+  }
+
+  my $sum = 0;
+  my $current_page = 1;
+  my ($current_line, $corrent_row) = (0, 1);
+
+  for (my $i = 0; $i < scalar(@{$ary}); $i++) {
+    $form->{"__first__"} = $i == 0;
+    $form->{"__last__"} = ($i + 1) == scalar(@{$ary});
+    $form->{"__odd__"} = (($i + 1) % 2) == 1;
+    $form->{"__counter__"} = $i + 1;
+
+    if ((scalar(@{$form->{"description"}}) == scalar(@{$ary})) &&
+        $self->{"chars_per_line"}) {
+      my $lines =
+        int(length($form->{"description"}->[$i]) / $self->{"chars_per_line"});
+      my $lpp;
+
+      $form->{"description"}->[$i] =~ s/(\\newline\s?)*$//;
+      my $_description = $form->{"description"}->[$i];
+      while ($_description =~ /\\newline/) {
+        $lines++;
+        $_description =~ s/\\newline//;
+      }
+      $lines++;
+
+      if ($current_page == 1) {
+        $lpp = $self->{"lines_on_first_page"};
+      } else {
+        $lpp = $self->{"lines_on_second_page"};
+      }
+
+      # Yes we need a manual page break -- or the user has forced one
+      if ((($current_line + $lines) > $lpp) ||
+          ($form->{"description"}->[$i] =~ /<pagebreak>/)) {
+        my $pb = $self->{"pagebreak_block"};
+
+        # replace the special variables <%sumcarriedforward%>
+        # and <%lastpage%>
+
+        my $psum = $form->format_amount($myconfig, $sum, 2);
+        $pb =~ s/<%sumcarriedforward%>/$psum/g;
+        $pb =~ s/<%lastpage%>/$current_page/g;
+
+        my $new_text = $self->parse_block($pb, (@indices, $i));
+        return undef unless (defined($new_text));
+        $new_contents .= $new_text;
+
+        $current_page++;
+        $current_line = 0;
+      }
+      $current_line += $lines;
+    }
+    if ($i < scalar(@{$form->{"linetotal"}})) {
+      $sum += $form->parse_amount($myconfig, $form->{"linetotal"}->[$i]);
+    }
+
+    my $new_text = $self->parse_block($text, (@indices, $i));
+    return undef unless (defined($new_text));
+    $new_contents .= $start_tag . $new_text . $end_tag;
+  }
+  map({ delete($form->{"__${_}__"}); } qw(first last odd counter));
+
+  return $new_contents;
+}
+
+sub find_end {
+  my ($self, $text, $pos, $var, $not) = @_;
+
+  my $depth = 1;
+  $pos = 0 unless ($pos);
+
+  while ($pos < length($text)) {
+    $pos++;
+
+    next if (substr($text, $pos - 1, 2) ne '<%');
+
+    if ((substr($text, $pos + 1, 2) eq 'if') || (substr($text, $pos + 1, 3) eq 'for')) {
+      $depth++;
+
+    } elsif ((substr($text, $pos + 1, 4) eq 'else') && (1 == $depth)) {
+      if (!$var) {
+        $self->{"error"} = '<%else%> outside of <%if%> / <%ifnot%>.';
+        return undef;
+      }
+
+      my $block = substr($text, 0, $pos - 1);
+      substr($text, 0, $pos - 1) = "";
+      $text =~ s!^<\%[^\%]+\%>!!;
+      $text = '<%if' . ($not ?  " " : "not ") . $var . '%>' . $text;
+
+      return ($block, $text);
+
+    } elsif (substr($text, $pos + 1, 3) eq 'end') {
+      $depth--;
+      if ($depth == 0) {
+        my $block = substr($text, 0, $pos - 1);
+        substr($text, 0, $pos - 1) = "";
+        $text =~ s!^<\%[^\%]+\%>!!;
+
+        return ($block, $text);
+      }
+    }
+  }
+
+  return undef;
+}
+
+sub parse_block {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $contents, @indices) = @_;
+
+  my $new_contents = "";
+
+  while ($contents ne "") {
+    my $pos_if = index($contents, '<%if');
+    my $pos_foreach = index($contents, '<%foreach');
+
+    if ((-1 == $pos_if) && (-1 == $pos_foreach)) {
+      $new_contents .= $self->substitute_vars($contents, @indices);
+      last;
+    }
+
+    if ((-1 == $pos_if) || ((-1 != $pos_foreach) && ($pos_if > $pos_foreach))) {
+      $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_foreach), @indices);
+      substr($contents, 0, $pos_foreach) = "";
+
+      if ($contents !~ m|^<\%foreach (.*?)\%>|) {
+        $self->{"error"} = "Malformed <\%foreach\%>.";
+        $main::lxdebug->leave_sub();
+        return undef;
+      }
+
+      my $var = $1;
+
+      substr($contents, 0, length($&)) = "";
+
+      my $block;
+      ($block, $contents) = $self->find_end($contents);
+      if (!$block) {
+        $self->{"error"} = "Unclosed <\%foreach\%>." unless ($self->{"error"});
+        $main::lxdebug->leave_sub();
+        return undef;
+      }
+
+      my $new_text = $self->parse_foreach($var, $block, "", "", @indices);
+      if (!defined($new_text)) {
+        $main::lxdebug->leave_sub();
+        return undef;
+      }
+      $new_contents .= $new_text;
+
+    } else {
+      $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_if), @indices);
+      substr($contents, 0, $pos_if) = "";
+
+      if ($contents !~ m|^<\%if\s*(not)?\s+(.*?)\%>|) {
+        $self->{"error"} = "Malformed <\%if\%>.";
+        $main::lxdebug->leave_sub();
+        return undef;
+      }
+
+      my ($not, $var) = ($1, $2);
+
+      substr($contents, 0, length($&)) = "";
+
+      ($block, $contents) = $self->find_end($contents, 0, $var, $not);
+      if (!$block) {
+        $self->{"error"} = "Unclosed <\%if${not}\%>." unless ($self->{"error"});
+        $main::lxdebug->leave_sub();
+        return undef;
+      }
+
+      my $value = $self->{"form"}->{$var};
+      for (my $i = 0; $i < scalar(@indices); $i++) {
+        last unless (ref($value) eq "ARRAY");
+        $value = $value->[$indices[$i]];
+      }
+
+      if (($not && !$value) || (!$not && $value)) {
+        my $new_text = $self->parse_block($block, @indices);
+        if (!defined($new_text)) {
+          $main::lxdebug->leave_sub();
+          return undef;
+        }
+        $new_contents .= $new_text;
+      }
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $new_contents;
+}
+
 sub parse {
   my $self = $_[0];
   local *OUT = $_[1];
-  my ($form, $myconfig) = ($self->{"form"}, $self->{"myconfig"});
-
-  # Some variables used for page breaks
-  my ($chars_per_line, $lines_on_first_page, $lines_on_second_page) =
-    (0, 0, 0);
-  my ($current_page, $current_line, $current_row) = (1, 1, 0);
-  my ($pagebreak, $sum, $two_passes, $nodiscount_sum) = ("", 0, 0, 0);
-  my ($par, $var);
+  my $form = $self->{"form"};
 
   # Do we have to run LaTeX two times? This is needed if
   # the template contains page references.
-  $two_passes = 0;
+  my $two_passes = 0;
 
   if (!open(IN, "$form->{templates}/$form->{IN}")) {
     $self->{"error"} = "$!";
@@ -147,193 +368,28 @@ sub parse {
   @_ = <IN>;
   close(IN);
 
-  # first we generate a tmpfile
-  # read file and replace <%variable%>
-  while ($_ = shift) {
-    $par = "";
-    $var = $_;
+  my $contents = join("", @_);
+  $two_passes = 1 if ($contents =~ /\\pageref/s);
 
-    $two_passes = 1 if (/\\pageref/);
+  # detect pagebreak block and its parameters
+  if ($contents =~ /<%pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*%>(.*?)<%end(\s*pagebreak)?%>/s) {
+    $self->{"chars_per_line"} = $1;
+    $self->{"lines_on_first_page"} = $2;
+    $self->{"lines_on_second_page"} = $3;
+    $self->{"pagebreak_block"} = $4;
 
-    # detect pagebreak block and its parameters
-    if (/\s*<%pagebreak ([0-9]+) ([0-9]+) ([0-9]+)%>/) {
-      $chars_per_line       = $1;
-      $lines_on_first_page  = $2;
-      $lines_on_second_page = $3;
-
-      while ($_ = shift) {
-        last if (/\s*<%end pagebreak%>/);
-        $pagebreak .= $_;
-      }
-    }
-
-    if (/\s*<%foreach /) {
-
-      # this one we need for the count
-      chomp $var;
-      $var =~ s/\s*<%foreach (.+?)%>/$1/;
-      while ($_ = shift) {
-        last if (/\s*<%end /);
-
-        # store line in $par
-        $par .= $_;
-      }
-
-      # Count the number of "lines" for our variable. Also find the forced pagebreak entries.
-      my $num_entries = scalar(@{$form->{$var}});
-      my @forced_pagebreaks = ();
-      for (my $i = 0; $i < scalar(@{$form->{$var}}); $i++) {
-        if ($form->{$var}->[$i] =~ /<pagebreak>/) {
-          push(@forced_pagebreaks, $i);
-        }
-      }
-
-      $current_line = 1;
-      # display contents of $form->{number}[] array
-      for ($i = 0; $i < $num_entries; $i++) {
-        # Try to detect whether a manual page break is necessary
-        # but only if there was a <%pagebreak ...%> block before
-
-        if ($chars_per_line) {
-          my $lines =
-            int(length($form->{"description"}->[$i]) / $chars_per_line + 0.95);
-          my $lpp;
-
-          $form->{"description"}->[$i] =~ s/(\\newline\s?)*$//;
-          my $_description = $form->{"description"}->[$i];
-          while ($_description =~ /\\newline/) {
-            $lines++;
-            $_description =~ s/\\newline//;
-          }
-          $lines++;
-
-          if ($current_page == 1) {
-            $lpp = $lines_on_first_page;
-          } else {
-            $lpp = $lines_on_second_page;
-          }
-
-          # Yes we need a manual page break -- or the user has forced one
-          if ((($current_line + $lines) > $lpp) ||
-              grep(/^${current_row}$/, @forced_pagebreaks)) {
-            my $pb = $pagebreak;
-
-            # replace the special variables <%sumcarriedforward%>
-            # and <%lastpage%>
-
-            my $psum = $form->format_amount($myconfig, $sum, 2);
-            my $nodiscount_psum = $form->format_amount($myconfig, $nodiscount_sum, 2);
-            $pb =~ s/<%nodiscount_sumcarriedforward%>/$nodiscount_psum/g;
-            $pb =~ s/<%sumcarriedforward%>/$psum/g;
-            $pb =~ s/<%lastpage%>/$current_page/g;
-
-            # only "normal" variables are supported here
-            # (no <%if, no <%foreach, no <%include)
-
-            while ($pb =~ /<%(.*?)%>/) {
-              substr($pb, $-[0], $+[0] - $-[0]) =
-                $self->format_string($form->{"$1"}->[$i]);
-            }
-
-            # page break block is ready to rock
-            print(OUT $pb);
-            $current_page++;
-            $current_line = 1;
-          }
-          $current_line += $lines;
-          $current_row++;
-        }
-        $sum += $form->parse_amount($myconfig, $form->{"linetotal"}->[$i]);
-        $nodiscount_sum += $form->parse_amount($myconfig, $form->{"nodiscount_linetotal"}->[$i]);
-
-        # don't parse par, we need it for each line
-        $_ = $par;
-        while (/<%(.*?)%>/) {
-          substr($_, $-[0], $+[0] - $-[0]) =
-            $self->format_string($form->{"$1"}->[$i]);
-        }
-        print OUT;
-      }
-      next;
-    }
-
-    # if not comes before if!
-    if (/\s*<%if not /) {
-
-      # check if it is not set and display
-      chop;
-      s/\s*<%if not (.+?)%>/$1/;
-
-      unless ($form->{$_}) {
-        while ($_ = shift) {
-          last if (/\s*<%end /);
-
-          # store line in $par
-          $par .= $_;
-        }
-
-        $_ = $par;
-
-      } else {
-        while ($_ = shift) {
-          last if (/\s*<%end /);
-        }
-        next;
-      }
-    }
-
-    if (/\s*<%if /) {
-
-      # check if it is set and display
-      chop;
-      s/\s*<%if (.+?)%>/$1/;
-
-      if ($form->{$_}) {
-        while ($_ = shift) {
-          last if (/\s*<%end /);
-
-          # store line in $par
-          $par .= $_;
-        }
-
-        $_ = $par;
-
-      } else {
-        while ($_ = shift) {
-          last if (/\s*<%end /);
-        }
-        next;
-      }
-    }
-
-    # check for <%include filename%>
-    if (/\s*<%include /) {
-
-      # get the filename
-      chomp $var;
-      $var =~ s/\s*<%include (.+?)%>/$1/;
-
-      # mangle filename
-      $var =~ s/(\/|\.\.)//g;
-
-      # prevent the infinite loop!
-      next if ($form->{"$var"});
-
-      open(INC, $form->{templates} . "/$var")
-        or $form->error($self->cleanup . $form->{templates} . "/$var : $!");
-      unshift(@_, <INC>);
-      close(INC);
-
-      $form->{"$var"} = 1;
-
-      next;
-    }
-
-    while (/<%(.*?)%>/) {
-      substr($_, $-[0], $+[0] - $-[0]) = $self->format_string($form->{$1});
-    }
-    print OUT;
+    substr($contents, length($`), length($&)) = "";
   }
+
+  $self->{"forced_pagebreaks"} = [];
+
+  my $new_contents = $self->parse_block($contents);
+  if (!defined($new_contents)) {
+    $main::lxdebug->leave_sub();
+    return 0;
+  }
+
+  print(OUT $new_contents);
 
   if ($form->{"format"} =~ /postscript/i) {
     return $self->convert_to_postscript($two_passes);
@@ -473,7 +529,7 @@ sub format_string {
 
   # Allow some HTML markup to be converted into the output format's
   # corresponding markup code, e.g. bold or italic.
-  my @markup_replace = ('b', 'i', 's', 'u');
+  my @markup_replace = ('b', 'i', 's', 'u', 'sub', 'sup');
 
   foreach my $key (@markup_replace) {
     $variable =~ s/\&lt;(\/?)${key}\&gt;/<$1${key}>/g;
@@ -483,13 +539,94 @@ sub format_string {
 }
 
 sub get_mime_type() {
-  return "text/html";
+  my ($self) = @_;
+
+  if ($self->{"form"}->{"format"} =~ /postscript/i) {
+    return "application/postscript";
+  } elsif ($self->{"form"}->{"format"} =~ /pdf/i) {
+    return "application/pdf";
+  } else {
+    return "text/html";
+  }
 }
 
 sub uses_temp_file {
-  return 0;
+  my ($self) = @_;
+
+  if ($self->{"form"}->{"format"} =~ /postscript/i) {
+    return 1;
+  } elsif ($self->{"form"}->{"format"} =~ /pdf/i) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
+sub convert_to_postscript {
+  my ($self) = @_;
+  my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
+
+  # Convert the HTML file to postscript
+
+  if (!chdir("$userspath")) {
+    $self->{"error"} = "chdir : $!";
+    $self->cleanup();
+    return 0;
+  }
+
+  $form->{"tmpfile"} =~ s/$userspath\///g;
+  my $psfile = $form->{"tmpfile"};
+  $psfile =~ s/.html/.ps/;
+  if ($psfile eq $form->{"tmpfile"}) {
+    $psfile .= ".ps";
+  }
+
+  system("html2ps -f html2ps-config < $form->{tmpfile} > $psfile");
+  if ($?) {
+    $self->{"error"} = $form->cleanup();
+    $self->cleanup();
+    return 0;
+  }
+
+  $form->{"tmpfile"} = $psfile;
+
+  $self->cleanup();
+
+  return 1;
+}
+
+sub convert_to_pdf {
+  my ($self) = @_;
+  my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
+
+  # Convert the HTML file to PDF
+
+  if (!chdir("$userspath")) {
+    $self->{"error"} = "chdir : $!";
+    $self->cleanup();
+    return 0;
+  }
+
+  $form->{"tmpfile"} =~ s/$userspath\///g;
+  my $pdffile = $form->{"tmpfile"};
+  $pdffile =~ s/.html/.pdf/;
+  if ($pdffile eq $form->{"tmpfile"}) {
+    $pdffile .= ".pdf";
+  }
+
+  system("html2ps -f html2ps-config < $form->{tmpfile} | ps2pdf - $pdffile");
+  if ($?) {
+    $self->{"error"} = $form->cleanup();
+    $self->cleanup();
+    return 0;
+  }
+
+  $form->{"tmpfile"} = $pdffile;
+
+  $self->cleanup();
+
+  return 1;
+}
 
 
 ####
@@ -498,6 +635,7 @@ sub uses_temp_file {
 
 package OpenDocumentTemplate;
 
+use POSIX 'setsid';
 use vars qw(@ISA);
 
 use Cwd;
@@ -560,12 +698,59 @@ sub parse_foreach {
   }
 
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
+    $form->{"__first__"} = $i == 0;
+    $form->{"__last__"} = ($i + 1) == scalar(@{$ary});
+    $form->{"__odd__"} = (($i + 1) % 2) == 1;
+    $form->{"__counter__"} = $i + 1;
     my $new_text = $self->parse_block($text, (@indices, $i));
     return undef unless (defined($new_text));
     $new_contents .= $start_tag . $new_text . $end_tag;
   }
+  map({ delete($form->{"__${_}__"}); } qw(first last odd counter));
 
   return $new_contents;
+}
+
+sub find_end {
+  my ($self, $text, $pos, $var, $not) = @_;
+
+  my $depth = 1;
+  $pos = 0 unless ($pos);
+
+  while ($pos < length($text)) {
+    $pos++;
+
+    next if (substr($text, $pos - 1, 5) ne '&lt;%');
+
+    if ((substr($text, $pos + 4, 2) eq 'if') || (substr($text, $pos + 4, 3) eq 'for')) {
+      $depth++;
+
+    } elsif ((substr($text, $pos + 4, 4) eq 'else') && (1 == $depth)) {
+      if (!$var) {
+        $self->{"error"} = '<%else%> outside of <%if%> / <%ifnot%>.';
+        return undef;
+      }
+
+      my $block = substr($text, 0, $pos - 1);
+      substr($text, 0, $pos - 1) = "";
+      $text =~ s!^\&lt;\%[^\%]+\%\&gt;!!;
+      $text = '&lt;%if' . ($not ?  " " : "not ") . $var . '%&gt;' . $text;
+
+      return ($block, $text);
+
+    } elsif (substr($text, $pos + 4, 3) eq 'end') {
+      $depth--;
+      if ($depth == 0) {
+        my $block = substr($text, 0, $pos - 1);
+        substr($text, 0, $pos - 1) = "";
+        $text =~ s!^\&lt;\%[^\%]+\%\&gt;!!;
+
+        return ($block, $text);
+      }
+    }
+  }
+
+  return undef;
 }
 
 sub parse_block {
@@ -590,16 +775,28 @@ sub parse_block {
         if ($table_row =~ m|\&lt;\%foreachrow\s+(.*?)\%\&gt;|) {
           my $var = $1;
 
-          $table_row =~ s|\&lt;\%foreachrow .*?\%\&gt;||g;
-          $table_row =~ s!\&lt;\%end(for|foreach)?row\s+${var}\%\&gt;!!g;
+          substr($table_row, length($`), length($&)) = "";
 
-          my $new_text = $self->parse_foreach($var, $table_row, $tag, $end_tag, @indices);
-          return undef unless (defined($new_text));
+          my ($t1, $t2) = $self->find_end($table_row, length($`));
+          if (!$t1) {
+            $self->{"error"} = "Unclosed <\%foreachrow\%>." unless ($self->{"error"});
+            $main::lxdebug->leave_sub();
+            return undef;
+          }
+
+          my $new_text = $self->parse_foreach($var, $t1 . $t2, $tag, $end_tag, @indices);
+          if (!defined($new_text)) {
+            $main::lxdebug->leave_sub();
+            return undef;
+          }
           $new_contents .= $new_text;
 
         } else {
           my $new_text = $self->parse_block($table_row, @indices);
-          return undef unless (defined($new_text));
+          if (!defined($new_text)) {
+            $main::lxdebug->leave_sub();
+            return undef;
+          }
           $new_contents .= $tag . $new_text . $end_tag;
         }
 
@@ -634,22 +831,26 @@ sub parse_block {
 
         substr($contents, 0, length($&)) = "";
 
-        if ($contents !~ m!\&lt;\%end\s*?(for)?\s+${var}\%\&gt;!) {
-          $self->{"error"} = "Unclosed <\%foreach\%>.";
+        my $block;
+        ($block, $contents) = $self->find_end($contents);
+        if (!$block) {
+          $self->{"error"} = "Unclosed <\%foreach\%>." unless ($self->{"error"});
           $main::lxdebug->leave_sub();
           return undef;
         }
 
-        substr($contents, 0, length($`) + length($&)) = "";
-        my $new_text = $self->parse_foreach($var, $`, "", "", @indices);
-        return undef unless (defined($new_text));
+        my $new_text = $self->parse_foreach($var, $block, "", "", @indices);
+        if (!defined($new_text)) {
+          $main::lxdebug->leave_sub();
+          return undef;
+        }
         $new_contents .= $new_text;
 
       } else {
         $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_if), @indices);
         substr($contents, 0, $pos_if) = "";
 
-        if ($contents !~ m|^\&lt;\%if(not)?\s+(.*?)\%\&gt;|) {
+        if ($contents !~ m|^\&lt;\%if\s*(not)?\s+(.*?)\%\&gt;|) {
           $self->{"error"} = "Malformed <\%if\%>.";
           $main::lxdebug->leave_sub();
           return undef;
@@ -659,13 +860,12 @@ sub parse_block {
 
         substr($contents, 0, length($&)) = "";
 
-        if ($contents !~ m!\&lt;\%endif${not}\s+${var}\%\&gt;!) {
-          $self->{"error"} = "Unclosed <\%if${not}\%>.";
+        ($block, $contents) = $self->find_end($contents, 0, $var, $not);
+        if (!$block) {
+          $self->{"error"} = "Unclosed <\%if${not}\%>." unless ($self->{"error"});
           $main::lxdebug->leave_sub();
           return undef;
         }
-
-        substr($contents, 0, length($`) + length($&)) = "";
 
         my $value = $self->{"form"}->{$var};
         for (my $i = 0; $i < scalar(@indices); $i++) {
@@ -674,13 +874,18 @@ sub parse_block {
         }
 
         if (($not && !$value) || (!$not && $value)) {
-          my $new_text = $self->parse_block($`, @indices);
-          return undef unless (defined($new_text));
+          my $new_text = $self->parse_block($block, @indices);
+          if (!defined($new_text)) {
+            $main::lxdebug->leave_sub();
+            return undef;
+          }
           $new_contents .= $new_text;
         }
       }
     }
   }
+
+  $main::lxdebug->leave_sub();
 
   return $new_contents;
 }
@@ -694,8 +899,15 @@ sub parse {
 
   close(OUT);
 
+  my $file_name;
+  if ($form->{"IN"} =~ m|^/|) {
+    $file_name = $form->{"IN"};
+  } else {
+    $file_name = $form->{"templates"} . "/" . $form->{"IN"};
+  }
+
   my $zip = Archive::Zip->new();
-  if (Archive::Zip::AZ_OK != $zip->read("$form->{templates}/$form->{IN}")) {
+  if (Archive::Zip::AZ_OK != $zip->read($file_name)) {
     $self->{"error"} = "File not found/is not a OpenDocument file.";
     $main::lxdebug->leave_sub();
     return 0;
@@ -720,17 +932,38 @@ sub parse {
 </style:style>
 <style:style style:name="TLXO${rnd}STRIKETHROUGH" style:family="text">
 <style:text-properties style:text-line-through-style="solid"/>
-</style:style>|;
+</style:style>
+<style:style style:name="TLXO${rnd}SUPER" style:family="text">
+<style:text-properties style:text-position="super 58%"/>
+</style:style>
+<style:style style:name="TLXO${rnd}SUB" style:family="text">
+<style:text-properties style:text-position="sub 58%"/>
+</style:style>
+|;
 
   $contents =~ s|</office:automatic-styles>|${new_styles}</office:automatic-styles>|;
   $contents =~ s|[\n\r]||gm;
 
   my $new_contents = $self->parse_block($contents);
-  return 0 unless (defined($new_contents));
+  if (!defined($new_contents)) {
+    $main::lxdebug->leave_sub();
+    return 0;
+  }
 
 #   $new_contents =~ s|>|>\n|g;
 
   $zip->contents("content.xml", $new_contents);
+
+  my $styles = $zip->contents("styles.xml");
+  if ($contents) {
+    my $new_styles = $self->parse_block($styles);
+    if (!defined($new_contents)) {
+      $main::lxdebug->leave_sub();
+      return 0;
+    }
+    $zip->contents("styles.xml", $new_styles);
+  }
+
   $zip->writeToFileNamed($form->{"tmpfile"}, 1);
 
   my $res = 1;
@@ -742,7 +975,200 @@ sub parse {
   return $res;
 }
 
+sub is_xvfb_running {
+  $main::lxdebug->enter_sub();
+
+  my ($self) = @_;
+
+  local *IN;
+  my $dfname = $self->{"userspath"} . "/xvfb_display";
+  my $display;
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "    Looking for $dfname\n");
+  if ((-f $dfname) && open(IN, $dfname)) {
+    my $pid = <IN>;
+    chomp($pid);
+    $display = <IN>;
+    chomp($display);
+    my $xauthority = <IN>;
+    chomp($xauthority);
+    close(IN);
+
+    $main::lxdebug->message(LXDebug::DEBUG2, "      found with $pid and $display\n");
+
+    if ((! -d "/proc/$pid") || !open(IN, "/proc/$pid/cmdline")) {
+      $main::lxdebug->message(LXDebug::DEBUG2, "  no/wrong process #1\n");
+      unlink($dfname, $xauthority);
+      $main::lxdebug->leave_sub();
+      return undef;
+    }
+    my $line = <IN>;
+    close(IN);
+    if ($line !~ /xvfb/i) {
+      $main::lxdebug->message(LXDebug::DEBUG2, "      no/wrong process #2\n");
+      unlink($dfname, $xauthority);
+      $main::lxdebug->leave_sub();
+      return undef;
+    }
+
+    $ENV{"XAUTHORITY"} = $xauthority;
+    $ENV{"DISPLAY"} = $display;
+  } else {
+    $main::lxdebug->message(LXDebug::DEBUG2, "      not found\n");
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $display;
+}
+
+sub spawn_xvfb {
+  $main::lxdebug->enter_sub();
+
+  my ($self) = @_;
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "spawn_xvfb()\n");
+
+  my $display = $self->is_xvfb_running();
+
+  if ($display) {
+    $main::lxdebug->leave_sub();
+    return $display;
+  }
+
+  $display = 99;
+  while ( -f "/tmp/.X${display}-lock") {
+    $display++;
+  }
+  $display = ":${display}";
+  $main::lxdebug->message(LXDebug::DEBUG2, "  display $display\n");
+
+  my $mcookie = `mcookie`;
+  die("Installation error: mcookie not found.") if ($? != 0);
+  chomp($mcookie);
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "  mcookie $mcookie\n");
+
+  my $xauthority = "/tmp/.Xauthority-" . $$ . "-" . time() . "-" . int(rand(9999999));
+  $ENV{"XAUTHORITY"} = $xauthority;
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "  xauthority $xauthority\n");
+
+  system("xauth add \"${display}\" . \"${mcookie}\"");
+  if ($? != 0) {
+    $self->{"error"} = "Conversion to PDF failed because OpenOffice could not be started (xauth: $!)";
+    $main::lxdebug->leave_sub();
+    return undef;
+  }
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "  about to fork()\n");
+
+  my $pid = fork();
+  if (0 == $pid) {
+    $main::lxdebug->message(LXDebug::DEBUG2, "  Child execing\n");
+    exec($main::xvfb_bin, $display, "-screen", "0", "640x480x8", "-nolisten", "tcp");
+  }
+  sleep(3);
+  $main::lxdebug->message(LXDebug::DEBUG2, "  parent dont sleeping\n");
+
+  local *OUT;
+  my $dfname = $self->{"userspath"} . "/xvfb_display";
+  if (!open(OUT, ">$dfname")) {
+    $self->{"error"} = "Conversion to PDF failed because OpenOffice could not be started ($dfname: $!)";
+    unlink($xauthority);
+    kill($pid);
+    $main::lxdebug->leave_sub();
+    return undef;
+  }
+  print(OUT "$pid\n$display\n$xauthority\n");
+  close(OUT);
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "  parent re-testing\n");
+
+  if (!$self->is_xvfb_running()) {
+    $self->{"error"} = "Conversion to PDF failed because OpenOffice could not be started.";
+    unlink($xauthority, $dfname);
+    kill($pid);
+    $main::lxdebug->leave_sub();
+    return undef;
+  }
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "  spawn OK\n");
+
+  $main::lxdebug->leave_sub();
+
+  return $display;
+}
+
+sub is_openoffice_running {
+  $main::lxdebug->enter_sub();
+
+  system("./scripts/oo-uno-test-conn.py $main::openofficeorg_daemon_port " .
+         "> /dev/null 2> /dev/null");
+  my $res = $? == 0;
+  $main::lxdebug->message(LXDebug::DEBUG2, "  is_openoffice_running(): $?\n");
+
+  $main::lxdebug->leave_sub();
+
+  return $res;
+}
+
+sub spawn_openoffice {
+  $main::lxdebug->enter_sub();
+
+  my ($self) = @_;
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "spawn_openoffice()\n");
+
+  my ($try, $spawned_oo, $res);
+
+  $res = 0;
+  for ($try = 0; $try < 15; $try++) {
+    if ($self->is_openoffice_running()) {
+      $res = 1;
+      last;
+    }
+
+    if (!$spawned_oo) {
+      my $pid = fork();
+      if (0 == $pid) {
+        $main::lxdebug->message(LXDebug::DEBUG2, "  Child daemonizing\n");
+        chdir('/');
+        open(STDIN, '/dev/null');
+        open(STDOUT, '>/dev/null');
+        my $new_pid = fork();
+        exit if ($new_pid);
+        my $ssres = setsid();
+        $main::lxdebug->message(LXDebug::DEBUG2, "  Child execing\n");
+        my @cmdline = ($main::openofficeorg_writer_bin,
+                       "-minimized", "-norestore", "-nologo", "-nolockcheck",
+                       "-headless",
+                       "-accept=socket,host=localhost,port=" .
+                       $main::openofficeorg_daemon_port . ";urp;");
+        exec(@cmdline);
+      }
+
+      $main::lxdebug->message(LXDebug::DEBUG2, "  Parent after fork\n");
+      $spawned_oo = 1;
+      sleep(3);
+    }
+
+    sleep($try >= 5 ? 2 : 1);
+  }
+
+  if (!$res) {
+    $self->{"error"} = "Conversion from OpenDocument to PDF failed because " .
+      "OpenOffice could not be started.";
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $res;
+}
+
 sub convert_to_pdf {
+  $main::lxdebug->enter_sub();
+
   my ($self) = @_;
 
   my $form = $self->{"form"};
@@ -759,12 +1185,29 @@ sub convert_to_pdf {
     $ENV{'HOME'} = getcwd() . "/" . $self->{"userspath"};
   }
 
-  my @cmdline = ($main::xvfb_run_bin, $main::openofficeorg_writer_bin,
-                 "-minimized", "-norestore", "-nologo", "-nolockcheck",
-                 "-headless",
-                 "file:${filename}.odt",
-                 "macro://" . (split('/', $filename))[-1] .
-                 "/Standard.Conversion.ConvertSelfToPDF()");
+  if (!$self->spawn_xvfb()) {
+    $main::lxdebug->leave_sub();
+    return 0;
+  }
+
+  my @cmdline;
+  if (!$main::openofficeorg_daemon) {
+    @cmdline = ($main::openofficeorg_writer_bin,
+                "-minimized", "-norestore", "-nologo", "-nolockcheck",
+                "-headless",
+                "file:${filename}.odt",
+                "macro://" . (split('/', $filename))[-1] .
+                "/Standard.Conversion.ConvertSelfToPDF()");
+  } else {
+    if (!$self->spawn_openoffice()) {
+      $main::lxdebug->leave_sub();
+      return 0;
+    }
+
+    @cmdline = ("./scripts/oo-uno-convert-pdf.py",
+                $main::openofficeorg_daemon_port,
+                "${filename}.odt");
+  }
 
   system(@cmdline);
 
@@ -793,14 +1236,14 @@ sub format_string {
   my $iconv = $self->{"iconv"};
 
   my %replace =
-    ('order' => ['<', '>', '"', "'",
+    ('order' => ['&', '<', '>', '"', "'",
                  '\x80',        # Euro
-                 quotemeta("\n"), quotemeta("\r"), '&'],
+                 quotemeta("\n"), quotemeta("\r")],
      '<'             => '&lt;',
      '>'             => '&gt;',
      '"'             => '&quot;',
      "'"             => '&apos;',
-     '&'             => '&quot;',
+     '&'             => '&amp;',
      '\x80'          => chr(0xa4), # Euro
      quotemeta("\n") => '<text:line-break/>',
      quotemeta("\r") => '',
@@ -812,12 +1255,12 @@ sub format_string {
   # corresponding markup code, e.g. bold or italic.
   my $rnd = $self->{"rnd"};
   my %markup_replace = ("b" => "BOLD", "i" => "ITALIC", "s" => "STRIKETHROUGH",
-                        "u" => "UNDERLINE");
+                        "u" => "UNDERLINE", "sup" => "SUPER", "sub" => "SUB");
 
   foreach my $key (keys(%markup_replace)) {
     my $value = $markup_replace{$key};
-    $variable =~ s|\&lt;${key}\&gt;|<text:span text:style-name=\"TLXO${rnd}${value}\">|g;
-    $variable =~ s|\&lt;/${key}\&gt;|</text:span>|g;
+    $variable =~ s|\&lt;${key}\&gt;|<text:span text:style-name=\"TLXO${rnd}${value}\">|gi;
+    $variable =~ s|\&lt;/${key}\&gt;|</text:span>|gi;
   }
 
   return $iconv->convert($variable);
