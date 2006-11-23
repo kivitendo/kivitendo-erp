@@ -380,12 +380,46 @@ sub dbcreate {
   $filename = qq|sql/$form->{chart}-chart.sql|;
   $self->process_query($form, $dbh, $filename);
 
-  # create indices
-  # Indices sind auch in lx-office.sql
-  # $filename = qq|sql/$form->{dbdriver}-indices.sql|;
-  # $self->process_query($form, $dbh, $filename);
-
   $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+# Process a Perl script which updates the database.
+# If the script returns 1 then the update was successful.
+# Return code "2" means "needs more interaction; remove
+# users/nologin and exit".
+# All other return codes are fatal errors.
+sub process_perl_script {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $dbh, $filename, $version) = @_;
+
+  open(FH, "$filename") or $form->error("$filename : $!\n");
+  my $contents = join("", <FH>);
+  close(FH);
+
+  $dbh->begin_work();
+
+  my $result = eval($contents);
+
+  if (1 != $result) {
+    $dbh->rollback();
+    $dbh->disconnect();
+  }
+
+  if (!defined($result)) {
+    $form->dberror("The database update/creation did not succeed. The file ${filename} containing the following syntax error:<br>${@}<br>" .
+                   "All changes in that file have been reverted.");
+  } elsif (1 != $result) {
+    unlink("users/nologin") if (2 == $result);
+    exit(0);
+  }
+
+  if ($version) {
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  }
+  $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
@@ -659,7 +693,7 @@ sub update_available {
 
   opendir SQLDIR, "sql/${dbdriver}-upgrade" or &error("", "sql/${dbdriver}-upgrade: $!");
   my @upgradescripts =
-    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.sql/, readdir(SQLDIR));
+    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)/, readdir(SQLDIR));
   closedir SQLDIR;
 
   return ($#upgradescripts > -1);
@@ -683,7 +717,7 @@ sub dbupdate {
     ## LINET
     @upgradescripts =
       sort(cmp_script_version
-           grep(/$form->{dbdriver}-upgrade-.*?\.sql$/, readdir(SQLDIR)));
+           grep(/$form->{dbdriver}-upgrade-.*?\.(sql|pl)$/, readdir(SQLDIR)));
     ## /LINET
     closedir SQLDIR;
   }
@@ -718,7 +752,8 @@ sub dbupdate {
 
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
-      $a =~ s/^$form->{dbdriver}-upgrade-|\.sql$//g;
+      $a =~ s/^$form->{dbdriver}-upgrade-|\.(sql|pl)$//g;
+      my $file_type = $1;
 
       my ($mindb, $maxdb) = split /-/, $a;
       my $str_maxdb = $maxdb;
@@ -734,7 +769,11 @@ sub dbupdate {
 
       # apply upgrade
       $main::lxdebug->message(DEBUG2, "Appliying Update $upgradescript");
-      $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+      if ($file_type eq "sql") {
+        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+      } else {
+        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+      }
 
       $version = $maxdb;
 
