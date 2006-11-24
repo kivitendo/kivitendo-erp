@@ -229,7 +229,7 @@ sub order_links {
   }
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
   $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
