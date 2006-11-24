@@ -282,7 +282,7 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
-  $form->{format}   = "pdf";
+  $form->{format}   = "pdf" unless ($form->{print_and_save} && $form->{format});
   $form->{media}    = "screen";
   $form->{formname} = $form->{type} unless $form->{formname};
 
