@@ -505,9 +505,7 @@ sub set_pricegroup {
   $lxdebug->dump(0, "holy luja!", $form->{PRICES});
   for $j (1 .. $rowcount) {
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
-    $lxdebug->message(0, "klaus1 for j $j");
     if ($form->{PRICES}{$j}) {
-      $lxdebug->message(0, "klaus2");
       $len    = 0;
       $prices = '<option value="--">' . $locale->text("none (pricegroup)") . '</option>';
       $price  = 0;
