@@ -44,25 +44,58 @@ require "$form->{path}/arap.pl";
 
 # end of main
 
+# For locales.pl:
+# $locale->text('Edit the purchase_order');
+# $locale->text('Edit the sales_order');
+# $locale->text('Edit the request_quotation');
+# $locale->text('Edit the sales_quotation');
+
+# $locale->text('Workflow purchase_order');
+# $locale->text('Workflow sales_order');
+# $locale->text('Workflow request_quotation');
+# $locale->text('Workflow sales_quotation');
+
+sub set_headings {
+  $lxdebug->enter_sub();
+
+  my ($action) = @_;
+
+  if ($form->{type} eq 'purchase_order') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Purchase Order') :
+      $locale->text('Add Purchase Order');
+    $form->{heading} = $locale->text('Purchase Order');
+    $form->{vc}      = 'vendor';
+  }
+  if ($form->{type} eq 'sales_order') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Sales Order') :
+      $locale->text('Add Sales Order');
+    $form->{heading} = $locale->text('Sales Order');
+    $form->{vc}      = 'customer';
+  }
+  if ($form->{type} eq 'request_quotation') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Request for Quotation') :
+      $locale->text('Add Request for Quotation');
+    $form->{heading} = $locale->text('Request for Quotation');
+    $form->{vc}      = 'vendor';
+  }
+  if ($form->{type} eq 'sales_quotation') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Quotation') :
+      $locale->text('Add Quotation');
+    $form->{heading} = $locale->text('Quotation');
+    $form->{vc}      = 'customer';
+  }
+
+  $lxdebug->leave_sub();
+}
+
 sub add {
   $lxdebug->enter_sub();
 
-  if ($form->{type} eq 'purchase_order') {
-    $form->{title} = $locale->text('Add Purchase Order');
-    $form->{vc}    = 'vendor';
-  }
-  if ($form->{type} eq 'sales_order') {
-    $form->{title} = $locale->text('Add Sales Order');
-    $form->{vc}    = 'customer';
-  }
-  if ($form->{type} eq 'request_quotation') {
-    $form->{title} = $locale->text('Add Request for Quotation');
-    $form->{vc}    = 'vendor';
-  }
-  if ($form->{type} eq 'sales_quotation') {
-    $form->{title} = $locale->text('Add Quotation');
-    $form->{vc}    = 'customer';
-  }
+  set_headings("add");
 
   $form->{callback} =
     "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&path=$form->{path}&password=$form->{password}"
@@ -77,6 +110,8 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  set_headings("edit");
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount}) {
@@ -102,26 +137,7 @@ sub edit {
     $printer_id = $form->{printer_id};
   }
 
-  if ($form->{type} eq 'purchase_order') {
-    $form->{title}   = $locale->text('Edit Purchase Order');
-    $form->{heading} = $locale->text('Purchase Order');
-    $form->{vc}      = 'vendor';
-  }
-  if ($form->{type} eq 'sales_order') {
-    $form->{title}   = $locale->text('Edit Sales Order');
-    $form->{heading} = $locale->text('Sales Order');
-    $form->{vc}      = 'customer';
-  }
-  if ($form->{type} eq 'request_quotation') {
-    $form->{title}   = $locale->text('Edit Request for Quotation');
-    $form->{heading} = $locale->text('Request for Quotation');
-    $form->{vc}      = 'vendor';
-  }
-  if ($form->{type} eq 'sales_quotation') {
-    $form->{title}   = $locale->text('Edit Quotation');
-    $form->{heading} = $locale->text('Quotation');
-    $form->{vc}      = 'customer';
-  }
+  set_headings("edit");
 
   &order_links;
   &prepare_order;
@@ -1016,7 +1032,7 @@ sub form_footer {
   </tr>
 </table>
 
-Bearbeiten des $form->{heading}<br>
+| . $locale->text("Edit the $form->{type}") . qq|<br>
 <input class=submit type=submit name=action value="|
     . $locale->text('Update') . qq|">
 <input class=submit type=submit name=action value="|
@@ -1033,7 +1049,7 @@ Bearbeiten des $form->{heading}<br>
 
   if (($form->{id})) {
     print qq|
-<br>Workflow  $form->{heading}<br>
+<br>| . $locale->text("Workflow $form->{type}") . qq|<br>
 <input class=submit type=submit name=action value="|
       . $locale->text('Save as new') . qq|">
 <input class=submit type=submit name=action value="|
@@ -1115,6 +1131,8 @@ Bearbeiten des $form->{heading}<br>
 
 sub update {
   $lxdebug->enter_sub();
+
+  set_headings($form->{"id"} ? "edit" : "add");
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
@@ -2024,6 +2042,7 @@ sub save {
   OE->save(\%myconfig, \%$form);
   $form->{simple_save} = 1;
   if(!$form->{print_and_save}) {
+    set_headings("edit");
     &update;
     exit;
   }
