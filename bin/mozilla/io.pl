@@ -502,7 +502,6 @@ sub display_row {
 sub set_pricegroup {
   $lxdebug->enter_sub();
   my $rowcount = shift;
-  $lxdebug->dump(0, "holy luja!", $form->{PRICES});
   for $j (1 .. $rowcount) {
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
     if ($form->{PRICES}{$j}) {
