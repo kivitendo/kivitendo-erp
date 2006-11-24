@@ -640,6 +640,101 @@ sub delete_department {
   $main::lxdebug->leave_sub();
 }
 
+sub lead {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq|SELECT id, lead
+                 FROM leads
+		 ORDER BY 2|;
+
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{ALL} }, $ref;
+  }
+
+  $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_lead {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query =
+    qq|SELECT l.id, l.lead
+                 FROM leads l
+	         WHERE l.id = $form->{id}|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  my $ref = $sth->fetchrow_hashref(NAME_lc);
+
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  $sth->finish;
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub save_lead {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  $form->{lead} =~ s/\'/\'\'/g;
+
+  # id is the old record
+  if ($form->{id}) {
+    $query = qq|UPDATE leads SET
+		lead = '$form->{description}'
+		WHERE id = $form->{id}|;
+  } else {
+    $query = qq|INSERT INTO leads
+                (lead)
+                VALUES ('$form->{description}')|;
+  }
+  $dbh->do($query) || $form->dberror($query);
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_lead {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  $query = qq|DELETE FROM leads
+	      WHERE id = $form->{id}|;
+  $dbh->do($query) || $form->dberror($query);
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub business {
   $main::lxdebug->enter_sub();
 
