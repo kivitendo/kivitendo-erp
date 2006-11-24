@@ -357,10 +357,6 @@ sub parse {
   local *OUT = $_[1];
   my $form = $self->{"form"};
 
-  # Do we have to run LaTeX two times? This is needed if
-  # the template contains page references.
-  my $two_passes = 0;
-
   if (!open(IN, "$form->{templates}/$form->{IN}")) {
     $self->{"error"} = "$!";
     return 0;
@@ -369,7 +365,6 @@ sub parse {
   close(IN);
 
   my $contents = join("", @_);
-  $two_passes = 1 if ($contents =~ /\\pageref/s);
 
   # detect pagebreak block and its parameters
   if ($contents =~ /<%pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*%>(.*?)<%end(\s*pagebreak)?%>/s) {
@@ -392,16 +387,16 @@ sub parse {
   print(OUT $new_contents);
 
   if ($form->{"format"} =~ /postscript/i) {
-    return $self->convert_to_postscript($two_passes);
+    return $self->convert_to_postscript();
   } elsif ($form->{"format"} =~ /pdf/i) {
-    return $self->convert_to_pdf($two_passes);
+    return $self->convert_to_pdf();
   } else {
     return 1;
   }
 }
 
 sub convert_to_postscript {
-  my ($self, $two_passes) = @_;
+  my ($self) = @_;
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to postscript
@@ -414,14 +409,7 @@ sub convert_to_postscript {
 
   $form->{tmpfile} =~ s/$userspath\///g;
 
-  system("latex --interaction=nonstopmode $form->{tmpfile} " .
-         "> $form->{tmpfile}.err");
-  if ($?) {
-    $self->{"error"} = $form->cleanup();
-    $self->cleanup();
-    return 0;
-  }
-  if ($two_passes) {
+  for (my $run = 1; $run <= 2; $run++) {
     system("latex --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
@@ -447,7 +435,7 @@ sub convert_to_postscript {
 }
 
 sub convert_to_pdf {
-  my ($self, $two_passes) = @_;
+  my ($self) = @_;
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to PDF
@@ -460,15 +448,7 @@ sub convert_to_pdf {
 
   $form->{tmpfile} =~ s/$userspath\///g;
 
-  system("pdflatex --interaction=nonstopmode $form->{tmpfile} " .
-         "> $form->{tmpfile}.err");
-  if ($?) {
-    $self->{"error"} = $form->cleanup();
-    $self->cleanup();
-    return 0;
-  }
-
-  if ($two_passes) {
+  for (my $run = 1; $run <= 2; $run++) {
     system("pdflatex --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
