@@ -1809,6 +1809,8 @@ sub print_form {
 
   $form->{notes} =~ s/^\s+//g;
 
+  map({ $form->{$_} =~ s/\\n/\n/g; } qw(company address));
+
   $form->{templates} = "$myconfig{templates}";
 
   $form->{language} = $form->get_template_language(\%myconfig);
