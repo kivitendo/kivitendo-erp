@@ -1216,7 +1216,7 @@ sub update {
 
       } else {
 
-        $sellprice = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
+        $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
           qw(partnumber description unit);
