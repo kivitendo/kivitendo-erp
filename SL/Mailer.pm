@@ -47,7 +47,7 @@ sub send {
   my ($self, $out) = @_;
 
   my $boundary = time;
-  $boundary = "SL-$self->{version}-$boundary";
+  $boundary = "LxOffice-$self->{version}-$boundary";
   my $domain = $self->{from};
   $domain =~ s/(.*?\@|>)//g;
   my $msgid = "$boundary\@$domain";
@@ -83,7 +83,7 @@ sub send {
 To: $self->{to}
 ${cc}${bcc}Subject: $self->{subject}
 Message-ID: <$msgid>
-X-Mailer: SQL-Ledger $self->{version}
+X-Mailer: Lx-Office $self->{version}
 MIME-Version: 1.0
 |;
 

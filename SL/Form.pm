@@ -778,6 +778,7 @@ sub parse_template {
       $mail->{to}     = qq|$self->{email}|;
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";
+      $myconfig->{signature} =~ s/\\r\\n/\\n/g;
 
       # if we send html or plain text inline
       if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
@@ -785,7 +786,7 @@ sub parse_template {
 
         $mail->{message}       =~ s/\r\n/<br>\n/g;
         $myconfig->{signature} =~ s/\\n/<br>\n/g;
-        $mail->{message} .= "<br>\n--<br>\n$myconfig->{signature}\n<br>";
+        $mail->{message} .= "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
 
         open(IN, $self->{tmpfile})
           or $self->error($self->cleanup . "$self->{tmpfile} : $!");
@@ -799,8 +800,9 @@ sub parse_template {
 
         @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($form->{do_not_attach});
 
-        $myconfig->{signature} =~ s/\\n/\r\n/g;
-        $mail->{message} .= "\r\n--\r\n$myconfig->{signature}";
+        $mail->{message}       =~ s/\r\n/\n/g;
+        $myconfig->{signature} =~ s/\\n/\n/g;
+        $mail->{message} .= "\n-- \n$myconfig->{signature}";
 
       }
 
