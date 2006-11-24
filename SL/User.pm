@@ -272,7 +272,7 @@ sub dbsources {
 
   if ($form->{dbdriver} eq 'Pg') {
 
-    $query = qq|SELECT datname FROM pg_database|;
+    $query = qq|SELECT datname FROM pg_database WHERE NOT ((datname = 'template0') OR (datname = 'template1'))|;
     $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
