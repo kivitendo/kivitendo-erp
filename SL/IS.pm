@@ -685,8 +685,8 @@ sub post_invoice {
         ? qq|'$form->{"deliverydate_$i"}'|
         : "NULL";
 
-      # get pricegroup_id and save ist
-      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+      # get pricegroup_id and save it
+      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_pg_$i"};
       $pricegroup_id *= 1;
       my $subtotal = $form->{"subtotal_$i"} * 1;
 
@@ -2062,12 +2062,15 @@ sub get_pricegroups_for_parts {
 
   my $dbh = $form->dbconnect($myconfig);
 
+  $form->{"PRICES"} = {};
+
   my $i  = 1;
   my $id = 0;
   my $dimension_units = AM->retrieve_units($myconfig, $form, "dimension");
   my $service_units = AM->retrieve_units($myconfig, $form, "service");
   my $all_units = AM->retrieve_units($myconfig, $form);
   while (($form->{"id_$i"}) or ($form->{"new_id_$i"})) {
+    $form->{"PRICES"}{$i} = [];
 
     $id = $form->{"id_$i"};
 
@@ -2077,7 +2080,7 @@ sub get_pricegroups_for_parts {
     }
 
     ($price, $selectedpricegroup_id) = split /--/,
-      $form->{"sellprice_drag_$i"};
+      $form->{"sellprice_pg_$i"};
 
     $pricegroup_old = $form->{"pricegroup_old_$i"};
     $form->{"new_pricegroup_$i"} = $selectedpricegroup_id;
@@ -2183,7 +2186,7 @@ sub get_pricegroups_for_parts {
                   and ($pkr->{price} == $form->{"sellprice_$i"})) {
 
                 # $pkr->{price}                         = $form->{"sellprice_$i"};
-                  } else {
+              } else {
                 $pkr->{price} = $form->{"sellprice_$i"};
               }
             }

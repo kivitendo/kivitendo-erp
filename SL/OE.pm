@@ -351,7 +351,7 @@ sub save {
         ($form->{"reqdate_$i"}) ? qq|'$form->{"reqdate_$i"}'| : "NULL";
 
       # get pricegroup_id and save ist
-      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_drag_$i"};
+      ($null, my $pricegroup_id) = split /--/, $form->{"sellprice_pg_$i"};
       $pricegroup_id *= 1;
       $subtotal = $form->{"subtotal_$i"} * 1;
 

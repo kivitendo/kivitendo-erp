@@ -112,7 +112,7 @@ sub display_row {
       or (($form->{level} =~ /Sales/) and ($form->{type} =~ /invoice/))
       or (($form->{level} eq undef) and ($form->{type} =~ /invoice/))
       or ($form->{type} =~ /sales_order/)) {
-    push @column_index, qw(sellprice_drag);
+    push @column_index, qw(sellprice_pg);
   }
 
   push @column_index, qw(sellprice);
@@ -172,7 +172,7 @@ sub display_row {
       qq|<th align=left nowrap width=15 class=listheading>|
     . $locale->text('Price')
     . qq|</th>|;
-  $column_data{sellprice_drag} =
+  $column_data{sellprice_pg} =
       qq|<th align=left nowrap width=15 class=listheading>|
     . $locale->text('Pricegroup')
     . qq|</th>|;
@@ -329,7 +329,7 @@ sub display_row {
                             $is_assigned ? $form->{"unit_$i"} : undef))
       . "</td>";
 
-    # build in dragdrop for pricesgroups
+    # build in drop down list for pricesgroups
     if ($form->{"prices_$i"}) {
       if  ($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"}) {
         $price_tmp = $form->format_amount(\%myconfig, $form->{"price_new_$i"}, $decimalplaces);
@@ -337,31 +337,27 @@ sub display_row {
         $price_tmp = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
       }
 
-      $column_data{sellprice_drag} =
-        qq|<td align=right><select name="sellprice_drag_$i">$form->{"prices_$i"}</select></td>|;
+      $column_data{sellprice_pg} =
+        qq|<td align=right><select name="sellprice_pg_$i">$form->{"prices_$i"}</select></td>|;
       $column_data{sellprice} =
         qq|<td><input name="sellprice_$i" size=10 value=$price_tmp></td>|;
     } else {
 
       # for last row and report
-      # set pricegroup dragdrop from report menu
+      # set pricegroup drop down list from report menu
       if ($form->{"sellprice_$i"} != 0) {
         $prices =
           qq|<option value="$form->{"sellprice_$i"}--$form->{"pricegroup_id_$i"}" selected>$form->{"pricegroup_$i"}</option>\n|;
 
         $form->{"pricegroup_old_$i"} = $form->{"pricegroup_id_$i"};
 
-        $column_data{sellprice_drag} =
-          qq|<td align=right><select name="sellprice_drag_$i">$prices</select></td>|;
+        $column_data{sellprice_pg} =
+          qq|<td align=right><select name="sellprice_pg_$i">$prices</select></td>|;
 
       } else {
 
         # for last row
-        $column_data{sellprice_drag} =
-          qq|<td align=right><input name="sellprice_$i" size=9 value=|
-          . $form->format_amount(\%myconfig, $form->{"prices_$i"},
-                                 $decimalplaces)
-          . qq|></td>|;
+        $column_data{sellprice_pg} = qq|<td align=right>&nbsp;</td>|;
       }
 
       $column_data{sellprice} =
@@ -504,13 +500,16 @@ sub display_row {
 # build html-code for pricegroups in variable $form->{prices_$j}
 
 sub set_pricegroup {
-  my $rowcount = shift;
   $lxdebug->enter_sub();
+  my $rowcount = shift;
+  $lxdebug->dump(0, "holy luja!", $form->{PRICES});
   for $j (1 .. $rowcount) {
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
+    $lxdebug->message(0, "klaus1 for j $j");
     if ($form->{PRICES}{$j}) {
+      $lxdebug->message(0, "klaus2");
       $len    = 0;
-      $prices = '';
+      $prices = '<option value="--">' . $locale->text("none (pricegroup)") . '</option>';
       $price  = 0;
       foreach $item (@{ $form->{PRICES}{$j} }) {
 
@@ -520,7 +519,7 @@ sub set_pricegroup {
         $pricegroup_id = $item->{pricegroup_id};
         $pricegroup    = $item->{pricegroup};
 
-        # build dragdrop for pricegroups
+        # build drop down list for pricegroups
         $prices .=
           qq|<option value="$price--$pricegroup_id"$item->{selected}>$pricegroup</option>\n|;
 
@@ -540,10 +539,8 @@ sub set_pricegroup {
         if ($pricegroup_id == 0) {
           $form->{"price_new_$j"} = $form->{"sellprice_$j"};
         }
-        if ($len > 1) {
-          $form->{"prices_$j"} = $prices;
-        }
       }
+      $form->{"prices_$j"} = $prices;
     }
   }
   $lxdebug->leave_sub();

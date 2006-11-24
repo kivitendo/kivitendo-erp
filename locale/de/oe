@@ -232,6 +232,7 @@ $self{texts} = {
   'days'                        => 'Tage',
   'ea'                          => 'St.',
   'emailed to'                  => 'gemailt an',
+  'none (pricegroup)'           => 'keine',
   'saved!'                      => 'gespeichert',
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',

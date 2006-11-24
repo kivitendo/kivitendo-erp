@@ -169,6 +169,7 @@ $self{texts} = {
   'button'                      => '?',
   'ea'                          => 'St.',
   'emailed to'                  => 'gemailt an',
+  'none (pricegroup)'           => 'keine',
   'posted!'                     => 'gebucht',
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',

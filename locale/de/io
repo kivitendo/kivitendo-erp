@@ -114,6 +114,7 @@ $self{texts} = {
   'What type of item is this?'  => 'Was ist dieser Artikel?',
   'Zipcode'                     => 'PLZ',
   'emailed to'                  => 'gemailt an',
+  'none (pricegroup)'           => 'keine',
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',
 };

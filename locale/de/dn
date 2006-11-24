@@ -171,6 +171,7 @@ gestartet',
   'eMail Send?'                 => 'eMail-Versand?',
   'eMail?'                      => 'eMail?',
   'emailed to'                  => 'gemailt an',
+  'none (pricegroup)'           => 'keine',
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',
 };
