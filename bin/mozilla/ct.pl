@@ -1598,7 +1598,6 @@ sub save {
   if ($vertreter && $form->{db} eq "customer") {
     $form->isblank("salesman_id", $locale->text("Salesman missing!"));
   }
-  print(STDERR "SHIPTO in sub save $form->{shipto_id}\n");
   &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 
   &edit;

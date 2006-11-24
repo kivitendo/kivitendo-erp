@@ -363,7 +363,6 @@ sub display_row {
                                  $decimalplaces)
           . qq|></td>|;
       }
-    print(STDERR "Sellprice vor Ausgabe: ",$form->{"sellprice_$i"},"\n"); 
 
       $column_data{sellprice} =
         qq|<td><input name="sellprice_$i" size=10 value=|

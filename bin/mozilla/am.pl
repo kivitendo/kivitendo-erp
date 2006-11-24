@@ -112,7 +112,6 @@ sub account_header {
 		<input type=hidden name=selecttaxkey value="$form->{selecttaxkey}">
 	      </tr>|;
 
-  #print(STDERR Dumper($form->{NEWACCOUNT}));
   if (@{ $form->{NEWACCOUNT} }) {
     if (!$form->{new_chart_valid}) {
       $form->{selectnewaccount} = "<option value=></option>";
@@ -479,7 +478,6 @@ sub form_footer {
 <input type=hidden name=password value=$form->{password}>
 
 <br>|;
-#print(STDERR "$form->{type} TYPE $form->{new_chart_valid} CHART_VALID\n");
   if ((!$form->{id}) || ($form->{id} && $form->{orphaned}) || (($form->{type} eq "account") && (!$form->{new_chart_valid}))) {
     print qq|
 <input type=submit class=submit name=action value="|
@@ -3606,9 +3604,6 @@ sub save_unit {
       }
     }
   }
-
-  #print(STDERR Dumper($delete_units));
-  #print(STDERR Dumper($new_units));
 
   AM->save_units(\%myconfig, $form, $form->{"unit_type"}, $new_units, \@delete_units);
 

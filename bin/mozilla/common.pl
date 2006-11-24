@@ -403,12 +403,7 @@ sub calculate_qty {
 sub calculate_alu {
   $lxdebug->enter_sub();
 
-
-
   my ($length, $weight) = split /\r\n/,$form->{formel};
-
-  #print(STDERR "$form->{formel} Formel\n");
-  #print(STDERR "$form->{description} Description\n");
 
   map({ $form->{$_} = "" } (qw(qty_alu price_alu total_alu qty_eloxal price_eloxal total_eloxal total)));
 
@@ -423,7 +418,6 @@ sub calculate_alu {
     $form->{total} = $form->format_amount(\%myconfig, ($form->parse_amount(\%myconfig, $form->{total_alu}) + $form->parse_amount(\%myconfig, $form->{total_eloxal})));
   }
   ($form->{description}, $null) = split /\nAlupreisberechnung/, $form->{description};
-  #map({ print(STDERR "$_ = $form->{$_}\n") } (qw(qty_alu price_alu total_alu qty_eloxal price_eloxal total_eloxal total)));
 
   my $callback = "$form->{script}?action=vendor_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }

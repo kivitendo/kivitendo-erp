@@ -586,7 +586,6 @@ sub save_dunning {
       for my $i (1 .. $form->{rowcount}) {
         $form->{"active_$i"} *= 1;
         $lastcustomer = $form->{"customer_id_$i"} unless ($lastcustomer);
-        #print(STDERR qq|LASTCUSTOMER $lastcustomer AKTUELL $form->{"customer_id_$i"} ACTIVE? $form->{"active_$i"} active $active\n Zeile $i|);
         if ($form->{"active_$i"} && ($form->{"customer_id_$i"} == $lastcustomer)) {
           if ($form->{inv_ids}) {
             $form->{inv_ids} .= qq|,$form->{"inv_id_$i"}|;
@@ -604,8 +603,7 @@ sub save_dunning {
       }
       if ($form->{inv_ids} ne "") {
         $form->{inv_ids} .= ")";
-        #print(STDERR "Rufe save_dunning_auf für Zeile $form->{inv_ids} von Kunde $lastcustomer\n");
-       DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
+        DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
       }
     }
   } else {
@@ -614,12 +612,10 @@ sub save_dunning {
         @rows = ();
         $form->{inv_ids} = qq|($form->{"inv_id_$i"})|;
         push(@rows, $i);
-        #print(STDERR "Rufe save_dunning_auf für Zeile $i\n");
         DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
       }
     }
   }
-  #print(STDERR Dumper($form->{DUNNING_PDFS}));
   if($form->{DUNNING_PDFS}) {
     DN->melt_pdfs(\%myconfig, \%$form,$spool);
   }
