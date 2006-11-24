@@ -355,12 +355,12 @@ sub form_header {
   if (@{ $form->{SHIPTO} }) {
     $form->{selectshipto} = "<option value=0></option>";
     foreach $item (@{ $form->{SHIPTO} }) {
-      if ($item->{id} == $form->{shipto_id}) {
+      if ($item->{shipto_id} == $form->{shipto_id}) {
         $form->{selectshipto} .=
-          "<option value=$item->{id} selected>$item->{shiptoname}</option>";
+          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
       } else {
         $form->{selectshipto} .=
-          "<option value=$item->{id}>$item->{shiptoname}</option>";
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment}</option>";
       }
 
     }
@@ -373,7 +373,7 @@ sub form_header {
 
   $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td><select name=shipto_id>$form->{selectshipto}</select></td>
+		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>
 		<input type=hidden name=selectshipto value="$form->{selectshipto}">|;
 
 
@@ -659,7 +659,7 @@ sub form_header {
               $dunning
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Record in') . qq|</th>
-		<td colspan=3><select name=AR>$form->{selectAR}</select></td>
+		<td colspan=3><select name=AR style="width:280px;">$form->{selectAR}</select></td>
 		<input type=hidden name=selectAR value="$form->{selectAR}">
 	      </tr>
               $taxzone

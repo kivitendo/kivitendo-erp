@@ -895,12 +895,12 @@ sub form_header {
   $form->{selectshipto} = "<option value=0></option>";
   if (@{ $form->{SHIPTO} }) {
     foreach $item (@{ $form->{SHIPTO} }) {
-      if ($item->{id} == $form->{shipto_id}) {
+      if ($item->{shipto_id} == $form->{shipto_id}) {
         $form->{selectshipto} .=
-          "<option value=$item->{id} selected>$item->{shiptoname}\n";
+          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}\n";
       } else {
         $form->{selectshipto} .=
-          "<option value=$item->{id}>$item->{shiptoname}\n";
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment_1}\n";
       }
 
     }
@@ -1598,6 +1598,7 @@ sub save {
   if ($vertreter && $form->{db} eq "customer") {
     $form->isblank("salesman_id", $locale->text("Salesman missing!"));
   }
+  print(STDERR "SHIPTO in sub save $form->{shipto_id}\n");
   &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 
   &edit;

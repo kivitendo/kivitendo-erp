@@ -423,12 +423,12 @@ sub form_header {
   if (@{ $form->{SHIPTO} }) {
     $form->{selectshipto} = "<option value=0></option>";
     foreach $item (@{ $form->{SHIPTO} }) {
-      if ($item->{id} == $form->{shipto_id}) {
+      if ($item->{shipto_id} == $form->{shipto_id}) {
         $form->{selectshipto} .=
-          "<option value=$item->{id} selected>$item->{shiptoname}</option>";
+          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
       } else {
         $form->{selectshipto} .=
-          "<option value=$item->{id}>$item->{shiptoname}</option>";
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
       }
 
     }
