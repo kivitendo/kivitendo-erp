@@ -53,6 +53,7 @@ $self{texts} = {
   'Dunning Process started for selected invoices!' => 'Mahnprozess für selektierte Rechnungen 
 gestartet',
   'Dunning overview'            => 'Mahnungsübersicht',
+  'Edit Dunning'                => 'Mahnungen konfigurieren',
   'E-mail'                      => 'eMail',
   'E-mail address missing!'     => 'eMailadresse fehlt!',
   'E-mailed'                    => 'eMail gesendet.',
