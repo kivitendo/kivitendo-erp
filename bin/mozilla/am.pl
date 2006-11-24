@@ -1088,6 +1088,189 @@ sub delete_department {
   $lxdebug->leave_sub();
 }
 
+sub add_lead {
+  $lxdebug->enter_sub();
+
+  $form->{title} = "Add";
+
+  $form->{callback} =
+    "$form->{script}?action=add_lead&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    unless $form->{callback};
+
+  &lead_header;
+  &form_footer;
+
+  $lxdebug->leave_sub();
+}
+
+sub edit_lead {
+  $lxdebug->enter_sub();
+
+  $form->{title} = "Edit";
+
+  AM->get_lead(\%myconfig, \%$form);
+
+  &lead_header;
+
+  $form->{orphaned} = 1;
+  &form_footer;
+
+  $lxdebug->leave_sub();
+}
+
+sub list_lead {
+  $lxdebug->enter_sub();
+
+  AM->lead(\%myconfig, \%$form);
+
+  $form->{callback} =
+    "$form->{script}?action=list_lead&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+
+  $callback = $form->escape($form->{callback});
+
+  $form->{title} = $locale->text('Lead');
+
+  @column_index = qw(description cost profit);
+
+  $column_header{description} =
+      qq|<th class=listheading width=100%>|
+    . $locale->text('Description')
+    . qq|</th>|;
+
+  $form->header;
+
+  print qq|
+<body>
+
+<table width=100%>
+  <tr>
+    <th class=listtop>$form->{title}</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr class=listheading>
+|;
+
+  map { print "$column_header{$_}\n" } @column_index;
+
+  print qq|
+        </tr>
+|;
+
+  foreach $ref (@{ $form->{ALL} }) {
+
+    $i++;
+    $i %= 2;
+
+    print qq|
+        <tr valign=top class=listrow$i>
+|;
+
+	$lead = $ref->{lead};
+	
+    $column_data{description} =
+      qq|<td><a href=$form->{script}?action=edit_lead&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{lead}</td>|;
+
+    map { print "$column_data{$_}\n" } @column_index;
+
+    print qq|
+	</tr>
+|;
+  }
+
+  print qq|
+  <tr>
+  <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+<form method=post action=$form->{script}>
+
+<input name=callback type=hidden value="$form->{callback}">
+
+<input type=hidden name=type value=lead>
+
+<input type=hidden name=path value=$form->{path}>
+<input type=hidden name=login value=$form->{login}>
+<input type=hidden name=password value=$form->{password}>
+
+<input class=submit type=submit name=action value="|
+    . $locale->text('Add') . qq|">|;
+
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+
+  print qq|
+  </form>
+
+  </body>
+  </html>
+|;
+
+  $lxdebug->leave_sub();
+}
+
+sub lead_header {
+  $lxdebug->enter_sub();
+
+  $form->{title} = $locale->text("$form->{title} Lead");
+
+  # $locale->text('Add Lead')
+  # $locale->text('Edit Lead')
+
+  $form->{description} =~ s/\"/&quot;/g;
+
+  $description =
+      qq|<input name=description size=50 value="$form->{lead}">|;
+
+  $form->header;
+
+  print qq|
+<body>
+
+<form method=post action=$form->{script}>
+
+<input type=hidden name=id value=$form->{id}>
+<input type=hidden name=type value=lead>
+
+<table width=100%>
+  <tr>
+    <th class=listtop colspan=2>$form->{title}</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <th align=right>| . $locale->text('Description') . qq|</th>
+    <td>$description</td>
+  </tr>
+    <td colspan=2><hr size=3 noshade></td>
+  </tr>
+</table>
+|;
+
+  $lxdebug->leave_sub();
+}
+
+sub save_lead {
+  $lxdebug->enter_sub();
+
+  $form->isblank("description", $locale->text('Description missing!'));
+  AM->save_lead(\%myconfig, \%$form);
+  $form->redirect($locale->text('lead saved!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub delete_lead {
+  $lxdebug->enter_sub();
+
+  AM->delete_lead(\%myconfig, \%$form);
+  $form->redirect($locale->text('lead deleted!'));
+
+  $lxdebug->leave_sub();
+}
+
 sub add_business {
   $lxdebug->enter_sub();
 
