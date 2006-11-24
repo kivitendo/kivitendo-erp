@@ -146,7 +146,7 @@ sub get_tuple {
 
 
   # get shipto address
-  $query = qq|SELECT id, shiptoname
+  $query = qq|SELECT shipto_id, shiptoname, shiptodepartment_1
               FROM shipto WHERE trans_id=$form->{id}|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -662,7 +662,7 @@ sub save_vendor {
   }
 
   # add shipto
-  $form->add_shipto($dbh, $form->{id});
+  $form->add_shipto($dbh, $form->{id}, "CT");
 
   $rc = $dbh->disconnect;
 
@@ -841,7 +841,8 @@ sub get_shipto {
   my $dbh   = $form->dbconnect($myconfig);
   my $query = qq|SELECT s.*
                  FROM shipto s
-		 WHERE s.id = $form->{shipto_id}  order by s.id limit 1|;
+		 WHERE s.shipto_id = $form->{shipto_id}|;
+		 #WHERE s.shipto_id = $form->{shipto_id}  order by s.shipto_id limit 1|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -871,7 +872,7 @@ sub get_delivery {
     $where .= "AND ar.transdate <= '$form->{to}' ";
   }
 
-  my $query = qq|select shiptoname, adr_code, ar.transdate, ar.invnumber, ar.ordnumber, invoice.description, qty, invoice.unit FROM ar LEFT join shipto ON (ar.shipto_id=shipto.id) LEFT join invoice on (ar.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) LEFT join adr ON (parts.adr_id=adr.id) $where ORDER BY ar.transdate DESC LIMIT 15|;
+  my $query = qq|select shiptoname, adr_code, ar.transdate, ar.invnumber, ar.ordnumber, invoice.description, qty, invoice.unit FROM ar LEFT join shipto ON (ar.shipto_id=shipto.shipto_id) LEFT join invoice on (ar.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) LEFT join adr ON (parts.adr_id=adr.id) $where ORDER BY ar.transdate DESC LIMIT 15|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 

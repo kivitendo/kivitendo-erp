@@ -1806,7 +1806,7 @@ sub get_customer {
   $sth->finish;
 
   # get shipping addresses
-  $query = qq|SELECT s.id,s.shiptoname
+  $query = qq|SELECT s.shipto_id,s.shiptoname,s.shiptodepartment_1
               FROM shipto s
 	      WHERE s.trans_id = $form->{customer_id}|;
   $sth = $dbh->prepare($query);

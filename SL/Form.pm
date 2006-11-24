@@ -1210,7 +1210,7 @@ sub get_shipto {
 
 
     my $query = qq|SELECT s.* FROM shipto s
-                  WHERE s.id = $self->{shipto_id}|;
+                  WHERE s.shipto_id = $self->{shipto_id}|;
     my $sth = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
     $ref = $sth->fetchrow_hashref(NAME_lc);
@@ -1237,7 +1237,6 @@ sub add_shipto {
     }
     $self->{"shipto$item"} =~ s/\'/\'\'/g;
   }
-
   if ($shipto) {
     if ($self->{shipto_id}) {
       my $query = qq| UPDATE shipto set
@@ -1252,7 +1251,7 @@ sub add_shipto {
                       shiptophone = '$self->{shiptophone}',
                       shiptofax = '$self->{shiptofax}',
                       shiptoemail = '$self->{shiptoemail}'
-                      WHERE id = $self->{shipto_id}|;
+                      WHERE shipto_id = $self->{shipto_id}|;
       $dbh->do($query) || $self->dberror($query);
     } else {
       my $query =
