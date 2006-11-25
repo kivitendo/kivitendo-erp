@@ -925,7 +925,7 @@ sub form_header {
   $delivery = qq|
 	      <tr>
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td><select id=delivery_id name=delivery_id onChange="get_delivery(['shipto_id__' + this.value, 'from__' + from.value, 'to__' + to.value], ['delivery'])">$form->{selectshipto}</select></td>
+		<td><select id=delivery_id name=delivery_id onChange="get_delivery(['shipto_id__' + this.value, 'from__' + from.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])">$form->{selectshipto}</select></td>
 	      </tr>|;
 
   foreach $item (split / /, $form->{taxaccounts}) {
@@ -1431,7 +1431,7 @@ sub form_footer {
 ##<input class=submit type=submit name=action value="|.$locale->text("Save and AP Transaction").qq|">
 
   print qq|
-<input name=id type=hidden value=$form->{id}>
+<input name=id type=hidden id=cvid value=$form->{id}>
 <input name=taxaccounts type=hidden value="$form->{taxaccounts}">
 <input name=business_save type=hidden value="$form->{selectbusiness}">
 <input name=title_save type=hidden value="$form->{title}">
@@ -1441,7 +1441,7 @@ sub form_footer {
 <input type=hidden name=password value=$form->{password}>
 
 <input type=hidden name=callback value="$form->{callback}">
-<input type=hidden name=db value=$form->{db}>
+<input type=hidden name=db id=db value=$form->{db}>
 
 
 
@@ -1843,7 +1843,7 @@ sub get_shipto {
 sub get_delivery {
   $lxdebug->enter_sub();
 
-  CT->get_delivery(\%myconfig, \%$form);
+  CT->get_delivery(\%myconfig, \%$form );
 
   @column_index =
     $form->sort_columns(shiptoname,
