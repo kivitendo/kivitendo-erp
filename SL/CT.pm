@@ -861,18 +861,23 @@ sub get_delivery {
 
   my ($self, $myconfig, $form) = @_;
   my $dbh   = $form->dbconnect($myconfig);
+  $tabelle = ($form->{db} eq "vendor") ? "ap" : "ar";
+
   $where = " WHERE 1=1 ";
-  if ($form->{shipto_id}) {
-    $where .= "AND ar.shipto_id=$form->{shipto_id} ";
+  if ($form->{shipto_id} && $tabelle eq "ar") {
+    $where .= "AND $tabelle.shipto_id=$form->{shipto_id} ";
+  } else {
+	$where .="AND $tabelle.$form->{db}_id=$form->{id} ";
   }
   if ($form->{from}) {
-    $where .= "AND ar.transdate >= '$form->{from}' ";
+    $where .= "AND $tabelle.transdate >= '$form->{from}' ";
   }
   if ($form->{to}) {
-    $where .= "AND ar.transdate <= '$form->{to}' ";
+    $where .= "AND $tabelle.transdate <= '$form->{to}' ";
   }
-
-  my $query = qq|select shiptoname, adr_code, ar.transdate, ar.invnumber, ar.ordnumber, invoice.description, qty, invoice.unit FROM ar LEFT join shipto ON (ar.shipto_id=shipto.shipto_id) LEFT join invoice on (ar.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) LEFT join adr ON (parts.adr_id=adr.id) $where ORDER BY ar.transdate DESC LIMIT 15|;
+  my $query = qq|select shiptoname, adr_code, $tabelle.transdate, $tabelle.invnumber, $tabelle.ordnumber, invoice.description, qty, invoice.unit FROM $tabelle LEFT JOIN shipto ON |;
+  $query .= ($tabelle eq "ar") ? qq|($tabelle.shipto_id=shipto.shipto_id) |:qq|($tabelle.id=shipto.trans_id) |;
+  $query .=qq|LEFT join invoice on ($tabelle.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) LEFT join adr ON (parts.adr_id=adr.id) $where ORDER BY $tabelle.transdate DESC LIMIT 15|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
