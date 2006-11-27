@@ -1,5 +1,7 @@
 $self{texts} = {
+  '...done'                     => '...fertig',
   'About'                       => 'über',
+  'Continue'                    => 'Weiter',
   'Database Host'               => 'Datenbankcomputer',
   'Dataset'                     => 'Datenbank',
   'Incorrect username or password!' => 'Ungültiger Benutzername oder falsches Passwort!',
@@ -7,6 +9,7 @@ $self{texts} = {
   'Login'                       => 'Anmeldung',
   'Login Name'                  => 'Benutzername',
   'Password'                    => 'Passwort',
+  'Upgrading Dataset %s...'     => 'Aktualisiere Datenbank %s...',
   'User'                        => 'Benutzer',
   'Version'                     => 'Version',
   'You are logged out!'         => 'Auf Wiedersehen!',

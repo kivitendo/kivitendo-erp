@@ -1,4 +1,5 @@
 $self{texts} = {
+  '...done'                     => '...fertig',
   '1. Quarter'                  => '1. Quartal',
   '2. Quarter'                  => '2. Quartal',
   '3. Quarter'                  => '3. Quartal',
@@ -93,6 +94,7 @@ $self{texts} = {
   'USTVA-Hint: Tax Authoritys'  => 'Bitte das Bundesland UND die Stadt bzw. den Einzugsbereich Ihres zuständigen Finanzamts auswählen.',
   'UStVA'                       => 'UStVA',
   'UStVA als PDF-Dokument'      => 'UStVa als PDF-Dokument',
+  'Upgrading Dataset %s...'     => 'Aktualisiere Datenbank %s...',
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
   'Verfahren'                   => 'Verfahren',
   'Verrechnung des Erstattungsbetrages erwünscht (Zeile 71)' => 'Verrechnung des Erstattungsbetrages erwünscht (Zeile 71)',

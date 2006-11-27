@@ -174,7 +174,7 @@ $!";
       $form->{dbupdate} = "db$myconfig{dbname}";
       $form->{ $form->{dbupdate} } = 1;
 
-      $form->info("Upgrading Dataset $myconfig{dbname} ...");
+      $form->info(sprintf($main::locale->text("Upgrading Dataset %s..."), $myconfig{dbname}));
 
       # required for Oracle
       $form->{dbdefault} = $sid;
@@ -188,7 +188,7 @@ $!";
       # remove lock file
       unlink "$userspath/nologin";
 
-      $form->info("... done");
+      $form->info($main::locale->text("...done"));
 
       $rc = -2;
 

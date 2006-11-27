@@ -143,7 +143,8 @@ sub login {
 
       # upgraded dataset, login again
       $form->redirect(
-        "<a href=menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display>Continue</a>"
+        "<a href=menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display>" .
+        $locale->text("Continue") . "</a>"
       );
       exit;
     }

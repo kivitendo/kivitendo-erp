@@ -4,7 +4,6 @@ $self{texts} = {
   'AP Aging'                    => 'Offene Verbindlichkeiten',
   'AR'                          => 'Verkauf',
   'AR Aging'                    => 'Offene Forderungen',
-  'Accounting Menu'             => 'Kontoverwaltung',
   'Add ADR'                     => 'ADR hinzufügen',
   'Add AP Transaction'          => 'Kreditorenbuchung',
   'Add AR Transaction'          => 'Debitorenbuchung',
@@ -126,6 +125,7 @@ $self{texts} = {
 
 $self{subs} = {
   'acc_menu'                    => 'acc_menu',
+  'clock_line'                  => 'clock_line',
   'display'                     => 'display',
   'section_menu'                => 'section_menu',
 };

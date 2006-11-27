@@ -1,4 +1,5 @@
 $self{texts} = {
+  '...done'                     => '...fertig',
   '1000,00 or 1000.00'          => '1000,00 oder 1000.00',
   'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
   'ADR'                         => 'ADR',
@@ -246,6 +247,7 @@ $self{texts} = {
   'UStVA-Nr. 97 rechts'         => 'Kz. 97 rechts',
   'UStVA-Nr. 98'                => 'Kz. 98',
   'Umsatzsteuervoranmeldung'    => 'Umsatzsteuervoranmeldung',
+  'Upgrading Dataset %s...'     => 'Aktualisiere Datenbank %s...',
   'Warehouse deleted!'          => 'Das Lager wurde gelöscht.',
   'Warehouse saved!'            => 'Das Lager wurde gespeichert.',
   'Warehouses'                  => 'Lager',
