@@ -14,6 +14,7 @@ $| = 1;
 
 $basedir  = "../..";
 $bindir   = "$basedir/bin/mozilla";
+$dbupdir  = "$basedir/sql/Pg-upgrade";
 $menufile = "menu.ini";
 $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 
@@ -40,6 +41,10 @@ if ($arg{n}) {
   unshift @menufiles, $menufile;
 }
 
+opendir DIR, $dbupdir or die "$!";
+@dbplfiles = grep { /\.pl$/ } readdir DIR;
+closedir DIR;
+
 # slurp the translations in
 if (-f 'all') {
   require "all";
@@ -52,20 +57,23 @@ if (-f 'all') {
 #  scanhtmlfile($file);
 #}
 
-foreach $file (@progfiles) {
+map({ handle_file($_, $bindir); } @progfiles);
+map({ handle_file($_, $dbupdir); } @dbplfiles);
 
+sub handle_file {
+  my ($file, $dir) = @_;
   print "\n$file" if $arg{v};
   %locale = ();
   %submit = ();
   %subrt  = ();
 
-  &scanfile("$bindir/$file");
+  &scanfile("$dir/$file");
 
   # scan custom_{module}.pl or {login}_{module}.pl files
   foreach $customfile (@customfiles) {
     if ($customfile =~ /_$file/) {
-      if (-f "$bindir/$customfile") {
-        &scanfile("$bindir/$customfile");
+      if (-f "$dir/$customfile") {
+        &scanfile("$dir/$customfile");
       }
     }
   }
@@ -97,7 +105,8 @@ foreach $file (@progfiles) {
     }
   }
 
-  open FH, ">$file" or die "$! : $file";
+  my $localefile = $dir eq $bindir ? $file : "dbupgrade";
+  open FH, ">$localefile" or die "$! : $localefile";
 
   print FH q|$self{texts} = {
 |;
