@@ -140,12 +140,6 @@ sub login {
     $err[1] = $err[3] = $locale->text('Incorrect username or password!');
 
     if ($errno == 2) {
-
-      # upgraded dataset, login again
-      $form->redirect(
-        "<a href=menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display>" .
-        $locale->text("Continue") . "</a>"
-      );
       exit;
     }
 

@@ -174,7 +174,11 @@ $!";
       $form->{dbupdate} = "db$myconfig{dbname}";
       $form->{ $form->{dbupdate} } = 1;
 
-      $form->info(sprintf($main::locale->text("Upgrading Dataset %s..."), $myconfig{dbname}));
+      $form->{"stylesheet"} = "lx-office-erp.css";
+      $form->{"title"} = $main::locale->text("Dataset upgrade");
+      $form->header();
+      print($form->parse_html_template("dbupgrade/header",
+                                       { "dbname" => $myconfig{dbname} }));
 
       # required for Oracle
       $form->{dbdefault} = $sid;
@@ -188,7 +192,7 @@ $!";
       # remove lock file
       unlink "$userspath/nologin";
 
-      $form->info($main::locale->text("...done"));
+      print($form->parse_html_template("dbupgrade/footer"));
 
       $rc = -2;
 
@@ -409,8 +413,10 @@ sub process_perl_script {
   }
 
   if (!defined($result)) {
-    $form->dberror("The database update/creation did not succeed. The file ${filename} containing the following syntax error:<br>${@}<br>" .
-                   "All changes in that file have been reverted.");
+    print($form->parse_html_template("dbupgrade/error",
+                                     { "file" => $filename,
+                                       "error" => $@ }));
+    exit(0);
   } elsif (1 != $result) {
     unlink("users/nologin") if (2 == $result);
     exit(0);
