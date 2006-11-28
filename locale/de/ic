@@ -2,7 +2,6 @@ $self{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   '*/'                          => '*/',
-  'ADR'                         => 'ADR',
   'AGB'                         => 'AGB',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Active'                      => 'Aktiv',
