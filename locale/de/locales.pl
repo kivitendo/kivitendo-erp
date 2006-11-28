@@ -477,7 +477,8 @@ sub scanhtmlfile {
           if ($line =~ m|</translate>|i) {
             $text .= $`;
             substr($line, 0, $+[0]) = "";
-            
+            $text =~ s/\s+/ /g;
+
             $copying = 0; 
             if ($issubmit) {
   #            $submit{$text} = 1;
@@ -547,6 +548,7 @@ sub converthtmlfile {
         if ($line =~ m|</translate>|i) {
           $text .= $`;
           substr($line, 0, $+[0]) = "";
+          $text =~ s/\s+/ /g;
           $copying = 0;
           $alllocales{$text} = 1;
           $htmllocale{$text} = 1;
