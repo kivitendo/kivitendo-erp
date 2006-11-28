@@ -1369,10 +1369,6 @@ sub print_options {
       . $locale->text('Pick List') . qq|
 	    <option value=packing_list $form->{PD}{packing_list}>|
       . $locale->text('Packing List') . qq|
-	    <option value=agb $form->{PD}{agb}>|
-      . $locale->text('AGB') . qq|
-	    <option value=bunker_receipt $form->{PD}{bunker_receipt}>|
-      . $locale->text('Bunker Receipt');
   }
 
   if ($form->{type} =~ /_quotation$/) {
@@ -1608,7 +1604,7 @@ sub print_form {
     # this is from an invoice
     $form->{label} = $locale->text('Packing List');
   }
-  if (($form->{formname} eq 'sales_order') || ($form->{formname} eq 'agb') || ($form->{formname} eq 'bunker_receipt')) {
+  if ($form->{formname} eq 'sales_order') {
     $inv                  = "ord";
     $due                  = "req";
     $form->{"${inv}date"} = $form->{transdate};

@@ -1,7 +1,6 @@
 $self{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   '*/'                          => '*/',
-  'AGB'                         => 'AGB',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Active?'                     => 'Aktiviert?',
   'Add Purchase Order'          => 'Lieferantenauftrag erfassen',
@@ -20,7 +19,6 @@ $self{texts} = {
   'Billing Address'             => 'Rechnungsadresse',
   'Bin'                         => 'Lagerplatz',
   'Bin List'                    => 'Lagerliste',
-  'Bunker Receipt'              => 'Bunker Receipt',
   'Cc'                          => 'Cc',
   'City'                        => 'Stadt',
   'Company Name'                => 'Firmenname',

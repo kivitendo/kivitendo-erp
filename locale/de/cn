@@ -1,7 +1,6 @@
 $self{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   '*/'                          => '*/',
-  'AGB'                         => 'AGB',
   'Account'                     => 'Konto',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Add Credit Note'             => 'Gutschrift erfassen',
@@ -21,7 +20,6 @@ $self{texts} = {
   'Billing Address'             => 'Rechnungsadresse',
   'Bin'                         => 'Lagerplatz',
   'Bin List'                    => 'Lagerliste',
-  'Bunker Receipt'              => 'Bunker Receipt',
   'Business'                    => 'Firma',
   'Cannot delete invoice!'      => 'Rechnung kann nicht gelöscht werden!',
   'Cannot post invoice for a closed period!' => 'Das Rechnungsdatum fällt in einen abgeschlossen Zeitraum!',
