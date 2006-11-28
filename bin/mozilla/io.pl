@@ -424,7 +424,6 @@ sub display_row {
 <input type=hidden name="cusordnumber_$i" value="$form->{"cusordnumber_$i"}">
 <input type=hidden name="longdescription_$i" value="$form->{"longdescription_$i"}">
 <input type=hidden name="basefactor_$i" value="$form->{"basefactor_$i"}">
-<input type=hidden name="adr_description_$i" value="$form->{"adr_description_$i"}">
 
 |;
 
@@ -640,7 +639,6 @@ sub select_item {
 <input name="new_longdescription_$i" type=hidden value="$ref->{longdescription}">
 <input name="new_not_discountable_$i" type=hidden value="$ref->{not_discountable}">
 <input name="new_part_payment_id_$i" type=hidden value="$ref->{part_payment_id}">
-<input name="new_adr_description_$i" type=hidden value="$ref->{adr_description}">
 
 <input name="new_id_$i" type=hidden value=$ref->{id}>
 
@@ -703,7 +701,7 @@ sub item_selected {
   $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
   map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} }
-    qw(id partnumber description sellprice listprice inventory_accno income_accno expense_accno bin unit weight assembly taxaccounts partsgroup formel alu longdescription not_discountable adr_description);
+    qw(id partnumber description sellprice listprice inventory_accno income_accno expense_accno bin unit weight assembly taxaccounts partsgroup formel alu longdescription not_discountable);
   if ($form->{"part_payment_id_$i"} ne "") {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }
@@ -940,7 +938,7 @@ sub check_form {
   my @a     = ();
   my $count = 0;
   my @flds  = (
-    qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id adr_id language_values)
+    qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id language_values)
   );
 
 

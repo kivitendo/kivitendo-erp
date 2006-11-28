@@ -1902,13 +1902,12 @@ sub retrieve_item {
 			c2.accno AS income_accno, c2.new_chart_id AS income_new_chart, date($transdate)  - c2.valid_from as income_valid,
 			c3.accno AS expense_accno, c3.new_chart_id AS expense_new_chart, date($transdate) - c3.valid_from as expense_valid,
 		 p.unit, p.assembly, p.bin, p.onhand, p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
-		 pg.partsgroup, p.formel, p.alu, p.payment_id AS part_payment_id, adr.adr_description
+		 pg.partsgroup, p.formel, p.alu, p.payment_id AS part_payment_id
                  FROM parts p
 		 LEFT JOIN chart c1 ON ((select inventory_accno_id from buchungsgruppen where id=p.buchungsgruppen_id) = c1.id)
 		 LEFT JOIN chart c2 ON ((select income_accno_id_$form->{taxzone_id} from buchungsgruppen where id=p.buchungsgruppen_id) = c2.id)
 		 LEFT JOIN chart c3 ON ((select expense_accno_id_$form->{taxzone_id} from buchungsgruppen where id=p.buchungsgruppen_id) = c3.id)
 		 LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
-                 LEFT JOIN adr adr ON (adr.id = p.adr_id)
 	         WHERE $where|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);

@@ -372,7 +372,6 @@ sub save {
   $form->{ge}       *= 1;
   $form->{alu}       *= 1;
   $form->{buchungsgruppen_id}       *= 1;
-  $form->{adr_id}       *= 1;
   $form->{not_discountable}       *= 1;
   $form->{payment_id}       *= 1;
 
@@ -491,7 +490,6 @@ sub save {
 	      rop = $form->{rop},
 	      bin = '$form->{bin}',
 	      buchungsgruppen_id = '$form->{buchungsgruppen_id}',
-	      adr_id = '$form->{adr_id}',
 	      payment_id = '$form->{payment_id}',
 	      inventory_accno_id = (SELECT c.id FROM chart c
 				    WHERE c.accno = '$form->{inventory_accno}'),
@@ -1508,19 +1506,6 @@ sub create_links {
   $form->{BUCHUNGSGRUPPEN} = [];
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{BUCHUNGSGRUPPEN} }, $ref;
-  }
-  $sth->finish;
-
-  # get adr
-  $query = qq|SELECT id, adr_description, adr_code
-              FROM adr|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-
-  $form->{ADR} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{ADR} }, $ref;
   }
   $sth->finish;
 

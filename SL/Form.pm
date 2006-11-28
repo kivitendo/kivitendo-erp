@@ -1563,18 +1563,6 @@ sub language_payment {
   }
   $sth->finish;
 
-  # get adr
-  $query = qq|SELECT id, adr_description, adr_code
-              FROM adr|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-
-  $self->{ADR} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{ADR} }, $ref;
-  }
-  $sth->finish;
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }

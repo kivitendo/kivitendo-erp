@@ -2256,27 +2256,6 @@ sub form_header {
 	      </tr>|;
 
 
-  $form->{selectadr} = "<option></option>";
-  if (@{ $form->{ADR} }) {
-    foreach $item (@{ $form->{ADR} }) {
-      if ($item->{id} == $form->{adr_id}) {
-        $form->{selectadr} .=
-          "<option value=$item->{id} selected>$item->{adr_code}\n";
-      } else {
-        $form->{selectadr} .=
-          "<option value=$item->{id}>$item->{adr_code}\n";
-      }
-
-    }
-  }
-
-  $adr = qq|
-	      <tr>
-		<th align=right>| . $locale->text('ADR') . qq|</th>
-		<td><select name=adr_id>$form->{selectadr}</select></td>
-	      </tr>|;
-
-
   # set option
   foreach $item (qw(IC IC_income IC_expense)) {
     if ($form->{$item}) {
@@ -2628,7 +2607,6 @@ sub form_header {
                 <table>
                   $buchungsgruppe
                   $linkaccounts
-                  $adr
                 </table>
               </td>
               <tr>
