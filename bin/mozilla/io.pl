@@ -1368,14 +1368,13 @@ sub print_options {
 	    <option value=pick_list $form->{PD}{pick_list}>|
       . $locale->text('Pick List') . qq|
 	    <option value=packing_list $form->{PD}{packing_list}>|
-      . $locale->text('Packing List') . qq|
+      . $locale->text('Packing List');
   }
 
   if ($form->{type} =~ /_quotation$/) {
     $type = qq|<select name=formname>
 	    <option value="$`_quotation" $form->{PD}{"$`_quotation"}>|
-      . $locale->text('Quotation')
-;
+      . $locale->text('Quotation');
   }
 
   if ($form->{type} eq 'invoice') {
