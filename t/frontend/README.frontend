@@ -1,0 +1,10 @@
+This folder contais the frontend testscrips for Lx.
+The Lx frontend are all perl scripts under bin/* .
+The frontend tests don't need selenium! They should 
+use the commandline API of Lx. Frontend tests in this 
+directory are only for testing local Lx installations.
+
+If you like to test the HTML screens in different 
+Browsers, it would be better to use the selenium 
+environment under t/selenium.
+

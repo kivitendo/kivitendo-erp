@@ -1,0 +1,4 @@
+This folder contais the backend testscrips for Lx.
+The Lx backend is the module libery under SL.
+Backend tests don't need selenium, and are only able
+to test local installations.

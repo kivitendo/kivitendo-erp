@@ -1,0 +1,7 @@
+This directory contains all selenium testscripts for lx-office.
+Selenium testscrips are the prefered way to test the higher lx 
+functionalities. For the selenium tests you need to install and
+run a local selenium server on a machine whitch is able to start 
+a browser session. See README for more informations.
+
+
