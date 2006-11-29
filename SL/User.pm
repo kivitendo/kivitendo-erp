@@ -114,8 +114,12 @@ sub login {
   if ($self->{login}) {
 
     if ($self->{password}) {
-      $form->{password} = crypt $form->{password},
-        substr($self->{login}, 0, 2);
+      if ($form->{hashed_password}) {
+        $form->{password} = $form->{hashed_password};
+      } else {
+        $form->{password} = crypt($form->{password},
+                                  substr($self->{login}, 0, 2));
+      }
       if ($self->{password} ne $form->{password}) {
         $main::lxdebug->leave_sub();
         return -1;
@@ -169,7 +173,7 @@ sub login {
 $!";
 
       map { $form->{$_} = $myconfig{$_} }
-        qw(dbname dbhost dbport dbdriver dbuser dbpasswd);
+        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect);
 
       $form->{dbupdate} = "db$myconfig{dbname}";
       $form->{ $form->{dbupdate} } = 1;

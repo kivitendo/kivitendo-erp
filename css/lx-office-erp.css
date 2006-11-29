@@ -151,6 +151,12 @@ body.menu {
 }
 	
 	
+.subsubheading {
+  color: black;
+  font-weight: bolder;
+  text-decoration: underline;
+}
+
 .optionen {
 	border:dashed;
 /*	padding-top:10px;

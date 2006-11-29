@@ -1,0 +1,39 @@
+<div class="listtop">Schritt 3 von 3: Standardeinheiten</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="unit_type" value="dimension">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ <p>
+  Es gibt noch Eintr&auml;ge in der Datenbank, f&uuml;r die keine Einheit zugeordnet ist.
+  Sie m&uuml;ssen eine Ma&szlig;- und eine Dienstleistungseinheit ausw&auml;hlen, die diesen Waren und Dienstleistungen, denen noch keine Einheit zugeordnet ist, zugeordnet wird.
+ </p>
+
+ <table>
+  <tr>
+   <td>Ma&szlig;einheit:</td>
+   <td>
+    <select name="default_dimension_unit">
+     <TMPL_LOOP DIMENSION_DDBOX><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+    </select>
+   </td>
+  </tr>
+  <tr>
+
+   <td>Dienstleistungseinheit:</td>
+   <td>
+    <select name="default_service_unit">
+     <TMPL_LOOP SERVICE_DDBOX><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+    </select>
+   </td>
+  </tr>
+ </table>
+
+ <p><input type="submit" onclick="document.Form.action2.value = 'set_default'; document.Form.submit();" name="dummy" value="Einheiten zuweisen"></p>
+
+</form>

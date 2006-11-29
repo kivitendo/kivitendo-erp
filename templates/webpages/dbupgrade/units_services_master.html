@@ -1,0 +1,89 @@
+<div class="listtop"><translate>Step 2 of 3: Services</translate></div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="unit_type" value="service">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ <TMPL_IF saved_message>
+  <p><TMPL_VAR saved_message></p>
+ </TMPL_IF>
+
+ <div class="subsubheading"><translate>Add unit</translate></div>
+
+ <p>
+  <translate>For each unit there's either no or exactly one base
+   unit. If you chose a base unit then you also have to chose a
+   factor. That way the new unit will be defined as a multiple of the
+   base unit. The base unit must be the &quot;smaller&quot; one. A
+   factor may not be less than 1. Therefore you may define
+   &quot;kg&quot; with the base unit &quot;g&quot; and a factor of
+   &quot;1&quot;, but not the other way round.</translate>
+ </p>
+
+ <p>
+  <translate>The following units exist already:</translate>
+  <TMPL_LOOP NEW_BASE_UNIT_DDBOX><TMPL_IF name><TMPL_VAR name ESCAPE=HTML><TMPL_UNLESS __last__>; </TMPL_UNLESS></TMPL_IF></TMPL_LOOP>
+ </p>
+
+ <hr>
+
+ <table>
+  <tr>
+   <th align="right"><translate>Unit</translate></th>
+   <td><input name="new_name" size="20" maxlength="20"></td>
+  </tr>
+  <tr>
+   <th align="right"><translate>Base unit</translate></th>
+   <td>
+    <select name="new_base_unit">
+     <TMPL_LOOP NEW_BASE_UNIT_DDBOX><option <TMPL_VAR selected>><TMPL_VAR name></option></TMPL_LOOP>
+    </select>
+   </td>
+  </tr>
+  <tr>
+   <th align="right"><translate>Factor</translate></th>
+   <td><input name="new_factor"></td>
+  </tr>
+ </table>
+
+ <input type="submit" onclick="document.Form.action2.value = 'add_unit'; document.Form.submit();" name="dummy" value="<translate>Add unit</translate>">
+
+ <hr>
+
+ <div class="subsubheading"><translate>Assign new units</translate></div>
+
+ <p>
+  <translate>The following units are unknown.</translate>
+  <translate>You have to chose which unit to save for each of them.</translate>
+ </p>
+
+ <table>
+  <tr>
+   <th class="listheading"><translate>Current unit</translate></th>
+   <th class="listheading"><translate>New unit</translate></th>
+  </tr>
+
+  <TMPL_LOOP UNKNOWN_PART_UNITS>
+   <tr class="listrow<TMPL_VAR __counter__>">
+    <td>
+     <TMPL_VAR name ESCAPE=HTML>
+     <input type="hidden" name="old_unit_<TMPL_VAR __counter__>" value="<TMPL_VAR name ESCAPE=HTML>">
+    </td>
+    <td>
+     <select name="new_unit_<TMPL_VAR __counter__>">
+      <TMPL_LOOP NEW_UNITS><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+    <TMPL_IF __last__><input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>"></TMPL_IF>
+  </TMPL_LOOP>
+ </table>
+
+ <input type="submit" onclick="document.Form.action2.value = 'assign_units'; document.Form.submit();" name="dummy" value="<translate>Assign units</translate>">
+
+</form>
+

@@ -1,0 +1,83 @@
+<div class="listtop">Schritt 1 von 3: Waren</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="unit_type" value="dimension">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ <TMPL_IF saved_message>
+  <p><TMPL_VAR saved_message></p>
+ </TMPL_IF>
+
+ <div class="subsubheading">Einheit hinzuf&uuml;gen</div>
+
+ <p>
+  Einheiten haben entweder keine oder genau eine Basiseinheit, von der sie ein Vielfaches sind. Wenn Sie eine Basiseinheit ausw&auml;hlen, dann m&uuml;ssen Sie auch einen Faktor eingeben. Sie m&uuml;ssen Einheiten als ein Vielfaches einer kleineren Einheit eingeben. So ist die Definition von &quot;kg&quot; mit der Basiseinheit &quot;g&quot; und dem Faktor 1000 zul&auml;ssig, die Definition von &quot;g&quot; mit der Basiseinheit &quot;kg&quot; und dem Faktor &quot;0,001&quot; hingegen nicht.
+ </p>
+
+ <p>
+  Die folgenden Einheiten existieren bereits:
+  <TMPL_LOOP NEW_BASE_UNIT_DDBOX><TMPL_IF name><TMPL_VAR name ESCAPE=HTML><TMPL_UNLESS __last__>; </TMPL_UNLESS></TMPL_IF></TMPL_LOOP>
+ </p>
+
+ <hr>
+
+ <table>
+  <tr>
+   <th align="right">Einheit</th>
+   <td><input name="new_name" size="20" maxlength="20"></td>
+  </tr>
+  <tr>
+   <th align="right">Basiseinheit</th>
+   <td>
+    <select name="new_base_unit">
+     <TMPL_LOOP NEW_BASE_UNIT_DDBOX><option <TMPL_VAR selected>><TMPL_VAR name></option></TMPL_LOOP>
+    </select>
+   </td>
+  </tr>
+  <tr>
+   <th align="right">Faktor</th>
+   <td><input name="new_factor"></td>
+  </tr>
+ </table>
+
+ <input type="submit" onclick="document.Form.action2.value = 'add_unit'; document.Form.submit();" name="dummy" value="Einheit hinzuf&uuml;gen">
+
+ <hr>
+
+ <div class="subsubheading">Neue Einheiten zuweisen</div>
+
+ <p>
+  Die folgenden Einheiten sind unbekannt.
+  Sie m&uuml;ssen f&uuml;r jeden Artikel die neue Einheit ausw&auml;hlen.
+ </p>
+
+ <table>
+  <tr>
+   <th class="listheading">Aktuelle Einheit</th>
+   <th class="listheading">Neue Einheit</th>
+  </tr>
+
+  <TMPL_LOOP UNKNOWN_PART_UNITS>
+   <tr class="listrow<TMPL_VAR __counter__>">
+    <td>
+     <TMPL_VAR name ESCAPE=HTML>
+     <input type="hidden" name="old_unit_<TMPL_VAR __counter__>" value="<TMPL_VAR name ESCAPE=HTML>">
+    </td>
+    <td>
+     <select name="new_unit_<TMPL_VAR __counter__>">
+      <TMPL_LOOP NEW_UNITS><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+    <TMPL_IF __last__><input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>"></TMPL_IF>
+  </TMPL_LOOP>
+ </table>
+
+ <input type="submit" onclick="document.Form.action2.value = 'assign_units'; document.Form.submit();" name="dummy" value="Einheiten zuweisen">
+
+</form>
+
