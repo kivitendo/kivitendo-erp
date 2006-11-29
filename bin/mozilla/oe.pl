@@ -111,6 +111,8 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
+  $form->{simple_save} = 0;
+
   set_headings("edit");
 
   # editing without stuff to edit? try adding it first
