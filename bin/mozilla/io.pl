@@ -635,7 +635,6 @@ sub select_item {
 <input name="new_taxaccounts_$i" type=hidden value="$ref->{taxaccounts}">
 <input name="new_partsgroup_$i" type=hidden value="$ref->{partsgroup}">
 <input name="new_formel_$i" type=hidden value="$ref->{formel}">
-<input name="new_alu_$i" type=hidden value="$ref->{alu}">
 <input name="new_longdescription_$i" type=hidden value="$ref->{longdescription}">
 <input name="new_not_discountable_$i" type=hidden value="$ref->{not_discountable}">
 <input name="new_part_payment_id_$i" type=hidden value="$ref->{part_payment_id}">
@@ -701,7 +700,7 @@ sub item_selected {
   $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
   map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} }
-    qw(id partnumber description sellprice listprice inventory_accno income_accno expense_accno bin unit weight assembly taxaccounts partsgroup formel alu longdescription not_discountable);
+    qw(id partnumber description sellprice listprice inventory_accno income_accno expense_accno bin unit weight assembly taxaccounts partsgroup formel longdescription not_discountable);
   if ($form->{"part_payment_id_$i"} ne "") {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }

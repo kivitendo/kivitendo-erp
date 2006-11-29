@@ -2,7 +2,6 @@ $self{texts} = {
   'Address'                     => 'Adresse',
   'Customer Number'             => 'Kundennummer',
   'Enter longdescription'       => 'Langtext eingeben',
-  'Enter values for aluminium calculation' => 'Werte f&uuml;r Preisberechnung eingeben',
   'Name'                        => 'Name',
   'No Customer was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Endkunde gefunden',
   'No Vendor was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Händler gefunden',
@@ -24,7 +23,6 @@ $self{texts} = {
 };
 
 $self{subs} = {
-  'calculate_alu'               => 'calculate_alu',
   'calculate_qty'               => 'calculate_qty',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'employee_selection_internal' => 'employee_selection_internal',

@@ -400,55 +400,6 @@ sub calculate_qty {
   $lxdebug->leave_sub();
 }
 
-sub calculate_alu {
-  $lxdebug->enter_sub();
-
-  my ($length, $weight) = split /\r\n/,$form->{formel};
-
-  map({ $form->{$_} = "" } (qw(qty_alu price_alu total_alu qty_eloxal price_eloxal total_eloxal total)));
-
-  if ($form->{description} =~ /.*Alupreisberechnung.*/) {
-    $form->{description} =~ /.*Alupreisberechnung:\n(.*)kg Aluminiumprofil Einzelpreis: (.*) Gesamt: (.*)\n(.*)m Eloxal Einzelpreis: (.*) Gesamt: (.*)/;
-    $form->{qty_alu} = $1;
-    $form->{price_alu} = $2;
-    $form->{total_alu} = $3;
-    $form->{qty_eloxal} = $4;
-    $form->{price_eloxal} = $5;
-    $form->{total_eloxal} = $6;
-    $form->{total} = $form->format_amount(\%myconfig, ($form->parse_amount(\%myconfig, $form->{total_alu}) + $form->parse_amount(\%myconfig, $form->{total_eloxal})));
-  }
-  ($form->{description}, $null) = split /\nAlupreisberechnung/, $form->{description};
-
-  my $callback = "$form->{script}?action=vendor_selection&";
-  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
-
-  my @header_sort = qw(name customernumber address);
-  my %header_title = ( "name" => $locale->text("Name"),
-                       "customernumber" => $locale->text("Customer Number"),
-                       "address" => $locale->text("Address"),
-                     );
-  ($null, $form->{weight}) = split / /, $weight;
-  ($null, $form->{length}) = split / /, $length;
-
-  $form->{calc_weight} = $form->parse_amount(\%myconfig, $form->{weight});
-  $form->{calc_length} = $form->parse_amount(\%myconfig, $form->{length});
-
-
-  my @header =
-    map(+{ "column_title" => $header_title{$_},
-           "column" => $_,
-         },
-        @header_sort);
-
-  $form->{"title"} = $locale->text("Enter values for aluminium calculation");
-  $form->header();
-  print($form->parse_html_template("generic/calculate_alu"));
-
-  $lxdebug->leave_sub();
-}
-
-
 sub set_longdescription {
   $lxdebug->enter_sub();
 

@@ -2453,15 +2453,6 @@ sub form_header {
 		<td><input name=gv size=10 value=$form->{gv}></td>
 	      </tr>
 |;
-    $aluok = $form->{alu} == 1 ? "checked" : "";
-
-    $alu .= qq|
-              <tr>
-                <th align=right nowrap>|
-    . $locale->text('Aluartikel') . qq|</th>
-                <td><input class=checkbox type=checkbox name=alu value=1 $aluok></td>
-             </tr>|;
-
     $notdiscountableok = ($form->{not_discountable}) == 1 ? "checked" : "";
     $notdiscountable .= qq|
               <tr>
@@ -2472,7 +2463,7 @@ sub form_header {
 |;
 
   $formel =
-    qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br><br>For alu article:<br>Length:<br>Weight/m:<br>Length ist total length of article and weight/m ist the weight pro meter') . qq|')"><textarea name=formel rows=4 cols=40 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
+    qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=40 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
     $imagelinks = qq|
   <tr>
     <td>
@@ -2664,7 +2655,6 @@ sub form_header {
               $notdiscountable
               $vegv
               $shop
-              $alu
 	      $obsolete
 	    </table>
 	  </td>

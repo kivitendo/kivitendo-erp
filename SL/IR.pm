@@ -1170,7 +1170,7 @@ sub retrieve_item {
 			c2.accno AS income_accno, c2.new_chart_id AS income_new_chart, date($transdate)  - c2.valid_from as income_valid,
 			c3.accno AS expense_accno, c3.new_chart_id AS expense_new_chart, date($transdate) - c3.valid_from as expense_valid,
 		 p.unit, p.assembly, p.bin, p.onhand, p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
-		 pg.partsgroup, p.formel, p.alu
+		 pg.partsgroup, p.formel
                  FROM parts p
 		 LEFT JOIN chart c1 ON ((select inventory_accno_id from buchungsgruppen where id=p.buchungsgruppen_id) = c1.id)
 		 LEFT JOIN chart c2 ON ((select income_accno_id_$form->{taxzone_id} from buchungsgruppen where id=p.buchungsgruppen_id) = c2.id)

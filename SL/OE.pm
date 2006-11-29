@@ -806,7 +806,7 @@ sub retrieve {
 		o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id,
                 o.reqdate, o.project_id, o.serialnumber, o.ship,
 		o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,
-		pr.projectnumber, p.alu, p.formel,
+		pr.projectnumber, p.formel,
 		pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
 		FROM orderitems o
 		JOIN parts p ON (o.parts_id = p.id)

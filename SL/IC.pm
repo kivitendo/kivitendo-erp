@@ -370,7 +370,6 @@ sub save {
   $form->{onhand}   *= 1;
   $form->{ve}       *= 1;
   $form->{ge}       *= 1;
-  $form->{alu}       *= 1;
   $form->{buchungsgruppen_id}       *= 1;
   $form->{not_discountable}       *= 1;
   $form->{payment_id}       *= 1;
@@ -503,7 +502,6 @@ sub save {
 	      shop = '$form->{shop}',
               ve = '$form->{ve}',
               gv = '$form->{gv}',
-              alu = '$form->{alu}',
               not_discountable = '$form->{not_discountable}',
 	      microfiche = '$form->{microfiche}',
 	      partsgroup_id = $partsgroup_id
