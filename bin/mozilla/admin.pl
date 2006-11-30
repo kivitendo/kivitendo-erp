@@ -1326,11 +1326,12 @@ sub update_dataset {
 <center>
 <h2>$form->{title}</h2>
 |;
-
+  my $field_id = 0;
   foreach $key (sort keys %needsupdate) {
     if ($needsupdate{$key} ne $form->{dbversion}) {
-      $upd .= qq|<input name="db$key" type=checkbox value=1 checked> $key\n|;
+      $upd .= qq|<input id="$field_id" name="db$key" type="checkbox" value="1" checked> $key\n|;
       $form->{dbupdate} .= "db$key ";
+      $field_id++;
     }
   }
 
