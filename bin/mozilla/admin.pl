@@ -302,7 +302,7 @@ sub list_users {
     $member{$key}{dbname} = $member{$key}{dbuser}
       if ($member{$key}{dbdriver} eq 'Oracle');
 
-    $column_data{login}     = qq|<td><a href=$href>$key</a></td>|;
+    $column_data{login}     = qq|<td><a id="$key" href="$href">$key</a></td>|;
     $column_data{name}      = qq|<td>$member{$key}{name}</td>|;
     $column_data{company}   = qq|<td>$member{$key}{company}</td>|;
     $column_data{dbdriver}  = qq|<td>$member{$key}{dbdriver}</td>|;
@@ -313,7 +313,7 @@ sub list_users {
     $i++;
     $i %= 2;
     print qq|
-        <tr class=listrow$i>|;
+        <tr class="listrow$i">|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
