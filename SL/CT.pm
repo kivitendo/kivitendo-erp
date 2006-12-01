@@ -875,46 +875,15 @@ sub get_delivery {
   if ($form->{to}) {
     $where .= "AND $tabelle.transdate <= '$form->{to}' ";
   }
-  if ($kdspez1) { $adr_code="adr_code, "; }
-  my $query = qq|select shiptoname, $adr_code $tabelle.transdate, $tabelle.invnumber, $tabelle.ordnumber, invoice.description, qty, invoice.unit FROM $tabelle LEFT JOIN shipto ON |;
+  my $query = qq|select shiptoname, $tabelle.transdate, $tabelle.invnumber, $tabelle.ordnumber, invoice.description, qty, invoice.unit FROM $tabelle LEFT JOIN shipto ON |;
   $query .= ($tabelle eq "ar") ? qq|($tabelle.shipto_id=shipto.shipto_id) |:qq|($tabelle.id=shipto.trans_id) |;
-  $query .=qq|LEFT join invoice on ($tabelle.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) LEFT join adr ON (parts.adr_id=adr.id) $where ORDER BY $tabelle.transdate DESC LIMIT 15|;
+  $query .=qq|LEFT join invoice on ($tabelle.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) $where ORDER BY $tabelle.transdate DESC LIMIT 15|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{DELIVERY} }, $ref;
-  }
-  $sth->finish;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub adr {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-  my $dbh   = $form->dbconnect($myconfig);
-  $where = " WHERE 1=1 ";
-  if ($form->{from}) {
-    $where .= "AND ar.transdate >= '$form->{from}' ";
-  }
-  if ($form->{to}) {
-    $where .= "AND ar.transdate <= '$form->{to}' ";
-  }
-  if ($form->{year}) {
-    $where = " WHERE ar.transdate >= '$form->{year}-01-01' AND ar.transdate <= '$form->{year}-12-31' ";
-  }
-
-  my $query = qq|select adr_code, adr_description, sum(base_qty), parts.unit from ar LEFT join invoice on (ar.id=invoice.trans_id) LEFT join parts ON (invoice.parts_id=parts.id) LEFT join adr ON (adr.id=parts.adr_id) $where GROUP BY adr_code,adr_description,parts.unit|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{ADR} }, $ref;
   }
   $sth->finish;
   $dbh->disconnect;
