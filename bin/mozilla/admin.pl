@@ -863,7 +863,7 @@ sub save {
   $myconfig = new User "$memberfile", "$form->{login}";
 
   # redo acs variable and delete all the acs codes
-  @acs = split /;/, $form->{acs};
+  @acs = split(/;/, $form->{acs});
 
   $form->{acs} = "";
   foreach $item (@acs) {
@@ -1121,9 +1121,16 @@ sub change_admin_password {
 
 <form method=post action=$form->{script}>
 
-<b>|
-    . $locale->text('Password')
-    . qq|</b> <input type=password name=password size=8>
+<table>
+  <tr>
+    <td><b>| . $locale->text('Password') . qq|</b></td>
+    <td><input type=password name=password size=8></td>
+  </tr>
+  <tr>
+    <td><b>| . $locale->text('Repeat the password') . qq|</b></td>
+    <td><input type=password name=password_again size=8></b></td>
+  </tr>
+</table>
 
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
@@ -1141,6 +1148,24 @@ sub change_admin_password {
 }
 
 sub change_password {
+  if ($form->{"password"} ne $form->{"password_again"}) {
+    $form->{title} =
+      qq|Lx-Office ERP |
+      . $locale->text('Administration') . " / "
+      . $locale->text('Change Admin Password');
+
+    $form->header;
+
+    print qq|
+<body class=admin>
+
+
+<h2>| . $locale->text('Change Admin Password') . qq|</h2>
+
+<p>| . $locale->text("The passwords do not match.") . qq|<br>
+<input type="button" onclick="history.back()" value="| . $locale->text("Back") . qq|">|;
+    return;
+  }
 
   $root->{password} = $form->{password};
 
