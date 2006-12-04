@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Add'                         => 'Erfassen',
   'Add License'                 => 'Lizenz erfassen',
   'All'                         => 'Alle',
@@ -32,7 +32,7 @@ $self{texts} = {
   'Zipcode'                     => 'PLZ',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'add'                         => 'add',
   'continue'                    => 'continue',
   'details'                     => 'details',

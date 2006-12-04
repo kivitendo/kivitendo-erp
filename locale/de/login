@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'About'                       => 'über',
   'Database Host'               => 'Datenbankcomputer',
   'Dataset'                     => 'Datenbank',
@@ -15,7 +15,7 @@ $self{texts} = {
   'localhost'                   => 'lokaler Rechner',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'company_logo'                => 'company_logo',
   'login'                       => 'login',
   'login_screen'                => 'login_screen',

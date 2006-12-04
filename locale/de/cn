@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   '*/'                          => '*/',
   'Account'                     => 'Konto',
@@ -183,7 +183,7 @@ $self{texts} = {
   'sent to printer'             => 'an Drucker geschickt',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',

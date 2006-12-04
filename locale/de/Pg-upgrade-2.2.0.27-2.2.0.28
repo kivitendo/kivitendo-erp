@@ -1,8 +1,8 @@
-$self{texts} = {
+$self->{texts} = {
   'Database update error:'      => 'Fehler beim Datenbankupgrade:',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'look_for_accno'              => 'look_for_accno',
   'mydberror'                   => 'mydberror',
   'myshowerror'                 => 'myshowerror',

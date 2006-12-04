@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   ' Number'                     => ' Nummer',
   'Abteilung'                   => 'Abteilung',
   'Account Number'              => 'Kontonummer',
@@ -112,7 +112,7 @@ $self{texts} = {
   's'                           => 's',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',

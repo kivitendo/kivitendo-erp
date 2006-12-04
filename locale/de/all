@@ -3,7 +3,7 @@
 # you can add the translation in this file or in the 'missing' file
 # run locales.pl from this directory to rebuild the translation files
 
-$self{texts} = {
+$self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   ' Number'                     => ' Nummer',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',

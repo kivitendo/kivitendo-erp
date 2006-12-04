@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'AP Aging'                    => 'Offene Verbindlichkeiten',
   'AR Aging'                    => 'Offene Forderungen',
   'Account'                     => 'Konto',
@@ -122,7 +122,7 @@ $self{texts} = {
   'winston_export'              => 'Winston-Export',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add_transaction'             => 'add_transaction',
   'aging'                       => 'aging',

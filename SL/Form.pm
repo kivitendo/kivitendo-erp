@@ -2300,10 +2300,14 @@ sub new {
   my ($type, $country, $NLS_file) = @_;
   my $self = {};
 
-  %self = ();
   if ($country && -d "locale/$country") {
+    local *IN;
     $self->{countrycode} = $country;
-    eval { require "locale/$country/$NLS_file"; };
+    if (open(IN, "locale/$country/$NLS_file")) {
+      my $code = join("", <IN>);
+      eval($code);
+      close(IN);
+    }
   }
 
   $self->{NLS_file} = $NLS_file;
@@ -2323,7 +2327,7 @@ sub new {
 sub text {
   my ($self, $text) = @_;
 
-  return (exists $self{texts}{$text}) ? $self{texts}{$text} : $text;
+  return (exists $self->{texts}{$text}) ? $self->{texts}{$text} : $text;
 }
 
 sub findsub {
@@ -2331,8 +2335,8 @@ sub findsub {
 
   my ($self, $text) = @_;
 
-  if (exists $self{subs}{$text}) {
-    $text = $self{subs}{$text};
+  if (exists $self->{subs}{$text}) {
+    $text = $self->{subs}{$text};
   } else {
     if ($self->{countrycode} && $self->{NLS_file}) {
       Form->error(

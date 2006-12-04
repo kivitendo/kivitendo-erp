@@ -99,20 +99,20 @@ sub handle_file {
 
   foreach $text (keys %$missing) {
     if ($locale{$text} || $htmllocale{$text}) {
-      unless ($self{texts}{$text}) {
-        $self{texts}{$text} = $missing->{$text};
+      unless ($self->{texts}{$text}) {
+        $self->{texts}{$text} = $missing->{$text};
       }
     }
   }
 
   open FH, ">$file" or die "$! : $file";
 
-  print FH q|$self{texts} = {
+  print FH q|$self->{texts} = {
 |;
 
   foreach $key (sort keys %locale) {
-    if ($self{texts}{$key}) {
-      $text = $self{texts}{$key};
+    if ($self->{texts}{$key}) {
+      $text = $self->{texts}{$key};
     } else {
       $text = $key;
     }
@@ -130,7 +130,7 @@ sub handle_file {
 
   print FH q|};
 
-$self{subs} = {
+$self->{subs} = {
 |;
 
   foreach $key (sort keys %subrt) {
@@ -141,7 +141,7 @@ $self{subs} = {
   }
 
   foreach $key (sort keys %submit) {
-    $text = ($self{texts}{$key}) ? $self{texts}{$key} : $key;
+    $text = ($self->{texts}{$key}) ? $self->{texts}{$key} : $key;
     $text =~ s/'/\\'/g;
     $text =~ s/\\$/\\\\/;
 
@@ -180,11 +180,11 @@ print FH q|# These are all the texts to build the translations files.
 # you can add the translation in this file or in the 'missing' file
 # run locales.pl from this directory to rebuild the translation files
 
-$self{texts} = {
+$self->{texts} = {
 |;
 
 foreach $key (sort keys %alllocales) {
-  $text = $self{texts}{$key};
+  $text = $self->{texts}{$key};
 
   $count++;
 
@@ -551,7 +551,7 @@ sub converthtmlfile {
           $copying = 0;
           $alllocales{$text} = 1;
           $htmllocale{$text} = 1;
-          print(OUT $self{"texts"}{$text} || $text);
+          print(OUT $self->{"texts"}{$text} || $text);
           print(OUT "\n") if ("" eq $line);
           $text = "";
 

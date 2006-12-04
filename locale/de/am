@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   '1000,00 or 1000.00'          => '1000,00 oder 1000.00',
   'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
   'AP'                          => 'Einkauf',
@@ -251,7 +251,7 @@ $self{texts} = {
   'service units'               => 'Dienstleistungseinheiten',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'account_header'              => 'account_header',
   'add'                         => 'add',

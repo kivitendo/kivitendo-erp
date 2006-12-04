@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   '*/'                          => '*/',
@@ -222,7 +222,7 @@ aktualisieren wollen?',
   'soldtotal'                   => 'Verkaufte Anzahl',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'addtop100'                   => 'addtop100',

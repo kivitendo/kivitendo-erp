@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   '*/'                          => '*/',
   'Add Purchase Order'          => 'Lieferantenauftrag erfassen',
@@ -117,7 +117,7 @@ $self{texts} = {
   'sent to printer'             => 'an Drucker geschickt',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'check_form'                  => 'check_form',
   'customer_details'            => 'customer_details',
   'display_form'                => 'display_form',

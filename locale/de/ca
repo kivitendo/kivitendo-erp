@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Account'                     => 'Konto',
   'Apr'                         => 'Apr',
   'April'                       => 'April',
@@ -41,7 +41,7 @@ $self{texts} = {
   'To'                          => 'An',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'ca_subtotal'                 => 'ca_subtotal',
   'chart_of_accounts'           => 'chart_of_accounts',
   'list'                        => 'list',

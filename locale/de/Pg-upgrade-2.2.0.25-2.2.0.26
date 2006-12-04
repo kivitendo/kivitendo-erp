@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
   'Database update error:'      => 'Fehler beim Datenbankupgrade:',
   'The base unit does not exist.' => 'Die Basiseinheit existiert nicht.',
@@ -7,7 +7,7 @@ $self{texts} = {
   'The unit has been saved.'    => 'Die Einheit wurde gespeichert.',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'mydberror'                   => 'mydberror',
   'myshowerror'                 => 'myshowerror',
   'update_units'                => 'update_units',

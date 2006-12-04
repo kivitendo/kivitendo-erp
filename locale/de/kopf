@@ -1,8 +1,8 @@
-$self{texts} = {
+$self->{texts} = {
   'Logout'                      => 'Abmeldung',
 };
 
-$self{subs} = {
+$self->{subs} = {
 };
 
 1;

@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Address'                     => 'Adresse',
   'Continue'                    => 'Weiter',
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
@@ -10,7 +10,7 @@ $self{texts} = {
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'add_transaction'             => 'add_transaction',
   'ap_transaction'              => 'ap_transaction',
   'ar_transaction'              => 'ar_transaction',

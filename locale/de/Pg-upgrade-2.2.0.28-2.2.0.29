@@ -1,8 +1,8 @@
-$self{texts} = {
+$self->{texts} = {
   'Database update error:'      => 'Fehler beim Datenbankupgrade:',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'create_standard_buchungsgruppen' => 'create_standard_buchungsgruppen',
   'create_standard_buchungsgruppen_skr03' => 'create_standard_buchungsgruppen_skr03',
   'create_standard_buchungsgruppen_skr04' => 'create_standard_buchungsgruppen_skr04',

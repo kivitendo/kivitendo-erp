@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'AP'                          => 'Einkauf',
   'AP Aging'                    => 'Offene Verbindlichkeiten',
   'AR'                          => 'Verkauf',
@@ -120,7 +120,7 @@ $self{texts} = {
   'Version'                     => 'Version',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'display'                     => 'display',
   'section_menu'                => 'section_menu',

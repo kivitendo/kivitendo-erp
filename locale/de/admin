@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Access Control'              => 'Zugriffkontrolle',
   'Add User'                    => 'Benutzer erfassen',
   'Address'                     => 'Adresse',
@@ -95,7 +95,7 @@ $self{texts} = {
   'website'                     => 'Webseite',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'add_user'                    => 'add_user',
   'adminlogin'                  => 'adminlogin',
   'change_admin_password'       => 'change_admin_password',

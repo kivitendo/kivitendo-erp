@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Address'                     => 'Adresse',
   'Customer Number'             => 'Kundennummer',
   'Enter longdescription'       => 'Langtext eingeben',
@@ -22,7 +22,7 @@ $self{texts} = {
   'Variable'                    => 'Variable',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'calculate_qty'               => 'calculate_qty',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'employee_selection_internal' => 'employee_selection_internal',

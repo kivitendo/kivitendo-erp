@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   '1. Quarter'                  => '1. Quartal',
   '2. Quarter'                  => '2. Quartal',
   '3. Quarter'                  => '3. Quartal',
@@ -116,7 +116,7 @@ $self{texts} = {
   'Öffnungszeiten'              => 'Öffnungszeiten',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'add_transaction'             => 'add_transaction',
   'ap_transaction'              => 'ap_transaction',
   'ar_transaction'              => 'ar_transaction',

@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Accounting Menu'             => 'Kontoverwaltung',
   'Add'                         => 'Erfassen',
   'Add Group'                   => 'Warengruppe erfassen',
@@ -31,7 +31,7 @@ $self{texts} = {
   'Save'                        => 'Speichern',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'continue'                    => 'continue',
