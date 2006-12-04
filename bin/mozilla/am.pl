@@ -1930,7 +1930,7 @@ sub buchungsgruppe_header {
 
   if ($form->{id}) {
     $form->{selectIC} =~ s/selected//g;
-    $form->{selectIC} =~ s/ value=\$form->{inventory_accno_id}/  value=\$form->{inventory_accno_id} selected/;
+    $form->{selectIC} =~ s/ value=$form->{inventory_accno_id}/  value=$form->{inventory_accno_id} selected/;
     $form->{selectIC_income} =~ s/selected//g;
     $form->{selectIC_income} =~ s/ value=$form->{income_accno_id_0}/  value=$form->{income_accno_id_0} selected/;
     $form->{selectIC_expense} =~ s/selected//g;
