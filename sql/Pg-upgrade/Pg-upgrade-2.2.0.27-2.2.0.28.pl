@@ -49,7 +49,6 @@ sub update_guess_chart_of_accounts {
   my $form = $main::form;
 
   my @valid_coas = map({ s/^sql\///; s/-chart.sql//; $_; } <sql/*-chart.sql>);
-  $main::lxdebug->dump(0, "mufti", \@valid_coas);
 
   my $query = "SELECT coa FROM defaults";
   my ($coa) = $dbh->selectrow_array($query);
