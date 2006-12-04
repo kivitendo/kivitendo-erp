@@ -1,0 +1,15 @@
+$self{texts} = {
+  'Database update error:'      => 'Database update error:',
+};
+
+$self{subs} = {
+  'look_for_accno'              => 'look_for_accno',
+  'mydberror'                   => 'mydberror',
+  'myshowerror'                 => 'myshowerror',
+  'update_defaults_add_coa'     => 'update_defaults_add_coa',
+  'update_defaults_set_coa'     => 'update_defaults_set_coa',
+  'update_guess_chart_of_accounts' => 'update_guess_chart_of_accounts',
+  'weiter'                      => 'continue',
+};
+
+1;

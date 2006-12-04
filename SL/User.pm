@@ -388,6 +388,9 @@ sub dbcreate {
   $filename = qq|sql/$form->{chart}-chart.sql|;
   $self->process_query($form, $dbh, $filename);
 
+  $query = "UPDATE defaults SET coa = " . $dbh->quote($form->{"chart"});
+  $dbh->do($query) || $form->dberror($query);
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

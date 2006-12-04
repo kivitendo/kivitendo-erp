@@ -112,6 +112,7 @@ CREATE TABLE "defaults" (
         "audittrail" bool default 'f',
         "articlenumber" text,
         "servicenumber" text,
+        "coa" text,
         "itime" timestamp DEFAULT now(),
         "mtime" timestamp
 );
