@@ -1946,7 +1946,7 @@ sub buchungsgruppe_header {
 	      </tr>|;
   } else {
     $linkaccounts = qq|
-                <input type=hidden name=inventory_accno_id value=1>|;
+                <input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>|;
   }   
 
 
