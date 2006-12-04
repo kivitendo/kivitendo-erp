@@ -239,7 +239,7 @@ sub list_users {
 
     if (/^(name=|company=|templates=|dbuser=|dbdriver=|dbname=|dbhost=)/) {
       chop($var = $&);
-      ($null, $member{$login}{$var}) = split /=/, $_, 2;
+      ($null, $member{$login}{$var}) = split(/=/, $_, 2);
     }
   }
 
@@ -728,7 +728,7 @@ sub form_header {
   </tr>
 |;
 
-  foreach $item (split /;/, $myconfig->{acs}) {
+  foreach $item (split(/;/, $myconfig->{acs})) {
     ($key, $value) = split /--/, $item, 2;
     $excl{$key}{$value} = 1;
   }
@@ -1423,10 +1423,29 @@ $upd
 }
 
 sub dbupdate {
+  $form->{"stylesheet"} = "lx-office-erp.css";
+  $form->{"title"} = $main::locale->text("Dataset upgrade");
+  $form->header();
+  my $dbname =
+    join(" ",
+         map({ s/\s//g; s/^db//; $_; }
+             grep({ $form->{$_} }
+                  split(/\s+/, $form->{"dbupdate"}))));
+  print($form->parse_html_template("dbupgrade/header",
+                                   { "dbname" => $dbname }));
 
   User->dbupdate(\%$form);
 
-  $form->redirect($locale->text('Dataset updated!'));
+  print qq|
+<hr>
+
+| . $locale->text('Dataset updated!') . qq|
+
+<br>
+
+<a href="admin.pl?action=login&| .
+join("&", map({ "$_=" . $form->escape($form->{$_}); } qw(path rpw))) .
+qq|">| . $locale->text("Continue") . qq|</a>|;
 
 }
 
