@@ -409,6 +409,15 @@ sub process_perl_script {
 
   $dbh->begin_work();
 
+  my %dbup_myconfig = ();
+  map({ $dbup_myconfig{$_} = $form->{$_}; }
+      qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
+
+  my $nls_file = $filename;
+  $nls_file =~ s|.*/||;
+  $nls_file =~ s|.pl$||;
+  my $dbup_locale = Locale->new($main::language, $nls_file);
+
   my $result = eval($contents);
 
   if (1 != $result) {

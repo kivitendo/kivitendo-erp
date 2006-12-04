@@ -105,8 +105,7 @@ sub handle_file {
     }
   }
 
-  my $localefile = $dir eq $bindir ? $file : "dbupgrade";
-  open FH, ">$localefile" or die "$! : $localefile";
+  open FH, ">$file" or die "$! : $file";
 
   print FH q|$self{texts} = {
 |;

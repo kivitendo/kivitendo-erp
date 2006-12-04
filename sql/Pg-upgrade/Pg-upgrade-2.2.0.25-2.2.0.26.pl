@@ -4,12 +4,8 @@ die("This script cannot be run from the command line.") unless ($main::form);
 
 use SL::AM;
 
-%dbup_myconfig = ();
-map({ $dbup_myconfig{$_} = $main::form->{$_}; }
-    qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
-
 sub mydberror {
-  my ($dbup_locale, $msg) = @_;
+  my ($msg) = @_;
   die($dbup_locale->text("Database update error:") .
       "<br>$msg<br>" . $DBI::errstr);
 }
@@ -23,8 +19,6 @@ sub myshowerror {
 }
 
 sub update_units_add_unit {
-  my ($dbup_locale, $dbh) = @_;
-
   my $form = $main::form;
 
   return 0 unless ($form->{"new_name"});
@@ -54,7 +48,7 @@ sub update_units_add_unit {
     "VALUES (?, ?, ?, ?)";
   $dbh->do($query, undef, $form->{"new_name"}, $base_unit, $factor,
            $form->{"unit_type"}) ||
-    mydberror($dbup_locale, $query .
+    mydberror($query .
               " ($form->{new_name}, $base_unit, $factor, $form->{unit_type})");
   $dbh->commit();
   $dbh->begin_work();
@@ -65,8 +59,6 @@ sub update_units_add_unit {
 }
 
 sub update_units_assign_units {
-  my ($dbup_locale, $dbh) = @_;
-
   my ($query, $sth, @values);
 
   my $form = $main::form;
@@ -79,7 +71,7 @@ sub update_units_assign_units {
       next unless ($form->{"new_unit_$i"} && $form->{"old_unit_$i"});
       @values = ($form->{"new_unit_$i"}, lc($form->{"old_unit_$i"}));
       $sth->execute(@values) ||
-        mydberror($dbup_locale, $query . " (" . join(", ", @values) . ")");
+        mydberror($query . " (" . join(", ", @values) . ")");
     }
   }
 
@@ -89,8 +81,6 @@ sub update_units_assign_units {
 }
 
 sub update_units_assign_known {
-  my ($dbup_locale, $dbh) = @_;
-
   my $form = $main::form;
 
   my %unit_name_mapping = (
@@ -109,12 +99,10 @@ sub update_units_assign_known {
   }
   $form->{"rowcount"} = scalar(keys(%unit_name_mapping));
 
-  update_units_assign_units($dbup_locale, $dbh);
+  update_units_assign_units();
 }
 
 sub update_units_steps_1_2 {
-  my ($dbup_locale, $dbh) = @_;
-
   my (%unknown_dimension_units, %unknown_service_units);
 
   my $form = $main::form;
@@ -135,7 +123,7 @@ sub update_units_steps_1_2 {
         "           t.unit IN (SELECT name FROM units))";
     }
     $sth = $dbh->prepare($query);
-    $sth->execute() || mydberror($dbup_locale, $query);
+    $sth->execute() || mydberror($query);
 
     while ($ref = $sth->fetchrow_hashref()) {
       if ($ref->{"inventory_accno_id"}) {
@@ -191,8 +179,6 @@ sub update_units_steps_1_2 {
 }
 
 sub update_units_step_3 {
-  my ($dbup_locale, $dbh) = @_;
-
   my $form = $main::form;
 
   my $query = "SELECT ";
@@ -223,8 +209,6 @@ sub update_units_step_3 {
 }
 
 sub update_units_set_default {
-  my ($dbup_locale, $dbh) = @_;
-
   my $form = $main::form;
 
   foreach my $table (qw(parts invoice orderitems rmaitems)) {
@@ -244,7 +228,7 @@ sub update_units_set_default {
         "parts_id IN (SELECT id FROM parts WHERE (inventory_accno_id > 0))";
     }
 
-    $dbh->do($query) || mydberror($dbup_locale, $query);
+    $dbh->do($query) || mydberror($query);
 
     if ($table eq "parts") {
       $query = "UPDATE $table SET unit = " .
@@ -259,39 +243,35 @@ sub update_units_set_default {
         "WHERE (inventory_accno_id ISNULL) OR (inventory_accno_id = 0))";
     }
 
-    $dbh->do($query) || mydberror($dbup_locale, $query);
+    $dbh->do($query) || mydberror($query);
   }
 }
 
 sub update_units {
-  my (@dbh) = @_;
-
   my $form = $main::form;
 
   my $res;
 
-  my $dbup_locale = Locale->new($main::language, "dbupgrade");
-
   print($form->parse_html_template("dbupgrade/units_header"));
 
   if ($form->{"action2"} eq "add_unit") {
-    $res = update_units_add_unit($dbup_locale, $dbh);
+    $res = update_units_add_unit();
     return $res if ($res);
 
   } elsif ($form->{"action2"} eq "assign_units") {
-    update_units_assign_units($dbup_locale, $dbh);
+    update_units_assign_units();
 
   } elsif ($form->{"action2"} eq "set_default") {
-    update_units_set_default($dbup_locale, $dbh);
+    update_units_set_default();
 
   }
 
-  update_units_assign_known($dbup_locale, $dbh);
+  update_units_assign_known();
 
-  $res = update_units_steps_1_2($dbup_locale, $dbh);
+  $res = update_units_steps_1_2();
   return $res if ($res);
 
-  return update_units_step_3($dbup_locale, $dbh);
+  return update_units_step_3();
 }
 
-update_units($dbh);
+update_units();
