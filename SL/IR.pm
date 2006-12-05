@@ -866,10 +866,9 @@ sub retrieve_invoice {
     delete($ref->{id});
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     $sth->finish;
-    my $transdate = "current_date";
-    if($form->{invdate}) {
-     $transdate = "'$form->{invdate}'";
-    }
+
+    my $transdate =
+      $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
 
     if(!$form->{taxzone_id}) {
       $form->{taxzone_id} = 0;
@@ -1110,6 +1109,9 @@ sub retrieve_item {
 
   my ($self, $myconfig, $form) = @_;
 
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
   my $i = $form->{rowcount};
 
   # don't include assemblies or obsolete parts
@@ -1138,19 +1140,12 @@ sub retrieve_item {
 
   my $transdate = "";
   if ($form->{type} eq "invoice") {
-    $transdate = "'$form->{invdate}'";
-  } elsif ($form->{type} eq "purchase_order") {
-    $transdate = "'$form->{transdate}'";
-  } elsif ($form->{type} eq "request_quotation") {
-    $transdate = "'$form->{transdate}'";
+    $transdate =
+      $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
+  } else {
+    $transdate =
+      $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
   }
-
-  if ($transdate eq "") {
-    $transdate = "current_date";
-  }
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
 
   my $query = qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
                         p.listprice, p.inventory_accno_id,

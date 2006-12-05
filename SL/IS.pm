@@ -1532,12 +1532,12 @@ sub retrieve_invoice {
     $sth->finish;
     map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
 
-    my $transdate = "current_date";
-    if($form->{invdate}) {
-     $transdate = "'$form->{invdate}'";
-    }
+    my $transdate =
+      $form->{deliverydate} ? $dbh->quote($form->{deliverydate}) :
+      $form->{invdate} ? $dbh->quote($form->{invdate}) :
+      "current_date";
 
-    if(!$form->{taxzone_id}) {
+    if (!$form->{taxzone_id}) {
       $form->{taxzone_id} = 0;
     }
     # retrieve individual items
@@ -1848,6 +1848,9 @@ sub retrieve_item {
 
   my ($self, $myconfig, $form) = @_;
 
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
   my $i = $form->{rowcount};
 
   my $where = "NOT p.obsolete = '1'";
@@ -1872,21 +1875,17 @@ sub retrieve_item {
     $where .= " ORDER BY p.partnumber";
   }
 
-  my $transdate = "";
+  my $transdate;
   if ($form->{type} eq "invoice") {
-    $transdate = "'$form->{invdate}'";
-  } elsif ($form->{type} eq "sales_order") {
-    $transdate = "'$form->{transdate}'";
-  } elsif ($form->{type} eq "sales_quotation") {
-    $transdate = "'$form->{transdate}'";
+    $transdate =
+      $form->{deliverydate} ? $dbh->quote($form->{deliverydate}) :
+      $form->{invdate} ? $dbh->quote($form->{invdate}) :
+      "current_date";
+  } else {
+    $transdate =
+      $form->{transdate} ? $dbh->quote($form->{transdate}) :
+      "current_date";
   }
-
-  if ($transdate eq "") {
-    $transdate = "current_date";
-  }
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
 
   my $query = qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
                         p.listprice, p.inventory_accno_id,

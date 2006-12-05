@@ -787,10 +787,9 @@ sub retrieve {
     my %oid = ('Pg'     => 'oid',
                'Oracle' => 'rowid');
 
-    my $transdate = "'$form->{transdate}'";
-    if (!$transdate) {
-      $transdate = "current_date";
-    }
+    my $transdate =
+      $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
+
     if(!$form->{taxzone_id}) {
       $form->{taxzone_id} = 0;
     }
