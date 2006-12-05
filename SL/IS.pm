@@ -1570,9 +1570,6 @@ sub retrieve_invoice {
       }
       delete($ref->{"part_inventory_accno_id"});
 
-      #set expense_accno=inventory_accno if they are different => bilanz
-
-
     while ($ref->{inventory_new_chart} && ($ref->{inventory_valid} >=0)) {
       my $query = qq| SELECT accno AS inventory_accno, new_chart_id AS inventory_new_chart, date($transdate) - valid_from AS inventory_valid FROM chart WHERE id = $ref->{inventory_new_chart}|;
       my $stw = $dbh->prepare($query);
@@ -1597,14 +1594,9 @@ sub retrieve_invoice {
       $stw->finish;
     }
 
-      $vendor_accno =
-        ($ref->{expense_accno} != $ref->{inventory_accno})
-        ? $ref->{inventory_accno}
-        : $ref->{expense_accno};
-
       # get tax rates and description
       $accno_id =
-        ($form->{vc} eq "customer") ? $ref->{income_accno} : $vendor_accno;
+        ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
 	         FROM tax t LEFT join chart c ON (c.id=t.chart_id)
 	         WHERE t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
@@ -1961,15 +1953,9 @@ sub retrieve_item {
       }
     }
 
-
-    $vendor_accno =
-      ($ref->{expense_accno} != $ref->{inventory_accno})
-      ? $ref->{inventory_accno}
-      : $ref->{expense_accno};
-
     # get tax rates and description
     $accno_id =
-      ($form->{vc} eq "customer") ? $ref->{income_accno} : $vendor_accno;
+      ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
 	      FROM tax t LEFT JOIN chart c on (c.id=t.chart_id)
 	      WHERE t.taxkey in (SELECT c2.taxkey_id from chart c2 where c2.accno = '$accno_id')

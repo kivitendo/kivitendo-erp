@@ -925,21 +925,9 @@ sub retrieve_invoice {
         $stw->finish;
       }
 
-
-
-      #set expense_accno=inventory_accno if they are different => bilanz
-      $vendor_accno =
-        ($ref->{expense_accno} != $ref->{inventory_accno})
-        ? $ref->{inventory_accno}
-        : $ref->{expense_accno};
-      $vendor_accno =
-        ($ref->{inventory_accno})
-        ? $ref->{inventory_accno}
-        : $ref->{expense_accno};
-
       # get tax rates and description
       $accno_id =
-        ($form->{vc} eq "customer") ? $ref->{income_accno} : $vendor_accno;
+        ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
 	         FROM tax t LEFT join chart c ON (c.id=t.chart_id)
 	         WHERE t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
@@ -1190,19 +1178,9 @@ sub retrieve_item {
     }
     delete($ref->{inventory_accno_id});
 
-    #set expense_accno=inventory_accno if they are different => bilanz
-    $vendor_accno =
-      ($ref->{expense_accno} != $ref->{inventory_accno})
-      ? $ref->{inventory_accno}
-      : $ref->{expense_accno};
-    $vendor_accno =
-      ($ref->{inventory_accno})
-      ? $ref->{inventory_accno}
-      : $ref->{expense_accno};
-
     # get tax rates and description
     $accno_id =
-      ($form->{vc} eq "customer") ? $ref->{income_accno} : $vendor_accno;
+      ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
 	      FROM tax t LEFT JOIN chart c ON (c.id=t.chart_id)
 	      WHERE t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
