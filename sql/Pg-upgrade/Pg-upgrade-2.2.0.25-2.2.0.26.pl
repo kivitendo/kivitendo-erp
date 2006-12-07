@@ -86,6 +86,7 @@ sub update_units_assign_known {
   my %unit_name_mapping = (
     "st" => "Stck",
     "st." => "Stck",
+    "stk" => "Stck",
     "pc" => "Stck",
     "pcs" => "Stck",
     "ea" => "Stck",
