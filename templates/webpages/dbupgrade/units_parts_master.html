@@ -69,7 +69,7 @@
   </tr>
 
   <TMPL_LOOP UNKNOWN_PART_UNITS>
-   <tr class="listrow<TMPL_VAR __counter__>">
+   <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
     <td>
      <TMPL_VAR name ESCAPE=HTML>
      <input type="hidden" name="old_unit_<TMPL_VAR __counter__>" value="<TMPL_VAR name ESCAPE=HTML>">
