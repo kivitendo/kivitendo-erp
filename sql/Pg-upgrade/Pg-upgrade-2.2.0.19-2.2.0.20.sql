@@ -1,9 +1,0 @@
-alter table contacts add column cp_fax text;
-alter table contacts add column cp_mobile1 text;
-alter table contacts add column cp_mobile2 text;
-alter table contacts add column cp_satphone text;
-alter table contacts add column cp_satfax text;
-alter table contacts add column cp_project text;
-alter table contacts add column cp_privatphone text;
-alter table contacts add column cp_privatemail text;
-alter table contacts add column cp_birthday text;
