@@ -1763,19 +1763,19 @@ sub list_buchungsgruppe {
     . qq|</th>|;
   $column_header{income_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU o. UStId')
+    . $locale->text('Erlöse EU m. UStId')
     . qq|</th>|;
   $column_header{expense_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand EU o. UStId')
+    . $locale->text('Aufwand EU m. UStId')
     . qq|</th>|;
   $column_header{income_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU m. UStId')
+    . $locale->text('Erlöse EU o. UStId')
     . qq|</th>|;
   $column_header{expense_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand EU m. UStId')
+    . $locale->text('Aufwand EU o. UStId')
     . qq|</th>|;
   $column_header{income_accno_3} =
       qq|<th class=listheading>|
