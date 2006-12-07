@@ -1,0 +1,11 @@
+$self->{texts} = {
+  'Database update error:'      => 'Fehler beim Datenbankupgrade:',
+};
+
+$self->{subs} = {
+  'mydberror'                   => 'mydberror',
+  'mydoquery'                   => 'mydoquery',
+  'update_contacts_handle_department' => 'update_contacts_handle_department',
+};
+
+1;
