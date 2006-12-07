@@ -1733,8 +1733,12 @@ sub print_form {
     ($form->{"email"}, $form->{"cc"}, $form->{"bcc"});
 
   $language_saved = $form->{language_id};
+  $payment_id_saved = $form->{payment_id};
+
   &{"$form->{vc}_details"};
+
   $form->{language_id} = $language_saved;
+  $form->{payment_id} = $payment_id_saved;
 
   $form->{"email"} = $saved_email if ($saved_email);
   $form->{"cc"}    = $saved_cc    if ($saved_cc);
