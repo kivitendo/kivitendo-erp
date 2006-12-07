@@ -654,6 +654,10 @@ sub format_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
+  
+  if ($amount eq "") {
+    $amount = 0;
+  }
   my $neg = ($amount =~ s/-//);
 
   $amount = $self->round_amount($amount, $places) if ($places =~ /\d/);
@@ -665,13 +669,14 @@ sub format_amount {
 
   $amount = $p[0];
   $amount .= $d[0].$p[1].(0 x ($places - length $p[1])) if ($places || $p[1] ne '');
- 
+
   $amount = do {
     ($dash =~ /-/)    ? ($neg ? "($amount)"  : "$amount" )    :
     ($dash =~ /DRCR/) ? ($neg ? "$amount DR" : "$amount CR" ) :
                         ($neg ? "-$amount"   : "$amount" )    ;
   };
-  
+    
+
   $main::lxdebug->leave_sub(2);
   return $amount;
 }
