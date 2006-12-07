@@ -1009,7 +1009,7 @@ sub get_buchungsgruppe {
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    foreach my $key (split /:/, $ref->{link}) {
+    foreach my $key (split(/:/, $ref->{link})) {
       if ($key =~ /$module/) {
         if (   ($ref->{id} eq $ref->{inventory_accno_id})
             || ($ref->{id} eq $ref->{income_accno_id})
@@ -1435,12 +1435,12 @@ sub save_preferences {
 
   my ($self, $myconfig, $form, $memberfile, $userspath, $webdav) = @_;
 
-  map { ($form->{$_}) = split /--/, $form->{$_} }
+  map { ($form->{$_}) = split(/--/, $form->{$_}) }
     qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno);
 
   my @a;
   $form->{curr} =~ s/ //g;
-  map { push(@a, uc pack "A3", $_) if $_ } split /:/, $form->{curr};
+  map { push(@a, uc pack "A3", $_) if $_ } split(/:/, $form->{curr});
   $form->{curr} = join ':', @a;
 
   # connect to database
@@ -1490,7 +1490,7 @@ sub save_preferences {
 	      WHERE login = '$form->{login}'|;
   $dbh->do($query) || $form->dberror($query);
 
-  foreach my $item (split / /, $form->{taxaccounts}) {
+  foreach my $item (split(/ /, $form->{taxaccounts})) {
     $query = qq|UPDATE tax
 		SET rate = | . ($form->{$item} / 100) . qq|,
 		taxnumber = '$form->{"taxnumber_$item"}'
