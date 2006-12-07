@@ -23,6 +23,7 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  'H'                           => 'H',
   'calculate_qty'               => 'calculate_qty',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'employee_selection_internal' => 'employee_selection_internal',
