@@ -56,13 +56,13 @@ sub update_guess_chart_of_accounts {
   return 1 if (grep({ $coa eq $_ } @valid_coas));
 
   return update_defaults_set_coa("Germany-DATEV-SKR04EU")
-    if (look_for_accno("0135"));
+    if (look_for_accno("6595"));
 
   return update_defaults_set_coa("Germany-DATEV-SKR03EU")
-    if (look_for_accno("0027"));
+    if (look_for_accno("2725"));
 
   return update_defaults_set_coa("Austria")
-    if (look_for_accno("0625"));
+    if (look_for_accno("2701"));
 
   return update_defaults_set_coa("France")
     if (look_for_accno("131800"));
