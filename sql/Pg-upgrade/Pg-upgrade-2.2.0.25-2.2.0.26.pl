@@ -90,6 +90,10 @@ sub update_units_assign_known {
     "pc" => "Stck",
     "pcs" => "Stck",
     "ea" => "Stck",
+
+    "h" => "Std",
+    "stunde" => "Std",
+    "tage" => "Tag",
     );
 
   my $i = 1;
