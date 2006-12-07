@@ -415,4 +415,8 @@ sub set_longdescription {
   $lxdebug->leave_sub();
 }
 
+sub H {
+  return $form->quote_html($_[0]);
+}
+
 1;

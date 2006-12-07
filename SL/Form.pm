@@ -219,6 +219,25 @@ sub unquote {
 
 }
 
+sub quote_html {
+  $main::lxdebug->enter_sub(2);
+
+  my ($self, $str) = @_;
+
+  my %replace =
+    ('order' => ['"', '<', '>'],
+     '<'             => '&lt;',
+     '>'             => '&gt;',
+     '"'             => '&quot;',
+    );
+
+  map({ $str =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
+
+  $main::lxdebug->leave_sub(2);
+
+  return $str;
+}
+
 sub hide_form {
   my $self = shift;
 
