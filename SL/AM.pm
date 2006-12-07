@@ -1019,7 +1019,7 @@ sub get_buchungsgruppe {
               description => $ref->{description},
               selected    => "selected",
               id          => $ref->{id} };
-            } else {
+        } else {
           push @{ $form->{"${module}_links"}{$key} },
             { accno       => $ref->{accno},
               description => $ref->{description},
@@ -1939,16 +1939,14 @@ sub closebooks {
 
     $query = qq|UPDATE defaults SET closedto = NULL,
 				    revtrans = '1'|;
+  } elsif ($form->{closedto}) {
+
+    $query = qq|UPDATE defaults SET closedto = '$form->{closedto}',
+				      revtrans = '0'|;
   } else {
-    if ($form->{closedto}) {
 
-      $query = qq|UPDATE defaults SET closedto = '$form->{closedto}',
+    $query = qq|UPDATE defaults SET closedto = NULL,
 				      revtrans = '0'|;
-    } else {
-
-      $query = qq|UPDATE defaults SET closedto = NULL,
-				      revtrans = '0'|;
-    }
   }
 
   # set close in defaults
