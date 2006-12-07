@@ -40,6 +40,8 @@ use Data::Dumper;
 
 1;
 
+require "$form->{path}/common.pl";
+
 # end of main
 
 sub add    { &{"add_$form->{type}"} }
@@ -1887,46 +1889,29 @@ sub buchungsgruppe_header {
   # $locale->text('Buchungsgruppe hinzufügen')
   # $locale->text('Buchungsgruppe bearbeiten')
 
-  $form->{description} =~ s/\"/&quot;/g;
+  my ($acc_inventory, $acc_income, $acc_expense) = ({}, {}, {});
+  my %acc_type_map = (
+    "IC" => $acc_inventory,
+    "IC_income" => $acc_income,
+    "IC_sale" => $acc_income,
+    "IC_expense" => $acc_expense,
+    "IC_cogs" => $acc_expense,
+    );
 
-  # build the popup menus
-  $form->{taxaccounts} = "";
-  foreach $key (keys %{ $form->{IC_links} }) {
+  foreach $key (keys(%acc_type_map)) {
     foreach $ref (@{ $form->{IC_links}{$key} }) {
-
-      # if this is a tax field
-      if ($key =~ /IC_tax/) {
-        if ($key =~ /$item/) {
-          $form->{taxaccounts} .= "$ref->{accno} ";
-          $form->{"IC_tax_$ref->{accno}_description"} =
-            "$ref->{accno}--$ref->{description}";
-
-          if ($form->{id}) {
-            if ($form->{amount}{ $ref->{accno} }) {
-              $form->{"IC_tax_$ref->{accno}"} = "checked";
-            }
-          } else {
-            $form->{"IC_tax_$ref->{accno}"} = "checked";
-          }
-        }
-      } else {
-
-        $form->{"select$key"} .=
-          "<option value=$ref->{id} $ref->{selected}>$ref->{accno}--$ref->{description}\n";
-        if (($key eq "IC") && ($ref->{selected} eq "selected")) {
-          $form->{IC_default} = $ref->{id};
-        }
-        if ($form->{amount}{$key} eq $ref->{accno}) {
-          $form->{$key} = "$ref->{accno}--$ref->{description}";
-        }
-
-      }
+      $acc_type_map{$key}->{$ref->{"id"}} = $ref;
     }
   }
-  $form->{selectIC_income}  = $form->{selectIC_sale};
-  $form->{selectIC_expense} = $form->{selectIC_cogs};
-  $form->{IC_income}        = $form->{IC_sale};
-  $form->{IC_expense}       = $form->{IC_cogs};
+
+  foreach my $type (qw(IC IC_income IC_expense)) {
+    $form->{"select$type"} =
+      join("",
+           map({ "<option value=$_->{id} $_->{selected}>" .
+                   "$_->{accno}--" . H($_->{description}) . "</option>" }
+               sort({ $a->{"accno"} cmp $b->{"accno"} }
+                    values(%{$acc_type_map{$type}}))));
+  }
 
   if ($form->{id}) {
     $form->{selectIC} =~ s/selected//g;
@@ -1947,10 +1932,10 @@ sub buchungsgruppe_header {
   } else {
     $linkaccounts = qq|
                 <input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>|;
-  }   
+  }
 
 
-    $linkaccounts .= qq|
+  $linkaccounts .= qq|
 	      <tr>
 		<th align=right>| . $locale->text('Erlöse Inland') . qq|</th>
 		<td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
@@ -2025,7 +2010,7 @@ sub buchungsgruppe_header {
   <tr height="5"></tr>
   <tr>
     <th align=right>| . $locale->text('Buchungsgruppe') . qq|</th>
-    <td><input name=description size=30 value="$form->{description}"></td>
+    <td><input name=description size=30 value="| . $form->quote($form->{description}) . qq|"></td>
   <tr>
   $linkaccounts
   <td colspan=2><hr size=3 noshade></td>
