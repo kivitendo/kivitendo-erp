@@ -1,6 +1,6 @@
 -- created by Yvonne Einberger
 -- contributed by Andre Schubert
--- 
+--
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0027', 'EDV-Software', 'A', 'A', 'AP_amount', '0027', 9, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0090', 'Geschäftsbauten', 'A', 'A', 'AP_amount', '0090', 9, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('0200', 'Techn.Anlagen und Maschinen', 'A', 'A', 'AP_amount', '0200', 9, NULL, NULL, NULL, NULL, FALSE);
@@ -441,3 +441,62 @@ UPDATE chart SET pos_ustva=64  WHERE accno IN ('1556', '1557', '1558', '1559');
 UPDATE chart SET pos_ustva=59  WHERE accno IN ('');
 UPDATE chart SET pos_ustva=69  WHERE accno IN ('1783');
 UPDATE chart SET pos_ustva=39  WHERE accno IN ('1781');
+
+-- Buchungsgruppen
+
+-- Erst einkommentieren, wenn in lx-office.sql das 2.4.0er Schema
+-- inklusive der Tabelle 'buchungsgruppen' enthalten ist.
+
+-- INSERT INTO buchungsgruppen
+--   (description, inventory_accno_id,
+--    income_accno_id_0, expense_accno_id_0,
+--    income_accno_id_1, expense_accno_id_1,
+--    income_accno_id_2, expense_accno_id_2,
+--    income_accno_id_3, expense_accno_id_3)
+--  VALUES
+--   ('Standard 16%',
+--    -- 3980: Bestand Waren
+--    (SELECT id FROM chart WHERE accno = '3980'),
+--    -- 8400: Erlöse 16% USt.
+--    -- 3400: Wareneingang 16% Vorsteuer
+--    (SELECT id FROM chart WHERE accno = '8400'),
+--    (SELECT id FROM chart WHERE accno = '3400'),
+--    -- 8320: Erlöse aus im and.EG-Land steuerpfl.Lieferungen
+--    -- 3550: Steuerfreier innergem.Erwerb
+--    (SELECT id FROM chart WHERE accno = '8320'),
+--    (SELECT id FROM chart WHERE accno = '3550'),
+--    -- 8315: Erlös Inland stpfl.EG-Lieferung 16%
+--    -- 3425: Innergem.Erwerb 16% VorSt u. Ust
+--    (SELECT id FROM chart WHERE accno = '8315'),
+--    (SELECT id FROM chart WHERE accno = '3425'),
+--     -- 8120: Steuerfreie Umsätze §4Nr.1a UstG
+--     -- 3559: Steuerfreie Einfuhren
+--    (SELECT id FROM chart WHERE accno = '8120'),
+--    (SELECT id FROM chart WHERE accno = '3559'));
+
+-- INSERT INTO buchungsgruppen
+--   (description, inventory_accno_id,
+--    income_accno_id_0, expense_accno_id_0,
+--    income_accno_id_1, expense_accno_id_1,
+--    income_accno_id_2, expense_accno_id_2,
+--    income_accno_id_3, expense_accno_id_3)
+--  VALUES
+--   ('Standard 7%',
+--    -- 3980: Bestand Waren
+--    (SELECT id FROM chart WHERE accno = '3980'),
+--    -- 8300: Erlöse 7% USt.
+--    -- 3300: Wareneingang 7% Vorsteuer
+--    (SELECT id FROM chart WHERE accno = '8300'),
+--    (SELECT id FROM chart WHERE accno = '3300'),
+--    -- 8125: Steuerfrei innergem. Lieferungen §41bUStG
+--    -- 3550: Steuerfreier innergem.Erwerb
+--    (SELECT id FROM chart WHERE accno = '8125'),
+--    (SELECT id FROM chart WHERE accno = '3550'),
+--    -- 8310: Erlöse Inland stpfl. EG-Lieferung7%
+--    -- 3420: Innergemein.Erwerb 7% VorSt u. Ust
+--    (SELECT id FROM chart WHERE accno = '8310'),
+--    (SELECT id FROM chart WHERE accno = '3420'),
+--    -- 8120: Steuerfreie Umsätze §4Nr.1a UstG
+--    -- 3559: Steuerfreie Einfuhren
+--    (SELECT id FROM chart WHERE accno = '8120'),
+--    (SELECT id FROM chart WHERE accno = '3559'));
