@@ -1460,8 +1460,8 @@ sub print_options {
   $format .= qq|</select>|;
 
   if (scalar(keys (%{ $form->{languages} })) !=0) {
-
-    $language_select = qq|<select name=language_id>|;
+    $language_select = qq|<select name=language_id>
+		<option value=""></option>}|;
     foreach $item (@{ $form->{languages} }) {
       if ($form->{language_id} eq $item->{id}) {
         $language_select .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
