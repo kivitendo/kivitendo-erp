@@ -205,7 +205,7 @@ sub create_standard_buchungsgruppen {
     return create_standard_buchungsgruppen_skr03();
 
   } elsif ($coa eq "Germany-DATEV-SKR04EU") {
-    fix_skr03();
+    fix_skr04();
     return create_standard_buchungsgruppen_skr04();
   }
 
