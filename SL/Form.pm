@@ -1634,40 +1634,47 @@ sub create_links {
   my ($query, $sth);
 
   my $dbh = $self->dbconnect($myconfig);
-
   my %xkeyref = ();
 
-  # now get the account numbers
-  $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id
-              FROM chart c
-	      WHERE c.link LIKE '%$module%'
-	      ORDER BY c.accno|;
+  if (!$self->{id}) {
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  $self->{accounts} = "";
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-
-    foreach my $key (split /:/, $ref->{link}) {
-      if ($key =~ /$module/) {
-
-        # cross reference for keys
-        $xkeyref{ $ref->{accno} } = $key;
-
-        push @{ $self->{"${module}_links"}{$key} },
-          { accno       => $ref->{accno},
-            description => $ref->{description},
-            taxkey      => $ref->{taxkey_id} };
-
-        $self->{accounts} .= "$ref->{accno} " unless $key =~ /tax/;
+    my $transdate = "current_date";
+    if ($self->{transdate}) {
+      $transdate = qq|'$self->{transdate}'|;
+    }
+  
+    # now get the account numbers
+    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
+                FROM chart c, taxkeys tk
+                WHERE c.link LIKE '%$module%' AND c.id=tk.chart_id AND tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)
+                ORDER BY c.accno|;
+  
+    $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+  
+    $self->{accounts} = "";
+    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  
+      foreach my $key (split /:/, $ref->{link}) {
+        if ($key =~ /$module/) {
+  
+          # cross reference for keys
+          $xkeyref{ $ref->{accno} } = $key;
+  
+          push @{ $self->{"${module}_links"}{$key} },
+            { accno       => $ref->{accno},
+              description => $ref->{description},
+              taxkey      => $ref->{taxkey_id},
+              tax_id      => $ref->{tax_id} };
+  
+          $self->{accounts} .= "$ref->{accno} " unless $key =~ /tax/;
+        }
       }
     }
   }
-  $sth->finish;
 
   # get taxkeys and description
-  $query = qq|SELECT taxkey, taxdescription
+  $query = qq|SELECT id, taxkey, taxdescription
               FROM tax|;
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
@@ -1729,14 +1736,50 @@ sub create_links {
     }
     $sth->finish;
 
+
+    my $transdate = "current_date";
+    if ($self->{transdate}) {
+      $transdate = qq|'$self->{transdate}'|;
+    }
+  
+    # now get the account numbers
+    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
+                FROM chart c, taxkeys tk
+                WHERE c.link LIKE '%$module%' AND (((tk.chart_id=c.id) AND NOT(c.link like '%_tax%')) OR (NOT(tk.chart_id=c.id) AND (c.link like '%_tax%'))) AND (((tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)) AND NOT(c.link like '%_tax%')) OR (c.link like '%_tax%'))
+                ORDER BY c.accno|;
+  
+    $sth = $dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+  
+    $self->{accounts} = "";
+    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  
+      foreach my $key (split /:/, $ref->{link}) {
+        if ($key =~ /$module/) {
+  
+          # cross reference for keys
+          $xkeyref{ $ref->{accno} } = $key;
+  
+          push @{ $self->{"${module}_links"}{$key} },
+            { accno       => $ref->{accno},
+              description => $ref->{description},
+              taxkey      => $ref->{taxkey_id},
+              tax_id      => $ref->{tax_id} };
+  
+          $self->{accounts} .= "$ref->{accno} " unless $key =~ /tax/;
+        }
+      }
+    }
+
+
     # get amounts from individual entries
     $query = qq|SELECT c.accno, c.description, a.source, a.amount, a.memo,
-                a.transdate, a.cleared, a.project_id, p.projectnumber, a.taxkey, t.rate
+                a.transdate, a.cleared, a.project_id, p.projectnumber, a.taxkey, t.rate, t.id
 		FROM acc_trans a
 		JOIN chart c ON (c.id = a.chart_id)
 		LEFT JOIN project p ON (p.id = a.project_id)
-		LEFT Join tax t ON (a.taxkey = t.taxkey)
-		WHERE a.trans_id = $self->{id}
+                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link='%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
+                WHERE a.trans_id = $self->{id}
 		AND a.fx_transaction = '0'
 		ORDER BY a.oid,a.transdate|;
     $sth = $dbh->prepare($query);
@@ -1765,8 +1808,8 @@ sub create_links {
 
       push @{ $self->{acc_trans}{ $xkeyref{ $ref->{accno} } } }, $ref;
     }
-    $sth->finish;
 
+    $sth->finish;
     $query = qq|SELECT d.curr AS currencies, d.closedto, d.revtrans,
                   (SELECT c.accno FROM chart c
 		   WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
@@ -1816,6 +1859,8 @@ sub create_links {
     }
 
   }
+
+  $sth->finish;
 
   $dbh->disconnect;
 

@@ -111,8 +111,10 @@ sub create_links {
   $duedate = $form->{duedate};
 
   $taxincluded = $form->{taxincluded};
-
+  my $id = $form->{id};
   IS->get_customer(\%myconfig, \%$form);
+  $form->{taxincluded} = $taxincluded;
+  $form->{id} = $id;
 
   $form->{duedate}     = $duedate if $duedate;
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
@@ -157,7 +159,7 @@ sub create_links {
 
   map {
     $tax .=
-      qq|<option value=\"$_->{taxkey}--$_->{rate}\">$_->{taxdescription}  |
+      qq|<option value=\"$_->{id}--$_->{rate}\">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
   $form->{taxchart}       = $tax;
@@ -174,7 +176,7 @@ sub create_links {
           "<option value=\"$ref->{accno}\">$ref->{accno}--$ref->{description}</option>\n";
       } else {
         $form->{"select$key"} .=
-          "<option value=\"$ref->{accno}--$ref->{taxkey}\">$ref->{accno}--$ref->{description}</option>\n";
+          "<option value=\"$ref->{accno}--$ref->{tax_id}\">$ref->{accno}--$ref->{description}</option>\n";
       }
     }
 
@@ -256,7 +258,7 @@ sub create_links {
           if ($akey eq 'amount') {
             $form->{"taxchart_$k"} = $form->{taxchart};
             $form->{"taxchart_$k"} =~
-              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{taxkey}--[^\"]*)/;
+              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{id}--[^\"]*)/;
             $form->{"taxchart_$k"} = $1;
           }
         }
@@ -663,8 +665,10 @@ $jsscript
       s/option value=\"$form->{"AR_paid_$i"}\">/option value=\"$form->{"AR_paid_$i"}\" selected>/;
 
     # format amounts
-    $form->{"paid_$i"} =
-      $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    if ($form->{"paid_$i"}) {
+      $form->{"paid_$i"} =
+        $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    }
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 

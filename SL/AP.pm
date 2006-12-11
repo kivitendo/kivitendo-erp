@@ -88,13 +88,15 @@ sub post_transaction {
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
 
   for $i (1 .. $form->{rowcount}) {
-    ($form->{"taxkey_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+   ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
 
-    $query =
-      qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{"taxkey_$i"}|;
+    $query = qq|SELECT c.accno, t.taxkey, t.rate
+            FROM tax t LEFT JOIN chart c on (c.id=t.chart_id)
+            WHERE t.id=$form->{"tax_id_$i"}
+            ORDER BY c.accno|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxrate_$i"}) =
+    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) =
       $sth->fetchrow_array;
     $form->{AP_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
     $form->{AP_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
