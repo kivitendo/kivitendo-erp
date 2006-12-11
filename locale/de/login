@@ -20,6 +20,7 @@ $self->{subs} = {
   'login'                       => 'login',
   'login_screen'                => 'login_screen',
   'logout'                      => 'logout',
+  'weiter'                      => 'continue',
   'anmeldung'                   => 'login',
 };
 

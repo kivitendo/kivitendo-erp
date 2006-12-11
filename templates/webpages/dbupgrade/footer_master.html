@@ -1,7 +1,14 @@
 <p><translate>...done</translate></p>
 
-<p><a href="menu.pl?login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&path=<TMPL_VAR path ESCAPE=URL>&action=display">
-  <translate>Continue</translate></a></p>
+<form action="menu.pl">
+
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="action" value="display">
+
+ <p><input type="submit" value="<translate>Continue</translate>"></p>
+</form>
 
 </body>
 </html>
