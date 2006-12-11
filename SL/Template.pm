@@ -610,7 +610,7 @@ sub convert_to_pdf {
 
 
 ####
-#### HTMLTemplate
+#### OpenDocumentTemplate
 ####
 
 package OpenDocumentTemplate;
