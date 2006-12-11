@@ -1597,10 +1597,10 @@ sub retrieve_invoice {
       # get tax rates and description
       $accno_id =
         ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
-      $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
-	         FROM tax t LEFT join chart c ON (c.id=t.chart_id)
-	         WHERE t.taxkey in (SELECT taxkey_id from chart where accno = '$accno_id')
-	         ORDER BY accno|;
+    $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
+	      FROM tax t LEFT JOIN chart c on (c.id=t.chart_id)
+	      WHERE t.id in (SELECT tk.tax_id from taxkeys tk where tk.chart_id = (SELECT id from chart WHERE accno='$accno_id') AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)
+	      ORDER BY c.accno|;
       $stw = $dbh->prepare($query);
       $stw->execute || $form->dberror($query);
       $ref->{taxaccounts} = "";
@@ -1957,7 +1957,7 @@ sub retrieve_item {
       ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query = qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
 	      FROM tax t LEFT JOIN chart c on (c.id=t.chart_id)
-	      WHERE t.taxkey in (SELECT c2.taxkey_id from chart c2 where c2.accno = '$accno_id')
+	      WHERE t.id in (SELECT tk.tax_id from taxkeys tk where tk.chart_id = (SELECT id from chart WHERE accno='$accno_id') AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)
 	      ORDER BY c.accno|;
     $stw = $dbh->prepare($query);
     $stw->execute || $form->dberror($query);
