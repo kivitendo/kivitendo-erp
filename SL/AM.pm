@@ -998,6 +998,10 @@ sub get_buchungsgruppe {
     $sth->finish;
 
   }
+
+  $query = "SELECT inventory_accno_id FROM defaults";
+  ($form->{"std_inventory_accno_id"}) = $dbh->selectrow_array($query);
+
   my $module = "IC";
   $query = qq|SELECT c.accno, c.description, c.link, c.id,
               d.inventory_accno_id, d.income_accno_id, d.expense_accno_id
@@ -1010,6 +1014,9 @@ sub get_buchungsgruppe {
   $sth->execute || $form->dberror($query);
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     foreach my $key (split(/:/, $ref->{link})) {
+      if (!$form->{"std_inventory_accno_id"} && ($key eq "IC")) {
+        $form->{"std_inventory_accno_id"} = $ref->{"id"};
+      }
       if ($key =~ /$module/) {
         if (   ($ref->{id} eq $ref->{inventory_accno_id})
             || ($ref->{id} eq $ref->{income_accno_id})
