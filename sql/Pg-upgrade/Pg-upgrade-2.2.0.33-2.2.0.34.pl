@@ -154,16 +154,21 @@ sub update_known_buchungsgruppen {
   my $sth = $dbh->prepare($query);
   $sth->execute() || mydberror($query);
 
-  my $query_update = "UPDATE parts SET buchungsgruppen_id = ? WHERE id = ?";
+  my $query_update = "UPDATE parts SET buchungsgruppen_id = ?";
+  $query_update .= ", inventory_accno_id = ?" if ($main::eur);
+  $query_update .= " WHERE id = ?";
   my $sth_update = $dbh->prepare($query_update);
 
   while (my $ref = $sth->fetchrow_hashref()) {
     foreach my $bg (@{$buchungsgruppen}) {
-      if (($ref->{"inventory_accno_id"} == $bg->{"inventory_accno_id"}) &&
+      if (($main::eur ||
+           ($ref->{"inventory_accno_id"} == $bg->{"inventory_accno_id"})) &&
           ($ref->{"income_accno_id"} == $bg->{"income_accno_id_0"}) &&
           ($ref->{"expense_accno_id"} == $bg->{"expense_accno_id_0"})) {
-        $sth_update->execute($bg->{"id"}, $ref->{"id"}) ||
-          mydberror($query_update . " ($bg->{id}, $ref->{id})");
+        my @values = ($bg->{"id"}, $ref->{"id"});
+        splice(@values, 1, 0, $bg->{"inventory_accno_id"}) if ($main::eur);
+        $sth_update->execute(@values) ||
+          mydberror($query_update . " (" . join(", ", @values) . ")");
         last;
       }
     }
