@@ -280,7 +280,6 @@ sub display_create_bgs_dialog {
 sub create_buchungsgruppen {
   my $form = $main::form;
 
-  $main::lxdebug->dump(0, "gaby", $form);
   for (my $i = 1; $i <= $form->{"rowcount"}; $i++) {
     next unless ($form->{"description_$i"} &&
                  $form->{"inventory_accno_id_$i"} &&
@@ -311,14 +310,10 @@ sub create_buchungsgruppen {
       push(@values, (split(/--/, $form->{"${acc}_${i}"}))[0]);
     }
 
-    $main::lxdebug->dump(0, "klaus$i", \@values);
-
     mydoquery($query, @values);
-    $main::lxdebug->message(0, "nachklausi$i");
   }
 
-  $main::lxdebug->message(0, "commit: " . $dbh->commit());
-  $main::lxdebug->message(0, "errstr: " . $dbh->errstr);
+  $dbh->commit();
   $dbh->begin_work();
 }
 
