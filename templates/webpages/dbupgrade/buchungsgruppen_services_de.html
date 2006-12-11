@@ -1,0 +1,146 @@
+<div class="listtop">Schritt 2 von 2: Dienstleistungen</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="type" value="parts">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ <TMPL_IF saved_message>
+  <p><TMPL_VAR saved_message></p>
+ </TMPL_IF>
+
+ <div class="subsubheading">Bestehende Buchungsgruppen</div>
+
+ <p>
+  Die folgenden Buchungsgruppen wurden bereits angelegt:
+  <br>
+  <ul>
+   <TMPL_LOOP BUCHUNGSGRUPPEN>
+    <li>
+     <TMPL_VAR description ESCAPE=HTML>:
+     Inventar: <TMPL_VAR inventory_accno>;
+
+     Erl&ouml;skonto/Aufwandskonto
+     Inland: <TMPL_VAR income_accno_0>/<TMPL_VAR expense_accno_0>;
+
+     Erl&ouml;skonto/Aufwandskonto
+     EU mit UstId-Nummer: <TMPL_VAR income_accno_1>/<TMPL_VAR expense_accno_1>;
+
+     Erl&ouml;skonto/Aufwandskonto
+     EU ohne UstId-Nummer: <TMPL_VAR income_accno_2>/<TMPL_VAR expense_accno_2>;
+
+     Erl&ouml;skonto/Aufwandskonto
+     Ausland: <TMPL_VAR income_accno_3>/<TMPL_VAR expense_accno_3>
+    </li>
+   </TMPL_LOOP>
+  </ul>
+ </p>
+
+ <TMPL_LOOP LIST>
+  <div class="subsubheading">Neue Buchungsgruppe <TMPL_VAR __counter__></div>
+
+  <table>
+   <tr>
+    <td>Beschreibung:</td>
+    <td><input name="description_<TMPL_VAR __counter__>"></td>
+   </tr>
+
+   <TMPL_IF eur>
+    <input type="hidden" name="inventory_accno_id_<TMPL_VAR __counter__>" value="<TMPL_VAR std_inventory_accno_id>">
+    <TMPL_ELSE>
+    <tr>
+     <td>Inventar:</td>
+     <td>
+      <select name="inventory_accno_id_<TMPL_VAR __counter__>">
+       <TMPL_LOOP ACC_INVENTORY><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
+   </TMPL_IF>
+
+   <tr>
+    <td>Erl&ouml;skonto Inland:</td>
+    <td>
+     <input type="hidden" name="income_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR income_accno_id ESCAPE=HTML>">
+     <TMPL_VAR income_accno ESCAPE=HTML>--<TMPL_VAR income_description ESCAPE=HTML>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Aufwandskonto Inland:</td>
+    <td>
+     <input type="hidden" name="expense_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR expense_accno_id ESCAPE=HTML>">
+     <TMPL_VAR expense_accno ESCAPE=HTML>--<TMPL_VAR expense_description ESCAPE=HTML>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Erl&ouml;skonto EU mit UstId-Nummer:</td>
+    <td>
+     <select name="income_accno_id_1_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_INCOME><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Aufwandskonto EU mit UstId-Nummer:</td>
+    <td>
+     <select name="expense_accno_id_1_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Erl&ouml;skonto EU ohne UstId-Nummer:</td>
+    <td>
+     <select name="income_accno_id_2_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_INCOME><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Aufwandskonto EU ohne UstId-Nummer:</td>
+    <td>
+     <select name="expense_accno_id_2_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Erl&ouml;skonto Ausland:</td>
+    <td>
+     <select name="income_accno_id_3_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_INCOME><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Aufwandskonto Ausland:</td>
+    <td>
+     <select name="expense_accno_id_3_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+  </table>
+
+  <TMPL_IF __last__>
+   <input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>">
+  </TMPL_IF>
+
+  <hr>
+ </TMPL_LOOP>
+
+ <input type="submit" onclick="document.Form.action2.value = 'create_buchungsgruppen'; document.Form.submit();" name="dummy" value="Buchungsgruppen erfassen">
+
+</form>
+
