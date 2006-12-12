@@ -1301,10 +1301,11 @@ sub dbselect_source {
 <br>
 
 <input type=submit class=submit name=action value="|
-    . $locale->text('Create Dataset') . qq|">
-<input type=submit class=submit name=action value="|
-    . $locale->text('Update Dataset') . qq|">
-<input type=submit class=submit name=action value="|
+    . $locale->text('Create Dataset') . qq|">|;
+# Vorübergehend Deaktiviert
+# <input type=submit class=submit name=action value="|
+#     . $locale->text('Update Dataset') . qq|">
+print qq| <input type=submit class=submit name=action value="|
     . $locale->text('Delete Dataset') . qq|">
 
 </form>
