@@ -308,7 +308,7 @@ sub form_header {
   <!--
   function setTaxkey(accno, row) {
     var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9])*/;
+    var reg = /--([0-9]*)/;
     var found = reg.exec(taxkey);
     var index = found[1];
     index = parseInt(index);
