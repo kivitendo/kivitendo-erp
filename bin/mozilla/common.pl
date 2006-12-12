@@ -16,9 +16,14 @@ use SL::Common;
 sub save_form {
   $lxdebug->enter_sub();
 
-  my $old_form = "";
-  map({ $old_form .= "$_=" . $form->escape($form->{$_}) . '&'; } keys(%{$form}));
-  chop($old_form);
+  my (@names, @values);
+  foreach my $key (keys(%{$form})) {
+    push(@names, "\$form->{\"$key\"}");
+    push(@values, $form->{$key});
+  }
+  my $dumper = Data::Dumper->new(\@values, \@names);
+  $dumper->Indent(0);
+  my $old_form = $dumper->Dump();
 
   $lxdebug->leave_sub();
 
@@ -28,14 +33,10 @@ sub save_form {
 sub restore_form {
   $lxdebug->enter_sub();
 
-  my ($old_form) = @_;
+  my ($old_form, $no_delete) = @_;
 
-  map({ delete($form->{$_}); } keys(%{$form}));
-
-  foreach my $pair (split('&', $old_form)) {
-    my ($key, $value) = split('=', $form->unescape($pair), 2);
-    $form->{$key} = $value;
-  }
+  map({ delete($form->{$_}); } keys(%{$form})) unless ($no_delete);
+  eval($old_form);
 
   $lxdebug->leave_sub();
 }
