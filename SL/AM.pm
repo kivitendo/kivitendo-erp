@@ -48,11 +48,12 @@ sub get_account {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
+  my $query = qq§SELECT c.accno, c.description, c.charttype, c.gifi_accno,
+                 c.category,c.link, tk.taxkey_id, tk.pos_ustva, tk.tax_id,tk.tax_id||'--'||tk.taxkey_id AS tax, tk.startdate, c.pos_bilanz, c.pos_eur, c.new_chart_id, c.valid_from, c.pos_bwa
+                FROM chart c LEFT JOIN taxkeys tk
+                ON (c.id=tk.chart_id AND tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=current_date ORDER BY startdate desc LIMIT 1))
+                WHERE c.id = $form->{id}§;
 
-  my $query = qq|SELECT c.accno, c.description, c.charttype, c.gifi_accno,
-                 c.category, c.link, c.taxkey_id, c.pos_ustva, c.pos_bwa, c.pos_bilanz,c.pos_eur, c.new_chart_id, c.valid_from
-                 FROM chart c
-	         WHERE c.id = $form->{id}|;
 
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -78,8 +79,8 @@ sub get_account {
   $sth->finish;
 
   # get taxkeys and description
-  $query = qq|SELECT taxkey, taxdescription
-              FROM tax|;
+  $query = qq§SELECT id, taxkey,id||'--'||taxkey AS tax, taxdescription
+              FROM tax§;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -179,9 +180,9 @@ sub save_account {
 
   map({ $form->{$_} = "NULL" unless ($form->{$_}); }
       qw(pos_ustva pos_bwa pos_bilanz pos_eur new_chart_id));
-
+  my($tax_id, $taxkey) = split /--/, $form->{tax};
   $form->{valid_from} = ($form->{valid_from}) ? "'$form->{valid_from}'" : "NULL";
-
+  my $startdate = ($form->{startdate}) ? "'$form->{startdate}'" : "'1970-01-01'";
   if ($form->{id} && $form->{orphaned}) {
     $query = qq|UPDATE chart SET
                 accno = '$form->{accno}',
@@ -190,7 +191,7 @@ sub save_account {
 		gifi_accno = '$form->{gifi_accno}',
 		category = '$form->{category}',
 		link = '$form->{link}',
-                taxkey_id = $form->{taxkey_id},
+                taxkey_id = $taxkey,
                 pos_ustva = $form->{pos_ustva},
                 pos_bwa   = $form->{pos_bwa},
                 pos_bilanz = $form->{pos_bilanz},
@@ -209,52 +210,63 @@ sub save_account {
                 (accno, description, charttype, gifi_accno, category, link, taxkey_id, pos_ustva, pos_bwa, pos_bilanz,pos_eur, new_chart_id, valid_from)
                 VALUES ('$form->{accno}', '$form->{description}',
 		'$form->{charttype}', '$form->{gifi_accno}',
-		'$form->{category}', '$form->{link}', $form->{taxkey_id}, $form->{pos_ustva}, $form->{pos_bwa}, $form->{pos_bilanz}, $form->{pos_eur}, $form->{new_chart_id}, $form->{valid_from})|;
+		'$form->{category}', '$form->{link}', $taxkey, $form->{pos_ustva}, $form->{pos_bwa}, $form->{pos_bilanz}, $form->{pos_eur}, $form->{new_chart_id}, $form->{valid_from})|;
   }
   $dbh->do($query) || $form->dberror($query);
 
-  if ($form->{IC_taxpart} || $form->{IC_taxservice} || $form->{CT_tax}) {
-
-    my $chart_id = $form->{id};
-
-    unless ($form->{id}) {
-
-      # get id from chart
-      $query = qq|SELECT c.id
-                  FROM chart c
-		  WHERE c.accno = '$form->{accno}'|;
-      $sth = $dbh->prepare($query);
-      $sth->execute || $form->dberror($query);
-
-      ($chart_id) = $sth->fetchrow_array;
-      $sth->finish;
-    }
-
-    # add account if it doesn't exist in tax
-    $query = qq|SELECT t.chart_id
-                FROM tax t
-		WHERE t.chart_id = $chart_id|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    my ($tax_id) = $sth->fetchrow_array;
-    $sth->finish;
-
-    # add tax if it doesn't exist
-    unless ($tax_id) {
-      $query = qq|INSERT INTO tax (chart_id, rate)
-                  VALUES ($chart_id, 0)|;
-      $dbh->do($query) || $form->dberror($query);
-    }
+  #Save Taxes
+  if (!$form->{id}) {
+    $query = qq|INSERT INTO taxkeys (chart_id,tax_id,taxkey_id, pos_ustva, startdate) VALUES ((SELECT id FROM chart where accno='$form->{accno}'), $tax_id, $taxkey,$form->{pos_ustva}, $startdate)|; 
+    $dbh->do($query) || $form->dberror($query);
   } else {
-
-    # remove tax
-    if ($form->{id}) {
-      $query = qq|DELETE FROM tax
-		  WHERE chart_id = $form->{id}|;
-      $dbh->do($query) || $form->dberror($query);
-    }
+    $query = qq|DELETE FROM taxkeys WHERE chart_id=$form->{id} AND tax_id=$tax_id|;
+    $dbh->do($query) || $form->dberror($query);
+    $query = qq|INSERT INTO taxkeys (chart_id,tax_id,taxkey_id, pos_ustva, startdate) VALUES ($form->{id}, $tax_id, $taxkey,$form->{pos_ustva}, $startdate)|;
+    $dbh->do($query) || $form->dberror($query);
   }
+
+#   if ($form->{IC_taxpart} || $form->{IC_taxservice} || $form->{CT_tax}) {
+# 
+#     my $chart_id = $form->{id};
+# 
+#     unless ($form->{id}) {
+# 
+#       # get id from chart
+#       $query = qq|SELECT c.id
+#                   FROM chart c
+# 		  WHERE c.accno = '$form->{accno}'|;
+#       $sth = $dbh->prepare($query);
+#       $sth->execute || $form->dberror($query);
+# 
+#       ($chart_id) = $sth->fetchrow_array;
+#       $sth->finish;
+#     }
+# 
+#     # add account if it doesn't exist in tax
+#     $query = qq|SELECT t.chart_id
+#                 FROM tax t
+# 		WHERE t.chart_id = $chart_id|;
+#     $sth = $dbh->prepare($query);
+#     $sth->execute || $form->dberror($query);
+# 
+#     my ($tax_id) = $sth->fetchrow_array;
+#     $sth->finish;
+# 
+#     # add tax if it doesn't exist
+#     unless ($tax_id) {
+#       $query = qq|INSERT INTO tax (chart_id, rate)
+#                   VALUES ($chart_id, 0)|;
+#       $dbh->do($query) || $form->dberror($query);
+#     }
+#   } else {
+# 
+#     # remove tax
+#     if ($form->{id}) {
+#       $query = qq|DELETE FROM tax
+# 		  WHERE chart_id = $form->{id}|;
+#       $dbh->do($query) || $form->dberror($query);
+#     }
+#   }
 
   # commit
   my $rc = $dbh->commit;

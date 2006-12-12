@@ -96,12 +96,12 @@ sub account_header {
   if (@{ $form->{TAXKEY} }) {
     $form->{selecttaxkey} = "<option value=0>Keine Steuer 0%\n";
     foreach $item (@{ $form->{TAXKEY} }) {
-      if ($item->{taxkey} == $form->{taxkey_id}) {
+      if ($item->{tax} == $form->{tax}) {
         $form->{selecttaxkey} .=
-          "<option value=$item->{taxkey} selected>$item->{taxdescription}\n";
+          "<option value=$item->{tax} selected>$item->{taxdescription}\n";
       } else {
         $form->{selecttaxkey} .=
-          "<option value=$item->{taxkey}>$item->{taxdescription}\n";
+          "<option value=$item->{tax}>$item->{taxdescription}\n";
       }
 
     }
@@ -110,8 +110,9 @@ sub account_header {
   $taxkey = qq|
 	      <tr>
 		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name=taxkey_id>$form->{selecttaxkey}</select></td>
-		<input type=hidden name=selecttaxkey value="$form->{selecttaxkey}">
+		<td><select name=tax>$form->{selecttaxkey}</select></td>
+		<th align=right>| . $locale->text('Gültig ab') . qq|</th>
+                <td><input name=startdate value="$form->{startdate}"></td>
 	      </tr>|;
 
   if (@{ $form->{NEWACCOUNT} }) {
