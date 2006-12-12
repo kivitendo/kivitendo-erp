@@ -121,7 +121,7 @@ sub invoice_links {
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
 
   # vendors
-  if ($form->{all_vendor}) {
+  if (@{ $form->{all_vendor} }) {
     $form->{vendor} = "$form->{vendor}--$form->{vendor_id}";
     map { $form->{selectvendor} .= "<option>$_->{name}--$_->{id}\n" }
       (@{ $form->{all_vendor} });

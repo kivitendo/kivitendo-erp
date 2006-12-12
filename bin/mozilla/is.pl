@@ -138,6 +138,7 @@ sub invoice_links {
 
   $cp_id = $form->{cp_id};
   IS->get_customer(\%myconfig, \%$form);
+
   #quote all_customer Bug 133
   foreach $ref (@{ $form->{all_customer} }) {
     $ref->{name} = $form->quote($ref->{name});
@@ -170,7 +171,7 @@ sub invoice_links {
 
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
 
-  if ($form->{all_customer}) {
+  if (@{ $form->{all_customer} }) {
     $form->{customer} = "$form->{customer}--$form->{customer_id}";
     map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}\n" }
       (@{ $form->{all_customer} });
@@ -442,11 +443,13 @@ sub form_header {
   $exchangerate .= qq|
 <input type=hidden name=forex value=$form->{forex}>
 |;
+  print(STDERR "$form->{customer} Kunde\n");
 
   $customer =
     ($form->{selectcustomer})
     ? qq|<select name=customer>$form->{selectcustomer}</select>\n<input type=hidden name="selectcustomer" value="$form->{selectcustomer}">|
     : qq|<input name=customer value="$form->{customer}" size=35>|;
+  print(STDERR "$form->{customer} Kunde\n");
 
   #sk
   $contact =
