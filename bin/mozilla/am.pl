@@ -94,7 +94,6 @@ sub account_header {
   $form->{description} =~ s/\"/&quot;/g;
 
   if (@{ $form->{TAXKEY} }) {
-    $form->{selecttaxkey} = "<option value=0>Keine Steuer 0%\n";
     foreach $item (@{ $form->{TAXKEY} }) {
       if ($item->{tax} == $form->{tax}) {
         $form->{selecttaxkey} .=

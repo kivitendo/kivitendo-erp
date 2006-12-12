@@ -80,12 +80,12 @@ sub get_account {
 
   # get taxkeys and description
   $query = qq§SELECT id, taxkey,id||'--'||taxkey AS tax, taxdescription
-              FROM tax§;
+              FROM tax ORDER BY taxkey§;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
+  
+  $form->{TAXKEY} = [];
+  
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{TAXKEY} }, $ref;
   }
