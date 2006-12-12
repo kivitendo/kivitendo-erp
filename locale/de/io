@@ -133,6 +133,7 @@ $self->{subs} = {
   'print_form'                  => 'print_form',
   'print_options'               => 'print_options',
   'quotation'                   => 'quotation',
+  'relink_accounts'             => 'relink_accounts',
   'select_item'                 => 'select_item',
   'send_email'                  => 'send_email',
   'set_pricegroup'              => 'set_pricegroup',

@@ -33,6 +33,8 @@
 #
 #######################################################################
 
+use SL::IC;
+
 # any custom scripts for this one
 if (-f "$form->{path}/custom_io.pl") {
   eval { require "$form->{path}/custom_io.pl"; };
@@ -843,6 +845,9 @@ sub new_item {
 
 sub display_form {
   $lxdebug->enter_sub();
+
+  relink_accounts();
+
   $form->language_payment(\%myconfig);
 
   # if we have a display_form
@@ -2119,3 +2124,21 @@ sub new_license {
   $lxdebug->leave_sub();
 }
 
+sub relink_accounts {
+  $lxdebug->enter_sub();
+
+  $form->{"taxaccounts"} =~ s/\s*$//;
+  $form->{"taxaccounts"} =~ s/^\s*//;
+  foreach my $accno (split(/\s*/, $form->{"taxaccounts"})) {
+    map({ delete($form->{"${accno}_${_}"}); } qw(rate description taxnumber));
+  }
+  $form->{"taxaccounts"} = "";
+
+  for ($i = 1; $i <= $form->{"rowcount"}; $i++) {
+    if ($form->{"id_$i"}) {
+      IC->retrieve_taxaccounts(\%myconfig, $form, $form->{"id_$i"}, $i, 1);
+    }
+  }
+
+  $lxdebug->leave_sub();
+}

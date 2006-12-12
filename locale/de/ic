@@ -258,6 +258,7 @@ $self->{subs} = {
   'print_form'                  => 'print_form',
   'print_options'               => 'print_options',
   'quotation'                   => 'quotation',
+  'relink_accounts'             => 'relink_accounts',
   'restock_assemblies'          => 'restock_assemblies',
   'save'                        => 'save',
   'save_as_new'                 => 'save_as_new',

@@ -1343,6 +1343,7 @@ sub post_payment {
 
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
+  relink_accounts();
   $form->redirect($locale->text(' Payment posted!'))
       if (IS->post_payment(\%myconfig, \%$form));
     $form->error($locale->text('Cannot post payment!'));
@@ -1409,6 +1410,7 @@ sub post {
       $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
     }
   }
+  relink_accounts();
   if ($print_post) {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {
       $form->error($locale->text('Cannot post invoice!'));

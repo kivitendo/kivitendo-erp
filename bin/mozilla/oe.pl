@@ -1968,6 +1968,8 @@ sub save_and_close {
     $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld);
   }
 
+  relink_accounts();
+
   $form->redirect(
             $form->{label} . " $form->{$ordnumber} " . $locale->text('saved!'))
     if (OE->save(\%myconfig, \%$form));
@@ -2040,6 +2042,7 @@ sub save {
   $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld)
     unless $form->{$ordnumber};
 
+  relink_accounts();
 
   OE->save(\%myconfig, \%$form);
   $form->{simple_save} = 1;
@@ -2165,6 +2168,7 @@ sub invoice {
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
   if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
+    relink_accounts();
     OE->save(\%myconfig, \%$form);
   } else {
     OE->close_orders(\%myconfig, \%$form);
@@ -2389,6 +2393,8 @@ sub create_backorder {
     } qw(sellprice discount);
   }
 
+  relink_accounts();
+
   OE->save(\%myconfig, \%$form);
 
   # rebuild rows for invoice
@@ -2430,6 +2436,7 @@ sub purchase_order {
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
     $form->{closed} = 1;
+    relink_accounts();
     OE->save(\%myconfig, \%$form);
   }
 
@@ -2450,6 +2457,7 @@ sub sales_order {
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
     $form->{closed} = 1;
+    relink_accounts();
     OE->save(\%myconfig, \%$form);
   }
 

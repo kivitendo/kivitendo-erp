@@ -210,6 +210,7 @@ $self->{subs} = {
   'print_options'               => 'print_options',
   'project_selected'            => 'project_selected',
   'quotation'                   => 'quotation',
+  'relink_accounts'             => 'relink_accounts',
   'sales_invoice'               => 'sales_invoice',
   'section_menu'                => 'section_menu',
   'select_item'                 => 'select_item',

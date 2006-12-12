@@ -279,6 +279,7 @@ $self->{subs} = {
   'project_selected'            => 'project_selected',
   'purchase_order'              => 'purchase_order',
   'quotation'                   => 'quotation',
+  'relink_accounts'             => 'relink_accounts',
   'sales_invoice'               => 'sales_invoice',
   'sales_order'                 => 'sales_order',
   'save'                        => 'save',

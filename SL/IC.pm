@@ -1733,4 +1733,110 @@ sub retrieve_languages {
 
 }
 
+sub retrieve_taxaccounts {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $parts_id, $index, $copy_accnos) = @_;
+
+  my ($query, $sth, $dbh);
+
+  return $main::lxdebug->leave_sub() if (!defined($form->{"taxzone_id"}));
+
+  $dbh = $form->dbconnect($myconfig);
+
+  my $transdate = "";
+  if ($form->{type} eq "invoice") {
+    if (($form->{vc} eq "vendor") || !$form->{deliverydate}) {
+      $transdate = $form->{invdate};
+    } else {
+      $transdate = $form->{deliverydate};
+    }
+  } else {
+    $transdate = $form->{transdate};
+  }
+
+  if ($transdate eq "") {
+    $transdate = "current_date";
+  } else {
+    $transdate = $dbh->quote($transdate);
+  }
+
+  my $inc_exp = $form->{vc} eq "customer" ? "income" : "expense";
+
+  my $accno_str = "${inc_exp}_accno_id_$form->{taxzone_id}";
+
+  $query =
+    "SELECT bg.$accno_str AS accno_id, c.accno " .
+    "FROM buchungsgruppen bg " .
+    "LEFT JOIN chart c ON bg.$accno_str = c.id " .
+    "WHERE bg.id = (SELECT p.buchungsgruppen_id FROM parts p WHERE p.id = ?)";
+  $sth = $dbh->prepare($query);
+  $sth->execute($parts_id) || $form->dberror($query . " ($parts_id)");
+  my $ref = $sth->fetchrow_hashref();
+  $sth->finish();
+
+  if (!$ref) {
+    $dbh->disconnect();
+    return $lxdebug->leave_sub();
+  }
+
+  my ($accno_id, $accno) = ($ref->{"accno_id"}, $ref->{"accno"});
+  my ($old_accno_id, $old_accno) = ($ref->{"accno_id"}, $ref->{"accno"});
+
+  my @visited_accno_ids = ($accno_id);
+
+  $query =
+    "SELECT c.new_chart_id, date($transdate) >= c.valid_from AS is_valid, " .
+    "  cnew.accno " .
+    "FROM chart c " .
+    "LEFT JOIN chart cnew ON c.new_chart_id = cnew.id " .
+    "WHERE (c.id = ?) AND NOT c.new_chart_id ISNULL AND (c.new_chart_id > 0)";
+  $sth = $dbh->prepare($query);
+
+  while (1) {
+    $sth->execute($accno_id) || $form->dberror($query . " ($accno_id)");
+    $ref = $sth->fetchrow_hashref();
+    last unless ($ref && $ref->{"is_valid"} &&
+                 !grep({ $_ == $ref->{"new_chart_id"} } @visited_accno_ids));
+    $accno_id = $ref->{"new_chart_id"};
+    $accno = $ref->{"accno"};
+    push(@visited_accno_ids, $accno_id);
+  }
+
+#   $main::lxdebug->message(0, "found final accno_id $accno_id accno $accno for old accno_id $old_accno_id accno $old_accno");
+
+  $query =
+    "SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber " .
+    "FROM tax t " .
+    "LEFT JOIN chart c ON c.id = t.chart_id " .
+    "WHERE t.id IN " .
+    "  (SELECT tk.tax_id " .
+    "   FROM taxkeys tk " .
+    "   WHERE tk.chart_id = $accno_id AND startdate <= $transdate " .
+    "   ORDER BY startdate DESC LIMIT 1) ";
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+  $ref = $sth->fetchrow_hashref();
+  $sth->finish();
+  $dbh->disconnect();
+
+  return $lxdebug->leave_sub() unless ($ref);
+
+  $form->{"taxaccounts_$index"} = $ref->{"accno"};
+  if ($form->{"taxaccounts"} !~ /$ref->{accno}/) {
+    $form->{"taxaccounts"} .= "$ref->{accno} ";
+  }
+  map({ $form->{"$ref->{accno}_${_}"} = $ref->{$_}; }
+      qw(rate description taxnumber));
+
+#   $main::lxdebug->message(0, "formvars: rate " . $form->{"$ref->{accno}_rate"} .
+#                           " description " . $form->{"$ref->{accno}_description"} .
+#                           " taxnumber " . $form->{"$ref->{accno}_taxnumber"} .
+#                           " || taxaccounts_$index " . $form->{"taxaccounts_$index"} .
+#                           " || taxaccounts " . $form->{"taxaccounts"});
+
+  $sth->finish();
+
+  $main::lxdebug->leave_sub();
+}
 1;

@@ -1006,6 +1006,7 @@ sub post {
     $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
   }
 
+  relink_accounts();
   $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'))
