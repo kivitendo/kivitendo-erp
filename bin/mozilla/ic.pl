@@ -313,7 +313,7 @@ sub search {
           <td colspan=3>
             <table>
               <tr>
-                <td><input name=l_partnumber class=checkbox type=checkbox value=Y>&nbsp;|
+                <td><input name=l_partnumber class=checkbox type=checkbox value=Y checked>&nbsp;|
     . $locale->text('Part Number') . qq|</td>
 		<td><input name=l_description class=checkbox type=checkbox value=Y checked>&nbsp;|
     . $locale->text('Part Description') . qq|</td>
@@ -3189,6 +3189,7 @@ sub save_as_new {
   $lxdebug->enter_sub();
 
   $form->{id} = 0;
+  $form->{partnumber} = "";
   &save;
 
   $lxdebug->leave_sub();
