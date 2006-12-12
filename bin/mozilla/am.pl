@@ -2264,6 +2264,9 @@ sub add_payment {
     "$form->{script}?action=add_payment&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
+  $form->{terms_netto} = 0;
+  $form->{terms_skonto} = 0;
+  $form->{percent_skonto} = 0;
   &payment_header;
   &form_footer;
 
@@ -2437,10 +2440,6 @@ sub payment_header {
   <tr>
     <th align=right>| . $locale->text('Description') . qq|</th>
     <td><input name=description size=30 value="$form->{description}"></td>
-  <tr>
-  <tr>
-    <th align=right>| . $locale->text('Ranking') . qq|</th>
-    <td><input name=ranking size=30 value="$form->{ranking}"></td>
   <tr>
   <tr>
     <th align=right>| . $locale->text('Long Description') . qq|</th>
