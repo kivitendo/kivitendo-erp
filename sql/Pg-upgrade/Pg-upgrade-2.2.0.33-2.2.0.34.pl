@@ -186,8 +186,10 @@ sub update_known_buchungsgruppen {
     foreach my $bg (@{$buchungsgruppen}) {
       if (($ref->{"income_accno_id"} == $bg->{"income_accno_id_0"}) &&
           ($ref->{"expense_accno_id"} == $bg->{"expense_accno_id_0"})) {
-        $sth_update->execute($bg->{"id"}, $ref->{"id"}) ||
-          mydberror($query_update . " ($bg->{id}, $ref->{id})");
+        my @values = ($bg->{"id"}, $ref->{"id"});
+        splice(@values, 1, 0, undef) if ($main::eur);
+        $sth_update->execute(@values) ||
+          mydberror($query_update . " (" . join(", ", @values) . ")");
         last;
       }
     }
