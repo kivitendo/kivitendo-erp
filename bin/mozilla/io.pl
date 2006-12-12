@@ -2013,6 +2013,16 @@ sub ship_to {
 	  <td><input name=shiptoname size=35 value="$form->{shiptoname}"></td>
 	</tr>
 	<tr>
+	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
+	  <td>$form->{department_1}</td>
+	  <td><input name=shiptodepartment_1 size=35 value="$form->{shiptodepartment_1}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>&nbsp;</th>
+	  <td>$form->{department_2}</td>
+	  <td><input name=shiptodepartment_2 size=35 value="$form->{shiptodepartment_2}"></td>
+	</tr>
+	<tr>
 	  <th align=right nowrap>| . $locale->text('Street') . qq|</th>
 	  <td>$form->{street}</td>
 	  <td><input name=shiptostreet size=35 value="$form->{shiptostreet}"></td>
@@ -2062,7 +2072,7 @@ sub ship_to {
 
   # delete shipto
   map { delete $form->{$_} }
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail header);
+    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2 header);
   $form->{title} = $title;
 
   foreach $key (keys %$form) {

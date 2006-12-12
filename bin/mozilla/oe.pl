@@ -288,8 +288,6 @@ sub prepare_order {
   $form->{media}    = "screen";
   $form->{formname} = $form->{type} unless $form->{formname};
 
-  map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
   my $i = 0;
   foreach $ref (@{ $form->{form_details} }) {
     $form->{rowcount} = ++$i;
@@ -333,6 +331,11 @@ sub form_header {
 
   $checkedopen   = ($form->{closed}) ? ""        : "checked";
   $checkedclosed = ($form->{closed}) ? "checked" : "";
+
+  map { $form->{$_} =~ s/\"/&quot;/g }
+    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
+       shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
+       shiptophone shiptofax shiptodepartment_1 shiptodepartment_2);
 
   # use JavaScript Calendar or not
   $form->{jsscript} = $form->{jscalendar};
@@ -830,6 +833,8 @@ $jsscript
 <input type=hidden name=shiptocontact value="$form->{shiptocontact}">
 <input type=hidden name=shiptophone value="$form->{shiptophone}">
 <input type=hidden name=shiptofax value="$form->{shiptofax}">
+<input type=hidden name=shiptodepartment_1 value="$form->{shiptodepartment_1}">
+<input type=hidden name=shiptodepartment_2 value="$form->{shiptodepartment_2}">
 <input type=hidden name=shiptoemail value="$form->{shiptoemail}">
 
 <!-- email variables -->
@@ -2691,6 +2696,8 @@ sub display_ship_receive {
 <input type=hidden name=shiptophone value="$form->{shiptophone}">
 <input type=hidden name=shiptofax value="$form->{shiptofax}">
 <input type=hidden name=shiptoemail value="$form->{shiptoemail}">
+<input type=hidden name=shiptodepartment_1 value="$form->{shiptodepartment_1}">
+<input type=hidden name=shiptodepartment_2 value="$form->{shiptodepartment_2}">
 
 <!-- email variables -->
 <input type=hidden name=message value="$form->{message}">
