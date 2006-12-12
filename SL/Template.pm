@@ -196,7 +196,7 @@ sub parse_foreach {
         # replace the special variables <%sumcarriedforward%>
         # and <%lastpage%>
 
-        my $psum = $form->format_amount($myconfig, $sum, 2);
+        my $psum = $form->format_amount($self->{"myconfig"}, $sum, 2);
         $pb =~ s/<%sumcarriedforward%>/$psum/g;
         $pb =~ s/<%lastpage%>/$current_page/g;
 
@@ -210,7 +210,8 @@ sub parse_foreach {
       $current_line += $lines;
     }
     if ($i < scalar(@{$form->{"linetotal"}})) {
-      $sum += $form->parse_amount($myconfig, $form->{"linetotal"}->[$i]);
+      $sum += $form->parse_amount($self->{"myconfig"},
+                                  $form->{"linetotal"}->[$i]);
     }
 
     my $new_text = $self->parse_block($text, (@indices, $i));
