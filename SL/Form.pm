@@ -664,7 +664,7 @@ sub format_amount {
   $amount = $self->round_amount($amount, $places) if ($places =~ /\d/);
 
   my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
-  my @p = split /\./, $amount ; # split amount at decimal point
+  my @p = split(/\./, $amount); # split amount at decimal point
 
   $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1]; # add 1,000 delimiters
 
@@ -1656,7 +1656,7 @@ sub create_links {
     $self->{accounts} = "";
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
   
-      foreach my $key (split /:/, $ref->{link}) {
+      foreach my $key (split(/:/, $ref->{link})) {
         if ($key =~ /$module/) {
   
           # cross reference for keys
@@ -1755,7 +1755,7 @@ sub create_links {
     $self->{accounts} = "";
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
   
-      foreach my $key (split /:/, $ref->{link}) {
+      foreach my $key (split(/:/, $ref->{link})) {
         if ($key =~ /$module/) {
   
           # cross reference for keys
@@ -1844,7 +1844,7 @@ sub create_links {
     if ($self->{"$self->{vc}_id"}) {
 
       # only setup currency
-      ($self->{currency}) = split /:/, $self->{currencies};
+      ($self->{currency}) = split(/:/, $self->{currencies});
 
     } else {
 
