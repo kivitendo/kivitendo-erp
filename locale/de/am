@@ -169,7 +169,6 @@ $self->{texts} = {
   'Profit Center'               => 'Erfolgsbereich',
   'Project Number'              => 'Projektnummer',
   'Project description'         => 'Projektbeschreibung',
-  'Ranking'                     => 'Ranking',
   'Rate'                        => 'Rate',
   'Receipt'                     => 'Zahlungseingang',
   'Receivables'                 => 'Forderungen',

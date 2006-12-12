@@ -1224,6 +1224,10 @@ sub quotation {
   $lxdebug->leave_sub();
 }
 
+sub request_for_quotation {
+  quotation();
+}
+
 sub e_mail {
   $lxdebug->enter_sub();
   if ($form->{second_run}) {

@@ -1093,7 +1093,7 @@ sub form_footer {
 <input class=submit type=submit name=action value="|
         . $locale->text('Sales Order') . qq|">
 <input class=submit type=submit name=action value="|
-        . $locale->text('Quotation') . qq|">
+        . $locale->text('Request for Quotation') . qq|">
 |;
 
     } else {
