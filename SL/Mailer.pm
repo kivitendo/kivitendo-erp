@@ -41,6 +41,48 @@ sub new {
   bless $self, $type;
 }
 
+sub mime_quote_text {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $text, $chars_left) = @_;
+
+  my $q_start = "=?$self->{charset}?Q?";
+  my $l_start = length($q_start);
+
+  my $new_text = "$q_start";
+  $chars_left -= $l_start;
+
+  for (my $i = 0; $i < length($text); $i++) {
+    my $char = ord(substr($text, $i, 1));
+
+    if (($char < 33) || ($char > 127) ||
+        ($char == ord('?')) || ($char == ord(' '))) {
+      if ($chars_left < 5) {
+        $new_text .= "?=\n $q_start";
+        $chars_left = 75 - $l_start;
+      }
+
+      $new_text .= sprintf("=%02x", $char);
+      $chars_left -= 3;
+
+    } else {
+      if ($chars_left < 5) {
+        $new_text .= "?=\n $q_start";
+        $chars_left = 75 - $l_start;
+      }
+
+      $new_text .= chr($char);
+      $chars_left--;
+    }
+  }
+
+  $new_text .= "?=";
+
+  $main::lxdebug->leave_sub();
+
+  return $new_text;
+}
+
 sub send {
   $main::lxdebug->enter_sub();
 
@@ -52,7 +94,7 @@ sub send {
   $domain =~ s/(.*?\@|>)//g;
   my $msgid = "$boundary\@$domain";
 
-  $self->{charset} = "ISO-8859-1" unless $self->{charset};
+  $self->{charset} = "ISO-8859-15" unless $self->{charset};
 
   if ($out) {
     if (!open(OUT, $out)) {
@@ -79,9 +121,11 @@ sub send {
     $self->{$item} =~ s/\$>\$/>/g;
   }
 
+  my $subject = $self->mime_quote_text($self->{subject}, 60);
+
   print OUT qq|From: $self->{from}
 To: $self->{to}
-${cc}${bcc}Subject: $self->{subject}
+${cc}${bcc}Subject: $subject
 Message-ID: <$msgid>
 X-Mailer: Lx-Office $self->{version}
 MIME-Version: 1.0
