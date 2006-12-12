@@ -145,10 +145,25 @@ sub post_transaction {
 
   # insert acc_trans transactions
   for $i (1 .. $form->{rowcount}) {
-
+    my $taxkey;
+    my $rate;
     # extract accno
+    print(STDERR $form->{"taxchart_$i"}, "TAXCHART\n");
     my ($accno) = split(/--/, $form->{"accno_$i"});
     my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+    ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+    if ($form->{"tax_id_$i"} ne "") {
+      $query = qq|SELECT t.taxkey, t.rate
+              FROM tax t
+              WHERE t.id=$form->{"tax_id_$i"}|;
+  
+      $sth = $dbh->prepare($query);
+      $sth->execute || $form->dberror($query);
+      ($taxkey, $rate) =
+        $sth->fetchrow_array;
+      $sth->finish;
+    }
+
     my $amount = 0;
     my $debit  = $form->{"debit_$i"};
     my $credit = $form->{"credit_$i"};
@@ -194,7 +209,7 @@ sub post_transaction {
                   VALUES
                   ($form->{id}, (SELECT t.chart_id
                   FROM tax t
-                  WHERE t.taxkey = $taxkey),
+                  WHERE t.id = $form->{"tax_id_$i"}),
                   $amount, '$form->{transdate}', |
         . $dbh->quote($form->{"source_$i"}) . qq|, |
         . $dbh->quote($form->{"memo_$i"}) . qq|,
@@ -608,6 +623,19 @@ sub transaction {
 	      WHERE a.chart_id = c.id
 	      AND a.trans_id = $form->{id}
 	      ORDER BY a.oid";
+
+    $query = qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo,
+                a.transdate, a.cleared, a.project_id, p.projectnumber,(SELECT p.projectnumber FROM project p
+		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, t.rate AS taxrate, t.id, (SELECT c1.accno FROM chart c1, tax t1 WHERE t1.id=t.id AND c1.id=t.chart_id) AS taxaccno
+		FROM acc_trans a
+		JOIN chart c ON (c.id = a.chart_id)
+		LEFT JOIN project p ON (p.id = a.project_id)
+                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link='%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
+                WHERE a.trans_id = $form->{id}
+		AND a.fx_transaction = '0'
+		ORDER BY a.oid,a.transdate|;
+
+
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
@@ -645,12 +673,15 @@ sub transaction {
   }
 
   $sth->finish;
-
+  my $transdate = "current_date";
+  if ($form->{transdate}) {
+    $transdate = qq|'$form->{transdate}'|;
+  }
   # get chart of accounts
-  $query = qq|SELECT c.accno, c.description, c.taxkey_id
-              FROM chart c
-	      WHERE c.charttype = 'A'
-              ORDER by c.accno|;
+  $query = qq|SELECT c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id
+                FROM chart c 
+                LEFT JOIN taxkeys tk ON (tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1))
+                ORDER BY c.accno|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $form->{chart} = ();
