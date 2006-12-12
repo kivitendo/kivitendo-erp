@@ -311,6 +311,9 @@ sub form_header {
     }
   }
 
+  $form->{radier} =
+    ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+
   $payment = qq|<option value=""></option>|;
   foreach $item (@{ $form->{payment_terms} }) {
     if ($form->{payment_id} eq $item->{id}) {
@@ -443,13 +446,11 @@ sub form_header {
   $exchangerate .= qq|
 <input type=hidden name=forex value=$form->{forex}>
 |;
-  print(STDERR "$form->{customer} Kunde\n");
 
   $customer =
     ($form->{selectcustomer})
     ? qq|<select name=customer>$form->{selectcustomer}</select>\n<input type=hidden name="selectcustomer" value="$form->{selectcustomer}">|
     : qq|<input name=customer value="$form->{customer}" size=35>|;
-  print(STDERR "$form->{customer} Kunde\n");
 
   #sk
   $contact =
@@ -1094,6 +1095,12 @@ if ($form->{type} eq "credit_note") {
     print qq|
     <input class=submit type=submit name=action value="|
       . $locale->text('Credit Note') . qq|">
+|;
+  }
+    if ($form->{radier}) {
+    print qq|
+    <input class=submit type=submit name=action value="|
+      . $locale->text('Delete') . qq|">
 |;
   }
 

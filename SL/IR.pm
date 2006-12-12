@@ -841,7 +841,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.cp_id, a.invnumber, a.transdate AS invdate, a.duedate,
-                a.ordnumber, a.quonumber, a.paid, a.taxincluded, a.notes, a.taxzone_id, a.storno,
+                a.ordnumber, a.quonumber, a.paid, a.taxincluded, a.notes, a.taxzone_id, a.storno, a.gldate,
 		a.intnotes, a.curr AS currency
 		FROM ap a
 		WHERE a.id = $form->{id}|;

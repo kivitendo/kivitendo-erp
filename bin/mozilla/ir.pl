@@ -224,6 +224,9 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  $form->{radier} =
+    ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+
   #quote selectvendor Bug 133
   $form->{"selectvendor"} = $form->quote($form->{"selectvendor"});
 
@@ -743,7 +746,12 @@ sub form_footer {
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Storno') . qq|">
 | unless ($form->{storno});
-
+    if ($form->{radier}) {
+    print qq|
+    <input class=submit type=submit name=action value="|
+      . $locale->text('Delete') . qq|">
+|;
+  }
   } else {
     if ($invdate > $closedto) {
       print qq|<input class=submit type=submit name=action value="|

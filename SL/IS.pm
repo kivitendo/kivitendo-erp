@@ -1472,7 +1472,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
-                a.transdate AS invdate, a.deliverydate, a.paid, a.storno,
+                a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
                 a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
 		a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,
 		a.employee_id, e.name AS employee, a.payment_id, a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type
