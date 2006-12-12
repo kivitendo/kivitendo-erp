@@ -739,30 +739,30 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  if ($form->{id} && $form->{radier}) {
-
-    print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Update') . qq|">
-|;
-
-    if (!$form->{revtrans}) {
-      if (!$form->{locked}) {
+  if ($form->{id}) {
+    if ($form->{radier}) {
+      print qq|<input class=submit type=submit name=action value="|
+        . $locale->text('Update') . qq|">
+  |;
+  
+      if (!$form->{revtrans}) {
+        if (!$form->{locked}) {
+          print qq|
+          <input class=submit type=submit name=action value="|
+            . $locale->text('Post') . qq|">
+          <input class=submit type=submit name=action value="|
+            . $locale->text('Delete') . qq|">
+  |;
+        }
+      }
+  
+      if ($transdate > $closedto) {
         print qq|
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Post') . qq|">
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Delete') . qq|">
-|;
+  <input class=submit type=submit name=action value="|
+          . $locale->text('Post as new') . qq|">
+  |;
       }
     }
-
-    if ($transdate > $closedto) {
-      print qq|
-<input class=submit type=submit name=action value="|
-        . $locale->text('Post as new') . qq|">
-|;
-    }
-
   } else {
     if ($transdate > $closedto) {
       print qq|<input class=submit type=submit name=action value="|
