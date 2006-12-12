@@ -423,6 +423,7 @@ function fokus(){document.$self->{fokus}.focus();}
   $jsscript
   $ajax
   $fokus
+  <meta name="robots" content="noindex,nofollow" />
   <script type="text/javascript" src="js/highlight_input.js"></script>
   <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
   
