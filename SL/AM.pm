@@ -1497,13 +1497,13 @@ sub save_preferences {
 	      WHERE login = '$form->{login}'|;
   $dbh->do($query) || $form->dberror($query);
 
-  foreach my $item (split(/ /, $form->{taxaccounts})) {
-    $query = qq|UPDATE tax
-		SET rate = | . ($form->{$item} / 100) . qq|,
-		taxnumber = '$form->{"taxnumber_$item"}'
-		WHERE chart_id = $item|;
-    $dbh->do($query) || $form->dberror($query);
-  }
+#   foreach my $item (split(/ /, $form->{taxaccounts})) {
+#     $query = qq|UPDATE tax
+# 		SET rate = | . ($form->{$item} / 100) . qq|,
+# 		taxnumber = '$form->{"taxnumber_$item"}'
+# 		WHERE chart_id = $item|;
+#     $dbh->do($query) || $form->dberror($query);
+#   }
 
   my $rc = $dbh->commit;
   $dbh->disconnect;

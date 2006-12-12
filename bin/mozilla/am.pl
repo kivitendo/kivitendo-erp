@@ -3076,40 +3076,40 @@ sub config {
 	      </tr>
 	    </table>
 	  </td>
-	</tr>
-	<tr class=listheading>
-	  <th colspan=2>| . $locale->text('Tax Accounts') . qq|</th>
-	</tr>
-	<tr>
-	  <td colspan=2>
-	    <table>
-	      <tr>
-		<th>&nbsp;</th>
-		<th>| . $locale->text('Rate') . qq| (%)</th>
-		<th>| . $locale->text('Number') . qq|</th>
-	      </tr>
-|;
-
-  foreach $accno (sort keys %{ $form->{taxrates} }) {
-    print qq|
-              <tr>
-		<th align=right>$form->{taxrates}{$accno}{description}</th>
-		<td><input name=$form->{taxrates}{$accno}{id} size=6 value=$form->{taxrates}{$accno}{rate}></td>
-		<td><input name="taxnumber_$form->{taxrates}{$accno}{id}" value="$form->{taxrates}{$accno}{taxnumber}"></td>
-	      </tr>
-|;
-    $form->{taxaccounts} .= "$form->{taxrates}{$accno}{id} ";
-  }
-
-  chop $form->{taxaccounts};
-
-  print qq|
-<input name=taxaccounts type=hidden value="$form->{taxaccounts}">
-
-            </table>
-	  </td>
-	</tr>
-      </table>
+	</tr>|;
+# 	<tr class=listheading>
+# 	  <th colspan=2>| . $locale->text('Tax Accounts') . qq|</th>
+# 	</tr>
+# 	<tr>
+# 	  <td colspan=2>
+# 	    <table>
+# 	      <tr>
+# 		<th>&nbsp;</th>
+# 		<th>| . $locale->text('Rate') . qq| (%)</th>
+# 		<th>| . $locale->text('Number') . qq|</th>
+# 	      </tr>
+# |;
+# 
+#   foreach $accno (sort keys %{ $form->{taxrates} }) {
+#     print qq|
+#               <tr>
+# 		<th align=right>$form->{taxrates}{$accno}{description}</th>
+# 		<td><input name=$form->{taxrates}{$accno}{id} size=6 value=$form->{taxrates}{$accno}{rate}></td>
+# 		<td><input name="taxnumber_$form->{taxrates}{$accno}{id}" value="$form->{taxrates}{$accno}{taxnumber}"></td>
+# 	      </tr>
+# |;
+#     $form->{taxaccounts} .= "$form->{taxrates}{$accno}{id} ";
+#   }
+# 
+#   chop $form->{taxaccounts};
+# 
+#   print qq|
+# <input name=taxaccounts type=hidden value="$form->{taxaccounts}">
+# 
+#             </table>
+# 	  </td>
+# 	</tr>
+print qq|      </table>
     </td>
   </tr>
   <tr>
