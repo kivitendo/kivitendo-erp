@@ -1964,7 +1964,7 @@ sub save_and_close {
   }
 
   # get new number in sequence if no number is given or if saveasnew was requested
-  if (!$form->{$ordumber} || $form->{saveasnew}) {
+  if (!$form->{$ordnumber} || $form->{saveasnew}) {
     $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld);
   }
 
