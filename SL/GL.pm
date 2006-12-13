@@ -377,7 +377,7 @@ sub all_transactions {
   }
 
   my $query =
-    qq|SELECT g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
+    qq|SELECT ac.oid AS acoid, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
                  g.description, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, g.notes, t.chart_id, ac.oid
                  FROM gl g, acc_trans ac, chart c LEFT JOIN tax t ON
@@ -386,7 +386,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND g.id = ac.trans_id
 	UNION
-	         SELECT a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
+	         SELECT ac.oid AS acoid, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
 		 FROM ar a, acc_trans ac, customer ct, chart c LEFT JOIN tax t ON
@@ -396,7 +396,7 @@ sub all_transactions {
 		 AND a.customer_id = ct.id
 		 AND a.id = ac.trans_id
 	UNION
-	         SELECT a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
+	         SELECT ac.oid AS acoid, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
 		 FROM ap a, acc_trans ac, vendor ct, chart c LEFT JOIN tax t ON
@@ -405,7 +405,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND a.vendor_id = ct.id
 		 AND a.id = ac.trans_id
-	         ORDER BY $sortorder transdate, trans_id, taxkey DESC, oid|;
+	         ORDER BY acoid, $sortorder transdate, trans_id, taxkey DESC|;
 
   # Show all $query in Debuglevel LXDebug::QUERY
   $callingdetails = (caller (0))[3];
