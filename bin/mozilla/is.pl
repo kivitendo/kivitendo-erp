@@ -1207,8 +1207,6 @@ sub update {
 
   } else {
 
-    $form->{"selected_unit_$i"} = $form->{"unit_$i"};
-
     IS->retrieve_item(\%myconfig, \%$form);
 
     $rows = scalar @{ $form->{item_list} };

@@ -831,8 +831,6 @@ sub update {
 
   } else {
 
-    $form->{"selected_unit_$i"} = $form->{"unit_$i"};
-
     IR->retrieve_item(\%myconfig, \%$form);
 
     my $rows = scalar @{ $form->{item_list} };

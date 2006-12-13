@@ -1173,8 +1173,6 @@ sub update {
 
   } else {
 
-    $form->{"selected_unit_$i"} = $form->{"unit_$i"};
-
     if (   $form->{type} eq 'purchase_order'
         || $form->{type} eq 'request_quotation') {
       IR->retrieve_item(\%myconfig, \%$form);
