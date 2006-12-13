@@ -1733,7 +1733,39 @@ sub retrieve_languages {
 
 }
 
-sub retrieve_taxaccounts {
+sub follow_account_chain {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $dbh, $transdate, $accno_id, $accno) = @_;
+
+  my @visited_accno_ids = ($accno_id);
+
+  my ($query, $sth);
+
+  $query =
+    "SELECT c.new_chart_id, date($transdate) >= c.valid_from AS is_valid, " .
+    "  cnew.accno " .
+    "FROM chart c " .
+    "LEFT JOIN chart cnew ON c.new_chart_id = cnew.id " .
+    "WHERE (c.id = ?) AND NOT c.new_chart_id ISNULL AND (c.new_chart_id > 0)";
+  $sth = $dbh->prepare($query);
+
+  while (1) {
+    $sth->execute($accno_id) || $form->dberror($query . " ($accno_id)");
+    $ref = $sth->fetchrow_hashref();
+    last unless ($ref && $ref->{"is_valid"} &&
+                 !grep({ $_ == $ref->{"new_chart_id"} } @visited_accno_ids));
+    $accno_id = $ref->{"new_chart_id"};
+    $accno = $ref->{"accno"};
+    push(@visited_accno_ids, $accno_id);
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return ($accno_id, $accno);
+}
+
+sub retrieve_accounts {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $parts_id, $index, $copy_accnos) = @_;
@@ -1761,49 +1793,49 @@ sub retrieve_taxaccounts {
     $transdate = $dbh->quote($transdate);
   }
 
-  my $inc_exp = $form->{vc} eq "customer" ? "income" : "expense";
-
-  my $accno_str = "${inc_exp}_accno_id_$form->{taxzone_id}";
-
   $query =
-    "SELECT bg.$accno_str AS accno_id, c.accno " .
-    "FROM buchungsgruppen bg " .
-    "LEFT JOIN chart c ON bg.$accno_str = c.id " .
-    "WHERE bg.id = (SELECT p.buchungsgruppen_id FROM parts p WHERE p.id = ?)";
+    "SELECT " .
+    "  p.inventory_accno_id AS is_part, " .
+    "  bg.inventory_accno_id, " .
+    "  bg.income_accno_id_$form->{taxzone_id} AS income_accno_id, " .
+    "  bg.expense_accno_id_$form->{taxzone_id} AS expense_accno_id, " .
+    "  c1.accno AS inventory_accno, " .
+    "  c2.accno AS income_accno, " .
+    "  c3.accno AS expense_accno " .
+    "FROM parts p " .
+    "LEFT JOIN buchungsgruppen bg ON p.buchungsgruppen_id = bg.id " .
+    "LEFT JOIN chart c1 ON bg.inventory_accno_id = c1.id " .
+    "LEFT JOIN chart c2 ON bg.income_accno_id_$form->{taxzone_id} = c2.id " .
+    "LEFT JOIN chart c3 ON bg.expense_accno_id_$form->{taxzone_id} = c3.id " .
+    "WHERE p.id = ?";
   $sth = $dbh->prepare($query);
   $sth->execute($parts_id) || $form->dberror($query . " ($parts_id)");
   my $ref = $sth->fetchrow_hashref();
   $sth->finish();
+
+#   $main::lxdebug->message(0, "q $query");
 
   if (!$ref) {
     $dbh->disconnect();
     return $lxdebug->leave_sub();
   }
 
-  my ($accno_id, $accno) = ($ref->{"accno_id"}, $ref->{"accno"});
-  my ($old_accno_id, $old_accno) = ($ref->{"accno_id"}, $ref->{"accno"});
+  $ref->{"inventory_accno_id"} = undef unless ($ref->{"is_part"});
 
-  my @visited_accno_ids = ($accno_id);
-
-  $query =
-    "SELECT c.new_chart_id, date($transdate) >= c.valid_from AS is_valid, " .
-    "  cnew.accno " .
-    "FROM chart c " .
-    "LEFT JOIN chart cnew ON c.new_chart_id = cnew.id " .
-    "WHERE (c.id = ?) AND NOT c.new_chart_id ISNULL AND (c.new_chart_id > 0)";
-  $sth = $dbh->prepare($query);
-
-  while (1) {
-    $sth->execute($accno_id) || $form->dberror($query . " ($accno_id)");
-    $ref = $sth->fetchrow_hashref();
-    last unless ($ref && $ref->{"is_valid"} &&
-                 !grep({ $_ == $ref->{"new_chart_id"} } @visited_accno_ids));
-    $accno_id = $ref->{"new_chart_id"};
-    $accno = $ref->{"accno"};
-    push(@visited_accno_ids, $accno_id);
+  my %accounts;
+  foreach my $type (qw(inventory income expense)) {
+    next unless ($ref->{"${type}_accno_id"});
+    ($accounts{"${type}_accno_id"}, $accounts{"${type}_accno"}) =
+      $self->follow_account_chain($form, $dbh, $transdate,
+                                  $ref->{"${type}_accno_id"},
+                                  $ref->{"${type}_accno"});
   }
 
-#   $main::lxdebug->message(0, "found final accno_id $accno_id accno $accno for old accno_id $old_accno_id accno $old_accno");
+  map({ $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} }
+      qw(inventory income expense));
+
+  my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
+  my $accno_id = $accounts{"${inc_exp}_accno_id"};
 
   $query =
     "SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber " .
