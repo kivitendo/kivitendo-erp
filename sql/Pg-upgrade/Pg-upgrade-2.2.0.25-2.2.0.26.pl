@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# Datenbankupgrade: Einfuehrung von Einheiten
+
 die("This script cannot be run from the command line.") unless ($main::form);
 
 use SL::AM;
