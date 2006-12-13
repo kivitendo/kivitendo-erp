@@ -744,17 +744,13 @@ sub form_footer {
       print qq|<input class=submit type=submit name=action value="|
         . $locale->text('Update') . qq|">
   |;
-  
-      if (!$form->{revtrans}) {
-        if (!$form->{locked}) {
+
           print qq|
           <input class=submit type=submit name=action value="|
             . $locale->text('Post') . qq|">
           <input class=submit type=submit name=action value="|
             . $locale->text('Delete') . qq|">
   |;
-        }
-      }
   
       if ($transdate > $closedto) {
         print qq|
