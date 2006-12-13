@@ -189,6 +189,7 @@ sub prepare_invoice {
 
     map { $form->{$_} =~ s/\"/&quot;/g } qw(invnumber ordnumber quonumber);
 
+    my $i = 0;
     foreach $ref (@{ $form->{invoice_details} }) {
       $i++;
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
