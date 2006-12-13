@@ -123,7 +123,7 @@ sub update_units_steps_1_2 {
         "           unit IN (SELECT name FROM units))";
 
     } else {
-      $query = "SELECT t.unit, p.inventory_accno_id " .
+      $query = "SELECT t.unit, p.inventory_accno_id, p.assembly " .
         "FROM $table t " .
         "LEFT JOIN parts p ON p.id = t.parts_id " .
         "WHERE NOT ((t.unit = '') OR t.unit ISNULL OR " .
