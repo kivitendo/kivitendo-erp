@@ -1101,7 +1101,7 @@ sub delete_buchungsgruppe {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM buchungsgruppe
+  $query = qq|DELETE FROM buchungsgruppen
 	      WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 
