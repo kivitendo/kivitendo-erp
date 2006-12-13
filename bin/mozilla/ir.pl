@@ -112,7 +112,7 @@ sub invoice_links {
   }
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
 
