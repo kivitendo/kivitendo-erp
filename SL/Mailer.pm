@@ -55,17 +55,18 @@ sub mime_quote_text {
   for (my $i = 0; $i < length($text); $i++) {
     my $char = ord(substr($text, $i, 1));
 
-    if (($char < 33) || ($char > 127) ||
-        ($char == ord('?')) || ($char == ord(' '))) {
+    if (($char < 32) || ($char > 127) ||
+        ($char == ord('?')) || ($char == ord('_'))) {
       if ($chars_left < 5) {
         $new_text .= "?=\n $q_start";
         $chars_left = 75 - $l_start;
       }
 
-      $new_text .= sprintf("=%02x", $char);
+      $new_text .= sprintf("=%02X", $char);
       $chars_left -= 3;
 
     } else {
+      $char = ord('_') if ($char == ord(' '));
       if ($chars_left < 5) {
         $new_text .= "?=\n $q_start";
         $chars_left = 75 - $l_start;
