@@ -2148,7 +2148,7 @@ sub relink_accounts {
   }
   $form->{"taxaccounts"} = "";
 
-  for ($i = 1; $i <= $form->{"rowcount"}; $i++) {
+  for (my $i = 1; $i <= $form->{"rowcount"}; $i++) {
     if ($form->{"id_$i"}) {
       IC->retrieve_accounts(\%myconfig, $form, $form->{"id_$i"}, $i, 1);
     }
