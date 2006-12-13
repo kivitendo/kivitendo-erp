@@ -118,7 +118,7 @@ sub update_units_steps_1_2 {
     my ($query, $sth, $ref);
 
     if ($table eq "parts") {
-      $query = "SELECT unit, inventory_accno_id FROM parts " .
+      $query = "SELECT unit, inventory_accno_id, assembly FROM parts " .
         "WHERE NOT ((unit = '') OR unit ISNULL OR " .
         "           unit IN (SELECT name FROM units))";
 
@@ -133,7 +133,7 @@ sub update_units_steps_1_2 {
     $sth->execute() || mydberror($query);
 
     while ($ref = $sth->fetchrow_hashref()) {
-      if ($ref->{"inventory_accno_id"}) {
+      if ($ref->{"inventory_accno_id"} || $ref->{"assembly"}) {
         $unknown_dimension_units{$ref->{"unit"}} = 1;
 
       } else {
@@ -227,12 +227,14 @@ sub update_units_set_default {
     if ($table eq "parts") {
       $query = "UPDATE $table SET unit = " .
         $dbh->quote($form->{"default_dimension_unit"}) . " " .
-        "WHERE ((unit ISNULL) OR (unit = '')) AND (inventory_accno_id > 0)";
+        "WHERE ((unit ISNULL) OR (unit = '')) AND " .
+        "(assembly OR (inventory_accno_id > 0))";
     } else {
       $query = "UPDATE $table SET unit = " .
         $dbh->quote($form->{"default_dimension_unit"}) . " " .
         "WHERE ((unit ISNULL) OR (unit = '')) AND " .
-        "parts_id IN (SELECT id FROM parts WHERE (inventory_accno_id > 0))";
+        "parts_id IN (SELECT id FROM parts WHERE " .
+        "(assembly OR (inventory_accno_id > 0)))";
     }
 
     $dbh->do($query) || mydberror($query);
@@ -241,13 +243,15 @@ sub update_units_set_default {
       $query = "UPDATE $table SET unit = " .
         $dbh->quote($form->{"default_service_unit"}) . " " .
         "WHERE ((unit ISNULL) OR (unit = '')) AND " .
-        "(inventory_accno_id ISNULL) OR (inventory_accno_id = 0)";
+        "((inventory_accno_id ISNULL) OR (inventory_accno_id = 0)) AND " .
+        "NOT assembly";
     } else {
       $query = "UPDATE $table SET unit = " .
         $dbh->quote($form->{"default_service_unit"}) . " " .
         "WHERE ((unit ISNULL) OR (unit = '')) AND " .
         "parts_id IN (SELECT id FROM parts " .
-        "WHERE (inventory_accno_id ISNULL) OR (inventory_accno_id = 0))";
+        "WHERE ((inventory_accno_id ISNULL) OR (inventory_accno_id = 0)) " .
+        "AND NOT assembly)";
     }
 
     $dbh->do($query) || mydberror($query);
