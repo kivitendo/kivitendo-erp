@@ -261,10 +261,11 @@ sub prepare_invoice {
     #     # get pricegroups for parts
     #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
+    my $i = 0;
+
     foreach $ref (@{ $form->{invoice_details} }) {
       $i++;
 
- 
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
       $form->{"discount_$i"} =
         $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
