@@ -1,4 +1,4 @@
-<div class="listtop">Schritt 2 von 2: Dienstleistungen</div>
+<div class="listtop">Schritt 2 von 3: Dienstleistungen</div>
 
 <form name="Form" method="post" action="login.pl">
 
@@ -13,7 +13,7 @@
   <p><TMPL_VAR saved_message></p>
  </TMPL_IF>
 
- <div class="subsubheading">Bestehende Buchungsgruppen</div>
+ <div class="subsubheading">Existierende Buchungsgruppen</div>
 
  <p>
   Die folgenden Buchungsgruppen wurden bereits angelegt:
@@ -25,7 +25,7 @@
      Inventar: <TMPL_VAR inventory_accno>;
 
      Erl&ouml;skonto/Aufwandskonto
-     Inland: <TMPL_VAR income_accno_0>/<TMPL_VAR expense_accno_0>;
+     Inand: <TMPL_VAR income_accno_0>/<TMPL_VAR expense_accno_0>;
 
      Erl&ouml;skonto/Aufwandskonto
      EU mit UstId-Nummer: <TMPL_VAR income_accno_1>/<TMPL_VAR expense_accno_1>;
@@ -63,7 +63,7 @@
    </TMPL_IF>
 
    <tr>
-    <td>Erl&ouml;skonto Inland:</td>
+    <td>Erl&ouml;skonto Inand:</td>
     <td>
      <input type="hidden" name="income_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR income_accno_id ESCAPE=HTML>">
      <TMPL_VAR income_accno ESCAPE=HTML>--<TMPL_VAR income_description ESCAPE=HTML>
@@ -71,7 +71,7 @@
    </tr>
 
    <tr>
-    <td>Aufwandskonto Inland:</td>
+    <td>Aufwandskonto Inand:</td>
     <td>
      <input type="hidden" name="expense_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR expense_accno_id ESCAPE=HTML>">
      <TMPL_VAR expense_accno ESCAPE=HTML>--<TMPL_VAR expense_description ESCAPE=HTML>
@@ -140,7 +140,7 @@
   <hr>
  </TMPL_LOOP>
 
- <input type="submit" onclick="document.Form.action2.value = 'create_buchungsgruppen'; document.Form.submit();" name="dummy" value="Buchungsgruppen erfassen">
+ <input type="submit" onclick="document.Form.action2.value = 'create_buchungsgruppen'; document.Form.submit();" name="dummy" value="Buchungsgruppe erfassen">
 
 </form>
 

@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# Datenbankupgrade: Einfuehrung von Buchungsgruppen
+
 die("This script cannot be run from the command line.") unless ($main::form);
 
 sub mydberror {
@@ -52,13 +54,18 @@ sub set_ic_links {
 
 sub force_inventory_accno_id_for_parts {
   my $query =
-    "UPDATE parts SET inventory_accno_id = " .
-    "(SELECT bg.inventory_accno_id " .
-    " FROM buchungsgruppen bg " .
-    " WHERE bg.description = 'Standard 16%') " .
-    "WHERE (NOT inventory_accno_id ISNULL) AND (inventory_accno_id > 0)";
+    "SELECT inventory_accno_id " .
+    "FROM buchungsgruppen " .
+    "WHERE description = 'Standard 16%'";
 
-  $dbh->do($query) || mydberror($query);
+  my ($bg_id) = $dbh->selectrow_array($query);
+
+  if ($bg_id) {
+    $query =
+      "UPDATE parts SET inventory_accno_id = $bg_id " .
+      "WHERE (NOT inventory_accno_id ISNULL) AND (inventory_accno_id > 0)";
+    $dbh->do($query) || mydberror($query);
+  }
 }
 
 sub retrieve_accounts {
@@ -150,7 +157,7 @@ sub update_known_buchungsgruppen {
   my $query =
     "SELECT id, inventory_accno_id, income_accno_id, expense_accno_id " .
     "FROM parts " .
-    "WHERE NOT inventory_accno_id ISNULL AND (inventory_accno_id > 0)";
+    "WHERE NOT inventory_accno_id ISNULL AND (inventory_accno_id > 0) ";
   my $sth = $dbh->prepare($query);
   $sth->execute() || mydberror($query);
 
@@ -178,7 +185,8 @@ sub update_known_buchungsgruppen {
   my $query =
     "SELECT id, inventory_accno_id, income_accno_id, expense_accno_id " .
     "FROM parts " .
-    "WHERE inventory_accno_id ISNULL OR (inventory_accno_id = 0)";
+    "WHERE (inventory_accno_id ISNULL OR (inventory_accno_id = 0)) AND " .
+    " NOT assembly";
   my $sth = $dbh->prepare($query);
   $sth->execute() || mydberror($query);
 
@@ -201,7 +209,7 @@ sub update_known_buchungsgruppen {
 sub retrieve_unknown_accno_combinations {
   my ($buchungsgruppen) = @_;
 
-  my (@parts, @services, $sth, $query, $ref);
+  my (@parts, @services, @assemblies, $sth, $query, $ref);
 
   $query =
     "SELECT DISTINCT " .
@@ -240,10 +248,10 @@ sub retrieve_unknown_accno_combinations {
     "c2.accno AS income_accno, c2.description AS income_description, " .
     "c3.accno AS expense_accno, c3.description AS expense_description " .
     "FROM parts p " .
-    "LEFT JOIN chart c1 ON p.inventory_accno_id = c1.id " .
     "LEFT JOIN chart c2 ON p.income_accno_id = c2.id " .
     "LEFT JOIN chart c3 ON p.expense_accno_id = c3.id " .
-    "WHERE inventory_accno_id ISNULL OR (inventory_accno_id = 0)";
+    "WHERE (inventory_accno_id ISNULL OR (inventory_accno_id = 0)) AND " .
+    " NOT assembly";
 
   $sth = $dbh->prepare($query);
   $sth->execute() || mydberror($query);
@@ -263,7 +271,23 @@ sub retrieve_unknown_accno_combinations {
   }
   $sth->finish();
 
-  return (\@parts, \@services);
+  $query =
+    "SELECT DISTINCT " .
+    "p.income_accno_id, " .
+    "c.accno AS income_accno, c.description AS income_description " .
+    "FROM parts p " .
+    "LEFT JOIN chart c ON p.income_accno_id = c.id " .
+    "WHERE p.assembly AND " .
+    " (p.buchungsgruppen_id ISNULL OR (p.buchungsgruppen_id = 0))";
+
+  $sth = $dbh->prepare($query);
+  $sth->execute() || mydberror($query);
+
+  while ($ref = $sth->fetchrow_hashref()) {
+    push(@assemblies, $ref);
+  }
+
+  return (\@parts, \@services, \@assemblies);
 }
 
 sub display_create_bgs_dialog {
@@ -277,6 +301,10 @@ sub display_create_bgs_dialog {
     $entry->{"ACC_EXPENSE"} = $acc_expense;
     $entry->{"eur"} = $main::eur;
   }
+
+  # $form->parse_html_template("dbupgrade/buchungsgruppen_parts")
+  # $form->parse_html_template("dbupgrade/buchungsgruppen_services")
+  # $form->parse_html_template("dbupgrade/buchungsgruppen_assemblies")
 
   print($form->parse_html_template("dbupgrade/buchungsgruppen_${type}",
                                    { "LIST" => $list,
@@ -299,15 +327,17 @@ sub create_buchungsgruppen {
                  $form->{"income_accno_id_3_$i"} &&
                  $form->{"expense_accno_id_3_$i"});
 
-    my $query =
+    my $query = "SELECT nextval('id')";
+    my ($id) = $dbh->selectrow_array($query);
+    $query =
       "INSERT INTO buchungsgruppen (" .
-      "description, inventory_accno_id, " .
+      "id, description, inventory_accno_id, " .
       "income_accno_id_0, expense_accno_id_0, " .
       "income_accno_id_1, expense_accno_id_1, " .
       "income_accno_id_2, expense_accno_id_2, " .
       "income_accno_id_3, expense_accno_id_3) " .
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    my @values = ($form->{"description_$i"});
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    my @values = ($id, $form->{"description_$i"});
 
     foreach my $acc (qw(inventory_accno_id
                         income_accno_id_0 expense_accno_id_0
@@ -318,7 +348,35 @@ sub create_buchungsgruppen {
     }
 
     mydoquery($query, @values);
+
+    $form->{"new_buchungsgruppen_id_$i"} = $id;
   }
+
+  $dbh->commit();
+  $dbh->begin_work();
+}
+
+sub assign_buchungsgruppen_for_assemblies {
+  my ($query, $sth, $i);
+
+  $query =
+    "UPDATE parts " .
+    "SET buchungsgruppen_id = ? " .
+    "WHERE assembly AND " .
+    "(buchungsgruppen_id ISNULL OR (buchungsgruppen_id = 0)) AND " .
+    "(income_accno_id = ?)";
+  $sth = $dbh->prepare($query);
+
+  for ($i = 1; $i <= $form->{"rowcount"}; $i++) {
+    next unless ($form->{"new_buchungsgruppen_id_$i"});
+
+    my @values = ($form->{"new_buchungsgruppen_id_$i"},
+                  $form->{"income_accno_id_0_$i"});
+    $sth->execute(@values) ||
+      mydberror($query . " (" . join(", ", @values) . ")");
+  }
+
+  $sth->finish();
 
   $dbh->commit();
   $dbh->begin_work();
@@ -359,12 +417,19 @@ sub retrieve_std_inventory_accno_id {
     $sth->finish();
   }
 
+  $inventory_accno_id = 1 unless ($inventory_accno_id);
+
   $form->{"std_inventory_accno_id"} = $inventory_accno_id;
 }
 
 sub do_update {
   if ($main::form->{"action2"} eq "create_buchungsgruppen") {
     create_buchungsgruppen();
+  }
+
+  if ($main::form->{"action2"} eq "create_buchungsgruppen_assemblies") {
+    create_buchungsgruppen();
+    assign_buchungsgruppen_for_assemblies();
   }
 
   retrieve_std_inventory_accno_id();
@@ -389,7 +454,8 @@ sub do_update {
   # Retrieve all distinct combinations of inventory_accno_id,
   # income_accno_id and expense_accno_id for which there's no
   # Buchungsgruppe. Then let the user create new ones.
-  ($parts, $services) = retrieve_unknown_accno_combinations($buchungsgruppen);
+  ($parts, $services, $assemblies) =
+    retrieve_unknown_accno_combinations($buchungsgruppen);
 
   my ($acc_inventory, $acc_income, $acc_expense) = retrieve_accounts();
 
@@ -400,6 +466,8 @@ sub do_update {
                               $acc_inventory, $acc_income, $acc_expense,
                               $buchungsgruppen);
     return 2;
+  } else {
+    print($form->parse_html_template("dbupgrade/buchungsgruppen_parts_done"));
   }
 
   if (scalar(@{$services})) {
@@ -407,6 +475,17 @@ sub do_update {
                               $acc_inventory, $acc_income, $acc_expense,
                               $buchungsgruppen);
     return 2;
+  } else {
+    print($form->parse_html_template("dbupgrade/buchungsgruppen_services_done"));
+  }
+
+  if (scalar(@{$assemblies})) {
+    display_create_bgs_dialog("assemblies", $assemblies,
+                              $acc_inventory, $acc_income, $acc_expense,
+                              $buchungsgruppen);
+    return 2;
+  } else {
+    print($form->parse_html_template("dbupgrade/buchungsgruppen_assemblies_done"));
   }
 
   print($form->parse_html_template("dbupgrade/buchungsgruppen_footer"));

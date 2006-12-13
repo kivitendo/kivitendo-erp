@@ -1,4 +1,4 @@
-<div class="listtop">Schritt 1 von 3: Waren</div>
+<div class="listtop">Schritt 3 von 3: Erzeugnisse</div>
 
 <form name="Form" method="post" action="login.pl">
 
@@ -7,7 +7,7 @@
  <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
  <input type="hidden" name="type" value="parts">
  <input type="hidden" name="action" value="login">
- <input type="hidden" name="action2" value="">
+ <input type="hidden" name="action2" value="create_buchungsgruppen_assemblies">
 
  <TMPL_IF saved_message>
   <p><TMPL_VAR saved_message></p>
@@ -70,10 +70,11 @@
    </tr>
 
    <tr>
-    <td>Aufwandskonto Inand:</td>
+    <td>Aufwandskonto EU mit UstId-Nummer:</td>
     <td>
-     <input type="hidden" name="expense_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR expense_accno_id ESCAPE=HTML>">
-     <TMPL_VAR expense_accno ESCAPE=HTML>--<TMPL_VAR expense_description ESCAPE=HTML>
+     <select name="expense_accno_id_0_<TMPL_VAR __counter__>">
+      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
     </td>
    </tr>
 
@@ -139,7 +140,7 @@
   <hr>
  </TMPL_LOOP>
 
- <input type="submit" onclick="document.Form.action2.value = 'create_buchungsgruppen'; document.Form.submit();" name="dummy" value="Buchungsgruppe erfassen">
+ <input type="submit" name="dummy" value="Buchungsgruppe erfassen">
 
 </form>
 
