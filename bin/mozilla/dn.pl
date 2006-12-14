@@ -533,7 +533,7 @@ print qq|
 <input type=hidden name=password value=$form->{password}>
 <input type="hidden" name="action">
 <input type="submit" name="dummy" value="|
-    . $locale->text('Continue') . qq|" onclick="this.disabled=true; this.value='Mahnprozess wird gestartet'; document.Form.action.value='weiter'; document.Form.submit()">|;
+    . $locale->text('Continue') . qq|" onclick="this.disabled=true; this.value='| . $locale->text("The dunning process is started") . qq|'; document.Form.action.value='| . lc($locale->text('Continue') . qq|'; document.Form.submit()">|;
   if ($form->{menubar}) {
     require "$form->{path}/menu.pl";
     &menubar;
