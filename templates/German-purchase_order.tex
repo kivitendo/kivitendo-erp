@@ -1,143 +1,85 @@
 \documentclass[twoside]{scrartcl}
-\usepackage[frame]{xy}
+\usepackage{eurosym}
 \usepackage{tabularx}
 \usepackage[latin1]{inputenc}
-\setlength{\voffset}{0.5cm}
-\setlength{\hoffset}{-2.0cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.5cm}
-\setlength{\headsep}{1cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{1.0cm}
-\setlength{\evensidemargin}{1.0cm}
-\setlength{\textwidth}{17cm}
-\setlength{\textheight}{24.5cm}
-\setlength{\footskip}{1cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
 \begin{document}
 
-\newlength{\descrwidth}\setlength{\descrwidth}{9cm}
+\thispagestyle{empty}
 
-\newsavebox{\hdr}
-\sbox{\hdr}{
-  \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+\setlength{\parindent}{0cm}
 
-  \parbox{\textwidth}{
-    \parbox[b]{12cm}{
-      <%company%>
-      
-      <%address%>}\hfill
-    \begin{tabular}[b]{rr@{}}
-    Telefon & <%tel%>\\
-    Telefax & <%fax%>
-    \end{tabular}
-
-    \rule[1.5ex]{\textwidth}{0.5pt}
-  }
-}
-    
 \fontfamily{cmss}\fontshape{n}\selectfont
 
-\markboth{<%company%>\hfill <%ordnumber%>}{\usebox{\hdr}}
-
-\pagestyle{myheadings}
-%\thispagestyle{empty}     use this with letterhead paper
-
-<%pagebreak 90 27 48%>
-\end{tabular*}
-
-  \rule{\textwidth}{2pt}
-  
-  \hfill
-  \begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Zwischensumme} & \textbf{<%sumcarriedforward%>} \\
-  \end{tabularx}
+<%pagebreak 80 28 37%>
+\end{tabularx}
 
 \newpage
 
-\markright{<%company%>\hfill <%ordnumber%>}
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    <%sellprice%> & <%linetotal%>\\
+  <%end number%>
 
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrr@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Preis} & \textbf{Total} \\
-  & Übertrag von <%lastpage%> & & & & <%sumcarriedforward%> \\
 <%end pagebreak%>
-
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
-\vspace*{2cm}
+\vspace*{1.5cm}
 
-<%name%>
+\begin{minipage}{8cm}
+  <%name%>
 
-<%street%>
+  <%street%>
 
-<%zipcode%>
+  <%zipcode%> <%city%>
 
-<%city%>
-
-<%country%>
-
-\vspace{3.5cm}
-
-\textbf{B E S T E L L U N G}
+  <%country%>
+\end{minipage}
 \hfill
-\begin{tabular}[t]{l@{\hspace{0.3cm}}l}
-  \textbf{Datum} & <%orddate%> \\
-<%if reqdate%>
-  \textbf{Lieferung bis} & <%reqdate%> \\
-<%end reqdate%>
-  \textbf{Nummer} & <%ordnumber%>
-\end{tabular}
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Bestellung}}}
+  \rightline{\large\textbf{\textit{Nr. <%ordnumber%>%
+  }}}
 
-\vspace{1cm}
+  Datum:\hfill <%orddate%>
 
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrr@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Preis} & \textbf{Total} \\
-<%foreach number%>
-  <%number%> & <%description%> & <%qty%> &
-    <%unit%> & <%sellprice%> & <%linetotal%> \\
-<%end number%>
-\end{tabular*}
+  Kunden-Nr:\hfill <%customernumber%>
+
+  Telefon:\hfill <%phone%>
+
+  Telefax:\hfill <%fax%>
+
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
 
 
-\parbox{\textwidth}{
-\rule{\textwidth}{2pt}
+Hiermit bestellen wir verbindlich folgende Positionen:
+\vspace{0.5cm}
 
-\vspace{0.2cm}
-
-\hfill
-\begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Zwischensumme} & \textbf{<%subtotal%>} \\
-<%foreach tax%>
-  <%taxdescription%> on <%taxbase%> & <%tax%>\\
-<%end tax%>
+\begin{tabularx}{\textwidth}{lrXrr}
   \hline
-  \textbf{Total} & \textbf{<%ordtotal%>}\\
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    <%sellprice%> \euro  & <%linetotal%> \euro \\
+  <%end number%> \hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro\\
+  <%foreach tax%>
+    \multicolumn{4}{l}{<%taxdescription%>} & <%tax%>\euro \\
+  <%end tax%>
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%ordtotal%> \euro} \\
 \end{tabularx}
-
-\vspace{0.3cm}
-
-\hfill
-  Alle Preise in \textbf{<%currency%>}.
-
-\vspace{12pt}
-
-<%if notes%>
-  <%notes%>
-<%end if%>
-
-}
-
-
-%\renewcommand{\thefootnote}{\fnsymbol{footnote}}
-
-%\footnotetext[1]{\tiny }
+\hrule
 
 \end{document}
-
 

@@ -1,10 +1,9 @@
 \documentclass[twoside]{scrartcl}
 \usepackage{tabularx}
 \usepackage[latin1]{inputenc}
-\usepackage{geyger}
 \begin{document}
 
-\thispagestyle{plain}
+\thispagestyle{empty}
 
 \newlength{\descrwidth}\setlength{\descrwidth}{10cm}
 
@@ -26,18 +25,13 @@
 \vspace*{1.5cm}
 
 \begin{minipage}{8cm}
-  \tiny
-  \underline{GEYGER GbR $\bullet$ Druckereistr. 9 $\bullet$ 05159
-    Leipzig-Stahmeln}
-  \normalsize
+  <%name%>
 
-  <%dc_name%>
+  <%street%>
 
-  <%dc_street%>
+  <%zipcode%> <%city%>
 
-  <%dc_zipcode%> <%dc_city%>
-
-  <%dc_country%>
+  <%country%>
 \end{minipage}
 \hfill
 \begin{minipage}{6cm}
@@ -58,38 +52,8 @@
 
 Ihre Bestellung ex <%cusordnumber%> vom <%orddate%>
 \hfill
-Leipzig-Stahmeln, \today
 
 \vspace*{0.5cm}
-
-\begin{minipage}[t]{8cm}
-  \underline{Händler}
-
-  <%dv_name%>
-
-  <%dv_street%>
-
-  <%dv_zipcode%> <%dv_city%>
-
-  <%dv_country%>
-
-  Telefon: <%dv_phone%>
-\end{minipage}
-\begin{minipage}[t]{8cm}
-  \underline{Rechnungsempfänger}
-
-  <%name%>
-
-  <%street%>
-
-  <%zipcode%> <%city%>
-
-  <%country%>
-
-  Telefon: <%phone%>
-\end{minipage}
-
-\vspace{0.5cm}
 
 \begin{tabularx}{\textwidth}{lXr}
   \hline
@@ -107,7 +71,7 @@ Liefertermin: <%deliverydate%>
 \vspace{0.5cm}
 
 Oben angeführte Positionen vollständig und ohne Mängel erhalten:
-\hspace*{0.5cm}
+\vspace*{2.5cm} \\
 \parbox[t]{6cm}{
   \underline{\hspace*{6cm}}\\
   \centerline{\small Datum / Unterschrift}

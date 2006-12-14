@@ -2,12 +2,12 @@
 \usepackage{eurosym}
 \usepackage{tabularx}
 \usepackage[latin1]{inputenc}
-\usepackage{geyger}
 \begin{document}
 
-\thispagestyle{plain}
+\thispagestyle{empty}
 
 \newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+\setlength{\parindent}{0cm}
 
 \fontfamily{cmss}\fontshape{n}\selectfont
 
@@ -23,7 +23,7 @@
   \hline
   <%foreach number%>
     <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
-    FIXME & <%linetotal%>\\
+    <%sellprice%> & <%linetotal%>\\
   <%end number%>
 <%end pagebreak%>
 
@@ -32,11 +32,6 @@
 \vspace*{1.5cm}
 
 \begin{minipage}{8cm}
-  \tiny
-  \underline{GEYGER GbR $\bullet$ Druckereistr. 9 $\bullet$ 05159
-    Leipzig-Stahmeln}
-  \normalsize
-
   <%name%>
 
   <%street%>
@@ -47,9 +42,9 @@
 \end{minipage}
 \hfill
 \begin{minipage}{6cm}
-  \rightline{\LARGE\textbf{\textit{Auftragsbestätigung}}}
+  \rightline{\LARGE\textbf{\textit{Auftragsbestätigung}}} \vspace*{0.2cm}
   \rightline{\large\textbf{\textit{Nr. <%ordnumber%>%
-  }}}
+  }}} \vspace*{0.2cm}
 
   Datum:\hfill <%orddate%>
 
@@ -57,7 +52,7 @@
 
   Telefon:\hfill <%phone%>
 
-  Telefax:\hfill FIXME <%fax%>
+  Telefax:\hfill <%fax%>
 
   Ansprechpartner:\hfill <%employee%>
 \end{minipage}
@@ -65,7 +60,6 @@
 \vspace*{0.5cm}
 
 \hfill
-Leipzig-Stahmeln, \today
 
 \vspace{0.5cm}
 
@@ -76,44 +70,21 @@ Leipzig-Stahmeln, \today
   \hline
   <%foreach number%>
     <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
-    FIXME & <%linetotal%>\\
-  <%end number%>
-\end{tabularx}
-
-\begin{tabularx}{\textwidth}{Xrr}
-  Zwischensumme: & & <%subtotal%>\\
-  abbzüglich der nicht rabattierfähigen Positionen $(*)$ &
-  FIXME & FIXME \\
-  Rabatt bei vereinbarungsgemäßer Bezahlung\hfill
-    FIXME von & FIXME & FIXME\\
-\end{tabularx}
-
-\vspace{0.5cm}
-
-Vereinbarter Liefertermin: <%reqdate%>
-
-\vspace{0.5cm}
-
-\hrule
-
-\hfill
-\begin{tabular}{l@{\hspace*{0.2cm}\euro\hspace*{0.2cm}}r}
-  Nettobetrag & FIXME\\
+    <%sellprice%> \euro  & <%linetotal%> \euro \\
+  <%end number%> \hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro\\
   <%foreach tax%>
-  <%taxrate%> <%taxdescription%> & <%tax%>\\
+    \multicolumn{4}{l}{<%taxdescription%>} & <%tax%>\euro \\
   <%end tax%>
-  \textbf{Endbetrag} & \textbf{<%ordtotal%>%
-  }
-\end{tabular}
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%ordtotal%> \euro} \\
+\end{tabularx}
 \hrule
 
-\vspace{0.2cm}
-
+\vspace{1cm}
+Vereinbarter Liefertermin: <%reqdate%> \\ \\
 \textit{Bitte kontrollieren Sie alle Positionen auf Übereinstimmung
-  mit IHrere Bestellung! Abweichungen teilen Sie innerhalb von 3 Tagen
-  mit!}
-
-Zahlung bar/Scheck am Tage der Lieferung mit 5\% Skonto
+  mit Ihrer Bestellung! Abweichungen teilen Sie innerhalb von 3 Tagen
+  mit!} \\ \\
 
 \end{document}
 

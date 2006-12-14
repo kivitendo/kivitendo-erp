@@ -1,13 +1,15 @@
 \documentclass[twoside]{scrartcl}
 \usepackage{eurosym}
 \usepackage{tabularx}
+\usepackage{ifthen}
 \usepackage[latin1]{inputenc}
 \begin{document}
 
-\thispagestyle{empty}
+\setlength{\parindent}{0cm}
+
+\pagestyle{empty}
 
 \newlength{\descrwidth}\setlength{\descrwidth}{10cm}
-\setlength{\parindent}{0cm}
 
 \fontfamily{cmss}\fontshape{n}\selectfont
 
@@ -21,10 +23,6 @@
   \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
   \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
   \hline
-  <%foreach number%>
-    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
-    <%sellprice%> & <%linetotal%>\\
-  <%end number%>
 <%end pagebreak%>
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
@@ -42,13 +40,13 @@
 \end{minipage}
 \hfill
 \begin{minipage}{6cm}
-  \rightline{\LARGE\textbf{\textit{Angebot}}}
-  \rightline{\large\textbf{\textit{Nr. <%quonumber%>%
+  \rightline{\LARGE\textbf{\textit{Gutschrift}}} \vspace*{0.2cm}
+  \rightline{\large\textbf{\textit{Nr. <%invnumber%>% \vspace*{0.2cm}
   }}}
 
-  Datum:\hfill <%transdate%>
+  Gutschriftdatum:\hfill <%invdate%>
 
-  Kunden-Nr:\hfill <%customernumber%>
+  Auftrag-Nr:\hfill <%ordnumber%>
 
   Telefon:\hfill <%phone%>
 
@@ -59,7 +57,12 @@
 
 \vspace*{0.5cm}
 
-\hfill
+Ihre Bestellung <%cusordnumber%> vom <%orddate%>
+% \hfill
+
+\vspace*{0.5cm}
+
+Sehr geehrte Damen und Herren,
 
 \vspace{0.5cm}
 
@@ -71,25 +74,16 @@
   <%foreach number%>
     <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
     <%sellprice%> \euro & <%linetotal%> \euro \\
-  <%end number%> \hline
-  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\
+    <%if discount_sub%> & Zwischensumme: &  & <%discount_sub%> \euro  & <%end if%>\\
+  <%end number%>\hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\ 
   <%foreach tax%>
   \multicolumn{4}{l}{<%taxdescription%>} & <%tax%> \euro \\
   <%end tax%>
-  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%ordtotal%> \euro }
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%invtotal%> \euro} \\ \hline
 \end{tabularx}
-\hrule
 
-\vspace{0.2cm}
-
-Wir danken für Ihre Anfrage und hoffen, Ihnen hiermit ein interessantes Angebot gemacht zu haben. Das Angebot ist
-  gültig bis zum <%reqdate%>. Sollten Sie noch Fragen oder Änderungswünsche haben, können Sie uns gerne jederzeit
-  unter den oben genannten Telefonnummern oder eMail-Adressen kontaktieren. \\
-  Bei der Durchführung des Auftrags gelten unsere AGB, die wir Ihnen gerne zuschicken. \\ \\
-  Mit freundlichen Grüßen, \\ \\ \\
-  <%employee_name%>
-
-
+\vspace{1cm}
 
 \end{document}
 

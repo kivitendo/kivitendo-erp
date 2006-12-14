@@ -1,11 +1,13 @@
 \documentclass[twoside]{scrartcl}
 \usepackage{eurosym}
 \usepackage{tabularx}
+\usepackage{ifthen}
 \usepackage[latin1]{inputenc}
-\usepackage{geyger}
 \begin{document}
 
-\thispagestyle{plain}
+\setlength{\parindent}{0cm}
+
+\pagestyle{empty}
 
 \newlength{\descrwidth}\setlength{\descrwidth}{10cm}
 
@@ -21,10 +23,6 @@
   \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
   \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
   \hline
-  <%foreach number%>
-    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
-    FIXME & <%linetotal%>\\
-  <%end number%>
 <%end pagebreak%>
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
@@ -32,11 +30,6 @@
 \vspace*{1.5cm}
 
 \begin{minipage}{8cm}
-  \tiny
-  \underline{GEYGER GbR $\bullet$ Druckereistr. 9 $\bullet$ 05159
-    Leipzig-Stahmeln}
-  \normalsize
-
   <%name%>
 
   <%street%>
@@ -47,26 +40,26 @@
 \end{minipage}
 \hfill
 \begin{minipage}{6cm}
-  \rightline{\LARGE\textbf{\textit{Rechnung}}}
-  \rightline{\large\textbf{\textit{Nr. <%invnumber%>%
+  \rightline{\LARGE\textbf{\textit{Rechnung}}} \vspace*{0.2cm}
+  \rightline{\large\textbf{\textit{Nr. <%invnumber%>% \vspace*{0.2cm}
   }}}
 
   Rechnungsdatum:\hfill <%invdate%>
 
   Auftrag-Nr:\hfill <%ordnumber%>
 
-  Telefon:\hfill FIXME <%phone%>
+  Telefon:\hfill <%phone%>
 
-  Telefax:\hfill FIXME <%fax%>
+  Telefax:\hfill <%fax%>
 
   Ansprechpartner:\hfill <%employee%>
 \end{minipage}
 
 \vspace*{0.5cm}
 
-Ihre Bestellung ex <%cusordnumber%> vom <%orddate%>
-\hfill
-Leipzig-Stahmeln, \today
+Ihre Bestellung <%cusordnumber%> vom <%orddate%>
+% \hfill
+
 
 \vspace*{0.5cm}
 
@@ -77,33 +70,6 @@ folgende Positionen in Rechnung zu stellen.
 
 \vspace{0.5cm}
 
-\begin{minipage}[t]{8cm}
-  \underline{Lieferadresse:}
-
-  <%dc_name%>
-
-  <%dc_street%>
-
-  <%dc_zipcode%> <%dc_city%>
-
-  <%dc_country%>
-\end{minipage}
-\begin{minipage}[t]{8cm}
-  \underline{Händler}
-
-  <%dv_name%>
-
-  <%dv_street%>
-
-  <%dv_zipcode%> <%dv_city%>
-
-  <%dv_country%>
-
-  Telefon: <%dv_phone%>
-\end{minipage}
-
-\vspace{0.5cm}
-
 \begin{tabularx}{\textwidth}{lrXrr}
   \hline
   \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
@@ -111,41 +77,19 @@ folgende Positionen in Rechnung zu stellen.
   \hline
   <%foreach number%>
     <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
-    FIXME & <%linetotal%>\\
-  <%end number%>
-\end{tabularx}
-
-\begin{tabularx}{\textwidth}{Xrr}
-  Zwischensumme: & & <%subtotal%>\\
-  abbzüglich der nicht rabattierfähigen Positionen $(*)$ &
-  FIXME & FIXME \\
-  Rabatt bei vereinbarungsgemäßer Bezahlung\hfill
-    FIXME von & FIXME & FIXME\\
-\end{tabularx}
-
-\vspace{0.5cm}
-
-Liefertermin: <%deliverydate%>
-
-\vspace{0.5cm}
-
-\hrule
-
-\hfill
-\begin{tabular}{l@{\hspace*{0.2cm}\euro\hspace*{0.2cm}}r}
-  Nettobetrag & FIXME\\
+    <%sellprice%> \euro & <%linetotal%> \euro \\
+    <%if discount_sub%> & Zwischensumme: &  & <%discount_sub%> \euro  & <%end if%>\\
+  <%end number%>\hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\ 
   <%foreach tax%>
-  <%taxrate%> <%taxdescription%> & <%tax%>\\
+  \multicolumn{4}{l}{<%taxdescription%>} & <%tax%> \euro \\
   <%end tax%>
-  \textbf{Endbetrag} & \textbf{<%invtotal%>%
-  }
-\end{tabular}
-\hrule
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%invtotal%> \euro} \\ \hline
+\end{tabularx}
 
-\vspace{0.2cm}
-
-Zahlbar bis FIXME mit FIXME Skonto (FIXME) = FIXME \euro\\
-Zahlbar bis <%terms%> <%invtotal%> \euro\ ohne Abzüge
+\vspace{1cm}
+\ifthenelse{\equal{<%deliverydate%>}{}}{Das Leistungsdatum entspricht, soweit nicht anders angegeben, dem Rechnungsdatum.}{Liefertermin: <%deliverydate%>} \\
+Zahlbar bis <%terms%> <%invtotal%> \euro\ ohne Abzüge.
 
 \end{document}
 
