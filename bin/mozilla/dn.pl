@@ -448,7 +448,7 @@ sub show_invoices {
 <body>
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/dunning.js"></script>
-<form method=post action=$form->{script}>
+<form name=Form method=post action=$form->{script}>
 
 
 <table width=100%>
@@ -531,10 +531,9 @@ print qq|
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">|;
-
+<input type="hidden" name="action">
+<input type="submit" name="dummy" value="|
+    . $locale->text('Continue') . qq|" onclick="this.disabled=true; this.value='Mahnprozess wird gestartet'; document.Form.action.value='weiter'; document.Form.submit()">|;
   if ($form->{menubar}) {
     require "$form->{path}/menu.pl";
     &menubar;
