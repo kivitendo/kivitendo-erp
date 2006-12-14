@@ -263,6 +263,9 @@ function Item(text, href, frame, length, spacing, target) {
 	this.target = target;
 	this.ref = null;
 }
+function go(link) {
+        top.main_window.location=link;
+}
 function writeMenus() {
 	if (!isDOM && !isIE4 && !isNS4) return;
 	for (currMenu = 0; currMenu < menu.length; currMenu++) with (menu[currMenu][0]) {
@@ -282,7 +285,12 @@ function writeMenus() {
 			}
 			if (borderClass) str += 'class="' + borderClass + '" ';
 			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
-			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '"><tr><td align="left" height="' + (h - 7) + '">' + '<a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
+			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
+			if (href!="#") {
+			str +='<tr><td align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '")\\'><a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
+			} else {
+			str +='<tr><td align="left" height="' + (h - 7) + '"><a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
+			}
 			if (target > 0) {
 				menu[target][0].parentMenu = currMenu;
 				menu[target][0].parentItem = currItem;
