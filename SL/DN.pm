@@ -187,7 +187,7 @@ sub save_dunning {
     $form->{"IN"} =~ s/html$/odt/;
   }
 
-  if ($form->{"send_email"} && $form->{email}) {
+  if ($form->{"send_email"} && ($form->{email} ne "")) {
     $form->{media} = 'email';
   }
 
