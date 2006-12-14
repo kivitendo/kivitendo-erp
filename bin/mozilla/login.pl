@@ -107,7 +107,7 @@ sub login_screen {
 	    </table>
 
 	    <br>
-	    <input type=submit name=action value="| . $locale->text('Login') . qq|">
+	    <input type=submit name=action value="| . $locale->text('Login') . qq|" tabindex="3">
 
 	  </td>
 	</tr>
