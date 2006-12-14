@@ -1014,8 +1014,10 @@ if ($form->{type} eq "credit_note") {
 
     # format amounts
     $totalpaid += $form->{"paid_$i"};
-    $form->{"paid_$i"} =
-      $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    if ($form->{"paid_$i"}) {
+      $form->{"paid_$i"} =
+        $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    }
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 
@@ -1179,7 +1181,7 @@ sub update {
                          )));
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
+    if ($form->{"paid_$i"}) {
       map {
         $form->{"${_}_$i"} =
           $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
@@ -1323,7 +1325,7 @@ sub update {
 sub post_payment {
   $lxdebug->enter_sub();
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
+    if ($form->{"paid_$i"}) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
