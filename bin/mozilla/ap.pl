@@ -844,7 +844,7 @@ sub update {
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       map {
         $form->{"${_}_$i"} =
           $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
@@ -892,7 +892,7 @@ sub post {
   delete($form->{AP});
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));

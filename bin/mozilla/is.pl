@@ -1179,7 +1179,7 @@ sub update {
                          )));
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       map {
         $form->{"${_}_$i"} =
           $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
@@ -1323,7 +1323,7 @@ sub update {
 sub post_payment {
   $lxdebug->enter_sub();
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));

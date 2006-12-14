@@ -762,7 +762,7 @@ sub check_form {
   $form->{amount} = $amount;
 
   for $i (1 .. $form->{rowcount}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $amount -= $form->parse_amount($myconfig, $form->{"paid_$i"});
 
       push(@{ $form->{paid} },      $form->{"paid_$i"});
