@@ -616,17 +616,9 @@ sub transaction {
     $sth->finish;
 
     # retrieve individual rows
-    $query = "SELECT c.accno, c.taxkey_id AS accnotaxkey, a.amount, project_id,
-                (SELECT p.projectnumber FROM project p
-		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, (SELECT c1.accno FROM chart c1, tax t WHERE t.taxkey=a.taxkey AND c1.id=t.chart_id) AS taxaccno, (SELECT t1.rate FROM tax t1 WHERE t1.taxkey=a.taxkey) AS taxrate 
-	      FROM acc_trans a, chart c
-	      WHERE a.chart_id = c.id
-	      AND a.trans_id = $form->{id}
-	      ORDER BY a.oid";
-
     $query = qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo,
                 a.transdate, a.cleared, a.project_id, p.projectnumber,(SELECT p.projectnumber FROM project p
-		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, t.rate AS taxrate, t.id, (SELECT c1.accno FROM chart c1, tax t1 WHERE t1.id=t.id AND c1.id=t.chart_id) AS taxaccno
+		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, t.rate AS taxrate, t.id, (SELECT c1.accno FROM chart c1, tax t1 WHERE t1.id=t.id AND c1.id=t.chart_id) AS taxaccno, t.id AS tax_id
 		FROM acc_trans a
 		JOIN chart c ON (c.id = a.chart_id)
 		LEFT JOIN project p ON (p.id = a.project_id)

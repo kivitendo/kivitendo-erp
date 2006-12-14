@@ -168,7 +168,7 @@ sub edit {
         }
       }
     } else {
-      $form->{"accno_$i"} = "$ref->{accno}--$ref->{accnotaxkey}";
+      $form->{"accno_$i"} = "$ref->{accno}--$ref->{tax_id}";
       for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
       if ($ref->{amount} < 0) {
         $form->{totaldebit} -= $ref->{amount};
