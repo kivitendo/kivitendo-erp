@@ -63,3 +63,38 @@ eingesetzt wird.
 Einführung von Steuerzonen und Buchungsgruppen
 ----------------------------------------------
 
+In den Versionen von Lx-Office vor 2.4.0 wurden bei Artikeln und Dienstleistungen
+jeweils ein Konto für Erlöse und ein Konto für den Aufwand hinterlegt. Über
+diese Konten wurde dann auch definiert welcher Steuersatz zu berechnen ist.
+Wollte man einen Artikel mal mit und mal ohne Steuer verkaufen (Inland, Ausland),
+waren hierfür zwei Artikel notwendig.
+In der Version 2.4.0 können nun bei jedem Artikel für die verschiedenen Fälle
+- Inland
+- EU mit UStId
+- EU ohne UStId
+- Außerhalb EU
+verschiedene Erlös- und Aufwandskonten definiert werden. Dadurch werden dann auch
+jeweils die richtigen Steuersätze berechnet.
+Damit jetzt nicht bei jedem Artikel mehrere Konten definiert werden müssen, werden
+alle Konten, die zu einer bestimmten Warengruppe gehören, in einer Buchungsgruppe 
+zusammengefasst. Diese Buchungsgruppen werden zunächst unter "System" definiert und
+können dann den Artikeln und Dienstleistungen zugewiesen werden.
+Bei Datenbankupdate werden aus der Datenbank alle Kombinationen von Erlös- und Aufwands-
+konten geholt, die bereits verwendet werden. Für diese Kombinationen müssen im
+Upgradeprozess Buchungsgruppen angelegt werden, indem man den einzelnen Kombinationen
+einen Namen zuweist. Die Konten für nicht Inland sind mit den Standardkonten vorbelegt,
+können aber vorm Speichern geändert werden.
+Diese neu angelegten Buchungsgruppen werden automatisch den vorhandenen Artikeln und
+Dienstleistungen zugewiesen.
+Buchungsgruppen können genau wie vorher die Kontenzuordnung nachträglich nicht mehr
+geändert werden.
+Möchte man in der Buchhaltung eine neue Kombination von Erlös- und Aufwandskonten für
+bestimmte Artikel und Waren verwenden, legt man zunächst die entsprechenden konnten
+(z.B. 8401 und 3401) an und erstellt dann eine neue Buchungsgruppe mit diesen Konten.
+Die Benennung der Buchungsgruppe kann frei erfolgen.
+Beim Anlegen einer neuen Waren oder Dienstleistung werden dann durch Auswahl dieser
+Buchungsgruppe automatisch alle Konten auf einen Schlag korrekt zugeordnet.
+
+Wird in einer Verkaufs- oder Einkaufsmaske eine andere Steuerzone als Inland ausgewählt,
+werden bei den Artikeln auch automatisch die anderen Erlös- und Aufwandskonten der
+Buchungsgruppe verwendet.
