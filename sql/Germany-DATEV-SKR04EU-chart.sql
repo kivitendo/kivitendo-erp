@@ -375,6 +375,18 @@ insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((selec
 insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1402'),'0.07','1402','18','Steuerpflicht. EG-Erwerb 7%');
 insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((select id from chart where accno = '1402'),'0.16','1403','19','Steuerpflicht. EG-Erwerb 16%');
 
+-- Ergaenzungen fuer 19% UmSt. ab 1.01.2007
+insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, tax.id, taxkey_id, pos_ustva, '1970-01-01' from chart LEFT JOIN tax on (tax.taxkey=chart.taxkey_id) WHERE taxkey_id is not null;
+insert into taxkeys (chart_id, tax_id, taxkey_id,startdate) SELECT 0, id, taxkey, '1970-01-01' FROM tax;
+INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
+      VALUES ('3806','Umsatzsteuer 19 %', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 511,6);
+INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
+      VALUES ('1406','Abziehbare Vorsteuer 19 %', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 66,27);
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id from CHART WHERE accno='3806'), 0.19, '3806', 3, 'Umsatzsteuer 19%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id from CHART WHERE accno='1406'), 0.19, '1406', 9, 'Vorsteuer 19%');
+insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, (SELECT id from tax where taxdescription='Umsatzsteuer 19%'), 3, pos_ustva, '2007-01-01' from chart WHERE taxkey_id=3;
+insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, (SELECT id from tax where taxdescription='Vorsteuer 19%'), 9, pos_ustva, '2007-01-01' from chart WHERE taxkey_id=9;
+
 -- Buchungsgruppen
 
 INSERT INTO buchungsgruppen

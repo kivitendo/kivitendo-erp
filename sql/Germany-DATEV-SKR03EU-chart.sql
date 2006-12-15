@@ -391,6 +391,19 @@ INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SEL
 INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.07','1572','18','Steuerpfl. EG-Erwerb 7%');
 INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id FROM chart WHERE accno = '1572'),'0.16','1573','19','Steuerpfl. EG-Erwerb 16%');
 
+-- Ergaenzungen fuer 19% UmSt. ab 1.01.2007
+insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, tax.id, taxkey_id, pos_ustva, '1970-01-01' from chart LEFT JOIN tax on (tax.taxkey=chart.taxkey_id) WHERE taxkey_id is not null;
+insert into taxkeys (chart_id, tax_id, taxkey_id,startdate) SELECT 0, id, taxkey, '1970-01-01' FROM tax;
+INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
+      VALUES ('1776','Umsatzsteuer 19 %', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 511,6);
+INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
+      VALUES ('1576','Abziehbare Vorsteuer 19 %', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 66,27);
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id from CHART WHERE accno='1776'), 0.19, '1776', 3, 'Umsatzsteuer 19%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id from CHART WHERE accno='1576'), 0.19, '1576', 9, 'Vorsteuer 19%');
+insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, (SELECT id from tax where taxdescription='Umsatzsteuer 19%'), 3, pos_ustva, '2007-01-01' from chart WHERE taxkey_id=3;
+insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, (SELECT id from tax where taxdescription='Vorsteuer 19%'), 9, pos_ustva, '2007-01-01' from chart WHERE taxkey_id=9;
+
+
 -- UStVA Link to SKR03/2006
 -- Let this structure like it is, please.
 -- This structure is based on the sequence of the USTVA 2006
