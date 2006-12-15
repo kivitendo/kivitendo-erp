@@ -89,7 +89,6 @@ sub report {
 
   print qq|
 <body>
-
 <form method=post action=$form->{script}>
 
 <input type=hidden name=title value="$form->{title}">
@@ -626,7 +625,7 @@ sub ustva_vorauswahl {
       };
 
     }
-    print qq|<select id="zeitraum" name="duetyp" title="|
+    print qq|<select id="zeitraum" name="period" title="|
   . $locale->text('Select a period') . qq|" >|;
 
     my $key = '';
@@ -642,10 +641,10 @@ sub ustva_vorauswahl {
   } elsif ($form->{FA_voranmeld} eq 'quarter') {
 
     # Vorauswahl bei quartalsweisem Voranmeldungszeitraum
-    my %liste = ('A'  => $locale->text('1. Quarter'),
-                 'B'  => $locale->text('2. Quarter'),
-                 'C'  => $locale->text('3. Quarter'),
-                 'D'  => $locale->text('4. Quarter'),
+    my %liste = ('41'  => $locale->text('1. Quarter'),
+                 '42'  => $locale->text('2. Quarter'),
+                 '43'  => $locale->text('3. Quarter'),
+                 '44'  => $locale->text('4. Quarter'),
                  '13' => $locale->text('Yearly'),);
 
     my $yy = $form->{year} * 10000;
@@ -677,7 +676,7 @@ sub ustva_vorauswahl {
       };
     }
 
-    print qq|<select id="zeitraum" name="duetyp" title="|
+    print qq|<select id="zeitraum" name="period" title="|
       . $locale->text('Select a period') . qq|" >|;
     my $key = '';
     foreach $key (sort keys %liste) {
@@ -693,13 +692,13 @@ sub ustva_vorauswahl {
   } else {
 
     # keine Vorauswahl bei Voranmeldungszeitraum
-    print qq|<select id="zeitraum" name="duetyp" title="|
+    print qq|<select id="zeitraum" name="period" title="|
       . $locale->text('Select a period') . qq|" >|;
 
-    my %listea = ('A' => '1. Quarter',
-                  'B' => '2. Quarter',
-                  'C' => '3. Quarter',
-                  'D' => '4. Quarter',);
+    my %listea = ('41' => '1. Quarter',
+                  '42' => '2. Quarter',
+                  '43' => '3. Quarter',
+                  '44' => '4. Quarter',);
 
     my %listeb = ('01' => 'January',
                   '02' => 'February',
@@ -769,9 +768,12 @@ sub show_options {
   #$disabled='' if ($form->{elster} eq '1' );
   if ($form->{elster} eq '1') {
     $format .=
-        qq|<option value=elster>|
+        qq|<option value=elsterwinston>|
       . $locale->text('ELSTER Export nach Winston')
-      . qq|</option>|;
+      . qq|</option>|
+      . qq|<option value=elstertaxbird>|
+      . $locale->text('ELSTER Export nach Taxbird')
+      . qq|</option>|;      
   }
 
   #$format .= qq|<option value=elster>|.$locale->text('ELSTER Export nach Winston').qq|</option>|;
@@ -795,11 +797,9 @@ sub generate_ustva {
   # form vars initialisieren
   my @anmeldungszeitraum =
     qw('0401' '0402' '0403' '0404' '0405' '0405' '0406' '0407' '0408' '0409' '0410' '0411' '0412' '0441' '0442' '0443' '0444');
-  my $item = '';
-  foreach $item (@anmeldungszeitraum) {
+  foreach my $item (@anmeldungszeitraum) {
     $form->{$item} = "";
   }
-  if ($form->{reporttype} eq "custom") {
 
     #forgotten the year --> thisyear
     if ($form->{year} !~ m/^\d\d\d\d$/) {
@@ -813,28 +813,28 @@ sub generate_ustva {
     }
 
     #yearly report
-    if ($form->{duetyp} eq "13") {
+    if ($form->{period} eq "13") {
       $form->{fromdate} = "$form->{year}0101";
       $form->{todate}   = "$form->{year}1231";
     }
 
     #Quater reports
-    if ($form->{duetyp} eq "A") {
+    if ($form->{period} eq "41") {
       $form->{fromdate} = "$form->{year}0101";
       $form->{todate}   = "$form->{year}0331";
       $form->{'0441'}   = "X";
     }
-    if ($form->{duetyp} eq "B") {
+    if ($form->{period} eq "42") {
       $form->{fromdate} = "$form->{year}0401";
       $form->{todate}   = "$form->{year}0630";
       $form->{'0442'}   = "X";
     }
-    if ($form->{duetyp} eq "C") {
+    if ($form->{period} eq "43") {
       $form->{fromdate} = "$form->{year}0701";
       $form->{todate}   = "$form->{year}0930";
       $form->{'0443'}   = "X";
     }
-    if ($form->{duetyp} eq "D") {
+    if ($form->{period} eq "44") {
       $form->{fromdate} = "$form->{year}1001";
       $form->{todate}   = "$form->{year}1231";
       $form->{'0444'}   = "X";
@@ -842,13 +842,13 @@ sub generate_ustva {
 
     #Monthly reports
   SWITCH: {
-      $form->{duetyp} eq "01" && do {
+      $form->{period} eq "01" && do {
         $form->{fromdate} = "$form->{year}0101";
         $form->{todate}   = "$form->{year}0131";
         $form->{'0401'}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "02" && do {
+      $form->{period} eq "02" && do {
         $form->{fromdate} = "$form->{year}0201";
 
         #this works from 1901 to 2099, 1900 and 2100 fail.
@@ -857,68 +857,67 @@ sub generate_ustva {
         $form->{"0402"} = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "03" && do {
+      $form->{period} eq "03" && do {
         $form->{fromdate} = "$form->{year}0301";
         $form->{todate}   = "$form->{year}0331";
         $form->{"0403"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "04" && do {
+      $form->{period} eq "04" && do {
         $form->{fromdate} = "$form->{year}0401";
         $form->{todate}   = "$form->{year}0430";
         $form->{"0404"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "05" && do {
+      $form->{period} eq "05" && do {
         $form->{fromdate} = "$form->{year}0501";
         $form->{todate}   = "$form->{year}0531";
         $form->{"0405"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "06" && do {
+      $form->{period} eq "06" && do {
         $form->{fromdate} = "$form->{year}0601";
         $form->{todate}   = "$form->{year}0630";
         $form->{"0406"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "07" && do {
+      $form->{period} eq "07" && do {
         $form->{fromdate} = "$form->{year}0701";
         $form->{todate}   = "$form->{year}0731";
         $form->{"0407"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "08" && do {
+      $form->{period} eq "08" && do {
         $form->{fromdate} = "$form->{year}0801";
         $form->{todate}   = "$form->{year}0831";
         $form->{"0408"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "09" && do {
+      $form->{period} eq "09" && do {
         $form->{fromdate} = "$form->{year}0901";
         $form->{todate}   = "$form->{year}0930";
         $form->{"0409"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "10" && do {
+      $form->{period} eq "10" && do {
         $form->{fromdate} = "$form->{year}1001";
         $form->{todate}   = "$form->{year}1031";
         $form->{"0410"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "11" && do {
+      $form->{period} eq "11" && do {
         $form->{fromdate} = "$form->{year}1101";
         $form->{todate}   = "$form->{year}1130";
         $form->{"0411"}   = "X";
         last SWITCH;
       };
-      $form->{duetyp} eq "12" && do {
+      $form->{period} eq "12" && do {
         $form->{fromdate} = "$form->{year}1201";
         $form->{todate}   = "$form->{year}1231";
         $form->{"0412"}   = "X";
         last SWITCH;
       };
     }
-  }
 
   # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
   USTVA->ustva(\%myconfig, \%$form);
@@ -929,15 +928,13 @@ sub generate_ustva {
   $form->{todate} = $form->current_date($myconfig) unless $form->{todate};
   $form->{todate} = $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
 
-  $form->{period} =
+  $form->{longperiod} =
     $locale->date(\%myconfig, $form->current_date(\%myconfig), 1, 0, 0);
 
   # if there are any dates construct a where
   if ($form->{fromdate} || $form->{todate}) {
 
-    unless ($form->{todate}) {
-      $form->{todate} = $form->current_date($myconfig);
-    }
+    $form->{todate} = $form->current_date($myconfig)  unless ($form->{todate});
 
     my $longtodate  = $locale->date($myconfig, $form->{todate}, 1, 0, 0);
     my $shorttodate = $locale->date($myconfig, $form->{todate}, 0, 0, 0);
@@ -946,7 +943,7 @@ sub generate_ustva {
     my $shortfromdate = $locale->date($myconfig, $form->{fromdate}, 0, 0, 0);
 
     $form->{this_period} = "$shortfromdate<br>\n$shorttodate";
-    $form->{period}      =
+    $form->{longperiod}      =
         $locale->text('for Period')
       . qq|<br>\n$longfromdate |
       . $locale->text('bis')
@@ -965,7 +962,7 @@ sub generate_ustva {
       $locale->date(\%myconfig, $form->{comparetodate}, 0, 0, 0);
 
     $form->{last_period} = "$shortcomparefromdate<br>\n$shortcomparetodate";
-    $form->{period} .=
+    $form->{longperiod} .=
         "<br>\n$longcomparefromdate "
       . $locale->text('bis')
       . qq| $longcomparetodate|;
@@ -992,8 +989,10 @@ sub generate_ustva {
     $form->{co_city} =~ s/\\n//g;
   }
 
-  if (   $form->{format} eq 'pdf'
-      or $form->{format} eq 'postscript') {
+  if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
+
+    $form->{IN} = "$form->{type}-$form->{year}.tex";
+
     $form->{padding} = "~~";
     $form->{bold}    = "\textbf{";
     $form->{endbold} = "}";
@@ -1007,7 +1006,7 @@ sub generate_ustva {
 
     # Zahlenformatierung für Latex USTVA Formulare
     if (   $myconfig{numberformat} eq '1.000,00'
-        or $myconfig{numberformat} eq '1000,00') {
+           or $myconfig{numberformat} eq '1000,00') {
       foreach $number (@numbers) {
         $form->{$number} =~ s/,/~~/g;
       }
@@ -1018,60 +1017,130 @@ sub generate_ustva {
         $form->{$number} =~ s/\./~~/g;
       }
     }
+    if ( $form->{period} eq '13'){ #Catch yearly USTE for now, not yet implemented.
+      $form->header;
+      USTVA::error(
+        $locale->text(
+        'Impossible to create yearly Tax Report as PDF or Postscript<br \> Not yet implemented!'
+        )
+      );
+    }
+      
+  } elsif ( $form->{format} eq 'html') { # Formatierungen für HTML Ausgabe
 
-    # Formatierungen für HTML Ausgabe
-      } elsif ($form->{format} eq 'html') {
+    $form->{IN} = $form->{type} . '.html';
     $form->{padding} = "&nbsp;&nbsp;";
     $form->{bold}    = "<b>";
     $form->{endbold} = "</b>";
     $form->{br}      = "<br>";
     $form->{address} =~ s/\\n/<br \/>/g;
 
-  }
+  } elsif ($form->{format} =~ /^elster/) {
 
-  if ($form->{format} eq 'elster') {
-    if ($form->{duetyp} eq '13') {
+    if ( $form->{period} eq '13' ) {
       $form->header;
       USTVA::info(
         $locale->text(
-          'Impossible to create yearly Tax Report via Winston.<br \> Not yet implemented!'
-        ));
-    } else {
-      &create_winston();
-    }
-  } else {
-    $form->{templates} = $myconfig{templates};
-    $form->{templates} = "doc" if ($form->{type} eq 'help');
-
-    $form->{IN} = "$form->{type}";
-    $form->{IN} = "$form->{help}" if ($form->{type} eq 'help');
-    $form->{IN} = 'USTE'
-      if (   $form->{duetyp} eq '13'
-          && $form->{format} ne 'html');
-
-    if ($form->{IN} eq 'USTE') {
-      $form->header;
-      USTVA::info(
-        $locale->text(
-          'Impossible to create yearly Tax Report as PDF or PS.<br \> Not yet implemented!'
-        ));
+        'Impossible to create yearly Tax Report via Winston or Taxbird.<br \> Not yet implemented!'
+      ));
     }
 
-    $form->{IN} .= "-$form->{year}"
-      if (   $form->{format} eq 'pdf'
-          or $form->{format} eq 'postscript');
+    if ( $form->{format} eq 'elsterwinston' ) {
 
-    $form->{IN} .= '.tex'
-      if (   $form->{format} eq 'pdf'
-          or $form->{format} eq 'postscript');
+      $form->{IN} = 'winston.xml';
+     
+      # Build Winston filename
+      my $file = 'U';     # 1. char 'U' = USTVA
+      $file .= $form->{period};
+      #4. and 5. char = year modulo 100
+      $file .= sprintf("%02d", $form->{year} % 100);
+      #6. to 18. char = Elstersteuernummer
+      #Beispiel: Steuernummer in Bayern
+      #111/222/33334 ergibt für UStVA Jan 2004: U01049111022233334
+      $file .= $form->{elsterFFFF};
+      $file .= $form->{elstersteuernummer};
+      #file suffix
+      $file .= '.xml';
+      $form->{tmpfile} = $file;
+    }
 
-    $form->{IN} .= '.html' if ($form->{format} eq 'html');
+    if ( $form->{format} eq 'elstertaxbird' ) {
 
-    #$form->header;
-    #print qq|$myconfig<br>$path|;
-    $form->parse_template($myconfig, $userspath);
+      $form->{IN} = 'taxbird.txb';
+     
+      $form->{tmpfile} = "USTVA-" . $form->{period} 
+      . sprintf("%02d", $form->{year} % 100) . ".txb";
+
+      if ($form->{period} =~ /^[4]\d$/ ){
+        my %periods = ( # Lx => taxbird
+                     '41' => '12',
+                     '42' => '13',
+                     '43' => '14',
+                     '44' => '15',
+                   );
+      
+        foreach my $quarter ( keys %periods ) {
+          $form->{period} = $periods{$quarter} if ( $form->{period} eq $quarter);
+        }
+        
+        my %lands = ( # Lx => taxbird # TODO: besser als array...
+                    'Baden Würtemberg'       => '0',
+                    'Bayern'                 => '1',
+                    'Berlin'                 => '2',
+                    'Brandenburg'            => '3',
+                    'Bremen'                 => '4',
+                    'Hamburg'                => '5',
+                    'Hessen'                 => '6',
+                    'Mecklenburg Vorpommern' => '7',
+                    'Niedersachsen'          => '8',
+                    'Nordrhein Westfalen'    => '9',
+                    'Rheinland Pfalz'        => '10',
+                    'Saarland'               => '11',
+                    'Sachsen'                => '12',
+                    'Sachsen Anhalt'         => '13',
+                    'Schleswig Holstein'     => '14',
+                    'Thüringen'              => '15',
+              );
+
+
+        foreach my $land ( keys %lands ){
+          $form->{elsterland} = $lands{$land} if ($form->{elsterland} eq $land );
+        }
+      } elsif ($form->{period} =~ /^\d+$/ ) {
+        $form->{period} =~ s/^0//g;
+        my $period = $form->{period};
+        $period * 1;
+        $period--;
+        $form->{period} = $period;
+       } else {
+         $form->header;
+         USTVA::error( $locale->text('Wrong Period' ));
+         exit(0);
+                
+       }
+      
+    }
+    # Other Elster formats follow here...
+    
+  } elsif ( $form->{format} eq '' ){ # No format error.
+    $form->header;
+    USTVA::error( $locale->text('Application Error. No Format given!' ));
+    exit(0);
+ 
+  } else { # All other Formats are wrong
+    $form->header;
+    USTVA::error( $locale->text('Application Error. Wrong Format: ') . $form->{format} );
+    exit(0);
   }
+    
+  
+  $form->{templates} = $myconfig{templates};
+  $form->{templates} = "doc" if ( $form->{type} eq 'help' );
+
   $lxdebug->leave_sub();
+
+  $form->parse_template($myconfig, $userspath);
+
 }
 
 sub edit {
@@ -1770,185 +1839,6 @@ sub show_fa_daten {
   $lxdebug->leave_sub();
 }
 
-sub create_winston {
-  $lxdebug->enter_sub();
-  &get_config($userspath, 'finanzamt.ini');
-
-  # There is no generic Linux GNU/GPL solution out for using ELSTER.
-  # In lack of availability linux users may use windows pendants. I choose
-  # WINSTON, because it's free of coast, it has an API and its tested under
-  # Linux using WINE.
-  # The author of WINSTON developed some c-code to realize ELSTER under
-  # WINDOWS and Linux (http://www.felfri.de/fa_xml/). Next year (2005) I start to
-  # develop a server side solution for LX-Office ELSTER under Linux and
-  # WINDOWS based on this c-code.
-  #
-  # You need to download WINSTON from http://www.felfri.de/winston/
-  # There (http://www.felfri.de/winston/download.htm) you'll find instructions
-  # about WINSTON under Linux WINE
-  # More infos about Winstons API: http://www.felfri.de/winston/schnittstellen.htm
-  my $azr  = '';
-  my $file = '';    # Filename for Winstonfile
-  $file .= 'U';     # 1. char 'U' = USTVA
-
-SWITCH:
-  {    # 2. and 3. char 01-12= Month 41-44= Quarter (azr:Abrechnungszeitraum)
-    $form->{duetyp} eq "01" && do {
-      $azr = "01";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "02" && do {
-      $azr = "02";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "03" && do {
-      $azr = "03";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "04" && do {
-      $azr = "04";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "05" && do {
-      $azr = "05";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "06" && do {
-      $azr = "06";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "07" && do {
-      $azr = "07";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "08" && do {
-      $azr = "08";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "09" && do {
-      $azr = "09";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "10" && do {
-      $azr = "10";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "11" && do {
-      $azr = "11";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "12" && do {
-      $azr = "12";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "A" && do {
-      $azr = "41";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "B" && do {
-      $azr = "42";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "C" && do {
-      $azr = "43";
-      last SWITCH;
-    };
-    $form->{duetyp} eq "D" && do {
-      $azr = "44";
-      last SWITCH;
-    };
-    do {
-      $form->error(
-        "Ungültiger Anmeldezeitraum.\n
-                                        Sie können für ELSTER nur einen monatlichen oder 
-                                        quartalsweisen Anmeldezeitraum auswählen."
-      );
-    };
-  }
-
-  $file .= $azr;
-
-  #4. and 5. char = year modulo 100
-  $file .= sprintf("%02d", $form->{year} % 100);
-
-  #6. to 18. char = Elstersteuernummer
-  #Beispiel: Steuernummer in Bayern
-  #111/222/33334 ergibt für UStVA Jan 2004: U01049111022233334
-
-  $file .= $form->{elsterFFFF};
-  $file .= $form->{elstersteuernummer};
-
-  #file suffix
-
-  $file .= '.xml';
-  $form->{elsterfile} = $file;
-
-  #Calculations
-
-  my $k51 =
-    sprintf("%d", $form->parse_amount(\%myconfig, $form->{"51"}))
-    ;    # Umsätze zu 16% USt
-  my $k86 =
-    sprintf("%d", $form->parse_amount(\%myconfig, $form->{"86"}))
-    ;    # Umsätze zu 7% USt
-  my $k97 =
-    sprintf("%d", $form->parse_amount(\%myconfig, $form->{"97"}))
-    ;    # 16% Steuerpflichtige innergemeinsachftliche Erwerbe
-  my $k93 =
-    sprintf("%d", $form->parse_amount(\%myconfig, $form->{"93"}))
-    ;    # 16% Steuerpflichtige innergemeinsachftliche Erwerbe
-  my $k94 =
-    sprintf("%d", $form->parse_amount(\%myconfig, $form->{"94"}))
-    ;    # neuer Fahrzeuge von Lieferern
-  my $k66 =
-    $form->parse_amount(\%myconfig, $form->{"66"}) *
-    100;    # Vorsteuer 7% plus 16%
-  my $k83 =
-    $form->parse_amount(\%myconfig, $form->{"83"}) * 100 ; # Endbetrag
-  my $k96 = $form->parse_amount(\%myconfig, $form->{"96"}) * 100;    #
-                                                                     #
-        # Now build the xml content
-        #
-
-  $form->{elster} = qq|<?xml version="1.0" encoding="ISO-8859-1" ?>
-<!-- Diese Datei ist mit Lx-Office $form->{version} generiert -->
-<WinstonAusgang>
- <Formular Typ="UST"></Formular>
- <Ordnungsnummer>$form->{elsterFFFF}$form->{elstersteuernummer}</Ordnungsnummer>
- <AnmeldeJahr>$form->{year}</AnmeldeJahr>
- <AnmeldeZeitraum>$azr</AnmeldeZeitraum>
-  |;
-
-  $form->{elster} .= qq|<Kennzahl Nr="51">$k51</Kennzahl>\n| if ($k51 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="86">$k86</Kennzahl>\n| if ($k86 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="97">$k97</Kennzahl>\n| if ($k97 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="93">$k93</Kennzahl>\n| if ($k93 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="94">$k94</Kennzahl>\n| if ($k94 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="96">$k96</Kennzahl>\n| if ($k96 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="66">$k66</Kennzahl>\n| if ($k66 ne '0');
-  $form->{elster} .= qq|<Kennzahl Nr="83">$k83</Kennzahl>\n| if ($k83 ne '0');
-  $form->{elster} .= qq|\n</WinstonAusgang>\n\n|;
-
-  #$form->header;
-  #print qq|$form->{elsterfile}|;
-  #print qq|$form->{elster}|;
-  $SIG{INT} = 'IGNORE';
-
-  &save_winston;
-  $lxdebug->leave_sub();
-}
-
-sub save_winston {
-  $lxdebug->enter_sub();
-  my $elster     = $form->{elster};
-  my $elsterfile = $form->{elsterfile};
-  open(OUT, ">-") or $form->error("STDOUT : $!");
-  print OUT qq|Content-Type: application/file;
-Content-Disposition: attachment; filename="$elsterfile"\n\n|;
-  print OUT $elster;
-  close(OUT);
-  $lxdebug->leave_sub();
-}
 
 sub continue {
   $lxdebug->enter_sub();
@@ -1973,239 +1863,4 @@ sub elster_hash {
   return $finanzamt;
 }
 
-sub test {
-  $lxdebug->enter_sub();
-
-  # biegt nur den Testeintrag in Programm->Test auf eine Routine um
-
-  $form->header;
-  &elster_send;
-  $lxdebug->leave_sub();
-}
-
-sub elster_send {
-  $lxdebug->enter_sub();
-
-  #read config
-  my $elster_conf = &elster_conf();
-  &elster_xml();
-  use Cwd;
-  $form->{cwd}     = cwd();
-  $form->{tmpdir}  = $form->{cwd} . '/' . $elster_conf->{'path'};
-  $form->{tmpfile} = $elster_conf->{'err'};
-  my $caller = $elster_conf->{'call'}[0];
-
-  chdir("$form->{tmpdir}") or $form->error($form->cleanup . "chdir : $!");
-  my $send =
-    "faxmlsend $caller -config etc/faxmlsend.cnf -xml faxmlsend.xml -tt faxmlsend.tt -debug";
-
-  system("$send > $form->{tmpfile}");
-  $form->{tmpdir} .= "$elster_conf->{'path'}/";
-  $form->{tmpfile} = "faxmlsend.err";
-  $form->error($form->cleanup
-        . "faxmlsend : OFD meldet: Error 404 \n Internetseite nicht vorhanden")
-    if ($? eq '1024');
-  $form->error($form->cleanup
-    . "faxmlsend : No such File: faxmlsend.xml \n Fehlernummer: $? \n Problem beim öffnen der faxmlsend.xml"
-    )
-    if ($?);
-
-  # foreach my $line (&elster_feedback("$elster_conf->{'path'}")){
-  #   print qq|$line\n|;
-  # }
-  print qq|Log:<br>|;
-
-  #for (my $i=0; $i<= )
-  &elster_readlog();
-  print qq|\n ende\n|;
-  $lxdebug->leave_sub();
-}
-
-sub elster_readlog {
-  $lxdebug->enter_sub();
-  my $elster_conf = &elster_conf();
-  open(LOG, "$elster_conf->{'logfile'}")
-    or $form->error("$elster_conf->{'logfile'}: $!");
-  print qq|<listing>|;
-  my $log = '';
-  my $xml = '';
-  my $tmp = '';
-  while (<LOG>) {
-    my $i = 0;
-
-    #$_ =~ s/</&lt\;/;
-    #$_ =~ s/>/&gt\;/;
-    $_ =~ s/\s+//mg;
-
-    #$_ =~ s/\015\012//mg;
-    $_ =~ s/</\n</mg;
-
-    #$_ =~ s/\n\n+//mg;
-    if ($_ =~ /^\d\d\d\d\d\d/g) {
-      $log .= qq|$_<br>|;
-
-      #} elsif ($_ =~ /(<([^\/]*?)>)/ ) {
-    } elsif ($_ =~ /(<([^\/].*?)>(.*))/g) {
-
-      #$xml .= qq|$2 = $3\n\n|;
-      #$_ =~ s/\015\012//mg;
-      $_ =~ s/\s+//;
-      $xml .= qq|$_\n|;
-
-    } else {
-      $tmp .= qq|$_<br>|;
-    }
-    $i++;
-  }
-
-  #second parse
-  #my $var='';
-  #while (<$xml>){
-  #  $var .= qq|$2 = $3\n\n|;
-  #}
-  #print qq|$log|;
-  print qq|$xml|;
-  print qq|</listing>|;
-
-  # $_=$log;
-  #  s{<(\w+)\b([^<>]*)>
-  #    ((?:.(?!</?\1\b))*.)
-  #      (<\1>) }
-  #   { print "markup=",$1," args=",$2," enclosed=",$3," final=",$4 ; "" }gsex;
-  close LOG;
-  $lxdebug->leave_sub();
-}
-
-sub elster_feedback {
-  $lxdebug->enter_sub();
-  my ($file) = @_;
-  my @content = ();
-  print qq|feedback:<br>|;
-  if (-f "$file") {
-    open(FH, "$file");
-    @content = <FH>;
-    close(FH);
-  }
-  $lxdebug->leave_sub();
-  return (@content);
-}
-
-sub elster_conf {
-  $lxdebug->enter_sub();
-  my $elster_conf = { 'path'     => 'elster',
-                      'prg'      => 'faxmlsend',
-                      'err'      => 'faxmlsend.err',
-                      'ttfile'   => 'faxmlsend.tt',
-                      'xmlfile'  => 'faxmlsend.xml',
-                      'cline'    => '-tt $ttfile -xml $xmlfile',
-                      'call'     => ['send', 'protokoll', 'anmeldesteuern'],
-                      'logfile'  => 'log/faxmlsend.log',
-                      'conffile' => 'faxmlsend.cnf',
-                      'debug'    => '-debug' };
-  $lxdebug->leave_sub();
-  return $elster_conf;
-
-}
-
-sub elster_xml {
-  $lxdebug->enter_sub();
-  my $elster_conf = &elster_conf();
-
-  #  $k51 = sprintf("%d", $form->parse_amount(\%myconfig, $form->{"51"})); # Umsätze zu 16% USt
-  #  $k86 = sprintf("%d", $form->parse_amount(\%myconfig, $form->{"86"})); # Umsätze zu 7% USt
-  #  $k97 = sprintf("%d", $form->parse_amount(\%myconfig, $form->{"97"})); # 16% Steuerpflichtige innergemeinsachftliche Erwerbe
-  #  $k93 = sprintf("%d", $form->parse_amount(\%myconfig, $form->{"93"})); # 16% Steuerpflichtige innergemeinsachftliche Erwerbe
-  #  $k94 = sprintf("%d", $form->parse_amount(\%myconfig, $form->{"94"})); # neuer Fahrzeuge von Lieferern
-  #  $k66 = $form->parse_amount(\%myconfig, $form->{"66"}) * 100;# Vorsteuer 7% plus 16%
-  #  $k83 = $form->parse_amount(\%myconfig, $form->{"67"}) * 100;# Umsätze zu 7% USt
-  #  $k96 = $form->parse_amount(\%myconfig, $form->{"96"}) * 100;#
-
-  my $TransferHeader = qq|<?xml version="1.0" encoding="ISO-8859-1"?>
-<?xml-stylesheet type="text/xsl" href="..\\Stylesheet\\ustva.xsl"?>
-<Elster xmlns="http://www.elster.de/2002/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.elster.de/2002/XMLSchema
-..\\Schemata\\elster_UStA_200501_extern.xsd">
-   <TransferHeader version="7">
-      <Verfahren>ElsterAnmeldung</Verfahren>
-      <DatenArt>UStVA</DatenArt>
-      <Vorgang>send-NoSig</Vorgang>
-      <Testmerker>700000004</Testmerker>
-      <HerstellerID>74931</HerstellerID>
-      <DatenLieferant>Helmut</DatenLieferant>
-      <Datei>
-        <Verschluesselung>PKCS#7v1.5</Verschluesselung>
-        <Kompression>GZIP</Kompression>
-        <DatenGroesse>123456789012345678901234567890123456789012</DatenGroesse>
-        <TransportSchluessel/>
-      </Datei>
-      <RC>
-        <Rueckgabe>
-          <Code>0</Code>
-          <Text/>
-        </Rueckgabe>
-        <Stack>
-          <Code>0</Code>
-          <Text/>
-        </Stack>
-      </RC>
-      <VersionClient/>
-      <Zusatz>
-        <Info>test</Info>
-      </Zusatz>
-   </TransferHeader>|;
-
-  my $DatenTeil = qq|
-   <DatenTeil>
-      <Nutzdatenblock>
-         <NutzdatenHeader version="9">
-            <NutzdatenTicket>234234234</NutzdatenTicket>
-            <Empfaenger id="F">9198</Empfaenger>
-            <Hersteller>
-               <ProduktName>ElsterAnmeldung</ProduktName>
-               <ProduktVersion>V 1.4</ProduktVersion>
-            </Hersteller>
-            <DatenLieferant>String, der Lieferanteninfo enthaelt</DatenLieferant>
-            <Zusatz>
-              <Info>....</Info>
-            </Zusatz>
-         </NutzdatenHeader>
-         <Nutzdaten>
-            <!--die Version gibt Auskunft ueber das Jahr und die derzeit gueltige Versionsnummer-->
-            <Anmeldungssteuern art="UStVA" version="200501">
-               <DatenLieferant>
-                  <Name>OFD Muenchen</Name>
-                  <Strasse>Meiserstr. 6</Strasse>
-                  <PLZ>80335</PLZ>
-                  <Ort>München</Ort>
-               </DatenLieferant>
-               <Erstellungsdatum>20041127</Erstellungsdatum>
-               <Steuerfall>
-                  <Umsatzsteuervoranmeldung>
-                     <Jahr>2005</Jahr>
-                     <Zeitraum>01</Zeitraum>
-                     <Steuernummer>9198011310134</Steuernummer>
-                     <Kz09>74931*NameSteuerber.*Berufsbez.*089*59958327*Mandantenname</Kz09>
-                  </Umsatzsteuervoranmeldung>
-               </Steuerfall>
-            </Anmeldungssteuern>
-         </Nutzdaten>
-      </Nutzdatenblock>
-   </DatenTeil>
-</Elster>\n|;
-
-  #$DatenTeil .= qq|                              <Kz51>$k51</Kz51>\n| if ($k51 ne '0');
-  #$DatenTeil .= qq|                              <Kz86>$k86</Kz86>\n| if ($k86 ne '0');
-  #$DatenTeil .= qq|                              <Kz97>$k97</Kz97>\n| if ($k97 ne '0');
-  #$DatenTeil .= qq|                              <Kz93>$k93</Kz93>\n| if ($k93 ne '0');
-  #$DatenTeil .= qq|                              <Kz94>$k94</Kz94>\n| if ($k94 ne '0');
-  #$DatenTeil .= qq|                              <Kz96>$k96</Kz96>\n| if ($k96 ne '0');
-  #$DatenTeil .= qq|                              <Kz66>$k66</Kz66>\n| if ($k66 ne '0');
-  #$DatenTeil .= qq|                              <Kz83>$k83</Kz83>\n| if ($k83 ne '0');
-
-  my $filename = "$elster_conf->{'path'}/$elster_conf->{'xmlfile'}";
-  open(XML, ">$elster_conf->{'path'}/$elster_conf->{'xmlfile'}")
-    or $form->error("$filename : $!");
-  print XML qq|$TransferHeader $DatenTeil|;
-  close XML;
-  $lxdebug->leave_sub();
-}
 
