@@ -754,6 +754,19 @@ sub parse_template {
   } elsif (($self->{"format"} =~ /html/i) ||
            (!$self->{"format"} && ($self->{"IN"} =~ /html$/i))) {
     $template = HTMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  } elsif (($self->{"format"} =~ /xml/i) ||
+             (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
+    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  } elsif ( $self->{"format"} =~ /elsterwinston/i ) {
+    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);  
+  } elsif ( $self->{"format"} =~ /elstertaxbird/i ) {
+    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  } elsif ( defined $self->{'format'}) {
+    $self->error("Outputformat not defined. This may be a future feature: $self->{'format'}");
+  } elsif ( $self->{'format'} eq '' ) {
+    $self->error("No Outputformat given: $self->{'format'}");
+  } else { #Catch the rest
+    $self->error("Outputformat not defined: $self->{'format'}");  
   }
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
@@ -767,7 +780,7 @@ sub parse_template {
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
   my $fileid = time;
-  $self->{tmpfile} = "$userspath/${fileid}.$self->{IN}";
+  $self->{tmpfile} = "$userspath/${fileid}.$self->{IN}" if ( $self->{tmpfile} eq '' );
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
     $self->{OUT} = ">$self->{tmpfile}";
