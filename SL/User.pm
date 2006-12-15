@@ -168,21 +168,25 @@ sub login {
 
     if (&update_available($myconfig{"dbdriver"}, $dbversion)) {
 
-      # update the tables
-      open FH, ">$userspath/nologin" or die "
-$!";
-
       map { $form->{$_} = $myconfig{$_} }
         qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect);
-
-      $form->{dbupdate} = "db$myconfig{dbname}";
-      $form->{ $form->{dbupdate} } = 1;
 
       $form->{"stylesheet"} = "lx-office-erp.css";
       $form->{"title"} = $main::locale->text("Dataset upgrade");
       $form->header();
-      print($form->parse_html_template("dbupgrade/header",
-                                       { "dbname" => $myconfig{dbname} }));
+      print($form->parse_html_template("dbupgrade/header"));
+
+      $form->{dbupdate} = "db$myconfig{dbname}";
+      $form->{ $form->{dbupdate} } = 1;
+
+      if (!$form->{"confirm_dbupdate"}) {
+        print($form->parse_html_template("dbupgrade/warning"));
+        exit(0);
+      }
+
+      # update the tables
+      open FH, ">$userspath/nologin" or die "
+$!";
 
       # required for Oracle
       $form->{dbdefault} = $sid;

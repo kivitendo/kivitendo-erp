@@ -1,0 +1,17 @@
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="confirm_dbupdate" value="1">
+
+ <p>
+  <translate>Lx-Office is about to update the
+   database <b><TMPL_VAR dbname ESCAPE=HTML></b>. You should create a
+   backup of the database before proceeding because the backup might not
+   be reversible.</translate>
+ </p>
+
+ <input type="submit" name="dummy" value="<translate>Continue</translate>">
+</form>
