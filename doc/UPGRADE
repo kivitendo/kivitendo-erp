@@ -1,0 +1,65 @@
+Wichtige Hinweise zum Upgrade von älteren Versionen
+===================================================
+
+
+** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
+
+
+Upgrade von v2.2.0 bis 2.2.2 auf 2.4.0
+--------------------------------------
+
+Ein direktes Upgrade von den unmodifizierten Versionen 2.2.0, 2.2.1
+und 2.2.2 auf 2.4.0 ist möglich. Es solches Upgrade besteht aus zwei
+Teilen: den Dateien (einfaches Entpacken und Kopieren in das
+Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
+
+Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
+Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
+
+** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
+
+Das Datenbankupgrade enthält zwei interaktive Upgradepfade für neue
+Features in Lx-Office 2.4.0: Einheiten sowie Buchungsgruppen.
+
+
+
+Einführung von Einheiten
+------------------------
+
+In Versionen von Lx-Office vor 2.4.0 konnte der Benutzer bei den
+Stammdaten aber auch in den Einkaufs- und Verkaufsdialogen beliebige
+Texte als "Einheit" angeben. Lx-Office 2.4.0 ändert dies nun. Der
+Administrator kann unter "System -> Einheiten -> Maßeinheiten" die bei
+Waren und Erzeugnissen verwendbaren und bei "System -> Einheiten ->
+Dienstleistungseinheiten" die bei Dienstleistungen verwendbaren
+Einheiten festlegen. Lx-Office 2.4.0 bringt bereits für beide Typen
+einige Standardeinheiten mit.
+
+Einheiten können wiederum auf anderen Einheiten basieren. So ist
+z.B. "kg" als das 1000fache der Einheit "g" definiert. Der Benutzer
+muss beim Anlegen von Artikeln in den Stammdaten eine Einheit aus
+einer Drop-Down-Liste auswählen. In den Einkaufs- und Verkaufsmasken
+werden dann dem Benutzer nur noch diejenigen Einheiten zur Auswahl
+angeboten, die sich in die in den Stammdaten hinterlegte Einheit
+umrechnen lassen. So würden z.B. für eine Ware, deren
+Stammdateneinheit "kg" ist, nur die Einheiten "g", "kg", "t" zur
+Auswahl aufgelistet, nicht aber "Stück" oder "Tag", "Stunde".
+
+Das Datenbankupgrade muss nun alle im System verwendeten Einheiten in
+den Stammdaten sowie in den Einkaufs- und Verkaufsdaten so anpassen,
+dass dort nur noch Einheiten auftreten, die im System verwendet werden
+können. Da dies nur eingeschränkt automatisch möglich ist, werden dem
+Benutzer, der das Datenbankupgrade nach dem Login durchführt, einige
+Masken angezeigt, in denen er neue Einheiten in der Datenbank anlegen
+kann, und in denen er "alte" Einheiten durch "neue" Einheiten ersetzen
+lassen kann.
+
+Zuletzt muss er noch für all die Waren, für die früher gar keine
+Einheit eingetragen wurde, eine Standardeinheit getrennt nach Waren /
+Erzeugnissen und Dienstleistungen festlegen, die statt dessen
+eingesetzt wird.
+
+
+Einführung von Steuerzonen und Buchungsgruppen
+----------------------------------------------
+
