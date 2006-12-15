@@ -377,59 +377,56 @@ insert into tax (chart_id,rate,taxnumber, taxkey, taxdescription) values ((selec
 
 -- Buchungsgruppen
 
--- Erst einkommentieren, wenn in lx-office.sql das 2.4.0er Schema
--- inklusive der Tabelle 'buchungsgruppen' enthalten ist.
+INSERT INTO buchungsgruppen
+  (description, inventory_accno_id,
+   income_accno_id_0, expense_accno_id_0,
+   income_accno_id_1, expense_accno_id_1,
+   income_accno_id_2, expense_accno_id_2,
+   income_accno_id_3, expense_accno_id_3)
+ VALUES
+  ('Standard 16%',
+   -- 1140: Bestand Waren
+   (SELECT id FROM chart WHERE accno = '1140'),
+   -- 4400: Erlöse 16% USt.
+   -- 5400: Wareneingang 16% Vorsteuer
+   (SELECT id FROM chart WHERE accno = '4400'),
+   (SELECT id FROM chart WHERE accno = '5400'),
+   -- 4125: Steuerfrei innergem. Lieferungen §41bUStG
+   -- 5550: Steuerfreier innergem.Erwerb
+   (SELECT id FROM chart WHERE accno = '4125'),
+   (SELECT id FROM chart WHERE accno = '5550'),
+   -- 4315: Erlös Inland stpfl.EG-Lieferung 16%
+   -- 5425: Innergem.Erwerb 16% VorSt u. Ust
+   (SELECT id FROM chart WHERE accno = '4315'),
+   (SELECT id FROM chart WHERE accno = '5425'),
+   -- 4150: Sonstige steuerfreie Umsätze §42-7UStG
+   -- 5559: Steuerfreie Einfuhren
+   (SELECT id FROM chart WHERE accno = '4150'),
+   (SELECT id FROM chart WHERE accno = '5559'));
 
--- INSERT INTO buchungsgruppen
---   (description, inventory_accno_id,
---    income_accno_id_0, expense_accno_id_0,
---    income_accno_id_1, expense_accno_id_1,
---    income_accno_id_2, expense_accno_id_2,
---    income_accno_id_3, expense_accno_id_3)
---  VALUES
---   ('Standard 16%',
---    -- 1140: Bestand Waren
---    (SELECT id FROM chart WHERE accno = '1140'),
---    -- 4400: Erlöse 16% USt.
---    -- 5400: Wareneingang 16% Vorsteuer
---    (SELECT id FROM chart WHERE accno = '4400'),
---    (SELECT id FROM chart WHERE accno = '5400'),
---    -- 4125: Steuerfrei innergem. Lieferungen §41bUStG
---    -- 5550: Steuerfreier innergem.Erwerb
---    (SELECT id FROM chart WHERE accno = '4125'),
---    (SELECT id FROM chart WHERE accno = '5550'),
---    -- 4315: Erlös Inland stpfl.EG-Lieferung 16%
---    -- 5425: Innergem.Erwerb 16% VorSt u. Ust
---    (SELECT id FROM chart WHERE accno = '4315'),
---    (SELECT id FROM chart WHERE accno = '5425'),
---    -- 4150: Sonstige steuerfreie Umsätze §42-7UStG
---    -- 5559: Steuerfreie Einfuhren
---    (SELECT id FROM chart WHERE accno = '4150'),
---    (SELECT id FROM chart WHERE accno = '5559'));
-
--- INSERT INTO buchungsgruppen
---   (description, inventory_accno_id,
---    income_accno_id_0, expense_accno_id_0,
---    income_accno_id_1, expense_accno_id_1,
---    income_accno_id_2, expense_accno_id_2,
---    income_accno_id_3, expense_accno_id_3)
---  VALUES
---   ('Standard 7%',
---    -- 1140: Bestand Waren
---    (SELECT id FROM chart WHERE accno = '1140'),
---    -- 4300: Erlöse 7%USt
---    -- 5300: Wareneingang 7% Vorsteuer
---    (SELECT id FROM chart WHERE accno = '4300'),
---    (SELECT id FROM chart WHERE accno = '5300'),
---    -- 4125: Steuerfrei innergem. Lieferungen §41bUStG
---    -- 5550: Steuerfreier innergem.Erwerb
---    (SELECT id FROM chart WHERE accno = '4125'),
---    (SELECT id FROM chart WHERE accno = '5550'),
---    -- 4310: Erlöse Inland stpfl. EG-Lieferung7%
---    -- 5420: Innergemein.Erwerb 7% VorSt u. Ust
---    (SELECT id FROM chart WHERE accno = '4310'),
---    (SELECT id FROM chart WHERE accno = '5420'),
---    -- 4150: Sonstige steuerfreie Umsätze §42-7UStG
---    -- 5559; Steuerfreie Einfuhren
---    (SELECT id FROM chart WHERE accno = '4150'),
---    (SELECT id FROM chart WHERE accno = '5559'));
+INSERT INTO buchungsgruppen
+  (description, inventory_accno_id,
+   income_accno_id_0, expense_accno_id_0,
+   income_accno_id_1, expense_accno_id_1,
+   income_accno_id_2, expense_accno_id_2,
+   income_accno_id_3, expense_accno_id_3)
+ VALUES
+  ('Standard 7%',
+   -- 1140: Bestand Waren
+   (SELECT id FROM chart WHERE accno = '1140'),
+   -- 4300: Erlöse 7%USt
+   -- 5300: Wareneingang 7% Vorsteuer
+   (SELECT id FROM chart WHERE accno = '4300'),
+   (SELECT id FROM chart WHERE accno = '5300'),
+   -- 4125: Steuerfrei innergem. Lieferungen §41bUStG
+   -- 5550: Steuerfreier innergem.Erwerb
+   (SELECT id FROM chart WHERE accno = '4125'),
+   (SELECT id FROM chart WHERE accno = '5550'),
+   -- 4310: Erlöse Inland stpfl. EG-Lieferung7%
+   -- 5420: Innergemein.Erwerb 7% VorSt u. Ust
+   (SELECT id FROM chart WHERE accno = '4310'),
+   (SELECT id FROM chart WHERE accno = '5420'),
+   -- 4150: Sonstige steuerfreie Umsätze §42-7UStG
+   -- 5559; Steuerfreie Einfuhren
+   (SELECT id FROM chart WHERE accno = '4150'),
+   (SELECT id FROM chart WHERE accno = '5559'));
