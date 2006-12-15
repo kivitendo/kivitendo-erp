@@ -125,14 +125,21 @@ sub chart_of_accounts {
         "<td><a href=$href&accounttype=gifi>$ca->{gifi_accno}</a>&nbsp;</td>";
       $column_data{description} = "<td>$ca->{description}</td>";
     }
-
+    my $debit = "";
+    my $credit = "";
+    if ($ca->{debit}) {
+      $debit = $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;");
+    }
+    if ($ca->{credit}) {
+      $credit = $form->format_amount(\%myconfig, $ca->{credit}, 2, "&nbsp;");
+    }
     $column_data{debit} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;")
+      . $debit
       . "</td>\n";
     $column_data{credit} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ca->{credit}, 2, "&nbsp;")
+      . $credit
       . "</td>\n";
 
     $totaldebit  += $ca->{debit};
