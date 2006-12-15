@@ -2,7 +2,7 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 2006-12-12 - Version 2.4.0
-  - USTVA jetzt mit Taxbird und Winston Anbindung (als Templates verfügbar
+  - USTVA jetzt mit Taxbird und Winston Anbindung (als Templates verfügbar)
   - Neues Steuersystem für beliebig viele Steuersätze pro Konto
   - Update der Kontenrahmen für die MwSt.-Erhöhung ab 1.1.2007
   - SKR04
@@ -28,7 +28,7 @@
   - Bugfix 377 et al. - MwSt. wird nicht in Auftragsmaske übernommen nach
     Neuanlegen eines Artikels
   - Bugfix 409 - Bericht Waren funktioniert nicht bei Bestellt, etc.
-
+  - Viele weitere Bugfixes
 
 2006-03-07 - Version 2.2.2 (942 - 970) 
   - Bugfix 308 - falsches Quoten bei Kreditorenbuchungen
