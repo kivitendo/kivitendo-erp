@@ -1061,14 +1061,14 @@ sub generate_ustva {
       $file .= $form->{elstersteuernummer};
       #file suffix
       $file .= '.xml';
-      $form->{tmpfile} = $file;
+      $form->{tmpfile} = "$userspath/$file";
     }
 
     if ( $form->{format} eq 'elstertaxbird' ) {
 
       $form->{IN} = 'taxbird.txb';
      
-      $form->{tmpfile} = "USTVA-" . $form->{period} 
+      $form->{tmpfile} = "$userspath/USTVA-" . $form->{period} 
       . sprintf("%02d", $form->{year} % 100) . ".txb";
 
       if ($form->{period} =~ /^[4]\d$/ ){
@@ -1137,10 +1137,9 @@ sub generate_ustva {
   $form->{templates} = $myconfig{templates};
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
-  $lxdebug->leave_sub();
-
   $form->parse_template($myconfig, $userspath);
 
+  $lxdebug->leave_sub();
 }
 
 sub edit {
