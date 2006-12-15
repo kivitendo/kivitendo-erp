@@ -179,7 +179,7 @@ sub login {
       $form->{dbupdate} = "db$myconfig{dbname}";
       $form->{ $form->{dbupdate} } = 1;
 
-      if (!$form->{"confirm_dbupdate"}) {
+      if ($form->{"show_dbupdate_warning"}) {
         print($form->parse_html_template("dbupgrade/warning"));
         exit(0);
       }

@@ -91,6 +91,8 @@ sub login_screen {
 
 <form method=post name=loginscreen action=$form->{script}>
 
+  <input type="hidden" name="show_dbupdate_warning" value="1">
+
       <table width=100%>
 	<tr>
 	  <td align=center>
