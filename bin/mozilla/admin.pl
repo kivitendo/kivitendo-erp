@@ -969,7 +969,7 @@ sub save {
 
       # copy templates to the directory
       opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $!");
-      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty)$/,
+      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
@@ -1444,7 +1444,7 @@ sub dbupdate {
 
 <br>
 
-<a href="admin.pl?action=login&| .
+<a id="enddatasetupdate" href="admin.pl?action=login&| .
 join("&", map({ "$_=" . $form->escape($form->{$_}); } qw(path rpw))) .
 qq|">| . $locale->text("Continue") . qq|</a>|;
 
