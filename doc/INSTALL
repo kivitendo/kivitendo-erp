@@ -20,18 +20,25 @@ Folgende Pakete müssen installiert sein:
 ========================================
 Webserver (Apache)
 PostgreSQL - Datenbank 
-Perl - DBI und Perl - DBD 
+Perl-DBI, Perl-DBD, Perl-HTML-Template, Perl-CGI-Ajax, Perl-Class-Accessor
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
-(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl) 
+(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl) 
 (Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
 (SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg)
+
+
+Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß es mit der CPAN-Shell installiert werden.
+Leider ist dazu nicht jeder in der Lage. LxO liefert daher das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
 
 
 Die PostgreSQL Konfiguration muß angepasst werden.
 ==================================================
 In der Datei postgresql.conf (/var/lib/pgsql/data/ oder /etc/postgresql/) muß folgender Wert verändert werden:
 
-TCPIP_SOCKET = 1
+TCPIP_SOCKET = 1 #  Nur PostgreSQL < 8.0
+
+default_with_oids = on # Nur PostgreSQL >= 8.0
+
 
 In der Datei pg_hba.conf (/var/lib/pgsql/data/ oder /etc/postgresql/) müssen die Berichtigungen für den 
 Zugriff geändert werden:
@@ -46,21 +53,28 @@ host all all 127.0.0.1 255.0.0.0	ident sameuser
 local	all all	trust
 host all all 127.0.0.1 255.0.0.0	trust
 
+Besser:
+-------
+local   all         lxoffice                                           password
+host    all         lxoffice      127.0.0.1         255.255.255.255    password
+
 
 Installation des Programmpaketes 
 ================================
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.0.0.tgz) in den DocumentRoot des Webservers
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.4.x.tgz) in den DocumentRoot des Webservers
 (/var/www/html/ oder /srv/www/htdocs oder /var/www/) entpacken.
 
-tar xvzf lxoffice-erp-2.0.0.tgz
+tar xvzf lxoffice-erp-2.4.x.tgz
 
 Verändern Sie evtl. noch den Namen des Verzeichnisses
 
 mv lxoffice-erp/ lx-erp/
 
+oder noch besser, Sie verwenden einen Alias in der Webserverkonfiguration.
+
 Das Verzeichnis muß dem Webserverbenutzer (Debian: www-data, Fedora: apache, SuSE: wwwrun) übergeben werden:
 
-chown apache: -R lx-erp/
+chown apache: -R lx-office-erp/
 
 
 Datenbankbenutzer anlegen
@@ -71,7 +85,8 @@ folgende Befehle nacheinander aus.
 
 su - postgres
 createuser -d lxoffice (ohne Passwort) 
-oder createuser -d -P lxoffice (mit Passwort)
+oder besser
+createuser -d -P lxoffice (mit Passwort)
 
 Wenn Sie später einen Datenbankzugriff konfigurieren, verändern Sie den evtl. voreingestellten Benutzer 
 "postgres" auf "lxoffice".
@@ -82,16 +97,17 @@ PostgreSQL - Datenbank erweitern
 In der Datenbank "template1" sollte bevor die restliche Konfiguration von LxOffice ERP erfolgt noch folgende
 Funktion hinzugefügt werden:
 
-psql template1 postgres (Zugriff über Admintool auf die Datenbank)
+su postgres
+psql template1  (Zugriff über Admintool auf die Datenbank)
 create function plpgsql_call_handler ()
 returns opaque
-as '/usr/lib/pgsql/plpgsql.so'
+as '/usr/lib/pgsql/plpgsql.so'	
 language 'c';
 
 create language 'plpgsql' handler plpgsql_call_handler
 lancompiler 'pl/pgsql';
 
-Bitte beachten Sie, das der Pfad zur Datei plpgsql.so von Distribution zu Distribution verschieden sein kann.
+!!!! Bitte beachten Sie, das der Pfad zur Datei plpgsql.so und der Name von Distribution zu Distribution verschieden sein kann.
 Bei z.B. Debian befindet sie sich unter '/usr/lib/postgresql/lib/plpgsql.so'.
 
 
@@ -104,6 +120,7 @@ AddHandler cgi-script .pl
 Alias /lx-erp/ /var/www/lx-erp/
 <Directory /var/www/lx-erp>
   Options ExecCGI Includes FollowSymlinks
+  DirectoryIndex login.pl			# nicht mehr unbedingt nötig, da eine index.html mitgeliefert wird
 </Directory>
 
 <Directory /var/www/lx-erp/users>
@@ -111,6 +128,11 @@ Alias /lx-erp/ /var/www/lx-erp/
   Deny from All
 </Directory>
 
+!!!Vor den einzelnen Optionen muß bei einigen Distributionen ein Plus "+" gesetzt werden.
+
+Auf einigen Webservern werden manchmal die Grafiken und Style-Sheets nicht ausgeliefert. Daher die Apache-Konfig um diese Zeile erweitern:
+
+EnableSendfile Off
 
 Datenbank anlegen 
 =================
@@ -173,4 +195,4 @@ Lx-Office ERP verwenden
 =======================
 Einloggen können Sie sich unter: 
 
-http://localhost/lx-erp/login.pl
+http://localhost/lx-office-erp/login.pl
