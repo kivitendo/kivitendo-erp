@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Address'                     => 'Adresse',
   'Angaben zum Finanzamt'       => 'Angaben zum Finanzamt',
   'Bankleitzahl (BLZ)'          => 'Bankleitzahl (BLZ)',
@@ -46,7 +46,7 @@ $self{texts} = {
   'Öffnungszeiten'              => 'Öffnungszeiten',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'add_transaction'             => 'add_transaction',
   'ap_transaction'              => 'ap_transaction',
   'ar_transaction'              => 'ar_transaction',

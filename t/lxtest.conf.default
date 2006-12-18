@@ -1,0 +1,56 @@
+# This is the main configuration file for testing Lx-Office. 
+# The file t/lxtest.conf.default contains the configuration for
+# testing the unstable trunk in the internet repository on
+# https://lx-office.linet-services.de/svn-installationen/unstable/
+# Simply copy the file
+# t/lxtest.conf.default to t/lxtest.conf
+# If you like to test the unstable trunk of the repository, start 
+# perl t/lx-office.t .
+# If you like to test your own Lx installation, customize the file
+# t/lx-office.t for your own.
+# Btw. a running Selenium server is required for testing Lx!
+# See README for more informations.
+
+$lxtest = {
+
+    # Lx location and user configuration:
+    # Please edit the following lines 
+    # for testing a local installation
+
+    lxbaseurl       => 'https://lx-office.linet-services.de/svn-installationen/unstable/',
+    rpw             => 'ro26F.eQBldoA', # root passwordhash! is only
+                       # neccessary if you test a remote instalation
+    testlogin       => 'seleniumtestuser',# will be extended with unix time
+
+    
+    # Testdatabase configuration:
+    # Please edit the following lines
+    # for testing a local installation
+    # ATTENTION: Testdatabase will be deleted after testrun!
+    db              => 'seleniumtestdatabase',
+    dbhost          => 'localhost',
+    dbport          => '5432',
+    dbuser          => 'postgres',
+    dbpasswd        => '',
+    dbdefault       => 'template1',
+
+    # Selenium preferences:
+    # Edit the selenium preferences for your system. 
+    # A running Selenium server is required for testing Lx! 
+    # See README for more informations.
+    seleniumhost    => '192.168.1.10', # edit host of running selenium server
+    seleniumbrowser => '*chrome C:\Programme\Mozilla Firefox\firefox.exe', # edit the path
+
+    seleniumport    => '4444',
+    timeout         => '30000',  #timeout for waiting Page load in ms
+    timeoutlong     => '60000',  #timeout for waiting longer Page load in ms....
+
+
+    #Lx defaults (usualy no need for editing)
+    rootlogin       => "root login",
+    memberfile      => "users/members",
+    path            => 'bin%2Fmozilla',
+
+    # Put your own setting for individual tests after here...
+
+};

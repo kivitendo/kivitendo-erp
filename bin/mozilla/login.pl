@@ -91,6 +91,8 @@ sub login_screen {
 
 <form method=post name=loginscreen action=$form->{script}>
 
+  <input type="hidden" name="show_dbupdate_warning" value="1">
+
       <table width=100%>
 	<tr>
 	  <td align=center>
@@ -107,7 +109,7 @@ sub login_screen {
 	    </table>
 
 	    <br>
-	    <input type=submit name=action value="| . $locale->text('Login') . qq|">
+	    <input type=submit name=action value="| . $locale->text('Login') . qq|" tabindex="3">
 
 	  </td>
 	</tr>
@@ -140,11 +142,6 @@ sub login {
     $err[1] = $err[3] = $locale->text('Incorrect username or password!');
 
     if ($errno == 2) {
-
-      # upgraded dataset, login again
-      $form->redirect(
-        "<a href=menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display>Continue</a>"
-      );
       exit;
     }
 

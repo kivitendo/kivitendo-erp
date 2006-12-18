@@ -37,6 +37,7 @@
 
 $menufile = "menu.ini";
 use SL::Menu;
+use Data::Dumper;
 
 1;
 
@@ -50,7 +51,7 @@ sub display {
   $form->header;
 
   print qq|
-<frameset rows="20px,*" cols="*" framespacing="0" frameborder="0">
+<frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
   <frame  src="kopf.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}" name="kopf"  scrolling="NO">
   <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" >
     <frame src="$form->{script}?login=$form->{login}&password=$form->{password}&action=acc_menu&path=$form->{path}" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
@@ -117,6 +118,21 @@ sub section_menu {
     $label_icon = $label . ".gif";
     $mlab       = $label;
     $label      = $locale->text($label);
+ 
+    # multi line hack, sschoeling jul06
+    # if a label is too long, try to split it at whitespaces, then join it to chunks of less 
+    # than 20 chars and store it in an array.
+    # use this array later instead of the &nbsp;-ed label
+    @chunks = ();
+    my ($i,$l) =(-1, 20);
+    map {
+      $l += length $_; 
+      if ($l < 20) { $chunks[$i] .= " $_";
+      } else { $l =length $_; $chunks[++$i] = $_; }
+    } split / /, $label;
+    map { $chunks[$_] =~ s/ /&nbsp;/ } 0..$#chunks;
+    # end multi line
+
     $label =~ s/ /&nbsp;/g;
     $menu->{$item}{target} = "main_window" unless $menu->{$item}{target};
 
@@ -159,10 +175,24 @@ sub section_menu {
           &section_menu($menu, $item);
         } else {
           if ($zeige) {
-            print
-              qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
-              . $menu->menuitem(\%myconfig, \%$form, $item, $level)
-              . qq|$label</a></td></tr>\n|;
+            if (scalar @chunks <= 1) {
+              print
+                qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
+                . $menu->menuitem(\%myconfig, \%$form, $item, $level)
+                . qq|$label</a></td></tr>\n|;
+            } else {
+              my $tmpitem = $menu->menuitem(\%myconfig, \%$form, $item, $level);
+              print
+                qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
+                . $tmpitem
+                . qq|$chunks[0]</a></td></tr>\n|;
+              map {
+                print
+                  qq|<tr style="vertical-align:top""><td class="hover">$spacer<img src="image/unterpunkt.png" style="visibility:hidden; width:23; height=2;">|
+                  . $tmpitem
+                  . qq|$chunks[$_]</a></td></tr>\n|;
+              } 1..$#chunks;
+            }
           }
         }
       } else {

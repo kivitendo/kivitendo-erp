@@ -30,6 +30,7 @@
 # Order entry module
 # Quotation module
 #======================================================================
+use Data::Dumper;
 
 use SL::OE;
 use SL::IR;
@@ -43,25 +44,58 @@ require "$form->{path}/arap.pl";
 
 # end of main
 
+# For locales.pl:
+# $locale->text('Edit the purchase_order');
+# $locale->text('Edit the sales_order');
+# $locale->text('Edit the request_quotation');
+# $locale->text('Edit the sales_quotation');
+
+# $locale->text('Workflow purchase_order');
+# $locale->text('Workflow sales_order');
+# $locale->text('Workflow request_quotation');
+# $locale->text('Workflow sales_quotation');
+
+sub set_headings {
+  $lxdebug->enter_sub();
+
+  my ($action) = @_;
+
+  if ($form->{type} eq 'purchase_order') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Purchase Order') :
+      $locale->text('Add Purchase Order');
+    $form->{heading} = $locale->text('Purchase Order');
+    $form->{vc}      = 'vendor';
+  }
+  if ($form->{type} eq 'sales_order') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Sales Order') :
+      $locale->text('Add Sales Order');
+    $form->{heading} = $locale->text('Sales Order');
+    $form->{vc}      = 'customer';
+  }
+  if ($form->{type} eq 'request_quotation') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Request for Quotation') :
+      $locale->text('Add Request for Quotation');
+    $form->{heading} = $locale->text('Request for Quotation');
+    $form->{vc}      = 'vendor';
+  }
+  if ($form->{type} eq 'sales_quotation') {
+    $form->{title}   = $action eq "edit" ?
+      $locale->text('Edit Quotation') :
+      $locale->text('Add Quotation');
+    $form->{heading} = $locale->text('Quotation');
+    $form->{vc}      = 'customer';
+  }
+
+  $lxdebug->leave_sub();
+}
+
 sub add {
   $lxdebug->enter_sub();
 
-  if ($form->{type} eq 'purchase_order') {
-    $form->{title} = $locale->text('Add Purchase Order');
-    $form->{vc}    = 'vendor';
-  }
-  if ($form->{type} eq 'sales_order') {
-    $form->{title} = $locale->text('Add Sales Order');
-    $form->{vc}    = 'customer';
-  }
-  if ($form->{type} eq 'request_quotation') {
-    $form->{title} = $locale->text('Add Request for Quotation');
-    $form->{vc}    = 'vendor';
-  }
-  if ($form->{type} eq 'sales_quotation') {
-    $form->{title} = $locale->text('Add Quotation');
-    $form->{vc}    = 'customer';
-  }
+  set_headings("add");
 
   $form->{callback} =
     "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&path=$form->{path}&password=$form->{password}"
@@ -76,6 +110,10 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  $form->{simple_save} = 0;
+
+  set_headings("edit");
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount}) {
@@ -94,29 +132,21 @@ sub edit {
     }
   }
 
-  if ($form->{type} eq 'purchase_order') {
-    $form->{title}   = $locale->text('Edit Purchase Order');
-    $form->{heading} = $locale->text('Purchase Order');
-    $form->{vc}      = 'vendor';
+  if ($form->{print_and_save}) {
+    $form->{action}   = "print";
+    $form->{resubmit} = 1;
+    $language_id = $form->{language_id};
+    $printer_id = $form->{printer_id};
   }
-  if ($form->{type} eq 'sales_order') {
-    $form->{title}   = $locale->text('Edit Sales Order');
-    $form->{heading} = $locale->text('Sales Order');
-    $form->{vc}      = 'customer';
-  }
-  if ($form->{type} eq 'request_quotation') {
-    $form->{title}   = $locale->text('Edit Request for Quotation');
-    $form->{heading} = $locale->text('Request for Quotation');
-    $form->{vc}      = 'vendor';
-  }
-  if ($form->{type} eq 'sales_quotation') {
-    $form->{title}   = $locale->text('Edit Quotation');
-    $form->{heading} = $locale->text('Quotation');
-    $form->{vc}      = 'customer';
-  }
+
+  set_headings("edit");
 
   &order_links;
   &prepare_order;
+  if ($form->{print_and_save}) {
+    $form->{language_id} = $language_id;
+    $form->{printer_id} = $printer_id;
+  }
   &display_form;
 
   $lxdebug->leave_sub();
@@ -131,11 +161,21 @@ sub order_links {
 
   # retrieve order/quotation
   $form->{webdav} = $webdav;
-
   # set jscalendar
   $form->{jscalendar} = $jscalendar;
 
   OE->retrieve(\%myconfig, \%$form);
+
+  if ($form->{payment_id}) {
+    $payment_id = $form->{payment_id};
+  }
+  if ($form->{language_id}) {
+    $language_id = $form->{language_id};
+  }
+  if ($form->{taxzone_id}) {
+    $taxzone_id = $form->{taxzone_id};
+  }
+
 
   # if multiple rowcounts (== collective order) then check if the
   # there were more than one customer (in that case OE::retrieve removes
@@ -167,12 +207,32 @@ sub order_links {
   # get customer / vendor
   if ($form->{type} =~ /(purchase_order|request_quotation|receive_order)/) {
     IR->get_vendor(\%myconfig, \%$form);
+
+    #quote all_vendor Bug 133
+    foreach $ref (@{ $form->{all_vendor} }) {
+      $ref->{name} = $form->quote($ref->{name});
+    }
+
   }
   if ($form->{type} =~ /(sales|ship)_(order|quotation)/) {
     IS->get_customer(\%myconfig, \%$form);
+
+    #quote all_vendor Bug 133
+    foreach $ref (@{ $form->{all_customer} }) {
+      $ref->{name} = $form->quote($ref->{name});
+    }
+
   }
   $form->{cp_id} = $cp_id;
-
+  if ($payment_id) {
+    $form->{payment_id} = $payment_id;
+  }
+  if ($language_id) {
+    $form->{language_id} = $language_id;
+  }
+  if ($taxzone_id) {
+    $form->{taxzone_id} = $taxzone_id;
+  }
   $form->{intnotes} = $intnotes;
   ($form->{ $form->{vc} }) = split /--/, $form->{ $form->{vc} };
   $form->{"old$form->{vc}"} =
@@ -187,7 +247,7 @@ sub order_links {
   }
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
   $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
@@ -224,13 +284,11 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
-  $form->{format}   = "pdf";
+  $form->{format}   = "pdf" unless ($form->{print_and_save} && $form->{format});
   $form->{media}    = "screen";
-  $form->{formname} = $form->{type};
+  $form->{formname} = $form->{type} unless $form->{formname};
 
-  map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact);
-
+  my $i = 0;
   foreach $ref (@{ $form->{form_details} }) {
     $form->{rowcount} = ++$i;
 
@@ -274,10 +332,23 @@ sub form_header {
   $checkedopen   = ($form->{closed}) ? ""        : "checked";
   $checkedclosed = ($form->{closed}) ? "checked" : "";
 
+  map { $form->{$_} =~ s/\"/&quot;/g }
+    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
+       shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
+       shiptophone shiptofax shiptodepartment_1 shiptodepartment_2);
+
   # use JavaScript Calendar or not
   $form->{jsscript} = $form->{jscalendar};
   $jsscript = "";
 
+  $payment = qq|<option value=""></option>|;
+  foreach $item (@{ $form->{payment_terms} }) {
+    if ($form->{payment_id} eq $item->{id}) {
+      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
+    } else {
+      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
+    }
+  }
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -324,28 +395,71 @@ sub form_header {
   }
 
   # set option selected
-  foreach $item ($form->{vc}, currency, department, employee, contact) {
+  foreach $item ($form->{vc}, currency, department, employee) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  #quote select[customer|vendor] Bug 133
+  $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
+
   #build contacts
   if ($form->{all_contacts}) {
 
-    $form->{selectcontact} = "";
+    $form->{selectcontact} = "<option></option>";
     foreach $item (@{ $form->{all_contacts} }) {
+      my $department = ($item->{cp_abteilung}) ? "--$item->{cp_abteilung}" : "";
       if ($form->{cp_id} == $item->{cp_id}) {
         $form->{selectcontact} .=
-          "<option selected>$item->{cp_name}--$item->{cp_id}";
+          "<option value=$item->{cp_id} selected>$item->{cp_name}$department</option>";
       } else {
-        $form->{selectcontact} .= "<option>$item->{cp_name}--$item->{cp_id}";
+        $form->{selectcontact} .= "<option value=$item->{cp_id}>$item->{cp_name}$department</option>";
       }
+    }
+  } else {
+    $form->{selectcontact} =~ s/ selected//g;
+    if ($form->{cp_id} ne "") {
+      $form->{selectcontact} =~ s/value=$form->{cp_id}/value=$form->{cp_id} selected/;
     }
   }
 
+
+  if (@{ $form->{SHIPTO} }) {
+    $form->{selectshipto} = "<option value=0></option>";
+    foreach $item (@{ $form->{SHIPTO} }) {
+      if ($item->{shipto_id} == $form->{shipto_id}) {
+        $form->{selectshipto} .=
+          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
+      } else {
+        $form->{selectshipto} .=
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
+      }
+
+    }
+  } else {
+    $form->{selectshipto} =~ s/ selected//g;
+    if ($form->{shipto_id} ne "") {
+      $form->{selectshipto} =~ s/value=$form->{shipto_id}/value=$form->{shipto_id} selected/;
+    }
+  }
+
+  $shipto = qq|
+		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
+		<td><select name=shipto_id>$form->{selectshipto}</select></td>
+		<input type=hidden name=selectshipto value="$form->{selectshipto}">|;
+
+
+
+
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
+
+  if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
+    $creditwarning = 1;
+  } else {
+    $creditwarning = 0;
+  }
 
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
@@ -354,7 +468,7 @@ sub form_header {
 
   $contact =
     ($form->{selectcontact})
-    ? qq|<select name=contact>$form->{selectcontact}</select>\n<input type=hidden name="selectcontact" value="$form->{selectcontact}">|
+    ? qq|<select name=cp_id>$form->{selectcontact}</select>\n<input type=hidden name="selectcontact" value="$form->{selectcontact}">|
     : qq|<input name=contact value="$form->{contact}" size=35>|;
 
   $exchangerate = qq|
@@ -401,6 +515,58 @@ sub form_header {
 |;
   }
 
+  if ($form->{max_dunning_level}) {
+    $dunning = qq|
+	      <tr>
+                <td colspan=4>
+                <table>
+                  <tr>
+		<th align=right>| . $locale->text('Max. Dunning Level') . qq|:</th>
+		<td><b>$form->{max_dunning_level}</b></td>
+		<th align=right>| . $locale->text('Dunning Amount') . qq|:</th>
+		<td><b>|
+      . $form->format_amount(\%myconfig, $form->{dunning_amount},2)
+      . qq|</b></td>
+	      </tr>
+              </table>
+             </td>
+            </tr>
+|;
+  }
+
+  if (@{ $form->{TAXZONE} }) {
+    $form->{selecttaxzone} = "";
+    foreach $item (@{ $form->{TAXZONE} }) {
+      if ($item->{id} == $form->{taxzone_id}) {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id} selected>$item->{description}</option>";
+      } else {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id}>$item->{description}</option>";
+      }
+
+    }
+  } else {
+    $form->{selecttaxzone} =~ s/ selected//g;
+    if ($form->{taxzone_id} ne "") {
+      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
+    }
+  }
+
+  if ($form->{rowcount} >0) {
+    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
+    $form->{selecttaxzone} = $&;
+  }
+  
+
+  $taxzone = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
+		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
+		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
+	      </tr>|;
+
+
   if ($form->{type} !~ /_quotation$/) {
     $ordnumber = qq|
 	      <tr>
@@ -444,6 +610,7 @@ sub form_header {
 		    </tr>
 		  </table>
 		</td>
+                $shipto
 	      </tr>
 |;
   } else {
@@ -482,7 +649,10 @@ sub form_header {
                 $button2
 	      </tr>
 |;
-
+    $creditremaining = qq| <tr>
+                            <td colspan=4></td>
+                            $shipto
+                          </tr>|;
   }
 
   $vc =
@@ -526,20 +696,39 @@ sub form_header {
 	      </tr>
 |;
   }
+  if ($form->{resubmit} && ($form->{format} eq "html")) {
+    $onload =
+      qq|window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()|;
+  } elsif ($form->{resubmit}) {
+    $onload = qq|document.oe.submit()|;
+  } else {
+    $onload = "fokus()";
+  }
+
+  $credittext = $locale->text('Credit Limit exceeded!!!');
+  if ($creditwarning) {
+    $onload = qq|alert('$credittext')|;
+  }
 
   $form->header;
 
   print qq|
-<body>
+<body onLoad="$onload">
 
-<form method=post action=$form->{script}>
+<form method=post name=oe action=$form->{script}>
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
+ <script type="text/javascript" src="js/vendor_selection.js"></script>
+ <script type="text/javascript" src="js/calculate_qty.js"></script>
 
 <input type=hidden name=id value=$form->{id}>
+<input type=hidden name=action value=$form->{action}>
 
 <input type=hidden name=type value=$form->{type}>
 <input type=hidden name=formname value=$form->{formname}>
 <input type=hidden name=media value=$form->{media}>
 <input type=hidden name=format value=$form->{format}>
+<input type=hidden name=proforma value=$form->{proforma}>
 
 <input type=hidden name=queued value="$form->{queued}">
 <input type=hidden name=printed value="$form->{printed}">
@@ -579,6 +768,8 @@ sub form_header {
 	      </tr>
 	      $creditremaining
 	      $business
+              $dunning
+              $taxzone
 	      $department
 	      <tr>
 		<th align=right>| . $locale->text('Currency') . qq|</th>
@@ -594,8 +785,28 @@ sub form_header {
 	      <tr>
 		<th align=right>| . $locale->text('Ship via') . qq|</th>
 		<td colspan=3><input name=shipvia size=35 value="$form->{shipvia}"></td>
-	      </tr>
-	    </table>
+	      </tr>|;
+#              <tr>
+#                 <td colspan=4>
+#                   <table>
+#                     <tr>
+#                       <td colspan=2>
+#                         <button type="button" onclick="delivery_customer_selection_window('delivery_customer_string','delivery_customer_id')">| . $locale->text('Choose Customer') . qq|</button>
+#                       </td>
+#                       <td colspan=2><input type=hidden name=delivery_customer_id value="$form->{delivery_customer_id}">
+#                       <input size=45 id=delivery_customer_string name=delivery_customer_string value="$form->{delivery_customer_string}"></td>
+#                     </tr>
+#                     <tr>
+#                       <td colspan=2>
+#                         <button type="button" onclick="vendor_selection_window('delivery_vendor_string','delivery_vendor_id')">| . $locale->text('Choose Vendor') . qq|</button>
+#                       </td>
+#                       <td colspan=2><input type=hidden name=delivery_vendor_id value="$form->{delivery_vendor_id}">
+#                       <input size=45 id=vendor_string name=delivery_vendor_string value="$form->{delivery_vendor_string}"></td>
+#                     </tr>
+#                   </table>
+#                 </td>
+#               </tr>
+print qq|	    </table>
 	  </td>
 	  <td align=right>
 	    <table>
@@ -622,6 +833,8 @@ $jsscript
 <input type=hidden name=shiptocontact value="$form->{shiptocontact}">
 <input type=hidden name=shiptophone value="$form->{shiptophone}">
 <input type=hidden name=shiptofax value="$form->{shiptofax}">
+<input type=hidden name=shiptodepartment_1 value="$form->{shiptodepartment_1}">
+<input type=hidden name=shiptodepartment_2 value="$form->{shiptodepartment_2}">
 <input type=hidden name=shiptoemail value="$form->{shiptoemail}">
 
 <!-- email variables -->
@@ -757,6 +970,9 @@ sub form_footer {
 		<td>$notes</td>
 		<td>$intnotes</td>
 	      </tr>
+	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
+	  <td><select name=payment_id tabindex=24>$payment
+                          </select></td>
 	    </table>
 	  </td>
 	  <td align=right width=100%>
@@ -823,7 +1039,7 @@ sub form_footer {
   </tr>
 </table>
 
-Bearbeiten des $form->{heading}<br>
+| . $locale->text("Edit the $form->{type}") . qq|<br>
 <input class=submit type=submit name=action value="|
     . $locale->text('Update') . qq|">
 <input class=submit type=submit name=action value="|
@@ -834,16 +1050,18 @@ Bearbeiten des $form->{heading}<br>
     . $locale->text('E-mail') . qq|">
 <input class=submit type=submit name=action value="|
     . $locale->text('Save') . qq|">
+<input class=submit type=submit name=action value="|
+    . $locale->text('Save and Close') . qq|">
 |;
 
-  if ($form->{id}) {
+  if (($form->{id})) {
     print qq|
-<br>Workflow  $form->{heading}<br>
+<br>| . $locale->text("Workflow $form->{type}") . qq|<br>
 <input class=submit type=submit name=action value="|
       . $locale->text('Save as new') . qq|">
 <input class=submit type=submit name=action value="|
       . $locale->text('Delete') . qq|">|;
-    if ($form->{type} =~ /sales_quotation$/) {
+    if (($form->{type} =~ /sales_quotation$/)) {
       print qq|
 <input class=submit type=submit name=action value="|
         . $locale->text('Sales Order') . qq|">|;
@@ -853,10 +1071,12 @@ Bearbeiten des $form->{heading}<br>
 <input class=submit type=submit name=action value="|
         . $locale->text('Purchase Order') . qq|">|;
     }
+    if (1) {
     print qq|
 <input class=submit type=submit name=action value="|
       . $locale->text('Invoice') . qq|">
 |;
+}
 
     if ($form->{type} =~ /sales_order$/) {
       print qq|
@@ -873,7 +1093,7 @@ Bearbeiten des $form->{heading}<br>
 <input class=submit type=submit name=action value="|
         . $locale->text('Sales Order') . qq|">
 <input class=submit type=submit name=action value="|
-        . $locale->text('Quotation') . qq|">
+        . $locale->text('Request for Quotation') . qq|">
 |;
 
     } else {
@@ -883,7 +1103,7 @@ Bearbeiten des $form->{heading}<br>
         . $locale->text('Order') . qq|">
 |;
     }
-  } elsif ($form->{type} =~ /sales_order$/ && $form->{rowcount}) {
+  } elsif ($form->{type} =~ /sales_order$/ && $form->{rowcount} && !$form->{proforma}) {
     print qq|
 <br>Workflow  $form->{heading}<br>
 <input class=submit type=submit name=action value="|
@@ -919,8 +1139,11 @@ Bearbeiten des $form->{heading}<br>
 sub update {
   $lxdebug->enter_sub();
 
+  set_headings($form->{"id"} ? "edit" : "add");
+
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
+  $form->{update} = 1;
 
   &check_name($form->{vc});
 
@@ -948,7 +1171,7 @@ sub update {
     $form->{creditremaining} += ($form->{oldinvtotal} - $form->{oldtotalpaid});
     &check_form;
 
-      } else {
+  } else {
 
     if (   $form->{type} eq 'purchase_order'
         || $form->{type} eq 'request_quotation') {
@@ -974,11 +1197,16 @@ sub update {
       } else {
 
         $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
-
+        if ($form->{"not_discountable_$i"}) {
+          $form->{"discount_$i"} = 0;
+        }
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
           qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
           keys %{ $form->{item_list}[0] };
+        if ($form->{"part_payment_id_$i"} ne "") {
+          $form->{payment_id} = $form->{"part_payment_id_$i"};
+        }
 
         $s = ($sellprice) ? $sellprice : $form->{"sellprice_$i"};
 
@@ -1034,7 +1262,7 @@ sub update {
         $form->{rowcount}--;
         $form->{"discount_$i"} = "";
         &display_form;
-          } else {
+      } else {
 
         $form->{"id_$i"}   = 0;
         $form->{"unit_$i"} = $locale->text('ea');
@@ -1677,6 +1905,82 @@ sub subtotal {
   $lxdebug->leave_sub();
 }
 
+sub save_and_close {
+  $lxdebug->enter_sub();
+
+  if ($form->{type} =~ /_order$/) {
+    $form->isblank("transdate", $locale->text('Order Date missing!'));
+  } else {
+    $form->isblank("transdate", $locale->text('Quotation Date missing!'));
+  }
+
+  $msg = ucfirst $form->{vc};
+  $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
+
+  # $locale->text('Customer missing!');
+  # $locale->text('Vendor missing!');
+
+  $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
+    if ($form->{currency} ne $form->{defaultcurrency});
+
+  &validate_items;
+
+  # if the name changed get new values
+  if (&check_name($form->{vc})) {
+    &update;
+    exit;
+  }
+
+  $form->{id} = 0 if $form->{saveasnew};
+
+  # this is for the internal notes section for the [email] Subject
+  if ($form->{type} =~ /_order$/) {
+    if ($form->{type} eq 'sales_order') {
+      $form->{label} = $locale->text('Sales Order');
+
+      $numberfld = "sonumber";
+      $ordnumber = "ordnumber";
+    } else {
+      $form->{label} = $locale->text('Purchase Order');
+
+      $numberfld = "ponumber";
+      $ordnumber = "ordnumber";
+    }
+
+    $err = $locale->text('Cannot save order!');
+
+  } else {
+    if ($form->{type} eq 'sales_quotation') {
+      $form->{label} = $locale->text('Quotation');
+
+      $numberfld = "sqnumber";
+      $ordnumber = "quonumber";
+    } else {
+      $form->{label} = $locale->text('Request for Quotation');
+
+      $numberfld = "rfqnumber";
+      $ordnumber = "quonumber";
+    }
+
+    $err = $locale->text('Cannot save quotation!');
+
+  }
+
+  # get new number in sequence if no number is given or if saveasnew was requested
+  if (!$form->{$ordnumber} || $form->{saveasnew}) {
+    $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld);
+  }
+
+  relink_accounts();
+
+  $form->redirect(
+            $form->{label} . " $form->{$ordnumber} " . $locale->text('saved!'))
+    if (OE->save(\%myconfig, \%$form));
+  $form->error($err);
+
+  $lxdebug->leave_sub();
+}
+
 sub save {
   $lxdebug->enter_sub();
 
@@ -1741,11 +2045,15 @@ sub save {
   $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld)
     unless $form->{$ordnumber};
 
-  $form->redirect(
-            $form->{label} . " $form->{$ordnumber} " . $locale->text('saved!'))
-    if (OE->save(\%myconfig, \%$form));
-  $form->error($err);
+  relink_accounts();
 
+  OE->save(\%myconfig, \%$form);
+  $form->{simple_save} = 1;
+  if(!$form->{print_and_save}) {
+    set_headings("edit");
+    &update;
+    exit;
+  }
   $lxdebug->leave_sub();
 }
 
@@ -1837,7 +2145,6 @@ sub invoice {
     exit;
   }
 
-  ($null, $form->{cp_id}) = split /--/, $form->{contact};
   $form->{cp_id} *= 1;
 
   if (   $form->{type} =~ /_order/
@@ -1864,6 +2171,7 @@ sub invoice {
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
   if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
+    relink_accounts();
     OE->save(\%myconfig, \%$form);
   } else {
     OE->close_orders(\%myconfig, \%$form);
@@ -2088,6 +2396,8 @@ sub create_backorder {
     } qw(sellprice discount);
   }
 
+  relink_accounts();
+
   OE->save(\%myconfig, \%$form);
 
   # rebuild rows for invoice
@@ -2116,7 +2426,7 @@ sub save_as_new {
 
   $form->{saveasnew} = 1;
   $form->{closed}    = 0;
-  map { delete $form->{$_} } qw(printed emailed queued);
+  map { delete $form->{$_} } qw(printed emailed queued ordnumber quonumber);
 
   &save;
 
@@ -2129,10 +2439,10 @@ sub purchase_order {
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
     $form->{closed} = 1;
+    relink_accounts();
     OE->save(\%myconfig, \%$form);
   }
 
-  ($null, $form->{cp_id}) = split /--/, $form->{contact};
   $form->{cp_id} *= 1;
 
   $form->{title} = $locale->text('Add Purchase Order');
@@ -2150,10 +2460,10 @@ sub sales_order {
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
     $form->{closed} = 1;
+    relink_accounts();
     OE->save(\%myconfig, \%$form);
   }
 
-  ($null, $form->{cp_id}) = split /--/, $form->{contact};
   $form->{cp_id} *= 1;
 
   $form->{title} = $locale->text('Add Sales Order');
@@ -2384,6 +2694,8 @@ sub display_ship_receive {
 <input type=hidden name=shiptophone value="$form->{shiptophone}">
 <input type=hidden name=shiptofax value="$form->{shiptofax}">
 <input type=hidden name=shiptoemail value="$form->{shiptoemail}">
+<input type=hidden name=shiptodepartment_1 value="$form->{shiptodepartment_1}">
+<input type=hidden name=shiptodepartment_2 value="$form->{shiptodepartment_2}">
 
 <!-- email variables -->
 <input type=hidden name=message value="$form->{message}">

@@ -1,0 +1,112 @@
+Wichtige Hinweise zum Upgrade von älteren Versionen
+===================================================
+
+
+** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
+
+
+Upgrade von v2.2.0 bis 2.2.2 auf 2.4.0
+--------------------------------------
+
+Ein direktes Upgrade von den unmodifizierten Versionen 2.2.0, 2.2.1
+und 2.2.2 auf 2.4.0 ist möglich. Es solches Upgrade besteht aus zwei
+Teilen: den Dateien (einfaches Entpacken und Kopieren in das
+Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
+
+Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
+Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
+
+** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
+
+Das Datenbankupgrade enthält zwei interaktive Upgradepfade für neue
+Features in Lx-Office 2.4.0: Einheiten sowie Buchungsgruppen.
+
+
+
+Einführung von Einheiten
+------------------------
+
+In Versionen von Lx-Office vor 2.4.0 konnte der Benutzer bei den
+Stammdaten aber auch in den Einkaufs- und Verkaufsdialogen beliebige
+Texte als "Einheit" angeben. Lx-Office 2.4.0 ändert dies nun. Der
+Administrator kann unter "System -> Einheiten -> Maßeinheiten" die bei
+Waren und Erzeugnissen verwendbaren und bei "System -> Einheiten ->
+Dienstleistungseinheiten" die bei Dienstleistungen verwendbaren
+Einheiten festlegen. Lx-Office 2.4.0 bringt bereits für beide Typen
+einige Standardeinheiten mit.
+
+Einheiten können wiederum auf anderen Einheiten basieren. So ist
+z.B. "kg" als das 1000fache der Einheit "g" definiert. Der Benutzer
+muss beim Anlegen von Artikeln in den Stammdaten eine Einheit aus
+einer Drop-Down-Liste auswählen. In den Einkaufs- und Verkaufsmasken
+werden dann dem Benutzer nur noch diejenigen Einheiten zur Auswahl
+angeboten, die sich in die in den Stammdaten hinterlegte Einheit
+umrechnen lassen. So würden z.B. für eine Ware, deren
+Stammdateneinheit "kg" ist, nur die Einheiten "g", "kg", "t" zur
+Auswahl aufgelistet, nicht aber "Stück" oder "Tag", "Stunde".
+
+Das Datenbankupgrade muss nun alle im System verwendeten Einheiten in
+den Stammdaten sowie in den Einkaufs- und Verkaufsdaten so anpassen,
+dass dort nur noch Einheiten auftreten, die im System verwendet werden
+können. Da dies nur eingeschränkt automatisch möglich ist, werden dem
+Benutzer, der das Datenbankupgrade nach dem Login durchführt, einige
+Masken angezeigt, in denen er neue Einheiten in der Datenbank anlegen
+kann, und in denen er "alte" Einheiten durch "neue" Einheiten ersetzen
+lassen kann.
+
+Zuletzt muss er noch für all die Waren, für die früher gar keine
+Einheit eingetragen wurde, eine Standardeinheit getrennt nach Waren /
+Erzeugnissen und Dienstleistungen festlegen, die statt dessen
+eingesetzt wird.
+
+
+Einführung von Steuerzonen und Buchungsgruppen
+----------------------------------------------
+
+In den Versionen von Lx-Office vor 2.4.0 wurden bei Artikeln und
+Dienstleistungen jeweils ein Konto für Erlöse und ein Konto für den
+Aufwand hinterlegt. Über diese Konten wurde dann auch definiert
+welcher Steuersatz zu berechnen ist. Wollte man einen Artikel mal mit
+und mal ohne Steuer verkaufen (Inland, Ausland), waren hierfür zwei
+Artikel notwendig.
+
+In der Version 2.4.0 können nun bei jedem Artikel für die
+verschiedenen Fälle
+- Inland
+- EU mit UStId
+- EU ohne UStId
+- Außerhalb EU
+verschiedene Erlös- und Aufwandskonten definiert werden. Dadurch
+werden dann auch jeweils die richtigen Steuersätze berechnet.
+
+Damit jetzt nicht bei jedem Artikel mehrere Konten definiert werden
+müssen, werden alle Konten, die zu einer bestimmten Warengruppe
+gehören, in einer Buchungsgruppe zusammengefasst. Diese
+Buchungsgruppen werden zunächst unter "System" definiert und können
+dann den Artikeln und Dienstleistungen zugewiesen werden.
+
+Beim Datenbankupdate werden aus der Datenbank alle Kombinationen von
+Erlös- und Aufwandskonten geholt, die bereits verwendet wurden. Für
+diese Kombinationen müssen im Upgradeprozess Buchungsgruppen angelegt
+werden, indem man den einzelnen Kombinationen einen Namen zuweist. Die
+Konten für nicht Inland sind mit den Standardkonten vorbelegt, können
+aber vor dem Speichern geändert werden.
+
+Diese neu angelegten Buchungsgruppen werden automatisch den
+vorhandenen Artikeln und Dienstleistungen zugewiesen.  Buchungsgruppen
+können genau wie vorher die Kontenzuordnung nachträglich nicht mehr
+geändert werden.
+
+Möchte man in der Buchhaltung eine neue Kombination von Erlös- und
+Aufwandskonten für bestimmte Artikel und Waren verwenden, legt man
+zunächst die entsprechenden konnten (z.B. 8401 und 3401) an und
+erstellt dann eine neue Buchungsgruppe mit diesen Konten.  Die
+Benennung der Buchungsgruppe kann frei erfolgen.
+
+Beim Anlegen einer neuen Waren oder Dienstleistung werden dann durch
+Auswahl dieser Buchungsgruppe automatisch alle Konten auf einen Schlag
+korrekt zugeordnet.
+
+Wird in einer Verkaufs- oder Einkaufsmaske eine andere Steuerzone als
+Inland ausgewählt, werden bei den Artikeln auch automatisch die
+anderen Erlös- und Aufwandskonten der Buchungsgruppe verwendet.

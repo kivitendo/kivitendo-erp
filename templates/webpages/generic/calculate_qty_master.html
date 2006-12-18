@@ -1,0 +1,83 @@
+<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+
+ <form name="Form">
+
+  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
+  <input type="hidden" name="input_id" value="<TMPL_VAR NAME=input_id ESCAPE=HTML>">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop"><TMPL_VAR NAME=title></th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr><td><translate>Please insert object dimensions below.</translate></td></tr>
+
+   <tr>
+    <td>
+
+     <table>
+      <tr class="listheading">
+       <TMPL_LOOP NAME=HEADER>
+        <th nowrap class="listheading"><TMPL_VAR NAME=column_title></a></th>
+       </TMPL_LOOP>
+      </tr>
+
+      <TMPL_LOOP NAME=VARIABLES>
+       <tr class="listrow<TMPL_IF NAME=__odd__>1<TMPL_ELSE>0</TMPL_IF>">
+        <td><TMPL_VAR NAME=description ESCAPE=HTML>:</td><td><input id="<TMPL_VAR NAME=name>" name="<TMPL_VAR NAME=name>" value=></td>
+        <td><TMPL_VAR NAME=unit ESCAPE=HTML></td>
+       </tr>
+      </TMPL_LOOP>
+     </table>
+
+    </td>
+   </tr>
+  </table>
+ <button type="button" onclick="calculate_qty()"><translate>Calculate</translate></button>
+ </form>
+
+ <script type="text/javascript">
+  <!--//
+      function calculate_qty() {
+        <TMPL_LOOP NAME=VARIABLES>
+        var <TMPL_VAR NAME=name> = document.getElementsByName("<TMPL_VAR NAME=name>")[0].value.replace(/,/g, ".");
+       </TMPL_LOOP>
+        var result = <TMPL_VAR NAME=formel>;
+        result = number_format(result, 2, ",", ".");
+        window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
+        self.close();
+      }
+      //-->
+
+function /*out: String*/ number_format( /* in: float   */ number, 
+                                        /* in: integer */ laenge, 
+                                        /* in: String  */ sep, 
+                                        /* in: String  */ th_sep ) {
+
+  number = Math.round( number * Math.pow(10, laenge) ) / Math.pow(10, laenge);
+  str_number = number+"";
+  arr_int = str_number.split(".");
+  if(!arr_int[0]) arr_int[0] = "0";
+  if(!arr_int[1]) arr_int[1] = "";
+  if(arr_int[1].length < laenge){
+    nachkomma = arr_int[1];
+    for(i=arr_int[1].length+1; i <= laenge; i++){  nachkomma += "0";  }
+    arr_int[1] = nachkomma;
+  }
+  if(th_sep != "" && arr_int[0].length > 3){
+    Begriff = arr_int[0];
+    arr_int[0] = "";
+    for(j = 3; j < Begriff.length ; j+=3){
+      Extrakt = Begriff.slice(Begriff.length - j, Begriff.length - j + 3);
+      arr_int[0] = th_sep + Extrakt +  arr_int[0] + "";
+    }
+    str_first = Begriff.substr(0, (Begriff.length % 3 == 0)?3:(Begriff.length % 3));
+    arr_int[0] = str_first + arr_int[0];
+  }
+  return arr_int[0]+sep+arr_int[1];
+}
+ </script>
+
+</body>
+</html>

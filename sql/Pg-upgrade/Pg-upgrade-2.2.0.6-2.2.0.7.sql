@@ -1,0 +1,53 @@
+CREATE TABLE "rma" (
+	"id" integer DEFAULT nextval('id'::text) PRIMARY KEY,
+	"rmanumber" text NOT NULL,
+	"transdate" date DEFAULT date('now'::text),
+	"vendor_id" integer,
+	"customer_id" integer,
+	"amount" numeric (15,5),
+	"netamount" numeric (15,5),
+	"reqdate" date,
+	"taxincluded" boolean,
+	"shippingpoint" text,
+	"notes" text,
+	"curr" character(3),
+	"employee_id" integer,
+	"closed" boolean DEFAULT 'f',
+	"quotation" boolean DEFAULT 'f',
+	"quonumber" text,
+        "cusrmanumber" text,
+	"intnotes" text,
+        "delivery_customer_id" integer,
+        "delivery_vendor_id" integer,
+        "language_id" integer,
+        "payment_id" integer,
+	"department_id" integer DEFAULT 0,
+        "itime" timestamp DEFAULT now(),
+        "mtime" timestamp,
+	"shipvia" text,
+	"cp_id" integer
+);
+
+CREATE TABLE "rmaitems" (
+	"trans_id" integer,
+	"parts_id" integer REFERENCES parts (id),
+	"description" text,
+	"qty" real,
+        "base_qty" real,
+	"sellprice" numeric (15,5),
+	"discount" real,
+	"unit" character varying(10),
+	"project_id" integer,
+	"reqdate" date,
+	"ship" real,
+	"serialnumber" text,
+	"id" integer DEFAULT nextval('orderitemsid'::text),
+        "itime" timestamp DEFAULT now(),
+        "mtime" timestamp,
+        "pricegroup_id" integer,
+        "rmanumber" text,
+        "transdate" text,
+        "cusrmanumber" text
+);
+
+alter table defaults add column rmanumber text;

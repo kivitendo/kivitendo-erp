@@ -1,6 +1,34 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
+2006-12-12 - Version 2.4.0
+  - USTVA jetzt mit Taxbird und Winston Anbindung (als Templates verfügbar)
+  - Neues Steuersystem für beliebig viele Steuersätze pro Konto
+  - Update der Kontenrahmen für die MwSt.-Erhöhung ab 1.1.2007
+  - SKR04
+  - Beliebig viele Lieferanschriften beim Kunden administrierbar
+  - Beliebig viele Ansprechpartner beim Kunden administrierbar (ERP)
+  - Beliebig viele Sprachen können im System hinterlegt werden
+  - Individuelle Artikelbeschreibungen pro Sprache
+  - Optional individuelle Druckvorlagen pro Sprache
+  - Beliebig viele Zahlungsbedingungen können im System hinterlegt werden
+  - Beliebig viele Drucker können im System verwaltet werden
+  - Optional individuelle Druckvorlagen pro Drucker
+  - Verschiedene Erlöskonten pro Artikel für Auslandslieferungen
+  - Verwaltung der Konten für Artikel (Erlös, Aufwand und Bestand) über
+    Buchungsgruppen
+  - Zentrale Verwaltung von Einheiten für Artikel und Dienstleistungen
+  - Umrechnung zwischen kompatiblen Einheiten zur genauen Bestandsverwaltung
+  - Gutschriften
+  - Mahnwesen
+  - Individueller Artikellangtext aus Auftragsmaske heraus bearbeiten
+  - Bugfix 319 - Fehler Steuerkorrektur bei Kreditorenbuchungen
+  - Bugfix 327 - Kreditorenbuchung mit Steuer incl. bucht falsch
+  - Bugfix 376 - Preisgruppen verschwinden nach umsortieren der Positionen
+  - Bugfix 377 et al. - MwSt. wird nicht in Auftragsmaske übernommen nach
+    Neuanlegen eines Artikels
+  - Bugfix 409 - Bericht Waren funktioniert nicht bei Bestellt, etc.
+  - Viele weitere Bugfixes
 
 2006-03-07 - Version 2.2.2 (942 - 970) 
   - Bugfix 308 - falsches Quoten bei Kreditorenbuchungen

@@ -38,6 +38,9 @@
 # $locale->text('Add Vendor')
 
 use SL::CT;
+use CGI::Ajax;
+use CGI;
+use Data::Dumper;
 
 1;
 
@@ -61,6 +64,128 @@ sub add {
 }
 
 sub search {
+  $lxdebug->enter_sub();
+
+  $label = ucfirst $form->{db};
+  $form->{title} = $locale->text($label . "s");
+
+  if ($form->{db} eq 'vendor') {
+    $gifi = qq|
+		<td><input name="l_gifi_accno" type=checkbox class=checkbox value=Y> |
+      . $locale->text('GIFI') . qq|</td>
+|;
+  }
+
+  $form->header;
+
+  print qq|
+<body>
+
+<form method=post action=$form->{script}>
+
+<input type=hidden name=db value=$form->{db}>
+
+<table width=100%>
+  <tr>
+    <th class=listtop>$form->{title}</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr valign=top>
+    <td>
+      <table>
+	<tr>
+	  <th align=right nowrap>| . $locale->text($label . ' Number') . qq|</th>
+	  <td><input name=$form->{db}number size=35></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Company Name') . qq|</th>
+	  <td><input name=name size=35></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Contact') . qq|</th>
+	  <td><input name=contact size=35></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('E-mail') . qq|</th>
+	  <td><input name=email size=35></td>
+	</tr>
+	<tr>
+	  <td></td>
+	  <td><input name=status class=radio type=radio value=all checked>&nbsp;|
+    . $locale->text('All') . qq|
+	  <input name=status class=radio type=radio value=orphaned>&nbsp;|
+    . $locale->text('Orphaned') . qq|</td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
+	  <td>
+	    <table>
+	      <tr>
+	        <td><input name="l_id" type=checkbox class=checkbox value=Y> |
+    . $locale->text('ID') . qq|</td>
+		<td><input name="l_$form->{db}number" type=checkbox class=checkbox value=Y> |
+    . $locale->text($label . ' Number') . qq|</td>
+		<td><input name="l_name" type=checkbox class=checkbox value=Y checked> |
+    . $locale->text('Company Name') . qq|</td>
+		<td><input name="l_address" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Address') . qq|</td>
+	      </tr>
+	      <tr>
+		<td><input name="l_contact" type=checkbox class=checkbox value=Y checked> |
+    . $locale->text('Contact') . qq|</td>
+		<td><input name="l_phone" type=checkbox class=checkbox value=Y checked> |
+    . $locale->text('Phone') . qq|</td>
+		<td><input name="l_fax" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Fax') . qq|</td>
+		<td><input name="l_email" type=checkbox class=checkbox value=Y checked> |
+    . $locale->text('E-mail') . qq|</td>
+	      </tr>
+	      <tr>
+		<td><input name="l_taxnumber" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Tax Number') . qq|</td>
+		$gifi
+		<td><input name="l_sic_code" type=checkbox class=checkbox value=Y> |
+    . $locale->text('SIC') . qq|</td>
+		<td><input name="l_business" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Type of Business') . qq|</td>
+	      </tr>
+	      <tr>
+		<td><input name="l_invnumber" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Invoices') . qq|</td>
+		<td><input name="l_ordnumber" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Orders') . qq|</td>
+		<td><input name="l_quonumber" type=checkbox class=checkbox value=Y> |
+    . $locale->text('Quotations') . qq|</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<input type=hidden name=nextsub value=list_names>
+
+<input type=hidden name=path value=$form->{path}>
+<input type=hidden name=login value=$form->{login}>
+<input type=hidden name=password value=$form->{password}>
+
+<br>
+<input type=submit class=submit name=action value="|
+    . $locale->text('Continue') . qq|">
+</form>
+
+</body>
+</html>
+|;
+  $lxdebug->leave_sub();
+}
+
+sub search_delivery {
   $lxdebug->enter_sub();
 
   $label = ucfirst $form->{db};
@@ -463,6 +588,7 @@ sub form_header {
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0);
+  $form->{discount} = $form->format_amount(\%myconfig, $form->{discount});
 
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
@@ -473,15 +599,116 @@ sub form_header {
 |;
   }
   $form->{obsolete} = "checked" if $form->{obsolete};
-  %langs = (de => "deutsch", en => "englisch", fr => "französisch");
+
   $lang = qq|<option value=""></option>|;
-  foreach $item (keys %langs) {
-    if ($form->{language} eq $item) {
-      $lang .= qq|<option value="$item" selected>$langs{$item}</option>|;
+  foreach $item (@{ $form->{languages} }) {
+    if ($form->{language_id} eq $item->{id}) {
+      $lang .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
     } else {
-      $lang .= qq|<option value="$item">$langs{$item}</option>|;
+      $lang .= qq|<option value="$item->{id}">$item->{description}</option>|;
     }
   }
+
+  $payment = qq|<option value=""></option>|;
+  foreach $item (@{ $form->{payment_terms} }) {
+    if ($form->{payment_id} eq $item->{id}) {
+      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
+    } else {
+      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
+    }
+  }
+
+  if (!$form->{id}) {
+    if ($form->{db} eq "customer") {
+      $form->{taxzone_id} = 0;
+    } else {
+      $form->{taxzone_id} = 0;
+    }
+  }
+
+  if (@{ $form->{TAXZONE} }) {
+    foreach $item (@{ $form->{TAXZONE} }) {
+      if ($item->{id} == $form->{taxzone_id}) {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id} selected>$item->{description}\n";
+      } else {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id}>$item->{description}\n";
+      }
+
+    }
+  }
+
+  $taxzone = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
+		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
+		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
+	      </tr>|;
+
+  $get_contact_url =
+    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_contact";
+
+  my $pjx = new CGI::Ajax( 'get_contact' => $get_contact_url );
+  $form->{selectcontact} = "<option value=0></option>";
+  if (@{ $form->{CONTACTS} }) {
+    foreach $item (@{ $form->{CONTACTS} }) {
+      if ($item->{cp_id} == $form->{cp_id}) {
+        $form->{selectcontact} .=
+          qq|<option value=$item->{cp_id} selected>$item->{cp_name}</option>\n|;
+      } else {
+        $form->{selectcontact} .=
+          qq|<option value=$item->{cp_id}>$item->{cp_name}</option>\n|;
+      }
+
+    }
+  }
+  push(@ { $form->{AJAX} }, $pjx);
+  $ansprechpartner = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Ansprechpartner') . qq|</th>
+		<td><select id=cp_id name=cp_id onChange="get_contact(['cp_id__' + this.value], ['cp_name', 'cp_greeting', 'cp_title', 'cp_givenname', 'cp_phone1', 'cp_phone2', 'cp_email', 'cp_abteilung', 'cp_fax', 'cp_mobile1', 'cp_mobile2', 'cp_satphone', 'cp_satfax', 'cp_project', 'cp_privatphone', 'cp_privatemail', 'cp_birthday'])">$form->{selectcontact}</select></td>
+		<input type=hidden name=selectcontact value="$form->{selectcontact}">
+	      </tr>|;
+  $get_shipto_url =
+    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_shipto";
+
+  my $pjy = new CGI::Ajax( 'get_shipto' => $get_shipto_url );
+  $form->{selectshipto} = "<option value=0></option>";
+  if (@{ $form->{SHIPTO} }) {
+    foreach $item (@{ $form->{SHIPTO} }) {
+      if ($item->{shipto_id} == $form->{shipto_id}) {
+        $form->{selectshipto} .=
+          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}\n";
+      } else {
+        $form->{selectshipto} .=
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment_1}\n";
+      }
+
+    }
+  }
+  push(@ { $form->{AJAX} }, $pjy);
+
+  $shipto = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
+		<td><select id=shipto_id name=shipto_id onChange="get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail'])">$form->{selectshipto}</select></td>
+		<input type=hidden name=selectshipto value="$form->{selectshipto}">
+	      </tr>|;
+
+
+  $get_delivery_url =
+    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_delivery";
+
+  my $pjz = new CGI::Ajax( 'get_delivery' => $get_delivery_url );
+
+  push(@ { $form->{AJAX} }, $pjz);
+
+  $delivery = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
+		<td><select id=delivery_id name=delivery_id onChange="get_delivery(['shipto_id__' + this.value, 'from__' + from.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])">$form->{selectshipto}</select></td>
+	      </tr>|;
 
   foreach $item (split / /, $form->{taxaccounts}) {
     if (($form->{tax}{$item}{taxable}) || !($form->{id})) {
@@ -524,7 +751,11 @@ sub form_header {
     s/<option value=$form->{business}>/<option value=$form->{business} selected>/;
 
   $label = ucfirst $form->{db};
-  $form->{title} = $locale->text("$form->{title} $label");
+  if ($form->{title} eq "Edit") {
+    $form->{title} = $locale->text("$form->{title} $label") . " $form->{name}";
+  } else  {
+    $form->{title} = $locale->text("$form->{title} $label");
+  }
   if ($form->{title_save}) {
     $form->{title} = $form->{title_save};
   }
@@ -582,6 +813,18 @@ sub form_header {
   map(
      { $select_greeting .= qq|<option>$_</option>|; } @{ $form->{GREETINGS} });
   $select_greeting .= qq|</select>|;
+
+  $select_company_greeting =
+    qq|&nbsp;<select name=selected_company_greeting><option></option>|;
+  map(
+     { $select_company_greeting .= qq|<option>$_</option>|; } @{ $form->{COMPANY_GREETINGS} });
+  $select_company_greeting .= qq|</select>|;
+
+  $select_department =
+    qq|&nbsp;<select name=selected_cp_abteilung><option></option>|;
+  map(
+     { $select_department .= qq|<option>$_</option>|; } @{ $form->{DEPARTMENT} });
+  $select_department .= qq|</select>|;
 ## /LINET
 
   if ($form->{db} eq 'customer') {
@@ -611,176 +854,131 @@ sub form_header {
       $form->{selectpricegroup} =~
         s/(<option value="\Q$form->{klass}\E")/$1 selected/;
 
-      $pricegroup .= qq|<select name=klass>$form->{selectpricegroup}</select>|;
+      $pricegroup .=
+        qq|<select name=klass tabindex=24>$form->{selectpricegroup}</select>|;
 
     }
   }
 
   # $locale->text('Customer Number')
   # $locale->text('Vendor Number')
-  $form->{fokus} = "ct.name";
+  $form->{fokus} = "ct.greeting";
   $form->header;
 
   print qq|
 <body onLoad="fokus()">
-<form method=post name="ct" action=$form->{script}>
-
 <table width=100%>
   <tr>
     <th class=listtop>$form->{title}</th>
   </tr>
-  <tr>
-    <td>
+</table>
+
+
+<form method=post name="ct" action=$form->{script} onKeyUp="highlight(event)" onClick="highlight(event)">
+
+
+
+<ul id="maintab" class="shadetabs">
+<li class="selected"><a href="#" rel="billing">|
+    . $locale->text('Billing Address') . qq|</a></li>
+<li><a href="#" rel="shipto">|
+    . $locale->text('Shipping Address') . qq|</a></li>
+<li><a href="#" rel="contacts">Ansprechpartner</a></li>
+<li><a href="#" rel="deliveries">|
+    . $locale->text('Lieferungen') . qq|</a></li>
+
+</ul>
+
+<div class="tabcontentstyle">
+
+<div id="billing" class="tabcontent">
+
       <table width=100%>
-	<tr class=listheading>
-	  <th class=listheading colspan=2 width=50%>|
-    . $locale->text('Billing Address') . qq|</th>
-	  <th class=listheading width=50%>|
-    . $locale->text('Shipping Address') . qq|</th>
-	</tr>
 	<tr height="5"></tr>
         $business_salesman
 	<tr>
 	  <th align=right nowrap>| . $locale->text($label . ' Number') . qq|</th>
 	  <td><input name="$form->{db}number" size=35 maxlength=35 value="$form->{"$form->{db}number"}"></td>
 	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Greeting') . qq|</th>
+          <td><input id=greeting name=greeting size=30 maxlength=30 value="$form->{greeting}">&nbsp;
+          $select_company_greeting</td>
+        </tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Company Name') . qq|</th>
-	  <td><input name=name size=35 maxlength=75 tabindex=1 value="$form->{name}"></td>
-	  <td><input name=shiptoname size=35 maxlength=75 value="$form->{shiptoname}"></td>
+	  <td><input name=name size=35 maxlength=75 value="$form->{name}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Abteilung') . qq|</th>
-	  <td><input name=department_1 size=16 maxlength=75 tabindex=2 value="$form->{department_1}">
-	  <input name=department_2 size=16 maxlength=75 tabindex=3 value="$form->{department_2}"></td>
-          <td><input name=shiptodepartment_1 size=16 maxlength=75 value="$form->{shiptodepartment_1}">
-	  <input name=shiptodepartment_2 size=16 maxlength=75 value="$form->{shiptodepartment_2}"></td>
+	  <td><input name=department_1 size=16 maxlength=75 value="$form->{department_1}">
+	  <input name=department_2 size=16 maxlength=75 value="$form->{department_2}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Street') . qq|</th>
-	  <td><input name=street size=35 tabindex=4 maxlength=75 value="$form->{street}"></td>
-	  <td><input name=shiptostreet size=35 maxlength=75 value="$form->{shiptostreet}"></td>
+	  <td><input name=street size=35 maxlength=75 value="$form->{street}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>|
     . $locale->text('Zipcode') . "/" . $locale->text('City') . qq|</th>
-	  <td><input name=zipcode size=5 tabindex=5 maxlength=10 value="$form->{zipcode}">
-          <input name=city size=30 tabindex=6 maxlength=75 value="$form->{city}"></td>
-	  <td><input name=shiptozipcode size=5 maxlength=10 value="$form->{shiptozipcode}">
-          <input name=shiptocity size=30 maxlength=75 value="$form->{shiptocity}"></td>
+	  <td><input name=zipcode size=5 maxlength=10 value="$form->{zipcode}">
+          <input name=city size=30 maxlength=75 value="$form->{city}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Country') . qq|</th>
-	  <td><input name=country size=35 tabindex=7 maxlength=75 value="$form->{country}"></td>
-	  <td><input name=shiptocountry size=35 maxlength=35 value="$form->{shiptocountry}"></td>
+	  <td><input name=country size=35 maxlength=75 value="$form->{country}"></td>
 	</tr>
 	<tr>
           <th align=right nowrap>| . $locale->text('Contact') . qq|</th>
-          <td><input name=contact size=28 tabindex=8 maxlength=75 value="$form->{contact}"></td>
-	  <td><input name=shiptocontact size=30 maxlength=75 value="$form->{shiptocontact}"></td>
+          <td><input name=contact size=28 maxlength=75 value="$form->{contact}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Phone') . qq|</th>
-	  <td><input name=phone size=30 tabindex=9 maxlength=30 value="$form->{phone}"></td>
-	  <td><input name=shiptophone size=30 maxlength=30 value="$form->{shiptophone}"></td>
+	  <td><input name=phone size=30 maxlength=30 value="$form->{phone}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Fax') . qq|</th>
-	  <td><input name=fax size=30 tabindex=10 maxlength=30 value="$form->{fax}"></td>
-	  <td><input name=shiptofax size=30 maxlength=30 value="$form->{shiptofax}"></td>
+	  <td><input name=fax size=30 maxlength=30 value="$form->{fax}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('E-mail') . qq|</th>
-	  <td><input name=email tabindex=11 size=45 value="$form->{email}"></td>
-	  <td><input name=shiptoemail size=45 value="$form->{shiptoemail}"></td>
+	  <td><input name=email size=45 value="$form->{email}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Homepage') . qq|</th>
-	  <td><input name=homepage tabindex=12 size=45 value="$form->{homepage}"></td>
+	  <td><input name=homepage size=45 value="$form->{homepage}"></td>
 	</tr>
-        <tr>
-        </tr>|;
-##LINET - added fields for contact person
-  print qq|       <tr>
-         <td colspan=3>
-	 	<input type=hidden name=cp_id value=$form->{cp_id}>
-                <table>
-                <tr>
-	          <th align=right nowrap>|
-    . $locale->text('Contact Person') . qq|</th>
-                </tr>
-                <tr>
-                  <th></th>
-	          <th align=left nowrap>| . $locale->text('Greeting') . qq|</th>
-                  <td><input name=cp_greeting size=30 maxlength=30 value="$form->{cp_greeting}">&nbsp;
-                  $select_greeting</td>
-                  <th align=left nowrap>| . $locale->text('Title') . qq|</th>
-                  <td><input name=cp_title size=30 maxlength=30 value="$form->{cp_title}">&nbsp;
-                  $select_title</td>
-                </tr>
-                <tr>
-                  <th></th>
-                  <th align=left nowrap>|
-    . $locale->text('Given Name') . qq|</th>
-                  <td><input name=cp_givenname size=30 maxlength=40 value="$form->{cp_givenname}"></td>
-	          <th align=left nowrap>| . $locale->text('Name') . qq|</th>
-                  <td><input name=cp_name size=30 maxlength=40 value="$form->{cp_name}"></td>
-                </tr>
-                <tr>
-                  <th></th>
-	          <th align=left nowrap>| . $locale->text('Phone1') . qq|</th>
-                  <td><input name=cp_phone1 size=30 maxlength=30 value="$form->{cp_phone1}"></td>
-                  <th align=left nowrap>| . $locale->text('Phone2') . qq|</th>
-                  <td><input name=cp_phone2 size=30 maxlength=30 value="$form->{cp_phone2}"></td>
-                </tr>
-                <tr>
-                  <th></th>
-	          <th align=left nowrap>| . $locale->text('E-mail') . qq|</th>
-                  <td><input name=cp_email size=30 maxlength=40 value="$form->{cp_email}"></td>
-                  <th></th>
-                  <th></th>
-                </tr>                </table>
-        </td>
-        </tr>
-        <tr height="5"></tr>|;
-##/LINET
-  print qq|        $bcc
-	$tax
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
+</table>
+<table>
 	<tr>
 	  <th align=right>| . $locale->text('Credit Limit') . qq|</th>
-	  <td><input name=creditlimit tabindex=13 size=9 value="$form->{creditlimit}"></td>
+	  <td><input name=creditlimit size=9 value="$form->{creditlimit}"></td>
 	  <th align=right>| . $locale->text('Terms: Net') . qq|</th>
-	  <td><input name=terms tabindex=14 size=2 value="$form->{terms}">|
+	  <td><input name=terms size=2 value="$form->{terms}">|
     . $locale->text('days') . qq|</td>
 	  <th align=right>| . $locale->text('Discount') . qq|</th>
-	  <td><input name=discount tabindex=15 size=4 value="$form->{discount}">
+	  <td><input name=discount size=4 value="$form->{discount}">
 	  %</td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Tax Number / SSN') . qq|</th>
-	  <td><input name=taxnumber tabindex=16 size=20 value="$form->{taxnumber}"></td>
+	  <td><input name=taxnumber size=20 value="$form->{taxnumber}"></td>
           <th align=right>| . $locale->text('USt-IdNr.') . qq|</th>
-	  <td><input name=ustid tabindex=17 size=20 value="$form->{ustid}"></td>
+	  <td><input name=ustid size=20 value="$form->{ustid}"></td>
           $customer
 	</tr>
         <tr>
           <th align=right>| . $locale->text('Account Number') . qq|</th>
-          <td><input name=account_number size=10 tabindex=19 value="$form->{account_number}"></td>
+          <td><input name=account_number size=10 value="$form->{account_number}"></td>
           <th align=right>| . $locale->text('Bank Code Number') . qq|</th>
-          <td><input name=bank_code size=10 tabindex=20 value="$form->{bank_code}"></td>
+          <td><input name=bank_code size=10 value="$form->{bank_code}"></td>
           <th align=right>| . $locale->text('Bank') . qq|</th>
-          <td><input name=bank size=30 tabindex=21 value="$form->{bank}"></td>
+          <td><input name=bank size=30 value="$form->{bank}"></td>
         </tr>
 	<tr>
           $business
 	  <th align=right>| . $locale->text('Language') . qq|</th>
-	  <td><select name=language tabindex=23>$lang
+	  <td><select name=language_id tabindex=23>$lang
                           </select></td>|;
 
   if ($form->{db} eq 'customer') {
@@ -793,20 +991,197 @@ sub form_header {
         <tr>
           <td align=right>| . $locale->text('Obsolete') . qq|</td>
           <td><input name=obsolete class=checkbox type=checkbox value=1 $form->{obsolete}></td>
+	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
+	  <td><select name=payment_id>$payment
+                          </select></td>
 	</tr>
+        $taxzone
       </table>
-    </td>
-  </tr>
+  <table>
   <tr>
     <th align=left nowrap>| . $locale->text('Notes') . qq|</th>
   </tr>
   <tr>
     <td><textarea name=notes rows=3 cols=60 wrap=soft>$form->{notes}</textarea></td>
   </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
+
+            </table>
+          </td>
+        </tr>
 </table>
+<br style="clear: left" /></div>|;
+
+print qq|
+      <div id="shipto" class="tabcontent">
+
+      <table width=100%>
+$shipto
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Company Name') . qq|</th>
+	  <td><input id=shiptoname name=shiptoname size=35 maxlength=75 value="$form->{shiptoname}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Abteilung') . qq|</th>
+          <td><input id=shiptodepartment_1 name=shiptodepartment_1 size=16 maxlength=75 value="$form->{shiptodepartment_1}">
+	  <input id=shiptodepartment_2 name=shiptodepartment_2 size=16 maxlength=75 value="$form->{shiptodepartment_2}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Street') . qq|</th>
+	  <td><input id=shiptostreet name=shiptostreet size=35 maxlength=75 value="$form->{shiptostreet}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>|
+    . $locale->text('Zipcode') . "/" . $locale->text('City') . qq|</th>
+	  <td><input id=shiptozipcode name=shiptozipcode size=5 maxlength=10 value="$form->{shiptozipcode}">
+          <input id=shiptocity name=shiptocity size=30 maxlength=75 value="$form->{shiptocity}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Country') . qq|</th>
+	  <td><input id=shiptocountry name=shiptocountry size=35 maxlength=35 value="$form->{shiptocountry}"></td>
+	</tr>
+	<tr>
+          <th align=right nowrap>| . $locale->text('Contact') . qq|</th>
+	  <td><input id=shiptocontact name=shiptocontact size=30 maxlength=75 value="$form->{shiptocontact}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Phone') . qq|</th>
+	  <td><input id=shiptophone name=shiptophone size=30 maxlength=30 value="$form->{shiptophone}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('Fax') . qq|</th>
+	  <td><input id=shiptofax name=shiptofax size=30 maxlength=30 value="$form->{shiptofax}"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>| . $locale->text('E-mail') . qq|</th>
+	  <td><input id=shiptoemail name=shiptoemail size=45 value="$form->{shiptoemail}"></td>
+	</tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+           <td>&nbsp;</td>
+       </tr>
+
+    </table>
+<br style="clear: left" /></div>|;
+
+
+##LINET - added fields for contact person
+  print qq|   
+<div id="contacts" class="tabcontent">
+<table>
+    <tr>
+         <td colspan=3>
+	 	<input type=hidden name=cp_id value=$form->{cp_id}>
+                <table>
+                $ansprechpartner
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Greeting') . qq|</th>
+                  <td><input id=cp_greeting name=cp_greeting size=30 maxlength=30 value="$form->{cp_greeting}">&nbsp;
+                  $select_greeting</td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Title') . qq|</th>
+                  <td><input id=cp_title name=cp_title size=30 maxlength=30 value="$form->{cp_title}">&nbsp;
+                  $select_title</td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Department') . qq|</th>
+                  <td><input id=cp_abteilung name=cp_abteilung size=30 maxlength=40 value="$form->{cp_abteilung}">&nbsp;
+                  $select_department</td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>|
+    . $locale->text('Given Name') . qq|</th>
+                  <td><input id=cp_givenname name=cp_givenname size=30 maxlength=40 value="$form->{cp_givenname}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Name') . qq|</th>
+                  <td><input id=cp_name name=cp_name size=30 maxlength=40 value="$form->{cp_name}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Phone1') . qq|</th>
+                  <td><input id=cp_phone1 name=cp_phone1 size=30 maxlength=30 value="$form->{cp_phone1}"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Phone2') . qq|</th>
+                  <td><input id=cp_phone2 name=cp_phone2 size=30 maxlength=30 value="$form->{cp_phone2}"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Fax') . qq|</th>
+                  <td><input id=cp_fax name=cp_fax size=30 maxlength=30 value="$form->{cp_fax}"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Mobile1') . qq|</th>
+                  <td><input id=cp_mobile1 name=cp_mobile1 size=30 maxlength=30 value="$form->{cp_mobile1}"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Mobile2') . qq|</th>
+                  <td><input id=cp_mobile2 name=cp_mobile2 size=30 maxlength=30 value="$form->{cp_mobile2}"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Sat. Phone') . qq|</th>
+                  <td><input id=cp_satphone name=cp_satphone size=30 maxlength=30 value="$form->{cp_satphone}"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>| . $locale->text('Sat. Fax') . qq|</th>
+                  <td><input id=cp_satfax name=cp_satfax size=30 maxlength=30 value="$form->{cp_satfax}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Project') . qq|</th>
+                  <td><input id=cp_project name=cp_project size=30 maxlength=40 value="$form->{cp_project}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('E-mail') . qq|</th>
+                  <td><input id=cp_email name=cp_email size=30 maxlength=40 value="$form->{cp_email}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Private Phone') . qq|</th>
+                  <td><input id=cp_privatphone name=cp_privatphone size=30 maxlength=40 value="$form->{cp_privatphone}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Private E-mail') . qq|</th>
+                  <td><input id=cp_privatemail name=cp_privatemail size=30 maxlength=40 value="$form->{cp_privatemail}"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>| . $locale->text('Birthday') . qq|</th>
+                  <td><input id=cp_birthday name=cp_birthday size=30 maxlength=40 value="$form->{cp_birthday}"></td>
+                </tr>
+                
+          </table>
+        </td>
+        </tr>
+        <tr height="5"></tr>|;
+##/LINET
+  print qq|        $bcc
+	$tax
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      
+<br style="clear: left" /></div>
+<div id="deliveries" class="tabcontent">
+  <table>
+    $delivery
+    <tr>
+      <th align=left nowrap>| . $locale->text('From') . qq|</th>
+      <td><input id=from name=from size=10 maxlength=10 value="$form->{from}"></td>
+      <th align=left nowrap>| . $locale->text('Bis') . qq|</th>
+      <td><input id=to name=to size=10 maxlength=10 value="$form->{to}"></td>
+    </tr>       
+    <tr>
+     <td colspan=4>
+      <div id=delivery>
+      </div>
+      </td>
+    </tr>
+  </table>
+<br style="clear: left" /></div>
+
+</div>
+
 |;
 
   $lxdebug->leave_sub();
@@ -838,7 +1213,7 @@ sub form_footer {
 ##<input class=submit type=submit name=action value="|.$locale->text("Save and AP Transaction").qq|">
 
   print qq|
-<input name=id type=hidden value=$form->{id}>
+<input name=id type=hidden id=cvid value=$form->{id}>
 <input name=taxaccounts type=hidden value="$form->{taxaccounts}">
 <input name=business_save type=hidden value="$form->{selectbusiness}">
 <input name=title_save type=hidden value="$form->{title}">
@@ -848,7 +1223,7 @@ sub form_footer {
 <input type=hidden name=password value=$form->{password}>
 
 <input type=hidden name=callback value="$form->{callback}">
-<input type=hidden name=db value=$form->{db}>
+<input type=hidden name=db id=db value=$form->{db}>
 
 
 
@@ -856,6 +1231,8 @@ sub form_footer {
 $update_button
 <input class=submit type=submit name=action accesskey="s" value="|
     . $locale->text("Save") . qq|">
+<input class=submit type=submit name=action accesskey="s" value="|
+    . $locale->text("Save and Close") . qq|">
 <input class=submit type=submit name=action value="$arap">
 <input class=submit type=submit name=action value="|
     . $locale->text("Save and Invoice") . qq|">
@@ -878,7 +1255,10 @@ $update_button
   print qq|
 
   </form>
-
+<script type="text/javascript">
+//Start Tab Content script for UL with id="maintab" Separate multiple ids each with a comma.
+initializetabcontent("maintab")
+</script>
 </body>
 </html>
 |;
@@ -890,6 +1270,9 @@ sub add_transaction {
   $lxdebug->enter_sub();
 
   $form->isblank("name", $locale->text("Name missing!"));
+  if ($vertreter && $form->{db} eq "customer") {
+    $form->isblank("salesman_id", $locale->text("Salesman missing!"));
+  }
   &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 
   $form->{callback} = $form->escape($form->{callback}, 1);
@@ -962,6 +1345,28 @@ sub save_and_order {
   $lxdebug->leave_sub();
 }
 
+sub save_and_close {
+  $lxdebug->enter_sub();
+
+  # $locale->text('Customer saved!')
+  # $locale->text('Vendor saved!')
+
+  $msg = ucfirst $form->{db};
+  $imsg .= " saved!";
+
+  $form->isblank("name", $locale->text("Name missing!"));
+  if ($vertreter && $form->{db} eq "customer") {
+    $form->isblank("salesman_id", $locale->text("Salesman missing!"));
+  }
+  $rc = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+  if ($rc == 3) {
+    $form->error($locale->text('customernumber not unique!'));
+  }
+  $form->redirect($locale->text($msg));
+
+  $lxdebug->leave_sub();
+}
+
 sub save {
   $lxdebug->enter_sub();
 
@@ -975,10 +1380,11 @@ sub save {
   if ($vertreter && $form->{db} eq "customer") {
     $form->isblank("salesman_id", $locale->text("Salesman missing!"));
   }
+  print(STDERR "SHIPTO in sub save $form->{shipto_id}\n");
   &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 
-  $form->redirect($locale->text($msg));
-
+  &edit;
+  exit;
   $lxdebug->leave_sub();
 }
 
@@ -1185,6 +1591,118 @@ sub salesman_selected {
   &update(1);
 
   $lxdebug->leave_sub();
+}
+
+sub get_contact {
+  $lxdebug->enter_sub();
+
+  CT->get_contact(\%myconfig, \%$form);
+
+  my $q = new CGI;
+  $result = "$form->{cp_name}";
+  map { $result .= "__pjx__" . $form->{$_} } qw(cp_greeting cp_title cp_givenname cp_phone1 cp_phone2 cp_email cp_abteilung cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax cp_project cp_privatphone cp_privatemail cp_birthday);
+  print $q->header();
+  print $result;
+  $lxdebug->leave_sub();
+
+}
+
+
+sub get_shipto {
+  $lxdebug->enter_sub();
+
+  CT->get_shipto(\%myconfig, \%$form);
+
+  my $q = new CGI;
+  $result = "$form->{shiptoname}";
+  map { $result .= "__pjx__" . $form->{$_} } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
+  print $q->header();
+  print $result;
+  $lxdebug->leave_sub();
+
+}
+
+sub get_delivery {
+  $lxdebug->enter_sub();
+
+  CT->get_delivery(\%myconfig, \%$form );
+
+  @column_index =
+    $form->sort_columns(shiptoname,
+                        invnumber,
+                        ordnumber,
+                        transdate,
+                        description,
+                        qty,
+                        unit);
+
+
+
+  $column_header{shiptoname} =
+    qq|<th class=listheading>| . $locale->text('Shipping Address') . qq|</th>|;
+  $column_header{invnumber} =
+      qq|<th class=listheading>|. $locale->text('Invoice'). qq|</th>|;
+  $column_header{ordnumber} =
+      qq|<th class=listheading>|. $locale->text('Order'). qq|</th>|;
+  $column_header{transdate} =
+    qq|<th class=listheading>| . $locale->text('Invdate') . qq|</th>|;
+  $column_header{description} =
+    qq|<th class=listheading>| . $locale->text('Description') . qq|</th>|;
+  $column_header{qty} =
+    qq|<th class=listheading>| . $locale->text('Qty') . qq|</th>|;
+  $column_header{unit} =
+    qq|<th class=listheading>| . $locale->text('Unit') . qq|</th>|;
+  $result .= qq|
+
+<table width=100%>
+  <tr>
+    <td>
+      <table width=100%>
+	<tr class=listheading>
+|;
+
+  map { $result .= "$column_header{$_}\n" } @column_index;
+
+  $result .= qq|
+        </tr>
+|;
+
+
+  foreach $ref (@{ $form->{DELIVERY} }) {
+
+    if ($ref->{shiptoname} eq $sameshiptoname) {
+      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
+      $column_data{shiptoname} = "<td>&nbsp;</td>";
+    } else {
+      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
+    }
+
+    $i++;
+    $i %= 2;
+    $result .= "
+        <tr class=listrow$i>
+";
+
+    map { $result .= "$column_data{$_}\n" } @column_index;
+
+    $result .= qq|
+        </tr>
+|;
+
+    $sameshiptoname = $ref->{shiptoname};
+
+  }
+
+  $result .= qq|
+      </table>
+|;
+
+
+  my $q = new CGI;
+  print $q->header();
+  print $result;
+  $lxdebug->leave_sub();
+
 }
 
 sub continue { &{ $form->{nextsub} } }

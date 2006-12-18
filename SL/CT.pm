@@ -36,6 +36,8 @@
 #======================================================================
 
 package CT;
+use Data::Dumper;
+
 
 sub get_tuple {
   $main::lxdebug->enter_sub();
@@ -43,10 +45,9 @@ sub get_tuple {
   my ($self, $myconfig, $form) = @_;
 
   my $dbh   = $form->dbconnect($myconfig);
-  my $query = qq|SELECT ct.*, b.id AS business, s.*, cp.*
+  my $query = qq|SELECT ct.*, b.id AS business, cp.*
                  FROM $form->{db} ct
 		 LEFT JOIN business b on ct.business_id = b.id
-		 LEFT JOIN shipto s on ct.id = s.trans_id
                  LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
 		 WHERE ct.id = $form->{id}  order by cp.cp_id limit 1|;
   my $sth = $dbh->prepare($query);
@@ -131,6 +132,68 @@ sub get_tuple {
   }
   $sth->finish;
 
+  # get tax zones
+  $query = qq|SELECT id, description
+              FROM tax_zones|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{TAXZONE} }, $ref;
+  }
+  $sth->finish;
+
+
+  # get shipto address
+  $query = qq|SELECT shipto_id, shiptoname, shiptodepartment_1
+              FROM shipto WHERE trans_id=$form->{id}|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{SHIPTO} }, $ref;
+  }
+  $sth->finish;
+
+
+  # get contacts
+  $query = qq|SELECT cp_id, cp_name
+              FROM contacts WHERE cp_cv_id=$form->{id}|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{CONTACTS} }, $ref;
+  }
+  $sth->finish;
+
+  # get languages
+  $query = qq|SELECT id, description
+              FROM language
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{languages} }, $ref;
+  }
+  $sth->finish;
+
+  # get languages
+  $query = qq|SELECT id, description
+              FROM payment_terms
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{payment_terms} }, $ref;
+  }
+  $sth->finish;
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -160,6 +223,20 @@ sub query_titles_and_greetings {
   %tmp = ();
 
   $query =
+    "SELECT greeting FROM customer UNION select greeting FROM vendor";
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    next unless ($ref->{greeting} =~ /[a-zA-Z]/);
+    $tmp{ $ref->{greeting} } = 1;
+  }
+  $sth->finish();
+
+  @{ $form->{COMPANY_GREETINGS} } = sort(keys(%tmp));
+
+  %tmp = ();
+
+  $query =
     "SELECT DISTINCT(c.cp_title) FROM contacts c WHERE c.cp_title LIKE '%'";
   $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
@@ -170,6 +247,19 @@ sub query_titles_and_greetings {
   $sth->finish();
 
   @{ $form->{TITLES} } = sort(keys(%tmp));
+
+  %tmp = ();
+
+  $query =
+    "SELECT DISTINCT(c.cp_abteilung) FROM contacts c WHERE c.cp_abteilung LIKE '%'";
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    $tmp{ $ref->{cp_abteilung} } = 1;
+  }
+  $sth->finish();
+
+  @{ $form->{DEPARTMENT} } = sort(keys(%tmp));
 
   $dbh->disconnect();
   $main::lxdebug->leave_sub();
@@ -210,6 +300,42 @@ sub taxaccounts {
     push @{ $form->{all_business} }, $ref;
   }
   $sth->finish;
+  # get languages
+  $query = qq|SELECT id, description
+              FROM language
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{languages} }, $ref;
+  }
+  $sth->finish;
+
+  # get payment terms
+  $query = qq|SELECT id, description
+              FROM payment_terms
+	      ORDER BY 1|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{payment_terms} }, $ref;
+  }
+  $sth->finish;
+
+  # get taxkeys and description
+  $query = qq|SELECT id, description
+              FROM tax_zones|;
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{TAXZONE} }, $ref;
+  }
+  $sth->finish;
+
 
   $dbh->disconnect;
 
@@ -231,8 +357,9 @@ sub save_customer {
   map({
       $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
         if ($form->{"selected_cp_${_}"});
-  } qw(title greeting));
-
+  } qw(title greeting abteilung));
+  $form->{"greeting"} = $form->{"selected_company_greeting"}
+        if ($form->{"selected_company_greeting"});
   #
   # escape '
   map { $form->{$_} =~ s/\'/\'\'/g }
@@ -246,24 +373,59 @@ sub save_customer {
   $form->{obsolete}    *= 1;
   $form->{business}    *= 1;
   $form->{salesman_id} *= 1;
+  $form->{language_id} *= 1;
+  $form->{payment_id} *= 1;
+  $form->{taxzone_id} *= 1;
   $form->{creditlimit} = $form->parse_amount($myconfig, $form->{creditlimit});
 
-  my ($query, $sth);
+  my ($query, $sth, $f_id);
 
   if ($form->{id}) {
+
+    $query = qq|SELECT id FROM customer
+                WHERE customernumber = '$form->{customernumber}'|;
+    $sth = $dbh->prepare($query);
+    $sth->execute || $form->dberror($query);
+    (${f_id}) = $sth->fetchrow_array;
+    $sth->finish;
+    if ((${f_id} ne $form->{id}) and (${f_id} ne "")) {
+
+      $main::lxdebug->leave_sub();
+      return 3;
+    }
     $query = qq|DELETE FROM customertax
                 WHERE customer_id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
 
-    $query = qq|DELETE FROM shipto
-                WHERE trans_id = $form->{id}|;
-    $dbh->do($query) || $form->dberror($query);
+#     $query = qq|DELETE FROM shipto
+#                 WHERE trans_id = $form->{id} AND module = 'CT'|;
+#     $dbh->do($query) || $form->dberror($query);
   } else {
+
     my $uid = rand() . time;
 
     $uid .= $form->{login};
 
     $uid = substr($uid, 2, 75);
+    if (!$form->{customernumber} && $form->{business}) {
+      $form->{customernumber} =
+        $form->update_business($myconfig, $form->{business});
+    }
+    if (!$form->{customernumber}) {
+      $form->{customernumber} =
+        $form->update_defaults($myconfig, "customernumber");
+    }
+
+    $query = qq|SELECT c.id FROM customer c
+                WHERE c.customernumber = '$form->{customernumber}'|;
+    $sth = $dbh->prepare($query);
+    $sth->execute || $form->dberror($query);
+    (${f_id}) = $sth->fetchrow_array;
+    $sth->finish;
+    if (${f_id} ne "") {
+      $main::lxdebug->leave_sub();
+      return 3;
+    }
 
     $query = qq|INSERT INTO customer (name)
                 VALUES ('$uid')|;
@@ -276,20 +438,11 @@ sub save_customer {
 
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
-    if (!$form->{customernumber} && $form->{business}) {
-      $form->{customernumber} =
-        $form->update_business($myconfig, $form->{business});
-    }
-    if (!$form->{customernumber}) {
-      $form->{customernumber} =
-        $form->update_defaults($myconfig, "customernumber");
-    }
-
   }
-
   $query = qq|UPDATE customer SET
               customernumber = '$form->{customernumber}',
 	      name = '$form->{name}',
+              greeting = '$form->{greeting}',
               department_1 = '$form->{department_1}',
               department_2 = '$form->{department_2}',
 	      street = '$form->{street}',
@@ -319,6 +472,9 @@ sub save_customer {
               ustid = '$form->{ustid}',
               username = '$form->{username}',
               salesman_id = '$form->{salesman_id}',
+              language_id = '$form->{language_id}',
+              payment_id = '$form->{payment_id}',
+              taxzone_id = '$form->{taxzone_id}',
               user_password = | . $dbh->quote($form->{user_password}) . qq|,
               c_vendor_id = '$form->{c_vendor_id}',
               klass = '$form->{klass}'
@@ -333,12 +489,22 @@ sub save_customer {
 		cp_name = '$form->{cp_name}',
 		cp_email = '$form->{cp_email}',
 		cp_phone1 = '$form->{cp_phone1}',
-		cp_phone2 = '$form->{cp_phone2}'
-		WHERE cp_id = $form->{cp_id}|;
+		cp_phone2 = '$form->{cp_phone2}',
+                cp_abteilung = | . $dbh->quote($form->{cp_abteilung}) . qq|,
+                cp_fax = | . $dbh->quote($form->{cp_fax}) . qq|,
+                cp_mobile1 = | . $dbh->quote($form->{cp_mobile1}) . qq|,
+                cp_mobile2 = | . $dbh->quote($form->{cp_mobile2}) . qq|,
+                cp_satphone = | . $dbh->quote($form->{cp_satphone}) . qq|,
+                cp_satfax = | . $dbh->quote($form->{cp_satfax}) . qq|,
+                cp_project = | . $dbh->quote($form->{cp_project}) . qq|,
+                cp_privatphone = | . $dbh->quote($form->{cp_privatphone}) . qq|,
+                cp_privatemail = | . $dbh->quote($form->{cp_privatemail}) . qq|,
+                cp_birthday = | . $dbh->quote($form->{cp_birthday}) . qq|
+        	WHERE cp_id = $form->{cp_id}|;
   } elsif ($form->{cp_name} || $form->{cp_givenname}) {
     $query =
-      qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname, cp_name, cp_email, cp_phone1, cp_phone2)
-		  VALUES ($form->{id}, '$form->{cp_greeting}','$form->{cp_title}','$form->{cp_givenname}','$form->{cp_name}','$form->{cp_email}','$form->{cp_phone1}','$form->{cp_phone2}')|;
+      qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname, cp_name, cp_email, cp_phone1, cp_phone2, cp_abteilung, cp_fax, cp_mobile1, cp_mobile2, cp_satphone, cp_satfax, cp_project, cp_privatphone, cp_privatemail, cp_birthday)
+		  VALUES ($form->{id}, '$form->{cp_greeting}','$form->{cp_title}','$form->{cp_givenname}','$form->{cp_name}','$form->{cp_email}','$form->{cp_phone1}','$form->{cp_phone2}', '$form->{cp_abteilung}', | . $dbh->quote($form->{cp_fax}) . qq|,| . $dbh->quote($form->{cp_mobile1}) . qq|,| . $dbh->quote($form->{cp_mobile2}) . qq|,| . $dbh->quote($form->{cp_satphone}) . qq|,| . $dbh->quote($form->{cp_satfax}) . qq|,| . $dbh->quote($form->{cp_project}) . qq|,| . $dbh->quote($form->{cp_privatphone}) . qq|,| . $dbh->quote($form->{cp_privatemail}) . qq|,| . $dbh->quote($form->{cp_birthday}) . qq|)|;
   }
   $dbh->do($query) || $form->dberror($query);
 
@@ -352,9 +518,9 @@ sub save_customer {
       $dbh->do($query) || $form->dberror($query);
     }
   }
-
+  print(STDERR "SHIPTO_ID $form->{shipto_id}\n");
   # add shipto
-  $form->add_shipto($dbh, $form->{id});
+  $form->add_shipto($dbh, $form->{id}, "CT");
 
   $rc = $dbh->disconnect;
 
@@ -373,8 +539,9 @@ sub save_vendor {
   map({
       $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
         if ($form->{"selected_cp_${_}"});
-  } qw(title greeting));
-
+  } qw(title greeting abteilung));
+  $form->{"greeting"} = $form->{"selected_company_greeting"}
+        if ($form->{"selected_company_greeting"});
   # escape '
   map { $form->{$_} =~ s/\'/\'\'/g }
     qw(vendornumber name street zipcode city country homepage contact notes cp_title cp_greeting language);
@@ -385,6 +552,9 @@ sub save_vendor {
   $form->{taxincluded} *= 1;
   $form->{obsolete}    *= 1;
   $form->{business}    *= 1;
+  $form->{payment_id}    *= 1;
+  $form->{language_id}    *= 1;
+  $form->{taxzone_id}    *= 1;
   $form->{creditlimit} = $form->parse_amount($myconfig, $form->{creditlimit});
 
   my $query;
@@ -395,7 +565,7 @@ sub save_vendor {
     $dbh->do($query) || $form->dberror($query);
 
     $query = qq|DELETE FROM shipto
-                WHERE trans_id = $form->{id}|;
+                WHERE trans_id = $form->{id} AND module = 'CT'|;
     $dbh->do($query) || $form->dberror($query);
   } else {
     my $uid = time;
@@ -425,6 +595,7 @@ sub save_vendor {
   $query = qq|UPDATE vendor SET
               vendornumber = '$form->{vendornumber}',
 	      name = '$form->{name}',
+              greeting = '$form->{greeting}',
               department_1 = '$form->{department_1}',
               department_2 = '$form->{department_2}',
 	      street = '$form->{street}',
@@ -453,6 +624,9 @@ sub save_vendor {
               bank = '$form->{bank}',
               obsolete = '$form->{obsolete}',
               ustid = '$form->{ustid}',
+              payment_id = '$form->{payment_id}',
+              taxzone_id = '$form->{taxzone_id}',
+              language_id = '$form->{language_id}',
               username = '$form->{username}',
               user_password = '$form->{user_password}',
               v_customer_id = '$form->{v_customer_id}'
@@ -488,7 +662,7 @@ sub save_vendor {
   }
 
   # add shipto
-  $form->add_shipto($dbh, $form->{id});
+  $form->add_shipto($dbh, $form->{id}, "CT");
 
   $rc = $dbh->disconnect;
 
@@ -632,6 +806,85 @@ sub search {
     push @{ $form->{CT} }, $ref;
   }
 ##/LINET
+  $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_contact {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  my $dbh   = $form->dbconnect($myconfig);
+  my $query = qq|SELECT c.*
+                 FROM contacts c
+		 WHERE c.cp_id = $form->{cp_id}  order by c.cp_id limit 1|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  my $ref = $sth->fetchrow_hashref(NAME_lc);
+
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+
+sub get_shipto {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  my $dbh   = $form->dbconnect($myconfig);
+  my $query = qq|SELECT s.*
+                 FROM shipto s
+		 WHERE s.shipto_id = $form->{shipto_id}|;
+		 #WHERE s.shipto_id = $form->{shipto_id}  order by s.shipto_id limit 1|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  my $ref = $sth->fetchrow_hashref(NAME_lc);
+
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_delivery {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  my $dbh   = $form->dbconnect($myconfig);
+  $tabelle = ($form->{db} eq "vendor") ? "ap" : "ar";
+
+  $where = " WHERE 1=1 ";
+  if ($form->{shipto_id} && $tabelle eq "ar") {
+    $where .= "AND $tabelle.shipto_id=$form->{shipto_id} ";
+  } else {
+	$where .="AND $tabelle.$form->{db}_id=$form->{id} ";
+  }
+  if ($form->{from}) {
+    $where .= "AND $tabelle.transdate >= '$form->{from}' ";
+  }
+  if ($form->{to}) {
+    $where .= "AND $tabelle.transdate <= '$form->{to}' ";
+  }
+  my $query = qq|select shiptoname, $tabelle.transdate, $tabelle.invnumber, $tabelle.ordnumber, invoice.description, qty, invoice.unit FROM $tabelle LEFT JOIN shipto ON |;
+  $query .= ($tabelle eq "ar") ? qq|($tabelle.shipto_id=shipto.shipto_id) |:qq|($tabelle.id=shipto.trans_id) |;
+  $query .=qq|LEFT join invoice on ($tabelle.id=invoice.trans_id) LEFT join parts ON (parts.id=invoice.parts_id) $where ORDER BY $tabelle.transdate DESC LIMIT 15|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{DELIVERY} }, $ref;
+  }
   $sth->finish;
   $dbh->disconnect;
 

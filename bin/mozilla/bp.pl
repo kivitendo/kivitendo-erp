@@ -555,6 +555,13 @@ sub list_spool {
 
   if ($myconfig{printer}) {
     print qq|
+<input type=hidden name=transdateto value=$form->{transdateto}>
+<input type=hidden name=transdatefrom value=$form->{transdatefrom}>
+<input type=hidden name=invnumber value=$form->{invnumber}>
+<input type=hidden name=ordnumber value=$form->{ordnumber}>
+<input type=hidden name=quonumber value=$form->{quonumber}>
+<input type=hidden name=customer value=$form->{customer}>
+<input type=hidden name=vendor value=$form->{vendor}>
 <input class=submit type=submit name=action value="|
       . $locale->text('Select all') . qq|">
 <input class=submit type=submit name=action value="|

@@ -82,11 +82,11 @@ sub add {
 
   map {
     $chart .=
-      "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}</option>"
+      "<option value=\"$_->{accno}--$_->{tax_id}\">$_->{accno}--$_->{description}</option>"
   } @{ $form->{chart} };
   map {
     $tax .=
-      qq|<option value="$_->{taxkey}--$_->{rate}">$_->{taxdescription}  |
+      qq|<option value="$_->{id}--$_->{rate}">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
 
@@ -124,12 +124,12 @@ sub edit {
   GL->transaction(\%myconfig, \%$form);
   map {
     $chart .=
-      "<option value=\"$_->{accno}--$_->{taxkey_id}\">$_->{accno}--$_->{description}</option>"
+      "<option value=\"$_->{accno}--$_->{tax_id}\">$_->{accno}--$_->{description}</option>"
   } @{ $form->{chart} };
 
   map {
     $tax .=
-      qq|<option value="$_->{taxkey}--$_->{rate}">$_->{taxdescription}  |
+      qq|<option value="$_->{id}--$_->{rate}">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
 
@@ -159,7 +159,7 @@ sub edit {
     $j = $i - 1;
     if ($tax && ($ref->{accno} eq $taxaccno)) {
       $form->{"tax_$j"}      = abs($ref->{amount});
-      $form->{"taxchart_$j"} = $ref->{taxkey} . "--" . $ref->{taxrate};
+      $form->{"taxchart_$j"} = $ref->{id} . "--" . $ref->{taxrate};
       if ($form->{taxincluded}) {
         if ($ref->{amount} < 0) {
           $form->{"debit_$j"} += $form->{"tax_$j"};
@@ -168,7 +168,7 @@ sub edit {
         }
       }
     } else {
-      $form->{"accno_$i"} = "$ref->{accno}--$ref->{accnotaxkey}";
+      $form->{"accno_$i"} = "$ref->{accno}--$ref->{tax_id}";
       for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
       if ($ref->{amount} < 0) {
         $form->{totaldebit} -= $ref->{amount};
@@ -1105,6 +1105,7 @@ sub display_rows {
           . qq|>$accno</select></td>|;
         $tax          = $taxchart;
         $tax_selected = $form->{"taxchart_$i"};
+        print(STDERR "TAX_SELCTED $tax_selected\n");
         $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
         $tax =
             qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
@@ -1211,7 +1212,7 @@ sub form_header {
   <!--
   function setTaxkey(accno, row) {
     var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9])*/;
+    var reg = /--([0-9]*)/;
     var found = reg.exec(taxkey);
     var index = found[1];
     index = parseInt(index);
@@ -1489,12 +1490,12 @@ sub delete {
 <form method=post action=$form->{script}>
 |;
 
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description chart);
+  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description chart taxchart);
 
   delete $form->{header};
 
   foreach $key (keys %$form) {
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
+    print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
   }
 
   print qq|

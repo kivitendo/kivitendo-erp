@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'AP Transaction'              => 'Kreditorenbuchung',
   'AR Transaction'              => 'Debitorenbuchung',
   'Account'                     => 'Konto',
@@ -9,7 +9,7 @@ $self{texts} = {
   'Apr'                         => 'Apr',
   'April'                       => 'April',
   'Are you sure you want to delete Transaction' => 'Buchung wirklich löschen?',
-  'Asset'                       => 'Aktiva',
+  'Asset'                       => 'Aktiva/Mittelverwendung',
   'Aug'                         => 'Aug',
   'August'                      => 'August',
   'Balance'                     => 'Bilanz',
@@ -60,7 +60,7 @@ $self{texts} = {
   'Jun'                         => 'Jun',
   'June'                        => 'Juni',
   'Korrektur'                   => 'Korrektur',
-  'Liability'                   => 'Passiva',
+  'Liability'                   => 'Passiva/Mittelherkunft',
   'Mar'                         => 'März',
   'March'                       => 'März',
   'May'                         => 'Mai',
@@ -100,7 +100,7 @@ $self{texts} = {
   'button'                      => '?',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',

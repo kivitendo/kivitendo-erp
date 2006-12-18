@@ -151,6 +151,7 @@ function clockon() {
 </script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
 	<tr>
+		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
 		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
     . $login . $datum . qq| <script>writeclock()</script>&nbsp;
 		</td>
@@ -262,6 +263,9 @@ function Item(text, href, frame, length, spacing, target) {
 	this.target = target;
 	this.ref = null;
 }
+function go(link) {
+        top.main_window.location=link;
+}
 function writeMenus() {
 	if (!isDOM && !isIE4 && !isNS4) return;
 	for (currMenu = 0; currMenu < menu.length; currMenu++) with (menu[currMenu][0]) {
@@ -281,7 +285,12 @@ function writeMenus() {
 			}
 			if (borderClass) str += 'class="' + borderClass + '" ';
 			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
-			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '"><tr><td align="left" height="' + (h - 7) + '">' + '<a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
+			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
+			if (href!="#") {
+			str +='<tr><td align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '")\\'><a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
+			} else {
+			str +='<tr><td align="left" height="' + (h - 7) + '"><a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
+			}
 			if (target > 0) {
 				menu[target][0].parentMenu = currMenu;
 				menu[target][0].parentItem = currItem;
@@ -379,6 +388,7 @@ sub section_menu {
   $main = 0;
 
   #$pm=0;
+  $shlp=0;
   while (@menuorder) {
     $item  = shift @menuorder;
     $label = $item;
@@ -392,9 +402,14 @@ sub section_menu {
     if ($menu->{$item}{submenu}) {
       $menu->{$item}{$item} = !$form->{$item};
 
-      # Untermenü
-      if ($mlz{"s$ml"} > 1) { $z = $mlz{"s$ml"}++; $sm = 1; }
-      else { $z = $sm; $mlz{"s$ml"}++; }
+      # Untermen
+      if ($mlz{"s$ml"} > 1) { 
+		$z++; 
+		$sm = 1; 
+      } else { 
+		$z = $sm; 
+		$mlz{"s$ml"}++; 
+      }
       print
         qq|menu[$mlz{$ml}][$z] = new Item('$label', '#', '', defLength, 0, |
         . ++$pm
@@ -422,6 +437,7 @@ sub section_menu {
         $mm++;
         $pm++;
         %mlz   = ($ml, $pm, "s$ml", 1);
+        $shlp = $sm;
         $sm    = 1;
         $breit = 15 + length($label) * 6;
         print

@@ -1,0 +1,23 @@
+$self->{texts} = {
+  'Database update error:'      => 'Fehler beim Datenbankupgrade:',
+};
+
+$self->{subs} = {
+  'assign_buchungsgruppen_for_assemblies' => 'assign_buchungsgruppen_for_assemblies',
+  'create_buchungsgruppen'      => 'create_buchungsgruppen',
+  'display_create_bgs_dialog'   => 'display_create_bgs_dialog',
+  'do_update'                   => 'do_update',
+  'force_inventory_accno_id_for_parts' => 'force_inventory_accno_id_for_parts',
+  'mydberror'                   => 'mydberror',
+  'mydoquery'                   => 'mydoquery',
+  'retrieve_accounts'           => 'retrieve_accounts',
+  'retrieve_buchungsgruppen'    => 'retrieve_buchungsgruppen',
+  'retrieve_std_inventory_accno_id' => 'retrieve_std_inventory_accno_id',
+  'retrieve_unknown_accno_combinations' => 'retrieve_unknown_accno_combinations',
+  'set_ic_links'                => 'set_ic_links',
+  'set_taxzone_ids'             => 'set_taxzone_ids',
+  'update_known_buchungsgruppen' => 'update_known_buchungsgruppen',
+  'buchungsgruppe_erfassen'     => 'create_buchungsgruppen',
+};
+
+1;

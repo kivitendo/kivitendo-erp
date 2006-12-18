@@ -44,8 +44,18 @@ require "$form->{path}/arap.pl";
 
 sub add {
   $lxdebug->enter_sub();
+  
+  if ($form->{type} eq "credit_note") {
+    $form->{title} = $locale->text('Add Credit Note');
 
-  $form->{title} = $locale->text('Add Sales Invoice');
+    if ($form->{storno}) {
+      $form->{title} = $locale->text('Add Storno Credit Note');
+    }
+  } else {
+    $form->{title} = $locale->text('Add Sales Invoice');
+
+  }
+
 
   $form->{callback} =
     "$form->{script}?action=add&type=$form->{type}&login=$form->{login}&path=$form->{path}&password=$form->{password}"
@@ -69,18 +79,25 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
-  $form->{title} = $locale->text('Edit Sales Invoice');
 
   if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
   {
     $form->error("Access Denied");
   }
+  $edit = 1;
   if ($form->{print_and_post}) {
     $form->{action}   = "print";
     $form->{resubmit} = 1;
+    $language_id = $form->{language_id};
+    $printer_id = $form->{printer_id};
   }
   &invoice_links;
   &prepare_invoice;
+  if ($form->{print_and_post}) {
+    $form->{language_id} = $language_id;
+    $form->{printer_id} = $printer_id;
+  }
+
   &display_form;
 
   $lxdebug->leave_sub();
@@ -102,14 +119,51 @@ sub invoice_links {
       $form->{customer_id} = $form->{all_customer}->[0]->{id};
     }
   }
+
+  if ($form->{payment_id}) {
+    $payment_id = $form->{payment_id};
+  }
+  if ($form->{language_id}) {
+    $language_id = $form->{language_id};
+  }
+  if ($form->{taxzone_id}) {
+    $taxzone_id = $form->{taxzone_id};
+  }
+  if ($form->{id}) {
+    $id = $form->{id};
+  }
+  if ($form->{shipto_id}) {
+    $shipto_id = $form->{shipto_id};
+  }
+
   $cp_id = $form->{cp_id};
   IS->get_customer(\%myconfig, \%$form);
 
+  #quote all_customer Bug 133
+  foreach $ref (@{ $form->{all_customer} }) {
+    $ref->{name} = $form->quote($ref->{name});
+  }
+  if ($id) {
+    $form->{id} = $id;
+  }
   IS->retrieve_invoice(\%myconfig, \%$form);
   $form->{cp_id} = $cp_id;
 
+  if ($payment_id) {
+    $form->{payment_id} = $payment_id;
+  }
+  if ($language_id) {
+    $form->{language_id} = $language_id;
+  }
+  if ($taxzone_id) {
+    $form->{taxzone_id} = $taxzone_id;
+  }
+  if ($shipto_id) {
+    $form->{shipto_id} = $shipto_id;
+  }
+
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
 
@@ -117,7 +171,7 @@ sub invoice_links {
 
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
 
-  if ($form->{all_customer}) {
+  if (@{ $form->{all_customer} }) {
     $form->{customer} = "$form->{customer}--$form->{customer_id}";
     map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}\n" }
       (@{ $form->{all_customer} });
@@ -189,9 +243,15 @@ sub invoice_links {
 sub prepare_invoice {
   $lxdebug->enter_sub();
 
-  $form->{type}     = "invoice";
-  $form->{formname} = "invoice";
-  $form->{media}    = "screen";
+  if ($form->{type} eq "credit_note") {
+    $form->{type}     = "credit_note";
+    $form->{formname} = "credit_note";
+    $form->{media}    = "screen";
+  } else {
+    $form->{type}     = "invoice";
+    $form->{formname} = "invoice";
+    $form->{media}    = "screen";
+  }
 
   if ($form->{id}) {
 
@@ -201,8 +261,11 @@ sub prepare_invoice {
     #     # get pricegroups for parts
     #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
 
+    my $i = 0;
+
     foreach $ref (@{ $form->{invoice_details} }) {
       $i++;
+
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
       $form->{"discount_$i"} =
         $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
@@ -232,25 +295,129 @@ sub prepare_invoice {
 sub form_header {
   $lxdebug->enter_sub();
 
+  if ($edit) {
+
+    if ($form->{type} eq "credit_note") {
+      $form->{title} = $locale->text('Edit Credit Note');
+    
+      if ($form->{storno}) {
+        $form->{title} = $locale->text('Edit Storno Credit Note');
+      }
+    } else {
+      $form->{title} = $locale->text('Edit Sales Invoice');
+    
+      if ($form->{storno}) {
+        $form->{title} = $locale->text('Edit Storno Invoice');
+      }
+    }
+  }
+
+  $form->{radier} =
+    ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+
+  $payment = qq|<option value=""></option>|;
+  foreach $item (@{ $form->{payment_terms} }) {
+    if ($form->{payment_id} eq $item->{id}) {
+      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
+    } else {
+      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
+    }
+  }
+
+
+  if (@{ $form->{TAXZONE} }) {
+    $form->{selecttaxzone} = "";
+    foreach $item (@{ $form->{TAXZONE} }) {
+      if ($item->{id} == $form->{taxzone_id}) {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id} selected>$item->{description}</option>";
+      } else {
+        $form->{selecttaxzone} .=
+          "<option value=$item->{id}>$item->{description}</option>";
+      }
+
+    }
+  } else {
+    $form->{selecttaxzone} =~ s/ selected//g;
+    if ($form->{taxzone_id} ne "") {
+      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
+    }
+  }
+  if ($form->{rowcount} >0) {
+    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
+    $form->{selecttaxzone} = $&;
+  }
+  
+
+  $taxzone = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
+		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
+		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
+	      </tr>|;
+
+
+  if (@{ $form->{SHIPTO} }) {
+    $form->{selectshipto} = "<option value=0></option>";
+    foreach $item (@{ $form->{SHIPTO} }) {
+      if ($item->{shipto_id} == $form->{shipto_id}) {
+        $form->{selectshipto} .=
+          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
+      } else {
+        $form->{selectshipto} .=
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment}</option>";
+      }
+
+    }
+  } else {
+    $form->{selectshipto} =~ s/ selected//g;
+    if ($form->{shipto_id} ne "") {
+      $form->{selectshipto} =~ s/value=$form->{shipto_id}/value=$form->{shipto_id} selected/;
+    }
+  }
+
+  $shipto = qq|
+		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
+		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>
+		<input type=hidden name=selectshipto value="$form->{selectshipto}">|;
+
+
+
   # set option selected
-  foreach $item (qw(AR customer currency department employee contact)) {
+  foreach $item (qw(AR customer currency department employee)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  #quote customer Bug 133
+  $form->{selectcustomer} = $form->quote($form->{selectcustomer});
+  
   #build contacts
   if ($form->{all_contacts}) {
 
-    $form->{selectcontact} = "";
+    $form->{selectcontact} = "<option></option>";
     foreach $item (@{ $form->{all_contacts} }) {
+      my $department = ($item->{cp_abteilung}) ? "--$item->{cp_abteilung}" : "";
       if ($form->{cp_id} == $item->{cp_id}) {
         $form->{selectcontact} .=
-          "<option selected>$item->{cp_name}--$item->{cp_id}";
+          "<option value=$item->{cp_id} selected>$item->{cp_name}$department</option>";
       } else {
-        $form->{selectcontact} .= "<option>$item->{cp_name}--$item->{cp_id}";
+        $form->{selectcontact} .= "<option value=$item->{cp_id}>$item->{cp_name}$department</option>";
       }
     }
+  } else {
+    $form->{selectcontact} =~ s/ selected//g;
+    if ($form->{cp_id} ne "") {
+      $form->{selectcontact} =~ s/value=$form->{cp_id}/value=$form->{cp_id} selected/;
+    }
+  }
+
+
+  if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
+    $creditwarning = 1;
+  } else {
+    $creditwarning = 0;
   }
 
   #else {$form->{all_contacts} = 0;}
@@ -289,7 +456,7 @@ sub form_header {
   #sk
   $contact =
     ($form->{selectcontact})
-    ? qq|<select name=contact>$form->{selectcontact}</select>\n<input type=hidden name="selectcontact" value="$form->{selectcontact}">|
+    ? qq|<select name=cp_id>$form->{selectcontact}</select>\n<input type=hidden name="selectcontact" value="$form->{selectcontact}">|
     : qq|<input name=contact value="$form->{contact}" size=35>|;
 
   $department = qq|
@@ -316,45 +483,89 @@ sub form_header {
 |;
   }
 
+  if ($form->{max_dunning_level}) {
+    $dunning = qq|
+	      <tr>
+                <td colspan=4>
+                <table>
+                  <tr>
+		<th align=right>| . $locale->text('Max. Dunning Level') . qq|:</th>
+		<td><b>$form->{max_dunning_level}</b></td>
+		<th align=right>| . $locale->text('Dunning Amount') . qq|:</th>
+		<td><b>|
+      . $form->format_amount(\%myconfig, $form->{dunning_amount},2)
+      . qq|</b></td>
+	      </tr>
+              </table>
+             </td>
+            </tr>
+|;
+  }
+
   $form->{fokus} = "invoice.customer";
 
   # use JavaScript Calendar or not
   $form->{jsscript} = $jscalendar;
   $jsscript = "";
-  if ($form->{jsscript}) {
-
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
-       <td><input type=button name=invdate id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-       |;
-    $button2 = qq|
-       <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
-       <td width="4"><input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button') . qq|></td></td>
-     |;
-    $button3 = qq|
-       <td width="13"><input name=deliverydate id=deliverydate size=11 title="$myconfig{dateformat}" value=$form->{deliverydate}></td>
-       <td width="4"><input type=button name=deliverydate id="trigger3" value=|
-      . $locale->text('button') . qq|></td></td>
-     |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig,     "3",
-                          "invdate",      "BL",
-                          "trigger1",     "duedate",
-                          "BL",           "trigger2",
-                          "deliverydate", "BL",
-                          "trigger3");
+  if ($form->{type} eq "credit_note") {
+    if ($form->{jsscript}) {
+  
+      # with JavaScript Calendar
+      $button1 = qq|
+        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
+        <td><input type=button name=invdate id="trigger1" value=|
+        . $locale->text('button') . qq|></td>
+        |;
+  
+      #write Trigger
+      $jsscript =
+        Form->write_trigger(\%myconfig,     "1",
+                            "invdate",      "BL",
+                            "trigger1");
+    } else {
+  
+      # without JavaScript Calendar
+      $button1 =
+        qq|<td><input name=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>|;
+      $button2 =
+        qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
+    }
   } else {
-
-    # without JavaScript Calendar
-    $button1 =
-      qq|<td><input name=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>|;
-    $button2 =
-      qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
+    if ($form->{jsscript}) {
+  
+      # with JavaScript Calendar
+      $button1 = qq|
+        <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
+        <td><input type=button name=invdate id="trigger1" value=|
+        . $locale->text('button') . qq|></td>
+        |;
+      $button2 = qq|
+        <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
+        <td width="4"><input type=button name=duedate id="trigger2" value=|
+        . $locale->text('button') . qq|></td></td>
+      |;
+      $button3 = qq|
+        <td width="13"><input name=deliverydate id=deliverydate size=11 title="$myconfig{dateformat}" value=$form->{deliverydate}></td>
+        <td width="4"><input type=button name=deliverydate id="trigger3" value=|
+        . $locale->text('button') . qq|></td></td>
+      |;
+  
+      #write Trigger
+      $jsscript =
+        Form->write_trigger(\%myconfig,     "3",
+                            "invdate",      "BL",
+                            "trigger1",     "duedate",
+                            "BL",           "trigger2",
+                            "deliverydate", "BL",
+                            "trigger3");
+    } else {
+  
+      # without JavaScript Calendar
+      $button1 =
+        qq|<td><input name=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>|;
+      $button2 =
+        qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
+    }
   }
   if ($form->{resubmit} && ($form->{format} eq "html")) {
     $onload =
@@ -364,10 +575,20 @@ sub form_header {
   } else {
     $onload = "fokus()";
   }
+
+  $credittext = $locale->text('Credit Limit exceeded!!!');
+  if ($creditwarning) {
+    $onload = qq|alert('$credittext')|;
+  }
+
   $form->header;
 
   print qq|
 <body onLoad="$onload">
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/delivery_customer_selection.js"></script>
+<script type="text/javascript" src="js/vendor_selection.js"></script>
+<script type="text/javascript" src="js/calculate_qty.js"></script>
 
 <form method=post name="invoice" action=$form->{script}>
 
@@ -398,6 +619,10 @@ sub form_header {
 
 <input type=hidden name=shipped value=$form->{shipped}>
 <input type=hidden name=lizenzen value=$lizenzen>
+<input type=hidden name=storno value=$form->{storno}>
+<input type=hidden name=storno_id value=$form->{storno_id}>
+
+
 
 <table width=100%>
   <tr class=listtop>
@@ -433,13 +658,16 @@ sub form_header {
 		    </tr>
 		  </table>
 		</td>
+                $shipto
 	      </tr>
 	      $business
+              $dunning
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Record in') . qq|</th>
-		<td colspan=3><select name=AR>$form->{selectAR}</select></td>
+		<td colspan=3><select name=AR style="width:280px;">$form->{selectAR}</select></td>
 		<input type=hidden name=selectAR value="$form->{selectAR}">
 	      </tr>
+              $taxzone
 	      $department
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Currency') . qq|</th>
@@ -457,8 +685,28 @@ sub form_header {
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Ship via') . qq|</th>
 		<td colspan=3><input name=shipvia size=35 value="$form->{shipvia}"></td>
-	      </tr>
-	    </table>
+	      </tr>|;
+#               <tr>
+#                 <td colspan=4>
+#                   <table>
+#                     <tr>
+#                       <td colspan=2>
+#                         <button type="button" onclick="delivery_customer_selection_window('delivery_customer_string','delivery_customer_id')">| . $locale->text('Choose Customer') . qq|</button>
+#                       </td>
+#                       <td colspan=2><input type=hidden name=delivery_customer_id value="$form->{delivery_customer_id}">
+#                       <input size=45 id=delivery_customer_string name=delivery_customer_string value="$form->{delivery_customer_string}"></td>
+#                     </tr>
+#                     <tr>
+#                       <td colspan=2>
+#                         <button type="button" onclick="vendor_selection_window('delivery_vendor_string','delivery_vendor_id')">| . $locale->text('Choose Vendor') . qq|</button>
+#                       </td>
+#                       <td colspan=2><input type=hidden name=delivery_vendor_id value="$form->{delivery_vendor_id}">
+#                       <input size=45 id=delivery_vendor_string name=delivery_vendor_string value="$form->{delivery_vendor_string}"></td>
+#                     </tr>
+#                   </table>
+#                 </td>
+#               </tr>
+print qq|	    </table>
 	  </td>
 	  <td align=right>
 	    <table>
@@ -467,8 +715,18 @@ sub form_header {
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
 		<input type=hidden name=selectemployee value="$form->{selectemployee}">
                 <td></td>
+	      </tr>|;
+if ($form->{type} eq "credit_note") {
+print qq|     <tr>
+		<th align=right nowrap>| . $locale->text('Credit Note Number') . qq|</th>
+		<td><input name=invnumber size=11 value="$form->{invnumber}"></td>
 	      </tr>
 	      <tr>
+		<th align=right>| . $locale->text('Credit Note Date') . qq|</th>
+                $button1
+	      </tr>|;
+} else {
+print qq|     <tr>
 		<th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
 		<td><input name=invnumber size=11 value="$form->{invnumber}"></td>
 	      </tr>
@@ -483,8 +741,9 @@ sub form_header {
 	      <tr>
 		<th align=right>| . $locale->text('Delivery Date') . qq|</th>
                 $button3
-	      </tr>
-	      <tr>
+	      </tr>|;
+}
+print qq|     <tr>
 		<th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
 		<td><input name=ordnumber size=11 value="$form->{ordnumber}"></td>
 	      </tr>
@@ -647,10 +906,13 @@ sub form_footer {
 	      <tr>
 		<th align=left>| . $locale->text('Notes') . qq|</th>
 		<th align=left>| . $locale->text('Internal Notes') . qq|</th>
+                <th align=right>| . $locale->text('Payment Terms') . qq|</th>
 	      </tr>
 	      <tr valign=top>
 		<td>$notes</td>
 		<td>$intnotes</td>
+                <td><select name=payment_id tabindex=24>$payment
+                </select></td>
 	      </tr>
 	    </table>
 	  </td>
@@ -697,6 +959,17 @@ sub form_footer {
 
     print $webdav_list;
   }
+if ($form->{type} eq "credit_note") {
+  print qq|
+  <tr>
+    <td>
+      <table width=100%>
+	<tr class=listheading>
+	  <th colspan=6 class=listheading>|
+    . $locale->text('Payments') . qq|</th>
+	</tr>
+|;
+} else {
   print qq|
   <tr>
     <td>
@@ -706,6 +979,7 @@ sub form_footer {
     . $locale->text('Incoming Payments') . qq|</th>
 	</tr>
 |;
+}
 
   if ($form->{currency} eq $form->{defaultcurrency}) {
     @column_index = qw(datepaid source memo paid AR_paid);
@@ -740,8 +1014,10 @@ sub form_footer {
 
     # format amounts
     $totalpaid += $form->{"paid_$i"};
-    $form->{"paid_$i"} =
-      $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    if ($form->{"paid_$i"}) {
+      $form->{"paid_$i"} =
+        $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    }
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 
@@ -812,24 +1088,28 @@ sub form_footer {
     <input class=submit type=submit name=action value="|
       . $locale->text('Print') . qq|">
     <input class=submit type=submit name=action value="|
-      . $locale->text('E-mail') . qq|">
+      . $locale->text('E-mail') . qq|">|;
+    print qq|<input class=submit type=submit name=action value="|
+      . $locale->text('Storno') . qq|">| unless ($form->{storno});
+    print qq|<input class=submit type=submit name=action value="|
+      . $locale->text('Post Payment') . qq|">
 |;
+  if ($form->{id} && !($form->{type} eq "credit_note")) {
+    print qq|
+    <input class=submit type=submit name=action value="|
+      . $locale->text('Credit Note') . qq|">
+|;
+  }
+    if ($form->{radier}) {
+    print qq|
+    <input class=submit type=submit name=action value="|
+      . $locale->text('Delete') . qq|">
+|;
+  }
 
-    if (!$form->{revtrans}) {
-      if (!$form->{locked}) {
-        print qq|
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Post') . qq|">
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Delete') . qq|">
-|;
-      }
-    }
 
     if ($invdate > $closedto) {
       print qq|
-      <input class=submit type=submit name=action value="|
-        . $locale->text('Post as new') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('Order') . qq|">
 |;
@@ -885,6 +1165,9 @@ sub update {
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
+
+  $form->{update} = 1;
+
   &check_name(customer);
 
   &check_project;
@@ -925,7 +1208,7 @@ sub update {
     $form->{creditremaining} += ($form->{oldinvtotal} - $form->{oldtotalpaid});
     &check_form;
 
-      } else {
+  } else {
 
     IS->retrieve_item(\%myconfig, \%$form);
 
@@ -944,14 +1227,19 @@ sub update {
 
       } else {
 
-        $sellprice = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
+        $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
           qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
           keys %{ $form->{item_list}[0] };
+        if ($form->{"part_payment_id_$i"} ne "") {
+          $form->{payment_id} = $form->{"part_payment_id_$i"};
+        }
 
-        $form->{"discount_$i"} = $form->{discount} * 100;
+        if ($form->{"not_discountable_$i"}) {
+          $form->{"discount_$i"} = 0;
+        }
 
         $s = ($sellprice) ? $sellprice : $form->{"sellprice_$i"};
         ($dec) = ($s =~ /\.(\d+)/);
@@ -1034,6 +1322,36 @@ sub update {
   }
   $lxdebug->leave_sub();
 }
+sub post_payment {
+  $lxdebug->enter_sub();
+  for $i (1 .. $form->{paidaccounts}) {
+    if ($form->{"paid_$i"}) {
+      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+
+      $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
+
+      $form->error($locale->text('Cannot post payment for a closed period!'))
+        if ($datepaid <= $closedto);
+
+      if ($form->{currency} ne $form->{defaultcurrency}) {
+        $form->{"exchangerate_$i"} = $form->{exchangerate}
+          if ($invdate == $datepaid);
+        $form->isblank("exchangerate_$i",
+                       $locale->text('Exchangerate for payment missing!'));
+      }
+    }
+  }
+
+  ($form->{AR})      = split /--/, $form->{AR};
+  ($form->{AR_paid}) = split /--/, $form->{AR_paid};
+  relink_accounts();
+  $form->redirect($locale->text(' Payment posted!'))
+      if (IS->post_payment(\%myconfig, \%$form));
+    $form->error($locale->text('Cannot post payment!'));
+
+
+  $lxdebug->leave_sub();
+}
 
 sub post {
   $lxdebug->enter_sub();
@@ -1061,7 +1379,7 @@ sub post {
     if ($form->{currency} ne $form->{defaultcurrency});
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
@@ -1087,8 +1405,13 @@ sub post {
 
   # get new invnumber in sequence if no invnumber is given or if posasnew was requested
   if (!$form->{invnumber} || $form->{postasnew}) {
-    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
+    if ($form->{type} eq "credit_note") {
+      $form->{invnumber} = $form->update_defaults(\%myconfig, "cnnumber");
+    } else {
+      $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
+    }
   }
+  relink_accounts();
   if ($print_post) {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {
       $form->error($locale->text('Cannot post invoice!'));
@@ -1112,6 +1435,24 @@ sub print_and_post {
   &post();
 
   &edit();
+  $lxdebug->leave_sub();
+
+}
+
+sub storno {
+  $lxdebug->enter_sub();
+
+  if ($form->{storno}) {
+    $form->error($locale->text('Cannot storno storno invoice!'));
+  }
+
+  $form->{storno_id} = $form->{id};
+  $form->{storno} = 1;
+  $form->{id} = "";
+  $form->{invnumber} = "Storno zu " . $form->{invnumber};
+  $form->{rowcount}--;
+
+  &post();
   $lxdebug->leave_sub();
 
 }
@@ -1163,6 +1504,60 @@ sub delete {
     . $locale->text('Yes') . qq|">
 </form>
 |;
+
+  $lxdebug->leave_sub();
+}
+
+sub credit_note {
+  $lxdebug->enter_sub();
+
+  $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
+  $form->{duedate} =
+    $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+
+  $form->{id}     = '';
+  $form->{rowcount}--;
+  $form->{shipto} = 1;
+
+
+  $form->{title}  = $locale->text('Add Credit Note');
+  $form->{script} = 'is.pl';
+  $script         = "is";
+  $buysell        = 'buy';
+  
+
+  # bo creates the id, reset it
+  map { delete $form->{$_} }
+    qw(id invnumber subject message cc bcc printed emailed queued);
+  $form->{ $form->{vc} } =~ s/--.*//g;
+  $form->{type} = "credit_note";
+
+
+  map { $form->{"select$_"} = "" } ($form->{vc}, currency);
+
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
+    qw(creditlimit creditremaining);
+
+  $currency = $form->{currency};
+  &invoice_links;
+
+  $form->{currency}     = $currency;
+  $form->{exchangerate} = "";
+  $form->{forex}        = "";
+  $form->{exchangerate} = $exchangerate
+    if (
+        $form->{forex} = (
+                    $exchangerate =
+                      $form->check_exchangerate(
+                      \%myconfig, $form->{currency}, $form->{invdate}, $buysell
+                      )));
+
+  $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
+
+  &prepare_invoice;
+
+
+  &display_form;
 
   $lxdebug->leave_sub();
 }

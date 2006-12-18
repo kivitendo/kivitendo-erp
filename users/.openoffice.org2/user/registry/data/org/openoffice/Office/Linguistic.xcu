@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" oor:name="Linguistic" oor:package="org.openoffice.Office">
+ <node oor:name="General">
+  <prop oor:name="DefaultLocale" oor:type="xs:string">
+   <value>en-US</value>
+  </prop>
+ </node>
+ <node oor:name="ServiceManager">
+  <prop oor:name="DataFilesChangedCheckValue" oor:type="xs:int">
+   <value>-411764226</value>
+  </prop>
+  <node oor:name="HyphenatorList">
+   <prop oor:name="de-AT" oor:op="replace" oor:type="xs:string">
+    <value>org.openoffice.lingu.LibHnjHyphenator</value>
+   </prop>
+   <prop oor:name="de-CH" oor:op="replace" oor:type="xs:string">
+    <value>org.openoffice.lingu.LibHnjHyphenator</value>
+   </prop>
+   <prop oor:name="de-DE" oor:op="replace" oor:type="xs:string">
+    <value>org.openoffice.lingu.LibHnjHyphenator</value>
+   </prop>
+  </node>
+  <node oor:name="LastFoundHyphenators">
+   <prop oor:name="de-AT" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.LibHnjHyphenator</value>
+   </prop>
+   <prop oor:name="de-CH" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.LibHnjHyphenator</value>
+   </prop>
+   <prop oor:name="de-DE" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.LibHnjHyphenator</value>
+   </prop>
+  </node>
+  <node oor:name="LastFoundSpellCheckers">
+   <prop oor:name="de-AT" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="de-CH" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="de-DE" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="en-GB" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="en-US" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+  </node>
+  <node oor:name="LastFoundThesauri">
+   <prop oor:name="de-AT" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="de-CH" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="de-DE" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="en-GB" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="en-US" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+  </node>
+  <node oor:name="SpellCheckerList">
+   <prop oor:name="de-AT" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="de-CH" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="de-DE" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="en-GB" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+   <prop oor:name="en-US" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.MySpellSpellChecker</value>
+   </prop>
+  </node>
+  <node oor:name="ThesaurusList">
+   <prop oor:name="de-AT" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="de-CH" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="de-DE" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="en-GB" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+   <prop oor:name="en-US" oor:op="replace" oor:type="oor:string-list">
+    <value>org.openoffice.lingu.new.Thesaurus</value>
+   </prop>
+  </node>
+ </node>
+ <node oor:name="TextConversion">
+  <prop oor:name="IsDirectionToSimplified" oor:type="xs:boolean">
+   <value>true</value>
+  </prop>
+ </node>
+</oor:component-data>

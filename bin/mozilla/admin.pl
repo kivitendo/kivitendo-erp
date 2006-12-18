@@ -38,6 +38,7 @@ use SL::Form;
 use SL::User;
 
 $form = new Form;
+$form->{"root"} = "root login";
 
 $locale = new Locale $language, "admin";
 
@@ -54,6 +55,7 @@ $form->{stylesheet} = "lx-office-erp.css";
 $form->{favicon}    = "favicon.ico";
 
 if ($form->{action}) {
+
 
   $subroutine = $locale->findsub($form->{action});
 
@@ -123,7 +125,6 @@ sub adminlogin {
     . $locale->text('Login') . qq|"></td>
   </tr>
 <input type=hidden name=action value=login>
-<input type=hidden name=root value="root login">
 <input type=hidden name=path value=$form->{path}>
 </table>
 
@@ -163,6 +164,10 @@ sub add_user {
   }
   $myconfig->{vclimit} = 200;
 
+  $myconfig->{"countrycode"} = "de";
+  $myconfig->{"numberformat"} = "1000,00";
+  $myconfig->{"dateformat"} = "dd.mm.yy";
+
   &form_header;
   &form_footer;
 
@@ -192,8 +197,7 @@ sub form_footer {
 
   print qq|
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$form->{rpw}">
-<input type=hidden name=root value="$form->{root}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
@@ -235,7 +239,7 @@ sub list_users {
 
     if (/^(name=|company=|templates=|dbuser=|dbdriver=|dbname=|dbhost=)/) {
       chop($var = $&);
-      ($null, $member{$login}{$var}) = split /=/, $_, 2;
+      ($null, $member{$login}{$var}) = split(/=/, $_, 2);
     }
   }
 
@@ -289,7 +293,7 @@ sub list_users {
 
   foreach $key (sort keys %member) {
     $href =
-      "$script?action=edit&login=$key&path=$form->{path}&root=$form->{root}&rpw=$form->{rpw}";
+      "$script?action=edit&login=$key&path=$form->{path}&rpw=$form->{rpw}";
     $href =~ s/ /%20/g;
 
     $member{$key}{templates} =~ s/^$templates\///;
@@ -298,7 +302,7 @@ sub list_users {
     $member{$key}{dbname} = $member{$key}{dbuser}
       if ($member{$key}{dbdriver} eq 'Oracle');
 
-    $column_data{login}     = qq|<td><a href=$href>$key</a></td>|;
+    $column_data{login}     = qq|<td><a id="$key" href="$href">$key</a></td>|;
     $column_data{name}      = qq|<td>$member{$key}{name}</td>|;
     $column_data{company}   = qq|<td>$member{$key}{company}</td>|;
     $column_data{dbdriver}  = qq|<td>$member{$key}{dbdriver}</td>|;
@@ -309,7 +313,7 @@ sub list_users {
     $i++;
     $i %= 2;
     print qq|
-        <tr class=listrow$i>|;
+        <tr class="listrow$i">|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -328,7 +332,6 @@ sub list_users {
 
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
-<input type=hidden name=root value="$form->{root}">
 
 <br><input type=submit class=submit name=action value="|
     . $locale->text('Add User') . qq|">
@@ -441,7 +444,8 @@ sub form_header {
   closedir TEMPLATEDIR;
 
   @allhtml = sort grep /\.html/, @all;
-  @alldir = grep !/\.(html|tex)$/, @all;
+  @alldir = grep !/\.(html|tex|sty|odt)$/, @all;
+  @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
   push @allhtml, 'Default';
@@ -462,7 +466,8 @@ sub form_header {
     $item =~ s/-.*//g;
 
     if ($item ne $lastitem) {
-      $mastertemplates .= qq|<option>$item\n|;
+      my $selected = $item eq "German" ? " selected" : "";
+      $mastertemplates .= qq|<option$selected>$item\n|;
       $lastitem = $item;
     }
   }
@@ -723,7 +728,7 @@ sub form_header {
   </tr>
 |;
 
-  foreach $item (split /;/, $myconfig->{acs}) {
+  foreach $item (split(/;/, $myconfig->{acs})) {
     ($key, $value) = split /--/, $item, 2;
     $excl{$key}{$value} = 1;
   }
@@ -858,7 +863,7 @@ sub save {
   $myconfig = new User "$memberfile", "$form->{login}";
 
   # redo acs variable and delete all the acs codes
-  @acs = split /;/, $form->{acs};
+  @acs = split(/;/, $form->{acs});
 
   $form->{acs} = "";
   foreach $item (@acs) {
@@ -964,7 +969,7 @@ sub save {
 
       # copy templates to the directory
       opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $!");
-      @templates = grep /$form->{mastertemplates}.*?\.(html|tex)$/,
+      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
@@ -1065,6 +1070,7 @@ sub delete {
     if (-d "$dir") {
       unlink <$dir/*.html>;
       unlink <$dir/*.tex>;
+      unlink <$dir/*.sty>;
       rmdir "$dir";
     }
   }
@@ -1115,11 +1121,17 @@ sub change_admin_password {
 
 <form method=post action=$form->{script}>
 
-<b>|
-    . $locale->text('Password')
-    . qq|</b> <input type=password name=password size=8>
+<table>
+  <tr>
+    <td><b>| . $locale->text('Password') . qq|</b></td>
+    <td><input type=password name=password size=8></td>
+  </tr>
+  <tr>
+    <td><b>| . $locale->text('Repeat the password') . qq|</b></td>
+    <td><input type=password name=password_again size=8></b></td>
+  </tr>
+</table>
 
-<input type=hidden name=root value="$form->{root}">
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
@@ -1136,6 +1148,24 @@ sub change_admin_password {
 }
 
 sub change_password {
+  if ($form->{"password"} ne $form->{"password_again"}) {
+    $form->{title} =
+      qq|Lx-Office ERP |
+      . $locale->text('Administration') . " / "
+      . $locale->text('Change Admin Password');
+
+    $form->header;
+
+    print qq|
+<body class=admin>
+
+
+<h2>| . $locale->text('Change Admin Password') . qq|</h2>
+
+<p>| . $locale->text("The passwords do not match.") . qq|<br>
+<input type="button" onclick="history.back()" value="| . $locale->text("Back") . qq|">|;
+    return;
+  }
 
   $root->{password} = $form->{password};
 
@@ -1143,20 +1173,17 @@ sub change_password {
   $root->save_member($memberfile);
 
   $form->{callback} =
-    "$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$root->{password}";
+    "$form->{script}?action=list_users&path=$form->{path}&rpw=$root->{password}";
 
   $form->redirect($locale->text('Password changed!'));
 
 }
 
 sub check_password {
-
   $root = new User "$memberfile", $form->{root};
 
-  if ($root->{password}) {
-    if ($root->{password} ne $form->{rpw}) {
-      $form->error($locale->text('Incorrect Password!'));
-    }
+  if (!defined($root->{password}) || ($root->{password} ne $form->{rpw})) {
+    $form->error($locale->text('Incorrect Password!'));
   }
 
 }
@@ -1267,18 +1294,18 @@ sub dbselect_source {
 </td></tr>
 </table>
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$form->{rpw}">
-<input type=hidden name=root value="$form->{root}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <br>
 
 <input type=submit class=submit name=action value="|
-    . $locale->text('Create Dataset') . qq|">
-<input type=submit class=submit name=action value="|
-    . $locale->text('Update Dataset') . qq|">
-<input type=submit class=submit name=action value="|
+    . $locale->text('Create Dataset') . qq|">|;
+# Vorübergehend Deaktiviert
+# <input type=submit class=submit name=action value="|
+#     . $locale->text('Update Dataset') . qq|">
+print qq| <input type=submit class=submit name=action value="|
     . $locale->text('Delete Dataset') . qq|">
 
 </form>
@@ -1325,11 +1352,12 @@ sub update_dataset {
 <center>
 <h2>$form->{title}</h2>
 |;
-
+  my $field_id = 0;
   foreach $key (sort keys %needsupdate) {
     if ($needsupdate{$key} ne $form->{dbversion}) {
-      $upd .= qq|<input name="db$key" type=checkbox value=1 checked> $key\n|;
+      $upd .= qq|<input id="$field_id" name="db$key" type="checkbox" value="1" checked> $key\n|;
       $form->{dbupdate} .= "db$key ";
+      $field_id++;
     }
   }
 
@@ -1363,9 +1391,8 @@ $upd
 
 <input name=dbupdate type=hidden value="$form->{dbupdate}">
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$form->{rpw}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 
-<input type=hidden name=root value="$form->{root}">
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
@@ -1397,10 +1424,29 @@ $upd
 }
 
 sub dbupdate {
+  $form->{"stylesheet"} = "lx-office-erp.css";
+  $form->{"title"} = $main::locale->text("Dataset upgrade");
+  $form->header();
+  my $dbname =
+    join(" ",
+         map({ s/\s//g; s/^db//; $_; }
+             grep({ $form->{$_} }
+                  split(/\s+/, $form->{"dbupdate"}))));
+  print($form->parse_html_template("dbupgrade/header",
+                                   { "dbname" => $dbname }));
 
   User->dbupdate(\%$form);
 
-  $form->redirect($locale->text('Dataset updated!'));
+  print qq|
+<hr>
+
+| . $locale->text('Dataset updated!') . qq|
+
+<br>
+
+<a id="enddatasetupdate" href="admin.pl?action=login&| .
+join("&", map({ "$_=" . $form->escape($form->{$_}); } qw(path rpw))) .
+qq|">| . $locale->text("Continue") . qq|</a>|;
 
 }
 
@@ -1496,9 +1542,8 @@ sub create_dataset {
 <input type=hidden name=dbpasswd value=$form->{dbpasswd}>
 <input type=hidden name=dbdefault value=$form->{dbdefault}>
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$form->{rpw}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 
-<input type=hidden name=root value="$form->{root}">
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
@@ -1550,7 +1595,6 @@ sub dbcreate {
 
     . qq|
 
-<input type=hidden name=root value="$form->{root}">
 <input type=hidden name=path value="$form->{path}">
 <input type=hidden name=rpw value="$form->{rpw}">
 
@@ -1614,9 +1658,8 @@ sub delete_dataset {
 <input type=hidden name=dbpasswd value=$form->{dbpasswd}>
 <input type=hidden name=dbdefault value=$form->{dbdefault}>
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$form->{rpw}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 
-<input type=hidden name=root value="$form->{root}">
 <input type=hidden name=path value="$form->{path}">
 <input type=hidden name=rpw value="$form->{rpw}">
 
@@ -1667,7 +1710,6 @@ $form->{db} | . $locale->text('successfully deleted!')
 
     . qq|
 
-<input type=hidden name=root value="$form->{root}">
 <input type=hidden name=path value="$form->{path}">
 <input type=hidden name=rpw value="$form->{rpw}">
 
@@ -1689,7 +1731,7 @@ sub unlock_system {
   unlink "$userspath/nologin";
 
   $form->{callback} =
-    "$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$root->{password}";
+    "$form->{script}?action=list_users&path=$form->{path}&rpw=$root->{password}";
 
   $form->redirect($locale->text('Lockfile removed!'));
 
@@ -1702,7 +1744,7 @@ sub lock_system {
   close(FH);
 
   $form->{callback} =
-    "$form->{script}?action=list_users&path=$form->{path}&root=$form->{root}&rpw=$root->{password}";
+    "$form->{script}?action=list_users&path=$form->{path}&rpw=$root->{password}";
 
   $form->redirect($locale->text('Lockfile created!'));
 

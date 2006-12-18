@@ -69,7 +69,7 @@ sub menuitem {
   my $level = $form->escape($item);
 
   my $str =
-    qq|<a href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+    qq|<a style="vertical-align:top" href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
 
   my @vars = qw(module action target href);
 
@@ -138,7 +138,7 @@ sub menuitemNew {
 }
 
 sub access_control {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $menulevel) = @_;
 
@@ -161,9 +161,22 @@ sub access_control {
   @a = ();
   map { push @a, $_ unless $excl{$_} } (@menu);
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return @a;
+}
+
+sub generate_acl {
+  my ($self, $menulevel, $hash) = @_;
+
+  my @items = $self->access_control(\%main::myconfig, $menulevel);
+
+  $menulevel =~ s/[^A-Za-z_\/\.\+\-]/_/g;
+  $hash->{"access_" . lc($menulevel)} = 1 if ($menulevel);
+
+  foreach my $item (@items) {
+    $self->generate_acl($item, $hash); #unless ($menulevel);
+  }
 }
 
 1;

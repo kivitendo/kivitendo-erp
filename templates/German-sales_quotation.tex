@@ -1,127 +1,95 @@
-\documentclass{scrartcl}
-\usepackage[latin1]{inputenc}
-\usepackage[frame]{xy}
+\documentclass[twoside]{scrartcl}
+\usepackage{eurosym}
 \usepackage{tabularx}
-\setlength{\voffset}{0cm}
-\setlength{\hoffset}{-2.5cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.5cm}
-\setlength{\headsep}{0.5cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{2cm}
-\setlength{\evensidemargin}{2cm}
-\setlength{\textwidth}{16,4cm}
-\setlength{\textheight}{23.5cm}
-\setlength{\footskip}{0.5cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
+\usepackage[latin1]{inputenc}
 \begin{document}
 
-\newlength{\descrwidth}\setlength{\descrwidth}{8.75cm}
+\thispagestyle{empty}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+\setlength{\parindent}{0cm}
 
 \fontfamily{cmss}\fontshape{n}\selectfont
 
-\parbox{\textwidth}{
-  \parbox[b]{.42\textwidth}{
-    <%company%>
-
-    <%address%>
-  }
-  \hfill
-  \begin{tabular}[b]{rr@{}}
-  Tel & <%tel%>\\
-  Fax & <%fax%>
-  \end{tabular}
-
-  \rule[1.5ex]{\textwidth}{0.5pt}
-}
-
-
-<%pagebreak 50 30 52%>
-  \multicolumn{5}{l}{\rule{\linewidth}{2pt}}\\
-  \multicolumn{4}{r}{Zwischensumme:} & <%sumcarriedforward%>
-\end{tabular}
+<%pagebreak 80 28 37%>
+\end{tabularx}
 
 \newpage
 
-\vspace*{-12pt}
-%\newlength{\dlpos}\settowidth{\dlpos}{\textbf{Pos.}}
-%\newlength{\dlanz}\settowidth{\dlanz}{\textbf{Anzahl}}
-%\newlength{\dlein}\settowidth{\dlein}{\textbf{Einzelpreis}}
-%\newlength{\dlpre}\settowidth{\dlpre}{\textbf{Preis in Euro}}
-
-\begin{tabular}{lp{\descrwidth}rrr}
-  \textbf{Pos.} & \textbf{Beschreibung} & \textbf{Anzahl} &
-    \textbf{Einzelpreis} & \textbf{Preis in Euro} \\
-%  \hspace*{\dlpos} & & \hspace*{\dlanz} &
-%    \hspace*{\dlein} & \hspace*{\dlpre}\\
-%  & \textbf{\"Ubertrag von Seite <%lastpage%>} & & &
-%    \textbf{<%sumcarriedforward%>}\\
-  & \"Ubertrag von Seite <%lastpage%> & & & <%sumcarriedforward%>\\
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    <%sellprice%> & <%linetotal%>\\
+  <%end number%>
 <%end pagebreak%>
 
-\pagestyle{myheadings}
-\thispagestyle{empty}
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
+\vspace*{1.5cm}
 
+\begin{minipage}{8cm}
+  <%name%>
 
-\vspace*{1.6cm}
+  <%street%>
 
-<%name%>
+  <%zipcode%> <%city%>
 
-<%street%>
-
-<%zipcode%> <%city%>
-
-<%addr4%>
-\vspace{1.5cm}
-
-\textbf{A N G E B O T}
+  <%country%>
+\end{minipage}
 \hfill
-\begin{tabular}[t]{l@{\hspace{0,3cm}}l}
-  \textbf{Angebotsdatum} & <%quodate%>\\
-  \textbf{Angebotsnummer} & <%quonumber%>\\
-  \textbf{Kundennummer} & <%customer_id%>
-\end{tabular}
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Angebot}}}
+  \rightline{\large\textbf{\textit{Nr. <%quonumber%>%
+  }}}
 
-\vspace{1cm}
+  Datum:\hfill <%transdate%>
 
-\begin{tabular}{lp{\descrwidth}rrr}
-  \textbf{Pos.} & \textbf{Beschreibung} & \textbf{Anzahl} &
-    \textbf{Einzelpreis} & \textbf{Preis in Euro} \\
-<%foreach number%>
-  <%runningnumber%> & <%description%> & <%qty%> & <%sellprice%> &
-    <%linetotal%>\\
-<%end number%>
-\end{tabular}
+  Kunden-Nr:\hfill <%customernumber%>
 
-\parbox{\linewidth}{%
-\rule{\linewidth}{2pt}
+  Telefon:\hfill <%phone%>
 
-\vspace{0,2cm}
+  Telefax:\hfill <%fax%>
 
-Das Angebot ist gültig bis <%reqdate%>
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
 
 \hfill
-\begin{tabularx}{7cm}{Xr}
-  \textbf{Nettobetrag} & \textbf{<%subtotal%>} \\
-<%foreach tax%>
-  MwSt. 16\% & <%tax%>\\\hline
-<%end tax%>
-  \textbf{Gesamtbetrag in Euro} & \textbf{<%ordtotal%>}
+
+\vspace{0.5cm}
+
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    <%sellprice%> \euro & <%linetotal%> \euro \\
+  <%end number%> \hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\
+  <%foreach tax%>
+  \multicolumn{4}{l}{<%taxdescription%>} & <%tax%> \euro \\
+  <%end tax%>
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%ordtotal%> \euro }
 \end{tabularx}
+\hrule
 
-\vspace{12pt}
+\vspace{0.2cm}
 
-Wir danken für Ihre Anfrage und hoffen, Ihnen hiermit ein interessantes Angebot
-gemacht zu haben. Sollten Sie noch Fragen oder Änderungswünsche haben,
-können Sie uns gerne jederzeit unter den oben genannten Telefonnummern kontaktieren.
+Wir danken für Ihre Anfrage und hoffen, Ihnen hiermit ein interessantes Angebot gemacht zu haben. Das Angebot ist
+  gültig bis zum <%reqdate%>. Sollten Sie noch Fragen oder Änderungswünsche haben, können Sie uns gerne jederzeit
+  unter den oben genannten Telefonnummern oder eMail-Adressen kontaktieren. \\
+  Bei der Durchführung des Auftrags gelten unsere AGB, die wir Ihnen gerne zuschicken. \\ \\
+  Mit freundlichen Grüßen, \\ \\ \\
+  <%employee_name%>
 
-Bei der Durchführung des Auftrags gelten unsere AGB, die wir Ihnen gerne
-zuschicken.
 
-
-}
 
 \end{document}
+

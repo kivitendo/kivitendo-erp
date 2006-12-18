@@ -1,0 +1,62 @@
+\documentclass[10pt, oneside]{scrartcl}
+\usepackage[latin1]{inputenc}
+\usepackage{german}
+\usepackage{tabularx}
+\usepackage{xspace}
+\usepackage{ifthen}
+\usepackage{eso-pic}
+\usepackage{longtable}
+\usepackage{eurosym}
+
+\setlength{\voffset}{-0.3cm}
+\setlength{\hoffset}{-2.2cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{2cm}
+%\setlength{\evensidemargin}{2cm}
+\setlength{\textwidth}{16.4cm}
+% \setlength{\textwidth}{13.4cm}
+\setlength{\textheight}{23.5cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0cm}
+
+\renewcommand{\baselinestretch}{1}
+
+\begin{document}
+\pagestyle{empty}
+\fontfamily{cmss}\fontsize{10pt}{10pt}\fontseries{m}\selectfont
+
+% \vspace*{5cm}
+
+<%name%>
+
+% \ifthenelse{\equal{<%cp_name%>}{}}{}{z.Hd. <%cp_name%>}
+
+<%street%>
+
+<%zipcode%> <%city%>
+
+\begin{flushright}<%dunning_date%>\end{flushright}
+
+\vspace*{2.5cm} %\\
+\large
+\textbf{Zahlungserinnerung} \\ \\ \\
+\normalsize
+Sehr geehrte Damen und Herren, \\ \\ \\
+man kann seine Augen nicht überall haben - offensichtlich haben Sie übersehen, die folgenden Rechnungen zu begleichen: \\
+\vspace{0.5cm} \\
+\begin{tabularx}{\textwidth}{l@{\hspace*{2cm}}X@{\hspace*{0.5cm}}r}
+  \textbf{Rechnungsnummer} & \textbf{Rechnungsdatum} & \textbf{Rechnungsbetrag} \\ \hline && \\
+  <%foreach dn_invnumber%>
+    <%dn_invnumber%> & <%dn_transdate%> & <%dn_amount%> \euro \\[0.1cm]
+  <%end dn_invnumber%>
+\end{tabularx}
+\vspace*{0.5cm} \\
+Wir bitten Sie, diese bis zum <%dunning_duedate%> zu begleichen. \\ \\ \\
+Bitte beachten Sie, dass wir Zahlungseingänge nur bis zum <%dunning_date%> berücksichtigen konnten. Sollten Sie zwischenzeitlich bezahlt haben, betrachten Sie diese Zahlungserinnerung bitte als gegenstandslos. \\ \\ \\
+Mit freundlichen Grüßen, \\ \\ \\ \\
+<%employee_name%>
+\end{document}

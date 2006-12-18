@@ -1,0 +1,13 @@
+$self->{texts} = {
+  'Database update error:'      => 'Fehler beim Datenbankupgrade:',
+};
+
+$self->{subs} = {
+  'mydberror'                   => 'mydberror',
+  'myshowerror'                 => 'myshowerror',
+  'update_steuersaetze'         => 'update_steuersaetze',
+  'update_steuersaetze_skr03'   => 'update_steuersaetze_skr03',
+  'update_steuersaetze_skr04'   => 'update_steuersaetze_skr04',
+};
+
+1;

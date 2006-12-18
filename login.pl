@@ -97,9 +97,6 @@ Invalid path!\n";
         $form{terminal} = "mozilla";
       }
 
-      if ($ENV{HTTP_USER_AGENT} =~ /lynx/i) {
-        $form{terminal} = "lynx";
-      }
     } else {
       if ($ENV{TERM} =~ /xterm/) {
         $form{terminal} = "xterm";

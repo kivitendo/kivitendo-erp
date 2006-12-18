@@ -1,0 +1,15 @@
+$self->{texts} = {
+  'Database update error:'      => 'Fehler beim Datenbankupgrade:',
+};
+
+$self->{subs} = {
+  'create_standard_buchungsgruppen' => 'create_standard_buchungsgruppen',
+  'create_standard_buchungsgruppen_skr03' => 'create_standard_buchungsgruppen_skr03',
+  'create_standard_buchungsgruppen_skr04' => 'create_standard_buchungsgruppen_skr04',
+  'fix_skr03'                   => 'fix_skr03',
+  'fix_skr04'                   => 'fix_skr04',
+  'mydberror'                   => 'mydberror',
+  'myshowerror'                 => 'myshowerror',
+};
+
+1;

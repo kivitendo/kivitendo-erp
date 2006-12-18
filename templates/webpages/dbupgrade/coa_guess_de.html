@@ -1,0 +1,27 @@
+<div class="listtop">Benutzten Kontenrahmen ausw&auml;hlen</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ <TMPL_IF saved_message>
+  <p><TMPL_VAR saved_message></p>
+ </TMPL_IF>
+
+ <p>
+  Bitte w&auml;hlen Sie den Kontenrahmen aus, der bei dieser Installation verwendet wird.
+ </p>
+
+ <p>
+  Kontenrahmen:
+  <select name="coa"><TMPL_LOOP COAS><option><TMPL_VAR name></option></TMPL_LOOP></select>
+ </p>
+
+ <input type="submit" onclick="document.Form.action2.value = 'set_coa'; document.Form.submit();" name="dummy" value="Weiter">
+
+</form>
+

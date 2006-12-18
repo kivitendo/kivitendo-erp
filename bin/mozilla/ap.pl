@@ -112,7 +112,7 @@ sub create_links {
   $duedate     = $form->{duedate};
 
   IR->get_vendor(\%myconfig, \%$form);
-
+  $form->{taxincluded} = $taxincluded;
   $form->{duedate}   = $duedate if $duedate;
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
   $form->{rowcount}  = 1;
@@ -122,14 +122,14 @@ sub create_links {
 
   map {
     $tax .=
-      qq|<option value=\"$_->{taxkey}--$_->{rate}\">$_->{taxdescription}  |
+      qq|<option value=\"$_->{id}--$_->{rate}\">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
   $form->{taxchart}       = $tax;
   $form->{selecttaxchart} = $tax;
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
 
@@ -166,7 +166,7 @@ sub create_links {
           "<option value=\"$ref->{accno}\">$ref->{accno}--$ref->{description}</option>\n";
       } else {
         $form->{"select$key"} .=
-          "<option value=\"$ref->{accno}--$ref->{taxkey}\">$ref->{accno}--$ref->{description}</option>\n";
+          "<option value=\"$ref->{accno}--$ref->{tax_id}\">$ref->{accno}--$ref->{description}</option>\n";
       }
     }
 
@@ -246,7 +246,7 @@ sub create_links {
           if ($akey eq 'amount') {
             $form->{"taxchart_$k"} = $form->{taxchart};
             $form->{"taxchart_$k"} =~
-              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{taxkey}--[^\"]*)/;
+              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{id}--[^\"]*)/;
             $form->{"taxchart_$k"} = $1;
           }
         }
@@ -296,7 +296,7 @@ sub form_header {
   <!--
   function setTaxkey(accno, row) {
     var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9])*/;
+    var reg = /--([0-9]*)/;
     var found = reg.exec(taxkey);
     var index = found[1];
     index = parseInt(index);
@@ -547,12 +547,14 @@ $jsscript
     $tax =
       qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px">$tax</select></td>|;
 
+    my $korrektur = $form->{"korrektur_$i"} ? 'checked' : '';
+
     print qq|
 	<tr>
           <td width=50%><select name="AP_amount_$i" onChange="setTaxkey(this, $i)" style="width:100%">$selectAP_amount</select></td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
-          <td><input type="checkbox" name="korrektur_$i" value="1"></td>
+          <td><input type="checkbox" name="korrektur_$i" value="1" "$korrektur"></td>
           $tax
 	  <td><input name="projectnumber_$i" size=20 value="$form->{"projectnumber_$i"}">
 	      <input type=hidden name="project_id_$i" value=$form->{"project_id_$i"}>
@@ -643,8 +645,10 @@ $jsscript
       s/option value=\"$form->{"AP_paid_$i"}\">/option value=\"$form->{"AP_paid_$i"}\" selected>/;
 
     # format amounts
-    $form->{"paid_$i"} =
+    if ($form->{"paid_$i"}) {
+      $form->{"paid_$i"} =
       $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    }
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 
@@ -719,17 +723,13 @@ sub form_footer {
 
     #     print qq|<input class=submit type=submit name=action value="|.$locale->text('Update').qq|">
     # |;
-
-    if (!$form->{revtrans}) {
-      if (!$form->{locked}) {
         print qq|
 	<input class=submit type=submit name=action value="|
           . $locale->text('Post') . qq|">
 	<input class=submit type=submit name=action value="|
           . $locale->text('Delete') . qq|">
 |;
-      }
-    }
+
 
     if ($transdate > $closedto) {
       print qq|
@@ -844,7 +844,7 @@ sub update {
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       map {
         $form->{"${_}_$i"} =
           $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
@@ -892,7 +892,7 @@ sub post {
   delete($form->{AP});
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));

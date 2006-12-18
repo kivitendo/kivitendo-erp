@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Account'                     => 'Konto',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Are you sure you want to remove the marked entries from the queue?' => 'Sind Sie sicher, dass die markierten Einträge von der Warteschlange gelöscht werden sollen?',
@@ -39,7 +39,7 @@ $self{texts} = {
   'done'                        => 'erledigt',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'continue'                    => 'continue',
   'display'                     => 'display',

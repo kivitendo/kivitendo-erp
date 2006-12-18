@@ -141,6 +141,7 @@ sub all_transactions {
   if ($form->{todate}) {
     $fromto   .= " AND ac.transdate <= '$form->{todate}'";
     $subwhere .= " AND transdate <= '$form->{todate}'";
+    $glwhere .= " AND ac.transdate <= '$form->{todate}'";
   }
 
   if ($form->{eur}) {

@@ -443,12 +443,12 @@ sub form_footer {
   $media = qq|
           <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
 
-  if ($myconfig{printer} && $latex) {
+  if ($myconfig{printer} && $latex_templates) {
     $media .= qq|
           <option value=printer $form->{OP}{printer}>|
       . $locale->text('Printer');
   }
-  if ($latex) {
+  if ($latex_templates) {
     $media .= qq|
           <option value=queue $form->{OP}{queue}>| . $locale->text('Queue');
     $format .= qq|
@@ -474,7 +474,7 @@ sub form_footer {
 <input class=submit type=submit name=action value="|
     . $locale->text('Post') . qq|">|;
 
-  if ($latex) {
+  if ($latex_templates) {
     print qq|
 <input class=submit type=submit name=action value="|
       . $locale->text('Print') . qq|">|;
@@ -603,7 +603,10 @@ sub update {
   }
 
   # recalculate
-  $amount = $form->{amount};
+
+  # Modified from $amount = $form->{amount} by J.Zach to update amount to total
+  # payment amount in Zahlungsausgang
+  $amount = 0;
   for $i (1 .. $form->{rowcount}) {
 
     map {
@@ -618,7 +621,9 @@ sub update {
         $form->{"paid_$i"} = $form->{"due_$i"};
       }
 
-      $amount -= $form->{"paid_$i"};
+      # Modified by J.Zach, see abovev
+      $amount += $form->{"paid_$i"}; 
+
     } else {
       $form->{"paid_$i"} = "";
     }
@@ -629,6 +634,9 @@ sub update {
     } qw(amount due paid);
 
   }
+
+  # Line added by J.Zach, see above
+  $form->{amount}=$amount; 
 
   &form_header;
   &list_invoices;
@@ -716,10 +724,6 @@ sub print {
   $form->{company} = $myconfig{company};
   $form->{address} = $myconfig{address};
 
-  @a =
-    qw(name invnumber company address text_amount street zipcode city country memo);
-  $form->format_string(@a);
-
   $form->parse_template(\%myconfig, $userspath);
 
   if ($form->{media} ne 'screen') {
@@ -758,7 +762,7 @@ sub check_form {
   $form->{amount} = $amount;
 
   for $i (1 .. $form->{rowcount}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $amount -= $form->parse_amount($myconfig, $form->{"paid_$i"});
 
       push(@{ $form->{paid} },      $form->{"paid_$i"});

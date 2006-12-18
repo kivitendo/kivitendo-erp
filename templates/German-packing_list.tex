@@ -1,117 +1,80 @@
 \documentclass[twoside]{scrartcl}
-\usepackage[frame]{xy}
 \usepackage{tabularx}
 \usepackage[latin1]{inputenc}
-\setlength{\voffset}{0.5cm}
-\setlength{\hoffset}{-2.0cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.5cm}
-\setlength{\headsep}{1cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{1.0cm}
-\setlength{\evensidemargin}{1.0cm}
-\setlength{\textwidth}{17cm}
-\setlength{\textheight}{24.5cm}
-\setlength{\footskip}{1cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
 \begin{document}
 
-\newlength{\descrwidth}\setlength{\descrwidth}{9cm}
+\thispagestyle{empty}
 
-\newsavebox{\hdr}
-\sbox{\hdr}{
-  \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
 
-  \parbox{\textwidth}{
-    \parbox[b]{12cm}{
-      <%company%>
-      
-      <%address%>}\hfill
-    \begin{tabular}[b]{rr@{}}
-    Telefon & <%tel%>\\
-    Telefax & <%fax%>
-    \end{tabular}
-
-    \rule[1.5ex]{\textwidth}{0.5pt}
-  }
-}
-    
 \fontfamily{cmss}\fontshape{n}\selectfont
 
-\markboth{<%company%>\hfill <%invnumber%>}{\usebox{\hdr}}
-
-\pagestyle{myheadings}
-%\thispagestyle{empty}     use this with letterhead paper
-
-<%pagebreak 90 27 48%>
-\end{tabular*}
+<%pagebreak 100 35 37%>
+\end{tabularx}
 
 \newpage
 
-\markright{<%company%>\hfill <%invnumber%>}
-
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rll@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Steige} \\
+\begin{tabularx}{\textwidth}{lXr}
+  \hline
+  \textbf{Pos} & \textbf{Bezeichnung} & \textbf{Liefermenge} \\
+  \hline
 <%end pagebreak%>
-
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
-\vspace*{2cm}
+\vspace*{1.5cm}
 
-<%shiptoname%>
+\begin{minipage}{8cm}
+  <%name%>
 
-<%shiptostreet%>
+  <%street%>
 
-<%shiptozipcode%>
+  <%zipcode%> <%city%>
 
-<%shiptocity%>
-
-<%shiptocountry%>
-
-\vspace{3.5cm}
-
-\textbf{L I E F E R S C H E I N}
-
+  <%country%>
+\end{minipage}
 \hfill
-\begin{tabular}[t]{l@{\hspace{0.3cm}}l}
-  \textbf{Datum} & <%invdate%> \\
-  \textbf{Nummer} & <%invnumber%> \\
-\end{tabular}
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Lieferschein}}}
+  \rightline{\large\textbf{\textit{Nr. <%invnumber%>%
+  }}}
 
-\vspace{1cm}
+  Datum:\hfill <%invdate%>
 
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rll@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Steige} \\
+  Auftrag-Nr:\hfill <%ordnumber%>
+
+  Kunden-Nr:\hfill <%customernumber%>
+
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
+
+Ihre Bestellung ex <%cusordnumber%> vom <%orddate%>
+\hfill
+
+\vspace*{0.5cm}
+
+\begin{tabularx}{\textwidth}{lXr}
+  \hline
+  \textbf{Pos} & \textbf{Bezeichnung} & \textbf{Liefermenge} \\
+  \hline
 <%foreach number%>
-  <%number%> & <%description%> & <%qty%> &
-    <%unit%> & <%bin%> \\
+  <%runningnumber%> & \raggedright <%description%> & <%qty%> <%unit%>\\
 <%end number%>
-\end{tabular*}
+\end{tabularx}
 
+\vspace{0.5cm}
 
-\parbox{\textwidth}{
-\rule{\textwidth}{2pt}
+Liefertermin: <%deliverydate%>
 
-\vspace{12pt}
+\vspace{0.5cm}
 
-<%if notes%>
-  <%notes%>
-<%end if%>
-
-}
-
-\renewcommand{\thefootnote}{\fnsymbol{footnote}}
-
-\footnotetext[1]{\tiny
-Beschädigte Waren und Waren ohne Rückgabenummer werden nicht
-entgegengenommen. Lagerkosten werden mit 10\% berrechnet.
-Waren müssen ausreichended verpackt und versichert sein.
+Oben angeführte Positionen vollständig und ohne Mängel erhalten:
+\vspace*{2.5cm} \\
+\parbox[t]{6cm}{
+  \underline{\hspace*{6cm}}\\
+  \centerline{\small Datum / Unterschrift}
 }
 
 \end{document}

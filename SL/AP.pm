@@ -76,6 +76,9 @@ sub post_transaction {
                            $form->{exchangerate} * -1,
                          2);
     $amount += ($form->{"amount_$i"} * -1);
+
+    # parse tax_$i for later
+    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"}) * -1;
   }
 
   # this is for ap
@@ -85,34 +88,42 @@ sub post_transaction {
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
 
   for $i (1 .. $form->{rowcount}) {
-    ($form->{"taxkey_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+   ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
 
-    $query =
-      qq| SELECT c.accno, t.rate FROM chart c, tax t where c.id=t.chart_id AND t.taxkey=$form->{"taxkey_$i"}|;
+    $query = qq|SELECT c.accno, t.taxkey, t.rate
+            FROM tax t LEFT JOIN chart c on (c.id=t.chart_id)
+            WHERE t.id=$form->{"tax_id_$i"}
+            ORDER BY c.accno|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxrate_$i"}) =
+    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) =
       $sth->fetchrow_array;
     $form->{AP_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
     $form->{AP_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
 
     $sth->finish;
-    if (!$form->{"korrektur_$i"}) {
-      if ($form->{taxincluded} *= 1) {
+    if ($form->{taxincluded} *= 1) {
+      if (!$form->{"korrektur_$i"}) {
         $tax =
           $form->{"amount_$i"} -
           ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
-        $amount = $form->{"amount_$i"} - $tax;
-        $form->{"amount_$i"} = $form->round_amount($amount, 2);
-        $diff += $amount - $form->{"amount_$i"};
-        $form->{"tax_$i"} = $form->round_amount($tax, 2);
-        $form->{netamount} += $form->{"amount_$i"};
       } else {
-        $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-        $form->{"tax_$i"} =
-          $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
-        $form->{netamount} += $form->{"amount_$i"};
+        $tax = $form->{"tax_$i"};
       }
+      $amount = $form->{"amount_$i"} - $tax;
+      $form->{"amount_$i"} = $form->round_amount($amount, 2);
+      $diff += $amount - $form->{"amount_$i"};
+      $form->{"tax_$i"} = $form->round_amount($tax, 2);
+      $form->{netamount} += $form->{"amount_$i"};
+    } else {
+      if (!$form->{"korrektur_$i"}) {
+        $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
+      } else {
+        $tax = $form->{"tax_$i"};
+      }
+      $form->{"tax_$i"} =
+        $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+      $form->{netamount} += $form->{"amount_$i"};
     }
     $form->{total_tax} += $form->{"tax_$i"} * -1;
   }

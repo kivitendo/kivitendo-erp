@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Account'                     => 'Konto',
   'Accounting Menu'             => 'Kontoverwaltung',
   'Balance'                     => 'Bilanz',
@@ -19,11 +19,11 @@ $self{texts} = {
   'Select all'                  => 'Alle auswählen',
   'Source'                      => 'Beleg',
   'Statement Balance'           => 'Sammelrechnungsbilanz',
-  'To'                          => 'An',
+  'Until'                       => 'Bis',
   'Update'                      => 'Erneuern',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'continue'                    => 'continue',
   'display'                     => 'display',

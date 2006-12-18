@@ -1,0 +1,62 @@
+<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+
+ <form name="Form">
+
+  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop"><TMPL_VAR NAME=title></th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr><td></td></tr>
+
+   <tr>
+    <td>
+
+     <table>
+      <tr class="listheading">
+       <th class="listheading">&nbsp;</th>
+       <TMPL_LOOP NAME=HEADER>
+        <th nowrap class="listheading"><a href="<TMPL_VAR NAME=callback ESCAPE=HTML>"><TMPL_VAR NAME=column_title></a></th>
+       </TMPL_LOOP>
+      </tr>
+
+      <TMPL_LOOP NAME=LANGUAGES>
+       <tr class="listrow<TMPL_IF NAME=__odd__>1<TMPL_ELSE>0</TMPL_IF>">
+        <td><input type="hidden" id="id_<TMPL_VAR NAME=__counter__>" name="id_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=id ESCAPE=HTML>">
+        <TMPL_VAR NAME=description ESCAPE=HTML></td>
+
+         <td><input  id="translation_<TMPL_VAR NAME=__counter__>" name="translation_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=translation ESCAPE=HTML>"></td>
+
+        </tr>
+        <TMPL_IF NAME=__last__><input type="hidden" id="rowcount" name="rowcount" value="<TMPL_VAR NAME=__counter__>"></TMPL_IF>
+      </TMPL_LOOP>
+     </table>
+
+    </td>
+   </tr>
+  </table>
+ <button type="button" onclick="languages_updated()">Close</button></td>
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      function languages_updated() {
+        var languages = "";
+        for (var i = 1; i <= ( document.getElementsByName("rowcount")[0].value); i++) {
+          var id = "id_" + i ;
+          var translation = "translation_" + i ;
+          alert(id);
+          languages = languages + "---+++---" + document.getElementsByName( id )[0].value + "--++--" + document.getElementsByName( translation )[0].value;
+        }
+        window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = languages;
+
+        self.close();
+      }
+      //TESSSSST-->
+ </script>
+
+</body>
+</html>

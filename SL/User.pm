@@ -57,7 +57,7 @@ sub new {
           # remove any trailing whitespace
           s/^\s*(.*?)\s*$/$1/;
 
-          ($key, $value) = split /=/, $_, 2;
+          ($key, $value) = split(/=/, $_, 2);
 
           if (($key eq "stylesheet") && ($value eq "sql-ledger.css")) {
             $value = "lx-office-erp.css";
@@ -114,8 +114,12 @@ sub login {
   if ($self->{login}) {
 
     if ($self->{password}) {
-      $form->{password} = crypt $form->{password},
-        substr($self->{login}, 0, 2);
+      if ($form->{hashed_password}) {
+        $form->{password} = $form->{hashed_password};
+      } else {
+        $form->{password} = crypt($form->{password},
+                                  substr($self->{login}, 0, 2));
+      }
       if ($self->{password} ne $form->{password}) {
         $main::lxdebug->leave_sub();
         return -1;
@@ -162,19 +166,27 @@ sub login {
 
     $rc = 0;
 
-    if ($form->{dbversion} ne $dbversion) {
-
-      # update the tables
-      open FH, ">$userspath/nologin" or die "
-$!";
+    if (&update_available($myconfig{"dbdriver"}, $dbversion)) {
 
       map { $form->{$_} = $myconfig{$_} }
-        qw(dbname dbhost dbport dbdriver dbuser dbpasswd);
+        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect);
+
+      $form->{"stylesheet"} = "lx-office-erp.css";
+      $form->{"title"} = $main::locale->text("Dataset upgrade");
+      $form->header();
+      print($form->parse_html_template("dbupgrade/header"));
 
       $form->{dbupdate} = "db$myconfig{dbname}";
       $form->{ $form->{dbupdate} } = 1;
 
-      $form->info("Upgrading Dataset $myconfig{dbname} ...");
+      if ($form->{"show_dbupdate_warning"}) {
+        print($form->parse_html_template("dbupgrade/warning"));
+        exit(0);
+      }
+
+      # update the tables
+      open FH, ">$userspath/nologin" or die "
+$!";
 
       # required for Oracle
       $form->{dbdefault} = $sid;
@@ -188,7 +200,7 @@ $!";
       # remove lock file
       unlink "$userspath/nologin";
 
-      $form->info("... done");
+      print($form->parse_html_template("dbupgrade/footer"));
 
       $rc = -2;
 
@@ -272,7 +284,7 @@ sub dbsources {
 
   if ($form->{dbdriver} eq 'Pg') {
 
-    $query = qq|SELECT datname FROM pg_database|;
+    $query = qq|SELECT datname FROM pg_database WHERE NOT ((datname = 'template0') OR (datname = 'template1'))|;
     $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
@@ -380,12 +392,60 @@ sub dbcreate {
   $filename = qq|sql/$form->{chart}-chart.sql|;
   $self->process_query($form, $dbh, $filename);
 
-  # create indices
-  # Indices sind auch in lx-office.sql
-  # $filename = qq|sql/$form->{dbdriver}-indices.sql|;
-  # $self->process_query($form, $dbh, $filename);
+  $query = "UPDATE defaults SET coa = " . $dbh->quote($form->{"chart"});
+  $dbh->do($query) || $form->dberror($query);
 
   $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+# Process a Perl script which updates the database.
+# If the script returns 1 then the update was successful.
+# Return code "2" means "needs more interaction; remove
+# users/nologin and exit".
+# All other return codes are fatal errors.
+sub process_perl_script {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $dbh, $filename, $version) = @_;
+
+  open(FH, "$filename") or $form->error("$filename : $!\n");
+  my $contents = join("", <FH>);
+  close(FH);
+
+  $dbh->begin_work();
+
+  my %dbup_myconfig = ();
+  map({ $dbup_myconfig{$_} = $form->{$_}; }
+      qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
+
+  my $nls_file = $filename;
+  $nls_file =~ s|.*/||;
+  $nls_file =~ s|.pl$||;
+  my $dbup_locale = Locale->new($main::language, $nls_file);
+
+  my $result = eval($contents);
+
+  if (1 != $result) {
+    $dbh->rollback();
+    $dbh->disconnect();
+  }
+
+  if (!defined($result)) {
+    print($form->parse_html_template("dbupgrade/error",
+                                     { "file" => $filename,
+                                       "error" => $@ }));
+    exit(0);
+  } elsif (1 != $result) {
+    unlink("users/nologin") if (2 == $result);
+    exit(0);
+  }
+
+  if ($version) {
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  }
+  $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
@@ -393,7 +453,7 @@ sub dbcreate {
 sub process_query {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename) = @_;
+  my ($self, $form, $dbh, $filename, $version) = @_;
 
   #  return unless (-f $filename);
 
@@ -402,13 +462,15 @@ sub process_query {
   my $sth;
   my @quote_chars;
 
+  $dbh->begin_work();
+
   while (<FH>) {
 
     # Remove DOS and Unix style line endings.
-    s/[\r\n]//g;
+    chomp;
 
-    # don't add comments or empty lines
-    next if /^(--.*|\s+)$/;
+    # remove comments
+    s/--.*$//;
 
     for (my $i = 0; $i < length($_); $i++) {
       my $char = substr($_, $i, 1);
@@ -429,8 +491,15 @@ sub process_query {
           # Query is complete. Send it.
 
           $sth = $dbh->prepare($query);
-          $sth->execute || $form->dberror($query);
-          $sth->finish;
+          if (!$sth->execute()) {
+            my $errstr = $dbh->errstr;
+            $sth->finish();
+            $dbh->rollback();
+            $form->dberror("The database update/creation did not succeed. The file ${filename} containing the following query failed:<br>${query}<br>" .
+                           "The error message was: ${errstr}<br>" .
+                           "All changes in that file have been reverted.");
+          }
+          $sth->finish();
 
           $char  = "";
           $query = "";
@@ -440,6 +509,11 @@ sub process_query {
       }
     }
   }
+
+  if ($version) {
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  }
+  $dbh->commit();
 
   close FH;
 
@@ -482,7 +556,7 @@ sub dbsources_unused {
 
   while (<FH>) {
     if (/^dbname=/) {
-      my ($null, $item) = split /=/;
+      my ($null, $item) = split(/=/);
       push @dbexcl, $item;
     }
   }
@@ -598,7 +672,7 @@ sub dbneedsupdate {
 
 ## LINET
 sub calc_version {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my (@v, $version, $i);
 
@@ -612,7 +686,7 @@ sub calc_version {
     $version += $v[$i];
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
   return $version;
 }
 
@@ -640,6 +714,17 @@ sub cmp_script_version {
 }
 ## /LINET
 
+sub update_available {
+  my ($dbdriver, $cur_version) = @_;
+
+  opendir SQLDIR, "sql/${dbdriver}-upgrade" or &error("", "sql/${dbdriver}-upgrade: $!");
+  my @upgradescripts =
+    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)/, readdir(SQLDIR));
+  closedir SQLDIR;
+
+  return ($#upgradescripts > -1);
+}
+
 sub dbupdate {
   $main::lxdebug->enter_sub();
 
@@ -654,11 +739,11 @@ sub dbupdate {
   if ($form->{dbupdate}) {
 
     # read update scripts into memory
-    opendir SQLDIR, "sql/." or &error("", "$!");
+    opendir SQLDIR, "sql/" . $form->{dbdriver} . "-upgrade" or &error("", "sql/" . $form->{dbdriver} . "-upgrade : $!");
     ## LINET
     @upgradescripts =
       sort(cmp_script_version
-           grep(/$form->{dbdriver}-upgrade-.*?\.sql$/, readdir(SQLDIR)));
+           grep(/$form->{dbdriver}-upgrade-.*?\.(sql|pl)$/, readdir(SQLDIR)));
     ## /LINET
     closedir SQLDIR;
   }
@@ -693,9 +778,11 @@ sub dbupdate {
 
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
-      $a =~ s/^$form->{dbdriver}-upgrade-|\.sql$//g;
+      $a =~ s/^$form->{dbdriver}-upgrade-|\.(sql|pl)$//g;
+      my $file_type = $1;
 
       my ($mindb, $maxdb) = split /-/, $a;
+      my $str_maxdb = $maxdb;
       ## LINET
       $mindb = calc_version($mindb);
       $maxdb = calc_version($maxdb);
@@ -707,7 +794,12 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
-      $self->process_query($form, $dbh, "sql/$upgradescript");
+      $main::lxdebug->message(DEBUG2, "Appliying Update $upgradescript");
+      if ($file_type eq "sql") {
+        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+      } else {
+        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+      }
 
       $version = $maxdb;
 

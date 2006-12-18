@@ -1,0 +1,62 @@
+<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+
+ <form name="Form">
+
+  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
+  <input type="hidden" name="input_id" value="<TMPL_VAR NAME=input_id ESCAPE=HTML>">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop"><TMPL_VAR NAME=title></th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr><td><translate>Please select a vendor from the list below.</translate></td></tr>
+
+   <tr>
+    <td>
+
+     <table>
+      <tr class="listheading">
+       <th class="listheading">&nbsp;</th>
+       <TMPL_LOOP NAME=HEADER>
+        <th nowrap class="listheading"><a href="<TMPL_VAR NAME=callback ESCAPE=HTML>"><TMPL_VAR NAME=column_title></a></th>
+       </TMPL_LOOP>
+      </tr>
+
+      <TMPL_LOOP NAME=VENDOR>
+       <tr class="listrow<TMPL_IF NAME=__odd__>1<TMPL_ELSE>0</TMPL_IF>">
+        <td><button type="button" onclick="vendor_selected('<TMPL_VAR NAME=__counter__>')">Auswahl</button></td>
+        <td><input type="hidden" id="id_<TMPL_VAR NAME=__counter__>" name="id_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=id ESCAPE=HTML>">
+         <input type="hidden" id="name_<TMPL_VAR NAME=__counter__>" name="name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name ESCAPE=HTML>">
+         <TMPL_VAR NAME=name ESCAPE=HTML></td>
+         <td><TMPL_VAR NAME=customernumber ESCAPE=HTML></td>
+         <td><TMPL_VAR NAME=address ESCAPE=HTML></td>
+<!--         <td><input type="hidden" id="description_<TMPL_VAR NAME=__counter__>" name="description_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=description ESCAPE=HTML>"> -->
+<!--          <TMPL_VAR NAME=description ESCAPE=HTML></td> -->
+       </tr>
+      </TMPL_LOOP>
+     </table>
+
+    </td>
+   </tr>
+  </table>
+
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      function vendor_selected(selected) {
+        var name = document.getElementsByName("name_" + selected)[0].value
+        var id = document.getElementsByName("id_" + selected)[0].value
+        window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = name;
+        if (document.Form.input_id.value != "") {
+          window.opener.document.getElementsByName(document.Form.input_id.value)[0].value = id;
+        }
+        self.close();
+      }
+      //-->
+ </script>
+
+</body>
+</html>

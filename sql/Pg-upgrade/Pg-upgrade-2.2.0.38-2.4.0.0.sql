@@ -1,0 +1,1 @@
+-- Dummy-Script fuer Anhebung der Datenbankversionsnummer auf 2.4.0.0.

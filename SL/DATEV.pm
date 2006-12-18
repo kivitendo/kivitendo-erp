@@ -329,7 +329,7 @@ sub get_transactions {
         }
       }
       if (abs($absumsatz) > 0.01) {
-        $form->error("Datev-Export fehlgeschlagen!");
+        $form->error("Datev-Export fehlgeschlagen! Bei Transaktion $i->[0]->{trans_id}\n");
       }
     } else {
       push @{ $form->{DATEV} }, \@{$i};

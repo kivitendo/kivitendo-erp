@@ -51,8 +51,8 @@ sub add {
     "$form->{script}?action=add&item=$form->{item}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
-  $form->{unit} =
-    ($form->{item} eq 'service') ? $locale->text('hr') : $locale->text('ea');
+  $form->{"unit_changeable"} = 1;
+
   IC->get_pricegroups(\%myconfig, \%$form);
   &link_part;
   &display_form;
@@ -326,7 +326,7 @@ sub search {
     . $locale->text('List Price') . qq|</td>
 		<td><input name=l_sellprice class=checkbox type=checkbox value=Y checked>&nbsp;|
     . $locale->text('Sell Price') . qq|</td>
-		<td><input name=l_lastcost class=checkbox type=checkbox value=Y>&nbsp;|
+		<td><input name=l_lastcost class=checkbox type=checkbox value=Y checked>&nbsp;|
     . $locale->text('Last Cost') . qq|</td>
 		<td><input name=l_linetotal class=checkbox type=checkbox value=Y checked>&nbsp;|
     . $locale->text('Line Total') . qq|</td>
@@ -356,6 +356,8 @@ sub search {
     . $locale->text('Subtotal') . qq|</td>
 		<td><input name=l_soldtotal class=checkbox type=checkbox value=Y>&nbsp;|
     . $locale->text('soldtotal') . qq|</td>
+		<td><input name=l_deliverydate class=checkbox type=checkbox value=Y>&nbsp;|
+    . $locale->text('deliverydate') . qq|</td>    
 	      </tr>
             </table>
           </td>
@@ -376,6 +378,7 @@ $jsscript
 
 <input type=hidden name=revers value="$form->{revers}">
 <input type=hidden name=lastsort value="$form->{lastsort}">
+<input type=hidden name=sort value="description">
 
 <input type=hidden name=ndxs_counter value="$form->{ndxs_counter}">
 
@@ -391,6 +394,232 @@ $jsscript
 |;
   $lxdebug->leave_sub();
 }    #end search()
+
+
+sub search_update_prices {
+  $lxdebug->enter_sub();
+
+  $form->{title} = $locale->text('Update prices');
+  IC->get_pricegroups(\%myconfig, \%$form);
+
+  # use JavaScript Calendar or not
+#   $form->{jsscript} = $jscalendar;
+#   $jsscript = "";
+#   if ($form->{jsscript}) {
+# 
+#     # with JavaScript Calendar
+#     $button1 = qq|
+#        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>
+#        <td><input type=button name=transdatefrom id="trigger1" value=|
+#       . $locale->text('button') . qq|></td>
+#       |;
+#     $button2 = qq|
+#        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>
+#        <td><input type=button name=transdateto name=transdateto id="trigger2" value=|
+#       . $locale->text('button') . qq|></td>
+#      |;
+# 
+#     #write Trigger
+#     $jsscript =
+#       Form->write_trigger(\%myconfig, "2", "transdatefrom", "BL", "trigger1",
+#                           "transdateto", "BL", "trigger2");
+#   } else {
+# 
+#     # without JavaScript Calendar
+#     $button1 = qq|
+#                               <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+#     $button2 = qq|
+#                               <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
+#   }
+
+    $onhand = qq|
+            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;|
+      . $locale->text('On Hand') . qq|
+            <input name=itemstatus class=radio type=radio value=short>&nbsp;|
+      . $locale->text('Short') . qq|
+|;
+
+    $makemodel = qq|
+        <tr>
+          <th align=right nowrap>| . $locale->text('Make') . qq|</th>
+          <td><input name=make size=20></td>
+          <th align=right nowrap>| . $locale->text('Model') . qq|</th>
+          <td><input name=model size=20></td>
+        </tr>
+|;
+
+    $serialnumber = qq|
+          <th align=right nowrap>| . $locale->text('Serial Number') . qq|</th>
+          <td><input name=serialnumber size=20></td>
+|;
+
+    $l_serialnumber = qq|
+        <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;|
+      . $locale->text('Serial Number') . qq|</td>
+|;
+
+
+
+  $form->header;
+
+  print qq|
+<body>
+
+<form method=post action=$form->{script}>
+
+<input type=hidden name=title value="$form->{title}">
+
+<table width="100%">
+  <tr><th class=listtop>$form->{title}</th></tr>
+  <tr height="5"></tr>
+  <tr valign=top>
+    <td>
+      <table>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Part Number') . qq|</th>
+          <td><input name=partnumber size=20></td>
+        </tr>
+        <tr>
+          <th align=right nowrap>|
+    . $locale->text('Part Description') . qq|</th>
+          <td colspan=3><input name=description size=40></td>
+        </tr>
+	<tr>
+          <th align=right nowrap>| . $locale->text('Group') . qq|</th>
+          <td><input name=partsgroup size=20></td>
+	  $serialnumber
+	</tr>
+	$makemodel
+        <tr>
+          <th align=right nowrap>| . $locale->text('Drawing') . qq|</th>
+          <td><input name=drawing size=20></td>
+          <th align=right nowrap>| . $locale->text('Microfiche') . qq|</th>
+          <td><input name=microfiche size=20></td>
+        </tr>
+	$toplevel
+        <tr>
+          <td></td>
+          <td colspan=3>
+            <input name=itemstatus class=radio type=radio value=active checked>&nbsp;|
+    . $locale->text('Active') . qq|
+	    $onhand
+            <input name=itemstatus class=radio type=radio value=obsolete>&nbsp;|
+    . $locale->text('Obsolete') . qq|
+            <input name=itemstatus class=radio type=radio value=orphaned>&nbsp;|
+    . $locale->text('Orphaned') . qq|
+	  </td>
+	</tr>
+	$bought
+        <tr>
+	  <td></td>
+          <td colspan=3>
+	    <hr size=1 noshade>
+	  </td>
+	</tr>|;
+  print qq|
+  <tr>
+    <td colspan=4>
+      <table width=100%>
+        <tr>
+          <th class="listheading">| . $locale->text('Preisklasse') . qq|</th>
+          <th class="listheading">| . $locale->text('Preis') . qq|</th>
+          <th class="listheading">| . $locale->text('Prozentual/Absolut') . qq|</th>
+        </tr>
+        <tr>
+          <td>| . $locale->text('Sell Price') . qq|</td>
+          <td><input name="sellprice" size=11 value="$form->{"sellprice"}"></td>
+          <td><input name="sellprice_type" class=radio type=radio value=percent checked>/<input name="sellprice_type" class=radio type=radio value=absolut></td>
+        </tr>
+        <tr>
+          <td>| . $locale->text('List Price') . qq|</td>
+          <td><input name="listprice" size=11 value="$form->{"listprice"}"></td>
+          <td><input name="listprice_type" class=radio type=radio value=percent checked>/<input name="listprice_type" class=radio type=radio value=absolut></td>
+        </tr>
+|;
+  for $i (1 .. $form->{price_rows}) {
+    print qq|
+        <tr>
+          <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
+          <td width=50%><input name="price_$i" size=11></td>
+          <input type=hidden name="pricegroup_id_$i" value="$form->{"pricegroup_id_$i"}">
+          <td><input name="pricegroup_type_$i" class=radio type=radio value=percent checked>/<input name="pricegroup_type_$i" class=radio type=radio value=absolut></td>
+        </tr>
+|;
+  }
+
+  print qq|
+      </table>
+    </td>
+  </tr>
+
+  <tr><td colspan=4><hr size=3 noshade></td></tr>
+</table>
+<input type=hidden name=nextsub value=confirm_price_update>
+<input type=hidden name=price_rows value=$form->{price_rows}>
+
+<input type=hidden name=path value=$form->{path}>
+<input type=hidden name=login value=$form->{login}>
+<input type=hidden name=password value=$form->{password}>
+
+<br>
+<input class=submit type=submit name=action value="|
+    . $locale->text('Continue') . qq|">
+</form>
+
+</body>
+</html>
+|;
+  $lxdebug->leave_sub();
+}    #end search()
+
+sub confirm_price_update {
+  $lxdebug->enter_sub();
+
+
+  $form->{nextsub} = "update_prices";
+  $form->header;
+
+  print qq|
+<body>
+
+<form method=post action=$form->{script}>
+|;
+
+  # delete action variable
+  map { delete $form->{$_} } qw(action header);
+
+  foreach $key (keys %$form) {
+    $form->{$key} =~ s/\"/&quot;/g;
+    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
+  }
+
+  print qq|
+<h2 class=confirm>| . $locale->text('Confirm!') . qq|</h2>
+
+<h4>|
+    . $locale->text('Are you sure you want to update the prices')
+. qq| </h4>
+
+<p>
+<input name=action class=submit type=submit value="|
+    . $locale->text('Continue') . qq|">
+</form>
+|;
+
+  $lxdebug->leave_sub();
+}
+
+sub update_prices {
+  $lxdebug->enter_sub();
+
+  if (IC->update_prices(\%myconfig, \%$form)) {
+    $form->redirect($form->{update_count} . $locale->text('prices updated!'));
+  } else {
+    $form->error($locale->text('Could not update prices!'));
+  }
+
+  $lxdebug->leave_sub();
+}
 
 sub choice {
   $lxdebug->enter_sub();
@@ -868,7 +1097,7 @@ sub addtop100 {
         || $form->{rfq}
         || $form->{quoted}) {
       $form->{l_onhand} = "Y";
-        } else {
+    } else {
       $form->{l_linetotalsellprice} = "";
       $form->{l_linetotallastcost}  = "";
     }
@@ -1419,8 +1648,12 @@ sub generate_report {
     $option   .= $locale->text('soldtotal') . qq| : $form->{soldtotal}<br>|;
   }
 
+  if ($form->{l_deliverydate}) {
+    $callback .= "&deliverydate=$form->{deliverydate}";
+  }
+
   @columns = $form->sort_columns(
-    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
+    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate)
   );
 
   if ($form->{l_linetotal}) {
@@ -1450,7 +1683,7 @@ sub generate_report {
         || $form->{rfq}
         || $form->{quoted}) {
       $form->{l_onhand} = "Y";
-        } else {
+    } else {
       $form->{l_linetotalsellprice} = "";
       $form->{l_linetotallastcost}  = "";
     }
@@ -1557,6 +1790,11 @@ sub generate_report {
     . $locale->text('soldtotal')
     . qq|</a></th>|;
 
+  $column_header{deliverydate} =
+    qq|<th nowrap><a class=listheading href=$callback&sort=deliverydate&revers=$form->{revers}&lastsort=$form->{lastsort}>|
+    . $locale->text('deliverydate')
+    . qq|</a></th>|;
+
   $form->header;
   $colspan = $#column_index + 1;
 
@@ -1618,7 +1856,7 @@ sub generate_report {
 
     $column_data{partnumber} =
       "<td align=$align><a href=$form->{script}?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partnumber}&nbsp;</a></td>";
-    $column_data{description} = "<td>$ref->{description}&nbsp;</td>";
+    $column_data{description} = "<td><a href=$form->{script}?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}&nbsp;</a></td>";
     $column_data{partsgroup}  = "<td>$ref->{partsgroup}&nbsp;</td>";
 
     $column_data{onhand} =
@@ -1707,6 +1945,8 @@ sub generate_report {
         "<td align=right>"
       . $form->format_amount(\%myconfig, $ref->{soldtotal}, '', "&nbsp;")
       . "</td>";
+
+    $column_data{deliverydate} = "<td>$ref->{deliverydate}</td>";
 
     $i++;
     $i %= 2;
@@ -1939,14 +2179,14 @@ sub form_header {
   #decimalplaces for listprice
   ($dec) = ($form->{listprice} =~ /\.(\d+)/);
   $dec = length $dec;
-  my $decimalplaces = ($dec > 2) ? $dec : 2;
+  my $decimalplaces = ($dec == 2) ? $dec : 2;
   $form->{listprice} =
     $form->format_amount(\%myconfig, $form->{listprice}, $decimalplaces);
 
   #decimalplaces for sellprice and gv
   ($dec) = ($form->{sellprice} =~ /\.(\d+)/);
   $dec = length $dec;
-  my $decimalplaces = ($dec > 2) ? $dec : 2;
+  my $decimalplaces = ($dec == 2) ? $dec : 2;
 
   map {
     $form->{$_} =
@@ -1955,7 +2195,7 @@ sub form_header {
 
   ($dec) = ($form->{lastcost} =~ /\.(\d+)/);
   $dec = length $dec;
-  my $decimalplaces = ($dec > 2) ? $dec : 2;
+  my $decimalplaces = ($dec == 2) ? $dec : 2;
 
   $form->{lastcost} =
     $form->format_amount(\%myconfig, $form->{lastcost}, $decimalplaces);
@@ -1967,12 +2207,22 @@ sub form_header {
     $form->{$item} =~ s/\"/&quot;/g;
   }
 
+  $payment = qq|<option value=""></option>|;
+  foreach $item (@{ $form->{payment_terms} }) {
+    if ($form->{payment_id} eq $item->{id}) {
+      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
+    } else {
+      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
+    }
+  }
+
+
   if (($rows = $form->numtextrows($form->{notes}, 40)) < 2) {
-    $rows = 2;
+    $rows = 4;
   }
 
   $notes =
-    qq|<textarea name=notes rows=$rows cols=40 wrap=soft>$form->{notes}</textarea>|;
+    qq|<textarea name=notes rows=$rows cols=50 wrap=soft>$form->{notes}</textarea>|;
   if (($rows = $form->numtextrows($form->{description}, 40)) > 1) {
     $description =
       qq|<textarea name="description" rows=$rows cols=40 wrap=soft>$form->{description}</textarea>|;
@@ -1984,6 +2234,27 @@ sub form_header {
   foreach $item (split / /, $form->{taxaccounts}) {
     $form->{"IC_tax_$item"} = ($form->{"IC_tax_$item"}) ? "checked" : "";
   }
+
+  IC->retrieve_buchungsgruppen(\%myconfig, $form);
+  if (@{ $form->{BUCHUNGSGRUPPEN} }) {
+    foreach $item (@{ $form->{BUCHUNGSGRUPPEN} }) {
+      if ($item->{id} == $form->{buchungsgruppen_id}) {
+        $form->{selectbuchungsgruppe} .=
+          "<option value=$item->{id} selected>$item->{description}\n";
+      } elsif (($form->{id} && $form->{orphaned}) || (!$form->{id})) {
+        $form->{selectbuchungsgruppe} .=
+          "<option value=$item->{id}>$item->{description}\n";
+      }
+
+    }
+  }
+
+  $buchungsgruppe = qq|
+	      <tr>
+		<th align=right>| . $locale->text('Buchungsgruppe') . qq|</th>
+		<td><select name=buchungsgruppen_id>$form->{selectbuchungsgruppe}</select></td>
+	      </tr>|;
+
 
   # set option
   foreach $item (qw(IC IC_income IC_expense)) {
@@ -2046,7 +2317,7 @@ sub form_header {
 		<input name=selectIC_income type=hidden value="$form->{selectIC_income}">
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('COGS') . qq|</th>
+		<th align=right>| . $locale->text('Expense') . qq|</th>
 		<td><select name=IC_expense>$form->{selectIC_expense}</select></td>
 		<input name=selectIC_expense type=hidden value="$form->{selectIC_expense}">
 	      </tr>
@@ -2125,6 +2396,18 @@ sub form_header {
 |;
 
   }
+  $linkaccounts = qq|<input type=hidden name=IC_income value="$form->{IC_income_default}">|;
+
+  if ($form->{IC_cogs_default}) {
+    $form->{IC_expense_default} = $form->{IC_cogs_default};
+  }
+
+  if (($form->{item} eq "service") || ($form->{item} eq "part")) {
+    $linkaccounts .= qq|<input type=hidden name=IC_expense value="$form->{IC_expense_default}">|;
+  }
+  if ($form->{item} eq "part") {
+    $linkaccounts .= qq|<input type=hidden name=IC value="$form->{IC_default}">|;
+  }
 
   if ($form->{item} ne 'service') {
     $n   = ($form->{onhand} > 0) ? "1" : "0";
@@ -2170,6 +2453,17 @@ sub form_header {
 		<td><input name=gv size=10 value=$form->{gv}></td>
 	      </tr>
 |;
+    $notdiscountableok = ($form->{not_discountable}) == 1 ? "checked" : "";
+    $notdiscountable .= qq|
+              <tr>
+                <th align=right nowrap>|
+    . $locale->text('Not Discountable') . qq|</th>
+                <td><input class=checkbox type=checkbox name=not_discountable value=1 $notdiscountableok></td>
+             </tr>
+|;
+
+  $formel =
+    qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=40 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
     $imagelinks = qq|
   <tr>
     <td>
@@ -2200,13 +2494,14 @@ sub form_header {
 |;
   }
   $shopok = $form->{shop} == 1 ? "checked" : "";
-  $obsolete .= qq|
+  $shop .= qq|
               <tr>
                 <th align=right nowrap>|
     . $locale->text('Shopartikel') . qq|</th>
                 <td><input class=checkbox type=checkbox name=shop value=1 $shopok></td>
              </tr>
 |;
+
 
   # type=submit $locale->text('Add Part')
   # type=submit $locale->text('Add Service')
@@ -2237,12 +2532,21 @@ sub form_header {
                               <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
   }
 
+  my $unit_select = '<input type="hidden" name="unit_changeable" value="' . $form->{"unit_changeable"} . '">';
+  if (!$form->{"unit_changeable"}) {
+    $unit_select .= '<input type="hidden" name="unit" value="' . $form->{"unit"} . '">' . $form->{"unit"};
+  } else {
+    my $units = AM->retrieve_units(\%myconfig, $form, $form->{"item"} eq "service" ? "service" : "dimension");
+    $unit_select .= AM->unit_select_html($units, "unit", $form->{"unit"});
+  }
+
   $form->{fokus} = "ic.partnumber";
   $form->header;
 
   print qq|
   <body onLoad="fokus()">
-
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/parts_language_selection.js"></script>
 
 <form method=post name="ic" action=$form->{script}>
 
@@ -2256,6 +2560,7 @@ sub form_header {
 <input name=taxaccounts type=hidden value="$form->{taxaccounts}">
 <input name=rowcount type=hidden value=$form->{rowcount}>
 <input name=eur type=hidden value=$eur>
+<input name=language_values type=hidden value="$form->{language_values}">
 
 <table width="100%">
   <tr>
@@ -2287,16 +2592,40 @@ sub form_header {
             <table width="100%" height="100%">
               <tr class="listheading">
                 <th class="listheading" align="center" colspan=2>|
-    . $locale->text('Link Accounts') . qq|</th>
+    . $locale->text('') . qq|</th>
               </tr>
-              $linkaccounts
+              <td colspan=2>
+                <table>
+                  $buchungsgruppe
+                  $linkaccounts
+                </table>
+              </td>
               <tr>
                 <th align="left">| . $locale->text('Notes') . qq|</th>
+                <th align="left">| . $locale->text('Formula') . qq|</th>
+              </tr>
+              <tr>
+                <td>
+                  $notes
+                </td>
+                <td>
+                  $formel
+                </td>
               </tr>
               <tr>
                 <td colspan=2>
-                  $notes
+                  <button type="button" onclick="parts_language_selection_window('language_values')">| . $locale->text('Set Language Values') . qq|</button>
                 </td>
+              </tr>
+              <tr>
+              <td colspan=2>
+                <table>
+                <tr>
+	       <th align=right>| . $locale->text('Payment Terms') . qq|</th>
+	         <td><select name=payment_id>$payment</select></td>
+                </tr>
+               </table>
+              </td>
               </tr>
             </table>
           </td>
@@ -2318,12 +2647,14 @@ sub form_header {
 	      $lastcost
 	      <tr>
 		<th align="right" nowrap="true">| . $locale->text('Unit') . qq|</th>
-		<td><input name=unit size=5 maxlength="10" value="$form->{unit}"></td>
+		<td>$unit_select</td>
 	      </tr>
 	      $weight
 	      $rop
 	      $bin
+              $notdiscountable
               $vegv
+              $shop
 	      $obsolete
 	    </table>
 	  </td>
@@ -2426,6 +2757,7 @@ sub form_footer {
   print qq|
 
 </form>
+<script type="text/javascript" src="js/wz_tooltip.js"></script>
 
 </body>
 </html>
@@ -2612,6 +2944,8 @@ sub assembly_row {
 
     $column_data{total} = qq|<td align=right>$linetotal</td>|;
 
+    $column_data{deliverydate} = qq|<td align=right>$deliverydate</td>|;
+
     print qq|
         <tr>|;
 
@@ -2647,7 +2981,7 @@ sub update {
 
       &check_form;
 
-        } else {
+    } else {
 
       IC->assembly_item(\%myconfig, \%$form);
 
@@ -2691,6 +3025,7 @@ sub update {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
       qw(sellprice listprice);
     &form_header;
+    &price_row;
     &form_footer;
   }
 
@@ -2700,8 +3035,11 @@ sub update {
 sub save {
   $lxdebug->enter_sub();
 
-  # check if there is a part number
+  # check if there is a part number - commented out, cause there is an automatic allocation of numbers
   # $form->isblank("partnumber", $locale->text(ucfirst $form->{item}." Part Number missing!"));
+
+  # check if there is a description
+  $form->isblank("description", $locale->text("Part Description missing!"));
 
   if ($form->{obsolete}) {
     $form->error(
@@ -2710,6 +3048,15 @@ sub save {
       ))
       if ($form->{onhand});
   }
+
+  if (!$form->{buchungsgruppen_id}) {
+    $form->error($locale->text("Parts must have an entry type.") . " " . 
+     $locale->text("If you see this message, you most likely just setup your LX-Office and haven't added any entry types. If this is the case, the option is accessible for administrators in the System menu.") 
+    );
+  }
+
+  $form->error($locale->text('Description must not be empty!')) unless $form->{description};
+  $form->error($locale->text('Partnumber must not be set to empty!')) if $form->{id} && !$form->{partnumber};
 
   # expand dynamic strings
   # $locale->text('Inventory quantity must be zero before you can set this part obsolete!')
@@ -2842,6 +3189,7 @@ sub save_as_new {
   $lxdebug->enter_sub();
 
   $form->{id} = 0;
+  $form->{partnumber} = "";
   &save;
 
   $lxdebug->leave_sub();
@@ -3063,6 +3411,39 @@ sub price_row {
     </td>
   </tr>
 |;
+
+  $lxdebug->leave_sub();
+}
+
+
+sub parts_language_selection {
+  $lxdebug->enter_sub();
+
+
+  my $languages = IC->retrieve_languages(\%myconfig, $form);
+
+
+  my $callback = "$form->{script}?action=parts_language_selection&";
+  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
+      (qw(login path password name input_name), grep({ /^[fl]_/ } keys %$form)));
+
+  my @header_sort = qw(name longdescription);
+  my %header_title = ( "name" => $locale->text("Name"),
+                       "longdescription" => $locale->text("Long Description"),
+                       );
+
+  my @header =
+    map(+{ "column_title" => $header_title{$_},
+           "column" => $_,
+           "callback" => $callback,
+         },
+        @header_sort);
+
+  $form->{"title"} = $locale->text("Language Values");
+  $form->header();
+  print($form->parse_html_template("ic/parts_language_selection", { "HEADER" => \@header,
+                                                                   "LANGUAGES" => $languages,
+                                                                   "onload" => $onload }));
 
   $lxdebug->leave_sub();
 }

@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'Abrechnungsnummer'           => 'Abrechnungsnummer',
   'April'                       => 'April',
   'August'                      => 'August',
@@ -40,7 +40,7 @@ $self{texts} = {
   'bis'                         => 'bis',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'continue'                    => 'continue',
   'export'                      => 'export',
   'export2'                     => 'export2',

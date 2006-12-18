@@ -180,8 +180,10 @@ sub get_spoolfiles {
     $query .= " AND lower(a.quonumber) LIKE '$quonumber'";
   }
 
-  #  $query .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
-  #  $query .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|packing_list|puchase_order|request_quotation)$/) {
+    $query .= " AND a.transdate >= '$form->{transdatefrom}'" if $form->{transdatefrom};
+    $query .= " AND a.transdate <= '$form->{transdateto}'" if $form->{transdateto};
+  }
 
   my @a = (transdate, $invnumber, name);
   my $sortorder = join ', ', $form->sort_columns(@a);

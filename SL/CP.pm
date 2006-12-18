@@ -370,10 +370,17 @@ sub process_payment {
       $pth->finish;
 
       $amount += $form->{"paid_$i"};
+      
+      # BUG 324
+      if ($form->{arap} eq 'ap') {
+        $paid = "paid = paid + $amount";
+      } else {
+        $paid = "paid = $amount";
+      }
 
       # update AR/AP transaction
       $query = qq|UPDATE $form->{arap} set
-		  paid = $amount,
+      $paid,
 		  datepaid = '$form->{datepaid}'
 		  WHERE id = $form->{"id_$i"}|;
       $dbh->do($query) || $form->dberror($query);

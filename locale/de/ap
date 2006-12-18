@@ -1,4 +1,4 @@
-$self{texts} = {
+$self->{texts} = {
   'AP Transaction'              => 'Kreditorenbuchung',
   'AP Transactions'             => 'Kreditorenbuchungen',
   'Account'                     => 'Konto',
@@ -97,7 +97,7 @@ $self{texts} = {
   'button'                      => '?',
 };
 
-$self{subs} = {
+$self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',

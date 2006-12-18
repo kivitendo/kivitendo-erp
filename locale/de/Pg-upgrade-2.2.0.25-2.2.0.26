@@ -1,0 +1,24 @@
+$self->{texts} = {
+  'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
+  'Database update error:'      => 'Fehler beim Datenbankupgrade:',
+  'The base unit does not exist.' => 'Die Basiseinheit existiert nicht.',
+  'The factor is missing.'      => 'Der Faktor fehlt.',
+  'The name is missing.'        => 'Der Name fehlt.',
+  'The unit has been saved.'    => 'Die Einheit wurde gespeichert.',
+};
+
+$self->{subs} = {
+  'mydberror'                   => 'mydberror',
+  'myshowerror'                 => 'myshowerror',
+  'update_units'                => 'update_units',
+  'update_units_add_unit'       => 'update_units_add_unit',
+  'update_units_assign_known'   => 'update_units_assign_known',
+  'update_units_assign_units'   => 'update_units_assign_units',
+  'update_units_set_default'    => 'update_units_set_default',
+  'update_units_step_3'         => 'update_units_step_3',
+  'update_units_steps_1_2'      => 'update_units_steps_1_2',
+  'einheit_hinzuf&uuml;gen'     => 'add_unit',
+  'einheiten_zuweisen'          => 'assign_units',
+};
+
+1;

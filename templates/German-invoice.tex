@@ -1,156 +1,95 @@
 \documentclass[twoside]{scrartcl}
-\usepackage[frame]{xy}
+\usepackage{eurosym}
 \usepackage{tabularx}
+\usepackage{ifthen}
 \usepackage[latin1]{inputenc}
-\setlength{\voffset}{0.5cm}
-\setlength{\hoffset}{-2.0cm}
-\setlength{\topmargin}{0cm}
-\setlength{\headheight}{0.5cm}
-\setlength{\headsep}{1cm}
-\setlength{\topskip}{0pt}
-\setlength{\oddsidemargin}{1.0cm}
-\setlength{\evensidemargin}{1.0cm}
-\setlength{\textwidth}{17cm}
-\setlength{\textheight}{24.5cm}
-\setlength{\footskip}{1cm}
-\setlength{\parindent}{0pt}
-\renewcommand{\baselinestretch}{1}
 \begin{document}
 
-\newlength{\descrwidth}\setlength{\descrwidth}{9cm}
+\setlength{\parindent}{0cm}
 
-\newsavebox{\hdr}
-\sbox{\hdr}{
-  \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+\pagestyle{empty}
 
-  \parbox{\textwidth}{
-    \parbox[b]{12cm}{
-      <%company%>
-      
-      <%address%>}\hfill
-    \begin{tabular}[b]{rr@{}}
-    Telefon & <%tel%>\\
-    Telefax & <%fax%>
-    \end{tabular}
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
 
-    \rule[1.5ex]{\textwidth}{0.5pt}
-  }
-}
-    
 \fontfamily{cmss}\fontshape{n}\selectfont
 
-\markboth{<%company%>\hfill <%invnumber%>}{\usebox{\hdr}}
-
-\pagestyle{myheadings}
-%\thispagestyle{empty}     use this with letterhead paper
-
-<%pagebreak 90 27 48%>
-\end{tabular*}
-
-  \rule{\textwidth}{2pt}
-  
-  \hfill
-  \begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Subtotal} & \textbf{<%sumcarriedforward%>} \\
-  \end{tabularx}
+<%pagebreak 80 28 37%>
+\end{tabularx}
 
 \newpage
 
-\markright{<%company%>\hfill <%invnumber%>}
-
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Preis} & \textbf{Rab} & \textbf{Total} \\
-  & Übertrag von Seite <%lastpage%> & & & & & <%sumcarriedforward%> \\
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
 <%end pagebreak%>
-
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
-\vspace*{2cm}
+\vspace*{1.5cm}
 
-<%name%>
+\begin{minipage}{8cm}
+  <%name%>
 
-<%street%>
+  <%street%>
 
-<%zipcode%>
+  <%zipcode%> <%city%>
 
-<%city%>
-
-<%country%>
-
-\vspace{3.5cm}
-
-\textbf{R E C H N U N G}
+  <%country%>
+\end{minipage}
 \hfill
-\begin{tabular}[t]{l@{\hspace{0.3cm}}l}
-  \textbf{Datum} & <%invdate%> \\
-  \textbf{Nummer} & <%invnumber%> \\
-  \textbf{Lieferdatum} & <%deliverydate%> \\
-\end{tabular}
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Rechnung}}} \vspace*{0.2cm}
+  \rightline{\large\textbf{\textit{Nr. <%invnumber%>% \vspace*{0.2cm}
+  }}}
 
-\vspace{1cm}
+  Rechnungsdatum:\hfill <%invdate%>
 
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} &
-    \textbf{Einh} & \textbf{Preis} & \textbf{Rab} & \textbf{Total} \\
-<%foreach number%>
-  <%number%> & <%description%> & <%qty%> &
-    <%unit%> & <%sellprice%> & <%discount%> & <%linetotal%> \\
-<%end number%>
-\end{tabular*}
+  Auftrag-Nr:\hfill <%ordnumber%>
+
+  Telefon:\hfill <%phone%>
+
+  Telefax:\hfill <%fax%>
+
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
+
+Ihre Bestellung <%cusordnumber%> vom <%orddate%>
+% \hfill
 
 
-\parbox{\textwidth}{
-\rule{\textwidth}{2pt}
+\vspace*{0.5cm}
 
-\vspace{0.2cm}
+Sehr geehrte Damen und Herren,
 
-\hfill
-\begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Zwischensumme} & \textbf{<%subtotal%>} \\
-<%foreach tax%>
-  <%taxdescription%> auf <%taxbase%> & <%tax%> \\
-<%end tax%>
+für unsere erbrachten Lieferungen und Leistungen erlauben wir uns,
+folgende Positionen in Rechnung zu stellen.
+
+\vspace{0.5cm}
+
+\begin{tabularx}{\textwidth}{lrXrr}
   \hline
-  \textbf{Total} & \textbf{<%invtotal%>} \\
-<%if paid%>
-  \textbf{Bezahlt} & <%paid%> \\
-<%end paid%>
-<%if total%>
-  \textbf{Bezahlbar} & \textbf{<%total%>} \\
-<%end total%>
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    <%sellprice%> \euro & <%linetotal%> \euro \\
+    <%if discount_sub%> & Zwischensumme: &  & <%discount_sub%> \euro  & <%end if%>\\
+  <%end number%>\hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\ 
+  <%foreach tax%>
+  \multicolumn{4}{l}{<%taxdescription%>} & <%tax%> \euro \\
+  <%end tax%>
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%invtotal%> \euro} \\ \hline
 \end{tabularx}
 
-\vspace{0.3cm}
-
-\hfill
-  Alle Preise in \textbf{<%currency%>}.
-
-\vspace{12pt}
-
-<%if notes%>
-  <%notes%>
-<%end if%>
-
-}
-
-%\vfill
-%\centerline{\textbf{salute}}
-
-\renewcommand{\thefootnote}{\fnsymbol{footnote}}
-
-\footnotetext[1]{\tiny
-Rechnung ist bezahlbar innerhalb von <%terms%> Tagen.
-Nach dem <%duedate%> werden Zinsen zu einem
-monatlichen Satz von 1.5\% verrechnet.
-Waren bleiben im Besitz von <%company%> bis die Rechnung voll bezahlt ist.
-Rückgaben werden mit 10 Prozent Lagergebühren belastet. Beschädigte Waren
-und Waren ohne eine Rückgabenummer werden nicht entgegengenommen.
-}
+\vspace{1cm}
+\ifthenelse{\equal{<%deliverydate%>}{}}{Das Leistungsdatum entspricht, soweit nicht anders angegeben, dem Rechnungsdatum.}{Liefertermin: <%deliverydate%>} \\
+Zahlbar bis <%terms%> <%invtotal%> \euro\ ohne Abzüge.
 
 \end{document}
-
 

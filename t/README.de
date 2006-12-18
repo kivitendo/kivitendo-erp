@@ -1,0 +1,142 @@
+Lx-Office Testumgebung
+
+Mit der hier beschriebenen Testumgebung ist es möglich, Lx Office 
+automatisiert zu testen. Automatische Tests haben den großen 
+Vorteil, das verschiedene Standardtests nicht immer wieder von 
+Hand durchgespielt werden müssen, sondern einmal in einem Skript 
+verschriftet immer wieder verwendet werden können.
+Weitere Informationen können im Wiki nachgelesen und ergänzt werden:
+http://wiki.lx-system.de/index.php/Automatisiertes_Testen_von_Modulen
+
+
+
+Aufbau der Testumgebung
+Im Verzeichnis t/ finden sich alle testrelevanten Skripte.Der 
+Aufruf der Tests folgt über 
+#perl t/lx-office.t
+
+lx-office.t ruft alle Einzeltests der Reihe nach auf und fasst sie
+übersichtlich zusammen. Die Einzeltests befinden sich in einem 
+Unterordner von t/. Jeder Unterorder enthält eine Datei AllTests.t, 
+die wiederrum alle einzelnen Tests des Unterordners aufruft.
+
+
+
+t/lxtest.conf t/lxtest.conf.default
+Für die einzelnen Tests werden verschiedene Packetvariablen (globals) 
+zur Verfügung gestellt, um die Testskripte einfach auf 
+unterschiedliche Installationen anpassen zu können und um sich auf 
+die selbe Test-Datenbank und denselben Test-Benutzer beziehen zu können.
+
+Die Datei t/lxtest.conf.default muss zunächst nach t/lxtest.conf 
+kopiert werden. Dann ist die Datei t/lxtest.conf auf die lokalen
+Gegebenheiten anzupassen. Besnders die für Selenium nötigen 
+Einstellungen bedürfen einer Überarbeitung.
+
+Definiert werden die Variablen in der Datei t/lxtest.conf.
+Aufgerufen werden die Variablen $lxtest->{VARIABLE}.
+Es ist ratsam, die vorhandenen Tests zu untersuchen, um sich ein Bild 
+von den Möglichkeiten zu machen.
+
+
+
+Selenium
+Selenium ist eine Testsuite, mit der man Browserinteraktionen 
+simulieren und die Ergebnisse auswerten kann. Der unschlagbare 
+Vorteil von Selenium für das Testen von Lx ist es, dass es 
+möglich wird, eine Test-Datenbank in einfachen Schritten 
+erstellen zu können. Um Seleniumtests durchführen zu können, 
+ist es nötig, das Packet Selenium Remote Control (Selenium RC) 
+lokal zu installieren (Java Runtime ebenfalls erforderlich). 
+Selenium RC gibt es unter:
+http://www.openqa.org/selenium-rc/
+
+Für den Betrieb von Selenium ist eine lokale Workstation mit 
+Browserumgebung nötig.
+
+Der Aufruf von selenium erfolgt unter Windows bspw. so:
+C:\java -jar "C:\selenium-remote-control-0.9.0
+\server\selenium-server.jar"
+
+Unter Linux bspw. so:
+<FIXME>
+
+Die lokalen Einstellungen sind unbedingt in der 
+t/lxtest.conf nachzutragen! Weitere Infos unter
+http://www.openqa.org/selenium-rc/
+
+Dann reicht ein Start von 
+#perl t/lx-office.t
+um dem Testskript bei der Arbeit zuzuschauen.
+
+Leider ist es nötig, auf dem Seleniumserver nach jedem Aufruf
+des Testskripts das Sicherheitszertifikat von LINET Services zu 
+akzeptieren, was etwas nervig ist.
+
+
+t/selenium/
+Der Ordner selenium beinhaltet alle einzelnen selenium Testskripte.
+Aufgerufen werden die Skripte über t/selenium/AllTests.t .
+Neue Tests müssen in dieser Datei angemeldet werden.
+Ziel ist es eine Demodatenbank von Lx mit Daten zu füllen und die 
+Abhängigkeiten untereinander zu prüfen. Dazu sind die 
+individuellen Testskripte nummeriert (001NAME.t bis 999NAME.t) um 
+sie der Reihe nach abzuarbeiten.
+
+Die folgenden Skripte sind bereits installiert:
+
+001CreateTestDatabase.t  Erzeugt eine neue Testdatenbank
+002CreateTestUser.t      Erzeugt einen neuen Testbenutzer
+...
+...
+998DeleteTestUser.t      Löscht den Testbenutzer
+999DeleteTestDatabase.t  Löscht die Testdatenbank
+
+Dazwischen befinden sich die Skripte, um eine Demodatenbank 
+aufzubauen und zu prüfen.
+
+
+
+t/backend/
+In diesem Ordner befinden sich Backend Testskripte.
+
+
+
+t/frontend/
+In diesem Ordner befinden sich Frontend Testskripte, die nicht 
+unter selenium getestet werden.
+
+
+
+Was wenn ein Test fehlschlägt?
+Das Fehlschlagen von Tests kann verschiedene Gründe haben.
+1. Der Test selbst ist fehlerhaft.
+2. Es haben sich Lx Screens verändert, so das der Test von 
+   falschen Voraussetzungen ausgeht
+3. Die zu testende Funktion ist fehlerhaft
+
+Nachdem 1. und 2.  ausgeschlossen wurden, sollte zu 3. ein Bugreport 
+angelegt werden. 
+Bugreports unter https://lx-office.linet-services.de/bugzilla/
+anlegen.
+
+
+
+Eigene Tests
+Eigene testskripte können einfach in die Testumgebung eingebunden 
+werden. Die vorhandenen Skripte können als Anleitung dienen. 
+Bei Selenium Tests ist es am leichtesten, mit Firefox und der 
+Selenium IDE Extension Testpfade einfach aufzuzeichnen.
+( http://www.openqa.org/selenium-ide/ )
+Dann werden die Selenium IDE Testaufzeichnungen in Perl 
+umgewandelt und angepasst. Fertige Skripte werden mit einer 
+laufenden Nummer versehen und in den Ordner t/selenium/ kopiert.
+Dann wird das Skript in der Datei t/selenium/AllTests.t eingefügt.
+Ein erster Probelauf mit 
+#perl t/selenium/AllTests.t sollte den Test absolvieren.
+(Dabei kann es nötig sein, andere Tests auszukommentieren, weil 
+selenium Tests mitunter lange Laufzeiten haben können, oder weil die Demodatenbank 
+und der Benutzer am Ende zu Debugging Zwecken nicht gelöscht werden
+sollen.)
+
+

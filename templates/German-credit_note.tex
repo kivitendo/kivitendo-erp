@@ -1,0 +1,89 @@
+\documentclass[twoside]{scrartcl}
+\usepackage{eurosym}
+\usepackage{tabularx}
+\usepackage{ifthen}
+\usepackage[latin1]{inputenc}
+\begin{document}
+
+\setlength{\parindent}{0cm}
+
+\pagestyle{empty}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+
+\fontfamily{cmss}\fontshape{n}\selectfont
+
+<%pagebreak 80 28 37%>
+\end{tabularx}
+
+\newpage
+
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+<%end pagebreak%>
+
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\vspace*{1.5cm}
+
+\begin{minipage}{8cm}
+  <%name%>
+
+  <%street%>
+
+  <%zipcode%> <%city%>
+
+  <%country%>
+\end{minipage}
+\hfill
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Gutschrift}}} \vspace*{0.2cm}
+  \rightline{\large\textbf{\textit{Nr. <%invnumber%>% \vspace*{0.2cm}
+  }}}
+
+  Gutschriftdatum:\hfill <%invdate%>
+
+  Auftrag-Nr:\hfill <%ordnumber%>
+
+  Telefon:\hfill <%phone%>
+
+  Telefax:\hfill <%fax%>
+
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
+
+Ihre Bestellung <%cusordnumber%> vom <%orddate%>
+% \hfill
+
+\vspace*{0.5cm}
+
+Sehr geehrte Damen und Herren,
+
+\vspace{0.5cm}
+
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+  <%foreach number%>
+    <%runningnumber%> & <%qty%> <%unit%> & \raggedright <%description%> &
+    <%sellprice%> \euro & <%linetotal%> \euro \\
+    <%if discount_sub%> & Zwischensumme: &  & <%discount_sub%> \euro  & <%end if%>\\
+  <%end number%>\hline
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\ 
+  <%foreach tax%>
+  \multicolumn{4}{l}{<%taxdescription%>} & <%tax%> \euro \\
+  <%end tax%>
+  \multicolumn{4}{l}{\textbf{Endbetrag}} & \textbf{<%invtotal%> \euro} \\ \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\end{document}
+
