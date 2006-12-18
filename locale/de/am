@@ -136,6 +136,7 @@ $self->{texts} = {
   'Lead'                        => 'Kundenquelle',
   'Liability'                   => 'Passiva/Mittelherkunft',
   'Link'                        => 'Verknüpfungen',
+  'Long Dates'                  => 'Lange Monatsnamen',
   'Long Description'            => 'Langtext',
   'Name'                        => 'Name',
   'Netto Terms'                 => 'Zahlungsziel netto',
@@ -147,6 +148,7 @@ $self->{texts} = {
   'No part was found matching the search parameters.' => 'Es wurde kein Artikel gefunden, auf den die Suchparameter zutreffen.',
   'No project was found matching the search parameters.' => 'Es wurde kein Projekt gefunden, auf das die Suchparameter zutreffen.',
   'Number'                      => 'Nummer',
+  'Number Format'               => 'Zahlenformat',
   'Output Number Format'        => 'Zahlenformat (Ausgabe)',
   'Part Number'                 => 'Artikelnummer',
   'Part description'            => 'Artikelbeschreibung',
@@ -267,6 +269,7 @@ $self->{texts} = {
   'lead deleted!'               => 'Kundenquelle gelöscht',
   'lead saved!'                 => 'Kundenquelle geichert',
   'service units'               => 'Dienstleistungseinheiten',
+  'use program settings'        => 'benutze Programmeinstellungen',
 };
 
 $self->{subs} = {

@@ -856,9 +856,10 @@ sub language {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT id, description, template_code, article_code
-                 FROM language
-		 ORDER BY 2|;
+  my $query =
+    "SELECT id, description, template_code, article_code, " .
+    "  output_numberformat, output_dateformat, output_longdates " .
+    "FROM language ORDER BY description";
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -882,11 +883,11 @@ sub get_language {
   my $dbh = $form->dbconnect($myconfig);
 
   my $query =
-    qq|SELECT l.description, l.template_code, l.article_code
-                 FROM language l
-	         WHERE l.id = $form->{id}|;
+    "SELECT description, template_code, article_code, " .
+    "  output_numberformat, output_dateformat, output_longdates " .
+    "FROM language WHERE id = ?";
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
 
   my $ref = $sth->fetchrow_hashref(NAME_lc);
 
@@ -899,6 +900,26 @@ sub get_language {
   $main::lxdebug->leave_sub();
 }
 
+sub get_language_details {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $id) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query =
+    "SELECT template_code, " .
+    "  output_numberformat, output_dateformat, output_longdates " .
+    "FROM language WHERE id = ?";
+  my @res = $dbh->selectrow_array($query, undef, $id);
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+
+  return @res;
+}
+
 sub save_language {
   $main::lxdebug->enter_sub();
 
@@ -906,25 +927,30 @@ sub save_language {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
+  my (@values, $query);
 
-  $form->{description} =~ s/\'/\'\'/g;
-  $form->{article_code} =~ s/\'/\'\'/g;
-  $form->{template_code} =~ s/\'/\'\'/g;
-
+  map({ push(@values, $form->{$_}); }
+      qw(description template_code article_code
+         output_numberformat output_dateformat output_longdates));
 
   # id is the old record
   if ($form->{id}) {
-    $query = qq|UPDATE language SET
-		description = '$form->{description}',
-		template_code = '$form->{template_code}',
-		article_code = '$form->{article_code}'
-		WHERE id = $form->{id}|;
+    $query =
+      "UPDATE language SET " .
+      "  description = ?, template_code = ?, article_code = ?, " .
+      "  output_numberformat = ?, output_dateformat = ?, " .
+      "  output_longdates = ? " .
+      "WHERE id = ?";
+    push(@values, $form->{id});
   } else {
-    $query = qq|INSERT INTO language
-                (description, template_code, article_code)
-                VALUES ('$form->{description}', '$form->{template_code}', '$form->{article_code}')|;
+    $query =
+      "INSERT INTO language (" .
+      "  description, template_code, article_code, " .
+      "  output_numberformat, output_dateformat, output_longdates" .
+      ") VALUES (?, ?, ?, ?, ?, ?)";
   }
-  $dbh->do($query) || $form->dberror($query);
+  $dbh->do($query, undef, @values) ||
+    $form->dberror($query . " (" . join(", ", @values) . ")");
 
   $dbh->disconnect;
 
@@ -939,9 +965,9 @@ sub delete_language {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM language
-	      WHERE id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  my $query = "DELETE FROM language WHERE id = ?";
+  $dbh->do($query, undef, $form->{"id"}) ||
+    $form->dberror($query . " ($form->{id})");
 
   $dbh->disconnect;
 

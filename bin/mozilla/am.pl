@@ -1532,7 +1532,7 @@ sub list_language {
 
   $form->{title} = $locale->text('Languages');
 
-  @column_index = qw(description template_code article_code);
+  @column_index = qw(description template_code article_code output_numberformat output_dateformat output_longdates);
 
   $column_header{description} =
       qq|<th class=listheading width=60%>|
@@ -1545,6 +1545,18 @@ sub list_language {
   $column_header{article_code} =
       qq|<th class=listheading>|
     . $locale->text('Article Code')
+    . qq|</th>|;
+  $column_header{output_numberformat} =
+      qq|<th class=listheading>|
+    . $locale->text('Number Format')
+    . qq|</th>|;
+  $column_header{output_dateformat} =
+      qq|<th class=listheading>|
+    . $locale->text('Date Format')
+    . qq|</th>|;
+  $column_header{output_longdates} =
+      qq|<th class=listheading>|
+    . $locale->text('Long Dates')
     . qq|</th>|;
 
   $form->header;
@@ -1584,6 +1596,20 @@ sub list_language {
     $column_data{template_code}           = qq|<td align=right>$ref->{template_code}</td>|;
     $column_data{article_code} =
       qq|<td align=right>$ref->{article_code}</td>|;
+    $column_data{output_numberformat} =
+      "<td nowrap>" .
+      ($ref->{output_numberformat} ? $ref->{output_numberformat} :
+       $locale->text("use program settings")) .
+      "</td>";
+    $column_data{output_dateformat} =
+      "<td nowrap>" .
+      ($ref->{output_dateformat} ? $ref->{output_dateformat} :
+       $locale->text("use program settings")) .
+      "</td>";
+    $column_data{output_longdates} =
+      "<td nowrap>" .
+      ($ref->{output_longdates} ? $locale->text("Yes") : $locale->text("No")) .
+      "</td>";
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -1646,6 +1672,28 @@ sub language_header {
 
   $form->header;
 
+  my $numberformat =
+    qq|<option value="">| . $locale->text("use program settings") .
+    qq|</option>|;
+  foreach $item (qw(1,000.00 1000.00 1.000,00 1000,00)) {
+    $numberformat .=
+      ($item eq $form->{output_numberformat})
+      ? "<option selected>$item"
+      : "<option>$item"
+      . "</option>";
+  }
+
+  my $dateformat =
+    qq|<option value="">| . $locale->text("use program settings") .
+    qq|</option>|;
+  foreach $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
+    $dateformat .=
+      ($item eq $form->{output_dateformat})
+      ? "<option selected>$item"
+      : "<option>$item"
+      . "</option>";
+  }
+
   print qq|
 <body>
 
@@ -1661,15 +1709,33 @@ sub language_header {
   <tr height="5"></tr>
   <tr>
     <th align=right>| . $locale->text('Language') . qq|</th>
-    <td><input name=description size=30 value="$form->{description}"></td>
+    <td><input name=description size=30 value="| . $form->quote($form->{description}) . qq|"></td>
   <tr>
   <tr>
     <th align=right>| . $locale->text('Template Code') . qq|</th>
-    <td><input name=template_code size=5 value=$form->{template_code}></td>
+    <td><input name=template_code size=5 value="| . $form->quote($form->{template_code}) . qq|"></td>
   </tr>
   <tr>
     <th align=right>| . $locale->text('Article Code') . qq|</th>
-    <td><input name=article_code size=10 value=$form->{article_code}></td>
+    <td><input name=article_code size=10 value="| . $form->quote($form->{article_code}) . qq|"></td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Number Format') . qq|</th>
+    <td><select name="output_numberformat">$numberformat</select></td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Date Format') . qq|</th>
+    <td><select name="output_dateformat">$dateformat</select></td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Long Dates') . qq|</th>
+    <td><input type="radio" name="output_longdates" value="1"| .
+    ($form->{output_longdates} ? " checked" : "") .
+    qq|>| . $locale->text("Yes") .
+    qq|<input type="radio" name="output_longdates" value="0"| .
+    ($form->{output_longdates} ? "" : " checked") .
+    qq|>| . $locale->text("No") .
+    qq|</td>
   </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>
