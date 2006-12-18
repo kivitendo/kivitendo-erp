@@ -420,4 +420,74 @@ sub H {
   return $form->quote_html($_[0]);
 }
 
+sub format_dates {
+  $lxdebug->enter_sub();
+
+  my ($dateformat, $longformat, @indices) = @_;
+
+  $dateformat = $myconfig{"dateformat"} unless ($dateformat);
+
+  foreach my $idx (@indices) {
+    next unless (defined($form->{$idx}));
+
+    if (!ref($form->{$idx})) {
+      $form->{$idx} = $locale->reformat_date(\%myconfig, $form->{$idx},
+                                             $dateformat, $longformat);
+
+    } elsif (ref($form->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{$form->{$idx}}); $i++) {
+        $form->{$idx}->[$i] =
+          $locale->reformat_date(\%myconfig, $form->{$idx}->[$i],
+                                 $dateformat, $longformat);
+      }
+    }
+  }
+
+  $lxdebug->leave_sub();
+}
+
+sub reformat_numbers {
+  $lxdebug->enter_sub();
+
+  my ($numberformat, $places, @indices) = @_;
+
+  return $lxdebug->leave_sub()
+    if (!$numberformat || ($numberformat eq $myconfig{"numberformat"}));
+
+  foreach my $idx (@indices) {
+    next unless (defined($form->{$idx}));
+
+    if (!ref($form->{$idx})) {
+      $form->{$idx} = $form->parse_amount(\%myconfig, $form->{$idx});
+
+    } elsif (ref($form->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{$form->{$idx}}); $i++) {
+        $form->{$idx}->[$i] =
+          $form->parse_amount(\%myconfig, $form->{$idx}->[$i]);
+      }
+    }
+  }
+
+  my $saved_numberformat = $myconfig{"numberformat"};
+  $myconfig{"numberformat"} = $numberformat;
+
+  foreach my $idx (@indices) {
+    next unless (defined($form->{$idx}));
+
+    if (!ref($form->{$idx})) {
+      $form->{$idx} = $form->format_amount(\%myconfig, $form->{$idx}, $places);
+
+    } elsif (ref($form->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{$form->{$idx}}); $i++) {
+        $form->{$idx}->[$i] =
+          $form->format_amount(\%myconfig, $form->{$idx}->[$i], $places);
+      }
+    }
+  }
+
+  $myconfig{"numberformat"} = $saved_numberformat;
+
+  $lxdebug->leave_sub();
+}
+
 1;

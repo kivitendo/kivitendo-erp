@@ -35,6 +35,8 @@
 
 use SL::IC;
 
+require "$form->{path}/common.pl";
+
 # any custom scripts for this one
 if (-f "$form->{path}/custom_io.pl") {
   eval { require "$form->{path}/custom_io.pl"; };
@@ -1753,9 +1755,14 @@ sub print_form {
   $form->{"cc"}    = $saved_cc    if ($saved_cc);
   $form->{"bcc"}   = $saved_bcc   if ($saved_bcc);
 
-  # format payment dates
-  for $i (1 .. $form->{paidaccounts} - 1) {
-    $form->{"datepaid_$i"} = $locale->date(\%myconfig, $form->{"datepaid_$i"});
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  if ($form->{"language_id"}) {
+    ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) =
+      AM->get_language_details(\%myconfig, $form, $form->{language_id});
+  } else {
+    $output_dateformat = $myconfig{"dateformat"};
+    $output_numberformat = $myconfig{"numberformat"};
+    $output_longdates = 1;
   }
 
   ($form->{employee}) = split /--/, $form->{employee};
@@ -1766,17 +1773,6 @@ sub print_form {
     OE->order_details(\%myconfig, \%$form);
   } else {
     IS->invoice_details(\%myconfig, \%$form, $locale);
-  }
-
-  # format global dates
-  map { $form->{$_} = $locale->date(\%myconfig, $form->{$_}, 1) }
-    ("${inv}date", "${due}date", "shippingdate", "deliverydate");
-
-  # format item dates
-  for my $field (qw(transdate_oe deliverydate_oe)) {
-    map {
-      $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1);
-    } 0 .. $#{ $form->{$field} };
   }
 
   if ($form->{shipto_id}) {
@@ -1817,6 +1813,39 @@ sub print_form {
   if ($form->{language} ne "") {
     $form->{language} = "_" . $form->{language};
   }
+
+  # Format dates.
+  format_dates($output_dateformat, $output_longdates,
+               qw(invdate orddate quodate pldate duedate reqdate transdate
+                  shippingdate deliverydate validitydate paymentdate
+                  datepaid transdate_oe deliverydate_oe
+                  employee_startdate employee_enddate
+                  ),
+               grep({ /^datepaid_\d+$/ ||
+                        /^transdate_oe_\d+$/ ||
+                        /^deliverydate_oe_\d+$/ ||
+                        /^reqdate_\d+$/ ||
+                        /^deliverydate_\d+$/ ||
+                        /^transdate_\d+$/
+                    } keys(%{$form})));
+
+  reformat_numbers($output_numberformat, 2,
+                   qw(invtotal ordtotal quototal subtotal linetotal
+                      listprice sellprice netprice discount
+                      tax taxbase),
+                   grep({ /^linetotal_\d+$/ ||
+                            /^listprice_\d+$/ ||
+                            /^sellprice_\d+$/ ||
+                            /^netprice_\d+$/ ||
+                            /^taxbase_\d+$/ ||
+                            /^discount_\d+$/ ||
+                            /^tax_\d+$/
+                        } keys(%{$form})));
+
+  reformat_numbers($output_numberformat, undef,
+                   qw(qty),
+                   grep({ /^qty_\d+$/
+                        } keys(%{$form})));
 
   if ($form->{printer_code} ne "") {
     $form->{printer_code} = "_" . $form->{printer_code};
