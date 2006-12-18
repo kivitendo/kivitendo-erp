@@ -2546,4 +2546,33 @@ sub parse_date {
   return ($yy, $mm, $dd);
 }
 
+sub reformat_date {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $date, $output_format, $longformat) = @_;
+
+  $main::lxdebug->leave_sub() and return "" unless ($date);
+
+  my ($yy, $mm, $dd) = $self->parse_date($myconfig, $date);
+
+  $output_format =~ /d+/;
+  substr($output_format, $-[0], $+[0] - $-[0]) =
+    sprintf("%0" . (length($&)) . "d", $dd);
+
+  $output_format =~ /m+/;
+  substr($output_format, $-[0], $+[0] - $-[0]) =
+    sprintf("%0" . (length($&)) . "d", $mm);
+
+  $output_format =~ /y+/;
+  if (length($&) == 2) {
+    $yy -= $yy >= 2000 ? 2000 : 1900;
+  }
+  substr($output_format, $-[0], $+[0] - $-[0]) =
+    sprintf("%0" . (length($&)) . "d", $yy);
+
+  $main::lxdebug->leave_sub();
+
+  return $output_format;
+}
+
 1;
