@@ -1796,7 +1796,7 @@ sub print_form {
         || $form->{formname} eq 'request_quotation') {
       $form->{shiptoname}   = $myconfig{company};
       $form->{shiptostreet} = $myconfig{address};
-        } else {
+    } else {
       map { $form->{"shipto$_"} = $form->{$_} } @a;
     }
   }
@@ -1811,6 +1811,10 @@ sub print_form {
   $form->{printer_code} = $form->get_printer_code(\%myconfig);
 
   if ($form->{language} ne "") {
+    map({ $form->{"unit"}->[$_] =
+            AM->translate_units($form, $form->{"language"},
+                                $form->{"unit"}->[$_], $form->{"qty"}->[$_]); }
+        (0..scalar(@{$form->{"unit"}}) - 1));
     $form->{language} = "_" . $form->{language};
   }
 

@@ -56,6 +56,15 @@
    <th align="right">Faktor</th>
    <td><input name="new_factor"></td>
   </tr>
+
+  <TMPL_LOOP LANGUAGES>
+   <tr>
+    <th align="right"><TMPL_VAR description></th>
+    <td><input name="new_localized_<TMPL_VAR id>" size="20" maxlength="20"></td>
+    <th align="right">Plural</th>
+    <td><input name="new_localized_plural_<TMPL_VAR id>" size="20" maxlength="20"></td>
+   </tr>
+  </TMPL_LOOP>
  </table>
 
  <input type="submit" class="submit" name="action" value="Erfassen">
@@ -77,6 +86,12 @@
   gel&ouml;scht.
  </p>
 
+ <p>
+  Bei den &Uuml;bersetzungen k&ouml;nnen Sie unterschiedliche
+  Varianten f&uuml;r singular und plural angeben (z.B. &quot;day&quot;
+  und &quot;days&quot;).
+ </p>
+
  <table>
   <tr>
    <th class="listheading">&nbsp;</th>
@@ -84,6 +99,9 @@
    <th class="listheading">Einheit</th>
    <th class="listheading">Basiseinheit</th>
    <th class="listheading">Faktor</th>
+   <TMPL_LOOP LANGUAGES>
+    <th class="listheading"><TMPL_VAR description></th>
+   </TMPL_LOOP>
   </tr>
 
   <TMPL_LOOP NAME=UNITS>
@@ -105,16 +123,24 @@
      <td align="center"><input type="checkbox" name="delete_<TMPL_VAR NAME=__counter__>"></td>
      <td>
       <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">
-      <input name="name_<TMPL_VAR NAME=__counter__>" size="20" maxlength="20" value="<TMPL_VAR NAME=name>">
+      <input name="name_<TMPL_VAR NAME=__counter__>" size="10" maxlength="20" value="<TMPL_VAR NAME=name>">
      </td>
      <td>
       <select name="base_unit_<TMPL_VAR NAME=__counter__>">
        <TMPL_LOOP NAME=BASE_UNIT_DDBOX><option <TMPL_VAR NAME=selected>><TMPL_VAR NAME=name></option></TMPL_LOOP>
       </select>
      </td>
-     <td><input name="factor_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=factor>"></td>
-
+     <td><input name="factor_<TMPL_VAR NAME=__counter__>" size="8" value="<TMPL_VAR NAME=factor>"></td>
     </TMPL_IF>
+
+    <TMPL_LOOP UNITLANGUAGES>
+     <td>
+      S:
+      <input name="localized_<TMPL_VAR idx>_<TMPL_VAR language_id>" value="<TMPL_VAR localized>" size="6" maxlength="20">
+      P:
+      <input name="localized_plural_<TMPL_VAR idx>_<TMPL_VAR language_id>" value="<TMPL_VAR localized_plural>" size="6" maxlength="20">
+     </td>
+    </TMPL_LOOP>
    </tr>
 
    <TMPL_IF NAME=__last__><input type="hidden" name="rowcount" value="<TMPL_VAR NAME=__counter__>"></TMPL_IF>

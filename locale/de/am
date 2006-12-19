@@ -375,6 +375,7 @@ $self->{subs} = {
   'select_part'                 => 'select_part',
   'select_part_internal'        => 'select_part_internal',
   'set_longdescription'         => 'set_longdescription',
+  'set_unit_languages'          => 'set_unit_languages',
   'sic_header'                  => 'sic_header',
   'vendor_selection'            => 'vendor_selection',
   'warehouse_header'            => 'warehouse_header',

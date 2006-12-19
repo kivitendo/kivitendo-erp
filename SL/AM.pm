@@ -851,7 +851,7 @@ sub delete_business {
 sub language {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, $return_list) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -864,14 +864,22 @@ sub language {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
+  my $ary = [];
+
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{ALL} }, $ref;
+    push(@{ $ary }, $ref);
   }
 
   $sth->finish;
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+
+  if ($return_list) {
+    return @{$ary};
+  } else {
+    $form->{ALL} = $ary;
+  }
 }
 
 sub get_language {
@@ -2040,15 +2048,64 @@ sub retrieve_units {
   }
   $sth->finish();
 
-  foreach my $unit (keys(%{$units})) {
-    ($units->{$unit}->{"${prefix}base_unit"}, $units->{$unit}->{"${prefix}factor"}) = AM->get_base_unit($units, $unit);
+  my $query_lang = "SELECT id, template_code FROM language ORDER BY description";
+  $sth = $dbh->prepare($query_lang);
+  $sth->execute() || $form->dberror($query_lang);
+  my @languages;
+  while ($ref = $sth->fetchrow_hashref()) {
+    push(@languages, $ref);
   }
+  $sth->finish();
+
+  $query_lang = "SELECT ul.localized, ul.localized_plural, l.id, l.template_code " .
+    "FROM units_language ul " .
+    "LEFT JOIN language l ON ul.language_id = l.id " .
+    "WHERE ul.unit = ?";
+  $sth = $dbh->prepare($query_lang);
+
+  foreach my $unit (values(%{$units})) {
+    ($unit->{"${prefix}base_unit"}, $unit->{"${prefix}factor"}) = AM->get_base_unit($units, $unit->{"name"});
+
+    $unit->{"LANGUAGES"} = {};
+    foreach my $lang (@languages) {
+      $unit->{"LANGUAGES"}->{$lang->{"template_code"}} = { "template_code" => $lang->{"template_code"} };
+    }
+
+    $sth->execute($unit->{"name"}) || $form->dberror($query_lang . " (" . $unit->{"name"} . ")");
+    while ($ref = $sth->fetchrow_hashref()) {
+      map({ $unit->{"LANGUAGES"}->{$ref->{"template_code"}}->{$_} = $ref->{$_} } keys(%{$ref}));
+    }
+  }
+  $sth->finish();
 
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
   return $units;
+}
+
+sub translate_units {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $template_code, $unit, $amount) = @_;
+
+  my $units = $self->retrieve_units(\%main::myconfig, $form);
+
+  my $h = $units->{$unit}->{"LANGUAGES"}->{$template_code};
+  $main::lxdebug->dump(0, "klaus", $h);
+  my $new_unit = $unit;
+  if ($h) {
+    if (($amount != 1) && $h->{"localized_plural"}) {
+      $new_unit = $h->{"localized_plural"};
+    } elsif ($h->{"localized"}) {
+      $new_unit = $h->{"localized"};
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $new_unit;
 }
 
 sub units_in_use {
@@ -2142,12 +2199,24 @@ sub unit_select_html {
 sub add_unit {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $name, $base_unit, $factor, $type) = @_;
+  my ($self, $myconfig, $form, $name, $base_unit, $factor, $type, $languages) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->dbconnect_noauto($myconfig);
 
   my $query = "INSERT INTO units (name, base_unit, factor, type) VALUES (?, ?, ?, ?)";
   $dbh->do($query, undef, $name, $base_unit, $factor, $type) || $form->dberror($query . " ($name, $base_unit, $factor, $type)");
+
+  if ($languages) {
+    $query = "INSERT INTO units_language (unit, language_id, localized, localized_plural) VALUES (?, ?, ?, ?)";
+    my $sth = $dbh->prepare($query);
+    foreach my $lang (@{$languages}) {
+      my @values = ($name, $lang->{"id"}, $lang->{"localized"}, $lang->{"localized_plural"});
+      $sth->execute(@values) || $form->dberror($query . " (" . join(", ", @values) . ")");
+    }
+    $sth->finish();
+  }
+
+  $dbh->commit();
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
@@ -2162,15 +2231,21 @@ sub save_units {
 
   my ($base_unit, $unit, $sth, $query);
 
+  $query = "DELETE FROM units_language";
+  $dbh->do($query) || $form->dberror($query);
+
   if ($delete_units && (0 != scalar(@{$delete_units}))) {
-    $query = "DELETE FROM units WHERE name = ?";
-    $sth = $dbh->prepare($query);
-    map({ $sth->execute($_) || $form->dberror($query . " ($_)"); } @{$delete_units});
-    $sth->finish();
+    $query = "DELETE FROM units WHERE name = (";
+    map({ $query .= "?," } @{$delete_units});
+    substr($query, -1, 1) = ")";
+    $dbh->do($query, undef, @{$delete_units}) || $form->dberror($query . " ($_)");
   }
 
   $query = "UPDATE units SET name = ?, base_unit = ?, factor = ? WHERE name = ?";
   $sth = $dbh->prepare($query);
+
+  my $query_lang = "INSERT INTO units_language (unit, language_id, localized, localized_plural) VALUES (?, ?, ?, ?)";
+  my $sth_lang = $dbh->prepare($query_lang);
 
   foreach $unit (values(%{$units})) {
     $unit->{"depth"} = 0;
@@ -2182,6 +2257,14 @@ sub save_units {
   }
 
   foreach $unit (sort({ $a->{"depth"} <=> $b->{"depth"} } values(%{$units}))) {
+    if ($unit->{"LANGUAGES"}) {
+      foreach my $lang (@{$unit->{"LANGUAGES"}}) {
+        next unless ($lang->{"id"} && $lang->{"localized"});
+        my @values = ($unit->{"name"}, $lang->{"id"}, $lang->{"localized"}, $lang->{"localized_plural"});
+        $sth_lang->execute(@values) || $form->dberror($query_lang . " (" . join(", ", @values) . ")");
+      }
+    }
+
     next if ($unit->{"unchanged_unit"});
 
     my @values = ($unit->{"name"}, $unit->{"base_unit"}, $unit->{"factor"}, $unit->{"old_name"});
@@ -2189,6 +2272,7 @@ sub save_units {
   }
 
   $sth->finish();
+  $sth_lang->finish();
   $dbh->commit();
   $dbh->disconnect();
 

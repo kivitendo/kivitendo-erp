@@ -37,7 +37,7 @@
 
 package CT;
 use Data::Dumper;
-
+use SL::DBUtils;
 
 sub get_tuple {
   $main::lxdebug->enter_sub();
@@ -373,7 +373,6 @@ sub save_customer {
   $form->{obsolete}    *= 1;
   $form->{business}    *= 1;
   $form->{salesman_id} *= 1;
-  $form->{language_id} *= 1;
   $form->{payment_id} *= 1;
   $form->{taxzone_id} *= 1;
   $form->{creditlimit} = $form->parse_amount($myconfig, $form->{creditlimit});
@@ -472,7 +471,7 @@ sub save_customer {
               ustid = '$form->{ustid}',
               username = '$form->{username}',
               salesman_id = '$form->{salesman_id}',
-              language_id = '$form->{language_id}',
+              language_id = | . conv_i($form->{language_id}, "NULL") . qq|,
               payment_id = '$form->{payment_id}',
               taxzone_id = '$form->{taxzone_id}',
               user_password = | . $dbh->quote($form->{user_password}) . qq|,
@@ -518,7 +517,6 @@ sub save_customer {
       $dbh->do($query) || $form->dberror($query);
     }
   }
-  print(STDERR "SHIPTO_ID $form->{shipto_id}\n");
   # add shipto
   $form->add_shipto($dbh, $form->{id}, "CT");
 
@@ -553,7 +551,6 @@ sub save_vendor {
   $form->{obsolete}    *= 1;
   $form->{business}    *= 1;
   $form->{payment_id}    *= 1;
-  $form->{language_id}    *= 1;
   $form->{taxzone_id}    *= 1;
   $form->{creditlimit} = $form->parse_amount($myconfig, $form->{creditlimit});
 
@@ -626,7 +623,7 @@ sub save_vendor {
               ustid = '$form->{ustid}',
               payment_id = '$form->{payment_id}',
               taxzone_id = '$form->{taxzone_id}',
-              language_id = '$form->{language_id}',
+              language_id = | . conv_i($form->{language_id}, "NULL") . qq|,
               username = '$form->{username}',
               user_password = '$form->{user_password}',
               v_customer_id = '$form->{v_customer_id}'

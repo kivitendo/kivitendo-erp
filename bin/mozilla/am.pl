@@ -3531,20 +3531,39 @@ sub edit_units {
   AM->units_in_use(\%myconfig, $form, $units);
   map({ $units->{$_}->{"BASE_UNIT_DDBOX"} = AM->unit_select_data($units, $units->{$_}->{"base_unit"}, 1); } keys(%{$units}));
 
+  @languages = AM->language(\%myconfig, $form, 1);
+
   @unit_list = ();
   foreach $name (sort({ lc($a) cmp lc($b) } grep({ !$units->{$_}->{"base_unit"} } keys(%{$units})))) {
     map({ push(@unit_list, $units->{$_}); }
         sort({ ($units->{$a}->{"resolved_factor"} * 1) <=> ($units->{$b}->{"resolved_factor"} * 1) }
              grep({ $units->{$_}->{"resolved_base_unit"} eq $name } keys(%{$units}))));
   }
-  map({ $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"}, 5) if ($_->{"factor"}); } @unit_list);
+  my $i = 1;
+  foreach (@unit_list) {
+    $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"}, 5) if ($_->{"factor"});
+    $_->{"UNITLANGUAGES"} = [];
+    foreach my $lang (@languages) {
+      push(@{ $_->{"UNITLANGUAGES"} },
+           { "idx" => $i,
+             "unit" => $_->{"name"},
+             "language_id" => $lang->{"id"},
+             "localized" => $_->{"LANGUAGES"}->{$lang->{"template_code"}}->{"localized"},
+             "localized_plural" => $_->{"LANGUAGES"}->{$lang->{"template_code"}}->{"localized_plural"},
+           });
+    }
+    $i++;
+  }
 
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
   $ddbox = AM->unit_select_data($units, undef, 1);
 
   $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
   $form->header();
-  print($form->parse_html_template("am/edit_units", { "UNITS" => \@unit_list, "NEW_BASE_UNIT_DDBOX" => $ddbox }));
+  print($form->parse_html_template("am/edit_units",
+                                   { "UNITS" => \@unit_list,
+                                     "NEW_BASE_UNIT_DDBOX" => $ddbox,
+                                     "LANGUAGES" => \@languages }));
 
   $lxdebug->leave_sub();
 }
@@ -3566,11 +3585,38 @@ sub add_unit {
     $base_unit = $form->{"new_base_unit"};
   }
 
-  AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, $form->{"unit_type"});
+  my @languages;
+  foreach my $lang (AM->language(\%myconfig, $form, 1)) {
+    next unless ($form->{"new_localized_$lang->{id}"} || $form->{"new_localized_plural_$lang->{id}"});
+    push(@languages, { "id" => $lang->{"id"},
+                       "localized" => $form->{"new_localized_$lang->{id}"},
+                       "localized_plural" => $form->{"new_localized_plural_$lang->{id}"},
+         });
+  }
+
+  AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, $form->{"unit_type"}, \@languages);
 
   $form->{"saved_message"} = $locale->text("The unit has been saved.");
 
   edit_units();
+
+  $lxdebug->leave_sub();
+}
+
+sub set_unit_languages {
+  $lxdebug->enter_sub();
+
+  my ($unit, $languages, $idx) = @_;
+
+  $unit->{"LANGUAGES"} = [];
+
+  foreach my $lang (@{$languages}) {
+    push(@{ $unit->{"LANGUAGES"} },
+         { "id" => $lang->{"id"},
+           "localized" => $form->{"localized_${idx}_$lang->{id}"},
+           "localized_plural" => $form->{"localized_plural_${idx}_$lang->{id}"},
+         });
+  }
 
   $lxdebug->leave_sub();
 }
@@ -3580,6 +3626,8 @@ sub save_unit {
 
   $old_units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"}, "resolved_");
   AM->units_in_use(\%myconfig, $form, $old_units);
+
+  @languages = AM->language(\%myconfig, $form, 1);
 
   $new_units = {};
   @delete_units = ();
@@ -3592,6 +3640,7 @@ sub save_unit {
     if ($form->{"unchangeable_$i"}) {
       $new_units->{$form->{"old_name_$i"}} = $old_units->{$form->{"old_name_$i"}};
       $new_units->{$form->{"old_name_$i"}}->{"unchanged_unit"} = 1;
+      set_unit_languages($new_units->{$form->{"old_name_$i"}}, \@languages, $i);
       next;
     }
 
@@ -3610,6 +3659,7 @@ sub save_unit {
     my %h = map({ $_ => $form->{"${_}_$i"} } qw(name base_unit factor old_name));
     $new_units->{$form->{"name_$i"}} = \%h;
     $new_units->{$form->{"name_$i"}}->{"row"} = $i;
+    set_unit_languages($new_units->{$form->{"old_name_$i"}}, \@languages, $i);
   }
 
   foreach $unit (values(%{$new_units})) {
