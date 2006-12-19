@@ -971,12 +971,17 @@ sub delete_language {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query = "DELETE FROM language WHERE id = ?";
+  my $query = "DELETE FROM units_language WHERE language_id = ?";
   $dbh->do($query, undef, $form->{"id"}) ||
     $form->dberror($query . " ($form->{id})");
 
+  $query = "DELETE FROM language WHERE id = ?";
+  $dbh->do($query, undef, $form->{"id"}) ||
+    $form->dberror($query . " ($form->{id})");
+
+  $dbh->commit();
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
