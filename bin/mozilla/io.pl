@@ -1459,7 +1459,7 @@ sub print_options {
 
   $format .= qq|<option value=html $form->{DF}{html}>HTML</option>|;
 
-  if ($latex) {
+  if ($latex_templates) {
     $format .= qq|<option value=postscript $form->{DF}{postscript}>| .
       $locale->text('Postscript') . qq|</option>|;
   }
