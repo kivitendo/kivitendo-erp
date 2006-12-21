@@ -169,12 +169,25 @@ enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 Nach der Installation müssen in der Datei "lx-erp.conf" zwei weitere
 Variablen angepasst werden: "$openofficeorg_writer_bin" muss den
 vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
-"$xvfb_run_bin" muss den Pfad zu einem Script enthalten, dass den "X
-virtual frame buffer" startet und direkt danach ein Programm in ihm
-startet, das dem Script als Parameter übergeben wird. Lx-Office
-enthält bereits ein solches Script namens "xvfb-run", das
-standardmäßig verwendet wird. Es handelt sich dabei um eine gestutzte
-Version des Scripts "xvfb-run" aus dem Debian-Paket "xvfb".
+"$xvfb_bin" muss den Pfad zum "X virtual frame buffer" enthalten.
+
+Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
+OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn
+die Variable "$openofficeorg_daemon" gesetzt ist, startet ein
+OpenOffice, das auch nach der Umwandlung des Dokumentes gestartet
+bleibt. Bei weiteren Umwandlungen wird dann diese laufende Instanz
+benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung deutlich
+reduziert wird, weil nicht für jedes Dokument ein OpenOffice gestartet
+werden muss. Der Nachteil ist, dass diese Methode Python und die
+Python-UNO-Bindings benötigt, die Bestandteil von OpenOffice 2 sind.
+
+Ist "$openofficeorg_daemon" nicht gesetzt, so wird für jedes Dokument
+OpenOffice neu gestartet und die Konvertierung mit Hilfe eines Makros
+durchgeführt. Dieses Makro muss in der Dokumentenvorlage enthalten
+sein und "Standard.Conversion.ConvertSelfToPDF()" heißen. Die
+Beispielvorlage templates/German-invoice.odt enthält ein solches
+Makro, das in jeder anderen Dokumentenvorlage ebenfalls enthalten sein
+muss.
 
 Als letztes muss herausgefunden werden, welchen Namen OpenOffice.org
 Writer dem Verzeichnis mit den Benutzereinstellungen gibt. Unter
