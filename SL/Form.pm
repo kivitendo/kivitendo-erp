@@ -799,9 +799,6 @@ sub parse_template {
   }
 
   close(OUT);
-  
-  use Data::Dumper;
-  #print(STDERR Dumper($self));
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
 
