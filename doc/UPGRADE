@@ -118,9 +118,6 @@ Einige Variablen, die in Dokumentenvorlagen verwendet werden, mussten
 aufgrund von Namenskonflikten umbenannt werden. Dazu gehören:
 
 * Adress- und Kontaktinformationen des angemeldeten Mitarbeiters. Die
-  Variablen "email", "tel", "fax", "name", "signature", "company",
-  "address" und "businessnumber" haben alle einen Präfix "employee_"
-  bekommen und heißen nun "employee_email", "employee_tel",
-  "employee_fax", "employee_name", "employee_signature",
-  "employee_company", "employee_address" und
-  "employee_businessnumber".
+  Variablen "company", "address" und "businessnumber" haben alle einen
+  Präfix "employee_" bekommen und heißen nun "employee_company",
+  "employee_address" und "employee_businessnumber".
