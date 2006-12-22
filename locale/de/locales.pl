@@ -15,6 +15,7 @@ $| = 1;
 $basedir  = "../..";
 $bindir   = "$basedir/bin/mozilla";
 $dbupdir  = "$basedir/sql/Pg-upgrade";
+$dbupdir2 = "$basedir/sql/Pg-upgrade2";
 $menufile = "menu.ini";
 $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 
@@ -45,6 +46,10 @@ opendir DIR, $dbupdir or die "$!";
 @dbplfiles = grep { /\.pl$/ } readdir DIR;
 closedir DIR;
 
+opendir DIR, $dbupdir2 or die "$!";
+@dbplfiles2 = grep { /\.pl$/ } readdir DIR;
+closedir DIR;
+
 # slurp the translations in
 if (-f 'all') {
   require "all";
@@ -59,6 +64,7 @@ if (-f 'all') {
 
 map({ handle_file($_, $bindir); } @progfiles);
 map({ handle_file($_, $dbupdir); } @dbplfiles);
+map({ handle_file($_, $dbupdir2); } @dbplfiles2);
 
 sub handle_file {
   my ($file, $dir) = @_;
