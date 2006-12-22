@@ -440,11 +440,11 @@ sub form_header {
   }
 
   opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $!");
-  @all = grep !/^\.\.?$/, readdir TEMPLATEDIR;
+  @all = grep({ !/^\.\.?$/ && -d "$templates/$_" } readdir(TEMPLATEDIR));
   closedir TEMPLATEDIR;
 
   @allhtml = sort grep /\.html/, @all;
-  @alldir = grep !/\.(html|tex|sty|odt)$/, @all;
+  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @all;
   @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
