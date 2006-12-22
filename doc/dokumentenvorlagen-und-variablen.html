@@ -85,15 +85,6 @@ td {
     Bl&ouml;cke, bedingte Anweisungen und Schleifen</a>
 
    <ol>
-    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_einschr_latex">
-      Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in LaTeX-Vorlagen</a></li>
-
-    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_einschr_opendocument">
-      Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in OpenDocument-Vorlagen</a></li>
-
-    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_include">
-      Die <code>include</code>-Anweisung</a></li>
-
     <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_ifnot">
       Der <code>if not</code>-Block</a></li>
 
@@ -693,47 +684,11 @@ td {
   gesondert behandelt werden. Diese sind wie Variablennamen in spezieller
   Weise markiert: <code>&lt;%anweisung%&gt;</code></p>
 
- <h3><a name="bloecke_einschr_latex">
-   Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in LaTeX-Vorlagen</a></h3>
-
- <p>Achtung: Bl&ouml;cke k&ouml;nnen in LaTeX-Vorlagen momentan nicht
-   verschachtelt werden. Das bedeutet, dass innerhalb einer
-   <code>&lt;%foreach%&gt;</code>-Schleife keine
-   <code>&lt;%if%&gt;</code>-Abfragen verwendet werden k&ouml;nnen. Dieses
-   kann man aber mit LaTeX-Bordmitteln selber nachgebildet werden. Dazu muss
-   im Vorspann das Paket <code>ifthen</code> eingebunden werden. Das Konstrukt
-   selber sieht dann wie folgt aus:</p>
-
- <p class="blue"><code>\ifthenelse{\equal{&lt;%variable%&gt;}{}}{}{Dieser
-   Text erscheint nur, wenn &lt;%variable%&gt; nicht leer ist.}</code></p>
-
- <h3><a name="bloecke_einschr_opendocument">
-   Einsch&auml;nkungen f&uuml;r Bl&ouml;cke in OpenDocument-Vorlagen</a></h3>
-
- <p>Die eben erw&auml;hnten Einschr&auml;nkungen f&uuml;r
-  LaTeX-Vorlagen gelten in abgeschw&auml;chter Form auch f&uuml;r
-  OpenDocument-Vorlagen. Auch bei OpenDocument-Vorlagen k&ouml;nnen
-  Bl&ouml;cke nicht verschachtelt werden. Einzige Ausnahme ist, dass
-  <code>&lt;if&gt;</code> und
-  <code>&lt;ifnot&gt;</code>-Bl&ouml;cke innerhalb von
-  <code>&lt;foreach&gt;</code>-Bl&ouml;cken auftreten
-  d&uuml;rfen.</p>
-
- <h3><a name="bloecke_include">Die <code>include</code>-Anweisung</a></h3>
-
- <p class="blue"><code>&lt;%include dateiname.ext%&gt;</code></p>
-
- <p>Dieser Block funktioniert nur in LaTeX- und HTML-Vorlagen.</p>
-
- <p>F&uuml;gt den Inhalt einer Datei an der entsprechenden Stelle ein. Der
-  eingef&uuml;gte Text wird ganz normal durch den Parser behandelt und kann
-  Variablen und Bl&ouml;cke enthalten.</p>
-
  <h3><a name="bloecke_ifnot">Der <code>if not</code>-Block</a></h3>
 
  <p class="blue"><code>&lt;%if not variablenname%&gt;<br>
    ...<br>
-   &lt;%end if&gt;</code></p>
+   &lt;%end&gt;</code></p>
 
  <p>Eine normale "if-not-then"-Bedingung. Die Zeilen zwischen dem "if not" und
   dem "end" werden nur ausgegeben, wenn die Variable "variablenname" nicht
@@ -743,7 +698,7 @@ td {
 
  <p class="blue"><code>&lt;%if variablenname%&gt;<br>
    ...<br>
-   &lt;%end if&gt;</code></p>
+   &lt;%end&gt;</code></p>
 
  <p>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if" und dem
   "end" werden nur ausgegeben, wenn die Variable "variablenname" gesetzt und
@@ -753,7 +708,7 @@ td {
 
  <p class="blue"><code>&lt;%foreach variablenname%&gt;<br>
    ...<br>
-   &lt;%end foreach&gt;</code></p>
+   &lt;%end&gt;</code></p>
 
  <p>F&uuml;gt die Zeilen zwischen den beiden Anweisungen so oft ein, wie das
   Perl-Array der Variablen "variablenname" Elemente enth&auml;t. Dieses
@@ -771,21 +726,20 @@ td {
    Artikelnummer: &lt;%number%&gt;<br>
    Beschreibung: &lt;%description%&gt;<br>
    ...<br>
-   &lt;%end foreach&gt;</code></p>
+   &lt;%end&gt;</code></p>
 
  <p>Besonderheit in OpenDocument-Vorlagen: Tritt ein
-  <code>&lt;foreach&gt;</code>-Blcok innerhalb einer Tabellenzelle
+  <code>&lt;foreach&gt;</code>-Block innerhalb einer Tabellenzelle
   auf, so wird die komplette Tabellenzeile so oft wiederholt wie
   notwendig. Tritt er au&szlig;erhalb auf, so wird nur der Inhalt
-  zwischen <code>&lt;foreach&gt;</code> und <code>&lt;end
-  foreach&gt;</code> wiederholt, nicht aber die komplette Zeile, in
-  der er steht.</p>
+  zwischen <code>&lt;foreach&gt;</code> und <code>&lt;end&gt;</code>
+  wiederholt, nicht aber die komplette Zeile, in der er steht.</p>
 
  <h3><a name="bloecke_pagebreak">Der <code>pagebreak</code>-Block</a></h3>
 
  <p class="blue"><code>&lt;%pagebreak ZpZ ZeS ZzS%&gt;<br>
    ...<br>
-   &lt;%end pagebreak%&gt;</code></p>
+   &lt;%end&gt;</code></p>
 
  <p>Dieser Block existiert nur in LaTeX-Vorlagen.</p>
 
