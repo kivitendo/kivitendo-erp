@@ -111,8 +111,8 @@ Wird in einer Verkaufs- oder Einkaufsmaske eine andere Steuerzone als
 Inland ausgewählt, werden bei den Artikeln auch automatisch die
 anderen Erlös- und Aufwandskonten der Buchungsgruppe verwendet.
 
-Umbennante Vorlagenvariablen
-----------------------------
+Dokumentenvorlagen, Umbennante Vorlagenvariablen
+------------------------------------------------
 
 Einige Variablen, die in Dokumentenvorlagen verwendet werden, mussten
 aufgrund von Namenskonflikten umbenannt werden. Dazu gehören:
@@ -121,3 +121,6 @@ aufgrund von Namenskonflikten umbenannt werden. Dazu gehören:
   Variablen "company", "address" und "businessnumber" haben alle einen
   Präfix "employee_" bekommen und heißen nun "employee_company",
   "employee_address" und "employee_businessnumber".
+
+Zu beachten ist außerdem, dass der Befehl <%include ...%> in
+Dokumentenvorlagen nicht mehr zur Verfügung steht.
