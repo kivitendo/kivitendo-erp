@@ -6,7 +6,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 
 Upgrade von v2.2.0 bis 2.2.2 auf 2.4.0
---------------------------------------
+======================================
 
 Ein direktes Upgrade von den unmodifizierten Versionen 2.2.0, 2.2.1
 und 2.2.2 auf 2.4.0 ist möglich. Es solches Upgrade besteht aus zwei
@@ -110,3 +110,17 @@ korrekt zugeordnet.
 Wird in einer Verkaufs- oder Einkaufsmaske eine andere Steuerzone als
 Inland ausgewählt, werden bei den Artikeln auch automatisch die
 anderen Erlös- und Aufwandskonten der Buchungsgruppe verwendet.
+
+Umbennante Vorlagenvariablen
+----------------------------
+
+Einige Variablen, die in Dokumentenvorlagen verwendet werden, mussten
+aufgrund von Namenskonflikten umbenannt werden. Dazu gehören:
+
+* Adress- und Kontaktinformationen des angemeldeten Mitarbeiters. Die
+  Variablen "email", "tel", "fax", "name", "signature", "company",
+  "address" und "businessnumber" haben alle einen Präfix "employee_"
+  bekommen und heißen nun "employee_email", "employee_tel",
+  "employee_fax", "employee_name", "employee_signature",
+  "employee_company", "employee_address" und
+  "employee_businessnumber".
