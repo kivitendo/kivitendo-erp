@@ -774,6 +774,8 @@ sub parse_template {
 
   map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
       qw(email tel fax name signature company address businessnumber));
+  map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
+      qw(company address signature));
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
