@@ -1852,7 +1852,7 @@ sub retrieve_accounts {
   $sth->finish();
   $dbh->disconnect();
 
-  return $lxdebug->leave_sub() unless ($ref);
+  return $main::lxdebug->leave_sub() unless ($ref);
 
   $form->{"taxaccounts_$index"} = $ref->{"accno"};
   if ($form->{"taxaccounts"} !~ /$ref->{accno}/) {
