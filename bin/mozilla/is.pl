@@ -324,6 +324,11 @@ sub form_header {
     }
   }
 
+  my $set_duedate_url =
+    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=set_duedate";
+
+  my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
+  push(@ { $form->{AJAX} }, $pjx);
 
   if (@{ $form->{TAXZONE} }) {
     $form->{selecttaxzone} = "";
@@ -911,7 +916,7 @@ sub form_footer {
 	      <tr valign=top>
 		<td>$notes</td>
 		<td>$intnotes</td>
-                <td><select name=payment_id tabindex=24>$payment
+                <td><select name=payment_id onChange="set_duedate(['payment_id__' + this.value],['duedate'])">$payment
                 </select></td>
 	      </tr>
 	    </table>

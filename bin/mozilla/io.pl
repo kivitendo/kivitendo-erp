@@ -34,6 +34,8 @@
 #######################################################################
 
 use SL::IC;
+use CGI::Ajax;
+use CGI;
 
 require "$form->{path}/common.pl";
 
@@ -2189,3 +2191,18 @@ sub relink_accounts {
 
   $lxdebug->leave_sub();
 }
+
+
+sub set_duedate {
+  $lxdebug->enter_sub();
+
+  $form->get_duedate(\%myconfig);
+
+  my $q = new CGI;
+  $result = "$form->{duedate}";
+  print $q->header();
+  print $result;
+  $lxdebug->leave_sub();
+
+}
+

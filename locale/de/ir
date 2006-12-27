@@ -250,6 +250,7 @@ $self->{subs} = {
   'select_part_internal'        => 'select_part_internal',
   'select_project'              => 'select_project',
   'send_email'                  => 'send_email',
+  'set_duedate'                 => 'set_duedate',
   'set_longdescription'         => 'set_longdescription',
   'set_pricegroup'              => 'set_pricegroup',
   'ship_to'                     => 'ship_to',

@@ -1325,6 +1325,24 @@ sub get_employee {
   $main::lxdebug->leave_sub();
 }
 
+sub get_duedate {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+
+  my $dbh = $self->dbconnect($myconfig);
+  my $query = qq|SELECT current_date+terms_netto FROM payment_terms
+                 WHERE id = '$self->{payment_id}'|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $self->dberror($query);
+
+  ($self->{duedate}) = $sth->fetchrow_array;
+
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
 # get other contact for transaction and form - html/tex
 sub get_contact {
   $main::lxdebug->enter_sub();
