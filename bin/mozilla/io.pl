@@ -548,7 +548,7 @@ sub set_pricegroup {
 
 sub select_item {
   $lxdebug->enter_sub();
-  @column_index = qw(ndx partnumber description onhand sellprice);
+  @column_index = qw(ndx partnumber description onhand unit sellprice);
 
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
   $column_data{partnumber} =
@@ -559,7 +559,8 @@ sub select_item {
     qq|<th class=listheading>| . $locale->text('Price') . qq|</th>|;
   $column_data{onhand} =
     qq|<th class=listheading>| . $locale->text('Qty') . qq|</th>|;
-
+  $column_data{unit} =
+    qq|<th class=listheading>| . $locale->text('Unit') . qq|</th>|;
   # list items with radio button on a form
   $form->header;
 
@@ -617,7 +618,8 @@ sub select_item {
       qq|<td align=right><input name="new_onhand_$i" type=hidden value=$ref->{onhand}>|
       . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
       . qq|</td>|;
-
+    $column_data{unit} =
+      qq|<td>$ref->{unit}</td>|;
     $j++;
     $j %= 2;
     print qq|
