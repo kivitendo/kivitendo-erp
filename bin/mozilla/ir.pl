@@ -279,10 +279,11 @@ sub form_header {
     foreach $item (@{ $form->{TAXZONE} }) {
       if ($item->{id} == $form->{taxzone_id}) {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>$item->{description}</option>";
+          "<option value=$item->{id} selected>" . H($item->{description}) .
+          "</option>";
       } else {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id}>$item->{description}</option>";
+          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
       }
 
     }
@@ -292,11 +293,6 @@ sub form_header {
       $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
     }
   }
-  if ($form->{rowcount} >1) {
-    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
-    $form->{selecttaxzone} = $&;
-  }
-  
 
   $taxzone = qq|
 	      <tr>
