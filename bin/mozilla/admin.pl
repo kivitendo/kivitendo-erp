@@ -539,8 +539,8 @@ sub form_header {
 	  <td><textarea name=address rows=4 cols=35>$myconfig->{address}</textarea></td>
 	</tr>
         <tr valign=top>
-	  <th align=right>| . $locale->text('Steuernummer') . qq|</th>
-	  <td><input name=steuernummer size=14 value="$myconfig->{steuernummer}"></td>
+	  <th align=right>| . $locale->text('Tax number') . qq|</th>
+	  <td><input name=taxnumber size=14 value="$myconfig->{taxnumber}"></td>
 	</tr>
         <tr valign=top>
 	  <th align=right>| . $locale->text('Ust-IDNr') . qq|</th>

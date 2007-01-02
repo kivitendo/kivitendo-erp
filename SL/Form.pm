@@ -773,7 +773,8 @@ sub parse_template {
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
   map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
-      qw(email tel fax name signature company address businessnumber));
+      qw(email tel fax name signature company address businessnumber
+         co_ustid taxnumber duns));
   map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
       qw(company address signature));
 
