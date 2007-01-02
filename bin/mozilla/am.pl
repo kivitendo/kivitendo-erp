@@ -2451,7 +2451,7 @@ sub list_payment {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=type value=business>
+<input type=hidden name=type value=payment>
 
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
