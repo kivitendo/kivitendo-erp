@@ -1145,6 +1145,13 @@ sub set_payment_options {
     $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
     $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
     $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
+    $self->{payment_terms} =~ s/<%total%>/$self->{total}/g;
+    $self->{payment_terms} =~ s/<%invtotal%>/$self->{invtotal}/g;
+    $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
+    $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
+    $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
+    $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
+    $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
 
     $dbh->disconnect;
   }
