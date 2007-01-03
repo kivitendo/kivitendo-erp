@@ -1783,6 +1783,8 @@ sub retrieve_accounts {
     } else {
       $transdate = $form->{deliverydate};
     }
+  } elsif ($form->{type} eq "credit_note") {
+    $transdate = $form->{invdate};
   } else {
     $transdate = $form->{transdate};
   }
