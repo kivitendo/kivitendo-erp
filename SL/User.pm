@@ -732,7 +732,7 @@ sub update_available {
 
   opendir SQLDIR, "sql/${dbdriver}-upgrade" or &error("", "sql/${dbdriver}-upgrade: $!");
   my @upgradescripts =
-    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)/, readdir(SQLDIR));
+    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir(SQLDIR));
   closedir SQLDIR;
 
   return ($#upgradescripts > -1);
