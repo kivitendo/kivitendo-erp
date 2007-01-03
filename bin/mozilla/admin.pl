@@ -440,11 +440,12 @@ sub form_header {
   }
 
   opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $!");
-  @all = grep({ !/^\.\.?$/ && -d "$templates/$_" } readdir(TEMPLATEDIR));
+  my @all = readdir(TEMPLATEDIR);
+  my @alldir = sort(grep({ -d "$templates/$_" && !/^\.\.?$/ } @all));
+  my @allhtml = sort(grep({ -f "$templates/$_" && /\.html$/ } @all));
   closedir TEMPLATEDIR;
 
-  @allhtml = sort grep /\.html/, @all;
-  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @all;
+  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
   @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
@@ -473,7 +474,7 @@ sub form_header {
   }
 
   opendir CSS, "css/.";
-  @all = grep /.*\.css$/, readdir CSS;
+  @all = sort(grep({ /\.css$/ && ($_ ne "tabcontent.css") } readdir(CSS)));
   closedir CSS;
 
   foreach $item (@all) {
@@ -483,7 +484,6 @@ sub form_header {
       $selectstylesheet .= qq|<option>$item\n|;
     }
   }
-  $selectstylesheet .= "<option>\n";
 
   $form->header;
 
