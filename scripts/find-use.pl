@@ -23,8 +23,7 @@ http://www.ledgersmb.org/ - The LedgerSMB team
 
 =head1 LICENSE
 
-Distributed under the terms of the LedgerSMB code.
-
+Distributed under the terms of the GNU General Public License v2.
 =cut
 
 
