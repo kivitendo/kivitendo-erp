@@ -2637,7 +2637,16 @@ sub print_options {
   $lxdebug->enter_sub();
 
   $form->{sendmode} = "attachment";
-  $form->{copies}   = 2 unless $form->{copies};
+
+  $form->{"format"} =
+    $form->{"format"} ? $form->{"format"} :
+    $myconfig{"template_format"} ? $myconfig{"template_format"} :
+    "pdf";
+
+  $form->{"copies"} =
+    $form->{"copies"} ? $form->{"copies"} :
+    $myconfig{"copies"} ? $myconfig{"copies"} :
+    2;
 
   $form->{PD}{ $form->{type} }     = "selected";
   $form->{DF}{ $form->{format} }   = "selected";

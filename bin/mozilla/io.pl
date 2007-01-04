@@ -1352,7 +1352,16 @@ sub send_email {
 sub print_options {
   $lxdebug->enter_sub();
   $form->{sendmode} = "attachment";
-  $form->{copies}   = 3 unless $form->{copies};
+
+  $form->{"format"} =
+    $form->{"format"} ? $form->{"format"} :
+    $myconfig{"template_format"} ? $myconfig{"template_format"} :
+    "pdf";
+
+  $form->{"copies"} =
+    $form->{"copies"} ? $form->{"copies"} :
+    $myconfig{"copies"} ? $myconfig{"copies"} :
+    3;
 
   $form->{PD}{ $form->{formname} } = "selected";
   $form->{DF}{ $form->{format} }   = "selected";

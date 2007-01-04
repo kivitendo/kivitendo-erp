@@ -69,8 +69,6 @@ sub add {
   }
   &invoice_links;
   &prepare_invoice;
-  $form->{format} = "pdf";
-
   &display_form;
 
   $lxdebug->leave_sub();

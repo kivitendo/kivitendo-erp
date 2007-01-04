@@ -2907,6 +2907,37 @@ sub config {
     $myconfig{$item} =~ s/\\n/\r\n/g;
   }
 
+  @formats = ();
+  if ($opendocument_templates && $openofficeorg_writer_bin &&
+      $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)) {
+    push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
+                     "value" => "opendocument_pdf" });
+  }
+  if ($latex_templates) {
+    push(@formats, { "name" => $locale->text("PDF"), "value" => "pdf" });
+  }
+  push(@formats, { "name" => "HTML", "value" => "html" });
+  if ($latex_templates) {
+    push(@formats, { "name" => $locale->text("Postscript"),
+                     "value" => "postscript" });
+  }
+  if ($opendocument_templates) {
+    push(@formats, { "name" => $locale->text("OpenDocument/OASIS"),
+                     "value" => "opendocument" });
+  }
+
+  if (!$myconfig{"template_format"}) {
+    $myconfig{"template_format"} = "pdf";
+  }
+  $template_format = "";
+  foreach $item (@formats) {
+    $template_format .=
+      "<option value=\"$item->{value}\"" .
+      ($item->{"value"} eq $myconfig{"template_format"} ?
+       " selected" : "") .
+       ">" . H($item->{"name"}) . "</option>";
+  }
+
   %countrycodes = User->country_codes;
   $countrycodes = '';
   foreach $key (sort { $countrycodes{$a} cmp $countrycodes{$b} }
@@ -3038,6 +3069,20 @@ sub config {
   		  <input name=menustyle type=radio class=radio value=old $oldS>&nbsp;Old</td>
 	</tr>	
 	<input name=printer type=hidden value="$myconfig{printer}">
+	<tr class=listheading>
+	  <th colspan=2>| . $locale->text("Print options") . qq|</th>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Default template format') . qq|</th>
+	  <td><select name="template_format">$template_format</select></td>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Number of copies') . qq|</th>
+	  <td><input name="copies" size="10" value="| .
+    $form->quote($myconfig{"copies"}) . qq|"></td>
+	</tr>
+
+
 	<tr class=listheading>
 	  <th colspan=2>&nbsp;</th>
 	</tr>
