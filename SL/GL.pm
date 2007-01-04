@@ -622,15 +622,15 @@ sub transaction {
 		FROM acc_trans a
 		JOIN chart c ON (c.id = a.chart_id)
 		LEFT JOIN project p ON (p.id = a.project_id)
-                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link='%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
+                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link LIKE '%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
                 WHERE a.trans_id = $form->{id}
 		AND a.fx_transaction = '0'
 		ORDER BY a.oid,a.transdate|;
 
-
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
+    $form->{GL} = [];
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $form->{GL} }, $ref;
     }
@@ -639,7 +639,7 @@ sub transaction {
     $query = qq| SELECT * FROM tax t order by t.taxkey|;
     $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    $form->{TAX} = ();
+    $form->{TAX} = [];
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $form->{TAX} }, $ref;
     }
