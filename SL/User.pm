@@ -524,7 +524,8 @@ sub process_query {
              $dbh->quote($version_or_control->{"tag"}) . ", " .
              $dbh->quote($form->{"login"}) . ")");
   } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+    $dbh->do("UPDATE defaults SET version = " .
+             $dbh->quote($version_or_control));
   }
   $dbh->commit();
 
