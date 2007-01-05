@@ -4,8 +4,6 @@
 
 die("This script cannot be run from the command line.") unless ($main::form);
 
-use SL::AM;
-
 sub mydberror {
   my ($msg) = @_;
   die($dbup_locale->text("Database update error:") .
@@ -20,6 +18,75 @@ sub myshowerror {
   return 2;
 }
 
+sub get_base_unit {
+  my ($units, $unit_name, $factor) = @_;
+
+  $factor = 1 unless ($factor);
+
+  my $unit = $units->{$unit_name};
+
+  if (!defined($unit) || !$unit->{"base_unit"} ||
+      ($unit_name eq $unit->{"base_unit"})) {
+    return ($unit_name, $factor);
+  }
+
+  return get_base_unit($units, $unit->{"base_unit"}, $factor * $unit->{"factor"});
+}
+
+sub retrieve_units {
+  my ($myconfig, $form, $type, $prefix) = @_;
+
+  my $query = "SELECT *, base_unit AS original_base_unit FROM units";
+  my @values;
+  if ($type) {
+    $query .= " WHERE (type = ?)";
+    @values = ($type);
+  }
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute(@values) || $form->dberror($query . " (" . join(", ", @values) . ")");
+
+  my $units = {};
+  while (my $ref = $sth->fetchrow_hashref()) {
+    $units->{$ref->{"name"}} = $ref;
+  }
+  $sth->finish();
+
+  my $query_lang = "SELECT id, template_code FROM language ORDER BY description";
+  $sth = $dbh->prepare($query_lang);
+  $sth->execute() || $form->dberror($query_lang);
+  my @languages;
+  while ($ref = $sth->fetchrow_hashref()) {
+    push(@languages, $ref);
+  }
+  $sth->finish();
+
+  foreach my $unit (values(%{$units})) {
+    ($unit->{"${prefix}base_unit"}, $unit->{"${prefix}factor"}) = get_base_unit($units, $unit->{"name"});
+  }
+
+  return $units;
+}
+
+sub unit_select_data {
+  my ($units, $selected, $empty_entry) = @_;
+
+  my $select = [];
+
+  if ($empty_entry) {
+    push(@{$select}, { "name" => "", "base_unit" => "", "factor" => "", "selected" => "" });
+  }
+
+  foreach my $unit (sort({ lc($a) cmp lc($b) } keys(%{$units}))) {
+    push(@{$select}, { "name" => $unit,
+                       "base_unit" => $units->{$unit}->{"base_unit"},
+                       "factor" => $units->{$unit}->{"factor"},
+                       "selected" => ($unit eq $selected) ? "selected" : "" });
+  }
+
+  return $select;
+}
+
 sub update_units_add_unit {
   my $form = $main::form;
 
@@ -27,10 +94,10 @@ sub update_units_add_unit {
 
   return myshowerror($dbup_locale->text("The name is missing."))
     if ($form->{"new_name"} eq "");
-  my $units = AM->retrieve_units(\%dbup_myconfig, $form);
+  my $units = retrieve_units(\%dbup_myconfig, $form);
   return myshowerror($dbup_locale->text("A unit with this name does already exist."))
     if ($units->{$form->{"new_name"}});
-  $units = AM->retrieve_units(\%dbup_myconfig, $form, $form->{"unit_type"});
+  $units = retrieve_units(\%dbup_myconfig, $form, $form->{"unit_type"});
 
   my ($base_unit, $factor);
   if ($form->{"new_base_unit"}) {
@@ -145,8 +212,8 @@ sub update_units_steps_1_2 {
   }
 
   if (scalar(keys(%unknown_dimension_units)) != 0) {
-    my $units = AM->retrieve_units(\%dbup_myconfig, $form, "dimension");
-    my $ddbox = AM->unit_select_data($units, undef, 1);
+    my $units = retrieve_units(\%dbup_myconfig, $form, "dimension");
+    my $ddbox = unit_select_data($units, undef, 1);
 
     my @unknown_parts;
     map({ push(@unknown_parts, { "name" => $_, "NEW_UNITS" => $ddbox }); }
@@ -164,8 +231,8 @@ sub update_units_steps_1_2 {
   }
 
   if (scalar(keys(%unknown_service_units)) != 0) {
-    my $units = AM->retrieve_units(\%dbup_myconfig, $form, "service");
-    my $ddbox = AM->unit_select_data($units, undef, 1);
+    my $units = retrieve_units(\%dbup_myconfig, $form, "service");
+    my $ddbox = unit_select_data($units, undef, 1);
 
     my @unknown_services;
     map({ push(@unknown_services, { "name" => $_, "NEW_UNITS" => $ddbox }); }
@@ -197,12 +264,12 @@ sub update_units_step_3 {
   my ($has_unassigned) = $dbh->selectrow_array($query);
 
   if ($has_unassigned) {
-    my $dimension_units = AM->retrieve_units(\%dbup_myconfig, $form,
+    my $dimension_units = retrieve_units(\%dbup_myconfig, $form,
                                              "dimension");
-    my $dimension_ddbox = AM->unit_select_data($dimension_units);
+    my $dimension_ddbox = unit_select_data($dimension_units);
 
-    my $service_units = AM->retrieve_units(\%dbup_myconfig, $form, "service");
-    my $service_ddbox = AM->unit_select_data($service_units);
+    my $service_units = retrieve_units(\%dbup_myconfig, $form, "service");
+    my $service_ddbox = unit_select_data($service_units);
 
     print($form->parse_html_template("dbupgrade/units_set_default",
                                      { "DIMENSION_DDBOX" => $dimension_ddbox,
