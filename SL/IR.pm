@@ -1147,7 +1147,7 @@ sub retrieve_item {
       $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
   }
 
-  my $query = qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
+  my $query = qq|SELECT p.id, p.partnumber, p.description, p.lastcost AS sellprice,
                         p.listprice, p.inventory_accno_id,
                         c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid,
 			c2.accno AS income_accno, c2.new_chart_id AS income_new_chart, date($transdate)  - c2.valid_from as income_valid,
