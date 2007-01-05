@@ -55,8 +55,9 @@
     <tr>
      <td>Inventar:</td>
      <td>
-      <input type="hidden" name="inventory_accno_id_<TMPL_VAR __counter__>" value="<TMPL_VAR inventory_accno_id ESCAPE=HTML>">
-      <TMPL_VAR inventory_accno ESCAPE=HTML>--<TMPL_VAR inventory_description ESCAPE=HTML>
+      <select name="inventory_accno_id_<TMPL_VAR __counter__>">
+       <TMPL_LOOP ACC_INVENTORY><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
      </td>
     </tr>
    </TMPL_IF>
