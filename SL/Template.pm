@@ -213,7 +213,9 @@ sub parse_foreach {
       $sum += $form->parse_amount($self->{"myconfig"},
                                   $form->{"linetotal"}->[$i]);
     }
-
+    
+    $form->{"cumulatelinetotal"}[$i] = $form->format_amount($self->{"myconfig"}, $sum, 2);
+    
     my $new_text = $self->parse_block($text, (@indices, $i));
     return undef unless (defined($new_text));
     $new_contents .= $start_tag . $new_text . $end_tag;
