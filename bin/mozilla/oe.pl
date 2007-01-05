@@ -2481,6 +2481,13 @@ sub poso {
   map { delete $form->{$_} }
     qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal);
 
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
+
   &order_links;
 
   &prepare_order;
