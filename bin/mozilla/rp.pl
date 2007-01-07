@@ -495,7 +495,7 @@ $checked></td>
          <th align=right colspan=4>|
       . $locale->text('Decimalplaces')
       . qq|</th>
-             <td><input name=decimalplaces size=3></td>
+             <td><input name=decimalplaces size=3 value="2"></td>
          </tr>
                                     
 $jsscript
@@ -620,7 +620,7 @@ $checked></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Decimalplaces') . qq|</th>
-	  <td><input name=decimalplaces size=3></td>
+	  <td><input name=decimalplaces size=3 value="2"></td>
 	</tr>
       </table>
     </td>
