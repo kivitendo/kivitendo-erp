@@ -972,7 +972,7 @@ sub post_as_new {
 sub use_as_template {
   $lxdebug->enter_sub();
 
-  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1);
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
