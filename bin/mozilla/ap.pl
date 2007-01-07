@@ -719,25 +719,24 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  if ($form->{id} && $form->{radier}) {
+  if ($form->{id}) {
 
     #     print qq|<input class=submit type=submit name=action value="|.$locale->text('Update').qq|">
     # |;
+  if ($form->{radier}) {
         print qq|
 	<input class=submit type=submit name=action value="|
           . $locale->text('Post') . qq|">
 	<input class=submit type=submit name=action value="|
           . $locale->text('Delete') . qq|">
 |;
+  }
 
-
-    if ($transdate > $closedto) {
       print qq|
 <input class=submit type=submit name=action value="|
-        . $locale->text('Post as new') . qq|">
+        . $locale->text('Use As Template') . qq|">
 |;
-    }
-
+ 
   } else {
     if (($transdate > $closedto) && !$form->{id}) {
       print qq|<input class=submit type=submit name=action value="|
@@ -937,6 +936,18 @@ sub post_as_new {
 
   $form->{postasnew} = 1;
   &post;
+
+  $lxdebug->leave_sub();
+}
+
+sub use_as_template {
+  $lxdebug->enter_sub();
+
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1);
+  $form->{paidaccounts} = 1;
+  $form->{rowcount}--;
+  $form->{invdate} = $form->current_date(\%myconfig);
+  &update;
 
   $lxdebug->leave_sub();
 }

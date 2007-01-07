@@ -1093,6 +1093,9 @@ if ($form->{type} eq "credit_note") {
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Post Payment') . qq|">
 |;
+    print qq|<input class=submit type=submit name=action value="|
+      . $locale->text('Use As Template') . qq|">
+|;
   if ($form->{id} && !($form->{type} eq "credit_note")) {
     print qq|
     <input class=submit type=submit name=action value="|
@@ -1436,6 +1439,18 @@ sub print_and_post {
   &edit();
   $lxdebug->leave_sub();
 
+}
+
+sub use_as_template {
+  $lxdebug->enter_sub();
+
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1);
+  $form->{paidaccounts} = 1;
+  $form->{rowcount}--;
+  $form->{invdate} = $form->current_date(\%myconfig);
+  &display_form;
+
+  $lxdebug->leave_sub();
 }
 
 sub storno {

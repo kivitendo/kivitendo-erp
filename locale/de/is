@@ -201,6 +201,7 @@ $self->{texts} = {
   'Trade Discount'              => 'Rabatt',
   'Unit'                        => 'Einheit',
   'Update'                      => 'Erneuern',
+  'Use As Template'             => 'Als Vorlage verwenden',
   'Value'                       => 'Wert',
   'Variable'                    => 'Variable',
   'Vendor Number'               => 'Lieferantennummer',
@@ -284,6 +285,7 @@ $self->{subs} = {
   'ship_to'                     => 'ship_to',
   'storno'                      => 'storno',
   'update'                      => 'update',
+  'use_as_template'             => 'use_as_template',
   'validate_items'              => 'validate_items',
   'vendor_details'              => 'vendor_details',
   'vendor_invoice'              => 'vendor_invoice',
@@ -302,6 +304,7 @@ $self->{subs} = {
   'lieferadresse'               => 'ship_to',
   'storno'                      => 'storno',
   'erneuern'                    => 'update',
+  'als_vorlage_verwenden'       => 'use_as_template',
   'ja'                          => 'yes',
 };
 
