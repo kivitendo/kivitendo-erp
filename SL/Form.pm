@@ -366,6 +366,8 @@ sub header {
  |;
     }
 
+    $self->{favicon}    = "favicon.ico" unless $self->{favicon};
+
     if ($self->{favicon} && (-f "$self->{favicon}")) {
       $favicon =
         qq|<LINK REL="shortcut icon" HREF="$self->{favicon}" TYPE="image/x-icon">
