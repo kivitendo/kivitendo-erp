@@ -239,9 +239,9 @@ sub create_links {
           }
           $form->{"${key}_$k"} =
             "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
+          my $q_description = quotemeta($form->{acc_trans}{$key}->[$i-1]->{description});
           $form->{"select${key}"} =~
-            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}<\/option>\n/;
-          $test = $1;
+            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--${q_description}<\/option>\n/;
           $form->{"${key}_$k"} = $1;
           if ($akey eq 'amount') {
             $form->{"taxchart_$k"} = $form->{taxchart};
