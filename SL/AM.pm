@@ -2240,10 +2240,11 @@ sub save_units {
   $dbh->do($query) || $form->dberror($query);
 
   if ($delete_units && (0 != scalar(@{$delete_units}))) {
-    $query = "DELETE FROM units WHERE name = (";
+    $query = "DELETE FROM units WHERE name IN (";
     map({ $query .= "?," } @{$delete_units});
     substr($query, -1, 1) = ")";
-    $dbh->do($query, undef, @{$delete_units}) || $form->dberror($query . " ($_)");
+    $dbh->do($query, undef, @{$delete_units}) ||
+      $form->dberror($query . " (" . join(", ", @{$delete_units}) . ")");
   }
 
   $query = "UPDATE units SET name = ?, base_unit = ?, factor = ? WHERE name = ?";
