@@ -1033,7 +1033,7 @@ sub generate_ustva {
     $form->{bold}    = "<b>";
     $form->{endbold} = "</b>";
     $form->{br}      = "<br>";
-    $form->{address} =~ s/\\n/<br \/>/g;
+    $form->{address} =~ s/\\n/\n/g;
 
   } elsif ($form->{format} =~ /^elster/) {
 

@@ -1253,7 +1253,8 @@ sub generate_balance_sheet {
   $form->{IN} = "balance_sheet.html";
 
   # setup company variables for the form
-  map { $form->{$_} = $myconfig{$_} }
+  map { $form->{$_} = $myconfig{$_};
+        $form->{$_} =~ s/\\n/\n/g; }
     (qw(company address businessnumber nativecurr));
 
   $form->{templates} = $myconfig{templates};
