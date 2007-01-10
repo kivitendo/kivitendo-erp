@@ -2071,6 +2071,8 @@ sub edit {
 
   IC->get_part(\%myconfig, \%$form);
 
+  $form->{"original_partnumber"} = $form->{"partnumber"};
+
   $form->{title} = $locale->text('Edit ' . ucfirst $form->{item});
 
   &link_part;
@@ -2561,6 +2563,7 @@ sub form_header {
 <input name=rowcount type=hidden value=$form->{rowcount}>
 <input name=eur type=hidden value=$eur>
 <input name=language_values type=hidden value="$form->{language_values}">
+<input name="original_partnumber" type="hidden" value="| . $form->quote($form->{"original_partnumber"}) . qq|">
 
 <table width="100%">
   <tr>
@@ -3189,7 +3192,10 @@ sub save_as_new {
   $lxdebug->enter_sub();
 
   $form->{id} = 0;
-  $form->{partnumber} = "";
+  if ($form->{"original_partnumber"} &&
+      ($form->{"partnumber"} eq $form->{"original_partnumber"})) {
+    $form->{partnumber} = "";
+  }
   &save;
 
   $lxdebug->leave_sub();
