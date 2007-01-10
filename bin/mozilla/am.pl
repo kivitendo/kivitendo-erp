@@ -3618,7 +3618,8 @@ sub add_unit {
 
   $form->isblank("new_name", $locale->text("The name is missing."));
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
-  $form->show_generic_error($locale->text("A unit with this name does already exist.")) if ($units->{$form->{"new_name"}});
+  $all_units = AM->retrieve_units(\%myconfig, $form);
+  $form->show_generic_error($locale->text("A unit with this name does already exist.")) if ($all_units->{$form->{"new_name"}});
 
   my ($base_unit, $factor);
   if ($form->{"new_base_unit"}) {
