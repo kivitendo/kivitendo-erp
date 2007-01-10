@@ -27,7 +27,7 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1249', 'Pauschalwertbe.z.Ford.ueb1J.', 'A', 'E', '', '1249', 0, NULL, 31, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1370', 'Durchlaufende Posten', 'A', 'A', '', '1370', 0, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1374', 'Fremdgeld', 'A', 'A', '', '1374', 0, NULL, NULL, NULL, NULL, FALSE);
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1401', 'Abziebare Vorsteuer 7%', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', '1401', 0, 66, NULL, NULL, 27, FALSE);
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1401', 'Abziehbare Vorsteuer 7%', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', '1401', 0, 66, NULL, NULL, 27, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1402', 'Abziehbare Vorsteuer aus EG-Erwerb 7%', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice', '1402', 0, 61, NULL, NULL, 27, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1403', 'Abziehbare Vorsteuer aus EG-Erwerb 16%', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice', '1403', 0, 61, NULL, NULL, 27, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('1405', 'Abziehbare Vorsteuer 16%', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', '1405', 0, 66, NULL, NULL, 27, FALSE);
@@ -354,9 +354,9 @@ INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, ta
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('7745', 'Entnahmen a.satzungsmäßigen Rücklagen', 'A', 'E', '', '7745', 0, NULL, NULL, NULL, NULL, FALSE);
 
 
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9000', 'Saldenverträge,Sachkonten', 'A', 'A', '', '9000', 0, NULL, NULL, NULL, NULL, FALSE);
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9008', 'Saldenverträge,Debitoren', 'A', 'A', '', '9008', 0, NULL, NULL, NULL, NULL, FALSE);
-INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9009', 'Saldenverträge,Kreditoren', 'A', 'L', '', '9009', 0, NULL, NULL, NULL, NULL, FALSE);
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9000', 'Saldenvorträge,Sachkonten', 'A', 'A', '', '9000', 0, NULL, NULL, NULL, NULL, FALSE);
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9008', 'Saldenvorträge,Debitoren', 'A', 'A', '', '9008', 0, NULL, NULL, NULL, NULL, FALSE);
+INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9009', 'Saldenvorträge,Kreditoren', 'A', 'L', '', '9009', 0, NULL, NULL, NULL, NULL, FALSE);
 INSERT INTO chart (accno, description, charttype, category, link, gifi_accno, taxkey_id, pos_ustva, pos_bwa, pos_bilanz, pos_eur, datevautomatik) VALUES ('9090', 'Summenvortragskonto', 'A', 'A', '', '9090', 0, NULL, NULL, NULL, NULL, FALSE);
 
 
