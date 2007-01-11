@@ -2098,7 +2098,6 @@ sub translate_units {
   my $units = $self->retrieve_units(\%main::myconfig, $form);
 
   my $h = $units->{$unit}->{"LANGUAGES"}->{$template_code};
-  $main::lxdebug->dump(0, "klaus", $h);
   my $new_unit = $unit;
   if ($h) {
     if (($amount != 1) && $h->{"localized_plural"}) {
