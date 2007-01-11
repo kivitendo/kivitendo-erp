@@ -391,7 +391,7 @@ sub make_kne_data_header {
   $to   =~ s/ //g;
 
   if ($from ne "") {
-    my ($fday, $fmonth, $fyear) = split /\./, $from;
+    my ($fday, $fmonth, $fyear) = split(/\./, $from);
     if (length($fmonth) < 2) {
       $fmonth = "0" . $fmonth;
     }
@@ -406,7 +406,7 @@ sub make_kne_data_header {
   $header .= $from;
 
   if ($to ne "") {
-    my ($tday, $tmonth, $tyear) = split /\./, $to;
+    my ($tday, $tmonth, $tyear) = split(/\./, $to);
     if (length($tmonth) < 2) {
       $tmonth = "0" . $tmonth;
     }
@@ -470,7 +470,7 @@ sub datetofour {
 
   my ($date, $six) = @_;
 
-  ($day, $month, $year) = split /\./, $date;
+  ($day, $month, $year) = split(/\./, $date);
 
   if ($day =~ /^0/) {
     $day = substr($day, 1, 1);
@@ -499,7 +499,7 @@ sub formatumsatz {
   my ($umsatz, $stellen) = @_;
 
   $umsatz =~ s/-//;
-  ($vorkomma, $nachkomma) = split /\./, $umsatz;
+  ($vorkomma, $nachkomma) = split(/\./, $umsatz);
   $umsatz = "";
   if ($stellen > 0) {
     for ($i = $stellen; $i >= $stellen + 2 - length($vorkomma); $i--) {
