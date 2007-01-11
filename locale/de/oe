@@ -176,6 +176,7 @@ $self->{texts} = {
   'Quotation Number missing!'   => 'Angebotsnummer fehlt!',
   'Quotation deleted!'          => 'Angebot wurde gelöscht.',
   'Quotations'                  => 'Angebote',
+  'RFQ'                         => 'Anfrage',
   'RFQ Number'                  => 'Anfragenummer',
   'Recd'                        => 'erhalten',
   'Receive Merchandise'         => 'Waren einlagern',

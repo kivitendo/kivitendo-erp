@@ -1618,7 +1618,9 @@ sub orders {
     . qq|</a></th>|;
   $column_header{quonumber} =
       qq|<th><a class=listheading href=$href&sort=quonumber>|
-    . $locale->text('Quotation')
+    . ($form->{"type"} eq "request_quotation" ?
+       $locale->text('RFQ') :
+       $locale->text('Quotation'))
     . qq|</a></th>|;
   $column_header{name} =
     qq|<th><a class=listheading href=$href&sort=name>$name</a></th>|;
