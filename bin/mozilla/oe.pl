@@ -2453,9 +2453,7 @@ sub sales_order {
 
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
-    $form->{closed} = 1;
-    relink_accounts();
-    OE->save(\%myconfig, \%$form);
+    OE->close_order(\%myconfig, $form);
   }
 
   $form->{cp_id} *= 1;

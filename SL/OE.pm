@@ -35,6 +35,7 @@
 package OE;
 
 use SL::AM;
+use SL::DBUtils;
 
 sub transactions {
   $main::lxdebug->enter_sub();
@@ -555,6 +556,21 @@ sub close_orders {
               WHERE ordnumber IN (|
     . join(', ', map { $dbh->quote($_) } @ids) . qq|)|;
   $dbh->do($query) || $form->dberror($query);
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub close_order {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  $main::lxdebug->leave_sub() unless ($form->{"id"});
+
+  my $dbh = $form->dbconnect($myconfig);
+  do_query($form, $dbh, qq|UPDATE oe SET closed = TRUE where ordnumber = ?|,
+           $form->{"id"});
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
