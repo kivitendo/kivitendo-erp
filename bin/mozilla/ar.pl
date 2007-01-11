@@ -1296,8 +1296,10 @@ sub ar_transactions {
   }
 
   @columns = $form->sort_columns(
-    qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee shippingpoint shipvia)
+    qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee shippingpoint shipvia)
   );
+
+  $form->{"l_type"} = "Y";
 
   foreach $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
@@ -1326,6 +1328,8 @@ sub ar_transactions {
       "<th><a class=listheading href=$href&sort=duedate>"
     . $locale->text('Due Date')
     . "</a></th>";
+  $column_header{type} =
+      "<th class=\"listheading\">" . $locale->text('Type') . "</th>";
   $column_header{invnumber} =
       "<th><a class=listheading href=$href&sort=invnumber>"
     . $locale->text('Invoice')
@@ -1452,6 +1456,11 @@ sub ar_transactions {
 
     $column_data{invnumber} =
       "<td><a href=$module?action=edit&id=$ar->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
+    $column_data{type} = "<td>" .
+      ($ar->{storno} ? $locale->text("Storno (one letter abbreviation)") :
+       $ar->{amount} < 0 ?
+       $locale->text("Credit note (one letter abbreviation)") :
+       $locale->text("Invoice (one letter abbreviation)")) . "</td>";
     $column_data{ordnumber} = "<td>$ar->{ordnumber}&nbsp;</td>";
     $column_data{name}      = "<td>$ar->{name}</td>";
     $ar->{notes} =~ s/\r\n/<br>/g;

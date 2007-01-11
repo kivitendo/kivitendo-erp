@@ -411,7 +411,7 @@ sub ar_transactions {
   my $query = qq|SELECT a.id, a.invnumber, a.ordnumber, a.transdate,
                  a.duedate, a.netamount, a.amount, a.paid, c.name,
 		 a.invoice, a.datepaid, a.terms, a.notes, a.shipvia,
-		 a.shippingpoint,
+		 a.shippingpoint, a.storno,
 		 e.name AS employee
 	         FROM ar a
 	      JOIN customer c ON (a.customer_id = c.id)
