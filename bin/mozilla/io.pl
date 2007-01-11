@@ -1171,6 +1171,13 @@ sub order {
                     \%myconfig, $form->{currency}, $form->{transdate}, $buysell
                     )));
 
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
+
   &prepare_order;
   &display_form;
 
@@ -1223,6 +1230,13 @@ sub quotation {
                     $form->check_exchangerate(
                     \%myconfig, $form->{currency}, $form->{transdate}, $buysell
                     )));
+
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
 
   &prepare_order;
   &display_form;
