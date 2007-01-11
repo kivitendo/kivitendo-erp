@@ -83,17 +83,17 @@ sub kne_export {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  my $rc;
+  my @rc;
 
   if ($form->{exporttype} == 0) {
-    $rc = &kne_buchungsexport($myconfig, $form);
+    @rc = &kne_buchungsexport($myconfig, $form);
   } else {
-    $rc = &kne_stammdatenexport($myconfig, $form);
+    @rc = &kne_stammdatenexport($myconfig, $form);
   }
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return @rc;
 }
 
 sub obe_export {
@@ -583,7 +583,9 @@ sub kne_buchungsexport {
 
   my ($myconfig, $form) = @_;
 
-  my $export_path = "datev/";
+  my @filenames;
+
+  my $export_path = $main::userspath . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
   my @ed_versionsets;
@@ -611,6 +613,7 @@ sub kne_buchungsexport {
     my $buchungssatz    = "";
     $filename++;
     my $ed_filename = $export_path . $filename;
+    push(@filenames, $filename);
     open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
     $header = &make_kne_data_header($myconfig, $form, $fromto);
     $remaining_bytes -= length($header);
@@ -822,6 +825,7 @@ sub kne_buchungsexport {
   #Make EV Verwaltungsdatei
   $ev_header = &make_ev_header($form, $fileno);
   $ev_filename = $export_path . $evfile;
+  push(@filenames, $evfile);
   open(EV, "> $ev_filename") or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
 
@@ -829,11 +833,12 @@ sub kne_buchungsexport {
     print(EV $ed_versionset[$file]);
   }
   close(EV);
-  print qq|<br>Done. <br></body>
-</html>
+  print qq|<br>Done. <br>
 |;
   ###
   $main::lxdebug->leave_sub();
+
+  return @filenames;
 }
 
 sub kne_stammdatenexport {
@@ -842,7 +847,15 @@ sub kne_stammdatenexport {
   my ($myconfig, $form) = @_;
   $form->{abrechnungsnr} = "99";
 
-  my $export_path = "datev/";
+  $form->header;
+  print qq|
+  <html>
+  <body>Export in Bearbeitung<br>
+|;
+
+  my @filenames;
+
+  my $export_path = $main::userspath . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
   my @ed_versionsets;
@@ -854,6 +867,7 @@ sub kne_stammdatenexport {
   my $buchungssatz    = "";
   $filename++;
   my $ed_filename = $export_path . $filename;
+  push(@filenames, $filename);
   open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
   $header = &make_kne_data_header($myconfig, $form, "");
   $remaining_bytes -= length($header);
@@ -911,6 +925,7 @@ sub kne_stammdatenexport {
 
   $ev_header = &make_ev_header($form, $fileno);
   $ev_filename = $export_path . $evfile;
+  push(@filenames, $evfile);
   open(EV, "> $ev_filename") or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
 
@@ -922,7 +937,12 @@ sub kne_stammdatenexport {
   $dbh->disconnect;
   ###
 
+  print qq|<br>Done. <br>
+|;
+
   $main::lxdebug->leave_sub();
+
+  return @filenames;
 }
 
 1;
