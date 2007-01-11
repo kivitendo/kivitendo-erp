@@ -60,6 +60,7 @@ $self->{texts} = {
   'Continue'                    => 'Weiter',
   'Copy to COA'                 => 'In Kontenplan kopieren',
   'Cost Center'                 => 'Kostenstelle',
+  'Costs'                       => 'Kosten',
   'Credit'                      => 'Haben',
   'Customer Number'             => 'Kundennummer',
   'Customernumberinit'          => 'Kundennummernkreis',

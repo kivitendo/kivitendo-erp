@@ -364,7 +364,9 @@ sub account_header {
 		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
     . $locale->text('Revenue') . qq|\n<br>
 		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
-    . $locale->text('Expense') . qq|</td>
+    . $locale->text('Expense') . qq|<br>
+		<input name=category type=radio class=radio value=C $checked{C_}>&nbsp;|
+    . $locale->text('Costs') . qq|</td>
 		<td width=50>&nbsp;</td>
 		<td>
 		<input name=charttype type=radio class=radio value="H" $checked{H}>&nbsp;|
