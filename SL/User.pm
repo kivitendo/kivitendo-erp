@@ -355,20 +355,33 @@ sub dbcreate {
 
   my ($self, $form) = @_;
 
+  $form->{sid} = $form->{dbdefault};
+  &dbconnect_vars($form, $form->{dbdefault});
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
+
   my %dbcreate = (
     'Pg'     => qq|CREATE DATABASE "$form->{db}"|,
     'Oracle' =>
       qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|
   );
 
-  $dbcreate{Pg} .= " WITH ENCODING = '$form->{encoding}'" if $form->{encoding};
+  my %dboptions = (
+    'Pg' => [],
+  );
 
-  $form->{sid} = $form->{dbdefault};
-  &dbconnect_vars($form, $form->{dbdefault});
-  my $dbh =
-    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-    or $form->dberror;
+  push(@{$dboptions{"Pg"}}, "ENCODING = " . $dbh->quote($form->{"encoding"}))
+    if ($form->{"encoding"});
+  if ($form->{"dbdefault"}) {
+    my $dbdefault = $form->{"dbdefault"};
+    $dbdefault =~ s/[^a-zA-Z0-9_\-]//g;
+    push(@{$dboptions{"Pg"}}, "TEMPLATE = $dbdefault");
+  }
+
   my $query = qq|$dbcreate{$form->{dbdriver}}|;
+  $query .= " WITH " . join(" ", @{$dboptions{"Pg"}}) if (@{$dboptions{"Pg"}});
+
   $dbh->do($query) || $form->dberror($query);
 
   if ($form->{dbdriver} eq 'Oracle') {
