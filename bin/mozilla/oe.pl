@@ -2165,8 +2165,7 @@ sub invoice {
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
   if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
-    relink_accounts();
-    OE->save(\%myconfig, \%$form);
+    OE->close_order(\%myconfig, \%$form);
   } else {
     OE->close_orders(\%myconfig, \%$form);
   }
@@ -2230,6 +2229,13 @@ sub invoice {
                       )));
 
   $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
+
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
 
   &prepare_invoice;
 
