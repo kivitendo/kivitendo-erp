@@ -2141,6 +2141,13 @@ sub invoice {
 
   $form->{cp_id} *= 1;
 
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
+
   if (   $form->{type} =~ /_order/
       && $form->{currency} ne $form->{defaultcurrency}) {
 
@@ -2229,13 +2236,6 @@ sub invoice {
                       )));
 
   $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
-
-  for $i (1 .. $form->{rowcount}) {
-    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
-                                                     $form->{"${_}_${i}"})
-            if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor));
-  }
 
   &prepare_invoice;
 
