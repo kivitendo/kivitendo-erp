@@ -964,7 +964,7 @@ sub form_header {
 	  <th align=right>| . $locale->text('Tax Number / SSN') . qq|</th>
 	  <td><input name=taxnumber size=20 value="$form->{taxnumber}"></td>
           <th align=right>| . $locale->text('USt-IdNr.') . qq|</th>
-	  <td><input name=ustid size=20 value="$form->{ustid}"></td>
+	  <td><input name="ustid" maxlength="12" size="20" value="$form->{ustid}"></td>
           $customer
 	</tr>
         <tr>
