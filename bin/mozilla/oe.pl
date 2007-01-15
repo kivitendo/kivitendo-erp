@@ -595,7 +595,7 @@ sub form_header {
 		      <td>$form->{creditlimit}</td>
 		      <td width=20%></td>
 		      <th nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n">$form->{creditremaining}</td>
+		      <td class="plus$n" nowrap>$form->{creditremaining}</td>
 		    </tr>
 		  </table>
 		</td>
