@@ -79,6 +79,7 @@ sub add {
     unless $form->{callback};
 
   &create_links;
+  AP->get_transdate(\%myconfig, $form);
   &display_form;
 
   $lxdebug->leave_sub();

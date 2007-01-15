@@ -646,13 +646,14 @@ sub transaction {
 
     $sth->finish;
   } else {
-    $query = "SELECT current_date AS transdate, closedto, revtrans
-              FROM defaults";
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{transdate}, $form->{closedto}, $form->{revtrans}) =
-      $sth->fetchrow_array;
+    $query = "SELECT closedto, revtrans FROM defaults";
+    ($form->{closedto}, $form->{revtrans}) = $dbh->selectrow_array($query);
+    $query =
+      "SELECT COALESCE(" .
+      "  (SELECT transdate FROM gl WHERE id = " .
+      "    (SELECT MAX(id) FROM gl) LIMIT 1), " .
+      "  current_date)";
+    ($form->{transdate}) = $dbh->selectrow_array($query);
 
     # get tax description
     $query = qq| SELECT * FROM tax t order by t.taxkey|;

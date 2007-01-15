@@ -475,5 +475,25 @@ sub ar_transactions {
   $main::lxdebug->leave_sub();
 }
 
+sub get_transdate {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query =
+    "SELECT COALESCE(" .
+    "  (SELECT transdate FROM gl WHERE id = " .
+    "    (SELECT MAX(id) FROM gl) LIMIT 1), " .
+    "  current_date)";
+  ($form->{transdate}) = $dbh->selectrow_array($query);
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
 1;
 
