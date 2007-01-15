@@ -1819,7 +1819,7 @@ sub retrieve_accounts {
 
   if (!$ref) {
     $dbh->disconnect();
-    return $lxdebug->leave_sub();
+    return $main::lxdebug->leave_sub();
   }
 
   $ref->{"inventory_accno_id"} = undef unless ($ref->{"is_part"});
