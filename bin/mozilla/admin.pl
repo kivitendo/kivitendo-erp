@@ -487,8 +487,13 @@ sub form_header {
 
   $form->header;
 
-  if ($myconfig->{menustyle} eq "neu") { $neu = "checked"; }
-  else { $old = "checked"; }
+  if ($myconfig->{menustyle} eq "v3") {
+    $menustyle_v3 = "checked";
+  } elsif ($myconfig->{menustyle} eq "neu") {
+    $menustyle_neu = "checked";
+  } else {
+    $menustyle_old = "checked";
+  }
 
   print qq|
 <body class=admin>
@@ -596,8 +601,11 @@ sub form_header {
 	</tr>
        <tr>
            <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-           <td><input name=menustyle type=radio class=radio value=neu $neu>&nbsp;New
-                 <input name=menustyle type=radio class=radio value=old $old>&nbsp;Old</td>
+           <td><input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
+           $locale->text("Top (Javascript)") . qq|
+           <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
+           $locale->text("Old (on the side)") . qq|
+           </td>
          </tr>
 	<input type=hidden name=templates value=$myconfig->{templates}>
       </table>

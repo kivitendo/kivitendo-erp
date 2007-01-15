@@ -2993,8 +2993,13 @@ sub config {
 
   $form->header;
 
-  if ($myconfig{menustyle} eq "old") { $oldS = "checked"; }
-  else { $newS = "checked"; }
+  if ($myconfig{menustyle} eq "old") {
+    $menustyle_old = "checked";
+  } elsif ($myconfig{menustyle} eq "neu") {
+    $menustyle_neu = "checked";
+  } elsif ($myconfig{menustyle} eq "v3") {
+    $menustyle_v3 = "checked";
+  }
 
   print qq|
 <body>
@@ -3069,8 +3074,10 @@ sub config {
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-	  <td><input name=menustyle type=radio class=radio value=neu $newS>&nbsp;New
-  		  <input name=menustyle type=radio class=radio value=old $oldS>&nbsp;Old</td>
+	  <td><input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
+    $locale->text("Top (Javascript)") . qq|
+    <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
+    $locale->text("Old (on the side)") . qq|</td>
 	</tr>	
 	<input name=printer type=hidden value="$myconfig{printer}">
 	<tr class=listheading>
