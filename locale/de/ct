@@ -94,7 +94,6 @@ $self->{texts} = {
   'Tax Number'                  => 'Steuernummer',
   'Tax Number / SSN'            => 'Steuernummer',
   'Taxable'                     => 'Steuerpflichtig',
-  'Terms: Net'                  => 'Zahlungsziel',
   'Title'                       => 'Titel',
   'Type of Business'            => 'Kundentyp',
   'USt-IdNr.'                   => 'USt-IdNr.',
@@ -108,7 +107,6 @@ $self->{texts} = {
   'Vendors'                     => 'Lieferanten',
   'Zipcode'                     => 'PLZ',
   'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
-  'days'                        => 'Tage',
   's'                           => 's',
 };
 

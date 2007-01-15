@@ -953,9 +953,9 @@ sub form_header {
 	<tr>
 	  <th align=right>| . $locale->text('Credit Limit') . qq|</th>
 	  <td><input name=creditlimit size=9 value="$form->{creditlimit}"></td>
-	  <th align=right>| . $locale->text('Terms: Net') . qq|</th>
-	  <td><input name=terms size=2 value="$form->{terms}">|
-    . $locale->text('days') . qq|</td>
+	  <input type="hidden" name="terms" value="$form->{terms}">
+	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
+	  <td><select name=payment_id>$payment</select></td>
 	  <th align=right>| . $locale->text('Discount') . qq|</th>
 	  <td><input name=discount size=4 value="$form->{discount}">
 	  %</td>
@@ -991,9 +991,6 @@ sub form_header {
         <tr>
           <td align=right>| . $locale->text('Obsolete') . qq|</td>
           <td><input name=obsolete class=checkbox type=checkbox value=1 $form->{obsolete}></td>
-	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
-	  <td><select name=payment_id>$payment
-                          </select></td>
 	</tr>
         $taxzone
       </table>

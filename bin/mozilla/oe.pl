@@ -493,13 +493,8 @@ sub form_header {
   $vclabel = ucfirst $form->{vc};
   $vclabel = $locale->text($vclabel);
 
-  $terms = qq|
-                    <tr>
-		      <th align=right nowrap>| . $locale->text('Terms: Net') . qq|</th>
-		      <td nowrap><input name=terms size="3" maxlength="3" value=$form->{terms}> |
-    . $locale->text('days') . qq|</td>
-                    </tr>
-|;
+  $terms = qq|<input name=terms size="3" maxlength="3" value="| .
+    $form->quote($form->{terms}) . qq|">|;
 
   if ($form->{business}) {
     $business = qq|
