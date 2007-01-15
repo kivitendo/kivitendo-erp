@@ -1853,7 +1853,7 @@ sub retrieve_accounts {
   $ref = $sth->fetchrow_hashref();
   $sth->finish();
   $dbh->disconnect();
-  
+
   unless ($ref) {
     $main::lxdebug->leave_sub();
     return;
@@ -1871,8 +1871,6 @@ sub retrieve_accounts {
 #                           " taxnumber " . $form->{"$ref->{accno}_taxnumber"} .
 #                           " || taxaccounts_$index " . $form->{"taxaccounts_$index"} .
 #                           " || taxaccounts " . $form->{"taxaccounts"});
-
-  $sth->finish();
 
   $main::lxdebug->leave_sub();
 }
