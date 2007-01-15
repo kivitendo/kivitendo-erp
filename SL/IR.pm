@@ -107,6 +107,10 @@ sub post_invoice {
     if ($form->{storno}) {
       $form->{"qty_$i"} *= -1;
     }
+
+    if ($main::eur) {
+      $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"};
+    }
     
     if ($form->{"qty_$i"} != 0) {
 
