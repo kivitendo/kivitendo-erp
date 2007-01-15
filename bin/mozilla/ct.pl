@@ -675,6 +675,7 @@ sub form_header {
 
   my $pjy = new CGI::Ajax( 'get_shipto' => $get_shipto_url );
   $form->{selectshipto} = "<option value=0></option>";
+  $form->{selectshipto} .= "<option value=0>Alle</option>";
   if (@{ $form->{SHIPTO} }) {
     foreach $item (@{ $form->{SHIPTO} }) {
       if ($item->{shipto_id} == $form->{shipto_id}) {
