@@ -1780,8 +1780,10 @@ sub add_buchungsgruppe {
     "$form->{script}?action=add_buchungsgruppe&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
   AM->get_buchungsgruppe(\%myconfig, \%$form);
-  if ($eur) {
-    $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
+  $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
+  for (my $i = 0; 4 > $i; $i++) {
+    map({ $form->{"${_}_accno_id_$i"} = $form->{"std_${_}_accno_id"}; }
+        qw(income expense));
   }
 
   &buchungsgruppe_header;

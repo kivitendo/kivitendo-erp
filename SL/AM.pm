@@ -1050,8 +1050,10 @@ sub get_buchungsgruppe {
 
   }
 
-  $query = "SELECT inventory_accno_id FROM defaults";
-  ($form->{"std_inventory_accno_id"}) = $dbh->selectrow_array($query);
+  $query = "SELECT inventory_accno_id, income_accno_id, expense_accno_id ".
+    "FROM defaults";
+  ($form->{"std_inventory_accno_id"}, $form->{"std_income_accno_id"},
+   $form->{"std_expense_accno_id"}) = $dbh->selectrow_array($query);
 
   my $module = "IC";
   $query = qq|SELECT c.accno, c.description, c.link, c.id,
