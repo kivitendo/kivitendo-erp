@@ -838,7 +838,7 @@ sub parse_template {
 
       } else {
 
-        @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($form->{do_not_attach});
+        @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($self->{do_not_attach});
 
         $mail->{message}       =~ s/\r\n/\n/g;
         $myconfig->{signature} =~ s/\\n/\n/g;
@@ -1261,7 +1261,7 @@ sub get_shipto {
     my $sth = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
     $ref = $sth->fetchrow_hashref(NAME_lc);
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    map { $self->{$_} = $ref->{$_} } keys %$ref;
     $sth->finish;  
     $dbh->disconnect;
   }
@@ -1534,7 +1534,7 @@ sub all_vc {
               FROM language
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{languages} }, $ref;
@@ -1546,7 +1546,7 @@ sub all_vc {
               FROM printers
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{printers} }, $ref;
@@ -1559,7 +1559,7 @@ sub all_vc {
               FROM payment_terms
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{payment_terms} }, $ref;
@@ -1585,7 +1585,7 @@ sub language_payment {
               FROM language
 	      ORDER BY 1|;
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{languages} }, $ref;
@@ -1597,7 +1597,7 @@ sub language_payment {
               FROM printers
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{printers} }, $ref;
@@ -1609,7 +1609,7 @@ sub language_payment {
               FROM payment_terms
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{payment_terms} }, $ref;
@@ -1620,7 +1620,7 @@ sub language_payment {
   $query = qq|SELECT id, description
               FROM buchungsgruppen|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   $self->{BUCHUNGSGRUPPEN} = [];
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -1733,7 +1733,7 @@ sub create_links {
   $query = qq|SELECT id, description
               FROM tax_zones|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
