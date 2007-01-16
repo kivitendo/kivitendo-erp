@@ -149,7 +149,10 @@ sub login {
   }
 
   # made it this far, execute the menu
-  if ($user->{menustyle} eq "neu") {
+  if ($user->{menustyle} eq "v3") {
+    $form->{callback} =
+      "menuv3.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  } elsif ($user->{menustyle} eq "neu") {
     $form->{callback} =
       "menunew.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
   } else {

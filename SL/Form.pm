@@ -349,7 +349,7 @@ sub isblank {
 sub header {
   $main::lxdebug->enter_sub();
 
-  my ($self) = @_;
+  my ($self, $extra_code) = @_;
 
   if ($self->{header}) {
     $main::lxdebug->leave_sub();
@@ -439,6 +439,7 @@ function fokus(){document.$self->{fokus}.focus();}
   
   </script>
 
+  $extra_code
 </head>
 
 |;

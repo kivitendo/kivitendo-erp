@@ -3074,7 +3074,9 @@ sub config {
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-	  <td><input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
+	  <td><input name=menustyle type=radio class=radio value=v3 $menustyle_v3>&nbsp;| .
+    $locale->text("Top (CSS)") . qq|
+	  <input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
     $locale->text("Top (Javascript)") . qq|
     <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
     $locale->text("Old (on the side)") . qq|</td>

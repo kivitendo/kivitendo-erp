@@ -83,13 +83,74 @@ sub menuitem {
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     $str .= "&" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split /=/, $self->{$item}{$key}, 2;
+    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
 
   if ($target) {
     $str .= qq| target=$target|;
+  }
+
+  $str .= ">";
+
+  $main::lxdebug->leave_sub();
+
+  return $str;
+}
+
+sub menuitem_v3 {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $item, $other) = @_;
+
+  my $module = $form->{script};
+  my $action = "section_menu";
+  my $target = "";
+
+  if ($self->{$item}{module}) {
+    $module = $self->{$item}{module};
+  }
+  if ($self->{$item}{action}) {
+    $action = $self->{$item}{action};
+  }
+  if ($self->{$item}{target}) {
+    $target = $self->{$item}{target};
+  }
+
+  my $level = $form->escape($item);
+
+  my $str = qq|<a href="$module?action=| . $form->escape($action) .
+    qq|&level=| . $form->escape($level);
+  map({ $str .= "&${_}=" . $form->escape($form->{$_}); } qw(path login password));
+
+  my @vars = qw(module action target href);
+
+  if ($self->{$item}{href}) {
+    $str  = qq|<a href=$self->{$item}{href}|;
+    @vars = qw(module target href);
+  }
+
+  map { delete $self->{$item}{$_} } @vars;
+
+  # add other params
+  foreach my $key (keys %{ $self->{$item} }) {
+    $str .= "&" . $form->escape($key, 1) . "=";
+    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
+    $value = $myconfig->{$value} . "/$conf" if ($conf);
+    $str .= $form->escape($value, 1);
+  }
+
+  $str .= '"';
+
+  if ($target) {
+    $str .= qq| target="| . $form->quote($target) . qq|"|;
+  }
+
+  if ($other) {
+    foreach my $key (keys(%{$other})) {
+      $str .= qq| ${key}="| . $form->quote($other->{$key}) . qq|"|;
+    }
   }
 
   $str .= ">";
@@ -128,7 +189,7 @@ sub menuitemNew {
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     $str .= "&" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split /=/, $self->{$item}{$key}, 2;
+    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
@@ -150,7 +211,7 @@ sub access_control {
     @menu = grep { /^${menulevel}--/ } @{ $self->{ORDER} };
   }
 
-  my @a    = split /;/, $myconfig->{acs};
+  my @a    = split(/;/, $myconfig->{acs});
   my $excl = ();
 
   # remove --AR, --AP from array

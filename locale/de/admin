@@ -84,6 +84,7 @@ $self->{texts} = {
   'The passwords do not match.' => 'Die Passw&ouml;rter stimmen nicht &uuml;berein.',
   'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!' => 'In diesem Schritt werden bestehende Datenbanken gesucht. Es werden noch keine Änderungen vorgenommen!',
   'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.' => 'Um einer Gruppe einen neuen Benutzer hinzuzufügen, ändern und speichern Sie am einfachsten einen bestehen den Zugriffsnamen. Unter dem neuen Namen wird dann ein Benutzer mit denselben Einstellungen angelegt.',
+  'Top (CSS)'                   => 'Oben (mit CSS)',
   'Top (Javascript)'            => 'Oben (mit Javascript)',
   'Unknown dependency \'%s\'.'  => 'Unbekannte Abh&auml;ngigkeit \'%s\'.',
   'Unlock System'               => 'System entsperren',

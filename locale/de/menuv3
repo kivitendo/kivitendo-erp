@@ -1,0 +1,12 @@
+$self->{texts} = {
+  'Logout'                      => 'Abmeldung',
+};
+
+$self->{subs} = {
+  'acc_menu'                    => 'acc_menu',
+  'clock_line'                  => 'clock_line',
+  'display'                     => 'display',
+  'section_menu'                => 'section_menu',
+};
+
+1;
