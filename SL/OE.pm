@@ -1021,9 +1021,9 @@ sub order_details {
       $sameitem = $item->[1];
 
       map { push(@{ $form->{$_} }, "") }
-        qw(runningnumber number qty ship unit bin partnotes 
-        serialnumber reqdate sellprice listprice netprice 
-        discount pdiscountlinetotal);
+        qw(runningnumber number qty ship unit bin partnotes
+           serialnumber reqdate sellprice listprice netprice
+           discount p_discount linetotal);
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
