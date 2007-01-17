@@ -432,11 +432,12 @@ sub form_header {
           "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
       } else {
         $form->{selectshipto} .=
-          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment}</option>";
       }
 
     }
   } else {
+    $form->{selectshipto} = $form->unquote($form->{selectshipto});
     $form->{selectshipto} =~ s/ selected//g;
     if ($form->{shipto_id} ne "") {
       $form->{selectshipto} =~ s/value=$form->{shipto_id}/value=$form->{shipto_id} selected/;
@@ -445,9 +446,9 @@ sub form_header {
 
   $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td><select name=shipto_id>$form->{selectshipto}</select></td>
-		<input type=hidden name=selectshipto value="$form->{selectshipto}">|;
-
+		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>|;
+  $form->{selectshipto} = $form->quote($form->{selectshipto});
+  $shipto .= qq| <input type=hidden name=selectshipto value="$form->{selectshipto}">|;
 
 
 
