@@ -669,6 +669,7 @@ sub form_footer {
 	</tr>
 |;
 
+  my @triggers = ();
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
 
@@ -708,7 +709,8 @@ sub form_footer {
     $column_data{"AP_paid_$i"}      =
       qq|<td align=center><select name="AP_paid_$i">$form->{"selectAP_paid_$i"}</select></td>|;
     $column_data{"datepaid_$i"} =
-      qq|<td align=center><input name="datepaid_$i" size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}></td>|;
+      qq|<td align=center><input name="datepaid_$i" size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}>
+         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
       qq|<td align=center><input name="source_$i" size=11 value=$form->{"source_$i"}></td>|;
     $column_data{"memo_$i"} =
@@ -719,6 +721,7 @@ sub form_footer {
     print qq|
 	</tr>
 |;
+    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
   print qq|
@@ -768,7 +771,8 @@ sub form_footer {
     &menubar;
   }
 
-  print qq|
+  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
+    qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
 

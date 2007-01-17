@@ -293,6 +293,7 @@ sub search {
 	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
           $button1
+	  <th align=right>| . $locale->text('To (time)') . qq|</th>
           $button2
 	</tr>
 	<tr>

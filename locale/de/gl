@@ -91,6 +91,7 @@ $self->{texts} = {
   'Subtotal'                    => 'Zwischensumme',
   'Tax'                         => 'Steuer',
   'Taxkey'                      => 'Steuerschlüssel',
+  'To (time)'                   => 'Bis',
   'Transaction Date missing!'   => 'Buchungsdatum fehlt!',
   'Transaction deleted!'        => 'Buchung gelöscht!',
   'Update'                      => 'Erneuern',

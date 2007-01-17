@@ -6,7 +6,8 @@ $self->{subs} = {
   'acc_menu'                    => 'acc_menu',
   'clock_line'                  => 'clock_line',
   'display'                     => 'display',
-  'section_menu'                => 'section_menu',
+  'my_length'                   => 'my_length',
+  'print_menu'                  => 'print_menu',
 };
 
 1;

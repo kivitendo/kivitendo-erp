@@ -48,6 +48,7 @@ sub reconciliation {
 
   $form->{title} = $locale->text('Reconciliation');
 
+  $form->{"jsscript"} = 1;
   $form->header;
 
   print qq|
@@ -70,9 +71,11 @@ sub reconciliation {
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
-	  <td><input name=fromdate size=11 title="$myconfig{dateformat}"></td>
+	  <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}">
+     <input type="button" name="fromdate" id="trigger_fromdate" value="?"></td>
 	  <th align=right>| . $locale->text('Until') . qq|</th>
-	  <td><input name=todate size=11 title="$myconfig{dateformat}"></td>
+	  <td><input name=todate id=todate size=11 title="$myconfig{dateformat}">
+     <input type="button" name="todate" id="trigger_todate" value="?"></td>
 	</tr>
       </table>
     </td>
@@ -81,6 +84,10 @@ sub reconciliation {
     <td><hr size=3 noshade></td>
   </tr>
 </table>
+
+| . $form->write_trigger(\%myconfig, 2,
+                         "fromdate", "BL", "trigger_fromdate",
+                         "todate", "BL", "trigger_todate") . qq|
 
 <br>
 <input type=hidden name=nextsub value=get_payments>

@@ -44,6 +44,7 @@ sub quot {
 
 sub form_header {
   $lxdebug->enter_sub();
+  $form->{jsscript} = 1;
   $form->header();
 
   print(
@@ -236,8 +237,9 @@ sub print_license_form {
       </tr>
       <tr>
         <th align=right>| . $locale->text('Valid until') . qq|</th>
-        <td><input name=validuntil value=\"|
-      . quot($form->{"validuntil"}) . qq|\"></td>
+        <td><input id=validuntil name=validuntil value=\"|
+      . quot($form->{"validuntil"}) . qq|\">
+         <input type="button" name="validuntil" id="trigger_validuntil" value="?"></td>
       </tr>
       <tr>
         <th align=right>| . $locale->text('Quantity') . qq|</th>
@@ -268,7 +270,10 @@ sub print_license_form {
     qq|
   </tr>
 
-</table>|);
+</table>| .
+    $form->write_trigger(\%myconfig, 1, "validuntil", "BL",
+                         "trigger_validuntil"));
+
   $lxdebug->leave_sub();
 }
 

@@ -185,7 +185,7 @@ sub search {
 		<td width=5%>&nbsp;</td>
 		<th>| . $locale->text('From') . qq|</th>
                 $button1
-		<th>| . $locale->text('To') . qq|</th>
+		<th>| . $locale->text('To (time)') . qq|</th>
                 $button2
 	      </tr>
 	    </table>
@@ -235,7 +235,7 @@ sub search {
 		    <tr>
 		      <th>| . $locale->text('From') . qq|</th>
 		      $button1
-		      <th>| . $locale->text('To') . qq|</th>
+		      <th>| . $locale->text('To (time)') . qq|</th>
 		      $button2
 		    </tr>
 		  </table>
@@ -1596,7 +1596,7 @@ sub generate_report {
     if ($form->{transdateto}) {
       $callback .= "&transdateto=$form->{transdateto}";
       $option   .= "\n<br>"
-        . $locale->text('To')
+        . $locale->text('To (time)')
         . "&nbsp;"
         . $locale->date(\%myconfig, $form->{transdateto}, 1);
     }

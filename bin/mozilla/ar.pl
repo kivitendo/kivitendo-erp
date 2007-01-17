@@ -655,6 +655,7 @@ $jsscript
         </tr>
 ";
 
+  my @triggers = ();
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
     print "
@@ -694,7 +695,8 @@ $jsscript
       qq|<td align=center><select name="AR_paid_$i">$form->{"selectAR_paid_$i"}</select></td>|;
     $column_data{exchangerate} = qq|<td align=center>$exchangerate</td>|;
     $column_data{datepaid}     =
-      qq|<td align=center><input name="datepaid_$i" size=11 value=$form->{"datepaid_$i"}></td>|;
+      qq|<td align=center><input name="datepaid_$i" size=11 value=$form->{"datepaid_$i"}>
+         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{source} =
       qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
     $column_data{memo} =
@@ -705,9 +707,12 @@ $jsscript
     print "
         </tr>
 ";
+    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
   map { $form->{$_} =~ s/\"/&quot;/g } qw(selectAR_paid);
-  print qq|
+
+  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
+    qq|
 <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
 <input type=hidden name=selectAR_paid value="$form->{selectAR_paid}">
 
