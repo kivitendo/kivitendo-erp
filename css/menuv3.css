@@ -47,7 +47,7 @@ list-style:none;
 margin:0;
 padding:0;
 float:left;
-width:9em;
+min-width:7em;
 }
 
 #menu li{
