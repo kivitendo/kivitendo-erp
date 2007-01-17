@@ -1183,7 +1183,9 @@ sub order_details {
         while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
             map { push(@{ $form->{$_} }, "") }
-              qw(runningnumber ship bin serialnumber number unit bin qty reqdate sellprice listprice netprice discount linetotal nodiscount_linetotal);
+              qw(runningnumber ship bin serialnumber number unit bin qty 
+                 reqdate sellprice listprice netprice discount p_discount
+                 linetotal nodiscount_linetotal);
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
             push(@{ $form->{description} }, $sameitem);
           }
@@ -1194,7 +1196,9 @@ sub order_details {
                  . qq|, $ref->{partnumber}, $ref->{description}|);
 
           map { push(@{ $form->{$_} }, "") }
-            qw(number unit qty runningnumber ship bin serialnumber reqdate sellprice listprice netprice discount linetotal nodiscount_linetotal);
+            qw(number unit qty runningnumber ship bin serialnumber reqdate 
+               sellprice listprice netprice discount p_discount linetotal 
+               nodiscount_linetotal);
 
         }
         $sth->finish;
