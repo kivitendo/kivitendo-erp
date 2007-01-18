@@ -33,6 +33,7 @@
 #
 #######################################################################
 
+use SL::CT;
 use SL::IC;
 use CGI::Ajax;
 use CGI;
@@ -1263,6 +1264,11 @@ sub e_mail {
 
   if ($form->{formname} =~ /(pick|packing|bin)_list/) {
     $form->{email} = $form->{shiptoemail} if $form->{shiptoemail};
+  }
+
+  if ($form->{"cp_id"} && !$form->{"email"}) {
+    CT->get_contact(\%myconfig, $form);
+    $form->{"email"} = $form->{"cp_email"};
   }
 
   $name = $form->{ $form->{vc} };
