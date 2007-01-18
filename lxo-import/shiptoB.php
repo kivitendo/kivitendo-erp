@@ -39,7 +39,7 @@ if ($_POST["ok"]) {
 	if ($_POST["ok"]=="Hilfe") {
 		echo "Importfelder:<br>";
 		echo "Feldname => Bedeutung<br>";
-		foreach($contact as $key=>$val) {
+		foreach($shiptos as $key=>$val) {
 			echo "$key => $val<br>";
 		}
 		exit(0);

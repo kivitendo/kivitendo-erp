@@ -42,17 +42,18 @@ if ($_POST["ok"]=="Hilfe") {
 clearstatcache ();
 //print_r($_FILES);
 $test=$_POST["test"];
-if (!empty($_FILES["Datei"]["name"])) { 
+if (!empty($_FILES["Datei"]["name"])) {
 	$file=$_POST["ziel"];
+	echo $_FILES["Datei"]["tmp_name"];
 	if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file.".csv")) {
 		$file=false;
 		echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
-	} 
+	}
 } else if (is_file($_POST["ziel"].".csv")) {
 	$file=$_POST["ziel"];
 } else {
 	$file=false;
-} 
+}
 
 if (!$file) ende (2);
 
@@ -74,8 +75,6 @@ $kunde_fld = array_keys($address);
 $f=fopen("$file.csv","r");
 $zeile=fgets($f,1200);
 $infld=split($trenner,strtolower($zeile));
-//echo "$zeile<br>";
-//print_r($infld); echo "<br>";
 $first=true;
 $ok=true;
 foreach ($infld as $fld) {
@@ -105,11 +104,12 @@ if ($ok) while (!feof($f)){
 			continue;
 		};
 		$data=trim($data);
+		$data=mb_convert_encoding($data,"ISO-8859-15","auto");
 		//$data=htmlentities($data);
 		$data=addslashes($data);
-		if (trim($in_fld[$i])==$file."number") {  // customernumber || vendornumber
+		if ($in_fld[$i]==$file."number") {  // customernumber || vendornumber
 			if (empty($data) or !$data) {
-				$data=getKdId(); 
+				$data=getKdId();
 				$number=true;
 			} else {
 				$data=chkKdId($data);
@@ -118,27 +118,19 @@ if ($ok) while (!feof($f)){
 		} else if ($in_fld[$i]=="taxincluded"){
 			$data=strtolower(substr($data,0,1));
 			if ($data!="f" && $data!="t") $data="f";
-		} else if ($in_fld[$i]=="language") {
-			$data=strtolower(substr($data,0,2));
-			if (!in_array($data,array("de","en","fr"))) $data=false;
-		}
-		if ($in_fld[$i]=="matchcode") {  
+		} /*else if ($in_fld[$i]=="matchcode") {
                   $matchcode=$data;
                   $i++;
                   continue;
-                }
-
                 if ($data==false or empty($data) or !$data) {
 			if (in_array($in_fld[$i],array("name"))) {
 				$data=$matchcode;
-			}                
+			}
 		}
+                }*/
+
 		$keys.=$in_fld[$i].",";
 		if ($data==false or empty($data) or !$data) {
-			if (in_array($in_fld[$i],array("name"))) {
-				$keys="(";
-				break;
-			}
 			$vals.="null,";
 		} else {
 			if ($in_fld[$i]=="contact"){
@@ -169,8 +161,8 @@ if ($ok) while (!feof($f)){
                         //echo "Import $j<br>\n";
 			flush();
 		} else {
-			$sql.=$keys."import)";
-			$sql.=$vals."$nun)";		
+			$sql.=$keys."taxzone_id,import)";
+			$sql.=$vals."0,$nun)";
 			$rc=$db->query($sql);
 			if (!$rc) echo "Fehler: ".$vals."<br>";
 		}
