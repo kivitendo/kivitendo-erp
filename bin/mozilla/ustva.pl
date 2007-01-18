@@ -77,23 +77,20 @@ sub report {
   $form->{title} = $locale->text('UStVA');
   $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1 Nein=0
 
-  my $year = substr(
-                    $form->datetonum($form->current_date(\%myconfig),
-                                     \%myconfig
-                    ),
-                    0, 4);
+  my $year = substr($form->datetonum($form->current_date(\%myconfig), \%myconfig ),
+             0, 4);
 
   my $department = '';
   local $hide = '';
   $form->header;
 
   print qq|
-<body>
-<form method=post action=$form->{script}>
+ <body>
+ <form method=post action=$form->{script}>
 
-<input type=hidden name=title value="$form->{title}">
+ <input type=hidden name=title value="$form->{title}">
 
-<table width=100%>
+ <table width=100%>
   <tr>
     <th class=listtop>$form->{title}</th>
   </tr>
@@ -102,7 +99,7 @@ sub report {
     <td>
       <table>
       $department
-|;
+ |;
 
   # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
   # Einlesen der Finanzamtdaten
@@ -656,23 +653,23 @@ sub ustva_vorauswahl {
   SWITCH: {
       $yymmdd <= ($yy + 110 + $dfv) && do {
         $form->{year} = $form->{year} - 1;
-        $sel = 'D';
+        $sel = '44';
         last SWITCH;
       };
       $yymmdd <= ($yy + 410 + $dfv) && do {
-        $sel = 'A';
+        $sel = '41';
         last SWITCH;
       };
       $yymmdd <= ($yy + 710 + $dfv) && do {
-        $sel = 'B';
+        $sel = '42';
         last SWITCH;
       };
       $yymmdd <= ($yy + 1010 + $dfv) && do {
-        $sel = 'C';
+        $sel = '43';
         last SWITCH;
       };
       $yymmdd <= ($yy + 1231) && do {
-        $sel = 'D';
+        $sel = '44';
       };
     }
 
@@ -794,7 +791,7 @@ sub generate_ustva {
 
   get_config($userspath, 'finanzamt.ini');
 
-  # form vars initialisieren
+  # init some form vars
   my @anmeldungszeitraum =
     qw('0401' '0402' '0403' '0404' '0405' '0405' '0406' '0407' '0408' '0409' '0410' '0411' '0412' '0441' '0442' '0443' '0444');
   foreach my $item (@anmeldungszeitraum) {
@@ -812,6 +809,10 @@ sub generate_ustva {
                         qq|Actual year from Database: $form->{year}\n|);
     }
 
+    #
+    # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
+    #
+    
     #yearly report
     if ($form->{period} eq "13") {
       $form->{fromdate} = "$form->{year}0101";
@@ -919,13 +920,16 @@ sub generate_ustva {
       };
     }
 
-  # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
+
+
+
+  # Get the USTVA
   USTVA->ustva(\%myconfig, \%$form);
 
   # reformat Dates to dateformat
   $form->{fromdate} = $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
 
-  $form->{todate} = $form->current_date($myconfig) unless $form->{todate};
+  $form->{todate} = $form->current_date(\%myconfig) unless $form->{todate};
   $form->{todate} = $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
 
   $form->{longperiod} =
@@ -972,7 +976,6 @@ sub generate_ustva {
     $locale->date(\%myconfig, $form->current_date(\%myconfig), 0, 0, 0);
 
   # setup variables for the form
-  # steuernummer für prerelease entfernt
   my @a = qw(company businessnumber tel fax email
     co_chief co_department co_custom1 co_custom2 co_custom3 co_custom4 co_custom5
     co_name1 co_name2  co_street co_street1 co_zip co_city co_city1 co_country co_tel co_tel1 co_tel2
@@ -989,43 +992,39 @@ sub generate_ustva {
     $form->{co_city} =~ s/\\n//g;
   }
 
+  #
+  # Outputformat specific customisation's
+  #
+
+  my @category_cent = qw(511 861 36 80 971 931 98 96 53 74
+    85 65 66 61 62 67 63 64 59 69 39 83
+    Z43 Z45 Z53 Z62 Z65 Z67);
+
+  my @category_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93
+    95 94 42 60 45 52 73 84);
+
   if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
 
     $form->{IN} = "$form->{type}-$form->{year}.tex";
-
     $form->{padding} = "~~";
     $form->{bold}    = "\textbf{";
     $form->{endbold} = "}";
     $form->{br}      = '\\\\';
 
-    my @numbers = qw(511 861 36 80 971 931 98 96 53 74
-      85 65 66 61 62 Z67 63 64 59 69 39 83
-      Z43 Z45 Z53 Z62 Z65);
-
-    my $number = '';
-
     # Zahlenformatierung für Latex USTVA Formulare
-    if (   $myconfig{numberformat} eq '1.000,00'
-           or $myconfig{numberformat} eq '1000,00') {
-      foreach $number (@numbers) {
-        $form->{$number} =~ s/,/~~/g;
-      }
+
+    foreach my $number (@category_euro) {
+      $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '');
     }
-    if (   $myconfig{numberformat} eq '1000.00'
-        or $myconfig{numberformat} eq '1,000.00') {
-      foreach $number (@numbers) {
-        $form->{$number} =~ s/\./~~/g;
-      }
+
+    my ${decimal_comma} = ( $myconfig{numberformat} eq '1.000,00'
+         or $myconfig{numberformat} eq '1000,00' ) ? ',':'.';
+
+    foreach my $number (@category_cent) {
+      $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '');
+      $form->{$number} =~ s/${decimal_comma}/~~/g;
     }
-    if ( $form->{period} eq '13'){ #Catch yearly USTE for now, not yet implemented.
-      $form->header;
-      USTVA::error(
-        $locale->text(
-        'Impossible to create yearly Tax Report as PDF or Postscript<br \> Not yet implemented!'
-        )
-      );
-    }
-      
+
   } elsif ( $form->{format} eq 'html') { # Formatierungen für HTML Ausgabe
 
     $form->{IN} = $form->{type} . '.html';
@@ -1035,92 +1034,139 @@ sub generate_ustva {
     $form->{br}      = "<br>";
     $form->{address} =~ s/\\n/\n/g;
 
-  } elsif ($form->{format} =~ /^elster/) {
+    foreach $number (@category_cent) {
+      $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '0');
+    }
+    
+    foreach $number (@category_euro) {
+      $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '0');
+    }
 
-    if ( $form->{period} eq '13' ) {
+  } elsif ( $form->{format} eq 'elsterwinston' ) {
+
+    $form->{IN} = 'winston.xml';
+    
+    #
+    # Build Winston filename
+    #
+    
+    my $file = 'U';     # 1. char 'U' = USTVA
+    $file .= $form->{period};
+    #4. and 5. char = year modulo 100
+    $file .= sprintf("%02d", $form->{year} % 100);
+    #6. to 18. char = Elstersteuernummer
+    #Beispiel: Steuernummer in Bayern
+    #111/222/33334 ergibt für UStVA Jan 2004: U01049111022233334
+    $file .= $form->{elsterFFFF};
+    $file .= $form->{elstersteuernummer};
+    #file suffix
+    $file .= '.xml';
+    $form->{tmpfile} = "$userspath/$file";
+
+    $form->{attachment_filename} = "$file";
+ 
+    # Zahlenformatierung für Winston
+
+    my $temp_numberformat = $myconfig{numberformat};
+
+    # Numberformat must be '1000.00' for Winston
+
+    $myconfig{numberformat} = '1000.00';
+
+    foreach my $number (@category_cent) {
+      $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
+    }
+    
+    foreach my $number (@category_euro) {
+      $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
+    }
+    # Re-set Numberformat
+    $myconfig{numberformat} = $temp_numberformat;
+
+  }
+
+  elsif ( $form->{format} eq 'elstertaxbird' ) {
+
+    $form->{IN} = 'taxbird.txb';
+
+    $form->{attachment_filename} = "USTVA-" . $form->{period} 
+    . sprintf("%02d", $form->{year} % 100) . ".txb";
+    
+    $form->{tmpfile} = "$userspath/" . $form->{attachment_filename};
+
+    if ($form->{period} =~ /^[4]\d$/ ){
+      my %periods = ( # Lx => taxbird
+                   '41' => '12',
+                   '42' => '13',
+                   '43' => '14',
+                   '44' => '15',
+                 );
+    
+      foreach my $quarter ( keys %periods ) {
+        $form->{taxbird_period} = $periods{$quarter} if ( $form->{period} eq $quarter);
+      }
+      
+      my %lands = ( # Lx => taxbird # TODO: besser als array...
+                  'Baden Würtemberg'       => '0',
+                  'Bayern'                 => '1',
+                  'Berlin'                 => '2',
+                  'Brandenburg'            => '3',
+                  'Bremen'                 => '4',
+                  'Hamburg'                => '5',
+                  'Hessen'                 => '6',
+                  'Mecklenburg Vorpommern' => '7',
+                  'Niedersachsen'          => '8',
+                  'Nordrhein Westfalen'    => '9',
+                  'Rheinland Pfalz'        => '10',
+                  'Saarland'               => '11',
+                  'Sachsen'                => '12',
+                  'Sachsen Anhalt'         => '13',
+                  'Schleswig Holstein'     => '14',
+                  'Thüringen'              => '15',
+            );
+
+      foreach my $land ( keys %lands ){
+        $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
+      }
+      
+      $form->{taxbird_steuernummer} = $form->{steuernummer};
+      $form->{taxbird_steuernummer} =~ s/\D//g;
+      
+      $form->{co_zip} = $form->{co_city};
+      $form->{co_zip} =~ s/\D//g;
+      $form->{co_city} =~ s/\d//g;
+      $form->{co_city} =~ s/^\s//g;
+      
+      ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
+      
+      # Numberformatting for Taxbird
+
+      my $temp_numberformat = $myconfig{numberformat};
+      # Numberformat must be '1000.00' for Taxbird ?!
+
+      $myconfig{numberformat} = '1000.00';
+
+      foreach my $number (@category_cent) {
+        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
+      }
+      
+      foreach my $number (@category_euro) {
+        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
+      }
+      # Re-set Numberformat
+      $myconfig{numberformat} = $temp_numberformat;
+      
+    } elsif ($form->{period} =~ /^\d+$/ ) {
+      $form->{period} =~ s/^0//g;
+      my $period = $form->{period};
+      $period * 1;
+      $period--;
+      $form->{period} = $period;
+    } else {
       $form->header;
-      USTVA::info(
-        $locale->text(
-        'Impossible to create yearly Tax Report via Winston or Taxbird.<br \> Not yet implemented!'
-      ));
+      USTVA::error( $locale->text('Wrong Period' ));
+      exit(0);
     }
-
-    if ( $form->{format} eq 'elsterwinston' ) {
-
-      $form->{IN} = 'winston.xml';
-     
-      # Build Winston filename
-      my $file = 'U';     # 1. char 'U' = USTVA
-      $file .= $form->{period};
-      #4. and 5. char = year modulo 100
-      $file .= sprintf("%02d", $form->{year} % 100);
-      #6. to 18. char = Elstersteuernummer
-      #Beispiel: Steuernummer in Bayern
-      #111/222/33334 ergibt für UStVA Jan 2004: U01049111022233334
-      $file .= $form->{elsterFFFF};
-      $file .= $form->{elstersteuernummer};
-      #file suffix
-      $file .= '.xml';
-      $form->{tmpfile} = "$userspath/$file";
-    }
-
-    if ( $form->{format} eq 'elstertaxbird' ) {
-
-      $form->{IN} = 'taxbird.txb';
-     
-      $form->{tmpfile} = "$userspath/USTVA-" . $form->{period} 
-      . sprintf("%02d", $form->{year} % 100) . ".txb";
-
-      if ($form->{period} =~ /^[4]\d$/ ){
-        my %periods = ( # Lx => taxbird
-                     '41' => '12',
-                     '42' => '13',
-                     '43' => '14',
-                     '44' => '15',
-                   );
-      
-        foreach my $quarter ( keys %periods ) {
-          $form->{period} = $periods{$quarter} if ( $form->{period} eq $quarter);
-        }
-        
-        my %lands = ( # Lx => taxbird # TODO: besser als array...
-                    'Baden Würtemberg'       => '0',
-                    'Bayern'                 => '1',
-                    'Berlin'                 => '2',
-                    'Brandenburg'            => '3',
-                    'Bremen'                 => '4',
-                    'Hamburg'                => '5',
-                    'Hessen'                 => '6',
-                    'Mecklenburg Vorpommern' => '7',
-                    'Niedersachsen'          => '8',
-                    'Nordrhein Westfalen'    => '9',
-                    'Rheinland Pfalz'        => '10',
-                    'Saarland'               => '11',
-                    'Sachsen'                => '12',
-                    'Sachsen Anhalt'         => '13',
-                    'Schleswig Holstein'     => '14',
-                    'Thüringen'              => '15',
-              );
-
-
-        foreach my $land ( keys %lands ){
-          $form->{elsterland} = $lands{$land} if ($form->{elsterland} eq $land );
-        }
-      } elsif ($form->{period} =~ /^\d+$/ ) {
-        $form->{period} =~ s/^0//g;
-        my $period = $form->{period};
-        $period * 1;
-        $period--;
-        $form->{period} = $period;
-       } else {
-         $form->header;
-         USTVA::error( $locale->text('Wrong Period' ));
-         exit(0);
-                
-       }
-      
-    }
-    # Other Elster formats follow here...
     
   } elsif ( $form->{format} eq '' ){ # No format error.
     $form->header;
@@ -1132,12 +1178,19 @@ sub generate_ustva {
     USTVA::error( $locale->text('Application Error. Wrong Format: ') . $form->{format} );
     exit(0);
   }
+
+  if ( $form->{period} eq '13' and $form->{format} ne 'html') {
+    $form->header;
+    USTVA::info(
+      $locale->text(
+      'Yearly taxreport not yet implemented')
+      . '!');
+  }
     
-  
   $form->{templates} = $myconfig{templates};
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
-  $form->parse_template($myconfig, $userspath);
+  $form->parse_template(\%myconfig, $userspath);
 
   $lxdebug->leave_sub();
 }
