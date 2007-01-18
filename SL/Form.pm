@@ -1136,6 +1136,14 @@ sub set_payment_options {
   
     ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto}, $self->{payment_terms}) = $sth->fetchrow_array;
 
+    if ($transdate eq "") {
+      if ($self->{invdate}) {
+        $transdate = $self->{invdate};
+      } else {
+        $transdate = $self->{transdate};
+      }
+    }
+
     $sth->finish;
     my $query = qq|SELECT date '$transdate' + $self->{terms_netto} AS netto_date,date '$transdate' + $self->{terms_skonto} AS skonto_date  FROM payment_terms
                   LIMIT 1|;
@@ -1144,7 +1152,9 @@ sub set_payment_options {
     ($self->{netto_date}, $self->{skonto_date}) = $sth->fetchrow_array;
     $sth->finish;
 
-    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $self->{subtotal}) * $self->{percent_skonto}), 2);
+    my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
+
+    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $total) * $self->{percent_skonto}), 2);
 
     $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
     $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
