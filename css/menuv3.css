@@ -75,7 +75,8 @@ improves IE's performance speed to use the older
 file and this method */
 
 div#menu h2:hover{
-background:#000 url(../image/expand3.gif) no-repeat -999px -9999px;
+background:#A3C5FF url(../image/expand3.gif) no-repeat -999px -9999px;
+color:#a00;
 }
 
 div#menu li:hover{
@@ -122,8 +123,8 @@ background:#eee url(../image/expand3.gif) no-repeat 100% 100%;
 }
 
 #menu div.x:hover{
-color:#fff;
-background:#000;
+color:#a00;
+background:#ddd;
 }
 
 #menu div.x:active{
