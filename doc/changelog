@@ -1,7 +1,15 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
-????-??-?? - Version 2.4.1
+2007-01-19 - Version 2.4.1
+  - CSV-Import auf Verwendung von Buchungsgruppen angepasst
+  - Bei Einkaufs- und Verkaufsmasken lassen sich die zweiten Positionszeilen
+    verstecken und wieder anzeigen
+  - PDFs für die USTVA 2007 hinzugefügt
+  - Email-Funktion: Wenn bei den Kundendaten keine Emailadresse angegeben,
+    dafür aber ein Ansprechpartner ausgewählt ist, dann wird die Emailadresse
+    des Ansprechpartners automatisch eingetragen.
+  - Skontobeträge wurden fälschlicherweise vom Nettobetrag berechnet
   - Neues, auf CSS basierendes Menü
   - Bei allen Datumsfeldern den Javascript-Kalender hinzugefügt und an einigen
     Stellen die Beschriftung berichtigt
@@ -40,7 +48,10 @@
   - Ersetzen der Einheitennamen anhand der Vorlagensprache
   - Umformartierungen von Zahlen und Datumgsangaben anhand der
     Vorlagensprache
+  - Bugfix 507 - interne Bemerkungen werden zu öffentlichen Bemerkungen
+  - Bugfix 502 - Keine PDF USTVA Vordrucke für 2007 vorhanden
   - Bugfix 500, 503 - p_discount verrutscht in der Zeile bei "Waren gruppiert"
+  - Bugfix 499 - Ustva Export in Winston funktioniert nicht LX-Office 2.4.0.3
   - Bugfix 497 - Einkaufsrechnung lässt sich nicht stornieren
   - Bugfix 495 - SQL-Fehler beim Löschen von Eiheiten
   - Bugfix 494 - SQL-Fehler beim Eintragen von Dienstleistungseinheiten
@@ -62,6 +73,7 @@
   - Bugfix 460 - Bei Wareneinkauf wird in der Rechnung der Verkaufspreis
     gebucht
   - Bugfix 449 - Variablen in Vorlagen
+  - Bugfix 442 - EUST wird in Winston-Export nicht berücksichtigt
   - Bugfixes 400, 401, 479, 492, 493 - Diverse Rechtschreibfehler
   - Bugfix 359 - Noch eine unklare Betitelung - Nur eine Kleinigkeit
   - Bugfix 352 - Zahlungsziel in Auftrag und Angebot
