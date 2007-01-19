@@ -208,8 +208,8 @@ sub display_row {
   <tr>
     <td>
       <input type="hidden" name="show_details" value="$form->{show_details}">
-      <input type="checkbox" onclick="show_form_details($show_details_new);" $show_details_checked>
-      | . $locale->text("Show details") . qq|<br>
+      <input type="checkbox" id="cb_show_details" onclick="show_form_details($show_details_new);" $show_details_checked>
+      <label for="cb_show_details">| . $locale->text("Show details") . qq|</label><br>
       <table width=100%>
 	<tr class=listheading>|;
 
