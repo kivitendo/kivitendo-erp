@@ -417,6 +417,7 @@ sub customer_details {
   # remove id and taxincluded before copy back
   delete @$ref{qw(id taxincluded)};
 
+  @wanted_vars = grep({ $_ } @wanted_vars);
   if (scalar(@wanted_vars) > 0) {
     my %h_wanted_vars;
     map({ $h_wanted_vars{$_} = 1; } @wanted_vars);
