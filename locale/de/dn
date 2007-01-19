@@ -52,7 +52,7 @@ $self->{texts} = {
 gestartet',
   'Dunning overview'            => 'Mahnungsübersicht',
   'E-mail'                      => 'eMail',
-  'E-mail address missing!'     => 'E-mail address missing!',
+  'E-mail address missing!'     => 'E-Mail-Adresse fehlt!',
   'E-mailed'                    => 'eMail gesendet.',
   'Edit Dunning Process Config' => 'Mahnwesenkonfiguration bearbeiten',
   'Enter longdescription'       => 'Langtext eingeben',
