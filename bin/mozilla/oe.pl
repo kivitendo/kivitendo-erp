@@ -700,6 +700,8 @@ sub form_header {
     $onload = qq|alert('$credittext')|;
   }
 
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
+
   $form->header;
 
   print qq|
@@ -1030,7 +1032,7 @@ sub form_footer {
 </table>
 
 | . $locale->text("Edit the $form->{type}") . qq|<br>
-<input class=submit type=submit name=action value="|
+<input class=submit type=submit name=action id=update_button value="|
     . $locale->text('Update') . qq|">
 <input class=submit type=submit name=action value="|
     . $locale->text('Ship to') . qq|">

@@ -582,6 +582,8 @@ sub form_header {
     $onload = qq|alert('$credittext')|;
   }
 
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
+
   $form->header;
 
   print qq|
@@ -1086,7 +1088,7 @@ if ($form->{type} eq "credit_note") {
 
   if ($form->{id}) {
     print qq|
-    <input class=submit type=submit accesskey="u" name=action value="|
+    <input class=submit type=submit accesskey="u" name=action id=update_button value="|
       . $locale->text('Update') . qq|">
     <input class=submit type=submit name=action value="|
       . $locale->text('Ship to') . qq|">
@@ -1125,7 +1127,7 @@ if ($form->{type} eq "credit_note") {
 
   } else {
     if ($invdate > $closedto) {
-      print qq|<input class=submit type=submit name=action value="|
+      print qq|<input class=submit type=submit name=action id=update_button value="|
         . $locale->text('Update') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('Ship to') . qq|">

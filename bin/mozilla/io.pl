@@ -90,6 +90,7 @@ use Data::Dumper;
 sub display_row {
   $lxdebug->enter_sub();
   my $numrows = shift;
+
   if ($lizenzen && $form->{vc} eq "customer") {
     if ($form->{type} =~ /sales_order/) {
       @column_index = (runningnumber, partnumber, description, ship, qty);
@@ -197,9 +198,18 @@ sub display_row {
     . qq|</th>|;
 ############## ENDE Neueintrag ##################
 
+  $form->{"show_details"} =
+    !defined($form->{"show_details"}) ? 1 :
+    $form->{"show_details"} ? 1 : 0;
+  my $show_details_new = 1 - $form->{"show_details"};
+  my $show_details_checked = $form->{"show_details"} ? "checked" : "";
+
   print qq|
   <tr>
     <td>
+      <input type="hidden" name="show_details" value="$form->{show_details}">
+      <input type="checkbox" onclick="show_form_details($show_details_new);" $show_details_checked>
+      | . $locale->text("Show details") . qq|<br>
       <table width=100%>
 	<tr class=listheading>|;
 
@@ -438,9 +448,13 @@ sub display_row {
     # Eintrag fuer Version 2.2.0 geaendert #
     # neue Optik im Rechnungsformular      #
 ########################################
+
+    my $row_style_attr =
+      'style="display:none;"' if (!$form->{"show_details"});
+
     # print second row
     print qq|
-        <tr  class=listrow$j>
+        <tr  class=listrow$j $row_style_attr>
 	  <td colspan=$colspan>
 |;
     if ($lizenzen && $form->{type} eq "invoice" && $form->{vc} eq "customer") {
