@@ -44,7 +44,6 @@ clearstatcache ();
 $test=$_POST["test"];
 if (!empty($_FILES["Datei"]["name"])) {
 	$file=$_POST["ziel"];
-	echo $_FILES["Datei"]["tmp_name"];
 	if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file.".csv")) {
 		$file=false;
 		echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
@@ -118,6 +117,8 @@ if ($ok) while (!feof($f)){
 		} else if ($in_fld[$i]=="taxincluded"){
 			$data=strtolower(substr($data,0,1));
 			if ($data!="f" && $data!="t") $data="f";
+		} else if ($in_fld[$i]=="ustid"){
+			$data=strtr(" ","",$data);
 		} /*else if ($in_fld[$i]=="matchcode") {
                   $matchcode=$data;
                   $i++;
@@ -164,7 +165,7 @@ if ($ok) while (!feof($f)){
 			$sql.=$keys."taxzone_id,import)";
 			$sql.=$vals."0,$nun)";
 			$rc=$db->query($sql);
-			if (!$rc) echo "Fehler: ".$vals."<br>";
+			if (!$rc) echo "Fehler: ".$sql."<br>";
 		}
 		$j++;
 	} else {
