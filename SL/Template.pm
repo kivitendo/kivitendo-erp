@@ -91,7 +91,7 @@ sub format_string {
                  '<pagebreak>',
                  '&', quotemeta("\n"),
                  '"', '\$', '%', '_', '#', quotemeta('^'),
-                 '{', '}',  '<', '>', '£', "\r"
+                 '{', '}',  '<', '>', '£', "\r", '±',
                  ],
      quotemeta("\\") => '\\textbackslash ',
      '<pagebreak>'   => '',
@@ -107,6 +107,7 @@ sub format_string {
      '>'             => '$>$',
      '£'             => '\pounds ',
      "\r"            => "",
+     '±'             => '$\pm$',
      quotemeta('^')  => '\^\\',
      quotemeta("\n") => '\newline '
      );
