@@ -209,7 +209,13 @@ sub login {
       # remove lock file
       unlink("$userspath/nologin");
 
-      print($form->parse_html_template("dbupgrade/footer"));
+      my $menufile =
+        $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
+        $self->{"menustyle"} eq "neu" ? "menunew.pl" :
+        "menu.pl";
+
+      print($form->parse_html_template("dbupgrade/footer",
+                                       { "menufile" => $menufile }));
 
       $rc = -2;
 
