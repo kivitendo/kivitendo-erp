@@ -40,7 +40,10 @@ function chkPartNumber($db,$number,$check) {
 		$rc=$db->query("BEGIN");
 		$sql = "select  articlenumber from defaults";
 		$rs=$db->getAll($sql);
-		$number=$rs[0]["articlenumber"]+1;
+		if ($rs[0]["articlenumber"]) {
+			preg_match("/([^0-9]+)?([0-9]+)([^0-9]+)?/", $rs[0]["articlenumber"] , $regs);
+			$number=$regs[1].($regs[2]+1).$regs[3];
+		}
 		$sql = "update defaults set articlenumber = '$number'";
 		$rc=$db->query($sql);
 		$rc=$db->query("COMMIT");
@@ -52,7 +55,7 @@ function chkPartNumber($db,$number,$check) {
 }
 
 function getBuchungsgruppe($db, $income, $expense) {
-	
+
 	$income_id = getAccnoId($db, $income);
 	$expense_id = getAccnoId($db, $expense);
 	//$accno0_id = getAccnoId($db, $accno0);
@@ -101,7 +104,7 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 	/*
 	 * read first line with table descriptions
 	 */
-	show( $show, "<table border='1'><tr>\n");
+	show( $show, "<table border='1'><tr><td>#</td>\n");
 	$infld=fgetcsv($f,1200,$trenner);
 	foreach ($infld as $fld) {
 		$fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
@@ -116,7 +119,6 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 	$income_accno = "";
 	$expense_accno = "";
 	while ( ($zeile=fgetcsv($f,1200,$trenner)) != FALSE) {
-
 		$i=0;	/* column */
 	        $m++;	/* increase line */
 
@@ -124,7 +126,7 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 		$keys="(";
 		$vals=" values (";
 
-		show( $show, "<tr>\n");
+		show( $show, "<tr><td>$m</td>\n");
 
 		/* for each column */
 		$dienstleistung=false;
@@ -137,7 +139,7 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 				continue;
 			};
 			$data=trim($data);
-			$data=addslashes($data);
+			//$data=addslashes($data);
 			$key=$in_fld[$i];
 			/* add key and data */
 			if ($data==false or empty($data) or !$data) {
@@ -175,8 +177,10 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 					//show( $show, "<td>$partnumber</td>\n");
 				}
 			} else if ($key == "description") {
+				$data=mb_convert_encoding($data,"ISO-8859-15","auto");
 				$data=addslashes($data);
 			} else if ($key == "notes") {
+				$data=mb_convert_encoding($data,"ISO-8859-15","auto");
 				$data=addslashes($data);
 			} else if ($key == "unit") {
 				/* convert stück and Stunde */
@@ -224,24 +228,24 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 		if ($maske["bugrufix"]==1) {
 			$bg = $maske["bugru"];
 		} else {
-			/* search for buchungsgruppe */
-			$bg = getBuchungsgruppe($db, $income_accno, $expense_accno);
-		}
-		/* nothing found? user must create one */
-		if ($bg == "") {
-			if ($maske["bugrufix"]==2) {
+			if ($income_accno<>"" and $expense_accno<>"") {
+				/* search for buchungsgruppe */
+				$bg = getBuchungsgruppe($db, $income_accno, $expense_accno);
+				if ($bg == "" and $maske["bugrufix"]==2 and $maske["bugru"]<>"") {
+					$bg = $maske["bugru"];
+				}
+			} else if ($maske["bugru"]<>"" and $maske["bugrufix"]==2) {
 				$bg = $maske["bugru"];
 			} else {
+				/* nothing found? user must create one */
 				echo "Error in line $m: ";
 				echo "Keine Buchungsgruppe gefunden für <br>";
 				echo "Erlöse Inland: $income_accno<br>";
-				//echo "Erlöse EU: $income_accno_1<br>";
-				//echo "Erlöse Ausland: $income_accno_3<br>";
-				echo "Bitte legen Sie eine an<br>";
+				echo "Bitte legen Sie eine an oder geben Sie eine vor.<br>";
 				echo "<br>";
 				$errors++;
 			}
-		} 
+		}
 		if ($bg > 0) {
 			/* found one, add income_accno_id etc from buchungsgr.
 			 */
@@ -276,8 +280,10 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 			show( $show, "<td>");
 			$db->showErr = TRUE;
 			$rc=$db->query($sql);
-			if (!$rc)
+			if (!$rc) {
 				echo "Fehler";
+				$fehler++;
+			}
 			show( $show, "</td>\n");
 		}
 
@@ -286,6 +292,7 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 
 	show( $show, "</table>\n");
 	fclose($f);
+	echo "$m Zeilen bearbeitet. ($fehler : Fehler) ";
 	return $errors;
 }
 
