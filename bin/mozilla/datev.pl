@@ -25,6 +25,10 @@
 #
 #======================================================================
 
+use POSIX qw(strftime getcwd);
+use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
+
+use SL::Common;
 use SL::DATEV;
 
 1;
@@ -80,13 +84,14 @@ sub export {
 	  <td><input name=datentraegernr size=5 maxlength=3 value="$form->{datentraegernr}"></td>
 	</tr>
 	<tr>
-	  <td><input checked name=kne type=checkbox class=checkbox value=1> |
-    . $locale->text("Kontonummernerweiterung (KNE)") . qq|</td>
+	  | . # OBE-Export noch nicht implementiert! <td><input checked name=kne type=checkbox class=checkbox value=1> | . $locale->text("Kontonummernerweiterung (KNE)") . qq|</td>
+    qq|<td><input type="hidden" name="kne" value="1"></td>
           <td></td>
 
 	  <td align=left nowrap>| . $locale->text("Abrechnungsnummer") . qq|</td>
 	  <td><input name=abrechnungsnr size=5 maxlength=3 value="$form->{abrechnungsnr}"></td>
 	</tr>
+
         <tr>
           <td><input name=exporttype type=radio class=radio value=0 checked> |
     . $locale->text("Export Buchungsdaten") . qq|</td>
@@ -173,6 +178,7 @@ sub export_bewegungsdaten {
     . $locale->text('III') . qq|</option>
                          <option value=4>|
     . $locale->text('IV') . qq|</option>|;
+  $form->{"jsscript"} = 1;
   $form->header;
 
   print qq|
@@ -209,9 +215,11 @@ sub export_bewegungsdaten {
         <tr>
           <td align=left><input name=zeitraum class=radio type=radio value=zeit>&nbsp;</td><td align=left>|
     . $locale->text('Datum von') . qq|</td>
-          <td align=left><input name=transdatefrom size=8></td>
+          <td align=left><input id=transdatefrom name=transdatefrom size=10>
+            <input type="button" name="transdatefrom" id="trigger_transdatefrom" value="?"></td>
 	  <td align=left>| . $locale->text('bis') . qq|</td>
-          <td align=left><input name=transdateto size=8></td>
+          <td align=left><input id=transdateto name=transdateto size=10>
+            <input type="button" name="transdateto" id="trigger_transdateto" value="?"></td>
 	</tr>
       </table>
     </td>
@@ -220,6 +228,10 @@ sub export_bewegungsdaten {
     <td><hr size=3 noshade></td>
   </tr>
 </table>
+
+| . $form->write_trigger(\%myconfig, 2,
+                         "transdatefrom", "BL", "trigger_transdatefrom",
+                         "transdateto", "BL", "trigger_transdateto") . qq|
 
 <input type=hidden name=beraternr value="$form->{beraternr}">
 <input type=hidden name=dfvkz value="$form->{dfvkz}">
@@ -321,14 +333,65 @@ sub export3 {
 
   DATEV->save_datev_stamm(\%myconfig, \%$form);
 
+  my $link = $form->{"script"} . "?";
+  map({ $link .= "${_}=" . $form->escape($form->{$_}) . "&"; } qw(path login password));
+  $link .= "action=download";
+
   if ($form->{kne}) {
-    if (DATEV->kne_export(\%myconfig, \%$form)) {
-      $form->redirect($locale->text('KNE Export erfolgreich!'));
+    my @filenames = DATEV->kne_export(\%myconfig, \%$form);
+    if (@filenames) {
+      print(qq|<br><b>| . $locale->text('KNE-Export erfolgreich!') . qq|</b><br>|);
+      $link .= "&filenames=" . $form->escape(join(":", @filenames));
+      print(qq|<br><a href="$link">Download</a>|);
+    } else {
+      $form->error("KNE-Export schlug fehl.");
     }
   } else {
-    if (DATEV->obe_export(\%myconfig, \%$form)) {
-      $form->redirect($locale->text('OBE Export erfolgreich!'));
+    my @filenames = DATEV->obe_export(\%myconfig, \%$form);
+    if (@filenames) {
+      print(qq|<br><b>| . $locale->text('OBE-Export erfolgreich!') . qq|</b><br>|);
+      $link .= "&filenames=" . $form->escape(join(":", @filenames));
+      print(qq|<br><a href="$link">Download</a>|);
+    } else {
+      $form->error("OBE-Export schlug fehl.");
     }
   }
+
+  print("</body></html>");
+
+  $lxdebug->leave_sub();
+}
+
+sub download {
+  $lxdebug->enter_sub();
+
+  my $tmp_name = Common->tmpname();
+  my $zip_name = strftime("lx-office-datev-export-%Y%m%d.zip",
+                          localtime(time()));
+
+  my $cwd = getcwd();
+  chdir("users") || die("chdir users");
+
+  my @filenames = split(/:/, $form->{"filenames"});
+  map({ s|.*/||; $form->error("Eine der KNE-Exportdateien wurde nicht " .
+                              "gefunden. Wurde der Export bereits " .
+                              "durchgef&uuml;hrt?") unless (-f $_); }
+      @filenames);
+
+  my $zip = Archive::Zip->new();
+  map({ $zip->addFile($_); } @filenames);
+  $zip->writeToFileNamed($tmp_name);
+  chdir($cwd);
+
+  open(IN, $tmp_name) || die("open $tmp_name");
+  print("Content-Type: application/zip\n");
+  print("Content-Disposition: attachment; filename=\"${zip_name}\"\n\n");
+  while (<IN>) {
+    print($_);
+  }
+  close(IN);
+
+  unlink($tmp_name);
+
   $lxdebug->leave_sub();
 }

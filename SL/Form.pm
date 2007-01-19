@@ -146,7 +146,7 @@ sub new {
   $self->{action} = lc $self->{action};
   $self->{action} =~ s/( |-|,|\#)/_/g;
 
-  $self->{version}   = "2.4.0";
+  $self->{version}   = "2.4.1";
 
   $main::lxdebug->leave_sub();
 
@@ -349,7 +349,7 @@ sub isblank {
 sub header {
   $main::lxdebug->enter_sub();
 
-  my ($self) = @_;
+  my ($self, $extra_code) = @_;
 
   if ($self->{header}) {
     $main::lxdebug->leave_sub();
@@ -365,6 +365,8 @@ sub header {
         qq|<LINK REL="stylesheet" HREF="css/$self->{stylesheet}" TYPE="text/css" TITLE="Lx-Office stylesheet">
  |;
     }
+
+    $self->{favicon}    = "favicon.ico" unless $self->{favicon};
 
     if ($self->{favicon} && (-f "$self->{favicon}")) {
       $favicon =
@@ -437,6 +439,7 @@ function fokus(){document.$self->{fokus}.focus();}
   
   </script>
 
+  $extra_code
 </head>
 
 |;
@@ -773,7 +776,10 @@ sub parse_template {
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
   map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
-      qw(email tel fax name signature company address businessnumber));
+      qw(email tel fax name signature company address businessnumber
+         co_ustid taxnumber duns));
+  map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
+      qw(company address signature));
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
@@ -799,9 +805,6 @@ sub parse_template {
   }
 
   close(OUT);
-  
-  use Data::Dumper;
-  #print(STDERR Dumper($self));
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
 
@@ -836,7 +839,7 @@ sub parse_template {
 
       } else {
 
-        @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($form->{do_not_attach});
+        @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($self->{do_not_attach});
 
         $mail->{message}       =~ s/\r\n/\n/g;
         $myconfig->{signature} =~ s/\\n/\n/g;
@@ -865,10 +868,10 @@ sub parse_template {
           open(OUT, $self->{OUT})
             or $self->error($self->cleanup . "$self->{OUT} : $!");
         } else {
-
+          $self->{attachment_filename} = $self->{tmpfile} if ($self->{attachment_filename} eq '');
           # launch application
           print qq|Content-Type: | . $template->get_mime_type() . qq|
-Content-Disposition: attachment; filename="$self->{tmpfile}"
+Content-Disposition: attachment; filename="$self->{attachment_filename}"
 Content-Length: $numbytes
 
 |;
@@ -1133,6 +1136,14 @@ sub set_payment_options {
   
     ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto}, $self->{payment_terms}) = $sth->fetchrow_array;
 
+    if ($transdate eq "") {
+      if ($self->{invdate}) {
+        $transdate = $self->{invdate};
+      } else {
+        $transdate = $self->{transdate};
+      }
+    }
+
     $sth->finish;
     my $query = qq|SELECT date '$transdate' + $self->{terms_netto} AS netto_date,date '$transdate' + $self->{terms_skonto} AS skonto_date  FROM payment_terms
                   LIMIT 1|;
@@ -1141,11 +1152,20 @@ sub set_payment_options {
     ($self->{netto_date}, $self->{skonto_date}) = $sth->fetchrow_array;
     $sth->finish;
 
-    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $self->{subtotal}) * $self->{percent_skonto}), 2);
+    my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
+
+    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $total) * $self->{percent_skonto}), 2);
 
     $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
     $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
     $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
+    $self->{payment_terms} =~ s/<%total%>/$self->{total}/g;
+    $self->{payment_terms} =~ s/<%invtotal%>/$self->{invtotal}/g;
+    $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
+    $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
+    $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
+    $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
+    $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
 
     $dbh->disconnect;
   }
@@ -1252,7 +1272,7 @@ sub get_shipto {
     my $sth = $dbh->prepare($query);
     $sth->execute || $self->dberror($query);
     $ref = $sth->fetchrow_hashref(NAME_lc);
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    map { $self->{$_} = $ref->{$_} } keys %$ref;
     $sth->finish;  
     $dbh->disconnect;
   }
@@ -1320,6 +1340,24 @@ sub get_employee {
 
   ($self->{employee_id}, $self->{employee}) = $sth->fetchrow_array;
   $self->{employee_id} *= 1;
+
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_duedate {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+
+  my $dbh = $self->dbconnect($myconfig);
+  my $query = qq|SELECT current_date+terms_netto FROM payment_terms
+                 WHERE id = '$self->{payment_id}'|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $self->dberror($query);
+
+  ($self->{duedate}) = $sth->fetchrow_array;
 
   $sth->finish;
 
@@ -1507,7 +1545,7 @@ sub all_vc {
               FROM language
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{languages} }, $ref;
@@ -1519,7 +1557,7 @@ sub all_vc {
               FROM printers
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{printers} }, $ref;
@@ -1532,7 +1570,7 @@ sub all_vc {
               FROM payment_terms
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{payment_terms} }, $ref;
@@ -1558,7 +1596,7 @@ sub language_payment {
               FROM language
 	      ORDER BY 1|;
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{languages} }, $ref;
@@ -1570,7 +1608,7 @@ sub language_payment {
               FROM printers
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{printers} }, $ref;
@@ -1582,7 +1620,7 @@ sub language_payment {
               FROM payment_terms
 	      ORDER BY 1|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $self->{payment_terms} }, $ref;
@@ -1593,7 +1631,7 @@ sub language_payment {
   $query = qq|SELECT id, description
               FROM buchungsgruppen|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
   $self->{BUCHUNGSGRUPPEN} = [];
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -1706,7 +1744,7 @@ sub create_links {
   $query = qq|SELECT id, description
               FROM tax_zones|;
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute || $self->dberror($query);
 
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -2544,6 +2582,35 @@ sub parse_date {
 
   $main::lxdebug->leave_sub();
   return ($yy, $mm, $dd);
+}
+
+sub reformat_date {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $date, $output_format, $longformat) = @_;
+
+  $main::lxdebug->leave_sub() and return "" unless ($date);
+
+  my ($yy, $mm, $dd) = $self->parse_date($myconfig, $date);
+
+  $output_format =~ /d+/;
+  substr($output_format, $-[0], $+[0] - $-[0]) =
+    sprintf("%0" . (length($&)) . "d", $dd);
+
+  $output_format =~ /m+/;
+  substr($output_format, $-[0], $+[0] - $-[0]) =
+    sprintf("%0" . (length($&)) . "d", $mm);
+
+  $output_format =~ /y+/;
+  if (length($&) == 2) {
+    $yy -= $yy >= 2000 ? 2000 : 1900;
+  }
+  substr($output_format, $-[0], $+[0] - $-[0]) =
+    sprintf("%0" . (length($&)) . "d", $yy);
+
+  $main::lxdebug->leave_sub();
+
+  return $output_format;
 }
 
 1;

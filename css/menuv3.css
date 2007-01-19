@@ -1,0 +1,133 @@
+body {
+behavior:url("css/csshover.htc");
+}
+
+#menu{
+width:100%;
+float:left;
+}
+
+#menu a, #menu h2, #menu div.x {
+font:11px/16px arial,helvetica,sans-serif;
+display:block;
+border-width:1px;
+border-style:solid;
+border-color:#ccc #888 #555 #bbb;
+white-space:nowrap;
+margin:0;
+padding:1px 0 1px 3px;
+}
+
+#menu h2{
+color:#fff;
+background:#000 url(../image/bg_css_menu.png) repeat 100% 100%;
+}
+
+#menu a{
+background:#eee;
+text-decoration:none;
+}
+
+#menu a, #menu a:visited{
+color:#000;
+}
+
+#menu a:hover{
+color:#a00;
+background:#ddd;
+}
+
+#menu a:active{
+color:#060;
+background:#ccc;
+}
+
+#menu ul{
+list-style:none;
+margin:0;
+padding:0;
+float:left;
+min-width:7em;
+}
+
+#menu li{
+position:relative;
+}
+
+#menu ul ul{
+position:absolute;
+z-index:500;
+top:auto;
+display:none;
+}
+
+#menu ul ul ul{
+top:0;
+left:100%;
+}
+
+/* Begin non-anchor hover selectors */
+
+/* Enter the more specific element (div) selector
+on non-anchor hovers for IE5.x to comply with the
+older version of csshover.htc - V1.21.041022. It
+improves IE's performance speed to use the older
+file and this method */
+
+div#menu h2:hover{
+background:#A3C5FF url(../image/expand3.gif) no-repeat -999px -9999px;
+color:#a00;
+}
+
+div#menu li:hover{
+cursor:pointer;
+z-index:100;
+}
+
+div#menu li:hover ul ul,
+div#menu li li:hover ul ul,
+div#menu li li li:hover ul ul,
+div#menu li li li li:hover ul ul
+{display:none;}
+
+div#menu li:hover ul,
+div#menu li li:hover ul,
+div#menu li li li:hover ul,
+div#menu li li li li:hover ul
+{display:block;}
+
+/* End of non-anchor hover selectors */
+
+/* Styling for Expand */
+
+#menu a.x, #menu a.x:visited{
+/*font-weight:bold;*/
+color:#000;
+background:#eee url(../image/expand3.gif) no-repeat 100% 100%;
+}
+
+#menu a.x:hover{
+color:#fff;
+background:#000;
+}
+
+#menu a.x:active{
+color:#060;
+background:#ccc;
+}
+
+#menu div.x, #menu div.x:visited{
+/*font-weight:bold;*/
+color:#000;
+background:#eee url(../image/expand3.gif) no-repeat 100% 100%;
+}
+
+#menu div.x:hover{
+color:#a00;
+background:#ddd;
+}
+
+#menu div.x:active{
+color:#060;
+background:#ccc;
+}

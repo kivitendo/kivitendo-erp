@@ -185,7 +185,7 @@ sub search {
 		<td width=5%>&nbsp;</td>
 		<th>| . $locale->text('From') . qq|</th>
                 $button1
-		<th>| . $locale->text('To') . qq|</th>
+		<th>| . $locale->text('To (time)') . qq|</th>
                 $button2
 	      </tr>
 	    </table>
@@ -235,7 +235,7 @@ sub search {
 		    <tr>
 		      <th>| . $locale->text('From') . qq|</th>
 		      $button1
-		      <th>| . $locale->text('To') . qq|</th>
+		      <th>| . $locale->text('To (time)') . qq|</th>
 		      $button2
 		    </tr>
 		  </table>
@@ -1596,7 +1596,7 @@ sub generate_report {
     if ($form->{transdateto}) {
       $callback .= "&transdateto=$form->{transdateto}";
       $option   .= "\n<br>"
-        . $locale->text('To')
+        . $locale->text('To (time)')
         . "&nbsp;"
         . $locale->date(\%myconfig, $form->{transdateto}, 1);
     }
@@ -2071,6 +2071,8 @@ sub edit {
 
   IC->get_part(\%myconfig, \%$form);
 
+  $form->{"original_partnumber"} = $form->{"partnumber"};
+
   $form->{title} = $locale->text('Edit ' . ucfirst $form->{item});
 
   &link_part;
@@ -2332,11 +2334,6 @@ sub form_header {
 		      <td>
 			<input name=weight size=10 value=$form->{weight}>
 		      </td>
-		      <th>
-			&nbsp;
-			$form->{weightunit}
-			<input type=hidden name=weightunit value=$form->{weightunit}>
-		      </th>
 		    </tr>
 		  </table>
 		</td>
@@ -2367,11 +2364,6 @@ sub form_header {
 			&nbsp;$form->{weight}
 			<input type=hidden name=weight value=$form->{weight}>
 		      </td>
-		      <th>
-			&nbsp;
-			$form->{weightunit}
-			<input type=hidden name=weightunit value=$form->{weightunit}>
-		      </th>
 		    </tr>
 		  </table>
 		</td>
@@ -2561,6 +2553,7 @@ sub form_header {
 <input name=rowcount type=hidden value=$form->{rowcount}>
 <input name=eur type=hidden value=$eur>
 <input name=language_values type=hidden value="$form->{language_values}">
+<input name="original_partnumber" type="hidden" value="| . $form->quote($form->{"original_partnumber"}) . qq|">
 
 <table width="100%">
   <tr>
@@ -3189,7 +3182,10 @@ sub save_as_new {
   $lxdebug->enter_sub();
 
   $form->{id} = 0;
-  $form->{partnumber} = "";
+  if ($form->{"original_partnumber"} &&
+      ($form->{"partnumber"} eq $form->{"original_partnumber"})) {
+    $form->{partnumber} = "";
+  }
   &save;
 
   $lxdebug->leave_sub();

@@ -675,6 +675,7 @@ sub form_header {
 
   my $pjy = new CGI::Ajax( 'get_shipto' => $get_shipto_url );
   $form->{selectshipto} = "<option value=0></option>";
+  $form->{selectshipto} .= "<option value=0>Alle</option>";
   if (@{ $form->{SHIPTO} }) {
     foreach $item (@{ $form->{SHIPTO} }) {
       if ($item->{shipto_id} == $form->{shipto_id}) {
@@ -863,6 +864,7 @@ sub form_header {
   # $locale->text('Customer Number')
   # $locale->text('Vendor Number')
   $form->{fokus} = "ct.greeting";
+  $form->{jsscript} = 1;
   $form->header;
 
   print qq|
@@ -953,9 +955,9 @@ sub form_header {
 	<tr>
 	  <th align=right>| . $locale->text('Credit Limit') . qq|</th>
 	  <td><input name=creditlimit size=9 value="$form->{creditlimit}"></td>
-	  <th align=right>| . $locale->text('Terms: Net') . qq|</th>
-	  <td><input name=terms size=2 value="$form->{terms}">|
-    . $locale->text('days') . qq|</td>
+	  <input type="hidden" name="terms" value="$form->{terms}">
+	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
+	  <td><select name=payment_id>$payment</select></td>
 	  <th align=right>| . $locale->text('Discount') . qq|</th>
 	  <td><input name=discount size=4 value="$form->{discount}">
 	  %</td>
@@ -964,7 +966,7 @@ sub form_header {
 	  <th align=right>| . $locale->text('Tax Number / SSN') . qq|</th>
 	  <td><input name=taxnumber size=20 value="$form->{taxnumber}"></td>
           <th align=right>| . $locale->text('USt-IdNr.') . qq|</th>
-	  <td><input name=ustid size=20 value="$form->{ustid}"></td>
+	  <td><input name="ustid" maxlength="14" size="20" value="$form->{ustid}"></td>
           $customer
 	</tr>
         <tr>
@@ -991,9 +993,6 @@ sub form_header {
         <tr>
           <td align=right>| . $locale->text('Obsolete') . qq|</td>
           <td><input name=obsolete class=checkbox type=checkbox value=1 $form->{obsolete}></td>
-	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
-	  <td><select name=payment_id>$payment
-                          </select></td>
 	</tr>
         $taxzone
       </table>
@@ -1167,9 +1166,11 @@ $shipto
     $delivery
     <tr>
       <th align=left nowrap>| . $locale->text('From') . qq|</th>
-      <td><input id=from name=from size=10 maxlength=10 value="$form->{from}"></td>
-      <th align=left nowrap>| . $locale->text('Bis') . qq|</th>
-      <td><input id=to name=to size=10 maxlength=10 value="$form->{to}"></td>
+      <td><input id=from name=from size=10 maxlength=10 value="$form->{from}">
+        <input type="button" name="from" id="trigger_from" value="?"></td>
+      <th align=left nowrap>| . $locale->text('To (time)') . qq|</th>
+      <td><input id=to name=to size=10 maxlength=10 value="$form->{to}">
+        <input type="button" name="to" id="trigger_to" value="?"></td>
     </tr>       
     <tr>
      <td colspan=4>
@@ -1182,7 +1183,8 @@ $shipto
 
 </div>
 
-|;
+| . $form->write_trigger(\%myconfig, 2, "from", "BL", "trigger_from",
+                         "to", "BL", "trigger_to");
 
   $lxdebug->leave_sub();
 }

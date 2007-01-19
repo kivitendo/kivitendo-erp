@@ -440,11 +440,12 @@ sub form_header {
   }
 
   opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $!");
-  @all = grep !/^\.\.?$/, readdir TEMPLATEDIR;
+  my @all = readdir(TEMPLATEDIR);
+  my @alldir = sort(grep({ -d "$templates/$_" && !/^\.\.?$/ } @all));
+  my @allhtml = sort(grep({ -f "$templates/$_" && /\.html$/ } @all));
   closedir TEMPLATEDIR;
 
-  @allhtml = sort grep /\.html/, @all;
-  @alldir = grep !/\.(html|tex|sty|odt)$/, @all;
+  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
   @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
@@ -473,7 +474,7 @@ sub form_header {
   }
 
   opendir CSS, "css/.";
-  @all = grep /.*\.css$/, readdir CSS;
+  @all = sort(grep({ /\.css$/ && ($_ ne "tabcontent.css") } readdir(CSS)));
   closedir CSS;
 
   foreach $item (@all) {
@@ -483,12 +484,16 @@ sub form_header {
       $selectstylesheet .= qq|<option>$item\n|;
     }
   }
-  $selectstylesheet .= "<option>\n";
 
   $form->header;
 
-  if ($myconfig->{menustyle} eq "neu") { $neu = "checked"; }
-  else { $old = "checked"; }
+  if ($myconfig->{menustyle} eq "v3") {
+    $menustyle_v3 = "checked";
+  } elsif ($myconfig->{menustyle} eq "neu") {
+    $menustyle_neu = "checked";
+  } else {
+    $menustyle_old = "checked";
+  }
 
   print qq|
 <body class=admin>
@@ -539,8 +544,8 @@ sub form_header {
 	  <td><textarea name=address rows=4 cols=35>$myconfig->{address}</textarea></td>
 	</tr>
         <tr valign=top>
-	  <th align=right>| . $locale->text('Steuernummer') . qq|</th>
-	  <td><input name=steuernummer size=14 value="$myconfig->{steuernummer}"></td>
+	  <th align=right>| . $locale->text('Tax number') . qq|</th>
+	  <td><input name=taxnumber size=14 value="$myconfig->{taxnumber}"></td>
 	</tr>
         <tr valign=top>
 	  <th align=right>| . $locale->text('Ust-IDNr') . qq|</th>
@@ -596,8 +601,13 @@ sub form_header {
 	</tr>
        <tr>
            <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-           <td><input name=menustyle type=radio class=radio value=neu $neu>&nbsp;New
-                 <input name=menustyle type=radio class=radio value=old $old>&nbsp;Old</td>
+           <td><input name=menustyle type=radio class=radio value=v3 $menustyle_v3>&nbsp;| .
+           $locale->text("Top (CSS)") . qq|
+           <input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
+           $locale->text("Top (Javascript)") . qq|
+           <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
+           $locale->text("Old (on the side)") . qq|
+           </td>
          </tr>
 	<input type=hidden name=templates value=$myconfig->{templates}>
       </table>

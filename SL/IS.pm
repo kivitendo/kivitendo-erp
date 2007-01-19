@@ -391,7 +391,7 @@ sub project_description {
 sub customer_details {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, @wanted_vars) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -416,6 +416,13 @@ sub customer_details {
 
   # remove id and taxincluded before copy back
   delete @$ref{qw(id taxincluded)};
+
+  if (scalar(@wanted_vars) > 0) {
+    my %h_wanted_vars;
+    map({ $h_wanted_vars{$_} = 1; } @wanted_vars);
+    map({ delete($ref->{$_}) unless ($h_wanted_vars{$_}); } keys(%{$ref}));
+  }
+
   map { $form->{$_} = $ref->{$_} } keys %$ref;
   $sth->finish;
 
@@ -672,7 +679,7 @@ sub post_invoice {
                                 $baseqty * -1)
             unless $form->{shipped};
 
-          $allocated = &cogs($dbh, $form, $form->{"id_$i"}, $baseqty, $basefactor);
+          $allocated = &cogs($dbh, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
         }
       }
 
@@ -1239,14 +1246,17 @@ sub process_assembly {
 sub cogs {
   $main::lxdebug->enter_sub();
 
-  my ($dbh, $form, $id, $totalqty, $basefactor) = @_;
-
+  my ($dbh, $form, $id, $totalqty, $basefactor, $row) = @_;
+  $form->{taxzone_id} *=1;
+  my $transdate = ($form->{invdate}) ? "'$form->{invdate}'" : "current_date";
   my $query = qq|SELECT i.id, i.trans_id, i.base_qty, i.allocated, i.sellprice,
-                   (SELECT c.accno FROM chart c
-		    WHERE p.inventory_accno_id = c.id) AS inventory_accno,
-		   (SELECT c.accno FROM chart c
-		    WHERE p.expense_accno_id = c.id) AS expense_accno
+                        c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid,
+			c2.accno AS income_accno, c2.new_chart_id AS income_new_chart, date($transdate)  - c2.valid_from as income_valid,
+			c3.accno AS expense_accno, c3.new_chart_id AS expense_new_chart, date($transdate) - c3.valid_from as expense_valid
 		  FROM invoice i, parts p
+                  LEFT JOIN chart c1 ON ((select inventory_accno_id from buchungsgruppen where id=p.buchungsgruppen_id) = c1.id)
+                  LEFT JOIN chart c2 ON ((select income_accno_id_$form->{taxzone_id} from buchungsgruppen where id=p.buchungsgruppen_id) = c2.id)
+                  LEFT JOIN chart c3 ON ((select expense_accno_id_$form->{taxzone_id} from buchungsgruppen where id=p.buchungsgruppen_id) = c3.id)
 		  WHERE i.parts_id = p.id
 		  AND i.parts_id = $id
 		  AND (i.base_qty + i.allocated) < 0
@@ -1269,12 +1279,12 @@ sub cogs {
     # sellprice is the cost of the item
     $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / $basefactor, 2);
 
-    if (!$eur) {
-
+    if (!$main::eur) {
+      $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
       # add to expense
       $form->{amount}{ $form->{id} }{ $ref->{expense_accno} } += -$linetotal;
       $form->{expense_inventory} .= " " . $ref->{expense_accno};
-
+      $ref->{inventory_accno} = ($form->{"inventory_accno_$row"}) ? $form->{"inventory_accno_$row"} : $ref->{inventory_accno};
       # deduct inventory
       $form->{amount}{ $form->{id} }{ $ref->{inventory_accno} } -= -$linetotal;
       $form->{expense_inventory} .= " " . $ref->{inventory_accno};

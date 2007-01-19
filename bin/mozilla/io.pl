@@ -33,7 +33,12 @@
 #
 #######################################################################
 
+use SL::CT;
 use SL::IC;
+use CGI::Ajax;
+use CGI;
+
+require "$form->{path}/common.pl";
 
 # any custom scripts for this one
 if (-f "$form->{path}/custom_io.pl") {
@@ -85,6 +90,7 @@ use Data::Dumper;
 sub display_row {
   $lxdebug->enter_sub();
   my $numrows = shift;
+
   if ($lizenzen && $form->{vc} eq "customer") {
     if ($form->{type} =~ /sales_order/) {
       @column_index = (runningnumber, partnumber, description, ship, qty);
@@ -192,9 +198,20 @@ sub display_row {
     . qq|</th>|;
 ############## ENDE Neueintrag ##################
 
+  $myconfig{"show_form_details"} = 1
+    unless (defined($myconfig{"show_form_details"}));
+  $form->{"show_details"} = $myconfig{"show_form_details"}
+    unless (defined($form->{"show_details"}));
+  $form->{"show_details"} = $form->{"show_details"} ? 1 : 0;
+  my $show_details_new = 1 - $form->{"show_details"};
+  my $show_details_checked = $form->{"show_details"} ? "checked" : "";
+
   print qq|
   <tr>
     <td>
+      <input type="hidden" name="show_details" value="$form->{show_details}">
+      <input type="checkbox" id="cb_show_details" onclick="show_form_details($show_details_new);" $show_details_checked>
+      <label for="cb_show_details">| . $locale->text("Show details") . qq|</label><br>
       <table width=100%>
 	<tr class=listheading>|;
 
@@ -433,9 +450,13 @@ sub display_row {
     # Eintrag fuer Version 2.2.0 geaendert #
     # neue Optik im Rechnungsformular      #
 ########################################
+
+    my $row_style_attr =
+      'style="display:none;"' if (!$form->{"show_details"});
+
     # print second row
     print qq|
-        <tr  class=listrow$j>
+        <tr  class=listrow$j $row_style_attr>
 	  <td colspan=$colspan>
 |;
     if ($lizenzen && $form->{type} eq "invoice" && $form->{vc} eq "customer") {
@@ -546,7 +567,7 @@ sub set_pricegroup {
 
 sub select_item {
   $lxdebug->enter_sub();
-  @column_index = qw(ndx partnumber description onhand sellprice);
+  @column_index = qw(ndx partnumber description onhand unit sellprice);
 
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
   $column_data{partnumber} =
@@ -557,7 +578,8 @@ sub select_item {
     qq|<th class=listheading>| . $locale->text('Price') . qq|</th>|;
   $column_data{onhand} =
     qq|<th class=listheading>| . $locale->text('Qty') . qq|</th>|;
-
+  $column_data{unit} =
+    qq|<th class=listheading>| . $locale->text('Unit') . qq|</th>|;
   # list items with radio button on a form
   $form->header;
 
@@ -615,7 +637,8 @@ sub select_item {
       qq|<td align=right><input name="new_onhand_$i" type=hidden value=$ref->{onhand}>|
       . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
       . qq|</td>|;
-
+    $column_data{unit} =
+      qq|<td>$ref->{unit}</td>|;
     $j++;
     $j %= 2;
     print qq|
@@ -1165,6 +1188,13 @@ sub order {
                     \%myconfig, $form->{currency}, $form->{transdate}, $buysell
                     )));
 
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
+
   &prepare_order;
   &display_form;
 
@@ -1218,6 +1248,13 @@ sub quotation {
                     \%myconfig, $form->{currency}, $form->{transdate}, $buysell
                     )));
 
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
+
   &prepare_order;
   &display_form;
 
@@ -1243,6 +1280,11 @@ sub e_mail {
 
   if ($form->{formname} =~ /(pick|packing|bin)_list/) {
     $form->{email} = $form->{shiptoemail} if $form->{shiptoemail};
+  }
+
+  if ($form->{"cp_id"} && !$form->{"email"}) {
+    CT->get_contact(\%myconfig, $form);
+    $form->{"email"} = $form->{"cp_email"};
   }
 
   $name = $form->{ $form->{vc} };
@@ -1346,7 +1388,16 @@ sub send_email {
 sub print_options {
   $lxdebug->enter_sub();
   $form->{sendmode} = "attachment";
-  $form->{copies}   = 3 unless $form->{copies};
+
+  $form->{"format"} =
+    $form->{"format"} ? $form->{"format"} :
+    $myconfig{"template_format"} ? $myconfig{"template_format"} :
+    "pdf";
+
+  $form->{"copies"} =
+    $form->{"copies"} ? $form->{"copies"} :
+    $myconfig{"copies"} ? $myconfig{"copies"} :
+    3;
 
   $form->{PD}{ $form->{formname} } = "selected";
   $form->{DF}{ $form->{format} }   = "selected";
@@ -1457,7 +1508,7 @@ sub print_options {
 
   $format .= qq|<option value=html $form->{DF}{html}>HTML</option>|;
 
-  if ($latex) {
+  if ($latex_templates) {
     $format .= qq|<option value=postscript $form->{DF}{postscript}>| .
       $locale->text('Postscript') . qq|</option>|;
   }
@@ -1753,9 +1804,14 @@ sub print_form {
   $form->{"cc"}    = $saved_cc    if ($saved_cc);
   $form->{"bcc"}   = $saved_bcc   if ($saved_bcc);
 
-  # format payment dates
-  for $i (1 .. $form->{paidaccounts} - 1) {
-    $form->{"datepaid_$i"} = $locale->date(\%myconfig, $form->{"datepaid_$i"});
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  if ($form->{"language_id"}) {
+    ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) =
+      AM->get_language_details(\%myconfig, $form, $form->{language_id});
+  } else {
+    $output_dateformat = $myconfig{"dateformat"};
+    $output_numberformat = $myconfig{"numberformat"};
+    $output_longdates = 1;
   }
 
   ($form->{employee}) = split /--/, $form->{employee};
@@ -1766,17 +1822,6 @@ sub print_form {
     OE->order_details(\%myconfig, \%$form);
   } else {
     IS->invoice_details(\%myconfig, \%$form, $locale);
-  }
-
-  # format global dates
-  map { $form->{$_} = $locale->date(\%myconfig, $form->{$_}, 1) }
-    ("${inv}date", "${due}date", "shippingdate", "deliverydate");
-
-  # format item dates
-  for my $field (qw(transdate_oe deliverydate_oe)) {
-    map {
-      $form->{$field}[$_] = $locale->date(\%myconfig, $form->{$field}[$_], 1);
-    } 0 .. $#{ $form->{$field} };
   }
 
   if ($form->{shipto_id}) {
@@ -1800,14 +1845,12 @@ sub print_form {
         || $form->{formname} eq 'request_quotation') {
       $form->{shiptoname}   = $myconfig{company};
       $form->{shiptostreet} = $myconfig{address};
-        } else {
+    } else {
       map { $form->{"shipto$_"} = $form->{$_} } @a;
     }
   }
 
   $form->{notes} =~ s/^\s+//g;
-
-  map({ $form->{$_} =~ s/\\n/\n/g; } qw(company address));
 
   $form->{templates} = "$myconfig{templates}";
 
@@ -1815,8 +1858,45 @@ sub print_form {
   $form->{printer_code} = $form->get_printer_code(\%myconfig);
 
   if ($form->{language} ne "") {
+    map({ $form->{"unit"}->[$_] =
+            AM->translate_units($form, $form->{"language"},
+                                $form->{"unit"}->[$_], $form->{"qty"}->[$_]); }
+        (0..scalar(@{$form->{"unit"}}) - 1));
     $form->{language} = "_" . $form->{language};
   }
+
+  # Format dates.
+  format_dates($output_dateformat, $output_longdates,
+               qw(invdate orddate quodate pldate duedate reqdate transdate
+                  shippingdate deliverydate validitydate paymentdate
+                  datepaid transdate_oe deliverydate_oe
+                  employee_startdate employee_enddate
+                  ),
+               grep({ /^datepaid_\d+$/ ||
+                        /^transdate_oe_\d+$/ ||
+                        /^deliverydate_oe_\d+$/ ||
+                        /^reqdate_\d+$/ ||
+                        /^deliverydate_\d+$/ ||
+                        /^transdate_\d+$/
+                    } keys(%{$form})));
+
+  reformat_numbers($output_numberformat, 2,
+                   qw(invtotal ordtotal quototal subtotal linetotal
+                      listprice sellprice netprice discount
+                      tax taxbase),
+                   grep({ /^linetotal_\d+$/ ||
+                            /^listprice_\d+$/ ||
+                            /^sellprice_\d+$/ ||
+                            /^netprice_\d+$/ ||
+                            /^taxbase_\d+$/ ||
+                            /^discount_\d+$/ ||
+                            /^tax_\d+$/
+                        } keys(%{$form})));
+
+  reformat_numbers($output_numberformat, undef,
+                   qw(qty),
+                   grep({ /^qty_\d+$/
+                        } keys(%{$form})));
 
   if ($form->{printer_code} ne "") {
     $form->{printer_code} = "_" . $form->{printer_code};
@@ -1936,14 +2016,14 @@ sub print_form {
 
 sub customer_details {
   $lxdebug->enter_sub();
-  IS->customer_details(\%myconfig, \%$form);
+  IS->customer_details(\%myconfig, \%$form, @_);
   $lxdebug->leave_sub();
 }
 
 sub vendor_details {
   $lxdebug->enter_sub();
 
-  IR->vendor_details(\%myconfig, \%$form);
+  IR->vendor_details(\%myconfig, \%$form, @_);
 
   $lxdebug->leave_sub();
 }
@@ -1971,8 +2051,13 @@ sub ship_to {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
+  my @shipto_vars =
+    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
+       shiptocontact shiptophone shiptofax shiptoemail
+       shiptodepartment_1 shiptodepartment_2);
+
   # get details for name
-  &{"$form->{vc}_details"};
+  &{"$form->{vc}_details"}(@shipto_vars);
 
   $number =
     ($form->{vc} eq 'customer')
@@ -2075,8 +2160,7 @@ sub ship_to {
 |;
 
   # delete shipto
-  map { delete $form->{$_} }
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2 header);
+  map({ delete $form->{$_} } (@shipto_vars, qw(header)));
   $form->{title} = $title;
 
   foreach $key (keys %$form) {
@@ -2156,3 +2240,18 @@ sub relink_accounts {
 
   $lxdebug->leave_sub();
 }
+
+
+sub set_duedate {
+  $lxdebug->enter_sub();
+
+  $form->get_duedate(\%myconfig);
+
+  my $q = new CGI;
+  $result = "$form->{duedate}";
+  print $q->header();
+  print $result;
+  $lxdebug->leave_sub();
+
+}
+

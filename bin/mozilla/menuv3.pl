@@ -1,0 +1,250 @@
+#=====================================================================
+# LX-Office ERP
+# Copyright (C) 2004
+# Based on SQL-Ledger Version 2.1.9
+# Web http://www.lx-office.org
+#
+######################################################################
+# SQL-Ledger Accounting
+# Copyright (c) 1998-2002
+#
+#  Author: Dieter Simader
+#   Email: dsimader@sql-ledger.org
+#     Web: http://www.sql-ledger.org
+#
+#  Contributors: Christopher Browne
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#######################################################################
+#
+# thre frame layout with refractured menu
+#
+#######################################################################
+
+$menufile = "menu.ini";
+use SL::Menu;
+
+1;
+
+# end of main
+
+sub display {
+  $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=| .
+                int(rand(100000)) . qq|" type="text/css">|);
+
+  print(qq|<body>\n|);
+
+  clock_line();
+
+  print qq|
+
+<div id="menu">
+
+| . acc_menu() . qq|
+
+</div>
+
+<div style="clear: both;"></div>
+
+<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" width="100%" height="93%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
+<p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
+</p>
+</iframe>
+</body>
+</html>
+
+|;
+
+}
+
+sub clock_line {
+
+  $login = "["
+    . $form->{login}
+    . " - <a href=\"login.pl?path="
+    . $form->{"path"}
+    . "&password="
+    . $form->{"password"}
+    . "&action=logout\" target=\"_top\">"
+    . $locale->text('Logout')
+    . "</a>] ";
+  my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
+      $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
+    = localtime(time);
+  my $CTIME_String = localtime(time);
+  $Monat     += 1;
+  $Jahrestag += 1;
+  $Monat     = $Monat < 10     ? $Monat     = "0" . $Monat     : $Monat;
+  $Monatstag = $Monatstag < 10 ? $Monatstag = "0" . $Monatstag : $Monatstag;
+  $Jahr += 1900;
+  my @Wochentage = ("Sonntag",    "Montag",  "Dienstag", "Mittwoch",
+                    "Donnerstag", "Freitag", "Samstag");
+  my @Monatsnamen = ("",       "Januar",    "Februar", "M&auml;rz",
+                     "April",  "Mai",       "Juni",    "Juli",
+                     "August", "September", "Oktober", "November",
+                     "Dezember");
+  $datum =
+      $Wochentage[$Wochentag] . ", der "
+    . $Monatstag . "."
+    . $Monat . "."
+    . $Jahr . " - ";
+
+  #$zeit="<div id='Uhr'>".$Stunden.":".$Minuten.":".$Sekunden."</div>";
+  $zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
+  print qq|
+<script type="text/javascript">
+<!--
+var clockid=new Array()
+var clockidoutside=new Array()
+var i_clock=-1
+var thistime= new Date()
+var hours= | . $Stunden . qq|;
+var minutes= | . $Minuten . qq|;
+var seconds= | . $Sekunden . qq|;
+if (eval(hours) <10) {hours="0"+hours}
+if (eval(minutes) < 10) {minutes="0"+minutes}
+if (seconds < 10) {seconds="0"+seconds}
+//var thistime = hours+":"+minutes+":"+seconds
+var thistime = hours+":"+minutes
+
+function writeclock() {
+	i_clock++
+	if (document.all \|\| document.getElementById \|\| document.layers) {
+		clockid[i_clock]="clock"+i_clock
+		document.write("<font family=arial size=2><span id='"+clockid[i_clock]+"' style='position:relative'>"+thistime+"</span></font>")
+	}
+}
+
+function clockon() {
+	thistime= new Date()
+	hours=thistime.getHours()
+	minutes=thistime.getMinutes()
+	seconds=thistime.getSeconds()
+	if (eval(hours) <10) {hours="0"+hours}
+	if (eval(minutes) < 10) {minutes="0"+minutes}
+	if (seconds < 10) {seconds="0"+seconds}
+	//thistime = hours+":"+minutes+":"+seconds
+	thistime = hours+":"+minutes
+
+	if (document.all) {
+		for (i=0;i<=clockid.length-1;i++) {
+			var thisclock=eval(clockid[i])
+			thisclock.innerHTML=thistime
+		}
+	}
+
+	if (document.getElementById) {
+		for (i=0;i<=clockid.length-1;i++) {
+			document.getElementById(clockid[i]).innerHTML=thistime
+		}
+	}
+	var timer=setTimeout("clockon()",60000)
+}
+//window.onload=clockon
+//-->
+</script>
+<table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
+	<tr>
+		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
+		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
+    . $login . $datum . qq| <script>writeclock()</script>&nbsp;
+		</td>
+	</tr>
+</table>
+|;
+}
+
+sub acc_menu {
+  $locale = Locale->new($language, "menu");
+
+  $mainlevel = $form->{level};
+  $mainlevel =~ s/$mainlevel--//g;
+  my $menu = new Menu "$menufile";
+  $menu = new Menu "custom_$menufile" if (-f "custom_$menufile");
+  $menu = new Menu "$form->{login}_$menufile"
+    if (-f "$form->{login}_$menufile");
+
+  $| = 1;
+
+  return print_menu($menu);
+}
+
+sub my_length {
+  my ($s) = @_;
+  my $len = 0;
+  my $i;
+  my $skip = 0;
+
+  for ($i = 0; $i < length($s); $i++) {
+    my $c = substr($s, $i, 1);
+    if ($skip && ($c eq ";")) {
+      $skip = 0;
+    } elsif ($skip) {
+      next;
+    } elsif ($c eq "&") {
+      $skip = 1;
+      $len++;
+    } else {
+      $len++;
+    }
+  }
+
+  return $len;
+}
+
+sub print_menu {
+  my ($menu, $parent, $depth) = @_;
+  my $html;
+
+  die if ($depth * 1 > 5);
+
+  my @menuorder;
+
+  @menuorder = $menu->access_control(\%myconfig, $parent);
+
+  $parent .= "--" if ($parent);
+
+  foreach my $item (@menuorder) {
+    substr($item, 0, length($parent)) = "";
+    next if (($item eq "") || ($item =~ /--/));
+
+    my $menu_item = $menu->{"${parent}${item}"};
+    my $menu_title = $locale->text($item);
+    my $menu_text = $menu_title;
+
+    $menu_text =~ s/ /<br>/ if ($parent && (my_length($menu_text) >= 17));
+
+    my $target = "main_window";
+    $target = $menu_item->{"target"} if ($menu_item->{"target"});
+
+    if ($menu_item->{"submenu"} || !defined($menu_item->{"module"}) ||
+        ($menu_item->{"module"} eq "menu.pl")) {
+
+      my $h = print_menu($menu, "${parent}${item}", $depth * 1 + 1);
+      if (!$parent) {
+        $html .= qq|<ul><li><h2>${menu_text}</h2><ul>${h}</ul></li></ul>|;
+      } else {
+        $html .= qq|<li><div class="x">${menu_text}</div><ul>${h}</ul></li>|;
+      }
+    } else {
+      $html .= qq|<li>|;
+      $html .= $menu->menuitem_v3(\%myconfig, $form, "${parent}$item",
+                                  { "title" => $menu_title,
+                                    "target" => $target });
+      $html .= qq|${menu_text}</a></li>|;
+    }
+  }
+
+  return $html;
+}

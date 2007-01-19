@@ -1519,22 +1519,12 @@ sub create_links {
   }
   $sth->finish;
 
-  if ($form->{id}) {
-    $query = qq|SELECT weightunit
-                FROM defaults|;
+  if (!$form->{id}) {
+    $query = qq|SELECT current_date FROM defaults|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
-    ($form->{weightunit}) = $sth->fetchrow_array;
-    $sth->finish;
-
-  } else {
-    $query = qq|SELECT weightunit, current_date
-                FROM defaults|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{weightunit}, $form->{priceupdate}) = $sth->fetchrow_array;
+    ($form->{priceupdate}) = $sth->fetchrow_array;
     $sth->finish;
   }
 
@@ -1783,6 +1773,8 @@ sub retrieve_accounts {
     } else {
       $transdate = $form->{deliverydate};
     }
+  } elsif ($form->{type} eq "credit_note") {
+    $transdate = $form->{invdate};
   } else {
     $transdate = $form->{transdate};
   }
@@ -1817,7 +1809,7 @@ sub retrieve_accounts {
 
   if (!$ref) {
     $dbh->disconnect();
-    return $lxdebug->leave_sub();
+    return $main::lxdebug->leave_sub();
   }
 
   $ref->{"inventory_accno_id"} = undef unless ($ref->{"is_part"});
@@ -1852,7 +1844,10 @@ sub retrieve_accounts {
   $sth->finish();
   $dbh->disconnect();
 
-  return $main::lxdebug->leave_sub() unless ($ref);
+  unless ($ref) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
 
   $form->{"taxaccounts_$index"} = $ref->{"accno"};
   if ($form->{"taxaccounts"} !~ /$ref->{accno}/) {
@@ -1866,8 +1861,6 @@ sub retrieve_accounts {
 #                           " taxnumber " . $form->{"$ref->{accno}_taxnumber"} .
 #                           " || taxaccounts_$index " . $form->{"taxaccounts_$index"} .
 #                           " || taxaccounts " . $form->{"taxaccounts"});
-
-  $sth->finish();
 
   $main::lxdebug->leave_sub();
 }

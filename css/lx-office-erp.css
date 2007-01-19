@@ -45,9 +45,13 @@ body {
   font-size: 10pt;
   background-color: white;
   background-image: url("../image/fade.png"); background-repeat:repeat-x;
-  color: black
+  color: black;
 }
-// .bg { background-image: url("mn_hauptmenu.png");}
+
+/* .bg { 
+  background-image: url("mn_hauptmenu.png"); 
+} */
+
 td {
   font-family: Verdana, Arial, Helvetica;
   color: black;
@@ -226,3 +230,4 @@ h2.error {
     display: none;
   }
 }
+

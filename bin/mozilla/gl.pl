@@ -177,7 +177,7 @@ sub edit {
         $form->{totalcredit} += $ref->{amount};
         $form->{"credit_$i"} = $ref->{amount};
       }
-      $form->{"taxchart_$i"} = "0--";
+      $form->{"taxchart_$i"} = "0--0.00";
       $i++;
     }
     if ($ref->{taxaccno} && !$tax) {
@@ -293,6 +293,7 @@ sub search {
 	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
           $button1
+	  <th align=right>| . $locale->text('To (time)') . qq|</th>
           $button2
 	</tr>
 	<tr>
@@ -968,7 +969,7 @@ sub update {
         : $form->{"debit_$i"};
       $j = $#a;
       if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-        $form->{"taxchart_$i"} = "0--";
+        $form->{"taxchart_$i"} = "0--0.00";
         $form->{"tax_$i"}      = 0;
       }
       if (!$form->{"korrektur_$i"}) {
@@ -1609,7 +1610,7 @@ sub post {
         : $form->{"debit_$i"};
       $j = $#a;
       if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-        $form->{"taxchart_$i"} = "0--";
+        $form->{"taxchart_$i"} = "0--0.00";
         $form->{"tax_$i"}      = 0;
       }
       if (!$form->{"korrektur_$i"}) {

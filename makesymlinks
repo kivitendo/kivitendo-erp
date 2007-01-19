@@ -3,7 +3,7 @@
 # Erstellt die benotigten Symlinks
 
 ln -vsf login.pl admin.pl
-for i in ap ar bp ca cp ct cn dn gl ic ir is menu oe pe rc rp datev licenses fa ustva menunew common; do
+for i in ap ar bp ca cp ct cn dn gl ic ir is menu oe pe rc rp datev licenses fa ustva menunew common menuv3; do
   ln -vsf am.pl $i.pl
 done
 

@@ -31,19 +31,21 @@ $address = array(
 	"customernumber" => "Kundennummer",
 	"vendornumber" => "Lieferantennummer",
 	"taxnumber" => "Steuernummer",
+	"ustid" => "Umsatzsteuer-ID",
 	"account_number" => "Kontonummer",
 	"bank_code" => "Bankleitzahl",
 	"bank" => "Bankname",
 	"branche" => "Branche",
-	"language" => "Sprache (de,en,fr)",
+	//"language" => "Sprache (de,en,fr)",
 	"sw" => "Stichwort",
-	"creditlimit" => "Kreditlimit (nnnnnn.nn)",
+	"creditlimit" => "Kreditlimit (nnnnnn.nn)"); /*,
 	"hierarchie" => "Hierarchie",
 	"potenzial" => "Potenzial",
         "ar" => "Debitorenkonto",
         "ap" => "Kreditorenkonto",
         "matchcode" => "Matchcode",
-	"customernumber2" => "Kundennummer 2");
+	"customernumber2" => "Kundennummer 2"); 
+	Kundenspezifisch */
         
 $shiptos = array(
 	"shiptoname" => "Firmenname",
@@ -64,41 +66,57 @@ $parts = array(
 	"partnumber" => "Artikelnummer",
 	"description" => "Artikeltext",
 	"unit" => "Einheit",
-	"weight" => "Gewicht (kg)",
+	"weight" => "Gewicht in Benutzerdefinition",
 	"onhand" => "Lagerbestand",
 	"notes" => "Beschreibung",
 	"makemodel" => "Hersteller",
 	"model" => "Modellbezeichnung",
-	"income_accno_id" => "ErlÃ¶skonto",
-	"expense_accno_id" => "Konto Umsatzkosten",
 	"bin" => "Lagerort",
 	"image" => "Pfad/Dateiname",
 	"drawing" => "Pfad/Dateiname",
 	"microfiche" => "Pfad/Dateiname",
-	"partsgroup_id" => "Name Warengruppe",
 	"listprice" => "Listenpreis",
 	"sellprice" => "Verkaufspreis",
 	"lastcost" => "letzter EK",
-	"art" => "Ware/Dienstleistung (*/d)");
+	"art" => "Ware/Dienstleistung (*/d), mu&szlig; vor den Konten kommen",
+	"inventory_accno" => "Bestandskonto",
+	"income_accno" => "Erl&ouml;skonto",
+	"expense_accno" => "Konto Umsatzkosten",
+	"obsolete" => "Gesperrt (Y/N)",
+	"lastcost" => "letzer EK-Preis",
+	"rop" => "Mindestbestand",
+	"shop" => "Shopartikel (Y/N)",
+	"assembly" => "Stückliste (Y/N); wird noch nicht unterstützt",
+	"partsgroup" => "Warengruppenbezeichnung",
+	//"income_accno_0" => "?Nummer? für Erlöse Inland",
+	//"income_accno_1" => "?Nummer? für Erlöse EG",
+	//"income_accno_3" => "?Nummer? für Erlöse Ausland",
+	);
 	
 $contactscrm = array(
 	"customernumber" => "Kundennummer",
 	"vendornumber" => "Lieferantennummer",
 	"cp_cv_id" => "FirmenID in der db",
 	"firma" => "Firmenname",
+	"cp_abteilung" => "Abteilung",
+	"cp_position" => "Position/Hierarchie",
 	"cp_greeting" => "Anrede",
 	"cp_title" => "Titel",
 	"cp_givenname" => "Vorname",
-	"cp_greeting" => "Anrede",
 	"cp_name" => "Nachname",
 	"cp_email" => "eMail",
 	"cp_phone1" => "Telefon 1",
 	"cp_phone2" => "Telefon 2",
+	"cp_mobile1" => "Mobiltelefon 1",
+	"cp_mobile2" => "Mobiltelefon 2",
+	"cp_homepage" => "Homepage",
 	"cp_street" => "Strasse",
+	"cp_country" => "Land",
 	"cp_zipcode" => "PLZ",
 	"cp_city" => "Ort",
+	"cp_privatphone" => "Privattelefon",
+	"cp_privatemail" => "private eMail",
 	"cp_notes" => "Bemerkungen",
-	"cp_country" => "Land",
 	"cp_stichwort1" => "Stichwort(e)",
 	"katalog" => "Katalog",
 	"inhaber" => "Inhaber",
@@ -118,6 +136,11 @@ $contacts = array(
 	"cp_email" => "eMail",
 	"cp_phone1" => "Telefon 1",
 	"cp_phone2" => "Telefon 2",
+	"cp_mobile1" => "Mobiltelefon 1",
+	"cp_mobile2" => "Mobiltelefon 2",
+	"cp_privatphone" => "Privattelefon",
+	"cp_privatemail" => "private eMail",
+	"cp_homepage" => "Homepage",
 	"katalog" => "Katalog",
 	"inhaber" => "Inhaber",
 	"contact_id" => "Kontakt ID"
@@ -249,6 +272,12 @@ global $db;
 	} else {
 		return $rs[0]["id"];
 	}
+}
+
+function getAllBG($db) {
+	$sql  = "select * from buchungsgruppen order by description";
+	$rs=$db->getAll($sql);
+	return $rs;
 }
 
 class myDB extends DB {

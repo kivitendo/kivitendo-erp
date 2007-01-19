@@ -14,7 +14,6 @@ $self->{texts} = {
   'Bcc'                         => 'Bcc',
   'Billing Address'             => 'Rechnungsadresse',
   'Birthday'                    => 'Geburtstag',
-  'Bis'                         => 'bis',
   'Cannot delete customer!'     => 'Kunde kann nicht gelöscht werden!',
   'Cannot delete vendor!'       => 'Lieferant kann nicht gelöscht werden!',
   'Cc'                          => 'Cc',
@@ -94,8 +93,8 @@ $self->{texts} = {
   'Tax Number'                  => 'Steuernummer',
   'Tax Number / SSN'            => 'Steuernummer',
   'Taxable'                     => 'Steuerpflichtig',
-  'Terms: Net'                  => 'Zahlungsziel',
   'Title'                       => 'Titel',
+  'To (time)'                   => 'Bis',
   'Type of Business'            => 'Kundentyp',
   'USt-IdNr.'                   => 'USt-IdNr.',
   'Unit'                        => 'Einheit',
@@ -108,7 +107,6 @@ $self->{texts} = {
   'Vendors'                     => 'Lieferanten',
   'Zipcode'                     => 'PLZ',
   'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
-  'days'                        => 'Tage',
   's'                           => 's',
 };
 

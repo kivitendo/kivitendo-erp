@@ -35,6 +35,7 @@
 package OE;
 
 use SL::AM;
+use SL::DBUtils;
 
 sub transactions {
   $main::lxdebug->enter_sub();
@@ -560,6 +561,21 @@ sub close_orders {
   $main::lxdebug->leave_sub();
 }
 
+sub close_order {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  $main::lxdebug->leave_sub() unless ($form->{"id"});
+
+  my $dbh = $form->dbconnect($myconfig);
+  do_query($form, $dbh, qq|UPDATE oe SET closed = TRUE where ordnumber = ?|,
+           $form->{"id"});
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub delete {
   $main::lxdebug->enter_sub();
 
@@ -1005,7 +1021,9 @@ sub order_details {
       $sameitem = $item->[1];
 
       map { push(@{ $form->{$_} }, "") }
-        qw(runningnumber number qty ship unit bin partnotes serialnumber reqdate sellprice listprice netprice discount linetotal);
+        qw(runningnumber number qty ship unit bin partnotes
+           serialnumber reqdate sellprice listprice netprice
+           discount p_discount linetotal);
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -1165,7 +1183,9 @@ sub order_details {
         while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
             map { push(@{ $form->{$_} }, "") }
-              qw(runningnumber ship bin serialnumber number unit bin qty reqdate sellprice listprice netprice discount linetotal nodiscount_linetotal);
+              qw(runningnumber ship bin serialnumber number unit bin qty 
+                 reqdate sellprice listprice netprice discount p_discount
+                 linetotal nodiscount_linetotal);
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
             push(@{ $form->{description} }, $sameitem);
           }
@@ -1176,7 +1196,9 @@ sub order_details {
                  . qq|, $ref->{partnumber}, $ref->{description}|);
 
           map { push(@{ $form->{$_} }, "") }
-            qw(number unit qty runningnumber ship bin serialnumber reqdate sellprice listprice netprice discount linetotal nodiscount_linetotal);
+            qw(number unit qty runningnumber ship bin serialnumber reqdate 
+               sellprice listprice netprice discount p_discount linetotal 
+               nodiscount_linetotal);
 
         }
         $sth->finish;

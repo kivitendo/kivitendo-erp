@@ -69,8 +69,6 @@ sub add {
   }
   &invoice_links;
   &prepare_invoice;
-  $form->{format} = "pdf";
-
   &display_form;
 
   $lxdebug->leave_sub();
@@ -324,16 +322,22 @@ sub form_header {
     }
   }
 
+  my $set_duedate_url =
+    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=set_duedate";
+
+  my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
+  push(@ { $form->{AJAX} }, $pjx);
 
   if (@{ $form->{TAXZONE} }) {
     $form->{selecttaxzone} = "";
     foreach $item (@{ $form->{TAXZONE} }) {
       if ($item->{id} == $form->{taxzone_id}) {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>$item->{description}</option>";
+          "<option value=$item->{id} selected>" . H($item->{description}) .
+          "</option>";
       } else {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id}>$item->{description}</option>";
+          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
       }
 
     }
@@ -343,11 +347,6 @@ sub form_header {
       $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
     }
   }
-  if ($form->{rowcount} >0) {
-    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
-    $form->{selecttaxzone} = $&;
-  }
-  
 
   $taxzone = qq|
 	      <tr>
@@ -370,6 +369,7 @@ sub form_header {
 
     }
   } else {
+    $form->{selectshipto} = $form->unquote($form->{selectshipto});
     $form->{selectshipto} =~ s/ selected//g;
     if ($form->{shipto_id} ne "") {
       $form->{selectshipto} =~ s/value=$form->{shipto_id}/value=$form->{shipto_id} selected/;
@@ -378,8 +378,9 @@ sub form_header {
 
   $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>
-		<input type=hidden name=selectshipto value="$form->{selectshipto}">|;
+		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>|;
+  $form->{selectshipto} = $form->quote($form->{selectshipto});
+  $shipto .= qq| <input type=hidden name=selectshipto value="$form->{selectshipto}">|;
 
 
 
@@ -580,6 +581,8 @@ sub form_header {
   if ($creditwarning) {
     $onload = qq|alert('$credittext')|;
   }
+
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
 
   $form->header;
 
@@ -911,7 +914,7 @@ sub form_footer {
 	      <tr valign=top>
 		<td>$notes</td>
 		<td>$intnotes</td>
-                <td><select name=payment_id tabindex=24>$payment
+                <td><select name=payment_id onChange="set_duedate(['payment_id__' + this.value],['duedate'])">$payment
                 </select></td>
 	      </tr>
 	    </table>
@@ -1002,6 +1005,8 @@ if ($form->{type} eq "credit_note") {
         </tr>
 ";
 
+  my @triggers = ();
+
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
 
@@ -1042,7 +1047,8 @@ if ($form->{type} eq "credit_note") {
     $column_data{"AR_paid_$i"}      =
       qq|<td align=center><select name="AR_paid_$i">$form->{"selectAR_paid_$i"}</select></td>|;
     $column_data{"datepaid_$i"} =
-      qq|<td align=center><input name="datepaid_$i"  size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}></td>|;
+      qq|<td align=center><input id="datepaid_$i" name="datepaid_$i"  size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}>
+         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
       qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
     $column_data{"memo_$i"} =
@@ -1051,6 +1057,7 @@ if ($form->{type} eq "credit_note") {
     map { print qq|$column_data{"${_}_$i"}\n| } @column_index;
     print "
         </tr>\n";
+    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
   print qq|
@@ -1081,7 +1088,7 @@ if ($form->{type} eq "credit_note") {
 
   if ($form->{id}) {
     print qq|
-    <input class=submit type=submit name=action value="|
+    <input class=submit type=submit accesskey="u" name=action id=update_button value="|
       . $locale->text('Update') . qq|">
     <input class=submit type=submit name=action value="|
       . $locale->text('Ship to') . qq|">
@@ -1093,6 +1100,9 @@ if ($form->{type} eq "credit_note") {
       . $locale->text('Storno') . qq|">| unless ($form->{storno});
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Post Payment') . qq|">
+|;
+    print qq|<input class=submit type=submit name=action value="|
+      . $locale->text('Use As Template') . qq|">
 |;
   if ($form->{id} && !($form->{type} eq "credit_note")) {
     print qq|
@@ -1117,7 +1127,7 @@ if ($form->{type} eq "credit_note") {
 
   } else {
     if ($invdate > $closedto) {
-      print qq|<input class=submit type=submit name=action value="|
+      print qq|<input class=submit type=submit name=action id=update_button value="|
         . $locale->text('Update') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('Ship to') . qq|">
@@ -1137,7 +1147,8 @@ if ($form->{type} eq "credit_note") {
     &menubar;
   }
 
-  print qq|
+  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
+    qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
@@ -1439,6 +1450,18 @@ sub print_and_post {
 
 }
 
+sub use_as_template {
+  $lxdebug->enter_sub();
+
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  $form->{paidaccounts} = 1;
+  $form->{rowcount}--;
+  $form->{invdate} = $form->current_date(\%myconfig);
+  &display_form;
+
+  $lxdebug->leave_sub();
+}
+
 sub storno {
   $lxdebug->enter_sub();
 
@@ -1450,7 +1473,6 @@ sub storno {
   $form->{storno} = 1;
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
-  $form->{rowcount}--;
 
   &post();
   $lxdebug->leave_sub();

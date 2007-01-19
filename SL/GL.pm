@@ -618,19 +618,19 @@ sub transaction {
     # retrieve individual rows
     $query = qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo,
                 a.transdate, a.cleared, a.project_id, p.projectnumber,(SELECT p.projectnumber FROM project p
-		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, t.rate AS taxrate, t.id, (SELECT c1.accno FROM chart c1, tax t1 WHERE t1.id=t.id AND c1.id=t.chart_id) AS taxaccno, t.id AS tax_id
+		 WHERE a.project_id = p.id) AS projectnumber, a.taxkey, t.rate AS taxrate, t.id, (SELECT c1.accno FROM chart c1, tax t1 WHERE t1.id=t.id AND c1.id=t.chart_id) AS taxaccno, (SELECT tk.tax_id FROM taxkeys tk WHERE tk.chart_id =a.chart_id AND tk.startdate<=a.transdate ORDER BY tk.startdate desc LIMIT 1) AS tax_id
 		FROM acc_trans a
 		JOIN chart c ON (c.id = a.chart_id)
 		LEFT JOIN project p ON (p.id = a.project_id)
-                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link='%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
+                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link LIKE '%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
                 WHERE a.trans_id = $form->{id}
 		AND a.fx_transaction = '0'
 		ORDER BY a.oid,a.transdate|;
 
-
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
+    $form->{GL} = [];
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $form->{GL} }, $ref;
     }
@@ -639,20 +639,21 @@ sub transaction {
     $query = qq| SELECT * FROM tax t order by t.taxkey|;
     $sth   = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-    $form->{TAX} = ();
+    $form->{TAX} = [];
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $form->{TAX} }, $ref;
     }
 
     $sth->finish;
   } else {
-    $query = "SELECT current_date AS transdate, closedto, revtrans
-              FROM defaults";
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{transdate}, $form->{closedto}, $form->{revtrans}) =
-      $sth->fetchrow_array;
+    $query = "SELECT closedto, revtrans FROM defaults";
+    ($form->{closedto}, $form->{revtrans}) = $dbh->selectrow_array($query);
+    $query =
+      "SELECT COALESCE(" .
+      "  (SELECT transdate FROM gl WHERE id = " .
+      "    (SELECT MAX(id) FROM gl) LIMIT 1), " .
+      "  current_date)";
+    ($form->{transdate}) = $dbh->selectrow_array($query);
 
     # get tax description
     $query = qq| SELECT * FROM tax t order by t.taxkey|;

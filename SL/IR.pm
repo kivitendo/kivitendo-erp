@@ -107,6 +107,10 @@ sub post_invoice {
     if ($form->{storno}) {
       $form->{"qty_$i"} *= -1;
     }
+
+    if ($main::eur) {
+      $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"};
+    }
     
     if ($form->{"qty_$i"} != 0) {
 
@@ -1147,7 +1151,7 @@ sub retrieve_item {
       $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
   }
 
-  my $query = qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
+  my $query = qq|SELECT p.id, p.partnumber, p.description, p.lastcost AS sellprice,
                         p.listprice, p.inventory_accno_id,
                         c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid,
 			c2.accno AS income_accno, c2.new_chart_id AS income_new_chart, date($transdate)  - c2.valid_from as income_valid,
@@ -1218,7 +1222,7 @@ sub retrieve_item {
 sub vendor_details {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, @wanted_vars) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -1245,6 +1249,13 @@ sub vendor_details {
 
   # remove id and taxincluded before copy back
   delete @$ref{qw(id taxincluded)};
+
+  if (scalar(@wanted_vars) > 0) {
+    my %h_wanted_vars;
+    map({ $h_wanted_vars{$_} = 1; } @wanted_vars);
+    map({ delete($ref->{$_}) unless ($h_wanted_vars{$_}); } keys(%{$ref}));
+  }
+
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;

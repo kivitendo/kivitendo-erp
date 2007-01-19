@@ -79,6 +79,7 @@ sub add {
     unless $form->{callback};
 
   &create_links;
+  AP->get_transdate(\%myconfig, $form);
   &display_form;
 
   $lxdebug->leave_sub();
@@ -239,9 +240,9 @@ sub create_links {
           }
           $form->{"${key}_$k"} =
             "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
+          my $q_description = quotemeta($form->{acc_trans}{$key}->[$i-1]->{description});
           $form->{"select${key}"} =~
-            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}<\/option>\n/;
-          $test = $1;
+            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--${q_description}<\/option>\n/;
           $form->{"${key}_$k"} = $1;
           if ($akey eq 'amount') {
             $form->{"taxchart_$k"} = $form->{taxchart};
@@ -634,6 +635,7 @@ $jsscript
         </tr>
 ";
 
+  my @triggers = ();
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
     print "
@@ -673,7 +675,8 @@ $jsscript
       qq|<td align=center><select name="AP_paid_$i">$form->{"selectAP_paid_$i"}</select></td>|;
     $column_data{"exchangerate_$i"} = qq|<td align=center>$exchangerate</td>|;
     $column_data{"datepaid_$i"}     =
-      qq|<td align=center><input name="datepaid_$i" size=11 title="($myconfig{'dateformat'})" value=$form->{"datepaid_$i"}></td>|;
+      qq|<td align=center><input name="datepaid_$i" size=11 title="($myconfig{'dateformat'})" value=$form->{"datepaid_$i"}>
+         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
       qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
     $column_data{"memo_$i"} =
@@ -684,9 +687,11 @@ $jsscript
     print "
         </tr>
 ";
+    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
   map { $form->{$_} =~ s/\"/&quot;/g } qw(selectAP_paid);
-  print qq|
+  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
+    qq|
     <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
     <input type=hidden name=selectAP_paid value="$form->{selectAP_paid}">
 
@@ -719,25 +724,24 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  if ($form->{id} && $form->{radier}) {
+  if ($form->{id}) {
 
     #     print qq|<input class=submit type=submit name=action value="|.$locale->text('Update').qq|">
     # |;
+  if ($form->{radier}) {
         print qq|
 	<input class=submit type=submit name=action value="|
           . $locale->text('Post') . qq|">
 	<input class=submit type=submit name=action value="|
           . $locale->text('Delete') . qq|">
 |;
+  }
 
-
-    if ($transdate > $closedto) {
       print qq|
 <input class=submit type=submit name=action value="|
-        . $locale->text('Post as new') . qq|">
+        . $locale->text('Use As Template') . qq|">
 |;
-    }
-
+ 
   } else {
     if (($transdate > $closedto) && !$form->{id}) {
       print qq|<input class=submit type=submit name=action value="|
@@ -937,6 +941,18 @@ sub post_as_new {
 
   $form->{postasnew} = 1;
   &post;
+
+  $lxdebug->leave_sub();
+}
+
+sub use_as_template {
+  $lxdebug->enter_sub();
+
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  $form->{paidaccounts} = 1;
+  $form->{rowcount}--;
+  $form->{invdate} = $form->current_date(\%myconfig);
+  &update;
 
   $lxdebug->leave_sub();
 }

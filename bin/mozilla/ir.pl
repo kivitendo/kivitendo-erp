@@ -279,10 +279,11 @@ sub form_header {
     foreach $item (@{ $form->{TAXZONE} }) {
       if ($item->{id} == $form->{taxzone_id}) {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>$item->{description}</option>";
+          "<option value=$item->{id} selected>" . H($item->{description}) .
+          "</option>";
       } else {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id}>$item->{description}</option>";
+          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
       }
 
     }
@@ -292,11 +293,6 @@ sub form_header {
       $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
     }
   }
-  if ($form->{rowcount} >1) {
-    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
-    $form->{selecttaxzone} = $&;
-  }
-  
 
   $taxzone = qq|
 	      <tr>
@@ -673,6 +669,7 @@ sub form_footer {
 	</tr>
 |;
 
+  my @triggers = ();
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
 
@@ -712,7 +709,8 @@ sub form_footer {
     $column_data{"AP_paid_$i"}      =
       qq|<td align=center><select name="AP_paid_$i">$form->{"selectAP_paid_$i"}</select></td>|;
     $column_data{"datepaid_$i"} =
-      qq|<td align=center><input name="datepaid_$i" size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}></td>|;
+      qq|<td align=center><input name="datepaid_$i" size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}>
+         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
       qq|<td align=center><input name="source_$i" size=11 value=$form->{"source_$i"}></td>|;
     $column_data{"memo_$i"} =
@@ -723,6 +721,7 @@ sub form_footer {
     print qq|
 	</tr>
 |;
+    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
   print qq|
@@ -755,6 +754,9 @@ sub form_footer {
       . $locale->text('Delete') . qq|">
 |;
   }
+    print qq|<input class=submit type=submit name=action value="|
+      . $locale->text('Use As Template') . qq|">
+|;
   } else {
     if ($invdate > $closedto) {
       print qq|<input class=submit type=submit name=action value="|
@@ -769,7 +771,8 @@ sub form_footer {
     &menubar;
   }
 
-  print qq|
+  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
+    qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
@@ -919,11 +922,22 @@ sub storno {
   $form->{storno} = 1;
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
-  $form->{rowcount}--;
 
   &post();
   $lxdebug->leave_sub();
 
+}
+
+sub use_as_template {
+  $lxdebug->enter_sub();
+
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  $form->{paidaccounts} = 1;
+  $form->{rowcount}--;
+  $form->{invdate} = $form->current_date(\%myconfig);
+  &display_form;
+
+  $lxdebug->leave_sub();
 }
 
 sub post_payment {
@@ -1002,10 +1016,6 @@ sub post {
 
   $form->{id} = 0 if $form->{postasnew};
 
-  # get new invnumber in sequence if no invnumber is given or if posasnew was requested
-  if (!$form->{invnumber} || $form->{postasnew}) {
-    $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
-  }
 
   relink_accounts();
   $form->redirect(  $locale->text('Invoice')

@@ -1,6 +1,89 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
+2007-01-19 - Version 2.4.1
+  - CSV-Import auf Verwendung von Buchungsgruppen angepasst
+  - Bei Einkaufs- und Verkaufsmasken lassen sich die zweiten Positionszeilen
+    verstecken und wieder anzeigen
+  - PDFs für die USTVA 2007 hinzugefügt
+  - Email-Funktion: Wenn bei den Kundendaten keine Emailadresse angegeben,
+    dafür aber ein Ansprechpartner ausgewählt ist, dann wird die Emailadresse
+    des Ansprechpartners automatisch eingetragen.
+  - Skontobeträge wurden fälschlicherweise vom Nettobetrag berechnet
+  - Neues, auf CSS basierendes Menü
+  - Bei allen Datumsfeldern den Javascript-Kalender hinzugefügt und an einigen
+    Stellen die Beschriftung berichtigt
+  - Fehler beim Buchen. Wenn EUR gesetzt war, wurde bei Eingangsrechnungen
+    das Bestandskonto angesprochen. Wenn EUR nicht gesetzt war, wurden beim
+    Verkauf die Kosten nicht vom Bestands- auf Kostenkonto umgebucht
+  - Beim Aufrufen der Masken für Dialogbuchen, Debitoren- und
+    Kreditorenrechnungen wird Datum der letzten Buchung als Datum für die
+    neue Maske ausgewählt
+  - Das Feld "Zahlungsziel" wurde aus den Masken entfernt
+  - Beim Anlegen von Buchungsgruppen werden die in den Benutzereinstelungen
+    festgelegten Standardkonten vorselektiert
+  - Beim DATEV-Export werden die Dateien nicht mehr auf dem Server abgelegt
+    sondern dem Benutzer direkt zum Download angeboten
+  - Die Bearbeitungsmöglichkeiten für Vorlagen wurden aus dem Menü entfern
+  - Verschiedene Konten und Buchungsgruppen wurden von "...16%..." auf
+    "...16%/19%..." umbenannt
+  - Anzeigefehler im Buchungsjournal: Wenn eine Buchung aufgerufen wird,
+    so werden jetzt die richtigen Konten in den Drop-Down-Listen ausgewählt
+  - Bei Einkaufsmasken wird der Einkaufs- und nicht der Verkaufspreis
+    vorbelegt
+  - Jeder Benutzer kann das standardmäßig vorausgewählte Vorlagenformat
+    festlegen
+  - Falsche Bestimmung des Steuersatzes bei Gutschriften behoben
+  - In den Vorlagen stehen diverse neue Variablen zur Verfügung
+  - Bei Eingangsrechnungen wird der richtige Nummernkreis verwendet
+  - Steuerzonen können überall auch nachträglich geändert werden
+  - Das Fälligkeitsdatum wird automatisch anhand der Zahlungsbedingungen
+    gesetzt
+  - $latex_templates und $latex werden nun beide akzeptiert und aktivieren
+    beide die Unterstützung von LaTeX-Vorlagen
+  - Falsche Steuerschlüsselangaben in Dantebanken behoben
+  - Fehler in den Kontenrahmendefinitionen für SKR03 und SKR04 behoben
+  - Aktualisierung der Dokumentation bzgl. Vorlagenvariablen und der
+    Verwendung von OpenDocument-Vorlagen
+  - Ersetzen der Einheitennamen anhand der Vorlagensprache
+  - Umformartierungen von Zahlen und Datumgsangaben anhand der
+    Vorlagensprache
+  - Bugfix 507 - interne Bemerkungen werden zu öffentlichen Bemerkungen
+  - Bugfix 502 - Keine PDF USTVA Vordrucke für 2007 vorhanden
+  - Bugfix 500, 503 - p_discount verrutscht in der Zeile bei "Waren gruppiert"
+  - Bugfix 499 - Ustva Export in Winston funktioniert nicht LX-Office 2.4.0.3
+  - Bugfix 497 - Einkaufsrechnung lässt sich nicht stornieren
+  - Bugfix 495 - SQL-Fehler beim Löschen von Eiheiten
+  - Bugfix 494 - SQL-Fehler beim Eintragen von Dienstleistungseinheiten
+  - Bugfix 491 - Neue Ware erfassen umständlich
+  - Bugfix 484 - Newlines in der Firmenadresse und Berichte
+  - Bugfix 478 - Konten in Dialogbuchung werden nach Buchung nicht mehr
+    angezeigt
+  - Bugfix 476 - Umwandlung Kundenauftrag in Lieferantenauftrag: fehlerhafte
+    Zahlenformatierung
+  - Bugfix 475 - Bei Einkaufsmasken wird der falsche Standardpreis verwendet
+  - Bugfix 474 - Version 2.4.0: Kodierfehler in SL/IC.pm
+  - Bugfix 470 - Fehler nach update auf 2.4.0, alte Rechnungen anzeigen
+  - Bugfix 469 - Fehler bei Zahlungskonditionen erfassen
+  - Bugfix 468 - Unternehmer-Steuernummer steht nicht als Variable in
+    Latextemplates zur Verfügung
+  - Bugfix 466 - Templatevariable "ustid" wird nicht gefüllt
+  - Bugfix 465 - Internal Server Error bei Steuerfreien Rechnungen
+  - Bugfix 464 - Steuerzone ändern
+  - Bugfix 460 - Bei Wareneinkauf wird in der Rechnung der Verkaufspreis
+    gebucht
+  - Bugfix 449 - Variablen in Vorlagen
+  - Bugfix 442 - EUST wird in Winston-Export nicht berücksichtigt
+  - Bugfixes 400, 401, 479, 492, 493 - Diverse Rechtschreibfehler
+  - Bugfix 359 - Noch eine unklare Betitelung - Nur eine Kleinigkeit
+  - Bugfix 352 - Zahlungsziel in Auftrag und Angebot
+  - Bugfix 345 - Datevexport nur mit LXDEBUG<>0
+  - Bugfix 309 - Konten anlegen und pflegen: Kontoart nicht ausreichend
+    auswählbar
+  - Bugfix 294 - Server Error bei Datev-Export
+  - Bugfix 291 - Wandeln von Angeboten/Anfragen verlieren Nachkommawerte
+  - Bugfix 151 - (Admin) Datenbank-Vorlage wird ignoriert
+
 2006-12-12 - Version 2.4.0
   - USTVA jetzt mit Taxbird und Winston Anbindung (als Templates verfügbar)
   - Neues Steuersystem für beliebig viele Steuersätze pro Konto

@@ -413,13 +413,12 @@ sub list_transactions {
     # construct link to source
     $href =
       "<a href=$ca->{module}.pl?path=$form->{path}&action=edit&id=$ca->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{reference}</a>";
-
+    my $debit = ($ca->{debit} != 0) ? $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;") : "&nbsp;";
     $column_data{debit} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;") . "</td>";
+      "<td align=right>$debit</td>";
+    my $credit = ($ca->{credit} != 0) ? $form->format_amount(\%myconfig, $ca->{credit}, 2, "&nbsp;") : "&nbsp;";
     $column_data{credit} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $ca->{credit}, 2, "&nbsp;") . "</td>";
+      "<td align=right>$credit</td>";
 
     $form->{balance} += $ca->{amount};
     $column_data{balance} =

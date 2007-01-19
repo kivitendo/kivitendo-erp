@@ -495,7 +495,7 @@ $checked></td>
          <th align=right colspan=4>|
       . $locale->text('Decimalplaces')
       . qq|</th>
-             <td><input name=decimalplaces size=3></td>
+             <td><input name=decimalplaces size=3 value="2"></td>
          </tr>
                                     
 $jsscript
@@ -620,7 +620,7 @@ $checked></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Decimalplaces') . qq|</th>
-	  <td><input name=decimalplaces size=3></td>
+	  <td><input name=decimalplaces size=3 value="2"></td>
 	</tr>
       </table>
     </td>
@@ -1253,7 +1253,8 @@ sub generate_balance_sheet {
   $form->{IN} = "balance_sheet.html";
 
   # setup company variables for the form
-  map { $form->{$_} = $myconfig{$_} }
+  map { $form->{$_} = $myconfig{$_};
+        $form->{$_} =~ s/\\n/\n/g; }
     (qw(company address businessnumber nativecurr));
 
   $form->{templates} = $myconfig{templates};
@@ -1392,8 +1393,8 @@ sub list_accounts {
 
     $ml = ($ref->{category} =~ /(A|C|E)/) ? -1 : 1;
 
-    $debit  = $form->format_amount(\%myconfig, $ref->{debit},  2, "&nbsp;");
-    $credit = $form->format_amount(\%myconfig, $ref->{credit}, 2, "&nbsp;");
+    $debit  = ($ref->{debit} != 0) ? $form->format_amount(\%myconfig, $ref->{debit},  2, "&nbsp;") : "&nbsp;";
+    $credit = ($ref->{credit} != 0) ? $form->format_amount(\%myconfig, $ref->{credit}, 2, "&nbsp;") : "&nbsp;";
     $begbalance =
       $form->format_amount(\%myconfig, $ref->{balance} * $ml, 2, "&nbsp;");
     $endbalance =
@@ -1672,14 +1673,14 @@ sub aging {
       $i++;
 
       if ($subtotal) {
-        $c0subtotal =
-          $form->format_amount(\%myconfig, $c0subtotal, 2, "&nbsp");
-        $c30subtotal =
-          $form->format_amount(\%myconfig, $c30subtotal, 2, "&nbsp");
-        $c60subtotal =
-          $form->format_amount(\%myconfig, $c60subtotal, 2, "&nbsp");
-        $c90subtotal =
-          $form->format_amount(\%myconfig, $c90subtotal, 2, "&nbsp");
+        $c0subtotal = ($c0subtotal != 0) ? 
+          $form->format_amount(\%myconfig, $c0subtotal, 2, "&nbsp") : "";
+        $c30subtotal = ($c30subtotal != 0) ?
+          $form->format_amount(\%myconfig, $c30subtotal, 2, "&nbsp") : "";
+        $c60subtotal = ($c60subtotal != 0) ?
+          $form->format_amount(\%myconfig, $c60subtotal, 2, "&nbsp") : "";
+        $c90subtotal = ($c90subtotal != 0) ?
+          $form->format_amount(\%myconfig, $c90subtotal, 2, "&nbsp") : "";
       }
 
       $column_data{ct}        = qq|<th>&nbsp;</th>|;
@@ -1735,10 +1736,10 @@ sub aging {
     $c60total += $ref->{c60};
     $c90total += $ref->{c90};
 
-    $ref->{c0}  = $form->format_amount(\%myconfig, $ref->{c0},  2, "&nbsp;");
-    $ref->{c30} = $form->format_amount(\%myconfig, $ref->{c30}, 2, "&nbsp;");
-    $ref->{c60} = $form->format_amount(\%myconfig, $ref->{c60}, 2, "&nbsp;");
-    $ref->{c90} = $form->format_amount(\%myconfig, $ref->{c90}, 2, "&nbsp;");
+    $ref->{c0}  = ($ref->{c0} != 0) ? $form->format_amount(\%myconfig, $ref->{c0},  2, "&nbsp;") : "";
+    $ref->{c30} = ($ref->{c30} != 0) ? $form->format_amount(\%myconfig, $ref->{c30}, 2, "&nbsp;") : "";
+    $ref->{c60} = ($ref->{c60} != 0) ?  $form->format_amount(\%myconfig, $ref->{c60}, 2, "&nbsp;") : "";
+    $ref->{c90} = ($ref->{c90} != 0) ?  $form->format_amount(\%myconfig, $ref->{c90}, 2, "&nbsp;") : "";
 
     $href =
       qq|$ref->{module}.pl?path=$form->{path}&action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=|
@@ -2637,7 +2638,16 @@ sub print_options {
   $lxdebug->enter_sub();
 
   $form->{sendmode} = "attachment";
-  $form->{copies}   = 2 unless $form->{copies};
+
+  $form->{"format"} =
+    $form->{"format"} ? $form->{"format"} :
+    $myconfig{"template_format"} ? $myconfig{"template_format"} :
+    "pdf";
+
+  $form->{"copies"} =
+    $form->{"copies"} ? $form->{"copies"} :
+    $myconfig{"copies"} ? $myconfig{"copies"} :
+    2;
 
   $form->{PD}{ $form->{type} }     = "selected";
   $form->{DF}{ $form->{format} }   = "selected";

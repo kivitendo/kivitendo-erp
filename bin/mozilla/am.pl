@@ -364,7 +364,9 @@ sub account_header {
 		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
     . $locale->text('Revenue') . qq|\n<br>
 		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
-    . $locale->text('Expense') . qq|</td>
+    . $locale->text('Expense') . qq|<br>
+		<input name=category type=radio class=radio value=C $checked{C_}>&nbsp;|
+    . $locale->text('Costs') . qq|</td>
 		<td width=50>&nbsp;</td>
 		<td>
 		<input name=charttype type=radio class=radio value="H" $checked{H}>&nbsp;|
@@ -1532,7 +1534,7 @@ sub list_language {
 
   $form->{title} = $locale->text('Languages');
 
-  @column_index = qw(description template_code article_code);
+  @column_index = qw(description template_code article_code output_numberformat output_dateformat output_longdates);
 
   $column_header{description} =
       qq|<th class=listheading width=60%>|
@@ -1545,6 +1547,18 @@ sub list_language {
   $column_header{article_code} =
       qq|<th class=listheading>|
     . $locale->text('Article Code')
+    . qq|</th>|;
+  $column_header{output_numberformat} =
+      qq|<th class=listheading>|
+    . $locale->text('Number Format')
+    . qq|</th>|;
+  $column_header{output_dateformat} =
+      qq|<th class=listheading>|
+    . $locale->text('Date Format')
+    . qq|</th>|;
+  $column_header{output_longdates} =
+      qq|<th class=listheading>|
+    . $locale->text('Long Dates')
     . qq|</th>|;
 
   $form->header;
@@ -1584,6 +1598,20 @@ sub list_language {
     $column_data{template_code}           = qq|<td align=right>$ref->{template_code}</td>|;
     $column_data{article_code} =
       qq|<td align=right>$ref->{article_code}</td>|;
+    $column_data{output_numberformat} =
+      "<td nowrap>" .
+      ($ref->{output_numberformat} ? $ref->{output_numberformat} :
+       $locale->text("use program settings")) .
+      "</td>";
+    $column_data{output_dateformat} =
+      "<td nowrap>" .
+      ($ref->{output_dateformat} ? $ref->{output_dateformat} :
+       $locale->text("use program settings")) .
+      "</td>";
+    $column_data{output_longdates} =
+      "<td nowrap>" .
+      ($ref->{output_longdates} ? $locale->text("Yes") : $locale->text("No")) .
+      "</td>";
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -1646,6 +1674,28 @@ sub language_header {
 
   $form->header;
 
+  my $numberformat =
+    qq|<option value="">| . $locale->text("use program settings") .
+    qq|</option>|;
+  foreach $item (qw(1,000.00 1000.00 1.000,00 1000,00)) {
+    $numberformat .=
+      ($item eq $form->{output_numberformat})
+      ? "<option selected>$item"
+      : "<option>$item"
+      . "</option>";
+  }
+
+  my $dateformat =
+    qq|<option value="">| . $locale->text("use program settings") .
+    qq|</option>|;
+  foreach $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
+    $dateformat .=
+      ($item eq $form->{output_dateformat})
+      ? "<option selected>$item"
+      : "<option>$item"
+      . "</option>";
+  }
+
   print qq|
 <body>
 
@@ -1661,15 +1711,33 @@ sub language_header {
   <tr height="5"></tr>
   <tr>
     <th align=right>| . $locale->text('Language') . qq|</th>
-    <td><input name=description size=30 value="$form->{description}"></td>
+    <td><input name=description size=30 value="| . $form->quote($form->{description}) . qq|"></td>
   <tr>
   <tr>
     <th align=right>| . $locale->text('Template Code') . qq|</th>
-    <td><input name=template_code size=5 value=$form->{template_code}></td>
+    <td><input name=template_code size=5 value="| . $form->quote($form->{template_code}) . qq|"></td>
   </tr>
   <tr>
     <th align=right>| . $locale->text('Article Code') . qq|</th>
-    <td><input name=article_code size=10 value=$form->{article_code}></td>
+    <td><input name=article_code size=10 value="| . $form->quote($form->{article_code}) . qq|"></td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Number Format') . qq|</th>
+    <td><select name="output_numberformat">$numberformat</select></td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Date Format') . qq|</th>
+    <td><select name="output_dateformat">$dateformat</select></td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Long Dates') . qq|</th>
+    <td><input type="radio" name="output_longdates" value="1"| .
+    ($form->{output_longdates} ? " checked" : "") .
+    qq|>| . $locale->text("Yes") .
+    qq|<input type="radio" name="output_longdates" value="0"| .
+    ($form->{output_longdates} ? "" : " checked") .
+    qq|>| . $locale->text("No") .
+    qq|</td>
   </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>
@@ -1712,8 +1780,10 @@ sub add_buchungsgruppe {
     "$form->{script}?action=add_buchungsgruppe&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
   AM->get_buchungsgruppe(\%myconfig, \%$form);
-  if ($eur) {
-    $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
+  $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
+  for (my $i = 0; 4 > $i; $i++) {
+    map({ $form->{"${_}_accno_id_$i"} = $form->{"std_${_}_accno_id"}; }
+        qw(income expense));
   }
 
   &buchungsgruppe_header;
@@ -2385,7 +2455,7 @@ sub list_payment {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=type value=business>
+<input type=hidden name=type value=payment>
 
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
@@ -2841,6 +2911,37 @@ sub config {
     $myconfig{$item} =~ s/\\n/\r\n/g;
   }
 
+  @formats = ();
+  if ($opendocument_templates && $openofficeorg_writer_bin &&
+      $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)) {
+    push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
+                     "value" => "opendocument_pdf" });
+  }
+  if ($latex_templates) {
+    push(@formats, { "name" => $locale->text("PDF"), "value" => "pdf" });
+  }
+  push(@formats, { "name" => "HTML", "value" => "html" });
+  if ($latex_templates) {
+    push(@formats, { "name" => $locale->text("Postscript"),
+                     "value" => "postscript" });
+  }
+  if ($opendocument_templates) {
+    push(@formats, { "name" => $locale->text("OpenDocument/OASIS"),
+                     "value" => "opendocument" });
+  }
+
+  if (!$myconfig{"template_format"}) {
+    $myconfig{"template_format"} = "pdf";
+  }
+  $template_format = "";
+  foreach $item (@formats) {
+    $template_format .=
+      "<option value=\"$item->{value}\"" .
+      ($item->{"value"} eq $myconfig{"template_format"} ?
+       " selected" : "") .
+       ">" . H($item->{"name"}) . "</option>";
+  }
+
   %countrycodes = User->country_codes;
   $countrycodes = '';
   foreach $key (sort { $countrycodes{$a} cmp $countrycodes{$b} }
@@ -2892,8 +2993,19 @@ sub config {
 
   $form->header;
 
-  if ($myconfig{menustyle} eq "old") { $oldS = "checked"; }
-  else { $newS = "checked"; }
+  if ($myconfig{menustyle} eq "old") {
+    $menustyle_old = "checked";
+  } elsif ($myconfig{menustyle} eq "neu") {
+    $menustyle_neu = "checked";
+  } elsif ($myconfig{menustyle} eq "v3") {
+    $menustyle_v3 = "checked";
+  }
+
+  my ($show_form_details, $hide_form_details);
+  $myconfig{"show_form_details"} = 1
+    unless (defined($myconfig{"show_form_details"}));
+  $show_form_details = "checked" if ($myconfig{"show_form_details"});
+  $hide_form_details = "checked" unless ($myconfig{"show_form_details"});
 
   print qq|
 <body>
@@ -2968,10 +3080,35 @@ sub config {
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-	  <td><input name=menustyle type=radio class=radio value=neu $newS>&nbsp;New
-  		  <input name=menustyle type=radio class=radio value=old $oldS>&nbsp;Old</td>
-	</tr>	
+	  <td><input name=menustyle type=radio class=radio value=v3 $menustyle_v3>&nbsp;| .
+    $locale->text("Top (CSS)") . qq|
+	  <input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
+    $locale->text("Top (Javascript)") . qq|
+    <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
+    $locale->text("Old (on the side)") . qq|</td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Form details (second row)') . qq|</th>
+    <td><input type="radio" id="rad_show_form_details" name="show_form_details" value="1" $show_form_details>&nbsp;
+    <label for="rad_show_form_details">| . $locale->text('Show by default') . qq|</label>
+    <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" $hide_form_details>&nbsp;
+    <label for="rad_hide_form_details">| . $locale->text('Hide by default') . qq|</label></td>
+	</tr>
 	<input name=printer type=hidden value="$myconfig{printer}">
+	<tr class=listheading>
+	  <th colspan=2>| . $locale->text("Print options") . qq|</th>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Default template format') . qq|</th>
+	  <td><select name="template_format">$template_format</select></td>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Number of copies') . qq|</th>
+	  <td><input name="copies" size="10" value="| .
+    $form->quote($myconfig{"copies"}) . qq|"></td>
+	</tr>
+
+
 	<tr class=listheading>
 	  <th colspan=2>&nbsp;</th>
 	</tr>
@@ -2980,16 +3117,8 @@ sub config {
 	  <td><input name=businessnumber size=25 value="$myconfig{businessnumber}"></td>
 	</tr>
 	<tr>
-	  <td colspan=2>
-	    <table width=100%>
-	      <tr>
 		<th align=right>| . $locale->text('Year End') . qq| (mm/dd)</th>
 		<td><input name=yearend size=5 value=$form->{defaults}{yearend}></td>
-		<th align=right>| . $locale->text('Weight Unit') . qq|</th>
-		<td><input name=weightunit size=5 value="$form->{defaults}{weightunit}"></td>
-	      </tr>
-	    </table>
-	  </td>
 	</tr>
 	<tr class=listheading>
 	  <th colspan=2>|
@@ -3465,20 +3594,39 @@ sub edit_units {
   AM->units_in_use(\%myconfig, $form, $units);
   map({ $units->{$_}->{"BASE_UNIT_DDBOX"} = AM->unit_select_data($units, $units->{$_}->{"base_unit"}, 1); } keys(%{$units}));
 
+  @languages = AM->language(\%myconfig, $form, 1);
+
   @unit_list = ();
   foreach $name (sort({ lc($a) cmp lc($b) } grep({ !$units->{$_}->{"base_unit"} } keys(%{$units})))) {
     map({ push(@unit_list, $units->{$_}); }
         sort({ ($units->{$a}->{"resolved_factor"} * 1) <=> ($units->{$b}->{"resolved_factor"} * 1) }
              grep({ $units->{$_}->{"resolved_base_unit"} eq $name } keys(%{$units}))));
   }
-  map({ $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"}, 5) if ($_->{"factor"}); } @unit_list);
+  my $i = 1;
+  foreach (@unit_list) {
+    $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"}, 5) if ($_->{"factor"});
+    $_->{"UNITLANGUAGES"} = [];
+    foreach my $lang (@languages) {
+      push(@{ $_->{"UNITLANGUAGES"} },
+           { "idx" => $i,
+             "unit" => $_->{"name"},
+             "language_id" => $lang->{"id"},
+             "localized" => $_->{"LANGUAGES"}->{$lang->{"template_code"}}->{"localized"},
+             "localized_plural" => $_->{"LANGUAGES"}->{$lang->{"template_code"}}->{"localized_plural"},
+           });
+    }
+    $i++;
+  }
 
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
   $ddbox = AM->unit_select_data($units, undef, 1);
 
   $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
   $form->header();
-  print($form->parse_html_template("am/edit_units", { "UNITS" => \@unit_list, "NEW_BASE_UNIT_DDBOX" => $ddbox }));
+  print($form->parse_html_template("am/edit_units",
+                                   { "UNITS" => \@unit_list,
+                                     "NEW_BASE_UNIT_DDBOX" => $ddbox,
+                                     "LANGUAGES" => \@languages }));
 
   $lxdebug->leave_sub();
 }
@@ -3488,7 +3636,8 @@ sub add_unit {
 
   $form->isblank("new_name", $locale->text("The name is missing."));
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
-  $form->show_generic_error($locale->text("A unit with this name does already exist.")) if ($units->{$form->{"new_name"}});
+  $all_units = AM->retrieve_units(\%myconfig, $form);
+  $form->show_generic_error($locale->text("A unit with this name does already exist.")) if ($all_units->{$form->{"new_name"}});
 
   my ($base_unit, $factor);
   if ($form->{"new_base_unit"}) {
@@ -3500,11 +3649,38 @@ sub add_unit {
     $base_unit = $form->{"new_base_unit"};
   }
 
-  AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, $form->{"unit_type"});
+  my @languages;
+  foreach my $lang (AM->language(\%myconfig, $form, 1)) {
+    next unless ($form->{"new_localized_$lang->{id}"} || $form->{"new_localized_plural_$lang->{id}"});
+    push(@languages, { "id" => $lang->{"id"},
+                       "localized" => $form->{"new_localized_$lang->{id}"},
+                       "localized_plural" => $form->{"new_localized_plural_$lang->{id}"},
+         });
+  }
+
+  AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, $form->{"unit_type"}, \@languages);
 
   $form->{"saved_message"} = $locale->text("The unit has been saved.");
 
   edit_units();
+
+  $lxdebug->leave_sub();
+}
+
+sub set_unit_languages {
+  $lxdebug->enter_sub();
+
+  my ($unit, $languages, $idx) = @_;
+
+  $unit->{"LANGUAGES"} = [];
+
+  foreach my $lang (@{$languages}) {
+    push(@{ $unit->{"LANGUAGES"} },
+         { "id" => $lang->{"id"},
+           "localized" => $form->{"localized_${idx}_$lang->{id}"},
+           "localized_plural" => $form->{"localized_plural_${idx}_$lang->{id}"},
+         });
+  }
 
   $lxdebug->leave_sub();
 }
@@ -3514,6 +3690,8 @@ sub save_unit {
 
   $old_units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"}, "resolved_");
   AM->units_in_use(\%myconfig, $form, $old_units);
+
+  @languages = AM->language(\%myconfig, $form, 1);
 
   $new_units = {};
   @delete_units = ();
@@ -3526,6 +3704,7 @@ sub save_unit {
     if ($form->{"unchangeable_$i"}) {
       $new_units->{$form->{"old_name_$i"}} = $old_units->{$form->{"old_name_$i"}};
       $new_units->{$form->{"old_name_$i"}}->{"unchanged_unit"} = 1;
+      set_unit_languages($new_units->{$form->{"old_name_$i"}}, \@languages, $i);
       next;
     }
 
@@ -3544,6 +3723,7 @@ sub save_unit {
     my %h = map({ $_ => $form->{"${_}_$i"} } qw(name base_unit factor old_name));
     $new_units->{$form->{"name_$i"}} = \%h;
     $new_units->{$form->{"name_$i"}}->{"row"} = $i;
+    set_unit_languages($new_units->{$form->{"old_name_$i"}}, \@languages, $i);
   }
 
   foreach $unit (values(%{$new_units})) {

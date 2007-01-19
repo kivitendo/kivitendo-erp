@@ -8,6 +8,17 @@
 
 package Common;
 
+use Time::HiRes qw(gettimeofday);
+
+sub unique_id {
+  my ($a, $b) = gettimeofday();
+  return "${a}-${b}-${$}";
+}
+
+sub tmpname {
+  return "/tmp/lx-office-tmp-" . unique_id();
+}
+
 sub retrieve_parts {
   $main::lxdebug->enter_sub();
 

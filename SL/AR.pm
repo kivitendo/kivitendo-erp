@@ -411,7 +411,7 @@ sub ar_transactions {
   my $query = qq|SELECT a.id, a.invnumber, a.ordnumber, a.transdate,
                  a.duedate, a.netamount, a.amount, a.paid, c.name,
 		 a.invoice, a.datepaid, a.terms, a.notes, a.shipvia,
-		 a.shippingpoint,
+		 a.shippingpoint, a.storno,
 		 e.name AS employee
 	         FROM ar a
 	      JOIN customer c ON (a.customer_id = c.id)
@@ -470,6 +470,26 @@ sub ar_transactions {
   }
 
   $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_transdate {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query =
+    "SELECT COALESCE(" .
+    "  (SELECT transdate FROM gl WHERE id = " .
+    "    (SELECT MAX(id) FROM gl) LIMIT 1), " .
+    "  current_date)";
+  ($form->{transdate}) = $dbh->selectrow_array($query);
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

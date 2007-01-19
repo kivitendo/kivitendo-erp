@@ -46,6 +46,11 @@ use SL::Form;
 
 eval { require "lx-erp.conf"; };
 
+if (defined($latex) && !defined($latex_templates)) {
+  $latex_templates = $latex;
+  undef($latex);
+}
+
 $form = new Form;
 
 # name of this script

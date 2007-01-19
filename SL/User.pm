@@ -34,6 +34,8 @@
 
 package User;
 
+use SL::DBUpgrade2;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -162,14 +164,21 @@ sub login {
 		  '$myconfig{tel}', 'user')|;
       $dbh->do($query);
     }
+
+    $self->create_schema_info_table($form, $dbh);
+
     $dbh->disconnect;
 
     $rc = 0;
 
-    if (&update_available($myconfig{"dbdriver"}, $dbversion)) {
+    my $controls =
+      parse_dbupdate_controls($form, $myconfig{"dbdriver"});
 
-      map { $form->{$_} = $myconfig{$_} }
-        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect);
+    map({ $form->{$_} = $myconfig{$_} }
+        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect));
+
+    if (update_available($myconfig{"dbdriver"}, $dbversion) ||
+        update2_available($form, $controls)) {
 
       $form->{"stylesheet"} = "lx-office-erp.css";
       $form->{"title"} = $main::locale->text("Dataset upgrade");
@@ -185,8 +194,7 @@ sub login {
       }
 
       # update the tables
-      open FH, ">$userspath/nologin" or die "
-$!";
+      open(FH, ">$userspath/nologin") or die("$!");
 
       # required for Oracle
       $form->{dbdefault} = $sid;
@@ -196,11 +204,18 @@ $!";
       $SIG{QUIT} = 'IGNORE';
 
       $self->dbupdate($form);
+      $self->dbupdate2($form, $controls);
 
       # remove lock file
-      unlink "$userspath/nologin";
+      unlink("$userspath/nologin");
 
-      print($form->parse_html_template("dbupgrade/footer"));
+      my $menufile =
+        $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
+        $self->{"menustyle"} eq "neu" ? "menunew.pl" :
+        "menu.pl";
+
+      print($form->parse_html_template("dbupgrade/footer",
+                                       { "menufile" => $menufile }));
 
       $rc = -2;
 
@@ -346,20 +361,33 @@ sub dbcreate {
 
   my ($self, $form) = @_;
 
+  $form->{sid} = $form->{dbdefault};
+  &dbconnect_vars($form, $form->{dbdefault});
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    or $form->dberror;
+
   my %dbcreate = (
     'Pg'     => qq|CREATE DATABASE "$form->{db}"|,
     'Oracle' =>
       qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|
   );
 
-  $dbcreate{Pg} .= " WITH ENCODING = '$form->{encoding}'" if $form->{encoding};
+  my %dboptions = (
+    'Pg' => [],
+  );
 
-  $form->{sid} = $form->{dbdefault};
-  &dbconnect_vars($form, $form->{dbdefault});
-  my $dbh =
-    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-    or $form->dberror;
+  push(@{$dboptions{"Pg"}}, "ENCODING = " . $dbh->quote($form->{"encoding"}))
+    if ($form->{"encoding"});
+  if ($form->{"dbdefault"}) {
+    my $dbdefault = $form->{"dbdefault"};
+    $dbdefault =~ s/[^a-zA-Z0-9_\-]//g;
+    push(@{$dboptions{"Pg"}}, "TEMPLATE = $dbdefault");
+  }
+
   my $query = qq|$dbcreate{$form->{dbdriver}}|;
+  $query .= " WITH " . join(" ", @{$dboptions{"Pg"}}) if (@{$dboptions{"Pg"}});
+
   $dbh->do($query) || $form->dberror($query);
 
   if ($form->{dbdriver} eq 'Oracle') {
@@ -453,7 +481,7 @@ sub process_perl_script {
 sub process_query {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename, $version) = @_;
+  my ($self, $form, $dbh, $filename, $version_or_control) = @_;
 
   #  return unless (-f $filename);
 
@@ -510,8 +538,13 @@ sub process_query {
     }
   }
 
-  if ($version) {
-    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  if (ref($version_or_control) eq "HASH") {
+    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
+             $dbh->quote($version_or_control->{"tag"}) . ", " .
+             $dbh->quote($form->{"login"}) . ")");
+  } elsif ($version_or_control) {
+    $dbh->do("UPDATE defaults SET version = " .
+             $dbh->quote($version_or_control));
   }
   $dbh->commit();
 
@@ -719,10 +752,29 @@ sub update_available {
 
   opendir SQLDIR, "sql/${dbdriver}-upgrade" or &error("", "sql/${dbdriver}-upgrade: $!");
   my @upgradescripts =
-    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)/, readdir(SQLDIR));
+    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir(SQLDIR));
   closedir SQLDIR;
 
   return ($#upgradescripts > -1);
+}
+
+sub create_schema_info_table {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $dbh) = @_;
+
+  my $query = "SELECT tag FROM schema_info LIMIT 1";
+  if (!$dbh->do($query)) {
+    $query =
+      "CREATE TABLE schema_info (" .
+      "  tag text, " .
+      "  login text, " .
+      "  itime timestamp DEFAULT now(), " .
+      "  PRIMARY KEY (tag))";
+    $dbh->do($query) || $form->dberror($query);
+  }
+
+  $main::lxdebug->leave_sub();
 }
 
 sub dbupdate {
@@ -794,7 +846,7 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
-      $main::lxdebug->message(DEBUG2, "Appliying Update $upgradescript");
+      $main::lxdebug->message(DEBUG2, "Applying Update $upgradescript");
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
       } else {
@@ -813,6 +865,112 @@ sub dbupdate {
   $main::lxdebug->leave_sub();
 
   return $rc;
+}
+
+sub dbupdate2 {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $controls) = @_;
+
+  $form->{sid} = $form->{dbdefault};
+
+  my @upgradescripts = ();
+  my ($query, $sth, $tag);
+  my $rc = -2;
+
+  @upgradescripts = sort_dbupdate_controls($controls);
+
+  foreach my $db (split / /, $form->{dbupdate}) {
+
+    next unless $form->{$db};
+
+    # strip db from dataset
+    $db =~ s/^db//;
+    &dbconnect_vars($form, $db);
+
+    my $dbh =
+      DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+      or $form->dberror;
+
+    map({ $_->{"applied"} = 0; } @upgradescripts);
+
+    $query = "SELECT tag FROM schema_info";
+    $sth = $dbh->prepare($query);
+    $sth->execute() || $form->dberror($query);
+    while (($tag) = $sth->fetchrow_array()) {
+      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+    }
+    $sth->finish();
+
+    my $all_applied = 1;
+    foreach (@upgradescripts) {
+      if (!$_->{"applied"}) {
+        $all_applied = 0;
+        last;
+      }
+    }
+
+    next if ($all_applied);
+
+    foreach my $control (@upgradescripts) {
+      next if ($control->{"applied"});
+
+      $control->{"file"} =~ /\.(sql|pl)$/;
+      my $file_type = $1;
+
+      # apply upgrade
+      $main::lxdebug->message(DEBUG2, "Applying Update $control->{file}");
+      print($form->parse_html_template("dbupgrade/upgrade_message2",
+                                       $control));
+
+      if ($file_type eq "sql") {
+        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
+                             "-upgrade2/$control->{file}", $control);
+      } else {
+        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
+                                   "-upgrade2/$control->{file}", $control);
+      }
+    }
+
+    $rc = 0;
+    $dbh->disconnect;
+
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $rc;
+}
+
+sub update2_available {
+  $main::lxdebug->enter_sub();
+
+  my ($form, $controls) = @_;
+
+  map({ $_->{"applied"} = 0; } values(%{$controls}));
+
+  dbconnect_vars($form, $form->{"dbname"});
+
+  my $dbh =
+    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) ||
+    $form->dberror;
+
+  my ($query, $tag, $sth);
+
+  $query = "SELECT tag FROM schema_info";
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+  while (($tag) = $sth->fetchrow_array()) {
+    $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+  }
+  $sth->finish();
+  $dbh->disconnect();
+
+  map({ $main::lxdebug->leave_sub() and return 1 if (!$_->{"applied"}) }
+      values(%{$controls}));
+
+  $main::lxdebug->leave_sub();
+  return 0;
 }
 
 sub create_config {
@@ -933,7 +1091,8 @@ sub config_vars {
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
     dbname dbuser dbpasswd email fax name numberformat in_numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
-    anfragen lieferantenbestellungen einkaufsrechnungen steuernummer co_ustid duns menustyle);
+    anfragen lieferantenbestellungen einkaufsrechnungen taxnumber co_ustid duns menustyle
+    template_format copies show_form_details);
 
   $main::lxdebug->leave_sub();
 

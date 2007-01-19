@@ -263,8 +263,10 @@ function Item(text, href, frame, length, spacing, target) {
 	this.target = target;
 	this.ref = null;
 }
-function go(link) {
-        top.main_window.location=link;
+function go(link,frame) {
+	tmp=eval("top."+frame);
+	tmp.location=link;
+        //top.main_window.location=link;
 }
 function writeMenus() {
 	if (!isDOM && !isIE4 && !isNS4) return;
@@ -283,14 +285,10 @@ function writeMenus() {
 				str += '<layer id="' + itemID + '" left="' + itemX + '" top="' + itemY + '" width="' +  w + '" height="' + h + '" visibility="inherit" ';
 				if (backCol) str += 'bgcolor="' + backCol + '" ';
 			}
-			if (borderClass) str += 'class="' + borderClass + '" ';
+			if (borderClass) str += 'class="' + borderClass + '" "';
 			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
 			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
-			if (href!="#") {
-			str +='<tr><td align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '")\\'><a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
-			} else {
-			str +='<tr><td align="left" height="' + (h - 7) + '"><a class="' + textClass + '" href="' + href + '"' + (frame ? ' target="' + frame + '">' : '>') + text + '</a></td>';
-			}
+			str +='<tr><td style="cursor:crosshair;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
 			if (target > 0) {
 				menu[target][0].parentMenu = currMenu;
 				menu[target][0].parentItem = currItem;

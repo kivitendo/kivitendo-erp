@@ -284,7 +284,6 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
-  $form->{format}   = "pdf" unless ($form->{print_and_save} && $form->{format});
   $form->{media}    = "screen";
   $form->{formname} = $form->{type} unless $form->{formname};
 
@@ -433,11 +432,12 @@ sub form_header {
           "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
       } else {
         $form->{selectshipto} .=
-          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
+          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment}</option>";
       }
 
     }
   } else {
+    $form->{selectshipto} = $form->unquote($form->{selectshipto});
     $form->{selectshipto} =~ s/ selected//g;
     if ($form->{shipto_id} ne "") {
       $form->{selectshipto} =~ s/value=$form->{shipto_id}/value=$form->{shipto_id} selected/;
@@ -446,9 +446,9 @@ sub form_header {
 
   $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td><select name=shipto_id>$form->{selectshipto}</select></td>
-		<input type=hidden name=selectshipto value="$form->{selectshipto}">|;
-
+		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>|;
+  $form->{selectshipto} = $form->quote($form->{selectshipto});
+  $shipto .= qq| <input type=hidden name=selectshipto value="$form->{selectshipto}">|;
 
 
 
@@ -494,13 +494,8 @@ sub form_header {
   $vclabel = ucfirst $form->{vc};
   $vclabel = $locale->text($vclabel);
 
-  $terms = qq|
-                    <tr>
-		      <th align=right nowrap>| . $locale->text('Terms: Net') . qq|</th>
-		      <td nowrap><input name=terms size="3" maxlength="3" value=$form->{terms}> |
-    . $locale->text('days') . qq|</td>
-                    </tr>
-|;
+  $terms = qq|<input name=terms size="3" maxlength="3" value="| .
+    $form->quote($form->{terms}) . qq|">|;
 
   if ($form->{business}) {
     $business = qq|
@@ -539,25 +534,20 @@ sub form_header {
     foreach $item (@{ $form->{TAXZONE} }) {
       if ($item->{id} == $form->{taxzone_id}) {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>$item->{description}</option>";
+          "<option value=$item->{id} selected>" . H($item->{description}) .
+          "</option>";
       } else {
         $form->{selecttaxzone} .=
-          "<option value=$item->{id}>$item->{description}</option>";
+          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
       }
 
     }
   } else {
     $form->{selecttaxzone} =~ s/ selected//g;
     if ($form->{taxzone_id} ne "") {
-      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
+      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}>/value=$form->{taxzone_id} selected>/;
     }
   }
-
-  if ($form->{rowcount} >0) {
-    $form->{selecttaxzone} =~ /<option value=\d+ selected>.*?<\/option>/;
-    $form->{selecttaxzone} = $&;
-  }
-  
 
   $taxzone = qq|
 	      <tr>
@@ -606,7 +596,7 @@ sub form_header {
 		      <td>$form->{creditlimit}</td>
 		      <td width=20%></td>
 		      <th nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n">$form->{creditremaining}</td>
+		      <td class="plus$n" nowrap>$form->{creditremaining}</td>
 		    </tr>
 		  </table>
 		</td>
@@ -709,6 +699,8 @@ sub form_header {
   if ($creditwarning) {
     $onload = qq|alert('$credittext')|;
   }
+
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
 
   $form->header;
 
@@ -1040,7 +1032,7 @@ sub form_footer {
 </table>
 
 | . $locale->text("Edit the $form->{type}") . qq|<br>
-<input class=submit type=submit name=action value="|
+<input class=submit type=submit name=action id=update_button value="|
     . $locale->text('Update') . qq|">
 <input class=submit type=submit name=action value="|
     . $locale->text('Ship to') . qq|">
@@ -1624,7 +1616,9 @@ sub orders {
     . qq|</a></th>|;
   $column_header{quonumber} =
       qq|<th><a class=listheading href=$href&sort=quonumber>|
-    . $locale->text('Quotation')
+    . ($form->{"type"} eq "request_quotation" ?
+       $locale->text('RFQ') :
+       $locale->text('Quotation'))
     . qq|</a></th>|;
   $column_header{name} =
     qq|<th><a class=listheading href=$href&sort=name>$name</a></th>|;
@@ -2147,6 +2141,13 @@ sub invoice {
 
   $form->{cp_id} *= 1;
 
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
+
   if (   $form->{type} =~ /_order/
       && $form->{currency} ne $form->{defaultcurrency}) {
 
@@ -2171,8 +2172,7 @@ sub invoice {
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
   if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
-    relink_accounts();
-    OE->save(\%myconfig, \%$form);
+    OE->close_order(\%myconfig, \%$form);
   } else {
     OE->close_orders(\%myconfig, \%$form);
   }
@@ -2438,9 +2438,7 @@ sub purchase_order {
 
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
-    $form->{closed} = 1;
-    relink_accounts();
-    OE->save(\%myconfig, \%$form);
+    OE->close_order(\%myconfig, \%$form);
   }
 
   $form->{cp_id} *= 1;
@@ -2459,9 +2457,7 @@ sub sales_order {
 
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
-    $form->{closed} = 1;
-    relink_accounts();
-    OE->save(\%myconfig, \%$form);
+    OE->close_order(\%myconfig, $form);
   }
 
   $form->{cp_id} *= 1;
@@ -2486,6 +2482,13 @@ sub poso {
   # reset
   map { delete $form->{$_} }
     qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal);
+
+  for $i (1 .. $form->{rowcount}) {
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
+                                                     $form->{"${_}_${i}"})
+            if ($form->{"${_}_${i}"}) }
+        qw(ship qty sellprice listprice basefactor));
+  }
 
   &order_links;
 
