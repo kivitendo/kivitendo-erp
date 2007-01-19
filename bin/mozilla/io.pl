@@ -2016,14 +2016,14 @@ sub print_form {
 
 sub customer_details {
   $lxdebug->enter_sub();
-  IS->customer_details(\%myconfig, \%$form);
+  IS->customer_details(\%myconfig, \%$form, @_);
   $lxdebug->leave_sub();
 }
 
 sub vendor_details {
   $lxdebug->enter_sub();
 
-  IR->vendor_details(\%myconfig, \%$form);
+  IR->vendor_details(\%myconfig, \%$form, @_);
 
   $lxdebug->leave_sub();
 }
@@ -2051,8 +2051,13 @@ sub ship_to {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
+  my @shipto_vars =
+    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
+       shiptocontact shiptophone shiptofax shiptoemail
+       shiptodepartment_1 shiptodepartment_2);
+
   # get details for name
-  &{"$form->{vc}_details"};
+  &{"$form->{vc}_details"}(@shipto_vars);
 
   $number =
     ($form->{vc} eq 'customer')
@@ -2155,8 +2160,7 @@ sub ship_to {
 |;
 
   # delete shipto
-  map { delete $form->{$_} }
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2 header);
+  map({ delete $form->{$_} } (@shipto_vars, qw(header)));
   $form->{title} = $title;
 
   foreach $key (keys %$form) {

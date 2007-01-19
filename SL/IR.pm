@@ -1222,7 +1222,7 @@ sub retrieve_item {
 sub vendor_details {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, @wanted_vars) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -1249,6 +1249,13 @@ sub vendor_details {
 
   # remove id and taxincluded before copy back
   delete @$ref{qw(id taxincluded)};
+
+  if (scalar(@wanted_vars) > 0) {
+    my %h_wanted_vars;
+    map({ $h_wanted_vars{$_} = 1; } @wanted_vars);
+    map({ delete($ref->{$_}) unless ($h_wanted_vars{$_}); } keys(%{$ref}));
+  }
+
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
