@@ -3001,6 +3001,12 @@ sub config {
     $menustyle_v3 = "checked";
   }
 
+  my ($show_form_details, $hide_form_details);
+  $myconfig{"show_form_details"} = 1
+    unless (defined($myconfig{"show_form_details"}));
+  $show_form_details = "checked" if ($myconfig{"show_form_details"});
+  $hide_form_details = "checked" unless ($myconfig{"show_form_details"});
+
   print qq|
 <body>
 
@@ -3080,7 +3086,14 @@ sub config {
     $locale->text("Top (Javascript)") . qq|
     <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
     $locale->text("Old (on the side)") . qq|</td>
-	</tr>	
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Form details (second row)') . qq|</th>
+    <td><input type="radio" id="rad_show_form_details" name="show_form_details" value="1" $show_form_details>&nbsp;
+    <label for="rad_show_form_details">| . $locale->text('Show by default') . qq|</label>
+    <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" $hide_form_details>&nbsp;
+    <label for="rad_hide_form_details">| . $locale->text('Hide by default') . qq|</label></td>
+	</tr>
 	<input name=printer type=hidden value="$myconfig{printer}">
 	<tr class=listheading>
 	  <th colspan=2>| . $locale->text("Print options") . qq|</th>

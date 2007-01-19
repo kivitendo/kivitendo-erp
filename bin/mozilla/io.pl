@@ -198,9 +198,11 @@ sub display_row {
     . qq|</th>|;
 ############## ENDE Neueintrag ##################
 
-  $form->{"show_details"} =
-    !defined($form->{"show_details"}) ? 1 :
-    $form->{"show_details"} ? 1 : 0;
+  $myconfig{"show_form_details"} = 1
+    unless (defined($myconfig{"show_form_details"}));
+  $form->{"show_details"} = $myconfig{"show_form_details"}
+    unless (defined($form->{"show_details"}));
+  $form->{"show_details"} = $form->{"show_details"} ? 1 : 0;
   my $show_details_new = 1 - $form->{"show_details"};
   my $show_details_checked = $form->{"show_details"} ? "checked" : "";
 
