@@ -124,7 +124,7 @@ sub report {
 	  <td width="50%" align="left" valign="top">
 	  <fieldset>
 	  <legend>
-	  <b>| . $locale->text('Firma') . qq|</b>
+	  <b>| . $locale->text('Company') . qq|</b>
 	  </legend>
   |;
   if ($form->{company} ne '') {
@@ -132,7 +132,7 @@ sub report {
   } else {
     print qq|
 	    <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
-	    | . $locale->text('Kein Firmenname hinterlegt!') . qq|</a><br>
+	    | . $locale->text('No Company Name given') . qq|!</a><br>
     |;
   }
 
@@ -158,7 +158,7 @@ sub report {
     } else {
     print qq|
 	  <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
-	  | . $locale->text('Keine Firmenadresse hinterlegt!') . qq|</a>\n|;
+	  | . $locale->text('No Company Address given') . qq|!</a>\n|;
   }
   $form->{co_email} = $form->{email} unless $form->{co_email};
   $form->{co_tel}   = $form->{tel}   unless $form->{co_tel};
@@ -168,17 +168,17 @@ sub report {
   print qq|
 	  <br>
 	  <br>
-	  | . $locale->text('Tel.: ') . qq|
+	  | . $locale->text('Tel') . qq|.:&nbsp;
 	  $form->{co_tel}
 	  <br>
-	  | . $locale->text('Fax.: ') . qq|
+	  | . $locale->text('Fax') . qq|.:nbsp;
 	  $form->{co_fax}	  
 	  <br>
 	  <br>
 	  $form->{co_email}	  
 	  <br>
 	  <br>
-	  | . $locale->text('Steuernummer: ') . qq|
+	  | . $locale->text('Tax Number') . qq|:&nbsp;
   |;
 
   if ($form->{steuernummer} ne '') {
@@ -190,7 +190,7 @@ sub report {
   }
   print qq|
 	  <br>
-	  | . $locale->text('ELSTER-Steuernummer: ') . qq|
+	  | . $locale->text('ELSTER Tax Number') . qq|:&nbsp;
 	  $form->{elstersteuernummer}
           <br>
           <br>
@@ -203,9 +203,9 @@ sub report {
 	  <fieldset>
 	  <legend>
             <input checked="checked" title="|
-      . $locale->text('Beraterdaten in UStVA übernehmen?')
+      . $locale->text('Assume Tax Consultant Data in Tax Computation?')
       . qq|" name="FA_steuerberater" id=steuerberater class=checkbox type=checkbox value="1">&nbsp;
-            <b>| . $locale->text('Steuerberater/-in') . qq|</b>
+            <b>| . $locale->text('Tax Consultant') . qq|</b>
             </legend>
             
             $form->{FA_steuerberater_name}<br>
@@ -219,7 +219,7 @@ sub report {
   print qq|
 	  <fieldset>
 	  <legend>
-          <b>| . $locale->text('Voranmeldezeitraum') . qq|</b>
+          <b>| . $locale->text('Tax Period') . qq|</b>
 	  </legend>
   |;
   &ustva_vorauswahl();
@@ -252,9 +252,9 @@ sub report {
   print qq|
            <input name="FA_10" id=FA_10 class=checkbox type=checkbox value="1" $checked title = "|
     . $locale->text(
-      'Ist dies eine berichtigte Anmeldung? (Nr. 10/Zeile 15 Steuererklärung)')
+      'Amended Advance Turnover Tax Return (Nr. 10)')
     . qq|">
-            | . $locale->text('Berichtigte Anmeldung') . qq|
+            | . $locale->text('Amended Advance Turnover Tax Return') . qq|
           <br>
   |;
 
@@ -263,7 +263,7 @@ sub report {
           <br>
           | . $locale->text($voranmeld) . qq|
   |;
-    print qq| mit Dauerfristverlängerung| if ($form->{FA_dauerfrist} eq '1');
+    print $locale->text('With Extension Of Time') if ($form->{FA_dauerfrist} eq '1');
     print qq|
 
       <br>
@@ -285,7 +285,7 @@ sub report {
     <td width="50%" valign="top">	  
 	  <fieldset>
 	  <legend>
-	  <b>| . $locale->text('Finanzamt') . qq|</b>
+	  <b>| . $locale->text('Tax Office') . qq|</b>
 	  </legend>
           <h3>$form->{FA_Name}</h2>
     |;
@@ -302,10 +302,10 @@ sub report {
           $form->{FA_PLZ}&nbsp; &nbsp;$form->{FA_Ort}
           <br>
           <br>
-          | . $locale->text('Tel. : ') . qq|
+          | . $locale->text('Tel') . qq|.:&nbsp;
           $form->{FA_Telefon}
           <br> 
-          | . $locale->text('Fax. : ') . qq|
+          | . $locale->text('Fax') . qq|.:$nbsp;
           $form->{FA_Fax}
           <br>
           <br>
@@ -323,7 +323,7 @@ sub report {
           </a>
           <br>
           <br>
-          | . $locale->text('Öffnungszeiten') . qq|
+          | . $locale->text('Openings') . qq|
           <br>
           $oeffnungszeiten
           <br>
@@ -341,25 +341,25 @@ sub report {
     if ($FA_1 && $FA_2) {
       print qq|
           <br>
-          | . $locale->text('Bankverbindungen') . qq|
+          | . $locale->text('Bank Connection') . qq|
           <table>
           <tr>
           <td>
           $form->{FA_Bankbezeichnung_1}
           <br>                  
-          | . $locale->text('Konto: ') . qq|
+          | . $locale->text('Account') . qq|:&nbsp;
           $form->{FA_Kontonummer_1}
           <br>
-          | . $locale->text('BLZ: ') . qq|
+          | . $locale->text('Bank Code') . qq|:&nbsp;
           $form->{FA_BLZ_1}
           </td>
           <td>
           $form->{FA_Bankbezeichnung_oertlich}
           <br>
-          | . $locale->text('Konto: ') . qq|
+          | . $locale->text('Account') . qq|:&nbsp;
           $form->{FA_Kontonummer_2}
           <br> 
-          | . $locale->text('BLZ: ') . qq|
+          | . $locale->text('Bank Code') . qq|:&nbsp;
           $form->{FA_BLZ_2}
           </td>
           </tr>
@@ -368,29 +368,29 @@ sub report {
     } elsif ($FA_1) {
       print qq|
           <br>
-          | . $locale->text('Bankverbindung') . qq|
+          | . $locale->text('Bank Connection') . qq|
           <br>
           <br>
           $form->{FA_Bankbezeichnung_1}
           <br>                  
-          | . $locale->text('Konto: ') . qq|
+          | . $locale->text('Account') . qq|:&nbsp;
           $form->{FA_Kontonummer_1}
           <br> 
-          | . $locale->text('BLZ: ') . qq|
+          | . $locale->text('Bank Code') . qq|:&nbsp;
           $form->{FA_BLZ_1}          <br>
           <br>|;
     } elsif ($FA_2) {
       print qq|
           <br>
-          | . $locale->text('Bankverbindung') . qq|
+          | . $locale->text('Bank Connection') . qq|
           <br>
           <br>
           $form->{FA_Bankbezeichnung_oertlich}
           <br>                  
-          | . $locale->text('Konto: ') . qq|
+          | . $locale->text('Account') . qq|:&nbsp;
           $form->{FA_Kontonummer_2}
           <br> 
-          | . $locale->text('BLZ: ') . qq|
+          | . $locale->text('Bank Code') . qq|:&nbsp;
           $form->{FA_BLZ_2}
      |;
     }
@@ -400,7 +400,7 @@ sub report {
       <br>
       <fieldset>
       <legend>
-      <b>| . $locale->text('Ausgabeformat') . qq|</b>
+      <b>| . $locale->text('Outputformat') . qq|</b>
       </legend>
   |;
 
@@ -415,12 +415,12 @@ sub report {
      <td width="50%" valign="bottom">
      <fieldset>
      <legend>
-     <b>| . $locale->text('Hinweise') . qq|</b>
+     <b>| . $locale->text('Hints') . qq|</b>
      </legend>
       <h2 class="confirm">|
       . $locale->text('Missing Preferences: Outputroutine disabled')
       . qq|</h2>
-      <h3>| . $locale->text('Help:') . qq|</h3>
+      <h3>| . $locale->text('Help') . qq|</h3>
       <ul>
       <li>| . $locale->text('Hint-Missing-Preferences') . qq|</li>
       </ul>
@@ -463,12 +463,13 @@ sub report {
    </td>
    <td align="right">
 
-    <!--</form>
+    </form>
+    <!--
     <form action="doc/ustva.html" method="get">
-    -->
+    
        <input type=submit class=submit name=action value="|
     . $locale->text('Help') . qq|">
-   <!-- </form>-->
+   </form>-->
    </td>
   </tr>
   </table>
@@ -752,12 +753,12 @@ sub show_options {
   my $media  = qq|      <input type=hidden name="media" value="screen">|;
   my $format =
       qq|       <option value=html selected>|
-    . $locale->text('Vorschau')
+    . $locale->text('Preview')
     . qq|</option>|;
   if ($latex_templates) {
     $format .=
         qq|    <option value=pdf>|
-      . $locale->text('UStVA als PDF-Dokument')
+      . $locale->text('UStVA (PDF-Dokument)')
       . qq|</option>|;
   }
 
@@ -766,10 +767,10 @@ sub show_options {
   if ($form->{elster} eq '1') {
     $format .=
         qq|<option value=elsterwinston>|
-      . $locale->text('ELSTER Export nach Winston')
+      . $locale->text('ELSTER Export (Winston)')
       . qq|</option>|
       . qq|<option value=elstertaxbird>|
-      . $locale->text('ELSTER Export nach Taxbird')
+      . $locale->text('ELSTER Export (Taxbird)')
       . qq|</option>|;      
   }
 
@@ -778,7 +779,7 @@ sub show_options {
     $type
     $media
     <select name=format title = "|
-    . $locale->text('Ausgabeformat auswählen...') . qq|">$format</select>
+    . $locale->text('Choose Outputformat') . qq|">$format</select>
   |;
   $lxdebug->leave_sub();
 }
@@ -950,7 +951,7 @@ sub generate_ustva {
     $form->{longperiod}      =
         $locale->text('for Period')
       . qq|<br>\n$longfromdate |
-      . $locale->text('bis')
+      . $locale->text('to (date)')
       . qq| $longtodate|;
   }
 
@@ -968,7 +969,7 @@ sub generate_ustva {
     $form->{last_period} = "$shortcomparefromdate<br>\n$shortcomparetodate";
     $form->{longperiod} .=
         "<br>\n$longcomparefromdate "
-      . $locale->text('bis')
+      . $locale->text('to (date)')
       . qq| $longcomparetodate|;
   }
 
@@ -1170,12 +1171,12 @@ sub generate_ustva {
     
   } elsif ( $form->{format} eq '' ){ # No format error.
     $form->header;
-    USTVA::error( $locale->text('Application Error. No Format given!' ));
+    USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
     exit(0);
  
   } else { # All other Formats are wrong
     $form->header;
-    USTVA::error( $locale->text('Application Error. Wrong Format: ') . $form->{format} );
+    USTVA::error( $locale->text('Application Error. Wrong Format') . ": " . $form->{format} );
     exit(0);
   }
 
@@ -1213,21 +1214,21 @@ sub edit {
     "$form->{cbscript}?action=edit&login=$form->{cblogin}&path=$form->{cbpath}&root=$form->{cbroot}&rpw=$form->{cbrpw}"
     if ($form->{cbscript} ne '' and $form->{cblogin} ne '');
 
-  $form->{title} = $locale->text('Finanzamt - Einstellungen');
+  $form->{title} = $locale->text('Tax Office Preferences');
   print qq|
     <body>
     <form name="verzeichnis" method=post action="$form->{script}">
      <table width=100%>
 	<tr>
 	  <th class="listtop">|
-    . $locale->text('Finanzamt - Einstellungen') . qq|</th>
+    . $locale->text('Tax Office Preferences') . qq|</th>
 	</tr>
         <tr>
          <td>
            <br>
            <fieldset>
            <legend><b>|
-    . $locale->text('Angaben zum Finanzamt') . qq|</b></legend>
+    . $locale->text('Local Tax Office Preferences') . qq|</b></legend>
   |;
 
   #print qq|$form->{terminal}|;
@@ -1241,7 +1242,7 @@ sub edit {
   $checked = "checked" if ($form->{method} eq 'accrual');
   print qq|
            <fieldset>
-           <legend><b>| . $locale->text('Verfahren') . qq|</b>
+           <legend><b>| . $locale->text('Taxation') . qq|</b>
            </legend>
            <input name=method id=accrual class=radio type=radio value="accrual" $checked>
            <label for="accrual">| . $locale->text('accrual') . qq|</label>
@@ -1255,7 +1256,7 @@ sub edit {
            </fieldset>
            <br>
            <fieldset>
-           <legend><b>| . $locale->text('Voranmeldungszeitraum') . qq|</b>
+           <legend><b>| . $locale->text('Tax Period') . qq|</b>
            </legend>
   |;
   $checked = '';
@@ -1277,12 +1278,12 @@ sub edit {
   print qq|
            <input name="FA_dauerfrist" id=FA_dauerfrist class=checkbox type=checkbox value="1" $checked>
            <label for="">|
-    . $locale->text('Dauerfristverlängerung') . qq|</label>
+    . $locale->text('Extension Of Time') . qq|</label>
            
            </fieldset>
            <br>
            <fieldset>
-           <legend><b>| . $locale->text('Steuerberater/-in') . qq|</b>
+           <legend><b>| . $locale->text('Tax Consultant') . qq|</b>
            </legend>
   |;
   $checked = '';
@@ -1290,7 +1291,7 @@ sub edit {
   print qq|
           <!-- <input name="FA_71" id=FA_71 class=checkbox type=checkbox value="X" $checked>
            <label for="FA_71">|
-    . $locale->text('Verrechnung des Erstattungsbetrages erwünscht (Zeile 71)')
+    . $locale->text('Clearing Tax Received (No 71)')
     . qq|</label>
            <br>
            <br>-->
@@ -1300,13 +1301,13 @@ sub edit {
            | . $locale->text('Name') . qq|
            </td>
            <td>
-           | . $locale->text('Straße') . qq|
+           | . $locale->text('Street') . qq|
            </td>
            <td>
-           | . $locale->text('PLZ, Ort') . qq|
+           | . $locale->text('Zip, City') . qq|
            </td>
            <td>
-           | . $locale->text('Telefon') . qq|
+           | . $locale->text('Telephone') . qq|
            </td>
            </tr>
            <tr>
@@ -1334,7 +1335,7 @@ sub edit {
            |;
   print qq|
            <input type="button" name="Verweis" value="|
-    . $locale->text('Back to user config...') . qq|" 
+    . $locale->text('User Config') . qq|" 
             onClick="self.location.href='$callback'">| if ($callback ne '');
   print qq|
            &nbsp; &nbsp;
@@ -1360,7 +1361,7 @@ sub edit {
           <input type=hidden name="nextsub" value="edit_form">
           <input type=hidden name="warnung" value="1">
           <input type=hidden name="saved" value="|
-    . $locale->text('Bitte Angaben überprüfen') . qq|">
+    . $locale->text('Check Details') . qq|">
           <input type=hidden name="path" value=$form->{path}>
           <input type=hidden name="login" value=$form->{login}>
           <input type=hidden name="password" value=$form->{password}>
@@ -1472,7 +1473,7 @@ sub edit_form {
    <table width="100%">
        <tr>
         <th colspan="2" class="listtop">|
-    . $locale->text('Finanzamt - Einstellungen') . qq|</th>
+    . $locale->text('Tax Office Preferences') . qq|</th>
        </tr>
        <tr>
          <td colspan=2>
@@ -1487,7 +1488,7 @@ sub edit_form {
            <br>
            <fieldset>
            <legend>
-           <font size="+1">| . $locale->text('Steuernummer') . qq|</font>
+           <font size="+1">| . $locale->text('Tax Number') . qq|</font>
            </legend>
            <br>
   |;
@@ -1513,7 +1514,7 @@ sub edit_form {
 
   print qq|
            <input type="button" name="Verweis" value="|
-    . $locale->text('Back to user config...') . qq|" 
+    . $locale->text('User Config') . qq|" 
             onClick="self.location.href='$form->{callback}'">|
     if ($form->{callback} ne '');
 
@@ -1523,7 +1524,7 @@ sub edit_form {
           <input type=submit class=submit name=action value="|
       . $locale->text('continue') . qq|">
           <input type=hidden name="saved" value="|
-      . $locale->text('Bitte alle Angaben überprüfen') . qq|">
+      . $locale->text('Check Details') . qq|">
     |;
   } else {
     print qq|
@@ -1695,7 +1696,7 @@ sub save {
 
   } else {
 
-    $form->{saved} = $locale->text('Bitte eine Steuernummer angeben');
+    $form->{saved} = $locale->text('Choose a Tax Number');
   }
 
   &edit_form;
@@ -1711,7 +1712,7 @@ sub show_fa_daten {
                <fieldset>
                <legend>
                <font size="+1">|
-    . $locale->text('Finanzamt') . qq| $form->{FA_Name}</font>
+    . $locale->text('Tax Office') . qq| $form->{FA_Name}</font>
                </legend>
   |;
 
@@ -1730,7 +1731,7 @@ sub show_fa_daten {
                   <table width="100%">
                    <tr>
                     <td>
-                    | . $locale->text('Finanzamt') . qq|
+                    | . $locale->text('Tax Office') . qq|
                     </td>
                    </tr>
                    <tr>
@@ -1756,9 +1757,9 @@ sub show_fa_daten {
                   <br>
                   <fieldset>
                   <legend>
-                  <b>| . $locale->text('Kontakt') . qq|</b>
+                  <b>| . $locale->text('Contact') . qq|</b>
                   </legend>
-                      | . $locale->text('Telefon') . qq|<br>
+                      | . $locale->text('Telephone') . qq|<br>
                       <input name="FA_Telefon" size="40" title="FA_Telefon" value="$form->{FA_Telefon}" $readonly>
                       <br>
                       <br> 
@@ -1778,7 +1779,7 @@ sub show_fa_daten {
                   <br>
                   <fieldset>
                   <legend>
-                  <b>| . $locale->text('Öffnungszeiten') . qq|</b>
+                  <b>| . $locale->text('Openings') . qq|</b>
                   </legend>
                   <textarea name="FA_Oeffnungszeiten" rows="4" cols="40" $readonly>$oeffnungszeiten</textarea>
                   </fieldset>
@@ -1798,37 +1799,37 @@ sub show_fa_daten {
                     <fieldset>
                     <legend>
                     <b>|
-      . $locale->text('Bankverbindungen des Finanzamts') . qq|</b>
+      . $locale->text('Bank Connection Tax Office') . qq|</b>
                     <legend>
                     <table>   
                     <tr>
                      <td>
-                        | . $locale->text('Kreditinstitut') . qq|
+                        | . $locale->text('Bank') . qq|
                         <br>
                         <input name="FA_Bankbezeichnung_1" size="30" value="$form->{FA_Bankbezeichnung_1}" $readonly>
                         <br>
                         <br>
-                        | . $locale->text('Kontonummer') . qq|
+                        | . $locale->text('Account Nummer') . qq|
                         <br>
                         <input name="FA_Kontonummer_1" size="15" value="$form->{FA_Kontonummer_1}" $readonly>
                         <br>
                         <br> 
-                        | . $locale->text('Bankleitzahl') . qq|
+                        | . $locale->text('Bank Code (long)') . qq|
                         <br>
                         <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
                      </td>
                      <td>
-                        | . $locale->text('Kreditinstitut') . qq|
+                        | . $locale->text('Bank') . qq|
                         <br>
                         <input name="FA_Bankbezeichnung_oertlich" size="30" value="$form->{FA_Bankbezeichnung_oertlich}" $readonly>
                         <br>
                         <br>
-                        | . $locale->text('Kontonummer') . qq|
+                        | . $locale->text('Account Nummer') . qq|
                         <br>
                         <input name="FA_Kontonummer_2" size="15" value="$form->{FA_Kontonummer_2}" $readonly>
                         <br>
                         <br> 
-                        | . $locale->text('Bankleitzahl') . qq|
+                        | . $locale->text('Bank Code (long)') . qq|
                         <br>
                         <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
                      </td>
@@ -1841,19 +1842,19 @@ sub show_fa_daten {
                     <fieldset>
                     <legend>
                       <b>|
-      . $locale->text('Bankverbindung des Finanzamts') . qq|</b>
+      . $locale->text('Bank Connection Tax Office') . qq|</b>
                     <legend>
-                    | . $locale->text('Kontonummer') . qq|
+                    | . $locale->text('Account Nummer') . qq|
                     <br>
                     <input name="FA_Kontonummer_1" size="30" value="$form->{FA_Kontonummer_1}" $readonly>
                     <br>
                     <br> 
-                    | . $locale->text('Bankleitzahl (BLZ)') . qq|
+                    | . $locale->text('Bank Code (long)') . qq|
                     <br>
                     <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
                     <br>
                     <br>
-                    | . $locale->text('Kreditinstitut') . qq|
+                    | . $locale->text('Bank') . qq|
                     <br>
                     <input name="FA_Bankbezeichnung_1" size="15" value="$form->{FA_Bankbezeichnung_1}" $readonly>
                     <br>
@@ -1864,19 +1865,19 @@ sub show_fa_daten {
                     <fieldset>
                     <legend>
                       <b>|
-      . $locale->text('Bankverbindung des Finanzamts') . qq|</b>
+      . $locale->text('Bank Connection Tax Office') . qq|</b>
                     <legend> 
-                    | . $locale->text('Kontonummer') . qq|
+                    | . $locale->text('Account Nummer') . qq|
                     <br>
                     <input name="FA_Kontonummer_2" size="30" value="$form->{FA_Kontonummer_2}" $readonly>
                     <br>
                     <br> 
-                    | . $locale->text('Bankleitzahl (BLZ)') . qq|
+                    | . $locale->text('Bank Code (long)') . qq|
                     <br>
                     <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
                     <br>
                     <br>
-                    | . $locale->text('Kreditinstitut') . qq|
+                    | . $locale->text('Bank') . qq|
                     <br>
                     <input name="FA_Bankbezeichnung_oertlich" size="15" value="$form->{FA_Bankbezeichnung_oertlich}" $readonly>
                     </fieldset>
