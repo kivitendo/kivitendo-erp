@@ -3104,14 +3104,8 @@ sub config {
 	  <td><input name=businessnumber size=25 value="$myconfig{businessnumber}"></td>
 	</tr>
 	<tr>
-	  <td colspan=2>
-	    <table width=100%>
-	      <tr>
 		<th align=right>| . $locale->text('Year End') . qq| (mm/dd)</th>
 		<td><input name=yearend size=5 value=$form->{defaults}{yearend}></td>
-	      </tr>
-	    </table>
-	  </td>
 	</tr>
 	<tr class=listheading>
 	  <th colspan=2>|
