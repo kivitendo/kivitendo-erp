@@ -279,7 +279,6 @@ $self->{texts} = {
   'Warehouse deleted!'          => 'Das Lager wurde gelöscht.',
   'Warehouse saved!'            => 'Das Lager wurde gespeichert.',
   'Warehouses'                  => 'Lager',
-  'Weight Unit'                 => 'Gewichtseinheit',
   'Year End'                    => 'Jahresende',
   'Yes'                         => 'Ja',
   'dimension units'             => 'Ma&szlig;einheiten',

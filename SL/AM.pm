@@ -1537,7 +1537,6 @@ sub save_preferences {
                  servicenumber = '$form->{servicenumber}',
                  yearend = '$form->{yearend}',
 		 curr = '$form->{curr}',
-		 weightunit = '$form->{weightunit}',
 		 businessnumber = '$form->{businessnumber}'
 		|;
   $dbh->do($query) || $form->dberror($query);

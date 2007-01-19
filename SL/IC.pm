@@ -1519,22 +1519,12 @@ sub create_links {
   }
   $sth->finish;
 
-  if ($form->{id}) {
-    $query = qq|SELECT weightunit
-                FROM defaults|;
+  if (!$form->{id}) {
+    $query = qq|SELECT current_date FROM defaults|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
 
-    ($form->{weightunit}) = $sth->fetchrow_array;
-    $sth->finish;
-
-  } else {
-    $query = qq|SELECT weightunit, current_date
-                FROM defaults|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{weightunit}, $form->{priceupdate}) = $sth->fetchrow_array;
+    ($form->{priceupdate}) = $sth->fetchrow_array;
     $sth->finish;
   }
 

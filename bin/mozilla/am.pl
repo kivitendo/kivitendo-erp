@@ -3109,8 +3109,6 @@ sub config {
 	      <tr>
 		<th align=right>| . $locale->text('Year End') . qq| (mm/dd)</th>
 		<td><input name=yearend size=5 value=$form->{defaults}{yearend}></td>
-		<th align=right>| . $locale->text('Weight Unit') . qq|</th>
-		<td><input name=weightunit size=5 value="$form->{defaults}{weightunit}"></td>
 	      </tr>
 	    </table>
 	  </td>

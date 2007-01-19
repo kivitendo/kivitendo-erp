@@ -2334,11 +2334,6 @@ sub form_header {
 		      <td>
 			<input name=weight size=10 value=$form->{weight}>
 		      </td>
-		      <th>
-			&nbsp;
-			$form->{weightunit}
-			<input type=hidden name=weightunit value=$form->{weightunit}>
-		      </th>
 		    </tr>
 		  </table>
 		</td>
@@ -2369,11 +2364,6 @@ sub form_header {
 			&nbsp;$form->{weight}
 			<input type=hidden name=weight value=$form->{weight}>
 		      </td>
-		      <th>
-			&nbsp;
-			$form->{weightunit}
-			<input type=hidden name=weightunit value=$form->{weightunit}>
-		      </th>
 		    </tr>
 		  </table>
 		</td>
