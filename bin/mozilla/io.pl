@@ -2056,8 +2056,12 @@ sub ship_to {
        shiptocontact shiptophone shiptofax shiptoemail
        shiptodepartment_1 shiptodepartment_2);
 
+  my @addr_vars =
+    (qw(name department_1 department_2 street zipcode city country
+        contact email phone fax));
+
   # get details for name
-  &{"$form->{vc}_details"}(@shipto_vars);
+  &{"$form->{vc}_details"}(@addr_vars);
 
   $number =
     ($form->{vc} eq 'customer')
@@ -2138,12 +2142,12 @@ sub ship_to {
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Phone') . qq|</th>
-	  <td>$form->{"$form->{vc}phone"}</td>
+	  <td>$form->{phone}</td>
 	  <td><input name=shiptophone size=20 value="$form->{shiptophone}"></td>
 	</tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Fax') . qq|</th>
-	  <td>$form->{"$form->{vc}fax"}</td>
+	  <td>$form->{fax}</td>
 	  <td><input name=shiptofax size=20 value="$form->{shiptofax}"></td>
 	</tr>
 	<tr>
