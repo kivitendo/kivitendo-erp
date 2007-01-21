@@ -494,8 +494,7 @@ sub form_header {
   $vclabel = ucfirst $form->{vc};
   $vclabel = $locale->text($vclabel);
 
-  $terms = qq|<input name=terms size="3" maxlength="3" value="| .
-    $form->quote($form->{terms}) . qq|">|;
+
 
   if ($form->{business}) {
     $business = qq|
@@ -626,7 +625,6 @@ sub form_header {
 	      </tr>
 |;
 
-      $terms = "";
     }
 
     $ordnumber .= qq|
@@ -805,7 +803,6 @@ print qq|	    </table>
 	      $openclosed
 	      $employee
 	      $ordnumber
-	      $terms
 	    </table>
 	  </td>
 	</tr>
