@@ -1167,10 +1167,10 @@ $shipto
     <tr>
       <th align=left nowrap>| . $locale->text('From') . qq|</th>
       <td><input id=from name=from size=10 maxlength=10 value="$form->{from}">
-        <input type="button" name="from" id="trigger_from" value="?"></td>
+        <input type="button" name="fromB" id="trigger_from" value="?"></td>
       <th align=left nowrap>| . $locale->text('To (time)') . qq|</th>
       <td><input id=to name=to size=10 maxlength=10 value="$form->{to}">
-        <input type="button" name="to" id="trigger_to" value="?"></td>
+        <input type="button" name="toB" id="trigger_to" value="?"></td>
     </tr>       
     <tr>
      <td colspan=4>
@@ -1183,8 +1183,8 @@ $shipto
 
 </div>
 
-| . $form->write_trigger(\%myconfig, 2, "from", "BL", "trigger_from",
-                         "to", "BL", "trigger_to");
+| . $form->write_trigger(\%myconfig, 2, "fromB", "BL", "trigger_from",
+                         "toB", "BL", "trigger_to");
 
   $lxdebug->leave_sub();
 }
