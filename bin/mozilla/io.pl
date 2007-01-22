@@ -1795,7 +1795,7 @@ sub print_form {
   $language_saved = $form->{language_id};
   $payment_id_saved = $form->{payment_id};
 
-  &{"$form->{vc}_details"};
+  &{"$form->{vc}_details"}();
 
   $form->{language_id} = $language_saved;
   $form->{payment_id} = $payment_id_saved;
