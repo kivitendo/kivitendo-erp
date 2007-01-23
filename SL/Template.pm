@@ -91,7 +91,7 @@ sub format_string {
                  '<pagebreak>',
                  '&', quotemeta("\n"),
                  '"', '\$', '%', '_', '#', quotemeta('^'),
-                 '{', '}',  '<', '>', '£', "\r", '±',
+                 '{', '}',  '<', '>', '£', "\r", '±', '\xe1',
                  ],
      quotemeta("\\") => '\\textbackslash ',
      '<pagebreak>'   => '',
@@ -108,6 +108,7 @@ sub format_string {
      '£'             => '\pounds ',
      "\r"            => "",
      '±'             => '$\pm$',
+     '\xe1'          => '$\bullet$',
      quotemeta('^')  => '\^\\',
      quotemeta("\n") => '\newline '
      );
@@ -124,6 +125,8 @@ sub format_string {
     my $new = $markup_replace{$key};
     $variable =~ s/\$\<\$${key}\$\>\$(.*?)\$<\$\/${key}\$>\$/\\${new}\{$1\}/gi;
   }
+
+  $variable =~ s/[\x00-\x1f]//g;
 
   return $variable;
 }
