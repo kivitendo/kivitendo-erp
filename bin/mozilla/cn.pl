@@ -897,11 +897,6 @@ sub form_footer {
     }
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>

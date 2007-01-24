@@ -1852,15 +1852,7 @@ sub aging {
       . $locale->text('Print') . qq|">
 <input class=submit type=submit name=action value="|
       . $locale->text('E-mail') . qq|">
-|;
-  }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 </form>
 
 </body>

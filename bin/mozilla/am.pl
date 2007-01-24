@@ -494,11 +494,6 @@ sub form_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print qq|
 </form>
 
@@ -825,11 +820,6 @@ sub gifi_footer {
     }
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print qq|
   </form>
 
@@ -1000,14 +990,8 @@ sub list_department {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
   </body>
@@ -1199,14 +1183,8 @@ sub list_lead {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
   </body>
@@ -1403,14 +1381,7 @@ sub list_business {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -1641,14 +1612,7 @@ sub list_language {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -1936,14 +1900,7 @@ sub list_buchungsgruppe {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -2238,14 +2195,7 @@ sub list_printer {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -2462,14 +2412,7 @@ sub list_payment {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -2677,14 +2620,8 @@ sub list_sic {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
   </body>
@@ -2807,14 +2744,8 @@ $form->{body}
 <input type=hidden name=password value=$form->{password}>
 
 <input name=action type=submit class=submit value="|
-    . $locale->text('Edit') . qq|">|;
+    . $locale->text('Edit') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -2856,14 +2787,8 @@ $form->{body}
 
 <br>
 <input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
+    . $locale->text('Save') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print q|
   </form>
 
 
@@ -3251,14 +3176,8 @@ print qq|      </table>
 
 <br>
 <input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
+    . $locale->text('Save') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -3497,14 +3416,8 @@ sub list_warehouse {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
   </body>

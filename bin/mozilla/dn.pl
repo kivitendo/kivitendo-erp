@@ -207,14 +207,7 @@ sub edit_config {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Save') . qq|">
 
   </form>
 
@@ -517,8 +510,8 @@ sub show_invoices {
   <td><hr size=3 noshade></td>
   </tr>
 </table>|;
-&print_options;
-print qq|
+  &print_options;
+  print qq|
 <br>
 <form method=post action=$form->{script}>
 
@@ -530,20 +523,10 @@ print qq|
 
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>|;
-#print qq|
-# <input type="submit" name="action" value="|
-#     . $locale->text('Continue') . qq|">|;
-print qq|
+<input type=hidden name=password value=$form->{password}>
 <input type="hidden" name="action">
 <input type="submit" name="dummy" value="|
-    . $locale->text('Continue') . qq|" onclick="this.disabled=true; this.value='| . $locale->text("The dunning process started") . qq|'; document.Form.action.value='| . $locale->text('Continue') . qq|'; document.Form.submit()">|;
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Continue') . qq|" onclick="this.disabled=true; this.value='| . $locale->text("The dunning process started") . qq|'; document.Form.action.value='| . $locale->text('Continue') . qq|'; document.Form.submit()">
 
   </form>
 
@@ -959,14 +942,6 @@ sub show_dunning {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 
   </form>
 

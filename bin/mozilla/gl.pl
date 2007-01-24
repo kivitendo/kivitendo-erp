@@ -849,14 +849,7 @@ sub generate_report {
 <input class=submit type=submit name=action value="|
     . $locale->text('Sales Invoice') . qq|">
 <input class=submit type=submit name=action value="|
-    . $locale->text('Vendor Invoice') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Vendor Invoice') . qq|">
 
 </form>
 
@@ -1463,11 +1456,6 @@ sub form_footer {
      		 <input class=submit type=submit name=action value="|
         . $locale->text('Post') . qq|">|;
     }
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
   }
 
   print "

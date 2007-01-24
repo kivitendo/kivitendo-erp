@@ -1471,14 +1471,8 @@ sub addtop100 {
     <input type=hidden name=ndxs_counter value="$form->{ndxs_counter}">
 
     <input class=submit type=submit name=action value="|
-    . $locale->text('choice') . qq|">|;
+    . $locale->text('choice') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -2009,14 +2003,8 @@ sub generate_report {
 
   print qq|
   <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -2737,13 +2725,6 @@ sub form_footer {
             . $locale->text('Delete') . qq|">|;
         }
       }
-    }
-  }
-
-  if (!$form->{previousform}) {
-    if ($form->{menubar}) {
-      require "$form->{path}/menu.pl";
-      &menubar;
     }
   }
 

@@ -1,5 +1,4 @@
 $self->{texts} = {
-  'Accounting Menu'             => 'Kontoverwaltung',
   'Add'                         => 'Erfassen',
   'Add Group'                   => 'Warengruppe erfassen',
   'Add Pricegroup'              => 'Preisgruppe erfassen',
@@ -32,11 +31,9 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
-  'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'continue'                    => 'continue',
   'delete'                      => 'delete',
-  'display'                     => 'display',
   'edit'                        => 'edit',
   'form_partsgroup_footer'      => 'form_partsgroup_footer',
   'form_partsgroup_header'      => 'form_partsgroup_header',
@@ -49,7 +46,6 @@ $self->{subs} = {
   'project_report'              => 'project_report',
   'save'                        => 'save',
   'search'                      => 'search',
-  'section_menu'                => 'section_menu',
   'erfassen'                    => 'add',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',

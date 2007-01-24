@@ -774,11 +774,6 @@ sub form_footer {
     }
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print "
 </form>
 
@@ -1541,14 +1536,8 @@ sub ar_transactions {
 <input class=submit type=submit name=action value="|
     . $locale->text('AR Transaction') . qq|">
 <input class=submit type=submit name=action value="|
-    . $locale->text('Sales Invoice') . qq|">|;
+    . $locale->text('Sales Invoice') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 </form>
 
 </body>

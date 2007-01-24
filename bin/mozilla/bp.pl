@@ -571,11 +571,6 @@ sub list_spool {
 |;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print qq|
 </form>
 

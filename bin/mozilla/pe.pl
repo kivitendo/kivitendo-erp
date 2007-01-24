@@ -290,14 +290,8 @@ sub project_report {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -382,11 +376,6 @@ sub form_project_footer {
     print qq|
 <input type=submit class=submit name=action value="|
       . $locale->text('Delete') . qq|">|;
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
   }
 
   print qq|
@@ -540,14 +529,8 @@ sub partsgroup_report {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -621,11 +604,6 @@ sub form_partsgroup_footer {
     print qq|
 <input type=submit class=submit name=action value="|
       . $locale->text('Delete') . qq|">|;
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
   }
 
   print qq|
@@ -741,14 +719,8 @@ sub pricegroup_report {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -826,11 +798,6 @@ sub form_pricegroup_footer {
     print qq|
 <input type=submit class=submit name=action value="|
       . $locale->text('Delete') . qq|">|;
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
   }
 
   print qq|

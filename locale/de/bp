@@ -1,6 +1,5 @@
 $self->{texts} = {
   'Account'                     => 'Konto',
-  'Accounting Menu'             => 'Kontoverwaltung',
   'Are you sure you want to remove the marked entries from the queue?' => 'Sind Sie sicher, dass die markierten Einträge von der Warteschlange gelöscht werden sollen?',
   'Bis'                         => 'bis',
   'Cannot remove files!'        => 'Dateien können nicht gelöscht werden!',
@@ -40,14 +39,11 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
-  'acc_menu'                    => 'acc_menu',
   'continue'                    => 'continue',
-  'display'                     => 'display',
   'list_spool'                  => 'list_spool',
   'print'                       => 'print',
   'remove'                      => 'remove',
   'search'                      => 'search',
-  'section_menu'                => 'section_menu',
   'select_all'                  => 'select_all',
   'yes'                         => 'yes',
   'weiter'                      => 'continue',

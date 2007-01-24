@@ -1102,11 +1102,6 @@ sub form_footer {
 |;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
@@ -1846,11 +1841,6 @@ sub orders {
     print qq|
 <input class=submit type=submit name=action value="|
       . $locale->text('Add') . qq|">|;
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
   }
 
   print qq|
@@ -2841,14 +2831,6 @@ sub display_ship_receive {
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Done') . qq|">
-|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
@@ -3120,14 +3102,8 @@ sub list_transfer {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Transfer') . qq|">|;
+    . $locale->text('Transfer') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 </form>
 
 </body>

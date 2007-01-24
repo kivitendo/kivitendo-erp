@@ -376,14 +376,8 @@ sub display_form {
 <input type=submit class=submit name=action value="|
     . $locale->text('Select all') . qq|">
 <input type=submit class=submit name=action value="|
-    . $locale->text('Done') . qq|">|;
+    . $locale->text('Done') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 </form>
 
 </body>

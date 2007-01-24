@@ -766,11 +766,6 @@ sub form_footer {
     }
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
     qq|
 

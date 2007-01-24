@@ -1,6 +1,5 @@
 $self->{texts} = {
   'Account'                     => 'Konto',
-  'Accounting Menu'             => 'Kontoverwaltung',
   'Balance'                     => 'Bilanz',
   'Cleared Balance'             => 'abgeschlossen',
   'Continue'                    => 'Weiter',
@@ -24,14 +23,11 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
-  'acc_menu'                    => 'acc_menu',
   'continue'                    => 'continue',
-  'display'                     => 'display',
   'display_form'                => 'display_form',
   'done'                        => 'done',
   'get_payments'                => 'get_payments',
   'reconciliation'              => 'reconciliation',
-  'section_menu'                => 'section_menu',
   'select_all'                  => 'select_all',
   'update'                      => 'update',
   'weiter'                      => 'continue',

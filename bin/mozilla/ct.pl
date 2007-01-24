@@ -543,14 +543,8 @@ sub list_names {
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -1247,11 +1241,6 @@ $update_button
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Delete')
       . qq|">\n|;
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
   }
 
   print qq|

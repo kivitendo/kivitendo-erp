@@ -2,7 +2,6 @@ $self->{texts} = {
   ' Number'                     => ' Nummer',
   'Abteilung'                   => 'Abteilung',
   'Account Number'              => 'Kontonummer',
-  'Accounting Menu'             => 'Kontoverwaltung',
   'Add'                         => 'Erfassen',
   'Add Customer'                => 'Kunde erfassen',
   'Add Vendor'                  => 'Lieferant erfassen',
@@ -111,7 +110,6 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
-  'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',
   'check_salesman'              => 'check_salesman',
@@ -136,7 +134,6 @@ $self->{subs} = {
   'save_and_rfq'                => 'save_and_rfq',
   'search'                      => 'search',
   'search_delivery'             => 'search_delivery',
-  'section_menu'                => 'section_menu',
   'select_salesman'             => 'select_salesman',
   'update'                      => 'update',
   'erfassen'                    => 'add',

@@ -751,11 +751,6 @@ sub form_footer {
     }
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print "
 </form>
 
@@ -1487,14 +1482,8 @@ sub ap_transactions {
     . $locale->text('AP Transaction') . qq|">
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Vendor Invoice') . qq|">|;
+    . $locale->text('Vendor Invoice') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>

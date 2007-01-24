@@ -483,14 +483,7 @@ sub form_footer {
   print qq|
 <select name=format>$format</select>
 <select name=media>$media</select>
-|;
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>

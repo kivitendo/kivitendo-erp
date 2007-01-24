@@ -1,7 +1,6 @@
 $self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   '*/'                          => '*/',
-  'Accounting Menu'             => 'Kontoverwaltung',
   'Active?'                     => 'Aktiviert?',
   'Add Purchase Order'          => 'Lieferantenauftrag erfassen',
   'Add Quotation'               => 'Angebot erfassen',
@@ -196,7 +195,6 @@ gestartet',
 
 $self->{subs} = {
   'H'                           => 'H',
-  'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',
   'ap_transaction'              => 'ap_transaction',
@@ -208,7 +206,6 @@ $self->{subs} = {
   'continue'                    => 'continue',
   'customer_details'            => 'customer_details',
   'delivery_customer_selection' => 'delivery_customer_selection',
-  'display'                     => 'display',
   'display_form'                => 'display_form',
   'display_row'                 => 'display_row',
   'e_mail'                      => 'e_mail',
@@ -239,7 +236,6 @@ $self->{subs} = {
   'save_dunning'                => 'save_dunning',
   'save_form'                   => 'save_form',
   'search'                      => 'search',
-  'section_menu'                => 'section_menu',
   'select_employee'             => 'select_employee',
   'select_employee_internal'    => 'select_employee_internal',
   'select_item'                 => 'select_item',
