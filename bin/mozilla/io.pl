@@ -307,10 +307,10 @@ sub display_row {
 
     if (($rows = $form->numtextrows($form->{"description_$i"}, 30, 6)) > 1) {
       $column_data{description} =
-        qq|<td><textarea name="description_$i" rows=$rows cols=30 wrap=soft>$form->{"description_$i"}</textarea><button type="button" onclick="set_longdescription_window('longdescription_$i')">| . $locale->text('L') . qq|</button></td>|;
+        qq|<td><textarea name="description_$i" rows=$rows cols=30 wrap=soft>| . H($form->{"description_$i"}) . qq|</textarea><button type="button" onclick="set_longdescription_window('longdescription_$i')">| . $locale->text('L') . qq|</button></td>|;
     } else {
       $column_data{description} =
-        qq|<td><input name="description_$i" size=30 value="$form->{"description_$i"}"><button type="button" onclick="set_longdescription_window('longdescription_$i')">| . $locale->text('L') . qq|</button></td>|;
+        qq|<td><input name="description_$i" size=30 value="| . $form->quote($form->{"description_$i"}) . qq|"><button type="button" onclick="set_longdescription_window('longdescription_$i')">| . $locale->text('L') . qq|</button></td>|;
     }
 
     (my $qty_dec) = ($form->{"qty_$i"} =~ /\.(\d+)/);
@@ -424,7 +424,7 @@ sub display_row {
 
 <input type=hidden name="pricegroup_old_$i" value=$form->{"pricegroup_old_$i"}>
 <input type=hidden name="price_old_$i" value=$form->{"price_old_$i"}>
-<input type=hidden name="unit_old_$i" value="$form->{"selected_unit_$i"}">
+<input type=hidden name="unit_old_$i" value="| . $form->quote($form->{"selected_unit_$i"}) . qq|">
 <input type=hidden name="price_new_$i" value=|
       . $form->format_amount(\%myconfig, $form->{"price_new_$i"}) . qq|>
 
@@ -432,7 +432,7 @@ sub display_row {
 <input type=hidden name="inventory_accno_$i" value=$form->{"inventory_accno_$i"}>
 <input type=hidden name="bin_$i" value="$form->{"bin_$i"}">
 <input type=hidden name="partsgroup_$i" value="$form->{"partsgroup_$i"}">
-<input type=hidden name="partnotes_$i" value="$form->{"partnotes_$i"}">
+<input type=hidden name="partnotes_$i" value="| . $form->quote($form->{"partnotes_$i"}) . qq|">
 <input type=hidden name="income_accno_$i" value=$form->{"income_accno_$i"}>
 <input type=hidden name="expense_accno_$i" value=$form->{"expense_accno_$i"}>
 <input type=hidden name="listprice_$i" value="$form->{"listprice_$i"}">
@@ -441,7 +441,7 @@ sub display_row {
 <input type=hidden name="ordnumber_$i" value="$form->{"ordnumber_$i"}">
 <input type=hidden name="transdate_$i" value="$form->{"transdate_$i"}">
 <input type=hidden name="cusordnumber_$i" value="$form->{"cusordnumber_$i"}">
-<input type=hidden name="longdescription_$i" value="$form->{"longdescription_$i"}">
+<input type=hidden name="longdescription_$i" value="| . $form->quote($form->{"longdescription_$i"}) . qq|">
 <input type=hidden name="basefactor_$i" value="$form->{"basefactor_$i"}">
 
 |;
