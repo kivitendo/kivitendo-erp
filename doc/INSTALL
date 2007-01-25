@@ -20,9 +20,19 @@ Folgende Pakete müssen installiert sein:
 ========================================
 Webserver (Apache)
 PostgreSQL - Datenbank 
-Perl-DBI, Perl-DBD, Perl-HTML-Template, Perl-CGI-Ajax, Perl-Class-Accessor
+
+Benötigte Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation
+sind:
+
+* DBI
+* DBD::Pg
+* HTML::Template
+* CGI::Ajax
+* Class::Accessor
+* Archive::Zip
+
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
-(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl) 
+(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl, libarchive-zip-perl)
 (Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
 (SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg)
 
