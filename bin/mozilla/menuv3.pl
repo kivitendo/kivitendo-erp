@@ -105,62 +105,22 @@ sub clock_line {
   print qq|
 <script type="text/javascript">
 <!--
-var clockid=new Array()
-var clockidoutside=new Array()
-var i_clock=-1
-var thistime= new Date()
-var hours= | . $Stunden . qq|;
-var minutes= | . $Minuten . qq|;
-var seconds= | . $Sekunden . qq|;
-if (eval(hours) <10) {hours="0"+hours}
-if (eval(minutes) < 10) {minutes="0"+minutes}
-if (seconds < 10) {seconds="0"+seconds}
-//var thistime = hours+":"+minutes+":"+seconds
-var thistime = hours+":"+minutes
-
-function writeclock() {
-	i_clock++
-	if (document.all \|\| document.getElementById \|\| document.layers) {
-		clockid[i_clock]="clock"+i_clock
-		document.write("<font family=arial size=2><span id='"+clockid[i_clock]+"' style='position:relative'>"+thistime+"</span></font>")
-	}
-}
-
+var h=$Stunden; var m=$Minuten; var s=$Sekunden;
 function clockon() {
-	thistime= new Date()
-	hours=thistime.getHours()
-	minutes=thistime.getMinutes()
-	seconds=thistime.getSeconds()
-	if (eval(hours) <10) {hours="0"+hours}
-	if (eval(minutes) < 10) {minutes="0"+minutes}
-	if (seconds < 10) {seconds="0"+seconds}
-	//thistime = hours+":"+minutes+":"+seconds
-	thistime = hours+":"+minutes
-
-	if (document.all) {
-		for (i=0;i<=clockid.length-1;i++) {
-			var thisclock=eval(clockid[i])
-			thisclock.innerHTML=thistime
-		}
-	}
-
-	if (document.getElementById) {
-		for (i=0;i<=clockid.length-1;i++) {
-			document.getElementById(clockid[i]).innerHTML=thistime
-		}
-	}
-	var timer=setTimeout("clockon()",60000)
+  s=++s%60;if(s==0){m=++m%60;if(m==0)h=++h%24;}
+  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m)+":"+(s<10?'0'+s:s);
+  var timer=setTimeout("clockon()", 1000);
 }
-//window.onload=clockon
+window.onload=clockon
 //-->
 </script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
-	<tr>
-		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
-		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
-    . $login . $datum . qq| <script>writeclock()</script>&nbsp;
-		</td>
-	</tr>
+  <tr>
+    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
+    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+      $login $datum <span id='clock_id' style='position:relative'></span>&nbsp;
+    </td>
+  </tr>
 </table>
 |;
 }
@@ -231,18 +191,18 @@ sub print_menu {
     if ($menu_item->{"submenu"} || !defined($menu_item->{"module"}) ||
         ($menu_item->{"module"} eq "menu.pl")) {
 
-      my $h = print_menu($menu, "${parent}${item}", $depth * 1 + 1);
+      my $h = print_menu($menu, "${parent}${item}", $depth * 1 + 1)."\n";
       if (!$parent) {
-        $html .= qq|<ul><li><h2>${menu_text}</h2><ul>${h}</ul></li></ul>|;
+        $html .= qq|<ul><li><h2>${menu_text}</h2><ul>${h}</ul></li></ul>\n|;
       } else {
-        $html .= qq|<li><div class="x">${menu_text}</div><ul>${h}</ul></li>|;
+        $html .= qq|<li><div class="x">${menu_text}</div><ul>${h}</ul></li>\n|;
       }
     } else {
       $html .= qq|<li>|;
       $html .= $menu->menuitem_v3(\%myconfig, $form, "${parent}$item",
                                   { "title" => $menu_title,
                                     "target" => $target });
-      $html .= qq|${menu_text}</a></li>|;
+      $html .= qq|${menu_text}</a></li>\n|;
     }
   }
 
