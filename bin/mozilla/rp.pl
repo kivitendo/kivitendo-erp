@@ -1851,8 +1851,10 @@ sub aging {
 <input class=submit type=submit name=action value="|
       . $locale->text('Print') . qq|">
 <input class=submit type=submit name=action value="|
-      . $locale->text('E-mail') . qq|">
+      . $locale->text('E-mail') . qq|">|;
+}
 
+print qq|
 </form>
 
 </body>
