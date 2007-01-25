@@ -5,12 +5,22 @@ behavior:url("css/csshover.htc");
 #menu{
 width:100%;
 float:left;
+background:url(../image/bg_css_menu.png) repeat 100% 100%;
+border-right-width:1px;
+border-top-width:1px;
+border-bottom-width:1px;
+border-left-width:0px;
+border-style:solid;
+border-color:#ccc #888 #555 #bbb;
 }
 
 #menu a, #menu h2, #menu div.x {
 font:11px/16px arial,helvetica,sans-serif;
 display:block;
-border-width:1px;
+border-right-width:1px;
+border-left-width:1px;
+border-top-width:0px;
+border-bottom-width:0px;
 border-style:solid;
 border-color:#ccc #888 #555 #bbb;
 white-space:nowrap;
