@@ -1,6 +1,10 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
+
+  - USTVA Screens in HTML-Templates verlagert
+  - USTVA Taxbird kleinere Anpassungen zur Kompatibilität
+
 2007-01-19 - Version 2.4.1
   - CSV-Import auf Verwendung von Buchungsgruppen angepasst
   - Bei Einkaufs- und Verkaufsmasken lassen sich die zweiten Positionszeilen

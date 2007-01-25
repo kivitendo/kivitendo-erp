@@ -67,12 +67,15 @@ use SL::User;
 # $locale->text('Oct')
 # $locale->text('Nov')
 # $locale->text('Dec')
+
+# $form->parse_html_template('generic/util_hidden_variables');
+
 #############################
 
 sub report {
   $lxdebug->enter_sub();
+
   my $myconfig = \%myconfig;
-  use CGI;
 
   $form->{title} = $locale->text('UStVA');
   $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1 Nein=0
@@ -84,62 +87,39 @@ sub report {
   local $hide = '';
   $form->header;
 
-  print qq|
- <body>
- <form method=post action=$form->{script}>
-
- <input type=hidden name=title value="$form->{title}">
-
- <table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-      $department
- |;
-
-  # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
   # Einlesen der Finanzamtdaten
   &get_config($userspath, 'finanzamt.ini');
 
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
-  my @a = qw(signature name company address businessnumber tel fax email
-    co_chief co_department co_custom1 co_custom2 co_custom3 co_custom4 co_custom5
-    co_name1 co_name2
-    co_street co_street1 co_zip co_city co_city1 co_country co_tel co_tel1 co_tel2
-    co_fax co_fax1 co_email co_email1 co_url co_url1 ustid duns
-    co_bankname co_bankname1 co_bankname2 co_bankname3 co_blz co_blz1
-    co_blz2 co_blz3 co_accountnr co_accountnr1 co_accountnr2 co_accountnr3);
+  my @a = qw(
+    signature      name          company       address        businessnumber 
+    tel            fax           email         co_chief       co_department 
+    co_custom1     co_custom2    co_custom3    co_custom4     co_custom5
+    co_name1       co_name2      co_street     co_street1     co_zip 
+    co_city        co_city1      co_country    co_tel         co_tel1 
+    co_tel2        co_fax        co_fax1       co_email       co_email1
+    co_url         co_url1       ustid         duns           co_bankname 
+    co_bankname1   co_bankname2  co_bankname3  co_blz         co_blz1
+    co_blz2        co_blz3       co_accountnr  co_accountnr1  co_accountnr2 
+    co_accountnr3
+  );
 
   map { $form->{$_} = $myconfig->{$_} } @a;
 
-  my $oeffnungszeiten = $form->{FA_Oeffnungszeiten};
-  $oeffnungszeiten =~ s/\\\\n/<br>/g;
-  print qq|
-	<tr >
-	  <td width="50%" align="left" valign="top">
-	  <fieldset>
-	  <legend>
-	  <b>| . $locale->text('Company') . qq|</b>
-	  </legend>
-  |;
-  if ($form->{company} ne '') {
-    print qq|<h3>$form->{company}</h3>\n|;
-  } else {
-    print qq|
-	    <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
-	    | . $locale->text('No Company Name given') . qq|!</a><br>
-    |;
-  }
+  my $openings = $form->{FA_Oeffnungszeiten};
+  $openings =~ s/\\\\n/<br>/g;
+
+  my $company_given = ($form->{company} ne '') 
+    ? qq|<h3>$form->{company}</h3>\n|
+    : qq|<a href=am.pl?path=$form->{path}&action=config|
+      . qq|&level=Programm--Preferences&login=$form->{login}|
+      . qq|&password=$form->{password}>| 
+      . $locale->text('No Company Name given') . qq|!</a><br>|;
+
 
   # Anpassungen der Variablennamen auf pre 2.1.1 Namen
   # klären, ob $form->{company_street|_address} gesetzt sind
-  #
-
   if ($form->{address} ne '') {
     my $temp = $form->{address};
     $temp =~ s/\\n/<br \/>/;
@@ -147,343 +127,98 @@ sub report {
     $form->{co_city} =~ s/\\n//g;
   }
 
-  if ($form->{co_street} ne ''
-      and (   $form->{co_zip} ne ''
-           or $form->{co_city} ne '')
-    ) {
-    print qq|
-    $form->{co_street}<br>
-    $form->{co_street1}<br>
-    $form->{co_zip} $form->{co_city}|;
-    } else {
-    print qq|
-	  <a href=am.pl?path=$form->{path}&action=config&level=Programm--Preferences&login=$form->{login}&password=$form->{password}>
-	  | . $locale->text('No Company Address given') . qq|!</a>\n|;
-  }
+
+  my $address_given = 
+    ($form->{co_street} ne '' 
+      and ( 
+        $form->{co_zip} ne ''
+          or $form->{co_city} ne ''
+      )
+    ) 
+    ? qq|$form->{co_street}<br>|
+        . qq|$form->{co_street1}<br>|
+        . qq|$form->{co_zip} $form->{co_city}|
+    : qq|<a href=am.pl?path=$form->{path}&action=config|
+        . qq|&level=Programm--Preferences&login=$form->{login}|
+        . qq|&password=$form->{password}>| 
+        . $locale->text('No Company Address given') 
+        . qq|!</a>\n|;
+
   $form->{co_email} = $form->{email} unless $form->{co_email};
   $form->{co_tel}   = $form->{tel}   unless $form->{co_tel};
   $form->{co_fax}   = $form->{fax}   unless $form->{co_fax};
   $form->{co_url}   = $form->{urlx}  unless $form->{co_url};
 
-  print qq|
-	  <br>
-	  <br>
-	  | . $locale->text('Tel') . qq|.:&nbsp;
-	  $form->{co_tel}
-	  <br>
-	  | . $locale->text('Fax') . qq|.:nbsp;
-	  $form->{co_fax}	  
-	  <br>
-	  <br>
-	  $form->{co_email}	  
-	  <br>
-	  <br>
-	  | . $locale->text('Tax Number') . qq|:&nbsp;
-  |;
+  my $taxnumber_given = ($form->{steuernummer} ne '')
+    ? qq|$form->{steuernummer}|
+    : qq|<a href="ustva.pl?path=$form->{path}&action="config_step1"|
+      . qq|&level=Programm--Finanzamteinstellungen&login=$form->{login}|
+      . qq|&password=$form->{password}">Keine Steuernummer hinterlegt!|
+      . qq|</a><br>|;
 
-  if ($form->{steuernummer} ne '') {
-    print qq|$form->{steuernummer}|;
-  } else {
-    print qq|
-	  <a href="ustva.pl?path=$form->{path}&action=edit&level=Programm--Finanzamteinstellungen&login=$form->{login}&password=$form->{password}">
-	  Keine Steuernummer hinterlegt!</a><br>|;
+  my $ustva_vorauswahl = &ustva_vorauswahl();
+
+  my @all_years = $form->all_years(\%myconfig);
+
+  my $select_year = qq|<select name=year title="| 
+    . $locale->text('Year') . qq|">|;
+  foreach my $key (@all_years) {
+    $select_year .= qq|<option |;
+    $select_year .= qq|selected| if ($key eq $form->{year});
+    $select_year .= qq| >$key</option>|;
   }
-  print qq|
-	  <br>
-	  | . $locale->text('ELSTER Tax Number') . qq|:&nbsp;
-	  $form->{elstersteuernummer}
-          <br>
-          <br>
+  $select_year   .=  qq|</select>|;
 
-	  </fieldset>
-	  <br>
-  |;
-  if ($form->{FA_steuerberater_name} ne '') {
-    print qq|
-	  <fieldset>
-	  <legend>
-            <input checked="checked" title="|
-      . $locale->text('Assume Tax Consultant Data in Tax Computation?')
-      . qq|" name="FA_steuerberater" id=steuerberater class=checkbox type=checkbox value="1">&nbsp;
-            <b>| . $locale->text('Tax Consultant') . qq|</b>
-            </legend>
-            
-            $form->{FA_steuerberater_name}<br>
-            $form->{FA_steuerberater_street}<br>
-            $form->{FA_steuerberater_city}<br>
-            Tel: $form->{FA_steuerberater_tel}<br>
-	  </fieldset>
-	  <br>
-    |;
-  }
-  print qq|
-	  <fieldset>
-	  <legend>
-          <b>| . $locale->text('Tax Period') . qq|</b>
-	  </legend>
-  |;
-  &ustva_vorauswahl();
+  my $_checked = '';
+  $_checked = "checked" if ($form->{kz10} eq '1');
+  my $checkbox_kz_10 = qq|<input name="FA_10" id=FA_10 class=checkbox|
+    . qq| type=checkbox value="1" $_checked title = "|
+    . $locale->text('Amended Advance Turnover Tax Return (Nr. 10)')
+    . qq|">| 
+    . $locale->text('Amended Advance Turnover Tax Return'); 
 
-  my @years = ();
-  if (not defined $form->{all_years}) {
+  my $method_local = ($form->{method} eq 'accrual') ? $locale->text('accrual') 
+                   : ($form->{method} eq 'cash')    ? $locale->text('cash')
+                   : '';
 
-    # accounting years if SQL-Ledger Version < 2.4.1
-    #    $year = $form->{year} * 1;
-    @years = sort { $b <=> $a } (2003 .. ($year + 1));
-    $form->{all_years} = \@years;
-  }
-  map { $form->{selectaccountingyear} .= qq|<option>$_\n| }
-    @{ $form->{all_years} };
-  print qq|
-          <select name=year title="| . $locale->text('Year') . qq|">
-  |;
-  my $key = '';
-  foreach $key (@years) {
-    print qq|<option |;
-    print qq|selected| if ($key eq $form->{year});
-    print qq| >$key</option>
-    |;
-  }
+  my $period_local = ( $form->{FA_voranmeld} eq 'month')   ? $locale->text('month')
+                   : ( $form->{FA_voranmeld} eq 'quarter') ? $locale->text('quarter')
+                   : '';  
 
-  my $voranmeld = $form->{FA_voranmeld};
-  print qq|             </select>|;
-  my $checked = '';
-  $checked = "checked" if ($form->{kz10} eq '1');
-  print qq|
-           <input name="FA_10" id=FA_10 class=checkbox type=checkbox value="1" $checked title = "|
-    . $locale->text(
-      'Amended Advance Turnover Tax Return (Nr. 10)')
-    . qq|">
-            | . $locale->text('Amended Advance Turnover Tax Return') . qq|
-          <br>
-  |;
-
-  if ($voranmeld ne '') {
-    print qq|
-          <br>
-          | . $locale->text($voranmeld) . qq|
-  |;
-    print $locale->text('With Extension Of Time') if ($form->{FA_dauerfrist} eq '1');
-    print qq|
-
-      <br>
-  |;
-  }
-  if ($form->{method} ne '') {
-    print qq|| . $locale->text('Method') . qq|: |;
-    print qq|| . $locale->text('accrual') . qq||
-      if ($form->{method} eq 'accrual');
-    print qq|| . $locale->text('cash') . qq|| if ($form->{method} eq 'cash');
-  }
-  print qq|
-	  </fieldset>
-
-    </td>|;
-
-  if ($form->{FA_Name} ne '') {
-    print qq|
-    <td width="50%" valign="top">	  
-	  <fieldset>
-	  <legend>
-	  <b>| . $locale->text('Tax Office') . qq|</b>
-	  </legend>
-          <h3>$form->{FA_Name}</h2>
-    |;
-
-    #if ($form->{FA_Ergaenzung_Name ne ''}){
-    #  print qq|
-    #          $form->{FA_Ergaenzung_Name}&nbsp
-    #          <br>
-    #  |;
-    #}
-    print qq|
-          $form->{FA_Strasse}
-          <br>
-          $form->{FA_PLZ}&nbsp; &nbsp;$form->{FA_Ort}
-          <br>
-          <br>
-          | . $locale->text('Tel') . qq|.:&nbsp;
-          $form->{FA_Telefon}
-          <br> 
-          | . $locale->text('Fax') . qq|.:$nbsp;
-          $form->{FA_Fax}
-          <br>
-          <br>
-          <a href="mailto:$form->{FA_Email}?subject=|
-      . CGI::escape("Steuer Nr: $form->{steuernummer}:")
-      . qq|&amp;body=|
-      . CGI::escape(
-             "Sehr geehrte Damen und Herren,\n\n\nMit freundlichen Grüßen\n\n")
-      . CGI::escape($form->{signature}) . qq|">
-            $form->{FA_Email}
-          </a>
-          <br>
-          <a href="$form->{FA_Internet}">
-            $form->{FA_Internet}
-          </a>
-          <br>
-          <br>
-          | . $locale->text('Openings') . qq|
-          <br>
-          $oeffnungszeiten
-          <br>
-   |;
-
-    my $FA_1 =
-      (   $form->{FA_BLZ_1} ne ''
-       && $form->{FA_Kontonummer_1}     ne ''
-       && $form->{FA_Bankbezeichnung_1} ne '');
-    my $FA_2 =
-      (   $form->{FA_BLZ_2} ne ''
-       && $form->{FA_Kontonummer_2}            ne ''
-       && $form->{FA_Bankbezeichnung_oertlich} ne '');
-
-    if ($FA_1 && $FA_2) {
-      print qq|
-          <br>
-          | . $locale->text('Bank Connection') . qq|
-          <table>
-          <tr>
-          <td>
-          $form->{FA_Bankbezeichnung_1}
-          <br>                  
-          | . $locale->text('Account') . qq|:&nbsp;
-          $form->{FA_Kontonummer_1}
-          <br>
-          | . $locale->text('Bank Code') . qq|:&nbsp;
-          $form->{FA_BLZ_1}
-          </td>
-          <td>
-          $form->{FA_Bankbezeichnung_oertlich}
-          <br>
-          | . $locale->text('Account') . qq|:&nbsp;
-          $form->{FA_Kontonummer_2}
-          <br> 
-          | . $locale->text('Bank Code') . qq|:&nbsp;
-          $form->{FA_BLZ_2}
-          </td>
-          </tr>
-          </table>
-          <br>|;
-    } elsif ($FA_1) {
-      print qq|
-          <br>
-          | . $locale->text('Bank Connection') . qq|
-          <br>
-          <br>
-          $form->{FA_Bankbezeichnung_1}
-          <br>                  
-          | . $locale->text('Account') . qq|:&nbsp;
-          $form->{FA_Kontonummer_1}
-          <br> 
-          | . $locale->text('Bank Code') . qq|:&nbsp;
-          $form->{FA_BLZ_1}          <br>
-          <br>|;
-    } elsif ($FA_2) {
-      print qq|
-          <br>
-          | . $locale->text('Bank Connection') . qq|
-          <br>
-          <br>
-          $form->{FA_Bankbezeichnung_oertlich}
-          <br>                  
-          | . $locale->text('Account') . qq|:&nbsp;
-          $form->{FA_Kontonummer_2}
-          <br> 
-          | . $locale->text('Bank Code') . qq|:&nbsp;
-          $form->{FA_BLZ_2}
-     |;
+  my $tax_office_banks_ref = [
+    { BLZ             => $form->{FA_BLZ_1},
+      Kontonummer     => $form->{FA_Kontonummer_1},
+      Bankbezeichnung => $form->{FA_Bankbezeichnung_1}
+    },
+    { BLZ             => $form->{FA_BLZ_2},
+      Kontonummer     => $form->{FA_Kontonummer_2},
+      Bankbezeichnung => $form->{FA_Bankbezeichnung_oertlich}
     }
-    print qq|
+  ];
+ 
+  
+  my $template_ref = {
+    openings         => $openings,  
+    company_given    => $company_given,
+    address_given    => $address_given,     
+    taxnumber_given  => $taxnumber_given,
+    select_year      => $select_year,      
+    period_local     => $period_local,
+    method_local     => $method_local,
+    ustva_vorauswahl => $ustva_vorauswahl,
+    checkbox_kz_10   => $checkbox_kz_10,
+    tax_office_banks => $tax_office_banks_ref,    
+    select_options   => &show_options,    
+  };
+  
+  print($form->parse_html_template('ustva/report', $template_ref));
 
-      </fieldset>
-      <br>
-      <fieldset>
-      <legend>
-      <b>| . $locale->text('Outputformat') . qq|</b>
-      </legend>
-  |;
 
-    &show_options;
-    my $ausgabe = '1';
-    print qq|
-	  </fieldset>
-      |;
 
-  } else {
-    print qq|
-     <td width="50%" valign="bottom">
-     <fieldset>
-     <legend>
-     <b>| . $locale->text('Hints') . qq|</b>
-     </legend>
-      <h2 class="confirm">|
-      . $locale->text('Missing Preferences: Outputroutine disabled')
-      . qq|</h2>
-      <h3>| . $locale->text('Help') . qq|</h3>
-      <ul>
-      <li>| . $locale->text('Hint-Missing-Preferences') . qq|</li>
-      </ul>
-      </fieldset>
-     |;
-    my $ausgabe = '';
-    $hide = q|disabled="disabled"|;
-  }
-
-  print qq|
-      </td>
-    </tr>
-  |;
-
-  #}# end if report = ustva
-
-  print qq|
-      </table>
-     </td>
-    </tr>
-    <tr>
-     <td><hr size="3" noshade></td>
-    </tr>
-  </table>
-
-  <br>
-  <input type="hidden" name="address" value="$form->{address}">
-  <input type="hidden" name="reporttype" value="custom">
-  <input type="hidden" name="co_street" value="$form->{co_street}">
-  <input type="hidden" name="co_city" value="$form->{co_city}">
-  <input type="hidden" name="path" value="$form->{path}">
-  <input type="hidden" name="login" value="$form->{login}">
-  <input type="hidden" name="password" value="$form->{password}">
-  <table width="100%">
-  <tr>
-   <td align="left">
-     <input type=hidden name=nextsub value=generate_ustva>
-     <input $hide type=submit class=submit name=action value="|
-    . $locale->text('Show') . qq|">
-   </td>
-   <td align="right">
-
-    </form>
-    <!--
-    <form action="doc/ustva.html" method="get">
-    
-       <input type=submit class=submit name=action value="|
-    . $locale->text('Help') . qq|">
-   </form>-->
-   </td>
-  </tr>
-  </table>
-  |;
-
-  print qq|
-
-  </body>
-  </html>
-  |;
   $lxdebug->leave_sub();
 }
 
-#############################
+
 
 sub help {
   $lxdebug->enter_sub();
@@ -513,6 +248,8 @@ sub show {
 sub ustva_vorauswahl {
   $lxdebug->enter_sub();
 
+  my $select_vorauswahl;
+
   #Aktuelles Datum zerlegen:
   my $date = $form->datetonum($form->current_date(\%myconfig), \%myconfig);
 
@@ -533,12 +270,12 @@ sub ustva_vorauswahl {
   #$form->{day}= '11';
   #$form->{month}= '01';
   #$form->{year}= 2004;
-  print qq|
+  $select_vorauswahl = qq|
      <input type=hidden name=day value=$form->{day}>
      <input type=hidden name=month value=$form->{month}>
      <input type=hidden name=yymmdd value=$yymmdd>
      <input type=hidden name=sel value=$sel>
- |;
+  |;
 
   if ($form->{FA_voranmeld} eq 'month') {
 
@@ -623,18 +360,18 @@ sub ustva_vorauswahl {
       };
 
     }
-    print qq|<select id="zeitraum" name="period" title="|
+    $select_vorauswahl .= qq|<select id="zeitraum" name="period" title="|
   . $locale->text('Select a period') . qq|" >|;
 
     my $key = '';
     foreach $key (sort keys %liste) {
       my $selected = '';
       $selected = 'selected' if ($sel eq $key);
-      print qq|
+      $select_vorauswahl .= qq|
          <option value="$key" $selected> $liste{$key}</option>
-   |;
+      |;
     }
-    print qq|</select>|;
+    $select_vorauswahl .= qq|</select>|;
 
   } elsif ($form->{FA_voranmeld} eq 'quarter') {
 
@@ -674,23 +411,23 @@ sub ustva_vorauswahl {
       };
     }
 
-    print qq|<select id="zeitraum" name="period" title="|
+    $select_vorauswahl .= qq|<select id="zeitraum" name="period" title="|
       . $locale->text('Select a period') . qq|" >|;
     my $key = '';
     foreach $key (sort keys %liste) {
       my $selected = '';
       $selected = 'selected' if ($sel eq $key);
-      print qq|
+      $select_vorauswahl .= qq|
          <option value="$key" $selected>$liste{$key}</option>
      |;
     }
-    print qq|\n</select>
+    $select_vorauswahl .= qq|\n</select>
    |;
 
   } else {
 
     # keine Vorauswahl bei Voranmeldungszeitraum
-    print qq|<select id="zeitraum" name="period" title="|
+    $select_vorauswahl .= qq|<select id="zeitraum" name="period" title="|
       . $locale->text('Select a period') . qq|" >|;
 
     my %listea = ('41' => '1. Quarter',
@@ -713,28 +450,30 @@ sub ustva_vorauswahl {
                   '13' => 'Yearly',);
     my $key = '';
     foreach $key (sort keys %listea) {
-      print qq|
+      $select_vorauswahl .= qq|
          <option value="$key">|
         . $locale->text("$listea{$key}")
         . qq|</option>\n|;
     }
 
     foreach $key (sort keys %listeb) {
-      print qq|
+      $select_vorauswahl .= qq|
          <option value="$key">|
         . $locale->text("$listeb{$key}")
         . qq|</option>\n|;
     }
-    print qq|</select>|;
+    $select_vorauswahl .= qq|</select>|;
   }
   $lxdebug->leave_sub();
+  
+  return $select_vorauswahl;
 }
 
-sub config {
-  $lxdebug->enter_sub();
-  edit();
-  $lxdebug->leave_sub();
-}
+#sub config {
+#  $lxdebug->enter_sub();
+#  config_step1();
+#  $lxdebug->leave_sub();
+#}
 
 sub debug {
   $lxdebug->enter_sub();
@@ -775,13 +514,15 @@ sub show_options {
   }
 
   #$format .= qq|<option value=elster>|.$locale->text('ELSTER Export nach Winston').qq|</option>|;
-  print qq|
+  my $show_options = qq|
     $type
     $media
     <select name=format title = "|
     . $locale->text('Choose Outputformat') . qq|">$format</select>
   |;
   $lxdebug->leave_sub();
+  
+  return $show_options;
 }
 
 sub generate_ustva {
@@ -1130,8 +871,7 @@ sub generate_ustva {
         $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
       }
       
-      $form->{taxbird_steuernummer} = $form->{steuernummer};
-      $form->{taxbird_steuernummer} =~ s/\D//g;
+
       
       $form->{co_zip} = $form->{co_city};
       $form->{co_zip} =~ s/\D//g;
@@ -1139,6 +879,12 @@ sub generate_ustva {
       $form->{co_city} =~ s/^\s//g;
       
       ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
+      $form->{co_phone_prefix} =~ s/\s//g;
+      $form->{co_phone} =~ s/\s//g;
+      
+       $form->{taxbird_steuernummer} = $form->{steuernummer};
+#      $form->{taxbird_steuernummer} =~ s/\D//g;
+      $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
       
       # Numberformatting for Taxbird
 
@@ -1196,7 +942,7 @@ sub generate_ustva {
   $lxdebug->leave_sub();
 }
 
-sub edit {
+sub config_step1 {
   $lxdebug->enter_sub();
 
   # edit all taxauthority prefs
@@ -1204,194 +950,89 @@ sub edit {
   $form->header;
   &get_config($userspath, 'finanzamt.ini');
 
-  #&create_steuernummer;
-
   my $land = $form->{elsterland};
   my $amt  = $form->{elsterFFFF};
 
-  my $callback = '';
-  $callback =
-    "$form->{cbscript}?action=edit&login=$form->{cblogin}&path=$form->{cbpath}&root=$form->{cbroot}&rpw=$form->{cbrpw}"
-    if ($form->{cbscript} ne '' and $form->{cblogin} ne '');
+
+  if ($form->{cbscript} ne '' and $form->{cblogin} ne '') {
+    $callback =  qq|$form->{cbscript}|
+                .qq|?action="config_step1"|
+                .qq|&login="$form->{cblogin}"|
+                .qq|&path="$form->{cbpath}"|
+                .qq|&root="$form->{cbroot}"|
+                .qq|&rpw="$form->{cbrpw}"|;
+  }
 
   $form->{title} = $locale->text('Tax Office Preferences');
-  print qq|
-    <body>
-    <form name="verzeichnis" method=post action="$form->{script}">
-     <table width=100%>
-	<tr>
-	  <th class="listtop">|
-    . $locale->text('Tax Office Preferences') . qq|</th>
-	</tr>
-        <tr>
-         <td>
-           <br>
-           <fieldset>
-           <legend><b>|
-    . $locale->text('Local Tax Office Preferences') . qq|</b></legend>
-  |;
 
-  #print qq|$form->{terminal}|;
 
-  USTVA::fa_auswahl($land, $amt, &elster_hash());
-  print qq|
-           </fieldset>
-           <br>
-  |;
-  my $checked = '';
-  $checked = "checked" if ($form->{method} eq 'accrual');
-  print qq|
-           <fieldset>
-           <legend><b>| . $locale->text('Taxation') . qq|</b>
-           </legend>
-           <input name=method id=accrual class=radio type=radio value="accrual" $checked>
-           <label for="accrual">| . $locale->text('accrual') . qq|</label>
-           <br>
-  |;
-  $checked = '';
-  $checked = "checked" if ($form->{method} eq 'cash');
-  print qq|
-           <input name=method id=cash class=radio type=radio value="cash" $checked>
-           <label for="cash">| . $locale->text('cash') . qq|</label>
-           </fieldset>
-           <br>
-           <fieldset>
-           <legend><b>| . $locale->text('Tax Period') . qq|</b>
-           </legend>
-  |;
-  $checked = '';
-  $checked = "checked" if ($form->{FA_voranmeld} eq 'month');
-  print qq|
-           <input name=FA_voranmeld id=month class=radio type=radio value="month" $checked>
-           <label for="month">| . $locale->text('month') . qq|</label>
-           <br>
-  |;
-  $checked = '';
-  $checked = "checked" if ($form->{FA_voranmeld} eq 'quarter');
-  print qq|
-           <input name="FA_voranmeld" id=quarter class=radio type=radio value="quarter" $checked>
-           <label for="quarter">| . $locale->text('quarter') . qq|</label>
-           <br>
-  |;
-  $checked = '';
-  $checked = "checked" if ($form->{FA_dauerfrist} eq '1');
-  print qq|
-           <input name="FA_dauerfrist" id=FA_dauerfrist class=checkbox type=checkbox value="1" $checked>
-           <label for="">|
-    . $locale->text('Extension Of Time') . qq|</label>
-           
-           </fieldset>
-           <br>
-           <fieldset>
-           <legend><b>| . $locale->text('Tax Consultant') . qq|</b>
-           </legend>
-  |;
-  $checked = '';
-  $checked = "checked" if ($form->{FA_71} eq 'X');
-  print qq|
-          <!-- <input name="FA_71" id=FA_71 class=checkbox type=checkbox value="X" $checked>
-           <label for="FA_71">|
-    . $locale->text('Clearing Tax Received (No 71)')
-    . qq|</label>
-           <br>
-           <br>-->
-           <table>
-           <tr>
-           <td>
-           | . $locale->text('Name') . qq|
-           </td>
-           <td>
-           | . $locale->text('Street') . qq|
-           </td>
-           <td>
-           | . $locale->text('Zip, City') . qq|
-           </td>
-           <td>
-           | . $locale->text('Telephone') . qq|
-           </td>
-           </tr>
-           <tr>
-           <td>
-           <input name="FA_steuerberater_name" id=steuerberater size=25 value="$form->{FA_steuerberater_name}">
-           </td>
-           <td>
-           <input name="FA_steuerberater_street" id=steuerberater size=25 value="$form->{FA_steuerberater_street}">
-           </td>
-           <td>
-           <input name="FA_steuerberater_city" id=steuerberater size=25 value="$form->{FA_steuerberater_city}">
-           </td>
-           <td>
-           <input name="FA_steuerberater_tel" id=steuerberater size=25 value="$form->{FA_steuerberater_tel}">
-           </tr>
-           </table>
-           
-           </fieldset>
+  my $select_tax_office = USTVA->fa_auswahl($land, $amt, &elster_hash());
+  my $checked_accrual = q|checked="checked"| if ($form->{method} eq 'accrual');
+  my $checked_cash = q|checked="checked"| if ($form->{method} eq 'cash');
+  my $checked_monthly = "checked" if ($form->{FA_voranmeld} eq 'month');
+  my $checked_quarterly = "checked" if ($form->{FA_voranmeld} eq 'quarter');
+  my $checked_dauerfristverlaengerung = "checked" if ($form->{FA_dauerfrist} eq '1');
+  my $checked_kz_71 = "checked" if ($form->{FA_71} eq 'X');
 
-           <br>
-           <br>
-           <hr>
-           <!--<input type=submit class=submit name=action value="|
-    . $locale->text('debug') . qq|">-->
-           |;
-  print qq|
-           <input type="button" name="Verweis" value="|
-    . $locale->text('User Config') . qq|" 
-            onClick="self.location.href='$callback'">| if ($callback ne '');
-  print qq|
-           &nbsp; &nbsp;
-           <input type=submit class=submit name=action value="|
-    . $locale->text('continue') . qq|">
+  my $_hidden_variables_ref;
 
-         </td>
-       </tr>
-     </table>
-  |;
+  my %_hidden_local_variables = (    
+    'saved'       => $locale->text('Check Details'),
+    'nextsub'     => 'config_step2',
+    'warnung'     => '0',
+  );
 
-  my @variables = qw( steuernummer elsterland elstersteuernummer elsterFFFF);
-  my $variable  = '';
-  foreach $variable (@variables) {
-    print qq|	
-          <input name=$variable type=hidden value="$form->{$variable}">|;
+  foreach my $variable (keys %_hidden_local_variables) {
+    push @{ $_hidden_variables_ref }, 
+        { 'variable' => $variable, 'value' => $_hidden_local_variables{$variable} };
   }
+
+  my @_hidden_form_variables = qw(
+    FA_Name             FA_Strasse        FA_PLZ             
+    FA_Ort              FA_Telefon        FA_Fax           
+    FA_PLZ_Grosskunden  FA_PLZ_Postfach   FA_Postfach 
+    FA_BLZ_1            FA_Kontonummer_1  FA_Bankbezeichnung_1  
+    FA_BLZ_2            FA_Kontonummer_2  FA_Bankbezeichnung_oertlich
+    FA_Oeffnungszeiten  FA_Email          FA_Internet
+    steuernummer        elsterland        elstersteuernummer
+    elsterFFFF          path              login
+    password
+  );
+
+  foreach my $variable (@_hidden_form_variables) {
+    push @{ $_hidden_variables_ref}, 
+        { 'variable' => $variable, 'value' => $form->{$variable} };
+  }
+
+  # hä? kann die weg?
   my $steuernummer_new = '';
 
-  #<input type=hidden name="steuernummer_new" value="$form->{$steuernummer_new}">
-  print qq|
-          <input type=hidden name="callback" value="$callback">
-          <input type=hidden name="nextsub" value="edit_form">
-          <input type=hidden name="warnung" value="1">
-          <input type=hidden name="saved" value="|
-    . $locale->text('Check Details') . qq|">
-          <input type=hidden name="path" value=$form->{path}>
-          <input type=hidden name="login" value=$form->{login}>
-          <input type=hidden name="password" value=$form->{password}>
-          <input type=hidden name="warnung" value="0">
-  |;
+  # Variablen für das Template zur Verfügung stellen
+  my $template_ref = {
+     select_tax_office               => $select_tax_office,
+     checked_accrual                 => $checked_accrual,
+     checked_cash                    => $checked_cash,
+     checked_monthly                 => $checked_monthly,
+     checked_quarterly               => $checked_quarterly,
+     checked_dauerfristverlaengerung => $checked_dauerfristverlaengerung,
+     hidden_variables                => $_hidden_variables_ref,
+     
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('ustva/config_step1', $template_ref));
 
-  @variables = qw(FA_Name FA_Strasse FA_PLZ
-    FA_Ort FA_Telefon FA_Fax FA_PLZ_Grosskunden FA_PLZ_Postfach FA_Postfach
-    FA_BLZ_1 FA_Kontonummer_1 FA_Bankbezeichnung_1 FA_BLZ_2
-    FA_Kontonummer_2 FA_Bankbezeichnung_oertlich FA_Oeffnungszeiten
-    FA_Email FA_Internet);
-
-  foreach $variable (@variables) {
-    print qq|	
-          <input name=$variable type=hidden value="$form->{$variable}">|;
-  }
-
-  print qq|
-   </form>
-   </body>
-|;
   $lxdebug->leave_sub();
 }
 
-sub edit_form {
+sub config_step2 {
   $lxdebug->enter_sub();
   $form->header();
-  print qq|
-    <body>
-  |;
+
+#  print qq|
+#    <body>
+#  |;
+
   my $elsterland         = '';
   my $elster_amt         = '';
   my $elsterFFFF         = '';
@@ -1417,7 +1058,6 @@ sub edit_form {
   $change = '0' if ($form->{saved} eq $locale->text('saved'));
   my $elster_init = &elster_hash();
 
-  #my %elster_init = ();
   my %elster_init = %$elster_init;
 
   if ($change eq '1') {
@@ -1428,7 +1068,8 @@ sub edit_form {
     $form->{elsterland}   = $elsterland;
     $form->{elsterFFFF}   = $elsterFFFF;
     $form->{steuernummer} = '';
-    &create_steuernummer;
+    
+    create_steuernummer();
 
     # rebuild elster_amt
     my $amt = '';
@@ -1461,109 +1102,69 @@ sub edit_form {
   my $patterncount   = $form->{patterncount};
   my $elster_pattern = $form->{elster_pattern};
   my $delimiter      = $form->{delimiter};
-  my $steuernummer   = '';
-  $steuernummer = $form->{steuernummer} if ($steuernummer eq '');
+  my $steuernummer = $form->{steuernummer} if ($steuernummer eq '');
 
-  #Warnung
-  my $warnung = $form->{warnung};
+  $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
+  
+  
 
-  #printout form
-  print qq|
-   <form name="elsterform" method=post action="$form->{script}">
-   <table width="100%">
-       <tr>
-        <th colspan="2" class="listtop">|
-    . $locale->text('Tax Office Preferences') . qq|</th>
-       </tr>
-       <tr>
-         <td colspan=2>
-         <br>
-  |;
-  &show_fa_daten;
-  print qq|
-         </td>
-       </tr>
-       <tr>
-         <td colspan="2">
-           <br>
-           <fieldset>
-           <legend>
-           <font size="+1">| . $locale->text('Tax Number') . qq|</font>
-           </legend>
-           <br>
-  |;
-  $steuernummer =
-    USTVA::steuernummer_input($form->{elsterland}, $form->{elsterFFFF},
-                              $form->{steuernummer});
-  print qq|
-           </H2><br>
-           </fieldset>
-           <br>
-           <br>
-           <hr>
-         </td>
-      </tr>
-      <tr>
-         <td align="left">
-
-          <input type=hidden name=lastsub value="edit">
-          |;
-  print qq|<input type=submit class=submit name=action value="|
-    . $locale->text('back') . qq|">|
-    if ($form->{callback} eq '');
-
-  print qq|
-           <input type="button" name="Verweis" value="|
-    . $locale->text('User Config') . qq|" 
-            onClick="self.location.href='$form->{callback}'">|
-    if ($form->{callback} ne '');
-
-  if ($form->{warnung} eq "1") {
-    print qq|
-          <input type=hidden name=nextsub value="edit_form">
-          <input type=submit class=submit name=action value="|
-      . $locale->text('continue') . qq|">
-          <input type=hidden name="saved" value="|
-      . $locale->text('Check Details') . qq|">
-    |;
-  } else {
-    print qq|
-          <input type=hidden name="nextsub" value="save">
-          <input type=hidden name="filename" value="finanzamt.ini">
-          <input type=submit class=submit name=action value="|
-      . $locale->text('save') . qq|">
-         |;
-  }
-
-  print qq|
-         </td>
-         <td align="right">
-           <H2 class=confirm>$form->{saved}</H2>
-         </td>
-      </tr>
-  </table>
-  |;
-
-  my @variables = qw(FA_steuerberater_name FA_steuerberater_street
-    FA_steuerberater_city FA_steuerberater_tel
-    FA_voranmeld method
-    FA_dauerfrist FA_71 elster
-    path login password type elster_init saved
+  my $input_steuernummer = USTVA->steuernummer_input(
+                             $form->{elsterland}, 
+                             $form->{elsterFFFF},
+                             $form->{steuernummer}
   );
-  my $variable = '';
-  foreach $variable (@variables) {
-    print qq|
-        <input name="$variable" type="hidden" value="$form->{$variable}">|;
+
+  $lxdebug->message(LXDebug::DEBUG1, qq|$input_steuernummer|);
+ 
+
+  my $_hidden_variables_ref;
+
+  my %_hidden_local_variables = (
+      'elsterland'          => $elsterland,
+      'elsterFFFF'          => $elsterFFFF,
+      'warnung'             => $warnung,
+      'elstersteuernummer'  => $elstersteuernummer,
+      'steuernummer'        => $stnr,
+      'lastsub'             => 'config_step1',
+      'nextsub'             => 'save',
+      
+  );
+  
+  foreach my $variable (keys %_hidden_local_variables) {
+    push @{ $_hidden_variables_ref }, 
+        { 'variable' => $variable, 'value' => $_hidden_local_variables{$variable} };
   }
-  print qq|
-          <input type=hidden name="elsterland" value="$elsterland">
-          <input type=hidden name="elsterFFFF" value="$elsterFFFF">
-          <input type=hidden name="warnung" value="$warnung">
-          <input type=hidden name="elstersteuernummer" value="$elstersteuernummer">
-          <input type=hidden name="steuernummer" value="$stnr">
-          <input type=hidden name="callback" value="$form->{callback}">
-  </form>
-  |;
+ 
+  my @_hidden_form_variables = qw(
+    FA_steuerberater_name   FA_steuerberater_street 
+    FA_steuerberater_city   FA_steuerberater_tel
+    FA_voranmeld            method
+    FA_dauerfrist           FA_71 
+    elster                  path 
+    login                   password 
+    type                    elster_init 
+    saved                   callback
+  );
+
+
+
+  foreach my $variable (@_hidden_form_variables) {
+    push @{ $_hidden_variables_ref}, 
+        { 'variable' => $variable, 'value' => $form->{$variable} };
+  }
+
+  my $template_ref = {
+     tax_office_data                 => $tax_office_data,
+     input_steuernummer              => $input_steuernummer,
+     readonly                        => '', #q|disabled="disabled"|,
+     callback                        => $callback,
+     hidden_variables                => $_hidden_variables_ref,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('ustva/config_step2', $template_ref));
+
+
   $lxdebug->leave_sub();
 }
 
@@ -1628,18 +1229,11 @@ sub get_config {
     s/^\s*(.*?)\s*$/$1/;
     ($key, $value) = split /=/, $_, 2;
 
-    #if ($value eq ' '){
-    #   $form->{$key} = " " ;
-    #} elsif ($value ne ' '){
     $form->{$key} = "$value";
 
-    #}
   }
   close FACONF;
 
-  # Textboxen formatieren: Linebreaks entfernen
-  #
-  #$form->{FA_Oeffnungszeiten} =~ s/\\\\n/<br>/g;
   $lxdebug->leave_sub();
 }
 
@@ -1648,7 +1242,7 @@ sub save {
   my $filename = "$form->{login}_$form->{filename}";
 
   #zuerst die steuernummer aus den part, parts_X_Y und delimiter herstellen
-  create_steuernummer;
+  create_steuernummer();
 
   # Textboxen formatieren: Linebreaks entfernen
   #
@@ -1678,10 +1272,9 @@ sub save {
     my $key = '';
     foreach $key (sort @config) {
       $form->{$key} =~ s/\\/\\\\/g;
-      $form->{$key} =~ s/"/\\"/g;
-
       # strip M
       $form->{$key} =~ s/\r\n/\n/g;
+
       print CONF qq|$key=|;
       if ($form->{$key} ne 'Y') {
         print CONF qq|$form->{$key}\n|;
@@ -1699,196 +1292,7 @@ sub save {
     $form->{saved} = $locale->text('Choose a Tax Number');
   }
 
-  &edit_form;
-  $lxdebug->leave_sub();
-}
-
-sub show_fa_daten {
-  $lxdebug->enter_sub();
-  my $readonly        = $_;
-  my $oeffnungszeiten = $form->{FA_Oeffnungszeiten};
-  $oeffnungszeiten =~ s/\\\\n/\n/g;
-  print qq|    <br>
-               <fieldset>
-               <legend>
-               <font size="+1">|
-    . $locale->text('Tax Office') . qq| $form->{FA_Name}</font>
-               </legend>
-  |;
-
-  #print qq|\n<h4>$form->{FA_Ergaenzung_Name}&nbsp;</h4>
-  #        | if ( $form->{FA_Ergaenzung_Name} );
-  print qq|
-               <table width="100%" valign="top">
-               <tr>
-                <td valign="top">
-                  <br>
-                  <fieldset>
-                    <legend>
-                    <b>| . $locale->text('Address') . qq|</b>
-                    </legend>
-
-                  <table width="100%">
-                   <tr>
-                    <td>
-                    | . $locale->text('Tax Office') . qq|
-                    </td>
-                   </tr>
-                   <tr>
-                    <td colspan="2">
-                     <input name="FA_Name" size="40" title="FA_Name" value="$form->{FA_Name}" $readonly>
-                    <td>
-                   </tr>
-                   <tr>
-                    <td colspan="2">
-                     <input name="FA_Strasse" size="40" title="FA_Strasse" value="$form->{FA_Strasse}" $readonly>
-                    </td width="100%">
-                   </tr>
-                   <tr>
-                    <td width="116px">
-                     <input name="FA_PLZ" size="10" title="FA_PLZ" value="$form->{FA_PLZ}" $readonly>
-                    </td>
-                    <td>
-                     <input name="FA_Ort" size="20" title="FA_Ort" value="$form->{FA_Ort}" $readonly>
-                    </td>
-                  </tr>
-                  </table>
-                  </fieldset>
-                  <br>
-                  <fieldset>
-                  <legend>
-                  <b>| . $locale->text('Contact') . qq|</b>
-                  </legend>
-                      | . $locale->text('Telephone') . qq|<br>
-                      <input name="FA_Telefon" size="40" title="FA_Telefon" value="$form->{FA_Telefon}" $readonly>
-                      <br>
-                      <br> 
-                      | . $locale->text('Fax') . qq|<br>
-                      <input name="FA_Fax" size="40" title="FA_Fax" value="$form->{FA_Fax}" $readonly>
-                      <br>
-                      <br>
-                      | . $locale->text('Internet') . qq|<br>
-                      <input name="FA_Email" size="40" title="FA_Email" value="$form->{FA_Email}" $readonly>
-                      <br>
-                      <br>
-                      <input name="FA_Internet" size="40" title="" title="FA_Internet" value="$form->{FA_Internet}" $readonly>
-                      <br>
-                  </fieldset>
-                </td>
-                <td valign="top">
-                  <br>
-                  <fieldset>
-                  <legend>
-                  <b>| . $locale->text('Openings') . qq|</b>
-                  </legend>
-                  <textarea name="FA_Oeffnungszeiten" rows="4" cols="40" $readonly>$oeffnungszeiten</textarea>
-                  </fieldset>
-                  <br>
-  |;
-  my $FA_1 =
-    (   $form->{FA_BLZ_1} ne ''
-     && $form->{FA_Kontonummer_1}     ne ''
-     && $form->{FA_Bankbezeichnung_1} ne '');
-  my $FA_2 =
-    (   $form->{FA_BLZ_2} ne ''
-     && $form->{FA_Kontonummer_2}            ne ''
-     && $form->{FA_Bankbezeichnung_oertlich} ne '');
-
-  if ($FA_1 && $FA_2) {
-    print qq|
-                    <fieldset>
-                    <legend>
-                    <b>|
-      . $locale->text('Bank Connection Tax Office') . qq|</b>
-                    <legend>
-                    <table>   
-                    <tr>
-                     <td>
-                        | . $locale->text('Bank') . qq|
-                        <br>
-                        <input name="FA_Bankbezeichnung_1" size="30" value="$form->{FA_Bankbezeichnung_1}" $readonly>
-                        <br>
-                        <br>
-                        | . $locale->text('Account Nummer') . qq|
-                        <br>
-                        <input name="FA_Kontonummer_1" size="15" value="$form->{FA_Kontonummer_1}" $readonly>
-                        <br>
-                        <br> 
-                        | . $locale->text('Bank Code (long)') . qq|
-                        <br>
-                        <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
-                     </td>
-                     <td>
-                        | . $locale->text('Bank') . qq|
-                        <br>
-                        <input name="FA_Bankbezeichnung_oertlich" size="30" value="$form->{FA_Bankbezeichnung_oertlich}" $readonly>
-                        <br>
-                        <br>
-                        | . $locale->text('Account Nummer') . qq|
-                        <br>
-                        <input name="FA_Kontonummer_2" size="15" value="$form->{FA_Kontonummer_2}" $readonly>
-                        <br>
-                        <br> 
-                        | . $locale->text('Bank Code (long)') . qq|
-                        <br>
-                        <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
-                     </td>
-                    </tr>
-                    </table>
-                    </fieldset>
-    |;
-  } elsif ($FA_1) {
-    print qq|
-                    <fieldset>
-                    <legend>
-                      <b>|
-      . $locale->text('Bank Connection Tax Office') . qq|</b>
-                    <legend>
-                    | . $locale->text('Account Nummer') . qq|
-                    <br>
-                    <input name="FA_Kontonummer_1" size="30" value="$form->{FA_Kontonummer_1}" $readonly>
-                    <br>
-                    <br> 
-                    | . $locale->text('Bank Code (long)') . qq|
-                    <br>
-                    <input name="FA_BLZ_1" size="15" value="$form->{FA_BLZ_1}" $readonly>
-                    <br>
-                    <br>
-                    | . $locale->text('Bank') . qq|
-                    <br>
-                    <input name="FA_Bankbezeichnung_1" size="15" value="$form->{FA_Bankbezeichnung_1}" $readonly>
-                    <br>
-                    </fieldset>
-    |;
-  } else {
-    print qq|
-                    <fieldset>
-                    <legend>
-                      <b>|
-      . $locale->text('Bank Connection Tax Office') . qq|</b>
-                    <legend> 
-                    | . $locale->text('Account Nummer') . qq|
-                    <br>
-                    <input name="FA_Kontonummer_2" size="30" value="$form->{FA_Kontonummer_2}" $readonly>
-                    <br>
-                    <br> 
-                    | . $locale->text('Bank Code (long)') . qq|
-                    <br>
-                    <input name="FA_BLZ_2" size="15" value="$form->{FA_BLZ_2}" $readonly>
-                    <br>
-                    <br>
-                    | . $locale->text('Bank') . qq|
-                    <br>
-                    <input name="FA_Bankbezeichnung_oertlich" size="15" value="$form->{FA_Bankbezeichnung_oertlich}" $readonly>
-                    </fieldset>
-    |;
-  }
-  print qq|
-                 </td>
-               </tr>              
-          </table>
-  </fieldset>
-  |;
+  config_step2();
   $lxdebug->leave_sub();
 }
 
@@ -1911,7 +1315,7 @@ sub back {
 
 sub elster_hash {
   $lxdebug->enter_sub();
-  my $finanzamt = USTVA::query_finanzamt(\%myconfig, \%$form);
+  my $finanzamt = USTVA->query_finanzamt(\%myconfig, \%$form);
   $lxdebug->leave_sub();
   return $finanzamt;
 }

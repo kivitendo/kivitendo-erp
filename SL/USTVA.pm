@@ -63,38 +63,40 @@ sub create_steuernummer {
 sub steuernummer_input {
   $main::lxdebug->enter_sub();
 
-  ($elsterland, $elsterFFFF, $steuernummer) = @_;
+  my ($self, $elsterland, $elsterFFFF, $steuernummer) = @_;
 
+  my $steuernummer_input = '';
+  
   $elster_land  = $elsterland;
   $elster_FFFF  = $elsterFFFF;
   $steuernummer = '0000000000' if ($steuernummer eq '');
 
   # $steuernummer formatieren (nur Zahlen) -> $stnr
-  $stnr = $steuernummer;
+  my $stnr = $steuernummer;
   $stnr =~ s/\D+//g;
 
   #Pattern description Elstersteuernummer
   my %elster_STNRformat = (
-                        'Mecklenburg Vorpommern' => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Hessen'                 => '0FF BBB UUUUP',    # ' ' 3
-                        'Nordrhein Westfalen'    => 'FFF/BBBB/UUUP',    # '/' 3
-                        'Schleswig Holstein'     => 'FF BBB UUUUP',     # ' ' 2
-                        'Berlin'                 => 'FF/BBB/UUUUP',     # '/' 3
-                        'Thüringen'              => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Sachsen'                => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Hamburg'                => 'FF/BBB/UUUUP',     # '/' 3
-                        'Baden Würtemberg'       => 'FF/BBB/UUUUP',     # '/' 2
-                        'Sachsen Anhalt'         => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Saarland'               => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Bremen'                 => 'FF BBB UUUUP',     # ' ' 3
-                        'Bayern'                 => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Rheinland Pfalz'        => 'FF/BBB/UUUU/P',    # '/' 4
-                        'Niedersachsen'          => 'FF/BBB/UUUUP',     # '/' 3
-                        'Brandenburg'            => 'FFF/BBB/UUUUP',    # '/' 3
+      'Mecklenburg Vorpommern' => 'FFF/BBB/UUUUP',    # '/' 3
+      'Hessen'                 => '0FF BBB UUUUP',    # ' ' 3
+      'Nordrhein Westfalen'    => 'FFF/BBBB/UUUP',    # '/' 3
+      'Schleswig Holstein'     => 'FF BBB UUUUP',     # ' ' 2
+      'Berlin'                 => 'FF/BBB/UUUUP',     # '/' 3
+      'Thüringen'              => 'FFF/BBB/UUUUP',    # '/' 3
+      'Sachsen'                => 'FFF/BBB/UUUUP',    # '/' 3
+      'Hamburg'                => 'FF/BBB/UUUUP',     # '/' 3
+      'Baden Würtemberg'       => 'FF/BBB/UUUUP',     # '/' 2
+      'Sachsen Anhalt'         => 'FFF/BBB/UUUUP',    # '/' 3
+      'Saarland'               => 'FFF/BBB/UUUUP',    # '/' 3
+      'Bremen'                 => 'FF BBB UUUUP',     # ' ' 3
+      'Bayern'                 => 'FFF/BBB/UUUUP',    # '/' 3
+      'Rheinland Pfalz'        => 'FF/BBB/UUUU/P',    # '/' 4
+      'Niedersachsen'          => 'FF/BBB/UUUUP',     # '/' 3
+      'Brandenburg'            => 'FFF/BBB/UUUUP',    # '/' 3
   );
 
   #split the pattern
-  $elster_pattern = $elster_STNRformat{$elster_land};
+  my $elster_pattern = $elster_STNRformat{$elster_land};
   my @elster_pattern = split(' ', $elster_pattern);
   my $delimiter      = '&nbsp;';
   my $patterncount   = @elster_pattern;
@@ -108,76 +110,77 @@ sub steuernummer_input {
   # no we have an array of patternparts and a delimiter
   # create the first automated and fixed part and delimiter
 
-  print qq|<b><font size="+1">|;
-  $part = '';
+  $steuernummer_input .= qq|<b><font size="+1">|;
+  my $part = '';
 SWITCH: {
     $elster_pattern[0] eq 'FFF' && do {
       $part = substr($elster_FFFF, 1, 4);
-      print qq|$part|;
+      $steuernummer_input .= qq|$part|;
       last SWITCH;
     };
     $elster_pattern[0] eq '0FF' && do {
       $part = '0' . substr($elster_FFFF, 2, 4);
-      print qq|$part|;
+      $steuernummer_input .= qq|$part|;
       last SWITCH;
     };
     $elster_pattern[0] eq 'FF' && do {
       $part = substr($elster_FFFF, 2, 4);
-      print qq|$part|;
+      $steuernummer_input .= qq|$part|;
       last SWITCH;
     };
     1 == 1 && do {
-      print qq|Fehler!|;
+      $steuernummer_input .= qq|Fehler!|;
       last SWITCH;
     };
   }
 
   #now the rest of the Steuernummer ...
-  print qq|</b></font>|;
-  print qq|\n
+  $steuernummer_input .= qq|</b></font>|;
+  $steuernummer_input .= qq|\n
            <input type=hidden name="elster_pattern" value="$elster_pattern">
            <input type=hidden name="patterncount" value="$patterncount">
            <input type=hidden name="patternlength" value="$patterncount">
            <input type=hidden name="delimiter" value="$delimiter">
            <input type=hidden name="part" value="$part">
   |;
-  my $h = 0;
-  my $i = 0;
-  my $j = 0;
-  $k = 0;
 
-  for ($h = 1; $h < $patterncount; $h++) {
-    print qq|&nbsp;$delimiter&nbsp;\n|;
-    for ($i = 1; $i <= length($elster_pattern[$h]); $i++) {
-      print qq|<select name="part_$h\_$i">\n|;
+  my $k = 0;
 
-      for ($j = 0; $j <= 9; $j++) {
-        print qq|      <option value="$j"|;
+  for (my $h = 1; $h < $patterncount; $h++) {
+    $steuernummer_input .= qq|&nbsp;$delimiter&nbsp;\n|;
+    for (my $i = 1; $i <= length($elster_pattern[$h]); $i++) {
+      $steuernummer_input .= qq|<select name="part_$h\_$i">\n|;
+
+      for (my $j = 0; $j <= 9; $j++) {
+        $steuernummer_input .= qq|      <option value="$j"|;
         if ($steuernummer ne '') {
           if ($j eq substr($stnr, length($part) + $k, 1)) {
-            print qq| selected|;
+            $steuernummer_input .= qq| selected|;
           }
         }
-        print qq|>$j</option>\n|;
+        $steuernummer_input .= qq|>$j</option>\n|;
       }
       $k++;
-      print qq|</select>\n|;
+      $steuernummer_input .= qq|</select>\n|;
     }
   }
+  
   $main::lxdebug->leave_sub();
+  
+  return $steuernummer_input;
 }
 
 sub fa_auswahl {
   $main::lxdebug->enter_sub();
 
-  use SL::Form;
+#  use SL::Form;
 
   # Referenz wird übergeben, hash of hash wird nicht
   # in neues  Hash kopiert, sondern direkt über die Referenz verändert
   # Prototyp für diese Konstruktion
 
-  my ($land, $elsterFFFF, $elster_init) =
-    @_;    #Referenz auf Hash von Hash übergeben
+  my ($self, $land, $elsterFFFF, $elster_init) = @_;
+  
   my $terminal = '';
   my $FFFF     = $elsterFFFF;
   my $ffff     = '';
@@ -191,8 +194,7 @@ sub fa_auswahl {
   #}
 
   #if ( $terminal eq 'mozilla' or $terminal eq 'js' ) {
-  print qq|
-        <br>
+  my $fa_auswahl = qq|
         <script language="Javascript">
         function update_auswahl()
         {
@@ -203,7 +205,7 @@ sub fa_auswahl {
                 |;
 
   foreach $elster_land (sort keys %$elster_init) {
-    print qq|
+    $fa_auswahl .= qq|
                if (elsterBLAuswahl.options[elsterBLAuswahl.selectedIndex].
                value == "$elster_land")
                {
@@ -217,14 +219,14 @@ sub fa_auswahl {
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
                    keys(%elster_land_fa)
       ) {
-      print qq|
+      $fa_auswahl .= qq|
                    elsterFAAuswahl.options[$j] = new Option("$elster_land_fa{$ffff} ($ffff)","$ffff");|;
       $j++;
     }
-    print qq|
+    $fa_auswahl .= qq|
                }|;
   }
-  print qq|
+  $fa_auswahl .= qq|
         }
         </script>
 
@@ -236,18 +238,18 @@ sub fa_auswahl {
             <td>
               <select size="1" name="elsterland_new" onchange="update_auswahl()">|;
   if ($land eq '') {
-    print qq|<option value="Auswahl" $checked>hier auswählen...</option>\n|;
+    $fa_auswahl .= qq|<option value="Auswahl" $checked>hier auswählen...</option>\n|;
   }
   foreach $elster_land (sort keys %$elster_init) {
-    print qq|
+    $fa_auswahl .= qq|
                   <option value="$elster_land"|;
     if ($elster_land eq $land and $checked eq '') {
-      print qq| selected|;
+      $fa_auswahl .= qq| selected|;
     }
-    print qq|>$elster_land</option>
+    $fa_auswahl .= qq|>$elster_land</option>
              |;
   }
-  print qq|
+  $fa_auswahl .= qq|
             </td>
           </tr>
           |;
@@ -259,34 +261,35 @@ sub fa_auswahl {
     $elster_land_fa{$FFFF} = $elster_init->{$elster_land}->{$FFFF}->[0];
   }
 
-  print qq|
+  $fa_auswahl .= qq|
            <tr>
               <td>Finanzamt
               </td>
               <td>
                  <select size="1" name="elsterFFFF_new">|;
   if ($elsterFFFF eq '') {
-    print qq|<option value="Auswahl" $checked>hier auswählen...</option>|;
+    $fa_auswahl .= qq|<option value="Auswahl" $checked>hier auswählen...</option>|;
   } else {
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
                    keys(%elster_land_fa)
       ) {
 
-      print qq|
+      $fa_auswahl .= qq|
                         <option value="$ffff"|;
       if ($ffff eq $elsterFFFF and $checked eq '') {
-        print qq| selected|;
+        $fa_auswahl .= qq| selected|;
       }
-      print qq|>$elster_land_fa{$ffff} ($ffff)</option>|;
+      $fa_auswahl .= qq|>$elster_land_fa{$ffff} ($ffff)</option>|;
     }
   }
-  print qq|
+  $fa_auswahl .= qq|
                  </td>
               </tr>
             </table>
             </select>|;
 
   $main::lxdebug->leave_sub();
+  return $fa_auswahl;
 }
 
 sub info {
@@ -400,7 +403,8 @@ sub stichtag {
 sub query_finanzamt {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form) = @_;
+  my ($self, $myconfig, $form) = @_;
+
   my $dbh = $form->dbconnect($myconfig) or $self->error(DBI->errstr);
 
   #Test, if table finanzamt exist
@@ -568,12 +572,18 @@ sub ustva {
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
-  my @category_cent = qw(511 861 36 80 971 931 98 96 53 74
-    85 65 66 61 62 67 63 64 59 69 39 83
-    Z43 Z45 Z53 Z62 Z65 Z67);
+  my @category_cent = qw(
+     511 861 36  80  971 931 98  96 53 74
+     85  65  66  61  62  67  63  64 59 69 
+     39  83  Z43 Z45 Z53 Z62 Z65 Z67
+  );
 
-  my @category_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93
-    95 94 42 60 45 52 73 84);
+  my @category_euro = qw(
+     41 44 49 43 48 51 
+     86 35 77 76 91 97 
+     93 95 94 42 60 45 
+     52 73 84
+  );
 
   $form->{decimalplaces} *= 1;
 
@@ -791,5 +801,7 @@ sub get_accounts_ustva {
 
   $main::lxdebug->leave_sub();
 }
+
+
 
 1;
