@@ -354,7 +354,7 @@ sub form_header {
       qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
   }
 
-  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
 
   $form->header;
 

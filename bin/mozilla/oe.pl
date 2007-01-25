@@ -698,7 +698,7 @@ sub form_header {
     $onload = qq|alert('$credittext')|;
   }
 
-  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
 
   $form->header;
 
