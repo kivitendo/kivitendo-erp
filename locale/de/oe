@@ -205,6 +205,7 @@ $self->{texts} = {
   'Service'                     => 'Dienstleistung',
   'Ship'                        => 'Lagerausgang',
   'Ship Merchandise'            => 'Waren versenden',
+  'Ship rcvd'                   => 'Lagereingang',
   'Ship to'                     => 'Lieferadresse',
   'Ship via'                    => 'Transportmittel',
   'Shipping Address'            => 'Lieferadresse',

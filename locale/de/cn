@@ -168,6 +168,7 @@ $self->{texts} = {
   'Serial No.'                  => 'Seriennummer',
   'Service'                     => 'Dienstleistung',
   'Ship'                        => 'Lagerausgang',
+  'Ship rcvd'                   => 'Lagereingang',
   'Ship to'                     => 'Lieferadresse',
   'Ship via'                    => 'Transportmittel',
   'Shipping Address'            => 'Lieferadresse',

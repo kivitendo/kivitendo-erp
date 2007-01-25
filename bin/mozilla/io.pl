@@ -152,10 +152,17 @@ sub display_row {
       qq|<th align=left nowrap width=30 class=listheading>|
     . $locale->text('Part Description')
     . qq|</th>|;
-  $column_data{ship} =
+  if ($form->{"type"} eq "purchase_order") {
+    $column_data{ship} =
       qq|<th align=left nowrap width=5 class=listheading>|
-    . $locale->text('Ship')
-    . qq|</th>|;
+      . $locale->text('Ship rcvd')
+      . qq|</th>|;
+  } else {
+    $column_data{ship} =
+      qq|<th align=left nowrap width=5 class=listheading>|
+      . $locale->text('Ship')
+      . qq|</th>|;
+  }
   $column_data{qty} =
       qq|<th align=left nowrap width=5 class=listheading>|
     . $locale->text('Qty')

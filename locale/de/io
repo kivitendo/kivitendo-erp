@@ -117,6 +117,7 @@ $self->{texts} = {
   'Serial No.'                  => 'Seriennummer',
   'Service'                     => 'Dienstleistung',
   'Ship'                        => 'Lagerausgang',
+  'Ship rcvd'                   => 'Lagereingang',
   'Ship to'                     => 'Lieferadresse',
   'Shipping Address'            => 'Lieferadresse',
   'Show details'                => 'Details anzeigen',
