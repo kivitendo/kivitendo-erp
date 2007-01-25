@@ -354,6 +354,8 @@ sub form_header {
       qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
   }
 
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js">|;
+
   $form->header;
 
   print qq|
@@ -759,7 +761,7 @@ sub form_footer {
 |;
   } else {
     if ($invdate > $closedto) {
-      print qq|<input class=submit type=submit name=action value="|
+      print qq|<input class=submit type=submit name=action id=update_button value="|
         . $locale->text('Update') . qq|">
       <input class=submit type=submit name=action value="|
         . $locale->text('Post') . qq|">|;
