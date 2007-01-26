@@ -18,7 +18,7 @@ border-color:#ccc #888 #555 #bbb;
 font:11px/16px arial,helvetica,sans-serif;
 display:block;
 border-right-width:1px;
-border-left-width:1px;
+border-left-width:0px;
 border-top-width:0px;
 border-bottom-width:0px;
 border-style:solid;
@@ -36,6 +36,8 @@ background:#000 url(../image/bg_css_menu.png) repeat 100% 100%;
 #menu a{
 background:#eee;
 text-decoration:none;
+border-width:1px;
+padding:2px;
 }
 
 #menu a, #menu a:visited{
@@ -113,7 +115,7 @@ div#menu li li li li:hover ul
 #menu a.x, #menu a.x:visited{
 /*font-weight:bold;*/
 color:#000;
-background:#eee url(../image/right.png) no-repeat 100% right;
+background:#eee url(../image/right.png) no-repeat 100% 50%;
 }
 
 #menu a.x:hover{
