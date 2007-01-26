@@ -147,6 +147,17 @@ $self->{message}
 
     foreach my $attachment (@{ $self->{attachments} }) {
 
+      my $filename;
+
+      if (ref($attachment) eq "HASH") {
+        $filename = $attachment->{"name"};
+        $attachment = $attachment->{"filename"};
+      } else {
+        $filename = $attachment;
+        # strip path
+        $filename =~ s/(.*\/|$self->{fileid})//g;
+      }
+
       my $application =
         ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/)
         ? "text"
@@ -158,11 +169,6 @@ $self->{message}
         $main::lxdebug->leave_sub();
         return "$attachment : $!";
       }
-
-      my $filename = $attachment;
-
-      # strip path
-      $filename =~ s/(.*\/|$self->{fileid})//g;
 
       print OUT qq|--${boundary}
 Content-Type: $application/$self->{format}; name="$filename"; charset="$self->{charset}"
