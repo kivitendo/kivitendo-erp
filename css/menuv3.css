@@ -77,11 +77,14 @@ position:absolute;
 z-index:500;
 top:auto;
 display:none;
+/* IE6 event bug fix, a z-indexed layer without some kind of background will lose its events to the leyer below */
+background:#000;
 }
 
 #menu ul ul ul {
 top:0;
 left:100%;
+background:#000;
 }
 
 /* Begin non-anchor hover selectors */
@@ -115,64 +118,4 @@ div#menu li li li li:hover ul
 {display:block;}
 
 /* End of non-anchor hover selectors */
-/*
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
 
-li {
-  float:left;
-  position:relative;
-  border:solid;
-  border-width:0px 0;
-}
-
-li#first {
-  border-left-width: 1em;
-}
-
-li#last {
-  border-right-width: 1em;
-}
-
-li ul {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-
-  font-weight: normal;
-  background: url(images/ddbg3.gif) bottom left no-repeat;
-  padding: 0.5em 0 1em 0;
-  border-right: solid 1px #7d6340;
-}
-
-li>ul {
-  top: auto;
-  left: auto;
-}
-
-li li {
-  display: block;
-  float: none;
-  background-color: transparent;
-  border: 0;
-}
-
-li:hover ul, li.over ul {
-  display: block;
-}
-
-hr {
-  display: none;
-}
-
-p {
-  clear: left;
-  background: url(images/remora.gif) center left no-repeat;
-  padding: 1em 1em 0 1em;
-  margin: 0;
-}
-*/
