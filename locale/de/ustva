@@ -72,8 +72,8 @@ $self->{texts} = {
   'accrual'                     => 'Bilanzierung (Soll-Versteuerung)',
   'cash'                        => 'E/Ü-Rechnung (Ist-Versteuerung)',
   'for Period'                  => 'für den Zeitraum',
-  'month'                       => 'monatliche Abgabe',
-  'quarter'                     => 'vierteljährliche (quartalsweise) Abgabe',
+  'month'                       => 'Monatliche Abgabe',
+  'quarter'                     => 'Vierteljährliche (quartalsweise) Abgabe',
   'saved'                       => 'gespeichert',
   'to (date)'                   => 'bis',
 };
