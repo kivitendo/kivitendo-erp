@@ -5,7 +5,7 @@ behavior:url("css/csshover.htc");
 #menu {
 width:100%;
 float:left;
-background:url(../image/bg_css_menu.png) repeat 100% 100%;
+background:url(../image/bg_css_menu.png) repeat bottom;
 border-width:1px 0 1px 1px;
 border-style:solid;
 border-color:#ccc #888 #555 #bbb;
@@ -24,7 +24,7 @@ padding:1px 0 1px 3px;
 
 #menu h2 {
 color:#fff;
-background:#000 url(../image/bg_css_menu.png) repeat 100% 100%;
+background:#000 url(../image/bg_css_menu.png) repeat bottom;
 }
 
 #menu a {
@@ -109,7 +109,7 @@ div#menu li li li li:hover ul
 #menu a.x, #menu a.x:visited {
 /*font-weight:bold;*/
 color:#000;
-background:#eee url(../image/right.gif) no-repeat 100% 50%;
+background:#eee url(../image/right.gif) no-repeat right;
 border-width:1px;
 }
 
@@ -127,7 +127,7 @@ background-color:#ccc;
 /*font-weight:bold;*/
 border-width:1px;
 color:#000;
-background:#eee url(../image/right.gif) no-repeat 100% 50%;
+background:#eee url(../image/right.gif) no-repeat right;
 padding-right:10px;
 }
 
