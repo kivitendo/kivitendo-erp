@@ -2,7 +2,7 @@ body {
 behavior:url("css/csshover.htc");
 }
 
-#menu{
+#menu {
 width:100%;
 float:left;
 background:url(../image/bg_css_menu.png) repeat 100% 100%;
@@ -22,33 +22,33 @@ margin:0;
 padding:1px 0 1px 3px;
 }
 
-#menu h2{
+#menu h2 {
 color:#fff;
 background:#000 url(../image/bg_css_menu.png) repeat 100% 100%;
 }
 
-#menu a{
+#menu a {
 background:#eee;
 text-decoration:none;
 border-width:1px;
 padding-right:10px;
 }
 
-#menu a, #menu a:visited{
+#menu a, #menu a:visited {
 color:#000;
 }
 
-#menu a:hover{
+#menu a:hover {
 color:#a00;
 background:#ddd;
 }
 
-#menu a:active{
+#menu a:active {
 color:#060;
 background:#ccc;
 }
 
-#menu ul{
+#menu ul {
 list-style:none;
 margin:0;
 padding:0;
@@ -56,18 +56,18 @@ float:left;
 min-width:7em;
 }
 
-#menu li{
+#menu li {
 position:relative;
 }
 
-#menu ul ul{
+#menu ul ul {
 position:absolute;
 z-index:500;
 top:auto;
 display:none;
 }
 
-#menu ul ul ul{
+#menu ul ul ul {
 top:0;
 left:100%;
 }
@@ -80,12 +80,12 @@ older version of csshover.htc - V1.21.041022. It
 improves IE's performance speed to use the older
 file and this method */
 
-div#menu h2:hover{
+div#menu h2:hover {
 background:#A3C5FF url(../image/expand3.gif) no-repeat -999px -9999px;
 color:#a00;
 }
 
-div#menu li:hover{
+div#menu li:hover {
 cursor:pointer;
 z-index:100;
 }
@@ -106,24 +106,24 @@ div#menu li li li li:hover ul
 
 /* Styling for Expand */
 
-#menu a.x, #menu a.x:visited{
+#menu a.x, #menu a.x:visited {
 /*font-weight:bold;*/
 color:#000;
 background:#eee url(../image/right.gif) no-repeat 100% 50%;
 border-width:1px;
 }
 
-#menu a.x:hover{
+#menu a.x:hover {
 color:#fff;
 background-color:#000;
 }
 
-#menu a.x:active{
+#menu a.x:active {
 color:#060;
 background-color:#ccc;
 }
 
-#menu div.x, #menu div.x:visited{
+#menu div.x, #menu div.x:visited {
 /*font-weight:bold;*/
 border-width:1px;
 color:#000;
@@ -131,12 +131,12 @@ background:#eee url(../image/right.gif) no-repeat 100% 50%;
 padding-right:10px;
 }
 
-#menu div.x:hover{
+#menu div.x:hover {
 color:#a00;
 background-color:#ddd;
 }
 
-#menu div.x:active{
+#menu div.x:active {
 color:#060;
 background-color:#ccc;
 }
