@@ -502,6 +502,7 @@ sub save {
 	      shop = '$form->{shop}',
               ve = '$form->{ve}',
               gv = '$form->{gv}',
+              ean = '$form->{ean}',
               not_discountable = '$form->{not_discountable}',
 	      microfiche = '$form->{microfiche}',
 	      partsgroup_id = $partsgroup_id
@@ -933,6 +934,11 @@ sub all_parts {
     }
   }
 
+  if ($form->{ean}) {
+    $var = $form->like(lc $form->{ean});
+    $where .= " AND lower(ean) LIKE '$var'";
+  }
+  
   if ($form->{searchitems} eq 'part') {
     $where .= " AND p.inventory_accno_id > 0";
   }
