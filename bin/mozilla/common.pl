@@ -420,6 +420,10 @@ sub H {
   return $form->quote_html($_[0]);
 }
 
+sub Q {
+  return $form->quote($_[0]);
+}
+
 sub format_dates {
   $lxdebug->enter_sub();
 
