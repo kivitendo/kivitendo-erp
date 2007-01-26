@@ -2413,4 +2413,52 @@ sub audittrail {
 
 }
 
+
+sub all_years {
+# usage $form->all_years($myconfig, [$dbh])
+# return list of all years where bookings found
+# (@all_years)
+
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $dbh) = @_;
+  
+  my $disconnect = 0;
+  if (! $dbh) {
+    $dbh = $self->dbconnect($myconfig);
+    $disconnect = 1;
+  }
+ 
+  # get years
+  my $query = qq|SELECT (SELECT MIN(transdate) FROM acc_trans),
+                     (SELECT MAX(transdate) FROM acc_trans)
+              FROM defaults|;
+  my ($startdate, $enddate) = $dbh->selectrow_array($query);
+
+  if ($myconfig->{dateformat} =~ /^yy/) {
+    ($startdate) = split /\W/, $startdate;
+    ($enddate) = split /\W/, $enddate;
+  } else { 
+    (@_) = split /\W/, $startdate;
+    $startdate = $_[2];
+    (@_) = split /\W/, $enddate;
+    $enddate = $_[2]; 
+  }
+
+  my @all_years;
+  $startdate = substr($startdate,0,4);
+  $enddate = substr($enddate,0,4);
+  
+  while ($enddate >= $startdate) {
+    push @all_years, $enddate--;
+  }
+
+  $dbh->disconnect if $disconnect;
+
+  return @all_years;
+
+  $main::lxdebug->leave_sub();
+}
+
+
 1;
