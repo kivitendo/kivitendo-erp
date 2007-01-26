@@ -1476,21 +1476,22 @@ sub create_dataset {
   closedir SQLDIR;
 
   $selectencoding = qq|<option>
-  <option value=SQL_ASCII>ASCII
-  <option value=EUC_JP>Japanese Extended UNIX Code
-  <option value=EUC_CN>Chinese Extended UNIX Code
-  <option value=EUC_KR>Korean Extended UNIX Code
-  <option value=EUC_TW>Taiwan Extended UNIX Code
-  <option value=UNICODE>UTF-8 Unicode
-  <option value=MULE_INTERNAL>Mule internal type
-  <option value=LATIN1>ISO 8859-1
-  <option value=LATIN2>ISO 8859-2
-  <option value=LATIN3>ISO 8859-3
-  <option value=LATIN4>ISO 8859-4
-  <option value=LATIN5>ISO 8859-5
-  <option value=KOI8>KOI8-R
-  <option value=WIN>Windows CP1251
-  <option value=ALT>Windows CP866
+  <option value="SQL_ASCII">ASCII
+  <option value="EUC_JP">Japanese Extended UNIX Code
+  <option value="EUC_CN">Chinese Extended UNIX Code
+  <option value="EUC_KR">Korean Extended UNIX Code
+  <option value="EUC_TW">Taiwan Extended UNIX Code
+  <option value="UNICODE">UTF-8 Unicode
+  <option value="MULE_INTERNAL">Mule internal type
+  <option value="LATIN1">ISO 8859-1
+  <option value="LATIN2">ISO 8859-2
+  <option value="LATIN3">ISO 8859-3
+  <option value="LATIN4">ISO 8859-4
+  <option value="LATIN5">ISO 8859-5
+  <option value="LATIN9">ISO 8859-15
+  <option value="KOI8">KOI8-R
+  <option value="WIN">Windows CP1251
+  <option value="ALT">Windows CP866
   |;
 
   $form->{title} =
