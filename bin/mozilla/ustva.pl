@@ -738,12 +738,16 @@ sub generate_ustva {
   # Outputformat specific customisation's
   #
 
-  my @category_cent = qw(511 861 36 80 971 931 98 96 53 74
-    85 65 66 61 62 67 63 64 59 69 39 83
-    Z43 Z45 Z53 Z62 Z65 Z67);
+  my @category_cent = qw(
+    511 861 36  80  971 931 98  96 53 74
+    85  65  66  61  62  67  63  64 59 69 
+    39  83  Z43 Z45 Z53 Z62 Z65 Z67
+  );
 
-  my @category_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93
-    95 94 42 60 45 52 73 84);
+  my @category_euro = qw(
+    41 44 49 43 48 51 86 35 77 76 91 
+    97 93 95 94 42 60 45 52 73 84
+  );
 
   if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
 
@@ -829,12 +833,18 @@ sub generate_ustva {
 
   elsif ( $form->{format} eq 'elstertaxbird' ) {
 
+    # Define serveral filenames
     $form->{IN} = 'taxbird.txb';
 
     $form->{attachment_filename} = "USTVA-" . $form->{period} 
     . sprintf("%02d", $form->{year} % 100) . ".txb";
     
     $form->{tmpfile} = "$userspath/" . $form->{attachment_filename};
+
+    # TODO: set Output to UTF-8 or system Preference
+    #$form->{"iconv"} = Text::Iconv->new($myconfig{dbcharset}, "UTF-8");
+    #my $iconv = $self->{"iconv"};
+    #$iconv->convert($variable);
 
     if ($form->{period} =~ /^[4]\d$/ ){
       my %periods = ( # Lx => taxbird
@@ -871,8 +881,6 @@ sub generate_ustva {
         $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
       }
       
-
-      
       $form->{co_zip} = $form->{co_city};
       $form->{co_zip} =~ s/\D//g;
       $form->{co_city} =~ s/\d//g;
@@ -887,11 +895,10 @@ sub generate_ustva {
       $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
       
       # Numberformatting for Taxbird
-
       my $temp_numberformat = $myconfig{numberformat};
-      # Numberformat must be '1000.00' for Taxbird ?!
 
-      $myconfig{numberformat} = '1000.00';
+      # Numberformat must be '1000,00' for Taxbird ?!
+      $myconfig{numberformat} = '1000,00';
 
       foreach my $number (@category_cent) {
         $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';

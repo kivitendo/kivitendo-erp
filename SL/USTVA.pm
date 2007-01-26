@@ -605,16 +605,16 @@ sub ustva {
   $form->{"86r"} = $form->{"861"};
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
-  $form->{"Z43"} =
-  $form->{"511"} + $form->{"861"} + $form->{"36"} + $form->{"80"} +
-  $form->{"971"} + $form->{"931"} + $form->{"96"} + $form->{"98"};
+  $form->{"Z43"} = $form->{"511"}  + $form->{"861"} + $form->{"36"} 
+                   + $form->{"80"} + $form->{"971"} + $form->{"931"} 
+                   + $form->{"96"} + $form->{"98"};
   $form->{"Z45"} = $form->{"Z43"};
   $form->{"Z53"} = $form->{"Z43"};
-  $form->{"Z62"} =
-  $form->{"Z43"} - $form->{"66"} - $form->{"61"} - $form->{"62"} -
-  $form->{"63"} - $form->{"64"} - $form->{"59"};
-  $form->{"Z65"} = $form->{"Z62"} - $form->{"69"};
-  $form->{"83"}  = $form->{"Z65"} - $form->{"39"};
+  $form->{"Z62"} = $form->{"Z43"}  - $form->{"66"}  - $form->{"61"} 
+                   - $form->{"62"} - $form->{"63"}  - $form->{"64"} 
+                   - $form->{"59"};
+  $form->{"Z65"} = $form->{"Z62"}  - $form->{"69"};
+  $form->{"83"}  = $form->{"Z65"}  - $form->{"39"};
   # Hier fehlen moeglicherweise noch einige Berechnungen!
   
   $dbh->disconnect;
