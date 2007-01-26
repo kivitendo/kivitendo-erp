@@ -6,10 +6,7 @@ behavior:url("css/csshover.htc");
 width:100%;
 float:left;
 background:url(../image/bg_css_menu.png) repeat 100% 100%;
-border-right-width:1px;
-border-top-width:1px;
-border-bottom-width:1px;
-border-left-width:0px;
+border-width:1px 0 1px 1px;
 border-style:solid;
 border-color:#ccc #888 #555 #bbb;
 }
@@ -17,10 +14,7 @@ border-color:#ccc #888 #555 #bbb;
 #menu a, #menu h2, #menu div.x {
 font:11px/16px arial,helvetica,sans-serif;
 display:block;
-border-right-width:1px;
-border-left-width:0px;
-border-top-width:0px;
-border-bottom-width:0px;
+border-width:0 1px 0 0;
 border-style:solid;
 border-color:#ccc #888 #555 #bbb;
 white-space:nowrap;
@@ -37,7 +31,7 @@ background:#000 url(../image/bg_css_menu.png) repeat 100% 100%;
 background:#eee;
 text-decoration:none;
 border-width:1px;
-padding:2px;
+padding-right:10px;
 }
 
 #menu a, #menu a:visited{
@@ -115,31 +109,34 @@ div#menu li li li li:hover ul
 #menu a.x, #menu a.x:visited{
 /*font-weight:bold;*/
 color:#000;
-background:#eee url(../image/right.png) no-repeat 100% 50%;
+background:#eee url(../image/right.gif) no-repeat 100% 50%;
+border-width:1px;
 }
 
 #menu a.x:hover{
 color:#fff;
-background:#000;
+background-color:#000;
 }
 
 #menu a.x:active{
 color:#060;
-background:#ccc;
+background-color:#ccc;
 }
 
 #menu div.x, #menu div.x:visited{
 /*font-weight:bold;*/
+border-width:1px;
 color:#000;
-background:#eee url(../image/right.png) no-repeat 100% 50%;
+background:#eee url(../image/right.gif) no-repeat 100% 50%;
+padding-right:10px;
 }
 
 #menu div.x:hover{
 color:#a00;
-background:#ddd;
+background-color:#ddd;
 }
 
 #menu div.x:active{
 color:#060;
-background:#ccc;
+background-color:#ccc;
 }
