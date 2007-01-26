@@ -74,6 +74,9 @@ Login disabled!\n";
   exit;
 }
 
+require "bin/mozilla/installationcheck.pl";
+verify_installation();
+
 if ($form{path}) {
   $form{path} =~ s/%2f/\//gi;
   $form{path} =~ s/\.\.\///g;
