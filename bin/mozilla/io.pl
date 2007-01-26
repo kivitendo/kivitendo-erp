@@ -1280,8 +1280,10 @@ sub e_mail {
   }
   if ($myconfig{role} eq 'admin') {
     $bcc = qq|
- 	  <th align=right nowrap=true>| . $locale->text('Bcc') . qq|</th>
-	  <td><input name=bcc size=30 value="$form->{bcc}"></td>
+    <tr>
+      <th align="right" nowrap="true">| . $locale->text('Bcc') . qq|</th>
+      <td><input name="bcc" size="30" value="| . Q($form->{bcc}) . qq|"></td>
+    </tr>
 |;
   }
 
@@ -1301,44 +1303,105 @@ sub e_mail {
   $form->{oldmedia} = $form->{media};
   $form->{media}    = "email";
 
+  my %formname_translations =
+    (
+     "bin_list" => $locale->text('Bin List'),
+     "credit_note" => $locale->text('Credit Note'),
+     "invoice" => $locale->text('Invoice'),
+     "packing_list" => $locale->text('Packing List'),
+     "pick_list" => $locale->text('Pick List'),
+     "proforma" => $locale->text('Proforma Invoice'),
+     "purchase_order" => $locale->text('Purchase Order'),
+     "request_quotation" => $locale->text('RFQ'),
+     "sales_order" => $locale->text('Confirmation'),
+     "sales_quotation" => $locale->text('Quotation'),
+     "storno_invoice" => $locale->text('Storno Invoice'),
+     "storno_packing_list" => $locale->text('Storno Packing List'),
+    );
+
+  my $attachment_filename = $formname_translations{$form->{"formname"}};
+  my $prefix;
+
+  if ($form->{"type"} =~ /invoice/) {
+    $prefix = "inv";
+  } elsif ($form->{"type"} =~ /_quotation$/) {
+    $prefix = "quo";
+  } else {
+    $prefix = "ord";
+  }
+
+  if ($attachment_filename && $form->{"${prefix}number"}) {
+    $attachment_filename .= "_" . $form->{"${prefix}number"} .
+      ($form->{"format"} =~ /pdf/i ? ".pdf" :
+       $form->{"format"} =~ /postscript/i ? ".ps" :
+       $form->{"format"} =~ /opendocument/i ? ".odt" :
+       $form->{"format"} =~ /html/i ? ".html" : "");
+    $attachment_filename =~ s/ /_/g;
+    my %umlaute =
+      (
+       "ä" => "ae", "ö" => "oe", "ü" => "ue",
+       "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue",
+       "ß" => "ss"
+      );
+    map({ $attachment_filename =~ s/$_/$umlaute{$_}/g; } keys(%umlaute));
+  } else {
+    $attachment_filename = "";
+  }
+
+  if ($form->{"email"}) {
+    $form->{"fokus"} = "Form.subject";
+  } else {
+    $form->{"fokus"} = "Form.email";
+  }
   $form->header;
 
   print qq|
-<body>
+<body onload="fokus()">
 
-<form method=post action=$form->{script}>
+<form name="Form" method="post" action="$form->{script}">
 
-<table width=100%>
-  <tr class=listtop>
-    <th class=listtop>$title</th>
+<table width="100%">
+  <tr class="listtop">
+    <th class="listtop">$title</th>
   </tr>
   <tr height="5"></tr>
   <tr>
     <td>
-      <table width=100%>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('To') . qq|</th>
-	  <td><input name=email size=30 value="$form->{email}"></td>
-	  <th align=right nowrap>| . $locale->text('Cc') . qq|</th>
-	  <td><input name=cc size=30 value="$form->{cc}"></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Subject') . qq|</th>
-	  <td><input name=subject size=30 value="$form->{subject}"></td>
-	  $bcc
-	</tr>
+      <table>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('To') . qq|</th>
+          <td><input name="email" size="30" value="| .
+          Q($form->{"email"}) . qq|"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Cc') . qq|</th>
+          <td><input name="cc" size="30" value="| .
+          Q($form->{"cc"}) . qq|"></td>
+        </tr>
+        $bcc
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Subject') . qq|</th>
+          <td><input name="subject" size="30" value="| .
+          Q($form->{"subject"}) . qq|"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Attachment name') .
+          qq|</th>
+          <td><input name="attachment_filename" size="30" value="| .
+          Q($attachment_filename) . qq|"></td>
       </table>
     </td>
   </tr>
   <tr>
     <td>
-      <table width=100%>
-	<tr>
-	  <th align=left nowrap>| . $locale->text('Message') . qq|</th>
-	</tr>
-	<tr>
-	  <td><textarea name=message rows=15 cols=60 wrap=soft>$form->{message}</textarea></td>
-	</tr>
+      <table>
+        <tr>
+          <th align="left" nowrap>| . $locale->text('Message') . qq|</th>
+        </tr>
+        <tr>
+          <td><textarea name="message" rows="15" cols="60" wrap="soft">| .
+          H($form->{"message"}) . qq|</textarea></td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -1354,21 +1417,21 @@ sub e_mail {
   # save all other variables
   foreach $key (keys %$form) {
     $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
+    print qq|<input type="hidden" name="$key" value="| . Q($form->{$key}) . qq|">\n|;
   }
 
   print qq|
     </td>
   </tr>
   <tr>
-    <td><hr size=3 noshade></td>
+    <td><hr size="3" noshade></td>
   </tr>
 </table>
 
-<input type=hidden name=nextsub value=send_email>
+<input type="hidden" name="nextsub" value="send_email">
 
 <br>
-<input name=action class=submit type=submit value="|
+<input name="action" class="submit" type="submit" value="|
     . $locale->text('Continue') . qq|">
 </form>
 
