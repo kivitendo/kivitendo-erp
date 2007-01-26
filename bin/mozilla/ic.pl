@@ -269,6 +269,8 @@ sub search {
         <tr>
           <th align=right nowrap>| . $locale->text('Part Number') . qq|</th>
           <td><input name=partnumber size=20></td>
+          <th align=right nowrap>| . $locale->text('EAN') . qq|</th>
+          <td><input name=ean size=20></td>
         </tr>
         <tr>
           <th align=right nowrap>|
@@ -1028,6 +1030,10 @@ sub addtop100 {
     $callback .= "&partnumber=$form->{partnumber}";
     $option   .= $locale->text('Part Number') . qq| : $form->{partnumber}<br>|;
   }
+  if ($form->{ean}) {
+    $callback .= "&partnumber=$form->{ean}";
+    $option   .= $locale->text('EAN') . qq| : $form->{ean}<br>|;
+  }
   if ($form->{partsgroup}) {
     $callback .= "&partsgroup=$form->{partsgroup}";
     $option   .= $locale->text('Group') . qq| : $form->{partsgroup}<br>|;
@@ -1067,7 +1073,7 @@ sub addtop100 {
   }
 
   @columns = $form->sort_columns(
-    qw(number partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
+    qw(number partnumber ean description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
   );
 
   if ($form->{l_linetotal}) {
@@ -2212,7 +2218,7 @@ sub form_header {
   }
 
   $notes =
-    qq|<textarea name=notes rows=$rows cols=50 wrap=soft>$form->{notes}</textarea>|;
+    qq|<textarea name=notes rows=$rows cols=45 wrap=soft>$form->{notes}</textarea>|;
   if (($rows = $form->numtextrows($form->{description}, 40)) > 1) {
     $description =
       qq|<textarea name="description" rows=$rows cols=40 wrap=soft>$form->{description}</textarea>|;
@@ -2220,6 +2226,8 @@ sub form_header {
     $description =
       qq|<input name=description size=40 value="$form->{description}">|;
   }
+
+  $ean =  qq|<input name=ean size=40 value="$form->{ean}">|;
 
   foreach $item (split / /, $form->{taxaccounts}) {
     $form->{"IC_tax_$item"} = ($form->{"IC_tax_$item"}) ? "checked" : "";
@@ -2443,7 +2451,7 @@ sub form_header {
 |;
 
   $formel =
-    qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=40 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
+    qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=30 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
     $imagelinks = qq|
   <tr>
     <td>
@@ -2594,9 +2602,16 @@ sub form_header {
                 </td>
               </tr>
               <tr>
-                <td colspan=2>
+                <th align="left"></th>
+                <th align="left">| . $locale->text('EAN-Code') . qq|</th>
+              </tr>
+              <tr>
+                <td>
                   <button type="button" onclick="parts_language_selection_window('language_values')">| . $locale->text('Set Language Values') . qq|</button>
                 </td>
+		<td>
+	 	  $ean	
+		</td>
               </tr>
               <tr>
               <td colspan=2>
