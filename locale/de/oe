@@ -17,6 +17,7 @@ $self->{texts} = {
   'Are you sure you want to delete Order Number' => 'Soll der Auftrag mit folgender Nummer wirklich gelöscht werden:',
   'Are you sure you want to delete Quotation Number' => 'Sind Sie sicher, dass Angebotnummer gelöscht werden soll?',
   'Attachment'                  => 'als Anhang',
+  'Attachment name'             => 'Name des Anhangs',
   'Aug'                         => 'Aug',
   'August'                      => 'August',
   'Bcc'                         => 'Bcc',
@@ -255,6 +256,7 @@ $self->{texts} = {
 
 $self->{subs} = {
   'H'                           => 'H',
+  'Q'                           => 'Q',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',
   'ap_transaction'              => 'ap_transaction',

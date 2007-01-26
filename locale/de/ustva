@@ -110,7 +110,6 @@ $self->{subs} = {
   'speichern'                   => 'save',
   'zeigen'                      => 'show',
   'zurück'                      => 'back',
-  'weiter'                      => 'continue',
 };
 
 1;
