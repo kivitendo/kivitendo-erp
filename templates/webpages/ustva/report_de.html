@@ -40,7 +40,7 @@
             Steuernummer:&nbsp;
             <TMPL_VAR taxnumber_given>
             <br />
-            ELSTER-Steuernummer:&nbsp;
+            ELSTER-Steuernummer: :&nbsp;
             <TMPL_VAR elstersteuernummer ESCAPE=HTML>
             <br />
             <br />
@@ -64,7 +64,7 @@
                 <TMPL_VAR FA_steuerberater_name ESCAPE=HTML><br />
                 <TMPL_VAR FA_steuerberater_street ESCAPE=HTML><br />
                 <TMPL_VAR FA_steuerberater_city ESCAPE=HTML><br />
-                Tel. <TMPL_VAR FA_steuerberater_tel ESCAPE=HTML><br />
+                Telefon <TMPL_VAR FA_steuerberater_tel ESCAPE=HTML><br />
               </fieldset>
               <br />
             </TMPL_IF>
@@ -130,7 +130,7 @@
               <br>
               Öffnungszeiten
               <br>
-              <TMPL_VAR openings ESCAPE=0>
+              <TMPL_VAR openings ESCAPE=NONE>
               <br>
               <br>
               Bankverbindungen
