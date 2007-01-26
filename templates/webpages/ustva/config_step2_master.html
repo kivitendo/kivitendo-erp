@@ -197,7 +197,9 @@
       </tr>
   </table>
 
- <TMPL_INCLUDE "../generic/util_hidden_variables_master.html">     
+<TMPL_LOOP hidden_variables>  <input type="hidden" name="<TMPL_VAR variable ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
+</TMPL_LOOP>
+     
 
   </form>
 </body>
