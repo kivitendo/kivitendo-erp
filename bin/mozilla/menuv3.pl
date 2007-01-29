@@ -111,7 +111,7 @@ function clockon() {
   document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m)+":"+(s<10?'0'+s:s);
   var timer=setTimeout("clockon()", 1000);
 }
-window.onload=clockon
+//window.onload=clockon
 //-->
 </script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
