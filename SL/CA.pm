@@ -42,7 +42,7 @@ sub all_accounts {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $amount = ();
+  my %amount;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -65,7 +65,7 @@ sub all_accounts {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  my $gifi = ();
+  my %gifi;
   while (my ($accno, $description) = $sth->fetchrow_array) {
     $gifi{$accno} = $description;
   }
