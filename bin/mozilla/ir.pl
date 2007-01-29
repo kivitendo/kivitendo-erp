@@ -759,13 +759,15 @@ sub form_footer {
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Use As Template') . qq|">
 |;
-  } else {
-    if ($invdate > $closedto) {
-      print qq|<input class=submit type=submit name=action id=update_button value="|
-        . $locale->text('Update') . qq|">
-      <input class=submit type=submit name=action value="|
-        . $locale->text('Post') . qq|">|;
-    }
+
+  }
+
+  print qq|<input class=submit type=submit name=action id=update_button value="|
+    . $locale->text('Update') . qq|">|;
+
+  if (!$form->{id} && ($invdate > $closedto)) {
+    print qq| <input class=submit type=submit name=action value="|
+      . $locale->text('Post') . qq|">|;
   }
 
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
