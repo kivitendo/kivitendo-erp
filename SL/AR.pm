@@ -485,8 +485,8 @@ sub get_transdate {
 
   my $query =
     "SELECT COALESCE(" .
-    "  (SELECT transdate FROM gl WHERE id = " .
-    "    (SELECT MAX(id) FROM gl) LIMIT 1), " .
+    "  (SELECT transdate FROM ar WHERE id = " .
+    "    (SELECT MAX(id) FROM ar) LIMIT 1), " .
     "  current_date)";
   ($form->{transdate}) = $dbh->selectrow_array($query);
 
