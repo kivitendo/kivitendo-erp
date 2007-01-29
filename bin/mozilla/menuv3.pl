@@ -140,29 +140,6 @@ sub acc_menu {
   return print_menu($menu);
 }
 
-sub my_length {
-  my ($s) = @_;
-  my $len = 0;
-  my $i;
-  my $skip = 0;
-
-  for ($i = 0; $i < length($s); $i++) {
-    my $c = substr($s, $i, 1);
-    if ($skip && ($c eq ";")) {
-      $skip = 0;
-    } elsif ($skip) {
-      next;
-    } elsif ($c eq "&") {
-      $skip = 1;
-      $len++;
-    } else {
-      $len++;
-    }
-  }
-
-  return $len;
-}
-
 sub print_menu {
   my ($menu, $parent, $depth) = @_;
   my $html;
@@ -182,8 +159,6 @@ sub print_menu {
     my $menu_item = $menu->{"${parent}${item}"};
     my $menu_title = $locale->text($item);
     my $menu_text = $menu_title;
-
-    $menu_text =~ s/ /<br>/ if ($parent && (my_length($menu_text) >= 17));
 
     my $target = "main_window";
     $target = $menu_item->{"target"} if ($menu_item->{"target"});
