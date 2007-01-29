@@ -144,29 +144,11 @@ sub all_transactions {
     $glwhere .= " AND ac.transdate <= '$form->{todate}'";
   }
 
-  if ($form->{eur}) {
-    $AR_PAID = qq|AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AR_paid%'
-		     $subwhere
-		   )|;
-    $AP_PAID = qq|AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
-		     $subwhere
-		   )|;
-  } else {
-    $where .= $fromto;
-    $AR_PAID = "";
-    $AP_PAID = "";
-    $glwhere = "";    # note! gl will be aliased as "a" later...
-  }
+
+  $where .= $fromto;
+  $AR_PAID = "";
+  $AP_PAID = "";
+  $glwhere = "";    # note! gl will be aliased as "a" later...
   my $sortorder = join ', ',
     $form->sort_columns(qw(transdate reference description));
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
