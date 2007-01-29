@@ -1602,11 +1602,12 @@ sub print_options {
   }
 
   if (scalar(keys (%{ $form->{printers} })) !=0) {
-
-    $printer_select = qq|<select name=printer_id>
+    my $selected = !$form->{"printer_id"} ? "selected" : "";
+    $printer_select = qq|<select name=printer_id $selected>
                   <option value=""></option>|;
     foreach $item (@{ $form->{printers} }) {
-      $printer_select .= qq|<option value="$item->{id}">$item->{printer_description}</option>|;
+      $selected = $item->{"id"} == $form->{"printer_id"} ? "selected" : "";
+      $printer_select .= qq|<option value="$item->{id}" $selected>$item->{printer_description}</option>|;
     }
   }
 
