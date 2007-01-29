@@ -240,7 +240,7 @@ sub save {
         $form->parse_amount($myconfig, $form->{"${_}_$i"})
     } qw(qty ship);
 
-    if ($form->{"qty_$i"}) {
+    if ($form->{"id_$i"}) {
 
       # get item baseunit
       $query = qq|SELECT p.unit
@@ -1028,7 +1028,7 @@ sub order_details {
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
 
-    if ($form->{"qty_$i"} != 0) {
+    if ($form->{"id_$i"} != 0) {
 
       # add number, description and qty to $form->{number}, ....
 

@@ -103,7 +103,7 @@ sub invoice_details {
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
 
-    if ($form->{"qty_$i"} != 0) {
+    if ($form->{"id_$i"} != 0) {
 
       # add number, description and qty to $form->{number},
       if ($form->{"subtotal_$i"} && !$subtotal_header) {
@@ -551,7 +551,7 @@ sub post_invoice {
       $form->{"qty_$i"} *= -1;
     }
 
-    if ($form->{"qty_$i"} != 0) {
+    if ($form->{"id_$i"}) {
 
       # get item baseunit
       $query = qq|SELECT p.unit

@@ -112,7 +112,7 @@ sub post_invoice {
       $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"};
     }
     
-    if ($form->{"qty_$i"} != 0) {
+    if ($form->{"id_$i"}) {
 
       # get item baseunit
       $query = qq|SELECT p.unit
