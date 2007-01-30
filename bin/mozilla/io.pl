@@ -1474,8 +1474,6 @@ sub print_options {
     $myconfig{"default_media"} ? $myconfig{"default_media"} :
     "screen";
 
-  $lxdebug->message(0, "fm $form->{media}");
-
   $form->{"printer_id"} =
     defined($form->{"printer_id"}) ? $form->{"printer_id"} :
     $myconfig{"default_printer_id"} ? $myconfig{"default_printer_id"} :
