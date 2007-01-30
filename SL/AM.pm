@@ -1166,6 +1166,7 @@ sub printer {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
+  $form->{"ALL"} = [];
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{ALL} }, $ref;
   }
