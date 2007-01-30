@@ -328,8 +328,8 @@ sub prepare_order {
 sub form_header {
   $lxdebug->enter_sub();
 
-  $checkedopen   = ($form->{closed}) ? ""        : "checked";
-  $checkedclosed = ($form->{closed}) ? "checked" : "";
+  my $checkedclosed = $form->{"closed"} ? "checked" : "";
+  my $checkeddelivered = $form->{"delivered"} ? "checked" : "";
 
   map { $form->{$_} =~ s/\"/&quot;/g }
     qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
@@ -380,15 +380,20 @@ sub form_header {
     $openclosed = qq|
       <tr>
         <td colspan=2 align=center>
-	  <table>
-	    <tr>
-	      <th nowrap><input name=closed type=radio class=radio value=0 $checkedopen> |
-      . $locale->text('Open') . qq|</th>
-	      <th nowrap><input name=closed type=radio class=radio value=1 $checkedclosed> |
-      . $locale->text('Closed') . qq|</th>
-	    </tr>
-	  </table>
-	</td>
+          <input name="closed" id="closed" type="checkbox" class="checkbox" value="1" $checkedclosed>
+          <label for="closed">| . $locale->text('Closed') . qq|</label>
+|;
+
+    if (($form->{"type"} eq "sales_order") ||
+        ($form->{"type"} eq "purchase_order")) {
+      $openclosed .= qq|
+          <input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1" $checkeddelivered>
+          <label for="delivered">| . $locale->text('Delivered') . qq|</label>
+|;
+    }
+
+    $openclosed .= qq|
+        </td>
       </tr>
 |;
   }
@@ -1383,6 +1388,19 @@ sub search {
 |;
   }
 
+  my $delivered;
+  if (($form->{"type"} eq "sales_order") ||
+      ($form->{"type"} eq "purchase_order")) {
+    $delivered = qq|
+        <tr>
+          <td><input name="notdelivered" id="notdelivered" class="checkbox" type="checkbox" value="1" checked>
+            <label for="notdelivered">|. $locale->text('Not delivered') . qq|</label></td>
+          <td><input name="delivered" id="delivered" class="checkbox" type="checkbox" value="1" checked>
+            <label for="delivered">| . $locale->text('Delivered') . qq|</label></td>
+        </tr>
+|;
+  }
+
   # use JavaScript Calendar or not
   $form->{jsscript} = $jscalendar;
   $jsscript = "";
@@ -1450,6 +1468,7 @@ sub search {
           <td colspan=5>
 	    <table>
 	      $openclosed
+        $delivered
 	      <tr>
 		<td><input name="l_id" class=checkbox type=checkbox value=Y>
 		| . $locale->text('ID') . qq|</td>
@@ -1525,7 +1544,7 @@ sub orders {
 
   # construct href
   $href =
-    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&$ordnumber=$number&$form->{vc}=$name&department=$department&warehouse=$warehouse";
+    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department&warehouse=$warehouse";
 
   # construct callback
   $number     = $form->escape($form->{$ordnumber},    1);
@@ -1534,16 +1553,19 @@ sub orders {
   $warehouse  = $form->escape($form->{warehouse},     1);
 
   $callback =
-    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&$ordnumber=$number&$form->{vc}=$name&department=$department&warehouse=$warehouse";
+    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department&warehouse=$warehouse";
 
   @columns =
     $form->sort_columns("transdate", "reqdate",   "id",      "$ordnumber",
                         "name",      "netamount", "tax",     "amount",
                         "curr",      "employee",  "shipvia", "open",
-                        "closed");
+                        "closed",    "delivered");
 
   $form->{l_open} = $form->{l_closed} = "Y"
     if ($form->{open} && $form->{closed});
+
+  $form->{"l_delivered"} = "Y"
+    if ($form->{"delivered"} && $form->{"notdelivered"});
 
   foreach $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
@@ -1630,6 +1652,8 @@ sub orders {
     qq|<th class=listheading>| . $locale->text('O') . qq|</th>|;
   $column_header{closed} =
     qq|<th class=listheading>| . $locale->text('C') . qq|</th>|;
+  $column_header{"delivered"} =
+    qq|<th class="listheading">| . $locale->text("Delivered") . qq|</th>|;
 
   $column_header{employee} =
     qq|<th><a class=listheading href=$href&sort=employee>$employee</a></th>|;
@@ -1757,6 +1781,9 @@ sub orders {
       $column_data{closed} = "<td>&nbsp;</td>";
       $column_data{open}   = "<td align=center>X</td>";
     }
+    $column_data{"delivered"} = "<td>" .
+      ($oe->{"delivered"} ? $locale->text("Yes") : $locale->text("No")) .
+      "</td>";
 
     $i++;
     $i %= 2;

@@ -65,7 +65,7 @@ sub transactions {
   my $query = qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate,
                  o.amount, ct.name, o.netamount, o.$form->{vc}_id,
 		 ex.$rate AS exchangerate,
-		 o.closed, o.quonumber, o.shippingpoint, o.shipvia,
+		 o.closed, o.delivered, o.quonumber, o.shippingpoint, o.shipvia,
 		 e.name AS employee
 	         FROM oe o
 	         JOIN $form->{vc} ct ON (o.$form->{vc}_id = ct.id)
@@ -124,6 +124,12 @@ sub transactions {
     $query .= " AND o.id = 0";
   } elsif (!($form->{open} && $form->{closed})) {
     $query .= ($form->{open}) ? " AND o.closed = '0'" : " AND o.closed = '1'";
+  }
+
+  if (($form->{"notdelivered"} || $form->{"delivered"}) &&
+      ($form->{"notdelivered"} ne $form->{"delivered"})) {
+    $query .= $form->{"delivered"} ?
+      " AND o.delivered " : " AND NOT o.delivered";
   }
 
   my $sortorder = join ', ',
@@ -460,6 +466,7 @@ Message: $form->{message}\r| if $form->{message};
 	      intnotes = '$form->{intnotes}',
 	      curr = '$form->{currency}',
 	      closed = '$form->{closed}',
+	      delivered = '| . ($form->{delivered} ? "t" : "f") . qq|',
 	      proforma = '$form->{proforma}',
 	      quotation = '$quotation',
 	      department_id = $form->{department_id},
@@ -724,7 +731,9 @@ sub retrieve {
 		o.curr AS currency, e.name AS employee, o.employee_id,
 		o.$form->{vc}_id, cv.name AS $form->{vc}, o.amount AS invtotal,
 		o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
-		d.description AS department, o.payment_id, o.language_id, o.taxzone_id, o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id
+		d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
+                o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
+                o.delivered
 		FROM oe o
 	        JOIN $form->{vc} cv ON (o.$form->{vc}_id = cv.id)
 	        LEFT JOIN employee e ON (o.employee_id = e.id)
