@@ -5,6 +5,7 @@ use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
 use SL::Form;
+use SL::Locale;
 
 eval { require "lx-erp.conf"; };
 
