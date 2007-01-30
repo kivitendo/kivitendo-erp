@@ -284,7 +284,6 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
-  $form->{media}    = "screen";
   $form->{formname} = $form->{type} unless $form->{formname};
 
   my $i = 0;

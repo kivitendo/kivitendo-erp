@@ -1092,7 +1092,7 @@ sub config_vars {
     dbname dbuser dbpasswd email fax name numberformat in_numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
     anfragen lieferantenbestellungen einkaufsrechnungen taxnumber co_ustid duns menustyle
-    template_format copies show_form_details);
+    template_format default_media default_printer_id copies show_form_details);
 
   $main::lxdebug->leave_sub();
 

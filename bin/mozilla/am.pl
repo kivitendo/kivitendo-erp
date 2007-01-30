@@ -2858,13 +2858,34 @@ sub config {
   if (!$myconfig{"template_format"}) {
     $myconfig{"template_format"} = "pdf";
   }
-  $template_format = "";
+  my $template_format = "";
   foreach $item (@formats) {
     $template_format .=
       "<option value=\"$item->{value}\"" .
       ($item->{"value"} eq $myconfig{"template_format"} ?
        " selected" : "") .
        ">" . H($item->{"name"}) . "</option>";
+  }
+
+  if (!$myconfig{"default_media"}) {
+    $myconfig{"default_media"} = "screen";
+  }
+  my %selected = ($myconfig{"default_media"} => "selected");
+  my $default_media = qq|
+  <option value="screen" $selected{'screen'}>| . $locale->text("Screen") . qq|</option>
+  <option value="printer" $selected{'printer'}>| . $locale->text("Printer") . qq|</option>
+  <option value="queue" $selected{'queue'}>| . $locale->text("Queue") . qq|</option>
+|;
+
+  %selected = ();
+  $selected{$myconfig{"default_printer_id"}} = "selected"
+    if ($myconfig{"default_printer_id"});
+  my $default_printer = qq|<option></option>|;
+  AM->printer(\%myconfig, $form);
+  foreach my $printer (@{$form->{"ALL"}}) {
+    $default_printer .= qq|<option value="| . Q($printer->{"id"}) .
+      qq|" $selected{$printer->{'id'}}>| .
+      H($printer->{"printer_description"}) . qq|</option>|;
   }
 
   %countrycodes = User->country_codes;
@@ -3026,6 +3047,14 @@ sub config {
 	<tr>
 	  <th align=right>| . $locale->text('Default template format') . qq|</th>
 	  <td><select name="template_format">$template_format</select></td>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Default output medium') . qq|</th>
+	  <td><select name="default_media">$default_media</select></td>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Default printer') . qq|</th>
+	  <td><select name="default_printer_id">$default_printer</select></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Number of copies') . qq|</th>

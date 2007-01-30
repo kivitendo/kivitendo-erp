@@ -244,11 +244,9 @@ sub prepare_invoice {
   if ($form->{type} eq "credit_note") {
     $form->{type}     = "credit_note";
     $form->{formname} = "credit_note";
-    $form->{media}    = "screen";
   } else {
     $form->{type}     = "invoice";
     $form->{formname} = "invoice";
-    $form->{media}    = "screen";
   }
 
   if ($form->{id}) {

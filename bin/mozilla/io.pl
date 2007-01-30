@@ -1469,6 +1469,18 @@ sub print_options {
     $myconfig{"copies"} ? $myconfig{"copies"} :
     3;
 
+  $form->{"media"} =
+    $form->{"media"} ? $form->{"media"} :
+    $myconfig{"default_media"} ? $myconfig{"default_media"} :
+    "screen";
+
+  $lxdebug->message(0, "fm $form->{media}");
+
+  $form->{"printer_id"} =
+    defined($form->{"printer_id"}) ? $form->{"printer_id"} :
+    $myconfig{"default_printer_id"} ? $myconfig{"default_printer_id"} :
+    "";
+
   $form->{PD}{ $form->{formname} } = "selected";
   $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
