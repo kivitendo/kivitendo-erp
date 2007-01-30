@@ -1,6 +1,5 @@
 -- changes on system tables
 -- TODO Make me Update2
-ALTER TABLE tax ALTER COLUMN taxkey DROP NOT NULL;
 
 -- Minimal COA
 
@@ -19,22 +18,3 @@ INSERT INTO chart (
 INSERT INTO tax 
        (chart_id,  rate,  taxnumber,  taxkey,  taxdescription) 
 VALUES ('0',       '0',   '0',         '0',     'ohne Steuerautomatik');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
