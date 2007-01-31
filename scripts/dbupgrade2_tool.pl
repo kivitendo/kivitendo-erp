@@ -16,6 +16,7 @@ use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
 use SL::Form;
+use SL::Locale;
 use SL::DBUpgrade2;
 
 #######
