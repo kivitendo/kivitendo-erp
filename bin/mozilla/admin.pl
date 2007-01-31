@@ -1467,7 +1467,7 @@ sub create_dataset {
   }
 
   opendir SQLDIR, "sql/." or $form - error($!);
-  foreach $item (sort grep /-chart\.sql/, readdir SQLDIR) {
+  foreach $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
     next if ($item eq 'Default-chart.sql');
     $item =~ s/-chart\.sql//;
     push @charts,
