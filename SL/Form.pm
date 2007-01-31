@@ -780,6 +780,7 @@ sub parse_template {
          co_ustid taxnumber duns));
   map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
       qw(company address signature));
+  map({ $self->{$_} =~ s/\\n/\n/g; } qw(company address signature));
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
