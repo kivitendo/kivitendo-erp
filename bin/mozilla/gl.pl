@@ -1681,6 +1681,11 @@ sub post {
   if ($form->round_amount($debit, 2) != $form->round_amount($credit, 2)) {
     $form->error($locale->text('Out of balance transaction!'));
   }
+  
+  if ($form->round_amount($debit, 2) + $form->round_amount($credit, 2) == 0) {
+    $form->error($locale->text('Empty transaction!'));
+  }
+  
   if (($errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
     $errno *= -1;
     $err[1] = $locale->text('Cannot have a value in both Debit and Credit!');
