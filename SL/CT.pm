@@ -182,7 +182,7 @@ sub get_tuple {
   }
   $sth->finish;
 
-  # get languages
+  # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
 	      ORDER BY 1|;
