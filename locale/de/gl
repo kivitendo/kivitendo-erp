@@ -42,6 +42,7 @@ $self->{texts} = {
   'Description'                 => 'Beschreibung',
   'Description missing!'        => 'Beschreibung fehlt.',
   'Edit General Ledger Transaction' => 'Buchung im Hauptbuch bearbeiten',
+  'Empty transaction!'          => 'Buchung ist leer!',
   'Equity'                      => 'Passiva',
   'Expense'                     => 'Aufwandskonto',
   'Feb'                         => 'Feb',
