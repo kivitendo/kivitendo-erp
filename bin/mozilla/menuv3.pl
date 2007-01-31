@@ -43,7 +43,7 @@ sub display {
   $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=| .
                 int(rand(100000)) . qq|" type="text/css">|);
 
-  print(qq|<body>\n|);
+  print(qq|<body style="padding:0px; margin:0px;">\n|);
 
   clock_line();
 
