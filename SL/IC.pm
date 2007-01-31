@@ -1768,7 +1768,7 @@ sub retrieve_accounts {
 
   my ($query, $sth, $dbh);
 
-  return $main::lxdebug->leave_sub() if (!defined($form->{"taxzone_id"}));
+  $form->{"taxzone_id"} *= 1;
 
   $dbh = $form->dbconnect($myconfig);
 
