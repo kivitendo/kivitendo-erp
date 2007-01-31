@@ -1483,7 +1483,7 @@ sub create_dataset {
   <option value="EUC_TW">Taiwan Extended UNIX Code
   <option value="UNICODE">UTF-8 Unicode
   <option value="MULE_INTERNAL">Mule internal type
-  <option value="LATIN1">ISO 8859-1
+  <option selected="selected"  value="LATIN1">ISO 8859-1 
   <option value="LATIN2">ISO 8859-2
   <option value="LATIN3">ISO 8859-3
   <option value="LATIN4">ISO 8859-4
