@@ -508,16 +508,16 @@ sub form_header {
       <table>
 	<tr>
 	  <th align=right>| . $locale->text('Login') . qq|</th>
-	  <td><input name=login value="$myconfig->{login}"></td>
+	  <td><input name="login" value="$myconfig->{login}"></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input type=password name=password size=8 value=$myconfig->{password}></td>
-	  <input type=hidden name=old_password value=$myconfig->{password}>
+	  <td><input type="password" name="password" size="8" value="$myconfig->{password}"></td>
+	  <input type="hidden" name="old_password" value="$myconfig->{password}">
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Name') . qq|</th>
-	  <td><input name=name size=15 value="$myconfig->{name}"></td>
+	  <td><input name="name" size="15" value="$myconfig->{name}"></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('E-mail') . qq|</th>
@@ -635,24 +635,25 @@ sub form_header {
 
     print qq|
 	  <th align=right>| . $locale->text('Driver') . qq|</th>
-	  <td><input name=dbdriver type=radio class=radio value=$item $checked>&nbsp;$item</td>
+	  <td><input name="dbdriver" type="radio" class="radio" value="$item" $checked>&nbsp;$item</td>
 	  <th align=right>| . $locale->text('Host') . qq|</th>
-	  <td><input name="${item}_dbhost" size=30 value=$form->{"${item}_dbhost"}></td>
+	  <td><input name="${item}_dbhost" size=30 value="$form->{"${item}_dbhost"}"></td>
 	</tr>
 	<tr>|;
 
     if ($item eq 'Pg') {
+    
       print qq|
 	  <th align=right>| . $locale->text('Dataset') . qq|</th>
-	  <td><input name=Pg_dbname size=15 value=$form->{Pg_dbname}></td>
+	  <td><input name="Pg_dbname" size="15" value="$form->{Pg_dbname}"></td>
 	  <th align=right>| . $locale->text('Port') . qq|</th>
-	  <td><input name=Pg_dbport size=4 value=$form->{Pg_dbport}></td>
+	  <td><input name="Pg_dbport" size="4" value="$form->{Pg_dbport}"></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('User') . qq|</th>
-	  <td><input name="${item}_dbuser" size=15 value=$form->{"${item}_dbuser"}></td>
+	  <td><input name="${item}_dbuser" size=15 value="$form->{"${item}_dbuser"}"></td>
 	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input name="${item}_dbpasswd" type=password size=10 value=$form->{"${item}_dbpasswd"}></td>
+	  <td><input name="${item}_dbpasswd" type=password size=10 value="$form->{"${item}_dbpasswd"}"></td>
 	</tr>|;
 
     }
@@ -668,13 +669,13 @@ sub form_header {
 	  <th align=right>| . $locale->text('Dataset') . qq|</th>
 	  <td><input name="${item}_dbuser" size=15 value=$form->{"${item}_dbuser"}></td>
 	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input name="${item}_dbpasswd" type=password size=10 value=$form->{"${item}_dbpasswd"}></td>
+	  <td><input name="${item}_dbpasswd" type=password size=10 value="$form->{"${item}_dbpasswd"}"></td>
 
 	</tr>|;
     }
 
     print qq|
-	<input type=hidden name=old_dbpasswd value=$myconfig->{dbpasswd}>
+	<input type="hidden" name="old_dbpasswd" value="$myconfig->{dbpasswd}">
       </table>
     </td>
   </tr>
@@ -1286,9 +1287,9 @@ sub dbselect_source {
   <tr>
 
     <th align=right>| . $locale->text('User') . qq|</th>
-    <td><input name=dbuser size=10 value=$form->{dbuser}></td>
+    <td><input name="dbuser" size="10" value="$form->{dbuser}"></td>
     <th align=right>| . $locale->text('Password') . qq|</th>
-    <td><input type=password name=dbpasswd size=10></td>
+    <td><input type="password" name="dbpasswd" size="10"></td>
 
   </tr>
 
@@ -1379,12 +1380,12 @@ sub update_dataset {
 <table width=100%>
 <form method=post action=$form->{script}>
 
-<input type=hidden name=dbdriver value=$form->{dbdriver}>
-<input type=hidden name=dbhost value=$form->{dbhost}>
-<input type=hidden name=dbport value=$form->{dbport}>
-<input type=hidden name=dbuser value=$form->{dbuser}>
-<input type=hidden name=dbpasswd value=$form->{dbpasswd}>
-<input type=hidden name=dbdefault value=$form->{dbdefault}>
+<input type=hidden name="dbdriver"  value="$form->{dbdriver}">
+<input type=hidden name="dbhost"    value="$form->{dbhost}">
+<input type=hidden name="dbport"    value="$form->{dbport}">
+<input type=hidden name="dbuser"    value="$form->{dbuser}">
+<input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
+<input type=hidden name="dbdefault" value="$form->{dbdefault}">
 
 <tr class=listheading>
   <th>| . $locale->text('The following Datasets need to be updated') . qq|</th>
@@ -1546,12 +1547,12 @@ sub create_dataset {
 
   <tr><td colspan=2>
 <p>
-<input type=hidden name=dbdriver value=$form->{dbdriver}>
-<input type=hidden name=dbuser value=$form->{dbuser}>
-<input type=hidden name=dbhost value=$form->{dbhost}>
-<input type=hidden name=dbport value=$form->{dbport}>
-<input type=hidden name=dbpasswd value=$form->{dbpasswd}>
-<input type=hidden name=dbdefault value=$form->{dbdefault}>
+<input type=hidden name="dbdriver"  value="$form->{dbdriver}">
+<input type=hidden name="dbuser"    value="$form->{dbuser}">
+<input type=hidden name="dbhost"    value="$form->{dbhost}">
+<input type=hidden name="dbport"    value="$form->{dbport}">
+<input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
+<input type=hidden name="dbdefault" value="$form->{dbdefault}">
 
 <input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 
@@ -1662,12 +1663,12 @@ sub delete_dataset {
 
   <tr><td>
 <p>
-<input type=hidden name=dbdriver value=$form->{dbdriver}>
-<input type=hidden name=dbuser value=$form->{dbuser}>
-<input type=hidden name=dbhost value=$form->{dbhost}>
-<input type=hidden name=dbport value=$form->{dbport}>
-<input type=hidden name=dbpasswd value=$form->{dbpasswd}>
-<input type=hidden name=dbdefault value=$form->{dbdefault}>
+<input type=hidden name="dbdriver"  value="$form->{dbdriver}">
+<input type=hidden name="dbuser"    value="$form->{dbuser}">
+<input type=hidden name="dbhost"    value="$form->{dbhost}">
+<input type=hidden name="dbport"    value="$form->{dbport}">
+<input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
+<input type=hidden name="dbdefault" value="$form->{dbdefault}">
 
 <input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
 
