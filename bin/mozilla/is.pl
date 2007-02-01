@@ -912,7 +912,7 @@ sub form_footer {
 	      <tr valign=top>
 		<td>$notes</td>
 		<td>$intnotes</td>
-                <td><select name=payment_id onChange="set_duedate(['payment_id__' + this.value],['duedate'])">$payment
+                <td><select name=payment_id onChange="if (this.value) set_duedate(['payment_id__' + this.value],['duedate'])">$payment
                 </select></td>
 	      </tr>
 	    </table>
