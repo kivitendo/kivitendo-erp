@@ -1823,7 +1823,7 @@ sub print_form {
     $inv                  = "quo";
     $due                  = "req";
     $form->{"${inv}date"} = $form->{transdate};
-    $form->{"invdate"} = $form->{transdate};
+    $form->{"invdate"}    = $form->{transdate};
     $form->{label}        = $locale->text('Proforma Invoice');
     $numberfld            = "sqnumber";
     $order                = 1;
@@ -1841,7 +1841,9 @@ sub print_form {
   $form->isblank("email", $locale->text('E-mail address missing!'))
     if ($form->{media} eq 'email');
   $form->isblank("${inv}date",
-                 $locale->text($form->{label} . ' Date missing!'));
+           $locale->text($form->{label}) 
+           . ": "
+           . $locale->text(' Date missing!'));
 
   # $locale->text('Invoice Number missing!')
   # $locale->text('Invoice Date missing!')
