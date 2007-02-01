@@ -65,19 +65,28 @@ float:none;
 border:0;
 }
 
-/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far */
+/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far 
+ * correction: the bug will change the height of the parent element! this will also cause the whole menu to grow 
+ * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has
+ * a bottom border, which just looks ugly
+ * the trick: color the bottom border with the same color as the bottom pixel of the background image - noone notices */
+#menu ul li {
+border:solid;
+border-color:#ccd5e5;
+border-width:0 0 1px 0;
+}
 
 #menu ul ul li {
 border:solid;
 border-width:0 0 1px 0;
 }
 
+/** IE6 event bug fix, a z-indexed layer without some kind of background will lose its events to the layer below */  
 #menu ul ul {
 position:absolute;
 z-index:500;
 top:auto;
 display:none;
-/* IE6 event bug fix, a z-indexed layer without some kind of background will lose its events to the layer below */  
 background:#000;
 }
 
