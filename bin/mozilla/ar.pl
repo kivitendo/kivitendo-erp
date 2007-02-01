@@ -771,6 +771,10 @@ sub form_footer {
           . $locale->text('Use As Template') . qq|">
   |;
       }
+        print qq|
+  <input class=submit type=submit name=action value="|
+          . $locale->text('Post Payment') . qq|">
+  |;
     
   } else {
     if ($transdate > $closedto) {
@@ -896,6 +900,36 @@ sub update {
   $form->{oldtotalpaid} = $totalpaid;
 
   &display_form;
+
+  $lxdebug->leave_sub();
+}
+
+sub post_payment {
+  $lxdebug->enter_sub();
+  for $i (1 .. $form->{paidaccounts}) {
+    if ($form->{"paid_$i"}) {
+      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+
+      $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
+
+      $form->error($locale->text('Cannot post payment for a closed period!'))
+        if ($datepaid <= $closedto);
+
+      if ($form->{currency} ne $form->{defaultcurrency}) {
+        $form->{"exchangerate_$i"} = $form->{exchangerate}
+          if ($invdate == $datepaid);
+        $form->isblank("exchangerate_$i",
+                       $locale->text('Exchangerate for payment missing!'));
+      }
+    }
+  }
+
+  ($form->{AR})      = split /--/, $form->{AR};
+  ($form->{AR_paid}) = split /--/, $form->{AR_paid};
+  $form->redirect($locale->text(' Payment posted!'))
+      if (AR->post_payment(\%myconfig, \%$form));
+    $form->error($locale->text('Cannot post payment!'));
+
 
   $lxdebug->leave_sub();
 }
