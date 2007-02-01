@@ -279,6 +279,8 @@ sub create_links {
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
+  $form->{"APselected"} = $form->{"AP_1"};
+
   $lxdebug->leave_sub();
 }
 
@@ -320,6 +322,11 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
   $readonly = ($form->{id}) ? "readonly" : "";
+
+  my $APselected_quoted = quotemeta($form->{"APselected"});
+  $form->{selectAP} = $form->{AP};
+  $form->{selectAP} =~
+    s/value=\"${APselected_quoted}\"/value=\"$form->{APselected}\" selected/;
 
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
@@ -775,10 +782,6 @@ sub update {
   #   $form->{selectAP_amount} = $form->{AP_amount};
   #   $form->{selectAP_amount} =~
   #     s/value=\"$form->{AP_amountselected}\"/value=\"$form->{AP_amountselected}\" selected/;
-
-  $form->{selectAP} = $form->{AP};
-  $form->{selectAP} =~
-    s/value=\"$form->{APselected}\"/value=\"$form->{APselected}\" selected/;
 
   ($AP_amountaccno, $AP_amounttaxkey) =
     split(/--/, $form->{AP_amountselected});
