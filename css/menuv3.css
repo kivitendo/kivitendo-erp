@@ -30,7 +30,6 @@ padding:0 5px;
 #menu a, #menu a:visited, #menu div.x, #menu div.x:visited {
 color:#000;
 text-decoration:none;
-/*border-width:1px;*/
 padding-right:10px;
 }
 
@@ -67,6 +66,7 @@ border:0;
 }
 
 /* IE6 spacing bug fix, <li>s without a bottom border get spaced to far */
+
 #menu ul ul li {
 border:solid;
 border-width:0 0 1px 0;
@@ -77,7 +77,7 @@ position:absolute;
 z-index:500;
 top:auto;
 display:none;
-/* IE6 event bug fix, a z-indexed layer without some kind of background will lose its events to the leyer below */
+/* IE6 event bug fix, a z-indexed layer without some kind of background will lose its events to the layer below */  
 background:#000;
 }
 
