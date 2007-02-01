@@ -292,6 +292,8 @@ sub create_links {
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
+  $form->{"ARselected"} = $form->{"AR_1"};
+
   $lxdebug->leave_sub();
 }
 
@@ -330,6 +332,11 @@ sub form_header {
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
   $readonly = ($form->{radier}) ? "" : $readonly;
+
+  my $ARselected_quoted = quotemeta($form->{"ARselected"});
+  $form->{selectAR} = $form->{AR};
+  $form->{selectAR} =~
+    s/value=\"${ARselected_quoted}\"/value=\"$form->{ARselected}\" selected/;
 
   # set option selected
   foreach $item (qw(customer currency department employee)) {
@@ -798,11 +805,6 @@ sub update {
   #   $form->{selectAR_amount} = $form->{AR_amount};
   #   $form->{selectAR_amount} =~
   #     s/value=\"$form->{AR_amountselected}\"/value=\"$form->{AR_amountselected}\" selected/;
-
-  $form->{selectAR} = $form->{AR};
-
-  $form->{selectAR} =~
-    s/value=\"$form->{ARselected}\"/value=\"$form->{ARselected}\" selected/;
 
   ($AR_amountaccno, $AR_amounttaxkey) =
     split(/--/, $form->{AR_amountselected});
