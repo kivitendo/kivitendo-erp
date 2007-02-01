@@ -576,31 +576,19 @@ sub write_trigger {
 
   # set dateform for jsscript
   # default
-  $ifFormat = "%d.%m.%Y";
-  if ($myconfig->{dateformat} eq "dd.mm.yy") {
-    $ifFormat = "%d.%m.%Y";
-  } else {
-    if ($myconfig->{dateformat} eq "dd-mm-yy") {
-      $ifFormat = "%d-%m-%Y";
-    } else {
-      if ($myconfig->{dateformat} eq "dd/mm/yy") {
-        $ifFormat = "%d/%m/%Y";
-      } else {
-        if ($myconfig->{dateformat} eq "mm/dd/yy") {
-          $ifFormat = "%m/%d/%Y";
-        } else {
-          if ($myconfig->{dateformat} eq "mm-dd-yy") {
-            $ifFormat = "%m-%d-%Y";
-          } else {
-            if ($myconfig->{dateformat} eq "yyyy-mm-dd") {
-              $ifFormat = "%Y-%m-%d";
-            }
-          }
-        }
-      }
-    }
-  }
+  my %dateformats = (
+    "dd.mm.yy" => "%d.%m.%Y",
+    "dd-mm-yy" => "%d-%m-%Y",
+    "dd/mm/yy" => "%d/%m/%Y",
+    "mm/dd/yy" => "%m/%d/%Y",
+    "mm-dd-yy" => "%m-%d-%Y",
+    "yyyy-mm-dd" => "%Y-%m-%d",
+    );
 
+  my $ifFormat = defined($dateformats{$myconfig{"dateformat"}}) ?
+    $dateformats{$myconfig{"dateformat"}} : "%d.%m.%Y";
+
+  my @triggers;
   while ($#_ >= 2) {
     push @triggers, qq|
        Calendar.setup(
