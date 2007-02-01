@@ -409,7 +409,7 @@ function fokus(){document.$self->{fokus}.focus();}
       ($self->{title})
       ? "$self->{title} - $self->{titlebar}"
       : $self->{titlebar};
-    $ajax = "";
+    my $ajax = "";
     foreach $item (@ { $self->{AJAX} }) {
       $ajax .= $item->show_javascript();
     }
