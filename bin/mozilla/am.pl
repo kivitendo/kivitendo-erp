@@ -1782,14 +1782,26 @@ sub list_buchungsgruppe {
 
   $form->{title} = $locale->text('Buchungsgruppen');
 
-  @column_index = qw(description inventory_accno income_accno_0 expense_accno_0 income_accno_1 expense_accno_1 income_accno_2 expense_accno_2 income_accno_3 expense_accno_3 );
+  @column_index = qw(up down description inventory_accno
+                     income_accno_0 expense_accno_0
+                     income_accno_1 expense_accno_1
+                     income_accno_2 expense_accno_2
+                     income_accno_3 expense_accno_3 );
 
+  $column_header{up} =
+      qq|<th class="listheading">|
+    . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
+    . qq|</th>|;
+  $column_header{down} =
+      qq|<th class="listheading">|
+    . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
+    . qq|</th>|;
   $column_header{description} =
-      qq|<th class=listheading width=60%>|
+      qq|<th class="listheading" width="40%">|
     . $locale->text('Description')
     . qq|</th>|;
   $column_header{inventory_accno} =
-      qq|<th class=listheading width=10%>|
+      qq|<th class=listheading>|
     . $locale->text('Bestandskonto')
     . qq|</th>|;
   $column_header{income_accno_0} =
@@ -1846,6 +1858,11 @@ sub list_buchungsgruppe {
         </tr>
 |;
 
+  my $swap_link = qq|$form->{script}?action=swap_buchungsgruppen&|;
+  map({ $swap_link .= $_ . "=" . $form->escape($form->{$_}) . "&" }
+      qw(login password path));
+
+  my $row = 0;
   foreach $ref (@{ $form->{ALL} }) {
 
     $i++;
@@ -1855,6 +1872,27 @@ sub list_buchungsgruppe {
         <tr valign=top class=listrow$i>
 |;
 
+    if ($row) {
+      my $pref = $form->{ALL}->[$row - 1];
+      $column_data{up} =
+        qq|<td align="center" valign="center">| .
+        qq|<a href="${swap_link}id1=$ref->{id}&id2=$pref->{id}">| .
+        qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">| .
+        qq|</a></td>|;
+    } else {
+      $column_data{up} = qq|<td>&nbsp;</td>|;
+    }
+
+    if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
+      $column_data{down} = qq|<td>&nbsp;</td>|;
+    } else {
+      my $nref = $form->{ALL}->[$row + 1];
+      $column_data{down} =
+        qq|<td align="center" valign="center">| .
+        qq|<a href="${swap_link}id1=$ref->{id}&id2=$nref->{id}">| .
+        qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">| .
+        qq|</a></td>|;
+    }
 
     $column_data{description} =
       qq|<td><a href=$form->{script}?action=edit_buchungsgruppe&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
@@ -1877,6 +1915,8 @@ sub list_buchungsgruppe {
     print qq|
 	</tr>
 |;
+
+    $row++;
   }
 
   print qq|
@@ -2067,6 +2107,15 @@ sub delete_buchungsgruppe {
 
   AM->delete_buchungsgruppe(\%myconfig, \%$form);
   $form->redirect($locale->text('Buchungsgruppe gelöscht!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub swap_buchungsgruppen {
+  $lxdebug->enter_sub();
+
+  AM->swap_buchungsgruppen(\%myconfig, $form);
+  list_buchungsgruppe();
 
   $lxdebug->leave_sub();
 }

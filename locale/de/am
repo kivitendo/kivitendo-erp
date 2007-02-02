@@ -288,10 +288,12 @@ $self->{texts} = {
   'Year End'                    => 'Jahresende',
   'Yes'                         => 'Ja',
   'dimension units'             => 'Ma&szlig;einheiten',
+  'down'                        => 'hoch',
   'equal Outputformat'          => 'wie Ausgabeformat',
   'lead deleted!'               => 'Kundenquelle gelöscht',
   'lead saved!'                 => 'Kundenquelle geichert',
   'service units'               => 'Dienstleistungseinheiten',
+  'up'                          => 'runter',
   'use program settings'        => 'benutze Programmeinstellungen',
 };
 
@@ -398,6 +400,7 @@ $self->{subs} = {
   'set_longdescription'         => 'set_longdescription',
   'set_unit_languages'          => 'set_unit_languages',
   'sic_header'                  => 'sic_header',
+  'swap_buchungsgruppen'        => 'swap_buchungsgruppen',
   'vendor_selection'            => 'vendor_selection',
   'warehouse_header'            => 'warehouse_header',
   'erfassen'                    => 'add',

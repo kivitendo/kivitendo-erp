@@ -1017,7 +1017,7 @@ sub buchungsgruppe {
                  expense_accno_id_3,
                  (SELECT accno FROM chart WHERE id = expense_accno_id_3) AS expense_accno_3
                  FROM buchungsgruppen
-                 ORDER BY id|;
+                 ORDER BY sortkey|;
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -1141,6 +1141,8 @@ sub save_buchungsgruppe {
                 $form->{income_accno_id_2}, $form->{expense_accno_id_2},
                 $form->{income_accno_id_3}, $form->{expense_accno_id_3});
 
+  my $query;
+
   # id is the old record
   if ($form->{id}) {
     $query = qq|UPDATE buchungsgruppen SET
@@ -1152,13 +1154,18 @@ sub save_buchungsgruppe {
                 WHERE id = ?|;
     push(@values, $form->{id});
   } else {
+    $query = qq|SELECT MAX(sortkey) + 1 FROM buchungsgruppen|;
+    my ($sortkey) = $dbh->selectrow_array($query);
+    $form->dberror($query) if ($dbh->err);
+    push(@values, $sortkey);
     $query = qq|INSERT INTO buchungsgruppen
                 (description, inventory_accno_id,
                 income_accno_id_0, expense_accno_id_0,
                 income_accno_id_1, expense_accno_id_1,
                 income_accno_id_2, expense_accno_id_2,
-                income_accno_id_3, expense_accno_id_3)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+                income_accno_id_3, expense_accno_id_3,
+                sortkey)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
   }
   do_query($form, $dbh, $query, @values);
 
@@ -1178,6 +1185,35 @@ sub delete_buchungsgruppe {
   $query = qq|DELETE FROM buchungsgruppen WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub swap_buchungsgruppen {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect_noauto($myconfig);
+
+  my $query =
+    qq|SELECT
+       (SELECT sortkey FROM buchungsgruppen WHERE id = ?) AS sortkey1,
+       (SELECT sortkey FROM buchungsgruppen WHERE id = ?) AS sortkey2|;
+  my @values = ($form->{"id1"}, $form->{"id2"});
+  my @sortkeys = selectrow_query($form, $dbh, $query, @values);
+
+  $query = qq|UPDATE buchungsgruppen SET sortkey = ? WHERE id = ?|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute($sortkeys[1], $form->{"id1"}) ||
+    $form->dberror($query . " ($sortkeys[1], $form->{id1})");
+  $sth->execute($sortkeys[0], $form->{"id2"}) ||
+    $form->dberror($query . " ($sortkeys[0], $form->{id2})");
+  $sth->finish();
+
+  $dbh->commit();
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

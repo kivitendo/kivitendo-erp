@@ -310,7 +310,8 @@ sub retrieve_buchungsgruppen {
 
   # get buchungsgruppen
   $query = qq|SELECT id, description
-              FROM buchungsgruppen|;
+              FROM buchungsgruppen
+              ORDER BY sortkey|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
