@@ -2572,7 +2572,38 @@ sub payment_header {
   <td colspan=2><hr size=3 noshade></td>
   </tr>
 </table>
-|;
+
+<p>| . $locale->text("You can use the following strings in the long " .
+                     "description and all translations. They will be " .
+                     "replaced by their actual values by Lx-Office " .
+                     "before they're output.")
+. qq|</p>
+
+<ul>
+  <li>| . $locale->text("&lt;%netto_date%&gt; -- Date the payment is due in " .
+                        "full")
+. qq|</li>
+  <li>| . $locale->text("&lt;%skonto_date%&gt; -- Date the payment is due " .
+                        "with discount")
+. qq|</li>
+  <li>| . $locale->text("&lt;%skonto_amount%&gt; -- The deductible amount")
+. qq|</li>
+  <li>| . $locale->text("&lt;%total%&gt; -- Amount payable")
+. qq|</li>
+  <li>| . $locale->text("&lt;%invtotal%&gt; -- Invoice total")
+. qq|</li>
+  <li>| . $locale->text("&lt;%currency%&gt; -- The selected currency")
+. qq|</li>
+  <li>| . $locale->text("&lt;%terms_netto%&gt; -- The number of days for " .
+                        "full payment")
+. qq|</li>
+  <li>| . $locale->text("&lt;%account_number%&gt; -- Your account number")
+. qq|</li>
+  <li>| . $locale->text("&lt;%bank%&gt; -- Your bank")
+. qq|</li>
+  <li>| . $locale->text("&lt;%bank_code%&gt; -- Your bank code")
+. qq|</li>
+</ul>|;
 
   $lxdebug->leave_sub();
 }
