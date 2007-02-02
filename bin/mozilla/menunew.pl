@@ -248,7 +248,7 @@ function writeMenus() {
 			if (borderClass) str += 'class="' + borderClass + '" "';
 			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
 			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
-			str +='<tr><td style="cursor:crosshair;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
+			str +='<tr><td style="cursor:pointer;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
 			if (target > 0) {
 				menu[target][0].parentMenu = currMenu;
 				menu[target][0].parentItem = currItem;
