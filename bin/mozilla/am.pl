@@ -2457,7 +2457,7 @@ sub list_payment {
       build_std_url("action=edit_payment", "id=$ref->{id}", "callback=$callback") .
       qq|">| . H($ref->{description}) . qq|</a></td>|;
     $column_data{description_long} =
-      qq|<td align=right>| . H($ref->{description_long}) . qq|</td>|;
+      qq|<td>| . H($ref->{description_long}) . qq|</td>|;
     $column_data{terms_netto} =
       qq|<td align=right>$ref->{terms_netto}</td>|;
     $column_data{terms_skonto} =
