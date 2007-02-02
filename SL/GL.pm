@@ -487,11 +487,13 @@ sub all_transactions {
           $ref->{debit}{$k}        = $ref->{amount} * -1;
           $ref->{debit_accno}{$k}  = $ref->{accno};
           $ref->{debit_taxkey}{$k} = $ref->{taxkey};
+          $ref->{transdate}{$k}    = $ref->{transdate};
 
         } else {
           $ref->{credit}{$l}        = $ref->{amount} * 1;
           $ref->{credit_accno}{$l}  = $ref->{accno};
           $ref->{credit_taxkey}{$l} = $ref->{taxkey};
+          $ref->{transdate}{$l}     = $ref->{transdate};
 
 
         }
@@ -547,6 +549,7 @@ sub all_transactions {
           $ref->{debit}{$k}        = $ref2->{amount} * - 1;
           $ref->{debit_accno}{$k}  = $ref2->{accno};
           $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
+          $ref->{transdate}{$k}    = $ref2->{transdate};
         } else {
           if ($ref->{credit_accno}{$l} ne "") {
             $l++;
@@ -554,6 +557,7 @@ sub all_transactions {
           $ref->{credit}{$l}        = $ref2->{amount};
           $ref->{credit_accno}{$l}  = $ref2->{accno};
           $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
+          $ref->{transdate}{$l}     = $ref2->{transdate};
         }
       }
     }

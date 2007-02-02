@@ -750,16 +750,23 @@ sub generate_report {
       }
     }
 
+    $transdate = "";
+    foreach $key (sort keys(%{ $ref->{transdate} })) {
+      if ($key == 0) {
+        $transdate = "$ref->{transdate}{$key}";
+      } else {
+        $transdate .= "<br>$ref->{transdate}{$key}";
+      }
+    }
+
     #    $ref->{debit} = $form->format_amount(\%myconfig, $ref->{debit}, 2, "&nbsp;");
     #    $ref->{credit} = $form->format_amount(\%myconfig, $ref->{credit}, 2, "&nbsp;");
 
     $column_data{id}        = "<td align=right>&nbsp;$ref->{id}&nbsp;</td>";
-    $column_data{transdate} =
-      "<td align=center>&nbsp;$ref->{transdate}&nbsp;</td>";
+    $column_data{transdate}    = "<td align=center>$transdate</td>";
     $column_data{reference} =
       "<td align=center><a href=$ref->{module}.pl?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{reference}</td>";
-    $column_data{description} =
-      "<td align=center>$ref->{description}&nbsp;</td>";
+    $column_data{description}  = "<td align=center>$ref->{description}&nbsp;</td>";
     $column_data{source}       = "<td align=center>$ref->{source}&nbsp;</td>";
     $column_data{notes}        = "<td align=center>$ref->{notes}&nbsp;</td>";
     $column_data{debit}        = "<td align=right>$debit</td>";
