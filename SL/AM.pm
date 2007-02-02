@@ -38,6 +38,7 @@
 package AM;
 
 use Data::Dumper;
+use SL::DBUtils;
 
 sub get_account {
   $main::lxdebug->enter_sub();
@@ -83,9 +84,9 @@ sub get_account {
               FROM tax ORDER BY taxkey§;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-  
+
   $form->{TAXKEY} = [];
-  
+
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{TAXKEY} }, $ref;
   }
@@ -94,18 +95,18 @@ sub get_account {
   if ($form->{id}) {
 
     $where = " WHERE link='$form->{link}'";
-    
-  
+
+
     # get new accounts
     $query = qq|SELECT id, accno,description
                 FROM chart $where|;
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
-  
+
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       push @{ $form->{NEWACCOUNT} }, $ref;
     }
-  
+
     $sth->finish;
   }
   # check if we have any transactions
@@ -216,7 +217,7 @@ sub save_account {
 
   #Save Taxes
   if (!$form->{id}) {
-    $query = qq|INSERT INTO taxkeys (chart_id,tax_id,taxkey_id, pos_ustva, startdate) VALUES ((SELECT id FROM chart where accno='$form->{accno}'), $tax_id, $taxkey,$form->{pos_ustva}, $startdate)|; 
+    $query = qq|INSERT INTO taxkeys (chart_id,tax_id,taxkey_id, pos_ustva, startdate) VALUES ((SELECT id FROM chart where accno='$form->{accno}'), $tax_id, $taxkey,$form->{pos_ustva}, $startdate)|;
     $dbh->do($query) || $form->dberror($query);
   } else {
     $query = qq|DELETE FROM taxkeys WHERE chart_id=$form->{id} AND tax_id=$tax_id|;
@@ -226,32 +227,32 @@ sub save_account {
   }
 
 #   if ($form->{IC_taxpart} || $form->{IC_taxservice} || $form->{CT_tax}) {
-# 
+#
 #     my $chart_id = $form->{id};
-# 
+#
 #     unless ($form->{id}) {
-# 
+#
 #       # get id from chart
 #       $query = qq|SELECT c.id
 #                   FROM chart c
 # 		  WHERE c.accno = '$form->{accno}'|;
 #       $sth = $dbh->prepare($query);
 #       $sth->execute || $form->dberror($query);
-# 
+#
 #       ($chart_id) = $sth->fetchrow_array;
 #       $sth->finish;
 #     }
-# 
+#
 #     # add account if it doesn't exist in tax
 #     $query = qq|SELECT t.chart_id
 #                 FROM tax t
 # 		WHERE t.chart_id = $chart_id|;
 #     $sth = $dbh->prepare($query);
 #     $sth->execute || $form->dberror($query);
-# 
+#
 #     my ($tax_id) = $sth->fetchrow_array;
 #     $sth->finish;
-# 
+#
 #     # add tax if it doesn't exist
 #     unless ($tax_id) {
 #       $query = qq|INSERT INTO tax (chart_id, rate)
@@ -259,7 +260,7 @@ sub save_account {
 #       $dbh->do($query) || $form->dberror($query);
 #     }
 #   } else {
-# 
+#
 #     # remove tax
 #     if ($form->{id}) {
 #       $query = qq|DELETE FROM tax
@@ -1023,31 +1024,41 @@ sub get_buchungsgruppe {
 
   if ($form->{id}) {
     my $query =
-      qq|SELECT description, inventory_accno_id, (select accno from chart where id=inventory_accno_id) as inventory_accno, income_accno_id_0, (select accno from chart where id=income_accno_id_0) as income_accno_0,  expense_accno_id_0, (select accno from chart where id=expense_accno_id_0) as expense_accno_0, income_accno_id_1, (select accno from chart where id=income_accno_id_1) as income_accno_1,  expense_accno_id_1, (select accno from chart where id=expense_accno_id_1) as expense_accno_1,  income_accno_id_2, (select accno from chart where id=income_accno_id_2) as income_accno_2,  expense_accno_id_2, (select accno from chart where id=expense_accno_id_2) as expense_accno_2,  income_accno_id_3, (select accno from chart where id=income_accno_id_3) as income_accno_3,  expense_accno_id_3, (select accno from chart where id=expense_accno_id_3) as expense_accno_3
-                  FROM buchungsgruppen
-                  WHERE id = $form->{id}|;
+      qq|SELECT description, inventory_accno_id,
+         (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno,
+         income_accno_id_0,
+         (SELECT accno FROM chart WHERE id = income_accno_id_0) AS income_accno_0,
+         expense_accno_id_0,
+         (SELECT accno FROM chart WHERE id = expense_accno_id_0) AS expense_accno_0,
+         income_accno_id_1,
+         (SELECT accno FROM chart WHERE id = income_accno_id_1) AS income_accno_1,
+         expense_accno_id_1,
+         (SELECT accno FROM chart WHERE id = expense_accno_id_1) AS expense_accno_1,
+         income_accno_id_2,
+         (SELECT accno FROM chart WHERE id = income_accno_id_2) AS income_accno_2,
+         expense_accno_id_2,
+         (select accno FROM chart WHERE id = expense_accno_id_2) AS expense_accno_2,
+         income_accno_id_3,
+         (SELECT accno FROM chart WHERE id = income_accno_id_3) AS income_accno_3,
+         expense_accno_id_3,
+         (SELECT accno FROM chart WHERE id = expense_accno_id_3) AS expense_accno_3
+         FROM buchungsgruppen
+         WHERE id = ?|;
     my $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-  
+    $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
+
     my $ref = $sth->fetchrow_hashref(NAME_lc);
-  
+
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-  
-    $sth->finish;
-  
-    my $query =
-      qq|SELECT count(id) as anzahl
-                  FROM parts
-                  WHERE buchungsgruppen_id = $form->{id}|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-  
-    my $ref = $sth->fetchrow_hashref(NAME_lc);
-    if (!$ref->{anzahl}) {
-      $form->{orphaned} = 1;
-    }
+
     $sth->finish;
 
+    my $query =
+      qq|SELECT count(id) = 0 AS orphaned
+         FROM parts
+         WHERE buchungsgruppen_id = ?|;
+    ($form->{orphaned}) = $dbh->selectrow_array($query, undef, $form->{id});
+    $form->dberror($query . " ($form->{id})") if ($dbh->err);
   }
 
   $query = "SELECT inventory_accno_id, income_accno_id, expense_accno_id ".
@@ -1105,29 +1116,32 @@ sub save_buchungsgruppe {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $form->{description} =~ s/\'/\'\'/g;
-
+  my @values = ($form->{description}, $form->{inventory_accno_id},
+                $form->{income_accno_id_0}, $form->{expense_accno_id_0},
+                $form->{income_accno_id_1}, $form->{expense_accno_id_1},
+                $form->{income_accno_id_2}, $form->{expense_accno_id_2},
+                $form->{income_accno_id_3}, $form->{expense_accno_id_3});
 
   # id is the old record
   if ($form->{id}) {
     $query = qq|UPDATE buchungsgruppen SET
-		description = '$form->{description}',
-		inventory_accno_id = '$form->{inventory_accno_id}',
-		income_accno_id_0 = '$form->{income_accno_id_0}',
-		expense_accno_id_0 = '$form->{expense_accno_id_0}',
-		income_accno_id_1 = '$form->{income_accno_id_1}',
-		expense_accno_id_1 = '$form->{expense_accno_id_1}',
-        	income_accno_id_2 = '$form->{income_accno_id_2}',
-		expense_accno_id_2 = '$form->{expense_accno_id_2}',
-                income_accno_id_3 = '$form->{income_accno_id_3}',
-		expense_accno_id_3 = '$form->{expense_accno_id_3}'
-		WHERE id = $form->{id}|;
+                description = ?, inventory_accno_id = ?,
+                income_accno_id_0 = ?, expense_accno_id_0 = ?,
+                income_accno_id_1 = ?, expense_accno_id_1 = ?,
+                income_accno_id_2 = ?, expense_accno_id_2 = ?,
+                income_accno_id_3 = ?, expense_accno_id_3 = ?
+                WHERE id = ?|;
+    push(@values, $form->{id});
   } else {
     $query = qq|INSERT INTO buchungsgruppen
-                (description, inventory_accno_id, income_accno_id_0, expense_accno_id_0, income_accno_id_1, expense_accno_id_1, income_accno_id_2, expense_accno_id_2, income_accno_id_3, expense_accno_id_3)
-                VALUES ('$form->{description}', '$form->{inventory_accno_id}', '$form->{income_accno_id_0}', '$form->{expense_accno_id_0}', '$form->{income_accno_id_1}', '$form->{expense_accno_id_1}', '$form->{income_accno_id_2}', '$form->{expense_accno_id_2}', '$form->{income_accno_id_3}', '$form->{expense_accno_id_3}')|;
+                (description, inventory_accno_id,
+                income_accno_id_0, expense_accno_id_0,
+                income_accno_id_1, expense_accno_id_1,
+                income_accno_id_2, expense_accno_id_2,
+                income_accno_id_3, expense_accno_id_3)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
   }
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 
@@ -1142,9 +1156,8 @@ sub delete_buchungsgruppe {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM buchungsgruppen
-	      WHERE id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  $query = qq|DELETE FROM buchungsgruppen WHERE id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
 
   $dbh->disconnect;
 
@@ -1267,7 +1280,7 @@ sub payment {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {   
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     $ref->{percent_skonto} = $form->format_amount($myconfig,($ref->{percent_skonto} * 100));
     push @{ $form->{ALL} }, $ref;
   }
