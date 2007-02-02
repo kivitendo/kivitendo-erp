@@ -1149,11 +1149,11 @@ sub set_payment_options {
       selectrow_query($self, $dbh, $query);
 
     my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
+    my $skonto_amount = $self->parse_amount($myconfig, $total) *
+      $self->{percent_skonto};
 
     $self->{skonto_amount} =
-      $self->format_amount($myconfig,
-                           $self->parse_amount($myconfig, $total) *
-                           $self->{percent_skonto}, 2);
+      $self->format_amount($myconfig, $skonto_amount, 2);
 
     if ($self->{"language_id"}) {
       $query =
@@ -1183,9 +1183,7 @@ sub set_payment_options {
         my $saved_numberformat = $myconfig->{"numberformat"};
         $myconfig->{"numberformat"} = $output_numberformat;
         $self->{skonto_amount} =
-          $self->format_amount($myconfig,
-                               $self->parse_amount($myconfig, $total) *
-                               $self->{percent_skonto}, 2);
+          $self->format_amount($myconfig, $skonto_amount, 2);
         $myconfig->{"numberformat"} = $saved_numberformat;
       }
     }
