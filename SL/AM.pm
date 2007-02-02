@@ -997,13 +997,32 @@ sub buchungsgruppe {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT id, description, inventory_accno_id, (select accno from chart where id=inventory_accno_id) as inventory_accno, income_accno_id_0, (select accno from chart where id=income_accno_id_0) as income_accno_0,  expense_accno_id_0, (select accno from chart where id=expense_accno_id_0) as expense_accno_0, income_accno_id_1, (select accno from chart where id=income_accno_id_1) as income_accno_1,  expense_accno_id_1, (select accno from chart where id=expense_accno_id_1) as expense_accno_1,  income_accno_id_2, (select accno from chart where id=income_accno_id_2) as income_accno_2,  expense_accno_id_2, (select accno from chart where id=expense_accno_id_2) as expense_accno_2,  income_accno_id_3, (select accno from chart where id=income_accno_id_3) as income_accno_3,  expense_accno_id_3, (select accno from chart where id=expense_accno_id_3) as expense_accno_3
-                  FROM buchungsgruppen
-		 ORDER BY id|;
+  my $query = qq|SELECT id, description,
+                 inventory_accno_id,
+                 (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno,
+                 income_accno_id_0,
+                 (SELECT accno FROM chart WHERE id = income_accno_id_0) AS income_accno_0,
+                 expense_accno_id_0,
+                 (SELECT accno FROM chart WHERE id = expense_accno_id_0) AS expense_accno_0,
+                 income_accno_id_1,
+                 (SELECT accno FROM chart WHERE id = income_accno_id_1) AS income_accno_1,
+                 expense_accno_id_1,
+                 (SELECT accno FROM chart WHERE id = expense_accno_id_1) AS expense_accno_1,
+                 income_accno_id_2,
+                 (SELECT accno FROM chart WHERE id = income_accno_id_2) AS income_accno_2,
+                 expense_accno_id_2,
+                 (select accno FROM chart WHERE id = expense_accno_id_2) AS expense_accno_2,
+                 income_accno_id_3,
+                 (SELECT accno FROM chart WHERE id = income_accno_id_3) AS income_accno_3,
+                 expense_accno_id_3,
+                 (SELECT accno FROM chart WHERE id = expense_accno_id_3) AS expense_accno_3
+                 FROM buchungsgruppen
+                 ORDER BY id|;
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
+  $form->{ALL} = [];
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{ALL} }, $ref;
   }
