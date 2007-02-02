@@ -575,12 +575,11 @@ sub list_account {
       $ca->{link} .= qq|[| . $link . qq|]&nbsp;|;
     }
     
-    $ca->{startdate} =~ s/,/<br>/og;
-    $ca->{tk_ustva}  =~ s/,/<br>/og;
-
-    $ca->{taxkey_id}  =~ s/,/<br>/og;
-    $ca->{taxdescription}  =~ s/,/<br>/og;
-
+    $ca->{startdate}      =~ s/,/<br>/og;
+    $ca->{tk_ustva}       =~ s/,/<br>/og;
+    $ca->{taxkey}         =~ s/,/<br>/og;
+    $ca->{taxaccount}     =~ s/,/<br>/og;
+    $ca->{taxdescription} =~ s/,/<br>/og;
     $ca->{datevautomatik} = ($ca->{datevautomatik}) ? $locale->text('On'):q{};
 
     $ca->{category} = ($ca->{category} eq 'A') ? $locale->text('Account Category A')

@@ -86,24 +86,39 @@ sub all_accounts {
       c.pos_eur,
       c.valid_from,
       c.datevautomatik,
-      ( SELECT comma(taxkey_id)
-        FROM taxkeys tk
-        WHERE tk.chart_id = c.id
-          AND c.taxkey_id = tk.taxkey_id
-        ORDER BY c.id
-      ) AS taxkey_id,
+--      ( SELECT comma(taxkey_id)
+--        FROM taxkeys tk
+--        WHERE tk.chart_id = c.id
+--          AND c.taxkey_id = tk.taxkey_id
+--        ORDER BY c.id
+--      ) AS taxkey_id,
+
+      ( SELECT comma(taxkey)
+        FROM tax tx
+        WHERE tx.id in (
+          SELECT tk.tax_id from taxkeys tk 
+          WHERE tk.chart_id = c.id
+        ) 
+        ORDER BY c.accno
+      ) AS taxkey,
 
       ( SELECT comma(taxdescription)
         FROM tax tx
         WHERE tx.id in (
           SELECT tk.tax_id from taxkeys tk 
-          WHERE tk.chart_id = (
-            SELECT id from chart 
-            WHERE chart.accno='0027' -- Beispielkonto aus dem SKR03
-          )
+          WHERE tk.chart_id = c.id
         ) 
         ORDER BY c.accno
       ) AS taxdescription,
+      
+      ( SELECT comma(taxnumber)
+        FROM tax tx
+        WHERE tx.id in (
+          SELECT tk.tax_id from taxkeys tk 
+          WHERE tk.chart_id = c.id
+        ) 
+        ORDER BY c.accno
+      ) AS taxaccount,
 
       ( SELECT comma(tk.pos_ustva)
         FROM taxkeys tk

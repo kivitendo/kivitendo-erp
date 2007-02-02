@@ -2,22 +2,23 @@
 
     <table border="0" cellpadding="3" cellspacing="3" width="100%">
       <tr>
-        <th class="listtop" colspan="12"><TMPL_VAR title ESCAPE=HTML></th>
+        <th class="listtop" colspan="14"><TMPL_VAR title ESCAPE=HTML></th>
       </tr>
-      <tr height=5></tr>
-      <tr class=listheading>
+      <tr height="5"></tr>
+      <tr class="listheading">
         <th colspan="3"><b><translate>Account Number</translate></b></th>
-        <th colspan="8"><b><translate>Description</translate></b></a></th>
+        <th colspan="9"><b><translate>Description</translate></b></a></th>
         <th rowspan="3"><translate>Credit</translate></th>
         <th rowspan="3"><translate>Debit</translate></th>
       </tr>  
-      <tr class=listheading>
+      <tr class="listheading">
         <th colspan="3"><b><translate>category</translate></b></th>
         
-        <th colspan="8"><translate>Link</translate></th>
+        <th colspan="9"><translate>Link</translate></th>
       </tr>
-      <tr class=listheading>
+      <tr class="listheading">
         <th><translate>Taxkey</translate></th>
+        <th><translate>Taxaccount</translate></th>
         <th><translate>Taxdescription</translate></th>
         <th><translate>Startdate</translate></th>
         <th><translate>tk_ustva</translate></th>
@@ -26,22 +27,22 @@
         <th><translate>pos_bilanz</translate></th>
         <th><translate>pos_eur</translate></th>
         <th><translate>Datev</translate></th>
-        <th><translate>valid_from</translate></th>
         <th><translate>Following Account</translate></th>
+        <th><translate>valid_from</translate></th>
       </tr>
 
 <TMPL_LOOP CA>
 
   <TMPL_IF heading>
 
-      <tr class=listheading>
-        <td colspan="3" abbr="<translate>Account Number</translate>">
+      <tr class="listheading">
+        <td colspan="3">
           <a href=<TMPL_VAR link_edit_account> >
             <TMPL_VAR accno>
           </a>
         </td>
-        <td colspan="6">
-          <a href=<TMPL_VAR description> >
+        <td colspan="9">
+          <a href="<TMPL_VAR description>" >
             <TMPL_VAR accno>
           </a>
         </td>
@@ -51,50 +52,54 @@
 
   
     <TMPL_IF __odd__>
-        <tr valign=top class=listrow1>
+        <tr valign="top" class="listrow1">
     <TMPL_ELSE>
         
-        <tr valign=top class=listrow0>
+        <tr valign="top" class="listrow0">
     </TMPL_IF>
 
-          <td colspan="3" abbr="<translate>Account Number</translate>"><b>
+          <td colspan="3"><b>
             <a href="<TMPL_VAR link_edit_account>" ><TMPL_VAR accno></a>
           </td>
-          <td colspan="8"><b><TMPL_VAR description ESCAPE=HTML>&nbsp;</b></td>
+          <td colspan="9"><b><TMPL_VAR description ESCAPE=HTML>&nbsp;</b></td>
           <td rowspan="3" align=right><TMPL_VAR debit>&nbsp;</td>
           <td rowspan="3" align=right><TMPL_VAR credit>&nbsp;</td>
   
         </tr> 
                                  
     <TMPL_IF __odd__>
-        <tr valign=top class=listrow1>
+        <tr valign="top" class="listrow1">
     <TMPL_ELSE>
-        <tr valign=top class=listrow0>
+        <tr valign="top" class="listrow0">
     </TMPL_IF>
 
           <td colspan="3"><b><TMPL_VAR category ESCAPE=HTML>&nbsp;</b></td>
-          <td colspan="8"><TMPL_VAR link>&nbsp;</td>
+          <td colspan="9"><TMPL_VAR link>&nbsp;</td>
         </tr>                                
 
     <TMPL_IF __odd__>
-        <tr valign=top class=listrow1>
+        <tr class="listrow1">
     <TMPL_ELSE>
-        <tr valign=top class=listrow0>
+        <tr class="listrow0">
     </TMPL_IF>
 
-          <td><TMPL_VAR taxkey_id                  >&nbsp;</td>
-          <td nowrap="nowrap"><TMPL_VAR taxdescription             >&nbsp;</td>
-          <td><TMPL_VAR startdate                  >&nbsp;</td>
-          <td><TMPL_VAR tk_ustva                   >&nbsp;</td>
+          <td valign="top"><TMPL_VAR taxkey                     >&nbsp;</td>
+          <td valign="top"><TMPL_VAR taxaccount                 >&nbsp;</td>
+          <td valign="top"><TMPL_VAR taxdescription             >&nbsp;</td>
+          <td valign="top"><TMPL_VAR startdate                  >&nbsp;</td>
+          <td valign="top"><TMPL_VAR tk_ustva                   >&nbsp;</td>
 
-          <td><TMPL_VAR pos_ustva       ESCAPE=HTML>&nbsp;</td>
-          <td><TMPL_VAR pos_bwa         ESCAPE=HTML>&nbsp;</td>
-          <td><TMPL_VAR pos_bilanz      ESCAPE=HTML>&nbsp;</td>
-          <td><TMPL_VAR pos_eur         ESCAPE=HTML>&nbsp;</td>
-          <td><TMPL_VAR datevautomatik  ESCAPE=HTML>&nbsp;</td>
-          <td><TMPL_VAR valid_from      ESCAPE=HTML>&nbsp;</td>
-          <td><TMPL_VAR new_account     ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR pos_ustva       ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR pos_bwa         ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR pos_bilanz      ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR pos_eur         ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR datevautomatik  ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR new_account     ESCAPE=HTML>&nbsp;</td>
+          <td valign="center"><TMPL_VAR valid_from      ESCAPE=HTML>&nbsp;</td>
 
+        </tr>
+        <tr>
+          <td colspan="14">&nbsp;</td>
         </tr>
   </TMPL_IF>
 
@@ -102,7 +107,7 @@
 </TMPL_LOOP>
 
       <tr>
-        <td colspan=14><hr size=3 noshade></td>
+        <td colspan="14"><hr size="3" noshade="noshade"></td>
       </tr>
     </table>
       
