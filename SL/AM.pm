@@ -1190,22 +1190,22 @@ sub delete_buchungsgruppe {
   $main::lxdebug->leave_sub();
 }
 
-sub swap_buchungsgruppen {
+sub swap_sortkeys {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, $table) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   my $query =
     qq|SELECT
-       (SELECT sortkey FROM buchungsgruppen WHERE id = ?) AS sortkey1,
-       (SELECT sortkey FROM buchungsgruppen WHERE id = ?) AS sortkey2|;
+       (SELECT sortkey FROM $table WHERE id = ?) AS sortkey1,
+       (SELECT sortkey FROM $table WHERE id = ?) AS sortkey2|;
   my @values = ($form->{"id1"}, $form->{"id2"});
   my @sortkeys = selectrow_query($form, $dbh, $query, @values);
 
-  $query = qq|UPDATE buchungsgruppen SET sortkey = ? WHERE id = ?|;
+  $query = qq|UPDATE $table SET sortkey = ? WHERE id = ?|;
   my $sth = $dbh->prepare($query);
   $sth->execute($sortkeys[1], $form->{"id1"}) ||
     $form->dberror($query . " ($sortkeys[1], $form->{id1})");

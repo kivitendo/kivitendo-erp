@@ -2114,7 +2114,7 @@ sub delete_buchungsgruppe {
 sub swap_buchungsgruppen {
   $lxdebug->enter_sub();
 
-  AM->swap_buchungsgruppen(\%myconfig, $form);
+  AM->swap_sortkeys(\%myconfig, $form, "buchungsgruppen");
   list_buchungsgruppe();
 
   $lxdebug->leave_sub();
