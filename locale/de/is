@@ -222,12 +222,14 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  'E'                           => 'E',
   'H'                           => 'H',
   'Q'                           => 'Q',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',
   'ap_transaction'              => 'ap_transaction',
   'ar_transaction'              => 'ar_transaction',
+  'build_std_url'               => 'build_std_url',
   'calculate_qty'               => 'calculate_qty',
   'check_form'                  => 'check_form',
   'check_name'                  => 'check_name',

@@ -1204,6 +1204,8 @@ sub swap_sortkeys {
        (SELECT sortkey FROM $table WHERE id = ?) AS sortkey2|;
   my @values = ($form->{"id1"}, $form->{"id2"});
   my @sortkeys = selectrow_query($form, $dbh, $query, @values);
+  $main::lxdebug->dump(0, "v", \@values);
+  $main::lxdebug->dump(0, "s", \@sortkeys);
 
   $query = qq|UPDATE $table SET sortkey = ? WHERE id = ?|;
   my $sth = $dbh->prepare($query);
@@ -1328,15 +1330,13 @@ sub payment {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT *
-                 FROM payment_terms
-		 ORDER BY id|;
+  my $query = qq|SELECT * FROM payment_terms ORDER BY sortkey|;
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
+  $form->{ALL} = [];
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    $ref->{percent_skonto} = $form->format_amount($myconfig,($ref->{percent_skonto} * 100));
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -1354,16 +1354,11 @@ sub get_payment {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query =
-    qq|SELECT *
-                 FROM payment_terms
-	         WHERE id = $form->{id}|;
+  my $query = qq|SELECT * FROM payment_terms WHERE id = ?|;
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
 
   my $ref = $sth->fetchrow_hashref(NAME_lc);
-  $ref->{percent_skonto} = $form->format_amount($myconfig,($ref->{percent_skonto} * 100));
-
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $sth->finish;
@@ -1381,32 +1376,31 @@ sub save_payment {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $form->{description} =~ s/\'/\'\'/g;
-  $form->{description_long} =~ s/\'/\'\'/g;
-  $percentskonto = $form->parse_amount($myconfig, $form->{percent_skonto}) /100;
-  $form->{ranking} *= 1;
-  $form->{terms_netto} *= 1;
-  $form->{terms_skonto} *= 1;
-  $form->{percent_skonto} *= 1;
+  my @values = ($form->{description}, $form->{description_long},
+                $form->{ranking} * 1,
+                $form->{terms_netto} * 1, $form->{terms_skonto} * 1,
+                $form->{percent_skonto} * 1);
 
-
-
+  my $query;
   # id is the old record
   if ($form->{id}) {
     $query = qq|UPDATE payment_terms SET
-		description = '$form->{description}',
-                ranking = $form->{ranking},
-		description_long = '$form->{description_long}',
-		terms_netto = $form->{terms_netto},
-                terms_skonto = $form->{terms_skonto},
-                percent_skonto = $percentskonto
-		WHERE id = $form->{id}|;
+                description = ?, description_long = ?,
+                ranking = ?,
+                terms_netto = ?, terms_skonto = ?,
+                percent_skonto = ?
+                WHERE id = ?|;
+    push(@values, $form->{"id"});
   } else {
+    $query = qq|SELECT MAX(sortkey) + 1 FROM payment_terms|;
+    my ($sortkey) = selectrow_query($form, $dbh, $query);
     $query = qq|INSERT INTO payment_terms
-                (description, ranking, description_long, terms_netto, terms_skonto, percent_skonto)
-                VALUES ('$form->{description}', $form->{ranking}, '$form->{description_long}', $form->{terms_netto}, $form->{terms_skonto}, $percentskonto)|;
+                (description, description_long, ranking,
+                 terms_netto, terms_skonto, percent_skonto, sortkey)
+                VALUES (?, ?, ?, ?, ?, ?, ?)|;
+    push(@values, $sortkey);
   }
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 
@@ -1421,9 +1415,8 @@ sub delete_payment {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM payment_terms
-	      WHERE id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  my $query = qq|DELETE FROM payment_terms WHERE id = ?|;
+  do_query($form, $dbh, $query, $form->{"id"});
 
   $dbh->disconnect;
 

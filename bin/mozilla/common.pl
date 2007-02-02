@@ -41,6 +41,28 @@ sub restore_form {
   $lxdebug->leave_sub();
 }
 
+sub build_std_url {
+  $lxdebug->enter_sub();
+
+  my $url = "$form->{script}?";
+  my $first = 1;
+  foreach my $key ((qw(login password path), @_)) {
+    next unless ($key);
+    $url .= "&" unless ($first);
+    $first = 0;
+
+    if ($key =~ /=/) {
+      $url .= $key;
+    } else {
+      $url .= "${key}=" . E($form->{$key});
+    }
+  }
+
+  $lxdebug->leave_sub();
+
+  return $url;
+}
+
 sub select_employee {
   $lxdebug->enter_sub();
 
@@ -422,6 +444,10 @@ sub H {
 
 sub Q {
   return $form->quote($_[0]);
+}
+
+sub E {
+  return $form->escape($_[0]);
 }
 
 sub format_dates {

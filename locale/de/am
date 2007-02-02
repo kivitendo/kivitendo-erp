@@ -298,6 +298,7 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  'E'                           => 'E',
   'H'                           => 'H',
   'Q'                           => 'Q',
   'account_header'              => 'account_header',
@@ -317,6 +318,7 @@ $self->{subs} = {
   'audit_control'               => 'audit_control',
   'backup'                      => 'backup',
   'buchungsgruppe_header'       => 'buchungsgruppe_header',
+  'build_std_url'               => 'build_std_url',
   'business_header'             => 'business_header',
   'calculate_qty'               => 'calculate_qty',
   'config'                      => 'config',
@@ -401,6 +403,7 @@ $self->{subs} = {
   'set_unit_languages'          => 'set_unit_languages',
   'sic_header'                  => 'sic_header',
   'swap_buchungsgruppen'        => 'swap_buchungsgruppen',
+  'swap_payment_terms'          => 'swap_payment_terms',
   'vendor_selection'            => 'vendor_selection',
   'warehouse_header'            => 'warehouse_header',
   'erfassen'                    => 'add',

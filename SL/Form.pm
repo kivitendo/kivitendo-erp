@@ -1562,7 +1562,7 @@ sub all_vc {
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-	      ORDER BY 1|;
+              ORDER BY sortkey|;
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
@@ -1612,7 +1612,7 @@ sub language_payment {
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-	      ORDER BY 1|;
+              ORDER BY sortkey|;
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 

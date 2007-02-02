@@ -246,11 +246,13 @@ aktualisieren wollen?',
 };
 
 $self->{subs} = {
+  'E'                           => 'E',
   'H'                           => 'H',
   'Q'                           => 'Q',
   'add'                         => 'add',
   'addtop100'                   => 'addtop100',
   'assembly_row'                => 'assembly_row',
+  'build_std_url'               => 'build_std_url',
   'calculate_qty'               => 'calculate_qty',
   'check_form'                  => 'check_form',
   'choice'                      => 'choice',

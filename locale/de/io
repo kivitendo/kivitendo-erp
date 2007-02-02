@@ -142,8 +142,10 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  'E'                           => 'E',
   'H'                           => 'H',
   'Q'                           => 'Q',
+  'build_std_url'               => 'build_std_url',
   'calculate_qty'               => 'calculate_qty',
   'check_form'                  => 'check_form',
   'customer_details'            => 'customer_details',

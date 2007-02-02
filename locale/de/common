@@ -23,8 +23,10 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  'E'                           => 'E',
   'H'                           => 'H',
   'Q'                           => 'Q',
+  'build_std_url'               => 'build_std_url',
   'calculate_qty'               => 'calculate_qty',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'employee_selection_internal' => 'employee_selection_internal',

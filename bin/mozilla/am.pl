@@ -2348,6 +2348,8 @@ sub edit_payment {
   $form->{title} = "Edit";
 
   AM->get_payment(\%myconfig, \%$form);
+  $form->{percent_skonto} =
+    $form->format_amount(\%myconfig, $form->{percent_skonto} * 100);
 
   &payment_header;
 
@@ -2362,15 +2364,23 @@ sub list_payment {
 
   AM->payment(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_payment&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = build_std_url("action=list_payment");
 
   $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Payment Terms');
 
-  @column_index = qw(description description_long terms_netto terms_skonto percent_skonto);
+  @column_index = qw(up down description description_long terms_netto
+                     terms_skonto percent_skonto);
 
+  $column_header{up} =
+      qq|<th class="listheading" align="center" valign="center">|
+    . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
+    . qq|</th>|;
+  $column_header{down} =
+      qq|<th class="listheading" align="center" valign="center">|
+    . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
+    . qq|</th>|;
   $column_header{description} =
       qq|<th class=listheading>|
     . $locale->text('Description')
@@ -2414,6 +2424,9 @@ sub list_payment {
         </tr>
 |;
 
+  my $swap_link = build_std_url("action=swap_payment_terms");
+
+  my $row = 0;
   foreach $ref (@{ $form->{ALL} }) {
 
     $i++;
@@ -2423,21 +2436,48 @@ sub list_payment {
         <tr valign=top class=listrow$i>
 |;
 
+    if ($row) {
+      my $pref = $form->{ALL}->[$row - 1];
+      $column_data{up} =
+        qq|<td align="center" valign="center">| .
+        qq|<a href="${swap_link}&id1=$ref->{id}&id2=$pref->{id}">| .
+        qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">| .
+        qq|</a></td>|;
+    } else {
+      $column_data{up} = qq|<td>&nbsp;</td>|;
+    }
+
+    if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
+      $column_data{down} = qq|<td>&nbsp;</td>|;
+    } else {
+      my $nref = $form->{ALL}->[$row + 1];
+      $column_data{down} =
+        qq|<td align="center" valign="center">| .
+        qq|<a href="${swap_link}&id1=$ref->{id}&id2=$nref->{id}">| .
+        qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">| .
+        qq|</a></td>|;
+    }
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_payment&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
-    $column_data{description_long}           = qq|<td align=right>$ref->{description_long}</td>|;
+      qq|<td><a href="| .
+      build_std_url("action=edit_payment", "id=$ref->{id}", "callback=$callback") .
+      qq|">| . H($ref->{description}) . qq|</a></td>|;
+    $column_data{description_long} =
+      qq|<td align=right>| . H($ref->{description_long}) . qq|</td>|;
     $column_data{terms_netto} =
       qq|<td align=right>$ref->{terms_netto}</td>|;
     $column_data{terms_skonto} =
       qq|<td align=right>$ref->{terms_skonto}</td>|;
     $column_data{percent_skonto} =
-      qq|<td align=right>$ref->{percent_skonto} %</td>|;
+      qq|<td align=right>| .
+      $form->format_amount(\%myconfig, $ref->{percent_skonto} * 100) .
+      qq|%</td>|;
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
 	</tr>
 |;
+    $row++;
   }
 
   print qq|
@@ -2530,7 +2570,9 @@ sub payment_header {
 sub save_payment {
   $lxdebug->enter_sub();
 
-  $form->isblank("description", $locale->text('Language missing!'));
+  $form->isblank("description", $locale->text('Description missing!'));
+  $form->{"percent_skonto"} =
+    $form->parse_amount(\%myconfig, $form->{percent_skonto}) / 100;
   AM->save_payment(\%myconfig, \%$form);
   $form->redirect($locale->text('Payment Terms saved!'));
 
@@ -2542,6 +2584,15 @@ sub delete_payment {
 
   AM->delete_payment(\%myconfig, \%$form);
   $form->redirect($locale->text('Payment terms deleted!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub swap_payment_terms {
+  $lxdebug->enter_sub();
+
+  AM->swap_sortkeys(\%myconfig, $form, "payment_terms");
+  list_payment();
 
   $lxdebug->leave_sub();
 }

@@ -185,7 +185,7 @@ sub get_tuple {
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-	      ORDER BY 1|;
+              ORDER BY sortkey|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -315,7 +315,7 @@ sub taxaccounts {
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-	      ORDER BY 1|;
+              ORDER BY sortkey|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
