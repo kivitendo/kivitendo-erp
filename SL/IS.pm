@@ -355,10 +355,11 @@ sub invoice_details {
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{total} : $form->{total} + $tax;
-  $form->{invtotal} = $form->format_amount($myconfig, $form->{invtotal}, 2);
-  $form->{paid} = $form->format_amount($myconfig, $form->{paid}, 2);
   $form->{total} =
     $form->format_amount($myconfig, $form->{invtotal} - $form->{paid}, 2);
+
+  $form->{invtotal} = $form->format_amount($myconfig, $form->{invtotal}, 2);
+  $form->{paid} = $form->format_amount($myconfig, $form->{paid}, 2);
   $form->set_payment_options($myconfig, $form->{invdate});
 
   $form->{username} = $myconfig->{name};
