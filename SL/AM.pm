@@ -974,13 +974,13 @@ sub delete_language {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query = "DELETE FROM units_language WHERE language_id = ?";
-  $dbh->do($query, undef, $form->{"id"}) ||
-    $form->dberror($query . " ($form->{id})");
+  foreach my $table (qw(translation_payment_terms units_language)) {
+    my $query = qq|DELETE FROM $table WHERE language_id = ?|;
+    do_query($form, $dbh, $query, $form->{"id"});
+  }
 
   $query = "DELETE FROM language WHERE id = ?";
-  $dbh->do($query, undef, $form->{"id"}) ||
-    $form->dberror($query . " ($form->{id})");
+  do_query($form, $dbh, $query, $form->{"id"});
 
   $dbh->commit();
   $dbh->disconnect;
@@ -1360,8 +1360,29 @@ sub get_payment {
 
   my $ref = $sth->fetchrow_hashref(NAME_lc);
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+  $sth->finish();
 
+  $query =
+    qq|SELECT t.language_id, t.description_long, l.description AS language | .
+    qq|FROM translation_payment_terms t | .
+    qq|LEFT JOIN language l ON t.language_id = l.id | .
+    qq|WHERE t.payment_terms_id = ? | .
+    qq|UNION | .
+    qq|SELECT l.id AS language_id, NULL AS description_long, | .
+    qq|l.description AS language | .
+    qq|FROM language l|;
+  $sth = $dbh->prepare($query);
+  $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
+
+  my %mapping;
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    $mapping{ $ref->{"language_id"} } = $ref
+      unless (defined($mapping{ $ref->{"language_id"} }));
+  }
   $sth->finish;
+
+  $form->{"TRANSLATION"} = [sort({ $a->{"language"} cmp $b->{"language"} }
+                                 values(%mapping))];
 
   $dbh->disconnect;
 
@@ -1374,34 +1395,61 @@ sub save_payment {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->dbconnect_noauto($myconfig);
 
+  my $query;
+
+  if (!$form->{id}) {
+    $query = qq|SELECT nextval('id'), MAX(sortkey) + 1 FROM payment_terms|;
+    my $sortkey;
+    ($form->{id}, $sortkey) = selectrow_query($form, $dbh, $query);
+
+    $query = qq|INSERT INTO payment_terms (id, sortkey) VALUES (?, ?)|;
+    do_query($form, $dbh, $query, $form->{id}, $sortkey);
+
+  } else {
+    $query =
+      qq|DELETE FROM translation_payment_terms | .
+      qq|WHERE payment_terms_id = ?|;
+    do_query($form, $dbh, $query, $form->{"id"});
+  }
+
+  $query = qq|UPDATE payment_terms SET
+              description = ?, description_long = ?,
+              ranking = ?,
+              terms_netto = ?, terms_skonto = ?,
+              percent_skonto = ?
+              WHERE id = ?|;
   my @values = ($form->{description}, $form->{description_long},
                 $form->{ranking} * 1,
                 $form->{terms_netto} * 1, $form->{terms_skonto} * 1,
-                $form->{percent_skonto} * 1);
-
-  my $query;
-  # id is the old record
-  if ($form->{id}) {
-    $query = qq|UPDATE payment_terms SET
-                description = ?, description_long = ?,
-                ranking = ?,
-                terms_netto = ?, terms_skonto = ?,
-                percent_skonto = ?
-                WHERE id = ?|;
-    push(@values, $form->{"id"});
-  } else {
-    $query = qq|SELECT MAX(sortkey) + 1 FROM payment_terms|;
-    my ($sortkey) = selectrow_query($form, $dbh, $query);
-    $query = qq|INSERT INTO payment_terms
-                (description, description_long, ranking,
-                 terms_netto, terms_skonto, percent_skonto, sortkey)
-                VALUES (?, ?, ?, ?, ?, ?, ?)|;
-    push(@values, $sortkey);
-  }
+                $form->{percent_skonto} * 1,
+                $form->{id});
   do_query($form, $dbh, $query, @values);
 
+  $query = qq|SELECT id FROM language|;
+  my @language_ids;
+  my $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+
+  while (my ($id) = $sth->fetchrow_array()) {
+    push(@language_ids, $id);
+  }
+  $sth->finish();
+
+  $query =
+    qq|INSERT INTO translation_payment_terms | .
+    qq|(language_id, payment_terms_id, description_long) | .
+    qq|VALUES (?, ?, ?)|;
+  $sth = $dbh->prepare($query);
+
+  foreach my $language_id (@language_ids) {
+    do_statement($form, $sth, $query, $language_id, $form->{"id"},
+                 $form->{"description_long_${language_id}"});
+  }
+  $sth->finish();
+
+  $dbh->commit();
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -1413,11 +1461,16 @@ sub delete_payment {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->dbconnect_noauto($myconfig);
 
   my $query = qq|DELETE FROM payment_terms WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{"id"});
 
+  $query =
+    qq|DELETE FROM translation_payment_terms WHERE payment_terms_id = ?|;
+  do_query($form, $dbh, $query, $form->{"id"});
+
+  $dbh->commit();
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

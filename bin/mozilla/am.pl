@@ -2326,6 +2326,10 @@ sub add_payment {
   $form->{terms_netto} = 0;
   $form->{terms_skonto} = 0;
   $form->{percent_skonto} = 0;
+  my @languages = AM->language(\%myconfig, $form, 1);
+  map({ $_->{"language"} = $_->{"description"};
+        $_->{"language_id"} = $_->{"id"}; } @languages);
+  $form->{"TRANSLATION"} = \@languages;
   &payment_header;
   &form_footer;
 
@@ -2337,7 +2341,7 @@ sub edit_payment {
 
   $form->{title} = "Edit";
 
-  AM->get_payment(\%myconfig, \%$form);
+  AM->get_payment(\%myconfig, $form);
   $form->{percent_skonto} =
     $form->format_amount(\%myconfig, $form->{percent_skonto} * 100);
 
@@ -2537,6 +2541,22 @@ sub payment_header {
     <th align=right>| . $locale->text('Long Description') . qq|</th>
     <td><input name=description_long size=50 value="$form->{description_long}"></td>
   </tr>
+|;
+
+  foreach my $language (@{ $form->{"TRANSLATION"} }) {
+    print qq|
+  <tr>
+    <th align="right">| .
+    sprintf($locale->text('Translation (%s)'),
+            $language->{"language"})
+    . qq|</th>
+    <td><input name="description_long_$language->{language_id}" size="50"
+         value="| . Q($language->{"description_long"}) . qq|"></td>
+  </tr>
+|;
+  }
+
+  print qq|
   <tr>
     <th align=right>| . $locale->text('Netto Terms') . qq|</th>
     <td><input name=terms_netto size=10 value="$form->{terms_netto}"></td>

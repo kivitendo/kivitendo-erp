@@ -255,6 +255,7 @@ $self->{texts} = {
   'Top (Javascript)'            => 'Oben (mit Javascript)',
   'Transaction reversal enforced for all dates' => 'Fehleintragungen müssen für jeden Zeitraum mit einer Kontraeintragung ausgebessert werden',
   'Transaction reversal enforced up to' => 'Fehleintragungen können bis zu dem angegebenen Zeitraum nur mit einer Kontraeintragung ausgebessert werden!',
+  'Translation (%s)'            => '&Uuml;bersetzung (%s)',
   'Type of Business'            => 'Kundentyp',
   'UStVA-Nr. 35'                => 'Kz. 35',
   'UStVA-Nr. 36'                => 'Kz. 36',
