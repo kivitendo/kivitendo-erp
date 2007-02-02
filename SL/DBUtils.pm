@@ -3,7 +3,7 @@ package SL::DBUtils;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(conv_i conv_date do_query dump_query);
+@EXPORT = qw(conv_i conv_date do_query selectrow_query dump_query);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -23,6 +23,20 @@ sub do_query {
   } else {
     $dbh->do($query, undef, @_) ||
       $form->dberror($query . " (" . join(", ", @_) . ")");
+  }
+}
+
+sub selectrow_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+
+  if (0 == scalar(@_)) {
+    my @results = $dbh->selectrow_array($query);
+    $form->dberror($query) if ($dbh->err);
+    return @results;
+  } else {
+    my @results = $dbh->selectrow_array($query, undef, @_);
+    $form->dberror($query . " (" . join(", ", @_) . ")") if ($dbh->err);
+    return @results;
   }
 }
 
