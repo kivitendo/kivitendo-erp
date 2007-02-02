@@ -42,6 +42,7 @@ use Cwd;
 use HTML::Template;
 use SL::Template;
 use CGI::Ajax;
+use SL::DBUtils;
 use SL::Menu;
 use CGI;
 
@@ -1122,13 +1123,15 @@ sub set_payment_options {
 
     my $dbh = $self->dbconnect($myconfig);
 
+    my $query =
+      qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, | .
+      qq|p.description_long | .
+      qq|FROM payment_terms p | .
+      qq|WHERE p.id = ?|;
 
-    my $query = qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long FROM payment_terms p
-                  WHERE p.id = $self->{payment_id}|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
-    ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto}, $self->{payment_terms}) = $sth->fetchrow_array;
+    ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
+     $self->{payment_terms}) =
+       selectrow_query($self, $dbh, $query, $self->{payment_id});
 
     if ($transdate eq "") {
       if ($self->{invdate}) {
@@ -1138,17 +1141,54 @@ sub set_payment_options {
       }
     }
 
-    $sth->finish;
-    my $query = qq|SELECT date '$transdate' + $self->{terms_netto} AS netto_date,date '$transdate' + $self->{terms_skonto} AS skonto_date  FROM payment_terms
-                  LIMIT 1|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);    
-    ($self->{netto_date}, $self->{skonto_date}) = $sth->fetchrow_array;
-    $sth->finish;
+    $query =
+      qq|SELECT date '$transdate' + $self->{terms_netto} AS netto_date, | .
+      qq|date '$transdate' + $self->{terms_skonto} AS skonto_date | .
+      qq|FROM payment_terms LIMIT 1|;
+    ($self->{netto_date}, $self->{skonto_date}) =
+      selectrow_query($self, $dbh, $query);
 
     my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
 
-    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $total) * $self->{percent_skonto}), 2);
+    $self->{skonto_amount} =
+      $self->format_amount($myconfig,
+                           $self->parse_amount($myconfig, $total) *
+                           $self->{percent_skonto}, 2);
+
+    if ($self->{"language_id"}) {
+      $query =
+        qq|SELECT t.description_long, | .
+        qq|l.output_numberformat, l.output_dateformat, l.output_longdates | .
+        qq|FROM translation_payment_terms t | .
+        qq|LEFT JOIN language l ON t.language_id = l.id | .
+        qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
+      my ($description_long, $output_numberformat, $output_dateformat,
+        $output_longdates) =
+        selectrow_query($self, $dbh, $query,
+                        $self->{"language_id"}, $self->{"payment_id"});
+
+      $self->{payment_terms} = $description_long if ($description_long);
+
+      if ($output_dateformat) {
+        foreach my $key (qw(netto_date skonto_date)) {
+          $self->{$key} =
+            $main::locale->reformat_date($myconfig, $self->{$key},
+                                         $output_dateformat,
+                                         $output_longdates);
+        }
+      }
+
+      if ($output_numberformat &&
+          ($output_numberformat ne $myconfig->{"numberformat"})) {
+        my $saved_numberformat = $myconfig->{"numberformat"};
+        $myconfig->{"numberformat"} = $output_numberformat;
+        $self->{skonto_amount} =
+          $self->format_amount($myconfig,
+                               $self->parse_amount($myconfig, $total) *
+                               $self->{percent_skonto}, 2);
+        $myconfig->{"numberformat"} = $saved_numberformat;
+      }
+    }
 
     $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
     $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
