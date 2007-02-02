@@ -40,6 +40,8 @@ use Data::Dumper;
 
 1;
 
+
+
 require "$form->{path}/common.pl";
 
 # end of main
@@ -528,36 +530,7 @@ sub list_account {
   $callback =
     "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}";
 
-  @column_index = qw(accno gifi_accno description debit credit link);
-
-  $column_header{accno} = qq|<th>| . $locale->text('Account') . qq|</a></th>|;
-  $column_header{gifi_accno} =
-    qq|<th>| . $locale->text('GIFI') . qq|</a></th>|;
-  $column_header{description} =
-    qq|<th>| . $locale->text('Description') . qq|</a></th>|;
-  $column_header{debit}  = qq|<th>| . $locale->text('Debit') . qq|</a></th>|;
-  $column_header{credit} = qq|<th>| . $locale->text('Credit') . qq|</a></th>|;
-  $column_header{link}   = qq|<th>| . $locale->text('Link') . qq|</a></th>|;
-
   $form->header;
-  $colspan = $#column_index + 1;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=$colspan>$form->{title}</th>
-  </tr>
-  <tr height=5></tr>
-  <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-</tr>
-|;
 
   # escape callback
   $callback = $form->escape($callback);
@@ -576,50 +549,67 @@ sub list_account {
         $form->format_amount(\%myconfig, -$ca->{amount}, 2, "&nbsp;");
     }
 
-    $ca->{link} =~ s/:/<br>/og;
-
-    if ($ca->{charttype} eq "H") {
-      print qq|<tr class=listheading>|;
-
-      $column_data{accno} =
-        qq|<th><a href=$form->{script}?action=edit_account&id=$ca->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{accno}</a></th>|;
-      $column_data{gifi_accno} =
-        qq|<th><a href=$form->{script}?action=edit_gifi&accno=$ca->{gifi_accno}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{gifi_accno}</a>&nbsp;</th>|;
-      $column_data{description} = qq|<th>$ca->{description}&nbsp;</th>|;
-      $column_data{debit}       = qq|<th>&nbsp;</th>|;
-      $column_data{credit}      = qq| <th>&nbsp;</th>|;
-      $column_data{link}        = qq|<th>&nbsp;</th>|;
-
-    } else {
-      $i++;
-      $i %= 2;
-      print qq|
-<tr valign=top class=listrow$i>|;
-      $column_data{accno} =
-        qq|<td><a href=$form->{script}?action=edit_account&id=$ca->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{accno}</a></td>|;
-      $column_data{gifi_accno} =
-        qq|<td><a href=$form->{script}?action=edit_gifi&accno=$ca->{gifi_accno}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{gifi_accno}</a>&nbsp;</td>|;
-      $column_data{description} = qq|<td>$ca->{description}&nbsp;</td>|;
-      $column_data{debit}       = qq|<td align=right>$ca->{debit}</td>|;
-      $column_data{credit}      = qq|<td align=right>$ca->{credit}</td>|;
-      $column_data{link}        = qq|<td>$ca->{link}&nbsp;</td>|;
-
+    my @links = split( q{:}, $ca->{link});
+    
+    $ca->{link} = q{};
+    
+    foreach my $link (@links){
+      $link = ( $link eq 'AR')             ? $locale->text('Account Link AR')
+               : ( $link eq 'AP')             ? $locale->text('Account Link AP')
+               : ( $link eq 'IC')             ? $locale->text('Account Link IC')
+               : ( $link eq 'AR_amount' )     ? $locale->text('Account Link AR_amount')
+               : ( $link eq 'AR_paid' )       ? $locale->text('Account Link AR_paid')
+               : ( $link eq 'AR_tax' )        ? $locale->text('Account Link AR_tax')
+               : ( $link eq 'AP_amount' )     ? $locale->text('Account Link AP_amount')
+               : ( $link eq 'AP_paid' )       ? $locale->text('Account Link AP_paid')
+               : ( $link eq 'AP_tax' )        ? $locale->text('Account Link AP_tax')
+               : ( $link eq 'IC_sale' )       ? $locale->text('Account Link IC_sale')
+               : ( $link eq 'IC_cogs' )       ? $locale->text('Account Link IC_cogs')
+               : ( $link eq 'IC_taxpart' )    ? $locale->text('Account Link IC_taxpart')
+               : ( $link eq 'IC_income' )     ? $locale->text('Account Link IC_income')
+               : ( $link eq 'IC_expense' )    ? $locale->text('Account Link IC_expense')
+               : ( $link eq 'IC_taxservice' ) ? $locale->text('Account Link IC_taxservice')
+               : ( $link eq 'CT_tax' )        ? $locale->text('Account Link CT_tax')
+               : $locale->text('Unknown Link') . ': ' . $link;
+      
+      $ca->{link} .= qq|[| . $link . qq|]&nbsp;|;
     }
+    
+    $ca->{startdate} =~ s/,/<br>/og;
+    $ca->{tk_ustva}  =~ s/,/<br>/og;
 
-    map { print "$column_data{$_}\n" } @column_index;
+    $ca->{taxkey_id}  =~ s/,/<br>/og;
+    $ca->{taxdescription}  =~ s/,/<br>/og;
 
-    print "</tr>\n";
+    $ca->{datevautomatik} = ($ca->{datevautomatik}) ? $locale->text('On'):q{};
+
+    $ca->{category} = ($ca->{category} eq 'A') ? $locale->text('Account Category A')
+                    : ($ca->{category} eq 'E') ? $locale->text('Account Category E')
+                    : ($ca->{category} eq 'L') ? $locale->text('Account Category L')
+                    : ($ca->{category} eq 'I') ? $locale->text('Account Category I')
+                    : ($ca->{category} eq 'Q') ? $locale->text('Account Category Q')
+                    : ($ca->{category} eq 'C') ? $locale->text('Account Category C')
+                    : ($ca->{category} eq 'G') ? $locale->text('Account Category G')
+                    : $locale->text('Unknown Category') . ': ' . $ca->{category};
+
+    $ca->{link_edit_account} = 
+        qq|$form->{script}?action=edit_account&id=$ca->{id}|
+       .qq|&path=$form->{path}&login=$form->{login}|
+       .qq|&password=$form->{password}&callback=$callback>$ca->{accno}|;
   }
-
-  print qq|
-  <tr><td colspan=$colspan><hr size=3 noshade></td></tr>
-</table>
-
-</body>
-</html>
-|;
-
+  
+  my $parameters_ref = {
+  
+  
+  #   hidden_variables                => $_hidden_variables_ref,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/list_accounts', $parameters_ref));
+  
   $lxdebug->leave_sub();
+  
+
 }
 
 sub delete_account {

@@ -71,10 +71,62 @@ sub all_accounts {
   }
   $sth->finish;
 
-  $query = qq|SELECT c.id, c.accno, c.description, c.charttype, c.gifi_accno,
-              c.category, c.link
-              FROM chart c
-	      ORDER BY accno|;
+  $query = qq|
+
+    SELECT c.id,
+      c.accno,
+      c.description,
+      c.charttype,
+      c.gifi_accno,
+      c.category,
+      c.link,
+      c.pos_ustva,
+      c.pos_bwa,
+      c.pos_bilanz,
+      c.pos_eur,
+      c.valid_from,
+      c.datevautomatik,
+      ( SELECT comma(taxkey_id)
+        FROM taxkeys tk
+        WHERE tk.chart_id = c.id
+          AND c.taxkey_id = tk.taxkey_id
+        ORDER BY c.id
+      ) AS taxkey_id,
+
+      ( SELECT comma(taxdescription)
+        FROM tax tx
+        WHERE tx.id in (
+          SELECT tk.tax_id from taxkeys tk 
+          WHERE tk.chart_id = (
+            SELECT id from chart 
+            WHERE chart.accno='0027' -- Beispielkonto aus dem SKR03
+          )
+        ) 
+        ORDER BY c.accno
+      ) AS taxdescription,
+
+      ( SELECT comma(tk.pos_ustva)
+        FROM taxkeys tk
+        WHERE tk.chart_id = c.id
+          AND c.taxkey_id = tk.taxkey_id
+        ORDER BY c.id
+      ) AS tk_ustva,
+
+      ( SELECT comma(startdate)
+        FROM taxkeys tk
+        WHERE tk.chart_id = c.id
+          AND c.taxkey_id = tk.taxkey_id
+        ORDER BY c.id
+      ) AS startdate,
+
+      ( SELECT accno
+        FROM chart c2
+        WHERE c2.id = c.id
+      ) AS new_account
+    FROM chart c
+    ORDER BY accno
+  |;
+
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
