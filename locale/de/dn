@@ -228,6 +228,7 @@ $self->{subs} = {
   'part_selection_internal'     => 'part_selection_internal',
   'post_as_new'                 => 'post_as_new',
   'print'                       => 'print',
+  'print_dunning'               => 'print_dunning',
   'print_form'                  => 'print_form',
   'print_options'               => 'print_options',
   'project_selected'            => 'project_selected',

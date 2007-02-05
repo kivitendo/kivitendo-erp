@@ -898,7 +898,7 @@ sub show_dunning {
   $dunning = qq|<select name=next_dunning_id_$i>$form->{selectdunning}</select>|;
 
 
-    $column_data{dunning_description}           = qq|<td>$ref->{dunning_description}</td>|;
+    $column_data{dunning_description}           = qq|<td><a href=dn.pl?action=print_dunning&dunning_id=$ref->{dunning_id}&format=pdf&media=screen&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{dunning_description}</a></td>|;
     my $active = "checked";
     $column_data{dunning_date}           = qq|<td>$ref->{dunning_date}</td>|;
     $column_data{next_duedate}           = qq|<td>$ref->{dunning_duedate}</td>|;
@@ -953,5 +953,21 @@ sub show_dunning {
   $lxdebug->leave_sub();
 
 }
+
+sub print_dunning {
+  $lxdebug->enter_sub();
+
+  DN->print_dunning(\%myconfig, \%$form, $form->{dunning_id}, $userspath,$spool, $sendmail);
+
+  if($form->{DUNNING_PDFS}) {
+    DN->melt_pdfs(\%myconfig, \%$form,$spool);
+  } else {
+    $form->redirect($locale->text('Could not create dunning copy!'));
+  }
+
+  $lxdebug->leave_sub();
+
+}
+
 # end of main
 

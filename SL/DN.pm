@@ -359,7 +359,7 @@ sub get_dunning {
   $where .= " ORDER by $sortorder";
 
 
-  $query = qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.duedate,da.fee ,da.interest, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate
+  $query = qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.duedate,da.fee ,da.interest, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, da.dunning_id
 	         FROM ar a
 	         JOIN customer ct ON (a.customer_id = ct.id),
                  dunning da LEFT JOIN dunning_config dn ON (da.dunning_id=dn.id)
@@ -490,6 +490,104 @@ Content-Length: $numbytes
 
       close(IN);
   unlink("$userspath/$outputfile");
+
+  $main::lxdebug->leave_sub();
+}
+
+sub print_dunning {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $dunning_id, $userspath,$spool, $sendmail) = @_;
+  # connect to database
+  my $dbh = $form->dbconnect_noauto($myconfig);
+
+
+  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id) where ar.dunning_id=$dunning_id|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+  my $first = 1;
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    if ($first) {
+      map({ $form->{"dn_$_"} = []; } keys(%{$ref}));
+      $first = 0;
+    }
+    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest);
+    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    #print(STDERR Dumper($ref));
+    map { push @{ $form->{"dn_$_"} }, $ref->{$_}} keys %$ref;
+  }
+  $sth->finish;
+
+  IS->customer_details($myconfig,$form);
+  #print(STDERR Dumper($form->{dn_invnumber}));
+  $form->{templates} = "$myconfig->{templates}";
+
+
+
+  $form->{language} = $form->get_template_language(\%myconfig);
+  $form->{printer_code} = $form->get_printer_code(\%myconfig);
+
+  if ($form->{language} ne "") {
+    $form->{language} = "_" . $form->{language};
+  }
+
+  if ($form->{printer_code} ne "") {
+    $form->{printer_code} = "_" . $form->{printer_code};
+  }
+
+  $form->{IN} = "$form->{formname}$form->{language}$form->{printer_code}.html";
+  if ($form->{format} eq 'postscript') {
+    $form->{postscript} = 1;
+    $form->{IN} =~ s/html$/tex/;
+  } elsif ($form->{"format"} =~ /pdf/) {
+    $form->{pdf} = 1;
+    if ($form->{"format"} =~ /opendocument/) {
+      $form->{IN} =~ s/html$/odt/;
+    } else {
+      $form->{IN} =~ s/html$/tex/;
+    }
+  } elsif ($form->{"format"} =~ /opendocument/) {
+    $form->{"opendocument"} = 1;
+    $form->{"IN"} =~ s/html$/odt/;
+  }
+
+  if ($form->{"send_email"} && ($form->{email} ne "")) {
+    $form->{media} = 'email';
+  }
+
+  $form->{keep_tmpfile} = 0;
+  if ($form->{media} eq 'email') {
+    $form->{subject} = qq|$form->{label} $form->{"${inv}number"}|
+      unless $form->{subject};
+    if (!$form->{email_attachment}) {
+      $form->{do_not_attach} = 1;
+    } else {
+      $form->{do_not_attach} = 0;
+    }
+    $form->{subject} = parse_strings($myconfig, $form, $userspath, $form->{email_subject});
+    $form->{message} = parse_strings($myconfig, $form, $userspath, $form->{email_body});
+
+    $form->{OUT} = "$sendmail";
+
+  } else {
+    
+    my $uid = rand() . time;
+
+    $uid .= $form->{login};
+
+    $uid = substr($uid, 2, 75);
+    $filename = $uid;
+
+    $filename .= '.pdf';
+    $form->{OUT} = ">$spool/$filename";
+    push(@{ $form->{DUNNING_PDFS} }, $filename);
+    $form->{keep_tmpfile} = 1;
+  }
+  
+  $form->parse_template($myconfig, $userspath);
+
+  $dbh->commit;
+  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
