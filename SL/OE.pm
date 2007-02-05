@@ -532,27 +532,6 @@ sub close_orders {
 
   my ($self, $myconfig, $form) = @_;
 
-  for my $i (1 .. $form->{rowcount}) {
-
-    map {
-      $form->{"${_}_$i"} =
-        $form->parse_amount($myconfig, $form->{"${_}_$i"})
-    } qw(qty ship);
-    if ($delete_oe_id) {
-      $form->{"orderitems_id_$i"} = "";
-    }
-
-    if ($form->{"qty_$i"}) {
-
-      # set values to 0 if nothing entered
-      $form->{"discount_$i"} =
-        $form->parse_amount($myconfig, $form->{"discount_$i"});
-
-      $form->{"sellprice_$i"} =
-        $form->parse_amount($myconfig, $form->{"sellprice_$i"});
-    }
-  }
-
   # get ids from $form
   map { push @ids, $form->{"ordnumber_$_"} if $form->{"ordnumber_$_"} }
     (1 .. $form->{rowcount});
