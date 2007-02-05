@@ -2081,8 +2081,8 @@ sub link_part {
   IC->create_links("IC", \%myconfig, \%$form);
 
   # currencies
-  map { $form->{selectcurrency} .= "<option>$_\n" } split /:/,
-    $form->{currencies};
+  map({ $form->{selectcurrency} .= "<option>$_\n" }
+      split(/:/, $form->{currencies}));
 
   # parts and assemblies have the same links
   $item = $form->{item};
