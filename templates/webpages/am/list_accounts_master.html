@@ -6,7 +6,8 @@
       </tr>
       <tr height="5"></tr>
       <tr class="listheading">
-        <th colspan="3"><b><translate>Account Number</translate></b></th>
+        <th colspan="2"><b><translate>Account Number</translate></b></th>
+        <th align=right><b><translate>Account ID</translate></b></th>
         <th colspan="9"><b><translate>Description</translate></b></a></th>
         <th rowspan="3"><translate>Credit</translate></th>
         <th rowspan="3"><translate>Debit</translate></th>
@@ -36,10 +37,13 @@
   <TMPL_IF heading>
 
       <tr class="listheading">
-        <td colspan="3">
+        <td colspan="2">
           <a href=<TMPL_VAR link_edit_account> >
             <TMPL_VAR accno>
           </a>
+        </td>
+        <td align=right>
+          <TMPL_VAR id>
         </td>
         <td colspan="9">
           <a href="<TMPL_VAR description>" >
@@ -58,9 +62,10 @@
         <tr valign="top" class="listrow0">
     </TMPL_IF>
 
-          <td colspan="3"><b>
+          <td colspan="2"><b>
             <a href="<TMPL_VAR link_edit_account>" ><TMPL_VAR accno></a>
           </td>
+          <td align=right><b><TMPL_VAR id ESCAPE=HTML>&nbsp;</b></td>
           <td colspan="9"><b><TMPL_VAR description ESCAPE=HTML>&nbsp;</b></td>
           <td rowspan="3" align=right><TMPL_VAR debit>&nbsp;</td>
           <td rowspan="3" align=right><TMPL_VAR credit>&nbsp;</td>
