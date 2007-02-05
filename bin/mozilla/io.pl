@@ -1180,6 +1180,10 @@ sub order {
   $form->{cp_id} *= 1;
 
   require "$form->{path}/$form->{script}";
+  my $script = $form->{"script"};
+  $script =~ s|.*/||;
+  $script =~ s|.pl$||;
+  $locale = new Locale($language, $script);
 
   map { $form->{"select$_"} = "" } ($form->{vc}, currency);
 
