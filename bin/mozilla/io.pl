@@ -1762,8 +1762,7 @@ sub print_form {
   if (($form->{type} eq 'invoice') && ($form->{formname} eq 'proforma') ) {
     $inv                  = "inv";
     $due                  = "due";
-    $form->{"${inv}date"} = $form->{transdate};
-    $form->{"invdate"}    = $form->{transdate};
+    $form->{"${inv}date"} = $form->{invdate};
     $form->{label}        = $locale->text('Proforma Invoice');
     $numberfld            = "sonumber";
     $order                = 0;
