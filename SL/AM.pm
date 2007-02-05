@@ -1464,11 +1464,11 @@ sub delete_payment {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query = qq|DELETE FROM payment_terms WHERE id = ?|;
+  my $query =
+    qq|DELETE FROM translation_payment_terms WHERE payment_terms_id = ?|;
   do_query($form, $dbh, $query, $form->{"id"});
 
-  $query =
-    qq|DELETE FROM translation_payment_terms WHERE payment_terms_id = ?|;
+  $query = qq|DELETE FROM payment_terms WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{"id"});
 
   $dbh->commit();
