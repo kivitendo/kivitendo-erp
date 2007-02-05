@@ -1154,7 +1154,7 @@ sub save_buchungsgruppe {
                 WHERE id = ?|;
     push(@values, $form->{id});
   } else {
-    $query = qq|SELECT MAX(sortkey) + 1 FROM buchungsgruppen|;
+    $query = qq|SELECT COALESCE(MAX(sortkey) + 1, 1) FROM buchungsgruppen|;
     my ($sortkey) = $dbh->selectrow_array($query);
     $form->dberror($query) if ($dbh->err);
     push(@values, $sortkey);
@@ -1400,7 +1400,8 @@ sub save_payment {
   my $query;
 
   if (!$form->{id}) {
-    $query = qq|SELECT nextval('id'), MAX(sortkey) + 1 FROM payment_terms|;
+    $query = qq|SELECT nextval('id'), COALESCE(MAX(sortkey) + 1, 1) | .
+      qq|FROM payment_terms|;
     my $sortkey;
     ($form->{id}, $sortkey) = selectrow_query($form, $dbh, $query);
 
