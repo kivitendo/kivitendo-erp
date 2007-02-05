@@ -328,16 +328,6 @@ sub save {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  $form->{IC_expense} = "1000";
-  $form->{IC_income} = "2000";
-
-  if ($form->{item} ne 'service') {
-    $form->{IC} = $form->{IC_expense};
-  }
-
-  ($form->{inventory_accno}) = split(/--/, $form->{IC});
-  ($form->{expense_accno})   = split(/--/, $form->{IC_expense});
-  ($form->{income_accno})    = split(/--/, $form->{IC_income});
 
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -459,10 +449,10 @@ sub save {
 
     $form->{orphaned} = 1;
     $form->{onhand} = $form->{stock} if $form->{item} eq 'assembly';
-    if ($form->{partnumber} eq "" && $form->{inventory_accno} eq "") {
+    if ($form->{partnumber} eq "" && $form->{"item"} eq "service") {
       $form->{partnumber} = $form->update_defaults($myconfig, "servicenumber");
     }
-    if ($form->{partnumber} eq "" && $form->{inventory_accno} ne "") {
+    if ($form->{partnumber} eq "" && $form->{"item"} ne "service") {
       $form->{partnumber} = $form->update_defaults($myconfig, "articlenumber");
     }
 
@@ -472,6 +462,30 @@ sub save {
   if ($form->{partsgroup}) {
     ($partsgroup, $partsgroup_id) = split /--/, $form->{partsgroup};
   }
+
+  my ($subq_inventory, $subq_expense, $subq_income);
+  if ($form->{"item"} eq "part") {
+    $subq_inventory =
+      qq|(SELECT bg.inventory_accno_id | .
+      qq| FROM buchungsgruppen bg | .
+      qq| WHERE bg.id = | . $dbh->quote($form->{"buchungsgruppen_id"}) . qq|)|;
+  } else {
+    $subq_inventory = "NULL";
+  }
+
+  if ($form->{"item"} ne "assembly") {
+    $subq_expense =
+      qq|(SELECT bg.expense_accno_id_0 | .
+      qq| FROM buchungsgruppen bg | .
+      qq| WHERE bg.id = | . $dbh->quote($form->{"buchungsgruppen_id"}) . qq|)|;
+  } else {
+    $subq_expense = "NULL";
+  }
+
+  $subq_income =
+    qq|(SELECT bg.income_accno_id_0 | .
+    qq| FROM buchungsgruppen bg | .
+    qq| WHERE bg.id = | . $dbh->quote($form->{"buchungsgruppen_id"}) . qq|)|;
 
   $query = qq|UPDATE parts SET
 	      partnumber = '$form->{partnumber}',
@@ -491,12 +505,9 @@ sub save {
 	      bin = '$form->{bin}',
 	      buchungsgruppen_id = '$form->{buchungsgruppen_id}',
 	      payment_id = '$form->{payment_id}',
-	      inventory_accno_id = (SELECT c.id FROM chart c
-				    WHERE c.accno = '$form->{inventory_accno}'),
-	      income_accno_id = (SELECT c.id FROM chart c
-				 WHERE c.accno = '$form->{income_accno}'),
-	      expense_accno_id = (SELECT c.id FROM chart c
-				  WHERE c.accno = '$form->{expense_accno}'),
+	      inventory_accno_id = $subq_inventory,
+	      income_accno_id = $subq_income,
+	      expense_accno_id = $subq_expense,
               obsolete = '$form->{obsolete}',
 	      image = '$form->{image}',
 	      drawing = '$form->{drawing}',
