@@ -573,16 +573,16 @@ sub ustva {
   my $last_period     = 0;
   my $category        = "pos_ustva";
   my @category_cent = qw(
-     511 861 36  80  971 931 98  96 53 74
-     85  65  66  61  62  67  63  64 59 69 
-     39  83  Z43 Z45 Z53 Z62 Z65 Z67
+     511  861  36   80   971  931  98   96   53   74
+     85   65   66   61   62   67   63   64   59   69 
+     39   83   811  891  Z43  Z45  Z53  Z62  Z65  Z67
   );
 
   my @category_euro = qw(
      41 44 49 43 48 51 
      86 35 77 76 91 97 
      93 95 94 42 60 45 
-     52 73 84
+     52 73 84 81 89
   );
 
   $form->{decimalplaces} *= 1;
@@ -598,24 +598,30 @@ sub ustva {
                       $form, $category);
 
   #
-  # Berechnung der USTVA Formularfelder
+  # Berechnung der USTVA Formularfelder laut Bogen 207
   #
 
   $form->{"51r"} = $form->{"511"};
   $form->{"86r"} = $form->{"861"};
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
-  $form->{"Z43"} = $form->{"511"}  + $form->{"861"} + $form->{"36"} 
-                   + $form->{"80"} + $form->{"971"} + $form->{"931"} 
-                   + $form->{"96"} + $form->{"98"};
+
+  $form->{"Z43"} = $form->{"511"}     + $form->{"811"} + $form->{"861"} 
+                     + $form->{"36"}  + $form->{"80"}  + $form->{"971"} 
+                     + $form->{"891"} + $form->{"931"} + $form->{"96"} 
+                     + $form->{"98"};
+
   $form->{"Z45"} = $form->{"Z43"};
-  $form->{"Z53"} = $form->{"Z43"};
-  $form->{"Z62"} = $form->{"Z43"}  - $form->{"66"}  - $form->{"61"} 
-                   - $form->{"62"} - $form->{"63"}  - $form->{"64"} 
-                   - $form->{"59"};
-  $form->{"Z65"} = $form->{"Z62"}  - $form->{"69"};
-  $form->{"83"}  = $form->{"Z65"}  - $form->{"39"};
-  # Hier fehlen moeglicherweise noch einige Berechnungen!
+
+  $form->{"Z53"} = $form->{"Z45"}     + $form->{"53"}  + $form->{"74"}  
+                     + $form->{"85"}  + $form->{"65"};
+                     
+  $form->{"Z62"} = $form->{"Z43"}     - $form->{"66"}  - $form->{"61"} 
+                     - $form->{"62"}  - $form->{"67"}  - $form->{"63"}  
+                     - $form->{"64"}  - $form->{"59"};
+                      
+  $form->{"Z65"} = $form->{"Z62"}     - $form->{"69"};
+  $form->{"83"}  = $form->{"Z65"}     - $form->{"39"};
   
   $dbh->disconnect;
 

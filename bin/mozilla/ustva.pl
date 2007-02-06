@@ -739,14 +739,15 @@ sub generate_ustva {
   #
 
   my @category_cent = qw(
-    511 861 36  80  971 931 98  96 53 74
-    85  65  66  61  62  67  63  64 59 69 
-    39  83  Z43 Z45 Z53 Z62 Z65 Z67
+    511 861 36   80   971  931  98   96   53   74
+    85  65  66   61   62   67   63   64   59   69 
+    39  83  811  891  Z43  Z45  Z53  Z62  Z65  Z67
+    
   );
 
   my @category_euro = qw(
-    41 44 49 43 48 51 86 35 77 76 91 
-    97 93 95 94 42 60 45 52 73 84
+    41 44 49 43 48 51 86 35 77 76 91 89
+    97 93 95 94 42 60 45 52 73 84 81 
   );
 
   if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
@@ -1259,11 +1260,12 @@ sub save {
   $form->{FA_Internet} =~ s/^http:\/\///;
   $form->{FA_Internet} = 'http://' . $form->{FA_Internet};
 
-  my @config = qw(elster elsterland elstersteuernummer steuernummer
-    elsteramt elsterFFFF FA_Name FA_Strasse
-    FA_PLZ FA_Ort FA_Telefon FA_Fax FA_PLZ_Grosskunden
-    FA_PLZ_Postfach FA_Postfach FA_BLZ_1 FA_Kontonummer_1
-    FA_Bankbezeichnung_1 FA_BLZ_2 FA_Kontonummer_2
+  my @config = qw(
+    elster              elsterland            elstersteuernummer  steuernummer
+    elsteramt           elsterFFFF            FA_Name             FA_Strasse
+    FA_PLZ              FA_Ort                FA_Telefon          FA_Fax 
+    FA_PLZ_Grosskunden  FA_PLZ_Postfach       FA_Postfach         FA_BLZ_1 
+    FA_Kontonummer_1    FA_Bankbezeichnung_1  FA_BLZ_2            FA_Kontonummer_2
     FA_Bankbezeichnung_oertlich FA_Oeffnungszeiten
     FA_Email FA_Internet FA_voranmeld method FA_steuerberater_name
     FA_steuerberater_street FA_steuerberater_city FA_steuerberater_tel
