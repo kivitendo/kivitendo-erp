@@ -8,14 +8,14 @@
       <tr class="listheading">
         <th colspan="2"><b><translate>Account Number</translate></b></th>
         <th align=right><b><translate>Account ID</translate></b></th>
-        <th colspan="9"><b><translate>Description</translate></b></a></th>
+        <th colspan="7"><b><translate>Description</translate></b></a></th>
         <th rowspan="3"><translate>Credit</translate></th>
         <th rowspan="3"><translate>Debit</translate></th>
       </tr>  
       <tr class="listheading">
         <th colspan="3"><b><translate>category</translate></b></th>
         
-        <th colspan="9"><translate>Link</translate></th>
+        <th colspan="7"><translate>Link</translate></th>
       </tr>
       <tr class="listheading">
         <th><translate>Taxkey</translate></th>
@@ -28,8 +28,6 @@
         <th><translate>pos_bilanz</translate></th>
         <th><translate>pos_eur</translate></th>
         <th><translate>Datev</translate></th>
-        <th><translate>Following Account</translate></th>
-        <th><translate>valid_from</translate></th>
       </tr>
 
 <TMPL_LOOP CA>
@@ -45,7 +43,7 @@
         <td align=right>
           <TMPL_VAR id>
         </td>
-        <td colspan="9">
+        <td colspan="7">
           <a href="<TMPL_VAR description>" >
             <TMPL_VAR accno>
           </a>
@@ -66,7 +64,7 @@
             <a href="<TMPL_VAR link_edit_account>" ><TMPL_VAR accno></a>
           </td>
           <td align=right><b><TMPL_VAR id ESCAPE=HTML>&nbsp;</b></td>
-          <td colspan="9"><b><TMPL_VAR description ESCAPE=HTML>&nbsp;</b></td>
+          <td colspan="7"><b><TMPL_VAR description ESCAPE=HTML>&nbsp;</b></td>
           <td rowspan="3" align=right><TMPL_VAR debit>&nbsp;</td>
           <td rowspan="3" align=right><TMPL_VAR credit>&nbsp;</td>
   
@@ -79,7 +77,7 @@
     </TMPL_IF>
 
           <td colspan="3"><b><TMPL_VAR category ESCAPE=HTML>&nbsp;</b></td>
-          <td colspan="9"><TMPL_VAR link>&nbsp;</td>
+          <td colspan="7"><TMPL_VAR link>&nbsp;</td>
         </tr>                                
 
     <TMPL_IF __odd__>
@@ -99,9 +97,6 @@
           <td valign="center"><TMPL_VAR pos_bilanz      ESCAPE=HTML>&nbsp;</td>
           <td valign="center"><TMPL_VAR pos_eur         ESCAPE=HTML>&nbsp;</td>
           <td valign="center"><TMPL_VAR datevautomatik  ESCAPE=HTML>&nbsp;</td>
-          <td valign="center"><TMPL_VAR new_account     ESCAPE=HTML>&nbsp;</td>
-          <td valign="center"><TMPL_VAR valid_from      ESCAPE=HTML>&nbsp;</td>
-
         </tr>
         <tr>
           <td colspan="14">&nbsp;</td>
