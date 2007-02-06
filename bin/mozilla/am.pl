@@ -177,10 +177,14 @@ sub account_header {
             76  => $locale->text('UStVA-Nr. 76'),
             77  => $locale->text('UStVA-Nr. 77'),
             80  => $locale->text('UStVA-Nr. 80'),
+            81  => $locale->text('UStVA-Nr. 81 left'),
+            811 => $locale->text('UStVA-Nr. 81 right'),
             84  => $locale->text('UStVA-Nr. 84'),
             85  => $locale->text('UStVA-Nr. 85'),
             86  => $locale->text('UStVA-Nr. 86 left'),
             861 => $locale->text('UStVA-Nr. 86 right'),
+            89  => $locale->text('UStVA-Nr. 89 left'),
+            891 => $locale->text('UStVA-Nr. 89 right'),
             91  => $locale->text('UStVA-Nr. 91'),
             93  => $locale->text('UStVA-Nr. 93 left'),
             931 => $locale->text('UStVA-Nr. 93 right'),
@@ -594,7 +598,7 @@ sub list_account {
     $ca->{link_edit_account} = 
         qq|$form->{script}?action=edit_account&id=$ca->{id}|
        .qq|&path=$form->{path}&login=$form->{login}|
-       .qq|&password=$form->{password}&callback=$callback>$ca->{accno}|;
+       .qq|&password=$form->{password}&callback=$callback|;
   }
   
   my $parameters_ref = {
