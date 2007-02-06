@@ -3,7 +3,7 @@ package SL::DBUtils;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(conv_i conv_date do_query selectrow_query do_statement dump_query);
+@EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement dump_query);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -13,6 +13,15 @@ sub conv_i {
 sub conv_date {
   my ($value) = @_;
   return (defined($value) && "$value" ne "") ? $value : undef;
+}
+
+sub conv_dateq {
+  my ($value) = @_;
+  if (defined($value) && "$value" ne "") {
+    $value =~ s/\'/\'\'/g;
+    return "'$value'";
+  }
+  return "NULL";
 }
 
 sub do_query {

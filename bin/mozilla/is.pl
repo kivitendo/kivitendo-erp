@@ -582,6 +582,11 @@ sub form_header {
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
 
+  $jsscript .=
+    $form->write_trigger(\%myconfig, 2,
+                         "orddate", "BL", "trigger_orddate",
+                         "quodate", "BL", "trigger_quodate");
+
   $form->header;
 
   print qq|
@@ -748,10 +753,20 @@ print qq|     <tr>
 		<th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
 		<td><input name=ordnumber size=11 value="$form->{ordnumber}"></td>
 	      </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
+          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|"></td>
+          <td><input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
+        </tr>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Quotation Number') . qq|</th>
 		<td><input name=quonumber size=11 value="$form->{quonumber}"></td>
 	      </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
+          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|"></td>
+          <td><input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
+        </tr>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Customer Order Number') . qq|</th>
 		<td><input name=cusordnumber size=11 value="$form->{cusordnumber}"></td>

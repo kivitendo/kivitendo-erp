@@ -36,6 +36,7 @@ package IS;
 
 use Data::Dumper;
 use SL::AM;
+use SL::DBUtils;
 
 sub invoice_details {
   $main::lxdebug->enter_sub();
@@ -982,6 +983,8 @@ Message: $form->{message}\r| if $form->{message};
               quonumber = '$form->{quonumber}',
               cusordnumber = '$form->{cusordnumber}',
               transdate = '$form->{invdate}',
+              orddate = | . conv_dateq($form->{orddate}) . qq|,
+              quodate = | . conv_dateq($form->{quodate}) . qq|,
               customer_id = $form->{customer_id},
               amount = $amount,
               netamount = $netamount,
@@ -1484,6 +1487,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
+                a.orddate, a.quodate,
                 a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
                 a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
 		a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,

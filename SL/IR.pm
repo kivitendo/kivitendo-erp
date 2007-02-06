@@ -35,6 +35,7 @@
 package IR;
 
 use SL::AM;
+use SL::DBUtils;
 
 sub post_invoice {
   $main::lxdebug->enter_sub();
@@ -624,6 +625,8 @@ sub post_invoice {
 	      ordnumber = '$form->{ordnumber}',
 	      quonumber = '$form->{quonumber}',
               transdate = '$form->{invdate}',
+              orddate = | . conv_dateq($form->{"orddate"}) . qq|,
+              quodate = | . conv_dateq($form->{"quodate"}) . qq|,
               vendor_id = $form->{vendor_id},
               amount = $amount,
               netamount = $netamount,
@@ -845,6 +848,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.cp_id, a.invnumber, a.transdate AS invdate, a.duedate,
+                a.orddate, a.quodate,
                 a.ordnumber, a.quonumber, a.paid, a.taxincluded, a.notes, a.taxzone_id, a.storno, a.gldate,
 		a.intnotes, a.curr AS currency
 		FROM ap a

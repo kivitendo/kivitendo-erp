@@ -356,6 +356,11 @@ sub form_header {
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
 
+  $jsscript .=
+    $form->write_trigger(\%myconfig, 2,
+                         "orddate", "BL", "trigger_orddate",
+                         "quodate", "BL", "trigger_quodate");
+
   $form->header;
 
   print qq|
@@ -448,6 +453,16 @@ sub form_header {
 		<td><input name=ordnumber size=11 value="$form->{ordnumber}"></td>
 <input type=hidden name=quonumber value="$form->{quonumber}">
 	      </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
+          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|"></td>
+          <td><input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
+          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|"></td>
+          <td><input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
+        </tr>
 	    </table>
 	  </td>
 	</tr>

@@ -2140,10 +2140,12 @@ sub invoice {
 
     # also copy deliverydate from the order
     $form->{deliverydate} = $form->{reqdate} if $form->{reqdate};
+    $form->{orddate} = $form->{transdate};
   } else {
     $form->isblank("quonumber", $locale->text('Quotation Number missing!'));
     $form->isblank("transdate", $locale->text('Quotation Date missing!'));
     $form->{ordnumber} = "";
+    $form->{quodate} = $form->{transdate};
   }
 
   # if the name changed get new values
