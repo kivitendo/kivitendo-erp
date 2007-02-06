@@ -1089,7 +1089,7 @@ sub config_vars {
 
   my @conf = qw(acs address admin businessnumber charset company countrycode
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
-    dbname dbuser dbpasswd email fax name numberformat in_numberformat password
+    dbname dbuser dbpasswd email fax name numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
     anfragen lieferantenbestellungen einkaufsrechnungen taxnumber co_ustid duns menustyle
     template_format default_media default_printer_id copies show_form_details);

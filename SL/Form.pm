@@ -679,18 +679,6 @@ sub parse_amount {
 
   my ($self, $myconfig, $amount) = @_;
 
-  if ($myconfig->{in_numberformat} == 1) {
-    # Extra input number format 1000.00 or 1000,00
-    $amount =~ s/,/\./g;
-    $amount = scalar reverse $amount;
-    $amount =~ s/\./DOT/;
-    $amount =~ s/\.//g;
-    $amount =~ s/DOT/\./;
-    $amount = scalar reverse $amount;
-    $main::lxdebug->leave_sub(2);
-    return ($amount * 1);
-  }
-
   if (   ($myconfig->{numberformat} eq '1.000,00')
       || ($myconfig->{numberformat} eq '1000,00')) {
     $amount =~ s/\.//g;
