@@ -1145,7 +1145,7 @@ sub all_parts {
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
 		 pg.partsgroup,
 		 '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-		 ct.name|;
+		 ct.name, NULL AS deliverydate|;
 
       if ($form->{ordered}) {
         $query .= qq|$union
@@ -1172,7 +1172,7 @@ sub all_parts {
 		   p.priceupdate, p.image, p.drawing, p.microfiche,
 		   pg.partsgroup,
 		   '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-		   ct.name|;
+		   ct.name, NULL AS deliverydate|;
 
         $query .= qq|$union
 	            SELECT $flds, 'oe' AS module, 'purchase_order' AS type,
@@ -1210,7 +1210,7 @@ sub all_parts {
 		 p.priceupdate, p.image, p.drawing, p.microfiche,
 		 pg.partsgroup,
 		 '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-		 ct.name|;
+		 ct.name, NULL AS deliverydate|;
 
       if ($form->{quoted}) {
         $query .= qq|$union
@@ -1237,7 +1237,7 @@ sub all_parts {
 		   p.priceupdate, p.image, p.drawing, p.microfiche,
 		   pg.partsgroup,
 		   '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-		   ct.name|;
+		   ct.name, NULL AS deliverydate|;
 
         $query .= qq|$union
 	            SELECT $flds, 'oe' AS module, 'request_quotation' AS type,
