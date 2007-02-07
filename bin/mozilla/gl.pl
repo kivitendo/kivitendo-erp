@@ -1106,7 +1106,6 @@ sub display_rows {
           . qq|>$accno</select></td>|;
         $tax          = $taxchart;
         $tax_selected = $form->{"taxchart_$i"};
-        print(STDERR "TAX_SELCTED $tax_selected\n");
         $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
         $tax =
             qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
