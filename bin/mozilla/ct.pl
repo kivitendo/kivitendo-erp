@@ -1372,7 +1372,15 @@ sub save {
     $form->isblank("salesman_id", $locale->text("Salesman missing!"));
   }
   print(STDERR "SHIPTO in sub save $form->{shipto_id}\n");
-  &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+  my $res = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+
+  if (3 == $res) {
+    if ($form->{"db"} eq "customer") {
+      $form->error($locale->text('This customer number is already in use.'));
+    } else {
+      $form->error($locale->text('This vendor number is already in use.'));
+    }
+  }
 
   &edit;
   exit;
