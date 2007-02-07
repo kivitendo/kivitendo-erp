@@ -26,6 +26,7 @@ $self->{texts} = {
   'Contact'                     => 'Kontakt',
   'Continue'                    => 'Weiter',
   'Copies'                      => 'Kopien',
+  'Could not create dunning copy!' => 'Could not create dunning copy!',
   'Country'                     => 'Land',
   'Credit Note'                 => 'Gutschrift',
   'Current / Next Level'        => 'Aktuelles / Nächstes Mahnlevel',
