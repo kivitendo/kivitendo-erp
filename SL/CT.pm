@@ -695,6 +695,9 @@ sub search {
 
   my $where = "1 = 1";
   $form->{sort} = "name" unless ($form->{sort});
+  if ($form->{sort} eq "address") {
+    $form->{sort} = "country,city,street";
+  }
 
   if ($form->{"$form->{db}number"}) {
     my $companynumber = $form->like(lc $form->{"$form->{db}number"});
