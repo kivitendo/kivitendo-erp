@@ -535,7 +535,12 @@ sub generate_ustva {
 
   # init some form vars
   my @anmeldungszeitraum =
-    qw('0401' '0402' '0403' '0404' '0405' '0405' '0406' '0407' '0408' '0409' '0410' '0411' '0412' '0441' '0442' '0443' '0444');
+    qw('0401' '0402' '0403' 
+       '0404' '0405' '0406' 
+       '0407' '0408' '0409' 
+       '0410' '0411' '0412' 
+       '0441' '0442' '0443' '0444');
+
   foreach my $item (@anmeldungszeitraum) {
     $form->{$item} = "";
   }
@@ -662,7 +667,8 @@ sub generate_ustva {
       };
     }
 
-
+  # Kontrollvariable für die Templates 
+  $form->{'year2007'} = ($form->{year} >= 2007 ) ? "1":"0";
 
 
   # Get the USTVA

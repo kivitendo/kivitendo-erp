@@ -597,6 +597,27 @@ sub ustva {
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
                       $form, $category);
 
+
+  # 16%/19% Umstelung
+  # Umordnen der Kennziffern und abfangen von Fehlern 
+
+#  $form->header;
+#  print $form->{81};
+
+  if ( $form->{year} < 2007) {
+    $form->{35} += $form->{81};
+    $form->{36} += $form->{811};
+    $form->{95} += $form->{89};
+    $form->{98} += $form->{891};
+    map { delete $form->{$_} } qw(81 811 89 891);
+  } else {
+    $form->{35} += $form->{51};
+    $form->{36} += $form->{511};
+    $form->{95} += $form->{97};
+    $form->{98} += $form->{971};
+    map { delete $form->{$_} } qw(51 511 97 971);
+  }
+
   #
   # Berechnung der USTVA Formularfelder laut Bogen 207
   #
@@ -705,15 +726,25 @@ sub get_accounts_ustva {
       select amount from ar where id = ac.trans_id  
      )
    ) AS amount,
-   c.pos_ustva
+   tk.pos_ustva
    FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   --JOIN ar ON (ar.id = ac.trans_id)
-   where 
+   LEFT JOIN chart c ON (c.id = ac.chart_id)
+   LEFT JOIN ar ON (ar.id = ac.trans_id)
+   LEFT JOIN taxkeys tk ON (
+     tk.id = (
+       SELECT id FROM taxkeys 
+       WHERE chart_id=ac.chart_id 
+         AND taxkey_id=ac.taxkey 
+         
+         AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
+       ORDER BY startdate DESC LIMIT 1
+     )
+   )
+   WHERE 
      1=1 
      -- Here no where, please. All Transactions ever should be
      -- testet if they are paied in the USTVA report period.
-   GROUP BY c.pos_ustva
+   GROUP BY tk.pos_ustva
 
  UNION -- alle Ausgaben AP erfassen
 
