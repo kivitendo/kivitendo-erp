@@ -1,0 +1,1073 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ustva-IST-Inland-linet</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">ustva-IST-Inland-linet</td></tr>
+</thead><tbody>
+<!--Create new database-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>admin.pl?path=bin/mozilla/&rpw=ro26F.eQBldoA&nextsub=list_users&action=Weiter</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP / Datenbankadministration -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Datenbankadministration / Datenbank anlegen -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>db</td>
+	<td>Selenium_Testdb-_SKR03_IST_1619_2006_2007</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>document.forms[0].chart[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<!--Benutzer anlegen-->
+<!--Achtung, Benutzer nicht neu anlegen, wg. Bug in der Benutzerverwaltung i.Zshg. mit neuen Vorlagen-->
+<!--Benutzer mit datanbank verknüpfen-->
+<tr>
+	<td>clickAndWait</td>
+	<td>demo-1619</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration / Benutzerdaten bearbeiten -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>Pg_dbname</td>
+	<td>Selenium_Testdb-_SKR03_IST_1619_2006_2007</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<!--Login-->
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>demo-1619</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>demo</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[1].action</td>
+	<td></td>
+</tr>
+<!--Datenbankaktualisierung-->
+<tr>
+	<td>assertTitle</td>
+	<td>Datenbankaktualisierung - Lx-Office Version 2.4.1 - -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>//input[@value='Weiter']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office Version 2.4.1 - Testbenutzer - Selenium_Testdb-_SKR03_IST_1619_2006_2007</td>
+	<td></td>
+</tr>
+<!--USTVA Einstellungen-->
+<!--Ist-Versteuert, monatliche Abgabe-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa Einstellungen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>elsterland_new</td>
+	<td>label=Nordrhein Westfalen</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>elsterFFFF_new</td>
+	<td>label=Aachen-Innenstadt (5201)</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>cash</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>month</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>FA_dauerfrist</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_1_1</td>
+	<td>label=1</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_1_2</td>
+	<td>label=2</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_1_3</td>
+	<td>label=3</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_1_4</td>
+	<td>label=4</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_2_1</td>
+	<td>label=5</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_2_2</td>
+	<td>label=6</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_2_3</td>
+	<td>label=7</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>part_2_4</td>
+	<td>label=8</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.elsterform.action[1]</td>
+	<td></td>
+</tr>
+<!--Testkunde anlegen-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Kunde erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name</td>
+	<td>Testkunde</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<!--Testware anlegen-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Ware erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>description</td>
+	<td>Testware</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>buchungsgruppen_id</td>
+	<td>label=Standard 16%/19%</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>sellprice</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.ic.action[1]</td>
+	<td></td>
+</tr>
+<!--1. Rechnung-->
+<!--03-2007 Rechnungsdatum-->
+<!--Kein Lieferdatum-->
+<!--03-2007 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.3.2007</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>10.3.2007</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>119</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<!--2. Rechnung: -->
+<!--11-2006 Rechnungsdatum-->
+<!--Kein Lieferdatum-->
+<!--01-2007 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>11.11.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>20.11.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>4</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_1</td>
+	<td>4</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>116</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<!--3. Rechnung: -->
+<!--12-2006 Rechnungsdatum-->
+<!--12-2006 Lieferdatum-->
+<!--12-2006 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>3</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>duedate</td>
+	<td>10.12.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Umsatzsteuer 19%</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>19,00</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>deliverydate</td>
+	<td>15.12.2006</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>Umsatzsteuer 16%</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyTextPresent</td>
+	<td>16,00</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>20.12.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>4</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_1</td>
+	<td>4</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>116</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<!--4. Rechnung: -->
+<!--08-2006 Rechnungsdatum-->
+<!--09-2006 Lieferdatum-->
+<!--02-2007 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>4</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>8.08.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>deliverydate</td>
+	<td>10.09.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[6]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td</td>
+	<td>16,00</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>2.2.2007</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>7</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_1</td>
+	<td>7</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>116</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<!--5. Rechnung: -->
+<!--06-2006 Rechnungsdatum-->
+<!--01-2007 Lieferdatum-->
+<!--07-2006 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>5</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>10.06.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>deliverydate</td>
+	<td>13.1.2007</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>12.7.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>45</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_1</td>
+	<td>44</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>119</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<!---->
+<!--########################-->
+<!--USTVA Tests-->
+<!--########################-->
+<!--1. Test -->
+<!--03-2007 Rechnungsdatum-->
+<!--Kein Lieferdatum-->
+<!--03-2007 Zahlungsdatum-->
+<!--Rechnung 1-->
+<!--USTVA2007-03-IST-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2007</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=März</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[2]</td>
+	<td>(Spalte 81)</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[3]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[5]</td>
+	<td>19,00</td>
+</tr>
+<!--2. Test-->
+<!--11-2006 Rechnungsdatum-->
+<!--Kein Lieferdatum-->
+<!--11-2006 Zahlungsdatum-->
+<!--USTVA-11-2006-IST-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=November</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[2]</td>
+	<td>(Spalte 51)</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[3]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[5]</td>
+	<td>16,00</td>
+</tr>
+<!--3. Test Rechnung 3-->
+<!--12-2006 Rechnungsdatum-->
+<!--12-2006 Lieferdatum-->
+<!--12-2006 Zahlungsdatum-->
+<!--USTVA2006-12-IST-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2006</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Dezember</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[2]</td>
+	<td>(Spalte 51)</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[3]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[9]/td[5]</td>
+	<td>16,00</td>
+</tr>
+<!--4. Test-->
+<!--4. Rechnung-->
+<!--08-2006 Rechnungsdatum-->
+<!--09-2006 Lieferdatum-->
+<!--02-2007 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2007</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Februar</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[2]</td>
+	<td>35</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[3]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[4]</td>
+	<td>36</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[5]</td>
+	<td>16,00</td>
+</tr>
+<!--5. Test-->
+<!--5. Rechnung: -->
+<!--06-2006 Rechnungsdatum-->
+<!--01-2007 Lieferdatum-->
+<!--07-2006 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>10000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Juli</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[2]</td>
+	<td>35</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[3]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[4]</td>
+	<td>36</td>
+</tr>
+<tr>
+	<td>verifyText</td>
+	<td>//tr[11]/td[5]</td>
+	<td>19,00</td>
+</tr>
+<!---------------------------------->
+<!--Cleanup -->
+<!---------------------------------->
+<!--Benutzer von Datenbank lösen-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>admin.pl?path=bin/mozilla/&rpw=ro26F.eQBldoA&nextsub=list_users&action=Weiter</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>demo-1619</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>Pg_dbname</td>
+	<td>leer</td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration / Benutzerdaten bearbeiten -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[0]</td>
+	<td></td>
+</tr>
+<!--Datenbank löschen-->
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP / Datenbankadministration -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>document.forms[0].action[1]</td>
+	<td></td>
+</tr>
+<!--... deleting databases needs time...-->
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Datenbankadministration / Datenbank löschen -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>//input[@value="Selenium_Testdb-_SKR03_IST_1619_2006_2007"]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Datenbankadministration / Datenbank löschen -</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTitle</td>
+	<td>Lx-Office ERP Administration -</td>
+	<td></td>
+</tr>
+<!--######################-->
+<!--# Ende Testskript-->
+<!--######################-->
+
+</tbody></table>
+</body>
+</html>
