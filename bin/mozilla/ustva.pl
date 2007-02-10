@@ -852,7 +852,6 @@ sub generate_ustva {
     #$form->{"iconv"} = Text::Iconv->new($myconfig{dbcharset}, "UTF-8");
     #my $iconv = $self->{"iconv"};
     #$iconv->convert($variable);
-
     if ($form->{period} =~ /^[4]\d$/ ){
       my %periods = ( # Lx => taxbird
                    '41' => '12',
@@ -864,59 +863,6 @@ sub generate_ustva {
       foreach my $quarter ( keys %periods ) {
         $form->{taxbird_period} = $periods{$quarter} if ( $form->{period} eq $quarter);
       }
-      
-      my %lands = ( # Lx => taxbird # TODO: besser als array...
-                  'Baden Würtemberg'       => '0',
-                  'Bayern'                 => '1',
-                  'Berlin'                 => '2',
-                  'Brandenburg'            => '3',
-                  'Bremen'                 => '4',
-                  'Hamburg'                => '5',
-                  'Hessen'                 => '6',
-                  'Mecklenburg Vorpommern' => '7',
-                  'Niedersachsen'          => '8',
-                  'Nordrhein Westfalen'    => '9',
-                  'Rheinland Pfalz'        => '10',
-                  'Saarland'               => '11',
-                  'Sachsen'                => '12',
-                  'Sachsen Anhalt'         => '13',
-                  'Schleswig Holstein'     => '14',
-                  'Thüringen'              => '15',
-            );
-
-      foreach my $land ( keys %lands ){
-        $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
-      }
-      
-      $form->{co_zip} = $form->{co_city};
-      $form->{co_zip} =~ s/\D//g;
-      $form->{co_city} =~ s/\d//g;
-      $form->{co_city} =~ s/^\s//g;
-      
-      ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
-      $form->{co_phone_prefix} =~ s/\s//g;
-      $form->{co_phone} =~ s/\s//g;
-      
-       $form->{taxbird_steuernummer} = $form->{steuernummer};
-#      $form->{taxbird_steuernummer} =~ s/\D//g;
-      $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
-      
-      # Numberformatting for Taxbird
-      my $temp_numberformat = $myconfig{numberformat};
-
-      # Numberformat must be '1000,00' for Taxbird ?!
-      $myconfig{numberformat} = '1000,00';
-
-      foreach my $number (@category_cent) {
-        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
-      }
-      
-      foreach my $number (@category_euro) {
-        $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
-      }
-      # Re-set Numberformat
-      $myconfig{numberformat} = $temp_numberformat;
-      
     } elsif ($form->{period} =~ /^\d+$/ ) {
       $form->{period} =~ s/^0//g;
       my $period = $form->{period};
@@ -929,6 +875,87 @@ sub generate_ustva {
       exit(0);
     }
     
+    my %lands = ( # Lx => taxbird # TODO: besser als array...
+                'Baden Würtemberg'       => '0',
+                'Bayern'                 => '1',
+                'Berlin'                 => '2',
+                'Brandenburg'            => '3',
+                'Bremen'                 => '4',
+                'Hamburg'                => '5',
+                'Hessen'                 => '6',
+                'Mecklenburg Vorpommern' => '7',
+                'Niedersachsen'          => '8',
+                'Nordrhein Westfalen'    => '9',
+                'Rheinland Pfalz'        => '10',
+                'Saarland'               => '11',
+                'Sachsen'                => '12',
+                'Sachsen Anhalt'         => '13',
+                'Schleswig Holstein'     => '14',
+                'Thüringen'              => '15',
+          );
+    foreach my $land ( keys %lands ){
+      $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
+    }
+    
+    $form->{co_zip} = $form->{co_city};
+    $form->{co_zip} =~ s/\D//g;
+    $form->{co_city} =~ s/\d//g;
+    $form->{co_city} =~ s/^\s//g;
+    
+    ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
+    $form->{co_phone_prefix} =~ s/\s//g;
+    $form->{co_phone} =~ s/\s//g;
+    
+     $form->{taxbird_steuernummer} = $form->{steuernummer};
+    #      $form->{taxbird_steuernummer} =~ s/\D//g;
+    $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
+    
+    # Numberformatting for Taxbird
+    my $temp_numberformat = $myconfig{numberformat};
+    # Numberformat must be '1000,00' for Taxbird ?!
+    $myconfig{numberformat} = '1000,00';
+    foreach my $number (@category_cent) {
+      $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
+    }
+    
+    foreach my $number (@category_euro) {
+      $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
+    }
+    # Re-set Numberformat
+    $myconfig{numberformat} = $temp_numberformat;
+    
+    # push Kennziffern to <%foreach Array fo easyer
+    # output in xml format. Thx to Moritz.
+    my %taxbird_id_for = (
+         
+        '511'  =>  'Kz51-calc',
+        '861'  =>  'Kz86-calc',
+        '971'  =>  'Kz97-calc',
+        '931'  =>  'Kz93-calc',
+        '811'  =>  'Kz81-calc',
+        '891'  =>  'Kz89-calc',
+        'Z45'  =>  'uebertrag',
+        'Z53'  =>  'ust-sum',
+        'Z62'  =>  'ust-minus-vost',
+        'Z65'  =>  'ust-sum+69',
+        'Z67'  =>  'ust-vz',
+    );
+          
+    
+    for my $kennziffer (@category_cent, @category_euro) {
+
+      next if ($kennziffer eq 'Z43');
+
+      if ($form->{$kennziffer} != 0){
+        if (defined $taxbird_id_for{$kennziffer}) {
+          push(@{ $form->{id}}, $taxbird_id_for{$kennziffer});
+        } else {
+          push(@{ $form->{id}}, "Kz$kennziffer"); 
+        }
+        push(@{ $form->{amount}}, $form->{$kennziffer});
+      }
+    }    
+    
   } elsif ( $form->{format} eq '' ){ # No format error.
     $form->header;
     USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
@@ -940,6 +967,7 @@ sub generate_ustva {
     exit(0);
   }
 
+  
   if ( $form->{period} eq '13' and $form->{format} ne 'html') {
     $form->header;
     USTVA::info(
