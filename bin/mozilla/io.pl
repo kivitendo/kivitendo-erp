@@ -488,7 +488,7 @@ sub display_row {
 
     print qq|
           <b>$projectnumber</b>&nbsp;<input name="projectnumber_$i" size=10 value="$form->{"projectnumber_$i"}">
-		  <input type=hidden name="oldprojectnumber_$i" value="$form->{"oldprojectnumber_$i"}">
+		  <input type=hidden name="oldprojectnumber_$i" value="$form->{"projectnumber_$i"}">
 		  <input type=hidden name="project_id_$i" value="$form->{"project_id_$i"}">
 |;
     if ($form->{type} eq 'invoice' or $form->{type} =~ /order/) {
@@ -981,8 +981,10 @@ sub check_form {
 
   # remove any makes or model rows
   if ($form->{item} eq 'part') {
+    $lxdebug->message(0, "a1 $form->{sellprice}");
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
       qw(listprice sellprice lastcost weight rop);
+    $lxdebug->message(0, "a2 $form->{sellprice}");
 
     @flds = (make, model);
     for my $i (1 .. ($form->{makemodel_rows})) {
@@ -995,7 +997,9 @@ sub check_form {
       }
     }
 
+    $lxdebug->message(0, "a3 $form->{sellprice}");
     $form->redo_rows(\@flds, \@a, $count, $form->{makemodel_rows});
+    $lxdebug->message(0, "a4 $form->{sellprice}");
     $form->{makemodel_rows} = $count;
 
   } elsif ($form->{item} eq 'assembly') {
@@ -1076,6 +1080,7 @@ sub check_form {
     }
   }
 
+    $lxdebug->message(0, "a5 $form->{sellprice}");
   #sk
   # if pricegroups
   if (   $form->{type} =~ (/sales_quotation/)
@@ -1090,8 +1095,10 @@ sub check_form {
     set_pricegroup($form->{rowcount});
 
   }
+    $lxdebug->message(0, "a6 $form->{sellprice}");
 
   &display_form;
+    $lxdebug->message(0, "a7 $form->{sellprice}");
 
   $lxdebug->leave_sub();
 }
