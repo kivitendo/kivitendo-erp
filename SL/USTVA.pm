@@ -715,7 +715,8 @@ sub get_accounts_ustva {
      ( 
        SELECT SUM(acc.amount)
        FROM acc_trans acc
-       INNER JOIN chart c ON (acc.chart_id = c.id AND c.link like '%AR_paid%')
+       INNER JOIN chart c ON (acc.chart_id   =   c.id 
+                              AND c.link   like  '%AR_paid%')
        WHERE
         1=1 
         $ARwhere
@@ -728,14 +729,13 @@ sub get_accounts_ustva {
    ) AS amount,
    tk.pos_ustva
    FROM acc_trans ac
-   LEFT JOIN chart c ON (c.id = ac.chart_id)
-   LEFT JOIN ar ON (ar.id = ac.trans_id)
+   LEFT JOIN chart c ON (c.id  = ac.chart_id)
+   LEFT JOIN ar      ON (ar.id = ac.trans_id)
    LEFT JOIN taxkeys tk ON (
      tk.id = (
        SELECT id FROM taxkeys 
-       WHERE chart_id=ac.chart_id 
-         AND taxkey_id=ac.taxkey 
-         
+       WHERE chart_id   = ac.chart_id 
+         AND taxkey_id  = ac.taxkey 
          AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
        ORDER BY startdate DESC LIMIT 1
      )
@@ -749,34 +749,51 @@ sub get_accounts_ustva {
  UNION -- alle Ausgaben AP erfassen
 
      SELECT
-     sum(ac.amount) AS amount, pos_ustva
+     sum(ac.amount) AS amount, 
+     tk.pos_ustva
      FROM acc_trans ac
      JOIN AP ON (AP.id = ac.trans_id )
-     JOIN chart c ON (c.id = ac.chart_id AND pos_ustva NOT LIKE '')
+     JOIN chart c ON (c.id = ac.chart_id)
+     LEFT JOIN taxkeys tk ON (
+       tk.id = (
+         SELECT id FROM taxkeys 
+         WHERE chart_id=ac.chart_id 
+           AND taxkey_id=ac.taxkey 
+           AND startdate <= COALESCE(AP.transdate)
+         ORDER BY startdate DESC LIMIT 1
+       )
+     )
      WHERE
        1=1
        $APwhere
        $dpt_where
        $project
-     GROUP BY pos_ustva
+     GROUP BY tk.pos_ustva
 
  UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
 
    SELECT sum
-   (
-     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-     END
-   ) AS amount, c.$category
+   ( - ac.amount) AS amount, 
+   tk.pos_ustva
    FROM acc_trans ac
    JOIN chart c ON (c.id = ac.chart_id)
    JOIN gl a ON (a.id = ac.trans_id)
+   LEFT JOIN taxkeys tk ON (
+     tk.id = (
+       SELECT id FROM taxkeys 
+       WHERE chart_id=ac.chart_id 
+         AND taxkey_id=ac.taxkey 
+         
+         AND startdate <= COALESCE(ac.transdate)
+       ORDER BY startdate DESC LIMIT 1
+     )
+   )
+
    $dpt_join
    WHERE $where
    $dpt_from
-   AND NOT (c.link = 'AR' OR c.link = 'AP')
    $project
-   GROUP BY c.$category
+   GROUP BY tk.pos_ustva
    |;
 
   } else { 
