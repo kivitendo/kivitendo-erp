@@ -6,49 +6,9 @@
   <AnmeldeJahr><%year%></AnmeldeJahr>
   <AnmeldeZeitraum><%period%></AnmeldeZeitraum>
 
-  <%if 35%><Kennzahl Nr="35"><%35%></Kennzahl><%end 35%>
-  <%if 36%><Kennzahl Nr="36"><%36%></Kennzahl><%end 36%>
-  <%if 39%><Kennzahl Nr="39"><%39%></Kennzahl><%end 39%>
-  <%if 41%><Kennzahl Nr="41"><%41%></Kennzahl><%end 41%>
-  <%if 42%><Kennzahl Nr="42"><%42%></Kennzahl><%end 42%>
-  <%if 43%><Kennzahl Nr="43"><%43%></Kennzahl><%end 43%>
-  <%if 44%><Kennzahl Nr="44"><%44%></Kennzahl><%end 44%>
-  <%if 45%><Kennzahl Nr="45"><%45%></Kennzahl><%end 45%>
-  <%if 48%><Kennzahl Nr="48"><%48%></Kennzahl><%end 48%>
-  <%if 49%><Kennzahl Nr="49"><%49%></Kennzahl><%end 49%>
-  <%if 51%><Kennzahl Nr="51"><%51%></Kennzahl><%end 51%>
-  <%if 511%><Kennzahl Nr="511"><%511%></Kennzahl><%end 511%>
-  <%if 52%><Kennzahl Nr="52"><%52%></Kennzahl><%end 52%>
-  <%if 53%><Kennzahl Nr="53"><%53%></Kennzahl><%end 53%>
-  <%if 59%><Kennzahl Nr="59"><%59%></Kennzahl><%end 59%>
-  <%if 60%><Kennzahl Nr="60"><%60%></Kennzahl><%end 60%>
-  <%if 61%><Kennzahl Nr="61"><%61%></Kennzahl><%end 61%>
-  <%if 62%><Kennzahl Nr="62"><%62%></Kennzahl><%end 62%>
-  <%if 63%><Kennzahl Nr="63"><%63%></Kennzahl><%end 63%>
-  <%if 64%><Kennzahl Nr="64"><%64%></Kennzahl><%end 64%>
-  <%if 65%><Kennzahl Nr="65"><%65%></Kennzahl><%end 65%>
-  <%if 66%><Kennzahl Nr="66"><%66%></Kennzahl><%end 66%>
-  <%if 67%><Kennzahl Nr="67"><%67%></Kennzahl><%end 67%>
-  <%if 69%><Kennzahl Nr="69"><%69%></Kennzahl><%end 69%>
-  <%if 73%><Kennzahl Nr="73"><%73%></Kennzahl><%end 73%>
-  <%if 74%><Kennzahl Nr="74"><%74%></Kennzahl><%end 74%>
-  <%if 76%><Kennzahl Nr="76"><%76%></Kennzahl><%end 76%>
-  <%if 77%><Kennzahl Nr="77"><%77%></Kennzahl><%end 77%>
-  <%if 80%><Kennzahl Nr="80"><%80%></Kennzahl><%end 80%>
-  <%if 83%><Kennzahl Nr="83"><%83%></Kennzahl><%end 83%>
-  <%if 84%><Kennzahl Nr="84"><%84%></Kennzahl><%end 84%>
-  <%if 85%><Kennzahl Nr="85"><%85%></Kennzahl><%end 85%>
-  <%if 86%><Kennzahl Nr="86"><%86%></Kennzahl><%end 86%>
-  <%if 861%><Kennzahl Nr="861"><%861%></Kennzahl><%end 861%>
-  <%if 91%><Kennzahl Nr="91"><%91%></Kennzahl><%end 91%>
-  <%if 93%><Kennzahl Nr="93"><%93%></Kennzahl><%end 93%>
-  <%if 931%><Kennzahl Nr="931"><%931%></Kennzahl><%end 931%>
-  <%if 94%><Kennzahl Nr="94"><%94%></Kennzahl><%end 94%>
-  <%if 95%><Kennzahl Nr="95"><%95%></Kennzahl><%end 95%>
-  <%if 96%><Kennzahl Nr="96"><%96%></Kennzahl><%end 96%>
-  <%if 97%><Kennzahl Nr="97"><%97%></Kennzahl><%end 97%>
-  <%if 971%><Kennzahl Nr="971"><%971%></Kennzahl><%end 971%>
-  <%if 98%><Kennzahl Nr="98"><%98%></Kennzahl><%end 98%>  
+<%foreach id%>
+  <Kennzahl Nr="<%id%>"><%amount%></Kennzahl>
+<%end%>
 
 </WinstonAusgang>
 

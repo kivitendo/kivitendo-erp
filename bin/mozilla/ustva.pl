@@ -755,6 +755,9 @@ sub generate_ustva {
     41 44 49 43 48 51 86 35 77 76 91 89
     97 93 95 94 42 60 45 52 73 84 81 
   );
+  
+  $form->{id} = [];
+  $form->{amount} = [];
 
   if ( $form->{format} eq 'pdf' or $form->{format} eq 'postscript') {
 
@@ -836,9 +839,29 @@ sub generate_ustva {
     # Re-set Numberformat
     $myconfig{numberformat} = $temp_numberformat;
 
-  }
 
-  elsif ( $form->{format} eq 'elstertaxbird' ) {
+    # push Kennziffern to <%foreach Array fo easyer
+    # output in xml format. Thx to Moritz.
+    my %winston_id_for = (
+     # No Winston remap?!
+    );
+          
+
+    foreach my $kennziffer (@category_cent, @category_euro) {
+
+      next if ( $kennziffer =~ m/Z\d\d/);
+      next if (   $form->{$kennziffer} == 0 );
+      
+      if (defined $winston_id_for{$kennziffer} ) {
+        push(@{ $form->{id}}, $winston_id_for{$kennziffer});
+      } else {
+        push(@{ $form->{id}}, "$kennziffer"); 
+      }
+      push(@{ $form->{amount}}, $form->{$kennziffer});
+    }    
+
+
+  } elsif ( $form->{format} eq 'elstertaxbird' ) {
 
     # Define serveral filenames
     $form->{IN} = 'taxbird.txb';
