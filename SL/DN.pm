@@ -274,11 +274,11 @@ sub get_invoices {
 
   $paymentdate = ($form->{paymentuntil}) ? "'$form->{paymentuntil}'" : current_date;
 
-  $query = qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.customer_id, a.duedate,da.fee AS old_fee, dnn.fee as fee, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, a.duedate + dnn.terms - current_date AS nextlevel, $paymentdate - a.duedate AS pastdue, dn.dunning_level, current_date + dnn.payment_terms AS next_duedate, dnn.dunning_description AS next_dunning_description, dnn.id AS next_dunning_id, dnn.interest AS interest_rate, dnn.terms
+  $query = qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.customer_id, a.duedate,da.fee AS old_fee,dnn.active,dnn.email, dnn.fee as fee, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, a.duedate + dnn.terms - current_date AS nextlevel, $paymentdate - a.duedate AS pastdue, dn.dunning_level, current_date + dnn.payment_terms AS next_duedate, dnn.dunning_description AS next_dunning_description, dnn.id AS next_dunning_id, dnn.interest AS interest_rate, dnn.terms
 	         FROM dunning_config dnn, ar a
 	         JOIN customer ct ON (a.customer_id = ct.id)
 		 LEFT JOIN dunning_config dn ON (dn.id = a.dunning_id)
-                 LEFT JOIN dunning da ON (da.trans_id=a.id AND dunning_config.dunning_level=da.dunning_level)
+                 LEFT JOIN dunning da ON (da.trans_id=a.id AND dn.dunning_level=da.dunning_level)
                  $where|;
 
   my $sth = $dbh->prepare($query);

@@ -475,10 +475,10 @@ sub show_invoices {
 
 
     $column_data{dunning_description}           = qq|<td><input type=hidden name=inv_id_$i size=2 value="$ref->{id}"><input type=hidden name=customer_id_$i size=2 value="$ref->{customer_id}">$ref->{dunning_level}:&nbsp;$dunning</td>|;
-    my $active = "checked";
+    my $active = ($ref->{active}) ? "checked" : "";
     $column_data{active} =
       qq|<td><input type=checkbox name=active_$i value=1 $active></td>|;
-    my $email = "checked";
+    my $email = ($ref->{email}) ? "checked" : "";
   $column_data{email} =
     qq|<td><input type=checkbox name=email_$i value=1 $email></td>|;
     $column_data{next_duedate}           = qq|<td><input type=hidden name=next_duedate_$i size=6 value="$ref->{next_duedate}">$ref->{next_duedate}</td>|;
