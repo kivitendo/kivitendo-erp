@@ -653,7 +653,7 @@ sub format_amount {
   }
   my $neg = ($amount =~ s/-//);
 
-  if (defined($places)) {
+  if (defined($places) && ($places ne '')) {
     if ($places < 0) {
       $amount *= 1;
       $places *= -1;
