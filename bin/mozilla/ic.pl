@@ -1309,7 +1309,7 @@ sub addtop100 {
 
     $column_data{number} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{number}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{number})
       . "</td>";
     $column_data{partnumber} =
       "<td align=$align>$ref->{partnumber}&nbsp;</a></td>";
@@ -1318,32 +1318,29 @@ sub addtop100 {
 
     $column_data{onhand} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand})
       . "</td>";
     $column_data{sellprice} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{sellprice}, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{sellprice})
       . "</td>";
     $column_data{listprice} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{listprice}, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{listprice})
       . "</td>";
     $column_data{lastcost} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{lastcost}, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{lastcost})
       . "</td>";
 
     $column_data{linetotalsellprice} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{sellprice},
-                             2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{sellprice}, 2)
       . "</td>";
     $column_data{linetotallastcost} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{lastcost},
-                             2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{lastcost}, 2)
       . "</td>";
     $column_data{linetotallistprice} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{listprice},
-                             2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{listprice}, 2)
       . "</td>";
 
     if (!$ref->{assemblyitem}) {
@@ -1359,10 +1356,10 @@ sub addtop100 {
 
     $column_data{rop} =
       "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;") . "</td>";
+      . $form->format_amount(\%myconfig, $ref->{rop}) . "</td>";
     $column_data{weight} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{weight}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{weight})
       . "</td>";
     $column_data{unit}        = "<td>$ref->{unit}&nbsp;</td>";
     $column_data{bin}         = "<td>$ref->{bin}&nbsp;</td>";
@@ -1419,15 +1416,15 @@ sub addtop100 {
     map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
     $column_data{linetotalsellprice} =
         "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totalsellprice, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $totalsellprice, 2)
       . "</th>";
     $column_data{linetotallastcost} =
         "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totallastcost, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $totallastcost, 2)
       . "</th>";
     $column_data{linetotallistprice} =
         "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totallistprice, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $totallistprice, 2)
       . "</th>";
 
     print "<tr class=listtotal>";
@@ -1861,32 +1858,29 @@ sub generate_report {
 
     $column_data{onhand} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand})
       . "</td>";
     $column_data{sellprice} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{sellprice}, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{sellprice}, -2)
       . "</td>";
     $column_data{listprice} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{listprice}, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{listprice}, -2)
       . "</td>";
     $column_data{lastcost} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{lastcost}, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{lastcost}, -2)
       . "</td>";
 
     $column_data{linetotalsellprice} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{sellprice},
-                             2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{sellprice}, 2)
       . "</td>";
     $column_data{linetotallastcost} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{lastcost},
-                             2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{lastcost}, 2)
       . "</td>";
     $column_data{linetotallistprice} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{listprice},
-                             2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{listprice}, 2)
       . "</td>";
 
     if (!$ref->{assemblyitem}) {
@@ -1902,10 +1896,10 @@ sub generate_report {
 
     $column_data{rop} =
       "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;") . "</td>";
+      . $form->format_amount(\%myconfig, $ref->{rop}) . "</td>";
     $column_data{weight} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{weight}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{weight})
       . "</td>";
     $column_data{unit}        = "<td>$ref->{unit}&nbsp;</td>";
     $column_data{bin}         = "<td>$ref->{bin}&nbsp;</td>";
@@ -1943,7 +1937,7 @@ sub generate_report {
 
     $column_data{soldtotal} =
         "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{soldtotal}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{soldtotal})
       . "</td>";
 
     $column_data{deliverydate} = "<td>$ref->{deliverydate}</td>";
@@ -1968,15 +1962,15 @@ sub generate_report {
     map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
     $column_data{linetotalsellprice} =
         "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totalsellprice, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $totalsellprice, 2)
       . "</th>";
     $column_data{linetotallastcost} =
         "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totallastcost, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $totallastcost, 2)
       . "</th>";
     $column_data{linetotallistprice} =
         "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totallistprice, 2, "&nbsp;")
+      . $form->format_amount(\%myconfig, $totallistprice, 2)
       . "</th>";
 
     print "<tr class=listtotal>";
@@ -2028,20 +2022,20 @@ sub parts_subtotal {
 
   $column_data{onhand} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalonhand, '', "&nbsp;")
+    . $form->format_amount(\%myconfig, $subtotalonhand)
     . "</th>";
 
   $column_data{linetotalsellprice} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalsellprice, 2, "&nbsp;")
+    . $form->format_amount(\%myconfig, $subtotalsellprice, 2)
     . "</th>";
   $column_data{linetotallistprice} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotallistprice, 2, "&nbsp;")
+    . $form->format_amount(\%myconfig, $subtotallistprice, 2)
     . "</th>";
   $column_data{linetotallastcost} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotallastcost, 2, "&nbsp;")
+    . $form->format_amount(\%myconfig, $subtotallastcost, 2)
     . "</th>";
 
   $subtotalonhand    = 0;
@@ -2170,31 +2164,8 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
-  my $dec = '';
-
-  #decimalplaces for listprice
-  ($dec) = ($form->{listprice} =~ /\.(\d+)/);
-  $dec = length $dec;
-  my $decimalplaces = ($dec == 2) ? $dec : 2;
-  $form->{listprice} =
-    $form->format_amount(\%myconfig, $form->{listprice}, $decimalplaces);
-
-  #decimalplaces for sellprice and gv
-  ($dec) = ($form->{sellprice} =~ /\.(\d+)/);
-  $dec = length $dec;
-  my $decimalplaces = ($dec == 2) ? $dec : 2;
-
-  map {
-    $form->{$_} =
-      $form->format_amount(\%myconfig, $form->{$_}, $decimalplaces)
-  } qw(sellprice gv);
-
-  ($dec) = ($form->{lastcost} =~ /\.(\d+)/);
-  $dec = length $dec;
-  my $decimalplaces = ($dec == 2) ? $dec : 2;
-
-  $form->{lastcost} =
-    $form->format_amount(\%myconfig, $form->{lastcost}, $decimalplaces);
+  map({ $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, -2) }
+      qw(sellprice listprice lastcost gv));
 
   map { $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}) }
     qw(weight rop stock);
@@ -3312,11 +3283,11 @@ sub list_assemblies {
     $column_data{bin}    = qq|<td>$ref->{bin}&nbsp;</td>|;
     $column_data{onhand} =
         qq|<td align=right>|
-      . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{onhand})
       . qq|</td>|;
     $column_data{rop} =
         qq|<td align=right>|
-      . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;")
+      . $form->format_amount(\%myconfig, $ref->{rop})
       . qq|</td>|;
     $column_data{stock} = qq|<td width=10%><input name="qty_$i" size=10></td>|;
 
