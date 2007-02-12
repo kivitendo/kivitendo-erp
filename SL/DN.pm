@@ -138,7 +138,7 @@ sub save_dunning {
     $dbh->do($query) || $form->dberror($query);
   }
 
-  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id) where ar.id IN $form->{inv_ids}|;
+  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id AND dunning_config.dunning_level=da.dunning_level) where ar.id IN $form->{inv_ids}|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   my $first = 1;
@@ -278,7 +278,7 @@ sub get_invoices {
 	         FROM dunning_config dnn, ar a
 	         JOIN customer ct ON (a.customer_id = ct.id)
 		 LEFT JOIN dunning_config dn ON (dn.id = a.dunning_id)
-                 LEFT JOIN dunning da ON (da.trans_id=a.id)
+                 LEFT JOIN dunning da ON (da.trans_id=a.id AND dunning_config.dunning_level=da.dunning_level)
                  $where|;
 
   my $sth = $dbh->prepare($query);
@@ -359,7 +359,7 @@ sub get_dunning {
   $where .= " ORDER by $sortorder";
 
 
-  $query = qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.duedate,da.fee ,da.interest, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, da.dunning_id
+  $query = qq|SELECT a.id, a.ordnumber,a.invoice, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.duedate,da.fee ,da.interest, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, da.dunning_id
 	         FROM ar a
 	         JOIN customer ct ON (a.customer_id = ct.id),
                  dunning da LEFT JOIN dunning_config dn ON (da.dunning_id=dn.id)
@@ -502,7 +502,7 @@ sub print_dunning {
   my $dbh = $form->dbconnect_noauto($myconfig);
 
 
-  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id) where ar.dunning_id=$dunning_id|;
+  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id AND dunning_config.dunning_level=da.dunning_level) where ar.dunning_id=$dunning_id|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   my $first = 1;

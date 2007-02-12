@@ -896,8 +896,12 @@ sub show_dunning {
   
 
   $dunning = qq|<select name=next_dunning_id_$i>$form->{selectdunning}</select>|;
-
-
+    my $script = "";
+    if ($ref->{invoice}) {
+      $script = "is.pl";
+    } else {
+      $script = "ar.pl";
+    }
     $column_data{dunning_description}           = qq|<td><a href=dn.pl?action=print_dunning&dunning_id=$ref->{dunning_id}&format=pdf&media=screen&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{dunning_description}</a></td>|;
     my $active = "checked";
     $column_data{dunning_date}           = qq|<td>$ref->{dunning_date}</td>|;
@@ -905,7 +909,7 @@ sub show_dunning {
 
     $column_data{inv_duedate}           = qq|<td>$ref->{duedate}</td>|;
     $column_data{invdate}           = qq|<td>$ref->{transdate}</td>|;
-    $column_data{invnumber}           = qq|<td><a href=ar.pl?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{invnumber}</a></td>|;
+    $column_data{invnumber}           = qq|<td><a href=$script?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{invnumber}</a></td>|;
     $column_data{customername}           = qq|<td>$ref->{customername}</td>|;
     $column_data{invamount}           = qq|<td>$ref->{amount}</td>|;
     $column_data{fee}           = qq|<td>$ref->{fee}</td>|;
