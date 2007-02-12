@@ -653,7 +653,18 @@ sub format_amount {
   }
   my $neg = ($amount =~ s/-//);
 
-  $amount = $self->round_amount($amount, $places) if ($places =~ /\d/);
+  if (defined($places)) {
+    if ($places < 0) {
+      $amount *= 1;
+      $places *= -1;
+
+      my ($actual_places) = ($amount =~ /\.(\d+)/);
+      $actual_places = length($actual_places);
+      $places = $actual_places > $places ? $actual_places : $places;
+    }
+
+    $amount = $self->round_amount($amount, $places);
+  }
 
   my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
   my @p = split(/\./, $amount); # split amount at decimal point
