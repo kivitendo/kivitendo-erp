@@ -1329,7 +1329,7 @@ sub e_mail {
   my $attachment_filename = $formname_translations{$form->{"formname"}};
   my $prefix;
 
-  if ($form->{"type"} =~ /invoice/) {
+  if (grep({ $form->{"type"} eq $_ } qw(invoice credit_note))) {
     $prefix = "inv";
   } elsif ($form->{"type"} =~ /_quotation$/) {
     $prefix = "quo";
