@@ -1782,11 +1782,11 @@ sub list_buchungsgruppe {
                      income_accno_3 expense_accno_3 );
 
   $column_header{up} =
-      qq|<th class="listheading">|
+      qq|<th class="listheading" width="16">|
     . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
     . qq|</th>|;
   $column_header{down} =
-      qq|<th class="listheading">|
+      qq|<th class="listheading" width="16">|
     . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
     . qq|</th>|;
   $column_header{description} =
@@ -1868,20 +1868,20 @@ sub list_buchungsgruppe {
     if ($row) {
       my $pref = $form->{ALL}->[$row - 1];
       $column_data{up} =
-        qq|<td align="center" valign="center">| .
+        qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}id1=$ref->{id}&id2=$pref->{id}">| .
         qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">| .
         qq|</a></td>|;
     } else {
-      $column_data{up} = qq|<td>&nbsp;</td>|;
+      $column_data{up} = qq|<td width="16">&nbsp;</td>|;
     }
 
     if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
-      $column_data{down} = qq|<td>&nbsp;</td>|;
+      $column_data{down} = qq|<td width="16">&nbsp;</td>|;
     } else {
       my $nref = $form->{ALL}->[$row + 1];
       $column_data{down} =
-        qq|<td align="center" valign="center">| .
+        qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}id1=$ref->{id}&id2=$nref->{id}">| .
         qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">| .
         qq|</a></td>|;
@@ -2371,11 +2371,11 @@ sub list_payment {
                      terms_skonto percent_skonto);
 
   $column_header{up} =
-      qq|<th class="listheading" align="center" valign="center">|
+      qq|<th class="listheading" align="center" valign="center" width="16">|
     . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
     . qq|</th>|;
   $column_header{down} =
-      qq|<th class="listheading" align="center" valign="center">|
+      qq|<th class="listheading" align="center" valign="center" width="16">|
     . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
     . qq|</th>|;
   $column_header{description} =
@@ -2436,20 +2436,20 @@ sub list_payment {
     if ($row) {
       my $pref = $form->{ALL}->[$row - 1];
       $column_data{up} =
-        qq|<td align="center" valign="center">| .
+        qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}&id1=$ref->{id}&id2=$pref->{id}">| .
         qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">| .
         qq|</a></td>|;
     } else {
-      $column_data{up} = qq|<td>&nbsp;</td>|;
+      $column_data{up} = qq|<td width="16">&nbsp;</td>|;
     }
 
     if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
-      $column_data{down} = qq|<td>&nbsp;</td>|;
+      $column_data{down} = qq|<td width="16">&nbsp;</td>|;
     } else {
       my $nref = $form->{ALL}->[$row + 1];
       $column_data{down} =
-        qq|<td align="center" valign="center">| .
+        qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}&id1=$ref->{id}&id2=$nref->{id}">| .
         qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">| .
         qq|</a></td>|;
