@@ -436,7 +436,7 @@ sub dbcreate {
 sub process_perl_script {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename, $version) = @_;
+  my ($self, $form, $dbh, $filename, $version_or_control) = @_;
 
   open(FH, "$filename") or $form->error("$filename : $!\n");
   my $contents = join("", <FH>);
@@ -470,8 +470,13 @@ sub process_perl_script {
     exit(0);
   }
 
-  if ($version) {
-    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  if (ref($version_or_control) eq "HASH") {
+    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
+             $dbh->quote($version_or_control->{"tag"}) . ", " .
+             $dbh->quote($form->{"login"}) . ")");
+  } elsif ($version_or_control) {
+    $dbh->do("UPDATE defaults SET version = " .
+             $dbh->quote($version_or_control));
   }
   $dbh->commit();
 
