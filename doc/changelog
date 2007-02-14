@@ -46,6 +46,7 @@
   - Mehr Sonderzeichen werden in die richten LaTeX-Codes übersetzt
   - USTVA Screens in HTML-Templates verlagert
   - USTVA Taxbird kleinere Anpassungen zur Kompatibilität
+  - Bugfix 546 - sql/Pg-upgrade2 führt keine *.pl Updateskripte aus
   - Bugfix 540 - Mahnungen
   - Bugfix 537 - Fehler beim erzeugen eines Berichtes
   - Bugfix 536 - Erfassung eines Kunden mit bereits bestehender Kundennummer
