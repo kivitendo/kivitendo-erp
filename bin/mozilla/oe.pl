@@ -407,54 +407,33 @@ sub form_header {
   #quote select[customer|vendor] Bug 133
   $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
 
-  #build contacts
-  if ($form->{all_contacts}) {
+  $form->get_lists("contacts" => "ALL_CONTACTS",
+                   "shipto" => "ALL_SHIPTO");
 
-    $form->{selectcontact} = "<option></option>";
-    foreach $item (@{ $form->{all_contacts} }) {
-      my $department = ($item->{cp_abteilung}) ? "--$item->{cp_abteilung}" : "";
-      if ($form->{cp_id} == $item->{cp_id}) {
-        $form->{selectcontact} .=
-          "<option value=$item->{cp_id} selected>$item->{cp_name}$department</option>";
-      } else {
-        $form->{selectcontact} .= "<option value=$item->{cp_id}>$item->{cp_name}$department</option>";
-      }
-    }
-  } else {
-    $form->{selectcontact} =~ s/ selected//g;
-    if ($form->{cp_id} ne "") {
-      $form->{selectcontact} =~ s/value=$form->{cp_id}/value=$form->{cp_id} selected/;
-    }
+  my (%labels, @values);
+  foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
+    push(@values, $item->{"cp_id"});
+    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
+      ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
+  }
+  my $contact =
+    $cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                     '-labels' => \%labels, '-default' => $form->{"cp_id"});
+
+  %labels = ();
+  @values = ("");
+  foreach my $item (@{ $form->{"ALL_SHIPTO"} }) {
+    push(@values, $item->{"shipto_id"});
+    $labels{$item->{"shipto_id"}} =
+      $item->{"shiptoname"} . " " . $item->{"shiptodepartment_1"};
   }
 
-
-  if (@{ $form->{SHIPTO} }) {
-    $form->{selectshipto} = "<option value=0></option>";
-    foreach $item (@{ $form->{SHIPTO} }) {
-      if ($item->{shipto_id} == $form->{shipto_id}) {
-        $form->{selectshipto} .=
-          "<option value=$item->{shipto_id} selected>$item->{shiptoname} $item->{shiptodepartment_1}</option>";
-      } else {
-        $form->{selectshipto} .=
-          "<option value=$item->{shipto_id}>$item->{shiptoname} $item->{shiptodepartment}</option>";
-      }
-
-    }
-  } else {
-    $form->{selectshipto} = $form->unquote($form->{selectshipto});
-    $form->{selectshipto} =~ s/ selected//g;
-    if ($form->{shipto_id} ne "") {
-      $form->{selectshipto} =~ s/value=$form->{shipto_id}/value=$form->{shipto_id} selected/;
-    }
-  }
-
-  $shipto = qq|
+  my $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td><select name=shipto_id style="width:200px;">$form->{selectshipto}</select></td>|;
-  $form->{selectshipto} = $form->quote($form->{selectshipto});
-  $shipto .= qq| <input type=hidden name=selectshipto value="$form->{selectshipto}">|;
-
-
+		<td>| .
+    $cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
+                     '-labels' => \%labels, '-default' => $form->{"shipto_id"})
+    . qq|</td>|;
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
@@ -469,11 +448,6 @@ sub form_header {
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
   $form->{creditremaining} =
     $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
-
-  $contact =
-    ($form->{selectcontact})
-    ? qq|<select name=cp_id>$form->{selectcontact}</select>\n<input type=hidden name="selectcontact" value="$form->{selectcontact}">|
-    : qq|<input name=contact value="$form->{contact}" size=35>|;
 
   $exchangerate = qq|
 <input type=hidden name=forex value=$form->{forex}>

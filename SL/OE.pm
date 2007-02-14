@@ -180,8 +180,6 @@ sub save {
     $form->get_employee($dbh);
   }
 
-  $form->{contact_id} = $form->{cp_id};
-  $form->{contact_id} *= 1;
   $form->{payment_id} *= 1;
   $form->{language_id} *= 1;
   $form->{shipto_id} *= 1;
@@ -477,7 +475,7 @@ Message: $form->{message}\r| if $form->{message};
 	      delivery_vendor_id = $form->{delivery_vendor_id},
 	      delivery_customer_id = $form->{delivery_customer_id},
 	      employee_id = $form->{employee_id},
-              cp_id = $form->{contact_id}
+              cp_id = | . conv_i($form->{cp_id}, 'NULL') . qq|
               WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 

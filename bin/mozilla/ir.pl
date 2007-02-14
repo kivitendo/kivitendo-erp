@@ -219,7 +219,7 @@ sub form_header {
   $lxdebug->enter_sub();
 
   # set option selected
-  foreach $item (qw(AP vendor currency department contact)) {
+  foreach $item (qw(AP vendor currency department)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -238,20 +238,6 @@ sub form_header {
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
   $form->{creditremaining} =
     $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
-
-  #build contacts
-  if ($form->{all_contacts}) {
-
-    $form->{selectcontact} = "";
-    foreach $item (@{ $form->{all_contacts} }) {
-      if ($form->{cp_id} == $item->{cp_id}) {
-        $form->{selectcontact} .=
-          "<option selected>$item->{cp_name}--$item->{cp_id}";
-      } else {
-        $form->{selectcontact} .= "<option>$item->{cp_name}--$item->{cp_id}";
-      }
-    }
-  }
 
   $exchangerate = "";
   if ($form->{currency} ne $form->{defaultcurrency}) {
@@ -273,6 +259,17 @@ sub form_header {
 <input type=hidden name=forex value=$form->{forex}>
 |;
 
+  $form->get_lists("contacts" => "ALL_CONTACTS");
+
+  my (%labels, @values);
+  foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
+    push(@values, $item->{"cp_id"});
+    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
+      ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
+  }
+  my $contact =
+    $cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                     '-labels' => \%labels, '-default' => $form->{"cp_id"});
 
   if (@{ $form->{TAXZONE} }) {
     $form->{selecttaxzone} = "";
@@ -307,11 +304,6 @@ sub form_header {
     ($form->{selectvendor})
     ? qq|<select name=vendor>$form->{selectvendor}</select>\n<input type=hidden name="selectvendor" value="$form->{selectvendor}">|
     : qq|<input name=vendor value="$form->{vendor}" size=35>|;
-
-  $contact =
-    ($form->{selectcontact})
-    ? qq|<select name=contact>$form->{selectcontact}</select>\n<input type=hidden name="selectcontact" value="$form->{selectcontact}">|
-    : qq|<input name=contact value="$form->{contact}" size=35>|;
 
   $department = qq|
               <tr>

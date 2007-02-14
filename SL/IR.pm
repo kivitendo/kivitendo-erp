@@ -81,9 +81,6 @@ sub post_invoice {
     $sth->finish;
   }
 
-  ($null, $form->{contact_id}) = split /--/, $form->{contact};
-  $form->{contact_id} *= 1;
-
   map { $form->{$_} =~ s/\'/\'\'/g } qw(invnumber ordnumber quonumber);
 
   my ($amount, $linetotal, $lastinventoryaccno, $lastexpenseaccno);
@@ -641,7 +638,7 @@ sub post_invoice {
 	      curr = '$form->{currency}',
 	      department_id = $form->{department_id},
               storno = '$form->{storno}',
-              cp_id = $form->{contact_id}
+              cp_id = | . conv_i($form->{cp_id}, 'NULL') . qq|
               WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
 
@@ -1041,15 +1038,6 @@ sub get_vendor {
     $form->{creditremaining} -= $amount * $exch;
   }
   $sth->finish;
-
-  $form->get_contacts($dbh, $form->{vendor_id});
-
-  ($null, $form->{cp_id}) = split /--/, $form->{contact};
-
-  # get contact if selected
-  if ($form->{contact} ne "--" && $form->{contact} ne "") {
-    $form->get_contact($dbh, $form->{cp_id});
-  }
 
   # get shipto if we do not convert an order or invoice
   if (!$form->{shipto}) {

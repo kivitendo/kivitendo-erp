@@ -1395,48 +1395,70 @@ sub get_duedate {
   $main::lxdebug->leave_sub();
 }
 
-# get other contact for transaction and form - html/tex
-sub get_contact {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $id) = @_;
-
-  my $query = qq|SELECT c.*
-              FROM contacts c
-              WHERE cp_id=$id|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
-  push @{ $self->{$_} }, $ref;
-
-  $sth->finish;
-  $main::lxdebug->leave_sub();
-}
-
 # get contacts for id, if no contact return {"","","","",""}
 sub get_contacts {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $id) = @_;
+  my ($self, $dbh, $id, $key) = @_;
 
-  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname, c.cp_abteilung
-              FROM contacts c
-              WHERE cp_cv_id=$id|;
+  $key = "all_contacts" unless ($key);
+  $self->{$key} = [];
+
+  my $query =
+    qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname, c.cp_abteilung | .
+    qq|FROM contacts c | .
+    qq|WHERE cp_cv_id = ? | .
+    qq|ORDER BY lower(c.cp_name)|;
   my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  $sth->execute($id) || $self->dberror($query . " ($id)");
 
   my $i = 0;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_contacts} }, $ref;
+    push @{ $self->{$key} }, $ref;
     $i++;
   }
 
   if ($i == 0) {
-    push @{ $self->{all_contacts} }, { { "", "", "", "", "", "" } };
+    push @{ $self->{$key} }, { { "", "", "", "", "", "" } };
   }
   $sth->finish;
+  $main::lxdebug->leave_sub();
+}
+
+sub get_lists {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift;
+  my %params = @_;
+
+  my $dbh = $self->dbconnect(\%main::myconfig);
+  my ($sth, $query, $ref);
+
+  my $vc = $self->{"vc"} eq "customer" ? "customer" : "vendor";
+  my $vc_id = $self->{"${vc}_id"};
+
+  if ($params{"contacts"}) {
+    $self->get_contacts($dbh, $vc_id, $params{"contacts"});
+  }
+
+  if ($params{"shipto"}) {
+    # get shipping addresses
+    $query =
+      qq|SELECT s.shipto_id,s.shiptoname,s.shiptodepartment_1 | .
+      qq|FROM shipto s | .
+      qq|WHERE s.trans_id = ?|;
+    $sth = $dbh->prepare($query);
+    $sth->execute($vc_id) || $self->dberror($query . " ($vc_id)");
+
+    $self->{$params{"shipto"}} = [];
+    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+      push(@{ $self->{$params{"shipto"}} }, $ref);
+    }
+    $sth->finish;
+  }
+
+  $dbh->disconnect();
+
   $main::lxdebug->leave_sub();
 }
 

@@ -42,6 +42,7 @@ $| = 1;
 use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
+use CGI;
 use SL::Form;
 use SL::Locale;
 
@@ -53,6 +54,7 @@ if (defined($latex) && !defined($latex_templates)) {
 }
 
 $form = new Form;
+$cgi = new CGI('');
 
 # name of this script
 $0 =~ tr/\\/\//;

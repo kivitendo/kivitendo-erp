@@ -475,8 +475,6 @@ sub post_invoice {
     $form->get_employee($dbh);
   }
 
-  $form->{contact_id} = $form->{cp_id};
-  $form->{contact_id} *= 1;
   $form->{payment_id} *= 1;
   $form->{language_id} *= 1;
   $form->{taxzone_id} *= 1;
@@ -1010,7 +1008,7 @@ Message: $form->{message}\r| if $form->{message};
               delivery_vendor_id = $form->{delivery_vendor_id},
               employee_id = $form->{employee_id},
               storno = '$form->{storno}',
-              cp_id = $form->{contact_id}
+              cp_id = | . conv_i($form->{"cp_id"}, 'NULL') . qq|
               WHERE id = $form->{id}
              |;
   $dbh->do($query) || $form->dberror($query);
@@ -1775,14 +1773,6 @@ sub get_customer {
   }
   $sth->finish;
 
-  $form->get_contacts($dbh, $form->{customer_id});
-  $form->{cp_id} *= 1;
-
-  # get contact if selected
-  if ($form->{cp_id}) {
-    $form->get_contact($dbh, $form->{cp_id});
-  }
-
   # get shipto if we did not converted an order or invoice
   if (!$form->{shipto}) {
     map { delete $form->{$_} }
@@ -1810,19 +1800,6 @@ sub get_customer {
   my $customertax = ();
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
     $customertax{ $ref->{accno} } = 1;
-  }
-  $sth->finish;
-
-  # get shipping addresses
-  $query = qq|SELECT s.shipto_id,s.shiptoname,s.shiptodepartment_1
-              FROM shipto s
-	      WHERE s.trans_id = $form->{customer_id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my $customertax = ();
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push(@{ $form->{SHIPTO} }, $ref);
   }
   $sth->finish;
 
