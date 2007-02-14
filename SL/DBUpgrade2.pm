@@ -103,14 +103,20 @@ sub _check_for_loops {
 
   push(@path, $tag);
 
-  _control_error($form, $file_name,
-                 $main::locale->text("Dependency loop detected:") .
-                 " " . join(" -> ", @path))
-    if ($controls->{$tag}->{"loop"});
+  my $ctrl = $controls->{$tag};
 
-  $controls->{$tag}->{"loop"} = 1;
-  map({ _check_for_loops($form, $file_name, $controls, $_, @path); }
-      @{$controls->{$tag}->{"depends"}});
+  if ($ctrl->{"loop"} == 1) {
+    # Not done yet.
+    _control_error($form, $file_name,
+                   $main::locale->text("Dependency loop detected:") .
+                   " " . join(" -> ", @path))
+  } elsif ($ctrl->{"loop"} == 0) {
+    # Not checked yet.
+    $ctrl->{"loop"} = 1;
+    map({ _check_for_loops($form, $file_name, $controls, $_, @path); }
+        @{ $ctrl->{"depends"} });
+    $ctrl->{"loop"} = 2;
+  }
 }
 
 sub _control_error {
