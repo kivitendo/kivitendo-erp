@@ -1,9 +1,69 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
+2007-02-?? - Version 2.4.2
 
+  - Bei höheren Mahnstufen wurde die Rechnung mehrmals angezeigt
+  - In der Uebersicht der Mahnungen hat ein Klick auf die Rechnungsnummer
+    nicht die Rechnungsmaske geöffnet
+  - Kundenbericht liess sich nicht nach Adresse sortieren
+  - Bei Einkaufs- und Verkaufsmasken Felder für Angebots- und Auftragsdatum
+    hinzugefügt
+  - Keine Fehlermeldung beim Drucken von Proforma-Rechnungen mehr
+  - Mahnungen können nachträglich erneut ausgedruckt werden
+  - Zahlungskonditionen können für jede Sprache übersetzt werden
+  - Buchungsgruppen und Zahlungskonditionen können in den Systemeinstellungen
+    umsortiert werden (damit auch andere Standardbuchungsgruppe beim Anlegen
+    von Waren auswählbar)
+  - Debitoren- und Kreditorenbuchungen: Neue Funktion zum Buchen von
+    Zahlungsein- und ausgängen
+  - Debitoren- und Kreditorenbuchungen: Beim Aufrufen aus dem Buchungsjournal
+    werden die Gegenkonten richtig angezeigt
+  - In den Benutzereinstellungen können Standardwerte für den Ausgabekanal
+    und den Drucker eingestellt werden, die von Lx-Office vorselektiert werden
+  - Neues Flag "Geliefert" bei Auftragsbestätigungen und Lieferantenaufträgen
+  - Bei Einkaufsrechnungen gibt es einen "Erneuern"-Button, um
+    Zahlungsausgänge besser buchen zu können
+  - Bei Debitoren-/Kreditorenbuchungen sowie bei Dialogbuchungen wird
+    das vorbelegte Datum jetzt aus der richtigen Tabelle geholt
+  - Bei EUR wurden in der Kontenliste keine unbezahlten Rechnungen angezeigt
+  - EAN-Codes hinzugefügt
+  - Einkauf/Verkauf: Es werden jetzt auch Positionen gespeichert und
+    ausgedruckt, deren Anzahl 0 ist
+  - CSS-Menü funktioniert nun auch mit dem Internet Explorer
+  - Beim Verschicken per Email kann dem Anhang ein individueller Name gegeben
+    werden, der mit "Belegart_Belegnummer.ext" vorbelegt ist (z.B.
+    "Rechnung_5.pdf")
+  - Administration: Datenbankencodingoption Latin 9 (ISO-8859-15) hinzugefügt
+  - Beim Login wird überprüft, ob alle benötigten Perl-Module installiert
+    sind
+  - Funktion "Details anzeigen" hat auf einigen Browsern nicht richtig
+    funktioniert
+  - Beim Bearbeiten der Lieferadresse wird die Rechnungsadresse wieder
+    angezeigt
+  - Variable "terms" (Zahlungsziel in Tagen) wurde entfernt, weil es
+    mit Zahlungskonditionen ein wesentlich mächtigeres Werkzeug gibt
+  - Mehr Sonderzeichen werden in die richten LaTeX-Codes übersetzt
   - USTVA Screens in HTML-Templates verlagert
   - USTVA Taxbird kleinere Anpassungen zur Kompatibilität
+  - Bugfix 540 - Mahnungen
+  - Bugfix 537 - Fehler beim erzeugen eines Berichtes
+  - Bugfix 536 - Erfassung eines Kunden mit bereits bestehender Kundennummer
+    ergibt unverständliche Fehlermeldung
+  - Bugfix 534 - Mahnwesen funktioniert nicht richtig
+  - Bugfix 533 - "Swiss German" Kontenrahmen: Waren werden unter
+    Diesnstleistungen geführt
+  - Bugfix 535 - Auftrag in Englisch statt Deutsch
+  - Bugfix 529 - Dezimalstelle von Produktpreisen verschiebt sich
+  - Bugfix 525 - Proformarechnung: Datum fehlt!
+  - Bugfix 522 - Bestelldatum in Rechnung
+  - Bugfix 519 - unterhalb von templates gibt es ein Verzeichnis webpages,
+    das da wohl nicht hingehören
+  - Bugfix 517 - Menüeinträge im CSS-Menü werden umgebrochen
+  - Bugfix 511 - Stammdaten-Kunden-Lieferungen
+  - Bugfix 471 - voreingestellter Ausgabekanal wird nicht übernommen
+  - Bugfix 455 - fehlerhafte Anzeige im Buchungsjournal bei unterschiedl.
+    Rechn.- und Bezahldaten
 
 2007-01-19 - Version 2.4.1
   - CSV-Import auf Verwendung von Buchungsgruppen angepasst
