@@ -667,7 +667,7 @@ sub select_item {
 <input name="new_taxaccounts_$i" type=hidden value="$ref->{taxaccounts}">
 <input name="new_partsgroup_$i" type=hidden value="$ref->{partsgroup}">
 <input name="new_formel_$i" type=hidden value="$ref->{formel}">
-<input name="new_longdescription_$i" type=hidden value="$ref->{longdescription}">
+<input name="new_longdescription_$i" type=hidden value="| . Q($ref->{longdescription}) . qq|">
 <input name="new_not_discountable_$i" type=hidden value="$ref->{not_discountable}">
 <input name="new_part_payment_id_$i" type=hidden value="$ref->{part_payment_id}">
 <input name="new_partnotes_$i" type="hidden" value="| . Q($ref->{"partnotes"}) . qq|">
