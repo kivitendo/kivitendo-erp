@@ -2423,8 +2423,6 @@ sub swap_units {
     qq|ORDER BY sortkey | . ($dir eq "down" ? "ASC" : "DESC") . qq| LIMIT 1|;
   my ($sortkey_2) = selectrow_query($form, $dbh, $query, $sortkey_1, $unit_type);
 
-  $main::lxdebug->message(0, "name1 $name_1 dir $dir sk1 $sortkey_1 sk2 $sortkey_2");
-
   if (defined($sortkey_1)) {
     $query = qq|SELECT name FROM units WHERE sortkey = ${sortkey_2}|;
     my ($name_2) = selectrow_query($form, $dbh, $query);
