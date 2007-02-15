@@ -3673,7 +3673,7 @@ sub edit_units {
   }
   my $i = 1;
   foreach (@unit_list) {
-    $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"}, 5) if ($_->{"factor"});
+    $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"} * 1) if ($_->{"factor"});
     $_->{"UNITLANGUAGES"} = [];
     foreach my $lang (@languages) {
       push(@{ $_->{"UNITLANGUAGES"} },
