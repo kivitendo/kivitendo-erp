@@ -187,4 +187,80 @@ sub retrieve_vendor {
   return $vendors;
 }
 
+sub mkdir_with_parents {
+  $main::lxdebug->enter_sub();
+
+  my ($full_path) = @_;
+
+  my $path = "";
+
+  $full_path =~ s|/+|/|;
+
+  foreach my $part (split(m|/|, $full_path)) {
+    $path .= "/" if ($path);
+    $path .= $part;
+
+    die("Could not create directory '$path' because a file exists with " .
+        "the same name.\n") if (-f $path);
+
+    if (! -d $path) {
+      mkdir($path, 0770) || die("Could not create the directory '$path'. " .
+                                "OS error: $!\n");
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub webdav_folder {
+  $main::lxdebug->enter_sub();
+
+  my ($form) = @_;
+
+  return $main::lxdebug->leave_sub()
+    unless ($main::webdav && $form->{id});
+
+  my ($path, $number);
+
+  $form->{WEBDAV} = {};
+
+  if ($form->{type} eq "sales_quotation") {
+    ($path, $number) = ("angebote", $form->{quonumber});
+  } elsif ($form->{type} eq "sales_order") {
+    ($path, $number) = ("bestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "request_quotation") {
+    ($path, $number) = ("anfragen", $form->{quonumber});
+  } elsif ($form->{type} eq "purchase_order") {
+    ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "credit_note") {
+    ($path, $number) = ("gutschriften", $form->{invnumber});
+  } elsif ($form->{vc} eq "customer") {
+    ($path, $number) = ("rechnungen", $form->{invnumber});
+  } else {
+    ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
+  }
+
+  return $main::lxdebug->leave_sub() unless ($path && $number);
+
+  $path = "webdav/${path}/${number}";
+
+  if (!-d $path) {
+    mkdir_with_parents($path);
+
+  } else {
+    my $base_path = substr($ENV{'SCRIPT_NAME'}, 1);
+    $base_path =~ s|[^/]+$||;
+
+    foreach my $file (<$path/*>) {
+      my $fname = $file;
+      $fname =~ s|.*/||;
+      $form->{WEBDAV}{$fname} =
+        ($ENV{"HTTPS"} ? "https://" : "http://") .
+        $ENV{'SERVER_NAME'} . "/" . $base_path . $file;
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

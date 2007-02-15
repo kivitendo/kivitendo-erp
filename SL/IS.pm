@@ -36,6 +36,7 @@ package IS;
 
 use Data::Dumper;
 use SL::AM;
+use SL::Common;
 use SL::DBUtils;
 
 sub invoice_details {
@@ -1038,9 +1039,7 @@ Message: $form->{message}\r| if $form->{message};
   # save printed, emailed and queued
   $form->save_status($dbh);
 
-  if ($form->{webdav}) {
-    &webdav_folder($myconfig, $form);
-  }
+  Common::webdav_folder($form) if ($main::webdav);
 
   my $rc = $dbh->commit;
   $dbh->disconnect;
@@ -1658,9 +1657,7 @@ sub retrieve_invoice {
     }
     $sth->finish;
 
-    if ($form->{webdav}) {
-      &webdav_folder($myconfig, $form);
-    }
+    Common::webdav_folder($form) if ($main::webdav);
   }
 
   my $rc = $dbh->commit;
@@ -2181,37 +2178,6 @@ sub get_pricegroups_for_parts {
   }
 
   $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub webdav_folder {
-  $main::lxdebug->enter_sub();
-
-  my ($myconfig, $form) = @_;
-
-SWITCH: {
-    $path = "webdav/rechnungen/" . $form->{invnumber}, last SWITCH
-      if ($form->{vc} eq "customer");
-    $path = "webdav/einkaufsrechnungen/" . $form->{invnumber}, last SWITCH
-      if ($form->{vc} eq "vendor");
-  }
-
-  if (!-d $path) {
-    mkdir($path, 0770) or die "can't make directory $!\n";
-  } else {
-    if ($form->{id}) {
-      @files = <$path/*>;
-      foreach $file (@files) {
-        $file =~ /\/([^\/]*)$/;
-        $fname = $1;
-        $ENV{'SCRIPT_NAME'} =~ /\/([^\/]*)\//;
-        $lxerp = $1;
-        $link  = "http://" . $ENV{'SERVER_NAME'} . "/" . $lxerp . "/" . $file;
-        $form->{WEBDAV}{$fname} = $link;
-      }
-    }
-  }
 
   $main::lxdebug->leave_sub();
 }

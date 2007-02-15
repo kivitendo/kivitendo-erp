@@ -35,6 +35,7 @@
 package OE;
 
 use SL::AM;
+use SL::Common;
 use SL::DBUtils;
 
 sub transactions {
@@ -481,10 +482,6 @@ Message: $form->{message}\r| if $form->{message};
 
   $form->{ordtotal} = $amount;
 
-  if ($form->{webdav}) {
-    &webdav_folder($myconfig, $form);
-  }
-
   # add shipto
   $form->{name} = $form->{ $form->{vc} };
   $form->{name} =~ s/--$form->{"$form->{vc}_id"}//;
@@ -516,6 +513,8 @@ Message: $form->{message}\r| if $form->{message};
 
   my $rc = $dbh->commit;
   $dbh->disconnect;
+
+  Common::webdav_folder($form) if ($main::webdav);
 
   $main::lxdebug->leave_sub();
 
@@ -916,9 +915,7 @@ sub retrieve {
     $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate},
                             ($form->{vc} eq 'customer') ? "buy" : "sell");
 
-  if ($form->{webdav}) {
-    &webdav_folder($myconfig, $form);
-  }
+  Common::webdav_folder($form) if ($main::webdav);
 
   # get tax zones
   $query = qq|SELECT id, description
@@ -1641,39 +1638,5 @@ sub transfer {
   return $rc;
 }
 
-sub webdav_folder {
-  $main::lxdebug->enter_sub();
-
-  my ($myconfig, $form) = @_;
-
-SWITCH: {
-    $path = "webdav/angebote/" . $form->{quonumber}, last SWITCH
-      if ($form->{type} eq "sales_quotation");
-    $path = "webdav/bestellungen/" . $form->{ordnumber}, last SWITCH
-      if ($form->{type} eq "sales_order");
-    $path = "webdav/anfragen/" . $form->{quonumber}, last SWITCH
-      if ($form->{type} eq "request_quotation");
-    $path = "webdav/lieferantenbestellungen/" . $form->{ordnumber}, last SWITCH
-      if ($form->{type} eq "purchase_order");
-  }
-
-  if (!-d $path) {
-    mkdir($path, 0770) or die "can't make directory $!\n";
-  } else {
-    if ($form->{id}) {
-      @files = <$path/*>;
-      foreach $file (@files) {
-        $file =~ /\/([^\/]*)$/;
-        $fname = $1;
-        $ENV{'SCRIPT_NAME'} =~ /\/([^\/]*)\//;
-        $lxerp = $1;
-        $link  = "http://" . $ENV{'SERVER_NAME'} . "/" . $lxerp . "/" . $file;
-        $form->{WEBDAV}{$fname} = $link;
-      }
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-}
 1;
 

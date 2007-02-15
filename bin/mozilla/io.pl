@@ -889,6 +889,8 @@ sub display_form {
     exit;
   }
 
+  Common::webdav_folder($form) if ($webdav);
+
   #   if (   $form->{print_and_post}
   #       && $form->{second_run}
   #       && ($form->{action} eq "display_form")) {

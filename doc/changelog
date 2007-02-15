@@ -3,6 +3,11 @@
 ####################################
 2007-02-?? - Version 2.4.2
 
+  - Bugfixes und Code-Reorganisierung beim "Webdav"-Feature. Beim
+    Anlegen von Verzeichnissen werden auch eventuell fehlende
+    Elternverzeichnisse angelegt. Bei jedem Neuaufbau der Maske wird
+    die Liste der vorhandenen Dateien aktualisiert, nicht nur beim
+    Speichern & Laden.
   - Bei höheren Mahnstufen wurde die Rechnung mehrmals angezeigt
   - In der Uebersicht der Mahnungen hat ein Klick auf die Rechnungsnummer
     nicht die Rechnungsmaske geöffnet
