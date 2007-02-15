@@ -2127,10 +2127,10 @@ sub statement_details {
   push @{ $form->{duedate} },   $ref->{duedate};
 
   foreach $item (qw(c0 c30 c60 c90)) {
-    eval {
+    if ($ref->{exchangerate} * 1) {
       $ref->{$item} =
         $form->round_amount($ref->{$item} / $ref->{exchangerate}, 2);
-    };
+    }
     $form->{"${item}total"} += $ref->{$item};
     $form->{total}          += $ref->{$item};
     push @{ $form->{$item} },
