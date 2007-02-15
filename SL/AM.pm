@@ -2284,7 +2284,7 @@ sub unit_select_data {
     push(@{$select}, { "name" => "", "base_unit" => "", "factor" => "", "selected" => "" });
   }
 
-  foreach my $unit (sort({ lc($a) cmp lc($b) } keys(%{$units}))) {
+  foreach my $unit (sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } keys(%{$units}))) {
     push(@{$select}, { "name" => $unit,
                        "base_unit" => $units->{$unit}->{"base_unit"},
                        "factor" => $units->{$unit}->{"factor"},
@@ -2303,7 +2303,7 @@ sub unit_select_html {
 
   my $select = "<select name=${name}>";
 
-  foreach my $unit (sort({ lc($a) cmp lc($b) } keys(%{$units}))) {
+  foreach my $unit (sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } keys(%{$units}))) {
     if (!$convertible_into ||
         ($units->{$convertible_into} &&
          ($units->{$convertible_into}->{"base_unit"} eq $units->{$unit}->{"base_unit"}))) {
@@ -2324,8 +2324,12 @@ sub add_unit {
 
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query = "INSERT INTO units (name, base_unit, factor, type) VALUES (?, ?, ?, ?)";
-  $dbh->do($query, undef, $name, $base_unit, $factor, $type) || $form->dberror($query . " ($name, $base_unit, $factor, $type)");
+  my $query = qq|SELECT COALESCE(MAX(sortkey), 0) + 1 FROM units|;
+  my ($sortkey) = selectrow_query($form, $dbh, $query);
+
+  $query = "INSERT INTO units (name, base_unit, factor, type, sortkey) " .
+    "VALUES (?, ?, ?, ?, ?)";
+  do_query($form, $dbh, $query, $name, $base_unit, $factor, $type, $sortkey);
 
   if ($languages) {
     $query = "INSERT INTO units_language (unit, language_id, localized, localized_plural) VALUES (?, ?, ?, ?)";
@@ -2395,6 +2399,45 @@ sub save_units {
 
   $sth->finish();
   $sth_lang->finish();
+  $dbh->commit();
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub swap_units {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $dir, $name_1, $unit_type) = @_;
+
+  my $dbh = $form->dbconnect_noauto($myconfig);
+
+  my $query;
+
+  $query = qq|SELECT sortkey FROM units WHERE name = ?|;
+  my ($sortkey_1) = selectrow_query($form, $dbh, $query, $name_1);
+
+  $query =
+    qq|SELECT sortkey FROM units | .
+    qq|WHERE sortkey | . ($dir eq "down" ? ">" : "<") . qq| ? AND type = ? | .
+    qq|ORDER BY sortkey | . ($dir eq "down" ? "ASC" : "DESC") . qq| LIMIT 1|;
+  my ($sortkey_2) = selectrow_query($form, $dbh, $query, $sortkey_1, $unit_type);
+
+  $main::lxdebug->message(0, "name1 $name_1 dir $dir sk1 $sortkey_1 sk2 $sortkey_2");
+
+  if (defined($sortkey_1)) {
+    $query = qq|SELECT name FROM units WHERE sortkey = ${sortkey_2}|;
+    my ($name_2) = selectrow_query($form, $dbh, $query);
+
+    if (defined($name_2)) {
+      $query = qq|UPDATE units SET sortkey = ? WHERE name = ?|;
+      my $sth = $dbh->prepare($query);
+
+      do_statement($form, $sth, $query, $sortkey_1, $name_2);
+      do_statement($form, $sth, $query, $sortkey_2, $name_1);
+    }
+  }
+
   $dbh->commit();
   $dbh->disconnect();
 

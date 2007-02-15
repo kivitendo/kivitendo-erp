@@ -94,7 +94,7 @@
 
  <table>
   <tr>
-   <th class="listheading">&nbsp;</th>
+   <th class="listheading" width="32" align="center" valign="center"><img alt="<translate>up</translate>" src="image/up.png"><img alt="<translate>down</translate>" src="image/down.png"></th>
    <th class="listheading"><translate>Delete</translate></th>
    <th class="listheading"><translate>Unit</translate></th>
    <th class="listheading"><translate>Base unit</translate></th>
@@ -106,8 +106,8 @@
 
   <TMPL_LOOP NAME=UNITS>
    <tr>
+    <td width="32" align="center" valign="center"><TMPL_IF __first__><img src="image/transparent16x16.gif"><TMPL_ELSE><a href="<TMPL_VAR updownlink>&dir=up&name=<TMPL_VAR name ESCAPE=URL>"><img alt="<translate>up</translate>" src="image/up.png"></a></TMPL_IF><TMPL_IF __last__><img src="image/transparent16x16.gif"><TMPL_ELSE><a href="<TMPL_VAR updownlink>&dir=down&name=<TMPL_VAR name ESCAPE=URL>"><img alt="<translate>down</translate>" src="image/down.png"></a></TMPL_IF></td>
     <TMPL_IF NAME=in_use>
-     <td><TMPL_VAR NAME=__counter__></td>
      <td>
       <input type="hidden" name="unchangeable_<TMPL_VAR NAME=__counter__>" value="1">
       <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">
@@ -119,7 +119,6 @@
 
      <TMPL_ELSE>
 
-     <td><TMPL_VAR NAME=__counter__></td>
      <td align="center"><input type="checkbox" name="delete_<TMPL_VAR NAME=__counter__>"></td>
      <td>
       <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">

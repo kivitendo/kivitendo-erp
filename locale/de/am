@@ -440,6 +440,7 @@ $self->{subs} = {
   'sic_header'                  => 'sic_header',
   'swap_buchungsgruppen'        => 'swap_buchungsgruppen',
   'swap_payment_terms'          => 'swap_payment_terms',
+  'swap_units'                  => 'swap_units',
   'vendor_selection'            => 'vendor_selection',
   'warehouse_header'            => 'warehouse_header',
   'erfassen'                    => 'add',

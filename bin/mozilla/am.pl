@@ -3665,12 +3665,8 @@ sub edit_units {
 
   @languages = AM->language(\%myconfig, $form, 1);
 
-  @unit_list = ();
-  foreach $name (sort({ lc($a) cmp lc($b) } grep({ !$units->{$_}->{"base_unit"} } keys(%{$units})))) {
-    map({ push(@unit_list, $units->{$_}); }
-        sort({ ($units->{$a}->{"resolved_factor"} * 1) <=> ($units->{$b}->{"resolved_factor"} * 1) }
-             grep({ $units->{$_}->{"resolved_base_unit"} eq $name } keys(%{$units}))));
-  }
+  @unit_list = sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } values(%{$units}));
+
   my $i = 1;
   foreach (@unit_list) {
     $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"} * 1) if ($_->{"factor"});
@@ -3690,12 +3686,15 @@ sub edit_units {
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
   $ddbox = AM->unit_select_data($units, undef, 1);
 
+  my $updownlink = build_std_url("action=swap_units", "unit_type");
+
   $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
   $form->header();
   print($form->parse_html_template("am/edit_units",
                                    { "UNITS" => \@unit_list,
                                      "NEW_BASE_UNIT_DDBOX" => $ddbox,
-                                     "LANGUAGES" => \@languages }));
+                                     "LANGUAGES" => \@languages,
+                                     "updownlink" => $updownlink }));
 
   $lxdebug->leave_sub();
 }
@@ -3826,6 +3825,19 @@ sub save_unit {
   AM->save_units(\%myconfig, $form, $form->{"unit_type"}, $new_units, \@delete_units);
 
   $form->{"saved_message"} = $locale->text("The units have been saved.");
+
+  edit_units();
+
+  $lxdebug->leave_sub();
+}
+
+sub swap_units {
+  $lxdebug->enter_sub();
+
+  my $dir = $form->{"dir"} eq "down" ? "down" : "up";
+  my $unit_type = $form->{"unit_type"} eq "dimension" ?
+    "dimension" : "service";
+  AM->swap_units(\%myconfig, $form, $dir, $form->{"name"}, $unit_type);
 
   edit_units();
 
