@@ -9,21 +9,20 @@
 #
 ######################################################################
 
-use Data::Dumper;
+use YAML;
 
 use SL::Common;
 
 sub save_form {
   $lxdebug->enter_sub();
 
-  my (@names, @values);
-  foreach my $key (keys(%{$form})) {
-    push(@names, "\$form->{\"$key\"}");
-    push(@values, $form->{$key});
-  }
-  my $dumper = Data::Dumper->new(\@values, \@names);
-  $dumper->Indent(0);
-  my $old_form = $dumper->Dump();
+  my $yaml = new YAML;
+  $yaml->Indent(1);
+  my $old_form = $yaml->dump($form);
+  $old_form =~ s|!|!!|g;
+  $old_form =~ s|\n|!n|g;
+  $old_form =~ s|\r|!r|g;
+  $lxdebug->message(0, "yeah!???\n\n$old_form\n\n\n");
 
   $lxdebug->leave_sub();
 
@@ -36,7 +35,10 @@ sub restore_form {
   my ($old_form, $no_delete) = @_;
 
   map({ delete($form->{$_}); } keys(%{$form})) unless ($no_delete);
-  eval($old_form);
+  $old_form =~ s|!r|\r|g;
+  $old_form =~ s|!n|\n|g;
+  $old_form =~ s|!!|!|g;
+  $form = YAML::Load($old_form);
 
   $lxdebug->leave_sub();
 }

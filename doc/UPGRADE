@@ -13,7 +13,8 @@ aus zwei Teilen: den Dateien (einfaches Entpacken und Kopieren in das
 Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
 
 Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
-der Datei "doc/INSTALL".
+der Datei "doc/INSTALL". Besonders nach einem Upgrade auf 2.4.2 muss
+sichergestellt werden, dass das Modul "YAML" installiert ist.
 
 Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
 Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.

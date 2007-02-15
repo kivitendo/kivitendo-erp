@@ -12,6 +12,7 @@ use vars qw(@required_modules);
   { "name" => "Archive::Zip", "url" => "http://search.cpan.org/~adamk/" },
   { "name" => "Text::Iconv", "url" => "http://search.cpan.org/~mpiotr/" },
   { "name" => "Time::HiRes", "url" => "http://search.cpan.org/~jhi/" },
+  { "name" => "YAML", "url" => "http://search.cpan.org/~ingy/" },
   );
 
 sub module_available {

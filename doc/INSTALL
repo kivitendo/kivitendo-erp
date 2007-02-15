@@ -31,9 +31,10 @@ sind:
 * Class::Accessor
 * Archive::Zip
 * Text::Iconv
+* YAML
 
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
-(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl, libarchive-zip-perl, libtext-iconv-perl)
+(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl, libarchive-zip-perl, libtext-iconv-perl, libyaml-perl)
 (Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
 (SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg)
 
