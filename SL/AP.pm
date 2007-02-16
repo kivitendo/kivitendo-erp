@@ -34,6 +34,8 @@
 
 package AP;
 
+use SL::DBUtils;
+
 sub post_transaction {
   $main::lxdebug->enter_sub();
 
@@ -90,12 +92,13 @@ sub post_transaction {
   for $i (1 .. $form->{rowcount}) {
    ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
 
-    $query = qq|SELECT c.accno, t.taxkey, t.rate
-            FROM tax t LEFT JOIN chart c on (c.id=t.chart_id)
-            WHERE t.id=$form->{"tax_id_$i"}
-            ORDER BY c.accno|;
+    $query =
+      qq|SELECT c.accno, t.taxkey, t.rate | .
+      qq|FROM tax t LEFT JOIN chart c on (c.id=t.chart_id) | .
+      qq|WHERE t.id = ? | .
+      qq|ORDER BY c.accno|;
     $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
+    $sth->execute($form->{"tax_id_$i"}) || $form->dberror($query . " (" . $form->{"tax_id_$i"} . ")");
     ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) =
       $sth->fetchrow_array;
     $form->{AP_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
@@ -160,9 +163,8 @@ sub post_transaction {
   if ($form->{id}) {
 
     # delete detail records
-    $query = qq|DELETE FROM acc_trans WHERE trans_id = $form->{id}|;
-
-    $dbh->do($query) || $form->dberror($query);
+    $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
+    do_query($form, $dbh, $query, $form->{id});
 
   } else {
     my $uid = rand() . time;
@@ -171,46 +173,44 @@ sub post_transaction {
 
     $uid = substr($uid, 2, 75);
 
-    $query = qq|INSERT INTO ap (invnumber, employee_id)
-                VALUES ('$uid', (SELECT e.id FROM employee e
-		                 WHERE e.login = '$form->{login}') )|;
-    $dbh->do($query) || $form->dberror($query);
+    $query =
+      qq|INSERT INTO ap (invnumber, employee_id) | .
+      qq|VALUES (?, (SELECT e.id FROM employee e WHERE e.login = ?))|;
+    do_query($form, $dbh, $query, $uid, $form->{login});
 
     $query = qq|SELECT a.id FROM ap a
-                WHERE a.invnumber = '$uid'|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{id}) = $sth->fetchrow_array;
-    $sth->finish;
-
+                WHERE a.invnumber = ?|;
+    ($form->{id}) = selectrow_query($form, $dbh, $query, $uid);
   }
 
   $form->{invnumber} = $form->{id} unless $form->{invnumber};
 
-  # escape '
-  map { $form->{$_} =~ s/\'/\'\'/g } qw(invnumber ordnumber notes);
-
   $form->{datepaid} = $form->{transdate} unless ($form->{datepaid});
-  my $datepaid = ($form->{invpaid} != 0) ? qq|'$form->{datepaid}'| : 'NULL';
+  my $datepaid = ($form->{invpaid} != 0) ? $form->{datepaid} : undef;
 
   $query = qq|UPDATE ap SET
-	      invnumber = '$form->{invnumber}',
-	      transdate = '$form->{transdate}',
-	      ordnumber = '$form->{ordnumber}',
-	      vendor_id = $form->{vendor_id},
-	      taxincluded = '$form->{taxincluded}',
-	      amount = $form->{invtotal},
-	      duedate = '$form->{duedate}',
-	      paid = $form->{invpaid},
-	      datepaid = $datepaid,
-	      netamount = $form->{netamount},
-	      curr = '$form->{currency}',
-	      notes = '$form->{notes}',
-	      department_id = $form->{department_id}
-	      WHERE id = $form->{id}
-	     |;
-  $dbh->do($query) || $form->dberror($query);
+              invnumber = ?,
+              transdate = ?,
+              ordnumber = ?,
+              vendor_id = ?,
+              taxincluded = ?,
+              amount = ?,
+              duedate = ?,
+              paid = ?,
+              datepaid = ?,
+              netamount = ?,
+              curr = ?,
+              notes = ?,
+              department_id = ?
+              WHERE id = ?|;
+  my @values = ($form->{invnumber}, conv_date($form->{transdate}),
+                $form->{ordnumber}, conv_i($form->{vendor_id}),
+                $form->{taxincluded}, $form->{invtotal},
+                conv_date($form->{duedate}), $form->{invpaid},
+                conv_date($datepaid), $form->{netamount},
+                $form->{currency}, $form->{notes},
+                conv_i($form->{department_id}), $form->{id});
+  do_query($form, $dbh, $query, @values);
 
   # update exchangerate
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
@@ -221,7 +221,7 @@ sub post_transaction {
   # add individual transactions
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"amount_$i"} != 0) {
-      $project_id = 'NULL';
+      my $project_id;
       if ("amount_$i" =~ /amount_/) {
         if ($form->{"project_id_$i"} && $form->{"projectnumber_$i"}) {
           $project_id = $form->{"project_id_$i"};
@@ -232,35 +232,40 @@ sub post_transaction {
       }
 
       # insert detail records in acc_trans
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                         project_id, taxkey)
-                  VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                         WHERE c.accno = '$form->{AP_amounts}{"amount_$i"}'),
-                    $form->{"amount_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
-      $dbh->do($query) || $form->dberror($query);
+      $query =
+        qq|INSERT INTO acc_trans | .
+        qq|  (trans_id, chart_id, amount, transdate, project_id, taxkey)| .
+        qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
+        qq|  ?, ?, ?, ?)|;
+      @values = ($form->{id}, $form->{AP_amounts}{"amount_$i"},
+                 $form->{"amount_$i"}, conv_date($form->{transdate}),
+                 conv_i($project_id), $taxkey);
+      do_query($form, $dbh, $query, @values);
 
       if ($form->{"tax_$i"} != 0) {
-
         # insert detail records in acc_trans
         $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                          project_id, taxkey)
-                    VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                          WHERE c.accno = '$form->{AP_amounts}{"tax_$i"}'),
-                    $form->{"tax_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
-        $dbh->do($query) || $form->dberror($query);
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, | .
+          qq|  project_id, taxkey) | .
+          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
+          qq|  ?, ?, ?, ?)|;
+        @values = ($form->{id}, $form->{AP_amounts}{"tax_$i"},
+                   $form->{"tax_$i"}, conv_date($form->{transdate}),
+                   conv_date($project_id), $taxkey);
+        do_query($form, $dbh, $query, @values);
       }
 
     }
   }
 
   # add payables
-  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                      project_id)
-              VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                    WHERE c.accno = '$form->{AP_amounts}{payables}'),
-              $form->{payables}, '$form->{transdate}', $project_id)|;
-  $dbh->do($query) || $form->dberror($query);
+  $query =
+    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id) | .
+    qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
+    qq|  ?, ?, ?)|;
+  @values = ($form->{id}, $form->{AP_amounts}{payables}, $form->{payables},
+             conv_date($form->{transdate}), conv_i($project_id));
+  do_query($form, $dbh, $query, @values);
 
   # if there is no amount but a payment record a payable
   if ($form->{amount} == 0 && $form->{invtotal} == 0) {
@@ -301,59 +306,51 @@ sub post_transaction {
         $form->round_amount($form->{"paid_$i"} * $form->{exchangerate} * -1,
                             2);
       if ($form->{payables}) {
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-		    transdate)
-		    VALUES ($form->{id},
-		           (SELECT c.id FROM chart c
-			    WHERE c.accno = '$form->{AP}{payables}'),
-		    $amount, '$form->{"datepaid_$i"}')|;
-        $dbh->do($query) || $form->dberror($query);
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate) | .
+          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?)|;
+        @values = ($form->{id}, $form->{AP}{payables}, $amount,
+                   conv_date($form->{"datepaid_$i"}));
+        do_query($form, $dbh, $query, @values);
       }
       $form->{payables} = $amount;
 
-      $form->{"memo_$i"} =~ s/\'/\'\'/g;
-
       # add payment
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-                  transdate, source, memo)
-                  VALUES ($form->{id},
-		         (SELECT c.id FROM chart c
-		          WHERE c.accno = '$form->{AP}{"paid_$i"}'),
-		  $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
-		  '$form->{"source_$i"}', '$form->{"memo_$i"}')|;
-      $dbh->do($query) || $form->dberror($query);
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo) | .
+        qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
+      @values = ($form->{id}, $form->{AP}{"paid_$i"}, $form->{"paid_$i"},
+                 conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
+                 $form->{"memo_$i"});
+      do_query($form, $dbh, $query, @values);
 
       # add exchange rate difference
       $amount =
-        $form->round_amount(
-                         $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1),
-                         2);
+        $form->round_amount($form->{"paid_$i"} *
+                            ($form->{"exchangerate_$i"} - 1), 2);
       if ($amount != 0) {
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-		    transdate, fx_transaction, cleared)
-		    VALUES ($form->{id},
-		           (SELECT c.id FROM chart c
-			    WHERE c.accno = '$form->{AP}{"paid_$i"}'),
-		    $amount, '$form->{"datepaid_$i"}', '1', '0')|;
-
-        $dbh->do($query) || $form->dberror($query);
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared) | .
+          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, 't', 'f')|;
+        @values = ($form->{id}, $form->{AP}{"paid_$i"}, $amount,
+                   conv_date($form->{"datepaid_$i"}));
+        do_query($form, $dbh, $query, @values);
       }
 
       # exchangerate gain/loss
       $amount =
-        $form->round_amount(
-                        $form->{"paid_$i"} *
-                          ($form->{exchangerate} - $form->{"exchangerate_$i"}),
-                        2);
+        $form->round_amount($form->{"paid_$i"} *
+                            ($form->{exchangerate} -
+                             $form->{"exchangerate_$i"}), 2);
 
       if ($amount != 0) {
-        $accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-		    transdate, fx_transaction, cleared)
-		    VALUES ($form->{id}, (SELECT c.id FROM chart c
-					  WHERE c.accno = '$accno'),
-		    $amount, '$form->{"datepaid_$i"}', '1', '0')|;
-        $dbh->do($query) || $form->dberror($query);
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared) | .
+          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, 't', 'f')|;
+        @values = ($form->{id}, ($amount > 0) ?
+                   $form->{fxgain_accno} : $form->{fxloss_accno},
+                   $amount, conv_date($form->{"datepaid_$i"}));
+        do_query($form, $dbh, $query, @values);
       }
 
       # update exchange rate record
@@ -381,11 +378,11 @@ sub delete_transaction {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query = qq|DELETE FROM ap WHERE id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  my $query = qq|DELETE FROM ap WHERE id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
 
-  $query = qq|DELETE FROM acc_trans WHERE trans_id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
 
   # commit and redirect
   my $rc = $dbh->commit;
@@ -404,44 +401,50 @@ sub ap_transactions {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT a.id, a.invnumber, a.transdate, a.duedate,
-                 a.amount, a.paid, a.ordnumber, v.name, a.invoice,
-	         a.netamount, a.datepaid, a.notes, e.name AS employee
-	         FROM ap a
-	      JOIN vendor v ON (a.vendor_id = v.id)
-	      LEFT JOIN employee e ON (a.employee_id = e.id)|;
+  my $query =
+    qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
+    qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
+    qq|  e.name AS employee | .
+    qq|FROM ap a | .
+    qq|JOIN vendor v ON (a.vendor_id = v.id) | .
+    qq|LEFT JOIN employee e ON (a.employee_id = e.id)|;
 
-  my $where = "1 = 1";
+  my $where;
+  my @values;
 
   if ($form->{vendor_id}) {
-    $where .= " AND a.vendor_id = $form->{vendor_id}";
-  } else {
-    if ($form->{vendor}) {
-      my $vendor = $form->like(lc $form->{vendor});
-      $where .= " AND lower(v.name) LIKE '$vendor'";
-    }
+    $where .= " AND a.vendor_id = ?";
+    push(@values, $form->{vendor_id});
+  } elsif ($form->{vendor}) {
+    $where .= " AND v.name ILIKE ?";
+    push(@values, $form->like($form->{vendor}));
   }
   if ($form->{department}) {
     my ($null, $department_id) = split /--/, $form->{department};
-    $where .= " AND a.department_id = $department_id";
+    $where .= " AND a.department_id = ?";
+    push(@values, $department_id);
   }
   if ($form->{invnumber}) {
-    my $invnumber = $form->like(lc $form->{invnumber});
-    $where .= " AND lower(a.invnumber) LIKE '$invnumber'";
+    $where .= " AND a.invnumber ILIKE ?";
+    push(@values, $form->like($form->{invnumber}));
   }
   if ($form->{ordnumber}) {
-    my $ordnumber = $form->like(lc $form->{ordnumber});
-    $where .= " AND lower(a.ordnumber) LIKE '$ordnumber'";
+    $where .= " AND a.ordnumber ILIKE ?";
+    push(@values, $form->like($form->{ordnumber}));
   }
   if ($form->{notes}) {
-    my $notes = $form->like(lc $form->{notes});
-    $where .= " AND lower(a.notes) LIKE '$notes'";
+    $where .= " AND lower(a.notes) LIKE ?";
+    push(@values, $form->like($form->{notes}));
   }
 
-  $where .= " AND a.transdate >= '$form->{transdatefrom}'"
-    if $form->{transdatefrom};
-  $where .= " AND a.transdate <= '$form->{transdateto}'"
-    if $form->{transdateto};
+  if ($form->{transdatefrom}) {
+    $where .= " AND a.transdate >= ?";
+    push(@values, $form->{transdatefrom});
+  }
+  if ($form->{transdateto}) {
+    $where .= " AND a.transdate <= ?";
+    push(@values, $form->{transdateto});
+  }
   if ($form->{open} || $form->{closed}) {
     unless ($form->{open} && $form->{closed}) {
       $where .= " AND a.amount <> a.paid" if ($form->{open});
@@ -449,17 +452,28 @@ sub ap_transactions {
     }
   }
 
+  if ($where) {
+    substr($where, 0, 4) = "WHERE";
+    $query .= $where;
+  }
+
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $self->{l_employee};
-  my $sortorder = join ', ', $form->sort_columns(@a);
-  $sortorder = $form->{sort} if $form->{sort};
+  my $sortorder = join(', ', @a);
 
-  $query .= "WHERE $where
-             ORDER by $sortorder";
+  if (grep({ $_ eq $form->{sort} }
+           qw(transdate id invnumber ordnumber name netamount tax amount
+              paid datepaid due duedate notes employee))) {
+    $sortorder = $form->{sort};
+  }
+
+  $query .= " ORDER by $sortorder";
 
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute(@values) ||
+    $form->dberror($query . " (" . join(", ", @values) . ")");
 
+  $form->{AP} = [];
   while (my $ap = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{AP} }, $ap;
   }
@@ -512,6 +526,8 @@ sub post_payment {
       $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate},
                               "buy");
 
+  my (@values, $query);
+
   # record payments and offsetting AP
   for my $i (1 .. $form->{paidaccounts}) {
 
@@ -541,31 +557,39 @@ sub post_payment {
                             2) * -1;
 
 
-      $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AP}') AND amount=$amount AND transdate='$form->{"datepaid_$i"}'|;
-      $dbh->do($query) || $form->dberror($query);
+      $query =
+        qq|DELETE FROM acc_trans | .
+        qq|WHERE trans_id = ? | .
+        qq|  AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) | .
+        qq|  AND amount = ? AND transdate = ?|;
+      @values = ($form->{id}, $form->{AP}, $amount,
+                 conv_date($form->{"datepaid_$i"}));
+      do_query($form, $dbh, $query, @values);
 
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-                  transdate)
-                  VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AP}'),
-                  $amount, '$form->{"datepaid_$i"}')|;
-      $dbh->do($query) || $form->dberror($query);
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate) | .
+        qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?)|;
+      @values = ($form->{id}, $form->{AP}, $amount,
+                 conv_date($form->{"datepaid_$i"}));
+      do_query($form, $dbh, $query, @values);
 
+      $query =
+        qq|DELETE FROM acc_trans | .
+        qq|WHERE trans_id = ? | .
+        qq|  AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) | .
+        qq|  AND amount = ? AND transdate = ? AND source = ? AND memo = ?|;
+      @values = ($form->{id}, $accno, $form->{"paid_$i"},
+                 conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
+                 $form->{"memo_$i"});
+      do_query($form, $dbh, $query, @values);
 
-
-      $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                      WHERE c.accno = '$accno') AND amount=$form->{"paid_$i"} AND transdate='$form->{"datepaid_$i"}' AND source='$form->{"source_$i"}' AND memo='$form->{"memo_$i"}'|;
-      $dbh->do($query) || $form->dberror($query);
-
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo)
-                  VALUES ($form->{id}, (SELECT c.id FROM chart c
-		                      WHERE c.accno = '$accno'),
-		  $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
-		  '$form->{"source_$i"}', '$form->{"memo_$i"}')|;
-      $dbh->do($query) || $form->dberror($query);
-
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo) | .
+        qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
+      @values = ($form->{id}, $accno, $form->{"paid_$i"},
+                 $form->{"datepaid_$i"},
+                 $form->{"source_$i"}, $form->{"memo_$i"});
+      do_query($form, $dbh, $query, @values);
 
       # gain/loss
       $amount =
@@ -598,28 +622,30 @@ sub post_payment {
            $form->round_amount($form->{fx}{$accno}{$transdate}, 2)
           ) != 0
         ) {
-        $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                        WHERE c.accno = '$accno') AND amount=$form->{fx}{$accno}{$transdate} AND transdate='$transdate' AND cleared='0' AND fx_transaction='1'|;
-        $dbh->do($query) || $form->dberror($query);
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-	            transdate, cleared, fx_transaction)
-		    VALUES ($form->{id},
-		           (SELECT c.id FROM chart c
-		            WHERE c.accno = '$accno'),
-		    $form->{fx}{$accno}{$transdate}, '$transdate', '0', '1')|;
-        $dbh->do($query) || $form->dberror($query);
+        $query =
+          qq|DELETE FROM acc_trans | .
+          qq|WHERE trans_id = ? AND chart_id = | .
+          qq|  (SELECT c.id FROM chart c WHERE c.accno = ?) AND amount = ? | .
+          qq|  AND transdate = ? AND cleared = 'f' AND fx_transaction = 't'|;
+        @values = ($form->{id}, $accno, $form->{fx}{$accno}{$transdate},
+                   conv_date($transdate),);
+        do_query($form, $dbh, $query, @values);
+
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction) | .
+          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, 'f', 't')|;
+        @values = ($form->{id}, $accno, $form->{fx}{$accno}{$transdate},
+                   conv_date($transdate));
+        do_query($form, $dbh, $query, @values);
       }
     }
   }
-  my $datepaid = ($form->{paid})    ? qq|'$form->{datepaid}'| : "NULL";
 
   # save AP record
-  my $query = qq|UPDATE ap set
-              paid = $form->{paid},
-	      datepaid = $datepaid
-              WHERE id=$form->{id}|;
-
-  $dbh->do($query) || $form->dberror($query);
+  my $query = qq|UPDATE ap SET paid = ?, datepaid = ? WHERE id = ?|;
+  @values = ($form->{paid}, $form->{paid} ? $form->{datepaid} : undef,
+             $form->{id});
+  do_query($form, $dbh, $query, @values);
 
   my $rc = $dbh->commit;
   $dbh->disconnect;
