@@ -81,7 +81,8 @@ border:solid;
 border-width:0 0 1px 0;
 }
 
-/** IE6 event bug fix, a z-indexed layer without some kind of background will lose its events to the layer below */  
+/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below 
+ * causing the menu to close. Opera 9 has the same bug btw. */
 #menu ul ul {
 position:absolute;
 z-index:500;
