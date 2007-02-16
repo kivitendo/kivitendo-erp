@@ -2626,9 +2626,13 @@ sub config {
     }
   }
 
-  opendir CSS, "css/.";
-  @all = grep /.*\.css$/, readdir CSS;
-  closedir CSS;
+#  opendir CSS, "css/.";
+#  @all = grep /.*\.css$/, readdir CSS;
+#  closedir CSS;
+
+# css dir has styles that are not intended as general layouts.
+# reverting to hardcoded list
+  @all = qw(lx-office-erp.css Win2000.css);
 
   foreach $item (@all) {
     if ($item eq $myconfig{stylesheet}) {
