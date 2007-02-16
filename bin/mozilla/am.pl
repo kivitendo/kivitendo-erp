@@ -1110,7 +1110,7 @@ sub list_business {
 |;
 
     $discount =
-      $form->format_amount(\%myconfig, $ref->{discount} * 100, 1, "&nbsp");
+      $form->format_amount(\%myconfig, $ref->{discount} * 100);
     $description =
       ($ref->{salesman})
       ? "<b>$ref->{description}</b>"
@@ -1216,6 +1216,7 @@ sub save_business {
   $lxdebug->enter_sub();
 
   $form->isblank("description", $locale->text('Description missing!'));
+  $form->{discount} = $form->parse_amount(\%myconfig, $form->{discount}) / 100;
   AM->save_business(\%myconfig, \%$form);
   $form->redirect($locale->text('Business saved!'));
 
@@ -2416,209 +2417,6 @@ sub swap_payment_terms {
   $lxdebug->leave_sub();
 }
 
-sub add_sic {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Add";
-
-  $form->{callback} =
-    "$form->{script}?action=add_sic&path=$form->{path}&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
-
-  &sic_header;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub edit_sic {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Edit";
-
-  AM->get_sic(\%myconfig, \%$form);
-
-  &sic_header;
-
-  $form->{orphaned} = 1;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub list_sic {
-  $lxdebug->enter_sub();
-
-  AM->sic(\%myconfig, \%$form);
-
-  $form->{callback} =
-    "$form->{script}?action=list_sic&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-
-  $callback = $form->escape($form->{callback});
-
-  $form->{title} = $locale->text('Standard Industrial Codes');
-
-  @column_index = qw(code description);
-
-  $column_header{code} =
-    qq|<th class=listheading>| . $locale->text('Code') . qq|</th>|;
-  $column_header{description} =
-    qq|<th class=listheading>| . $locale->text('Description') . qq|</th>|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  foreach $ref (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    if ($ref->{sictype} eq 'H') {
-      print qq|
-        <tr valign=top class=listheading>
-|;
-      $column_data{code} =
-        qq|<th><a href=$form->{script}?action=edit_sic&code=$ref->{code}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{code}</th>|;
-      $column_data{description} = qq|<th>$ref->{description}</th>|;
-
-    } else {
-      print qq|
-        <tr valign=top class=listrow$i>
-|;
-
-      $column_data{code} =
-        qq|<td><a href=$form->{script}?action=edit_sic&code=$ref->{code}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{code}</td>|;
-      $column_data{description} = qq|<td>$ref->{description}</td>|;
-
-    }
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-	</tr>
-|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=sic>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
-
-  </form>
-
-  </body>
-  </html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub sic_header {
-  $lxdebug->enter_sub();
-
-  $form->{title} = $locale->text("$form->{title} SIC");
-
-  # $locale->text('Add SIC')
-  # $locale->text('Edit SIC')
-
-  $form->{code}        =~ s/\"/&quot;/g;
-  $form->{description} =~ s/\"/&quot;/g;
-
-  $checked = ($form->{sictype} eq 'H') ? "checked" : "";
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=type value=sic>
-<input type=hidden name=id value=$form->{code}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=2>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <th align=right>| . $locale->text('Code') . qq|</th>
-    <td><input name=code size=10 value=$form->{code}></td>
-  <tr>
-  <tr>
-    <td></td>
-    <th align=left><input name=sictype type=checkbox style=checkbox value="H" $checked> |
-    . $locale->text('Heading') . qq|</th>
-  <tr>
-  <tr>
-    <th align=right>| . $locale->text('Description') . qq|</th>
-    <td><input name=description size=60 value="$form->{description}"></td>
-  </tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub save_sic {
-  $lxdebug->enter_sub();
-
-  $form->isblank("code",        $locale->text('Code missing!'));
-  $form->isblank("description", $locale->text('Description missing!'));
-  AM->save_sic(\%myconfig, \%$form);
-  $form->redirect($locale->text('SIC saved!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub delete_sic {
-  $lxdebug->enter_sub();
-
-  AM->delete_sic(\%myconfig, \%$form);
-  $form->redirect($locale->text('SIC deleted!'));
-
-  $lxdebug->leave_sub();
-}
-
 sub display_stylesheet {
   $lxdebug->enter_sub();
 
@@ -3128,26 +2926,6 @@ sub save_preferences {
      AM->save_preferences(\%myconfig, \%$form, $memberfile, $userspath, $webdav
      ));
   $form->error($locale->text('Cannot save preferences!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub backup {
-  $lxdebug->enter_sub();
-
-  if ($form->{media} eq 'email') {
-    $form->error($locale->text('No email address for') . " $myconfig{name}")
-      unless ($myconfig{email});
-
-    $form->{OUT} = "$sendmail";
-
-  }
-
-  AM->backup(\%myconfig, \%$form, $userspath);
-
-  if ($form->{media} eq 'email') {
-    $form->redirect($locale->text('Backup sent to') . qq| $myconfig{email}|);
-  }
 
   $lxdebug->leave_sub();
 }
