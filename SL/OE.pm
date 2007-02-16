@@ -76,36 +76,6 @@ sub transactions {
 	         WHERE o.quotation = '$quotation'
 		 $department|;
 
-  # build query if type eq (ship|receive)_order
-  if ($form->{type} =~ /(ship|receive)_order/) {
-    my ($warehouse, $warehouse_id) = split /--/, $form->{warehouse};
-
-    $query = qq|SELECT DISTINCT ON (o.id) o.id, o.ordnumber, o.transdate,
-                 o.reqdate, o.amount, ct.name, o.netamount, o.$form->{vc}_id,
-		 ex.$rate AS exchangerate,
-		 o.closed, o.quonumber, o.shippingpoint, o.shipvia,
-		 e.name AS employee
-	         FROM oe o
-	         JOIN $form->{vc} ct ON (o.$form->{vc}_id = ct.id)
-		 JOIN orderitems oi ON (oi.trans_id = o.id)
-		 JOIN parts p ON (p.id = oi.parts_id)
-	         LEFT JOIN employee e ON (o.employee_id = e.id)
-	         LEFT JOIN exchangerate ex ON (ex.curr = o.curr
-		                               AND ex.transdate = o.transdate)
-	         WHERE o.quotation = '0'
-		 AND (p.inventory_accno_id > 0 OR p.assembly = '1')
-		 AND oi.qty <> oi.ship
-		 $department|;
-
-    if ($warehouse_id && $form->{type} eq 'ship_order') {
-      $query .= qq|
-                 AND i.warehouse_id = $warehouse_id
-		 AND i.qty >= (oi.qty - oi.ship)
-		 |;
-    }
-
-  }
-
   if ($form->{"$form->{vc}_id"}) {
     $query .= qq| AND o.$form->{vc}_id = $form->{"$form->{vc}_id"}|;
   } else {
@@ -960,30 +930,6 @@ sub order_details {
       $partsgroup = $form->{"partsgroup_$i"};
     }
     push @partsgroup, [$i, $partsgroup];
-  }
-
-  # if there is a warehouse limit picking
-  if ($form->{warehouse_id} && $form->{formname} =~ /(pick|packing)_list/) {
-
-    # run query to check for inventory
-    $query = qq|SELECT sum(i.qty) AS qty
-                FROM inventory i
-		WHERE i.parts_id = ?
-		AND i.warehouse_id = ?|;
-    $sth = $dbh->prepare($query) || $form->dberror($query);
-
-    for $i (1 .. $form->{rowcount}) {
-      $sth->execute($form->{"id_$i"}, $form->{warehouse_id}) || $form->dberror;
-
-      ($qty) = $sth->fetchrow_array;
-      $sth->finish;
-
-      $form->{"qty_$i"} = 0 if $qty == 0;
-
-      if ($form->parse_amount($myconfig, $form->{"ship_$i"}) > $qty) {
-        $form->{"ship_$i"} = $form->format_amount($myconfig, $qty);
-      }
-    }
   }
 
   my $sameitem = "";

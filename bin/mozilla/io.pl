@@ -1892,7 +1892,6 @@ sub print_form {
   }
 
   ($form->{employee}) = split /--/, $form->{employee};
-  ($form->{warehouse}, $form->{warehouse_id}) = split /--/, $form->{warehouse};
 
   # create the form variables
   if ($order) {

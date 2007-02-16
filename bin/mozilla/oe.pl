@@ -214,7 +214,7 @@ sub order_links {
     }
 
   }
-  if ($form->{type} =~ /(sales|ship)_(order|quotation)/) {
+  if ($form->{type} =~ /sales_(order|quotation)/) {
     IS->get_customer(\%myconfig, \%$form);
 
     #quote all_vendor Bug 133
@@ -1374,7 +1374,6 @@ sub search {
           <th align=right>$vclabel</th>
           <td colspan=3>$vc</td>
         </tr>
-	$warehouse
 	$department
         <tr>
           <th align=right>$ordlabel</th>
@@ -1464,20 +1463,18 @@ sub orders {
   $number     = $form->escape($form->{$ordnumber});
   $name       = $form->escape($form->{ $form->{vc} });
   $department = $form->escape($form->{department});
-  $warehouse  = $form->escape($form->{warehouse});
 
   # construct href
   $href =
-    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department&warehouse=$warehouse";
+    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
 
   # construct callback
   $number     = $form->escape($form->{$ordnumber},    1);
   $name       = $form->escape($form->{ $form->{vc} }, 1);
   $department = $form->escape($form->{department},    1);
-  $warehouse  = $form->escape($form->{warehouse},     1);
 
   $callback =
-    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department&warehouse=$warehouse";
+    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
 
   @columns =
     $form->sort_columns("transdate", "reqdate",   "id",      "$ordnumber",
@@ -1583,12 +1580,6 @@ sub orders {
     $option = $locale->text(ucfirst $form->{vc});
     $option .= " : $form->{$form->{vc}}";
   }
-  if ($form->{warehouse}) {
-    ($warehouse) = split /--/, $form->{warehouse};
-    $option .= "\n<br>" if ($option);
-    $option .= $locale->text('Warehouse');
-    $option .= " : $warehouse";
-  }
   if ($form->{department}) {
     $option .= "\n<br>" if ($option);
     ($department) = split /--/, $form->{department};
@@ -1646,9 +1637,6 @@ sub orders {
   }
 
   $action = "edit";
-  $action = "ship_receive" if ($form->{type} =~ /(ship|receive)_order/);
-
-  $warehouse = $form->escape($form->{warehouse});
 
   foreach $oe (@{ $form->{OE} }) {
     $form->{rowcount} = ++$j;
@@ -1687,7 +1675,7 @@ sub orders {
     $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
 
     $column_data{$ordnumber} =
-      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&warehouse=$warehouse&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
+      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
     $column_data{name} = "<td>$oe->{name}</td>";
 
     $column_data{employee} = "<td>$oe->{employee}&nbsp;</td>";
@@ -1759,7 +1747,6 @@ sub orders {
       . $locale->text('Continue') . qq|">
   <input type="hidden" name="nextsub" value="edit">
   <input type="hidden" name="type" value="$form->{type}">
-  <input type="hidden" name="warehouse" value="$warehouse">
   <input type="hidden" name="vc" value="$form->{vc}">
   <input type="hidden" name="login" value="$form->{login}">
   <input type="hidden" name="password" value="$form->{password}">
@@ -1781,15 +1768,7 @@ sub orders {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-|;
 
-  if ($form->{type} !~ /(ship|receive)_order/) {
-    print qq|
-<input class=submit type=submit name=action value="|
-      . $locale->text('Add') . qq|">|;
-  }
-
-  print qq|
 </form>
 
 </body>
