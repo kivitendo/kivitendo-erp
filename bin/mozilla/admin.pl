@@ -473,9 +473,13 @@ sub form_header {
     }
   }
 
-  opendir CSS, "css/.";
-  @all = sort(grep({ /\.css$/ && ($_ ne "tabcontent.css") } readdir(CSS)));
-  closedir CSS;
+#  opendir CSS, "css/.";
+#  @all = grep /.*\.css$/, readdir CSS;
+#  closedir CSS;
+
+# css dir has styles that are not intended as general layouts.
+# reverting to hardcoded list
+  @all = qw(lx-office-erp.css Win2000.css);
 
   foreach $item (@all) {
     if ($item eq $myconfig->{stylesheet}) {
