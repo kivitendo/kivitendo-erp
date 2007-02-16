@@ -1549,20 +1549,6 @@ sub print_options {
       . $locale->text('Credit Note');
   }
 
-  if ($form->{type} eq 'ship_order') {
-    $type = qq|<select name=formname>
-	    <option value=pick_list $form->{PD}{pick_list}>|
-      . $locale->text('Pick List') . qq|
-	    <option value=packing_list $form->{PD}{packing_list}>|
-      . $locale->text('Packing List');
-  }
-
-  if ($form->{type} eq 'receive_order') {
-    $type = qq|<select name=formname>
-	    <option value=bin_list $form->{PD}{bin_list}>|
-      . $locale->text('Bin List');
-  }
-
   if ($form->{media} eq 'email') {
     $media = qq|<select name=sendmode>
 	    <option value=attachment $form->{SM}{attachment}>|
