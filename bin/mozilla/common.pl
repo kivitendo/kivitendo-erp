@@ -22,7 +22,6 @@ sub save_form {
   $old_form =~ s|!|!!|g;
   $old_form =~ s|\n|!n|g;
   $old_form =~ s|\r|!r|g;
-  $lxdebug->message(0, "yeah!???\n\n$old_form\n\n\n");
 
   $lxdebug->leave_sub();
 
