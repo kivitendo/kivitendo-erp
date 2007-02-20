@@ -88,6 +88,9 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
 
   $form->{title} = "Edit";
 
@@ -788,7 +791,16 @@ sub form_footer {
       <input class=submit type=submit name=action value="|
       . $locale->text('Post') . qq|">|;
   }
-
+  # button for saving history
+  if($form->{id} ne "") {
+    print qq|
+  	  <input type=button class=submit onclick=set_history_window(|
+  	  . $form->{id} 
+  	  . qq|); name=history id=history value=|
+  	  . $locale->text('history') 
+  	  . qq|>|;
+  }
+  # /button for saving history
   print "
 </form>
 
@@ -988,6 +1000,12 @@ sub post {
   $form->{taxkey}       = $taxkey;
 
   $form->{id} = 0 if $form->{postasnew};
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "POSTED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
 
   $form->redirect($locale->text('Transaction posted!'))
     if (AP->post_transaction(\%myconfig, \%$form));
@@ -1000,6 +1018,12 @@ sub post_as_new {
   $lxdebug->enter_sub();
 
   $form->{postasnew} = 1;
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "POSTED AS NEW";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   &post;
 
   $lxdebug->leave_sub();
@@ -1057,9 +1081,15 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
-
-  $form->redirect($locale->text('Transaction deleted!'))
-    if (AP->delete_transaction(\%myconfig, \%$form, $spool));
+  if (AP->delete_transaction(\%myconfig, \%$form, $spool)) {
+    # saving the history
+    if(!exists $form->{addition}) {
+  	  $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history 
+    $form->redirect($locale->text('Transaction deleted!'));
+  }
   $form->error($locale->text('Cannot delete transaction!'));
 
   $lxdebug->leave_sub();
