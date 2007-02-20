@@ -44,7 +44,7 @@ $datum =
   . $Jahr . " - ";
 
 #$zeit="<div id='Uhr'>".$Stunden.":".$Minuten.":".$Sekunden."</div>";
-$zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
+my $zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
 
 print qq|
 <script type="text/javascript">
@@ -106,7 +106,7 @@ print qq|
 
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
 	<tr>
-		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
+		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">| . $locale->text('drucken') . qq|</a>]</td>
 		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
   . $login . $datum . qq| <script>writeclock()</script>&nbsp;
 		</td>
