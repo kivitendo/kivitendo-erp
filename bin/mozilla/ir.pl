@@ -56,7 +56,11 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-
+  
+  # show history button
+  $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
+  #/show hhistory button
+  
   $form->{title} = $locale->text('Edit Vendor Invoice');
 
   &invoice_links;
@@ -810,8 +814,19 @@ sub form_footer {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
+|;
+  # button for saving history
+  if($form->{id} ne "") {
+    print qq|
+  	  <input type=button class=submit onclick=set_history_window(|
+  	  . $form->{id} 
+  	  . qq|); name=history id=history value=|
+  	  . $locale->text('history') 
+  	  . qq|>|;
+  }
+  # /button for saving history
 
-</form>
+print qq|</form>
 
 </body>
 </html>
@@ -989,8 +1004,16 @@ sub post_payment {
 
   ($form->{AP})      = split /--/, $form->{AP};
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
-  $form->redirect($locale->text(' Payment posted!'))
-      if (IR->post_payment(\%myconfig, \%$form));
+  if (IR->post_payment(\%myconfig, \%$form)){
+      	
+  	if(!exists $form->{addition} && $form->{id} ne "") {
+  		# saving the history
+  		$form->{addition} = "PAYMENT POSTED";
+  		$form->save_history($form->dbconnect(\%myconfig));
+  		# /saving the history 
+  		$form->redirect($locale->text(' Payment posted!'));
+  	}
+  }
     $form->error($locale->text('Cannot post payment!'));
 
 
@@ -1045,10 +1068,18 @@ sub post {
 
 
   relink_accounts();
-  $form->redirect(  $locale->text('Invoice')
+  if (IR->post_invoice(\%myconfig, \%$form)){ 
+  	# saving the history
+  	if(!exists $form->{addition} && $form->{id} ne "") {
+  		$form->{addition} = "POSTED";
+  		#$form->{what_done} = $locale->text("Rechnungsnummer") . qq| | . $form->{invnumber};
+  		$form->save_history($form->dbconnect(\%myconfig));
+  	}
+	# /saving the history
+  	$form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
-                  . $locale->text('posted!'))
-    if (IR->post_invoice(\%myconfig, \%$form));
+                  . $locale->text('posted!'));
+  }
   $form->error($locale->text('Cannot post invoice!'));
 
   $lxdebug->leave_sub();
@@ -1058,7 +1089,6 @@ sub delete {
   $lxdebug->enter_sub();
 
   $form->header;
-
   print qq|
 <body>
 
@@ -1090,9 +1120,15 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
-
-  $form->redirect($locale->text('Invoice deleted!'))
-    if (IR->delete_invoice(\%myconfig, \%$form));
+  if (IR->delete_invoice(\%myconfig, \%$form)) {
+    # saving the history
+    if(!exists $form->{addition}) {
+  	  $form->{addition} = "DELETED";
+  	  $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history 
+    $form->redirect($locale->text('Invoice deleted!'));
+  }
   $form->error($locale->text('Cannot delete invoice!'));
 
   $lxdebug->leave_sub();
