@@ -311,10 +311,6 @@ sub save {
 
       $netamount += $form->{"sellprice_$i"} * $form->{"qty_$i"};
 
-      $project_id = 'NULL';
-      if ($form->{"projectnumber_$i"}) {
-        $project_id = $form->{"projectnumber_$i"};
-      }
       $reqdate =
         ($form->{"reqdate_$i"}) ? qq|'$form->{"reqdate_$i"}'| : "NULL";
 
@@ -335,7 +331,7 @@ sub save {
       $query .= qq|$form->{id}, $form->{"id_$i"},
 		   '$form->{"description_$i"}', '$form->{"longdescription_$i"}', $form->{"qty_$i"}, $baseqty,
 		   $fxsellprice, $form->{"discount_$i"},
-		   '$form->{"unit_$i"}', $reqdate, (SELECT id from project where projectnumber = '$project_id'),
+		   '$form->{"unit_$i"}', $reqdate, | . conv_i($form->{"project_id_$i"}, 'NULL') . qq|,
 		   '$form->{"serialnumber_$i"}', $form->{"ship_$i"}, '$pricegroup_id',
 		   '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}', '$subtotal')|;
       $dbh->do($query) || $form->dberror($query);
@@ -671,13 +667,12 @@ sub retrieve {
 		o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
 		d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
                 o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
-                o.globalproject_id, pr.projectnumber AS globalprojectnumber,
+                o.globalproject_id,
                 o.delivered
 		FROM oe o
 	        JOIN $form->{vc} cv ON (o.$form->{vc}_id = cv.id)
 	        LEFT JOIN employee e ON (o.employee_id = e.id)
 	        LEFT JOIN department d ON (o.department_id = d.id)
-          LEFT JOIN project pr ON (o.globalproject_id = pr.id)
 		|
       . ($form->{id}
          ? qq|WHERE o.id = $form->{id}|

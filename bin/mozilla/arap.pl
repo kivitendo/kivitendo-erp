@@ -272,7 +272,7 @@ sub add_transaction {
 sub check_project {
   $lxdebug->enter_sub();
 
-  for $i (0 .. $form->{rowcount}) {
+  for $i (1 .. $form->{rowcount}) {
     my $suffix = $i ? "_$i" : "";
     my $prefix = $i ? "" : "global";
     $form->{"${prefix}project_id${suffix}"} = "" unless $form->{"${prefix}projectnumber$suffix"};

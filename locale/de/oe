@@ -241,6 +241,7 @@ $self->{texts} = {
 $self->{subs} = {
   'E'                           => 'E',
   'H'                           => 'H',
+  'NTI'                         => 'NTI',
   'Q'                           => 'Q',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',

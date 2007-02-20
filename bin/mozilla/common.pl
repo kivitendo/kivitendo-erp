@@ -452,6 +452,13 @@ sub E {
   return $form->escape($_[0]);
 }
 
+sub NTI {
+  my ($element) = @_;
+
+  $element =~ s/tabindex\s*=\s*"\d+"//;
+  return $element;
+}
+
 sub format_dates {
   $lxdebug->enter_sub();
 

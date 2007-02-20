@@ -245,6 +245,7 @@ aktualisieren wollen?',
 $self->{subs} = {
   'E'                           => 'E',
   'H'                           => 'H',
+  'NTI'                         => 'NTI',
   'Q'                           => 'Q',
   'add'                         => 'add',
   'addtop100'                   => 'addtop100',

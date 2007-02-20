@@ -371,10 +371,6 @@ sub post_invoice {
 
       }
 
-      $project_id = 'NULL';
-      if ($form->{"projectnumber_$i"}) {
-        $project_id = $form->{"projectnumber_$i"};
-      }
       $deliverydate =
         ($form->{"deliverydate_$i"})
         ? qq|'$form->{"deliverydate_$i"}'|
@@ -387,7 +383,7 @@ sub post_invoice {
 		  VALUES ($form->{id}, $form->{"id_$i"},
 		  '$form->{"description_$i"}', | . ($form->{"qty_$i"} * -1) . qq|,  | . ($baseqty * -1) . qq|,
 		  $form->{"sellprice_$i"}, $fxsellprice, $allocated,
-		  '$form->{"unit_$i"}', $deliverydate, (SELECT id FROM project WHERE projectnumber = '$project_id'),
+		  '$form->{"unit_$i"}', $deliverydate, | . conv_i($form->{"project_id_$i"}) . qq|,
 		  '$form->{"serialnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
     }
@@ -639,6 +635,7 @@ sub post_invoice {
 	      curr = '$form->{currency}',
 	      department_id = $form->{department_id},
               storno = '$form->{storno}',
+              globalproject_id = | . conv_i($form->{"globalproject_id"}, 'NULL') . qq|,
               cp_id = | . conv_i($form->{cp_id}, 'NULL') . qq|
               WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
@@ -844,7 +841,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.cp_id, a.invnumber, a.transdate AS invdate, a.duedate,
-                a.orddate, a.quodate,
+                a.orddate, a.quodate, a.globalproject_id,
                 a.ordnumber, a.quonumber, a.paid, a.taxincluded, a.notes, a.taxzone_id, a.storno, a.gldate,
 		a.intnotes, a.curr AS currency
 		FROM ap a

@@ -315,6 +315,7 @@ $self->{texts} = {
 $self->{subs} = {
   'E'                           => 'E',
   'H'                           => 'H',
+  'NTI'                         => 'NTI',
   'Q'                           => 'Q',
   'account_header'              => 'account_header',
   'add'                         => 'add',

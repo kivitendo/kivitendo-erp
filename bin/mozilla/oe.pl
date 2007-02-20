@@ -407,11 +407,15 @@ sub form_header {
   #quote select[customer|vendor] Bug 133
   $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
 
+  my @old_project_ids = ($form->{"globalproject_id"});
+  map({ push(@old_project_ids, $form->{"project_id_$_"})
+          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+
   $form->get_lists("contacts" => "ALL_CONTACTS",
                    "shipto" => "ALL_SHIPTO",
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => $form->{"globalproject_id"} });
+                                   "old_id" => \@old_project_ids });
 
   my (%labels, @values);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
@@ -420,8 +424,8 @@ sub form_header {
       ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
   my $contact =
-    $cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
-                     '-labels' => \%labels, '-default' => $form->{"cp_id"});
+    NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                         '-labels' => \%labels, '-default' => $form->{"cp_id"}));
 
   %labels = ();
   @values = ("");
@@ -431,6 +435,13 @@ sub form_header {
       $item->{"shiptoname"} . " " . $item->{"shiptodepartment_1"};
   }
 
+  my $shipto = qq|
+		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
+		<td>| .
+    NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
+                         '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
+    . qq|</td>|;
+
   %labels = ();
   @values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
@@ -438,16 +449,9 @@ sub form_header {
     $labels{$item->{"id"}} = $item->{"projectnumber"};
   }
   my $globalprojectnumber =
-    $cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
-                     '-labels' => \%labels,
-                     '-default' => $form->{"globalproject_id"});
-
-  my $shipto = qq|
-		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td>| .
-    $cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
-                     '-labels' => \%labels, '-default' => $form->{"shipto_id"})
-    . qq|</td>|;
+    NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
+                         '-labels' => \%labels,
+                         '-default' => $form->{"globalproject_id"}));
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
@@ -1126,8 +1130,6 @@ sub update {
   $form->{update} = 1;
 
   &check_name($form->{vc});
-
-  &check_project;
 
   $buysell              = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');

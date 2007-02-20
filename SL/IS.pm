@@ -685,10 +685,6 @@ sub post_invoice {
         }
       }
 
-      $project_id = 'NULL';
-      if ($form->{"projectnumber_$i"}) {
-        $project_id = $form->{"projectnumber_$i"};
-      }
       $deliverydate =
         ($form->{"deliverydate_$i"})
         ? qq|'$form->{"deliverydate_$i"}'|
@@ -708,7 +704,7 @@ sub post_invoice {
 		  '$form->{"description_$i"}', '$form->{"longdescription_$i"}', $form->{"qty_$i"},
 		  $form->{"sellprice_$i"}, $fxsellprice,
 		  $form->{"discount_$i"}, $allocated, 'f',
-		  '$form->{"unit_$i"}', $deliverydate, (SELECT id from project where projectnumber = '$project_id'),
+		  '$form->{"unit_$i"}', $deliverydate, | . conv_i($form->{"project_id_$i"}) . qq|,
 		  '$form->{"serialnumber_$i"}', '$pricegroup_id',
 		  '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}', $baseqty, '$subtotal')|;
       $dbh->do($query) || $form->dberror($query);
@@ -1009,6 +1005,7 @@ Message: $form->{message}\r| if $form->{message};
               delivery_vendor_id = $form->{delivery_vendor_id},
               employee_id = $form->{employee_id},
               storno = '$form->{storno}',
+              globalproject_id = | . conv_i($form->{"globalproject_id"}, 'NULL') . qq|,
               cp_id = | . conv_i($form->{"cp_id"}, 'NULL') . qq|
               WHERE id = $form->{id}
              |;
@@ -1484,7 +1481,7 @@ sub retrieve_invoice {
 
     # retrieve invoice
     $query = qq|SELECT a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
-                a.orddate, a.quodate,
+                a.orddate, a.quodate, a.globalproject_id,
                 a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
                 a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
 		a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,

@@ -1451,8 +1451,16 @@ sub get_projects {
   if (!$all) {
     $where = "WHERE active ";
     if ($old_id) {
-      $where .= " OR (id = ?) ";
-      push(@values, $old_id);
+      if (ref($old_id) eq "ARRAY") {
+        my @ids = grep({ $_ } @{$old_id});
+        if (@ids) {
+          $where .= " OR id IN (" . join(",", map({ "?" } @ids)) . ") ";
+          push(@values, @ids);
+        }
+      } else {
+        $where .= " OR (id = ?) ";
+        push(@values, $old_id);
+      }
     }
   }
 

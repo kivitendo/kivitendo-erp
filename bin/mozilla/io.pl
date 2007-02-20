@@ -242,6 +242,13 @@ sub display_row {
     $delvar       = 'reqdate';
   }
 
+  my %projectnumber_labels = ();
+  my @projectnumber_values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@projectnumber_values, $item->{"id"});
+    $projectnumber_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
   for $i (1 .. $numrows) {
 
     # undo formatting
@@ -486,11 +493,12 @@ sub display_row {
           <b>$serialnumber</b>&nbsp;<input name="serialnumber_$i" size=15 value="$form->{"serialnumber_$i"}">|;
     }
 
-    print qq|
-          <b>$projectnumber</b>&nbsp;<input name="projectnumber_$i" size=10 value="$form->{"projectnumber_$i"}">
-		  <input type=hidden name="oldprojectnumber_$i" value="$form->{"projectnumber_$i"}">
-		  <input type=hidden name="project_id_$i" value="$form->{"project_id_$i"}">
-|;
+    print qq|<b>$projectnumber</b>&nbsp;| .
+      NTI($cgi->popup_menu('-name' => "project_id_$i",
+                           '-values' => \@projectnumber_values,
+                           '-labels' => \%projectnumber_labels,
+                           '-default' => $form->{"project_id_$i"}));
+
     if ($form->{type} eq 'invoice' or $form->{type} =~ /order/) {
       my $reqdate_term =
         ($form->{type} eq 'invoice')
@@ -880,6 +888,9 @@ sub display_form {
   $lxdebug->enter_sub();
 
   relink_accounts();
+
+  my $new_rowcount = $form->{"rowcount"} * 1 + 1;
+  $form->{"project_id_${new_rowcount}"} = $form->{"globalproject_id"};
 
   $form->language_payment(\%myconfig);
 

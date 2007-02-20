@@ -353,8 +353,15 @@ sub form_header {
 		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
 	      </tr>|;
 
+  my @old_project_ids = ($form->{"globalproject_id"});
+  map({ push(@old_project_ids, $form->{"project_id_$_"})
+          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+
   $form->get_lists("contacts" => "ALL_CONTACTS",
-                   "shipto" => "ALL_SHIPTO");
+                   "shipto" => "ALL_SHIPTO",
+                   "projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 0,
+                                   "old_id" => \@old_project_ids });
 
   my (%labels, @values);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
@@ -363,8 +370,8 @@ sub form_header {
       ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
   my $contact =
-    $cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
-                     '-labels' => \%labels, '-default' => $form->{"cp_id"});
+    NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                         '-labels' => \%labels, '-default' => $form->{"cp_id"}));
 
   %labels = ();
   @values = ("");
@@ -377,9 +384,20 @@ sub form_header {
   my $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
 		<td>| .
-    $cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
-                     '-labels' => \%labels, '-default' => $form->{"shipto_id"})
+    NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
+                         '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
     . qq|</td>|;
+
+  %labels = ();
+  @values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+  my $globalprojectnumber =
+    NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
+                         '-labels' => \%labels,
+                         '-default' => $form->{"globalproject_id"}));
 
   # set option selected
   foreach $item (qw(AR customer currency department employee)) {
@@ -743,11 +761,7 @@ print qq|     <tr>
 	      </tr>
 	      <tr>
           <th align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
-          <td>
-            <input name="globalprojectnumber" size="11" value="| . Q($form->{globalprojectnumber}) . qq|">
-            <input type="hidden" name="oldglobalprojectnumber" value="| . Q($form->{globalprojectnumber}) . qq|">
-            <input type="hidden" name="globalproject_id" value="| . Q($form->{globalproject_id}) . qq|">
-          </td>
+          <td>$globalprojectnumber</td>
 	      </tr>
 	    </table>
           </td>
@@ -1166,8 +1180,6 @@ sub update {
   $form->{update} = 1;
 
   &check_name(customer);
-
-  &check_project;
 
   $form->{exchangerate} = $exchangerate
     if (
