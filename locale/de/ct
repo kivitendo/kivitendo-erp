@@ -108,6 +108,7 @@ $self->{texts} = {
   'Vendors'                     => 'Lieferanten',
   'Zipcode'                     => 'PLZ',
   'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
+  'history'                     => 'Historie',
   's'                           => 's',
 };
 
