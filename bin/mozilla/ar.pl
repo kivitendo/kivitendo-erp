@@ -37,6 +37,7 @@ use SL::PE;
 use Data::Dumper;
 
 require "$form->{path}/arap.pl";
+require "bin/mozilla/common.pl";
 
 1;
 
@@ -1129,6 +1130,19 @@ sub search {
                               <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
   }
 
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 1 });
+
+  my %labels = ();
+  my @values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+  my $projectnumber =
+    NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
+                         '-labels' => \%labels));
+
   $form->{fokus} = "search.customer";
   $form->header;
 
@@ -1160,6 +1174,10 @@ sub search {
 	  <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
 	  <td colspan=3><input name=notes size=40></td>
 	</tr>
+        <tr>
+          <th align="right">| . $locale->text("Project Number") . qq|</th>
+          <td colspan="3">$projectnumber</td>
+        </tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('From') . qq|</th>
           $button1
@@ -1226,6 +1244,8 @@ sub search {
 	      <tr>
 		<td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Subtotal') . qq|</td>
+		<td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Project Number') . qq|</td>
 	      </tr>
 	    </table>
 	  </td>
@@ -1331,10 +1351,15 @@ sub ar_transactions {
     $option   .= "\n<br>" if ($option);
     $option   .= $locale->text('Closed');
   }
+  if ($form->{globalproject_id}) {
+    $callback .= "&globalproject_id=" . E($form->{globalproject_id});
+    $href     .= "&globalproject_id=" . E($form->{globalproject_id});
+  }
 
-  @columns = $form->sort_columns(
-    qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee shippingpoint shipvia)
-  );
+  @columns =
+    qw(transdate id type invnumber ordnumber name netamount tax amount paid
+       datepaid due duedate notes employee shippingpoint shipvia
+       globalprojectnumber);
 
   $form->{"l_type"} = "Y";
 
@@ -1407,6 +1432,8 @@ sub ar_transactions {
       "<th><a class=listheading href=$href&sort=shipvia>"
     . $locale->text('Ship via')
     . "</a></th>";
+  $column_header{globalprojectnumber} =
+    qq|<th class="listheading">| . $locale->text('Project Number') . qq|</th>|;
 
   $form->{title} = $locale->text('AR Transactions');
 
@@ -1505,6 +1532,8 @@ sub ar_transactions {
     $column_data{shippingpoint} = "<td>$ar->{shippingpoint}&nbsp;</td>";
     $column_data{shipvia}       = "<td>$ar->{shipvia}&nbsp;</td>";
     $column_data{employee}      = "<td>$ar->{employee}&nbsp;</td>";
+    $column_data{globalprojectnumber}  =
+      "<td>" . H($ar->{globalprojectnumber}) . "</td>";
 
     $i++;
     $i %= 2;

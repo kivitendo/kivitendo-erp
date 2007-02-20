@@ -552,14 +552,18 @@ sub ar_transactions {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
+  my @values;
+
   my $query = qq|SELECT a.id, a.invnumber, a.ordnumber, a.transdate,
                  a.duedate, a.netamount, a.amount, a.paid, c.name,
 		 a.invoice, a.datepaid, a.terms, a.notes, a.shipvia,
-		 a.shippingpoint, a.storno,
+		 a.shippingpoint, a.storno, a.globalproject_id,
+                 pr.projectnumber AS globalprojectnumber,
 		 e.name AS employee
 	         FROM ar a
 	      JOIN customer c ON (a.customer_id = c.id)
-	      LEFT JOIN employee e ON (a.employee_id = e.id)|;
+	      LEFT JOIN employee e ON (a.employee_id = e.id)
+                 LEFT JOIN project pr ON a.globalproject_id = pr.id|;
 
   my $where = "1 = 1";
   if ($form->{customer_id}) {
@@ -586,6 +590,13 @@ sub ar_transactions {
     my $notes = $form->like(lc $form->{notes});
     $where .= " AND lower(a.notes) LIKE '$notes'";
   }
+  if ($form->{"project_id"}) {
+    $where .=
+      qq|AND ((a.globalproject_id = ?) OR EXISTS | .
+      qq|  (SELECT * FROM invoice i | .
+      qq|   WHERE i.project_id = ? AND i.trans_id = a.id))|;
+    push(@values, $form->{"project_id"}, $form->{"project_id"});
+  }
 
   $where .= " AND a.transdate >= '$form->{transdatefrom}'"
     if $form->{transdatefrom};
@@ -603,11 +614,12 @@ sub ar_transactions {
   my $sortorder = join ', ', $form->sort_columns(@a);
   $sortorder = $form->{sort} if $form->{sort};
 
-  $query .= "WHERE $where
+  $query .= " WHERE $where
              ORDER by $sortorder";
 
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute(@values) ||
+    $form->dberror($query . " (" . join(", ", @values) . ")");
 
   while (my $ar = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{AR} }, $ar;

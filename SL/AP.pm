@@ -404,10 +404,13 @@ sub ap_transactions {
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
+    qq|  a.globalproject_id, | .
+    qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee | .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
-    qq|LEFT JOIN employee e ON (a.employee_id = e.id)|;
+    qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
+    qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) |;
 
   my $where;
   my @values;
@@ -435,6 +438,13 @@ sub ap_transactions {
   if ($form->{notes}) {
     $where .= " AND lower(a.notes) LIKE ?";
     push(@values, $form->like($form->{notes}));
+  }
+  if ($form->{project_id}) {
+    $where .=
+      qq|AND ((a.globalproject_id = ?) OR EXISTS | .
+      qq|  (SELECT * FROM invoice i | .
+      qq|   WHERE i.project_id = ? AND i.trans_id = a.id))|;
+    push(@values, $form->{project_id}, $form->{project_id});
   }
 
   if ($form->{transdatefrom}) {

@@ -36,6 +36,7 @@ use SL::IR;
 use SL::PE;
 
 require "$form->{path}/arap.pl";
+require "bin/mozilla/common.pl";
 
 1;
 
@@ -1101,6 +1102,19 @@ sub search {
                               <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
   }
 
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 1 });
+
+  my %labels = ();
+  my @values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+  my $projectnumber =
+    NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
+                         '-labels' => \%labels));
+
   $form->header;
 
   print qq|
@@ -1133,6 +1147,10 @@ sub search {
 	  <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
 	  <td colspan=3><input name=notes size=40></td>
 	</tr>
+        <tr>
+          <th align="right">| . $locale->text("Project Number") . qq|</th>
+          <td colspan="3">$projectnumber</td>
+        </tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('From') . qq|</th>
 	  $button1
@@ -1197,6 +1215,8 @@ sub search {
 	      <tr>
 		<td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Subtotal') . qq|</td>
+		<td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Project Number') . qq|</td>
 	      </tr>
 	    </table>
 	  </td>
@@ -1299,10 +1319,14 @@ sub ap_transactions {
     $option   .= "\n<br>" if ($option);
     $option   .= $locale->text('Closed');
   }
+  if ($form->{globalproject_id}) {
+    $callback .= "&globalproject_id=" . E($form->{globalproject_id});
+    $href     .= "&globalproject_id=" . E($form->{globalproject_id});
+  }
 
-  @columns = $form->sort_columns(
-    qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee)
-  );
+  @columns =
+    qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid
+       due duedate notes employee globalprojectnumber);
 
   foreach $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
@@ -1362,6 +1386,8 @@ sub ap_transactions {
   $column_header{employee} =
     "<th><a class=listheading href=$href&sort=employee>"
     . $locale->text('Employee') . "</th>";
+  $column_header{globalprojectnumber} =
+    qq|<th class="listheading">| . $locale->text('Project Number') . qq|</th>|;
 
   $form->{title} = $locale->text('AP Transactions');
 
@@ -1452,6 +1478,8 @@ sub ap_transactions {
     $ap->{notes} =~ s/\r\n/<br>/g;
     $column_data{notes}    = "<td>$ap->{notes}&nbsp;</td>";
     $column_data{employee} = "<td>$ap->{employee}&nbsp;</td>";
+    $column_data{globalprojectnumber}  =
+      "<td>" . H($ap->{globalprojectnumber}) . "</td>";
 
     $i++;
     $i %= 2;
