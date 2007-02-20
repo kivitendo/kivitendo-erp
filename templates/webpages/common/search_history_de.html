@@ -1,0 +1,186 @@
+<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>
+<script type="text/javascript" src="js/jscalendar/calendar.js"></script>
+<script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
+<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+
+<form method="post" action="<TMPL_VAR NAME=script ESCAPE=HTML>">
+
+<input type="hidden" name="path" value="<TMPL_VAR NAME=path ESCAPE=HTML>">
+<input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
+<input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
+<input type="hidden" name="action" value="show_am_history">
+
+	<table>
+		<tr>
+			<th class ="listtop">Historien Suche</th>
+			</th>
+		</tr>
+		<tr>
+			<td>
+				<script type="text/javascript">
+					<!--
+                    function uncheckOther(id) {
+						if(!(
+						    (document.getElementById('non-deleted').checked == false) 
+					    	&& 
+						    (document.getElementById('both').checked == false) 
+						    && 
+						    (document.getElementById('deleted').checked == false)
+						  )) {
+								if(id == "deleted") {
+									document.getElementById('non-deleted').checked = false;
+									document.getElementById('both').checked = false;
+								}
+								if(id == "non-deleted") {
+									document.getElementById('deleted').checked = false;
+									document.getElementById('both').checked = false;
+								}
+								if(id == "both") {
+									document.getElementById('non-deleted').checked = false;
+									document.getElementById('deleted').checked = false;
+								}
+						}
+					}
+					
+					var defaults = new Array('SAVED', 'DELETED', 'ADDED', 'PAYMENT POSTED', 'POSTED', 'POSTED AS NEW', 'SAVED FOR DUNNING', 'DUNNING STARTED', 'PRINTED');
+					var translated = new Object();
+					translated['SAVED'] = 'Gespeichert';
+					translated['DELETED'] = 'Gelöscht';
+					translated['ADDED'] = 'Hinzugefügt';
+					translated['PAYMENT POSTED'] = 'Zahlung gebucht';
+					translated['POSTED'] = 'Gebucht';
+					translated['POSTED AS NEW'] = 'Als neu hinterlegt'
+					translated['SAVED FOR DUNNING'] = 'Für den Mahnungsprozeß gespeichert';
+					translated['DUNNING STARTED'] = 'Mahnungsprozeß gestartet';
+					translated['PRINTED'] = 'Gedruckt';
+					
+					var jscalender = "<table valign=\"top\">"
+									+ "<tr><td colspan=\"2\"><b>Zeitraum:&nbsp;</b></td></tr>"
+									+ "<tr><td>von:&nbsp;"
+									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=transdate ESCAPE=HTML>\">"
+									+ "<input type=\"button\" name=\"transdate\" id=\"trigger1\" value=\"?\">"
+									+ "&nbsp;</td><td>bis:&nbsp;"
+									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=reqdate ESCAPE=HTML>\">"
+									+ "<input type=\"button\" name=\"reqdate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
+					var mitarbeiter = "<table valign=\"top\">"
+									+ "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
+									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter'></td>"
+									+ "</tr></table>";
+					
+					var tempString = "";
+					function addForm(last, remove) {
+						if(last == "INIT") {
+							tempString = "<select id='selectForm'>";
+							for(i=0;i<defaults.length;i++) {
+								tempString += "\<option value\=\'" + defaults[i] + "\'\ onClick=\"javascript:addForm(\'" + defaults[i] + "\', " + i + ");\">" + translated[defaults[i]] + "\<\/option\>" + "\n";
+							}
+							tempString += "</select>";
+							document.getElementById('selectEmployee').innerHTML = mitarbeiter;
+							document.getElementById('selectDate').innerHTML = jscalender;
+							document.getElementById('selectTable').innerHTML = tempString;
+							
+							Calendar.setup(
+      			    		{
+		                      inputField : "transdate",
+        		              ifFormat :"%d.%m.%Y",
+                		      align : "BL",
+		                      button : "trigger1"
+        		      		});
+
+		        		    Calendar.setup(
+		          			{
+        		              inputField : "reqdate",
+                		  	  ifFormat :"%d.%m.%Y",
+		                  	  align : "BL",
+        		          	  button : "trigger2"
+          					});
+						}			
+						else {
+							defaults.splice(remove,1);
+							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>Folgende Einschränkungen haben Sie bereits vorgenommen:</b><br>") : ("<br>")) + translated[last];
+							if(defaults.length > 0) {
+								document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
+								tempString = "<select id='selectForm'>";
+								for(i=0;i<defaults.length;i++) {
+									tempString += "\<option value\=\'" + defaults[i] + "\'\ onClick=\"javascript:addForm(\'" + defaults[i] + "\', " + i + ");\">" + translated[defaults[i]] + "\<\/option\>" + "\n";
+								}
+								tempString += "</select>";
+								document.getElementById('selectTable').innerHTML = tempString;
+							}
+							else {
+								document.getElementById('selectTable').innerHTML = "";
+							}
+						}
+					}
+					
+					function resetAll() {
+						document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\">Ja";
+						document.getElementById('inputText').innerHTML = "";
+					}
+					//-->
+				</script>
+				<table>
+					<tr>
+						<td>
+							<b>Wonach</b> m&ouml;chten Sie suchen?:
+						</td>
+						<td>
+							<select name="what2search" id="what2search">
+								<option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer">Artikelnummer</option>
+								<option name="Kundennummer" value="Kundennummer" id="Kundennummer">Kundennummer</option>
+								<option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer">Lieferantennummer</option>
+								<option name="Projektnummer" value="Projektnummer" id="Projektnummer">Projektnummer</option>
+								<option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer">Buchungsnummer</option>
+								<option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer">Eingangsrechnungnummer</option>
+								<option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer">Ausgangsrechnungnummer</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							Wie lautet der <b>Suchbegriff</b> nach dem Sie suchen?:
+						</td>
+						<td>
+							<input type="text" name="searchid" id="searchid" value="<TMPL_VAR NAME=searchid ESCAPE=HTML>">
+						</td>
+					</tr>
+					<tr>
+						<td valign="top">
+							Möchten Sie Ihre Suche <b>spezialisieren</b>?
+						</td>
+						<td>
+							<table valign=\"top\" cellpadding=\"0\" marginheight=\"0\" marginwidth=\"0\" cellspacing=\"0\" topmargin=\"0\" leftmargin=\"0\">
+								<tr>
+									<td>
+										<div id="selectTable"><a href="javascript:addForm('INIT')">Ja</div>
+										<div id="inputText"></div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="selectEmployee"></div>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div id="selectDate"></div>
+									</td>
+								</tr>
+							</table>
+							<input type="hidden" name="einschraenkungen" id="einschraenkungen" value="">
+						</td>
+					</tr>
+					</tr>
+					<tr>
+						<td colspan="6">
+							<input type="submit" value="abschicken">
+							<input type="reset" value="zurücksetzen" onClick="javascript:resetAll();">
+						</td>
+						<td>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>	
+	</table>
+</form>

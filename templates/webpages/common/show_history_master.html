@@ -1,0 +1,46 @@
+<form>
+<input type="hidden" name="path" value="<TMPL_VAR NAME=path ESCAPE=HTML>">
+<input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
+<input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
+</form> 
+<TMPL_IF NAME=SUCCESS>
+<table>
+	<tr>
+		<th class=listtop>
+			<translate>Zeitpunkt</translate>
+		</th>
+		<th class=listtop>
+			<translate>Mitarbeiter</translate>
+		</th>
+		<th class=listtop>
+			<translate>Vorgang</translate>
+		</th>
+		<th class=listtop>
+			<translate>Zusatz</translate>
+		</th>
+	</tr>
+<TMPL_LOOP NAME=DATEN>
+	<tr>
+		<td>
+			<TMPL_VAR NAME=itime ESCAPE=HTML>
+		</td>
+		<td>
+			<TMPL_VAR NAME=name ESCAPE=HTML>
+		</td>
+		<td>
+			<TMPL_VAR NAME=addition ESCAPE=HTML>
+		</td>
+		<td>
+			<TMPL_VAR NAME=what_done ESCAPE=HTML>
+		</td>
+	</tr>	
+</TMPL_LOOP>
+</table>
+<TMPL_ELSE>
+<b><translate>Keine Suchergebnisse gefunden!</translate></b><br>
+</TMPL_IF>
+<TMPL_IF NAME=NONEWWINDOW>
+<a href="javascript:history.back(-1);"><translate>back</translate></a>
+<TMPL_ELSE>
+<a href="javascript:window.close();"><translate>close</translate></a>
+</TMPL_IF>
