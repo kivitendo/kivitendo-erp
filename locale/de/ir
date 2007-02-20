@@ -236,7 +236,6 @@ $self->{subs} = {
   'post_as_new'                 => 'post_as_new',
   'post_payment'                => 'post_payment',
   'prepare_invoice'             => 'prepare_invoice',
-  'preset_projectnumber'        => 'preset_projectnumber',
   'print'                       => 'print',
   'print_form'                  => 'print_form',
   'print_options'               => 'print_options',

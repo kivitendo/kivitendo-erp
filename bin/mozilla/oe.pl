@@ -408,7 +408,10 @@ sub form_header {
   $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
 
   $form->get_lists("contacts" => "ALL_CONTACTS",
-                   "shipto" => "ALL_SHIPTO");
+                   "shipto" => "ALL_SHIPTO",
+                   "projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 0,
+                                   "old_id" => $form->{"globalproject_id"} });
 
   my (%labels, @values);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
@@ -427,6 +430,17 @@ sub form_header {
     $labels{$item->{"shipto_id"}} =
       $item->{"shiptoname"} . " " . $item->{"shiptodepartment_1"};
   }
+
+  %labels = ();
+  @values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+  my $globalprojectnumber =
+    $cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
+                     '-labels' => \%labels,
+                     '-default' => $form->{"globalproject_id"});
 
   my $shipto = qq|
 		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
@@ -783,11 +797,7 @@ print qq|	    </table>
 	      $ordnumber
 	      <tr>
           <th width="70%" align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
-          <td>
-            <input name="globalprojectnumber" size="11" value="| . Q($form->{globalprojectnumber}) . qq|">
-            <input type="hidden" name="oldglobalprojectnumber" value="| . Q($form->{globalprojectnumber}) . qq|">
-            <input type="hidden" name="globalproject_id" value="| . Q($form->{globalproject_id}) . qq|">
-          </td>
+          <td>$globalprojectnumber</td>
 	      </tr>
 	    </table>
 	  </td>

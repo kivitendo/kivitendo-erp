@@ -1425,6 +1425,55 @@ sub get_contacts {
   $main::lxdebug->leave_sub();
 }
 
+sub get_projects {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  my ($all, $old_id, $where, @values);
+
+  if (ref($key) eq "HASH") {
+    my $params = $key;
+
+    $key = "ALL_PROJECTS";
+
+    foreach my $p (keys(%{$params})) {
+      if ($p eq "all") {
+        $all = $params->{$p};
+      } elsif ($p eq "old_id") {
+        $old_id = $params->{$p};
+      } elsif ($p eq "key") {
+        $key = $params->{$p};
+      }
+    }
+  }
+
+  if (!$all) {
+    $where = "WHERE active ";
+    if ($old_id) {
+      $where .= " OR (id = ?) ";
+      push(@values, $old_id);
+    }
+  }
+
+  my $query =
+    qq|SELECT id, projectnumber, description, active | .
+    qq|FROM project | .
+    $where .
+    qq|ORDER BY lower(projectnumber)|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute(@values) ||
+    $self->dberror($query . " (" . join(", ", @values) . ")");
+
+  $self->{$key} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{ $self->{$key} }, $ref);
+  }
+
+  $sth->finish;
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1455,6 +1504,12 @@ sub get_lists {
       push(@{ $self->{$params{"shipto"}} }, $ref);
     }
     $sth->finish;
+  }
+
+  if ($params{"projects"} || $params{"all_projects"}) {
+    $self->get_projects($dbh, $params{"all_projects"} ?
+                        $params{"all_projects"} : $params{"projects"},
+                        $params{"all_projects"} ? 1 : 0);
   }
 
   $dbh->disconnect();

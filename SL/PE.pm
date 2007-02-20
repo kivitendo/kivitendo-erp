@@ -37,6 +37,8 @@ package PE;
 
 use Data::Dumper;
 
+use SL::DBUtils;
+
 sub projects {
   $main::lxdebug->enter_sub();
 
@@ -47,7 +49,7 @@ sub projects {
 
   my $sortorder = ($form->{sort}) ? $form->{sort} : "projectnumber";
 
-  my $query = qq|SELECT p.id, p.projectnumber, p.description
+  my $query = qq|SELECT p.id, p.projectnumber, p.description, p.active
                  FROM project p
 		 WHERE 1 = 1|;
 
@@ -69,6 +71,11 @@ sub projects {
 		AND id NOT IN (SELECT p.id
 		               FROM project p, orderitems o
 			       WHERE p.id = o.project_id)";
+  }
+  if ($form->{active} eq "active") {
+    $query .= " AND p.active";
+  } elsif ($form->{active} eq "inactive") {
+    $query .= " AND NOT p.active";
   }
 
   $query .= qq|
@@ -136,19 +143,19 @@ sub save_project {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  map { $form->{$_} =~ s/\'/\'\'/g } qw(projectnumber description);
+  my @values = ($form->{projectnumber}, $form->{description});
 
   if ($form->{id}) {
-    $query = qq|UPDATE project SET
-                projectnumber = '$form->{projectnumber}',
-		description = '$form->{description}'
-		WHERE id = $form->{id}|;
+    $query =
+      qq|UPDATE project SET projectnumber = ?, description = ?, active = ? | .
+      qq|WHERE id = ?|;
+    push(@values, $form->{active} ? 't' : 'f', $form->{id});
   } else {
-    $query = qq|INSERT INTO project
-                (projectnumber, description)
-                VALUES ('$form->{projectnumber}', '$form->{description}')|;
+    $query =
+      qq|INSERT INTO project (projectnumber, description, active) | .
+      qq|VALUES (?, ?, 't')|;
   }
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 

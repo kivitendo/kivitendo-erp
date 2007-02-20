@@ -279,7 +279,6 @@ $self->{subs} = {
   'parts_language_selection'    => 'parts_language_selection',
   'parts_subtotal'              => 'parts_subtotal',
   'post_as_new'                 => 'post_as_new',
-  'preset_projectnumber'        => 'preset_projectnumber',
   'price_row'                   => 'price_row',
   'print'                       => 'print',
   'print_form'                  => 'print_form',

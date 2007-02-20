@@ -162,7 +162,6 @@ $self->{subs} = {
   'order'                       => 'order',
   'part_selection_internal'     => 'part_selection_internal',
   'post_as_new'                 => 'post_as_new',
-  'preset_projectnumber'        => 'preset_projectnumber',
   'print'                       => 'print',
   'print_form'                  => 'print_form',
   'print_options'               => 'print_options',

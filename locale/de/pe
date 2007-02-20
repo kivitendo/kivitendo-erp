@@ -1,9 +1,11 @@
 $self->{texts} = {
+  'Active'                      => 'Aktiv',
   'Add'                         => 'Erfassen',
   'Add Group'                   => 'Warengruppe erfassen',
   'Add Pricegroup'              => 'Preisgruppe erfassen',
   'Add Project'                 => 'Projekt erfassen',
   'All'                         => 'Alle',
+  'Both'                        => 'Sowohl als auch',
   'Continue'                    => 'Weiter',
   'Delete'                      => 'Löschen',
   'Description'                 => 'Beschreibung',
@@ -15,6 +17,8 @@ $self->{texts} = {
   'Group missing!'              => 'Warengruppe fehlt!',
   'Group saved!'                => 'Warengruppe gespeichert!',
   'Groups'                      => 'Warengruppen',
+  'Inactive'                    => 'Inaktiv',
+  'No'                          => 'Nein',
   'Number'                      => 'Nummer',
   'Orphaned'                    => 'Nie benutzt',
   'Preisgruppe'                 => 'Preisgruppe',
@@ -28,6 +32,7 @@ $self->{texts} = {
   'Project saved!'              => 'Projekt gespeichert!',
   'Projects'                    => 'Projekte',
   'Save'                        => 'Speichern',
+  'Yes'                         => 'Ja',
 };
 
 $self->{subs} = {
