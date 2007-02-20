@@ -9,6 +9,7 @@
 #
 ######################################################################
 
+use SL::Form;
 use YAML;
 
 use SL::Common;
@@ -526,6 +527,21 @@ sub reformat_numbers {
   $myconfig{"numberformat"} = $saved_numberformat;
 
   $lxdebug->leave_sub();
+}
+
+sub show_history {
+	$lxdebug->enter_sub();
+	my $dbh = $form->dbconnect(\%myconfig);
+	
+	$form->{title} = $locale->text("History");
+    $form->header();
+    print $form->parse_html_template( "common/show_history", {
+    	"DATEN" => $form->get_history($dbh,$form->{input_name}),
+    	"SUCCESS" => ($form->get_history($dbh,$form->{input_name}) ne "0")
+    	} );
+	
+	$dbh->disconnect();
+	$lxdebug->leave_sub();	
 }
 
 1;
