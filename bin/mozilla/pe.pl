@@ -427,11 +427,6 @@ sub form_project_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-<<<<<<< .mine
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
 # button for saving history
 print qq|
   	<input type=button onclick=set_history_window(|
@@ -440,8 +435,6 @@ print qq|
   	. $locale->text('history') 
   	. qq|>|;
 # /button for saving history
-=======
->>>>>>> .r1940
   print qq|
 </form>
 
@@ -681,11 +674,6 @@ sub form_partsgroup_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-<<<<<<< .mine
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
 # button for saving history
 print qq|
   	<input type=button onclick=set_history_window(|
@@ -694,8 +682,6 @@ print qq|
   	. $locale->text('history') 
   	. qq|>|;
 # /button for saving history
-=======
->>>>>>> .r1940
   print qq|
 </form>
 
@@ -890,11 +876,6 @@ sub form_pricegroup_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-<<<<<<< .mine
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
 # button for saving history
 print qq|
   	<input type=button onclick=set_history_window(|
@@ -903,8 +884,6 @@ print qq|
   	. $locale->text('history') 
   	. qq|>|;
 # /button for saving history
-=======
->>>>>>> .r1940
   print qq|
 </form>
 
