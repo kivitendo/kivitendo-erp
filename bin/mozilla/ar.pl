@@ -73,7 +73,14 @@ require "bin/mozilla/common.pl";
 
 sub add {
   $lxdebug->enter_sub();
-
+  
+  # saving the history
+  if(!exists $form->{addition} && ($form->{id} ne "")) {
+  	$form->{addition} = "ADDED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
+  
   $form->{title}    = "Add";
   $form->{callback} =
     "$form->{script}?action=add&path=$form->{path}&login=$form->{login}&password=$form->{password}"
@@ -82,12 +89,14 @@ sub add {
   &create_links;
   AR->get_transdate(\%myconfig, $form);
   &display_form;
-
   $lxdebug->leave_sub();
 }
 
 sub edit {
   $lxdebug->enter_sub();
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
 
   $form->{title} = "Edit";
 
@@ -328,6 +337,9 @@ sub form_header {
   };
   //-->
   </script>|;
+  # show history button js
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show history button js
 
   $readonly = ($form->{id}) ? "readonly" : "";
 
@@ -814,6 +826,20 @@ sub form_footer {
     }
   }
 
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+  # button for saving history
+  if($form->{id} ne "") {
+    print qq|
+  	  <input type=button class=submit onclick=set_history_window(|
+  	  . $form->{id} 
+  	  . qq|); name=history id=history value=|
+  	  . $locale->text('history') 
+  	  . qq|>|;
+  }
+  # /button for saving history
   print "
 </form>
 
@@ -1005,9 +1031,9 @@ sub post {
     exit;
   }
 
-  ($creditaccno, $credittaxkey) = split /--/, $form->{AR_amountselected};
-  ($taxkey,      $NULL)         = split /--/, $form->{taxchartselected};
-  ($receivablesaccno, $payablestaxkey) = split /--/, $form->{ARselected};
+  my ($creditaccno, $credittaxkey) = split /--/, $form->{AR_amountselected};
+  my ($taxkey,      $NULL)         = split /--/, $form->{taxchartselected};
+  my ($receivablesaccno, $payablestaxkey) = split /--/, $form->{ARselected};
   $form->{AR}{amount_1}    = $creditaccno;
   $form->{AR}{receivables} = $receivablesaccno;
   $form->{taxkey}          = $taxkey;
@@ -1016,9 +1042,15 @@ sub post {
     unless $form->{invnumber};
 
   $form->{id} = 0 if $form->{postasnew};
-
-  $form->redirect($locale->text('Transaction posted!'))
-    if (AR->post_transaction(\%myconfig, \%$form));
+  if (AR->post_transaction(\%myconfig, \%$form)) {
+    # saving the history
+    if(!exists $form->{addition} && $form->{id} ne "") {
+  	  $form->{addition} = "POSTED";
+  	  $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history 
+    $form->redirect($locale->text('Transaction posted!'));
+  }
   $form->error($locale->text('Cannot post transaction!'));
 
   $lxdebug->leave_sub();
@@ -1028,6 +1060,12 @@ sub post_as_new {
   $lxdebug->enter_sub();
 
   $form->{postasnew} = 1;
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "POSTED AS NEW";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   &post;
 
   $lxdebug->leave_sub();
@@ -1085,9 +1123,15 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
-
-  $form->redirect($locale->text('Transaction deleted!'))
-    if (AR->delete_transaction(\%myconfig, \%$form, $spool));
+  if (AR->delete_transaction(\%myconfig, \%$form, $spool)) {
+    # saving the history
+    if(!exists $form->{addition}) {
+  	  $form->{addition} = "DELETED";
+  	  $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history 
+    $form->redirect($locale->text('Transaction deleted!'));
+  }
   $form->error($locale->text('Cannot delete transaction!'));
 
   $lxdebug->leave_sub();
