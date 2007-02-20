@@ -891,7 +891,8 @@ sub form_footer {
 
         $tax .= qq|
 	      <tr>
-		<th align=right>$form->{"${item}_description"}</th>
+		<th align=right>$form->{"${item}_description"}&nbsp;|
+		                . $form->{"${item}_rate"} * 100 .qq|%</th>
 		<td align=right>$form->{"${item}_total"}</td>
 	      </tr>
 |;
@@ -930,7 +931,8 @@ sub form_footer {
 
         $tax .= qq|
 	      <tr>
-		<th align=right>Enthaltene $form->{"${item}_description"}</th>
+		<th align=right>Enthaltene $form->{"${item}_description"}&nbsp;|
+		                . $form->{"${item}_rate"} * 100 .qq|%</th>
 		<td align=right>$form->{"${item}_total"}</td>
 	      </tr>
 	      <tr>
