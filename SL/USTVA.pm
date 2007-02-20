@@ -598,12 +598,8 @@ sub ustva {
                       $form, $category);
 
 
-  # 16%/19% Umstelung
-  # Umordnen der Kennziffern und abfangen von Fehlern 
-
-#  $form->header;
-#  print $form->{81};
-
+  # 16%/19% Umstellung
+  # Umordnen der Kennziffern
   if ( $form->{year} < 2007) {
     $form->{35} += $form->{81};
     $form->{36} += $form->{811};
@@ -617,6 +613,7 @@ sub ustva {
     $form->{98} += $form->{971};
     map { delete $form->{$_} } qw(51 511 97 971);
   }
+
 
   #
   # Berechnung der USTVA Formularfelder laut Bogen 207
@@ -660,7 +657,7 @@ sub get_accounts_ustva {
   my $dpt_where;
   my $dpt_join;
   my $project;
-  my $where    = "1 = 1";
+  my $where    = "";
   my $glwhere  = "";
   my $subwhere = "";
   my $ARwhere  = "";
@@ -699,107 +696,63 @@ sub get_accounts_ustva {
                  AND ac.project_id = $form->{project_id}
 		 |;
   }
-#########################################
-# Method eq 'cash' = IST Versteuerung
-#########################################
+  ############################################
+  # Method eq 'cash' = IST Versteuerung
+  ############################################
+  # Betrifft nur die eingenommene Umsatzsteuer
+  #
+  ############################################
 
   if ($form->{method} eq 'cash') {  
 
     $query = qq|
- SELECT
-   -- Alle tatsaechlichen Zahlungseingaenge 
-   -- im Voranmeldezeitraum erfassen 
-   -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
-   SUM( ac.amount * 
-      -- Bezahlt / Rechnungssumme
-     ( 
-       SELECT SUM(acc.amount)
-       FROM acc_trans acc
-       INNER JOIN chart c ON (acc.chart_id   =   c.id 
-                              AND c.link   like  '%AR_paid%')
-       WHERE
-        1=1 
-        $ARwhere
-        AND acc.trans_id = ac.trans_id
-        )
-     / 
-     ( 
-      select amount from ar where id = ac.trans_id  
-     )
-   ) AS amount,
-   tk.pos_ustva
-   FROM acc_trans ac
-   LEFT JOIN chart c ON (c.id  = ac.chart_id)
-   LEFT JOIN ar      ON (ar.id = ac.trans_id)
-   LEFT JOIN taxkeys tk ON (
-     tk.id = (
-       SELECT id FROM taxkeys 
-       WHERE chart_id   = ac.chart_id 
-         AND taxkey_id  = ac.taxkey 
-         AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
-       ORDER BY startdate DESC LIMIT 1
-     )
-   )
-   WHERE 
-     1=1 
-     -- Here no where, please. All Transactions ever should be
-     -- testet if they are paied in the USTVA report period.
-   GROUP BY tk.pos_ustva
-
- UNION -- alle Ausgaben AP erfassen
-
-     SELECT
-     sum(ac.amount) AS amount, 
-     tk.pos_ustva
-     FROM acc_trans ac
-     JOIN AP ON (AP.id = ac.trans_id )
-     JOIN chart c ON (c.id = ac.chart_id)
-     LEFT JOIN taxkeys tk ON (
-       tk.id = (
-         SELECT id FROM taxkeys 
-         WHERE chart_id=ac.chart_id 
-           AND taxkey_id=ac.taxkey 
-           AND startdate <= COALESCE(AP.transdate)
-         ORDER BY startdate DESC LIMIT 1
+       SELECT
+         -- USTVA IST-Versteuerung
+         -- 
+         -- Alle tatsaechlichen _Zahlungseingaenge_ 
+         -- im Voranmeldezeitraum erfassen 
+         -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
+         SUM( ac.amount * 
+            -- Bezahlt / Rechnungssumme
+           ( 
+             SELECT SUM(acc.amount)
+             FROM acc_trans acc
+             INNER JOIN chart c ON (acc.chart_id   =   c.id 
+                                    AND c.link   like  '%AR_paid%')
+             WHERE
+              1=1 
+              $ARwhere
+              AND acc.trans_id = ac.trans_id
+              )
+           / 
+           ( 
+            SELECT amount FROM ar WHERE id = ac.trans_id  
+           )
+         ) AS amount,
+         tk.pos_ustva
+       FROM acc_trans ac
+       LEFT JOIN chart c ON (c.id  = ac.chart_id)
+       LEFT JOIN ar      ON (ar.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id   = ac.chart_id 
+             -- AND taxkey_id  = ac.taxkey 
+             AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
        )
-     )
-     WHERE
-       1=1
-       $APwhere
-       $dpt_where
-       $project
-     GROUP BY tk.pos_ustva
-
- UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
-
-   SELECT sum
-   ( - ac.amount) AS amount, 
-   tk.pos_ustva
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   JOIN gl a ON (a.id = ac.trans_id)
-   LEFT JOIN taxkeys tk ON (
-     tk.id = (
-       SELECT id FROM taxkeys 
-       WHERE chart_id=ac.chart_id 
-         AND taxkey_id=ac.taxkey 
-         
-         AND startdate <= COALESCE(ac.transdate)
-       ORDER BY startdate DESC LIMIT 1
-     )
-   )
-
-   $dpt_join
-   WHERE $where
-   $dpt_from
-   $project
-   GROUP BY tk.pos_ustva
-   |;
-
-  } else { 
-#########################################
-# Method eq 'accrual' = Soll Versteuerung
-#########################################
+       WHERE 
+       1=1 
+       -- Here no where, please. All Transactions ever should be
+       -- testet if they are paied in the USTVA report period.
+       GROUP BY tk.pos_ustva
+    |;
+   
+  } elsif ($form->{method} eq 'accrual') {
+    #########################################
+    # Method eq 'accrual' = Soll Versteuerung
+    #########################################
 
     if ($department_id) {
       $dpt_join = qq|
@@ -810,22 +763,91 @@ sub get_accounts_ustva {
 	      |;
     }
 
+
     $query = qq|
-   SELECT sum
-   (
-     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-     END		 
-   ) AS amount, c.$category
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   $dpt_join
-   WHERE $where
-   $dpt_where
-   $project
-   GROUP BY c.$category
-   |;
+       -- Alle Einnahmen AR und pos_ustva erfassen
+       SELECT
+         - sum(ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac 
+       JOIN chart c ON (c.id = ac.chart_id) 
+       JOIN ar ON (ar.id = ac.trans_id)
+       JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id   = ac.chart_id 
+             AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+       $dpt_join
+       WHERE 1 = 1
+       $where
+       $dpt_where
+       $project
+       GROUP BY tk.pos_ustva
+  |;
+   
+  } else {
+  
+    $self->error("Unknown tax method: $form->{method}")
+
   }
+  
+  #########################################
+  # Ausgaben und Gl Buchungen sind gleich
+  # für Ist- und Soll-Versteuerung
+  #########################################
+  $query .= qq| 
+     UNION -- alle Ausgaben AP erfassen
+
+       SELECT
+         sum(ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac
+       JOIN AP ON (AP.id = ac.trans_id )
+       JOIN chart c ON (c.id = ac.chart_id)
+       LEFT JOIN taxkeys tk ON (
+           tk.id = (
+             SELECT id FROM taxkeys 
+             WHERE chart_id=ac.chart_id 
+               --AND taxkey_id=ac.taxkey 
+               AND startdate <= COALESCE(AP.transdate)
+             ORDER BY startdate DESC LIMIT 1
+           )
+       )
+       WHERE
+       1=1
+       $APwhere
+       $dpt_where
+       $project
+       GROUP BY tk.pos_ustva
+
+     UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
+
+       SELECT sum
+         ( - ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac
+       JOIN chart c ON (c.id = ac.chart_id)
+       JOIN gl a ON (a.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id=ac.chart_id 
+             --AND taxkey_id=ac.taxkey 
+             AND startdate <= COALESCE(ac.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+
+       $dpt_join
+       WHERE 1 = 1
+       $where
+       $dpt_from
+       $project
+       GROUP BY tk.pos_ustva
+  |;
 
   my @accno;
   my $accno;
@@ -836,11 +858,12 @@ sub get_accounts_ustva {
   $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
               
   my $sth = $dbh->prepare($query);
+  
   $sth->execute || $form->dberror($query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-# Bug 365 solved?!
-   $ref->{amount} *= -1;
+    # Bug 365 solved?!
+    $ref->{amount} *= -1;
     if ($category eq "pos_bwa") {
       if ($last_period) {
         $form->{ $ref->{$category} }{kumm} += $ref->{amount};
@@ -851,9 +874,11 @@ sub get_accounts_ustva {
       $form->{ $ref->{$category} } += $ref->{amount};
     }
   }
+
   $sth->finish;
 
   $main::lxdebug->leave_sub();
+
 }
 
 
