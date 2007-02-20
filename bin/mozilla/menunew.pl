@@ -382,7 +382,7 @@ sub section_menu {
     } else {
       if ($menu->{$item}{module}) {
 
-        #UntermenÃ¼punkte
+        #Untermenüpunkte
         $target = $menu->{$item}{target};
         $uri    = $menu->menuitemNew(\%myconfig, \%$form, $item, $level);
 
