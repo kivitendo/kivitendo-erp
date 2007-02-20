@@ -433,7 +433,7 @@ function fokus(){document.$self->{fokus}.focus();}
   <script type="text/javascript" src="js/tabcontent.js">
   
   /***********************************************
-  * Tab Content script- © Dynamic Drive DHTML code library (www.dynamicdrive.com)
+  * Tab Content script- Dynamic Drive DHTML code library (www.dynamicdrive.com)
   * This notice MUST stay intact for legal use
   * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
   ***********************************************/
@@ -1696,7 +1696,6 @@ sub all_vc {
   $main::lxdebug->leave_sub();
 }
 
-
 sub language_payment {
   $main::lxdebug->enter_sub();
 
@@ -2216,6 +2215,78 @@ sub update_status {
   $main::lxdebug->leave_sub();
 }
 
+#--- 4 locale ---#
+# $main::locale->text('SAVED') 
+# $main::locale->text('DELETED') 
+# $main::locale->text('ADDED')
+# $main::locale->text('PAYMENT POSTED')
+# $main::locale->text('POSTED')
+# $main::locale->text('POSTED AS NEW')
+# $main::locale->text('ELSE')
+# $main::locale->text('SAVED FOR DUNNING')
+# $main::locale->text('DUNNING STARTED')
+# $main::locale->text('PRINTED')
+# $main::locale->text('MAILED')
+# $main::locale->text('SCREENED')
+# $main::locale->text('invoice')
+# $main::locale->text('proforma')
+# $main::locale->text('sales_order')
+# $main::locale->text('packing_list')
+# $main::locale->text('pick_list')
+# $main::locale->text('purchase_order')
+# $main::locale->text('bin_list')
+# $main::locale->text('sales_quotation')
+# $main::locale->text('request_quotation')
+
+sub save_history {
+	$main::lxdebug->enter_sub();
+	
+	my $self = shift();
+	my $dbh = shift();
+	
+	if(!exists $self->{employee_id}) {
+		&get_employee($self, $dbh);
+	}
+	
+	my $query = qq|INSERT INTO status (trans_id, employee_id, addition, what_done) 
+				   VALUES ($self->{id}, $self->{employee_id}, '$self->{addition}', '$self->{what_done}')|;
+	$dbh->do($query) || $self->dberror($query);
+	
+	$main::lxdebug->leave_sub();
+}
+
+sub get_history {
+	$main::lxdebug->enter_sub();
+	
+	my $self = shift();
+	my $dbh = shift();
+	my $trans_id = shift();
+	my $restriction = shift();
+	my @tempArray;
+	my $i = 0;
+	if($trans_id ne ""){
+		my $query = qq|SELECT st.employee_id, st.itime, st.addition, st.what_done, emp.name 
+				   FROM status st 
+				   LEFT JOIN employee emp 
+				   ON emp.id = st.employee_id
+				   WHERE trans_id = $trans_id|
+				   . $restriction;
+	
+		my $sth = $dbh->prepare($query) || $self->dberror($query);
+	
+		$sth->execute() || $self->dberror($query);
+
+		while(my $hash_ref = $sth->fetchrow_hashref()) {
+			$hash_ref->{addition} = $main::locale->text($hash_ref->{addition});
+			$hash_ref->{what_done} = $main::locale->text($hash_ref->{what_done});
+			$tempArray[$i++] = $hash_ref; 
+		}
+		return \@tempArray if ($i > 0 && $tempArray[0] ne "");
+	}
+	return 0;
+	$main::lxdebug->leave_sub();
+}
+
 sub save_status {
   $main::lxdebug->enter_sub();
 
@@ -2226,9 +2297,9 @@ sub save_status {
   my $formnames  = $self->{printed};
   my $emailforms = $self->{emailed};
 
-  my $query = qq|DELETE FROM status
-                 WHERE formname = '$self->{formname}'
-		 AND trans_id = $self->{id}|;
+  $query = qq|DELETE FROM status
+              WHERE formname = '$self->{formname}'
+		      AND trans_id = $self->{id}|;
   $dbh->do($query) || $self->dberror($query);
 
   # this only applies to the forms
