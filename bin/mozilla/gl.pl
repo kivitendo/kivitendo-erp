@@ -227,6 +227,21 @@ sub search {
 	</tr>
 | if $form->{selectdepartment};
 
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 1 });
+
+  my %project_labels = ();
+  my @project_values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@project_values, $item->{"id"});
+    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
+  my $projectnumber =
+    NTI($cgi->popup_menu('-name' => "project_id",
+                         '-values' => \@project_values,
+                         '-labels' => \%project_labels));
+
   # use JavaScript Calendar or not
   $form->{jsscript} = $jscalendar;
   $jsscript = "";
@@ -290,6 +305,10 @@ sub search {
 	  <td colspan=3><input name=notes size=40></td>
 	</tr>
 	<tr>
+	  <th align=right>| . $locale->text('Project Number') . qq|</th>
+	  <td colspan=3>$projectnumber</td>
+	</tr>
+	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
           $button1
 	  <th align=right>| . $locale->text('To (time)') . qq|</th>
@@ -342,6 +361,8 @@ sub search {
 		  <tr>
 		    <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
 		    <td>| . $locale->text('Subtotal') . qq|</td>
+		    <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
+		    <td>| . $locale->text('Project Number') . qq|</td>
 		  </tr>
 		</table>
 	      </tr>
@@ -447,6 +468,10 @@ sub generate_report {
     $option   .= "\n<br>" if $option;
     $option   .= $locale->text('Notes') . " : $form->{notes}";
   }
+ if ($form->{project_id}) {
+    $href     .= "&project_id=" . $form->escape($form->{project_id});
+    $callback .= "&project_id=" . $form->escape($form->{project_id});
+  }
 
   if ($form->{datefrom}) {
     $href     .= "&datefrom=$form->{datefrom}";
@@ -469,9 +494,10 @@ sub generate_report {
       . $locale->date(\%myconfig, $form->{dateto}, 1);
   }
 
-  @columns = $form->sort_columns(
-    qw(transdate id reference description notes source debit debit_accno credit credit_accno debit_tax debit_tax_accno credit_tax credit_tax_accno accno gifi_accno)
-  );
+  @columns =
+    qw(transdate id reference description notes source debit debit_accno credit
+       credit_accno debit_tax debit_tax_accno credit_tax credit_tax_accno accno
+       gifi_accno projectnumbers);
 
   if ($form->{accno} || $form->{gifi_accno}) {
     @columns = grep !/(accno|gifi_accno)/, @columns;
@@ -560,6 +586,8 @@ sub generate_report {
     . $locale->text('GIFI')
     . "</a></th>";
   $column_header{balance} = "<th>" . $locale->text('Balance') . "</th>";
+  $column_header{projectnumbers} =
+      "<th class=listheading>"  . $locale->text('Project Numbers') . "</th>";
 
   $form->{landscape} = 1;
 
@@ -789,6 +817,8 @@ sub generate_report {
     $column_data{balance} =
       "<td align=right>"
       . $form->format_amount(\%myconfig, $form->{balance}, 2, 0) . "</td>";
+    $column_data{projectnumbers} =
+      "<td>" . join(", ", sort({ lc($a) cmp lc($b) } keys(%{ $ref->{projectnumbers} }))) . "</td>";
 
     $i++;
     $i %= 2;

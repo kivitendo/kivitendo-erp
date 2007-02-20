@@ -78,6 +78,7 @@ $self->{texts} = {
   'Post'                        => 'Buchen',
   'Post as new'                 => 'Neu buchen',
   'Project Number'              => 'Projektnummer',
+  'Project Numbers'             => 'Projektnummern',
   'Project not on file!'        => 'Dieses Projekt ist nicht in der Datenbank!',
   'Reference'                   => 'Referenz',
   'Reference missing!'          => 'Referenz fehlt!',

@@ -201,7 +201,7 @@ sub post_transaction {
     if ($tax != 0) {
       # add taxentry
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, taxkey)
+                  source, memo, project_id, taxkey)
                   VALUES
                   ($form->{id}, (SELECT t.chart_id
                   FROM tax t
@@ -300,6 +300,21 @@ sub all_transactions {
     $apwhere .=
       " AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
   }
+  if ($form->{project_id}) {
+    $glwhere .= " AND g.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = " . conv_i($form->{project_id}, 'NULL') . ")";
+    $arwhere .=
+      " AND ((a.globalproject_id = " . conv_i($form->{project_id}, 'NULL') . ") OR " .
+      "      (a.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = " . conv_i($form->{project_id}, 'NULL') . ")))";
+    $apwhere .=
+      " AND ((a.globalproject_id = " . conv_i($form->{project_id}, 'NULL') . ") OR " .
+      "      (a.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = " . conv_i($form->{project_id}, 'NULL') . ")))";
+  }
+
+  my ($project_columns, %project_join);
+  if ($form->{"l_projectnumbers"}) {
+    $project_columns = ", ac.project_id, pr.projectnumber";
+    $project_join = "LEFT JOIN project pr ON (ac.project_id = pr.id)";
+  }
 
   if ($form->{accno}) {
 
@@ -375,7 +390,8 @@ sub all_transactions {
     qq|SELECT ac.oid AS acoid, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
                  g.description, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, g.notes, t.chart_id, ac.oid
-                 FROM gl g, acc_trans ac, chart c LEFT JOIN tax t ON
+                 $project_columns
+                 FROM gl g, acc_trans ac $project_join, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
                  WHERE $glwhere
 		 AND ac.chart_id = c.id
@@ -384,7 +400,8 @@ sub all_transactions {
 	         SELECT ac.oid AS acoid, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
-		 FROM ar a, acc_trans ac, customer ct, chart c LEFT JOIN tax t ON
+                 $project_columns
+		 FROM ar a, acc_trans ac $project_join, customer ct, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
 		 WHERE $arwhere
 		 AND ac.chart_id = c.id
@@ -394,7 +411,8 @@ sub all_transactions {
 	         SELECT ac.oid AS acoid, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
 		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
-		 FROM ap a, acc_trans ac, vendor ct, chart c LEFT JOIN tax t ON
+                 $project_columns
+		 FROM ap a, acc_trans ac $project_join, vendor ct, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
 		 WHERE $apwhere
 		 AND ac.chart_id = c.id
@@ -447,7 +465,10 @@ sub all_transactions {
           $ref->{module} = "ar";
         }
       }
-    
+
+      $ref->{"projectnumbers"} = {};
+      $ref->{"projectnumbers"}->{$ref->{"projectnumber"}} = 1 if ($ref->{"projectnumber"});
+
       $balance = $ref->{amount};
     
       # Linenumbers of General Ledger  
@@ -503,6 +524,7 @@ sub all_transactions {
       $balance =
         (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
 
+      $ref->{"projectnumbers"}->{$ref2->{"projectnumber"}} = 1 if ($ref2->{"projectnumber"});
 
       if ($ref2->{chart_id} > 0) { # all tax accounts, following lines
         if ($ref2->{amount} < 0) {
