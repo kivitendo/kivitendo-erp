@@ -12,7 +12,7 @@
 
 	<table>
 		<tr>
-			<th class ="listtop">history search engine</th>
+			<th class ="listtop">Historien Suchmaschiene</th>
 			</th>
 		</tr>
 		<tr>
@@ -97,7 +97,7 @@
 						}			
 						else {
 							defaults.splice(remove,1);
-							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>Folgende Einschränkungen haben Sie bereits vorgenommen:</b><br>") : ("<br>")) + translated[last];
+							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>Folgende Einschränkungen haben Sei bereits vorgenommen</b><br>") : ("<br>")) + translated[last];
 							if(defaults.length > 0) {
 								document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
 								tempString = "<select id='selectForm'>";
@@ -131,14 +131,14 @@
 								<option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer">Lieferantennummer</option>
 								<option name="Projektnummer" value="Projektnummer" id="Projektnummer">Projektnummer</option>
 								<option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer">Buchungsnummer</option>
-								<option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer">Eingangsrechnungnummer</option>
-								<option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer">Ausgangsrechnungnummer</option>
+								<option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer">Eingansrechungsnummer</option>
+								<option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer">Ausgangsrechungsnummer</option>
 							</select>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							Wie lautet der <b>Suchbegriff</b> nach dem Sie suchen?:
+							Wie lautet der <b>Suchbegriff</b> nach dem Sie suchen?
 						</td>
 						<td>
 							<input type="text" name="searchid" id="searchid" value="<TMPL_VAR NAME=searchid ESCAPE=HTML>">
@@ -174,7 +174,7 @@
 					<tr>
 						<td colspan="6">
 							<input type="submit" value="abschicken">
-							<input type="reset" value="reset" onClick="javascript:resetAll();">
+							<input type="reset" value="zurücksetzen" onClick="javascript:resetAll();">
 						</td>
 						<td>
 						</td>
