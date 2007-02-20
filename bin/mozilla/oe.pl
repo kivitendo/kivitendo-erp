@@ -1341,10 +1341,6 @@ sub search {
 	</tr>
 | if $form->{selectdepartment};
 
-  $openclosed = qq|
-	        <input type=hidden name="open" value=1>
-|;
-
   my $delivered;
   if (($form->{"type"} eq "sales_order") ||
       ($form->{"type"} eq "purchase_order")) {
@@ -1440,7 +1436,12 @@ sub search {
           <th align=right>| . $locale->text('Include in Report') . qq|</th>
           <td colspan=5>
 	    <table>
-	      $openclosed
+        <tr>
+          <td><input type="checkbox" name="open" value="1" id="open" checked>
+            <label for="open">| . $locale->text("Open") . qq|</td>
+          <td><input type="checkbox" name="closed" value="1" id="closed">
+            <label for="closed">| . $locale->text("Closed") . qq|</td>
+        </tr>
         $delivered
 	      <tr>
 		<td><input name="l_id" class=checkbox type=checkbox value=Y>
