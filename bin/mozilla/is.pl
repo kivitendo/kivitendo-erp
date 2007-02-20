@@ -77,7 +77,10 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
-
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
+  
   if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
   {
     $form->error("Access Denied");
@@ -574,7 +577,9 @@ sub form_header {
     $form->write_trigger(\%myconfig, 2,
                          "orddate", "BL", "trigger_orddate",
                          "quodate", "BL", "trigger_quodate");
-
+  # show history button js
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show history button js
   $form->header;
 
   print qq|
@@ -1147,6 +1152,18 @@ if ($form->{type} eq "credit_note") {
     }
   }
 
+  # button for saving history
+  if($form->{id} ne "") {
+    print qq|
+  	  <input type=button class=submit onclick=set_history_window(|
+  	  . $form->{id} 
+  	  . qq|); name=history id=history value=|
+  	  . $locale->text('history') 
+  	  . qq|>|;
+  }
+  # /button for saving history
+
+
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
     qq|
 
@@ -1331,6 +1348,7 @@ sub update {
   }
   $lxdebug->leave_sub();
 }
+
 sub post_payment {
   $lxdebug->enter_sub();
   for $i (1 .. $form->{paidaccounts}) {
@@ -1425,10 +1443,30 @@ sub post {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {
       $form->error($locale->text('Cannot post invoice!'));
     }
+    # saving the history
+  	if(!exists $form->{addition}) {
+  	  $form->{addition} = "PRINTED AND POSTED";
+  	  $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history
+    
   } else {
-    $form->redirect(
-            $form->{label} . " $form->{invnumber} " . $locale->text('posted!'))
-      if (IS->post_invoice(\%myconfig, \%$form));
+      if (IS->post_invoice(\%myconfig, \%$form)){
+    	# saving the history
+  		if(!exists $form->{addition}) {
+  	  		if($form->{storno}) {
+  	  			$form->{addition} = "STORNO";
+  	  		}
+  	  		else {
+  	  			$form->{addition} = "POSTED";
+  	  		}
+  	  		$form->save_history($form->dbconnect(\%myconfig));
+    	}
+    	# /saving the history
+    
+    	$form->redirect(
+            $form->{label} . " $form->{invnumber} " . $locale->text('posted!'));
+  	}
     $form->error($locale->text('Cannot post invoice!'));
   }
 
@@ -1584,9 +1622,15 @@ sub credit_note {
 
 sub yes {
   $lxdebug->enter_sub();
-
-  $form->redirect($locale->text('Invoice deleted!'))
-    if (IS->delete_invoice(\%myconfig, \%$form, $spool));
+  if (IS->delete_invoice(\%myconfig, \%$form, $spool)) {
+    # saving the history
+  	if(!exists $form->{addition}) {
+  	  $form->{addition} = "DELETED";
+  	  $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history 
+    $form->redirect($locale->text('Invoice deleted!')); 
+  }
   $form->error($locale->text('Cannot delete invoice!'));
 
   $lxdebug->leave_sub();

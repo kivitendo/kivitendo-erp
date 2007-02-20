@@ -1457,7 +1457,7 @@ sub form_footer {
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Storno') . qq|">|;
 
-    # Löschen und ändern von Buchungen nicht mehr möglich (GoB) nur am selben Tag möglich
+    # Löschen und Ändern von Buchungen nicht mehr möglich (GoB) nur am selben Tag möglich
 
     if (!$form->{locked} && $radieren) {
       print qq|
@@ -1526,9 +1526,15 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
-
-  $form->redirect($locale->text('Transaction deleted!'))
-    if (GL->delete_transaction(\%myconfig, \%$form));
+  if (GL->delete_transaction(\%myconfig, \%$form)){
+    # saving the history
+      if(!exists $form->{addition} && $form->{id} ne "") {
+  	    $form->{addition} = "DELETED";
+  	    $form->save_history($form->dbconnect(\%myconfig));
+      }
+    # /saving the history 
+    $form->redirect($locale->text('Transaction deleted!'))
+  }
   $form->error($locale->text('Cannot delete transaction!'));
   $lxdebug->leave_sub();
 
@@ -1714,6 +1720,13 @@ sub post {
     $form->error($err[$errno]);
   }
   undef($form->{callback});
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "SAVED";
+  	$form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id}; 
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   $form->redirect("Buchung gespeichert. Buchungsnummer = " . $form->{id});
   $lxdebug->leave_sub();
 
@@ -1733,6 +1746,12 @@ sub storno {
 
   $form->{id}     = 0;
   $form->{storno} = 1;
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "STORNO";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   &post;
   $lxdebug->leave_sub();
 

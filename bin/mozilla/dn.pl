@@ -552,6 +552,12 @@ sub save {
   }
 
   DN->save_config(\%myconfig, \%$form);
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "SAVED FOR DUNNING";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   $form->redirect($locale->text('Dunning Process Config saved!'));
 
   $lxdebug->leave_sub();
@@ -605,7 +611,12 @@ sub save_dunning {
   if($form->{DUNNING_PDFS}) {
     DN->melt_pdfs(\%myconfig, \%$form,$spool);
   }
-
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "DUNNING STARTED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   $form->redirect($locale->text('Dunning Process started for selected invoices!'));
 
   $lxdebug->leave_sub();

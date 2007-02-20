@@ -397,7 +397,6 @@ $jsscript
   $lxdebug->leave_sub();
 }    #end search()
 
-
 sub search_update_prices {
   $lxdebug->enter_sub();
 
@@ -2056,7 +2055,9 @@ sub parts_subtotal {
 
 sub edit {
   $lxdebug->enter_sub();
-
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
   IC->get_part(\%myconfig, \%$form);
 
   $form->{"original_partnumber"} = $form->{"partnumber"};
@@ -2408,7 +2409,7 @@ sub form_header {
 	      </tr>
               <tr>
 		<th align="right" nowrap="true">|
-      . $locale->text('Gesch‰ftsvolumen') . qq|</th>
+      . $locale->text('Gesch√§ftsvolumen') . qq|</th>
 		<td><input name=gv size=10 value=$form->{gv}></td>
 	      </tr>
 |;
@@ -2714,9 +2715,26 @@ sub form_footer {
     }
   }
 
+  if (!$form->{previousform}) {
+    if ($form->{menubar}) {
+      require "$form->{path}/menu.pl";
+      &menubar;
+    }
+  }
+# button for saving history
+  if($form->{id} ne "") {
+  	print qq|
+  		<input type=button class=submit onclick=set_history_window(|
+  		. $form->{id} 
+  		. qq|); name=history id=history value=|
+  		. $locale->text('history') 
+  		. qq|>|;
+  }
+# /button for saving history
   print qq|
 
 </form>
+
 <script type="text/javascript" src="js/wz_tooltip.js"></script>
 
 </body>
@@ -3032,6 +3050,12 @@ sub save {
   if ($rc == 3) {
     $form->error($locale->text('Partnumber not unique!'));
   }
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   $parts_id = $form->{id};
 
   # load previous variables
@@ -3148,19 +3172,29 @@ sub save {
 sub save_as_new {
   $lxdebug->enter_sub();
 
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED AS NEW";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   $form->{id} = 0;
   if ($form->{"original_partnumber"} &&
       ($form->{"partnumber"} eq $form->{"original_partnumber"})) {
     $form->{partnumber} = "";
   }
   &save;
-
   $lxdebug->leave_sub();
 }
 
 sub delete {
   $lxdebug->enter_sub();
-
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "DELETED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   $rc = IC->delete(\%myconfig, \%$form);
 
   # redirect
@@ -3202,7 +3236,6 @@ sub price_row {
 
   $lxdebug->leave_sub();
 }
-
 
 sub parts_language_selection {
   $lxdebug->enter_sub();

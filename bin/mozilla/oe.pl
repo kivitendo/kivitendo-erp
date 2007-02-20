@@ -110,6 +110,9 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
 
   $form->{simple_save} = 0;
 
@@ -1111,7 +1114,17 @@ sub form_footer {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
+|;
+# button for saving history
+print qq|
+  	<input type=button class=submit onclick=set_history_window(|
+  	. $form->{id} 
+  	. qq|); name=history id=history value=|
+  	. $locale->text('history') 
+  	. qq|>|;
+# /button for saving history
 
+qq|
 </form>
 
 </body>
@@ -1921,6 +1934,12 @@ sub save_and_close {
   }
 
   relink_accounts();
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
 
   $form->redirect(
             $form->{label} . " $form->{$ordnumber} " . $locale->text('saved!'))
@@ -1995,6 +2014,12 @@ sub save {
     unless $form->{$ordnumber};
 
   relink_accounts();
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
 
   OE->save(\%myconfig, \%$form);
   $form->{simple_save} = 1;
@@ -2059,8 +2084,15 @@ sub yes {
     $msg = $locale->text('Quotation deleted!');
     $err = $locale->text('Cannot delete quotation!');
   }
-
-  $form->redirect($msg) if (OE->delete(\%myconfig, \%$form, $spool));
+  if (OE->delete(\%myconfig, \%$form, $spool)){
+    $form->redirect($msg);
+    # saving the history
+    if(!exists $form->{addition}) {
+  	  $form->{addition} = "DELETED";
+  	  $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history 
+  }
   $form->error($err);
 
   $lxdebug->leave_sub();

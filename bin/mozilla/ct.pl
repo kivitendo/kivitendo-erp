@@ -557,6 +557,10 @@ sub list_names {
 sub edit {
   $lxdebug->enter_sub();
 
+  # show history button
+  $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
+  #/show hhistory button
+  
   # $locale->text('Edit Customer')
   # $locale->text('Edit Vendor')
 
@@ -1243,6 +1247,17 @@ $update_button
       . qq|">\n|;
   }
 
+  # button for saving history
+  if($form->{id} ne "") {
+    print qq|
+  	  <input type=button class=submit onclick=set_history_window(|
+  	  . $form->{id} 
+  	  . qq|); name=history id=history value=|
+  	  . $locale->text('history') 
+  	  . qq|>|;
+  }
+  # /button for saving history
+
   print qq|
 
   </form>
@@ -1260,6 +1275,13 @@ initializetabcontent("maintab")
 sub add_transaction {
   $lxdebug->enter_sub();
 
+#  # saving the history
+#  if(!exists $form->{addition}) {
+#  	$form->{addition} = "ADD TRANSACTION";
+#  	$form->save_history($form->dbconnect(\%myconfig));
+#  }
+#  # /saving the history
+  
   $form->isblank("name", $locale->text("Name missing!"));
   if ($vertreter && $form->{db} eq "customer") {
     $form->isblank("salesman_id", $locale->text("Salesman missing!"));
@@ -1271,7 +1293,6 @@ sub add_transaction {
 
   $form->{callback} =
     "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&callback=$form->{callback}";
-
   $form->redirect;
 
   $lxdebug->leave_sub();
@@ -1281,8 +1302,13 @@ sub save_and_ap_transaction {
   $lxdebug->enter_sub();
 
   $form->{script} = "ap.pl";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &add_transaction;
-
   $lxdebug->leave_sub();
 }
 
@@ -1290,8 +1316,13 @@ sub save_and_ar_transaction {
   $lxdebug->enter_sub();
 
   $form->{script} = "ar.pl";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &add_transaction;
-
   $lxdebug->leave_sub();
 }
 
@@ -1300,8 +1331,13 @@ sub save_and_invoice {
 
   $form->{script} = ($form->{db} eq 'customer') ? "is.pl" : "ir.pl";
   $form->{type} = "invoice";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &add_transaction;
-
   $lxdebug->leave_sub();
 }
 
@@ -1310,8 +1346,13 @@ sub save_and_rfq {
 
   $form->{script} = "oe.pl";
   $form->{type}   = "request_quotation";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &add_transaction;
-
   $lxdebug->leave_sub();
 }
 
@@ -1320,8 +1361,13 @@ sub save_and_quotation {
 
   $form->{script} = "oe.pl";
   $form->{type}   = "sales_quotation";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &add_transaction;
-
   $lxdebug->leave_sub();
 }
 
@@ -1331,8 +1377,13 @@ sub save_and_order {
   $form->{script} = "oe.pl";
   $form->{type}   =
     ($form->{db} eq 'customer') ? "sales_order" : "purchase_order";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &add_transaction;
-
   $lxdebug->leave_sub();
 }
 
@@ -1353,6 +1404,12 @@ sub save_and_close {
   if ($rc == 3) {
     $form->error($locale->text('customernumber not unique!'));
   }
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   $form->redirect($locale->text($msg));
 
   $lxdebug->leave_sub();
@@ -1381,7 +1438,12 @@ sub save {
       $form->error($locale->text('This vendor number is already in use.'));
     }
   }
-
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   &edit;
   exit;
   $lxdebug->leave_sub();
@@ -1399,6 +1461,12 @@ sub delete {
 
   $msg = ucfirst $form->{db};
   $msg .= " deleted!";
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "DELETED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   $form->redirect($locale->text($msg));
 
   $msg = "Cannot delete $form->{db}";
@@ -1605,7 +1673,6 @@ sub get_contact {
   $lxdebug->leave_sub();
 
 }
-
 
 sub get_shipto {
   $lxdebug->enter_sub();

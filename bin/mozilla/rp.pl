@@ -2126,7 +2126,13 @@ sub print_form {
       }
     }
   }
-
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "PRINTED";
+  	$form->{what_done} = $form->{type};
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
   $lxdebug->leave_sub();
 }
 

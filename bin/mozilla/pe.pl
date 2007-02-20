@@ -58,7 +58,9 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
   $form->{title} = "Edit";
 
   if ($form->{type} eq 'project') {
@@ -425,6 +427,21 @@ sub form_project_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
+<<<<<<< .mine
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+# button for saving history
+print qq|
+  	<input type=button onclick=set_history_window(|
+  	. $form->{id} 
+  	. qq|); name=history id=history value=|
+  	. $locale->text('history') 
+  	. qq|>|;
+# /button for saving history
+=======
+>>>>>>> .r1940
   print qq|
 </form>
 
@@ -455,6 +472,12 @@ sub save {
     PE->save_pricegroup(\%myconfig, \%$form);
     $form->redirect($locale->text('Pricegroup saved!'));
   }
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
 
   $lxdebug->leave_sub();
 }
@@ -473,7 +496,12 @@ sub delete {
   if ($form->{type} eq 'pricegroup') {
     $form->redirect($locale->text('Pricegroup deleted!'));
   }
-
+  # saving the history
+  if(!exists $form->{addition}) {
+  	$form->{addition} = "DELETED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   $lxdebug->leave_sub();
 }
 
@@ -653,6 +681,21 @@ sub form_partsgroup_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
+<<<<<<< .mine
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+# button for saving history
+print qq|
+  	<input type=button onclick=set_history_window(|
+  	. $form->{id} 
+  	. qq|); name=history id=history value=|
+  	. $locale->text('history') 
+  	. qq|>|;
+# /button for saving history
+=======
+>>>>>>> .r1940
   print qq|
 </form>
 
@@ -847,6 +890,21 @@ sub form_pricegroup_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
+<<<<<<< .mine
+  if ($form->{menubar}) {
+    require "$form->{path}/menu.pl";
+    &menubar;
+  }
+# button for saving history
+print qq|
+  	<input type=button onclick=set_history_window(|
+  	. $form->{id} 
+  	. qq|); name=history id=history value=|
+  	. $locale->text('history') 
+  	. qq|>|;
+# /button for saving history
+=======
+>>>>>>> .r1940
   print qq|
 </form>
 
