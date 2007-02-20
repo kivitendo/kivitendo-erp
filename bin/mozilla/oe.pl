@@ -1375,6 +1375,19 @@ sub search {
                               <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
   }
 
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 1 });
+
+  my %labels = ();
+  my @values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+  my $projectnumber =
+    NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
+                         '-labels' => \%labels));
+
   $form->header;
 
   print qq|
@@ -1398,6 +1411,10 @@ sub search {
         <tr>
           <th align=right>$ordlabel</th>
           <td colspan=3><input name="$ordnumber" size=20></td>
+        </tr>
+        <tr>
+          <th align="right">| . $locale->text("Project Number") . qq|</th>
+          <td colspan="3">$projectnumber</td>
         </tr>
         <tr>
           <th align=right>| . $locale->text('From') . qq|</th>
@@ -1426,6 +1443,7 @@ sub search {
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
     . $locale->text('Ship via') . qq|</td>
+	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_netamount" class=checkbox type=checkbox value=Y> |
@@ -1434,6 +1452,8 @@ sub search {
     . $locale->text('Tax') . qq|</td>
 		<td><input name="l_amount" class=checkbox type=checkbox value=Y checked> |
     . $locale->text('Total') . qq|</td>
+          <td><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y> |
+          . $locale->text('Project Number') . qq|</td>
 	      </tr>
 	      <tr>
 	        <td><input name="l_subtotal" class=checkbox type=checkbox value=Y> |
@@ -1499,8 +1519,8 @@ sub orders {
   @columns =
     $form->sort_columns("transdate", "reqdate",   "id",      "$ordnumber",
                         "name",      "netamount", "tax",     "amount",
-                        "curr",      "employee",  "shipvia", "open",
-                        "closed",    "delivered");
+                        "curr",      "employee",  "shipvia", "globalprojectnumber",
+                        "open",      "closed",    "delivered");
 
   $form->{l_open} = $form->{l_closed} = "Y"
     if ($form->{open} && $form->{closed});
@@ -1584,6 +1604,8 @@ sub orders {
       qq|<th><a class=listheading href=$href&sort=shipvia>|
     . $locale->text('Ship via')
     . qq|</a></th>|;
+  $column_header{globalprojectnumber} =
+    qq|<th class="listheading">| . $locale->text('Project Number') . qq|</th>|;
   $column_header{open} =
     qq|<th class=listheading>| . $locale->text('O') . qq|</th>|;
   $column_header{closed} =
@@ -1700,6 +1722,7 @@ sub orders {
 
     $column_data{employee} = "<td>$oe->{employee}&nbsp;</td>";
     $column_data{shipvia}  = "<td>$oe->{shipvia}&nbsp;</td>";
+    $column_data{globalprojectnumber}  = "<td>" . H($oe->{globalprojectnumber}) . "</td>";
 
     if ($oe->{closed}) {
       $column_data{closed} = "<td align=center>X</td>";

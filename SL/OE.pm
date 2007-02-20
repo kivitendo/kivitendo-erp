@@ -52,6 +52,15 @@ sub transactions {
   my ($null, $department_id) = split /--/, $form->{department};
 
   my $department = " AND o.department_id = $department_id" if $department_id;
+  my @values;
+
+  if ($form->{"project_id"}) {
+    $department .=
+      qq|AND ((globalproject_id = ?) OR EXISTS | .
+      qq|  (SELECT * FROM orderitems oi | .
+      qq|   WHERE oi.project_id = ? AND oi.trans_id = o.id))|;
+    push(@values, $form->{"project_id"}, $form->{"project_id"});
+  }
 
   my $rate = ($form->{vc} eq 'customer') ? 'buy' : 'sell';
 
@@ -65,6 +74,7 @@ sub transactions {
 
   my $query = qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate,
                  o.amount, ct.name, o.netamount, o.$form->{vc}_id,
+                 o.globalproject_id, pr.projectnumber AS globalprojectnumber,
 		 ex.$rate AS exchangerate,
 		 o.closed, o.delivered, o.quonumber, o.shippingpoint, o.shipvia,
 		 e.name AS employee
@@ -73,6 +83,7 @@ sub transactions {
 	         LEFT JOIN employee e ON (o.employee_id = e.id)
 	         LEFT JOIN exchangerate ex ON (ex.curr = o.curr
 		                               AND ex.transdate = o.transdate)
+                 LEFT JOIN project pr ON o.globalproject_id = pr.id
 	         WHERE o.quotation = '$quotation'
 		 $department|;
 
@@ -107,7 +118,10 @@ sub transactions {
   $query .= " ORDER by $sortorder";
 
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute(@values) ||
+    $form->dberror($query . " (" . join(", ", @values) . ")");
+
+  dump_query(0, "laqje", $query, @values);
 
   my %id = ();
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
