@@ -222,14 +222,8 @@ sub post_transaction {
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"amount_$i"} != 0) {
       my $project_id;
-      if ("amount_$i" =~ /amount_/) {
-        if ($form->{"project_id_$i"} && $form->{"projectnumber_$i"}) {
-          $project_id = $form->{"project_id_$i"};
-        }
-      }
-      if ("amount_$i" =~ /amount/) {
-        $taxkey = $form->{AP_amounts}{"amount_$i"}{taxkey};
-      }
+      $project_id = conv_i($form->{"project_id_$i"});
+      $taxkey = $form->{AP_amounts}{"amount_$i"}{taxkey};
 
       # insert detail records in acc_trans
       $query =
@@ -239,7 +233,7 @@ sub post_transaction {
         qq|  ?, ?, ?, ?)|;
       @values = ($form->{id}, $form->{AP_amounts}{"amount_$i"},
                  $form->{"amount_$i"}, conv_date($form->{transdate}),
-                 conv_i($project_id), $taxkey);
+                 $project_id, $taxkey);
       do_query($form, $dbh, $query, @values);
 
       if ($form->{"tax_$i"} != 0) {
@@ -251,7 +245,7 @@ sub post_transaction {
           qq|  ?, ?, ?, ?)|;
         @values = ($form->{id}, $form->{AP_amounts}{"tax_$i"},
                    $form->{"tax_$i"}, conv_date($form->{transdate}),
-                   conv_date($project_id), $taxkey);
+                   $project_id, $taxkey);
         do_query($form, $dbh, $query, @values);
       }
 
@@ -260,11 +254,10 @@ sub post_transaction {
 
   # add payables
   $query =
-    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id) | .
-    qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-    qq|  ?, ?, ?)|;
+    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate) | .
+    qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?)|;
   @values = ($form->{id}, $form->{AP_amounts}{payables}, $form->{payables},
-             conv_date($form->{transdate}), conv_i($project_id));
+             conv_date($form->{transdate}));
   do_query($form, $dbh, $query, @values);
 
   # if there is no amount but a payment record a payable

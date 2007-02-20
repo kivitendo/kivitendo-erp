@@ -35,6 +35,7 @@
 package AR;
 
 use Data::Dumper;
+use SL::DBUtils;
 
 sub post_transaction {
   $main::lxdebug->enter_sub();
@@ -44,6 +45,8 @@ sub post_transaction {
   my ($null, $taxrate, $amount, $tax, $diff);
   my $exchangerate = 0;
   my $i;
+
+  my @values;
 
   my $dbh = $form->dbconnect_noauto($myconfig);
 
@@ -226,43 +229,38 @@ sub post_transaction {
   # add individual transactions for AR, amount and taxes
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"amount_$i"} != 0) {
-      $project_id = 'NULL';
-      if ("amount_$i" =~ /amount_/) {
-        if ($form->{"project_id_$i"} && $form->{"projectnumber_$i"}) {
-          $project_id = $form->{"project_id_$i"};
-        }
-      }
-      if ("amount_$i" =~ /amount/) {
-        $taxkey = $form->{AR_amounts}{"amount_$i"}{taxkey};
-      }
+      my $project_id = undef;
+      $project_id = conv_i($form->{"project_id_$i"});
+      $taxkey = $form->{AR_amounts}{"amount_$i"}{taxkey};
 
+      @values = ($project_id);
       # insert detail records in acc_trans
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                                          project_id, taxkey)
 		  VALUES ($form->{id}, (SELECT c.id FROM chart c
 		                        WHERE c.accno = '$form->{AR_amounts}{"amount_$i"}'),
-		  $form->{"amount_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
-      $dbh->do($query) || $form->dberror($query);
+		  $form->{"amount_$i"}, '$form->{transdate}', ?, '$taxkey')|;
+      do_query($form, $dbh, $query, @values);
       if ($form->{"tax_$i"} != 0) {
 
+        @values = ($project_id);
         # insert detail records in acc_trans
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                                           project_id, taxkey)
                     VALUES ($form->{id}, (SELECT c.id FROM chart c
                                           WHERE c.accno = '$form->{AR_amounts}{"tax_$i"}'),
-                    $form->{"tax_$i"}, '$form->{transdate}', $project_id, '$taxkey')|;
-        $dbh->do($query) || $form->dberror($query);
+                    $form->{"tax_$i"}, '$form->{transdate}', ?, '$taxkey')|;
+        do_query($form, $dbh, $query, @values);
       }
     }
   }
 
   # add recievables
-  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                      project_id)
+  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate)
               VALUES ($form->{id}, (SELECT c.id FROM chart c
                                     WHERE c.accno = '$form->{AR_amounts}{receivables}'),
-              $form->{receivables}, '$form->{transdate}', $project_id)|;
+              $form->{receivables}, '$form->{transdate}')|;
   $dbh->do($query) || $form->dberror($query);
 
   # add paid transactions

@@ -397,6 +397,21 @@ sub form_header {
     ? qq|<select name=vendor>$form->{selectvendor}</select>|
     : qq|<input name=vendor value="$form->{vendor}" size=35>|;
 
+  my @old_project_ids = ();
+  map({ push(@old_project_ids, $form->{"project_id_$_"})
+          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 0,
+                                   "old_id" => \@old_project_ids });
+
+  my %project_labels = ();
+  my @project_values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@project_values, $item->{"id"});
+    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
   # use JavaScript Calendar or not
   $form->{jsscript} = $jscalendar;
   $jsscript = "";
@@ -558,6 +573,12 @@ $jsscript
 
     my $korrektur = $form->{"korrektur_$i"} ? 'checked' : '';
 
+    my $projectnumber =
+      NTI($cgi->popup_menu('-name' => "project_id_$i",
+                           '-values' => \@project_values,
+                           '-labels' => \%project_labels,
+                           '-default' => $form->{"project_id_$i"} ));
+
     print qq|
 	<tr>
           <td width=50%><select name="AP_amount_$i" onChange="setTaxkey(this, $i)" style="width:100%">$selectAP_amount</select></td>
@@ -565,9 +586,7 @@ $jsscript
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
           <td><input type="checkbox" name="korrektur_$i" value="1" "$korrektur"></td>
           $tax
-	  <td><input name="projectnumber_$i" size=20 value="$form->{"projectnumber_$i"}">
-	      <input type=hidden name="project_id_$i" value=$form->{"project_id_$i"}>
-	      <input type=hidden name="oldprojectnumber_$i" value="$form->{"oldprojectnumber_$i"}"></td>
+          <td>$projectnumber</td>
 	</tr>
 |;
     $amount  = "";
@@ -843,7 +862,6 @@ sub update {
   &check_name(vendor);
   $form->{AP} = $save_AP;
 
-  &check_project;
   $form->{rowcount} = $count + 1;
 
   $form->{invtotal} =
