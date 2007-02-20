@@ -193,6 +193,7 @@ sub create_links {
         $form->{"forex_$j"} = $form->{"exchangerate_$i"} =
           $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};
         $form->{"AP_paid_$j"} = "$form->{acc_trans}{$key}->[$i-1]->{accno}";
+        $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
         $form->{paidaccounts}++;
       } else {
 
@@ -637,7 +638,7 @@ $jsscript
     <td>
       <table width=100%>
 	<tr class=listheading>
-	  <th class=listheading colspan=6>| . $locale->text('Payments') . qq|</th>
+	  <th class=listheading colspan=7>| . $locale->text('Payments') . qq|</th>
 	</tr>
 |;
 
