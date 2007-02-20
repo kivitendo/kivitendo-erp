@@ -97,7 +97,7 @@
 						}			
 						else {
 							defaults.splice(remove,1);
-							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>Folgende EinschrÃ¤nkungen haben Sie bereits vorgenommen:</translate></b><br>") : ("<br>")) + translated[last];
+							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>Folgende Einschränkungen haben Sie bereits vorgenommen:</translate></b><br>") : ("<br>")) + translated[last];
 							if(defaults.length > 0) {
 								document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
 								tempString = "<select id='selectForm'>";
@@ -122,7 +122,7 @@
 				<table>
 					<tr>
 						<td>
-							<translate><b>Wonach</b> m&ouml;chten Sie suchen?</translate>:
+							<translate><b>Wonach</b> möchten Sie suchen?</translate>:
 						</td>
 						<td>
 							<select name="what2search" id="what2search">
@@ -146,7 +146,7 @@
 					</tr>
 					<tr>
 						<td valign="top">
-							<translate>MÃ¶chten Sie Ihre Suche <b>spezialisieren</b>?</translate>
+							<translate>Möchten Sie Ihre Suche <b>spezialisieren</b>?</translate>
 						</td>
 						<td>
 							<table valign=\"top\" cellpadding=\"0\" marginheight=\"0\" marginwidth=\"0\" cellspacing=\"0\" topmargin=\"0\" leftmargin=\"0\">
