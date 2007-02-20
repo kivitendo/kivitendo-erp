@@ -918,6 +918,7 @@ sub get_accounts_g {
   my $project;
   my $where    = "1 = 1";
   my $glwhere  = "";
+  my $prwhere  = "";
   my $subwhere = "";
   my $item;
 
@@ -925,6 +926,7 @@ sub get_accounts_g {
     if ($form->{method} eq 'cash') {
       $subwhere .= " AND transdate >= '$fromdate'";
       $glwhere = " AND ac.transdate >= '$fromdate'";
+      $prwhere = " AND ar.transdate >= '$fromdate'";
     } else {
       $where .= " AND ac.transdate >= '$fromdate'";
     }
@@ -933,6 +935,7 @@ sub get_accounts_g {
   if ($todate) {
     $where    .= " AND ac.transdate <= '$todate'";
     $subwhere .= " AND transdate <= '$todate'";
+    $prwhere  .= " AND ar.transdate <= '$todate'";
   }
 
   if ($department_id) {
@@ -1025,8 +1028,7 @@ sub get_accounts_g {
 		 JOIN parts p ON (ac.parts_id = p.id)
 		 JOIN chart c on (p.income_accno_id = c.id)
 	         $dpt_join
-	-- use transdate from subwhere
-		 WHERE 1 = 1 $subwhere
+		 WHERE 1 = 1 $prwhere
 		 AND c.category = 'I'
 		 $dpt_where
 		 AND ac.trans_id IN
@@ -1050,7 +1052,7 @@ sub get_accounts_g {
 		 JOIN parts p ON (ac.parts_id = p.id)
 		 JOIN chart c on (p.expense_accno_id = c.id)
 	         $dpt_join
-		 WHERE 1 = 1 $subwhere
+		 WHERE 1 = 1 $prwhere
 		 AND c.category = 'E'
 		 $dpt_where
 		 AND ac.trans_id IN
@@ -1104,8 +1106,7 @@ sub get_accounts_g {
 		 JOIN parts p ON (ac.parts_id = p.id)
 		 JOIN chart c on (p.income_accno_id = c.id)
 	         $dpt_join
-	-- use transdate from subwhere
-		 WHERE 1 = 1 $subwhere
+		 WHERE 1 = 1 $prwhere
 		 AND c.category = 'I'
 		 $dpt_where
 		 $project
@@ -1120,7 +1121,7 @@ sub get_accounts_g {
 		 JOIN parts p ON (ac.parts_id = p.id)
 		 JOIN chart c on (p.expense_accno_id = c.id)
 	         $dpt_join
-		 WHERE 1 = 1 $subwhere
+		 WHERE 1 = 1 $prwhere
 		 AND c.category = 'E'
 		 $dpt_where
 		 $project
