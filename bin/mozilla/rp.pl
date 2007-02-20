@@ -36,6 +36,7 @@
 #======================================================================
 
 require "$form->{path}/arap.pl";
+require "bin/mozilla/common.pl";
 
 use SL::PE;
 use SL::RP;
@@ -129,6 +130,21 @@ sub report {
 	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
 	</tr>
 | if $form->{selectdepartment};
+
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 1 });
+
+  my %project_labels = ();
+  my @project_values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@project_values, $item->{"id"});
+    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
+  my $projectnumber =
+    NTI($cgi->popup_menu('-name' => "project_id",
+                         '-values' => \@project_values,
+                         '-labels' => \%project_labels));
 
   # use JavaScript Calendar or not
   $form->{jsscript} = $jscalendar;
@@ -280,7 +296,7 @@ $jsscript
     print qq|
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Project') . qq|</th>
-	  <td colspan=3><input name=projectnumber size=25</td>
+	  <td colspan=3>$projectnumber</td>
 	</tr>
         <input type=hidden name=nextsub value=generate_income_statement>
 </table>
@@ -390,7 +406,7 @@ $jsscript
     print qq|
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Project') . qq|</th>
-	  <td colspan=3><input name=projectnumber size=25</td>
+	  <td colspan=3>$projectnumber</td>
 	</tr>
         <input type=hidden name=nextsub value=generate_bwa>
 </table>
@@ -1061,10 +1077,6 @@ sub generate_income_statement {
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
   $form->{br}      = "<br>";
-
-  &get_project(generate_income_statement);
-
-  $form->{projectnumber} = $form->{projectnumber_1};
 
   if ($form->{reporttype} eq "custom") {
 
@@ -2713,8 +2725,6 @@ sub generate_bwa {
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
   $form->{br}      = "<br>";
-
-  #  &get_project(generate_bwa);
 
   if ($form->{reporttype} eq "custom") {
 
