@@ -741,7 +741,7 @@ sub post_invoice {
 		  '$form->{"description_$i"}', '$form->{"longdescription_$i"}', $form->{"qty_$i"},
 		  $form->{"sellprice_$i"}, $fxsellprice,
 		  $form->{"discount_$i"}, $allocated, 'f',
-		  '$form->{"unit_$i"}', $deliverydate, | . conv_i($form->{"project_id_$i"}) . qq|,
+		  '$form->{"unit_$i"}', $deliverydate, | . conv_i($form->{"project_id_$i"}, 'NULL') . qq|,
 		  '$form->{"serialnumber_$i"}', '$pricegroup_id',
 		  '$form->{"ordnumber_$i"}', '$form->{"transdate_$i"}', '$form->{"cusordnumber_$i"}', $baseqty, '$subtotal')|;
       $dbh->do($query) || $form->dberror($query);

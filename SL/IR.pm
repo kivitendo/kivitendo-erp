@@ -383,7 +383,7 @@ sub post_invoice {
 		  VALUES ($form->{id}, $form->{"id_$i"},
 		  '$form->{"description_$i"}', | . ($form->{"qty_$i"} * -1) . qq|,  | . ($baseqty * -1) . qq|,
 		  $form->{"sellprice_$i"}, $fxsellprice, $allocated,
-		  '$form->{"unit_$i"}', $deliverydate, | . conv_i($form->{"project_id_$i"}) . qq|,
+		  '$form->{"unit_$i"}', $deliverydate, | . conv_i($form->{"project_id_$i"}, 'NULL') . qq|,
 		  '$form->{"serialnumber_$i"}')|;
       $dbh->do($query) || $form->dberror($query);
     }
