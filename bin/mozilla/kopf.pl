@@ -102,7 +102,7 @@ window.onload=clockon
 
 #
 print qq|
-<body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0">
+<body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0" style="background-image: url('image/fade.png'); background-repeat:repeat-x;">
 
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
 	<tr>
