@@ -1092,7 +1092,7 @@ sub get_exchangerate {
 
   unless ($transdate) {
     $main::lxdebug->leave_sub();
-    return "";
+    return 1;
   }
 
   my $query = qq|SELECT e.$fld FROM exchangerate e
@@ -1104,7 +1104,7 @@ sub get_exchangerate {
   my ($exchangerate) = $sth->fetchrow_array;
   $sth->finish;
 
-  if ($exchangerate == 0) {
+  if (!$exchangerate) {
     $exchangerate = 1;
   }
 

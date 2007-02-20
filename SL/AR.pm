@@ -383,7 +383,7 @@ sub post_payment {
   # connect to database, turn off autocommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  $form->{datepaid} = $form->{invdate};
+  $form->{datepaid} = $form->{transdate};
 
   # total payments, don't move we need it here
   for my $i (1 .. $form->{paidaccounts}) {
@@ -397,8 +397,10 @@ sub post_payment {
   }
 
   $form->{exchangerate} =
-      $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate},
+      $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate},
                               "buy");
+
+  my ($accno_ar) = split(/--/, $form->{ARselected});
 
   # record payments and offsetting AR
   for my $i (1 .. $form->{paidaccounts}) {
@@ -407,7 +409,7 @@ sub post_payment {
       my $project_id = conv_i($form->{"paid_project_id_$i"});
 
       my ($accno) = split /--/, $form->{"AR_paid_$i"};
-      $form->{"datepaid_$i"} = $form->{invdate}
+      $form->{"datepaid_$i"} = $form->{transdate}
         unless ($form->{"datepaid_$i"});
       $form->{datepaid} = $form->{"datepaid_$i"};
 
@@ -432,13 +434,13 @@ sub post_payment {
 
 
       $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AR}') AND amount=$amount AND transdate='$form->{"datepaid_$i"}'|;
+                                      WHERE c.accno = '$accno_ar') AND amount=$amount AND transdate='$form->{"datepaid_$i"}'|;
       $dbh->do($query) || $form->dberror($query);
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
                   transdate, project_id)
                   VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AR}'),
+                                      WHERE c.accno = '$accno_ar'),
                   $amount, '$form->{"datepaid_$i"}', ?)|;
       do_query($form, $dbh, $query, $project_id);
 

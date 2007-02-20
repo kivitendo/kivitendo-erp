@@ -516,7 +516,7 @@ sub post_payment {
   # connect to database, turn off autocommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  $form->{datepaid} = $form->{invdate};
+  $form->{datepaid} = $form->{transdate};
 
   # total payments, don't move we need it here
   for my $i (1 .. $form->{paidaccounts}) {
@@ -526,17 +526,19 @@ sub post_payment {
   }
 
   $form->{exchangerate} =
-      $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate},
+      $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate},
                               "buy");
 
   my (@values, $query);
+
+  my ($accno_ap) = split(/--/, $form->{APselected});
 
   # record payments and offsetting AP
   for my $i (1 .. $form->{paidaccounts}) {
 
     if ($form->{"paid_$i"} != 0) {
       my ($accno) = split /--/, $form->{"AP_paid_$i"};
-      $form->{"datepaid_$i"} = $form->{invdate}
+      $form->{"datepaid_$i"} = $form->{transdate}
         unless ($form->{"datepaid_$i"});
       $form->{datepaid} = $form->{"datepaid_$i"};
 
@@ -559,20 +561,19 @@ sub post_payment {
         $form->round_amount($form->{"paid_$i"} * $form->{"exchangerate"},
                             2) * -1;
 
-
       $query =
         qq|DELETE FROM acc_trans | .
         qq|WHERE trans_id = ? | .
         qq|  AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) | .
         qq|  AND amount = ? AND transdate = ?|;
-      @values = ($form->{id}, $form->{AP}, $amount,
+      @values = ($form->{id}, $accno_ap, $amount,
                  conv_date($form->{"datepaid_$i"}));
       do_query($form, $dbh, $query, @values);
 
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id) | .
         qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?)|;
-      @values = ($form->{id}, $form->{AP}, $amount,
+      @values = ($form->{id}, $accno_ap, $amount,
                  conv_date($form->{"datepaid_$i"}),
                  conv_i($form->{"paid_project_id_$i"}));
       do_query($form, $dbh, $query, @values);
