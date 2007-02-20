@@ -935,6 +935,10 @@ sub order_details {
   my %oid = ('Pg'     => 'oid',
              'Oracle' => 'rowid');
 
+  my (@project_ids, %projectnumbers);
+
+  push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
+
   # sort items by partsgroup
   for $i (1 .. $form->{rowcount}) {
     $partsgroup = "";
@@ -942,7 +946,34 @@ sub order_details {
       $partsgroup = $form->{"partsgroup_$i"};
     }
     push @partsgroup, [$i, $partsgroup];
+    push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
   }
+
+  if (@project_ids) {
+    $query = "SELECT id, projectnumber FROM project WHERE id IN (" .
+      join(", ", map({ "?" } @project_ids)) . ")";
+    $sth = $dbh->prepare($query);
+    $sth->execute(@project_ids) ||
+      $form->dberror($query . " (" . join(", ", @project_ids) . ")");
+    while (my $ref = $sth->fetchrow_hashref()) {
+      $projectnumbers{$ref->{id}} = $ref->{projectnumber};
+    }
+    $sth->finish();
+  }
+
+  $form->{"globalprojectnumber"} =
+    $projectnumbers{$form->{"globalproject_id"}};
+
+  my @arrays =
+    qw(runningnumber number description longdescription qty ship unit bin
+       partnotes serialnumber reqdate sellprice listprice netprice
+       discount p_discount discount_sub nodiscount_sub
+       linetotal  nodiscount_linetotal tax_rate projectnumber);
+
+  my @tax_arrays =
+    qw(taxbase tax taxdescription taxrate taxnumber);
+
+  map({ $form->{$_} = [] } (@arrays, @tax_arrays));
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -952,10 +983,7 @@ sub order_details {
       push(@{ $form->{description} }, qq|$item->[1]|);
       $sameitem = $item->[1];
 
-      map { push(@{ $form->{$_} }, "") }
-        qw(runningnumber number qty ship unit bin partnotes
-           serialnumber reqdate sellprice listprice netprice
-           discount p_discount linetotal);
+      map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -1036,7 +1064,7 @@ sub order_details {
       push(@{ $form->{p_discount} }, $form->{"discount_$i"});
 
       $form->{ordtotal} += $linetotal;
-     $discount_subtotal += $linetotal;
+      $discount_subtotal += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
       $nodiscount_subtotal += $nodiscount_linetotal;
       $form->{discount_total} += $form->parse_amount($myconfig, $discount);
@@ -1061,6 +1089,8 @@ sub order_details {
            $form->format_amount($myconfig, $linetotal, 2));
       push(@{ $form->{nodiscount_linetotal} },
            $form->format_amount($myconfig, $nodiscount_linetotal, 2));
+
+      push(@{ $form->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
 
       my ($taxamount, $taxbase);
       my $taxrate = 0;
@@ -1114,10 +1144,8 @@ sub order_details {
 
         while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-            map { push(@{ $form->{$_} }, "") }
-              qw(runningnumber ship bin serialnumber number unit bin qty 
-                 reqdate sellprice listprice netprice discount p_discount
-                 linetotal nodiscount_linetotal);
+            map({ push(@{ $form->{$_} }, "") }
+                grep({ $_ ne "description" } @arrays));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
             push(@{ $form->{description} }, $sameitem);
           }
@@ -1127,11 +1155,8 @@ sub order_details {
                  )
                  . qq|, $ref->{partnumber}, $ref->{description}|);
 
-          map { push(@{ $form->{$_} }, "") }
-            qw(number unit qty runningnumber ship bin serialnumber reqdate 
-               sellprice listprice netprice discount p_discount linetotal 
-               nodiscount_linetotal);
-
+          map({ push(@{ $form->{$_} }, "") }
+              grep({ $_ ne "description" } @arrays));
         }
         $sth->finish;
       }
@@ -1141,16 +1166,16 @@ sub order_details {
 
   my $tax = 0;
   foreach $item (sort keys %taxaccounts) {
-      push(@{ $form->{taxbase} },
-           $form->format_amount($myconfig, $taxbase{$item}, 2));
+    push(@{ $form->{taxbase} },
+         $form->format_amount($myconfig, $taxbase{$item}, 2));
 
-      $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
+    $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
-      push(@{ $form->{tax} }, $form->format_amount($myconfig, $taxamount, 2));
-      push(@{ $form->{taxdescription} }, $form->{"${item}_description"});
-      push(@{ $form->{taxrate} },
-           $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
-      push(@{ $form->{taxnumber} }, $form->{"${item}_taxnumber"});
+    push(@{ $form->{tax} }, $form->format_amount($myconfig, $taxamount, 2));
+    push(@{ $form->{taxdescription} }, $form->{"${item}_description"});
+    push(@{ $form->{taxrate} },
+         $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
+    push(@{ $form->{taxnumber} }, $form->{"${item}_taxnumber"});
   }
   $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
   $yesdiscount = $form->{nodiscount_total} - $nodiscount;

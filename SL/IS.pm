@@ -58,6 +58,35 @@ sub invoice_details {
   ($form->{terms}) = $sth->fetchrow_array;
   $sth->finish;
 
+  my (@project_ids, %projectnumbers);
+
+  push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
+
+  # sort items by partsgroup
+  for $i (1 .. $form->{rowcount}) {
+    $partsgroup = "";
+    if ($form->{"partsgroup_$i"} && $form->{groupitems}) {
+      $partsgroup = $form->{"partsgroup_$i"};
+    }
+    push @partsgroup, [$i, $partsgroup];
+    push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
+  }
+
+  if (@project_ids) {
+    $query = "SELECT id, projectnumber FROM project WHERE id IN (" .
+      join(", ", map({ "?" } @project_ids)) . ")";
+    $sth = $dbh->prepare($query);
+    $sth->execute(@project_ids) ||
+      $form->dberror($query . " (" . join(", ", @project_ids) . ")");
+    while (my $ref = $sth->fetchrow_hashref()) {
+      $projectnumbers{$ref->{id}} = $ref->{projectnumber};
+    }
+    $sth->finish();
+  }
+
+  $form->{"globalprojectnumber"} =
+    $projectnumbers{$form->{"globalproject_id"}};
+
   my $tax = 0;
   my $item;
   my $i;
@@ -91,6 +120,17 @@ sub invoice_details {
   my $subtotal_header = 0;
   my $subposition = 0;
 
+  my @arrays =
+    qw(runningnumber number description longdescription qty ship unit bin
+       deliverydate_oe ordnumber_oe transdate_oe licensenumber validuntil
+       partnotes serialnumber reqdate sellprice listprice netprice
+       discount p_discount discount_sub nodiscount_sub
+       linetotal  nodiscount_linetotal tax_rate projectnumber);
+
+  my @tax_arrays =
+    qw(taxbase tax taxdescription taxrate taxnumber);
+
+  map({ $form->{$_} = [] } (@arrays, @tax_arrays));
 
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];
@@ -99,8 +139,7 @@ sub invoice_details {
       push(@{ $form->{description} }, qq|$item->[1]|);
       $sameitem = $item->[1];
 
-      map { push(@{ $form->{$_} }, "") }
-        qw(runningnumber number serialnumber bin partnotes qty unit deliverydate sellprice listprice netprice discount linetotal);
+      map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -230,8 +269,8 @@ sub invoice_details {
       push(@{ $form->{nodiscount_linetotal} },
            $form->format_amount($myconfig, $nodiscount_linetotal, 2));
 
+      push(@{ $form->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
 
-      
       @taxaccounts = split / /, $form->{"taxaccounts_$i"};
       $taxrate     = 0;
       $taxdiff     = 0;
@@ -302,8 +341,7 @@ sub invoice_details {
 
         while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-            map { push(@{ $form->{$_} }, "") }
-              qw(runningnumber number serialnumber unit qty bin sellprice listprice netprice discount linetotal nodiscount_linetotal);
+            map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
             push(@{ $form->{description} }, $sameitem);
           }
@@ -314,8 +352,7 @@ sub invoice_details {
                $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}
                  )
                  . qq| -- $form->{"a_partnumber"}, $form->{"a_description"}|);
-          map { push(@{ $form->{$_} }, "") }
-            qw(number unit qty runningnumber serialnumber bin sellprice listprice netprice discount linetotal nodiscount_linetotal);
+          map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
 
         }
         $sth->finish;
