@@ -35,6 +35,7 @@ use SL::GL;
 use SL::PE;
 
 require "$form->{path}/arap.pl";
+require "bin/mozilla/common.pl";
 
 1;
 
@@ -154,8 +155,6 @@ sub edit {
   my $tax      = 0;
   my $taxaccno = "";
   foreach $ref (@{ $form->{GL} }) {
-    $form->{"projectnumber_$i"} = "$ref->{projectnumber}--$ref->{project_id}";
-
     $j = $i - 1;
     if ($tax && ($ref->{accno} eq $taxaccno)) {
       $form->{"tax_$j"}      = abs($ref->{amount});
@@ -895,21 +894,7 @@ sub gl_subtotal {
 sub update {
   $lxdebug->enter_sub();
 
-  if ($form->{transdate} ne $form->{oldtransdate}) {
-    if ($form->{selectprojectnumber}) {
-      $form->all_projects(\%myconfig, undef, $form->{transdate});
-      if (@{ $form->{all_project} }) {
-        $form->{selectprojectnumber} = "<option>\n";
-        for (@{ $form->{all_project} }) {
-          $form->{selectprojectnumber} .=
-            qq|<option value="$_->{projectnumber}--$_->{id}">$_->{projectnumber}\n|;
-        }
-        $form->{selectprojectnumber} =
-          $form->escape($form->{selectprojectnumber}, 1);
-      }
-    }
-    $form->{oldtransdate} = $form->{transdate};
-  }
+  $form->{oldtransdate} = $form->{transdate};
 
   my @a           = ();
   my $count       = 0;
@@ -1033,15 +1018,28 @@ sub display_rows {
   my ($init) = @_;
   $lxdebug->enter_sub();
 
-  $form->{selectprojectnumber} = $form->unescape($form->{selectprojectnumber})
-    if $form->{selectprojectnumber};
-
   $form->{totaldebit}  = 0;
   $form->{totalcredit} = 0;
   my $chart = $form->{chart};
   $chart            = $form->unquote($chart);
   $form->{taxchart} = $form->unquote($form->{taxchart});
   $taxchart         = $form->{taxchart};
+
+  my @old_project_ids = ();
+  map({ push(@old_project_ids, $form->{"project_id_$_"})
+          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+
+  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
+                                   "all" => 0,
+                                   "old_id" => \@old_project_ids });
+
+  my %project_labels = ();
+  my @project_values = ("");
+  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
+    push(@project_values, $item->{"id"});
+    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
   for $i (1 .. $form->{rowcount}) {
 
     $source = qq|
@@ -1060,10 +1058,6 @@ sub display_rows {
         . ($i + 10 + (($i - 1) * 8))
         . qq|>$form->{taxchart}</select></td>|;
 
-      #       if ($form->{selectprojectnumber}) {
-      #         $project = qq|
-      #     <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
-      #       }
       $korrektur =
         qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
         . ($i + 9 + (($i - 1) * 8))
@@ -1112,15 +1106,6 @@ sub display_rows {
           . ($i + 10 + (($i - 1) * 8))
           . qq|>$tax</select></td>|;
 
-        #         if ($form->{selectprojectnumber}) {
-        #           $form->{"projectnumber_$i"} = ""
-        #             if $form->{selectprojectnumber} !~ /$form->{"projectnumber_$i"}/;
-        #
-        #           $project = $form->{"projectnumber_$i"};
-        #           $project =~ s/--.*//;
-        #           $project = qq|<td>$project</td>|;
-        #         }
-
         if ($form->{transfer}) {
           $checked = ($form->{"fx_transaction_$i"}) ? "1" : "";
           $x = ($checked) ? "x" : "";
@@ -1144,10 +1129,6 @@ sub display_rows {
       <td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
           . ($i + 10 + (($i - 1) * 8)) . qq|>$taxchart</select></td>|;
 
-        #         if ($form->{selectprojectnumber}) {
-        #           $project = qq|
-        #       <td><select name="projectnumber_$i">$form->{selectprojectnumber}</select></td>|;
-        #         }
         $korrektur =
           qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
           . ($i + 9 + (($i - 1) * 8))
@@ -1169,6 +1150,12 @@ sub display_rows {
       }
     }
 
+    my $projectnumber =
+      NTI($cgi->popup_menu('-name' => "project_id_$i",
+                           '-values' => \@project_values,
+                           '-labels' => \%project_labels,
+                           '-default' => $form->{"project_id_$i"} ));
+
     print qq|<tr valign=top>
     $accno
     $fx_transaction
@@ -1182,6 +1169,7 @@ sub display_rows {
     $tax
     $source
     $memo
+    <td>$projectnumber</td>
   </tr>
 
   |;
@@ -1189,9 +1177,6 @@ sub display_rows {
 
   $form->hide_form(qw(rowcount selectaccno));
 
-  #   print qq|
-  # <input type=hidden name=selectprojectnumber value="|
-  #     . $form->escape($form->{selectprojectnumber}, 1) . qq|">|;
   $lxdebug->leave_sub();
 
 }
@@ -1391,7 +1376,8 @@ sub form_header {
 	  <th class=listheading style="width:20%">|
     . $locale->text('Source') . qq|</th>
 	  <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
-	  $project
+	  <th class=listheading style="width:20%">|
+    . $locale->text('Project Number') . qq|</th>
 	</tr>
 
 $jsscript
@@ -1417,7 +1403,7 @@ sub form_footer {
     <td></td>
     <th align=right class=listtotal> $form->{totaldebit}</th>
     <th align=right class=listtotal> $form->{totalcredit}</th> 
-    <td colspan=5></td>
+    <td colspan=6></td>
     </tr>
   </table>
   </td>
@@ -1528,9 +1514,6 @@ sub post {
 
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-
-  # check project
-  &check_project;
 
   my @a           = ();
   my $count       = 0;

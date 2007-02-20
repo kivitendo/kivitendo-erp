@@ -39,6 +39,7 @@
 package GL;
 
 use Data::Dumper;
+use SL::DBUtils;
 
 sub delete_transaction {
   my ($self, $myconfig, $form) = @_;
@@ -179,10 +180,10 @@ sub post_transaction {
       $posted = 0;
     }
 
+    $project_id = conv_i($form->{"project_id_$i"});
+
     # if there is an amount, add the record
     if ($amount != 0) {
-      $project_id =
-        ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                   source, memo, project_id, taxkey)
 		  VALUES
@@ -192,30 +193,24 @@ sub post_transaction {
 		   $amount, '$form->{transdate}', |
         . $dbh->quote($form->{"source_$i"}) . qq|, |
         . $dbh->quote($form->{"memo_$i"}) . qq|,
-		  $project_id, $taxkey)|;
+		  ?, $taxkey)|;
 
-      $dbh->do($query) || $form->dberror($query);
+      do_query($form, $dbh, $query, $project_id);
     }
 
     if ($tax != 0) {
-
       # add taxentry
-      $amount = $tax;
-
-      $project_id =
-        ($form->{"project_id_$i"}) ? $form->{"project_id_$i"} : 'NULL';
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, project_id, taxkey)
+                  source, memo, taxkey)
                   VALUES
                   ($form->{id}, (SELECT t.chart_id
                   FROM tax t
                   WHERE t.id = $form->{"tax_id_$i"}),
-                  $amount, '$form->{transdate}', |
+                  $tax, '$form->{transdate}', |
         . $dbh->quote($form->{"source_$i"}) . qq|, |
-        . $dbh->quote($form->{"memo_$i"}) . qq|,
-                          $project_id, $taxkey)|;
+        . $dbh->quote($form->{"memo_$i"}) . qq|, ?, $taxkey)|;
 
-      $dbh->do($query) || $form->dberror($query);
+      do_query($form, $dbh, $query, $project_id);
     }
   }
 
