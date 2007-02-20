@@ -437,6 +437,7 @@ Message: $form->{message}\r| if $form->{message};
 	      payment_id = $form->{payment_id},
 	      delivery_vendor_id = $form->{delivery_vendor_id},
 	      delivery_customer_id = $form->{delivery_customer_id},
+              globalproject_id = | . conv_i($form->{"globalproject_id"}, 'NULL') . qq|,
 	      employee_id = $form->{employee_id},
               cp_id = | . conv_i($form->{cp_id}, 'NULL') . qq|
               WHERE id = $form->{id}|;
@@ -670,11 +671,13 @@ sub retrieve {
 		o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
 		d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
                 o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
+                o.globalproject_id, pr.projectnumber AS globalprojectnumber,
                 o.delivered
 		FROM oe o
 	        JOIN $form->{vc} cv ON (o.$form->{vc}_id = cv.id)
 	        LEFT JOIN employee e ON (o.employee_id = e.id)
 	        LEFT JOIN department d ON (o.department_id = d.id)
+          LEFT JOIN project pr ON (o.globalproject_id = pr.id)
 		|
       . ($form->{id}
          ? qq|WHERE o.id = $form->{id}|

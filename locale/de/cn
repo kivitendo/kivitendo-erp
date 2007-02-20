@@ -241,6 +241,7 @@ $self->{subs} = {
   'post'                        => 'post',
   'post_as_new'                 => 'post_as_new',
   'prepare_credit_note'         => 'prepare_credit_note',
+  'preset_projectnumber'        => 'preset_projectnumber',
   'preview'                     => 'preview',
   'print'                       => 'print',
   'print_and_post'              => 'print_and_post',

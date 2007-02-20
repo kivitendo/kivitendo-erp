@@ -279,6 +279,7 @@ $self->{subs} = {
   'poso'                        => 'poso',
   'post_as_new'                 => 'post_as_new',
   'prepare_order'               => 'prepare_order',
+  'preset_projectnumber'        => 'preset_projectnumber',
   'print'                       => 'print',
   'print_form'                  => 'print_form',
   'print_options'               => 'print_options',

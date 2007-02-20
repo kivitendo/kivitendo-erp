@@ -531,7 +531,7 @@ sub form_header {
 		<th align=right nowrap>| . $locale->text('Due Date') . qq|</th>
                 $button2
 	      </tr>
-	    </table>
+     </table>
 	  </td>
 	</tr>
       </table>

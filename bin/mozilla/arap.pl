@@ -272,26 +272,29 @@ sub add_transaction {
 sub check_project {
   $lxdebug->enter_sub();
 
-  for $i (1 .. $form->{rowcount}) {
-    $form->{"project_id_$i"} = "" unless $form->{"projectnumber_$i"};
-    if ($form->{"projectnumber_$i"} ne $form->{"oldprojectnumber_$i"}) {
-      if ($form->{"projectnumber_$i"}) {
+  for $i (0 .. $form->{rowcount}) {
+    my $suffix = $i ? "_$i" : "";
+    my $prefix = $i ? "" : "global";
+    $form->{"${prefix}project_id${suffix}"} = "" unless $form->{"${prefix}projectnumber$suffix"};
+    if ($form->{"${prefix}projectnumber${suffix}"} ne $form->{"old${prefix}projectnumber${suffix}"}) {
+      if ($form->{"${prefix}projectnumber${suffix}"}) {
 
         # get new project
-        $form->{projectnumber} = $form->{"projectnumber_$i"};
+        $form->{projectnumber} = $form->{"${prefix}projectnumber${suffix}"};
         if (($rows = PE->projects(\%myconfig, $form)) > 1) {
 
           # check form->{project_list} how many there are
           $form->{rownumber} = $i;
-          &select_project;
+          &select_project($i ? undef : 1);
           exit;
         }
 
         if ($rows == 1) {
-          $form->{"project_id_$i"}    = $form->{project_list}->[0]->{id};
-          $form->{"projectnumber_$i"} =
+          $form->{"${prefix}project_id${suffix}"} =
+            $form->{project_list}->[0]->{id};
+          $form->{"${prefix}projectnumber${suffix}"} =
             $form->{project_list}->[0]->{projectnumber};
-          $form->{"oldprojectnumber_$i"} =
+          $form->{"old${prefix}projectnumber${suffix}"} =
             $form->{project_list}->[0]->{projectnumber};
         } else {
 
@@ -299,7 +302,7 @@ sub check_project {
           $form->error($locale->text('Project not on file!'));
         }
       } else {
-        $form->{"oldprojectnumber_$i"} = "";
+        $form->{"old${prefix}projectnumber${suffix}"} = "";
       }
     }
   }
@@ -309,6 +312,8 @@ sub check_project {
 
 sub select_project {
   $lxdebug->enter_sub();
+
+  my ($is_global) = @_;
 
   @column_index = qw(ndx projectnumber description);
 
@@ -387,7 +392,7 @@ sub select_project {
 |;
 
   # delete action variable
-  map { delete $form->{$_} } qw(action project_list header);
+  map { delete $form->{$_} } qw(action project_list header update);
 
   # save all other form variables
   foreach $key (keys %${form}) {
@@ -396,6 +401,7 @@ sub select_project {
   }
 
   print qq|
+<input type="hidden" name="is_global" value="$is_global">
 <input type=hidden name=nextsub value=project_selected>
 
 <br>
@@ -418,18 +424,21 @@ sub project_selected {
   # index for new item
   $i = $form->{ndx};
 
-  $form->{"projectnumber_$form->{rownumber}"} =
+  my $prefix = $form->{"is_global"} ? "global" : "";
+  my $suffix = $form->{"is_global"} ? "" : "_$form->{rownumber}";
+
+  $form->{"${prefix}projectnumber${suffix}"} =
     $form->{"new_projectnumber_$i"};
-  $form->{"oldprojectnumber_$form->{rownumber}"} =
+  $form->{"old${prefix}projectnumber${suffix}"} =
     $form->{"new_projectnumber_$i"};
-  $form->{"project_id_$form->{rownumber}"} = $form->{"new_id_$i"};
+  $form->{"${prefix}project_id${suffix}"} = $form->{"new_id_$i"};
 
   # delete all the new_ variables
   for $i (1 .. $form->{lastndx}) {
     map { delete $form->{"new_${_}_$i"} } qw(id projectnumber description);
   }
 
-  map { delete $form->{$_} } qw(ndx lastndx nextsub);
+  map { delete $form->{$_} } qw(ndx lastndx nextsub is_global);
 
   if ($form->{update}) {
     &{ $form->{update} };

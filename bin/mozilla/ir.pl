@@ -455,7 +455,15 @@ sub form_header {
           <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|"></td>
           <td><input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
         </tr>
-	    </table>
+	      <tr>
+          <th align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
+          <td>
+            <input name="globalprojectnumber" size="11" value="| . Q($form->{globalprojectnumber}) . qq|">
+            <input type="hidden" name="oldglobalprojectnumber" value="| . Q($form->{globalprojectnumber}) . qq|">
+            <input type="hidden" name="globalproject_id" value="| . Q($form->{globalproject_id}) . qq|">
+          </td:>
+	      </tr>
+     </table>
 	  </td>
 	</tr>
       </table>

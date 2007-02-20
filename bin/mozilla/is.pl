@@ -741,6 +741,14 @@ print qq|     <tr>
 		<th align=right nowrap>| . $locale->text('Customer Order Number') . qq|</th>
 		<td><input name=cusordnumber size=11 value="$form->{cusordnumber}"></td>
 	      </tr>
+	      <tr>
+          <th align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
+          <td>
+            <input name="globalprojectnumber" size="11" value="| . Q($form->{globalprojectnumber}) . qq|">
+            <input type="hidden" name="oldglobalprojectnumber" value="| . Q($form->{globalprojectnumber}) . qq|">
+            <input type="hidden" name="globalproject_id" value="| . Q($form->{globalproject_id}) . qq|">
+          </td>
+	      </tr>
 	    </table>
           </td>
 	</tr>
