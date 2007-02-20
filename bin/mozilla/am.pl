@@ -112,7 +112,7 @@ sub account_header {
 	      <tr>
 		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
 		<td><select name=tax>$form->{selecttaxkey}</select></td>
-		<th align=right>| . $locale->text('Gültig ab') . qq|</th>
+		<th align=right>| . $locale->text('GÃ¼ltig ab') . qq|</th>
                 <td><input name=startdate value="$form->{startdate}"></td>
 	      </tr>|;
 
@@ -139,7 +139,7 @@ sub account_header {
                     <tr>
 		      <th align=right>| . $locale->text('Folgekonto') . qq|</th>
 		      <td><select name=new_chart_id>$form->{selectnewaccount}</select></td>
-                      <th align=right>| . $locale->text('Gültig ab') . qq|</th>
+                      <th align=right>| . $locale->text('GÃ¼ltig ab') . qq|</th>
 		      <td><input name=valid_from value="$form->{valid_from}"></td>
                     </tr>
                   </table>
@@ -212,29 +212,29 @@ sub account_header {
 	      </tr>|;
 
   $form->{selecteur} = "<option>\n";
-  %eur = (1  => "Umsatzerlöse",
-          2  => "sonstige Erlöse",
+  %eur = (1  => "UmsatzerlÃ¶se",
+          2  => "sonstige ErlÃ¶se",
           3  => "Privatanteile",
-          4  => "Zinserträge",
-          5  => "Ausserordentliche Erträge",
+          4  => "ZinsertrÃ¤ge",
+          5  => "Ausserordentliche ErtrÃ¤ge",
           6  => "Vereinnahmte Umsatzst.",
           7  => "Umsatzsteuererstattungen",
-          8  => "Wareneingänge",
-          9  => "Löhne und Gehälter",
+          8  => "WareneingÃ¤nge",
+          9  => "LÃ¶hne und GehÃ¤lter",
           10 => "Gesetzl. sozialer Aufw.",
           11 => "Mieten",
           12 => "Gas, Strom, Wasser",
           13 => "Instandhaltung",
-          14 => "Steuern, Versich., Beiträge",
+          14 => "Steuern, Versich., BeitrÃ¤ge",
           15 => "Kfz-Steuern",
           16 => "Kfz-Versicherungen",
           17 => "Sonst. Fahrtkosten",
           18 => "Werbe- und Reisekosten",
           19 => "Instandhaltung u. Werkzeuge",
-          20 => "Fachzeitschriften, Bücher",
-          21 => "Miete für Einrichtungen",
+          20 => "Fachzeitschriften, BÃ¼cher",
+          21 => "Miete fÃ¼r Einrichtungen",
           22 => "Rechts- und Beratungskosten",
-          23 => "Bürobedarf, Porto, Telefon",
+          23 => "BÃ¼robedarf, Porto, Telefon",
           24 => "Sonstige Aufwendungen",
           25 => "Abschreibungen auf Anlagever.",
           26 => "Abschreibungen auf GWG",
@@ -261,25 +261,25 @@ sub account_header {
 
   $form->{selectbwa} = "<option>\n";
 
-  %bwapos = (1  => 'Umsatzerlöse',
+  %bwapos = (1  => 'UmsatzerlÃ¶se',
              2  => 'Best.Verdg.FE/UE',
              3  => 'Aktiv.Eigenleistung',
              4  => 'Mat./Wareneinkauf',
-             5  => 'So.betr.Erlöse',
+             5  => 'So.betr.ErlÃ¶se',
              10 => 'Personalkosten',
              11 => 'Raumkosten',
              12 => 'Betriebl.Steuern',
-             13 => 'Vers./Beiträge',
+             13 => 'Vers./BeitrÃ¤ge',
              14 => 'Kfz.Kosten o.St.',
              15 => 'Werbe-Reisek.',
              16 => 'Kosten Warenabgabe',
              17 => 'Abschreibungen',
              18 => 'Rep./instandhlt.',
-             19 => 'Übrige Steuern',
+             19 => 'Ãœbrige Steuern',
              20 => 'Sonst.Kosten',
              30 => 'Zinsauwand',
              31 => 'Sonst.neutr.Aufw.',
-             32 => 'Zinserträge',
+             32 => 'ZinsertrÃ¤ge',
              33 => 'Sonst.neutr.Ertrag',
              34 => 'Verr.kalk.Kosten',
              35 => 'Steuern Eink.u.Ertr.');
@@ -1575,7 +1575,7 @@ sub list_buchungsgruppe {
     . qq|</th>|;
   $column_header{income_accno_0} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse Inland')
+    . $locale->text('ErlÃ¶se Inland')
     . qq|</th>|;
   $column_header{expense_accno_0} =
       qq|<th class=listheading>|
@@ -1583,7 +1583,7 @@ sub list_buchungsgruppe {
     . qq|</th>|;
   $column_header{income_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU m. UStId')
+    . $locale->text('ErlÃ¶se EU m. UStId')
     . qq|</th>|;
   $column_header{expense_accno_1} =
       qq|<th class=listheading>|
@@ -1591,7 +1591,7 @@ sub list_buchungsgruppe {
     . qq|</th>|;
   $column_header{income_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU o. UStId')
+    . $locale->text('ErlÃ¶se EU o. UStId')
     . qq|</th>|;
   $column_header{expense_accno_2} =
       qq|<th class=listheading>|
@@ -1599,7 +1599,7 @@ sub list_buchungsgruppe {
     . qq|</th>|;
   $column_header{income_accno_3} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse Ausland')
+    . $locale->text('ErlÃ¶se Ausland')
     . qq|</th>|;
   $column_header{expense_accno_3} =
       qq|<th class=listheading>|
@@ -1725,7 +1725,7 @@ sub buchungsgruppe_header {
 
   $form->{title}    = $locale->text("$form->{title} Buchungsgruppe");
 
-  # $locale->text('Buchungsgruppe hinzufügen')
+  # $locale->text('Buchungsgruppe hinzufÃ¼gen')
   # $locale->text('Buchungsgruppe bearbeiten')
 
   my ($acc_inventory, $acc_income, $acc_expense) = ({}, {}, {});
@@ -1776,7 +1776,7 @@ sub buchungsgruppe_header {
 
   $linkaccounts .= qq|
 	      <tr>
-		<th align=right>| . $locale->text('Erlöse Inland') . qq|</th>
+		<th align=right>| . $locale->text('ErlÃ¶se Inland') . qq|</th>
 		<td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
@@ -1790,7 +1790,7 @@ sub buchungsgruppe_header {
     $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_1}/  value=$form->{expense_accno_id_1} selected/;
   }
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse EU m. UStId') . qq|</th>
+		<th align=right>| . $locale->text('ErlÃ¶se EU m. UStId') . qq|</th>
 		<td><select name=income_accno_id_1>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
@@ -1806,7 +1806,7 @@ sub buchungsgruppe_header {
   }
 
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse EU o. UStId') . qq|</th>
+		<th align=right>| . $locale->text('ErlÃ¶se EU o. UStId') . qq|</th>
 		<td><select name=income_accno_id_2>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
@@ -1822,7 +1822,7 @@ sub buchungsgruppe_header {
   }
 
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse Ausland') . qq|</th>
+		<th align=right>| . $locale->text('ErlÃ¶se Ausland') . qq|</th>
 		<td><select name=income_accno_id_3>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
@@ -1875,7 +1875,7 @@ sub delete_buchungsgruppe {
   $lxdebug->enter_sub();
 
   AM->delete_buchungsgruppe(\%myconfig, \%$form);
-  $form->redirect($locale->text('Buchungsgruppe gelöscht!'));
+  $form->redirect($locale->text('Buchungsgruppe gelÃ¶scht!'));
 
   $lxdebug->leave_sub();
 }
@@ -2091,7 +2091,6 @@ sub delete_printer {
 
   $lxdebug->leave_sub();
 }
-
 
 sub add_payment {
   $lxdebug->enter_sub();
@@ -3201,6 +3200,100 @@ sub save_unit {
   edit_units();
 
   $lxdebug->leave_sub();
+}
+
+sub show_history_search {
+	$lxdebug->enter_sub();
+	
+	$form->{title} = $locale->text("History Search");
+    $form->header();
+    
+    print $form->parse_html_template("/common/search_history");
+	
+	$lxdebug->leave_sub();
+}
+
+sub show_am_history {
+	$lxdebug->enter_sub();
+	my %search = ( "Artikelnummer" => "parts",
+				   "Kundennummer"  => "customer",
+				   "Lieferantennummer" => "vendor",
+				   "Projektnummer" => "project",
+				   "Buchungsnummer" => "oe",
+				   "Eingangsrechnungnummer" => "ap",
+				   "Ausgangsrechnungnummer" => "ar"
+		);
+	my %searchNo = ( "Artikelnummer" => "partnumber",
+				     "Kundennummer"  => "customernumber",
+				     "Lieferantennummer" => "vendornumber",
+				     "Projektnummer" => "projectnummer",
+				     "Buchungsnummer" => "ordnumber",
+				     "Eingangsrechnungnummer" => "invnumber",
+				     "Ausgangsrechnungnummer" => "invnumber"
+		);
+	
+	my $restriction;
+	my $tempNo = 0;
+	foreach(split(/\,/, $form->{einschraenkungen})) {
+		if($tempNo == 0) {
+			$restriction .= " AND addition = '" . $_ . "'";
+			$tempNo = 1;
+		} 
+		else {
+			$restriction .= " OR addition = '" . $_ . "'";
+		}
+	}
+	
+	$restriction .= (($form->{transdate} ne "" && $form->{reqdate} ne "") 
+						? qq| AND st.itime::date >= '| . $form->{transdate} . qq|' AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+						: (($form->{transdate} ne "" && $form->{reqdate} eq "") 
+							? qq| AND st.itime::date >= '| . $form->{transdate} . qq|'|
+							: ($form->{transdate} eq "" && $form->{reqdate} ne "") 
+								? qq| AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+								: ""
+							)
+						);
+	
+	my $dbh = $form->dbconnect(\%myconfig);
+	
+	$restriction .= ($form->{mitarbeiter} eq "" ? "" 
+					: ($form->{mitarbeiter} =~ /^[0-9]*$/  
+						? " AND employee_id = " . $form->{mitarbeiter} 
+						: " AND employee_id = " . &get_employee_id($form->{mitarbeiter}, $dbh)));
+	
+	my $query = qq|SELECT id FROM $search{$form->{what2search}} 
+				   WHERE $searchNo{$form->{'what2search'}} ILIKE '$form->{"searchid"}' 
+				   |;
+	
+	my $sth = $dbh->prepare($query);
+	
+	$sth->execute() || $form->dberror($query);
+	
+	$form->{title} = $locale->text("History Search");
+	$form->header();
+	
+	while(my $hash_ref = $sth->fetchrow_hashref()){
+		print $form->parse_html_template("/common/show_history", 
+			{"DATEN" => $form->get_history($dbh,$hash_ref->{id},$restriction),
+			 "SUCCESS" => ($form->get_history($dbh,$hash_ref->{id},$restriction) != 0),
+			 "NONEWWINDOW" => "1"	
+			}
+		);
+	}
+	$dbh->disconnect();
+	
+	$lxdebug->leave_sub();
+}
+
+sub get_employee_id {
+	$lxdebug->enter_sub();
+	my $query = qq|SELECT id FROM employee WHERE name = '| . $_[0] . qq|'|;
+	my $sth = $_[1]->prepare($query);
+	$sth->execute() || $form->dberror($query);
+	my $return = $sth->fetch();
+	$sth->finish();
+	return ${$return}[0];
+	$lxdebug->leave_sub();
 }
 
 sub swap_units {
