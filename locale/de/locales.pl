@@ -328,6 +328,7 @@ sub scanfile {
         my $newfile = $&;
         $newfile =~ s/require\s+\W//;
         $newfile =~ s/\$form->{path}\///;
+        $newfile =~ s|bin/mozilla||;
 #         &scanfile("$bindir/$newfile", 0, $scanned_files);
          $cached{$file}{scan}{"$bindir/$newfile"} = 1;
       } elsif (/use\s+SL::(.*?);/) {
