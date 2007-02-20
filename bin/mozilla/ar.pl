@@ -204,6 +204,7 @@ sub create_links {
         $form->{"forex_$j"} = $form->{"exchangerate_$i"} =
           $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};
         $form->{"AR_paid_$j"} = "$form->{acc_trans}{$key}->[$i-1]->{accno}";
+        $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
         $form->{paidaccounts}++;
       } else {
 
@@ -656,15 +657,15 @@ $jsscript
     <td>
       <table width=100%>
 	<tr class=listheading>
-	  <th colspan=6 class=listheading>|
+	  <th colspan=7 class=listheading>|
     . $locale->text('Incoming Payments') . qq|</th>
 	</tr>
 |;
 
   if ($form->{currency} eq $form->{defaultcurrency}) {
-    @column_index = qw(datepaid source memo paid AR_paid);
+    @column_index = qw(datepaid source memo paid AR_paid paid_project_id);
   } else {
-    @column_index = qw(datepaid source memo paid exchangerate AR_paid);
+    @column_index = qw(datepaid source memo paid exchangerate AR_paid paid_project_id);
   }
 
   $column_data{datepaid}     = "<th>" . $locale->text('Date') . "</th>";
@@ -672,7 +673,8 @@ $jsscript
   $column_data{exchangerate} = "<th>" . $locale->text('Exch') . "</th>";
   $column_data{AR_paid}      = "<th>" . $locale->text('Account') . "</th>";
   $column_data{source}       = "<th>" . $locale->text('Source') . "</th>";
-  $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>";
+  $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>"; 
+  $column_data{paid_project_id} = "<th>" . $locale->text('Project Number') . "</th>"; 
 
   print "
         <tr>
@@ -729,6 +731,14 @@ $jsscript
     $column_data{memo} =
       qq|<td align=center><input name="memo_$i" size=11 value="$form->{"memo_$i"}"></td>|;
 
+    $column_data{paid_project_id} =
+      qq|<td>|
+      . NTI($cgi->popup_menu('-name' => "paid_project_id_$i",
+                             '-values' => \@project_values,
+                             '-labels' => \%project_labels,
+                             '-default' => $form->{"paid_project_id_$i"} ))
+      . qq|</td>|;
+
     map { print qq|$column_data{$_}\n| } @column_index;
 
     print "
@@ -760,6 +770,8 @@ sub form_footer {
 
   print qq|
 
+<input name=gldate type=hidden value="| . Q($form->{gldate}) . qq|">
+
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=path value=$form->{path}>
@@ -772,35 +784,32 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
+  print qq|<input class=submit type=submit name=action value="|
+    . $locale->text('Update') . qq|">
+|;
   if ($form->{id}) {
     if ($form->{radier}) {
-      print qq|<input class=submit type=submit name=action value="|
-        . $locale->text('Update') . qq|">
-  |;
-
-          print qq|
+      print qq|
           <input class=submit type=submit name=action value="|
             . $locale->text('Post') . qq|">
           <input class=submit type=submit name=action value="|
             . $locale->text('Delete') . qq|">
   |;
-  }
-      if ($transdate > $closedto) {
-        print qq|
+    }
+    if ($transdate > $closedto) {
+      print qq|
   <input class=submit type=submit name=action value="|
           . $locale->text('Use As Template') . qq|">
   |;
-      }
-        print qq|
+    }
+    print qq|
   <input class=submit type=submit name=action value="|
-          . $locale->text('Post Payment') . qq|">
+    . $locale->text('Post Payment') . qq|">
   |;
-    
+
   } else {
     if ($transdate > $closedto) {
       print qq|<input class=submit type=submit name=action value="|
-        . $locale->text('Update') . qq|">
-      <input class=submit type=submit name=action value="|
         . $locale->text('Post') . qq|">|;
     }
   }
