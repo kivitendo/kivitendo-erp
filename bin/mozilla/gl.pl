@@ -494,10 +494,14 @@ sub generate_report {
       . $locale->date(\%myconfig, $form->{dateto}, 1);
   }
 
-  @columns =
-    qw(transdate id reference description notes source debit debit_accno credit
-       credit_accno debit_tax debit_tax_accno credit_tax credit_tax_accno accno
-       gifi_accno projectnumbers);
+  @columns = $form->sort_columns( qw(
+       transdate       id                reference         description  
+       notes           source            debit             debit_accno  
+       credit          credit_accno      debit_tax         debit_tax_accno
+       credit_tax      credit_tax_accno  accno             gifi_accno
+       projectnumbers  
+       )
+  );
 
   if ($form->{accno} || $form->{gifi_accno}) {
     @columns = grep !/(accno|gifi_accno)/, @columns;
@@ -833,6 +837,12 @@ sub generate_report {
 
   map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
 
+  my $balanced_ledger = $totaldebit 
+                      + $totaldebittax 
+                      - $totalcredit 
+                      - $totalcredittax;
+                    # = 0 for balanced ledger
+                    
   $column_data{debit} =
     "<th align=right class=listtotal>"
     . $form->format_amount(\%myconfig, $totaldebit, 2, "&nbsp;") . "</th>";
@@ -856,6 +866,27 @@ sub generate_report {
   map { print "$column_data{$_}\n" } @column_index;
 
   print qq|
+        </tr>
+        <tr>|;
+
+
+  if ( abs($balanced_ledger) >  0.001 ) {
+
+    print qq|<td colspan="4" style="background-color:#FFA0A0" >|
+        . $locale->text('Unbalanced Ledger') 
+        . ": " 
+        . $form->format_amount(\%myconfig, $balanced_ledger, 3, "&nbsp;")
+
+  } elsif ( abs($balanced_ledger) <= 0.001 ) {
+
+    print qq|<td colspan="3">|
+          . $locale->text('Balanced Ledger') 
+
+  }
+
+  
+  print qq|
+         </td>
         </tr>
         </tbody>
       </table>
