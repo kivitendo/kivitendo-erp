@@ -3,6 +3,20 @@
 ####################################
 2007-02-?? - Version 2.4.2
 
+  - USTVA Buchungsgruppe Inland: Konten angepasst und getestet
+  - USTVA IST und Soll Versteuerung: Querys angepasst und getestete
+  - USTVA Testscript
+  - Bugfix 526
+  - Kontenplan: Mehr Informationen in die Tabelle gebracht. Darstellung in
+    HTML::Template realisiert.
+  - Betr. Steueranzeige unterhalb von Rechnungen, Angeboten, etc: an die neuen
+    Taxkeys angepasst. Der Steuersatz wird nicht mehr in der 'description' 
+    redundant gefuehrt, sondern aus der tax'rate' generiert.
+  - Unbalanced Ledger Fehlermeldung im Buchungsjournal wieder hinzugefuegt.
+    Das Buchungsjournal wird immer dargestellt. Im Falle eines Fehlers 
+    (soll+vst) - (haben+ust) > 0.001 
+    wird im Tabellenfuss die 'Unbalanced Ledger' Meldung ausgegeben mit dem
+    Bilanzfehlerbetrag.
   - Einkaufs-, Verkaufs-, Debitoren- und Kreditorenrechnungen können
     als Entwurf gespeichert und später weiter bearbeitet werden. Dabei
     werden sie nicht gebucht.
