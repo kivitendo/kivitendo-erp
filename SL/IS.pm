@@ -445,7 +445,7 @@ sub customer_details {
   }
 
   # get rest for the customer
-  my $query = qq|SELECT ct.*, cp.*, ct.notes as customernotes
+  my $query = qq|SELECT ct.*, cp.*, ct.notes as customernotes, ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail
                  FROM customer ct
                  LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
 		 WHERE ct.id = $form->{customer_id} $contact order by cp.cp_id limit 1|;

@@ -1198,9 +1198,6 @@ sub order_details {
     $form->set_payment_options($myconfig, $form->{orddate});
   }
 
-  # myconfig variables
-  map { $form->{$_} = $myconfig->{$_} }
-    (qw(company address tel fax signature businessnumber));
   $form->{username} = $myconfig->{name};
 
   $dbh->disconnect;
