@@ -2248,9 +2248,12 @@ sub save_history {
 		&get_employee($self, $dbh);
 	}
 	
-	my $query = qq|INSERT INTO status (trans_id, employee_id, addition, what_done) 
-				   VALUES ($self->{id}, $self->{employee_id}, '$self->{addition}', '$self->{what_done}')|;
-	$dbh->do($query) || $self->dberror($query);
+	my $query =
+    qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done) | .
+    qq|VALUES (?, ?, ?, ?)|;
+  my @values = (conv_i($self->{id}), conv_i($self->{employee_id}),
+                $self->{addition}, $self->{what_done});
+  do_query($self, $dbh, $query, @values);
 	
 	$main::lxdebug->leave_sub();
 }
@@ -2264,27 +2267,29 @@ sub get_history {
 	my $restriction = shift();
 	my @tempArray;
 	my $i = 0;
-	if($trans_id ne ""){
-		my $query = qq|SELECT st.employee_id, st.itime, st.addition, st.what_done, emp.name 
-				   FROM status st 
-				   LEFT JOIN employee emp 
-				   ON emp.id = st.employee_id
-				   WHERE trans_id = $trans_id|
-				   . $restriction;
+	if ($trans_id ne "") {
+		my $query =
+      qq|SELECT h.employee_id, h.itime, h.addition, h.what_done, emp.name | .
+      qq|FROM history_erp h | .
+      qq|LEFT JOIN employee emp | .
+      qq|ON emp.id = st.employee_id | .
+      qq|WHERE trans_id = ? |
+      . $restriction;
 	
 		my $sth = $dbh->prepare($query) || $self->dberror($query);
 	
-		$sth->execute() || $self->dberror($query);
+		$sth->execute($trans_id) || $self->dberror("$query ($trans_id)");
 
 		while(my $hash_ref = $sth->fetchrow_hashref()) {
 			$hash_ref->{addition} = $main::locale->text($hash_ref->{addition});
 			$hash_ref->{what_done} = $main::locale->text($hash_ref->{what_done});
 			$tempArray[$i++] = $hash_ref; 
 		}
-		return \@tempArray if ($i > 0 && $tempArray[0] ne "");
+    $main::lxdebug->leave_sub() and return \@tempArray
+      if ($i > 0 && $tempArray[0] ne "");
 	}
-	return 0;
 	$main::lxdebug->leave_sub();
+	return 0;
 }
 
 sub save_status {
