@@ -1157,11 +1157,11 @@ if ($form->{type} eq "credit_note") {
   # button for saving history
   if($form->{id} ne "") {
     print qq|
-  	  <input type=button class=submit onclick=set_history_window(|
-  	  . $form->{id} 
-  	  . qq|); name=history id=history value=|
-  	  . $locale->text('history') 
-  	  . qq|>|;
+  	  <input type="button" class="submit" onclick="set_history_window(|
+  	  . Q($form->{id})
+  	  . qq|);" name="history" id="history" value="|
+  	  . $locale->text('history')
+  	  . qq|">|;
   }
   # /button for saving history
 
