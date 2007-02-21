@@ -62,8 +62,6 @@ sub get_vc {
     qq|  WHERE a.${vc}_id = vc.id  AND s.trans_id = a.id AND s.formname = ? | .
     qq|    AND s.spoolfile IS NOT NULL) AS total|;
 
-  $main::lxdebug->message(0, "kuh1 $query");
-
   my ($count) = selectrow_query($form, $dbh, $query, $form->{type});
 
   # build selection list
@@ -82,8 +80,6 @@ sub get_vc {
       push @{ $form->{"all_${vc}"} }, $ref;
     }
     $sth->finish;
-
-    $main::lxdebug->message(0, "kuh2 $query");
   }
 
   $dbh->disconnect;
