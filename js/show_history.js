@@ -11,7 +11,7 @@ function centerParms(width,height,extra) {
 }
 
 function set_history_window(id) {
-  var parm = centerParms(600,500) + ",width=600,height=500,status=yes,scrollbars=yes";
+  var parm = centerParms(800,500) + ",width=800,height=500,status=yes,scrollbars=yes";
   var name = "History";
   url = "common.pl?" +
     "action=show_history&" +
