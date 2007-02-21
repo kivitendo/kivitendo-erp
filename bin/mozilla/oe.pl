@@ -1050,6 +1050,12 @@ sub form_footer {
 
   if (($form->{id})) {
     print qq|
+  	<input type="button" class="submit" onclick="set_history_window(|
+  	. Q($form->{id})
+  	. qq|);" name="history" id="history" value="|
+  	. $locale->text('history')
+  	. qq|">
+
 <br>| . $locale->text("Workflow $form->{type}") . qq|<br>
 <input class=submit type=submit name=action value="|
       . $locale->text('Save as new') . qq|">
@@ -1116,17 +1122,7 @@ sub form_footer {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-|;
-# button for saving history
-print qq|
-  	<input type=button class=submit onclick=set_history_window(|
-  	. $form->{id} 
-  	. qq|); name=history id=history value=|
-  	. $locale->text('history') 
-  	. qq|>|;
-# /button for saving history
 
-qq|
 </form>
 
 </body>
