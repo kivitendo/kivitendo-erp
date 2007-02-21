@@ -970,11 +970,6 @@ sub order_details {
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber);
 
-  my @tax_arrays =
-    qw(taxbase tax taxdescription taxrate taxnumber);
-
-  map({ $form->{$_} = [] } (@arrays, @tax_arrays));
-
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];

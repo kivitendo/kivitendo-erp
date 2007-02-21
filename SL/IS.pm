@@ -130,8 +130,6 @@ sub invoice_details {
   my @tax_arrays =
     qw(taxbase tax taxdescription taxrate taxnumber);
 
-  map({ $form->{$_} = [] } (@arrays, @tax_arrays));
-
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];
 
