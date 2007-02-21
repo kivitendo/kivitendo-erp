@@ -825,14 +825,13 @@ sub get_buchungsgruppe {
       qq|SELECT count(id) = 0 AS orphaned
          FROM parts
          WHERE buchungsgruppen_id = ?|;
-    ($form->{orphaned}) = selectrow_arra($query, undef, $form->{id});
-    $form->dberror($query . " ($form->{id})") if ($dbh->err);
+    ($form->{orphaned}) = selectrow_query($form, $dbh, $query, $form->{id});
   }
 
   $query = "SELECT inventory_accno_id, income_accno_id, expense_accno_id ".
     "FROM defaults";
   ($form->{"std_inventory_accno_id"}, $form->{"std_income_accno_id"},
-   $form->{"std_expense_accno_id"}) = $dbh->selectrow_array($query);
+   $form->{"std_expense_accno_id"}) = selectrow_query($form, $dbh, $query);
 
   my $module = "IC";
   $query = qq|SELECT c.accno, c.description, c.link, c.id,
