@@ -20,11 +20,11 @@
 		</th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>
-	<tr>
-		<td>
+	<tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+		<td nowrap>
 			<TMPL_VAR NAME=itime ESCAPE=HTML>
 		</td>
-		<td>
+		<td nowrap>
 			<TMPL_VAR NAME=name ESCAPE=HTML>
 		</td>
 		<td>
@@ -39,8 +39,10 @@
 <TMPL_ELSE>
 <b>Keine Suchergebnisse gefunden!</b><br>
 </TMPL_IF>
+<p>
 <TMPL_IF NAME=NONEWWINDOW>
-<a href="javascript:history.back(-1);">zurück</a>
+<input type="button" onclick="javascript:history.back(-1);" value="zurück">
 <TMPL_ELSE>
-<a href="javascript:window.close();">schließen</a>
+<input type="button" onclick="javascript:window.close();" value="schließen">
 </TMPL_IF>
+</p>
