@@ -1937,17 +1937,18 @@ sub save_and_close {
   }
 
   relink_accounts();
+
+  $form->error($err) if (!OE->save(\%myconfig, \%$form));
+
   # saving the history
   if(!exists $form->{addition}) {
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
-  $form->redirect(
-            $form->{label} . " $form->{$ordnumber} " . $locale->text('saved!'))
-    if (OE->save(\%myconfig, \%$form));
-  $form->error($err);
+  $form->redirect($form->{label} . " $form->{$ordnumber} " .
+                  $locale->text('saved!'));
 
   $lxdebug->leave_sub();
 }
@@ -2017,6 +2018,9 @@ sub save {
     unless $form->{$ordnumber};
 
   relink_accounts();
+
+  OE->save(\%myconfig, \%$form);
+
   # saving the history
   if(!exists $form->{addition}) {
   	$form->{addition} = "SAVED";
@@ -2024,7 +2028,6 @@ sub save {
   }
   # /saving the history 
 
-  OE->save(\%myconfig, \%$form);
   $form->{simple_save} = 1;
   if(!$form->{print_and_save}) {
     set_headings("edit");
