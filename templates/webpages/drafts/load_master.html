@@ -1,0 +1,54 @@
+<body>
+
+ <form action="<TMPL_VAR script ESCAPE=HTML>" method="post">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+  <input type="hidden" name="SAVED_FORM" value="<TMPL_VAR SAVED_FORM ESCAPE=HTML>">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop"><translate>Load draft</translate></th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr>
+    <td>
+     <translate>The following drafts have been saved and can be loaded.</translate>
+     <translate>Loading a draft will remove it from this list until you click the 'Save Draft' button again.</translate>
+    </td>
+   </tr>
+
+   <tr>
+    <td>
+     <table>
+      <tr>
+       <th class="listheading"><translate>Date</translate></th>
+       <th class="listheading"><translate>Description</translate></th>
+       <th class="listheading"><translate>Employee</translate></th>
+      </tr>
+
+      <TMPL_LOOP DRAFTS>
+       <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+        <td><TMPL_VAR itime ESCAPE=HTML></td>
+        <td><a href="<TMPL_VAR script ESCAPE=URL>?login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&path=<TMPL_VAR path ESCAPE=URL>&action=load_draft&id=<TMPL_VAR id ESCAPE=URL>"><TMPL_VAR description ESCAPE=HTML></a></td>
+        <td><TMPL_VAR employee_name ESCAPE=HTML></td>
+       </tr>
+      </TMPL_LOOP>
+     </table>
+    </td>
+   </tr>
+
+   <tr>
+    <td>
+     <input type="hidden" name="action" value="dont_load_draft">
+     <input type="submit" class="submit" name="dummy" value="<translate>Skip</translate>">
+    </td>
+   </tr>
+  </table>
+
+ </form>
+</body>
+</html>
