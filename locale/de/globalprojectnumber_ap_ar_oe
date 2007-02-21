@@ -1,0 +1,9 @@
+$self->{texts} = {
+};
+
+$self->{subs} = {
+  'do_query'                    => 'do_query',
+  'do_update'                   => 'do_update',
+};
+
+1;
