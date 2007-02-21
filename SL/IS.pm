@@ -927,11 +927,11 @@ sub post_invoice {
         $form->{"paid_$i"} *= -1;
   
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                    source, memo, ?)
+                    source, memo, project_id)
                     VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                        WHERE c.accno = '$accno', project_id),
+                                        WHERE c.accno = '$accno'),
                     $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
-                    '$form->{"source_$i"}', '$form->{"memo_$i"}')|;
+                    '$form->{"source_$i"}', '$form->{"memo_$i"}', ?)|;
         do_query($form, $dbh, $query, $project_id);
   
         # exchangerate difference
