@@ -2269,7 +2269,7 @@ sub get_history {
 	my $i = 0;
 	if ($trans_id ne "") {
 		my $query =
-      qq|SELECT h.employee_id, h.itime, h.addition, h.what_done, emp.name | .
+      qq|SELECT h.employee_id, h.itime::timestamp(0) AS itime, h.addition, h.what_done, emp.name | .
       qq|FROM history_erp h | .
       qq|LEFT JOIN employee emp | .
       qq|ON emp.id = h.employee_id | .
