@@ -12,6 +12,7 @@ CREATE TABLE history_erp (
        employee_id integer,
        addition text,
        what_done text,
+       itime timestamp DEFAULT now(),
 
        PRIMARY KEY (id),
        FOREIGN KEY (employee_id) REFERENCES employee (id)
