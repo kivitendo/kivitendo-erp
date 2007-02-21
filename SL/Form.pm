@@ -2272,7 +2272,7 @@ sub get_history {
       qq|SELECT h.employee_id, h.itime, h.addition, h.what_done, emp.name | .
       qq|FROM history_erp h | .
       qq|LEFT JOIN employee emp | .
-      qq|ON emp.id = st.employee_id | .
+      qq|ON emp.id = h.employee_id | .
       qq|WHERE trans_id = ? |
       . $restriction;
 	
