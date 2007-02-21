@@ -37,6 +37,7 @@ use Data::Dumper;
 
 require "$form->{path}/io.pl";
 require "$form->{path}/arap.pl";
+require "bin/mozilla/drafts.pl";
 
 1;
 
@@ -44,7 +45,9 @@ require "$form->{path}/arap.pl";
 
 sub add {
   $lxdebug->enter_sub();
-  
+
+  return $lxdebug->leave_sub() if (load_draft_maybe());
+
   if ($form->{type} eq "credit_note") {
     $form->{title} = $locale->text('Add Credit Note');
 
@@ -621,7 +624,7 @@ sub form_header {
 <input type=hidden name=storno value=$form->{storno}>
 <input type=hidden name=storno_id value=$form->{storno_id}>
 
-
+| . ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") . qq|
 
 <table width=100%>
   <tr class=listtop>
@@ -1150,7 +1153,9 @@ if ($form->{type} eq "credit_note") {
       <input class=submit type=submit name=action value="|
         . $locale->text('Print and Post') . qq|">
       <input class=submit type=submit name=action value="|
-        . $locale->text('Post') . qq|">|;
+        . $locale->text('Post') . qq|"> | .
+        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
+                         '-class' => 'submit'));
     }
   }
 
@@ -1172,7 +1177,10 @@ if ($form->{type} eq "credit_note") {
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
 <input name=callback type=hidden value="$form->{callback}">
-
+|
+. $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
+. $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
+. qq|
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
@@ -1445,6 +1453,7 @@ sub post {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {
       $form->error($locale->text('Cannot post invoice!'));
     }
+    remove_draft();
     # saving the history
   	if(!exists $form->{addition}) {
   	  $form->{addition} = "PRINTED AND POSTED";
@@ -1453,9 +1462,10 @@ sub post {
     # /saving the history
     
   } else {
-      if (IS->post_invoice(\%myconfig, \%$form)){
+    if (IS->post_invoice(\%myconfig, \%$form)){
+      remove_draft();
     	# saving the history
-  		if(!exists $form->{addition}) {
+        if(!exists $form->{addition}) {
   	  		if($form->{storno}) {
   	  			$form->{addition} = "STORNO";
   	  		}

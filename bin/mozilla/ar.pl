@@ -38,6 +38,7 @@ use Data::Dumper;
 
 require "$form->{path}/arap.pl";
 require "bin/mozilla/common.pl";
+require "bin/mozilla/drafts.pl";
 
 1;
 
@@ -73,7 +74,9 @@ require "bin/mozilla/common.pl";
 
 sub add {
   $lxdebug->enter_sub();
-  
+
+  return $lxdebug->leave_sub() if (load_draft_maybe());
+
   # saving the history
   if(!exists $form->{addition} && ($form->{id} ne "")) {
   	$form->{addition} = "ADDED";
@@ -494,6 +497,8 @@ sub form_header {
 <input type=hidden name=locked value=$form->{locked}>
 <input type=hidden name=title value="$title">
 
+| . ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") . qq|
+
 <table width=100%>
   <tr class=listtop>
     <th class=listtop>$form->{title}</th>
@@ -789,6 +794,10 @@ sub form_footer {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
+|
+. $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
+. $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
+. qq|
 
 <br>
 |;
@@ -822,7 +831,9 @@ sub form_footer {
   } else {
     if ($transdate > $closedto) {
       print qq|<input class=submit type=submit name=action value="|
-        . $locale->text('Post') . qq|">|;
+        . $locale->text('Post') . qq|"> | .
+        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
+                         '-class' => 'submit'));
     }
   }
 
@@ -1049,6 +1060,7 @@ sub post {
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history 
+    remove_draft();
     $form->redirect($locale->text('Transaction posted!'));
   }
   $form->error($locale->text('Cannot post transaction!'));

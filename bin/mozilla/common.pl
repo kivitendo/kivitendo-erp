@@ -38,7 +38,8 @@ sub restore_form {
   $old_form =~ s|!r|\r|g;
   $old_form =~ s|!n|\n|g;
   $old_form =~ s|!!|!|g;
-  $form = YAML::Load($old_form);
+  my $new_form = YAML::Load($old_form);
+  map({ $form->{$_} = $new_form->{$_}; } keys(%{$new_form}));
 
   $lxdebug->leave_sub();
 }

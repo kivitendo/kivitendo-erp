@@ -3,6 +3,9 @@
 ####################################
 2007-02-?? - Version 2.4.2
 
+  - Einkaufs-, Verkaufs-, Debitoren- und Kreditorenrechnungen können
+    als Entwurf gespeichert und später weiter bearbeitet werden. Dabei
+    werden sie nicht gebucht.
   - Vorlagenausdruck: Variablen "fax", "phone" und "email" bei
     Kundenstammdaten werden nun auch als "customerfax",
     "customerphone" und "customeremail" zur Verfügung gestellt.

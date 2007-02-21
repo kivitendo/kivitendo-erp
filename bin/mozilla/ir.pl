@@ -37,6 +37,7 @@ use SL::PE;
 require "$form->{path}/io.pl";
 require "$form->{path}/arap.pl";
 require "$form->{path}/common.pl";
+require "bin/mozilla/drafts.pl";
 
 1;
 
@@ -44,6 +45,8 @@ require "$form->{path}/common.pl";
 
 sub add {
   $lxdebug->enter_sub();
+
+  return $lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = $locale->text('Add Vendor Invoice');
 
@@ -398,6 +401,8 @@ sub form_header {
 <input type=hidden name=shipped value=$form->{shipped}>
 <input type=hidden name=storno value=$form->{storno}>
 <input type=hidden name=storno_id value=$form->{storno_id}>
+
+| . ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") . qq|
 
 <table width=100%>
   <tr class=listtop>
@@ -803,7 +808,9 @@ sub form_footer {
 
   if (!$form->{id} && ($invdate > $closedto)) {
     print qq| <input class=submit type=submit name=action value="|
-      . $locale->text('Post') . qq|">|;
+      . $locale->text('Post') . qq|"> | .
+      NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
+                       '-class' => 'submit'));
   }
 
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
@@ -816,7 +823,10 @@ sub form_footer {
 <input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
-|;
+|
+  . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
+  . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
+
   # button for saving history
   if($form->{id} ne "") {
     print qq|
@@ -1070,7 +1080,7 @@ sub post {
 
 
   relink_accounts();
-  if (IR->post_invoice(\%myconfig, \%$form)){ 
+  if (IR->post_invoice(\%myconfig, \%$form)){
   	# saving the history
   	if(!exists $form->{addition} && $form->{id} ne "") {
   		$form->{addition} = "POSTED";
@@ -1078,6 +1088,7 @@ sub post {
   		$form->save_history($form->dbconnect(\%myconfig));
   	}
 	# /saving the history
+    remove_draft();
   	$form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'));
