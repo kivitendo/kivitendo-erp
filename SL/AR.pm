@@ -605,7 +605,12 @@ sub ar_transactions {
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $form->{l_employee};
   my $sortorder = join(', ', @a);
-  $sortorder = $form->{sort} if ($form->{sort} && grep({ $_ eq $form->{sort} } @a));
+
+  if (grep({ $_ eq $form->{sort} }
+           qw(id transdate duedate invnumber ordnumber name
+              datepaid employee shippingpoint shipvia))) {
+    $sortorder = $form->{sort};
+  }
 
   $query .= " WHERE $where ORDER by $sortorder";
 
