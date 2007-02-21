@@ -98,7 +98,6 @@ sub load_draft {
     restore_form($old_form, 1);
     $form->{draft_id} = $id;
     $form->{draft_description} = $description;
-    $lxdebug->dump(0, "of", $old_form);
   }
 
   update();
