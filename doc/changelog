@@ -3,6 +3,9 @@
 ####################################
 2007-02-?? - Version 2.4.2
 
+  - Vorlagenausdruck: Variablen "fax", "phone" und "email" bei
+    Kundenstammdaten werden nun auch als "customerfax",
+    "customerphone" und "customeremail" zur Verfügung gestellt.
   - Globale Projektnummern bei Einkaufs- und Verkaufsbelegen hinzugefügt.
     Nach Projektnummern kann gefiltert werden, und sie können in der Liste
     mit angezeigt werden (auch in der Finanzbuchhaltung). Projektnummern
@@ -74,6 +77,8 @@
   - Bugfix 471 - voreingestellter Ausgabekanal wird nicht übernommen
   - Bugfix 455 - fehlerhafte Anzeige im Buchungsjournal bei unterschiedl.
     Rechn.- und Bezahldaten
+  - Bugfix 361 - webdav Ansicht
+  - Bugfix 181 - Webdav Fehler bei Detailansicht einer Einkaufsrechnung
 
 2007-01-19 - Version 2.4.1
   - CSV-Import auf Verwendung von Buchungsgruppen angepasst
