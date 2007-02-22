@@ -17,8 +17,7 @@ use SL::Common;
 sub save_form {
   $lxdebug->enter_sub();
 
-  my $yaml = new YAML;
-  my $old_form = $yaml->dump($form);
+  my $old_form = YAML::Dump($form);
   $old_form =~ s|!|!!|g;
   $old_form =~ s|\n|!n|g;
   $old_form =~ s|\r|!r|g;
