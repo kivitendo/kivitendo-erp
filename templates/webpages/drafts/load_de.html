@@ -24,6 +24,7 @@
     <td>
      <table>
       <tr>
+       <th class="listheading">&nbsp;</th>
        <th class="listheading">Datum</th>
        <th class="listheading">Beschreibung</th>
        <th class="listheading">Bearbeiter</th>
@@ -31,6 +32,7 @@
 
       <TMPL_LOOP DRAFTS>
        <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+        <td><input type="checkbox" name="checked_<TMPL_VAR id>" value="1"></td>
         <td><TMPL_VAR itime ESCAPE=HTML></td>
         <td><a href="<TMPL_VAR script ESCAPE=URL>?login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&path=<TMPL_VAR path ESCAPE=URL>&action=load_draft&id=<TMPL_VAR id ESCAPE=URL>"><TMPL_VAR description ESCAPE=HTML></a></td>
         <td><TMPL_VAR employee_name ESCAPE=HTML></td>
@@ -42,8 +44,9 @@
 
    <tr>
     <td>
-     <input type="hidden" name="action" value="dont_load_draft">
-     <input type="submit" class="submit" name="dummy" value="Überspringen">
+     <input type="hidden" name="action" value="draft_action_dispatcher">
+     <input type="submit" class="submit" name="draft_action" value="Überspringen">
+     <input type="submit" class="submit" name="draft_action" value="Entwürfe löschen">
     </td>
    </tr>
   </table>

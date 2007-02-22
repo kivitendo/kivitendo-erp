@@ -108,16 +108,17 @@ sub load {
 sub remove {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $draft_id) = @_;
+  my ($self, $myconfig, $form, @draft_ids) = @_;
 
-  return $main::lxdebug->leave_sub() unless ($draft_id);
+  return $main::lxdebug->leave_sub() unless (@draft_ids);
 
-  my ($dbh, $sth, $query, @values);
+  my ($dbh, $sth, $query);
 
   $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM drafts WHERE id = ?|;
-  do_query($form, $dbh, $query, $draft_id);
+  $query = qq|DELETE FROM drafts WHERE id IN (| .
+    join(", ", map({ "?" } @draft_ids)) . qq|)|;
+  do_query($form, $dbh, $query, @draft_ids);
 
   $dbh->disconnect();
 
