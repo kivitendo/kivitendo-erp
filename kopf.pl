@@ -1,6 +1,10 @@
 #!/usr/bin/perl
 #
 
+BEGIN {
+  push(@INC, "modules");
+}
+
 use SL::LXDebug;
 $lxdebug = LXDebug->new();
 

@@ -1,5 +1,9 @@
 #!/usr/bin/perl -w
 
+BEGIN {
+  push(@INC, "modules");
+}
+
 use SL::InstallationCheck;
 
 $| = 1;

@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+BEGIN {
+  push(@INC, "modules");
+}
+
 use DBI;
 use Data::Dumper;
 

@@ -30,6 +30,10 @@
 #
 #######################################################################
 
+BEGIN {
+  push(@INC, "modules");
+}
+
 # setup defaults, DO NOT CHANGE
 $userspath  = "users";
 $templates  = "templates";

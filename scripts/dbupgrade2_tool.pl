@@ -5,6 +5,8 @@ BEGIN {
     print("This tool must be run from the Lx-Office ERP base directory.\n");
     exit(1);
   }
+
+  push(@INC, "modules");
 }
 
 use DBI;
