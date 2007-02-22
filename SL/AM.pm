@@ -180,7 +180,7 @@ sub save_account {
   my ($tax_id, $taxkey) = split(/--/, $form->{tax});
   my $startdate = $form->{startdate} ? $form->{startdate} : "1970-01-01";
 
-  if ($form->{id} && $form->{orphaned}) {
+  if ($form->{id}) {
     $query = qq|UPDATE chart SET
                 accno = ?, description = ?, charttype = ?,
                 gifi_accno = ?, category = ?, link = ?,
