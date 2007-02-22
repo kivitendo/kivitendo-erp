@@ -98,6 +98,7 @@ sub load_draft {
     restore_form($old_form, 1);
     $form->{draft_id} = $id;
     $form->{draft_description} = $description;
+    $form->{remove_draft} = 'checked';
   }
 
   update();
