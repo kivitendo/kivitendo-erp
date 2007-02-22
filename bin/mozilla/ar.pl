@@ -1060,7 +1060,7 @@ sub post {
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history 
-    remove_draft();
+    remove_draft() if $form->{remove_draft};
     $form->redirect($locale->text('Transaction posted!'));
   }
   $form->error($locale->text('Cannot post transaction!'));

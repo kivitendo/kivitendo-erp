@@ -1451,7 +1451,7 @@ sub post {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {
       $form->error($locale->text('Cannot post invoice!'));
     }
-    remove_draft();
+    remove_draft() if $form->{remove_draft};
     # saving the history
   	if(!exists $form->{addition}) {
   	  $form->{addition} = "PRINTED AND POSTED";
@@ -1461,7 +1461,7 @@ sub post {
     
   } else {
     if (IS->post_invoice(\%myconfig, \%$form)){
-      remove_draft();
+      remove_draft() if $form->{remove_draft};
     	# saving the history
         if(!exists $form->{addition}) {
   	  		if($form->{storno}) {

@@ -96,7 +96,7 @@ sub load {
   }
   $sth->finish();
 
-  do_query($form, $dbh, "DELETE FROM drafts WHERE id = ?", $draft_id);
+#  do_query($form, $dbh, "DELETE FROM drafts WHERE id = ?", $draft_id);
 
   $dbh->disconnect();
 

@@ -182,6 +182,7 @@ $self->{texts} = {
   'RFQ'                         => 'Anfrage',
   'RFQ Number'                  => 'Anfragenummer',
   'Remaining'                   => 'Rest',
+  'Remove Draft'                => 'Entwurf l&ouml;schen',
   'Reqdate'                     => 'Lieferdatum',
   'Request for Quotation'       => 'Anfrage',
   'Request for Quotations'      => 'Anfragen',

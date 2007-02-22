@@ -1086,7 +1086,7 @@ sub post {
   		$form->save_history($form->dbconnect(\%myconfig));
   	}
 	# /saving the history
-    remove_draft();
+    remove_draft() if $form->{remove_draft};
   	$form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'));

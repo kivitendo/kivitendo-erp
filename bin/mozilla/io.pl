@@ -1657,10 +1657,16 @@ sub print_options {
   }
 
   $form->{groupitems} = "checked" if $form->{groupitems};
+  $form->{remove_draft} = "checked" if $form->{remove_draft};
 
   print qq|
           <td>| . $locale->text('Group Items') . qq|</td>
-          <td><input name=groupitems type=checkbox class=checkbox $form->{groupitems}></td>
+          <td><input name=groupitems type=checkbox class=checkbox $form->{groupitems}></td>|;
+
+  print qq|
+          <td>| . $locale->text('Remove Draft') . qq|</td>
+          <td><input name=remove_draft type=checkbox class=checkbox $form->{remove_draft}></td>| if (!$form->{id} && $form->{draft_id});
+  print qq|
         </tr>
       </table>
     </td>
