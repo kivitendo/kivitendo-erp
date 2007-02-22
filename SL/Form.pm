@@ -1520,6 +1520,18 @@ sub get_lists {
                         $params{"all_projects"} ? 1 : 0);
   }
 
+  if ($params{"printers"}) {
+    $query = qq|SELECT id, printer_description, printer_command FROM printers|;
+    $sth = $dbh->prepare($query);
+    $sth->execute() || $self->dberror($query);
+
+    $self->{$params{"printers"}} = [];
+    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+      push(@{ $self->{$params{"printers"}} }, $ref);
+    }
+    $sth->finish;
+  }
+
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();

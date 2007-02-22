@@ -32,6 +32,7 @@
 #======================================================================
 
 use SL::BP;
+use Data::Dumper;
 
 1;
 
@@ -310,6 +311,10 @@ sub yes {
 sub print {
   $lxdebug->enter_sub();
 
+  $form->get_lists(printers => 'ALL_PRINTERS');
+  # use the command stored in the databse or fall back to $myconfig{printer}
+  my $selected_printer = (grep { $_->{id} eq $form->{printer} } @{ $form->{ALL_PRINTERS} })[0]->{'printer_command'} || $myconfig{printer};
+
   if ($form->{callback}) {
     map { $form->{callback} .= "&checked_$_=1" if $form->{"checked_$_"} }
       (1 .. $form->{rowcount});
@@ -318,7 +323,7 @@ sub print {
 
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
-      $form->{OUT} = "| $myconfig{printer}";
+      $form->{OUT} = "| $selected_printer";
       $form->info($locale->text('Printing ... '));
 
       if (BP->print_spool(\%myconfig, \%$form, $spool)) {
@@ -553,7 +558,7 @@ sub list_spool {
 <input type=hidden name=password value=$form->{password}>
 |;
 
-  if ($myconfig{printer}) {
+#  if ($myconfig{printer}) {
     print qq|
 <input type=hidden name=transdateto value=$form->{transdateto}>
 <input type=hidden name=transdatefrom value=$form->{transdatefrom}>
@@ -565,11 +570,17 @@ sub list_spool {
 <input class=submit type=submit name=action value="|
       . $locale->text('Select all') . qq|">
 <input class=submit type=submit name=action value="|
-      . $locale->text('Print') . qq|">
-<input class=submit type=submit name=action value="|
       . $locale->text('Remove') . qq|">
+<input class=submit type=submit name=action value="|
+      . $locale->text('Print') . qq|">
 |;
-  }
+
+$form->get_lists(printers=>"ALL_PRINTERS");
+print qq|<select name="printer">|;
+print map(qq|<option value="$_->{id}">| . $form->quote_html($_->{printer_description}) . qq|</option>|, @{ $form->{ALL_PRINTERS} });
+print qq|</select>|;
+
+#  }
 
   print qq|
 </form>
@@ -578,7 +589,7 @@ sub list_spool {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub select_all {
