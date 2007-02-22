@@ -18,7 +18,6 @@ sub save_form {
   $lxdebug->enter_sub();
 
   my $yaml = new YAML;
-  $yaml->Indent(1);
   my $old_form = $yaml->dump($form);
   $old_form =~ s|!|!!|g;
   $old_form =~ s|\n|!n|g;
