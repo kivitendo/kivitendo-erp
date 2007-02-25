@@ -365,7 +365,7 @@ sub invoice_details {
     $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
     push(@{ $form->{tax} }, $form->format_amount($myconfig, $taxamount, 2));
-    push(@{ $form->{taxdescription} }, $form->{"${item}_description"});
+    push(@{ $form->{taxdescription} }, $form->{"${item}_description"}  . q{ } . 100 * $form->{"${item}_rate"} . q{%});
     push(@{ $form->{taxrate} },
           $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
     push(@{ $form->{taxnumber} }, $form->{"${item}_taxnumber"});
