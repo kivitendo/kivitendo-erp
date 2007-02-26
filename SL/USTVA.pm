@@ -664,14 +664,15 @@ sub get_accounts_ustva {
   my $APwhere  = '';
   my $arwhere  = "";
   my $item;
+  my $gltaxkey_where = "(tk.pos_ustva>=59 AND tk.pos_ustva<=66)";
 
   if ($fromdate) {
     if ($form->{method} eq 'cash') {
       $subwhere .= " AND transdate >= '$fromdate'";
       $glwhere = " AND ac.transdate >= '$fromdate'";
-      $ARwhere .= " AND acc.transdate >= '$fromdate'";
-      $APwhere .= " AND AP.transdate >= '$fromdate'"; 
+      $ARwhere .= " AND acc.transdate >= '$fromdate'"; 
     }
+    $APwhere .= " AND AP.transdate >= '$fromdate'";
     $where .= " AND ac.transdate >= '$fromdate'";
   }
 
@@ -738,7 +739,7 @@ sub get_accounts_ustva {
            SELECT id FROM taxkeys 
            WHERE chart_id   = ac.chart_id 
              -- AND taxkey_id  = ac.taxkey 
-             AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
+             AND startdate <= COALESCE(ar.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
        )
@@ -776,7 +777,7 @@ sub get_accounts_ustva {
          tk.id = (
            SELECT id FROM taxkeys 
            WHERE chart_id   = ac.chart_id 
-             AND startdate <= COALESCE(ar.deliverydate, ar.transdate)
+             AND startdate <= COALESCE(ar.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
        )
@@ -823,7 +824,7 @@ sub get_accounts_ustva {
        $project
        GROUP BY tk.pos_ustva
 
-     UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
+     UNION -- Einnahmen direkter gl Buchungen erfassen
 
        SELECT sum
          ( - ac.amount) AS amount, 
@@ -835,7 +836,8 @@ sub get_accounts_ustva {
          tk.id = (
            SELECT id FROM taxkeys 
            WHERE chart_id=ac.chart_id 
-             --AND taxkey_id=ac.taxkey 
+             --AND taxkey_id=ac.taxkey
+             AND NOT $gltaxkey_where  
              AND startdate <= COALESCE(ac.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
@@ -847,6 +849,34 @@ sub get_accounts_ustva {
        $dpt_from
        $project
        GROUP BY tk.pos_ustva
+
+
+     UNION -- Ausgaben direkter gl Buchungen erfassen
+
+       SELECT sum
+         (ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac
+       JOIN chart c ON (c.id = ac.chart_id)
+       JOIN gl a ON (a.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id=ac.chart_id 
+             --AND taxkey_id=ac.taxkey
+             AND $gltaxkey_where 
+             AND startdate <= COALESCE(ac.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+
+       $dpt_join
+       WHERE 1 = 1
+       $where
+       $dpt_from
+       $project
+       GROUP BY tk.pos_ustva
+
   |;
 
   my @accno;
