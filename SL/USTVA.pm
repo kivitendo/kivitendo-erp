@@ -739,7 +739,7 @@ sub get_accounts_ustva {
            SELECT id FROM taxkeys 
            WHERE chart_id   = ac.chart_id 
              -- AND taxkey_id  = ac.taxkey 
-             AND startdate <= COALESCE(ar.transdate)
+             AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
        )
@@ -777,7 +777,7 @@ sub get_accounts_ustva {
          tk.id = (
            SELECT id FROM taxkeys 
            WHERE chart_id   = ac.chart_id 
-             AND startdate <= COALESCE(ar.transdate)
+             AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
        )
