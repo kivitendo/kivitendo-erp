@@ -34,6 +34,7 @@
 
 package IC;
 use Data::Dumper;
+use SL::DBUtils;
 
 sub get_part {
   $main::lxdebug->enter_sub();
@@ -53,9 +54,10 @@ sub get_part {
 		 LEFT JOIN chart c2 ON (p.income_accno_id = c2.id)
 		 LEFT JOIN chart c3 ON (p.expense_accno_id = c3.id)
 		 LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-                 WHERE p.id = $form->{id}|;
+                 WHERE p.id = ? |;
+  my @vars = ($form->{id});
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute(@vars) || $form->dberror("$query (" . join(', ', @vars) . ")");
   my $ref = $sth->fetchrow_hashref(NAME_lc);
 
   # copy to $form variables
@@ -78,12 +80,12 @@ sub get_part {
                 FROM parts p
 		JOIN assembly a ON (a.parts_id = p.id)
 		LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-		WHERE a.id = $form->{id}
-		ORDER BY $oid{$myconfig->{dbdriver}}|;
-
+		WHERE a.id = ?
+		ORDER BY ?|;
+    @vars = ($form->{id}, $oid{$myconfig->{dbdriver}});
     $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
+    $sth->execute(@vars) || $form->dberror("$query (" . join(', ', @vars) . ")");
+    
     $form->{assembly_rows} = 0;
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       $form->{assembly_rows}++;
@@ -105,11 +107,12 @@ sub get_part {
   # get prices
   $query =
     qq|SELECT p.parts_id, p.pricegroup_id, p.price, (SELECT pg.pricegroup FROM pricegroup pg WHERE pg.id=p.pricegroup_id) AS pricegroup FROM prices p
-              WHERE parts_id = $form->{id}
+              WHERE parts_id = ? 
               ORDER by pricegroup|;
 
+  @vars = ($form->{id});
   $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute(@vars) || $form->dberror("$query (" . join(', ', @vars) . ")");
 
   @pricegroups          = ();
   @pricegroups_not_used = ();
@@ -177,10 +180,10 @@ sub get_part {
     # get makes
     if ($form->{makemodel}) {
       $query = qq|SELECT m.make, m.model FROM makemodel m
-                  WHERE m.parts_id = $form->{id}|;
-
+                  WHERE m.parts_id = ?|;
+      @vars = ($form->{id});
       $sth = $dbh->prepare($query);
-      $sth->execute || $form->dberror($query);
+      $sth->execute(@vars) || $form->dberror("$query (" . join(', ', @vars) . ")");
 
       my $i = 1;
       while (($form->{"make_$i"}, $form->{"model_$i"}) = $sth->fetchrow_array)
@@ -195,9 +198,10 @@ sub get_part {
 
   # get translations
   $form->{language_values} = "";
-  $query = qq|SELECT language_id, translation FROM translation WHERE parts_id = $form->{id}|;
+  $query = qq|SELECT language_id, translation FROM translation WHERE parts_id = ?|;
+  @vars = ($form->{id});
   $trq = $dbh->prepare($query);
-  $trq->execute || $form->dberror($query);
+  $trq->execute(@vars) || $form->dberror("$query (" . join(', ', @vars) . ")");
   while ($tr = $trq->fetchrow_hashref(NAME_lc)) {
     $form->{language_values} .= "---+++---".$tr->{language_id}."--++--".$tr->{translation};
   }
@@ -1854,10 +1858,11 @@ sub retrieve_accounts {
     "WHERE t.id IN " .
     "  (SELECT tk.tax_id " .
     "   FROM taxkeys tk " .
-    "   WHERE tk.chart_id = $accno_id AND startdate <= $transdate " .
+    "   WHERE tk.chart_id = ? AND startdate <= " . quote_db_date($transdate) .
     "   ORDER BY startdate DESC LIMIT 1) ";
+  @vars = ($accno_id);
   $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query);
+  $sth->execute(@vars) || $form->dberror("$query (" . join(', ', @vars) . ")");
   $ref = $sth->fetchrow_hashref();
   $sth->finish();
   $dbh->disconnect();
