@@ -594,27 +594,44 @@ sub ustva {
     $form->{"$item"} = 0;
   }
 
+  $form->{coa} = coa_get($dbh);
+  $main::lxdebug->message(LXDebug::DEBUG2, "COA: $form->{coa}");
+
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
                       $form, $category);
 
+  ###########################################
+  #
+  # Nationspecific Modfications
+  #
+  ###########################################
+  
+  # Germany
+  
+  if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU'){
+  
+    # 16%/19% Umstellung
+    # Umordnen der Kennziffern
+    if ( $form->{year} < 2007) {
+      $form->{35} += $form->{81};
+      $form->{36} += $form->{811};
+      $form->{95} += $form->{89};
+      $form->{98} += $form->{891};
+      map { delete $form->{$_} } qw(81 811 89 891);
+    } else {
+      $form->{35} += $form->{51};
+      $form->{36} += $form->{511};
+      $form->{95} += $form->{97};
+      $form->{98} += $form->{971};
+      map { delete $form->{$_} } qw(51 511 97 971);
+    }
 
-  # 16%/19% Umstellung
-  # Umordnen der Kennziffern
-  if ( $form->{year} < 2007) {
-    $form->{35} += $form->{81};
-    $form->{36} += $form->{811};
-    $form->{95} += $form->{89};
-    $form->{98} += $form->{891};
-    map { delete $form->{$_} } qw(81 811 89 891);
-  } else {
-    $form->{35} += $form->{51};
-    $form->{36} += $form->{511};
-    $form->{95} += $form->{97};
-    $form->{98} += $form->{971};
-    map { delete $form->{$_} } qw(51 511 97 971);
   }
 
 
+  # Fixme: Wird auch noch für Oesterreich gebraucht, 
+  # weil kein eigenes Ausgabeformular
+  # sotte aber aus der allgeméinen Steuerberechnung verschwinden
   #
   # Berechnung der USTVA Formularfelder laut Bogen 207
   #
@@ -646,6 +663,22 @@ sub ustva {
   $main::lxdebug->leave_sub();
 }
 
+sub coa_get {
+
+  my ($dbh) = @_;
+  
+  my $query= qq|SELECT coa FROM defaults|;
+
+  my $sth = $dbh->prepare($query);
+  
+  $sth->execute || $form->dberror($query);
+    
+  ($ref) = $sth->fetchrow_array;
+  
+  return $ref;
+
+};
+
 sub get_accounts_ustva {
   $main::lxdebug->enter_sub();
 
@@ -664,7 +697,8 @@ sub get_accounts_ustva {
   my $APwhere  = '';
   my $arwhere  = "";
   my $item;
-  my $gltaxkey_where = "(tk.pos_ustva>=59 AND tk.pos_ustva<=66)";
+
+    my $gltaxkey_where = "(tk.pos_ustva>=59 AND tk.pos_ustva<=66)";
 
   if ($fromdate) {
     if ($form->{method} eq 'cash') {
@@ -679,8 +713,6 @@ sub get_accounts_ustva {
   if ($todate) {
     $where    .= " AND ac.transdate <= '$todate'";
     $ARwhere  .= " AND acc.transdate <= '$todate'";
-    $subwhere .= " AND transdate <= '$todate'";
-    $APwhere  .= " AND AP.transdate <= '$todate'";     
   }
 
   if ($department_id) {
@@ -806,20 +838,20 @@ sub get_accounts_ustva {
          sum(ac.amount) AS amount, 
          tk.pos_ustva
        FROM acc_trans ac
-       JOIN AP ON (AP.id = ac.trans_id )
+       JOIN ap ON (ap.id = ac.trans_id )
        JOIN chart c ON (c.id = ac.chart_id)
        LEFT JOIN taxkeys tk ON (
            tk.id = (
              SELECT id FROM taxkeys 
              WHERE chart_id=ac.chart_id 
-               --AND taxkey_id=ac.taxkey 
+               AND taxkey_id = ac.taxkey 
                AND startdate <= COALESCE(AP.transdate)
              ORDER BY startdate DESC LIMIT 1
            )
        )
        WHERE
        1=1
-       $APwhere
+       $where
        $dpt_where
        $project
        GROUP BY tk.pos_ustva
@@ -836,7 +868,6 @@ sub get_accounts_ustva {
          tk.id = (
            SELECT id FROM taxkeys 
            WHERE chart_id=ac.chart_id 
-             --AND taxkey_id=ac.taxkey
              AND NOT $gltaxkey_where  
              AND startdate <= COALESCE(ac.transdate)
            ORDER BY startdate DESC LIMIT 1
@@ -863,7 +894,6 @@ sub get_accounts_ustva {
          tk.id = (
            SELECT id FROM taxkeys 
            WHERE chart_id=ac.chart_id 
-             --AND taxkey_id=ac.taxkey
              AND $gltaxkey_where 
              AND startdate <= COALESCE(ac.transdate)
            ORDER BY startdate DESC LIMIT 1
