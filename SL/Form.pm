@@ -239,15 +239,6 @@ sub quote_html {
   return $str;
 }
 
-sub quote_db_date {
-  $main::lxdebug->enter_sub(2) and my ($self, $str) = @_;
-  $main::lxdebug->leave_sub(2) and return "NULL" unless defined $str;
-  $main::lxdebug->leave_sub(2) and return "current_date" if $str =~ /current_date/;
-  $str =~ s/'/''/g;
-  $main::lxdebug->leave_sub(2) and return "'$str'";
-}
-
-
 sub hide_form {
   my $self = shift;
 

@@ -3,7 +3,7 @@ package SL::DBUtils;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement dump_query);
+@EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement dump_query quote_db_date);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -72,6 +72,14 @@ sub dump_query {
   $msg .= " " if ($msg);
 
   $main::lxdebug->message($level, $msg . $query);
+}
+
+sub quote_db_date {
+  my ($str) = @_;
+  return "NULL" unless defined $str;
+  return "current_date" if $str =~ /current_date/;
+  $str =~ s/'/''/g;
+  return "'$str'";
 }
 
 1;
