@@ -1526,6 +1526,58 @@ sub _get_printers {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_charts {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $params) = @_;
+
+  $key = $params->{key};
+  $key = "all_charts" unless ($key);
+  $self->{$key} = [];
+
+  my $transdate = quote_db_date($params->{transdate});
+
+  my $query =
+    qq|SELECT c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id | .
+    qq|FROM chart c | .
+    qq|LEFT JOIN taxkeys tk ON | .
+    qq|(tk.id = (SELECT id FROM taxkeys | .
+    qq|          WHERE taxkeys.chart_id = c.id AND startdate <= $transdate | .
+    qq|          ORDER BY startdate DESC LIMIT 1)) | .
+    qq|ORDER BY c.accno|;
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute() || $self->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{ $self->{$key} }, $ref);
+  }
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_taxcharts {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_taxcharts" unless ($key);
+  $self->{$key} = [];
+
+  my $query = qq|SELECT * FROM tax ORDER BY taxkey|;
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute() || $self->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{ $self->{$key} }, $ref);
+  }
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1554,6 +1606,14 @@ sub get_lists {
 
   if ($params{"printers"}) {
     $self->_get_printers($dbh, $params{"printers"});
+  }
+
+  if ($params{"charts"}) {
+    $self->_get_charts($dbh, $params{"charts"});
+  }
+
+  if ($params{"taxcharts"}) {
+    $self->_get_taxcharts($dbh, $params{"taxcharts"});
   }
 
   $dbh->disconnect();

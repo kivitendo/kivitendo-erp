@@ -82,22 +82,12 @@ sub add {
   GL->transaction(\%myconfig, \%$form);
 
   map {
-    $chart .=
-      "<option value=\"$_->{accno}--$_->{tax_id}\">$_->{accno}--$_->{description}</option>"
-  } @{ $form->{chart} };
-  map {
     $tax .=
       qq|<option value="$_->{id}--$_->{rate}">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
 
-  $form->{chart}     = $chart;
-  $form->{chartinit} = $chart;
   $form->{rowcount}  = 2;
-
-  $form->{debitchart}  = $chart;
-  $form->{creditchart} = $chart;
-  $form->{taxchart}    = $tax;
 
   $form->{debit}  = 0;
   $form->{credit} = 0;
@@ -123,20 +113,12 @@ sub edit {
   $lxdebug->enter_sub();
 
   GL->transaction(\%myconfig, \%$form);
-  map {
-    $chart .=
-      "<option value=\"$_->{accno}--$_->{tax_id}\">$_->{accno}--$_->{description}</option>"
-  } @{ $form->{chart} };
 
   map {
     $tax .=
       qq|<option value="$_->{id}--$_->{rate}">$_->{taxdescription}  |
       . ($_->{rate} * 100) . qq| %|
   } @{ $form->{TAX} };
-
-  $form->{chart} = $chart;
-
-  $form->{taxchart} = $tax;
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
@@ -1081,10 +1063,6 @@ sub display_rows {
 
   $form->{totaldebit}  = 0;
   $form->{totalcredit} = 0;
-  my $chart = $form->{chart};
-  $chart            = $form->unquote($chart);
-  $form->{taxchart} = $form->unquote($form->{taxchart});
-  $taxchart         = $form->{taxchart};
 
   my @old_project_ids = ();
   map({ push(@old_project_ids, $form->{"project_id_$_"})
@@ -1092,13 +1070,36 @@ sub display_rows {
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => \@old_project_ids });
+                                   "old_id" => \@old_project_ids },
+                   "charts" => { "key" => "ALL_CHARTS",
+                                 "transdate" => $form->{transdate} },
+                   "taxcharts" => "ALL_TAXCHARTS");
 
   my %project_labels = ();
   my @project_values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
     push(@project_values, $item->{"id"});
     $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
+  my %chart_labels = ();
+  my @chart_values = ();
+  my $taxchart_init;
+  foreach my $item (@{ $form->{ALL_CHARTS} }) {
+    my $key = Q($item->{accno}) . "--" . Q($item->{tax_id});
+    $taxchart_init = $item->{taxkey_id} unless (@chart_values);
+    push(@chart_values, $key);
+    $chart_labels{$key} = H($item->{accno}) . "--" . H($item->{description});
+  }
+
+  my %taxchart_labels = ();
+  my @taxchart_values = ();
+  foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
+    my $key = Q($item->{id}) . "--" . Q($item->{rate});
+    $taxchart_init = $key if ($taxchart_init eq $item->{taxkey});
+    push(@taxchart_values, $key);
+    $taxchart_labels{$key} = H($item->{taxdescription}) . " " .
+      H($item->{rate} * 100) . ' %';
   }
 
   for $i (1 .. $form->{rowcount}) {
@@ -1110,15 +1111,25 @@ sub display_rows {
     <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16" tabindex=|
       . ($i + 12 + (($i - 1) * 8)) . qq|></td>|;
 
-    if ($init) {
-      $accno = qq|
-      <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:200px" tabindex=|
-        . ($i + 5 + (($i - 1) * 8)) . qq|>$form->{chartinit}</select></td>|;
-      $tax =
-        qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px" tabindex=|
-        . ($i + 10 + (($i - 1) * 8))
-        . qq|>$form->{taxchart}</select></td>|;
+    $accno = qq|<td>| .
+      $cgi->popup_menu('-name' => "accno_$i",
+                       '-onChange' => "setTaxkey(this, $i)",
+                       '-style' => 'width:200px',
+                       '-tabindex' => ($i + 5 + (($i - 1) * 8)),
+                       '-values' => \@chart_values,
+                       '-labels' => \%chart_labels,
+                       '-default' => $init ? '' : $form->{"accno_$i"})
+      . qq|</td>|;
+    $tax = qq|<td>| .
+      $cgi->popup_menu('-name' => "taxchart_$i",
+                       '-style' => 'width:200px',
+                       '-tabindex' => ($i + 10 + (($i - 1) * 8)),
+                       '-values' => \@taxchart_values,
+                       '-labels' => \%taxchart_labels,
+                       '-default' => $init ? $taxchart_init : $form->{"taxchart_$i"})
+      . qq|</td>|;
 
+    if ($init) {
       $korrektur =
         qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
         . ($i + 9 + (($i - 1) * 8))
@@ -1150,23 +1161,6 @@ sub display_rows {
       }
 
       if ($i < $form->{rowcount}) {
-
-        $accno          = $chart;
-        $chart_selected = $form->{"accno_$i"};
-        $accno =~
-          s/value=\"$chart_selected\"/value=\"$chart_selected\" selected/;
-        $accno =
-          qq|<td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:200px" tabindex=|
-          . ($i + 5 + (($i - 1) * 8))
-          . qq|>$accno</select></td>|;
-        $tax          = $taxchart;
-        $tax_selected = $form->{"taxchart_$i"};
-        $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
-        $tax =
-            qq|<td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
-          . ($i + 10 + (($i - 1) * 8))
-          . qq|>$tax</select></td>|;
-
         if ($form->{transfer}) {
           $checked = ($form->{"fx_transaction_$i"}) ? "1" : "";
           $x = ($checked) ? "x" : "";
@@ -1182,14 +1176,6 @@ sub display_rows {
         $form->hide_form("accno_$i");
 
       } else {
-
-        $accno = qq|
-      <td><select name="accno_$i" onChange="setTaxkey(this, $i)" style="width:300px" tabindex=|
-          . ($i + 5 + (($i - 1) * 8)) . qq|>$chart</select></td>|;
-        $tax = qq|
-      <td><select id="taxchart_$i" name="taxchart_$i" tabindex=|
-          . ($i + 10 + (($i - 1) * 8)) . qq|>$taxchart</select></td>|;
-
         $korrektur =
           qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
           . ($i + 9 + (($i - 1) * 8))
@@ -1339,8 +1325,6 @@ sub form_header {
 <input type=hidden name=closedto value=$form->{closedto}>
 <input type=hidden name=locked value=$form->{locked}>
 <input type=hidden name=title value="$title">
-<input type=hidden name=taxchart value="$form->{taxchart}">
-<input type=hidden name=chart value="$form->{chart}">
 
 
 <table width=100%>
@@ -1532,7 +1516,7 @@ sub delete {
 <form method=post action=$form->{script}>
 |;
 
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description chart taxchart);
+  map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description);
 
   delete $form->{header};
 
