@@ -171,14 +171,6 @@ sub create_links {
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
 
-  map {
-    $tax .=
-      qq|<option value=\"$_->{id}--$_->{rate}\">$_->{taxdescription}  |
-      . ($_->{rate} * 100) . qq| %|
-  } @{ $form->{TAX} };
-  $form->{taxchart}       = $tax;
-  $form->{selecttaxchart} = $tax;
-
   # forex
   $form->{forex} = $form->{exchangerate};
   $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
@@ -271,10 +263,8 @@ sub create_links {
             /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--${q_description}<\/option>\n/;
           $form->{"${key}_$k"} = $1;
           if ($akey eq 'amount') {
-            $form->{"taxchart_$k"} = $form->{taxchart};
-            $form->{"taxchart_$k"} =~
-              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{id}--[^\"]*)/;
-            $form->{"taxchart_$k"} = $1;
+            $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id} .
+              "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
           }
         }
       }
@@ -362,9 +352,8 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
   $selectAR_amount_unquoted = $form->{selectAR_amount};
-  $taxchart                 = $form->{taxchart};
   map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(AR_amount selectAR_amount AR taxchart);
+    qw(AR_amount selectAR_amount AR);
 
   # format amounts
   $form->{exchangerate} =
@@ -443,13 +432,24 @@ sub form_header {
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => \@old_project_ids });
+                                   "old_id" => \@old_project_ids },
+                   "taxcharts" => "ALL_TAXCHARTS");
 
   my %project_labels = ();
   my @project_values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
     push(@project_values, $item->{"id"});
     $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
+  my %taxchart_labels = ();
+  my @taxchart_values = ();
+  foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
+    my $key = Q($item->{id}) . "--" . Q($item->{rate});
+    $taxchart_init = $key if ($taxchart_init eq $item->{taxkey});
+    push(@taxchart_values, $key);
+    $taxchart_labels{$key} = H($item->{taxdescription}) . " " .
+      H($item->{rate} * 100) . ' %';
   }
 
   $form->{fokus} = "arledger.customer";
@@ -575,7 +575,6 @@ sub form_header {
 $jsscript
   <input type=hidden name=selectAR_amount value="$form->{selectAR_amount}">
   <input type=hidden name=AR_amount value="$form->{AR_amount}">
-  <input type=hidden name=taxchart value="$form->{taxchart}">
   <input type=hidden name=rowcount value=$form->{rowcount}>
   <tr>
       <td>
@@ -608,11 +607,17 @@ $jsscript
     $selectAR_amount = $selectAR_amount_unquoted;
     $selectAR_amount =~
       s/option value=\"$form->{"AR_amount_$i"}\"/option value=\"$form->{"AR_amount_$i"}\" selected/;
-    $tax          = $taxchart;
-    $tax_selected = $form->{"taxchart_$i"};
-    $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
-    $tax =
-      qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px">$tax</select></td>|;
+
+    $tax = qq|<td>| .
+      $cgi->popup_menu('-name' => "taxchart_$i",
+                       '-id' => "taxchart_$i",
+                       '-style' => 'width:200px',
+                       '-tabindex' => ($i + 10 + (($i - 1) * 8)),
+                       '-values' => \@taxchart_values,
+                       '-labels' => \%taxchart_labels,
+                       '-default' => $form->{"taxchart_$i"})
+      . qq|</td>|;
+
     $korrektur_checked = ($form->{"korrektur_$i"} ? 'checked' : '');
 
     my $projectnumber =
@@ -866,23 +871,7 @@ sub update {
 
   my $display = shift;
 
-  #   if ($display) {
-  #     goto TAXCALC;
-  #   }
-
   $form->{invtotal} = 0;
-
-  #   $form->{selectAR_amount} = $form->{AR_amount};
-  #   $form->{selectAR_amount} =~
-  #     s/value=\"$form->{AR_amountselected}\"/value=\"$form->{AR_amountselected}\" selected/;
-
-  ($AR_amountaccno, $AR_amounttaxkey) =
-    split(/--/, $form->{AR_amountselected});
-  $form->{selecttaxchart} = $form->{taxchart};
-  $form->{selecttaxchart} =~
-    s/value=\"$AR_amounttaxkey--([^\"]*)\"/value=\"$AR_amounttaxkey--$1\" selected/;
-
-  $form->{rate} = $1;
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
@@ -1043,11 +1032,9 @@ sub post {
   }
 
   my ($creditaccno, $credittaxkey) = split /--/, $form->{AR_amountselected};
-  my ($taxkey,      $NULL)         = split /--/, $form->{taxchartselected};
   my ($receivablesaccno, $payablestaxkey) = split /--/, $form->{ARselected};
   $form->{AR}{amount_1}    = $creditaccno;
   $form->{AR}{receivables} = $receivablesaccno;
-  $form->{taxkey}          = $taxkey;
 
   $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
     unless $form->{invnumber};
