@@ -13,11 +13,13 @@
 
 INSERT INTO chart (
   accno, description,
-  charttype,   category,  link
+  charttype,   category,  link,
+  taxkey_id
   )
 SELECT
   '1570','Anrechenbare Vorsteuer',
-  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice:CT_tax'
+  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice:CT_tax',
+  0
 WHERE EXISTS ( -- update only for SKR03
     SELECT coa FROM defaults
     WHERE defaults.coa='Germany-DATEV-SKR03EU'
@@ -26,11 +28,13 @@ WHERE EXISTS ( -- update only for SKR03
 
 INSERT INTO chart (
   accno, description,
-  charttype,   category,  link
+  charttype,   category,  link,
+  taxkey_id
   )
 SELECT
   '1574','Abziehbare Vorsteuer aus innergem. Erwerb 19 %',
-  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice:CT_tax'
+  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice:CT_tax',
+  0
 WHERE EXISTS ( -- update only for SKR03
     SELECT coa FROM defaults
     WHERE defaults.coa='Germany-DATEV-SKR03EU'
@@ -39,11 +43,13 @@ WHERE EXISTS ( -- update only for SKR03
 
 INSERT INTO chart (
   accno, description,
-  charttype,   category,  link
+  charttype,   category,  link,
+  taxkey_id
   )
 SELECT
   '1774','Umsatzsteuer aus innergem. Erwerb 19 %',
-  'A',         'I',       'AR_tax:IC_taxpart:IC_taxservice:CT_tax'
+  'A',         'I',       'AR_tax:IC_taxpart:IC_taxservice:CT_tax',
+  0
 WHERE EXISTS ( -- update only for SKR03
     SELECT coa FROM defaults
     WHERE defaults.coa='Germany-DATEV-SKR03EU'
