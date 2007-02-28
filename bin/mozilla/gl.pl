@@ -148,6 +148,8 @@ sub edit {
           $form->{"credit_$j"} += $form->{"tax_$j"};
         }
       }
+      $form->{"project_id_$j"} = $ref->{project_id};
+
     } else {
       $form->{"accno_$i"} = "$ref->{accno}--$ref->{tax_id}";
       for (qw(fx_transaction source memo)) { $form->{"${_}_$i"} = $ref->{$_} }
@@ -159,6 +161,7 @@ sub edit {
         $form->{"credit_$i"} = $ref->{amount};
       }
       $form->{"taxchart_$i"} = "0--0.00";
+      $form->{"project_id_$i"} = $ref->{project_id};
       $i++;
     }
     if ($ref->{taxaccno} && !$tax) {
@@ -168,7 +171,6 @@ sub edit {
       $taxaccno = "";
       $tax      = 0;
     }
-
   }
 
   $form->{rowcount} = $i;
