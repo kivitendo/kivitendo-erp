@@ -1,0 +1,3 @@
+-- @tag: release_2_4_2
+-- @description: Leeres Script, das von allen bis zum Release 2.4.2 hinzugef&uuml;gten Upgradescripten abh&auml;ngt, um ein fest definiertes Schema f&uuml;r 2.4.2 zu definieren.
+-- @depends: payment_terms_sortkey project globalprojectnumber_ap_ar_oe parts_ean drafts payment_terms_translation units_sortkey tax_description_without_percentage PgCommaAggregateFunction buchungsgruppen_sortkey history_erp ap_ar_orddate_quodate ustva_setup_2007_update_chart_taxkeys_tax_add_missing_tax_accounts oe_delivered
