@@ -1646,7 +1646,7 @@ sub list_buchungsgruppe {
       $column_data{up} =
         qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}id1=$ref->{id}&id2=$pref->{id}">| .
-        qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">| .
+        qq|<img border="0" src="image/up.png" alt="| . $locale->text("up") . qq|">| .
         qq|</a></td>|;
     } else {
       $column_data{up} = qq|<td width="16">&nbsp;</td>|;
@@ -1659,7 +1659,7 @@ sub list_buchungsgruppe {
       $column_data{down} =
         qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}id1=$ref->{id}&id2=$nref->{id}">| .
-        qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">| .
+        qq|<img border="0" src="image/down.png" alt="| . $locale->text("down") . qq|">| .
         qq|</a></td>|;
     }
 
@@ -2213,7 +2213,7 @@ sub list_payment {
       $column_data{up} =
         qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}&id1=$ref->{id}&id2=$pref->{id}">| .
-        qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">| .
+        qq|<img border="0" src="image/up.png" alt="| . $locale->text("up") . qq|">| .
         qq|</a></td>|;
     } else {
       $column_data{up} = qq|<td width="16">&nbsp;</td>|;
@@ -2226,7 +2226,7 @@ sub list_payment {
       $column_data{down} =
         qq|<td align="center" valign="center" width="16">| .
         qq|<a href="${swap_link}&id1=$ref->{id}&id2=$nref->{id}">| .
-        qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">| .
+        qq|<img border="0" src="image/down.png" alt="| . $locale->text("down") . qq|">| .
         qq|</a></td>|;
     }
 
