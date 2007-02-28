@@ -1396,7 +1396,7 @@ sub get_duedate {
 }
 
 # get contacts for id, if no contact return {"","","","",""}
-sub get_contacts {
+sub _get_contacts {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $id, $key) = @_;
@@ -1425,7 +1425,7 @@ sub get_contacts {
   $main::lxdebug->leave_sub();
 }
 
-sub get_projects {
+sub _get_projects {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $key) = @_;
@@ -1482,6 +1482,50 @@ sub get_projects {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_shipto {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $vc_id, $key) = @_;
+
+  $key = "all_shipto" unless ($key);
+  $self->{$key} = [];
+
+  # get shipping addresses
+  my $query =
+    qq|SELECT s.shipto_id,s.shiptoname,s.shiptodepartment_1 | .
+    qq|FROM shipto s | .
+    qq|WHERE s.trans_id = ?|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute($vc_id) || $self->dberror($query . " ($vc_id)");
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{ $self->{$key} }, $ref);
+  }
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_printers {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_printers" unless ($key);
+  $self->{$key} = [];
+
+  my $query = qq|SELECT id, printer_description, printer_command FROM printers|;
+  my $sth = $dbh->prepare($query);
+  $sth->execute() || $self->dberror($query);
+
+  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push(@{ $self->{$key} }, $ref);
+  }
+  $sth->finish;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1495,41 +1539,21 @@ sub get_lists {
   my $vc_id = $self->{"${vc}_id"};
 
   if ($params{"contacts"}) {
-    $self->get_contacts($dbh, $vc_id, $params{"contacts"});
+    $self->_get_contacts($dbh, $vc_id, $params{"contacts"});
   }
 
   if ($params{"shipto"}) {
-    # get shipping addresses
-    $query =
-      qq|SELECT s.shipto_id,s.shiptoname,s.shiptodepartment_1 | .
-      qq|FROM shipto s | .
-      qq|WHERE s.trans_id = ?|;
-    $sth = $dbh->prepare($query);
-    $sth->execute($vc_id) || $self->dberror($query . " ($vc_id)");
-
-    $self->{$params{"shipto"}} = [];
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push(@{ $self->{$params{"shipto"}} }, $ref);
-    }
-    $sth->finish;
+    $self->_get_shipto($dbh, $vc_id, $params{"shipto"});
   }
 
   if ($params{"projects"} || $params{"all_projects"}) {
-    $self->get_projects($dbh, $params{"all_projects"} ?
-                        $params{"all_projects"} : $params{"projects"},
-                        $params{"all_projects"} ? 1 : 0);
+    $self->_get_projects($dbh, $params{"all_projects"} ?
+                         $params{"all_projects"} : $params{"projects"},
+                         $params{"all_projects"} ? 1 : 0);
   }
 
   if ($params{"printers"}) {
-    $query = qq|SELECT id, printer_description, printer_command FROM printers|;
-    $sth = $dbh->prepare($query);
-    $sth->execute() || $self->dberror($query);
-
-    $self->{$params{"printers"}} = [];
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push(@{ $self->{$params{"printers"}} }, $ref);
-    }
-    $sth->finish;
+    $self->_get_printers($dbh, $params{"printers"});
   }
 
   $dbh->disconnect();
