@@ -61,8 +61,8 @@ sub post_transaction {
     $form->{AR_amounts}{"amount_$i"} =
       (split(/--/, $form->{"AR_amount_$i"}))[0];
   }
-  ($form->{AR_amounts}{receivables}) = split(/--/, $form->{ARselected});
-  ($form->{AR}{receivables})         = split(/--/, $form->{ARselected});
+  $form->{AR_amounts}{receivables} = $form->{ARselected};
+  $form->{AR}{receivables}         = $form->{ARselected};
 
   $form->{exchangerate} =
     ($exchangerate)
@@ -378,7 +378,7 @@ sub post_payment {
       $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate},
                               "buy");
 
-  my ($accno_ar) = split(/--/, $form->{ARselected});
+  my $accno_ar = $form->{ARselected};
 
   # record payments and offsetting AR
   for my $i (1 .. $form->{paidaccounts}) {

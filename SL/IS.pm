@@ -1856,8 +1856,7 @@ sub get_customer {
         $form->{"AR_amount_$i"} = "$ref->{accno}--$ref->{description}";
       }
       if ($ref->{category} eq 'A') {
-        $form->{ARselected} = $form->{AR_1} =
-          "$ref->{accno}--$ref->{description}";
+        $form->{ARselected} = $form->{AR_1} = $ref->{accno};
       }
     }
     $sth->finish;

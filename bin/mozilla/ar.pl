@@ -175,19 +175,6 @@ sub create_links {
   $form->{forex} = $form->{exchangerate};
   $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
   foreach $key (keys %{ $form->{AR_links} }) {
-
-    foreach $ref (@{ $form->{AR_links}{$key} }) {
-      if ($key eq "AR_paid") {
-        $form->{"select$key"} .=
-          "<option value=\"$ref->{accno}\">$ref->{accno}--$ref->{description}</option>\n";
-      } else {
-        $form->{"select$key"} .=
-          "<option value=\"$ref->{accno}--$ref->{tax_id}\">$ref->{accno}--$ref->{description}</option>\n";
-      }
-    }
-
-    $form->{$key} = $form->{"select$key"};
-
     # if there is a value we have an old entry
     my $j = 0;
     my $k = 0;
@@ -195,8 +182,7 @@ sub create_links {
     for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
       if ($key eq "AR_paid") {
         $j++;
-        $form->{"AR_paid_$j"} =
-          "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
+        $form->{"AR_paid_$j"} = $form->{acc_trans}{$key}->[$i-1]->{accno};
 
         # reverse paid
         $form->{"paid_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{amount} * -1;
@@ -207,9 +193,9 @@ sub create_links {
 
         $form->{"forex_$j"} = $form->{"exchangerate_$i"} =
           $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};
-        $form->{"AR_paid_$j"} = "$form->{acc_trans}{$key}->[$i-1]->{accno}";
         $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
         $form->{paidaccounts}++;
+
       } else {
 
         $akey = $key;
@@ -254,15 +240,15 @@ sub create_links {
             $form->{"project_id_$k"} =
               "$form->{acc_trans}{$key}->[$i-1]->{project_id}";
           }
-          $form->{"${key}_$k"} =
-            "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
           $form->{"${key}_$i"} =
             "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
-          my $q_description = quotemeta($form->{acc_trans}{$key}->[$i-1]->{description});
-          $form->{"select${key}"} =~
-            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--${q_description}<\/option>\n/;
-          $form->{"${key}_$k"} = $1;
-          if ($akey eq 'amount') {
+
+          if ($akey eq "AR") {
+            $form->{ARselected} = $form->{acc_trans}{$key}->[$i-1]->{accno};
+
+          } elsif ($akey eq "amount") {
+            $form->{"${key}_$k"} = $form->{acc_trans}{$key}->[$i-1]->{accno} .
+              "--" . $form->{acc_trans}{$key}->[$i-1]->{id};
             $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id} .
               "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
           }
@@ -270,6 +256,8 @@ sub create_links {
       }
     }
   }
+
+  $lxdebug->message(0, "1 ARselected $form->{ARselected}");
 
   $form->{taxincluded}  = $taxincluded if ($form->{id});
   $form->{paidaccounts} = 1            if not defined $form->{paidaccounts};
@@ -295,8 +283,6 @@ sub create_links {
   $form->{locked} =
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
-
-  $form->{"ARselected"} = $form->{"AR_1"};
 
   $lxdebug->leave_sub();
 }
@@ -340,20 +326,12 @@ sub form_header {
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
   $readonly = ($form->{radier}) ? "" : $readonly;
 
-  my $ARselected_quoted = quotemeta($form->{"ARselected"});
-  $form->{selectAR} = $form->{AR};
-  $form->{selectAR} =~
-    s/value=\"${ARselected_quoted}\"/value=\"$form->{ARselected}\" selected/;
-
   # set option selected
   foreach $item (qw(customer currency department employee)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
-  $selectAR_amount_unquoted = $form->{selectAR_amount};
-  map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(AR_amount selectAR_amount AR);
 
   # format amounts
   $form->{exchangerate} =
@@ -433,7 +411,12 @@ sub form_header {
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
+                   "charts" => { "key" => "ALL_CHARTS",
+                                 "transdate" => $form->{transdate} },
                    "taxcharts" => "ALL_TAXCHARTS");
+
+  map({ $_->{link_split} = [ split(/:/, $_->{link}) ]; }
+      @{ $form->{ALL_CHARTS} });
 
   my %project_labels = ();
   my @project_values = ("");
@@ -442,14 +425,38 @@ sub form_header {
     $project_labels{$item->{"id"}} = $item->{"projectnumber"};
   }
 
+  my (%AR_amount_labels, @AR_amount_values);
+  my (%AR_labels, @AR_values);
+  my (%AR_paid_labels, @AR_paid_values);
+  my $taxchart_init;
+
+  foreach my $item (@{ $form->{ALL_CHARTS} }) {
+    if (grep({ $_ eq "AR_amount" } @{ $item->{link_split} })) {
+      $taxchart_init = $item->{tax_id} if ($taxchart_init eq "");
+      my $key = "$item->{accno}--$item->{tax_id}";
+      push(@AR_amount_values, $key);
+      $AR_amount_labels{$key} =
+        "$item->{accno}--$item->{description}";
+
+    } elsif (grep({ $_ eq "AR" } @{ $item->{link_split} })) {
+      push(@AR_values, $item->{accno});
+      $AR_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
+
+    } elsif (grep({ $_ eq "AR_paid" } @{ $item->{link_split} })) {
+      push(@AR_paid_values, $item->{accno});
+      $AR_paid_labels{$item->{accno}} =
+        "$item->{accno}--$item->{description}";
+    }
+  }
+
   my %taxchart_labels = ();
   my @taxchart_values = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
-    my $key = Q($item->{id}) . "--" . Q($item->{rate});
-    $taxchart_init = $key if ($taxchart_init eq $item->{taxkey});
+    my $key = "$item->{id}--$item->{rate}";
+    $taxchart_init = $key if ($taxchart_init eq $item->{id});
     push(@taxchart_values, $key);
-    $taxchart_labels{$key} = H($item->{taxdescription}) . " " .
-      H($item->{rate} * 100) . ' %';
+    $taxchart_labels{$key} =
+      "$item->{taxdescription} " . ($item->{rate} * 100) . ' %';
   }
 
   $form->{fokus} = "arledger.customer";
@@ -573,8 +580,6 @@ sub form_header {
   </tr>
 
 $jsscript
-  <input type=hidden name=selectAR_amount value="$form->{selectAR_amount}">
-  <input type=hidden name=AR_amount value="$form->{AR_amount}">
   <input type=hidden name=rowcount value=$form->{rowcount}>
   <tr>
       <td>
@@ -604,18 +609,24 @@ $jsscript
     $form->{"amount_$i"} =
       $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
-    $selectAR_amount = $selectAR_amount_unquoted;
-    $selectAR_amount =~
-      s/option value=\"$form->{"AR_amount_$i"}\"/option value=\"$form->{"AR_amount_$i"}\" selected/;
+
+    $selectAR_amount =
+      NTI($cgi->popup_menu('-name' => "AR_amount_$i",
+                           '-id' => "AR_amount_$i",
+                           '-style' => 'width:400px',
+                           '-onChange' => "setTaxkey(this, $i)",
+                           '-values' => \@AR_amount_values,
+                           '-labels' => \%AR_amount_labels,
+                           '-default' => $form->{"AR_amount_$i"}));
 
     $tax = qq|<td>| .
-      $cgi->popup_menu('-name' => "taxchart_$i",
-                       '-id' => "taxchart_$i",
-                       '-style' => 'width:200px',
-                       '-tabindex' => ($i + 10 + (($i - 1) * 8)),
-                       '-values' => \@taxchart_values,
-                       '-labels' => \%taxchart_labels,
-                       '-default' => $form->{"taxchart_$i"})
+      NTI($cgi->popup_menu('-name' => "taxchart_$i",
+                           '-id' => "taxchart_$i",
+                           '-style' => 'width:200px',
+                           '-values' => \@taxchart_values,
+                           '-labels' => \%taxchart_labels,
+                           '-default' => $form->{"taxchart_$i"} eq "" ?
+                           $taxchart_init : $form->{"taxchart_$i"}))
       . qq|</td>|;
 
     $korrektur_checked = ($form->{"korrektur_$i"} ? 'checked' : '');
@@ -628,7 +639,7 @@ $jsscript
 
     print qq|
 	<tr>
-          <td width=50%><select name="AR_amount_$i" onChange="setTaxkey(this, $i)" style="width:100%">$selectAR_amount</select></td>
+          <td>$selectAR_amount</td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
           <td><input type="checkbox" name="korrektur_$i" value="1" $korrektur_checked></td>
@@ -642,6 +653,12 @@ $jsscript
 
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
+  $ARselected =
+    NTI($cgi->popup_menu('-name' => "ARselected", '-id' => "ARselected",
+                         '-style' => 'width:400px',
+                         '-values' => \@AR_values, '-labels' => \%AR_labels,
+                         '-default' => $form->{ARselected}));
+
   print qq|
         <tr>
           <td colspan=6>
@@ -649,8 +666,7 @@ $jsscript
           </td>
         </tr>
         <tr>
-	  <td><select name=ARselected>$form->{selectAR}</select></td>
-          <input type=hidden name=AR value="$form->{AR}">
+	  <td>${ARselected}</td>
 	  <th align=left>$form->{invtotal}</th>
 
 	  <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
@@ -713,9 +729,12 @@ $jsscript
         <tr>
 ";
 
-    $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
-    $form->{"selectAR_paid_$i"} =~
-      s/option value=\"$form->{"AR_paid_$i"}\">/option value=\"$form->{"AR_paid_$i"}\" selected>/;
+    $selectAR_paid =
+      NTI($cgi->popup_menu('-name' => "AR_paid_$i",
+                           '-id' => "AR_paid_$i",
+                           '-values' => \@AR_paid_values,
+                           '-labels' => \%AR_paid_labels,
+                           '-default' => $form->{"AR_paid_$i"}));
 
     # format amounts
     if ($form->{"paid_$i"}) {
@@ -743,7 +762,7 @@ $jsscript
     $column_data{paid} =
       qq|<td align=center><input name="paid_$i" size=11 value=$form->{"paid_$i"}></td>|;
     $column_data{AR_paid} =
-      qq|<td align=center><select name="AR_paid_$i">$form->{"selectAR_paid_$i"}</select></td>|;
+      qq|<td align=center>${selectAR_paid}</td>|;
     $column_data{exchangerate} = qq|<td align=center>$exchangerate</td>|;
     $column_data{datepaid}     =
       qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 value=$form->{"datepaid_$i"}>
@@ -768,12 +787,10 @@ $jsscript
 ";
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(selectAR_paid);
 
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
     qq|
 <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
-<input type=hidden name=selectAR_paid value="$form->{selectAR_paid}">
 
       </table>
     </td>
@@ -1031,10 +1048,7 @@ sub post {
     exit;
   }
 
-  my ($creditaccno, $credittaxkey) = split /--/, $form->{AR_amountselected};
-  my ($receivablesaccno, $payablestaxkey) = split /--/, $form->{ARselected};
-  $form->{AR}{amount_1}    = $creditaccno;
-  $form->{AR}{receivables} = $receivablesaccno;
+  $form->{AR}{receivables} = $form->{ARselected};
 
   $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
     unless $form->{invnumber};
