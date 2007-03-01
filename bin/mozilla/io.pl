@@ -1864,7 +1864,7 @@ sub print_form {
 
   # assign number
   $form->{what_done} = $form->{formname};
-  if (!$form->{"${inv}number"} && !$form->{preview}) {
+  if (!$form->{"${inv}number"} && !$form->{preview} && !$form->{id}) {
     $form->{"${inv}number"} = $form->update_defaults(\%myconfig, $numberfld);
     if ($form->{media} ne 'email') {
 

@@ -550,6 +550,12 @@ sub post_invoice {
 
     ($form->{id}) = $sth->fetchrow_array;
     $sth->finish;
+
+    if (!$form->{invnumber}) {
+      $form->{invnumber} =
+        $form->update_defaults($myconfig, $form->{type} eq "credit_note" ?
+                               "cnnumber" : "invnumber", $dbh);
+    }
   }
 
   map { $form->{$_} =~ s/\'/\'\'/g }

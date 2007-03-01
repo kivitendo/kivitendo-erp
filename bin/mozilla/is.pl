@@ -1441,13 +1441,14 @@ sub post {
   $form->{id} = 0 if $form->{postasnew};
 
   # get new invnumber in sequence if no invnumber is given or if posasnew was requested
-  if (!$form->{invnumber} || $form->{postasnew}) {
+  if ($form->{postasnew}) {
     if ($form->{type} eq "credit_note") {
-      $form->{invnumber} = $form->update_defaults(\%myconfig, "cnnumber");
+      undef($form->{cnnumber});
     } else {
-      $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber");
+      undef($form->{invnumber});
     }
   }
+
   relink_accounts();
   if ($print_post) {
     if (!(IS->post_invoice(\%myconfig, \%$form))) {

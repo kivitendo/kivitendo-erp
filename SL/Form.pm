@@ -2448,9 +2448,14 @@ sub save_status {
 sub update_defaults {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $fld) = @_;
+  my ($self, $myconfig, $fld, $provided_dbh) = @_;
 
-  my $dbh   = $self->dbconnect_noauto($myconfig);
+  my $dbh;
+  if ($provided_dbh) {
+    $dbh = $provided_dbh;
+  } else {
+    $dbh = $self->dbconnect_noauto($myconfig);
+  }
   my $query = qq|SELECT $fld FROM defaults FOR UPDATE|;
   my $sth   = $dbh->prepare($query);
 
@@ -2464,8 +2469,10 @@ sub update_defaults {
               SET $fld = '$var'|;
   $dbh->do($query) || $self->dberror($query);
 
-  $dbh->commit;
-  $dbh->disconnect;
+  if (!$provided_dbh) {
+    $dbh->commit;
+    $dbh->disconnect;
+  }
 
   $main::lxdebug->leave_sub();
 

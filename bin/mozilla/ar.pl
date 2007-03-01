@@ -1050,9 +1050,6 @@ sub post {
 
   $form->{AR}{receivables} = $form->{ARselected};
 
-  $form->{invnumber} = $form->update_defaults(\%myconfig, "invnumber")
-    unless $form->{invnumber};
-
   $form->{id} = 0 if $form->{postasnew};
   if (AR->post_transaction(\%myconfig, \%$form)) {
     # saving the history

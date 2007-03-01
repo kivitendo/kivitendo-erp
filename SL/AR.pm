@@ -170,6 +170,10 @@ sub post_transaction {
 
     $query = qq|INSERT INTO ar (id, invnumber, employee_id) VALUES (?, 'dummy', ?)|;
     do_query($form, $dbh, $query, $form->{id}, $form->{employee_id});
+
+    if (!$form->{invnumber}) {
+      $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh);
+    }
   }
 
   # update department
