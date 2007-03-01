@@ -205,7 +205,7 @@ sub post_transaction {
               WHERE id = ?|;
   my @values = ($form->{invnumber}, conv_date($form->{transdate}),
                 $form->{ordnumber}, conv_i($form->{vendor_id}),
-                $form->{taxincluded}, $form->{invtotal},
+                $form->{taxincluded} ? 't' : 'f', $form->{invtotal},
                 conv_date($form->{duedate}), $form->{invpaid},
                 conv_date($datepaid), $form->{netamount},
                 $form->{currency}, $form->{notes},
