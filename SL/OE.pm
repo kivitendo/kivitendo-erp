@@ -121,8 +121,6 @@ sub transactions {
   $sth->execute(@values) ||
     $form->dberror($query . " (" . join(", ", @values) . ")");
 
-  dump_query(0, "laqje", $query, @values);
-
   my %id = ();
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     $ref->{exchangerate} = 1 unless $ref->{exchangerate};
