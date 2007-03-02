@@ -698,7 +698,9 @@ sub form_header {
   }
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
-
+  # show history button js
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show history button js
   $form->header;
 
   print qq|
