@@ -97,6 +97,7 @@ $self->{texts} = {
   'Invoice Number'              => 'Rechnungsnummer',
   'Invoice Number missing!'     => 'Rechnungsnummer fehlt!',
   'Invoice deleted!'            => 'Rechnung gelöscht!',
+  'Invoice has already been storno\'d!' => 'Diese Rechnung wurde bereits storniert.',
   'Item not on file!'           => 'Dieser Artikel ist nicht in der Datenbank!',
   'Jan'                         => 'Jan',
   'January'                     => 'Januar',
