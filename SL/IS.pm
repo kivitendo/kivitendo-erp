@@ -2223,5 +2223,24 @@ sub get_pricegroups_for_parts {
   $main::lxdebug->leave_sub();
 }
 
+sub has_storno {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  $main::lxdebug->leave_sub() and return 0 unless ($form->{id});
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq|SELECT storno FROM ar WHERE id = ?|;
+  my ($result) = selectrow_query($form, $dbh, $query, $form->{id});
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return $result;
+}
+
 1;
 
