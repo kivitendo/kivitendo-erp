@@ -32,6 +32,7 @@
 #======================================================================
 
 use SL::IR;
+use SL::IS;
 use SL::PE;
 
 require "$form->{path}/io.pl";
@@ -972,7 +973,7 @@ sub storno {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
 
-  if (IR->has_storno(\%myconfig, $form)) {
+  if (IS->has_storno(\%myconfig, $form, "ap")) {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
