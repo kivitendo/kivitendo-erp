@@ -96,13 +96,16 @@ sub account_header {
   $form->{description} =~ s/\"/&quot;/g;
 
   if (@{ $form->{TAXKEY} }) {
-    foreach $item (@{ $form->{TAXKEY} }) {
+    foreach my $item (@{ $form->{TAXKEY} }) {
+
+      $item->{rate} = $item->{rate} * 100 . '%';
+
       if ($item->{tax} == $form->{tax}) {
         $form->{selecttaxkey} .=
-          "<option value=$item->{tax} selected>$item->{taxdescription}\n";
+          "<option value=$item->{tax} selected>$item->{taxdescription} ($item->{rate})\n";
       } else {
         $form->{selecttaxkey} .=
-          "<option value=$item->{tax}>$item->{taxdescription}\n";
+          "<option value=$item->{tax}>$item->{taxdescription} ($item->{rate})\n";
       }
 
     }
