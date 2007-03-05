@@ -100,6 +100,8 @@ sub post_invoice {
     ? $exchangerate
     : $form->parse_amount($myconfig, $form->{exchangerate});
 
+  $form->{exchangerate} = 1 unless ($form->{exchangerate} * 1);
+
   for my $i (1 .. $form->{rowcount}) {
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
     

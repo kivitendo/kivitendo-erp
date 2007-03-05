@@ -976,6 +976,10 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
+  invoice_links();
+  prepare_invoice();
+  relink_accounts();
+
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
