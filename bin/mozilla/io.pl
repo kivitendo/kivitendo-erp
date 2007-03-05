@@ -355,11 +355,10 @@ sub display_row {
     }
 
     $column_data{"unit"} = "<td>" .
-      ($qty_readonly ? "&nbsp;" :
        AM->unit_select_html($is_part ? $dimension_units :
                             $is_assigned ? $service_units : $all_units,
                             "unit_$i", $this_unit,
-                            $is_assigned ? $form->{"unit_$i"} : undef))
+                            $is_assigned ? $form->{"unit_$i"} : undef)
       . "</td>";
 
     # build in drop down list for pricesgroups
