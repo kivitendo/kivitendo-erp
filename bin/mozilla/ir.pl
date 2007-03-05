@@ -881,7 +881,7 @@ sub update {
   }
 
   $i            = $form->{rowcount};
-  $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
+  $exchangerate = ($form->{exchangerate} * 1) ? $form->{exchangerate} * 1 : 1;
 
   if (   ($form->{"partnumber_$i"} eq "")
       && ($form->{"description_$i"} eq "")
