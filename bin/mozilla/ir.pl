@@ -972,6 +972,10 @@ sub storno {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
 
+  if (IR->has_storno(\%myconfig, $form)) {
+    $form->error($locale->text("Invoice has already been storno'd!"));
+  }
+
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
