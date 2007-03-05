@@ -1115,6 +1115,7 @@ sub display_rows {
 
     $accno = qq|<td>| .
       $cgi->popup_menu('-name' => "accno_$i",
+                       '-id' => "accno_$i",
                        '-onChange' => "setTaxkey(this, $i)",
                        '-style' => 'width:200px',
                        '-tabindex' => ($i + 5 + (($i - 1) * 8)),
@@ -1124,6 +1125,7 @@ sub display_rows {
       . qq|</td>|;
     $tax = qq|<td>| .
       $cgi->popup_menu('-name' => "taxchart_$i",
+                       '-id' => "taxchart_$i",
                        '-style' => 'width:200px',
                        '-tabindex' => ($i + 10 + (($i - 1) * 8)),
                        '-values' => \@taxchart_values,
