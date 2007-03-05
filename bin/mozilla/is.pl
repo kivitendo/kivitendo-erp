@@ -1522,6 +1522,14 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
+  map({ my $key = $_; delete($form->{$key})
+          unless (grep({ $key eq $_ } qw(path login password id type))); }
+      keys(%{ $form }));
+
+  &invoice_links;
+  &prepare_invoice;
+  relink_accounts();
+
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
