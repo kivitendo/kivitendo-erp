@@ -71,7 +71,7 @@ sub all_accounts {
   }
   $sth->finish;
 
-  $query = qq|
+  $query = qq{
 
     SELECT c.id,
       c.accno,
@@ -80,19 +80,11 @@ sub all_accounts {
       c.gifi_accno,
       c.category,
       c.link,
-      c.pos_ustva,
       c.pos_bwa,
       c.pos_bilanz,
       c.pos_eur,
       c.valid_from,
       c.datevautomatik,
---      ( SELECT comma(taxkey_id)
---        FROM taxkeys tk
---        WHERE tk.chart_id = c.id
---          AND c.taxkey_id = tk.taxkey_id
---        ORDER BY c.id
---      ) AS taxkey_id,
-
       ( SELECT comma(taxkey)
         FROM tax tx
         WHERE tx.id in (
@@ -102,7 +94,7 @@ sub all_accounts {
         ORDER BY c.accno
       ) AS taxkey,
 
-      ( SELECT comma(taxdescription)
+      ( SELECT comma(taxdescription || to_char (rate, '99V99' ) || '%')
         FROM tax tx
         WHERE tx.id in (
           SELECT tk.tax_id from taxkeys tk 
@@ -123,14 +115,12 @@ sub all_accounts {
       ( SELECT comma(tk.pos_ustva)
         FROM taxkeys tk
         WHERE tk.chart_id = c.id
-          AND c.taxkey_id = tk.taxkey_id
         ORDER BY c.id
       ) AS tk_ustva,
 
       ( SELECT comma(startdate)
         FROM taxkeys tk
         WHERE tk.chart_id = c.id
-          AND c.taxkey_id = tk.taxkey_id
         ORDER BY c.id
       ) AS startdate,
 
@@ -140,7 +130,7 @@ sub all_accounts {
       ) AS new_account
     FROM chart c
     ORDER BY accno
-  |;
+  };
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
