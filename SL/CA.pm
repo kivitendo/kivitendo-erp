@@ -72,12 +72,11 @@ sub all_accounts {
   $sth->finish;
 
   $query = qq{
-
-    SELECT c.id,
+    SELECT 
       c.accno,
+      c.id,
       c.description,
       c.charttype,
-      c.gifi_accno,
       c.category,
       c.link,
       c.pos_bwa,
@@ -85,51 +84,22 @@ sub all_accounts {
       c.pos_eur,
       c.valid_from,
       c.datevautomatik,
-      ( SELECT comma(taxkey)
-        FROM tax tx
-        WHERE tx.id in (
-          SELECT tk.tax_id from taxkeys tk 
-          WHERE tk.chart_id = c.id
-        ) 
-        ORDER BY c.accno
-      ) AS taxkey,
-
-      ( SELECT comma(taxdescription || to_char (rate, '99V99' ) || '%')
-        FROM tax tx
-        WHERE tx.id in (
-          SELECT tk.tax_id from taxkeys tk 
-          WHERE tk.chart_id = c.id
-        ) 
-        ORDER BY c.accno
-      ) AS taxdescription,
-      
-      ( SELECT comma(taxnumber)
-        FROM tax tx
-        WHERE tx.id in (
-          SELECT tk.tax_id from taxkeys tk 
-          WHERE tk.chart_id = c.id
-        ) 
-        ORDER BY c.accno
-      ) AS taxaccount,
-
-      ( SELECT comma(tk.pos_ustva)
-        FROM taxkeys tk
-        WHERE tk.chart_id = c.id
-        ORDER BY c.id
-      ) AS tk_ustva,
-
-      ( SELECT comma(startdate)
-        FROM taxkeys tk
-        WHERE tk.chart_id = c.id
-        ORDER BY c.id
-      ) AS startdate,
-
+      comma(tk.startdate) AS startdate,
+      comma(tk.taxkey_id) AS taxkey,
+      comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescription,
+      comma(tx.taxnumber) AS taxaccount,
+      comma(tk.pos_ustva) AS tk_ustva,
       ( SELECT accno
-        FROM chart c2
-        WHERE c2.id = c.id
+      FROM chart c2
+      WHERE c2.id = c.id
       ) AS new_account
     FROM chart c
-    ORDER BY accno
+    LEFT JOIN taxkeys tk ON (c.id = tk.chart_id)
+    LEFT JOIN tax tx ON (tk.tax_id = tx.id)
+    GROUP BY c.accno, c.id, c.description, c.charttype, c.gifi_accno,
+      c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,      
+      c.datevautomatik
+    ORDER BY c.accno
   };
 
   $sth = $dbh->prepare($query);
