@@ -786,12 +786,14 @@ sub form_footer {
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
 
   if ($form->{id}) {
+    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap");
+
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Post Payment') . qq|">
 |;
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Storno') . qq|">
-| unless ($form->{storno});
+| if ($show_storno);
     if ($form->{radier}) {
     print qq|
     <input class=submit type=submit name=action value="|

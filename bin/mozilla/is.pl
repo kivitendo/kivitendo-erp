@@ -1102,6 +1102,8 @@ if ($form->{type} eq "credit_note") {
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
 
   if ($form->{id}) {
+    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar");
+
     print qq|
     <input class=submit type=submit accesskey="u" name=action id=update_button value="|
       . $locale->text('Update') . qq|">
@@ -1112,7 +1114,7 @@ if ($form->{type} eq "credit_note") {
     <input class=submit type=submit name=action value="|
       . $locale->text('E-mail') . qq|"> |;
     print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Storno') . qq|"> | unless ($form->{storno});
+      . $locale->text('Storno') . qq|"> | if ($show_storno);
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Post Payment') . qq|">
 |;
