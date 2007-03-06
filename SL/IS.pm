@@ -2230,6 +2230,10 @@ sub has_storno {
 
   $main::lxdebug->leave_sub() and return 0 unless ($form->{id});
 
+  # make sure there's no funny stuff in $table
+  # ToDO: die when this happens and throw an error
+  $main::lxdebug->leave_sub() and return 0 if ($table =~ /\W/);
+
   my $dbh = $form->dbconnect($myconfig);
 
   my $query = qq|SELECT storno FROM $table WHERE id = ?|;
