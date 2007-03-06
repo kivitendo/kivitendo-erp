@@ -89,8 +89,10 @@ sub add {
     "$form->{script}?action=add&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
-  &create_links;
   AR->get_transdate(\%myconfig, $form);
+  $form->{initial_transdate} = $form->{transdate};
+  &create_links;
+  $form->{transdate} = $form->{initial_transdate};
   &display_form;
   $lxdebug->leave_sub();
 }
@@ -256,8 +258,6 @@ sub create_links {
       }
     }
   }
-
-  $lxdebug->message(0, "1 ARselected $form->{ARselected}");
 
   $form->{taxincluded}  = $taxincluded if ($form->{id});
   $form->{paidaccounts} = 1            if not defined $form->{paidaccounts};
@@ -627,7 +627,6 @@ $jsscript
     if ($previous_accno &&
         ($previous_accno eq $selected_accno) &&
         ($previous_tax_id ne $selected_tax_id)) {
-      $lxdebug->message(0, "yeah");
       my $item = $taxcharts{$selected_tax_id};
       $selected_taxchart = "$item->{id}--$item->{rate}";
     }

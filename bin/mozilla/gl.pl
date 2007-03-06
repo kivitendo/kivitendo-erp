@@ -1127,7 +1127,6 @@ sub display_rows {
     if ($previous_accno &&
         ($previous_accno eq $selected_accno) &&
         ($previous_tax_id ne $selected_tax_id)) {
-      $lxdebug->message(0, "yeah");
       my $item = $taxcharts{$selected_tax_id};
       $selected_taxchart = "$item->{id}--$item->{rate}";
     }

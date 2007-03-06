@@ -1844,7 +1844,7 @@ sub get_customer {
 
   # setup last accounts used for this customer
   if (!$form->{id} && $form->{type} !~ /_(order|quotation)/) {
-    $query = qq|SELECT c.accno, c.description, c.link, c.category
+    $query = qq|SELECT c.id, c.accno, c.description, c.link, c.category
                 FROM chart c
 		JOIN acc_trans ac ON (ac.chart_id = c.id)
 		JOIN ar a ON (a.id = ac.trans_id)
@@ -1860,6 +1860,18 @@ sub get_customer {
       if ($ref->{category} eq 'I') {
         $i++;
         $form->{"AR_amount_$i"} = "$ref->{accno}--$ref->{description}";
+
+        if ($form->{initial_transdate}) {
+          my $tax_query =
+            qq|SELECT tk.tax_id, t.rate FROM taxkeys tk | .
+            qq|LEFT JOIN tax t ON tk.tax_id = t.id | .
+            qq|WHERE tk.chart_id = ? AND startdate <= ? | .
+            qq|ORDER BY tk.startdate DESC LIMIT 1|;
+          my ($tax_id, $rate) =
+            selectrow_query($form, $dbh, $tax_query, $ref->{id},
+                            $form->{initial_transdate});
+          $form->{"taxchart_$i"} = "${tax_id}--${rate}";
+        }
       }
       if ($ref->{category} eq 'A') {
         $form->{ARselected} = $form->{AR_1} = $ref->{accno};
