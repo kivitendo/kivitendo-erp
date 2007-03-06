@@ -1132,10 +1132,8 @@ sub display_rows {
       $selected_taxchart = "$item->{id}--$item->{rate}";
     }
 
-    if ($init) {
-      $selected_accno = '';
-      $selected_taxchart = $taxchart_init;
-    }
+    $selected_accno = '' if ($init);
+    $selected_taxchart = $taxchart_init unless ($selected_taxchart ne "");
 
     $accno = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "accno_$i",
