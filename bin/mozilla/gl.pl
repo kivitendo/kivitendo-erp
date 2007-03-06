@@ -1111,11 +1111,9 @@ sub display_rows {
   for $i (1 .. $form->{rowcount}) {
 
     $source = qq|
-    <td><input name="source_$i" value="$form->{"source_$i"}" size="16" tabindex=|
-      . ($i + 11 + (($i - 1) * 8)) . qq|></td>|;
+    <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
     $memo = qq|
-    <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16" tabindex=|
-      . ($i + 12 + (($i - 1) * 8)) . qq|></td>|;
+    <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16"></td>|;
 
     my $selected_accno_full;
     my ($accno_row) = split(/--/, $form->{"accno_$i"});
@@ -1140,32 +1138,28 @@ sub display_rows {
     }
 
     $accno = qq|<td>| .
-      $cgi->popup_menu('-name' => "accno_$i",
-                       '-id' => "accno_$i",
-                       '-onChange' => "setTaxkey(this, $i)",
-                       '-style' => 'width:200px',
-                       '-tabindex' => ($i + 5 + (($i - 1) * 8)),
-                       '-values' => \@chart_values,
-                       '-labels' => \%chart_labels,
-                       '-default' => $selected_accno_full)
+      NTI($cgi->popup_menu('-name' => "accno_$i",
+                           '-id' => "accno_$i",
+                           '-onChange' => "setTaxkey(this, $i)",
+                           '-style' => 'width:200px',
+                           '-values' => \@chart_values,
+                           '-labels' => \%chart_labels,
+                           '-default' => $selected_accno_full))
       . $cgi->hidden('-name' => "previous_accno_$i",
                      '-default' => $selected_accno_full)
       . qq|</td>|;
     $tax = qq|<td>| .
-      $cgi->popup_menu('-name' => "taxchart_$i",
-                       '-id' => "taxchart_$i",
-                       '-style' => 'width:200px',
-                       '-tabindex' => ($i + 10 + (($i - 1) * 8)),
-                       '-values' => \@taxchart_values,
-                       '-labels' => \%taxchart_labels,
-                       '-default' => $selected_taxchart)
+      NTI($cgi->popup_menu('-name' => "taxchart_$i",
+                           '-id' => "taxchart_$i",
+                           '-style' => 'width:200px',
+                           '-values' => \@taxchart_values,
+                           '-labels' => \%taxchart_labels,
+                           '-default' => $selected_taxchart))
       . qq|</td>|;
 
     if ($init) {
       $korrektur =
-        qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
-        . ($i + 9 + (($i - 1) * 8))
-        . qq|></td>|;
+        qq|<td><input type="checkbox" name="korrektur_$i" value="1"</td>|;
       if ($form->{transfer}) {
         $fx_transaction = qq|
         <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
@@ -1202,16 +1196,12 @@ sub display_rows {
         }
         $checked = ($form->{"korrektur_$i"}) ? "checked" : "";
         $korrektur =
-          qq|<td><input type="checkbox" name="korrektur_$i" value="1" $checked tabindex=|
-          . ($i + 9 + (($i - 1) * 8))
-          . qq|></td>|;
+          qq|<td><input type="checkbox" name="korrektur_$i" value="1" $checked></td>|;
         $form->hide_form("accno_$i");
 
       } else {
         $korrektur =
-          qq|<td><input type="checkbox" name="korrektur_$i" value="1" tabindex=|
-          . ($i + 9 + (($i - 1) * 8))
-          . qq|></td>|;
+          qq|<td><input type="checkbox" name="korrektur_$i" value="1"></td>|;
         if ($form->{transfer}) {
           $fx_transaction = qq|
       <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
@@ -1238,12 +1228,9 @@ sub display_rows {
     print qq|<tr valign=top>
     $accno
     $fx_transaction
-    <td><input name="debit_$i" size=8 value="$form->{"debit_$i"}" accesskey=$i tabindex=|
-      . ($i + 6 + (($i - 1) * 8)) . qq| $debitreadonly></td>
-    <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" tabindex=|
-      . ($i + 7 + (($i - 1) * 8)) . qq| $creditreadonly></td>
-    <td><input name="tax_$i" size=6 value="$form->{"tax_$i"}" tabindex=|
-      . ($i + 8 + (($i - 1) * 8)) . qq|></td>
+    <td><input name="debit_$i" size=8 value="$form->{"debit_$i"}" accesskey=$i $debitreadonly></td>
+    <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
+    <td><input name="tax_$i" size=6 value="$form->{"tax_$i"}"></td>
     $korrektur
     $tax
     $source
@@ -1301,7 +1288,7 @@ sub form_header {
       qq|<textarea name=description rows=$rows cols=50 wrap=soft $readonly >$form->{description}</textarea>|;
   } else {
     $description =
-      qq|<input name=description size=50 value="$form->{description}" tabindex="3" $readonly>|;
+      qq|<input name=description size=50 value="$form->{description}" $readonly>|;
   }
 
   $taxincluded = ($form->{taxincluded}) ? "checked" : "";
@@ -1330,7 +1317,7 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" tabindex="2" $readonly>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly>
        <input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>  
        |;
@@ -1342,7 +1329,7 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" tabindex="2" $readonly></td>|;
+      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly></td>|;
   }
 
   $form->header;
@@ -1369,7 +1356,7 @@ sub form_header {
       <table width=100%>
 	<tr>
 	  <th align=left>| . $locale->text('Reference') . qq|</th>
-	  <td><input name=reference size=20 value="$form->{reference}" tabindex="1" $readonly></td>
+	  <td><input name=reference size=20 value="$form->{reference}" $readonly></td>
 	  <td align=left>
 	    <table>
 	      <tr>
@@ -1405,7 +1392,7 @@ sub form_header {
 	    <table>
 	      <tr>
 		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-		<td><input type=checkbox name=taxincluded value=1 tabindex="5" $taxincluded></td>
+		<td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
 	      </tr>
 	    </table>
 	 </td>
@@ -1427,7 +1414,7 @@ sub form_header {
 	    <table>
 	      <tr>
 		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-		<td><input type=checkbox name=taxincluded value=1 tabindex="5" $taxincluded></td>
+		<td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
 	      </tr>
 	    </table>
 	 </td>
