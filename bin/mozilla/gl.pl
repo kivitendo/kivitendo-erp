@@ -1086,22 +1086,26 @@ sub display_rows {
 
   my %chart_labels = ();
   my @chart_values = ();
+  my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     my $key = Q($item->{accno}) . "--" . Q($item->{tax_id});
     $taxchart_init = $item->{taxkey_id} unless (@chart_values);
     push(@chart_values, $key);
     $chart_labels{$key} = H($item->{accno}) . "--" . H($item->{description});
+    $charts{$item->{accno}} = $item;
   }
 
   my %taxchart_labels = ();
   my @taxchart_values = ();
+  my %taxcharts = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
     my $key = Q($item->{id}) . "--" . Q($item->{rate});
     $taxchart_init = $key if ($taxchart_init eq $item->{taxkey});
     push(@taxchart_values, $key);
     $taxchart_labels{$key} = H($item->{taxdescription}) . " " .
       H($item->{rate} * 100) . ' %';
+    $taxcharts{$item->{id}} = $item;
   }
 
   for $i (1 .. $form->{rowcount}) {
@@ -1113,6 +1117,28 @@ sub display_rows {
     <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16" tabindex=|
       . ($i + 12 + (($i - 1) * 8)) . qq|></td>|;
 
+    my $selected_accno_full;
+    my ($accno_row) = split(/--/, $form->{"accno_$i"});
+    my $item = $charts{$accno_row};
+    $selected_accno_full = "$item->{accno}--$item->{tax_id}";
+
+    my $selected_taxchart = $form->{"taxchart_$i"};
+    my ($selected_accno, $selected_tax_id) = split(/--/, $selected_accno_full);
+    my ($previous_accno, $previous_tax_id) = split(/--/, $form->{"previous_accno_$i"});
+
+    if ($previous_accno &&
+        ($previous_accno eq $selected_accno) &&
+        ($previous_tax_id ne $selected_tax_id)) {
+      $lxdebug->message(0, "yeah");
+      my $item = $taxcharts{$selected_tax_id};
+      $selected_taxchart = "$item->{id}--$item->{rate}";
+    }
+
+    if ($init) {
+      $selected_accno = '';
+      $selected_taxchart = $taxchart_init;
+    }
+
     $accno = qq|<td>| .
       $cgi->popup_menu('-name' => "accno_$i",
                        '-id' => "accno_$i",
@@ -1121,7 +1147,9 @@ sub display_rows {
                        '-tabindex' => ($i + 5 + (($i - 1) * 8)),
                        '-values' => \@chart_values,
                        '-labels' => \%chart_labels,
-                       '-default' => $init ? '' : $form->{"accno_$i"})
+                       '-default' => $selected_accno_full)
+      . $cgi->hidden('-name' => "previous_accno_$i",
+                     '-default' => $selected_accno_full)
       . qq|</td>|;
     $tax = qq|<td>| .
       $cgi->popup_menu('-name' => "taxchart_$i",
@@ -1130,7 +1158,7 @@ sub display_rows {
                        '-tabindex' => ($i + 10 + (($i - 1) * 8)),
                        '-values' => \@taxchart_values,
                        '-labels' => \%taxchart_labels,
-                       '-default' => $init ? $taxchart_init : $form->{"taxchart_$i"})
+                       '-default' => $selected_taxchart)
       . qq|</td>|;
 
     if ($init) {

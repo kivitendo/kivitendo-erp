@@ -428,6 +428,7 @@ sub form_header {
   my (%AR_amount_labels, @AR_amount_values);
   my (%AR_labels, @AR_values);
   my (%AR_paid_labels, @AR_paid_values);
+  my %charts;
   my $taxchart_init;
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
@@ -447,16 +448,20 @@ sub form_header {
       $AR_paid_labels{$item->{accno}} =
         "$item->{accno}--$item->{description}";
     }
+
+    $charts{$item->{accno}} = $item;
   }
 
   my %taxchart_labels = ();
   my @taxchart_values = ();
+  my %taxcharts = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
     my $key = "$item->{id}--$item->{rate}";
     $taxchart_init = $key if ($taxchart_init eq $item->{id});
     push(@taxchart_values, $key);
     $taxchart_labels{$key} =
       "$item->{taxdescription} " . ($item->{rate} * 100) . ' %';
+    $taxcharts{$item->{id}} = $item;
   }
 
   $form->{fokus} = "arledger.customer";
@@ -610,6 +615,25 @@ $jsscript
       $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
 
+    my $selected_accno_full;
+    my ($accno_row) = split(/--/, $form->{"AR_amount_$i"});
+    my $item = $charts{$accno_row};
+    $selected_accno_full = "$item->{accno}--$item->{tax_id}";
+
+    my $selected_taxchart = $form->{"taxchart_$i"};
+    my ($selected_accno, $selected_tax_id) = split(/--/, $selected_accno_full);
+    my ($previous_accno, $previous_tax_id) = split(/--/, $form->{"previous_AR_amount_$i"});
+
+    if ($previous_accno &&
+        ($previous_accno eq $selected_accno) &&
+        ($previous_tax_id ne $selected_tax_id)) {
+      $lxdebug->message(0, "yeah");
+      my $item = $taxcharts{$selected_tax_id};
+      $selected_taxchart = "$item->{id}--$item->{rate}";
+    }
+
+    $selected_taxchart = $taxchart_init unless ($form->{"taxchart_$i"});
+
     $selectAR_amount =
       NTI($cgi->popup_menu('-name' => "AR_amount_$i",
                            '-id' => "AR_amount_$i",
@@ -617,7 +641,9 @@ $jsscript
                            '-onChange' => "setTaxkey(this, $i)",
                            '-values' => \@AR_amount_values,
                            '-labels' => \%AR_amount_labels,
-                           '-default' => $form->{"AR_amount_$i"}));
+                           '-default' => $selected_accno_full))
+      . $cgi->hidden('-name' => "previous_AR_amount_$i",
+                     '-default' => $selected_accno_full);
 
     $tax = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
@@ -625,8 +651,7 @@ $jsscript
                            '-style' => 'width:200px',
                            '-values' => \@taxchart_values,
                            '-labels' => \%taxchart_labels,
-                           '-default' => $form->{"taxchart_$i"} eq "" ?
-                           $taxchart_init : $form->{"taxchart_$i"}))
+                           '-default' => $selected_taxchart))
       . qq|</td>|;
 
     $korrektur_checked = ($form->{"korrektur_$i"} ? 'checked' : '');
