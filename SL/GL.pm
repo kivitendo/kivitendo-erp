@@ -75,9 +75,6 @@ sub post_transaction {
   # check if debit and credit balances
 
   if ($form->{storno}) {
-    $debit               = $debit * -1;
-    $credit              = $credit * -1;
-    $tax                 = $tax * -1;
     $form->{reference}   = "Storno-" . $form->{reference};
     $form->{description} = "Storno-" . $form->{description};
   }
