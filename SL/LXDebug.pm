@@ -3,8 +3,10 @@ package LXDebug;
 use constant NONE   => 0;
 use constant INFO   => 1;
 use constant DEBUG1 => 2;
-use constant DEBUG2 => 3;
-use constant QUERY  => 4;
+use constant DEBUG2 => 4;
+use constant QUERY  => 8;
+use constant TRACE  => 16;
+use constant ALL    => 31;
 
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
@@ -18,7 +20,6 @@ BEGIN {
   $data_dumper_available = $@ ? 0 : 1;
 
   $global_level      = NONE;
-  $global_trace_subs = 0;
 }
 
 sub new {
@@ -29,7 +30,6 @@ sub new {
   $self->{"file"}       = "/tmp/lx-office-debug.log";
   $self->{"target"}     = FILE_TARGET;
   $self->{"level"}      = 0;
-  $self->{"trace_subs"} = 0;
 
   while ($_[0]) {
     $self->{ $_[0] } = $_[1];
@@ -54,23 +54,20 @@ sub set_target {
 
 sub enter_sub {
   my ($self, $level) = @_;
+  $level *= 1;
 
-  return 1 if $global_trace_subs < $level;
-
-  if (!$self->{"trace_subs"} && !$global_trace_subs) {
-    return 1;
-  }
+  return 1 unless ($global_level & TRACE);          # ignore if traces aren't active
+  return 1 if $level && !($global_level & $level);  # ignore if level of trace isn't active
 
   my ($package, $filename, $line, $subroutine) = caller(1);
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
-  my $indent = " " x $self->{"calldepth"};
-  $self->{"calldepth"} += 1;
+  my $indent = " " x $self->{"calldepth"}++;
 
   if (!defined($package)) {
-    $self->_write('sub', $indent . "\\ top-level?\n");
+    $self->_write('sub' . $level, $indent . "\\ top-level?\n");
   } else {
-    $self->_write('sub', $indent
+    $self->_write('sub' . $level, $indent
                     . "\\ ${subroutine} in "
                     . "${self_filename}:${self_line} called from "
                     . "${filename}:${line}\n");
@@ -80,42 +77,27 @@ sub enter_sub {
 
 sub leave_sub {
   my ($self, $level) = @_;
+  $level *= 1;
 
-  return 1 if $global_trace_subs < $level;
-
-  if (!$self->{"trace_subs"} && !$global_trace_subs) {
-    return 1;
-  }
+  return 1 unless ($global_level & TRACE);           # ignore if traces aren't active
+  return 1 if $level && !($global_level & $level);   # ignore if level of trace isn't active
 
   my ($package, $filename, $line, $subroutine) = caller(1);
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
-  $self->{"calldepth"} -= 1;
-  my $indent = " " x $self->{"calldepth"};
+  my $indent = " " x --$self->{"calldepth"};
 
   if (!defined($package)) {
-    $self->_write('sub', $indent . "/ top-level?\n");
+    $self->_write('sub' . $level, $indent . "/ top-level?\n");
   } else {
-    $self->_write('sub', $indent . "/ ${subroutine} in " . "${self_filename}:${self_line}\n");
+    $self->_write('sub' . $level, $indent . "/ ${subroutine} in " . "${self_filename}:${self_line}\n");
   }
   return 1;
 }
 
 sub message {
   my ($self, $level, $message) = @_;
-  my ($log_level) = $self->{"level"};
-
-  if ($global_level && ($global_level > $log_level)) {
-    $log_level = $global_level;
-  }
-
-  if ($log_level >= $level) {
-    $self->_write(INFO   == $level ? "info"
-                : DEBUG1 == $level ? "debug1" 
-                : DEBUG2 == $level ? "debug2"
-                : QUERY  == $level ? "query":"",
-                $message );
-  }
+  $self->_write(level2string($level), $message) if (($self->{"level"} | $global_level) & $level);
 }
 
 sub dump {
@@ -132,12 +114,12 @@ sub dump {
 
 sub enable_sub_tracing {
   my ($self) = @_;
-  $self->{"trace_subs"} = 1;
+  $self->{level} | TRACE;
 }
 
 sub disable_sub_tracing {
   my ($self) = @_;
-  $self->{"trace_subs"} = 0;
+  $self->{level} & ~ TRACE;
 }
 
 sub _write {
@@ -155,6 +137,11 @@ sub _write {
       } elsif (STDERR_TARGET == $self->{"target"}) {
     print(STDERR "${date}${message}\n");
   }
+}
+
+sub level2string {
+  # use $_[0] as a bit mask and return levelstrings separated by /
+  join '/', qw(info debug1 debug2 query trace)[ grep { (reverse split //, sprintf "%05b", $_[0])[$_] } 0..4 ]
 }
 
 1;

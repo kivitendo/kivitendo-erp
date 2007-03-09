@@ -33,6 +33,7 @@ sub do_query {
     $dbh->do($query, undef, @_) ||
       $form->dberror($query . " (" . join(", ", @_) . ")");
   }
+  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")");
 }
 
 sub selectrow_query {
