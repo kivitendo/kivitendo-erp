@@ -1746,7 +1746,7 @@ sub retrieve_languages {
 }
 
 sub follow_account_chain {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $form, $dbh, $transdate, $accno_id, $accno) = @_;
 
@@ -1772,13 +1772,13 @@ sub follow_account_chain {
     push(@visited_accno_ids, $accno_id);
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return ($accno_id, $accno);
 }
 
 sub retrieve_accounts {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $form, $parts_id, $index, $copy_accnos) = @_;
 
@@ -1831,7 +1831,7 @@ sub retrieve_accounts {
 
   if (!$ref) {
     $dbh->disconnect();
-    return $main::lxdebug->leave_sub();
+    return $main::lxdebug->leave_sub(2);
   }
 
   $ref->{"inventory_accno_id"} = undef unless ($ref->{"is_part"});
@@ -1868,7 +1868,7 @@ sub retrieve_accounts {
   $dbh->disconnect();
 
   unless ($ref) {
-    $main::lxdebug->leave_sub();
+    $main::lxdebug->leave_sub(2);
     return;
   }
 
@@ -1885,7 +1885,7 @@ sub retrieve_accounts {
 #                           " || taxaccounts_$index " . $form->{"taxaccounts_$index"} .
 #                           " || taxaccounts " . $form->{"taxaccounts"});
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 }
 
 1;
