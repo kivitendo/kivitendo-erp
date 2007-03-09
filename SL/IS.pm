@@ -1090,9 +1090,7 @@ Message: $form->{message}\r| if $form->{message};
 }
 
 sub post_payment {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form, $locale) = @_;
+  $main::lxdebug->enter_sub() and my ($self, $myconfig, $form, $locale) = @_;
 
   # connect to database, turn off autocommit
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -1101,138 +1099,86 @@ sub post_payment {
 
   # total payments, don't move we need it here
   for my $i (1 .. $form->{paidaccounts}) {
-    if ($form->{type} eq "credit_note") {
-      $form->{"paid_$i"} = $form->parse_amount($myconfig, $form->{"paid_$i"}) * -1;
-    } else {
-      $form->{"paid_$i"} = $form->parse_amount($myconfig, $form->{"paid_$i"});
-    } 
-    $form->{paid} += $form->{"paid_$i"};
-    $form->{datepaid} = $form->{"datepaid_$i"} if ($form->{"datepaid_$i"});
+    $form->{"paid_$i"}  = $form->parse_amount($myconfig, $form->{"paid_$i"});
+    $form->{"paid_$i"} *= -1                                 if ($form->{type} eq "credit_note");
+    $form->{"paid"}    += $form->{"paid_$i"};
+    $form->{"datepaid"} = $form->{"datepaid_$i"}             if ($form->{"datepaid_$i"});
   }
 
-  $form->{exchangerate} =
-      $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate},
-                              "buy");
-
-  my $project_id = conv_i($form->{"globalproject_id"});
+  $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "buy");
 
   # record payments and offsetting AR
   for my $i (1 .. $form->{paidaccounts}) {
+    if ($form->{"paid_$i"}) {
 
-    if ($form->{"paid_$i"} != 0) {
       my ($accno) = split /--/, $form->{"AR_paid_$i"};
-      $form->{"datepaid_$i"} = $form->{invdate}
-        unless ($form->{"datepaid_$i"});
+      $form->{"datepaid_$i"} = $form->{invdate} unless ($form->{"datepaid_$i"});
       $form->{datepaid} = $form->{"datepaid_$i"};
 
       $exchangerate = 0;
       if (($form->{currency} eq $form->{defaultcurrency}) || ($form->{defaultcurrency} eq "")) {
         $form->{"exchangerate_$i"} = 1;
       } else {
-        $exchangerate =
-          $form->check_exchangerate($myconfig, $form->{currency},
-                                    $form->{"datepaid_$i"}, 'buy');
-
-        $form->{"exchangerate_$i"} =
-          ($exchangerate)
-          ? $exchangerate
-          : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
+        $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
+        $form->{"exchangerate_$i"} = ($exchangerate) ? $exchangerate : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
       }
 
       # record AR
-      $amount =
-        $form->round_amount($form->{"paid_$i"} * $form->{"exchangerate"},
-                            2);
+      $amount = $form->round_amount($form->{"paid_$i"} * $form->{"exchangerate"}, 2);
 
-
-      $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AR}') AND amount=$amount AND transdate='$form->{"datepaid_$i"}'|;
-      $dbh->do($query) || $form->dberror($query);
-
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-                  transdate, project_id)
-                  VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AR}'),
-                  $amount, '$form->{"datepaid_$i"}', ?)|;
-      do_query($form, $dbh, $query, $project_id);
-
+      $query = qq|DELETE FROM acc_trans WHERE trans_id = ? AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) AND amount = ? AND transdate = ?|;
+      do_query($form, $dbh, $query, $form->{id}, $form->{AR}, $amount, $form->{"datepaid_$i"});
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id) VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?)|;
+      do_query($form, $dbh, $query, $form->{id}, $form->{AR}, $amount, $form->{"datepaid_$i"}, conv_i($form->{"globalproject_id"}));
 
       # record payment
       $form->{"paid_$i"} *= -1;
 
-      $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                      WHERE c.accno = '$accno') AND amount=$form->{"paid_$i"} AND transdate='$form->{"datepaid_$i"}' AND source='$form->{"source_$i"}' AND memo='$form->{"memo_$i"}'|;
-      $dbh->do($query) || $form->dberror($query);
-
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, project_id)
-                  VALUES ($form->{id}, (SELECT c.id FROM chart c
-		                      WHERE c.accno = '$accno'),
-		  $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
-		  '$form->{"source_$i"}', '$form->{"memo_$i"}', ?)|;
-      do_query($form, $dbh, $query, $project_id);
-
+      $query = qq|DELETE FROM acc_trans WHERE trans_id = ? AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) AND amount = ? AND transdate = ? AND source = ? AND memo = ?|;
+      do_query($form, $dbh, $query, $form->{id}, $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"}, $form->{"source_$i"}, $form->{"memo_$i"});
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id) VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?)|;
+      do_query($form, $dbh, $query, $form->{id}, $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"}, $form->{"source_$i"}, $form->{"memo_$i"}, conv_i($form->{"globalproject_id"}));
 
       # gain/loss
-      $amount =
-        $form->{"paid_$i"} * $form->{exchangerate} - $form->{"paid_$i"} *
-        $form->{"exchangerate_$i"};
-      if ($amount > 0) {
-        $form->{fx}{ $form->{fxgain_accno} }{ $form->{"datepaid_$i"} } +=
-          $amount;
-      } else {
-        $form->{fx}{ $form->{fxloss_accno} }{ $form->{"datepaid_$i"} } +=
-          $amount;
-      }
+      $amount = $form->{"paid_$i"} * $form->{exchangerate} - $form->{"paid_$i"} * $form->{"exchangerate_$i"};
+      $form->{fx}{ $form->{($amount > 0 ? 'fxgain_accno' : 'fxloss_accno')} }{ $form->{"datepaid_$i"} } += $amount;
 
       $diff = 0;
 
       # update exchange rate
       if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-        $form->update_exchangerate($dbh, $form->{currency},
-                                   $form->{"datepaid_$i"},
-                                   $form->{"exchangerate_$i"}, 0);
+        $form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, $form->{"exchangerate_$i"}, 0);
       }
+
     }
   }
 
   # record exchange rate differences and gains/losses
   foreach my $accno (keys %{ $form->{fx} }) {
     foreach my $transdate (keys %{ $form->{fx}{$accno} }) {
-      if (
-          ($form->{fx}{$accno}{$transdate} =
-           $form->round_amount($form->{fx}{$accno}{$transdate}, 2)
-          ) != 0
-        ) {
-        $query = qq|DELETE FROM acc_trans WHERE trans_id=$form->{id} AND chart_id=(SELECT c.id FROM chart c
-                                        WHERE c.accno = '$accno') AND amount=$form->{fx}{$accno}{$transdate} AND transdate='$transdate' AND cleared='0' AND fx_transaction='1'|;
-        $dbh->do($query) || $form->dberror($query);
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-	            transdate, cleared, fx_transaction, project_id)
-		    VALUES ($form->{id},
-		           (SELECT c.id FROM chart c
-		            WHERE c.accno = '$accno'),
-		    $form->{fx}{$accno}{$transdate}, '$transdate', '0', '1', ?)|;
-        do_query($form, $dbh, $query, $project_id);
+
+      if ($form->{fx}{$accno}{$transdate} = $form->round_amount($form->{fx}{$accno}{$transdate}, 2)) { # '=' is no typo, it's an assignment
+        $query = qq|DELETE FROM acc_trans WHERE trans_id = ? AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) 
+                                                AND amount = ? AND transdate = ? AND cleared = ? AND fx_transaction = ?|;
+        do_query($form, $dbh, $query, $form->{id}, $accno, $form->{fx}{$accno}{$transdate}, $transdate, 0, 1);
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, project_id)
+		                   VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?)|;
+        do_query($form, $dbh, $query, $form->{id}, $accno, $form->{fx}{$accno}{$transdate}, $transdate, 0, 1, conv_i($form->{"globalproject_id"}));
       }
+
     }
   }
-  my $datepaid = ($form->{paid})    ? qq|'$form->{datepaid}'| : "NULL";
 
   # save AR record
-  my $query = qq|UPDATE ar set
-              paid = $form->{paid},
-	      datepaid = $datepaid
-              WHERE id=$form->{id}|;
+  delete $form->{datepaid} unless $form->{paid};
 
-  $dbh->do($query) || $form->dberror($query);
+  my $query = qq|UPDATE ar set paid = ?, datepaid = ? WHERE id = ?|;
+  do_query($form, $dbh, $query, $form->{paid}, $form->{datepaid}, $form->{id});
 
   my $rc = $dbh->commit;
   $dbh->disconnect;
 
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  $main::lxdebug->leave_sub() and return $rc;
 }
 
 sub process_assembly {
