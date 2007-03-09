@@ -1128,16 +1128,19 @@ sub post_payment {
 
       $query = qq|DELETE FROM acc_trans WHERE trans_id = ? AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) AND amount = ? AND transdate = ?|;
       do_query($form, $dbh, $query, $form->{id}, $form->{AR}, $amount, $form->{"datepaid_$i"});
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id) VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?)|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{AR}, $amount, $form->{"datepaid_$i"}, conv_i($form->{"globalproject_id"}));
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey) 
+                  VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+      do_query($form, $dbh, $query, $form->{id}, $form->{AR}, $amount, $form->{"datepaid_$i"}, conv_i($form->{"globalproject_id"}), $accno);
 
       # record payment
       $form->{"paid_$i"} *= -1;
 
       $query = qq|DELETE FROM acc_trans WHERE trans_id = ? AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) AND amount = ? AND transdate = ? AND source = ? AND memo = ?|;
       do_query($form, $dbh, $query, $form->{id}, $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"}, $form->{"source_$i"}, $form->{"memo_$i"});
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id) VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?)|;
-      do_query($form, $dbh, $query, $form->{id}, $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"}, $form->{"source_$i"}, $form->{"memo_$i"}, conv_i($form->{"globalproject_id"}));
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id, taxkey) 
+                  VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+      do_query($form, $dbh, $query, $form->{id}, $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"}, $form->{"source_$i"}, $form->{"memo_$i"}, 
+               conv_i($form->{"globalproject_id"}), $accno);
 
       # gain/loss
       $amount = $form->{"paid_$i"} * $form->{exchangerate} - $form->{"paid_$i"} * $form->{"exchangerate_$i"};
@@ -1161,9 +1164,9 @@ sub post_payment {
         $query = qq|DELETE FROM acc_trans WHERE trans_id = ? AND chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?) 
                                                 AND amount = ? AND transdate = ? AND cleared = ? AND fx_transaction = ?|;
         do_query($form, $dbh, $query, $form->{id}, $accno, $form->{fx}{$accno}{$transdate}, $transdate, 0, 1);
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, project_id)
-		                   VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?)|;
-        do_query($form, $dbh, $query, $form->{id}, $accno, $form->{fx}{$accno}{$transdate}, $transdate, 0, 1, conv_i($form->{"globalproject_id"}));
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, project_id, taxkey)
+		                   VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+        do_query($form, $dbh, $query, $form->{id}, $accno, $form->{fx}{$accno}{$transdate}, $transdate, 0, 1, conv_i($form->{"globalproject_id"}), $accno);
       }
 
     }
