@@ -959,7 +959,7 @@ sub datetonum {
 # Database routines used throughout
 
 sub dbconnect {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig) = @_;
 
@@ -974,7 +974,7 @@ sub dbconnect {
     $dbh->do($myconfig->{dboptions}) || $self->dberror($myconfig->{dboptions});
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $dbh;
 }
