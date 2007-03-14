@@ -766,11 +766,11 @@ sub generate_report {
     }
 
     $transdate = "";
-    foreach $key (sort keys(%{ $ref->{transdate} })) {
+    foreach $key (sort keys(%{ $ref->{ac_transdate} })) {
       if ($key == 0) {
-        $transdate = "$ref->{transdate}{$key}";
+        $transdate = "$ref->{ac_transdate}{$key}";
       } else {
-        $transdate .= "<br>$ref->{transdate}{$key}";
+        $transdate .= "<br>$ref->{ac_transdate}{$key}";
       }
     }
 
