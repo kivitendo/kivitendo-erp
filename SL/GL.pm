@@ -415,7 +415,7 @@ sub all_transactions {
 		 AND ac.chart_id = c.id
 		 AND a.vendor_id = ct.id
 		 AND a.id = ac.trans_id
-	         ORDER BY $sortorder transdate,acoid, trans_id, taxkey DESC|;
+	         ORDER BY $sortorder transdate, trans_id, acoid, taxkey DESC|;
 
   # Show all $query in Debuglevel LXDebug::QUERY
   $callingdetails = (caller (0))[3];
