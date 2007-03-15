@@ -359,8 +359,6 @@ sub form_header {
     }
   }
 
-  $taxincluded = "";
-
   $taxincluded = qq|
 	      <tr>
 		<td align=right><input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}></td>
