@@ -1083,11 +1083,23 @@ sub get_vendor {
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
       if ($ref->{category} eq 'E') {
         $i++;
-        $form->{"AP_amount_$i"} = "$ref->{accno}--$ref->{description}";
+
+        if ($form->{initial_transdate}) {
+          my $tax_query =
+            qq|SELECT tk.tax_id, t.rate FROM taxkeys tk | .
+            qq|LEFT JOIN tax t ON tk.tax_id = t.id | .
+            qq|WHERE tk.chart_id = ? AND startdate <= ? | .
+            qq|ORDER BY tk.startdate DESC LIMIT 1|;
+          my ($tax_id, $rate) =
+            selectrow_query($form, $dbh, $tax_query, $ref->{id},
+                            $form->{initial_transdate});
+          $form->{"taxchart_$i"} = "${tax_id}--${rate}";
+        }
+
+        $form->{"AP_amount_$i"} = "$ref->{accno}--$tax_id";
       }
       if ($ref->{category} eq 'L') {
-        $form->{APselected} = $form->{AP_1} =
-          "$ref->{accno}--$ref->{description}";
+        $form->{APselected} = $form->{AP_1} = $ref->{accno};
       }
     }
     $sth->finish;

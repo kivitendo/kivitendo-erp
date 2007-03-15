@@ -82,8 +82,10 @@ sub add {
     "$form->{script}?action=add&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
-  &create_links;
   AP->get_transdate(\%myconfig, $form);
+  $form->{initial_transdate} = $form->{transdate};
+  &create_links;
+  $form->{transdate} = $form->{initial_transdate};
   &display_form;
 
   $lxdebug->leave_sub();
@@ -127,14 +129,6 @@ sub create_links {
 
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
-
-  map {
-    $tax .=
-      qq|<option value=\"$_->{id}--$_->{rate}\">$_->{taxdescription}  |
-      . ($_->{rate} * 100) . qq| %|
-  } @{ $form->{TAX} };
-  $form->{taxchart}       = $tax;
-  $form->{selecttaxchart} = $tax;
 
   # currencies
   @curr = split(/:/, $form->{currencies});
@@ -217,8 +211,6 @@ sub create_links {
           if ($form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"} > 0) {
             $totaltax +=
               $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
-            $taxrate +=
-              $form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"};
           } else {
             $totalwithholding +=
               $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
@@ -252,11 +244,15 @@ sub create_links {
           $form->{"select${key}"} =~
             /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--${q_description}<\/option>\n/;
           $form->{"${key}_$k"} = $1;
-          if ($akey eq 'amount') {
-            $form->{"taxchart_$k"} = $form->{taxchart};
-            $form->{"taxchart_$k"} =~
-              /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{id}--[^\"]*)/;
-            $form->{"taxchart_$k"} = $1;
+
+          if ($akey eq "AP") {
+            $form->{APselected} = $form->{acc_trans}{$key}->[$i-1]->{accno};
+
+          } elsif ($akey eq 'amount') {
+            $form->{"${key}_$k"} = $form->{acc_trans}{$key}->[$i-1]->{accno} .
+              "--" . $form->{acc_trans}{$key}->[$i-1]->{id};
+            $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id} .
+              "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
           }
         }
       }
@@ -286,8 +282,6 @@ sub create_links {
   $form->{locked} =
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
-
-  $form->{"APselected"} = $form->{"AP_1"};
 
   $lxdebug->leave_sub();
 }
@@ -331,18 +325,9 @@ sub form_header {
   }
   $readonly = ($form->{id}) ? "readonly" : "";
 
-  my $APselected_quoted = quotemeta($form->{"APselected"});
-  $form->{selectAP} = $form->{AP};
-  $form->{selectAP} =~
-    s/value=\"${APselected_quoted}\"/value=\"$form->{APselected}\" selected/;
-
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
   $readonly                 = ($form->{radier}) ? "" : $readonly;
-  $selectAP_amount_unquoted = $form->{selectAP_amount};
-  $taxchart                 = $form->{taxchart};
-  map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(AP_amount selectAP_amount AP taxchart);
 
   # format amounts
   $form->{exchangerate} =
@@ -410,13 +395,58 @@ sub form_header {
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => \@old_project_ids });
+                                   "old_id" => \@old_project_ids },
+                   "charts" => { "key" => "ALL_CHARTS",
+                                 "transdate" => $form->{transdate} },
+                   "taxcharts" => "ALL_TAXCHARTS");
+
+  map({ $_->{link_split} = [ split(/:/, $_->{link}) ]; }
+      @{ $form->{ALL_CHARTS} });
 
   my %project_labels = ();
   my @project_values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
     push(@project_values, $item->{"id"});
     $project_labels{$item->{"id"}} = $item->{"projectnumber"};
+  }
+
+  my (%AP_amount_labels, @AP_amount_values);
+  my (%AP_labels, @AP_values);
+  my (%AP_paid_labels, @AP_paid_values);
+  my %charts;
+  my $taxchart_init;
+
+  foreach my $item (@{ $form->{ALL_CHARTS} }) {
+    if (grep({ $_ eq "AP_amount" } @{ $item->{link_split} })) {
+      $taxchart_init = $item->{tax_id} if ($taxchart_init eq "");
+      my $key = "$item->{accno}--$item->{tax_id}";
+      push(@AP_amount_values, $key);
+      $AP_amount_labels{$key} =
+        "$item->{accno}--$item->{description}";
+
+    } elsif (grep({ $_ eq "AP" } @{ $item->{link_split} })) {
+      push(@AP_values, $item->{accno});
+      $AP_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
+
+    } elsif (grep({ $_ eq "AP_paid" } @{ $item->{link_split} })) {
+      push(@AP_paid_values, $item->{accno});
+      $AP_paid_labels{$item->{accno}} =
+        "$item->{accno}--$item->{description}";
+    }
+
+    $charts{$item->{accno}} = $item;
+  }
+
+  my %taxchart_labels = ();
+  my @taxchart_values = ();
+  my %taxcharts = ();
+  foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
+    my $key = "$item->{id}--$item->{rate}";
+    $taxchart_init = $key if ($taxchart_init eq $item->{id});
+    push(@taxchart_values, $key);
+    $taxchart_labels{$key} =
+      "$item->{taxdescription} " . ($item->{rate} * 100) . ' %';
+    $taxcharts{$item->{id}} = $item;
   }
 
   # use JavaScript Calendar or not
@@ -538,9 +568,6 @@ sub form_header {
 
 
 $jsscript
-  <input type=hidden name=selectAP_amount value="$form->{selectAP_amount}">
-  <input type=hidden name=AP_amount value="$form->{AP_amount}">
-  <input type=hidden name=taxchart value="$form->{taxchart}">
   <input type=hidden name=rowcount value=$form->{rowcount}>
   <tr>
       <td>
@@ -570,15 +597,44 @@ $jsscript
     $form->{"amount_$i"} =
       $form->format_amount(\%myconfig, $form->{"amount_$i"}, 2);
     $form->{"tax_$i"} = $form->format_amount(\%myconfig, $form->{"tax_$i"}, 2);
-    $selectAP_amount = $selectAP_amount_unquoted;
-    $re_amount = quotemeta($form->{"AP_amount_$i"});
-    $selectAP_amount =~
-      s/option value=\"${re_amount}\"/option value=\"$form->{"AP_amount_$i"}\" selected/;
-    $tax          = $taxchart;
-    $tax_selected = $form->{"taxchart_$i"};
-    $tax =~ s/value=\"$tax_selected\"/value=\"$tax_selected\" selected/;
-    $tax =
-      qq|<td><select id="taxchart_$i" name="taxchart_$i" style="width:200px">$tax</select></td>|;
+
+    my $selected_accno_full;
+    my ($accno_row) = split(/--/, $form->{"AP_amount_$i"});
+    my $item = $charts{$accno_row};
+    $selected_accno_full = "$item->{accno}--$item->{tax_id}";
+
+    my $selected_taxchart = $form->{"taxchart_$i"};
+    my ($selected_accno, $selected_tax_id) = split(/--/, $selected_accno_full);
+    my ($previous_accno, $previous_tax_id) = split(/--/, $form->{"previous_AP_amount_$i"});
+
+    if ($previous_accno &&
+        ($previous_accno eq $selected_accno) &&
+        ($previous_tax_id ne $selected_tax_id)) {
+      my $item = $taxcharts{$selected_tax_id};
+      $selected_taxchart = "$item->{id}--$item->{rate}";
+    }
+
+    $selected_taxchart = $taxchart_init unless ($form->{"taxchart_$i"});
+
+    $selectAP_amount =
+      NTI($cgi->popup_menu('-name' => "AP_amount_$i",
+                           '-id' => "AP_amount_$i",
+                           '-style' => 'width:400px',
+                           '-onChange' => "setTaxkey(this, $i)",
+                           '-values' => \@AP_amount_values,
+                           '-labels' => \%AP_amount_labels,
+                           '-default' => $selected_accno_full))
+      . $cgi->hidden('-name' => "previous_AP_amount_$i",
+                     '-default' => $selected_accno_full);
+
+    $tax = qq|<td>| .
+      NTI($cgi->popup_menu('-name' => "taxchart_$i",
+                           '-id' => "taxchart_$i",
+                           '-style' => 'width:200px',
+                           '-values' => \@taxchart_values,
+                           '-labels' => \%taxchart_labels,
+                           '-default' => $selected_taxchart))
+      . qq|</td>|;
 
     my $korrektur = $form->{"korrektur_$i"} ? 'checked' : '';
 
@@ -590,7 +646,7 @@ $jsscript
 
     print qq|
 	<tr>
-          <td width=50%><select name="AP_amount_$i" onChange="setTaxkey(this, $i)" style="width:100%">$selectAP_amount</select></td>
+          <td>$selectAP_amount</td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
           <td><input type="checkbox" name="korrektur_$i" value="1" "$korrektur"></td>
@@ -609,6 +665,11 @@ $jsscript
 
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
+  $APselected =
+    NTI($cgi->popup_menu('-name' => "APselected", '-id' => "APselected",
+                         '-style' => 'width:400px',
+                         '-values' => \@AP_values, '-labels' => \%AP_labels,
+                         '-default' => $form->{APselected}));
   print qq|
         <tr>
           <td colspan=6>
@@ -616,8 +677,7 @@ $jsscript
           </td>
         </tr>
         <tr>
-	  <td><select name=APselected>$form->{selectAP}</select></td>
-          <input type=hidden name=AP value="$form->{AP}">
+	  <td>${APselected}</td>
 	  <th align=left>$form->{invtotal}</th>
 
 	  <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
@@ -679,9 +739,12 @@ $jsscript
         <tr>
 ";
 
-    $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
-    $form->{"selectAP_paid_$i"} =~
-      s/option value=\"$form->{"AP_paid_$i"}\">/option value=\"$form->{"AP_paid_$i"}\" selected>/;
+    $selectAP_paid =
+      NTI($cgi->popup_menu('-name' => "AP_paid_$i",
+                           '-id' => "AP_paid_$i",
+                           '-values' => \@AP_paid_values,
+                           '-labels' => \%AP_paid_labels,
+                           '-default' => $form->{"AP_paid_$i"}));
 
     # format amounts
     if ($form->{"paid_$i"}) {
@@ -709,7 +772,7 @@ $jsscript
     $column_data{"paid_$i"} =
       qq|<td align=center><input name="paid_$i" size=11 value=$form->{"paid_$i"}></td>|;
     $column_data{"AP_paid_$i"} =
-      qq|<td align=center><select name="AP_paid_$i">$form->{"selectAP_paid_$i"}</select></td>|;
+      qq|<td align=center>${selectAP_paid}</td>|;
     $column_data{"exchangerate_$i"} = qq|<td align=center>$exchangerate</td>|;
     $column_data{"datepaid_$i"}     =
       qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="($myconfig{'dateformat'})" value=$form->{"datepaid_$i"}>
@@ -733,11 +796,9 @@ $jsscript
 ";
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
-  map { $form->{$_} =~ s/\"/&quot;/g } qw(selectAP_paid);
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
     qq|
     <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
-    <input type=hidden name=selectAP_paid value="$form->{selectAP_paid}">
 
       </table>
     </td>
@@ -769,6 +830,15 @@ sub form_footer {
 
 <br>
 |;
+
+  if (!$form->{id} && $form->{draft_id}) {
+    print(NTI($cgi->checkbox('-name' => 'remove_draft', '-id' => 'remove_draft',
+                             '-value' => 1, '-checked' => $form->{remove_draft},
+                             '-label' => '')) .
+          qq|&nbsp;<label for="remove_draft">| .
+          $locale->text("Remove draft when posting") .
+          qq|</label><br>|);
+  }
 
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
@@ -827,23 +897,7 @@ sub update {
 
   my $display = shift;
 
-  #   if ($display) {
-  #     goto TAXCALC;
-  #   }
-
   $form->{invtotal} = 0;
-
-  #   $form->{selectAP_amount} = $form->{AP_amount};
-  #   $form->{selectAP_amount} =~
-  #     s/value=\"$form->{AP_amountselected}\"/value=\"$form->{AP_amountselected}\" selected/;
-
-  ($AP_amountaccno, $AP_amounttaxkey) =
-    split(/--/, $form->{AP_amountselected});
-  $form->{selecttaxchart} = $form->{taxchart};
-  $form->{selecttaxchart} =~
-    s/value=\"$AP_amounttaxkey--([^\"]*)\"/value=\"$AP_amounttaxkey--$1\" selected/;
-
-  $form->{rate} = $1;
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
