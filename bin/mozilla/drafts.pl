@@ -17,6 +17,7 @@ sub save_draft {
   if (!$form->{draft_id} && !$form->{draft_description}) {
     restore_form($form->{SAVED_FORM}, 1) if ($form->{SAVED_FORM});
     delete($form->{SAVED_FORM});
+    $form->{remove_draft} = 1;
     $form->{SAVED_FORM} = save_form();
 
     $form->header();
