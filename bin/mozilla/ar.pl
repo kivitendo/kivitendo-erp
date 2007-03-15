@@ -846,6 +846,15 @@ sub form_footer {
 <br>
 |;
 
+  if (!$form->{id} && $form->{draft_id}) {
+    print(NTI($cgi->checkbox('-name' => 'remove_draft', '-id' => 'remove_draft',
+                             '-value' => 1, '-checked' => $form->{remove_draft},
+                             '-label' => '')) .
+          qq|&nbsp;<label for="remove_draft">| .
+          $locale->text("Remove draft when posting") .
+          qq|</label><br>|);
+  }
+
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
