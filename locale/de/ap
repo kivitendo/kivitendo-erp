@@ -102,6 +102,7 @@ $self->{texts} = {
   'Project description'         => 'Projektbeschreibung',
   'Project not on file!'        => 'Dieses Projekt ist nicht in der Datenbank!',
   'Remaining'                   => 'Rest',
+  'Remove draft when posting'   => 'Entwurf beim Buchen l&ouml;schen',
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',
   'SCREENED'                    => 'Angezeigt',
