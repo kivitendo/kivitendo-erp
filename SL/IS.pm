@@ -1681,11 +1681,15 @@ sub get_customer {
   my $query = qq|SELECT c.name AS customer, c.discount, c.creditlimit, c.terms,
                  c.email, c.cc, c.bcc, c.language_id, c.payment_id AS customer_payment_id,
 		 c.street, c.zipcode, c.city, c.country,
-	         $duedate + c.terms AS duedate, c.notes AS intnotes,
+	         $duedate + COALESCE(pt.terms_netto, 0) AS duedate, c.notes AS intnotes,
 		 b.discount AS tradediscount, b.description AS business, c.klass as customer_klass, c.taxzone_id
                  FROM customer c
 		 LEFT JOIN business b ON (b.id = c.business_id)
+                 LEFT JOIN payment_terms pt ON c.payment_id = pt.id
 	         WHERE c.id = $form->{customer_id}|;
+  $query =~ s/[\n\t]/ /g;
+  $query =~ s/ +/ /g;
+  $main::lxdebug->message(1, "qq $query");
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
