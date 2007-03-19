@@ -1071,7 +1071,7 @@ sub get_vendor {
   if (!$form->{id} && $form->{type} !~ /_(order|quotation)/) {
 
     # setup last accounts used
-    $query = qq|SELECT c.accno, c.description, c.link, c.category
+    $query = qq|SELECT c.id, c.accno, c.description, c.link, c.category
 		FROM chart c
 		JOIN acc_trans ac ON (ac.chart_id = c.id)
 		JOIN ap a ON (a.id = ac.trans_id)
