@@ -276,9 +276,9 @@ sub post_invoice {
             # add entry for inventory, this one is for the sold item
             if ($linetotal != 0) {
               $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-			  transdate)
+			  transdate, taxkey)
 			  VALUES ($ref->{trans_id}, $ref->{inventory_accno_id},
-			  $linetotal, '$ref->{transdate}')|;
+			  $linetotal, '$ref->{transdate}', (SELECT taxkey_id FROM chart WHERE id = $ref->{inventory_accno_id}))|;
               $dbh->do($query) || $form->dberror($query);
 
               # add expense
@@ -522,22 +522,24 @@ sub post_invoice {
 
       if ($form->{amount}{ $form->{id} }{ $form->{AP} } != 0) {
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-		    transdate, project_id)
+		    transdate, taxkey, project_id)
 		    VALUES ($form->{id}, (SELECT c.id FROM chart c
-					WHERE c.accno = '$form->{AP}'),
-		    $amount, '$form->{"datepaid_$i"}', ?)|;
-        do_query($form, $dbh, $query, $project_id);
+					WHERE c.accno = ?),
+		    $amount, '$form->{"datepaid_$i"}',
+                    (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
+        do_query($form, $dbh, $query, $form->{AP}, $form->{AP}, $project_id);
       }
 
       # record payment
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, project_id)
+                  source, memo, taxkey, project_id)
                   VALUES ($form->{id}, (SELECT c.id FROM chart c
-		                      WHERE c.accno = '$accno'),
+		                      WHERE c.accno = ?),
                   $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
-		  '$form->{"source_$i"}', '$form->{"memo_$i"}', ?)|;
-      do_query($form, $dbh, $query, $project_id);
+		  '$form->{"source_$i"}', '$form->{"memo_$i"}',
+                  (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
+      do_query($form, $dbh, $query, $accno, $accno, $project_id);
 
       $exchangerate = 0;
 
@@ -591,10 +593,10 @@ sub post_invoice {
         ) {
 
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-	            transdate, cleared, fx_transaction, project_id)
+	            transdate, cleared, fx_transaction, taxkey, project_id)
 	            VALUES ($form->{id}, (SELECT c.id FROM chart c
 		                        WHERE c.accno = '$accno'),
-                    $form->{fx}{$accno}{$transdate}, '$transdate', '0', '1', ?)|;
+                    $form->{fx}{$accno}{$transdate}, '$transdate', '0', '1', 0, ?)|;
         do_query($form, $dbh, $query, $project_id);
       }
     }
@@ -1355,11 +1357,12 @@ sub post_payment {
       $dbh->do($query) || $form->dberror($query);
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-                  transdate, project_id)
+                  transdate, taxkey, project_id)
                   VALUES ($form->{id}, (SELECT c.id FROM chart c
-                                      WHERE c.accno = '$form->{AP}'),
-                  $amount, '$form->{"datepaid_$i"}', ?)|;
-      do_query($form, $dbh, $query, $project_id);
+                                      WHERE c.accno = ?),
+                  $amount, '$form->{"datepaid_$i"}',
+                  (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
+      do_query($form, $dbh, $query, $form->{AP}, $form->{AP}, $project_id);
 
 
 
@@ -1368,12 +1371,13 @@ sub post_payment {
       $dbh->do($query) || $form->dberror($query);
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, project_id)
+                  source, memo, taxkey, project_id)
                   VALUES ($form->{id}, (SELECT c.id FROM chart c
-		                      WHERE c.accno = '$accno'),
+		                      WHERE c.accno = ?),
 		  $form->{"paid_$i"}, '$form->{"datepaid_$i"}',
-		  '$form->{"source_$i"}', '$form->{"memo_$i"}', ?)|;
-      do_query($form, $dbh, $query, $project_id);
+		  '$form->{"source_$i"}', '$form->{"memo_$i"}',
+                  (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
+      do_query($form, $dbh, $query, $accno, $accno, $project_id);
 
 
       # gain/loss
@@ -1411,12 +1415,13 @@ sub post_payment {
                                         WHERE c.accno = '$accno') AND amount=$form->{fx}{$accno}{$transdate} AND transdate='$transdate' AND cleared='0' AND fx_transaction='1'|;
         $dbh->do($query) || $form->dberror($query);
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount,
-	            transdate, cleared, fx_transaction, project_id)
+	            transdate, cleared, fx_transaction, taxkey, project_id)
 		    VALUES ($form->{id},
 		           (SELECT c.id FROM chart c
-		            WHERE c.accno = '$accno'),
-		    $form->{fx}{$accno}{$transdate}, '$transdate', '0', '1', ?)|;
-        do_query($form, $dbh, $query, $project_id);
+		            WHERE c.accno = ?),
+		    $form->{fx}{$accno}{$transdate}, '$transdate', '0', '1',
+                    (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
+        do_query($form, $dbh, $query, $accno, $accno, $project_id);
       }
     }
   }
