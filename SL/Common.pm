@@ -28,11 +28,11 @@ sub retrieve_parts {
 
   my (@filter_values, $filter);
   if ($form->{"partnumber"}) {
-    $filter .= " AND (partnumber ILIKE ?)";
+    $filter .= qq| AND (partnumber ILIKE ?)|;
     push(@filter_values, '%' . $form->{"partnumber"} . '%');
   }
   if ($form->{"description"}) {
-    $filter .= " AND (description ILIKE ?)";
+    $filter .= qq| AND (description ILIKE ?)|;
     push(@filter_values, '%' . $form->{"description"} . '%');
   }
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -40,7 +40,10 @@ sub retrieve_parts {
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, partnumber, description FROM parts $filter ORDER BY $order_by $order_dir";
+  my $query =
+    qq|SELECT id, partnumber, description | .
+    qq|FROM parts $filter | .
+    qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $parts = [];
@@ -64,11 +67,11 @@ sub retrieve_projects {
 
   my (@filter_values, $filter);
   if ($form->{"projectnumber"}) {
-    $filter .= " AND (projectnumber ILIKE ?)";
+    $filter .= qq| AND (projectnumber ILIKE ?)|;
     push(@filter_values, '%' . $form->{"projectnumber"} . '%');
   }
   if ($form->{"description"}) {
-    $filter .= " AND (description ILIKE ?)";
+    $filter .= qq| AND (description ILIKE ?)|;
     push(@filter_values, '%' . $form->{"description"} . '%');
   }
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -76,7 +79,10 @@ sub retrieve_projects {
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, projectnumber, description FROM project $filter ORDER BY $order_by $order_dir";
+  my $query =
+    qq|SELECT id, projectnumber, description | .
+    qq|FROM project $filter | .
+    qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $projects = [];
@@ -100,7 +106,7 @@ sub retrieve_employees {
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
-    $filter .= " AND (name ILIKE ?)";
+    $filter .= qq| AND (name ILIKE ?)|;
     push(@filter_values, '%' . $form->{"name"} . '%');
   }
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -108,7 +114,10 @@ sub retrieve_employees {
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, name FROM employee $filter ORDER BY $order_by $order_dir";
+  my $query =
+    qq|SELECT id, name | .
+    qq|FROM employee $filter | .
+    qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $employees = [];
@@ -132,17 +141,21 @@ sub retrieve_delivery_customer {
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
-    $filter .= " (name ILIKE '%$form->{name}%') AND";
+    $filter .= qq| (name ILIKE ?) AND|;
     push(@filter_values, '%' . $form->{"name"} . '%');
   }
-  #substr($filter, 1, 3) = "WHERE" if ($filter);
 
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, name, customernumber, (street || ', ' || zipcode || city) as address FROM customer WHERE $filter business_id=(SELECT id from business WHERE description='Endkunde') ORDER BY $order_by $order_dir";
+  my $query =
+    qq!SELECT id, name, customernumber, (street || ', ' || zipcode || city) AS address ! .
+    qq!FROM customer ! .
+    qq!WHERE $filter business_id = (SELECT id FROM business WHERE description = 'Endkunde') ! .
+    qq!ORDER BY $order_by $order_dir!;
   my $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
+  $sth->execute(@filter_values) ||
+    $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $delivery_customers = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$delivery_customers}, $ref);
@@ -164,17 +177,20 @@ sub retrieve_vendor {
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
-    $filter .= " (name ILIKE '%$form->{name}%') AND";
+    $filter .= qq| (name ILIKE ?) AND|;
     push(@filter_values, '%' . $form->{"name"} . '%');
   }
-  #substr($filter, 1, 3) = "WHERE" if ($filter);
 
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, name, customernumber, (street || ', ' || zipcode || city) as address FROM customer WHERE $filter business_id=(SELECT id from business WHERE description='Händler') ORDER BY $order_by $order_dir";
+  my $query =
+    qq!SELECT id, name, customernumber, (street || ', ' || zipcode || city) AS address FROM customer ! .
+    qq!WHERE $filter business_id = (SELECT id FROM business WHERE description = 'Händler') ! .
+    qq!ORDER BY $order_by $order_dir!;
   my $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
+  $sth->execute(@filter_values) ||
+    $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $vendors = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$vendors}, $ref);
