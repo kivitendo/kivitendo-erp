@@ -87,8 +87,6 @@ sub projects {
     $where .
     qq|ORDER BY $sortorder|;
 
-  $main::lxdebug->message(1, $query);
-
   $form->{project_list} =
     selectall_hashref_query($form, $dbh, $query, @values);
   $dbh->disconnect;
