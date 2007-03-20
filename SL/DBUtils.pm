@@ -3,7 +3,9 @@ package SL::DBUtils;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement dump_query quote_db_date);
+@EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
+             dump_query quote_db_date selectall_hashref_query
+             prepare_execute_query);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -82,5 +84,31 @@ sub quote_db_date {
   $str =~ s/'/''/g;
   return "'$str'";
 }
+
+sub prepare_execute_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+  my $sth = $dbh->prepare($query) || $form->dberror($query);
+  if (scalar(@_) != 0) {
+    $sth->execute(@_) || $form->dberror($query . " (" . join(", ", @_) . ")");
+  } else {
+    $sth->execute() || $form->dberror($query);
+  }
+
+  return $sth;
+}
+
+sub selectall_hashref_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @_);
+  my $result = [];
+  while (my $ref = $sth->fetchrow_hashref()) {
+    push(@{ $result }, $ref);
+  }
+  $sth->finish();
+
+  return $result;
+}
+
 
 1;
