@@ -215,7 +215,7 @@ sub access_control {
   my $excl = ();
 
   # remove --AR, --AP from array
-  grep { ($a, $b) = split /--/; s/--$a$//; } @a;
+  grep { ($a, $b) = split(/--/); s/--$a$//; } @a;
 
   map { $excl{$_} = 1 } @a;
 

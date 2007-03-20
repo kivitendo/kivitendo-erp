@@ -86,16 +86,16 @@ sub num2text {
 
   while (@num) {
     @a = ();
-    for (1 .. 3) {
-      push @a, shift @num;
+    for (1..3) {
+      push(@a, shift(@num));
     }
-    push @numblock, join / /, reverse @a;
+    push(@numblock, join(" ", reverse @a));
   }
 
   while (@numblock) {
 
     $i   = $#numblock;
-    @num = split //, $numblock[$i];
+    @num = split(//, $numblock[$i]);
 
     if ($numblock[$i] == 0) {
       pop @numblock;
@@ -105,10 +105,10 @@ sub num2text {
     if ($numblock[$i] > 99) {
 
       # the one from hundreds
-      push @textnumber, $self->{numbername}{ $num[0] };
+      push(@textnumber, $self->{numbername}{ $num[0] });
 
       # add hundred designation
-      push @textnumber, $self->{numbername}{ 10**2 };
+      push(@textnumber, $self->{numbername}{ 10**2 });
 
       # reduce numblock
       $numblock[$i] -= $num[0] * 100;
@@ -120,24 +120,24 @@ sub num2text {
     if ($numblock[$i] > 9) {
 
       # tens
-      push @textnumber, $self->format_ten($numblock[$i]);
+      push(@textnumber, $self->format_ten($numblock[$i]));
     } elsif ($numblock[$i] > 0) {
 
       # ones
-      push @textnumber, $self->{numbername}{ $numblock[$i] };
+      push(@textnumber, $self->{numbername}{ $numblock[$i] });
     }
 
     # add thousand, million
     if ($i) {
       $num = 10**($i * 3);
-      push @textnumber, $self->{numbername}{$num};
+      push(@textnumber, $self->{numbername}{$num});
     }
 
-    pop @numblock;
+    pop(@numblock);
 
   }
 
-  join ' ', @textnumber;
+  join(' ', @textnumber);
 
 }
 
@@ -145,7 +145,7 @@ sub format_ten {
   my ($self, $amount) = @_;
 
   my $textnumber = "";
-  my @num        = split //, $amount;
+  my @num        = split(//, $amount);
 
   if ($amount > 20) {
     $textnumber = $self->{numbername}{ $num[0] * 10 };
