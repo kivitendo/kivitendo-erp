@@ -34,6 +34,8 @@
 
 package RC;
 
+use SL::DBUtils;
+
 sub paymentaccounts {
   $main::lxdebug->enter_sub();
 
@@ -42,18 +44,13 @@ sub paymentaccounts {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT c.accno, c.description
-                 FROM chart c
-		 WHERE c.link LIKE '%_paid%'
-		 AND (c.category = 'A' OR c.category = 'L')
-		 ORDER BY c.accno|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $query =
+    qq|SELECT accno, description | .
+    qq|FROM chart | .
+    qq|WHERE link LIKE '%_paid%' AND category IN ('A', 'L') | .
+    qq|ORDER BY accno|;
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{PR} }, $ref;
-  }
-  $sth->finish;
+  $form->{PR} = selectall_hashref_query($form, $dbh, $query);
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -67,100 +64,111 @@ sub payment_transactions {
   # connect to database, turn AutoCommit off
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my ($query, $sth);
+  my ($query, @values);
 
   # get cleared balance
   if ($form->{fromdate}) {
-    $query = qq|SELECT sum(a.amount),
-                     (SELECT DISTINCT c2.category FROM chart c2
-                      WHERE c2.accno = '$form->{accno}') AS category
-		FROM acc_trans a
-		JOIN chart c ON (c.id = a.chart_id)
-		WHERE a.transdate < date '$form->{fromdate}'
-		AND a.cleared = '1'
-		AND c.accno = '$form->{accno}'
-		|;
+    $query =
+      qq|SELECT sum(a.amount), | .
+      qq|  (SELECT DISTINCT c2.category FROM chart c2 | .
+      qq|   WHERE c2.accno = ?) AS category | .
+      qq|FROM acc_trans a | .
+      qq|JOIN chart c ON (c.id = a.chart_id) | .
+      qq|WHERE a.transdate < date ? AND a.cleared = '1' AND c.accno = ?|;
+    @values = ($form->{accno}, conv_date($form->{fromdate}), $form->{accno});
+
   } else {
-    $query = qq|SELECT sum(a.amount),
-                     (SELECT DISTINCT c2.category FROM chart c2
-                      WHERE c2.accno = '$form->{accno}') AS category
-		FROM acc_trans a
-		JOIN chart c ON (c.id = a.chart_id)
-		WHERE a.cleared = '1'
-		AND c.accno = '$form->{accno}'
-		|;
+    $query =
+      qq|SELECT sum(a.amount), | .
+      qq|  (SELECT DISTINCT c2.category FROM chart c2 | .
+      qq|   WHERE c2.accno = ?) AS category | .
+      qq|FROM acc_trans a | .
+      qq|JOIN chart c ON (c.id = a.chart_id) | .
+      qq|WHERE a.cleared = '1' AND c.accno = ?|;
+    @values = ($form->{accno}, $form->{accno});
   }
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  ($form->{beginningbalance}, $form->{category}) = $sth->fetchrow_array;
-
-  $sth->finish;
+  ($form->{beginningbalance}, $form->{category}) =
+    selectrow_query($form, $dbh, $query, @values);
 
   my %oid = ('Pg'     => 'ac.oid',
              'Oracle' => 'ac.rowid');
+  @values = ();
+  $query =
+    qq|SELECT c.name, ac.source, ac.transdate, ac.cleared, | .
+    qq|  ac.fx_transaction, ac.amount, a.id, | .
+    qq|  $oid{$myconfig->{dbdriver}} AS oid | .
+    qq|FROM customer c, acc_trans ac, ar a, chart ch | .
+    qq|WHERE c.id = a.customer_id | .
+    qq|  AND ac.cleared = '0' | .
+    qq|  AND ac.trans_id = a.id | .
+    qq|  AND ac.chart_id = ch.id | .
+    qq|  AND ch.accno = ? |;
+  push(@values, $form->{accno});
 
-  $query = qq|SELECT c.name, ac.source, ac.transdate, ac.cleared,
-	      ac.fx_transaction, ac.amount, a.id,
-	      $oid{$myconfig->{dbdriver}} AS oid
-	      FROM customer c, acc_trans ac, ar a, chart ch
-	      WHERE c.id = a.customer_id
---	      AND NOT ac.fx_transaction
-	      AND ac.cleared = '0'
-	      AND ac.trans_id = a.id
-	      AND ac.chart_id = ch.id
-	      AND ch.accno = '$form->{accno}'
-	      |;
+  if($form->{fromdate}) {
+    $query .= qq|  AND ac.transdate >= ? |;
+    push(@values, conv_date($form->{fromdate}));
+  }
 
-  $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
-  $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
+  if($form->{todate}){
+    $query .= qq|  AND ac.transdate <= ? |;
+    push(@values, conv_date($form->{todate}));
+  }
 
-  $query .= qq|
+  $query .=
+    qq|UNION | .
 
-      UNION
-              SELECT v.name, ac.source, ac.transdate, ac.cleared,
-	      ac.fx_transaction, ac.amount, a.id,
-	      $oid{$myconfig->{dbdriver}} AS oid
-	      FROM vendor v, acc_trans ac, ap a, chart ch
-	      WHERE v.id = a.vendor_id
---	      AND NOT ac.fx_transaction
-	      AND ac.cleared = '0'
-	      AND ac.trans_id = a.id
-	      AND ac.chart_id = ch.id
-	      AND ch.accno = '$form->{accno}'
-	     |;
+    qq|SELECT v.name, ac.source, ac.transdate, ac.cleared, | .
+    qq|  ac.fx_transaction, ac.amount, a.id, | .
+    qq|  $oid{$myconfig->{dbdriver}} AS oid | .
+    qq|FROM vendor v, acc_trans ac, ap a, chart ch | .
+    qq|WHERE v.id = a.vendor_id | .
+    qq|  AND ac.cleared = '0' | .
+    qq|  AND ac.trans_id = a.id | .
+    qq|  AND ac.chart_id = ch.id | .
+    qq|  AND ch.accno = ? |;
 
-  $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
-  $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
+  push(@values, $form->{accno});
 
-  $query .= qq|
+  if($form->{fromdate}) {
+    $query .= qq| AND ac.transdate >= ? |;
+    push(@values, conv_date($form->{fromdate}));
+  }
 
-      UNION
-	      SELECT g.description, ac.source, ac.transdate, ac.cleared,
-	      ac.fx_transaction, ac.amount, g.id,
-	      $oid{$myconfig->{dbdriver}} AS oid
-	      FROM gl g, acc_trans ac, chart ch
-	      WHERE g.id = ac.trans_id
---	      AND NOT ac.fx_transaction
-	      AND ac.cleared = '0'
-	      AND ac.trans_id = g.id
-	      AND ac.chart_id = ch.id
-	      AND ch.accno = '$form->{accno}'
-	      |;
+  if($form->{todate}){
+    $query .= qq| AND ac.transdate <= ? |;
+    push(@values, conv_date($form->{todate}));
+  }
 
-  $query .= " AND ac.transdate >= '$form->{fromdate}'" if $form->{fromdate};
-  $query .= " AND ac.transdate <= '$form->{todate}'"   if $form->{todate};
+  $query .=
+    qq|UNION | .
+
+    qq|SELECT g.description, ac.source, ac.transdate, ac.cleared, | .
+    qq|  ac.fx_transaction, ac.amount, g.id, | .
+    qq|  $oid{$myconfig->{dbdriver}} AS oid | .
+    qq|FROM gl g, acc_trans ac, chart ch | .
+    qq|WHERE g.id = ac.trans_id | .
+    qq|  AND ac.cleared = '0' | .
+    qq|  AND ac.trans_id = g.id | .
+    qq|  AND ac.chart_id = ch.id | .
+    qq|  AND ch.accno = ? |;
+
+  push(@values, $form->{accno});
+
+  if($form->{fromdate}) {
+    $query .= qq| AND ac.transdate >= ? |;
+    push(@values, conv_date($form->{fromdate}));
+  }
+
+  if($form->{todate}){
+    $query .= qq| AND ac.transdate <= ? |;
+    push(@values, conv_date($form->{todate}));
+  }
 
   $query .= " ORDER BY 3,7,8";
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  while (my $pr = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{PR} }, $pr;
-  }
-  $sth->finish;
+  $form->{PR} = selectall_hashref_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 
@@ -182,15 +190,17 @@ sub reconcile {
   # clear flags
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"cleared_$i"}) {
-      $query = qq|UPDATE acc_trans SET cleared = '1'
-		  WHERE $oid{$myconfig->{dbdriver}} = $form->{"oid_$i"}|;
-      $dbh->do($query) || $form->dberror($query);
+      $query =
+        qq|UPDATE acc_trans SET cleared = '1' | .
+        qq|WHERE $oid{$myconfig->{dbdriver}} = ?|;
+      do_query($form, $dbh, $query, $form->{"oid_$i"});
 
       # clear fx_transaction
       if ($form->{"fxoid_$i"}) {
-        $query = qq|UPDATE acc_trans SET cleared = '1'
-		    WHERE $oid{$myconfig->{dbdriver}} = $form->{"fxoid_$i"}|;
-        $dbh->do($query) || $form->dberror($query);
+        $query =
+          qq|UPDATE acc_trans SET cleared = '1' | .
+          qq|WHERE $oid{$myconfig->{dbdriver}} = ?|;
+        do_query($form, $dbh, $query, $form->{"fxoid_$i"});
       }
     }
   }
