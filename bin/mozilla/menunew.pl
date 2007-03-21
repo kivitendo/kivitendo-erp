@@ -65,7 +65,10 @@ sub display {
 
 sub clock_line {
 
-  $login = "["
+  $fensterlink="menunew.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
+
+  $login = "[Nutzer "
     . $form->{login}
     . " - <a href=\"login.pl?path="
     . $form->{"path"}
@@ -111,7 +114,7 @@ window.onload=clockon
 </script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
   <tr>
-    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
+    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; $fenster &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
     <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
       $login $datum <span id='clock_id' style='position:relative'></span>&nbsp;
     </td>
