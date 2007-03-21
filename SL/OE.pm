@@ -484,6 +484,9 @@ Message: $form->{message}\r| if $form->{message};
   my $rc = $dbh->commit;
   $dbh->disconnect;
 
+  $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
+                                       "quonumber" : "ordnumber"};
+
   Common::webdav_folder($form) if ($main::webdav);
 
   $main::lxdebug->leave_sub();
@@ -698,7 +701,8 @@ sub retrieve {
     $ref = $sth->fetchrow_hashref(NAME_lc);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-
+    $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
+                                         "quonumber" : "ordnumber"};
 
     # set all entries for multiple ids blank that yield different information
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {

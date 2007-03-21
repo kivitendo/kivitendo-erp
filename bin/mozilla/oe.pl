@@ -1115,6 +1115,8 @@ sub form_footer {
 |;
   }
 
+  $form->hide_form("saved_xyznumber");
+
   print qq|
 
 <input type=hidden name=rowcount value=$form->{rowcount}>
@@ -2419,7 +2421,15 @@ sub save_as_new {
 
   $form->{saveasnew} = 1;
   $form->{closed}    = 0;
-  map { delete $form->{$_} } qw(printed emailed queued ordnumber quonumber);
+  map { delete $form->{$_} } qw(printed emailed queued);
+
+  # Let Lx-Office assign a new order number if the user hasn't changed the
+  # previous one. If it has been changed manually then use it as-is.
+  my $idx = $form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber";
+  if ($form->{saved_xyznumber} &&
+      ($form->{saved_xyznumber} eq $form->{$idx})) {
+    delete($form->{$idx});
+  }
 
   &save;
 
