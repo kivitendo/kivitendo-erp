@@ -1,12 +1,14 @@
 $self->{texts} = {
   'Address'                     => 'Adresse',
   'Continue'                    => 'Weiter',
+  'Customer not on file or locked!' => 'Dieser Kunde existiert nicht oder ist gesperrt.',
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
   'Description'                 => 'Beschreibung',
   'Number'                      => 'Nummer',
   'Project not on file!'        => 'Dieses Projekt ist nicht in der Datenbank!',
   'Select from one of the names below' => 'Wählen Sie einen der untenstehenden Namen',
   'Select from one of the projects below' => 'Wählen Sie eines der untenstehenden Projekte',
+  'Vendor not on file or locked!' => 'Dieser Lieferant existiert nicht oder ist gesperrt.',
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
 };
 

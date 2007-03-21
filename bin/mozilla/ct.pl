@@ -1521,8 +1521,8 @@ sub check_salesman {
     } else {
 
       # name is not on file
-      # $locale->text('Customer not on file!')
-      # $locale->text('Vendor not on file!')
+      # $locale->text('Customer not on file or locked!')
+      # $locale->text('Vendor not on file or locked!')
       $msg = ucfirst $name . " not on file or locked!";
       $form->error($locale->text($msg));
     }
