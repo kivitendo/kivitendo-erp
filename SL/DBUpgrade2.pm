@@ -122,7 +122,7 @@ sub _check_for_loops {
 sub _control_error {
   my ($form, $file_name, $message) = @_;
 
-  my $form = $main::form;
+  $form = $main::form;
   my $locale = $main::locale;
 
   $form->error(sprintf($locale->text("Error in database control file '%s': %s"),
