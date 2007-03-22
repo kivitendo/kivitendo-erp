@@ -124,13 +124,16 @@ sub section_menu {
     # than 20 chars and store it in an array.
     # use this array later instead of the &nbsp;-ed label
     @chunks = ();
-    my ($i,$l) =(-1, 20);
+    my ($i,$l) = (-1, 20);
     map {
-      $l += length $_; 
-      if ($l < 20) { $chunks[$i] .= " $_";
-      } else { $l =length $_; $chunks[++$i] = $_; }
+      if (($l += length $_) < 20) {
+        $chunks[$i] .= " $_";
+      } else { 
+        $l = length $_; 
+        $chunks[++$i] = $_; 
+      }
     } split / /, $label;
-    map { $chunks[$_] =~ s/ /&nbsp;/ } 0..$#chunks;
+    map { s/ /&nbsp;/ } @chunks;
     # end multi line
 
     $label =~ s/ /&nbsp;/g;
