@@ -1689,42 +1689,24 @@ sub get_customer {
                  FROM customer c
 		 LEFT JOIN business b ON (b.id = c.business_id)
                  LEFT JOIN payment_terms pt ON c.payment_id = pt.id
-	         WHERE c.id = $form->{customer_id}|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
+	         WHERE c.id = ?|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{customer_id});
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-  $sth->finish;
 
-  my $query = qq|SELECT sum(a.amount-a.paid) AS dunning_amount FROM ar a WHERE a.paid < a.amount AND a.customer_id=$form->{customer_id} AND a.dunning_id IS NOT NULL|;
-  my $sth = $dbh->prepare($query);
-
-  $sth->execute || $form->dberror($query);
-  
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
+  my $query = qq|SELECT sum(a.amount - a.paid) AS dunning_amount FROM ar a 
+                 WHERE a.paid < a.amount AND a.customer_id = ? AND a.dunning_id IS NOT NULL|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{customer_id});
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-  $sth->finish;
 
-  #print(STDERR "DUNNING AMOUTN $form->{dunning_amount}\n");
-
-  my $query = qq|SELECT dnn.dunning_description AS max_dunning_level FROM dunning_config dnn WHERE id in (select dunning_id from ar WHERE paid < amount AND customer_id=$form->{customer_id} AND dunning_id IS NOT NULL) ORDER BY dunning_level DESC LIMIT 1|;
-  my $sth = $dbh->prepare($query);
-
-  $sth->execute || $form->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
+  my $query = qq|SELECT dnn.dunning_description AS max_dunning_level FROM dunning_config dnn 
+                 WHERE id in (SELECT dunning_id from ar WHERE paid < amount AND customer_id = ? AND dunning_id IS NOT NULL)
+                 ORDER BY dunning_level DESC LIMIT 1|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{customer_id});
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-  $sth->finish;
-  #print(STDERR "LEVEL $form->{max_dunning_level}\n");
-
 
   #check whether payment_terms are better than old payment_terms
   if (($form->{payment_id} ne "") && ($form->{customer_payment_id} ne "")) {
-    my $query = qq|select (select ranking from payment_terms WHERE id = $form->{payment_id}), (select ranking from payment_terms WHERE id = $form->{customer_payment_id})|;
+    my $query = qq|SELECT (SELECT ranking from payment_terms WHERE id = $form->{payment_id}), (SELECT ranking FROM payment_terms WHERE id = $form->{customer_payment_id})|;
     my $stw = $dbh->prepare($query);
     $stw->execute || $form->dberror($query);
     ($old_ranking, $new_ranking) = $stw->fetchrow_array;

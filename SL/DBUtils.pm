@@ -4,7 +4,7 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
-             dump_query quote_db_date selectall_hashref_query
+             dump_query quote_db_date selectall_hashref_query selectfirst_hashref_query
              prepare_execute_query);
 
 sub conv_i {
@@ -110,5 +110,14 @@ sub selectall_hashref_query {
   return $result;
 }
 
+sub selectfirst_hashref_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @_);
+  my $ref = $sth->fetchrow_hashref();
+  $sth->finish();
+
+  return $ref;
+}
 
 1;
