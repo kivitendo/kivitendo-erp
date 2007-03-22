@@ -28,14 +28,13 @@ sub conv_dateq {
 
 sub do_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
-
+  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
   if (0 == scalar(@_)) {
     $dbh->do($query) || $form->dberror($query);
   } else {
     $dbh->do($query, undef, @_) ||
       $form->dberror($query . " (" . join(", ", @_) . ")");
   }
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")");
 }
 
 sub selectrow_query {
@@ -88,6 +87,7 @@ sub quote_db_date {
 sub prepare_execute_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
   my $sth = $dbh->prepare($query) || $form->dberror($query);
+  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
   if (scalar(@_) != 0) {
     $sth->execute(@_) || $form->dberror($query . " (" . join(", ", @_) . ")");
   } else {
