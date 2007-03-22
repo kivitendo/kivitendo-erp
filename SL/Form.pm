@@ -1909,7 +1909,8 @@ sub create_links {
     # now get the account numbers
     $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
                 FROM chart c, taxkeys tk
-                WHERE c.link LIKE '%$module%' AND c.id=tk.chart_id AND tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)
+                WHERE c.link LIKE '%$module%' AND c.id=tk.chart_id AND tk.id = 
+                      (SELECT id FROM taxkeys where taxkeys.chart_id = c.id AND startdate <= $transdate ORDER BY startdate desc LIMIT 1)
                 ORDER BY c.accno|;
   
     $sth = $dbh->prepare($query);
@@ -1937,43 +1938,17 @@ sub create_links {
   }
 
   # get taxkeys and description
-  $query = qq|SELECT id, taxkey, taxdescription
-              FROM tax|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{TAXKEY} }, $ref;
-  }
-
-  $sth->finish;
-
+  $query = qq|SELECT id, taxkey, taxdescription FROM tax|;
+  $self->{TAXKEY} = selectall_hashref_query($form, $dbh, $query);
 
   # get tax zones
-  $query = qq|SELECT id, description
-              FROM tax_zones|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{TAXZONE} }, $ref;
-  }
-  $sth->finish;
+  $query = qq|SELECT id, description FROM tax_zones|;
+  $self->{TAXZONE} = selectall_hashref_query($form, $dbh, $query);
 
   if (($module eq "AP") || ($module eq "AR")) {
-
     # get tax rates and description
     $query = qq| SELECT * FROM tax t|;
-    $sth   = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-    $self->{TAX} = ();
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push @{ $self->{TAX} }, $ref;
-    }
-    $sth->finish;
+    $self->{TAX} = selectall_hashref_query($form, $dbh, $query);
   }
 
   if ($self->{id}) {
