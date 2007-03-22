@@ -236,7 +236,7 @@ sub order_links {
   if ($taxzone_id) {
     $form->{taxzone_id} = $taxzone_id;
   }
-  $form->{intnotes} = $intnotes;
+  $form->{intnotes} = $intnotes if $intnotes;
   ($form->{ $form->{vc} }) = split /--/, $form->{ $form->{vc} };
   $form->{"old$form->{vc}"} =
     qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;

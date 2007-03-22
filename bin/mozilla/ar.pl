@@ -136,6 +136,9 @@ sub create_links {
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
 
+  # notes
+  $form->{notes} = $form->{intnotes} unless $form->{notes};
+
   # currencies
   @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
