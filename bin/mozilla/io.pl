@@ -1291,7 +1291,7 @@ sub request_for_quotation {
   quotation();
 }
 
-sub e_mail {
+sub edit_e_mail {
   $lxdebug->enter_sub();
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;

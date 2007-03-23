@@ -1452,38 +1452,19 @@ sub post {
   }
 
   relink_accounts();
-  if ($print_post) {
-    if (!(IS->post_invoice(\%myconfig, \%$form))) {
-      $form->error($locale->text('Cannot post invoice!'));
-    }
-    remove_draft() if $form->{remove_draft};
-    # saving the history
-  	if(!exists $form->{addition}) {
-  	  $form->{addition} = "PRINTED AND POSTED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
-    }
-    # /saving the history
-    
-  } else {
-    if (IS->post_invoice(\%myconfig, \%$form)){
-      remove_draft() if $form->{remove_draft};
-    	# saving the history
-        if(!exists $form->{addition}) {
-  	  		if($form->{storno}) {
-  	  			$form->{addition} = "STORNO";
-  	  		}
-  	  		else {
-  	  			$form->{addition} = "POSTED";
-  	  		}
-  	  		$form->save_history($form->dbconnect(\%myconfig));
-    	}
-    	# /saving the history
-    
-    	$form->redirect(
-            $form->{label} . " $form->{invnumber} " . $locale->text('posted!'));
-  	}
-    $form->error($locale->text('Cannot post invoice!'));
+  $form->error($locale->text('Cannot post invoice!'))
+    unless IS->post_invoice(\%myconfig, \%$form);
+  remove_draft() if $form->{remove_draft};
+
+  if(!exists $form->{addition}) {
+    $form->{addition} = $print_post     ? "PRINTED AND POSTED" :
+                        $form->{storno} ? "STORNO"             :
+                                          "POSTED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
+  
+  $form->redirect( $form->{label} . " $form->{invnumber} " . $locale->text('posted!'))
+    unless $print_post;
 
   $lxdebug->leave_sub();
 }
@@ -1659,6 +1640,21 @@ sub yes {
     $form->redirect($locale->text('Invoice deleted!')); 
   }
   $form->error($locale->text('Cannot delete invoice!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub e_mail {
+  $lxdebug->enter_sub();
+
+  $form->{postasnew} = 1;
+  $print_post        = 1;
+
+  map { delete $form->{$_} } qw(printed emailed queued);
+
+  &post;
+
+  &edit_e_mail;
 
   $lxdebug->leave_sub();
 }

@@ -2509,3 +2509,26 @@ sub poso {
   $lxdebug->leave_sub();
 }
 
+sub e_mail {
+  $lxdebug->enter_sub();
+
+  $form->{saveasnew}      = 1;
+  $form->{closed}         = 0;
+  $form->{print_and_save} = 1;
+  map { delete $form->{$_} } qw(printed emailed queued);
+
+  # Let Lx-Office assign a new order number if the user hasn't changed the
+  # previous one. If it has been changed manually then use it as-is.
+  my $idx = $form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber";
+  if ($form->{saved_xyznumber} &&
+      ($form->{saved_xyznumber} eq $form->{$idx})) {
+    delete($form->{$idx});
+  }
+
+  &save;
+
+  &edit_e_mail;
+
+  $lxdebug->leave_sub();
+}
+
