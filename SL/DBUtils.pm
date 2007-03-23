@@ -60,6 +60,8 @@ sub dump_query {
     $query =~ s/\?/$value/;
   }
 
+  $query =~ s/[\n\s]+/ /g;
+
   $msg .= " " if ($msg);
 
   $main::lxdebug->message($level, $msg . $query);
