@@ -4,7 +4,8 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
-             dump_query quote_db_date selectall_hashref_query selectfirst_hashref_query
+             dump_query quote_db_date selectall_hashref_query 
+             selectfirst_hashref_query selectfirst_array_query 
              prepare_execute_query);
 
 sub conv_i {
@@ -37,19 +38,7 @@ sub do_query {
   }
 }
 
-sub selectrow_query {
-  my ($form, $dbh, $query) = splice(@_, 0, 3);
-
-  if (0 == scalar(@_)) {
-    my @results = $dbh->selectrow_array($query);
-    $form->dberror($query) if ($dbh->err);
-    return @results;
-  } else {
-    my @results = $dbh->selectrow_array($query, undef, @_);
-    $form->dberror($query . " (" . join(", ", @_) . ")") if ($dbh->err);
-    return @results;
-  }
-}
+sub selectrow_query { &selectfirst_array_query }
 
 sub do_statement {
   my ($form, $sth, $query) = splice(@_, 0, 3);
@@ -118,6 +107,16 @@ sub selectfirst_hashref_query {
   $sth->finish();
 
   return $ref;
+}
+
+sub selectfirst_array_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @_);
+  my @ret = $sth->fetchrow_array();
+  $sth->finish();
+
+  return @ret;
 }
 
 1;

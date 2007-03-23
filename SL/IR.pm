@@ -1003,70 +1003,41 @@ sub get_vendor {
                  FROM vendor v
                  LEFT JOIN business b ON b.id = v.business_id
                  LEFT JOIN payment_terms pt ON v.payment_id = pt.id
-	         WHERE v.id = $form->{vendor_id}|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
+	         WHERE v.id = ?|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{vendor_id});
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-  $sth->finish;
 
   $form->{creditremaining} = $form->{creditlimit};
-  $query = qq|SELECT SUM(a.amount - a.paid)
-              FROM ap a
-	      WHERE a.vendor_id = $form->{vendor_id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  ($form->{creditremaining}) -= $sth->fetchrow_array;
-
-  $sth->finish;
+  $query = qq|SELECT SUM(a.amount - a.paid) FROM ap a WHERE a.vendor_id = ?|;
+  ($form->{creditremaining}) -= selectfirst_array_query($form, $dbh, $query, $form->{vendor_id});
 
   $query = qq|SELECT o.amount,
-                (SELECT e.sell FROM exchangerate e
-		 WHERE e.curr = o.curr
-		 AND e.transdate = o.transdate)
-	      FROM oe o
-	      WHERE o.vendor_id = $form->{vendor_id}
-	      AND o.quotation = '0'
-	      AND o.closed = '0'|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  while (my ($amount, $exch) = $sth->fetchrow_array) {
+                (SELECT e.sell FROM exchangerate e 
+                 WHERE e.curr = o.curr AND e.transdate = o.transdate)
+	      FROM oe o WHERE o.vendor_id = ?  
+                AND o.quotation = '0' AND o.closed = '0'|;
+  while (my ($amount, $exch) = selectfirst_array_query($form, $dbh, $query, $form->{vendor_id})) {
     $exch = 1 unless $exch;
     $form->{creditremaining} -= $amount * $exch;
   }
-  $sth->finish;
 
   # get shipto if we do not convert an order or invoice
   if (!$form->{shipto}) {
     map { delete $form->{$_} }
       qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
 
-    $query = qq|SELECT s.* FROM shipto s
-                WHERE s.trans_id = $form->{vendor_id} AND s.module= 'CT'|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    $ref = $sth->fetchrow_hashref(NAME_lc);
+    $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module= 'CT'|;
+    $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{vendor_id});
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
   }
 
   # get taxes for vendor
-  $query = qq|SELECT c.accno
-              FROM chart c
+  $query = qq|SELECT c.accno FROM chart c
 	      JOIN vendortax v ON (v.chart_id = c.id)
-	      WHERE v.vendor_id = $form->{vendor_id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
+	      WHERE v.vendor_id = ?|;
   my $vendortax = ();
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    $vendortax{ $ref->{accno} } = 1;
-  }
-  $sth->finish;
+  $ref = selectall_hashref_query($form, $dbh, $query, $form->{vendor_id});
+  map { $vendortax{ $_->{accno} } = 1 } @$ref;
 
   if (!$form->{id} && $form->{type} !~ /_(order|quotation)/) {
 
@@ -1075,27 +1046,24 @@ sub get_vendor {
 		FROM chart c
 		JOIN acc_trans ac ON (ac.chart_id = c.id)
 		JOIN ap a ON (a.id = ac.trans_id)
-		WHERE a.vendor_id = $form->{vendor_id}
-		AND NOT (c.link LIKE '%_tax%' OR c.link LIKE '%_paid%')
+		WHERE a.vendor_id = ?
+                AND NOT (c.link LIKE '%_tax%' OR c.link LIKE '%_paid%')
 		AND a.id IN (SELECT max(a2.id) FROM ap a2
-			     WHERE a2.vendor_id = $form->{vendor_id})|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
+			     WHERE a2.vendor_id = ?)|;
+    $refs = selectall_hashref_query($form, $dbh, $query, $form->{vendor_id}, $form->{vendor_id});
 
     my $i = 0;
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    for $ref (@$refs) {
       if ($ref->{category} eq 'E') {
         $i++;
 
         if ($form->{initial_transdate}) {
-          my $tax_query =
-            qq|SELECT tk.tax_id, t.rate FROM taxkeys tk | .
-            qq|LEFT JOIN tax t ON tk.tax_id = t.id | .
-            qq|WHERE tk.chart_id = ? AND startdate <= ? | .
-            qq|ORDER BY tk.startdate DESC LIMIT 1|;
-          my ($tax_id, $rate) =
-            selectrow_query($form, $dbh, $tax_query, $ref->{id},
-                            $form->{initial_transdate});
+          my $tax_query = qq|SELECT tk.tax_id, t.rate FROM taxkeys tk
+                             LEFT JOIN tax t ON tk.tax_id = t.id
+                             WHERE tk.chart_id = ? AND startdate <= ?
+                             ORDER BY tk.startdate DESC LIMIT 1|;
+          my ($tax_id, $rate) = selectrow_query($form, $dbh, $tax_query, $ref->{id},
+                                                $form->{initial_transdate});
           $form->{"taxchart_$i"} = "${tax_id}--${rate}";
         }
 
@@ -1105,7 +1073,6 @@ sub get_vendor {
         $form->{APselected} = $form->{AP_1} = $ref->{accno};
       }
     }
-    $sth->finish;
     $form->{rowcount} = $i if ($i && !$form->{type});
   }
 
