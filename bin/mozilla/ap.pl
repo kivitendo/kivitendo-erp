@@ -130,6 +130,9 @@ sub create_links {
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
 
+  # notes
+  $form->{notes} = $form->{intnotes} unless $form->{notes};
+
   # currencies
   @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
