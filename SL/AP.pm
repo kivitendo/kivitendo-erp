@@ -90,7 +90,7 @@ sub post_transaction {
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
 
   for $i (1 .. $form->{rowcount}) {
-   ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+    ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
 
     $query =
       qq|SELECT c.accno, t.taxkey, t.rate | .
