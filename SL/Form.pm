@@ -44,6 +44,7 @@ use SL::Template;
 use CGI::Ajax;
 use SL::DBUtils;
 use SL::Menu;
+use SL::User;
 use CGI;
 
 sub _input_to_hash {
@@ -1377,6 +1378,35 @@ sub get_employee {
   $main::lxdebug->leave_sub();
 }
 
+sub get_salesman {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $salesman_id) = @_;
+
+  my $dbh = $self->dbconnect($myconfig);
+
+  my ($login) =
+    selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|,
+                    $salesman_id);
+
+  if ($login) {
+    my $user = new User($main::memberfile, $login);
+    map({ $self->{"salesman_$_"} = $user->{$_}; }
+        qw(address businessnumber co_ustid company duns email fax name
+           taxnumber tel));
+    $self->{salesman_login} = $login;
+
+    $self->{salesman_name} = $login
+      if ($self->{salesman_name} eq "");
+
+    map({ $self->{"salesman_$_"} =~ s/\\n/\n/g; } qw(address company));
+  }
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_duedate {
   $main::lxdebug->enter_sub();
 
@@ -2496,28 +2526,6 @@ sub update_business {
   $main::lxdebug->leave_sub();
 
   return $var;
-}
-
-sub get_salesman {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $salesman) = @_;
-
-  my $dbh   = $self->dbconnect($myconfig);
-  my $query =
-    qq|SELECT id, name FROM customer  WHERE (customernumber ilike '%$salesman%' OR name ilike '%$salesman%') AND business_id in (SELECT id from business WHERE salesman)|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  my $i = 0;
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push(@{ $self->{salesman_list} }, $ref);
-    $i++;
-  }
-  $dbh->commit;
-  $main::lxdebug->leave_sub();
-
-  return $i;
 }
 
 sub get_partsgroup {

@@ -1894,6 +1894,7 @@ sub print_form {
 
   $language_saved = $form->{language_id};
   $payment_id_saved = $form->{payment_id};
+  $salesman_id_saved = $form->{salesman_id};
 
   &{"$form->{vc}_details"}();
 
@@ -1922,6 +1923,8 @@ sub print_form {
   } else {
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
+
+  $form->get_salesman(\%myconfig, $salesman_id_saved);
 
   if ($form->{shipto_id}) {
     $form->get_shipto(\%myconfig);
