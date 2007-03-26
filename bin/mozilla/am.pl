@@ -1115,9 +1115,7 @@ sub list_business {
     $discount =
       $form->format_amount(\%myconfig, $ref->{discount} * 100);
     $description =
-      ($ref->{salesman})
-      ? "<b>$ref->{description}</b>"
-      : "$ref->{description}";
+      $ref->{description};
     $column_data{description} =
       qq|<td><a href=$form->{script}?action=edit_business&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$description</td>|;
     $column_data{discount}           = qq|<td align=right>$discount</td>|;
@@ -1167,7 +1165,6 @@ sub business_header {
   $lxdebug->enter_sub();
 
   $form->{title}    = $locale->text("$form->{title} Business");
-  $form->{salesman} = "checked" if $form->{salesman};
 
   # $locale->text('Add Business')
   # $locale->text('Edit Business')
@@ -1202,10 +1199,6 @@ sub business_header {
   <tr>
     <th align=right>| . $locale->text('Customernumberinit') . qq|</th>
     <td><input name=customernumberinit size=10 value=$form->{customernumberinit}></td>
-  </tr>
-  <tr>
-    <td align=right>| . $locale->text('Salesman') . qq|</td>
-    <td><input name=salesman class=checkbox type=checkbox value=1 $form->{salesman}></td>
   </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>
