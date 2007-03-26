@@ -713,7 +713,7 @@ print qq|	    </table>
 	  <td align=right>
 	    <table>
 	      <tr>
-	        <th align=right nowrap>| . $locale->text('Salesperson') . qq|</th>
+	        <th align=right nowrap>| . $locale->text('Employee') . qq|</th>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
 		<input type=hidden name=selectemployee value="$form->{selectemployee}">
                 <td></td>

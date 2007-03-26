@@ -665,7 +665,7 @@ sub form_header {
       $employee = qq|
     <input type=hidden name=customer_klass value=$form->{customer_klass}>
  	      <tr>
-	        <th align=right nowrap>| . $locale->text('Salesperson') . qq|</th>
+	        <th align=right nowrap>| . $locale->text('Employee') . qq|</th>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
 		<input type=hidden name=selectemployee value="$form->{selectemployee}">
                 <td></td>
@@ -1297,7 +1297,7 @@ sub search {
     $form->{vc}    = 'customer';
     $ordlabel      = $locale->text('Order Number');
     $ordnumber     = 'ordnumber';
-    $employee      = $locale->text('Salesperson');
+    $employee      = $locale->text('Employee');
   }
 
   if ($form->{type} eq 'sales_quotation') {
@@ -1576,11 +1576,10 @@ sub orders {
   if ($form->{vc} eq 'customer') {
     if ($form->{type} eq 'sales_order') {
       $form->{title} = $locale->text('Sales Orders');
-      $employee = $locale->text('Salesperson');
     } else {
       $form->{title} = $locale->text('Quotations');
-      $employee = $locale->text('Employee');
     }
+    $employee = $locale->text('Employee');
     $name = $locale->text('Customer');
   }
 
