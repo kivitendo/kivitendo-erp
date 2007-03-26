@@ -278,6 +278,7 @@ $self->{subs} = {
   'display_row'                 => 'display_row',
   'dont_load_draft'             => 'dont_load_draft',
   'draft_action_dispatcher'     => 'draft_action_dispatcher',
+  'e_mail'                      => 'e_mail',
   'edit'                        => 'edit',
   'edit_e_mail'                 => 'edit_e_mail',
   'employee_selection_internal' => 'employee_selection_internal',

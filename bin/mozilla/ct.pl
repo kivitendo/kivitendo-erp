@@ -42,6 +42,8 @@ use CGI::Ajax;
 use CGI;
 use Data::Dumper;
 
+require "bin/mozilla/common.pl";
+
 1;
 
 # end of main
@@ -583,6 +585,8 @@ sub edit {
 sub form_header {
   $lxdebug->enter_sub();
 
+  $form->get_lists("employees" => "ALL_SALESMEN");
+
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0);
@@ -638,11 +642,10 @@ sub form_header {
   }
 
   $taxzone = qq|
-	      <tr>
 		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
 		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
 		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
-	      </tr>|;
+|;
 
   $get_contact_url =
     "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_contact";
@@ -772,32 +775,28 @@ sub form_header {
            <td><input name=c_vendor_id size=10 tabindex=18 maxlength=35 value="$form->{c_vendor_id}"></td>
 |;
   }
-  $business_salesman = "";
-  $business          = "<th></th><td></td>";
-  if ($vertreter) {
-    $business_salesman = qq|
-	<tr>
-          <td colspan=3>
-            <table>
-	     <th align=right>| . $locale->text('Type of Business') . qq|</th>
-	     <td><select name=business tabindex=1>$form->{selectbusiness}</select></td>
-	     <th align=right>| . $locale->text('Salesman') . qq|</th>
-	     <td><input name=salesman tabindex=2 value="$form->{salesman}"></td>
-             <input type=hidden name=salesman_id value="$form->{salesman_id}">
-             <input type=hidden name=oldsalesman value="$form->{oldsalesman}">
-            </table>
-          </td>
-       <tr>|;
-    $business = qq|
-	     <th align=right>| . $locale->text('Username') . qq|</th>
-	     <td><input name=username maxlength=50 tabindex=22 value="$form->{username}"></td>
- 	     <th align=right>| . $locale->text('Password') . qq|</th>
-	     <td><input name=user_password maxlength=12 tabindex=23 value="$form->{user_password}"></td>|;
-  } else {
-    $business = qq|
+
+  $business = qq|
  	  <th align=right>| . $locale->text('Type of Business') . qq|</th>
 	  <td><select name=business tabindex=22>$form->{selectbusiness}</select></td>
       |;
+
+  $salesman = "";
+
+  if ($form->{db} eq "customer") {
+    my (@salesman_values, %salesman_labels);
+    push(@salesman_values, undef);
+    foreach my $item (@{ $form->{ALL_SALESMEN} }) {
+      push(@salesman_values, $item->{id});
+      $salesman_labels{$item->{id}} = $item->{name} ne "" ? $item->{name} : $item->{login};
+    }
+
+    $salesman =
+      qq| <th align="right">| . $locale->text('Salesman') . qq|</th>
+          <td>| .
+      NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id},
+                           '-values' => \@salesman_values, '-labels' => \%salesman_labels))
+      . qq|</td>|;
   }
 
 ## LINET: Create a drop-down box with all prior titles and greetings.
@@ -895,7 +894,6 @@ sub form_header {
 
       <table width=100%>
 	<tr height="5"></tr>
-        $business_salesman
 	<tr>
 	  <th align=right nowrap>| . $locale->text($label . ' Number') . qq|</th>
 	  <td><input name="$form->{db}number" size=35 maxlength=35 value="$form->{"$form->{db}number"}"></td>
@@ -992,7 +990,10 @@ sub form_header {
           <td align=right>| . $locale->text('Obsolete') . qq|</td>
           <td><input name=obsolete class=checkbox type=checkbox value=1 $form->{obsolete}></td>
 	</tr>
-        $taxzone
+        <tr>
+          $taxzone
+          $salesman
+        </tr>
       </table>
   <table>
   <tr>
@@ -1199,13 +1200,6 @@ sub form_footer {
     ($form->{db} eq 'customer')
     ? $locale->text('Save and AR Transaction')
     : $locale->text('Save and AP Transaction');
-  if ($vertreter) {
-    $update_button =
-      qq|<input class=submit type=submit name=action accesskey="u" value="|
-      . $locale->text("Update") . qq|">|;
-  } else {
-    $update_button = "";
-  }
 
 ##<input class=submit type=submit name=action value="|.$locale->text("Save and Quotation").qq|">
 ##<input class=submit type=submit name=action value="|.$locale->text("Save and RFQ").qq|">
@@ -1228,7 +1222,6 @@ sub form_footer {
 
 
 <br>
-$update_button
 <input class=submit type=submit name=action accesskey="s" value="|
     . $locale->text("Save") . qq|">
 <input class=submit type=submit name=action accesskey="s" value="|
@@ -1283,9 +1276,6 @@ sub add_transaction {
 #  # /saving the history
   
   $form->isblank("name", $locale->text("Name missing!"));
-  if ($vertreter && $form->{db} eq "customer") {
-    $form->isblank("salesman_id", $locale->text("Salesman missing!"));
-  }
   &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 
   $form->{callback} = $form->escape($form->{callback}, 1);
@@ -1397,9 +1387,6 @@ sub save_and_close {
   $imsg .= " saved!";
 
   $form->isblank("name", $locale->text("Name missing!"));
-  if ($vertreter && $form->{db} eq "customer") {
-    $form->isblank("salesman_id", $locale->text("Salesman missing!"));
-  }
   $rc = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
   if ($rc == 3) {
     $form->error($locale->text('customernumber not unique!'));
@@ -1425,9 +1412,6 @@ sub save {
   $imsg .= " saved!";
 
   $form->isblank("name", $locale->text("Name missing!"));
-  if ($vertreter && $form->{db} eq "customer") {
-    $form->isblank("salesman_id", $locale->text("Salesman missing!"));
-  }
 
   my $res = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
 

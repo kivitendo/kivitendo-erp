@@ -1578,6 +1578,18 @@ sub _get_taxcharts {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_employees {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_employees" unless ($key);
+  $self->{$key} =
+    selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee|);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1614,6 +1626,10 @@ sub get_lists {
 
   if ($params{"taxcharts"}) {
     $self->_get_taxcharts($dbh, $params{"taxcharts"});
+  }
+
+  if ($params{"employees"}) {
+    $self->_get_employees($dbh, $params{"employees"});
   }
 
   $dbh->disconnect();
