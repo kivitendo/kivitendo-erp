@@ -121,6 +121,7 @@ sub invoice_links {
   if ($form->{all_customer}) {
     unless ($form->{customer_id}) {
       $form->{customer_id} = $form->{all_customer}->[0]->{id};
+      $form->{salesman_id} = $form->{all_customer}->[0]->{salesman_id};
     }
   }
 
@@ -367,7 +368,8 @@ sub form_header {
                    "shipto" => "ALL_SHIPTO",
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => \@old_project_ids });
+                                   "old_id" => \@old_project_ids },
+                   "employees" => "ALL_SALESMEN");
 
   my (%labels, @values);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
@@ -404,6 +406,22 @@ sub form_header {
     NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
                          '-labels' => \%labels,
                          '-default' => $form->{"globalproject_id"}));
+
+  %labels = ();
+  @values = ("");
+  foreach my $item (@{ $form->{ALL_SALESMEN} }) {
+    push(@values, $item->{id});
+    $labels{$item->{id}} = $item->{name} ne "" ? $item->{name} : $item->{login};
+  }
+
+  $salesman =
+    qq|<tr>
+          <th align="right">| . $locale->text('Salesman') . qq|</th>
+          <td>| .
+     NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id},
+                               '-values' => \@values, '-labels' => \%labels))
+     . qq|</td>
+         </tr>|;
 
   # set option selected
   foreach $item (qw(AR customer currency department employee)) {
@@ -717,7 +735,9 @@ print qq|	    </table>
 		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
 		<input type=hidden name=selectemployee value="$form->{selectemployee}">
                 <td></td>
-	      </tr>|;
+	      </tr>
+        $salesman
+|;
 if ($form->{type} eq "credit_note") {
 print qq|     <tr>
 		<th align=right nowrap>| . $locale->text('Credit Note Number') . qq|</th>

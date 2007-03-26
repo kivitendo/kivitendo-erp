@@ -1707,7 +1707,7 @@ sub all_vc {
 
   # build selection list
   if ($count < $myconfig->{vclimit}) {
-    $query = qq|SELECT id, name
+    $query = qq|SELECT id, name, salesman_id
 		FROM $table WHERE not obsolete
 		ORDER BY name|;
     $sth = $dbh->prepare($query);

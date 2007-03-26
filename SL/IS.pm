@@ -1050,6 +1050,7 @@ Message: $form->{message}\r| if $form->{message};
               delivery_customer_id = $form->{delivery_customer_id},
               delivery_vendor_id = $form->{delivery_vendor_id},
               employee_id = $form->{employee_id},
+              salesman_id = | . conv_i($form->{salesman_id}, 'NULL') . qq|,
               storno = '$form->{storno}',
               globalproject_id = | . conv_i($form->{"globalproject_id"}, 'NULL') . qq|,
               cp_id = | . conv_i($form->{"cp_id"}, 'NULL') . qq|
@@ -1482,7 +1483,7 @@ sub retrieve_invoice {
                 a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
                 a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
 		a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,
-		a.employee_id, e.name AS employee, a.payment_id, a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type
+		a.employee_id, e.name AS employee, a.salesman_id, a.payment_id, a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type
 		FROM ar a
 	        LEFT JOIN employee e ON (e.id = a.employee_id)
 		WHERE a.id = $form->{id}|;
@@ -1685,7 +1686,8 @@ sub get_customer {
                  c.email, c.cc, c.bcc, c.language_id, c.payment_id AS customer_payment_id,
 		 c.street, c.zipcode, c.city, c.country,
 	         $duedate + COALESCE(pt.terms_netto, 0) AS duedate, c.notes AS intnotes,
-		 b.discount AS tradediscount, b.description AS business, c.klass as customer_klass, c.taxzone_id
+		 b.discount AS tradediscount, b.description AS business, c.klass as customer_klass, c.taxzone_id,
+                 c.salesman_id
                  FROM customer c
 		 LEFT JOIN business b ON (b.id = c.business_id)
                  LEFT JOIN payment_terms pt ON c.payment_id = pt.id

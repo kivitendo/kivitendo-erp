@@ -167,6 +167,8 @@ sub order_links {
   # set jscalendar
   $form->{jscalendar} = $jscalendar;
 
+  my $editing = $form->{id};
+
   OE->retrieve(\%myconfig, \%$form);
 
   if ($form->{payment_id}) {
@@ -178,6 +180,8 @@ sub order_links {
   if ($form->{taxzone_id}) {
     $taxzone_id = $form->{taxzone_id};
   }
+
+  $salesman_id = $form->{salesman_id} if ($editing);
 
 
   # if multiple rowcounts (== collective order) then check if the
@@ -281,6 +285,8 @@ sub order_links {
 
   # forex
   $form->{forex} = $form->{exchangerate};
+
+  $form->{salesman_id} = $salesman_id if ($editing);
 
   $lxdebug->leave_sub();
 }
@@ -418,7 +424,8 @@ sub form_header {
                    "shipto" => "ALL_SHIPTO",
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => \@old_project_ids });
+                                   "old_id" => \@old_project_ids },
+                   "employees" => "ALL_SALESMEN");
 
   my (%labels, @values);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
@@ -455,6 +462,25 @@ sub form_header {
     NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
                          '-labels' => \%labels,
                          '-default' => $form->{"globalproject_id"}));
+
+  $salesman = "";
+  if ($form->{type} =~ /^sales_/) {
+    %labels = ();
+    @values = ("");
+    foreach my $item (@{ $form->{ALL_SALESMEN} }) {
+      push(@values, $item->{id});
+      $labels{$item->{id}} = $item->{name} ne "" ? $item->{name} : $item->{login};
+    }
+
+    $salesman =
+      qq|<tr>
+          <th align="right">| . $locale->text('Salesman') . qq|</th>
+          <td>| .
+      NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id},
+                           '-values' => \@values, '-labels' => \%labels))
+      . qq|</td>
+         </tr>|;
+  }
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
@@ -803,6 +829,7 @@ print qq|	    </table>
 	    <table>
 	      $openclosed
 	      $employee
+        $salesman
 	      $ordnumber
 	      <tr>
           <th width="70%" align="right" nowrap>| . $locale->text('Project Number') . qq|</th>

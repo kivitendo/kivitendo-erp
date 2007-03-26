@@ -193,6 +193,7 @@ $self->{texts} = {
   'SCREENED'                    => 'Angezeigt',
   'Sales Order'                 => 'Kundenauftrag',
   'Sales Orders'                => 'Aufträge',
+  'Salesman'                    => 'Verkäufer/in',
   'Save'                        => 'Speichern',
   'Save and Close'              => 'Speichern und schließen',
   'Save as new'                 => 'als neu speichern',

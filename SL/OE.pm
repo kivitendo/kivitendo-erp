@@ -447,6 +447,7 @@ Message: $form->{message}\r| if $form->{message};
 	      delivery_customer_id = $form->{delivery_customer_id},
               globalproject_id = | . conv_i($form->{"globalproject_id"}, 'NULL') . qq|,
 	      employee_id = $form->{employee_id},
+              salesman_id = | . conv_i($form->{salesman_id}, 'NULL') . qq|,
               cp_id = | . conv_i($form->{cp_id}, 'NULL') . qq|
               WHERE id = $form->{id}|;
   $dbh->do($query) || $form->dberror($query);
@@ -677,7 +678,7 @@ sub retrieve {
     # it will be killed out and then has to be fetched from the item scope query further down
     $query = qq|SELECT o.cp_id, o.ordnumber, o.transdate, o.reqdate,
                 o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes,
-		o.curr AS currency, e.name AS employee, o.employee_id,
+		o.curr AS currency, e.name AS employee, o.employee_id, o.salesman_id,
 		o.$form->{vc}_id, cv.name AS $form->{vc}, o.amount AS invtotal,
 		o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
 		d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
