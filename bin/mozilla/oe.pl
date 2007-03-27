@@ -120,19 +120,19 @@ sub edit {
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount}) {
-    map { $id++ if $form->{"id_$_"} } (1 .. $form->{rowcount});
+    map { $id++ if $form->{"multi_id_$_"} } (1 .. $form->{rowcount});
     if (!$id) {
 
       # reset rowcount
       undef $form->{rowcount};
       &add;
+      $lxdebug->leave_sub();
       return;
     }
-  } else {
-    if (!$form->{id}) {
-      &add;
-      return;
-    }
+  } elsif (!$form->{id}) {
+    &add;
+    $lxdebug->leave_sub();
+    return;
   }
 
   if ($form->{print_and_save}) {
@@ -1753,7 +1753,7 @@ sub orders {
     $subtotalamount    += $oe->{amount};
 
     $column_data{ids} =
-      qq|<td><input name="id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
+      qq|<td><input name="multi_id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
     $column_data{id}        = "<td>$oe->{id}</td>";
     $column_data{transdate} = "<td>$oe->{transdate}&nbsp;</td>";
     $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
