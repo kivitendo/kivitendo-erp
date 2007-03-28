@@ -100,8 +100,6 @@ sub prepare_execute_query {
 sub selectall_hashref_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
-
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
   my $result = [];
   while (my $ref = $sth->fetchrow_hashref()) {
@@ -115,8 +113,6 @@ sub selectall_hashref_query {
 sub selectfirst_hashref_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
-
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
   my $ref = $sth->fetchrow_hashref();
   $sth->finish();
@@ -126,8 +122,6 @@ sub selectfirst_hashref_query {
 
 sub selectfirst_array_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
-
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
 
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
   my @ret = $sth->fetchrow_array();
@@ -205,7 +199,8 @@ SL::DBUTils.pm: All about Databaseconections in Lx
 
 =head1 MODULE AUTHORS
 
-Sven Schoeling
+Moritz Bunkus E<lt>m.bunkus@linet-services.de<gt>
+Sven Schoeling E<lt>s.schoeling@linet-services.de<gt>
  
 =head1 DOCUMENTATION AUTHORS
 
