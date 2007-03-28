@@ -1960,8 +1960,9 @@ sub create_links {
                 ORDER BY c.accno|;
   
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
+
+    do_statement($form, $sth, $query);
+
     $self->{accounts} = "";
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
   
@@ -2012,7 +2013,7 @@ sub create_links {
 		LEFT JOIN department d ON (d.id = a.department_id)
 		WHERE a.id = $self->{id}|;
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    do_statement($form, $sth, $query);
 
     $ref = $sth->fetchrow_hashref(NAME_lc);
     foreach $key (keys %$ref) {
@@ -2027,13 +2028,30 @@ sub create_links {
     }
   
     # now get the account numbers
-    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-                FROM chart c, taxkeys tk
-                WHERE c.link LIKE '%$module%' AND (((tk.chart_id=c.id) AND NOT(c.link like '%_tax%')) OR (NOT(tk.chart_id=c.id) AND (c.link like '%_tax%'))) AND (((tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)) AND NOT(c.link like '%_tax%')) OR (c.link like '%_tax%'))
-                ORDER BY c.accno|;
-  
+    $query = qq|
+        SELECT 
+          c.accno, 
+          c.description, 
+          c.link, 
+          c.taxkey_id, 
+          tk.tax_id 
+        FROM chart c
+        LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
+        WHERE 
+          c.link LIKE ?
+          AND 
+                  (tk.chart_id = c.id AND NOT c.link like '%_tax%')
+          OR (NOT tk.chart_id = c.id AND     c.link like '%_tax%')
+          AND 
+            tk.id = (  SELECT id from taxkeys 
+                       WHERE taxkeys.chart_id = c.id 
+                       AND startdate <= ? 
+                       ORDER BY startdate desc LIMIT 1
+                    ) 
+        ORDER BY c.accno|;
+    
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    do_statement($form, $sth, $query, "%$module%", $transdate);
   
     $self->{accounts} = "";
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -2067,7 +2085,7 @@ sub create_links {
 		AND a.fx_transaction = '0'
 		ORDER BY a.oid,a.transdate|;
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    do_statement($form, $sth, $query);
 
     my $fld = ($table eq 'customer') ? 'buy' : 'sell';
 
@@ -2101,7 +2119,7 @@ sub create_links {
 		   WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
 		FROM defaults d|;
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    do_statement($form, $sth, $query);
 
     $ref = $sth->fetchrow_hashref(NAME_lc);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
@@ -2118,7 +2136,7 @@ sub create_links {
 		   WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
 		FROM defaults d|;
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    do_statement($form, $sth, $query);
 
     $ref = $sth->fetchrow_hashref(NAME_lc);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
