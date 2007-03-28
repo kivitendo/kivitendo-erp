@@ -1,0 +1,29 @@
+<table width=100% cellspacing=0 cellpadding=0>
+  <tr>
+    <td>
+      <table>
+  <tr>
+    <td>
+    <TMPL_LOOP SELECTS><TMPL_IF show>
+      <select name="<TMPL_VAR sname>"><TMPL_LOOP DATA>
+        <option value="<TMPL_VAR value>" <TMPL_VAR selected>><TMPL_VAR oname></option></TMPL_LOOP></select>
+    </TMPL_IF></TMPL_LOOP>
+    </td>
+    <TMPL_IF display_copies>
+      <td><translate>Copies</translate> <input name=copies size=2 value=<TMPL_VAR copies>></td>
+    </TMPL_IF>
+      <td><translate>Group Items</translate></td>
+      <td><input name=groupitems type=checkbox class=checkbox <TMPL_VAR groupitems_checked>></td>
+    <TMPL_IF display_remove_draft>
+      <td><translate>Remove Draft</translate></td>
+      <td><input name=remove_draft type=checkbox class=checkbox <TMPL_VAR remove_draft_checked>></td>
+    </TMPL_IF>
+    </tr>
+      </table>
+    </td>
+    <td align=right>
+      <table><tr><th><TMPL_VAR status_msg></th></tr></table>
+    </td>
+  </tr>
+</table>
+

@@ -1474,233 +1474,108 @@ sub send_email {
   $lxdebug->leave_sub();
 }
 
+# generate the printing options displayed at the bottom of oe and is forms.
+# this function will attempt to guess what type of form is displayed, and will generate according options
+#
+# about the coding: 
+# this version builds the arrays of options pretty directly. if you have trouble understanding how,
+# the opthash function builds hashrefs which are then pieced together for the template arrays.
+# unneeded options are "undef"ed out, and then grepped out. 
+#
+# the inline options is untested, but intended to be used later in metatemplating
 sub print_options {
-  $lxdebug->enter_sub();
-  $form->{sendmode} = "attachment";
+  $lxdebug->enter_sub() and my ($inline) = @_;
 
-  $form->{"format"} =
-    $form->{"format"} ? $form->{"format"} :
-    $myconfig{"template_format"} ? $myconfig{"template_format"} :
-    "pdf";
+  # names 3 parameters and returns a hashref, for use in templates
+  sub opthash { +{ value => shift, selected => shift, oname => shift } }
 
-  $form->{"copies"} =
-    $form->{"copies"} ? $form->{"copies"} :
-    $myconfig{"copies"} ? $myconfig{"copies"} :
-    3;
-
-  $form->{"media"} =
-    $form->{"media"} ? $form->{"media"} :
-    $myconfig{"default_media"} ? $myconfig{"default_media"} :
-    "screen";
-
-  $form->{"printer_id"} =
-    defined($form->{"printer_id"}) ? $form->{"printer_id"} :
-    $myconfig{"default_printer_id"} ? $myconfig{"default_printer_id"} :
-    "";
+  # note: "||"-selection is only correct for values where "0" is _not_ a correct entry
+  $form->{sendmode}   = "attachment";
+  $form->{format}     = $form->{format} || $myconfig{template_format} || "pdf";
+  $form->{copies}     = $form->{copies} || $myconfig{copies} || 3;
+  $form->{media}      = $form->{media} || $myconfig{default_media} || "screen";
+  $form->{printer_id} = $form->{printer_id} || $myconfig{default_printer_id} || "";
 
   $form->{PD}{ $form->{formname} } = "selected";
   $form->{DF}{ $form->{format} }   = "selected";
   $form->{OP}{ $form->{media} }    = "selected";
-  $form->{SM}{ $form->{sendmode} } = "selected";
+  $form->{SM}{ $form->{formname} } = "selected";
 
-  if ($form->{type} eq 'purchase_order') {
-    $type = qq|<select name=formname>
-	    <option value=purchase_order $form->{PD}{purchase_order}>|
-      . $locale->text('Purchase Order') . qq|
-	    <option value=bin_list $form->{PD}{bin_list}>|
-      . $locale->text('Bin List');
-  }
+  push @FORMNAME, grep $_,
+    ($form->{type} eq 'purchase_order') ? (
+      opthash("purchase_order", $form->{PD}{purchase_order}, $locale->text('Purchase Order')),
+      opthash("bin_list", $form->{PD}{bin_list}, $locale->text('Bin List')) 
+    ) : undef,
+    ($form->{type} eq 'credit_note') ?
+      opthash("credit_note", $form->{PD}{credit_note}, $locale->text('Credit Note')) : undef,
+    ($form->{type} eq 'sales_order') ? (
+      opthash("sales_order", $form->{PD}{sales_order}, $locale->text('Confirmation')),
+      opthash("proforma", $form->{PD}{proforma}, $locale->text('Proforma Invoice')),
+      opthash("pick_list", $form->{PD}{pick_list}, $locale->text('Pick List')),
+      opthash("packing_list", $form->{PD}{packing_list}, $locale->text('Packing List')) 
+    ) : undef,
+    ($form->{type} =~ /_quotation$/) ?
+      opthash("$`_quotation", $form->{PD}{"$`_quotation"}, $locale->text('Quotation')) : undef,
+    ($form->{type} eq 'invoice') ? (
+      opthash("invoice", $form->{PD}{invoice}, $locale->text('Invoice')),
+      opthash("proforma", $form->{PD}{proforma}, $locale->text('Proforma Invoice')),
+      opthash("packing_list", $form->{PD}{packing_list}, $locale->text('Packing List'))
+    ) : undef,
+    ($form->{type} eq 'invoice' && $form->{storno}) ? (
+      opthash("storno_invoice", $form->{PD}{storno_invoice}, $locale->text('Storno Invoice')),
+      opthash("storno_packing_list", $form->{PD}{storno_packing_list}, $locale->text('Storno Packing List')) 
+    ) : undef,
+    ($form->{type} eq 'credit_note') ?
+      opthash("credit_note", $form->{PD}{credit_note}, $locale->text('Credit Note')) : undef;
 
-  if ($form->{type} eq 'credit_note') {
-    $type = qq|<select name=formname>
-	    <option value=credit_note $form->{PD}{credit_note}>|
-      . $locale->text('Credit Note');
-  }
+  push @SENDMODE, 
+    opthash("attachment", $form->{SM}{attachment}, $locale->text('Attachment')),
+    opthash("inline", $form->{SM}{inline}, $locale->text('In-line'))
+      if ($form->{media} eq 'email');
 
-  if ($form->{type} eq 'sales_order') {
-    $type = qq|<select name=formname>
-	    <option value=sales_order $form->{PD}{sales_order}>|
-      . $locale->text('Confirmation') . qq|
-      <option value=proforma $form->{PD}{proforma}>|
-      . $locale->text('Proforma Invoice') . qq|
-	    <option value=pick_list $form->{PD}{pick_list}>|
-      . $locale->text('Pick List') . qq|
-	    <option value=packing_list $form->{PD}{packing_list}>|
-      . $locale->text('Packing List');
-  }
+  push @MEDIA, grep $_,
+      opthash("screen", $form->{OP}{screen}, $locale->text('Screen')),
+    (scalar keys %{ $form->{printers} } && $latex_templates) ?
+      opthash("printer", $form->{OP}{printer}, $locale->text('Printer')) : undef,
+    ($latex_templates) ? 
+      opthash("queue", $form->{OP}{queue}, $locale->text('Queue')) : undef
+        if ($form->{media} ne 'email');
 
-  if ($form->{type} =~ /_quotation$/) {
-    $type = qq|<select name=formname>
-	    <option value="$`_quotation" $form->{PD}{"$`_quotation"}>|
-      . $locale->text('Quotation');
-  }
+  push @FORMAT, grep $_,
+    ($opendocument_templates && $openofficeorg_writer_bin && $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)) ?
+      opthash("opendocument_pdf", $form->{DF}{"opendocument_pdf"}, $locale->text("PDF (OpenDocument/OASIS)")) : undef,
+    ($latex_templates) ? (
+      opthash("pdf", $form->{DF}{pdf}, $locale->text('PDF')),
+      opthash("postscript", $form->{DF}{postscript}, $locale->text('Postscript'))
+    ) : undef,
+      opthash("html", $form->{DF}{html}, "HTML"),
+    ($opendocument_templates) ?
+      opthash("opendocument", $form->{DF}{opendocument}, $locale->text("OpenDocument/OASIS")) : undef;
 
-  if ($form->{type} eq 'invoice') {
-    $type = qq|<select name=formname>
-	    <option value=invoice $form->{PD}{invoice}>|
-      . $locale->text('Invoice') . qq|
-      <option value=proforma $form->{PD}{proforma}>|
-      . $locale->text('Proforma Invoice') . qq|
-      <option value=packing_list $form->{PD}{packing_list}>|
-      . $locale->text('Packing List');
-  }
+  push @LANGUAGE_ID, 
+    map { opthash($_->{id}, ($_->{id} eq $form->{language} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
+      if (ref $form->{languages} eq 'ARRAY');
 
-  if ($form->{type} eq 'invoice' && $form->{storno}) {
-    $type = qq|<select name=formname>
-	    <option value=storno_invoice $form->{PD}{storno_invoice}>|
-      . $locale->text('Storno Invoice') . qq|
-      <option value=storno_packing_list $form->{PD}{storno_packing_list}>|
-      . $locale->text('Storno Packing List');
-  }
+  push @PRINTER_ID, 
+    map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{printers} }
+      if (ref $form->{printers} eq 'ARRAY');
 
-  if ($form->{type} eq 'credit_note') {
-    $type = qq|<select name=formname>
-	    <option value=credit_note $form->{PD}{credit_note}>|
-      . $locale->text('Credit Note');
-  }
+  @SELECTS = map { sname => lc $_, DATA => \@$_, show => scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
 
-  if ($form->{media} eq 'email') {
-    $media = qq|<select name=sendmode>
-	    <option value=attachment $form->{SM}{attachment}>|
-      . $locale->text('Attachment') . qq|
-	    <option value=inline $form->{SM}{inline}>| . $locale->text('In-line');
+  %template_vars = (
+    display_copies       => scalar keys %{ $form->{printers} } && $latex_templates && $form->{media} ne 'email',
+    display_remove_draft => (!$form->{id} && $form->{draft_id}),
+    groupitems_checked   => $form->{groupitems} ? "checked" : '',
+    remove_draft_checked => $form->{remove_draft} ? "checked" : ''
+  );
+
+  my $print_options = $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
+
+  if ($inline) {
+    $lxdebug->leave_sub() and return $print_options;
   } else {
-    $media = qq|<select name=media>
-	    <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if (scalar(keys (%{ $form->{printers} })) !=0 && $latex_templates) {
-      $media .= qq|
-            <option value=printer $form->{OP}{printer}>|
-        . $locale->text('Printer');
-    }
-    if ($latex_templates) {
-      $media .= qq|
-            <option value=queue $form->{OP}{queue}>| . $locale->text('Queue');
-    }
+    print $print_options; $lxdebug->leave_sub();
   }
-
-  $format = qq|<select name=format>|;
-  if ($opendocument_templates && $openofficeorg_writer_bin &&
-      $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)) {
-    $format .= qq|<option value=opendocument_pdf | .
-      $form->{DF}{"opendocument_pdf"} . qq|>| .
-      $locale->text("PDF (OpenDocument/OASIS)") . qq|</option>|;
-  }
-
-  if ($latex_templates) {
-    $format .= qq|<option value=pdf $form->{DF}{pdf}>| .
-      $locale->text('PDF') . qq|</option>|;
-  }
-
-  $format .= qq|<option value=html $form->{DF}{html}>HTML</option>|;
-
-  if ($latex_templates) {
-    $format .= qq|<option value=postscript $form->{DF}{postscript}>| .
-      $locale->text('Postscript') . qq|</option>|;
-  }
-
-  if ($opendocument_templates) {
-    $format .= qq|<option value=opendocument $form->{DF}{opendocument}>| .
-      $locale->text("OpenDocument/OASIS") . qq|</option>|;
-  }
-  $format .= qq|</select>|;
-
-  if (scalar(keys (%{ $form->{languages} })) !=0) {
-    $language_select = qq|<select name=language_id>
-		<option value=""></option>}|;
-    foreach $item (@{ $form->{languages} }) {
-      if ($form->{language_id} eq $item->{id}) {
-        $language_select .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
-      } else {
-        $language_select .= qq|<option value="$item->{id}">$item->{description}</option>|;
-      }
-    }
-  }
-
-  if (scalar(keys (%{ $form->{printers} })) !=0) {
-    my $selected = !$form->{"printer_id"} ? "selected" : "";
-    $printer_select = qq|<select name=printer_id $selected>
-                  <option value=""></option>|;
-    foreach $item (@{ $form->{printers} }) {
-      $selected = $item->{"id"} == $form->{"printer_id"} ? "selected" : "";
-      $printer_select .= qq|<option value="$item->{id}" $selected>$item->{printer_description}</option>|;
-    }
-  }
-
-
-
-  print qq|
-<table width=100% cellspacing=0 cellpadding=0>
-  <tr>
-    <td>
-      <table>
-	<tr>
-	  <td>$type</select></td>|;
-  if (scalar(keys (%{ $form->{languages} })) !=0) {
-  print qq|
-          <td>${language_select}</select></td>|;
-  }
-  print qq|
-	  <td>$format</select></td>
-	  <td>$media</select></td>|;
-  if (scalar(keys (%{ $form->{printers} })) !=0) {
-  print qq|
-	  <td>$printer_select</select></td>
-|;
-  }
-
-  if (scalar(keys (%{ $form->{printers} })) !=0 && $latex_templates && $form->{media} ne 'email') {
-    print qq|
-	  <td>| . $locale->text('Copies') . qq|
-	  <input name=copies size=2 value=$form->{copies}></td>
-|;
-  }
-
-  $form->{groupitems} = "checked" if $form->{groupitems};
-  $form->{remove_draft} = "checked" if $form->{remove_draft};
-
-  print qq|
-          <td>| . $locale->text('Group Items') . qq|</td>
-          <td><input name=groupitems type=checkbox class=checkbox $form->{groupitems}></td>|;
-
-  print qq|
-          <td>| . $locale->text('Remove Draft') . qq|</td>
-          <td><input name=remove_draft type=checkbox class=checkbox $form->{remove_draft}></td>| if (!$form->{id} && $form->{draft_id});
-  print qq|
-        </tr>
-      </table>
-    </td>
-    <td align=right>
-      <table>
-        <tr>
-|;
-
-  if ($form->{printed} =~ /$form->{formname}/) {
-    print qq|
-	  <th>\|| . $locale->text('Printed') . qq|\|</th>
-|;
-  }
-
-  if ($form->{emailed} =~ /$form->{formname}/) {
-    print qq|
-	  <th>\|| . $locale->text('E-mailed') . qq|\|</th>
-|;
-  }
-
-  if ($form->{queued} =~ /$form->{formname}/) {
-    print qq|
-	  <th>\|| . $locale->text('Queued') . qq|\|</th>
-|;
-  }
-
-  print qq|
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
 }
 
 sub print {
