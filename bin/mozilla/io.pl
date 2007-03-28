@@ -1488,6 +1488,7 @@ sub print_options {
 
   # names 3 parameters and returns a hashref, for use in templates
   sub opthash { +{ value => shift, selected => shift, oname => shift } }
+  (@FORMNAME, @FORMNAME, @LANGUAGE_ID, @FORMAT, @SENDMODE, @MEDIA, @PRINTER_ID, @SELECTS) = ();
 
   # note: "||"-selection is only correct for values where "0" is _not_ a correct entry
   $form->{sendmode}   = "attachment";
