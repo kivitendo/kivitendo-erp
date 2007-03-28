@@ -224,30 +224,30 @@ sub get_transactions {
 
   $fromto =~ s/transdate/ac\.transdate/g;
 
-  $query = qq|SELECT taxkey, rate FROM tax|;
+  $query = qq|SELECT id, taxkey, rate FROM tax|;
   $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    $taxes{ $ref->{taxkey} } = $ref->{rate};
+    $taxes{ $ref->{id} } = $ref->{rate};
   }
 
   $sth->finish();
 
   $query =
     qq|SELECT ac.oid, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ar.invnumber, ar.duedate, ar.amount as umsatz,
-              ct.name, c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate FROM acc_trans ac,ar ar, customer ct,
+              ct.name, c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey FROM acc_trans ac,ar ar, customer ct,
               chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)WHERE $fromto AND ac.trans_id=ar.id AND ac.trans_id=ar.id
               AND ar.customer_id=ct.id AND ac.chart_id=c.id
               UNION ALL
               SELECT ac.oid, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ap.invnumber, ap.duedate, ap.amount as umsatz,
-              ct.name, c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate FROM acc_trans ac, ap ap, vendor ct, chart c LEFT JOIN tax t ON
+              ct.name, c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey FROM acc_trans ac, ap ap, vendor ct, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
               WHERE $fromto AND ac.trans_id=ap.id AND ap.vendor_id=ct.id AND ac.chart_id=c.id
               UNION ALL
               SELECT ac.oid, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey, gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
-              gl.description AS name, c.accno,  c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate FROM acc_trans ac, gl gl,
+              gl.description AS name, c.accno,  c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey FROM acc_trans ac, gl gl,
               chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id) WHERE $fromto AND ac.trans_id=gl.id AND ac.chart_id=c.id
               ORDER BY trans_id, oid|;
@@ -275,12 +275,16 @@ sub get_transactions {
       push @{$i}, $ref2;
       $firstrun = 0;
     }
+    my %taxid_taxkeys = ();
     $absumsatz = 0;
     if (scalar(@{$i}) > 2) {
       for my $j (0 .. (scalar(@{$i}) - 1)) {
         if (abs($i->[$j]->{'amount'}) > abs($absumsatz)) {
           $absumsatz     = $i->[$j]->{'amount'};
           $notsplitindex = $j;
+        }
+        if (($i->[$j]->{'taxtaxkey'}) && ($i->[$j]->{'taxid'})) {
+          $taxid_taxkeys{$i->[$j]->{'taxtaxkey'}}     = $i->[$j]->{'taxid'};
         }
       }
       $ml = ($i->[0]->{'umsatz'} > 0) ? 1 : -1;
@@ -306,11 +310,11 @@ sub get_transactions {
           $g++;
           } elsif (($j != $notsplitindex) && ($i->[$j]->{'chart_id'} eq "")) {
           $absumsatz +=
-            ($i->[$j]->{'amount'} * (1 + $taxes{ $i->[$j]->{'taxkey'} }));
+            ($i->[$j]->{'amount'} * (1 + $taxes{ $taxid_taxkeys{$i->[$j]->{'taxkey'}} }));
           my %blubb = {};
           map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; }
               keys(%{ $i->[$notsplitindex] }));
-          $test = 1 + $taxes{ $i->[$j]->{'taxkey'} };
+          $test = 1 + $taxes{  $taxid_taxkeys{$i->[$j]->{'taxkey'}} };
           $blubb{'amount'} =
             $form->round_amount(($i->[$j]->{'amount'} * $test * -1), 2);
 
@@ -329,7 +333,7 @@ sub get_transactions {
         }
       }
       if (abs($absumsatz) > 0.01) {
-        $form->error("Datev-Export fehlgeschlagen! Bei Transaktion $i->[0]->{trans_id}\n");
+        $form->error("Datev-Export fehlgeschlagen! Bei Transaktion $i->[0]->{trans_id} $absumsatz\n");
       }
     } else {
       push @{ $form->{DATEV} }, \@{$i};
