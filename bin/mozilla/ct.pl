@@ -716,7 +716,7 @@ sub form_header {
   if ($form->{db} eq 'vendor') {
     $customer = qq|
            <th align=right>| . $locale->text('Kundennummer') . qq|</th>
-           <td><input name=v_customer_id size=10 tabindex=18 maxlength=35 value="$form->{v_customer_id}"></td>
+           <td><input name=v_customer_id size=10 maxlength=35 value="$form->{v_customer_id}"></td>
 |;
   }
 
@@ -724,13 +724,13 @@ sub form_header {
 
     $customer = qq|
            <th align=right>| . $locale->text('KNr. beim Kunden') . qq|</th>
-           <td><input name=c_vendor_id size=10 tabindex=18 maxlength=35 value="$form->{c_vendor_id}"></td>
+           <td><input name=c_vendor_id size=10 maxlength=35 value="$form->{c_vendor_id}"></td>
 |;
   }
 
   $business = qq|
  	  <th align=right>| . $locale->text('Type of Business') . qq|</th>
-	  <td><select name=business tabindex=22>$form->{selectbusiness}</select></td>
+	  <td><select name=business>$form->{selectbusiness}</select></td>
       |;
 
   $salesman = "";
@@ -805,7 +805,7 @@ sub form_header {
         s/(<option value="\Q$form->{klass}\E")/$1 selected/;
 
       $pricegroup .=
-        qq|<select name=klass tabindex=24>$form->{selectpricegroup}</select>|;
+        qq|<select name=klass>$form->{selectpricegroup}</select>|;
 
     }
   }
@@ -928,7 +928,7 @@ sub form_header {
 	<tr>
           $business
 	  <th align=right>| . $locale->text('Language') . qq|</th>
-	  <td><select name=language_id tabindex=23>$lang
+	  <td><select name=language_id>$lang
                           </select></td>|;
 
   if ($form->{db} eq 'customer') {
