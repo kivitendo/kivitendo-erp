@@ -2521,9 +2521,14 @@ sub update_defaults {
 sub update_business {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $business_id) = @_;
+  my ($self, $myconfig, $business_id, $provided_dbh) = @_;
 
-  my $dbh   = $self->dbconnect_noauto($myconfig);
+  my $dbh;
+  if ($provided_dbh) {
+    $dbh = $provided_dbh;
+  } else {
+    $dbh = $self->dbconnect_noauto($myconfig);
+  }
   my $query =
     qq|SELECT customernumberinit FROM business  WHERE id=$business_id FOR UPDATE|;
   my $sth = $dbh->prepare($query);
@@ -2538,8 +2543,10 @@ sub update_business {
               SET customernumberinit = '$var' WHERE id=$business_id|;
   $dbh->do($query) || $self->dberror($query);
 
-  $dbh->commit;
-  $dbh->disconnect;
+  if (!$provided_dbh) {
+    $dbh->commit;
+    $dbh->disconnect;
+  }
 
   $main::lxdebug->leave_sub();
 

@@ -4,9 +4,10 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
-             dump_query quote_db_date selectall_hashref_query 
-             selectfirst_hashref_query selectfirst_array_query 
-             prepare_execute_query);
+             dump_query quote_db_date
+             selectfirst_hashref_query selectfirst_array_query
+             selectall_hashref_query selectall_array_query
+             prepare_execute_query prepare_query);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -82,6 +83,15 @@ sub quote_db_date {
   return "'$str'";
 }
 
+sub prepare_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+
+  dump_query(LXDebug::QUERY, '', $query, @_);
+
+  my $sth = $dbh->prepare($query) || $form->dberror($query);
+  return $sth;
+}
+
 sub prepare_execute_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
@@ -108,6 +118,19 @@ sub selectall_hashref_query {
   $sth->finish();
 
   return $result;
+}
+
+sub selectall_array_query {
+  my ($form, $dbh, $query) = splice(@_, 0, 3);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @_);
+  my @result;
+  while (my ($value) = $sth->fetchrow_array()) {
+    push(@result, $value);
+  }
+  $sth->finish();
+
+  return @result;
 }
 
 sub selectfirst_hashref_query {
