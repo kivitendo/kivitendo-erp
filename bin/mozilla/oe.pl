@@ -994,7 +994,7 @@ sub form_footer {
 		<td>$intnotes</td>
 	      </tr>
 	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
-	  <td><select name=payment_id tabindex=24>$payment
+	  <td><select name=payment_id>$payment
                           </select></td>
 	    </table>
 	  </td>
