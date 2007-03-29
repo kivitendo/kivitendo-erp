@@ -48,7 +48,7 @@ sub get_account {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
   my $query =
-    qq!SELECT c.accno, c.description, c.charttype, c.gifi_accno, c.category,! .
+    qq!SELECT c.accno, c.description, c.charttype, c.category,! .
     qq!  c.link, c.pos_bilanz, c.pos_eur, c.new_chart_id, c.valid_from, ! .
     qq!  c.pos_bwa, ! .
     qq!  tk.taxkey_id, tk.pos_ustva, tk.tax_id, ! .
@@ -183,13 +183,13 @@ sub save_account {
   if ($form->{id}) {
     $query = qq|UPDATE chart SET
                 accno = ?, description = ?, charttype = ?,
-                gifi_accno = ?, category = ?, link = ?,
+                category = ?, link = ?,
                 taxkey_id = ?,
                 pos_ustva = ?, pos_bwa   = ?, pos_bilanz = ?,
                 pos_eur = ?, new_chart_id = ?, valid_from = ?
                 WHERE id = ?|;
     @values = ($form->{accno}, $form->{description}, $form->{charttype},
-               $form->{gifi_accno}, $form->{category}, $form->{link},
+               $form->{category}, $form->{link},
                conv_i($taxkey),
                conv_i($form->{pos_ustva}), conv_i($form->{pos_bwa}),
                conv_i($form->{pos_bilanz}), conv_i($form->{pos_eur}),
@@ -205,14 +205,12 @@ sub save_account {
   } else {
     $query = qq|INSERT INTO chart
                 (accno, description, charttype,
-                 gifi_accno, category, link,
-                 taxkey_id,
+                 category, link, taxkey_id,
                  pos_ustva, pos_bwa, pos_bilanz, pos_eur,
                  new_chart_id, valid_from)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     @values = ($form->{accno}, $form->{description}, $form->{charttype},
-               $form->{gifi_accno}, $form->{category}, $form->{link},
-               conv_i($taxkey),
+               $form->{category}, $form->{link}, conv_i($taxkey),
                conv_i($form->{pos_ustva}), conv_i($form->{pos_bwa}),
                conv_i($form->{pos_bilanz}), conv_i($form->{pos_eur}),
                conv_i($form->{new_chart_id}),

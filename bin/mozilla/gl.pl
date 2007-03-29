@@ -339,8 +339,6 @@ sub search {
 		    <td>| . $locale->text('Source') . qq|</td>
 		    <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
 		    <td>| . $locale->text('Account') . qq|</td>
-		    <td align=right><input name="l_gifi_accno" class=checkbox type=checkbox value=Y></td>
-		    <td>| . $locale->text('GIFI') . qq|</td>
 		  </tr>
 		  <tr>
 		    <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
@@ -412,14 +410,6 @@ sub generate_report {
       $locale->text('Account')
       . " : $form->{accno} $form->{account_description}";
   }
-  if ($form->{gifi_accno}) {
-    $href     .= "&gifi_accno=" . $form->escape($form->{gifi_accno});
-    $callback .= "&gifi_accno=" . $form->escape($form->{gifi_accno}, 1);
-    $option   .= "\n<br>" if $option;
-    $option   .=
-      $locale->text('GIFI')
-      . " : $form->{gifi_accno} $form->{gifi_account_description}";
-  }
   if ($form->{source}) {
     $href     .= "&source=" . $form->escape($form->{source});
     $callback .= "&source=" . $form->escape($form->{source}, 1);
@@ -482,13 +472,13 @@ sub generate_report {
        transdate       id                reference         description  
        notes           source            debit             debit_accno  
        credit          credit_accno      debit_tax         debit_tax_accno
-       credit_tax      credit_tax_accno  accno             gifi_accno
+       credit_tax      credit_tax_accno  accno
        projectnumbers  
        )
   );
 
-  if ($form->{accno} || $form->{gifi_accno}) {
-    @columns = grep !/(accno|gifi_accno)/, @columns;
+  if ($form->{accno}) {
+    @columns = grep !/accno/, @columns;
     push @columns, "balance";
     $form->{l_balance} = "Y";
 
@@ -569,10 +559,6 @@ sub generate_report {
       "<th><a class=listheading href=$href&sort=accno>"
     . $locale->text('Credit Tax Account')
     . "</a></th>";
-  $column_header{gifi_accno} =
-      "<th><a class=listheading href=$href&sort=gifi_accno>"
-    . $locale->text('GIFI')
-    . "</a></th>";
   $column_header{balance} = "<th>" . $locale->text('Balance') . "</th>";
   $column_header{projectnumbers} =
       "<th class=listheading>"  . $locale->text('Project Numbers') . "</th>";
@@ -617,7 +603,7 @@ sub generate_report {
     $sameitem = $form->{GL}->[0]->{ $form->{sort} };
   }
 
-  if (($form->{accno} || $form->{gifi_accno}) && $form->{balance}) {
+  if ($form->{accno} && $form->{balance}) {
 
     map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
     $column_data{balance} =
@@ -793,15 +779,11 @@ sub generate_report {
       ? "<td align=right>$debittax</td>"
       : "<td></td>";
     $column_data{debit_tax_accno} = "<td align=center>$debittaxaccno</td>";
-    $column_data{gifi_accno}      =
-      "<td><a href=$href&gifi_accno=$ref->{gifi_accno}&callback=$callback>$ref->{gifi_accno}</a>&nbsp;</td>";
     $column_data{credit_tax} =
       ($ref->{credit_tax_accno} ne "")
       ? "<td align=right>$credittax</td>"
       : "<td></td>";
     $column_data{credit_tax_accno} = "<td align=center>$credittaxaccno</td>";
-    $column_data{gifi_accno}       =
-      "<td><a href=$href&gifi_accno=$ref->{gifi_accno}&callback=$callback>$ref->{gifi_accno}</a>&nbsp;</td>";
     $column_data{balance} =
       "<td align=right>"
       . $form->format_amount(\%myconfig, $form->{balance}, 2, 0) . "</td>";

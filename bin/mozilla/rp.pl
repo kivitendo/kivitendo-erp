@@ -703,8 +703,6 @@ $jsscript
   }
 
   if ($form->{report} =~ /^tax_/) {
-    $gifi = "";
-
     $form->{db} = ($form->{report} =~ /_collected/) ? "ar" : "ap";
 
     RP->get_taxaccounts(\%myconfig, \%$form);
@@ -741,32 +739,6 @@ $jsscript
 
 	  </td>
 	</tr>
-|;
-
-    if (@{ $form->{gifi_taxaccounts} }) {
-      print qq|
-        <tr>
-	  <th align=right>| . $locale->text('GIFI') . qq|</th>
-	  <td colspan=3>
-|;
-
-      foreach $ref (@{ $form->{gifi_taxaccounts} }) {
-
-        print
-          qq|<input name=accno class=radio type=radio value="gifi_$ref->{accno}">&nbsp;$ref->{description}
-
-      <input name="gifi_$ref->{accno}_description" type=hidden value="$ref->{description}">
-      <input name="gifi_$ref->{accno}_rate" type=hidden value="$ref->{rate}">|;
-
-      }
-
-      print qq|
-	  </td>
-	</tr>
-|;
-    }
-
-    print qq|
 	<tr>
 	  <th align=right>| . $locale->text('Method') . qq|</th>
 	  <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
@@ -823,8 +795,6 @@ $jsscript
   }
 
   if ($form->{report} =~ /^nontaxable_/) {
-    $gifi = "";
-
     $form->{db} = ($form->{report} =~ /_sales/) ? "ar" : "ap";
 
     print qq|
@@ -888,8 +858,6 @@ $jsscript
   }
 
   if (($form->{report} eq "ar_aging") || ($form->{report} eq "ap_aging")) {
-    $gifi = "";
-
     if ($form->{report} eq 'ar_aging') {
       $label = $locale->text('Customer');
       $form->{vc} = 'customer';
@@ -938,8 +906,6 @@ $jsscript
   # above action can be removed if there is more than one input field
 
   if ($form->{report} =~ /(receipts|payments)$/) {
-    $gifi = "";
-
     $form->{db} = ($form->{report} =~ /payments$/) ? "ap" : "ar";
 
     RP->paymentaccounts(\%myconfig, \%$form);
@@ -1358,11 +1324,6 @@ sub list_accounts {
   $column_header{endbalance} =
     qq|<th class=listheading>| . $locale->text('Balance') . qq|</th>|;
 
-  if ($form->{accounttype} eq 'gifi') {
-    $column_header{accno} =
-      qq|<th class=listheading>| . $locale->text('GIFI') . qq|</th>|;
-  }
-
   $form->header;
 
   print qq|
@@ -1393,15 +1354,7 @@ sub list_accounts {
     $description = $form->escape($ref->{description});
 
     $href =
-      qq|ca.pl?path=$form->{path}&action=list_transactions&accounttype=$form->{accounttype}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&sort=transdate&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&eur=$form->{eur}&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title&nextsub=$form->{nextsub}|;
-
-    if ($form->{accounttype} eq 'gifi') {
-      $href .= "&gifi_accno=$ref->{accno}&gifi_description=$description";
-      $na = $locale->text('N/A');
-      map { $ref->{$_} = $na } qw(accno description) unless $ref->{accno};
-    } else {
-      $href .= "&accno=$ref->{accno}&description=$description";
-    }
+      qq|ca.pl?path=$form->{path}&action=list_transactions&accounttype=$form->{accounttype}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&sort=transdate&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&eur=$form->{eur}&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title&nextsub=$form->{nextsub}&accno=$ref->{accno}&description=$description";
 
     $ml = ($ref->{category} =~ /(A|C|E)/) ? -1 : 1;
 
@@ -2167,12 +2120,6 @@ sub generate_tax_report {
   $description = $form->escape($form->{$descvar});
   $ratevar     = "$form->{accno}_rate";
 
-  if ($form->{accno} =~ /^gifi_/) {
-    $descvar     = "gifi_$form->{accno}_description";
-    $description = $form->escape($form->{$descvar});
-    $ratevar     = "gifi_$form->{accno}_rate";
-  }
-
   $department = $form->escape($form->{department});
 
   # construct href
@@ -2184,9 +2131,6 @@ sub generate_tax_report {
   $department  = $form->escape($form->{department}, 1);
   $callback    =
     "$form->{script}?path=$form->{path}&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
-
-  $form->{title} = $locale->text('GIFI') . " - "
-    if ($form->{accno} =~ /^gifi_/);
 
   $title = $form->escape($form->{title});
   $href .= "&title=$title";

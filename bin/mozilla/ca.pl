@@ -71,12 +71,10 @@ sub chart_of_accounts {
 
   CA->all_accounts(\%myconfig, \%$form);
 
-  @column_index = qw(accno gifi_accno description debit credit);
+  @column_index = qw(accno description debit credit);
 
   $column_header{accno} =
     qq|<th class=listheading>| . $locale->text('Account') . qq|</th>\n|;
-  $column_header{gifi_accno} =
-    qq|<th class=listheading>| . $locale->text('GIFI') . qq|</th>\n|;
   $column_header{description} =
     qq|<th class=listheading>| . $locale->text('Description') . qq|</th>\n|;
   $column_header{debit} =
@@ -107,22 +105,18 @@ sub chart_of_accounts {
   foreach $ca (@{ $form->{CA} }) {
 
     $description      = $form->escape($ca->{description});
-    $gifi_description = $form->escape($ca->{gifi_description});
 
     $href =
-      qq|$form->{script}?path=$form->{path}&action=list&accno=$ca->{accno}&login=$form->{login}&password=$form->{password}&description=$description&gifi_accno=$ca->{gifi_accno}&gifi_description=$gifi_description|;
+      qq|$form->{script}?path=$form->{path}&action=list&accno=$ca->{accno}&login=$form->{login}&password=$form->{password}&description=$description|;
 
     if ($ca->{charttype} eq "H") {
       print qq|<tr class=listheading>|;
       map { $column_data{$_} = "<th>$ca->{$_}</th>"; } qw(accno description);
-      $column_data{gifi_accno} = "<th>$ca->{gifi_accno}&nbsp;</th>";
     } else {
       $i++;
       $i %= 2;
       print qq|<tr class=listrow$i>|;
       $column_data{accno}      = "<td><a href=$href>$ca->{accno}</a></td>";
-      $column_data{gifi_accno} =
-        "<td><a href=$href&accounttype=gifi>$ca->{gifi_accno}</a>&nbsp;</td>";
       $column_data{description} = "<td>$ca->{description}</td>";
     }
     my $debit = "";
@@ -153,7 +147,7 @@ sub chart_of_accounts {
   }
 
   map { $column_data{$_} = "<td>&nbsp;</td>"; }
-    qw(accno gifi_accno description);
+    qw(accno description);
 
   $column_data{debit} =
     "<th align=right class=listtotal>"
@@ -184,11 +178,7 @@ sub list {
   $lxdebug->enter_sub();
 
   $form->{title} = $locale->text('List Transactions');
-  if ($form->{accounttype} eq 'gifi') {
-    $form->{title} .= " - " . $locale->text('GIFI') . " $form->{gifi_accno}";
-  } else {
-    $form->{title} .= " - " . $locale->text('Account') . " $form->{accno}";
-  }
+  $form->{title} .= " - " . $locale->text('Account') . " $form->{accno}";
 
   # get departments
   $form->all_departments(\%myconfig);
@@ -210,7 +200,7 @@ sub list {
 
   $form->header;
 
-  map { $form->{$_} =~ s/\"/&quot;/g; } qw(description gifi_description);
+  $form->{description} =~ s/\"/&quot;/g;
 
   print qq|
 <body>
@@ -222,8 +212,6 @@ sub list {
 <input type=hidden name=sort value=transdate>
 <input type=hidden name=eur value=$eur>
 <input type=hidden name=accounttype value=$form->{accounttype}>
-<input type=hidden name=gifi_accno value=$form->{gifi_accno}>
-<input type=hidden name=gifi_description value="$form->{gifi_description}">
 
 <table border=0 width=100%>
   <tr><th class=listtop>$form->{title}</th></tr>
@@ -271,24 +259,22 @@ sub list_transactions {
   CA->all_transactions(\%myconfig, \%$form);
 
   $description      = $form->escape($form->{description});
-  $gifi_description = $form->escape($form->{gifi_description});
   $department       = $form->escape($form->{department});
   $projectnumber    = $form->escape($form->{projectnumber});
   $title            = $form->escape($form->{title});
 
   # construct href
   $href =
-    "$form->{script}?path=$form->{path}&action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&gifi_accno=$form->{gifi_accno}&gifi_description=$gifi_description&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
+    "$form->{script}?path=$form->{path}&action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
 
   $description      = $form->escape($form->{description},      1);
-  $gifi_description = $form->escape($form->{gifi_description}, 1);
   $department       = $form->escape($form->{department},       1);
   $projectnumber    = $form->escape($form->{projectnumber},    1);
   $title            = $form->escape($form->{title},            1);
 
   # construct callback
   $callback =
-    "$form->{script}?path=$form->{path}&action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&gifi_accno=$form->{gifi_accno}&gifi_description=$gifi_description&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
+    "$form->{script}?path=$form->{path}&action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
 
   # figure out which column comes first
   $column_header{transdate} =
@@ -310,19 +296,12 @@ sub list_transactions {
   @column_index =
     $form->sort_columns(qw(transdate reference description debit credit));
 
-  if ($form->{accounttype} eq 'gifi') {
-    map { $form->{$_} = $form->{"gifi_$_"} } qw(accno description);
-  }
   if ($form->{accno}) {
     push @column_index, "balance";
   }
 
-  $form->{title} =
-    ($form->{accounttype} eq 'gifi')
-    ? $locale->text('GIFI')
-    : $locale->text('Account');
-
-  $form->{title} .= " $form->{accno} - $form->{description}";
+  $form->{title} = $locale->text('Account') .
+    " $form->{accno} - $form->{description}";
 
   if ($form->{department}) {
     ($department) = split /--/, $form->{department};

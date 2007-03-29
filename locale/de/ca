@@ -16,7 +16,6 @@ $self->{texts} = {
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
   'From'                        => 'Von',
-  'GIFI'                        => 'GIFI',
   'Include in Report'           => 'In Bericht aufnehmen',
   'Jan'                         => 'Jan',
   'January'                     => 'Januar',

@@ -60,17 +60,6 @@ sub all_accounts {
   }
   $sth->finish;
 
-  $query = qq|SELECT accno, description
-              FROM gifi|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my %gifi;
-  while (my ($accno, $description) = $sth->fetchrow_array) {
-    $gifi{$accno} = $description;
-  }
-  $sth->finish;
-
   $query = qq{
     SELECT 
       c.accno,
@@ -96,7 +85,7 @@ sub all_accounts {
     FROM chart c
     LEFT JOIN taxkeys tk ON (c.id = tk.chart_id)
     LEFT JOIN tax tx ON (tk.tax_id = tx.id)
-    GROUP BY c.accno, c.id, c.description, c.charttype, c.gifi_accno,
+    GROUP BY c.accno, c.id, c.description, c.charttype,
       c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,      
       c.datevautomatik
     ORDER BY c.accno
@@ -107,7 +96,6 @@ sub all_accounts {
 
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
     $ca->{amount}           = $amount{ $ca->{accno} };
-    $ca->{gifi_description} = $gifi{ $ca->{gifi_accno} };
     if ($ca->{amount} < 0) {
       $ca->{debit} = $ca->{amount} * -1;
     } else {
@@ -133,10 +121,6 @@ sub all_transactions {
   # get chart_id
   my $query = qq|SELECT c.id FROM chart c
                  WHERE c.accno = '$form->{accno}'|;
-  if ($form->{accounttype} eq 'gifi') {
-    $query = qq|SELECT c.id FROM chart c
-                WHERE c.gifi_accno = '$form->{gifi_accno}'|;
-  }
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -205,19 +189,12 @@ sub all_transactions {
 		 |;
   }
 
-  if ($form->{accno} || $form->{gifi_accno}) {
+  if ($form->{accno}) {
 
     # get category for account
     $query = qq|SELECT c.category
                 FROM chart c
 		WHERE c.accno = '$form->{accno}'|;
-
-    if ($form->{accounttype} eq 'gifi') {
-      $query = qq|SELECT c.category
-                FROM chart c
-		WHERE c.gifi_accno = '$form->{gifi_accno}'
-		AND c.charttype = 'A'|;
-    }
 
     $sth = $dbh->prepare($query);
 
@@ -271,53 +248,6 @@ sub all_transactions {
 		  $project
 		  |;
 
-      }
-
-      if ($form->{accounttype} eq 'gifi') {
-        $query = qq|SELECT SUM(ac.amount)
-		  FROM acc_trans ac
-		  JOIN chart c ON (ac.chart_id = c.id)
-		  $dpt_join
-		  WHERE c.gifi_accno = '$form->{gifi_accno}'
-		  AND ac.transdate < '$form->{fromdate}'
-		  $dpt_where
-		  $project
-		  |;
-
-        if ($form->{project_id}) {
-
-          $query .= qq|
-
-	       UNION
-
-	          SELECT SUM(ac.qty * ac.sellprice)
-		  FROM invoice ac
-		  JOIN ar a ON (ac.trans_id = a.id)
-		  JOIN parts p ON (ac.parts_id = p.id)
-		  JOIN chart c ON (p.income_accno_id = c.id)
-		  $dpt_join
-		  WHERE c.gifi_accno = '$form->{gifi_accno}'
-		  AND a.transdate < '$form->{fromdate}'
-		  AND c.category = 'I'
-		  $dpt_where
-		  $project
-
-	       UNION
-
-	          SELECT SUM(ac.qty * ac.sellprice)
-		  FROM invoice ac
-		  JOIN ap a ON (ac.trans_id = a.id)
-		  JOIN parts p ON (ac.parts_id = p.id)
-		  JOIN chart c ON (p.expense_accno_id = c.id)
-		  $dpt_join
-		  WHERE c.gifi_accno = '$form->{gifi_accno}'
-		  AND a.transdate < '$form->{fromdate}'
-		  AND c.category = 'E'
-		  $dpt_where
-		  $project
-		  |;
-
-        }
       }
 
       $sth = $dbh->prepare($query);

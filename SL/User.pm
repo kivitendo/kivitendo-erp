@@ -411,11 +411,6 @@ sub dbcreate {
   my $filename = qq|sql/lx-office.sql|;
   $self->process_query($form, $dbh, $filename);
 
-  # load gifi
-  ($filename) = split /_/, $form->{chart};
-  $filename =~ s/_//;
-  $self->process_query($form, $dbh, "sql/${filename}-gifi.sql");
-
   # load chart of accounts
   $filename = qq|sql/$form->{chart}-chart.sql|;
   $self->process_query($form, $dbh, $filename);

@@ -339,15 +339,6 @@ sub get_accounts {
 	      $category
 	      ORDER by c.accno|;
 
-  if ($form->{accounttype} eq 'gifi') {
-    $query = qq|SELECT g.accno, g.description, c.category
-		FROM gifi g
-		JOIN chart c ON (c.gifi_accno = g.accno)
-		WHERE c.charttype = 'H'
-		$category
-		ORDER BY g.accno|;
-  }
-
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -392,277 +383,7 @@ sub get_accounts {
 		 |;
   }
 
-  if ($form->{accounttype} eq 'gifi') {
-
-    if ($form->{method} eq 'cash') {
-
-      $query = qq|
-
-	         SELECT g.accno, sum(ac.amount) AS amount,
-		 g.description, c.category
-		 FROM acc_trans ac
-	         JOIN chart c ON (c.id = ac.chart_id)
-	         JOIN ar a ON (a.id = ac.trans_id)
-	         JOIN gifi g ON (g.accno = c.gifi_accno)
-	         $dpt_join
-		 WHERE $where
-		 $dpt_where
-		 $category
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AR_paid%'
-		     $subwhere
-		   )
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-
-       UNION ALL
-
-		 SELECT '' AS accno, SUM(ac.amount) AS amount,
-		 '' AS description, c.category
-		 FROM acc_trans ac
-	         JOIN chart c ON (c.id = ac.chart_id)
-	         JOIN ar a ON (a.id = ac.trans_id)
-	         $dpt_join
-		 WHERE $where
-		 $dpt_where
-		 $category
-		 AND c.gifi_accno = ''
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AR_paid%'
-		     $subwhere
-		   )
-		 $project
-		 GROUP BY c.category
-
-       UNION ALL
-
-       	         SELECT g.accno, sum(ac.amount) AS amount,
-		 g.description, c.category
-		 FROM acc_trans ac
-	         JOIN chart c ON (c.id = ac.chart_id)
-	         JOIN ap a ON (a.id = ac.trans_id)
-	         JOIN gifi g ON (g.accno = c.gifi_accno)
-	         $dpt_join
-		 WHERE $where
-		 $dpt_where
-		 $category
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
-		     $subwhere
-		   )
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-
-       UNION ALL
-
-		 SELECT '' AS accno, SUM(ac.amount) AS amount,
-		 '' AS description, c.category
-		 FROM acc_trans ac
-	         JOIN chart c ON (c.id = ac.chart_id)
-	         JOIN ap a ON (a.id = ac.trans_id)
-	         $dpt_join
-		 WHERE $where
-		 $dpt_where
-		 $category
-		 AND c.gifi_accno = ''
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
-		     $subwhere
-		   )
-		 $project
-		 GROUP BY c.category
-
-       UNION ALL
-
--- add gl
-
-	         SELECT g.accno, sum(ac.amount) AS amount,
-		 g.description, c.category
-		 FROM acc_trans ac
-	         JOIN chart c ON (c.id = ac.chart_id)
-	         JOIN gifi g ON (g.accno = c.gifi_accno)
-	         JOIN gl a ON (a.id = ac.trans_id)
-	         $dpt_join
-		 WHERE $where
-		 $glwhere
-		 $dpt_where
-		 $category
-		 AND NOT (c.link = 'AR' OR c.link = 'AP')
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-
-       UNION ALL
-
-		 SELECT '' AS accno, SUM(ac.amount) AS amount,
-		 '' AS description, c.category
-		 FROM acc_trans ac
-	         JOIN chart c ON (c.id = ac.chart_id)
-	         JOIN gl a ON (a.id = ac.trans_id)
-	         $dpt_join
-		 WHERE $where
-		 $glwhere
-		 $dpt_where
-		 $category
-		 AND c.gifi_accno = ''
-		 AND NOT (c.link = 'AR' OR c.link = 'AP')
-		 $project
-		 GROUP BY c.category
-		 |;
-
-      if ($form->{project_id}) {
-
-        $query .= qq|
-
-       UNION ALL
-
-		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) AS amount,
-		 g.description AS description, c.category
-		 FROM invoice ac
-	         JOIN ar a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.income_accno_id = c.id)
-	         JOIN gifi g ON (g.accno = c.gifi_accno)
-	         $dpt_join
-	-- use transdate from subwhere
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'I'
-		 $dpt_where
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AR_paid%'
-		     $subwhere
-		   )
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-
-       UNION ALL
-
-		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) * -1 AS amount,
-		 g.description AS description, c.category
-		 FROM invoice ac
-	         JOIN ap a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.expense_accno_id = c.id)
-	         JOIN gifi g ON (g.accno = c.gifi_accno)
-	         $dpt_join
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'E'
-		 $dpt_where
-		 AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
-		     $subwhere
-		   )
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-		 |;
-      }
-
-    } else {
-
-      if ($department_id) {
-        $dpt_join = qq|
-	      JOIN dpt_trans t ON (t.trans_id = ac.trans_id)
-	      |;
-        $dpt_where = qq|
-               AND t.department_id = $department_id
-	      |;
-
-      }
-
-      $query = qq|
-
-	      SELECT g.accno, SUM(ac.amount) AS amount,
-	      g.description, c.category
-	      FROM acc_trans ac
-	      JOIN chart c ON (c.id = ac.chart_id)
-	      JOIN gifi g ON (c.gifi_accno = g.accno)
-	      $dpt_join
-	      WHERE $where
-	      $dpt_from
-	      $category
-	      $project
-	      GROUP BY g.accno, g.description, c.category
-
-	   UNION ALL
-
-	      SELECT '' AS accno, SUM(ac.amount) AS amount,
-	      '' AS description, c.category
-	      FROM acc_trans ac
-	      JOIN chart c ON (c.id = ac.chart_id)
-	      $dpt_join
-	      WHERE $where
-	      $dpt_from
-	      $category
-	      AND c.gifi_accno = ''
-	      $project
-	      GROUP BY c.category
-	      |;
-
-      if ($form->{project_id}) {
-
-        $query .= qq|
-
-	 UNION ALL
-
-		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) AS amount,
-		 g.description AS description, c.category
-		 FROM invoice ac
-	         JOIN ar a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.income_accno_id = c.id)
-		 JOIN gifi g ON (c.gifi_accno = g.accno)
-	         $dpt_join
-	-- use transdate from subwhere
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'I'
-		 $dpt_where
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-
-       UNION ALL
-
-		 SELECT g.accno AS accno, SUM(ac.sellprice * ac.qty) * -1 AS amount,
-		 g.description AS description, c.category
-		 FROM invoice ac
-	         JOIN ap a ON (a.id = ac.trans_id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN chart c on (p.expense_accno_id = c.id)
-		 JOIN gifi g ON (c.gifi_accno = g.accno)
-	         $dpt_join
-		 WHERE 1 = 1 $subwhere
-		 AND c.category = 'E'
-		 $dpt_where
-		 $project
-		 GROUP BY g.accno, g.description, c.category
-		 |;
-      }
-
-    }
-
-  } else {    # standard account
+  {    # standard account
 
     if ($form->{method} eq 'cash') {
 
@@ -1199,23 +920,7 @@ sub trial_balance {
   # get beginning balances
   if ($form->{fromdate}) {
 
-    if ($form->{accounttype} eq 'gifi') {
-
-      $query = qq|SELECT g.accno, c.category, SUM(ac.amount) AS amount,
-                  g.description
-		  FROM acc_trans ac
-		  JOIN chart c ON (ac.chart_id = c.id)
-		  JOIN gifi g ON (c.gifi_accno = g.accno)
-		  $dpt_join
-		  WHERE ac.transdate < '$form->{fromdate}'
-		  $dpt_where
-		  $project
-		  GROUP BY g.accno, c.category, g.description
-		  |;
-
-    } else {
-
-      $query = qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount,
+    $query = qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount,
                   c.description
 		  FROM acc_trans ac
 		  JOIN chart c ON (ac.chart_id = c.id)
@@ -1225,8 +930,6 @@ sub trial_balance {
 		  $project
 		  GROUP BY c.accno, c.category, c.description
 		  |;
-
-    }
 
     $sth = $dbh->prepare($query);
     $sth->execute || $form->dberror($query);
@@ -1250,14 +953,6 @@ sub trial_balance {
 	      FROM chart c
 	      WHERE c.charttype = 'H'
 	      ORDER by c.accno|;
-
-  if ($form->{accounttype} eq 'gifi') {
-    $query = qq|SELECT g.accno, g.description, c.category
-		FROM gifi g
-		JOIN chart c ON (c.gifi_accno = g.accno)
-		WHERE c.charttype = 'H'
-		ORDER BY g.accno|;
-  }
 
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -1311,62 +1006,7 @@ sub trial_balance {
     $where .= $tofrom;
   }
 
-  if ($form->{accounttype} eq 'gifi') {
-
-    $query = qq|SELECT g.accno, g.description, c.category,
-                SUM(ac.amount) AS amount
-		FROM acc_trans ac
-		JOIN chart c ON (c.id = ac.chart_id)
-		JOIN gifi g ON (c.gifi_accno = g.accno)
-		$dpt_join
-		WHERE $where
-		$dpt_where
-		$project
-		GROUP BY g.accno, g.description, c.category
-		|;
-
-    if ($form->{project_id}) {
-
-      $query .= qq|
-
-	-- add project transactions from invoice
-
-	UNION ALL
-
-	        SELECT g.accno, g.description, c.category,
-		SUM(ac.sellprice * ac.qty) AS amount
-		FROM invoice ac
-		JOIN ar a ON (ac.trans_id = a.id)
-		JOIN parts p ON (ac.parts_id = p.id)
-		JOIN chart c ON (p.income_accno_id = c.id)
-		JOIN gifi g ON (c.gifi_accno = g.accno)
-		$dpt_join
-		WHERE $invwhere
-		$dpt_where
-		$project
-		GROUP BY g.accno, g.description, c.category
-
-	UNION ALL
-
-	        SELECT g.accno, g.description, c.category,
-		SUM(ac.sellprice * ac.qty) * -1 AS amount
-		FROM invoice ac
-		JOIN ap a ON (ac.trans_id = a.id)
-		JOIN parts p ON (ac.parts_id = p.id)
-		JOIN chart c ON (p.expense_accno_id = c.id)
-		JOIN gifi g ON (c.gifi_accno = g.accno)
-		$dpt_join
-		WHERE $invwhere
-		$dpt_where
-		$project
-		GROUP BY g.accno, g.description, c.category
-		|;
-    }
-
-    $query .= qq|
-		ORDER BY accno|;
-
-  } else {
+  {
 
     $query = qq|SELECT c.accno, c.description, c.category,
                 SUM(ac.amount) AS amount
@@ -1444,30 +1084,6 @@ sub trial_balance {
 	      AND ac.amount > 0
 	      AND c.accno = ?) AS credit
 	      |;
-
-  if ($form->{accounttype} eq 'gifi') {
-
-    $query = qq|SELECT (SELECT SUM(ac.amount) * -1
-		FROM acc_trans ac
-		JOIN chart c ON (c.id = ac.chart_id)
-		$dpt_join
-		WHERE $where
-		$dpt_where
-		$project
-		AND ac.amount < 0
-		AND c.gifi_accno = ?) AS debit,
-
-	       (SELECT SUM(ac.amount)
-		FROM acc_trans ac
-		JOIN chart c ON (c.id = ac.chart_id)
-		$dpt_join
-		WHERE $where
-		$dpt_where
-		$project
-		AND ac.amount > 0
-		AND c.gifi_accno = ?) AS credit|;
-
-  }
 
   $drcr = $dbh->prepare($query);
 
@@ -1787,23 +1403,6 @@ sub get_taxaccounts {
   }
   $sth->finish;
 
-  # get gifi tax accounts
-  $query = qq|SELECT DISTINCT ON (g.accno) g.accno, g.description,
-                 sum(t.rate) AS rate
-                 FROM gifi g, chart c, tax t
-		 WHERE g.accno = c.gifi_accno
-		 AND c.id = t.chart_id
-		 AND c.link LIKE '%CT_tax%'
-		 GROUP BY g.accno, g.description
-                 ORDER BY accno|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror;
-
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{gifi_taxaccounts} }, $ref;
-  }
-  $sth->finish;
-
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -1831,15 +1430,9 @@ sub tax_report {
   my ($accno, $rate);
 
   if ($form->{accno}) {
-    if ($form->{accno} =~ /^gifi_/) {
-      ($null, $accno) = split /_/, $form->{accno};
-      $rate  = $form->{"$form->{accno}_rate"};
-      $accno = qq| AND ch.gifi_accno = '$accno'|;
-    } else {
-      $accno = $form->{accno};
-      $rate  = $form->{"$form->{accno}_rate"};
-      $accno = qq| AND ch.accno = '$accno'|;
-    }
+    $accno = $form->{accno};
+    $rate  = $form->{"$form->{accno}_rate"};
+    $accno = qq| AND ch.accno = '$accno'|;
   }
   $rate *= 1;
 

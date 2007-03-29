@@ -60,7 +60,6 @@ $self->{texts} = {
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
   'From'                        => 'Von',
-  'GIFI'                        => 'GIFI',
   'GL Transaction'              => 'Dialogbuchung',
   'General Ledger'              => 'Finanzbuchhaltung',
   'History'                     => 'Historie',

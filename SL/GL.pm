@@ -284,11 +284,6 @@ sub all_transactions {
     $arwhere .= " AND c.accno = '$form->{accno}'";
     $apwhere .= " AND c.accno = '$form->{accno}'";
   }
-  if ($form->{gifi_accno}) {
-    $glwhere .= " AND c.gifi_accno = '$form->{gifi_accno}'";
-    $arwhere .= " AND c.gifi_accno = '$form->{gifi_accno}'";
-    $apwhere .= " AND c.gifi_accno = '$form->{gifi_accno}'";
-  }
   if ($form->{category} ne 'X') {
     $glwhere .=
       " AND gl.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
@@ -340,33 +335,6 @@ sub all_transactions {
     }
   }
 
-  if ($form->{gifi_accno}) {
-
-    # get category for account
-    $query = qq|SELECT c.category
-                FROM chart c
-		WHERE c.gifi_accno = '$form->{gifi_accno}'|;
-    $sth = $dbh->prepare($query);
-
-    $sth->execute || $form->dberror($query);
-    ($form->{ml}) = $sth->fetchrow_array;
-    $sth->finish;
-
-    if ($form->{datefrom}) {
-      $query = qq|SELECT SUM(ac.amount)
-		  FROM acc_trans ac, chart c
-		  WHERE ac.chart_id = c.id
-		  AND c.gifi_accno = '$form->{gifi_accno}'
-		  AND ac.transdate < date '$form->{datefrom}'
-		  |;
-      $sth = $dbh->prepare($query);
-      $sth->execute || $form->dberror($query);
-
-      ($form->{balance}) = $sth->fetchrow_array;
-      $sth->finish;
-    }
-  }
-
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
 
   my $sortorder = join ', ',
@@ -386,7 +354,7 @@ sub all_transactions {
   my $query =
     qq|SELECT ac.oid AS acoid, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
                  g.description, ac.transdate, ac.source, ac.trans_id,
-		 ac.amount, c.accno, c.gifi_accno, g.notes, t.chart_id, ac.oid
+		 ac.amount, c.accno, g.notes, t.chart_id, ac.oid
                  $project_columns
                  FROM gl g, acc_trans ac $project_join, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
@@ -396,7 +364,7 @@ sub all_transactions {
 	UNION
 	         SELECT ac.oid AS acoid, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
-		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
+		 ac.amount, c.accno, a.notes, t.chart_id, ac.oid
                  $project_columns
 		 FROM ar a, acc_trans ac $project_join, customer ct, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
@@ -407,7 +375,7 @@ sub all_transactions {
 	UNION
 	         SELECT ac.oid AS acoid, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
 		 ct.name, ac.transdate, ac.source, ac.trans_id,
-		 ac.amount, c.accno, c.gifi_accno, a.notes, t.chart_id, ac.oid
+		 ac.amount, c.accno, a.notes, t.chart_id, ac.oid
                  $project_columns
 		 FROM ap a, acc_trans ac $project_join, vendor ct, chart c LEFT JOIN tax t ON
                  (t.chart_id=c.id)
@@ -588,15 +556,7 @@ sub all_transactions {
     ($form->{account_description}) = $sth->fetchrow_array;
     $sth->finish;
   }
-  if ($form->{gifi_accno}) {
-    $query =
-      qq|SELECT g.description FROM gifi g WHERE g.accno = '$form->{gifi_accno}'|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
 
-    ($form->{gifi_account_description}) = $sth->fetchrow_array;
-    $sth->finish;
-  }
   $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
