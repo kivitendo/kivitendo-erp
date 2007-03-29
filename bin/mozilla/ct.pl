@@ -71,13 +71,6 @@ sub search {
   $label = ucfirst $form->{db};
   $form->{title} = $locale->text($label . "s");
 
-  if ($form->{db} eq 'vendor') {
-    $gifi = qq|
-		<td><input name="l_gifi_accno" type=checkbox class=checkbox value=Y> |
-      . $locale->text('GIFI') . qq|</td>
-|;
-  }
-
   $form->header;
 
   print qq|
@@ -145,7 +138,6 @@ sub search {
 	      <tr>
 		<td><input name="l_taxnumber" type=checkbox class=checkbox value=Y> |
     . $locale->text('Tax Number') . qq|</td>
-		$gifi
 		<td><input name="l_sic_code" type=checkbox class=checkbox value=Y> |
     . $locale->text('SIC') . qq|</td>
 		<td><input name="l_business" type=checkbox class=checkbox value=Y> |
@@ -193,13 +185,6 @@ sub search_delivery {
   $label = ucfirst $form->{db};
   $form->{title} = $locale->text($label . "s");
 
-  if ($form->{db} eq 'vendor') {
-    $gifi = qq|
-		<td><input name="l_gifi_accno" type=checkbox class=checkbox value=Y> |
-      . $locale->text('GIFI') . qq|</td>
-|;
-  }
-
   $form->header;
 
   print qq|
@@ -267,7 +252,6 @@ sub search_delivery {
 	      <tr>
 		<td><input name="l_taxnumber" type=checkbox class=checkbox value=Y> |
     . $locale->text('Tax Number') . qq|</td>
-		$gifi
 		<td><input name="l_sic_code" type=checkbox class=checkbox value=Y> |
     . $locale->text('SIC') . qq|</td>
 		<td><input name="l_business" type=checkbox class=checkbox value=Y> |
@@ -323,7 +307,7 @@ sub list_names {
                         "$form->{db}number", address,
                         contact,             phone,
                         fax,                 email,
-                        taxnumber,           gifi_accno,
+                        taxnumber,
                         sic_code,            business,
                         invnumber,           ordnumber,
                         quonumber);
@@ -411,10 +395,6 @@ sub list_names {
   $column_header{taxnumber} =
       qq|<th><a class=listheading href=$href&sort=taxnumber>|
     . $locale->text('Tax Number')
-    . qq|</a></th>|;
-  $column_header{gifi_accno} =
-      qq|<th><a class=listheading href=$href&sort=gifi_accno>|
-    . $locale->text('GIFI')
     . qq|</a></th>|;
   $column_header{sic_code} =
       qq|<th><a class=listheading href=$href&sort=sic_code>|
