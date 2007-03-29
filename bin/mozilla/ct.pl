@@ -57,7 +57,7 @@ sub add {
     "$form->{script}?action=add&db=$form->{db}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
-  CT->taxaccounts(\%myconfig, \%$form);
+  CT->populate_drop_down_boxes(\%myconfig, \%$form);
 
   &form_header;
   &form_footer;
@@ -567,6 +567,7 @@ sub edit {
   # $locale->text('Edit Vendor')
 
   CT->get_tuple(\%myconfig, \%$form);
+  CT->populate_drop_down_boxes(\%myconfig, \%$form);
 
   # format " into &quot;
   map { $form->{$_} =~ s/\"/&quot;/g } keys %$form;
@@ -712,35 +713,6 @@ sub form_header {
 		<td><select id=delivery_id name=delivery_id onChange="get_delivery(['shipto_id__' + this.value, 'from__' + from.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])">$form->{selectshipto}</select></td>
 	      </tr>|;
 
-  foreach $item (split / /, $form->{taxaccounts}) {
-    if (($form->{tax}{$item}{taxable}) || !($form->{id})) {
-      $taxable .=
-        qq| <input name="tax_$item" value=1 class=checkbox type=checkbox checked>&nbsp;<b>$form->{tax}{$item}{description}</b>|;
-    } else {
-      $taxable .=
-        qq| <input name="tax_$item" value=1 class=checkbox type=checkbox>&nbsp;<b>$form->{tax}{$item}{description}</b>|;
-    }
-  }
-
-##LINET
-  $taxable = "";
-
-  if ($taxable) {
-    $tax = qq|
-  <tr>
-    <th align=right>| . $locale->text('Taxable') . qq|</th>
-    <td colspan=2>
-      <table>
-        <tr>
-	  <td>$taxable</td>
-  	  <td><input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}></td>
-	  <th align=left>| . $locale->text('Tax Included') . qq|</th>
-	</tr>
-      </table>
-    </td>
-  </tr>
-|;
-  }
   $form->{selectbusiness} = qq|<option>\n|;
   map {
     $form->{selectbusiness} .=
@@ -1208,7 +1180,6 @@ sub form_footer {
 
   print qq|
 <input name=id type=hidden id=cvid value=$form->{id}>
-<input name=taxaccounts type=hidden value="$form->{taxaccounts}">
 <input name=business_save type=hidden value="$form->{selectbusiness}">
 <input name=title_save type=hidden value="$form->{title}">
 
