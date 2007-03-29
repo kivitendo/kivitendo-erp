@@ -1013,13 +1013,15 @@ sub get_vendor {
 
   $query = qq|SELECT o.amount,
                 (SELECT e.sell FROM exchangerate e 
-                 WHERE e.curr = o.curr AND e.transdate = o.transdate)
+                 WHERE e.curr = o.curr AND e.transdate = o.transdate) AS exch
 	      FROM oe o WHERE o.vendor_id = ?  
                 AND o.quotation = '0' AND o.closed = '0'|;
-  while (my ($amount, $exch) = selectfirst_array_query($form, $dbh, $query, $form->{vendor_id})) {
+  my $sth = prepare_execute_query($form, $dbh, $query, $form->{vendor_id});
+  while (my ($amount, $exch) = $sth->fetchrow_array()) {
     $exch = 1 unless $exch;
     $form->{creditremaining} -= $amount * $exch;
   }
+  $sth->finish();
 
   # get shipto if we do not convert an order or invoice
   if (!$form->{shipto}) {
