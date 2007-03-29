@@ -30,7 +30,7 @@ sub conv_dateq {
 sub do_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
+  dump_query(LXDebug::QUERY, '', $query, @_);
 
   if (0 == scalar(@_)) {
     $dbh->do($query) || $form->dberror($query);
@@ -45,7 +45,7 @@ sub selectrow_query { &selectfirst_array_query }
 sub do_statement {
   my ($form, $sth, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
+  dump_query(LXDebug::QUERY, '', $query, @_);
 
   if (0 == scalar(@_)) {
     $sth->execute() || $form->dberror($query);
@@ -85,7 +85,7 @@ sub quote_db_date {
 sub prepare_execute_query {
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query . " (" . join(", ", @_) . ")", @_);
+  dump_query(LXDebug::QUERY, '', $query, @_);
 
   my $sth = $dbh->prepare($query) || $form->dberror($query);
   if (scalar(@_) != 0) {
