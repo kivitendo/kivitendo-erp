@@ -941,6 +941,40 @@ sub get_accounts_ustva {
 
 }
 
+sub get_config {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $userpath, $filename) = @_;
+
+  my $form = $main::form;
+
+  if (!open(FACONF, "$userpath/$form->{login}_$filename")) {
+    open(FANEW, ">$userpath/$form->{login}_$filename") ||
+      $form->error("$userpath/$filename : $!");
+    close(FANEW);
+    open(FACONF, "$userpath/$form->{login}_$filename") ||
+      $form->error("$userpath/$form->{username}_$filename : $!");
+  }
+
+  while (<FACONF>) {
+    last if (/^\[/);
+    next if (/^(\#|\s)/);
+
+    # remove comments
+    s/\s#.*//g;
+
+    # remove any trailing whitespace
+    s/^\s*(.*?)\s*$/$1/;
+    my ($key, $value) = split(/=/, $_, 2);
+
+    $form->{$key} = "$value";
+
+  }
+
+  close(FACONF);
+
+  $main::lxdebug->leave_sub();
+}
 
 
 1;

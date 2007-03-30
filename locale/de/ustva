@@ -115,7 +115,6 @@ $self->{subs} = {
   'debug'                       => 'debug',
   'elster_hash'                 => 'elster_hash',
   'generate_ustva'              => 'generate_ustva',
-  'get_config'                  => 'get_config',
   'gl_transaction'              => 'gl_transaction',
   'help'                        => 'help',
   'name_selected'               => 'name_selected',

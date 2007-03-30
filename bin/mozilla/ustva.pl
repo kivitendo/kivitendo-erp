@@ -88,7 +88,7 @@ sub report {
   $form->header;
 
   # Einlesen der Finanzamtdaten
-  &get_config($userspath, 'finanzamt.ini');
+  USTVA->get_config($userspath, 'finanzamt.ini');
 
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
@@ -528,10 +528,9 @@ sub show_options {
 sub generate_ustva {
   $lxdebug->enter_sub();
 
-  # Aufruf von get_config aus bin/mozilla/ustva.pl zum
-  # Einlesen der Finanzamtdaten aus finanzamt.ini
+  # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
-  get_config($userspath, 'finanzamt.ini');
+  USTVA->get_config($userspath, 'finanzamt.ini');
 
   # init some form vars
   my @anmeldungszeitraum =
@@ -1056,7 +1055,7 @@ sub config_step1 {
   # edit all taxauthority prefs
 
   $form->header;
-  &get_config($userspath, 'finanzamt.ini');
+  USTVA->get_config($userspath, 'finanzamt.ini');
 
   my $land = $form->{elsterland};
   my $amt  = $form->{elsterFFFF};
@@ -1145,7 +1144,7 @@ sub config_step2 {
   my $elster_amt         = '';
   my $elsterFFFF         = '';
   my $elstersteuernummer = '';
-  &get_config($userspath, 'finanzamt.ini')
+  USTVA->get_config($userspath, 'finanzamt.ini')
     if ($form->{saved} eq $locale->text('saved'));
 
   # Auf Übergabefehler checken
@@ -1309,39 +1308,6 @@ sub create_steuernummer {
     $form->{steuernummer_new}       = '';
     $form->{elstersteuernummer_new} = '';
   }
-  $lxdebug->leave_sub();
-}
-
-sub get_config {
-  $lxdebug->enter_sub();
-
-  my ($userpath, $filename) = @_;
-  my ($key,      $value)    = '';
-  open(FACONF, "$userpath/$form->{login}_$filename")
-    or    #falls Datei nicht vorhanden ist
-    sub {
-    open(FANEW, ">$userpath/$form->{login}_$filename")
-      or $form->error("$userpath/$filename : $!");
-    close FANEW;
-    open(FACONF, "$userpath/$form->{login}_$filename")
-      or $form->error("$userpath/$form->{username}_$filename : $!");
-    };
-  while (<FACONF>) {
-    last if /^\[/;
-    next if /^(#|\s)/;
-
-    # remove comments
-    s/\s#.*//g;
-
-    # remove any trailing whitespace
-    s/^\s*(.*?)\s*$/$1/;
-    ($key, $value) = split /=/, $_, 2;
-
-    $form->{$key} = "$value";
-
-  }
-  close FACONF;
-
   $lxdebug->leave_sub();
 }
 

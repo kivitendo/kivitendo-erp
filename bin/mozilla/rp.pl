@@ -40,6 +40,7 @@ require "bin/mozilla/common.pl";
 
 use SL::PE;
 use SL::RP;
+use SL::USTVA;
 
 1;
 
@@ -983,9 +984,8 @@ $jsscript
     . $locale->text('Continue') . qq|">
 |;
 
-  # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
-  # Einlesen der Finanzamtdaten
-  get_config($userspath, 'finanzamt.ini');
+  # Hier Aufruf von get_config zum Einlesen der Finanzamtdaten
+  USTVA->get_config($userspath, 'finanzamt.ini');
 
   $disabled = qq|disabled="disabled"|;
   $disabled = '' if ($form->{elster} eq '1');
@@ -1354,7 +1354,7 @@ sub list_accounts {
     $description = $form->escape($ref->{description});
 
     $href =
-      qq|ca.pl?path=$form->{path}&action=list_transactions&accounttype=$form->{accounttype}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&sort=transdate&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&eur=$form->{eur}&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title&nextsub=$form->{nextsub}&accno=$ref->{accno}&description=$description";
+      qq|ca.pl?path=$form->{path}&action=list_transactions&accounttype=$form->{accounttype}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&sort=transdate&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&eur=$form->{eur}&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title&nextsub=$form->{nextsub}&accno=$ref->{accno}&description=$description|;
 
     $ml = ($ref->{category} =~ /(A|C|E)/) ? -1 : 1;
 
@@ -2864,9 +2864,8 @@ sub generate_bwa {
 sub generate_ustva {
   $lxdebug->enter_sub();
 
-  # Hier Aufruf von get_config aus bin/mozilla/fa.pl zum
-  # Einlesen der Finanzamtdaten
-  get_config($userspath, 'finanzamt.ini');
+  # Hier Aufruf von get_config zum Einlesen der Finanzamtdaten
+  USTVA->get_config($userspath, 'finanzamt.ini');
 
   #  &get_project(generate_bwa);
   @anmeldungszeitraum =
