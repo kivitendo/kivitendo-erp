@@ -87,7 +87,7 @@ sub payment {
   } @{ $form->{PR}{ $form->{ARAP} } };
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
     $curr[0];
@@ -668,7 +668,7 @@ sub print {
 
   &check_form;
 
-  ($whole, $form->{decimal}) = split /\./, $form->{amount};
+  ($whole, $form->{decimal}) = split(/\./, $form->{amount});
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
