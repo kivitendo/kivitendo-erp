@@ -1383,6 +1383,8 @@ sub get_salesman {
 
   my ($self, $myconfig, $salesman_id) = @_;
 
+  $main::lxdebug->leave_sub() and return unless $salesman_id;
+
   my $dbh = $self->dbconnect($myconfig);
 
   my ($login) =
