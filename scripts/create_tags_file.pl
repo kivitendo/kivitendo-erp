@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+#
 ########################################################
 #
 # This script creates a 'tags' file in the style of ctags
