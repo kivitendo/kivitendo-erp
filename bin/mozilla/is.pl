@@ -1667,10 +1667,7 @@ sub yes {
 sub e_mail {
   $lxdebug->enter_sub();
 
-  $form->{postasnew} = 1;
-  $print_post        = 1;
-
-  map { delete $form->{$_} } qw(printed emailed queued);
+  $print_post = 1;
 
   &post;
 
