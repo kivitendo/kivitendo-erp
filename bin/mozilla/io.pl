@@ -264,8 +264,6 @@ sub display_row {
       $form->{"unit_old_$i"} = $form->{"unit_$i"};
     }
 
-
-
     # Die zuletzt ausgewaehlte mit der aktuell ausgewaehlten Einheit
     # vergleichen und bei Unterschied den Preis entsprechend umrechnen.
     $form->{"selected_unit_$i"} = $form->{"unit_$i"} unless ($form->{"selected_unit_$i"});
@@ -342,7 +340,8 @@ sub display_row {
       . $form->format_amount(\%myconfig, $form->{"ship_$i"})
       . qq|></td>|;
 
-    my $is_part = $form->{"inventory_accno_$i"};
+    my $is_part     = $form->{"inventory_accno_$i"};
+    my $is_assembly = $form->{"assembly_$i"};
     my $is_assigned = $form->{"id_$i"};
     my $this_unit = $form->{"unit_$i"};
     if ($form->{"selected_unit_$i"} && $this_unit &&
@@ -355,7 +354,7 @@ sub display_row {
     }
 
     $column_data{"unit"} = "<td>" .
-       AM->unit_select_html($is_part ? $dimension_units :
+       AM->unit_select_html($is_part || $is_assembly ? $dimension_units :
                             $is_assigned ? $service_units : $all_units,
                             "unit_$i", $this_unit,
                             $is_assigned ? $form->{"unit_$i"} : undef)
