@@ -1027,75 +1027,75 @@ $shipto
                 $ansprechpartner
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Greeting') . qq|</th>
-                  <td><input id=cp_greeting name=cp_greeting size=30 maxlength=30 value="$form->{cp_greeting}">&nbsp;
+                  <td><input id=cp_greeting name=cp_greeting size=40 maxlength=40 value="$form->{cp_greeting}">&nbsp;
                   $select_greeting</td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Title') . qq|</th>
-                  <td><input id=cp_title name=cp_title size=30 maxlength=30 value="$form->{cp_title}">&nbsp;
+                  <td><input id=cp_title name=cp_title size=40 maxlength=40 value="$form->{cp_title}">&nbsp;
                   $select_title</td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Department') . qq|</th>
-                  <td><input id=cp_abteilung name=cp_abteilung size=30 maxlength=40 value="$form->{cp_abteilung}">&nbsp;
+                  <td><input id=cp_abteilung name=cp_abteilung size=40 maxlength=40 value="$form->{cp_abteilung}">&nbsp;
                   $select_department</td>
                 </tr>
                 <tr>
                   <th align=left nowrap>|
     . $locale->text('Given Name') . qq|</th>
-                  <td><input id=cp_givenname name=cp_givenname size=30 maxlength=40 value="$form->{cp_givenname}"></td>
+                  <td><input id=cp_givenname name=cp_givenname size=40 maxlength=40 value="$form->{cp_givenname}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Name') . qq|</th>
-                  <td><input id=cp_name name=cp_name size=30 maxlength=40 value="$form->{cp_name}"></td>
+                  <td><input id=cp_name name=cp_name size=40 maxlength=40 value="$form->{cp_name}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Phone1') . qq|</th>
-                  <td><input id=cp_phone1 name=cp_phone1 size=30 maxlength=30 value="$form->{cp_phone1}"></td>
+                  <td><input id=cp_phone1 name=cp_phone1 size=40 maxlength=40 value="$form->{cp_phone1}"></td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Phone2') . qq|</th>
-                  <td><input id=cp_phone2 name=cp_phone2 size=30 maxlength=30 value="$form->{cp_phone2}"></td>
+                  <td><input id=cp_phone2 name=cp_phone2 size=40 maxlength=40 value="$form->{cp_phone2}"></td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Fax') . qq|</th>
-                  <td><input id=cp_fax name=cp_fax size=30 maxlength=30 value="$form->{cp_fax}"></td>
+                  <td><input id=cp_fax name=cp_fax size=40 maxlength=40 value="$form->{cp_fax}"></td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Mobile1') . qq|</th>
-                  <td><input id=cp_mobile1 name=cp_mobile1 size=30 maxlength=30 value="$form->{cp_mobile1}"></td>
+                  <td><input id=cp_mobile1 name=cp_mobile1 size=40 maxlength=40 value="$form->{cp_mobile1}"></td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Mobile2') . qq|</th>
-                  <td><input id=cp_mobile2 name=cp_mobile2 size=30 maxlength=30 value="$form->{cp_mobile2}"></td>
+                  <td><input id=cp_mobile2 name=cp_mobile2 size=40 maxlength=40 value="$form->{cp_mobile2}"></td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Sat. Phone') . qq|</th>
-                  <td><input id=cp_satphone name=cp_satphone size=30 maxlength=30 value="$form->{cp_satphone}"></td>
+                  <td><input id=cp_satphone name=cp_satphone size=40 maxlength=40 value="$form->{cp_satphone}"></td>
                 </tr>
                 <tr>
                   <th align=left nowrap>| . $locale->text('Sat. Fax') . qq|</th>
-                  <td><input id=cp_satfax name=cp_satfax size=30 maxlength=30 value="$form->{cp_satfax}"></td>
+                  <td><input id=cp_satfax name=cp_satfax size=40 maxlength=40 value="$form->{cp_satfax}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Project') . qq|</th>
-                  <td><input id=cp_project name=cp_project size=30 maxlength=40 value="$form->{cp_project}"></td>
+                  <td><input id=cp_project name=cp_project size=40 maxlength=40 value="$form->{cp_project}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('E-mail') . qq|</th>
-                  <td><input id=cp_email name=cp_email size=30 maxlength=40 value="$form->{cp_email}"></td>
+                  <td><input id=cp_email name=cp_email size=40 maxlength=40 value="$form->{cp_email}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Private Phone') . qq|</th>
-                  <td><input id=cp_privatphone name=cp_privatphone size=30 maxlength=40 value="$form->{cp_privatphone}"></td>
+                  <td><input id=cp_privatphone name=cp_privatphone size=40 maxlength=40 value="$form->{cp_privatphone}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Private E-mail') . qq|</th>
-                  <td><input id=cp_privatemail name=cp_privatemail size=30 maxlength=40 value="$form->{cp_privatemail}"></td>
+                  <td><input id=cp_privatemail name=cp_privatemail size=40 maxlength=40 value="$form->{cp_privatemail}"></td>
                 </tr>
                 <tr>
 	          <th align=left nowrap>| . $locale->text('Birthday') . qq|</th>
-                  <td><input id=cp_birthday name=cp_birthday size=30 maxlength=40 value="$form->{cp_birthday}"></td>
+                  <td><input id=cp_birthday name=cp_birthday size=40 maxlength=40 value="$form->{cp_birthday}"></td>
                 </tr>
                 
           </table>
