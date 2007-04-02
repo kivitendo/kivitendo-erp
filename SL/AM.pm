@@ -1669,7 +1669,7 @@ sub unit_select_data {
     push(@{$select}, { "name" => "", "base_unit" => "", "factor" => "", "selected" => "" });
   }
 
-  foreach my $unit (sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } keys(%{$units}))) {
+  foreach my $unit (sort({ $units->{$a}->{"sortkey"} <=> $units->{$b}->{"sortkey"} } keys(%{$units}))) {
     push(@{$select}, { "name" => $unit,
                        "base_unit" => $units->{$unit}->{"base_unit"},
                        "factor" => $units->{$unit}->{"factor"},
@@ -1688,7 +1688,7 @@ sub unit_select_html {
 
   my $select = "<select name=${name}>";
 
-  foreach my $unit (sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } keys(%{$units}))) {
+  foreach my $unit (sort({ $units->{$a}->{"sortkey"} <=> $units->{$b}->{"sortkey"} } keys(%{$units}))) {
     if (!$convertible_into ||
         ($units->{$convertible_into} &&
          ($units->{$convertible_into}->{"base_unit"} eq $units->{$unit}->{"base_unit"}))) {
