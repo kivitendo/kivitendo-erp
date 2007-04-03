@@ -36,6 +36,8 @@ package DN;
 
 use SL::Template;
 use SL::IS;
+use SL::Common;
+use SL::DBUtils;
 use Data::Dumper;
 
 sub get_config {
@@ -46,25 +48,21 @@ sub get_config {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT dn.*
-                 FROM dunning_config dn
-		 ORDER BY dn.dunning_level|;
+  my $query =
+    qq|SELECT * | .
+    qq|FROM dunning_config | .
+    qq|ORDER BY dunning_level|;
+  $form->{DUNNING} = selectall_hashref_query($form, $dbh, $query);
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  foreach my $ref (@{ $form->{DUNNING} }) {
     $ref->{fee} = $form->format_amount($myconfig, $ref->{fee}, 2);
     $ref->{interest} = $form->format_amount($myconfig, ($ref->{interest} * 100));
-    push @{ $form->{DUNNING} }, $ref;
   }
 
-  $sth->finish;
-  $dbh->disconnect;
+  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 }
-
 
 sub save_config {
   $main::lxdebug->enter_sub();
@@ -74,42 +72,43 @@ sub save_config {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
+  my ($query, @values);
+
   for my $i (1 .. $form->{rowcount}) {
-    $form->{"active_$i"} *= 1; 
-    $form->{"auto_$i"} *= 1; 
-    $form->{"email_$i"} *= 1; 
-    $form->{"terms_$i"} *= 1; 
-    $form->{"payment_terms_$i"} *= 1; 
-    $form->{"email_attachment_$i"} *= 1;
     $form->{"fee_$i"} = $form->parse_amount($myconfig, $form->{"fee_$i"}) * 1;
-    $form->{"interest_$i"} = $form->parse_amount($myconfig, $form->{"interest_$i"})/100;
-    
-    if (($form->{"dunning_level_$i"} ne "") && ($form->{"dunning_description_$i"} ne "")) {
+    $form->{"interest_$i"} = $form->parse_amount($myconfig, $form->{"interest_$i"}) / 100;
+
+    if (($form->{"dunning_level_$i"} ne "") &&
+        ($form->{"dunning_description_$i"} ne "")) {
+      @values = (conv_i($form->{"dunning_level_$i"}), $form->{"dunning_description_$i"},
+                 $form->{"email_subject_$i"}, $form->{"email_body_$i"},
+                 $form->{"template_$i"}, $form->{"fee_$i"}, $form->{"interest_$i"},
+                 $form->{"active_$i"} ? 't' : 'f', $form->{"auto_$i"} ? 't' : 'f', $form->{"email_$i"} ? 't' : 'f',
+                 $form->{"email_attachment_$i"} ? 't' : 'f', conv_i($form->{"payment_terms_$i"}), conv_i($form->{"terms_$i"}));
       if ($form->{"id_$i"}) {
-        my $query = qq|UPDATE dunning_config SET
-                       dunning_level = | . $dbh->quote($form->{"dunning_level_$i"}) . qq|,
-                       dunning_description = | . $dbh->quote($form->{"dunning_description_$i"}) . qq|,
-                       email_subject = | . $dbh->quote($form->{"email_subject_$i"}) . qq|,
-                       email_body = | . $dbh->quote($form->{"email_body_$i"}) . qq|,
-                       template = | . $dbh->quote($form->{"template_$i"}) . qq|,
-                       fee = '$form->{"fee_$i"}',
-                       interest = '$form->{"interest_$i"}',
-                       active = '$form->{"active_$i"}',
-                       auto = '$form->{"auto_$i"}',
-                       email = '$form->{"email_$i"}',
-                       email_attachment = '$form->{"email_attachment_$i"}',
-                       payment_terms = $form->{"payment_terms_$i"},
-                       terms = $form->{"terms_$i"}
-		       WHERE id=$form->{"id_$i"}|;
-        $dbh->do($query)  || $form->dberror($query);
+        $query =
+          qq|UPDATE dunning_config SET
+               dunning_level = ?, dunning_description = ?,
+               email_subject = ?, email_body = ?,
+               template = ?, fee = ?, interest = ?,
+               active = ?, auto = ?, email = ?,
+               email_attachment = ?, payment_terms = ?, terms = ?
+             WHERE id = ?|;
+        push(@values, conv_i($form->{"id_$i"}));
       } else {
-        my $query = qq|INSERT INTO dunning_config (dunning_level, dunning_description, email_subject, email_body, template, fee, interest, active, auto, email, email_attachment, terms, payment_terms) VALUES (| . $dbh->quote($form->{"dunning_level_$i"}) . qq|,| . $dbh->quote($form->{"dunning_description_$i"}) . qq|,| . $dbh->quote($form->{"email_subject_$i"}) . qq|,| . $dbh->quote($form->{"email_body_$i"}) . qq|,| . $dbh->quote($form->{"template_$i"}) . qq|,'$form->{"fee_$i"}','$form->{"interest_$i"}','$form->{"active_$i"}','$form->{"auto_$i"}','$form->{"email_$i"}','$form->{"email_attachment_$i"}',$form->{"terms_$i"},$form->{"payment_terms_$i"})|;
-        $dbh->do($query)  || $form->dberror($query);
+        $query =
+          qq|INSERT INTO dunning_config
+               (dunning_level, dunning_description, email_subject, email_body,
+                template, fee, interest, active, auto, email,
+                email_attachment, payment_terms, terms)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       }
+      do_query($form, $dbh, $query, @values);
     }
+
     if (($form->{"dunning_description_$i"} eq "") && ($form->{"id_$i"})) {
-      my $query = qq|DELETE FROM dunning_config WHERE id=$form->{"id_$i"}|;
-      $dbh->do($query)  || $form->dberror($query);
+      $query = qq|DELETE FROM dunning_config WHERE id = ?|;
+      do_query($form, $dbh, $query, $form->{"id_$i"});
     }
   }
 
@@ -126,21 +125,42 @@ sub save_dunning {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  foreach my $row (@{ $rows }) { 
-  
+  my ($query, @values);
+
+  foreach my $row (@{ $rows }) {
+
     $form->{"interest_$row"} = $form->parse_amount($myconfig,$form->{"interest_$row"});
     $form->{"fee_$row"} = $form->parse_amount($myconfig,$form->{"fee_$row"});
     $form->{send_email} = $form->{"email_$row"};
-  
-    my $query = qq| UPDATE ar set dunning_id = '$form->{"next_dunning_id_$row"}' WHERE id='$form->{"inv_id_$row"}'|;
-    $dbh->do($query) || $form->dberror($query);
-    my $query = qq| INSERT into dunning (dunning_id,dunning_level,trans_id,fee,interest,transdate,duedate) VALUES ($form->{"next_dunning_id_$row"},(select dunning_level from dunning_config WHERE id=$form->{"next_dunning_id_$row"}),$form->{"inv_id_$row"},'$form->{"fee_$row"}', '$form->{"interest_$row"}',current_date, |.$dbh->quote($form->{"next_duedate_$row"}) . qq|)|;
-    $dbh->do($query) || $form->dberror($query);
+
+    $query = qq|UPDATE ar SET dunning_id = ? WHERE id = ?|;
+    @values = ($form->{"next_dunning_id_$row"}, $form->{"inv_id_$row"});
+    do_query($form, $dbh, $query, @values);
+    $query =
+      qq|INSERT INTO dunning (dunning_id, dunning_level, trans_id, fee,
+                              interest, transdate, duedate)
+         VALUES (?, (SELECT dunning_level FROM dunning_config WHERE id = ?),
+                 ?, ?, ?, current_date, ?)|;
+    @values = (conv_i($form->{"next_dunning_id_$row"}),
+               conv_i($form->{"next_dunning_id_$row"}),
+               conv_i($form->{"inv_id_$row"}), $form->{"fee_$row"},
+               $form->{"interest_$row"},
+               conv_date($form->{"next_duedate_$row"}));
+    do_query($form, $dbh, $query, @values);
   }
 
-  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id AND dunning_config.dunning_level=da.dunning_level) where ar.id IN $form->{inv_ids}|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $query =
+    qq|SELECT invnumber, ordnumber, customer_id, amount, netamount,
+         ar.transdate, ar.duedate, paid, amount - paid AS open_amount,
+         template AS formname, email_subject, email_body, email_attachment,
+         da.fee, da.interest, da.transdate AS dunning_date,
+         da.duedate AS dunning_duedate
+       FROM ar LEFT JOIN dunning_config ON (dunning_config.id = ar.dunning_id)
+       LEFT JOIN dunning da ON (ar.id = da.trans_id AND dunning_config.dunning_level = da.dunning_level)
+       WHERE ar.id IN (|
+       . join(", ", map("?", @{ $form->{"inv_ids"} })) . qq|)|;
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @{ $form->{"inv_ids"} });
   my $first = 1;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     if ($first) {
@@ -150,7 +170,7 @@ sub save_dunning {
     map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     #print(STDERR Dumper($ref));
-    map { push @{ $form->{"dn_$_"} }, $ref->{$_}} keys %$ref;
+    map { push(@{ $form->{"dn_$_"} }, $ref->{$_})} keys %$ref;
   }
   $sth->finish;
 
@@ -206,20 +226,13 @@ sub save_dunning {
     $form->{OUT} = "$sendmail";
 
   } else {
-    
-    my $uid = rand() . time;
 
-    $uid .= $form->{login};
-
-    $uid = substr($uid, 2, 75);
-    $filename = $uid;
-
-    $filename .= '.pdf';
+    my $filename = Common::unique_id() . $form->{login} . ".pdf";
     $form->{OUT} = ">$spool/$filename";
     push(@{ $form->{DUNNING_PDFS} }, $filename);
     $form->{keep_tmpfile} = 1;
   }
-  
+
   $form->parse_template($myconfig, $userspath);
 
   $dbh->commit;
@@ -237,75 +250,92 @@ sub get_invoices {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $where = qq| WHERE 1=1 AND a.paid < a.amount AND a.duedate < current_date AND dnn.id = (select id from dunning_config WHERE dunning_level>(select case when a.dunning_id is null then 0 else (select dunning_level from dunning_config where id=a.dunning_id order by dunning_level  limit 1 ) end from dunning_config limit 1) limit 1) |;
+  my $where =
+    qq| WHERE (a.paid < a.amount)
+          AND (a.duedate < current_date)
+          AND (dnn.id =
+            (SELECT id FROM dunning_config
+             WHERE dunning_level >
+               (SELECT
+                  CASE
+                    WHEN a.dunning_id IS NULL
+                    THEN 0
+                    ELSE (SELECT dunning_level FROM dunning_config WHERE id = a.dunning_id ORDER BY dunning_level LIMIT 1)
+                  END
+                FROM dunning_config LIMIT 1)
+             LIMIT 1)) |;
+  my @values;
 
-  if ($form->{"$form->{vc}_id"}) {
-    $where .= qq| AND a.$form->{vc}_id = $form->{"$form->{vc}_id"}|;
-  } else {
-    if ($form->{ $form->{vc} }) {
-      $where .= " AND lower(ct.name) LIKE '$name'";
-    }
+  $form->{customer_id} = $1 if ($form->{customer} =~ /--(\d+)$/);
+
+  if ($form->{customer_id}) {
+    $where .= qq| AND (a.customer_id = ?)|;
+    push(@values, $form->{customer_id});
+
+  } elsif ($form->{customer}) {
+    $where .= qq| AND (ct.name ILIKE ?)|;
+    push(@values, '%' . $form->{customer} . '%');
   }
 
-  my $sortorder = join ', ',
-    ("a.id", $form->sort_columns(transdate, duedate, name));
-  $sortorder = $form->{sort} if $form->{sort};
+  my %columns = (
+    "ordnumber" => "a.ordnumber",
+    "invnumber" => "a.invnumber",
+    "notes" => "a.notes",
+    );
+  foreach my $key (keys(%columns)) {
+    next unless ($form->{$key});
+    $where .= qq| AND $columns{$key} ILIKE ?|;
+    push(@values, '%' . $form->{$key} . '%');
+  }
 
-  $where .= " AND lower(ordnumber) LIKE '$form->{ordnumber}'" if $form->{ordnumber};
-  $where .= " AND lower(invnumber) LIKE '$form->{invnumber}'" if $form->{invnumber};
-
+  if ($form->{dunning_level}) {
+    $where .= qq| AND a.dunning_id = ?|;
+    push(@values, conv_i($form->{dunning_level}));
+  }
 
   $form->{minamount} = $form->parse_amount($myconfig,$form->{minamount});
-  $where .= " AND a.dunning_id='$form->{dunning_level}'"
-    if $form->{dunning_level};
-  $where .= " AND a.ordnumber ilike '%$form->{ordnumber}%'"
-    if $form->{ordnumber};
-  $where .= " AND a.invnumber ilike '%$form->{invnumber}%'"
-    if $form->{invnumber};
-  $where .= " AND a.notes ilike '%$form->{notes}%'"
-    if $form->{notes};
-  $where .= " AND ct.name ilike '%$form->{customer}%'"
-    if $form->{customer};
+  if ($form->{minamount}) {
+    $where .= qq| AND ((a.amount - a.paid) > ?) |;
+    push(@values, $form->{minamount});
+  }
 
-  $where .= " AND a.amount-a.paid>'$form->{minamount}'"
-    if $form->{minamount};
+  $paymentdate = $form->{paymentuntil} ? $dbh->quote($form->{paymentuntil}) :
+    "current_date";
 
-  $where .= " ORDER by $sortorder";
+  $query =
+    qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber, a.amount,
+         ct.name AS customername, a.customer_id, a.duedate,
+         da.fee AS old_fee, dnn.active, dnn.email, dnn.fee + da.fee AS fee,
+         dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate,
+         a.duedate + dnn.terms - current_date AS nextlevel,
+         $paymentdate - a.duedate AS pastdue, dn.dunning_level,
+         current_date + dnn.payment_terms AS next_duedate,
+         dnn.dunning_description AS next_dunning_description, dnn.id AS next_dunning_id,
+         dnn.interest AS interest_rate, dnn.terms
+       FROM dunning_config dnn, ar a
+       JOIN customer ct ON (a.customer_id = ct.id)
+       LEFT JOIN dunning_config dn ON (dn.id = a.dunning_id)
+       LEFT JOIN dunning da ON ((da.trans_id = a.id) AND (dn.dunning_level = da.dunning_level))
+       $where
+       ORDER BY a.id, transdate, duedate, name|;
 
-  $paymentdate = ($form->{paymentuntil}) ? "'$form->{paymentuntil}'" : current_date;
+  my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
-  $query = qq|SELECT a.id, a.ordnumber, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.customer_id, a.duedate,da.fee AS old_fee,dnn.active,dnn.email, dnn.fee as fee, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, a.duedate + dnn.terms - current_date AS nextlevel, $paymentdate - a.duedate AS pastdue, dn.dunning_level, current_date + dnn.payment_terms AS next_duedate, dnn.dunning_description AS next_dunning_description, dnn.id AS next_dunning_id, dnn.interest AS interest_rate, dnn.terms
-	         FROM dunning_config dnn, ar a
-	         JOIN customer ct ON (a.customer_id = ct.id)
-		 LEFT JOIN dunning_config dn ON (dn.id = a.dunning_id)
-                 LEFT JOIN dunning da ON (da.trans_id=a.id AND dn.dunning_level=da.dunning_level)
-                 $where|;
-
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
+  $form->{DUNNINGS} = [];
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    $ref->{fee} += $ref->{old_fee};
-    $ref->{interest} = ($ref->{amount} * $ref->{pastdue} * $ref->{interest_rate}) /360;
-    $ref->{interest} = $form->round_amount($ref->{interest},2);
-    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2)} qw(amount fee interest);
+    $ref->{interest} = ($ref->{amount} * $ref->{pastdue} * $ref->{interest_rate}) / 360;
+    $ref->{interest} = $form->round_amount($ref->{interest}, 2);
+    map({ $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2)} qw(amount fee interest));
     if ($ref->{pastdue} >= $ref->{terms}) {
-      push @{ $form->{DUNNINGS} }, $ref;
+      push(@{ $form->{DUNNINGS} }, $ref);
     }
   }
 
   $sth->finish;
 
-  $query = qq|select id, dunning_description FROM dunning_config order by dunning_level|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{DUNNING_CONFIG} }, $ref;
-  }
-
-  $sth->finish;
+  $query = qq|SELECT id, dunning_description FROM dunning_config ORDER BY dunning_level|;
+  $form->{DUNNING_CONFIG} = selectall_hashref_query($form, $dbh, $query);
 
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
@@ -320,69 +350,84 @@ sub get_dunning {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $where = qq| WHERE 1=1 AND da.trans_id=a.id|;
+  $where = qq| WHERE (da.trans_id = a.id)|;
 
-  if ($form->{"$form->{vc}_id"}) {
-    $where .= qq| AND a.$form->{vc}_id = $form->{"$form->{vc}_id"}|;
-  } else {
-    if ($form->{ $form->{vc} }) {
-      $where .= " AND lower(ct.name) LIKE '$name'";
-    }
+  my @values;
+
+  $form->{customer_id} = $1 if ($form->{customer} =~ /--(\d+)$/);
+
+  if ($form->{customer_id}) {
+    $where .= qq| AND (a.customer_id = ?)|;
+    push(@values, $form->{customer_id});
+
+  } elsif ($form->{customer}) {
+    $where .= qq| AND (ct.name ILIKE ?)|;
+    push(@values, '%' . $form->{customer} . '%');
   }
 
-  my $sortorder = join ', ',
-    ("a.id", $form->sort_columns(transdate, duedate, name));
-  $sortorder = $form->{sort} if $form->{sort};
 
-  $where .= " AND lower(ordnumber) LIKE '$form->{ordnumber}'" if $form->{ordnumber};
-  $where .= " AND lower(invnumber) LIKE '$form->{invnumber}'" if $form->{invnumber};
+  my %columns = (
+    "ordnumber" => "a.ordnumber",
+    "invnumber" => "a.invnumber",
+    "notes" => "a.notes",
+    );
+  foreach my $key (keys(%columns)) {
+    next unless ($form->{$key});
+    $where .= qq| AND $columns{$key} ILIKE ?|;
+    push(@values, '%' . $form->{$key} . '%');
+  }
 
+  if ($form->{dunning_level}) {
+    $where .= qq| AND a.dunning_id = ?|;
+    push(@values, conv_i($form->{dunning_level}));
+  }
 
   $form->{minamount} = $form->parse_amount($myconfig,$form->{minamount});
-  $where .= " AND a.dunning_id='$form->{dunning_level}'"
-    if $form->{dunning_level};
-  $where .= " AND a.ordnumber ilike '%$form->{ordnumber}%'"
-    if $form->{ordnumber};
-  $where .= " AND a.invnumber ilike '%$form->{invnumber}%'"
-    if $form->{invnumber};
-  $where .= " AND a.notes ilike '%$form->{notes}%'"
-    if $form->{notes};
-  $where .= " AND ct.name ilike '%$form->{customer}%'"
-    if $form->{customer};
-  $where .= " AND a.amount > a.paid AND da.dunning_id=a.dunning_id " unless ($form->{showold});
-
-  $where .= " AND a.transdate >='$form->{transdatefrom}' " if ($form->{transdatefrom});
-  $where .= " AND a.transdate <='$form->{transdateto}' " if ($form->{transdateto});
-  $where .= " AND da.transdate >='$form->{dunningfrom}' " if ($form->{dunningfrom});
-  $where .= " AND da.transdate <='$form->{dunningto}' " if ($form->{dunningto});
-
-  $where .= " ORDER by $sortorder";
-
-
-  $query = qq|SELECT a.id, a.ordnumber,a.invoice, a.transdate, a.invnumber,a.amount, ct.name AS customername, a.duedate,da.fee ,da.interest, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, da.dunning_id
-	         FROM ar a
-	         JOIN customer ct ON (a.customer_id = ct.id),
-                 dunning da LEFT JOIN dunning_config dn ON (da.dunning_id=dn.id)
-                 $where|;
-
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-
-    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2)} qw(amount fee interest);
-    push @{ $form->{DUNNINGS} }, $ref;
+  if ($form->{minamount}) {
+    $where .= qq| AND ((a.amount - a.paid) > ?) |;
+    push(@values, $form->{minamount});
   }
 
-  $sth->finish;
+  if (!$form->{showold}) {
+    $where .= qq| AND (a.amount > a.paid) AND (da.dunning_id = a.dunning_id) |;
+  }
 
+  if ($form->{transdatefrom}) {
+    $where .= qq| AND a.transdate >= ?|;
+    push(@values, $form->{transdatefrom});
+  }
+  if ($form->{transdateto}) {
+    $where .= qq| AND a.transdate <= ?|;
+    push(@values, $form->{transdateto});
+  }
+  if ($form->{dunningfrom}) {
+    $where .= qq| AND da.transdate >= ?|;
+    push(@values, $form->{dunningfrom});
+  }
+  if ($form->{dunningto}) {
+    $where .= qq| AND da.transdate >= ?|;
+    push(@values, $form->{dunningto});
+  }
 
+  $query =
+    qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount,
+        ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
+        da.interest, dn.dunning_description, da.transdate AS dunning_date, da.duedate AS dunning_duedate, da.dunning_id
+      FROM ar a
+      JOIN customer ct ON (a.customer_id = ct.id), dunning da
+      LEFT JOIN dunning_config dn ON (da.dunning_id = dn.id)
+      $where
+      ORDER BY name, a.id|;
+
+  $form->{DUNNINGS} = selectall_hashref_query($form, $dbh, $query, @values);
+
+  foreach my $ref (@{ $form->{DUNNINGS} }) {
+    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2)} qw(amount fee interest);
+  }
 
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
-
 
 sub parse_strings {
 
@@ -415,7 +460,7 @@ sub parse_strings {
     $form->cleanup();
     $form->error("$form->{IN} : " . $template->get_error());
   }
-  
+
   close(OUT);
   my $result = "";
   open(IN, $form->{tmpfile}) or $form->error($form->cleanup . "$form->{tmpfile} : $!");
@@ -439,7 +484,9 @@ sub melt_pdfs {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $userspath) = @_;
-  
+
+  map({ $_ =~ s|.*/||g; } @{ $form->{DUNNING_PDFS} });
+
   foreach my $file (@{ $form->{DUNNING_PDFS} }) {
     $inputfiles .= " $userspath/$file ";
   }
@@ -449,46 +496,45 @@ sub melt_pdfs {
   foreach my $file (@{ $form->{DUNNING_PDFS} }) {
     unlink("$userspath/$file");
   }
-  $out="";
+  $out = "";
 
+  $form->{OUT} = $out;
 
-     $form->{OUT} = $out;
+  my $numbytes = (-s $outputfile);
+  open(IN, $outputfile)
+    or $form->error($self->cleanup . "$outputfile : $!");
 
-      my $numbytes = (-s $outputfile);
-      open(IN, $outputfile)
-        or $form->error($self->cleanup . "$outputfile : $!");
+  $form->{copies} = 1 unless $form->{media} eq 'printer';
 
-      $form->{copies} = 1 unless $form->{media} eq 'printer';
+  chdir("$self->{cwd}");
 
-      chdir("$self->{cwd}");
+  for my $i (1 .. $form->{copies}) {
+    if ($form->{OUT}) {
+      open(OUT, $form->{OUT})
+        or $form->error($form->cleanup . "$form->{OUT} : $!");
+    } else {
 
-      for my $i (1 .. $form->{copies}) {
-        if ($form->{OUT}) {
-          open(OUT, $form->{OUT})
-            or $form->error($form->cleanup . "$form->{OUT} : $!");
-        } else {
-
-          # launch application
-          print qq|Content-Type: Application/PDF
+      # launch application
+      print qq|Content-Type: Application/PDF
 Content-Disposition: attachment; filename="$outputfile"
 Content-Length: $numbytes
 
 |;
 
-          open(OUT, ">-") or $form->error($form->cleanup . "$!: STDOUT");
+      open(OUT, ">-") or $form->error($form->cleanup . "$!: STDOUT");
 
-        }
+    }
 
-        while (<IN>) {
-          print OUT $_;
-        }
+    while (<IN>) {
+      print OUT $_;
+    }
 
-        close(OUT);
+    close(OUT);
 
-        seek IN, 0, 0;
-      }
+    seek(IN, 0, 0);
+  }
 
-      close(IN);
+  close(IN);
   unlink("$userspath/$outputfile");
 
   $main::lxdebug->leave_sub();
@@ -497,14 +543,21 @@ Content-Length: $numbytes
 sub print_dunning {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $dunning_id, $userspath,$spool, $sendmail) = @_;
+  my ($self, $myconfig, $form, $dunning_id, $customer_id, $userspath,$spool, $sendmail) = @_;
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
+  my $query =
+    qq|SELECT invnumber, ordnumber, customer_id, amount, netamount,
+         ar.transdate, ar.duedate, paid, amount - paid AS open_amount,
+         template AS formname, email_subject, email_body, email_attachment,
+         da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate
+       FROM ar
+       LEFT JOIN dunning_config ON (dunning_config.id = ar.dunning_id)
+       LEFT JOIN dunning da ON ((ar.id = da.trans_id) AND (dunning_config.dunning_level = da.dunning_level))
+       WHERE (ar.dunning_id = ?) AND (customer_id = ?)|;
 
-  my $query = qq| SELECT invnumber, ordnumber, customer_id, amount, netamount, ar.transdate, ar.duedate, paid, amount-paid AS open_amount, template AS formname, email_subject, email_body, email_attachment, da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate FROM ar LEFT JOIN dunning_config ON (dunning_config.id=ar.dunning_id) LEFT JOIN dunning da ON (ar.id=da.trans_id AND dunning_config.dunning_level=da.dunning_level) where ar.dunning_id=$dunning_id|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $sth = prepare_execute_query($form, $dbh, $query, $dunning_id, $customer_id);
   my $first = 1;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     if ($first) {
@@ -513,16 +566,12 @@ sub print_dunning {
     }
     map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-    #print(STDERR Dumper($ref));
     map { push @{ $form->{"dn_$_"} }, $ref->{$_}} keys %$ref;
   }
   $sth->finish;
 
   IS->customer_details($myconfig,$form);
-  #print(STDERR Dumper($form->{dn_invnumber}));
   $form->{templates} = "$myconfig->{templates}";
-
-
 
   $form->{language} = $form->get_template_language(\%myconfig);
   $form->{printer_code} = $form->get_printer_code(\%myconfig);
@@ -570,20 +619,13 @@ sub print_dunning {
     $form->{OUT} = "$sendmail";
 
   } else {
-    
-    my $uid = rand() . time;
 
-    $uid .= $form->{login};
+    my $filename = Common::unique_id() . $form->{login} . ".pdf";
 
-    $uid = substr($uid, 2, 75);
-    $filename = $uid;
-
-    $filename .= '.pdf';
-    $form->{OUT} = ">$spool/$filename";
     push(@{ $form->{DUNNING_PDFS} }, $filename);
     $form->{keep_tmpfile} = 1;
   }
-  
+
   $form->parse_template($myconfig, $userspath);
 
   $dbh->commit;

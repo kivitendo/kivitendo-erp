@@ -105,7 +105,7 @@ sub edit_config {
 
 <table width=100%>
   <tr>
-    <th class=listtop colspan=9>$form->{title}</th>
+    <th class=listtop colspan=10>$form->{title}</th>
   </tr>
   <tr height="5"></tr>
   <tr>|;
@@ -321,7 +321,6 @@ sub add {
           <th align=right nowrap>| . $locale->text('Payment until') . qq|</th>
           $button1
         </tr>
-        <input type=hidden name=sort value=transdate>
       </table>
     </td>
   </tr>
@@ -446,7 +445,7 @@ sub show_invoices {
 
 <table width=100%>
   <tr>
-    <th class=listtop colspan=9>$form->{title}</th>
+    <th class=listtop colspan=11>$form->{title}</th>
   </tr>
   <tr height="5"></tr>
   <tr>|;
@@ -572,18 +571,14 @@ sub save_dunning {
   if ($form->{groupinvoices}) {
     while ($active) {
       $lastcustomer = 0;
-      $form->{inv_ids} = "";
+      $form->{inv_ids} = [];
       $active = 0;
       @rows = ();
       for my $i (1 .. $form->{rowcount}) {
         $form->{"active_$i"} *= 1;
         $lastcustomer = $form->{"customer_id_$i"} unless ($lastcustomer);
         if ($form->{"active_$i"} && ($form->{"customer_id_$i"} == $lastcustomer)) {
-          if ($form->{inv_ids}) {
-            $form->{inv_ids} .= qq|,$form->{"inv_id_$i"}|;
-          } else {
-            $form->{inv_ids} = qq|($form->{"inv_id_$i"}|;
-          }
+          push(@{ $form->{inv_ids} }, $form->{"inv_id_$i"});
           $form->{"active_$i"} = 0;
           $form->{"customer_id_$i"} = 0;
           push(@rows, $i);
@@ -593,8 +588,7 @@ sub save_dunning {
           $form->{"customer_id_$i"} = 0;
         }
       }
-      if ($form->{inv_ids} ne "") {
-        $form->{inv_ids} .= ")";
+      if (scalar(@{ $form->{inv_ids} }) != 0) {
         DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
       }
     }
@@ -602,7 +596,7 @@ sub save_dunning {
     for my $i (1 .. $form->{rowcount}) {
       if ($form->{"active_$i"}) {
         @rows = ();
-        $form->{inv_ids} = qq|($form->{"inv_id_$i"})|;
+        $form->{inv_ids} = [ $form->{"inv_id_$i"} ];
         push(@rows, $i);
         DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
       }
@@ -774,7 +768,6 @@ sub search {
           $button4
         </tr>
 
-        <input type=hidden name=sort value=transdate>
       </table>
     </td>
   </tr>
@@ -885,7 +878,7 @@ sub show_dunning {
 
 <table width=100%>
   <tr>
-    <th class=listtop colspan=9>$form->{title}</th>
+    <th class=listtop colspan=10>$form->{title}</th>
   </tr>
   <tr height="5"></tr>
   <tr>|;
@@ -895,10 +888,13 @@ sub show_dunning {
         </tr>
 |;
   my $i = 0;
+  my $j = 0;
+  my $previous_customer_id;
   foreach $ref (@{ $form->{DUNNINGS} }) {
-
     $i++;
-    my $j = $i % 2;
+    $j++ if ($previous_customer_id != $ref->{customer_id});
+    $j = $j % 2;
+    $previous_customer_id = $ref->{customer_id};
 
     print qq|
         <tr valign=top class=listrow$j>
@@ -913,7 +909,7 @@ sub show_dunning {
     } else {
       $script = "ar.pl";
     }
-    $column_data{dunning_description}           = qq|<td><a href=dn.pl?action=print_dunning&dunning_id=$ref->{dunning_id}&format=pdf&media=screen&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{dunning_description}</a></td>|;
+    $column_data{dunning_description}           = qq|<td><a href=dn.pl?action=print_dunning&dunning_id=$ref->{dunning_id}&customer_id=$ref->{customer_id}&format=pdf&media=screen&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{dunning_description}</a></td>|;
     my $active = "checked";
     $column_data{dunning_date}           = qq|<td>$ref->{dunning_date}</td>|;
     $column_data{next_duedate}           = qq|<td>$ref->{dunning_duedate}</td>|;
@@ -972,7 +968,7 @@ sub show_dunning {
 sub print_dunning {
   $lxdebug->enter_sub();
 
-  DN->print_dunning(\%myconfig, \%$form, $form->{dunning_id}, $userspath,$spool, $sendmail);
+  DN->print_dunning(\%myconfig, \%$form, $form->{dunning_id}, $form->{customer_id}, $userspath, $spool, $sendmail);
 
   if($form->{DUNNING_PDFS}) {
     DN->melt_pdfs(\%myconfig, \%$form,$spool);
