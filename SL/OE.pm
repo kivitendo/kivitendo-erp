@@ -1141,14 +1141,24 @@ sub order_details {
          $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
     push(@{ $form->{taxnumber} }, $form->{"${item}_taxnumber"});
   }
-  $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
+  if($form->{taxincluded}) {
+    $form->{subtotal} = $form->format_amount($myconfig, $form->{total} - $tax, 2);
+  }
+  else {
+    $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
+  }
   $yesdiscount = $form->{nodiscount_total} - $nodiscount;
   $form->{nodiscount_subtotal} = $form->format_amount($myconfig, $form->{nodiscount_total}, 2);
   $form->{discount_total} = $form->format_amount($myconfig, $form->{discount_total}, 2);
   $form->{nodiscount} = $form->format_amount($myconfig, $nodiscount, 2);
   $form->{yesdiscount} = $form->format_amount($myconfig, $yesdiscount, 2);
 
-  $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
+  if($form->{taxincluded}) {
+    $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal} - $tax, 2);
+  }
+  else {
+    $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
+  }
   $form->{ordtotal} =
     ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
 
