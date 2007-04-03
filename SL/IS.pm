@@ -1705,7 +1705,7 @@ sub get_customer {
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   my $query = qq|SELECT dnn.dunning_description AS max_dunning_level FROM dunning_config dnn 
-                 WHERE id in (SELECT dunning_config_id from ar WHERE paid < amount AND customer_id = ? AND dunning_id IS NOT NULL)
+                 WHERE id in (SELECT dunning_config_id from ar WHERE paid < amount AND customer_id = ? AND dunning_config_id IS NOT NULL)
                  ORDER BY dunning_level DESC LIMIT 1|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{customer_id});
   map { $form->{$_} = $ref->{$_} } keys %$ref;
