@@ -163,9 +163,8 @@ sub edit_config {
   $column_data{dunning_level} =
     qq|<td><input type=hidden size=2 name=dunning_level_$i value=$i>$i</td>|;
   $column_data{dunning_description}           = qq|<td><input name=dunning_description_$i ></td>|;
-  my $active = "";
   $column_data{active} =
-    qq|<td><input type=checkbox name=active_$i value=1 $active></td>|;
+    qq|<td><input type=checkbox name=active_$i value=1></td>|;
   my $email = "";
   $column_data{email} =
     qq|<td><input type=checkbox name=email_$i value=1 $email><button type="button" onclick="set_email_window('email_subject_$i', 'email_body_$i', 'email_attachment_$i')">| . $locale->text('L') . qq|</button><input type=hidden name=email_body_$i><input type=hidden name=email_subject_$i><input type=hidden name=email_attachment_$i></td>|;
@@ -465,12 +464,12 @@ sub show_invoices {
 |;
 
   $form->{selectdunning} =~ s/ selected//g;
-  if ($ref->{next_dunning_id} ne "") {
-     $form->{selectdunning} =~ s/value=$ref->{next_dunning_id}/value=$ref->{next_dunning_id} selected/;
+  if ($ref->{next_dunning_config_id} ne "") {
+     $form->{selectdunning} =~ s/value=$ref->{next_dunning_config_id}/value=$ref->{next_dunning_config_id} selected/;
   }
   
 
-  $dunning = qq|<select name=next_dunning_id_$i>$form->{selectdunning}</select>|;
+  $dunning = qq|<select name=next_dunning_config_id_$i>$form->{selectdunning}</select>|;
 
 
     $column_data{dunning_description}           = qq|<td><input type=hidden name=inv_id_$i size=2 value="$ref->{id}"><input type=hidden name=customer_id_$i size=2 value="$ref->{customer_id}">$ref->{dunning_level}:&nbsp;$dunning</td>|;
@@ -589,7 +588,7 @@ sub save_dunning {
         }
       }
       if (scalar(@{ $form->{inv_ids} }) != 0) {
-        DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
+        DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath, $spool, $sendmail);
       }
     }
   } else {
@@ -598,7 +597,7 @@ sub save_dunning {
         @rows = ();
         $form->{inv_ids} = [ $form->{"inv_id_$i"} ];
         push(@rows, $i);
-        DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath,$spool, $sendmail);
+        DN->save_dunning(\%myconfig, \%$form, \@rows, $userspath, $spool, $sendmail);
       }
     }
   }
@@ -887,14 +886,28 @@ sub show_dunning {
   print qq|
         </tr>
 |;
+
+  my %columns = (
+    "dunning_duedate" => "next_duedate",
+    "duedate" => "inv_duedate",
+    "transdate" => "invdate",
+    "amount" => "invamount",
+    );
+
   my $i = 0;
   my $j = 0;
-  my $previous_customer_id;
+  my ($previous_dunning_id, $first_row_for_dunning);
   foreach $ref (@{ $form->{DUNNINGS} }) {
     $i++;
-    $j++ if ($previous_customer_id != $ref->{customer_id});
-    $j = $j % 2;
-    $previous_customer_id = $ref->{customer_id};
+
+    if ($previous_dunning_id != $ref->{dunning_id}) {
+      $j++;
+      $j = $j % 2;
+      $first_row_for_dunning = 1;
+    } else {
+      $first_row_for_dunning = 0;
+    }
+    $previous_dunning_id = $ref->{dunning_id};
 
     print qq|
         <tr valign=top class=listrow$j>
@@ -902,27 +915,28 @@ sub show_dunning {
 
   
 
-  $dunning = qq|<select name=next_dunning_id_$i>$form->{selectdunning}</select>|;
-    my $script = "";
-    if ($ref->{invoice}) {
-      $script = "is.pl";
-    } else {
-      $script = "ar.pl";
+    foreach (qw(dunning_date dunning_duedate duedate transdate customername
+                amount fee interest)) {
+      my $col = $columns{$_} ? $columns{$_} : $_;
+      $column_data{$col} = "<td>" . H($ref->{$_}) . "</td>";
     }
-    $column_data{dunning_description}           = qq|<td><a href=dn.pl?action=print_dunning&dunning_id=$ref->{dunning_id}&customer_id=$ref->{customer_id}&format=pdf&media=screen&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{dunning_description}</a></td>|;
-    my $active = "checked";
-    $column_data{dunning_date}           = qq|<td>$ref->{dunning_date}</td>|;
-    $column_data{next_duedate}           = qq|<td>$ref->{dunning_duedate}</td>|;
 
-    $column_data{inv_duedate}           = qq|<td>$ref->{duedate}</td>|;
-    $column_data{invdate}           = qq|<td>$ref->{transdate}</td>|;
-    $column_data{invnumber}           = qq|<td><a href=$script?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$form->{callback}>$ref->{invnumber}</a></td>|;
-    $column_data{customername}           = qq|<td>$ref->{customername}</td>|;
-    $column_data{invamount}           = qq|<td>$ref->{amount}</td>|;
-    $column_data{fee}           = qq|<td>$ref->{fee}</td>|;
-    $column_data{interest}           = qq|<td>$ref->{interest}</td>|;
+    if ($first_row_for_dunning) {
+      $column_data{dunning_description} =
+        qq|<td><a href="dn.pl?action=print_dunning&format=pdf&media=screen&| .
+        qq|dunning_id=| . E($ref->{dunning_id}) .
+        join(map({ "&${_}=" . E($form->{$_}) } qw(login path password callback))) .
+        qq|">| . H($ref->{dunning_description}) . qq|</a></td>|;
+    } else {
+      $column_data{dunning_description} = qq|<td>&nbsp;</td>|;
+      $column_data{customername} = qq|<td>&nbsp;</td>|;
+    }
 
-
+    $column_data{invnumber} =
+      qq|<td><a href="| . ($ref->{invoice} ? "is.pl" : "ar.pl" ) .
+      qq|?action=edit&id=| . H($ref->{id}) .
+      join(map({ "&${_}=" . E($form->{$_}) } qw(login path password callback))) .
+      qq|">| . H($ref->{invnumber}) . qq|</a></td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -968,7 +982,7 @@ sub show_dunning {
 sub print_dunning {
   $lxdebug->enter_sub();
 
-  DN->print_dunning(\%myconfig, \%$form, $form->{dunning_id}, $form->{customer_id}, $userspath, $spool, $sendmail);
+  DN->print_dunning(\%myconfig, \%$form, $form->{dunning_id}, $userspath, $spool, $sendmail);
 
   if($form->{DUNNING_PDFS}) {
     DN->melt_pdfs(\%myconfig, \%$form,$spool);
