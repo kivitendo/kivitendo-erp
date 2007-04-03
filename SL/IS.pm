@@ -382,8 +382,12 @@ sub invoice_details {
       $form->{paid} += $form->parse_amount($myconfig, $form->{"paid_$i"});
     }
   }
-
-  $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
+  if($form->{taxincluded}) {
+    $form->{subtotal} = $form->format_amount($myconfig, $form->{total} - $tax, 2);
+  }
+  else {
+    $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
+  }
   $yesdiscount = $form->{nodiscount_total} - $nodiscount;
   $form->{nodiscount_subtotal} = $form->format_amount($myconfig, $form->{nodiscount_total}, 2);
   $form->{discount_total} = $form->format_amount($myconfig, $form->{discount_total}, 2);
