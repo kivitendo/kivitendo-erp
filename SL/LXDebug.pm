@@ -102,6 +102,8 @@ sub leave_sub {
 
 sub message {
   my ($self, $level, $message) = @_;
+
+  $self->check_watched_form_variables();
   $self->_write(level2string($level), $message) if (($self->{"level"} | $global_level) & $level || !$level);
 }
 
