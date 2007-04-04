@@ -249,7 +249,8 @@ sub order_links {
   if (@{ $form->{"all_$form->{vc}"} }) {
     $form->{ $form->{vc} } =
       qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
-    map { $form->{"select$form->{vc}"} .= "<option>$_->{name}--$_->{id}\n" }
+    map { $form->{"select$form->{vc}"} .=
+"<option>$_->{name}--$_->{id}</option>\n" }
       (@{ $form->{"all_$form->{vc}"} });
   }
 
@@ -259,7 +260,7 @@ sub order_links {
   $form->{defaultcurrency} = $curr[0];
   $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
 
-  map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
+  map { $form->{selectcurrency} .= "<option>$_</option>\n" } @curr;
 
   $form->{taxincluded} = $taxincluded if ($form->{id});
 
@@ -270,7 +271,7 @@ sub order_links {
 
     map {
       $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
+        "<option>$_->{description}--$_->{id}</option>\n"
     } (@{ $form->{all_departments} });
   }
 
@@ -279,7 +280,7 @@ sub order_links {
   # sales staff
   if (@{ $form->{all_employees} }) {
     $form->{selectemployee} = "";
-    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}\n" }
+    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}</option>\n" }
       (@{ $form->{all_employees} });
   }
 
@@ -416,6 +417,9 @@ sub form_header {
   #quote select[customer|vendor] Bug 133
   $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
 
+  #substitute \n and \r to \s (bug 543)
+  $form->{"select$form->{vc}"} =~ s/[\n\r]/&nbsp;/g;
+  
   my @old_project_ids = ($form->{"globalproject_id"});
   map({ push(@old_project_ids, $form->{"project_id_$_"})
           if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
@@ -1340,7 +1344,7 @@ sub search {
   $form->all_vc(\%myconfig, $form->{vc},
                 ($form->{vc} eq 'customer') ? "AR" : "AP");
 
-  map { $vc .= "<option>$_->{name}--$_->{id}\n" }
+  map { $vc .= "<option>$_->{name}--$_->{id}</option>\n" }
     @{ $form->{"all_$form->{vc}"} };
 
   $vclabel = ucfirst $form->{vc};
@@ -1351,7 +1355,7 @@ sub search {
 
   $vc =
     ($vc)
-    ? qq|<select name=$form->{vc}><option>\n$vc</select>|
+    ? qq|<select name=$form->{vc}><option>\n$vc</option></select>|
     : qq|<input name=$form->{vc} size=35>|;
 
   # departments
@@ -1360,7 +1364,7 @@ sub search {
 
     map {
       $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
+        "<option>$_->{description}--$_->{id}</option>\n"
     } (@{ $form->{all_departments} });
   }
 
@@ -1444,7 +1448,7 @@ sub search {
       <table>
         <tr>
           <th align=right>$vclabel</th>
-          <td colspan=3>$vc</td>
+          <td colspan="3">$vc</td>
         </tr>
 	$department
         <tr>
