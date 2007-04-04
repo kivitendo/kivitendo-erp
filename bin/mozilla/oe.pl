@@ -2545,9 +2545,20 @@ sub e_mail {
 
   $form->{print_and_save} = 1;
 
-  &save;
+  if (!$form->{id}) {
+    $print_post = 1;
 
-  &edit_e_mail;
+    my $saved_form = save_form();
+
+    save();
+
+    my %saved_vars;
+    map({ $saved_vars{$_} = $form->{$_}; } qw(id ordnumber quonumber));
+    restore_form($saved_form);
+    map({ $form->{$_} = $saved_vars{$_}; } qw(id ordnumber quonumber));
+  }
+
+  edit_e_mail();
 
   $lxdebug->leave_sub();
 }

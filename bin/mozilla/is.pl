@@ -1621,11 +1621,20 @@ sub yes {
 sub e_mail {
   $lxdebug->enter_sub();
 
-  $print_post = 1;
+  if (!$form->{id}) {
+    $print_post = 1;
 
-  &post;
+    my $saved_form = save_form();
 
-  &edit_e_mail;
+    post();
+
+    my %saved_vars;
+    map({ $saved_vars{$_} = $form->{$_}; } qw(id invnumber));
+    restore_form($saved_form);
+    map({ $form->{$_} = $saved_vars{$_}; } qw(id invnumber));
+  }
+
+  edit_e_mail();
 
   $lxdebug->leave_sub();
 }

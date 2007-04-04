@@ -1430,12 +1430,14 @@ sub edit_e_mail {
 sub send_email {
   $lxdebug->enter_sub();
 
-  $old_form = new Form;
+  my $callback = $form->{script} . "?action=edit";
+  map({ $callback .= "\&${_}=" . E($form->{$_}); }
+      qw(login password path type id));
 
-  map { $old_form->{$_} = $form->{$_} } keys %$form;
-  $old_form->{media} = $form->{oldmedia};
+  print_form("return");
 
-  &print_form($old_form);
+  $form->{callback} = $callback;
+  $form->redirect();
 
   $lxdebug->leave_sub();
 }
@@ -1943,6 +1945,8 @@ sub print_form {
 
     $form->update_status(\%myconfig)
       if ($form->{media} eq 'queue' && $form->{id});
+
+    return $lxdebug->leave_sub() if ($old_form eq "return");
 
     if ($old_form) {
 
