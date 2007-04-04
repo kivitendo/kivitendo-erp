@@ -1738,6 +1738,7 @@ sub print_form {
   $language_saved = $form->{language_id};
   $payment_id_saved = $form->{payment_id};
   $salesman_id_saved = $form->{salesman_id};
+  $cp_id_saved = $form->{cp_id};
 
   &{"$form->{vc}_details"}();
 
@@ -1747,6 +1748,13 @@ sub print_form {
   $form->{"email"} = $saved_email if ($saved_email);
   $form->{"cc"}    = $saved_cc    if ($saved_cc);
   $form->{"bcc"}   = $saved_bcc   if ($saved_bcc);
+
+  if (!$cp_id_saved) {
+    # No contact was selected. Delete all contact variables because
+    # IS->customer_details() and IR->vendor_details() get the default
+    # contact anyway.
+    map({ delete($form->{$_}); } grep(/^cp_/, keys(%{ $form })));
+  }
 
   my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
   if ($form->{"language_id"}) {

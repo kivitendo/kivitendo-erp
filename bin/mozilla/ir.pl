@@ -277,7 +277,8 @@ sub form_header {
                                    "all" => 0,
                                    "old_id" => \@old_project_ids });
 
-  my (%labels, @values);
+  my %labels;
+  my @values = (undef);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
     push(@values, $item->{"cp_id"});
     $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
