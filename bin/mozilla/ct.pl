@@ -112,6 +112,15 @@ sub search {
     . $locale->text('Orphaned') . qq|</td>
 	</tr>
 	<tr>
+	  <td></td>
+	  <td><input name="obsolete" class="radio" type="radio" value="all">&nbsp;|
+    . $locale->text('All') . qq|
+	  <input name="obsolete" class="radio" type="radio" value="Y">&nbsp;|
+    . $locale->text('Obsolete') . qq|
+	  <input name="obsolete" class="radio" type="radio" value="N" checked>&nbsp;|
+    . $locale->text('Not obsolete') . qq|</td>
+	</tr>
+	<tr>
 	  <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
 	  <td>
 	    <table>
@@ -299,7 +308,7 @@ sub list_names {
   CT->search(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=list_names&db=$form->{db}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+    "$form->{script}?action=list_names&db=$form->{db}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}&obsolete=$form->{obsolete}";
   $href = $callback;
 
   @columns =

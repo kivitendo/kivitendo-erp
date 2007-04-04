@@ -624,6 +624,12 @@ sub search {
     $form->{l_invnumber} = $form->{l_ordnumber} = $form->{l_quonumber} = "";
   }
 
+  if ($form->{obsolete} eq "Y") {
+    $where .= qq| AND obsolete|;
+  } elsif ($form->{obsolete} eq "N") {
+    $where .= qq| AND NOT obsolete|;
+  }
+
   my $query =
     qq|SELECT ct.*, b.description AS business | .
     qq|FROM $cv ct | .

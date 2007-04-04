@@ -69,6 +69,7 @@ $self->{texts} = {
   'No employee was found matching the search parameters.' => 'Es wurde kein Angestellter gefunden, auf den die Suchparameter zutreffen.',
   'No part was found matching the search parameters.' => 'Es wurde kein Artikel gefunden, auf den die Suchparameter zutreffen.',
   'No project was found matching the search parameters.' => 'Es wurde kein Projekt gefunden, auf das die Suchparameter zutreffen.',
+  'Not obsolete'                => 'Gültig',
   'Notes'                       => 'Bemerkungen',
   'Number'                      => 'Nummer',
   'Obsolete'                    => 'Ungültig',
