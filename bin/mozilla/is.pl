@@ -172,13 +172,13 @@ sub invoice_links {
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
 
-  map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
+  map { $form->{selectcurrency} .= "<option>$_</option>\n" } @curr;
 
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
 
   if (@{ $form->{all_customer} }) {
     $form->{customer} = "$form->{customer}--$form->{customer_id}";
-    map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}\n" }
+    map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}</option>\n" }
       (@{ $form->{all_customer} });
   }
 
@@ -189,7 +189,7 @@ sub invoice_links {
 
     map {
       $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
+        "<option>$_->{description}--$_->{id}</option>\n"
     } (@{ $form->{all_departments} });
   }
 
@@ -198,7 +198,7 @@ sub invoice_links {
   # sales staff
   if ($form->{all_employees}) {
     $form->{selectemployee} = "";
-    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}\n" }
+    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}</option>\n" }
       (@{ $form->{all_employees} });
   }
 
@@ -208,7 +208,8 @@ sub invoice_links {
 
   foreach $key (keys %{ $form->{AR_links} }) {
     foreach $ref (@{ $form->{AR_links}{$key} }) {
-      $form->{"select$key"} .= "<option>$ref->{accno}--$ref->{description}\n";
+      $form->{"select$key"} .=
+"<option>$ref->{accno}--$ref->{description}</option>\n";
     }
 
     if ($key eq "AR_paid") {
@@ -433,6 +434,9 @@ sub form_header {
 
   #quote customer Bug 133
   $form->{selectcustomer} = $form->quote($form->{selectcustomer});
+
+  #substitute \n and \r to \s (bug 543)
+  $form->{selectcustomer} =~ s/[\n\r]/&nbsp;/g;
   
   if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
     $creditwarning = 1;
