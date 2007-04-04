@@ -642,18 +642,16 @@ sub select_item {
 
     map { print "\n$column_data{$_}" } @column_index;
 
-    print qq|
-</tr>
-|;
-map({ print($cgi->hidden("-name" => "new_$__$i", "-value" => $ref->{$_})); } 
-        qw(bin listprice inventory_accno income_accno expense_accno unit weight assembly taxaccounts partsgroup 
-           formel logdescription not_discountable part_payment_id partnodes id));
-if ($lizenzen) {
-      print qq|
-<input name="new_lizenzen_$i" type="hidden" value="$ref->{lizenzen}">
-|;
-    }
+    print("</tr>\n");
 
+    my @new_fields =
+      qw(bin listprice inventory_accno income_accno expense_accno unit weight
+         assembly taxaccounts partsgroup formel logdescription not_discountable
+         part_payment_id partnodes id);
+    push(@new_fields, "lizenzen") if ($lizenzen);
+
+    map({ print($cgi->hidden("-name" => "new_${_}_$i",
+                             "-value" => $ref->{$_})); } @new_fields);
   }
 
   print qq|
