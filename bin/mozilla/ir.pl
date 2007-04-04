@@ -240,6 +240,9 @@ sub form_header {
   #quote selectvendor Bug 133
   $form->{"selectvendor"} = $form->quote($form->{"selectvendor"});
 
+  #substitute \n and \r to \s (bug 543)
+  $form->{"selectvendor"} =~ s/[\n\r]/&nbsp;/g;
+  
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
 
