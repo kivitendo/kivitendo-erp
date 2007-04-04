@@ -784,8 +784,7 @@ $jsscript
 <!-- shipto are in hidden variables -->
 | ;
 map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
-       qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry 
-          shiptocontact shiptophone shiptofax shiptoemail));
+       qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2));
 print qq|<!-- email variables --> |;
 map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
     qw(message email subject cc bcc taxaccounts));
