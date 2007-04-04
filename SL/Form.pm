@@ -1622,6 +1622,18 @@ sub _get_employees {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_business_types {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_business_types" unless ($key);
+  $self->{$key} =
+    selectall_hashref_query($self, $dbh, qq|SELECT * FROM business|);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1662,6 +1674,10 @@ sub get_lists {
 
   if ($params{"employees"}) {
     $self->_get_employees($dbh, $params{"employees"});
+  }
+
+  if ($params{"business_types"}) {
+    $self->_get_business_types($dbh, $params{"business_types"});
   }
 
   $dbh->disconnect();
