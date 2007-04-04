@@ -427,17 +427,19 @@ sub display_row {
 
     map { print "\n$column_data{$_}" } @column_index;
 
-    print qq|
-        </tr>
-|;
-map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
-       ("orderitems_id_$i", "bo_$i", "pricegroup_old_$i", "price_old_$i", "selected_unit_$i", "id_$i", "inventory_accno_$i", "bin_$i",
-          "partsgroup_$i", "partnotes_$i", "income_accno_$i", "expense_accno_$i", "listprice_$i", "assembly_$i", "taxaccounts_$i",
-          "ordnumber_$i", "transdate_$i", "cusordnumber_$i", "longdescription_$i", "basefactor_$i"));
-print qq|
-<input type="hidden" name="price_new_$i" value="|
-      . $form->format_amount(\%myconfig, $form->{"price_new_$i"}) . qq|">
-|;
+    print("</tr>\n" .
+          $cgi->hidden("-name" => "unit_old_$i",
+                       "-value" => $form->{"selected_unit_$i"})
+          . "\n" .
+          $cgi->hidden("-name" => "price_new_$i",
+                       "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"}))
+          . "\n");
+    map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_}) . "\n"); }
+        ("orderitems_id_$i", "bo_$i", "pricegroup_old_$i", "price_old_$i",
+         "id_$i", "inventory_accno_$i", "bin_$i", "partsgroup_$i", "partnotes_$i",
+         "income_accno_$i", "expense_accno_$i", "listprice_$i", "assembly_$i",
+         "taxaccounts_$i", "ordnumber_$i", "transdate_$i", "cusordnumber_$i",
+         "longdescription_$i", "basefactor_$i"));
 
 ########################################
     # Eintrag fuer Version 2.2.0 geaendert #
