@@ -630,6 +630,11 @@ sub search {
     $where .= qq| AND NOT obsolete|;
   }
 
+  if ($form->{business_id}) {
+    $where .= qq| AND (business_id = ?)|;
+    push(@values, conv_i($form->{business_id}));
+  }
+
   my $query =
     qq|SELECT ct.*, b.description AS business | .
     qq|FROM $cv ct | .

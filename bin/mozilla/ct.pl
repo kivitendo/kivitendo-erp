@@ -68,6 +68,31 @@ sub add {
 sub search {
   $lxdebug->enter_sub();
 
+  my $vc_business_type = $form->{db} eq "customer" ?
+    $locale->text("Customer type") : $locale->text("Vendor type");
+
+  $form->get_lists("business_types" => "ALL_BUSINESS_TYPES");
+  my (%labels, @values);
+
+  my $business_types;
+  if (scalar(@{ $form->{ALL_BUSINESS_TYPES} }) != 0) {
+    push(@values, undef);
+    foreach my $item (@{ $form->{ALL_BUSINESS_TYPES} }) {
+      push(@values, $item->{id});
+      $labels{$item->{id}} = $item->{description};
+    }
+
+    $business_types =
+      qq|  <tr>
+    <th align="right" nowrap>${vc_business_type}</th>
+    <td>|
+      . NTI($cgi->popup_menu('-name' => 'business_id', '-values' => \@values,
+                             '-labels' => \%labels))
+      . qq|</td>
+  </tr>
+|;
+  }
+
   $label = ucfirst $form->{db};
   $form->{title} = $locale->text($label . "s");
 
@@ -104,6 +129,7 @@ sub search {
 	  <th align=right nowrap>| . $locale->text('E-mail') . qq|</th>
 	  <td><input name=email size=35></td>
 	</tr>
+  $business_types
 	<tr>
 	  <td></td>
 	  <td><input name=status class=radio type=radio value=all checked>&nbsp;|
@@ -150,7 +176,7 @@ sub search {
 		<td><input name="l_sic_code" type=checkbox class=checkbox value=Y> |
     . $locale->text('SIC') . qq|</td>
 		<td><input name="l_business" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Type of Business') . qq|</td>
+    . $vc_business_type . qq|</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_invnumber" type=checkbox class=checkbox value=Y> |
