@@ -1344,16 +1344,36 @@ sub add_shipto {
                       WHERE shipto_id = $self->{shipto_id}|;
       $dbh->do($query) || $self->dberror($query);
     } else {
-      my $query =
-      qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2, shiptostreet,
+      my $query = qq|SELECT * FROM shipto
+                                 WHERE shiptoname = '$self->{shiptoname}' AND
+                      shiptodepartment_1 = '$self->{shiptodepartment_1}' AND
+                      shiptodepartment_2 = '$self->{shiptodepartment_2}' AND
+                      shiptostreet = '$self->{shiptostreet}' AND
+                      shiptozipcode = '$self->{shiptozipcode}' AND
+                      shiptocity = '$self->{shiptocity}' AND
+                      shiptocountry = '$self->{shiptocountry}' AND
+                      shiptocontact = '$self->{shiptocontact}' AND
+                      shiptophone = '$self->{shiptophone}' AND
+                      shiptofax = '$self->{shiptofax}' AND
+                      shiptoemail = '$self->{shiptoemail}'
+                      | ;
+      my $sth = $dbh->prepare($query);
+      $sth->execute() || $self->dberror($query);
+      my $insert_check = $sth->fetch();
+      $sth->finish();
+      if(!$insert_check){
+        $query =
+        qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1,
+                   shiptodepartment_2, shiptostreet,
                    shiptozipcode, shiptocity, shiptocountry, shiptocontact,
 		   shiptophone, shiptofax, shiptoemail, module) VALUES ($id,
 		   '$self->{shiptoname}', '$self->{shiptodepartment_1}', '$self->{shiptodepartment_2}', '$self->{shiptostreet}',
 		   '$self->{shiptozipcode}', '$self->{shiptocity}',
 		   '$self->{shiptocountry}', '$self->{shiptocontact}',
 		   '$self->{shiptophone}', '$self->{shiptofax}',
-		   '$self->{shiptoemail}', '$module')|;
-      $dbh->do($query) || $self->dberror($query);
+                   '$self->{shiptoemail}', '$module')|;              
+        $dbh->do($query) || $self->dberror($query);
+     }
     }
   }
 ##/LINET
