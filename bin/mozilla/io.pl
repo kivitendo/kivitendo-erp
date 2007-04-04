@@ -1527,7 +1527,7 @@ sub print_options {
       if (ref $form->{languages} eq 'ARRAY');
 
   push @PRINTER_ID, 
-    map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{printers} }
+    map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
       if (ref $form->{printers} eq 'ARRAY');
 
   @SELECTS = map { sname => lc $_, DATA => \@$_, show => scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
