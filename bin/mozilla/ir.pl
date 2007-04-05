@@ -333,7 +333,8 @@ sub form_header {
 
   $vendor =
     ($form->{selectvendor})
-    ? qq|<select name="vendor" onclick="document.getElementById('update_button').click();">| .
+    ? qq|<select name="vendor"
+onchange="document.getElementById('update_button').click();">| .
     qq|$form->{selectvendor}</select>\n<input type=hidden name="selectvendor" value="| .
     Q($form->{selectvendor}) . qq|">|
     : qq|<input name=vendor value="$form->{vendor}" size=35>|;

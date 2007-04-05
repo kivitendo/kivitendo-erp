@@ -389,7 +389,9 @@ sub form_header {
 
   $vendor =
     ($form->{selectvendor})
-    ? qq|<select name="vendor" onclick="document.getElementById('update_button').click();">$form->{selectvendor}</select>|
+    ? qq|<select name="vendor"
+onchange="document.getElementById('update_button').click();">$form->{
+selectvendor } </select>|
     : qq|<input name=vendor value="$form->{vendor}" size=35>|;
 
   my @old_project_ids = ();

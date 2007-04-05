@@ -472,7 +472,8 @@ sub form_header {
 
   $customer =
     ($form->{selectcustomer})
-    ? qq|<select name="customer" onclick="document.getElementById('update_button').click();">| .
+    ? qq|<select name="customer"
+onchange="document.getElementById('update_button').click();">| .
     qq|$form->{selectcustomer}</select>\n<input type="hidden" name="selectcustomer" value="| .
     Q($form->{selectcustomer}) . qq|">|
     : qq|<input name="customer" value="$form->{customer}" size="35">|;
