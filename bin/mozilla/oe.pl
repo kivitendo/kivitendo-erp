@@ -675,7 +675,9 @@ sub form_header {
 
   $vc =
     ($form->{"select$form->{vc}"})
-    ? qq|<select name=$form->{vc}>$form->{"select$form->{vc}"}</select>\n<input type=hidden name="select$form->{vc}" value="$form->{"select$form->{vc}"}">|
+    ? qq|<select name="$form->{vc}" onclick="document.getElementById('update_button').click();">| .
+    qq|$form->{"select$form->{vc}"}</select>\n<input type=hidden name="select$form->{vc}" value="| .
+    Q($form->{"select$form->{vc}"}) . qq|">|
     : qq|<input name=$form->{vc} value="$form->{$form->{vc}}" size=35>|;
 
   $department = qq|

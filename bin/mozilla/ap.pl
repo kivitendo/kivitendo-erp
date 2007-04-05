@@ -389,7 +389,7 @@ sub form_header {
 
   $vendor =
     ($form->{selectvendor})
-    ? qq|<select name=vendor>$form->{selectvendor}</select>|
+    ? qq|<select name="vendor" onclick="document.getElementById('update_button').click();">$form->{selectvendor}</select>|
     : qq|<input name=vendor value="$form->{vendor}" size=35>|;
 
   my @old_project_ids = ();
@@ -846,7 +846,7 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  print qq|<input class=submit type=submit name=action value="|
+  print qq|<input class="submit" type="submit" name="action" id="update_button" value="|
     . $locale->text('Update') . qq|">|;
 
   if ($form->{id}) {
