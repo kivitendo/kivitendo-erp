@@ -434,9 +434,9 @@ sub post_payment {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey) | .
         qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, | .
-        qq|        (SELECT taxkey_ FROM chart WHERE accno = ?))|;
+        qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
       @values = (conv_i($form->{id}), $accno_ar, conv_i($amount),
-                 conv_date($form->{"datepaid_$i"}), $project_id);
+                 conv_date($form->{"datepaid_$i"}), $project_id, $accno_ar);
       do_query($form, $dbh, $query, @values);
 
       # record payment
@@ -458,7 +458,7 @@ sub post_payment {
         qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
       @values = (conv_i($form->{id}), $accno, conv_i($form->{"paid_$i"}),
                  conv_date($form->{"datepaid_$i"}),
-                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id);
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $accno);
       do_query($form, $dbh, $query, @values);
 
       # gain/loss
