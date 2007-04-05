@@ -822,17 +822,10 @@ sub new_item {
     . $locale->text('Service');
 print $cgi->hidden("-name" => "previousform", "-value" => $previousform);
 map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
-     ("partnumber_$i", "description_$i", "rowcount", "taxaccounts", "vc", "path", "login", "password"));
-
-#<input type="hidden" name="partnumber" value="$form->{"partnumber_$i"}">
-#<input type="hidden" name="description" value="$form->{"description_$i"}">
-#<input type="hidden" name="rowcount" value="$form->{rowcount}">
-#<input type="hidden" name="taxaccount2" value="$form->{taxaccounts}">
-#<input type="hidden" name="vc" value="$form->{vc}">
-#
-#<input type="hidden" name="path" value="$form->{path}">
-#<input type="hidden" name="login" value="$form->{login}">
-#<input type="hidden" name="password" value="$form->{password}">
+     ("rowcount", "vc", "path", "login", "password"));
+     map({ print($cgi->hidden("-name" => $_, "-value" => $form->{"$__$i"})); }
+     ("partnumber", "description"));
+print $cgi->hidden("-name" => "taxaccount2", "-value" => $form->{taxaccounts});
 
 print qq|
 <input type="hidden" name="nextsub" value="add">
