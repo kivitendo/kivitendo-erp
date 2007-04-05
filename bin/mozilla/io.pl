@@ -624,7 +624,7 @@ sub select_item {
     $column_data{partnumber} =
       qq|<td><input name="new_partnumber_$i" type="hidden" value="$ref->{partnumber}">$ref->{partnumber}</td>|;
     $column_data{description} =
-      qq|<td><input name="new_description_$i" type="hidden" value=$ref->{description}>$ref->{description}</td>|;
+      qq|<td><input name="new_description_$i" type="hidden" value="$ref->{description}">$ref->{description}</td>|;
     $column_data{sellprice} =
       qq|<td align="right"><input name="new_sellprice_$i" type="hidden" value="$ref->{sellprice}">|
       . $form->format_amount(\%myconfig, $ref->{sellprice}, 2, "&nbsp;")
