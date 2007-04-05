@@ -57,7 +57,7 @@ sub enter_sub {
   my ($self, $level) = @_;
   $level *= 1;
 
-  check_watched_form_variables();
+  $self->check_watched_form_variables();
 
   return 1 unless ($global_level & TRACE);          # ignore if traces aren't active
   return 1 if $level && !($global_level & $level);  # ignore if level of trace isn't active
