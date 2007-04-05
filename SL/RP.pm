@@ -1195,6 +1195,18 @@ sub trial_balance {
   $main::lxdebug->leave_sub();
 }
 
+sub get_storno {
+  $main::lxdebug->enter_sub();
+  my ($self, $dbh, $form) = @_;
+  my $query = qq|SELECT invnumber FROM $form->{arap} WHERE invnumber LIKE "Storno zu "|;
+  my $sth =  $dbh->prepare($query);
+  while(my $ref = $sth->fetchrow_hashref()) {
+    $ref->{invnumer} =~ s/Storno zu //g; 
+    $form->{storno}{$ref->{invnumber}} = 1;
+  }
+  $main::lxdebug->leave_sub();
+}
+
 sub aging {
   $main::lxdebug->enter_sub();
 
@@ -1206,7 +1218,7 @@ sub aging {
 
   $form->{todate} = $form->current_date($myconfig) unless ($form->{todate});
 
-  my $where = "1 = 1";
+  my $where = " 1 = 1 ";
   my ($name, $null);
 
   if ($form->{"$form->{ct}_id"}) {
@@ -1260,7 +1272,8 @@ sub aging {
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
   FROM $form->{arap}, $form->{ct}
-	WHERE paid != amount
+  WHERE paid != amount
+  AND $form->{arap}.storno IS FALSE
 	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND (
@@ -1282,7 +1295,8 @@ sub aging {
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
   FROM $form->{arap}, $form->{ct}
-	WHERE paid != amount
+  WHERE paid != amount
+  AND $form->{arap}.storno IS FALSE
 	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND (
@@ -1304,7 +1318,8 @@ sub aging {
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
 	FROM $form->{arap}, $form->{ct}
-	WHERE paid != amount
+        WHERE paid != amount
+        AND $form->{arap}.storno IS FALSE
 	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND (
@@ -1326,7 +1341,8 @@ sub aging {
 	   WHERE $form->{arap}.curr = exchangerate.curr
 	   AND exchangerate.transdate = $form->{arap}.transdate) AS exchangerate
 	FROM $form->{arap}, $form->{ct}
-	WHERE paid != amount
+        WHERE paid != amount
+        AND $form->{arap}.storno IS FALSE
 	AND $form->{arap}.$form->{ct}_id = $form->{ct}.id
 	AND $form->{ct}.id = $id
 	AND transdate < (date '$form->{todate}' - interval '90 days')
