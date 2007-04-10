@@ -2476,6 +2476,10 @@ sub purchase_order {
     OE->close_order(\%myconfig, \%$form);
   }
 
+  if ($form->{type} =~ /^sales_/) {
+    delete($form->{ordnumber});
+  }
+
   $form->{cp_id} *= 1;
 
   $form->{title} = $locale->text('Add Purchase Order');
@@ -2493,6 +2497,10 @@ sub sales_order {
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
     OE->close_order(\%myconfig, $form);
+  }
+
+  if ($form->{type} eq "purchase_order") {
+    delete($form->{ordnumber});
   }
 
   $form->{cp_id} *= 1;
