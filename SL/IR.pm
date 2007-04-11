@@ -224,9 +224,8 @@ sub post_invoice {
 
         $dbh->do($query) || $form->dberror($query);
 
-        $form->update_balance($dbh, "parts", "onhand",
-                              qq|id = $form->{"id_$i"}|,
-                              $baseqty)
+        $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
+                              $baseqty, $form->{"id_$i"})
           unless $form->{shipped};
 
         # check if we sold the item already and

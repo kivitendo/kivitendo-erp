@@ -711,9 +711,8 @@ sub post_invoice {
           $sth->execute || $form->dberror($query);
 
           if ($sth->fetchrow_array) {
-            $form->update_balance($dbh, "parts", "onhand",
-                                  qq|id = $form->{"id_$i"}|,
-                                  $baseqty * -1)
+            $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
+                                  $baseqty * -1, $form->{"id_$i"})
               unless $form->{shipped};
           }
           $sth->finish;
@@ -721,9 +720,8 @@ sub post_invoice {
           # record assembly item as allocated
           &process_assembly($dbh, $form, $form->{"id_$i"}, $baseqty);
         } else {
-          $form->update_balance($dbh, "parts", "onhand",
-                                qq|id = $form->{"id_$i"}|,
-                                $baseqty * -1)
+          $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
+                                $baseqty * -1, $form->{"id_$i"})
             unless $form->{shipped};
 
           $allocated = &cogs($dbh, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);

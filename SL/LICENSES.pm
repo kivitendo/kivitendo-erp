@@ -69,8 +69,8 @@ sub save_license {
   $sth->finish();
 
   if ($form->{own_product}) {
-    $form->update_balance($dbh, "parts", "onhand", qq|id = $form->{parts_id}|,
-                          1);
+    $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
+                          1, $form->{parts_id});
   }
 
   $dbh->disconnect();

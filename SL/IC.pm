@@ -795,7 +795,7 @@ sub adjust_inventory {
   $sth->finish;
 
   # update assembly
-  my $rc = $form->update_balance($dbh, "parts", "onhand", qq|id = $id|, $qty);
+  my $rc = $form->update_balance($dbh, "parts", "onhand", qq|id = ?|, $qty, $id);
 
   $main::lxdebug->leave_sub();
 

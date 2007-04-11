@@ -47,6 +47,8 @@ sub check_name {
 
   my ($name) = @_;
 
+  $name = $name eq "customer" ? "customer" : "vendor";
+
   my ($new_name, $new_id) = split /--/, $form->{$name};
   my $i = 0;
   # if we use a selection

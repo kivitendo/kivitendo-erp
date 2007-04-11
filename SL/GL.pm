@@ -211,14 +211,6 @@ sub post_transaction {
     }
   }
 
-  my %audittrail = (tablename => 'gl',
-                    reference => $form->{reference},
-                    formname  => 'transaction',
-                    action    => 'posted',
-                    id        => $form->{id});
-
-  # $form->audittrail($dbh, "", \%audittrail);
-
   # commit and redirect
   my $rc = $dbh->commit;
   $dbh->disconnect;
