@@ -2127,7 +2127,7 @@ sub ship_to {
     </td>
   </tr>
 </table>
-| . $cgi->hidden("-name" => "nexsub", "-value" => $nextsub);
+| . $cgi->hidden("-name" => "nextsub", "-value" => $nextsub);
 ;
 
 
