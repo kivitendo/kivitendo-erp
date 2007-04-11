@@ -1387,7 +1387,7 @@ sub edit_e_mail {
     <td>
 |;
 
-  &print_options;
+  print_options();
 
   map { delete $form->{$_} }
     qw(action email cc bcc subject message formname sendmode format header override);

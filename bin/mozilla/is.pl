@@ -1071,7 +1071,7 @@ if ($form->{type} eq "credit_note") {
     <td>
 |;
 
-  &print_options;
+  print_options();
 
   print qq|
     </td>

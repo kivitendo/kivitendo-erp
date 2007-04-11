@@ -508,7 +508,7 @@ sub show_invoices {
   <td><hr size=3 noshade></td>
   </tr>
 </table>|;
-  &print_options;
+  print_options();
   print qq|
 <br>
 <form method=post action=$form->{script}>

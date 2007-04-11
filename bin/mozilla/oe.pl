@@ -1063,7 +1063,7 @@ sub form_footer {
   <tr>
     <td>
 |;
-  &print_options;
+  print_options();
 
   print qq|
     </td>
