@@ -2106,7 +2106,7 @@ sub ship_to {
 	<tr>
 	  <th align="right" nowrap>| . $locale->text('Contact') . qq|</th>
 	  <td>$form->{contact}</td>
-	  <td><input name="shiptocontac"t size="35" value="$form->{shiptocontact}"></td>
+	  <td><input name="shiptocontact" size="35" value="$form->{shiptocontact}"></td>
 	</tr>
 	<tr>
 	  <th align="right" nowrap>| . $locale->text('Phone') . qq|</th>
