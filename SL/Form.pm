@@ -451,6 +451,7 @@ sub parse_html_template {
   } else {
     $language = $main::myconfig{"countrycode"};
   }
+  $language = "de" unless ($language);
 
   if (-f "templates/webpages/${file}_${language}.html") {
     if ((-f ".developer") &&
