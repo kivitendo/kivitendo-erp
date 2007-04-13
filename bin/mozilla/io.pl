@@ -1498,7 +1498,7 @@ sub print_options {
 
   push @MEDIA, grep $_,
       opthash("screen", $form->{OP}{screen}, $locale->text('Screen')),
-    (scalar keys %{ $form->{printers} } && $latex_templates) ?
+    (scalar @{ $form->{printers} } && $latex_templates) ?
       opthash("printer", $form->{OP}{printer}, $locale->text('Printer')) : undef,
     ($latex_templates) ? 
       opthash("queue", $form->{OP}{queue}, $locale->text('Queue')) : undef
@@ -1521,12 +1521,12 @@ sub print_options {
 
   push @PRINTER_ID, 
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
-      if (ref $form->{printers} eq 'ARRAY');
+      if ((ref $form->{printers} eq 'ARRAY') && scalar @{ $form->{printers } });
 
   @SELECTS = map { sname => lc $_, DATA => \@$_, show => scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
 
   %template_vars = (
-    display_copies       => scalar keys %{ $form->{printers} } && $latex_templates && $form->{media} ne 'email',
+    display_copies       => scalar @{ $form->{printers} } && $latex_templates && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     groupitems_checked   => $form->{groupitems} ? "checked" : '',
     remove_draft_checked => $form->{remove_draft} ? "checked" : ''
