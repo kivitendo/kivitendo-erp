@@ -2420,7 +2420,7 @@ sub get_partsgroup {
     @values = ($p->{language_code});
   }
 
-  $self->{all_partsgroups} = selectall_hashref_query($self, $dbh, $query, @values);
+  $self->{all_partsgroup} = selectall_hashref_query($self, $dbh, $query, @values);
 
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
