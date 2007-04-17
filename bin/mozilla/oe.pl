@@ -385,23 +385,25 @@ sub form_header {
                               <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate}></td>|;
   }
 
-  if ($form->{id}) {
-    $openclosed = qq|
-      <tr>
-        <td colspan=2 align=center>
-          <input name="closed" id="closed" type="checkbox" class="checkbox" value="1" $checkedclosed>
-          <label for="closed">| . $locale->text('Closed') . qq|</label>
-|;
+  my @tmp;
 
-    if (($form->{"type"} eq "sales_order") ||
-        ($form->{"type"} eq "purchase_order")) {
-      $openclosed .= qq|
+  if (($form->{"type"} eq "sales_order") ||
+      ($form->{"type"} eq "purchase_order")) {
+    push(@tmp, qq|
           <input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1" $checkeddelivered>
-          <label for="delivered">| . $locale->text('Delivered') . qq|</label>
-|;
-    }
+          <label for="delivered">| . $locale->text('Delivered') . qq|</label>|);
+  }
 
+  if ($form->{id}) {
+    push(@tmp, qq|
+          <input name="closed" id="closed" type="checkbox" class="checkbox" value="1" $checkedclosed>
+          <label for="closed">| . $locale->text('Closed') . qq|</label>|);
+  }
+
+  if (@tmp) {
     $openclosed .= qq|
+      <tr>
+        <td colspan=| . (2 * scalar(@tmp)) . qq| align=center>| . join("\n", @tmp) . qq|
         </td>
       </tr>
 |;
