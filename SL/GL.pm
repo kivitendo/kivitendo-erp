@@ -48,11 +48,9 @@ sub delete_transaction {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my $query = qq|DELETE FROM gl WHERE id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
-
-  $query = qq|DELETE FROM acc_trans WHERE trans_id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  my @values = (conv_i($form->{id}));
+  do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, @values);
+  do_query($form, $dbh, qq|DELETE FROM gl WHERE id = ?|, @values);
 
   # commit and redirect
   my $rc = $dbh->commit;
@@ -91,9 +89,6 @@ sub post_transaction {
   # if there is a $form->{id} replace the old transaction
   # delete all acc_trans entries and add the new ones
 
-  # escape '
-  map { $form->{$_} =~ s/\'/\'\'/g } qw(reference description notes);
-
   if (!$form->{taxincluded}) {
     $form->{taxincluded} = 0;
   }
@@ -103,63 +98,43 @@ sub post_transaction {
   if ($form->{id}) {
 
     # delete individual transactions
-    $query = qq|DELETE FROM acc_trans 
-                WHERE trans_id = $form->{id}|;
-    $dbh->do($query) || $form->dberror($query);
+    $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
+    @values = (conv_i($form->{id}));
+    do_query($form, $dbh, $query, @values);
 
   } else {
-    my $uid = time;
-    $uid .= $form->{login};
+    $query = qq|SELECT nextval('glid')|;
+    ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO gl (reference, employee_id)
-                VALUES ('$uid', (SELECT e.id FROM employee e
-		                 WHERE e.login = '$form->{login}'))|;
-    $dbh->do($query) || $form->dberror($query);
-
-    $query = qq|SELECT g.id FROM gl g
-                WHERE g.reference = '$uid'|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{id}) = $sth->fetchrow_array;
-    $sth->finish;
-
+    $query =
+      qq|INSERT INTO gl (id, employee_id) | .
+      qq|VALUES (?, (SELECT id FROM employee WHERE login = ?))|;
+    @values = ($form->{id}, $form->{login});
+    do_query($form, $dbh, $query, @values);
   }
 
-  my ($null, $department_id) = split /--/, $form->{department};
+  my ($null, $department_id) = split(/--/, $form->{department});
   $department_id *= 1;
 
-  $query = qq|UPDATE gl SET 
-	      reference = '$form->{reference}',
-	      description = '$form->{description}',
-	      notes = '$form->{notes}',
-	      transdate = '$form->{transdate}',
-	      department_id = $department_id,
-	      taxincluded = '$form->{taxincluded}'
-	      WHERE id = $form->{id}|;
+  $query =
+    qq|UPDATE gl SET
+         reference = ?, description = ?, notes = ?,
+         transdate = ?, department_id = ?, taxincluded = ?
+       WHERE id = ?|;
 
-  $dbh->do($query) || $form->dberror($query);
-  ($taxkey, $rate) = split(/--/, $form->{taxkey});
+  @values = ($form->{reference}, $form->{description}, $form->{notes},
+             conv_date($form->{transdate}), $department_id, $form->{taxincluded},
+             conv_i($form->{id}));
+  do_query($form, $dbh, $query, @values);
 
   # insert acc_trans transactions
   for $i (1 .. $form->{rowcount}) {
-    my $taxkey;
-    my $rate;
     # extract accno
-    print(STDERR $form->{"taxchart_$i"}, "TAXCHART\n");
     my ($accno) = split(/--/, $form->{"accno_$i"});
-    my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-    ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+    ($form->{"tax_id_$i"}) = split(/--/, $form->{"taxchart_$i"});
     if ($form->{"tax_id_$i"} ne "") {
-      $query = qq|SELECT t.taxkey, t.rate
-              FROM tax t
-              WHERE t.id=$form->{"tax_id_$i"}|;
-  
-      $sth = $dbh->prepare($query);
-      $sth->execute || $form->dberror($query);
-      ($taxkey, $rate) =
-        $sth->fetchrow_array;
-      $sth->finish;
+      $query = qq|SELECT taxkey, rate FROM tax WHERE id = ?|;
+      ($taxkey, $rate) = selectrow_query($form, $dbh, $query, conv_i($form->{"tax_id_$i"}));
     }
 
     my $amount = 0;
@@ -181,33 +156,27 @@ sub post_transaction {
 
     # if there is an amount, add the record
     if ($amount != 0) {
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, project_id, taxkey)
-		  VALUES
-		  ($form->{id}, (SELECT c.id
-		                 FROM chart c
-				 WHERE c.accno = '$accno'),
-		   $amount, '$form->{transdate}', |
-        . $dbh->quote($form->{"source_$i"}) . qq|, |
-        . $dbh->quote($form->{"memo_$i"}) . qq|,
-		  ?, $taxkey)|;
-
-      do_query($form, $dbh, $query, $project_id);
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                                  source, memo, project_id, taxkey)
+           VALUES (?, (SELECT id FROM chart WHERE accno = ?),
+                   ?, ?, ?, ?, ?, ?)|;
+      @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{transdate}),
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey);
+      do_query($form, $dbh, $query, @values);
     }
 
     if ($tax != 0) {
       # add taxentry
-      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                  source, memo, project_id, taxkey)
-                  VALUES
-                  ($form->{id}, (SELECT t.chart_id
-                  FROM tax t
-                  WHERE t.id = $form->{"tax_id_$i"}),
-                  $tax, '$form->{transdate}', |
-        . $dbh->quote($form->{"source_$i"}) . qq|, |
-        . $dbh->quote($form->{"memo_$i"}) . qq|, ?, $taxkey)|;
-
-      do_query($form, $dbh, $query, $project_id);
+      $query =
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
+                                  source, memo, project_id, taxkey)
+           VALUES (?, (SELECT chart_id FROM tax WHERE id = ?),
+                   ?, ?, ?, ?, ?, ?)|;
+      @values = (conv_i($form->{id}), conv_i($form->{"tax_id_$i"}),
+                 $tax, conv_date($form->{transdate}), $form->{"source_$i"},
+                 $form->{"memo_$i"}, $project_id, $taxkey);
+      do_query($form, $dbh, $query, @values);
     }
   }
 
@@ -229,174 +198,199 @@ sub all_transactions {
   my ($query, $sth, $source, $null);
 
   my ($glwhere, $arwhere, $apwhere) = ("1 = 1", "1 = 1", "1 = 1");
+  my (@glvalues, @arvalues, @apvalues);
 
   if ($form->{reference}) {
-    $source = $form->like(lc $form->{reference});
-    $glwhere .= " AND lower(g.reference) LIKE '$source'";
-    $arwhere .= " AND lower(a.invnumber) LIKE '$source'";
-    $apwhere .= " AND lower(a.invnumber) LIKE '$source'";
+    $glwhere .= qq| AND g.reference ILIKE ?|;
+    $arwhere .= qq| AND a.invnumber ILIKE ?|;
+    $apwhere .= qq| AND a.invnumber ILIKE ?|;
+    push(@glvalues, '%' . $form->{reference} . '%');
+    push(@arvalues, '%' . $form->{reference} . '%');
+    push(@apvalues, '%' . $form->{reference} . '%');
   }
+
   if ($form->{department}) {
-    ($null, $source) = split /--/, $form->{department};
-    $glwhere .= " AND g.department_id = $source";
-    $arwhere .= " AND a.department_id = $source";
-    $apwhere .= " AND a.department_id = $source";
+    my ($null, $department) = split /--/, $form->{department};
+    $glwhere .= qq| AND g.department_id = ?|;
+    $arwhere .= qq| AND a.department_id = ?|;
+    $apwhere .= qq| AND a.department_id = ?|;
+    push(@glvalues, $department);
+    push(@arvalues, $department);
+    push(@apvalues, $department);
   }
 
   if ($form->{source}) {
-    $source = $form->like(lc $form->{source});
-    $glwhere .= " AND lower(ac.source) LIKE '$source'";
-    $arwhere .= " AND lower(ac.source) LIKE '$source'";
-    $apwhere .= " AND lower(ac.source) LIKE '$source'";
+    $glwhere .= " AND ac.source ILIKE ?";
+    $arwhere .= " AND ac.source ILIKE ?";
+    $apwhere .= " AND ac.source ILIKE ?";
+    push(@glvalues, '%' . $form->{source} . '%');
+    push(@arvalues, '%' . $form->{source} . '%');
+    push(@apvalues, '%' . $form->{source} . '%');
   }
+
   if ($form->{datefrom}) {
-    $glwhere .= " AND ac.transdate >= '$form->{datefrom}'";
-    $arwhere .= " AND ac.transdate >= '$form->{datefrom}'";
-    $apwhere .= " AND ac.transdate >= '$form->{datefrom}'";
+    $glwhere .= " AND ac.transdate >= ?";
+    $arwhere .= " AND ac.transdate >= ?";
+    $apwhere .= " AND ac.transdate >= ?";
+    push(@glvalues, $form->{datefrom});
+    push(@arvalues, $form->{datefrom});
+    push(@apvalues, $form->{datefrom});
   }
+
   if ($form->{dateto}) {
-    $glwhere .= " AND ac.transdate <= '$form->{dateto}'";
-    $arwhere .= " AND ac.transdate <= '$form->{dateto}'";
-    $apwhere .= " AND ac.transdate <= '$form->{dateto}'";
+    $glwhere .= " AND ac.transdate <= ?";
+    $arwhere .= " AND ac.transdate <= ?";
+    $apwhere .= " AND ac.transdate <= ?";
+    push(@glvalues, $form->{dateto});
+    push(@arvalues, $form->{dateto});
+    push(@apvalues, $form->{dateto});
   }
+
   if ($form->{description}) {
-    my $description = $form->like(lc $form->{description});
-    $glwhere .= " AND lower(g.description) LIKE '$description'";
-    $arwhere .= " AND lower(ct.name) LIKE '$description'";
-    $apwhere .= " AND lower(ct.name) LIKE '$description'";
+    $glwhere .= " AND g.description ILIKE ?";
+    $arwhere .= " AND ct.name ILIKE ?";
+    $apwhere .= " AND ct.name ILIKE ?";
+    push(@glvalues, '%' . $form->{description} . '%');
+    push(@arvalues, '%' . $form->{description} . '%');
+    push(@apvalues, '%' . $form->{description} . '%');
   }
+
   if ($form->{notes}) {
-    my $notes = $form->like(lc $form->{notes});
-    $glwhere .= " AND lower(g.notes) LIKE '$notes'";
-    $arwhere .= " AND lower(a.notes) LIKE '$notes'";
-    $apwhere .= " AND lower(a.notes) LIKE '$notes'";
+    $glwhere .= " AND g.notes ILIKE ?";
+    $arwhere .= " AND a.notes ILIKE ?";
+    $apwhere .= " AND a.notes ILIKE ?";
+    push(@glvalues, '%' . $form->{notes} . '%');
+    push(@arvalues, '%' . $form->{notes} . '%');
+    push(@apvalues, '%' . $form->{notes} . '%');
   }
+
   if ($form->{accno}) {
     $glwhere .= " AND c.accno = '$form->{accno}'";
     $arwhere .= " AND c.accno = '$form->{accno}'";
     $apwhere .= " AND c.accno = '$form->{accno}'";
   }
+
   if ($form->{category} ne 'X') {
     $glwhere .=
-      " AND gl.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+      qq| AND gl.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN
+                          (SELECT id FROM chart c2 WHERE c2.category = ?))|;
     $arwhere .=
-      " AND ar.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+      qq| AND ar.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN
+                          (SELECT id FROM chart c2 WHERE c2.category = ?))|;
     $apwhere .=
-      " AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN (SELECT id FROM chart c2 WHERE c2.category = '$form->{category}'))";
+      qq| AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN
+                          (SELECT id FROM chart c2 WHERE c2.category = ?))"|;
+    push(@glvalues, $form->{category});
+    push(@arvalues, $form->{category});
+    push(@apvalues, $form->{category});
   }
+
   if ($form->{project_id}) {
-    $glwhere .= " AND g.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = " . conv_i($form->{project_id}, 'NULL') . ")";
+    $glwhere .= qq| AND g.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = ?)|;
     $arwhere .=
-      " AND ((a.globalproject_id = " . conv_i($form->{project_id}, 'NULL') . ") OR " .
-      "      (a.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = " . conv_i($form->{project_id}, 'NULL') . ")))";
+      qq| AND ((a.globalproject_id = ?) OR
+               (a.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = ?)))|;
     $apwhere .=
-      " AND ((a.globalproject_id = " . conv_i($form->{project_id}, 'NULL') . ") OR " .
-      "      (a.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = " . conv_i($form->{project_id}, 'NULL') . ")))";
+      qq| AND ((a.globalproject_id = ?) OR
+               (a.id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE project_id = ?)))|;
+    my $project_id = conv_i($form->{project_id});
+    push(@glvalues, $project_id);
+    push(@arvalues, $project_id, $project_id);
+    push(@apvalues, $project_id, $project_id);
   }
 
   my ($project_columns, %project_join);
   if ($form->{"l_projectnumbers"}) {
-    $project_columns = ", ac.project_id, pr.projectnumber";
-    $project_join = "LEFT JOIN project pr ON (ac.project_id = pr.id)";
+    $project_columns = qq|, ac.project_id, pr.projectnumber|;
+    $project_join = qq|LEFT JOIN project pr ON (ac.project_id = pr.id)|;
   }
 
   if ($form->{accno}) {
-
     # get category for account
-    $query = qq|SELECT c.category
-                FROM chart c
-		WHERE c.accno = '$form->{accno}'|;
-    $sth = $dbh->prepare($query);
-
-    $sth->execute || $form->dberror($query);
-    ($form->{ml}) = $sth->fetchrow_array;
-    $sth->finish;
+    $query = qq|SELECT category FROM chart WHERE accno = ?|;
+    ($form->{ml}) = selectrow_query($form, $dbh, $query, $form->{accno});
 
     if ($form->{datefrom}) {
-      $query = qq|SELECT SUM(ac.amount)
-		  FROM acc_trans ac, chart c
-		  WHERE ac.chart_id = c.id
-		  AND c.accno = '$form->{accno}'
-		  AND ac.transdate < date '$form->{datefrom}'
-		  |;
-      $sth = $dbh->prepare($query);
-      $sth->execute || $form->dberror($query);
-
-      ($form->{balance}) = $sth->fetchrow_array;
-      $sth->finish;
+      $query =
+        qq|SELECT SUM(ac.amount)
+           FROM acc_trans ac
+           LEFT JOIN chart c ON (ac.chart_id = c.id)
+           WHERE (c.accno = ?) AND (ac.transdate < ?)|;
+      ($form->{balance}) = selectrow_query($form, $dbh, $query, $form->{accno}, conv_date($form->{datefrom}));
     }
   }
 
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
 
-  my $sortorder = join ', ',
-    $form->sort_columns(qw(transdate reference source description accno));
-  my %ordinal = (transdate   => 6,
-                 reference   => 4,
-                 source      => 7,
-                 description => 5);
-  map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
+  my $sortorder;
 
   if ($form->{sort}) {
+    $form->{sort} =~ s/[^a-zA-Z_]//g;
     $sortorder = $form->{sort} . ",";
-  } else {
-    $sortorder = "";
   }
 
   my $query =
-    qq|SELECT ac.oid AS acoid, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
-                 g.description, ac.transdate, ac.source, ac.trans_id,
-		 ac.amount, c.accno, g.notes, t.chart_id, ac.oid
-                 $project_columns
-                 FROM gl g, acc_trans ac $project_join, chart c LEFT JOIN tax t ON
-                 (t.chart_id=c.id)
-                 WHERE $glwhere
-		 AND ac.chart_id = c.id
-		 AND g.id = ac.trans_id
-	UNION
-	         SELECT ac.oid AS acoid, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
-		 ct.name, ac.transdate, ac.source, ac.trans_id,
-		 ac.amount, c.accno, a.notes, t.chart_id, ac.oid
-                 $project_columns
-		 FROM ar a, acc_trans ac $project_join, customer ct, chart c LEFT JOIN tax t ON
-                 (t.chart_id=c.id)
-		 WHERE $arwhere
-		 AND ac.chart_id = c.id
-		 AND a.customer_id = ct.id
-		 AND a.id = ac.trans_id
-	UNION
-	         SELECT ac.oid AS acoid, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
-		 ct.name, ac.transdate, ac.source, ac.trans_id,
-		 ac.amount, c.accno, a.notes, t.chart_id, ac.oid
-                 $project_columns
-		 FROM ap a, acc_trans ac $project_join, vendor ct, chart c LEFT JOIN tax t ON
-                 (t.chart_id=c.id)
-		 WHERE $apwhere
-		 AND ac.chart_id = c.id
-		 AND a.vendor_id = ct.id
-		 AND a.id = ac.trans_id
-	         ORDER BY $sortorder transdate, trans_id, acoid, taxkey DESC|;
+    qq|SELECT
+        ac.oid AS acoid, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
+        g.description, ac.transdate, ac.source, ac.trans_id,
+        ac.amount, c.accno, g.notes, t.chart_id, ac.oid
+        $project_columns
+      FROM gl g, acc_trans ac $project_join, chart c
+      LEFT JOIN tax t ON (t.chart_id = c.id)
+      WHERE $glwhere
+        AND (ac.chart_id = c.id)
+        AND (g.id = ac.trans_id)
+
+      UNION
+
+      SELECT ac.oid AS acoid, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
+        ct.name, ac.transdate, ac.source, ac.trans_id,
+        ac.amount, c.accno, a.notes, t.chart_id, ac.oid
+        $project_columns
+      FROM ar a, acc_trans ac $project_join, customer ct, chart c
+      LEFT JOIN tax t ON (t.chart_id=c.id)
+      WHERE $arwhere
+        AND (ac.chart_id = c.id)
+        AND (a.customer_id = ct.id)
+        AND (a.id = ac.trans_id)
+
+      UNION
+
+      SELECT ac.oid AS acoid, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
+        ct.name, ac.transdate, ac.source, ac.trans_id,
+        ac.amount, c.accno, a.notes, t.chart_id, ac.oid
+        $project_columns
+      FROM ap a, acc_trans ac $project_join, vendor ct, chart c
+      LEFT JOIN tax t ON (t.chart_id=c.id)
+      WHERE $apwhere
+        AND (ac.chart_id = c.id)
+        AND (a.vendor_id = ct.id)
+        AND (a.id = ac.trans_id)
+
+      ORDER BY $sortorder transdate, trans_id, acoid, taxkey DESC|;
+
+  my @values = (@glvalues, @arvalues, @apvalues);
 
   # Show all $query in Debuglevel LXDebug::QUERY
   $callingdetails = (caller (0))[3];
-  $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
-      
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  dump_query(LXDebug::QUERY, "$callingdetails", $query, @values);
+
+  $sth = prepare_execute_query($form, $dbh, $query, @values);
   my $trans_id  = "";
   my $trans_id2 = "";
 
+  $form->{GL} = [];
   while (my $ref0 = $sth->fetchrow_hashref(NAME_lc)) {
-    
+
     $trans_id = $ref0->{id};
-    
+
     if ($trans_id != $trans_id2) { # first line of a booking
-    
+
       if ($trans_id2) {
-        push @{ $form->{GL} }, $ref;
+        push(@{ $form->{GL} }, $ref);
         $balance = 0;
       }
-    
+
       $ref       = $ref0;
       $trans_id2 = $ref->{id};
 
@@ -427,32 +421,32 @@ sub all_transactions {
       $ref->{"projectnumbers"}->{$ref->{"projectnumber"}} = 1 if ($ref->{"projectnumber"});
 
       $balance = $ref->{amount};
-    
-      # Linenumbers of General Ledger  
+
+      # Linenumbers of General Ledger
       $k       = 0; # Debit      # AP      # Soll
       $l       = 0; # Credit     # AR      # Haben
       $i       = 0; # Debit Tax  # AP_tax  # VSt
       $j       = 0; # Credit Tax # AR_tax  # USt
-      
+
 
       if ($ref->{chart_id} > 0) { # all tax accounts first line, no line increasing
         if ($ref->{amount} < 0) {
           if ($ref->{link} =~ /AR_tax/) {
             $ref->{credit_tax}{$j}       = $ref->{amount};
-            $ref->{credit_tax_accno}{$j} = $ref->{accno};              
+            $ref->{credit_tax_accno}{$j} = $ref->{accno};
           }
           if ($ref->{link} =~ /AP_tax/) {
             $ref->{debit_tax}{$i}       = $ref->{amount} * -1;
-            $ref->{debit_tax_accno}{$i} = $ref->{accno};   
+            $ref->{debit_tax_accno}{$i} = $ref->{accno};
           }
         } else {
           if ($ref->{link} =~ /AR_tax/) {
             $ref->{credit_tax}{$j}       = $ref->{amount};
-            $ref->{credit_tax_accno}{$j} = $ref->{accno};              
+            $ref->{credit_tax_accno}{$j} = $ref->{accno};
           }
           if ($ref->{link} =~ /AP_tax/) {
             $ref->{debit_tax}{$i}       = $ref->{amount} * -1;
-            $ref->{debit_tax_accno}{$i} = $ref->{accno};   
+            $ref->{debit_tax_accno}{$i} = $ref->{accno};
           }
         }
       } else { #all other accounts first line
@@ -475,9 +469,9 @@ sub all_transactions {
     } else { # following lines of a booking, line increasing
 
       $ref2      = $ref0;
-      $trans_old  =$trans_id2;
+      $trans_old = $trans_id2;
       $trans_id2 = $ref2->{id};
-  
+
       $balance =
         (int($balance * 100000) + int(100000 * $ref2->{amount})) / 100000;
 
@@ -490,14 +484,14 @@ sub all_transactions {
               $j++;
             }
             $ref->{credit_tax}{$j}       = $ref2->{amount};
-            $ref->{credit_tax_accno}{$j} = $ref2->{accno};              
+            $ref->{credit_tax_accno}{$j} = $ref2->{accno};
           }
           if ($ref2->{link} =~ /AP_tax/) {
             if ($ref->{debit_tax_accno}{$i} ne "") {
               $i++;
             }
             $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
-            $ref->{debit_tax_accno}{$i} = $ref2->{accno};   
+            $ref->{debit_tax_accno}{$i} = $ref2->{accno};
           }
         } else {
           if ($ref2->{link} =~ /AR_tax/) {
@@ -505,14 +499,14 @@ sub all_transactions {
               $j++;
             }
             $ref->{credit_tax}{$j}       = $ref2->{amount};
-            $ref->{credit_tax_accno}{$j} = $ref2->{accno};              
+            $ref->{credit_tax_accno}{$j} = $ref2->{accno};
           }
           if ($ref2->{link} =~ /AP_tax/) {
             if ($ref->{debit_tax_accno}{$i} ne "") {
               $i++;
             }
             $ref->{debit_tax}{$i}       = $ref2->{amount} * -1;
-            $ref->{debit_tax_accno}{$i} = $ref2->{accno};   
+            $ref->{debit_tax_accno}{$i} = $ref2->{accno};
           }
         }
       } else { # all other accounts, following lines
@@ -540,125 +534,103 @@ sub all_transactions {
   $sth->finish;
 
   if ($form->{accno}) {
-    $query =
-      qq|SELECT c.description FROM chart c WHERE c.accno = '$form->{accno}'|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{account_description}) = $sth->fetchrow_array;
-    $sth->finish;
+    $query = qq|SELECT c.description FROM chart c WHERE c.accno = ?|;
+    ($form->{account_description}) = selectrow_query($form, $dbh, $query, $form->{accno});
   }
-
-  $main::lxdebug->leave_sub();
 
   $dbh->disconnect;
 
+  $main::lxdebug->leave_sub();
 }
 
 sub transaction {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
 
-  my ($query, $sth, $ref);
+  my ($query, $sth, $ref, @values);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
+  $query = qq|SELECT closedto, revtrans FROM defaults|;
+  ($form->{closedto}, $form->{revtrans}) = selectrow_query($form, $dbh, $query);
+
   if ($form->{id}) {
-    $query = "SELECT closedto, revtrans
-              FROM defaults";
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    ($form->{closedto}, $form->{revtrans}) = $sth->fetchrow_array;
-    $sth->finish;
-
-    $query = "SELECT g.reference, g.description, g.notes, g.transdate,
-              d.description AS department, e.name as employee, g.taxincluded, g.gldate
-              FROM gl g
-	    LEFT JOIN department d ON (d.id = g.department_id)  
-	    LEFT JOIN employee e ON (e.id = g.employee_id)  
-	    WHERE g.id = $form->{id}";
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-    $ref = $sth->fetchrow_hashref(NAME_lc);
+    $query =
+      qq|SELECT g.reference, g.description, g.notes, g.transdate,
+           d.description AS department, e.name AS employee, g.taxincluded, g.gldate
+         FROM gl g
+         LEFT JOIN department d ON (d.id = g.department_id)
+         LEFT JOIN employee e ON (e.id = g.employee_id)
+         WHERE g.id = ?|;
+    $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
 
     # retrieve individual rows
-    $query = qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo,
-                a.transdate, a.cleared, a.project_id, p.projectnumber,
-		 a.taxkey, t.rate AS taxrate, t.id, (SELECT c1.accno FROM chart c1, tax t1 WHERE t1.id=t.id AND c1.id=t.chart_id) AS taxaccno, (SELECT tk.tax_id FROM taxkeys tk WHERE tk.chart_id =a.chart_id AND tk.startdate<=a.transdate ORDER BY tk.startdate desc LIMIT 1) AS tax_id
-		FROM acc_trans a
-		JOIN chart c ON (c.id = a.chart_id)
-		LEFT JOIN project p ON (p.id = a.project_id)
-                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link LIKE '%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
-                WHERE a.trans_id = $form->{id}
-		AND a.fx_transaction = '0'
-		ORDER BY a.oid,a.transdate|;
-
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    $form->{GL} = [];
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push @{ $form->{GL} }, $ref;
-    }
-
-    # get tax description
-    $query = qq| SELECT * FROM tax t order by t.taxkey|;
-    $sth   = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-    $form->{TAX} = [];
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push @{ $form->{TAX} }, $ref;
-    }
-
-    $sth->finish;
-  } else {
-    $query = "SELECT closedto, revtrans FROM defaults";
-    ($form->{closedto}, $form->{revtrans}) = $dbh->selectrow_array($query);
     $query =
-      "SELECT COALESCE(" .
-      "  (SELECT transdate FROM gl WHERE id = " .
-      "    (SELECT MAX(id) FROM gl) LIMIT 1), " .
-      "  current_date)";
-    ($form->{transdate}) = $dbh->selectrow_array($query);
+      qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo,
+           a.transdate, a.cleared, a.project_id, p.projectnumber,
+           a.taxkey, t.rate AS taxrate, t.id,
+           (SELECT c1.accno
+            FROM chart c1, tax t1
+            WHERE (t1.id = t.id) AND (c1.id = t.chart_id)) AS taxaccno,
+           (SELECT tk.tax_id
+            FROM taxkeys tk
+            WHERE (tk.chart_id = a.chart_id) AND (tk.startdate <= a.transdate)
+            ORDER BY tk.startdate desc LIMIT 1) AS tax_id
+         FROM acc_trans a
+         JOIN chart c ON (c.id = a.chart_id)
+         LEFT JOIN project p ON (p.id = a.project_id)
+         LEFT JOIN tax t ON
+           (t.id =
+             (SELECT tk.tax_id
+              FROM taxkeys tk
+              WHERE (tk.taxkey_id = a.taxkey) AND
+                ((CASE WHEN a.chart_id IN
+                    (SELECT chart_id FROM taxkeys WHERE taxkey_id = a.taxkey)
+                  THEN tk.chart_id = a.chart_id
+                  ELSE 1 = 1
+                  END)
+                 OR (c.link LIKE '%tax%'))
+                AND (startdate <= a.transdate)
+              ORDER BY startdate DESC LIMIT 1))
+         WHERE (a.trans_id = ?)
+           AND (a.fx_transaction = '0')
+         ORDER BY a.oid, a.transdate|;
+    $form->{GL} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
 
-    # get tax description
-    $query = qq| SELECT * FROM tax t order by t.taxkey|;
-    $sth   = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-    $form->{TAX} = ();
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push @{ $form->{TAX} }, $ref;
-    }
+  } else {
+    $query =
+      qq|SELECT COALESCE(
+           (SELECT transdate
+            FROM gl
+            WHERE id = (SELECT MAX(id) FROM gl)
+            LIMIT 1),
+           current_date)|;
+    ($form->{transdate}) = selectrow_query($form, $dbh, $query);
   }
 
-  $sth->finish;
-  my $transdate = "current_date";
-  if ($form->{transdate}) {
-    $transdate = qq|'$form->{transdate}'|;
-  }
+  # get tax description
+  $query = qq|SELECT * FROM tax ORDER BY taxkey|;
+  $form->{TAX} = selectall_hashref_query($form, $dbh, $query);
+
   # get chart of accounts
-  $query = qq|SELECT c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id
-                FROM chart c 
-                LEFT JOIN taxkeys tk ON (tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1))
-                ORDER BY c.accno|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-  $form->{chart} = ();
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{chart} }, $ref;
-  }
-  $sth->finish;
-
-  $sth->finish;
-  $main::lxdebug->leave_sub();
+  $query =
+    qq|SELECT c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id
+       FROM chart c
+       LEFT JOIN taxkeys tk ON (tk.id =
+         (SELECT id
+          FROM taxkeys
+          WHERE (taxkeys.chart_id = c.id)
+            AND (startdate <= ?)
+          ORDER BY startdate DESC
+          LIMIT 1))
+       ORDER BY c.accno|;
+  $form->{chart} = selectall_hashref_query($form, $dbh, $query, conv_date($form->{transdate}));
 
   $dbh->disconnect;
 
+  $main::lxdebug->leave_sub();
 }
 
 1;
-
