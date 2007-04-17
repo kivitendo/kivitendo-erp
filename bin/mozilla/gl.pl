@@ -1334,7 +1334,7 @@ sub form_header {
     <td>
       <table width=100%>
 	<tr>
-	  <th align=left>| . $locale->text('Reference') . qq|</th>
+	  <th align=right>| . $locale->text('Reference') . qq|</th>
 	  <td><input name=reference size=20 value="$form->{reference}" $readonly></td>
 	  <td align=left>
 	    <table>
@@ -1365,7 +1365,7 @@ sub form_header {
   if ($form->{id}) {
     print qq|
 	<tr>
-	  <th align=left width=1%>| . $locale->text('Description') . qq|</th>
+	  <th align=right width=1%>| . $locale->text('Description') . qq|</th>
 	  <td width=1%>$description</td>
           <td>
 	    <table>
@@ -1379,7 +1379,7 @@ sub form_header {
 	    <table width=100%>
 	      <tr>
 		<th align=right width=50%>| . $locale->text('Mitarbeiter') . qq|</th>
-		<td align=left><input name=employee size=11  value=$form->{employee} $readonly></td>
+		<td align=left><input name=employee size=20  value="| . H($form->{employee}) . qq|" readonly></td>
 	      </tr>
 	    </table>
 	  </td>
