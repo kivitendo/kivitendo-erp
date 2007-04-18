@@ -42,7 +42,7 @@ sub post_transaction {
 
   my ($self, $myconfig, $form) = @_;
 
-  my ($null, $taxrate, $amount, $tax, $diff);
+  my ($query, $sth, $null, $taxrate, $amount, $tax);
   my $exchangerate = 0;
   my $i;
 
@@ -50,130 +50,84 @@ sub post_transaction {
 
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  if ($form->{currency} eq $form->{defaultcurrency}) {
-    $form->{exchangerate} = 1;
-  } else {
-    $exchangerate =
-      $form->check_exchangerate($myconfig, $form->{currency},
-                                $form->{transdate}, 'buy');
-  }
-  for $i (1 .. $form->{rowcount}) {
-    $form->{AR_amounts}{"amount_$i"} =
-      (split(/--/, $form->{"AR_amount_$i"}))[0];
-  }
+  # set exchangerate
+  $form->{exchangerate} = ($form->{currency} eq $form->{defaultcurrency}) ? 1 :
+      ( $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy') ||
+        $form->parse_amount($myconfig, $form->{exchangerate}) );
+
+  # get the charts selected
+  map { ($form->{AR_amounts}{"amount_$_"}) = split /--/, $form->{"AR_amount_$_"} } 1 .. $form->{rowcount};
+
   $form->{AR_amounts}{receivables} = $form->{ARselected};
   $form->{AR}{receivables}         = $form->{ARselected};
 
-  $form->{exchangerate} =
-    ($exchangerate)
-    ? $exchangerate
-    : $form->parse_amount($myconfig, $form->{exchangerate});
-
+  # parsing
   for $i (1 .. $form->{rowcount}) {
-
-    $form->{"amount_$i"} =
-      $form->round_amount($form->parse_amount($myconfig, $form->{"amount_$i"})
-                            * $form->{exchangerate},
-                          2);
-
-    $form->{netamount} += $form->{"amount_$i"};
-
-    # parse tax_$i for later
-    $form->{"tax_$i"} = $form->parse_amount($myconfig, $form->{"tax_$i"});
+    $form->{"amount_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"amount_$i"}) * $form->{exchangerate}, 2);
+    $form->{amount}     += $form->{"amount_$i"};
+    $form->{"tax_$i"}    = $form->parse_amount($myconfig, $form->{"tax_$i"});
   }
 
   # this is for ar
-
-  $form->{amount} = $form->{netamount};
-
   $form->{tax}       = 0;
   $form->{netamount} = 0;
   $form->{total_tax} = 0;
 
   # taxincluded doesn't make sense if there is no amount
+  $form->{taxincluded} = 0 unless $form->{amount};
 
-  $form->{taxincluded} = 0 if ($form->{amount} == 0);
   for $i (1 .. $form->{rowcount}) {
-    ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+    ($form->{"tax_id_$i"}) = split /--/, $form->{"taxchart_$i"};
 
-    $query =
-      qq|SELECT c.accno, t.taxkey, t.rate | .
-      qq|FROM tax t LEFT JOIN chart c on (c.id = t.chart_id) | .
-      qq|WHERE t.id = ? | .
-      qq|ORDER BY c.accno|;
+    $query = qq|SELECT c.accno, t.taxkey, t.rate FROM tax t LEFT JOIN chart c ON (c.id = t.chart_id) WHERE t.id = ? ORDER BY c.accno|;
+    ($form->{AR_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) = selectrow_query($form, $dbh, $query, $form->{"tax_id_$i"});
 
-    ($form->{AR_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) =
-      selectrow_query($form, $dbh, $query, $form->{"tax_id_$i"});
     $form->{AR_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
-    $form->{AR_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
+    $form->{AR_amounts}{"amounts_$i"}{taxkey} = $form->{"taxkey_$i"};
 
     if ($form->{taxincluded} *= 1) {
-      if (!$form->{"korrektur_$i"}) {
-      $tax =
-        $form->{"amount_$i"} -
-        ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
-      } else {
-        $tax = $form->{"tax_$i"};
-      }
-      $amount = $form->{"amount_$i"} - $tax;
-      $form->{"amount_$i"} = $form->round_amount($amount, 2);
-      $diff += $amount - $form->{"amount_$i"};
-      $form->{"tax_$i"} = $form->round_amount($tax, 2);
-      $form->{netamount} += $form->{"amount_$i"};
+      $tax = $form->{"korrektur_$i"}
+        ? $form->{"tax_$i"}
+        : $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1)); # should be same as taxrate * amount / (taxrate + 1)
+      $form->{"amount_$i"} = $form->round_amount($form->{"amount_$i"} - $tax, 2);
+      $form->{"tax_$i"}    = $form->round_amount($tax, 2);
     } else {
-      if (!$form->{"korrektur_$i"}) {
-        $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-      }
-      $form->{"tax_$i"} =
-        $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
-      $form->{netamount} += $form->{"amount_$i"};
+      $form->{"tax_$i"}    = $form->{"amount_$i"} * $form->{"taxrate_$i"} unless $form->{"korrektur_$i"};
+      $form->{"tax_$i"}    = $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
     }
-    
-    $form->{total_tax} += $form->{"tax_$i"};
+    $form->{netamount}  += $form->{"amount_$i"};
+    $form->{total_tax}  += $form->{"tax_$i"};
   }
 
   # adjust paidaccounts if there is no date in the last row
-  $form->{paidaccounts}-- unless ($form->{"datepaid_$form->{paidaccounts}"});
+  $form->{paidaccounts}-- unless $form->{"datepaid_$form->{paidaccounts}"};
   $form->{paid} = 0;
 
   # add payments
   for $i (1 .. $form->{paidaccounts}) {
-    $form->{"paid_$i"} =
-      $form->round_amount($form->parse_amount($myconfig, $form->{"paid_$i"}),
-                          2);
-
-    $form->{paid} += $form->{"paid_$i"};
-    $form->{datepaid} = $form->{"datepaid_$i"};
-
+    $form->{"paid_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"paid_$i"}), 2);
+    $form->{paid}     += $form->{"paid_$i"};
+    $form->{datepaid}  = $form->{"datepaid_$i"};
   }
 
   $form->{amount} = $form->{netamount} + $form->{total_tax};
-  $form->{paid}   =
-    $form->round_amount($form->{paid} * $form->{exchangerate}, 2);
-
-  my ($query, $sth, $null);
+  $form->{paid}   = $form->round_amount($form->{paid} * $form->{exchangerate}, 2);
 
   ($null, $form->{employee_id}) = split /--/, $form->{employee};
-  unless ($form->{employee_id}) {
-    $form->get_employee($dbh);
-  }
 
-  # if we have an id delete old records
+  $form->get_employee($dbh) unless $form->{employee_id};
+
+  # if we have an id delete old records else make one
   if ($form->{id}) {
     # delete detail records
     $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
     do_query($form, $dbh, $query, $form->{id});
-
   } else {
     $query = qq|SELECT nextval('glid')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
-
     $query = qq|INSERT INTO ar (id, invnumber, employee_id) VALUES (?, 'dummy', ?)|;
     do_query($form, $dbh, $query, $form->{id}, $form->{employee_id});
-
-    if (!$form->{invnumber}) {
-      $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh);
-    }
+    $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh) unless $form->{invnumber};
   }
 
   # update department
@@ -181,75 +135,55 @@ sub post_transaction {
   $form->{department_id} *= 1;
 
   # record last payment date in ar table
-  $form->{datepaid} = $form->{transdate} unless $form->{datepaid};
+  $form->{datepaid} ||= $form->{transdate} ;
   my $datepaid = ($form->{paid} != 0) ? $form->{datepaid} : undef;
 
   $query =
-    qq|UPDATE ar set | .
-    qq|  invnumber = ?, ordnumber = ?, transdate = ?, customer_id = ?, | .
-    qq|  taxincluded = ?, amount = ?, duedate = ?, paid = ?, datepaid = ?, | .
-    qq|  netamount = ?, curr = ?, notes = ?, department_id = ?, | .
-    qq|  employee_id = ? | .
-    qq|WHERE id = ?|;
-  my @values = ($form->{invnumber}, $form->{ordnumber},
-                conv_date($form->{transdate}), conv_i($form->{customer_id}),
-                $form->{taxincluded} ? 't' : 'f', $form->{amount},
-                conv_date($form->{duedate}), $form->{paid},
-                conv_date($datepaid), $form->{netamount},
-                $form->{currency}, $form->{notes},
-                conv_i($form->{department_id}),
-                conv_i($form->{employee_id}),
-                conv_i($form->{id}));
+    qq|UPDATE ar set
+         invnumber = ?, ordnumber = ?, transdate = ?, customer_id = ?,
+         taxincluded = ?, amount = ?, duedate = ?, paid = ?, datepaid = ?,
+         netamount = ?, curr = ?, notes = ?, department_id = ?,
+         employee_id = ?
+       WHERE id = ?|;
+  my @values = ($form->{invnumber}, $form->{ordnumber}, conv_date($form->{transdate}), conv_i($form->{customer_id}), $form->{taxincluded} ? 't' : 'f', $form->{amount},
+                conv_date($form->{duedate}), $form->{paid}, conv_date($datepaid), $form->{netamount}, $form->{currency}, $form->{notes}, conv_i($form->{department_id}),
+                conv_i($form->{employee_id}), conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
   # amount for AR account
   $form->{receivables} = $form->round_amount($form->{amount}, 2) * -1;
 
   # update exchangerate
-  if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-    $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate},
-                               $form->{exchangerate}, 0);
-  }
+  $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, $form->{exchangerate}, 0)
+    if ($form->{currency} ne $form->{defaultcurrency}) && $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
+
 
   # add individual transactions for AR, amount and taxes
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"amount_$i"} != 0) {
       my $project_id = conv_i($form->{"project_id_$i"});
-      $taxkey = $form->{AR_amounts}{"amount_$i"}{taxkey};
+      $taxkey = $form->{AR_amounts}{"amounts_$i"}{taxkey};
 
       # insert detail records in acc_trans
-      $query =
-        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, | .
-        qq|  project_id, taxkey) | .
-        qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
-      @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"amount_$i"}),
-                 conv_i($form->{"amount_$i"}), conv_date($form->{transdate}),
-                 $project_id, conv_i($taxkey));
+      $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
+                   VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
+      @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"amount_$i"}), conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id, conv_i($taxkey));
       do_query($form, $dbh, $query, @values);
 
       if ($form->{"tax_$i"} != 0) {
         # insert detail records in acc_trans
-        $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, | .
-          qq|  project_id, taxkey) | .
-          qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-          qq|  ?, ?, ?, ?)|;
-        @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"tax_$i"}),
-                   conv_i($form->{"tax_$i"}), conv_date($form->{transdate}),
-                   $project_id, conv_i($taxkey));
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
+                     VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
+        @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"tax_$i"}), conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id, conv_i($taxkey));
         do_query($form, $dbh, $query, @values);
       }
     }
   }
 
   # add recievables
-  $query =
-    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) | .
-    qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, | .
-    qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-  @values = (conv_i($form->{id}), $form->{AR_amounts}{receivables},
-             conv_i($form->{receivables}), conv_date($form->{transdate}),
-             $form->{AR_amounts}{receivables});
+  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey)
+               VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+  @values = (conv_i($form->{id}), $form->{AR_amounts}{receivables}, conv_i($form->{receivables}), conv_date($form->{transdate}), $form->{AR_amounts}{receivables});
   do_query($form, $dbh, $query, @values);
 
   # add paid transactions
@@ -262,38 +196,22 @@ sub post_transaction {
       $form->{"datepaid_$i"} = $form->{transdate}
         unless ($form->{"datepaid_$i"});
 
-      $exchangerate = 0;
-      if ($form->{currency} eq $form->{defaultcurrency}) {
-        $form->{"exchangerate_$i"} = 1;
-      } else {
-        $exchangerate =
-          $form->check_exchangerate($myconfig, $form->{currency},
-                                    $form->{"datepaid_$i"}, 'buy');
-
-        $form->{"exchangerate_$i"} =
-          ($exchangerate)
-          ? $exchangerate
-          : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
-      }
+      $form->{"exchangerate_$i"} = ($form->{currency} eq $form->{defaultcurrency}) ? 1 :
+        ( $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy') ||
+          $form->parse_amount($myconfig, $form->{"exchangerate_$i"}) );
 
       # if there is no amount and invtotal is zero there is no exchangerate
-      if ($form->{amount} == 0 && $form->{netamount} == 0) {
-        $form->{exchangerate} = $form->{"exchangerate_$i"};
-      }
+      $form->{exchangerate} = $form->{"exchangerate_$i"}
+        if ($form->{amount} == 0 && $form->{netamount} == 0);
 
       # receivables amount
-      $amount =
-        $form->round_amount($form->{"paid_$i"} * $form->{exchangerate}, 2);
+      $amount = $form->round_amount($form->{"paid_$i"} * $form->{exchangerate}, 2);
 
       if ($form->{receivables} != 0) {
         # add receivable
-        $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey) | .
-          qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, | .
-          qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR}{receivables},
-                   $amount, conv_date($form->{"datepaid_$i"}), $project_id,
-                   $form->{AR}{receivables});
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
+                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+        @values = (conv_i($form->{id}), $form->{AR}{receivables}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{receivables});
         do_query($form, $dbh, $query, @values);
       }
       $form->{receivables} = $amount;
@@ -302,67 +220,43 @@ sub post_transaction {
         my $project_id = conv_i($form->{"paid_project_id_$i"});
         # add payment
         $amount = $form->{"paid_$i"} * -1;
-        $query  =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id, taxkey) | .
-          qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, | .
-          qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount,
-                   conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
-                   $form->{"memo_$i"}, $project_id, $form->{AR}{"paid_$i"});
+        $query  = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id, taxkey)
+                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+        @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $form->{AR}{"paid_$i"});
         do_query($form, $dbh, $query, @values);
 
         # exchangerate difference for payment
-        $amount =
-          $form->round_amount(
-                    $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) * -1,
-                    2);
+        $amount = $form->round_amount( $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) * -1, 2);
 
         if ($amount != 0) {
-          $query =
-            qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey) | .
-            qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
-            qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-          @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"},
-                     $amount, conv_date($form->{"datepaid_$i"}), $project_id,
-                     $form->{AR}{"paid_$i"});
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey)
+                       VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+          @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{"paid_$i"});
           do_query($form, $dbh, $query, @values);
         }
 
         # exchangerate gain/loss
-        $amount =
-          $form->round_amount(
-                   $form->{"paid_$i"} *
-                     ($form->{exchangerate} - $form->{"exchangerate_$i"}) * -1,
-                   2);
+        $amount = $form->round_amount( $form->{"paid_$i"} * ($form->{exchangerate} - $form->{"exchangerate_$i"}) * -1, 2);
 
         if ($amount != 0) {
-          $accno =
-            ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
-          $query =
-            qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey) | .
-            qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
-            qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-          @values = (conv_i($form->{id}), $accno, $amount,
-                     conv_date($form->{"datepaid_$i"}), $project_id, $accno);
+          $accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey)
+                       VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+          @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $accno);
           do_query($form, $dbh, $query, @values);
         }
       }
 
       # update exchangerate record
-      if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-        $form->update_exchangerate($dbh, $form->{currency},
-                                   $form->{"datepaid_$i"},
-                                   $form->{"exchangerate_$i"}, 0);
-      }
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, $form->{"exchangerate_$i"}, 0)
+        if ($form->{currency} ne $form->{defaultcurrency}) && !$form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
     }
   }
 
   my $rc = $dbh->commit;
   $dbh->disconnect;
 
-  $main::lxdebug->leave_sub();
-
-  return $rc;
+  $main::lxdebug->leave_sub() and return $rc;
 }
 
 sub post_payment {
@@ -472,8 +366,6 @@ sub post_payment {
         $form->{fx}{ $form->{fxloss_accno} }{ $form->{"datepaid_$i"} } +=
           $amount;
       }
-
-      $diff = 0;
 
       # update exchange rate
       if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
