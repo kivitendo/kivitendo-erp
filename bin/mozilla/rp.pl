@@ -2003,20 +2003,32 @@ sub print {
 sub print_form {
   $lxdebug->enter_sub();
 
+  my %replacements =
+    (
+     "ä" => "ae", "ö" => "oe", "ü" => "ue",
+     "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue",
+     "ß" => "ss",
+     " " => "_"
+    );
+
   $form->{statementdate} = $locale->date(\%myconfig, $form->{todate}, 1);
 
   $form->{templates} = "$myconfig{templates}";
 
-  $form->{IN} = "$form->{type}.html";
-
+  my $suffix = "html";
+  my $attachment_suffix = "html";
   if ($form->{format} eq 'postscript') {
     $form->{postscript} = 1;
-    $form->{IN} =~ s/html$/tex/;
-  }
-  if ($form->{format} eq 'pdf') {
+    $suffix = "tex";
+    $attachment_suffix = "ps";
+  } elsif ($form->{format} eq 'pdf') {
     $form->{pdf} = 1;
-    $form->{IN} =~ s/html$/tex/;
+    $suffix = "tex";
+    $attachment_suffix = "pdf";
   }
+
+  $form->{IN} = "$form->{type}.$suffix";
+
 
   # Save $form->{email} because it will be overwritten.
   $form->{EMAIL_RECIPIENT} = $form->{email};
@@ -2076,6 +2088,9 @@ sub print_form {
           $form->{"${_}total"} =
             $form->format_amount(\%myconfig, $form->{"${_}total"}, 2)
         } (c0, c30, c60, c90, "");
+
+        $form->{attachment_filename} = $locale->text("Statement") . "_$form->{todate}.$attachment_suffix";
+        map({ $form->{attachment_filename} =~ s/$_/$replacements{$_}/g; } keys(%replacements));
 
         $form->parse_template(\%myconfig, $userspath);
 
