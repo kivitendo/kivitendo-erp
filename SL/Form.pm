@@ -1822,7 +1822,7 @@ sub create_links {
 
     $sth = $dbh->prepare($query);
 
-    do_statement($form, $sth, $query, '%' . $module . '%');
+    do_statement($self, $sth, $query, '%' . $module . '%');
 
     $self->{accounts} = "";
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -1847,16 +1847,16 @@ sub create_links {
 
   # get taxkeys and description
   $query = qq|SELECT id, taxkey, taxdescription FROM tax|;
-  $self->{TAXKEY} = selectall_hashref_query($form, $dbh, $query);
+  $self->{TAXKEY} = selectall_hashref_query($self, $dbh, $query);
 
   # get tax zones
   $query = qq|SELECT id, description FROM tax_zones|;
-  $self->{TAXZONE} = selectall_hashref_query($form, $dbh, $query);
+  $self->{TAXZONE} = selectall_hashref_query($self, $dbh, $query);
 
   if (($module eq "AP") || ($module eq "AR")) {
     # get tax rates and description
     $query = qq|SELECT * FROM tax|;
-    $self->{TAX} = selectall_hashref_query($form, $dbh, $query);
+    $self->{TAX} = selectall_hashref_query($self, $dbh, $query);
   }
 
   if ($self->{id}) {
@@ -1896,7 +1896,7 @@ sub create_links {
       ORDER BY c.accno|;
 
     $sth = $dbh->prepare($query);
-    do_statement($form, $sth, $query, "%" . $module . "%");
+    do_statement($self, $sth, $query, "%" . $module . "%");
 
     $self->{accounts} = "";
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -1941,7 +1941,7 @@ sub create_links {
          AND a.fx_transaction = '0'
          ORDER BY a.oid, a.transdate|;
     $sth = $dbh->prepare($query);
-    do_statement($form, $sth, $query, $self->{id});
+    do_statement($self, $sth, $query, $self->{id});
 
     # get exchangerate for currency
     $self->{exchangerate} =
