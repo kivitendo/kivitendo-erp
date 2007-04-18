@@ -796,7 +796,7 @@ sub parse_template {
 
       map { $mail->{$_} = $self->{$_} }
         qw(cc bcc subject message version format charset);
-      $mail->{to}     = qq|$self->{email}|;
+      $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";
       $myconfig->{signature} =~ s/\\r\\n/\\n/g;

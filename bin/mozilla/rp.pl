@@ -2018,6 +2018,9 @@ sub print_form {
     $form->{IN} =~ s/html$/tex/;
   }
 
+  # Save $form->{email} because it will be overwritten.
+  $form->{EMAIL_RECIPIENT} = $form->{email};
+
   $i = 0;
   while (@{ $form->{AG} }) {
 
