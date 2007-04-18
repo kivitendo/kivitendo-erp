@@ -1886,17 +1886,17 @@ sub create_links {
     }
 
     # now get the account numbers
-    $query = qq|
-      SELECT
-        c.accno, c.description, c.link, c.taxkey_id,
-        tk.tax_id
-      FROM chart c
-      LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
-      WHERE (c.link LIKE ?) AND (tk.chart_id = c.id) AND NOT (c.link LIKE '%_tax%')
-      ORDER BY c.accno|;
+     $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
+                 FROM chart c, taxkeys tk
+                 WHERE c.link LIKE ? 
+                   AND (    tk.chart_id = c.id OR     c.link LIKE '%_tax%') 
+                   AND (NOT tk.chart_id = c.id OR NOT c.link LIKE '%_tax%')
+                   AND (tk.id = (SELECT id FROM taxkeys WHERE taxkeys.chart_id = c.id AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1)
+                     OR c.link LIKE '%_tax%')
+                 ORDER BY c.accno|;
 
     $sth = $dbh->prepare($query);
-    do_statement($self, $sth, $query, "%" . $module . "%");
+    do_statement($self, $sth, $query, "%$module%");
 
     $self->{accounts} = "";
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
