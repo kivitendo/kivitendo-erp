@@ -47,9 +47,31 @@ require "$form->{path}/common.pl";
 # end of main
 
 sub add    { &{"add_$form->{type}"} }
-sub edit   { &{"edit_$form->{type}"} }
-sub save   { &{"save_$form->{type}"} }
 sub delete { &{"delete_$form->{type}"} }
+
+sub display {
+  if ($form->{display_nextsub}) {
+    &{ $form->{display_nextsub} }();
+  } else {
+    &{ $form->{nextsub} }();
+  }
+}
+
+sub save {
+  if ($form->{save_nextsub}) {
+    &{ $form->{save_nextsub} }();
+  } else {
+    &{ $form->{nextsub} }();
+  }
+}
+
+sub edit {
+  if ($form->{edit_nextsub}) {
+    &{ $form->{edit_nextsub} }();
+  } else {
+    &{ "edit_$form->{type}" }();
+  }
+}
 
 sub add_account {
   $lxdebug->enter_sub();
@@ -2412,57 +2434,11 @@ sub swap_payment_terms {
   $lxdebug->leave_sub();
 }
 
-sub display_stylesheet {
+sub display_template {
   $lxdebug->enter_sub();
 
-  $form->{file} = "css/$myconfig{stylesheet}";
-  &display_form;
-
-  $lxdebug->leave_sub();
-}
-
-sub display_form {
-  $lxdebug->enter_sub();
-
-  $form->{file} =~ s/^(.:)*?\/|\.\.\///g;
-  $form->{file} =~ s/^\/*//g;
-  $form->{file} =~ s/$userspath//;
-
-  $form->error("$!: $form->{file}") unless -f $form->{file};
-
-  AM->load_template(\%$form);
-
-  $form->{title} = $form->{file};
-
-  # if it is anything but html
-  if ($form->{file} !~ /\.html$/) {
-    $form->{body} = "<pre>\n$form->{body}\n</pre>";
-  }
-
-  $form->header;
-
-  print qq|
-<body>
-
-$form->{body}
-
-<form method=post action=$form->{script}>
-
-<input name=file type=hidden value=$form->{file}>
-<input name=type type=hidden value=template>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input name=action type=submit class=submit value="|
-    . $locale->text('Edit') . qq|">
-
-  </form>
-
-</body>
-</html>
-|;
+  $form->{edit} = 0;
+  display_template_form();
 
   $lxdebug->leave_sub();
 }
@@ -2470,43 +2446,8 @@ $form->{body}
 sub edit_template {
   $lxdebug->enter_sub();
 
-  AM->load_template(\%$form);
-
-  $form->{title} = $locale->text('Edit Template');
-
-  # convert &nbsp to &amp;nbsp;
-  $form->{body} =~ s/&nbsp;/&amp;nbsp;/gi;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input name=file type=hidden value=$form->{file}>
-<input name=type type=hidden value=template>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input name=callback type=hidden value="$form->{script}?action=display_form&file=$form->{file}&path=$form->{path}&login=$form->{login}&password=$form->{password}">
-
-<textarea name=body rows=25 cols=70>
-$form->{body}
-</textarea>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">
-
-  </form>
-
-
-</body>
-</html>
-|;
+  $form->{edit} = 1;
+  display_template_form();
 
   $lxdebug->leave_sub();
 }
@@ -2514,8 +2455,201 @@ $form->{body}
 sub save_template {
   $lxdebug->enter_sub();
 
-  AM->save_template(\%$form);
-  $form->redirect($locale->text('Template saved!'));
+  $form->isblank("formname", $locale->text("You're not editing a file.")) unless ($form->{type} eq "stylesheet");
+
+  my ($filename) = AM->prepare_template_filename(\%myconfig, $form);
+  if (my $error = AM->save_template($filename, $form->{content})) {
+    $form->error(sprintf($locale->text("Saving the file '%s' failed. OS error message: %s"), $filename, $error));
+  }
+
+  $form->{edit} = 0;
+  display_template_form();
+
+  $lxdebug->leave_sub();
+}
+
+sub display_template_form {
+  $lxdebug->enter_sub();
+
+  $form->{formname} =~ s|.*/||;
+  my $format = $form->{format} eq "html" ? "html" : "tex";
+
+  my $title = $form->{type} eq "stylesheet" ? $locale->text("Edit the stylesheet") : $locale->text("Edit templates");
+  $form->{title} = $title;
+
+  my $edit_options;
+
+  my @hidden = qw(login path password type format);
+
+  if (($form->{type} ne "stylesheet") && !$form->{edit}) {
+    $edit_options = "<p>";
+
+    my %formname_setup =
+      (
+       "balance_sheet" => { "translation" => $locale->text('Balance Sheet'), "html" => 1 },
+       "bin_list" => $locale->text('Bin List'),
+       "bwa" => { "translation" => $locale->text('BWA'), "html" => 1 },
+       "check" => { "translation" => $locale->text('Check'), "html" => 1 },
+       "credit_note" => $locale->text('Credit Note'),
+       "income_statement" => { "translation" => $locale->text('Income Statement'), "html" => 1 },
+       "invoice" => $locale->text('Invoice'),
+       "packing_list" => $locale->text('Packing List'),
+       "pick_list" => $locale->text('Pick List'),
+       "proforma" => $locale->text('Proforma Invoice'),
+       "purchase_order" => $locale->text('Purchase Order'),
+       "receipt" => { "translation" => $locale->text('Receipt'), "tex" => 1 },
+       "request_quotation" => $locale->text('RFQ'),
+       "sales_order" => $locale->text('Confirmation'),
+       "sales_quotation" => $locale->text('Quotation'),
+       "statement" => $locale->text('Statement'),
+       "storno_invoice" => $locale->text('Storno Invoice'),
+       "storno_packing_list" => $locale->text('Storno Packing List'),
+       "ustva-2004" => { "translation" => $locale->text("USTVA 2004"), "tex" => 1 },
+       "ustva-2005" => { "translation" => $locale->text("USTVA 2005"), "tex" => 1 },
+       "ustva-2006" => { "translation" => $locale->text("USTVA 2006"), "tex" => 1 },
+       "ustva-2007" => { "translation" => $locale->text("USTVA 2007"), "tex" => 1 },
+       "ustva" => $locale->text("USTVA"),
+       "zahlungserinnerung" => $locale->text('Payment Reminder'),
+      );
+
+    my (@values, %labels, $file, $setup);
+
+    while (($file, $setup) = each(%formname_setup)) {
+      next unless (!ref($setup) || $setup->{$format});
+
+      push(@values, $file);
+      $labels{$file} = ref($setup) ? $setup->{translation} : $setup;
+    }
+    @values = sort({ $labels{$a} cmp $labels{$b} } @values);
+
+    $edit_options .=
+      $locale->text("Template") . " " .
+      NTI($cgi->popup_menu("-name" => "formname", "-default" => $form->{formname},
+                           "-values" => \@values, "-labels" => \%labels));
+
+    $form->get_lists("printers" => "ALL_PRINTERS",
+                     "languages" => "ALL_LANGUAGES");
+
+    @values = ("");
+    %labels = ();
+
+    foreach my $item (@{ $form->{ALL_LANGUAGES} }) {
+      next unless ($item->{template_code});
+      my $key = "$item->{id}--$item->{template_code}";
+      push(@values, $key);
+      $labels{$key} = $item->{description};
+    }
+
+    if (1 != scalar(@values)) {
+      $edit_options .=
+        " " . $locale->text("Language") . " " .
+        NTI($cgi->popup_menu("-name" => "language", "-default" => $form->{language},
+                             "-values" => \@values, "-labels" => \%labels));
+    }
+
+    @values = ("");
+    %labels = ();
+
+    foreach my $item (@{ $form->{ALL_PRINTERS} }) {
+      next unless ($item->{template_code});
+      my $key = "$item->{id}--$item->{template_code}";
+      push(@values, $key);
+      $labels{$key} = $item->{printer_description};
+    }
+
+    if (1 != scalar(@values)) {
+      $edit_options .=
+        " " . $locale->text("Printer") . " " .
+        NTI($cgi->popup_menu("-name" => "printer", "-default" => $form->{printer},
+                             "-values" => \@values, "-labels" => \%labels));
+    }
+
+    $edit_options .= qq|
+
+  <input type="hidden" name="display_nextsub" value="display_template">
+
+  <input name="action" type="submit" class="submit" value="|
+    . $locale->text('Display') . qq|">
+
+ </p>
+
+ <hr>
+|;
+
+  } else {
+    push(@hidden, qw(formname language printer));
+  }
+
+  if ($form->{formname} || ($form->{type} eq "stylesheet")) {
+    my ($filename, $display_filename) = AM->prepare_template_filename(\%myconfig, $form);
+    my ($content, $lines) = AM->load_template($filename);
+
+    $body = qq|
+|;
+
+    if ($form->{edit}) {
+      $form->{fokus} = "Form.content";
+      $body = qq|\n<p><div class="listtop">| . $locale->text('Edit file') . " '" . H($display_filename) . qq|'</div></p>\n<p>|
+        . NTI($cgi->textarea("-name" => "content",
+                             "-id" => "content",
+                             "-default" => $content,
+                             "-columns" => 100,
+                             "-rows" => 25))
+        . qq|</p>
+
+ <p>
+  <input type="hidden" name="save_nextsub" value="save_template">
+
+  <input type="submit" name="action" value="| . $locale->text('Save') . qq|">
+ </p>
+|;
+
+    } else {
+      $content = "\n\n" unless ($content);
+
+      $body = qq|
+  <p><div class="listtop">| . $locale->text('Display file') . " '" . H($display_filename) . qq|'</div></p>
+
+  <input type="hidden" name="edit_nextsub" value="edit_template">
+
+  <p><input name="action" type="submit" class="submit" value="| . $locale->text('Edit') . qq|"></p>
+
+  <p>
+    <pre class="filecontent">| . H($content) . qq|</pre>
+  </p>
+|;
+
+      if ($lines > 25) {
+        $body .= qq|
+  <input name="action" type="submit" class="submit" value="|
+    . $locale->text('Edit') . qq|">
+|;
+      }
+    }
+  }
+
+  $form->header;
+
+  print qq|
+<body>
+
+<div class="listheading">$title</div>
+
+<form method="post" name="Form" action="am.pl">
+
+|;
+  $form->hide_form(@hidden);
+
+  print qq|
+$edit_options
+
+$body
+
+</form>
+
+</body>
+</html>
+|;
 
   $lxdebug->leave_sub();
 }

@@ -1220,36 +1220,85 @@ sub delete_payment {
   $main::lxdebug->leave_sub();
 }
 
+
+sub prepare_template_filename {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my ($filename, $display_filename);
+
+  if ($form->{type} eq "stylesheet") {
+    $filename = "css/$myconfig->{stylesheet}";
+    $display_filename = $myconfig->{stylesheet};
+
+  } else {
+    $filename = $form->{formname};
+
+    if ($form->{language}) {
+      my ($id, $template_code) = split(/--/, $form->{language});
+      $filename .= "_${template_code}";
+    }
+
+    if ($form->{printer}) {
+      my ($id, $template_code) = split(/--/, $form->{printer});
+      $filename .= "_${template_code}";
+    }
+
+    $filename .= "." . ($form->{format} eq "html" ? "html" : "tex");
+    $filename =~ s|.*/||;
+    $display_filename = $filename;
+    $filename = "$myconfig->{templates}/$filename";
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return ($filename, $display_filename);
+}
+
+
 sub load_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form) = @_;
+  my ($self, $filename) = @_;
 
-  open(TEMPLATE, "$form->{file}") or $form->error("$form->{file} : $!");
+  my ($content, $lines) = ("", 0);
 
-  while (<TEMPLATE>) {
-    $form->{body} .= $_;
+  local *TEMPLATE;
+
+  if (open(TEMPLATE, $filename)) {
+    while (<TEMPLATE>) {
+      $content .= $_;
+      $lines++;
+    }
+    close(TEMPLATE);
   }
 
-  close(TEMPLATE);
-
   $main::lxdebug->leave_sub();
+
+  return ($content, $lines);
 }
 
 sub save_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form) = @_;
+  my ($self, $filename, $content) = @_;
 
-  open(TEMPLATE, ">$form->{file}") or $form->error("$form->{file} : $!");
+  local *TEMPLATE;
 
-  # strip
-  $form->{body} =~ s/\r\n/\n/g;
-  print TEMPLATE $form->{body};
+  my $error = "";
 
-  close(TEMPLATE);
+  if (open(TEMPLATE, ">$filename")) {
+    $content =~ s/\r\n/\n/g;
+    print(TEMPLATE $content);
+    close(TEMPLATE);
+  } else {
+    $error = $!;
+  }
 
   $main::lxdebug->leave_sub();
+
+  return $error;
 }
 
 sub save_preferences {

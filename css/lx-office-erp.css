@@ -200,3 +200,8 @@ h2.error {
   }
 }
 
+.filecontent {
+  border: 1px solid blue;
+  padding-left: 2px;
+  padding-right: 2px;
+}

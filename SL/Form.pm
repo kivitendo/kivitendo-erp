@@ -1469,7 +1469,7 @@ sub _get_printers {
 
   $key = "all_printers" unless ($key);
 
-  my $query = qq|SELECT id, printer_description, printer_command FROM printers|;
+  my $query = qq|SELECT id, printer_description, printer_command, template_code FROM printers|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1538,6 +1538,20 @@ sub _get_business_types {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_languages {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_languages" unless ($key);
+
+  my $query = qq|SELECT * FROM language ORDER BY id|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1566,6 +1580,10 @@ sub get_lists {
 
   if ($params{"printers"}) {
     $self->_get_printers($dbh, $params{"printers"});
+  }
+
+  if ($params{"languages"}) {
+    $self->_get_languages($dbh, $params{"languages"});
   }
 
   if ($params{"charts"}) {
