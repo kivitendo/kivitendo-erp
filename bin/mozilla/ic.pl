@@ -747,20 +747,9 @@ sub choice {
 sub list {
   $lxdebug->enter_sub();
 
-  # get parts for
-  if (($form->{partnumber} eq "") and ($form->{description} eq "")) {
-    IC->get_parts(\%myconfig, \%$form, "");
-  } else {
-    if ((!($form->{partnumber} eq "")) and ($form->{description} eq "")) {
-      IC->get_parts(\%myconfig, \%$form, "partnumber");
-    } else {
-      if (($form->{partnumber} eq "") and (!($form->{description} eq ""))) {
-        IC->get_parts(\%myconfig, \%$form, "description");
-      } else {
-        IC->get_parts(\%myconfig, \%$form, "all");
-      }    #fi
-    }    #fi
-  }    #fi
+  my @sortorders = ("", "partnumber", "description", "all");
+  my $sortorder = $sortorders[($form->{description} ? 2 : 0) + ($form->{partnumber} ? 1 : 0)];
+  IC->get_parts(\%myconfig, \%$form, $sortorder);
 
   $form->{title} = $locale->text('Top 100 hinzufuegen');
 
