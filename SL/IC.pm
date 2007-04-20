@@ -347,13 +347,13 @@ sub save {
     do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
 
   } else {
-    my ($count) = selectrow_array($form, $dbh, qq|SELECT COUNT(*) FROM parts WHERE partnumber = ?|, $form->{partnumber});
+    my ($count) = selectrow_query($form, $dbh, qq|SELECT COUNT(*) FROM parts WHERE partnumber = ?|, $form->{partnumber});
     if ($count) {
       $main::lxdebug->leave_sub();
       return 3;
     }
 
-    ($form->{id}) = selectrow_array($form, $dbh, qq|SELECT nextval('id')|);
+    ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
     do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber) VALUES (?, '')|, $form->{id});
 
     $form->{orphaned} = 1;
