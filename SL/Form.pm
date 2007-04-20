@@ -375,13 +375,8 @@ sub header {
                         \@page { size:landscape; }
                         </style>|;
     }
-    if ($self->{fokus}) {
-      $fokus = qq|<script type="text/javascript">
-<!--
-function fokus(){document.$self->{fokus}.focus();}
-//-->
-</script>|;
-    }
+
+    my $fokus = qq|  document.$self->{fokus}.focus();| if ($self->{"fokus"});
 
     #Set Calendar
     my $jsscript = "";
@@ -415,7 +410,15 @@ function fokus(){document.$self->{fokus}.focus();}
   $charset
   $jsscript
   $ajax
-  $fokus
+
+  <script type="text/javascript">
+  <!--
+    function fokus() {
+      $fokus
+    }
+  //-->
+  </script>
+
   <meta name="robots" content="noindex,nofollow" />
   <script type="text/javascript" src="js/highlight_input.js"></script>
   <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
