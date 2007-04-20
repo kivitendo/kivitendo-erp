@@ -80,6 +80,9 @@ function check_right_number_format(input_name) {
 }
 
 function check_right_date_format(input_name) {
+  if(input_name.value == "") {
+    return true;
+  }
   var matching = new RegExp(dateFormat.replace(/\w/g, '\\d') + "\$","ig");
   if(!(dateFormat.lastIndexOf("y") == 3) && !matching.test(input_name.value)) {
     matching = new RegExp(dateFormat.replace(/\w/g, '\\d') + '\\d\\d\$', "ig");
