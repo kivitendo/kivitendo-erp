@@ -233,12 +233,12 @@ sub search {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}">
+       <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=datefrom id="trigger1" value=|
       . $locale->text('button') . qq|></td>  
        |;
     $button2 = qq|
-       <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}">
+       <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=dateto id="trigger2" value=|
       . $locale->text('button') . qq|></td>
      |;
@@ -251,15 +251,17 @@ sub search {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}"></td>|;
+      qq|<td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 =
-      qq|<td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}"></td>|;
+      qq|<td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -1296,7 +1298,7 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>  
        |;
@@ -1308,7 +1310,7 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly></td>|;
+      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   $form->header;
@@ -1354,7 +1356,7 @@ sub form_header {
 	  <table>
 	      <tr>
 		<th align=right width=50%>| . $locale->text('Buchungsdatum') . qq|</th>
-		<td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly></td>
+		<td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly onBlur=\"check_right_date_format(this)\"></td>
 	      </tr>
 	    </table>
 	  </td>

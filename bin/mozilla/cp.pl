@@ -184,7 +184,7 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=datepaid id=datepaid size=11 title="$myconfig{dateformat}" value="$form->{datepaid}">
+       <td><input name=datepaid id=datepaid size=11 title="$myconfig{dateformat}" value="$form->{datepaid}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=datepaid id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
@@ -196,15 +196,17 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
 
   $arap = lc $form->{ARAP};
-
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -306,7 +308,7 @@ sub form_header {
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Amount') . qq|</th>
 		<td colspan=3><input name=amount size=10 value=|
-    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|></td>
+    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq| onBlur=\"check_right_number_format(this)\"></td>
 	      </tr>
 	    </table>
 	  </td>

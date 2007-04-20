@@ -461,12 +461,12 @@ selectvendor } </select>|
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}> $readonly</td>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} onBlur=\"check_right_date_format(this)\"> $readonly</td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
-       <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}> $readonly</td>
+       <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate} onBlur=\"check_right_date_format(this)\"> $readonly</td>
        <td><input type=button name=duedate id="trigger2" value=|
       . $locale->text('button') . qq|></td></td>
      |;
@@ -479,15 +479,16 @@ selectvendor } </select>|
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}> $readonly</td>|;
+      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} onBlur=\"check_right_date_format(this)\"> $readonly</td>|;
     $button2 =
-      qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}> $readonly</td>|;
+      qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate} onBlur=\"check_right_date_format(this)\"> $readonly</td>|;
   }
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-
+  $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -775,12 +776,12 @@ $jsscript
 |;
 
     $column_data{"paid_$i"} =
-      qq|<td align=center><input name="paid_$i" size=11 value=$form->{"paid_$i"}></td>|;
+      qq|<td align=center><input name="paid_$i" size=11 value=$form->{"paid_$i"} onBlur=\"check_right_number_format(this)\"></td>|;
     $column_data{"AP_paid_$i"} =
       qq|<td align=center>${selectAP_paid}</td>|;
     $column_data{"exchangerate_$i"} = qq|<td align=center>$exchangerate</td>|;
     $column_data{"datepaid_$i"}     =
-      qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="($myconfig{'dateformat'})" value=$form->{"datepaid_$i"}>
+      qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="($myconfig{'dateformat'})" value=$form->{"datepaid_$i"} onBlur=\"check_right_date_format(this)\">
          <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
       qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
@@ -1207,12 +1208,12 @@ sub search {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
+       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdatefrom id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
+       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdateto name=transdateto id="trigger2" value=|
       . $locale->text('button') . qq|></td>
      |;
@@ -1225,9 +1226,9 @@ sub search {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
@@ -1242,11 +1243,12 @@ sub search {
   my $projectnumber =
     NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
                          '-labels' => \%labels));
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-
+  $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 

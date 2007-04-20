@@ -357,12 +357,12 @@ onchange="document.getElementById('update_button').click();">| .
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>
+       <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"></td>
        <td><input type=button name=invdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
-       <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>
+       <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\"></td>
        <td width="4"><input type=button name=duedate id="trigger2" value=|
       . $locale->text('button') . qq|></td></td>
      |;
@@ -375,12 +375,13 @@ onchange="document.getElementById('update_button').click();">| .
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=invdate size=11 title="$myconfig{dateformat}" value=$form->{invdate}></td>|;
+      qq|<td><input name=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}"  onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 =
-      qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate}></td>|;
+      qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
+  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
 
   $jsscript .=
     $form->write_trigger(\%myconfig, 2,
@@ -388,9 +389,11 @@ onchange="document.getElementById('update_button').click();">| .
                          "quodate", "BL", "trigger_quodate");
 
   $form->header;
-
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -483,12 +486,12 @@ onchange="document.getElementById('update_button').click();">| .
 	      </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
-          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|"></td>
+          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|" onBlur=\"check_right_date_format(this)\"></td>
           <td><input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
         </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
-          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|"></td>
+          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|" onBlur=\"check_right_date_format(this)\"></td>
           <td><input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
         </tr>
 	      <tr>
@@ -755,12 +758,12 @@ sub form_footer {
 |;
 
     $column_data{"paid_$i"} =
-      qq|<td align=center><input name="paid_$i" size=11 value=$form->{"paid_$i"}></td>|;
+      qq|<td align=center><input name="paid_$i" size=11 value="$form->{"paid_$i"}" onBlur=\"check_right_number_format(this)\"></td>|;
     $column_data{"exchangerate_$i"} = qq|<td align=center>$exchangerate</td>|;
     $column_data{"AP_paid_$i"}      =
       qq|<td align=center><select name="AP_paid_$i">$form->{"selectAP_paid_$i"}</select></td>|;
     $column_data{"datepaid_$i"} =
-      qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="$myconfig{dateformat}" value=$form->{"datepaid_$i"}>
+      qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="$myconfig{dateformat}" value="$form->{"datepaid_$i"}" onBlur=\"check_right_date_format(this)\">
          <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
       qq|<td align=center><input name="source_$i" size=11 value=$form->{"source_$i"}></td>|;

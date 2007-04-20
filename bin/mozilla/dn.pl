@@ -271,7 +271,7 @@ sub add {
 
     # with JavaScript Calendar
     $button1 = qq|
-      <td><input name=paymentuntil id=paymentuntil size=11 title="$myconfig{dateformat}">
+      <td><input name=paymentuntil id=paymentuntil size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=paymentuntil id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
@@ -283,12 +283,16 @@ sub add {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=paymentuntil id=paymentuntil size=11 title="$myconfig{dateformat}"></td>|;
+      qq|<td><input name=paymentuntil id=paymentuntil size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
   $form->{fokus} = "search.customer";
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body onLoad="fokus()">
+<body onLoad="$onload">
 
 <form method=post name="search" action=$form->{script}>
 
@@ -687,22 +691,22 @@ sub search {
 
     # with JavaScript Calendar
     $button1 = qq|
-      <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
+      <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=transdatefrom id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-      <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
+      <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=transdateto id="trigger2" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button3 = qq|
-      <td><input name=dunningfrom id=dunningfrom size=11 title="$myconfig{dateformat}">
+      <td><input name=dunningfrom id=dunningfrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=dunningfrom id="trigger3" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button4 = qq|
-      <td><input name=dunningto id=dunningto size=11 title="$myconfig{dateformat}">
+      <td><input name=dunningto id=dunningto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=dunningto id="trigger4" value=|
       . $locale->text('button') . qq|></td>
       |;
@@ -714,19 +718,24 @@ sub search {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+      qq|<td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 =
-      qq|<td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
-    $button1 =
-      qq|<td><input name=dunningfrom id=dunningfrom size=11 title="$myconfig{dateformat}"></td>|;
-    $button1 =
-      qq|<td><input name=dunningfrom id=dunningto size=11 title="$myconfig{dateformat}"></td>|;
+      qq|<td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
+    $button3 =
+      qq|<td><input name=dunningfrom id=dunningfrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
+    $button4 =
+      qq|<td><input name=dunningfrom id=dunningto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   $form->{fokus} = "search.customer";
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
+
   print qq|
-<body onLoad="fokus()">
+<body onLoad="$onload">
 
 <form method=post name="search" action=$form->{script}>
 

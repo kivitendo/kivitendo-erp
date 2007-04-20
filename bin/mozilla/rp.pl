@@ -200,7 +200,7 @@ sub report {
     if ($name_1 eq "") {
 
       $button1 = qq|
-         <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}">|;
+         <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
       $button1_2 = qq|
         <input type=button name=$name_2 id="$trigger_2" value=|
         . $locale->text('button') . qq|>|;
@@ -210,12 +210,12 @@ sub report {
         Form->write_trigger(\%myconfig, "1", "$name_2", "BR", "$trigger_2");
     } else {
       $button1 = qq|
-         <input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value=$value_1>|;
+         <input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value="$value_1" onBlur=\"check_right_date_format(this)\">|;
       $button1_2 = qq|
         <input type=button name=$name_1 id="$trigger_1" value=|
         . $locale->text('button') . qq|>|;
       $button2 = qq|
-         <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}">|;
+         <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
       $button2_2 = qq|
          <input type=button name=$name_2 id="$trigger_2" value=|
         . $locale->text('button') . qq|>
@@ -231,19 +231,21 @@ sub report {
     # without JavaScript Calendar
     if ($name_1 eq "") {
       $button1 =
-        qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}">|;
+        qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
     } else {
       $button1 =
-        qq|<input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value=$value_1>|;
+        qq|<input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value=$value_1 onBlur=\"check_right_date_format(this)\">|;
       $button2 =
-        qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}">|;
+        qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
     }
   }
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 

@@ -49,12 +49,14 @@ sub reconciliation {
     @{ $form->{PR} };
 
   $form->{title} = $locale->text('Reconciliation');
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{"jsscript"} = 1;
   $form->header;
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
 
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -73,10 +75,10 @@ sub reconciliation {
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
-	  <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}">
+	  <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
      <input type="button" name="fromdate" id="trigger_fromdate" value="?"></td>
 	  <th align=right>| . $locale->text('Until') . qq|</th>
-	  <td><input name=todate id=todate size=11 title="$myconfig{dateformat}">
+	  <td><input name=todate id=todate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
      <input type="button" name="todate" id="trigger_todate" value="?"></td>
 	</tr>
       </table>
