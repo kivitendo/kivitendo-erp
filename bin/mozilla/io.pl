@@ -368,9 +368,9 @@ sub display_row {
       }
 
       $column_data{sellprice_pg} =
-        qq|<td align="right"><select name="sellprice_pg_$i">$form->{"prices_$i"}</select></td>|;
+      qq|<td align="right"><select name="sellprice_pg_$i">$form->{"prices_$i"}</select></td>|;
       $column_data{sellprice} =
-        qq|<td><input name="sellprice_$i" size="10" value="$price_tmp"></td>|;
+      qq|<td><input name="sellprice_$i" size="10" value="$price_tmp" onBlur=\"check_right_number_format(this)\"></td>|;
     } else {
 
       # for last row and report
@@ -388,10 +388,10 @@ sub display_row {
 
         # for last row
         $column_data{sellprice_pg} = qq|<td align="right">&nbsp;</td>|;
-      }
-
+        }
+        
       $column_data{sellprice} =
-        qq|<td><input name="sellprice_$i" size="10" value="|
+      qq|<td><input name="sellprice_$i" size="10" onBlur=\"check_right_number_format(this)\" value="|
         . $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
                                $decimalplaces)
         . qq|"></td>|;
@@ -486,7 +486,7 @@ sub display_row {
         ? 'deliverydate'
         : 'reqdate';    # invoice uses a different term for the same thing.
       print qq|
-        <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size="11" value="$form->{"${reqdate_term}_$i"}">
+        <b>${$reqdate_term}</b>&nbsp;<input name="${reqdate_term}_$i" size="11" onBlur="check_right_date_format(this)" value="$form->{"${reqdate_term}_$i"}">
 |;
     }
     my $subtotalchecked = ($form->{"subtotal_$i"}) ? "checked" : "";
@@ -583,7 +583,7 @@ sub select_item {
   $colspan = $#column_index + 1;
 
   print qq|
-<body>
+  <body>
 
 <form method="post" action="$form->{script}">
 
