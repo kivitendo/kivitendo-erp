@@ -33,6 +33,8 @@
 
 use SL::RC;
 
+require "bin/mozilla/common.pl";
+
 1;
 
 # end of main
@@ -108,7 +110,7 @@ sub reconciliation {
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub get_payments {
   $lxdebug->enter_sub();

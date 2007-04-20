@@ -97,7 +97,7 @@ sub select_employee_internal {
 
   restore_form($form->{"old_form"});
 
-  &{ $callback_sub }($new_id, $new_name);
+  call_sub($callback_sub, $new_id, $new_name);
 
   $lxdebug->leave_sub();
 }
@@ -167,7 +167,7 @@ sub select_part_internal {
 
   restore_form($form->{"old_form"});
 
-  &{ $callback_sub }($new_item);
+  call_sub($callback_sub, $new_item);
 
   $lxdebug->leave_sub();
 }
@@ -541,6 +541,26 @@ sub show_history {
 	
 	$dbh->disconnect();
 	$lxdebug->leave_sub();	
+}
+
+sub call_sub {
+  $lxdebug->enter_sub();
+
+  my $name = shift;
+
+  if (!$name) {
+    $form->error($locale->text("Trying to call a sub without a name"));
+  }
+
+  $name =~ s/[^a-zA-Z0-9_]//g;
+
+  if (!defined(&{ $name })) {
+    $form->error(sprintf($locale->text("Attempt to call an undefined sub named '%s'"), $name));
+  }
+
+  &{ $name }(@_);
+
+  $lxdebug->leave_sub();
 }
 
 1;

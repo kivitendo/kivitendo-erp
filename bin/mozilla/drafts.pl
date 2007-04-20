@@ -88,7 +88,7 @@ sub dont_load_draft {
   delete($form->{action});
   $form->{DONT_LOAD_DRAFT} = 1;
 
-  &{ $draft_nextsub }();
+  call_sub($draft_nextsub);
 
   $lxdebug->leave_sub();
 }

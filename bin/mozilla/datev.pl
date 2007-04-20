@@ -35,7 +35,9 @@ use SL::DATEV;
 
 # end of main
 
-sub continue { &{ $form->{nextsub} } }
+require "bin/mozilla/common.pl";
+
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub export {
   $lxdebug->enter_sub();

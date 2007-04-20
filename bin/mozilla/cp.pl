@@ -37,6 +37,7 @@ use SL::IS;
 use SL::IR;
 
 require "$form->{path}/arap.pl";
+require "bin/mozilla/common.pl";
 
 1;
 
@@ -679,7 +680,7 @@ sub print {
   $check->init;
   $form->{text_amount} = $check->num2text($whole);
 
-  &{"$form->{vc}_details"};
+  call_sub("$form->{vc}_details");
 
   $form->{callback} = "";
 

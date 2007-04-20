@@ -854,7 +854,7 @@ sub display_form {
 
   # if we have a display_form
   if ($form->{display_form}) {
-    &{"$form->{display_form}"};
+    call_sub($form->{"display_form"});
     exit;
   }
 
@@ -1713,7 +1713,7 @@ sub print_form {
 
       $form->{rowcount}--;
 
-      &{"$display_form"};
+      call_sub($display_form);
       # saving the history
   	  if(!exists $form->{addition}) {
   	    $form->{addition} = "PRINTED";
@@ -1735,7 +1735,7 @@ sub print_form {
   $salesman_id_saved = $form->{salesman_id};
   $cp_id_saved = $form->{cp_id};
 
-  &{"$form->{vc}_details"}();
+  call_sub("$form->{vc}_details");
 
   $form->{language_id} = $language_saved;
   $form->{payment_id} = $payment_id_saved;
@@ -1964,7 +1964,7 @@ sub print_form {
         } qw(paid exchangerate);
       }
 
-      &{"$display_form"};
+      call_sub($display_form);
       exit;
     }
 
@@ -1975,7 +1975,7 @@ sub print_form {
     $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
   }
   if ($form->{printing}) {
-   &{"$display_form"};
+   call_sub($display_form);
    exit; 
   }
 
@@ -2029,7 +2029,7 @@ sub ship_to {
         contact email phone fax));
 
   # get details for name
-  &{"$form->{vc}_details"}(@addr_vars);
+  call_sub("$form->{vc}_details", @addr_vars);
 
   $number =
     ($form->{vc} eq 'customer')

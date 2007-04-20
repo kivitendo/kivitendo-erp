@@ -43,27 +43,15 @@ require "$form->{path}/common.pl";
 # end of main
 
 sub display {
-  if ($form->{display_nextsub}) {
-    &{ $form->{display_nextsub} }();
-  } else {
-    die "display_nextsub not defined";
-  }
+  call_sub($form->{display_nextsub});
 }
 
 sub save {
-  if ($form->{save_nextsub}) {
-    &{ $form->{save_nextsub} }();
-  } else {
-    die "save_nextsub not defined";
-  }
+  call_sub($form->{save_nextsub});
 }
 
 sub edit {
-  if ($form->{edit_nextsub}) {
-    &{ $form->{edit_nextsub} }();
-  } else {
-    die "edit_nextsub not defined";
-  }
+  call_sub($form->{edit_nextsub});
 }
 
 sub display_template {

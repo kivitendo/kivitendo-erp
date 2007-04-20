@@ -52,6 +52,8 @@ use SL::Locale;
 
 eval { require "lx-erp.conf"; };
 
+require "bin/mozilla/common.pl";
+
 if (defined($latex) && !defined($latex_templates)) {
   $latex_templates = $latex;
   undef($latex);
@@ -129,7 +131,7 @@ if ($form->{action}) {
     . $locale->text('Version')
     . " $form->{version} - $myconfig{name} - $myconfig{dbname}";
 
-  &{ $locale->findsub($form->{action}) };
+  call_sub($locale->findsub($form->{action}));
 } else {
   $form->error($locale->text('action= not defined!'));
 }

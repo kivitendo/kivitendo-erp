@@ -35,6 +35,8 @@ use SL::IC;
 use SL::IS;
 use SL::LICENSES;
 
+require "bin/mozilla/common.pl";
+
 sub quot {
   $lxdebug->enter_sub();
   $_[0] =~ s/\"/\&quot;/g;
@@ -364,7 +366,7 @@ sub update {
 
 sub continue {
   $lxdebug->enter_sub();
-  &{ $form->{nextsub} };
+  call_sub($form->{"nextsub"});
   $lxdebug->leave_sub();
 }
 

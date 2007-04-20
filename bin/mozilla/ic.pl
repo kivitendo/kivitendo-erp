@@ -37,6 +37,7 @@ use SL::IC;
 #use SL::PE;
 
 require "$form->{path}/io.pl";
+require "bin/mozilla/common.pl";
 
 1;
 
@@ -3258,4 +3259,4 @@ sub parts_language_selection {
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }

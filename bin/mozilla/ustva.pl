@@ -25,6 +25,7 @@
 #======================================================================
 
 require "$form->{path}/arap.pl";
+require "bin/mozilla/common.pl";
 
 #use strict;
 #no strict 'refs';
@@ -241,7 +242,7 @@ sub show {
   #&generate_ustva();
   no strict 'refs';
   $lxdebug->leave_sub();
-  &{ $form->{nextsub} };
+  call_sub($form->{"nextsub"});
   use strict 'refs';
 }
 
@@ -1377,14 +1378,14 @@ sub continue {
 
   # allow Symbolic references just here:
   no strict 'refs';
-  &{ $form->{nextsub} };
+  call_sub($form->{"nextsub"});
   use strict 'refs';
   $lxdebug->leave_sub();
 }
 
 sub back {
   $lxdebug->enter_sub();
-  &{ $form->{lastsub} };
+  call_sub($form->{"lastsub"});
   $lxdebug->leave_sub();
 }
 

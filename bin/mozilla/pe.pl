@@ -50,8 +50,8 @@ sub add {
     "$form->{script}?action=add&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
-  &{"form_$form->{type}_header"};
-  &{"form_$form->{type}_footer"};
+  call_sub("form_$form->{type}_header");
+  call_sub("form_$form->{type}_footer");
 
   $lxdebug->leave_sub();
 }
@@ -72,8 +72,8 @@ sub edit {
   if ($form->{type} eq 'pricegroup') {
     PE->get_pricegroup(\%myconfig, \%$form);
   }
-  &{"form_$form->{type}_header"};
-  &{"form_$form->{type}_footer"};
+  call_sub("form_$form->{type}_header");
+  call_sub("form_$form->{type}_footer");
 
   $lxdebug->leave_sub();
 }
@@ -498,7 +498,7 @@ sub delete {
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub partsgroup_report {
   $lxdebug->enter_sub();

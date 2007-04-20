@@ -40,38 +40,15 @@ use Data::Dumper;
 
 1;
 
-
-
 require "$form->{path}/common.pl";
 
 # end of main
 
-sub add    { &{"add_$form->{type}"} }
-sub delete { &{"delete_$form->{type}"} }
-
-sub display {
-  if ($form->{display_nextsub}) {
-    &{ $form->{display_nextsub} }();
-  } else {
-    &{ $form->{nextsub} }();
-  }
-}
-
-sub save {
-  if ($form->{save_nextsub}) {
-    &{ $form->{save_nextsub} }();
-  } else {
-    &{ $form->{nextsub} }();
-  }
-}
-
-sub edit {
-  if ($form->{edit_nextsub}) {
-    &{ $form->{edit_nextsub} }();
-  } else {
-    &{ "edit_$form->{type}" }();
-  }
-}
+sub add      { call_sub("add_$form->{type}"); }
+sub delete   { call_sub("delete_$form->{type}"); }
+sub save     { call_sub("save_$form->{type}"); }
+sub edit     { call_sub("edit_$form->{type}"); }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub add_account {
   $lxdebug->enter_sub();
@@ -2925,14 +2902,6 @@ sub doclose {
       $form->redirect($locale->text('Books are open'));
     }
   }
-
-  $lxdebug->leave_sub();
-}
-
-sub continue {
-  $lxdebug->enter_sub();
-
-  &{ $form->{nextsub} };
 
   $lxdebug->leave_sub();
 }

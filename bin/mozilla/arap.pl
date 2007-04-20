@@ -40,6 +40,8 @@ if (-f "$form->{path}/$form->{login}_arap.pl") {
 
 1;
 
+require "bin/mozilla/common.pl";
+
 # end of main
 
 sub check_name {
@@ -445,7 +447,7 @@ sub project_selected {
   map { delete $form->{$_} } qw(ndx lastndx nextsub is_global);
 
   if ($form->{update}) {
-    &{ $form->{update} };
+    call_sub($form->{"update"});
   } else {
     &update;
   }
@@ -453,7 +455,7 @@ sub project_selected {
   $lxdebug->leave_sub();
 }
 
-sub continue       { &{ $form->{nextsub} } }
+sub continue       { call_sub($form->{"nextsub"}); }
 sub gl_transaction { &add }
 sub ar_transaction { &add_transaction('ar') }
 sub ap_transaction { &add_transaction('ap') }

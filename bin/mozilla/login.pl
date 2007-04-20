@@ -31,6 +31,8 @@ use DBI;
 use SL::User;
 use SL::Form;
 
+require "bin/mozilla/common.pl";
+
 $form = new Form;
 
 $locale = new Locale $language, "login";
@@ -53,7 +55,7 @@ $form->{titlebar} =
 
 if ($form->{action}) {
   $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
-  &{ $locale->findsub($form->{action}) };
+  call_sub($locale->findsub($form->{action}));
 } else {
   &login_screen;
 }

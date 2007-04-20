@@ -34,16 +34,16 @@
 
 $menufile = "menu.ini";
 
+use DBI;
 use SL::Form;
 use SL::User;
+
+require "bin/mozilla/common.pl";
 
 $form = new Form;
 $form->{"root"} = "root login";
 
 $locale = new Locale $language, "admin";
-
-eval { require DBI; };
-$form->error($locale->text('DBI not installed!')) if ($@);
 
 # customization
 if (-f "$form->{path}/custom_$form->{script}") {
@@ -67,7 +67,7 @@ if ($form->{action}) {
 
   &check_password;
 
-  &$subroutine;
+  call_sub($subroutine);
 
 } else {
 
@@ -1344,9 +1344,7 @@ print qq| <input type=submit class=submit name=action value="|
 }
 
 sub continue {
-
-  &{ $form->{nextsub} };
-
+  call_sub($form->{"nextsub"});
 }
 
 sub update_dataset {

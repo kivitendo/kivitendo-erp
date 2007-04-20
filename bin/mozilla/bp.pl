@@ -36,6 +36,8 @@ use Data::Dumper;
 
 1;
 
+require "bin/mozilla/common.pl";
+
 # end of main
 
 sub search {
@@ -601,5 +603,5 @@ sub select_all {
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 

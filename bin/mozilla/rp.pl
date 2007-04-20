@@ -1012,7 +1012,7 @@ $jsscript
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub get_project {
   $lxdebug->enter_sub();

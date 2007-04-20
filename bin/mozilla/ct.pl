@@ -1262,7 +1262,11 @@ sub add_transaction {
 #  # /saving the history
   
   $form->isblank("name", $locale->text("Name missing!"));
-  &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+  if ($form->{"db"} eq "customer") {
+    CT->save_customer(\%myconfig, \%$form);
+  } else {
+    CT->save_vendor(\%myconfig, \%$form);
+  }
 
   $form->{callback} = $form->escape($form->{callback}, 1);
   $name = $form->escape("$form->{name}", 1);
@@ -1373,7 +1377,11 @@ sub save_and_close {
   $imsg .= " saved!";
 
   $form->isblank("name", $locale->text("Name missing!"));
-  $rc = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+  if ($form->{"db"} eq "customer") {
+    $rc = CT->save_customer(\%myconfig, \%$form);
+  } else {
+    $rc = CT->save_vendor(\%myconfig, \%$form);
+  }
   if ($rc == 3) {
     $form->error($locale->text('customernumber not unique!'));
   }
@@ -1399,7 +1407,12 @@ sub save {
 
   $form->isblank("name", $locale->text("Name missing!"));
 
-  my $res = &{"CT::save_$form->{db}"}("", \%myconfig, \%$form);
+  my $res;
+  if ($form->{"db"} eq "customer") {
+    $res = CT->save_customer(\%myconfig, \%$form);
+  } else {
+    $res = CT->save_customer(\%myconfig, \%$form);
+  }
 
   if (3 == $res) {
     if ($form->{"db"} eq "customer") {
@@ -1572,4 +1585,4 @@ sub get_delivery {
 
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{nextsub}); }
