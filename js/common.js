@@ -7,7 +7,7 @@ function setupPoints(numberformat, wrongFormat) {
   else {
     thpoint = null;
   }
-  wrongNumberformat = wrongFormat + " ( " + numberformat + " ) ";  
+  wrongNumberFormat = wrongFormat + " ( " + numberformat + " ) ";  
 }
 
 function setupDateFormat(setDateFormat, setWrongDateFormat) {
