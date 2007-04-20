@@ -361,12 +361,12 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} onBlur=\"check_right_date_format(this)\"></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate}></td>
+       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate} onBlur=\"check_right_date_format(this)\"></td>
        <td width="4"><input type=button name=reqdate name=reqdate id="trigger2" value=|
       . $locale->text('button') . qq|></td>
      |;
@@ -380,9 +380,9 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate}></td>|;
+                              <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 = qq|
-                              <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate}></td>|;
+                              <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate} onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   my @tmp;
@@ -725,14 +725,17 @@ onchange="document.getElementById('update_button').click();">| .
   } elsif ($form->{resubmit}) {
     $onload = qq|document.oe.submit()|;
   } else {
-    $onload = "fokus()";
+    $onload = "focus()";
   }
 
   $credittext = $locale->text('Credit Limit exceeded!!!');
   if ($creditwarning) {
     $onload = qq|alert('$credittext')|;
   }
-
+  
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
+  
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   # show history button js
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -1400,12 +1403,12 @@ sub search {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
+       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdatefrom id="trigger3" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
+       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdateto name=transdateto id="trigger4" value=|
       . $locale->text('button') . qq|></td>
      |;
@@ -1418,9 +1421,9 @@ sub search {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\></td>|;
   }
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
