@@ -1041,7 +1041,7 @@ sub post_payment {
       	
   	if(!exists $form->{addition} && $form->{id} ne "") {
   		# saving the history
-      $form->{snumbers} = qq|invnumber|;  
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
   		$form->{addition} = "PAYMENT POSTED";
   		$form->save_history($form->dbconnect(\%myconfig));
   		# /saving the history 
@@ -1105,7 +1105,7 @@ sub post {
   if (IR->post_invoice(\%myconfig, \%$form)){
   	# saving the history
   	if(!exists $form->{addition} && $form->{id} ne "") {
-  		$form->{snumbers} = qq|invnumber|;
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
       $form->{addition} = "POSTED";
   		#$form->{what_done} = $locale->text("Rechnungsnummer") . qq| | . $form->{invnumber};
   		$form->save_history($form->dbconnect(\%myconfig));
@@ -1159,7 +1159,7 @@ sub yes {
   if (IR->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = qq|invnumber|;
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
