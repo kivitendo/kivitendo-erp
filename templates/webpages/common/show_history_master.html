@@ -16,8 +16,14 @@
 			<translate>Vorgang</translate>
 		</th>
 		<th class=listtop>
-			<translate>Zusatz</translate>
-		</th>
+      <translate>Zusatz</translate>
+    </th>
+    <th class=listtop>
+      <translate>ID-Nummer</translate>
+    </th>
+    <th class=listtop>
+      <translate>Buchungsnummer</translate>
+    </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>
 	<tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
@@ -31,8 +37,14 @@
 			<TMPL_VAR NAME=addition ESCAPE=HTML>
 		</td>
 		<td>
-			<TMPL_VAR NAME=what_done ESCAPE=HTML>
-		</td>
+      <TMPL_VAR NAME=what_done ESCAPE=HTML>
+    </td>
+    <td>
+      <TMPL_VAR NAME=id ESCAPE=HTML>
+    </td>
+    <td>
+      <TMPL_VAR NAME=snumbers ESCAPE=HTML>
+    </td>
 	</tr>	
 </TMPL_LOOP>
 </table>
