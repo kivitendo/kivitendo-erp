@@ -2282,10 +2282,10 @@ sub save_history {
   }
 
   my $query =
-    qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done) | .
-    qq|VALUES (?, ?, ?, ?)|;
+    qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
+    qq|VALUES (?, ?, ?, ?, ?)|;
   my @values = (conv_i($self->{id}), conv_i($self->{employee_id}),
-                $self->{addition}, $self->{what_done});
+                $self->{addition}, $self->{what_done}, "$self->{snumbers}");
   do_query($self, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
@@ -2302,7 +2302,7 @@ sub get_history {
   my $i = 0;
   if ($trans_id ne "") {
     my $query =
-      qq|SELECT h.employee_id, h.itime::timestamp(0) AS itime, h.addition, h.what_done, emp.name | .
+      qq|SELECT h.employee_id, h.itime::timestamp(0) AS itime, h.addition, h.what_done, emp.name, h.snumbers, h.trans_id AS id | .
       qq|FROM history_erp h | .
       qq|LEFT JOIN employee emp ON (emp.id = h.employee_id) | .
       qq|WHERE trans_id = ? |
@@ -2315,9 +2315,10 @@ sub get_history {
     while(my $hash_ref = $sth->fetchrow_hashref()) {
       $hash_ref->{addition} = $main::locale->text($hash_ref->{addition});
       $hash_ref->{what_done} = $main::locale->text($hash_ref->{what_done});
+      $hash_ref->{snumbers} =~ s/^.+_(.*)$/$1/g;
       $tempArray[$i++] = $hash_ref;
     }
-    $main::lxdebug->leave_sub() and return \@tempArray
+    return \@tempArray and $main::lxdebug->leave_sub()
       if ($i > 0 && $tempArray[0] ne "");
   }
   $main::lxdebug->leave_sub();
