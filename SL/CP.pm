@@ -332,7 +332,6 @@ sub process_payment {
 
       $form->{"paid_$i"} =
         $form->round_amount($form->{"paid_$i"} * $exchangerate, 2);
-
       $pth->execute($form->{"id_$i"}) || $form->dberror;
       ($amount) = $pth->fetchrow_array;
       $pth->finish;
@@ -350,6 +349,14 @@ sub process_payment {
       $query = qq|UPDATE $arap SET $paid, datepaid = ? WHERE id = ?|;
 		  @values = (conv_date($form->{datepaid}), conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
+      # saving the history
+      $form->{id} = $form->{"id_$i"};
+      if(!exists $form->{addition}) {
+        $form->{snumbers} = qq|invnumber_| . $form->{"invnumber_$i"};
+        $form->{addition} = "POSTED";
+        $form->save_history($form->dbconnect($myconfig));
+      }
+      # /saving the history 
     }
   }
 
