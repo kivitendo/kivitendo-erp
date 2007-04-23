@@ -3154,14 +3154,14 @@ sub show_am_history {
   $sth->execute() || $form->dberror($query);  
 	$form->{title} = $locale->text("History Search");
 	$form->header();
-	my @daten;
+	my $daten = "";
 	while(my $hash_ref = $sth->fetchrow_hashref()){
-    push(@daten, $form->get_history($dbh,$hash_ref->{id},$restriction));
+    $daten =  $form->get_history($dbh,$hash_ref->{id},$restriction);
   }
 	$dbh->disconnect();
 	print $form->parse_html_template("/common/show_history", 
-    {"DATEN" => @daten,
-     "SUCCESS" => (length(@daten) > 0),
+    {"DATEN" => $daten,
+     "SUCCESS" => ($daten != 0 ? 1 : 0),
      "NONEWWINDOW" => 1
     });
 	$lxdebug->leave_sub();

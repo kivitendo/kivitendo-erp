@@ -1075,7 +1075,7 @@ sub post {
   if (AP->post_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
-      $form->{snumber} = qq|invnumber_| . $form->{invnumber};
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "POSTED";
       $form->save_history($form->dbconnect(\%myconfig));
     }
@@ -1094,7 +1094,7 @@ sub post_as_new {
   $form->{postasnew} = 1;
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumber} = qq|invnumber_| . $form->{invnumber};
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
   	$form->{addition} = "POSTED AS NEW";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
@@ -1159,7 +1159,7 @@ sub yes {
   if (AP->delete_transaction(\%myconfig, \%$form, $spool)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumber} = qq|invnumber_| . $form->{invnumber};
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
   	  $form->{addition} = "DELETED";
       $form->save_history($form->dbconnect(\%myconfig));
     }

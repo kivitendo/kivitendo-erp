@@ -2101,7 +2101,7 @@ sub print_form {
   }
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
+    $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
   	$form->{addition} = "PRINTED";
   	$form->{what_done} = $form->{type};
   	$form->save_history($form->dbconnect(\%myconfig));

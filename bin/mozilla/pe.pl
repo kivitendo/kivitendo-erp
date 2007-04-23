@@ -467,7 +467,7 @@ sub save {
   }
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumber} = qq|projectnumber_| . $form->{projectnumber};
+    $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
@@ -492,7 +492,7 @@ sub delete {
   }
   # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumber} = qq|projectnumber_| . $form->{projectnumber};
+    $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
   	$form->{addition} = "DELETED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
