@@ -3134,33 +3134,36 @@ sub show_am_history {
 						);
 	
 	my $dbh = $form->dbconnect(\%myconfig);
-	
+	my $searchSNumber = $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'};
 	$restriction .= ($form->{mitarbeiter} eq "" ? "" 
 					: ($form->{mitarbeiter} =~ /^[0-9]*$/  
 						? " AND employee_id = " . $form->{mitarbeiter} 
 						: " AND employee_id = " . &get_employee_id($form->{mitarbeiter}, $dbh)));
-	
-	my $query = qq|SELECT id FROM $search{$form->{what2search}} 
-				   WHERE $searchNo{$form->{'what2search'}} ILIKE '$form->{"searchid"}' 
-				   |;
-	
-	my $sth = $dbh->prepare($query);
+	my $query = qq|SELECT trans_id AS id FROM history_erp WHERE sNumbers = '$searchSNumber' |;
+
+  my $sth = $dbh->prepare($query);
 	
 	$sth->execute() || $form->dberror($query);
 	
+  if($sth->fetch() <= 0) {
+    $sth->finish();
+    my $query = qq|SELECT id FROM $search{$form->{what2search}} 
+           WHERE $searchNo{$form->{'what2search'}} ILIKE '$form->{"searchid"}' 
+           |;
+  }
+  $sth->execute() || $form->dberror($query);  
 	$form->{title} = $locale->text("History Search");
 	$form->header();
-	
+	my @daten;
 	while(my $hash_ref = $sth->fetchrow_hashref()){
-		print $form->parse_html_template("/common/show_history", 
-			{"DATEN" => $form->get_history($dbh,$hash_ref->{id},$restriction),
-			 "SUCCESS" => ($form->get_history($dbh,$hash_ref->{id},$restriction) != 0),
-			 "NONEWWINDOW" => "1"	
-			}
-		);
-	}
+    push(@daten, $form->get_history($dbh,$hash_ref->{id},$restriction));
+  }
 	$dbh->disconnect();
-	
+	print $form->parse_html_template("/common/show_history", 
+    {"DATEN" => @daten,
+     "SUCCESS" => (length(@daten) > 0),
+     "NONEWWINDOW" => 1
+    });
 	$lxdebug->leave_sub();
 }
 

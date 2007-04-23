@@ -1716,6 +1716,7 @@ sub print_form {
       call_sub($display_form);
       # saving the history
   	  if(!exists $form->{addition}) {
+        $form->{snumber} = qq|ordnumber_| . $form->{ordnumber}; 
   	    $form->{addition} = "PRINTED";
   	    $form->save_history($form->dbconnect(\%myconfig));
       }
@@ -1908,6 +1909,7 @@ sub print_form {
 
 # saving the history
   if(!exists $form->{addition}) {
+    $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
     if($form->{media} =~ /printer/) {
     	$form->{addition} = "PRINTED";
     }

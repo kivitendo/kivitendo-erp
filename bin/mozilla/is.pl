@@ -1435,6 +1435,7 @@ sub post {
   remove_draft() if $form->{remove_draft};
 
   if(!exists $form->{addition}) {
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = $print_post     ? "PRINTED AND POSTED" :
                         $form->{storno} ? "STORNO"             :
                                           "POSTED";
@@ -1611,6 +1612,7 @@ sub yes {
   if (IS->delete_invoice(\%myconfig, \%$form, $spool)) {
     # saving the history
   	if(!exists $form->{addition}) {
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber}; 
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }

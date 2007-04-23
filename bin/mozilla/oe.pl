@@ -1981,6 +1981,7 @@ sub save_and_close {
 
   # saving the history
   if(!exists $form->{addition}) {
+    $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
@@ -2062,6 +2063,7 @@ sub save {
 
   # saving the history
   if(!exists $form->{addition}) {
+    $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
@@ -2133,6 +2135,7 @@ sub yes {
     $form->redirect($msg);
     # saving the history
     if(!exists $form->{addition}) {
+      $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }

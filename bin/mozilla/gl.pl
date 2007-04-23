@@ -1544,6 +1544,7 @@ sub yes {
   if (GL->delete_transaction(\%myconfig, \%$form)){
     # saving the history
       if(!exists $form->{addition} && $form->{id} ne "") {
+        $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
   	    $form->{addition} = "DELETED";
   	    $form->save_history($form->dbconnect(\%myconfig));
       }
@@ -1737,6 +1738,7 @@ sub post {
   undef($form->{callback});
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
   	$form->{addition} = "SAVED";
   	$form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id}; 
   	$form->save_history($form->dbconnect(\%myconfig));
@@ -1763,6 +1765,7 @@ sub storno {
   $form->{storno} = 1;
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumber} = qq|ordnumber_| . $form->{ordnumber};
   	$form->{addition} = "STORNO";
   	$form->save_history($form->dbconnect(\%myconfig));
   }

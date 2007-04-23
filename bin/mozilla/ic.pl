@@ -3042,6 +3042,7 @@ sub save {
   }
   # saving the history
   if(!exists $form->{addition}) {
+    $form->{snumber} = qq|partnumber_| . $form->{partnumber};
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
@@ -3164,6 +3165,7 @@ sub save_as_new {
 
   # saving the history
   if(!exists $form->{addition}) {
+    $form->{snumber} = qq|partnumber_| . $form->{partnumber};
   	$form->{addition} = "SAVED AS NEW";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
@@ -3181,6 +3183,7 @@ sub delete {
   $lxdebug->enter_sub();
   # saving the history
   if(!exists $form->{addition}) {
+    $form->{snumber} = qq|partnumber_| . $form->{partnumber};
   	$form->{addition} = "DELETED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
