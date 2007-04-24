@@ -38,14 +38,14 @@ use SL::IC;
 use CGI::Ajax;
 use CGI;
 
-require "$form->{path}/common.pl";
+require "bin/mozilla/common.pl";
 
 # any custom scripts for this one
-if (-f "$form->{path}/custom_io.pl") {
-  eval { require "$form->{path}/custom_io.pl"; };
+if (-f "bin/mozilla/custom_io.pl") {
+  eval { require "bin/mozilla/custom_io.pl"; };
 }
-if (-f "$form->{path}/$form->{login}_io.pl") {
-  eval { require "$form->{path}/$form->{login}_io.pl"; };
+if (-f "bin/mozilla/$form->{login}_io.pl") {
+  eval { require "bin/mozilla/$form->{login}_io.pl"; };
 }
 
 1;
@@ -822,7 +822,7 @@ sub new_item {
     . $locale->text('Service');
 print $cgi->hidden("-name" => "previousform", "-value" => $previousform);
 map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
-     ("rowcount", "vc", "path", "login", "password"));
+     qw(rowcount vc login password));
      map({ print($cgi->hidden("-name" => $_, "-value" => $form->{"$__$i"})); }
      ("partnumber", "description"));
 print $cgi->hidden("-name" => "taxaccount2", "-value" => $form->{taxaccounts});
@@ -1150,7 +1150,7 @@ sub order {
 
   $form->{cp_id} *= 1;
 
-  require "$form->{path}/$form->{script}";
+  require "bin/mozilla/$form->{script}";
   my $script = $form->{"script"};
   $script =~ s|.*/||;
   $script =~ s|.pl$||;
@@ -1214,7 +1214,7 @@ sub quotation {
 
   $form->{rowcount}--;
 
-  require "$form->{path}/$form->{script}";
+  require "bin/mozilla/$form->{script}";
 
   map { $form->{"select$_"} = "" } ($form->{vc}, currency);
 
@@ -1425,7 +1425,7 @@ sub send_email {
 
   my $callback = $form->{script} . "?action=edit";
   map({ $callback .= "\&${_}=" . E($form->{$_}); }
-      qw(login password path type id));
+      qw(login password type id));
 
   print_form("return");
 
@@ -2191,7 +2191,7 @@ sub new_license {
   map { $form->{$_} = $form->escape($form->{$_}, 1) }
     qw(partnumber description);
   $form->{callback} =
-    qq|$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
+    qq|$form->{script}?login=$form->{login}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
   $form->redirect;
 
   $lxdebug->leave_sub();

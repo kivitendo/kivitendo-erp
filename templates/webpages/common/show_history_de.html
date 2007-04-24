@@ -1,5 +1,4 @@
 <form>
-<input type="hidden" name="path" value="<TMPL_VAR NAME=path ESCAPE=HTML>">
 <input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
 <input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
 </form> 
@@ -16,8 +15,14 @@
 			Vorgang
 		</th>
 		<th class=listtop>
-			Zusatz
-		</th>
+      Zusatz
+    </th>
+    <th class=listtop>
+      ID-Nummer
+    </th>
+    <th class=listtop>
+      Buchungsnummer
+    </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>
 	<tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
@@ -31,8 +36,14 @@
 			<TMPL_VAR NAME=addition ESCAPE=HTML>
 		</td>
 		<td>
-			<TMPL_VAR NAME=what_done ESCAPE=HTML>
-		</td>
+      <TMPL_VAR NAME=what_done ESCAPE=HTML>
+    </td>
+    <td>
+      <TMPL_VAR NAME=id ESCAPE=HTML>
+    </td>
+    <td>
+      <TMPL_VAR NAME=snumbers ESCAPE=HTML>
+    </td>
 	</tr>	
 </TMPL_LOOP>
 </table>

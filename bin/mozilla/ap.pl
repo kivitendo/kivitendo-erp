@@ -35,7 +35,7 @@ use SL::AP;
 use SL::IR;
 use SL::PE;
 
-require "$form->{path}/arap.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 
@@ -79,7 +79,7 @@ sub add {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   AP->get_transdate(\%myconfig, $form);
@@ -826,7 +826,6 @@ sub form_footer {
 <input name=callback type=hidden value="$form->{callback}">
 <input name="gldate" type="hidden" value="| . Q($form->{gldate}) . qq|">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 |
@@ -1366,7 +1365,6 @@ $jsscript
 
 <br>
 <input type=hidden name=nextsub value=$form->{nextsub}>
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1390,7 +1388,7 @@ sub ap_transactions {
   AP->ap_transactions(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=ap_transactions&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=ap_transactions&login=$form->{login}&password=$form->{password}";
   $href = $callback;
 
   if ($form->{vendor}) {
@@ -1604,7 +1602,7 @@ sub ap_transactions {
     $module = ($ap->{invoice}) ? "ir.pl" : $form->{script};
 
     $column_data{invnumber} =
-      qq|<td><a href="$module?action=edit&path=$form->{path}&id=$ap->{id}&login=$form->{login}&password=$form->{password}&callback=$callback">$ap->{invnumber}</a></td>|;
+      qq|<td><a href="$module?action=edit&id=$ap->{id}&login=$form->{login}&password=$form->{password}&callback=$callback">$ap->{invnumber}</a></td>|;
     $column_data{id}        = "<td>$ap->{id}</td>";
     $column_data{ordnumber} = "<td>$ap->{ordnumber}&nbsp;</td>";
     $column_data{name}      = "<td>$ap->{name}</td>";
@@ -1673,7 +1671,6 @@ sub ap_transactions {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

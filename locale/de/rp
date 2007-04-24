@@ -48,6 +48,7 @@ $self->{texts} = {
   'EUR'                         => 'E/Ü-Rechnung',
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
+  'Falsches Datumsformat!'      => 'Falsches Datumsformat!',
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
   'Free report period'          => 'Freier Zeitraum',
@@ -170,6 +171,7 @@ $self->{texts} = {
   'sales_quotation'             => 'Verkaufsangebot',
   'ustva'                       => 'UStVA',
   'winston_export'              => 'Winston-Export',
+  'wrongformat'                 => 'wrongformat',
 };
 
 $self->{subs} = {

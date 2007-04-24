@@ -25,8 +25,6 @@ require "lx-erp.conf";
 
 $form = new Form;
 $form->{"script"} = "oe.pl";
-$form->{"path"} = "bin/mozilla";
-
 
 $ENV{'HOME'} = getcwd() . "/$userspath";
 

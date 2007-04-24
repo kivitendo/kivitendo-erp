@@ -46,8 +46,8 @@ $form->{"root"} = "root login";
 $locale = new Locale $language, "admin";
 
 # customization
-if (-f "$form->{path}/custom_$form->{script}") {
-  eval { require "$form->{path}/custom_$form->{script}"; };
+if (-f "bin/mozilla/custom_$form->{script}") {
+  eval { require "bin/mozilla/custom_$form->{script}"; };
   $form->error($@) if ($@);
 }
 
@@ -125,7 +125,6 @@ sub adminlogin {
     . $locale->text('Login') . qq|"></td>
   </tr>
 <input type=hidden name=action value=login>
-<input type=hidden name=path value=$form->{path}>
 </table>
 
 
@@ -197,8 +196,7 @@ sub form_footer {
 
   print qq|
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
-<input type=hidden name=path value=$form->{path}>
+<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <input type=submit class=submit name=action value="|
@@ -293,7 +291,7 @@ sub list_users {
 
   foreach $key (sort keys %member) {
     $href =
-      "$script?action=edit&login=$key&path=$form->{path}&rpw=$form->{rpw}";
+      "$script?action=edit&login=$key&rpw=$form->{rpw}";
     $href =~ s/ /%20/g;
 
     $member{$key}{templates} =~ s/^$templates\///;
@@ -330,7 +328,6 @@ sub list_users {
   </tr>
 </table>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <br><input type=submit class=submit name=action value="|
@@ -373,7 +370,6 @@ $nologin
 	  <td><input type=submit name=action value="|
     . $locale->text('Login') . qq|"></td>
 	</tr>
-<input type=hidden name=path value=$form->{path}>
       </table>
     </td>
   </tr>
@@ -1147,7 +1143,6 @@ sub change_admin_password {
   </tr>
 </table>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <p>
@@ -1188,7 +1183,7 @@ sub change_password {
   $root->save_member($memberfile);
 
   $form->{callback} =
-    "$form->{script}?action=list_users&path=$form->{path}&rpw=$root->{password}";
+    "$form->{script}?action=list_users&rpw=$root->{password}";
 
   $form->redirect($locale->text('Password changed!'));
 
@@ -1309,8 +1304,7 @@ sub dbselect_source {
 </td></tr>
 </table>
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
-<input type=hidden name=path value=$form->{path}>
+<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <br>
@@ -1404,9 +1398,8 @@ $upd
 
 <input name=dbupdate type=hidden value="$form->{dbupdate}">
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <input type=hidden name=nextsub value=dbupdate>
@@ -1458,7 +1451,7 @@ sub dbupdate {
 <br>
 
 <a id="enddatasetupdate" href="admin.pl?action=login&| .
-join("&", map({ "$_=" . $form->escape($form->{$_}); } qw(path rpw))) .
+join("&", map({ "$_=" . $form->escape($form->{$_}); } qw(rpw))) .
 qq|">| . $locale->text("Continue") . qq|</a>|;
 
 }
@@ -1556,9 +1549,8 @@ sub create_dataset {
 <input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
 <input type=hidden name="dbdefault" value="$form->{dbdefault}">
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=rpw value=$form->{rpw}>
 
 <input type=hidden name=nextsub value=dbcreate>
@@ -1609,7 +1601,6 @@ sub dbcreate {
 
     . qq|
 
-<input type=hidden name=path value="$form->{path}">
 <input type=hidden name=rpw value="$form->{rpw}">
 
 <input type=hidden name=nextsub value=list_users>
@@ -1672,9 +1663,8 @@ sub delete_dataset {
 <input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
 <input type=hidden name="dbdefault" value="$form->{dbdefault}">
 
-<input name=callback type=hidden value="$form->{script}?action=list_users&path=$form->{path}&rpw=$form->{rpw}">
+<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
 
-<input type=hidden name=path value="$form->{path}">
 <input type=hidden name=rpw value="$form->{rpw}">
 
 <input type=hidden name=nextsub value=dbdelete>
@@ -1724,7 +1714,6 @@ $form->{db} | . $locale->text('successfully deleted!')
 
     . qq|
 
-<input type=hidden name=path value="$form->{path}">
 <input type=hidden name=rpw value="$form->{rpw}">
 
 <input type=hidden name=nextsub value=list_users>
@@ -1745,7 +1734,7 @@ sub unlock_system {
   unlink "$userspath/nologin";
 
   $form->{callback} =
-    "$form->{script}?action=list_users&path=$form->{path}&rpw=$root->{password}";
+    "$form->{script}?action=list_users&rpw=$root->{password}";
 
   $form->redirect($locale->text('Lockfile removed!'));
 
@@ -1758,7 +1747,7 @@ sub lock_system {
   close(FH);
 
   $form->{callback} =
-    "$form->{script}?action=list_users&path=$form->{path}&rpw=$root->{password}";
+    "$form->{script}?action=list_users&rpw=$root->{password}";
 
   $form->redirect($locale->text('Lockfile created!'));
 

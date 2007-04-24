@@ -58,6 +58,7 @@ $self->{texts} = {
   'Equity'                      => 'Passiva',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
   'Expense'                     => 'Aufwandskonto',
+  'Falsches Datumsformat!'      => 'Falsches Datumsformat!',
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
   'From'                        => 'Von',
@@ -156,6 +157,7 @@ $self->{texts} = {
   'request_quotation'           => 'Angebotsanforderung',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
+  'wrongformat'                 => 'wrongformat',
 };
 
 $self->{subs} = {

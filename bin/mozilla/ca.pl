@@ -107,7 +107,7 @@ sub chart_of_accounts {
     $description      = $form->escape($ca->{description});
 
     $href =
-      qq|$form->{script}?path=$form->{path}&action=list&accno=$ca->{accno}&login=$form->{login}&password=$form->{password}&description=$description|;
+      qq|$form->{script}?action=list&accno=$ca->{accno}&login=$form->{login}&password=$form->{password}&description=$description|;
 
     if ($ca->{charttype} eq "H") {
       print qq|<tr class=listheading>|;
@@ -239,7 +239,6 @@ sub list {
 </table>
 
 <input type=hidden name=login value=$form->{login}>
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=password value=$form->{password}>
 
 <br><input class=submit type=submit name=action value="|
@@ -265,7 +264,7 @@ sub list_transactions {
 
   # construct href
   $href =
-    "$form->{script}?path=$form->{path}&action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
+    "$form->{script}?action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
 
   $description      = $form->escape($form->{description},      1);
   $department       = $form->escape($form->{department},       1);
@@ -274,7 +273,7 @@ sub list_transactions {
 
   # construct callback
   $callback =
-    "$form->{script}?path=$form->{path}&action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
+    "$form->{script}?action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
 
   # figure out which column comes first
   $column_header{transdate} =
@@ -391,7 +390,7 @@ sub list_transactions {
 
     # construct link to source
     $href =
-      "<a href=$ca->{module}.pl?path=$form->{path}&action=edit&id=$ca->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{reference}</a>";
+      "<a href=$ca->{module}.pl?action=edit&id=$ca->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{reference}</a>";
     my $debit = ($ca->{debit} != 0) ? $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;") : "&nbsp;";
     $column_data{debit} =
       "<td align=right>$debit</td>";

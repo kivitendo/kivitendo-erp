@@ -65,6 +65,7 @@ gestartet',
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
   'Extended'                    => 'Gesamt',
+  'Falsches Datumsformat!'      => 'Falsches Datumsformat!',
   'Fax'                         => 'Fax',
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
@@ -224,6 +225,7 @@ gestartet',
   'sales_quotation'             => 'Verkaufsangebot',
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',
+  'wrongformat'                 => 'wrongformat',
 };
 
 $self->{subs} = {

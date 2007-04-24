@@ -52,7 +52,7 @@ sub display {
   &acc_menu;
 
   print qq|
-<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
+<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
 <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
 </p>
 </iframe>
@@ -65,14 +65,12 @@ sub display {
 
 sub clock_line {
 
-  $fensterlink="menunew.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+  $fensterlink="menunew.pl?login=$form->{login}&password=$form->{password}&action=display";
   $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
 
   $login = "[Nutzer "
     . $form->{login}
-    . " - <a href=\"login.pl?path="
-    . $form->{"path"}
-    . "&password="
+    . " - <a href=\"login.pl?password="
     . $form->{"password"}
     . "&action=logout\" target=\"_top\">"
     . $locale->text('Logout')
@@ -407,7 +405,7 @@ sub section_menu {
         print
           qq|menu[$pm][0] = new Menu(true, '>', 0, 20, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;
 
-        #print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+        #print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         #print qq|<br>\n|;

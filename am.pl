@@ -98,28 +98,23 @@ $locale = new Locale "$myconfig{countrycode}", "$script";
 $form->error($locale->text('Incorrect Password!'))
   if ($form->{password} ne $myconfig{password});
 
-$form->{path} =~ s/\.\.\///g;
-if ($form->{path} !~ /^bin\//) {
-  $form->error($locale->text('Invalid path!') . "\n");
-}
-
 # did sysadmin lock us out
 if (-e "$userspath/nologin") {
   $form->error($locale->text('System currently down for maintenance!'));
 }
 
 # pull in the main code
-require "$form->{path}/$form->{script}";
+require "bin/mozilla/$form->{script}";
 
 # customized scripts
-if (-f "$form->{path}/custom_$form->{script}") {
-  eval { require "$form->{path}/custom_$form->{script}"; };
+if (-f "bin/mozilla/custom_$form->{script}") {
+  eval { require "bin/mozilla/custom_$form->{script}"; };
   $form->error($@) if ($@);
 }
 
 # customized scripts for login
-if (-f "$form->{path}/$form->{login}_$form->{script}") {
-  eval { require "$form->{path}/$form->{login}_$form->{script}"; };
+if (-f "bin/mozilla/$form->{login}_$form->{script}") {
+  eval { require "bin/mozilla/$form->{login}_$form->{script}"; };
   $form->error($@) if ($@);
 }
 

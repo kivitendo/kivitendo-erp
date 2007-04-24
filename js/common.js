@@ -41,7 +41,6 @@ function set_longdescription_window(input_name) {
     "action=set_longdescription&" +
     "login=" +  encodeURIComponent(document.getElementsByName("login")[0].value)+ "&"+
     "password=" + encodeURIComponent(document.getElementsByName("password")[0].value) + "&" +
-    "path=" + encodeURIComponent(document.getElementsByName("path")[0].value) + "&" +
     "longdescription=" + escape(document.getElementsByName(input_name)[0].value) + "&" +
     "input_name=" + escape(input_name) + "&"
   window.open(url, "_new_generic", parm);

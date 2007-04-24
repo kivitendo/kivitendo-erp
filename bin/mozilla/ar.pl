@@ -36,7 +36,7 @@ use SL::IS;
 use SL::PE;
 use Data::Dumper;
 
-require "$form->{path}/arap.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 
@@ -87,7 +87,7 @@ sub add {
   
   $form->{title}    = "Add";
   $form->{callback} =
-    "$form->{script}?action=add&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   AR->get_transdate(\%myconfig, $form);
@@ -843,7 +843,6 @@ sub form_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 |
@@ -899,7 +898,7 @@ sub form_footer {
   }
 
   if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
+    require "bin/mozilla/menu.pl";
     &menubar;
   }
   # button for saving history
@@ -1386,7 +1385,6 @@ sub search {
 
 <input type=hidden name=nextsub value=$form->{nextsub}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1415,7 +1413,7 @@ sub ar_transactions {
   AR->ar_transactions(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=ar_transactions&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=ar_transactions&login=$form->{login}&password=$form->{password}";
   $href = $callback;
 
   if ($form->{customer}) {
@@ -1645,7 +1643,7 @@ sub ar_transactions {
     $module = ($ar->{invoice}) ? "is.pl" : $form->{script};
 
     $column_data{invnumber} =
-      "<td><a href=$module?action=edit&id=$ar->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ar->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
     $column_data{type} = "<td>" .
       ($ar->{storno} ? $locale->text("Storno (one letter abbreviation)") :
        $ar->{amount} < 0 ?
@@ -1720,7 +1718,6 @@ sub ar_transactions {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

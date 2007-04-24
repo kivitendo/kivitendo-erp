@@ -36,8 +36,8 @@ use SL::PE;
 use SL::DN;
 use Data::Dumper;
 
-require "$form->{path}/io.pl";
-require "$form->{path}/arap.pl";
+require "bin/mozilla/io.pl";
+require "bin/mozilla/arap.pl";
 
 1;
 
@@ -51,7 +51,7 @@ sub edit_config {
   $form->{title} = $locale->text('Edit Dunning Process Config');
   
   $form->{callback} =
-    "$form->{script}?action=edit_config&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=edit_config&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   @column_index = qw(dunning_level dunning_description active auto email payment_terms terms fee interest template);
@@ -201,7 +201,6 @@ sub edit_config {
 <input name=callback type=hidden value="$form->{callback}">
 <input name=rowcount type=hidden value="$form->{rowcount}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -348,7 +347,6 @@ sub add {
 
 <input type=hidden name=nextsub value=$form->{nextsub}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -386,7 +384,7 @@ sub show_invoices {
   $form->{nextsub} = "save_dunning";
   
   $form->{callback} =
-    "$form->{script}?action=show_invoices&path=$form->{path}&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&paymentuntil=$form->{paymentuntil}&groupinvoices=$form->{groupinvoices}&minamount=$form->{minamount}&dunning_level=$form->{dunning_level}&notes=$form->{notes}"
+    "$form->{script}?action=show_invoices&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&paymentuntil=$form->{paymentuntil}&groupinvoices=$form->{groupinvoices}&minamount=$form->{minamount}&dunning_level=$form->{dunning_level}&notes=$form->{notes}"
     unless $form->{callback};
 
   @column_index = qw(dunning_description active email customername invnumber invdate inv_duedate invamount next_duedate fee interest );
@@ -523,7 +521,6 @@ sub show_invoices {
 <input name=groupinvoices type=hidden value="$form->{groupinvoices}">
 
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 <input type="hidden" name="action">
@@ -627,7 +624,7 @@ sub set_email {
 
   my $callback = "$form->{script}?action=set_email&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_subject input_body input_attachment email_subject email_body email_attachment), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_subject input_body input_attachment email_subject email_body email_attachment), grep({ /^[fl]_/ } keys %$form)));
 
   if ($form->{email_attachment}) {
     $form->{email_attachment} = "checked";
@@ -798,7 +795,6 @@ sub search {
 
 <input type=hidden name=nextsub value=$form->{nextsub}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -830,7 +826,7 @@ sub show_dunning {
 
   
   $form->{callback} =
-    "$form->{script}?action=show_dunning&path=$form->{path}&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&dunningfrom=$form->{dunningfrom}&dunningto=$form->{dunningto}&notes=$form->{notes}&showold=$form->{showold}&dunning_level=$form->{dunning_level}"
+    "$form->{script}?action=show_dunning&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&dunningfrom=$form->{dunningfrom}&dunningto=$form->{dunningto}&notes=$form->{notes}&showold=$form->{showold}&dunning_level=$form->{dunning_level}"
     unless $form->{callback};
 
   @column_index = qw(dunning_description customername invnumber invdate inv_duedate invamount dunning_date next_duedate fee interest );
@@ -936,7 +932,7 @@ sub show_dunning {
       $column_data{dunning_description} =
         qq|<td><a href="dn.pl?action=print_dunning&format=pdf&media=screen&| .
         qq|dunning_id=| . E($ref->{dunning_id}) .
-        join(map({ "&${_}=" . E($form->{$_}) } qw(login path password callback))) .
+        join(map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
         qq|">| . H($ref->{dunning_description}) . qq|</a></td>|;
     } else {
       $column_data{dunning_description} = qq|<td>&nbsp;</td>|;
@@ -946,7 +942,7 @@ sub show_dunning {
     $column_data{invnumber} =
       qq|<td><a href="| . ($ref->{invoice} ? "is.pl" : "ar.pl" ) .
       qq|?action=edit&id=| . H($ref->{id}) .
-      join(map({ "&${_}=" . E($form->{$_}) } qw(login path password callback))) .
+      join(map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
       qq|">| . H($ref->{invnumber}) . qq|</a></td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
@@ -975,7 +971,6 @@ sub show_dunning {
 <input name=nextsub type=hidden value="$form->{nextsub}">
 
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

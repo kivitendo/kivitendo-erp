@@ -15,9 +15,7 @@ foreach (@felder) {
 }
 $login =
     "[" . $login
-  . " - <a href=\"login.pl?path="
-  . $form->{"path"}
-  . "&password="
+  . " - <a href=\"login.pl?password="
   . $form->{"password"}
   . "&action=logout\" target=\"_top\">"
   . $locale->text('Logout')

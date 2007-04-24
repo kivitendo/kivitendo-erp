@@ -31,11 +31,11 @@
 #
 
 # any custom scripts for this one
-if (-f "$form->{path}/custom_arap.pl") {
-  eval { require "$form->{path}/custom_arap.pl"; };
+if (-f "bin/mozilla/custom_arap.pl") {
+  eval { require "bin/mozilla/custom_arap.pl"; };
 }
-if (-f "$form->{path}/$form->{login}_arap.pl") {
-  eval { require "$form->{path}/$form->{login}_arap.pl"; };
+if (-f "bin/mozilla/$form->{login}_arap.pl") {
+  eval { require "bin/mozilla/$form->{login}_arap.pl"; };
 }
 
 1;

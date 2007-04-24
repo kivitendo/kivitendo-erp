@@ -35,9 +35,9 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 
-require "$form->{path}/io.pl";
-require "$form->{path}/arap.pl";
-require "$form->{path}/common.pl";
+require "bin/mozilla/io.pl";
+require "bin/mozilla/arap.pl";
+require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 
 1;
@@ -833,8 +833,6 @@ sub form_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 |
   . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])

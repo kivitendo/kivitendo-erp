@@ -35,7 +35,7 @@
 #
 #======================================================================
 
-require "$form->{path}/arap.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 use SL::PE;
@@ -976,7 +976,6 @@ $jsscript
 </table>
 
 <br>
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1354,7 +1353,7 @@ sub list_accounts {
     $description = $form->escape($ref->{description});
 
     $href =
-      qq|ca.pl?path=$form->{path}&action=list_transactions&accounttype=$form->{accounttype}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&sort=transdate&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&eur=$form->{eur}&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title&nextsub=$form->{nextsub}&accno=$ref->{accno}&description=$description|;
+      qq|ca.pl?action=list_transactions&accounttype=$form->{accounttype}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&sort=transdate&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&eur=$form->{eur}&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title&nextsub=$form->{nextsub}&accno=$ref->{accno}&description=$description|;
 
     $ml = ($ref->{category} =~ /(A|C|E)/) ? -1 : 1;
 
@@ -1522,7 +1521,7 @@ sub generate_ar_aging {
   $form->{arap} = "ar";
 
   $form->{callback} =
-    qq|$form->{script}?path=$form->{path}&action=generate_ar_aging&login=$form->{login}&password=$form->{password}&todate=$form->{todate}&customer=$customer&title=$title|;
+    qq|$form->{script}?action=generate_ar_aging&login=$form->{login}&password=$form->{password}&todate=$form->{todate}&customer=$customer&title=$title|;
 
   RP->aging(\%myconfig, \%$form);
   &aging;
@@ -1542,7 +1541,7 @@ sub generate_ap_aging {
   $form->{arap} = "ap";
 
   $form->{callback} =
-    qq|$form->{script}?path=$form->{path}&action=generate_ap_aging&login=$form->{login}&password=$form->{password}&todate=$form->{todate}&vendor=$vendor&title=$title|;
+    qq|$form->{script}?action=generate_ap_aging&login=$form->{login}&password=$form->{password}&todate=$form->{todate}&vendor=$vendor&title=$title|;
 
   RP->aging(\%myconfig, \%$form);
   &aging;
@@ -1707,7 +1706,7 @@ sub aging {
     $ref->{c90} = ($ref->{c90} != 0) ?  $form->format_amount(\%myconfig, $ref->{c90}, 2, "&nbsp;") : "";
 
     $href =
-      qq|$ref->{module}.pl?path=$form->{path}&action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=|
+      qq|$ref->{module}.pl?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=|
       . $form->escape($form->{callback});
 
     $column_data{invnumber} = qq|<td><a href=$href>$ref->{invnumber}</a></td>|;
@@ -1806,7 +1805,6 @@ sub aging {
 
 <input type=hidden name=department value="$form->{department}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -2143,13 +2141,13 @@ sub generate_tax_report {
 
   # construct href
   $href =
-    "$form->{script}?path=$form->{path}&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
+    "$form->{script}?&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
 
   # construct callback
   $description = $form->escape($form->{$descvar},   1);
   $department  = $form->escape($form->{department}, 1);
   $callback    =
-    "$form->{script}?path=$form->{path}&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
+    "$form->{script}?&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
 
   $title = $form->escape($form->{title});
   $href .= "&title=$title";
@@ -2288,7 +2286,7 @@ sub generate_tax_report {
 
     $column_data{id}        = qq|<td>$ref->{id}</td>|;
     $column_data{invnumber} =
-      qq|<td><a href=$module?path=$form->{path}&action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>|;
+      qq|<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>|;
     $column_data{transdate} = qq|<td>$ref->{transdate}</td>|;
     $column_data{name}      = qq|<td>$ref->{name}&nbsp;</td>|;
 
@@ -2408,7 +2406,7 @@ sub list_payments {
   $memo      = $form->escape($form->{memo});
 
   $href =
-    "$form->{script}?path=$form->{path}&action=list_payments&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&fx_transaction=$form->{fx_transaction}&db=$form->{db}&prepayment=$form->{prepayment}&title=$title&account=$account&department=$department&paymentaccounts=$form->{paymentaccounts}&reference=$reference&source=$source&memo=$memo";
+    "$form->{script}?action=list_payments&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&fx_transaction=$form->{fx_transaction}&db=$form->{db}&prepayment=$form->{prepayment}&title=$title&account=$account&department=$department&paymentaccounts=$form->{paymentaccounts}&reference=$reference&source=$source&memo=$memo";
 
   # construct callback
   $account    = $form->escape($form->{account},    1);
@@ -2419,7 +2417,7 @@ sub list_payments {
   $memo       = $form->escape($form->{memo},       1);
 
   $form->{callback} =
-    "$form->{script}?path=$form->{path}&action=list_payments&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&fx_transaction=$form->{fx_transaction}&db=$form->{db}&prepayment=$form->{prepayment}&title=$title&account=$account&department=$department&paymentaccounts=$form->{paymentaccounts}&reference=$reference&source=$source&memo=$memo&sort=$form->{sort}";
+    "$form->{script}?action=list_payments&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&fx_transaction=$form->{fx_transaction}&db=$form->{db}&prepayment=$form->{prepayment}&title=$title&account=$account&department=$department&paymentaccounts=$form->{paymentaccounts}&reference=$reference&source=$source&memo=$memo&sort=$form->{sort}";
   $callback = $form->escape($form->{callback});
 
   $column_header{name} =
@@ -2503,7 +2501,7 @@ sub list_payments {
       $module = 'ir' if ($payment->{invoice} && $payment->{module} eq 'ap');
 
       $href =
-        qq|${module}.pl?path=$form->{path}&action=edit&id=$payment->{id}&login=$form->{login}&password=$form->{password}&callback=$callback|;
+        qq|${module}.pl?ction=edit&id=$payment->{id}&login=$form->{login}&password=$form->{password}&callback=$callback|;
 
       $column_data{name}      = "<td>$payment->{name}&nbsp;</td>";
       $column_data{reference} =

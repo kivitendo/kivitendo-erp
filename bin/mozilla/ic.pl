@@ -36,7 +36,7 @@ use SL::IC;
 
 #use SL::PE;
 
-require "$form->{path}/io.pl";
+require "bin/mozilla/io.pl";
 require "bin/mozilla/common.pl";
 
 1;
@@ -49,7 +49,7 @@ sub add {
   $form->{title} = $locale->text('Add ' . ucfirst $form->{item});
 
   $form->{callback} =
-    "$form->{script}?action=add&item=$form->{item}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&item=$form->{item}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   $form->{"unit_changeable"} = 1;
@@ -375,7 +375,6 @@ $jsscript
 
 <input type=hidden name=nextsub value=generate_report>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -559,7 +558,6 @@ sub search_update_prices {
 <input type=hidden name=nextsub value=confirm_price_update>
 <input type=hidden name=price_rows value=$form->{price_rows}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -658,7 +656,6 @@ sub choice {
 
   print qq|
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -805,7 +802,6 @@ sub list {
 <br>
 
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -926,7 +922,7 @@ sub addtop100 {
   }    #fi
 
   $callback =
-    "$form->{script}?action=top100&path=$form->{path}&login=$form->{login}&password=$form->{password}&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
+    "$form->{script}?action=top100&login=$form->{login}&password=$form->{password}&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
     . $form->escape($form->{title}, 1);
 
   # if we have a serialnumber limit search
@@ -1356,15 +1352,15 @@ sub addtop100 {
 
     $column_data{invnumber} =
       ($ref->{module} ne 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>"
       : "<td>$ref->{invnumber}</td>";
     $column_data{ordnumber} =
       ($ref->{module} eq 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}</a></td>"
       : "<td>$ref->{ordnumber}</td>";
     $column_data{quonumber} =
       ($ref->{module} eq 'oe' && !$ref->{ordnumber})
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}</a></td>"
       : "<td>$ref->{quonumber}</td>";
 
     $column_data{name} = "<td>$ref->{name}</td>";
@@ -1436,7 +1432,6 @@ sub addtop100 {
 
 <form method=post action=$form->{script}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1500,7 +1495,7 @@ sub generate_report {
   }    #fi
 
   $callback =
-    "$form->{script}?action=generate_report&path=$form->{path}&login=$form->{login}&password=$form->{password}&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
+    "$form->{script}?action=generate_report&login=$form->{login}&password=$form->{password}&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
     . $form->escape($form->{title}, 1);
 
   # if we have a serialnumber limit search
@@ -1841,8 +1836,8 @@ sub generate_report {
 /<br>/g;
 
     $column_data{partnumber} =
-      "<td align=$align><a href=$form->{script}?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partnumber}&nbsp;</a></td>";
-    $column_data{description} = "<td><a href=$form->{script}?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}&nbsp;</a></td>";
+      "<td align=$align><a href=$form->{script}?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partnumber}&nbsp;</a></td>";
+    $column_data{description} = "<td><a href=$form->{script}?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}&nbsp;</a></td>";
     $column_data{partsgroup}  = "<td>$ref->{partsgroup}&nbsp;</td>";
 
     $column_data{onhand} =
@@ -1896,15 +1891,15 @@ sub generate_report {
 
     $column_data{invnumber} =
       ($ref->{module} ne 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>"
       : "<td>$ref->{invnumber}</td>";
     $column_data{ordnumber} =
       ($ref->{module} eq 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}</a></td>"
       : "<td>$ref->{ordnumber}</td>";
     $column_data{quonumber} =
       ($ref->{module} eq 'oe' && !$ref->{ordnumber})
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}</a></td>"
       : "<td>$ref->{quonumber}</td>";
 
     $column_data{name} = "<td>$ref->{name}</td>";
@@ -1986,7 +1981,6 @@ sub generate_report {
 
 <input type=hidden name=item value=$form->{searchitems}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>|;
 
@@ -2650,7 +2644,6 @@ sub form_footer {
   }
 
   print qq|
-      <input type=hidden name=path value=$form->{path}>
       <input type=hidden name=login value=$form->{login}>
       <input type=hidden name=password value=$form->{password}>
       <input type=hidden name=callback value="$form->{callback}">
@@ -2707,7 +2700,7 @@ sub form_footer {
 
   if (!$form->{previousform}) {
     if ($form->{menubar}) {
-      require "$form->{path}/menu.pl";
+      require "bin/mozilla/menu.pl";
       &menubar;
     }
   }
@@ -2888,7 +2881,7 @@ sub assembly_row {
 
       } else {
         $href =
-          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&path=$form->{path}&login=$form->{login}&password=$form->{password}&rowcount=$i&previousform=$previousform|;
+          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&login=$form->{login}&password=$form->{password}&rowcount=$i&previousform=$previousform|;
         $column_data{partnumber} =
           qq|<td><input type=hidden name="partnumber_$i" value="$form->{"partnumber_$i"}"><a href=$href>$form->{"partnumber_$i"}</a></td>|;
         $column_data{runningnumber} =
@@ -3239,7 +3232,7 @@ sub parts_language_selection {
 
   my $callback = "$form->{script}?action=parts_language_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name longdescription);
   my %header_title = ( "name" => $locale->text("Name"),

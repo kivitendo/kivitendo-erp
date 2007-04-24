@@ -40,7 +40,7 @@ use Data::Dumper;
 
 1;
 
-require "$form->{path}/common.pl";
+require "bin/mozilla/common.pl";
 
 # end of main
 
@@ -58,7 +58,7 @@ sub add_account {
   AM->get_account(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &account_header;
@@ -485,7 +485,6 @@ sub form_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -534,7 +533,7 @@ sub list_account {
 
   # construct callback
   $callback =
-    "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
 
   $form->header;
 
@@ -599,7 +598,7 @@ sub list_account {
 
     $ca->{link_edit_account} = 
         qq|$form->{script}?action=edit_account&id=$ca->{id}|
-       .qq|&path=$form->{path}&login=$form->{login}|
+       .qq|&login=$form->{login}|
        .qq|&password=$form->{password}&callback=$callback|;
   }
   
@@ -644,7 +643,7 @@ sub add_department {
   $form->{role}  = "P";
 
   $form->{callback} =
-    "$form->{script}?action=add_department&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_department&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &department_header;
@@ -672,7 +671,7 @@ sub list_department {
   AM->departments(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_department&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_department&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -728,7 +727,7 @@ sub list_department {
     $profitcenter = ($ref->{role} eq "P") ? "X" : "";
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_department&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_department&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
     $column_data{cost}   = qq|<td align=center>$costcenter</td>|;
     $column_data{profit} = qq|<td align=center>$profitcenter</td>|;
 
@@ -755,7 +754,6 @@ sub list_department {
 
 <input type=hidden name=type value=department>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -852,7 +850,7 @@ sub add_lead {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_lead&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_lead&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &lead_header;
@@ -882,7 +880,7 @@ sub list_lead {
   AM->lead(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_lead&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_lead&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -926,7 +924,7 @@ sub list_lead {
 	$lead = $ref->{lead};
 	
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_lead&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{lead}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_lead&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{lead}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -948,7 +946,6 @@ sub list_lead {
 
 <input type=hidden name=type value=lead>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1029,7 +1026,7 @@ sub add_business {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_business&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_business&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &business_header;
@@ -1059,7 +1056,7 @@ sub list_business {
   AM->business(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_business&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_business&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1116,7 +1113,7 @@ sub list_business {
     $description =
       $ref->{description};
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_business&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$description</td>|;
+      qq|<td><a href=$form->{script}?action=edit_business&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$description</td>|;
     $column_data{discount}           = qq|<td align=right>$discount</td>|;
     $column_data{customernumberinit} =
       qq|<td align=right>$ref->{customernumberinit}</td>|;
@@ -1144,7 +1141,6 @@ sub list_business {
 
 <input type=hidden name=type value=business>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1233,7 +1229,7 @@ sub add_language {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_language&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_language&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &language_header;
@@ -1263,7 +1259,7 @@ sub list_language {
   AM->language(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_language&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_language&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1329,7 +1325,7 @@ sub list_language {
 
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_language&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_language&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
     $column_data{template_code}           = qq|<td align=right>$ref->{template_code}</td>|;
     $column_data{article_code} =
       qq|<td align=right>$ref->{article_code}</td>|;
@@ -1371,7 +1367,6 @@ sub list_language {
 
 <input type=hidden name=type value=language>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1505,7 +1500,7 @@ sub add_buchungsgruppe {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_buchungsgruppe&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_buchungsgruppe&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
   AM->get_buchungsgruppe(\%myconfig, \%$form);
   $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
@@ -1540,7 +1535,7 @@ sub list_buchungsgruppe {
   AM->buchungsgruppe(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_buchungsgruppe&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_buchungsgruppe&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1624,7 +1619,7 @@ sub list_buchungsgruppe {
 
   my $swap_link = qq|$form->{script}?action=swap_buchungsgruppen&|;
   map({ $swap_link .= $_ . "=" . $form->escape($form->{$_}) . "&" }
-      qw(login password path));
+      qw(login password));
 
   my $row = 0;
   foreach $ref (@{ $form->{ALL} }) {
@@ -1659,7 +1654,7 @@ sub list_buchungsgruppe {
     }
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_buchungsgruppe&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_buchungsgruppe&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
     $column_data{inventory_accno}           = qq|<td align=right>$ref->{inventory_accno}</td>|;
     $column_data{income_accno_0} =
       qq|<td align=right>$ref->{income_accno_0}</td>|;
@@ -1699,7 +1694,6 @@ sub list_buchungsgruppe {
 
 <input type=hidden name=type value=buchungsgruppe>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1891,7 +1885,7 @@ sub add_printer {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_printer&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_printer&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &printer_header;
@@ -1921,7 +1915,7 @@ sub list_printer {
   AM->printer(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_printer&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_printer&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1975,7 +1969,7 @@ sub list_printer {
 
 
     $column_data{printer_description} =
-      qq|<td><a href=$form->{script}?action=edit_printer&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{printer_description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_printer&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{printer_description}</td>|;
     $column_data{printer_command}           = qq|<td align=right>$ref->{printer_command}</td>|;
     $column_data{template_code} =
       qq|<td align=right>$ref->{template_code}</td>|;
@@ -2003,7 +1997,6 @@ sub list_printer {
 
 <input type=hidden name=type value=printer>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -2093,7 +2086,7 @@ sub add_payment {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_payment&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_payment&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   $form->{terms_netto} = 0;
@@ -2263,7 +2256,6 @@ sub list_payment {
 
 <input type=hidden name=type value=payment>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -2789,7 +2781,6 @@ print qq|      </table>
   </tr>
 </table>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -2840,7 +2831,6 @@ sub audit_control {
 
 <form method=post action=$form->{script}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

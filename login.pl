@@ -81,54 +81,8 @@ Login disabled!\n";
 require "bin/mozilla/installationcheck.pl";
 verify_installation();
 
-if ($form{path}) {
-  $form{path} =~ s/%2f/\//gi;
-  $form{path} =~ s/\.\.\///g;
-
-  if ($form{path} !~ /^bin\//) {
-    print "content-type: text/plain
-
-Invalid path!\n";
-    die;
-  }
-
-  $ARGV[0] = "$_&script=$script";
-  require "$form{path}/$script";
-} else {
-
-  if (!$form{terminal}) {
-    if ($ENV{HTTP_USER_AGENT}) {
-
-      # web browser
-      if ($ENV{HTTP_USER_AGENT} =~ /(mozilla|links|opera|w3m)/i) {
-        $form{terminal} = "mozilla";
-      }
-
-    } else {
-      if ($ENV{TERM} =~ /xterm/) {
-        $form{terminal} = "xterm";
-      }
-      if ($ENV{TERM} =~ /(console|linux|vt.*)/i) {
-        $form{terminal} = "console";
-      }
-    }
-  }
-
-  if ($form{terminal}) {
-
-    $ARGV[0] = "path=bin/$form{terminal}&script=$script";
-    map { $ARGV[0] .= "&${_}=$form{$_}" } keys %form;
-
-    require "bin/$form{terminal}/$script";
-
-  } else {
-
-    print qq|
-  Unknown terminal
-  |;
-  }
-
-}
+$ARGV[0] = "$_&script=$script";
+require "bin/mozilla/$script";
 
 # end of main
 

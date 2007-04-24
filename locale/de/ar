@@ -55,6 +55,7 @@ $self->{texts} = {
   'Exchangerate'                => 'Wechselkurs',
   'Exchangerate for payment missing!' => 'Es fehlt der Wechselkurs für die Bezahlung!',
   'Exchangerate missing!'       => 'Es fehlt der Wechselkurs!',
+  'Falsches Datumsformat!'      => 'Falsches Datumsformat!',
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
   'From'                        => 'Von',
@@ -164,6 +165,7 @@ $self->{texts} = {
   'request_quotation'           => 'Angebotsanforderung',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
+  'wrongformat'                 => 'wrongformat',
 };
 
 $self->{subs} = {

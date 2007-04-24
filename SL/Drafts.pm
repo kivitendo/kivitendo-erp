@@ -53,7 +53,7 @@ sub save {
     do_query($form, $dbh, $query, $draft_id, $module, $submodule);
   }
 
-  @dont_save = qw(login password path action);
+  @dont_save = qw(login password action);
   map({ $saved{$_} = $form->{$_};
         delete($form->{$_}); } @dont_save);
   $dumped = YAML::Dump($form);

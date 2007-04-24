@@ -54,7 +54,7 @@ sub add {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add&db=$form->{db}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&db=$form->{db}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   CT->populate_drop_down_boxes(\%myconfig, \%$form);
@@ -199,7 +199,6 @@ sub search {
 
 <input type=hidden name=nextsub value=list_names>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -313,7 +312,6 @@ sub search_delivery {
 
 <input type=hidden name=nextsub value=list_names>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -334,7 +332,7 @@ sub list_names {
   CT->search(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=list_names&db=$form->{db}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}&obsolete=$form->{obsolete}";
+    "$form->{script}?action=list_names&db=$form->{db}&login=$form->{login}&password=$form->{password}&status=$form->{status}&obsolete=$form->{obsolete}";
   $href = $callback;
 
   @columns =
@@ -496,7 +494,7 @@ sub list_names {
         (invnumber, ordnumber, quonumber);
 
       $column_data{name} =
-        "<td align=left><a href=$form->{script}?action=edit&id=$ref->{id}&db=$form->{db}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}&callback=$callback>$ref->{name}&nbsp;</td>";
+        "<td align=left><a href=$form->{script}?action=edit&id=$ref->{id}&db=$form->{db}&login=$form->{login}&password=$form->{password}&status=$form->{status}&callback=$callback>$ref->{name}&nbsp;</td>";
 
       if ($ref->{email}) {
         $email = $ref->{email};
@@ -511,17 +509,17 @@ sub list_names {
 
     if ($ref->{formtype} eq 'invoice') {
       $column_data{invnumber} =
-        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}&nbsp;</td>";
+        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}&nbsp;</td>";
     }
 
     if ($ref->{formtype} eq 'order') {
       $column_data{ordnumber} =
-        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&type=$ordertype&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}&nbsp;</td>";
+        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&type=$ordertype&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}&nbsp;</td>";
     }
 
     if ($ref->{formtype} eq 'quotation') {
       $column_data{quonumber} =
-        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&type=$quotationtype&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}&nbsp;</td>";
+        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&type=$quotationtype&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}&nbsp;</td>";
     }
 
     $i++;
@@ -555,7 +553,6 @@ sub list_names {
 <input name=callback type=hidden value="$form->{callback}">
 <input name=db type=hidden value=$form->{db}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -661,7 +658,7 @@ sub form_header {
 |;
 
   $get_contact_url =
-    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_contact";
+    "$form->{script}?login=$form->{login}&password=$form->{password}&action=get_contact";
 
   my $pjx = new CGI::Ajax( 'get_contact' => $get_contact_url );
   $form->{selectcontact} = "<option value=0></option>";
@@ -685,7 +682,7 @@ sub form_header {
 		<input type=hidden name=selectcontact value="$form->{selectcontact}">
 	      </tr>|;
   $get_shipto_url =
-    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_shipto";
+    "$form->{script}?login=$form->{login}&password=$form->{password}&action=get_shipto";
 
   my $pjy = new CGI::Ajax( 'get_shipto' => $get_shipto_url );
   $form->{selectshipto} = "<option value=0></option>";
@@ -713,7 +710,7 @@ sub form_header {
 
 
   $get_delivery_url =
-    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=get_delivery";
+    "$form->{script}?login=$form->{login}&password=$form->{password}&action=get_delivery";
 
   my $pjz = new CGI::Ajax( 'get_delivery' => $get_delivery_url );
 
@@ -1195,7 +1192,6 @@ sub form_footer {
 <input name=business_save type=hidden value="$form->{selectbusiness}">
 <input name=title_save type=hidden value="$form->{title}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1269,7 +1265,7 @@ sub add_transaction {
   $name = $form->escape("$form->{name}", 1);
 
   $form->{callback} =
-    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&callback=$form->{callback}";
+    "$form->{script}?login=$form->{login}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&callback=$form->{callback}";
   $form->redirect;
 
   $lxdebug->leave_sub();

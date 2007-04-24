@@ -34,7 +34,7 @@
 use SL::GL;
 use SL::PE;
 
-require "$form->{path}/arap.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 1;
@@ -75,7 +75,7 @@ sub add {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   # we use this only to set a default date
@@ -364,7 +364,6 @@ $jsscript
 
 <input type=hidden name=nextsub value=generate_report>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -387,7 +386,7 @@ sub generate_report {
   GL->all_transactions(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=generate_report&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=generate_report&login=$form->{login}&password=$form->{password}";
 
   $href = $callback;
 
@@ -768,7 +767,7 @@ sub generate_report {
     $column_data{id}        = "<td align=right>&nbsp;$ref->{id}&nbsp;</td>";
     $column_data{transdate}    = "<td align=center>$transdate</td>";
     $column_data{reference} =
-      "<td align=center><a href=$ref->{module}.pl?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{reference}</td>";
+      "<td align=center><a href=$ref->{module}.pl?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{reference}</td>";
     $column_data{description}  = "<td align=center>$ref->{description}&nbsp;</td>";
     $column_data{source}       = "<td align=center>$ref->{source}&nbsp;</td>";
     $column_data{notes}        = "<td align=center>$ref->{notes}&nbsp;</td>";
@@ -871,7 +870,6 @@ sub generate_report {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1455,7 +1453,6 @@ sub form_footer {
   </tr>
 </table>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

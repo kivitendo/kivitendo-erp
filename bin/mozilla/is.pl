@@ -35,8 +35,8 @@ use SL::IS;
 use SL::PE;
 use Data::Dumper;
 
-require "$form->{path}/io.pl";
-require "$form->{path}/arap.pl";
+require "bin/mozilla/io.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/drafts.pl";
 
 1;
@@ -61,7 +61,7 @@ sub add {
 
 
   $form->{callback} =
-    "$form->{script}?action=add&type=$form->{type}&login=$form->{login}&path=$form->{path}&password=$form->{password}"
+    "$form->{script}?action=add&type=$form->{type}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   $form{jsscript} = "date";
@@ -329,7 +329,7 @@ sub form_header {
   }
 
   my $set_duedate_url =
-    "$form->{script}?login=$form->{login}&path=$form->{path}&password=$form->{password}&action=set_duedate";
+    "$form->{script}?login=$form->{login}&password=$form->{password}&action=set_duedate";
 
   my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
   push(@ { $form->{AJAX} }, $pjx);
@@ -1165,7 +1165,7 @@ if ($form->{type} eq "credit_note") {
 $cgi->hidden("-name" => "callback", "-value" => $form->{callback}) 
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
-map({ print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});} qw(path login password));
+map({ print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});} qw(login password));
 print qq|
 </form>
 
@@ -1487,7 +1487,7 @@ sub storno {
   }
 
   map({ my $key = $_; delete($form->{$key})
-          unless (grep({ $key eq $_ } qw(path login password id type))); }
+          unless (grep({ $key eq $_ } qw(login password id type))); }
       keys(%{ $form }));
 
   &invoice_links;

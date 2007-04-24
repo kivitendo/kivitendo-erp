@@ -43,7 +43,7 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
 
    oder
 
-   if ($form->{"path"} eq "bin/mozilla") {
+   if ($form->{item_rows} > 0) {
      ...
    }
 

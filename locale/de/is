@@ -86,6 +86,7 @@ $self->{texts} = {
   'Exchangerate for payment missing!' => 'Es fehlt der Wechselkurs für die Bezahlung!',
   'Exchangerate missing!'       => 'Es fehlt der Wechselkurs!',
   'Extended'                    => 'Gesamt',
+  'Falsches Datumsformat!'      => 'Falsches Datumsformat!',
   'Fax'                         => 'Fax',
   'Feb'                         => 'Feb',
   'February'                    => 'Februar',
@@ -257,6 +258,7 @@ $self->{texts} = {
   'sales_quotation'             => 'Verkaufsangebot',
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',
+  'wrongformat'                 => 'wrongformat',
 };
 
 $self->{subs} = {

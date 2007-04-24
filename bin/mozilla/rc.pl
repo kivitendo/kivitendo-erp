@@ -96,7 +96,6 @@ sub reconciliation {
 <br>
 <input type=hidden name=nextsub value=get_payments>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -370,7 +369,6 @@ sub display_form {
 <input type=hidden name=fromdate value=$form->{fromdate}>
 <input type=hidden name=todate value=$form->{todate}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -425,7 +423,7 @@ sub done {
   $lxdebug->enter_sub();
 
   $form->{callback} =
-    "$form->{script}?path=$form->{path}&action=reconciliation&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=reconciliation&login=$form->{login}&password=$form->{password}";
 
   $form->error($locale->text('Out of balance!')) if ($form->{difference} *= 1);
 

@@ -24,7 +24,7 @@
 # German Tax authority Module and later ELSTER Interface
 #======================================================================
 
-require "$form->{path}/arap.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 #use strict;
@@ -113,7 +113,7 @@ sub report {
 
   my $company_given = ($form->{company} ne '') 
     ? qq|<h3>$form->{company}</h3>\n|
-    : qq|<a href=am.pl?path=$form->{path}&action=config|
+    : qq|<a href=am.pl?action=config|
       . qq|&level=Programm--Preferences&login=$form->{login}|
       . qq|&password=$form->{password}>| 
       . $locale->text('No Company Name given') . qq|!</a><br>|;
@@ -139,7 +139,7 @@ sub report {
     ? qq|$form->{co_street}<br>|
         . qq|$form->{co_street1}<br>|
         . qq|$form->{co_zip} $form->{co_city}|
-    : qq|<a href=am.pl?path=$form->{path}&action=config|
+    : qq|<a href=am.pl?action=config|
         . qq|&level=Programm--Preferences&login=$form->{login}|
         . qq|&password=$form->{password}>| 
         . $locale->text('No Company Address given') 
@@ -152,7 +152,7 @@ sub report {
 
   my $taxnumber_given = ($form->{steuernummer} ne '')
     ? qq|$form->{steuernummer}|
-    : qq|<a href="ustva.pl?path=$form->{path}&action="config_step1"|
+    : qq|<a href="ustva.pl?action="config_step1"|
       . qq|&level=Programm--Finanzamteinstellungen&login=$form->{login}|
       . qq|&password=$form->{password}">Keine Steuernummer hinterlegt!|
       . qq|</a><br>|;
@@ -1066,7 +1066,6 @@ sub config_step1 {
     $callback =  qq|$form->{cbscript}|
                 .qq|?action="config_step1"|
                 .qq|&login="$form->{cblogin}"|
-                .qq|&path="$form->{cbpath}"|
                 .qq|&root="$form->{cbroot}"|
                 .qq|&rpw="$form->{cbrpw}"|;
   }
@@ -1103,8 +1102,7 @@ sub config_step1 {
     FA_BLZ_2            FA_Kontonummer_2  FA_Bankbezeichnung_oertlich
     FA_Oeffnungszeiten  FA_Email          FA_Internet
     steuernummer        elsterland        elstersteuernummer
-    elsterFFFF          path              login
-    password
+    elsterFFFF          login             password
   );
 
   foreach my $variable (@_hidden_form_variables) {
@@ -1248,7 +1246,7 @@ sub config_step2 {
     FA_steuerberater_city   FA_steuerberater_tel
     FA_voranmeld            method
     FA_dauerfrist           FA_71 
-    elster                  path 
+    elster                  
     login                   password 
     type                    elster_init 
     saved                   callback

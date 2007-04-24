@@ -69,7 +69,7 @@ sub menuitem {
   my $level = $form->escape($item);
 
   my $str =
-    qq|<a style="vertical-align:top" href=$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+    qq|<a style="vertical-align:top" href=$module?action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
 
   my @vars = qw(module action target href);
 
@@ -122,7 +122,7 @@ sub menuitem_v3 {
 
   my $str = qq|<a href="$module?action=| . $form->escape($action) .
     qq|&level=| . $form->escape($level);
-  map({ $str .= "&${_}=" . $form->escape($form->{$_}); } qw(path login password));
+  map({ $str .= "&${_}=" . $form->escape($form->{$_}); } qw(login password));
 
   my @vars = qw(module action target href);
 
@@ -176,7 +176,7 @@ sub menuitemNew {
 
   my $level = $form->escape($item);
   my $str   =
-    qq|$module?path=$form->{path}&action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+    qq|$module?action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
   my @vars = qw(module action target href);
 
   if ($self->{$item}{href}) {

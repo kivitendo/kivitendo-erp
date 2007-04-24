@@ -38,7 +38,7 @@ use Data::Dumper;
 
 1;
 
-require "$form->{path}/common.pl";
+require "bin/mozilla/common.pl";
 
 # end of main
 
@@ -98,7 +98,7 @@ sub display_template_form {
 
   my %options;
 
-  my @hidden = qw(login path password type format);
+  my @hidden = qw(login password type format);
 
   if (($form->{"type"} ne "stylesheet") && !$form->{"edit"}) {
     $options{"SHOW_EDIT_OPTIONS"} = 1;

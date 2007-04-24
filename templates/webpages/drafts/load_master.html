@@ -3,7 +3,6 @@
  <form action="<TMPL_VAR script ESCAPE=HTML>" method="post">
 
   <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-  <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
   <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
 
   <input type="hidden" name="SAVED_FORM" value="<TMPL_VAR SAVED_FORM ESCAPE=HTML>">
@@ -34,7 +33,7 @@
        <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
         <td><input type="checkbox" name="checked_<TMPL_VAR id>" value="1"></td>
         <td><TMPL_VAR itime ESCAPE=HTML></td>
-        <td><a href="<TMPL_VAR script ESCAPE=URL>?login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&path=<TMPL_VAR path ESCAPE=URL>&action=load_draft&id=<TMPL_VAR id ESCAPE=URL>"><TMPL_VAR description ESCAPE=HTML></a></td>
+        <td><a href="<TMPL_VAR script ESCAPE=URL>?login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&action=load_draft&id=<TMPL_VAR id ESCAPE=URL>"><TMPL_VAR description ESCAPE=HTML></a></td>
         <td><TMPL_VAR employee_name ESCAPE=HTML></td>
        </tr>
       </TMPL_LOOP>

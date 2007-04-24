@@ -37,8 +37,8 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 
-require "$form->{path}/io.pl";
-require "$form->{path}/arap.pl";
+require "bin/mozilla/io.pl";
+require "bin/mozilla/arap.pl";
 
 1;
 
@@ -98,7 +98,7 @@ sub add {
   set_headings("add");
 
   $form->{callback} =
-    "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&path=$form->{path}&password=$form->{password}"
+    "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &order_links;
@@ -1153,7 +1153,6 @@ sub form_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -1518,7 +1517,6 @@ $jsscript
 
 <br>
 <input type=hidden name=nextsub value=orders>
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 <input type=hidden name=vc value=$form->{vc}>
@@ -1552,7 +1550,7 @@ sub orders {
 
   # construct href
   $href =
-    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
+    "$form->{script}?action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
 
   # construct callback
   $number     = $form->escape($form->{$ordnumber},    1);
@@ -1560,7 +1558,7 @@ sub orders {
   $department = $form->escape($form->{department},    1);
 
   $callback =
-    "$form->{script}?path=$form->{path}&action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
+    "$form->{script}?action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
 
   @columns =
     $form->sort_columns("transdate", "reqdate",   "id",      "$ordnumber",
@@ -1762,7 +1760,7 @@ sub orders {
     $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
 
     $column_data{$ordnumber} =
-      "<td><a href=oe.pl?path=$form->{path}&action=$action&type=$form->{type}&id=$oe->{id}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
+      "<td><a href=oe.pl?action=$action&type=$form->{type}&id=$oe->{id}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
     $column_data{name} = "<td>$oe->{name}</td>";
 
     $column_data{employee} = "<td>$oe->{employee}&nbsp;</td>";
@@ -1830,7 +1828,6 @@ sub orders {
 
   if ($form->{type} =~ /sales_order/) {
     print qq|
-  <input type="hidden" name="path" value="$form->{path}">
   <input class"submit" type="submit" name="action" value="|
       . $locale->text('Continue') . qq|">
   <input type="hidden" name="nextsub" value="edit">
@@ -1853,7 +1850,6 @@ sub orders {
 <input type=hidden name=type value=$form->{type}>
 <input type=hidden name=vc value=$form->{vc}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -2239,7 +2235,7 @@ sub invoice {
   # locale messages
   $locale = new Locale "$myconfig{countrycode}", "$script";
 
-  require "$form->{path}/$form->{script}";
+  require "bin/mozilla/$form->{script}";
 
   map { $form->{"select$_"} = "" } ($form->{vc}, currency);
 
@@ -2320,7 +2316,6 @@ sub backorder_exchangerate {
 
   print qq|
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

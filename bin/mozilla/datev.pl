@@ -113,7 +113,6 @@ sub export {
 
 <input type=hidden name=nextsub value=export2>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -248,7 +247,6 @@ sub export_bewegungsdaten {
 
 <input type=hidden name=nextsub value=export3>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -314,7 +312,6 @@ sub export_stammdaten {
 
 <input type=hidden name=nextsub value=export3>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -336,7 +333,7 @@ sub export3 {
   DATEV->save_datev_stamm(\%myconfig, \%$form);
 
   my $link = $form->{"script"} . "?";
-  map({ $link .= "${_}=" . $form->escape($form->{$_}) . "&"; } qw(path login password));
+  map({ $link .= "${_}=" . $form->escape($form->{$_}) . "&"; } qw(login password));
   $link .= "action=download";
 
   if ($form->{kne}) {

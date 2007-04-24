@@ -52,10 +52,10 @@ sub display {
 
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
-  <frame  src="kopf.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}" name="kopf"  scrolling="NO">
+  <frame  src="kopf.pl?login=$form->{login}&password=$form->{password}" name="kopf"  scrolling="NO">
   <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" >
-    <frame src="$form->{script}?login=$form->{login}&password=$form->{password}&action=acc_menu&path=$form->{path}" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
-    <frame src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" name="main_window" scrolling="auto">
+    <frame src="$form->{script}?login=$form->{login}&password=$form->{password}&action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
+    <frame src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" name="main_window" scrolling="auto">
   </frameset>
   <noframes>
   You need a browser that can read frames to see this page.
@@ -201,7 +201,7 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         #print qq|<br>\n|;

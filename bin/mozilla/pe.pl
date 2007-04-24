@@ -47,7 +47,7 @@ sub add {
 
   # construct callback
   $form->{callback} =
-    "$form->{script}?action=add&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&type=$form->{type}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   call_sub("form_$form->{type}_header");
@@ -173,7 +173,6 @@ sub search {
 
 <input type=hidden name=nextsub value=$report>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -197,7 +196,7 @@ sub project_report {
   PE->projects(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=project_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}&active=" .
+    "$form->{script}?action=project_report&type=$form->{type}&login=$form->{login}&password=$form->{password}&status=$form->{status}&active=" .
     E($form->{active});
   $href = $callback;
 
@@ -278,7 +277,7 @@ sub project_report {
 |;
 
     $column_data{projectnumber} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{projectnumber}</td>|;
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{projectnumber}</td>|;
     $column_data{description} = qq|<td>$ref->{description}&nbsp;</td>|;
     $column_data{active} =
       qq|<td>| .
@@ -308,7 +307,6 @@ sub project_report {
 
 <input type=hidden name=type value=$form->{type}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -413,7 +411,6 @@ sub form_project_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -509,7 +506,7 @@ sub partsgroup_report {
   PE->partsgroups(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=partsgroup_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+    "$form->{script}?action=partsgroup_report&type=$form->{type}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
 
   if ($form->{status} eq 'all') {
     $option = $locale->text('All');
@@ -570,7 +567,7 @@ sub partsgroup_report {
 |;
 
     $column_data{partsgroup} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partsgroup}</td>|;
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partsgroup}</td>|;
     map { print "$column_data{$_}\n" } @column_index;
 
     print "
@@ -594,7 +591,6 @@ sub partsgroup_report {
 
 <input type=hidden name=type value=$form->{type}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -662,7 +658,6 @@ sub form_partsgroup_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -704,7 +699,7 @@ sub pricegroup_report {
   PE->pricegroups(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=pricegroup_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+    "$form->{script}?action=pricegroup_report&type=$form->{type}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
 
   if ($form->{status} eq 'all') {
     $option = $locale->text('All');
@@ -767,7 +762,7 @@ sub pricegroup_report {
         <tr valign=top class=listrow$i>
 |;
     $column_data{pricegroup} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{pricegroup}</td>|;
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{pricegroup}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -792,7 +787,6 @@ sub pricegroup_report {
 
 <input type=hidden name=type value=$form->{type}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -864,7 +858,6 @@ sub form_pricegroup_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 

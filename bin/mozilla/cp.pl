@@ -36,7 +36,7 @@ use SL::OP;
 use SL::IS;
 use SL::IR;
 
-require "$form->{path}/arap.pl";
+require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 1;
@@ -467,7 +467,6 @@ sub form_footer {
 </table>
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -724,7 +723,7 @@ sub print {
 
   if ($form->{media} ne 'screen') {
     $form->{callback} =
-      "$form->{script}?action=payment&vc=$form->{vc}&path=$form->{path}&login=$form->{login}&password=$form->{password}&all_vc=$form->{all_vc}";
+      "$form->{script}?action=payment&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&all_vc=$form->{all_vc}";
 
     $form->redirect if (CP->process_payment(\%myconfig, \%$form));
     $form->error($locale->text('Cannot post payment!'));

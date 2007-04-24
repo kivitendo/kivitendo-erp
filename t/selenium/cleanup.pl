@@ -59,7 +59,7 @@
   $lxtest->{testuserlogin}   = $lxtest->{testlogin};
   $lxtest->{db}              = $lxtest->{db};
 
-  $lxtest->{lxadmin} = $lxtest->{lxbaseurl} . "admin.pl?path=$lxtest->{path}&rpw=$lxtest->{rpw}&nextsub=list_users&action=Weiter";
+  $lxtest->{lxadmin} = $lxtest->{lxbaseurl} . "admin.pl?rpw=$lxtest->{rpw}&nextsub=list_users&action=Weiter";
 
   eval { $sel = WWW::Selenium->new(
     host => $lxtest->{seleniumhost},

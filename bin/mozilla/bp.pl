@@ -229,7 +229,6 @@ sub search {
 
 <input type=hidden name=nextsub value=list_spool>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -353,11 +352,11 @@ sub list_spool {
 
   $title = $form->escape($form->{title});
   $href  =
-    "$form->{script}?action=list_spool&path=$form->{path}&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
+    "$form->{script}?action=list_spool&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   $title = $form->escape($form->{title}, 1);
   $callback =
-    "$form->{script}?action=list_spool&path=$form->{path}&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
+    "$form->{script}?action=list_spool&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   if ($form->{ $form->{vc} }) {
     $callback .= "&$form->{vc}=" . $form->escape($form->{ $form->{vc} }, 1);
@@ -507,11 +506,11 @@ sub list_spool {
     }
 
     $column_data{invnumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{invnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{invnumber}</a></td>";
     $column_data{ordnumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{ordnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{ordnumber}</a></td>";
     $column_data{quonumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
     $column_data{name}      = "<td>$ref->{name}</td>";
     $column_data{spoolfile} =
       qq|<td><a href=$spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
@@ -556,7 +555,6 @@ sub list_spool {
 
 <input type=hidden name=account value="$form->{account}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 |;
