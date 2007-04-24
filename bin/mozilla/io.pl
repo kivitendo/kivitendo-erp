@@ -1256,33 +1256,21 @@ sub edit_e_mail {
     $form->{print_and_post} = 0;
     $form->{resubmit}       = 0;
   }
-  if ($myconfig{role} eq 'admin') {
-    $bcc = qq|
-    <tr>
-      <th align="right" nowrap="true">| . $locale->text('Bcc') . qq|</th>
-      <td><input name="bcc" size="30" value="| . Q($form->{bcc}) . qq|"></td>
-    </tr>
-|;
-  }
 
-  if ($form->{formname} =~ /(pick|packing|bin)_list/) {
-    $form->{email} = $form->{shiptoemail} if $form->{shiptoemail};
-  }
+  $form->{email} = $form->{shiptoemail} if $form->{shiptoemail} && $form->{formname} =~ /(pick|packing|bin)_list/;
 
   if ($form->{"cp_id"} && !$form->{"email"}) {
     CT->get_contact(\%myconfig, $form);
     $form->{"email"} = $form->{"cp_email"};
   }
 
-  $name = $form->{ $form->{vc} };
-  $name =~ s/--.*//g;
-  $title = $locale->text('E-mail') . " $name";
+  $form->{ $form->{vc} } =~ /--/;
+  $title = $locale->text('E-mail') . " $`";
 
   $form->{oldmedia} = $form->{media};
   $form->{media}    = "email";
 
-  my %formname_translations =
-    (
+  my %formname_translations = (
      "bin_list" => $locale->text('Bin List'),
      "credit_note" => $locale->text('Credit Note'),
      "invoice" => $locale->text('Invoice'),
@@ -1295,7 +1283,7 @@ sub edit_e_mail {
      "sales_quotation" => $locale->text('Quotation'),
      "storno_invoice" => $locale->text('Storno Invoice'),
      "storno_packing_list" => $locale->text('Storno Packing List'),
-    );
+  );
 
   my $attachment_filename = $formname_translations{$form->{"formname"}};
   my $prefix;
@@ -1315,107 +1303,26 @@ sub edit_e_mail {
        $form->{"format"} =~ /opendocument/i ? ".odt" :
        $form->{"format"} =~ /html/i ? ".html" : "");
     $attachment_filename =~ s/ /_/g;
-    my %umlaute =
-      (
-       "ä" => "ae", "ö" => "oe", "ü" => "ue",
-       "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue",
-       "ß" => "ss"
-      );
-    map({ $attachment_filename =~ s/$_/$umlaute{$_}/g; } keys(%umlaute));
+    my %umlaute = ( "ä" => "ae", "ö" => "oe", "ü" => "ue", 
+                    "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue", "ß" => "ss");
+    map { $attachment_filename =~ s/$_/$umlaute{$_}/g } keys %umlaute;
   } else {
     $attachment_filename = "";
   }
 
-  if ($form->{"email"}) {
-    $form->{"fokus"} = "Form.subject";
-  } else {
-    $form->{"fokus"} = "Form.email";
-  }
+  $form->{"fokus"} = $form->{"email"} ? "Form.subject" : "Form.email";
   $form->header;
 
-  print qq|
-<body onload="fokus()">
+  my (@nh, %nh, @hiddenkeys);
+  @nh = qw(action email cc bcc subject message formname sendmode format header override); $nh{@nh} = (1)x@nh;
+  @hidden_keys = grep { !$nh{$_} } grep { !ref $form->{$_} } keys %$form;
 
-<form name="Form" method="post" action="$form->{script}">
-
-<table width="100%">
-  <tr class="listtop">
-    <th class="listtop">$title</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('To') . qq|</th>
-          <td><input name="email" size="30" value="| .
-          Q($form->{"email"}) . qq|"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Cc') . qq|</th>
-          <td><input name="cc" size="30" value="| .
-          Q($form->{"cc"}) . qq|"></td>
-        </tr>
-        $bcc
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Subject') . qq|</th>
-          <td><input name="subject" size="30" value="| .
-          Q($form->{"subject"}) . qq|"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Attachment name') .
-          qq|</th>
-          <td><input name="attachment_filename" size="30" value="| .
-          Q($attachment_filename) . qq|"></td>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align="left" nowrap>| . $locale->text('Message') . qq|</th>
-        </tr>
-        <tr>
-          <td><textarea name="message" rows="15" cols="60" wrap="soft">| .
-          H($form->{"message"}) . qq|</textarea></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-|;
-
-  print_options();
-
-  map { delete $form->{$_} }
-    qw(action email cc bcc subject message formname sendmode format header override);
-
-  # save all other variables
-  foreach $key (keys %$form) {
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type="hidden" name="$key" value="| . Q($form->{$key}) . qq|">\n|;
-  }
-
-  print qq|
-    </td>
-  </tr>
-  <tr>
-    <td><hr size="3" noshade></td>
-  </tr>
-</table>
-
-<input type="hidden" name="nextsub" value="send_email">
-
-<br>
-<input name="action" class="submit" type="submit" value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
+  print $form->parse_html_template('generic/edit_email', 
+                                  { title           => $title,
+                                    a_filename      => $attachment_filename,
+                                    _print_options_ => print_options('inline'),
+                                    HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
+                                    SHOW_BCC        => $myconfig{role} eq 'admin' });
 
   $lxdebug->leave_sub();
 }
