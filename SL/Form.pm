@@ -2357,12 +2357,8 @@ sub update_defaults {
   my ($var) = $sth->fetchrow_array;
   $sth->finish;
 
-  if ($var =~ /^(.*?)(\d+)$/) {
-    my $new_num = sprintf '%0*d', length($2), $2 + 1;
-    $var = "${1}${new_num}";
-  } else {
-    $var++;
-  }
+  $var =~ s/\d+$/ sprintf '%0*d', length($&), $&+1 /e;
+  $var ||= 1;
 
   $query = qq|UPDATE defaults SET $fld = ?|;
   do_query($self, $dbh, $query, $var);
@@ -2393,14 +2389,8 @@ sub update_business {
        WHERE id = ? FOR UPDATE|;
   my ($var) = selectrow_query($self, $dbh, $query, $business_id);
 
-  if ($var ne "") {
-    if ($var =~ /^(.*?)(\d+)$/) {
-      my $new_num = sprintf '%0*d', length($2), $2 + 1;
-      $var = "${1}${new_num}";
-    } else {
-      $var++;
-    }
-  }
+  $var =~ s/\d+$/ sprintf '%0*d', length($&), $&+1 /e;
+  
   $query = qq|UPDATE business
               SET customernumberinit = ?
               WHERE id = ?|;
