@@ -1,6 +1,120 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
+
+
+2007-??-?? - Version 2.4.3
+  - In den Einkaufs- und Verkaufsmasken wurde die Drop-Down-Box für
+    die Steuerzone bei jedem Aufbau auf "Inland" zurückgesetzt.
+  - Die History-Funktion speichert nun auch Rechnungs-,
+    Angebotsnummern etc.
+  - Die Funktionen zum Bearbeiten der HTML- und LaTeX-Vorlagen wurden
+    komplett neu geschrieben. Es ist jetzt auch möglich, Vorlagen für
+    die vom Benutzer eingerichteten Sprachen und Drucker zu erstellen
+    und zu bearbeiten.
+  - Beim Verschicken von Sammelrechnungen per Email wird der Name des
+    Anhangs besser gewählt (z.B. "Sammelrechnung_Datum.pdf").
+  - Bei Kundenaufträgen wird die Checkbox "geliefert" auch angezeigt,
+    bevor der Auftrag gespeichert wurde.
+  - Eingabefelder für Datumsangaben und Zahlen werden nun per
+    Javascript auf falsche Formate überprüft (noch nicht
+    flächendeckend implementiert).
+  - Nummernkreise können jetzt auch Sonderzeichen wie
+    Gleichheitszeichen enthalten.
+  - Beim Umwandeln von Lieferantenaufträgen in Kundenaufträge und
+    umgekehrt wird die Auftragsnummer gelöscht, damit sie beim
+    Speichern automatisch aus dem richtigen Nummernkreis neu vergeben
+    oder vom Benutzer eingegeben werden kann.
+  - Stornierte Rechnungen werden bei den Listen der offenen
+    Forderungen und Verbindlichkeiten nicht mehr angezeigt.
+  - Wenn bei Einkaufs-/Verkaufs-/Debitoren- oder Kreditorenmasken der
+    Kunde/Lieferant per Drop-Down-Box gewechselt wird, so wird das
+    Formular automatisch erneuert.
+  - Einkaufs- und Verkaufsbelege werden beim Verschicken per Email nur
+    dann vorher gespeichert, wenn sie noch gar nicht gespeichert
+    waren. Außerdem werden die Zahlenformatierungen richtig beachtet.
+  - Kunden-/Lieferantennamen mit Zeilenumbrüchen im Namen werden
+    bereinigt.
+  - Lieferadressen werden nun nicht mehr doppelt gespeichert.
+  - Kunden- und Lieferantenstammdatenberichte können jetzt nach
+    Kunden-/Lieferantentyp gefiltert werden.
+  - Beim Bearbeiten von Lieferanschriften wurden die Abteilungs-Felder
+    der Rechnungsadresse nicht angezeigt.
+  - Bei Kunden- und Lieferantenstammdatenberichten werden
+    standardmäßig nur noch die gültigen Einträge angezeigt. Die
+    ungültigen können zusätzlich angezeigt werden.
+  - Bei Einkaufs- und Verkaufsmasken ist es nun möglich, keinen
+    Ansprechpartner auszuwählen.
+  - Beim Mahnwesen konnten Mahnungen erstellt werden, die Rechnungen
+    verschiedener Kunden enthielten.
+  - Wenn "Stuer im Preis inbegriffen" angeklickt war, dann wurden die
+    falschen Beträge beim Drucken in den Summenvariablen hinterlegt.
+  - Die Einheiten bei Erzeugnissen wurden in Einkaufs- und
+    Verkaufsrechnungen nicht richtig angezeigt.
+  - Große Teile toten Codes entfernt (u.a. zum Thema GIFI, customer
+    tax, vendor tax).
+  - Kunden können ein Verkäufer zugewiesen werden. In den
+    Verkaufsmasken kann jedem Beleg zusätzlich zum Bearbeiter ( =
+    aktueller Lx-Office-Benutzer) noch ein separater Verkäufer
+    zugeordnet werden, der mit dem beim Kunden hinterlegten Verkäufer
+    vorbelegt ist.
+  - Beim Erstellen von Aufträgen/Buchungen aus der
+    Kunden-/Lieferantenstammdatenmaske heraus wurden die Bemerkungen
+    des Kunden/Lieferanten nicht in die internen Bemerkung des neuen
+    Beleges übernommen.
+  - Bei "Als neu speichern" wird nur dann eine neue Rechnungs-,
+    Angebotsnummer etc vergeben, wenn die bisherige Nummer nicht
+    manuell verändert wurde. Ansonsten wird die Eingabe des Benutzers
+    beibehalten.
+  - Einkaufs-/Verkaufsmasken: zur Berechnung des Fälligkeitsdatum
+    werden anstelle des nicht mehr existierenden Zahlungsziels die
+    ausgewählten Zahlungsbedingungen benutzt.
+  - Bei Buchungen mit "Zahlung buchen" wird der Steuerschlüssel
+    richtig gespeichert.
+  - Dialogbuchen: Bei neu hinzugefügten Zeilen wird der
+    Steuerschlüssel richtig vorausgewählt.
+  - Tab-Indices wurden entfernt, weil sie unvollständig waren und
+    dadurch die Navigation per Tab-Taste unnötig erschwert wurde.
+  - Dialogbuchen, Debitorenbuchungen: Wird das Buchungsdatum
+    verändert, so wird der Steuerschlüssel unter Beibehaltung des
+    ausgewählten Kontos richtig gesetzt.
+  - Der Storno-Button wird nur angezeigt, wenn die Rechnung noch nicht
+    storniert wurde.
+  - Beim Stornieren von Einkaufs- und Verkaufsrechnungen werden die zu
+    stornierenden Daten aus der Datenbank geladen und nicht aus dem
+    Formular genommen.
+  - Das mehrmalige Stornieren von Einkaufs- und Verkaufsrechnungen
+    wurde verhindert.
+  - Links und das jeweils aktive Eingabefeld werden durch andere
+    Farbgebung deutlicher hervorgehoben.
+  - Rechnungs- und Gutschriftsnummern werden nun direkt innerhalb der
+    Backend-Routinen innerhalb der gleichen Transaktion vergeben, in
+    der auch die eigentliche Rechnung etc gespeichert wird. Damit soll
+    besser verhindert werden, dass sich Löcher in den Nummernkreisen
+    ergeben.
+  - SKR 03: Mehrere falsche Einträge bezüglich der Steuerschlüssel
+    wurden behoben.
+  - Dialogbuchen: Beim Aufrufen bestehender Buchungen werden die
+    Projektnummern richtig in der Drop-Down-Box vorausgewählt.
+  - Bei Debitoren-, Kreditoren- und Dialogbuchungsmasken werden die
+    Steuerkonten richtig vorausgewählt, wenn die Masken geöffnet werden.
+  - Nachkommastellen bei Einkaufspreise bei Dienstleistungen
+    verschwanden beim Speichern
+  - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
+  - Diverse Fehler im USTVA-Modul behoben
+  - Bugfix 619
+  - Bugfix 618
+  - Bugfix 614
+  - Bugfix 609
+  - Bugfix 608
+  - Bugfix 603
+  - Bugfix 598
+  - Bugfix 583
+  - Bugfix 577
+  - Bugfix 576
+  - Bugfix 567
+  - Bugfix 543
+
 2007-02-23 - Version 2.4.2
 
   - USTVA Buchungsgruppe Inland: Konten angepasst und getestet
