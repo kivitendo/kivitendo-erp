@@ -110,9 +110,7 @@ sub report {
   $accrual = ($eur) ? ""        : "checked";
   $cash    = ($eur) ? "checked" : "";
 
-  ($null, $null, $null, $null, $null, $year, $null, $null, $null) =
-    localtime();
-  $year += 1900;
+  $year = (localtime)[5] + 1900;
 
   # get departments
   $form->all_departments(\%myconfig);
