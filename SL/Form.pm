@@ -2332,7 +2332,7 @@ sub get_history {
       $hash_ref->{snumbers} =~ s/^.+_(.*)$/$1/g;
       $tempArray[$i++] = $hash_ref;
     }
-    return \@tempArray and $main::lxdebug->leave_sub()
+    $main::lxdebug->leave_sub() and return \@tempArray 
       if ($i > 0 && $tempArray[0] ne "");
   }
   $main::lxdebug->leave_sub();
