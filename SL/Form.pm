@@ -2358,7 +2358,7 @@ sub update_defaults {
   $sth->finish;
 
   if ($var =~ /^(.*?)(\d+)$/) {
-    my $new_num = sprintf '%0' . length($2) . 'd', $2 + 1;
+    my $new_num = sprintf '%0*d', length($2), $2 + 1;
     $var = "${1}${new_num}";
   } else {
     $var++;
@@ -2395,7 +2395,7 @@ sub update_business {
 
   if ($var ne "") {
     if ($var =~ /^(.*?)(\d+)$/) {
-      my $new_num = sprintf '%0' . length($2) . 'd', $2 + 1;
+      my $new_num = sprintf '%0*d', length($2), $2 + 1;
       $var = "${1}${new_num}";
     } else {
       $var++;
