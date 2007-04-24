@@ -138,7 +138,7 @@ sub display_template_form {
     my (@values, $file, $setup);
 
     while (($file, $setup) = each(%formname_setup)) {
-      next unless (!ref($setup) || $setup->{$format});
+      next if ref($setup) && !$setup->{$format};
 
       push(@values,
            { "value"   => $file,
