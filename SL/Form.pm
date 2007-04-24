@@ -461,7 +461,7 @@ sub parse_html_template {
         (-f "templates/webpages/${file}_master.html") &&
         ((stat("templates/webpages/${file}_master.html"))[9] >
          (stat("templates/webpages/${file}_${language}.html"))[9])) {
-      my $info = "Developper information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
+      my $info = "Developer information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
         "Please re-run 'locales.pl' in 'locale/${language}'.";
       print(qq|<pre>$info</pre>|);
       die($info);
