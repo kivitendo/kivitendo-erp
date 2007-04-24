@@ -1517,6 +1517,20 @@ sub _get_taxcharts {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_taxzones {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_taxzones" unless ($key);
+
+  my $query = qq|SELECT * FROM tax_zones ORDER BY id|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub _get_employees {
   $main::lxdebug->enter_sub();
 
@@ -1595,6 +1609,10 @@ sub get_lists {
 
   if ($params{"taxcharts"}) {
     $self->_get_taxcharts($dbh, $params{"taxcharts"});
+  }
+
+  if ($params{"taxzones"}) {
+    $self->_get_taxzones($dbh, $params{"taxzones"});
   }
 
   if ($params{"employees"}) {
@@ -1869,10 +1887,6 @@ sub create_links {
   # get taxkeys and description
   $query = qq|SELECT id, taxkey, taxdescription FROM tax|;
   $self->{TAXKEY} = selectall_hashref_query($self, $dbh, $query);
-
-  # get tax zones
-  $query = qq|SELECT id, description FROM tax_zones|;
-  $self->{TAXZONE} = selectall_hashref_query($self, $dbh, $query);
 
   if (($module eq "AP") || ($module eq "AR")) {
     # get tax rates and description

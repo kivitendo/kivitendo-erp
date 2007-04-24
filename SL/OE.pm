@@ -870,10 +870,6 @@ sub retrieve {
 
   Common::webdav_folder($form) if ($main::webdav);
 
-  # get tax zones
-  $query = qq|SELECT id, description FROM tax_zones|;
-  $form->{TAXZONE} = selectall_hashref_query($form, $dbh, $query);
-
   my $rc = $dbh->commit;
   $dbh->disconnect;
 

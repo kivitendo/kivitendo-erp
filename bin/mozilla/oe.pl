@@ -431,7 +431,8 @@ sub form_header {
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
-                   "employees" => "ALL_SALESMEN");
+                   "employees" => "ALL_SALESMEN",
+                   "taxzones" => "ALL_TAXZONES");
 
   my %labels;
   my @values = (undef);
@@ -488,6 +489,23 @@ sub form_header {
       . qq|</td>
          </tr>|;
   }
+
+
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_TAXZONES"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"description"};
+  }
+
+  $taxzone = qq|
+    <tr>
+      <th align="right">| . $locale->text('Steuersatz') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
@@ -559,34 +577,6 @@ sub form_header {
             </tr>
 |;
   }
-
-  if (@{ $form->{TAXZONE} }) {
-    $form->{selecttaxzone} = "";
-    foreach $item (@{ $form->{TAXZONE} }) {
-      if ($item->{id} == $form->{taxzone_id}) {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>" . H($item->{description}) .
-          "</option>";
-      } else {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
-      }
-
-    }
-  } else {
-    $form->{selecttaxzone} =~ s/ selected//g;
-    if ($form->{taxzone_id} ne "") {
-      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}>/value=$form->{taxzone_id} selected>/;
-    }
-  }
-
-  $taxzone = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
-		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
-	      </tr>|;
-
 
   if ($form->{type} !~ /_quotation$/) {
     $ordnumber = qq|

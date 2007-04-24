@@ -601,7 +601,8 @@ sub edit {
 sub form_header {
   $lxdebug->enter_sub();
 
-  $form->get_lists("employees" => "ALL_SALESMEN");
+  $form->get_lists("employees" => "ALL_SALESMEN",
+                   "taxzones" => "ALL_TAXZONES");
 
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
   $form->{creditlimit} =
@@ -644,23 +645,19 @@ sub form_header {
     }
   }
 
-  if (@{ $form->{TAXZONE} }) {
-    foreach $item (@{ $form->{TAXZONE} }) {
-      if ($item->{id} == $form->{taxzone_id}) {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>$item->{description}\n";
-      } else {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id}>$item->{description}\n";
-      }
-
-    }
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_TAXZONES"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"description"};
   }
 
   $taxzone = qq|
 		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
-		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
 |;
 
   $get_contact_url =

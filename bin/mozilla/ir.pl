@@ -278,7 +278,8 @@ sub form_header {
   $form->get_lists("contacts" => "ALL_CONTACTS",
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
-                                   "old_id" => \@old_project_ids });
+                                   "old_id" => \@old_project_ids },
+                   "taxzones" => "ALL_TAXZONES");
 
   my %labels;
   my @values = (undef);
@@ -302,34 +303,33 @@ sub form_header {
                          '-labels' => \%labels,
                          '-default' => $form->{"globalproject_id"}));
 
-  if (@{ $form->{TAXZONE} }) {
-    $form->{selecttaxzone} = "";
-    foreach $item (@{ $form->{TAXZONE} }) {
-      if ($item->{id} == $form->{taxzone_id}) {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>" . H($item->{description}) .
-          "</option>";
-      } else {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
-      }
-
-    }
-  } else {
-    $form->{selecttaxzone} =~ s/ selected//g;
-    if ($form->{taxzone_id} ne "") {
-      $form->{selecttaxzone} =~ s/value=$form->{taxzone_id}/value=$form->{taxzone_id} selected/;
-    }
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_TAXZONES"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"description"};
   }
 
-  $taxzone = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name=taxzone_id>$form->{selecttaxzone}</select></td>
-		<input type=hidden name=selecttaxzone value="$form->{selecttaxzone}">
-	      </tr>|;
+  if (!$form->{"id"}) {
+    $taxzone = qq|
+    <tr>
+      <th align="right">| . $locale->text('Steuersatz') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
 
-
+  } else {
+    $taxzone = qq|
+    <tr>
+      <th align="right">| . $locale->text('Steuersatz') . qq|</th>
+      <td>
+        <input type="hidden" name="taxzone_id" value="| . H($form->{"taxzone_id"}) . qq|">
+        | . H($labels{$form->{"taxzone_id"}}) . qq|
+      </td>
+    </tr>|;
+  }
 
   $vendor =
     ($form->{selectvendor})

@@ -101,10 +101,6 @@ sub populate_drop_down_boxes {
   $query = qq|SELECT id, description FROM business ORDER BY id|;
   $form->{all_business} = selectall_hashref_query($form, $dbh, $query);
 
-  # get tax zones
-  $query = qq|SELECT id, description FROM tax_zones|;
-  $form->{TAXZONE} = selectall_hashref_query($form, $dbh, $query);
-
   # get shipto address
   $query =
     qq|SELECT shipto_id, shiptoname, shiptodepartment_1 | .

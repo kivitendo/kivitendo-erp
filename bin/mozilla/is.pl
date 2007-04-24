@@ -334,33 +334,6 @@ sub form_header {
   my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
   push(@ { $form->{AJAX} }, $pjx);
 
-  if (@{ $form->{TAXZONE} }) {
-    $form->{selecttaxzone} = "";
-    foreach $item (@{ $form->{TAXZONE} }) {
-      if ($item->{id} == $form->{taxzone_id}) {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id} selected>" . H($item->{description}) .
-          "</option>";
-      } else {
-        $form->{selecttaxzone} .=
-          "<option value=$item->{id}>" . H($item->{description}) . "</option>";
-      }
-
-    }
-  } else {
-    $form->{selecttaxzone} =~ s/ selected//g;
-    if ($form->{taxzone_id} ne "") {
-      $form->{selecttaxzone} =~ s/value=\"$form->{taxzone_id}\"/value=\"$form->{taxzone_id}\" selected/;
-    }
-  }
-
-  $taxzone = qq|
-	      <tr>
-		<th align="right">| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name="taxzone_id">$form->{selecttaxzone}</select></td>
-		<input type="hidden" name="selecttaxzone" value="$form->{selecttaxzone}">
-	      </tr>|;
-
   my @old_project_ids = ($form->{"globalproject_id"});
   map({ push(@old_project_ids, $form->{"project_id_$_"})
           if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
@@ -370,7 +343,8 @@ sub form_header {
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
-                   "employees" => "ALL_SALESMEN");
+                   "employees" => "ALL_SALESMEN",
+                   "taxzones" => "ALL_TAXZONES");
 
   my %labels;
   my @values = (undef);
@@ -424,6 +398,34 @@ sub form_header {
                                '-values' => \@values, '-labels' => \%labels))
      . qq|</td>
          </tr>|;
+
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_TAXZONES"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"description"};
+  }
+
+  if (!$form->{"id"}) {
+    $taxzone = qq|
+    <tr>
+      <th align="right">| . $locale->text('Steuersatz') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
+
+  } else {
+    $taxzone = qq|
+    <tr>
+      <th align="right">| . $locale->text('Steuersatz') . qq|</th>
+      <td>
+        <input type="hidden" name="taxzone_id" value="| . H($form->{"taxzone_id"}) . qq|">
+        | . H($labels{$form->{"taxzone_id"}}) . qq|
+      </td>
+    </tr>|;
+  }
 
   # set option selected
   foreach $item (qw(AR customer currency department employee)) {
