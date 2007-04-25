@@ -1411,7 +1411,7 @@ sub save {
   if ($form->{"db"} eq "customer") {
     $res = CT->save_customer(\%myconfig, \%$form);
   } else {
-    $res = CT->save_customer(\%myconfig, \%$form);
+    $res = CT->save_vendor(\%myconfig, \%$form);
   }
 
   if (3 == $res) {
