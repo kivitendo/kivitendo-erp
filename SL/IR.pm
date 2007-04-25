@@ -1008,7 +1008,8 @@ sub get_vendor {
 
   $form->{creditremaining} = $form->{creditlimit};
   $query = qq|SELECT SUM(a.amount - a.paid) FROM ap a WHERE a.vendor_id = ?|;
-  ($form->{creditremaining}) -= selectfirst_array_query($form, $dbh, $query, $form->{vendor_id});
+  my ($unpaid_invoices) = selectfirst_array_query($form, $dbh, $query, $form->{vendor_id});
+  $form->{creditremaining} -= $unpaid_invoices;
 
   $query = qq|SELECT o.amount,
                 (SELECT e.sell FROM exchangerate e 
