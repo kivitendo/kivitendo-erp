@@ -9,10 +9,6 @@ A:hover { color: black;
            text-decoration: none;
          }
 
-/* highlight editable objects on mouse-over */
-input:hover, select:hover, textarea:hover {
-   background-color: lemonchiffon;
-   }
 
 body {
   font-family: Verdana, Arial, Helvetica;
