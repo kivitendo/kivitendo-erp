@@ -2280,6 +2280,7 @@ sub save_status {
 # $main::locale->text('PRINTED')
 # $main::locale->text('MAILED')
 # $main::locale->text('SCREENED')
+# $main::locale->text('CANCELED')
 # $main::locale->text('invoice')
 # $main::locale->text('proforma')
 # $main::locale->text('sales_order')
