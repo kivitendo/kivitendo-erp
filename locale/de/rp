@@ -18,6 +18,7 @@ $self->{texts} = {
   'Balance Sheet'               => 'Bilanz',
   'Bcc'                         => 'Bcc',
   'Bis'                         => 'bis',
+  'CANCELED'                    => 'Storniert',
   'Cc'                          => 'Cc',
   'Compare to'                  => 'Gegenüberstellen zu',
   'Continue'                    => 'Weiter',
@@ -31,7 +32,7 @@ $self->{texts} = {
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
   'Customized Report'           => 'Vorgewählte Zeiträume',
   'DELETED'                     => 'Gelöscht',
-  'DUNNING STARTED'             => 'DUNNING STARTED',
+  'DUNNING STARTED'             => 'Mahnprozess gestartet',
   'Dataset upgrade'             => 'Datenbankaktualisierung',
   'Date'                        => 'Datum',
   'Debit'                       => 'Soll',
@@ -171,7 +172,7 @@ $self->{texts} = {
   'sales_quotation'             => 'Verkaufsangebot',
   'ustva'                       => 'UStVA',
   'winston_export'              => 'Winston-Export',
-  'wrongformat'                 => 'wrongformat',
+  'wrongformat'                 => 'Falsches Format',
 };
 
 $self->{subs} = {

@@ -5,6 +5,7 @@ $self->{texts} = {
   'Are you sure you want to remove the marked entries from the queue?' => 'Sind Sie sicher, dass die markierten Einträge von der Warteschlange gelöscht werden sollen?',
   'Attempt to call an undefined sub named \'%s\'' => 'Es wurde versucht, eine nicht definierte Unterfunktion namens \'%s\' aufzurufen.',
   'Bis'                         => 'bis',
+  'CANCELED'                    => 'Storniert',
   'Cannot remove files!'        => 'Dateien können nicht gelöscht werden!',
   'Checks'                      => 'Schecks',
   'Confirm!'                    => 'Bestätigen Sie!',
@@ -12,7 +13,7 @@ $self->{texts} = {
   'Customer'                    => 'Kunde',
   'Customer Number'             => 'Kundennummer',
   'DELETED'                     => 'Gelöscht',
-  'DUNNING STARTED'             => 'DUNNING STARTED',
+  'DUNNING STARTED'             => 'Mahnprozess gestartet',
   'Dataset upgrade'             => 'Datenbankaktualisierung',
   'Date'                        => 'Datum',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
@@ -90,7 +91,7 @@ $self->{texts} = {
   'request_quotation'           => 'Angebotsanforderung',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
-  'wrongformat'                 => 'wrongformat',
+  'wrongformat'                 => 'Falsches Format',
 };
 
 $self->{subs} = {

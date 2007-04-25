@@ -16,6 +16,7 @@ $self->{texts} = {
   'Aug'                         => 'Aug',
   'August'                      => 'August',
   'Bis'                         => 'bis',
+  'CANCELED'                    => 'Storniert',
   'Cannot delete transaction!'  => 'Buchung kann nicht gelöscht werden!',
   'Cannot post payment for a closed period!' => 'Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!',
   'Cannot post payment!'        => 'Zahlung kann nicht gebucht werden!',
@@ -33,7 +34,7 @@ $self->{texts} = {
   'Customer not on file or locked!' => 'Dieser Kunde existiert nicht oder ist gesperrt.',
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
   'DELETED'                     => 'Gelöscht',
-  'DUNNING STARTED'             => 'DUNNING STARTED',
+  'DUNNING STARTED'             => 'Mahnprozess gestartet',
   'Dataset upgrade'             => 'Datenbankaktualisierung',
   'Date'                        => 'Datum',
   'Date Paid'                   => 'Zahlungsdatum',
@@ -165,7 +166,7 @@ $self->{texts} = {
   'request_quotation'           => 'Angebotsanforderung',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
-  'wrongformat'                 => 'wrongformat',
+  'wrongformat'                 => 'Falsches Format',
 };
 
 $self->{subs} = {
