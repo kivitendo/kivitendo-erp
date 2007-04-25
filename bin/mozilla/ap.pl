@@ -1456,8 +1456,10 @@ sub ap_transactions {
   }
 
   @columns =
-    qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid
+    qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
        due duedate notes employee globalprojectnumber);
+
+  $form->{"l_type"} = "Y";
 
   foreach $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
@@ -1482,6 +1484,8 @@ sub ap_transactions {
       qq|<th><a class=listheading href=$href&sort=transdate>|
     . $locale->text('Date')
     . qq|</a></th>|;
+  $column_header{type} =
+      "<th class=\"listheading\">" . $locale->text('Type') . "</th>";
   $column_header{duedate} =
       qq|<th><a class=listheading href=$href&sort=duedate>|
     . $locale->text('Due Date')
@@ -1596,6 +1600,10 @@ sub ap_transactions {
     $subtotaldue       += ($ap->{amount} - $ap->{paid});
 
     $column_data{transdate} = "<td>$ap->{transdate}&nbsp;</td>";
+    $column_data{type} = "<td>" .
+      ($ap->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
+                           $locale->text("AP Transaction (abbreviation)"))
+        . "</td>";
     $column_data{duedate}   = "<td>$ap->{duedate}&nbsp;</td>";
     $column_data{datepaid}  = "<td>$ap->{datepaid}&nbsp;</td>";
 

@@ -32,6 +32,7 @@ $self->{texts} = {
   'AP'                          => 'Einkauf',
   'AP Aging'                    => 'Offene Verbindlichkeiten',
   'AP Transaction'              => 'Kreditorenbuchung',
+  'AP Transaction (abbreviation)' => 'K',
   'AP Transactions'             => 'Kreditorenbuchungen',
   'AR'                          => 'Verkauf',
   'AR Aging'                    => 'Offene Forderungen',
