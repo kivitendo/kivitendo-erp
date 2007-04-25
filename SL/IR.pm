@@ -646,14 +646,14 @@ sub post_invoice {
   $dbh->do($query) || $form->dberror($query);
 
   if ($form->{storno}) {
-    $query = qq| update ap set paid=paid+amount where id=$form->{storno_id}|;
+    $query = qq| UPDATE ap SET paid = paid+amount WHERE id = $form->{storno_id}|;
     $dbh->do($query) || $form->dberror($query);
-    $query = qq| update ap set storno='$form->{storno}' where id=$form->{storno_id}|;
+    $query = qq| UPDATE ap SET storno = '$form->{storno}' WHERE id = $form->{storno_id}|;
     $dbh->do($query) || $form->dberror($query);
-    $query = qq§ update ap set intnotes='Rechnung storniert am $form->{invdate} ' || intnotes where id=$form->{storno_id}§;
+    $query = qq§ UPDATE ap SET intnotes = 'Rechnung storniert am $form->{invdate} ' || intnotes WHERE id = $form->{storno_id}§;
     $dbh->do($query) || $form->dberror($query);
 
-    $query = qq| update ap set paid=amount where id=$form->{id}|;
+    $query = qq| UPDATE ap SET paid = amount WHERE id = $form->{id}|;
     $dbh->do($query) || $form->dberror($query);
   }
 
