@@ -932,7 +932,7 @@ sub show_dunning {
       $column_data{dunning_description} =
         qq|<td><a href="dn.pl?action=print_dunning&format=pdf&media=screen&| .
         qq|dunning_id=| . E($ref->{dunning_id}) .
-        join(map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
+        join("", map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
         qq|">| . H($ref->{dunning_description}) . qq|</a></td>|;
     } else {
       $column_data{dunning_description} = qq|<td>&nbsp;</td>|;
@@ -942,7 +942,7 @@ sub show_dunning {
     $column_data{invnumber} =
       qq|<td><a href="| . ($ref->{invoice} ? "is.pl" : "ar.pl" ) .
       qq|?action=edit&id=| . H($ref->{id}) .
-      join(map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
+      join("", map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
       qq|">| . H($ref->{invnumber}) . qq|</a></td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
