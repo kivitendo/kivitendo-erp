@@ -1040,6 +1040,7 @@ sub post_payment {
   		# saving the history
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
   		$form->{addition} = "PAYMENT POSTED";
+      $form->{what_done} = $form->{currency} . qq| | . $form->{paid} . qq| | . $locale->text("POSTED");
   		$form->save_history($form->dbconnect(\%myconfig));
   		# /saving the history 
   		$form->redirect($locale->text(' Payment posted!'));
