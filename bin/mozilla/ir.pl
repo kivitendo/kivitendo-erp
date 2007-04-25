@@ -969,7 +969,7 @@ sub update {
 
 sub storno {
   $lxdebug->enter_sub();
-
+use CGI::Carp qw(fatalsToBrowser);
   if ($form->{storno}) {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
@@ -981,12 +981,20 @@ sub storno {
   invoice_links();
   prepare_invoice();
   relink_accounts();
-
+  
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
+    $form->{addition} = "CANCELED";
+    $form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
+  
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
-
+  $form->{rowcount}++;
   &post();
   $lxdebug->leave_sub();
 
