@@ -1109,7 +1109,7 @@ sub validate_items {
   $lxdebug->enter_sub();
 
   # check if items are valid
-  if ($form->{rowcount} == 1) {
+  if ($form->{rowcount} == 0) {
     &update;
     exit;
   }
