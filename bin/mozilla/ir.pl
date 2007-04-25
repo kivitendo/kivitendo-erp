@@ -969,7 +969,7 @@ sub update {
 
 sub storno {
   $lxdebug->enter_sub();
-use CGI::Carp qw(fatalsToBrowser);
+
   if ($form->{storno}) {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
