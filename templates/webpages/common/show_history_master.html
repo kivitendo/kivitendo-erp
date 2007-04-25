@@ -6,43 +6,43 @@
 <table>
 	<tr>
 		<th class=listtop>
-			<translate>Zeitpunkt</translate>
+			&nbsp;<translate>Zeitpunkt</translate>&nbsp;
 		</th>
 		<th class=listtop>
-			<translate>Mitarbeiter</translate>
+			&nbsp;<translate>Mitarbeiter</translate>&nbsp;
 		</th>
 		<th class=listtop>
-			<translate>Vorgang</translate>
+			&nbsp;<translate>Aktion</translate>&nbsp;
 		</th>
 		<th class=listtop>
-      <translate>Zusatz</translate>
+      &nbsp;<translate>Zusatz</translate>&nbsp;
     </th>
     <th class=listtop>
-      <translate>ID-Nummer</translate>
+      &nbsp;<translate>ID-Nummer</translate>&nbsp;
     </th>
     <th class=listtop>
-      <translate>Buchungsnummer</translate>
+      &nbsp;<translate>Belegnummer</translate>&nbsp;
     </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>
 	<tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
 		<td nowrap>
-			<TMPL_VAR NAME=itime ESCAPE=HTML>
+			&nbsp;<TMPL_VAR NAME=itime ESCAPE=HTML>&nbsp;
 		</td>
 		<td nowrap>
-			<TMPL_VAR NAME=name ESCAPE=HTML>
+			&nbsp;<TMPL_VAR NAME=name ESCAPE=HTML>&nbsp;
 		</td>
 		<td>
-			<TMPL_VAR NAME=addition ESCAPE=HTML>
+			&nbsp;<TMPL_VAR NAME=addition ESCAPE=HTML>&nbsp;
 		</td>
 		<td>
-      <TMPL_VAR NAME=what_done ESCAPE=HTML>
+      &nbsp;<TMPL_VAR NAME=what_done ESCAPE=HTML>&nbsp;
     </td>
     <td>
-      <TMPL_VAR NAME=id ESCAPE=HTML>
+      &nbsp;<TMPL_VAR NAME=id ESCAPE=HTML>&nbsp;
     </td>
     <td>
-      <TMPL_VAR NAME=snumbers ESCAPE=HTML>
+      &nbsp;<TMPL_VAR NAME=snumbers ESCAPE=HTML>&nbsp;
     </td>
 	</tr>	
 </TMPL_LOOP>
