@@ -15,11 +15,15 @@ use POSIX qw(strftime);
 
 my $data_dumper_available;
 
+our $global_level;
+our $watch_form;
+
 BEGIN {
   eval("use Data::Dumper");
   $data_dumper_available = $@ ? 0 : 1;
 
   $global_level      = NONE;
+  $watch_form        = 0;
 }
 
 sub new {
@@ -30,7 +34,6 @@ sub new {
   $self->{"file"}       = "/tmp/lx-office-debug.log";
   $self->{"target"}     = FILE_TARGET;
   $self->{"level"}      = 0;
-  $self->{"watchedvars"} = {};
 
   while ($_[0]) {
     $self->{ $_[0] } = $_[1];
@@ -57,8 +60,6 @@ sub enter_sub {
   my ($self, $level) = @_;
   $level *= 1;
 
-  $self->check_watched_form_variables();
-
   return 1 unless ($global_level & TRACE);          # ignore if traces aren't active
   return 1 if $level && !($global_level & $level);  # ignore if level of trace isn't active
 
@@ -82,8 +83,6 @@ sub leave_sub {
   my ($self, $level) = @_;
   $level *= 1;
 
-  $self->check_watched_form_variables();
-
   return 1 unless ($global_level & TRACE);           # ignore if traces aren't active
   return 1 if $level && !($global_level & $level);   # ignore if level of trace isn't active
 
@@ -103,7 +102,6 @@ sub leave_sub {
 sub message {
   my ($self, $level, $message) = @_;
 
-  $self->check_watched_form_variables();
   $self->_write(level2string($level), $message) if (($self->{"level"} | $global_level) & $level || !$level);
 }
 
@@ -149,28 +147,6 @@ sub _write {
 sub level2string {
   # use $_[0] as a bit mask and return levelstrings separated by /
   join '/', qw(info debug1 debug2 query trace)[ grep { (reverse split //, sprintf "%05b", $_[0])[$_] } 0..4 ]
-}
-
-sub watch_form_variable {
-  my ($self, $var) = @_;
-
-  $self->{"watchedvars"}->{$var} = $main::form->{$var};
-  $self->_write("WATCH", "Adding \$form->{$var} with current value \"$main::form->{$var}\"");
-}
-
-sub check_watched_form_variables {
-  my ($self) = @_;
-
-  return unless $main::form;
-
-  foreach my $var (sort(keys(%{ $self->{"watchedvars"} }))) {
-    if ($main::form->{$var} ne $self->{"watchedvars"}->{$var}) {
-      $self->_write("WATCH", "Variable \$form->{$var} changed from \"" .
-                    $self->{"watchedvars"}->{$var} . "\" to \"" .
-                    $main::form->{$var} . "\"");
-      $self->{"watchedvars"}->{$var} = $main::form->{$var};
-    }
-  }
 }
 
 1;

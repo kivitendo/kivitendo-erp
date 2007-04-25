@@ -132,6 +132,11 @@ sub new {
 
   my $self = {};
 
+  if ($LXDebug::watch_form) {
+    require SL::Watchdog;
+    tie %{ $self }, 'SL::Watchdog';
+  }
+
   read(STDIN, $_, $ENV{CONTENT_LENGTH});
 
   if ($ENV{QUERY_STRING}) {
