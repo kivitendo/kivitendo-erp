@@ -3090,7 +3090,8 @@ sub show_am_history {
 				   "Projektnummer" => "project",
 				   "Buchungsnummer" => "oe",
 				   "Eingangsrechnungnummer" => "ap",
-				   "Ausgangsrechnungnummer" => "ar"
+				   "Ausgangsrechnungnummer" => "ar",
+           "Mahnungsnummer" => "dunning"
 		);
 	my %searchNo = ( "Artikelnummer" => "partnumber",
 				     "Kundennummer"  => "customernumber",
@@ -3098,7 +3099,8 @@ sub show_am_history {
 				     "Projektnummer" => "projectnummer",
 				     "Buchungsnummer" => "ordnumber",
 				     "Eingangsrechnungnummer" => "invnumber",
-				     "Ausgangsrechnungnummer" => "invnumber"
+				     "Ausgangsrechnungnummer" => "invnumber",
+             "Mahnungsnummer" => "dunning_id"
 		);
 	
 	my $restriction;
