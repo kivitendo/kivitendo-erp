@@ -1645,10 +1645,11 @@ sub ar_transactions {
     $column_data{invnumber} =
       "<td><a href=$module?action=edit&id=$ar->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
     $column_data{type} = "<td>" .
-      ($ar->{storno} ? $locale->text("Storno (one letter abbreviation)") :
-       $ar->{amount} < 0 ?
-       $locale->text("Credit note (one letter abbreviation)") :
-       $locale->text("Invoice (one letter abbreviation)")) . "</td>";
+      ($ar->{storno}     ? $locale->text("Storno (one letter abbreviation)") :
+       $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
+       $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
+                           $locale->text("AR Transaction (abbreviation)"))
+        . "</td>";
     $column_data{ordnumber} = "<td>$ar->{ordnumber}&nbsp;</td>";
     $column_data{name}      = "<td>$ar->{name}</td>";
     $ar->{notes} =~ s/\r\n/<br>/g;

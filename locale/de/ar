@@ -2,6 +2,7 @@ $self->{texts} = {
   ' Payment posted!'            => 'Zahlung gebucht!',
   'ADDED'                       => 'Hinzugefügt',
   'AR Transaction'              => 'Debitorenbuchung',
+  'AR Transaction (abbreviation)' => 'D',
   'AR Transactions'             => 'Debitorenbuchungen',
   'Account'                     => 'Konto',
   'Accounting Menu'             => 'Kontoverwaltung',

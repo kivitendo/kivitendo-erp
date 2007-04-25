@@ -36,6 +36,7 @@ $self->{texts} = {
   'AR'                          => 'Verkauf',
   'AR Aging'                    => 'Offene Forderungen',
   'AR Transaction'              => 'Debitorenbuchung',
+  'AR Transaction (abbreviation)' => 'D',
   'AR Transactions'             => 'Debitorenbuchungen',
   'About'                       => 'über',
   'Abrechnungsnummer'           => 'Abrechnungsnummer',
