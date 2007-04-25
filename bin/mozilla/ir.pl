@@ -826,17 +826,8 @@ sub form_footer {
                        '-class' => 'submit'));
   }
 
-  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
-    qq|
-
-<input type=hidden name=rowcount value=$form->{rowcount}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=password value=$form->{password}>
-|
-  . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
-  . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
+  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers);
+  $form->hide_form(qw(rowcount callback draft_id draft_description login password));
 
   # button for saving history
   if($form->{id} ne "") {
