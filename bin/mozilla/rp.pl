@@ -2501,7 +2501,7 @@ sub list_payments {
       $module = 'ir' if ($payment->{invoice} && $payment->{module} eq 'ap');
 
       $href =
-        qq|${module}.pl?ction=edit&id=$payment->{id}&login=$form->{login}&password=$form->{password}&callback=$callback|;
+        qq|${module}.pl?action=edit&id=$payment->{id}&login=$form->{login}&password=$form->{password}&callback=$callback|;
 
       $column_data{name}      = "<td>$payment->{name}&nbsp;</td>";
       $column_data{reference} =
