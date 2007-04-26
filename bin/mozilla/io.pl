@@ -1313,9 +1313,10 @@ sub edit_e_mail {
   $form->{"fokus"} = $form->{"email"} ? "Form.subject" : "Form.email";
   $form->header;
 
-  my (@nh, %nh, @hiddenkeys);
-  @nh = qw(action email cc bcc subject message formname sendmode format header override); $nh{@nh} = (1)x@nh;
-  @hidden_keys = grep { !$nh{$_} } grep { !ref $form->{$_} } keys %$form;
+  my (@dont_hide_key_list, %dont_hide_key, @hidden_keys);
+  @dont_hide_key_list = qw(action email cc bcc subject message formname sendmode format header override);
+  @dont_hide_key{@dont_hide_key_list} = (1) x @dont_hide_key_list;
+  @hidden_keys = grep { !$dont_hide_key{$_} } grep { !ref $form->{$_} } keys %$form;
 
   print $form->parse_html_template('generic/edit_email', 
                                   { title           => $title,
