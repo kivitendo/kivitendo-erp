@@ -107,32 +107,35 @@ sub display_template_form {
     # Setup "formname" selection
     #
 
+    $form->get_lists("printers" => "ALL_PRINTERS",
+                     "languages" => "ALL_LANGUAGES",
+                     "dunning_configs" => "ALL_DUNNING_CONFIGS");
+
     my %formname_setup =
       (
-       "balance_sheet" => { "translation" => $locale->text('Balance Sheet'), "html" => 1 },
-       "bin_list" => $locale->text('Bin List'),
-       "bwa" => { "translation" => $locale->text('BWA'), "html" => 1 },
-       "check" => { "translation" => $locale->text('Check'), "html" => 1 },
-       "credit_note" => $locale->text('Credit Note'),
-       "income_statement" => { "translation" => $locale->text('Income Statement'), "html" => 1 },
-       "invoice" => $locale->text('Invoice'),
-       "packing_list" => $locale->text('Packing List'),
-       "pick_list" => $locale->text('Pick List'),
-       "proforma" => $locale->text('Proforma Invoice'),
-       "purchase_order" => $locale->text('Purchase Order'),
-       "receipt" => { "translation" => $locale->text('Receipt'), "tex" => 1 },
-       "request_quotation" => $locale->text('RFQ'),
-       "sales_order" => $locale->text('Confirmation'),
-       "sales_quotation" => $locale->text('Quotation'),
-       "statement" => $locale->text('Statement'),
-       "storno_invoice" => $locale->text('Storno Invoice'),
-       "storno_packing_list" => $locale->text('Storno Packing List'),
-       "ustva-2004" => { "translation" => $locale->text("USTVA 2004"), "tex" => 1 },
-       "ustva-2005" => { "translation" => $locale->text("USTVA 2005"), "tex" => 1 },
-       "ustva-2006" => { "translation" => $locale->text("USTVA 2006"), "tex" => 1 },
-       "ustva-2007" => { "translation" => $locale->text("USTVA 2007"), "tex" => 1 },
-       "ustva" => $locale->text("USTVA"),
-       "zahlungserinnerung" => $locale->text('Payment Reminder'),
+        "balance_sheet" => { "translation" => $locale->text('Balance Sheet'), "html" => 1 },
+        "bin_list" => $locale->text('Bin List'),
+        "bwa" => { "translation" => $locale->text('BWA'), "html" => 1 },
+        "check" => { "translation" => $locale->text('Check'), "html" => 1 },
+        "credit_note" => $locale->text('Credit Note'),
+        "income_statement" => { "translation" => $locale->text('Income Statement'), "html" => 1 },
+        "invoice" => $locale->text('Invoice'),
+        "packing_list" => $locale->text('Packing List'),
+        "pick_list" => $locale->text('Pick List'),
+        "proforma" => $locale->text('Proforma Invoice'),
+        "purchase_order" => $locale->text('Purchase Order'),
+        "receipt" => { "translation" => $locale->text('Receipt'), "tex" => 1 },
+        "request_quotation" => $locale->text('RFQ'),
+        "sales_order" => $locale->text('Confirmation'),
+        "sales_quotation" => $locale->text('Quotation'),
+        "statement" => $locale->text('Statement'),
+        "storno_invoice" => $locale->text('Storno Invoice'),
+        "storno_packing_list" => $locale->text('Storno Packing List'),
+        "ustva-2004" => { "translation" => $locale->text("USTVA 2004"), "tex" => 1 },
+        "ustva-2005" => { "translation" => $locale->text("USTVA 2005"), "tex" => 1 },
+        "ustva-2006" => { "translation" => $locale->text("USTVA 2006"), "tex" => 1 },
+        "ustva-2007" => { "translation" => $locale->text("USTVA 2007"), "tex" => 1 },
+        "ustva" => $locale->text("USTVA"),
       );
 
     my (@values, $file, $setup);
@@ -146,6 +149,17 @@ sub display_template_form {
              "default" => $file eq $form->{"formname"} });
     }
 
+    # "zahlungserinnerung" => $locale->text('Payment Reminder'),
+
+    foreach my $ref (@{ $form->{"ALL_DUNNING_CONFIGS"} }) {
+      next if !$ref->{"template"};
+
+      push(@values,
+           { "value"   => $ref->{"template"},
+             "label"   => $locale->text('Payment Reminder') . ": " . $ref->{"dunning_description"},
+             "default" => $ref->{"template"} eq $form->{"formname"} });
+    }
+
     @values = sort({ $a->{"label"} cmp $b->{"label"} } @values);
 
     $options{"FORMNAME"} = [ @values ];
@@ -153,9 +167,6 @@ sub display_template_form {
     #
     # Setup "language" selection
     #
-
-    $form->get_lists("printers" => "ALL_PRINTERS",
-                     "languages" => "ALL_LANGUAGES");
 
     @values = ( { "value" => "", "label" => "", "default" => 0 } );
 

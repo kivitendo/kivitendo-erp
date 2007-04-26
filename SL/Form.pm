@@ -1574,6 +1574,20 @@ sub _get_languages {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_dunning_configs {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_dunning_configs" unless ($key);
+
+  my $query = qq|SELECT * FROM dunning_config ORDER BY dunning_level|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1626,6 +1640,10 @@ sub get_lists {
 
   if ($params{"business_types"}) {
     $self->_get_business_types($dbh, $params{"business_types"});
+  }
+
+  if ($params{"dunning_configs"}) {
+    $self->_get_dunning_configs($dbh, $params{"dunning_configs"});
   }
 
   $dbh->disconnect();
@@ -1910,7 +1928,7 @@ sub create_links {
            d.description AS department,
            e.name AS employee
          FROM $arap a
-         JOIN $table c ON (a.${table}_id = c.id)
+         LEFT JOIN $table c ON (a.${table}_id = c.id)
          LEFT JOIN employee e ON (e.id = a.employee_id)
          LEFT JOIN department d ON (d.id = a.department_id)
          WHERE a.id = ?|;
@@ -1927,13 +1945,14 @@ sub create_links {
 
     # now get the account numbers
      $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-                 FROM chart c, taxkeys tk
+                 FROM chart c
+                 LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
                  WHERE c.link LIKE ? 
-                   AND (    tk.chart_id = c.id OR     c.link LIKE '%_tax%') 
-                   AND (NOT tk.chart_id = c.id OR NOT c.link LIKE '%_tax%')
                    AND (tk.id = (SELECT id FROM taxkeys WHERE taxkeys.chart_id = c.id AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1)
                      OR c.link LIKE '%_tax%')
                  ORDER BY c.accno|;
+
+    dump_query(0, "wuff", $query, '%$module%');
 
     $sth = $dbh->prepare($query);
     do_statement($self, $sth, $query, "%$module%");
