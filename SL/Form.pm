@@ -1928,7 +1928,7 @@ sub create_links {
            d.description AS department,
            e.name AS employee
          FROM $arap a
-         LEFT JOIN $table c ON (a.${table}_id = c.id)
+         JOIN $table c ON (a.${table}_id = c.id)
          LEFT JOIN employee e ON (e.id = a.employee_id)
          LEFT JOIN department d ON (d.id = a.department_id)
          WHERE a.id = ?|;
@@ -1945,14 +1945,13 @@ sub create_links {
 
     # now get the account numbers
      $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-                 FROM chart c
-                 LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
+                 FROM chart c, taxkeys tk
                  WHERE c.link LIKE ? 
+                   AND (    tk.chart_id = c.id OR     c.link LIKE '%_tax%') 
+                   AND (NOT tk.chart_id = c.id OR NOT c.link LIKE '%_tax%')
                    AND (tk.id = (SELECT id FROM taxkeys WHERE taxkeys.chart_id = c.id AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1)
                      OR c.link LIKE '%_tax%')
                  ORDER BY c.accno|;
-
-    dump_query(0, "wuff", $query, '%$module%');
 
     $sth = $dbh->prepare($query);
     do_statement($self, $sth, $query, "%$module%");
