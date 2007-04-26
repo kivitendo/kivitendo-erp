@@ -159,11 +159,20 @@ sub dump_nodeps {
 sub apply_upgrade {
   my $name = shift;
 
-  $form->error("Unknown dbupgrade tag '$name'") if (!$controls->{$name});
+  my (@order, %tags, @all_tags);
 
-  my (@order, %tags);
+  if ($name eq "ALL") {
+    calc_rev_depends();
+    @all_tags = map { $_->{"tag"} } grep { !@{$_->{"rev_depends"}} } values %{$controls};
 
-  build_upgrade_order($name, \@order, \%tags);
+  } else {
+    $form->error("Unknown dbupgrade tag '$name'") if (!$controls->{$name});
+    @all_tags = ($name);
+  }
+
+  foreach my $tag (@all_tags) {
+    build_upgrade_order($tag, \@order, \%tags);
+  }
 
   my @upgradescripts = map { $controls->{$_}->{"applied"} = 0; $controls->{$_} } @order;
 
@@ -182,22 +191,13 @@ sub apply_upgrade {
   }
   $sth->finish();
 
-  my $all_applied = 1;
-  foreach (@upgradescripts) {
-    if (!$_->{"applied"}) {
-      $all_applied = 0;
-      last;
-    }
-  }
-
-  if ($all_applied) {
+  @upgradescripts = sort { $a->{"priority"} <=> $b->{"priority"} } grep { !$_->{"applied"} } @upgradescripts;
+  if (!@upgradescripts) {
     print "The upgrade has already been applied.\n";
     exit 0;
   }
 
   foreach my $control (@upgradescripts) {
-    next if ($control->{"applied"});
-
     $control->{"file"} =~ /\.(sql|pl)$/;
     my $file_type = $1;
 
@@ -228,6 +228,7 @@ sub build_upgrade_order {
   }
 
   push @{ $order }, $name;
+  $tags->{$name} = 1;
 }
 
 #######
