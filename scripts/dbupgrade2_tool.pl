@@ -9,6 +9,8 @@ BEGIN {
   push(@INC, "modules");
 }
 
+use English '-no_match_vars';
+
 use DBI;
 use Data::Dumper;
 use Getopt::Long;
@@ -18,16 +20,26 @@ use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
 use SL::Form;
+use SL::User;
 use SL::Locale;
 use SL::DBUpgrade2;
+use SL::DBUtils;
 
 #######
 #######
 #######
+
+my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
+my ($opt_user, $opt_apply);
+
+our (%myconfig, $form, $user);
 
 sub show_help {
   print("dbupgrade2_tool.pl [--list] [--tree] [--rtree] [--graphviz]\n" .
-        "                   [--nodepds] [--help]\n");
+        "                   [--nodepds] [--user=name --apply=tag] [--help]\n");
+}
+
+sub error {
 }
 
 sub calc_rev_depends {
@@ -144,6 +156,80 @@ sub dump_nodeps {
         "\n\n");
 }
 
+sub apply_upgrade {
+  my $name = shift;
+
+  $form->error("Unknown dbupgrade tag '$name'") if (!$controls->{$name});
+
+  my (@order, %tags);
+
+  build_upgrade_order($name, \@order, \%tags);
+
+  my @upgradescripts = map { $controls->{$_}->{"applied"} = 0; $controls->{$_} } @order;
+
+  my $dbh = $form->dbconnect_noauto(\%myconfig);
+
+  $dbh->{PrintWarn}  = 0;
+  $dbh->{PrintError} = 0;
+
+  $user->create_schema_info_table($form, $dbh);
+
+  my $query = qq|SELECT tag FROM schema_info|;
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+  while (($tag) = $sth->fetchrow_array()) {
+    $controls->{$tag}->{"applied"} = 1 if defined $controls->{$tag};
+  }
+  $sth->finish();
+
+  my $all_applied = 1;
+  foreach (@upgradescripts) {
+    if (!$_->{"applied"}) {
+      $all_applied = 0;
+      last;
+    }
+  }
+
+  if ($all_applied) {
+    print "The upgrade has already been applied.\n";
+    exit 0;
+  }
+
+  foreach my $control (@upgradescripts) {
+    next if ($control->{"applied"});
+
+    $control->{"file"} =~ /\.(sql|pl)$/;
+    my $file_type = $1;
+
+    # apply upgrade
+    print "Applying upgrade $control->{file}\n";
+
+    if ($file_type eq "sql") {
+      $user->process_query($form, $dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
+    } else {
+      $user->process_perl_script($form, $dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
+    }
+  }
+
+  $dbh->disconnect();
+}
+
+sub build_upgrade_order {
+  my $name  = shift;
+  my $order = shift;
+  my $tag   = shift;
+
+  my $control = $controls->{$name};
+
+  foreach my $dependency (@{ $control->{"depends"} }) {
+    next if $tags->{$dependency};
+    $tags->{$dependency} = 1;
+    build_upgrade_order($dependency, $order, $tag);
+  }
+
+  push @{ $order }, $name;
+}
+
 #######
 #######
 #######
@@ -157,13 +243,13 @@ $locale = Locale->new("de", "login");
 #######
 #######
 
-my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
-
 GetOptions("list" => \$opt_list,
            "tree" => \$opt_tree,
            "rtree" => \$opt_rtree,
            "nodeps" => \$opt_nodeps,
            "graphviz" => \$opt_graphviz,
+           "user=s" => \$opt_user,
+           "apply=s" => \$opt_apply,
            "help" => \$opt_help,
   );
 
@@ -192,4 +278,19 @@ if ($opt_graphviz) {
 
 if ($opt_nodeps) {
   dump_nodeps();
+}
+
+if ($opt_user) {
+  my $file_name = "users/${opt_user}.conf";
+
+  eval { require($file_name); };
+  $form->error("File '$file_name' was not found") if $@;
+  $locale = new Locale($myconfig{countrycode}, "all");
+  $user = new User("users/members", $opt_user);
+  map { $form->{$_} = $myconfig{$_} } keys %myconfig;
+}
+
+if ($opt_apply) {
+  $form->error("--apply used but no configuration file given with --user.") if (!$user);
+  apply_upgrade($opt_apply);
 }
