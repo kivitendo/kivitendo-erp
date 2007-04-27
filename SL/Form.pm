@@ -1588,6 +1588,20 @@ sub _get_dunning_configs {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_currencies {
+$main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_currencies" unless ($key);
+
+  my $query = qq|SELECT curr AS currency FROM defaults|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1644,6 +1658,10 @@ sub get_lists {
 
   if ($params{"dunning_configs"}) {
     $self->_get_dunning_configs($dbh, $params{"dunning_configs"});
+  }
+  
+  if($params{"currencies"}) {
+    $self->_get_currencies($dbh, $params{"currencies"});
   }
 
   $dbh->disconnect();
