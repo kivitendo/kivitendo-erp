@@ -35,8 +35,38 @@ my ($opt_user, $opt_apply);
 our (%myconfig, $form, $user);
 
 sub show_help {
-  print("dbupgrade2_tool.pl [--list] [--tree] [--rtree] [--graphviz]\n" .
-        "                   [--nodepds] [--user=name --apply=tag] [--help]\n");
+  my $help_text = <<'END_HELP'
+dbupgrade2_tool.pl [options]
+
+  A validation and information tool for the database upgrade scripts
+  in 'sql/Pg-upgrade2'.
+
+  At startup dbupgrade2_tool.pl will always check the consistency
+  of all database upgrade scripts (e.g. circular references, invalid
+  formats, missing meta information). You can but don't have to specifiy
+  additional actions.
+
+  Actions:
+    --list               Lists all database upgrade tags
+    --tree               Lists all database upgrades in tree form
+    --rtree              Lists all database upgrades in reverse tree form
+    --graphviz[=file]    Create a Postscript document showing a tree of
+                         all database upgrades and their dependencies.
+                         If no file name is given then the output is
+                         written to 'db_dependencies.ps'.
+    --apply=tag          Applies the database upgrades 'tag' and all
+                         upgrades it depends on. If '--apply' is used
+                         then the option '--user' must be used as well.
+    --help               Show this help and exit.
+
+  Options:
+    --user=name          The name of the user configuration to use for
+                         database connectivity.
+END_HELP
+    ;
+
+  print $help_text;
+  exit 0;
 }
 
 sub error {
@@ -118,10 +148,12 @@ sub dump_tree_reverse {
 }
 
 sub dump_graphviz {
+  my $file_name = shift || "db_dependencies.ps";
+
   print("GRAPHVIZ POSTCRIPT\n\n");
-  print("Output will be written to db_dependencies.ps\n");
+  print("Output will be written to '${file_name}'\n");
   $dot = "|dot -Tps ";
-  open(OUT, "${dot}> db_dependencies.ps");
+  open(OUT, "${dot}> \"${file_name}\"");
   print(OUT
         "digraph db_dependencies {\n" .
         "node [shape=box];\n");
@@ -248,7 +280,7 @@ GetOptions("list" => \$opt_list,
            "tree" => \$opt_tree,
            "rtree" => \$opt_rtree,
            "nodeps" => \$opt_nodeps,
-           "graphviz" => \$opt_graphviz,
+           "graphviz:s" => \$opt_graphviz,
            "user=s" => \$opt_user,
            "apply=s" => \$opt_apply,
            "help" => \$opt_help,
@@ -256,7 +288,6 @@ GetOptions("list" => \$opt_list,
 
 if ($opt_help) {
   show_help();
-  exit(0);
 }
 
 $controls = parse_dbupdate_controls($form, "Pg");
@@ -273,8 +304,8 @@ if ($opt_rtree) {
   dump_tree_reverse();
 }
 
-if ($opt_graphviz) {
-  dump_graphviz();
+if (defined $opt_graphviz) {
+  dump_graphviz($opt_graphviz);
 }
 
 if ($opt_nodeps) {
