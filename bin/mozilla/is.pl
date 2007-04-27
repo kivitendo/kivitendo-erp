@@ -369,8 +369,8 @@ sub form_header {
   %labels = ();
   @values = ();
   foreach my $item (@{ $form->{"ALL_CURRENCIES"} }) {
-    push(@values, $item->{"currency"});
-    $labels{$item->{"currency"}} = $item->{"currency"};
+    push(@values, $item);
+    $labels{$item} = $item;
   }
   
   $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
