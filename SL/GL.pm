@@ -185,8 +185,7 @@ sub post_transaction {
   $dbh->disconnect;
   $main::lxdebug->leave_sub();
 
-  $rc;
-
+  return $rc;
 }
 
 sub all_transactions {
@@ -378,6 +377,8 @@ sub all_transactions {
   $sth = prepare_execute_query($form, $dbh, $query, @values);
   my $trans_id  = "";
   my $trans_id2 = "";
+
+  my ($i, $j, $k, $l, $ref, $ref2);
 
   $form->{GL} = [];
   while (my $ref0 = $sth->fetchrow_hashref(NAME_lc)) {
