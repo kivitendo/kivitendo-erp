@@ -759,6 +759,7 @@ sub create_schema_info_table {
 
   my $query = "SELECT tag FROM schema_info LIMIT 1";
   if (!$dbh->do($query)) {
+    $dbh->rollback();
     $query =
       qq|CREATE TABLE schema_info (| .
       qq|  tag text, | .
