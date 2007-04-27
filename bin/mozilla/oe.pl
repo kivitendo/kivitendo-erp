@@ -814,7 +814,11 @@ onchange="document.getElementById('update_button').click();">| .
 	      <tr>
 		<th align=right>| . $locale->text('Ship via') . qq|</th>
 		<td colspan=3><input name=shipvia size=35 value="$form->{shipvia}"></td>
-	      </tr>|;
+	      </tr>
+              <tr>
+                <th align="right">| . $locale->text('Transaction description') . qq|</th>
+                <td colspan="3"><input name="transaction_description" size="35" value="| . H($form->{transaction_description}) . qq|"></td>
+              </tr>|;
 #              <tr>
 #                 <td colspan=4>
 #                   <table>
@@ -1462,6 +1466,10 @@ sub search {
           <td colspan=3><input name="$ordnumber" size=20></td>
         </tr>
         <tr>
+          <th align="right">| . $locale->text('Transaction description') . qq|</th>
+          <td colspan="3"><input name="transaction_description" size=20></td>
+        </tr>
+        <tr>
           <th align="right">| . $locale->text("Project Number") . qq|</th>
           <td colspan="3">$projectnumber</td>
         </tr>
@@ -1506,8 +1514,12 @@ sub search {
     . $locale->text('Tax') . qq|</td>
 		<td><input name="l_amount" class=checkbox type=checkbox value=Y checked> |
     . $locale->text('Total') . qq|</td>
+	      </tr>
+	      <tr>
           <td><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y> |
           . $locale->text('Project Number') . qq|</td>
+          <td><input name="l_transaction_description" class=checkbox type=checkbox value=Y> |
+          . $locale->text('Transaction description') . qq|</td>
 	      </tr>
 	      <tr>
 	        <td><input name="l_subtotal" class=checkbox type=checkbox value=Y> |
@@ -1553,27 +1565,26 @@ sub orders {
 
   $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
-  $number     = $form->escape($form->{$ordnumber});
-  $name       = $form->escape($form->{ $form->{vc} });
-  $department = $form->escape($form->{department});
-
   # construct href
-  $href =
-    "$form->{script}?action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
+  my @fields =
+    qw(type vc login password transdatefrom transdateto
+       open closed notdelivered delivered department
+       transaction_description);
+  $href = "$form->{script}?action=orders&"
+    . join("&", map { "${_}=" . E($form->{$_}) } @fields)
+    . "&${ordnumber}=" . E($form->{$ordnumber});
+  $callback = $href;
 
-  # construct callback
-  $number     = $form->escape($form->{$ordnumber},    1);
-  $name       = $form->escape($form->{ $form->{vc} }, 1);
-  $department = $form->escape($form->{department},    1);
-
-  $callback =
-    "$form->{script}?action=orders&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&open=$form->{open}&closed=$form->{closed}&notdelivered=$form->{notdelivered}&delivered=$form->{delivered}&$ordnumber=$number&$form->{vc}=$name&department=$department";
-
-  @columns =
-    $form->sort_columns("transdate", "reqdate",   "id",      "$ordnumber",
-                        "name",      "netamount", "tax",     "amount",
-                        "curr",      "employee",  "shipvia", "globalprojectnumber",
-                        "open",      "closed",    "delivered");
+  @columns = (
+    "transdate",               "reqdate",
+    "id",                      "$ordnumber",
+    "name",                    "netamount",
+    "tax",                     "amount",
+    "curr",                    "employee",
+    "shipvia",                 "globalprojectnumber",
+    "transaction_description", "open",
+    "closed",                  "delivered"
+  );
 
   $form->{l_open} = $form->{l_closed} = "Y"
     if ($form->{open} && $form->{closed});
@@ -1667,6 +1678,9 @@ sub orders {
 
   $column_header{employee} =
     qq|<th><a class=listheading href=$href&sort=employee>$employee</a></th>|;
+  $column_header{transaction_description} =
+    qq|<th><a class=listheading href="$href&sort=transaction_description">|
+    . $locale->text("Transaction description") . qq|</a></th>|;
 
   $column_header{ids} = qq|<th></th>|;
 
@@ -1786,6 +1800,7 @@ sub orders {
     $column_data{"delivered"} = "<td>" .
       ($oe->{"delivered"} ? $locale->text("Yes") : $locale->text("No")) .
       "</td>";
+    $column_data{transaction_description} = "<td>" . H($oe->{transaction_description}) . "</td>";
 
     $i++;
     $i %= 2;

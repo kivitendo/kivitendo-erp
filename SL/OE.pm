@@ -66,6 +66,7 @@ sub transactions {
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate, | .
     qq|  o.amount, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
     qq|  o.closed, o.delivered, o.quonumber, o.shippingpoint, o.shipvia, | .
+    qq|  o.transaction_description, | .
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee | .
@@ -128,6 +129,11 @@ sub transactions {
     push(@values, conv_date($form->{transdateto}));
   }
 
+  if ($form->{transaction_description}) {
+    $query .= qq| AND o.transaction_description ILIKE ?|;
+    push(@values, '%' . $form->{transaction_description} . '%');
+  }
+
   my $sortorder = join(', ', ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
   my %allowed_sort_columns =
     ("transdate" => "o.transdate",
@@ -137,7 +143,8 @@ sub transactions {
      "quonumber" => "o.quonumber",
      "name" => "ct.name",
      "employee" => "e.name",
-     "shipvia" => "o.shipvia");
+     "shipvia" => "o.shipvia",
+     "transaction_description" => "o.transaction_description");
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}};
   }
@@ -407,7 +414,7 @@ Message: $form->{message}\r| if $form->{message};
     qq|shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, curr = ?, closed = ?, | .
     qq|delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?, | .
     qq|taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?, | .
-    qq|globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ? | .
+    qq|globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ? | .
     qq|WHERE id = ?|;
 
   @values = ($form->{ordnumber}, $form->{quonumber},
@@ -425,6 +432,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{delivery_customer_id}),
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
+             $form->{transaction_description},
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -669,7 +677,7 @@ sub retrieve {
       qq|  o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber, | .
       qq|  d.description AS department, o.payment_id, o.language_id, o.taxzone_id, | .
       qq|  o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id, | .
-      qq|  o.globalproject_id, o.delivered | .
+      qq|  o.globalproject_id, o.delivered, o.transaction_description | .
       qq|FROM oe o | .
       qq|JOIN ${vc} cv ON (o.${vc}_id = cv.id) | .
       qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
