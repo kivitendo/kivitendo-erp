@@ -120,11 +120,6 @@ sub invoice_links {
     $form->{taxzone_id} = $taxzone_id;
   }
 
-  # currencies
-  @curr = split(/:/, $form->{currencies});
-  chomp $curr[0];
-  $form->{defaultcurrency} = $curr[0];
-
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
@@ -279,7 +274,8 @@ sub form_header {
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
-                   "taxzones" => "ALL_TAXZONES");
+                   "taxzones" => "ALL_TAXZONES",
+                   "currencies" => "ALL_CURRENCIES");
 
   my %labels;
   my @values = (undef);
@@ -302,7 +298,24 @@ sub form_header {
     NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
                          '-labels' => \%labels,
                          '-default' => $form->{"globalproject_id"}));
-
+ 
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_CURRENCIES"} }) {
+    push(@values, $item->{"currency"});
+    $labels{$item->{"currency"}} = $item->{"currency"};
+  }
+  
+  $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
+  my $currencies = qq|
+    <tr>
+      <th align="right">| . $locale->text('Currency') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
+  
   %labels = ();
   @values = ();
   foreach my $item (@{ $form->{"ALL_TAXZONES"} }) {
@@ -459,8 +472,7 @@ onchange="document.getElementById('update_button').click();">| .
               $taxzone
               $department
 	      <tr>
-		<th align=right nowrap>| . $locale->text('Currency') . qq|</th>
-		<td><select name=currency>$form->{selectcurrency}</select></td>
+    $currencies
 		$exchangerate
 	      </tr>
 	    </table>
@@ -507,8 +519,6 @@ onchange="document.getElementById('update_button').click();">| .
 
 $jsscript
 
-<input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-<input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
 <input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
 <input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
 <input type=hidden name=webdav value=$webdav>

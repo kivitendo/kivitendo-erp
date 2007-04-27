@@ -167,13 +167,6 @@ sub invoice_links {
     $form->{shipto_id} = $shipto_id;
   }
 
-  # currencies
-  @curr = split(/:/, $form->{currencies});
-  chomp $curr[0];
-  $form->{defaultcurrency} = $curr[0];
-
-  map { $form->{selectcurrency} .= "<option>$_</option>\n" } @curr;
-
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
 
   if (@{ $form->{all_customer} }) {
@@ -344,7 +337,8 @@ sub form_header {
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
                    "employees" => "ALL_SALESMEN",
-                   "taxzones" => "ALL_TAXZONES");
+                   "taxzones" => "ALL_TAXZONES",
+                   "currencies" => "ALL_CURRENCIES");
 
   my %labels;
   my @values = (undef);
@@ -371,6 +365,23 @@ sub form_header {
     NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
                          '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
     . qq|</td>|;
+
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_CURRENCIES"} }) {
+    push(@values, $item->{"currency"});
+    $labels{$item->{"currency"}} = $item->{"currency"};
+  }
+  
+  $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
+  my $currencies = qq|
+    <tr>
+      <th align="right">| . $locale->text('Currency') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
 
   %labels = ();
   @values = ("");
@@ -676,10 +687,7 @@ print qq|
               $taxzone
 	      $department
 	      <tr>
-		<th align="right" nowrap>| . $locale->text('Currency') . qq|</th>
-		<td><select name="currency">$form->{selectcurrency}</select></td>
-		<input type="hidden" name="selectcurrency" value="$form->{selectcurrency}">
-		<input type="hidden" name="defaultcurrency" value="$form->{defaultcurrency}">
+    $currencies
 		<input type="hidden" name="fxgain_accno" value="$form->{fxgain_accno}">
 		<input type="hidden" name="fxloss_accno" value="$form->{fxloss_accno}">
 		$exchangerate

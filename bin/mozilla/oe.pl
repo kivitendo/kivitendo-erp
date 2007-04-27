@@ -254,14 +254,6 @@ sub order_links {
       (@{ $form->{"all_$form->{vc}"} });
   }
 
-  # currencies
-  @curr = split(/:/, $form->{currencies});
-  chomp $curr[0];
-  $form->{defaultcurrency} = $curr[0];
-  $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
-
-  map { $form->{selectcurrency} .= "<option>$_</option>\n" } @curr;
-
   $form->{taxincluded} = $taxincluded if ($form->{id});
 
   # departments
@@ -361,12 +353,12 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} onBlur=\"check_right_date_format(this)\"></td>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate} onBlur=\"check_right_date_format(this)\"></td>
+       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\"></td>
        <td width="4"><input type=button name=reqdate name=reqdate id="trigger2" value=|
       . $locale->text('button') . qq|></td>
      |;
@@ -380,9 +372,9 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value=$form->{transdate} onBlur=\"check_right_date_format(this)\"></td>|;
+                              <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 = qq|
-                              <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value=$form->{reqdate} onBlur=\"check_right_date_format(this)\"></td>|;
+                              <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   my @tmp;
@@ -432,7 +424,8 @@ sub form_header {
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
                    "employees" => "ALL_SALESMEN",
-                   "taxzones" => "ALL_TAXZONES");
+                   "taxzones" => "ALL_TAXZONES",
+                   "currencies" => "ALL_CURRENCIES");
 
   my %labels;
   my @values = (undef);
@@ -506,6 +499,24 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
+
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_CURRENCIES"} }) {
+    push(@values, $item->{"currency"});
+    $labels{$item->{"currency"}} = $item->{"currency"};
+  }
+  
+  $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
+  my $currencies = qq|
+    <tr>
+      <th align="right">| . $locale->text('Currency') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
+
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
@@ -792,10 +803,7 @@ onchange="document.getElementById('update_button').click();">| .
               $taxzone
 	      $department
 	      <tr>
-		<th align=right>| . $locale->text('Currency') . qq|</th>
-		<td><select name=currency>$form->{selectcurrency}</select></td>
-		<input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-		<input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
+		$currencies
 		$exchangerate
 	      </tr>
 	      <tr>
