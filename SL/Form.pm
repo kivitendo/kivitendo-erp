@@ -1596,8 +1596,8 @@ $main::lxdebug->enter_sub();
   $key = "all_currencies" unless ($key);
 
   my $query = qq|SELECT curr AS currency FROM defaults|;
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+ 
+  $self->{$key} = [split(/\:/ , selectfirst_hashref_query($self, $dbh, $query)->{currency})];
 
   $main::lxdebug->leave_sub();
 }
