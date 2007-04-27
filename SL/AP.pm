@@ -415,7 +415,7 @@ sub ap_transactions {
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) |;
 
-  my $where;
+  my $where = qq| WHERE storno != true |;
   my @values;
 
   if ($form->{vendor_id}) {
@@ -466,7 +466,7 @@ sub ap_transactions {
   }
 
   if ($where) {
-    substr($where, 0, 4) = "WHERE";
+#     substr($where, 0, 4) = "WHERE";
     $query .= $where;
   }
 
