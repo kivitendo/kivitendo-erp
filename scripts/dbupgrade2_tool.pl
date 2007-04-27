@@ -152,20 +152,25 @@ sub dump_graphviz {
 
   print("GRAPHVIZ POSTCRIPT\n\n");
   print("Output will be written to '${file_name}'\n");
+
+  calc_rev_depends();
+
   $dot = "|dot -Tps ";
-  open(OUT, "${dot}> \"${file_name}\"");
+  open OUT, "${dot}> \"${file_name}\"" || die;
+
   print(OUT
         "digraph db_dependencies {\n" .
-        "node [shape=box];\n");
+        "node [shape=box style=filled fillcolor=white];\n");
   my %ranks;
   foreach my $c (values(%{$controls})) {
-    $ranks{$c->{"depth"}} = [] unless ($ranks{$c->{"depth"}});
-    push(@{$ranks{$c->{"depth"}}}, $c->{"tag"});
+    $ranks{$c->{"depth"}} ||= [];
+
+    my ($pre, $post) = ('node [fillcolor=lightgray] ', 'node [fillcolor=white] ') if !@{ $c->{"rev_depends"} };
+
+    push @{ $ranks{$c->{"depth"}} }, qq|${pre}"$c->{tag}"; ${post}|;
   }
   foreach (sort(keys(%ranks))) {
-    print(OUT "{ rank = same; " .
-          join("", map({ '"' . $_ . '"; ' } @{$ranks{$_}})) .
-          " }\n");
+    print OUT "{ rank = same; ", join("", @{ $ranks{$_} }), " }\n";
   }
   foreach my $c (values(%{$controls})) {
     print(OUT "$c->{tag};\n");
