@@ -754,18 +754,24 @@ sub generate_ustva {
     # Outputformat specific customisation's
     #
 
-    my @category_cent = qw(
-      511 861 36   80   971  931  98   96   53   74
-      85  65  66   61   62   67   63   64   59   69 
-      39  83  811  891  Z43  Z45  Z53  Z62  Z65  Z67
-      
-    );
-
-    my @category_euro = qw(
-      41 44 49 43 48 51 86 35 77 76 91 89
-      97 93 95 94 42 60 45 52 73 84 81 
-    );
+    my @category_cent = USTVA->report_variables({
+        myconfig    => \%myconfig,
+        form        => $form,
+        type        => '',
+        attribute   => 'position',
+        dec_places  => '2',
+    });
     
+    push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
+
+    my @category_euro = USTVA->report_variables({
+        myconfig    => \%myconfig,
+        form        => $form,
+        type        => '',
+        attribute   => 'position',
+        dec_places  => '0',
+    });
+
     $form->{id} = [];
     $form->{amount} = [];
 

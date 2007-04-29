@@ -25,6 +25,55 @@
 
 package USTVA;
 
+sub report_variables {
+  # Get all positions for taxreport out of the database
+  # Needs Databaseupdate Pg-upgrade2/USTVA_abstraction.pl
+  
+  return unless defined wantarray;
+  
+  my ( $self,
+       $arg_ref) = @_;
+       
+  my $myconfig   = $arg_ref->{myconfig};
+  my $form       = $arg_ref->{form};
+  my $type       = $arg_ref->{type}; # 'paied' || 'received' || ''
+  my $attribute  = $arg_ref->{attribute}; # 
+  my $dec_places = (defined $arg_ref->{dec_places}) ? $arg_ref->{dec_places}:undef;
+
+  my $where_type = "AND tax.report_headings.type = '$type'" if ( $type );
+  my $where_dcp  = "AND tax.report_variables.dec_places = '$dec_places'" if ( defined $dec_places );
+
+  my $query = qq|
+    SELECT $attribute
+    FROM tax.report_variables 
+    LEFT JOIN tax.report_headings 
+      ON (tax.report_variables.heading_id = tax.report_headings.id)
+    WHERE 1=1 
+    $where_type
+    $where_dcp  
+  |;
+  
+  $main::lxdebug->message(LXDebug::QUERY, "\$query= \n $query\n");
+  
+  my $dbh = $form->dbconnect($myconfig);
+  my $sth = $dbh->prepare($query);
+
+  $sth->execute() || $form->dberror($query);
+  
+  my @positions;
+  
+  while ( my $row_ref = $sth->fetchrow_arrayref() ) {
+    push @positions, @$row_ref;  # Copy the array contents
+  }
+  
+  $sth->finish;
+  
+  $dbh->disconnect;
+  
+  return @positions;
+  
+}
+
 sub create_steuernummer {
   $main::lxdebug->enter_sub();
 
@@ -40,8 +89,8 @@ sub create_steuernummer {
   my $h = 0;
   my $i = 0;
 
-  $steuernummer_new       = $part;
-  $elstersteuernummer_new = $elster_FFFF;
+  $steuernummer_new        = $part;
+  $elstersteuernummer_new  = $elster_FFFF;
   $elstersteuernummer_new .= '0';
 
   for ($h = 1; $h < $patterncount; $h++) {
@@ -572,18 +621,32 @@ sub ustva {
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
-  my @category_cent = qw(
-     511  861  36   80   971  931  98   96   53   74
-     85   65   66   61   62   67   63   64   59   69 
-     39   83   811  891  Z43  Z45  Z53  Z62  Z65  Z67
-  );
 
-  my @category_euro = qw(
-     41 44 49 43 48 51 
-     86 35 77 76 91 97 
-     93 95 94 42 60 45 
-     52 73 84 81 89
-  );
+  my @category_cent = USTVA->report_variables({
+      myconfig    => $myconfig,
+      form        => $form,
+      type        => '',
+      attribute   => 'position',
+      dec_places  => '2',
+  });
+  
+  push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
+  
+  my @category_euro = USTVA->report_variables({
+      myconfig    => $myconfig,
+      form        => $form,
+      type        => '',
+      attribute   => 'position',
+      dec_places  => '0',
+  });
+                           
+  push @category_euro, USTVA->report_variables({
+      myconfig    => $myconfig,
+      form        => $form,
+      type        => '',
+      attribute   => 'position',
+      dec_places  => '0',
+  });
 
   $form->{decimalplaces} *= 1;
 
@@ -593,9 +656,13 @@ sub ustva {
   foreach $item (@category_euro) {
     $form->{"$item"} = 0;
   }
+  my $coa_name = coa_get($dbh);
+  $form->{coa} = $coa_name;
+  
+  # Controlvariable for templates
+  $form->{"$coa_name"} = '1';
 
-  $form->{coa} = coa_get($dbh);
-  $main::lxdebug->message(LXDebug::DEBUG2, "COA: $form->{coa}");
+  $main::lxdebug->message(LXDebug::DEBUG2, "COA: '$form->{coa}',  \$form->{$coa_name} = 1");
 
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
                       $form, $category);
@@ -843,7 +910,8 @@ sub get_accounts_ustva {
        LEFT JOIN taxkeys tk ON (
            tk.id = (
              SELECT id FROM taxkeys 
-             WHERE chart_id=ac.chart_id 
+             WHERE 1=1
+               AND chart_id=ac.chart_id 
                AND taxkey_id = ac.taxkey 
                AND startdate <= COALESCE(AP.transdate)
              ORDER BY startdate DESC LIMIT 1
