@@ -69,8 +69,7 @@ sub post_invoice {
     $uid = substr($uid, 2, 75);
 
     $query = qq|INSERT INTO ap (invnumber, employee_id)
-                VALUES ('$uid', (SELECT e.id FROM employee e
-		                 WHERE e.login = '$form->{login}'))|;
+                VALUES ('$uid', '$form->{employee}')|;
     $dbh->do($query) || $form->dberror($query);
 
     $query = qq|SELECT a.id FROM ap a
