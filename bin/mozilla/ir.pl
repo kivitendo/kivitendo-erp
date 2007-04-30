@@ -223,7 +223,7 @@ sub form_header {
   $lxdebug->enter_sub();
 
   # set option selected
-  foreach $item (qw(AP vendor currency department)) {
+  foreach $item (qw(AP vendor currency department employee)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -275,6 +275,7 @@ sub form_header {
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
                    "taxzones" => "ALL_TAXZONES",
+                   "employees" => "ALL_SALESMEN",
                    "currencies" => "ALL_CURRENCIES");
 
   my %labels;
@@ -316,6 +317,23 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
+    
+    
+  %labels = ();
+  @values = ();
+  my $i = 0;
+  foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"name"};
+  }
+  my $employees = qq|
+      <tr>
+      <th align="right">| . $locale->text('Employee') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'employee', '-default' => $form->{"employee"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+      </tr>|;
   
   %labels = ();
   @values = ();
@@ -349,15 +367,15 @@ sub form_header {
     ($form->{selectvendor})
     ? qq|<select name="vendor"
 onchange="document.getElementById('update_button').click();">| .
-    qq|$form->{selectvendor}</select>\n<input type=hidden name="selectvendor" value="| .
+    qq|$form->{selectvendor}</select>\n<input type="hidden" name="selectvendor" value="| .
     Q($form->{selectvendor}) . qq|">|
-    : qq|<input name=vendor value="$form->{vendor}" size=35>|;
+    : qq|<input name="vendor" value="$form->{vendor}" size="35">|;
 
   $department = qq|
               <tr>
 	      <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-	      <td colspan=3><select name=department>$form->{selectdepartment}</select>
-	      <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
+	      <td colspan="3"><select name="department">$form->{selectdepartment}</select>
+	      <input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
 	      </td>
 	    </tr>
 | if $form->{selectdepartment};
@@ -450,11 +468,10 @@ onchange="document.getElementById('update_button').click();">| .
 
                 <input type=hidden name=vendor_id value=$form->{vendor_id}>
 		<input type=hidden name=oldvendor value="$form->{oldvendor}">
-
 	      </tr>
 	      <tr>
 	        <td></td>
-		<td colspan=3>
+		<td>
 		  <table>
 		    <tr>
 		      <th nowrap>| . $locale->text('Credit Limit') . qq|</th>
@@ -464,11 +481,11 @@ onchange="document.getElementById('update_button').click();">| .
 		      <td class="plus$n">$form->{creditremaining}</td>
 		    </tr>
 		  </table>
-		</td>
+		</td>  
 	      <tr>
-		<th align=right>| . $locale->text('Record in') . qq|</th>
-		<td colspan=3><select name=AP>$form->{selectAP}</select></td>
-		<input type=hidden name=selectAP value="$form->{selectAP}">
+		<th align="right">| . $locale->text('Record in') . qq|</th>
+		<td colspan="3"><select name="AP">$form->{selectAP}</select></td>
+		<input type="hidden" name="selectAP" value="$form->{selectAP}">
 	      </tr>
               $taxzone
               $department
@@ -480,7 +497,8 @@ onchange="document.getElementById('update_button').click();">| .
 	  </td>
 	  <td align=right>
 	    <table>
-	      <tr>
+     $employees
+	      <tr>   
 		<th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
 		<td><input name=invnumber size=11 value="$form->{invnumber}"></td>
 	      </tr>
@@ -663,7 +681,7 @@ sub form_footer {
 	    <table width=100%>
 	      $subtotal
 	      $tax
-	      <tr>0
+	      <tr>
 		<th align=right>| . $locale->text('Total') . qq|</th>
 		<td align=right>$form->{invtotal}</td>
 	      </tr>
