@@ -170,9 +170,8 @@ sub invoice_links {
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
 
   if (@{ $form->{all_customer} }) {
-    $form->{customer} = "$form->{customer}--$form->{customer_id}";
-    map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}</option>\n" }
-      (@{ $form->{all_customer} });
+     $form->{customer} = "$form->{customer}--$form->{customer_id}";
+     $form->{selectcustomer} = "$form->{customer}--$form->{customer_id}";
   }
 
   # departments
@@ -187,13 +186,6 @@ sub invoice_links {
   }
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
-
-  # sales staff
-  if ($form->{all_employees}) {
-    $form->{selectemployee} = "";
-    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}</option>\n" }
-      (@{ $form->{all_employees} });
-  }
 
   # forex
   $form->{forex} = $form->{exchangerate};
@@ -338,7 +330,8 @@ sub form_header {
                                    "old_id" => \@old_project_ids },
                    "employees" => "ALL_SALESMEN",
                    "taxzones" => "ALL_TAXZONES",
-                   "currencies" => "ALL_CURRENCIES");
+                   "currencies" => "ALL_CURRENCIES",
+                   "customers" => "ALL_CUSTOMERS");
 
   my %labels;
   my @values = (undef);
@@ -351,6 +344,40 @@ sub form_header {
     NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
                          '-labels' => \%labels, '-default' => $form->{"cp_id"}));
 
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"name"};
+  }
+
+  my $employees = qq|
+    <tr>
+      <th align="right">| . $locale->text('Employee') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'employee', '-default' => $form->{"employee_id"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
+
+
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_CUSTOMERS"} }) {
+    push(@values, $item->{name}.qq|--|.$item->{"id"});
+    $labels{$item->{"id"}} = $item->{name}.qq|--|.$item->{"id"};
+  }
+
+  my $customers = qq|
+      <th align="right">| . $locale->text('Customer') . qq|</th>
+      <td>| . 
+        (($myconfig{vclimit} == 1 ) 
+              ? qq|<input type="text" value="$form->{oldcustomer}" name="customer">| 
+              : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer}, 
+                             '-onChange' => 'document.getElementById(\'update_button\').click();',
+                             '-values' => \@values, '-labels' => \%labels)))) . qq|
+      </td>|;
+    
   %labels = ();
   @values = ("");
   foreach my $item (@{ $form->{"ALL_SHIPTO"} }) {
@@ -482,14 +509,6 @@ sub form_header {
   $exchangerate .= qq|
 <input type="hidden" name="forex" value="$form->{forex}">
 |;
-
-  $customer =
-    ($form->{selectcustomer})
-    ? qq|<select name="customer"
-onchange="document.getElementById('update_button').click();">| .
-    qq|$form->{selectcustomer}</select>\n<input type="hidden" name="selectcustomer" value="| .
-    Q($form->{selectcustomer}) . qq|">|
-    : qq|<input name="customer" value="$form->{customer}" size="35">|;
 
   $department = qq|
               <tr>
@@ -653,11 +672,11 @@ print qq|
 	  <td>
 	    <table>
 	      <tr>
-		<th align="right" nowrap>| . $locale->text('Customer') . qq|</th>
-		<td colspan="3">$customer</td>
+		$customers
     <input type="hidden" name="customer_klass" value="$form->{customer_klass}">
 		<input type="hidden" name="customer_id" value="$form->{customer_id}">
-		<input type="hidden" name="oldcustomer" value="$form->{oldcustomer}">
+    <input type="hidden" name="oldcustomer" value="$form->{oldcustomer}">
+        <input type="hidden" name="selectcustomer" value="1">
                 <th align="right" nowrap>|
     . $locale->text('Contact Person') . qq|</th>
                 <td colspan="3">$contact</td>
@@ -725,12 +744,7 @@ print qq|	    </table>
 	  </td>
 	  <td align="right">
 	    <table>
-	      <tr>
-	        <th align="right" nowrap>| . $locale->text('Employee') . qq|</th>
-		<td colspan="2"><select name="employee">$form->{selectemployee}</select></td>
-		<input type="hidden" name="selectemployee" value="$form->{selectemployee}">
-                <td></td>
-	      </tr>
+	      $employees
         $salesman
 |;
 if ($form->{type} eq "credit_note") {
