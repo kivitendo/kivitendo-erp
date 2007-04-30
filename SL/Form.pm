@@ -1616,6 +1616,20 @@ sub _get_customers {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_vendors {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_vendors" unless ($key);
+
+  my $query = qq|SELECT * FROM vendor|; # LIMIT $main::myconfig{vclimit}|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1680,6 +1694,10 @@ sub get_lists {
   
   if($params{"customers"}) {
     $self->_get_customers($dbh, $params{"customers"});
+  }
+  
+  if($params{"vendors"}) {
+    $self->_get_vendors($dbh, $params{"vendors"});
   }
 
   $dbh->disconnect();
