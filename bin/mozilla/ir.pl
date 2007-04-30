@@ -276,7 +276,8 @@ sub form_header {
                                    "old_id" => \@old_project_ids },
                    "taxzones" => "ALL_TAXZONES",
                    "employees" => "ALL_SALESMEN",
-                   "currencies" => "ALL_CURRENCIES");
+                   "currencies" => "ALL_CURRENCIES",
+                   "vendors" => "ALL_VENDORS");
 
   my %labels;
   my @values = (undef);
@@ -318,7 +319,6 @@ sub form_header {
       </td>
     </tr>|;
     
-    
   %labels = ();
   @values = ();
   my $i = 0;
@@ -335,6 +335,21 @@ sub form_header {
       </td>
       </tr>|;
   
+  %labels = ();
+  @values = ();
+  my $i = 0;
+  foreach my $item (@{ $form->{"ALL_VENDORS"} }) {
+    push(@values, $item->{name}.qq|--|.$item->{"id"});
+    $labels{$item->{"id"}} = $item->{"name"}.qq|--|.$item->{"id"};
+  }
+  my $vendors = qq|
+      <th align="right">| . $locale->text('Vendor') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{"vendor"},
+                             '-onChange' => 'document.getElementById(\'update_button\').click();',
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>|;
+
   %labels = ();
   @values = ();
   foreach my $item (@{ $form->{"ALL_TAXZONES"} }) {
@@ -362,14 +377,6 @@ sub form_header {
       </td>
     </tr>|;
   }
-
-  $vendor =
-    ($form->{selectvendor})
-    ? qq|<select name="vendor"
-onchange="document.getElementById('update_button').click();">| .
-    qq|$form->{selectvendor}</select>\n<input type="hidden" name="selectvendor" value="| .
-    Q($form->{selectvendor}) . qq|">|
-    : qq|<input name="vendor" value="$form->{vendor}" size="35">|;
 
   $department = qq|
               <tr>
@@ -459,15 +466,14 @@ onchange="document.getElementById('update_button').click();">| .
 	  <td>
 	    <table>
 	      <tr>
-		<th align=right nowrap>| . $locale->text('Vendor') . qq|</th>
-		<td colspan=3>$vendor</td>
-
+    $vendors
                 <th align=richt nowrap>|
     . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
 
-                <input type=hidden name=vendor_id value=$form->{vendor_id}>
-		<input type=hidden name=oldvendor value="$form->{oldvendor}">
+                <input type="hidden" name="vendor_id" value="$form->{vendor_id}">
+		<input type="hidden" name="oldvendor" value="$form->{oldvendor}">
+    <input type="hidden" name="selectvendor" value= "1">
 	      </tr>
 	      <tr>
 	        <td></td>
