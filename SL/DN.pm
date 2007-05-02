@@ -159,9 +159,12 @@ sub save_dunning {
          ar.transdate, ar.duedate, paid, amount - paid AS open_amount,
          template AS formname, email_subject, email_body, email_attachment,
          da.fee, da.interest, da.transdate AS dunning_date,
-         da.duedate AS dunning_duedate
-       FROM ar LEFT JOIN dunning_config ON (dunning_config.id = ar.dunning_config_id)
+         da.duedate AS dunning_duedate,
+         c.name, c.street, c.zipcode, c.city, c.country, c.department_1, c.department_2
+       FROM ar
+       LEFT JOIN dunning_config ON (dunning_config.id = ar.dunning_config_id)
        LEFT JOIN dunning da ON (ar.id = da.trans_id AND dunning_config.dunning_level = da.dunning_level)
+       LEFT JOIN customer c ON (ar.customer_id = c.id)
        WHERE ar.id IN (|
        . join(", ", map("?", @{ $form->{"inv_ids"} })) . qq|)|;
 
