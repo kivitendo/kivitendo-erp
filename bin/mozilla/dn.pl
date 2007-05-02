@@ -382,7 +382,10 @@ sub show_invoices {
 
 
   $form->{nextsub} = "save_dunning";
-  
+
+  $form->{jsscript} = 1;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/checkbox_utils.js"></script>|;
+
   $form->{callback} =
     "$form->{script}?action=show_invoices&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&paymentuntil=$form->{paymentuntil}&groupinvoices=$form->{groupinvoices}&minamount=$form->{minamount}&dunning_level=$form->{dunning_level}&notes=$form->{notes}"
     unless $form->{callback};
@@ -395,11 +398,17 @@ sub show_invoices {
     . qq|</th>|;
   $column_header{active} =
       qq|<th class=listheading>|
-    . $locale->text('Active?')
+    . NTI($cgi->checkbox('-name' => 'selectall_active',
+                         '-label' => $locale->text('Active?'),
+                         '-checked' => 1,
+                         '-onclick' => "checkbox_check_all('selectall_active', 'active_', 1, " . scalar(@{ $form->{DUNNINGS} }) . ")"))
     . qq|</th>|;
   $column_header{email} =
       qq|<th class=listheading>|
-    . $locale->text('eMail?')
+    . NTI($cgi->checkbox('-name' => 'selectall_email',
+                         '-label' => $locale->text('eMail?'),
+                         '-checked' => 0,
+                         '-onclick' => "checkbox_check_all('selectall_email', 'email_', 1, " . scalar(@{ $form->{DUNNINGS} }) . ")"))
     . qq|</th>|;
   $column_header{customername} =
       qq|<th class=listheading>|
