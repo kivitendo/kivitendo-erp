@@ -269,13 +269,6 @@ sub order_links {
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
-  # sales staff
-  if (@{ $form->{all_employees} }) {
-    $form->{selectemployee} = "";
-    map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}</option>\n" }
-      (@{ $form->{all_employees} });
-  }
-
   # forex
   $form->{forex} = $form->{exchangerate};
 
@@ -372,9 +365,9 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"></td>|;
+                              <td><input name="transdate" id="transdate" size="11" title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 = qq|
-                              <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\"></td>|;
+                              <td width="13"><input name="reqdate" id="reqdate" size="11" title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
   my @tmp;
@@ -402,7 +395,7 @@ sub form_header {
   }
 
   # set option selected
-  foreach $item ($form->{vc}, currency, department, employee) {
+  foreach $item ($form->{vc}, currency, department, employee, ($form->{vc} eq "customer" ? customer : vendor)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -426,7 +419,10 @@ sub form_header {
                    "employees" => "ALL_SALESMEN",
                    "taxzones" => "ALL_TAXZONES",
                    "currencies" => "ALL_CURRENCIES");
-
+                  ($form->{vc} eq "customer" 
+                      ? $form->get_lists("customers" => "ALL_CUSTOMERS") 
+                      : $form->get_lists("vendors" => "ALL_VENDORS"));
+  
   my %labels;
   my @values = (undef);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
@@ -437,6 +433,25 @@ sub form_header {
   my $contact =
     NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
                          '-labels' => \%labels, '-default' => $form->{"cp_id"}));
+
+  %labels = ();
+  @values = ();
+
+  foreach my $item (@{ $form->{($form->{vc} eq "customer" ? "ALL_CUSTOMERS" : "ALL_VENDORS")}}) {
+    push(@values, $item->{name}.qq|--|.$item->{"id"});
+    $labels{$item->{"id"}} = $item->{name}.qq|--|.$item->{"id"};
+  }
+
+  my $vc = qq|
+      <th align="right">| . $locale->text(ucfirst($form->{vc})) . qq|</th>
+      <td>| . 
+        (($myconfig{vclimit} == 1 ) 
+              ? qq|<input type="text" value="$form->{old$form->{vc}}" name="$form->{vc}">| 
+              : (NTI($cgi->popup_menu('-name' => "$form->{vc}", '-default' => $form->{"old$form->{vc}"}, 
+                             '-onChange' => 'document.getElementById(\'update_button\').click();',
+                             '-values' => \@values, '-labels' => \%labels)))) . qq|
+      </td><input type=hidden name="select$form->{vc}" value="| .
+    Q($form->{"select$form->{vc}"}) . qq|">|;
 
   %labels = ();
   @values = ("");
@@ -483,6 +498,21 @@ sub form_header {
          </tr>|;
   }
 
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"name"};
+  }
+
+  my $employees = qq|
+    <tr>
+      <th align="right">| . $locale->text('Employee') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'employee', '-default' => $form->{"employee"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
 
   %labels = ();
   @values = ();
@@ -552,11 +582,6 @@ sub form_header {
         . qq|</th><td><input name=exchangerate size=10 value=$form->{exchangerate}></td>|;
     }
   }
-
-  $vclabel = ucfirst $form->{vc};
-  $vclabel = $locale->text($vclabel);
-
-
 
   if ($form->{business}) {
     $business = qq|
@@ -677,48 +702,25 @@ sub form_header {
                           </tr>|;
   }
 
-  $vc =
-    ($form->{"select$form->{vc}"})
-    ? qq|<select name="$form->{vc}"
-onchange="document.getElementById('update_button').click();">| .
-    qq|$form->{"select$form->{vc}"}</select>\n<input type=hidden name="select$form->{vc}" value="| .
-    Q($form->{"select$form->{vc}"}) . qq|">|
-    : qq|<input name=$form->{vc} value="$form->{$form->{vc}}" size=35>|;
-
   $department = qq|
               <tr>
 	        <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
 		<td colspan=3><select name=department>$form->{selectdepartment}</select>
 		<input type=hidden name=selectdepartment value="$form->{selectdepartment}">
 		</td>
-	      </tr>
-| if $form->{selectdepartment};
-
-  $employee = qq|
-              <input type=hidden name=employee value="$form->{employee}">
-|;
+	      </tr> | if $form->{selectdepartment};
 
   if ($form->{type} eq 'sales_order') {
     if ($form->{selectemployee}) {
       $employee = qq|
     <input type=hidden name=customer_klass value=$form->{customer_klass}>
- 	      <tr>
-	        <th align=right nowrap>| . $locale->text('Employee') . qq|</th>
-		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
-		<input type=hidden name=selectemployee value="$form->{selectemployee}">
-                <td></td>
-	      </tr>
+        $employees
 |;
     }
   } else {
     $employee = qq|
     <input type=hidden name=customer_klass value=$form->{customer_klass}>
- 	      <tr>
-	        <th align=right nowrap>| . $locale->text('Employee') . qq|</th>
-		<td colspan=2><select name=employee>$form->{selectemployee}</select></td>
-		<input type=hidden name=selectemployee value="$form->{selectemployee}">
-                <td></td>
-	      </tr>
+        $employees
 |;
   }
   if ($form->{resubmit} && ($form->{format} eq "html")) {
@@ -790,10 +792,7 @@ onchange="document.getElementById('update_button').click();">| .
 	  <td>
 	    <table width=100%>
 	      <tr>
-		<th align=right>$vclabel</th>
-		<td colspan=3>$vc</td>
-		<input type=hidden name=$form->{vc}_id value=$form->{"$form->{vc}_id"}>
-		<input type=hidden name="old$form->{vc}" value="$form->{"old$form->{vc}"}">
+        $vc
                 <th align=richt nowrap>|
     . $locale->text('Contact Person') . qq|</th>
                 <td colspan=3>$contact</td>
@@ -1354,20 +1353,6 @@ sub search {
   $form->all_vc(\%myconfig, $form->{vc},
                 ($form->{vc} eq 'customer') ? "AR" : "AP");
 
-  map { $vc .= "<option>$_->{name}--$_->{id}</option>\n" }
-    @{ $form->{"all_$form->{vc}"} };
-
-  $vclabel = ucfirst $form->{vc};
-  $vclabel = $locale->text($vclabel);
-
-  # $locale->text('Vendor')
-  # $locale->text('Customer')
-
-  $vc =
-    ($vc)
-    ? qq|<select name=$form->{vc}><option>\n$vc</option></select>|
-    : qq|<input name=$form->{vc} size=35>|;
-
   # departments
   if (@{ $form->{all_departments} }) {
     $form->{selectdepartment} = "<option>\n";
@@ -1457,8 +1442,7 @@ sub search {
     <td>
       <table>
         <tr>
-          <th align=right>$vclabel</th>
-          <td colspan="3">$vc</td>
+          $vc
         </tr>
 	$department
         <tr>
@@ -1501,7 +1485,7 @@ sub search {
     . $locale->text('Required by') . qq|</td>
 	      </tr>
 	      <tr>
-	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vclabel</td>
+	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> ucfirst($form->{vc})</td>
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
     . $locale->text('Ship via') . qq|</td>
