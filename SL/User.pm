@@ -36,10 +36,10 @@ package User;
 
 use IO::File;
 use Fcntl qw(:seek);
-use Text::Iconv;
 
 use SL::DBUpgrade2;
 use SL::DBUtils;
+use SL::Iconv;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -460,7 +460,7 @@ sub process_perl_script {
 
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $iconv = Text::Iconv->new($file_charset, $db_charset);
+  my $iconv = SL::Iconv::get_converter($file_charset, $db_charset);
 
   $dbh->begin_work();
 
@@ -524,12 +524,10 @@ sub process_query {
 
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $iconv = Text::Iconv->new($file_charset, $db_charset);
-
   $dbh->begin_work();
 
   while (<$fh>) {
-    $_ = $iconv->convert($_);
+    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
 
     # Remove DOS and Unix style line endings.
     chomp;
@@ -912,8 +910,6 @@ sub dbupdate2 {
   my $db_charset = $main::dbcharset;
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my %converters;
-
   foreach my $db (split / /, $form->{dbupdate}) {
 
     next unless $form->{$db};
@@ -949,10 +945,7 @@ sub dbupdate2 {
     foreach my $control (@upgradescripts) {
       next if ($control->{"applied"});
 
-      if (!$converters{$control->{charset}}) {
-        $converters{$control->{charset}} = Text::Iconv->new($control->{charset}, $db_charset);
-      }
-      $control->{description} = $converters{$control->{charset}}->convert($control->{description});
+      $control->{description} = SL::Iconv::convert($control->{charset}, $db_charset, $control->{description});
 
       $control->{"file"} =~ /\.(sql|pl)$/;
       my $file_type = $1;

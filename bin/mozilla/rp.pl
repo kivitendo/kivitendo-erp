@@ -41,6 +41,7 @@ require "bin/mozilla/common.pl";
 use SL::PE;
 use SL::RP;
 use SL::USTVA;
+use SL::Iconv;
 
 1;
 
@@ -2008,6 +2009,11 @@ sub print_form {
      "ß" => "ss",
      " " => "_"
     );
+
+  foreach my $key (keys %replacements) {
+    my $new_key = SL::Iconv::convert("ISO-8859-15", $dbcharset, $key);
+    $replacements{$new_key} = $replacements{$key} if $new_key ne $key;
+  }
 
   $form->{statementdate} = $locale->date(\%myconfig, $form->{todate}, 1);
 

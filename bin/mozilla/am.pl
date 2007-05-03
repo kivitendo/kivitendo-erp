@@ -36,6 +36,7 @@ use SL::CA;
 use SL::Form;
 use SL::User;
 use SL::USTVA;
+use SL::Iconv;
 use CGI::Ajax;
 use CGI;
 
@@ -223,10 +224,11 @@ sub account_header {
           30 => "Ausserordentlicher Aufwand",
           31 => "Betriebliche Steuern");
   foreach $item (sort({ $a <=> $b } keys(%eur))) {
+    my $text = H(SL::Iconv::convert("ISO-8859-15", $dbcharset, $eur{$item}));
     if ($item == $form->{pos_eur}) {
-      $select_eur .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $eur{$item}</option>\n|;
+      $select_eur .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     } else {
-      $select_eur .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|. $eur{$item}</option>\n|;
+      $select_eur .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     }
 
   }
@@ -256,10 +258,11 @@ sub account_header {
              34 => 'Verr.kalk.Kosten',
              35 => 'Steuern Eink.u.Ertr.');
   foreach $item (sort({ $a <=> $b } keys %bwapos)) {
+    my $text = H(SL::Iconv::convert("ISO-8859-15", $dbcharset, $bwapos{$item}));
     if ($item == $form->{pos_bwa}) {
-      $select_bwa .= qq|<option value="$item" selected>|. sprintf("%.2d", $item) .qq|. $bwapos{$item}\n|;
+      $select_bwa .= qq|<option value="$item" selected>|. sprintf("%.2d", $item) .qq|. $text\n|;
     } else {
-      $select_bwa .= qq|<option value="$item">|. sprintf("%.2d", $item) .qq|. $bwapos{$item}\n|;
+      $select_bwa .= qq|<option value="$item">|. sprintf("%.2d", $item) .qq|. $text\n|;
     }
 
   }
