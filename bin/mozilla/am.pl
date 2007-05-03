@@ -141,16 +141,16 @@ sub account_header {
             qq|<option value="$item->{id}" selected="selected">|
             . sprintf("%.2d", $item->{taxkey}) 
             . qq|. $item->{taxdescription} ($item->{rate}) |
-            . $locale->text('Tax-o-matic Account: ') 
-            . qq|$item->{chart_accno}\n|;
+            . $locale->text('Tax-o-matic Account') 
+            . qq|: $item->{chart_accno}\n|;
         } 
         else {
           $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
             qq|<option value="$item->{id}">|
             . sprintf("%.2d", $item->{taxkey}) 
             . qq|. $item->{taxdescription} ($item->{rate}) |
-            . $locale->text('Tax-o-matic Account: ')
-            . qq|$item->{chart_accno}\n|;
+            . $locale->text('Tax-o-matic Account')
+            . qq|: $item->{chart_accno}\n|;
         }
 
       }
