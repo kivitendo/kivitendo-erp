@@ -1509,35 +1509,35 @@ sub list_buchungsgruppe {
     . qq|</th>|;
   $column_header{income_accno_0} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse Inland')
+    . $locale->text('National Revenues')
     . qq|</th>|;
   $column_header{expense_accno_0} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand Inland')
+    . $locale->text('National Expenses')
     . qq|</th>|;
   $column_header{income_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU m. UStId')
+    . $locale->text('Revenues EU with UStId')
     . qq|</th>|;
   $column_header{expense_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand EU m. UStId')
+    . $locale->text('Expenses EU with UStId')
     . qq|</th>|;
   $column_header{income_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU o. UStId')
+    . $locale->text('Revenues EU without UStId')
     . qq|</th>|;
   $column_header{expense_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand EU o. UStId')
+    . $locale->text('Expenses EU without UStId')
     . qq|</th>|;
   $column_header{income_accno_3} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse Ausland')
+    . $locale->text('Foreign Revenues')
     . qq|</th>|;
   $column_header{expense_accno_3} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand Ausland')
+    . $locale->text('Foreign Expenses')
     . qq|</th>|;
   $form->header;
 
@@ -1658,8 +1658,8 @@ sub buchungsgruppe_header {
 
   $form->{title}    = $locale->text("$form->{title} Buchungsgruppe");
 
-  # $locale->text('Buchungsgruppe hinzufügen')
-  # $locale->text('Buchungsgruppe bearbeiten')
+  # $locale->text('Add Accounting Group')
+  # $locale->text('Edit Accounting Group')
 
   my ($acc_inventory, $acc_income, $acc_expense) = ({}, {}, {});
   my %acc_type_map = (
@@ -1709,11 +1709,11 @@ sub buchungsgruppe_header {
 
   $linkaccounts .= qq|
 	      <tr>
-		<th align=right>| . $locale->text('Erlöse Inland') . qq|</th>
+		<th align=right>| . $locale->text('National Revenues') . qq|</th>
 		<td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand Inland') . qq|</th>
+		<th align=right>| . $locale->text('National Expenses') . qq|</th>
 		<td><select name=expense_accno_id_0>$form->{selectIC_expense}</select></td>
 	      </tr>|;
   if ($form->{id}) {
@@ -1723,11 +1723,11 @@ sub buchungsgruppe_header {
     $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_1}/  value=$form->{expense_accno_id_1} selected/;
   }
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse EU m. UStId') . qq|</th>
+		<th align=right>| . $locale->text('Revenues EU with UStId') . qq|</th>
 		<td><select name=income_accno_id_1>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand EU m UStId') . qq|</th>
+		<th align=right>| . $locale->text('Expenses EU with UStId') . qq|</th>
 		<td><select name=expense_accno_id_1>$form->{selectIC_expense}</select></td>
 	      </tr>|;
 
@@ -1739,11 +1739,11 @@ sub buchungsgruppe_header {
   }
 
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse EU o. UStId') . qq|</th>
+		<th align=right>| . $locale->text('Revenues EU without UStId') . qq|</th>
 		<td><select name=income_accno_id_2>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand EU o. UStId') . qq|</th>
+		<th align=right>| . $locale->text('Expenses EU without UStId') . qq|</th>
 		<td><select name=expense_accno_id_2>$form->{selectIC_expense}</select></td>
 	      </tr>|;
 
@@ -1755,11 +1755,11 @@ sub buchungsgruppe_header {
   }
 
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse Ausland') . qq|</th>
+		<th align=right>| . $locale->text('Foreign Revenues') . qq|</th>
 		<td><select name=income_accno_id_3>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand Ausland') . qq|</th>
+		<th align=right>| . $locale->text('Foreign Expenses') . qq|</th>
 		<td><select name=expense_accno_id_3>$form->{selectIC_expense}</select></td>
 	      </tr>
 |;
@@ -1799,7 +1799,7 @@ sub save_buchungsgruppe {
   $form->isblank("description", $locale->text('Description missing!'));
 
   AM->save_buchungsgruppe(\%myconfig, \%$form);
-  $form->redirect($locale->text('Buchungsgruppe gespeichert!'));
+  $form->redirect($locale->text('Accounting Group saved!'));
 
   $lxdebug->leave_sub();
 }
@@ -1808,7 +1808,7 @@ sub delete_buchungsgruppe {
   $lxdebug->enter_sub();
 
   AM->delete_buchungsgruppe(\%myconfig, \%$form);
-  $form->redirect($locale->text('Buchungsgruppe gelöscht!'));
+  $form->redirect($locale->text('Accounting Group deleted!'));
 
   $lxdebug->leave_sub();
 }

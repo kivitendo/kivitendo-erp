@@ -54,11 +54,11 @@
 					translated['PRINTED'] = '<translate>PRINTED</translate>';
 					
 					var jscalender = "<table valign=\"top\">"
-									+ "<tr><td colspan=\"2\"><b><translate>Zeitraum</translate>:&nbsp;</b></td></tr>"
-									+ "<tr><td><translate>von</translate>:&nbsp;"
+									+ "<tr><td colspan=\"2\"><b><translate>Period</translate>:&nbsp;</b></td></tr>"
+									+ "<tr><td><translate>from (time)</translate>:&nbsp;"
 									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=transdate ESCAPE=HTML>\">"
 									+ "<input type=\"button\" name=\"transdate\" id=\"trigger1\" value=\"?\">"
-									+ "&nbsp;</td><td><translate>bis</translate>:&nbsp;"
+									+ "&nbsp;</td><td><translate>to (time)</translate>:&nbsp;"
 									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=reqdate ESCAPE=HTML>\">"
 									+ "<input type=\"button\" name=\"reqdate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
 					var mitarbeiter = "<table valign=\"top\">"
@@ -96,7 +96,7 @@
 						}			
 						else {
 							defaults.splice(remove,1);
-							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>Folgende Einschränkungen haben Sie bereits vorgenommen:</translate></b><br>") : ("<br>")) + translated[last];
+							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>You've already chosen the following limitations:</translate></b><br>") : ("<br>")) + translated[last];
 							if(defaults.length > 0) {
 								document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
 								tempString = "<select id='selectForm'>";
@@ -113,7 +113,7 @@
 					}
 					
 					function resetAll() {
-						document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\"><translate>Ja</translate>";
+						document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\"><translate>Yes</translate>";
 						document.getElementById('inputText').innerHTML = "";
 					}
 					//-->
@@ -121,24 +121,24 @@
 				<table>
 					<tr>
 						<td>
-							<translate><b>Wonach</b> möchten Sie suchen?</translate>:
+							<translate><b>What</b> do you want to look for?</translate>:
 						</td>
 						<td>
 							<select name="what2search" id="what2search">
-								<option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer"><translate>Artikelnummer</translate></option>
-								<option name="Kundennummer" value="Kundennummer" id="Kundennummer"><translate>Kundennummer</translate></option>
-								<option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer"><translate>Lieferantennummer</translate></option>
-								<option name="Projektnummer" value="Projektnummer" id="Projektnummer"><translate>Projektnummer</translate></option>
-								<option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer"><translate>Buchungsnummer</translate></option>
-								<option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer"><translate>Eingangsrechnungnummer</translate></option>
-								<option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer"><translate>Ausgangsrechnungnummer</translate></option>
-                <option name="Mahnungsnummer" value="Mahnungsnummer" id="Mahnungsnummer"><translate>Mahnungsnummer</translate></option>
+								<option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer"><translate>Part Number</translate></option>
+								<option name="Kundennummer" value="Kundennummer" id="Kundennummer"><translate>Customer Number</translate></option>
+								<option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer"><translate>Vendor Number</translate></option>
+								<option name="Projektnummer" value="Projektnummer" id="Projektnummer"><translate>Project Number</translate></option>
+								<option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer"><translate>ID</translate></option>
+								<option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer"><translate>Incoming invoice number</translate></option>
+								<option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer"><translate>Sales invoice number</translate></option>
+                <option name="Mahnungsnummer" value="Mahnungsnummer" id="Mahnungsnummer"><translate>Dunning number</translate></option>
 							</select>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<translate>Wie lautet der <b>Suchbegriff</b> nach dem Sie suchen?:</translate>
+						 <translate>What's the <b>term</b> you're looking for?</translate>
 						</td>
 						<td>
 							<input type="text" name="searchid" id="searchid" value="<TMPL_VAR NAME=searchid ESCAPE=HTML>">
@@ -146,13 +146,13 @@
 					</tr>
 					<tr>
 						<td valign="top">
-							<translate>Möchten Sie Ihre Suche <b>spezialisieren</b>?</translate>
+						 <translate>Do you want to <b>limit</b> your search?</translate>
 						</td>
 						<td>
 							<table valign=\"top\" cellpadding=\"0\" marginheight=\"0\" marginwidth=\"0\" cellspacing=\"0\" topmargin=\"0\" leftmargin=\"0\">
 								<tr>
 									<td>
-										<div id="selectTable"><a href="javascript:addForm('INIT')"><translate>Ja</translate></div>
+										<div id="selectTable"><a href="javascript:addForm('INIT')"><translate>Yes</translate></div>
 										<div id="inputText"></div>
 									</td>
 								</tr>
@@ -173,7 +173,7 @@
 					</tr>
 					<tr>
 						<td colspan="6">
-							<input type="submit" value="<translate>abschicken</translate>">
+							<input type="submit" value="<translate>submit</translate>">
 							<input type="reset" value="<translate>reset</translate>" onClick="javascript:resetAll();">
 						</td>
 						<td>

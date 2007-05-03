@@ -2393,7 +2393,7 @@ sub form_header {
 	      </tr>
               <tr>
 		<th align="right" nowrap="true">|
-      . $locale->text('Geschäftsvolumen') . qq|</th>
+      . $locale->text('Business Volume') . qq|</th>
 		<td><input name=gv size=10 value=$form->{gv}></td>
 	      </tr>
 |;

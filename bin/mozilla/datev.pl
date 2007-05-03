@@ -82,7 +82,7 @@ sub export {
 	  <td align=left nowrap>| . $locale->text("Mandantennummer") . qq|</td>
 	  <td><input name=mandantennr size=10 maxlength=5 value="$form->{mandantennr}"></td>
 
-	  <td align=left nowrap>| . $locale->text("Datenträgernummer") . qq|</td>
+	  <td align=left nowrap>| . $locale->text("Medium Number") . qq|</td>
 	  <td><input name=datentraegernr size=5 maxlength=3 value="$form->{datentraegernr}"></td>
 	</tr>
 	<tr>
