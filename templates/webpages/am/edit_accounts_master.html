@@ -1,0 +1,213 @@
+<script type="text/javascript" src="js/FormManager.js" >
+/****************************************************
+* Form Dependency Manager- By Twey- http://www.twey.co.uk
+* Visit Dynamic Drive for this script and more: http://www.dynamicdrive.com
+****************************************************/
+</script>
+
+<script type="text/javascript">
+window.onload = function() {
+    setupDependencies('EditAccount'); //name of form(s). Seperate each with a comma (ie: 'weboptions', 'myotherform' )
+  };
+</script>
+
+<body>
+<form method="post" name="EditAccount" action="<TMPL_VAR script>">
+
+<input type="hidden" name="id"                 value="<TMPL_VAR id>">
+<input type="hidden" name="type"               value="account">
+<input type="hidden" name="orphaned"           value="<TMPL_VAR orphaned>">
+<input type="hidden" name="new_chart_valid"    value="<TMPL_VAR new_chart_valid>">
+<input type="hidden" name="inventory_accno_id" value="<TMPL_VAR inventory_accno_id>">
+<input type="hidden" name="income_accno_id"    value="<TMPL_VAR income_accno_id>">
+<input type="hidden" name="expense_accno_id"   value="<TMPL_VAR expense_accno_id>">
+<input type="hidden" name="fxgain_accno_id"    value="<TMPL_VAR fxgain_accno_id>">
+<input type="hidden" name="fxloss_accno_id"    value="<TMPL_VAR fxloss_accno_id>">
+
+<table border="0" width="100%">
+  <tr>
+    <th class="listtop"><TMPL_VAR title></th>
+  </tr>
+</table>
+
+<fieldset>
+  <legend>
+    <translate>Main Preferences</translate>
+  </legend>
+  <table>
+    <tr>
+      <td>
+        <label>
+          <translate>Account Number</translate>
+        </label></td>
+        <td><input name="accno" size="20" value="<TMPL_VAR accno>"></td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <translate>Description</translate>
+        </label>  
+      </td>
+      <td><input name="description" size="40" value="<TMPL_VAR 
+              description ESCAPE=HTML>"></td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <translate>Chart Type</translate>
+
+        </label>
+      </td>
+      <td><select name="charttype"><TMPL_VAR 
+              select_charttype></select></td>
+    </tr>
+  </table>    
+</fieldset>  
+<fieldset class="DEPENDS ON charttype BEING A">
+  <legend><translate>Account Type</translate></legend>
+  <select name="category" id="AccountType" class="DEPENDS ON charttype BEING A">
+          <TMPL_VAR select_category></select>
+</fieldset>
+
+<TMPL_IF ChartTypeIsAccount>
+<fieldset class="DEPENDS ON charttype BEING A">
+  <legend><translate>Is this a summary account to record</translate></legend>
+    <input name="AR" type="checkbox" class="checkbox" value="AR" <TMPL_VAR AR ESCAPE=HTML>>
+    &nbsp;<translate>AR</translate>
+    <input name="AP" type="checkbox" class="checkbox" value="AP" <TMPL_VAR AP ESCAPE=HTML>>
+    &nbsp;<translate>AP</translate>
+    <input name="IC" type="checkbox" class="checkbox" value="IC" <TMPL_VAR IC ESCAPE=HTML>>
+    &nbsp;<translate>Inventory</translate>
+</fieldset>
+
+<fieldset class="DEPENDS ON charttype BEING A">
+  <legend><translate>Include in drop-down menus</translate></legend>
+  <table width="100%">
+    <tr>
+      <th align="left"><translate>Receivables</translate></th>
+      <th align="left"><translate>Payables</translate></th>
+      <th align="left"><translate>Parts Inventory</translate></th>
+      <th align="left"><translate>Service Items</translate></th>
+    </tr>
+    <tr>
+      <td>
+        <input name="AR_amount" type="checkbox" class="checkbox" value="AR_amount"
+          <TMPL_VAR AR_amount ESCAPE=HTML>>&nbsp; 
+        <translate>Revenue</translate> <br>
+        <input name="AR_paid" type="checkbox" class="checkbox" value="AR_paid" 
+          <TMPL_VAR AR_paid ESCAPE=HTML>>&nbsp; 
+        <translate>Receipt</translate> <br>
+        <input name="AR_tax" type="checkbox" class="checkbox" value="AR_tax" 
+          <TMPL_VAR AR_tax ESCAPE=HTML>>&nbsp; 
+        <translate>Tax</translate>
+      </td>
+      <td>
+        <input name="AP_amount" type="checkbox" class="checkbox" value="AP_amount" 
+          <TMPL_VAR AP_amount ESCAPE=HTML>>&nbsp; 
+        <translate>Expense/Asset</translate> <br>
+        <input name="AP_paid" type="checkbox" class="checkbox" value="AP_paid" 
+          <TMPL_VAR AP_paid ESCAPE=HTML>>&nbsp; 
+        <translate>Payment</translate> <br>
+        <input name="AP_tax" type="checkbox" class="checkbox" value="AP_tax" 
+            <TMPL_VAR AP_tax ESCAPE=HTML>>&nbsp; 
+        <translate>Tax</translate>
+      </td>
+      <td>
+        <input name="IC_sale" type="checkbox" class="checkbox" value="IC_sale" 
+          <TMPL_VAR IC_sale ESCAPE=HTML>>&nbsp; 
+        <translate>Revenue</translate> <br>
+        <input name="IC_cogs" type="checkbox" class="checkbox" value="IC_cogs" 
+          <TMPL_VAR IC_cogs ESCAPE=HTML>>&nbsp; 
+        <translate>Expense</translate> <br>
+        <input name="IC_taxpart" type="checkbox" class="checkbox" value="IC_taxpart" 
+          <TMPL_VAR IC_taxpart ESCAPE=HTML>>&nbsp; 
+        <translate>Tax</translate>
+      </td>
+      <td>
+        <input name=IC_income type=checkbox class=checkbox value="IC_income"
+          <TMPL_VAR IC_income ESCAPE=HTML>>&nbsp; 
+        <translate>Revenue</translate> <br>
+        <input name=IC_expense type=checkbox class=checkbox value="IC_expense" 
+          <TMPL_VAR IC_expense ESCAPE=HTML>>&nbsp; 
+        <translate>Expense</translate> <br>
+        <input name=IC_taxservice type=checkbox class=checkbox value="IC_taxservice"
+          <TMPL_VAR IC_taxservice ESCAPE=HTML>>&nbsp; 
+        <translate>Tax</translate>
+      </td>
+    </tr>
+  </table>
+</fieldset>
+
+<fieldset class="DEPENDS ON charttype BEING A">
+  <legend>
+    <translate>Taxkeys and Taxreport Preferences</translate>
+  </legend>
+
+            <table>
+<TMPL_IF account_exists >
+              <tr>
+                <th align="left"><translate>Taxkey</translate></th>
+                <th align="left"><translate>valid from</translate></th>
+                <th align="left"><translate>pos_ustva</translate></th>
+                <th align="left"><translate>delete</translate> ? </th>
+              </tr>
+<TMPL_LOOP ACCOUNT_TAXKEYS >
+              <tr>
+    <TMPL_IF id>
+                <input type="hidden" name="taxkey_id_<TMPL_VAR runningnumber>" value="<TMPL_VAR id>">
+                <td><select name="taxkey_tax_<TMPL_VAR runningnumber>"><TMPL_VAR selecttaxkey></select></td>
+                <td><input name="taxkey_startdate_<TMPL_VAR runningnumber>" value="<TMPL_VAR startdate>"></td>
+                <td><select name="taxkey_pos_ustva_<TMPL_VAR runningnumber>"><TMPL_VAR select_tax></select></td>
+                <td><input name="taxkey_del_<TMPL_VAR runningnumber>" type="checkbox"
+                class="checkbox" value="delete"></td>
+    <TMPL_ELSE>
+                <input type="hidden" name="taxkey_id_<TMPL_VAR runningnumber>" value="NEW">
+                <td><select name="taxkey_tax_<TMPL_VAR runningnumber>"><TMPL_VAR selecttaxkey></select></td>
+                <td><input name="taxkey_startdate_<TMPL_VAR runningnumber>" value="<TMPL_VAR startdate>"></td>
+                <td><select name="taxkey_pos_ustva_<TMPL_VAR runningnumber>"><TMPL_VAR select_tax></select></td>
+                <td>&nbsp;</td>
+    </TMPL_IF>            
+              </tr>
+
+</TMPL_LOOP>
+<TMPL_ELSE>
+<tr>
+  <td align="center" colspan="4"><p><translate>Save account first to insert taxkeys</translate></p>
+  </td>
+</tr>
+</TMPL_IF>
+            </table>
+</fieldset>
+
+<fieldset class="DEPENDS ON charttype BEING A">
+  <legend><translate>Report and misc. Preferences</translate></legend>
+  <table>
+        <tr>
+          <th align="left"><translate>EUER</translate></th>
+          <td colspan="3"><select name="pos_eur"><TMPL_VAR select_eur></select></td>
+        </tr>
+        <tr>
+          <th align="left"><translate>BWA</translate></th>
+          <td colspan="3"><select name="pos_bwa"><TMPL_VAR select_bwa></select></td>
+        </tr>
+        <tr>
+          <th align="left"><translate>Bilanz</translate></th>
+          <td colspan="3"><select name="pos_bilanz"><TMPL_VAR select_bilanz></select></td>
+        </tr>
+        <tr>
+          <th align="left"><translate>Datevautomatik</translate></th>
+          <td colspan="3"><input name="datevautomatik" type="checkbox"
+          class="checkbox" value="T" <TMPL_IF
+          datevautomatik>checked="checked" </TMPL_IF>></td>
+        </tr>
+        <tr>
+          <th align="left"><translate>Folgekonto</translate></th>
+          <td><select name="new_chart_id"><TMPL_VAR selectnewaccount></select></td>
+          <th align="left"><translate>Gültig ab</translate></th>
+          <td><input name="valid_from" value="<TMPL_VAR valid_from>"></td>
+        </tr>        
+  </table>
+</TMPL_IF>
+</fieldset>
+<hr size="3" noshade>
+

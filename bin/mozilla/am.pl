@@ -35,6 +35,9 @@ use SL::AM;
 use SL::CA;
 use SL::Form;
 use SL::User;
+use SL::USTVA;
+use CGI::Ajax;
+use CGI;
 
 use Data::Dumper;
 
@@ -86,134 +89,108 @@ sub edit_account {
 sub account_header {
   $lxdebug->enter_sub();
 
+  if ( $form->{action} eq 'edit_account') {
+    $form->{account_exists} = '1';
+  } 
+  
   $form->{title} = $locale->text("$form->{title} Account");
 
-  $checked{ $form->{charttype} } = "checked";
-  $checked{"$form->{category}_"} = "checked";
-  $checked{CT_tax} = ($form->{CT_tax}) ? "" : "checked";
+  $form->{"$form->{charttype}_checked"} = "checked";
+  $form->{"$form->{category}_checked"}  = "checked";
 
-  $form->{description} =~ s/\"/&quot;/g;
+  $form->{select_tax} = "";
+
+  my @tax_report_pos = USTVA->report_variables({
+      myconfig   => \%myconfig, 
+      form       => $form, 
+      type       => '', 
+      attribute  => 'position',
+      calc       => '',
+  });
 
   if (@{ $form->{TAXKEY} }) {
     foreach my $item (@{ $form->{TAXKEY} }) {
-
       $item->{rate} = $item->{rate} * 100 . '%';
+    }
 
-      if ($item->{tax} == $form->{tax}) {
-        $form->{selecttaxkey} .=
-          "<option value=$item->{tax} selected>$item->{taxdescription} ($item->{rate})\n";
-      } else {
-        $form->{selecttaxkey} .=
-          "<option value=$item->{tax}>$item->{taxdescription} ($item->{rate})\n";
+    # Fill in empty row for new Taxkey
+    $newtaxkey_ref = {
+      id             => '',
+      chart_id       => '',
+      accno          => '',
+      tax_id         => '',
+      taxdescription => '',
+      rate           => '',
+      taxkey_id      => '',
+      pos_ustva      => '',
+      startdate      => '',
+    };
+
+    push @{ $form->{ACCOUNT_TAXKEYS} }, $newtaxkey_ref;
+
+    my $i = 0;
+    foreach my $taxkey_used (@{ $form->{ACCOUNT_TAXKEYS} } ) {
+
+      # Fill in a runningnumber
+      $form->{ACCOUNT_TAXKEYS}[$i]{runningnumber} = $i;
+
+      # Fill in the Taxkeys as select options
+      foreach my $item (@{ $form->{TAXKEY} }) {
+        if ($item->{id} == $taxkey_used->{tax_id}) {
+          $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
+            qq|<option value="$item->{id}" selected="selected">|
+            . sprintf("%.2d", $item->{taxkey}) 
+            . qq|. $item->{taxdescription} ($item->{rate}) |
+            . $locale->text('Tax-o-matic Account: ') 
+            . qq|$item->{chart_accno}\n|;
+        } 
+        else {
+          $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
+            qq|<option value="$item->{id}">|
+            . sprintf("%.2d", $item->{taxkey}) 
+            . qq|. $item->{taxdescription} ($item->{rate}) |
+            . $locale->text('Tax-o-matic Account: ')
+            . qq|$item->{chart_accno}\n|;
+        }
+
       }
+      
+      # Fill in the USTVA Numbers as select options
+      foreach my $item ( '', sort({ $a cmp $b } @tax_report_pos) ) {
+        if ($item eq ''){
+          $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="" selected="selected">-\n|;
+        } 
+        elsif ( $item == $taxkey_used->{pos_ustva} ) {
+          $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item" selected="selected">$item\n|;
+        }
+        else {
+          $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item">$item\n|;
+        }
 
+      }      
+
+      $i++;
     }
   }
 
-  $taxkey = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name=tax>$form->{selecttaxkey}</select></td>
-		<th align=right>| . $locale->text('Gültig ab') . qq|</th>
-                <td><input name=startdate value="$form->{startdate}"></td>
-	      </tr>|;
-
+  # Newaccount Folgekonto 
   if (@{ $form->{NEWACCOUNT} }) {
     if (!$form->{new_chart_valid}) {
-      $form->{selectnewaccount} = "<option value=></option>";
+      $form->{selectnewaccount} = qq|<option value=""> |. $locale->text('None') .q|</option>|;
     }
     foreach $item (@{ $form->{NEWACCOUNT} }) {
       if ($item->{id} == $form->{new_chart_id}) {
         $form->{selectnewaccount} .=
-          "<option value=$item->{id} selected>$item->{accno}--$item->{description}</option>";
+          qq|<option value="$item->{id}" selected>$item->{accno}--$item->{description}</option>|;
       } elsif (!$form->{new_chart_valid}) {
         $form->{selectnewaccount} .=
-          "<option value=$item->{id}>$item->{accno}--$item->{description}</option>";
+          qq|<option value="$item->{id}">$item->{accno}--$item->{description}</option>|;
       }
 
     }
   }
 
-  $newaccount = qq|
-	      <tr>
-                <td colspan=2>
-                  <table>
-                    <tr>
-		      <th align=right>| . $locale->text('Folgekonto') . qq|</th>
-		      <td><select name=new_chart_id>$form->{selectnewaccount}</select></td>
-                      <th align=right>| . $locale->text('Gültig ab') . qq|</th>
-		      <td><input name=valid_from value="$form->{valid_from}"></td>
-                    </tr>
-                  </table>
-                </td>
-	      </tr>|;
-
-  $form->{selectustva} = "<option>\n";
-
-  %ustva = (35  => $locale->text('UStVA-Nr. 35'),
-            36  => $locale->text('UStVA-Nr. 36'),
-            39  => $locale->text('UStVA-Nr. 39'),
-            41  => $locale->text('UStVA-Nr. 41'),
-            42  => $locale->text('UStVA-Nr. 42'),
-            43  => $locale->text('UStVA-Nr. 43'),
-            44  => $locale->text('UStVA-Nr. 44'),
-            45  => $locale->text('UStVA-Nr. 45'),
-            48  => $locale->text('UStVA-Nr. 48'),
-            49  => $locale->text('UStVA-Nr. 49'),
-            51  => $locale->text('UStVA-Nr. 51 left'),
-            511 => $locale->text('UStVA-Nr. 51 right'),
-            52  => $locale->text('UStVA-Nr. 52'),
-            53  => $locale->text('UStVA-Nr. 53'),
-            59  => $locale->text('UStVA-Nr. 59'),
-            60  => $locale->text('UStVA-Nr. 60'),
-            61  => $locale->text('UStVA-Nr. 61'),
-            62  => $locale->text('UStVA-Nr. 62'),
-            63  => $locale->text('UStVA-Nr. 63'),
-            64  => $locale->text('UStVA-Nr. 64'),
-            65  => $locale->text('UStVA-Nr. 65'),
-            66  => $locale->text('UStVA-Nr. 66'),
-            67  => $locale->text('UStVA-Nr. 67'),
-            69  => $locale->text('UStVA-Nr. 69'),
-            73  => $locale->text('UStVA-Nr. 73'),
-            74  => $locale->text('UStVA-Nr. 74'),
-            76  => $locale->text('UStVA-Nr. 76'),
-            77  => $locale->text('UStVA-Nr. 77'),
-            80  => $locale->text('UStVA-Nr. 80'),
-            81  => $locale->text('UStVA-Nr. 81 left'),
-            811 => $locale->text('UStVA-Nr. 81 right'),
-            84  => $locale->text('UStVA-Nr. 84'),
-            85  => $locale->text('UStVA-Nr. 85'),
-            86  => $locale->text('UStVA-Nr. 86 left'),
-            861 => $locale->text('UStVA-Nr. 86 right'),
-            89  => $locale->text('UStVA-Nr. 89 left'),
-            891 => $locale->text('UStVA-Nr. 89 right'),
-            91  => $locale->text('UStVA-Nr. 91'),
-            93  => $locale->text('UStVA-Nr. 93 left'),
-            931 => $locale->text('UStVA-Nr. 93 right'),
-            94  => $locale->text('UStVA-Nr. 94'),
-            95  => $locale->text('UStVA-Nr. 95'),
-            96  => $locale->text('UStVA-Nr. 96'),
-            97  => $locale->text('UStVA-Nr. 97 links'),
-            971 => $locale->text('UStVA-Nr. 97 rechts'),
-            98  => $locale->text('UStVA-Nr. 98'));
-
-  foreach $item (sort({ $a cmp $b } keys %ustva)) {
-    if ($item == $form->{pos_ustva}) {
-      $form->{selectustva} .= "<option value=$item selected>$ustva{$item}\n";
-    } else {
-      $form->{selectustva} .= "<option value=$item>$ustva{$item}\n";
-    }
-
-  }
-
-  $ustva = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Umsatzsteuervoranmeldung') . qq|</th>
-		<td><select name=pos_ustva>$form->{selectustva}</select></td>
-		<input type=hidden name=selectustva value="$form->{selectustva}">
-	      </tr>|;
-
-  $form->{selecteur} = "<option>\n";
+  $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
   %eur = (1  => "Umsatzerlöse",
           2  => "sonstige Erlöse",
           3  => "Privatanteile",
@@ -247,21 +224,14 @@ sub account_header {
           31 => "Betriebliche Steuern");
   foreach $item (sort({ $a <=> $b } keys(%eur))) {
     if ($item == $form->{pos_eur}) {
-      $form->{selecteur} .= "<option value=$item selected>$eur{$item}\n";
+      $select_eur .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $eur{$item}</option>\n|;
     } else {
-      $form->{selecteur} .= "<option value=$item>$eur{$item}\n";
+      $select_eur .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|. $eur{$item}</option>\n|;
     }
 
   }
 
-  $eur = qq|
-	      <tr>
-		<th align=right>| . $locale->text('EUER') . qq|</th>
-		<td><select name=pos_eur>$form->{selecteur}</select></td>
-		<input type=hidden name=selecteur value="$form->{selecteur}">
-	      </tr>|;
-
-  $form->{selectbwa} = "<option>\n";
+  $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
   %bwapos = (1  => 'Umsatzerlöse',
              2  => 'Best.Verdg.FE/UE',
@@ -287,193 +257,87 @@ sub account_header {
              35 => 'Steuern Eink.u.Ertr.');
   foreach $item (sort({ $a <=> $b } keys %bwapos)) {
     if ($item == $form->{pos_bwa}) {
-      $form->{selectbwa} .= "<option value=$item selected>$bwapos{$item}\n";
+      $select_bwa .= qq|<option value="$item" selected>|. sprintf("%.2d", $item) .qq|. $bwapos{$item}\n|;
     } else {
-      $form->{selectbwa} .= "<option value=$item>$bwapos{$item}\n";
+      $select_bwa .= qq|<option value="$item">|. sprintf("%.2d", $item) .qq|. $bwapos{$item}\n|;
     }
 
   }
 
-  $bwa = qq|
-	      <tr>
-		<th align=right>| . $locale->text('BWA') . qq|</th>
-		<td><select name=pos_bwa>$form->{selectbwa}</select></td>
-		<input type=hidden name=selectbwa value="$form->{selectbwa}">
-	      </tr>|;
+# Wieder hinzugefügt zu evaluationszwecken (us) 09.03.2007
+  $select_bilanz = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+  foreach $item ((1, 2, 3, 4)) {
+    if ($item == $form->{pos_bilanz}) {
+      $select_bilanz .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|.\n|;
+    } else {
+      $select_bilanz .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|.\n|;
+    }
 
-# Entfernt bis es ordentlich umgesetzt wird (hli) 30.03.2006
-#  $form->{selectbilanz} = "<option>\n";
-#  foreach $item ((1, 2, 3, 4)) {
-#    if ($item == $form->{pos_bilanz}) {
-#      $form->{selectbilanz} .= "<option value=$item selected>$item\n";
-#    } else {
-#      $form->{selectbilanz} .= "<option value=$item>$item\n";
-#    }
-#
-#  }
-#
-#  $bilanz = qq|
-#	      <tr>
-#		<th align=right>| . $locale->text('Bilanz') . qq|</th>
-#		<td><select name=pos_bilanz>$form->{selectbilanz}</select></td>
-#		<input type=hidden name=selectbilanz value="$form->{selectbilanz}">
-#	      </tr>|;
-
-  # this is for our parser only!
-  # type=submit $locale->text('Add Account')
-  # type=submit $locale->text('Edit Account')
-  $form->{type} = "account";
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=account>
-<input type=hidden name=orphaned value=$form->{orphaned}>
-<input type=hidden name=new_chart_valid value=$form->{new_chart_valid}>
-
-<input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>
-<input type=hidden name=income_accno_id value=$form->{income_accno_id}>
-<input type=hidden name=expense_accno_id value=$form->{expense_accno_id}>
-<input type=hidden name=fxgain_accno_id value=$form->{fxgain_accno_id}>
-<input type=hidden name=fxloss_accno_id value=$form->{fxloss_accno_id}>
-
-<table border=0 width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr valign=top>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('Account Number') . qq|</th>
-	  <td><input name=accno size=20 value=$form->{accno}></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td><input name=description size=40 value="$form->{description}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Account Type') . qq|</th>
-	  <td>
-	    <table>
-	      <tr valign=top>
-		<td><input name=category type=radio class=radio value=A $checked{A_}>&nbsp;|
-    . $locale->text('Asset') . qq|\n<br>
-		<input name=category type=radio class=radio value=L $checked{L_}>&nbsp;|
-    . $locale->text('Liability') . qq|\n<br>
-		<input name=category type=radio class=radio value=Q $checked{Q_}>&nbsp;|
-    . $locale->text('Equity') . qq|\n<br>
-		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
-    . $locale->text('Revenue') . qq|\n<br>
-		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
-    . $locale->text('Expense') . qq|<br>
-		<input name=category type=radio class=radio value=C $checked{C_}>&nbsp;|
-    . $locale->text('Costs') . qq|</td>
-		<td width=50>&nbsp;</td>
-		<td>
-		<input name=charttype type=radio class=radio value="H" $checked{H}>&nbsp;|
-    . $locale->text('Heading') . qq|<br>
-		<input name=charttype type=radio class=radio value="A" $checked{A}>&nbsp;|
-    . $locale->text('Account') . qq|</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-|;
-
-  if ($form->{charttype} eq "A") {
-    print qq|
-	<tr>
-	  <td colspan=2>
-	    <table>
-	      <tr>
-		<th align=left>|
-      . $locale->text('Is this a summary account to record') . qq|</th>
-		<td>
-		<input name=AR type=checkbox class=checkbox value=AR $form->{AR}>&nbsp;|
-      . $locale->text('AR')
-      . qq|&nbsp;<input name=AP type=checkbox class=checkbox value=AP $form->{AP}>&nbsp;|
-      . $locale->text('AP')
-      . qq|&nbsp;<input name=IC type=checkbox class=checkbox value=IC $form->{IC}>&nbsp;|
-      . $locale->text('Inventory')
-      . qq|</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-	<tr>
-	  <th colspan=2>| . $locale->text('Include in drop-down menus') . qq|</th>
-	</tr>
-	<tr valign=top>
-	  <td colspan=2>
-	    <table width=100%>
-	      <tr>
-		<th align=left>| . $locale->text('Receivables') . qq|</th>
-		<th align=left>| . $locale->text('Payables') . qq|</th>
-		<th align=left>| . $locale->text('Parts Inventory') . qq|</th>
-		<th align=left>| . $locale->text('Service Items') . qq|</th>
-	      </tr>
-	      <tr>
-		<td>
-		<input name=AR_amount type=checkbox class=checkbox value=AR_amount $form->{AR_amount}>&nbsp;|
-      . $locale->text('Revenue') . qq|\n<br>
-		<input name=AR_paid type=checkbox class=checkbox value=AR_paid $form->{AR_paid}>&nbsp;|
-      . $locale->text('Receipt') . qq|\n<br>
-		<input name=AR_tax type=checkbox class=checkbox value=AR_tax $form->{AR_tax}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-		<td>
-		<input name=AP_amount type=checkbox class=checkbox value=AP_amount $form->{AP_amount}>&nbsp;|
-      . $locale->text('Expense/Asset') . qq|\n<br>
-		<input name=AP_paid type=checkbox class=checkbox value=AP_paid $form->{AP_paid}>&nbsp;|
-      . $locale->text('Payment') . qq|\n<br>
-		<input name=AP_tax type=checkbox class=checkbox value=AP_tax $form->{AP_tax}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-		<td>
-		<input name=IC_sale type=checkbox class=checkbox value=IC_sale $form->{IC_sale}>&nbsp;|
-      . $locale->text('Revenue') . qq|\n<br>
-		<input name=IC_cogs type=checkbox class=checkbox value=IC_cogs $form->{IC_cogs}>&nbsp;|
-      . $locale->text('Expense') . qq|\n<br>
-		<input name=IC_taxpart type=checkbox class=checkbox value=IC_taxpart $form->{IC_taxpart}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-		<td>
-		<input name=IC_income type=checkbox class=checkbox value=IC_income $form->{IC_income}>&nbsp;|
-      . $locale->text('Revenue') . qq|\n<br>
-		<input name=IC_expense type=checkbox class=checkbox value=IC_expense $form->{IC_expense}>&nbsp;|
-      . $locale->text('Expense') . qq|\n<br>
-		<input name=IC_taxservice type=checkbox class=checkbox value=IC_taxservice $form->{IC_taxservice}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-|;
   }
 
-  print qq|
-        $taxkey
-        $ustva
-        $eur
-	$bwa
-        $bilanz
-      </table>
-    </td>
-  </tr>
-  $newaccount
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
+  # this is for our parser only! Do not remove.
+  # type=submit $locale->text('Add Account')
+  # type=submit $locale->text('Edit Account')
+  
+  $form->{type} = "account";
+
+  # preselections category
+ 
+  $select_category = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+
+  %category = (
+      'A'  => $locale->text('Asset'),
+      'L'  => $locale->text('Liability'),
+      'Q'  => $locale->text('Equity'),
+      'I'  => $locale->text('Revenue'),      
+      'E'  => $locale->text('Expense'),
+      'C'  => $locale->text('Costs'),
+  );
+  foreach $item ( sort({ $a <=> $b } keys %category) ) {
+    if ($item eq $form->{category}) {
+      $select_category .= qq|<option value="$item" selected="selected">$category{$item} (|. sprintf("%s", $item) .qq|)\n|;
+    } else {
+      $select_category .= qq|<option value="$item">$category{$item} (|. sprintf("%s", $item) .qq|)\n|;
+    }
+
+  }
+  
+  # preselection chart type
+  my $select_charttype = q{};
+
+  my %charttype = (
+      'A'  => $locale->text('Account'),
+      'H'  => $locale->text('Header'),
+  );
+  
+  foreach $item ( sort({ $a <=> $b } keys %charttype) ) {
+    if ($item eq $form->{charttype}) {
+      $select_charttype .= qq|<option value="$item" selected="selected">$charttype{$item}\n|;
+
+    } else {
+      $select_charttype .= qq|<option value="$item">$charttype{$item}\n|;
+    }
+
+  }
+
+  my $ChartTypeIsAccount = ($form->{charttype} eq "A") ? "1":"";
+  
+  $form->header();
+  
+  my $parameters_ref = {
+    ChartTypeIsAccount         => $ChartTypeIsAccount,
+    select_category            => $select_category,
+    select_charttype           => $select_charttype,
+    newaccount                 => $newaccount,
+    checked                    => $checked,
+    select_bwa                 => $select_bwa,
+    select_bilanz              => $select_bilanz,
+    select_eur                 => $select_eur,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/edit_accounts', $parameters_ref));
+
 
   $lxdebug->leave_sub();
 }
@@ -514,8 +378,12 @@ sub form_footer {
 sub save_account {
   $lxdebug->enter_sub();
 
-  $form->isblank("accno",    $locale->text('Account Number missing!'));
-  $form->isblank("category", $locale->text('Account Type missing!'));
+  $form->isblank("accno",       $locale->text('Account Number missing!'));
+  $form->isblank("description", $locale->text('Account Description missing!'));
+  
+  if ($form->{charttype} eq 'A'){
+    $form->isblank("category",  $locale->text('Account Type missing!'));
+  }
 
   $form->redirect($locale->text('Account saved!'))
     if (AM->save_account(\%myconfig, \%$form));
@@ -535,6 +403,76 @@ sub list_account {
   $callback =
     "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
 
+
+
+  # escape callback
+  $callback = $form->escape($callback);
+
+  foreach $ca (@{ $form->{CA} }) {
+
+    $ca->{debit}  = "&nbsp;";
+    $ca->{credit} = "&nbsp;";
+
+    if ($ca->{amount} > 0) {
+      $ca->{credit} =
+        $form->format_amount(\%myconfig, $ca->{amount}, 2, "&nbsp;");
+    }
+    if ($ca->{amount} < 0) {
+      $ca->{debit} =
+        $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2, "&nbsp;");
+    }
+    $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:''; 
+    $ca->{link_edit_account} = 
+        qq|$form->{script}?action=edit_account&id=$ca->{id}|
+       .qq|&path=$form->{path}&login=$form->{login}|
+       .qq|&password=$form->{password}&callback=$callback|;
+  }
+  
+  # Ajax 
+  my $list_account_details_url = 
+              "$form->{script}?login=$form->{login}&path=$form->{path}"
+             ."&password=$form->{password}&action=list_account_details&";
+  
+  
+  my $pjx = new CGI::Ajax( 
+             'list_account_details' => $list_account_details_url 
+  );
+
+  # Eneable AJAX debuging
+  #$pjx->DEBUG(1);
+  #$pjx->JSDEBUG(1);
+    
+  push(@ { $form->{AJAX} }, $pjx);
+  
+  $form->header;
+  
+  
+  my $parameters_ref = {
+  #   hidden_variables                => $_hidden_variables_ref,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/list_accounts', $parameters_ref));
+  
+  $lxdebug->leave_sub();
+
+}
+
+
+sub list_account_details {
+# Ajax Funktion aus list_account_details  
+  $lxdebug->enter_sub();
+
+  my $chart_id = $form->{args};
+  
+  CA->all_accounts(\%myconfig, \%$form, $chart_id);
+
+  $form->{title} = $locale->text('Chart of Accounts');
+
+  # construct callback
+  $callback =
+    "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+
   $form->header;
 
   # escape callback
@@ -551,7 +489,7 @@ sub list_account {
     }
     if ($ca->{amount} < 0) {
       $ca->{debit} =
-        $form->format_amount(\%myconfig, -$ca->{amount}, 2, "&nbsp;");
+        $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2, "&nbsp;");
     }
 
     my @links = split( q{:}, $ca->{link});
@@ -574,10 +512,10 @@ sub list_account {
                : ( $link eq 'IC_income' )     ? $locale->text('Account Link IC_income')
                : ( $link eq 'IC_expense' )    ? $locale->text('Account Link IC_expense')
                : ( $link eq 'IC_taxservice' ) ? $locale->text('Account Link IC_taxservice')
-               : ( $link eq 'CT_tax' )        ? $locale->text('Account Link CT_tax')
+#               : ( $link eq 'CT_tax' )        ? $locale->text('Account Link CT_tax')
                : $locale->text('Unknown Link') . ': ' . $link;
       
-      $ca->{link} .= qq|[| . $link . qq|]&nbsp;|;
+      $ca->{link} .= ($link ne '') ?  "[$link] ":'';
     }
     
     $ca->{startdate}      =~ s/,/<br>/og;
@@ -585,7 +523,7 @@ sub list_account {
     $ca->{taxkey}         =~ s/,/<br>/og;
     $ca->{taxaccount}     =~ s/,/<br>/og;
     $ca->{taxdescription} =~ s/,/<br>/og;
-    $ca->{datevautomatik} = ($ca->{datevautomatik}) ? $locale->text('On'):q{};
+    $ca->{datevautomatik} = ($ca->{datevautomatik}) ? $locale->text('On'):$locale->text('Off');
 
     $ca->{category} = ($ca->{category} eq 'A') ? $locale->text('Account Category A')
                     : ($ca->{category} eq 'E') ? $locale->text('Account Category E')
@@ -601,7 +539,10 @@ sub list_account {
        .qq|&login=$form->{login}|
        .qq|&password=$form->{password}&callback=$callback|;
   }
-  
+
+
+
+
   my $parameters_ref = {
   
   
@@ -609,10 +550,13 @@ sub list_account {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template('am/list_accounts', $parameters_ref));
+  #my $q = CGI->new();
+  my $result = $form->parse_html_template('am/list_account_details', $parameters_ref);
   
+  print $result;
+#  print "chart_id:$chart_id, form->chartid:$form->{chart_id}, rest=$rest";
+      
   $lxdebug->leave_sub();
-  
 
 }
 

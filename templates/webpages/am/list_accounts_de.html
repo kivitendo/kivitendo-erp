@@ -1,115 +1,200 @@
-  <body>
 
-    <table border="0" cellpadding="3" cellspacing="3" width="100%">
-      <tr>
-        <th class="listtop" colspan="14"><TMPL_VAR title ESCAPE=HTML></th>
-      </tr>
-      <tr height="5"></tr>
-      <tr class="listheading">
-        <th colspan="2"><b>Kontonummer</b></th>
-        <th align=right><b>Konto-ID</b></th>
-        <th colspan="7"><b>Beschreibung</b></a></th>
-        <th rowspan="3">Haben</th>
-        <th rowspan="3">Soll</th>
-      </tr>  
-      <tr class="listheading">
-        <th colspan="3"><b>Kontenart</b></th>
-        
-        <th colspan="7">Verknüpfungen</th>
-      </tr>
-      <tr class="listheading">
-        <th>Steuerschlüssel</th>
-        <th>Steuer Konto</th>
-        <th>Steuerkonto<br />Beschreibung</th>
-        <th>Gültig ab</th>
-        <th>tk_ustva</th>
-        <th>UStVA</th>
-        <th>BWA</th>
-        <th>Bilanz</th>
-        <th>E/ÜR</th>
-        <th>Datev</th>
-      </tr>
+  <style type="text/css">
+  
+  /* Kontenliste Styles */
+
+  .coa_listtop { 
+	background-color:rgb(236,233,216); 
+	text-align:left;
+	padding:5px;
+	font-size:12pt; 
+	color:black; 
+	font-weight: bolder;
+	border-style:dashed;
+	border-width:thin;
+  }
+
+  .coa_listheading { 
+	background-color:rgb(236,233,216); 
+	color: black; 
+	background-image:url("../image/fade.png");
+  }
+  
+  .coa_listheading_element { 
+	font-size:10pt; 
+	padding:3px;
+	font-weight:bolder;
+	text-align:left;
+	border-style:dotted;
+	border-width:thin;
+  }
+  
+  .coa_listrow1 { 
+	background-color: rgb(208,207,201); 
+	color: black; 
+	vertical-align: top; 
+  }
+
+  .coa_listrow0 { 
+        background-color: rgb(236,233,216); 
+        color: black; 
+        vertical-align: top; 
+  }
+
+  .coa_amount {
+        text-align:right;
+        font-familiy:monospace;
+  }
+
+  .coa_account_header {
+        font-size:10pt; 
+	padding:3px;
+	font-weight:bolder;
+	text-align:left;
+	border-style:none;
+	border-width:thin;
+  
+  }
+
+  .coa_account_header_sc {
+        font-size:10pt; 
+	padding:3px;
+	font-weight:bolder;
+	text-align:left;
+	border-style:none;
+	border-width:thin;
+        cursor:s-resize;
+  }
+  
+  .coa_detail {
+	padding:0px;
+	border-style:none;
+  }
+  
+  .coa_detail_emph {
+        font-size:10pt;
+        font-weight:bold;
+        color:darkred;
+  }
+                    
+  .coa_details_header {
+        font-size:8pt; 
+	padding:3px;
+	font-weight:bolder;
+	text-align:center;
+	border-style:none;
+	border-width:thin;
+  }
+
+  .coa_details_header2 {
+        font-size:8pt; 
+	padding:3px;
+	font-weight:normal;
+	text-align:left;
+	border-style:none;
+	border-width:thin;
+  }
+  
+  </style>
+
+</head>
+
+<body>
+
+<br/><div id='pjxdebugrequest'></div><br/>
+
+
+<table width=100%>
+  <tr class="coa_listtop">
+      <th class="coa_listtop"><TMPL_VAR title ESCAPE=HTML></th>
+  </tr>
+</table>
+
+<br />
+
+<table width="100%">
+
+  <colgroup>
+      <col width="10%">
+      <col width="10%">
+      <col width="10%">
+      <col width="50%">
+      <col width="10%">
+      <col width="10%">
+  </colgroup>
+  
+  <tr class="coa_listheading">
+    
+    <td class="coa_listheading_element">
+        Konto
+    </td>
+    <td colspan="3" class="coa_listheading_element">
+        Beschreibung (Klick
+  öffnet einzelne Kontendetails)
+    </td>
+    <td class="coa_listheading_element">
+        Soll
+    </td>
+    <td class="coa_listheading_element">
+        Haben
+    </td>
+  </tr>
 
 <TMPL_LOOP CA>
 
   <TMPL_IF heading>
-
-      <tr class="listheading">
-        <td colspan="2">
-          <a href=<TMPL_VAR link_edit_account> >
+        <tr>
+          <td class="accountlistheading">
+            <a href="<TMPL_VAR link_edit_account>" >
             <TMPL_VAR accno>
-          </a>
-        </td>
-        <td align=right>
-          <TMPL_VAR id>
-        </td>
-        <td colspan="7">
-          <a href="<TMPL_VAR description>" >
-            <TMPL_VAR accno>
-          </a>
-        </td>
-      </tr>
-        
+            </a>
+          </td>
+          <td colspan="5" class="accountlistheading">
+            <TMPL_VAR description>
+          </td>
+        </tr>
   <TMPL_ELSE>
 
+    <TMPL_IF __odd__>
+        <tr class="coa_listrow1">
+    <TMPL_ELSE>
+        <tr class="coa_listrow0">
+    </TMPL_IF>
+    
+
+    <td class="coa_account_header">
+        <b><a href="<TMPL_VAR link_edit_account>" ><TMPL_VAR accno></a></b>
+
+    </td>
+    <input type="hidden" name="chart_id" value="<TMPL_VAR id ESCAPE=HTML>"
+    id="chart_id_<TMPL_VAR id ESCAPE=HTML>" >
+    <td colspan="3" id="accountcontent<TMPL_VAR id
+      ESCAPE=HTML>-title" class="coa_account_header_sc"
+      onclick="list_account_details( ['chart_id_<TMPL_VAR id ESCAPE=HTML>'],
+      ['ajaxcontent<TMPL_VAR id ESCAPE=HTML>'] )">
+    <TMPL_VAR description ESCAPE=HTML>&nbsp;
+    </td>
+    <td class="coa_account_header">
+            <div class="coa_amount"><TMPL_VAR debit></div>
+    </td>
+    <td class="coa_account_header">
+            <div class="coa_amount"><TMPL_VAR credit>&nbsp;</div>
+    </td>
+  </tr>
+  <tr class="coa_detail">
+    <td colspan="6" width="100%"> 
+        <div id="ajaxcontent<TMPL_VAR id ESCAPE=HTML>">
+      </div>
+    </td>
+  </tr>
   
-    <TMPL_IF __odd__>
-        <tr valign="top" class="listrow1">
-    <TMPL_ELSE>
-        
-        <tr valign="top" class="listrow0">
-    </TMPL_IF>
-
-          <td colspan="2"><b>
-            <a href="<TMPL_VAR link_edit_account>" ><TMPL_VAR accno></a>
-          </td>
-          <td align=right><b><TMPL_VAR id ESCAPE=HTML>&nbsp;</b></td>
-          <td colspan="7"><b><TMPL_VAR description ESCAPE=HTML>&nbsp;</b></td>
-          <td rowspan="3" align=right><TMPL_VAR debit>&nbsp;</td>
-          <td rowspan="3" align=right><TMPL_VAR credit>&nbsp;</td>
-  
-        </tr> 
-                                 
-    <TMPL_IF __odd__>
-        <tr valign="top" class="listrow1">
-    <TMPL_ELSE>
-        <tr valign="top" class="listrow0">
-    </TMPL_IF>
-
-          <td colspan="3"><b><TMPL_VAR category ESCAPE=HTML>&nbsp;</b></td>
-          <td colspan="7"><TMPL_VAR link>&nbsp;</td>
-        </tr>                                
-
-    <TMPL_IF __odd__>
-        <tr class="listrow1">
-    <TMPL_ELSE>
-        <tr class="listrow0">
-    </TMPL_IF>
-
-          <td valign="top"><TMPL_VAR taxkey                     >&nbsp;</td>
-          <td valign="top"><TMPL_VAR taxaccount                 >&nbsp;</td>
-          <td valign="top"><TMPL_VAR taxdescription             >&nbsp;</td>
-          <td valign="top"><TMPL_VAR startdate                  >&nbsp;</td>
-          <td valign="top"><TMPL_VAR tk_ustva                   >&nbsp;</td>
-
-          <td valign="center"><TMPL_VAR pos_ustva       ESCAPE=HTML>&nbsp;</td>
-          <td valign="center"><TMPL_VAR pos_bwa         ESCAPE=HTML>&nbsp;</td>
-          <td valign="center"><TMPL_VAR pos_bilanz      ESCAPE=HTML>&nbsp;</td>
-          <td valign="center"><TMPL_VAR pos_eur         ESCAPE=HTML>&nbsp;</td>
-          <td valign="center"><TMPL_VAR datevautomatik  ESCAPE=HTML>&nbsp;</td>
-        </tr>
-        <tr>
-          <td colspan="14">&nbsp;</td>
-        </tr>
   </TMPL_IF>
-
-
+  
 </TMPL_LOOP>
 
-      <tr>
-        <td colspan="14"><hr size="3" noshade="noshade"></td>
-      </tr>
-    </table>
-      
-  </body>
-  </html>
+</table>
+
+</body>
+</html>
+
+

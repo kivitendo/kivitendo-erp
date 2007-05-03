@@ -41,7 +41,7 @@ use SL::DBUtils;
 sub all_accounts {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, $chart_id) = @_;
 
   my %amount;
 
@@ -61,26 +61,45 @@ sub all_accounts {
   }
   $sth->finish;
 
-  $query =
-    qq!SELECT  c.accno, c.id, c.description, c.charttype, c.category, ! .
-    qq!  c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from, ! .
-    qq!  c.datevautomatik, comma(tk.startdate) AS startdate, ! .
-    qq!  comma(tk.taxkey_id) AS taxkey, ! .
-    qq!  comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') ! .
-    qq!    AS taxdescription, ! .
-    qq!  comma(tx.taxnumber) AS taxaccount, comma(tk.pos_ustva) ! .
-    qq!    AS tk_ustva, ! .
-    qq!  ( SELECT accno FROM chart c2 WHERE c2.id = c.id ) AS new_account ! .
-    qq!FROM chart c ! .
-    qq!LEFT JOIN taxkeys tk ON (c.id = tk.chart_id) ! .
-    qq!LEFT JOIN tax tx ON (tk.tax_id = tx.id) ! .
-    qq!GROUP BY c.accno, c.id, c.description, c.charttype, ! .
-    qq!  c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, ! .
-    qq!  c.valid_from, c.datevautomatik ! .
-    qq!ORDER BY c.accno!;
+  my $where = "AND c.id = $chart_id" if ($chart_id ne '');
+
+  $query = qq{
+    SELECT 
+      c.accno,
+      c.id,
+      c.description,
+      c.charttype,
+      c.category,
+      c.link,
+      c.pos_bwa,
+      c.pos_bilanz,
+      c.pos_eur,
+      c.valid_from,
+      c.datevautomatik,
+      comma(tk.startdate) AS startdate,
+      comma(tk.taxkey_id) AS taxkey,
+      comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescription,
+      comma(tx.taxnumber) AS taxaccount,
+      comma(tk.pos_ustva) AS tk_ustva,
+      ( SELECT accno
+      FROM chart c2
+      WHERE c2.id = c.id
+      ) AS new_account
+    FROM chart c
+    LEFT JOIN taxkeys tk ON (c.id = tk.chart_id)
+    LEFT JOIN tax tx ON (tk.tax_id = tx.id)
+    WHERE 1=1
+    $where
+    GROUP BY c.accno, c.id, c.description, c.charttype, c.gifi_accno,
+      c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,      
+      c.datevautomatik
+    ORDER BY c.accno
+  };
+
   my $sth = prepare_execute_query($form, $dbh, $query);
 
   $form->{CA} = [];
+
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
     $ca->{amount} = $amount{ $ca->{accno} };
     if ($ca->{amount} < 0) {

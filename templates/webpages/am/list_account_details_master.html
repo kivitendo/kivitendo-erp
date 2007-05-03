@@ -1,0 +1,133 @@
+ <TMPL_LOOP CA> 
+        <table width="100%">
+
+          <colgroup>
+            <col width="10%">
+            <col width="10%">
+            <col width="10%">
+            <col width="50%">
+            <col width="10%">
+            <col width="10%">
+          </colgroup>
+
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+
+              <td rowspan="8" class="coa_detail_emph"><TMPL_VAR id ESCAPE=HTML DEFAULT="-"></td>
+              <td colspan="5" class="coa_detail_emph"><TMPL_VAR category ESCAPE=HTML>&nbsp;</td>
+
+            </tr>                                
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              <td colspan="5" class="coa_detail_emph">
+                <TMPL_IF link>
+                <TMPL_VAR name="link" ESCAPE="HTML" DEFAULT="-">
+                <TMPL_ELSE>
+                -
+                </TMPL_IF>
+                </td>
+
+
+           </tr>                                
+
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              <td colspan="5" class="coa_details_header"><translate>Taxlink_coa</translate></td>
+           </tr>
+
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              <td class="coa_details_header2"><translate>Taxkey_coa</translate></td>
+              <td class="coa_details_header2"><translate>Taxaccount_coa</translate></td>
+              <td class="coa_details_header2"><translate>Taxdescription_coa</translate></td>
+              <td class="coa_details_header2"><translate>Posustva_coa</translate></td>
+              <td class="coa_details_header2"><translate>Startdate_coa</translate></td>
+            </tr>
+
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              
+              <td class="coa_detail_emph">
+                <TMPL_IF taxkey>
+                <TMPL_VAR taxkey         DEFAULT="-" >
+                <TMPL_ELSE>
+                -
+                </TMPL_IF>
+              </td>
+              <td class="coa_detail_emph">
+                <TMPL_IF taxaccount> 
+                <TMPL_VAR taxaccount     DEFAULT="-" >
+                <TMPL_ELSE>
+                -
+                </TMPL_IF>
+              </td>
+              <td class="coa_detail_emph">
+                <TMPL_IF taxdescription> 
+                <TMPL_VAR taxdescription DEFAULT="-" >
+                <TMPL_ELSE>
+                -
+                </TMPL_IF>
+              </td>
+              <td class="coa_detail_emph">
+                <TMPL_IF tk_ustva> 
+                <TMPL_VAR tk_ustva       DEFAULT="-" >
+                <TMPL_ELSE>
+                -
+                </TMPL_IF>
+              </td>
+              <td class="coa_detail_emph">
+                <TMPL_IF startdate> 
+                <TMPL_VAR startdate      DEFAULT="-" >
+                <TMPL_ELSE>
+                -
+                </TMPL_IF>
+              </td>
+           </tr>
+
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              <td colspan="5" class="coa_details_header"><translate>Report Positions</translate></td>
+           </tr>
+
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              <td class="coa_details_header2"><translate>pos_bwa</translate></td>
+              <td class="coa_details_header2"><translate>pos_bilanz</translate></td>
+              <td class="coa_details_header2"><translate>pos_eur</translate></td>
+              <td colspan="2" class="coa_details_header2"><translate>Datevautomatik</translate></td>
+           </tr>
+            
+           <TMPL_IF __odd__>
+           <tr class="coa_listrow1">
+           <TMPL_ELSE>
+           <tr class="coa_listrow0">
+           </TMPL_IF>
+              <td class="coa_detail_emph"><TMPL_VAR pos_bwa    ESCAPE=HTML DEFAULT="-"></td>
+              <td class="coa_detail_emph"><TMPL_VAR pos_bilanz ESCAPE=HTML DEFAULT="-"></td>
+              <td class="coa_detail_emph"><TMPL_VAR pos_eur    ESCAPE=HTML DEFAULT="-"></td>
+              <td colspan="2" class="coa_detail_emph"><TMPL_VAR datevautomatik  ESCAPE=HTML DEFAULT="-"></td>
+           </tr>
+        </table>
+
+</TMPL_LOOP CA>

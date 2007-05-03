@@ -123,8 +123,16 @@ body.menu {
 	border-style:dotted;
 	border-width:thin;
 }
-	
-	
+
+.accountlistheading { 
+	font-size: 10pt; 
+	padding:3px;
+	color: white; 
+	font-weight: bold;
+	text-align:left;
+	background-color:rgb(133,132,129);
+}
+
 .subsubheading {
   color: black;
   font-weight: bolder;
@@ -181,6 +189,11 @@ h2.error {
   font-size: 14pt;
 }
 
+fieldset {
+  margin-top:15px;
+  color: black;
+  font-weight: bolder;
+}
 
 /* media stuff */
 
