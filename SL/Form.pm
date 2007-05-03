@@ -404,7 +404,7 @@ sub header {
     foreach $item (@ { $self->{AJAX} }) {
       $ajax .= $item->show_javascript();
     }
-    print qq|Content-Type: text/html
+    print qq|Content-Type: text/html; charset=$self->{charset};
 
 <html>
 <head>
@@ -774,7 +774,7 @@ sub parse_template {
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
   my $fileid = time;
-  $self->{tmpfile} = "$userspath/${fileid}.$self->{IN}" if ( $self->{tmpfile} eq '' );
+  $self->{tmpfile} ||= "$userspath/${fileid}.$self->{IN}";
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
     $self->{OUT} = ">$self->{tmpfile}";
@@ -861,7 +861,8 @@ sub parse_template {
           open(OUT, $self->{OUT})
             or $self->error($self->cleanup . "$self->{OUT} : $!");
         } else {
-          $self->{attachment_filename} = $self->{tmpfile} if ($self->{attachment_filename} eq '');
+          $self->{attachment_filename} = $self->generate_attachment_filename();
+
           # launch application
           print qq|Content-Type: | . $template->get_mime_type() . qq|
 Content-Disposition: attachment; filename="$self->{attachment_filename}"
@@ -891,6 +892,48 @@ Content-Length: $numbytes
 
   chdir("$self->{cwd}");
   $main::lxdebug->leave_sub();
+}
+
+sub generate_attachment_filename {
+  my ($self) = @_;
+
+  my %formname_translations = (
+     bin_list            => $main::locale->text('Bin List'),
+     credit_note         => $main::locale->text('Credit Note'),
+     invoice             => $main::locale->text('Invoice'),
+     packing_list        => $main::locale->text('Packing List'),
+     pick_list           => $main::locale->text('Pick List'),
+     proforma            => $main::locale->text('Proforma Invoice'),
+     purchase_order      => $main::locale->text('Purchase Order'),
+     request_quotation   => $main::locale->text('RFQ'),
+     sales_order         => $main::locale->text('Confirmation'),
+     sales_quotation     => $main::locale->text('Quotation'),
+     storno_invoice      => $main::locale->text('Storno Invoice'),
+     storno_packing_list => $main::locale->text('Storno Packing List'),
+  );
+
+  my $attachment_filename = $formname_translations{$self->{"formname"}};
+  my $prefix = 
+      (grep { $self->{"type"} eq $_ } qw(invoice credit_note)) ? "inv"
+    : ($self->{"type"} =~ /_quotation$/)                       ? "quo"
+    :                                                            "ord";
+
+  if ($attachment_filename && $self->{"${prefix}number"}) {
+    $attachment_filename .= "_" . $self->{"${prefix}number"}
+                            . (  $self->{format} =~ /pdf/i          ? ".pdf"
+                               : $self->{format} =~ /postscript/i   ? ".ps"
+                               : $self->{format} =~ /opendocument/i ? ".odt"
+                               : $self->{format} =~ /html/i         ? ".html"
+                               :                                      "");
+    $attachment_filename =~ s/ /_/g;
+    my %umlaute = ( "ä" => "ae", "ö" => "oe", "ü" => "ue", 
+                    "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue", "ß" => "ss");
+    map { $attachment_filename =~ s/$_/$umlaute{$_}/g } keys %umlaute;
+  } else {
+    $attachment_filename = "";
+  }
+
+  return $attachment_filename;
 }
 
 sub cleanup {

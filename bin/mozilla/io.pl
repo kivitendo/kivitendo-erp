@@ -1270,45 +1270,7 @@ sub edit_e_mail {
   $form->{oldmedia} = $form->{media};
   $form->{media}    = "email";
 
-  my %formname_translations = (
-     "bin_list" => $locale->text('Bin List'),
-     "credit_note" => $locale->text('Credit Note'),
-     "invoice" => $locale->text('Invoice'),
-     "packing_list" => $locale->text('Packing List'),
-     "pick_list" => $locale->text('Pick List'),
-     "proforma" => $locale->text('Proforma Invoice'),
-     "purchase_order" => $locale->text('Purchase Order'),
-     "request_quotation" => $locale->text('RFQ'),
-     "sales_order" => $locale->text('Confirmation'),
-     "sales_quotation" => $locale->text('Quotation'),
-     "storno_invoice" => $locale->text('Storno Invoice'),
-     "storno_packing_list" => $locale->text('Storno Packing List'),
-  );
-
-  my $attachment_filename = $formname_translations{$form->{"formname"}};
-  my $prefix;
-
-  if (grep({ $form->{"type"} eq $_ } qw(invoice credit_note))) {
-    $prefix = "inv";
-  } elsif ($form->{"type"} =~ /_quotation$/) {
-    $prefix = "quo";
-  } else {
-    $prefix = "ord";
-  }
-
-  if ($attachment_filename && $form->{"${prefix}number"}) {
-    $attachment_filename .= "_" . $form->{"${prefix}number"} .
-      ($form->{"format"} =~ /pdf/i ? ".pdf" :
-       $form->{"format"} =~ /postscript/i ? ".ps" :
-       $form->{"format"} =~ /opendocument/i ? ".odt" :
-       $form->{"format"} =~ /html/i ? ".html" : "");
-    $attachment_filename =~ s/ /_/g;
-    my %umlaute = ( "ä" => "ae", "ö" => "oe", "ü" => "ue", 
-                    "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue", "ß" => "ss");
-    map { $attachment_filename =~ s/$_/$umlaute{$_}/g } keys %umlaute;
-  } else {
-    $attachment_filename = "";
-  }
+  my $attachment_filename = $form->generate_attachment_filename();
 
   $form->{"fokus"} = $form->{"email"} ? "Form.subject" : "Form.email";
   $form->header;
