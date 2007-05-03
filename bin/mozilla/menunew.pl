@@ -132,6 +132,35 @@ sub acc_menu {
   $| = 1;
 
   print qq|
+<style>
+<!--
+
+.itemBorder {
+  border: 1px solid black
+}
+
+.itemText {
+  text-decoration: none;
+  color: #000000;
+  font: 12px Arial, Helvetica
+}
+
+.rootItemText {
+  text-decoration: none;
+  color: #ffffff;
+  font: 12px Arial, Helvetica
+}
+
+.menu {
+  color:#ffffff;
+  background:url(image/bg_css_menu.png) repeat bottom;
+  border:1px solid;
+  border-color:#ccc #888 #555 #bbb;
+}
+
+-->
+</style>
+
 <script type="text/javascript">
 <!--
 var isDOM = (document.getElementById ? true : false); 
@@ -249,7 +278,7 @@ function writeMenus() {
 			if (borderClass) str += 'class="' + borderClass + '" "';
 			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
 			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
-			str +='<tr><td style="cursor:pointer;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
+			str +='<tr><td class="' + textClass + '" style="cursor:pointer;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
 			if (target > 0) {
 				menu[target][0].parentMenu = currMenu;
 				menu[target][0].parentItem = currItem;
@@ -289,14 +318,14 @@ function writeMenus() {
    }
 }
 var menu = new Array();
-var defOver = '#AAAAFF', defBack = '#8888DD';
+var defOver = '#cccccc';
+var defBack = '#dddddd';
 var defLength = 22;
 menu[0] = new Array();
-menu[0][0] = new Menu(false, '', 5, 18, 19, '#AAAAFF', '#AAAAFF', '', 'itemText');
+menu[0][0] = new Menu(false, '', 5, 18, 19, '#cccccc', '', '', 'rootItemText');
 
 |;
 
-  #
   &section_menu($menu);
 
   print qq|
@@ -314,22 +343,13 @@ function moveRoot() {
 }
 //  End -->
 </script>
-<style>
-<!--
 
-.itemBorder { border: 1px solid black }
-.itemText { text-decoration: none; color: #FFFFFF; font: 12px Arial, Helvetica }
-
--->
-</style>
-
-<!--body bgcolor="#AAAAff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0"-->
 <BODY scrolling="no" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0" style="margin: 0" onLoad="writeMenus(); clockon();" onResize="if (isNS4) nsResizeHandler()">
-<!--BODY marginwidth="0" marginheight="0" style="margin: 0" onLoad="writeMenus()" onResize="if (isNS4) nsResizeHandler()"-->
 
 
-<table bgcolor="#AAAAFF" width="100%" border="0" cellpadding="0" cellspacing="0">
+<table class="menu" width="100%" border="0" cellpadding="0" cellspacing="0">
 <tr><td height="21"><font size="1"> </font></td></tr></table>
+
 
 |;
 
