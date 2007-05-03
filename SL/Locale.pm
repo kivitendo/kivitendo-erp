@@ -36,7 +36,10 @@
 
 package Locale;
 
+use Text::Iconv;
+
 use SL::LXDebug;
+use SL::Common;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -52,6 +55,21 @@ sub new {
       eval($code);
       close(IN);
     }
+
+    if (open IN, "<", "locale/$country/charset") {
+      $self->{charset} = <IN>;
+      close IN;
+
+      chomp $self->{charset};
+
+    } else {
+      $self->{charset} = Common::DEFAULT_CHARSET;
+    }
+
+    my $db_charset = $main::dbcharset;
+    $db_charset ||= Common::DEFAULT_CHARSET;
+    $self->{iconv} = Text::Iconv->new($self->{charset}, $db_charset);
+    $self->{iconv_english} = Text::Iconv->new("ASCII", $db_charset);
   }
 
   $self->{NLS_file} = $NLS_file;
@@ -71,7 +89,11 @@ sub new {
 sub text {
   my ($self, $text) = @_;
 
-  return (exists $self->{texts}{$text}) ? $self->{texts}{$text} : $text;
+  if (exists $self->{texts}->{$text}) {
+    return $self->{iconv}->convert($self->{texts}->{$text});
+  }
+
+  return $self->{iconv_english}->convert($text);
 }
 
 sub findsub {

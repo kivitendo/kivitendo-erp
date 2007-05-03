@@ -30,6 +30,8 @@
 
 package Mailer;
 
+use SL::Common;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -95,7 +97,7 @@ sub send {
   $domain =~ s/(.*?\@|>)//g;
   my $msgid = "$boundary\@$domain";
 
-  $self->{charset} = "ISO-8859-15" unless $self->{charset};
+  $self->{charset} = Common::DEFAULT_CHARSET unless $self->{charset};
 
   if ($out) {
     if (!open(OUT, $out)) {

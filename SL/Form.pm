@@ -45,6 +45,7 @@ use CGI::Ajax;
 use SL::DBUtils;
 use SL::Menu;
 use SL::User;
+use SL::Common;
 use CGI;
 
 sub _input_to_hash {
@@ -352,7 +353,7 @@ sub header {
     return;
   }
 
-  my ($stylesheet, $favicon, $charset);
+  my ($stylesheet, $favicon);
 
   if ($ENV{HTTP_USER_AGENT}) {
 
@@ -370,11 +371,8 @@ sub header {
   |;
     }
 
-    if ($self->{charset}) {
-      $charset =
-        qq|<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=$self->{charset}">
-  |;
-    }
+    my $db_charset = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+
     if ($self->{landscape}) {
       $pagelayout = qq|<style type="text/css">
                         \@page { size:landscape; }
@@ -404,7 +402,7 @@ sub header {
     foreach $item (@ { $self->{AJAX} }) {
       $ajax .= $item->show_javascript();
     }
-    print qq|Content-Type: text/html; charset=$self->{charset};
+    print qq|Content-Type: text/html; charset=${db_charset};
 
 <html>
 <head>
@@ -412,7 +410,7 @@ sub header {
   $stylesheet
   $pagelayout
   $favicon
-  $charset
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=${db_charset}">
   $jsscript
   $ajax
 
@@ -803,7 +801,8 @@ sub parse_template {
       my $mail = new Mailer;
 
       map { $mail->{$_} = $self->{$_} }
-        qw(cc bcc subject message version format charset);
+        qw(cc bcc subject message version format);
+      $mail->{charset} = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
       $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";

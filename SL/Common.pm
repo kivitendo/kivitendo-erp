@@ -10,6 +10,26 @@ package Common;
 
 use Time::HiRes qw(gettimeofday);
 
+use vars qw(@db_encodings %db_encoding_to_charset);
+
+@db_encodings = (
+  { "label" => "ASCII",          "dbencoding" => "SQL_ASCII", "charset" => "ASCII" },
+  { "label" => "UTF-8 Unicode",  "dbencoding" => "UNICODE",   "charset" => "UTF-8" },
+  { "label" => "ISO 8859-1",     "dbencoding" => "LATIN1",    "charset" => "ISO-8859-1" },
+  { "label" => "ISO 8859-2",     "dbencoding" => "LATIN2",    "charset" => "ISO-8859-2" },
+  { "label" => "ISO 8859-3",     "dbencoding" => "LATIN3",    "charset" => "ISO-8859-3" },
+  { "label" => "ISO 8859-4",     "dbencoding" => "LATIN4",    "charset" => "ISO-8859-4" },
+  { "label" => "ISO 8859-5",     "dbencoding" => "LATIN5",    "charset" => "ISO-8859-5" },
+  { "label" => "ISO 8859-15",    "dbencoding" => "LATIN9",    "charset" => "ISO-8859-15" },
+  { "label" => "KOI8-R",         "dbencoding" => "KOI8",      "charset" => "KOI8-R" },
+  { "label" => "Windows CP1251", "dbencoding" => "WIN",       "charset" => "CP1251" },
+  { "label" => "Windows CP866",  "dbencoding" => "ALT",       "charset" => "CP866" },
+);
+
+%db_encoding_to_charset = map { $_->{dbencoding}, $_->{charset} } @db_encodings;
+
+use constant DEFAULT_CHARSET => 'ISO-8859-15';
+
 sub unique_id {
   my ($a, $b) = gettimeofday();
   return "${a}-${b}-${$}";

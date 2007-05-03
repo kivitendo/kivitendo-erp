@@ -34,6 +34,10 @@
 
 package User;
 
+use IO::File;
+use Fcntl qw(:seek);
+use Text::Iconv;
+
 use SL::DBUpgrade2;
 use SL::DBUtils;
 
@@ -407,13 +411,14 @@ sub dbcreate {
   $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
     or $form->dberror;
 
+  my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
   # create the tables
-  my $filename = qq|sql/lx-office.sql|;
-  $self->process_query($form, $dbh, $filename);
+  $self->process_query($form, $dbh, "sql/lx-office.sql", undef, $db_charset);
 
   # load chart of accounts
-  $filename = qq|sql/$form->{chart}-chart.sql|;
-  $self->process_query($form, $dbh, $filename);
+  $self->process_query($form, $dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
 
   $query = "UPDATE defaults SET coa = ?";
   do_query($form, $dbh, $query, $form->{chart});
@@ -431,11 +436,31 @@ sub dbcreate {
 sub process_perl_script {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename, $version_or_control) = @_;
+  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  open(FH, "$filename") or $form->error("$filename : $!\n");
-  my $contents = join("", <FH>);
-  close(FH);
+  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
+
+  my $file_charset = Common::DEFAULT_CHARSET;
+
+  if (ref($version_or_control) eq "HASH") {
+    $file_charset = $version_or_control->{charset};
+
+  } else {
+    while (<$fh>) {
+      last if !/^--/;
+      next if !/^--\s*\@charset:\s*(.+)/;
+      $file_charset = $1;
+      last;
+    }
+    $fh->seek(0, SEEK_SET);
+  }
+
+  my $contents = join "", <$fh>;
+  $fh->close();
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  my $iconv = Text::Iconv->new($file_charset, $db_charset);
 
   $dbh->begin_work();
 
@@ -481,16 +506,30 @@ sub process_perl_script {
 sub process_query {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename, $version_or_control) = @_;
+  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  open(FH, "$filename") or $form->error("$filename : $!\n");
+  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
   my $query = "";
   my $sth;
   my @quote_chars;
 
+  my $file_charset = Common::DEFAULT_CHARSET;
+  while (<$fh>) {
+    last if !/^--/;
+    next if !/^--\s*\@charset:\s*(.+)/;
+    $file_charset = $1;
+    last;
+  }
+  $fh->seek(0, SEEK_SET);
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  my $iconv = Text::Iconv->new($file_charset, $db_charset);
+
   $dbh->begin_work();
 
-  while (<FH>) {
+  while (<$fh>) {
+    $_ = $iconv->convert($_);
 
     # Remove DOS and Unix style line endings.
     chomp;
@@ -548,7 +587,7 @@ sub process_query {
   }
   $dbh->commit();
 
-  close FH;
+  $fh->close();
 
   $main::lxdebug->leave_sub();
 }
@@ -795,6 +834,9 @@ sub dbupdate {
     closedir(SQLDIR);
   }
 
+  my $db_charset = $main::dbcharset;
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
   foreach my $db (split(/ /, $form->{dbupdate})) {
 
     next unless $form->{$db};
@@ -834,10 +876,10 @@ sub dbupdate {
       $main::lxdebug->message(DEBUG2, "Applying Update $upgradescript");
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade/$upgradescript", $str_maxdb);
+                             "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       } else {
         $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade/$upgradescript", $str_maxdb);
+                                   "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       }
 
       $version = $maxdb;
@@ -866,6 +908,11 @@ sub dbupdate2 {
   my $rc = -2;
 
   @upgradescripts = sort_dbupdate_controls($controls);
+
+  my $db_charset = $main::dbcharset;
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  my %converters;
 
   foreach my $db (split / /, $form->{dbupdate}) {
 
@@ -902,6 +949,11 @@ sub dbupdate2 {
     foreach my $control (@upgradescripts) {
       next if ($control->{"applied"});
 
+      if (!$converters{$control->{charset}}) {
+        $converters{$control->{charset}} = Text::Iconv->new($control->{charset}, $db_charset);
+      }
+      $control->{description} = $converters{$control->{charset}}->convert($control->{description});
+
       $control->{"file"} =~ /\.(sql|pl)$/;
       my $file_type = $1;
 
@@ -912,10 +964,10 @@ sub dbupdate2 {
 
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade2/$control->{file}", $control);
+                             "-upgrade2/$control->{file}", $control, $db_charset);
       } else {
         $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade2/$control->{file}", $control);
+                                   "-upgrade2/$control->{file}", $control, $db_charset);
       }
     }
 
@@ -1074,7 +1126,7 @@ sub save_member {
 sub config_vars {
   $main::lxdebug->enter_sub();
 
-  my @conf = qw(acs address admin businessnumber charset company countrycode
+  my @conf = qw(acs address admin businessnumber company countrycode
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
     dbname dbuser dbpasswd email fax name numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote

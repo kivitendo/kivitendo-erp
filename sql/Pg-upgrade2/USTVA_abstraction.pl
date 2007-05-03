@@ -139,11 +139,11 @@ sub do_copy {
 
   for my $statement ( 0 .. $#copy_statements ) {
 
-    do_query($copy_statements[$statement], 0);
+    do_query($iconv->convert($copy_statements[$statement]), 0);
     
     for my $copy_line ( 1 .. $#{$copy_data[$statement]} ) {
       #print $copy_data[$statement][$copy_line] . "<br />"
-      $dbh->pg_putline($copy_data[$statement][$copy_line] . "\n");
+      $dbh->pg_putline($iconv->convert($copy_data[$statement][$copy_line]) . "\n");
     }
     $dbh->pg_endcopy;
   }

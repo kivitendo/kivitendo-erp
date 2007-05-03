@@ -35,10 +35,15 @@
 $menufile = "menu.ini";
 
 use DBI;
+use CGI;
+
 use SL::Form;
 use SL::User;
+use SL::Common;
 
 require "bin/mozilla/common.pl";
+
+our $cgi = new CGI('');
 
 $form = new Form;
 $form->{"root"} = "root login";
@@ -574,10 +579,6 @@ sub form_header {
 	<tr>
 	  <th align=right>| . $locale->text('Language') . qq|</th>
 	  <td><select name=countrycode>$countrycodes</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Character Set') . qq|</th>
-	  <td><input name=charset value="$myconfig->{charset}"></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Stylesheet') . qq|</th>
@@ -1471,24 +1472,24 @@ sub create_dataset {
   }
   closedir SQLDIR;
 
-  $selectencoding = qq|<option>
-  <option value="SQL_ASCII">ASCII
-  <option value="EUC_JP">Japanese Extended UNIX Code
-  <option value="EUC_CN">Chinese Extended UNIX Code
-  <option value="EUC_KR">Korean Extended UNIX Code
-  <option value="EUC_TW">Taiwan Extended UNIX Code
-  <option value="UNICODE">UTF-8 Unicode
-  <option value="MULE_INTERNAL">Mule internal type
-  <option selected="selected"  value="LATIN1">ISO 8859-1 
-  <option value="LATIN2">ISO 8859-2
-  <option value="LATIN3">ISO 8859-3
-  <option value="LATIN4">ISO 8859-4
-  <option value="LATIN5">ISO 8859-5
-  <option value="LATIN9">ISO 8859-15
-  <option value="KOI8">KOI8-R
-  <option value="WIN">Windows CP1251
-  <option value="ALT">Windows CP866
-  |;
+  my (@values, %labels);
+
+  my $default_charset = $dbcharset;
+  $default_charset ||= Common::DEFAULT_CHARSET;
+  my $default_encoding;
+
+  foreach my $encoding (@Common::db_encodings) {
+    push @values, $encoding->{dbencoding};
+    $labels{$encoding->{dbencoding}} = $encoding->{label};
+
+    $default_encoding = $encoding->{dbencoding} if $encoding->{charset} eq $default_charset;
+  }
+
+  $selectencoding =
+    NTI($cgi->popup_menu('-name' => 'encoding',
+                         '-values' => \@values,
+                         '-labels' => \%labels,
+                         '-default' => $default_encoding));
 
   $form->{title} =
       "Lx-Office ERP "
@@ -1528,7 +1529,7 @@ sub create_dataset {
   <tr>
 
     <th align=right nowrap>| . $locale->text('Multibyte Encoding') . qq|</th>
-    <td><select name=encoding>$selectencoding</select></td>
+    <td>$selectencoding</td>
 
   </tr>
 

@@ -188,7 +188,7 @@ sub company_logo {
   $myconfig{address} =~ s/\\n/<br>/g;
   $myconfig{dbhost} = $locale->text('localhost') unless $myconfig{dbhost};
 
-  map { $form->{$_} = $myconfig{$_} } qw(charset stylesheet);
+  $form->{stylesheet} = $myconfig{stylesheet};
 
   $form->{title} = $locale->text('About');
 

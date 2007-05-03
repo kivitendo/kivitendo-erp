@@ -1,5 +1,7 @@
 package SL::DBUpgrade2;
 
+use SL::Common;
+
 require Exporter;
 @ISA = qw(Exporter);
 
@@ -44,6 +46,8 @@ sub parse_dbupdate_controls {
         $control->{$fields[0]} = $fields[1];
       }
     }
+
+    $control->{charset} ||= Common::DEFAULT_CHARSET;
 
     _control_error($form, $file_name,
                    $locale->text("Missing 'tag' field."))
