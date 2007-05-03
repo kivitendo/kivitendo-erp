@@ -61,6 +61,7 @@ $self->{texts} = {
   'E-mail address missing!'     => 'E-Mail-Adresse fehlt!',
   'ELSE'                        => 'Zusatz',
   'Edit Vendor Invoice'         => 'Einkaufsrechnung bearbeiten',
+  'Employee'                    => 'Bearbeiter',
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
   'Exch'                        => 'Wechselkurs.',

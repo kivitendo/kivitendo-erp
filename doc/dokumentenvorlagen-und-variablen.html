@@ -81,6 +81,18 @@ td {
    </ol>
   </li>
 
+  <li><a href="dokumentenvorlagen-und-variablen.html#dunning">
+    Variablen in Mahnungen</a>
+
+   <ol>
+    <li><a href="dokumentenvorlagen-und-variablen.html#dunning_allgemein">
+      Allgemeine Variablen</a></li>
+
+    <li><a href="dokumentenvorlagen-und-variablen.html#dunning_details">
+      Variablen f&uuml;r jede gemahnte Rechnung</a></li>
+   </ol>
+  </li>
+
   <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen">
     Variablen in anderen Vorlagen</a></li>
 
@@ -750,6 +762,111 @@ td {
    <tr>
     <td><code>forex</code></td>
     <td>Konto</td>
+   </tr>
+  </table>
+ </p>
+
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="dunning">Variablen in Mahnungen</a></h2>
+
+ <h3><a name="dunning_allgemein">Allgemeine Variablen:</a></h3>
+
+ <p>Die Variablen des Verkäufers stehen wie gewohnt
+  als <code>employee_...</code> zur Verfügung. Die Adressdaten des
+  Kunden stehen als Variablen <code>name</code>, <code>street</code>,
+  <code>zipcode</code>, <code>city</code>, <code>country</code>,
+  <code>department_1</code>, <code>department_2</code>, und
+  <code>email</code> zur Verfügung.
+ </p>
+
+ <p>Weitere Variablen beinhalten:</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>dunning_date</code></td>
+    <td>Datum der Mahnung</td>
+   </tr>
+   <tr>
+    <td><code>dunning_duedate</code></td>
+    <td>F&auml;lligkeitsdatum f&uuml;r diese Mahhnung</td>
+   </tr>
+   <tr>
+    <td><code>fee</code></td>
+    <td>Kummulative Mahngebühren</td>
+   </tr>
+   <tr>
+    <td><code>interest_rate</code></td>
+    <td>Zinssatz per anno in Prozent</td>
+   </tr>
+   <tr>
+    <td><code>total_amount</code></td>
+    <td>Gesamter noch zu zahlender Betrag als <code>fee</code> + <code>total_interest</code> + <code>total_open_amount</code></td>
+   </tr>
+   <tr>
+    <td><code>total_interest</code></td>
+    <td>Zinsen per anno &uuml;ber alle Rechnungen</td>
+   </tr>
+   <tr>
+    <td><code>total_open_amount</code></td>
+    <td>Summe &uuml;ber alle offene Betr&auml;ge der Rechnungen</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="dunning_details">
+   Variablen f&uuml;r jede gemahnte Rechnung:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>dn_amount</code></td>
+    <td>Rechnungssumme (brutto)</td>
+   </tr>
+   <tr>
+    <td><code>dn_duedate</code></td>
+    <td>Originales F&auml;lligkeitsdatum der Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_dunning_date</code></td>
+    <td>Datum der Mahnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_dunning_duedate</code></td>
+    <td>F&auml;lligkeitsdatum der Mahnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_fee</code></td>
+    <td>Kummulative Mahngeb&uuml;hr (ist die gleiche wie f&uuml;r die ganze Mahnung, da die Geb&uuml;hr nur einmal pro Mahnung erhoben wird)</td>
+   </tr>
+   <tr>
+    <td><code>dn_interest</code></td>
+    <td>Zinsen per anno f&uum;r diese Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_invnumber</code></td>
+    <td>Rechnungsnummer</td>
+   </tr>
+   <tr>
+    <td><code>dn_netamount</code></td>
+    <td>Rechnungssumme (netto)</td>
+   </tr>
+   <tr>
+    <td><code>dn_open_amount</code></td>
+    <td>Offener Rechnungsbetrag</td>
+   </tr>
+   <tr>
+    <td><code>dn_ordnumber</code></td>
+    <td>Bestellnummer</td>
+   </tr>
+   <tr>
+    <td><code>dn_transdate</code></td>
+    <td>Rechnungsdatum</td>
    </tr>
   </table>
  </p>
