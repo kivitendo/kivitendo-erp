@@ -1,0 +1,97 @@
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+ <!--
+     function setup_controls() {
+       fokus();
+       setupDateFormat('<TMPL_VAR myconfig_dateformat>', 'Falsches Datumsformat!');
+       setupPoints('<TMPL_VAR myconfig_numberformat>', 'Falsches Format');
+     }
+   -->
+</script>
+
+<body onLoad="setup_controls();">
+
+ <div class="listtop"><TMPL_VAR title></div>
+
+ <form method="post" name="search" action="dn.pl">
+
+  <table>
+   <tr>
+    <th align="right">Kunde</th>
+    <td colspan="3">
+     <TMPL_IF SHOW_CUSTOMER_SELECTION>
+      <select name="customer">
+       <option></option>
+       <TMPL_LOOP all_customer><option><TMPL_VAR name ESCAPE=HTML>--<TMPL_VAR id ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+      <TMPL_ELSE>
+      <input name=customer size=35>
+     </TMPL_IF>
+    </td>
+   </tr>
+
+   <TMPL_IF SHOW_DUNNING_LEVEL_SELECTION>
+    <tr>
+     <th align="right">Nächste Mahnstufe</th>
+     <td colspan="3">
+      <select name="dunning_level">
+       <option></option>
+       <TMPL_LOOP DUNNING><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR dunning_description ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
+   </TMPL_IF>
+
+   <TMPL_IF SHOW_DEPARTMENT_SELECTION>
+    <tr>
+     <th align="right">Abteilung</th>
+     <td colspan="3">
+      <select name="department">
+       <option></option>
+       <TMPL_LOOP all_departments><option><TMPL_VAR description ESCAPE=HTML>--<TMPL_VAR id ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
+   </TMPL_IF>
+
+   <tr>
+    <th align="right" nowrap>Rechnungsnummer</th>
+    <td colspan="3"><input name="invnumber" size="20"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Auftragsnummer</th>
+    <td colspan="3"><input name="ordnumber" size="20"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Bemerkungen</th>
+    <td colspan="3"><input name="notes" size="40"></td>
+   </tr>
+
+   <tr><td colspan="2"><hr size="3" noshade></td></tr>
+
+   <tr>
+    <th align="right" nowrap>Mindestbetrag</th>
+    <td><input name="minamount" size="6"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Rechnungen zusammenfassen</th>
+    <td><input type="checkbox" value="1" name="groupinvoices" checked></td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="nextsub" value="show_invoices">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+  <br>
+  <input class="submit" type="submit" name="action" value="Weiter">
+
+ </form>
+
+</body>
+
+</html>

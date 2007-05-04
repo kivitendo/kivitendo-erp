@@ -60,132 +60,24 @@ sub edit_config {
 
 sub add {
   $lxdebug->enter_sub();
+
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
 
   DN->get_config(\%myconfig, \%$form);
 
-  if (@{ $form->{all_customer} }) {
-    map { $customer .= "<option>$_->{name}--$_->{id}\n" }
-      @{ $form->{all_customer} };
-    $customer = qq|<select name=customer><option>\n$customer</select>|;
-  } else {
-    $customer = qq|<input name=customer size=35>|;
-  }
+  $form->{SHOW_CUSTOMER_SELECTION}      = $form->{all_customer}    && scalar @{ $form->{all_customer} };
+  $form->{SHOW_DUNNING_LEVEL_SELECTION} = $form->{DUNNING}         && scalar @{ $form->{DUNNING} };
+  $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{all_departments} && scalar @{ $form->{all_departments} };
 
-  # dunning levels
-  if (@{ $form->{DUNNING} }) {
-    $form->{selectdunning_level} = "<option></option\n";
-    map {
-      $form->{selectdunning_level} .=
-        "<option value=$_->{id}>$_->{dunning_description}</option>\n"
-    } (@{ $form->{DUNNING} });
-  }
-  $dunning_level = qq| 
-    <tr> 
-    <th align=right nowrap>| . $locale->text('Next Dunning Level') . qq|</th>
-    <td colspan=3><select name=dunning_level>$form->{selectdunning_level}</select></td>
-    </tr>
-    | if $form->{selectdunning_level};
-
-  # departments
-  if (@{ $form->{all_departments} }) {
-    $form->{selectdepartment} = "<option>\n";
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
-  }
-  $department = qq| 
-    <tr> 
-    <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-    <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-    </tr>
-    | if $form->{selectdepartment};
-
-  $form->{title}       = $locale->text('Start Dunning Process');
-  $form->{nextsub}     = "show_invoices";
-
-  $form->{jsscript}    = 1;
-  $form->{fokus}       = "search.customer";
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
+  $form->{title}    = $locale->text('Start Dunning Process');
+  $form->{jsscript} = 1;
+  $form->{fokus}    = "search.customer";
   $form->header();
 
-  $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-
-  print qq|
-<body onLoad="$onload">
-
-<form method=post name="search" action=$form->{script}>
-
-<table width=100%>
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>| . $locale->text('Customer') . qq|</th>
-          <td colspan=3>$customer</td>
-        </tr>
-        $dunning_level
-        $department
-        <tr>
-          <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-          <td colspan=3><input name=invnumber size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-          <td colspan=3><input name=ordnumber size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
-          <td colspan=3><input name=notes size=40></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Minimum Amount') . qq|</th>
-          <td><input name=minamount size=6></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Group Invoices') . qq|</th>
-          <td><input type=checkbox value=1 name=groupinvoices checked></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-
-<input type=hidden name=nextsub value=$form->{nextsub}>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-</form>
-
-</body>
-
-$jsscript
-
-</html>
-|;
+  print $form->parse_html_template("dunning/add");
 
   $lxdebug->leave_sub();
-
 }
 
 sub show_invoices {
