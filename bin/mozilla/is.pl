@@ -846,12 +846,12 @@ sub form_footer {
   $intnotes =
     qq|<textarea name="intnotes" rows="$rows" cols="35" wrap="soft">$form->{intnotes}</textarea>|;
  
-  $form->{taxincluded} = ($form->{taxincluded} == 1 ? "checked" : "");
+  $form->{taxincluded} = ($form->{taxincluded} ? "checked" : "");
 
   $taxincluded = "";
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
-	        <input name="taxincluded" class="checkbox" type="checkbox" value="1" $form->{taxincluded}> <b>|
+	        <input name="taxincluded" class="checkbox" type="checkbox" $form->{taxincluded}> <b>|
       . $locale->text('Tax Included') . qq|</b><br><br>|;
   }
 
