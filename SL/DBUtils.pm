@@ -29,6 +29,8 @@ sub conv_dateq {
 }
 
 sub do_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   dump_query(LXDebug::QUERY, '', $query, @_);
@@ -39,11 +41,15 @@ sub do_query {
     $dbh->do($query, undef, @_) ||
       $form->dberror($query . " (" . join(", ", @_) . ")");
   }
+
+  $main::lxdebug->leave_sub(2);
 }
 
 sub selectrow_query { &selectfirst_array_query }
 
 sub do_statement {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $sth, $query) = splice(@_, 0, 3);
 
   dump_query(LXDebug::QUERY, '', $query, @_);
@@ -54,6 +60,8 @@ sub do_statement {
     $sth->execute(@_) ||
       $form->dberror($query . " (" . join(", ", @_) . ")");
   }
+
+  $main::lxdebug->leave_sub(2);
 }
 
 sub dump_query {
@@ -84,15 +92,22 @@ sub quote_db_date {
 }
 
 sub prepare_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   dump_query(LXDebug::QUERY, '', $query, @_);
 
   my $sth = $dbh->prepare($query) || $form->dberror($query);
+
+  $main::lxdebug->leave_sub(2);
+
   return $sth;
 }
 
 sub prepare_execute_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   dump_query(LXDebug::QUERY, '', $query, @_);
@@ -104,10 +119,14 @@ sub prepare_execute_query {
     $sth->execute() || $form->dberror($query);
   }
 
+  $main::lxdebug->leave_sub(2);
+
   return $sth;
 }
 
 sub selectall_hashref_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
@@ -117,10 +136,14 @@ sub selectall_hashref_query {
   }
   $sth->finish();
 
+  $main::lxdebug->leave_sub(2);
+
   return $result;
 }
 
 sub selectall_array_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
@@ -130,25 +153,35 @@ sub selectall_array_query {
   }
   $sth->finish();
 
+  $main::lxdebug->leave_sub(2);
+
   return @result;
 }
 
 sub selectfirst_hashref_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
   my $ref = $sth->fetchrow_hashref();
   $sth->finish();
 
+  $main::lxdebug->leave_sub(2);
+
   return $ref;
 }
 
 sub selectfirst_array_query {
+  $main::lxdebug->enter_sub(2);
+
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
   my $sth = prepare_execute_query($form, $dbh, $query, @_);
   my @ret = $sth->fetchrow_array();
   $sth->finish();
+
+  $main::lxdebug->leave_sub(2);
 
   return @ret;
 }

@@ -258,6 +258,8 @@ sub hide_form {
 sub error {
   $main::lxdebug->enter_sub();
 
+  $main::lxdebug->full_error_call_trace();
+
   my ($self, $msg) = @_;
   if ($ENV{HTTP_USER_AGENT}) {
     $msg =~ s/\n/<br>/g;
