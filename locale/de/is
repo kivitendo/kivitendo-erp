@@ -223,6 +223,7 @@ $self->{texts} = {
   'The \'tag\' field must only consist of alphanumeric characters or the carachters - _ ( )' => 'Das Feld \'tag\' darf nur aus alphanumerischen Zeichen und den Zeichen - _ ( ) bestehen.',
   'Total'                       => 'Summe',
   'Trade Discount'              => 'Rabatt',
+  'Transaction description'     => 'Vorgangsbezeichnung',
   'Trying to call a sub without a name' => 'Es wurde versucht, eine Unterfunktion ohne Namen aufzurufen.',
   'Unit'                        => 'Einheit',
   'Unknown dependency \'%s\'.'  => 'Unbekannte Abh&auml;ngigkeit \'%s\'.',

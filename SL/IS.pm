@@ -974,7 +974,8 @@ Message: $form->{message}\r| if $form->{message};
                 salesman_id = ?,
                 storno = ?,
                 globalproject_id = ?,
-                cp_id = ?
+                cp_id = ?,
+                transaction_description = ?
               WHERE id = ?|;
   @values = ($form->{"invnumber"}, $form->{"ordnumber"}, $form->{"quonumber"}, $form->{"cusordnumber"},
              conv_date($form->{"invdate"}), conv_date($form->{"orddate"}), conv_date($form->{"quodate"}),
@@ -988,7 +989,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{"delivery_customer_id"}), conv_i($form->{"delivery_vendor_id"}),
              conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),
              $form->{"storno"} ? 't' : 'f', conv_i($form->{"globalproject_id"}),
-             conv_i($form->{"cp_id"}),
+             conv_i($form->{"cp_id"}), $form->{transaction_description},
              conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
@@ -1399,6 +1400,7 @@ sub retrieve_invoice {
            a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
+           a.transaction_description,
            e.name AS employee
          FROM ar a
          LEFT JOIN employee e ON (e.id = a.employee_id)

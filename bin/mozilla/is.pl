@@ -719,7 +719,11 @@ print qq|
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Ship via') . qq|</th>
 		<td colspan="3"><input name="shipvia" size="35" value="$form->{shipvia}"></td>
-	      </tr>|;
+	      </tr>
+              <tr>
+                <th align="right">| . $locale->text('Transaction description') . qq|</th>
+                <td colspan="3">| . $cgi->textfield("-name" => "transaction_description", "-size" => 35, "-value" => $form->{transaction_description}) . qq|</td>
+              </tr>|;
 #               <tr>
 #                 <td colspan=4>
 #                   <table>

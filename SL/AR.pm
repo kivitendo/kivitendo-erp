@@ -460,6 +460,7 @@ sub ar_transactions {
     qq|  a.duedate, a.netamount, a.amount, a.paid, | .
     qq|  a.invoice, a.datepaid, a.terms, a.notes, a.shipvia, | .
     qq|  a.shippingpoint, a.storno, a.globalproject_id, | .
+    qq|  a.transaction_description, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  c.name, | .
     qq|  e.name AS employee | .
@@ -481,7 +482,7 @@ sub ar_transactions {
     $where .= " AND a.department_id = ?";
     push(@values, $department_id);
   }
-  foreach my $column (qw(invnumber ordnumber notes)) {
+  foreach my $column (qw(invnumber ordnumber notes transaction_description)) {
     if ($form->{$column}) {
       $where .= " AND a.$column ILIKE ?";
       push(@values, $form->like($form->{$column}));

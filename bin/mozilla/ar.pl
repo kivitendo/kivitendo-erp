@@ -1295,6 +1295,10 @@ sub search {
 	  <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
 	  <td colspan=3><input name=ordnumber size=20></td>
 	</tr>
+       <tr>
+         <th align=right nowrap>| . $locale->text('Transaction description') . qq|</th>
+         <td colspan=3><input name=transaction_description size=40></td>
+       </tr>
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
 	  <td colspan=3><input name=notes size=40></td>
@@ -1371,6 +1375,8 @@ sub search {
 		<td nowrap>| . $locale->text('Subtotal') . qq|</td>
 		<td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Project Number') . qq|</td>
+		<td align=right><input name="l_transaction_description" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Transaction description') . qq|</td>
 	      </tr>
 	    </table>
 	  </td>
@@ -1446,6 +1452,12 @@ sub ar_transactions {
     $option .= "\n<br>" if $option;
     $option .= $locale->text('Notes') . " : $form->{notes}";
   }
+  if ($form->{transaction_description}) {
+    $callback .= "&transaction_description=" . $form->escape($form->{transaction_description}, 1);
+    $href .= "&transaction_description=" . $form->escape($form->{transaction_description});
+    $option .= "\n<br>" if $option;
+    $option .= $locale->text('Transaction description') . " : $form->{transaction_description}";
+  }
 
   if ($form->{transdatefrom}) {
     $callback .= "&transdatefrom=$form->{transdatefrom}";
@@ -1482,7 +1494,7 @@ sub ar_transactions {
 
   @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
-       datepaid due duedate notes employee shippingpoint shipvia
+       datepaid due duedate transaction_description notes employee shippingpoint shipvia
        globalprojectnumber);
 
   $form->{"l_type"} = "Y";
@@ -1558,6 +1570,8 @@ sub ar_transactions {
     . "</a></th>";
   $column_header{globalprojectnumber} =
     qq|<th class="listheading">| . $locale->text('Project Number') . qq|</th>|;
+  $column_header{transaction_description} =
+    "<th class=listheading>" . $locale->text('Transaction description') . "</th>";
 
   $form->{title} = $locale->text('AR Transactions');
 
@@ -1664,6 +1678,8 @@ sub ar_transactions {
     $column_data{employee}      = "<td>$ar->{employee}&nbsp;</td>";
     $column_data{globalprojectnumber}  =
       "<td>" . H($ar->{globalprojectnumber}) . "</td>";
+    $column_data{transaction_description}  =
+      "<td>" . H($ar->{transaction_description}) . "</td>";
 
     $i++;
     $i %= 2;
