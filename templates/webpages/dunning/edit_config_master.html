@@ -1,0 +1,94 @@
+<body>
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/dunning.js"></script>
+
+ <div class="listtop" width="100%"><TMPL_VAR title></div>
+
+ <form method="post" action="dn.pl">
+  <table>
+   <tr height="5"></tr>
+
+   <tr>
+    <th class="listheading"><translate>Dunning Level</translate></th>
+    <th class="listheading"><translate>Dunning Description</translate></th>
+    <th class="listheading"><translate>Active?</translate></th>
+    <th class="listheading"><translate>Auto Send?</translate></th>
+    <th class="listheading"><translate>eMail Send?</translate></th>
+    <th class="listheading"><translate>Fristsetzung</translate></th>
+    <th class="listheading"><translate>Duedate +Days</translate></th>
+    <th class="listheading"><translate>Fee</translate></th>
+    <th class="listheading"><translate>Interest Rate</translate></th>
+    <th class="listheading"><translate>Template</translate></th>
+   </tr>
+
+   <TMPL_LOOP DUNNING>
+    <tr valign="top" class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+     <td>
+      <input type="hidden" name="dunning_level_<TMPL_VAR __counter__>" size="2" value="<TMPL_VAR __counter__>">
+      <input type="hidden" name="id_<TMPL_VAR __counter__>" value="<TMPL_VAR id ESCAPE=HTML>">
+      <TMPL_VAR __counter__>
+     </td>
+
+     <td><input name="dunning_description_<TMPL_VAR __counter__>" value="<TMPL_VAR dunning_description ESCAPE=HTML>"></td>
+     <td><input type="checkbox" name="active_<TMPL_VAR __counter__>" value="1" <TMPL_IF active>checked</TMPL_IF>></td>
+
+     <td>
+      <input type="checkbox" name="email_<TMPL_VAR __counter__>" value="1" <TMPL_IF email>checked</TMPL_IF>>
+      <button type="button" onclick="set_email_window('email_subject_<TMPL_VAR __counter__>', 'email_body_<TMPL_VAR __counter__>', 'email_attachment_<TMPL_VAR __counter__>')">
+       <translate>L</translate></button>
+      <input type="hidden" name="email_body_<TMPL_VAR __counter__>" value="<TMPL_VAR email_body ESCAPE=HTML>">
+      <input type="hidden" name="email_subject_<TMPL_VAR __counter__>" value="<TMPL_VAR email_subject ESCAPE=HTML>">
+      <input type="hidden" name="email_attachment_<TMPL_VAR __counter__>" value="<TMPL_VAR email_attachment ESCAPE=HTML>">
+     </td>
+
+     <td><input type="checkbox" name="auto_<TMPL_VAR __counter__>" value="1" <TMPL_IF auto>checked</TMPL_IF>></td>
+     <td><input name="payment_terms_<TMPL_VAR __counter__>" size="3" value="<TMPL_VAR payment_terms ESCAPE=HTML>"></td>
+     <td><input name="terms_<TMPL_VAR __counter__>" size="3" value="<TMPL_VAR terms ESCAPE=HTML>"></td>
+     <td><input name="fee_<TMPL_VAR __counter__>" size="5" value="<TMPL_VAR fee ESCAPE=HTML>"></td>
+     <td><input name="interest_rate_<TMPL_VAR __counter__>" size="4" value="<TMPL_VAR interest ESCAPE=HTML>">%</td>
+     <td><input name="template_<TMPL_VAR __counter__>" value="<TMPL_VAR template ESCAPE=HTML>"></td>
+    </tr>
+   </TMPL_LOOP>
+
+   <tr valign="top" class="listrow<TMPL_IF rowcount_odd>1<TMPL_ELSE>0</TMPL_IF>">
+    <td>
+     <input type="hidden" name="dunning_level_<TMPL_VAR rowcount>" size="2">
+     <input type="hidden" name="id_<TMPL_VAR rowcount>">
+     <TMPL_VAR rowcount>
+    </td>
+
+    <td><input name="dunning_description_<TMPL_VAR rowcount>"></td>
+    <td><input type="checkbox" name="active_<TMPL_VAR rowcount>" value="1" checked></td>
+
+    <td>
+     <input type="checkbox" name="email_<TMPL_VAR rowcount>" value="1" checked>
+     <button type="button" onclick="set_email_window('email_subject_<TMPL_VAR rowcount>', 'email_body_<TMPL_VAR rowcount>', 'email_attachment_<TMPL_VAR rowcount>')">
+      <translate>L</translate></button>
+     <input type="hidden" name="email_body_<TMPL_VAR rowcount>">
+     <input type="hidden" name="email_subject_<TMPL_VAR rowcount>">
+     <input type="hidden" name="email_attachment_<TMPL_VAR rowcount>">
+    </td>
+
+    <td><input type="checkbox" name="auto_<TMPL_VAR rowcount>" value="1" checked></td>
+    <td><input name="payment_terms_<TMPL_VAR rowcount>" size="3"></td>
+    <td><input name="terms_<TMPL_VAR rowcount>" size="3"></td>
+    <td><input name="fee_<TMPL_VAR rowcount>" size="5"></td>
+    <td><input name="interest_rate_<TMPL_VAR rowcount>" size="4">%</td>
+    <td><input name="template_<TMPL_VAR rowcount>"></td>
+   </tr>
+  </table>
+
+  <hr size="3" noshade>
+
+  <input type="hidden" name="rowcount" value="<TMPL_VAR rowcount ESCAPE=HTML>">
+  <input type="hidden" name="callback" value="<TMPL_VAR callback ESCAPE=HTML>">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+  <input class="submit" type="submit" name="action" value="<translate>Save</translate>">
+
+ </form>
+</body>
+
+</html>

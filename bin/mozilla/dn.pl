@@ -36,6 +36,7 @@ use SL::PE;
 use SL::DN;
 use Data::Dumper;
 
+require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 
@@ -44,174 +45,15 @@ require "bin/mozilla/arap.pl";
 sub edit_config {
   $lxdebug->enter_sub();
 
-  # edit all dunning config data
-
-  $form->header;
   DN->get_config(\%myconfig, \%$form);
-  $form->{title} = $locale->text('Edit Dunning Process Config');
-  
-  $form->{callback} =
-    "$form->{script}?action=edit_config&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
 
-  @column_index = qw(dunning_level dunning_description active auto email payment_terms terms fee interest_rate template);
+  $form->{title}          = $locale->text('Edit Dunning Process Config');
+  $form->{callback}     ||= build_std_url("action=edit_config");
+  $form->{rowcount}       = 1 + scalar @{ $form->{DUNNING} };
+  $form->{rowcount_odd}   = $form->{rowcount} % 2;
 
-  $column_header{dunning_level} =
-      qq|<th class=listheading>|
-    . $locale->text('Dunning Level')
-    . qq|</th>|;
-  $column_header{dunning_description} =
-      qq|<th class=listheading>|
-    . $locale->text('Dunning Description')
-    . qq|</th>|;
-  $column_header{active} =
-      qq|<th class=listheading>|
-    . $locale->text('Active?')
-    . qq|</th>|;
-  $column_header{auto} =
-      qq|<th class=listheading>|
-    . $locale->text('Auto Send?')
-    . qq|</th>|;
-  $column_header{email} =
-      qq|<th class=listheading>|
-    . $locale->text('eMail Send?')
-    . qq|</th>|;
-  $column_header{payment_terms} =
-      qq|<th class=listheading>|
-    . $locale->text('Fristsetzung')
-    . qq|</th>|;
-  $column_header{terms} =
-      qq|<th class=listheading>|
-    . $locale->text('Duedate +Days')
-    . qq|</th>|;
-  $column_header{fee} =
-      qq|<th class=listheading>|
-    . $locale->text('Fee')
-    . qq|</th>|;
-  $column_header{interest_rate} =
-      qq|<th class=listheading>|
-    . $locale->text('Interest Rate')
-    . qq|</th>|;
-  $column_header{template} =
-      qq|<th class=listheading>|
-    . $locale->text('Template')
-    . qq|</th>|;
-  print qq|
-<body>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/dunning.js"></script>
-<form method=post action=$form->{script}>
-
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=10>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>|;
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-  my $i = 0;
-  foreach $ref (@{ $form->{DUNNING} }) {
-
-    $i++;
-    my $j = $i % 2;
-
-    print qq|
-        <tr valign=top class=listrow$j>
-|;
-
-
-    $column_data{dunning_level} =
-      qq|<td><input type=hidden name=dunning_level_$i size=2 value="$i"><input type=hidden name=id_$i value="$ref->{id}">$i</td>|;
-    $column_data{dunning_description}           = qq|<td><input name=dunning_description_$i value="$ref->{dunning_description}"></td>|;
-    my $active = ($ref->{active}) ? "checked" : "";
-    $column_data{active} =
-      qq|<td><input type=checkbox name=active_$i value=1 $active></td>|;
-    my $email = ($ref->{email}) ? "checked" : "";
-  $column_data{email} =
-    qq|<td><input type=checkbox name=email_$i value=1 $email><button type="button" onclick="set_email_window('email_subject_$i', 'email_body_$i', 'email_attachment_$i')">| . $locale->text('L') . qq|</button><input type=hidden name=email_body_$i value="$ref->{email_body}"><input type=hidden name=email_subject_$i value="$ref->{email_subject}"><input type=hidden name=email_attachment_$i value="$ref->{email_attachment}"></td>|;
-
-    my $auto = ($ref->{auto}) ? "checked" : "";
-    $column_data{auto} =
-      qq|<td><input type=checkbox name=auto_$i value=1 $auto></td>|;
-    $column_data{payment_terms}           = qq|<td><input name=payment_terms_$i size=3 value="$ref->{payment_terms}"></td>|;
-    $column_data{terms}           = qq|<td><input name=terms_$i size=3 value="$ref->{terms}"></td>|;
-    $column_data{fee}           = qq|<td><input name=fee_$i size=5 value="$ref->{fee}"></td>|;
-    $column_data{interest_rate}           = qq|<td><input name=interest_rate_$i size=4 value="$ref->{interest}">%</td>|;
-    $column_data{template}           = qq|<td><input name=template_$i value="$ref->{template}"></td>|;
-
-
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-	</tr>
-|;
-  }
-  $i++;
-  my $j = $i % 2;
-
-  print qq|
-        <tr valign=top class=listrow$j>
-|;
-
-
-  $column_data{dunning_level} =
-    qq|<td><input type=hidden size=2 name=dunning_level_$i value=$i>$i</td>|;
-  $column_data{dunning_description}           = qq|<td><input name=dunning_description_$i ></td>|;
-  $column_data{active} =
-    qq|<td><input type=checkbox name=active_$i value=1></td>|;
-  my $email = "";
-  $column_data{email} =
-    qq|<td><input type=checkbox name=email_$i value=1 $email><button type="button" onclick="set_email_window('email_subject_$i', 'email_body_$i', 'email_attachment_$i')">| . $locale->text('L') . qq|</button><input type=hidden name=email_body_$i><input type=hidden name=email_subject_$i><input type=hidden name=email_attachment_$i></td>|;
-  my $auto = "";
-  $column_data{auto} =
-    qq|<td><input type=checkbox name=auto_$i value=1 $auto></td>|;
-  $column_data{payment_terms}           = qq|<td><input  size=3 name=payment_terms_$i></td>|;
-  $column_data{terms}           = qq|<td><input  size=3 name=terms_$i></td>|;
-  $column_data{fee}           = qq|<td><input  size=5 name=fee_$i></td>|;
-  $column_data{interest_rate}           = qq|<td><input  size=4 name=interest_rate_$i>%</td>|;
-  $column_data{template}           = qq|<td><input name=template_$i></td>|;
-
-
-  $form->{rowcount} = $i;
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-      </tr>
-|;
-
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-<input name=rowcount type=hidden value="$form->{rowcount}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Save') . qq|">
-
-  </form>
-
-  </body>
-  </html>
-|;
+  $form->header();
+  print $form->parse_html_template("dunning/edit_config");
 
   $lxdebug->leave_sub();
 }
