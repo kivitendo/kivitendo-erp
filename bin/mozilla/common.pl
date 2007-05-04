@@ -47,7 +47,7 @@ sub build_std_url {
 
   my $url = "$form->{script}?";
   my $first = 1;
-  foreach my $key ((qw(login password path), @_)) {
+  foreach my $key ((qw(login password), @_)) {
     next unless ($key);
     $url .= "&" unless ($first);
     $first = 0;
