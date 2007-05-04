@@ -157,7 +157,6 @@ sub edit {
 
 sub order_links {
   $lxdebug->enter_sub();
-
   # get customer/vendor
   $form->all_vc(\%myconfig, $form->{vc},
                 ($form->{vc} eq 'customer') ? "AR" : "AP");
@@ -231,6 +230,7 @@ sub order_links {
 
   }
   $form->{cp_id} = $cp_id;
+
   if ($payment_id) {
     $form->{payment_id} = $payment_id;
   }
@@ -334,14 +334,6 @@ sub form_header {
   $form->{jsscript} = $form->{jscalendar};
   $jsscript = "";
 
-  $payment = qq|<option value=""></option>|;
-  foreach $item (@{ $form->{payment_terms} }) {
-    if ($form->{payment_id} eq $item->{id}) {
-      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
-    } else {
-      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
-    }
-  }
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -418,6 +410,7 @@ sub form_header {
                                    "old_id" => \@old_project_ids },
                    "employees" => "ALL_SALESMEN",
                    "taxzones" => "ALL_TAXZONES",
+                   "payments" => "ALL_PAYMENTS",
                    "currencies" => "ALL_CURRENCIES");
                   ($form->{vc} eq "customer" 
                       ? $form->get_lists("customers" => "ALL_CUSTOMERS") 
@@ -452,6 +445,20 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)))) . qq|
       </td><input type=hidden name="select$form->{vc}" value="| .
     Q($form->{"select$form->{vc}"}) . qq|">|;
+
+  %labels = ();
+  @values = ("");
+  foreach my $item (@{ $form->{"ALL_PAYMENTS"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"description"};
+  }
+  
+  $payments = qq|
+    <th align="right">| . $locale->text('Payment Terms') . qq|</th>
+    <td>| .
+    NTI($cgi->popup_menu('-name' => 'payment_id', '-values' => \@values,
+                         '-labels' => \%labels, '-default' => $form->{payment_id}))
+    . qq|</td>|;
 
   %labels = ();
   @values = ("");
@@ -1008,10 +1015,10 @@ sub form_footer {
 		<td>$notes</td>
 		<td>$intnotes</td>
 	      </tr>
-	  <th align=right>| . $locale->text('Payment Terms') . qq|</th>
-	  <td><select name=payment_id>$payment
-                          </select></td>
-	    </table>
+	  <tr>
+    $payments
+	    </tr>
+      </table>
 	  </td>
 	  <td align=right width=100%>
 	    $taxincluded
@@ -1184,9 +1191,17 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
   $form->{update} = 1;
-
+      
+  if($form->{payment_id}) { 
+    $payment_id = $form->{payment_id};
+  }
+  
   &check_name($form->{vc});
-
+  
+  if($form->{payment_id} eq "") { 
+    $form->{payment_id} = $payment_id;
+  }
+  
   $buysell              = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');
   $form->{exchangerate} = $exchangerate
@@ -1922,9 +1937,16 @@ sub save_and_close {
     if ($form->{currency} ne $form->{defaultcurrency});
 
   &validate_items;
-
+  
+  if($form->{payment_id}) { 
+    $payment_id = $form->{payment_id};
+  }
+  
   # if the name changed get new values
   if (&check_name($form->{vc})) {
+    if($form->{payment_id} eq "") { 
+      $form->{payment_id} = $payment_id;
+    }
     &update;
     exit;
   }
@@ -2006,9 +2028,16 @@ sub save {
     if ($form->{currency} ne $form->{defaultcurrency});
 
   &validate_items;
-
+  
+  if($form->{payment_id}) { 
+    $payment_id = $form->{payment_id};
+  }
+  
   # if the name changed get new values
   if (&check_name($form->{vc})) {
+    if($form->{payment_id} eq "") { 
+      $form->{payment_id} = $payment_id;
+    }
     &update;
     exit;
   }
@@ -2161,9 +2190,16 @@ sub invoice {
     $form->{ordnumber} = "";
     $form->{quodate} = $form->{transdate};
   }
-
+  
+  if($form->{payment_id}) { 
+    $payment_id = $form->{payment_id};
+  }
+  
   # if the name changed get new values
   if (&check_name($form->{vc})) {
+    if($form->{payment_id} eq "") { 
+      $form->{payment_id} = $payment_id;
+    }
     &update;
     exit;
   }
