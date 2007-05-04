@@ -38,7 +38,7 @@ use Data::Dumper;
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/drafts.pl";
-$form->{"Watchdog::taxincluded"} = 1;
+
 1;
 
 # end of main
