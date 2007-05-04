@@ -1644,6 +1644,20 @@ $main::lxdebug->enter_sub();
   $main::lxdebug->leave_sub();
 }
 
+sub _get_payments {
+$main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_payments" unless ($key);
+
+  my $query = qq|SELECT * FROM payment_terms ORDER BY id|;
+ 
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub _get_customers {
   $main::lxdebug->enter_sub();
 
@@ -1740,6 +1754,10 @@ sub get_lists {
   
   if($params{"vendors"}) {
     $self->_get_vendors($dbh, $params{"vendors"});
+  }
+  
+  if($params{"payments"}) {
+    $self->_get_payments($dbh, $params{"payments"});
   }
 
   $dbh->disconnect();
