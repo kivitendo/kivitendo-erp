@@ -73,6 +73,7 @@ $self->{texts} = {
   'Invoice Date'                => 'Rechnungsdatum',
   'Invoice Date missing!'       => 'Rechnungsdatum fehlt!',
   'Invoice Number'              => 'Rechnungsnummer',
+  'Invoice with Storno (abbreviation)' => 'R(S)',
   'Jan'                         => 'Jan',
   'January'                     => 'Januar',
   'Jul'                         => 'Jul',

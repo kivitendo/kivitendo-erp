@@ -1644,8 +1644,13 @@ sub ar_transactions {
 
     $column_data{invnumber} =
       "<td><a href=$module?action=edit&id=$ar->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
+
+    my $is_storno  = $ar->{storno} && ($ar->{invnumber} =~ /^Storno zu/);
+    my $has_storno = $ar->{storno} && !$is_storno;
+
     $column_data{type} = "<td>" .
-      ($ar->{storno}     ? $locale->text("Storno (one letter abbreviation)") :
+      ($has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :
+       $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
        $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
        $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
                            $locale->text("AR Transaction (abbreviation)"))
