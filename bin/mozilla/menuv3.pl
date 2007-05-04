@@ -57,8 +57,8 @@ sub display {
 
 <div style="clear: both;"></div>
 
-<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" width="100%" height="93%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-<p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
+<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
+<p>Ihr Browser kann leider keine eingebetteten Frames anzeigen. Bitte w&auml;hlen Sie ein anderes Men&uuml; in der Benutzerkonfiguration im Administrationsmen&uuml; aus.
 </p>
 </iframe>
 </body>
@@ -73,7 +73,7 @@ sub clock_line {
   $fensterlink="menuv3.pl?login=$form->{login}&password=$form->{password}&action=display";
   $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
 
-  $login = "[Nutzer "
+  $login = "[".$locale->text('User') . ": "
     . $form->{login}
     . " - <a href=\"login.pl?password="
     . $form->{"password"}
