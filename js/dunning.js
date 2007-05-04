@@ -1,5 +1,5 @@
 function set_email_window(input_subject, input_body, input_attachment) {
-  var parm = centerParms(600,500) + ",width=600,height=500,status=yes,scrollbars=yes";
+  var parm = centerParms(800,600) + ",width=800,height=600,status=yes,scrollbars=yes";
   var url = "dn.pl?" +
     "action=set_email&" +
     "login=" +  encodeURIComponent(document.getElementsByName("login")[0].value)+ "&"+
