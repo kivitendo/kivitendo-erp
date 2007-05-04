@@ -1,36 +1,5 @@
 <body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
 
- <form name="Form">
-
-  <input type="hidden" name="input_subject" value="<TMPL_VAR NAME=input_subject ESCAPE=HTML>">
-  <input type="hidden" name="input_body" value="<TMPL_VAR NAME=input_body ESCAPE=HTML>">
-  <input type="hidden" name="input_attachment" value="<TMPL_VAR NAME=input_attachment ESCAPE=HTML>">
-
-  <table width="100%">
-   <tr>
-    <th colspan=2 class="listtop"><TMPL_VAR NAME=title></th>
-   </tr>
-   <tr>
-    <td><translate>Subject:</translate></td>
-    <td><input id="email_subject" name="email_subject" value="<TMPL_VAR NAME=email_subject ESCAPE=HTML>">
-    </td>
-   </tr>
-   <tr>
-    <td><translate>Body:</translate></td>
-    <td>
-<textarea id="email_body" name="email_body" rows=20 cols=70 wrap=soft><TMPL_VAR NAME=email_body ESCAPE=HTML></textarea>
-
-    </td>
-   </tr>
-   <tr>
-    <td><translate>Attach PDF:</translate></td>
-    <td><input id="email_attachment" type=checkbox name="email_attachment" value=1 "<TMPL_VAR NAME=email_attachment ESCAPE=HTML>">
-    </td>
-    </tr>
-  </table>
- <button type="button" onclick="email_updated()"><translate>Close</translate></button></td>
- </form>
-
  <script type="text/javascript">
   <!--
       function email_updated() {
@@ -38,7 +7,36 @@
         window.opener.document.getElementsByName(document.Form.input_body.value)[0].value = document.getElementsByName("email_body")[0].value;
         window.opener.document.getElementsByName(document.Form.input_attachment.value)[0].value = document.getElementsByName("email_attachment")[0].value;        self.close();
       }
+    -->
  </script>
 
+ <form name="Form">
+
+  <input type="hidden" name="input_subject" value="<TMPL_VAR input_subject ESCAPE=HTML>">
+  <input type="hidden" name="input_body" value="<TMPL_VAR input_body ESCAPE=HTML>">
+  <input type="hidden" name="input_attachment" value="<TMPL_VAR input_attachment ESCAPE=HTML>">
+
+  <div class="listtop" width="100%"><TMPL_VAR title></div>
+
+  <table width="100%">
+   <tr>
+    <td valign="top"><translate>Subject:</translate></td>
+    <td valign="top"><input id="email_subject" name="email_subject" size="40" value="<TMPL_VAR email_subject ESCAPE=HTML>"></td>
+   </tr>
+
+   <tr>
+    <td valign="top"><translate>Body:</translate></td>
+    <td valign="top"><textarea id="email_body" name="email_body" rows="20" cols="70" wrap="soft"><TMPL_VAR email_body ESCAPE=HTML></textarea></td>
+   </tr>
+
+   <tr>
+    <td valign="top"><translate>Attach PDF:</translate></td>
+    <td valign="top"><input id="email_attachment" type="checkbox" name="email_attachment" value="1" "<TMPL_VAR email_attachment ESCAPE=HTML>"></td>
+   </tr>
+  </table>
+
+  <button type="button" onclick="email_updated()"><translate>Save and close</translate></button>
+
+ </form>
 </body>
 </html>
