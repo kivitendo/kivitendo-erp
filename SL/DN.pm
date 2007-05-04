@@ -324,7 +324,7 @@ sub get_invoices {
   my %columns = (
     "ordnumber" => "a.ordnumber",
     "invnumber" => "a.invnumber",
-    "notes" => "a.notes",
+    "notes"     => "a.notes",
     );
   foreach my $key (keys(%columns)) {
     next unless ($form->{$key});
@@ -333,7 +333,7 @@ sub get_invoices {
   }
 
   if ($form->{dunning_level}) {
-    $where .= qq| AND a.dunning_config_id = ?|;
+    $where .= qq| AND nextcfg.id = ?|;
     push(@values, conv_i($form->{dunning_level}));
   }
 
