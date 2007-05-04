@@ -86,184 +86,25 @@ sub show_invoices {
   DN->get_invoices(\%myconfig, \%$form);
   $form->{title} = $locale->text('Start Dunning Process');
 
-  if (@{ $form->{DUNNING_CONFIG} }) {
-    foreach $item (@{ $form->{DUNNING_CONFIG} }) {
-        $form->{selectdunning} .=
-          "<option value=$item->{id}>$item->{dunning_description}</option>";
+  foreach my $row (@{ $form->{DUNNINGS} }) {
+    $row->{DUNNING_CONFIG} = [ map +{ %{ $_ } }, @{ $form->{DUNNING_CONFIG} } ];
+
+    if ($row->{next_dunning_config_id}) {
+      map { $_->{SELECTED} = $_->{id} == $row->{next_dunning_config_id} } @{ $row->{DUNNING_CONFIG } };
     }
+    map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount fee interest);
   }
 
+  $form->{rowcount}       = scalar @{ $form->{DUNNINGS} };
+  $form->{jsscript}       = 1;
+  $form->{callback}     ||= build_std_url("action=show_invoices", qw(login password customer invnumber ordnumber groupinvoices minamount dunning_level notes));
 
-  $form->{nextsub} = "save_dunning";
+  $form->{PRINT_OPTIONS}  = print_options(1);
 
-  $form->{jsscript} = 1;
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/checkbox_utils.js"></script>|;
-
-  $form->{callback} =
-    "$form->{script}?action=show_invoices&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&paymentuntil=$form->{paymentuntil}&groupinvoices=$form->{groupinvoices}&minamount=$form->{minamount}&dunning_level=$form->{dunning_level}&notes=$form->{notes}"
-    unless $form->{callback};
-
-  @column_index = qw(dunning_description dunning_description_next active email customername invnumber invdate inv_duedate amount next_duedate fee interest );
-
-  $column_header{dunning_description} =
-      qq|<th class="listheading" colspan="2">|
-    . $locale->text('Current / Next Level')
-    . qq|</th>|;
-  $column_header{active} =
-      qq|<th class=listheading>|
-    . NTI($cgi->checkbox('-name' => 'selectall_active',
-                         '-label' => $locale->text('Active?'),
-                         '-checked' => 0,
-                         '-onclick' => "checkbox_check_all('selectall_active', 'active_', 1, " . scalar(@{ $form->{DUNNINGS} }) . ")"))
-    . qq|</th>|;
-  $column_header{email} =
-      qq|<th class=listheading>|
-    . NTI($cgi->checkbox('-name' => 'selectall_email',
-                         '-label' => $locale->text('eMail?'),
-                         '-checked' => 0,
-                         '-onclick' => "checkbox_check_all('selectall_email', 'email_', 1, " . scalar(@{ $form->{DUNNINGS} }) . ")"))
-    . qq|</th>|;
-  $column_header{customername} =
-      qq|<th class=listheading>|
-    . $locale->text('Customername')
-    . qq|</th>|;
-  $column_header{invnumber} =
-      qq|<th class=listheading>|
-    . $locale->text('Invno.')
-    . qq|</th>|;
-  $column_header{inv_duedate} =
-      qq|<th class=listheading>|
-    . $locale->text('Inv. Duedate')
-    . qq|</th>|;
-  $column_header{next_duedate} =
-      qq|<th class=listheading>|
-    . $locale->text('Dunning Duedate')
-    . qq|</th>|;
-  $column_header{invdate} =
-      qq|<th class=listheading>|
-    . $locale->text('Invdate')
-    . qq|</th>|;
-  $column_header{amount} =
-      qq|<th class=listheading>|
-    . $locale->text('Amount')
-    . qq|</th>|;
-  $column_header{fee} =
-      qq|<th class=listheading>|
-    . $locale->text('Total Fees')
-    . qq|</th>|;
-  $column_header{interest} =
-      qq|<th class=listheading>|
-    . $locale->text('Interest')
-    . qq|</th>|;
-
-  $form->header;
-
-
-  print qq|
-<body>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/dunning.js"></script>
-<form name=Form method=post action=$form->{script}>
-
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=12>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>|;
-  map { print "$column_header{$_}\n" if $column_header{$_}; } @column_index;
-
-  print qq|
-        </tr>
-|;
-  my $i = 0;
-  foreach $ref (@{ $form->{DUNNINGS} }) {
-
-    $i++;
-    my $j = $i % 2;
-
-    print qq|
-        <tr valign=top class=listrow$j>
-|;
-
-    $form->{selectdunning} =~ s/ selected//g;
-    if ($ref->{next_dunning_config_id} ne "") {
-      $form->{selectdunning} =~ s/value=$ref->{next_dunning_config_id}/value=$ref->{next_dunning_config_id} selected/;
-    }
-
-    $column_data{dunning_description} =
-      qq|<td>|
-      . qq|<input type=hidden name=inv_id_$i size=2 value="$ref->{id}">|
-      . qq|<input type=hidden name=customer_id_$i size=2 value="$ref->{customer_id}">|
-      . ($ref->{dunning_level} ? $ref->{dunning_level} : "&nbsp;")
-      . qq|</td>|;
-    $column_data{dunning_description_next} =
-      qq|<td>|
-      . qq|<select name=next_dunning_config_id_$i>$form->{selectdunning}</select>|
-      . qq|</td>|;
-    my $active = ($ref->{active}) ? "checked" : "";
-    $column_data{active} =
-      qq|<td><input type=checkbox name=active_$i value=1 $active></td>|;
-    my $email = ($ref->{email}) ? "checked" : "";
-    $column_data{email} =
-      qq|<td><input type=checkbox name=email_$i value=1 $email></td>|;
-    $column_data{next_duedate}           = qq|<td>$ref->{next_duedate}</td>|;
-
-    $column_data{inv_duedate}           = qq|<td><input type=hidden name=inv_duedate_$i size=6 value="$ref->{duedate}">$ref->{duedate}</td>|;
-    $column_data{invdate}           = qq|<td><input type=hidden name=invdate_$i size=6 value="$ref->{transdate}">$ref->{transdate}</td>|;
-    $column_data{invnumber}           = qq|<td><input type=hidden name=invnumber_$i size=6 value="$ref->{invnumber}">$ref->{invnumber}</td>|;
-    $column_data{customername}           = qq|<td><input type=hidden name=customername_$i size=6 value="$ref->{customername}">$ref->{customername}</td>|;
-
-    map { $column_data{$_} =
-            qq|<td align="right">|
-            . H($form->format_amount(\%myconfig, $ref->{$_} * 1, -2))
-            . qq|</td>|
-    } qw(amount fee interest);
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-	</tr>
-|;
-  }
-
-  $form->{rowcount} = $i;
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>|;
-  print_options();
-  print qq|
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-<input name=rowcount type=hidden value="$form->{rowcount}">
-<input name=nextsub type=hidden value="$form->{nextsub}">
-<input name=groupinvoices type=hidden value="$form->{groupinvoices}">
-
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-<input type="hidden" name="action">
-<input type="submit" name="dummy" value="|
-    . $locale->text('Continue') . qq|" onclick="this.disabled=true; this.value='| . $locale->text("The dunning process started") . qq|'; document.Form.action.value='| . $locale->text('Continue') . qq|'; document.Form.submit()">
-
-  </form>
-
-  </body>
-  </html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("dunning/show_invoices");
 
   $lxdebug->leave_sub();
-
 }
 
 sub save {
