@@ -38,7 +38,7 @@ use Data::Dumper;
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/drafts.pl";
-
+$form->{"Watchdog::taxincluded"} = 1;
 1;
 
 # end of main
@@ -845,13 +845,13 @@ sub form_footer {
     qq|<textarea name="notes" rows="$rows" cols="26" wrap="soft">$form->{notes}</textarea>|;
   $intnotes =
     qq|<textarea name="intnotes" rows="$rows" cols="35" wrap="soft">$form->{intnotes}</textarea>|;
-
-  $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
+ 
+  $form->{taxincluded} = ($form->{taxincluded} == 1 ? "checked" : "");
 
   $taxincluded = "";
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
-	        <input name="taxincluded" class="checkbox" type="checkbox" value=$form->{taxincluded}> <b>|
+	        <input name="taxincluded" class="checkbox" type="checkbox" value="1" $form->{taxincluded}> <b>|
       . $locale->text('Tax Included') . qq|</b><br><br>|;
   }
 
@@ -1208,9 +1208,18 @@ sub update {
     $form->{print_and_post} = 0;
   }
 
+  
+  if($form->{taxincluded}) {
+    $taxincluded = "checked";
+  }
   $form->{update} = 1;
 
   &check_name(customer);
+
+  if(!$form->{taxincluded}) {
+    $form->{taxincluded} = $taxincluded;
+  }
+
 
   $form->{exchangerate} = $exchangerate
     if (
