@@ -1,13 +1,13 @@
 package LXDebug;
 
-use constant NONE                => 0;
-use constant INFO                => 1;
-use constant DEBUG1              => 2;
-use constant DEBUG2              => 4;
-use constant QUERY               => 8;
-use constant TRACE               => 16;
-use constant CALL_TRACE_ON_ERROR => 32;
-use constant ALL                 => 63;
+use constant NONE               => 0;
+use constant INFO               => 1;
+use constant DEBUG1             => 2;
+use constant DEBUG2             => 4;
+use constant QUERY              => 8;
+use constant TRACE              => 16;
+use constant BACKTRACE_ON_ERROR => 32;
+use constant ALL                => 63;
 
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
@@ -100,15 +100,15 @@ sub leave_sub {
   return 1;
 }
 
-sub full_error_call_trace {
+sub show_backtrace {
   my ($self) = @_;
 
-  return 1 unless ($global_level & CALL_TRACE_ON_ERROR);
+  return 1 unless ($global_level & BACKTRACE_ON_ERROR);
 
-  $self->message(CALL_TRACE_ON_ERROR, "Starting full caller dump:");
+  $self->message(BACKTRACE_ON_ERROR, "Starting full caller dump:");
   my $level = 0;
   while (my ($dummy, $filename, $line, $subroutine) = caller $level) {
-    $self->message(CALL_TRACE_ON_ERROR, "${subroutine} from ${filename}:${line}");
+    $self->message(BACKTRACE_ON_ERROR, "${subroutine} from ${filename}:${line}");
     $level++;
   }
 
