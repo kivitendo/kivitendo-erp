@@ -648,7 +648,7 @@ sub print_dunning {
     qq|SELECT
          cfg.interest_rate, cfg.template AS formname,
          cfg.email_subject, cfg.email_body, cfg.email_attachment,
-         d.fee, d.dunning_date,
+         d.fee, d.transdate AS dunning_date,
          (SELECT SUM(interest)
           FROM dunning
           WHERE dunning_id = ?)
