@@ -93,9 +93,6 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-  # show history button
-  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
-  #/show hhistory button
 
   $form->{title} = "Edit";
 
@@ -319,6 +316,9 @@ sub form_header {
   };
   //-->
   </script>|;
+  # show history button
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
 
   # set option selected
   foreach $item (qw(vendor currency department)) {
@@ -880,11 +880,11 @@ sub form_footer {
   # button for saving history
   if($form->{id} ne "") {
     print qq|
-  	  <input type=button class=submit onclick=set_history_window(|
+  	  <input type="button" class="submit" onclick="set_history_window(|
   	  . $form->{id} 
-  	  . qq|); name=history id=history value=|
+  	  . qq|);" name="history" id="history" value="|
   	  . $locale->text('history') 
-  	  . qq|>|;
+  	  . qq|">|;
   }
   # /button for saving history
   print "
