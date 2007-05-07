@@ -70,13 +70,6 @@ sub post_transaction {
 
   my $i;
 
-  # check if debit and credit balances
-
-  if ($form->{storno}) {
-    $form->{reference}   = "Storno-" . $form->{reference};
-    $form->{description} = "Storno-" . $form->{description};
-  }
-
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
@@ -119,11 +112,13 @@ sub post_transaction {
   $query =
     qq|UPDATE gl SET
          reference = ?, description = ?, notes = ?,
-         transdate = ?, department_id = ?, taxincluded = ?
+         transdate = ?, department_id = ?, taxincluded = ?,
+         storno = ?, storno_id = ?
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
              conv_date($form->{transdate}), $department_id, $form->{taxincluded},
+             $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}),
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -178,6 +173,10 @@ sub post_transaction {
                  $form->{"memo_$i"}, $project_id, $taxkey);
       do_query($form, $dbh, $query, @values);
     }
+  }
+
+  if ($form->{storno} && $form->{storno_id}) {
+    do_query($form, $dbh, qq|UPDATE gl SET storno = 't' WHERE id = ?|, conv_i($form->{storno_id}));
   }
 
   # commit and redirect
@@ -558,7 +557,7 @@ sub transaction {
 
   if ($form->{id}) {
     $query =
-      qq|SELECT g.reference, g.description, g.notes, g.transdate,
+      qq|SELECT g.reference, g.description, g.notes, g.transdate, g.storno, g.storno_id,
            d.description AS department, e.name AS employee, g.taxincluded, g.gldate
          FROM gl g
          LEFT JOIN department d ON (d.id = g.department_id)

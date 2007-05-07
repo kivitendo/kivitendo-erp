@@ -32,6 +32,7 @@
 #======================================================================
 
 use SL::GL;
+use SL::IS;
 use SL::PE;
 
 require "bin/mozilla/arap.pl";
@@ -109,7 +110,7 @@ sub add {
 
 }
 
-sub edit {
+sub prepare_transaction {
   $lxdebug->enter_sub();
 
   GL->transaction(\%myconfig, \%$form);
@@ -178,14 +179,23 @@ sub edit {
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
+  $lxdebug->leave_sub();
+}
+
+sub edit {
+  $lxdebug->enter_sub();
+
+  prepare_transaction();
+
   $form->{title} = "Edit";
 
-  &form_header;
-  &display_rows;
-  &form_footer;
-  $lxdebug->leave_sub();
+  form_header();
+  display_rows();
+  form_footer();
 
+  $lxdebug->leave_sub();
 }
+
 
 sub search {
   $lxdebug->enter_sub();
@@ -1317,11 +1327,11 @@ sub form_header {
 <body onLoad="fokus()">
 
 <form method=post name="gl" action=$form->{script}>
+|;
 
-<input name=id type=hidden value=$form->{id}>
+  $form->hide_form(qw(id closedto locked storno storno_id));
 
-<input type=hidden name=closedto value=$form->{closedto}>
-<input type=hidden name=locked value=$form->{locked}>
+  print qq|
 <input type=hidden name=title value="$title">
 
 
@@ -1466,8 +1476,10 @@ sub form_footer {
 
   if ($form->{id}) {
 
-    print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Storno') . qq|">|;
+    if (!$form->{storno}) {
+      print qq|<input class=submit type=submit name=action value="|
+        . $locale->text('Storno') . qq|">|;
+    }
 
     # Löschen und Ändern von Buchungen nicht mehr möglich (GoB) nur am selben Tag möglich
 
@@ -1575,19 +1587,6 @@ sub post {
 
   my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
-  if ($form->{storno}) {
-    for my $i (1 .. $form->{rowcount}) {
-      unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
-        if ($form->{"debit_$i"} ne "") {
-          $form->{"credit_$i"} = $form->{"debit_$i"};
-          $form->{"debit_$i"}  = "";
-        } elsif ($form->{"credit_$i"} ne "") {
-          $form->{"debit_$i"}  = $form->{"credit_$i"};
-          $form->{"credit_$i"} = "";
-        }
-      }
-    }
-  }
 
   for my $i (1 .. $form->{rowcount}) {
 
@@ -1758,8 +1757,47 @@ sub post_as_new {
 sub storno {
   $lxdebug->enter_sub();
 
-  $form->{id}     = 0;
-  $form->{storno} = 1;
+  if (IS->has_storno(\%myconfig, $form, 'gl')) {
+    $form->{title} = $locale->text("Cancel General Ledger Transaction");
+    $form->error($locale->text("Transaction has already been cancelled!"));
+  }
+
+  my %keep_keys = map { $_, 1 } qw(login password id stylesheet);
+  map { delete $form->{$_} unless $keep_keys{$_} } keys %{ $form };
+
+  prepare_transaction();
+
+  for my $i (1 .. $form->{rowcount}) {
+    for (qw(debit credit tax)) {
+      $form->{"${_}_$i"} =
+        ($form->{"${_}_$i"})
+        ? $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2)
+        : "";
+    }
+  }
+
+  $form->{storno}      = 1;
+  $form->{storno_id}   = $form->{id};
+  $form->{id}          = 0;
+
+  $form->{reference}   = "Storno-" . $form->{reference};
+  $form->{description} = "Storno-" . $form->{description};
+
+  for my $i (1 .. $form->{rowcount}) {
+    next if (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq ""));
+
+    if ($form->{"debit_$i"} ne "") {
+      $form->{"credit_$i"} = $form->{"debit_$i"};
+      $form->{"debit_$i"}  = "";
+
+    } else {
+      $form->{"debit_$i"}  = $form->{"credit_$i"};
+      $form->{"credit_$i"} = "";
+    }
+  }
+
+  post();
+
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
@@ -1767,7 +1805,7 @@ sub storno {
   	$form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
-  &post;
+
   $lxdebug->leave_sub();
 
 }
