@@ -1522,21 +1522,25 @@ sub storno {
   }
 
   map({ my $key = $_; delete($form->{$key})
-          unless (grep({ $key eq $_ } qw(login password id type))); }
+          unless (grep({ $key eq $_ } qw(login password id stylesheet type))); }
       keys(%{ $form }));
 
-  &invoice_links;
-  &prepare_invoice;
+  invoice_links();
+  prepare_invoice();
   relink_accounts();
+
+  # Payments must not be recorded for the new storno invoice.
+  $form->{paidaccounts} = 0;
+  map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
 
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
+  $form->{rowcount}++;
 
-  &post();
+  post();
   $lxdebug->leave_sub();
-
 }
 
 sub preview {

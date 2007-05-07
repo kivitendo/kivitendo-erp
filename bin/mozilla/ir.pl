@@ -1017,6 +1017,10 @@ sub storno {
   invoice_links();
   prepare_invoice();
   relink_accounts();
+
+  # Payments must not be recorded for the new storno invoice.
+  $form->{paidaccounts} = 0;
+  map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
   
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
