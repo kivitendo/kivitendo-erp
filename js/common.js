@@ -1,7 +1,7 @@
 
 function setupPoints(numberformat, wrongFormat) {
-  decpoint = numberformat.substring((numberformat.substring(1, 2).match(/.|,/) ? 5 : 4), (numberformat.substring(1, 2).match(/.|,/) ? 6 : 5));
-  if (numberformat.substring(1, 2).match(/.|,/)) {
+  decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,/) ? 6 : 5));
+  if (numberformat.substring(1, 2).match(/\.|\,/)) {
     thpoint = numberformat.substring(1, 2); 
   }
   else {
@@ -47,33 +47,41 @@ function set_longdescription_window(input_name) {
   }
 
 function check_right_number_format(input_name) {
-  var decnumbers = input_name.value.split(decpoint);
   if(thpoint) {
-    var thnumbers = input_name.value.split(thpoint);
-    if(thnumbers[thnumbers.length-1].match(/.+decpoint$/g)) {
-      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring(thnumbers[thnumbers.length-1].length-1);
+    if(thpoint == ','){
+      var thnumbers = input_name.value.split(',');  
+      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(".") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(".") : thnumbers[thnumbers.length-1].length), 0);
     }
-    if(thnumbers[thnumbers.length-1].match(/.+decpoint\d$/g)) {
-      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring(thnumbers[thnumbers.length-1].length-2);
-    }  
-    if(thnumbers[thnumbers.length-1].match(/.+decpoint\d\d$/g)) {
-      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring(thnumbers[thnumbers.length-1].length-3);
-    }  
+    else{
+      var thnumbers = input_name.value.split('.');  
+      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(",") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(",") : thnumbers[thnumbers.length-1].length), 0);
+    }
+        
     for(var i = 1; i < thnumbers.length; i++) {
-      if(!thnumbers[i].match(/\d\d\d/g)) {
-        return show_alert_and_focus(input_name, wrongNumberFormat);
-      }
-      if(thnumbers[i].match(/.*decpoint.*|.*thpoint.*/g)) {
-        return show_alert_and_focus(input_name, wrongNumberFormat);
-      }
-    }
-    if(decnumbers.length > 2 || (decnumbers.length > 1 ? (decnumbers[1].length > 2) : false)) {
-      return show_alert_and_focus(input_name, wrongNumberFormat);
+     if(thnumbers[i].length !== 3) {
+       return show_alert_and_focus(input_name, wrongNumberFormat+thnumbers);
+     }
+   }
+  }
+  if(decpoint == ',') {
+    var decnumbers = input_name.value.split(',');
+  }
+  else {
+    var decnumbers = input_name.value.split('.');
+  }
+  if(decnumbers.length == 2) {
+    if(decnumbers[1].length > 2)  {
+      return show_alert_and_focus(input_name, wrongNumberFormat + decnumbers);
     }
   }
   else {
-    if(decnumbers.length > 1 || decnumbers[0].length > 2) {
+    if(decnumbers.length > 1 || decnumbers.length == 0) {
       return show_alert_and_focus(input_name, wrongNumberFormat);
+    }
+    if(!thpoint) {
+      if(decnumbers[0].match(/\D/)) {
+        return show_alert_and_focus(input_name, wrongNumberFormat);
+      }
     }
   }
 }
@@ -125,7 +133,7 @@ function getDateArray(input_name) {
 
 function show_alert_and_focus(input_name, errorMessage) {
   input_name.select();
-  alert(errorMessage + "\n\r\n\r--> " + input_name.value);
+  alert(errorMessage + "\n\r\n\r--> " + input_name.value); //  + "\ndecpoint: " + decpoint + "\nthpoint: " + thpoint
   input_name.focus();
   return false;
 }
