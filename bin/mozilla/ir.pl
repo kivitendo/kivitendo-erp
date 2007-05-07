@@ -223,7 +223,7 @@ sub form_header {
   $lxdebug->enter_sub();
 
   # set option selected
-  foreach $item (qw(AP vendor currency department employee)) {
+  foreach $item (qw(AP vendor currency department)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -330,7 +330,7 @@ sub form_header {
       <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
       <td>| .
-        NTI($cgi->popup_menu('-name' => 'employee', '-default' => $form->{"employee"},
+        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
       </tr>|;
@@ -1013,6 +1013,7 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
+  my $employee_id = $form->{employee_id};
   invoice_links();
   prepare_invoice();
   relink_accounts();
@@ -1030,7 +1031,8 @@ sub storno {
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
   $form->{rowcount}++;
-  &post();
+  $form->{employee_id} = $employee_id;
+  post();
   $lxdebug->leave_sub();
 
 }
