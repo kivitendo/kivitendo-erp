@@ -30,6 +30,15 @@ sub STORE {
     $main::lxdebug->_write("WATCH",
                            "Value of '$key' changed from '$this->{$key}' to '$value' "
                              . "in ${subroutine} at ${self_filename}:${self_line}");
+    if ($watched_variables{$key} > 1) {
+      my $level = 1;
+      my ($dummy, $filename, $line);
+
+      while (($dummy, $filename, $line, $subroutine) = caller $level) {
+        $main::lxdebug->_write("WATCH", "  ${subroutine} from ${filename}:${line}");
+        $level++;
+      }
+    }
   }
 
   $this->{$key} = $value;
