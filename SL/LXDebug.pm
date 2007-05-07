@@ -108,7 +108,7 @@ sub show_backtrace {
   $self->message(BACKTRACE_ON_ERROR, "Starting full caller dump:");
   my $level = 0;
   while (my ($dummy, $filename, $line, $subroutine) = caller $level) {
-    $self->message(BACKTRACE_ON_ERROR, "${subroutine} from ${filename}:${line}");
+    $self->message(BACKTRACE_ON_ERROR, "  ${subroutine} from ${filename}:${line}");
     $level++;
   }
 
