@@ -51,6 +51,7 @@ use SL::Form;
 use SL::Locale;
 
 eval { require "lx-erp.conf"; };
+eval { require "lx-erp-local.conf"; } if -f "lx-erp-local.conf";
 
 require "bin/mozilla/common.pl";
 
