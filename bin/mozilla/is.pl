@@ -1412,6 +1412,9 @@ sub post {
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer", $locale->text('Customer missing!'));
 
+  $form->{invnumber} =~ s/^\s*//g;
+  $form->{invnumber} =~ s/\s*$//g;
+
   # if oldcustomer ne customer redo form
   if (&check_name(customer)) {
     &update;

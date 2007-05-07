@@ -436,6 +436,7 @@ sub form_header {
   }
 
   my $vc = qq|
+      <input type="hidden" name="old$form->{vc}" value="| . H($form->{"old$form->{vc}"}) . qq|">
       <th align="right">| . $locale->text(ucfirst($form->{vc})) . qq|</th>
       <td>| . 
         (($myconfig{vclimit} == 1 ) 
@@ -1927,6 +1928,10 @@ sub save_and_close {
     $form->isblank("transdate", $locale->text('Quotation Date missing!'));
   }
 
+  my $idx = $form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber";
+  $form->{$idx} =~ s/^\s*//g;
+  $form->{$idx} =~ s/\s*$//g;
+
   $msg = ucfirst $form->{vc};
   $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
 
@@ -2017,6 +2022,10 @@ sub save {
   } else {
     $form->isblank("transdate", $locale->text('Quotation Date missing!'));
   }
+
+  my $idx = $form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber";
+  $form->{$idx} =~ s/^\s*//g;
+  $form->{$idx} =~ s/\s*$//g;
 
   $msg = ucfirst $form->{vc};
   $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
@@ -2495,6 +2504,8 @@ sub save_as_new {
   # Let Lx-Office assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
   my $idx = $form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber";
+  $form->{$idx} =~ s/^\s*//g;
+  $form->{$idx} =~ s/\s*$//g;
   if ($form->{saved_xyznumber} &&
       ($form->{saved_xyznumber} eq $form->{$idx})) {
     delete($form->{$idx});

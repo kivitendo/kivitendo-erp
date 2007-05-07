@@ -1099,6 +1099,9 @@ sub post {
   $form->isblank("invdate", $locale->text('Invoice Date missing!'));
   $form->isblank("vendor",  $locale->text('Vendor missing!'));
 
+  $form->{invnumber} =~ s/^\s*//g;
+  $form->{invnumber} =~ s/\s*$//g;
+
   # if the vendor changed get new values
   if (&check_name(vendor)) {
     &update;
