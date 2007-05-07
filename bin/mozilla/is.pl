@@ -371,8 +371,8 @@ sub form_header {
   my $customers = qq|
       <th align="right">| . $locale->text('Customer') . qq|</th>
       <td>| . 
-        (($myconfig{vclimit} == 1 ) 
-              ? qq|<input type="text" value="$form->{oldcustomer}" name="customer">| 
+        (($myconfig{vclimit} <=  scalar(@values)) 
+              ? qq|<input type="text" value="| . H($form->{"oldcustomer"}) . qq|" name="customer">| 
               : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer}, 
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
                              '-values' => \@values, '-labels' => \%labels)))) . qq|

@@ -439,7 +439,7 @@ sub form_header {
       <input type="hidden" name="old$form->{vc}" value="| . H($form->{"old$form->{vc}"}) . qq|">
       <th align="right">| . $locale->text(ucfirst($form->{vc})) . qq|</th>
       <td>| . 
-        (($myconfig{vclimit} == 1 ) 
+        (($myconfig{vclimit} <=  scalar(@values)) 
               ? qq|<input type="text" value="| . H($form->{"old$form->{vc}"}) . qq|" name="$form->{vc}">| 
               : (NTI($cgi->popup_menu('-name' => "$form->{vc}", '-default' => $form->{"old$form->{vc}"}, 
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
