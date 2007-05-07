@@ -47,6 +47,7 @@ use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
 eval { require "lx-erp.conf"; };
+eval { require "lx-erp-local.conf"; } if -f "lx-erp-local.conf";
 
 if ($ENV{CONTENT_LENGTH}) {
   read(STDIN, $_, $ENV{CONTENT_LENGTH});
