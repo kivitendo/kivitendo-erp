@@ -106,13 +106,14 @@ sub clock_line {
   print qq|
 <script type="text/javascript">
 <!--
-var h=$Stunden; var m=$Minuten; var s=$Sekunden;
 function clockon() {
-  s=++s%60;if(s==0){m=++m%60;if(m==0)h=++h%24;}
-  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m)+":"+(s<10?'0'+s:s);
-  var timer=setTimeout("clockon()", 1000);
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
+  var timer=setTimeout("clockon()", 10000);
 }
-//window.onload=clockon
+window.onload=clockon
 //-->
 </script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
