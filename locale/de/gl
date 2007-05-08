@@ -206,6 +206,7 @@ $self->{subs} = {
   'part_selection_internal'     => 'part_selection_internal',
   'post'                        => 'post',
   'post_as_new'                 => 'post_as_new',
+  'prepare_transaction'         => 'prepare_transaction',
   'project_selected'            => 'project_selected',
   'project_selection_internal'  => 'project_selection_internal',
   'reformat_numbers'            => 'reformat_numbers',
