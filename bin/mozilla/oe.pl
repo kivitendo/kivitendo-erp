@@ -435,6 +435,7 @@ sub form_header {
   }
 
   $vc = qq|
+      <input type="hidden" name="$form->{vc}_id" value="| . H($form->{"$form->{vc}_id"}) . qq|">
       <input type="hidden" name="old$form->{vc}" value="| . H($form->{"old$form->{vc}"}) . qq|">
       <th align="right">| . $locale->text(ucfirst($form->{vc})) . qq|</th>
       <td>| . 
