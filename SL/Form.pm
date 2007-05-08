@@ -1667,7 +1667,7 @@ sub _get_customers {
 
   $key = "all_customers" unless ($key);
 
-  my $query = qq|SELECT * FROM customer LIMIT $main::myconfig{vclimit}|;
+  my $query = qq|SELECT * FROM customer|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1681,7 +1681,7 @@ sub _get_vendors {
 
   $key = "all_vendors" unless ($key);
 
-  my $query = qq|SELECT * FROM vendor|; # LIMIT $main::myconfig{vclimit}|;
+  my $query = qq|SELECT * FROM vendor|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
