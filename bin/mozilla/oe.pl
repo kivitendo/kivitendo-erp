@@ -1578,12 +1578,6 @@ $jsscript
 sub orders {
   $lxdebug->enter_sub();
 
-  # split vendor / customer
-  ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) =
-    split(/--/, $form->{ $form->{vc} });
-
-  OE->transactions(\%myconfig, \%$form);
-
   $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
   # construct href
@@ -1591,10 +1585,17 @@ sub orders {
     qw(type vc login password transdatefrom transdateto
        open closed notdelivered delivered department
        transaction_description);
+  push @fields, $form->{vc};
   $href = "$form->{script}?action=orders&"
     . join("&", map { "${_}=" . E($form->{$_}) } @fields)
     . "&${ordnumber}=" . E($form->{$ordnumber});
   $callback = $href;
+
+  # split vendor / customer
+  ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) =
+    split(/--/, $form->{ $form->{vc} });
+
+  OE->transactions(\%myconfig, \%$form);
 
   @columns = (
     "transdate",               "reqdate",
