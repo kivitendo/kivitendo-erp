@@ -862,7 +862,9 @@ sub parse_template {
           open(OUT, $self->{OUT})
             or $self->error($self->cleanup . "$self->{OUT} : $!");
         } else {
-          $self->{attachment_filename} = $self->generate_attachment_filename();
+          $self->{attachment_filename} = ($self->{attachment_filename}) 
+                                       ? $self->{attachment_filename}
+                                       : $self->generate_attachment_filename();
 
           # launch application
           print qq|Content-Type: | . $template->get_mime_type() . qq|
