@@ -835,7 +835,7 @@ sub generate_ustva {
       $file .= '.xml';
       $form->{tmpfile} = "$userspath/$file";
 
-      $form->{attachment_filename} = "$file";
+      $form->{attachment_filename} = $file;
    
       # Zahlenformatierung für Winston
 
