@@ -912,7 +912,7 @@ sub get_accounts_ustva {
              SELECT id FROM taxkeys 
              WHERE 1=1
                AND chart_id=ac.chart_id 
-               AND taxkey_id = ac.taxkey 
+               --AND taxkey_id = ac.taxkey 
                AND startdate <= COALESCE(AP.transdate)
              ORDER BY startdate DESC LIMIT 1
            )
