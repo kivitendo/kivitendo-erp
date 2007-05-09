@@ -7,7 +7,7 @@
   <AnmeldeZeitraum><%period%></AnmeldeZeitraum>
 
 <%foreach id%>
-  <Kennzahl Nr="<%id%>"><%amount%></Kennzahl>
+  <Kennzahl nr="<%id%>"><%amount%></Kennzahl>
 <%end%>
 
 </WinstonAusgang>
