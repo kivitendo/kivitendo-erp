@@ -830,6 +830,10 @@ sub form_footer {
   $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
 
+  print qq|<input class=submit type=submit name=action id=update_button value="|
+    . $locale->text('Update') . qq|">
+|;
+
   if ($form->{id}) {
     my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap");
 
@@ -850,9 +854,6 @@ sub form_footer {
 |;
 
   }
-
-  print qq|<input class=submit type=submit name=action id=update_button value="|
-    . $locale->text('Update') . qq|">|;
 
   if (!$form->{id} && ($invdate > $closedto)) {
     print qq| <input class=submit type=submit name=action value="|
