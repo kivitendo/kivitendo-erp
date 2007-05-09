@@ -1370,16 +1370,11 @@ sub retrieve_invoice {
 
   $query =
     qq|SELECT
-         (SELECT c.accno FROM chart c
-          WHERE d.inventory_accno_id = c.id) AS inventory_accno,
-         (SELECT c.accno FROM chart c
-          WHERE d.income_accno_id = c.id) AS income_accno,
-         (SELECT c.accno FROM chart c
-          WHERE d.expense_accno_id = c.id) AS expense_accno,
-         (SELECT c.accno FROM chart c
-          WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
-         (SELECT c.accno FROM chart c
-          WHERE d.fxloss_accno_id = c.id) AS fxloss_accno,
+         (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
+         (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
+         (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
+         (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
+         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
          d.curr AS currencies
          ${query_transdate}
        FROM defaults d|;
