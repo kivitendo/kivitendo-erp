@@ -54,8 +54,7 @@ sub post_invoice {
   my $taxdiff;
   my $item;
 
-  my $service_units = AM->retrieve_units($myconfig,$form,"service");
-  my $part_units = AM->retrieve_units($myconfig,$form,"dimension");
+  my $all_units = AM->retrieve_units($myconfig, $form);
 
   if ($form->{id}) {
 
@@ -124,21 +123,14 @@ sub post_invoice {
       my ($item_unit) = $sth->fetchrow_array();
       $sth->finish;
 
-      if ($form->{"inventory_accno_$i"}) {
-        if (defined($part_units->{$item_unit}->{factor}) && $part_units->{$item_unit}->{factor} ne '' && $part_units->{$item_unit}->{factor} ne '0') {
-          $basefactor = $part_units->{$form->{"unit_$i"}}->{factor} / $part_units->{$item_unit}->{factor};
-        } else {
-          $basefactor = 1;
-        }
-        $baseqty = $form->{"qty_$i"} * $basefactor;
+      if (defined($all_units->{$item_unit}->{factor})
+          && ($all_units->{$item_unit}->{factor} ne '')
+          && ($all_units->{$item_unit}->{factor} * 1 != 0)) {
+        $basefactor = $all_units->{$form->{"unit_$i"}}->{factor} / $all_units->{$item_unit}->{factor};
       } else {
-        if (defined($service_units->{$item_unit}->{factor}) && $service_units->{$item_unit}->{factor} ne '' && $service_units->{$item_unit}->{factor} ne '0') {
-          $basefactor = $service_units->{$form->{"unit_$i"}}->{factor} / $service_units->{$item_unit}->{factor};
-        } else {
-          $basefactor = 1;
-        }
-        $baseqty = $form->{"qty_$i"} * $basefactor;
+        $basefactor = 1;
       }
+      $baseqty = $form->{"qty_$i"} * $basefactor;
 
       map { $form->{"${_}_$i"} =~ s/\'/\'\'/g }
         qw(partnumber description unit);
