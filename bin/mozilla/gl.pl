@@ -105,6 +105,8 @@ sub add {
     } (@{ $form->{all_departments} });
   }
 
+  $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
+
   &display_form(1);
   $lxdebug->leave_sub();
 
@@ -188,6 +190,8 @@ sub edit {
   prepare_transaction();
 
   $form->{title} = "Edit";
+
+  $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
   form_header();
   display_rows();
@@ -1055,6 +1059,7 @@ sub display_rows {
   my ($init) = @_;
   $lxdebug->enter_sub();
 
+  $form->{debit_1}     = 0 if !$form->{"debit_1"};
   $form->{totaldebit}  = 0;
   $form->{totalcredit} = 0;
 
@@ -1214,20 +1219,27 @@ sub display_rows {
                            '-labels' => \%project_labels,
                            '-default' => $form->{"project_id_$i"} ));
 
+    my $copy2credit = 'onkeyup="copy_debit_to_credit()"' if $i == 1;
+
     print qq|<tr valign=top>
     $accno
     $fx_transaction
-    <td><input name="debit_$i" size=8 value="$form->{"debit_$i"}" accesskey=$i $debitreadonly></td>
+    <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $copy2credit $debitreadonly></td>
     <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
     <td><input name="tax_$i" size=6 value="$form->{"tax_$i"}"></td>
     $korrektur
-    $tax
+    $tax|;
+
+    if ($form->{show_details}) {
+      print qq|
     $source
     $memo
     <td>$projectnumber</td>
+|;
+    }
+    print qq|
   </tr>
-
-  |;
+|;
   }
 
   $form->hide_form(qw(rowcount selectaccno));
@@ -1243,11 +1255,14 @@ sub form_header {
   $form->{title} = $locale->text("$title General Ledger Transaction");
   $readonly      = ($form->{id}) ? "readonly" : "";
 
+  $show_details_checked = "checked" if $form->{show_details};
+
   # $locale->text('Add General Ledger Transaction')
   # $locale->text('Edit General Ledger Transaction')
 
   map { $form->{$_} =~ s/\"/&quot;/g }
     qw(reference description chart taxchart);
+
   $form->{javascript} = qq|<script type="text/javascript">
   <!--
   function setTaxkey(accno, row) {
@@ -1265,8 +1280,15 @@ sub form_header {
       }
     }
   };
+
+  function copy_debit_to_credit() {
+    var txt = document.getElementsByName('debit_1')[0].value;
+    document.getElementsByName('credit_2')[0].value = txt;
+  };
+
   //-->
   </script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
 
   $form->{selectdepartment} =~ s/ selected//;
   $form->{selectdepartment} =~
@@ -1300,7 +1322,7 @@ sub form_header {
   }
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
@@ -1409,6 +1431,12 @@ sub form_header {
 	 </td>
 	</tr>|;
   }
+
+  print qq|<tr>
+       <td width="1%" align="right" nowrap>| . $locale->text('Show details') . qq|</td>
+       <td width="1%"><input type="checkbox" onclick="show_form_details();" name="show_details" value="1" $show_details_checked></td>
+      </tr>|;
+
   print qq|
       <tr>
       <td colspan=4>
@@ -1425,12 +1453,17 @@ sub form_header {
           <th class=listheading style="width:5%">|
     . $locale->text('Korrektur') . qq|</th>
           <th class=listheading style="width:10%">|
-    . $locale->text('Taxkey') . qq|</th>
-	  <th class=listheading style="width:20%">|
-    . $locale->text('Source') . qq|</th>
+    . $locale->text('Taxkey') . qq|</th>|;
+
+  if ($form->{show_details}) {
+    print qq|
+	  <th class=listheading style="width:20%">| . $locale->text('Source') . qq|</th>
 	  <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
-	  <th class=listheading style="width:20%">|
-    . $locale->text('Project Number') . qq|</th>
+	  <th class=listheading style="width:20%">| . $locale->text('Project Number') . qq|</th>
+|;
+  }
+
+  print qq|
 	</tr>
 
 $jsscript
@@ -1497,7 +1530,7 @@ sub form_footer {
     # 	}
   } else {
     if ($transdate > $closedto) {
-      print qq|<input class=submit type=submit name=action value="|
+      print qq|<input class=submit type=submit name=action id=update_button value="|
         . $locale->text('Update') . qq|">
      		 <input class=submit type=submit name=action value="|
         . $locale->text('Post') . qq|">|;
@@ -1567,6 +1600,8 @@ sub yes {
 
 sub post {
   $lxdebug->enter_sub();
+
+  $form->{title} = $locale->text("$form->{title} General Ledger Transaction");
 
   # check if there is something in reference and date
   $form->isblank("reference",   $locale->text('Reference missing!'));
@@ -1740,7 +1775,10 @@ sub post {
   	$form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
-  $form->redirect("Buchung gespeichert. Buchungsnummer = " . $form->{id});
+
+  $form->{callback} = build_std_url("action=add", "show_details");
+  $form->redirect($form->{callback});
+
   $lxdebug->leave_sub();
 
 }

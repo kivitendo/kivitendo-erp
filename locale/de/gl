@@ -139,6 +139,7 @@ $self->{texts} = {
   'Select from one of the projects below' => 'Wählen Sie eines der untenstehenden Projekte',
   'Sep'                         => 'Sep',
   'September'                   => 'September',
+  'Show details'                => 'Details anzeigen',
   'Source'                      => 'Beleg',
   'Storno'                      => 'Storno',
   'Storno Invoice'              => 'Stornorechnung',
