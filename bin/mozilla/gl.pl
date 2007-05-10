@@ -1343,6 +1343,9 @@ sub form_header {
       qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
+  $form->{previous_id}     ||= "--";
+  $form->{previous_gldate} ||= "--";
+
   $form->header;
 
   print qq|
@@ -1351,7 +1354,7 @@ sub form_header {
 <form method=post name="gl" action=$form->{script}>
 |;
 
-  $form->hide_form(qw(id closedto locked storno storno_id));
+  $form->hide_form(qw(id closedto locked storno storno_id previous_id previous_gldate));
 
   print qq|
 <input type=hidden name=title value="$title">
@@ -1365,6 +1368,14 @@ sub form_header {
   <tr>
     <td>
       <table width=100%>
+        <tr>
+          <td colspan="6" align="left">|
+    . $locale->text("Previous transnumber text")
+    . " $form->{previous_id} "
+    . $locale->text("Previous transdate text")
+    . " $form->{previous_gldate}"
+    . qq|</td>
+        </tr>
 	<tr>
 	  <th align=right>| . $locale->text('Reference') . qq|</th>
 	  <td><input name=reference size=20 value="$form->{reference}" $readonly></td>

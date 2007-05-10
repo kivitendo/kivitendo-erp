@@ -555,6 +555,11 @@ sub transaction {
   $query = qq|SELECT closedto, revtrans FROM defaults|;
   ($form->{closedto}, $form->{revtrans}) = selectrow_query($form, $dbh, $query);
 
+  $query = qq|SELECT id, gldate
+              FROM gl
+              WHERE id = (SELECT max(id) FROM gl)|;
+  ($form->{previous_id}, $form->{previous_gldate}) = selectrow_query($form, $dbh, $query);
+
   if ($form->{id}) {
     $query =
       qq|SELECT g.reference, g.description, g.notes, g.transdate, g.storno, g.storno_id,
