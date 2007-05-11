@@ -47,10 +47,14 @@ sub new {
   my ($type, $country, $NLS_file) = @_;
   my $self = {};
 
+  $country  =~ s|.*/||;
+  $country  =~ s|\.||g;
+  $NLS_file =~ s|.*/||;
+
   if ($country && -d "locale/$country") {
     local *IN;
     $self->{countrycode} = $country;
-    if (open(IN, "locale/$country/$NLS_file")) {
+    if (open(IN, "<", "locale/$country/$NLS_file")) {
       my $code = join("", <IN>);
       eval($code);
       close(IN);
