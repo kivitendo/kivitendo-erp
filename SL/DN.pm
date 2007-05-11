@@ -500,12 +500,15 @@ sub parse_strings {
 
   my ($myconfig, $form, $userspath, $string) = @_;
 
+  local (*IN, *OUT);
+
   my $format = $form->{format};
   $form->{format} = "html";
 
   $tmpstring = "parse_string.html";
   $tmpfile = "$myconfig->{templates}/$tmpstring";
-  open(OUT, ">$tmpfile") or $form->error("$tmpfile : $!");
+  open(OUT, ">", $tmpfile) or $form->error("$tmpfile : $!");
+
   print(OUT $string);
   close(OUT);
 
@@ -515,12 +518,8 @@ sub parse_strings {
 
   my $fileid = time;
   $form->{tmpfile} = "$userspath/${fileid}.$tmpstring";
-  $out = $form->{OUT};
-  $form->{OUT} = ">$form->{tmpfile}";
 
-  if ($form->{OUT}) {
-    open(OUT, "$form->{OUT}") or $form->error("$form->{OUT} : $!");
-  }
+  open(OUT, ">", $form->{tmpfile}) or $form->error("$form->{OUT} : $!");
   if (!$template->parse(*OUT)) {
     $form->cleanup();
     $form->error("$form->{IN} : " . $template->get_error());
@@ -528,7 +527,7 @@ sub parse_strings {
 
   close(OUT);
   my $result = "";
-  open(IN, $form->{tmpfile}) or $form->error($form->cleanup . "$form->{tmpfile} : $!");
+  open(IN, "<", $form->{tmpfile}) or $form->error($form->cleanup . "$form->{tmpfile} : $!");
 
   while (<IN>) {
     $result .= $_;
@@ -550,43 +549,34 @@ sub melt_pdfs {
 
   my ($self, $myconfig, $form, $userspath) = @_;
 
-  foreach my $file (@{ $form->{DUNNING_PDFS} }) {
-    $inputfiles .= " $userspath/$file ";
-  }
+  local (*IN, *OUT);
 
+  # Don't allow access outside of $userspath.
+  map { $_ =~ s|.*/||; } @{ $form->{DUNNING_PDFS} };
+
+  my $inputfiles = join " ", map { "$userspath/$_" } @{ $form->{DUNNING_PDFS} };
   my $outputfile = "$userspath/dunning.pdf";
-  system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$outputfile $inputfiles");
-  foreach my $file (@{ $form->{DUNNING_PDFS} }) {
-    unlink("$userspath/$file");
-  }
-  $out = "";
 
-  $form->{OUT} = $out;
+  system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$outputfile $inputfiles");
+
+  map { unlink("$userspath/$_") } @{ $form->{DUNNING_PDFS} };
 
   my $numbytes = (-s $outputfile);
-  open(IN, $outputfile)
-    or $form->error($self->cleanup . "$outputfile : $!");
+  open(IN, $outputfile) || $form->error($self->cleanup() . "$outputfile : $!");
 
   $form->{copies} = 1 unless $form->{media} eq 'printer';
 
-  chdir("$self->{cwd}");
+  chdir($self->{cwd});
 
   for my $i (1 .. $form->{copies}) {
-    if ($form->{OUT}) {
-      open(OUT, $form->{OUT})
-        or $form->error($form->cleanup . "$form->{OUT} : $!");
-    } else {
-
-      # launch application
-      print qq|Content-Type: Application/PDF
+    # launch application
+    print qq|Content-Type: Application/PDF
 Content-Disposition: attachment; filename="$outputfile"
 Content-Length: $numbytes
 
 |;
 
-      open(OUT, ">-") or $form->error($form->cleanup . "$!: STDOUT");
-
-    }
+    open(OUT, ">-") or $form->error($form->cleanup . "$!: STDOUT");
 
     while (<IN>) {
       print OUT $_;
@@ -598,7 +588,7 @@ Content-Length: $numbytes
   }
 
   close(IN);
-  unlink("$userspath/$outputfile");
+  unlink($outputfile);
 
   $main::lxdebug->leave_sub();
 }
