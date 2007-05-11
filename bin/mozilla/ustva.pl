@@ -1315,7 +1315,9 @@ sub create_steuernummer {
 
 sub save {
   $lxdebug->enter_sub();
+
   my $filename = "$form->{login}_$form->{filename}";
+  $filename =~ s|.*/||;
 
   #zuerst die steuernummer aus den part, parts_X_Y und delimiter herstellen
   create_steuernummer();
