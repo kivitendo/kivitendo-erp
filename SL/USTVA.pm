@@ -562,6 +562,8 @@ sub process_query {
 
   #  return unless (-f $filename);
 
+  local *FH;
+
   open(FH, "$filename") or $form->error("$filename : $!\n");
   my $query = "";
   my $sth;
@@ -1014,14 +1016,18 @@ sub get_config {
 
   my ($self, $userpath, $filename) = @_;
 
+  local (*FACONF, *FANEW);
+
   my $form = $main::form;
 
-  if (!open(FACONF, "$userpath/$form->{login}_$filename")) {
-    open(FANEW, ">$userpath/$form->{login}_$filename") ||
-      $form->error("$userpath/$filename : $!");
+  $filename = "$form->{login}_$filename";
+  $filename =~ s|.*/||;
+  $filename = "$userspath/$filename";
+
+  if (!open(FACONF, "<", $filename)) {
+    open(FANEW, ">", $filename) || $form->error("$filename : $!");
     close(FANEW);
-    open(FACONF, "$userpath/$form->{login}_$filename") ||
-      $form->error("$userpath/$form->{username}_$filename : $!");
+    open(FACONF, "<", $filename) || $form->error("$filename : $!");
   }
 
   while (<FACONF>) {
