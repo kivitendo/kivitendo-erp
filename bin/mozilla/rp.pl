@@ -1947,8 +1947,6 @@ sub e_mail {
 sub send_email {
   $lxdebug->enter_sub();
 
-  $form->{OUT} = "$sendmail";
-
   $form->{subject} = $locale->text('Statement') . qq| - $form->{todate}|
     unless $form->{subject};
 
@@ -1956,10 +1954,10 @@ sub send_email {
 
   $form->{"statement_1"} = 1;
 
-  &print_form;
+  $form->{media} = 'email';
+  print_form();
 
-  $form->redirect(
-                 $locale->text('Statement sent to') . " $form->{$form->{ct}}");
+  $form->redirect($locale->text('Statement sent to') . " $form->{$form->{ct}}");
 
   $lxdebug->leave_sub();
 }
@@ -1983,7 +1981,6 @@ sub print {
   $form->error($locale->text('Nothing selected!')) unless $selected;
 
   if ($form->{media} eq 'printer') {
-    $form->{OUT} = "| $myconfig{printer}";
     $form->{"$form->{ct}_id"} = "";
   } else {
     $form->{"statement_1"} = 1;
@@ -1991,7 +1988,7 @@ sub print {
 
   RP->aging(\%myconfig, \%$form);
 
-  &print_form;
+  print_form();
 
   $form->redirect($locale->text('Statements sent to printer!'))
     if ($form->{media} eq 'printer');
@@ -2031,8 +2028,10 @@ sub print_form {
     $attachment_suffix = "pdf";
   }
 
-  $form->{IN} = "$form->{type}.$suffix";
-
+  $form->{IN}  = "$form->{type}.$suffix";
+  $form->{OUT} =
+    $form->{media} eq 'email'   ? $sendmail              :
+    $form->{media} eq 'printer' ? "| $myconfig{printer}" : "";
 
   # Save $form->{email} because it will be overwritten.
   $form->{EMAIL_RECIPIENT} = $form->{email};
