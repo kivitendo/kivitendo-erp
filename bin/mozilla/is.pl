@@ -340,9 +340,18 @@ sub form_header {
     $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
       ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
-  my $contact =
-    NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
-                         '-labels' => \%labels, '-default' => $form->{"cp_id"}));
+  my $contact;
+  if (scalar @values > 1) {
+    $contact = qq|
+    <tr>
+      <th align="right">| . $locale->text('Contact Person') . qq|</th>
+      <td>| .
+      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                           '-labels' => \%labels, '-default' => $form->{"cp_id"}))
+      . qq|
+      </td>
+    </tr>|;
+  }
 
   %labels = ();
   @values = ();
@@ -386,12 +395,16 @@ sub form_header {
       $item->{"shiptoname"} . " " . $item->{"shiptodepartment_1"};
   }
 
-  my $shipto = qq|
-		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td>| .
-    NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
-                         '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
+  my $shipto;
+  if (scalar @values > 1) {
+    $shipto = qq|
+    <tr>
+      <th align="right">| . $locale->text('Shipping Address') . qq|</th>
+      <td>| .
+      NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
+                           '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
     . qq|</td>|;
+  }
 
   %labels = ();
   @values = ();
@@ -401,7 +414,9 @@ sub form_header {
   }
   
   $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
-  my $currencies = qq|
+  my $currencies;
+  if (scalar @values) {
+    $currencies = qq|
     <tr>
       <th align="right">| . $locale->text('Currency') . qq|</th>
       <td>| .
@@ -409,6 +424,7 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
+  }
 
   %labels = ();
   @values = ("");
@@ -536,20 +552,15 @@ sub form_header {
 
   if ($form->{max_dunning_level}) {
     $dunning = qq|
-	      <tr>
-                <td colspan="4">
-                <table>
-                  <tr>
-		<th align="right">| . $locale->text('Max. Dunning Level') . qq|:</th>
-		<td><b>$form->{max_dunning_level}</b></td>
-		<th align="right">| . $locale->text('Dunning Amount') . qq|:</th>
-		<td><b>|
-      . $form->format_amount(\%myconfig, $form->{dunning_amount},2)
-      . qq|</b></td>
-	      </tr>
-              </table>
-             </td>
-            </tr>
+      <tr>
+        <th align="right">| . $locale->text('Max. Dunning Level') . qq|:</th>
+        <td>
+          <b>$form->{max_dunning_level}</b>;
+          | . $locale->text('Dunning Amount') . qq|: <b>|
+        . $form->format_amount(\%myconfig, $form->{dunning_amount},2)
+        . qq|</b>
+        </td>
+      </tr>
 |;
   }
 
@@ -563,8 +574,8 @@ sub form_header {
   
       # with JavaScript Calendar
       $button1 = qq|
-        <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"></td>
-        <td><input type="button" name="invdate" id="trigger1" value="|
+        <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="invdate" id="trigger1" value="|
         . $locale->text('button') . qq|"></td>|;
        
       #write Trigger
@@ -585,18 +596,18 @@ sub form_header {
   
       # with JavaScript Calendar
       $button1 = qq|
-        <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"></td>
-        <td><input type="button" name="invdate" id="trigger1" value="|
+        <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="invdate" id="trigger1" value="|
         . $locale->text('button') . qq|"></td>
         |;
       $button2 = qq|
-        <td width="13"><input name="duedate" id="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"></td>
-        <td width="4"><input type="button" name="duedate" id="trigger2" value="|
+        <td width="13"><input name="duedate" id="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="duedate" id="trigger2" value="|
         . $locale->text('button') . qq|"></td></td>
       |;
       $button3 = qq|
-        <td width="13"><input name="deliverydate" id="deliverydate" size="11" title="$myconfig{dateformat}" value="$form->{deliverydate}" onBlur=\"check_right_date_format(this)\"></td>
-        <td width="4"><input type="button" name="deliverydate" id="trigger3" value="|
+        <td width="13"><input name="deliverydate" id="deliverydate" size="11" title="$myconfig{dateformat}" value="$form->{deliverydate}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="deliverydate" id="trigger3" value="|
         . $locale->text('button') . qq|"></td></td>
       |;
   
@@ -660,44 +671,27 @@ print qq|
 
 <input type="hidden" name="lizenzen" value="$lizenzen">
 
+<div class="listtop" width="100%">$form->{title}</div>
+
 <table width="100%">
-  <tr class="listtop">
-    <th class="listtop">$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
   <tr>
-    <td>
-      <table width="100%">
-	<tr valign="top">
-	  <td>
-	    <table>
-	      <tr>
-		$customers
-    <input type="hidden" name="customer_klass" value="$form->{customer_klass}">
-		<input type="hidden" name="customer_id" value="$form->{customer_id}">
-    <input type="hidden" name="oldcustomer" value="$form->{oldcustomer}">
-        <input type="hidden" name="selectcustomer" value="1">
-                <th align="right" nowrap>|
-    . $locale->text('Contact Person') . qq|</th>
-                <td colspan="3">$contact</td>
-	      </tr>
-	      <tr>
-		<td></td>
-		<td colspan="3">
-		  <table>
-		    <tr>
-		      <th nowrap>| . $locale->text('Credit Limit') . qq|</th>
-		      <td>$form->{creditlimit}</td>
-		      <td width="20%"></td>
-		      <th nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n">$form->{creditremaining}</td>
-		    </tr>
-		  </table>
-		</td>
-                $shipto
-	      </tr>
-	      $business
-              $dunning
+    <td valign="top">
+      <table>
+        <tr>
+          $customers
+          <input type="hidden" name="customer_klass" value="$form->{customer_klass}">
+          <input type="hidden" name="customer_id" value="$form->{customer_id}">
+          <input type="hidden" name="oldcustomer" value="$form->{oldcustomer}">
+          <input type="hidden" name="selectcustomer" value="1">
+        </tr>
+        $contact
+        $shipto
+        <tr>
+          <td align="right">| . $locale->text('Credit Limit') . qq|</td>
+          <td>$form->{creditlimit}; | . $locale->text('Remaining') . qq| <span class="plus$n">$form->{creditremaining}</span></td>
+        </tr>
+        $dunning
+        $business
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Record in') . qq|</th>
 		<td colspan="3"><select name="AR" style="width:280px;">$form->{selectAR}</select></td>
@@ -746,7 +740,7 @@ print qq|
 #               </tr>
 print qq|	    </table>
 	  </td>
-	  <td align="right">
+	  <td align="right" valign="top">
 	    <table>
 	      $employees
         $salesman
@@ -784,8 +778,8 @@ print qq|     <tr>
 	      </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
-          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|" onBlur=\"check_right_date_format(this)\"></td>
-          <td><input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
+          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|" onBlur=\"check_right_date_format(this)\">
+           <input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
         </tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Quotation Number') . qq|</th>
@@ -793,8 +787,8 @@ print qq|     <tr>
 	      </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
-          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|" onBlur=\"check_right_date_format(this)\"></td>
-          <td><input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
+          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|" onBlur=\"check_right_date_format(this)\">
+           <input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
         </tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Customer Order Number') . qq|</th>

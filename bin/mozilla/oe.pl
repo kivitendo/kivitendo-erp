@@ -338,13 +338,13 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"></td>
-       <td><input type=button name=transdate id="trigger1" value=|
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\">
+        <input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\"></td>
-       <td width="4"><input type=button name=reqdate name=reqdate id="trigger2" value=|
+       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\">
+        <input type=button name=reqdate name=reqdate id="trigger2" value=|
       . $locale->text('button') . qq|></td>
      |;
 
@@ -422,9 +422,19 @@ sub form_header {
     $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
       ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
-  my $contact =
-    NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
-                         '-labels' => \%labels, '-default' => $form->{"cp_id"}));
+
+  my $contact;
+  if (scalar @values > 1) {
+    $contact = qq|
+    <tr>
+      <th align="right">| . $locale->text('Contact Person') . qq|</th>
+      <td>| .
+      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                           '-labels' => \%labels, '-default' => $form->{"cp_id"}))
+      . qq|
+      </td>
+    </tr>|;
+  }
 
   %labels = ();
   @values = ();
@@ -469,12 +479,16 @@ sub form_header {
       $item->{"shiptoname"} . " " . $item->{"shiptodepartment_1"};
   }
 
-  my $shipto = qq|
-		<th align=right>| . $locale->text('Shipping Address') . qq|</th>
-		<td>| .
-    NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
-                         '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
+  my $shipto;
+  if (scalar @values > 1) {
+    $shipto = qq|
+    <tr>
+      <th align="right">| . $locale->text('Shipping Address') . qq|</th>
+      <td>| .
+      NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
+                           '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
     . qq|</td>|;
+  }
 
   %labels = ();
   @values = ("");
@@ -545,9 +559,11 @@ sub form_header {
     push(@values, $item);
     $labels{$item} = $item;
   }
-  
-  $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
-  my $currencies = qq|
+
+  $form->{currency} = $form->{defaultcurrency} unless $form->{currency};
+  my $currencies;
+  if (scalar @values) {
+    $currencies = qq|
     <tr>
       <th align="right">| . $locale->text('Currency') . qq|</th>
       <td>| .
@@ -555,7 +571,7 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
-
+  }
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
@@ -801,10 +817,7 @@ sub form_header {
 	    <table width=100%>
 	      <tr>
         $vc
-                <th align=richt nowrap>|
-    . $locale->text('Contact Person') . qq|</th>
-                <td colspan=3>$contact</td>
-	      </tr>
+        $contact
 	      $creditremaining
 	      $business
               $dunning

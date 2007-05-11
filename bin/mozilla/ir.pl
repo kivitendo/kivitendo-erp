@@ -286,9 +286,19 @@ sub form_header {
     $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
       ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
-  my $contact =
-    NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
-                         '-labels' => \%labels, '-default' => $form->{"cp_id"}));
+
+  my $contact;
+  if (scalar @values > 1) {
+    $contact = qq|
+    <tr>
+      <th align="right">| . $locale->text('Contact Person') . qq|</th>
+      <td>| .
+      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+                           '-labels' => \%labels, '-default' => $form->{"cp_id"}))
+      . qq|
+      </td>
+    </tr>|;
+  }
 
   %labels = ();
   @values = ("");
@@ -309,8 +319,10 @@ sub form_header {
     $labels{$item} = $item;
   }
   
-  $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
-  my $currencies = qq|
+  $form->{currency} = $form->{defaultcurrency} unless $form->{currency};
+  my $currencies;
+  if (scalar @values) {
+    $currencies = qq|
     <tr>
       <th align="right">| . $locale->text('Currency') . qq|</th>
       <td>| .
@@ -318,7 +330,8 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
-    
+  }
+
   %labels = ();
   @values = ();
   my $i = 0;
@@ -396,13 +409,13 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"></td>
-       <td><input type=button name=invdate id="trigger1" value=|
+       <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+        <input type=button name=invdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
-       <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\"></td>
-       <td width="4"><input type=button name=duedate id="trigger2" value=|
+       <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
+        <input type=button name=duedate id="trigger2" value=|
       . $locale->text('button') . qq|></td></td>
      |;
 
@@ -454,40 +467,21 @@ sub form_header {
 
 | . ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") . qq|
 
-<table width=100%>
-  <tr class=listtop>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr valign=top>
-	  <td>
-	    <table>
-	      <tr>
-    $vendors
-                <th align=richt nowrap>|
-    . $locale->text('Contact Person') . qq|</th>
-                <td colspan=3>$contact</td>
+<div class="listtop" width="100%">$form->{title}</div>
 
-                <input type="hidden" name="vendor_id" value="$form->{vendor_id}">
-		<input type="hidden" name="oldvendor" value="$form->{oldvendor}">
-    <input type="hidden" name="selectvendor" value= "1">
-	      </tr>
-	      <tr>
-	        <td></td>
-		<td>
-		  <table>
-		    <tr>
-		      <th nowrap>| . $locale->text('Credit Limit') . qq|</th>
-		      <td>$form->{creditlimit}</td>
-		      <td width=20%></td>
-		      <th nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n">$form->{creditremaining}</td>
-		    </tr>
-		  </table>
-		</td>  
+<table width=100%>
+  <tr>
+    <td valign="top">
+	    <table>
+        $vendors
+        <input type="hidden" name="vendor_id" value="$form->{vendor_id}">
+        <input type="hidden" name="oldvendor" value="$form->{oldvendor}">
+        <input type="hidden" name="selectvendor" value= "1">
+        $contact
+        <tr>
+          <td align="right">| . $locale->text('Credit Limit') . qq|</td>
+          <td>$form->{creditlimit}; | . $locale->text('Remaining') . qq| <span class="plus$n">$form->{creditremaining}</span></td>
+        </tr>
 	      <tr>
 		<th align="right">| . $locale->text('Record in') . qq|</th>
 		<td colspan="3"><select name="AP">$form->{selectAP}</select></td>
@@ -523,13 +517,13 @@ sub form_header {
 	      </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
-          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|" onBlur=\"check_right_date_format(this)\"></td>
-          <td><input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
+          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|" onBlur=\"check_right_date_format(this)\">
+           <input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
         </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
-          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|" onBlur=\"check_right_date_format(this)\"></td>
-          <td><input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
+          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|" onBlur=\"check_right_date_format(this)\">
+           <input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
         </tr>
 	      <tr>
           <th align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
