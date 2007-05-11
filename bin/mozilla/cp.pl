@@ -695,11 +695,13 @@ sub print {
     $form->{pdf} = 1;
   }
 
+  delete $form->{OUT};
+
   if ($form->{media} eq 'printer') {
     $form->{OUT} = "| $myconfig{printer}";
   }
   if ($form->{media} eq 'queue') {
-    %queued = split / /, $form->{queued};
+    %queued = map { s|.*/|| } split / /, $form->{queued};
 
     if ($filename = $queued{ $form->{formname} }) {
       unlink "$spool/$filename";
