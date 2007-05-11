@@ -731,7 +731,9 @@ sub parse_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $userspath) = @_;
-  my $template;
+  my ($template, $out);
+
+  local (*IN, *OUT);
 
   $self->{"cwd"} = getcwd();
   $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
@@ -775,6 +777,7 @@ sub parse_template {
   # for postscript we store a copy in a temporary file
   my $fileid = time;
   $self->{tmpfile} ||= "$userspath/${fileid}.$self->{IN}";
+
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
     $self->{OUT} = ">$self->{tmpfile}";
@@ -841,7 +844,7 @@ sub parse_template {
 
       }
 
-      my $err = $mail->send($out);
+      my $err = $mail->send();
       $self->error($self->cleanup . "$err") if ($err);
 
     } else {

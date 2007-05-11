@@ -1748,8 +1748,6 @@ sub print_form {
     $form->{subject} = qq|$form->{label} $form->{"${inv}number"}|
       unless $form->{subject};
 
-    $form->{OUT} = "$sendmail";
-
     $form->{emailed} .= " $form->{formname}";
     $form->{emailed} =~ s/^ //;
   }

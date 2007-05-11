@@ -89,7 +89,9 @@ sub mime_quote_text {
 sub send {
   $main::lxdebug->enter_sub();
 
-  my ($self, $out) = @_;
+  my ($self) = @_;
+
+  local (*IN, *OUT);
 
   my $boundary = time;
   $boundary = "LxOffice-$self->{version}-$boundary";
@@ -99,16 +101,9 @@ sub send {
 
   $self->{charset} = Common::DEFAULT_CHARSET unless $self->{charset};
 
-  if ($out) {
-    if (!open(OUT, $out)) {
-      $main::lxdebug->leave_sub();
-      return "$out : $!";
-    }
-  } else {
-    if (!open(OUT, ">-")) {
-      $main::lxdebug->leave_sub();
-      return "STDOUT : $!";
-    }
+  if (!open(OUT, $main::sendmail)) {
+    $main::lxdebug->leave_sub();
+    return "$main::sendmail : $!";
   }
 
   $self->{contenttype} = "text/plain" unless $self->{contenttype};
