@@ -438,24 +438,15 @@ sub form_header {
 <body onLoad="$onload">
 
 <form method=post action=$form->{script}>
+|;
 
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=title value="$form->{title}">
-<input type=hidden name=vc value="vendor">
-<input type=hidden name=type value=$form->{type}>
-<input type=hidden name=level value=$form->{level}>
+  $form->hide_form(qw(id title vc type level creditlimit creditremaining
+                      closedto locked shippted storno storno_id
+                      max_dunning_level dunning_amount));
 
-<input type=hidden name=creditlimit value=$form->{creditlimit}>
-<input type=hidden name=creditremaining value=$form->{creditremaining}>
+  print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
 
-<input type=hidden name=closedto value=$form->{closedto}>
-<input type=hidden name=locked value=$form->{locked}>
-
-<input type=hidden name=shipped value=$form->{shipped}>
-<input type=hidden name=storno value=$form->{storno}>
-<input type=hidden name=storno_id value=$form->{storno_id}>
-
-| . ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") . qq|
+  print qq|
 
 <div class="listtop" width="100%">$form->{title}</div>
 

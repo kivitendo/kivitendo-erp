@@ -541,13 +541,11 @@ sub form_header {
   if ($form->{business}) {
     $business = qq|
 	      <tr>
-		<th align="right">| . $locale->text('Business') . qq|</th>
-		<td>$form->{business}</td>
-		<th align="right">| . $locale->text('Trade Discount') . qq|</th>
-		<td>|
+          <th align="right">| . $locale->text('Customer type') . qq|</th>
+          <td>$form->{business}; | . $locale->text('Trade Discount') . qq| |
       . $form->format_amount(\%myconfig, $form->{tradediscount} * 100)
       . qq| %</td>
-	      </tr>
+        </tr>
 |;
   }
 
@@ -644,11 +642,13 @@ sub form_header {
 
 <form method="post" name="invoice" action="$form->{script}">
 | ;
-map({print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});}
-     qw(id action type media format queued printed emailed title vc discount
-        creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id)) ;
-print ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") ;
-print qq|
+
+  $form->hide_form(qw(id action type media format queued printed emailed title vc discount
+                      creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
+                      max_dunning_level dunning_amount));
+  print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
+
+  print qq|
 
 <input type="hidden" name="lizenzen" value="$lizenzen">
 

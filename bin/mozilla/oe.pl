@@ -598,32 +598,25 @@ sub form_header {
   if ($form->{business}) {
     $business = qq|
 	      <tr>
-		<th align=right>| . $locale->text('Business') . qq|</th>
-		<td>$form->{business}</td>
-		<th align=right>| . $locale->text('Trade Discount') . qq|</th>
-		<td>|
+          <th align="right">| . ($form->{vc} eq "customer" ? $locale->text('Customer type') : $locale->text('Vendor type')) . qq|</th>
+          <td>$form->{business}; | . $locale->text('Trade Discount') . qq| |
       . $form->format_amount(\%myconfig, $form->{tradediscount} * 100)
       . qq| %</td>
-	      </tr>
+        </tr>
 |;
   }
 
   if ($form->{max_dunning_level}) {
     $dunning = qq|
-	      <tr>
-                <td colspan=4>
-                <table>
-                  <tr>
-		<th align=right>| . $locale->text('Max. Dunning Level') . qq|:</th>
-		<td><b>$form->{max_dunning_level}</b></td>
-		<th align=right>| . $locale->text('Dunning Amount') . qq|:</th>
-		<td><b>|
-      . $form->format_amount(\%myconfig, $form->{dunning_amount},2)
-      . qq|</b></td>
-	      </tr>
-              </table>
-             </td>
-            </tr>
+      <tr>
+        <th align="right">| . $locale->text('Max. Dunning Level') . qq|:</th>
+        <td>
+          <b>$form->{max_dunning_level}</b>;
+          | . $locale->text('Dunning Amount') . qq|: <b>|
+        . $form->format_amount(\%myconfig, $form->{dunning_amount},2)
+        . qq|</b>
+        </td>
+      </tr>
 |;
   }
 
@@ -657,20 +650,11 @@ sub form_header {
     $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
     $creditremaining = qq|
-	      <tr>
-		<td></td>
-		<td colspan=3>
-		  <table>
-		    <tr>
-		      <th nowrap>| . $locale->text('Credit Limit') . qq|</th>
-		      <td>$form->{creditlimit}</td>
-		      <td width=20%></td>
-		      <th nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n" nowrap>$form->{creditremaining}</td>
-		    </tr>
-		  </table>
-		</td>
-                $shipto
+        $shipto
+        <tr>
+          <td align="right">| . $locale->text('Credit Limit') . qq|</td>
+          <td>$form->{creditlimit}; | . $locale->text('Remaining') . qq| <span class="plus$n">$form->{creditremaining}</span></td>
+        </tr>
 	      </tr>
 |;
   } else {
@@ -764,35 +748,18 @@ sub form_header {
 <body onLoad="$onload">
 
 <form method=post name=oe action=$form->{script}>
+
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
  <script type="text/javascript" src="js/vendor_selection.js"></script>
  <script type="text/javascript" src="js/calculate_qty.js"></script>
+|;
 
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=action value=$form->{action}>
+  $form->hide_form(qw(id action type vc formname media format proforma queued printed emailed
+                      title discount creditlimit creditremaining tradediscount business
+                      max_dunning_level dunning_amount));
 
-<input type=hidden name=type value=$form->{type}>
-<input type=hidden name=formname value=$form->{formname}>
-<input type=hidden name=media value=$form->{media}>
-<input type=hidden name=format value=$form->{format}>
-<input type=hidden name=proforma value=$form->{proforma}>
-
-<input type=hidden name=queued value="$form->{queued}">
-<input type=hidden name=printed value="$form->{printed}">
-<input type=hidden name=emailed value="$form->{emailed}">
-
-<input type=hidden name=vc value=$form->{vc}>
-
-<input type=hidden name=title value="$form->{title}">
-
-<input type=hidden name=discount value=$form->{discount}>
-<input type=hidden name=creditlimit value=$form->{creditlimit}>
-<input type=hidden name=creditremaining value=$form->{creditremaining}>
-
-<input type=hidden name=tradediscount value=$form->{tradediscount}>
-<input type=hidden name=business value=$form->{business}>
-<input type=hidden name=webdav value=$webdav>
+  print qq|
 
 <table width=100%>
   <tr class=listtop>
