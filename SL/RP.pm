@@ -1,4 +1,4 @@
-#=====================================================================
+###=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -35,6 +35,7 @@
 package RP;
 
 use SL::DBUtils;
+use Data::Dumper;
 
 sub balance_sheet {
   $main::lxdebug->enter_sub();
@@ -426,7 +427,7 @@ sub get_accounts {
          $dpt_join
          WHERE $where
            $glwhere
-           $dpt_from
+           $dpt_where
            $category
              AND NOT ((c.link = 'AR') OR (c.link = 'AP'))
            $project
@@ -606,19 +607,19 @@ sub get_accounts_g {
   if ($fromdate) {
     $fromdate = conv_dateq($fromdate);
     if ($form->{method} eq 'cash') {
-      $subwhere .= " AND (transdate >= $fromdate)";
-      $glwhere = " AND (ac.transdate >= $fromdate)";
-      $prwhere = " AND (ar.transdate >= $fromdate)";
+      $subwhere .= " AND (transdate    >= $fromdate)";
+      $glwhere   = " AND (ac.transdate >= $fromdate)";
+      $prwhere   = " AND (ar.transdate >= $fromdate)";
     } else {
-      $where .= " AND (ac.transdate >= $fromdate)";
+      $where    .= " AND (ac.transdate >= $fromdate)";
     }
   }
 
   if ($todate) {
     $todate = conv_dateq($todate);
-    $where    .= " AND (ac.transdate <= $todate)";
-    $subwhere .= " AND (transdate <= $todate)";
-    $prwhere  .= " AND (ar.transdate <= $todate)";
+    $subwhere   .= " AND (transdate    <= $todate)";
+    $where      .= " AND (ac.transdate <= $todate)";
+    $prwhere    .= " AND (ar.transdate <= $todate)";
   }
 
   if ($department_id) {
@@ -632,103 +633,72 @@ sub get_accounts_g {
 
   if ($form->{method} eq 'cash') {
     $query =
-      qq|SELECT sum(ac.amount) AS amount, c.$category
+      qq|
+       SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN ar a ON (a.id = ac.trans_id)
          $dpt_join
-         WHERE $where
-           $dpt_where
-           AND ac.trans_id IN
-             (
-               SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
-               WHERE (link LIKE '%AR_paid%')
-                 $subwhere
-             )
+         WHERE $where $dpt_where
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
-         GROUP BY c.$category
+         GROUP BY c.$category 
 
          UNION
 
-         SELECT sum(ac.amount) AS amount, c.$category
+         SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN ap a ON (a.id = ac.trans_id)
          $dpt_join
-         WHERE $where
-           $dpt_where
-           AND ac.trans_id IN
-             (
-               SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
-               WHERE (link LIKE '%AP_paid%')
-                 $subwhere
-             )
+         WHERE $where $dpt_where
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AP_paid%') $subwhere)
            $project
-         GROUP BY c.$category
+         GROUP BY c.$category 
 
          UNION
 
-         SELECT sum(ac.amount) AS amount, c.$category
+         SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN gl a ON (a.id = ac.trans_id)
          $dpt_join
-         WHERE $where
-           $glwhere
-           $dpt_from
+         WHERE $where $dpt_where $glwhere 
            AND NOT ((c.link = 'AR') OR (c.link = 'AP'))
            $project
-         GROUP BY c.$category |;
+
+         $project_union
+        GROUP BY c.$category 
+        |;
 
     if ($form->{project_id}) {
-      $query .= qq|
+      $project_union = qq|
          UNION
 
-         SELECT SUM(ac.sellprice * ac.qty) AS amount, c.$category
+         SELECT SUM(ac.sellprice * ac.qty * chart_category_to_sgn(c.category)) AS amount, c.$category
          FROM invoice ac
          JOIN ar a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
          JOIN chart c on (p.income_accno_id = c.id)
          $dpt_join
-         WHERE (c.category = 'I')
-           $prwhere
-           $dpt_where
-           AND ac.trans_id IN
-             (
-               SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
-               WHERE (link LIKE '%AR_paid%')
-                 $subwhere
-             )
+         WHERE (c.category = 'I') $prwhere $dpt_where
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
-         GROUP BY c.$category
+         GROUP BY c.$category 
 
          UNION
 
-         SELECT SUM(ac.sellprice) AS amount, c.$category
+         SELECT SUM(ac.sellprice * chart_category_to_sgn(c.category)) AS amount, c.$category
          FROM invoice ac
          JOIN ap a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
          JOIN chart c on (p.expense_accno_id = c.id)
          $dpt_join
-         WHERE (c.category = 'E') $prwhere
-           $dpt_where
-           AND ac.trans_id IN
-             (
-               SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
-               WHERE (link LIKE '%AP_paid%')
-                 $subwhere
-             )
-
+         WHERE (c.category = 'E') $prwhere $dpt_where
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AP_paid%') $subwhere)
          $project
-         GROUP BY c.$category |;
+         GROUP BY c.$category 
+         |;
     }
 
   } else {                      # if ($form->{method} eq 'cash')
@@ -738,7 +708,7 @@ sub get_accounts_g {
     }
 
     $query = qq|
-        SELECT sum(ac.amount) AS amount, c.$category
+        SELECT sum(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
         FROM acc_trans ac
         JOIN chart c ON (c.id = ac.chart_id)
         $dpt_join
@@ -751,7 +721,7 @@ sub get_accounts_g {
       $query .= qq|
         UNION
 
-        SELECT SUM(ac.sellprice * ac.qty) AS amount, c.$category
+        SELECT SUM(ac.sellprice * ac.qty * chart_category_to_sgn(c.category)) AS amount, c.$category
         FROM invoice ac
         JOIN ar a ON (a.id = ac.trans_id)
         JOIN parts p ON (ac.parts_id = p.id)
@@ -765,7 +735,7 @@ sub get_accounts_g {
 
         UNION
 
-        SELECT SUM(ac.sellprice * ac.qty) * -1 AS amount, c.$category
+        SELECT SUM(ac.sellprice * ac.qty * chart_category_to_sgn(c.category)) AS amount, c.$category
         FROM invoice ac
         JOIN ap a ON (a.id = ac.trans_id)
         JOIN parts p ON (ac.parts_id = p.id)
@@ -783,13 +753,9 @@ sub get_accounts_g {
   my $accno;
   my $ref;
 
-  #print $query;
   my $sth = prepare_execute_query($form, $dbh, $query);
 
   while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    if ($ref->{amount} < 0) {
-      $ref->{amount} *= -1;
-    }
     if ($category eq "pos_bwa") {
       if ($last_period) {
         $form->{ $ref->{$category} }{kumm} += $ref->{amount};

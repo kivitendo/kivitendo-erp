@@ -947,7 +947,7 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       $dpt_from
+       $dpt_where
        $project
        GROUP BY tk.pos_ustva
 
@@ -973,7 +973,7 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       $dpt_from
+       $dpt_where
        $project
        GROUP BY tk.pos_ustva
 
