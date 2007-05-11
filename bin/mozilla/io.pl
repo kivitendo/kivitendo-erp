@@ -1673,6 +1673,8 @@ sub print_form {
 
   $form->{templates} = "$myconfig{templates}";
 
+  delete $form->{printer_command};
+
   $form->{language} = $form->get_template_language(\%myconfig);
   $form->{printer_code} = $form->get_printer_code(\%myconfig);
 
@@ -1737,6 +1739,8 @@ sub print_form {
     $form->{"IN"} =~ s/html$/odt/;
   }
 
+  delete $form->{OUT};
+
   if ($form->{media} eq 'printer') {
     $form->{OUT} = "| $form->{printer_command} &>/dev/null";
     $form->{printed} .= " $form->{formname}";
@@ -1754,7 +1758,7 @@ sub print_form {
   $emailed = $form->{emailed};
 
   if ($form->{media} eq 'queue') {
-    %queued = split / /, $form->{queued};
+    %queued = map { s|.*/|| } split / /, $form->{queued};
 
     if ($filename = $queued{ $form->{formname} }) {
       $form->{queued} =~ s/$form->{formname} $filename//;

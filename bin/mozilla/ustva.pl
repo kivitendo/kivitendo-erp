@@ -833,6 +833,7 @@ sub generate_ustva {
       $file .= $form->{elstersteuernummer};
       #file suffix
       $file .= '.xml';
+      $file =~ s|.*/||;
       $form->{tmpfile} = "$userspath/$file";
 
       $form->{attachment_filename} = $file;
@@ -882,6 +883,7 @@ sub generate_ustva {
       $form->{attachment_filename} = "USTVA-" . $form->{period} 
       . sprintf("%02d", $form->{year} % 100) . ".txb";
       
+      $form->{attachment_filename} =~ s|.*/||;
       $form->{tmpfile} = "$userspath/" . $form->{attachment_filename};
 
       # TODO: set Output to UTF-8 or system Preference

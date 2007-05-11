@@ -776,7 +776,18 @@ sub parse_template {
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
   my $fileid = time;
-  $self->{tmpfile} ||= "$userspath/${fileid}.$self->{IN}";
+  my $prepend_userspath;
+
+  if (!$self->{tmpfile}) {
+    $self->{tmpfile}   = "${fileid}.$self->{IN}";
+    $prepend_userspath = 1;
+  }
+
+  $prepend_userspath = 1 if substr($self->{tmpfile}, 0, length $userspath) eq $userspath;
+
+  $self->{tmpfile} =~ s|.*/||;
+  $self->{tmpfile} =~ s/[^a-zA-Z0-9\._\ \-]//g;
+  $self->{tmpfile} = "$userspath/$self->{tmpfile}" if $prepend_userspath;
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
