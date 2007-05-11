@@ -263,7 +263,7 @@ sub delete_spool {
 sub print_spool {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form, $spool, $output) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -275,8 +275,10 @@ sub print_spool {
 
   foreach my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
-      open(OUT, $form->{OUT}) or $form->error("$form->{OUT} : $!");
+      # $output is safe ( = does not come directly from the browser).
+      open(OUT, $output) or $form->error("$output : $!");
 
+      $form->{"spoolfile_$i"} =~ s|.*/||;
       $spoolfile = qq|$spool/$form->{"spoolfile_$i"}|;
 
       # send file to printer

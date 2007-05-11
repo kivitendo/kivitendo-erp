@@ -325,10 +325,9 @@ sub print {
 
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
-      $form->{OUT} = "| $selected_printer";
       $form->info($locale->text('Printing ... '));
 
-      if (BP->print_spool(\%myconfig, \%$form, $spool)) {
+      if (BP->print_spool(\%myconfig, \%$form, $spool, "| $selected_printer")) {
         print $locale->text('done');
         $form->redirect($locale->text('Marked entries printed!'));
       }
