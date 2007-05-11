@@ -48,6 +48,10 @@ sub new {
   my $self = {};
 
   if ($login ne "") {
+    local *MEMBER;
+
+    $login =~ s|.*/||;
+
     &error("", "$memfile locked!") if (-f "${memfile}.LCK");
 
     open(MEMBER, "$memfile") or &error("", "$memfile : $!");
@@ -55,8 +59,8 @@ sub new {
     while (<MEMBER>) {
       if (/^\[$login\]/) {
         while (<MEMBER>) {
-          last if /^\[/;
-          next if /^(#|\s)/;
+          last if m/^\[/;
+          next if m/^(#|\s)/;
 
           # remove comments
           s/\s#.*//g;
@@ -88,6 +92,8 @@ sub new {
 sub country_codes {
   $main::lxdebug->enter_sub();
 
+  local *DIR;
+
   my %cc       = ();
   my @language = ();
 
@@ -116,6 +122,8 @@ sub login {
 
   my ($self, $form, $userspath) = @_;
 
+  local *FH;
+
   my $rc = -3;
 
   if ($self->{login}) {
@@ -134,7 +142,7 @@ sub login {
     }
 
     unless (-e "$userspath/$self->{login}.conf") {
-      $self->create_config("$userspath/$self->{login}.conf");
+      $self->create_config();
     }
 
     do "$userspath/$self->{login}.conf";
@@ -206,6 +214,8 @@ sub login {
 
       $self->dbupdate($form);
       $self->dbupdate2($form, $controls);
+
+      close(FH);
 
       # remove lock file
       unlink("$userspath/nologin");
@@ -616,6 +626,8 @@ sub dbsources_unused {
 
   my ($self, $form, $memfile) = @_;
 
+  local *FH;
+
   my @dbexcl    = ();
   my @dbsources = ();
 
@@ -779,6 +791,8 @@ sub cmp_script_version {
 sub update_available {
   my ($dbdriver, $cur_version) = @_;
 
+  local *SQLDIR;
+
   opendir(SQLDIR, "sql/${dbdriver}-upgrade")
     or &error("", "sql/${dbdriver}-upgrade: $!");
   my @upgradescripts =
@@ -813,6 +827,8 @@ sub dbupdate {
   $main::lxdebug->enter_sub();
 
   my ($self, $form) = @_;
+
+  local *SQLDIR;
 
   $form->{sid} = $form->{dbdefault};
 
@@ -1008,11 +1024,13 @@ sub update2_available {
 sub create_config {
   $main::lxdebug->enter_sub();
 
-  my ($self, $filename) = @_;
+  my ($self) = @_;
 
-  @config = &config_vars;
+  local *CONF;
 
-  open(CONF, ">$filename") or $self->error("$filename : $!");
+  @config = config_vars();
+
+  open(CONF, ">", "$userspath/$self->{login}.conf") || $self->error("$userspath/$self->{login}.conf : $!");
 
   # create the config file
   print CONF qq|# configuration file for $self->{login}
@@ -1020,7 +1038,7 @@ sub create_config {
 \%myconfig = (
 |;
 
-  foreach $key (sort @config) {
+  foreach my $key (sort @config) {
     $self->{$key} =~ s/\'/\\\'/g;
     print CONF qq|  $key => '$self->{$key}',\n|;
   }
@@ -1036,6 +1054,8 @@ sub save_member {
   $main::lxdebug->enter_sub();
 
   my ($self, $memberfile, $userspath) = @_;
+
+  local (*FH, *CONF);
 
   my $newmember = 1;
 
@@ -1110,8 +1130,7 @@ sub save_member {
   unlink "${memberfile}.LCK";
 
   # create conf file
-  $self->create_config("$userspath/$self->{login}.conf")
-    unless $self->{'root login'};
+  $self->create_config() unless $self->{'root login'};
 
   $main::lxdebug->leave_sub();
 }
