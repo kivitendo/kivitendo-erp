@@ -133,9 +133,6 @@ sub acc_menu {
   $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
-  $menu = new Menu "custom_$menufile" if (-f "custom_$menufile");
-  $menu = new Menu "$form->{login}_$menufile"
-    if (-f "$form->{login}_$menufile");
 
   $| = 1;
 

@@ -43,6 +43,8 @@ sub new {
   my $id = "";
   my $skip;
 
+  local *FH;
+
   $type = ref($self) || $self;
 
   open FH, "$file" or Form->error("$file : $!");
