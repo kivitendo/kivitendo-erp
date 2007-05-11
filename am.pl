@@ -77,6 +77,8 @@ $script =~ s/\.pl//;
 # pull in DBI
 use DBI;
 
+$form->{login} =~ s|.*/||;
+
 # check for user config file, could be missing or ???
 eval { require("$userspath/$form->{login}.conf"); };
 if ($@) {

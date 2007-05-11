@@ -71,6 +71,8 @@ $0 =~ tr/\\/\//;
 $pos = rindex $0, '/';
 $script = substr($0, $pos + 1);
 
+$form->{login} =~ s|.*/||;
+
 if (-e "$userspath/nologin" && $script ne 'admin.pl') {
   print "content-type: text/plain
 
