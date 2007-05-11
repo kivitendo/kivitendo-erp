@@ -567,67 +567,46 @@ sub form_header {
   $form->{fokus} = "invoice.customer";
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{type} eq "credit_note") {
-    if ($form->{jsscript}) {
-  
-      # with JavaScript Calendar
-      $button1 = qq|
-        <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="invdate" id="trigger1" value="|
-        . $locale->text('button') . qq|"></td>|;
-       
-      #write Trigger
-      $jsscript =
-        Form->write_trigger(\%myconfig,     "1",
-                            "invdate",      "BL",
-                            "trigger1");
-    } else {
-  
-      # without JavaScript Calendar
-      $button1 =
-        qq|<td><input name="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"></td>|;
-      $button2 =
-        qq|<td width="13"><input name="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}"></td>|;
-    }
+    $button1 = qq|
+      <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+       <input type="button" name="invdate" id="trigger1" value="|
+      . $locale->text('button') . qq|"></td>|;
+
+    #write Trigger
+    $jsscript =
+      Form->write_trigger(\%myconfig,     "1",
+                          "invdate",      "BL",
+                          "trigger1");
   } else {
-    if ($form->{jsscript}) {
-  
-      # with JavaScript Calendar
-      $button1 = qq|
-        <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="invdate" id="trigger1" value="|
-        . $locale->text('button') . qq|"></td>
-        |;
-      $button2 = qq|
-        <td width="13"><input name="duedate" id="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="duedate" id="trigger2" value="|
-        . $locale->text('button') . qq|"></td></td>
+    $button1 = qq|
+      <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+       <input type="button" name="invdate" id="trigger1" value="|
+      . $locale->text('button') . qq|"></td>
       |;
-      $button3 = qq|
-        <td width="13"><input name="deliverydate" id="deliverydate" size="11" title="$myconfig{dateformat}" value="$form->{deliverydate}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="deliverydate" id="trigger3" value="|
-        . $locale->text('button') . qq|"></td></td>
-      |;
-  
-      #write Trigger
-      $jsscript =
-        Form->write_trigger(\%myconfig,     "3",
-                            "invdate",      "BL",
-                            "trigger1",     "duedate",
-                            "BL",           "trigger2",
-                            "deliverydate", "BL",
-                            "trigger3");
-    } else {
-  
-      # without JavaScript Calendar
-      $button1 =
-        qq|<td><input name="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"></td>|;
-      $button2 =
-        qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value=$form->{duedate} onBlur=\"check_right_date_format(this)\"></td>|;
-    }
+    $button2 = qq|
+      <td width="13"><input name="duedate" id="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\">
+       <input type="button" name="duedate" id="trigger2" value="|
+      . $locale->text('button') . qq|"></td></td>
+    |;
+    $button3 = qq|
+      <td width="13"><input name="deliverydate" id="deliverydate" size="11" title="$myconfig{dateformat}" value="$form->{deliverydate}" onBlur=\"check_right_date_format(this)\">
+       <input type="button" name="deliverydate" id="trigger3" value="|
+      . $locale->text('button') . qq|"></td></td>
+    |;
+
+    #write Trigger
+    $jsscript =
+      Form->write_trigger(\%myconfig,     "3",
+                          "invdate",      "BL",
+                          "trigger1",     "duedate",
+                          "BL",           "trigger2",
+                          "deliverydate", "BL",
+                          "trigger3");
   }
+
   if ($form->{resubmit} && ($form->{format} eq "html")) {
     $onload =
       qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;

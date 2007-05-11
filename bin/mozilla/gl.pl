@@ -241,7 +241,7 @@ sub search {
                          '-labels' => \%project_labels));
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 

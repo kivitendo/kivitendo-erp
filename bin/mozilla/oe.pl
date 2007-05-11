@@ -162,9 +162,8 @@ sub order_links {
                 ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav} = $webdav;
-  # set jscalendar
-  $form->{jscalendar} = $jscalendar;
+  $form->{webdav}   = $webdav;
+  $form->{jsscript} = 1;
 
   my $editing = $form->{id};
 
@@ -331,36 +330,24 @@ sub form_header {
        shiptophone shiptofax shiptodepartment_1 shiptodepartment_2);
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $form->{jscalendar};
+  $form->{jsscript} = 1;
   $jsscript = "";
 
-  if ($form->{jsscript}) {
+  $button1 = qq|
+     <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\">
+      <input type=button name=transdate id="trigger1" value=|
+    . $locale->text('button') . qq|></td>
+    |;
+  $button2 = qq|
+     <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\">
+      <input type=button name=reqdate name=reqdate id="trigger2" value=|
+    . $locale->text('button') . qq|></td>
+   |;
 
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\">
-        <input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button2 = qq|
-       <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\">
-        <input type=button name=reqdate name=reqdate id="trigger2" value=|
-      . $locale->text('button') . qq|></td>
-     |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1",
-                          "reqdate", "BL", "trigger2");
-
-  } else {
-
-    # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name="transdate" id="transdate" size="11" title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 = qq|
-                              <td width="13"><input name="reqdate" id="reqdate" size="11" title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
+  #write Trigger
+  $jsscript =
+    Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1",
+                        "reqdate", "BL", "trigger2");
 
   my @tmp;
 
@@ -1084,9 +1071,7 @@ sub form_footer {
 
     print $webdav_list;
   }
-  print qq|
-<input type=hidden name=jscalendar value=$form->{jscalendar}>
-|;
+
   print qq|
   <tr>
     <td>
@@ -1413,34 +1398,24 @@ sub search {
   }
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
-  if ($form->{jsscript}) {
 
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdatefrom id="trigger3" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button2 = qq|
-       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdateto name=transdateto id="trigger4" value=|
-      . $locale->text('button') . qq|></td>
-     |;
+  $button1 = qq|
+     <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
+     <input type=button name=transdatefrom id="trigger3" value=|
+    . $locale->text('button') . qq|></td>
+    |;
+  $button2 = qq|
+     <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
+     <input type=button name=transdateto name=transdateto id="trigger4" value=|
+    . $locale->text('button') . qq|></td>
+   |;
 
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "transdatefrom", "BR", "trigger3",
-                          "transdateto", "BL", "trigger4");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\></td>|;
-  }
+  #write Trigger
+  $jsscript =
+    Form->write_trigger(\%myconfig, "2", "transdatefrom", "BR", "trigger3",
+                        "transdateto", "BL", "trigger4");
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
 

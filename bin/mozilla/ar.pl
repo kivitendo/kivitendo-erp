@@ -471,7 +471,7 @@ selectcustomer}</select>|
   $form->{fokus} = "arledger.customer";
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
@@ -1224,7 +1224,7 @@ sub search {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 

@@ -147,7 +147,7 @@ sub report {
                          '-labels' => \%project_labels));
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{report} eq "ustva") {
     $department = "";

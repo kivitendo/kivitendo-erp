@@ -178,7 +178,7 @@ sub form_header {
 	    </tr>
 | if $form->{selectdepartment};
 
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 

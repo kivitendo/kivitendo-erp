@@ -508,7 +508,6 @@ sub parse_html_template {
     $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
   }
 
-  $additional_params->{"conf_jscalendar"} = $main::jscalendar;
   $additional_params->{"conf_lizenzen"} = $main::lizenzen;
   $additional_params->{"conf_latex_templates"} = $main::latex;
   $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;

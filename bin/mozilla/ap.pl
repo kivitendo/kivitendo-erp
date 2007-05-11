@@ -455,7 +455,7 @@ selectvendor } </select>|
   }
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
@@ -1204,7 +1204,7 @@ sub search {
   $form->{title} = $locale->text('AP Transactions');
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 

@@ -78,10 +78,8 @@ sub invoice_links {
   $lxdebug->enter_sub();
 
   # create links
-  $form->{webdav} = $webdav;
-
-  # set jscalendar
-  $form->{jscalendar} = $jscalendar;
+  $form->{webdav}   = $webdav;
+  $form->{jsscript} = 1;
 
   $form->create_links("AP", \%myconfig, "vendor");
 
@@ -403,34 +401,24 @@ sub form_header {
   $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $form->{jscalendar};
+  $form->{jsscript} = 1;
   $jsscript = "";
-  if ($form->{jsscript}) {
 
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-        <input type=button name=invdate id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-       |;
-    $button2 = qq|
-       <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
-        <input type=button name=duedate id="trigger2" value=|
-      . $locale->text('button') . qq|></td></td>
+  $button1 = qq|
+     <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+      <input type=button name=invdate id="trigger1" value=|
+    . $locale->text('button') . qq|></td>
      |;
+  $button2 = qq|
+     <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
+      <input type=button name=duedate id="trigger2" value=|
+    . $locale->text('button') . qq|></td></td>
+   |;
 
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "invdate", "BL", "trigger1",
-                          "duedate", "BL", "trigger2");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 =
-      qq|<td><input name=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}"  onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 =
-      qq|<td width="13"><input name=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
+  #write Trigger
+  $jsscript =
+    Form->write_trigger(\%myconfig, "2", "invdate", "BL", "trigger1",
+                        "duedate", "BL", "trigger2");
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
@@ -719,9 +707,6 @@ sub form_footer {
 
     print $webdav_list;
   }
-  print qq|
-<input type=hidden name=jscalendar value=$form->{jscalendar}>
-|;
   print qq|
   <tr>
     <td colspan=$colspan>

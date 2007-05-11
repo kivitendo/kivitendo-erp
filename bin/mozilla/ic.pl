@@ -80,7 +80,7 @@ sub search {
   # $locale->text('Services')
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
@@ -404,7 +404,7 @@ sub search_update_prices {
   IC->get_pricegroups(\%myconfig, \%$form);
 
   # use JavaScript Calendar or not
-#   $form->{jsscript} = $jscalendar;
+#   $form->{jsscript} = 1;
 #   $jsscript = "";
 #   if ($form->{jsscript}) {
 # 
@@ -2455,7 +2455,7 @@ sub form_header {
   # type=submit $locale->text('Edit Service')
   # type=submit $locale->text('Edit Assembly')
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 

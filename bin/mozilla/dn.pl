@@ -262,7 +262,7 @@ sub search {
   $form->{nextsub} = "show_dunning";
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
