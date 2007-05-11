@@ -441,6 +441,7 @@ sub form_header {
               : (NTI($cgi->popup_menu('-name' => "$form->{vc}", '-default' => $form->{"old$form->{vc}"}, 
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
                              '-values' => \@values, '-labels' => \%labels)))) . qq|
+        <input type="button" value="?" onclick="show_vc_details('$form->{vc}')">
       </td><input type=hidden name="select$form->{vc}" value="| .
     Q($form->{"select$form->{vc}"}) . qq|">|;
 
@@ -755,6 +756,8 @@ sub form_header {
   # show history button js
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show history button js
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+
   $form->header;
 
   print qq|

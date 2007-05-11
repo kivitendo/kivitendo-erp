@@ -1,0 +1,315 @@
+<body>
+
+ <div width="100%" class="listtop">
+  <TMPL_IF is_customer><translate>Customer details</translate><TMPL_ELSE><translate>Vendor details</translate></TMPL_IF> &quot;<TMPL_VAR name ESCAPE=HTML>&quot;
+ </div>
+
+ <p><translate>Jump to</translate> <a href="#billing"><translate>Billing Address</translate></a>
+  <TMPL_LOOP SHIPTO>, <a href="#shipping<TMPL_VAR __counter__>"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</a></TMPL_LOOP>
+  <TMPL_LOOP CONTACTS>, <a href="#contact<TMPL_VAR __counter__>"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</a></TMPL_LOOP></p>
+
+ <hr>
+
+ <a name="billing"><div class="listheading"><translate>Billing Address</translate></div></a>
+
+ <table>
+  <tr>
+   <td align="right"><translate>Customer Number</translate></td>
+   <td><TMPL_VAR customernumber ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Company Name</translate></td>
+   <td><TMPL_VAR name ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Department</translate></td>
+   <td><TMPL_VAR department_1 ESCAPE=HTML><TMPL_IF department_2><TMPL_IF department_1>; </TMPL_IF><TMPL_VAR department_2 ESCAPE=HTML></TMPL_IF></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Street</translate></td>
+   <td><TMPL_VAR street ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Zip, City</translate></td>
+   <td><TMPL_VAR zipcode ESCAPE=HTML> <TMPL_VAR city ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Country</translate></td>
+   <td><TMPL_VAR country ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Contact Person</translate></td>
+   <td><TMPL_IF greeting><TMPL_VAR greeting ESCAPE=HTML> </TMPL_IF><TMPL_VAR contact ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Phone</translate></td>
+   <td><TMPL_VAR phone ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Fax</translate></td>
+   <td><TMPL_VAR fax ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>E-mail</translate></td>
+   <td><TMPL_VAR email ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Homepage</translate></td>
+   <td><TMPL_VAR homepage ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Credit Limit</translate></td>
+   <td><TMPL_VAR creditlimit ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Discount</translate></td>
+   <td><TMPL_VAR discount ESCAPE=HTML>%</td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Payment Terms</translate></td>
+   <td><TMPL_VAR payment_terms ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Tax Number</translate></td>
+   <td><TMPL_VAR taxnumber ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>USt-IdNr.</translate></td>
+   <td><TMPL_VAR ustid ESCAPE=HTML></td>
+  </tr>
+
+  <TMPL_IF is_customer>
+   <tr>
+    <td align="right"><translate>KNr. beim Kunden</translate></td>
+    <td><TMPL_VAR c_vendor_id ESCAPE=HTML></td>
+   </tr>
+  </TMPL_IF>
+
+  <tr>
+   <td align="right"><translate>Account Number</translate></td>
+   <td><TMPL_VAR account_number ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Bank Code</translate></td>
+   <td><TMPL_VAR bank_code ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Bank</translate></td>
+   <td><TMPL_VAR bank ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><TMPL_IF is_customer><translate>Customer type</translate><TMPL_ELSE><translate>Vendor type</translate></TMPL_IF></td>
+   <td><TMPL_VAR business ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right"><translate>Language</translate></td>
+   <td><TMPL_VAR language ESCAPE=HTML></td>
+  </tr>
+
+  <tr>
+   <td align="right" valign="top"><translate>Notes</translate></td>
+   <td valign="top"><TMPL_VAR notes ESCAPE=HTML></td>
+  </tr>
+
+ </table>
+
+
+
+
+
+
+
+
+ <TMPL_LOOP SHIPTO>
+
+  <hr>
+
+  <p><translate>Jump to</translate> <a href="#billing"><translate>Billing Address</translate></a>
+   <TMPL_LOOP SHIPTO>, <a href="#shipping<TMPL_VAR __counter__>"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</a></TMPL_LOOP>
+   <TMPL_LOOP CONTACTS>, <a href="#contact<TMPL_VAR __counter__>"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</a></TMPL_LOOP></p>
+
+  <hr>
+
+  <a name="shipping<TMPL_VAR __counter__>"><div class="listheading"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</div></a>
+
+  <table>
+   <tr>
+    <td align="right"><translate>Company Name</translate></td>
+    <td><TMPL_VAR shiptoname ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Department</translate></td>
+    <td><TMPL_VAR shiptodepartment_1 ESCAPE=HTML><TMPL_IF shiptodepartment_2><TMPL_IF shiptodepartment_1>; </TMPL_IF><TMPL_VAR shiptodepartment_2 ESCAPE=HTML></TMPL_IF></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Street</translate></td>
+    <td><TMPL_VAR shiptostreet ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Zip, City</translate></td>
+    <td><TMPL_VAR shiptozipcode ESCAPE=HTML> <TMPL_VAR shiptocity ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Country</translate></td>
+    <td><TMPL_VAR shiptocountry ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Contact Person</translate></td>
+    <td><TMPL_VAR shiptocontact ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Phone</translate></td>
+    <td><TMPL_VAR shiptophone ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Fax</translate></td>
+    <td><TMPL_VAR shiptofax ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>E-mail</translate></td>
+    <td><TMPL_VAR shiptoemail ESCAPE=HTML></td>
+   </tr>
+
+  </table>
+ </TMPL_LOOP>
+
+
+
+
+
+
+
+
+
+
+ <TMPL_LOOP CONTACTS>
+
+  <hr>
+
+  <p><translate>Jump to</translate> <a href="#billing"><translate>Billing Address</translate></a>
+   <TMPL_LOOP SHIPTO>, <a href="#shipping<TMPL_VAR __counter__>"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</a></TMPL_LOOP>
+   <TMPL_LOOP CONTACTS>, <a href="#contact<TMPL_VAR __counter__>"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</a></TMPL_LOOP></p>
+
+  <hr>
+
+  <a name="contact<TMPL_VAR __counter__>"><div class="listheading"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</div></a>
+
+  <table>
+   <tr>
+    <td align="right"><translate>Greeting</translate></td>
+    <td><TMPL_VAR cp_greeting ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Title</translate></td>
+    <td><TMPL_VAR cp_title ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Given Name</translate></td>
+    <td><TMPL_VAR cp_givenname ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Name</translate></td>
+    <td><TMPL_VAR cp_name ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Department</translate></td>
+    <td><TMPL_VAR cp_abteilung ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Phone1</translate></td>
+    <td><TMPL_VAR cp_phone1 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Phone2</translate></td>
+    <td><TMPL_VAR cp_phone2 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Fax</translate></td>
+    <td><TMPL_VAR cp_fax ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Mobile1</translate></td>
+    <td><TMPL_VAR cp_mobile1 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Mobile2</translate></td>
+    <td><TMPL_VAR cp_mobile2 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Sat. Phone</translate></td>
+    <td><TMPL_VAR cp_satphone ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Sat. Fax</translate></td>
+    <td><TMPL_VAR cp_satfax ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Project</translate></td>
+    <td><TMPL_VAR cp_project ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>E-mail</translate></td>
+    <td><TMPL_VAR cp_email ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Private Phone</translate></td>
+    <td><TMPL_VAR cp_privatphone ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Private E-mail</translate></td>
+    <td><TMPL_VAR cp_privatemail ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Birthday</translate></td>
+    <td><TMPL_VAR cp_birthday ESCAPE=HTML></td>
+   </tr>
+
+  </table>
+
+ </TMPL_LOOP>
+
+</body>
+</html>

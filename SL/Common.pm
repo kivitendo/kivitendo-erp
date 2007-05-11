@@ -10,6 +10,8 @@ package Common;
 
 use Time::HiRes qw(gettimeofday);
 
+use SL::DBUtils;
+
 use vars qw(@db_encodings %db_encoding_to_charset);
 
 @db_encodings = (
@@ -297,6 +299,53 @@ sub webdav_folder {
   }
 
   $main::lxdebug->leave_sub();
+}
+
+sub get_vc_details {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $vc, $vc_id) = @_;
+
+  $vc = $vc eq "customer" ? "customer" : "vendor";
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query;
+
+  $query =
+    qq|SELECT
+         vc.*,
+         pt.description AS payment_terms,
+         b.description AS business,
+         l.description AS language
+       FROM ${vc} vc
+       LEFT JOIN payment_terms pt ON (vc.payment_id = pt.id)
+       LEFT JOIN business b ON (vc.business_id = b.id)
+       LEFT JOIN language l ON (vc.language_id = l.id)
+       WHERE vc.id = ?|;
+  my $ref = selectfirst_hashref_query($form, $dbh, $query, $vc_id);
+
+  if (!$ref) {
+    $dbh->disconnect();
+    $main::lxdebug->leave_sub();
+    return 0;
+  }
+
+  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+
+  map { $form->{$_} = $form->format_amount($myconfig, $form->{$_} * 1) } qw(discount creditlimit);
+
+  $query = qq|SELECT * FROM shipto WHERE (trans_id = ?)|;
+  $form->{SHIPTO} = selectall_hashref_query($form, $dbh, $query, $vc_id);
+
+  $query = qq|SELECT * FROM contacts WHERE (cp_cv_id = ?)|;
+  $form->{CONTACTS} = selectall_hashref_query($form, $dbh, $query, $vc_id);
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return 1;
 }
 
 1;

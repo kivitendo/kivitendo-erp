@@ -500,6 +500,10 @@ selectcustomer}</select>|
       qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
 
+  $form->{javascript} .=
+    qq|<script type="text/javascript" src="js/common.js"></script>| .
+    qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+
   $form->header;
   $onload = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
@@ -530,7 +534,7 @@ selectcustomer}</select>|
 	    <table>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Customer') . qq|</th>
-		<td colspan=3>$customer</td>
+		<td colspan=3>$customer <input type="button" value="?" onclick="show_vc_details('customer')"></td>
 		<input type=hidden name=selectcustomer value="$form->{selectcustomer}">
 		<input type=hidden name=oldcustomer value="$form->{oldcustomer}">
 		<input type=hidden name=customer_id value="$form->{customer_id}">

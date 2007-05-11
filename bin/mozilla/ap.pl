@@ -484,6 +484,8 @@ selectvendor } </select>|
       qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"> $readonly</td>|;
   }
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+
   $form->header;
   $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
@@ -513,7 +515,7 @@ selectvendor } </select>|
 	    <table>
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Vendor') . qq|</th>
-		<td colspan=3>$vendor</td>
+		<td colspan=3>$vendor <input type="button" value="?" onclick="show_vc_details('vendor')"></td>
 		<input type=hidden name=selectvendor value="$form->{selectvendor}">
 		<input type=hidden name=oldvendor value="$form->{oldvendor}">
 		<input type=hidden name=vendor_id value="$form->{vendor_id}">

@@ -563,4 +563,24 @@ sub call_sub {
   $lxdebug->leave_sub();
 }
 
+sub show_vc_details {
+	$lxdebug->enter_sub();
+
+  $form->{vc} = $form->{vc} eq "customer" ? "customer" : "vendor";
+  $form->isblank("vc_id",
+                 $form->{vc} eq "customer" ?
+                 $locale->text("No customer has been selected yet.") :
+                 $locale->text("No vendor has been selected yet."));
+
+  Common->get_vc_details(\%myconfig, $form, $form->{vc}, $form->{vc_id});
+
+  $form->{title} = $form->{vc} eq "customer" ?
+    $locale->text("Customer details") : $locale->text("Vendor details");
+  $form->header();
+  print($form->parse_html_template("common/show_vc_details",
+                                   { "is_customer" => $form->{vc} eq "customer" }));
+
+	$lxdebug->leave_sub();
+}
+
 1;

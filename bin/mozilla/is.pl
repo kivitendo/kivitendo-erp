@@ -83,7 +83,7 @@ sub edit {
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
-  
+
   if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
   {
     $form->error("Access Denied");
@@ -288,13 +288,13 @@ sub form_header {
 
     if ($form->{type} eq "credit_note") {
       $form->{title} = $locale->text('Edit Credit Note');
-    
+
       if ($form->{storno}) {
         $form->{title} = $locale->text('Edit Storno Credit Note');
       }
     } else {
       $form->{title} = $locale->text('Edit Sales Invoice');
-    
+
       if ($form->{storno}) {
         $form->{title} = $locale->text('Edit Storno Invoice');
       }
@@ -379,14 +379,15 @@ sub form_header {
 
   my $customers = qq|
       <th align="right">| . $locale->text('Customer') . qq|</th>
-      <td>| . 
-        (($myconfig{vclimit} <=  scalar(@values)) 
-              ? qq|<input type="text" value="| . H($form->{"oldcustomer"}) . qq|" name="customer">| 
-              : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer}, 
+      <td>| .
+        (($myconfig{vclimit} <=  scalar(@values))
+              ? qq|<input type="text" value="| . H($form->{"oldcustomer"}) . qq|" name="customer">|
+              : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer},
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
                              '-values' => \@values, '-labels' => \%labels)))) . qq|
+        <input type="button" value="?" onclick="show_vc_details('customer')">
       </td>|;
-    
+
   %labels = ();
   @values = ("");
   foreach my $item (@{ $form->{"ALL_SHIPTO"} }) {
@@ -412,7 +413,7 @@ sub form_header {
     push(@values, $item);
     $labels{$item} = $item;
   }
-  
+
   $form->{currency}        = $form->{defaultcurrency} unless $form->{currency};
   my $currencies;
   if (scalar @values) {
@@ -493,7 +494,7 @@ sub form_header {
 
   #substitute \n and \r to \s (bug 543)
   $form->{selectcustomer} =~ s/[\n\r]/&nbsp;/g;
-  
+
   if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
     $creditwarning = 1;
   } else {
@@ -623,6 +624,7 @@ sub form_header {
   }
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
+  $form->{javascript}   .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
   $jsscript .=
     $form->write_trigger(\%myconfig, 2,
@@ -642,8 +644,8 @@ sub form_header {
 
 <form method="post" name="invoice" action="$form->{script}">
 | ;
-map({print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});} 
-     qw(id action type media format queued printed emailed title vc discount 
+map({print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});}
+     qw(id action type media format queued printed emailed title vc discount
         creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id)) ;
 print ($form->{saved_message} ? qq|<p>$form->{saved_message}</p>| : "") ;
 print qq|
@@ -787,20 +789,20 @@ print qq|     <tr>
     <td>
     </td>
   </tr>
-| . 
+| .
 $jsscript
 . qq|
 <!-- shipto are in hidden variables -->
 | ;
-map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
+map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); }
        qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2));
 print qq|<!-- email variables --> |;
-map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
+map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); }
     qw(message email subject cc bcc taxaccounts));
 print qq|<input type="hidden" name="webdav" value="| . $webdav . qq|">|;
 
   foreach $item (split(/ /, $form->{taxaccounts})) {
-    map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
+    map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); }
     ("${item}_rate", "${item}_description", "${item}_taxnumber"));
   }
   $lxdebug->leave_sub();
@@ -822,7 +824,7 @@ sub form_footer {
     qq|<textarea name="notes" rows="$rows" cols="26" wrap="soft">$form->{notes}</textarea>|;
   $intnotes =
     qq|<textarea name="intnotes" rows="$rows" cols="35" wrap="soft">$form->{intnotes}</textarea>|;
- 
+
   $form->{taxincluded} = ($form->{taxincluded} ? "checked" : "");
 
   $taxincluded = "";
@@ -1061,7 +1063,7 @@ if ($form->{type} eq "credit_note") {
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
-  map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } qw(paidaccounts selectAR_paid oldinvtotal)); 
+  map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } qw(paidaccounts selectAR_paid oldinvtotal));
   print qq|<input type="hidden" name="oldtotalpaid" value="$totalpaid">
     </table>
     </td>
@@ -1161,7 +1163,7 @@ if ($form->{type} eq "credit_note") {
 
 <input type="hidden" name="rowcount" value="$form->{rowcount}">
 | .
-$cgi->hidden("-name" => "callback", "-value" => $form->{callback}) 
+$cgi->hidden("-name" => "callback", "-value" => $form->{callback})
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
 map({ print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});} qw(login password));
@@ -1185,7 +1187,7 @@ sub update {
     $form->{print_and_post} = 0;
   }
 
-  
+
   if($form->{taxincluded}) {
     $taxincluded = "checked";
   }
@@ -1454,7 +1456,7 @@ sub post {
                                           "POSTED";
     $form->save_history($form->dbconnect(\%myconfig));
   }
-  
+
   $form->redirect( $form->{label} . " $form->{invnumber} " . $locale->text('posted!'))
     unless $print_post;
 
@@ -1586,7 +1588,7 @@ sub credit_note {
   $form->{script} = 'is.pl';
   $script         = "is";
   $buysell        = 'buy';
-  
+
 
   # bo creates the id, reset it
   map { delete $form->{$_} }
@@ -1629,12 +1631,12 @@ sub yes {
   if (IS->delete_invoice(\%myconfig, \%$form, $spool)) {
     # saving the history
   	if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber}; 
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
-    # /saving the history 
-    $form->redirect($locale->text('Invoice deleted!')); 
+    # /saving the history
+    $form->redirect($locale->text('Invoice deleted!'));
   }
   $form->error($locale->text('Cannot delete invoice!'));
 

@@ -345,7 +345,7 @@ sub form_header {
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
       </tr>|;
-  
+
   %labels = ();
   @values = ();
   my $i = 0;
@@ -359,6 +359,7 @@ sub form_header {
         NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{"vendor"},
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
                              '-values' => \@values, '-labels' => \%labels)) . qq|
+        <input type="button" value="?" onclick="show_vc_details('vendor')">
       </td>|;
 
   %labels = ();
@@ -422,6 +423,7 @@ sub form_header {
 
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
+  $form->{javascript}   .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
   $jsscript .=
     $form->write_trigger(\%myconfig, 2,
