@@ -694,11 +694,6 @@ sub form_header {
   @a = <FH>;
   close(FH);
 
-  if (open(FH, "custom_$menufile")) {
-    push @a, <FH>;
-  }
-  close(FH);
-
   foreach $item (@a) {
     next unless $item =~ /\[/;
     next if $item =~ /\#/;
@@ -970,6 +965,9 @@ sub save {
       }
     }
   }
+
+  $form->{templates}       =~ s|.*/||;
+  $form->{mastertemplates} =~ s|.*/||;
 
   # create user template directory and copy master files
   if (!-d "$form->{templates}") {
