@@ -346,7 +346,7 @@ sub form_header {
     <tr>
       <th align="right">| . $locale->text('Contact Person') . qq|</th>
       <td>| .
-      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values, '-style' => 'width: 250px',
                            '-labels' => \%labels, '-default' => $form->{"cp_id"}))
       . qq|
       </td>
@@ -384,7 +384,7 @@ sub form_header {
               ? qq|<input type="text" value="| . H($form->{"oldcustomer"}) . qq|" name="customer">|
               : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer},
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
-                             '-values' => \@values, '-labels' => \%labels)))) . qq|
+                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
         <input type="button" value="?" onclick="show_vc_details('customer')">
       </td>|;
 
@@ -401,7 +401,7 @@ sub form_header {
     <tr>
       <th align="right">| . $locale->text('Shipping Address') . qq|</th>
       <td>| .
-      NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values,
+      NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values, '-style' => 'width: 250px',
                            '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
     . qq|</td>|;
   }
@@ -466,7 +466,7 @@ sub form_header {
       <th align="right">| . $locale->text('Steuersatz') . qq|</th>
       <td>| .
         NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px',)) . qq|
       </td>
     </tr>|;
 
@@ -529,7 +529,7 @@ sub form_header {
   $department = qq|
               <tr>
 	        <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-		<td colspan="3"><select name="department">$form->{selectdepartment}</select>
+		<td colspan="3"><select name="department" style="width: 250px">$form->{selectdepartment}</select>
 		<input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
 		</td>
 	      </tr>
@@ -674,7 +674,7 @@ sub form_header {
         $business
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Record in') . qq|</th>
-		<td colspan="3"><select name="AR" style="width:280px;">$form->{selectAR}</select></td>
+		<td colspan="3"><select name="AR" style="width:250px;">$form->{selectAR}</select></td>
 		<input type="hidden" name="selectAR" value="$form->{selectAR}">
 	      </tr>
               $taxzone

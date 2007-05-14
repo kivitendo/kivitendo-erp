@@ -291,7 +291,7 @@ sub form_header {
     <tr>
       <th align="right">| . $locale->text('Contact Person') . qq|</th>
       <td>| .
-      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values,
+      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values, '-style' => 'width: 250px',
                            '-labels' => \%labels, '-default' => $form->{"cp_id"}))
       . qq|
       </td>
@@ -358,7 +358,7 @@ sub form_header {
       <td>| .
         NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{"vendor"},
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')) . qq|
         <input type="button" value="?" onclick="show_vc_details('vendor')">
       </td>|;
 
@@ -375,7 +375,7 @@ sub form_header {
       <th align="right">| . $locale->text('Steuersatz') . qq|</th>
       <td>| .
         NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')) . qq|
       </td>
     </tr>|;
 
@@ -393,7 +393,7 @@ sub form_header {
   $department = qq|
               <tr>
 	      <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-	      <td colspan="3"><select name="department">$form->{selectdepartment}</select>
+	      <td colspan="3"><select name="department" style="width: 250px">$form->{selectdepartment}</select>
 	      <input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
 	      </td>
 	    </tr>
@@ -465,7 +465,7 @@ sub form_header {
         </tr>
 	      <tr>
 		<th align="right">| . $locale->text('Record in') . qq|</th>
-		<td colspan="3"><select name="AP">$form->{selectAP}</select></td>
+		<td colspan="3"><select name="AP" style="width: 250px">$form->{selectAP}</select></td>
 		<input type="hidden" name="selectAP" value="$form->{selectAP}">
 	      </tr>
               $taxzone
