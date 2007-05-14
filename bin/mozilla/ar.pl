@@ -1024,6 +1024,7 @@ sub post_payment {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
       $form->error($locale->text('Cannot post payment for a closed period!'))
         if ($datepaid <= $closedto);
 
@@ -1057,6 +1058,7 @@ sub post {
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
 
+  $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
   $form->error($locale->text('Cannot post transaction for a closed period!'))
     if ($transdate <= $closedto);
 
@@ -1071,6 +1073,7 @@ sub post {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
+      $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{"amount_$i"});
       $form->error($locale->text('Cannot post payment for a closed period!'))
         if ($datepaid <= $closedto);
 

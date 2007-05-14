@@ -173,6 +173,7 @@ $self->{texts} = {
   'Vendor not on file or locked!' => 'Dieser Lieferant existiert nicht oder ist gesperrt.',
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
   'Yes'                         => 'Ja',
+  'Zero amount posting!'        => 'Nullbuchung!',
   'bin_list'                    => 'Lagerliste',
   'button'                      => '?',
   'history'                     => 'Historie',
