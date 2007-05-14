@@ -277,7 +277,7 @@ sub all_transactions {
                           (SELECT id FROM chart c2 WHERE c2.category = ?))|;
     $apwhere .=
       qq| AND ap.id in (SELECT trans_id FROM acc_trans ac2 WHERE ac2.chart_id IN
-                          (SELECT id FROM chart c2 WHERE c2.category = ?))"|;
+                          (SELECT id FROM chart c2 WHERE c2.category = ?))|;
     push(@glvalues, $form->{category});
     push(@arvalues, $form->{category});
     push(@apvalues, $form->{category});
