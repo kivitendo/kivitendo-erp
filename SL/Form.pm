@@ -2477,10 +2477,9 @@ sub save_history {
 sub get_history {
   $main::lxdebug->enter_sub();
 
-  my $self = shift();
-  my $dbh = shift();
-  my $trans_id = shift();
-  my $restriction = shift();
+  my ($self, $dbh, $trans_id, $restriction, $order) = @_;
+  my ($orderBy, $desc) = split(/\-\-/, $order);
+  $order = " ORDER BY " . ($order eq "" ? " h.itime " : ($desc == 1 ? $orderBy . " DESC " : $orderBy . " "));
   my @tempArray;
   my $i = 0;
   if ($trans_id ne "") {
@@ -2488,7 +2487,7 @@ sub get_history {
       qq|SELECT h.employee_id, h.itime::timestamp(0) AS itime, h.addition, h.what_done, emp.name, h.snumbers, h.trans_id AS id | .
       qq|FROM history_erp h | .
       qq|LEFT JOIN employee emp ON (emp.id = h.employee_id) | .
-      qq|WHERE trans_id = ? |
+      qq|WHERE trans_id = ? |. $order
       . $restriction;
 
     my $sth = $dbh->prepare($query) || $self->dberror($query);
