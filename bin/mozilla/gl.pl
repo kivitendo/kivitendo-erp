@@ -1153,7 +1153,7 @@ sub display_rows {
 
     if ($init) {
       $korrektur =
-        qq|<td><input type="checkbox" name="korrektur_$i" value="1"</td>|;
+        qq|<td><input type="checkbox" name="korrektur_$i" value="1"></td>|;
       if ($form->{transfer}) {
         $fx_transaction = qq|
         <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
