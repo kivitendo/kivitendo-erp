@@ -747,7 +747,7 @@ sub check_form {
     exit;
   }
 
-  $form->error($locale->text('Zero amount posting!')) if ($form->{amount} eq "0,00" || $form->{amount} eq "0.00");
+  $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
 
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
