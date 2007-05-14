@@ -306,9 +306,9 @@ sub form_header {
 		<td colspan=3><input name=source value="$form->{source}" size=10></td>
 	      </tr>
 	      <tr>
-		<th align=right nowrap>| . $locale->text('Amount') . qq|</th>
-		<td colspan=3><input name=amount size=10 value=|
-    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq| onBlur=\"check_right_number_format(this)\"></td>
+		<th align="right" nowrap>| . $locale->text('Amount') . qq|</th>
+		<td colspan="3"><input name="amount" size="10" value="|
+    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|" onBlur=\"check_right_number_format(this)\"></td>
 	      </tr>
 	    </table>
 	  </td>
@@ -674,7 +674,7 @@ sub print {
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
-  $form->{decimal} .= "00";
+  #$form->{decimal} .= "00";
   $form->{decimal} = substr($form->{decimal}, 0, 2);
 
   $check = new CP $myconfig{countrycode};
@@ -747,6 +747,7 @@ sub check_form {
     exit;
   }
 
+  $form->error($locale->text('Zero amount posting!')) if ($form->{amount} eq "0,00" || $form->{amount} eq "0.00");
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
 
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
