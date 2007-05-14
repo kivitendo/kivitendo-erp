@@ -1345,27 +1345,29 @@ sub save {
 
   # Hier kommt dann die Plausibilitätsprüfung der ELSTERSteuernummer
   if ($form->{elstersteuernummer} ne '000000000') {
+    
     $form->{elster} = '1';
-    open(CONF, ">$userspath/$filename") or $form->error("$filename : $!");
+    
+    open my $ustvaconfig, ">", "$userspath/$filename" or $form->error("$filename : $!");
 
     # create the config file
-    print CONF qq|# Configuration file for USTVA\n\n|;
+    print {$ustvaconfig} qq|# Configuration file for USTVA\n\n|;
     my $key = '';
     foreach $key (sort @config) {
       $form->{$key} =~ s/\\/\\\\/g;
       # strip M
       $form->{$key} =~ s/\r\n/\n/g;
 
-      print CONF qq|$key=|;
+      print {$ustvaconfig} qq|$key=|;
       if ($form->{$key} ne 'Y') {
-        print CONF qq|$form->{$key}\n|;
+        print {$ustvaconfig} qq|$form->{$key}\n|;
       }
       if ($form->{$key} eq 'Y') {
-        print CONF qq|checked \n|;
+        print {$ustvaconfig} qq|checked \n|;
       }
     }
-    print CONF qq|\n\n|;
-    close CONF;
+    print {$ustvaconfig} qq|\n\n|;
+    close $ustvaconfig;
     $form->{saved} = $locale->text('saved');
 
   } else {

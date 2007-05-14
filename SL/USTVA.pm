@@ -562,14 +562,12 @@ sub process_query {
 
   #  return unless (-f $filename);
 
-  local *FH;
-
-  open(FH, "$filename") or $form->error("$filename : $!\n");
+  open my $FH, "<", "$filename" or $form->error("$filename : $!\n");
   my $query = "";
   my $sth;
   my @quote_chars;
 
-  while (<FH>) {
+  while (<$FH>) {
 
     # Remove DOS and Unix style line endings.
     s/[\r\n]//g;
@@ -608,7 +606,7 @@ sub process_query {
     }
   }
 
-  close FH;
+  close $FH;
 
   $main::lxdebug->leave_sub();
 }
@@ -753,12 +751,7 @@ sub get_accounts_ustva {
 
   my ($dbh, $last_period, $fromdate, $todate, $form, $category) = @_;
 
-  my ($null, $department_id) = split /--/, $form->{department};
-
   my $query;
-  my $dpt_where;
-  my $dpt_join;
-  my $project;
   my $where    = "";
   my $glwhere  = "";
   my $subwhere = "";
@@ -784,20 +777,6 @@ sub get_accounts_ustva {
     $ARwhere  .= " AND acc.transdate <= '$todate'";
   }
 
-  if ($department_id) {
-    $dpt_join = qq|
-               JOIN department t ON (a.department_id = t.id)
-		  |;
-    $dpt_where = qq|
-               AND t.id = $department_id
-	           |;
-  }
-
-  if ($form->{project_id}) {
-    $project = qq|
-                 AND ac.project_id = $form->{project_id}
-		 |;
-  }
   ############################################
   # Method eq 'cash' = IST Versteuerung
   ############################################
@@ -856,16 +835,6 @@ sub get_accounts_ustva {
     # Method eq 'accrual' = Soll Versteuerung
     #########################################
 
-    if ($department_id) {
-      $dpt_join = qq|
-	      JOIN dpt_trans t ON (t.trans_id = ac.trans_id)
-	      |;
-      $dpt_where = qq|
-               AND t.department_id = $department_id
-	      |;
-    }
-
-
     $query = qq|
        -- Alle Einnahmen AR und pos_ustva erfassen
        SELECT
@@ -885,8 +854,6 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       $dpt_where
-       $project
        GROUP BY tk.pos_ustva
   |;
    
@@ -922,8 +889,6 @@ sub get_accounts_ustva {
        WHERE
        1=1
        $where
-       $dpt_where
-       $project
        GROUP BY tk.pos_ustva
 
      UNION -- Einnahmen direkter gl Buchungen erfassen
@@ -947,8 +912,6 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       $dpt_where
-       $project
        GROUP BY tk.pos_ustva
 
 
@@ -973,8 +936,6 @@ sub get_accounts_ustva {
        $dpt_join
        WHERE 1 = 1
        $where
-       $dpt_where
-       $project
        GROUP BY tk.pos_ustva
 
   |;
@@ -991,18 +952,10 @@ sub get_accounts_ustva {
   
   $sth->execute || $form->dberror($query);
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     # Bug 365 solved?!
     $ref->{amount} *= -1;
-    if ($category eq "pos_bwa") {
-      if ($last_period) {
-        $form->{ $ref->{$category} }{kumm} += $ref->{amount};
-      } else {
-        $form->{ $ref->{$category} }{jetzt} += $ref->{amount};
-      }
-    } else {
-      $form->{ $ref->{$category} } += $ref->{amount};
-    }
+    $form->{ $ref->{$category} } += $ref->{amount};
   }
 
   $sth->finish;
@@ -1014,23 +967,26 @@ sub get_accounts_ustva {
 sub get_config {
   $main::lxdebug->enter_sub();
 
-  my ($self, $userpath, $filename) = @_;
+  my ($self, $userspath, $filename) = @_;
 
-  local (*FACONF, *FANEW);
+  $form->error("Missing Parameter: @_") if !$userspath || !$filename;
 
   my $form = $main::form;
 
   $filename = "$form->{login}_$filename";
   $filename =~ s|.*/||;
   $filename = "$userspath/$filename";
+  open my $FACONF, "<", $filename or sub {# Annon Sub
+    # catch open error
+    # create file if file does not exist
+    open my $FANEW, ">", $filename  or $form->error("CREATE: $filename : $!");
+    close $FANEW                    or $form->error("CLOSE: $filename : $!");
+    
+    #try again open file
+    open my $FACONF, "<", $filename or $form->error("OPEN: $filename : $!");
+  };
 
-  if (!open(FACONF, "<", $filename)) {
-    open(FANEW, ">", $filename) || $form->error("$filename : $!");
-    close(FANEW);
-    open(FACONF, "<", $filename) || $form->error("$filename : $!");
-  }
-
-  while (<FACONF>) {
+  while (<$FACONF>) {
     last if (/^\[/);
     next if (/^(\#|\s)/);
 
@@ -1045,7 +1001,7 @@ sub get_config {
 
   }
 
-  close(FACONF);
+  close $FACONF;
 
   $main::lxdebug->leave_sub();
 }
