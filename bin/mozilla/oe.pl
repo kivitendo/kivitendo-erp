@@ -463,8 +463,7 @@ sub form_header {
   @values = ("");
   foreach my $item (@{ $form->{"ALL_SHIPTO"} }) {
     push(@values, $item->{"shipto_id"});
-    $labels{$item->{"shipto_id"}} =
-      $item->{"shiptoname"} . " " . $item->{"shiptodepartment_1"};
+    $labels{$item->{"shipto_id"}} = join "; ", grep { $_ } map { $item->{"shipto${_}" } } qw(name department_1 street city);
   }
 
   my $shipto;
