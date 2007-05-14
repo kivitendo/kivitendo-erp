@@ -3071,7 +3071,6 @@ sub show_am_history {
 								: ""
 							)
 						);
-	
 	my $dbh = $form->dbconnect(\%myconfig);
 	my $searchSNumber = $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'};
 	$restriction .= ($form->{mitarbeiter} eq "" ? "" 
@@ -3095,7 +3094,7 @@ sub show_am_history {
 	$form->header();
 	my $daten = "";
 	while(my $hash_ref = $sth->fetchrow_hashref()){
-    $daten =  $form->get_history($dbh,$hash_ref->{id},$restriction);
+    $daten =  $form->get_history($dbh,$hash_ref->{id},$restriction,$form->{order});
   }
 	$dbh->disconnect();
 	print $form->parse_html_template("/common/show_history", 

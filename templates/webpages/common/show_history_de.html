@@ -3,25 +3,48 @@
 <input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
 </form> 
 <TMPL_IF NAME=SUCCESS>
+<script type="text/javascript">
+  function orderBy(order) {
+    var desc = 0;
+    var reg = /\&order\=(.+)\-\-(\d)$/;
+    reg.exec(document.location.href);
+    if(RegExp.$1 == order) {
+      if(RegExp.$2 == 0) {
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--1";
+      }
+      else{  
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--0";
+      }
+    }
+    else {
+      if(reg.test(document.location.href)) {
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--0";
+      }
+      else {
+        document.location.href = document.location.href + "&order=" + order + "--1";
+      }
+    }
+  }
+</script>
 <table>
 	<tr>
 		<th class=listtop>
-			&nbsp;Zeitpunkt&nbsp;
+			&nbsp;<a href="javascript:orderBy('h.itime');">Zeitpunkt</a>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;Mitarbeiter&nbsp;
+			&nbsp;<a href="javascript:orderBy('emp.name');">Mitarbeiter</a>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;Aktion&nbsp;
+			&nbsp;<a href="javascript:orderBy('h.addition');">Aktion</a>&nbsp;
 		</th>
 		<th class=listtop>
-      &nbsp;Zusatz&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.what_done');">Zusatz</a>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;ID-Nummer (intern)&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.trans_id');">ID-Nummer (intern)</a>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;Buchungsnummer&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.snumbers');">Buchungsnummer</a>&nbsp;
     </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>

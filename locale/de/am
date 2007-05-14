@@ -385,7 +385,6 @@ $self->{subs} = {
   'löschen'                     => 'delete',
   'kontodaten_bearbeiten'       => 'edit_account',
   'speichern'                   => 'save',
-  'abschicken'                  => 'submit',
 };
 
 1;

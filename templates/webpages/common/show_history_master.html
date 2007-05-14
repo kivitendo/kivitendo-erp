@@ -3,25 +3,48 @@
 <input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
 </form> 
 <TMPL_IF NAME=SUCCESS>
+<script type="text/javascript">
+  function orderBy(order) {
+    var desc = 0;
+    var reg = /\&order\=(.+)\-\-(\d)$/;
+    reg.exec(document.location.href);
+    if(RegExp.$1 == order) {
+      if(RegExp.$2 == 0) {
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--1";
+      }
+      else{  
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--0";
+      }
+    }
+    else {
+      if(reg.test(document.location.href)) {
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--0";
+      }
+      else {
+        document.location.href = document.location.href + "&order=" + order + "--1";
+      }
+    }
+  }
+</script>
 <table>
 	<tr>
 		<th class=listtop>
-			&nbsp;<translate>Zeitpunkt</translate>&nbsp;
+			&nbsp;<a href="javascript:orderBy('h.itime');"><translate>Zeitpunkt</translate></a>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;<translate>Mitarbeiter</translate>&nbsp;
+			&nbsp;<a href="javascript:orderBy('emp.name');"><translate>Mitarbeiter</translate></a>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;<translate>Aktion</translate>&nbsp;
+			&nbsp;<a href="javascript:orderBy('h.addition');"><translate>Aktion</translate></a>&nbsp;
 		</th>
 		<th class=listtop>
-      &nbsp;<translate>Zusatz</translate>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.what_done');"><translate>Zusatz</translate></a>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;<translate>ID-Nummer</translate>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.trans_id');"><translate>ID-Nummer</translate></a>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;<translate>Belegnummer</translate>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.snumbers');"><translate>Belegnummer</translate></a>&nbsp;
     </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>

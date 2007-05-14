@@ -2,8 +2,9 @@
 <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
 <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
 <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
+<script type="text/javascript" src="js/show_am_history.js"></script>
 
-<form method="post" action="<TMPL_VAR NAME=script ESCAPE=HTML>">
+<form method="post" onSubmit="javascript:set_history_uri();"<!--action="<TMPL_VAR NAME=script ESCAPE=HTML>"-->>
 
 <input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
 <input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
@@ -56,14 +57,14 @@
 					var jscalender = "<table valign=\"top\">"
 									+ "<tr><td colspan=\"2\"><b>Zeitraum:&nbsp;</b></td></tr>"
 									+ "<tr><td>von:&nbsp;"
-									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=transdate ESCAPE=HTML>\">"
+									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=transdate ESCAPE=HTML>\" onChange=\"document.getElementById(\'transdate_hidden\').value=this.value;\">"
 									+ "<input type=\"button\" name=\"transdate\" id=\"trigger1\" value=\"?\">"
 									+ "&nbsp;</td><td>bis:&nbsp;"
-									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=reqdate ESCAPE=HTML>\">"
+									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=reqdate ESCAPE=HTML>\" onChange=\"document.getElementById(\'reqdate_hidden\').value=this.value;\">"
 									+ "<input type=\"button\" name=\"reqdate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
 					var mitarbeiter = "<table valign=\"top\">"
 									+ "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
-									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter'></td>"
+									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter' onChange=\"document.getElementById(\'mitarbeiter_hidden\').value=this.value;\"></td>"
 									+ "</tr></table>";
 					
 					var tempString = "";
@@ -173,7 +174,10 @@
 					</tr>
 					<tr>
 						<td colspan="6">
-							<input type="submit" value="abschicken">
+              <input type="hidden" value="" id="transdate_hidden">
+              <input type="hidden" value="" id="reqdate_hidden">
+              <input type="hidden" value="" id="mitarbeiter_hidden">
+							<input type="button" value="abschicken" onClick="javascript:set_history_uri();">
 							<input type="reset" value="zurücksetzen" onClick="javascript:resetAll();">
 						</td>
 						<td>
