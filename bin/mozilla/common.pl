@@ -45,19 +45,26 @@ sub restore_form {
 sub build_std_url {
   $lxdebug->enter_sub();
 
-  my $url = "$form->{script}?";
-  my $first = 1;
+  my $script = $form->{script};
+
+  my @parts;
+
   foreach my $key ((qw(login password), @_)) {
     next unless ($key);
-    $url .= "&" unless ($first);
-    $first = 0;
 
-    if ($key =~ /=/) {
-      $url .= $key;
+    if ($key =~ /(.*?)=(.*)/) {
+      if ($1 eq 'script') {
+        $script = $2;
+      } else {
+        push @parts, $key;
+      }
+
     } else {
-      $url .= "${key}=" . E($form->{$key});
+      push @parts, "${key}=" . E($form->{$key});
     }
   }
+
+  my $url = "${script}?" . join('&', @parts);
 
   $lxdebug->leave_sub();
 
