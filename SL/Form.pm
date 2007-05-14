@@ -1519,10 +1519,7 @@ sub _get_shipto {
   $key = "all_shipto" unless ($key);
 
   # get shipping addresses
-  my $query =
-    qq|SELECT shipto_id, shiptoname, shiptodepartment_1 | .
-    qq|FROM shipto | .
-    qq|WHERE trans_id = ?|;
+  my $query = qq|SELECT * FROM shipto WHERE trans_id = ?|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query, $vc_id);
 
