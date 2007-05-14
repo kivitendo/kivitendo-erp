@@ -216,178 +216,27 @@ sub set_email {
 
 sub search {
   $lxdebug->enter_sub();
-  # setup customer selection
-  $form->all_vc(\%myconfig, "customer", "AR");
+
+  $form->get_lists("customers"   => "ALL_CUSTOMERS",
+                   "departments" => "ALL_DEPARTMENTS");
 
   DN->get_config(\%myconfig, \%$form);
 
-  if (@{ $form->{all_customer} }) {
-    map { $customer .= "<option>$_->{name}--$_->{id}\n" }
-      @{ $form->{all_customer} };
-    $customer = qq|<select name=customer><option>\n$customer</select>|;
-  } else {
-    $customer = qq|<input name=customer size=35>|;
-  }
+  $form->{SHOW_CUSTOMER_DDBOX}   = scalar @{ $form->{ALL_CUSTOMERS} } <= $myconfig{vclimit};
+  $form->{SHOW_DEPARTMENT_DDBOX} = scalar @{ $form->{ALL_CUSTOMERS} };
+  $form->{SHOW_DUNNING_LEVELS}   = scalar @{ $form->{DUNNING} };
 
-  # dunning levels
-  if (@{ $form->{DUNNING} }) {
-    $form->{selectdunning_level} = "<option></option\n";
-    map {
-      $form->{selectdunning_level} .=
-        "<option value=$_->{id}>$_->{dunning_description}</option>\n"
-    } (@{ $form->{DUNNING} });
-  }
-  $dunning_level = qq| 
-    <tr> 
-    <th align=right nowrap>| . $locale->text('Next Dunning Level') . qq|</th>
-    <td colspan=3><select name=dunning_level>$form->{selectdunning_level}</select></td>
-    </tr>
-    | if $form->{selectdunning_level};
-
-  # departments
-  if (@{ $form->{all_departments} }) {
-    $form->{selectdepartment} = "<option>\n";
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
-  }
-  $department = qq| 
-    <tr> 
-    <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-    <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-    </tr>
-    | if $form->{selectdepartment};
-  $form->{title}   = $locale->text('Search Dunning');
-  $form->{nextsub} = "show_dunning";
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
-  $jsscript = "";
-  if ($form->{jsscript}) {
-
-    # with JavaScript Calendar
-    $button1 = qq|
-      <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=transdatefrom id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button2 = qq|
-      <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=transdateto id="trigger2" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button3 = qq|
-      <td><input name=dunningfrom id=dunningfrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=dunningfrom id="trigger3" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button4 = qq|
-      <td><input name=dunningto id=dunningto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=dunningto id="trigger4" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "4", "transdatefrom", "BR", "trigger1", "transdateto", "BR", "trigger2", "dunningfrom", "BR", "trigger3", "dunningto", "BR", "trigger4");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 =
-      qq|<td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 =
-      qq|<td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button3 =
-      qq|<td><input name=dunningfrom id=dunningfrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button4 =
-      qq|<td><input name=dunningfrom id=dunningto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
-
-  $form->{fokus} = "search.customer";
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
+  $form->{jsscript}    = 1;
+  $form->{title}       = $locale->text('Search Dunning');
+  $form->{fokus}       = "search.customer";
+  $form->{javascript} .= qq||;
   $form->header;
-  $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
-  print qq|
-<body onLoad="$onload">
+  $form->{onload} = qq|focus()|
+    . qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|
+    . qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
-<form method=post name="search" action=$form->{script}>
-
-<table width=100%>
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>| . $locale->text('Customer') . qq|</th>
-          <td colspan=3>$customer</td>
-        </tr>
-        $dunning_level
-        $department
-        <tr>
-          <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-          <td colspan=3><input name=invnumber size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-          <td colspan=3><input name=ordnumber size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
-          <td colspan=3><input name=notes size=40></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Invdate from') . qq|</th>
-          $button1
-          <th align=right nowrap>| . $locale->text('To') . qq|</th>
-          $button2
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Dunning Date from') . qq|</th>
-          $button3
-          <th align=right nowrap>| . $locale->text('To') . qq|</th>
-          $button4
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Show old dunnings') . qq|</th>
-          <td><input type=checkbox value=1 name=showold></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-
-<input type=hidden name=nextsub value=$form->{nextsub}>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-</form>
-
-</body>
-
-$jsscript
-
-</html>
-|;
+  print $form->parse_html_template("dunning/search");
 
   $lxdebug->leave_sub();
 
@@ -397,166 +246,33 @@ sub show_dunning {
   $lxdebug->enter_sub();
 
   DN->get_dunning(\%myconfig, \%$form);
-  $form->{title} = $locale->text('Dunning overview');
 
-
-
-
-  
-  $form->{callback} =
-    "$form->{script}?action=show_dunning&login=$form->{login}&password=$form->{password}&customer=$form->{customer}&invnumber=$form->{invnumber}&ordnumber=$form->{ordnumber}&transdatefrom=$form->{transdatefrom}&transdateto=$form->{transdateto}&dunningfrom=$form->{dunningfrom}&dunningto=$form->{dunningto}&notes=$form->{notes}&showold=$form->{showold}&dunning_level=$form->{dunning_level}"
-    unless $form->{callback};
-
-  @column_index = qw(dunning_description customername invnumber invdate inv_duedate invamount dunning_date next_duedate fee interest );
-
-  $column_header{dunning_description} =
-      qq|<th class=listheading>|
-    . $locale->text('Dunning Level')
-    . qq|</th>|;
-  $column_header{customername} =
-      qq|<th class=listheading>|
-    . $locale->text('Customername')
-    . qq|</th>|;
-  $column_header{invnumber} =
-      qq|<th class=listheading>|
-    . $locale->text('Invnumber')
-    . qq|</th>|;
-  $column_header{inv_duedate} =
-      qq|<th class=listheading>|
-    . $locale->text('Invoice Duedate')
-    . qq|</th>|;
-  $column_header{dunning_date} =
-      qq|<th class=listheading>|
-    . $locale->text('Dunning Date')
-    . qq|</th>|;
-  $column_header{next_duedate} =
-      qq|<th class=listheading>|
-    . $locale->text('Dunning Duedate')
-    . qq|</th>|;
-  $column_header{invdate} =
-      qq|<th class=listheading>|
-    . $locale->text('Invdate')
-    . qq|</th>|;
-  $column_header{invamount} =
-      qq|<th class=listheading>|
-    . $locale->text('Amount')
-    . qq|</th>|;
-  $column_header{fee} =
-      qq|<th class=listheading>|
-    . $locale->text('Total Fees')
-    . qq|</th>|;
-  $column_header{interest} =
-      qq|<th class=listheading>|
-    . $locale->text('Interest')
-    . qq|</th>|;
-
-  $form->header;
-
-
-  print qq|
-<body>
-<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript" src="js/dunning.js"></script>
-<form method=post action=$form->{script}>
-
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=10>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>|;
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  my %columns = (
-    "dunning_duedate" => "next_duedate",
-    "duedate" => "inv_duedate",
-    "transdate" => "invdate",
-    "amount" => "invamount",
-    );
-
-  my $i = 0;
-  my $j = 0;
+  my $odd_even = 0;
   my ($previous_dunning_id, $first_row_for_dunning);
+
   foreach $ref (@{ $form->{DUNNINGS} }) {
-    $i++;
-
     if ($previous_dunning_id != $ref->{dunning_id}) {
-      $j++;
-      $j = $j % 2;
-      $first_row_for_dunning = 1;
+      $odd_even = ($odd_even + 1) % 2;
+      $ref->{first_row_for_dunning} = 1;
+
     } else {
-      $first_row_for_dunning = 0;
-    }
-    $previous_dunning_id = $ref->{dunning_id};
-
-    print qq|
-        <tr valign=top class=listrow$j>
-|;
-
-  
-
-    foreach (qw(dunning_date dunning_duedate duedate transdate customername amount fee interest)) {
-      my $col = $columns{$_} ? $columns{$_} : $_;
-      $column_data{$col} = "<td>" . H($ref->{$_}) . "</td>";
+      $ref->{first_row_for_dunning} = 0;
     }
 
-    if ($first_row_for_dunning) {
-      $column_data{dunning_description} =
-        qq|<td><a href="dn.pl?action=print_dunning&format=pdf&media=screen&| .
-        qq|dunning_id=| . E($ref->{dunning_id}) .
-        join("", map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
-        qq|">| . H($ref->{dunning_description}) . qq|</a></td>|;
-    } else {
-      $column_data{dunning_description} = qq|<td>&nbsp;</td>|;
-      $column_data{customername} = qq|<td>&nbsp;</td>|;
-    }
-
-    $column_data{invnumber} =
-      qq|<td><a href="| . ($ref->{invoice} ? "is.pl" : "ar.pl" ) .
-      qq|?action=edit&id=| . H($ref->{id}) .
-      join("", map({ "&${_}=" . E($form->{$_}) } qw(login password callback))) .
-      qq|">| . H($ref->{invnumber}) . qq|</a></td>|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-	</tr>
-|;
+    $previous_dunning_id     = $ref->{dunning_id};
+    $ref->{listrow_odd_even} = $odd_even;
   }
 
-  $form->{rowcount} = $i;
+  if (!$form->{callback}) {
+    $form->{callback} =
+      build_std_url("action=show_dunning", qw(customer_id customer dunning_level department_id invnumber ordnumber
+                                              ransdatefrom transdateto dunningfrom dunningto notes showold));
+  }
 
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
+  $form->{title} = $locale->text('Dunning overview');
+  $form->header();
 
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-<input name=rowcount type=hidden value="$form->{rowcount}">
-<input name=nextsub type=hidden value="$form->{nextsub}">
-
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-  </form>
-
-  </body>
-  </html>
-|;
-
+  print $form->parse_html_template("dunning/show_dunning");
 
   $lxdebug->leave_sub();
 

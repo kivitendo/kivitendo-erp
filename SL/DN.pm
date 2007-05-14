@@ -418,8 +418,6 @@ sub get_dunning {
 
   my @values;
 
-  $form->{customer_id} = $1 if ($form->{customer} =~ /--(\d+)$/);
-
   if ($form->{customer_id}) {
     $where .= qq| AND (a.customer_id = ?)|;
     push(@values, $form->{customer_id});
@@ -428,7 +426,6 @@ sub get_dunning {
     $where .= qq| AND (ct.name ILIKE ?)|;
     push(@values, '%' . $form->{customer} . '%');
   }
-
 
   my %columns = (
     "ordnumber" => "a.ordnumber",
@@ -446,7 +443,12 @@ sub get_dunning {
     push(@values, conv_i($form->{dunning_level}));
   }
 
-  $form->{minamount} = $form->parse_amount($myconfig,$form->{minamount});
+  if ($form->{department_id}) {
+    $where .= qq| AND a.department_id = ?|;
+    push @values, conv_i($form->{department_id});
+  }
+
+  $form->{minamount} = $form->parse_amount($myconfig, $form->{minamount});
   if ($form->{minamount}) {
     $where .= qq| AND ((a.amount - a.paid) > ?) |;
     push(@values, $form->{minamount});

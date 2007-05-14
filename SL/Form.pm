@@ -1703,6 +1703,20 @@ sub _get_vendors {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_departments {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_departments" unless ($key);
+
+  my $query = qq|SELECT * FROM department|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1775,6 +1789,10 @@ sub get_lists {
   
   if($params{"payments"}) {
     $self->_get_payments($dbh, $params{"payments"});
+  }
+
+  if($params{"departments"}) {
+    $self->_get_departments($dbh, $params{"departments"});
   }
 
   $dbh->disconnect();
