@@ -40,50 +40,19 @@ use SL::Menu;
 # end of main
 
 sub display {
-  $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=| .
-                int(rand(100000)) . qq|" type="text/css">|);
+  $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=" type="text/css">|);
 
-  print(qq|<body style="padding:0px; margin:0px;">\n|);
+  $form->{date} = clock_line();
+  $form->{menu} = acc_menu();
 
-  clock_line();
-
-  print qq|
-
-<div id="menu">
-
-| . acc_menu() . qq|
-
-</div>
-
-<div style="clear: both;"></div>
-
-<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-<p>Ihr Browser kann leider keine eingebetteten Frames anzeigen. Bitte w&auml;hlen Sie ein anderes Men&uuml; in der Benutzerkonfiguration im Administrationsmen&uuml; aus.
-</p>
-</iframe>
-</body>
-</html>
-
-|;
+  print $form->parse_html_template("menu/menuv3");
 
 }
 
 sub clock_line {
-
-  $fensterlink="menuv3.pl?login=$form->{login}&password=$form->{password}&action=display";
-  $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
-
-  $login = "[".$locale->text('User') . ": "
-    . $form->{login}
-    . " - <a href=\"login.pl?password="
-    . $form->{"password"}
-    . "&action=logout\" target=\"_top\">"
-    . $locale->text('Logout')
-    . "</a>] ";
   my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
       $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
     = localtime(time);
-  my $CTIME_String = localtime(time);
   $Monat     += 1;
   $Jahrestag += 1;
   $Monat     = $Monat < 10     ? $Monat     = "0" . $Monat     : $Monat;
@@ -95,36 +64,11 @@ sub clock_line {
                      "April",  "Mai",       "Juni",    "Juli",
                      "August", "September", "Oktober", "November",
                      "Dezember");
-  $datum =
+  return
       $Wochentage[$Wochentag] . ", der "
     . $Monatstag . "."
     . $Monat . "."
     . $Jahr . " - ";
-
-  #$zeit="<div id='Uhr'>".$Stunden.":".$Minuten.":".$Sekunden."</div>";
-  $zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
-  print qq|
-<script type="text/javascript">
-<!--
-function clockon() {
-  var now = new Date();
-  var h = now.getHours();
-  var m = now.getMinutes();
-  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
-  var timer=setTimeout("clockon()", 10000);
-}
-window.onload=clockon
-//-->
-</script>
-<table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
-  <tr>
-    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; $fenster &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
-    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
-      $login $datum <span id='clock_id' style='position:relative'></span>&nbsp;
-    </td>
-  </tr>
-</table>
-|;
 }
 
 sub acc_menu {

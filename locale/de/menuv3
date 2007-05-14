@@ -1,6 +1,4 @@
 $self->{texts} = {
-  'Logout'                      => 'Abmeldung',
-  'User'                        => 'Benutzer',
 };
 
 $self->{subs} = {
