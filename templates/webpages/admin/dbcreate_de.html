@@ -1,0 +1,20 @@
+<body class="admin">
+
+ <div align="center">
+
+  <h2><TMPL_VAR title></h2>
+
+  <form method="post" action="admin.pl">
+
+   <p>Die Datenbank <TMPL_VAR db ESCAPE=HTML> wurde erfolgreich erstellt.</p>
+
+   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+   <input type="hidden" name="nextsub" value="list_users">
+
+   <p><input type="submit" class="submit" name="action" value="Weiter"></p>
+
+  </form>
+ </div>
+
+</body>
+</html>

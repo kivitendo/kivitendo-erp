@@ -1,0 +1,32 @@
+<body class="admin">
+
+ <h2><TMPL_VAR title></h2>
+
+ <form method="post" action="admin.pl">
+
+  <p>Sie k&ouml;nnen nur Datenbanken l&ouml;schen, die momentan nicht in Benutzung sind.
+   Wenn Sie eine solche Datenbank l&ouml;schen wollen, so m&uuml;ssen Sie zuerst die Benutzer bearbeiten, die die fragliche Datenbank benutzen, und sie so &auml;ndern, dass sie eine andere Datenbank benutzen.</p>
+
+  <p>Bitte w&auml;hlen Sie die zu l&ouml;schende Datenbank aus:
+   <select name="db"><TMPL_LOOP DBSOURCES><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP></select>
+  </p>
+
+  <input type="hidden" name="dbdriver"  value="<TMPL_VAR dbdriver ESCAPE=HTML>">
+  <input type="hidden" name="dbuser"    value="<TMPL_VAR dbuser ESCAPE=HTML>">
+  <input type="hidden" name="dbhost"    value="<TMPL_VAR dbhost ESCAPE=HTML>">
+  <input type="hidden" name="dbport"    value="<TMPL_VAR dbport ESCAPE=HTML>">
+  <input type="hidden" name="dbpasswd"  value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
+  <input type="hidden" name="dbdefault" value="<TMPL_VAR dbdefault ESCAPE=HTML>">
+
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+
+  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+  <input type="hidden" name="nextsub" value="dbdelete">
+
+  <p><input type="submit" class="submit" name="action" value="Weiter"></p>
+
+ </form>
+
+</body>
+</html>

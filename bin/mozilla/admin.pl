@@ -105,51 +105,48 @@ sub adminlogin {
   $form->{title} =
     qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
 
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-
-<div align=center>
-
-<a href="http://www.lx-office.org"><img src="image/lx-office-erp.png" border=0></a>
-<h1 class=login>|
-    . $locale->text('Version')
-    . qq| $form->{version}<p>|
-    . $locale->text('Administration')
-    . qq|</h1>
-
-<form method=post action="$form->{script}">
-
-<table>
-  <tr>
-    <th>| . $locale->text('Password') . qq|</th>
-    <td><input type=password name=rpw></td>
-    <td><input type=submit class=submit name=action value="|
-    . $locale->text('Login') . qq|"></td>
-  </tr>
-<input type=hidden name=action value=login>
-</table>
-
-
-</form>
-
-<a href=http://www.lx-office.org>Lx-Office |
-    . $locale->text('website') . qq|</a>
-
-</div>
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template('admin/adminlogin');
 }
 
 sub login {
+  list_users();
+}
 
-  &list_users;
+sub list_users {
 
+  $form->error($locale->text('File locked!')) if (-f "${memberfile}.LCK");
+
+  open(FH, "$memberfile") or $form->error("$memberfile : $!");
+
+  my %members;
+
+  while (<FH>) {
+    chomp;
+
+    if (/^\[.*\]/) {
+      $login = $_;
+      $login =~ s/(\[|\])//g;
+
+      $members{$login} = { "login" => $login };
+    }
+
+    if (/^([a-z]+)=(.*)/) {
+      $members{$login}->{$1} = $2;
+    }
+  }
+
+  close(FH);
+
+  delete $members{"root login"};
+  map { $_->{templates} =~ s|.*/||; } values %members;
+
+  $form->{title}  = "Lx-Office ERP " . $locale->text('Administration');
+  $form->{LOCKED} = -e "$userspath/nologin";
+  $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
+
+  $form->header();
+  print $form->parse_html_template("admin/list_users");
 }
 
 sub add_user {
@@ -166,11 +163,11 @@ sub add_user {
   if (-f "css/lx-office-erp.css") {
     $myconfig->{stylesheet} = "lx-office-erp.css";
   }
-  $myconfig->{vclimit} = 200;
 
-  $myconfig->{"countrycode"} = "de";
-  $myconfig->{"numberformat"} = "1000,00";
-  $myconfig->{"dateformat"} = "dd.mm.yy";
+  $myconfig->{vclimit}      = 200;
+  $myconfig->{countrycode}  = "de";
+  $myconfig->{numberformat} = "1000,00";
+  $myconfig->{dateformat}   = "dd.mm.yy";
 
   &form_header;
   &form_footer;
@@ -209,180 +206,6 @@ sub form_footer {
 $delete
 
 </form>
-
-</body>
-</html>
-|;
-
-}
-
-sub list_users {
-
-  $form->error($locale->text('File locked!')) if (-f "${memberfile}.LCK");
-
-  open(FH, "$memberfile") or $form->error("$memberfile : $!");
-
-  $nologin = qq|
-<input type=submit class=submit name=action value="|
-    . $locale->text('Lock System') . qq|">|;
-
-  if (-e "$userspath/nologin") {
-    $nologin = qq|
-<input type=submit class=submit name=action value="|
-      . $locale->text('Unlock System') . qq|">|;
-  }
-
-  while (<FH>) {
-    chop;
-
-    if (/^\[.*\]/) {
-      $login = $_;
-      $login =~ s/(\[|\])//g;
-    }
-
-    if (/^(name=|company=|templates=|dbuser=|dbdriver=|dbname=|dbhost=)/) {
-      chop($var = $&);
-      ($null, $member{$login}{$var}) = split(/=/, $_, 2);
-    }
-  }
-
-  close(FH);
-
-  # type=submit $locale->text('Pg Database Administration')
-  # type=submit $locale->text('Oracle Database Administration')
-
-  foreach $item (User->dbdrivers) {
-    $dbdrivers .=
-      qq|<input name=action type=submit class=submit value="|
-      . $locale->text("$item Database Administration") . qq|">|;
-  }
-
-  $column_header{login}     = qq|<th>| . $locale->text('Login') . qq|</th>|;
-  $column_header{name}      = qq|<th>| . $locale->text('Name') . qq|</th>|;
-  $column_header{company}   = qq|<th>| . $locale->text('Company') . qq|</th>|;
-  $column_header{dbdriver}  = qq|<th>| . $locale->text('Driver') . qq|</th>|;
-  $column_header{dbhost}    = qq|<th>| . $locale->text('Host') . qq|</th>|;
-  $column_header{dataset}   = qq|<th>| . $locale->text('Dataset') . qq|</th>|;
-  $column_header{templates} =
-    qq|<th>| . $locale->text('Templates') . qq|</th>|;
-
-  @column_index = qw(login name company dbdriver dbhost dataset templates);
-
-  $form->{title} = "Lx-Office ERP " . $locale->text('Administration');
-
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr>
-  <tr class=listheading>
-    <th>$form->{title}</th>
-  </tr>
-  <tr size=5></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  foreach $key (sort keys %member) {
-    $href =
-      "$script?action=edit&login=$key&rpw=$form->{rpw}";
-    $href =~ s/ /%20/g;
-
-    $member{$key}{templates} =~ s/^$templates\///;
-    $member{$key}{dbhost} = $locale->text('localhost')
-      unless $member{$key}{dbhost};
-    $member{$key}{dbname} = $member{$key}{dbuser}
-      if ($member{$key}{dbdriver} eq 'Oracle');
-
-    $column_data{login}     = qq|<td><a id="$key" href="$href">$key</a></td>|;
-    $column_data{name}      = qq|<td>$member{$key}{name}</td>|;
-    $column_data{company}   = qq|<td>$member{$key}{company}</td>|;
-    $column_data{dbdriver}  = qq|<td>$member{$key}{dbdriver}</td>|;
-    $column_data{dbhost}    = qq|<td>$member{$key}{dbhost}</td>|;
-    $column_data{dataset}   = qq|<td>$member{$key}{dbname}</td>|;
-    $column_data{templates} = qq|<td>$member{$key}{templates}</td>|;
-
-    $i++;
-    $i %= 2;
-    print qq|
-        <tr class="listrow$i">|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-        </tr>|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<input type=hidden name=rpw value=$form->{rpw}>
-
-<br><input type=submit class=submit name=action value="|
-    . $locale->text('Add User') . qq|">
-<input type=submit class=submit name=action value="|
-    . $locale->text('Change Admin Password') . qq|">
-
-$dbdrivers
-$nologin
-
-</form>
-
-| . $locale->text('Click on login name to edit!') . qq|
-<br>
-|
-    . $locale->text(
-    'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.'
-    )
-    . qq|
-
-<p>
-
-<form method=post action=login.pl>
-
-<table border=0 width=100%>
-  <tr class=listheading>
-    <th>Lx-Office ERP | . $locale->text('Login') . qq|</th>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-	  <th align=right>| . $locale->text('Name') . qq|</th>
-	  <td><input class=login name=login></td>
-	  <td>&nbsp;</td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input class=login type=password name=password></td>
-	  <td><input type=submit name=action value="|
-    . $locale->text('Login') . qq|"></td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-</table>
-
-</form>
-
-<hr size=3 noshade>
 
 </body>
 </html>
@@ -1121,39 +944,8 @@ sub change_admin_password {
     . $locale->text('Administration') . " / "
     . $locale->text('Change Admin Password');
 
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-
-<h2>| . $locale->text('Change Admin Password') . qq|</h2>
-
-<form method=post action=$form->{script}>
-
-<table>
-  <tr>
-    <td><b>| . $locale->text('Password') . qq|</b></td>
-    <td><input type=password name=password size=8></td>
-  </tr>
-  <tr>
-    <td><b>| . $locale->text('Repeat the password') . qq|</b></td>
-    <td><input type=password name=password_again size=8></b></td>
-  </tr>
-</table>
-
-<input type=hidden name=rpw value=$form->{rpw}>
-
-<p>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Change Password') . qq|">
-
-</form>
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/change_admin_password");
 }
 
 sub change_password {
@@ -1163,17 +955,8 @@ sub change_password {
       . $locale->text('Administration') . " / "
       . $locale->text('Change Admin Password');
 
-    $form->header;
-
-    print qq|
-<body class=admin>
-
-
-<h2>| . $locale->text('Change Admin Password') . qq|</h2>
-
-<p>| . $locale->text("The passwords do not match.") . qq|<br>
-<input type="button" onclick="history.back()" value="| . $locale->text("Back") . qq|">|;
-    return;
+    $form->header();
+    $form->error($locale->text("The passwords do not match."));
   }
 
   $root->{password} = $form->{password};
@@ -1185,7 +968,6 @@ sub change_password {
     "$form->{script}?action=list_users&rpw=$root->{password}";
 
   $form->redirect($locale->text('Password changed!'));
-
 }
 
 sub check_password {
@@ -1456,124 +1238,40 @@ qq|">| . $locale->text("Continue") . qq|</a>|;
 }
 
 sub create_dataset {
+  $form->{dbsources} = join " ", map { "[${_}]" } sort User->dbsources(\%$form);
 
-  foreach $item (sort User->dbsources(\%$form)) {
-    $dbsources .= "[$item] ";
-  }
+  $form->{CHARTS} = [];
 
   opendir SQLDIR, "sql/." or $form - error($!);
   foreach $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
     next if ($item eq 'Default-chart.sql');
     $item =~ s/-chart\.sql//;
-    push @charts,
-      qq| <input name=chart class=radio type=radio value="$item">&nbsp;$item|;
+    push @{ $form->{CHARTS} }, { "name"     => $item,
+                                 "selected" => $item eq "Germany-DATEV-SKR03EU" };
   }
   closedir SQLDIR;
 
-  my (@values, %labels);
-
   my $default_charset = $dbcharset;
   $default_charset ||= Common::DEFAULT_CHARSET;
-  my $default_encoding;
+
+  $form->{DBENCODINGS} = [];
 
   foreach my $encoding (@Common::db_encodings) {
-    push @values, $encoding->{dbencoding};
-    $labels{$encoding->{dbencoding}} = $encoding->{label};
-
-    $default_encoding = $encoding->{dbencoding} if $encoding->{charset} eq $default_charset;
+    push @{ $form->{DBENCODINGS} }, { "dbencoding" => $encoding->{dbencoding},
+                                      "label"      => $encoding->{label},
+                                      "selected"   => $encoding->{charset} eq $default_charset };
   }
-
-  $selectencoding =
-    NTI($cgi->popup_menu('-name' => 'encoding',
-                         '-values' => \@values,
-                         '-labels' => \%labels,
-                         '-default' => $default_encoding));
 
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Create Dataset');
 
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-
-<center>
-<h2>$form->{title}</h2>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr class=listheading>
-    <th colspan=2>&nbsp;</th>
-  </tr>
-
-  <tr>
-
-    <th align=right nowrap>| . $locale->text('Existing Datasets') . qq|</th>
-    <td>$dbsources</td>
-
-  </tr>
-
-  <tr>
-
-    <th align=right nowrap>| . $locale->text('Create Dataset') . qq|</th>
-    <td><input name=db></td>
-
-  </tr>
-
-  <tr>
-
-    <th align=right nowrap>| . $locale->text('Multibyte Encoding') . qq|</th>
-    <td>$selectencoding</td>
-
-  </tr>
-
-  <tr>
-
-    <th align=right nowrap>|
-    . $locale->text('Create Chart of Accounts') . qq|</th>
-    <td>@charts</td>
-
-  </tr>
-
-  <tr><td colspan=2>
-<p>
-<input type=hidden name="dbdriver"  value="$form->{dbdriver}">
-<input type=hidden name="dbuser"    value="$form->{dbuser}">
-<input type=hidden name="dbhost"    value="$form->{dbhost}">
-<input type=hidden name="dbport"    value="$form->{dbport}">
-<input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
-<input type=hidden name="dbdefault" value="$form->{dbdefault}">
-
-<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
-
-<input type=hidden name=rpw value=$form->{rpw}>
-
-<input type=hidden name=nextsub value=dbcreate>
-
-<hr size=3 noshade>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-  </td></tr>
-</table>
-
-</form>
-
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/create_dataset");
 }
 
 sub dbcreate {
-
   $form->isblank("db", $locale->text('Dataset missing!'));
 
   User->dbcreate(\%$form);
@@ -1583,106 +1281,22 @@ sub dbcreate {
     . $locale->text('Database Administration') . " / "
     . $locale->text('Create Dataset');
 
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-
-<center>
-<h2>$form->{title}</h2>
-
-<form method=post action=$form->{script}>|
-
-    . $locale->text('Dataset')
-    . " $form->{db} "
-    . $locale->text('successfully created!')
-
-    . qq|
-
-<input type=hidden name=rpw value="$form->{rpw}">
-
-<input type=hidden name=nextsub value=list_users>
-
-<p><input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/dbcreate");
 }
 
 sub delete_dataset {
-
-  if (@dbsources = User->dbsources_unused(\%$form, $memberfile)) {
-    foreach $item (sort @dbsources) {
-      $dbsources .=
-        qq|<input name=db class=radio type=radio value=$item>&nbsp;$item |;
-    }
-  } else {
-    $form->error($locale->text('Nothing to delete!'));
-  }
+  @dbsources = User->dbsources_unused(\%$form, $memberfile);
+  $form->error($locale->text('Nothing to delete!')) unless @dbsources;
 
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Delete Dataset');
+  $form->{DBSOURCES} = [ map { { "name", $_ } } sort @dbsources ];
 
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-<h2>$form->{title}</h2>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr class=listheading>
-    <th>|
-    . $locale->text('The following Datasets are not in use and can be deleted')
-    . qq|</th>
-  </tr>
-
-  <tr>
-    <td>
-    $dbsources
-    </td>
-  </tr>
-
-  <tr><td>
-<p>
-<input type=hidden name="dbdriver"  value="$form->{dbdriver}">
-<input type=hidden name="dbuser"    value="$form->{dbuser}">
-<input type=hidden name="dbhost"    value="$form->{dbhost}">
-<input type=hidden name="dbport"    value="$form->{dbport}">
-<input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
-<input type=hidden name="dbdefault" value="$form->{dbdefault}">
-
-<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
-
-<input type=hidden name=rpw value="$form->{rpw}">
-
-<input type=hidden name=nextsub value=dbdelete>
-
-<hr size=3 noshade>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-  </td></tr>
-</table>
-
-</form>
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/delete_dataset");
 }
 
 sub dbdelete {
@@ -1698,34 +1312,8 @@ sub dbdelete {
     . $locale->text('Database Administration') . " / "
     . $locale->text('Delete Dataset');
 
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-
-<center>
-<h2>$form->{title}</h2>
-
-<form method=post action=$form->{script}>
-
-$form->{db} | . $locale->text('successfully deleted!')
-
-    . qq|
-
-<input type=hidden name=rpw value="$form->{rpw}">
-
-<input type=hidden name=nextsub value=list_users>
-
-<p><input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/dbdelete");
 }
 
 sub unlock_system {

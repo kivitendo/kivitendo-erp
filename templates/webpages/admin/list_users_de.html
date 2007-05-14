@@ -1,0 +1,73 @@
+<body class="admin" onload="">
+
+ <form method="post" action="admin.pl">
+
+  <div class="listtop" width="100%"><TMPL_VAR title></div>
+
+  <p>
+   <table width="100%">
+    <tr>
+     <th class="listtop">Anmeldung</th>
+     <th class="listtop">Name</th>
+     <th class="listtop">Firma</th>
+     <th class="listtop">Treiber</th>
+     <th class="listtop">Datenbankcomputer</th>
+     <th class="listtop">Datenbank</th>
+     <th class="listtop">Vorlagen</th>
+    </tr>
+
+    <TMPL_LOOP MEMBERS>
+     <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+      <td><a href="admin.pl?action=edit&login=<TMPL_VAR login ESCAPE=URL>&rpw=<TMPL_VAR rpw ESCAPE=URL>"><TMPL_VAR login ESCAPE=HTML></a></td>
+      <td><TMPL_VAR name ESCAPE=HTML></td>
+      <td><TMPL_VAR company ESCAPE=HTML></td>
+      <td><TMPL_VAR dbdriver ESCAPE=HTML></td>
+      <td><TMPL_IF dbhost><TMPL_VAR dbhost ESCAPE=HTML><TMPL_ELSE>localhost</TMPL_IF></td>
+      <td><TMPL_VAR dbname ESCAPE=HTML></td>
+      <td><TMPL_VAR templates ESCAPE=HTML></td>
+     </tr>
+    </TMPL_LOOP>
+
+    <td colspan="7"><hr size="3" noshade></td>
+   </table>
+  </p>
+
+  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+  <input type="submit" class="submit" name="action" value="Benutzer erfassen">
+  <input type="submit" class="submit" name="action" value="Administratorpasswort ändern">
+  <input type="submit" class="submit" name="action" value="Datenbankadministration">
+  <TMPL_IF LOCKED>
+   <input type="submit" class="submit" name="action" value="System entsperren">
+   <TMPL_ELSE>
+   <input type="submit" class="submit" name="action" value="System sperren">
+  </TMPL_IF>
+
+  <p>Zum Bearbeiten den Zugriffsnamen anklicken!</p>
+
+  <p>Um einer Gruppe einen neuen Benutzer hinzuzuf&uuml;gen, &auml;ndern und speichern Sie am einfachsten einen bestehen den Zugriffsnamen. Unter dem neuen Namen wird dann ein Benutzer mit denselben Einstellungen angelegt.</p>
+ </form>
+
+ <form method="post" action="login.pl">
+
+  <div class="listheading">Lx-Office ERP Anmeldung</div>
+
+  <table border="0">
+   <tr>
+    <th align="right">Name</th>
+    <td><input class="login" name="login"></td>
+    <td>&nbsp;</td>
+   </tr>
+   <tr>
+    <th align="right">Passwort</th>
+    <td><input class="login" type="password" name="password"></td>
+    <td><input type="submit" name="action" value="Anmeldung"></td>
+   </tr>
+  </table>
+
+ </form>
+
+ <hr size="3" noshade>
+
+</body>
+</html>

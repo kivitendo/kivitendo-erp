@@ -1,0 +1,35 @@
+<body class="admin">
+
+ <h2><TMPL_VAR title></h2>
+
+ <form method="post" action="admin.pl">
+
+  <p><translate>You can only delete datasets that are not in
+    use.</translate>
+   <translate>If you want to delete such a dataset you have to edit
+    the user(s) that are using the dataset in question and have them
+    use another dataset.</translate></p>
+
+  <p><translate>Please seletct the dataset you want to delete:</translate>
+   <select name="db"><TMPL_LOOP DBSOURCES><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP></select>
+  </p>
+
+  <input type="hidden" name="dbdriver"  value="<TMPL_VAR dbdriver ESCAPE=HTML>">
+  <input type="hidden" name="dbuser"    value="<TMPL_VAR dbuser ESCAPE=HTML>">
+  <input type="hidden" name="dbhost"    value="<TMPL_VAR dbhost ESCAPE=HTML>">
+  <input type="hidden" name="dbport"    value="<TMPL_VAR dbport ESCAPE=HTML>">
+  <input type="hidden" name="dbpasswd"  value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
+  <input type="hidden" name="dbdefault" value="<TMPL_VAR dbdefault ESCAPE=HTML>">
+
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+
+  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+  <input type="hidden" name="nextsub" value="dbdelete">
+
+  <p><input type="submit" class="submit" name="action" value="<translate>Continue</translate>"></p>
+
+ </form>
+
+</body>
+</html>

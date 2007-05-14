@@ -1,0 +1,60 @@
+<body class="admin">
+
+ <div align="center">
+  <h2><TMPL_VAR title></h2>
+
+  <form method="post" action="admin.pl">
+
+   <table>
+    <tr>
+     <th valign="top" align="right" nowrap><translate>Existing Datasets</translate></th>
+     <td valign="top"><TMPL_VAR dbsources ESCAPE=HTML></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Create Dataset</translate></th>
+     <td><input name="db"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Multibyte Encoding</translate></th>
+     <td>
+      <select name="encoding">
+       <TMPL_LOOP DBENCODINGS><option value="<TMPL_VAR dbencoding ESCAPE=HTML>" <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR label ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th valign="top" align="right" nowrap><translate>Create Chart of Accounts</translate></th>
+     <td>
+      <select name="chart">
+       <TMPL_LOOP CHARTS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
+
+   </table>
+
+   <input type="hidden" name="dbdriver"  value="<TMPL_VAR dbdriver ESCAPE=HTML>">
+   <input type="hidden" name="dbuser"    value="<TMPL_VAR dbuser ESCAPE=HTML>">
+   <input type="hidden" name="dbhost"    value="<TMPL_VAR dbhost ESCAPE=HTML>">
+   <input type="hidden" name="dbport"    value="<TMPL_VAR dbport ESCAPE=HTML>">
+   <input type="hidden" name="dbpasswd"  value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
+   <input type="hidden" name="dbdefault" value="<TMPL_VAR dbdefault ESCAPE=HTML>">
+
+   <input type="hidden" name="callback" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+   <input type="hidden" name="nextsub" value="dbcreate">
+
+   <hr size="3" noshade>
+
+   <p><input type="submit" class="submit" name="action" value="<translate>Continue</translate>"></p>
+
+  </form>
+
+ </div>
+
+</body>
+</html>
