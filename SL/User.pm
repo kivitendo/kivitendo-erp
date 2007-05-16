@@ -1030,6 +1030,8 @@ sub create_config {
 
   @config = config_vars();
 
+  my $userspath = $main::userspath;
+
   open(CONF, ">", "$userspath/$self->{login}.conf") || $self->error("$userspath/$self->{login}.conf : $!");
 
   # create the config file
