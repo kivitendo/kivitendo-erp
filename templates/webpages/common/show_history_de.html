@@ -29,22 +29,22 @@
 <table>
 	<tr>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('h.itime');">Zeitpunkt</a>&nbsp;
+			&nbsp;<a href="javascript:orderBy('h.itime');">Zeitpunkt</a>&nbsp;<TMPL_IF NAME=ITIME><a title="Reihenfolge"><TMPL_IF NAME=ITIMEBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('emp.name');">Mitarbeiter</a>&nbsp;
+			&nbsp;<a href="javascript:orderBy('emp.name');">Mitarbeiter</a>&nbsp;<TMPL_IF NAME=NAME><a title="Reihenfolge"><TMPL_IF NAME=NAMEBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('h.addition');">Aktion</a>&nbsp;
+			&nbsp;<a href="">Aktion</a>&nbsp;
 		</th>
 		<th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.what_done');">Zusatz</a>&nbsp;
+      &nbsp;<a href="">Zusatz</a>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.trans_id');">ID-Nummer (intern)</a>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.trans_id');">ID-Nummer (intern)</a>&nbsp;<TMPL_IF NAME=TRANS_ID><a title="Reihenfolge"><TMPL_IF NAME=TRANS_IDBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.snumbers');">Buchungsnummer</a>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.snumbers');">Buchungsnummer</a>&nbsp;<TMPL_IF NAME=SNUMBERS><a title="Reihenfolge"><TMPL_IF NAME=SNUMBERSBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
     </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>

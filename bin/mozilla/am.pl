@@ -3061,7 +3061,6 @@ sub show_am_history {
 			$restriction .= " OR addition = '" . $_ . "'";
 		}
 	}
-	
 	$restriction .= (($form->{transdate} ne "" && $form->{reqdate} ne "") 
 						? qq| AND st.itime::date >= '| . $form->{transdate} . qq|' AND st.itime::date <= '| . $form->{reqdate} . qq|'|
 						: (($form->{transdate} ne "" && $form->{reqdate} eq "") 
@@ -3071,38 +3070,48 @@ sub show_am_history {
 								: ""
 							)
 						);
+  $restriction .= ($form->{mitarbeiter} eq "" ? "" 
+          : ($form->{mitarbeiter} =~ /^[0-9]*$/  
+            ? " AND employee_id = " . $form->{mitarbeiter} 
+            : " AND employee_id = " . &get_employee_id($form->{mitarbeiter}, $dbh)));
+  
 	my $dbh = $form->dbconnect(\%myconfig);
-	my $searchSNumber = $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'};
-	$restriction .= ($form->{mitarbeiter} eq "" ? "" 
-					: ($form->{mitarbeiter} =~ /^[0-9]*$/  
-						? " AND employee_id = " . $form->{mitarbeiter} 
-						: " AND employee_id = " . &get_employee_id($form->{mitarbeiter}, $dbh)));
-	my $query = qq|SELECT trans_id AS id FROM history_erp WHERE sNumbers = '$searchSNumber' |;
+	my $query = qq|SELECT trans_id AS id FROM history_erp | . 
+                ($form->{'searchid'} ? 
+                  qq| WHERE snumbers = '| . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'| : 
+                  qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
 
   my $sth = $dbh->prepare($query);
 	
 	$sth->execute() || $form->dberror($query);
-	
-  if($sth->fetch() <= 0) {
-    $sth->finish();
-    my $query = qq|SELECT id FROM $search{$form->{what2search}} 
-           WHERE $searchNo{$form->{'what2search'}} ILIKE '$form->{"searchid"}' 
-           |;
-  }
-  $sth->execute() || $form->dberror($query);  
-	$form->{title} = $locale->text("History Search");
+  
+  $form->{title} = $locale->text("History Search");
 	$form->header();
-	my $daten = "";
-	while(my $hash_ref = $sth->fetchrow_hashref()){
-    $daten =  $form->get_history($dbh,$hash_ref->{id},$restriction,$form->{order});
+	
+  my $i = 1;
+  my $daten = qq||;
+  while(my $hash_ref = $sth->fetchrow_hashref()){
+    if($i) {
+      $daten .= $hash_ref->{id};
+      $i = 0;
+    }
+    else {
+      $daten .= " OR trans_id = " . $hash_ref->{id};
+    }
   }
-	$dbh->disconnect();
+  
+  my ($sort, $sortby) = split(/\-\-/, $form->{order});
+  $sort =~ s/.*\.(.*)$/$1/;
+
 	print $form->parse_html_template("/common/show_history", 
-    {"DATEN" => $daten,
-     "SUCCESS" => ($daten != 0 ? 1 : 0),
-     "NONEWWINDOW" => 1
+    {"DATEN" => $form->get_history($dbh, $daten, $restriction, $form->{order}),
+     "SUCCESS" => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
+     "NONEWWINDOW" => 1,
+     uc($sort) => 1,
+     uc($sort)."BY" => $sortby
     });
-	$lxdebug->leave_sub();
+	$dbh->disconnect();
+  $lxdebug->leave_sub();
 }
 
 sub get_employee_id {

@@ -29,22 +29,22 @@
 <table>
 	<tr>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('h.itime');"><translate>Zeitpunkt</translate></a>&nbsp;
+			&nbsp;<a href="javascript:orderBy('h.itime');"><translate>Zeitpunkt</translate></a>&nbsp;<TMPL_IF NAME=ITIME><a title="<translate>order</translate>"><TMPL_IF NAME=ITIMEBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('emp.name');"><translate>Mitarbeiter</translate></a>&nbsp;
+			&nbsp;<a href="javascript:orderBy('emp.name');"><translate>Mitarbeiter</translate></a>&nbsp;<TMPL_IF NAME=NAME><a title="<translate>order</translate>"><TMPL_IF NAME=NAMEBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
 		</th>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('h.addition');"><translate>Aktion</translate></a>&nbsp;
+			&nbsp;<a href=""><translate>Aktion</translate></a>&nbsp;
 		</th>
 		<th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.what_done');"><translate>Zusatz</translate></a>&nbsp;
+      &nbsp;<a href=""><translate>Zusatz</translate></a>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.trans_id');"><translate>ID-Nummer</translate></a>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.trans_id');"><translate>ID-Nummer</translate></a>&nbsp;<TMPL_IF NAME=TRANS_ID><a title="<translate>order</translate>"><TMPL_IF NAME=TRANS_IDBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
     </th>
     <th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.snumbers');"><translate>Belegnummer</translate></a>&nbsp;
+      &nbsp;<a href="javascript:orderBy('h.snumbers');"><translate>Belegnummer</translate></a>&nbsp;<TMPL_IF NAME=SNUMBERS><a title="<translate>order</translate>"><TMPL_IF NAME=SNUMBERSBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
     </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>
