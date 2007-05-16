@@ -40,6 +40,7 @@ use CGI;
 use SL::Form;
 use SL::User;
 use SL::Common;
+use SL::Inifile;
 
 require "bin/mozilla/common.pl";
 
@@ -477,81 +478,28 @@ sub save {
 }
 
 sub delete {
-
-  $form->{templates} =
-    ($form->{templates})
-    ? "$templates/$form->{templates}"
-    : "$templates/$form->{login}";
-
   $form->error($locale->text('File locked!')) if (-f ${memberfile} . LCK);
   open(FH, ">${memberfile}.LCK") or $form->error("${memberfile}.LCK : $!");
   close(FH);
 
-  open(CONF, "+<$memberfile") or $form->error("$memberfile : $!");
-
-  @config = <CONF>;
-
-  seek(CONF, 0, 0);
-  truncate(CONF, 0);
-
-  while ($line = shift @config) {
-
-    if ($line =~ /^\[/) {
-      last if ($line =~ /\[$form->{login}\]/);
-      $login = login_name($line);
-    }
-
-    if ($line =~ /^templates=/) {
-      $user{$login} = get_value($line);
-    }
-
-    print CONF $line;
-  }
-
-  # remove everything up to next login or EOF
-  # and save template variable
-  while ($line = shift @config) {
-    if ($line =~ /^templates=/) {
-      $templatedir = get_value($line);
-    }
-    last if ($line =~ /^\[/);
-  }
-
-  # this one is either the next login or EOF
-  print CONF $line;
-
-  $login = login_name($line);
-
-  while ($line = shift @config) {
-    if ($line =~ /^\[/) {
-      $login = login_name($line);
-    }
-
-    if ($line =~ /^templates=/) {
-      $user{$login} = get_value($line);
-    }
-
-    print CONF $line;
-  }
-
-  close(CONF);
+  my $members = Inifile->new($memberfile);
+  my $templates = $members->{$form->{login}}->{templates};
+  delete $members->{$form->{login}};
+  $members->write();
   unlink "${memberfile}.LCK";
 
-  # scan %user for $templatedir
-  foreach $login (keys %user) {
-    last if ($found = ($templatedir eq $user{$login}));
-  }
+  if ($templates) {
+    my $templates_in_use = 0;
+    foreach $login (keys %{ $members }) {
+      next if $login =~ m/^[A-Z]+$/;
+      next if $members->{$login}->{templates} ne $templates;
+      $templates_in_use = 1;
+      last;
+    }
 
-  # if found keep directory otherwise delete
-  if (!$found) {
-
-    # delete it if there is a template directory
-    $dir = "$form->{templates}";
-    if (-d "$dir") {
-      unlink <$dir/*.html>;
-      unlink <$dir/*.tex>;
-      unlink <$dir/*.sty>;
-      rmdir "$dir";
+    if (!$templates_in_use && -d $templates) {
+      unlink <$templates/*>;
+      rmdir $templates;
     }
   }
 
