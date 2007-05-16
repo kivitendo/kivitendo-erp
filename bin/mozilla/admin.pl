@@ -70,7 +70,7 @@ if ($form->{action}) {
     }
   }
 
-  &check_password;
+  check_password();
 
   call_sub($subroutine);
 
@@ -92,7 +92,7 @@ password=
     close FH;
   }
 
-  &adminlogin;
+  adminlogin();
 
 }
 
@@ -169,8 +169,8 @@ sub add_user {
   $myconfig->{numberformat} = "1000,00";
   $myconfig->{dateformat}   = "dd.mm.yy";
 
-  &form_header;
-  &form_footer;
+  form_header();
+  form_footer();
 
 }
 
@@ -182,8 +182,8 @@ sub edit {
     . $locale->text('Edit User');
   $form->{edit} = 1;
 
-  &form_header;
-  &form_footer;
+  form_header();
+  form_footer();
 
 }
 
@@ -852,11 +852,11 @@ sub delete {
 
     if ($line =~ /^\[/) {
       last if ($line =~ /\[$form->{login}\]/);
-      $login = &login_name($line);
+      $login = login_name($line);
     }
 
     if ($line =~ /^templates=/) {
-      $user{$login} = &get_value($line);
+      $user{$login} = get_value($line);
     }
 
     print CONF $line;
@@ -866,7 +866,7 @@ sub delete {
   # and save template variable
   while ($line = shift @config) {
     if ($line =~ /^templates=/) {
-      $templatedir = &get_value($line);
+      $templatedir = get_value($line);
     }
     last if ($line =~ /^\[/);
   }
@@ -874,15 +874,15 @@ sub delete {
   # this one is either the next login or EOF
   print CONF $line;
 
-  $login = &login_name($line);
+  $login = login_name($line);
 
   while ($line = shift @config) {
     if ($line =~ /^\[/) {
-      $login = &login_name($line);
+      $login = login_name($line);
     }
 
     if ($line =~ /^templates=/) {
-      $user{$login} = &get_value($line);
+      $user{$login} = get_value($line);
     }
 
     print CONF $line;
@@ -983,14 +983,14 @@ sub check_password {
 sub pg_database_administration {
 
   $form->{dbdriver} = 'Pg';
-  &dbselect_source;
+  dbselect_source();
 
 }
 
 sub oracle_database_administration {
 
   $form->{dbdriver} = 'Oracle';
-  &dbselect_source;
+  dbselect_source();
 
 }
 
@@ -1018,7 +1018,7 @@ sub dbdriver_defaults {
 
 sub dbselect_source {
 
-  &dbdriver_defaults;
+  dbdriver_defaults();
 
   $msg{Pg} =
     $locale->text(
