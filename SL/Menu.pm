@@ -34,13 +34,17 @@
 
 package Menu;
 
+use SL::Inifile;
+
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $menufile, $level) = @_;
+  my ($type, $menufile) = @_;
 
-  use SL::Inifile;
-  my $self = Inifile->new($menufile, $level);
+  my $self    = {};
+  my $inifile = Inifile->new($menufile);
+
+  map { $self->{$_} = $inifile->{$_} } keys %{ $inifile };
 
   $main::lxdebug->leave_sub();
 

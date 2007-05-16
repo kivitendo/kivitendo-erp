@@ -35,41 +35,42 @@
 
 package Inifile;
 
+use IO::File;
+
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $file, $level) = @_;
+  my ($type, $file) = @_;
 
   my $id = "";
   my $skip;
 
   local *FH;
 
-  $type = ref($self) || $self;
+  my $self = { "FILE" => $file };
 
   open FH, "$file" or Form->error("$file : $!");
 
   while (<FH>) {
-    next if /^(#|;|\s)/;
-    last if /^\./;
+    next if m/^(#|;|\s)/;
 
-    chop;
+    chomp;
 
     # strip comments
-    s/\s*(#|;).*//g;
+    s/(#|;).*//g;
 
     # remove any trailing whitespace
-    s/^\s*(.*?)\s*$/$1/;
+    s/^\s*//;
+    s/\s*$//;
 
-    if (/^\[/) {
+    next unless $_;
+
+    if (m/^\[/) {
       s/(\[|\])//g;
 
       $id = $_;
 
-      # if there is a level skip
-      if ($skip = ($id !~ /^$level/)) {
-        next;
-      }
+      $self->{$id} ||= { };
 
       push @{ $self->{ORDER} }, $_;
 
@@ -77,20 +78,39 @@ sub new {
 
     }
 
-    if (!$skip) {
+    # add key=value to $id
+    my ($key, $value) = split m/=/, $_, 2;
 
-      # add key=value to $id
-      my ($key, $value) = split /=/, $_, 2;
-
-      $self->{$id}{$key} = $value;
-    }
+    $self->{$id}->{$key} = $value;
 
   }
   close FH;
 
   $main::lxdebug->leave_sub();
 
-  bless $self, $type;
+  return bless $self, $type;
+}
+
+sub write {
+  $main::lxdebug->enter_sub();
+
+  my ($self) = @_;
+
+  my $file = $self->{FILE};
+  my $fh   = IO::File->new($file, "w") || Form->error("$file : $!");
+
+  foreach my $section_name (sort keys %{ $self }) {
+    next if $section_name =~ m/^[A-Z]+$/;
+
+    my $section = $self->{$section_name};
+    print $fh "[${section_name}]\n";
+    map { print $fh "${_}=$section->{$_}\n" } sort keys %{ $section };
+    print $fh "\n";
+  }
+
+  $fh->close();
+
+  $main::lxdebug->leave_sub();
 }
 
 1;
