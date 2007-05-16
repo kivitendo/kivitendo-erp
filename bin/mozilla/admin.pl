@@ -157,10 +157,6 @@ sub add_user {
     . $locale->text('Administration') . " / "
     . $locale->text('Add User');
 
-  $form->{Oracle_sid}    = $sid;
-  $form->{Oracle_dbport} = '1521';
-  $form->{Oracle_dbhost} = `hostname`;
-
   my $myconfig = {
     "vclimit"      => 200,
     "countrycode"  => "de",
@@ -251,8 +247,6 @@ sub edit_user_form {
 
   map { $form->{"myc_${_}"} = $myconfig->{$_} } keys %{ $myconfig };
 
-  map { $form->{"Pg_${_}"} = $myconfig->{$_} } qw(dbhost dbport dbname dbuser dbpasswd);
-
   # access control
   my @acsorder = ();
   my %acs      = ();
@@ -316,9 +310,7 @@ sub edit_user_form {
 
 sub save {
 
-  # no driver checked
-  $form->error($locale->text('Database Driver not checked!'))
-    unless $form->{dbdriver};
+  $form->{dbdriver} = 'Pg';
 
   # no spaces allowed in login name
   ($form->{login}) = split / /, $form->{login};
@@ -365,29 +357,8 @@ sub save {
   }
   $form->{acs} = join ";", @acs;
 
-  # check which database was filled in
-  if ($form->{dbdriver} eq 'Oracle') {
-    $form->{sid}      = $form->{Oracle_sid},;
-    $form->{dbhost}   = $form->{Oracle_dbhost},;
-    $form->{dbport}   = $form->{Oracle_dbport};
-    $form->{dbpasswd} = $form->{Oracle_dbpasswd};
-    $form->{dbuser}   = $form->{Oracle_dbuser};
-    $form->{dbname}   = $form->{Oracle_dbuser};
-
-    $form->isblank("dbhost", $locale->text('Hostname missing!'));
-    $form->isblank("dbport", $locale->text('Port missing!'));
-    $form->isblank("dbuser", $locale->text('Dataset missing!'));
-  }
-  if ($form->{dbdriver} eq 'Pg') {
-    $form->{dbhost}   = $form->{Pg_dbhost};
-    $form->{dbport}   = $form->{Pg_dbport};
-    $form->{dbpasswd} = $form->{Pg_dbpasswd};
-    $form->{dbuser}   = $form->{Pg_dbuser};
-    $form->{dbname}   = $form->{Pg_dbname};
-
-    $form->isblank("dbname", $locale->text('Dataset missing!'));
-    $form->isblank("dbuser", $locale->text('Database User missing!'));
-  }
+  $form->isblank("dbname", $locale->text('Dataset missing!'));
+  $form->isblank("dbuser", $locale->text('Database User missing!'));
 
   foreach $item (keys %{$form}) {
     $myconfig->{$item} = $form->{$item};
@@ -582,136 +553,16 @@ sub pg_database_administration {
 
 }
 
-sub oracle_database_administration {
-
-  $form->{dbdriver} = 'Oracle';
-  dbselect_source();
-
-}
-
-sub dbdriver_defaults {
-
-  # load some defaults for the selected driver
-  %driverdefaults = (
-                     'Pg' => { dbport        => '5432',
-                               dbuser        => 'postgres',
-                               dbdefault     => 'template1',
-                               dbhost        => 'localhost',
-                               connectstring => $locale->text('Connect to')
-                     },
-                     'Oracle' => { dbport        => '1521',
-                                   dbuser        => 'oralin',
-                                   dbdefault     => $sid,
-                                   dbhost        => `hostname`,
-                                   connectstring => 'SID'
-                     });
-
-  map { $form->{$_} = $driverdefaults{ $form->{dbdriver} }{$_} }
-    keys %{ $driverdefaults{Pg} };
-
-}
-
 sub dbselect_source {
+  $form->{dbport}    = '5432';
+  $form->{dbuser}    = 'postgres';
+  $form->{dbdefault} = 'template1';
+  $form->{dbhost}    = 'localhost';
 
-  dbdriver_defaults();
+  $form->{title}     = "Lx-Office ERP / " . $locale->text('Database Administration');
 
-  $msg{Pg} =
-    $locale->text(
-    'Leave host and port field empty unless you want to make a remote connection.'
-    );
-  $msg{Oracle} =
-    $locale->text(
-           'You must enter a host and port for local and remote connections!');
-
-  $form->{title} =
-    "Lx-Office ERP / " . $locale->text('Database Administration');
-
-  $form->header;
-
-  print qq|
-<body class=admin>
-
-
-<center>
-<h2>$form->{title}</h2>
-
-<form method=post action=$form->{script}>
-
-<table>
-<tr><td>
-
-<table>
-
-  <tr class=listheading>
-    <th colspan=4>| . $locale->text('Database') . qq|</th>
-  </tr>
-
-<input type=hidden name=dbdriver value=$form->{dbdriver}>
-
-  <tr><td>
-   <table>
-
-  <tr>
-
-    <th align=right>| . $locale->text('Host') . qq|</th>
-    <td><input name=dbhost size=25 value=$form->{dbhost}></td>
-    <th align=right>| . $locale->text('Port') . qq|</th>
-    <td><input name=dbport size=5 value=$form->{dbport}></td>
-
-  </tr>
-
-  <tr>
-
-    <th align=right>| . $locale->text('User') . qq|</th>
-    <td><input name="dbuser" size="10" value="$form->{dbuser}"></td>
-    <th align=right>| . $locale->text('Password') . qq|</th>
-    <td><input type="password" name="dbpasswd" size="10"></td>
-
-  </tr>
-
-  <tr>
-
-    <th align=right>$form->{connectstring}</th>
-    <td colspan=3><input name=dbdefault size=10 value=$form->{dbdefault}></td>
-
-  </tr>
-
-</table>
-
-</td></tr>
-</table>
-
-<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
-<input type=hidden name=rpw value=$form->{rpw}>
-
-<br>
-
-<input type=submit class=submit name=action value="|
-    . $locale->text('Create Dataset') . qq|">|;
-# Vorübergehend Deaktiviert
-# <input type=submit class=submit name=action value="|
-#     . $locale->text('Update Dataset') . qq|">
-print qq| <input type=submit class=submit name=action value="|
-    . $locale->text('Delete Dataset') . qq|">
-
-</form>
-
-</td></tr>
-</table>
-
-<p>|
-    . $locale->text(
-    'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!'
-    )
-
-    . qq|
-<br>$msg{$form->{dbdriver}}
-
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/dbadmin");
 }
 
 sub continue {
@@ -753,7 +604,6 @@ sub update_dataset {
 <table width=100%>
 <form method=post action=$form->{script}>
 
-<input type=hidden name="dbdriver"  value="$form->{dbdriver}">
 <input type=hidden name="dbhost"    value="$form->{dbhost}">
 <input type=hidden name="dbport"    value="$form->{dbport}">
 <input type=hidden name="dbuser"    value="$form->{dbuser}">

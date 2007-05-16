@@ -167,23 +167,23 @@
      <table>
       <tr>
        <th align="right">Treiber</th>
-       <td><input type="hidden" name="dbdriver" value="Pg">PostgreSQL</td>
+       <td>PostgreSQL</td>
        <th align="right">Datenbankcomputer</th>
-       <td><input name="Pg_dbhost" size="30" value="<TMPL_VAR Pg_dbhost ESCAPE=HTML>"></td>
+       <td><input name="dbhost" size="30" value="<TMPL_VAR myc_dbhost ESCAPE=HTML>"></td>
       </tr>
 
       <tr>
        <th align="right">Datenbank</th>
-       <td><input name="Pg_dbname" size="15" value="<TMPL_VAR Pg_dbname ESCAPE=HTML>"></td>
+       <td><input name="dbname" size="15" value="<TMPL_VAR myc_dbname ESCAPE=HTML>"></td>
        <th align="right">Port</th>
-       <td><input name="Pg_dbport" size="4" value="<TMPL_VAR Pg_dbport ESCAPE=HTML>"></td>
+       <td><input name="dbport" size="4" value="<TMPL_VAR myc_dbport ESCAPE=HTML>"></td>
       </tr>
 
       <tr>
        <th align="right">Benutzer</th>
-       <td><input name="Pg_dbuser" size="15" value="<TMPL_VAR Pg_dbuser ESCAPE=HTML>"></td>
+       <td><input name="dbuser" size="15" value="<TMPL_VAR myc_dbuser ESCAPE=HTML>"></td>
        <th align="right">Passwort</th>
-       <td><input name="Pg_dbpasswd" type="password" size="10" value="<TMPL_VAR Pg_dbpasswd ESCAPE=HTML>"></td>
+       <td><input name="dbpasswd" type="password" size="10" value="<TMPL_VAR myc_dbpasswd ESCAPE=HTML>"></td>
       </tr>
 
       <input type="hidden" name="old_dbpasswd" value="<TMPL_VAR myc_dbpasswd ESCAPE=HTML>">

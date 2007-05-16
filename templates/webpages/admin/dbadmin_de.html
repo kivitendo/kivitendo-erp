@@ -1,0 +1,70 @@
+<body class="admin">
+
+ <div align="center">
+  <h2><TMPL_VAR title></h2>
+
+  <form method="post" action="admin.pl">
+
+   <table>
+    <tr>
+     <td>
+
+      <table>
+
+       <input type="hidden" name="dbdriver" value="<TMPL_VAR dbdriver ESCAPE=HTML>">
+
+       <tr>
+        <td>
+         <table>
+
+          <tr>
+
+           <th align="right">Datenbankcomputer</th>
+           <td><input name="dbhost" size="25" value="<TMPL_VAR dbhost ESCAPE=HTML>"></td>
+           <th align="right">Port</th>
+           <td><input name="dbport" size="5" value="<TMPL_VAR dbport ESCAPE=HTML>"></td>
+
+          </tr>
+
+          <tr>
+
+           <th align="right">Benutzer</th>
+           <td><input name="dbuser" size="10" value="<TMPL_VAR dbuser ESCAPE=HTML>"></td>
+           <th align="right">Passwort</th>
+           <td><input type="password" name="dbpasswd" size="10"></td>
+
+          </tr>
+
+          <tr>
+
+           <th align="right">Datenbankvorlage</th>
+           <td colspan="3"><input name="dbdefault" size="10" value="<TMPL_VAR dbdefault ESCAPE=HTML>"></td>
+
+          </tr>
+
+         </table>
+
+        </td>
+       </tr>
+      </table>
+
+      <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+      <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+      <br>
+
+      <input type="submit" class="submit" name="action" value="Datenbank anlegen">
+      <!--       <input type="submit" class="submit" name="action" value="Datenbank aktualisieren"> -->
+      <input type="submit" class="submit" name="action" value="Datenbank löschen">
+     </td>
+    </tr>
+   </table>
+  </form>
+
+  <p>In diesem Schritt werden bestehende Datenbanken gesucht. Es werden noch keine &Auml;nderungen vorgenommen!</p>
+
+  <p>F&uuml;r lokale Verbindungen "Rechner" und "Port" freilassen.</p>
+
+ </div>
+</body>
+</html>

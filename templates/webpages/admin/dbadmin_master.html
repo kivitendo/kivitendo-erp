@@ -1,0 +1,70 @@
+<body class="admin">
+
+ <div align="center">
+  <h2><TMPL_VAR title></h2>
+
+  <form method="post" action="admin.pl">
+
+   <table>
+    <tr>
+     <td>
+
+      <table>
+
+       <input type="hidden" name="dbdriver" value="<TMPL_VAR dbdriver ESCAPE=HTML>">
+
+       <tr>
+        <td>
+         <table>
+
+          <tr>
+
+           <th align="right"><translate>Host</translate></th>
+           <td><input name="dbhost" size="25" value="<TMPL_VAR dbhost ESCAPE=HTML>"></td>
+           <th align="right"><translate>Port</translate></th>
+           <td><input name="dbport" size="5" value="<TMPL_VAR dbport ESCAPE=HTML>"></td>
+
+          </tr>
+
+          <tr>
+
+           <th align="right"><translate>User</translate></th>
+           <td><input name="dbuser" size="10" value="<TMPL_VAR dbuser ESCAPE=HTML>"></td>
+           <th align="right"><translate>Password</translate></th>
+           <td><input type="password" name="dbpasswd" size="10"></td>
+
+          </tr>
+
+          <tr>
+
+           <th align="right"><translate>Database template</translate></th>
+           <td colspan="3"><input name="dbdefault" size="10" value="<TMPL_VAR dbdefault ESCAPE=HTML>"></td>
+
+          </tr>
+
+         </table>
+
+        </td>
+       </tr>
+      </table>
+
+      <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+      <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+      <br>
+
+      <input type="submit" class="submit" name="action" value="<translate>Create Dataset</translate>">
+      <!--       <input type="submit" class="submit" name="action" value="<translate>Update Dataset</translate>"> -->
+      <input type="submit" class="submit" name="action" value="<translate>Delete Dataset</translate>">
+     </td>
+    </tr>
+   </table>
+  </form>
+
+  <p><translate>This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!</translate></p>
+
+  <p><translate>Leave host and port field empty unless you want to make a remote connection.</translate></p>
+
+ </div>
+</body>
+</html>
