@@ -1704,13 +1704,16 @@ sub print_form {
   reformat_numbers($output_numberformat, 2,
                    qw(invtotal ordtotal quototal subtotal linetotal
                       listprice sellprice netprice discount
-                      tax taxbase),
+                      tax taxbase total paid),
                    grep({ /^linetotal_\d+$/ ||
                             /^listprice_\d+$/ ||
                             /^sellprice_\d+$/ ||
                             /^netprice_\d+$/ ||
                             /^taxbase_\d+$/ ||
                             /^discount_\d+$/ ||
+                            /^paid_\d+$/ ||
+                            /^subtotal_\d+$/ ||
+                            /^total_\d+$/ ||
                             /^tax_\d+$/
                         } keys(%{$form})));
 
