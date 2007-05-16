@@ -160,18 +160,15 @@ sub add_user {
   $form->{Oracle_dbport} = '1521';
   $form->{Oracle_dbhost} = `hostname`;
 
-  if (-f "css/lx-office-erp.css") {
-    $myconfig->{stylesheet} = "lx-office-erp.css";
-  }
+  my $myconfig = {
+    "vclimit"      => 200,
+    "countrycode"  => "de",
+    "numberformat" => "1000,00",
+    "dateformat"   => "dd.mm.yy",
+    "stylesheet"   => "lx-office-erp.css",
+  };
 
-  $myconfig->{vclimit}      = 200;
-  $myconfig->{countrycode}  = "de";
-  $myconfig->{numberformat} = "1000,00";
-  $myconfig->{dateformat}   = "dd.mm.yy";
-
-  form_header();
-  form_footer();
-
+  edit_user_form($myconfig);
 }
 
 sub edit {
@@ -182,91 +179,46 @@ sub edit {
     . $locale->text('Edit User');
   $form->{edit} = 1;
 
-  form_header();
-  form_footer();
+  $form->isblank("login", $locale->text("The login is missing."));
 
+  # get user
+  my $myconfig = new User "$memberfile", "$form->{login}";
+
+  $myconfig->{signature} =~ s/\\n/\r\n/g;
+  $myconfig->{address}   =~ s/\\n/\r\n/g;
+
+  # strip basedir from templates directory
+  $myconfig->{templates} =~ s|.*/||;
+
+  edit_user_form($myconfig);
 }
 
-sub form_footer {
+sub edit_user_form {
+  my ($myconfig) = @_;
 
-  if ($form->{edit}) {
-    $delete =
-      qq|<input type=submit class=submit name=action value="|
-      . $locale->text('Delete') . qq|">
-<input type=hidden name=edit value=1>|;
-  }
+  my @valid_dateformats = qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
+  $form->{ALL_DATEFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{dateformat} } } @valid_dateformats ];
 
-  print qq|
-
-<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
-<input type=hidden name=rpw value=$form->{rpw}>
-
-<input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">
-$delete
-
-</form>
-
-</body>
-</html>
-|;
-
-}
-
-sub form_header {
-
-  # if there is a login, get user
-  if ($form->{login}) {
-
-    # get user
-    $myconfig = new User "$memberfile", "$form->{login}";
-
-    $myconfig->{signature} =~ s/\\n/\r\n/g;
-    $myconfig->{address}   =~ s/\\n/\r\n/g;
-
-    # strip basedir from templates directory
-    $myconfig->{templates} =~ s/^$templates\///;
-
-    # $myconfig->{dbpasswd} = unpack 'u', $myconfig->{dbpasswd};
-  }
-
-  foreach $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
-    $dateformat .=
-      ($item eq $myconfig->{dateformat})
-      ? "<option selected>$item\n"
-      : "<option>$item\n";
-  }
-
-  foreach $item (qw(1,000.00 1000.00 1.000,00 1000,00)) {
-    $numberformat .=
-      ($item eq $myconfig->{numberformat})
-      ? "<option selected>$item\n"
-      : "<option>$item\n";
-  }
+  my @valid_numberformats = qw(1,000.00 1000.00 1.000,00 1000,00);
+  $form->{ALL_NUMBERFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{numberformat} } } @valid_numberformats ];
 
   %countrycodes = User->country_codes;
-  $countrycodes = "";
-  foreach $key (sort { $countrycodes{$a} cmp $countrycodes{$b} }
-                keys %countrycodes
-    ) {
-    $countrycodes .=
-      ($myconfig->{countrycode} eq $key)
-      ? "<option selected value=$key>$countrycodes{$key}"
-      : "<option value=$key>$countrycodes{$key}";
+  $form->{ALL_COUNTRYCODES} = [];
+  foreach $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
+    push @{ $form->{ALL_COUNTRYCODES} }, { "value"    => $countrycode,
+                                           "name"     => $countrycodes{$countrycode},
+                                           "selected" => $countrycode eq $myconfig->{countrycode} };
   }
-  $countrycodes = qq|<option value="">American English\n$countrycodes|;
 
   # is there a templates basedir
   if (!-d "$templates") {
-    $form->error(  $locale->text('Directory')
-                 . ": $templates "
-                 . $locale->text('does not exist'));
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $templates));
   }
 
   opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $!");
-  my @all = readdir(TEMPLATEDIR);
-  my @alldir = sort(grep({ -d "$templates/$_" && !/^\.\.?$/ } @all));
-  my @allhtml = sort(grep({ -f "$templates/$_" && /\.html$/ } @all));
+  my @all     = readdir(TEMPLATEDIR);
+  my @alldir  = sort grep { -d "$templates/$_" && !/^\.\.?$/ } @all;
+  my @allhtml = sort grep { -f "$templates/$_" && /\.html$/ } @all;
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
@@ -276,253 +228,43 @@ sub form_header {
   push @allhtml, 'Default';
   @allhtml = reverse @allhtml;
 
-  foreach $item (@alldir) {
-    if ($item eq $myconfig->{templates}) {
-      $usetemplates .= qq|<option selected>$item\n|;
-    } else {
-      $usetemplates .= qq|<option>$item\n|;
-    }
-  }
+  $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
 
   $lastitem = $allhtml[0];
   $lastitem =~ s/-.*//g;
-  $mastertemplates = qq|<option>$lastitem\n|;
+  $form->{ALL_MASTER_TEMPLATES} = [ { "name" => $lastitem, "selected" => $lastitem eq "German" } ];
   foreach $item (@allhtml) {
     $item =~ s/-.*//g;
+    next if ($item eq $lastitem);
 
-    if ($item ne $lastitem) {
-      my $selected = $item eq "German" ? " selected" : "";
-      $mastertemplates .= qq|<option$selected>$item\n|;
-      $lastitem = $item;
-    }
+    push @{ $form->{ALL_MASTER_TEMPLATES} }, { "name" => $item, "selected" => $item eq "German" };
+    $lastitem = $item;
   }
 
-#  opendir CSS, "css/.";
-#  @all = grep /.*\.css$/, readdir CSS;
-#  closedir CSS;
+  # css dir has styles that are not intended as general layouts.
+  # reverting to hardcoded list
+  $form->{ALL_STYLESHEETS} = [ map { { "name" => $_, "selected" => $_ eq $myconfig->{stylesheet} } } qw(lx-office-erp.css Win2000.css) ];
 
-# css dir has styles that are not intended as general layouts.
-# reverting to hardcoded list
-  @all = qw(lx-office-erp.css Win2000.css);
+  $form->{"menustyle_" . $myconfig->{menustyle} } = 1;
 
-  foreach $item (@all) {
-    if ($item eq $myconfig->{stylesheet}) {
-      $selectstylesheet .= qq|<option selected>$item\n|;
-    } else {
-      $selectstylesheet .= qq|<option>$item\n|;
-    }
-  }
+  map { $form->{"myc_${_}"} = $myconfig->{$_} } keys %{ $myconfig };
 
-  $form->header;
-
-  if ($myconfig->{menustyle} eq "v3") {
-    $menustyle_v3 = "checked";
-  } elsif ($myconfig->{menustyle} eq "neu") {
-    $menustyle_neu = "checked";
-  } else {
-    $menustyle_old = "checked";
-  }
-
-  print qq|
-<body class=admin>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr class=listheading><th colspan=2>$form->{title}</th></tr>
-  <tr size=5></tr>
-  <tr valign=top>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('Login') . qq|</th>
-	  <td><input name="login" value="$myconfig->{login}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input type="password" name="password" size="8" value="$myconfig->{password}"></td>
-	  <input type="hidden" name="old_password" value="$myconfig->{password}">
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Name') . qq|</th>
-	  <td><input name="name" size="15" value="$myconfig->{name}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('E-mail') . qq|</th>
-	  <td><input name=email size=30 value="$myconfig->{email}"></td>
-	</tr>
-	<tr valign=top>
-	  <th align=right>| . $locale->text('Signature') . qq|</th>
-	  <td><textarea name=signature rows=3 cols=35>$myconfig->{signature}</textarea></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Phone') . qq|</th>
-	  <td><input name=tel size=14 value="$myconfig->{tel}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Fax') . qq|</th>
-	  <td><input name=fax size=14 value="$myconfig->{fax}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Company') . qq|</th>
-	  <td><input name=company size=35 value="$myconfig->{company}"></td>
-	</tr>
-	<tr valign=top>
-	  <th align=right>| . $locale->text('Address') . qq|</th>
-	  <td><textarea name=address rows=4 cols=35>$myconfig->{address}</textarea></td>
-	</tr>
-        <tr valign=top>
-	  <th align=right>| . $locale->text('Tax number') . qq|</th>
-	  <td><input name=taxnumber size=14 value="$myconfig->{taxnumber}"></td>
-	</tr>
-        <tr valign=top>
-	  <th align=right>| . $locale->text('Ust-IDNr') . qq|</th>
-	  <td><input name=co_ustid size=14 value="$myconfig->{co_ustid}"></td>
-	</tr>
-        <tr valign=top>
-	  <th align=right>| . $locale->text('DUNS-Nr') . qq|</th>
-	  <td><input name=duns size=14 value="$myconfig->{duns}"></td>
-	</tr>
-      </table>
-    </td>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('Date Format') . qq|</th>
-	  <td><select name=dateformat>$dateformat</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Number Format') . qq|</th>
-	  <td><select name=numberformat>$numberformat</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Dropdown Limit') . qq|</th>
-	  <td><input name=vclimit value="$myconfig->{vclimit}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Language') . qq|</th>
-	  <td><select name=countrycode>$countrycodes</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Stylesheet') . qq|</th>
-	  <td><select name=userstylesheet>$selectstylesheet</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Printer') . qq|</th>
-	  <td><input name=printer size=20 value="$myconfig->{printer}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Use Templates') . qq|</th>
-	  <td><select name=usetemplates>$usetemplates</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('New Templates') . qq|</th>
-	  <td><input name=newtemplates></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Setup Templates') . qq|</th>
-	  <td><select name=mastertemplates>$mastertemplates</select></td>
-	</tr>
-       <tr>
-           <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-           <td><input name=menustyle type=radio class=radio value=v3 $menustyle_v3>&nbsp;| .
-           $locale->text("Top (CSS)") . qq|
-           <input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
-           $locale->text("Top (Javascript)") . qq|
-           <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
-           $locale->text("Old (on the side)") . qq|
-           </td>
-         </tr>
-	<input type=hidden name=templates value=$myconfig->{templates}>
-      </table>
-    </td>
-  </tr>
-  <tr class=listheading>
-    <th colspan=2>| . $locale->text('Database') . qq|</th>
-  </tr>|;
-
-  # list section for database drivers
-  foreach $item (User->dbdrivers) {
-
-    print qq|
-  <tr>
-    <td colspan=2>
-      <table>
-	<tr>|;
-
-    $checked = "";
-    if ($myconfig->{dbdriver} eq $item) {
-      map { $form->{"${item}_$_"} = $myconfig->{$_} }
-        qw(dbhost dbport dbuser dbpasswd dbname sid);
-      $checked = "checked";
-    }
-
-    print qq|
-	  <th align=right>| . $locale->text('Driver') . qq|</th>
-	  <td><input name="dbdriver" type="radio" class="radio" value="$item" $checked>&nbsp;$item</td>
-	  <th align=right>| . $locale->text('Host') . qq|</th>
-	  <td><input name="${item}_dbhost" size=30 value="$form->{"${item}_dbhost"}"></td>
-	</tr>
-	<tr>|;
-
-    if ($item eq 'Pg') {
-    
-      print qq|
-	  <th align=right>| . $locale->text('Dataset') . qq|</th>
-	  <td><input name="Pg_dbname" size="15" value="$form->{Pg_dbname}"></td>
-	  <th align=right>| . $locale->text('Port') . qq|</th>
-	  <td><input name="Pg_dbport" size="4" value="$form->{Pg_dbport}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('User') . qq|</th>
-	  <td><input name="${item}_dbuser" size=15 value="$form->{"${item}_dbuser"}"></td>
-	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input name="${item}_dbpasswd" type=password size=10 value="$form->{"${item}_dbpasswd"}"></td>
-	</tr>|;
-
-    }
-
-    if ($item eq 'Oracle') {
-      print qq|
-	  <th align=right>SID</th>
-	  <td><input name=Oracle_sid value=$form->{Oracle_sid}></td>
-	  <th align=right>| . $locale->text('Port') . qq|</th>
-	  <td><input name=Oracle_dbport size=4 value=$form->{Oracle_dbport}></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Dataset') . qq|</th>
-	  <td><input name="${item}_dbuser" size=15 value=$form->{"${item}_dbuser"}></td>
-	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input name="${item}_dbpasswd" type=password size=10 value="$form->{"${item}_dbpasswd"}"></td>
-
-	</tr>|;
-    }
-
-    print qq|
-	<input type="hidden" name="old_dbpasswd" value="$myconfig->{dbpasswd}">
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td colspan=2><hr size=2 noshade></td>
-  </tr>
-|;
-
-  }
+  map { $form->{"Pg_${_}"} = $myconfig->{$_} } qw(dbhost dbport dbname dbuser dbpasswd);
 
   # access control
+  my @acsorder = ();
+  my %acs      = ();
+  my %excl     = ();
   open(FH, $menufile) or $form->error("$menufile : $!");
 
-  # scan for first menu level
-  @a = <FH>;
-  close(FH);
-
-  foreach $item (@a) {
+  while ($item = <FH>) {
     next unless $item =~ /\[/;
     next if $item =~ /\#/;
 
     $item =~ s/(\[|\])//g;
-    chop $item;
+    chomp $item;
+
+    my ($level, $menuitem);
 
     if ($item =~ /--/) {
       ($level, $menuitem) = split /--/, $item, 2;
@@ -532,122 +274,42 @@ sub form_header {
       push @acsorder, $item;
     }
 
+    $acs{$level} ||= [];
     push @{ $acs{$level} }, $menuitem;
 
   }
-
-  %role = ('admin'      => $locale->text('Administrator'),
-           'user'       => $locale->text('User'),
-           'manager'    => $locale->text('Manager'),
-           'supervisor' => $locale->text('Supervisor'));
-
-  $selectrole = "";
-  foreach $item (qw(user supervisor manager admin)) {
-    $selectrole .=
-      ($myconfig->{role} eq $item)
-      ? "<option selected value=$item>$role{$item}\n"
-      : "<option value=$item>$role{$item}\n";
-  }
-
-  print qq|
-  <tr class=listheading>
-    <th colspan=2>| . $locale->text('Access Control') . qq|</th>
-  </tr>
-  <tr>
-    <td><select name=role>$selectrole</select></td>
-  </tr>
-|;
 
   foreach $item (split(/;/, $myconfig->{acs})) {
     ($key, $value) = split /--/, $item, 2;
     $excl{$key}{$value} = 1;
   }
 
+  $form->{ACLS}    = [];
+  $form->{all_acs} = "";
+
   foreach $key (@acsorder) {
-
-    $checked = "checked";
-    if ($form->{login}) {
-      $checked = ($excl{$key}{$key}) ? "" : "checked";
-    }
-
-    # can't have variable names with spaces
-    # the 1 is for apache 2
-    $item = $form->escape("${key}--$key", 1);
-
-    $acsheading = $key;
-    $acsheading =~ s/ /&nbsp;/g;
-
-    $acsheading = qq|
-    <th align=left><input name="$item" class=checkbox type=checkbox value=1 $checked>&nbsp;$acsheading</th>\n|;
-    $menuitems .= "$item;";
-    $acsdata = "
-    <td>";
+    my $acl = { "checked" => $form->{login} ? !$excl{$key}->{$key} : 1,
+                "name"    => "${key}--${key}",
+                "title"   => $key,
+                "SUBACLS" => [], };
+    $form->{all_acs} .= "${key}--${key};";
 
     foreach $item (@{ $acs{$key} }) {
       next if ($key eq $item);
 
-      $checked = "checked";
-      if ($form->{login}) {
-        $checked = ($excl{$key}{$item}) ? "" : "checked";
-      }
-
-      $acsitem = $form->escape("${key}--$item", 1);
-
-      $acsdata .= qq|
-    <br><input name="$acsitem" class=checkbox type=checkbox value=1 $checked>&nbsp;$item|;
-      $menuitems .= "$acsitem;";
+      my $subacl = { "checked" => $form->{login} ? !$excl{$key}->{$item} : 1,
+                     "name"    => "${key}--${item}",
+                     "title"   => $item };
+      push @{ $acl->{SUBACLS} }, $subacl;
+      $form->{all_acs} .= "${key}--${item};";
     }
-
-    $acsdata .= "
-    </td>";
-
-    print qq|
-  <tr valign=top>$acsheading $acsdata
-  </tr>
-|;
+    push @{ $form->{ACLS} }, $acl;
   }
 
-  print qq|<input type=hidden name=acs value="$menuitems">
-|;
-  if ($webdav) {
-    @webdavdirs =
-      qw(angebote bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen);
-    foreach $directory (@webdavdirs) {
-      if ($myconfig->{$directory}) {
-        $webdav{"${directory}c"} = "checked";
-      } else {
-        $webdav{"${directory}c"} = "";
-      }
-    }
-    print qq|
-   <tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-  <tr class=listheading>
-    <th colspan=2>| . $locale->text('WEBDAV-Zugriff') . qq|</th>
-  </tr>
-  <table width=100%>
-	<tr>
-	<td><input name=angebote class=checkbox type=checkbox value=1 $webdav{angebotec}>&nbsp;Angebot</td>
-	<td><input name=bestellungen class=checkbox type=checkbox value=1 $webdav{bestellungenc}>&nbsp;Bestellung</td>
-	<td><input name=rechnungen class=checkbox type=checkbox value=1 $webdav{rechnungenc}>&nbsp;Rechnung</td>
-	</tr>
-	<tr>
-	<td><input name=anfragen class=checkbox type=checkbox value=1 $webdav{anfragenc}>&nbsp;Angebot</td>
-	<td><input name=lieferantenbestellungen class=checkbox type=checkbox value=1 $webdav{lieferantenbestellungenc}>&nbsp;Lieferantenbestellung</td>
-	<td><input name=einkaufsrechnungen class=checkbox type=checkbox value=1 $webdav{einkaufsrechnungenc}>&nbsp;Einkaufsrechnung</td>
-	</tr>
-  </table>
-  <tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-|;
-  }
-  print qq|
-</table>
-</div>
-|;
+  chop $form->{all_acs};
 
+  $form->header();
+  print $form->parse_html_template("admin/edit_user");
 }
 
 sub save {
@@ -682,28 +344,24 @@ sub save {
 
   # is there a basedir
   if (!-d "$templates") {
-    $form->error(  $locale->text('Directory')
-                 . ": $templates "
-                 . $locale->text('does not exist'));
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $templates));
   }
 
   # add base directory to $form->{templates}
-  $form->{templates} = "$templates/$form->{templates}";
+  $form->{templates} =~ s|.*/||;
+  $form->{templates} =  "$templates/$form->{templates}";
 
   $myconfig = new User "$memberfile", "$form->{login}";
 
   # redo acs variable and delete all the acs codes
-  @acs = split(/;/, $form->{acs});
-
-  $form->{acs} = "";
-  foreach $item (@acs) {
-    $item = $form->escape($item, 1);
-
-    if (!$form->{$item}) {
-      $form->{acs} .= $form->unescape($form->unescape($item)) . ";";
-    }
-    delete $form->{$item};
+  my @acs;
+  foreach $item (split m|;|, $form->{all_acs}) {
+    my $name =  "ACS_${item}";
+    $name    =~ s| |+|g;
+    push @acs, $item if !$form->{$name};
+    delete $form->{$name};
   }
+  $form->{acs} = join ";", @acs;
 
   # check which database was filled in
   if ($form->{dbdriver} eq 'Oracle') {
@@ -727,18 +385,6 @@ sub save {
 
     $form->isblank("dbname", $locale->text('Dataset missing!'));
     $form->isblank("dbuser", $locale->text('Database User missing!'));
-  }
-
-  if ($webdav) {
-    @webdavdirs =
-      qw(angebote bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen);
-    foreach $directory (@webdavdirs) {
-      if ($form->{$directory}) {
-        $form->{$directory} = $form->{$directory};
-      } else {
-        $form->{$directory} = 0;
-      }
-    }
   }
 
   foreach $item (keys %{$form}) {

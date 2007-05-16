@@ -1,0 +1,260 @@
+<body class="admin">
+
+ <form method="post" action="admin.pl">
+
+  <div class="listtop" width="100%"><TMPL_VAR title></div>
+
+  <table width="100%">
+   <tr valign="top">
+    <td>
+     <table>
+      <tr>
+       <th align="right"><translate>Login</translate></th>
+       <td><input name="login" value="<TMPL_VAR myc_login ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Password</translate></th>
+       <td><input type="password" name="password" size="8" value="<TMPL_VAR myc_password ESCAPE=HTML>"></td>
+       <input type="hidden" name="old_password" value="<TMPL_VAR myc_password ESCAPE=HTML>">
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Name</translate></th>
+       <td><input name="name" size="15" value="<TMPL_VAR myc_name ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>E-mail</translate></th>
+       <td><input name="email" size="30" value="<TMPL_VAR myc_email ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr valign="top">
+       <th align="right"><translate>Signature</translate></th>
+       <td><textarea name="signature" rows="3" cols="35"><TMPL_VAR myc_signature ESCAPE=HTML></textarea></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Phone</translate></th>
+       <td><input name="tel" size="14" value="<TMPL_VAR myc_tel ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Fax</translate></th>
+       <td><input name="fax" size="14" value="<TMPL_VAR myc_fax ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Company</translate></th>
+       <td><input name="company" size="35" value="<TMPL_VAR myc_company ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr valign="top">
+       <th align="right"><translate>Address</translate></th>
+       <td><textarea name="address" rows="4" cols="35"><TMPL_VAR myc_address ESCAPE=HTML></textarea></td>
+      </tr>
+
+      <tr valign="top">
+       <th align="right"><translate>Tax number</translate></th>
+       <td><input name="taxnumber" size="14" value="<TMPL_VAR myc_taxnumber ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr valign="top">
+       <th align="right"><translate>Ust-IDNr</translate></th>
+       <td><input name="co_ustid" size="14" value="<TMPL_VAR myc_co_ustid ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr valign="top">
+       <th align="right"><translate>DUNS-Nr</translate></th>
+       <td><input name="duns" size="14" value="<TMPL_VAR myc_duns ESCAPE=HTML>"></td>
+      </tr>
+     </table>
+    </td>
+
+    <td>
+     <table>
+      <tr>
+       <th align="right"><translate>Date Format</translate></th>
+       <td>
+        <select name="dateformat">
+         <TMPL_LOOP ALL_DATEFORMATS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR format ESCAPE=HTML></option>
+         </TMPL_LOOP>
+        </select>
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Number Format</translate></th>
+       <td>
+        <select name="numberformat">
+         <TMPL_LOOP ALL_NUMBERFORMATS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR format ESCAPE=HTML></option>
+         </TMPL_LOOP>
+        </select>
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Dropdown Limit</translate></th>
+       <td><input name="vclimit" value="<TMPL_VAR myc_vclimit ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Language</translate></th>
+       <td>
+        <select name="countrycode">
+         <TMPL_LOOP ALL_COUNTRYCODES><option value="<TMPL_VAR value ESCAPE=HTML>" <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
+         </TMPL_LOOP>
+        </select>
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Stylesheet</translate></th>
+       <td>
+        <select name="userstylesheet">
+         <TMPL_LOOP ALL_STYLESHEETS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
+         </TMPL_LOOP>
+        </select>
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Printer</translate></th>
+       <td><input name="printer" size="20" value="<TMPL_VAR myc_printer ESCAPE=HTML>"></td>
+      </tr>
+      <tr>
+       <th align="right"><translate>Use Templates</translate></th>
+       <td>
+        <select name="usetemplates">
+         <TMPL_LOOP ALL_TEMPLATES><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
+         </TMPL_LOOP>
+        </select>
+       </td>
+      </tr>
+      <tr>
+       <th align="right"><translate>New Templates</translate></th>
+       <td><input name="newtemplates"></td>
+      </tr>
+      <tr>
+       <th align="right"><translate>Setup Templates</translate></th>
+       <td>
+        <select name="mastertemplates">
+         <TMPL_LOOP ALL_MASTER_TEMPLATES><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
+         </TMPL_LOOP>
+        </select>
+       </td>
+      </tr>
+      <tr>
+       <th align="right"><translate>Setup Menu</translate></th>
+       <td>
+        <input name="menustyle" type="radio" class="radio" value="v3" <TMPL_IF menustyle_v3>checked</TMPL_IF>>&nbsp;<translate>Top (CSS)</translate>
+        <input name="menustyle" type="radio" class="radio" value="neu" <TMPL_IF menustyle_neu>checked</TMPL_IF>>&nbsp;<translate>Top (Javascript)</translate>
+        <input name="menustyle" type="radio" class="radio" value="old" <TMPL_IF menustyle_old>checked</TMPL_IF>>&nbsp;<translate>Old (on the side)</translate>
+       </td>
+      </tr>
+
+      <input type="hidden" name="templates" value="<TMPL_VAR myc_templates ESCAPE=HTML>">
+     </table>
+    </td>
+   </tr>
+
+   <tr class="listheading">
+    <th colspan="2"><translate>Database</translate></th>
+   </tr>
+
+   <tr>
+    <td colspan="2">
+     <table>
+      <tr>
+       <th align="right"><translate>Driver</translate></th>
+       <td><input type="hidden" name="dbdriver" value="Pg">PostgreSQL</td>
+       <th align="right"><translate>Host</translate></th>
+       <td><input name="Pg_dbhost" size="30" value="<TMPL_VAR Pg_dbhost ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>Dataset</translate></th>
+       <td><input name="Pg_dbname" size="15" value="<TMPL_VAR Pg_dbname ESCAPE=HTML>"></td>
+       <th align="right"><translate>Port</translate></th>
+       <td><input name="Pg_dbport" size="4" value="<TMPL_VAR Pg_dbport ESCAPE=HTML>"></td>
+      </tr>
+
+      <tr>
+       <th align="right"><translate>User</translate></th>
+       <td><input name="Pg_dbuser" size="15" value="<TMPL_VAR Pg_dbuser ESCAPE=HTML>"></td>
+       <th align="right"><translate>Password</translate></th>
+       <td><input name="Pg_dbpasswd" type="password" size="10" value="<TMPL_VAR Pg_dbpasswd ESCAPE=HTML>"></td>
+      </tr>
+
+      <input type="hidden" name="old_dbpasswd" value="<TMPL_VAR myc_dbpasswd ESCAPE=HTML>">
+     </table>
+    </td>
+   </tr>
+
+   <tr>
+    <td colspan="2"><hr size="2" noshade></td>
+   </tr>
+
+   <tr class="listheading"><th colspan="2"><translate>Access Control</translate></th></tr>
+
+   <TMPL_LOOP ACLS>
+    <tr>
+     <td valign="top">
+      <input type="checkbox" name="ACS_<TMPL_VAR name ESCAPE=HTML>" id="ACS_<TMPL_VAR name ESCAPE=HTML>" value="1" <TMPL_IF checked>checked</TMPL_IF>>
+      <label for="ACS_<TMPL_VAR name ESCAPE=HTML>"><TMPL_VAR title ESCAPE=HTML></label>
+     </td>
+
+     <td valign="top">
+      <TMPL_LOOP SUBACLS>
+       <input type="checkbox" name="ACS_<TMPL_VAR name ESCAPE=HTML>" id="ACS_<TMPL_VAR name ESCAPE=HTML>" value="1" <TMPL_IF checked>checked</TMPL_IF>>
+       <label for="ACS_<TMPL_VAR name ESCAPE=HTML>"><TMPL_VAR title ESCAPE=HTML></label>
+       <TMPL_UNLESS __last__><br></TMPL_UNLESS>
+      </TMPL_LOOP>
+     </td>
+    </tr>
+   </TMPL_LOOP>
+
+   <input type="hidden" name="all_acs" value="<TMPL_VAR all_acs ESCAPE=HTML>">
+
+   <tr><td colspan="2"><hr size="3" noshade></td></tr>
+
+   <tr class="listheading">
+    <th colspan="2"><translate>WEBDAV access</translate></th>
+   </tr>
+
+   <tr>
+    <td colspan="2">
+     <table>
+      <tr>
+       <td><input name="angebote" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_angebote>checked</TMPL_IF>>&nbsp;Angebot</td>
+       <td><input name="bestellungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_bestellungen>checked</TMPL_IF>>&nbsp;Bestellung</td>
+       <td><input name="rechnungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_rechnung>checked</TMPL_IF>>&nbsp;Rechnung</td>
+      </tr>
+
+      <tr>
+       <td><input name="anfragen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_anfragen>checked</TMPL_IF>>&nbsp;Anfragen</td>
+       <td><input name="lieferantenbestellungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_lieferantenbestellungen>checked</TMPL_IF>>&nbsp;Lieferantenbestellung</td>
+       <td><input name="einkaufsrechnungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_einkaufsrechnungen>checked</TMPL_IF>>&nbsp;Einkaufsrechnung</td>
+      </tr>
+     </table>
+    </td>
+   </tr>
+
+   <tr><td colspan="2"><hr size="3" noshade></td></tr>
+
+  </table>
+
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+  <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+
+  <TMPL_IF edit>
+   <input type="submit" class="submit" name="action" value="<translate>Delete</translate>">
+   <input type="hidden" name="edit" value="1">
+  </TMPL_IF>
+
+ </form>
+
+</body>
+</html>
