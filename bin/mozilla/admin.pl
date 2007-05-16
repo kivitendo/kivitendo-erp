@@ -790,6 +790,7 @@ sub save {
   }
 
   $form->{templates}       =~ s|.*/||;
+  $form->{templates}       =  "${templates}/$form->{templates}";
   $form->{mastertemplates} =~ s|.*/||;
 
   # create user template directory and copy master files
