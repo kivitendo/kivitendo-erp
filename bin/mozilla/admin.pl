@@ -167,6 +167,7 @@ sub add_user {
     "numberformat" => "1000,00",
     "dateformat"   => "dd.mm.yy",
     "stylesheet"   => "lx-office-erp.css",
+    "menustyle"    => "v3",
   };
 
   edit_user_form($myconfig);
