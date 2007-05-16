@@ -1156,6 +1156,8 @@ sub error {
 
   my ($self, $msg) = @_;
 
+  $main::lxdebug->show_backtrace();
+
   if ($ENV{HTTP_USER_AGENT}) {
     print qq|Content-Type: text/html
 
