@@ -40,6 +40,7 @@ use Fcntl qw(:seek);
 use SL::DBUpgrade2;
 use SL::DBUtils;
 use SL::Iconv;
+use SL::Inifile;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -666,84 +667,43 @@ sub dbneedsupdate {
 
   my ($self, $form) = @_;
 
-  my %dbsources = ();
-  my $query;
+  my $members  = Inifile->new($main::memberfile);
+  my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
 
-  $form->{sid} = $form->{dbdefault};
-  &dbconnect_vars($form, $form->{dbdefault});
+  my ($query, $sth, %dbs_needing_updates);
 
-  my $dbh =
-    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-    or $form->dberror;
+  foreach my $login (grep /[a-z]/, keys %{ $members }) {
+    my $member = $members->{$login};
 
-  if ($form->{dbdriver} eq 'Pg') {
+    map { $form->{$_} = $member->{$_} } qw(dbname dbuser dbpasswd dbhost dbport);
+    dbconnect_vars($form, $form->{dbname});
+    $main::lxdebug->dump(0, "form", $form);
+    my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
 
-    $query =
-      qq|SELECT d.datname FROM pg_database d, pg_user u | .
-      qq|WHERE d.datdba = u.usesysid AND u.usename = ?|;
-    my $sth = prepare_execute_query($form, $dbh, $query, $form->{dbuser});
+    next unless $dbh;
 
-    while (my ($db) = $sth->fetchrow_array) {
+    my $version;
 
-      next if ($db =~ /^template/);
-
-      &dbconnect_vars($form, $db);
-
-      my $dbh2 =
-        DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-        or $form->dberror;
-
-      $query =
-        qq|SELECT tablename FROM pg_tables | .
-        qq|WHERE tablename = 'defaults'|;
-      my $sth2 = prepare_execute_query($form, $dbh, $query);
-
-      if ($sth2->fetchrow_array) {
-        $query = qq|SELECT version FROM defaults|;
-        my ($version) = selectrow_query($form, $dbh2, $query);
-        $dbsources{$db} = $version;
-      }
-      $sth2->finish;
-      $dbh2->disconnect;
+    $query = qq|SELECT version FROM defaults|;
+    $sth = prepare_query($form, $dbh, $query);
+    if ($sth->execute()) {
+      ($version) = $sth->fetchrow_array();
     }
-    $sth->finish;
-  }
+    $sth->finish();
+    $dbh->disconnect();
 
-  if ($form->{dbdriver} eq 'Oracle') {
-    $query =
-      qq|SELECT owner FROM dba_objects |.
-      qq|WHERE object_name = 'DEFAULTS' AND object_type = 'TABLE'|;
+    next unless $version;
 
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    while (my ($db) = $sth->fetchrow_array) {
-
-      $form->{dbuser} = $db;
-      &dbconnect_vars($form, $db);
-
-      my $dbh =
-        DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-        or $form->dberror;
-
-      $query = qq|SELECT version FROM defaults|;
-      my $sth = $dbh->prepare($query);
-      $sth->execute;
-
-      if (my ($version) = $sth->fetchrow_array) {
-        $dbsources{$db} = $version;
-      }
-      $sth->finish;
-      $dbh->disconnect;
+    if (update_available($form->{dbdriver}, $version) || update2_available($form, $controls)) {
+      my $dbinfo = {};
+      map { $dbinfo->{$_} = $member->{$_} } grep /^db/, keys %{ $member };
+      $dbs_needing_updates{$member->{dbhost} . "::" . $member->{dbname}} = $dbinfo;
     }
-    $sth->finish;
   }
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
-  return %dbsources;
+  return values %dbs_needing_updates;
 }
 
 sub calc_version {
@@ -793,12 +753,9 @@ sub update_available {
 
   local *SQLDIR;
 
-  opendir(SQLDIR, "sql/${dbdriver}-upgrade")
-    or &error("", "sql/${dbdriver}-upgrade: $!");
-  my @upgradescripts =
-    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/,
-         readdir(SQLDIR));
-  closedir(SQLDIR);
+  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
+  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
+  closedir SQLDIR;
 
   return ($#upgradescripts > -1);
 }
@@ -939,6 +896,8 @@ sub dbupdate2 {
       or $form->dberror;
 
     map({ $_->{"applied"} = 0; } @upgradescripts);
+
+    $self->create_schema_info_table($form, $dbh);
 
     $query = qq|SELECT tag FROM schema_info|;
     $sth = $dbh->prepare($query);

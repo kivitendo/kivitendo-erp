@@ -1,0 +1,19 @@
+<TMPL_IF NOTHING_TO_DO>
+ <p><translate>No datasets have been selected.</translate></p>
+
+ <TMPL_ELSE>
+
+ <hr>
+
+ <p><translate>All database upgrades have been applied.</translate></p>
+</TMPL_IF>
+
+<form method="post" action="admin.pl">
+ <input type="hidden" name="nextsub" value="list_users">
+ <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+ <input type="submit" name="action" value="<translate>Continue</translate>">
+</form>
+
+</body>
+</html>

@@ -41,6 +41,7 @@ use SL::Form;
 use SL::User;
 use SL::Common;
 use SL::Inifile;
+use SL::DBUpgrade2;
 
 require "bin/mozilla/common.pl";
 
@@ -570,117 +571,52 @@ sub continue {
 }
 
 sub update_dataset {
-
-  %needsupdate = User->dbneedsupdate(\%$form);
-
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Update Dataset');
 
-  $form->header;
+  my @need_updates      = User->dbneedsupdate($form);
+  $form->{NEED_UPDATES} = \@need_updates;
+  $form->{ALL_UPDATED}  = !scalar @need_updates;
 
-  print qq|
-<body class=admin>
-
-
-<center>
-<h2>$form->{title}</h2>
-|;
-  my $field_id = 0;
-  foreach $key (sort keys %needsupdate) {
-    if ($needsupdate{$key} ne $form->{dbversion}) {
-      $upd .= qq|<input id="$field_id" name="db$key" type="checkbox" value="1" checked> $key\n|;
-      $form->{dbupdate} .= "db$key ";
-      $field_id++;
-    }
-  }
-
-  chop $form->{dbupdate};
-
-  if ($form->{dbupdate}) {
-
-    print qq|
-<table width=100%>
-<form method=post action=$form->{script}>
-
-<input type=hidden name="dbhost"    value="$form->{dbhost}">
-<input type=hidden name="dbport"    value="$form->{dbport}">
-<input type=hidden name="dbuser"    value="$form->{dbuser}">
-<input type=hidden name="dbpasswd"  value="$form->{dbpasswd}">
-<input type=hidden name="dbdefault" value="$form->{dbdefault}">
-
-<tr class=listheading>
-  <th>| . $locale->text('The following Datasets need to be updated') . qq|</th>
-</tr>
-<tr>
-<td>
-
-$upd
-
-</td>
-</tr>
-<tr>
-<td>
-
-<input name=dbupdate type=hidden value="$form->{dbupdate}">
-
-<input name=callback type=hidden value="$form->{script}?action=list_users&rpw=$form->{rpw}">
-
-<input type=hidden name=rpw value=$form->{rpw}>
-
-<input type=hidden name=nextsub value=dbupdate>
-
-<hr size=3 noshade>
-
-<br>
-<input type=submit class=submit name=action value="|
-      . $locale->text('Continue') . qq|">
-
-</td></tr>
-</table>
-</form>
-|;
-
-  } else {
-
-    print $locale->text('All Datasets up to date!');
-
-  }
-
-  print qq|
-
-</body>
-</html>
-|;
-
+  $form->header();
+  print $form->parse_html_template("admin/update_dataset");
 }
 
 sub dbupdate {
-  $form->{"stylesheet"} = "lx-office-erp.css";
-  $form->{"title"} = $main::locale->text("Dataset upgrade");
+  $form->{stylesheet} = "lx-office-erp.css";
+  $form->{title}      = $locale->text("Dataset upgrade");
   $form->header();
-  my $dbname =
-    join(" ",
-         map({ s/\s//g; s/^db//; $_; }
-             grep({ $form->{$_} }
-                  split(/\s+/, $form->{"dbupdate"}))));
-  print($form->parse_html_template("dbupgrade/header",
-                                   { "dbname" => $dbname }));
 
-  User->dbupdate(\%$form);
+  my $rowcount           = $form->{rowcount} * 1;
+  my @update_rows        = grep { $form->{"update_$_"} } (1 .. $rowcount);
+  $form->{NOTHING_TO_DO} = !scalar @update_rows;
+  my $saved_form         = save_form();
 
-  print qq|
-<hr>
+  $| = 1;
 
-| . $locale->text('Dataset updated!') . qq|
+  print $form->parse_html_template("admin/dbupgrade_all_header");
 
-<br>
+  foreach my $i (@update_rows) {
+    restore_form($saved_form);
 
-<a id="enddatasetupdate" href="admin.pl?action=login&| .
-join("&", map({ "$_=" . $form->escape($form->{$_}); } qw(rpw))) .
-qq|">| . $locale->text("Continue") . qq|</a>|;
+    map { $form->{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
 
+    my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
+
+    print $form->parse_html_template("admin/dbupgrade_header");
+
+    $form->{dbupdate}        = $form->{dbname};
+    $form->{$form->{dbname}} = 1;
+
+    User->dbupdate($form);
+    User->dbupdate2($form, $controls);
+
+    print $form->parse_html_template("admin/dbupgrade_footer");
+  }
+
+  print $form->parse_html_template("admin/dbupgrade_all_done");
 }
 
 sub create_dataset {

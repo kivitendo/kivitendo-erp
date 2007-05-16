@@ -1,0 +1,55 @@
+<body class="admin">
+
+ <h2><TMPL_VAR title></h2>
+
+ <TMPL_IF ALL_UPDATED>
+  Alle Datenbanken sind auf aktuellem Stand.
+
+  <TMPL_ELSE>
+
+  <form method="post" action="admin.pl">
+
+   <p>Folgende Datenbanken müssen aktualisiert werden:</p>
+
+   <table>
+    <tr>
+     <th class="listtop">Aktualisieren?</th>
+     <th class="listtop">Datenbank</th>
+     <th class="listtop">Treiber</th>
+     <th class="listtop">Datenbankcomputer</th>
+     <th class="listtop">Port</th>
+     <th class="listtop">Benutzer</th>
+    </tr>
+
+    <TMPL_LOOP NEED_UPDATES>
+     <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+      <td><input type="checkbox" name="update_<TMPL_VAR __counter__>" value="1" checked></td>
+      <td><input type="hidden" name="dbname_<TMPL_VAR __counter__>" value="<TMPL_VAR dbname ESCAPE=HTML>"><TMPL_VAR dbname ESCAPE=HTML></td>
+      <td><input type="hidden" name="dbdriver_<TMPL_VAR __counter__>" value="Pg">PostgreSQL</td>
+      <td><input type="hidden" name="dbhost_<TMPL_VAR __counter__>" value="<TMPL_VAR dbhost ESCAPE=HTML>"><TMPL_VAR dbhost ESCAPE=HTML></td>
+      <td><input type="hidden" name="dbport_<TMPL_VAR __counter__>" value="<TMPL_VAR dbport ESCAPE=HTML>"><TMPL_VAR dbport ESCAPE=HTML></td>
+      <td><input type="hidden" name="dbuser_<TMPL_VAR __counter__>" value="<TMPL_VAR dbuser ESCAPE=HTML>"><TMPL_VAR dbuser ESCAPE=HTML></td>
+     </tr>
+
+     <TMPL_IF __last__>
+      <input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>">
+     </TMPL_IF>
+    </TMPL_LOOP>
+   </table>
+
+   <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+   <input type="hidden" name="nextsub" value="dbupdate">
+
+   <hr size="3" noshade>
+
+   <br>
+
+   <input type="submit" class="submit" name="action" value="Weiter">
+
+  </form>
+
+ </TMPL_IF>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<TMPL_IF NOTHING_TO_DO>
+ <p>Es wurden keine Datenbanken ausgew&auml;hlt.</p>
+
+ <TMPL_ELSE>
+
+ <hr>
+
+ <p>Alle Datenbankupdates wurden eingespielt.</p>
+</TMPL_IF>
+
+<form method="post" action="admin.pl">
+ <input type="hidden" name="nextsub" value="list_users">
+ <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+
+ <input type="submit" name="action" value="Weiter">
+</form>
+
+</body>
+</html>
