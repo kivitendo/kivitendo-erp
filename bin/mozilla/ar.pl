@@ -1019,12 +1019,11 @@ sub update {
 sub post_payment {
   $lxdebug->enter_sub();
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
+    if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
-      $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
       $form->error($locale->text('Cannot post payment for a closed period!'))
         if ($datepaid <= $closedto);
 
@@ -1057,10 +1056,17 @@ sub post {
 
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  $form->error($locale->text('Cannot post transaction for a closed period!')) if ($transdate <= $closedto);
 
-  $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
-  $form->error($locale->text('Cannot post transaction for a closed period!'))
-    if ($transdate <= $closedto);
+  my $zero_amount_posting = 1;
+  for $i (1 .. $form->{rowcount}) {
+    if ($form->parse_amount(\%myconfig, $form->{"amount_$i"})) {
+      $zero_amount_posting = 0;
+      last;
+    }
+  }
+
+  $form->error($locale->text('Zero amount posting!')) if $zero_amount_posting;
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
@@ -1073,7 +1079,6 @@ sub post {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
-      $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{"amount_$i"});
       $form->error($locale->text('Cannot post payment for a closed period!'))
         if ($datepaid <= $closedto);
 
