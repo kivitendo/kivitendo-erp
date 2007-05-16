@@ -52,12 +52,10 @@ sub new {
   open FH, "$file" or Form->error("$file : $!");
 
   while (<FH>) {
-    next if m/^(#|;|\s)/;
-
     chomp;
 
     # strip comments
-    s/(#|;).*//g;
+    s/#.*//g;
 
     # remove any trailing whitespace
     s/^\s*//;
