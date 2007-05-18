@@ -36,8 +36,14 @@ $menufile = "menu.ini";
 
 use DBI;
 use CGI;
+use POSIX qw(strftime);
+use IO::File;
+use Fcntl;
+use English qw(-no_match_vars);
+use Sys::Hostname;
 
 use SL::Form;
+use SL::Mailer;
 use SL::User;
 use SL::Common;
 use SL::Inifile;
@@ -562,6 +568,8 @@ sub dbselect_source {
 
   $form->{title}     = "Lx-Office ERP / " . $locale->text('Database Administration');
 
+  $form->{ALLOW_DBBACKUP} = "$pg_dump_exe" ne "DISABLED";
+
   $form->header();
   print $form->parse_html_template("admin/dbadmin");
 }
@@ -693,9 +701,131 @@ sub dbdelete {
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Delete Dataset');
-
   $form->header();
   print $form->parse_html_template("admin/dbdelete");
+}
+
+sub backup_dataset {
+  $form->{title} =
+      "Lx-Office ERP "
+    . $locale->text('Database Administration') . " / "
+    . $locale->text('Backup Dataset');
+
+  if ("$pg_dump_exe" eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  }
+
+  my @dbsources         = sort User->dbsources($form);
+  $form->{DATABASES}    = [ map { { "dbname" => $_ } } @dbsources ];
+  $form->{NO_DATABASES} = !scalar @dbsources;
+
+  my $username  = getpwuid $UID || "unknown-user";
+  my $hostname  = hostname() || "unknown-host";
+  $form->{from} = "Lx-Office Admin <${username}\@${hostname}>";
+
+  $form->header();
+  print $form->parse_html_template("admin/backup_dataset");
+}
+
+sub backup_dataset_start {
+  $form->{title} =
+      "Lx-Office ERP "
+    . $locale->text('Database Administration') . " / "
+    . $locale->text('Backup Dataset');
+
+  $pg_dump_exe ||= "pg_dump";
+
+  if ("$pg_dump_exe" eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  }
+
+  $form->isblank("dbname", $locale->text('The dataset name is missing.'));
+  $form->isblank("to", $locale->text('The email address is missing.')) if $form->{destination} eq "email";
+
+  my $tmpdir = "/tmp/lx_office_backup_" . Common->unique_id();
+  mkdir $tmpdir, 0700 || $form->error($locale->text('A temporary directory could not be created:') . " $!");
+
+  my $pgpass = IO::File->new("${tmpdir}/.pgpass", O_WRONLY | O_CREAT, 0600);
+
+  if (!$pgpass) {
+    unlink $tmpdir;
+    $form->error($locale->text('A temporary file could not be created:') . " $!");
+  }
+
+  print $pgpass "$form->{dbhost}:$form->{dbport}:$form->{dbname}:$form->{dbuser}:$form->{dbpasswd}\n";
+  $pgpass->close();
+
+  $ENV{HOME} = $tmpdir;
+
+  my @args = ("-c", "-o", "-h", $form->{dbhost}, "-U", $form->{dbuser});
+  push @args, ("-p", $form->{dbport}) if ($form->{dbport});
+  push @args, $form->{dbname};
+
+  my $cmd  = "${pg_dump_exe} " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $name = "dataset_backup_$form->{dbname}_" . strftime("%Y%m%d", localtime()) . ".sql.gz";
+
+  if ($form->{destination} ne "email") {
+    my $in = IO::File->new("$cmd |");
+
+    if (!$in) {
+      unlink "${tmpdir}/.pgpass";
+      rmdir $tmpdir;
+
+      $form->error($locale->text('The pg_dump process could not be started.'));
+    }
+
+    print "content-type: application/octet-stream\n";
+    print "content-disposition: attachment; filename=\"${name}\"\n\n";
+
+    while (my $line = <$in>) {
+      print $line;
+    }
+
+    $in->close();
+
+    unlink "${tmpdir}/.pgpass";
+    rmdir $tmpdir;
+
+  } else {
+    my $tmp = $tmpdir . "/dump_" . Common::unique_id();
+
+    if (system("$cmd > $tmp") != 0) {
+      unlink "${tmpdir}/.pgpass", $tmp;
+      rmdir $tmpdir;
+
+      $form->error($locale->text('The pg_dump process could not be started.'));
+    }
+
+    my $mail = new Mailer;
+
+    map { $mail->{$_} = $form->{$_} } qw(from to cc subject message);
+
+    $mail->{charset}     = $dbcharset ? $dbcharset : Common::DEFAULT_CHARSET;
+    $mail->{attachments} = [ { "filename" => $tmp, "name" => $name } ];
+    $mail->send();
+
+    unlink "${tmpdir}/.pgpass", $tmp;
+    rmdir $tmpdir;
+
+    $form->{title} =
+        "Lx-Office ERP "
+      . $locale->text('Database Administration') . " / "
+      . $locale->text('Backup Dataset');
+
+    $form->header();
+    print $form->parse_html_template("admin/backup_dataset_email_done");
+  }
+}
+
+sub restore_dataset {
+  $form->{title} =
+      "Lx-Office ERP "
+    . $locale->text('Database Administration') . " / "
+    . $locale->text('Restore Dataset');
+
+  if ("$pg_dump_exe" eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  }
 }
 
 sub unlock_system {
