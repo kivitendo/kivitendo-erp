@@ -646,7 +646,7 @@ sub select_item {
 
     my @new_fields =
       qw(bin listprice inventory_accno income_accno expense_accno unit weight
-         assembly taxaccounts partsgroup formel logdescription not_discountable
+         assembly taxaccounts partsgroup formel longdescription not_discountable
          part_payment_id partnotes id);
     push(@new_fields, "lizenzen") if ($lizenzen);
 
