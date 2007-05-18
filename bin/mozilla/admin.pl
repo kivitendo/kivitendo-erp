@@ -48,6 +48,7 @@ use SL::User;
 use SL::Common;
 use SL::Inifile;
 use SL::DBUpgrade2;
+use SL::DBUtils;
 
 require "bin/mozilla/common.pl";
 
@@ -90,7 +91,7 @@ if ($form->{action}) {
 
   # create memberfile
   if (!-f $memberfile) {
-    open(FH, ">$memberfile") or $form->error("$memberfile : $!");
+    open(FH, ">$memberfile") or $form->error("$memberfile : $ERRNO");
     print FH qq|# SQL-Ledger Accounting members
 
 [root login]
@@ -125,7 +126,7 @@ sub list_users {
 
   $form->error($locale->text('File locked!')) if (-f "${memberfile}.LCK");
 
-  open(FH, "$memberfile") or $form->error("$memberfile : $!");
+  open(FH, "$memberfile") or $form->error("$memberfile : $ERRNO");
 
   my %members;
 
@@ -220,7 +221,7 @@ sub edit_user_form {
     $form->error(sprintf($locale->text("The directory %s does not exist."), $templates));
   }
 
-  opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $!");
+  opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $ERRNO");
   my @all     = readdir(TEMPLATEDIR);
   my @alldir  = sort grep { -d "$templates/$_" && !/^\.\.?$/ } @all;
   my @allhtml = sort grep { -f "$templates/$_" && /\.html$/ } @all;
@@ -258,7 +259,7 @@ sub edit_user_form {
   my @acsorder = ();
   my %acs      = ();
   my %excl     = ();
-  open(FH, $menufile) or $form->error("$menufile : $!");
+  open(FH, $menufile) or $form->error("$menufile : $ERRNO");
 
   while ($item = <FH>) {
     next unless $item =~ /\[/;
@@ -393,7 +394,7 @@ sub save {
           }
           close(HTACCESS);
         }
-        open(HTACCESS, "> $file") or die "cannot open $file $!\n";
+        open(HTACCESS, "> $file") or die "cannot open $file $ERRNO\n";
         $newfile .= $myconfig->{login} . ":" . $myconfig->{password} . "\n";
         print(HTACCESS $newfile);
         close(HTACCESS);
@@ -408,7 +409,7 @@ sub save {
           }
           close(HTACCESS);
         }
-        open(HTACCESS, "> $file") or die "cannot open $file $!\n";
+        open(HTACCESS, "> $file") or die "cannot open $file $ERRNO\n";
         print(HTACCESS $newfile);
         close(HTACCESS);
       }
@@ -428,18 +429,18 @@ sub save {
       umask(007);
 
       # copy templates to the directory
-      opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $!");
+      opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $ERRNO");
       @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
       foreach $file (@templates) {
         open(TEMP, "$templates/$file")
-          or $form->error("$templates/$file : $!");
+          or $form->error("$templates/$file : $ERRNO");
 
         $file =~ s/$form->{mastertemplates}-//;
         open(NEW, ">$form->{templates}/$file")
-          or $form->error("$form->{templates}/$file : $!");
+          or $form->error("$form->{templates}/$file : $ERRNO");
 
         while ($line = <TEMP>) {
           print NEW $line;
@@ -448,7 +449,7 @@ sub save {
         close(NEW);
       }
     } else {
-      $form->error("$!: $form->{templates}");
+      $form->error("$ERRNO: $form->{templates}");
     }
   }
 
@@ -458,7 +459,7 @@ sub save {
 
 sub delete {
   $form->error($locale->text('File locked!')) if (-f ${memberfile} . LCK);
-  open(FH, ">${memberfile}.LCK") or $form->error("${memberfile}.LCK : $!");
+  open(FH, ">${memberfile}.LCK") or $form->error("${memberfile}.LCK : $ERRNO");
   close(FH);
 
   my $members = Inifile->new($memberfile);
@@ -632,7 +633,7 @@ sub create_dataset {
 
   $form->{CHARTS} = [];
 
-  opendir SQLDIR, "sql/." or $form - error($!);
+  opendir SQLDIR, "sql/." or $form - error($ERRNO);
   foreach $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
     next if ($item eq 'Default-chart.sql');
     $item =~ s/-chart\.sql//;
@@ -743,13 +744,13 @@ sub backup_dataset_start {
   $form->isblank("to", $locale->text('The email address is missing.')) if $form->{destination} eq "email";
 
   my $tmpdir = "/tmp/lx_office_backup_" . Common->unique_id();
-  mkdir $tmpdir, 0700 || $form->error($locale->text('A temporary directory could not be created:') . " $!");
+  mkdir $tmpdir, 0700 || $form->error($locale->text('A temporary directory could not be created:') . " $ERRNO");
 
   my $pgpass = IO::File->new("${tmpdir}/.pgpass", O_WRONLY | O_CREAT, 0600);
 
   if (!$pgpass) {
     unlink $tmpdir;
-    $form->error($locale->text('A temporary file could not be created:') . " $!");
+    $form->error($locale->text('A temporary file could not be created:') . " $ERRNO");
   }
 
   print $pgpass "$form->{dbhost}:$form->{dbport}:$form->{dbname}:$form->{dbuser}:$form->{dbpasswd}\n";
@@ -823,9 +824,146 @@ sub restore_dataset {
     . $locale->text('Database Administration') . " / "
     . $locale->text('Restore Dataset');
 
-  if ("$pg_dump_exe" eq "DISABLED") {
+  if ("$pg_restore_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
+
+  my $default_charset   = $dbcharset;
+  $default_charset    ||= Common::DEFAULT_CHARSET;
+
+  $form->{DBENCODINGS}  = [];
+
+  foreach my $encoding (@Common::db_encodings) {
+    push @{ $form->{DBENCODINGS} }, { "dbencoding" => $encoding->{dbencoding},
+                                      "label"      => $encoding->{label},
+                                      "selected"   => $encoding->{charset} eq $default_charset };
+  }
+
+  $form->header();
+  print $form->parse_html_template("admin/restore_dataset");
+}
+
+sub restore_dataset_start {
+  $form->{title} =
+      "Lx-Office ERP "
+    . $locale->text('Database Administration') . " / "
+    . $locale->text('Restore Dataset');
+
+  $pg_restore_exe ||= "pg_restore";
+
+  if ("$pg_restore_exe" eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  }
+
+  $form->isblank("new_dbname", $locale->text('The dataset name is missing.'));
+  $form->isblank("content", $locale->text('No backup file has been uploaded.'));
+
+  # Create temporary directories. Write the backup file contents to a temporary
+  # file. Create a .pgpass file with the username and password for the pg_restore
+  # utility.
+
+  my $tmpdir = "/tmp/lx_office_backup_" . Common->unique_id();
+  mkdir $tmpdir, 0700 || $form->error($locale->text('A temporary directory could not be created:') . " $ERRNO");
+
+  my $pgpass = IO::File->new("${tmpdir}/.pgpass", O_WRONLY | O_CREAT, 0600);
+
+  if (!$pgpass) {
+    unlink $tmpdir;
+    $form->error($locale->text('A temporary file could not be created:') . " $ERRNO");
+  }
+
+  print $pgpass "$form->{dbhost}:$form->{dbport}:$form->{new_dbname}:$form->{dbuser}:$form->{dbpasswd}\n";
+  $pgpass->close();
+
+  $ENV{HOME} = $tmpdir;
+
+  my $tmp = $tmpdir . "/dump_" . Common::unique_id();
+  my $tmpfile;
+
+  if (substr($form->{content}, 0, 2) eq "\037\213") {
+    $tmpfile = IO::File->new("| gzip -d > $tmp");
+    $tmpfile->binary();
+
+  } else {
+    $tmpfile = IO::File->new($tmp, O_WRONLY | O_CREAT | O_BINARY, 0600);
+  }
+
+  if (!$tmpfile) {
+    unlink "${tmpdir}/.pgpass";
+    rmdir $tmpdir;
+
+    $form->error($locale->text('A temporary file could not be created:') . " $ERRNO");
+  }
+
+  print $tmpfile $form->{content};
+  $tmpfile->close();
+
+  delete $form->{content};
+
+  # Try to connect to the database. Find out if a database with the same name exists.
+  # If yes, then drop the existing database. Create a new one with the name and encoding
+  # given by the user.
+
+  User::dbconnect_vars($form, "template1");
+
+  my %myconfig = map { $_ => $form->{$_} } grep /^db/, keys %{ $form };
+  my $dbh      = $form->dbconnect(\%myconfig) || $form->dberror();
+
+  my ($query, $sth);
+
+  $form->{new_dbname} =~ s|[^a-zA-Z0-9_\-]||g;
+
+  $query = qq|SELECT COUNT(*) FROM pg_database WHERE datname = ?|;
+  my ($count) = selectrow_query($form, $dbh, $query, $form->{new_dbname});
+  if ($count) {
+    do_query($form, $dbh, qq|DROP DATABASE $form->{new_dbname}|);
+  }
+
+  my $found = 0;
+  foreach my $item (@Common::db_encodings) {
+    if ($item->{dbencoding} eq $form->{dbencoding}) {
+      $found = 1;
+      last;
+    }
+  }
+  $form->{dbencoding} = "LATIN9" unless $form->{dbencoding};
+
+  do_query($form, $dbh, qq|CREATE DATABASE $form->{new_dbname} ENCODING ? TEMPLATE template0|, $form->{dbencoding});
+
+  $dbh->disconnect();
+
+  # Spawn pg_restore on the temporary file.
+
+  my @args = ("-h", $form->{dbhost}, "-U", $form->{dbuser}, "-d", $form->{new_dbname});
+  push @args, ("-p", $form->{dbport}) if ($form->{dbport});
+  push @args, $tmp;
+
+  my $cmd = "${pg_restore_exe} " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+
+  my $in = IO::File->new("$cmd 2>&1 |");
+
+  if (!$in) {
+    unlink "${tmpdir}/.pgpass", $tmp;
+    rmdir $tmpdir;
+
+    $form->error($locale->text('The pg_restore process could not be started.'));
+  }
+
+  $AUTOFLUSH = 1;
+
+  $form->header();
+  print $form->parse_html_template("admin/restore_dataset_start_header");
+
+  while (my $line = <$in>) {
+    print $line;
+  }
+  $in->close();
+
+  $form->{retval} = $CHILD_ERROR >> 8;
+  print $form->parse_html_template("admin/restore_dataset_start_footer");
+
+  unlink "${tmpdir}/.pgpass", $tmp;
+  rmdir $tmpdir;
 }
 
 sub unlock_system {
