@@ -43,6 +43,7 @@ use HTML::Template;
 use SL::Template;
 use CGI::Ajax;
 use SL::DBUtils;
+use SL::Mailer;
 use SL::Menu;
 use SL::User;
 use SL::Common;
@@ -811,8 +812,6 @@ sub parse_template {
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
 
     if ($self->{media} eq 'email') {
-
-      use SL::Mailer;
 
       my $mail = new Mailer;
 
