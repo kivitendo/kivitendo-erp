@@ -70,61 +70,77 @@ sub _request_to_hash {
   $main::lxdebug->enter_sub(2);
 
   my ($input) = @_;
-  my ($i,        $loc,  $key,    $val);
-  my (%ATTACH,   $f,    $header, $header_body, $len, $buf);
-  my ($boundary, @list, $size,   $body, $x, $blah, $name);
 
-  if ($ENV{'CONTENT_TYPE'}
-      && ($ENV{'CONTENT_TYPE'} =~ /multipart\/form-data; boundary=(.+)$/)) {
-    $boundary = quotemeta('--' . $1);
-    @list     = split(/$boundary/, $input);
-
-    # For some reason there are always 2 extra, that are empty
-    $size = @list - 2;
-
-    for ($x = 1; $x <= $size; $x++) {
-      $header_body = $list[$x];
-      $header_body =~ /\r\n\r\n|\n\n/;
-
-      # Here we split the header and body
-      $header = $`;
-      $body   = $';    #'
-      $body =~ s/\r\n$//;
-
-      # Now we try to get the file name
-      $name = $header;
-      $name =~ /name=\"(.+)\"/;
-      ($name, $blah) = split(/\"/, $1);
-
-      # If the form name is not attach, then we need to parse this like
-      # regular form data
-      if ($name ne "attach") {
-        $body =~ s/%([0-9a-fA-Z]{2})/pack("c",hex($1))/eg;
-        $ATTACH{$name} = $body;
-
-        # Otherwise it is an attachment and we need to finish it up
-      } elsif ($name eq "attach") {
-        $header =~ /filename=\"(.+)\"/;
-        $ATTACH{'FILE_NAME'} = $1;
-        $ATTACH{'FILE_NAME'} =~ s/\"//g;
-        $ATTACH{'FILE_NAME'} =~ s/\s//g;
-        $ATTACH{'FILE_CONTENT'} = $body;
-
-        for ($i = $x; $list[$i]; $i++) {
-          $list[$i] =~ s/^.+name=$//;
-          $list[$i] =~ /\"(\w+)\"/;
-          $ATTACH{$1} = $';    #'
-        }
-      }
-    }
-
-    $main::lxdebug->leave_sub(2);
-    return %ATTACH;
-
-      } else {
+  if (!$ENV{'CONTENT_TYPE'}
+      || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
     $main::lxdebug->leave_sub(2);
     return _input_to_hash($input);
   }
+
+  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr);
+  my %params;
+
+  my $boundary = '--' . $1;
+
+  foreach my $line (split m/\n/, $input) {
+    last if (($line eq "${boundary}--") || ($line eq "${boundary}--\r"));
+
+    if (($line eq $boundary) || ($line eq "$boundary\r")) {
+      $params{$name} =~ s|\r?\n$|| if $name;
+
+      undef $name, $filename;
+
+      $headers_done   = 0;
+      $content_type   = "text/plain";
+      $boundary_found = 1;
+      $need_cr        = 0;
+
+      next;
+    }
+
+    next unless $boundary_found;
+
+    if (!$headers_done) {
+      $line =~ s/[\r\n]*$//;
+
+      if (!$line) {
+        $headers_done = 1;
+        next;
+      }
+
+      if ($line =~ m|^content-disposition\s*:.*?form-data\s*;|i) {
+        if ($line =~ m|filename\s*=\s*"(.*?)"|i) {
+          $filename = $1;
+          substr $line, $-[0], $+[0] - $-[0], "";
+        }
+
+        if ($line =~ m|name\s*=\s*"(.*?)"|i) {
+          $name = $1;
+          substr $line, $-[0], $+[0] - $-[0], "";
+        }
+
+        $params{$name}    = "";
+        $params{FILENAME} = $filename if ($filename);
+
+        next;
+      }
+
+      if ($line =~ m|^content-type\s*:\s*(.*?)$|i) {
+        $content_type = $1;
+      }
+
+      next;
+    }
+
+    next unless $name;
+
+    $params{$name} .= "${line}\n";
+  }
+
+  $params{$name} =~ s|\r?\n$|| if $name;
+
+  $main::lxdebug->leave_sub(2);
+  return %params;
 }
 
 sub new {
