@@ -647,11 +647,11 @@ sub select_item {
     my @new_fields =
       qw(bin listprice inventory_accno income_accno expense_accno unit weight
          assembly taxaccounts partsgroup formel logdescription not_discountable
-         part_payment_id partnodes id);
+         part_payment_id partnotes id);
     push(@new_fields, "lizenzen") if ($lizenzen);
 
-    map({ print($cgi->hidden("-name" => "new_${_}_$i",
-                             "-value" => $ref->{$_})); } @new_fields);
+    print join "\n", map { $cgi->hidden("-name" => "new_${_}_$i", "-value" => $ref->{$_}) } @new_fields;
+    print "\n";
   }
 
   print qq|
