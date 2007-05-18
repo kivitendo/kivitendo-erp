@@ -757,12 +757,12 @@ sub backup_dataset_start {
 
   $ENV{HOME} = $tmpdir;
 
-  my @args = ("-c", "-o", "-h", $form->{dbhost}, "-U", $form->{dbuser});
+  my @args = ("-Ft", "-c", "-o", "-h", $form->{dbhost}, "-U", $form->{dbuser});
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $form->{dbname};
 
   my $cmd  = "${pg_dump_exe} " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
-  my $name = "dataset_backup_$form->{dbname}_" . strftime("%Y%m%d", localtime()) . ".sql.gz";
+  my $name = "dataset_backup_$form->{dbname}_" . strftime("%Y%m%d", localtime()) . ".tar";
 
   if ($form->{destination} ne "email") {
     my $in = IO::File->new("$cmd |");
@@ -774,7 +774,7 @@ sub backup_dataset_start {
       $form->error($locale->text('The pg_dump process could not be started.'));
     }
 
-    print "content-type: application/octet-stream\n";
+    print "content-type: application/x-tar\n";
     print "content-disposition: attachment; filename=\"${name}\"\n\n";
 
     while (my $line = <$in>) {
