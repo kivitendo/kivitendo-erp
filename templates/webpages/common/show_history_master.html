@@ -20,7 +20,7 @@
     }
   }
 </script>
-<table>
+<table style="table-layout: fixed;">
 	<tr>
 		<th class="listtop">
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
@@ -141,8 +141,9 @@
       </table>
     </th>
 	</tr>
+  <tbody height="400" style="overflow: auto;">
 <TMPL_LOOP NAME=DATEN>
-	<tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+  <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
 		<td nowrap>
 			&nbsp;<TMPL_VAR NAME=itime ESCAPE=HTML>&nbsp;
 		</td>
@@ -163,6 +164,7 @@
     </td>
 	</tr>	
 </TMPL_LOOP>
+</tbody>
 </table>
 <TMPL_ELSE>
 <b><translate>Keine Suchergebnisse gefunden!</translate></b><br>
