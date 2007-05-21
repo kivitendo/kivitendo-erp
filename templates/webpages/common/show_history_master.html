@@ -4,47 +4,141 @@
 </form> 
 <TMPL_IF NAME=SUCCESS>
 <script type="text/javascript">
-  function orderBy(order) {
-    var desc = 0;
+  function orderBy(order,desc) {
     var reg = /\&order\=(.+)\-\-(\d)$/;
     reg.exec(document.location.href);
     if(RegExp.$1 == order) {
-      if(RegExp.$2 == 0) {
-        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--1";
-      }
-      else{  
-        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--0";
-      }
+      document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--" + desc;
     }
     else {
       if(reg.test(document.location.href)) {
-        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--0";
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--" + desc;
       }
       else {
-        document.location.href = document.location.href + "&order=" + order + "--1";
+        document.location.href = document.location.href + "&order=" + order + "--" + desc;
       }
     }
   }
 </script>
 <table>
 	<tr>
-		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('h.itime');"><translate>Zeitpunkt</translate></a>&nbsp;<TMPL_IF NAME=ITIME><a title="<translate>order</translate>"><TMPL_IF NAME=ITIMEBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
+		<th class="listtop">
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+			     &nbsp;<translate>Zeitpunkt</translate>&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+              <TMPL_IF NAME=ITIME>
+                <TMPL_IF NAME=ITIMEBY>
+                  <tr><td><a href="javascript:orderBy('h.itime',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('h.itime',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('h.itime',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('h.itime',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
 		</th>
 		<th class=listtop>
-			&nbsp;<a href="javascript:orderBy('emp.name');"><translate>Mitarbeiter</translate></a>&nbsp;<TMPL_IF NAME=NAME><a title="<translate>order</translate>"><TMPL_IF NAME=NAMEBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+            &nbsp;<translate>Mitarbeiter</translate>&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+              <TMPL_IF NAME=NAME>
+                <TMPL_IF NAME=NAMEBY>
+                  <tr><td height="0" width="0"><a href="javascript:orderBy('emp.name',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td height="0" width="0"><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('emp.name',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('emp.name',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('emp.name',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
 		</th>
 		<th class=listtop>
-			&nbsp;<a href=""><translate>Aktion</translate></a>&nbsp;
+      <table>
+        <tr>
+          <td>
+			      &nbsp;<translate>Aktion</translate>&nbsp;
+          </td>
+        </tr>
+      </table>
 		</th>
 		<th class=listtop>
-      &nbsp;<a href=""><translate>Zusatz</translate></a>&nbsp;
+      <table>
+        <tr>
+          <td>
+            &nbsp;<translate>Zusatz</translate>&nbsp;
+          </td>
+        </tr>
+      </table>
     </th>
     <th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.trans_id');"><translate>ID-Nummer</translate></a>&nbsp;<TMPL_IF NAME=TRANS_ID><a title="<translate>order</translate>"><TMPL_IF NAME=TRANS_IDBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;<translate>ID-Nummer</translate>&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+              <TMPL_IF NAME=TRANS_ID>
+                <TMPL_IF NAME=TRANS_IDBY>
+                  <tr><td height="0" width="0"><a href="javascript:orderBy('h.trans_id',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td height="0" width="0"><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('h.trans_id',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('h.trans_id',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('h.trans_id',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
     </th>
     <th class=listtop>
-      &nbsp;<a href="javascript:orderBy('h.snumbers');"><translate>Belegnummer</translate></a>&nbsp;<TMPL_IF NAME=SNUMBERS><a title="<translate>order</translate>"><TMPL_IF NAME=SNUMBERSBY>&or;<TMPL_ELSE>&and;</TMPL_IF></a></TMPL_IF>&nbsp;
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;<translate>Belegnummer</translate>&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0" >
+              <TMPL_IF NAME=SNUMBERS>
+                <TMPL_IF NAME=SNUMBERSBY>
+                  <tr><td height="0" width="0"><a href="javascript:orderBy('h.snumbers',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td height="0" width="0"><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('h.snumbers',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('h.snumbers',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('h.snumbers',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
     </th>
 	</tr>
 <TMPL_LOOP NAME=DATEN>
