@@ -5,6 +5,7 @@
  <p>Die Datenbanksicherung wurde an <TMPL_VAR to ESCAPE=HTML> per Email verschickt.</p>
 
  <form method="post" action="admin.pl">
+  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
   <input type="hidden" name="nextsub" value="list_users">
   <input type="submit" name="action" value="Weiter">
  </form>

@@ -5,6 +5,7 @@
  <p><translate>The dataset backup has been sent via email to <TMPL_VAR to ESCAPE=HTML>.</translate></p>
 
  <form method="post" action="admin.pl">
+  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
   <input type="hidden" name="nextsub" value="list_users">
   <input type="submit" name="action" value="<translate>Continue</translate>">
  </form>
