@@ -44,4 +44,27 @@ sub STORE {
   $this->{$key} = $value;
 }
 
+sub DELETE {
+  my ($this, $key) = @_;
+
+  if ($watched_variables{$key} && ($this->{$key} ne "")) {
+    my $subroutine = (caller 1)[3];
+    my ($self_filename, $self_line) = (caller)[1, 2];
+    $main::lxdebug->_write("WATCH",
+                           "Value of '$key' changed from '$this->{$key}' to '' "
+                             . "in ${subroutine} at ${self_filename}:${self_line}");
+    if ($watched_variables{$key} > 1) {
+      my $level = 1;
+      my ($dummy, $filename, $line);
+
+      while (($dummy, $filename, $line, $subroutine) = caller $level) {
+        $main::lxdebug->_write("WATCH", "  ${subroutine} from ${filename}:${line}");
+        $level++;
+      }
+    }
+  }
+
+  delete $this->{$key};
+}
+
 1;
