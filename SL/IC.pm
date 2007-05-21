@@ -861,10 +861,15 @@ sub all_parts {
     $where .= qq| AND (p.onhand < p.rop)|;
   }
 
+  my @subcolumns;
   foreach my $column (qw(make model)) {
-    next unless ($form->{$column});
-    $where .= qq| AND p.id IN (SELECT DISTINCT m.parts_id FROM makemodel WHERE $column ILIKE ?)|;
-    push(@values, '%' . $form->{$column} . '%');
+    push @subcolumns, $column if $form->{$column};
+  }
+  if (@subcolumns) {
+    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE |;
+    $where .= join " AND ", map { "($_ ILIKE ?)"; } @subcolumns;
+    $where .= qq|)|;
+    push @values, map { '%' . $form->{$_} . '%' } @subcolumns;
   }
 
   if ($form->{l_soldtotal}) {
