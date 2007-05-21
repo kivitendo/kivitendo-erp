@@ -2496,8 +2496,60 @@ sub save_as_new {
   $lxdebug->leave_sub();
 }
 
+sub check_for_direct_delivery_yes {
+  $lxdebug->enter_sub();
+
+  $form->{direct_delivery_checked} = 1;
+  delete @{$form}{grep /^shipto/, keys %{ $form }};
+  map { s/^CFDD_//; $form->{$_} = $form->{"CFDD_${_}"} } grep /^CFDD_/, keys %{ $form };
+  $form->{shipto} = 1;
+  purchase_order();
+  $lxdebug->leave_sub();
+}
+
+sub check_for_direct_delivery_no {
+  $lxdebug->enter_sub();
+
+  $form->{direct_delivery_checked} = 1;
+  delete @{$form}{grep /^shipto/, keys %{ $form }};
+  purchase_order();
+
+  $lxdebug->leave_sub();
+}
+
+sub check_for_direct_delivery {
+  $lxdebug->enter_sub();
+
+  if ($form->{direct_delivery_checked}
+      || (!$form->{shiptoname} && !$form->{shiptostreet} && !$form->{shipto_id})) {
+    $lxdebug->leave_sub();
+    return;
+  }
+
+  if ($form->{shipto_id}) {
+    Common->get_shipto_by_id(\%myconfig, $form, $form->{shipto_id}, "CFDD_");
+
+  } else {
+    map { $form->{"CFDD_${_}"} = $form->{$_ } } grep /^shipto/, keys %{ $form };
+  }
+
+  delete $form->{action};
+  $form->{VARIABLES} = [ map { { "key" => $_, "value" => $form->{$_} } } grep { ref $_ eq "" } keys %{ $form } ];
+
+  $form->header();
+  print $form->parse_html_template("oe/check_for_direct_delivery");
+
+  $lxdebug->leave_sub();
+
+  exit 0;
+}
+
 sub purchase_order {
   $lxdebug->enter_sub();
+
+  if ($form->{type} eq 'sales_order') {
+    check_for_direct_delivery();
+  }
 
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
@@ -2602,3 +2654,10 @@ sub e_mail {
   $lxdebug->leave_sub();
 }
 
+sub yes {
+  call_sub($form->{yes_nextsub});
+}
+
+sub no {
+  call_sub($form->{no_nextsub});
+}

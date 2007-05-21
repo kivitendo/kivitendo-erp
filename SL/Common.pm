@@ -348,4 +348,23 @@ sub get_vc_details {
   return 1;
 }
 
+sub get_shipto_by_id {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $shipto_id, $prefix) = @_;
+
+  $prefix ||= "";
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
+  my $ref   = selectfirst_hashref_query($form, $dbh, $query, $shipto_id);
+
+  map { $form->{"${prefix}${_}"} = $ref->{$_} } keys %{ $ref } if $ref;
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

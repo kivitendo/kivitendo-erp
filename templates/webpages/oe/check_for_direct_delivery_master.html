@@ -1,0 +1,85 @@
+<body>
+
+ <div class="listtop" width="100%"><translate>Carry over shipping address</translate></div>
+
+ <p><translate>You have entered or selected the following shipping address for this customer:</translate></p>
+
+ <p>
+  <table>
+   <tr>
+    <th align="right" valign="top"><translate>Name</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptoname ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Department</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptodepartment_1 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">&nbsp;</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptodepartment_2 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Street</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptostreet ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Zipcode</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptozipcode ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>City</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptocity ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Country</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptocountry ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Contact</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptocontact ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Phone</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptophone ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>Fax</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptofax ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top"><translate>E-mail</translate>:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptoemail ESCAPE=HTML></td>
+   </tr>
+  </table>
+ </p>
+
+  <translate>Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?</translate>
+ </p>
+
+ <form method="post" action="oe.pl">
+
+  <p>
+   <input type="submit" name="action" value="<translate>Yes</translate>">&nbsp;
+   <input type="submit" name="action" value="<translate>No</translate>">
+  </p>
+
+  <input type="hidden" name="yes_nextsub" value="check_for_direct_delivery_yes">
+  <input type="hidden" name="no_nextsub" value="check_for_direct_delivery_no">
+
+  <TMPL_LOOP VARIABLES>
+   <input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>"></TMPL_LOOP>
+
+ </form>
+
+</body>
+</html>
