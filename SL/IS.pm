@@ -421,7 +421,7 @@ sub customer_details {
   # get contact id, set it if nessessary
   $form->{cp_id} *= 1;
 
-  my @values;
+  my @values =  (conv_i($form->{customer_id}));
 
   my $where = "";
   if ($form->{cp_id}) {
@@ -438,7 +438,6 @@ sub customer_details {
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id
        LIMIT 1|;
-  push(@values, conv_i($form->{customer_id}));
   my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
 
   # remove id and taxincluded before copy back
