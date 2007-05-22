@@ -211,10 +211,9 @@ sub save_dunning {
     qq|SELECT
          cfg.interest_rate, cfg.template AS formname,
          cfg.email_subject, cfg.email_body, cfg.email_attachment,
-         (SELECT fee
+         (SELECT SUM(fee)
           FROM dunning
-          WHERE dunning_id = ?
-          LIMIT 1)
+          WHERE dunning_id = ?)
          AS fee,
          (SELECT SUM(interest)
           FROM dunning
@@ -640,7 +639,11 @@ sub print_dunning {
     qq|SELECT
          cfg.interest_rate, cfg.template AS formname,
          cfg.email_subject, cfg.email_body, cfg.email_attachment,
-         d.fee, d.transdate AS dunning_date,
+         d.transdate AS dunning_date,
+         (SELECT SUM(fee)
+          FROM dunning
+          WHERE dunning_id = ?)
+         AS fee,
          (SELECT SUM(interest)
           FROM dunning
           WHERE dunning_id = ?)
@@ -656,7 +659,7 @@ sub print_dunning {
        LEFT JOIN dunning_config cfg ON (d.dunning_config_id = cfg.id)
        WHERE d.dunning_id = ?
        LIMIT 1|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id, $dunning_id, $dunning_id);
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id, $dunning_id, $dunning_id, $dunning_id);
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
   $form->{interest_rate}     = $form->format_amount($myconfig, $ref->{interest_rate} * 100);
