@@ -48,12 +48,12 @@
 
      <td><input type="checkbox" name="active_<TMPL_VAR __counter__>" value="1" <TMPL_IF active>checked</TMPL_IF>></td>
      <td><input type="checkbox" name="email_<TMPL_VAR __counter__>" value="1" <TMPL_IF email>checked</TMPL_IF>></td>
-     <td><TMPL_VAR next_duedate ESCAPE=HTML></td>
-     <td><input type="hidden" name="inv_duedate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR duedate ESCAPE=HTML>"><TMPL_VAR duedate ESCAPE=HTML></td>
-     <td><input type="hidden" name="invdate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR transdate ESCAPE=HTML>"><TMPL_VAR transdate ESCAPE=HTML></td>
-     <td><input type="hidden" name="invnumber_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR invnumber ESCAPE=HTML>"><TMPL_VAR invnumber ESCAPE=HTML></td>
      <td><input type="hidden" name="customername_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR customername ESCAPE=HTML>"><TMPL_VAR customername ESCAPE=HTML></td>
+     <td><input type="hidden" name="invnumber_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR invnumber ESCAPE=HTML>"><TMPL_VAR invnumber ESCAPE=HTML></td>
+     <td><input type="hidden" name="invdate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR transdate ESCAPE=HTML>"><TMPL_VAR transdate ESCAPE=HTML></td>
+     <td><input type="hidden" name="inv_duedate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR duedate ESCAPE=HTML>"><TMPL_VAR duedate ESCAPE=HTML></td>
      <td align="right"><input type="hidden" name="amount_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR amount ESCAPE=HTML>"><TMPL_VAR amount ESCAPE=HTML></td>
+     <td><TMPL_VAR next_duedate ESCAPE=HTML></td>
      <td align="right"><input type="hidden" name="fee_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR fee ESCAPE=HTML>"><TMPL_VAR fee ESCAPE=HTML></td>
      <td align="right"><input type="hidden" name="interest_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR interest ESCAPE=HTML>"><TMPL_VAR interest ESCAPE=HTML></td>
     </tr>
