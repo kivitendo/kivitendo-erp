@@ -1567,7 +1567,7 @@ sub _get_charts {
   my $transdate = quote_db_date($params->{transdate});
 
   my $query =
-    qq|SELECT c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id | .
+    qq|SELECT c.id, c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id | .
     qq|FROM chart c | .
     qq|LEFT JOIN taxkeys tk ON | .
     qq|(tk.id = (SELECT id FROM taxkeys | .
