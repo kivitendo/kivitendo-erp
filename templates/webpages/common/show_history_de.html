@@ -20,7 +20,8 @@
     }
   }
 </script>
-<table style="table-layout: fixed;">
+<div style="position: absolute; top:10px; left:10px; clip:rect(0px, 700px, 407px, 0px);">
+<table style="width: 700px; height: 360px;">
 	<tr>
 		<th class="listtop">
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
@@ -141,7 +142,7 @@
       </table>
     </th>
 	</tr>
-  <tbody height="400" style="overflow: auto;">
+  <tbody height="380px" width="580px" style="overflow:auto;">
 <TMPL_LOOP NAME=DATEN>
   <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
 		<td nowrap>
@@ -166,6 +167,8 @@
 </TMPL_LOOP>
 </tbody>
 </table>
+</div>
+<div style="position:absolute; bottom:10px; left:10px;">
 <TMPL_ELSE>
 <b>Keine Suchergebnisse gefunden!</b><br>
 </TMPL_IF>
@@ -176,3 +179,4 @@
 <input type="button" onclick="javascript:window.close();" value="schließen">
 </TMPL_IF>
 </p>
+</div>
