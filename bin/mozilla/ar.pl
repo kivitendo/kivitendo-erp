@@ -869,35 +869,28 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  print qq|<input class="submit" type="submit" name="action" id="update_button" value="|
-    . $locale->text('Update') . qq|">
-|;
+  # ToDO: insert a global check for stornos, so that a storno is only possible a limited time after saving it
+  print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|;
+    if $form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar');
+
+  print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">\n|;
   if ($form->{id}) {
     if ($form->{radier}) {
       print qq|
-          <input class=submit type=submit name=action value="|
-            . $locale->text('Post') . qq|">
-          <input class=submit type=submit name=action value="|
-            . $locale->text('Delete') . qq|">
-  |;
+        <input class=submit type=submit name=action value="| . $locale->text('Post') .            qq|">
+        <input class=submit type=submit name=action value="| . $locale->text('Delete') .          qq|"> |;
     }
     if ($transdate > $closedto) {
       print qq|
-  <input class=submit type=submit name=action value="|
-          . $locale->text('Use As Template') . qq|">
-  |;
+        <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|"> |;
     }
     print qq|
-  <input class=submit type=submit name=action value="|
-    . $locale->text('Post Payment') . qq|">
-  |;
+        <input class=submit type=submit name=action value="| . $locale->text('Post Payment') .    qq|"> |;
 
   } else {
     if ($transdate > $closedto) {
-      print qq|<input class=submit type=submit name=action value="|
-        . $locale->text('Post') . qq|"> | .
-        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
-                         '-class' => 'submit'));
+      print qq|<input class=submit type=submit name=action value="| . $locale->text('Post') .     qq|"> | .
+        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'));
     }
   }
 
@@ -907,12 +900,7 @@ sub form_footer {
   }
   # button for saving history
   if($form->{id} ne "") {
-    print qq|
-  	  <input type=button class=submit onclick=set_history_window(|
-  	  . $form->{id} 
-  	  . qq|); name=history id=history value=|
-  	  . $locale->text('history') 
-  	  . qq|>|;
+    print qq|<input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|>|;
   }
   # /button for saving history
   print "
@@ -1058,15 +1046,8 @@ sub post {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($transdate <= $closedto);
 
-  my $zero_amount_posting = 1;
-  for $i (1 .. $form->{rowcount}) {
-    if ($form->parse_amount(\%myconfig, $form->{"amount_$i"})) {
-      $zero_amount_posting = 0;
-      last;
-    }
-  }
-
-  $form->error($locale->text('Zero amount posting!')) if $zero_amount_posting;
+  $form->error($locale->text('Zero amount posting!')) 
+    unless grep $_*1, map $form->parse_amount(\%myconfig, $form->{"amount_$_"}), 1..$form->{rowcount};
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
@@ -1083,10 +1064,8 @@ sub post {
         if ($datepaid <= $closedto);
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
-        $form->{"exchangerate_$i"} = $form->{exchangerate}
-          if ($transdate == $datepaid);
-        $form->isblank("exchangerate_$i",
-                       $locale->text('Exchangerate for payment missing!'));
+        $form->{"exchangerate_$i"} = $form->{exchangerate} if ($transdate == $datepaid);
+        $form->isblank("exchangerate_$i", $locale->text('Exchangerate for payment missing!'));
       }
     }
   }
@@ -1104,9 +1083,9 @@ sub post {
   if (AR->post_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	  $form->{addition} = "POSTED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{snumbers} = "invnumber_$form->{invnumber}";
+      $form->{addition} = "POSTED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history 
     remove_draft() if $form->{remove_draft};
@@ -1671,7 +1650,7 @@ sub ar_transactions {
     $column_data{invnumber} =
       "<td><a href=$module?action=edit&id=$ar->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
 
-    my $is_storno  = $ar->{storno} && ($ar->{invnumber} =~ /^Storno zu/);
+    my $is_storno  = $ar->{storno} && IS->is_storno(\%myconfig, $form, 'ar'); #($ar->{invnumber} =~ /^Storno zu/); # ToDO: fix this
     my $has_storno = $ar->{storno} && !$is_storno;
 
     $column_data{type} = "<td>" .
@@ -1804,4 +1783,56 @@ sub ar_subtotal {
 ";
 
   $lxdebug->leave_sub();
+}
+
+
+sub storno {
+  $lxdebug->enter_sub();
+
+  if (IS->has_storno(\%myconfig, $form, 'ar')) {
+    $form->{title} = $locale->text("Cancel Accounts Receivables Transaction");
+    $form->error($locale->text("Transaction has already been cancelled!"));
+  }
+
+  # ToDO: 
+  #       - nicht anzeigen wenn neue rechnung
+  #       - nicht anzeigen wenn schons toniert
+  #       - nicht anziegen wenn zahlungen da
+
+
+#  my %keep_keys = map { $_, 1 } qw(login password id stylesheet);
+#  map { delete $form->{$_} unless $keep_keys{$_} } keys %{ $form };
+#  prepare_transaction();
+
+  # negate amount/taxes
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"amount_$i"} *= -1;
+    $form->{"tax_$i"}    *= -1; 
+  }
+
+  # format things
+  for my $i (1 .. $form->{rowcount}) {
+    for (qw(amount tax)) {
+      $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) if $form->{"${_}_$i"};
+    }
+  }
+
+  $form->{storno}      = 1;
+  $form->{storno_id}   = $form->{id};
+  $form->{id}          = 0;
+
+  $form->{invnumber}   = "Storno-" . $form->{invnumber};
+
+  post();
+
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumbers} = "ordnumber_$form->{ordnumber}";
+    $form->{addition} = "STORNO";
+    $form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
+
+  $lxdebug->leave_sub();
+
 }
