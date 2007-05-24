@@ -10,37 +10,8 @@
 ######################################################################
 
 use SL::Form;
-use YAML;
-
 use SL::Common;
-
-sub save_form {
-  $lxdebug->enter_sub();
-
-  my $old_form = YAML::Dump($form);
-  $old_form =~ s|!|!!|g;
-  $old_form =~ s|\n|!n|g;
-  $old_form =~ s|\r|!r|g;
-
-  $lxdebug->leave_sub();
-
-  return $old_form;
-}
-
-sub restore_form {
-  $lxdebug->enter_sub();
-
-  my ($old_form, $no_delete) = @_;
-
-  map({ delete($form->{$_}); } keys(%{$form})) unless ($no_delete);
-  $old_form =~ s|!r|\r|g;
-  $old_form =~ s|!n|\n|g;
-  $old_form =~ s|!!|!|g;
-  my $new_form = YAML::Load($old_form);
-  map({ $form->{$_} = $new_form->{$_}; } keys(%{$new_form}));
-
-  $lxdebug->leave_sub();
-}
+use SL::MoreCommon;
 
 sub build_std_url {
   $lxdebug->enter_sub();
