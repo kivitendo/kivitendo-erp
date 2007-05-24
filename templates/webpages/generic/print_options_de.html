@@ -12,8 +12,10 @@
     <TMPL_IF display_copies>
       <td>Kopien <input name=copies size=2 value=<TMPL_VAR copies>></td>
     </TMPL_IF>
+    <TMPL_IF display_groupitems>
       <td>Waren gruppieren</td>
       <td><input name=groupitems type=checkbox class=checkbox <TMPL_VAR groupitems_checked>></td>
+    </TMPL_IF>
     <TMPL_IF display_remove_draft>
       <td>Entwurf l&ouml;schen</td>
       <td><input name=remove_draft type=checkbox class=checkbox <TMPL_VAR remove_draft_checked>></td>

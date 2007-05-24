@@ -1283,7 +1283,7 @@ sub edit_e_mail {
   print $form->parse_html_template('generic/edit_email', 
                                   { title           => $title,
                                     a_filename      => $attachment_filename,
-                                    _print_options_ => print_options('inline'),
+                                    _print_options_ => print_options({ 'inline' => 1 }),
                                     HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
                                     SHOW_BCC        => $myconfig{role} eq 'admin' });
 
@@ -1315,7 +1315,11 @@ sub send_email {
 #
 # the inline options is untested, but intended to be used later in metatemplating
 sub print_options {
-  $lxdebug->enter_sub() and my ($inline) = @_;
+  $lxdebug->enter_sub();
+
+  my ($options) = @_;
+
+  $options ||= { };
 
   # names 3 parameters and returns a hashref, for use in templates
   sub opthash { +{ value => shift, selected => shift, oname => shift } }
@@ -1370,7 +1374,7 @@ sub print_options {
       opthash("screen", $form->{OP}{screen}, $locale->text('Screen')),
     (scalar @{ $form->{printers} } && $latex_templates) ?
       opthash("printer", $form->{OP}{printer}, $locale->text('Printer')) : undef,
-    ($latex_templates) ? 
+    ($latex_templates && !$options{no_queue}) ?
       opthash("queue", $form->{OP}{queue}, $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
@@ -1395,16 +1399,21 @@ sub print_options {
 
   @SELECTS = map { sname => lc $_, DATA => \@$_, show => scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
 
+  my %dont_display_groupitems = (
+    'dunning' => 1,
+    );
+
   %template_vars = (
     display_copies       => scalar @{ $form->{printers} } && $latex_templates && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
+    display_groupitems   => !$dont_display_groupitems{$form->{type}},
     groupitems_checked   => $form->{groupitems} ? "checked" : '',
     remove_draft_checked => $form->{remove_draft} ? "checked" : ''
   );
 
   my $print_options = $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
 
-  if ($inline) {
+  if ($options{inline}) {
     $lxdebug->leave_sub() and return $print_options;
   } else {
     print $print_options; $lxdebug->leave_sub();
