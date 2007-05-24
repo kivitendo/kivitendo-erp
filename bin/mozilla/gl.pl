@@ -1491,8 +1491,7 @@ sub form_footer {
   $radieren = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   map {
-    $form->{$_} =
-      $form->format_amount(\%myconfig, $form->{$_}, 2, "&nbsp;")
+    $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, 2, "&nbsp;")
   } qw(totaldebit totalcredit);
 
   print qq|
@@ -1521,30 +1520,21 @@ sub form_footer {
   if ($form->{id}) {
 
     if (!$form->{storno}) {
-      print qq|<input class=submit type=submit name=action value="|
-        . $locale->text('Storno') . qq|">|;
+      print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|;
     }
 
     # Löschen und Ändern von Buchungen nicht mehr möglich (GoB) nur am selben Tag möglich
-
     if (!$form->{locked} && $radieren) {
       print qq|
-		<input class=submit type=submit name=action value="|
-        . $locale->text('Post') . qq|" accesskey="b">
-		<input class=submit type=submit name=action value="|
-        . $locale->text('Delete') . qq|">|;
+        <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|" accesskey="b">
+        <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">|;
     }
 
-    # 	if ($transdate > $closedto) {
-    # 		print qq|
-    # 		<input class=submit type=submit name=action value="|.$locale->text('Post as new').qq|">|;
-    # 	}
   } else {
     if ($transdate > $closedto) {
-      print qq|<input class=submit type=submit name=action id=update_button value="|
-        . $locale->text('Update') . qq|">
-     		 <input class=submit type=submit name=action value="|
-        . $locale->text('Post') . qq|">|;
+      print qq|
+        <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
+        <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">|;
     }
   }
 
