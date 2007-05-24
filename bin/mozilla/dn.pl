@@ -95,11 +95,12 @@ sub show_invoices {
     map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount fee interest);
   }
 
+  $form->{type}           = 'dunning';
   $form->{rowcount}       = scalar @{ $form->{DUNNINGS} };
   $form->{jsscript}       = 1;
   $form->{callback}     ||= build_std_url("action=show_invoices", qw(login password customer invnumber ordnumber groupinvoices minamount dunning_level notes));
 
-  $form->{PRINT_OPTIONS}  = print_options(1);
+  $form->{PRINT_OPTIONS}  = print_options({ 'inline' => 1 });
 
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
