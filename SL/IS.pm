@@ -2131,6 +2131,29 @@ sub has_storno {
 
   my $dbh = $form->dbconnect($myconfig);
 
+  my $query = qq|SELECT storno FROM $table WHERE storno_id = ?|;
+  my ($result) = selectrow_query($form, $dbh, $query, $form->{id});
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return $result;
+}
+
+sub is_storno {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $table) = @_;
+
+  $main::lxdebug->leave_sub() and return 0 unless ($form->{id});
+
+  # make sure there's no funny stuff in $table
+  # ToDO: die when this happens and throw an error
+  $main::lxdebug->leave_sub() and return 0 if ($table =~ /\W/);
+
+  my $dbh = $form->dbconnect($myconfig);
+
   my $query = qq|SELECT storno FROM $table WHERE id = ?|;
   my ($result) = selectrow_query($form, $dbh, $query, $form->{id});
 
