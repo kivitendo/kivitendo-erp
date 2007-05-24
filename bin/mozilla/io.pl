@@ -1374,7 +1374,7 @@ sub print_options {
       opthash("screen", $form->{OP}{screen}, $locale->text('Screen')),
     (scalar @{ $form->{printers} } && $latex_templates) ?
       opthash("printer", $form->{OP}{printer}, $locale->text('Printer')) : undef,
-    ($latex_templates && !$options{no_queue}) ?
+    ($latex_templates && !$options->{no_queue}) ?
       opthash("queue", $form->{OP}{queue}, $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
@@ -1413,7 +1413,7 @@ sub print_options {
 
   my $print_options = $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
 
-  if ($options{inline}) {
+  if ($options->{inline}) {
     $lxdebug->leave_sub() and return $print_options;
   } else {
     print $print_options; $lxdebug->leave_sub();
