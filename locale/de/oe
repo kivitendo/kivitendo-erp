@@ -294,6 +294,7 @@ $self->{subs} = {
   'create_backorder'            => 'create_backorder',
   'customer_details'            => 'customer_details',
   'delete'                      => 'delete',
+  'delete_order_quotation'      => 'delete_order_quotation',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'display_form'                => 'display_form',
   'display_row'                 => 'display_row',

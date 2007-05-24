@@ -2122,8 +2122,11 @@ sub delete {
 
 <h4>$msg $form->{$ordnumber}</h4>
 <p>
+<input type="hidden" name="yes_nextsub" value="delete_order_quotation">
 <input name=action class=submit type=submit value="|
     . $locale->text('Yes') . qq|">
+<input name=action class=submit type=submit onclick="history.back()" value="|
+    . $locale->text('No') . qq|">
 </form>
 
 </body>
@@ -2133,7 +2136,7 @@ sub delete {
   $lxdebug->leave_sub();
 }
 
-sub yes {
+sub delete_order_quotation {
   $lxdebug->enter_sub();
 
   if ($form->{type} =~ /_order$/) {
@@ -2144,7 +2147,6 @@ sub yes {
     $err = $locale->text('Cannot delete quotation!');
   }
   if (OE->delete(\%myconfig, \%$form, $spool)){
-    $form->redirect($msg);
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
@@ -2152,6 +2154,8 @@ sub yes {
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history 
+    $form->info($msg);
+    exit();
   }
   $form->error($err);
 
