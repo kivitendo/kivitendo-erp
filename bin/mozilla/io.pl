@@ -1380,7 +1380,7 @@ sub print_options {
 
   push @FORMAT, grep $_,
     ($opendocument_templates && $openofficeorg_writer_bin && $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)
-     && !$options->{no_opendocument}) ?
+     && !$options->{no_opendocument_pdf}) ?
       opthash("opendocument_pdf", $form->{DF}{"opendocument_pdf"}, $locale->text("PDF (OpenDocument/OASIS)")) : undef,
     ($latex_templates) ?
       opthash("pdf", $form->{DF}{pdf}, $locale->text('PDF')) : undef,
