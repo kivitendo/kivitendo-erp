@@ -1409,8 +1409,8 @@ sub get_employee {
   my ($self, $dbh) = @_;
 
   my $query = qq|SELECT id, name FROM employee WHERE login = ?|;
-  ($self->{employee_id}, $self->{employee}) = selectrow_query($self, $dbh, $query, $self->{login});
-  $self->{employee_id} *= 1;
+  ($self->{"employee_id"}, $self->{"employee"}) = selectrow_query($self, $dbh, $query, $self->{login});
+  $self->{"employee_id"} *= 1;
 
   $main::lxdebug->leave_sub();
 }
@@ -1620,6 +1620,18 @@ sub _get_employees {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_salesmen {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_salesmen" unless ($key);
+  $self->{$key} =
+    selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee|);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub _get_business_types {
   $main::lxdebug->enter_sub();
 
@@ -1778,6 +1790,10 @@ sub get_lists {
 
   if ($params{"employees"}) {
     $self->_get_employees($dbh, $params{"employees"});
+  }
+  
+  if ($params{"salesmen"}) {
+    $self->_get_salesmen($dbh, $params{"salesmen"});
   }
 
   if ($params{"business_types"}) {

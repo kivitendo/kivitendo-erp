@@ -374,7 +374,7 @@ sub form_header {
   }
 
   # set option selected
-  foreach $item ($form->{vc}, currency, department, employee, ($form->{vc} eq "customer" ? customer : vendor)) {
+  foreach $item ($form->{vc}, currency, department, ($form->{vc} eq "customer" ? customer : vendor)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -396,7 +396,8 @@ sub form_header {
                    "projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 0,
                                    "old_id" => \@old_project_ids },
-                   "employees" => "ALL_SALESMEN",
+                   "employees" => "ALL_EMPLOYEES",
+                   "salesmen" => "ALL_SALESMEN",
                    "taxzones" => "ALL_TAXZONES",
                    "payments" => "ALL_PAYMENTS",
                    "currencies" => "ALL_CURRENCIES",
@@ -487,21 +488,20 @@ sub form_header {
     NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
                          '-labels' => \%labels,
                          '-default' => $form->{"globalproject_id"}));
-
-  $salesman = "";
+  
+  my $salesmen = "";
+  %labels = ();
+  @values = ();
   if ($form->{type} =~ /^sales_/) {
-    %labels = ();
-    @values = ("");
-    foreach my $item (@{ $form->{ALL_SALESMEN} }) {
-      push(@values, $item->{id});
-      $labels{$item->{id}} = $item->{name} ne "" ? $item->{name} : $item->{login};
+    foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
+      push(@values, $item->{"id"});
+      $labels{$item->{"id"}} = ($item->{"name"} ne "" ? $item->{"name"} : $item->{"login"});
     }
-
-    $salesman =
+    $salesmen =
       qq|<tr>
           <th align="right">| . $locale->text('Salesman') . qq|</th>
           <td>| .
-      NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id},
+      NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{"salesman_id"} ? $form->{"salesman_id"} : $form->{"employee_id"},
                            '-values' => \@values, '-labels' => \%labels))
       . qq|</td>
          </tr>|;
@@ -509,16 +509,16 @@ sub form_header {
 
   %labels = ();
   @values = ();
-  foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
+  foreach my $item (@{ $form->{"ALL_EMPLOYEES"} }) {
     push(@values, $item->{"id"});
-    $labels{$item->{"id"}} = $item->{"name"};
+    $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
   }
 
-  my $employees = qq|
+  my $employee = qq|
     <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
       <td>| .
-        NTI($cgi->popup_menu('-name' => 'employee', '-default' => $form->{"employee"},
+        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
@@ -707,16 +707,12 @@ sub form_header {
 
   if ($form->{type} eq 'sales_order') {
     if ($form->{selectemployee}) {
-      $employee = qq|
-    <input type=hidden name=customer_klass value=$form->{customer_klass}>
-        $employees
-|;
+      $employee .= qq|
+        <input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
     }
   } else {
-    $employee = qq|
-    <input type=hidden name=customer_klass value=$form->{customer_klass}>
-        $employees
-|;
+    $employee .= qq|
+      <input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
   }
   if ($form->{resubmit} && ($form->{format} eq "html")) {
     $onload =
@@ -821,7 +817,7 @@ print qq|	    </table>
 	    <table>
 	      $openclosed
 	      $employee
-        $salesman
+        $salesmen
 	      $ordnumber
 	      <tr>
           <th width="70%" align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
