@@ -57,9 +57,12 @@ function check_right_number_format(input_name) {
       thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(",") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(",") : thnumbers[thnumbers.length-1].length), 0);
     }
         
-    for(var i = 1; i < thnumbers.length; i++) {
-     if(thnumbers[i].length !== 3) {
-       return show_alert_and_focus(input_name, wrongNumberFormat+thnumbers);
+    for(var i = 0; i < thnumbers.length; i++) {
+     if(i == 0 && thnumbers[i].length > 3) {
+      return show_alert_and_focus(input_name, wrongNumberFormat);
+     }
+     if(i > 0 && thnumbers[i].length != 3) {
+       return show_alert_and_focus(input_name, wrongNumberFormat);
      }
    }
   }
@@ -71,11 +74,11 @@ function check_right_number_format(input_name) {
   }
   if(decnumbers.length == 2) {
     if(decnumbers[1].length > 2)  {
-      return show_alert_and_focus(input_name, wrongNumberFormat + decnumbers);
+      return show_alert_and_focus(input_name, wrongNumberFormat);
     }
   }
   else {
-    if(decnumbers.length > 1 || decnumbers.length == 0) {
+    if(decnumbers.length > 2) {
       return show_alert_and_focus(input_name, wrongNumberFormat);
     }
     if(!thpoint) {
@@ -133,7 +136,7 @@ function getDateArray(input_name) {
 
 function show_alert_and_focus(input_name, errorMessage) {
   input_name.select();
-  alert(errorMessage + "\n\r\n\r--> " + input_name.value); //  + "\ndecpoint: " + decpoint + "\nthpoint: " + thpoint
+  alert(errorMessage + "\n\r\n\r--> " + input_name.value);
   input_name.focus();
   return false;
 }
