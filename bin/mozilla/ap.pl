@@ -33,6 +33,7 @@
 
 use SL::AP;
 use SL::IR;
+use SL::IS;
 use SL::PE;
 
 require "bin/mozilla/arap.pl";
@@ -850,43 +851,30 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  print qq|<input class="submit" type="submit" name="action" id="update_button" value="|
-    . $locale->text('Update') . qq|">|;
+  # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
+  print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|
+    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap') && !$form->{paid_1});
+
+  print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">|;
 
   if ($form->{id}) {
-
-    #     print qq|<input class=submit type=submit name=action value="|.$locale->text('Update').qq|">
-    # |;
     if ($form->{radier}) {
-      print qq|
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Post') . qq|">
-	<input class=submit type=submit name=action value="|
-          . $locale->text('Delete') . qq|">
+      print qq| <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">
+                <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">
 |;
     }
 
-    print qq|
-<input class=submit type=submit name=action value="|
-        . $locale->text('Use As Template') . qq|">
-<input class=submit type=submit name=action value="|
-        . $locale->text('Post Payment') . qq|">
+    print qq| <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|">
+              <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
 |;
   } elsif (($transdate > $closedto) && !$form->{id}) {
     print qq|
-      <input class=submit type=submit name=action value="|
-      . $locale->text('Post') . qq|"> | .
-      NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
-                       '-class' => 'submit'));
+      <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|"> | .
+      NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'));
   }
   # button for saving history
   if($form->{id} ne "") {
-    print qq|
-  	  <input type="button" class="submit" onclick="set_history_window(|
-  	  . $form->{id} 
-  	  . qq|);" name="history" id="history" value="|
-  	  . $locale->text('history') 
-  	  . qq|">|;
+    print qq| <input type="button" class="submit" onclick="set_history_window($form->{id});" name="history" id="history" value="| . $locale->text('history') . qq|">|;
   }
   # /button for saving history
   print "
@@ -1742,6 +1730,46 @@ sub ap_subtotal {
   print qq|
   </tr>
 |;
+
+  $lxdebug->leave_sub();
+}
+
+sub storno {
+  $lxdebug->enter_sub();
+
+  if (IS->has_storno(\%myconfig, $form, 'ap')) {
+    $form->{title} = $locale->text("Cancel Accounts Payables Transaction");
+    $form->error($locale->text("Transaction has already been cancelled!"));
+  }
+
+  # negate amount/taxes
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"amount_$i"} *= -1;
+    $form->{"tax_$i"}    *= -1; 
+  }
+
+  # format things
+  for my $i (1 .. $form->{rowcount}) {
+    for (qw(amount tax)) {
+      $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) if $form->{"${_}_$i"};
+    }
+  }
+
+  $form->{storno}      = 1;
+  $form->{storno_id}   = $form->{id};
+  $form->{id}          = 0;
+
+  $form->{invnumber}   = "Storno-" . $form->{invnumber};
+
+  post();
+
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumbers} = "ordnumber_$form->{ordnumber}";
+    $form->{addition} = "STORNO";
+    $form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
 
   $lxdebug->leave_sub();
 }
