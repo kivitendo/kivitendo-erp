@@ -991,7 +991,15 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{"cp_id"}), $form->{transaction_description},
              conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
-
+  
+  if($form->{"formname"} eq "credit_note") {
+    for my $i (1 .. $form->{paidaccounts}) {
+      $query = qq|UPDATE parts SET onhand = onhand - ? WHERE id = ?|;
+      @values = (conv_i($form->{"qty_$i"}), conv_i($form->{"id_$i"}));
+      do_query($form, $dbh, $query, @values);
+    }
+  }
+  
   if ($form->{storno}) {
     $query =
       qq!UPDATE ar SET
@@ -1524,7 +1532,7 @@ sub retrieve_invoice {
              (SELECT tk.tax_id
               FROM taxkeys tk
               WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?)
-                AND startdate <= $transdate
+                AND startdate <= date($transdate)
               ORDER BY startdate DESC
               LIMIT 1)
            ORDER BY c.accno|;
@@ -1711,7 +1719,7 @@ sub get_customer {
             qq|SELECT tk.tax_id, t.rate
                FROM taxkeys tk
                LEFT JOIN tax t ON tk.tax_id = t.id
-               WHERE (tk.chart_id = ?) AND (startdate <= ?)
+               WHERE (tk.chart_id = ?) AND (startdate <= date(?))
                ORDER BY tk.startdate DESC
                LIMIT 1|;
           my ($tax_id, $rate) =
@@ -1868,7 +1876,7 @@ sub retrieve_item {
             ORDER BY startdate DESC
             LIMIT 1)
          ORDER BY c.accno|;
-    @values = ($accno_id, $transdate);
+    @values = ($accno_id, $transdate eq "current_date" ? "now" : $transdate);
     $stw = $dbh->prepare($query);
     $stw->execute(@values) || $form->dberror($query);
 
