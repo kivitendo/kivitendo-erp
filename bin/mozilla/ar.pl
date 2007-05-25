@@ -870,8 +870,8 @@ sub form_footer {
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
   # ToDO: insert a global check for stornos, so that a storno is only possible a limited time after saving it
-  print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|;
-    if $form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar');
+  print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|
+    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar'));
 
   print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">\n|;
   if ($form->{id}) {
