@@ -351,7 +351,7 @@ sub form_header {
   my $i = 0;
   foreach my $item (@{ $form->{"ALL_VENDORS"} }) {
     push(@values, $item->{name}.qq|--|.$item->{"id"});
-    $labels{$item->{"id"}} = $item->{"name"}.qq|--|.$item->{"id"};
+    $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
   }
   my $vendors = qq|
       <th align="right">| . $locale->text('Vendor') . qq|</th>

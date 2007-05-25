@@ -2496,12 +2496,12 @@ sub save_history {
     &get_employee($self, $dbh);
   }
 
-  my $query =
-    qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
-    qq|VALUES (?, ?, ?, ?, ?)|;
-  my @values = (conv_i($self->{id}), conv_i($self->{employee_id}),
-                $self->{addition}, $self->{what_done}, "$self->{snumbers}");
-  do_query($self, $dbh, $query, @values);
+my $query =
+   qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
+   qq|VALUES (?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?)|;
+ my @values = (conv_i($self->{id}), $self->{login},
+               $self->{addition}, $self->{what_done}, "$self->{snumbers}");
+ do_query($self, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
 }

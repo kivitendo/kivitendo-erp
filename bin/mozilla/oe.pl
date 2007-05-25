@@ -428,8 +428,8 @@ sub form_header {
   @values = ();
 
   foreach my $item (@{ $form->{($form->{vc} eq "customer" ? "ALL_CUSTOMERS" : "ALL_VENDORS")}}) {
-    push(@values, $item->{name}.qq|--|.$item->{"id"});
-    $labels{$item->{"id"}} = $item->{name}.qq|--|.$item->{"id"};
+    push(@values, $item->{"name"}.qq|--|.$item->{"id"});
+    $labels{$item->{"name"}.qq|--|.$item->{"id"}} = $item->{name};
   }
 
   $vc = qq|
@@ -438,7 +438,7 @@ sub form_header {
       <th align="right">| . $locale->text(ucfirst($form->{vc})) . qq|</th>
       <td>| . 
         (($myconfig{vclimit} <=  scalar(@values)) 
-              ? qq|<input type="text" value="| . H($form->{"old$form->{vc}"}) . qq|" name="$form->{vc}">| 
+              ? qq|<input type="text" value="| . H(($form->{"old$form->{vc}"} =~ /^(.*)\-\-.*$/)) . qq|" name="$form->{vc}">| 
               : (NTI($cgi->popup_menu('-name' => "$form->{vc}", '-default' => $form->{"old$form->{vc}"}, 
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
                              '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
@@ -1386,6 +1386,7 @@ sub search {
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 1 },
+                   "employees" => "ALL_EMPLOYEES",          
                    $vc => "ALL_" . uc($vc));
 
   my %labels = ();
@@ -1398,24 +1399,40 @@ sub search {
     NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
                          '-labels' => \%labels));
 
+  #employees
+  %labels = ();
+  @values = ();
+  foreach my $item (@{ $form->{"ALL_EMPLOYEES"} }) {
+    push(@values, $item->{"id"});
+    $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
+  }
+
+  my $employee = qq|
+    <tr>
+      <th align="right">| . $locale->text('Employee') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
+                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      </td>
+    </tr>|;
+
   %labels = ();
   @values = ("");
 
   foreach my $item (@{ $form->{($form->{vc} eq "customer" ? "ALL_CUSTOMERS" : "ALL_VENDORS")}}) {
     push(@values, $item->{name}.qq|--|.$item->{"id"});
-    $labels{$item->{"id"}} = $item->{name}.qq|--|.$item->{"id"};
+    $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
   }
 
   my $vc_label = $form->{vc} eq "customer" ? $locale->text('Customer') : $locale->text('Vendor');
   $vc =
     $myconfig{vclimit} <=  scalar(@values)
-    ? qq|<input type="text" value="| . H($form->{"old$form->{vc}"}) . qq|" name="$form->{vc}">|
+    ? qq|<input type="text" value="| . H(($form->{"old$form->{vc}"} =~ /^(.*)\-\-.*$/)) . qq|" name="$form->{vc}">| 
     : NTI($cgi->popup_menu('-name' => "$form->{vc}",
                            '-default' => $form->{"old$form->{vc}"},
                            '-onChange' => 'document.getElementById(\'update_button\').click();',
                            '-values' => \@values,
                            '-labels' => \%labels));
-
   $form->header;
 
   print qq|
@@ -1440,6 +1457,7 @@ sub search {
           <th align=right>$ordlabel</th>
           <td colspan=3><input name="$ordnumber" size=20></td>
         </tr>
+  $employee
         <tr>
           <th align="right">| . $locale->text('Transaction description') . qq|</th>
           <td colspan="3"><input name="transaction_description" size=20></td>

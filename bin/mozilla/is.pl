@@ -374,7 +374,7 @@ sub form_header {
   @values = ();
   foreach my $item (@{ $form->{"ALL_CUSTOMERS"} }) {
     push(@values, $item->{name}.qq|--|.$item->{"id"});
-    $labels{$item->{"id"}} = $item->{name}.qq|--|.$item->{"id"};
+    $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
   }
 
   my $customers = qq|
