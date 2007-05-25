@@ -1824,5 +1824,4 @@ sub storno {
   # /saving the history 
 
   $lxdebug->leave_sub();
-
 }
