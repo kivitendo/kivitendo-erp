@@ -869,9 +869,9 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  # ToDO: insert a global check for stornos, so that a storno is only possible a limited time after saving it
+  # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
   print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|
-    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar'));
+    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar') && !$form->{paid_1});
 
   print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">\n|;
   if ($form->{id}) {
@@ -1650,7 +1650,7 @@ sub ar_transactions {
     $column_data{invnumber} =
       "<td><a href=$module?action=edit&id=$ar->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ar->{invnumber}</a></td>";
 
-    my $is_storno  = $ar->{storno} && IS->is_storno(\%myconfig, $form, 'ar'); #($ar->{invnumber} =~ /^Storno zu/); # ToDO: fix this
+    my $is_storno  = $ar->{storno} && IS->is_storno(\%myconfig, $form, 'ar');
     my $has_storno = $ar->{storno} && !$is_storno;
 
     $column_data{type} = "<td>" .
@@ -1793,16 +1793,6 @@ sub storno {
     $form->{title} = $locale->text("Cancel Accounts Receivables Transaction");
     $form->error($locale->text("Transaction has already been cancelled!"));
   }
-
-  # ToDO: 
-  #       - nicht anzeigen wenn neue rechnung
-  #       - nicht anzeigen wenn schons toniert
-  #       - nicht anziegen wenn zahlungen da
-
-
-#  my %keep_keys = map { $_, 1 } qw(login password id stylesheet);
-#  map { delete $form->{$_} unless $keep_keys{$_} } keys %{ $form };
-#  prepare_transaction();
 
   # negate amount/taxes
   for my $i (1 .. $form->{rowcount}) {
