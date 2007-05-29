@@ -1386,7 +1386,7 @@ sub search {
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
                                    "all" => 1 },
-                   "employees" => "ALL_EMPLOYEES",          
+                   "employees" => "ALL_EMPLOYEES",
                    $vc => "ALL_" . uc($vc));
 
   my %labels = ();
@@ -1401,7 +1401,7 @@ sub search {
 
   #employees
   %labels = ();
-  @values = ();
+  @values = ("");
   foreach my $item (@{ $form->{"ALL_EMPLOYEES"} }) {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
@@ -1411,8 +1411,9 @@ sub search {
     <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
       <td>| .
-        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+        NTI($cgi->popup_menu('-name'   => 'employee_id',
+                             '-values' => \@values,
+                             '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
 
