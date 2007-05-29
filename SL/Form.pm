@@ -1611,23 +1611,10 @@ sub _get_taxzones {
 sub _get_employees {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $key) = @_;
+  my ($self, $dbh, $default_key, $key) = @_;
 
-  $key = "all_employees" unless ($key);
-  $self->{$key} =
-    selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee|);
-
-  $main::lxdebug->leave_sub();
-}
-
-sub _get_salesmen {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $key) = @_;
-
-  $key = "all_salesmen" unless ($key);
-  $self->{$key} =
-    selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee|);
+  $key = $default_key unless ($key);
+  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee ORDER BY name|);
 
   $main::lxdebug->leave_sub();
 }
@@ -1707,7 +1694,7 @@ sub _get_customers {
 
   $key = "all_customers" unless ($key);
 
-  my $query = qq|SELECT * FROM customer|;
+  my $query = qq|SELECT * FROM customer ORDER BY name|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1721,7 +1708,7 @@ sub _get_vendors {
 
   $key = "all_vendors" unless ($key);
 
-  my $query = qq|SELECT * FROM vendor|;
+  my $query = qq|SELECT * FROM vendor ORDER BY name|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1735,7 +1722,7 @@ sub _get_departments {
 
   $key = "all_departments" unless ($key);
 
-  my $query = qq|SELECT * FROM department|;
+  my $query = qq|SELECT * FROM department ORDER BY description|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1789,11 +1776,11 @@ sub get_lists {
   }
 
   if ($params{"employees"}) {
-    $self->_get_employees($dbh, $params{"employees"});
+    $self->_get_employees($dbh, "all_employees", $params{"employees"});
   }
   
   if ($params{"salesmen"}) {
-    $self->_get_salesmen($dbh, $params{"salesmen"});
+    $self->_get_employees($dbh, "all_salesmen", $params{"salesmen"});
   }
 
   if ($params{"business_types"}) {
