@@ -1494,7 +1494,7 @@ sub search {
     . $locale->text('Required by') . qq|</td>
 	      </tr>
 	      <tr>
-	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> ucfirst($form->{vc})</td>
+	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vc_label</td>
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
     . $locale->text('Ship via') . qq|</td>
