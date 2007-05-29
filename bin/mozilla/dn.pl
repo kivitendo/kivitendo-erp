@@ -227,11 +227,11 @@ sub search {
   $form->{SHOW_DEPARTMENT_DDBOX} = scalar @{ $form->{ALL_CUSTOMERS} };
   $form->{SHOW_DUNNING_LEVELS}   = scalar @{ $form->{DUNNING} };
 
-  $form->{jsscript}    = 1;
-  $form->{title}       = $locale->text('Search Dunning');
-  $form->{fokus}       = "search.customer";
-  $form->{javascript} .= qq||;
-  $form->header;
+  $form->{jsscript} = 1;
+  $form->{title}    = $locale->text('Search Dunning');
+  $form->{fokus}    = "search.customer";
+
+  $form->header();
 
   $form->{onload} = qq|focus()|
     . qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|
