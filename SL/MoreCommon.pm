@@ -11,7 +11,7 @@ sub save_form {
   $main::lxdebug->enter_sub();
 
   my $old_form = YAML::Dump($main::form);
-  $old_form =~ s|!|!!|g;
+  $old_form =~ s|!|!:|g;
   $old_form =~ s|\n|!n|g;
   $old_form =~ s|\r|!r|g;
 
@@ -31,7 +31,7 @@ sub restore_form {
 
   $old_form =~ s|!r|\r|g;
   $old_form =~ s|!n|\n|g;
-  $old_form =~ s|!!|!|g;
+  $old_form =~ s|!:|!|g;
 
   my $new_form = YAML::Load($old_form);
   map { $form->{$_} = $new_form->{$_}; } keys %{$new_form};
