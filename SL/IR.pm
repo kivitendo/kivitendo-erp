@@ -673,7 +673,7 @@ sub delete_invoice {
   do_query($form, $dbh, $query);
 
   # delete AP record
-  my $query = qq|DELETE FROM ap WHERE id = $form->{id}|;
+  my $query = qq|DELETE FROM ap WHERE id = ?|;
   do_query($form, $dbh, $query, conv_i($form->{id}));
 
   my $rc = $dbh->commit;
