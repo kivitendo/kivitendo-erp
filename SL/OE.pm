@@ -102,6 +102,11 @@ sub transactions {
     push(@values, '%' . $form->{$vc} . '%');
   }
 
+  if ($form->{employee_id}) {
+    $query .= " AND o.employee_id = ?";
+    push @values, conv_i($form->{employee_id});
+  }
+
   if (!$form->{open} && !$form->{closed}) {
     $query .= " AND o.id = 0";
   } elsif (!($form->{open} && $form->{closed})) {
