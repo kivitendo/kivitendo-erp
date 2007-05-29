@@ -1599,10 +1599,8 @@ sub yes {
 
 }
 
-sub post {
+sub post_transaction {
   $lxdebug->enter_sub();
-
-  $form->{title} = $locale->text("$form->{title} General Ledger Transaction");
 
   # check if there is something in reference and date
   $form->isblank("reference",   $locale->text('Reference missing!'));
@@ -1621,91 +1619,87 @@ sub post {
   $creditlock = 0;
   $debitlock  = 0;
 
-  my @flds =
-    qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
+  my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
+    next if $form->{"debit_$i"} eq "" && $form->{"credit_$i"} eq "";
 
-    unless (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq "")) {
-      for (qw(debit credit tax)) {
-        $form->{"${_}_$i"} =
-          $form->parse_amount(\%myconfig, $form->{"${_}_$i"});
-      }
-
-      push @a, {};
-      $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
-
-      if ($debitcredit) {
-        $debitcount++;
-      } else {
-        $creditcount++;
-      }
-
-      if (($debitcount >= 2) && ($creditcount == 2)) {
-        $form->{"credit_$i"} = 0;
-        $form->{"tax_$i"}    = 0;
-        $creditcount--;
-        $creditlock = 1;
-      }
-      if (($creditcount >= 2) && ($debitcount == 2)) {
-        $form->{"debit_$i"} = 0;
-        $form->{"tax_$i"}   = 0;
-        $debitcount--;
-        $debitlock = 1;
-      }
-      if (($creditcount == 1) && ($debitcount == 2)) {
-        $creditlock = 1;
-      }
-      if (($creditcount == 2) && ($debitcount == 1)) {
-        $debitlock = 1;
-      }
-      if ($debitcredit && $credittax) {
-        $form->{"taxchart_$i"} = "0--0.00";
-      }
-      if (!$debitcredit && $debittax) {
-        $form->{"taxchart_$i"} = "0--0.00";
-      }
-      $amount =
-        ($form->{"debit_$i"} == 0)
-        ? $form->{"credit_$i"}
-        : $form->{"debit_$i"};
-      $j = $#a;
-      if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-        $form->{"taxchart_$i"} = "0--0.00";
-        $form->{"tax_$i"}      = 0;
-      }
-      if (!$form->{"korrektur_$i"}) {
-        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-        if ($taxkey > 1) {
-          if ($debitcredit) {
-            $debittax = 1;
-          } else {
-            $credittax = 1;
-          }
-          if ($form->{taxincluded}) {
-            $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
-            if ($debitcredit) {
-              $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
-            } else {
-              $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
-            }
-          } else {
-            $form->{"tax_$i"} = $amount * $rate;
-          }
-        } else {
-          $form->{"tax_$i"} = 0;
-        }
-      } elsif ($form->{taxincluded}) {
-        if ($debitcredit) {
-          $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
-        } else {
-          $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
-        }
-      }
-
-      for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
-      $count++;
+    for (qw(debit credit tax)) {
+      $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"});
     }
+
+    push @a, {};
+    $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
+
+    if ($debitcredit) {
+      $debitcount++;
+    } else {
+      $creditcount++;
+    }
+
+    if (($debitcount >= 2) && ($creditcount == 2)) {
+      $form->{"credit_$i"} = 0;
+      $form->{"tax_$i"}    = 0;
+      $creditcount--;
+      $creditlock = 1;
+    }
+    if (($creditcount >= 2) && ($debitcount == 2)) {
+      $form->{"debit_$i"} = 0;
+      $form->{"tax_$i"}   = 0;
+      $debitcount--;
+      $debitlock = 1;
+    }
+    if (($creditcount == 1) && ($debitcount == 2)) {
+      $creditlock = 1;
+    }
+    if (($creditcount == 2) && ($debitcount == 1)) {
+      $debitlock = 1;
+    }
+    if ($debitcredit && $credittax) {
+      $form->{"taxchart_$i"} = "0--0.00";
+    }
+    if (!$debitcredit && $debittax) {
+      $form->{"taxchart_$i"} = "0--0.00";
+    }
+    $amount = ($form->{"debit_$i"} == 0)
+            ? $form->{"credit_$i"}
+            : $form->{"debit_$i"};
+    $j = $#a;
+    if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
+      $form->{"taxchart_$i"} = "0--0.00";
+      $form->{"tax_$i"}      = 0;
+    }
+    if (!$form->{"korrektur_$i"}) {
+      ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+      if ($taxkey > 1) {
+        if ($debitcredit) {
+          $debittax = 1;
+        } else {
+          $credittax = 1;
+        }
+        if ($form->{taxincluded}) {
+          $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+          if ($debitcredit) {
+            $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+          } else {
+            $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+          }
+        } else {
+          $form->{"tax_$i"} = $amount * $rate;
+        }
+      } else {
+        $form->{"tax_$i"} = 0;
+      }
+    } elsif ($form->{taxincluded}) {
+      if ($debitcredit) {
+        $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+      } else {
+        $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+      }
+    }
+
+    for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
+    $count++;
   }
 
   for $i (1 .. $count) {
@@ -1722,31 +1716,14 @@ sub post {
     $cr  = $form->{"credit_$i"};
     $tax = $form->{"tax_$i"};
     if ($dr && $cr) {
-      $form->error(
-        $locale->text(
-          'Cannot post transaction with a debit and credit entry for the same account!'
-        ));
+      $form->error($locale->text('Cannot post transaction with a debit and credit entry for the same account!'));
     }
-    if ($form->{taxincluded}) {
-      if ($dr) {
-        $debit += $dr + $tax;
-      }
-      if ($cr) {
-        $credit += $cr + $tax;
-      }
-      $taxtotal += $tax;
-    } else {
-      if ($dr) {
-        $debit += $dr + $tax;
-      }
-      if ($cr) {
-        $credit += $cr + $tax;
-      }
-    }
+    $debit    += $dr + $tax if $dr;
+    $credit   += $cr + $tax if $cr;
+    $taxtotal += $tax if $form->{taxincluded}
   }
-  if (!$taxtotal) {
-    $form->{taxincluded} = 0;
-  }
+  
+  $form->{taxincluded} = 0 if !$taxtotal;
 
   # this is just for the wise guys
   $form->error($locale->text('Cannot post transaction for a closed period!'))
@@ -1771,17 +1748,26 @@ sub post {
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	$form->{addition} = "SAVED";
-  	$form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id}; 
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED";
+    $form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id}; 
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
+
+  $lxdebug->leave_sub();
+}
+
+sub post {
+  $lxdebug->enter_sub();
+
+  $form->{title} = $locale->text("$form->{title} General Ledger Transaction");
+
+  post_transaction();
 
   $form->{callback} = build_std_url("action=add", "show_details");
   $form->redirect($form->{callback});
 
   $lxdebug->leave_sub();
-
 }
 
 sub post_as_new {
@@ -1835,7 +1821,7 @@ sub storno {
     }
   }
 
-  post();
+  post_transaction();
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1844,6 +1830,8 @@ sub storno {
   	$form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
+
+  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
 
   $lxdebug->leave_sub();
 
