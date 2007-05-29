@@ -1407,7 +1407,7 @@ sub search {
     $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
   }
 
-  my $employee = qq|
+  my $employee_block = qq|
     <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
       <td>| .
@@ -1457,7 +1457,7 @@ sub search {
           <th align=right>$ordlabel</th>
           <td colspan=3><input name="$ordnumber" size=20></td>
         </tr>
-  $employee
+  $employee_block
         <tr>
           <th align="right">| . $locale->text('Transaction description') . qq|</th>
           <td colspan="3"><input name="transaction_description" size=20></td>
