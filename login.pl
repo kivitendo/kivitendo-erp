@@ -31,7 +31,8 @@
 #######################################################################
 
 BEGIN {
-  push(@INC, "modules");
+  unshift @INC, "modules/YAML"; # Use our own version of YAML.
+  push @INC, "modules";         # Only use our own versions of modules if there's no system version.
 }
 
 # setup defaults, DO NOT CHANGE
