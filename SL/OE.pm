@@ -187,7 +187,7 @@ sub save {
   my $all_units = AM->retrieve_units($myconfig, $form);
   $form->{all_units} = $all_units;
 
-  ($null, $form->{employee_id}) = split /--/, $form->{employee};
+  $form->{employee_id} = (split /--/, $form->{employee})[1] if !$form->{employee_id};
   unless ($form->{employee_id}) {
     $form->get_employee($dbh);
   }
