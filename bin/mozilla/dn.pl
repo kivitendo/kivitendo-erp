@@ -209,7 +209,7 @@ sub save_dunning {
   }
 
   if($form->{DUNNING_PDFS}) {
-    DN->melt_pdfs(\%myconfig, $form);
+    DN->melt_pdfs(\%myconfig, $form, $form->{copies});
   }
 
   # saving the history
@@ -220,7 +220,10 @@ sub save_dunning {
   }
   # /saving the history
 
-  $form->redirect($locale->text('Dunning Process started for selected invoices!')) if ($form->{media} eq 'printer');
+  if ($form->{media} eq 'printer') {
+    delete $form->{callback};
+    $form->redirect($locale->text('Dunning Process started for selected invoices!'));
+  }
 
   $lxdebug->leave_sub();
 }

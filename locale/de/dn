@@ -45,8 +45,7 @@ $self->{texts} = {
   'Dunning Description missing in row ' => 'Mahnstufenbeschreibung fehlt in Zeile ',
   'Dunning Level missing in row ' => 'Mahnlevel fehlt in ',
   'Dunning Process Config saved!' => 'Mahnwesenkonfiguration gespeichert!',
-  'Dunning Process started for selected invoices!' => 'Mahnprozess für selektierte Rechnungen 
-gestartet',
+  'Dunning Process started for selected invoices!' => 'Mahnprozess für selektierte Rechnungen gestartet',
   'Dunning overview'            => 'Mahnungsübersicht',
   'E-mail'                      => 'eMail',
   'E-mail address missing!'     => 'E-Mail-Adresse fehlt!',
