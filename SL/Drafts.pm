@@ -47,15 +47,17 @@ sub save {
 
   $query = "SELECT COUNT(*) FROM drafts WHERE id = ?";
   my ($res) = selectrow_query($form, $dbh, $query, $draft_id);
+
   if (!$res) {
     $draft_id = $module . "-" . $submodule . "-" . Common::unique_id();
-    $query = "INSERT INTO drafts (id, module, submodule) VALUES (?, ?, ?)";
+    $query    = "INSERT INTO drafts (id, module, submodule) VALUES (?, ?, ?)";
     do_query($form, $dbh, $query, $draft_id, $module, $submodule);
   }
 
   @dont_save = qw(login password action);
   map({ $saved{$_} = $form->{$_};
         delete($form->{$_}); } @dont_save);
+
   $dumped = YAML::Dump($form);
   map({ $form->{$_} = $saved{$_}; } @dont_save);
 
@@ -64,13 +66,12 @@ sub save {
     qq|  (SELECT id FROM employee WHERE login = ?) | .
     qq|WHERE id = ?|;
 
-  do_query($form, $dbh, $query, $draft_description, $dumped,
-           $form->{login}, $draft_id);
+  do_query($form, $dbh, $query, $draft_description, $dumped, $form->{login}, $draft_id);
 
   $dbh->commit();
   $dbh->disconnect();
 
-  $form->{draft_id} = $draft_id;
+  $form->{draft_id}          = $draft_id;
   $form->{draft_description} = $draft_description;
 
   $main::lxdebug->leave_sub();
@@ -87,16 +88,13 @@ sub load {
 
   $query = qq|SELECT id, description, form FROM drafts WHERE id = ?|;
 
-  $sth = $dbh->prepare($query);
-  $sth->execute($draft_id) || $form->dberror("$query ($draft_id)");
+  $sth = prepare_execute_query($form, $dbh, $query, $draft_id);
 
   my @values;
   if (my $ref = $sth->fetchrow_hashref()) {
     @values = ($ref->{form}, $ref->{id}, $ref->{description});
   }
   $sth->finish();
-
-#  do_query($form, $dbh, "DELETE FROM drafts WHERE id = ?", $draft_id);
 
   $dbh->disconnect();
 
@@ -116,8 +114,7 @@ sub remove {
 
   $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM drafts WHERE id IN (| .
-    join(", ", map({ "?" } @draft_ids)) . qq|)|;
+  $query = qq|DELETE FROM drafts WHERE id IN (| . join(", ", map { "?" } @draft_ids) . qq|)|;
   do_query($form, $dbh, $query, @draft_ids);
 
   $dbh->disconnect();
@@ -146,9 +143,7 @@ sub list {
     qq|ORDER BY d.itime|;
   my @values = ($module, $submodule);
 
-  $sth = $dbh->prepare($query);
-  $sth->execute(@values) ||
-    $form->dberror($query . " (" . join(", ", @values) . ")");
+  $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@list, $ref);
