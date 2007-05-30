@@ -231,14 +231,6 @@ sub save_dunning {
 sub set_email {
   $lxdebug->enter_sub();
 
-
-  my $callback = "$form->{script}?action=set_email&";
-  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password name input_subject input_body input_attachment email_subject email_body email_attachment), grep({ /^[fl]_/ } keys %$form)));
-
-  if ($form->{email_attachment}) {
-    $form->{email_attachment} = "checked";
-  }
   $form->{"title"} = $locale->text("Set eMail text");
   $form->header();
   print($form->parse_html_template("dunning/set_email"));
