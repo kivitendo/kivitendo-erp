@@ -290,7 +290,7 @@ sub show_dunning {
   if (!$form->{callback}) {
     $form->{callback} =
       build_std_url("action=show_dunning", qw(customer_id customer dunning_level department_id invnumber ordnumber
-                                              ransdatefrom transdateto dunningfrom dunningto notes showold));
+                                              transdatefrom transdateto dunningfrom dunningto notes showold));
   }
 
   $form->get_lists('printers'  => 'printers',
