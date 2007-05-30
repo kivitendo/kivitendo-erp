@@ -18,20 +18,21 @@ sub save_draft {
 
   if (!$form->{draft_id} && !$form->{draft_description}) {
     restore_form($form->{SAVED_FORM}, 1) if ($form->{SAVED_FORM});
-    delete($form->{SAVED_FORM});
+    delete $form->{SAVED_FORM};
+
+    $form->{SAVED_FORM}   = save_form();
     $form->{remove_draft} = 1;
-    $form->{SAVED_FORM} = save_form();
 
     $form->header();
     print($form->parse_html_template("drafts/save_new"));
+
     return $lxdebug->leave_sub();
   }
 
-  my ($draft_id, $draft_description) =
-    ($form->{draft_id}, $form->{draft_description});
+  my ($draft_id, $draft_description) = ($form->{draft_id}, $form->{draft_description});
 
   restore_form($form->{SAVED_FORM}, 1);
-  delete($form->{SAVED_FORM});
+  delete $form->{SAVED_FORM};
 
   Drafts->save(\%myconfig, $form, $draft_id, $draft_description);
 
@@ -47,8 +48,7 @@ sub remove_draft {
 
   Drafts->remove(\%myconfig, $form, $form->{draft_id}) if ($form->{draft_id});
 
-  delete($form->{draft_id});
-  delete($form->{draft_description});
+  delete @{$form}{qw(draft_id draft_description)};
 
   $lxdebug->leave_sub();
 }
@@ -66,7 +66,7 @@ sub load_draft_maybe {
 
   $draft_nextsub = "add" unless ($draft_nextsub);
 
-  delete($form->{action});
+  delete $form->{action};
   my $saved_form = save_form();
 
   $form->header();
@@ -83,11 +83,11 @@ sub load_draft_maybe {
 sub dont_load_draft {
   $lxdebug->enter_sub();
 
-  my $draft_nextsub = $form->{draft_nextsub};
-  $draft_nextsub = "add" unless ($form->{draft_nextsub});
+  my $draft_nextsub = $form->{draft_nextsub} || "add";
+
   restore_form($form->{SAVED_FORM}, 1);
-  delete($form->{SAVED_FORM});
-  delete($form->{action});
+  delete $form->{SAVED_FORM};
+
   $form->{DONT_LOAD_DRAFT} = 1;
 
   call_sub($draft_nextsub);
@@ -99,12 +99,15 @@ sub load_draft {
   $lxdebug->enter_sub();
 
   my ($old_form, $id, $description) = Drafts->load(\%myconfig, $form, $form->{id});
+
   if ($old_form) {
     $old_form = YAML::Load($old_form);
+
     @{$form}{keys %{ $old_form } } = @{$old_form}{keys %{ $old_form } };
-    $form->{draft_id} = $id;
-    $form->{draft_description} = $description;
-    $form->{remove_draft} = 'checked';
+
+    $form->{draft_id}              = $id;
+    $form->{draft_description}     = $description;
+    $form->{remove_draft}          = 'checked';
   }
 
   update();
@@ -116,12 +119,13 @@ sub delete_drafts {
   $lxdebug->enter_sub();
 
   my @ids;
-  foreach (keys(%{$form})) {
-    push(@ids, $1) if (/^checked_(.*)/ && $form->{$_});
+  foreach (keys %{$form}) {
+    push @ids, $1 if (/^checked_(.*)/ && $form->{$_});
   }
   Drafts->remove(\%myconfig, $form, @ids) if (@ids);
+
   restore_form($form->{SAVED_FORM}, 1);
-  delete($form->{SAVED_FORM});
+  delete $form->{SAVED_FORM};
 
   add();
 
@@ -133,6 +137,7 @@ sub draft_action_dispatcher {
 
   if ($form->{draft_action} eq $locale->text("Skip")) {
     dont_load_draft();
+
   } elsif ($form->{draft_action} eq $locale->text("Delete drafts")) {
     delete_drafts();
   }
