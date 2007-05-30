@@ -758,7 +758,7 @@ sub print_dunning {
   delete $form->{tmpfile};
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => $filename,
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${main::spool}/$filename",
                                            'name'     => "dunning_${dunning_id}.pdf" };
 
   $form->parse_template($myconfig, $main::userspath);
@@ -855,7 +855,7 @@ sub print_invoice_for_fees {
   restore_form($saved_form);
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => $filename,
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${main::spool}/$filename",
                                            'name'     => "dunning_invoice_${dunning_id}.pdf" };
 
   $dbh->disconnect() unless $provided_dbh;
