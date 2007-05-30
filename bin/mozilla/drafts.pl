@@ -7,6 +7,8 @@
 #
 #======================================================================
 
+use YAML;
+
 use SL::Drafts;
 
 require "bin/mozilla/common.pl";
@@ -98,7 +100,8 @@ sub load_draft {
 
   my ($old_form, $id, $description) = Drafts->load(\%myconfig, $form, $form->{id});
   if ($old_form) {
-    restore_form($old_form, 1);
+    $old_form = YAML::Load($old_form);
+    @{$form}{keys %{ $old_form } } = @{$old_form}{keys %{ $old_form } };
     $form->{draft_id} = $id;
     $form->{draft_description} = $description;
     $form->{remove_draft} = 'checked';
