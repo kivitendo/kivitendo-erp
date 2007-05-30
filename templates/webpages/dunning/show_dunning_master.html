@@ -5,51 +5,75 @@
 
  <div class="listtop" width="100%"><TMPL_VAR title></div>
 
- <p>
-  <table width="100%">
-   <tr>
-    <th class="listheading"><translate>Dunning Level</translate></th>
-    <th class="listheading"><translate>Customername</translate></th>
-    <th class="listheading"><translate>Invnumber</translate></th>
-    <th class="listheading"><translate>Invdate</translate></th>
-    <th class="listheading"><translate>Invoice Duedate</translate></th>
-    <th class="listheading"><translate>Amount</translate></th>
-    <th class="listheading"><translate>Dunning Date</translate></th>
-    <th class="listheading"><translate>Dunning Duedate</translate></th>
-    <th class="listheading"><translate>Total Fees</translate></th>
-    <th class="listheading"><translate>Interest</translate></th>
-   </tr>
+ <form method="post" action="dn.pl">
 
-   <!-- Ausgabe der einzelnen Zeilen -->
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
 
-   <TMPL_LOOP DUNNINGS>
-    <tr class="listrow<TMPL_VAR listrow_odd_even>">
-     <td>
-      <TMPL_IF first_row_for_dunning>
-       <a href="dn.pl?action=print_dunning&format=pdf&media=screen&dunning_id=<TMPL_VAR dunning_id ESCAPE=URL>&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>">
-        <TMPL_VAR dunning_description ESCAPE=HTML>
-       </a>
-       <TMPL_ELSE>
-       &nbsp;
-      </TMPL_IF>
-     </td>
-
-     <td><TMPL_IF first_row_for_dunning><TMPL_VAR customername ESCAPE=HTML><TMPL_ELSE>&nbsp;</TMPL_IF></td>
-
-     <td><a href="is.pl?action=edit&id=<TMPL_VAR id ESCAPE=URL>&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>"><TMPL_VAR invnumber ESCAPE=HTML></a></td>
-
-     <td align="right"><TMPL_VAR transdate ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR duedate ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR amount ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR dunning_date ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR dunning_duedate ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR fee ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR interest ESCAPE=HTML></td>
+  <p>
+   <table width="100%">
+    <tr>
+     <th class="listheading">&nbsp;</th>
+     <th class="listheading"><translate>Dunning Level</translate></th>
+     <th class="listheading"><translate>Customername</translate></th>
+     <th class="listheading"><translate>Invnumber</translate></th>
+     <th class="listheading"><translate>Invdate</translate></th>
+     <th class="listheading"><translate>Invoice Duedate</translate></th>
+     <th class="listheading"><translate>Amount</translate></th>
+     <th class="listheading"><translate>Dunning Date</translate></th>
+     <th class="listheading"><translate>Dunning Duedate</translate></th>
+     <th class="listheading"><translate>Total Fees</translate></th>
+     <th class="listheading"><translate>Interest</translate></th>
     </tr>
-   </TMPL_LOOP>
 
-   <tr><td colspan="10"><hr size="3" noshade></td></tr>
-  </table>
- </p>
+    <!-- Ausgabe der einzelnen Zeilen -->
+
+    <TMPL_LOOP DUNNINGS>
+     <tr class="listrow<TMPL_VAR listrow_odd_even>">
+      <td>
+       <TMPL_IF first_row_for_dunning>
+        <input type="checkbox" name="selected_<TMPL_VAR __counter__>" value="1">
+        <input type="hidden" name="dunning_id_<TMPL_VAR __counter__>" value="<TMPL_VAR dunning_id ESCAPE=HTML>">
+       </TMPL_IF>
+      </td>
+
+      <td>
+       <TMPL_IF first_row_for_dunning>
+        <a href="dn.pl?action=print_dunning&format=pdf&media=screen&dunning_id=<TMPL_VAR dunning_id ESCAPE=URL>&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>">
+         <TMPL_VAR dunning_description ESCAPE=HTML>
+        </a>
+        <TMPL_ELSE>
+        &nbsp;
+       </TMPL_IF>
+      </td>
+
+      <td><TMPL_IF first_row_for_dunning><TMPL_VAR customername ESCAPE=HTML><TMPL_ELSE>&nbsp;</TMPL_IF></td>
+
+      <td><a href="is.pl?action=edit&id=<TMPL_VAR id ESCAPE=URL>&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>"><TMPL_VAR invnumber ESCAPE=HTML></a></td>
+
+      <td align="right"><TMPL_VAR transdate ESCAPE=HTML></td>
+      <td align="right"><TMPL_VAR duedate ESCAPE=HTML></td>
+      <td align="right"><TMPL_VAR amount ESCAPE=HTML></td>
+      <td align="right"><TMPL_VAR dunning_date ESCAPE=HTML></td>
+      <td align="right"><TMPL_VAR dunning_duedate ESCAPE=HTML></td>
+      <td align="right"><TMPL_VAR fee ESCAPE=HTML></td>
+      <td align="right"><TMPL_VAR interest ESCAPE=HTML></td>
+     </tr>
+
+     <TMPL_IF __last__><input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>"></TMPL_IF>
+    </TMPL_LOOP>
+    <tr><td colspan="11"><hr size="3" noshade></td></tr>
+   </table>
+  </p>
+
+
+  <p><TMPL_VAR PRINT_OPTIONS></p>
+
+  <p>
+   <input type="hidden" name="print_nextsub" value="print_multiple">
+   <input type="submit" class="submit" name="action" value="<translate>Print</translate>">
+  </p>
+
+ </form>
 
 </body>

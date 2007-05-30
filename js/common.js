@@ -34,6 +34,11 @@ function centerParms(width,height,extra) {
   return string;
 }
 
+function escape_more(s) {
+  s = escape(s);
+  return s.replace(/\+/g, '%2b');
+}
+
 function set_longdescription_window(input_name) {
   var parm = centerParms(600,500) + ",width=600,height=500,status=yes,scrollbars=yes";
   var name = document.getElementsByName(input_name)[0].value;
@@ -41,8 +46,8 @@ function set_longdescription_window(input_name) {
     "action=set_longdescription&" +
     "login=" +  encodeURIComponent(document.getElementsByName("login")[0].value)+ "&"+
     "password=" + encodeURIComponent(document.getElementsByName("password")[0].value) + "&" +
-    "longdescription=" + escape(document.getElementsByName(input_name)[0].value) + "&" +
-    "input_name=" + escape(input_name) + "&"
+    "longdescription=" + escape_more(document.getElementsByName(input_name)[0].value) + "&" +
+    "input_name=" + escape_more(input_name) + "&"
   window.open(url, "_new_generic", parm);
   }
 

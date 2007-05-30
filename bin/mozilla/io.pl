@@ -1425,6 +1425,12 @@ sub print_options {
 sub print {
   $lxdebug->enter_sub();
 
+  if ($form->{print_nextsub}) {
+    call_sub($form->{print_nextsub});
+    $lxdebug->leave_sub();
+    return;
+  }
+
   # if this goes to the printer pass through
   if ($form->{media} eq 'printer' || $form->{media} eq 'queue') {
     $form->error($locale->text('Select postscript or PDF!'))

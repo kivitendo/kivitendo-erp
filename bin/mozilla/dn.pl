@@ -31,10 +31,11 @@
 #
 #======================================================================
 
+use POSIX;
+
 use SL::IS;
 use SL::PE;
 use SL::DN;
-use Data::Dumper;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
@@ -46,6 +47,26 @@ sub edit_config {
   $lxdebug->enter_sub();
 
   DN->get_config(\%myconfig, \%$form);
+  $form->get_lists('charts' => { 'key'       => 'ALL_CHARTS',
+                                 'transdate' => 'current_date' });
+
+  $form->{SELECT_AR_AMOUNT} = [];
+  $form->{SELECT_AR}        = [];
+
+  foreach my $chart (@{ $form->{ALL_CHARTS} }) {
+    $chart->{LINKS} = { map { $_, 1 } split m/:/, $chart->{link} };
+
+    if ($chart->{LINKS}->{AR}) {
+      $chart->{AR_selected} = "selected" if $chart->{id} == $form->{AR};
+      push @{ $form->{SELECT_AR} }, $chart;
+    }
+
+    if ($chart->{LINKS}->{AR_amount}) {
+      $chart->{AR_amount_fee_selected}      = "selected" if $chart->{id} == $form->{AR_amount_fee};
+      $chart->{AR_amount_interest_selected} = "selected" if $chart->{id} == $form->{AR_amount_interest};
+      push @{ $form->{SELECT_AR_AMOUNT} }, $chart;
+    }
+  }
 
   $form->{title}          = $locale->text('Edit Dunning Process Config');
   $form->{callback}     ||= build_std_url("action=edit_config");
@@ -95,12 +116,19 @@ sub show_invoices {
     map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount fee interest);
   }
 
+  $form->get_lists('printers'  => 'printers',
+                   'languages' => 'languages');
+
   $form->{type}           = 'dunning';
   $form->{rowcount}       = scalar @{ $form->{DUNNINGS} };
   $form->{jsscript}       = 1;
   $form->{callback}     ||= build_std_url("action=show_invoices", qw(login password customer invnumber ordnumber groupinvoices minamount dunning_level notes));
 
-  $form->{PRINT_OPTIONS}  = print_options({ 'inline' => 1 });
+  $form->{PRINT_OPTIONS}  = print_options({ 'inline'          => 1,
+                                            'no_queue'        => 1,
+                                            'no_postscript'   => 1,
+                                            'no_html'         => 1,
+                                            'no_opendocument' => 1, });
 
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
@@ -163,7 +191,7 @@ sub save_dunning {
       foreach my $level (values %{ $levels }) {
         next unless scalar @{ $level };
 
-        DN->save_dunning(\%myconfig, \%$form, $level, $userspath, $spool, $sendmail);
+        DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool, $sendmail);
       }
     }
 
@@ -176,12 +204,12 @@ sub save_dunning {
                       "customer_id"            => $form->{"customer_id_$i"},
                       "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
                       "email"                  => $form->{"email_$i"}, } ];
-      DN->save_dunning(\%myconfig, \%$form, $level, $userspath, $spool, $sendmail);
+      DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool, $sendmail);
     }
   }
 
   if($form->{DUNNING_PDFS}) {
-    DN->melt_pdfs(\%myconfig, \%$form,$spool);
+    DN->melt_pdfs(\%myconfig, $form);
   }
 
   # saving the history
@@ -192,7 +220,7 @@ sub save_dunning {
   }
   # /saving the history
 
-  $form->redirect($locale->text('Dunning Process started for selected invoices!'));
+  $form->redirect($locale->text('Dunning Process started for selected invoices!')) if ($form->{media} eq 'printer');
 
   $lxdebug->leave_sub();
 }
@@ -270,7 +298,17 @@ sub show_dunning {
                                               ransdatefrom transdateto dunningfrom dunningto notes showold));
   }
 
-  $form->{title} = $locale->text('Dunning overview');
+  $form->get_lists('printers'  => 'printers',
+                   'languages' => 'languages');
+
+  $form->{type}          = 'dunning';
+  $form->{PRINT_OPTIONS} = print_options({ 'inline'          => 1,
+                                           'no_queue'        => 1,
+                                           'no_postscript'   => 1,
+                                           'no_html'         => 1,
+                                           'no_opendocument' => 1, });
+  $form->{title}         = $locale->text('Dunning overview');
+
   $form->header();
 
   print $form->parse_html_template("dunning/show_dunning");
@@ -282,16 +320,47 @@ sub show_dunning {
 sub print_dunning {
   $lxdebug->enter_sub();
 
-  DN->print_dunning(\%myconfig, \%$form, $form->{dunning_id}, $userspath, $spool, $sendmail);
+  $form->{rowcount}     = 1;
+  $form->{selected_1}   = 1;
+  $form->{dunning_id_1} = $form->{dunning_id};
 
-  if($form->{DUNNING_PDFS}) {
-    DN->melt_pdfs(\%myconfig, \%$form,$spool);
+  print_multiple();
+
+  $lxdebug->leave_sub();
+}
+
+sub print_multiple {
+  $lxdebug->enter_sub();
+
+  $form->{title} = $locale->text('Print dunnings');
+
+  my @dunning_ids = map { $form->{"dunning_id_$_"} } grep { $form->{"selected_$_"} } (1..$form->{rowcount});
+
+  if (!scalar @dunning_ids) {
+    $form->error($locale->text('No dunnings have been selected for printing.'));
+  }
+
+  $form->{DUNNING_PDFS} = [];
+
+  foreach my $dunning_id (@dunning_ids) {
+    DN->print_invoice_for_fees(\%myconfig, $form, $dunning_id);
+    DN->print_dunning(\%myconfig, $form, $dunning_id);
+  }
+
+  if (scalar @{ $form->{DUNNING_PDFS} }) {
+    $form->{dunning_id} = strftime("%Y%m%d", localtime time);
+    DN->melt_pdfs(\%myconfig, $form, $form->{copies});
+
+    if ($form->{media} eq 'printer') {
+      $form->header();
+      $form->info($locale->text('The dunnings have been printed.'));
+    }
+
   } else {
-    $form->redirect($locale->text('Could not create dunning copy!'));
+    $form->redirect($locale->text('Could not print dunning.'));
   }
 
   $lxdebug->leave_sub();
-
 }
 
 # end of main

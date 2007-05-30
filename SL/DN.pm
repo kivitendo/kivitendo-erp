@@ -34,11 +34,12 @@
 
 package DN;
 
-use SL::Template;
-use SL::IS;
 use SL::Common;
 use SL::DBUtils;
-use Data::Dumper;
+use SL::IS;
+use SL::Mailer;
+use SL::MoreCommon;
+use SL::Template;
 
 sub get_config {
   $main::lxdebug->enter_sub();
@@ -58,6 +59,14 @@ sub get_config {
     $ref->{fee} = $form->format_amount($myconfig, $ref->{fee}, 2);
     $ref->{interest_rate} = $form->format_amount($myconfig, ($ref->{interest_rate} * 100));
   }
+
+  $query =
+    qq|SELECT
+         dunning_create_invoices_for_fees, dunning_ar_amount_fee,
+         dunning_ar_amount_interest,       dunning_ar
+       FROM defaults|;
+  ($form->{create_invoices_for_fees}, $form->{AR_amount_fee},
+   $form->{AR_amount_interest},       $form->{AR}           ) = selectrow_query($form, $dbh, $query);
 
   $dbh->disconnect();
 
@@ -112,8 +121,149 @@ sub save_config {
     }
   }
 
-  $dbh->commit;
-  $dbh->disconnect;
+  $query  = qq|UPDATE defaults SET dunning_create_invoices_for_fees = ?|;
+  @values = ($form->{create_invoices_for_fees} ? 't' : 'f');
+
+  if ($form->{create_invoices_for_fees}) {
+    $query .= qq|, dunning_ar_amount_fee = ?, dunning_ar_amount_interest = ?, dunning_ar = ?|;
+    push @values, conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR});
+  }
+
+  do_query($form, $dbh, $query, @values);
+
+  $dbh->commit();
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub create_invoice_for_fees {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $dbh, $dunning_id) = @_;
+
+  my ($query, @values, $sth, $ref);
+
+  $query =
+    qq|SELECT
+         dunning_create_invoices_for_fees, dunning_ar_amount_fee,
+         dunning_ar_amount_interest, dunning_ar
+       FROM defaults|;
+  ($form->{create_invoices_for_fees}, $form->{AR_amount_fee},
+   $form->{AR_amount_interest},       $form->{AR}           ) = selectrow_query($form, $dbh, $query);
+
+  if (!$form->{create_invoices_for_fees}) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  $query =
+    qq|SELECT
+         fee,
+         COALESCE((
+           SELECT MAX(d_fee.fee)
+           FROM dunning d_fee
+           WHERE (d_fee.trans_id   =  d.trans_id)
+             AND (d_fee.dunning_id <> ?)
+             AND NOT (d_fee.fee_interest_ar_id ISNULL)
+         ), 0)
+         AS max_previous_fee,
+         interest,
+         COALESCE((
+           SELECT MAX(d_interest.interest)
+           FROM dunning d_interest
+           WHERE (d_interest.trans_id   =  d.trans_id)
+             AND (d_interest.dunning_id <> ?)
+             AND NOT (d_interest.fee_interest_ar_id ISNULL)
+         ), 0)
+         AS max_previous_interest
+       FROM dunning d
+       WHERE dunning_id = ?|;
+  @values = ($dunning_id, $dunning_id, $dunning_id);
+  $sth = prepare_execute_query($form, $dbh, $query, @values);
+
+  my ($fee_remaining, $interest_remaining) = (0, 0);
+  my ($fee_total, $interest_total) = (0, 0);
+
+  while (my $ref = $sth->fetchrow_hashref()) {
+    $fee_remaining      += $form->round_amount($ref->{fee}, 2);
+    $fee_remaining      -= $form->round_amount($ref->{max_previous_fee}, 2);
+    $fee_total          += $form->round_amount($ref->{fee}, 2);
+    $interest_remaining += $form->round_amount($ref->{interest}, 2);
+    $interest_remaining -= $form->round_amount($ref->{max_previous_interest}, 2);
+    $interest_total     += $form->round_amount($ref->{interest}, 2);
+  }
+
+  $sth->finish();
+
+  my $amount = $fee_remaining + $interest_remaining;
+
+  if (!$amount) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my ($ar_id) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
+
+  $query =
+    qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
+                       taxincluded, amount,    netamount, paid,   duedate,
+                       invoice,     curr,      notes,
+                       employee_id)
+       VALUES (
+         ?,                     -- id
+         ?,                     -- invnumber
+         current_date,          -- transdate
+         current_date,          -- gldate
+         -- customer_id:
+         (SELECT ar.customer_id
+          FROM dunning dn
+          LEFT JOIN ar ON (dn.trans_id = ar.id)
+          WHERE dn.dunning_id = ?
+          LIMIT 1),
+         'f',                   -- taxincluded
+         ?,                     -- amount
+         ?,                     -- netamount
+         0,                     -- paid
+         -- duedate:
+         (SELECT duedate FROM dunning WHERE dunning_id = ?),
+         'f',                   -- invoice
+         ?,                     -- curr
+         ?,                     -- notes
+         -- employee_id:
+         (SELECT id FROM employee WHERE login = ?)
+       )|;
+  @values = ($ar_id,            # id
+             $form->update_defaults($myconfig, 'invnumber', $dbh), # invnumber
+             $dunning_id,       # customer_id
+             $amount,
+             $amount,
+             $dunning_id,       # duedate
+             (split m/:/, $myconfig->{currency})[0], # currency
+             sprintf($main::locale->text('Automatically created invoice for fee and interest for dunning %s'), $dunning_id), # notes
+             $form->{login});   # employee_id
+  do_query($form, $dbh, $query, @values);
+
+  $query =
+    qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, taxkey)
+       VALUES (?, ?, ?, current_date, current_date, 0)|;
+  $sth = prepare_query($form, $dbh, $query);
+
+  @values = ($ar_id, conv_i($form->{AR_amount_fee}), $fee_remaining);
+  do_statement($form, $sth, $query, @values);
+
+  if ($interest_remaining) {
+    @values = ($ar_id, conv_i($form->{AR_amount_interest}), $interest_remaining);
+    do_statement($form, $sth, $query, @values);
+  }
+
+  @values = ($ar_id, conv_i($form->{AR}), -1 * $amount);
+  do_statement($form, $sth, $query, @values);
+
+  $sth->finish();
+
+  $query = qq|UPDATE dunning SET fee_interest_ar_id = ? WHERE dunning_id = ?|;
+  do_query($form, $dbh, $query, $ar_id, $dunning_id);
 
   $main::lxdebug->leave_sub();
 }
@@ -133,8 +283,8 @@ sub save_dunning {
   my $h_update_ar = prepare_query($form, $dbh, $q_update_ar);
 
   my $q_insert_dunning =
-    qq|INSERT INTO dunning (dunning_id, dunning_config_id, dunning_level,
-                            trans_id, fee, interest, transdate, duedate)
+    qq|INSERT INTO dunning (dunning_id, dunning_config_id, dunning_level, trans_id,
+                            fee,        interest,          transdate,     duedate)
        VALUES (?, ?,
                (SELECT dunning_level FROM dunning_config WHERE id = ?),
                ?,
@@ -174,69 +324,78 @@ sub save_dunning {
   $h_update_ar->finish();
   $h_insert_dunning->finish();
 
+  $form->{DUNNING_PDFS_EMAIL} = [];
+
+  $self->create_invoice_for_fees($myconfig, $form, $dbh, $dunning_id);
+
+  $self->print_invoice_for_fees($myconfig, $form, $dunning_id, $dbh);
+  $self->print_dunning($myconfig, $form, $dunning_id, $dbh);
+
+  $form->{dunning_id} = $dunning_id;
+
+  if ($send_email) {
+    $self->send_email($myconfig, $form, $dunning_id, $dbh);
+  }
+
+#   $dbh->commit();
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub send_email {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $dunning_id, $dbh) = @_;
+
   my $query =
     qq|SELECT
-         ar.invnumber, ar.ordnumber, ar.amount, ar.netamount,
-         ar.transdate, ar.duedate, ar.paid, ar.amount - ar.paid AS open_amount,
-         da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate
-       FROM ar
-       LEFT JOIN dunning_config cfg ON (cfg.id = ar.dunning_config_id)
-       LEFT JOIN dunning da ON (ar.id = da.trans_id AND cfg.dunning_level = da.dunning_level)
-       WHERE ar.id IN (|
-       . join(", ", map { "?" } @invoice_ids) . qq|)|;
+         dcfg.email_body,     dcfg.email_subject, dcfg.email_attachment,
+         c.email AS recipient
 
-  my $sth = prepare_execute_query($form, $dbh, $query, @invoice_ids);
-  my $first = 1;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    if ($first) {
-      map({ $form->{"dn_$_"} = []; } keys(%{$ref}));
-      $first = 0;
-    }
+       FROM dunning d
+       LEFT JOIN dunning_config dcfg ON (d.dunning_config_id = dcfg.id)
+       LEFT JOIN ar                  ON (d.trans_id          = ar.id)
+       LEFT JOIN customer c          ON (ar.customer_id      = c.id)
+       WHERE (d.dunning_id = ?)
+       LIMIT 1|;
+  my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
 
-    $ref->{interest_rate} = $form->format_amount($myconfig, $ref->{interest_rate} * 100);
-    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest);
-    map { push(@{ $form->{"dn_$_"} }, $ref->{$_})} keys %$ref;
-    map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+  if (!$ref || !$ref->{recipient} || !$myconfig->{email}) {
+    $main::lxdebug->leave_sub();
+    return;
   }
-  $sth->finish;
 
-  $query =
-    qq|SELECT id AS customer_id, name, street, zipcode, city, country, department_1, department_2, email
-       FROM customer
-       WHERE id = ?|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $customer_id);
-  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+  my $template     = PlainTextTemplate->new(undef, $form, $myconfig);
+  my $mail         = Mailer->new();
+  $mail->{from}    = $myconfig->{email};
+  $mail->{to}      = $ref->{recipient};
+  $mail->{subject} = $template->parse_block($ref->{email_subject});
+  $mail->{message} = $template->parse_block($ref->{email_body});
 
-  $query =
-    qq|SELECT
-         cfg.interest_rate, cfg.template AS formname,
-         cfg.email_subject, cfg.email_body, cfg.email_attachment,
-         (SELECT SUM(fee)
-          FROM dunning
-          WHERE dunning_id = ?)
-         AS fee,
-         (SELECT SUM(interest)
-          FROM dunning
-          WHERE dunning_id = ?)
-         AS total_interest,
-         (SELECT SUM(amount) - SUM(paid)
-          FROM ar
-          WHERE id IN (| . join(", ", map { "?" } @invoice_ids) . qq|))
-         AS total_open_amount
-       FROM dunning_config cfg
-       WHERE id = ?|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id, $dunning_id, @invoice_ids, $next_dunning_config_id);
-  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+  if ($myconfig->{signature}) {
+    $mail->{message} .= "\n-- \n$myconfig->{signature}";
+  }
 
-  $form->{interest_rate}     = $form->format_amount($myconfig, $ref->{interest_rate} * 100);
-  $form->{fee}               = $form->format_amount($myconfig, $ref->{fee}, 2);
-  $form->{total_interest}    = $form->format_amount($myconfig, $form->round_amount($ref->{total_interest}, 2), 2);
-  $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($ref->{total_open_amount}, 2), 2);
-  $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $ref->{total_open_amount}, 2), 2);
+  $mail->{message} =~ s/\r\n/\n/g;
+
+  if ($ref->{email_attachment} && @{ $form->{DUNNING_PDFS_EMAIL} }) {
+    $mail->{attachments} = $form->{DUNNING_PDFS_EMAIL};
+  }
+
+  $mail->send();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub set_template_options {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
 
   $form->{templates}    = "$myconfig->{templates}";
-  $form->{language}     = $form->get_template_language(\%myconfig);
-  $form->{printer_code} = $form->get_printer_code(\%myconfig);
+  $form->{language}     = $form->get_template_language($myconfig);
+  $form->{printer_code} = $form->get_printer_code($myconfig);
 
   if ($form->{language} ne "") {
     $form->{language} = "_" . $form->{language};
@@ -246,53 +405,14 @@ sub save_dunning {
     $form->{printer_code} = "_" . $form->{printer_code};
   }
 
-  $form->{IN} = "$form->{formname}$form->{language}$form->{printer_code}.html";
-  if ($form->{format} eq 'postscript') {
-    $form->{postscript} = 1;
-    $form->{IN} =~ s/html$/tex/;
-  } elsif ($form->{"format"} =~ /pdf/) {
-    $form->{pdf} = 1;
-    if ($form->{"format"} =~ /opendocument/) {
-      $form->{IN} =~ s/html$/odt/;
-    } else {
-      $form->{IN} =~ s/html$/tex/;
-    }
-  } elsif ($form->{"format"} =~ /opendocument/) {
-    $form->{"opendocument"} = 1;
-    $form->{"IN"} =~ s/html$/odt/;
-  }
+  $form->{IN}  = "$form->{formname}$form->{language}$form->{printer_code}.html";
+  $form->{pdf} = 1;
 
-  if ($send_email && ($form->{email} ne "")) {
-    $form->{media} = 'email';
-  }
-
-  $form->{keep_tmpfile} = 0;
-  if ($form->{media} eq 'email') {
-    $form->{subject} = qq|$form->{label} $form->{"${inv}number"}|
-      unless $form->{subject};
-    if (!$form->{email_attachment}) {
-      $form->{do_not_attach} = 1;
-    } else {
-      $form->{do_not_attach} = 0;
-    }
-    $form->{subject} = parse_strings($myconfig, $form, $userspath, $form->{email_subject});
-    $form->{message} = parse_strings($myconfig, $form, $userspath, $form->{email_body});
-
-    $form->{OUT} = "$sendmail";
-
+  if ($form->{"format"} =~ /opendocument/) {
+    $form->{IN} =~ s/html$/odt/;
   } else {
-
-    my $filename = Common::unique_id() . $form->{login} . ".pdf";
-    $form->{OUT} = ">$spool/$filename";
-    push(@{ $form->{DUNNING_PDFS} }, $filename);
-    $form->{keep_tmpfile} = 1;
+    $form->{IN} =~ s/html$/tex/;
   }
-
-  delete($form->{tmpfile});
-  $form->parse_template($myconfig, $userspath);
-
-  $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -495,101 +615,49 @@ sub get_dunning {
   $main::lxdebug->leave_sub();
 }
 
-sub parse_strings {
-
-  $main::lxdebug->enter_sub();
-
-  my ($myconfig, $form, $userspath, $string) = @_;
-
-  local (*IN, *OUT);
-
-  my $format = $form->{format};
-  $form->{format} = "html";
-
-  $tmpstring = "parse_string.html";
-  $tmpfile = "$myconfig->{templates}/$tmpstring";
-  open(OUT, ">", $tmpfile) or $form->error("$tmpfile : $!");
-
-  print(OUT $string);
-  close(OUT);
-
-  my $in = $form->{IN};
-  $form->{IN} = $tmpstring;
-  $template = HTMLTemplate->new($tmpstring, $form, $myconfig, $userspath);
-
-  my $fileid = time;
-  $form->{tmpfile} = "$userspath/${fileid}.$tmpstring";
-
-  open(OUT, ">", $form->{tmpfile}) or $form->error("$form->{OUT} : $!");
-  if (!$template->parse(*OUT)) {
-    $form->cleanup();
-    $form->error("$form->{IN} : " . $template->get_error());
-  }
-
-  close(OUT);
-  my $result = "";
-  open(IN, "<", $form->{tmpfile}) or $form->error($form->cleanup . "$form->{tmpfile} : $!");
-
-  while (<IN>) {
-    $result .= $_;
-  }
-
-  close(IN);
-#   unlink($tmpfile);
-#   unlink($form->{tmpfile});
-  $form->{IN} = $in;
-  $form->{format} = $format;
-
-  $main::lxdebug->leave_sub();
-  return $result;
-}
-
 sub melt_pdfs {
 
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $userspath) = @_;
+  my ($self, $myconfig, $form, $copies) = @_;
 
-  local (*IN, *OUT);
-
-  # Don't allow access outside of $userspath.
+  # Don't allow access outside of $spool.
   map { $_ =~ s|.*/||; } @{ $form->{DUNNING_PDFS} };
 
-  my $inputfiles = join " ", map { "$userspath/$_" } @{ $form->{DUNNING_PDFS} };
-  my $outputfile = "$userspath/dunning.pdf";
+  $copies        *= 1;
+  $copies         = 1 unless $copies;
+  my $inputfiles  = join " ", map { "${main::spool}/$_ " x $copies } @{ $form->{DUNNING_PDFS} };
+  my $dunning_id  = $form->{dunning_id};
 
-  system("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$outputfile $inputfiles");
+  $dunning_id     =~ s|[^\d]||g;
 
-  map { unlink("$userspath/$_") } @{ $form->{DUNNING_PDFS} };
+  my $in = IO::File->new("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
+  $form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
 
-  my $numbytes = (-s $outputfile);
-  open(IN, $outputfile) || $form->error($self->cleanup() . "$outputfile : $!");
+  my $out;
 
-  $form->{copies} = 1 unless $form->{media} eq 'printer';
-
-  chdir($self->{cwd});
-
-  for my $i (1 .. $form->{copies}) {
-    # launch application
-    print qq|Content-Type: Application/PDF
-Content-Disposition: attachment; filename="$outputfile"
-Content-Length: $numbytes
-
-|;
-
-    open(OUT, ">-") or $form->error($form->cleanup . "$!: STDOUT");
-
-    while (<IN>) {
-      print OUT $_;
+  if ($form->{media} eq 'printer') {
+    $form->get_printer_code($myconfig);
+    if ($form->{printer_command}) {
+      $out = IO::File->new("| $form->{printer_command}");
     }
 
-    close(OUT);
+    $form->error($main::locale->text('Could not spawn the printer command.')) unless $out;
 
-    seek(IN, 0, 0);
+  } else {
+    $out = IO::File->new('>-');
+    $out->print(qq|Content-Type: Application/PDF\n| .
+                qq|Content-Disposition: attachment; filename="dunning_${dunning_id}.pdf"\n\n|);
   }
 
-  close(IN);
-  unlink($outputfile);
+  while (my $line = <$in>) {
+    $out->print($line);
+  }
+
+  $in->close();
+  $out->close();
+
+  map { unlink("${main::spool}/$_") } @{ $form->{DUNNING_PDFS} };
 
   $main::lxdebug->leave_sub();
 }
@@ -597,17 +665,29 @@ Content-Length: $numbytes
 sub print_dunning {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $dunning_id, $userspath, $spool, $sendmail) = @_;
+  my ($self, $myconfig, $form, $dunning_id, $provided_dbh) = @_;
+
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+
+  $dunning_id =~ s|[^\d]||g;
 
   my $query =
-    qq|SELECT invnumber, ordnumber, customer_id, amount, netamount,
-         ar.transdate, ar.duedate, paid, amount - paid AS open_amount,
-         template AS formname, email_subject, email_body, email_attachment,
-         da.fee, da.interest, da.transdate AS dunning_date, da.duedate AS dunning_duedate
+    qq|SELECT
+         da.fee, da.interest,
+         da.transdate  AS dunning_date,
+         da.duedate    AS dunning_duedate,
+
+         dcfg.template AS formname,
+         dcfg.email_subject, dcfg.email_body, dcfg.email_attachment,
+
+         ar.transdate,       ar.duedate,      ar.customer_id,
+         ar.invnumber,       ar.ordnumber,
+         ar.amount,          ar.netamount,    ar.paid,
+         ar.amount - ar.paid AS open_amount
+
        FROM dunning da
-       LEFT JOIN dunning_config ON (dunning_config.id = da.dunning_config_id)
+       LEFT JOIN dunning_config dcfg ON (dcfg.id = da.dunning_config_id)
        LEFT JOIN ar ON (ar.id = da.trans_id)
        WHERE (da.dunning_id = ?)|;
 
@@ -622,16 +702,17 @@ sub print_dunning {
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     map { push @{ $form->{"dn_$_"} }, $ref->{$_}} keys %$ref;
   }
-  $sth->finish;
+  $sth->finish();
 
   $query =
-    qq|SELECT id AS customer_id, name, street, zipcode, city, country, department_1, department_2, email
-       FROM customer
-       WHERE id =
-         (SELECT customer_id
-          FROM dunning d
-          LEFT JOIN ar ON (d.trans_id = ar.id)
-          WHERE d.id = ?)|;
+    qq|SELECT
+         c.id AS customer_id, c.name,         c.street,       c.zipcode, c.city,
+         c.country,           c.department_1, c.department_2, c.email
+       FROM dunning d
+       LEFT JOIN ar         ON (d.trans_id = ar.id)
+       LEFT JOIN customer c ON (ar.customer_id = c.id)
+       WHERE (d.dunning_id = ?)
+       LIMIT 1|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
@@ -668,66 +749,116 @@ sub print_dunning {
   $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($ref->{total_open_amount}, 2), 2);
   $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $ref->{total_open_amount}, 2), 2);
 
+  $self->set_template_options($myconfig, $form);
 
-  $form->{templates} = "$myconfig->{templates}";
+  my $filename          = "dunning_${dunning_id}_" . Common::unique_id() . ".pdf";
+  $form->{OUT}          = ">${main::spool}/$filename";
+  $form->{keep_tmpfile} = 1;
 
-  $form->{language} = $form->get_template_language(\%myconfig);
-  $form->{printer_code} = $form->get_printer_code(\%myconfig);
+  delete $form->{tmpfile};
 
-  if ($form->{language} ne "") {
-    $form->{language} = "_" . $form->{language};
+  push @{ $form->{DUNNING_PDFS} }, $filename;
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => $filename,
+                                           'name'     => "dunning_${dunning_id}.pdf" };
+
+  $form->parse_template($myconfig, $main::userspath);
+
+  $dbh->disconnect() unless $provided_dbh;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub print_invoice_for_fees {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $dunning_id, $provided_dbh) = @_;
+
+  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect($myconfig);
+
+  my ($query, @values, $sth);
+
+  $query =
+    qq|SELECT
+         d.fee_interest_ar_id,
+         dcfg.template
+       FROM dunning d
+       LEFT JOIN dunning_config dcfg ON (d.dunning_config_id = dcfg.id)
+       WHERE d.dunning_id = ?|;
+  my ($ar_id, $template) = selectrow_query($form, $dbh, $query, $dunning_id);
+
+  if (!$ar_id) {
+    $main::lxdebug->leave_sub();
+    return;
   }
 
-  if ($form->{printer_code} ne "") {
-    $form->{printer_code} = "_" . $form->{printer_code};
-  }
+  my $saved_form = save_form();
 
-  $form->{IN} = "$form->{formname}$form->{language}$form->{printer_code}.html";
-  if ($form->{format} eq 'postscript') {
-    $form->{postscript} = 1;
-    $form->{IN} =~ s/html$/tex/;
-  } elsif ($form->{"format"} =~ /pdf/) {
-    $form->{pdf} = 1;
-    if ($form->{"format"} =~ /opendocument/) {
-      $form->{IN} =~ s/html$/odt/;
+  $query = qq|SELECT SUM(fee), SUM(interest) FROM dunning WHERE id = ?|;
+  my ($fee_total, $interest_total) = selectrow_query($form, $dbh, $query, $dunning_id);
+
+  $query =
+    qq|SELECT
+         ar.invnumber, ar.transdate, ar.amount, ar.netamount,
+         ar.duedate,   ar.notes,     ar.notes AS invoicenotes,
+
+         c.name,      c.department_1,   c.department_2, c.street, c.zipcode, c.city, c.country,
+         c.contact,   c.customernumber, c.phone,        c.fax,    c.email,
+         c.taxnumber, c.sic_code,       c.greeting
+
+       FROM ar
+       LEFT JOIN customer c ON (ar.customer_id = c.id)
+       WHERE ar.id = ?|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $ar_id);
+  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+
+  $query = qq|SELECT * FROM employee WHERE login = ?|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{login});
+  map { $form->{"employee_${_}"} = $ref->{$_} } keys %{ $ref };
+
+  $query = qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid ASC|;
+  $sth   = prepare_execute_query($form, $dbh, $query, $ar_id);
+
+  my ($row, $fee, $interest) = (0, 0, 0);
+
+  while ($ref = $sth->fetchrow_hashref()) {
+    next if ($ref->{amount} < 0);
+
+    $row++;
+
+    if ($row == 1) {
+      $fee = $ref->{amount};
     } else {
-      $form->{IN} =~ s/html$/tex/;
+      $interest = $ref->{amount};
     }
-  } elsif ($form->{"format"} =~ /opendocument/) {
-    $form->{"opendocument"} = 1;
-    $form->{"IN"} =~ s/html$/odt/;
   }
 
-  if ($form->{"send_email"} && ($form->{email} ne "")) {
-    $form->{media} = 'email';
-  }
+  $form->{fee}        = $form->round_amount($fee,             2);
+  $form->{interest}   = $form->round_amount($interest,        2);
+  $form->{invamount}  = $form->round_amount($fee + $interest, 2);
+  $form->{dunning_id} = $dunning_id;
+  $form->{formname}   = "${template}_invoice";
 
-  $form->{keep_tmpfile} = 0;
-  if ($form->{media} eq 'email') {
-    $form->{subject} = qq|$form->{label} $form->{"${inv}number"}|
-      unless $form->{subject};
-    if (!$form->{email_attachment}) {
-      $form->{do_not_attach} = 1;
-    } else {
-      $form->{do_not_attach} = 0;
-    }
-    $form->{subject} = parse_strings($myconfig, $form, $userspath, $form->{email_subject});
-    $form->{message} = parse_strings($myconfig, $form, $userspath, $form->{email_body});
+  map { $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) } qw(fee interest invamount);
 
-    $form->{OUT} = "$sendmail";
+  $self->set_template_options($myconfig, $form);
 
-  } else {
+  my $filename = Common::unique_id() . "dunning_invoice_${dunning_id}.pdf";
 
-    my $filename = Common::unique_id() . $form->{login} . ".pdf";
+  $form->{OUT}          = ">$main::spool/$filename";
+  $form->{keep_tmpfile} = 1;
+  delete $form->{tmpfile};
 
-    push(@{ $form->{DUNNING_PDFS} }, $filename);
-    $form->{keep_tmpfile} = 1;
-  }
+  map { delete $form->{$_} } grep /^[a-z_]+_\d+$/, keys %{ $form };
 
-  $form->parse_template($myconfig, $userspath);
+  $form->parse_template($myconfig, $main::userspath);
 
-  $dbh->commit;
-  $dbh->disconnect;
+  restore_form($saved_form);
+
+  push @{ $form->{DUNNING_PDFS} }, $filename;
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => $filename,
+                                           'name'     => "dunning_invoice_${dunning_id}.pdf" };
+
+  $dbh->disconnect() unless $provided_dbh;
 
   $main::lxdebug->leave_sub();
 }

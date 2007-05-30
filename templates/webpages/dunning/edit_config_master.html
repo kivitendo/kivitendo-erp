@@ -2,9 +2,19 @@
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
+ <script type="text/javascript">
+  <!--
+      function enable_invoice_controls(enable) {
+        document.Form.AR.disabled                 = !enable;
+        document.Form.AR_amount_fee.disabled      = !enable;
+        document.Form.AR_amount_interest.disabled = !enable;
+      }
+    -->
+ </script>
+
  <div class="listtop" width="100%"><TMPL_VAR title></div>
 
- <form method="post" action="dn.pl">
+ <form method="post" action="dn.pl" name="Form">
   <table>
    <tr height="5"></tr>
 
@@ -78,9 +88,51 @@
    </tr>
   </table>
 
+  <input type="hidden" name="rowcount" value="<TMPL_VAR rowcount ESCAPE=HTML>">
+
   <hr size="3" noshade>
 
-  <input type="hidden" name="rowcount" value="<TMPL_VAR rowcount ESCAPE=HTML>">
+  <p>
+   <input type="checkbox" name="create_invoices_for_fees" id="create_invoices_for_fees"
+          <TMPL_IF create_invoices_for_fees>checked</TMPL_IF>
+          value="1" onclick="enable_invoice_controls(this.checked);">
+   <label for="create_invoices_for_fees"><translate>Automatically create customer invoices for fees and interests</translate></label>
+  </p>
+
+  <table>
+   <tr>
+    <th align="right"><translate>Account for fees</translate></th>
+    <td>
+     <select name="AR_amount_fee" <TMPL_UNLESS create_invoices_for_fees>disabled</TMPL_UNLESS>>
+      <TMPL_LOOP SELECT_AR_AMOUNT><option value="<TMPL_VAR id ESCAPE=HTML>" <TMPL_IF AR_amount_fee_selected>selected</TMPL_IF>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option>
+      </TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right"><translate>Account for interest</translate></th>
+    <td>
+     <select name="AR_amount_interest" <TMPL_UNLESS create_invoices_for_fees>disabled</TMPL_UNLESS>>
+      <TMPL_LOOP SELECT_AR_AMOUNT><option value="<TMPL_VAR id ESCAPE=HTML>" <TMPL_IF AR_amount_interest_selected>selected</TMPL_IF>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option>
+      </TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right"><translate>Record in</translate></th>
+    <td>
+     <select name="AR" <TMPL_UNLESS create_invoices_for_fees>disabled</TMPL_UNLESS>>
+      <TMPL_LOOP SELECT_AR><option value="<TMPL_VAR id ESCAPE=HTML>" <TMPL_IF AR_selected>selected</TMPL_IF>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option>
+      </TMPL_LOOP>
+     </select>
+    </td>
+   </tr>
+  </table>
+
+  <hr size="3" noshade>
+
   <input type="hidden" name="callback" value="<TMPL_VAR callback ESCAPE=HTML>">
 
   <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
