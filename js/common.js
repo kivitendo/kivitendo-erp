@@ -52,24 +52,27 @@ function set_longdescription_window(input_name) {
   }
 
 function check_right_number_format(input_name) {
-  if(thpoint) {
-    if(thpoint == ','){
-      var thnumbers = input_name.value.split(',');  
-      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(".") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(".") : thnumbers[thnumbers.length-1].length), 0);
-    }
-    else{
-      var thnumbers = input_name.value.split('.');  
-      thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(",") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(",") : thnumbers[thnumbers.length-1].length), 0);
-    }
-        
-    for(var i = 0; i < thnumbers.length; i++) {
-     if(i == 0 && thnumbers[i].length > 3) {
-      return show_alert_and_focus(input_name, wrongNumberFormat);
-     }
-     if(i > 0 && thnumbers[i].length != 3) {
-       return show_alert_and_focus(input_name, wrongNumberFormat);
-     }
-   }
+//   if(thpoint) {
+//     if(thpoint == ','){
+//       var thnumbers = input_name.value.split(',');  
+//       thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(".") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(".") : thnumbers[thnumbers.length-1].length), 0);
+//     }
+//     else{
+//       var thnumbers = input_name.value.split('.');  
+//       thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(",") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(",") : thnumbers[thnumbers.length-1].length), 0);
+//     }
+//         
+//     for(var i = 0; i < thnumbers.length; i++) {
+//      if(i == 0 && thnumbers[i].length > 3) {
+//       return show_alert_and_focus(input_name, wrongNumberFormat);
+//      }
+//      if(i > 0 && thnumbers[i].length != 3) {
+//        return show_alert_and_focus(input_name, wrongNumberFormat);
+//      }
+//    }
+//   }
+  if(decpoint == thpoint) {
+    return show_alert_and_focus(input_name, wrongNumberFormat);
   }
   if(decpoint == ',') {
     var decnumbers = input_name.value.split(',');
