@@ -14,6 +14,8 @@ use constant STDERR_TARGET => 1;
 
 use POSIX qw(strftime);
 
+use YAML;
+
 my $data_dumper_available;
 
 our $global_level;
@@ -131,6 +133,12 @@ sub dump {
                    "dumping ${name}: Data::Dumper not available; "
                      . "variable cannot be dumped");
   }
+}
+
+sub dump_yaml {
+  my ($self, $level, $name, $variable) = @_;
+
+  $self->message($level, "dumping ${name}:\n" . YAML::Dump($variable));
 }
 
 sub enable_sub_tracing {
