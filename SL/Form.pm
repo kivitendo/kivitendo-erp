@@ -1193,7 +1193,9 @@ sub check_exchangerate {
   my $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.curr = ? AND e.transdate = ?|;
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
-  $dbh->disconnect;
+  $dbh->disconnect();
+
+  $exchangerate = 1 if ($exchangerate == 0);
 
   $main::lxdebug->leave_sub();
 
