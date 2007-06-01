@@ -151,15 +151,9 @@ sub dump_sql_result {
     return;
   }
 
-  my %column_lengths;
-  my $first_row = 1;
+  my %column_lengths = map { $_, length $_ } keys %{ $results->[0] };
 
   foreach my $row (@{ $results }) {
-    if ($first_row) {
-      map { $column_lengths{$_} = length $_ } keys %{ $row };
-      $first_row = 0;
-    }
-
     map { $column_lengths{$_} = length $row->{$_} if (length $row->{$_} > $column_lengths{$_}) } keys %{ $row };
   }
 
