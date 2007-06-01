@@ -160,8 +160,7 @@ sub dump_sql_result {
   my @sorted_names = sort keys %column_lengths;
   my $format       = join '|', map { '%' . $column_lengths{$_} . 's' } @sorted_names;
 
-  $prefix  =~ s|\s*$||;
-  $prefix .=  ' ' if $prefix;
+  $prefix .= ' ' if $prefix;
 
   $self->message($level, $prefix . sprintf($format, @sorted_names));
   $self->message($level, $prefix . join('+', map { '-' x $column_lengths{$_} } @sorted_names));
