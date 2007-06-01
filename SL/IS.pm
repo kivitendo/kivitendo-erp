@@ -489,8 +489,7 @@ sub post_invoice {
   my ($query, $sth, $null, $project_id, $deliverydate, @values);
   my $exchangerate = 0;
 
-  ($null, $form->{employee_id}) = split(/--/, $form->{employee});
-  unless ($form->{employee_id}) {
+  if (!$form->{employee_id}) {
     $form->get_employee($dbh);
   }
 

@@ -357,14 +357,14 @@ sub form_header {
   @values = ();
   foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
     push(@values, $item->{"id"});
-    $labels{$item->{"id"}} = $item->{"name"};
+    $labels{$item->{id}} = $item->{name} ne "" ? $item->{name} : $item->{login};
   }
 
   my $employees = qq|
     <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
       <td>| .
-        NTI($cgi->popup_menu('-name' => 'employee', '-default' => $form->{"employee_id"},
+        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
                              '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
@@ -438,7 +438,7 @@ sub form_header {
                          '-default' => $form->{"globalproject_id"}));
 
   %labels = ();
-  @values = ("");
+  @values = ();
   foreach my $item (@{ $form->{ALL_SALESMEN} }) {
     push(@values, $item->{id});
     $labels{$item->{id}} = $item->{name} ne "" ? $item->{name} : $item->{login};
@@ -448,8 +448,8 @@ sub form_header {
     qq|<tr>
           <th align="right">| . $locale->text('Salesman') . qq|</th>
           <td>| .
-     NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id},
-                               '-values' => \@values, '-labels' => \%labels))
+     NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id} ? $form->{salesman_id} : $form->{employee_id},
+                          '-values' => \@values, '-labels' => \%labels))
      . qq|</td>
          </tr>|;
 
