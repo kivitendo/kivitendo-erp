@@ -127,7 +127,9 @@ sub dump {
   my ($self, $level, $name, $variable) = @_;
 
   if ($data_dumper_available) {
-    $self->message($level, "dumping ${name}:\n" . Dumper($variable));
+    my $dumper = Data::Dumper->new([$variable]);
+    $dumper->Sortkeys(1);
+    $self->message($level, "dumping ${name}:\n" . $dumper->Dump());
   } else {
     $self->message($level,
                    "dumping ${name}: Data::Dumper not available; "
