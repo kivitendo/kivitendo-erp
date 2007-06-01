@@ -247,7 +247,7 @@ sub all_transactions {
   @values = ();
 
   foreach my $id (@id) {
-
+    
     # NOTE: Postgres is really picky about the order of implicit CROSS
     #  JOINs with ',' if you alias the tables and want to use the
     #  alias later in another JOIN.  the alias you want to use has to
@@ -266,7 +266,6 @@ sub all_transactions {
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq|  AND ac.chart_id = ? | .
-      qq|  AND ac.trans_id = a.id | .
 
       qq|UNION | .
 
@@ -275,9 +274,9 @@ sub all_transactions {
       qq|FROM acc_trans ac, customer c, ar a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
-      qq|  AND ac.chart_id = ? | .
-      qq|  AND ac.trans_id = a.id | .
-      qq|  AND a.customer_id = c.id | .
+      qq| AND ac.chart_id = ? | .
+      qq| AND NOT a.storno | .
+      qq| AND a.customer_id = c.id | .
 
       qq|UNION | .
 
@@ -286,9 +285,9 @@ sub all_transactions {
       qq|FROM acc_trans ac, vendor v, ap a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
-      qq|  AND ac.chart_id = ? | .
-      qq|  AND ac.trans_id = a.id | .
-      qq|  AND a.vendor_id = v.id |;
+      qq| AND ac.chart_id = ? | .
+      qq| AND NOT a.storno | .
+      qq| AND a.vendor_id = v.id |;
 
     push(@values,
          @where_values, @department_values, @project_values, $id,
@@ -345,7 +344,7 @@ sub all_transactions {
     $union = qq|UNION ALL|;
   }
 
-  $query .= qq|ORDER BY | . $sortorder;
+  $query .= qq|ORDER BY | . $form->{sort};
   $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   $form->{CA} = [];
