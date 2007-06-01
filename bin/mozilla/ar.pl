@@ -1026,7 +1026,7 @@ sub post_payment {
 
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
-  $form->redirect($locale->text(' Payment posted!'))
+  $form->redirect($locale->text('Payment posted!'))
       if (AR->post_payment(\%myconfig, \%$form));
     $form->error($locale->text('Cannot post payment!'));
 

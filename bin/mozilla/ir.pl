@@ -1049,19 +1049,19 @@ sub post_payment {
   ($form->{AP})      = split /--/, $form->{AP};
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
   if (IR->post_payment(\%myconfig, \%$form)){
-      	
-  	if(!exists $form->{addition} && $form->{id} ne "") {
+  	if (!exists $form->{addition} && $form->{id} ne "") {
   		# saving the history
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
   		$form->{addition} = "PAYMENT POSTED";
       $form->{what_done} = $form->{currency} . qq| | . $form->{paid} . qq| | . $locale->text("POSTED");
   		$form->save_history($form->dbconnect(\%myconfig));
-  		# /saving the history 
-  		$form->redirect($locale->text(' Payment posted!'));
+  		# /saving the history
   	}
-  }
-    $form->error($locale->text('Cannot post payment!'));
 
+    $form->redirect($locale->text('Payment posted!'));
+  }
+
+  $form->error($locale->text('Cannot post payment!'));
 
   $lxdebug->leave_sub();
 }

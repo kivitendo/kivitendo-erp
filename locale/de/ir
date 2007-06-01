@@ -1,6 +1,5 @@
 $self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
-  ' Payment posted!'            => 'Zahlung gebucht!',
   '*/'                          => '*/',
   'ADDED'                       => 'Hinzugefügt',
   'Account'                     => 'Konto',
@@ -138,6 +137,7 @@ $self->{texts} = {
   'Part Number'                 => 'Artikelnummer',
   'Part description'            => 'Artikelbeschreibung',
   'Payment date missing!'       => 'Tag der Zahlung fehlt!',
+  'Payment posted!'             => 'Zahlung gebucht!',
   'Payments'                    => 'Zahlungsausgänge',
   'Phone'                       => 'Telefon',
   'Pick List'                   => 'Sammelliste',

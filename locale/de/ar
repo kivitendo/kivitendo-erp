@@ -1,5 +1,4 @@
 $self->{texts} = {
-  ' Payment posted!'            => 'Zahlung gebucht!',
   'ADDED'                       => 'Hinzugefügt',
   'AR Transaction'              => 'Debitorenbuchung',
   'AR Transaction (abbreviation)' => 'D',
@@ -118,6 +117,7 @@ $self->{texts} = {
   'Part Number'                 => 'Artikelnummer',
   'Part description'            => 'Artikelbeschreibung',
   'Payment date missing!'       => 'Tag der Zahlung fehlt!',
+  'Payment posted!'             => 'Zahlung gebucht!',
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Post'                        => 'Buchen',
