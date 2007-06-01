@@ -1255,14 +1255,6 @@ sub post_payment {
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
-
-  my @prior;
-  push @prior, selectall_hashref_query($form, $dbh, qq|SELECT id, paid, datepaid FROM ap WHERE id = ?|, $form->{id});
-  push @prior, selectall_hashref_query($form, $dbh, qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid|, $form->{id});
-
-
-
-
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
@@ -1313,18 +1305,6 @@ sub post_payment {
 
   restore_form($old_form);
 
-  my @after;
-  push @after, selectall_hashref_query($form, $dbh, qq|SELECT id, paid, datepaid FROM ap WHERE id = ?|, $form->{id});
-  push @after, selectall_hashref_query($form, $dbh, qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid|, $form->{id});
-
-  foreach my $rows (@prior, @after) {
-    map { delete @{$_}{qw(itime mtime)} } @{ $rows };
-  }
-
-  map { $main::lxdebug->dump_sql_result(0, 'davor ', $_) } @prior;
-  map { $main::lxdebug->dump_sql_result(0, 'danach', $_) } @after;
-
-  my $rc = 1;
   my $rc = $dbh->commit();
   $dbh->disconnect();
 
