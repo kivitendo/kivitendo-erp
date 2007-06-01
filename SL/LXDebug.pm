@@ -143,6 +143,41 @@ sub dump_yaml {
   $self->message($level, "dumping ${name}:\n" . YAML::Dump($variable));
 }
 
+sub dump_sql_result {
+  my ($self, $level, $prefix, $results) = @_;
+
+  if (!$results || !scalar @{ $results }) {
+    $self->message($level, "Empty result set");
+    return;
+  }
+
+  my %column_lengths;
+  my $first_row = 1;
+
+  foreach my $row (@{ $results }) {
+    if ($first_row) {
+      map { $column_lengths{$_} = length $_ } keys %{ $row };
+      $first_row = 0;
+    }
+
+    map { $column_lengths{$_} = length $row->{$_} if (length $row->{$_} > $column_lengths{$_}) } keys %{ $row };
+  }
+
+  my @sorted_names = sort keys %column_lengths;
+  my $format       = join '|', map { '%' . $column_lengths{$_} . 's' } @sorted_names;
+
+  $prefix  =~ s|\s*$||;
+  $prefix .=  ' ' if $prefix;
+
+  $self->message($level, $prefix . sprintf($format, @sorted_names));
+  $self->message($level, $prefix . join('+', map { '-' x $column_lengths{$_} } @sorted_names));
+
+  foreach my $row (@{ $results }) {
+    $self->message($level, $prefix . sprintf($format, map { $row->{$_} } @sorted_names));
+  }
+  $self->message($level, $prefix . sprintf('(%d row%s)', scalar @{ $results }, scalar @{ $results } > 1 ? 's' : ''));
+}
+
 sub enable_sub_tracing {
   my ($self) = @_;
   $self->{level} | TRACE;
