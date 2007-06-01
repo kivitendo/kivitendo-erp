@@ -37,14 +37,15 @@ package IR;
 use SL::AM;
 use SL::Common;
 use SL::DBUtils;
+use SL::MoreCommon;
 
 sub post_invoice {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
 
   # connect to database, turn off autocommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
 
   my ($query, $sth, @values, $project_id);
   my ($allocated, $taxrate, $taxamount, $taxdiff, $item);
@@ -54,17 +55,21 @@ sub post_invoice {
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
-  if ($form->{id}) {
+  if (!$payments_only) {
+    if ($form->{id}) {
+      &reverse_invoice($dbh, $form);
 
-    &reverse_invoice($dbh, $form);
+    } else {
+      ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
 
-  } else {
-    ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-
-    do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber) VALUES (?, '')|, $form->{id});
+      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber) VALUES (?, '')|, $form->{id});
+    }
   }
 
-  if ($form->{currency} eq $form->{defaultcurrency}) {
+  my ($currencies)    = selectfirst_array_query($form, $dbh, qq|SELECT curr FROM defaults|);
+  my $defaultcurrency = (split m/:/, $currencies)[0];
+
+  if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
     $exchangerate =
@@ -172,6 +177,10 @@ sub post_invoice {
       $form->{"sellprice_$i"} =
         $form->round_amount($form->{"sellprice_$i"} * $form->{exchangerate}, $decimalplaces);
 
+      $lastinventoryaccno = $form->{"inventory_accno_$i"};
+
+      next if $payments_only;
+
       # update parts table
       $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
       @values = ($form->{"sellprice_$i"}, conv_i($form->{"id_$i"}));
@@ -247,8 +256,6 @@ sub post_invoice {
 
       $sth->finish();
 
-      $lastinventoryaccno = $form->{"inventory_accno_$i"};
-
     } else {
 
       $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
@@ -296,10 +303,14 @@ sub post_invoice {
       # adjust and round sellprice
       $form->{"sellprice_$i"} = $form->round_amount($form->{"sellprice_$i"} * $form->{exchangerate}, $decimalplaces);
 
+      next if $payments_only;
+
       # update lastcost
       $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
       do_query($form, $dbh, $query, $form->{"sellprice_$i"}, conv_i($form->{"id_$i"}));
     }
+
+    next if $payments_only;
 
     # save detail record in invoice table
     $query =
@@ -385,7 +396,7 @@ sub post_invoice {
   }
 
   # update exchangerate
-  if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
+  if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
     $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate});
   }
 
@@ -393,7 +404,8 @@ sub post_invoice {
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
-      next unless $form->{amount}{$trans_id}{$accno};
+
+      next if ($payments_only || !$form->{amount}{$trans_id}{$accno});
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
@@ -447,7 +459,7 @@ sub post_invoice {
 
     $exchangerate = 0;
 
-    if ($form->{currency} eq $form->{defaultcurrency}) {
+    if ($form->{currency} eq $defaultcurrency) {
       $form->{"exchangerate_$i"} = 1;
     } else {
       $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
@@ -476,7 +488,7 @@ sub post_invoice {
     $paiddiff = 0;
 
     # update exchange rate
-    if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
+    if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
       $form->update_exchangerate($dbh, $form->{currency},
                                  $form->{"datepaid_$i"},
                                  0, $form->{"exchangerate_$i"});
@@ -494,6 +506,19 @@ sub post_invoice {
       @values = (conv_i($form->{id}), $accno, $form->{fx}{$accno}{$transdate}, conv_date($transdate), $project_id);
       do_query($form, $dbh, $query, @values);
     }
+  }
+
+  if ($payments_only) {
+    $query = qq|UPDATE ap SET paid = ?, datepaid = ? WHERE id = ?|;
+    do_query($form, $dbh, $query,  $form->{paid}, $form->{paid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
+
+    if (!$provided_dbh) {
+      $dbh->commit();
+      $dbh->disconnect();
+    }
+
+    $main::lxdebug->leave_sub();
+    return;
   }
 
   $amount = $netamount + $tax;
@@ -569,8 +594,12 @@ sub post_invoice {
 
   Common::webdav_folder($form) if ($main::webdav);
 
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
+  my $rc = 1;
+
+  if (!$provided_dbh) {
+    $rc = $dbh->commit();
+    $dbh->disconnect();
+  }
 
   $main::lxdebug->leave_sub();
 
@@ -1177,6 +1206,45 @@ sub item_links {
   $main::lxdebug->leave_sub();
 }
 
+sub _delete_payments {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $dbh) = @_;
+
+  my @delete_oids;
+
+  # Delete old payment entries from acc_trans.
+  my $query =
+    qq|SELECT oid
+       FROM acc_trans
+       WHERE (trans_id = ?) AND fx_transaction
+
+       UNION
+
+       SELECT at.oid
+       FROM acc_trans at
+       LEFT JOIN chart c ON (at.chart_id = c.id)
+       WHERE (trans_id = ?) AND (c.link LIKE '%AP_paid%')|;
+  push @delete_oids, selectall_array_query($form, $dbh, $query, conv_i($form->{id}), conv_i($form->{id}));
+
+  $query =
+    qq|SELECT at.oid
+       FROM acc_trans at
+       LEFT JOIN chart c ON (at.chart_id = c.id)
+       WHERE (trans_id = ?)
+         AND ((c.link = 'AP') OR (c.link LIKE '%:AP') OR (c.link LIKE 'AP:%'))
+       ORDER BY at.oid
+       OFFSET 1|;
+  push @delete_oids, selectall_array_query($form, $dbh, $query, conv_i($form->{id}));
+
+  if (@delete_oids) {
+    $query = qq|DELETE FROM acc_trans WHERE oid IN (| . join(", ", @delete_oids) . qq|)|;
+    do_query($form, $dbh, $query);
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
 sub post_payment {
   $main::lxdebug->enter_sub();
 
@@ -1185,138 +1253,78 @@ sub post_payment {
   # connect to database, turn off autocommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  $form->{datepaid} = $form->{invdate};
+  my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
-  # total payments, don't move we need it here
-  for my $i (1 .. $form->{paidaccounts}) {
-    $form->{"paid_$i"}  = $form->parse_amount($myconfig, $form->{"paid_$i"});
-    $form->{paid}      += $form->{"paid_$i"};
-    $form->{datepaid}   = $form->{"datepaid_$i"} if ($form->{"datepaid_$i"});
+
+  my @prior;
+  push @prior, selectall_hashref_query($form, $dbh, qq|SELECT id, paid, datepaid FROM ap WHERE id = ?|, $form->{id});
+  push @prior, selectall_hashref_query($form, $dbh, qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid|, $form->{id});
+
+
+
+
+  $old_form = save_form();
+
+  # Delete all entries in acc_trans from prior payments.
+  $self->_delete_payments($form, $dbh);
+
+  # Save the new payments the user made before cleaning up $form.
+  map { $payments{$_} = $form->{$_} } grep m/^datepaid_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^AP_paid_\d+$|^paidaccounts$/, keys %{ $form };
+
+  # Clean up $form so that old content won't tamper the results.
+  %keep_vars = map { $_, 1 } qw(login password id);
+  map { delete $form->{$_} unless $keep_vars{$_} } keys %{ $form };
+
+  # Retrieve the invoice from the database.
+  $self->retrieve_invoice($myconfig, $form);
+
+  # Set up the content of $form in the way that IR::post_invoice() expects.
+  $form->{exchangerate} = $form->format_amount($myconfig, $form->{exchangerate});
+
+  for $row (1 .. scalar @{ $form->{invoice_details} }) {
+    $item = $form->{invoice_details}->[$row - 1];
+
+    map { $item->{$_} = $form->format_amount($myconfig, $item->{$_}) } qw(qty sellprice);
+
+    map { $form->{"${_}_${row}"} = $item->{$_} } keys %{ $item };
   }
 
-  $form->{exchangerate} =
-      $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "buy");
+  $form->{rowcount} = scalar @{ $form->{invoice_details} };
 
-  my $project_id = conv_i($form->{"globalproject_id"});
+  delete @{$form}{qw(invoice_details paidaccounts storno paid)};
 
-  # record payments and offsetting AP
-  for my $i (1 .. $form->{paidaccounts}) {
-    next if $form->{"paid_$i"} == 0;
+  # Restore the payment options from the user input.
+  map { $form->{$_} = $payments{$_} } keys %payments;
 
-    my ($accno)            = split /--/, $form->{"AP_paid_$i"};
-    $form->{"datepaid_$i"} = $form->{invdate} unless $form->{"datepaid_$i"};
-    $form->{datepaid}      = $form->{"datepaid_$i"};
+  # Get the AP accno (which is normally done by Form::create_links()).
+  $query =
+    qq|SELECT c.accno
+       FROM acc_trans at
+       LEFT JOIN chart c ON (at.chart_id = c.id)
+       WHERE (trans_id = ?)
+         AND ((c.link = 'AP') OR (c.link LIKE '%:AP') OR (c.link LIKE 'AP:%'))
+       ORDER BY at.oid
+       LIMIT 1|;
 
-    $exchangerate = 0;
-    if (($form->{currency} eq $form->{defaultcurrency}) || ($form->{defaultcurrency} eq "")) {
-      $form->{"exchangerate_$i"} = 1;
+  ($form->{AP}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));
 
-    } else {
-      $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
+  # Post the new payments.
+  $self->post_invoice($myconfig, $form, $dbh, 1);
 
-      $form->{"exchangerate_$i"} =
-        ($exchangerate)
-        ? $exchangerate
-        : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
-    }
+  restore_form($old_form);
 
-    # record AP
-    $amount = $form->round_amount($form->{"paid_$i"} * $form->{"exchangerate"}, 2) * -1;
+  my @after;
+  push @after, selectall_hashref_query($form, $dbh, qq|SELECT id, paid, datepaid FROM ap WHERE id = ?|, $form->{id});
+  push @after, selectall_hashref_query($form, $dbh, qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid|, $form->{id});
 
-    $query =
-      qq|DELETE FROM acc_trans
-         WHERE (trans_id = ?)
-           AND (chart_id = (SELECT c.id FROM chart c WHERE c.accno = ?))
-           AND (amount = ?)
-           AND (transdate = ?)|;
-    @values = (conv_i($form->{id}), $form->{AP}, $amount, conv_date($form->{"datepaid_$i"}));
-    do_query($form, $dbh, $query, @values);
-
-    $query =
-      qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id)
-         VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?,
-                 (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
-    @values = (conv_i($form->{id}), $form->{AP}, $amount,
-               conv_date($form->{"datepaid_$i"}), $form->{AP}, $project_id);
-    do_query($form, $dbh, $query, @values);
-
-    $query =
-      qq|DELETE FROM acc_trans
-         WHERE (trans_id = ?)
-          AND (chart_id=(SELECT c.id FROM chart c WHERE c.accno = ?))
-          AND (amount = ?)
-          AND (transdate = ?)
-          AND (source = ?)
-          AND (memo = ?)|;
-    @values = (conv_i($form->{id}), $accno, $form->{"paid_$i"},
-               conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
-               $form->{"memo_$i"});
-    do_query($form, $dbh, $query, @values);
-
-    $query =
-      qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, taxkey, project_id)
-         VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?,
-                 (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
-    @values = (conv_i($form->{id}), $accno, $form->{"paid_$i"},
-               conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
-               $form->{"memo_$i"}, $accno, $project_id);
-    do_query($form, $dbh, $query, @values);
-
-    # gain/loss
-    $amount = $form->{"paid_$i"} * $form->{exchangerate} - $form->{"paid_$i"} * $form->{"exchangerate_$i"};
-
-    if ($amount > 0) {
-      $form->{fx}{ $form->{fxgain_accno} }{ $form->{"datepaid_$i"} } += $amount;
-    } else {
-      $form->{fx}{ $form->{fxloss_accno} }{ $form->{"datepaid_$i"} } += $amount;
-    }
-
-    $diff = 0;
-
-    # update exchange rate
-    if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-      $form->update_exchangerate($dbh, $form->{currency},
-                                 $form->{"datepaid_$i"},
-                                 $form->{"exchangerate_$i"}, 0);
-    }
+  foreach my $rows (@prior, @after) {
+    map { delete @{$_}{qw(itime mtime)} } @{ $rows };
   }
 
-  # record exchange rate differences and gains/losses
-  foreach my $accno (keys %{ $form->{fx} }) {
-    foreach my $transdate (keys %{ $form->{fx}{$accno} }) {
-      $form->{fx}{$accno}{$transdate} = $form->round_amount($form->{fx}{$accno}{$transdate}, 2);
-      next if $form->{fx}{$accno}{$transdate} == 0;
+  map { $main::lxdebug->dump_sql_result(0, 'davor ', $_) } @prior;
+  map { $main::lxdebug->dump_sql_result(0, 'danach', $_) } @after;
 
-      $query =
-        qq|DELETE FROM acc_trans
-           WHERE (trans_id = ?)
-             AND (chart_id = (SELECT id FROM chart WHERE accno = ?))
-             AND (amount = ?)
-             AND (transdate = ?)
-             AND (cleared = '0')
-             AND (fx_transaction = '1')|;
-      @values = (conv_i($form->{id}), $accno, $form->{fx}{$accno}{$transdate}, $transdate);
-      do_query($form, $dbh, $query, @values);
-
-      $query =
-        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, taxkey, project_id)
-           VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, '0', '1',
-                   (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
-      @values = (conv_i($form->{id}), $accno, $form->{fx}{$accno}{$transdate},
-                 $transdate, $accno, $project_id);
-      do_query($form, $dbh, $query, @values);
-    }
-  }
-
-  my $datepaid = $form->{paid}    ? qq|'$form->{datepaid}'| : "NULL";
-
-  # save AP record
-  my $query = qq|UPDATE ap
-                 SET paid = ?, datepaid = ?
-                 WHERE id = ?|;
-  @values = ($form->{paid}, $form->{paid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
-  do_query($form, $dbh, $query, @values);
-
+  my $rc = 1;
   my $rc = $dbh->commit();
   $dbh->disconnect();
 
