@@ -410,12 +410,13 @@ sub list_transactions {
     $totaldebit  += $ca->{debit};
     $totalcredit += $ca->{credit};
 
-    $column_data{transdate}   = qq|<td>$ca->{transdate}</td>|;
-    $column_data{reference}   = qq|<td>$href</td>|;
-    $column_data{description} = qq|<td>$ca->{description}</td>|;
-
-    $i++;
+    $column_data{transdate}   = ($ca->{"reference"} ne $last || $form->{sort} ne "transdate") ? qq|<td>$ca->{transdate}</td>| : qq|<td></td>|;
+    $column_data{reference}   = ($ca->{"reference"} ne $last) ? qq|<td>$href</td>| : qq|<td></td>|;
+    $column_data{description} = ($ca->{"reference"} ne $last) ? qq|<td>$ca->{description}</td>| : qq|<td></td>|;
+    
+    $i++ if($ca->{"reference"} ne $last);
     $i %= 2;
+    $last=$ca->{"reference"};
     print qq|
         <tr class=listrow$i>
 |;
