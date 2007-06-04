@@ -79,7 +79,7 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-  $form->{"Watchdog::paidaccounts"} = 1;
+
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
@@ -199,11 +199,6 @@ sub invoice_links {
 
     if ($key eq "AR_paid") {
       for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
-        $lxdebug->message(0, "link " . $form->{acc_trans}->{$key}->[$i - 1]->{link});
-        $lxdebug->dump(0, "...", $form->{acc_trans}->{$key}->[$i - 1]);
-        my $previous_links = { map { $_, 1 } split m/:/, $form->{acc_trans}->{$key}->[$i - 1]->{link} };
-        next if (!$previous_links->{AR});
-
         $form->{"AR_paid_$i"} =
           "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
 
