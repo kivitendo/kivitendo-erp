@@ -730,7 +730,9 @@ sub form_footer {
 	</tr>
 |;
 
-  my @triggers = ();
+  my @triggers  = ();
+  my $totalpaid = 0;
+
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
 
@@ -741,6 +743,8 @@ sub form_footer {
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
     $form->{"selectAP_paid_$i"} =~
       s/option>\Q$form->{"AP_paid_$i"}\E/option selected>$form->{"AP_paid_$i"}/;
+
+    $totalpaid += $form->{"paid_$i"};
 
     # format amounts
     if ($form->{"paid_$i"}) {
@@ -785,7 +789,22 @@ sub form_footer {
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
+  my $paid_missing = $form->{oldinvtotal} - $totalpaid;
+
   print qq|
+        <tr>
+          <td></td>
+          <td></td>
+          <td align="center">| . $locale->text('Total') . qq|</td>
+          <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td align="center">| . $locale->text('Missing amount') . qq|</td>
+          <td align="center">| . H($form->format_amount(\%myconfig, $paid_missing, 2)) . qq|</td>
+        </tr>
+
 	    <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
 	    <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
       	    <input type=hidden name=selectAP_paid value="$form->{selectAP_paid}">

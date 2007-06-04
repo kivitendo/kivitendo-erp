@@ -1011,7 +1011,8 @@ if ($form->{type} eq "credit_note") {
         </tr>
 ";
 
-  my @triggers = ();
+  my @triggers  = ();
+  my $totalpaid = 0;
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
@@ -1061,6 +1062,23 @@ if ($form->{type} eq "credit_note") {
         </tr>\n";
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
+
+  my $paid_missing = $form->{oldinvtotal} - $totalpaid;
+
+  print qq|
+    <tr>
+      <td></td>
+      <td></td>
+      <td align="center">| . $locale->text('Total') . qq|</td>
+      <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td align="center">| . $locale->text('Missing amount') . qq|</td>
+      <td align="center">| . H($form->format_amount(\%myconfig, $paid_missing, 2)) . qq|</td>
+    </tr>
+|;
 
   map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } qw(paidaccounts selectAR_paid oldinvtotal));
   print qq|<input type="hidden" name="oldtotalpaid" value="$totalpaid">

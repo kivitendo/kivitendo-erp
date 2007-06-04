@@ -672,6 +672,7 @@ $jsscript
     ? $locale->text('Tax Included')
     : $locale->text('Tax');
 
+  $form->{invtotal_unformatted} = $form->{invtotal};
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
   $APselected =
@@ -741,7 +742,9 @@ $jsscript
         </tr>
 ";
 
-  my @triggers = ();
+  my @triggers  = ();
+  my $totalpaid = 0;
+
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for $i (1 .. $form->{paidaccounts}) {
     print "
@@ -754,6 +757,8 @@ $jsscript
                            '-values' => \@AP_paid_values,
                            '-labels' => \%AP_paid_labels,
                            '-default' => $form->{"AP_paid_$i"}));
+
+    $totalpaid += $form->{"paid_$i"};
 
     # format amounts
     if ($form->{"paid_$i"}) {
@@ -805,7 +810,23 @@ $jsscript
 ";
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
-  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
+
+  my $paid_missing = $form->{invtotal_unformatted} - $totalpaid;
+
+  print qq|
+        <tr>
+          <td></td>
+          <td></td>
+          <td align="center">| . $locale->text('Total') . qq|</td>
+          <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td align="center">| . $locale->text('Missing amount') . qq|</td>
+          <td align="center">| . H($form->format_amount(\%myconfig, $paid_missing, 2)) . qq|</td>
+        </tr>
+| . $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
     qq|
     <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
 
