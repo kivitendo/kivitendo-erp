@@ -2146,7 +2146,7 @@ sub create_links {
     # get amounts from individual entries
     $query =
       qq|SELECT
-           c.accno, c.description,
+           c.accno, c.description, c.link,
            a.source, a.amount, a.memo, a.transdate, a.cleared, a.project_id, a.taxkey,
            p.projectnumber,
            t.rate, t.id
