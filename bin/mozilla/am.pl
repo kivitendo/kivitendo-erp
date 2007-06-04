@@ -427,13 +427,13 @@ sub list_account {
     $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:''; 
     $ca->{link_edit_account} = 
         qq|$form->{script}?action=edit_account&id=$ca->{id}|
-       .qq|&path=$form->{path}&login=$form->{login}|
+       .qq|&login=$form->{login}|
        .qq|&password=$form->{password}&callback=$callback|;
   }
   
   # Ajax 
   my $list_account_details_url = 
-              "$form->{script}?login=$form->{login}&path=$form->{path}"
+              "$form->{script}?login=$form->{login}"
              ."&password=$form->{password}&action=list_account_details&";
   
   
@@ -474,7 +474,7 @@ sub list_account_details {
 
   # construct callback
   $callback =
-    "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
 
   $form->header;
 

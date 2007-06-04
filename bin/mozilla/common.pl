@@ -168,7 +168,7 @@ sub part_selection_internal {
 
   my $callback = "$form->{script}?action=part_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password partnumber description input_partnumber input_description input_partsid), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password partnumber description input_partnumber input_description input_partsid), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(partnumber description);
   my %header_title = ( "partnumber" => $locale->text("Part Number"),
@@ -209,7 +209,7 @@ sub project_selection_internal {
 
   my $callback = "$form->{script}?action=project_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password projectnumber description input_projectnumber input_description input_project_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password projectnumber description input_projectnumber input_description input_project_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(projectnumber description);
   my %header_title = ( "projectnumber" => $locale->text("Project Number"),
@@ -250,7 +250,7 @@ sub employee_selection_internal {
 
   my $callback = "$form->{script}?action=employee_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -290,7 +290,7 @@ sub delivery_customer_selection {
 
   my $callback = "$form->{script}?action=delivery_customer_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name customernumber address);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -332,7 +332,7 @@ sub vendor_selection {
 
   my $callback = "$form->{script}?action=vendor_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name customernumber address);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -408,7 +408,7 @@ sub set_longdescription {
 
   my $callback = "$form->{script}?action=set_longdescription&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   $form->{"title"} = $locale->text("Enter longdescription");
   $form->header();
