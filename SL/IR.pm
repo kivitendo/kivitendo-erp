@@ -1007,7 +1007,7 @@ sub retrieve_item {
   foreach my $table_column (qw(p.partnumber p.description pg.partsgroup)) {
     my $field = (split m{\.}, $table_column)[1];
     next unless $form->{"${field}_${i}"};
-    $where .= " AND lower(${table_column}) LIKE ?";
+    $where .= " AND lower(${table_column}) LIKE lower(?)";
     push @values, '%' . $form->{"${field}_${i}"} . '%';
   }
 
