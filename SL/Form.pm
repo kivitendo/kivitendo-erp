@@ -1697,7 +1697,7 @@ sub _get_customers {
 
   $key = "all_customers" unless ($key);
 
-  my $query = qq|SELECT * FROM customer ORDER BY name|;
+  my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1711,7 +1711,7 @@ sub _get_vendors {
 
   $key = "all_vendors" unless ($key);
 
-  my $query = qq|SELECT * FROM vendor ORDER BY name|;
+  my $query = qq|SELECT * FROM vendor WHERE NOT obsolete ORDER BY name|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
