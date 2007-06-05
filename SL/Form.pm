@@ -1196,6 +1196,7 @@ sub check_exchangerate {
   $dbh->disconnect();
 
   $exchangerate = 1 if ($exchangerate == 0);
+  $exchangerate = 1 if ($exchangerate eq "");
 
   $main::lxdebug->leave_sub();
 
