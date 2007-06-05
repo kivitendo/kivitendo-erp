@@ -2016,7 +2016,7 @@ sub all_departments {
 sub create_links {
   $main::lxdebug->enter_sub();
 
-  my ($self, $module, $myconfig, $table) = @_;
+  my ($self, $module, $myconfig, $table, $provided_dbh) = @_;
 
   my ($fld, $arap);
   if ($table eq "customer") {
@@ -2033,7 +2033,7 @@ sub create_links {
   # get last customers or vendors
   my ($query, $sth, $ref);
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $provided_dbh ? $provided_dbh : $self->dbconnect($myconfig);
   my %xkeyref = ();
 
   if (!$self->{id}) {
@@ -2227,7 +2227,7 @@ sub create_links {
 
   }
 
-  $dbh->disconnect;
+  $dbh->disconnect() unless $provided_dbh;
 
   $main::lxdebug->leave_sub();
 }
