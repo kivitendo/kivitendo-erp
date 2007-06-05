@@ -120,7 +120,7 @@ sub transactions {
   }
 
   if ($form->{$ordnumber}) {
-    $query .= qq| AND $ordnumber ILIKE ?|;
+    $query .= qq| AND o.$ordnumber ILIKE ?|;
     push(@values, '%' . $form->{$ordnumber} . '%');
   }
 
