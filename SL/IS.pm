@@ -1099,9 +1099,6 @@ sub post_payment {
   # Delete all entries in acc_trans from prior payments.
   $self->_delete_payments($form, $dbh);
 
-  my @after_dp;
-  push @after_dp, selectall_hashref_query($form, $dbh, qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid|, $form->{id});
-
   # Save the new payments the user made before cleaning up $form.
   map { $payments{$_} = $form->{$_} } grep m/^datepaid_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^AR_paid_\d+$|^paidaccounts$/, keys %{ $form };
 
