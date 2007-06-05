@@ -1109,7 +1109,7 @@ sub post_payment {
   # Retrieve the invoice from the database.
   $self->retrieve_invoice($myconfig, $form);
 
-  # Set up the content of $form in the way that IR::post_invoice() expects.
+  # Set up the content of $form in the way that IS::post_invoice() expects.
   $form->{exchangerate} = $form->format_amount($myconfig, $form->{exchangerate});
 
   for $row (1 .. scalar @{ $form->{invoice_details} }) {
