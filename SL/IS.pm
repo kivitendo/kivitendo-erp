@@ -1130,7 +1130,7 @@ sub post_payment {
   # Restore the payment options from the user input.
   map { $form->{$_} = $payments{$_} } keys %payments;
 
-  # Get the AP accno (which is normally done by Form::create_links()).
+  # Get the AR accno (which is normally done by Form::create_links()).
   $query =
     qq|SELECT c.accno
        FROM acc_trans at
