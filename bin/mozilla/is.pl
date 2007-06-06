@@ -169,10 +169,6 @@ sub invoice_links {
 
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
 
-  if (@{ $form->{all_customer} }) {
-     $form->{customer} = "$form->{customer}--$form->{customer_id}";
-  }
-
   # departments
   if ($form->{all_departments}) {
     $form->{selectdepartment} = "<option>\n";
