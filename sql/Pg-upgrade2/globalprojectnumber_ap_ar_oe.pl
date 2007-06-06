@@ -4,6 +4,12 @@
 
 die("This script cannot be run from the command line.") unless ($main::form);
 
+sub mydberror {
+  my ($msg) = @_;
+  die($dbup_locale->text("Database update error:") .
+      "<br>$msg<br>" . $DBI::errstr);
+}
+
 sub do_query {
   my ($query, $may_fail) = @_;
 
