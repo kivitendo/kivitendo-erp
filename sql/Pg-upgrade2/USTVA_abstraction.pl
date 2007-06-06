@@ -3,12 +3,18 @@
 # @depends: release_2_4_2
 
 # Abstraktionlayer between general Taxreports and USTVA
-# Most of the data and structures are not used yet, but maybe in future, 
+# Most of the data and structures are not used yet, but maybe in future,
 # if there are other international customizings are requested...
 
 ###################
 
 die("This script cannot be run from the command line.") unless ($main::form);
+
+sub mydberror {
+  my ($msg) = @_;
+  die($dbup_locale->text("Database update error:") .
+      "<br>$msg<br>" . $DBI::errstr);
+}
 
 sub do_query {
   my ($query, $may_fail) = @_;
@@ -32,7 +38,7 @@ sub create_tables {
            description     text,
            subdescription  text
          );
-      },              
+      },
       q{ CREATE TABLE tax.report_headings (
            id              integer NOT NULL PRIMARY KEY,
            category_id     integer NOT NULL REFERENCES tax.report_categorys(id),
@@ -55,17 +61,17 @@ sub create_tables {
 
   do_query("DROP SCHEMA tax CASCADE;", 1);
   map({ do_query($_, 0); } @queries);
-  
+
   return 1;
-  
+
 }
 
 sub do_copy {
 
   my @copy_statements = (
-    "COPY tax.report_categorys FROM STDIN WITH DELIMITER ';'",
-    "COPY tax.report_headings FROM STDIN WITH DELIMITER ';'", 
-    "COPY tax.report_variables FROM STDIN WITH DELIMITER ';'",
+    "INSERT INTO tax.report_categorys (id, description, subdescription) VALUES (?, ?, ?)",
+    "INSERT INTO tax.report_headings (id, category_id, type, description, subdescription) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO tax.report_variables (id, position, heading_id, description, taxbase, dec_places, valid_from) VALUES (?, ?, ?, ?, ?, ?, ?)",
   );
 
   my @copy_data = (
@@ -138,18 +144,17 @@ sub do_copy {
   );
 
   for my $statement ( 0 .. $#copy_statements ) {
+    my $query = $iconv->convert($copy_statements[$statement]);
+    my $sth   = $dbh->prepare($query) || mydberror($query);
 
-    do_query($iconv->convert($copy_statements[$statement]), 0);
-    
     for my $copy_line ( 1 .. $#{$copy_data[$statement]} ) {
       #print $copy_data[$statement][$copy_line] . "<br />"
-      $dbh->pg_putline($iconv->convert($copy_data[$statement][$copy_line]) . "\n");
+      $sth->execute(split m/;/, $iconv->convert($copy_data[$statement][$copy_line]), -1) || mydberror($query);
     }
-    $dbh->pg_endcopy;
+    $sth->finish();
   }
   return 1;
 }
 
 
 return create_tables() && do_copy();
-
