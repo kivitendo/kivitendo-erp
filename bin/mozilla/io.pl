@@ -1693,7 +1693,14 @@ sub print_form {
   delete $form->{printer_command};
 
   $form->{language} = $form->get_template_language(\%myconfig);
-  $form->{printer_code} = $form->get_printer_code(\%myconfig);
+
+  my $printer_code;
+  if ($form->{media} ne 'email') {
+    $printer_code = $form->get_printer_code(\%myconfig);
+    if ($printer_code ne "") {
+      $printer_code = "_" . $printer_code;
+    }
+  }
 
   if ($form->{language} ne "") {
     map({ $form->{"unit"}->[$_] =
@@ -1739,11 +1746,7 @@ sub print_form {
                    grep({ /^qty_\d+$/
                         } keys(%{$form})));
 
-  if ($form->{printer_code} ne "") {
-    $form->{printer_code} = "_" . $form->{printer_code};
-  }
-
-  $form->{IN} = "$form->{formname}$form->{language}$form->{printer_code}.html";
+  $form->{IN} = "$form->{formname}$form->{language}${printer_code}.html";
   if ($form->{format} eq 'postscript') {
     $form->{postscript} = 1;
     $form->{IN} =~ s/html$/tex/;
