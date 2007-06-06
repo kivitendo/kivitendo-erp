@@ -266,8 +266,9 @@ sub all_transactions {
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq|  AND ac.chart_id = ? | .
+      qq| AND ac.trans_id = a.id | .
 
-      qq|UNION | .
+      qq|UNION ALL | .
 
       qq|SELECT a.id, a.invnumber, c.name, ac.transdate, | .
       qq|  a.invoice, ac.amount, 'ar' as module | .
@@ -276,9 +277,10 @@ sub all_transactions {
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
       qq| AND NOT a.storno | .
+      qq| AND ac.trans_id = a.id | .
       qq| AND a.customer_id = c.id | .
 
-      qq|UNION | .
+      qq|UNION ALL | .
 
       qq|SELECT a.id, a.invnumber, v.name, ac.transdate, | .
       qq|  a.invoice, ac.amount, 'ap' as module | .
@@ -286,6 +288,7 @@ sub all_transactions {
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
+      qq| AND ac.trans_id = a.id | .
       qq| AND NOT a.storno | .
       qq| AND a.vendor_id = v.id |;
 
