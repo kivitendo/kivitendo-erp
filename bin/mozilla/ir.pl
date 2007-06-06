@@ -122,13 +122,6 @@ sub invoice_links {
 
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
 
-  # vendors
-  if (@{ $form->{all_vendor} }) {
-    $form->{vendor} = "$form->{vendor}--$form->{vendor_id}";
-    map { $form->{selectvendor} .= "<option>$_->{name}--$_->{id}\n" }
-      (@{ $form->{all_vendor} });
-  }
-
   # departments
   if ($form->{all_departments}) {
     $form->{selectdepartment} = "<option>\n";
@@ -230,12 +223,6 @@ sub form_header {
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
-  #quote selectvendor Bug 133
-  $form->{"selectvendor"} = $form->quote($form->{"selectvendor"});
-
-  #substitute \n and \r to \s (bug 543)
-  $form->{"selectvendor"} =~ s/[\n\r]/&nbsp;/g;
-  
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
 
@@ -353,12 +340,17 @@ sub form_header {
     push(@values, $item->{name}.qq|--|.$item->{"id"});
     $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
   }
+
+  $form->{selectvendor} = ($myconfig{vclimit} > scalar(@values));
+
   my $vendors = qq|
       <th align="right">| . $locale->text('Vendor') . qq|</th>
       <td>| .
-        NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{"vendor"},
+        (($myconfig{vclimit} <=  scalar(@values))
+              ? qq|<input type="text" value="| . H($form->{vendor}) . qq|" name="vendor">|
+              : (NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{oldvendor},
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
-                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')) . qq|
+                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
         <input type="button" value="?" onclick="show_vc_details('vendor')">
       </td>|;
 
@@ -457,7 +449,7 @@ sub form_header {
         $vendors
         <input type="hidden" name="vendor_id" value="$form->{vendor_id}">
         <input type="hidden" name="oldvendor" value="$form->{oldvendor}">
-        <input type="hidden" name="selectvendor" value= "1">
+        <input type="hidden" name="selectvendor" value= "$form->{selectvendor}">
         $contact
         <tr>
           <td align="right">| . $locale->text('Credit Limit') . qq|</td>
