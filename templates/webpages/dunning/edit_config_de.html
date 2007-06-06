@@ -34,7 +34,7 @@
    <TMPL_LOOP DUNNING>
     <tr valign="top" class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
      <td>
-      <input type="hidden" name="dunning_level_<TMPL_VAR __counter__>" size="2" value="<TMPL_VAR __counter__>">
+      <input type="hidden" name="dunning_level_<TMPL_VAR __counter__>" value="<TMPL_VAR __counter__>">
       <input type="hidden" name="id_<TMPL_VAR __counter__>" value="<TMPL_VAR id ESCAPE=HTML>">
       <TMPL_VAR __counter__>
      </td>
@@ -62,7 +62,7 @@
 
    <tr valign="top" class="listrow<TMPL_IF rowcount_odd>1<TMPL_ELSE>0</TMPL_IF>">
     <td>
-     <input type="hidden" name="dunning_level_<TMPL_VAR rowcount>" size="2">
+     <input type="hidden" name="dunning_level_<TMPL_VAR rowcount>" value="<TMPL_VAR rowcount>">
      <input type="hidden" name="id_<TMPL_VAR rowcount>">
      <TMPL_VAR rowcount>
     </td>
