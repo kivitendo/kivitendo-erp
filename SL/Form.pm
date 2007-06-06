@@ -49,6 +49,15 @@ use SL::User;
 use SL::Common;
 use CGI;
 
+my $standard_dbh;
+
+sub DESTROY {
+  if ($standard_dbh) {
+    $standard_dbh->disconnect();
+    undef $standard_dbh;
+  }
+}
+
 sub _input_to_hash {
   $main::lxdebug->enter_sub(2);
 
@@ -1074,6 +1083,18 @@ sub dbconnect_noauto {
   return $dbh;
 }
 
+sub get_standard_dbh {
+  $main::lxdebug->enter_sub(2);
+
+  my ($self, $myconfig) = @_;
+
+  $standard_dbh ||= $self->dbconnect_noauto($myconfig);
+
+  $main::lxdebug->leave_sub(2);
+
+  return $standard_dbh;
+}
+
 sub update_balance {
   $main::lxdebug->enter_sub();
 
@@ -1208,85 +1229,82 @@ sub set_payment_options {
 
   my ($self, $myconfig, $transdate) = @_;
 
-  if ($self->{payment_id}) {
+  return $main::lxdebug->leave_sub() unless ($self->{payment_id});
 
-    my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
-    my $query =
-      qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long | .
-      qq|FROM payment_terms p | .
-      qq|WHERE p.id = ?|;
+  my $query =
+    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long | .
+    qq|FROM payment_terms p | .
+    qq|WHERE p.id = ?|;
 
-    ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
-     $self->{payment_terms}) =
-       selectrow_query($self, $dbh, $query, $self->{payment_id});
+  ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
+   $self->{payment_terms}) =
+     selectrow_query($self, $dbh, $query, $self->{payment_id});
 
-    if ($transdate eq "") {
-      if ($self->{invdate}) {
-        $transdate = $self->{invdate};
-      } else {
-        $transdate = $self->{transdate};
-      }
+  if ($transdate eq "") {
+    if ($self->{invdate}) {
+      $transdate = $self->{invdate};
+    } else {
+      $transdate = $self->{transdate};
     }
-
-    $query =
-      qq|SELECT ?::date + ?::integer AS netto_date, ?::date + ?::integer AS skonto_date | .
-      qq|FROM payment_terms|;
-    ($self->{netto_date}, $self->{skonto_date}) =
-      selectrow_query($self, $dbh, $query, $transdate, $self->{terms_netto}, $transdate, $self->{terms_skonto});
-
-    my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
-    my $skonto_amount = $self->parse_amount($myconfig, $total) *
-      $self->{percent_skonto};
-
-    $self->{skonto_amount} =
-      $self->format_amount($myconfig, $skonto_amount, 2);
-
-    if ($self->{"language_id"}) {
-      $query =
-        qq|SELECT t.description_long, l.output_numberformat, l.output_dateformat, l.output_longdates | .
-        qq|FROM translation_payment_terms t | .
-        qq|LEFT JOIN language l ON t.language_id = l.id | .
-        qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
-      my ($description_long, $output_numberformat, $output_dateformat,
-        $output_longdates) =
-        selectrow_query($self, $dbh, $query,
-                        $self->{"language_id"}, $self->{"payment_id"});
-
-      $self->{payment_terms} = $description_long if ($description_long);
-
-      if ($output_dateformat) {
-        foreach my $key (qw(netto_date skonto_date)) {
-          $self->{$key} =
-            $main::locale->reformat_date($myconfig, $self->{$key},
-                                         $output_dateformat,
-                                         $output_longdates);
-        }
-      }
-
-      if ($output_numberformat &&
-          ($output_numberformat ne $myconfig->{"numberformat"})) {
-        my $saved_numberformat = $myconfig->{"numberformat"};
-        $myconfig->{"numberformat"} = $output_numberformat;
-        $self->{skonto_amount} =
-          $self->format_amount($myconfig, $skonto_amount, 2);
-        $myconfig->{"numberformat"} = $saved_numberformat;
-      }
-    }
-
-    $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
-    $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
-    $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
-    $self->{payment_terms} =~ s/<%total%>/$self->{total}/g;
-    $self->{payment_terms} =~ s/<%invtotal%>/$self->{invtotal}/g;
-    $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
-    $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
-    $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
-    $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
-    $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
-
-    $dbh->disconnect;
   }
+
+  $query =
+    qq|SELECT ?::date + ?::integer AS netto_date, ?::date + ?::integer AS skonto_date | .
+    qq|FROM payment_terms|;
+  ($self->{netto_date}, $self->{skonto_date}) =
+    selectrow_query($self, $dbh, $query, $transdate, $self->{terms_netto}, $transdate, $self->{terms_skonto});
+
+  my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
+  my $skonto_amount = $self->parse_amount($myconfig, $total) *
+    $self->{percent_skonto};
+
+  $self->{skonto_amount} =
+    $self->format_amount($myconfig, $skonto_amount, 2);
+
+  if ($self->{"language_id"}) {
+    $query =
+      qq|SELECT t.description_long, l.output_numberformat, l.output_dateformat, l.output_longdates | .
+      qq|FROM translation_payment_terms t | .
+      qq|LEFT JOIN language l ON t.language_id = l.id | .
+      qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
+    my ($description_long, $output_numberformat, $output_dateformat,
+      $output_longdates) =
+      selectrow_query($self, $dbh, $query,
+                      $self->{"language_id"}, $self->{"payment_id"});
+
+    $self->{payment_terms} = $description_long if ($description_long);
+
+    if ($output_dateformat) {
+      foreach my $key (qw(netto_date skonto_date)) {
+        $self->{$key} =
+          $main::locale->reformat_date($myconfig, $self->{$key},
+                                       $output_dateformat,
+                                       $output_longdates);
+      }
+    }
+
+    if ($output_numberformat &&
+        ($output_numberformat ne $myconfig->{"numberformat"})) {
+      my $saved_numberformat = $myconfig->{"numberformat"};
+      $myconfig->{"numberformat"} = $output_numberformat;
+      $self->{skonto_amount} =
+        $self->format_amount($myconfig, $skonto_amount, 2);
+      $myconfig->{"numberformat"} = $saved_numberformat;
+    }
+  }
+
+  $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
+  $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
+  $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
+  $self->{payment_terms} =~ s/<%total%>/$self->{total}/g;
+  $self->{payment_terms} =~ s/<%invtotal%>/$self->{invtotal}/g;
+  $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
+  $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
+  $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
+  $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
+  $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
 
   $main::lxdebug->leave_sub();
 
@@ -1300,10 +1318,9 @@ sub get_template_language {
   my $template_code = "";
 
   if ($self->{language_id}) {
-    my $dbh = $self->dbconnect($myconfig);
+    my $dbh = $self->get_standard_dbh($myconfig);
     my $query = qq|SELECT template_code FROM language WHERE id = ?|;
     ($template_code) = selectrow_query($self, $dbh, $query, $self->{language_id});
-    $dbh->disconnect;
   }
 
   $main::lxdebug->leave_sub();
@@ -1319,10 +1336,9 @@ sub get_printer_code {
   my $template_code = "";
 
   if ($self->{printer_id}) {
-    my $dbh = $self->dbconnect($myconfig);
+    my $dbh = $self->get_standard_dbh($myconfig);
     my $query = qq|SELECT template_code, printer_command FROM printers WHERE id = ?|;
     ($template_code, $self->{printer_command}) = selectrow_query($self, $dbh, $query, $self->{printer_id});
-    $dbh->disconnect;
   }
 
   $main::lxdebug->leave_sub();
@@ -1338,11 +1354,10 @@ sub get_shipto {
   my $template_code = "";
 
   if ($self->{shipto_id}) {
-    my $dbh = $self->dbconnect($myconfig);
+    my $dbh = $self->get_standard_dbh($myconfig);
     my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
     my $ref = selectfirst_hashref_query($self, $dbh, $query, $self->{shipto_id});
     map({ $self->{$_} = $ref->{$_} } keys(%$ref));
-    $dbh->disconnect;
   }
 
   $main::lxdebug->leave_sub();
@@ -1399,7 +1414,7 @@ sub add_shipto {
                                  shiptocontact, shiptophone, shiptofax, shiptoemail, module)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
         do_query($self, $dbh, $query, $id, @values, $module);
-     }
+      }
     }
   }
 
@@ -1425,7 +1440,7 @@ sub get_salesman {
 
   $main::lxdebug->leave_sub() and return unless $salesman_id;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   my ($login) =
     selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|,
@@ -1444,8 +1459,6 @@ sub get_salesman {
     map({ $self->{"salesman_$_"} =~ s/\\n/\n/g; } qw(address company));
   }
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1454,10 +1467,9 @@ sub get_duedate {
 
   my ($self, $myconfig) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
   my $query = qq|SELECT current_date + terms_netto FROM payment_terms WHERE id = ?|;
   ($self->{duedate}) = selectrow_query($self, $dbh, $query, $self->{payment_id});
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 }
@@ -1738,7 +1750,7 @@ sub get_lists {
   my $self = shift;
   my %params = @_;
 
-  my $dbh = $self->dbconnect(\%main::myconfig);
+  my $dbh = $self->get_standard_dbh(\%main::myconfig);
   my ($sth, $query, $ref);
 
   my $vc = $self->{"vc"} eq "customer" ? "customer" : "vendor";
@@ -1814,8 +1826,6 @@ sub get_lists {
     $self->_get_departments($dbh, $params{"departments"});
   }
 
-  $dbh->disconnect();
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1826,7 +1836,7 @@ sub get_name {
   my ($self, $myconfig, $table) = @_;
 
   # connect to database
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   $table = $table eq "customer" ? "customer" : "vendor";
   my $arap = $self->{arap} eq "ar" ? "ar" : "ap";
@@ -1875,7 +1885,7 @@ sub all_vc {
   my ($self, $myconfig, $table, $module) = @_;
 
   my $ref;
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   $table = $table eq "customer" ? "customer" : "vendor";
 
@@ -1945,8 +1955,6 @@ sub all_vc {
 
   $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1955,7 +1963,7 @@ sub language_payment {
 
   my ($self, $myconfig) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
   # get languages
   my $query = qq|SELECT id, description
                  FROM language
@@ -1983,7 +1991,6 @@ sub language_payment {
 
   $self->{BUCHUNGSGRUPPEN} = selectall_hashref_query($self, $dbh, $query);
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -1993,7 +2000,7 @@ sub all_departments {
 
   my ($self, $myconfig, $table) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
   my $where;
 
   if ($table eq 'customer') {
@@ -2007,8 +2014,6 @@ sub all_departments {
   $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
   delete($self->{all_departments}) unless (@{ $self->{all_departments} });
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -2033,7 +2038,7 @@ sub create_links {
   # get last customers or vendors
   my ($query, $sth, $ref);
 
-  my $dbh = $provided_dbh ? $provided_dbh : $self->dbconnect($myconfig);
+  my $dbh = $provided_dbh ? $provided_dbh : $self->get_standard_dbh($myconfig);
   my %xkeyref = ();
 
   if (!$self->{id}) {
@@ -2227,8 +2232,6 @@ sub create_links {
 
   }
 
-  $dbh->disconnect() unless $provided_dbh;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -2276,7 +2279,7 @@ sub current_date {
 
   my ($self, $myconfig, $thisdate, $days) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
   my $query;
 
   $days *= 1;
@@ -2290,8 +2293,6 @@ sub current_date {
   }
 
   ($thisdate) = selectrow_query($self, $dbh, $query);
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -2486,12 +2487,12 @@ sub save_history {
     &get_employee($self, $dbh);
   }
 
-my $query =
+  my $query =
    qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
    qq|VALUES (?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?)|;
- my @values = (conv_i($self->{id}), $self->{login},
-               $self->{addition}, $self->{what_done}, "$self->{snumbers}");
- do_query($self, $dbh, $query, @values);
+  my @values = (conv_i($self->{id}), $self->{login},
+                $self->{addition}, $self->{what_done}, "$self->{snumbers}");
+  do_query($self, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
 }
@@ -2602,7 +2603,7 @@ sub get_partsgroup {
 
   my ($self, $myconfig, $p) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   my $query = qq|SELECT DISTINCT pg.id, pg.partsgroup
                  FROM partsgroup pg
@@ -2641,7 +2642,6 @@ sub get_partsgroup {
 
   $self->{all_partsgroup} = selectall_hashref_query($self, $dbh, $query, @values);
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -2650,7 +2650,7 @@ sub get_pricegroup {
 
   my ($self, $myconfig, $p) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   my $query = qq|SELECT p.id, p.pricegroup
                  FROM pricegroup p|;
@@ -2664,8 +2664,6 @@ sub get_pricegroup {
 
   $self->{all_pricegroup} = selectall_hashref_query($self, $dbh, $query);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -2678,11 +2676,7 @@ sub all_years {
 
   my ($self, $myconfig, $dbh) = @_;
 
-  my $disconnect = 0;
-  if (! $dbh) {
-    $dbh = $self->dbconnect($myconfig);
-    $disconnect = 1;
-  }
+  $dbh ||= $self->get_standard_dbh($myconfig);
 
   # get years
   my $query = qq|SELECT (SELECT MIN(transdate) FROM acc_trans),
@@ -2707,12 +2701,9 @@ sub all_years {
     push @all_years, $enddate--;
   }
 
-  $dbh->disconnect if $disconnect;
-
   return @all_years;
 
   $main::lxdebug->leave_sub();
 }
-
 
 1;
