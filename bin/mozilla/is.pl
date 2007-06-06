@@ -171,7 +171,6 @@ sub invoice_links {
 
   if (@{ $form->{all_customer} }) {
      $form->{customer} = "$form->{customer}--$form->{customer_id}";
-     $form->{selectcustomer} = "$form->{customer}--$form->{customer_id}";
   }
 
   # departments
@@ -377,11 +376,13 @@ sub form_header {
     $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
   }
 
+  $form->{selectcustomer} = ($myconfig{vclimit} > scalar(@values));
+
   my $customers = qq|
       <th align="right">| . $locale->text('Customer') . qq|</th>
       <td>| .
         (($myconfig{vclimit} <=  scalar(@values))
-              ? qq|<input type="text" value="| . H($form->{"oldcustomer"}) . qq|" name="customer">|
+              ? qq|<input type="text" value="| . H($form->{customer}) . qq|" name="customer">|
               : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer},
                              '-onChange' => 'document.getElementById(\'update_button\').click();',
                              '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
@@ -487,12 +488,6 @@ sub form_header {
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
-
-  #quote customer Bug 133
-  $form->{selectcustomer} = $form->quote($form->{selectcustomer});
-
-  #substitute \n and \r to \s (bug 543)
-  $form->{selectcustomer} =~ s/[\n\r]/&nbsp;/g;
 
   if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
     $creditwarning = 1;
@@ -662,7 +657,7 @@ sub form_header {
           <input type="hidden" name="customer_klass" value="$form->{customer_klass}">
           <input type="hidden" name="customer_id" value="$form->{customer_id}">
           <input type="hidden" name="oldcustomer" value="$form->{oldcustomer}">
-          <input type="hidden" name="selectcustomer" value="1">
+          <input type="hidden" name="selectcustomer" value="$form->{selectcustomer}">
         </tr>
         $contact
         $shipto
