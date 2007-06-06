@@ -158,127 +158,7 @@ sub create_links {
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
-  # forex
-  $form->{forex} = $form->{exchangerate};
-  $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
-
-  foreach $key (keys %{ $form->{AP_links} }) {
-    foreach $ref (@{ $form->{AP_links}{$key} }) {
-      if ($key eq "AP_paid") {
-        $form->{"select$key"} .=
-          "<option value=\"$ref->{accno}\">$ref->{accno}--$ref->{description}</option>\n";
-      } else {
-        $form->{"select$key"} .=
-          "<option value=\"$ref->{accno}--$ref->{tax_id}\">$ref->{accno}--$ref->{description}</option>\n";
-      }
-    }
-
-    $form->{$key} = $form->{"select$key"};
-
-    # if there is a value we have an old entry
-    my $j = 0;
-    my $k = 0;
-
-    for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
-
-      if ($key eq "AP_paid") {
-        $j++;
-        $form->{"AP_paid_$j"} =
-          "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
-        $form->{"paid_$j"}     = $form->{acc_trans}{$key}->[$i - 1]->{amount};
-        $form->{"datepaid_$j"} =
-          $form->{acc_trans}{$key}->[$i - 1]->{transdate};
-        $form->{"source_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{source};
-        $form->{"memo_$j"}   = $form->{acc_trans}{$key}->[$i - 1]->{memo};
-
-        $form->{"forex_$j"} = $form->{"exchangerate_$i"} =
-          $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};
-        $form->{"AP_paid_$j"} = "$form->{acc_trans}{$key}->[$i-1]->{accno}";
-        $form->{"paid_project_id_$j"} = $form->{acc_trans}{$key}->[$i - 1]->{project_id};
-        $form->{paidaccounts}++;
-      } else {
-
-        $akey = $key;
-        $akey =~ s/AP_//;
-
-        if (($key eq "AP_tax") || ($key eq "AR_tax")) {
-          $form->{"${key}_$form->{acc_trans}{$key}->[$i-1]->{accno}"} =
-            "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
-          $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"} =
-            $form->round_amount(
-                  $form->{acc_trans}{$key}->[$i - 1]->{amount} / $exchangerate,
-                  2);
-
-          if ($form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"} > 0) {
-            $totaltax +=
-              $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
-          } else {
-            $totalwithholding +=
-              $form->{"${akey}_$form->{acc_trans}{$key}->[$i-1]->{accno}"};
-            $withholdingrate +=
-              $form->{"$form->{acc_trans}{$key}->[$i-1]->{accno}_rate"};
-          }
-          $index = $form->{acc_trans}{$key}->[$i - 1]->{index};
-          $form->{"tax_$index"} =
-            $form->{acc_trans}{$key}->[$i - 1]->{amount} * -1;
-          $totaltax += $form->{"tax_$index"};
-
-        } else {
-          $k++;
-          $form->{"${akey}_$k"} =
-            $form->round_amount(
-                  $form->{acc_trans}{$key}->[$i - 1]->{amount} / $exchangerate,
-                  2);
-          if ($akey eq 'amount') {
-            $form->{rowcount}++;
-            $form->{"${akey}_$i"} *= -1;
-            $totalamount += $form->{"${akey}_$i"};
-            $form->{taxrate} = $form->{acc_trans}{$key}->[$i - 1]->{rate};
-            $form->{"oldprojectnumber_$k"} = $form->{"projectnumber_$k"} =
-              "$form->{acc_trans}{$key}->[$i-1]->{projectnumber}";
-            $form->{"project_id_$k"} =
-              "$form->{acc_trans}{$key}->[$i-1]->{project_id}";
-          }
-          $form->{"${key}_$k"} =
-            "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
-          my $q_description = quotemeta($form->{acc_trans}{$key}->[$i-1]->{description});
-          $form->{"select${key}"} =~
-            /<option value=\"($form->{acc_trans}{$key}->[$i-1]->{accno}--[^\"]*)\">$form->{acc_trans}{$key}->[$i-1]->{accno}--${q_description}<\/option>\n/;
-          $form->{"${key}_$k"} = $1;
-
-          if ($akey eq "AP") {
-            $form->{APselected} = $form->{acc_trans}{$key}->[$i-1]->{accno};
-
-          } elsif ($akey eq 'amount') {
-            $form->{"${key}_$k"} = $form->{acc_trans}{$key}->[$i-1]->{accno} .
-              "--" . $form->{acc_trans}{$key}->[$i-1]->{id};
-            $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id} .
-              "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
-          }
-        }
-      }
-    }
-  }
-
-  $form->{taxincluded}  = $taxincluded if ($form->{id});
-  $form->{paidaccounts} = 1            if not defined $form->{paidaccounts};
-
-  if ($form->{taxincluded} && $form->{taxrate} && $totalamount) {
-
-    # add tax to amounts and invtotal
-    for $i (1 .. $form->{rowcount}) {
-      $taxamount =
-        ($totaltax + $totalwithholding) * $form->{"amount_$i"} / $totalamount;
-      $tax = $form->round_amount($taxamount, 2);
-      $diff                += ($taxamount - $tax);
-      $form->{"amount_$i"} += $form->{"tax_$i"};
-    }
-    $form->{amount_1} += $form->round_amount($diff, 2);
-  }
-
-  $taxamount = $form->round_amount($taxamount, 2);
-
-  $form->{invtotal} = $totalamount + $totaltax;
+  AP->setup_form($form);
 
   $form->{locked} =
     ($form->datetonum($form->{transdate}, \%myconfig) <=
@@ -872,10 +752,6 @@ sub form_footer {
   $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-  # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-  print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|
-    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap') && !$form->{paid_1});
-
   print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">|;
 
   if ($form->{id}) {
@@ -885,8 +761,12 @@ sub form_footer {
 |;
     }
 
-    print qq| <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|">
-              <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
+    # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
+    print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
+      if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap') && !$form->{paid_1});
+
+    print qq| <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
+              <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|">
 |;
   } elsif (($transdate > $closedto) && !$form->{id}) {
     print qq|
