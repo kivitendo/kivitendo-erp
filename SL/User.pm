@@ -966,9 +966,10 @@ sub update2_available {
 
   $query = qq|SELECT tag FROM schema_info|;
   $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query);
-  while (($tag) = $sth->fetchrow_array()) {
-    $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+  if ($sth->execute()) {
+    while (($tag) = $sth->fetchrow_array()) {
+      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+    }
   }
   $sth->finish();
   $dbh->disconnect();
