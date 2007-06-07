@@ -220,6 +220,13 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  if ($form->{old_employee_id}) {
+    $form->{employee_id} = $form->{old_employee_id};
+  }
+  if ($form->{old_salesman_id}) {
+    $form->{salesman_id} = $form->{old_salesman_id};
+  }
+
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
