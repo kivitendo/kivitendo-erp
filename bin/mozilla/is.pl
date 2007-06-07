@@ -279,6 +279,13 @@ sub prepare_invoice {
 sub form_header {
   $lxdebug->enter_sub();
 
+  if ($form->{old_employee_id}) {
+    $form->{employee_id} = $form->{old_employee_id};
+  }
+  if ($form->{old_salesman_id}) {
+    $form->{salesman_id} = $form->{old_salesman_id};
+  }
+
   if ($edit) {
 
     if ($form->{type} eq "credit_note") {

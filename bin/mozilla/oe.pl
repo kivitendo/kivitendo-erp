@@ -324,6 +324,13 @@ sub form_header {
   my $checkedclosed = $form->{"closed"} ? "checked" : "";
   my $checkeddelivered = $form->{"delivered"} ? "checked" : "";
 
+  if ($form->{old_employee_id}) {
+    $form->{employee_id} = $form->{old_employee_id};
+  }
+  if ($form->{old_salesman_id}) {
+    $form->{salesman_id} = $form->{old_salesman_id};
+  }
+
   map { $form->{$_} =~ s/\"/&quot;/g }
     qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
        shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
@@ -2180,6 +2187,9 @@ sub delete_order_quotation {
 sub invoice {
   $lxdebug->enter_sub();
 
+  $form->{old_employee_id} = $form->{employee_id};
+  $form->{old_salesman_id} = $form->{salesman_id};
+
   if ($form->{type} =~ /_order$/) {
 
     # these checks only apply if the items don't bring their own ordnumbers/transdates.
@@ -2231,6 +2241,7 @@ sub invoice {
     $exchangerate =
       $form->check_exchangerate(\%myconfig, $form->{currency}, $orddate,
                                 $buysell);
+    print(STDERR "CURRENCY $form->{currency} DEFAULT: $form->{defaultcurrency} EXCHANGE $exchangerate\n");
 
     if (!$exchangerate) {
       &backorder_exchangerate($orddate, $buysell);
@@ -2620,6 +2631,9 @@ sub poso {
   delete $form->{duedate};
 
   $form->{closed} = 0;
+
+  $form->{old_employee_id} = $form->{employee_id};
+  $form->{old_salesman_id} = $form->{salesman_id};
 
   # reset
   map { delete $form->{$_} }
