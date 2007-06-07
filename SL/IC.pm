@@ -782,6 +782,27 @@ sub assembly_item {
   $main::lxdebug->leave_sub();
 }
 
+#
+# Report for Wares.
+# Warning, deep magic ahead.
+# This function gets all parts from the database according to the filters specified
+#
+# filter strings:
+#   partnumber ean description partsgroup serialnumber make model drawing microfiche
+#   transdatefrom transdateto sort
+#
+# exclusives:
+#   itemstatus  = active | onhand | short | obsolete | orphaned
+#   searchitems = part | assembly | service
+#
+# column flags:
+#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_bin l_rop l_image l_drawing l_microfiche l_partsgroup 
+#
+# binary flags:
+#   bought sold onorder ordered rfq quoted onhand short
+#   l_serialnumber l_linetotal l_subtotal l_soldtotal l_deliverydate
+#   revers top100
+#
 sub all_parts {
   $main::lxdebug->enter_sub();
 
@@ -792,10 +813,10 @@ sub all_parts {
 
   foreach my $item (qw(partnumber drawing microfiche ean pg.partsgroup)) {
     my $column = $item;
-    $column =~ s/.*\.//;
+    $column =~ s/.*\.//; # get rid of table prefixes
     if ($form->{$column}) {
-      $where .= qq| AND (${item} ILIKE ?)|;
-      push(@values, '%' . $form->{$column} . '%');
+      $where .= qq| AND ($item ILIKE ?)|;
+      push(@values, "%$form->{$column}%");
     }
   }
 
@@ -804,13 +825,13 @@ sub all_parts {
       && !(   $form->{bought}  || $form->{sold} || $form->{onorder}
            || $form->{ordered} || $form->{rfq} || $form->{quoted})) {
     $where .= qq| AND (p.description ILIKE ?)|;
-    push(@values, '%' . $form->{description} . '%');
+    push(@values, "%$form->{description}%");
   }
 
   # special case for serialnumber
   if ($form->{l_serialnumber} && $form->{serialnumber}) {
-    $where .= qq| AND (p.serialnumber ILIKE ?)|;
-    push(@values, '%' . $form->{serialnumber} . '%');
+    $where .= qq| AND (serialnumber ILIKE ?)|;
+    push(@values, "%$form->{serialnumber}%");
   }
 
   if ($form->{searchitems} eq 'part') {
@@ -824,19 +845,14 @@ sub all_parts {
 
   if ($form->{searchitems} eq 'service') {
     $where .= qq| AND (p.inventory_accno_id IS NULL) AND NOT (p.assembly = '1')|;
-
     # irrelevant for services
-    $form->{make} = $form->{model} = "";
+    map { $form->{$_} = '' } qw(make model);
   }
 
   # items which were never bought, sold or on an order
   if ($form->{itemstatus} eq 'orphaned') {
-    $form->{onhand}  = $form->{short}   = 0;
-    $form->{bought}  = $form->{sold}    = 0;
-    $form->{onorder} = $form->{ordered} = 0;
-    $form->{rfq}     = $form->{quoted}  = 0;
-
-    $form->{transdatefrom} = $form->{transdateto} = "";
+    map { $form->{$_} = 0  } qw(onhand short bought sold onorder ordered rfq quoted);
+    map { $form->{$_} = '' } qw(transdatefrom transdateto);
 
     $where .=
       qq| AND (p.onhand = 0)
@@ -850,32 +866,28 @@ sub all_parts {
             )|;
   }
 
-  if ($form->{itemstatus} eq 'active') {
-    $where .= qq| AND (p.obsolete = '0')|;
-  } elsif ($form->{itemstatus} eq 'obsolete') {
-    $where .= qq| AND (p.obsolete = '1')|;
-    $form->{onhand} = $form->{short} = 0;
-  } elsif ($form->{itemstatus} eq 'onhand') {
-    $where .= qq| AND (p.onhand > 0)|;
-  } elsif ($form->{itemstatus} eq 'short') {
-    $where .= qq| AND (p.onhand < p.rop)|;
-  }
+  my %status2condition = (
+    active   => " AND (p.obsolete = '0')",
+    obsolete => " AND (p.obsolete = '1')",
+    onhand   => " AND (p.onhand > 0)",
+    short    => " AND (p.onhand < p.rop)",
+  );
+  $where .= $status2condition{$form->{itemstatus}};
+
+  $form->{onhand} = $form->{short} = 0 if ($form->{itemstatus} eq 'obsolete');
 
   my @subcolumns;
   foreach my $column (qw(make model)) {
     push @subcolumns, $column if $form->{$column};
   }
   if (@subcolumns) {
-    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE |;
-    $where .= join " AND ", map { "($_ ILIKE ?)"; } @subcolumns;
-    $where .= qq|)|;
+    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE | . (join " AND ", map { "($_ ILIKE ?)"; } @subcolumns) . ")";
     push @values, map { '%' . $form->{$_} . '%' } @subcolumns;
   }
 
   if ($form->{l_soldtotal}) {
     $where .= qq| AND (p.id = i.parts_id) AND (i.qty >= 0)|;
-    $group =
-      qq| GROUP BY p.id, p.partnumber, p.description, p.onhand, p.unit, p.bin, p.sellprice, p.listprice, p.lastcost, p.priceupdate, pg.partsgroup|;
+    $group = qq| GROUP BY p.id, p.partnumber, p.description, p.onhand, p.unit, p.bin, p.sellprice, p.listprice, p.lastcost, p.priceupdate, pg.partsgroup|;
   }
 
   $limit = qq| LIMIT 100| if ($form->{top100});
@@ -896,13 +908,14 @@ sub all_parts {
   if ($form->{l_soldtotal}) {
     $form->{soldtotal} = 'soldtotal';
     $query =
-      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit, p.bin, p.sellprice, p.listprice,
-           p.lastcost, p.priceupdate, pg.partsgroup,sum(i.qty) AS soldtotal FROM parts
-           p LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id), invoice i
-           WHERE $where
-           $group
-           ORDER BY $sortorder
-           $limit|;
+      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit, 
+           p.bin, p.sellprice, p.listprice, p.lastcost, 
+           p.priceupdate, pg.partsgroup,sum(i.qty) AS soldtotal 
+         FROM parts p 
+         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id), invoice i
+         WHERE $where
+         $group
+         ORDER BY $sortorder $limit|;
   } else {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit,
@@ -913,8 +926,7 @@ sub all_parts {
          LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
          WHERE $where
          $group
-         ORDER BY $sortorder
-         $limit|;
+         ORDER BY $sortorder $limit|;
   }
 
   my @all_values = @values;

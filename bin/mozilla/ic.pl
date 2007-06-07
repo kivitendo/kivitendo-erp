@@ -36,10 +36,19 @@ use SL::IC;
 
 #use SL::PE;
 
+use strict;
+#use warnings;
+
 require "bin/mozilla/io.pl";
 require "bin/mozilla/common.pl";
 
 1;
+
+# global imports
+my $form     = $main::form;
+my $locale   = $main::locale;
+my %myconfig = %main::myconfig;
+my $lxdebug  = $main::lxdebug;
 
 # end of main
 
@@ -64,6 +73,8 @@ sub add {
 sub search {
   $lxdebug->enter_sub();
 
+  my ($button1, $button2, $onhand, $makemodel, $serialnumber, $l_serialnumber, $toplevel, $bought);
+
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
   $form->{title} = $locale->text($form->{title});
 
@@ -81,7 +92,7 @@ sub search {
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -400,6 +411,8 @@ $jsscript
 sub search_update_prices {
   $lxdebug->enter_sub();
 
+  my ($onhand, $makemodel, $serialnumber, $l_serialnumber, $toplevel, $bought);
+
   $form->{title} = $locale->text('Update prices');
   IC->get_pricegroups(\%myconfig, \%$form);
 
@@ -537,7 +550,7 @@ sub search_update_prices {
           <td><input name="listprice_type" class=radio type=radio value=percent checked>/<input name="listprice_type" class=radio type=radio value=absolut></td>
         </tr>
 |;
-  for $i (1 .. $form->{price_rows}) {
+  for my $i (1 .. $form->{price_rows}) {
     print qq|
         <tr>
           <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
@@ -588,7 +601,7 @@ sub confirm_price_update {
   # delete action variable
   map { delete $form->{$_} } qw(action header);
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -624,6 +637,11 @@ sub update_prices {
 sub choice {
   $lxdebug->enter_sub();
 
+  my $j       = $main::j;
+  my $lastndx = $main::lastndx;
+
+  my ($totop100);
+
   $form->{title} = $locale->text('Top 100 hinzufuegen');
 
   $form->header;
@@ -642,10 +660,8 @@ sub choice {
   print qq|
       <table>
 	<tr class=listheading>
-         <th class=listheading nowrap>|
-    . $locale->text('Part Number') . qq|</th>
-         <th class=listheading nowrap>|
-    . $locale->text('Part Description') . qq|</th>
+         <th class=listheading nowrap>| . $locale->text('Part Number') . qq|</th>
+         <th class=listheading nowrap>| . $locale->text('Part Description') . qq|</th>
         </tr>
         <tr valign=top>
          <td><input type=text name=partnumber size=20 value=></td>
@@ -687,9 +703,10 @@ sub choice {
 
 <input name=extras type=hidden value=$form->{extras}>|;
 
+  my ($partnumber, $description, $unit, $sellprice, $soldtotal);
   # if choice set data
   if ($form->{ndx}) {
-    for ($i = 0; $i < $form->{ndxs_counter}; $i++) {
+    for (my $i = 0; $i < $form->{ndxs_counter}; $i++) {
 
       # prepeare data
       $partnumber  = $form->{"totop100_partnumber_$j"};
@@ -713,7 +730,7 @@ sub choice {
 
   # set data for next page
   if (($form->{ndxs_counter}) > 0) {
-    for ($i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
+    for (my $i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
       $partnumber  = $form->{"totop100_partnumber_$i"};
       $description = $form->{"totop100_description_$i"};
       $unit        = $form->{"totop100_unit_$i"};
@@ -744,6 +761,8 @@ sub choice {
 
 sub list {
   $lxdebug->enter_sub();
+
+  my $lastndx = $main::lastndx;
 
   my @sortorders = ("", "partnumber", "description", "all");
   my $sortorder = $sortorders[($form->{description} ? 2 : 0) + ($form->{partnumber} ? 1 : 0)];
@@ -829,21 +848,17 @@ sub list {
 
 <input name=ndxs_counter type=hidden value=$form->{ndxs_counter}>|;
 
-  $totop100 = "";
+  my $totop100 = "";
 
   if (($form->{ndxs_counter}) > 0) {
     for ($i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
-      $j1 = $form->{"totop100_partnumber_$i"};
-      $j2 = $form->{"totop100_description_$i"};
-      $j3 = $form->{"totop100_unit_$i"};
-      $j4 = $form->{"totop100_sellprice_$i"};
-      $j5 = $form->{"totop100_soldtotal_$i"};
 
-      $partnumber  = $j1;
-      $description = $j2;
-      $unit        = $j3;
-      $sellprice   = $j4;
-      $soldtotal   = $j5;
+      # ToDO: does this really make sense?
+      $main::partnumber  = $form->{"totop100_partnumber_$i"};
+      $main::description = $form->{"totop100_description_$i"};
+      $main::unit        = $form->{"totop100_unit_$i"};
+      $main::sellprice   = $form->{"totop100_sellprice_$i"};
+      $main::soldtotal   = $form->{"totop100_soldtotal_$i"};
 
       $totop100 .= qq|
 <input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
@@ -876,18 +891,13 @@ sub top100 {
 
     if ($form->{ndxs_counter} > 0) {
 
-      $index = $form->{ndx};
+      my $index = $form->{ndx};
 
-      $j1 = $form->{"new_partnumber_$index"};
-      $form->{"totop100_partnumber_$form->{ndxs_counter}"} = $j1;
-      $j2 = $form->{"new_description_$index"};
-      $form->{"totop100_description_$form->{ndxs_counter}"} = $j2;
-      $j3 = $form->{"new_unit_$index"};
-      $form->{"totop100_unit_$form->{ndxs_counter}"} = $j3;
-      $j4 = $form->{"new_sellprice_$index"};
-      $form->{"totop100_sellprice_$form->{ndxs_counter}"} = $j4;
-      $j5 = $form->{"new_soldtotal_$index"};
-      $form->{"totop100_soldtotal_$form->{ndxs_counter}"} = $j5;
+      $form->{"totop100_partnumber_$form->{ndxs_counter}"} = $form->{"new_partnumber_$index"};
+      $form->{"totop100_description_$form->{ndxs_counter}"} = $form->{"new_description_$index"};
+      $form->{"totop100_unit_$form->{ndxs_counter}"} = $form->{"new_unit_$index"};
+      $form->{"totop100_sellprice_$form->{ndxs_counter}"} = $form->{"new_sellprice_$index"};
+      $form->{"totop100_soldtotal_$form->{ndxs_counter}"} = $form->{"new_soldtotal_$index"};
     }    #fi
   }    #fi
   &addtop100();
@@ -897,18 +907,22 @@ sub top100 {
 sub addtop100 {
   $lxdebug->enter_sub();
 
+  my ($revers, $lastsort, $callback, $option, $description, $sameitem,
+      $partnumber, $unit, $sellprice, $soldtotal, $totop100, $onhand, $align);
+  my (@column_index, %column_header, %column_data);
+  my ($totalsellprice, $totallastcost, $totallistprice, $subtotalonhand, $subtotalsellprice, $subtotallastcost, $subtotallistprice);
+
   $form->{top100}      = "top100";
   $form->{l_soldtotal} = "Y";
   $form->{soldtotal}   = "soldtotal";
   $form->{sort}        = "soldtotal";
   $form->{l_qty}       = "N";
-  $callback .= "&form->{top100}=$form->{top100}";
   $form->{l_linetotal} = "";
   $form->{revers}      = 1;
   $form->{number}      = "position";
   $form->{l_number}    = "Y";
 
-  my $totop100 = "";
+  $totop100 = "";
 
   $form->{title} = $locale->text('Top 100');
 
@@ -1057,7 +1071,7 @@ sub addtop100 {
     $option   .= $locale->text('soldtotal') . qq| : $form->{soldtotal}<br>|;
   }
 
-  @columns = $form->sort_columns(
+  my @columns = $form->sort_columns(
     qw(number partnumber ean description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal)
   );
 
@@ -1097,7 +1111,7 @@ sub addtop100 {
   $form->{l_lastcost} = ""
     if ($form->{searchitems} eq 'assembly' && !$form->{bom});
 
-  foreach $item (@columns) {
+  foreach my $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
       push @column_index, $item;
 
@@ -1199,7 +1213,7 @@ sub addtop100 {
     . qq|</a></th>|;
 
   $form->header;
-  $colspan = $#column_index + 1;
+  my $colspan = $#column_index + 1;
 
   print qq|
 <body>
@@ -1233,14 +1247,14 @@ sub addtop100 {
 
   # insert numbers for top100
   my $j = 0;
-  foreach $ref (@{ $form->{parts} }) {
+  foreach my $ref (@{ $form->{parts} }) {
     $j++;
     $ref->{number} = $j;
   }
 
   # if avaible -> insert choice here
   if (($form->{ndxs_counter}) > 0) {
-    for ($i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
+    for (my $i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
       $partnumber  = $form->{"totop100_partnumber_$i"};
       $description = $form->{"totop100_description_$i"};
       $unit        = $form->{"totop100_unit_$i"};
@@ -1266,7 +1280,8 @@ sub addtop100 {
     }    #rof
   }    #fi
        # build data for columns
-  foreach $ref (@{ $form->{parts} }) {
+  foreach my $ref (@{ $form->{parts} }) {
+    my $i = 0;
 
     if ($form->{l_subtotal} eq 'Y' && !$ref->{assemblyitem}) {
       if ($sameitem ne $ref->{ $form->{sort} }) {
@@ -1469,172 +1484,155 @@ sub addtop100 {
   $lxdebug->leave_sub();
 }    # end addtop100
 
+#
+# Report for Wares.
+# Warning, deep magic ahead.
+# This function parses the requested details, sanity checks them, and converts them into a format thats usable for IC->all_parts
+#
+# flags coming from the form:
+# hardcoded:
+#  searchitems=part revers=0 lastsort=''
+#
+# filter:
+# partnumber ean description partsgroup serialnumber make model drawing microfiche
+# transdatefrom transdateto
+#
+# radio:
+#  itemstatus = active | onhand | short | obsolete | orphaned
+#  action     = continue | top100
+#
+# checkboxes:
+#  bought sold onorder ordered rfq quoted
+#  l_partnumber l_description l_serialnumber l_unit l_listprice l_sellprice l_lastcost
+#  l_linetotal l_priceupdate l_bin l_rop l_weight l_image l_drawing l_microfiche
+#  l_partsgroup l_subtotal l_soldtotal l_deliverydate
+#
+# hiddens: 
+#  nextsub login password revers lastsort sort ndxs_counter
+#
 sub generate_report {
   $lxdebug->enter_sub();
+
+  my ($revers, $lastsort, $description);
+  my (@column_index, %column_header, %column_data, @columns, @options, @callbacks);
+  my ($totalsellprice, $totallastcost, $totallistprice, $subtotalonhand, $subtotalsellprice, $subtotallastcost, $subtotallistprice);
+  my ($colspan, $sameitem, $onhand, $align);
 
   $revers   = $form->{revers};
   $lastsort = $form->{lastsort};
 
+  # sorting and direction of sorting
+  # ToDO: change this to the simpler field+direction method
   if (($form->{lastsort} eq "") && ($form->{sort} eq undef)) {
     $form->{revers}   = 0;
     $form->{lastsort} = "partnumber";
     $form->{sort}     = "partnumber";
   } else {
-
-    # switch between backward sorting of tables
     if ($form->{lastsort} eq $form->{sort}) {
-      if ($form->{revers} == 0) {
-        $form->{revers} = 1;
-      } else {
-        $form->{revers} = 0;
-      }    #fi
+      $form->{revers} = 1 - $form->{revers};
     } else {
-      $form->{revers} == 0;
+      $form->{revers} = 0;
       $form->{lastsort} = $form->{sort};
     }    #fi
   }    #fi
 
-  $callback =
-    "$form->{script}?action=generate_report&login=$form->{login}&password=$form->{password}&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
-    . $form->escape($form->{title}, 1);
+  # special case if we have a serialnumber limit search
+  # serialnumbers are only given in invoices and orders, 
+  # so they can only pop up in bought, sold, rfq, and quoted stuff
+  $form->{no_sn_joins} = 'Y' if (   !$form->{bought} && !$form->{sold} 
+                                 && !$form->{rfq}    && !$form->{quoted} 
+                                 && ($form->{l_serialnumber} || $form->{serialnumber}));
 
-  # if we have a serialnumber limit search
-  if ($form->{serialnumber} || $form->{l_serialnumber}) {
-    $form->{l_serialnumber} = "Y";
-    unless (   $form->{bought}
-            || $form->{sold}
-            || $form->{rfq}
-            || $form->{quoted}) {
-      $form->{bought} = $form->{sold} = 1;
-    }
+  # special case for any checkbox of bought | sold | onorder | ordered | rfq | quoted.
+  # if any of these are ticked the behavior changes slightly for lastcost
+  # since all those are aggregation checks for the legder tables this is an internal switch
+  # refered to as ledgerchecks
+  $form->{ledgerchecks} = 'Y' if (   $form->{bought} || $form->{sold} || $form->{onorder}
+                                  || $form->{ordered} || $form->{rfq} || $form->{quoted});
+
+  # if something should be aktivated if something else is active, enter it here
+  my %dependencies = (
+    onhand       => [ qw(l_onhand) ],
+    short        => [ qw(l_onhand) ],
+    onorder      => [ qw(l_ordnumber) ],
+    ordered      => [ qw(l_ordnumber) ],
+    rfq          => [ qw(l_quonumber) ],
+    quoted       => [ qw(l_quonumber) ],
+    bought       => [ qw(l_invnumber) ],
+    sold         => [ qw(l_invnumber) ],
+    ledgerchecks => [ qw(l_name) ],
+    serialnumber => [ qw(l_serialnumber) ],
+    no_sn_joins  => [ qw(bought sold) ],
+  );
+
+  # these strings get displayed at the top of the results to indicate the user which switches were used
+  my %optiontexts = (
+    active        => $locale->text('Active'),
+    obsolete      => $locale->text('Obsolete'),
+    orphaned      => $locale->text('Orphaned'),
+    onhand        => $locale->text('On Hand'),
+    short         => $locale->text('Short'),
+    onorder       => $locale->text('On Order'),
+    ordered       => $locale->text('Ordered'),
+    rfq           => $locale->text('RFQ'),
+    quoted        => $locale->text('Quoted'),
+    bought        => $locale->text('Bought'),
+    sold          => $locale->text('Sold'),
+    transdatefrom => $locale->text('From')       . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1),
+    transdateto   => $locale->text('To (time)')  . " " . $locale->date(\%myconfig, $form->{transdateto}, 1),
+    partnumber    => $locale->text('Part Number')      . ": '$form->{partnumber}'",
+    partsgroup    => $locale->text('Group')            . ": '$form->{partsgroup}'",
+    serialnumber  => $locale->text('Serial Number')    . ": '$form->{serialnumber}'",
+    description   => $locale->text('Part Description') . ": '$form->{description}'",
+    make          => $locale->text('Make')             . ": '$form->{make}'",
+    model         => $locale->text('Model')            . ": '$form->{model}'",
+    drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
+    microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
+    l_soldtotal   => $locale->text('soldtotal'),
+  );
+
+  # this local subfunction generates a callback token from the input key.
+  # easy to join into a callback later
+  sub callback_token { 
+    map { /\w+$/; return "&$&=$form->{$&}" } @_;
   }
+
+  my @itemstatus_keys = qw(active obsolete orphaned onhand short);
+  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup serialnumber description make model 
+                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto);
+  my $callback           = "$form->{script}?action=generate_report";
+  map { $callback .= "&$_=" . $form->escape($form->{$_}) } qw(login password searchitems itemstatus bom l_linetotal title);
+    
+  # calculate dependencies
+  for (@itemstatus_keys, @callback_keys) { 
+    next if ($form->{itemstatus} ne $_ && !$form->{$_});
+    map { $form->{$_} = 'Y' } @{ $dependencies{$_} } if $dependencies{$_};
+  }
+
+  # generate callback and optionstrings
+  for my  $key (@itemstatus_keys, @callback_keys) { 
+    next if ($form->{itemstatus} ne $key && !$form->{$key});
+    push @options, $optiontexts{$key};
+    push @callbacks, callback_token($key) if grep { $_ eq $key } @callback_keys;;
+  }
+  my $option    = $locale->text('Options') . ': ' . join(', ', grep $_, @options) . '<br>';
+  $callback .= join '', grep $_, @callbacks;
+
+  $lxdebug->message(0, $callback);
 
   IC->all_parts(\%myconfig, \%$form);
 
-  if ($form->{itemstatus} eq 'active') {
-    $option .= $locale->text('Active') . " : ";
-  }
-  if ($form->{itemstatus} eq 'obsolete') {
-    $option .= $locale->text('Obsolete') . " : ";
-  }
-  if ($form->{itemstatus} eq 'orphaned') {
-    $option .= $locale->text('Orphaned') . " : ";
-  }
-  if ($form->{itemstatus} eq 'onhand') {
-    $option .= $locale->text('On Hand') . " : ";
-    $form->{l_onhand} = "Y";
-  }
-  if ($form->{itemstatus} eq 'short') {
-    $option .= $locale->text('Short') . " : ";
-    $form->{l_onhand} = "Y";
-  }
-  if ($form->{onorder}) {
-    $form->{l_ordnumber} = "Y";
-    $callback .= "&onorder=$form->{onorder}";
-    $option   .= $locale->text('On Order') . " : ";
-  }
-  if ($form->{ordered}) {
-    $form->{l_ordnumber} = "Y";
-    $callback .= "&ordered=$form->{ordered}";
-    $option   .= $locale->text('Ordered') . " : ";
-  }
-  if ($form->{rfq}) {
-    $form->{l_quonumber} = "Y";
-    $callback .= "&rfq=$form->{rfq}";
-    $option   .= $locale->text('RFQ') . " : ";
-  }
-  if ($form->{quoted}) {
-    $form->{l_quonumber} = "Y";
-    $callback .= "&quoted=$form->{quoted}";
-    $option   .= $locale->text('Quoted') . " : ";
-  }
-  if ($form->{bought}) {
-    $form->{l_invnumber} = "Y";
-    $callback .= "&bought=$form->{bought}";
-    $option   .= $locale->text('Bought') . " : ";
-  }
-  if ($form->{sold}) {
-    $form->{l_invnumber} = "Y";
-    $callback .= "&sold=$form->{sold}";
-    $option   .= $locale->text('Sold') . " : ";
-  }
-  if (   $form->{bought}
-      || $form->{sold}
-      || $form->{onorder}
-      || $form->{ordered}
-      || $form->{rfq}
-      || $form->{quoted}) {
+  # special case for lastcost
+  $form->{l_lastcost} = "" if $form->{ledgerchecks};
 
-    $form->{l_lastcost} = "";
-    $form->{l_name}     = "Y";
-    if ($form->{transdatefrom}) {
-      $callback .= "&transdatefrom=$form->{transdatefrom}";
-      $option   .= "\n<br>"
-        . $locale->text('From')
-        . "&nbsp;"
-        . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-    }
-    if ($form->{transdateto}) {
-      $callback .= "&transdateto=$form->{transdateto}";
-      $option   .= "\n<br>"
-        . $locale->text('To (time)')
-        . "&nbsp;"
-        . $locale->date(\%myconfig, $form->{transdateto}, 1);
-    }
-  }
-
-  $option .= "<br>";
-
-  if ($form->{partnumber}) {
-    $callback .= "&partnumber=$form->{partnumber}";
-    $option   .= $locale->text('Part Number') . qq| : $form->{partnumber}<br>|;
-  }
-  if ($form->{partsgroup}) {
-    $callback .= "&partsgroup=$form->{partsgroup}";
-    $option   .= $locale->text('Group') . qq| : $form->{partsgroup}<br>|;
-  }
-  if ($form->{serialnumber}) {
-    $callback .= "&serialnumber=$form->{serialnumber}";
-    $option   .=
-      $locale->text('Serial Number') . qq| : $form->{serialnumber}<br>|;
-  }
   if ($form->{description}) {
-    $callback .= "&description=$form->{description}";
     $description = $form->{description};
-    $description =~ s/
-/<br>/g;
-    $option .=
-      $locale->text('Part Description') . qq| : $form->{description}<br>|;
-  }
-  if ($form->{make}) {
-    $callback .= "&make=$form->{make}";
-    $option   .= $locale->text('Make') . qq| : $form->{make}<br>|;
-  }
-  if ($form->{model}) {
-    $callback .= "&model=$form->{model}";
-    $option   .= $locale->text('Model') . qq| : $form->{model}<br>|;
-  }
-  if ($form->{drawing}) {
-    $callback .= "&drawing=$form->{drawing}";
-    $option   .= $locale->text('Drawing') . qq| : $form->{drawing}<br>|;
-  }
-  if ($form->{microfiche}) {
-    $callback .= "&microfiche=$form->{microfiche}";
-    $option   .= $locale->text('Microfiche') . qq| : $form->{microfiche}<br>|;
-  }
-
-  # table soldtotal aktive
-  if ($form->{l_soldtotal}) {
-    $callback .= "&soldtotal=$form->{soldtotal}";
-    $option   .= $locale->text('soldtotal') . qq| : $form->{soldtotal}<br>|;
-  }
-
-  if ($form->{l_deliverydate}) {
-    $callback .= "&deliverydate=$form->{deliverydate}";
+    $description =~ s/\n/<br>/g;
   }
 
   @columns = $form->sort_columns(
-    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate)
+    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice 
+       lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate)
   );
 
   if ($form->{l_linetotal}) {
@@ -1673,7 +1671,7 @@ sub generate_report {
   $form->{l_lastcost} = ""
     if ($form->{searchitems} eq 'assembly' && !$form->{bom});
 
-  foreach $item (@columns) {
+  foreach my $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
       push @column_index, $item;
 
@@ -1809,7 +1807,8 @@ sub generate_report {
     $sameitem = $form->{parts}->[0]->{ $form->{sort} };
   }
 
-  foreach $ref (@{ $form->{parts} }) {
+  foreach my $ref (@{ $form->{parts} }) {
+    my $i = 0;
 
     if ($form->{l_subtotal} eq 'Y' && !$ref->{assemblyitem}) {
       if ($sameitem ne $ref->{ $form->{sort} }) {
@@ -1999,6 +1998,17 @@ sub generate_report {
 
 sub parts_subtotal {
   $lxdebug->enter_sub();
+  
+  # imports
+  my %column_data       = $main::column_data;
+  my @column_index      = $main::column_index;
+  my $subtotalonhand    = $main::subtotalonhand;
+  my $totalsellprice    = $main::totalsellprice;
+  my $totallastcost     = $main::totallastcost;
+  my $totallistprice    = $main::totallistprice;
+  my $subtotalsellprice = $main::subtotalsellprice;
+  my $subtotallastcost  = $main::subtotallastcost;
+  my $subtotallistprice = $main::subtotallistprice;
 
   map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
   $subtotalonhand = 0 if ($form->{searchitems} eq 'assembly' && $form->{bom});
@@ -2064,15 +2074,15 @@ sub link_part {
       split(/:/, $form->{currencies}));
 
   # parts and assemblies have the same links
-  $item = $form->{item};
+  my $item = $form->{item};
   if ($form->{item} eq 'assembly') {
     $item = 'part';
   }
 
   # build the popup menus
   $form->{taxaccounts} = "";
-  foreach $key (keys %{ $form->{IC_links} }) {
-    foreach $ref (@{ $form->{IC_links}{$key} }) {
+  foreach my $key (keys %{ $form->{IC_links} }) {
+    foreach my $ref (@{ $form->{IC_links}{$key} }) {
 
       # if this is a tax field
       if ($key =~ /IC_tax/) {
@@ -2126,7 +2136,7 @@ sub link_part {
 
   if ($form->{item} eq 'assembly') {
 
-    foreach $i (1 .. $form->{assembly_rows}) {
+    foreach my $i (1 .. $form->{assembly_rows}) {
       if ($form->{"partsgroup_id_$i"}) {
         $form->{"partsgroup_$i"} =
           qq|$form->{"partsgroup_$i"}--$form->{"partsgroup_id_$i"}|;
@@ -2149,18 +2159,23 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
+  my ($payment, $rows, $notes, $description, $ean, $buchungsgruppe, $partsgroup, $group, $tax, $lastcost, $eur, $linkaccounts, $weight, $n, $rop, $bin, $vegv);
+  my ($notdiscountableok, $notdiscountable);
+  my ($formel, $imagelinks, $obsolete, $shopok, $shop);
+
+
   map({ $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, -2) }
       qw(sellprice listprice lastcost gv));
 
   map { $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}) }
     qw(weight rop stock);
 
-  foreach $item (qw(partnumber description unit notes)) {
+  foreach my $item (qw(partnumber description unit notes)) {
     $form->{$item} =~ s/\"/&quot;/g;
   }
 
   $payment = qq|<option value=""></option>|;
-  foreach $item (@{ $form->{payment_terms} }) {
+  foreach my $item (@{ $form->{payment_terms} }) {
     if ($form->{payment_id} eq $item->{id}) {
       $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
     } else {
@@ -2185,13 +2200,13 @@ sub form_header {
 
   $ean =  qq|<input name=ean size=40 value="$form->{ean}">|;
 
-  foreach $item (split / /, $form->{taxaccounts}) {
+  foreach my $item (split / /, $form->{taxaccounts}) {
     $form->{"IC_tax_$item"} = ($form->{"IC_tax_$item"}) ? "checked" : "";
   }
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   if (@{ $form->{BUCHUNGSGRUPPEN} }) {
-    foreach $item (@{ $form->{BUCHUNGSGRUPPEN} }) {
+    foreach my $item (@{ $form->{BUCHUNGSGRUPPEN} }) {
       if ($item->{id} == $form->{buchungsgruppen_id}) {
         $form->{selectbuchungsgruppe} .=
           "<option value=$item->{id} selected>$item->{description}\n";
@@ -2211,7 +2226,7 @@ sub form_header {
 
 
   # set option
-  foreach $item (qw(IC IC_income IC_expense)) {
+  foreach my $item (qw(IC IC_income IC_expense)) {
     if ($form->{$item}) {
       if ($form->{id} && $form->{orphaned}) {
         $form->{"select$item"} =~ s/ selected//;
@@ -2237,7 +2252,7 @@ sub form_header {
   }
 
   # tax fields
-  foreach $item (split / /, $form->{taxaccounts}) {
+  foreach my $item (split / /, $form->{taxaccounts}) {
     $tax .= qq|
       <input class=checkbox type=checkbox name="IC_tax_$item" value=1 $form->{"IC_tax_$item"}>&nbsp;<b>$form->{"IC_tax_${item}_description"}</b>
       <br><input type=hidden name=IC_tax_${item}_description value="$form->{"IC_tax_${item}_description"}">
@@ -2455,6 +2470,7 @@ sub form_header {
   # type=submit $locale->text('Edit Service')
   # type=submit $locale->text('Edit Assembly')
   # use JavaScript Calendar or not
+  my ($jsscript, $button1);
   $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
@@ -2730,10 +2746,7 @@ sub form_footer {
 sub makemodel_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
-
-  $form->{"make_$i"}  =~ s/\"/&quot;/g;
-  $form->{"model_$i"} =~ s/\"/&quot;/g;
-
+  
   print qq|
   <tr>
     <td>
@@ -2744,7 +2757,9 @@ sub makemodel_row {
 	</tr>
 |;
 
-  for $i (1 .. $numrows) {
+  for my $i (1 .. $numrows) {
+    $form->{"make_$i"}  =~ s/\"/&quot;/g;
+    $form->{"model_$i"} =~ s/\"/&quot;/g;
     print qq|
 	<tr>
 	  <td width=50%><input name="make_$i" size=30 value="$form->{"make_$i"}"></td>
@@ -2765,6 +2780,10 @@ sub makemodel_row {
 sub assembly_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
+  my (@column_index, %column_data, %column_header);
+  my ($nochange, $callback, $previousform, $linetotal, $href);
+
+  my $deliverydate = $main::deliverydate; # ToDO: cjeck if this indeed comes from global context
 
   @column_index =
     qw(runningnumber qty unit bom partnumber description partsgroup total);
@@ -2785,7 +2804,7 @@ sub assembly_row {
     $previousform = "";
 
     # save form variables in a previousform variable
-    foreach $key (sort keys %$form) {
+    foreach my $key (sort keys %$form) {
 
       # escape ampersands
       $form->{$key} =~ s/&/%26/g;
@@ -2832,7 +2851,7 @@ sub assembly_row {
         </tr>
 |;
 
-  for $i (1 .. $numrows) {
+  for my $i (1 .. $numrows) {
     $form->{"partnumber_$i"} =~ s/\"/&quot;/g;
 
     $linetotal =
@@ -2933,7 +2952,7 @@ sub update {
   $lxdebug->enter_sub();
 
   if ($form->{item} eq "assembly") {
-    $i = $form->{assembly_rows};
+    my $i = $form->{assembly_rows};
 
     # if last row is empty check the form otherwise retrieve item
     if (   ($form->{"partnumber_$i"} eq "")
@@ -2946,7 +2965,7 @@ sub update {
 
       IC->assembly_item(\%myconfig, \%$form);
 
-      $rows = scalar @{ $form->{item_list} };
+      my $rows = scalar @{ $form->{item_list} };
 
       if ($rows) {
         $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
@@ -2996,6 +3015,8 @@ sub update {
 sub save {
   $lxdebug->enter_sub();
 
+  my ($parts_id, %newform, $previousform, $amount, $callback);
+
   # check if there is a part number - commented out, cause there is an automatic allocation of numbers
   # $form->isblank("partnumber", $locale->text(ucfirst $form->{item}." Part Number missing!"));
 
@@ -3027,10 +3048,8 @@ sub save {
   # $locale->text('Assembly Number missing!')
 
   # save part
-  $lxdebug->message(LXDebug::DEBUG1,
-                    "ic.pl: sellprice in save = $form->{sellprice}\n");
-  $rc = IC->save(\%myconfig, \%$form);
-  if ($rc == 3) {
+  $lxdebug->message($LXDebug::DEBUG1, "ic.pl: sellprice in save = $form->{sellprice}\n");
+  if (IC->save(\%myconfig, \%$form) == 3) {
     $form->error($locale->text('Partnumber not unique!'));
   }
   # saving the history
@@ -3042,6 +3061,7 @@ sub save {
   # /saving the history
   $parts_id = $form->{id};
 
+  my $i;
   # load previous variables
   if ($form->{previousform}) {
 
@@ -3054,8 +3074,8 @@ sub save {
     map { delete $form->{$_} } keys %newform;
 
     # now take it apart and restore original values
-    foreach $item (split /&/, $previousform) {
-      ($key, $value) = split /=/, $item, 2;
+    foreach my $item (split /&/, $previousform) {
+      my ($key, $value) = split /=/, $item, 2;
       $value =~ s/%26/&/g;
       $form->{$key} = $value;
     }
@@ -3093,14 +3113,12 @@ sub save {
       if ($form->{exchangerate} != 0) {
         $form->{"sellprice_$i"} /= $form->{exchangerate};
       }
-      $lxdebug->message(LXDebug::DEBUG1,
-                        qq|sellprice_$i in previousform 2 = |
-                          . $form->{"sellprice_$i"} . qq|\n|);
+      $lxdebug->message($LXDebug::DEBUG1, qq|sellprice_$i in previousform 2 = | . $form->{"sellprice_$i"} . qq|\n|);
       map { $form->{"taxaccounts_$i"} .= "$_ " } split / /,
         $newform{taxaccount};
       chop $form->{"taxaccounts_$i"};
-      foreach $item (qw(description rate taxnumber)) {
-        $index = $form->{"taxaccounts_$i"} . "_$item";
+      foreach my $item (qw(description rate taxnumber)) {
+        my $index = $form->{"taxaccounts_$i"} . "_$item";
         $form->{$index} = $newform{$index};
       }
 
@@ -3135,17 +3153,15 @@ sub save {
     $form->{makemodel_rows}--;
 
     # put callback together
-    foreach $key (keys %$form) {
+    foreach my $key (keys %$form) {
 
       # do single escape for Apache 2.0
-      $value = $form->escape($form->{$key}, 1);
+      my $value = $form->escape($form->{$key}, 1);
       $callback .= qq|&$key=$value|;
     }
     $form->{callback} = $callback;
   }
-  $lxdebug->message(LXDebug::DEBUG1,
-                    qq|ic.pl: sellprice_$i nach sub save = |
-                      . $form->{"sellprice_$i"} . qq|\n|);
+  $lxdebug->message($LXDebug::DEBUG1, qq|ic.pl: sellprice_$i nach sub save = | . $form->{"sellprice_$i"} . qq|\n|);
 
   # redirect
   $form->redirect;
@@ -3181,7 +3197,7 @@ sub delete {
   	$form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
-  $rc = IC->delete(\%myconfig, \%$form);
+  my $rc = IC->delete(\%myconfig, \%$form);
 
   # redirect
   $form->redirect($locale->text('Item deleted!')) if ($rc > 0);
@@ -3204,7 +3220,7 @@ sub price_row {
           <th class="listheading">| . $locale->text('Preis') . qq|</th>
         </tr>
 |;
-  for $i (1 .. $numrows) {
+  for my $i (1 .. $numrows) {
     print qq|
         <tr>
           <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
@@ -3226,6 +3242,7 @@ sub price_row {
 sub parts_language_selection {
   $lxdebug->enter_sub();
 
+  my $onload = $main::onload;
 
   my $languages = IC->retrieve_languages(\%myconfig, $form);
 
