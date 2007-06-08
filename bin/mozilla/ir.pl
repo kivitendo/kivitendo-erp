@@ -227,6 +227,9 @@ sub form_header {
     $form->{salesman_id} = $form->{old_salesman_id};
   }
 
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
+
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
@@ -1057,6 +1060,8 @@ sub use_as_template {
 
 sub post_payment {
   $lxdebug->enter_sub();
+
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->{"paid_$i"}) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);

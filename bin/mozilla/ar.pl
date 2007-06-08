@@ -951,6 +951,9 @@ sub update {
 
 sub post_payment {
   $lxdebug->enter_sub();
+
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
