@@ -1535,7 +1535,7 @@ sub follow_account_chain {
 sub retrieve_accounts {
   $main::lxdebug->enter_sub(2);
 
-  my ($self, $myconfig, $form, $parts_id, $index, $copy_accnos) = @_;
+  my ($self, $myconfig, $form, $parts_id, $index) = @_;
 
   my ($query, $sth, $dbh);
 
