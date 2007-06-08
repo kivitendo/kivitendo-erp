@@ -96,6 +96,8 @@ $self->{texts} = {
   'MAILED'                      => 'Gesendet',
   'Mar'                         => 'März',
   'March'                       => 'März',
+  'Mark as paid?'               => 'Als bezahlt markieren?',
+  'Marked as paid'              => 'Als bezahlt markiert',
   'May'                         => 'Mai',
   'May '                        => 'Mai',
   'Memo'                        => 'Memo',
@@ -223,6 +225,8 @@ $self->{texts} = {
   'emailed to'                  => 'gemailt an',
   'history'                     => 'Historie',
   'invoice'                     => 'Rechnung',
+  'mark as paid'                => 'als bezahlt markieren',
+  'no'                          => 'nein',
   'none (pricegroup)'           => 'keine',
   'packing_list'                => 'Versandliste',
   'pick_list'                   => 'Entnahmeliste',
@@ -235,6 +239,7 @@ $self->{texts} = {
   'sent'                        => 'gesendet',
   'sent to printer'             => 'an Drucker geschickt',
   'wrongformat'                 => 'Falsches Format',
+  'yes'                         => 'ja',
 };
 
 $self->{subs} = {
@@ -273,6 +278,7 @@ $self->{subs} = {
   'item_selected'               => 'item_selected',
   'load_draft'                  => 'load_draft',
   'load_draft_maybe'            => 'load_draft_maybe',
+  'mark_as_paid'                => 'mark_as_paid',
   'name_selected'               => 'name_selected',
   'new_item'                    => 'new_item',
   'new_license'                 => 'new_license',
@@ -327,6 +333,7 @@ $self->{subs} = {
   'erneuern'                    => 'update',
   'als_vorlage_verwenden'       => 'use_as_template',
   'ja'                          => 'yes',
+  'als_bezahlt_markieren'       => 'mark_as_paid',
 };
 
 1;

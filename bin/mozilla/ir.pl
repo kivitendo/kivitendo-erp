@@ -865,13 +865,24 @@ sub form_footer {
   	  . qq|">|;
   }
   # /button for saving history
-
+  # mark_as_paid button 
+  if($form->{id} ne "") {  
+    print qq|<input type="submit" class="submit" name="action" value="| 
+          . $locale->text('mark as paid') . qq|">|;
+  }
+  # /mark_as_paid button
 print qq|</form>
 
 </body>
 </html>
 |;
 
+  $lxdebug->leave_sub();
+}
+
+sub mark_as_paid {
+  $lxdebug->enter_sub();
+  $form->mark_as_paid(\%myconfig,"ap");  
   $lxdebug->leave_sub();
 }
 

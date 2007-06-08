@@ -818,6 +818,13 @@ sub form_footer {
     print qq|<input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|>|;
   }
   # /button for saving history
+  # mark_as_paid button 
+  if($form->{id} ne "") {  
+    print qq|<input type="submit" class="submit" name="action" value="| 
+          . $locale->text('mark as paid') . qq|">|;
+  }
+  # /mark_as_paid button
+
   print "
 </form>
 
@@ -825,6 +832,12 @@ sub form_footer {
 </html>
 ";
 
+  $lxdebug->leave_sub();
+}
+
+sub mark_as_paid {
+  $lxdebug->enter_sub();
+  $form->mark_as_paid(\%myconfig,"ar");  
   $lxdebug->leave_sub();
 }
 

@@ -1168,11 +1168,16 @@ if ($form->{type} eq "credit_note") {
   	  . Q($form->{id})
   	  . qq|);" name="history" id="history" value="|
   	  . $locale->text('history')
-  	  . qq|">|;
+  	  . qq|"> |;
   }
   # /button for saving history
-
-
+  
+  # mark_as_paid button 
+  if($form->{id} ne "") {  
+    print qq|<input type="submit" class="submit" name="action" value="| 
+          . $locale->text('mark as paid') . qq|">|;
+  }
+  # /mark_as_paid button
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
     qq|
 
@@ -1190,6 +1195,12 @@ print qq|
  </html>
 |;
 
+  $lxdebug->leave_sub();
+}
+
+sub mark_as_paid {
+  $lxdebug->enter_sub();
+  $form->mark_as_paid(\%myconfig,"ar");  
   $lxdebug->leave_sub();
 }
 

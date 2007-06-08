@@ -85,6 +85,8 @@ $self->{texts} = {
   'MAILED'                      => 'Gesendet',
   'Mar'                         => 'März',
   'March'                       => 'März',
+  'Mark as paid?'               => 'Als bezahlt markieren?',
+  'Marked as paid'              => 'Als bezahlt markiert',
   'May'                         => 'Mai',
   'May '                        => 'Mai',
   'Memo'                        => 'Memo',
@@ -172,6 +174,7 @@ $self->{texts} = {
   'bin_list'                    => 'Lagerliste',
   'button'                      => '?',
   'invoice'                     => 'Rechnung',
+  'no'                          => 'nein',
   'packing_list'                => 'Versandliste',
   'pick_list'                   => 'Entnahmeliste',
   'proforma'                    => 'Proforma',
@@ -180,6 +183,7 @@ $self->{texts} = {
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
   'wrongformat'                 => 'Falsches Format',
+  'yes'                         => 'ja',
 };
 
 $self->{subs} = {

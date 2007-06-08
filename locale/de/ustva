@@ -52,6 +52,8 @@ $self->{texts} = {
   'MAILED'                      => 'Gesendet',
   'Mar'                         => 'März',
   'March'                       => 'März',
+  'Mark as paid?'               => 'Als bezahlt markieren?',
+  'Marked as paid'              => 'Als bezahlt markiert',
   'May'                         => 'Mai',
   'May '                        => 'Mai',
   'Missing \'description\' field.' => 'Fehlendes Feld \'description\'.',
@@ -129,6 +131,7 @@ $self->{texts} = {
   'for Period'                  => 'für den Zeitraum',
   'invoice'                     => 'Rechnung',
   'month'                       => 'Monatliche Abgabe',
+  'no'                          => 'nein',
   'packing_list'                => 'Versandliste',
   'pick_list'                   => 'Entnahmeliste',
   'proforma'                    => 'Proforma',
@@ -139,6 +142,7 @@ $self->{texts} = {
   'sales_quotation'             => 'Verkaufsangebot',
   'saved'                       => 'gespeichert',
   'to (date)'                   => 'bis',
+  'yes'                         => 'ja',
 };
 
 $self->{subs} = {

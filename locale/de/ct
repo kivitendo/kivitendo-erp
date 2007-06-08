@@ -64,6 +64,8 @@ $self->{texts} = {
   'Language'                    => 'Sprache',
   'Lieferungen'                 => 'Lieferungen',
   'MAILED'                      => 'Gesendet',
+  'Mark as paid?'               => 'Als bezahlt markieren?',
+  'Marked as paid'              => 'Als bezahlt markiert',
   'Missing \'description\' field.' => 'Fehlendes Feld \'description\'.',
   'Missing \'tag\' field.'      => 'Fehlendes Feld \'tag\'.',
   'Mobile1'                     => 'Mobile 1',
@@ -159,6 +161,7 @@ $self->{texts} = {
   'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
   'history'                     => 'Historie',
   'invoice'                     => 'Rechnung',
+  'no'                          => 'nein',
   'packing_list'                => 'Versandliste',
   'pick_list'                   => 'Entnahmeliste',
   'proforma'                    => 'Proforma',
@@ -167,6 +170,7 @@ $self->{texts} = {
   's'                           => 's',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
+  'yes'                         => 'ja',
 };
 
 $self->{subs} = {

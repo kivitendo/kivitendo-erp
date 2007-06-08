@@ -76,6 +76,8 @@ $self->{texts} = {
   'MAILED'                      => 'Gesendet',
   'Mar'                         => 'März',
   'March'                       => 'März',
+  'Mark as paid?'               => 'Als bezahlt markieren?',
+  'Marked as paid'              => 'Als bezahlt markiert',
   'May'                         => 'Mai',
   'May '                        => 'Mai',
   'Memo'                        => 'Memo',
@@ -178,6 +180,7 @@ $self->{texts} = {
   'debug'                       => 'Debug',
   'for Period'                  => 'für den Zeitraum',
   'invoice'                     => 'Rechnung',
+  'no'                          => 'nein',
   'packing_list'                => 'Versandliste',
   'pick_list'                   => 'Entnahmeliste',
   'proforma'                    => 'Proforma',
@@ -188,6 +191,7 @@ $self->{texts} = {
   'ustva'                       => 'UStVA',
   'winston_export'              => 'Winston-Export',
   'wrongformat'                 => 'Falsches Format',
+  'yes'                         => 'ja',
 };
 
 $self->{subs} = {

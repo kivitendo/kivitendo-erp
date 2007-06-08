@@ -45,6 +45,8 @@ $self->{texts} = {
   'MAILED'                      => 'Gesendet',
   'Mandantennummer'             => 'Mandantennummer',
   'March'                       => 'März',
+  'Mark as paid?'               => 'Als bezahlt markieren?',
+  'Marked as paid'              => 'Als bezahlt markiert',
   'May'                         => 'Mai',
   'Medium Number'               => 'Datentr&auml;gernummer',
   'Missing \'description\' field.' => 'Fehlendes Feld \'description\'.',
@@ -101,6 +103,7 @@ $self->{texts} = {
   'bin_list'                    => 'Lagerliste',
   'bis'                         => 'bis',
   'invoice'                     => 'Rechnung',
+  'no'                          => 'nein',
   'packing_list'                => 'Versandliste',
   'pick_list'                   => 'Entnahmeliste',
   'proforma'                    => 'Proforma',
@@ -108,6 +111,7 @@ $self->{texts} = {
   'request_quotation'           => 'Angebotsanforderung',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
+  'yes'                         => 'ja',
 };
 
 $self->{subs} = {
