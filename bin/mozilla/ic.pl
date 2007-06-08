@@ -39,16 +39,13 @@ use SL::IC;
 use strict;
 #use warnings;
 
+# global imports
+our ($form, $locale, %myconfig, $lxdebug);
+
 require "bin/mozilla/io.pl";
 require "bin/mozilla/common.pl";
 
 1;
-
-# global imports
-my $form     = $main::form;
-my $locale   = $main::locale;
-my %myconfig = %main::myconfig;
-my $lxdebug  = $main::lxdebug;
 
 # end of main
 
@@ -637,9 +634,7 @@ sub update_prices {
 sub choice {
   $lxdebug->enter_sub();
 
-  my $j       = $main::j;
-  my $lastndx = $main::lastndx;
-
+  our ($j, $lastndx);
   my ($totop100);
 
   $form->{title} = $locale->text('Top 100 hinzufuegen');
@@ -762,7 +757,8 @@ sub choice {
 sub list {
   $lxdebug->enter_sub();
 
-  my $lastndx = $main::lastndx;
+  our ($lastndx);
+  our ($partnumber, $description, $unit, $sellprice, $soldtotal);
 
   my @sortorders = ("", "partnumber", "description", "all");
   my $sortorder = $sortorders[($form->{description} ? 2 : 0) + ($form->{partnumber} ? 1 : 0)];
@@ -853,12 +849,11 @@ sub list {
   if (($form->{ndxs_counter}) > 0) {
     for ($i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
 
-      # ToDO: does this really make sense?
-      $main::partnumber  = $form->{"totop100_partnumber_$i"};
-      $main::description = $form->{"totop100_description_$i"};
-      $main::unit        = $form->{"totop100_unit_$i"};
-      $main::sellprice   = $form->{"totop100_sellprice_$i"};
-      $main::soldtotal   = $form->{"totop100_soldtotal_$i"};
+      $partnumber  = $form->{"totop100_partnumber_$i"};
+      $description = $form->{"totop100_description_$i"};
+      $unit        = $form->{"totop100_unit_$i"};
+      $sellprice   = $form->{"totop100_sellprice_$i"};
+      $soldtotal   = $form->{"totop100_soldtotal_$i"};
 
       $totop100 .= qq|
 <input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
@@ -2000,15 +1995,8 @@ sub parts_subtotal {
   $lxdebug->enter_sub();
   
   # imports
-  my %column_data       = $main::column_data;
-  my @column_index      = $main::column_index;
-  my $subtotalonhand    = $main::subtotalonhand;
-  my $totalsellprice    = $main::totalsellprice;
-  my $totallastcost     = $main::totallastcost;
-  my $totallistprice    = $main::totallistprice;
-  my $subtotalsellprice = $main::subtotalsellprice;
-  my $subtotallastcost  = $main::subtotallastcost;
-  my $subtotallistprice = $main::subtotallistprice;
+  our (%column_data, @column_index);
+  our ($subtotalonhand, $totalsellprice, $totallastcost, $totallistprice, $subtotalsellprice, $subtotallastcost, $subtotallistprice);
 
   map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
   $subtotalonhand = 0 if ($form->{searchitems} eq 'assembly' && $form->{bom});
@@ -2783,7 +2771,7 @@ sub assembly_row {
   my (@column_index, %column_data, %column_header);
   my ($nochange, $callback, $previousform, $linetotal, $href);
 
-  my $deliverydate = $main::deliverydate; # ToDO: cjeck if this indeed comes from global context
+  our ($deliverydate); # ToDO: cjeck if this indeed comes from global context
 
   @column_index =
     qw(runningnumber qty unit bom partnumber description partsgroup total);
@@ -3242,7 +3230,7 @@ sub price_row {
 sub parts_language_selection {
   $lxdebug->enter_sub();
 
-  my $onload = $main::onload;
+  our ($onload);
 
   my $languages = IC->retrieve_languages(\%myconfig, $form);
 
