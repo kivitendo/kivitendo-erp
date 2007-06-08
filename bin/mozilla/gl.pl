@@ -1760,7 +1760,8 @@ sub post_transaction {
 sub post {
   $lxdebug->enter_sub();
 
-  $form->{title} = $locale->text("$form->{title} General Ledger Transaction");
+  $form->{title}  = $locale->text("$form->{title} General Ledger Transaction");
+  $form->{storno} = 0;
 
   post_transaction();
 

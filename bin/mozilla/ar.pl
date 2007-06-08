@@ -1023,8 +1023,11 @@ sub post {
   }
 
   $form->{AR}{receivables} = $form->{ARselected};
+  $form->{storno}          = 0;
 
   $form->{id} = 0 if $form->{postasnew};
+
+
   if (AR->post_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition} && $form->{id} ne "") {

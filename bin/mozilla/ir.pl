@@ -1141,6 +1141,7 @@ sub post {
 
   ($form->{AP})      = split /--/, $form->{AP};
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
+  $form->{storno}    = 0;
 
   $form->{id} = 0 if $form->{postasnew};
 

@@ -993,6 +993,7 @@ sub post {
   $form->{AP}{amount_1} = $debitaccno;
   $form->{AP}{payables} = $payablesaccno;
   $form->{taxkey}       = $taxkey;
+  $form->{storno}       = 0;
 
   $form->{id} = 0 if $form->{postasnew};
 
