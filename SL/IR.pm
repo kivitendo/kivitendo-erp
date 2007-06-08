@@ -46,6 +46,7 @@ sub post_invoice {
 
   # connect to database, turn off autocommit
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
 
   my ($query, $sth, @values, $project_id);
   my ($allocated, $taxrate, $taxamount, $taxdiff, $item);

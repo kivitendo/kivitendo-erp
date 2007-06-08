@@ -50,6 +50,7 @@ sub post_transaction {
   my @values;
 
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
 
   # set exchangerate
   $form->{exchangerate} = ($form->{currency} eq $form->{defaultcurrency}) ? 1 :
@@ -147,7 +148,7 @@ sub post_transaction {
 
   # update exchangerate
   $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, $form->{exchangerate}, 0)
-    if ($form->{currency} ne $form->{defaultcurrency}) && $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
+    if ($form->{currency} ne $form->{defaultcurrency}) && !$form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
 
   if (!$payments_only) {
     $query =

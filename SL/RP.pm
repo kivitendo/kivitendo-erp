@@ -980,6 +980,7 @@ sub trial_balance {
             $project
           AND ac.amount > 0
           AND c.accno = ?) AS credit |;
+
   $drcr = prepare_query($form, $dbh, $q_drcr);
 
   if ($form->{project_id}) {

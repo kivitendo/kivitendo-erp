@@ -492,6 +492,8 @@ sub post_invoice {
   if (!$form->{employee_id}) {
     $form->get_employee($dbh);
   }
+  
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
 

@@ -331,6 +331,8 @@ sub form_header {
     $form->{salesman_id} = $form->{old_salesman_id};
   }
 
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
   map { $form->{$_} =~ s/\"/&quot;/g }
     qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
        shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
@@ -569,6 +571,10 @@ sub form_header {
 
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
+
+  if (!$form->{exchangerate}) {
+    $form->{exchangerate} = "";
+  }
 
   if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
     $creditwarning = 1;
@@ -1924,6 +1930,9 @@ sub subtotal {
 sub save_and_close {
   $lxdebug->enter_sub();
 
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
+
   if ($form->{type} =~ /_order$/) {
     $form->isblank("transdate", $locale->text('Order Date missing!'));
   } else {
@@ -2018,6 +2027,9 @@ sub save_and_close {
 
 sub save {
   $lxdebug->enter_sub();
+
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
 
   if ($form->{type} =~ /_order$/) {
     $form->isblank("transdate", $locale->text('Order Date missing!'));
@@ -2269,6 +2281,8 @@ sub invoice {
   $form->{closed} = 0;
   $form->{rowcount}--;
   $form->{shipto} = 1;
+
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   if ($form->{type} =~ /_order$/) {
     $form->{exchangerate} = $exchangerate;

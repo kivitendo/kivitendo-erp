@@ -48,6 +48,8 @@ sub post_transaction {
   my ($null, $taxrate, $amount);
   my $exchangerate = 0;
 
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+
   ($null, $form->{department_id}) = split(/--/, $form->{department});
   $form->{department_id} *= 1;
 

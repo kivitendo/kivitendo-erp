@@ -1127,12 +1127,32 @@ sub update_exchangerate {
   if ($curr eq '') {
     $main::lxdebug->leave_sub();
     return;
+  }  
+  my $query = qq|SELECT curr FROM defaults|;
+
+  my ($currency) = selectrow_query($self, $dbh, $query);
+  my ($defaultcurrency) = split m/:/, $currency;
+
+
+  if ($curr eq $defaultcurrency) {
+    $main::lxdebug->leave_sub();
+    return;
   }
 
   my $query = qq|SELECT e.curr FROM exchangerate e
                  WHERE e.curr = ? AND e.transdate = ?
                  FOR UPDATE|;
   my $sth = prepare_execute_query($self, $dbh, $query, $curr, $transdate);
+
+  if ($buy == 0) {
+    $buy = "";
+  }
+  if ($sell == 0) {
+    $sell = "";
+  }
+
+  $buy = conv_i($buy, "NULL");
+  $sell = conv_i($sell, "NULL");
 
   my $set;
   if ($buy != 0 && $sell != 0) {
@@ -1148,6 +1168,7 @@ sub update_exchangerate {
                 SET $set
                 WHERE curr = ?
                 AND transdate = ?|;
+    
   } else {
     $query = qq|INSERT INTO exchangerate (curr, buy, sell, transdate)
                 VALUES (?, $buy, $sell, ?)|;
@@ -1165,11 +1186,14 @@ sub save_exchangerate {
 
   my $dbh = $self->dbconnect($myconfig);
 
-  my ($buy, $sell) = (0, 0);
+  my ($buy, $sell);
+
   $buy  = $rate if $fld eq 'buy';
   $sell = $rate if $fld eq 'sell';
 
+
   $self->update_exchangerate($dbh, $currency, $transdate, $buy, $sell);
+
 
   $dbh->disconnect;
 
@@ -1186,13 +1210,21 @@ sub get_exchangerate {
     return 1;
   }
 
+  my $query = qq|SELECT curr FROM defaults|;
+
+  my ($currency) = selectrow_query($self, $dbh, $query);
+  my ($defaultcurrency) = split m/:/, $currency;
+
+  if ($currency eq $defaultcurrency) {
+    $main::lxdebug->leave_sub();
+    return 1;
+  }
+
   my $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.curr = ? AND e.transdate = ?|;
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $curr, $transdate);
 
-  if (!$exchangerate) {
-    $exchangerate = 1;
-  }
+
 
   $main::lxdebug->leave_sub();
 
@@ -1209,20 +1241,42 @@ sub check_exchangerate {
     return "";
   }
 
-  my $dbh = $self->dbconnect($myconfig);
+  my ($defaultcurrency) = $self->get_default_currency($myconfig);
 
+  if ($currency eq $defaultcurrency) {
+    $main::lxdebug->leave_sub();
+    return 1;
+  }
+
+  my $dbh   = $self->get_standard_dbh($myconfig);
   my $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.curr = ? AND e.transdate = ?|;
-  my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
-  $dbh->disconnect();
 
-  $exchangerate = 1 if ($exchangerate == 0);
+  my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
+
   $exchangerate = 1 if ($exchangerate eq "");
 
   $main::lxdebug->leave_sub();
 
   return $exchangerate;
 }
+
+sub get_default_currency {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+  my $dbh = $self->get_standard_dbh($myconfig);
+
+  my $query = qq|SELECT curr FROM defaults|;
+
+  my ($curr)            = selectrow_query($self, $dbh, $query);
+  my ($defaultcurrency) = split m/:/, $curr;
+
+  $main::lxdebug->leave_sub();
+
+  return $defaultcurrency;
+}
+
 
 sub set_payment_options {
   $main::lxdebug->enter_sub();

@@ -232,9 +232,21 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
+  $form->{exchangerate} = $exchangerate
+    if (
+        $form->{forex} = (
+                     $exchangerate =
+                       $form->check_exchangerate(
+                       \%myconfig, $form->{currency}, $form->{transdate}, 'buy'
+                       )));
+
   # format amounts
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
+
+  if ($form->{exchangerate} == 0) {
+    $form->{exchangerate} = "";
+  }
 
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
@@ -677,6 +689,10 @@ $jsscript
     }
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
+
+    if ($form->{"exchangerate_$i"} == 0) {
+      $form->{"exchangerate_$i"} = "";
+    }
 
     $exchangerate = qq|&nbsp;|;
     if ($form->{currency} ne $form->{defaultcurrency}) {

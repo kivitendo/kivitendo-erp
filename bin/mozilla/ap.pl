@@ -213,10 +213,21 @@ sub form_header {
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
   $readonly                 = ($form->{radier}) ? "" : $readonly;
 
+  $form->{exchangerate} = $exchangerate
+    if (
+        $form->{forex} = (
+                     $exchangerate =
+                       $form->check_exchangerate(
+                       \%myconfig, $form->{currency}, $form->{transdate}, 'sell'
+                       )));
+
+
   # format amounts
   $form->{exchangerate} =
     $form->format_amount(\%myconfig, $form->{exchangerate});
-
+  if ($form->{exchangerate} == 0) {
+    $form->{exchangerate} = "";
+  }
   $form->{creditlimit} =
     $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
   $form->{creditremaining} =
@@ -647,6 +658,9 @@ $jsscript
     }
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
+    if ($form->{"exchangerate_$i"} == 0) {
+      $form->{"exchangerate_$i"} = "";
+    }
 
     $exchangerate = qq|&nbsp;|;
     if ($form->{currency} ne $form->{defaultcurrency}) {

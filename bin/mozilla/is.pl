@@ -302,7 +302,7 @@ sub form_header {
       }
     }
   }
-
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->{radier} =
     ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
@@ -1031,6 +1031,9 @@ if ($form->{type} eq "credit_note") {
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 
+    if ($form->{"exchangerate_$i"} == 0) {
+      $form->{"exchangerate_$i"} = "";
+    }
     $exchangerate = qq|&nbsp;|;
     if ($form->{currency} ne $form->{defaultcurrency}) {
       if ($form->{"forex_$i"}) {
@@ -1379,6 +1382,8 @@ sub update {
 
 sub post_payment {
   $lxdebug->enter_sub();
+
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->{"paid_$i"}) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
@@ -1410,6 +1415,8 @@ sub post_payment {
 
 sub post {
   $lxdebug->enter_sub();
+
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer", $locale->text('Customer missing!'));
 
