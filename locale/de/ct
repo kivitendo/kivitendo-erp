@@ -196,6 +196,7 @@ $self->{subs} = {
   'get_delivery'                => 'get_delivery',
   'get_shipto'                  => 'get_shipto',
   'list_names'                  => 'list_names',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'project_selection_internal'  => 'project_selection_internal',
   'reformat_numbers'            => 'reformat_numbers',

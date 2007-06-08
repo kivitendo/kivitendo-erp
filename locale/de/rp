@@ -228,6 +228,7 @@ $self->{subs} = {
   'gl_transaction'              => 'gl_transaction',
   'list_accounts'               => 'list_accounts',
   'list_payments'               => 'list_payments',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'name_selected'               => 'name_selected',
   'part_selection_internal'     => 'part_selection_internal',
   'print'                       => 'print',

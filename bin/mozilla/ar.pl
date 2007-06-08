@@ -838,7 +838,7 @@ sub form_footer {
 
 sub mark_as_paid {
   $lxdebug->enter_sub();
-  $form->mark_as_paid(\%myconfig,"ar");  
+  &mark_as_paid_common(\%myconfig,"ar");  
   $lxdebug->leave_sub();
 }
 

@@ -122,6 +122,7 @@ $self->{subs} = {
   'form_footer'                 => 'form_footer',
   'form_header'                 => 'form_header',
   'format_dates'                => 'format_dates',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'print_customer_selection'    => 'print_customer_selection',
   'print_license_form'          => 'print_license_form',

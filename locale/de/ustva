@@ -171,6 +171,7 @@ $self->{subs} = {
   'generate_ustva'              => 'generate_ustva',
   'gl_transaction'              => 'gl_transaction',
   'help'                        => 'help',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'name_selected'               => 'name_selected',
   'part_selection_internal'     => 'part_selection_internal',
   'project_selected'            => 'project_selected',

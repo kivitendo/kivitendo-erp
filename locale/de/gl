@@ -213,6 +213,7 @@ $self->{subs} = {
   'generate_report'             => 'generate_report',
   'gl_subtotal'                 => 'gl_subtotal',
   'gl_transaction'              => 'gl_transaction',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'name_selected'               => 'name_selected',
   'part_selection_internal'     => 'part_selection_internal',
   'post'                        => 'post',

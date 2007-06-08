@@ -882,7 +882,7 @@ print qq|</form>
 
 sub mark_as_paid {
   $lxdebug->enter_sub();
-  $form->mark_as_paid(\%myconfig,"ap");  
+  &mark_as_paid_common(\%myconfig,"ap");  
   $lxdebug->leave_sub();
 }
 

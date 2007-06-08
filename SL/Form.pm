@@ -2706,30 +2706,4 @@ sub all_years {
   $main::lxdebug->leave_sub();
 }
 
-sub mark_as_paid {
-  $main::lxdebug->enter_sub();
-    
-  my ($self, $myconfig, $db_name) = @_;
-
-  if($self->{mark_as_paid}) {
-    my $dbh ||= $self->get_standard_dbh($myconfig);
-    my $query = qq|UPDATE $db_name SET paid = amount WHERE id = ?|;
-    do_query($self, $dbh, $query, $self->{id});
-    $dbh->commit();
-    $self->redirect($main::locale->text("Marked as paid"));
-  }
-  else {
-    my $referer = $ENV{HTTP_REFERER};
-    $referer =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&login\=$self->{login}\&password\=$self->{password}\&id\=$self->{id}\&$2/;
-    $self->header();
-    print qq|<body>|;
-    print qq|<p><b>|.$main::locale->text('Mark as paid?').qq|</b></p>|;
-    print qq|<input type="button" value="|.$main::locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
-    print qq|<input type="button" value="|.$main::locale->text('no').qq|" onclick="javascript:history.back();">|;
-    print qq|</body></html>|;
-  }
-  
-  $main::lxdebug->leave_sub();
-}
-
 1;

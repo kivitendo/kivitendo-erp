@@ -86,6 +86,7 @@ $self->{subs} = {
   'delivery_customer_selection' => 'delivery_customer_selection',
   'employee_selection_internal' => 'employee_selection_internal',
   'format_dates'                => 'format_dates',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'project_selection_internal'  => 'project_selection_internal',
   'reformat_numbers'            => 'reformat_numbers',

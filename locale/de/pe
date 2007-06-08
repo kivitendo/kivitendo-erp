@@ -131,6 +131,7 @@ $self->{subs} = {
   'form_project_footer'         => 'form_project_footer',
   'form_project_header'         => 'form_project_header',
   'format_dates'                => 'format_dates',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'partsgroup_report'           => 'partsgroup_report',
   'pricegroup_report'           => 'pricegroup_report',

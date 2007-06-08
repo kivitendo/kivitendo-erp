@@ -351,6 +351,7 @@ $self->{subs} = {
   'list_lead'                   => 'list_lead',
   'list_payment'                => 'list_payment',
   'list_printer'                => 'list_printer',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'payment_header'              => 'payment_header',
   'printer_header'              => 'printer_header',

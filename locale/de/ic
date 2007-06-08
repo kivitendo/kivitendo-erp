@@ -310,6 +310,7 @@ $self->{subs} = {
   'link_part'                   => 'link_part',
   'list'                        => 'list',
   'makemodel_row'               => 'makemodel_row',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'new_item'                    => 'new_item',
   'new_license'                 => 'new_license',
   'order'                       => 'order',

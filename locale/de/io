@@ -189,6 +189,7 @@ $self->{subs} = {
   'format_dates'                => 'format_dates',
   'invoicetotal'                => 'invoicetotal',
   'item_selected'               => 'item_selected',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'new_item'                    => 'new_item',
   'new_license'                 => 'new_license',
   'order'                       => 'order',

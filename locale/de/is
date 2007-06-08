@@ -306,6 +306,7 @@ $self->{subs} = {
   'load_draft'                  => 'load_draft',
   'load_draft_maybe'            => 'load_draft_maybe',
   'mark_as_paid'                => 'mark_as_paid',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'name_selected'               => 'name_selected',
   'new_item'                    => 'new_item',
   'new_license'                 => 'new_license',

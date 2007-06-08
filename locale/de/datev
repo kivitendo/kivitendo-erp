@@ -132,6 +132,7 @@ $self->{subs} = {
   'export_bewegungsdaten'       => 'export_bewegungsdaten',
   'export_stammdaten'           => 'export_stammdaten',
   'format_dates'                => 'format_dates',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'project_selection_internal'  => 'project_selection_internal',
   'reformat_numbers'            => 'reformat_numbers',

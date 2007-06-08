@@ -125,6 +125,7 @@ $self->{subs} = {
   'employee_selection_internal' => 'employee_selection_internal',
   'format_dates'                => 'format_dates',
   'list_spool'                  => 'list_spool',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'print'                       => 'print',
   'project_selection_internal'  => 'project_selection_internal',

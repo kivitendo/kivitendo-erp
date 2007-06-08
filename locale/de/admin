@@ -144,6 +144,7 @@ $self->{subs} = {
   'lock_system'                 => 'lock_system',
   'login'                       => 'login',
   'login_name'                  => 'login_name',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'part_selection_internal'     => 'part_selection_internal',
   'pg_database_administration'  => 'pg_database_administration',
   'project_selection_internal'  => 'project_selection_internal',

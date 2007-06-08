@@ -226,6 +226,7 @@ $self->{subs} = {
   'gl_transaction'              => 'gl_transaction',
   'invoicetotal'                => 'invoicetotal',
   'item_selected'               => 'item_selected',
+  'mark_as_paid_common'         => 'mark_as_paid_common',
   'name_selected'               => 'name_selected',
   'new_item'                    => 'new_item',
   'new_license'                 => 'new_license',

@@ -565,4 +565,30 @@ sub show_vc_details {
 	$lxdebug->leave_sub();
 }
 
+sub mark_as_paid_common {
+  $lxdebug->enter_sub();
+  use SL::DBUtils;
+  my ($myconfig, $db_name) = @_;
+
+  if($form->{mark_as_paid}) {
+    my $dbh ||= $form->get_standard_dbh($myconfig);
+    my $query = qq|UPDATE $db_name SET paid = amount WHERE id = ?|;
+    do_query($form, $dbh, $query, $form->{id});
+    $dbh->commit();
+    $form->redirect($locale->text("Marked as paid"));
+}
+  else {
+    my $referer = $ENV{HTTP_REFERER};
+    $referer =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&login\=$form->{login}\&password\=$form->{password}\&id\=$form->{id}\&$2/;
+    $form->header();
+    print qq|<body>|;
+    print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
+    print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
+    print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
+    print qq|</body></html>|;
+}
+  
+  $lxdebug->leave_sub();
+}
+
 1;
