@@ -1129,6 +1129,9 @@ sub order {
   }
   $form->{ordnumber} = $form->{invnumber};
 
+  $form->{old_employee_id} = $form->{employee_id};
+  $form->{old_salesman_id} = $form->{salesman_id};
+
   map { delete $form->{$_} } qw(id printed emailed queued);
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'request_quotation') {
     $form->{title} = $locale->text('Add Purchase Order');
