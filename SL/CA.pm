@@ -370,6 +370,8 @@ sub all_transactions {
       $ca->{debit}  = 0;
     }
 
+    $ca->{index} = $ca->{reference}.$ca->{description};
+
     push(@{ $form->{CA} }, $ca);
 
   }
