@@ -1103,6 +1103,8 @@ sub post_payment {
 sub post {
   $lxdebug->enter_sub();
 
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
   $form->isblank("invdate", $locale->text('Invoice Date missing!'));
   $form->isblank("vendor",  $locale->text('Vendor missing!'));
 
