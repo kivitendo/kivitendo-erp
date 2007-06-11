@@ -463,6 +463,12 @@ sub get_invoices {
   }
 
   $query =
+    qq|SELECT id
+       FROM dunning_config
+       WHERE dunning_level = (SELECT MAX(dunning_level) FROM dunning_config)|;
+  my ($id_for_max_dunning_level) = selectrow_query($form, $dbh, $query);
+
+  $query =
     qq|SELECT
          a.id, a.ordnumber, a.transdate, a.invnumber, a.amount,
          ct.name AS customername, a.customer_id, a.duedate,
@@ -486,16 +492,19 @@ sub get_invoices {
        LEFT JOIN dunning_config cfg ON (a.dunning_config_id = cfg.id)
        LEFT JOIN dunning_config nextcfg ON
          (nextcfg.id =
-           (SELECT id
-            FROM dunning_config
-            WHERE dunning_level >
-              COALESCE((SELECT dunning_level
-                        FROM dunning_config
-                        WHERE id = a.dunning_config_id
-                        ORDER BY dunning_level DESC
-                        LIMIT 1),
-                       0)
-            LIMIT 1))
+           COALESCE(
+             (SELECT id
+              FROM dunning_config
+              WHERE dunning_level >
+                COALESCE((SELECT dunning_level
+                          FROM dunning_config
+                          WHERE id = a.dunning_config_id
+                          ORDER BY dunning_level DESC
+                          LIMIT 1),
+                         0)
+              ORDER BY dunning_level ASC
+              LIMIT 1)
+             , ?))
        LEFT JOIN dunning d ON ((d.trans_id = a.id) AND (cfg.dunning_level = d.dunning_level))
 
        WHERE (a.paid < a.amount)
@@ -504,7 +513,7 @@ sub get_invoices {
        $where
 
        ORDER BY a.id, transdate, duedate, name|;
-  my $sth = prepare_execute_query($form, $dbh, $query, @values);
+  my $sth = prepare_execute_query($form, $dbh, $query, $id_for_max_dunning_level, @values);
 
   $form->{DUNNINGS} = [];
 
