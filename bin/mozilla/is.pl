@@ -1561,7 +1561,6 @@ sub preview {
   $form->{preview} = 1;
   $old_form = new Form;
   for (keys %$form) { $old_form->{$_} = $form->{$_} }
-  $old_form->{rowcount}++;
 
   &print_form($old_form);
   $lxdebug->leave_sub();
