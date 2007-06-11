@@ -706,7 +706,7 @@ sub item_selected {
   map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} }
     qw(id partnumber description sellprice listprice inventory_accno
        income_accno expense_accno bin unit weight assembly taxaccounts
-       partsgroup formel longdescription not_discountable partnotes);
+       partsgroup formel longdescription not_discountable partnotes lastcost);
   if ($form->{"part_payment_id_$i"} ne "") {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }
