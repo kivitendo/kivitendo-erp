@@ -26,12 +26,7 @@ sub module_available {
 }
 
 sub test_all_modules {
-  my @missing_modules;
-
-  map({ push(@missing_modules, $_) unless (module_available($_->{"name"})); }
-      @required_modules);
-
-  return @missing_modules;
+  return grep { !module_available($_->{name}) } @required_modules;
 }
 
 1;
