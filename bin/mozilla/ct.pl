@@ -95,13 +95,14 @@ sub search {
 
   $label = ucfirst $form->{db};
   $form->{title} = $locale->text($label . "s");
+  $form->{fokus} = 'Form.name';
 
   $form->header;
 
   print qq|
-<body>
+<body onload="fokus()">
 
-<form method=post action=$form->{script}>
+<form method=post action=$form->{script} name="Form">
 
 <input type=hidden name=db value=$form->{db}>
 
