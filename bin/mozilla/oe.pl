@@ -1935,11 +1935,36 @@ sub subtotal {
   $lxdebug->leave_sub();
 }
 
+sub check_delivered_flag {
+  $lxdebug->enter_sub();
+
+  if (($form->{type} ne 'sales_order') && ($form->{type} ne 'purchase_order')) {
+    return $lxdebug->leave_sub();
+  }
+
+  my $all_delivered = 0;
+
+  foreach my $i (1 .. $form->{rowcount}) {
+    next if (!$form->{"id_$i"});
+
+    if ($form->parse_amount(\%myconfig, $form->{"qty_$i"}) == $form->parse_amount(\%myconfig, $form->{"ship_$i"})) {
+      $all_delivered = 1;
+      next;
+    }
+
+    $all_delivered = 0;
+    last;
+  }
+
+  $form->{delivered} = 1 if $all_delivered;
+
+  $lxdebug->leave_sub();
+}
+
 sub save_and_close {
   $lxdebug->enter_sub();
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-
 
   if ($form->{type} =~ /_order$/) {
     $form->isblank("transdate", $locale->text('Order Date missing!'));
@@ -1992,6 +2017,8 @@ sub save_and_close {
     }
 
     $err = $locale->text('Cannot save order!');
+
+    check_delivered_flag();
 
   } else {
     if ($form->{type} eq 'sales_quotation') {
@@ -2090,6 +2117,8 @@ sub save {
     }
 
     $err = $locale->text('Cannot save order!');
+
+    check_delivered_flag();
 
   } else {
     if ($form->{type} eq 'sales_quotation') {
