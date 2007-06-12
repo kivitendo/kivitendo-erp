@@ -288,6 +288,7 @@ $self->{subs} = {
   'build_std_url'               => 'build_std_url',
   'calculate_qty'               => 'calculate_qty',
   'call_sub'                    => 'call_sub',
+  'check_delivered_flag'        => 'check_delivered_flag',
   'check_for_direct_delivery'   => 'check_for_direct_delivery',
   'check_for_direct_delivery_no' => 'check_for_direct_delivery_no',
   'check_for_direct_delivery_yes' => 'check_for_direct_delivery_yes',

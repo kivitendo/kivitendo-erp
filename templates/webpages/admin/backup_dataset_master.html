@@ -80,12 +80,14 @@
    <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
    <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
    <input type="hidden" name="nextsub" value="backup_dataset_start">
+   <input type="hidden" name="back_nextsub" value="list_users">
 
    <hr size="3" noshade>
 
    <br>
 
    <input type="submit" class="submit" name="action" value="<translate>Continue</translate>">
+   <input type="submit" class="submit" name="action" value="<translate>Back</translate>">
 
   </form>
 
