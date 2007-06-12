@@ -725,11 +725,11 @@ sub retrieve_invoice {
   my ($query, $sth, $ref, $q_invdate);
 
   if (!$form->{id}) {
-    $q_invdate = qq|, COALESCE((SELECT MAX(transdate) FROM ar), current_date) AS invdate|;
+    $q_invdate = qq|, COALESCE((SELECT transdate FROM ar WHERE id = (SELECT MAX(id) FROM ar)), current_date) AS invdate|;
     if ($form->{vendor_id}) {
       my $vendor_id = $dbh->quote($form->{vendor_id} * 1);
       $q_invdate .=
-        qq|, COALESCE((SELECT MAX(transdate) FROM ar), current_date) +
+        qq|, COALESCE((SELECT transdate FROM ar WHERE id = (SELECT MAX(id) FROM ar)), current_date) +
              COALESCE((SELECT pt.terms_netto
                        FROM vendor v
                        LEFT JOIN payment_terms pt ON (v.payment_id = pt.id)
