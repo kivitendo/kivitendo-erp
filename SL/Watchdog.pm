@@ -13,14 +13,16 @@ sub STORE {
 
   if (substr($key, 0, 10) eq "Watchdog::") {
     substr $key, 0, 10, "";
-    $watched_variables{$key} = $value;
-    if ($value) {
-      $main::lxdebug->_write("WATCH", "Starting to watch '$key' with current value '$this->{$key}'");
-    } else {
-      $main::lxdebug->_write("WATCH", "Stopping to watch '$key'");
+    foreach $key (split m/[ ,]/, $key) {
+      $watched_variables{$key} = $value;
+      if ($value) {
+        $main::lxdebug->_write("WATCH", "Starting to watch '$key' with current value '$this->{$key}'");
+      } else {
+        $main::lxdebug->_write("WATCH", "Stopping to watch '$key'");
+      }
     }
-    return;
 
+    return;
   }
 
   if ($watched_variables{$key}
