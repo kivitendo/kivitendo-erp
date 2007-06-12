@@ -661,7 +661,7 @@ sub form_header {
     "$form->{script}?login=$form->{login}&password=$form->{password}&action=get_contact";
 
   my $pjx = new CGI::Ajax( 'get_contact' => $get_contact_url );
-  $form->{selectcontact} = "<option value=0></option>";
+  $form->{selectcontact} = "<option value=0>" . $locale->text('New contact') . "</option>";
   if (@{ $form->{CONTACTS} }) {
     foreach $item (@{ $form->{CONTACTS} }) {
       if ($item->{cp_id} == $form->{cp_id}) {

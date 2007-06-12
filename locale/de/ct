@@ -73,6 +73,7 @@ $self->{texts} = {
   'More than one control file with the tag \'%s\' exist.' => 'Es gibt mehr als eine Kontrolldatei mit dem Tag \'%s\'.',
   'Name'                        => 'Name',
   'Name missing!'               => 'Name fehlt!',
+  'New contact'                 => 'Neuer Ansprechpartner',
   'No Customer was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Endkunde gefunden',
   'No Vendor was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Händler gefunden',
   'No customer has been selected yet.' => 'Es wurde noch kein Kunde ausgewählt.',
