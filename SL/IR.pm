@@ -724,7 +724,19 @@ sub retrieve_invoice {
 
   my ($query, $sth, $ref, $q_invdate);
 
-  $q_invdate = ", current_date AS invdate" unless $form->{id};
+  if (!$form->{id}) {
+    $q_invdate = qq|, COALESCE((SELECT MAX(transdate) FROM ar), current_date) AS invdate|;
+    if ($form->{vendor_id}) {
+      my $vendor_id = $dbh->quote($form->{vendor_id} * 1);
+      $q_invdate .=
+        qq|, COALESCE((SELECT MAX(transdate) FROM ar), current_date) +
+             COALESCE((SELECT pt.terms_netto
+                       FROM vendor v
+                       LEFT JOIN payment_terms pt ON (v.payment_id = pt.id)
+                       WHERE v.id = $vendor_id),
+                      0) AS duedate|;
+    }
+  }
 
   # get default accounts and last invoice number
 
