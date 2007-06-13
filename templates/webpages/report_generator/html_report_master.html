@@ -12,7 +12,7 @@
   <table width="100%">
    <tr>
     <TMPL_LOOP COLUMN_HEADERS>
-     <th class="listheading"><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR text ESCAPE=HTML><TMPL_IF link></a></TMPL_IF></th>
+     <th class="listheading"><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR text ESCAPE=HTML><TMPL_IF link><TMPL_IF show_sort_indicator><img src="image/<TMPL_IF sort_indicator_direction>down<TMPL_ELSE>up</TMPL_IF>.png"></TMPL_IF></a><TMPL_ELSE><TMPL_IF show_sort_indicator><img src="image/<TMPL_IF sort_indicator_direction>down<TMPL_ELSE>up</TMPL_IF>.png"></TMPL_IF></TMPL_IF></th>
     </TMPL_LOOP>
    </tr>
 

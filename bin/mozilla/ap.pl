@@ -1387,6 +1387,8 @@ sub ap_transactions {
 
   $report->set_export_options('ap_transactions', @hidden_variables);
 
+  $report->set_sort_indicator($form->{sort}, 1);
+
   my @options;
   if ($form->{vendor}) {
     push @options, $locale->text('Vendor') . " : $form->{vendor}";

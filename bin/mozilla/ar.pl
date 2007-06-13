@@ -1433,6 +1433,8 @@ sub ar_transactions {
 
   $report->set_export_options('ar_transactions', @hidden_variables);
 
+  $report->set_sort_indicator($form->{sort}, 1);
+
   my @options;
   if ($form->{customer}) {
     push @options, $locale->text('Customer') . " : $form->{customer}";

@@ -1686,6 +1686,8 @@ sub orders {
 
   $report->set_export_options('orders', @hidden_variables);
 
+  $report->set_sort_indicator($form->{sort}, 1);
+
   my @options;
   if ($form->{customer}) {
     push @options, $locale->text('Customer') . " : $form->{customer}";
