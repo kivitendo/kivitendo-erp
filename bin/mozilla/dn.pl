@@ -36,8 +36,10 @@ use POSIX;
 use SL::IS;
 use SL::PE;
 use SL::DN;
+use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
+require "bin/mozilla/report_generator.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 
@@ -155,7 +157,7 @@ sub save {
     $form->{addition} = "SAVED FOR DUNNING";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
   $form->redirect($locale->text('Dunning Process Config saved!'));
 
   $lxdebug->leave_sub();
@@ -269,28 +271,13 @@ sub search {
 sub show_dunning {
   $lxdebug->enter_sub();
 
+  my @filter_field_list = qw(customer_id customer dunning_level department_id invnumber ordnumber
+                             transdatefrom transdateto dunningfrom dunningto notes showold);
+
   DN->get_dunning(\%myconfig, \%$form);
 
-  my $odd_even = 0;
-  my ($previous_dunning_id, $first_row_for_dunning);
-
-  foreach $ref (@{ $form->{DUNNINGS} }) {
-    if ($previous_dunning_id != $ref->{dunning_id}) {
-      $odd_even = ($odd_even + 1) % 2;
-      $ref->{first_row_for_dunning} = 1;
-
-    } else {
-      $ref->{first_row_for_dunning} = 0;
-    }
-
-    $previous_dunning_id     = $ref->{dunning_id};
-    $ref->{listrow_odd_even} = $odd_even;
-  }
-
   if (!$form->{callback}) {
-    $form->{callback} =
-      build_std_url("action=show_dunning", qw(customer_id customer dunning_level department_id invnumber ordnumber
-                                              transdatefrom transdateto dunningfrom dunningto notes showold));
+    $form->{callback} = build_std_url("action=show_dunning", @filter_field_list);
   }
 
   $form->get_lists('printers'  => 'printers',
@@ -304,9 +291,87 @@ sub show_dunning {
                                            'no_opendocument' => 1, });
   $form->{title}         = $locale->text('Dunning overview');
 
-  $form->header();
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  print $form->parse_html_template("dunning/show_dunning");
+  $report->set_options('std_column_visibility' => 1,
+                       'title'                 => $form->{title});
+  $report->set_export_options('show_dunning', @filter_field_list);
+
+  $report->set_columns(
+    'checkbox'            => { 'text' => '', 'visible' => 'HTML' },
+    'dunning_description' => { 'text' => $locale->text('Dunning Level') },
+    'customername'        => { 'text' => $locale->text('Customername') },
+    'invnumber'           => { 'text' => $locale->text('Invnumber') },
+    'transdate'           => { 'text' => $locale->text('Invdate') },
+    'duedate'             => { 'text' => $locale->text('Invoice Duedate') },
+    'amount'              => { 'text' => $locale->text('Amount') },
+    'dunning_date'        => { 'text' => $locale->text('Dunning Date') },
+    'dunning_duedate'     => { 'text' => $locale->text('Dunning Duedate') },
+    'fee'                 => { 'text' => $locale->text('Total Fees') },
+    'interest'            => { 'text' => $locale->text('Interest') },
+  );
+
+  $report->set_column_order(qw(checkbox dunning_description customername invnumber transdate
+                               duedate amount dunning_date dunning_duedate fee interest));
+
+  my $edit_url  = build_std_url('script=is.pl', 'action=edit', 'callback') . '&id=';
+  my $print_url = build_std_url('action=print_dunning', 'format=pdf', 'media=screen') . '&dunning_id=';
+
+  my %alignment = map { $_ => 'right' } qw(transdate duedate amount dunning_date dunning_duedate fee interest);
+
+  my ($current_dunning_rows, $previous_dunning_id, $first_row_for_dunning);
+
+  $current_dunning_rows  = [];
+  $first_row_for_dunning = 1;
+  $form->{rowcount}      = scalar @{ $form->{DUNNINGS} };
+
+  my $i = 0;
+
+  foreach $ref (@{ $form->{DUNNINGS} }) {
+    $i++;
+
+    if ($previous_dunning_id != $ref->{dunning_id}) {
+      $report->add_data($current_dunning_rows) if (scalar @{ $current_dunning_rows });
+      $current_dunning_rows  = [];
+      $first_row_for_dunning = 1;
+    }
+
+    my $row = { };
+    foreach my $column (keys %{ $ref }) {
+      $row->{$column} = {
+        'data'  => $first_row_for_dunning || (($column ne 'dunning_description') && ($column ne 'customername')) ? $ref->{$column} : '',
+
+        'align' => $alignment{$column},
+
+        'link'  => ($column eq 'invnumber'           ? $edit_url  . E($ref->{id})         :
+                    $column eq 'dunning_description' ? $print_url . E($ref->{dunning_id}) : ''),
+      };
+    }
+
+    $row->{checkbox} = {
+      'raw_data' =>   $cgi->hidden('-name' => "dunning_id_$i", '-value' => $ref->{dunning_id})
+                    . $cgi->checkbox('-name' => "selected_$i", '-value' => 1, '-label' => ''),
+      'valign'   => 'center',
+      'align'    => 'center',
+    };
+
+    push @{ $current_dunning_rows }, $row;
+
+    $previous_dunning_id   = $ref->{dunning_id};
+    $first_row_for_dunning = 0;
+  }
+
+  $report->add_data($current_dunning_rows) if (scalar @{ $current_dunning_rows });
+
+  $report->set_options('raw_top_info_text'    => $form->parse_html_template('dunning/show_dunning_top'),
+                       'raw_bottom_info_text' => $form->parse_html_template('dunning/show_dunning_bottom'),
+                       'output_format'        => 'HTML',
+                       'attachment_basename'  => strftime('dunning_report_%Y%m%d', localtime time),
+    );
+
+  $report->set_options_from_form();
+
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 
@@ -359,4 +424,3 @@ sub print_multiple {
 }
 
 # end of main
-
