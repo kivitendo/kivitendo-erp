@@ -122,7 +122,7 @@ sub edit {
   set_headings("edit");
 
   # editing without stuff to edit? try adding it first
-  if ($form->{rowcount}) {
+  if ($form->{rowcount} && !$form->{print_and_save}) {
     map { $id++ if $form->{"multi_id_$_"} } (1 .. $form->{rowcount});
     if (!$id) {
 
