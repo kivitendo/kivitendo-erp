@@ -385,8 +385,11 @@ END
   $html_file->print($form->parse_html_template('report_generator/pdf_report', $variables));
   $html_file->close();
 
-  my $gs = IO::File->new("\"${main::html2ps_bin}\" -f \"${cfg_file_name}\" \"${html_file_name}\" | " .
-                         "\"${main::ghostscript_bin}\" -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=${opt_paper_size} -sOutputFile=- -c .setpdfwrite - |");
+  my $cmdline =
+    "\"${main::html2ps_bin}\" -f \"${cfg_file_name}\" \"${html_file_name}\" | " .
+    "\"${main::ghostscript_bin}\" -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=${opt_paper_size} -sOutputFile=- -c .setpdfwrite -";
+
+  my $gs = IO::File->new("${cmdline} |");
   if ($gs) {
     while (my $line = <$gs>) {
       print $line;
