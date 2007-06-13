@@ -10,4 +10,4 @@ UPDATE chart
   SET description = replace(description, 'Unentgeld', 'Unentgelt')
   WHERE
     ((SELECT coa FROM defaults) IN ('Germany-DATEV-SKR03EU', 'Germany-DATEV-SKR04EU')) AND
-    (description LIKE '%Unentgelt%');
+    (description LIKE '%Unentgeld%');
