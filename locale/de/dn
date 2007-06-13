@@ -197,6 +197,7 @@ $self->{texts} = {
   'What type of item is this?'  => 'Was ist dieser Artikel?',
   'Zipcode'                     => 'PLZ',
   'bin_list'                    => 'Lagerliste',
+  'dunning_list'                => 'mahnungsliste',
   'emailed to'                  => 'gemailt an',
   'invoice'                     => 'Rechnung',
   'no'                          => 'nein',

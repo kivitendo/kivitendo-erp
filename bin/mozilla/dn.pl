@@ -366,7 +366,7 @@ sub show_dunning {
   $report->set_options('raw_top_info_text'    => $form->parse_html_template('dunning/show_dunning_top'),
                        'raw_bottom_info_text' => $form->parse_html_template('dunning/show_dunning_bottom'),
                        'output_format'        => 'HTML',
-                       'attachment_basename'  => strftime('dunning_report_%Y%m%d', localtime time),
+                       'attachment_basename'  => $locale->text('dunning_list') . strftime('_%Y%m%d', localtime time),
     );
 
   $report->set_options_from_form();
