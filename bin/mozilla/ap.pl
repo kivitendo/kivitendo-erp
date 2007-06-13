@@ -31,14 +31,18 @@
 #
 #======================================================================
 
+use POSIX qw(strftime);
+
 use SL::AP;
 use SL::IR;
 use SL::IS;
 use SL::PE;
+use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
+require "bin/mozilla/report_generator.pl";
 
 1;
 
@@ -1308,359 +1312,177 @@ $jsscript
   $lxdebug->leave_sub();
 }
 
+sub create_subtotal_row {
+  $lxdebug->enter_sub();
+
+  my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
+
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } @{ $subtotal_columns };
+
+  $row->{tax}->{data} = $form->format_amount(\%myconfig, $totals->{amount} - $totals->{netamount}, 2);
+
+  map { $totals->{$_} = 0 } @{ $subtotal_columns };
+
+  $lxdebug->leave_sub();
+
+  return $row;
+}
+
 sub ap_transactions {
   $lxdebug->enter_sub();
 
-  $form->{vendor} = $form->unescape($form->{vendor});
   ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor});
+
+  $form->{sort} ||= 'transdate';
 
   AP->ap_transactions(\%myconfig, \%$form);
 
-  $callback =
-    "$form->{script}?action=ap_transactions&login=$form->{login}&password=$form->{password}";
-  $href = $callback;
-
-  if ($form->{vendor}) {
-    $callback .= "&vendor=" . $form->escape($form->{vendor}, 1);
-    $href .= "&vendor=" . $form->escape($form->{vendor});
-    $option .= $locale->text('Vendor') . " : $form->{vendor}";
-  }
-  if ($form->{department}) {
-    $callback .= "&department=" . $form->escape($form->{department}, 1);
-    $href .= "&department=" . $form->escape($form->{department});
-    ($department) = split /--/, $form->{department};
-    $option .= "\n<br>" if ($option);
-    $option .= $locale->text('Department') . " : $department";
-  }
-  if ($form->{invnumber}) {
-    $callback .= "&invnumber=" . $form->escape($form->{invnumber}, 1);
-    $href .= "&invnumber=" . $form->escape($form->{invnumber});
-    $option .= "\n<br>" if ($option);
-    $option .= $locale->text('Invoice Number') . " : $form->{invnumber}";
-  }
-  if ($form->{ordnumber}) {
-    $callback .= "&ordnumber=" . $form->escape($form->{ordnumber}, 1);
-    $href .= "&ordnumber=" . $form->escape($form->{ordnumber});
-    $option .= "\n<br>" if ($option);
-    $option .= $locale->text('Order Number') . " : $form->{ordnumber}";
-  }
-  if ($form->{notes}) {
-    $callback .= "&notes=" . $form->escape($form->{notes}, 1);
-    $href .= "&notes=" . $form->escape($form->{notes});
-    $option .= "\n<br>" if $option;
-    $option .= $locale->text('Notes') . " : $form->{notes}";
-  }
-
-  if ($form->{transdatefrom}) {
-    $callback .= "&transdatefrom=$form->{transdatefrom}";
-    $href     .= "&transdatefrom=$form->{transdatefrom}";
-    $option   .= "\n<br>" if ($option);
-    $option   .=
-        $locale->text('From') . " "
-      . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-  }
-  if ($form->{transdateto}) {
-    $callback .= "&transdateto=$form->{transdateto}";
-    $href     .= "&transdateto=$form->{transdateto}";
-    $option   .= "\n<br>" if ($option);
-    $option   .=
-        $locale->text('Bis') . " "
-      . $locale->date(\%myconfig, $form->{transdateto}, 1);
-  }
-  if ($form->{open}) {
-    $callback .= "&open=$form->{open}";
-    $href     .= "&open=$form->{open}";
-    $option   .= "\n<br>" if ($option);
-    $option   .= $locale->text('Open');
-  }
-  if ($form->{closed}) {
-    $callback .= "&closed=$form->{closed}";
-    $href     .= "&closed=$form->{closed}";
-    $option   .= "\n<br>" if ($option);
-    $option   .= $locale->text('Closed');
-  }
-  if ($form->{globalproject_id}) {
-    $callback .= "&globalproject_id=" . E($form->{globalproject_id});
-    $href     .= "&globalproject_id=" . E($form->{globalproject_id});
-  }
-
-  @columns =
-    qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
-       due duedate notes employee globalprojectnumber);
-
-  $form->{"l_type"} = "Y";
-
-  foreach $item (@columns) {
-    if ($form->{"l_$item"} eq "Y") {
-      push @column_index, $item;
-
-      # add column to href and callback
-      $callback .= "&l_$item=Y";
-      $href     .= "&l_$item=Y";
-    }
-  }
-
-  if ($form->{l_subtotal} eq 'Y') {
-    $callback .= "&l_subtotal=Y";
-    $href     .= "&l_subtotal=Y";
-  }
-
-  $column_header{id} =
-      qq|<th><a class=listheading href=$href&sort=id>|
-    . $locale->text('ID')
-    . qq|</a></th>|;
-  $column_header{transdate} =
-      qq|<th><a class=listheading href=$href&sort=transdate>|
-    . $locale->text('Date')
-    . qq|</a></th>|;
-  $column_header{type} =
-      "<th class=\"listheading\">" . $locale->text('Type') . "</th>";
-  $column_header{duedate} =
-      qq|<th><a class=listheading href=$href&sort=duedate>|
-    . $locale->text('Due Date')
-    . qq|</a></th>|;
-  $column_header{due} =
-    qq|<th class=listheading>| . $locale->text('Amount Due') . qq|</th>|;
-  $column_header{invnumber} =
-      qq|<th><a class=listheading href=$href&sort=invnumber>|
-    . $locale->text('Invoice')
-    . qq|</a></th>|;
-  $column_header{ordnumber} =
-      qq|<th><a class=listheading href=$href&sort=ordnumber>|
-    . $locale->text('Order')
-    . qq|</a></th>|;
-  $column_header{name} =
-      qq|<th><a class=listheading href=$href&sort=name>|
-    . $locale->text('Vendor')
-    . qq|</a></th>|;
-  $column_header{netamount} =
-    qq|<th class=listheading>| . $locale->text('Amount') . qq|</th>|;
-  $column_header{tax} =
-    qq|<th class=listheading>| . $locale->text('Tax') . qq|</th>|;
-  $column_header{amount} =
-    qq|<th class=listheading>| . $locale->text('Total') . qq|</th>|;
-  $column_header{paid} =
-    qq|<th class=listheading>| . $locale->text('Paid') . qq|</th>|;
-  $column_header{datepaid} =
-      qq|<th><a class=listheading href=$href&sort=datepaid>|
-    . $locale->text('Date Paid')
-    . qq|</a></th>|;
-  $column_header{notes} =
-    qq|<th class=listheading>| . $locale->text('Notes') . qq|</th>|;
-  $column_header{employee} =
-    "<th><a class=listheading href=$href&sort=employee>"
-    . $locale->text('Employee') . "</th>";
-  $column_header{globalprojectnumber} =
-    qq|<th class="listheading">| . $locale->text('Project Number') . qq|</th>|;
-
   $form->{title} = $locale->text('AP Transactions');
 
-  $form->header;
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  print qq|
-<body>
+  my @columns =
+    qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
+       due duedate transaction_description notes employee globalprojectnumber);
 
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>
-|;
+  my @hidden_variables = map { "l_${_}" } @columns;
+  push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber activity_description notes project_id transdatefrom transdateto);
 
-  map { print "\n$column_header{$_}" } @column_index;
+  my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
 
-  print qq|
-	</tr>
-|;
+  my %column_defs = (
+    'transdate'               => { 'text' => $locale->text('Date'), },
+    'id'                      => { 'text' => $locale->text('ID'), },
+    'type'                    => { 'text' => $locale->text('Type'), },
+    'invnumber'               => { 'text' => $locale->text('Invoice'), },
+    'ordnumber'               => { 'text' => $locale->text('Order'), },
+    'name'                    => { 'text' => $locale->text('Vendor'), },
+    'netamount'               => { 'text' => $locale->text('Amount'), },
+    'tax'                     => { 'text' => $locale->text('Tax'), },
+    'amount'                  => { 'text' => $locale->text('Total'), },
+    'paid'                    => { 'text' => $locale->text('Paid'), },
+    'datepaid'                => { 'text' => $locale->text('Date Paid'), },
+    'due'                     => { 'text' => $locale->text('Amount Due'), },
+    'duedate'                 => { 'text' => $locale->text('Due Date'), },
+    'transaction_description' => { 'text' => $locale->text('Transaction description'), },
+    'notes'                   => { 'text' => $locale->text('Notes'), },
+    'employee'                => { 'text' => $locale->text('Salesperson'), },
+    'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
+  );
 
-  # add sort and escape callback
-  $form->{callback} = "$callback&sort=$form->{sort}";
-  $callback = $form->escape($form->{callback});
-
-  if (@{ $form->{AP} }) {
-    $sameitem = $form->{AP}->[0]->{ $form->{sort} };
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid
+                       employee shippingpoint shipvia)) {
+    $column_defs{$name}->{link} = $href . "&sort=$name";
   }
 
-  # sums and tax on reports by Antonio Gallardo
-  #
-  foreach $ap (@{ $form->{AP} }) {
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
 
-    if ($form->{l_subtotal} eq 'Y') {
-      if ($sameitem ne $ap->{ $form->{sort} }) {
-        &ap_subtotal;
-        $sameitem = $ap->{ $form->{sort} };
-      }
+  $form->{"l_type"} = "Y";
+  map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('ap_transactions', @hidden_variables);
+
+  my @options;
+  if ($form->{vendor}) {
+    push @options, $locale->text('Vendor') . " : $form->{vendor}";
+  }
+  if ($form->{department}) {
+    ($department) = split /--/, $form->{department};
+    push @options, $locale->text('Department') . " : $department";
+  }
+  if ($form->{invnumber}) {
+    push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
+  }
+  if ($form->{ordnumber}) {
+    push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
+  }
+  if ($form->{notes}) {
+    push @options, $locale->text('Notes') . " : $form->{notes}";
+  }
+  if ($form->{transaction_description}) {
+    push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
+  }
+  if ($form->{transdatefrom}) {
+    push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
+  }
+  if ($form->{transdateto}) {
+    push @options, $locale->text('Bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto}, 1);
+  }
+  if ($form->{open}) {
+    push @options, $locale->text('Open');
+  }
+  if ($form->{closed}) {
+    push @options, $locale->text('Closed');
+  }
+
+  $report->set_options('top_info_text'        => join("\n", @options),
+                       'raw_bottom_info_text' => $form->parse_html_template('ap/ap_transactions_bottom'),
+                       'output_format'        => 'HTML',
+                       'title'                => $form->{title},
+                       'attachment_basename'  => $locale->text('invoice_list') . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form();
+
+  # add sort and escape callback, this one we use for the add sub
+  $form->{callback} = $href .= "&sort=$form->{sort}";
+
+  # escape callback for href
+  $callback = $form->escape($href);
+
+  my @subtotal_columns = qw(netamount amount paid due);
+
+  my %totals    = map { $_ => 0 } @subtotal_columns;
+  my %subtotals = map { $_ => 0 } @subtotal_columns;
+
+  my $idx = 0;
+
+  foreach $ap (@{ $form->{AP} }) {
+    $ap->{tax} = $ap->{amount} - $ap->{netamount};
+    $ap->{due} = $ap->{amount} - $ap->{paid};
+
+    map { $subtotals{$_} += $ap->{$_};
+          $totals{$_}    += $ap->{$_} } @subtotal_columns;
+
+    map { $ap->{$_} = $form->format_amount(\%myconfig, $ap->{$_}, 2) } qw(netamount tax amount paid due);
+
+    $ap->{type} =
+      $ap->{invoice} ? $locale->text("Invoice (one letter abbreviation)") :
+                       $locale->text("AP Transaction (abbreviation)");
+
+    my $row = { };
+
+    foreach my $column (@columns) {
+      $row->{$column} = {
+        'data'  => $ap->{$column},
+        'align' => $column_alignment{$column},
+      };
     }
 
-    $column_data{netamount} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ap->{netamount}, 2, "&nbsp;")
-      . "</td>";
-    $column_data{tax} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ap->{amount} - $ap->{netamount},
-                             2, "&nbsp;")
-      . "</td>";
-    $column_data{amount} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $ap->{amount}, 2, "&nbsp;") . "</td>";
-    $column_data{paid} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $ap->{paid}, 2, "&nbsp;") . "</td>";
-    $column_data{due} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ap->{amount} - $ap->{paid},
-                             2, "&nbsp;")
-      . "</td>";
+    $row->{invnumber}->{link} = build_std_url("script=" . ($ap->{invoice} ? 'ir.pl' : 'ap.pl'), 'action=edit')
+      . "&id=" . E($ap->{id}) . "&callback=${callback}";
 
-    $totalnetamount += $ap->{netamount};
-    $totalamount    += $ap->{amount};
-    $totalpaid      += $ap->{paid};
-    $totaldue       += ($ap->{amount} - $ap->{paid});
+    my $row_set = [ $row ];
 
-    $subtotalnetamount += $ap->{netamount};
-    $subtotalamount    += $ap->{amount};
-    $subtotalpaid      += $ap->{paid};
-    $subtotaldue       += ($ap->{amount} - $ap->{paid});
+    if (($form->{l_subtotal} eq 'Y')
+        && (($idx == (scalar @{ $form->{AP} } - 1))
+            || ($ap->{ $form->{sort} } ne $form->{AP}->[$idx + 1]->{ $form->{sort} }))) {
+      push @{ $row_set }, create_subtotal_row(\%subtotals, \@columns, \%column_alignment, \@subtotal_columns, 'listsubtotal');
+    }
 
-    $column_data{transdate} = "<td>$ap->{transdate}&nbsp;</td>";
-    $column_data{type} = "<td>" .
-      ($ap->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
-                           $locale->text("AP Transaction (abbreviation)"))
-        . "</td>";
-    $column_data{duedate}   = "<td>$ap->{duedate}&nbsp;</td>";
-    $column_data{datepaid}  = "<td>$ap->{datepaid}&nbsp;</td>";
+    $report->add_data($row_set);
 
-    $module = ($ap->{invoice}) ? "ir.pl" : $form->{script};
-
-    $column_data{invnumber} =
-      qq|<td><a href="$module?action=edit&id=$ap->{id}&login=$form->{login}&password=$form->{password}&callback=$callback">$ap->{invnumber}</a></td>|;
-    $column_data{id}        = "<td>$ap->{id}</td>";
-    $column_data{ordnumber} = "<td>$ap->{ordnumber}&nbsp;</td>";
-    $column_data{name}      = "<td>$ap->{name}</td>";
-    $ap->{notes} =~ s/\r\n/<br>/g;
-    $column_data{notes}    = "<td>$ap->{notes}&nbsp;</td>";
-    $column_data{employee} = "<td>$ap->{employee}&nbsp;</td>";
-    $column_data{globalprojectnumber}  =
-      "<td>" . H($ap->{globalprojectnumber}) . "</td>";
-
-    $i++;
-    $i %= 2;
-    print "
-        <tr class=listrow$i >
-";
-
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|
-	</tr>
-|;
-
+    $idx++;
   }
 
-  if ($form->{l_subtotal} eq 'Y') {
-    &ap_subtotal;
-  }
+  $report->add_separator();
+  $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
-  # print totals
-  print qq|
-        <tr class=listtotal>
-|;
-
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-
-  $column_data{netamount} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalnetamount, 2, "&nbsp;") . "</th>";
-  $column_data{tax} = "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalamount - $totalnetamount,
-                           2, "&nbsp;")
-    . "</th>";
-  $column_data{amount} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalamount, 2, "&nbsp;") . "</th>";
-  $column_data{paid} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalpaid, 2, "&nbsp;") . "</th>";
-  $column_data{due} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totaldue, 2, "&nbsp;") . "</th>";
-
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('AP Transaction') . qq|">
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Vendor Invoice') . qq|">
-
-  </form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub ap_subtotal {
-  $lxdebug->enter_sub();
-
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-
-  $column_data{netamount} =
-      "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalnetamount, 2, "&nbsp;")
-    . "</th>";
-  $column_data{tax} = "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalamount - $subtotalnetamount,
-                           2, "&nbsp;")
-    . "</th>";
-  $column_data{amount} =
-    "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalamount, 2, "&nbsp;") . "</th>";
-  $column_data{paid} =
-    "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalpaid, 2, "&nbsp;") . "</th>";
-  $column_data{due} =
-    "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotaldue, 2, "&nbsp;") . "</th>";
-
-  $subtotalnetamount = 0;
-  $subtotalamount    = 0;
-  $subtotalpaid      = 0;
-  $subtotaldue       = 0;
-
-  print "<tr class=listsubtotal>";
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|
-  </tr>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }

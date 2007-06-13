@@ -1,0 +1,16 @@
+ <form method="post" action="ap.pl">
+
+  <input name="callback" type="hidden" value="<TMPL_VAR callback>">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+  <translate>Create new</translate><br>
+
+  <input class="submit" type="submit" name="action" value="<translate>AP Transaction</translate>">
+  <input class="submit" type="submit" name="action" value="<translate>Vendor Invoice</translate>">
+
+ </form>
+
+</body>
+</html>
