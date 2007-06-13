@@ -39,7 +39,7 @@ use SL::PE;
 use SL::ReportGenerator;
 
 use strict;
-use warnings;
+#use warnings;
 
 # imports
 our ($cgi, $form, $lxdebug, $locale, %myconfig);
