@@ -86,17 +86,30 @@ sub set_sort_indicator {
 sub add_data {
   my $self = shift;
 
+  my $last_row_set;
+
   while (my $arg = shift) {
     if ('ARRAY' eq ref $arg) {
       push @{ $self->{data} }, $arg;
+      $last_row_set = $arg;
 
     } elsif ('HASH' eq ref $arg) {
-      push @{ $self->{data} }, [ $arg ];
+      my $row_set = [ $arg ];
+      push @{ $self->{data} }, $row_set;
+      $last_row_set = $row_set;
 
     } else {
       $self->{form}->error('Incorrect usage -- expecting hash or array ref');
     }
   }
+
+  return $last_row_set;
+}
+
+sub add_separator {
+  my $self = shift;
+
+  push @{ $self->{data} }, { 'type' => 'separator' };
 }
 
 sub clear_data {
@@ -239,6 +252,18 @@ sub prepare_html_content {
   my @rows;
 
   foreach my $row_set (@{ $self->{data} }) {
+    if ('HASH' eq ref $row_set) {
+      my $row_data = {
+        'IS_CONTROL'    => 1,
+        'IS_SEPARATOR'  => $row_set->{type} eq 'separator',
+        'NUM_COLUMNS'   => scalar @visible_columns,
+      };
+
+      push @rows, $row_data;
+
+      next;
+    }
+
     $outer_idx++;
 
     foreach my $row (@{ $row_set }) {
@@ -404,6 +429,7 @@ sub generate_csv_content {
   }
 
   foreach my $row_set (@{ $self->{data} }) {
+    next if ('ARRAY' ne ref $row_set);
     foreach my $row (@{ $row_set }) {
       $csv->print($stdout, [ map { $row->{$_}->{data} } @visible_columns ]);
     }
