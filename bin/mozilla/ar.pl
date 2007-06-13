@@ -38,6 +38,12 @@ use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
 
+use strict;
+use warnings;
+
+# imports
+our ($cgi, $form, $lxdebug, $locale, %myconfig);
+
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
@@ -127,6 +133,8 @@ sub display_form {
 sub create_links {
   $lxdebug->enter_sub();
 
+  my ($duedate, $taxincluded, @curr);
+
   $form->create_links("AR", \%myconfig, "customer");
   $duedate = $form->{duedate};
 
@@ -192,6 +200,13 @@ sub create_links {
 sub form_header {
   $lxdebug->enter_sub();
 
+  my ($title, $readonly, $exchangerate, $rows);
+  my ($taxincluded, $notes, $department, $customer, $employee, $amount, $project);
+  my ($jsscript, $button1, $button2, $onload);
+  my ($selectAR_amount, $selectAR_paid, $korrektur_checked, $ARselected, $tax);
+  my (@column_index, %column_data);
+
+
   $title = $form->{title};
   $form->{title} = $locale->text("$title Accounts Receivables Transaction");
 
@@ -229,7 +244,7 @@ sub form_header {
   $readonly = ($form->{radier}) ? "" : $readonly;
 
   # set option selected
-  foreach $item (qw(customer currency department employee)) {
+  foreach my $item (qw(customer currency department employee)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -295,13 +310,10 @@ sub form_header {
 	      </tr>
 | if $form->{selectdepartment};
 
-  $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
+  my $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
-  $customer =
-    ($form->{selectcustomer})
-    ? qq|<select name="customer"
-onchange="document.getElementById('update_button').click();">$form->{
-selectcustomer}</select>|
+  $customer = ($form->{selectcustomer}) 
+    ? qq|<select name="customer" onchange="document.getElementById('update_button').click();">$form->{selectcustomer}</select>| 
     : qq|<input name=customer value="$form->{customer}" size=35>|;
 
   $employee = qq|
@@ -528,7 +540,7 @@ $jsscript
   $amount  = $locale->text('Amount');
   $project = $locale->text('Project');
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
 
     # format amounts
     $form->{"amount_$i"} =
@@ -671,7 +683,7 @@ $jsscript
   my $totalpaid = 0;
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     print "
         <tr>
 ";
@@ -775,6 +787,8 @@ $jsscript
 sub form_footer {
   $lxdebug->enter_sub();
 
+  my ($transdate, $closedto);
+
   print qq|
 
 <input name=gldate type=hidden value="| . Q($form->{gldate}) . qq|">
@@ -866,24 +880,25 @@ sub update {
 
   my $display = shift;
 
+  my ($totaltax, $exchangerate, $totalpaid);
+
   $form->{invtotal} = 0;
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  @flds  = qw(amount AR_amount projectnumber oldprojectnumber project_id);
-  $count = 0;
-  @a     = ();
+  my @flds  = qw(amount AR_amount projectnumber oldprojectnumber project_id);
+  my $count = 0;
+  my @a     = ();
 
-  for $i (1 .. $form->{rowcount}) {
-    $form->{"amount_$i"} =
-      $form->parse_amount(\%myconfig, $form->{"amount_$i"});
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"amount_$i"} = $form->parse_amount(\%myconfig, $form->{"amount_$i"});
     $form->{"tax_$i"} = $form->parse_amount(\%myconfig, $form->{"tax_$i"});
     if ($form->{"amount_$i"}) {
       push @a, {};
-      $j = $#a;
+      my $j = $#a;
       if (!$form->{"korrektur_$i"}) {
-        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+        my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
         if ($taxkey > 1) {
           if ($form->{taxincluded}) {
             $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
@@ -915,14 +930,14 @@ sub update {
                        )));
 
   $form->{invdate} = $form->{transdate};
-  $save_AR = $form->{AR};
-  &check_name(customer);
+  my $save_AR = $form->{AR};
+  check_name("customer");
   $form->{AR} = $save_AR;
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
 
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       map {
         $form->{"${_}_$i"} =
@@ -952,49 +967,57 @@ sub update {
   $lxdebug->leave_sub();
 }
 
+#
+# ToDO: fix $closedto and $invdate
+#
 sub post_payment {
   $lxdebug->enter_sub();
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
+
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
-      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+      my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
-      $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($datepaid <= $closedto);
+#      $form->error($locale->text('Cannot post payment for a closed period!')) if ($datepaid <= $closedto);
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
-        $form->{"exchangerate_$i"} = $form->{exchangerate}
-          if ($invdate == $datepaid);
-        $form->isblank("exchangerate_$i",
-                       $locale->text('Exchangerate for payment missing!'));
+#        $form->{"exchangerate_$i"} = $form->{exchangerate} if ($invdate == $datepaid);
+        $form->isblank("exchangerate_$i", $locale->text('Exchangerate for payment missing!'));
       }
     }
   }
 
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
-  $form->redirect($locale->text('Payment posted!'))
-      if (AR->post_payment(\%myconfig, \%$form));
-    $form->error($locale->text('Cannot post payment!'));
-
+  $form->redirect($locale->text('Payment posted!')) if (AR->post_payment(\%myconfig, \%$form));
+  $form->error($locale->text('Cannot post payment!'));
 
   $lxdebug->leave_sub();
 }
 
+sub _post {
+  # inline post
+  post(1);
+}
+
 sub post {
   $lxdebug->enter_sub();
+
+  my ($inline) = @_;
+
+  my ($datepaid);
 
   # check if there is an invoice number, invoice and due date
   $form->isblank("transdate", $locale->text('Invoice Date missing!'));
   $form->isblank("duedate",   $locale->text('Due Date missing!'));
   $form->isblank("customer",  $locale->text('Customer missing!'));
 
-  $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-  $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
+  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($transdate <= $closedto);
 
   $form->error($locale->text('Zero amount posting!')) 
@@ -1005,7 +1028,7 @@ sub post {
 
   delete($form->{AR});
 
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
@@ -1022,30 +1045,29 @@ sub post {
   }
 
   # if oldcustomer ne customer redo form
-  ($customer) = split /--/, $form->{customer};
+  my ($customer) = split /--/, $form->{customer};
   if ($form->{oldcustomer} ne "$customer--$form->{customer_id}") {
-    &update;
+    update();
     exit;
   }
 
   $form->{AR}{receivables} = $form->{ARselected};
   $form->{storno}          = 0;
 
+  $lxdebug->message(0, $form->{amount});
   $form->{id} = 0 if $form->{postasnew};
+  $form->error($locale->text('Cannot post transaction!')) unless AR->post_transaction(\%myconfig, \%$form);
 
-
-  if (AR->post_transaction(\%myconfig, \%$form)) {
-    # saving the history
-    if(!exists $form->{addition} && $form->{id} ne "") {
-      $form->{snumbers} = "invnumber_$form->{invnumber}";
-      $form->{addition} = "POSTED";
-      $form->save_history($form->dbconnect(\%myconfig));
-    }
-    # /saving the history 
-    remove_draft() if $form->{remove_draft};
-    $form->redirect($locale->text('Transaction posted!'));
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumbers} = "invnumber_$form->{invnumber}";
+    $form->{addition} = "POSTED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
-  $form->error($locale->text('Cannot post transaction!'));
+  # /saving the history 
+  remove_draft() if $form->{remove_draft};
+
+  $form->redirect($locale->text('Transaction posted!')) unless $inline;
 
   $lxdebug->leave_sub();
 }
@@ -1093,7 +1115,7 @@ sub delete {
 <form method=post action=$form->{script}>
 |;
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1118,7 +1140,7 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
-  if (AR->delete_transaction(\%myconfig, \%$form, $spool)) {
+  if (AR->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
@@ -1135,6 +1157,9 @@ sub yes {
 
 sub search {
   $lxdebug->enter_sub();
+
+  my ($customer, $department);
+  my ($jsscript, $button1, $button2, $onload);
 
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
@@ -1376,6 +1401,9 @@ sub create_subtotal_row {
 sub ar_transactions {
   $lxdebug->enter_sub();
 
+  my ($callback, $href, @columns);
+
+  $form->{customer} = $form->unescape($form->{customer});
   ($form->{customer}, $form->{customer_id}) = split(/--/, $form->{customer});
 
   $form->{sort} ||= 'transdate';
@@ -1386,7 +1414,7 @@ sub ar_transactions {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @columns =
+  @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes employee shippingpoint shipvia
        globalprojectnumber);
@@ -1394,7 +1422,7 @@ sub ar_transactions {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber transaction_description notes project_id transdatefrom transdateto);
 
-  my $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
+  $href = build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
     'transdate'               => { 'text' => $locale->text('Date'), },
@@ -1440,7 +1468,7 @@ sub ar_transactions {
     push @options, $locale->text('Customer') . " : $form->{customer}";
   }
   if ($form->{department}) {
-    ($department) = split /--/, $form->{department};
+    my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";
   }
   if ($form->{invnumber}) {
@@ -1489,7 +1517,7 @@ sub ar_transactions {
 
   my $idx = 0;
 
-  foreach $ar (@{ $form->{AR} }) {
+  foreach my $ar (@{ $form->{AR} }) {
     $ar->{tax} = $ar->{amount} - $ar->{netamount};
     $ar->{due} = $ar->{amount} - $ar->{paid};
 
@@ -1544,31 +1572,13 @@ sub ar_transactions {
 sub storno {
   $lxdebug->enter_sub();
 
+  # don't cancel cancelled transactions
   if (IS->has_storno(\%myconfig, $form, 'ar')) {
     $form->{title} = $locale->text("Cancel Accounts Receivables Transaction");
     $form->error($locale->text("Transaction has already been cancelled!"));
   }
 
-  # negate amount/taxes
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"amount_$i"} *= -1;
-    $form->{"tax_$i"}    *= -1; 
-  }
-
-  # format things
-  for my $i (1 .. $form->{rowcount}) {
-    for (qw(amount tax)) {
-      $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) if $form->{"${_}_$i"};
-    }
-  }
-
-  $form->{storno}      = 1;
-  $form->{storno_id}   = $form->{id};
-  $form->{id}          = 0;
-
-  $form->{invnumber}   = "Storno-" . $form->{invnumber};
-
-  post();
+  AR->storno($form, \%myconfig, $form->{id});
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1577,6 +1587,8 @@ sub storno {
     $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
+
+  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
 
   $lxdebug->leave_sub();
 }

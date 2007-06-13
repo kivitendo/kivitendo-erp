@@ -38,6 +38,8 @@ use Data::Dumper;
 use SL::DBUtils;
 use SL::MoreCommon;
 
+our (%myconfig, $form);
+
 sub post_transaction {
   $main::lxdebug->enter_sub();
 
@@ -102,18 +104,21 @@ sub post_transaction {
   }
 
   # adjust paidaccounts if there is no date in the last row
-  $form->{paidaccounts}-- unless $form->{"datepaid_$form->{paidaccounts}"};
-  $form->{paid} = 0;
+  # this does not apply to stornos, where the paid field is set manually
+  unless ($form->{storno}) {
+    $form->{paidaccounts}-- unless $form->{"datepaid_$form->{paidaccounts}"};
+    $form->{paid} = 0;
 
-  # add payments
-  for $i (1 .. $form->{paidaccounts}) {
-    $form->{"paid_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"paid_$i"}), 2);
-    $form->{paid}     += $form->{"paid_$i"};
-    $form->{datepaid}  = $form->{"datepaid_$i"};
+    # add payments
+    for $i (1 .. $form->{paidaccounts}) {
+      $form->{"paid_$i"} = $form->round_amount($form->parse_amount($myconfig, $form->{"paid_$i"}), 2);
+      $form->{paid}     += $form->{"paid_$i"};
+      $form->{datepaid}  = $form->{"datepaid_$i"};
+    }
+
+    $form->{amount} = $form->{netamount} + $form->{total_tax};
   }
-
-  $form->{amount} = $form->{netamount} + $form->{total_tax};
-  $form->{paid}   = $form->round_amount($form->{paid} * $form->{exchangerate}, 2);
+  $form->{paid}   = $form->round_amount($form->{paid} * ($form->{exchangerate} || 1), 2);
 
   ($null, $form->{employee_id}) = split /--/, $form->{employee};
 
@@ -605,7 +610,55 @@ sub setup_form {
   $form->{tax} = $taxamount;
 
   $form->{invtotal} = $totalamount + $totaltax;
+
+  $main::lxdebug->leave_sub();
 }
+
+sub storno {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $myconfig, $id) = @_;
+
+  my ($query, $new_id, $storno_row, $acc_trans_rows);
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  $query = qq|SELECT nextval('glid')|;
+  ($new_id) = selectrow_query($form, $dbh, $query);
+
+  $query = qq|SELECT * FROM ar WHERE id = ?|;
+  $storno_row = selectfirst_hashref_query($form, $dbh, $query, $id);
+
+  $storno_row->{id}         = $new_id;
+  $storno_row->{storno_id}  = $id;
+  $storno_row->{storno}     = 't';
+  $storno_row->{invnumber}  = 'Storno-' . $storno_row->{invnumber};
+  $storno_row->{amount}    *= -1;
+  $storno_row->{netamount} *= -1;
+  $storno_row->{paid}       = $storno_amount->{amount};
+
+  delete @$storno_row{qw(itime mtime)};
+
+  $query = sprintf 'INSERT INTO ar (%s) VALUES (%s)', join(', ', keys %$storno_row), join(', ', map '?', values %$storno_row);
+  do_query($form, $dbh, $query, (values %$storno_row));
+
+  $query = qq|UPDATE ar SET paid = amount + paid, storno = 't' WHERE id = ?|;
+  do_query($form, $dbh, $query, $id);
+
+  # now copy acc_trans entries
+  $query = qq|SELECT * FROM acc_trans WHERE trans_id = ?|;
+  for my $row (@{ selectall_hashref_query($form, $dbh, $query, $id) }) {
+    delete @$row{qw(itime mtime)};
+    $query = sprintf 'INSERT INTO acc_trans (%s) VALUES (%s)', join(', ', keys %$row), join(', ', map '?', values %$row);
+    $row->{trans_id}   = $new_id;
+    $row->{amount}    *= -1;
+    do_query($form, $dbh, $query, (values %$row));
+  }
+
+  $dbh->commit;
+
+  $main::lxdebug->leave_sub();
+}
+
 
 1;
 
