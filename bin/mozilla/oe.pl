@@ -30,15 +30,18 @@
 # Order entry module
 # Quotation module
 #======================================================================
-use Data::Dumper;
+
+use POSIX qw(strftime);
 
 use SL::OE;
 use SL::IR;
 use SL::IS;
 use SL::PE;
+use SL::ReportGenerator;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
+require "bin/mozilla/report_generator.pl";
 
 1;
 
@@ -1569,368 +1572,231 @@ $jsscript
   $lxdebug->leave_sub();
 }
 
+sub create_subtotal_row {
+  $lxdebug->enter_sub();
+
+  my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
+
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } @{ $subtotal_columns };
+
+  $row->{tax}->{data} = $form->format_amount(\%myconfig, $totals->{amount} - $totals->{netamount}, 2);
+
+  map { $totals->{$_} = 0 } @{ $subtotal_columns };
+
+  $lxdebug->leave_sub();
+
+  return $row;
+}
+
 sub orders {
   $lxdebug->enter_sub();
 
   $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
-  # construct href
-  my @fields =
-    qw(type vc login password transdatefrom transdateto
-       open closed notdelivered delivered department
-       transaction_description);
-  push @fields, $form->{vc};
-  $href = "$form->{script}?action=orders&"
-    . join("&", map { "${_}=" . E($form->{$_}) } @fields)
-    . "&${ordnumber}=" . E($form->{$ordnumber});
-  $callback = $href;
+  ($form->{ $form->{vc} }, $form->{"${form->{vc}}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  # split vendor / customer
-  ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) =
-    split(/--/, $form->{ $form->{vc} });
+  $form->{sort} ||= 'transdate';
 
   OE->transactions(\%myconfig, \%$form);
 
-  @columns = (
+  $form->{rowcount} = scalar @{ $form->{OE} };
+
+  my @columns = (
     "transdate",               "reqdate",
-    "id",                      "$ordnumber",
+    "id",                      $ordnumber,
     "name",                    "netamount",
     "tax",                     "amount",
     "curr",                    "employee",
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
-    "closed",                  "delivered"
+    "delivered"
   );
 
-  $form->{l_open} = $form->{l_closed} = "Y"
-    if ($form->{open} && $form->{closed});
-
-  $form->{"l_delivered"} = "Y"
-    if ($form->{"delivered"} && $form->{"notdelivered"});
-
-  foreach $item (@columns) {
-    if ($form->{"l_$item"} eq "Y") {
-      push @column_index, $item;
-
-      # add column to href and callback
-      $callback .= "&l_$item=Y";
-      $href     .= "&l_$item=Y";
-    }
-  }
-
   # only show checkboxes if gotten here via sales_order form.
-  if ($form->{type} =~ /sales_order/) {
-    unshift @column_index, "ids";
+  my $allow_multiple_orders = $form->{type} eq 'sales_order';
+  if ($allow_multiple_orders) {
+    unshift @columns, "ids";
   }
 
-  if ($form->{l_subtotal} eq 'Y') {
-    $callback .= "&l_subtotal=Y";
-    $href     .= "&l_subtotal=Y";
-  }
+  $form->{l_open}      = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
+  $form->{l_delivered} = "Y"                     if ($form->{delivered} && $form->{notdelivered});
 
+  my $attachment_basename;
   if ($form->{vc} eq 'vendor') {
     if ($form->{type} eq 'purchase_order') {
-      $form->{title} = $locale->text('Purchase Orders');
+      $form->{title}       = $locale->text('Purchase Orders');
+      $attachment_basename = $locale->text('purchase_order_list');
     } else {
-      $form->{title} = $locale->text('Request for Quotations');
+      $form->{title}       = $locale->text('Request for Quotations');
+      $attachment_basename = $locale->text('rfq_list');
     }
-    $name     = $locale->text('Vendor');
-    $employee = $locale->text('Employee');
-  }
-  if ($form->{vc} eq 'customer') {
+
+  } else {
     if ($form->{type} eq 'sales_order') {
-      $form->{title} = $locale->text('Sales Orders');
+      $form->{title}       = $locale->text('Sales Orders');
+      $attachment_basename = $locale->text('sales_order_list');
     } else {
-      $form->{title} = $locale->text('Quotations');
+      $form->{title}       = $locale->text('Quotations');
+      $attachment_basename = $locale->text('quotation_list');
     }
-    $employee = $locale->text('Employee');
-    $name = $locale->text('Customer');
   }
 
-  $column_header{id} =
-      qq|<th><a class=listheading href=$href&sort=id>|
-    . $locale->text('ID')
-    . qq|</a></th>|;
-  $column_header{transdate} =
-      qq|<th><a class=listheading href=$href&sort=transdate>|
-    . $locale->text('Date')
-    . qq|</a></th>|;
-  $column_header{reqdate} =
-      qq|<th><a class=listheading href=$href&sort=reqdate>|
-    . $locale->text('Required by')
-    . qq|</a></th>|;
-  $column_header{ordnumber} =
-      qq|<th><a class=listheading href=$href&sort=ordnumber>|
-    . $locale->text('Order')
-    . qq|</a></th>|;
-  $column_header{quonumber} =
-      qq|<th><a class=listheading href=$href&sort=quonumber>|
-    . ($form->{"type"} eq "request_quotation" ?
-       $locale->text('RFQ') :
-       $locale->text('Quotation'))
-    . qq|</a></th>|;
-  $column_header{name} =
-    qq|<th><a class=listheading href=$href&sort=name>$name</a></th>|;
-  $column_header{netamount} =
-    qq|<th class=listheading>| . $locale->text('Amount') . qq|</th>|;
-  $column_header{tax} =
-    qq|<th class=listheading>| . $locale->text('Tax') . qq|</th>|;
-  $column_header{amount} =
-    qq|<th class=listheading>| . $locale->text('Total') . qq|</th>|;
-  $column_header{curr} =
-    qq|<th class=listheading>| . $locale->text('Curr') . qq|</th>|;
-  $column_header{shipvia} =
-      qq|<th><a class=listheading href=$href&sort=shipvia>|
-    . $locale->text('Ship via')
-    . qq|</a></th>|;
-  $column_header{globalprojectnumber} =
-    qq|<th class="listheading">| . $locale->text('Project Number') . qq|</th>|;
-  $column_header{open} =
-    qq|<th class=listheading>| . $locale->text('O') . qq|</th>|;
-  $column_header{closed} =
-    qq|<th class=listheading>| . $locale->text('C') . qq|</th>|;
-  $column_header{"delivered"} =
-    qq|<th class="listheading">| . $locale->text("Delivered") . qq|</th>|;
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  $column_header{employee} =
-    qq|<th><a class=listheading href=$href&sort=employee>$employee</a></th>|;
-  $column_header{transaction_description} =
-    qq|<th><a class=listheading href="$href&sort=transaction_description">|
-    . $locale->text("Transaction description") . qq|</a></th>|;
+  my @hidden_variables = map { "l_${_}" } @columns;
+  push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
+                                                        transaction_description transdatefrom transdateto type vc);
 
-  $column_header{ids} = qq|<th></th>|;
+  my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
-  if ($form->{ $form->{vc} }) {
-    $option = $locale->text(ucfirst $form->{vc});
-    $option .= " : $form->{$form->{vc}}";
+  my %column_defs = (
+    'ids'                     => { 'text' => '', },
+    'transdate'               => { 'text' => $locale->text('Date'), },
+    'reqdate'                 => { 'text' => $locale->text('Required by'), },
+    'id'                      => { 'text' => $locale->text('ID'), },
+    'ordnumber'               => { 'text' => $locale->text('Order'), },
+    'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },
+    'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
+    'netamount'               => { 'text' => $locale->text('Amount'), },
+    'tax'                     => { 'text' => $locale->text('Tax'), },
+    'amount'                  => { 'text' => $locale->text('Total'), },
+    'curr'                    => { 'text' => $locale->text('Curr'), },
+    'employee'                => { 'text' => $locale->text('Salesperson'), },
+    'shipvia'                 => { 'text' => $locale->text('Ship via'), },
+    'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
+    'transaction_description' => { 'text' => $locale->text('Transaction description'), },
+    'open'                    => { 'text' => $locale->text('Open'), },
+    'delivered'               => { 'text' => $locale->text('Delivered'), },
+  );
+
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee shipvia)) {
+    $column_defs{$name}->{link} = $href . "&sort=$name";
+  }
+
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr);
+
+  $form->{"l_type"} = "Y";
+  map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
+  $column_defs{ids}->{visible} = $allow_multiple_orders ? 'HTML' : 0;
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('orders', @hidden_variables);
+
+  my @options;
+  if ($form->{customer}) {
+    push @options, $locale->text('Customer') . " : $form->{customer}";
+  }
+  if ($form->{vendor}) {
+    push @options, $locale->text('Vendor') . " : $form->{vendor}";
   }
   if ($form->{department}) {
-    $option .= "\n<br>" if ($option);
     ($department) = split /--/, $form->{department};
-    $option .= $locale->text('Department') . " : $department";
+    push @options, $locale->text('Department') . " : $department";
+  }
+  if ($form->{ordnumber}) {
+    push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
+  }
+  if ($form->{notes}) {
+    push @options, $locale->text('Notes') . " : $form->{notes}";
+  }
+  if ($form->{transaction_description}) {
+    push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
   }
   if ($form->{transdatefrom}) {
-    $option .= "\n<br>"
-      . $locale->text('From') . " "
-      . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
+    push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
   }
   if ($form->{transdateto}) {
-    $option .= "\n<br>"
-      . $locale->text('Bis') . " "
-      . $locale->date(\%myconfig, $form->{transdateto}, 1);
+    push @options, $locale->text('Bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto}, 1);
   }
   if ($form->{open}) {
-    $option .= "\n<br>" if ($option);
-    $option .= $locale->text('Open');
+    push @options, $locale->text('Open');
   }
   if ($form->{closed}) {
-    $option .= "\n<br>" if ($option);
-    $option .= $locale->text('Closed');
+    push @options, $locale->text('Closed');
+  }
+  if ($form->{delivered}) {
+    push @options, $locale->text('Delivered');
+  }
+  if ($form->{notdelivered}) {
+    push @options, $locale->text('Not delivered');
   }
 
-  $form->header;
+  $report->set_options('top_info_text'        => join("\n", @options),
+                       'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
+                       'raw_bottom_info_text' => $form->parse_html_template('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
+                       'output_format'        => 'HTML',
+                       'title'                => $form->{title},
+                       'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form();
 
-  print qq|
-<body>
+  # add sort and escape callback, this one we use for the add sub
+  $form->{callback} = $href .= "&sort=$form->{sort}";
 
-<form method="post" action="oe.pl">
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>|;
+  # escape callback for href
+  $callback = $form->escape($href);
 
-  map { print "\n$column_header{$_}" } @column_index;
+  my @subtotal_columns = qw(netamount amount);
 
-  print qq|
-	</tr>
-|;
+  my %totals    = map { $_ => 0 } @subtotal_columns;
+  my %subtotals = map { $_ => 0 } @subtotal_columns;
 
-  # add sort and escape callback
-  $callback_escaped = $form->escape($callback . "&sort=$form->{sort}");
+  my $idx = 0;
 
-  if (@{ $form->{OE} }) {
-    $sameitem = $form->{OE}->[0]->{ $form->{sort} };
-  }
-
-  $action = "edit";
+  my $edit_url = build_std_url('action=edit', 'type', 'vc');
 
   foreach $oe (@{ $form->{OE} }) {
-    $form->{rowcount} = ++$j;
+    map { $oe->{$_} *= $oe->{exchangerate} } @subtotal_columns;
 
-    if ($form->{l_subtotal} eq 'Y') {
-      if ($sameitem ne $oe->{ $form->{sort} }) {
-        &subtotal;
-        $sameitem = $oe->{ $form->{sort} };
-      }
+    $oe->{tax}       = $oe->{amount} - $oe->{netamount};
+    $oe->{open}      = $oe->{closed}    ? $locale->text('No')  : $locale->text('Yes');
+    $oe->{delivered} = $oe->{delivered} ? $locale->text('Yes') : $locale->text('No');
+
+    map { $subtotals{$_} += $oe->{$_};
+          $totals{$_}    += $oe->{$_} } @subtotal_columns;
+
+    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount);
+
+    my $row = { };
+
+    foreach my $column (@columns) {
+      next if ($column eq 'ids');
+      $row->{$column} = {
+        'data'  => $oe->{$column},
+        'align' => $column_alignment{$column},
+      };
     }
 
-    map { $oe->{$_} *= $oe->{exchangerate} } (qw(netamount amount));
+    $row->{ids} = {
+      'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $oe->{id})
+                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, '-label' => ''),
+      'valign'   => 'center',
+      'align'    => 'center',
+    };
 
-    $column_data{netamount} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $oe->{netamount}, 2, "&nbsp;")
-      . "</td>";
-    $column_data{tax} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $oe->{amount} - $oe->{netamount},
-                             2, "&nbsp;")
-      . "</td>";
-    $column_data{amount} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $oe->{amount}, 2, "&nbsp;") . "</td>";
+    $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
 
-    $totalnetamount += $oe->{netamount};
-    $totalamount    += $oe->{amount};
+    my $row_set = [ $row ];
 
-    $subtotalnetamount += $oe->{netamount};
-    $subtotalamount    += $oe->{amount};
-
-    $column_data{ids} =
-      qq|<td><input name="multi_id_$j" class=checkbox type=checkbox><input type="hidden" name="trans_id_$j" value="$oe->{id}"></td>|;
-    $column_data{id}        = "<td>$oe->{id}</td>";
-    $column_data{transdate} = "<td>$oe->{transdate}&nbsp;</td>";
-    $column_data{reqdate}   = "<td>$oe->{reqdate}&nbsp;</td>";
-
-    $column_data{$ordnumber} =
-      "<td><a href=oe.pl?action=$action&type=$form->{type}&id=$oe->{id}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&callback=$callback_escaped>$oe->{$ordnumber}</a></td>";
-    $column_data{name} = "<td>$oe->{name}</td>";
-
-    $column_data{employee} = "<td>$oe->{employee}&nbsp;</td>";
-    $column_data{shipvia}  = "<td>$oe->{shipvia}&nbsp;</td>";
-    $column_data{globalprojectnumber}  = "<td>" . H($oe->{globalprojectnumber}) . "</td>";
-
-    if ($oe->{closed}) {
-      $column_data{closed} = "<td align=center>X</td>";
-      $column_data{open}   = "<td>&nbsp;</td>";
-    } else {
-      $column_data{closed} = "<td>&nbsp;</td>";
-      $column_data{open}   = "<td align=center>X</td>";
+    if (($form->{l_subtotal} eq 'Y')
+        && (($idx == (scalar @{ $form->{OE} } - 1))
+            || ($oe->{ $form->{sort} } ne $form->{OE}->[$idx + 1]->{ $form->{sort} }))) {
+      push @{ $row_set }, create_subtotal_row(\%subtotals, \@columns, \%column_alignment, \@subtotal_columns, 'listsubtotal');
     }
-    $column_data{"delivered"} = "<td>" .
-      ($oe->{"delivered"} ? $locale->text("Yes") : $locale->text("No")) .
-      "</td>";
-    $column_data{transaction_description} = "<td>" . H($oe->{transaction_description}) . "</td>";
 
-    $i++;
-    $i %= 2;
-    print "
-        <tr class=listrow$i>";
+    $report->add_data($row_set);
 
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|
-	</tr>
-|;
-
+    $idx++;
   }
 
-  if ($form->{l_subtotal} eq 'Y') {
-    &subtotal;
-  }
+  $report->add_separator();
+  $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
-  # print totals
-  print qq|
-        <tr class=listtotal>|;
-
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-
-  $column_data{netamount} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalnetamount, 2, "&nbsp;") . "</th>";
-  $column_data{tax} = "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalamount - $totalnetamount,
-                           2, "&nbsp;")
-    . "</th>";
-  $column_data{amount} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalamount, 2, "&nbsp;") . "</th>";
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|
-        </tr>
-      </td>
-    </table>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>|;
-
-  # multiple invoice edit button only if gotten there via sales_order form.
-
-  if ($form->{type} =~ /sales_order/) {
-    print qq|
-  <input class"submit" type="submit" name="action" value="|
-      . $locale->text('Continue') . qq|">
-  <input type="hidden" name="nextsub" value="edit">
-  <input type="hidden" name="type" value="$form->{type}">
-  <input type="hidden" name="vc" value="$form->{vc}">
-  <input type="hidden" name="login" value="$form->{login}">
-  <input type="hidden" name="password" value="$form->{password}">
-  <input type="hidden" name="callback" value="$callback">
-  <input type="hidden" name="rowcount" value="$form->{rowcount}">|;
-  }
-
-  print qq|
-</form>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=$form->{type}>
-<input type=hidden name=vc value=$form->{vc}>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-</form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub subtotal {
-  $lxdebug->enter_sub();
-
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-
-  $column_data{netamount} =
-      "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalnetamount, 2, "&nbsp;")
-    . "</th>";
-  $column_data{tax} = "<td class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalamount - $subtotalnetamount,
-                           2, "&nbsp;")
-    . "</th>";
-  $column_data{amount} =
-    "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalamount, 2, "&nbsp;") . "</th>";
-
-  $subtotalnetamount = 0;
-  $subtotalamount    = 0;
-
-  print "
-        <tr class=listsubtotal>
-";
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|
-        </tr>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }
