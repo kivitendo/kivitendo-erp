@@ -31,16 +31,18 @@ sind:
 * Class::Accessor
 * Archive::Zip
 * Text::Iconv
+* Text::CSV_XS
+* IO::Wrap (aus dem Paket IO::Stringy)
 * YAML
 
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
-(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl, libarchive-zip-perl, libtext-iconv-perl, libyaml-perl)
-(Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
-(SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg)
+(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl, libarchive-zip-perl, libtext-iconv-perl, libyaml-perl, libtext-csv-perl, libio-stringy-perl)
+(Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg)
+(SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg, perl-Archive-Zip, perl-Class-Accessor, perl-Text-Iconv, perl-Text-CSV_XS, perl-HTML-Template, perl-IO-stringy)
 
 
 Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß es mit der CPAN-Shell installiert werden.
-Leider ist dazu nicht jeder in der Lage. LxO liefert daher das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
+Leider gibt es Fälle, in denen das nicht möglich oder praktikabel ist. LxO liefert daher das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
 
 
 Die PostgreSQL Konfiguration muß angepasst werden.

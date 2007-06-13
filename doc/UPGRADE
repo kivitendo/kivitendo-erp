@@ -5,16 +5,17 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
-Upgrade von v2.4.0 auf 2.4.1 sowie von 2.4.1 auf 2.4.2
-======================================================
+Upgrade von v2.4.0 und neuer auf v2.6.0
+=======================================
 
-Ein Upgrade von v2.4.0 auf v2.4.1 oder von v2.4.1 auf v2.4.2 besteht
-aus zwei Teilen: den Dateien (einfaches Entpacken und Kopieren in das
+Ein Upgrade von v2.4.0 oder neuer auf v2.6.0 aus zwei Teilen: den
+Dateien (einfaches Entpacken und Kopieren in das
 Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
 
 Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
 der Datei "doc/INSTALL". Besonders nach einem Upgrade auf 2.4.2 muss
-sichergestellt werden, dass das Modul "YAML" installiert ist.
+sichergestellt werden, dass das Modul "YAML" installiert ist. v2.6.0
+benötigt zusätzlich die Module "Text::CSV_XS" und "IO::Wrap".
 
 Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
 Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
@@ -22,8 +23,8 @@ Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 Anders als beim Upgrade auf 2.4.0 handelt es bei den Datenbankupgrades
-auf 2.4.1 und 2.4.2 nur um automatisch ablaufende Scripte, die keine
-Benutzereingaben erfordern.
+auf Versionen nach 2.4.0 nur um automatisch ablaufende Scripte, die
+keine Benutzereingaben erfordern.
 
 
 Upgrade von v2.2.0 bis 2.2.2 auf 2.4.0
