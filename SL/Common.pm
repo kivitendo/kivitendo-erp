@@ -280,6 +280,8 @@ sub webdav_folder {
 
   return $main::lxdebug->leave_sub() unless ($path && $number);
 
+  $number =~ s|[/\\]|_|g;
+
   $path = "webdav/${path}/${number}";
 
   if (!-d $path) {
