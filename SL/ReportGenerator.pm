@@ -181,8 +181,8 @@ sub generate_with_headers {
     print $self->generate_html_content();
 
   } elsif ($format eq 'csv') {
-    print qq|content-type: text/plain\n\n|;
-#     print qq|content-disposition: attachment; filename=${filename}.csv\n\n|;
+    print qq|content-type: text/csv\n|;
+    print qq|content-disposition: attachment; filename=${filename}.csv\n\n|;
     $self->generate_csv_content();
 
   } elsif ($format eq 'pdf') {
@@ -200,6 +200,17 @@ sub get_visible_columns {
   my $format = shift;
 
   return grep { my $c = $self->{columns}->{$_}; $c && $c->{visible} && (($c->{visible} == 1) || ($c->{visible} =~ /${format}/i)) } @{ $self->{column_order} };
+}
+
+sub html_format {
+  my $self  = shift;
+  my $value = shift;
+
+  $value =  $self->{form}->quote_html($value);
+  $value =~ s/\r//g;
+  $value =~ s/\n/<br>/g;
+
+  return $value;
 }
 
 sub prepare_html_content {
@@ -233,6 +244,8 @@ sub prepare_html_content {
     foreach my $row (@{ $row_set }) {
       $inner_idx++;
 
+      map { $row->{$_}->{data} = $self->html_format($row->{$_}->{data}) } @visible_columns;
+
       my $row_data = {
         'COLUMNS'       => [ map { $row->{$_} } @visible_columns ],
         'outer_idx'     => $outer_idx,
@@ -253,9 +266,9 @@ sub prepare_html_content {
 
   my $variables = {
     'TITLE'                => $opts->{title},
-    'TOP_INFO_TEXT'        => $opts->{top_info_text},
+    'TOP_INFO_TEXT'        => $self->html_format($opts->{top_info_text}),
     'RAW_TOP_INFO_TEXT'    => $opts->{raw_top_info_text},
-    'BOTTOM_INFO_TEXT'     => $opts->{bottom_info_text},
+    'BOTTOM_INFO_TEXT'     => $self->html_format($opts->{bottom_info_text}),
     'RAW_BOTTOM_INFO_TEXT' => $opts->{raw_bottom_info_text},
     'ALLOW_PDF_EXPORT'     => $allow_pdf_export,
     'ALLOW_CSV_EXPORT'     => $opts->{allow_csv_export},

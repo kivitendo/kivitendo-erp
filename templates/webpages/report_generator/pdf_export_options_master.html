@@ -1,0 +1,73 @@
+<body>
+
+ <div class="listheading" width="100%"><TMPL_VAR title ESCAPE=HTML></div>
+
+ <form action="<TMPL_VAR script ESCAPE=HTML>" method="post">
+
+  <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
+  </TMPL_LOOP>
+
+  <input type="hidden" name="report_generator_pdf_options_set" value="1">
+
+  <table>
+   <tr>
+    <td align="right"><translate>Orientation</translate></td>
+    <td>
+     <select name="report_generator_pdf_options_paper_size">
+      <option value="A3">A3</option>
+      <option value="A4" selected>A4</option>
+      <option value="letter">Letter</option>
+      <option value="legal">Legal</option>
+     </select>
+     <select name="report_generator_pdf_options_orientation">
+      <option value="portrait"><translate>Portrait</translate></option>
+      <option value="landscape" selected><translate>Landscape</translate></option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Font size</translate></td>
+    <td><input name="report_generator_pdf_options_font_size" size="4" value="10">pt</td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Margins</translate>:</td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Top</translate></td>
+    <td><input name="report_generator_pdf_options_margin_top" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Left</translate></td>
+    <td><input name="report_generator_pdf_options_margin_left" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Bottom</translate></td>
+    <td><input name="report_generator_pdf_options_margin_bottom" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Right</translate></td>
+    <td><input name="report_generator_pdf_options_margin_right" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right" valign="top"><translate>Options</translate>:</td>
+    <td valign="top">
+     <input type="checkbox" name="report_generator_pdf_options_number" value="1" checked>
+     <translate>Number pages</translate>
+    </td>
+   </tr>
+
+
+  </table>
+
+  <p><input type="submit" name="action" class="submit" value="<translate>Export as PDF</translate>"></p>
+
+ </form>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<body>
+
+ <div class="listtop" width="100%"><TMPL_VAR TITLE></div>
+
+ <TMPL_IF TOP_INFO_TEXT>
+  <p><TMPL_VAR TOP_INFO_TEXT></p>
+ </TMPL_IF>
+
+ <TMPL_VAR RAW_TOP_INFO_TEXT>
+
+ <p>
+  <table width="100%">
+   <tr>
+    <TMPL_LOOP COLUMN_HEADERS>
+     <th class="listheading"><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR text ESCAPE=HTML><TMPL_IF link></a></TMPL_IF></th>
+    </TMPL_LOOP>
+   </tr>
+
+   <TMPL_LOOP ROWS>
+    <tr class="listrow<TMPL_VAR outer_idx_odd>">
+     <TMPL_LOOP COLUMNS>
+      <td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF>>
+       <TMPL_IF raw_data><TMPL_VAR raw_data></TMPL_IF>
+       <TMPL_IF data>
+        <TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF>
+        <TMPL_VAR data><TMPL_IF link></a></TMPL_IF>
+       </TMPL_IF>
+      </td>
+     </TMPL_LOOP>
+    </tr>
+   </TMPL_LOOP>
+
+   <tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><hr size="3" noshade></td></tr>
+
+  </table>
+ </p>
+
+ <TMPL_VAR RAW_BOTTOM_INFO_TEXT>
+
+ <TMPL_IF BOTTOM_INFO_TEXT>
+  <p><TMPL_VAR BOTTOM_INFO_TEXT></p>
+ </TMPL_IF>
+
+ <TMPL_IF SHOW_EXPORT_BUTTONS>
+  <form action="<TMPL_VAR script ESCAPE=HTML>" name="generate_report_form" method="post">
+   <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+   <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+   <TMPL_LOOP EXPORT_VARIABLES><input type="hidden" name="report_generator_hidden_<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
+   </TMPL_LOOP>
+
+   <input type="hidden" name="report_generator_nextsub" value="<TMPL_VAR EXPORT_NEXTSUB ESCAPE=HTML>">
+   <input type="hidden" name="report_generator_variable_list" value="<TMPL_VAR EXPORT_VARIABLE_LIST ESCAPE=HTML>">
+
+   <p>
+    <translate>List export</translate><br>
+    <TMPL_IF ALLOW_PDF_EXPORT><input type="submit" class="submit" name="action" value="<translate>Export as PDF</translate>"></TMPL_IF>
+    <TMPL_IF ALLOW_CSV_EXPORT><input type="submit" class="submit" name="action" value="<translate>Export as CSV</translate>"></TMPL_IF>
+   </p>
+  </form>
+ </TMPL_IF>
+
+</body>
