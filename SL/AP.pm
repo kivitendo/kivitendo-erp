@@ -745,5 +745,50 @@ sub setup_form {
   $main::lxdebug->leave_sub();
 }
 
+sub storno {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $myconfig, $id) = @_;
+
+  my ($query, $new_id, $storno_row, $acc_trans_rows);
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  $query = qq|SELECT nextval('glid')|;
+  ($new_id) = selectrow_query($form, $dbh, $query);
+
+  $query = qq|SELECT * FROM ap WHERE id = ?|;
+  $storno_row = selectfirst_hashref_query($form, $dbh, $query, $id);
+
+  $storno_row->{id}         = $new_id;
+  $storno_row->{storno_id}  = $id;
+  $storno_row->{storno}     = 't';
+  $storno_row->{invnumber}  = 'Storno-' . $storno_row->{invnumber};
+  $storno_row->{amount}    *= -1;
+  $storno_row->{netamount} *= -1;
+  $storno_row->{paid}       = $storno_amount->{amount};
+
+  delete @$storno_row{qw(itime mtime)};
+
+  $query = sprintf 'INSERT INTO ap (%s) VALUES (%s)', join(', ', keys %$storno_row), join(', ', map '?', values %$storno_row);
+  do_query($form, $dbh, $query, (values %$storno_row));
+
+  $query = qq|UPDATE ap SET paid = amount + paid, storno = 't' WHERE id = ?|;
+  do_query($form, $dbh, $query, $id);
+
+  # now copy acc_trans entries
+  $query = qq|SELECT * FROM acc_trans WHERE trans_id = ?|;
+  for my $row (@{ selectall_hashref_query($form, $dbh, $query, $id) }) {
+    delete @$row{qw(itime mtime)};
+    $query = sprintf 'INSERT INTO acc_trans (%s) VALUES (%s)', join(', ', keys %$row), join(', ', map '?', values %$row);
+    $row->{trans_id}   = $new_id;
+    $row->{amount}    *= -1;
+    do_query($form, $dbh, $query, (values %$row));
+  }
+
+  $dbh->commit;
+
+  $main::lxdebug->leave_sub();
+}
+
 1;
 

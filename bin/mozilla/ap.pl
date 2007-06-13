@@ -1497,26 +1497,7 @@ sub storno {
     $form->error($locale->text("Transaction has already been cancelled!"));
   }
 
-  # negate amount/taxes
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"amount_$i"} *= -1;
-    $form->{"tax_$i"}    *= -1; 
-  }
-
-  # format things
-  for my $i (1 .. $form->{rowcount}) {
-    for (qw(amount tax)) {
-      $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) if $form->{"${_}_$i"};
-    }
-  }
-
-  $form->{storno}      = 1;
-  $form->{storno_id}   = $form->{id};
-  $form->{id}          = 0;
-
-  $form->{invnumber}   = "Storno-" . $form->{invnumber};
-
-  post();
+  AP->storno($form, \%myconfig, $form->{id});
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1525,6 +1506,8 @@ sub storno {
     $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
+
+  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
 
   $lxdebug->leave_sub();
 }
