@@ -638,4 +638,45 @@ sub transaction {
   $main::lxdebug->leave_sub();
 }
 
+sub storno {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form, $myconfig, $id) = @_;
+
+  my ($query, $new_id, $storno_row, $acc_trans_rows);
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  $query = qq|SELECT nextval('glid')|;
+  ($new_id) = selectrow_query($form, $dbh, $query);
+
+  $query = qq|SELECT * FROM gl WHERE id = ?|;
+  $storno_row = selectfirst_hashref_query($form, $dbh, $query, $id);
+
+  $storno_row->{id}        = $new_id;
+  $storno_row->{storno_id} = $id;
+  $storno_row->{storno}    = 't';
+  $storno_row->{reference} = 'Storno-' . $storno_row->{reference};
+
+  delete @$storno_row{qw(itime mtime)};
+
+  $query = sprintf 'INSERT INTO gl (%s) VALUES (%s)', join(', ', keys %$storno_row), join(', ', map '?', values %$storno_row);
+  do_query($form, $dbh, $query, (values %$storno_row));
+
+  # now copy acc_trans entries
+  $query = qq|SELECT * FROM acc_trans WHERE trans_id = ?|;
+  my $rowref = selectall_hashref_query($form, $dbh, $query, $id); 
+
+  for my $row (@$rowref) {
+    delete @$row{qw(itime mtime)};
+    $query = sprintf 'INSERT INTO acc_trans (%s) VALUES (%s)', join(', ', keys %$row), join(', ', map '?', values %$row);
+    $row->{trans_id}   = $new_id;
+    $row->{amount}    *= -1;
+    do_query($form, $dbh, $query, (values %$row));
+  }
+
+  $dbh->commit;
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

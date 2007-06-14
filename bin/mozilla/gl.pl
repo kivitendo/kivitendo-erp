@@ -1783,58 +1783,24 @@ sub post_as_new {
 sub storno {
   $lxdebug->enter_sub();
 
+  # don't cancel cancelled transactions
   if (IS->has_storno(\%myconfig, $form, 'gl')) {
-    $form->{title} = $locale->text("Cancel General Ledger Transaction");
+    $form->{title} = $locale->text("Cancel Accounts Receivables Transaction");
     $form->error($locale->text("Transaction has already been cancelled!"));
   }
 
-  my %keep_keys = map { $_, 1 } qw(login password id stylesheet);
-  map { delete $form->{$_} unless $keep_keys{$_} } keys %{ $form };
-
-  prepare_transaction();
-
-  for my $i (1 .. $form->{rowcount}) {
-    for (qw(debit credit tax)) {
-      $form->{"${_}_$i"} =
-        ($form->{"${_}_$i"})
-        ? $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2)
-        : "";
-    }
-  }
-
-  $form->{storno}      = 1;
-  $form->{storno_id}   = $form->{id};
-  $form->{id}          = 0;
-
-  $form->{reference}   = "Storno-" . $form->{reference};
-  $form->{description} = "Storno-" . $form->{description};
-
-  for my $i (1 .. $form->{rowcount}) {
-    next if (($form->{"debit_$i"} eq "") && ($form->{"credit_$i"} eq ""));
-
-    if ($form->{"debit_$i"} ne "") {
-      $form->{"credit_$i"} = $form->{"debit_$i"};
-      $form->{"debit_$i"}  = "";
-
-    } else {
-      $form->{"debit_$i"}  = $form->{"credit_$i"};
-      $form->{"credit_$i"} = "";
-    }
-  }
-
-  post_transaction();
+  GL->storno($form, \%myconfig, $form->{id});
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	$form->{addition} = "STORNO";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{snumbers} = "ordnumber_$form->{ordnumber}";
+    $form->{addition} = "STORNO";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history 
 
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
 
   $lxdebug->leave_sub();
-
 }
 
