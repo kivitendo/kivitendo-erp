@@ -1,13 +1,14 @@
 package LXDebug;
 
-use constant NONE               => 0;
-use constant INFO               => 1;
-use constant DEBUG1             => 2;
-use constant DEBUG2             => 4;
-use constant QUERY              => 8;
-use constant TRACE              => 16;
-use constant BACKTRACE_ON_ERROR => 32;
-use constant ALL                => 63;
+use constant NONE               =>  0;
+use constant INFO               =>  1;
+use constant DEBUG1             =>  1 << 1;
+use constant DEBUG2             =>  1 << 2;
+use constant QUERY              =>  1 << 3;
+use constant TRACE              =>  1 << 4;
+use constant BACKTRACE_ON_ERROR =>  1 << 5;
+use constant ALL                => (1 << 6) - 1;
+use constant DEVEL              => INFO | QUERY | TRACE | BACKTRACE_ON_ERROR;
 
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
