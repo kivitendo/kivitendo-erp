@@ -161,9 +161,10 @@ sub set_export_options {
 sub generate_with_headers {
   my $self   = shift;
   my $format = lc $self->{options}->{output_format};
+  my $form   = $self->{form};
 
   if (!$self->{columns}) {
-    $self->{form}->error('Incorrect usage -- no columns specified');
+    $form->error('Incorrect usage -- no columns specified');
   }
 
   my $filename =  $self->{options}->{attachment_basename} || 'report';
@@ -171,8 +172,11 @@ sub generate_with_headers {
   $filename    =~ s|.*/||;
 
   if ($format eq 'html') {
-    $self->{form}->{title} = $self->{title};
-    $self->{form}->header();
+    my $title      = $form->{title};
+    $form->{title} = $self->{title} if ($self->{title});
+    $form->header();
+    $form->{title} = $title;
+
     print $self->generate_html_content();
 
   } elsif ($format eq 'csv') {
@@ -184,7 +188,7 @@ sub generate_with_headers {
     $self->generate_pdf_content();
 
   } else {
-    $self->{form}->error('Incorrect usage -- unknown format (supported are HTML, CSV, PDF)');
+    $form->error('Incorrect usage -- unknown format (supported are HTML, CSV, PDF)');
   }
 }
 
