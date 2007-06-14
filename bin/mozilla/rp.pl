@@ -35,13 +35,17 @@
 #
 #======================================================================
 
-require "bin/mozilla/arap.pl";
-require "bin/mozilla/common.pl";
+use POSIX qw(strftime);
 
 use SL::PE;
 use SL::RP;
 use SL::USTVA;
 use SL::Iconv;
+use SL::ReportGenerator;
+
+require "bin/mozilla/arap.pl";
+require "bin/mozilla/common.pl";
+require "bin/mozilla/report_generator.pl";
 
 1;
 
@@ -1515,17 +1519,14 @@ sub generate_ar_aging {
 
   # split customer
   ($form->{customer}) = split(/--/, $form->{customer});
-  $customer = $form->escape($form->{customer}, 1);
-  $title    = $form->escape($form->{title},    1);
 
   $form->{ct}   = "customer";
   $form->{arap} = "ar";
 
-  $form->{callback} =
-    qq|$form->{script}?action=generate_ar_aging&login=$form->{login}&password=$form->{password}&todate=$form->{todate}&customer=$customer&title=$title|;
+  $form->{callback} = build_std_url('action=generate_ar_aging', qw(todate customer title));
 
   RP->aging(\%myconfig, \%$form);
-  &aging;
+  aging();
 
   $lxdebug->leave_sub();
 }
@@ -1535,295 +1536,148 @@ sub generate_ap_aging {
 
   # split vendor
   ($form->{vendor}) = split(/--/, $form->{vendor});
-  $vendor = $form->escape($form->{vendor}, 1);
-  $title  = $form->escape($form->{title},  1);
 
   $form->{ct}   = "vendor";
   $form->{arap} = "ap";
 
-  $form->{callback} =
-    qq|$form->{script}?action=generate_ap_aging&login=$form->{login}&password=$form->{password}&todate=$form->{todate}&vendor=$vendor&title=$title|;
+  $form->{callback} = build_std_url('action=generate_ap_aging', qw(todate vendor title));
 
   RP->aging(\%myconfig, \%$form);
-  &aging;
+  aging();
 
   $lxdebug->leave_sub();
+}
+
+sub create_aging_subtotal_row {
+  $lxdebug->enter_sub();
+
+  my ($subtotals, $columns, $periods, $class) = @_;
+
+  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => 'right' } } @{ $columns } };
+
+  foreach (@{ $periods }) {
+    $row->{"c$_"}->{data} = $subtotals->{$_} != 0 ? $form->format_amount(\%myconfig, $subtotals->{$_}, 2) : '';
+    $subtotals->{$_}      = 0;
+  }
+
+  $lxdebug->leave_sub();
+
+  return $row;
 }
 
 sub aging {
   $lxdebug->enter_sub();
 
-  $form->header;
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  $column_header{statement} = qq|<th>&nbsp;</th>|;
-  $column_header{ct}        =
-      qq|<th class=listheading>|
-    . $locale->text(ucfirst $form->{ct})
-    . qq|</th>|;
-  $column_header{invnumber} =
-    qq|<th class=listheading>| . $locale->text('Invoice') . qq|</th>|;
-  $column_header{transdate} =
-    qq|<th class=listheading>| . $locale->text('Date') . qq|</th>|;
-  $column_header{duedate} =
-    qq|<th class=listheading>| . $locale->text('Due') . qq|</th>|;
-  $column_header{c0} =
-    qq|<th class=listheading>| . $locale->text('Current') . qq|</th>|;
-  $column_header{c30} = qq|<th class=listheading>30</th>|;
-  $column_header{c60} = qq|<th class=listheading>60</th>|;
-  $column_header{c90} = qq|<th class=listheading>90</th>|;
+  my @columns = qw(statement ct invnumber transdate duedate c0 c30 c60 c90);
 
-  @column_index =
-    (qw(statement ct invnumber transdate duedate c0 c30 c60 c90));
+  my %column_defs = (
+    'statement' => { 'text' => '', 'visible' => $form->{ct} eq 'customer' ? 'HTML' : 0, },
+    'ct'        => { 'text' => $form->{ct} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
+    'invnumber' => { 'text' => $locale->text('Invoice'), },
+    'transdate' => { 'text' => $locale->text('Date'), },
+    'duedate'   => { 'text' => $locale->text('Due'), },
+    'c0'        => { 'text' => $locale->text('Current'), },
+    'c30'       => { 'text' => '30', },
+    'c60'       => { 'text' => '60', },
+    'c90'       => { 'text' => '90', },
+  );
+
+  my %column_alignment = ('statement' => 'center',
+                          map { $_ => 'right' } qw(c0 c30 c60 c90));
+
+  $report->set_options('std_column_visibility' => 1);
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  my @hidden_variables = qw(todate customer vendor arap title ct);
+  $report->set_export_options('generate_' . ($form->{arap} eq 'ar' ? 'ar' : 'ap') . '_aging', @hidden_variables);
+
+  my @options;
 
   if ($form->{department}) {
-    $option .= "\n<br>" if $option;
-    ($department) = split /--/, $form->{department};
-    $option .= $locale->text('Department') . " : $department";
-    $department = $form->escape($form->{department}, 1);
-    $form->{callback} .= "&department=$department";
+    my ($department) = split /--/, $form->{department};
+    push @options, $locale->text('Department') . " : $department";
+    $form->{callback} .= "&department=" . E($department);
   }
 
-  if ($form->{arap} eq 'ar') {
-    if ($form->{customer}) {
-      $option .= "\n<br>" if $option;
-      $option .= $form->{customer};
-    }
-  }
-  if ($form->{arap} eq 'ap') {
-    shift @column_index;
-    if ($form->{vendor}) {
-      $option .= "\n<br>" if $option;
-      $option .= $form->{vendor};
-    }
+  if (($form->{arap} eq 'ar') && $form->{customer}) {
+    push @options, $form->{customer};
   }
 
-  $todate = $locale->date(\%myconfig, $form->{todate}, 1);
-  $option .= "\n<br>" if $option;
-  $option .=
-    $locale->text('for Period') . " " . $locale->text('Bis') . " $todate";
+  if (($form->{arap} eq 'ap') && $form->{vendor}) {
+    push @options, $form->{vendor};
+  }
 
-  print qq|
-<body>
+  push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
 
-<form method=post action=$form->{script}>
+  my $attachment_basename = $form->{ct} eq 'customer' ? $locale->text('ar_aging_list') : $locale->text('ap_aging_list');
 
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>
-|;
+  $report->set_options('top_info_text'        => join("\n", @options),
+                       'output_format'        => 'HTML',
+                       'title'                => $form->{title},
+                       'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
+    );
 
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-	</tr>
-|;
-
-  $ctid     = 0;
-  $subtotal = 0;
-  $i        = 0;
+  my $previous_ctid = 0;
+  my $row_idx       = 0;
+  my @periods       = qw(0 30 60 90);
+  my %subtotals     = map { $_ => 0 } @periods;
+  my %totals        = map { $_ => 0 } @periods;
 
   foreach $ref (@{ $form->{AG} }) {
-
-    if ($ctid != $ref->{ctid}) {
-
-      $i++;
-
-      if ($subtotal) {
-        $c0subtotal = ($c0subtotal != 0) ? 
-          $form->format_amount(\%myconfig, $c0subtotal, 2, "&nbsp") : "";
-        $c30subtotal = ($c30subtotal != 0) ?
-          $form->format_amount(\%myconfig, $c30subtotal, 2, "&nbsp") : "";
-        $c60subtotal = ($c60subtotal != 0) ?
-          $form->format_amount(\%myconfig, $c60subtotal, 2, "&nbsp") : "";
-        $c90subtotal = ($c90subtotal != 0) ?
-          $form->format_amount(\%myconfig, $c90subtotal, 2, "&nbsp") : "";
-      }
-
-      $column_data{ct}        = qq|<th>&nbsp;</th>|;
-      $column_data{invnumber} = qq|<th>&nbsp;</th>|;
-      $column_data{transdate} = qq|<th>&nbsp;</th>|;
-      $column_data{duedate}   = qq|<th>&nbsp;</th>|;
-      $column_data{c0}        =
-        qq|<th align=right class=listsubtotal>$c0subtotal</th>|;
-      $column_data{c30} =
-        qq|<th align=right class=listsubtotal>$c30subtotal</th>|;
-      $column_data{c60} =
-        qq|<th align=right class=listsubtotal>$c60subtotal</th>|;
-      $column_data{c90} =
-        qq|<th align=right class=listsubtotal>$c90subtotal</th>|;
-
-      if ($subtotal) {
-
-        # print subtotals
-        print qq|
-	<tr class=listsubtotal>
-|;
-
-        map { print "$column_data{$_}\n" } @column_index;
-
-        $column_data{statement} = qq|<td>&nbsp;</td>|;
-
-        print qq|
-        </tr>
-|;
-      }
-
-      $subtotal = 1;
-
-      $c0subtotal  = 0;
-      $c30subtotal = 0;
-      $c60subtotal = 0;
-      $c90subtotal = 0;
-
-      $column_data{ct}        = qq|<td>$ref->{name}</td>|;
-      $column_data{statement} =
-        qq|<td><input name="statement_$i" type=checkbox class=checkbox value=1 $ref->{checked}>
-      <input type=hidden name="$form->{ct}_id_$i" value=$ref->{ctid}>
-      </td>|;
+    if ($row_idx && ($previous_ctid != $ref->{ctid})) {
+      $report->add_data(create_aging_subtotal_row(\%subtotals, \@columns, \@periods, 'listsubtotal'));
     }
 
-    $c0subtotal  += $ref->{c0};
-    $c30subtotal += $ref->{c30};
-    $c60subtotal += $ref->{c60};
-    $c90subtotal += $ref->{c90};
+    foreach my $key (@periods) {
+      $subtotals{$key}  += $ref->{"c${key}"};
+      $totals{$key}     += $ref->{"c${key}"};
+      $ref->{"c${key}"}  = $ref->{"c${key}"} != 0 ? $form->format_amount(\%myconfig, $ref->{"c${key}"}, 2) : '';
+    }
 
-    $c0total  += $ref->{c0};
-    $c30total += $ref->{c30};
-    $c60total += $ref->{c60};
-    $c90total += $ref->{c90};
+    my $row = { };
 
-    $ref->{c0}  = ($ref->{c0} != 0) ? $form->format_amount(\%myconfig, $ref->{c0},  2, "&nbsp;") : "";
-    $ref->{c30} = ($ref->{c30} != 0) ? $form->format_amount(\%myconfig, $ref->{c30}, 2, "&nbsp;") : "";
-    $ref->{c60} = ($ref->{c60} != 0) ?  $form->format_amount(\%myconfig, $ref->{c60}, 2, "&nbsp;") : "";
-    $ref->{c90} = ($ref->{c90} != 0) ?  $form->format_amount(\%myconfig, $ref->{c90}, 2, "&nbsp;") : "";
+    foreach my $column (@columns) {
+      $row->{$column} = {
+        'data'   => (($column eq 'ct') || ($column eq 'statement')) ? '' : $ref->{$column},
+        'align'  => $column_alignment{$column},
+        'valign' => $column eq 'statement' ? 'center' : '',
+      };
+    }
 
-    $href =
-      qq|$ref->{module}.pl?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=|
-      . $form->escape($form->{callback});
+    $row->{invnumber}->{link} =  build_std_url("script=$ref->{module}.pl", 'action=edit', 'callback', 'id=' . E($ref->{id}));
 
-    $column_data{invnumber} = qq|<td><a href=$href>$ref->{invnumber}</a></td>|;
-    $column_data{transdate} = qq|<td>$ref->{transdate}</td>|;
-    $column_data{duedate}   = qq|<td>$ref->{duedate}&nbsp;</td>|;
-    $column_data{c0}        = qq|<td align=right>$ref->{c0}</td>|;
-    $column_data{c30}       = qq|<td align=right>$ref->{c30}</td>|;
-    $column_data{c60}       = qq|<td align=right>$ref->{c60}</td>|;
-    $column_data{c90}       = qq|<td align=right>$ref->{c90}</td>|;
+    if ($previous_ctid != $ref->{ctid}) {
+      $row->{statement}->{raw_data} =
+          $cgi->hidden('-name' => "customer_id_${row_idx}", '-value' => $ref->{ctid})
+        . $cgi->checkbox('-name' => "statement_${row_idx}", '-value' => 1, '-label' => '', 'checked' => $ref->{checked});
+      $row->{ct}->{data} = $ref->{name};
 
-    $j++;
-    $j %= 2;
-    print qq|
-	<tr class=listrow$j>
-|;
+      $row_idx++;
+    }
 
-    map { print "$column_data{$_}\n" } @column_index;
+    $previous_ctid = $ref->{ctid};
 
-    print qq|
-        </tr>
-|;
-
-    $column_data{ct}        = qq|<td>&nbsp;</td>|;
-    $column_data{statement} = qq|<td>&nbsp;</td>|;
-
-    $ctid = $ref->{ctid};
-
+    $report->add_data($row);
   }
 
-  # print subtotals
-  $c0subtotal  = $form->format_amount(\%myconfig, $c0subtotal,  2, "&nbsp;");
-  $c30subtotal = $form->format_amount(\%myconfig, $c30subtotal, 2, "&nbsp;");
-  $c60subtotal = $form->format_amount(\%myconfig, $c60subtotal, 2, "&nbsp;");
-  $c90subtotal = $form->format_amount(\%myconfig, $c90subtotal, 2, "&nbsp;");
+  $report->add_data(create_aging_subtotal_row(\%subtotals, \@columns, \@periods, 'listsubtotal')) if ($row_idx);
 
-  print qq|
-        <tr class=listsubtotal>
-|;
-
-  map { $column_data{$_} = qq|<th>&nbsp;</th>| } @column_index;
-
-  $column_data{c0}  = qq|<th align=right class=listsubtotal>$c0subtotal</th>|;
-  $column_data{c30} = qq|<th align=right class=listsubtotal>$c30subtotal</th>|;
-  $column_data{c60} = qq|<th align=right class=listsubtotal>$c60subtotal</th>|;
-  $column_data{c90} = qq|<th align=right class=listsubtotal>$c90subtotal</th>|;
-
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-        <tr class=listtotal>
-|;
-
-  $c0total  = $form->format_amount(\%myconfig, $c0total,  2, "&nbsp;");
-  $c30total = $form->format_amount(\%myconfig, $c30total, 2, "&nbsp;");
-  $c60total = $form->format_amount(\%myconfig, $c60total, 2, "&nbsp;");
-  $c90total = $form->format_amount(\%myconfig, $c90total, 2, "&nbsp;");
-
-  $column_data{c0}  = qq|<th align=right class=listtotal>$c0total</th>|;
-  $column_data{c30} = qq|<th align=right class=listtotal>$c30total</th>|;
-  $column_data{c60} = qq|<th align=right class=listtotal>$c60total</th>|;
-  $column_data{c90} = qq|<th align=right class=listtotal>$c90total</th>|;
-
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-          <input type=hidden name=rowcount value=$i>
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-|;
-
-  &print_options if ($form->{arap} eq 'ar');
-
-  print qq|
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
+  $report->add_data(create_aging_subtotal_row(\%totals, \@columns, \@periods, 'listtotal'));
 
   if ($form->{arap} eq 'ar') {
-    print qq|
-<input type=hidden name=todate value=$form->{todate}>
+    $raw_top_info_text    = $form->parse_html_template('rp/aging_ar_top');
+    $raw_bottom_info_text = $form->parse_html_template('rp/aging_ar_bottom', { 'row_idx' => $row_idx,
+                                                                               'PRINT_OPTIONS' => print_options(1), });
+    $report->set_options('raw_top_info_text'    => $raw_top_info_text,
+                         'raw_bottom_info_text' => $raw_bottom_info_text);
+  }
 
-<input type=hidden name=title value="$form->{title}">
+  $report->set_options_from_form();
 
-<input type=hidden name=arap value=$form->{arap}>
-<input type=hidden name=ct value=$form->{ct}>
-<input type=hidden name=$form->{ct} value="$form->{$form->{ct}}">
-
-<input type=hidden name=department value="$form->{department}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br>
-<input class=submit type=submit name=action value="|
-      . $locale->text('Select all') . qq|">
-<input class=submit type=submit name=action value="|
-      . $locale->text('Print') . qq|">
-<input class=submit type=submit name=action value="|
-      . $locale->text('E-mail') . qq|">|;
-}
-
-print qq|
-</form>
-
-</body>
-</html>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }
@@ -2615,6 +2469,8 @@ sub winston_export {
 sub print_options {
   $lxdebug->enter_sub();
 
+  my ($dont_print) = @_;
+
   $form->{sendmode} = "attachment";
 
   $form->{"format"} =
@@ -2668,7 +2524,7 @@ sub print_options {
     }
   }
 
-  print qq|
+  my $output = qq|
 <table>
   <tr>
     <td><select name=type>$type</select></td>
@@ -2677,18 +2533,22 @@ sub print_options {
 |;
 
   if ($myconfig{printer} && $latex_templates && $form->{media} ne 'email') {
-    print qq|
+    $output .= qq|
       <td>| . $locale->text('Copies') . qq|
       <input name=copies size=2 value=$form->{copies}></td>
 |;
   }
 
-  print qq|
+  $output .= qq|
   </tr>
 </table>
 |;
 
+  print $output unless $dont_print;
+
   $lxdebug->leave_sub();
+
+  return $output;
 }
 
 sub generate_bwa {
