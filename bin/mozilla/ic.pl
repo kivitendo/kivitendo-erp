@@ -36,7 +36,7 @@ use SL::IC;
 
 #use SL::PE;
 
-use strict;
+# use strict;
 #use warnings;
 
 # global imports

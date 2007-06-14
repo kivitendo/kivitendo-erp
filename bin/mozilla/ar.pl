@@ -38,7 +38,7 @@ use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
 
-use strict;
+# use strict;
 #use warnings;
 
 # imports
