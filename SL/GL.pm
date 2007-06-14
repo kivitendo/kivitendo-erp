@@ -662,6 +662,9 @@ sub storno {
   $query = sprintf 'INSERT INTO gl (%s) VALUES (%s)', join(', ', keys %$storno_row), join(', ', map '?', values %$storno_row);
   do_query($form, $dbh, $query, (values %$storno_row));
 
+  $query = qq|UPDATE gl SET storno = 't' WHERE id = ?|;
+  do_query($form, $dbh, $query, $id);
+
   # now copy acc_trans entries
   $query = qq|SELECT * FROM acc_trans WHERE trans_id = ?|;
   my $rowref = selectall_hashref_query($form, $dbh, $query, $id); 
