@@ -776,7 +776,7 @@ sub storno {
   do_query($form, $dbh, $query, $id);
 
   # now copy acc_trans entries
-  $query = qq|SELECT a.*, c.link FROM acc_trans a LEFT JOIN chart c ON a.chart_id = c.id WHERE a.trans_id = ?|;
+  $query = qq|SELECT a.*, c.link FROM acc_trans a LEFT JOIN chart c ON a.chart_id = c.id WHERE a.trans_id = ? ORDER BY a.oid|;
   my $rowref = selectall_hashref_query($form, $dbh, $query, $id); 
 
   # kill all entries containing payments, which are the last 2n rows, of which the last has link =~ /paid/
