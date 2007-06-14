@@ -1,5 +1,15 @@
 <body>
 
+ <script type="text/javascript">
+  <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      }
+
+    -->
+ </script>
+
  <div class="listtop" width="100%"><TMPL_VAR TITLE></div>
 
  <TMPL_IF TOP_INFO_TEXT>
@@ -46,7 +56,7 @@
  </TMPL_IF>
 
  <TMPL_IF SHOW_EXPORT_BUTTONS>
-  <form action="<TMPL_VAR script ESCAPE=HTML>" name="generate_report_form" method="post">
+  <form action="<TMPL_VAR script ESCAPE=HTML>" name="report_generator_form" method="post">
    <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
    <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
 
@@ -55,11 +65,13 @@
 
    <input type="hidden" name="report_generator_nextsub" value="<TMPL_VAR EXPORT_NEXTSUB ESCAPE=HTML>">
    <input type="hidden" name="report_generator_variable_list" value="<TMPL_VAR EXPORT_VARIABLE_LIST ESCAPE=HTML>">
+   <input type="hidden" name="report_generator_dispatch_to" value="">
+   <input type="hidden" name="action" value="report_generator_dispatcher">
 
    <p>
     <translate>List export</translate><br>
-    <TMPL_IF ALLOW_PDF_EXPORT><input type="submit" class="submit" name="action" value="<translate>Export as PDF</translate>"></TMPL_IF>
-    <TMPL_IF ALLOW_CSV_EXPORT><input type="submit" class="submit" name="action" value="<translate>Export as CSV</translate>"></TMPL_IF>
+    <TMPL_IF ALLOW_PDF_EXPORT><button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')"><translate>Export as PDF</translate></button></TMPL_IF>
+    <TMPL_IF ALLOW_CSV_EXPORT><button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')"><translate>Export as CSV</translate></button></TMPL_IF>
    </p>
   </form>
  </TMPL_IF>

@@ -14,7 +14,7 @@ use SL::Common;
 use SL::MoreCommon;
 use SL::ReportGenerator;
 
-sub export_as_pdf {
+sub report_generator_export_as_pdf {
   $lxdebug->enter_sub();
 
   if ($form->{report_generator_pdf_options_set}) {
@@ -35,7 +35,7 @@ sub export_as_pdf {
   $lxdebug->leave_sub();
 }
 
-sub export_as_csv {
+sub report_generator_export_as_csv {
   $lxdebug->enter_sub();
 
   if ($form->{report_generator_csv_options_set}) {
@@ -50,6 +50,14 @@ sub export_as_csv {
   $form->{title} = $locale->text('CSV export -- options');
   $form->header();
   print $form->parse_html_template('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
+
+  $lxdebug->leave_sub();
+}
+
+sub report_generator_back {
+  $lxdebug->enter_sub();
+
+  report_generator_do('HTML');
 
   $lxdebug->leave_sub();
 }
@@ -71,6 +79,21 @@ sub report_generator_do {
   $form->{report_generator_output_format} = $format;
 
   delete @{$form}{map { "report_generator_$_" } qw(nextsub variable_list)};
+
+  call_sub($nextsub);
+
+  $lxdebug->leave_sub();
+}
+
+sub report_generator_dispatcher {
+  $lxdebug->enter_sub();
+
+  my $nextsub = $form->{report_generator_dispatch_to};
+  if (!$nextsub) {
+    $form->error($locale->text('report_generator_dispatch_to is not defined.'));
+  }
+
+  delete $form->{report_generator_dispatch_to};
 
   call_sub($nextsub);
 

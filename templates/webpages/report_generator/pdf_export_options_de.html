@@ -1,13 +1,25 @@
 <body>
 
+ <script type="text/javascript">
+  <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      }
+
+    -->
+ </script>
+
  <div class="listheading" width="100%"><TMPL_VAR title ESCAPE=HTML></div>
 
- <form action="<TMPL_VAR script ESCAPE=HTML>" method="post">
+ <form action="<TMPL_VAR script ESCAPE=HTML>" method="post" name="report_generator_form">
 
   <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
   </TMPL_LOOP>
 
   <input type="hidden" name="report_generator_pdf_options_set" value="1">
+  <input type="hidden" name="report_generator_dispatch_to" value="">
+  <input type="hidden" name="action" value="report_generator_dispatcher">
 
   <table>
    <tr>
@@ -66,7 +78,10 @@
 
   </table>
 
-  <p><input type="submit" name="action" class="submit" value="Als PDF exportieren"></p>
+  <p>
+   <button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button>
+   <button type="button" class="submit" onclick="submit_report_generator_form('report_generator_back')">Zurück</button>
+  </p>
 
  </form>
 </body>
