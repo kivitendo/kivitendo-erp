@@ -279,12 +279,6 @@ sub form_header {
 	    <table>
 	      $department
 	      <tr>
-	        <th align=right nowrap>| . $locale->text($form->{ARAP}) . qq|</th>
-		<td colspan=3><select name=$form->{ARAP}>$form->{"select$form->{ARAP}"}</select>
-		</td>
-		<input type=hidden name="select$form->{ARAP}" value="$form->{"select$form->{ARAP}"}">
-	      </tr>
-	      <tr>
 		<th align=right nowrap>| . $locale->text('Account') . qq|</th>
 		<td colspan=3><select name=account>$form->{selectaccount}</select>
 		<input type=hidden name=selectaccount value="$form->{selectaccount}">

@@ -158,10 +158,12 @@ sub get_openinvoices {
   my $buysell = $form->{vc} eq 'customer' ? "buy" : "sell";
   my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
 
+  my $curr_null = $form->{curreny} ? '' : ' OR a.curr IS NULL'; # fix: after sql-injection fix, curr is inserted as NULL, before that as ''
+
   my $query =
      qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, a.curr | .
 	   qq|FROM $arap a | .
-     qq|WHERE (a.${vc}_id = ?) AND (a.curr = ?) AND NOT (a.amount = paid)|;
+     qq|WHERE (a.${vc}_id = ?) AND (a.curr = ? $curr_null) AND NOT (a.amount = paid)|;
 		 qq|ORDER BY a.id|;
   my $sth = prepare_execute_query($form, $dbh, $query,
                                   conv_i($form->{"${vc}_id"}),
