@@ -184,6 +184,7 @@ $self->{texts} = {
   'Terms missing in row '       => '+Tage fehlen in Zeile ',
   'The \'tag\' field must only consist of alphanumeric characters or the carachters - _ ( )' => 'Das Feld \'tag\' darf nur aus alphanumerischen Zeichen und den Zeichen - _ ( ) bestehen.',
   'The dunnings have been printed.' => 'Die Mahnung(en) wurden gedruckt.',
+  'The list has been printed.'  => 'Die Liste wurde ausgedruckt.',
   'Total Fees'                  => 'Kumulierte Gebühren',
   'Trying to call a sub without a name' => 'Es wurde versucht, eine Unterfunktion ohne Namen aufzurufen.',
   'Unit'                        => 'Einheit',
