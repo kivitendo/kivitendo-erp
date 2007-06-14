@@ -13,8 +13,9 @@ use vars qw(@required_modules);
   { "name" => "Text::Iconv", "url" => "http://search.cpan.org/~mpiotr/" },
   { "name" => "Time::HiRes", "url" => "http://search.cpan.org/~jhi/" },
   { "name" => "YAML", "url" => "http://search.cpan.org/~ingy/" },
-  { "name" => "IO::Wrap", "url" => "http://search.cpan.org/~dskoll/IO-stringy-2.110/" },
-  { "name" => "Text::CSV_XS", "url" => "http://search.cpan.org/~hmbrand/Text-CSV_XS-0.29/" },
+  { "name" => "IO::Wrap", "url" => "http://search.cpan.org/~dskoll/" },
+  { "name" => "Text::CSV_XS", "url" => "http://search.cpan.org/~hmbrand/" },
+  { "name" => "List::Util", "url" => "http://search.cpan.org/~gbarr/" },
   );
 
 sub module_available {
