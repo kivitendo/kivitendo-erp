@@ -72,10 +72,29 @@
     <td valign="top">
      <input type="checkbox" name="report_generator_pdf_options_number" value="1" checked>
      <translate>Number pages</translate>
+     <TMPL_IF SHOW_PRINTERS>
+      <br>
+      <input type="checkbox" name="report_generator_pdf_options_print" value="1">
+      <translate>Print list</translate>
+     </TMPL_IF>
     </td>
    </tr>
 
+   <TMPL_IF SHOW_PRINTERS>
+    <tr>
+     <td align="right"><translate>Printer</translate></td>
+     <td>
+      <select name="report_generator_pdf_options_printer_id">
+       <TMPL_LOOP ALL_PRINTERS><option value="<TMPL_VAR id ESCAPE=HTML>"<TMPL_IF selected> selected</TMPL_IF>><TMPL_VAR printer_description ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
 
+    <tr>
+     <td align="right"><translate>Copies</translate></td>
+     <td><input name="report_generator_pdf_options_copies" size="4" value="<TMPL_VAR copies ESCAPE=HTML>"></td>
+    </tr>
+   </TMPL_IF>
   </table>
 
   <p>

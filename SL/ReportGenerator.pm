@@ -1,6 +1,7 @@
 package SL::ReportGenerator;
 
 use IO::Wrap;
+use List::Util qw(max);
 use Text::CSV_XS;
 
 use SL::Form;
@@ -28,6 +29,9 @@ sub new {
       'margin_bottom'       => 1.5,
       'margin_right'        => 1.5,
       'number'              => 1,
+      'print'               => 0,
+      'printer_id'          => 0,
+      'copies'              => 1,
     },
     'csv_export'            => {
       'quote_char'          => '"',
@@ -154,28 +158,6 @@ sub set_export_options {
   };
 }
 
-sub generate_content {
-  my $self   = shift;
-  my $format = lc $self->{options}->{output_format};
-
-  if (!$self->{columns}) {
-    $self->{form}->error('Incorrect usage -- no columns specified');
-  }
-
-  if ($format eq 'html') {
-    return $self->generate_html_content();
-
-  } elsif ($format eq 'csv') {
-    return $self->generate_csv_content();
-
-  } elsif ($format eq 'pdf') {
-    return $self->generate_pdf_content();
-
-  } else {
-    $self->{form}->error('Incorrect usage -- unknown format (supported are HTML, CSV, PDF)');
-  }
-}
-
 sub generate_with_headers {
   my $self   = shift;
   my $format = lc $self->{options}->{output_format};
@@ -199,8 +181,6 @@ sub generate_with_headers {
     $self->generate_csv_content();
 
   } elsif ($format eq 'pdf') {
-    print qq|content-type: application/pdf\n|;
-    print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
     $self->generate_pdf_content();
 
   } else {
@@ -368,6 +348,13 @@ BODY {
 END
   ;
 
+  my $printer_command;
+  if ($opt->{print} && $opt->{printer_id}) {
+    $form->{printer_id} = $opt->{printer_id};
+    $form->get_printer_code($myconfig);
+    $printer_command = $form->{printer_command};
+  }
+
   my $cfg_file_name = Common::tmpname() . '-html2ps-config';
   my $cfg_file      = IO::File->new($cfg_file_name, 'w') || $form->error($locale->text('Could not write the html2ps config file.'));
 
@@ -391,11 +378,37 @@ END
 
   my $gs = IO::File->new("${cmdline} |");
   if ($gs) {
-    while (my $line = <$gs>) {
-      print $line;
+    my $content;
+
+    if (!$printer_command) {
+      print qq|content-type: application/pdf\n|;
+      print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
+
+      while (my $line = <$gs>) {
+        print $line;
+      }
+
+    } else {
+      while (my $line = <$gs>) {
+        $content .= $line;
+      }
     }
+
     $gs->close();
     unlink $cfg_file_name, $html_file_name;
+
+    if ($printer_command && $content) {
+      foreach my $i (1 .. max $opt->{copies}, 1) {
+        my $printer = IO::File->new("| ${printer_command}");
+        if (!$printer) {
+          $form->error($locale->text('Could not spawn the printer command.'));
+        }
+        $printer->print($content);
+        $printer->close();
+      }
+
+      $form->{report_generator_printed} = 1;
+    }
 
   } else {
     unlink $cfg_file_name, $html_file_name;

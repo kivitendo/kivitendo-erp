@@ -9,6 +9,8 @@
 #
 ######################################################################
 
+use List::Util qw(max);
+
 use SL::Form;
 use SL::Common;
 use SL::MoreCommon;
@@ -18,7 +20,16 @@ sub report_generator_export_as_pdf {
   $lxdebug->enter_sub();
 
   if ($form->{report_generator_pdf_options_set}) {
+    my $saved_form = save_form();
+
     report_generator_do('PDF');
+
+    if ($form->{report_generator_printed}) {
+      restore_form($saved_form);
+      $form->{MESSAGE} = $locale->text('The list has been printed.');
+      report_generator_do('HTML');
+    }
+
     $lxdebug->leave_sub();
     return;
   }
@@ -26,11 +37,18 @@ sub report_generator_export_as_pdf {
   my @form_values;
   map { push @form_values, { 'key' => $_, 'value' => $form->{$_} } } keys %{ $form };
 
+  $form->get_lists('printers' => 'ALL_PRINTERS');
+  map { $_->{selected} = $myconfig{default_printer_id} == $_->{id} } @{ $form->{ALL_PRINTERS} };
+
+  $form->{copies} = max $myconfig{copies} * 1, 1;
+
   $form->{title} = $locale->text('PDF export -- options');
   $form->header();
   print $form->parse_html_template('report_generator/pdf_export_options',
                                    { 'HIDDEN'         => \@form_values,
-                                     'default_margin' => $form->format_amount(\%myconfig, 1.5) });
+                                     'default_margin' => $form->format_amount(\%myconfig, 1.5),
+                                     'SHOW_PRINTERS'  => scalar @{ $form->{ALL_PRINTERS} },
+                                   });
 
   $lxdebug->leave_sub();
 }
