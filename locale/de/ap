@@ -159,6 +159,7 @@ $self->{texts} = {
   'Taxkey'                      => 'Steuerschlüssel',
   'The \'tag\' field must only consist of alphanumeric characters or the carachters - _ ( )' => 'Das Feld \'tag\' darf nur aus alphanumerischen Zeichen und den Zeichen - _ ( ) bestehen.',
   'Total'                       => 'Summe',
+  'Transaction %d cancelled.'   => 'Buchung %d erfolgreich storniert.',
   'Transaction deleted!'        => 'Buchung gelöscht!',
   'Transaction description'     => 'Vorgangsbezeichnung',
   'Transaction has already been cancelled!' => 'Diese Buchung wurde bereits storniert.',
