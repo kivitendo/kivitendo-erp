@@ -36,8 +36,13 @@ use SL::OP;
 use SL::IS;
 use SL::IR;
 
+use strict ("vars", "subs");
+#use warnings;
+
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
+
+our ($form, %myconfig, $lxdebug, $locale);
 
 1;
 
@@ -45,6 +50,8 @@ require "bin/mozilla/common.pl";
 
 sub payment {
   $lxdebug->enter_sub();
+
+  my (@curr);
 
   $form->{ARAP} = ($form->{type} eq 'receipt') ? "AR" : "AP";
   $form->{arap} = lc $form->{ARAP};
@@ -107,6 +114,9 @@ sub payment {
 sub form_header {
   $lxdebug->enter_sub();
 
+  my ($vc, $vclabel, $allvc, $arap, $department, $exchangerate);
+  my ($jsscript, $button1, $button2, $onload);
+
   $vclabel = ucfirst $form->{vc};
   $vclabel = $locale->text($vclabel);
 
@@ -146,7 +156,7 @@ sub form_header {
     }
   }
 
-  foreach $item ($form->{vc}, account, currency, $form->{ARAP}, department) {
+  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}, "department") {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -320,6 +330,9 @@ $jsscript
 sub list_invoices {
   $lxdebug->enter_sub();
 
+  my (@column_index, %column_data, $colspan, $invoice);
+  my ($totalamount, $totaldue, $totalpaid);
+
   @column_index = qw(invnumber transdate amount due checked paid);
 
   $colspan = $#column_index + 1;
@@ -357,7 +370,9 @@ sub list_invoices {
         </tr>
 |;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
+
+    my $j = 0;
 
     map {
       $form->{"${_}_$i"} =
@@ -434,6 +449,8 @@ sub list_invoices {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  my ($media, $format, $latex_templates);
+
   $form->{DF}{ $form->{format} } = "selected";
   $form->{OP}{ $form->{media} }  = "selected";
 
@@ -493,6 +510,8 @@ sub update {
   $lxdebug->enter_sub();
 
   my ($new_name_selected) = @_;
+
+  my ($buysell, $newvc, $updated, $exchangerate, $amount);
 
   if ($form->{vc} eq 'customer') {
     $buysell = "buy";
@@ -568,8 +587,8 @@ sub update {
 
     $form->{queued} = "";
 
-    $i = 0;
-    foreach $ref (@{ $form->{PR} }) {
+    my $i = 0;
+    foreach my $ref (@{ $form->{PR} }) {
       $i++;
       $form->{"id_$i"}        = $ref->{id};
       $form->{"invnumber_$i"} = $ref->{invnumber};
@@ -596,7 +615,7 @@ sub update {
   # Modified from $amount = $form->{amount} by J.Zach to update amount to total
   # payment amount in Zahlungsausgang
   $amount = 0;
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
 
     map {
       $form->{"${_}_$i"} =
@@ -644,8 +663,8 @@ sub post {
       unless $form->{exchangerate};
   }
 
-  $msg1 = "$form->{origtitle} posted!";
-  $msg2 = "Cannot post $form->{origtitle}!";
+  my $msg1 = "$form->{origtitle} posted!";
+  my $msg2 = "Cannot post $form->{origtitle}!";
 
   # $locale->text('Payment posted!')
   # $locale->text('Receipt posted!')
@@ -661,6 +680,8 @@ sub post {
 
 sub print {
   $lxdebug->enter_sub();
+
+  my ($whole, $check, %queued, $spool, $filename, $userspath);
 
   &check_form;
 
@@ -734,6 +755,8 @@ sub vendor_details { IR->vendor_details(\%myconfig, \%$form) }
 sub check_form {
   $lxdebug->enter_sub();
 
+  my ($closedto, $datepaid, $amount);
+
   &check_name($form->{vc});
 
   if ($form->{currency} ne $form->{oldcurrency}) {
@@ -753,9 +776,9 @@ sub check_form {
   $amount = $form->parse_amount(\%myconfig, $form->{amount});
   $form->{amount} = $amount;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
-      $amount -= $form->parse_amount($myconfig, $form->{"paid_$i"});
+      $amount -= $form->parse_amount(\%myconfig, $form->{"paid_$i"});
 
       push(@{ $form->{paid} },      $form->{"paid_$i"});
       push(@{ $form->{due} },       $form->{"due_$i"});
