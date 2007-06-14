@@ -573,7 +573,7 @@ sub transaction {
 
     # retrieve individual rows
     $query =
-      qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo,
+      qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo, a.source,
            a.transdate, a.cleared, a.project_id, p.projectnumber,
            a.taxkey, t.rate AS taxrate, t.id,
            (SELECT c1.accno
