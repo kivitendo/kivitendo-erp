@@ -780,7 +780,7 @@ sub form_footer {
     }
 
     # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-    print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
+    print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
       if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap'));
 
     print qq| <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
@@ -793,13 +793,12 @@ sub form_footer {
   }
   # button for saving history
   if($form->{id} ne "") {
-    print qq| <input type="button" class="submit" onclick="set_history_window($form->{id});" name="history" id="history" value="| . $locale->text('history') . qq|">|;
+    print qq| <input type="button" class="submit" onclick="set_history_window($form->{id});" name="history" id="history" value="| . $locale->text('history') . qq|"> |;
   }
   # /button for saving history
   # mark_as_paid button 
   if($form->{id} ne "") {  
-    print qq|<input type="submit" class="submit" name="action" value="| 
-          . $locale->text('mark as paid') . qq|">|;
+    print qq| <input type="submit" class="submit" name="action" value="| . $locale->text('mark as paid') . qq|"> |;
   }
   # /mark_as_paid button
   print "

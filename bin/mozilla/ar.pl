@@ -820,7 +820,7 @@ sub form_footer {
   print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">\n|;
 
   # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-  print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|
+  print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
     if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar'));
 
   if ($form->{id}) {
@@ -838,7 +838,7 @@ sub form_footer {
 
   } else {
     if ($transdate > $closedto) {
-      print qq|<input class=submit type=submit name=action value="| . $locale->text('Post') .     qq|"> | .
+      print qq| <input class=submit type=submit name=action value="| . $locale->text('Post') .     qq|"> | .
         NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'));
     }
   }
@@ -849,7 +849,7 @@ sub form_footer {
   }
   # button for saving history
   if($form->{id} ne "") {
-    print qq|<input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|>|;
+    print qq| <input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|> |;
   }
   # /button for saving history
   # mark_as_paid button 
