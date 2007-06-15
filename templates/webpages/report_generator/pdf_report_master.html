@@ -4,7 +4,7 @@
   <div width="100%"><TMPL_VAR TITLE></div>
 
   <TMPL_IF TOP_INFO_TEXT>
-   <p><TMPL_VAR TOP_INFO_TEXT ESCAPE=HTML></p>
+   <p><TMPL_VAR TOP_INFO_TEXT></p>
   </TMPL_IF>
 
   <p>
@@ -17,7 +17,7 @@
 
     <TMPL_LOOP ROWS>
      <tr>
-      <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF>><TMPL_IF data><TMPL_VAR data ESCAPE=HTML></TMPL_IF></td></TMPL_LOOP>
+      <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF>><TMPL_IF data><TMPL_VAR data></TMPL_IF></td></TMPL_LOOP>
      </tr>
     </TMPL_LOOP>
 
@@ -25,7 +25,7 @@
   </p>
 
   <TMPL_IF BOTTOM_INFO_TEXT>
-   <p><TMPL_VAR BOTTOM_INFO_TEXT ESCAPE=HTML></p>
+   <p><TMPL_VAR BOTTOM_INFO_TEXT></p>
   </TMPL_IF>
 
  </body>
