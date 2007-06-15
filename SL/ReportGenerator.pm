@@ -158,6 +158,15 @@ sub set_export_options {
   };
 }
 
+sub get_attachment_basename {
+  my $self     = shift;
+  my $filename =  $self->{options}->{attachment_basename} || 'report';
+  $filename    =~ s|.*\\||;
+  $filename    =~ s|.*/||;
+
+  return $filename;
+}
+
 sub generate_with_headers {
   my $self   = shift;
   my $format = lc $self->{options}->{output_format};
@@ -166,10 +175,6 @@ sub generate_with_headers {
   if (!$self->{columns}) {
     $form->error('Incorrect usage -- no columns specified');
   }
-
-  my $filename =  $self->{options}->{attachment_basename} || 'report';
-  $filename    =~ s|.*\\||;
-  $filename    =~ s|.*/||;
 
   if ($format eq 'html') {
     my $title      = $form->{title};
@@ -180,6 +185,7 @@ sub generate_with_headers {
     print $self->generate_html_content();
 
   } elsif ($format eq 'csv') {
+    my $filename = $self->get_attachment_basename();
     print qq|content-type: text/csv\n|;
     print qq|content-disposition: attachment; filename=${filename}.csv\n\n|;
     $self->generate_csv_content();
@@ -385,6 +391,7 @@ END
     my $content;
 
     if (!$printer_command) {
+      my $filename = $self->get_attachment_basename();
       print qq|content-type: application/pdf\n|;
       print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
 
