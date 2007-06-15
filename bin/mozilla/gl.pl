@@ -31,12 +31,16 @@
 #
 #======================================================================
 
+use POSIX qw(strftime);
+
 use SL::GL;
 use SL::IS;
 use SL::PE;
+use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
+require "bin/mozilla/report_generator.pl";
 
 1;
 
@@ -204,7 +208,7 @@ sub edit {
 sub search {
   $lxdebug->enter_sub();
 
-  $form->{title} = $locale->text('Buchungsjournal');
+  $form->{title} = $locale->text('Journal');
 
   $form->all_departments(\%myconfig);
 
@@ -392,544 +396,248 @@ $jsscript
   $lxdebug->leave_sub();
 }
 
+sub create_subtotal_row {
+  $lxdebug->enter_sub();
+
+  my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
+
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } @{ $subtotal_columns };
+
+  map { $totals->{$_} = 0 } @{ $subtotal_columns };
+
+  $lxdebug->leave_sub();
+
+  return $row;
+}
+
 sub generate_report {
   $lxdebug->enter_sub();
 
-  $form->{sort} = "transdate" unless $form->{sort};
+  $form->{sort} ||= "transdate";
 
   GL->all_transactions(\%myconfig, \%$form);
 
-  $callback =
-    "$form->{script}?action=generate_report&login=$form->{login}&password=$form->{password}";
+  my %acctype = ('A' => $locale->text('Asset'),
+                 'C' => $locale->text('Contra'),
+                 'L' => $locale->text('Liability'),
+                 'Q' => $locale->text('Equity'),
+                 'I' => $locale->text('Revenue'),
+                 'E' => $locale->text('Expense'),);
 
-  $href = $callback;
-
-  %acctype = ('A' => $locale->text('Asset'),
-              'C' => $locale->text('Contra'),
-              'L' => $locale->text('Liability'),
-              'Q' => $locale->text('Equity'),
-              'I' => $locale->text('Revenue'),
-              'E' => $locale->text('Expense'),);
-
-  $form->{title} = $locale->text('General Ledger');
-
-  $ml = ($form->{ml} =~ /(A|E|Q)/) ? -1 : 1;
-
-  unless ($form->{category} eq 'X') {
+  $form->{title} = $locale->text('Journal');
+  if ($form->{category} ne 'X') {
     $form->{title} .= " : " . $locale->text($acctype{ $form->{category} });
   }
-  if ($form->{accno}) {
-    $href .= "&accno=" . $form->escape($form->{accno});
-    $callback .= "&accno=" . $form->escape($form->{accno}, 1);
-    $option =
-      $locale->text('Account')
-      . " : $form->{accno} $form->{account_description}";
-  }
-  if ($form->{source}) {
-    $href     .= "&source=" . $form->escape($form->{source});
-    $callback .= "&source=" . $form->escape($form->{source}, 1);
-    $option   .= "\n<br>" if $option;
-    $option   .= $locale->text('Source') . " : $form->{source}";
-  }
-  if ($form->{reference}) {
-    $href     .= "&reference=" . $form->escape($form->{reference});
-    $callback .= "&reference=" . $form->escape($form->{reference}, 1);
-    $option   .= "\n<br>" if $option;
-    $option   .= $locale->text('Reference') . " : $form->{reference}";
-  }
-  if ($form->{department}) {
-    $href .= "&department=" . $form->escape($form->{department});
-    $callback .= "&department=" . $form->escape($form->{department}, 1);
-    ($department) = split /--/, $form->{department};
-    $option .= "\n<br>" if $option;
-    $option .= $locale->text('Department') . " : $department";
-  }
-
-  if ($form->{description}) {
-    $href     .= "&description=" . $form->escape($form->{description});
-    $callback .= "&description=" . $form->escape($form->{description}, 1);
-    $option   .= "\n<br>" if $option;
-    $option   .= $locale->text('Description') . " : $form->{description}";
-  }
-  if ($form->{notes}) {
-    $href     .= "&notes=" . $form->escape($form->{notes});
-    $callback .= "&notes=" . $form->escape($form->{notes}, 1);
-    $option   .= "\n<br>" if $option;
-    $option   .= $locale->text('Notes') . " : $form->{notes}";
-  }
- if ($form->{project_id}) {
-    $href     .= "&project_id=" . $form->escape($form->{project_id});
-    $callback .= "&project_id=" . $form->escape($form->{project_id});
-  }
-
-  if ($form->{datefrom}) {
-    $href     .= "&datefrom=$form->{datefrom}";
-    $callback .= "&datefrom=$form->{datefrom}";
-    $option   .= "\n<br>" if $option;
-    $option   .=
-        $locale->text('From') . " "
-      . $locale->date(\%myconfig, $form->{datefrom}, 1);
-  }
-  if ($form->{dateto}) {
-    $href     .= "&dateto=$form->{dateto}";
-    $callback .= "&dateto=$form->{dateto}";
-    if ($form->{datefrom}) {
-      $option .= " ";
-    } else {
-      $option .= "\n<br>" if $option;
-    }
-    $option .=
-        $locale->text('Bis') . " "
-      . $locale->date(\%myconfig, $form->{dateto}, 1);
-  }
-
-  @columns = $form->sort_columns( qw(
-       transdate       id                reference         description  
-       notes           source            debit             debit_accno  
-       credit          credit_accno      debit_tax         debit_tax_accno
-       credit_tax      credit_tax_accno  accno
-       projectnumbers  
-       )
-  );
-
-  if ($form->{accno}) {
-    @columns = grep !/accno/, @columns;
-    push @columns, "balance";
-    $form->{l_balance} = "Y";
-
-  }
-
-  $form->{l_credit_accno}     = "Y";
-  $form->{l_debit_accno}      = "Y";
-  $form->{l_credit_tax}       = "Y";
-  $form->{l_debit_tax}        = "Y";
-  $form->{l_credit_tax_accno} = "Y";
-  $form->{l_debit_tax_accno}  = "Y";
-  $form->{l_accno}            = "N";
-  foreach $item (@columns) {
-    if ($form->{"l_$item"} eq "Y") {
-      push @column_index, $item;
-
-      # add column to href and callback
-      $callback .= "&l_$item=Y";
-      $href     .= "&l_$item=Y";
-    }
-  }
-
-  if ($form->{l_subtotal} eq 'Y') {
-    $callback .= "&l_subtotal=Y";
-    $href     .= "&l_subtotal=Y";
-  }
-
-  $callback .= "&category=$form->{category}";
-  $href     .= "&category=$form->{category}";
-
-  $column_header{id} =
-      "<th><a class=listheading href=$href&sort=id>"
-    . $locale->text('ID')
-    . "</a></th>";
-  $column_header{transdate} =
-      "<th><a class=listheading href=$href&sort=transdate>"
-    . $locale->text('Date')
-    . "</a></th>";
-  $column_header{reference} =
-      "<th><a class=listheading href=$href&sort=reference>"
-    . $locale->text('Reference')
-    . "</a></th>";
-  $column_header{source} =
-      "<th><a class=listheading href=$href&sort=source>"
-    . $locale->text('Source')
-    . "</a></th>";
-  $column_header{description} =
-      "<th><a class=listheading href=$href&sort=description>"
-    . $locale->text('Description')
-    . "</a></th>";
-  $column_header{notes} =
-    "<th class=listheading>" . $locale->text('Notes') . "</th>";
-  $column_header{debit} =
-    "<th class=listheading>" . $locale->text('Debit') . "</th>";
-  $column_header{debit_accno} =
-      "<th><a class=listheading href=$href&sort=accno>"
-    . $locale->text('Debit Account')
-    . "</a></th>";
-  $column_header{credit} =
-    "<th class=listheading>" . $locale->text('Credit') . "</th>";
-  $column_header{credit_accno} =
-      "<th><a class=listheading href=$href&sort=accno>"
-    . $locale->text('Credit Account')
-    . "</a></th>";
-  $column_header{debit_tax} =
-      "<th><a class=listheading href=$href&sort=accno>"
-    . $locale->text('Debit Tax')
-    . "</a></th>";
-  $column_header{debit_tax_accno} =
-      "<th><a class=listheading href=$href&sort=accno>"
-    . $locale->text('Debit Tax Account')
-    . "</a></th>";
-  $column_header{credit_tax} =
-      "<th><a class=listheading href=$href&sort=accno>"
-    . $locale->text('Credit Tax')
-    . "</a></th>";
-  $column_header{credit_tax_accno} =
-      "<th><a class=listheading href=$href&sort=accno>"
-    . $locale->text('Credit Tax Account')
-    . "</a></th>";
-  $column_header{balance} = "<th>" . $locale->text('Balance') . "</th>";
-  $column_header{projectnumbers} =
-      "<th class=listheading>"  . $locale->text('Project Numbers') . "</th>";
 
   $form->{landscape} = 1;
 
-  $form->header;
+  my $ml = ($form->{ml} =~ /(A|E|Q)/) ? -1 : 1;
 
-  print qq|
-<body>
+  my @columns = qw(
+    transdate      id               reference      description
+    notes          source           debit          debit_accno
+    credit         credit_accno     debit_tax      debit_tax_accno
+    credit_tax     credit_tax_accno projectnumbers balance
+  );
 
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-       <thead>
-	<tr class=listheading>
-|;
+  my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto category l_subtotal);
+  push @hidden_variables, map { "l_${_}" } @columns;
 
-  map { print "$column_header{$_}\n" } @column_index;
+  my (@options, $date_option);
+  if ($form->{accno}) {
+    push @options, $locale->text('Account') . " : $form->{accno} $form->{account_description}";
+  }
+  if ($form->{source}) {
+    push @options, $locale->text('Source') . " : $form->{source}";
+  }
+  if ($form->{reference}) {
+    push @options, $locale->text('Reference') . " : $form->{reference}";
+  }
+  if ($form->{department}) {
+    my ($department) = split /--/, $form->{department};
+    push @options, $locale->text('Department') . " : $department";
+  }
+  if ($form->{description}) {
+    push @options, $locale->text('Description') . " : $form->{description}";
+  }
+  if ($form->{notes}) {
+    push @options, $locale->text('Notes') . " : $form->{notes}";
+  }
+  if ($form->{datefrom}) {
+    $date_option = $locale->text('From') . " " . $locale->date(\%myconfig, $form->{datefrom}, 1);
+  }
+  if ($form->{dateto}) {
+    if ($form->{datefrom}) {
+      $date_option .= " ";
+    }
+    $date_option .= $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{dateto}, 1);
+  }
+  push @options, $date_option if $date_option;
 
-  print "
-        </tr>
-        </thead>
-        </tfoot>
-        <tbody>
-";
+  my $callback = build_std_url('action=generate_report', @hidden_variables);
+
+  $form->{l_credit_accno}     = 'Y';
+  $form->{l_debit_accno}      = 'Y';
+  $form->{l_credit_tax}       = 'Y';
+  $form->{l_debit_tax}        = 'Y';
+  $form->{l_credit_tax_accno} = 'Y';
+  $form->{l_debit_tax_accno}  = 'Y';
+  $form->{l_balance}          = $form->{accno} ? 'Y' : '';
+
+  my %column_defs = (
+    'id'               => { 'text' => $locale->text('ID'), },
+    'transdate'        => { 'text' => $locale->text('Date'), },
+    'reference'        => { 'text' => $locale->text('Reference'), },
+    'source'           => { 'text' => $locale->text('Source'), },
+    'description'      => { 'text' => $locale->text('Description'), },
+    'notes'            => { 'text' => $locale->text('Notes'), },
+    'debit'            => { 'text' => $locale->text('Debit'), },
+    'debit_accno'      => { 'text' => $locale->text('Debit Account'), },
+    'credit'           => { 'text' => $locale->text('Credit'), },
+    'credit_accno'     => { 'text' => $locale->text('Credit Account'), },
+    'debit_tax'        => { 'text' => $locale->text('Debit Tax'), },
+    'debit_tax_accno'  => { 'text' => $locale->text('Debit Tax Account'), },
+    'credit_tax'       => { 'text' => $locale->text('Credit Tax'), },
+    'credit_tax_accno' => { 'text' => $locale->text('Credit Tax Account'), },
+    'balance'          => { 'text' => $locale->text('Balance'), },
+    'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
+  );
+
+  map { $column_defs{$_}->{link}    = $callback . "&sort=${_}" }  qw(id transdate reference source description);
+  map { $column_defs{$_}->{link}    = $callback . "&sort=accno" } qw(debit_accno credit_accno debit_tax_accno credit_tax_accno debit_tax credit_tax);
+  map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
+  map { $column_defs{$_}->{visible} = 0 } qw(debit_accno credit_accno debit_tax_accno credit_tax_accno) if $form->{accno};
+
+  my %column_alignment;
+  map { $column_alignment{$_} = 'right' }  qw(balance id debit credit debit_tax credit_tax);
+  map { $column_alignment{$_} = 'center' } qw(transdate reference description source notes debit_accno credit_accno debit_tax_accno credit_tax_accno);
+
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('generate_report', @hidden_variables);
+
+  $report->set_sort_indicator($form->{sort}, 1);
+
+  $report->set_options('top_info_text'        => join("\n", @options),
+                       'output_format'        => 'HTML',
+                       'title'                => $form->{title},
+                       'attachment_basename'  => $locale->text('general_ledger_list') . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form();
 
   # add sort to callback
-  $form->{callback} = "$callback&sort=$form->{sort}";
-  $callback = $form->escape($form->{callback});
+  $form->{callback} = "$callback&sort=" . E($form->{sort});
 
-  # initial item for subtotals
-  if (@{ $form->{GL} }) {
-    $sameitem = $form->{GL}->[0]->{ $form->{sort} };
-  }
+  $form->{balance} *= $ml;
 
   if ($form->{accno} && $form->{balance}) {
+    my $row = {
+      'balance' => {
+        'data'  => $form->format_amount(\%myconfig, $form->{balance}, 2),
+        'align' => 'right',
+      },
+    };
 
-    map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-    $column_data{balance} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $form->{balance} * $ml, 2, 0)
-      . "</td>";
-
-    $i++;
-    $i %= 2;
-    print qq|
-        <tr class=listrow$i>
-|;
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-        </tr>
-|;
+    $report->add_data($row);
   }
-  $form->{balance} *= $ml;
+
+  my @totals_columns = qw(debit credit debit_tax credit_tax);
+  my %subtotals      = map { $_ => 0 } @totals_columns;
+  my %totals         = map { $_ => 0 } @totals_columns;
+  my $idx            = 0;
+
   foreach $ref (@{ $form->{GL} }) {
     $form->{balance} *= $ml;
 
-    # if item ne sort print subtotal
-    if ($form->{l_subtotal} eq 'Y') {
-      if ($sameitem ne $ref->{ $form->{sort} }) {
-        &gl_subtotal;
+    my %rows;
+
+    foreach my $key (qw(debit credit debit_tax credit_tax)) {
+      $rows{$key} = [];
+      foreach my $idx (sort keys(%{ $ref->{$key} })) {
+        my $value         = $ref->{$key}->{$idx};
+        $subtotals{$key} += $value;
+        $totals{$key}    += $value;
+        $form->{balance}  = abs($form->{balance}) - abs($value);
+        push @{ $rows{$key} }, $form->format_amount(\%myconfig, $value, 2);
       }
     }
 
-    #foreach $key (sort keys(%{ $ref->{amount} })) {
-    #  $form->{balance} += $ref->{amount}{$key};
-    #}
+    foreach my $key (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno ac_transdate)) {
+      my $col = $key eq 'ac_transdate' ? 'transdate' : $key;
+      $rows{$col} = [ map { $ref->{$key}->{$_} } sort keys(%{ $ref->{$key} }) ];
+    }
 
-    $debit = "";
-    foreach $key (sort keys(%{ $ref->{debit} })) {
-      $subtotaldebit += $ref->{debit}{$key};
-      $totaldebit    += $ref->{debit}{$key};
-      if ($key == 0) {
-        $debit = $form->format_amount(\%myconfig, $ref->{debit}{$key}, 2, 0);
+    my $row = { };
+    map { $row->{$_} = { 'data' => '', 'align' => $column_alignment{$_} } } @columns;
+
+    $row->{balance}->{data}        = $form->format_amount(\%myconfig, $form->{balance}, 2);
+    $row->{projectnumbers}->{data} = join ", ", sort { lc($a) cmp lc($b) } keys %{ $ref->{projectnumbers} };
+
+    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description source notes);
+
+    map { $row->{$_}->{data} = join "\n", @{ $rows{$_} }; } qw(transdate debit credit);
+
+    map { $row->{$_}->{data} = join "\n", @{ $rows{$_} } if ($ref->{"${_}_accno"} ne "") } qw(debit_tax credit_tax);
+
+    foreach my $col (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
+      if (lc $report->{options}->{output_format} eq 'html') {
+        $row->{$col}->{raw_data} = join "<br>", map { "<a href=\"${callback}&accno=" . E($_) . "\">$_</a>" } @{ $rows{$col} };
       } else {
-        $debit .=
-          "<br>" . $form->format_amount(\%myconfig, $ref->{debit}{$key}, 2, 0);
-      }
-      $form->{balance} = abs($form->{balance}) - abs($ref->{debit}{$key});
-    }
-
-    $credit = "";
-    foreach $key (sort keys(%{ $ref->{credit} })) {
-      $subtotalcredit += $ref->{credit}{$key};
-      $totalcredit    += $ref->{credit}{$key};
-      if ($key == 0) {
-        $credit = $form->format_amount(\%myconfig, $ref->{credit}{$key}, 2, 0);
-      } else {
-        $credit .= "<br>"
-          . $form->format_amount(\%myconfig, $ref->{credit}{$key}, 2, 0);
-      }
-      $form->{balance} = abs($form->{balance}) - abs($ref->{credit}{$key});
-    }
-
-    $debittax = "";
-    foreach $key (sort keys(%{ $ref->{debit_tax} })) {
-      $subtotaldebittax += $ref->{debit_tax}{$key};
-      $totaldebittax    += $ref->{debit_tax}{$key};
-      if ($key == 0) {
-        $debittax =
-          $form->format_amount(\%myconfig, $ref->{debit_tax}{$key}, 2, 0);
-      } else {
-        $debittax .= "<br>"
-          . $form->format_amount(\%myconfig, $ref->{debit_tax}{$key}, 2, 0);
-      }
-      $form->{balance} = abs($form->{balance}) - abs($ref->{debit_tax}{$key});
-    }
-
-    $credittax = "";
-    foreach $key (sort keys(%{ $ref->{credit_tax} })) {
-      $subtotalcredittax += $ref->{credit_tax}{$key};
-      $totalcredittax    += $ref->{credit_tax}{$key};
-      if ($key == 0) {
-        $credittax =
-          $form->format_amount(\%myconfig, $ref->{credit_tax}{$key}, 2, 0);
-      } else {
-        $credittax .= "<br>"
-          . $form->format_amount(\%myconfig, $ref->{credit_tax}{$key}, 2, 0);
-      }
-      $form->{balance} = abs($form->{balance}) - abs($ref->{credit_tax}{$key});
-    }
-
-    $debitaccno  = "";
-    $debittaxkey = "";
-    $taxaccno    = "";
-    foreach $key (sort keys(%{ $ref->{debit_accno} })) {
-      if ($key == 0) {
-        $debitaccno =
-          "<a href=$href&accno=$ref->{debit_accno}{$key}&callback=$callback>$ref->{debit_accno}{$key}</a>";
-      } else {
-        $debitaccno .=
-          "<br><a href=$href&accno=$ref->{debit_accno}{$key}&callback=$callback>$ref->{debit_accno}{$key}</a>";
-      }
-
-      #       if ($ref->{debit_taxkey}{$key} eq $debittaxkey) {
-      #         $ref->{debit_tax_accno}{$key} = $taxaccno;
-      #       }
-      $taxaccno    = $ref->{debit_tax_accno}{$key};
-      $debittaxkey = $ref->{debit_taxkey}{$key};
-    }
-
-    $creditaccno  = "";
-    $credittaxkey = "";
-    $taxaccno     = "";
-    foreach $key (sort keys(%{ $ref->{credit_accno} })) {
-      if ($key == 0) {
-        $creditaccno =
-          "<a href=$href&accno=$ref->{credit_accno}{$key}&callback=$callback>$ref->{credit_accno}{$key}</a>";
-      } else {
-        $creditaccno .=
-          "<br><a href=$href&accno=$ref->{credit_accno}{$key}&callback=$callback>$ref->{credit_accno}{$key}</a>";
-      }
-
-      #       if ($ref->{credit_taxkey}{$key} eq $credittaxkey) {
-      #         $ref->{credit_tax_accno}{$key} = $taxaccno;
-      #       }
-      $taxaccno     = $ref->{credit_tax_accno}{$key};
-      $credittaxkey = $ref->{credit_taxkey}{$key};
-    }
-
-    $debittaxaccno = "";
-    foreach $key (sort keys(%{ $ref->{debit_tax_accno} })) {
-      if ($key == 0) {
-        $debittaxaccno =
-          "<a href=$href&accno=$ref->{debit_tax_accno}{$key}&callback=$callback>$ref->{debit_tax_accno}{$key}</a>";
-      } else {
-        $debittaxaccno .=
-          "<br><a href=$href&accno=$ref->{debit_tax_accno}{$key}&callback=$callback>$ref->{debit_tax_accno}{$key}</a>";
+        $row->{$col}->{data} = join "\n", @{ $rows{$col} };
       }
     }
 
-    $credittaxaccno = "";
-    foreach $key (sort keys(%{ $ref->{credit_tax_accno} })) {
-      if ($key == 0) {
-        $credittaxaccno =
-          "<a href=$href&accno=$ref->{credit_tax_accno}{$key}&callback=$callback>$ref->{credit_tax_accno}{$key}</a>";
-      } else {
-        $credittaxaccno .=
-          "<br><a href=$href&accno=$ref->{credit_tax_accno}{$key}&callback=$callback>$ref->{credit_tax_accno}{$key}</a>";
-      }
+    $row->{reference}->{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'id=' . E($ref->{id}), 'callback');
+
+    my $row_set = [ $row ];
+
+    if (($form->{l_subtotal} eq 'Y')
+        && (($idx == (scalar @{ $form->{GL} } - 1))
+            || ($ref->{ $form->{sort} } ne $form->{GL}->[$idx + 1]->{ $form->{sort} }))) {
+      push @{ $row_set }, create_subtotal_row(\%subtotals, \@columns, \%column_alignment, [ qw(debit credit) ], 'listsubtotal');
     }
 
-    $transdate = "";
-    foreach $key (sort keys(%{ $ref->{ac_transdate} })) {
-      if ($key == 0) {
-        $transdate = "$ref->{ac_transdate}{$key}";
-      } else {
-        $transdate .= "<br>$ref->{ac_transdate}{$key}";
-      }
-    }
+    $report->add_data($row_set);
 
-    #    $ref->{debit} = $form->format_amount(\%myconfig, $ref->{debit}, 2, "&nbsp;");
-    #    $ref->{credit} = $form->format_amount(\%myconfig, $ref->{credit}, 2, "&nbsp;");
-
-    $column_data{id}        = "<td align=right>&nbsp;$ref->{id}&nbsp;</td>";
-    $column_data{transdate}    = "<td align=center>$transdate</td>";
-    $column_data{reference} =
-      "<td align=center><a href=$ref->{module}.pl?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{reference}</td>";
-    $column_data{description}  = "<td align=center>$ref->{description}&nbsp;</td>";
-    $column_data{source}       = "<td align=center>$ref->{source}&nbsp;</td>";
-    $column_data{notes}        = "<td align=center>$ref->{notes}&nbsp;</td>";
-    $column_data{debit}        = "<td align=right>$debit</td>";
-    $column_data{debit_accno}  = "<td align=center>$debitaccno</td>";
-    $column_data{credit}       = "<td align=right>$credit</td>";
-    $column_data{credit_accno} = "<td align=center>$creditaccno</td>";
-    $column_data{debit_tax}    =
-      ($ref->{debit_tax_accno} ne "")
-      ? "<td align=right>$debittax</td>"
-      : "<td></td>";
-    $column_data{debit_tax_accno} = "<td align=center>$debittaxaccno</td>";
-    $column_data{credit_tax} =
-      ($ref->{credit_tax_accno} ne "")
-      ? "<td align=right>$credittax</td>"
-      : "<td></td>";
-    $column_data{credit_tax_accno} = "<td align=center>$credittaxaccno</td>";
-    $column_data{balance} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $form->{balance}, 2, 0) . "</td>";
-    $column_data{projectnumbers} =
-      "<td>" . join(", ", sort({ lc($a) cmp lc($b) } keys(%{ $ref->{projectnumbers} }))) . "</td>";
-
-    $i++;
-    $i %= 2;
-    print "
-        <tr class=listrow$i>";
-    map { print "$column_data{$_}\n" } @column_index;
-    print "</tr>";
-
+    $idx++;
   }
 
-  &gl_subtotal if ($form->{l_subtotal} eq 'Y');
+  $report->add_separator();
 
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+  # = 0 for balanced ledger
+  my $balanced_ledger = $totals{debit} + $totals{debit_tax} - $totals{credit} - $totals{credit_tax};
 
-  my $balanced_ledger = $totaldebit 
-                      + $totaldebittax 
-                      - $totalcredit 
-                      - $totalcredittax;
-                    # = 0 for balanced ledger
-                    
-  $column_data{debit} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $totaldebit, 2, "&nbsp;") . "</th>";
-  $column_data{credit} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $totalcredit, 2, "&nbsp;") . "</th>";
-  $column_data{debit_tax} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $totaldebittax, 2, "&nbsp;") . "</th>";
-  $column_data{credit_tax} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $totalcredittax, 2, "&nbsp;") . "</th>";
-  $column_data{balance} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $form->{balance} * $ml, 2, 0) . "</th>";
+  my $row = create_subtotal_row(\%totals, \@columns, \%column_alignment, [ qw(debit credit debit_tax credit_tax) ], 'listtotal');
+  $row->{balance} = {
+    'data'  => $form->format_amount(\%myconfig, $form->{balance} * $ml, 2),
+    'align' => 'right',
+    'class' => 'listtotal',
+  };
+  $report->add_data($row);
 
-  print qq|
-	<tr class=listtotal>
-|;
+  my $raw_bottom_info_text;
 
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-        <tr>|;
-
-
-  if ( abs($balanced_ledger) >  0.001 ) {
-
-    print qq|<td colspan="4" style="background-color:#FFA0A0" >|
-        . $locale->text('Unbalanced Ledger') 
-        . ": " 
-        . $form->format_amount(\%myconfig, $balanced_ledger, 3, "&nbsp;")
-
-  } elsif ( abs($balanced_ledger) <= 0.001 ) {
-
-    print qq|<td colspan="3">|
-          . $locale->text('Balanced Ledger') 
-
+  if (!$form->{accno} && (abs($balanced_ledger) >  0.001)) {
+    $raw_bottom_info_text .=
+        '<p><span class="unbalanced_ledger">'
+      . $locale->text('Unbalanced Ledger')
+      . ': '
+      . $form->format_amount(\%myconfig, $balanced_ledger, 3)
+      . '</span></p> ';
   }
 
-  
-  print qq|
-         </td>
-        </tr>
-        </tbody>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
+  $raw_bottom_info_text .= $form->parse_html_template('gl/generate_report_bottom');
 
-<br>
+  $report->set_options('raw_bottom_info_text' => $raw_bottom_info_text);
 
-<form method=post action=$form->{script}>
+  $report->generate_with_headers();
 
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('GL Transaction') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('AR Transaction') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('AP Transaction') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('Sales Invoice') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('Vendor Invoice') . qq|">
-
-</form>
-
-</body>
-</html>
-|;
   $lxdebug->leave_sub();
-
-}
-
-sub gl_subtotal {
-  $lxdebug->enter_sub();
-
-  $subtotaldebit =
-    $form->format_amount(\%myconfig, $subtotaldebit, 2, "&nbsp;");
-  $subtotalcredit =
-    $form->format_amount(\%myconfig, $subtotalcredit, 2, "&nbsp;");
-
-  map { $column_data{$_} = "<td>&nbsp;</td>" }
-    qw(transdate id reference source description accno);
-  $column_data{debit}  = "<th align=right>$subtotaldebit</td>";
-  $column_data{credit} = "<th align=right>$subtotalcredit</td>";
-
-  print "<tr class=listsubtotal>";
-  map { print "$column_data{$_}\n" } @column_index;
-  print "</tr>";
-
-  $subtotaldebit  = 0;
-  $subtotalcredit = 0;
-
-  $sameitem = $ref->{ $form->{sort} };
-  $lxdebug->leave_sub();
-
 }
 
 sub update {

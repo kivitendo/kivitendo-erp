@@ -218,3 +218,7 @@ fieldset {
 label {
   cursor:pointer;
 }
+
+.unbalanced_ledger {
+  background-color: #ffa0a0;
+}
