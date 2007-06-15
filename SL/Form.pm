@@ -549,6 +549,8 @@ sub parse_html_template {
 
   my $output = $template->output();
 
+  $output = $main::locale->{iconv}->convert($output) if ($main::locale);
+
   $main::lxdebug->leave_sub();
 
   return $output;
