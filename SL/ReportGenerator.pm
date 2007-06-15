@@ -37,7 +37,7 @@ sub new {
       'quote_char'          => '"',
       'sep_char'            => ';',
       'escape_char'         => '"',
-      'eol_style'           => 'DOS',
+      'eol_style'           => 'Unix',
       'headers'             => 1,
     },
   };
