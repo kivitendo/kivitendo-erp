@@ -458,6 +458,7 @@ sub generate_csv_content {
   foreach my $row_set (@{ $self->{data} }) {
     next if ('ARRAY' ne ref $row_set);
     foreach my $row (@{ $row_set }) {
+      map { $row->{$_}->{data} =~ s/\r?\n/$eol/g } @visible_columns;
       $csv->print($stdout, [ map { $row->{$_}->{data} } @visible_columns ]);
     }
   }
