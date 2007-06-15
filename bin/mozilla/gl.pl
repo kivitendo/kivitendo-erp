@@ -580,17 +580,13 @@ sub generate_report {
 
     map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description source notes);
 
-    map { $row->{$_}->{data} = join "\n", @{ $rows{$_} }; } qw(transdate debit credit);
-
-    map { $row->{$_}->{data} = join "\n", @{ $rows{$_} } if ($ref->{"${_}_accno"} ne "") } qw(debit_tax credit_tax);
+    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno);
 
     foreach my $col (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
-      if (lc $report->{options}->{output_format} eq 'html') {
-        $row->{$col}->{raw_data} = join "<br>", map { "<a href=\"${callback}&accno=" . E($_) . "\">$_</a>" } @{ $rows{$col} };
-      } else {
-        $row->{$col}->{data} = join "\n", @{ $rows{$col} };
-      }
+      $row->{$col}->{link} = [ map { "${callback}&accno=" . E($_) } @{ $rows{$col} } ];
     }
+
+    map { $row->{$_}->{data} = \@{ $rows{$_} } if ($ref->{"${_}_accno"} ne "") } qw(debit_tax credit_tax);
 
     $row->{reference}->{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'id=' . E($ref->{id}), 'callback');
 

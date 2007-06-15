@@ -93,18 +93,26 @@ sub add_data {
   my $last_row_set;
 
   while (my $arg = shift) {
+    my $row_set;
+
     if ('ARRAY' eq ref $arg) {
-      push @{ $self->{data} }, $arg;
-      $last_row_set = $arg;
+      $row_set = $arg;
 
     } elsif ('HASH' eq ref $arg) {
-      my $row_set = [ $arg ];
-      push @{ $self->{data} }, $row_set;
-      $last_row_set = $row_set;
+      $row_set = [ $arg ];
 
     } else {
       $self->{form}->error('Incorrect usage -- expecting hash or array ref');
     }
+
+    foreach my $row (@{ $row_set }) {
+      foreach my $field (qw(data link)) {
+        map { $row->{$_}->{$field} = [ $row->{$_}->{$field} ] if (ref $row->{$_}->{$field} ne 'ARRAY') } keys %{ $row };
+      }
+    }
+
+    push @{ $self->{data} }, $row_set;
+    $last_row_set = $row_set;
   }
 
   return $last_row_set;
@@ -259,7 +267,16 @@ sub prepare_html_content {
     foreach my $row (@{ $row_set }) {
       $inner_idx++;
 
-      map { $row->{$_}->{data} = $self->html_format($row->{$_}->{data}) } @visible_columns;
+      foreach my $col_name (@visible_columns) {
+        my $col = $row->{$col_name};
+        $col->{CELL_ROWS} = [ ];
+        foreach my $i (0 .. scalar(@{ $col->{data} })) {
+          push @{ $col->{CELL_ROWS} }, {
+            'data' => $self->html_format($col->{data}->[$i]),
+            'link' => $col->{link}->[$i],
+          };
+        };
+      }
 
       my $row_data = {
         'COLUMNS'       => [ map { $row->{$_} } @visible_columns ],
@@ -458,8 +475,11 @@ sub generate_csv_content {
   foreach my $row_set (@{ $self->{data} }) {
     next if ('ARRAY' ne ref $row_set);
     foreach my $row (@{ $row_set }) {
-      map { $row->{$_}->{data} =~ s/\r?\n/$eol/g } @visible_columns;
-      $csv->print($stdout, [ map { $row->{$_}->{data} } @visible_columns ]);
+      my @data;
+      foreach my $col (@visible_columns) {
+        push @data, join($eol, map { s/\r?\n/$eol/g; $_ } @{ $row->{$col}->{data} });
+      }
+      $csv->print($stdout, \@data);
     }
   }
 }

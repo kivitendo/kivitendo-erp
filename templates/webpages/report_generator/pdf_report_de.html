@@ -17,7 +17,7 @@
 
     <TMPL_LOOP ROWS>
      <tr>
-      <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF>><TMPL_IF data><TMPL_VAR data></TMPL_IF></td></TMPL_LOOP>
+      <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF>><TMPL_LOOP CELL_ROWS><TMPL_IF data><TMPL_VAR data></TMPL_IF><TMPL_UNLESS __last__><br></TMPL_UNLESS></TMPL_LOOP></td></TMPL_LOOP>
      </tr>
     </TMPL_LOOP>
 
