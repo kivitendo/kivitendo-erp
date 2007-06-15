@@ -348,7 +348,7 @@ sub show_dunning {
       };
     }
 
-    $row->{checkbox} = {
+    $row->{checkbox} = !$first_row_for_dunning ? { } : {
       'raw_data' =>   $cgi->hidden('-name' => "dunning_id_$i", '-value' => $ref->{dunning_id})
                     . $cgi->checkbox('-name' => "selected_$i", '-value' => 1, '-label' => ''),
       'valign'   => 'center',
