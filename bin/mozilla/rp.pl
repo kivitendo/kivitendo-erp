@@ -2312,8 +2312,6 @@ sub list_payments {
       $module = 'is' if ($payment->{invoice} && $payment->{module} eq 'ar');
       $module = 'ir' if ($payment->{invoice} && $payment->{module} eq 'ap');
 
-      my $link = build_std_url("module=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
-
       $subtotal_paid += $payment->{paid};
       $total_paid    += $payment->{paid};
 
@@ -2327,6 +2325,8 @@ sub list_payments {
           'align' => $column_alignment{$column},
         };
       }
+
+      $row->{invnumber}->{link} = build_std_url("script=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
 
       $report->add_data($row);
     }
