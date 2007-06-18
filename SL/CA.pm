@@ -347,7 +347,9 @@ sub all_transactions {
     $union = qq|UNION ALL|;
   }
 
-  $query .= qq|ORDER BY | . $form->{sort};
+  my $sort = grep({ $form->{sort} eq $_ } qw(transdate reference description)) ? $form->{sort} : 'transdate';
+
+  $query .= qq|ORDER BY $sort|;
   $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   $form->{CA} = [];
@@ -370,7 +372,7 @@ sub all_transactions {
       $ca->{debit}  = 0;
     }
 
-    $ca->{index} = $ca->{reference}.$ca->{description};
+    $ca->{index} = join "--", map { $ca->{$_} } qw(id reference description);
 
     push(@{ $form->{CA} }, $ca);
 
