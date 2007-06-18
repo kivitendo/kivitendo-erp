@@ -124,6 +124,13 @@ sub add_separator {
   push @{ $self->{data} }, { 'type' => 'separator' };
 }
 
+sub add_control {
+  my $self = shift;
+  my $data = shift;
+
+  push @{ $self->{data} }, $data;
+}
+
 sub clear_data {
   my $self = shift;
 
@@ -252,9 +259,11 @@ sub prepare_html_content {
   foreach my $row_set (@{ $self->{data} }) {
     if ('HASH' eq ref $row_set) {
       my $row_data = {
-        'IS_CONTROL'    => 1,
-        'IS_SEPARATOR'  => $row_set->{type} eq 'separator',
-        'NUM_COLUMNS'   => scalar @visible_columns,
+        'IS_CONTROL'      => 1,
+        'IS_SEPARATOR'    => $row_set->{type} eq 'separator',
+        'IS_COLSPAN_DATA' => $row_set->{type} eq 'colspan_data',
+        'NUM_COLUMNS'     => scalar @visible_columns,
+        'data'            => $row_set->{data},
       };
 
       push @rows, $row_data;

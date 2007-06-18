@@ -32,7 +32,7 @@
 
    <TMPL_LOOP ROWS>
     <TMPL_IF IS_CONTROL>
-     <TMPL_IF IS_SEPARATOR><tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><hr size="3" noshade></td></tr></TMPL_IF>
+     <TMPL_IF IS_SEPARATOR><tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><hr size="3" noshade></td></tr></TMPL_IF><TMPL_IF IS_COLSPAN_DATA><tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><TMPL_VAR data></td></tr></TMPL_IF>
      <TMPL_ELSE>
      <tr class="listrow<TMPL_VAR outer_idx_odd>">
       <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF><TMPL_IF class> class="<TMPL_VAR class>"</TMPL_IF>><TMPL_IF raw_data><TMPL_VAR raw_data></TMPL_IF><TMPL_LOOP CELL_ROWS><TMPL_IF data><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR data><TMPL_IF link></a></TMPL_IF></TMPL_IF><TMPL_UNLESS __last__><br></TMPL_UNLESS></TMPL_LOOP></td>
