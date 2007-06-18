@@ -32,7 +32,12 @@
 #
 #======================================================================
 
+use POSIX qw(strftime);
+
 use SL::CA;
+use SL::ReportGenerator;
+
+require "bin/mozilla/report_generator.pl";
 
 1;
 
@@ -69,107 +74,61 @@ use SL::CA;
 sub chart_of_accounts {
   $lxdebug->enter_sub();
 
-  CA->all_accounts(\%myconfig, \%$form);
-
-  @column_index = qw(accno description debit credit);
-
-  $column_header{accno} =
-    qq|<th class=listheading>| . $locale->text('Account') . qq|</th>\n|;
-  $column_header{description} =
-    qq|<th class=listheading>| . $locale->text('Description') . qq|</th>\n|;
-  $column_header{debit} =
-    qq|<th class=listheading>| . $locale->text('Debit') . qq|</th>\n|;
-  $column_header{credit} =
-    qq|<th class=listheading>| . $locale->text('Credit') . qq|</th>\n|;
-
   $form->{title} = $locale->text('Chart of Accounts');
 
-  $colspan = $#column_index + 1;
+  CA->all_accounts(\%myconfig, \%$form);
 
-  $form->header;
+  my @columns     = qw(accno description debit credit);
+  my %column_defs = (
+    'accno'       => { 'text' => $locale->text('Account'), },
+    'description' => { 'text' => $locale->text('Description'), },
+    'debit'       => { 'text' => $locale->text('Debit'), },
+    'credit'      => { 'text' => $locale->text('Credit'), },
+  );
 
-  print qq|
-<body>
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-<table border=0 width=100%>
-  <tr><th class=listtop colspan=$colspan>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr class=listheading>|;
+  $report->set_options('output_format'         => 'HTML',
+                       'title'                 => $form->{title},
+                       'attachment_basename'   => $locale->text('chart_of_accounts') . strftime('_%Y%m%d', localtime time),
+                       'std_column_visibility' => 1,
+    );
+  $report->set_options_from_form();
 
-  map { print $column_header{$_} } @column_index;
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
 
-  print qq|
-  </tr>
-|;
+  $report->set_export_options('chart_of_accounts');
 
-  foreach $ca (@{ $form->{CA} }) {
+  $report->set_sort_indicator($form->{sort}, 1);
 
-    $description      = $form->escape($ca->{description});
+  my %totals = ('debit' => 0, 'credit' => 0);
 
-    $href =
-      qq|$form->{script}?action=list&accno=$ca->{accno}&login=$form->{login}&password=$form->{password}&description=$description|;
+  foreach my $ca (@{ $form->{CA} }) {
+    my $row = { };
 
-    if ($ca->{charttype} eq "H") {
-      print qq|<tr class=listheading>|;
-      map { $column_data{$_} = "<th>$ca->{$_}</th>"; } qw(accno description);
-    } else {
-      $i++;
-      $i %= 2;
-      print qq|<tr class=listrow$i>|;
-      $column_data{accno}      = "<td><a href=$href>$ca->{accno}</a></td>";
-      $column_data{description} = "<td>$ca->{description}</td>";
+    foreach (qw(debit credit)) {
+      $totals{$_} += $ca->{$_} * 1;
+      $ca->{$_}    = $form->format_amount(\%myconfig, $ca->{$_}, 2) if ($ca->{$_});
     }
-    my $debit = "";
-    my $credit = "";
-    if ($ca->{debit}) {
-      $debit = $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;");
-    }
-    if ($ca->{credit}) {
-      $credit = $form->format_amount(\%myconfig, $ca->{credit}, 2, "&nbsp;");
-    }
-    $column_data{debit} =
-        "<td align=right>"
-      . $debit
-      . "</td>\n";
-    $column_data{credit} =
-        "<td align=right>"
-      . $credit
-      . "</td>\n";
 
-    $totaldebit  += $ca->{debit};
-    $totalcredit += $ca->{credit};
+    map { $row->{$_} = { 'data' => $ca->{$_} } } @columns;
 
-    map { print $column_data{$_} } @column_index;
+    map { $row->{$_}->{align} = 'right'       } qw(debit credit);
+    map { $row->{$_}->{class} = 'listheading' } @columns if ($ca->{charttype} eq "H");
 
-    print qq|
-</tr>
-|;
+    $row->{accno}->{link} = build_std_url('action=list', 'accno=' . E($ca->{accno}), 'description=' . E($ca->{description}));
+
+    $report->add_data($row);
   }
 
-  map { $column_data{$_} = "<td>&nbsp;</td>"; }
-    qw(accno description);
+  my $row = { map { $_ => { 'class' => 'listtotal', 'align' => 'right' } } @columns };
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals{$_}, 2) } qw(debit credit);
 
-  $column_data{debit} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $totaldebit, 2, 0) . "</th>";
-  $column_data{credit} =
-    "<th align=right class=listtotal>"
-    . $form->format_amount(\%myconfig, $totalcredit, 2, 0) . "</th>";
+  $report->add_separator();
+  $report->add_data($row);
 
-  print "<tr class=listtotal>";
-
-  map { print $column_data{$_} } @column_index;
-
-  print qq|
-</tr>
-<tr>
-  <td colspan=$colspan><hr size=3 noshade></td>
-</tr>
-</table>
-
-</body>
-</html>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }
@@ -255,63 +214,23 @@ sub list {
 sub list_transactions {
   $lxdebug->enter_sub();
 
+  $form->{title} = $locale->text('Account') . " $form->{accno} - $form->{description}";
+
   CA->all_transactions(\%myconfig, \%$form);
 
-  $description      = $form->escape($form->{description});
-  $department       = $form->escape($form->{department});
-  $projectnumber    = $form->escape($form->{projectnumber});
-  $title            = $form->escape($form->{title});
-
-  # construct href
-  $href =
-    "$form->{script}?action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
-
-  $description      = $form->escape($form->{description},      1);
-  $department       = $form->escape($form->{department},       1);
-  $projectnumber    = $form->escape($form->{projectnumber},    1);
-  $title            = $form->escape($form->{title},            1);
-
-  # construct callback
-  $callback =
-    "$form->{script}?action=list_transactions&accno=$form->{accno}&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&description=$description&accounttype=$form->{accounttype}&l_heading=$form->{l_heading}&l_subtotal=$form->{l_subtotal}&department=$department&projectnumber=$projectnumber&project_id=$form->{project_id}&title=$title";
-
-  # figure out which column comes first
-  $column_header{transdate} =
-      qq|<th><a class=listheading href=$href&sort=transdate>|
-    . $locale->text('Date')
-    . qq|</a></th>|;
-  $column_header{reference} =
-      qq|<th><a class=listheading href=$href&sort=reference>|
-    . $locale->text('Reference')
-    . qq|</a></th>|;
-  $column_header{description} =
-      qq|<th><a class=listheading href=$href&sort=description>|
-    . $locale->text('Description')
-    . qq|</a></th>|;
-  $column_header{debit}   = qq|<th>| . $locale->text('Debit') . qq|</th>|;
-  $column_header{credit}  = qq|<th>| . $locale->text('Credit') . qq|</th>|;
-  $column_header{balance} = qq|<th>| . $locale->text('Balance') . qq|</th>|;
-
-  @column_index =
-    $form->sort_columns(qw(transdate reference description debit credit));
-
-  if ($form->{accno}) {
-    push @column_index, "balance";
-  }
-
-  $form->{title} = $locale->text('Account') .
-    " $form->{accno} - $form->{description}";
-
+  my @options;
   if ($form->{department}) {
-    ($department) = split /--/, $form->{department};
-    $options = $locale->text('Department') . " : $department<br>";
+    my ($department) = split /--/, $form->{department};
+    push @options, $locale->text('Department') . " : $department";
   }
   if ($form->{projectnumber}) {
-    $options .= $locale->text('Project Number');
-    $options .= " : $form->{projectnumber}<br>";
+    push @options, $locale->text('Project Number') . " : $form->{projectnumber}<br>";
   }
 
+  my $period;
   if ($form->{fromdate} || $form->{todate}) {
+    my ($fromdate, $todate);
+
     if ($form->{fromdate}) {
       $fromdate = $locale->date(\%myconfig, $form->{fromdate}, 1);
     }
@@ -319,181 +238,126 @@ sub list_transactions {
       $todate = $locale->date(\%myconfig, $form->{todate}, 1);
     }
 
-    $form->{period} = "$fromdate - $todate";
+    $period = "$fromdate - $todate";
+
   } else {
-    $form->{period} =
-      $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
+    $period = $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
   }
 
-  $options .= $form->{period};
+  push @options, $period;
 
-  $form->header;
+  my @columns     = qw(transdate reference description debit credit balance);
+  my %column_defs = (
+    'transdate'   => { 'text' => $locale->text('Date'), },
+    'reference'   => { 'text' => $locale->text('Reference'), },
+    'description' => { 'text' => $locale->text('Description'), },
+    'debit'       => { 'text' => $locale->text('Debit'), },
+    'credit'      => { 'text' => $locale->text('Credit'), },
+    'balance'     => { 'text' => $locale->text('Balance'), },
+  );
+  my %column_alignment = map { $_ => 'right' } qw(debit credit balance);
 
-  print qq|
-<body>
+  my @hidden_variables = qw(accno fromdate todate description accounttype l_heading l_subtotal department projectnumber project_id sort);
 
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$options</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-       <tr class=listheading>
-|;
+  my $link = build_std_url('action=list_transactions', grep { $form->{$_} } @hidden_variables);
+  map { $column_defs{$_}->{link} = $link . "&sort=$_" } qw(transdate reference description);
 
-  map { print "$column_header{$_}\n" } @column_index;
+  $form->{callback} = $link . '&sort=' . E($form->{sort});
 
-  print qq|
-       </tr>
-|;
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  # add sort to callback
-  $callback = $form->escape($callback . "&sort=$form->{sort}");
+  $report->set_options('top_info_text'         => join("\n", @options),
+                       'output_format'         => 'HTML',
+                       'title'                 => $form->{title},
+                       'attachment_basename'   => $locale->text('list_of_transactions') . strftime('_%Y%m%d', localtime time),
+                       'std_column_visibility' => 1,
+    );
+  $report->set_options_from_form();
 
-  if (@{ $form->{CA} }) {
-    $sameitem = $form->{CA}->[0]->{ $form->{sort} };
-  }
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
 
-  $ml = ($form->{category} =~ /(A|E)/) ? -1 : 1;
+  $report->set_export_options('list_transactions', @hidden_variables);
+
+  $report->set_sort_indicator($form->{sort}, 1);
+
+  $column_defs->{balance}->{visible} = $form->{accno} ? 1 : 0;
+
+  my $ml = ($form->{category} =~ /(A|E)/) ? -1 : 1;
+
   if ($form->{accno} && $form->{balance}) {
+    my $row = {
+      'balance' => {
+        'data'  => $form->format_amount(\%myconfig, $form->{balance} * $ml, 2),
+        'align' => 'right',
+      },
+    };
 
-    map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-
-    $column_data{balance} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $form->{balance} * $ml, 2, 0)
-      . "</td>";
-
-    $i++;
-    $i %= 2;
-    print qq|
-        <tr class=listrow$i>
-|;
-    map { print $column_data{$_} } @column_index;
-    print qq|
-       </tr>
-|;
+    $report->add_data($row);
   }
 
-  foreach $ca (@{ $form->{CA} }) {
+  my $idx       = 0;
+  my %totals    = ( 'debit' => 0, 'credit' => 0 );
+  my %subtotals = ( 'debit' => 0, 'credit' => 0 );
 
-    if ($form->{l_subtotal} eq 'Y') {
-      if ($sameitem ne $ca->{ $form->{sort} }) {
-        &ca_subtotal;
-      }
+  foreach my $ca (@{ $form->{CA} }) {
+    $form->{balance} += $ca->{amount};
+
+    foreach (qw(debit credit)) {
+      $subtotals{$_} += $ca->{$_};
+      $totals{$_}    += $ca->{$_};
+      $ca->{$_}       = $form->format_amount(\%myconfig, $ca->{$_}, 2) if ($ca->{$_} != 0);
     }
 
-    # construct link to source
-    $href =
-      "<a href=$ca->{module}.pl?action=edit&id=$ca->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{reference}</a>";
-    my $debit = ($ca->{debit} != 0) ? $form->format_amount(\%myconfig, $ca->{debit}, 2, "&nbsp;") : "&nbsp;";
-    $column_data{debit} =
-      "<td align=right>$debit</td>";
-    my $credit = ($ca->{credit} != 0) ? $form->format_amount(\%myconfig, $ca->{credit}, 2, "&nbsp;") : "&nbsp;";
-    $column_data{credit} =
-      "<td align=right>$credit</td>";
+    $ca->{balance} = $form->format_amount(\%myconfig, $form->{balance} * $ml, 2);
 
-    $form->{balance} += $ca->{amount};
-    $column_data{balance} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $form->{balance} * $ml, 2, 0)
-      . "</td>";
+    my $row = { };
 
-    $subtotaldebit  += $ca->{debit};
-    $subtotalcredit += $ca->{credit};
+    foreach (@columns) {
+      $row->{$_} = {
+        'data'  => $ca->{$_},
+        'align' => $column_alignment{$_},
+      };
+    }
 
-    $totaldebit  += $ca->{debit};
-    $totalcredit += $ca->{credit};
+    $row->{reference}->{link} = build_std_url("script=$ca->{module}.pl", 'action=edit', 'id=' . E($ca->{id}), 'callback');
 
-    $column_data{transdate}   = ($ca->{"index"} ne $last || $form->{sort} ne "transdate") ? qq|<td>$ca->{transdate}</td>| : qq|<td></td>|;
-    $column_data{reference}   = ($ca->{"index"} ne $last) ? qq|<td>$href</td>| : qq|<td></td>|;
-    $column_data{description} = ($ca->{"index"} ne $last) ? qq|<td>$ca->{description}</td>| : qq|<td></td>|;
-    
-    $i++ if($ca->{"index"} ne $last);
-    $i %= 2;
-    $last=$ca->{"index"};
-    print qq|
-        <tr class=listrow$i>
-|;
+    $report->add_data($row);
 
-    map { print $column_data{$_} } @column_index;
+    if (($form->{l_subtotal} eq 'Y')
+        && (($idx == scalar @{ $form->{CA} } - 1)
+            || ($ca->{$form->{sort}} ne $form->{CA}->[$idx + 1]->{$form->{sort}}))) {
+      $report->add_data(create_subtotal_row(\%subtotals, \@columns, \%column_alignment, 'listsubtotal'));
+    }
 
-    print qq|
-        </tr>
-|;
-
+    $idx++;
   }
 
-  if ($form->{l_subtotal} eq 'Y') {
-    &ca_subtotal;
-  }
+  $report->add_data($row_set) if ($row_set);
 
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+  $report->add_separator();
 
-  $column_data{debit} =
-    "<th align=right>"
-    . $form->format_amount(\%myconfig, $totaldebit, 2, "&nbsp;") . "</th>";
-  $column_data{credit} =
-    "<th align=right>"
-    . $form->format_amount(\%myconfig, $totalcredit, 2, "&nbsp;") . "</th>";
-  $column_data{balance} =
-    "<th align=right>"
-    . $form->format_amount(\%myconfig, $form->{balance} * $ml, 2, 0) . "</th>";
+  my $row = create_subtotal_row(\%totals, \@columns, \%column_alignment, 'listtotal');
+  $row->{balance}->{data} = $form->format_amount(\%myconfig, $form->{balance} * $ml, 2);
+  $report->add_data($row);
 
-  print qq|
-	<tr class=listtotal>
-|;
-
-  map { print $column_data{$_} } @column_index;
-
-  print qq|
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-</body>
-</html>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }
 
-sub ca_subtotal {
+sub create_subtotal_row {
   $lxdebug->enter_sub();
 
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+  my ($totals, $columns, $column_alignment, $class) = @_;
 
-  $column_data{debit} =
-    "<th align=right>"
-    . $form->format_amount(\%myconfig, $subtotaldebit, 2, "&nbsp;") . "</th>";
-  $column_data{credit} =
-    "<th align=right>"
-    . $form->format_amount(\%myconfig, $subtotalcredit, 2, "&nbsp;") . "</th>";
+  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
 
-  $subtotaldebit  = 0;
-  $subtotalcredit = 0;
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(credit debit);
 
-  $sameitem = $ca->{ $form->{sort} };
-
-  print qq|
-      <tr class=listsubtotal>
-|;
-
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-      </tr>
-|;
+  map { $totals->{$_} = 0 } qw(debit credit);
 
   $lxdebug->leave_sub();
+
+  return $row;
 }
