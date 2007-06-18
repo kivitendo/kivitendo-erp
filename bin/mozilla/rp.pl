@@ -2252,192 +2252,107 @@ sub list_payments {
 
   RP->payments(\%myconfig, \%$form);
 
-  @columns =
-    $form->sort_columns(qw(transdate reference name paid source memo));
+  my @hidden_variables = qw(account title department reference source memo fromdate todate
+                            fx_transaction db prepayment paymentaccounts sort);
 
-  # construct href
-  $account    = $form->escape($form->{account});
-  $title      = $form->escape($form->{title});
-  $department = $form->escape($form->{department});
-  $form->{paymentaccounts} =~ s/ /%20/g;
-  $reference = $form->escape($form->{reference});
-  $source    = $form->escape($form->{source});
-  $memo      = $form->escape($form->{memo});
+  my $href = build_std_url('action=list_payments', grep { $form->{$_} } @hidden_variables);
+  $form->{callback} = $href;
 
-  $href =
-    "$form->{script}?action=list_payments&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&fx_transaction=$form->{fx_transaction}&db=$form->{db}&prepayment=$form->{prepayment}&title=$title&account=$account&department=$department&paymentaccounts=$form->{paymentaccounts}&reference=$reference&source=$source&memo=$memo";
+  my @columns     = qw(transdate invnumber name paid source memo);
+  my %column_defs = (
+    'name'      => { 'text' => $locale->text('Description'), },
+    'invnumber' => { 'text' => $locale->text('Reference'), },
+    'transdate' => { 'text' => $locale->text('Date'), },
+    'paid'      => { 'text' => $locale->text('Amount'), },
+    'source'    => { 'text' => $locale->text('Source'), },
+    'memo'      => { 'text' => $locale->text('Memo'), },
+  );
+  my %column_alignment = ('paid' => 'right');
 
-  # construct callback
-  $account    = $form->escape($form->{account},    1);
-  $title      = $form->escape($form->{title},      1);
-  $department = $form->escape($form->{department}, 1);
-  $reference  = $form->escape($form->{reference},  1);
-  $source     = $form->escape($form->{source},     1);
-  $memo       = $form->escape($form->{memo},       1);
+  map { $column_defs{$_}->{link} = $href . "&sort=$_" } grep { $_ ne 'paid' } @columns;
 
-  $form->{callback} =
-    "$form->{script}?action=list_payments&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&fx_transaction=$form->{fx_transaction}&db=$form->{db}&prepayment=$form->{prepayment}&title=$title&account=$account&department=$department&paymentaccounts=$form->{paymentaccounts}&reference=$reference&source=$source&memo=$memo&sort=$form->{sort}";
-  $callback = $form->escape($form->{callback});
-
-  $column_header{name} =
-      "<th><a class=listheading href=$href&sort=name>"
-    . $locale->text('Description')
-    . "</a></th>";
-  $column_header{reference} =
-      "<th><a class=listheading href=$href&sort=invnumber>"
-    . $locale->text('Reference')
-    . "</a></th>";
-  $column_header{transdate} =
-      "<th><a class=listheading href=$href&sort=transdate>"
-    . $locale->text('Date')
-    . "</a></th>";
-  $column_header{paid} =
-    "<th class=listheading>" . $locale->text('Amount') . "</a></th>";
-  $column_header{source} =
-      "<th><a class=listheading href=$href&sort=source>"
-    . $locale->text('Source')
-    . "</a></th>";
-  $column_header{memo} =
-      "<th><a class=listheading href=$href&sort=memo>"
-    . $locale->text('Memo')
-    . "</a></th>";
-
+  my @options;
   if ($form->{fromdate}) {
-    $option .= "\n<br>" if ($option);
-    $option .=
-        $locale->text('From') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{fromdate}, 1);
+    push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{fromdate}, 1);
   }
   if ($form->{todate}) {
-    $option .= "\n<br>" if ($option);
-    $option .=
-        $locale->text('bis') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{todate}, 1);
+    push @options, $locale->text('bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{todate}, 1);
   }
 
-  @column_index = @columns;
-  $colspan      = $#column_index + 1;
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  $form->header;
+  my $attachment_basename = $form->{db} eq 'ar' ? $locale->text('list_of_receipts') : $locale->text('list_of_payments');
 
-  print qq|
-<body>
+  $report->set_options('top_info_text'         => join("\n", @options),
+                       'output_format'         => 'HTML',
+                       'title'                 => $form->{title},
+                       'attachment_basename'   => $attachment_basename . strftime('_%Y%m%d', localtime time),
+                       'std_column_visibility' => 1,
+    );
+  $report->set_options_from_form();
 
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>
-|;
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
 
-  map { print "\n$column_header{$_}" } @column_index;
+  $report->set_export_options('list_payments', @hidden_variables);
 
-  print qq|
-        </tr>
-|;
+  $report->set_sort_indicator($form->{sort}, 1);
 
-  foreach $ref (sort { $a->{accno} cmp $b->{accno} } @{ $form->{PR} }) {
+  my $total_paid    = 0;
 
+  foreach my $ref (sort { $a->{accno} cmp $b->{accno} } @{ $form->{PR} }) {
     next unless @{ $form->{ $ref->{id} } };
 
-    print qq|
-        <tr>
-	  <th colspan=$colspan align=left>$ref->{accno}--$ref->{description}</th>
-	</tr>
-|;
+    $report->add_control({ 'type' => 'colspan_data', 'data' => "$ref->{accno}--$ref->{description}" });
 
-    foreach $payment (@{ $form->{ $ref->{id} } }) {
+    my $subtotal_paid = 0;
 
-      $module = $payment->{module};
+    foreach my $payment (@{ $form->{ $ref->{id} } }) {
+      my $module = $payment->{module};
       $module = 'is' if ($payment->{invoice} && $payment->{module} eq 'ar');
       $module = 'ir' if ($payment->{invoice} && $payment->{module} eq 'ap');
 
-      $href =
-        qq|${module}.pl?action=edit&id=$payment->{id}&login=$form->{login}&password=$form->{password}&callback=$callback|;
+      my $link = build_std_url("module=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
 
-      $column_data{name}      = "<td>$payment->{name}&nbsp;</td>";
-      $column_data{reference} =
-        qq|<td><a href=$href>$payment->{invnumber}</a></td>|;
-      $column_data{transdate} = "<td>$payment->{transdate}&nbsp;</td>";
-      $column_data{paid}      =
-          "<td align=right>"
-        . $form->format_amount(\%myconfig, $payment->{paid}, 2, "&nbsp;")
-        . "</td>";
-      $column_data{source} = "<td>$payment->{source}&nbsp;</td>";
-      $column_data{memo}   = "<td>$payment->{memo}&nbsp;</td>";
+      $subtotal_paid += $payment->{paid};
+      $total_paid    += $payment->{paid};
 
-      $subtotalpaid += $payment->{paid};
-      $totalpaid    += $payment->{paid};
+      $payment->{paid} = $form->format_amount(\%myconfig, $payment->{paid}, 2);
 
-      $i++;
-      $i %= 2;
-      print qq|
-	<tr class=listrow$i>
-|;
+      my $row = { };
 
-      map { print "\n$column_data{$_}" } @column_index;
+      foreach my $column (@columns) {
+        $row->{$column} = {
+          'data'  => $payment->{$column},
+          'align' => $column_alignment{$column},
+        };
+      }
 
-      print qq|
-        </tr>
-|;
-
+      $report->add_data($row);
     }
 
-    # print subtotals
-    map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+    my $row = { map { $_ => { 'class' => 'listsubtotal' } } @columns };
+    $row->{paid} = {
+      'data'  => $form->format_amount(\%myconfig, $subtotal_paid, 2),
+      'align' => 'right',
+      'class' => 'listsubtotal',
+    };
 
-    $column_data{paid} =
-      "<th class=listsubtotal align=right>"
-      . $form->format_amount(\%myconfig, $subtotalpaid, 2, "&nbsp;") . "</th>";
-
-    print qq|
-	<tr class=listsubtotal>
-|;
-
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|
-        </tr>
-|;
-
-    $subtotalpaid = 0;
-
+    $report->add_data($row);
   }
 
-  # print total
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+  $report->add_separator();
 
-  $column_data{paid} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalpaid, 2, "&nbsp;") . "</th>";
+  my $row = { map { $_ => { 'class' => 'listtotal' } } @columns };
+  $row->{paid} = {
+    'data'  => $form->format_amount(\%myconfig, $total_paid, 2),
+    'align' => 'right',
+    'class' => 'listtotal',
+  };
 
-  print qq|
-        <tr class=listtotal>
-|;
+  $report->add_data($row);
 
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|
-        </tr>
-
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-</body>
-</html>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }
