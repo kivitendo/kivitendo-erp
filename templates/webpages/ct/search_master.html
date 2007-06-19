@@ -1,0 +1,142 @@
+[% USE HTML %]<body onload="fokus()">
+
+ <form method="post" action="ct.pl" name="Form">
+
+  <input type="hidden" name="db" value="[% HTML.escape(db) %]">
+
+  <div class="listtop" width="100%">[% title %]</div>
+
+  <table>
+   <tr>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer Number</translate>[% ELSE %]<translate>Vendor Number</translate>[% END %]</th>
+    <td><input name="[% IF IS_CUSTOMER %]customer[% ELSE %]vendor[% END %]number" size="35"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap><translate>Company Name</translate></th>
+    <td><input name="name" size="35"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap><translate>Contact</translate></th>
+    <td><input name="contact" size="35"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap><translate>E-mail</translate></th>
+    <td><input name="email" size="35"></td>
+   </tr>
+
+   [% IF SHOW_BUSINESS_TYPES %]
+   <tr>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</th>
+    <td>
+     <select name="business_id"><option value=""></option>
+      [% FOREACH bt = ALL_BUSINESS_TYPES %]<option value="[% HTML.escape(bt.id) %]">[% HTML.escape(bt.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+   [% END %]
+
+   <tr>
+    <td></td>
+    <td>
+     <input name="status" class="radio" type="radio" value="all" checked> <translate>All</translate>
+     <input name="status" class="radio" type="radio" value="orphaned"> <translate>Orphaned</translate>
+    </td>
+   </tr>
+
+   <tr>
+    <td></td>
+    <td><input name="obsolete" class="radio" type="radio" value="all"> <translate>All</translate>
+     <input name="obsolete" class="radio" type="radio" value="Y"> <translate>Obsolete</translate>
+     <input name="obsolete" class="radio" type="radio" value="N" checked> <translate>Not obsolete</translate>
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap><translate>Include in Report</translate></th>
+    <td>
+     <table>
+      <tr>
+       <td>
+        <input name="l_id" id="l_id" type="checkbox" class="checkbox" value="Y">
+        <label for="l_id"><translate>ID</translate></label>
+       </td>
+       <td>
+        <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" class="checkbox" value="Y">
+        <label for="l_[% db %]number">[% IF IS_CUSTOMER %]<translate>Customer Number</translate>[% ELSE %]<translate>Vendor Number</translate>[% END %]</label>
+       </td>
+       <td>
+        <input name="l_name" id="l_name" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_name"><translate>Company Name</translate></label>
+       </td>
+       <td>
+        <input name="l_address" id="l_address" type="checkbox" class="checkbox" value="Y">
+        <label for="l_address"><translate>Address</translate></label>
+       </td>
+      </tr>
+
+      <tr>
+       <td>
+        <input name="l_contact" id="l_contact" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_contact"><translate>Contact</translate></label>
+       </td>
+       <td>
+        <input name="l_phone" id="l_phone" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_phone"><translate>Phone</translate></label>
+       </td>
+       <td>
+        <input name="l_fax" id="l_fax" type="checkbox" class="checkbox" value="Y">
+        <label for="l_fax"><translate>Fax</translate></label>
+       </td>
+       <td>
+        <input name="l_email" id="l_email" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_email"><translate>E-mail</translate></label>
+       </td>
+      </tr>
+
+      <tr>
+       <td>
+        <input name="l_taxnumber" id="l_taxnumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_taxnumber"><translate>Tax Number</translate></label>
+       </td>
+       <td>
+        <input name="l_sic_code" id="l_sic_code" type="checkbox" class="checkbox" value="Y">
+        <label for="l_sic_code"><translate>SIC</translate></label>
+       </td>
+       <td>
+        <input name="l_business" id="l_business" type="checkbox" class="checkbox" value="Y">
+        <label for="l_business">[% IF IS_CUSTOMER %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</label>
+       </td>
+      </tr>
+
+      <tr>
+       <td>
+        <input name="l_invnumber" id="l_invnumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_invnumber"><translate>Invoices</translate></label>
+       </td>
+       <td>
+        <input name="l_ordnumber" id="l_ordnumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_ordnumber">[% IF IS_CUSTOMER %]<translate>Sales Orders</translate>[% ELSE %]<translate>Purchase Orders</translate>[% END %]</label>
+       </td>
+       <td>
+        <input name="l_quonumber" id="l_quonumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_quonumber">[% IF IS_CUSTOMER %]<translate>Quotations</translate>[% ELSE %]<translate>RFQs</translate>[% END %]</label>
+       </td>
+      </tr>
+     </table>
+    </td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="nextsub" value="list_names">
+
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+
+  <input type="submit" class="submit" name="action" value="<translate>Continue</translate>">
+ </form>
+
+</body>
+</html>

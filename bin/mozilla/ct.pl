@@ -71,149 +71,17 @@ sub add {
 sub search {
   $lxdebug->enter_sub();
 
-  my $vc_business_type = $form->{db} eq "customer" ?
-    $locale->text("Customer type") : $locale->text("Vendor type");
+  $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
   $form->get_lists("business_types" => "ALL_BUSINESS_TYPES");
-  my (%labels, @values);
+  $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
-  my $business_types;
-  if (scalar(@{ $form->{ALL_BUSINESS_TYPES} }) != 0) {
-    push(@values, undef);
-    foreach my $item (@{ $form->{ALL_BUSINESS_TYPES} }) {
-      push(@values, $item->{id});
-      $labels{$item->{id}} = $item->{description};
-    }
-
-    $business_types =
-      qq|  <tr>
-    <th align="right" nowrap>${vc_business_type}</th>
-    <td>|
-      . NTI($cgi->popup_menu('-name' => 'business_id', '-values' => \@values,
-                             '-labels' => \%labels))
-      . qq|</td>
-  </tr>
-|;
-  }
-
-  $label = ucfirst $form->{db};
-  $form->{title} = $locale->text($label . "s");
+  $form->{title} = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
   $form->{fokus} = 'Form.name';
 
-  $form->header;
+  $form->header();
+  print $form->parse_html_template2('ct/search');
 
-  print qq|
-<body onload="fokus()">
-
-<form method=post action=$form->{script} name="Form">
-
-<input type=hidden name=db value=$form->{db}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr valign=top>
-    <td>
-      <table>
-	<tr>
-	  <th align=right nowrap>| . $locale->text($label . ' Number') . qq|</th>
-	  <td><input name=$form->{db}number size=35></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Company Name') . qq|</th>
-	  <td><input name=name size=35></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Contact') . qq|</th>
-	  <td><input name=contact size=35></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('E-mail') . qq|</th>
-	  <td><input name=email size=35></td>
-	</tr>
-  $business_types
-	<tr>
-	  <td></td>
-	  <td><input name=status class=radio type=radio value=all checked>&nbsp;|
-    . $locale->text('All') . qq|
-	  <input name=status class=radio type=radio value=orphaned>&nbsp;|
-    . $locale->text('Orphaned') . qq|</td>
-	</tr>
-	<tr>
-	  <td></td>
-	  <td><input name="obsolete" class="radio" type="radio" value="all">&nbsp;|
-    . $locale->text('All') . qq|
-	  <input name="obsolete" class="radio" type="radio" value="Y">&nbsp;|
-    . $locale->text('Obsolete') . qq|
-	  <input name="obsolete" class="radio" type="radio" value="N" checked>&nbsp;|
-    . $locale->text('Not obsolete') . qq|</td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
-	  <td>
-	    <table>
-	      <tr>
-	        <td><input name="l_id" type=checkbox class=checkbox value=Y> |
-    . $locale->text('ID') . qq|</td>
-		<td><input name="l_$form->{db}number" type=checkbox class=checkbox value=Y> |
-    . $locale->text($label . ' Number') . qq|</td>
-		<td><input name="l_name" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('Company Name') . qq|</td>
-		<td><input name="l_address" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Address') . qq|</td>
-	      </tr>
-	      <tr>
-		<td><input name="l_contact" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('Contact') . qq|</td>
-		<td><input name="l_phone" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('Phone') . qq|</td>
-		<td><input name="l_fax" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Fax') . qq|</td>
-		<td><input name="l_email" type=checkbox class=checkbox value=Y checked> |
-    . $locale->text('E-mail') . qq|</td>
-	      </tr>
-	      <tr>
-		<td><input name="l_taxnumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Tax Number') . qq|</td>
-		<td><input name="l_sic_code" type=checkbox class=checkbox value=Y> |
-    . $locale->text('SIC') . qq|</td>
-		<td><input name="l_business" type=checkbox class=checkbox value=Y> |
-    . $vc_business_type . qq|</td>
-	      </tr>
-	      <tr>
-		<td><input name="l_invnumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Invoices') . qq|</td>
-		<td><input name="l_ordnumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Orders') . qq|</td>
-		<td><input name="l_quonumber" type=checkbox class=checkbox value=Y> |
-    . $locale->text('Quotations') . qq|</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<input type=hidden name=nextsub value=list_names>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
   $lxdebug->leave_sub();
 }
 
