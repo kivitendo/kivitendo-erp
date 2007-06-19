@@ -16,6 +16,7 @@ use vars qw(@required_modules);
   { "name" => "IO::Wrap", "url" => "http://search.cpan.org/~dskoll/" },
   { "name" => "Text::CSV_XS", "url" => "http://search.cpan.org/~hmbrand/" },
   { "name" => "List::Util", "url" => "http://search.cpan.org/~gbarr/" },
+  { "name" => "Template", "url" => "http://search.cpan.org/~abw/" },
   );
 
 sub module_available {

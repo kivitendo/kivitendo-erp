@@ -1,4 +1,4 @@
-<body>
+[% USE HTML %]<body>
 
  <script type="text/javascript">
   <!--
@@ -10,67 +10,67 @@
     -->
  </script>
 
- <TMPL_IF MESSAGE>
-  <p><TMPL_VAR MESSAGE></p>
- </TMPL_IF>
+ [% IF MESSAGE %]
+  <p>[% MESSAGE %]</p>
+ [% END %]
 
- <div class="listtop" width="100%"><TMPL_VAR TITLE></div>
+ <div class="listtop" width="100%">[% TITLE %]</div>
 
- <TMPL_IF TOP_INFO_TEXT>
-  <p><TMPL_VAR TOP_INFO_TEXT></p>
- </TMPL_IF>
+ [% IF TOP_INFO_TEXT %]
+  <p>[% TOP_INFO_TEXT %]</p>
+ [% END %]
 
- <TMPL_VAR RAW_TOP_INFO_TEXT>
+ [% RAW_TOP_INFO_TEXT %]
 
  <p>
   <table width="100%">
    <tr>
-    <TMPL_LOOP COLUMN_HEADERS>
-     <th class="listheading"><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR text ESCAPE=HTML><TMPL_IF link><TMPL_IF show_sort_indicator><img border="0" src="image/<TMPL_IF sort_indicator_direction>down<TMPL_ELSE>up</TMPL_IF>.png"></TMPL_IF></a><TMPL_ELSE><TMPL_IF show_sort_indicator><img src="image/<TMPL_IF sort_indicator_direction>down<TMPL_ELSE>up</TMPL_IF>.png"></TMPL_IF></TMPL_IF></th>
-    </TMPL_LOOP>
+    [% FOREACH col = COLUMN_HEADERS %]
+     <th class="listheading">[% IF col.link %]<a href="[% col.link %]">[% END %][% HTML.escape(col.text) %][% IF col.link %][% IF col.show_sort_indicator %]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[% END %]</a>[% ELSE %][% IF col.show_sort_indicator %]<img src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[% END %][% END %]</th>
+    [% END %]
    </tr>
 
-   <TMPL_LOOP ROWS>
-    <TMPL_IF IS_CONTROL>
-     <TMPL_IF IS_SEPARATOR><tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><hr size="3" noshade></td></tr></TMPL_IF><TMPL_IF IS_COLSPAN_DATA><tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><TMPL_VAR data></td></tr></TMPL_IF>
-     <TMPL_ELSE>
-     <tr class="listrow<TMPL_VAR outer_idx_odd>">
-      <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF><TMPL_IF class> class="<TMPL_VAR class>"</TMPL_IF>><TMPL_IF raw_data><TMPL_VAR raw_data></TMPL_IF><TMPL_LOOP CELL_ROWS><TMPL_IF data><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR data><TMPL_IF link></a></TMPL_IF></TMPL_IF><TMPL_UNLESS __last__><br></TMPL_UNLESS></TMPL_LOOP></td>
-      </TMPL_LOOP>
+   [% FOREACH row = ROWS %]
+    [% IF row.IS_CONTROL %]
+     [% IF row.IS_SEPARATOR %]<tr><td colspan="[% row.NUM_COLUMNS %]"><hr size="3" noshade></td></tr>[% END %][% IF row.IS_COLSPAN_DATA %]<tr><td colspan="[% row.NUM_COLUMNS %]">[% row.data %]</td></tr>[% END %]
+     [% ELSE %]
+     <tr class="listrow[% row.outer_idx_odd %]">
+      [% FOREACH col = row.COLUMNS %]<td[% IF col.align %] align="[% col.align %]"[% END %][% IF col.valign %] valign="[% col.valign %]"[% END %][% IF col.class %] class="[% col.class %]"[% END %]>[% IF col.raw_data %][% col.raw_data %][% END %][% USE iterator(col.CELL_ROWS) %][% FOREACH cell_row = iterator %][% IF cell_row.data %][% IF cell_row.link %]<a href="[% cell_row.link %]">[% END %][% cell_row.data %][% IF cell_row.link %]</a>[% END %][% END %][% UNLESS iterator.last %]<br>aa[% END %][% END %]</td>
+      [% END %]
      </tr>
-    </TMPL_IF>
-   </TMPL_LOOP>
+    [% END %]
+   [% END %]
 
-   <tr><td colspan="<TMPL_VAR NUM_COLUMNS>"><hr size="3" noshade></td></tr>
+   <tr><td colspan="[% NUM_COLUMNS %]"><hr size="3" noshade></td></tr>
 
   </table>
  </p>
 
- <TMPL_VAR RAW_BOTTOM_INFO_TEXT>
+ [% RAW_BOTTOM_INFO_TEXT %]
 
- <TMPL_IF BOTTOM_INFO_TEXT>
-  <p><TMPL_VAR BOTTOM_INFO_TEXT></p>
- </TMPL_IF>
+ [% IF BOTTOM_INFO_TEXT %]
+  <p>[% BOTTOM_INFO_TEXT %]</p>
+ [% END %]
 
- <TMPL_IF SHOW_EXPORT_BUTTONS>
-  <form action="<TMPL_VAR script ESCAPE=HTML>" name="report_generator_form" method="post">
-   <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-   <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+ [% IF SHOW_EXPORT_BUTTONS %]
+  <form action="[% HTML.escape(script) %]" name="report_generator_form" method="post">
+   <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+   <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
-   <TMPL_LOOP EXPORT_VARIABLES><input type="hidden" name="report_generator_hidden_<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
-   </TMPL_LOOP>
+   [% FOREACH var = EXPORT_VARIABLES %]<input type="hidden" name="report_generator_hidden_[% var.key %]" value="[% HTML.escape(var.value) %]">
+   [% END %]
 
-   <input type="hidden" name="report_generator_nextsub" value="<TMPL_VAR EXPORT_NEXTSUB ESCAPE=HTML>">
-   <input type="hidden" name="report_generator_variable_list" value="<TMPL_VAR EXPORT_VARIABLE_LIST ESCAPE=HTML>">
+   <input type="hidden" name="report_generator_nextsub" value="[% HTML.escape(EXPORT_NEXTSUB) %]">
+   <input type="hidden" name="report_generator_variable_list" value="[% HTML.escape(EXPORT_VARIABLE_LIST) %]">
    <input type="hidden" name="report_generator_dispatch_to" value="">
    <input type="hidden" name="action" value="report_generator_dispatcher">
 
    <p>
     Listenexport<br>
-    <TMPL_IF ALLOW_PDF_EXPORT><button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button></TMPL_IF>
-    <TMPL_IF ALLOW_CSV_EXPORT><button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')">Als CSV exportieren</button></TMPL_IF>
+    [% IF ALLOW_PDF_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button>[% END %]
+    [% IF ALLOW_CSV_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')">Als CSV exportieren</button>[% END %]
    </p>
   </form>
- </TMPL_IF>
+ [% END %]
 
 </body>

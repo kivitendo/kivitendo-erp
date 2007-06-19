@@ -40,6 +40,7 @@ use Data::Dumper;
 
 use Cwd;
 use HTML::Template;
+use Template;
 use SL::Template;
 use CGI::Ajax;
 use SL::DBUtils;
@@ -474,7 +475,7 @@ sub header {
   $main::lxdebug->leave_sub();
 }
 
-sub parse_html_template {
+sub _prepare_html_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $file, $additional_params) = @_;
@@ -508,14 +509,6 @@ sub parse_html_template {
     die($info);
   }
 
-  my $template = HTML::Template->new("filename" => $file,
-                                     "die_on_bad_params" => 0,
-                                     "strict" => 0,
-                                     "case_sensitive" => 1,
-                                     "loop_context_vars" => 1,
-                                     "global_vars" => 1);
-
-  $additional_params = {} unless ($additional_params);
   if ($self->{"DEBUG"}) {
     $additional_params->{"DEBUG"} = $self->{"DEBUG"};
   }
@@ -539,15 +532,64 @@ sub parse_html_template {
   $additional_params->{"conf_latex_templates"}        = $main::latex;
   $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
 
-  my @additional_param_names = keys(%{$additional_params});
+  $main::lxdebug->leave_sub();
+
+  return $file;
+}
+
+sub parse_html_template {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $file, $additional_params) = @_;
+
+  $additional_params ||= { };
+
+  $file = $self->_prepare_html_template($file, $additional_params);
+
+  my $template = HTML::Template->new("filename" => $file,
+                                     "die_on_bad_params" => 0,
+                                     "strict" => 0,
+                                     "case_sensitive" => 1,
+                                     "loop_context_vars" => 1,
+                                     "global_vars" => 1);
+
   foreach my $key ($template->param()) {
-    my $param = $self->{$key};
-    $param = $additional_params->{$key} if (grep(/^${key}$/, @additional_param_names));
+    my $param = $additional_params->{$key} || $self->{$key};
     $param = [] if (($template->query("name" => $key) eq "LOOP") && (ref($param) ne "ARRAY"));
     $template->param($key => $param);
   }
 
   my $output = $template->output();
+
+  $output = $main::locale->{iconv}->convert($output) if ($main::locale);
+
+  $main::lxdebug->leave_sub();
+
+  return $output;
+}
+
+sub parse_html_template2 {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $file, $additional_params) = @_;
+
+  $additional_params ||= { };
+
+  $file = $self->_prepare_html_template($file, $additional_params);
+
+  my $template = Template->new({ 'INTERPOLATE' => 0,
+                                 'PRE_CHOMP'   => Template::Constants::CHOMP_COLLAPSE,
+                                 'POST_CHOMP'  => Template::Constants::CHOMP_COLLAPSE,
+                                 'EVAL_PERL'   => 0,
+                                 'ABSOLUTE'    => 1,
+                                 'CACHE_SIZE'  => 0,
+                               }) || die;
+
+  map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
+
+  my $output;
+  $template->process($file, $additional_params, \$output);
+  $main::lxdebug->message(0, $output);
 
   $output = $main::locale->{iconv}->convert($output) if ($main::locale);
 
