@@ -210,7 +210,6 @@ $self->{subs} = {
   'save_and_quotation'          => 'save_and_quotation',
   'save_and_rfq'                => 'save_and_rfq',
   'search'                      => 'search',
-  'search_delivery'             => 'search_delivery',
   'select_employee'             => 'select_employee',
   'select_employee_internal'    => 'select_employee_internal',
   'select_part'                 => 'select_part',
