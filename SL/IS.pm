@@ -551,6 +551,10 @@ sub post_invoice {
     my $basefactor;
     my $basqty;
 
+    $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
+    $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
+    $form->{"lastcost_$i"} = $form->{"lastcost_$i"} * 1;
+
     if ($form->{storno}) {
       $form->{"qty_$i"} *= -1;
     }
@@ -688,8 +692,9 @@ sub post_invoice {
         qq|INSERT INTO invoice (trans_id, parts_id, description, longdescription, qty,
                                 sellprice, fxsellprice, discount, allocated, assemblyitem,
                                 unit, deliverydate, project_id, serialnumber, pricegroup_id,
-                                ordnumber, transdate, cusordnumber, base_qty, subtotal)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+                                ordnumber, transdate, cusordnumber, base_qty, subtotal,
+                                marge_percent, marge_total, lastcost)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
 
       @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
                  $form->{"description_$i"}, $form->{"longdescription_$i"}, $form->{"qty_$i"},
@@ -698,7 +703,9 @@ sub post_invoice {
                  $form->{"unit_$i"}, conv_date($form->{"deliverydate_$i"}), conv_i($form->{"project_id_$i"}),
                  $form->{"serialnumber_$i"}, conv_i($pricegroup_id),
                  $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
-                 $form->{"cusordnumber_$i"}, $baseqty, $subtotal);
+                 $form->{"cusordnumber_$i"}, $baseqty, $subtotal,
+                 $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
+                 $form->{"lastcost_$i"});
       do_query($form, $dbh, $query, @values);
 
       if ($form->{lizenzen} && $form->{"licensenumber_$i"}) {
@@ -986,7 +993,9 @@ Message: $form->{message}\r| if $form->{message};
                 storno = ?,
                 globalproject_id = ?,
                 cp_id = ?,
-                transaction_description = ?
+                transaction_description = ?,
+                marge_total = ?,
+                marge_percent = ?
               WHERE id = ?|;
   @values = ($form->{"invnumber"}, $form->{"ordnumber"}, $form->{"quonumber"}, $form->{"cusordnumber"},
              conv_date($form->{"invdate"}), conv_date($form->{"orddate"}), conv_date($form->{"quodate"}),
@@ -1001,6 +1010,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),
              $form->{"storno"} ? 't' : 'f', conv_i($form->{"globalproject_id"}),
              conv_i($form->{"cp_id"}), $form->{transaction_description},
+             $form->{marge_total}, $form->{marge_percent},
              conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
   
@@ -1477,7 +1487,7 @@ sub retrieve_invoice {
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice,
            i.discount, i.parts_id AS id, i.unit, i.deliverydate,
            i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id,
-           i.ordnumber, i.transdate, i.cusordnumber, i.subtotal,
+           i.ordnumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
 
            p.partnumber, p.assembly, p.bin, p.notes AS partnotes,
            p.inventory_accno_id AS part_inventory_accno_id, p.formel,

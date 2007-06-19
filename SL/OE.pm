@@ -67,6 +67,7 @@ sub transactions {
     qq|  o.amount, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
     qq|  o.closed, o.delivered, o.quonumber, o.shippingpoint, o.shipvia, | .
     qq|  o.transaction_description, | .
+    qq|  o.marge_total, o.marge_percent, | .
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee | .
@@ -246,6 +247,10 @@ sub save {
       }
       my $baseqty = $form->{"qty_$i"} * $basefactor;
 
+      $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
+      $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
+      $form->{"lastcost_$i"} = $form->{"lastcost_$i"} * 1;
+
       # set values to 0 if nothing entered
       $form->{"discount_$i"} =
         $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
@@ -335,13 +340,14 @@ sub save {
       }
       $query .= qq|trans_id, parts_id, description, longdescription, qty, base_qty, | .
                 qq|sellprice, discount, unit, reqdate, project_id, serialnumber, ship, | .
-                qq|pricegroup_id, ordnumber, transdate, cusordnumber, subtotal) | .
+                qq|pricegroup_id, ordnumber, transdate, cusordnumber, subtotal, | .
+                qq|marge_percent, marge_total, lastcost) | .
                 qq|VALUES (|;
       if($form->{"orderitems_id_$i"}) {
         $query .= qq|?,|;
         push(@values, $form->{"orderitems_id_$i"});
       }
-      $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
 		  push(@values,
            conv_i($form->{id}), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $form->{"longdescription_$i"},
@@ -350,7 +356,9 @@ sub save {
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
            $form->{"serialnumber_$i"}, $form->{"ship_$i"}, conv_i($pricegroup_id),
            $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
-           $form->{"cusordnumber_$i"}, $subtotal);
+           $form->{"cusordnumber_$i"}, $subtotal,
+           $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
+           $form->{"lastcost_$i"});
       do_query($form, $dbh, $query, @values);
 
       $form->{"sellprice_$i"} = $fxsellprice;
@@ -419,7 +427,7 @@ Message: $form->{message}\r| if $form->{message};
     qq|shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, curr = ?, closed = ?, | .
     qq|delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?, | .
     qq|taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?, | .
-    qq|globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ? | .
+    qq|globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?| .
     qq|WHERE id = ?|;
 
   @values = ($form->{ordnumber}, $form->{quonumber},
@@ -438,6 +446,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
+             $form->{marge_total}, $form->{marge_percent},
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -767,7 +776,7 @@ sub retrieve {
       qq|  oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe,  | .
       qq|  p.partnumber, p.assembly, o.description, o.qty, | .
       qq|  o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, | .
-      qq|  o.reqdate, o.project_id, o.serialnumber, o.ship, | .
+      qq|  o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost, | .
       qq|  o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription, | .
       qq|  pr.projectnumber, p.formel, | .
       qq|  pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup | .

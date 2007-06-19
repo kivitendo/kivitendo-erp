@@ -1341,6 +1341,12 @@ sub search {
 		<td nowrap>| . $locale->text('Ship via') . qq|</td>
 	      </tr>
 	      <tr>
+		<td align=right><input name="l_marge_total" class=checkbox type=checkbox value=Y></td><td> |
+    .             $locale->text('Ertrag') . qq|</td>
+		<td align=right><input name="l_marge_percent" class=checkbox type=checkbox value=Y></td><td> |
+    .             $locale->text('Ertrag prozentual') . qq|</td>
+	      </tr>
+	      <tr>
 		<td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Subtotal') . qq|</td>
 		<td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
@@ -1417,7 +1423,7 @@ sub ar_transactions {
   @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes employee shippingpoint shipvia
-       globalprojectnumber);
+       marge_total marge_percent globalprojectnumber);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber transaction_description notes project_id transdatefrom transdateto);
@@ -1444,6 +1450,8 @@ sub ar_transactions {
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
+    'marge_total'             => { 'text' => $locale->text('Ertrag'), },
+    'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid
@@ -1510,7 +1518,7 @@ sub ar_transactions {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount paid due);
+  my @subtotal_columns = qw(netamount amount paid due marge_total);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1524,7 +1532,7 @@ sub ar_transactions {
     map { $subtotals{$_} += $ar->{$_};
           $totals{$_}    += $ar->{$_} } @subtotal_columns;
 
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
 
     my $is_storno  = $ar->{storno} && IS->is_storno(\%myconfig, $form, 'ar');
     my $has_storno = $ar->{storno} && !$is_storno;

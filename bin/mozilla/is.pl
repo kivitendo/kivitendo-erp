@@ -923,9 +923,23 @@ sub form_footer {
 	      </tr>
 	    </table>
 	  </td>
-	  <td align="right" width="100%">
+          <td>
+            <table>
+            <tr>
+              <th  align=left>| . $locale->text('Ertrag') . qq|</th>
+              <td>| .  $form->format_amount(\%myconfig, $form->{marge_total}, 2, 0) . qq|</td>
+            </tr>
+            <tr>
+              <th  align=left>| . $locale->text('Ertrag prozentual') . qq|</th>
+              <td>| .  $form->format_amount(\%myconfig, $form->{marge_percent}, 2, 0) . qq| %</td>
+            </tr>
+            <input type=hidden name="marge_total" value="$form->{"marge_total"}">
+            <input type=hidden name="marge_percent" value="$form->{"marge_percent"}">
+            </table>
+          </td>
+	  <td align="right">
 	    $taxincluded
-	    <table width="100%">
+	    <table>
 	      $subtotal
 	      $tax
 	      <tr>

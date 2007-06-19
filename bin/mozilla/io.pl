@@ -241,6 +241,9 @@ sub display_row {
     $delvar       = 'reqdate';
   }
 
+  $form->{marge_total} = 0;
+  $form->{sellprice_total} = 0;
+  $form->{lastcost_total} = 0;
   my %projectnumber_labels = ();
   my @projectnumber_values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
@@ -300,6 +303,37 @@ sub display_row {
     $linetotal =
       $form->round_amount($form->{"sellprice_$i"} - $discount, $decimalplaces);
     $linetotal = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
+    my $real_sellprice = $form->{"sellprice_$i"} - $discount;
+
+    # marge calculations
+    my ($marge_font_start, $marge_font_end);
+    $form->{"lastcost_$i"} *= 1;
+    if ($real_sellprice && ($form->{"qty_$i"} * 1)) {
+      $form->{"marge_percent_$i"} =
+        ($real_sellprice - $form->{"lastcost_$i"}) * 100 / $real_sellprice;
+
+      $myconfig{"marge_percent_warn"} = 15
+        unless (defined($myconfig{"marge_percent_warn"}));
+      if ($form->{"id_$i"} &&
+          ($form->{"marge_percent_$i"} <
+           (1 * $myconfig{"marge_percent_warn"}))) {
+        $marge_font_start = "<font color=\"#ff0000\">";
+        $marge_font_end = "</font>";
+      }
+    } else {
+      $form->{"marge_percent_$i"} = 0;
+    }
+    $form->{"marge_absolut_$i"} =
+      ($real_sellprice - $form->{"lastcost_$i"}) * $form->{"qty_$i"};
+    $form->{"marge_total"} += $form->{"marge_absolut_$i"};
+    $form->{"lastcost_total"} += $form->{"lastcost_$i"} * $form->{"qty_$i"};
+    $form->{"sellprice_total"} += $real_sellprice * $form->{"qty_$i"};
+
+    map {
+      $form->{"${_}_$i"} =
+        $form->format_amount(\%myconfig, $form->{"${_}_$i"},
+                              2)
+    } qw(marge_absolut marge_percent);
 
     # convert " to &quot;
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
@@ -439,7 +473,7 @@ sub display_row {
          "id_$i", "inventory_accno_$i", "bin_$i", "partsgroup_$i", "partnotes_$i",
          "income_accno_$i", "expense_accno_$i", "listprice_$i", "assembly_$i",
          "taxaccounts_$i", "ordnumber_$i", "transdate_$i", "cusordnumber_$i",
-         "longdescription_$i", "basefactor_$i"));
+         "longdescription_$i", "basefactor_$i", "marge_absolut_$i", "marge_percent_$i", "lastcost_$i"));
 
 ########################################
     # Eintrag fuer Version 2.2.0 geaendert #
@@ -492,9 +526,14 @@ sub display_row {
     my $subtotalchecked = ($form->{"subtotal_$i"}) ? "checked" : "";
     print qq|
           <b>|.$locale->text('Subtotal').qq|</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" "$subtotalchecked">
+|;
+
+    print qq|
+          ${marge_font_start}<b>|.$locale->text('Ertrag').qq|</b>&nbsp;$form->{"marge_absolut_$i"} &nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}
+          &nbsp;<b>|.$locale->text('LP').qq|</b>&nbsp;|.$form->format_amount(\%myconfig,$form->{"listprice_$i"},2).qq|
+          &nbsp;<b>|.$locale->text('EK').qq|</b>&nbsp;|.$form->format_amount(\%myconfig,$form->{"lastcost_$i"},2).qq|
 	  </td>
 	</tr>
-
 |;
 
 ############## ENDE Neueintrag ##################
@@ -510,6 +549,10 @@ sub display_row {
     </td>
   </tr>
 |;
+
+  if (0 != ($form->{sellprice_total} * 1)) {
+    $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;
+  }
 
   $lxdebug->leave_sub();
 }
@@ -647,7 +690,7 @@ sub select_item {
     my @new_fields =
       qw(bin listprice inventory_accno income_accno expense_accno unit weight
          assembly taxaccounts partsgroup formel longdescription not_discountable
-         part_payment_id partnotes id);
+         part_payment_id partnotes id lastcost);
     push(@new_fields, "lizenzen") if ($lizenzen);
 
     print join "\n", map { $cgi->hidden("-name" => "new_${_}_$i", "-value" => $ref->{$_}) } @new_fields;
@@ -946,7 +989,7 @@ sub check_form {
   my @a     = ();
   my $count = 0;
   my @flds  = (
-    qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id language_values sellprice_pg pricegroup_old price_old price_new unit_old ordnumber transdate longdescription basefactor)
+    qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id language_values sellprice_pg pricegroup_old price_old price_new unit_old ordnumber transdate longdescription basefactor marge_absolut marge_percent lastcost )
   );
 
 

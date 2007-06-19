@@ -1010,9 +1010,23 @@ sub form_footer {
 	    </tr>
       </table>
 	  </td>
-	  <td align=right width=100%>
+          <td>
+            <table>
+            <tr>
+              <th  align=left>| . $locale->text('Ertrag') . qq|</th>
+              <td>| .  $form->format_amount(\%myconfig, $form->{marge_total}, 2, 0) . qq|</td>
+            </tr>
+            <tr>
+              <th  align=left>| . $locale->text('Ertrag prozentual') . qq|</th>
+              <td>| .  $form->format_amount(\%myconfig, $form->{marge_percent}, 2, 0) . qq| %</td>
+            </tr>
+            <input type=hidden name="marge_total" value="$form->{"marge_total"}">
+            <input type=hidden name="marge_percent" value="$form->{"marge_percent"}">
+            </table>
+          </td>
+	  <td align=right>
 	    $taxincluded
-	    <table width=100%>
+	    <table>
 	      $subtotal
 	      $tax
 	      <tr>
@@ -1534,6 +1548,12 @@ sub search {
     . $locale->text('Total') . qq|</td>
 	      </tr>
 	      <tr>
+		<td><input name="l_marge_total" class=checkbox type=checkbox value=Y> |
+    .             $locale->text('Ertrag') . qq|</td>
+		<td><input name="l_marge_percent" class=checkbox type=checkbox value=Y> |
+    .             $locale->text('Ertrag prozentual') . qq|</td>
+	      </tr>
+	      <tr>
           <td><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y> |
           . $locale->text('Project Number') . qq|</td>
           <td><input name="l_transaction_description" class=checkbox type=checkbox value=Y> |
@@ -1611,7 +1631,7 @@ sub orders {
     "curr",                    "employee",
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
-    "delivered"
+    "delivered", "marge_total", "marge_percent"
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -1669,6 +1689,8 @@ sub orders {
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'open'                    => { 'text' => $locale->text('Open'), },
     'delivered'               => { 'text' => $locale->text('Delivered'), },
+    'marge_total'                   => { 'text' => $locale->text('Ertrag'), },
+    'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), }
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee shipvia)) {
@@ -1742,7 +1764,7 @@ sub orders {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount);
+  my @subtotal_columns = qw(netamount amount marge_total);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1761,7 +1783,7 @@ sub orders {
     map { $subtotals{$_} += $oe->{$_};
           $totals{$_}    += $oe->{$_} } @subtotal_columns;
 
-    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount);
+    map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent);
 
     my $row = { };
 
