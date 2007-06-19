@@ -693,7 +693,8 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,
          ar.amount,          ar.netamount,    ar.paid,
-         ar.amount - ar.paid AS open_amount
+         ar.amount - ar.paid AS open_amount,
+         ar.amount - ar.paid + da.fee + da.interest AS linetotal
 
        FROM dunning da
        LEFT JOIN dunning_config dcfg ON (dcfg.id = da.dunning_config_id)
@@ -707,7 +708,7 @@ sub print_dunning {
       map({ $form->{"dn_$_"} = []; } keys(%{$ref}));
       $first = 0;
     }
-    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest);
+    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest linetotal);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     map { push @{ $form->{"dn_$_"} }, $ref->{$_}} keys %$ref;
   }

@@ -842,7 +842,7 @@ td {
    </tr>
    <tr>
     <td><code>dn_fee</code></td>
-    <td>Kummulative Mahngeb&uuml;hr (ist die gleiche wie f&uuml;r die ganze Mahnung, da die Geb&uuml;hr nur einmal pro Mahnung erhoben wird)</td>
+    <td>Kummulative Mahngeb&uuml;hr</td>
    </tr>
    <tr>
     <td><code>dn_interest</code></td>
@@ -851,6 +851,10 @@ td {
    <tr>
     <td><code>dn_invnumber</code></td>
     <td>Rechnungsnummer</td>
+   </tr>
+   <tr>
+    <td><code>dn_linetotal</code></td>
+    <td>Noch zu zahlender Betrag (ergibt sich aus <code>dn_open_amount + dn_fee + dn_interest</code>)</td>
    </tr>
    <tr>
     <td><code>dn_netamount</code></td>
