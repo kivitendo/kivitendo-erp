@@ -37,12 +37,15 @@
 # $locale->text('Add Customer')
 # $locale->text('Add Vendor')
 
-use SL::CT;
-use CGI::Ajax;
 use CGI;
-use Data::Dumper;
+use CGI::Ajax;
+use POSIX qw(strftime);
+
+use SL::CT;
+use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
+require "bin/mozilla/reportgenerator.pl";
 
 1;
 
@@ -217,241 +220,119 @@ sub search {
 sub list_names {
   $lxdebug->enter_sub();
 
+  $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
+
   CT->search(\%myconfig, \%$form);
 
-  $callback =
-    "$form->{script}?action=list_names&db=$form->{db}&login=$form->{login}&password=$form->{password}&status=$form->{status}&obsolete=$form->{obsolete}";
-  $href = $callback;
-
-  @columns =
-    $form->sort_columns(id, name,
-                        "$form->{db}number", address,
-                        contact,             phone,
-                        fax,                 email,
-                        taxnumber,
-                        sic_code,            business,
-                        invnumber,           ordnumber,
-                        quonumber);
-
-  foreach $item (@columns) {
-    if ($form->{"l_$item"} eq "Y") {
-      push @column_index, $item;
-
-      # add column to href and callback
-      $callback .= "&l_$item=Y";
-      $href     .= "&l_$item=Y";
-    }
-  }
-  $number =
-    ($form->{db} eq "customer")
-    ? $locale->text('Customer Number')
-    : $locale->text('Vendor Number');
-
+  my @options;
   if ($form->{status} eq 'all') {
-    $option = $locale->text('All');
+    push @options, $locale->text('All');
+
+  } elsif ($form->{status} eq 'orphaned') {
+    push @options, $locale->text('Orphaned');
   }
-  if ($form->{status} eq 'orphaned') {
-    $option .= $locale->text('Orphaned');
-  }
+
   if ($form->{name}) {
-    $callback .= "&name=" . $form->escape($form->{name}, 1);
-    $href .= "&name=" . $form->escape($form->{name});
-    $option .= "\n<br>" . $locale->text('Name') . " : $form->{name}";
+    push @options, $locale->text('Name') . " : $form->{name}";
   }
   if ($form->{contact}) {
-    $callback .= "&contact=" . $form->escape($form->{contact}, 1);
-    $href .= "&contact=" . $form->escape($form->{contact});
-    $option .= "\n<br>" . $locale->text('Contact') . " : $form->{contact}";
+    push @options, $locale->text('Contact') . " : $form->{contact}";
   }
   if ($form->{"$form->{db}number"}) {
-    $callback .=
-      qq|&$form->{db}number=| . $form->escape($form->{"$form->{db}number"}, 1);
-    $href .=
-      "&$form->{db}number=" . $form->escape($form->{"$form->{db}number"});
-    $option .=
-      "\n<br>" . $locale->text('Number') . qq| : $form->{"$form->{db}number"}|;
+    push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}|;
   }
   if ($form->{email}) {
-    $callback .= "&email=" . $form->escape($form->{email}, 1);
-    $href .= "&email=" . $form->escape($form->{email});
-    $option .= "\n<br>" . $locale->text('E-mail') . " : $form->{email}";
+    push @options, $locale->text('E-mail') . " : $form->{email}";
   }
 
-  $form->{callback} = "$callback&sort=$form->{sort}";
-  $callback = $form->escape($form->{callback});
+  my @columns = (
+    'id',        'name',  "$form->{db}number", 'address',  'contact',  'phone',
+    'fax',       'email', 'taxnumber',         'sic_code', 'business', 'invnumber',
+    'ordnumber', 'quonumber'
+  );
 
-  $column_header{id} =
-    qq|<th class=listheading>| . $locale->text('ID') . qq|</th>|;
-  $column_header{"$form->{db}number"} =
-    qq|<th><a class=listheading href=$href&sort=$form->{db}number>$number</a></th>|;
-  $column_header{name} =
-      qq|<th><a class=listheading href=$href&sort=name>|
-    . $locale->text('Name')
-    . qq|</a></th>|;
-  $column_header{address} =
-      qq|<th><a class=listheading href=$href&sort=address>|
-    . $locale->text('Address')
-    . qq|</a></th>|;
-  $column_header{contact} =
-      qq|<th><a class=listheading href=$href&sort=contact>|
-    . $locale->text('Contact')
-    . qq|</a></th>|;
-  $column_header{phone} =
-      qq|<th><a class=listheading href=$href&sort=phone>|
-    . $locale->text('Phone')
-    . qq|</a></th>|;
-  $column_header{fax} =
-      qq|<th><a class=listheading href=$href&sort=fax>|
-    . $locale->text('Fax')
-    . qq|</a></th>|;
-  $column_header{email} =
-      qq|<th><a class=listheading href=$href&sort=email>|
-    . $locale->text('E-mail')
-    . qq|</a></th>|;
-  $column_header{cc} =
-      qq|<th><a class=listheading href=$href&sort=cc>|
-    . $locale->text('Cc')
-    . qq|</a></th>|;
+  my %column_defs = (
+    'id'                => { 'text' => $locale->text('ID'), },
+    "$form->{db}number" => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
+    'name'              => { 'text' => $locale->text('Name'), },
+    'address'           => { 'text' => $locale->text('Address'), },
+    'contact'           => { 'text' => $locale->text('Contact'), },
+    'phone'             => { 'text' => $locale->text('Phone'), },
+    'fax'               => { 'text' => $locale->text('Fax'), },
+    'email'             => { 'text' => $locale->text('E-mail'), },
+    'cc'                => { 'text' => $locale->text('Cc'), },
+    'taxnumber'         => { 'text' => $locale->text('Tax Number'), },
+    'sic_code'          => { 'text' => $locale->text('SIC'), },
+    'business'          => { 'text' => $locale->text('Type of Business'), },
+    'invnumber'         => { 'text' => $locale->text('Invoice'), },
+    'ordnumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Sales Order') : $locale->text('Purchase Order'), },
+    'quonumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Quotation')   : $locale->text('Request for Quotation'), },
+  );
 
-  $column_header{taxnumber} =
-      qq|<th><a class=listheading href=$href&sort=taxnumber>|
-    . $locale->text('Tax Number')
-    . qq|</a></th>|;
-  $column_header{sic_code} =
-      qq|<th><a class=listheading href=$href&sort=sic_code>|
-    . $locale->text('SIC')
-    . qq|</a></th>|;
-  $column_header{business} =
-      qq|<th><a class=listheading href=$href&sort=business>|
-    . $locale->text('Type of Business')
-    . qq|</a></th>|;
+  map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  $column_header{invnumber} =
-      qq|<th><a class=listheading href=$href&sort=invnumber>|
-    . $locale->text('Invoice')
-    . qq|</a></th>|;
-  $column_header{ordnumber} =
-      qq|<th><a class=listheading href=$href&sort=ordnumber>|
-    . $locale->text('Order')
-    . qq|</a></th>|;
-  $column_header{quonumber} =
-      qq|<th><a class=listheading href=$href&sort=quonumber>|
-    . $locale->text('Quotation')
-    . qq|</a></th>|;
+  my @hidden_variables  = (qw(db status obsolete), map { "l_$_" } @columns);
+  my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
+  my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_variables);
+  $form->{callback}     = "$callback&sort=" . E($form->{sort});
 
-  $label = ucfirst $form->{db} . "s";
-  $form->{title} = $locale->text($label);
+  map { $column_defs{$_}->{link} = "${callback}&sort=${_}" } @columns;
 
-  $form->header;
+  my ($ordertype, $quotationtype, $attachment_basename);
+  if ($form->{IS_CUSTOMER}) {
+    $form->{title}       = $locale->text('Customers');
+    $ordertype           = 'sales_order';
+    $quotationtype       = 'sales_quotation';
+    $attachment_basename = $locale->text('customer_list');
 
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  $ordertype = ($form->{db} eq 'customer') ? 'sales_order' : 'purchase_order';
-  $quotationtype =
-    ($form->{db} eq 'customer') ? 'sales_quotation' : 'request_quotation';
-
-  foreach $ref (@{ $form->{CT} }) {
-
-    if ($ref->{id} eq $sameid) {
-      map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-    } else {
-      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
-
-      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" }
-        (invnumber, ordnumber, quonumber);
-
-      $column_data{name} =
-        "<td align=left><a href=$form->{script}?action=edit&id=$ref->{id}&db=$form->{db}&login=$form->{login}&password=$form->{password}&status=$form->{status}&callback=$callback>$ref->{name}&nbsp;</td>";
-
-      if ($ref->{email}) {
-        $email = $ref->{email};
-        $email =~ s/</\&lt;/;
-        $email =~ s/>/\&gt;/;
-
-        $column_data{email} =
-          qq|<td><a href="mailto:$ref->{email}">$email</a></td>|;
-      }
-
-    }
-
-    if ($ref->{formtype} eq 'invoice') {
-      $column_data{invnumber} =
-        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}&nbsp;</td>";
-    }
-
-    if ($ref->{formtype} eq 'order') {
-      $column_data{ordnumber} =
-        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&type=$ordertype&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}&nbsp;</td>";
-    }
-
-    if ($ref->{formtype} eq 'quotation') {
-      $column_data{quonumber} =
-        "<td><a href=$ref->{module}.pl?action=edit&id=$ref->{invid}&type=$quotationtype&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}&nbsp;</td>";
-    }
-
-    $i++;
-    $i %= 2;
-    print "
-        <tr class=listrow$i>
-";
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-        </tr>
-|;
-
-    $sameid = $ref->{id};
-
+  } else {
+    $form->{title}       = $locale->text('Vendors');
+    $ordertype           = 'purchase_order';
+    $quotationtype       = 'request_quotation';
+    $attachment_basename = $locale->text('vendor_list');
   }
 
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-<br>
-<form method=post action=$form->{script}>
+  $report->set_options('top_info_text'         => join("\n", @options),
+                       'raw_bottom_info_text'  => $form->parse_html_template2('ct/list_names_bottom'),
+                       'output_format'         => 'HTML',
+                       'title'                 => $form->{title},
+                       'attachment_basename'   => $attachment_basename . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form();
 
-<input name=callback type=hidden value="$form->{callback}">
-<input name=db type=hidden value=$form->{db}>
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
+  $report->set_export_options('list_names', @hidden_variables);
 
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
+  $report->set_sort_indicator($form->{sort}, 1);
 
-  </form>
+  my $previous_id;
 
-</body>
-</html>
-|;
+  foreach my $ref (@{ $form->{CT} }) {
+    my $row = { map { $_ => { 'data' => '' } } @columns };
+
+    if ($ref->{id} ne $previous_id) {
+      $previous_id = $ref->{id};
+      map { $row->{$_}->{data} = $ref->{$_} } @columns;
+
+      $row->{name}->{link}  = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
+      $row->{email}->{link} = 'mailto:' . E($ref->{email});
+    }
+
+    my $base_url              = build_std_url("script=$ref->{module}.pl", 'action=edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
+    $row->{invnumber}->{link} = $base_url;
+    $row->{ordnumber}->{link} = $base_url . "&type=${ordertype}";
+    $row->{quonumber}->{link} = $base_url . "&type=${quotationtype}";
+    my $column                = $ref->{formtype} eq 'invoice' ? 'invnumber' : $ref->{formtype} eq 'order' ? 'ordnumber' : 'quonumber';
+    $row->{$column}->{data}   = $ref->{$column};
+
+    $report->add_data($row);
+  }
+
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }

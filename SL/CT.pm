@@ -587,6 +587,7 @@ sub search {
   $sortorder =
     $form->{sort} && $allowed_sort_columns{$form->{sort}} ?
     $form->{sort} : "name";
+  $form->{sort} = $sortorder;
   $sortorder = "country,city,street" if ($sortorder eq "address");
 
   if ($form->{"${cv}number"}) {

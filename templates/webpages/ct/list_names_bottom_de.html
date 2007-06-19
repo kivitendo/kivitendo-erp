@@ -1,0 +1,13 @@
+[% USE HTML %]<form method="post" action="ct.pl">
+
+ <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+ <input name="db" type="hidden" value="[% HTML.escape(db) %]">
+
+ <input name="login" type="hidden" value="[% HTML.escape(login) %]">
+ <input name="password" type="hidden" value="[% HTML.escape(password) %]">
+
+ [% IF IS_CUSTOMER %]Neuer Kunde[% ELSE %]Neuer Lieferante[% END %]<br>
+
+ <input class="submit" type="submit" name="action" value="Erfassen">
+
+</form>
