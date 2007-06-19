@@ -223,6 +223,7 @@ $self->{subs} = {
   'config'                      => 'config',
   'continue'                    => 'continue',
   'create_aging_subtotal_row'   => 'create_aging_subtotal_row',
+  'create_list_accounts_subtotal_row' => 'create_list_accounts_subtotal_row',
   'debug'                       => 'debug',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'e_mail'                      => 'e_mail',
