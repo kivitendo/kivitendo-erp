@@ -39,7 +39,7 @@ use SL::DN;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
-require "bin/mozilla/report_generator.pl";
+require "bin/mozilla/reportgenerator.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 

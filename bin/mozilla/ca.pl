@@ -37,7 +37,7 @@ use POSIX qw(strftime);
 use SL::CA;
 use SL::ReportGenerator;
 
-require "bin/mozilla/report_generator.pl";
+require "bin/mozilla/reportgenerator.pl";
 
 1;
 

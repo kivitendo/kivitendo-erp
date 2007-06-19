@@ -41,7 +41,7 @@ use SL::ReportGenerator;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
-require "bin/mozilla/report_generator.pl";
+require "bin/mozilla/reportgenerator.pl";
 
 1;
 
