@@ -589,7 +589,6 @@ sub parse_html_template2 {
 
   my $output;
   $template->process($file, $additional_params, \$output);
-  $main::lxdebug->message(0, $output);
 
   $output = $main::locale->{iconv}->convert($output) if ($main::locale);
 
