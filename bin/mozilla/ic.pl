@@ -2149,7 +2149,7 @@ sub form_header {
 
   my ($payment, $rows, $notes, $description, $ean, $buchungsgruppe, $partsgroup, $group, $tax, $lastcost, $eur, $linkaccounts, $weight, $n, $rop, $bin, $vegv);
   my ($notdiscountableok, $notdiscountable);
-  my ($formel, $imagelinks, $obsolete, $shopok, $shop);
+  my ($formula, $formula_label, $imagelinks, $obsolete, $shopok, $shop);
 
 
   map({ $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, -2) }
@@ -2409,8 +2409,11 @@ sub form_header {
              </tr>
 |;
 
-  $formel =
-    qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=30 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
+    $formula =
+      qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=30 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
+
+    $formula_label = $locale->text('Formula');
+
     $imagelinks = qq|
   <tr>
     <td>
@@ -2551,14 +2554,14 @@ sub form_header {
               </td>
               <tr>
                 <th align="left">| . $locale->text('Notes') . qq|</th>
-                <th align="left">| . $locale->text('Formula') . qq|</th>
+                <th align="left">$formula_label</th>
               </tr>
               <tr>
                 <td>
                   $notes
                 </td>
                 <td>
-                  $formel
+                  $formula
                 </td>
               </tr>
               <tr>
