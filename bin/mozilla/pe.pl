@@ -424,14 +424,17 @@ sub form_project_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-# button for saving history
-print qq|
-  	<input type=button onclick=set_history_window(|
-  	. $form->{id} 
-  	. qq|); name=history id=history value=|
-  	. $locale->text('history') 
-  	. qq|>|;
-# /button for saving history
+  if ($form->{id}) {
+    # button for saving history
+    print qq|
+      <input type=button onclick=set_history_window(|
+      . $form->{id}
+      . qq|); name=history id=history value=|
+      . $locale->text('history')
+      . qq|>|;
+    # /button for saving history
+  }
+
   print qq|
 </form>
 
