@@ -199,10 +199,10 @@ SL::DBUTils.pm: All about Databaseconections in Lx
 
   use DBUtils;
   
-  conv_i
-  conv_date
-  conv_dateq
-  quote_db_date($str)
+  conv_i($str, $default)
+  conv_date($str)
+  conv_dateq($str)
+  quote_db_date($date)
 
   do_query($form, $dbh, $query)
   do_statement($form, $sth, $query)
@@ -218,49 +218,143 @@ SL::DBUTils.pm: All about Databaseconections in Lx
   
     
 =head1 DESCRIPTION
+
+DBUtils is the attempt to reduce the amount of overhead it takes to retrieve information from the database in Lx-Office. Previously it would take about 15 lines of code just to get one single integer out of the database, including failure procedures and importing the necessary packages. Debugging would take even more.
+
+Using DBUtils most database procedures can be reduced to defining the query, executing it, and retrieving the result. Let DBUtils handle the rest. Whenever there is a database operation not covered in DBUtils, add it here, rather than working around it in the backend code.
+
+DBUtils relies heavily on two parameters which have to be passed to almost every function: $form and $dbh.
+  - $form is used for error handling only. It can be omitted in theory, but should not.
+  - $dbh is a handle to the databe, as returned by the DBI::connect routine. If you don't have an active connectiong, you can query $form->get_standard_dbh() to get a generic no_auto connection. Don't forget to commit in this case!
+
+
+Every function here should accomplish the follwing things:
+  - Easy debugging. Every handled query gets dumped via LXDebug, if specified there.
+  - Safe value binding. Although DBI is far from perfect in terms of binding, the rest of the bindings should happen here.
+  - Error handling. Should a query fail, an error message will be generated here instead of in the backend code invoking DBUtils.
+
+Note that binding is not perfect here either... 
   
-=head1 FUNCTIONS
-  
+=head2 QUOTING FUNCTIONS
+
 =over 4
-  
-=item conv_i
 
-=item conv_date
+=item conv_i STR
 
-=item conv_dateq
+=item conv_i STR,DEFAULT
 
-=item quote_db_date($str)
+Converts STR to an integer. If STR is empty, returns DEFAULT. If no DEFAULT is given, returns undef.
 
-=item do_query($form, $dbh, $query)
+=item conv_date STR
 
-=item do_statement($form, $sth, $query)
+Converts STR to a date string. If STR is emptry, returns undef.
 
-=item dump_query($level, $msg, $query)
+=item conv_dateq STR
 
-=item prepare_execute_query($form, $dbh, $query)
+Database version of conv_date. Quotes STR before returning. Returns 'NULL' if STR is empty.
 
-=item selectall_hashref_query($form, $dbh, $query)
+=item quote_db_date STR
 
-=item selectfirst_hashref_query($form, $dbh, $query);
+Treats STR as a database date, quoting it. If STR equals current_date returns an escaped version which is treated as the current date by Postgres.
+Returns 'NULL' if STR is empty.
 
-=item selectfirst_array_query($form, $dbh, $query);  # ==
-
-=item selectrow_query($form, $dbh, $query);
-  
 =back
+
+=head2 QUERY FUNCTIONS
+
+=over 4
+
+=item do_query FORM,DBH,QUERY,ARRAY
+
+Uses DBI::do to execute QUERY on DBH using ARRAY for binding values. FORM is only needed for error handling, but should always be passed nevertheless. Use this for insertions or updates that don't need to be prepared.
+
+=item do_statement FORM,STH,QUERY,ARRAY
+
+Uses DBI::execute to execute QUERY on DBH using ARRAY for binding values. As with do_query, FORM is only used for error handling. If you are unsure what to use, refer to the documentation of DBI::do and DBI::execute.
+
+=item prepare_execute_query FORM,DBH,QUERY,ARRAY
+
+Prepares and executes QUERY on DBH using DBI::prepare and DBI::execute. ARRAY is passed as binding values to execute.
+
+=back
+
+=head2 RETRIEVAL FUNCTIONS
+
+=over 4
+
+=item selectfirst_array_query FORM,DBH,QUERY,ARRAY
+
+=item selectrow_query FORM,DBH,QUERY,ARRAY
+
+Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as an arrayref of the first row. 
+
+=item selectfirst_hashref_query FORM,DBH,QUERY,ARRAY
+
+Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as a hashref of the first row. 
+
+=item selectall_hashref_query FORM,DBH,QUERY,ARRAY
+
+Prepares and executes a query using DBUtils functions, retireves all data from the database, and returns it in hashref mode. This is slightly confusing, as the data structure will actually be a reference to an array, containing hashrefs for each row.
+
+=back
+
+=head2 DEBUG FUNCTIONS
+
+=over 4
+
+=item dump_query LEVEL,MSG,QUERY,ARRAY
+
+Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug. If MSG is given, it preceeds the QUERY dump in the logfiles. ARRAY is used to interpolate the '?' placeholders in QUERY, the resulting QUERY can be copy-pasted into a database frontend for debugging. Note that this method is also automatically called by each of the other QUERY FUNCTIONS, so there is in general little need to invoke it manually.
+
+=back
+
+=head1 EXAMPLES
+
+=over 4
+
+=item Retrieving a whole table:
+
+  $query = qq|SELECT id, pricegroup FROM pricegroup|;
+  $form->{PRICEGROUPS} = selectall_hashref_query($form, $dbh, $query);
+
+=item Retrieving a single value:
+
+  $query = qq|SELECT nextval('glid')|;
+  ($new_id) = selectrow_query($form, $dbh, $query);
+
+=item Using binding values:
+
+  $query = qq|UPDATE ar SET paid = amount + paid, storno = 't' WHERE id = ?|;
+  do_query($form, $dbh, $query, $id);
+
+=item A more complicated example, using dynamic binding values:
+
+  my @values;
+    
+  if ($form->{language_values} ne "") {
+    $query = qq|SELECT l.id, l.description, tr.translation, tr.longdescription
+                  FROM language l
+                  LEFT OUTER JOIN translation tr ON (tr.language_id = l.id) AND (tr.parts_id = ?)|;
+    @values = (conv_i($form->{id}));
+  } else {
+    $query = qq|SELECT id, description FROM language|;
+  }
   
-=head1 EXAMPLE
+  my $languages = selectall_hashref_query($form, $dbh, $query, @values);
+
+=back
 
 =head1 SEE ALSO
 
 =head1 MODULE AUTHORS
 
-Moritz Bunkus E<lt>m.bunkus@linet-services.de<gt>
-Sven Schoeling E<lt>s.schoeling@linet-services.de<gt>
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
  
 =head1 DOCUMENTATION AUTHORS
 
-Udo Spallek  E<lt>udono@gmx.netE<gt>
+Udo Spallek E<lt>udono@gmx.netE<gt>
+Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
