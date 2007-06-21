@@ -1,14 +1,14 @@
-<body class="admin" onload="document.getElementsByName('dbname')[0].focus(); ">
+[% USE HTML %]<body class="admin" onload="document.getElementsByName('dbname')[0].focus(); ">
 
- <h2><TMPL_VAR title></h2>
+ <h2>[% title %]</h2>
 
  <form name="Form" method="post" action="admin.pl" enctype="multipart/form-data">
 
   <input type="hidden" name="dbdriver" value="Pg">
-  <input type="hidden" name="dbhost" value="<TMPL_VAR dbhost ESCAPE=HTML>">
-  <input type="hidden" name="dbport" value="<TMPL_VAR dbport ESCAPE=HTML>">
-  <input type="hidden" name="dbuser" value="<TMPL_VAR dbuser ESCAPE=HTML>">
-  <input type="hidden" name="dbpasswd" value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
+  <input type="hidden" name="dbhost" value="[% HTML.escape(dbhost) %]">
+  <input type="hidden" name="dbport" value="[% HTML.escape(dbport) %]">
+  <input type="hidden" name="dbuser" value="[% HTML.escape(dbuser) %]">
+  <input type="hidden" name="dbpasswd" value="[% HTML.escape(dbpasswd) %]">
 
   <p>
    <translate>Please enter the name of the dataset you want to restore the backup in.</translate>
@@ -32,7 +32,7 @@
     <th valign="top"><translate>Multibyte Encoding</translate></th>
     <td>
      <select name="dbencoding">
-      <TMPL_LOOP DBENCODINGS><option value="<TMPL_VAR dbencoding ESCAPE=HTML>" <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR label ESCAPE=HTML></option></TMPL_LOOP>
+      [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
      </select>
     </td>
    </tr>
@@ -43,7 +43,7 @@
    </tr>
   </table>
 
-  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
   <input type="hidden" name="nextsub" value="restore_dataset_start">
 
   <hr size="3" noshade>

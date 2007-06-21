@@ -1,4 +1,4 @@
-<body class="admin" onload="set_subject(); document.getElementsByName('to')[0].focus(); ">
+[% USE HTML %]<body class="admin" onload="set_subject(); document.getElementsByName('to')[0].focus(); ">
 
  <script type="text/javascript">
   <!--
@@ -13,24 +13,24 @@
     -->
  </script>
 
- <h2><TMPL_VAR title></h2>
+ <h2>[% title %]</h2>
 
- <TMPL_IF NO_DATABSES>
+ [% IF NO_DATABSES %]
   Auf diesem Server wurden keine Datenbanken gefunden.
 
-  <TMPL_ELSE>
+  [% ELSE %]
 
   <form name="Form" method="post" action="admin.pl">
 
    <input type="hidden" name="dbdriver" value="Pg">
-   <input type="hidden" name="dbhost" value="<TMPL_VAR dbhost ESCAPE=HTML>">
-   <input type="hidden" name="dbport" value="<TMPL_VAR dbport ESCAPE=HTML>">
-   <input type="hidden" name="dbuser" value="<TMPL_VAR dbuser ESCAPE=HTML>">
-   <input type="hidden" name="dbpasswd" value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
+   <input type="hidden" name="dbhost" value="[% HTML.escape(dbhost) %]">
+   <input type="hidden" name="dbport" value="[% HTML.escape(dbport) %]">
+   <input type="hidden" name="dbuser" value="[% HTML.escape(dbuser) %]">
+   <input type="hidden" name="dbpasswd" value="[% HTML.escape(dbpasswd) %]">
 
    <p>
     Bitte w&auml;hlen Sie die zu sichernde Datenbank gefunden:
-    <select name="dbname" onchange="set_subject()"><TMPL_LOOP DATABASES><option><TMPL_VAR dbname ESCAPE=HTML></option></TMPL_LOOP></select>
+    <select name="dbname" onchange="set_subject()">[% FOREACH row = DATABASES %]<option>[% HTML.escape(row.dbname) %]</option>[% END %]</select>
    </p>
 
    <table>
@@ -47,7 +47,7 @@
       <table>
        <tr>
         <td valign="top" align="right">Von</td>
-        <td valign="top"><input name="from" size="40" value="<TMPL_VAR from ESCAPE=HTML>"></td>
+        <td valign="top"><input name="from" size="40" value="[% HTML.escape(from) %]"></td>
        </tr>
 
        <tr>
@@ -77,8 +77,8 @@
 
    </table>
 
-   <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
-   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+   <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
    <input type="hidden" name="nextsub" value="backup_dataset_start">
    <input type="hidden" name="back_nextsub" value="list_users">
 
@@ -91,7 +91,7 @@
 
   </form>
 
- </TMPL_IF>
+ [% END %]
 
 </body>
 </html>

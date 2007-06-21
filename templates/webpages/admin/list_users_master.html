@@ -1,8 +1,8 @@
-<body class="admin" onload="">
+[% USE HTML %]<body class="admin" onload="">
 
  <form method="post" action="admin.pl">
 
-  <div class="listtop" width="100%"><TMPL_VAR title></div>
+  <div class="listtop" width="100%">[% title %]</div>
 
   <p>
    <table width="100%">
@@ -16,32 +16,33 @@
      <th class="listtop"><translate>Templates</translate></th>
     </tr>
 
-    <TMPL_LOOP MEMBERS>
-     <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
-      <td><a href="admin.pl?action=edit&login=<TMPL_VAR login ESCAPE=URL>&rpw=<TMPL_VAR rpw ESCAPE=URL>"><TMPL_VAR login ESCAPE=HTML></a></td>
-      <td><TMPL_VAR name ESCAPE=HTML></td>
-      <td><TMPL_VAR company ESCAPE=HTML></td>
-      <td><TMPL_VAR dbdriver ESCAPE=HTML></td>
-      <td><TMPL_IF dbhost><TMPL_VAR dbhost ESCAPE=HTML><TMPL_ELSE>localhost</TMPL_IF></td>
-      <td><TMPL_VAR dbname ESCAPE=HTML></td>
-      <td><TMPL_VAR templates ESCAPE=HTML></td>
+    [% SET row_odd = '1' %]
+    [% FOREACH row = MEMBERS %]
+     <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+      <td><a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]&rpw=[% HTML.url(rpw) %]">[% HTML.escape(row.login) %]</a></td>
+      <td>[% HTML.escape(row.name) %]</td>
+      <td>[% HTML.escape(row.company) %]</td>
+      <td>[% HTML.escape(row.dbdriver) %]</td>
+      <td>[% IF row.dbhost %][% HTML.escape(row.dbhost) %][% ELSE %]localhost[% END %]</td>
+      <td>[% HTML.escape(row.dbname) %]</td>
+      <td>[% HTML.escape(row.templates) %]</td>
      </tr>
-    </TMPL_LOOP>
+    [% END %]
 
     <td colspan="7"><hr size="3" noshade></td>
    </table>
   </p>
 
-  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
 
   <input type="submit" class="submit" name="action" value="<translate>Add User</translate>">
   <input type="submit" class="submit" name="action" value="<translate>Change Admin Password</translate>">
   <input type="submit" class="submit" name="action" value="<translate>Pg Database Administration</translate>">
-  <TMPL_IF LOCKED>
+  [% IF LOCKED %]
    <input type="submit" class="submit" name="action" value="<translate>Unlock System</translate>">
-   <TMPL_ELSE>
+   [% ELSE %]
    <input type="submit" class="submit" name="action" value="<translate>Lock System</translate>">
-  </TMPL_IF>
+  [% END %]
 
   <p><translate>Click on login name to edit!</translate></p>
 

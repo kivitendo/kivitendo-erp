@@ -1,12 +1,12 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
-  <h2><TMPL_VAR title></h2>
+  <h2>[% title %]</h2>
 
   <form method="post" action="admin.pl">
 
-   <p><translate>The dataset <TMPL_VAR db ESCAPE=HTML> has been successfully created.</translate></p>
+   <p><translate>The dataset [% HTML.escape(db) %] has been successfully created.</translate></p>
 
-   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
    <input type="hidden" name="nextsub" value="list_users">
 
    <p><input type="submit" class="submit" name="action" value="<translate>Continue</translate>"></p>

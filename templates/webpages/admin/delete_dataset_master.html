@@ -1,6 +1,6 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
- <h2><TMPL_VAR title></h2>
+ <h2>[% title %]</h2>
 
  <form method="post" action="admin.pl">
 
@@ -11,19 +11,19 @@
     use another dataset.</translate></p>
 
   <p><translate>Please seletct the dataset you want to delete:</translate>
-   <select name="db"><TMPL_LOOP DBSOURCES><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP></select>
+   <select name="db">[% FOREACH row = DBSOURCES %]<option>[% HTML.escape(row.name) %]</option>[% END %]</select>
   </p>
 
-  <input type="hidden" name="dbdriver"  value="<TMPL_VAR dbdriver ESCAPE=HTML>">
-  <input type="hidden" name="dbuser"    value="<TMPL_VAR dbuser ESCAPE=HTML>">
-  <input type="hidden" name="dbhost"    value="<TMPL_VAR dbhost ESCAPE=HTML>">
-  <input type="hidden" name="dbport"    value="<TMPL_VAR dbport ESCAPE=HTML>">
-  <input type="hidden" name="dbpasswd"  value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
-  <input type="hidden" name="dbdefault" value="<TMPL_VAR dbdefault ESCAPE=HTML>">
+  <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
+  <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
+  <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
+  <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
+  <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
+  <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
 
-  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
 
-  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
 
   <input type="hidden" name="nextsub" value="dbdelete">
 

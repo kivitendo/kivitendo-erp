@@ -1,8 +1,8 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
  <form method="post" action="admin.pl">
 
-  <div class="listtop" width="100%"><TMPL_VAR title></div>
+  <div class="listtop" width="100%">[% title %]</div>
 
   <table width="100%">
    <tr valign="top">
@@ -10,63 +10,63 @@
      <table>
       <tr>
        <th align="right">Anmeldung</th>
-       <td><input name="login" value="<TMPL_VAR myc_login ESCAPE=HTML>"></td>
+       <td><input name="login" value="[% HTML.escape(myc_login) %]"></td>
       </tr>
 
       <tr>
        <th align="right">Passwort</th>
-       <td><input type="password" name="password" size="8" value="<TMPL_VAR myc_password ESCAPE=HTML>"></td>
-       <input type="hidden" name="old_password" value="<TMPL_VAR myc_password ESCAPE=HTML>">
+       <td><input type="password" name="password" size="8" value="[% HTML.escape(myc_password) %]"></td>
+       <input type="hidden" name="old_password" value="[% HTML.escape(myc_password) %]">
       </tr>
 
       <tr>
        <th align="right">Name</th>
-       <td><input name="name" size="15" value="<TMPL_VAR myc_name ESCAPE=HTML>"></td>
+       <td><input name="name" size="15" value="[% HTML.escape(myc_name) %]"></td>
       </tr>
 
       <tr>
        <th align="right">eMail</th>
-       <td><input name="email" size="30" value="<TMPL_VAR myc_email ESCAPE=HTML>"></td>
+       <td><input name="email" size="30" value="[% HTML.escape(myc_email) %]"></td>
       </tr>
 
       <tr valign="top">
        <th align="right">Unterschrift</th>
-       <td><textarea name="signature" rows="3" cols="35"><TMPL_VAR myc_signature ESCAPE=HTML></textarea></td>
+       <td><textarea name="signature" rows="3" cols="35">[% HTML.escape(myc_signature) %]</textarea></td>
       </tr>
 
       <tr>
        <th align="right">Telefon</th>
-       <td><input name="tel" size="14" value="<TMPL_VAR myc_tel ESCAPE=HTML>"></td>
+       <td><input name="tel" size="14" value="[% HTML.escape(myc_tel) %]"></td>
       </tr>
 
       <tr>
        <th align="right">Fax</th>
-       <td><input name="fax" size="14" value="<TMPL_VAR myc_fax ESCAPE=HTML>"></td>
+       <td><input name="fax" size="14" value="[% HTML.escape(myc_fax) %]"></td>
       </tr>
 
       <tr>
        <th align="right">Firma</th>
-       <td><input name="company" size="35" value="<TMPL_VAR myc_company ESCAPE=HTML>"></td>
+       <td><input name="company" size="35" value="[% HTML.escape(myc_company) %]"></td>
       </tr>
 
       <tr valign="top">
        <th align="right">Adresse</th>
-       <td><textarea name="address" rows="4" cols="35"><TMPL_VAR myc_address ESCAPE=HTML></textarea></td>
+       <td><textarea name="address" rows="4" cols="35">[% HTML.escape(myc_address) %]</textarea></td>
       </tr>
 
       <tr valign="top">
        <th align="right">Steuernummer</th>
-       <td><input name="taxnumber" size="14" value="<TMPL_VAR myc_taxnumber ESCAPE=HTML>"></td>
+       <td><input name="taxnumber" size="14" value="[% HTML.escape(myc_taxnumber) %]"></td>
       </tr>
 
       <tr valign="top">
        <th align="right">USt-IdNr.</th>
-       <td><input name="co_ustid" size="14" value="<TMPL_VAR myc_co_ustid ESCAPE=HTML>"></td>
+       <td><input name="co_ustid" size="14" value="[% HTML.escape(myc_co_ustid) %]"></td>
       </tr>
 
       <tr valign="top">
        <th align="right">DUNS-Nr.</th>
-       <td><input name="duns" size="14" value="<TMPL_VAR myc_duns ESCAPE=HTML>"></td>
+       <td><input name="duns" size="14" value="[% HTML.escape(myc_duns) %]"></td>
       </tr>
      </table>
     </td>
@@ -77,8 +77,8 @@
        <th align="right">Datumsformat</th>
        <td>
         <select name="dateformat">
-         <TMPL_LOOP ALL_DATEFORMATS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR format ESCAPE=HTML></option>
-         </TMPL_LOOP>
+         [% FOREACH row = ALL_DATEFORMATS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.format) %]</option>
+         [% END %]
         </select>
        </td>
       </tr>
@@ -87,23 +87,23 @@
        <th align="right">Zahlenformat</th>
        <td>
         <select name="numberformat">
-         <TMPL_LOOP ALL_NUMBERFORMATS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR format ESCAPE=HTML></option>
-         </TMPL_LOOP>
+         [% FOREACH row = ALL_NUMBERFORMATS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.format) %]</option>
+         [% END %]
         </select>
        </td>
       </tr>
 
       <tr>
        <th align="right">Auswahllistenbegrenzung</th>
-       <td><input name="vclimit" value="<TMPL_VAR myc_vclimit ESCAPE=HTML>"></td>
+       <td><input name="vclimit" value="[% HTML.escape(myc_vclimit) %]"></td>
       </tr>
 
       <tr>
        <th align="right">Sprache</th>
        <td>
         <select name="countrycode">
-         <TMPL_LOOP ALL_COUNTRYCODES><option value="<TMPL_VAR value ESCAPE=HTML>" <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
-         </TMPL_LOOP>
+         [% FOREACH row = ALL_COUNTRYCODES %]<option value="[% HTML.escape(row.value) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>
+         [% END %]
         </select>
        </td>
       </tr>
@@ -112,22 +112,22 @@
        <th align="right">Stilvorlage</th>
        <td>
         <select name="userstylesheet">
-         <TMPL_LOOP ALL_STYLESHEETS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
-         </TMPL_LOOP>
+         [% FOREACH row = ALL_STYLESHEETS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>
+         [% END %]
         </select>
        </td>
       </tr>
 
       <tr>
        <th align="right">Drucker</th>
-       <td><input name="printer" size="20" value="<TMPL_VAR myc_printer ESCAPE=HTML>"></td>
+       <td><input name="printer" size="20" value="[% HTML.escape(myc_printer) %]"></td>
       </tr>
       <tr>
        <th align="right">benutze Vorlagen</th>
        <td>
         <select name="usetemplates">
-         <TMPL_LOOP ALL_TEMPLATES><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
-         </TMPL_LOOP>
+         [% FOREACH row = ALL_TEMPLATES %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>
+         [% END %]
         </select>
        </td>
       </tr>
@@ -139,21 +139,21 @@
        <th align="right">Vorlagen auswählen</th>
        <td>
         <select name="mastertemplates">
-         <TMPL_LOOP ALL_MASTER_TEMPLATES><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option>
-         </TMPL_LOOP>
+         [% FOREACH row = ALL_MASTER_TEMPLATES %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>
+         [% END %]
         </select>
        </td>
       </tr>
       <tr>
        <th align="right">Menüsetup</th>
        <td>
-        <input name="menustyle" type="radio" class="radio" value="v3" <TMPL_IF menustyle_v3>checked</TMPL_IF>>&nbsp;Oben (mit CSS)
-        <input name="menustyle" type="radio" class="radio" value="neu" <TMPL_IF menustyle_neu>checked</TMPL_IF>>&nbsp;Oben (mit Javascript)
-        <input name="menustyle" type="radio" class="radio" value="old" <TMPL_IF menustyle_old>checked</TMPL_IF>>&nbsp;Alt (seitlich)
+        <input name="menustyle" type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>&nbsp;Oben (mit CSS)
+        <input name="menustyle" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>&nbsp;Oben (mit Javascript)
+        <input name="menustyle" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;Alt (seitlich)
        </td>
       </tr>
 
-      <input type="hidden" name="templates" value="<TMPL_VAR myc_templates ESCAPE=HTML>">
+      <input type="hidden" name="templates" value="[% HTML.escape(myc_templates) %]">
      </table>
     </td>
    </tr>
@@ -169,24 +169,24 @@
        <th align="right">Treiber</th>
        <td>PostgreSQL</td>
        <th align="right">Datenbankcomputer</th>
-       <td><input name="dbhost" size="30" value="<TMPL_VAR myc_dbhost ESCAPE=HTML>"></td>
+       <td><input name="dbhost" size="30" value="[% HTML.escape(myc_dbhost) %]"></td>
       </tr>
 
       <tr>
        <th align="right">Datenbank</th>
-       <td><input name="dbname" size="15" value="<TMPL_VAR myc_dbname ESCAPE=HTML>"></td>
+       <td><input name="dbname" size="15" value="[% HTML.escape(myc_dbname) %]"></td>
        <th align="right">Port</th>
-       <td><input name="dbport" size="4" value="<TMPL_VAR myc_dbport ESCAPE=HTML>"></td>
+       <td><input name="dbport" size="4" value="[% HTML.escape(myc_dbport) %]"></td>
       </tr>
 
       <tr>
        <th align="right">Benutzer</th>
-       <td><input name="dbuser" size="15" value="<TMPL_VAR myc_dbuser ESCAPE=HTML>"></td>
+       <td><input name="dbuser" size="15" value="[% HTML.escape(myc_dbuser) %]"></td>
        <th align="right">Passwort</th>
-       <td><input name="dbpasswd" type="password" size="10" value="<TMPL_VAR myc_dbpasswd ESCAPE=HTML>"></td>
+       <td><input name="dbpasswd" type="password" size="10" value="[% HTML.escape(myc_dbpasswd) %]"></td>
       </tr>
 
-      <input type="hidden" name="old_dbpasswd" value="<TMPL_VAR myc_dbpasswd ESCAPE=HTML>">
+      <input type="hidden" name="old_dbpasswd" value="[% HTML.escape(myc_dbpasswd) %]">
      </table>
     </td>
    </tr>
@@ -197,24 +197,24 @@
 
    <tr class="listheading"><th colspan="2">Zugriffkontrolle</th></tr>
 
-   <TMPL_LOOP ACLS>
+   [% FOREACH acl = ACLS %]
     <tr>
      <td valign="top">
-      <input type="checkbox" name="ACS_<TMPL_VAR name ESCAPE=HTML>" id="ACS_<TMPL_VAR name ESCAPE=HTML>" value="1" <TMPL_IF checked>checked</TMPL_IF>>
-      <label for="ACS_<TMPL_VAR name ESCAPE=HTML>"><TMPL_VAR title ESCAPE=HTML></label>
+      <input type="checkbox" name="ACS_[% HTML.escape(acl.name) %]" id="ACS_[% HTML.escape(acl.name) %]" value="1" [% IF acl.checked %]checked[% END %]>
+      <label for="ACS_[% HTML.escape(acl.name) %]">[% HTML.escape(acl.title) %]</label>
      </td>
 
      <td valign="top">
-      <TMPL_LOOP SUBACLS>
-       <input type="checkbox" name="ACS_<TMPL_VAR name ESCAPE=HTML>" id="ACS_<TMPL_VAR name ESCAPE=HTML>" value="1" <TMPL_IF checked>checked</TMPL_IF>>
-       <label for="ACS_<TMPL_VAR name ESCAPE=HTML>"><TMPL_VAR title ESCAPE=HTML></label>
-       <TMPL_UNLESS __last__><br></TMPL_UNLESS>
-      </TMPL_LOOP>
+      [% USE SUBACLS_it = Iterator(acl.SUBACLS) %][% FOREACH subacl = SUBACLS_it %]
+       <input type="checkbox" name="ACS_[% HTML.escape(subacl.name) %]" id="ACS_[% HTML.escape(subacl.name) %]" value="1" [% IF subacl.checked %]checked[% END %]>
+       <label for="ACS_[% HTML.escape(subacl.name) %]">[% HTML.escape(subacl.title) %]</label>
+       [% UNLESS SUBACLS_it.last %]<br>[% END %]
+      [% END %]
      </td>
     </tr>
-   </TMPL_LOOP>
+   [% END %]
 
-   <input type="hidden" name="all_acs" value="<TMPL_VAR all_acs ESCAPE=HTML>">
+   <input type="hidden" name="all_acs" value="[% HTML.escape(all_acs) %]">
 
    <tr><td colspan="2"><hr size="3" noshade></td></tr>
 
@@ -226,15 +226,15 @@
     <td colspan="2">
      <table>
       <tr>
-       <td><input name="angebote" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_angebote>checked</TMPL_IF>>&nbsp;Angebot</td>
-       <td><input name="bestellungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_bestellungen>checked</TMPL_IF>>&nbsp;Bestellung</td>
-       <td><input name="rechnungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_rechnung>checked</TMPL_IF>>&nbsp;Rechnung</td>
+       <td><input name="angebote" class="checkbox" type="checkbox" value="1" [% IF myc_angebote %]checked[% END %]>&nbsp;Angebot</td>
+       <td><input name="bestellungen" class="checkbox" type="checkbox" value="1" [% IF myc_bestellungen %]checked[% END %]>&nbsp;Bestellung</td>
+       <td><input name="rechnungen" class="checkbox" type="checkbox" value="1" [% IF myc_rechnung %]checked[% END %]>&nbsp;Rechnung</td>
       </tr>
 
       <tr>
-       <td><input name="anfragen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_anfragen>checked</TMPL_IF>>&nbsp;Anfragen</td>
-       <td><input name="lieferantenbestellungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_lieferantenbestellungen>checked</TMPL_IF>>&nbsp;Lieferantenbestellung</td>
-       <td><input name="einkaufsrechnungen" class="checkbox" type="checkbox" value="1" <TMPL_IF myc_einkaufsrechnungen>checked</TMPL_IF>>&nbsp;Einkaufsrechnung</td>
+       <td><input name="anfragen" class="checkbox" type="checkbox" value="1" [% IF myc_anfragen %]checked[% END %]>&nbsp;Anfragen</td>
+       <td><input name="lieferantenbestellungen" class="checkbox" type="checkbox" value="1" [% IF myc_lieferantenbestellungen %]checked[% END %]>&nbsp;Lieferantenbestellung</td>
+       <td><input name="einkaufsrechnungen" class="checkbox" type="checkbox" value="1" [% IF myc_einkaufsrechnungen %]checked[% END %]>&nbsp;Einkaufsrechnung</td>
       </tr>
      </table>
     </td>
@@ -244,15 +244,15 @@
 
   </table>
 
-  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
-  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
 
   <input type="submit" class="submit" name="action" value="Speichern">
 
-  <TMPL_IF edit>
+  [% IF edit %]
    <input type="submit" class="submit" name="action" value="Löschen">
    <input type="hidden" name="edit" value="1">
-  </TMPL_IF>
+  [% END %]
 
  </form>
 

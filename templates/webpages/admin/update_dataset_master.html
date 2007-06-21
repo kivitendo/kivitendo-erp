@@ -1,11 +1,11 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
- <h2><TMPL_VAR title></h2>
+ <h2>[% title %]</h2>
 
- <TMPL_IF ALL_UPDATED>
+ [% IF ALL_UPDATED %]
   <translate>All Datasets up to date!</translate>
 
-  <TMPL_ELSE>
+  [% ELSE %]
 
   <form method="post" action="admin.pl">
 
@@ -21,24 +21,24 @@
      <th class="listtop"><translate>User</translate></th>
     </tr>
 
-    <TMPL_LOOP NEED_UPDATES>
-     <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
-      <td><input type="checkbox" name="update_<TMPL_VAR __counter__>" value="1" checked></td>
-      <td><input type="hidden" name="dbname_<TMPL_VAR __counter__>" value="<TMPL_VAR dbname ESCAPE=HTML>"><TMPL_VAR dbname ESCAPE=HTML></td>
-      <td><input type="hidden" name="dbdriver_<TMPL_VAR __counter__>" value="Pg">PostgreSQL</td>
-      <td><input type="hidden" name="dbhost_<TMPL_VAR __counter__>" value="<TMPL_VAR dbhost ESCAPE=HTML>"><TMPL_VAR dbhost ESCAPE=HTML></td>
-      <td><input type="hidden" name="dbport_<TMPL_VAR __counter__>" value="<TMPL_VAR dbport ESCAPE=HTML>"><TMPL_VAR dbport ESCAPE=HTML></td>
-      <td><input type="hidden" name="dbuser_<TMPL_VAR __counter__>" value="<TMPL_VAR dbuser ESCAPE=HTML>"><TMPL_VAR dbuser ESCAPE=HTML></td>
+    [% SET odd = '1' %][% USE NEED_UPDATES_it = Iterator(NEED_UPDATES) %][% FOREACH row = NEED_UPDATES_it %]
+     <tr class="listrow[% IF odd %]1[% SET odd='0' %][% ELSE %]0[% SET odd = '1' %][% END %]">
+      <td><input type="checkbox" name="update_[% NEED_UPDATES_it.count %]" value="1" checked></td>
+      <td><input type="hidden" name="dbname_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbname) %]">[% HTML.escape(row.dbname) %]</td>
+      <td><input type="hidden" name="dbdriver_[% NEED_UPDATES_it.count %]" value="Pg">PostgreSQL</td>
+      <td><input type="hidden" name="dbhost_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbhost) %]">[% HTML.escape(row.dbhost) %]</td>
+      <td><input type="hidden" name="dbport_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbport) %]">[% HTML.escape(row.dbport) %]</td>
+      <td><input type="hidden" name="dbuser_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbuser) %]">[% HTML.escape(row.dbuser) %]</td>
      </tr>
 
-     <TMPL_IF __last__>
-      <input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>">
-     </TMPL_IF>
-    </TMPL_LOOP>
+     [% IF NEED_UPDATES_it.last %]
+      <input type="hidden" name="rowcount" value="[% NEED_UPDATES_it.size %]">
+     [% END %]
+    [% END %]
    </table>
 
-   <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
-   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+   <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
    <input type="hidden" name="nextsub" value="dbupdate">
 
    <hr size="3" noshade>
@@ -49,7 +49,7 @@
 
   </form>
 
- </TMPL_IF>
+ [% END %]
 
 </body>
 </html>

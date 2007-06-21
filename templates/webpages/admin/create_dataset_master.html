@@ -1,13 +1,13 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
-  <h2><TMPL_VAR title></h2>
+  <h2>[% title %]</h2>
 
   <form method="post" action="admin.pl">
 
    <table>
     <tr>
      <th valign="top" align="right" nowrap><translate>Existing Datasets</translate></th>
-     <td valign="top"><TMPL_VAR dbsources ESCAPE=HTML></td>
+     <td valign="top">[% HTML.escape(dbsources) %]</td>
     </tr>
 
     <tr>
@@ -19,7 +19,7 @@
      <th align="right" nowrap><translate>Multibyte Encoding</translate></th>
      <td>
       <select name="encoding">
-       <TMPL_LOOP DBENCODINGS><option value="<TMPL_VAR dbencoding ESCAPE=HTML>" <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR label ESCAPE=HTML></option></TMPL_LOOP>
+       [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
       </select>
      </td>
     </tr>
@@ -28,22 +28,22 @@
      <th valign="top" align="right" nowrap><translate>Create Chart of Accounts</translate></th>
      <td>
       <select name="chart">
-       <TMPL_LOOP CHARTS><option <TMPL_IF selected>selected</TMPL_IF>><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+       [% FOREACH row = CHARTS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>[% END %]
       </select>
      </td>
     </tr>
 
    </table>
 
-   <input type="hidden" name="dbdriver"  value="<TMPL_VAR dbdriver ESCAPE=HTML>">
-   <input type="hidden" name="dbuser"    value="<TMPL_VAR dbuser ESCAPE=HTML>">
-   <input type="hidden" name="dbhost"    value="<TMPL_VAR dbhost ESCAPE=HTML>">
-   <input type="hidden" name="dbport"    value="<TMPL_VAR dbport ESCAPE=HTML>">
-   <input type="hidden" name="dbpasswd"  value="<TMPL_VAR dbpasswd ESCAPE=HTML>">
-   <input type="hidden" name="dbdefault" value="<TMPL_VAR dbdefault ESCAPE=HTML>">
+   <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
+   <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
+   <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
+   <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
+   <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
+   <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
 
-   <input type="hidden" name="callback" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
-   <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+   <input type="hidden" name="callback" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
 
    <input type="hidden" name="nextsub" value="dbcreate">
 

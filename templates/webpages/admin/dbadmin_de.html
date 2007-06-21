@@ -1,6 +1,6 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
-  <h2><TMPL_VAR title></h2>
+  <h2>[% title %]</h2>
 
   <form method="post" action="admin.pl">
 
@@ -10,7 +10,7 @@
 
       <table>
 
-       <input type="hidden" name="dbdriver" value="<TMPL_VAR dbdriver ESCAPE=HTML>">
+       <input type="hidden" name="dbdriver" value="[% HTML.escape(dbdriver) %]">
 
        <tr>
         <td>
@@ -19,16 +19,16 @@
           <tr>
 
            <th align="right">Datenbankcomputer</th>
-           <td><input name="dbhost" size="25" value="<TMPL_VAR dbhost ESCAPE=HTML>"></td>
+           <td><input name="dbhost" size="25" value="[% HTML.escape(dbhost) %]"></td>
            <th align="right">Port</th>
-           <td><input name="dbport" size="5" value="<TMPL_VAR dbport ESCAPE=HTML>"></td>
+           <td><input name="dbport" size="5" value="[% HTML.escape(dbport) %]"></td>
 
           </tr>
 
           <tr>
 
            <th align="right">Benutzer</th>
-           <td><input name="dbuser" size="10" value="<TMPL_VAR dbuser ESCAPE=HTML>"></td>
+           <td><input name="dbuser" size="10" value="[% HTML.escape(dbuser) %]"></td>
            <th align="right">Passwort</th>
            <td><input type="password" name="dbpasswd" size="10"></td>
 
@@ -37,7 +37,7 @@
           <tr>
 
            <th align="right">Datenbankvorlage</th>
-           <td colspan="3"><input name="dbdefault" size="10" value="<TMPL_VAR dbdefault ESCAPE=HTML>"></td>
+           <td colspan="3"><input name="dbdefault" size="10" value="[% HTML.escape(dbdefault) %]"></td>
 
           </tr>
 
@@ -47,18 +47,18 @@
        </tr>
       </table>
 
-      <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=<TMPL_VAR rpw ESCAPE=URL>">
-      <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+      <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+      <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
 
       <br>
 
       <input type="submit" class="submit" name="action" value="Datenbank anlegen">
       <input type="submit" class="submit" name="action" value="Datenbank aktualisieren">
       <input type="submit" class="submit" name="action" value="Datenbank löschen">
-      <TMPL_IF ALLOW_DBBACKUP>
+      [% IF ALLOW_DBBACKUP %]
        <input type="submit" class="submit" name="action" value="Datenbank sichern">
        <input type="submit" class="submit" name="action" value="Datenbank wiederherstellen">
-      </TMPL_IF>
+      [% END %]
      </td>
     </tr>
    </table>

@@ -1,15 +1,15 @@
- </pre>
+[% USE HTML %] </pre>
 
  <hr>
 
  <p>
   Die Wiederherstellung ist abgeschlossen. Bitte sehen Sie sich die Ausgabe von &quot;pg_restore&quot; an, um festzustellen, ob die Wiederherstellung erfolgreich war.
-  Der Exitcode des Programms war <TMPL_VAR retval ESCAPE=HTML> (&quot;0&quot; bedeutet normalerweise, dass die Wiederherstellung erfolgreich war).
+  Der Exitcode des Programms war [% HTML.escape(retval) %] (&quot;0&quot; bedeutet normalerweise, dass die Wiederherstellung erfolgreich war).
  </p>
 
  <form method="post" action="admin.pl">
   <input type="hidden" name="nextsub" value="list_users">
-  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
   <input type="submit" name="action" value="Weiter">
  </form>
 </body>

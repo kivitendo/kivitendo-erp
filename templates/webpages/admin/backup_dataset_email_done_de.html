@@ -1,11 +1,11 @@
-<body class="admin">
+[% USE HTML %]<body class="admin">
 
- <h2><TMPL_VAR title></h2>
+ <h2>[% title %]</h2>
 
- <p>Die Datenbanksicherung wurde an <TMPL_VAR to ESCAPE=HTML> per Email verschickt.</p>
+ <p>Die Datenbanksicherung wurde per Email an [% HTML.escape(to) %] verschickt.</p>
 
  <form method="post" action="admin.pl">
-  <input type="hidden" name="rpw" value="<TMPL_VAR rpw ESCAPE=HTML>">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
   <input type="hidden" name="nextsub" value="list_users">
   <input type="submit" name="action" value="Weiter">
  </form>

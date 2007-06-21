@@ -115,7 +115,7 @@ sub adminlogin {
     qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
 
   $form->header();
-  print $form->parse_html_template('admin/adminlogin');
+  print $form->parse_html_template2('admin/adminlogin');
 }
 
 sub login {
@@ -155,7 +155,7 @@ sub list_users {
   $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
 
   $form->header();
-  print $form->parse_html_template("admin/list_users");
+  print $form->parse_html_template2("admin/list_users");
 }
 
 sub add_user {
@@ -313,7 +313,7 @@ sub edit_user_form {
   chop $form->{all_acs};
 
   $form->header();
-  print $form->parse_html_template("admin/edit_user");
+  print $form->parse_html_template2("admin/edit_user");
 }
 
 sub save {
@@ -520,7 +520,7 @@ sub change_admin_password {
     . $locale->text('Change Admin Password');
 
   $form->header();
-  print $form->parse_html_template("admin/change_admin_password");
+  print $form->parse_html_template2("admin/change_admin_password");
 }
 
 sub change_password {
@@ -572,7 +572,7 @@ sub dbselect_source {
   $form->{ALLOW_DBBACKUP} = "$pg_dump_exe" ne "DISABLED";
 
   $form->header();
-  print $form->parse_html_template("admin/dbadmin");
+  print $form->parse_html_template2("admin/dbadmin");
 }
 
 sub continue {
@@ -594,7 +594,7 @@ sub update_dataset {
   $form->{ALL_UPDATED}  = !scalar @need_updates;
 
   $form->header();
-  print $form->parse_html_template("admin/update_dataset");
+  print $form->parse_html_template2("admin/update_dataset");
 }
 
 sub dbupdate {
@@ -609,7 +609,7 @@ sub dbupdate {
 
   $| = 1;
 
-  print $form->parse_html_template("admin/dbupgrade_all_header");
+  print $form->parse_html_template2("admin/dbupgrade_all_header");
 
   foreach my $i (@update_rows) {
     restore_form($saved_form);
@@ -618,7 +618,7 @@ sub dbupdate {
 
     my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
 
-    print $form->parse_html_template("admin/dbupgrade_header");
+    print $form->parse_html_template2("admin/dbupgrade_header");
 
     $form->{dbupdate}        = $form->{dbname};
     $form->{$form->{dbname}} = 1;
@@ -626,10 +626,10 @@ sub dbupdate {
     User->dbupdate($form);
     User->dbupdate2($form, $controls);
 
-    print $form->parse_html_template("admin/dbupgrade_footer");
+    print $form->parse_html_template2("admin/dbupgrade_footer");
   }
 
-  print $form->parse_html_template("admin/dbupgrade_all_done");
+  print $form->parse_html_template2("admin/dbupgrade_all_done");
 }
 
 sub create_dataset {
@@ -663,7 +663,7 @@ sub create_dataset {
     . $locale->text('Create Dataset');
 
   $form->header();
-  print $form->parse_html_template("admin/create_dataset");
+  print $form->parse_html_template2("admin/create_dataset");
 }
 
 sub dbcreate {
@@ -677,7 +677,7 @@ sub dbcreate {
     . $locale->text('Create Dataset');
 
   $form->header();
-  print $form->parse_html_template("admin/dbcreate");
+  print $form->parse_html_template2("admin/dbcreate");
 }
 
 sub delete_dataset {
@@ -691,7 +691,7 @@ sub delete_dataset {
   $form->{DBSOURCES} = [ map { { "name", $_ } } sort @dbsources ];
 
   $form->header();
-  print $form->parse_html_template("admin/delete_dataset");
+  print $form->parse_html_template2("admin/delete_dataset");
 }
 
 sub dbdelete {
@@ -707,7 +707,7 @@ sub dbdelete {
     . $locale->text('Database Administration') . " / "
     . $locale->text('Delete Dataset');
   $form->header();
-  print $form->parse_html_template("admin/dbdelete");
+  print $form->parse_html_template2("admin/dbdelete");
 }
 
 sub backup_dataset {
@@ -729,7 +729,7 @@ sub backup_dataset {
   $form->{from} = "Lx-Office Admin <${username}\@${hostname}>";
 
   $form->header();
-  print $form->parse_html_template("admin/backup_dataset");
+  print $form->parse_html_template2("admin/backup_dataset");
 }
 
 sub backup_dataset_start {
@@ -818,7 +818,7 @@ sub backup_dataset_start {
       . $locale->text('Backup Dataset');
 
     $form->header();
-    print $form->parse_html_template("admin/backup_dataset_email_done");
+    print $form->parse_html_template2("admin/backup_dataset_email_done");
   }
 }
 
@@ -844,7 +844,7 @@ sub restore_dataset {
   }
 
   $form->header();
-  print $form->parse_html_template("admin/restore_dataset");
+  print $form->parse_html_template2("admin/restore_dataset");
 }
 
 sub restore_dataset_start {
@@ -956,7 +956,7 @@ sub restore_dataset_start {
   $AUTOFLUSH = 1;
 
   $form->header();
-  print $form->parse_html_template("admin/restore_dataset_start_header");
+  print $form->parse_html_template2("admin/restore_dataset_start_header");
 
   while (my $line = <$in>) {
     print $line;
@@ -964,7 +964,7 @@ sub restore_dataset_start {
   $in->close();
 
   $form->{retval} = $CHILD_ERROR >> 8;
-  print $form->parse_html_template("admin/restore_dataset_start_footer");
+  print $form->parse_html_template2("admin/restore_dataset_start_footer");
 
   unlink "${tmpdir}/.pgpass", $tmp;
   rmdir $tmpdir;
