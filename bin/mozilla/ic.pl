@@ -1685,8 +1685,7 @@ sub generate_report {
   );
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
-
-  my %column_alignment = map { $_ => 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
+  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
 
   my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, map { "l_$_" } @columns);
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
@@ -1729,16 +1728,10 @@ sub generate_report {
   my %subtotals = map { $_ => 0 } ('onhand', @subtotal_columns);
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my $idx       = 0;
+  my $same_item = $form->{parts}->[0]->{ $form->{sort} } if (scalar @{ $form->{parts} });
 
   foreach my $ref (@{ $form->{parts} }) {
-    my $row = { };
-
-    foreach (@columns) {
-      $row->{$_} = {
-        'align' => $column_alignment{$_},
-        'data'  => $ref->{$_},
-      };
-    }
+    my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
 
     $ref->{exchangerate}  = 1 unless $ref->{exchangerate};
     $ref->{sellprice}    *= $ref->{exchangerate};
@@ -1795,8 +1788,8 @@ sub generate_report {
 
     if (($form->{l_subtotal} eq 'Y') &&
         (!$next_ref ||
-         (!$next_ref->{assemblyitem} && ($ref->{$form->{sort}} ne $next_ref->{$form->{sort}})))) {
-      my $row = { map { $_ => { 'class' => 'listsubtotal', 'align' => 'right' } } @columns };
+         (!$next_ref->{assemblyitem} && ($same_item ne $next_ref->{ $form->{sort} })))) {
+      my $row = { map { $_ => { 'class' => 'listsubtotal', } } @columns };
 
       if (($form->{searchitems} ne 'assembly') || !$form->{bom}) {
         $row->{onhand}->{data} = $form->format_amount(\%myconfig, $subtotals{onhand});
@@ -1806,13 +1799,15 @@ sub generate_report {
       map { $subtotals{$_} = 0 } ('onhand', @subtotal_columns);
 
       $report->add_data($row);
+
+      $same_item = $next_ref->{ $form->{sort} };
     }
 
     $idx++;
   }
 
   if ($form->{"l_linetotal"}) {
-    my $row = { map { $_ => { 'class' => 'listtotal', 'align' => 'right' } } @columns };
+    my $row = { map { $_ => { 'class' => 'listtotal', } } @columns };
 
     map { $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $totals{$_}, 2) } @subtotal_columns;
 
