@@ -1174,9 +1174,6 @@ sub all_parts {
         push(@assemblies, $ref);
       }
       $sth->finish;
-
-      push(@assemblies, { id => $item->{id} });
-
     }
 
     # copy assemblies to $form->{parts}

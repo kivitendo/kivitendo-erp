@@ -32,7 +32,10 @@
 #======================================================================
 #$locale->text('ea');
 
+use POSIX qw(strftime);
+
 use SL::IC;
+use SL::ReportGenerator;
 
 #use SL::PE;
 
@@ -44,6 +47,7 @@ our ($form, $locale, %myconfig, $lxdebug);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/common.pl";
+require "bin/mozilla/reportgenerator.pl";
 
 1;
 
@@ -1509,12 +1513,12 @@ sub generate_report {
   $lxdebug->enter_sub();
 
   my ($revers, $lastsort, $description);
-  my (@column_index, %column_header, %column_data, @columns, @options, @callbacks);
-  my ($totalsellprice, $totallastcost, $totallistprice, $subtotalonhand, $subtotalsellprice, $subtotallastcost, $subtotallistprice);
-  my ($colspan, $sameitem, $onhand, $align);
 
-  $revers   = $form->{revers};
-  $lastsort = $form->{lastsort};
+  $form->{title} = (ucfirst $form->{searchitems}) . "s";
+  $form->{title} = $locale->text($form->{title});
+
+  my $revers     = $form->{revers};
+  my $lastsort   = $form->{lastsort};
 
   # sorting and direction of sorting
   # ToDO: change this to the simpler field+direction method
@@ -1586,34 +1590,22 @@ sub generate_report {
     l_soldtotal   => $locale->text('soldtotal'),
   );
 
-  # this local subfunction generates a callback token from the input key.
-  # easy to join into a callback later
-  sub callback_token { 
-    map { /\w+$/; return "&$&=$form->{$&}" } @_;
-  }
-
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
-  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup serialnumber description make model 
-                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto);
-  my $callback           = "$form->{script}?action=generate_report";
-  map { $callback .= "&$_=" . $form->escape($form->{$_}) } qw(login password searchitems itemstatus bom l_linetotal title);
-    
+  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup serialnumber description make model
+                           drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto ean);
+
   # calculate dependencies
-  for (@itemstatus_keys, @callback_keys) { 
+  for (@itemstatus_keys, @callback_keys) {
     next if ($form->{itemstatus} ne $_ && !$form->{$_});
     map { $form->{$_} = 'Y' } @{ $dependencies{$_} } if $dependencies{$_};
   }
 
   # generate callback and optionstrings
+  my @options;
   for my  $key (@itemstatus_keys, @callback_keys) { 
     next if ($form->{itemstatus} ne $key && !$form->{$key});
     push @options, $optiontexts{$key};
-    push @callbacks, callback_token($key) if grep { $_ eq $key } @callback_keys;;
   }
-  my $option    = $locale->text('Options') . ': ' . join(', ', grep $_, @options) . '<br>';
-  $callback .= join '', grep $_, @callbacks;
-
-  $lxdebug->message(0, $callback);
 
   IC->all_parts(\%myconfig, \%$form);
 
@@ -1624,11 +1616,6 @@ sub generate_report {
     $description = $form->{description};
     $description =~ s/\n/<br>/g;
   }
-
-  @columns = $form->sort_columns(
-    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice 
-       lastcost linetotallastcost priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate)
-  );
 
   if ($form->{l_linetotal}) {
     $form->{l_onhand} = "Y";
@@ -1663,330 +1650,177 @@ sub generate_report {
     }
   }
 
-  $form->{l_lastcost} = ""
-    if ($form->{searchitems} eq 'assembly' && !$form->{bom});
+  $form->{l_lastcost} = "" if ($form->{searchitems} eq 'assembly' && !$form->{bom});
 
-  foreach my $item (@columns) {
-    if ($form->{"l_$item"} eq "Y") {
-      push @column_index, $item;
+  my @columns =
+    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
+       priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate);
 
-      # add column to callback
-      $callback .= "&l_$item=Y";
-    }
+  my %column_defs = (
+    'bin'                => { 'text' => $locale->text('Bin'), },
+    'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
+    'description'        => { 'text' => $locale->text('Part Description'), },
+    'drawing'            => { 'text' => $locale->text('Drawing'), },
+    'image'              => { 'text' => $locale->text('Image'), },
+    'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
+    'lastcost'           => { 'text' => $locale->text('Last Cost'), },
+    'linetotallastcost'  => { 'text' => $locale->text('Extended'), },
+    'linetotallistprice' => { 'text' => $locale->text('Extended'), },
+    'linetotalsellprice' => { 'text' => $locale->text('Extended'), },
+    'listprice'          => { 'text' => $locale->text('List Price'), },
+    'microfiche'         => { 'text' => $locale->text('Microfiche'), },
+    'name'               => { 'text' => $locale->text('Name'), },
+    'onhand'             => { 'text' => $locale->text('Qty'), },
+    'ordnumber'          => { 'text' => $locale->text('Order Number'), },
+    'partnumber'         => { 'text' => $locale->text('Part Number'), },
+    'partsgroup'         => { 'text' => $locale->text('Group'), },
+    'priceupdate'        => { 'text' => $locale->text('Updated'), },
+    'quonumber'          => { 'text' => $locale->text('Quotation'), },
+    'rop'                => { 'text' => $locale->text('ROP'), },
+    'sellprice'          => { 'text' => $locale->text('Sell Price'), },
+    'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
+    'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
+    'unit'               => { 'text' => $locale->text('Unit'), },
+    'weight'             => { 'text' => $locale->text('Weight'), },
+  );
+
+  map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
+
+  my %column_alignment = map { $_ => 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
+
+  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, map { "l_$_" } @columns);
+  my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
+
+  my @sort_full        = qw(partnumber description onhand soldtotal deliverydate);
+  my @sort_no_revers   = qw(partsgroup bin priceupdate invnumber ordnumber quonumber name image drawing serialnumber);
+
+  foreach my $col (@sort_full) {
+    $column_defs{$col}->{link} = join '&', $callback, "sort=$col", map { "$_=" . E($form->{$_}) } qw(revers lastsort);
   }
-
-  if ($form->{l_subtotal} eq 'Y') {
-    $callback .= "&l_subtotal=Y";
-  }
-  $column_header{partnumber} =
-    qq|<th nowrap><a class=listheading href=$callback&sort=partnumber&revers=$form->{revers}&lastsort=$form->{lastsort}>|
-    . $locale->text('Part Number')
-    . qq|</a></th>|;
-  $column_header{description} =
-    qq|<th nowrap><a class=listheading href=$callback&sort=description&revers=$form->{revers}&lastsort=$form->{lastsort}>|
-    . $locale->text('Part Description')
-    . qq|</a></th>|;
-  $column_header{partsgroup} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=partsgroup>|
-    . $locale->text('Group')
-    . qq|</a></th>|;
-  $column_header{bin} =
-      qq|<th><a class=listheading href=$callback&sort=bin>|
-    . $locale->text('Bin')
-    . qq|</a></th>|;
-  $column_header{priceupdate} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=priceupdate>|
-    . $locale->text('Updated')
-    . qq|</a></th>|;
-  $column_header{onhand} =
-    qq|<th nowrap><a  class=listheading href=$callback&sort=onhand&revers=$form->{revers}&lastsort=$form->{lastsort}>|
-    . $locale->text('Qty')
-    . qq|</th>|;
-  $column_header{unit} =
-    qq|<th class=listheading nowrap>| . $locale->text('Unit') . qq|</th>|;
-  $column_header{listprice} =
-      qq|<th class=listheading nowrap>|
-    . $locale->text('List Price')
-    . qq|</th>|;
-  $column_header{lastcost} =
-    qq|<th class=listheading nowrap>| . $locale->text('Last Cost') . qq|</th>|;
-  $column_header{rop} =
-    qq|<th class=listheading nowrap>| . $locale->text('ROP') . qq|</th>|;
-  $column_header{weight} =
-    qq|<th class=listheading nowrap>| . $locale->text('Weight') . qq|</th>|;
-
-  $column_header{invnumber} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=invnumber>|
-    . $locale->text('Invoice Number')
-    . qq|</a></th>|;
-  $column_header{ordnumber} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=ordnumber>|
-    . $locale->text('Order Number')
-    . qq|</a></th>|;
-  $column_header{quonumber} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=quonumber>|
-    . $locale->text('Quotation')
-    . qq|</a></th>|;
-
-  $column_header{name} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=name>|
-    . $locale->text('Name')
-    . qq|</a></th>|;
-
-  $column_header{sellprice} =
-      qq|<th class=listheading nowrap>|
-    . $locale->text('Sell Price')
-    . qq|</th>|;
-  $column_header{linetotalsellprice} =
-    qq|<th class=listheading nowrap>| . $locale->text('Extended') . qq|</th>|;
-  $column_header{linetotallastcost} =
-    qq|<th class=listheading nowrap>| . $locale->text('Extended') . qq|</th>|;
-  $column_header{linetotallistprice} =
-    qq|<th class=listheading nowrap>| . $locale->text('Extended') . qq|</th>|;
-
-  $column_header{image} =
-    qq|<th class=listheading nowrap>| . $locale->text('Image') . qq|</a></th>|;
-  $column_header{drawing} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=drawing>|
-    . $locale->text('Drawing')
-    . qq|</a></th>|;
-  $column_header{microfiche} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=microfiche>|
-    . $locale->text('Microfiche')
-    . qq|</a></th>|;
-
-  $column_header{serialnumber} =
-      qq|<th nowrap><a class=listheading href=$callback&sort=serialnumber>|
-    . $locale->text('Serial Number')
-    . qq|</a></th>|;
-  $column_header{soldtotal} =
-    qq|<th nowrap><a class=listheading href=$callback&sort=soldtotal&revers=$form->{revers}&lastsort=$form->{lastsort}>|
-    . $locale->text('soldtotal')
-    . qq|</a></th>|;
-
-  $column_header{deliverydate} =
-    qq|<th nowrap><a class=listheading href=$callback&sort=deliverydate&revers=$form->{revers}&lastsort=$form->{lastsort}>|
-    . $locale->text('deliverydate')
-    . qq|</a></th>|;
-
-  $form->header;
-  $colspan = $#column_index + 1;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=$colspan>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-
-  <tr><td colspan=$colspan>$option</td></tr>
-
-  <tr class=listheading>
-|;
-
-  map { print "\n$column_header{$_}" } @column_index;
-
-  print qq|
-  </tr>
-  |;
+  map { $column_defs{$_}->{link} = "${callback}&sort=$_" } @sort_no_revers;
 
   # add order to callback
-  $form->{callback} = $callback .= "&sort=$form->{sort}";
+  $form->{callback} = join '&', ($callback, map { "${_}=" . E($form->{$_}) } qw(sort revers));
 
-  # escape callback for href
-  $callback = $form->escape($callback);
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  if (@{ $form->{parts} }) {
-    $sameitem = $form->{parts}->[0]->{ $form->{sort} };
-  }
+  my %attachment_basenames = (
+    'part'     => $locale->text('part_list'),
+    'service'  => $locale->text('service_list'),
+    'assembly' => $locale->text('assembly_list'),
+  );
+
+  $report->set_options('top_info_text'         => $locale->text('Options') . ': ' . join(', ', grep $_, @options),
+                       'raw_bottom_info_text'  => $form->parse_html_template2('ic/generate_report_bottom'),
+                       'output_format'         => 'HTML',
+                       'title'                 => $form->{title},
+                       'attachment_basename'   => $attachment_basenames{$form->{searchitems}} . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form();
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('generate_report', @hidden_variables, qw(sort revers));
+
+  $report->set_sort_indicator($form->{sort}, $form->{revers} ? 0 : 1);
+
+  my @subtotal_columns = qw(sellprice listprice lastcost);
+  my %subtotals = map { $_ => 0 } ('onhand', @subtotal_columns);
+  my %totals    = map { $_ => 0 } @subtotal_columns;
+  my $idx       = 0;
 
   foreach my $ref (@{ $form->{parts} }) {
-    my $i = 0;
+    my $row = { };
 
-    if ($form->{l_subtotal} eq 'Y' && !$ref->{assemblyitem}) {
-      if ($sameitem ne $ref->{ $form->{sort} }) {
-        &parts_subtotal;
-        $sameitem = $ref->{ $form->{sort} };
-      }
+    foreach (@columns) {
+      $row->{$_} = {
+        'align' => $column_alignment{$_},
+        'data'  => $ref->{$_},
+      };
     }
 
-    $ref->{exchangerate} = 1 unless $ref->{exchangerate};
-    $ref->{sellprice} *= $ref->{exchangerate};
-    $ref->{listprice} *= $ref->{exchangerate};
-    $ref->{lastcost}  *= $ref->{exchangerate};
+    $ref->{exchangerate}  = 1 unless $ref->{exchangerate};
+    $ref->{sellprice}    *= $ref->{exchangerate};
+    $ref->{listprice}    *= $ref->{exchangerate};
+    $ref->{lastcost}     *= $ref->{exchangerate};
 
     # use this for assemblies
-    $onhand = $ref->{onhand};
+    my $onhand = $ref->{onhand};
 
-    $align = "left";
     if ($ref->{assemblyitem}) {
-      $align = "right";
-      $onhand = 0 if ($form->{sold});
+      $row->{partnumber}->{align} = 'right';
+      $row->{onhand}->{data}      = 0;
+      $onhand                     = 0 if ($form->{sold});
     }
 
-    $ref->{description} =~ s/
-/<br>/g;
+    my $edit_link               = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback');
+    $row->{partnumber}->{link}  = $edit_link;
+    $row->{description}->{link} = $edit_link;
 
-    $column_data{partnumber} =
-      "<td align=$align><a href=$form->{script}?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partnumber}&nbsp;</a></td>";
-    $column_data{description} = "<td><a href=$form->{script}?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}&nbsp;</a></td>";
-    $column_data{partsgroup}  = "<td>$ref->{partsgroup}&nbsp;</td>";
+    foreach (qw(sellprice listprice lastcost)) {
+      $row->{$_}->{data}            = $form->format_amount(\%myconfig, $ref->{$_}, -2);
+      $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{$_}, 2);
+    }
 
-    $column_data{onhand} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand})
-      . "</td>";
-    $column_data{sellprice} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{sellprice}, -2)
-      . "</td>";
-    $column_data{listprice} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{listprice}, -2)
-      . "</td>";
-    $column_data{lastcost} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{lastcost}, -2)
-      . "</td>";
-
-    $column_data{linetotalsellprice} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{sellprice}, 2)
-      . "</td>";
-    $column_data{linetotallastcost} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{lastcost}, 2)
-      . "</td>";
-    $column_data{linetotallistprice} = "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{listprice}, 2)
-      . "</td>";
+    map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $ref->{$_}); } qw(onhand rop weight soldtotal);
 
     if (!$ref->{assemblyitem}) {
-      $totalsellprice += $onhand * $ref->{sellprice};
-      $totallastcost  += $onhand * $ref->{lastcost};
-      $totallistprice += $onhand * $ref->{listprice};
+      foreach my $col (@subtotal_columns) {
+        $totals{$col}    += $onhand * $ref->{$col};
+        $subtotals{$col} += $onhand * $ref->{$col};
+      }
 
-      $subtotalonhand    += $onhand;
-      $subtotalsellprice += $onhand * $ref->{sellprice};
-      $subtotallastcost  += $onhand * $ref->{lastcost};
-      $subtotallistprice += $onhand * $ref->{listprice};
+      $subtotals{onhand} += $onhand;
     }
 
-    $column_data{rop} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{rop}) . "</td>";
-    $column_data{weight} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{weight})
-      . "</td>";
-    $column_data{unit}        = "<td>$ref->{unit}&nbsp;</td>";
-    $column_data{bin}         = "<td>$ref->{bin}&nbsp;</td>";
-    $column_data{priceupdate} = "<td>$ref->{priceupdate}&nbsp;</td>";
+    if ($ref->{module} eq 'oe') {
+      my $edit_oe_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{type}), 'id=' . E($ref->{trans_id}), 'callback');
+      $row->{ordnumber}->{link} = $edit_oe_link;
+      $row->{quonumber}->{link} = $edit_oe_link if (!$ref->{ordnumber});
 
-    $column_data{invnumber} =
-      ($ref->{module} ne 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>"
-      : "<td>$ref->{invnumber}</td>";
-    $column_data{ordnumber} =
-      ($ref->{module} eq 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}</a></td>"
-      : "<td>$ref->{ordnumber}</td>";
-    $column_data{quonumber} =
-      ($ref->{module} eq 'oe' && !$ref->{ordnumber})
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}</a></td>"
-      : "<td>$ref->{quonumber}</td>";
+    } else {
+      $row->{invnumber}->{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'type=invoice', 'id=' . E($ref->{trans_id}), 'callback');
+    }
 
-    $column_data{name} = "<td>$ref->{name}</td>";
+    if ($ref->{image} && (lc $report->{options}->{output_format} eq 'html')) {
+      $row->{image}->{data}     = '';
+      $row->{image}->{raw_data} = '<a href="' . H($ref->{image}) . '"><img src="' . H($ref->{image}) . '" height="32" border="0"></a>';
+    }
+    map { $row->{$_}->{link} = $ref->{$_} } qw(drawing microfiche);
 
-    $column_data{image} =
-      ($ref->{image})
-      ? "<td><a href=$ref->{image}><img src=$ref->{image} height=32 border=0></a></td>"
-      : "<td>&nbsp;</td>";
-    $column_data{drawing} =
-      ($ref->{drawing})
-      ? "<td><a href=$ref->{drawing}>$ref->{drawing}</a></td>"
-      : "<td>&nbsp;</td>";
-    $column_data{microfiche} =
-      ($ref->{microfiche})
-      ? "<td><a href=$ref->{microfiche}>$ref->{microfiche}</a></td>"
-      : "<td>&nbsp;</td>";
+    $report->add_data($row);
 
-    $column_data{serialnumber} = "<td>$ref->{serialnumber}</td>";
+    my $next_ref = $form->{parts}->[$idx + 1];
 
-    $column_data{soldtotal} =
-        "<td align=right>"
-      . $form->format_amount(\%myconfig, $ref->{soldtotal})
-      . "</td>";
+    if (($form->{l_subtotal} eq 'Y') &&
+        (!$next_ref ||
+         (!$next_ref->{assemblyitem} && ($ref->{$form->{sort}} ne $next_ref->{$form->{sort}})))) {
+      my $row = { map { $_ => { 'class' => 'listsubtotal', 'align' => 'right' } } @columns };
 
-    $column_data{deliverydate} = "<td>$ref->{deliverydate}</td>";
+      if (($form->{searchitems} ne 'assembly') || !$form->{bom}) {
+        $row->{onhand}->{data} = $form->format_amount(\%myconfig, $subtotals{onhand});
+      }
 
-    $i++;
-    $i %= 2;
-    print "<tr class=listrow$i>";
+      map { $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $subtotals{$_}, 2) } @subtotal_columns;
+      map { $subtotals{$_} = 0 } ('onhand', @subtotal_columns);
 
-    map { print "\n$column_data{$_}" } @column_index;
+      $report->add_data($row);
+    }
 
-    print qq|
-    </tr>
-|;
-
-  }
-
-  if ($form->{l_subtotal} eq 'Y') {
-    &parts_subtotal;
+    $idx++;
   }
 
   if ($form->{"l_linetotal"}) {
-    map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-    $column_data{linetotalsellprice} =
-        "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totalsellprice, 2)
-      . "</th>";
-    $column_data{linetotallastcost} =
-        "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totallastcost, 2)
-      . "</th>";
-    $column_data{linetotallistprice} =
-        "<th class=listtotal align=right>"
-      . $form->format_amount(\%myconfig, $totallistprice, 2)
-      . "</th>";
+    my $row = { map { $_ => { 'class' => 'listtotal', 'align' => 'right' } } @columns };
 
-    print "<tr class=listtotal>";
+    map { $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $totals{$_}, 2) } @subtotal_columns;
 
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|</tr>
-    |;
+    $report->add_separator();
+    $report->add_data($row);
   }
 
-  print qq|
-  <tr><td colspan=$colspan><hr size=3 noshade></td></tr>
-</table>
-
-|;
-
-  print qq|
-
-<br>
-
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=item value=$form->{searchitems}>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>|;
-
-  print qq|
-  <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
-
-  </form>
-
-</body>
-</html>
-|;
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
 }    #end generate_report
