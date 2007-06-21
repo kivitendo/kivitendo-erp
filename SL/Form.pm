@@ -532,6 +532,10 @@ sub _prepare_html_template {
   $additional_params->{"conf_latex_templates"}        = $main::latex;
   $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
 
+  if (%main::debug_options) {
+    map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
+  }
+
   $main::lxdebug->leave_sub();
 
   return $file;
