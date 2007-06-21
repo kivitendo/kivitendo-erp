@@ -582,8 +582,6 @@ sub parse_html_template2 {
   $file = $self->_prepare_html_template($file, $additional_params);
 
   my $template = Template->new({ 'INTERPOLATE' => 0,
-                                 'PRE_CHOMP'   => Template::Constants::CHOMP_COLLAPSE,
-                                 'POST_CHOMP'  => Template::Constants::CHOMP_COLLAPSE,
                                  'EVAL_PERL'   => 0,
                                  'ABSOLUTE'    => 1,
                                  'CACHE_SIZE'  => 0,
