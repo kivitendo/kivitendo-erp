@@ -107,7 +107,14 @@ sub add_data {
       $self->{form}->error('Incorrect usage -- expecting hash or array ref');
     }
 
+    my @columns_with_default_alignment = grep { defined $self->{columns}->{$_}->{align} } keys %{ $self->{columns} };
+
     foreach my $row (@{ $row_set }) {
+      foreach my $column (@columns_with_default_alignment) {
+        $row->{$column}          ||= { };
+        $row->{$column}->{align}   = $self->{columns}->{$column}->{align} unless (defined $row->{$column}->{align});
+      }
+
       foreach my $field (qw(data link)) {
         map { $row->{$_}->{$field} = [ $row->{$_}->{$field} ] if (ref $row->{$_}->{$field} ne 'ARRAY') } keys %{ $row };
       }
