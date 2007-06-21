@@ -80,8 +80,8 @@
   <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
   <input type="hidden" name="action" value="<translate>Continue</translate>">
 
-  <input type="submit" name="dummy" value="<translate>Continue</translate>">
-<!--          onclick="this.disabled=true; this.value='<translate>The dunning process started</translate>'; document.Form.submit()"> -->
+  <input type="submit" name="dummy" value="<translate>Continue</translate>"
+         <TMPL_UNLESS DEBUG_DUNNING>onclick="this.disabled=true; this.value='<translate>The dunning process started</translate>'; document.Form.submit()"</TMPL_UNLESS>>
 
  </form>
 </body>
