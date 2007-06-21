@@ -38,6 +38,7 @@ use SL::AM;
 use SL::Common;
 use SL::DBUtils;
 use SL::MoreCommon;
+use Data::Dumper;
 
 sub invoice_details {
   $main::lxdebug->enter_sub();
@@ -1219,19 +1220,9 @@ sub cogs {
   my $taxzone_id = $form->{"taxzone_id"} * 1;
   my $query =
     qq|SELECT i.id, i.trans_id, i.base_qty, i.allocated, i.sellprice,
-
-         c1.accno AS inventory_accno,
-         c1.new_chart_id AS inventory_new_chart,
-         date($transdate) - c1.valid_from AS inventory_valid,
-
-         c2.accno AS income_accno,
-         c2.new_chart_id AS income_new_chart,
-         date($transdate)  - c2.valid_from AS income_valid,
-
-         c3.accno AS expense_accno,
-         c3.new_chart_id AS expense_new_chart,
-         date($transdate) - c3.valid_from AS expense_valid
-
+         c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from AS inventory_valid,
+         c2.accno AS    income_accno, c2.new_chart_id AS    income_new_chart, date($transdate) - c2.valid_from AS    income_valid,
+         c3.accno AS   expense_accno, c3.new_chart_id AS   expense_new_chart, date($transdate) - c3.valid_from AS   expense_valid
        FROM invoice i, parts p
        LEFT JOIN chart c1 ON ((SELECT inventory_accno_id FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
        LEFT JOIN chart c2 ON ((SELECT income_accno_id_${taxzone_id} FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c2.id)
