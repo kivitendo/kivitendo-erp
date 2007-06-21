@@ -46,6 +46,8 @@ sub new {
     'variable_list' => '',
   };
 
+  $self->{data_present} = 0;
+
   $self->set_options(@_) if (@_);
 
   return bless $self, $type;
@@ -113,6 +115,8 @@ sub add_data {
 
     push @{ $self->{data} }, $row_set;
     $last_row_set = $row_set;
+
+    $self->{data_present} = 1;
   }
 
   return $last_row_set;
@@ -134,7 +138,8 @@ sub add_control {
 sub clear_data {
   my $self = shift;
 
-  $self->{data} = [];
+  $self->{data}         = [];
+  $self->{data_present} = 0;
 }
 
 sub set_options {
@@ -313,13 +318,14 @@ sub prepare_html_content {
     'RAW_BOTTOM_INFO_TEXT' => $opts->{raw_bottom_info_text},
     'ALLOW_PDF_EXPORT'     => $allow_pdf_export,
     'ALLOW_CSV_EXPORT'     => $opts->{allow_csv_export},
-    'SHOW_EXPORT_BUTTONS'  => $allow_pdf_export || $opts->{allow_csv_export},
+    'SHOW_EXPORT_BUTTONS'  => ($allow_pdf_export || $opts->{allow_csv_export}) && $self->{data_present},
     'COLUMN_HEADERS'       => \@column_headers,
     'NUM_COLUMNS'          => scalar @column_headers,
     'ROWS'                 => \@rows,
     'EXPORT_VARIABLES'     => \@export_variables,
     'EXPORT_VARIABLE_LIST' => $self->{export}->{variable_list},
     'EXPORT_NEXTSUB'       => $self->{export}->{nextsub},
+    'DATA_PRESENT'         => $self->{data_present},
   };
 
   return $variables;

@@ -22,6 +22,7 @@
 
  [% RAW_TOP_INFO_TEXT %]
 
+ [% IF DATA_PRESENT %]
  <p>
   <table width="100%">
    <tr>
@@ -45,6 +46,9 @@
 
   </table>
  </p>
+ [% ELSE %]
+  <p>Es wurden keine Daten gefunden.</p>
+ [% END %]
 
  [% RAW_BOTTOM_INFO_TEXT %]
 
