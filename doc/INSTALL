@@ -158,6 +158,13 @@ http://localhost/lx-erp/admin.pl
 Zuerst muß eine Datenbank angelegt werden. Anschließend ein Benutzer. Verwenden Sie für den 
 Datenbankzugriff den eben angelegten Benutzer lxoffice. 
 
+Wenn Sie für die Lx-Office-Installation nicht den europäischen
+Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
+müssen Sie vor dem Anlegen der Datenbank in der Datei 'lx-erp.conf'
+die Variable '$dbcharset' auf den Wert 'UTF-8' setzen. Zusätzlich muss
+beim Anlegen der Datenbank 'UTF-8 Unicode' als Schriftsatz ausgewählt
+werden.
+
 
 OpenDocument-Vorlagen
 =====================
