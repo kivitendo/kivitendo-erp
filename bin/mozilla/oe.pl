@@ -1156,14 +1156,6 @@ sub form_footer {
         . $locale->text('Order') . qq|">
 |;
     }
-  } elsif ($form->{type} =~ /sales_order$/ && $form->{rowcount} && !$form->{proforma}) {
-    print qq|
-<br>Workflow  $form->{heading}<br>
-<input class=submit type=submit name=action value="|
-      . $locale->text('Save as new') . qq|">
-<input class=submit type=submit name=action value="|
-      . $locale->text('Invoice') . qq|">
-|;
   }
 
   $form->hide_form("saved_xyznumber");
@@ -2195,7 +2187,7 @@ sub invoice {
   # if not it's most likely a collective order, which can't be saved back
   # so they just have to be closed
   if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
-    OE->close_order(\%myconfig, \%$form);
+    OE->close_order(\%myconfig, \%$form) if ($form->{id});
   } else {
     OE->close_orders(\%myconfig, \%$form);
   }
