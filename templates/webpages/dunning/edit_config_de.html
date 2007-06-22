@@ -2,16 +2,6 @@
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
- <script type="text/javascript">
-  <!--
-      function enable_invoice_controls(enable) {
-        document.Form.AR.disabled                 = !enable;
-        document.Form.AR_amount_fee.disabled      = !enable;
-        document.Form.AR_amount_interest.disabled = !enable;
-      }
-    -->
- </script>
-
  <div class="listtop" width="100%">[% title %]</div>
 
  <form method="post" action="dn.pl" name="Form">
@@ -22,8 +12,9 @@
     <th class="listheading">Mahnlevel</th>
     <th class="listheading">Mahnstufenbeschreibung</th>
     <th class="listheading">Aktiviert?</th>
-    <th class="listheading">Auto. Versand?</th>
     <th class="listheading">eMail-Versand?</th>
+<!--     <th class="listheading">Auto. Versand?</th>  -->
+    <th class="listheading">Rechnung erstellen?</th>
     <th class="listheading">Fristsetzung</th>
     <th class="listheading">Fällikeitsdatum +Tage</th>
     <th class="listheading">Gebühr</th>
@@ -51,7 +42,8 @@
       <input type="hidden" name="email_attachment_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_attachment) %]">
      </td>
 
-     <td><input type="checkbox" name="auto_[% DUNNING_it.count %]" value="1" [% IF row.auto %]checked[% END %]></td>
+<!--      <td><input type="checkbox" name="auto_[% DUNNING_it.count %]" value="1" [% IF row.auto %]checked[% END %]></td> -->
+     <td><input type="checkbox" name="create_invoices_for_fees_[% DUNNING_it.count %]" value="1" [% IF row.create_invoices_for_fees %]checked[% END %]></td>
      <td><input name="payment_terms_[% DUNNING_it.count %]" size="3" value="[% HTML.escape(row.payment_terms) %]"></td>
      <td><input name="terms_[% DUNNING_it.count %]" size="3" value="[% HTML.escape(row.terms) %]"></td>
      <td><input name="fee_[% DUNNING_it.count %]" size="5" value="[% HTML.escape(row.fee) %]"></td>
@@ -80,7 +72,8 @@
      <input type="hidden" name="email_attachment_[% rowcount %]">
     </td>
 
-    <td><input type="checkbox" name="auto_[% rowcount %]" value="1" checked></td>
+<!--     <td><input type="checkbox" name="auto_[% rowcount %]" value="1" checked></td> -->
+    <td><input type="checkbox" name="create_invoices_for_fees_[% rowcount %]" value="1" checked></td>
     <td><input name="payment_terms_[% rowcount %]" size="3"></td>
     <td><input name="terms_[% rowcount %]" size="3"></td>
     <td><input name="fee_[% rowcount %]" size="5"></td>
@@ -93,18 +86,13 @@
 
   <hr size="3" noshade>
 
-  <p>
-   <input type="checkbox" name="create_invoices_for_fees" id="create_invoices_for_fees"
-          [% IF create_invoices_for_fees %]checked[% END %]
-          value="1" onclick="enable_invoice_controls(this.checked);">
-   <label for="create_invoices_for_fees">Automatisches Erstellen von Debitorenrechnungen &uuml;ber Mahngeb&uuml;hren und Zinsen</label>
-  </p>
+  <p>Wenn das automatische Erstellen einer Rechnung &uuml;ber Mahngeb&uuml;hren und Zinsen f&uuml;r ein Mahnlevel aktiviert ist, so werden die folgenden Konten f&uuml;r die Rechnung benutzt.</p>
 
   <table>
    <tr>
     <th align="right">Konto f&uuml;r Geb&uuml;hren</th>
     <td>
-     <select name="AR_amount_fee" [% UNLESS create_invoices_for_fees %]disabled[% END %]>
+     <select name="AR_amount_fee">
       [% FOREACH row = SELECT_AR_AMOUNT %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_amount_fee_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
       [% END %]
      </select>
@@ -114,7 +102,7 @@
    <tr>
     <th align="right">Konto f&uuml;r Zinsen</th>
     <td>
-     <select name="AR_amount_interest" [% UNLESS create_invoices_for_fees %]disabled[% END %]>
+     <select name="AR_amount_interest">
       [% FOREACH row = SELECT_AR_AMOUNT %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_amount_interest_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
       [% END %]
      </select>
@@ -124,7 +112,7 @@
    <tr>
     <th align="right">Buchen auf</th>
     <td>
-     <select name="AR" [% UNLESS create_invoices_for_fees %]disabled[% END %]>
+     <select name="AR">
       [% FOREACH row = SELECT_AR %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
       [% END %]
      </select>

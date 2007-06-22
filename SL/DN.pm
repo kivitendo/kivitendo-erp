@@ -61,12 +61,9 @@ sub get_config {
   }
 
   $query =
-    qq|SELECT
-         dunning_create_invoices_for_fees, dunning_ar_amount_fee,
-         dunning_ar_amount_interest,       dunning_ar
+    qq|SELECT dunning_ar_amount_fee, dunning_ar_amount_interest, dunning_ar
        FROM defaults|;
-  ($form->{create_invoices_for_fees}, $form->{AR_amount_fee},
-   $form->{AR_amount_interest},       $form->{AR}           ) = selectrow_query($form, $dbh, $query);
+  ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}) = selectrow_query($form, $dbh, $query);
 
   $dbh->disconnect();
 
@@ -93,7 +90,8 @@ sub save_config {
                  $form->{"email_subject_$i"}, $form->{"email_body_$i"},
                  $form->{"template_$i"}, $form->{"fee_$i"}, $form->{"interest_rate_$i"},
                  $form->{"active_$i"} ? 't' : 'f', $form->{"auto_$i"} ? 't' : 'f', $form->{"email_$i"} ? 't' : 'f',
-                 $form->{"email_attachment_$i"} ? 't' : 'f', conv_i($form->{"payment_terms_$i"}), conv_i($form->{"terms_$i"}));
+                 $form->{"email_attachment_$i"} ? 't' : 'f', conv_i($form->{"payment_terms_$i"}), conv_i($form->{"terms_$i"}),
+                 $form->{"create_invoices_for_fees_$i"} ? 't' : 'f');
       if ($form->{"id_$i"}) {
         $query =
           qq|UPDATE dunning_config SET
@@ -101,7 +99,8 @@ sub save_config {
                email_subject = ?, email_body = ?,
                template = ?, fee = ?, interest_rate = ?,
                active = ?, auto = ?, email = ?,
-               email_attachment = ?, payment_terms = ?, terms = ?
+               email_attachment = ?, payment_terms = ?, terms = ?,
+               create_invoices_for_fees = ?
              WHERE id = ?|;
         push(@values, conv_i($form->{"id_$i"}));
       } else {
@@ -109,7 +108,7 @@ sub save_config {
           qq|INSERT INTO dunning_config
                (dunning_level, dunning_description, email_subject, email_body,
                 template, fee, interest_rate, active, auto, email,
-                email_attachment, payment_terms, terms)
+                email_attachment, payment_terms, terms, create_invoices_for_fees)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       }
       do_query($form, $dbh, $query, @values);
@@ -121,14 +120,8 @@ sub save_config {
     }
   }
 
-  $query  = qq|UPDATE defaults SET dunning_create_invoices_for_fees = ?|;
-  @values = ($form->{create_invoices_for_fees} ? 't' : 'f');
-
-  if ($form->{create_invoices_for_fees}) {
-    $query .= qq|, dunning_ar_amount_fee = ?, dunning_ar_amount_interest = ?, dunning_ar = ?|;
-    push @values, conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR});
-  }
-
+  $query  = qq|UPDATE defaults SET dunning_ar_amount_fee = ?, dunning_ar_amount_interest = ?, dunning_ar = ?|;
+  @values = (conv_i($form->{AR_amount_fee}), conv_i($form->{AR_amount_interest}), conv_i($form->{AR}));
   do_query($form, $dbh, $query, @values);
 
   $dbh->commit();
@@ -144,18 +137,19 @@ sub create_invoice_for_fees {
 
   my ($query, @values, $sth, $ref);
 
-  $query =
-    qq|SELECT
-         dunning_create_invoices_for_fees, dunning_ar_amount_fee,
-         dunning_ar_amount_interest, dunning_ar
-       FROM defaults|;
-  ($form->{create_invoices_for_fees}, $form->{AR_amount_fee},
-   $form->{AR_amount_interest},       $form->{AR}           ) = selectrow_query($form, $dbh, $query);
+  $query = qq|SELECT dcfg.create_invoices_for_fees
+              FROM dunning d
+              LEFT JOIN dunning_config dcfg ON (d.dunning_config_id = dcfg.id)
+              WHERE d.dunning_id = ?|;
+  my ($create_invoices_for_fees) = selectrow_query($form, $dbh, $query, $dunning_id);
 
-  if (!$form->{create_invoices_for_fees}) {
+  if (!$create_invoices_for_fees) {
     $main::lxdebug->leave_sub();
     return;
   }
+
+  $query = qq|SELECT dunning_ar_amount_fee, dunning_ar_amount_interest, dunning_ar FROM defaults|;
+  ($form->{AR_amount_fee}, $form->{AR_amount_interest}, $form->{AR}) = selectrow_query($form, $dbh, $query);
 
   $query =
     qq|SELECT
@@ -337,7 +331,7 @@ sub save_dunning {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
   }
 
-  $dbh->commit();
+#   $dbh->commit();
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
