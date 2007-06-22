@@ -1124,12 +1124,10 @@ sub form_footer {
 <input class=submit type=submit name=action value="|
         . $locale->text('Purchase Order') . qq|">|;
     }
-    if (1) {
     print qq|
 <input class=submit type=submit name=action value="|
       . $locale->text('Invoice') . qq|">
 |;
-}
 
     if ($form->{type} =~ /sales_order$/) {
       print qq|
@@ -2172,7 +2170,6 @@ sub invoice {
     $exchangerate =
       $form->check_exchangerate(\%myconfig, $form->{currency}, $orddate,
                                 $buysell);
-    print(STDERR "CURRENCY $form->{currency} DEFAULT: $form->{defaultcurrency} EXCHANGE $exchangerate\n");
 
     if (!$exchangerate) {
       &backorder_exchangerate($orddate, $buysell);
