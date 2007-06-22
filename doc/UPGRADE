@@ -4,7 +4,6 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-
 Upgrade von v2.4.0 und neuer auf v2.6.0
 =======================================
 
@@ -12,11 +11,57 @@ Ein Upgrade von v2.4.0 oder neuer auf v2.6.0 aus zwei Teilen: den
 Dateien (einfaches Entpacken und Kopieren in das
 Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
 
+ Neue Variablen in der Datei lx-erp.conf
+ ---------------------------------------
+
+Wenn Sie eine eigene Version der Konfigurationsdatei "lx-erp.conf"
+einsetzen und diese nicht mit der Standardkonfigurationsdatei
+überschreiben, so beachten Sie bitte, dass die folgenden neuen
+Variablen hinzugekommen sind und von Ihnen manuell ergänzt werden
+sollten: $html2ps_bin, $ghostscript_bin, $pg_dump_exe und
+$pg_restore_exe. Die Variable '$jscalendar' kann hingegen entfernt
+werden, da sie nicht mehr benötigt wird.
+
+Die Standardwerte für diese Variablen finden Sie in der Datei
+"lx-erp.conf.default".
+
+ Neue Abhängigkeiten von Perl-Modulen
+ ------------------------------------
+
+Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
+der Datei "doc/INSTALL". Seit Version 2.4.0 sind die folgenden Module
+neu hinzugekommen:
+
+- Achive::Zip
+- IO::Wrap (aus dem Paket "IO::Stringy")
+- Template
+- Text::CSV_XS
+- Text::Iconv
+- Time::HiRes
+- YAML
+
+Nach Möglichkeit sollten auch die aktuellen Versionen der
+Datenbankpakete "DBI" und "DBD::Pg" installiert werden.
+
+ Datenbankupgrade
+ ----------------
+
+Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
+Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
+
+** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
+
+
+Upgrade von v2.4.0 auf 2.4.1 sowie von 2.4.1 auf 2.4.2
+======================================================
+
+Ein Upgrade von v2.4.0 auf v2.4.1 oder von v2.4.1 auf v2.4.2 besteht
+aus zwei Teilen: den Dateien (einfaches Entpacken und Kopieren in das
+Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
+
 Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
 der Datei "doc/INSTALL". Besonders nach einem Upgrade auf 2.4.2 muss
-sichergestellt werden, dass das Modul "YAML" installiert ist. v2.6.0
-benötigt zusätzlich die Module "Text::CSV_XS", "IO::Wrap" (aus dem
-Paket "IO::Stringy") sowie "Template" (Paket "Template-Toolkit").
+sichergestellt werden, dass das Modul "YAML" installiert ist.
 
 Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
 Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
@@ -24,8 +69,8 @@ Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 Anders als beim Upgrade auf 2.4.0 handelt es bei den Datenbankupgrades
-auf Versionen nach 2.4.0 nur um automatisch ablaufende Scripte, die
-keine Benutzereingaben erfordern.
+auf 2.4.1 und 2.4.2 nur um automatisch ablaufende Scripte, die keine
+Benutzereingaben erfordern.
 
 
 Upgrade von v2.2.0 bis 2.2.2 auf 2.4.0
