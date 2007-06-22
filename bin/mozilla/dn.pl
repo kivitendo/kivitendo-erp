@@ -70,13 +70,11 @@ sub edit_config {
     }
   }
 
-  $form->{title}          = $locale->text('Edit Dunning Process Config');
-  $form->{callback}     ||= build_std_url("action=edit_config");
-  $form->{rowcount}       = 1 + scalar @{ $form->{DUNNING} };
-  $form->{rowcount_odd}   = $form->{rowcount} % 2;
+  $form->{title}      = $locale->text('Edit Dunning Process Config');
+  $form->{callback} ||= build_std_url("action=edit_config");
 
   $form->header();
-  print $form->parse_html_template("dunning/edit_config");
+  print $form->parse_html_template2("dunning/edit_config");
 
   $lxdebug->leave_sub();
 }
