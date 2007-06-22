@@ -2076,8 +2076,8 @@ sub delete {
 <input type="hidden" name="yes_nextsub" value="delete_order_quotation">
 <input name=action class=submit type=submit value="|
     . $locale->text('Yes') . qq|">
-<input name=action class=submit type=submit onclick="history.back()" value="|
-    . $locale->text('No') . qq|">
+<button class=submit type=button onclick="history.back()">|
+    . $locale->text('No') . qq|</button>
 </form>
 
 </body>
