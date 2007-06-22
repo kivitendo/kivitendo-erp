@@ -1,0 +1,75 @@
+\documentclass[10pt, oneside]{scrartcl}
+\usepackage[latin1]{inputenc}
+\usepackage{german}
+\usepackage{tabularx}
+\usepackage{xspace}
+\usepackage{ifthen}
+\usepackage{eso-pic}
+\usepackage{longtable}
+\usepackage{eurosym}
+
+\setlength{\voffset}{-0.3cm}
+\setlength{\hoffset}{-2.2cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{2cm}
+%\setlength{\evensidemargin}{2cm}
+\setlength{\textwidth}{16.4cm}
+% \setlength{\textwidth}{13.4cm}
+\setlength{\textheight}{23.5cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0cm}
+
+\renewcommand{\baselinestretch}{1}
+
+\begin{document}
+\pagestyle{empty}
+\fontfamily{cmss}\fontsize{10pt}{10pt}\fontseries{m}\selectfont
+
+<%name%>
+
+<%street%>
+
+<%zipcode%> <%city%>
+
+\begin{flushright}<%invdate%>\end{flushright}
+
+\vspace*{2.5cm}
+
+\large
+\textbf{Rechnung <%invnumber%>}
+
+\vspace*{1cm}
+
+\normalsize
+Sehr geehrte Damen und Herren,
+
+\vspace*{1cm}
+Hiermit stellen wir Ihnen zu Mahnung <%dunning_id%> die folgenden Posten in Rechnung:
+
+\vspace*{0.5cm}
+
+\begin{tabularx}{\textwidth}{Xr}
+  \textbf{Posten} & \multicolumn{1}{l}{\textbf{Betrag}}\\
+  \hline
+  Mahngebühren & <%fee%> EUR \\
+  Zinsen & <%interest%> EUR \\
+  \cline{2-2}
+  Gesamtsumme & <%invamount%> EUR\\
+\end{tabularx}
+
+\vspace*{0.5cm}
+
+Bitte begleichen Sie diese Forderung bis zum <%duedate%>.
+
+\vspace*{0.5cm}
+
+Mit freundlichen Grüßen,
+
+\vspace*{2cm}
+<%employee_name%>
+
+\end{document}
