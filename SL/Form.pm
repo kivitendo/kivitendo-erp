@@ -1507,8 +1507,9 @@ sub add_shipto {
                        shiptophone = ? AND
                        shiptofax = ? AND
                        shiptoemail = ? AND
-                       module = ?|;
-      my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module);
+                       module = ? AND 
+                       trans_id = ?|;
+      my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
       if(!$insert_check){
         $query =
           qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
