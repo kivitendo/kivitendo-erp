@@ -1469,6 +1469,7 @@ sub add_shipto {
 
   my $shipto;
   my @values;
+
   foreach my $item (qw(name department_1 department_2 street zipcode city country
                        contact phone fax email)) {
     if ($self->{"shipto$item"}) {
@@ -1476,6 +1477,7 @@ sub add_shipto {
     }
     push(@values, $self->{"shipto${item}"});
   }
+
   if ($shipto) {
     if ($self->{shipto_id}) {
       my $query = qq|UPDATE shipto set
@@ -1504,8 +1506,9 @@ sub add_shipto {
                        shiptocontact = ? AND
                        shiptophone = ? AND
                        shiptofax = ? AND
-                       shiptoemail = ?|;
-      my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values);
+                       shiptoemail = ? AND
+                       module = ?|;
+      my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module);
       if(!$insert_check){
         $query =
           qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
