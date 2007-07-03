@@ -553,6 +553,7 @@ sub post_invoice {
                 curr = ?,
                 department_id = ?,
                 storno = ?,
+                storno_id = ?,
                 globalproject_id = ?,
                 cp_id = ?,
                 employee_id = ?
@@ -564,7 +565,7 @@ sub post_invoice {
              conv_date($form->{duedate}), $taxzone_id,
              $form->{taxincluded} ? 't' : 'f',
              $form->{notes}, $form->{intnotes}, $form->{currency}, conv_i($form->{department_id}),
-             $form->{storno} ? 't' : 'f',
+             $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}),
              conv_i($form->{globalproject_id}), conv_i($form->{cp_id}),
              conv_i($form->{employee_id}),
              conv_i($form->{id}));

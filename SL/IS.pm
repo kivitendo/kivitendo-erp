@@ -992,6 +992,7 @@ Message: $form->{message}\r| if $form->{message};
                 employee_id = ?,
                 salesman_id = ?,
                 storno = ?,
+                storno_id = ?,
                 globalproject_id = ?,
                 cp_id = ?,
                 transaction_description = ?,
@@ -1009,7 +1010,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{"shipto_id"}),
              conv_i($form->{"delivery_customer_id"}), conv_i($form->{"delivery_vendor_id"}),
              conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),
-             $form->{"storno"} ? 't' : 'f', conv_i($form->{"globalproject_id"}),
+             $form->{"storno"} ? 't' : 'f', conv_i($form->{storno_id}), conv_i($form->{"globalproject_id"}),
              conv_i($form->{"cp_id"}), $form->{transaction_description},
              $form->{marge_total}, $form->{marge_percent},
              conv_i($form->{"id"}));
@@ -2162,9 +2163,9 @@ sub has_storno {
 sub is_storno {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $table) = @_;
+  my ($self, $myconfig, $form, $table, $id) = @_;
 
-  $main::lxdebug->leave_sub() and return 0 unless ($form->{id});
+  $main::lxdebug->leave_sub() and return 0 unless ($id);
 
   # make sure there's no funny stuff in $table
   # ToDO: die when this happens and throw an error
@@ -2173,7 +2174,7 @@ sub is_storno {
   my $dbh = $form->dbconnect($myconfig);
 
   my $query = qq|SELECT storno FROM $table WHERE id = ?|;
-  my ($result) = selectrow_query($form, $dbh, $query, $form->{id});
+  my ($result) = selectrow_query($form, $dbh, $query, $id);
 
   $dbh->disconnect();
 
