@@ -1475,9 +1475,9 @@ sub post {
     }
   }
 
-  ($form->{AR})      = split /--/, $form->{AR};
-  ($form->{AR_paid}) = split /--/, $form->{AR_paid};
-  $form->{storno}    = 0;
+  ($form->{AR})        = split /--/, $form->{AR};
+  ($form->{AR_paid})   = split /--/, $form->{AR_paid};
+  $form->{storno}    ||= 0;
 
   $form->{label} = $locale->text('Invoice');
 
