@@ -215,13 +215,13 @@ sub save {
     do_query($form, $dbh, $query, $form->{id}, $form->{employee_id});
   }
 
-  my $amount;
-  my $linetotal;
-  my $discount;
+  my $amount    = 0;
+  my $linetotal = 0;
+  my $discount  = 0;
   my $project_id;
   my $reqdate;
   my $taxrate;
-  my $taxamount;
+  my $taxamount = 0;
   my $fxsellprice;
   my %taxbase;
   my @taxaccounts;
@@ -330,7 +330,6 @@ sub save {
       # get pricegroup_id and save ist
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
       $pricegroup_id *= 1;
-      $subtotal = $form->{"subtotal_$i"} * 1;
 
       # save detail record in orderitems table
       @values = ();
@@ -356,7 +355,7 @@ sub save {
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
            $form->{"serialnumber_$i"}, $form->{"ship_$i"}, conv_i($pricegroup_id),
            $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
-           $form->{"cusordnumber_$i"}, $subtotal,
+           $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"});
       do_query($form, $dbh, $query, @values);
@@ -394,11 +393,11 @@ sub save {
 
   # fill in subject if there is none
   if ($form->{type} =~ /_order$/) {
-    $quotation = '0';
+    $quotation = 't';
     $form->{subject} = qq|$form->{label} $form->{ordnumber}|
       unless $form->{subject};
   } else {
-    $quotation = '1';
+    $quotation = 'f';
     $form->{subject} = qq|$form->{label} $form->{quonumber}|
       unless $form->{subject};
   }
@@ -421,14 +420,14 @@ Message: $form->{message}\r| if $form->{message};
 
   # save OE record
   $query =
-    qq|UPDATE oe set | .
-    qq|ordnumber = ?, quonumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?, | .
-    qq|customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?, | .
-    qq|shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, curr = ?, closed = ?, | .
-    qq|delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?, | .
-    qq|taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?, | .
-    qq|globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?| .
-    qq|WHERE id = ?|;
+    qq|UPDATE oe SET
+         ordnumber = ?, quonumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?,
+         customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?,
+         shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, curr = ?, closed = ?,
+         delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
+         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,
+         globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
+       WHERE id = ?|;
 
   @values = ($form->{ordnumber}, $form->{quonumber},
              $form->{cusordnumber}, conv_date($form->{transdate}),
@@ -436,7 +435,7 @@ Message: $form->{message}\r| if $form->{message};
              $amount, $netamount, conv_date($reqdate),
              $form->{taxincluded} ? 't' : 'f', $form->{shippingpoint},
              $form->{shipvia}, $form->{notes}, $form->{intnotes},
-             $form->{currency}, $form->{closed} ? 't' : 'f',
+             substr($form->{currency}, 0, 3), $form->{closed} ? 't' : 'f',
              $form->{delivered} ? "t" : "f", $form->{proforma} ? 't' : 'f',
              $quotation, conv_i($form->{department_id}),
              conv_i($form->{language_id}), conv_i($form->{taxzone_id}),
@@ -446,7 +445,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
-             $form->{marge_total}, $form->{marge_percent},
+             $form->{marge_total} * 1, $form->{marge_percent} * 1,
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
