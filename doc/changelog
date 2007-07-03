@@ -7,12 +7,84 @@
 
   Neue Features und Verbesserungen:
 
+  - Verkauf: Es wird der Ertrag (Marge) pro Position und gesamt
+    angezeigt.
+  - Bei allen Listenansichten/Berichten Buttons zum Export der Liste
+    als CSV- oder als PDF-Datei implementiert. Dieses PDF kann auch
+    direkt gedruckt werden. Zusätzlich wird die aktuelle
+    Sortierspalte und -richtung angezeigt.
+  - Eingangsrechnung: Als Rechnungsdatum wird das Datum der letzten
+    Eingangsrechnung vorausgewählt. Zusätzlich wird das
+    Fälligkeitsdatum in Abhängigkeit von den beim Lieferanten
+    ausgewählten Zahlungsbedingungen gesetzt.
+  - Kundenauftrag/Lieferantenbestellung: Wenn alle Positionen
+    vollständig geliefert wurden (also in allen Positionen der
+    Lagerein-/-ausgang == Anzahl ist), so wird beim Speichern das Flag
+    "Gelifert" automatisch gesetzt.
+  - Kunden-/Lieferantenstammdaten: Beim Ansprechpartner steht in der
+    Drop-Down-Box oben 'Neuer Ansprechpartner' anstelle eines leeren
+    Eintrages, damit der Benutzer besser weiß, was hier passiert.
+  - Neue Funktion "als bezahlt markieren" bei Rechnungen.
+  - Alle Rechnungsmasken: Unterhalb der Zahlungsein- und -ausgänge
+    werden die bisher gezahlte Summe und der noch ausstehende Betrag
+    angezeigt.
+  - Mahnwesen:
+    * Bei den Mahnungsübersichten wurden Checkboxen eingefügt, mit
+      denen alle Einträge an- und abgewählt werden können.
+    * Beim Anlegen von Mahnungen können automatisch
+      Debitorenrechnungen über die Mahngebühren und Zinsen angelegt
+      werden. Diese werden ebenfalls als PDF ausgedruckt.
+    * Beim Bericht über aktive Mahnungen können jetzt mehrere
+      Mahnungen und die dazugehörigen Rechnungen über Gebühren und
+      Zinsen gleichzeitig ausgedruckt werden.
+    * Mahnungen können wahlweise am Bildschirm oder direkt auf
+      Druckern ausgegeben werden. Zusätzlich können andere Sprachen
+      ausgewählt werden.
+  - Debitoren- und Kreditorenrechnungen können storniert werden.
+  - Beim Erstellen eines Lieferantenauftrages aus einem Kundenauftrag
+    wird überprüft, ob eine Lieferadresse ausgewählt oder eingegeben
+    war. Wenn ja, so wird der Benutzer gefragt, ob er diese
+    Lieferadresse beibehalten will, damit der Lieferant direkt an den
+    Kunden liefern kann.
+  - Datenbankadministration: Eine Backup- und eine
+    Wiederherstellungsfunktionen für einzelne Datenbanken
+    implementiert.
+  - In den Drop-Down-Boxen mit den Lieferanschriften werden nun der
+    Name, die Abteilung, die Straße und der Ort angezeigt, um
+    Lieferadressen besser unterscheiden zu können.
+  - Bei Einkaufs-/Verkaufsmasken sowie bei Debitoren- und
+    Kreditorenbuchungen wird ein Button angezeigt, der ein
+    Popupfenster öffnet, das zum ausgewählten Kunden/Lieferanten alle
+    Stammdaten inklusive Ansprechpartner und Lieferadressen anzeigt.
+  - Die Einkaufs- und Verkaufsmasken wurden etwas aufgeräumt und
+    übersichtlicher gestaltet.
+  - Dialogbuchen:
+    * Neue Checkbox "Details anzeigen", die einige Spalten verbirgt,
+      wenn sie nicht aktiv ist.
+    * Der in der ersten Zeile bei "Soll" eingetragene Wert wird
+      automatisch in die zweite Zeile bei "Haben" eingetragen.
+    * Es wird das Datum und die Nummer der letzten Buchung angezeigt.
+  - Wenn eine Datei 'lx-erp-local.conf' existiert, so wird diese nach
+    der 'lx-erp.conf' eingelesen.
+  - Unterstützung für andere Zeichensätze als ISO-8859-1 und
+    ISO-8859-15 (z.B. UTF-8) implementiert.
+  - Die Farbgebung des JavaScript-Menüs wurde an die Farbgebung des
+    CSS-Menüs angepasst.
+  - Die Masken zum Auflisten und Bearbeiten von Konten wurden
+    grundlegend überarbeitet und vereinfacht.
+  - Ein neues Feld 'Vorgangsbezeichnung' bei allen Einkaufs- und
+    Verkaufsmasken hinzugefügt.
+  - Das Kommandozeilentool 'scripts/dbupgrade2_tool.pl' kann jetzt
+    Datenbankupgrades einspielen.
+  - Bei den Listen der Einkaufs- und Verkaufsrechnungen wird in der
+    Spalte "Typ" noch genauer unterschieden.
   - Die History-Funktion speichert nun auch Rechnungs-,
     Angebotsnummern etc.
   - Die Funktionen zum Bearbeiten der HTML- und LaTeX-Vorlagen wurden
     komplett neu geschrieben. Es ist jetzt auch möglich, Vorlagen für
     die vom Benutzer eingerichteten Sprachen und Drucker zu erstellen
-    und zu bearbeiten.
+    und zu bearbeiten. Außerdem können die Vorlagen für alle
+    konfigurierten Mahnstufen bearbeitet werden.
   - Beim Verschicken von Sammelrechnungen per Email wird der Name des
     Anhangs besser gewählt (z.B. "Sammelrechnung_Datum.pdf").
   - Bei Kundenaufträgen wird die Checkbox "geliefert" auch angezeigt,
@@ -45,6 +117,55 @@
 
   Bugfixes:
 
+  - Beim Aufrufen bestehender Dialogbuchungen wurde das Feld 'Beleg'
+    nicht aus der Datenbank geholt.
+  - Webdav: Beim Erstellen der Ordner werden Pfadtrennzeichen (also
+    '/' und '\') durch Unterstriche ersetzt.
+  - In der Buchungsliste wurden Buchungen zusammengefasst, wenn ihre
+    Beschreibungsfelder identisch waren, auch wenn sie aus
+    unterschiedlichen Buchungen stammten.
+  - Bei der Suche nach Artikeln wird nicht mehr zwischen Groß- und
+    Kleinschreibung unterschieden.
+  - Die Funktionen zum Buchen von Zahlungsein- und -ausgängen wurde
+    komplett neu geschrieben und bezieht seine Daten direkt aus der
+    Datenbank, um bisherige Zahlungsein- und -ausgänge vor dem Buchen
+    der neuen Einträge zu entfernen.
+  - Der Wechselkurscode wurde komplett überarbeitet.
+  - Datenbankadministration: Die Funktion zur Aktualisierung von
+    Datenbanken so angepasst, dass sie auch die Scripte in
+    sql/Pg-upgrade2 verarbeiten kann.
+  - Nullbuchungen ( = Buchungen in der Finanzbuchhaltung mit Wert 0)
+    werden nicht mehr zugelassen.
+  - Die GuV zeigt die echten Werte und nicht mehr Beträge an.
+  - Angebots-/Rechnungsnummern etc werden um Leerzeichen am Anfang und
+    Ende bereinigt, sodass verhindert wird, dass Lx-Office leere
+    Nummern erzeugt, die später in der Liste der Belege nicht
+    anwählbar sind.
+  - Beim Stornieren aller Belege werden die Daten aus der Datenbank
+    geladen und nicht die vom Benutzer im Formular eingetragenen Daten
+    benutzt.
+  - Beim Stornieren von Einkaufs- und Verkaufsrechnungen wurden die
+    bisherigen Zahlungsaus- und -eingänge auch in der neuen
+    Stornorechnung verzeichnet.
+  - Alle Systemaufrufe (z.B. "system") und Pfadangaben (z.B. bei
+    "open") werden vor Verwendung überprüft und bereinigt.
+  - Alle Datenbankanfragen wurden auf die Verwendung von
+    parametrisierten Queries umgestellt. Wo dies nicht möglich war,
+    wurden Werte richtig gequotet.
+  - Mahnwesen:
+    * Die Dokumentation zu den Vorlagenvariablen wurde um die im
+      Mahnungswesen verfügbaren Variablen erweitert.
+    * In der Liste der neu zu erstellenden Mahnungen wurden die
+      Gebühren und Zinsen falsch angezeigt.
+    * Bereits angemahnte Rechnungen wurden zu früh zur erneuten
+      Mahnung angeboten.
+    * Beim Anlegen wurde eine Mahnstufenkonfiguration für alle
+      Rechnungen benutzt, auch wenn unterschiedliche Stufen vom
+      Benutzer ausgewählt waren.
+    * Es konnten Mahnungen erstellt werden, die Rechnungen
+      verschiedener Kunden enthielten.
+  - Beim Anlegen neuer Rechnungen wurde das Kreditlimit der
+    Lieferanten nicht richtig berechnet.
   - In den Einkaufs- und Verkaufsmasken wurde die Drop-Down-Box für
     die Steuerzone bei jedem Aufbau auf "Inland" zurückgesetzt.
   - Nummernkreise können jetzt auch Sonderzeichen wie
@@ -63,8 +184,6 @@
   - Lieferadressen werden nun nicht mehr doppelt gespeichert.
   - Beim Bearbeiten von Lieferanschriften wurden die Abteilungs-Felder
     der Rechnungsadresse nicht angezeigt.
-  - Beim Mahnwesen konnten Mahnungen erstellt werden, die Rechnungen
-    verschiedener Kunden enthielten.
   - Wenn "Stuer im Preis inbegriffen" angeklickt war, dann wurden die
     falschen Beträge beim Drucken in den Summenvariablen hinterlegt.
   - Die Einheiten bei Erzeugnissen wurden in Einkaufs- und
@@ -85,12 +204,8 @@
     verändert, so wird der Steuerschlüssel unter Beibehaltung des
     ausgewählten Kontos richtig gesetzt.
   - Der Storno-Button wird nur angezeigt, wenn die Rechnung noch nicht
-    storniert wurde.
-  - Beim Stornieren von Einkaufs- und Verkaufsrechnungen werden die zu
-    stornierenden Daten aus der Datenbank geladen und nicht aus dem
-    Formular genommen.
-  - Das mehrmalige Stornieren von Einkaufs- und Verkaufsrechnungen
-    wurde verhindert.
+    storniert wurde. Zusätzlich wurde das mehrmalige Stornieren
+    verhindert.
   - Rechnungs- und Gutschriftsnummern werden nun direkt innerhalb der
     Backend-Routinen innerhalb der gleichen Transaktion vergeben, in
     der auch die eigentliche Rechnung etc gespeichert wird. Damit soll
@@ -106,18 +221,51 @@
     verschwanden beim Speichern.
   - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
   - Diverse Fehler im USTVA-Modul behoben
+
+  - Bugfix 701
+  - Bugfix 700
+  - Bugfix 686
+  - Bugfix 684
+  - Bugfix 681
+  - Bugfix 675
+  - Bugfix 670
+  - Bugfix 662
+  - Bugfix 661
+  - Bugfix 658
+  - Bugfix 656
+  - Bugfix 654
+  - Bugfix 653
+  - Bugfix 651
+  - Bugfix 650
+  - Bugfix 646
+  - Bugfix 644
+  - Bugfix 640
+  - Bugfix 639
+  - Bugfix 638
+  - Bugfix 637
+  - Bugfix 636
+  - Bugfix 631
+  - Bugfix 630
+  - Bugfix 626
+  - Bugfix 624
   - Bugfix 619
   - Bugfix 618
+  - Bugfix 617
   - Bugfix 614
   - Bugfix 609
   - Bugfix 608
   - Bugfix 603
   - Bugfix 598
+  - Bugfix 596
   - Bugfix 583
+  - Bugfix 579
   - Bugfix 577
   - Bugfix 576
   - Bugfix 567
+  - Bugfix 553
   - Bugfix 543
+  - Bugfix 473
+  - Bugfix 93
 
 2007-02-23 - Version 2.4.2
 
