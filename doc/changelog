@@ -222,50 +222,142 @@
   - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
   - Diverse Fehler im USTVA-Modul behoben
 
-  - Bugfix 701
-  - Bugfix 700
-  - Bugfix 686
-  - Bugfix 684
-  - Bugfix 681
-  - Bugfix 675
-  - Bugfix 670
-  - Bugfix 662
-  - Bugfix 661
-  - Bugfix 658
-  - Bugfix 656
-  - Bugfix 654
-  - Bugfix 653
-  - Bugfix 651
-  - Bugfix 650
-  - Bugfix 646
-  - Bugfix 644
-  - Bugfix 640
-  - Bugfix 639
-  - Bugfix 638
-  - Bugfix 637
-  - Bugfix 636
-  - Bugfix 631
-  - Bugfix 630
-  - Bugfix 626
-  - Bugfix 624
-  - Bugfix 619
-  - Bugfix 618
-  - Bugfix 617
-  - Bugfix 614
-  - Bugfix 609
-  - Bugfix 608
-  - Bugfix 603
-  - Bugfix 598
-  - Bugfix 596
-  - Bugfix 583
-  - Bugfix 579
-  - Bugfix 577
-  - Bugfix 576
-  - Bugfix 567
-  - Bugfix 553
-  - Bugfix 543
-  - Bugfix 473
-  - Bugfix 93
+  - Bugfix 701 - Verkauf -> Auftrag erfassen -> Löschen
+  - Bugfix 700 - Verkauf -> Auftrag erfassen -> Rechnung
+  - Bugfix 691 - Es können beliebig viele Mahnungen erzeugt werden
+  - Bugfix 690 - keine Rechnung über 0,00&#8364; möglich
+  - Bugfix 689 - Nach DB-Update kein weiter-Button
+  - Bugfix 686 - Historien-Button unter Stammdaten->Projekt erfassen
+  - Bugfix 684 - Stammdaten -> Dienstleistung erffassen Formel hat keine textarea
+  - Bugfix 681 - Debitorenbuchungen: Liste als PDF exportieren
+  - Bugfix 678 - Nummernkreise für selbst angelegte Kundentypen werden
+    nicht übernommen
+  - Bugfix 675 - zurück-button in "Lx-Office ERP
+    Datenbankadministration / Datenbank sichern" fehlt
+  - Bugfix 670 - Mahnung anlegen
+  - Bugfix 668 - Datenbankupdate schlägt fehl
+  - Bugfix 662 - Storno von Dialogbuchung erzeugt fehlermeldung
+  - Bugfix 661 - Einkaufsrechnung: Selectbox Lieferant ist falsch
+    sortiert oder unsortiert
+  - Bugfix 658 - Beim Aufrufen eines Belegs wird der Bearbeiter nicht
+    mehr angezeigt
+  - Bugfix 657 - Wenn für Kunden/Lieferanten keine Dropdownbox
+    angezeigt wird, steht die interne ID mit im Feld
+  - Bugfix 656 - Angebot löschen geht nicht
+  - Bugfix 655 - Verkaufsangebot bearbeiten: Währungseinheit EUR,
+    Wechselkurs: 0,000,
+  - Bugfix 654 - In der PDF Ausgabe von Verkaufsrechnungen fehlen
+    Kundendaten
+  - Bugfix 653 - Stammdaten Waren Suche nach Hersteller schlägt fehl
+  - Bugfix 652 - Datenbankadministration / Datenbank sichern per
+    Email: Ungültiges Passwort
+  - Bugfix 651 - Kreditorenbuchung, Debitorenbuchung:Zahlung erfassen:
+    Fehler Nullbuchung!
+  - Bugfix 650 - admin.pl: Benutzer ändern, speichern, Fehler
+  - Bugfix 646 - Dialogbuchungen: Storno von Stornobuchungen ist
+    möglich.
+  - Bugfix 645 - Kreditorenbuchung Historie funktioniert nicht
+  - Bugfix 644 - Der Javascriptcheck für Zahleneingaben bei Zahlungen
+    zeigt Fehler, wo keine sind.
+  - Bugfix 643 - Storno macht probleme bei kommazahlen in der Zahlung
+  - Bugfix 642 - Kreditorenbuchung Storno funktioniert nicht                                   |
+  - Bugfix 641 - Debitorenbuchung Storno funktioniert nicht
+  - Bugfix 640 - Einkaufsrechnungen Storno funktioniert nicht
+  - Bugfix 639 - Ausgangsrechnungen: Checkbox Steuer im Preis
+    inbegriffen funktioniert nicht
+  - Bugfix 638 - Redirect übernimmt keine Mitarbeiter Filterkriterien
+  - Bugfix 637 - Es können Belege mit Leerzeichen als Belegnummer
+    angelegt werden
+  - Bugfix 636 - Keine Lagerveränderung bei Gutschrift
+  - Bugfix 633 - Mahnwesen stimmt Abstand zwischen verschiedenen
+    Mahnstufen nicht
+  - Bugfix 631 - Wenn Mahnungen für mehrere Kunden erzeugt werden,
+    haben alle die gleiche Adresse
+  - Bugfix 630 - Fehler beim anklicken einer Referenz bei Übersicht
+    Zahlungsein/ausgang
+  - Bugfix 629 - Buchungen werden in die Historie aufgenommen, obwohl
+    die Buchung noch nicht vollzogen wurde
+  - Bugfix 626 - Logout bei diversen Funktionsaufrufen
+  - Bugfix 625 - Fehler in WebDAV
+  - Bugfix 624 - Rückerstattungen erhöhen Aufwandskonten in GuV
+    anstatt sie zu verringern
+  - Bugfix 622 - UTF-8-Zeichensatz wird immer angezeigt
+  - Bugfix 619 - Rechnungsversand via eMail erzeugt 10fache
+    Positionsbeträge
+  - Bugfix 618 - Buchung mit verschiedenen Steuersätzen aufs gleiche
+    Konto schlägt fehl
+  - Bugfix 617 - GuV - Position Umsatzsteuer 7%
+  - Bugfix 614 - Drucken und Emailen von offener Rechnung erzeugt zwei
+    duplikate der Rechnung
+  - Bugfix 613 - Entwurf speichern geht nur bei neuen Rechnungen,
+    nicht bei bereits angelegten
+  - Bugfix 610 - Rechnung drucken erzeugt Postgresfehler
+  - Bugfix 609 - Longdescription wird nicht gequoted/escaped
+  - Bugfix 608 - Feld Titel bei Kunden > Ansprechpartner = zu kurz
+  - Bugfix 607 - Emailen von noch nicht gebuchten Rechnung bucht
+    Rechnung nicht
+  - Bugfix 603 - Interne Bemerkungen werden nicht weiter gegeben
+  - Bugfix 602 - Mahnungen werden falsch angezeigt nach Erstellung
+  - Bugfix 598 - Angebotsnummer bei "Angebot als neu speichern"
+    übernehmen
+  - Bugfix 596 - neue Zahlenformate wirken nicht auf alle Zahlen in
+    Formularen
+  - Bugfix 595 - Link fuer neues Fenster in der Uhrzeitlinie
+  - Bugfix 592 - eventual / alternativ im Angebot ermöglichen
+  - Bugfix 585 - USTVA - doppelt minus = plus                                                  |
+  - Bugfix 583 - Zahlungen werden ohne taxkey in der acc_trans
+    gespeichert
+  - Bugfix 582 - Verkaufsrechnung: Steuerschlüssel stimmen nicht mit
+    identischer Debitorenbuchung überein.
+  - Bugfix 581 - Debitorenbuchung: Steuerschlüssel stimmen nicht mit
+    identischer Verkaufsrechnung überein.
+  - Bugfix 579 - UStVA wird falsch berechnet
+  - Bugfix 578 - Rechnung erfassen - wenn artikel ein erzeugnis ist
+    die Einheit falsch
+  - Bugfix 577 - Debitorenbuchung: Falsches Konto wird ausgewählt nach
+    update
+  - Bugfix 576 - Nettosumme bei MwSt incl.
+  - Bugfix 575 - Diskrepanzen zwischen Storno einer Rechnung und
+    Originalrechnung
+  - Bugfix 574 - Links besser hervorheben
+  - Bugfix 573 - r2023- Dialogbuchung: Falsche Steuersätze werden
+    ausgewählt
+  - Bugfix 572 - Kreditorenbuchung nicht moeglich
+  - Bugfix 567 - Nachkommastellen vom Einkaufspreis verschwinden
+  - Bugfix 564 - Datev Export in Version 2.4.0, 2.4.1 rechnet immer
+    mit 19 Prozent Umsatzsteuer
+  - Bugfix 553 - neue Fehlermeldung im Mahnlauf
+  - Bugfix 543 - Keine Auftragsbearbeitung bei Kunden mit
+    Zeilenumbruch im Firmenname
+  - Bugfix 526 - Konto 1588 (Einfuhrumsatzsteuer) wird bei UStVA
+    ignoriert
+  - Bugfix 523 - Mehrfachstornierungen möglich
+  - Bugfix 473 - Fehler bei der Mahnungsausgabe
+  - Bugfix 472 - stornierte Rechnung taucht nicht in Buchungsjounal
+    auf
+  - Bugfix 435 - r1379:Datenbankupgrade über admin.pl schlägt fehl
+  - Bugfix 428 - Anzeige der Grafik einer Kontaktperson in
+    Kontaktpersonübersicht fehlerhaft
+  - Bugfix 414 - Dialogbuchen nicht vorhandenes Feld Projekt Bezug auf
+    Bug 149
+  - Bugfix 405 - Suchbegriffe mit Umlauten werden nicht gefunden
+  - Bugfix 342 - Datumsangaben werden nicht auf Korrektheit geprüft
+  - Bugfix 328 - Quoten auch in der ap, oder?
+  - Bugfix 324 - SQL-Fehler bei Zahlungsausgang
+  - Bugfix 313 - update wechselkurstabelle
+  - Bugfix 272 - syntax fehler in hidden-form-feldern
+  - Bugfix 269 - Buchungen lassen sich beliebig oft stornieren
+  - Bugfix 242 - Splittbuchen: Debitorenbuchung diverse Fehler
+  - Bugfix 211 - Debitoren und Kreditorenbuchung mit mehreren
+    Buchungszeilen
+  - Bugfix 208 - Buchungsjournal: Fehlbuchungen anzeigen
+  - Bugfix 172 - Zeilenumbruch in <%partnotes%> wird in Latex als ^M
+    dargestellt
+  - Bugfix 152 - Kein Projekt-Eingabefeld beim Dialogbuchen ...
+  - Bugfix 149 - projekt_id wird nicht in acc_trans eingetragen bei
+    Rechnungserstellung
+  - Bugfix 62 - Usability: Nach Dialogbuchung Formular wieder anzeigen
+  - Bugfix 93 - Keine negativen Konten in GuV
 
 2007-02-23 - Version 2.4.2
 
@@ -277,8 +369,8 @@
   - Betr. Steueranzeige unterhalb von Rechnungen, Angeboten, etc: an die neuen
     Taxkeys angepasst.
   - Unbalanced Ledger Fehlermeldung im Buchungsjournal wieder hinzugefuegt.
-    Das Buchungsjournal wird immer dargestellt. Im Falle eines Fehlers 
-    (soll+vst) - (haben+ust) > 0.001 
+    Das Buchungsjournal wird immer dargestellt. Im Falle eines Fehlers
+    (soll+vst) - (haben+ust) > 0.001
     wird im Tabellenfuss die 'Unbalanced Ledger' Meldung ausgegeben mit dem
     Bilanzfehlerbetrag.
   - Einkaufs-, Verkaufs-, Debitoren- und Kreditorenrechnungen können
@@ -474,7 +566,7 @@
   - Bugfix 409 - Bericht Waren funktioniert nicht bei Bestellt, etc.
   - Viele weitere Bugfixes
 
-2006-03-07 - Version 2.2.2 (942 - 970) 
+2006-03-07 - Version 2.2.2 (942 - 970)
   - Bugfix 308 - falsches Quoten bei Kreditorenbuchungen
   - Bugfix 306 - UStVa Vorschau vervollstaendigt
 
@@ -489,7 +581,7 @@
 
 2006-02-03 - Version 2.2.0 - Revision testing (542 - 855)
 
-  - Neues Menü - horizontal Anordnung 
+  - Neues Menü - horizontal Anordnung
   - Splitbuchungen für Kreditoren-, Debitoren- und Dialogbuchungen
   - Preisgruppen für Waren und Erzeugnisse
   - Sammelbestellungen aus Aufträgen generieren
@@ -504,11 +596,11 @@
     Quoting überarbeitet
     Fix für Perl 5.6.x - Block Syntaxfehler
     SQL-Performance "Raussuchen letzter Kunde" optimiert
-    Fehlerhafte Seriennummernsuche bei Angeboten/Aufträgen 
-    DATEV Bug: Kein Timeout bei großen Exporten 
+    Fehlerhafte Seriennummernsuche bei Angeboten/Aufträgen
+    DATEV Bug: Kein Timeout bei großen Exporten
     DATEV Bug: Fehler bei negativen Umsätzen
     BWA Bug: Fehler bei der Berechnung der Summen
-    Kundenübersicht Auftragsnummer wurde nicht angezeigt 
+    Kundenübersicht Auftragsnummer wurde nicht angezeigt
   - Bugfixes Bugzilla
     Bug#49:   UStVa Rundungsfehler
     Bug#124:  UBL behoben
@@ -526,7 +618,7 @@
     Bug#187:  UBL im Buchungsjournal, wenn nicht alle ausgewählt war
     Bug#189:  Rundungsfehler behoben
     Bug#190:  Abteilung1/2 bei Lieferadresse konnten nicht gespeichert werden
-    Bug#198:  Rechnung nicht angezeigt nach Eingabe einer Lieferanschrift 
+    Bug#198:  Rechnung nicht angezeigt nach Eingabe einer Lieferanschrift
     Bug#199:  Speichern eines Lieferantenauftrages nicht möglich
     Bug#204:  Storno bei Splitbuchungen fehlerhaft
     Bug#205:  In Dialogbuchungen MwSt. bei Buchungen nicht berücksichtigt
