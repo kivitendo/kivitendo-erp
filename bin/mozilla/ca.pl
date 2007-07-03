@@ -299,6 +299,7 @@ sub list_transactions {
   my $idx       = 0;
   my %totals    = ( 'debit' => 0, 'credit' => 0 );
   my %subtotals = ( 'debit' => 0, 'credit' => 0 );
+  my ($previous_index, $row_set);
 
   foreach my $ca (@{ $form->{CA} }) {
     $form->{balance} += $ca->{amount};
@@ -320,9 +321,20 @@ sub list_transactions {
       };
     }
 
-    $row->{reference}->{link} = build_std_url("script=$ca->{module}.pl", 'action=edit', 'id=' . E($ca->{id}), 'callback');
+    if ($ca->{index} ne $previous_index) {
+      $report->add_data($row_set) if ($row_set);
 
-    $report->add_data($row);
+      $row_set         = [ ];
+      $previous_index  = $ca->{index};
+
+      $row->{reference}->{link} = build_std_url("script=$ca->{module}.pl", 'action=edit', 'id=' . E($ca->{id}), 'callback');
+
+    } else {
+      map { $row->{$_}->{data} = '' } qw(reference description);
+      $row->{transdate}->{data} = '' if ($form->{sort} eq 'transdate');
+    }
+
+    push @{ $row_set }, $row;
 
     if (($form->{l_subtotal} eq 'Y')
         && (($idx == scalar @{ $form->{CA} } - 1)
