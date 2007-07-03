@@ -3,9 +3,10 @@
 ####################################
 
 
-2007-??-?? - Version 2.4.3
-  - In den Einkaufs- und Verkaufsmasken wurde die Drop-Down-Box für
-    die Steuerzone bei jedem Aufbau auf "Inland" zurückgesetzt.
+2007-??-?? - Version 2.6.0
+
+  Neue Features und Verbesserungen:
+
   - Die History-Funktion speichert nun auch Rechnungs-,
     Angebotsnummern etc.
   - Die Funktionen zum Bearbeiten der HTML- und LaTeX-Vorlagen wurden
@@ -19,6 +20,33 @@
   - Eingabefelder für Datumsangaben und Zahlen werden nun per
     Javascript auf falsche Formate überprüft (noch nicht
     flächendeckend implementiert).
+  - Wenn bei Einkaufs-/Verkaufs-/Debitoren- oder Kreditorenmasken der
+    Kunde/Lieferant per Drop-Down-Box gewechselt wird, so wird das
+    Formular automatisch erneuert.
+  - Kunden- und Lieferantenstammdatenberichte können jetzt nach
+    Kunden-/Lieferantentyp gefiltert werden.
+  - Bei Kunden- und Lieferantenstammdatenberichten werden
+    standardmäßig nur noch die gültigen Einträge angezeigt. Die
+    ungültigen können zusätzlich angezeigt werden.
+  - Bei Einkaufs- und Verkaufsmasken ist es nun möglich, keinen
+    Ansprechpartner auszuwählen.
+  - Kunden kann ein Verkäufer zugewiesen werden. In den
+    Verkaufsmasken kann jedem Beleg zusätzlich zum Bearbeiter ( =
+    aktueller Lx-Office-Benutzer) noch ein separater Verkäufer
+    zugeordnet werden, der mit dem beim Kunden hinterlegten Verkäufer
+    vorbelegt ist.
+  - Bei "Als neu speichern" wird nur dann eine neue Rechnungs-,
+    Angebotsnummer etc vergeben, wenn die bisherige Nummer nicht
+    manuell verändert wurde. Ansonsten wird die Eingabe des Benutzers
+    beibehalten.
+  - Einkaufs-/Verkaufsmasken: zur Berechnung des Fälligkeitsdatum
+    werden anstelle des nicht mehr existierenden Zahlungsziels die
+    ausgewählten Zahlungsbedingungen benutzt.
+
+  Bugfixes:
+
+  - In den Einkaufs- und Verkaufsmasken wurde die Drop-Down-Box für
+    die Steuerzone bei jedem Aufbau auf "Inland" zurückgesetzt.
   - Nummernkreise können jetzt auch Sonderzeichen wie
     Gleichheitszeichen enthalten.
   - Beim Umwandeln von Lieferantenaufträgen in Kundenaufträge und
@@ -27,24 +55,14 @@
     oder vom Benutzer eingegeben werden kann.
   - Stornierte Rechnungen werden bei den Listen der offenen
     Forderungen und Verbindlichkeiten nicht mehr angezeigt.
-  - Wenn bei Einkaufs-/Verkaufs-/Debitoren- oder Kreditorenmasken der
-    Kunde/Lieferant per Drop-Down-Box gewechselt wird, so wird das
-    Formular automatisch erneuert.
   - Einkaufs- und Verkaufsbelege werden beim Verschicken per Email nur
     dann vorher gespeichert, wenn sie noch gar nicht gespeichert
     waren. Außerdem werden die Zahlenformatierungen richtig beachtet.
   - Kunden-/Lieferantennamen mit Zeilenumbrüchen im Namen werden
     bereinigt.
   - Lieferadressen werden nun nicht mehr doppelt gespeichert.
-  - Kunden- und Lieferantenstammdatenberichte können jetzt nach
-    Kunden-/Lieferantentyp gefiltert werden.
   - Beim Bearbeiten von Lieferanschriften wurden die Abteilungs-Felder
     der Rechnungsadresse nicht angezeigt.
-  - Bei Kunden- und Lieferantenstammdatenberichten werden
-    standardmäßig nur noch die gültigen Einträge angezeigt. Die
-    ungültigen können zusätzlich angezeigt werden.
-  - Bei Einkaufs- und Verkaufsmasken ist es nun möglich, keinen
-    Ansprechpartner auszuwählen.
   - Beim Mahnwesen konnten Mahnungen erstellt werden, die Rechnungen
     verschiedener Kunden enthielten.
   - Wenn "Stuer im Preis inbegriffen" angeklickt war, dann wurden die
@@ -53,22 +71,10 @@
     Verkaufsrechnungen nicht richtig angezeigt.
   - Große Teile toten Codes entfernt (u.a. zum Thema GIFI, customer
     tax, vendor tax).
-  - Kunden können ein Verkäufer zugewiesen werden. In den
-    Verkaufsmasken kann jedem Beleg zusätzlich zum Bearbeiter ( =
-    aktueller Lx-Office-Benutzer) noch ein separater Verkäufer
-    zugeordnet werden, der mit dem beim Kunden hinterlegten Verkäufer
-    vorbelegt ist.
   - Beim Erstellen von Aufträgen/Buchungen aus der
     Kunden-/Lieferantenstammdatenmaske heraus wurden die Bemerkungen
     des Kunden/Lieferanten nicht in die internen Bemerkung des neuen
     Beleges übernommen.
-  - Bei "Als neu speichern" wird nur dann eine neue Rechnungs-,
-    Angebotsnummer etc vergeben, wenn die bisherige Nummer nicht
-    manuell verändert wurde. Ansonsten wird die Eingabe des Benutzers
-    beibehalten.
-  - Einkaufs-/Verkaufsmasken: zur Berechnung des Fälligkeitsdatum
-    werden anstelle des nicht mehr existierenden Zahlungsziels die
-    ausgewählten Zahlungsbedingungen benutzt.
   - Bei Buchungen mit "Zahlung buchen" wird der Steuerschlüssel
     richtig gespeichert.
   - Dialogbuchen: Bei neu hinzugefügten Zeilen wird der
@@ -85,8 +91,6 @@
     Formular genommen.
   - Das mehrmalige Stornieren von Einkaufs- und Verkaufsrechnungen
     wurde verhindert.
-  - Links und das jeweils aktive Eingabefeld werden durch andere
-    Farbgebung deutlicher hervorgehoben.
   - Rechnungs- und Gutschriftsnummern werden nun direkt innerhalb der
     Backend-Routinen innerhalb der gleichen Transaktion vergeben, in
     der auch die eigentliche Rechnung etc gespeichert wird. Damit soll
@@ -98,8 +102,8 @@
     Projektnummern richtig in der Drop-Down-Box vorausgewählt.
   - Bei Debitoren-, Kreditoren- und Dialogbuchungsmasken werden die
     Steuerkonten richtig vorausgewählt, wenn die Masken geöffnet werden.
-  - Nachkommastellen bei Einkaufspreise bei Dienstleistungen
-    verschwanden beim Speichern
+  - Nachkommastellen bei Einkaufspreisen bei Dienstleistungen
+    verschwanden beim Speichern.
   - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
   - Diverse Fehler im USTVA-Modul behoben
   - Bugfix 619
