@@ -222,6 +222,7 @@
   - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
   - Diverse Fehler im USTVA-Modul behoben
 
+  - Bugfix 703 - Drucken eines Lieferantenauftrages erzeugt SQL-ERROR
   - Bugfix 701 - Verkauf -> Auftrag erfassen -> Löschen
   - Bugfix 700 - Verkauf -> Auftrag erfassen -> Rechnung
   - Bugfix 691 - Es können beliebig viele Mahnungen erzeugt werden
