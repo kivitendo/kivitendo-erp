@@ -411,7 +411,7 @@ sub ar_transactions {
     qq|SELECT a.id, a.invnumber, a.ordnumber, a.transdate, | .
     qq|  a.duedate, a.netamount, a.amount, a.paid, | .
     qq|  a.invoice, a.datepaid, a.terms, a.notes, a.shipvia, | .
-    qq|  a.shippingpoint, a.storno, a.globalproject_id, | .
+    qq|  a.shippingpoint, a.storno, a.storno_id, a.globalproject_id, | .
     qq|  a.marge_total, a.marge_percent, | .
     qq|  a.transaction_description, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
