@@ -307,33 +307,29 @@ sub display_row {
 
     # marge calculations
     my ($marge_font_start, $marge_font_end);
-    $form->{"lastcost_$i"} *= 1;
-    if ($real_sellprice && ($form->{"qty_$i"} * 1)) {
-      $form->{"marge_percent_$i"} =
-        ($real_sellprice - $form->{"lastcost_$i"}) * 100 / $real_sellprice;
 
-      $myconfig{"marge_percent_warn"} = 15
-        unless (defined($myconfig{"marge_percent_warn"}));
+    $form->{"lastcost_$i"} *= 1;
+
+    if ($real_sellprice && ($form->{"qty_$i"} * 1)) {
+      $form->{"marge_percent_$i"}     = ($real_sellprice - $form->{"lastcost_$i"}) * 100 / $real_sellprice;
+      $myconfig{"marge_percent_warn"} = 15 unless (defined($myconfig{"marge_percent_warn"}));
+
       if ($form->{"id_$i"} &&
-          ($form->{"marge_percent_$i"} <
-           (1 * $myconfig{"marge_percent_warn"}))) {
+          ($form->{"marge_percent_$i"} < (1 * $myconfig{"marge_percent_warn"}))) {
         $marge_font_start = "<font color=\"#ff0000\">";
-        $marge_font_end = "</font>";
+        $marge_font_end   = "</font>";
       }
+
     } else {
       $form->{"marge_percent_$i"} = 0;
     }
-    $form->{"marge_absolut_$i"} =
-      ($real_sellprice - $form->{"lastcost_$i"}) * $form->{"qty_$i"};
-    $form->{"marge_total"} += $form->{"marge_absolut_$i"};
-    $form->{"lastcost_total"} += $form->{"lastcost_$i"} * $form->{"qty_$i"};
-    $form->{"sellprice_total"} += $real_sellprice * $form->{"qty_$i"};
 
-    map {
-      $form->{"${_}_$i"} =
-        $form->format_amount(\%myconfig, $form->{"${_}_$i"},
-                              2)
-    } qw(marge_absolut marge_percent);
+    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"}) * $form->{"qty_$i"};
+    $form->{"marge_total"}      += $form->{"marge_absolut_$i"};
+    $form->{"lastcost_total"}   += $form->{"lastcost_$i"} * $form->{"qty_$i"};
+    $form->{"sellprice_total"}  += $real_sellprice * $form->{"qty_$i"};
+
+    map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
 
     # convert " to &quot;
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
