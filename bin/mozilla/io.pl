@@ -91,6 +91,11 @@ sub display_row {
   $lxdebug->enter_sub();
   my $numrows = shift;
 
+  my $is_sales =
+    (substr($form->{type}, 0, 6) eq "sales_")
+    || (($form->{type} eq "invoice") && ($form->{script} eq "is.pl"))
+    || ($form->{type} eq 'credit_note');
+
   if ($lizenzen && $form->{vc} eq "customer") {
     if ($form->{type} =~ /sales_order/) {
       @column_index = (runningnumber, partnumber, description, ship, qty);
@@ -525,10 +530,14 @@ sub display_row {
           <b>|.$locale->text('Subtotal').qq|</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" "$subtotalchecked">
 |;
 
+    if ($form->{"id_$i"} && $is_sales) {
+      print qq|
+          ${marge_font_start}<b>| . $locale->text('Ertrag') . qq|</b>&nbsp;$form->{"marge_absolut_$i"} &nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}
+          &nbsp;<b>| . $locale->text('LP') . qq|</b>&nbsp;| . $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2) . qq|
+          &nbsp;<b>| . $locale->text('EK') . qq|</b>&nbsp;| . $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2);
+    }
+
     print qq|
-          ${marge_font_start}<b>|.$locale->text('Ertrag').qq|</b>&nbsp;$form->{"marge_absolut_$i"} &nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}
-          &nbsp;<b>|.$locale->text('LP').qq|</b>&nbsp;|.$form->format_amount(\%myconfig,$form->{"listprice_$i"},2).qq|
-          &nbsp;<b>|.$locale->text('EK').qq|</b>&nbsp;|.$form->format_amount(\%myconfig,$form->{"lastcost_$i"},2).qq|
 	  </td>
 	</tr>
 |;

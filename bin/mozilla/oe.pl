@@ -1012,6 +1012,10 @@ sub form_footer {
 	  </td>
           <td>
             <table>
+|;
+
+  if ($form->{type} =~ /^sales_/) {
+    print qq|
             <tr>
               <th  align=left>| . $locale->text('Ertrag') . qq|</th>
               <td>| .  $form->format_amount(\%myconfig, $form->{marge_total}, 2, 0) . qq|</td>
@@ -1020,6 +1024,10 @@ sub form_footer {
               <th  align=left>| . $locale->text('Ertrag prozentual') . qq|</th>
               <td>| .  $form->format_amount(\%myconfig, $form->{marge_percent}, 2, 0) . qq| %</td>
             </tr>
+|;
+  }
+
+  print qq|
             <input type=hidden name="marge_total" value="$form->{"marge_total"}">
             <input type=hidden name="marge_percent" value="$form->{"marge_percent"}">
             </table>
