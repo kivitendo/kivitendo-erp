@@ -2815,18 +2815,9 @@ sub update {
 
       }
     }
-  }
 
-  if ($form->{item} eq "part") {
+  } elsif (($form->{item} eq 'part') || ($form->{item} eq 'service')) {
     &check_form;
-  }
-
-  if ($form->{item} eq 'service') {
-    map({ $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-        qw(sellprice listprice lastcost));
-    &form_header;
-    &price_row;
-    &form_footer;
   }
 
   $lxdebug->leave_sub();

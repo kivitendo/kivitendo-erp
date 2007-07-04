@@ -1067,6 +1067,9 @@ sub check_form {
     $form->redo_rows(\@flds, \@a, $count, $form->{makemodel_rows});
     $form->{makemodel_rows} = $count;
 
+  } elsif ($form->{item} eq 'service') {
+    map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(listprice sellprice lastcost);
+
   } else {
 
     # this section applies to invoices and orders
