@@ -324,7 +324,8 @@ sub display_row {
       $form->{"marge_percent_$i"} = 0;
     }
 
-    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"}) * $form->{"qty_$i"};
+    my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
+    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"}) * $form->{"qty_$i"} * $marge_adjust_credit_note;
     $form->{"marge_total"}      += $form->{"marge_absolut_$i"};
     $form->{"lastcost_total"}   += $form->{"lastcost_$i"} * $form->{"qty_$i"};
     $form->{"sellprice_total"}  += $real_sellprice * $form->{"qty_$i"};
