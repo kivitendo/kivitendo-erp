@@ -903,6 +903,9 @@ sub post_invoice {
                                    $form->{"exchangerate_$i"}, 0);
       }
     }
+
+  } else {                      # if (!$form->{storno})
+    $form->{marge_total} *= -1;
   }
 
   if ($payments_only) {
@@ -1012,7 +1015,7 @@ Message: $form->{message}\r| if $form->{message};
              conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),
              $form->{"storno"} ? 't' : 'f', conv_i($form->{storno_id}), conv_i($form->{"globalproject_id"}),
              conv_i($form->{"cp_id"}), $form->{transaction_description},
-             $form->{marge_total}, $form->{marge_percent},
+             $form->{marge_total} * 1, $form->{marge_percent} * 1,
              conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
   
@@ -1414,6 +1417,7 @@ sub retrieve_invoice {
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description,
+           a.marge_total, a.marge_percent,
            e.name AS employee
          FROM ar a
          LEFT JOIN employee e ON (e.id = a.employee_id)
