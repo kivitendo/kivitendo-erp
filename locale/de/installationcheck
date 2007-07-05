@@ -1,5 +1,7 @@
 $self->{texts} = {
   'At least one Perl module that Lx-Office ERP requires for running is not installed on your system.' => 'Mindestes ein Perl-Modul, das Lx-Office ERP zur Ausf&uuml;hrung ben&ouml;tigt, ist auf Ihrem System nicht installiert.',
+  'Directory'                   => 'Verzeichnis',
+  'File'                        => 'Datei',
   'Here\'s an example command line:' => 'Hier ist eine Kommandozeile, die als Beispiel dient:',
   'Module home page'            => 'Modul-Webseite',
   'Module name'                 => 'Modulname',

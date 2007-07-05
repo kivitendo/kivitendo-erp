@@ -965,11 +965,11 @@ sub form_footer {
       <td align="left" width="30%"><b>Dateiname</b></td>
       <td align="left" width="70%"><b>Webdavlink</b></td>
 |;
-    foreach $file (keys %{ $form->{WEBDAV} }) {
+    foreach $file (@{ $form->{WEBDAV} }) {
       $webdav_list .= qq|
       <tr>
-        <td align="left">$file</td>
-        <td align="left"><a href="$form->{WEBDAV}{$file}">$form->{WEBDAV}{$file}</a></td>
+        <td align="left">$file->{name}</td>
+        <td align="left"><a href="$file->{link}">$file->{type}</a></td>
       </tr>
 |;
     }

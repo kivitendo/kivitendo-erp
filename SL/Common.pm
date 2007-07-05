@@ -260,7 +260,7 @@ sub webdav_folder {
 
   my ($path, $number);
 
-  $form->{WEBDAV} = {};
+  $form->{WEBDAV} = [];
 
   if ($form->{type} eq "sales_quotation") {
     ($path, $number) = ("angebote", $form->{quonumber});
@@ -293,18 +293,22 @@ sub webdav_folder {
     $base_path =~ s|/$||;
 
     if (opendir $dir, $path) {
-      foreach my $file (readdir $dir) {
+      foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
         next if (($file eq '.') || ($file eq '..'));
 
         my $fname = $file;
         $fname  =~ s|.*/||;
 
-        my $physical_file = "$path/$file";
+        my $is_directory = -d "$path/$file";
 
         $file  = join('/', map { $form->escape($_) } grep { $_ } split m|/+|, "$path/$file");
-        $file .=  '/' if (-d $physical_file);
+        $file .=  '/' if ($is_directory);
 
-        $form->{WEBDAV}->{$fname} = ($ENV{"HTTPS"} ? "https://" : "http://") . $ENV{'SERVER_NAME'} . "/$base_path/$file";
+        push @{ $form->{WEBDAV} }, {
+          'name' => $fname,
+          'link' => ($ENV{"HTTPS"} ? "https://" : "http://") . $ENV{'SERVER_NAME'} . "/$base_path/$file",
+          'type' => $is_directory ? $main::locale->text('Directory') : $main::locale->text('File'),
+        };
       }
 
       closedir $dir;
