@@ -1547,7 +1547,7 @@ sub retrieve_accounts {
     } else {
       $transdate = $form->{deliverydate};
     }
-  } elsif ($form->{type} eq "credit_note") {
+  } elsif (($form->{type} eq "credit_note") || ($form->{script} eq 'ir.pl')) {
     $transdate = $form->{invdate};
   } else {
     $transdate = $form->{transdate};
