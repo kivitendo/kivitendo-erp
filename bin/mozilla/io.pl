@@ -367,9 +367,10 @@ sub display_row {
         qq|<td align="right"><input name="qty_$i" size="5" value="|
       . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec) .qq|">|;
     if ($form->{"formel_$i"}) {
-    $column_data{qty} .= qq|<button type="button" onclick="calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)">| . $locale->text('*/') . qq|</button>| .
-          $cgi->hidden("-name" => "formel_$i", "-value" => $form->{"formel_$i"}) . $cgi->hidden("-name" => "alu_$i", "-value" => $form->{"alu_$i"}). qq|</td>|;
+      $column_data{qty} .= qq|<button type="button" onclick="calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)">| . $locale->text('*/') . qq|</button>|
+        . $cgi->hidden("-name" => "formel_$i", "-value" => $form->{"formel_$i"}) . $cgi->hidden("-name" => "alu_$i", "-value" => $form->{"alu_$i"});
     }
+    $column_data{qty} .= qq|</td>|;
     $column_data{ship} =
         qq|<td align="right"><input name="ship_$i" size=5 value="|
       . $form->format_amount(\%myconfig, $form->{"ship_$i"})
