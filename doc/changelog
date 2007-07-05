@@ -3,7 +3,7 @@
 ####################################
 
 
-2007-??-?? - Version 2.6.0
+2007-??-?? - Version 2.4.3
 
   Neue Features und Verbesserungen:
 
@@ -117,6 +117,8 @@
 
   Bugfixes:
 
+  - Bei Einkaufsrechnungen wurde das falsche Datumsfeld zur Berechnung
+    der Steuern herangezogen, sodass für 2006 19% benutzt wurde.
   - Beim Erfassen von Dienstleistungen wurde beim "Erneuern" die
     Drop-Down-Box für die Zahlungskonditionen nicht erneut aufgebaut.
   - Beim Aufrufen bestehender Dialogbuchungen wurde das Feld 'Beleg'
@@ -224,6 +226,8 @@
   - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
   - Diverse Fehler im USTVA-Modul behoben
 
+  - Bugfix 710 - Einkaufsrechnungen von 2006 werden mit 19% Steuer
+    verrechnet
   - Bugfix 703 - Drucken eines Lieferantenauftrages erzeugt SQL-ERROR
   - Bugfix 701 - Verkauf -> Auftrag erfassen -> Löschen
   - Bugfix 700 - Verkauf -> Auftrag erfassen -> Rechnung
