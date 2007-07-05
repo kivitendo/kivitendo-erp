@@ -1538,7 +1538,7 @@ sub retrieve_accounts {
 
   $form->{"taxzone_id"} *= 1;
 
-  $dbh = $form->dbconnect($myconfig);
+  $dbh = $form->get_standard_dbh($myconfig);
 
   my $transdate = "";
   if ($form->{type} eq "invoice") {
@@ -1576,10 +1576,7 @@ sub retrieve_accounts {
     qq|WHERE p.id = ?|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $parts_id);
 
-  if (!$ref) {
-    $dbh->disconnect();
-    return $main::lxdebug->leave_sub(2);
-  }
+  return $main::lxdebug->leave_sub(2) if (!$ref);
 
   $ref->{"inventory_accno_id"} = undef unless ($ref->{"is_part"});
 
