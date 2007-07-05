@@ -871,7 +871,7 @@ sub form_footer {
   # /button for saving history
   # mark_as_paid button 
   if($form->{id} ne "") {  
-    print qq|<input type="submit" class="submit" name="action" value="| 
+    print qq| <input type="submit" class="submit" name="action" value="| 
           . $locale->text('mark as paid') . qq|">|;
   }
   # /mark_as_paid button
