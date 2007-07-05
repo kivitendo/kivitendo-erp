@@ -117,6 +117,8 @@
 
   Bugfixes:
 
+  - Webdav: Wenn eine Pfadkomponente Leerzeichen enthielt
+    (z.B. "Storno zu ..."), dann wurden komplett falsche Links erzeugt.
   - Bei Einkaufsrechnungen wurde das falsche Datumsfeld zur Berechnung
     der Steuern herangezogen, sodass für 2006 19% benutzt wurde.
   - Beim Erfassen von Dienstleistungen wurde beim "Erneuern" die

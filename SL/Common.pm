@@ -290,13 +290,24 @@ sub webdav_folder {
   } else {
     my $base_path = substr($ENV{'SCRIPT_NAME'}, 1);
     $base_path =~ s|[^/]+$||;
+    $base_path =~ s|/$||;
 
-    foreach my $file (<$path/*>) {
-      my $fname = $file;
-      $fname =~ s|.*/||;
-      $form->{WEBDAV}{$fname} =
-        ($ENV{"HTTPS"} ? "https://" : "http://") .
-        $ENV{'SERVER_NAME'} . "/" . $base_path . $file;
+    if (opendir $dir, $path) {
+      foreach my $file (readdir $dir) {
+        next if (($file eq '.') || ($file eq '..'));
+
+        my $fname = $file;
+        $fname  =~ s|.*/||;
+
+        my $physical_file = "$path/$file";
+
+        $file  = join('/', map { $form->escape($_) } grep { $_ } split m|/+|, "$path/$file");
+        $file .=  '/' if (-d $physical_file);
+
+        $form->{WEBDAV}->{$fname} = ($ENV{"HTTPS"} ? "https://" : "http://") . $ENV{'SERVER_NAME'} . "/$base_path/$file";
+      }
+
+      closedir $dir;
     }
   }
 
