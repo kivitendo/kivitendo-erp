@@ -4,10 +4,10 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade von v2.4.0 und neuer auf v2.6.0
+Upgrade von v2.4.0 und neuer auf v2.4.3
 =======================================
 
-Ein Upgrade von v2.4.0 oder neuer auf v2.6.0 aus zwei Teilen: den
+Ein Upgrade von v2.4.0 oder neuer auf v2.4.3 aus zwei Teilen: den
 Dateien (einfaches Entpacken und Kopieren in das
 Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
 
