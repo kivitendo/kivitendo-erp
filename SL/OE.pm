@@ -393,11 +393,11 @@ sub save {
 
   # fill in subject if there is none
   if ($form->{type} =~ /_order$/) {
-    $quotation = 't';
+    $quotation = 'f';
     $form->{subject} = qq|$form->{label} $form->{ordnumber}|
       unless $form->{subject};
   } else {
-    $quotation = 'f';
+    $quotation = 't';
     $form->{subject} = qq|$form->{label} $form->{quonumber}|
       unless $form->{subject};
   }
