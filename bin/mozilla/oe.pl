@@ -1535,7 +1535,6 @@ sub search {
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
     . $locale->text('Ship via') . qq|</td>
-	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
 	      </tr>
 	      <tr>
 		<td><input name="l_netamount" class=checkbox type=checkbox value=Y> |
