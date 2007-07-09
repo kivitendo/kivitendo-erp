@@ -117,6 +117,8 @@
 
   Bugfixes:
 
+  - Es wurde verhindert, dass durch Manipulation von $form->{callback}
+    beliebiger Code ausgeführt werden kann.
   - Webdav: Wenn eine Pfadkomponente Leerzeichen enthielt
     (z.B. "Storno zu ..."), dann wurden komplett falsche Links erzeugt.
   - Bei Einkaufsrechnungen wurde das falsche Datumsfeld zur Berechnung

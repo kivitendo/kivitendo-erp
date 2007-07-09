@@ -692,6 +692,7 @@ sub redirect {
 
     ($script, $argv) = split(/\?/, $self->{callback}, 2);
     $script =~ s|.*/||;
+    $script =~ s|[^a-zA-Z_\.]||g;
     exec("perl", "$script", $argv);
 
   } else {
