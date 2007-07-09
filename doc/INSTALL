@@ -1,5 +1,5 @@
-Aktuelle Installations- und Konfigurationshinweise: 
-===================================================
+Aktuelle Installations- und Konfigurationshinweise
+==================================================
 
 gibt es:
 
@@ -269,3 +269,7 @@ Lx-Office ERP verwenden
 Einloggen können Sie sich unter:
 
 http://localhost/lx-office-erp/login.pl
+
+Die Administrationsseite erreichen Sie unter:
+
+http://localhost/lx-office-erp/admin.pl
