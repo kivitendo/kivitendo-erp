@@ -690,7 +690,8 @@ sub redirect {
 
   if ($self->{callback}) {
 
-    ($script, $argv) = split(/\?/, $self->{callback});
+    ($script, $argv) = split(/\?/, $self->{callback}, 2);
+    $script =~ s|.*/||;
     exec("perl", "$script", $argv);
 
   } else {
