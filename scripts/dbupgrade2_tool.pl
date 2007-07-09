@@ -55,6 +55,8 @@ dbupgrade2_tool.pl [options]
                          all database upgrades and their dependencies.
                          If no file name is given then the output is
                          written to 'db_dependencies.ps'.
+    --nodeps             List all database upgrades that no other upgrade
+                         depends on
     --apply=tag          Applies the database upgrades 'tag' and all
                          upgrades it depends on. If '--apply' is used
                          then the option '--user' must be used as well.
@@ -66,7 +68,10 @@ dbupgrade2_tool.pl [options]
 END_HELP
     ;
 
+  # Syntax-Highlighting-Fix für Emacs: '
+
   print $help_text;
+
   exit 0;
 }
 
