@@ -1542,7 +1542,7 @@ sub print_form {
     $inv                  = "ord";
     $due                  = "req";
     $form->{"${inv}date"} = $form->{transdate};
-    $form->{label}        = $locale->text('Sales Order');
+    $form->{label}        = $locale->text('Confirmation');
     $numberfld            = "sonumber";
     $order                = 1;
   }
@@ -1624,7 +1624,7 @@ sub print_form {
     $inv                  = "quo";
     $due                  = "req";
     $form->{"${inv}date"} = $form->{transdate};
-    $form->{label}        = $locale->text('Quotation');
+    $form->{label}        = $locale->text('RFQ');
     $numberfld            = "rfqnumber";
     $order                = 1;
   }

@@ -164,7 +164,6 @@ $self->{texts} = {
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',
   'SCREENED'                    => 'Angezeigt',
-  'Sales Order'                 => 'Kundenauftrag',
   'Screen'                      => 'Bildschirm',
   'Search Dunning'              => 'Mahnung suchen',
   'Select a Customer'           => 'Endkunde auswählen',
