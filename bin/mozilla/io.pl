@@ -1321,8 +1321,7 @@ sub edit_e_mail {
     $form->{"email"} = $form->{"cp_email"};
   }
 
-  $form->{ $form->{vc} } =~ /--/;
-  $title = $locale->text('E-mail') . " $`";
+  $title = $locale->text('E-mail') . " " . $form->get_formname_translation();
 
   $form->{oldmedia} = $form->{media};
   $form->{media}    = "email";

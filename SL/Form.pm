@@ -982,8 +982,10 @@ Content-Length: $numbytes
   $main::lxdebug->leave_sub();
 }
 
-sub generate_attachment_filename {
-  my ($self) = @_;
+sub get_formname_translation {
+  my ($self, $formname) = @_;
+
+  $formname ||= $self->{formname};
 
   my %formname_translations = (
      bin_list            => $main::locale->text('Bin List'),
@@ -1000,7 +1002,13 @@ sub generate_attachment_filename {
      storno_packing_list => $main::locale->text('Storno Packing List'),
   );
 
-  my $attachment_filename = $formname_translations{$self->{"formname"}};
+  return $formname_translations{$formname}
+}
+
+sub generate_attachment_filename {
+  my ($self) = @_;
+
+  my $attachment_filename = $self->get_formname_translation();
   my $prefix = 
       (grep { $self->{"type"} eq $_ } qw(invoice credit_note)) ? "inv"
     : ($self->{"type"} =~ /_quotation$/)                       ? "quo"
