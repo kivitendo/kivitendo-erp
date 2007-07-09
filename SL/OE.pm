@@ -389,32 +389,7 @@ sub save {
     ? $exchangerate
     : $form->parse_amount($myconfig, $form->{exchangerate});
 
-  my $quotation;
-
-  # fill in subject if there is none
-  if ($form->{type} =~ /_order$/) {
-    $quotation = 'f';
-    $form->{subject} = qq|$form->{label} $form->{ordnumber}|
-      unless $form->{subject};
-  } else {
-    $quotation = 't';
-    $form->{subject} = qq|$form->{label} $form->{quonumber}|
-      unless $form->{subject};
-  }
-
-  # if there is a message stuff it into the intnotes
-  my $cc  = "Cc: $form->{cc}\\r\n"   if $form->{cc};
-  my $bcc = "Bcc: $form->{bcc}\\r\n" if $form->{bcc};
-  my $now = scalar localtime;
-  $form->{intnotes} .= qq|\r
-\r| if $form->{intnotes};
-
-  $form->{intnotes} .= qq|[email]\r
-Date: $now
-To: $form->{email}\r
-$cc${bcc}Subject: $form->{subject}\r
-\r
-Message: $form->{message}\r| if $form->{message};
+  my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
 

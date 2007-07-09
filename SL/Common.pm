@@ -384,4 +384,55 @@ sub get_shipto_by_id {
   $main::lxdebug->leave_sub();
 }
 
+sub save_email_status {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my ($table, $query, $dbh);
+
+  if ($form->{script} eq 'oe.pl') {
+    $table = 'oe';
+
+  } elsif ($form->{script} eq 'is.pl') {
+    $table = 'ar';
+
+  } elsif ($form->{script} eq 'ir.pl') {
+    $table = 'ap';
+
+  }
+
+  return $main::lxdebug->leave_sub() if (!$form->{id} || !$table || !$form->{formname});
+
+  $dbh = $form->get_standard_dbh($myconfig);
+
+  my ($intnotes) = selectrow_query($form, $dbh, qq|SELECT intnotes FROM $table WHERE id = ?|, $form->{id});
+
+  $intnotes =~ s|\r||g;
+  $intnotes =~ s|\n$||;
+
+  $intnotes .= "\n\n" if ($intnotes);
+
+  my $cc  = $main::locale->text('Cc') . ": $form->{cc}\n"   if $form->{cc};
+  my $bcc = $main::locale->text('Bcc') . ": $form->{bcc}\n" if $form->{bcc};
+  my $now = scalar localtime;
+
+  $intnotes .= $main::locale->text('[email]') . "\n"
+    . $main::locale->text('Date') . ": $now\n"
+    . $main::locale->text('To (email)') . ": $form->{email}\n"
+    . "${cc}${bcc}"
+    . $main::locale->text('Subject') . ": $form->{subject}\n\n"
+    . $main::locale->text('Message') . ": $form->{message}";
+
+  $intnotes =~ s|\r||g;
+
+  do_query($form, $dbh, qq|UPDATE $table SET intnotes = ? WHERE id = ?|, $intnotes, $form->{id});
+
+  $form->save_status($dbh);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

@@ -33,6 +33,7 @@
 #
 #######################################################################
 
+use SL::Common;
 use SL::CT;
 use SL::IC;
 use CGI::Ajax;
@@ -1354,6 +1355,8 @@ sub send_email {
       qw(login password type id));
 
   print_form("return");
+
+  Common->save_email_status(\%myconfig, $form);
 
   $form->{callback} = $callback;
   $form->redirect();

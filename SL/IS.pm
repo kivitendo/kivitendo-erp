@@ -942,24 +942,6 @@ sub post_invoice {
 
   $amount = $netamount + $tax;
 
-  # fill in subject if there is none
-  $form->{subject} = qq|$form->{label} $form->{invnumber}|
-    unless $form->{subject};
-
-  # if there is a message stuff it into the intnotes
-  my $cc  = "Cc: $form->{cc}\\r\n"   if $form->{cc};
-  my $bcc = "Bcc: $form->{bcc}\\r\n" if $form->{bcc};
-  my $now = scalar localtime;
-  $form->{intnotes} .= qq|\r
-\r| if $form->{intnotes};
-
-  $form->{intnotes} .= qq|[email]\r
-Date: $now
-To: $form->{email}\r
-$cc${bcc}Subject: $form->{subject}\r
-\r
-Message: $form->{message}\r| if $form->{message};
-
   # save AR record
   $query = qq|UPDATE ar set
                 invnumber = ?,
