@@ -2606,18 +2606,16 @@ sub e_mail {
 
   $form->{print_and_save} = 1;
 
-  if (!$form->{id}) {
-    $print_post = 1;
+  $print_post = 1;
 
-    my $saved_form = save_form();
+  my $saved_form = save_form();
 
-    save();
+  save();
 
-    my %saved_vars;
-    map({ $saved_vars{$_} = $form->{$_}; } qw(id ordnumber quonumber));
-    restore_form($saved_form);
-    map({ $form->{$_} = $saved_vars{$_}; } qw(id ordnumber quonumber));
-  }
+  my %saved_vars;
+  map({ $saved_vars{$_} = $form->{$_}; } qw(id ordnumber quonumber));
+  restore_form($saved_form);
+  map({ $form->{$_} = $saved_vars{$_}; } qw(id ordnumber quonumber));
 
   edit_e_mail();
 
