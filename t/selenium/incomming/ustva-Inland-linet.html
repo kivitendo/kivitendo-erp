@@ -17,6 +17,11 @@
 <!--#  Umgebung-->
 <!--######################-->
 <tr>
+	<td>break</td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
 	<td>setTimeout</td>
 	<td>120000</td>
 	<td></td>
@@ -29,7 +34,7 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>admin.pl?rpw=ro26F.eQBldoA&nextsub=list_users&action=Weiter</td>
+	<td>https://lx-office.linet-services.de/svn-installationen/unstable/admin.pl?path=bin/mozilla/&rpw=roXyrPyqv9wE2&nextsub=list_users&action=Weiter</td>
 	<td></td>
 </tr>
 <tr>
@@ -87,7 +92,7 @@
 <!--Benutzer mit datanbank verknüpfen-->
 <tr>
 	<td>clickAndWait</td>
-	<td>demo-1619</td>
+	<td>link=demo-1619</td>
 	<td></td>
 </tr>
 <tr>
@@ -97,7 +102,7 @@
 </tr>
 <tr>
 	<td>type</td>
-	<td>Pg_dbname</td>
+	<td>dbname</td>
 	<td>Selenium_Testdb-_SKR03_IST_1619_2006_2007</td>
 </tr>
 <tr>
@@ -208,7 +213,7 @@
 	<td>action</td>
 	<td></td>
 </tr>
-<!--Testware anlegen-->
+<!--Testware anlegen 7%-->
 <tr>
 	<td>selectFrame</td>
 	<td>relative=top</td>
@@ -231,8 +236,64 @@
 </tr>
 <tr>
 	<td>type</td>
+	<td>partnumber</td>
+	<td>100-7%</td>
+</tr>
+<tr>
+	<td>type</td>
 	<td>description</td>
-	<td>Testware</td>
+	<td>Testware 7%</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>buchungsgruppen_id</td>
+	<td>label=Standard 7%</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>lastcost</td>
+	<td>50</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>sellprice</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.ic.action[1]</td>
+	<td></td>
+</tr>
+<!--Testware anlegen 16%-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Ware erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>description</td>
+	<td>Testware 16%/19%</td>
 </tr>
 <tr>
 	<td>select</td>
@@ -324,6 +385,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>document.invoice.action[6]</td>
 	<td></td>
@@ -394,6 +465,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>document.invoice.action[6]</td>
 	<td></td>
@@ -449,12 +530,22 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
 	<td>Umsatzsteuer</td>
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
+	<td>assertTextPresent</td>
 	<td>16,00</td>
 	<td></td>
 </tr>
@@ -469,12 +560,12 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
+	<td>assertTextPresent</td>
 	<td>Umsatzsteuer</td>
 	<td></td>
 </tr>
 <tr>
-	<td>verifyTextPresent</td>
+	<td>assertTextPresent</td>
 	<td>16,00</td>
 	<td></td>
 </tr>
@@ -554,8 +645,18 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
-	<td>//tr[6]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td</td>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//td[3]/table/tbody/tr[2]/td</td>
 	<td>16,00</td>
 </tr>
 <tr>
@@ -654,6 +755,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
 	<td>clickAndWait</td>
 	<td>document.invoice.action[6]</td>
 	<td></td>
@@ -708,12 +819,12 @@
 </tr>
 <tr>
 	<td>type</td>
-	<td>debit_2</td>
+	<td>debit_1</td>
 	<td>143,2455</td>
 </tr>
 <tr>
 	<td>type</td>
-	<td>credit_1</td>
+	<td>credit_2</td>
 	<td>143,2455</td>
 </tr>
 <tr>
@@ -728,7 +839,7 @@
 </tr>
 <tr>
 	<td>waitForTextPresent</td>
-	<td>Buchung gespeichert</td>
+	<td>gespeichert</td>
 	<td></td>
 </tr>
 <!--###   7. Testbuchung-->
@@ -891,6 +1002,626 @@
 	<td>document.forms[0].action[1]</td>
 	<td></td>
 </tr>
+<!--###   9. Testbuchung-->
+<!--Rechnung-->
+<!--01-2008 Rechnungsdatum-->
+<!--01-2008 Lieferdatum-->
+<!--01-2008 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>9-7%</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.1.2008</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>deliverydate</td>
+	<td>3.1.2008</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>100-7%</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>10.1.2008</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>45</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_1</td>
+	<td>44</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>107</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//td[3]/table/tbody/tr[2]/td</td>
+	<td>7,00</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
+<!--###   10. Testbuchung-->
+<!--Eingangsrechnung-->
+<!--01-2005 Rechnungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Einkaufsrechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>120</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.1.2005</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[1]</td>
+	<td></td>
+</tr>
+<!--###   11. Testbuchung-->
+<!--Eingangsrechnung-->
+<!--01-2006 Rechnungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Einkaufsrechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>130</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.1.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[1]</td>
+	<td></td>
+</tr>
+<!--###   12. Testbuchung-->
+<!--Eingangsrechnung-->
+<!--02-2005 Rechnungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Einkaufsrechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>131</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.2.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[1]</td>
+	<td></td>
+</tr>
+<!--###   13. Testbuchung-->
+<!--Eingangsrechnung-->
+<!--01-2005 Rechnungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Einkaufsrechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>132</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.3.2006</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[1]</td>
+	<td></td>
+</tr>
+<!--14. Testbuchung-->
+<!--Konteneinstellungen-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Konto erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>accno</td>
+	<td>1775Skonto</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>description</td>
+	<td>Umsatzsteuerkorrektur 16% bei Skonto</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>AccountType</td>
+	<td>label=Aufwandskonto (E)</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>AR_paid</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>AR_tax</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=1775Skonto</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>taxkey_startdate_0</td>
+	<td>1.1.1970</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>taxkey_pos_ustva_0</td>
+	<td>label=511</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<!--###  14. Testbuchung-->
+<!--Rechnung mit 3% Skonto-->
+<!--Beispiel aus Wiki: http://wiki.lx-system.de/index.php/Skonto#Zahlungseingang:_Gew.C3.A4hrte_Skonti-->
+<!--02-2003 Rechnungsdatum-->
+<!--02-2003 Lieferdatum-->
+<!--02-2003 Zahlungsdatum-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Rechnung erfassen</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invnumber</td>
+	<td>14-3%-SKONTO</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>invdate</td>
+	<td>1.2.2003</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>deliverydate</td>
+	<td>3.2.2003</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>partnumber_1</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>ndx</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>taxincluded</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>sellprice_1</td>
+	<td>1431,79</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_1</td>
+	<td>04.02.2003</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_1</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_1</td>
+	<td>1388,84</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>AR_paid_1</td>
+	<td>label=1200--Bank</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_2</td>
+	<td>04.02.2003</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_2</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_2</td>
+	<td>37,03</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>AR_paid_2</td>
+	<td>label=8735--Gewährte Skonti 16%/19% USt.</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>datepaid_3</td>
+	<td>04.02.2003</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>source_3</td>
+	<td>12345</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>memo_3</td>
+	<td>Skontokorrektur UST 16%</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>paid_3</td>
+	<td>5,92</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>AR_paid_3</td>
+	<td>label=1775Skonto--Umsatzsteuerkorrektur 16% bei Skonto</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>document.invoice.action[6]</td>
+	<td></td>
+</tr>
 <!--##############-->
 <!--# Steuerzone Inland Umsatzsteuer-->
 <!--##############-->
@@ -1030,17 +1761,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 81)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>19,00</td>
 </tr>
@@ -1086,17 +1817,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 51)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>16,00</td>
 </tr>
@@ -1138,17 +1869,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 51)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>16,00</td>
 </tr>
@@ -1194,22 +1925,22 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[2]</td>
 	<td>35</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[4]</td>
 	<td>36</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[5]</td>
 	<td>16,00</td>
 </tr>
@@ -1255,22 +1986,22 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[2]</td>
 	<td>35</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[4]</td>
 	<td>36</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[5]</td>
 	<td>19,00</td>
 </tr>
@@ -1324,12 +2055,12 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[39]/td[2]</td>
 	<td>62</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[39]/td[3]</td>
 	<td>143,25</td>
 </tr>
@@ -1385,17 +2116,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 81)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>1681</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>319,33</td>
 </tr>
@@ -1451,16 +2182,199 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[37]/td[3]</td>
 	<td>319,33</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[37]/td[2]</td>
 	<td>(Spalte 66)</td>
 </tr>
-<!---->
+<!--###   9. Test-->
+<!--Rechnung-->
+<!--01-2008 Rechnungsdatum-->
+<!--01-2008 Lieferdatum-->
+<!--01-2008 Zahlungsdatum-->
+<!--USTVA2008-01-IST-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2008</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Januar</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[10]/td[2]</td>
+	<td>(Spalte 86)</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[10]/td[3]</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[10]/td[5]</td>
+	<td>7,00</td>
+</tr>
+<!--###   10. Test-->
+<!--Einkaufsrechnung-->
+<!--01-2005 Rechnungsdatum-->
+<!--USTVA2005-01-IST-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2005</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Januar</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[37]/td[3]</td>
+	<td>8,00</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[37]/td[2]</td>
+	<td>(Spalte 66)</td>
+</tr>
+<!--###  14. Test-->
+<!--USTVA-->
+<!--2003-02-->
+<!--Skonto-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2003</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Februar</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[9]/td[3]</td>
+	<td>1197</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[9]/td[5]</td>
+	<td>191,57</td>
+</tr>
 <!--#############-->
 <!--# USTVA Einstellungen-->
 <!--# SOLL-Versteuert-->
@@ -1595,17 +2509,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 81)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>19,00</td>
 </tr>
@@ -1651,17 +2565,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 51)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>16,00</td>
 </tr>
@@ -1708,17 +2622,17 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 51)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>16,00</td>
 </tr>
@@ -1764,22 +2678,22 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 51)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[4]</td>
 	<td>(Spalte 51 rechts)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[5]</td>
 	<td>16,00</td>
 </tr>
@@ -1825,22 +2739,22 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[2]</td>
 	<td>35</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[3]</td>
 	<td>100</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[4]</td>
 	<td>36</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[11]/td[5]</td>
 	<td>19,00</td>
 </tr>
@@ -1935,14 +2849,19 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[2]</td>
 	<td>(Spalte 81)</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[9]/td[3]</td>
 	<td>1681</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[9]/td[5]</td>
+	<td>319,33</td>
 </tr>
 <!--###  21. Test-->
 <!--Kreditorenbuchung-->
@@ -1986,16 +2905,79 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[37]/td[3]</td>
 	<td>319,33</td>
 </tr>
 <tr>
-	<td>verifyText</td>
+	<td>assertText</td>
 	<td>//tr[37]/td[2]</td>
 	<td>(Spalte 66)</td>
 </tr>
-<!---->
+<!--###  22. Test-->
+<!--USTVA-->
+<!--2003-02-->
+<!--Skonto-->
+<tr>
+	<td>selectFrame</td>
+	<td>relative=up</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=UStVa</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForPageToLoad</td>
+	<td>120000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>year</td>
+	<td>label=2003</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>zeitraum</td>
+	<td>label=Februar</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>action</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>relative=top</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectFrame</td>
+	<td>main_window</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[9]/td[3]</td>
+	<td>1197</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//tr[9]/td[5]</td>
+	<td>191,57</td>
+</tr>
+<tr>
+	<td>break</td>
+	<td></td>
+	<td>Set the Startpoint to the next command manually</td>
+</tr>
 <!--#############-->
 <!--# Cleanup Test-->
 <!--#############-->
@@ -2007,7 +2989,7 @@
 </tr>
 <tr>
 	<td>open</td>
-	<td>admin.pl?rpw=ro26F.eQBldoA&nextsub=list_users&action=Weiter</td>
+	<td>https://lx-office.linet-services.de/svn-installationen/unstable/admin.pl?path=bin/mozilla/&rpw=roXyrPyqv9wE2&nextsub=list_users&action=Weiter</td>
 	<td></td>
 </tr>
 <tr>
@@ -2017,12 +2999,12 @@
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>demo-1619</td>
+	<td>link=demo-1619</td>
 	<td></td>
 </tr>
 <tr>
 	<td>type</td>
-	<td>Pg_dbname</td>
+	<td>dbname</td>
 	<td>leer</td>
 </tr>
 <tr>
@@ -2037,11 +3019,6 @@
 </tr>
 <!--Datenbank löschen-->
 <tr>
-	<td>assertTitle</td>
-	<td>Lx-Office ERP Administration -</td>
-	<td></td>
-</tr>
-<tr>
 	<td>clickAndWait</td>
 	<td>document.forms[0].action[2]</td>
 	<td></td>
@@ -2052,14 +3029,8 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>document.forms[0].action[1]</td>
-	<td></td>
-</tr>
-<!--... deleting databases needs time...-->
-<tr>
-	<td>waitForPageToLoad</td>
-	<td>120000</td>
+	<td>clickAndWait</td>
+	<td>document.forms[0].action[2]</td>
 	<td></td>
 </tr>
 <tr>
@@ -2068,10 +3039,11 @@
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>//input[@value="Selenium_Testdb-_SKR03_IST_1619_2006_2007"]</td>
-	<td></td>
+	<td>select</td>
+	<td>db</td>
+	<td>label=Selenium_Testdb-_SKR03_IST_1619_2006_2007</td>
 </tr>
+<!--... deleting databases needs time...-->
 <tr>
 	<td>clickAndWait</td>
 	<td>action</td>
