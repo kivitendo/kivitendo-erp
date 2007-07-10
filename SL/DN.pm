@@ -331,7 +331,7 @@ sub save_dunning {
     $self->send_email($myconfig, $form, $dunning_id, $dbh);
   }
 
-#   $dbh->commit();
+  $dbh->commit();
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
