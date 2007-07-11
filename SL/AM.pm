@@ -2186,25 +2186,27 @@ sub save_tax {
 
   $form->{rate} = $form->{rate} / 100;
 
-  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id} );
+  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id}, $form->{chart_id} );
   if ($form->{id}) {
-    $query = qq|UPDATE _tax SET
+    $query = qq|UPDATE tax SET
                   taxkey         = ?,
                   taxdescription = ?,
                   rate           = ?,
-                  chart_id       = ?
+                  chart_id       = ?,
+                  taxnumber      = (SELECT accno FROM chart WHERE id= ? )
                 WHERE id = ?|;
     push(@values, $form->{id});
   } 
   else {
     #ok
-    $query = qq|INSERT INTO _tax (
+    $query = qq|INSERT INTO tax (
                   taxkey,
                   taxdescription,
                   rate,
-                  chart_id
+                  chart_id,
+                  taxnumber
                 )
-                VALUES (?, ?, ?, ? )|;
+                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?) )|;
   }
   do_query($form, $dbh, $query, @values);
 
@@ -2221,7 +2223,7 @@ sub delete_tax {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM _tax
+  $query = qq|DELETE FROM tax
               WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
