@@ -1,0 +1,54 @@
+<body>
+
+<table width="100%">
+  <tr>
+    <th class="listtop"><TMPL_VAR title ESCAPE=HTML></th>
+  </tr>
+</table>
+<table>
+   <tr>
+     <th class="listheading"><tanslate>tax_taxkey</translate></th>
+     <th class="listheading"><tanslate>tax_taxdescription</translate></th>
+     <th class="listheading"><tanslate>tax_rate</translate></th>
+     <th class="listheading"><tanslate>taxnumber</translate></th>
+     <th class="listheading"><tanslate>account_description</translate></th>
+   </tr>
+
+<TMPL_LOOP TAX>
+
+
+
+<TMPL_IF __odd__>
+   <tr class="listrow1" 
+<TMPL_ELSE> 
+   <tr class="listrow0" 
+</TMPL_IF>
+  onMouseOver="this.style.cursor='pointer';"
+     onclick="window.location.href='am.pl?action=edit_tax&id=<TMPL_VAR id
+       ESCAPE=URL>&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password
+       ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>';">
+
+     <td align="right"><TMPL_VAR taxkey ESCAPE=HTML></td>
+     <td><TMPL_VAR taxdescription ESCAPE=HTML></td>
+     <td align="right"><TMPL_VAR rate ESCAPE=HTML> %</td>
+     <td align="right"><TMPL_VAR taxnumber ESCAPE=HTML></td>
+     <td><TMPL_VAR account_description ESCAPE=HTML></td>
+   </tr>
+
+</TMPL_LOOP>
+</table>
+<br />
+<br />
+<form method="post" action="<TMPL_VAR script>">
+
+  <input name="callback" type="hidden" value="<TMPL_VAR callback>">
+  <input type="hidden" name="type" value="tax">
+  <input type="hidden" name="login" value="<TMPL_VAR login>">
+  <input type="hidden" name="password" value="<TMPL_VAR password>">
+  <input class="submit" type="submit" name="action"
+    value="<translate>Add</translate>">
+</form>
+
+</body>
+</html>
+

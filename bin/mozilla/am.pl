@@ -3137,3 +3137,120 @@ sub swap_units {
 
   $lxdebug->leave_sub();
 }
+
+sub add_tax {
+  $lxdebug->enter_sub();
+
+  $form->{title} =  $locale->text('Add');
+
+  $form->{callback} =
+    "$form->{script}?action=add_tax&login=$form->{login}&password=$form->{password}"
+    unless $form->{callback};
+
+  _get_taxaccount_selection();
+
+  $form->header();
+  
+  my $parameters_ref = {
+#    ChartTypeIsAccount         => $ChartTypeIsAccount,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/edit_tax', $parameters_ref));
+
+  $lxdebug->leave_sub();
+}
+
+sub edit_tax {
+  $lxdebug->enter_sub();
+
+  $form->{title} =  $locale->text('Edit');
+
+  AM->get_tax(\%myconfig, \%$form);
+  _get_taxaccount_selection();
+
+  $form->header();
+  
+  my $parameters_ref = {
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/edit_tax', $parameters_ref));
+
+  $lxdebug->leave_sub();
+}
+
+sub list_tax {
+  $lxdebug->enter_sub();
+
+  AM->taxes(\%myconfig, \%$form);
+
+  $form->{callback} =
+    "$form->{script}?action=list_tax&login=$form->{login}&password=$form->{password}";
+
+  $form->{title} = $locale->text('Tax-O-Matic');
+
+  $form->header();
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/list_tax', $parameters_ref));
+
+  $lxdebug->leave_sub();
+}
+
+sub _get_taxaccount_selection{
+    $lxdebug->enter_sub();
+
+  AM->get_tax_accounts(\%myconfig, \%$form);
+
+  my $i = 0;
+  foreach my $taxaccount (@{ $form->{ACCOUNTS} } ) {
+
+    # Fill in the Taxaxxounts as select options
+      if ($form->{chart_id} == $taxaccount->{id}) {
+        $form->{ACCOUNTS}[$i]{select_taxaccount} .=
+          qq|<option value="$taxaccount->{id}" selected="selected">
+            $form->{ACCOUNTS}[$i]{_taxaccount}\n|;
+      }
+      else {
+        $form->{ACCOUNTS}[$i]{select_taxaccount} .=
+          qq|<option value="$taxaccount->{id}">
+            $form->{ACCOUNTS}[$i]{_taxaccount}<!-- hallo-->\n|;
+      }
+    $i++;
+  }
+  return;
+
+  $lxdebug->leave_sub();
+}
+
+sub save_tax {
+  $lxdebug->enter_sub();
+
+  $form->isblank("chart_id", $locale->text('Tax-O-Matic account missing!'));
+  $form->isblank("rate", $locale->text('Taxrate missing!'));
+  $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
+  $form->isblank("taxkey", $locale->text('Taxkey  missing!'));
+  
+  if ( $form->{rate} <= 0 || $form->{rate} >= 100 ) {
+    $form->error($locale->text('Tax Percent is a number between 0 and 100'));
+  }
+
+  if ( $form->{rate} <= 0.99 && $form->{rate} >= 0 ) {
+    $form->error($locale->text('Tax Percent is a number between 0 and 100'));
+  }  
+
+  AM->save_tax(\%myconfig, \%$form);
+  $form->redirect($locale->text('Tax saved!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub delete_tax {
+  $lxdebug->enter_sub();
+
+  AM->delete_tax(\%myconfig, \%$form);
+  $form->redirect($locale->text('Tax deleted!'));
+
+  $lxdebug->leave_sub();
+}

@@ -1,0 +1,67 @@
+<body>
+<form method="post" action="<TMPL_VAR script>">
+  <input type="hidden" name="id" value="<TMPL_VAR id>">
+  <input type="hidden" name="type" value="tax">
+
+<table width="100%">
+  <tr>
+    <th class="listtop" colspan="2"><TMPL_VAR title> Steuer</th>
+  </tr>
+</table>
+<table width="100%">
+  <tr>
+    <td>Steuerschlüssel</td>
+    <td><input name="taxkey" size="2" value="<TMPL_VAR taxkey>"></td>
+  </tr>
+
+  <tr>
+    <td>Steuername</td>
+    <td><input name="taxdescription" size="60" value="<TMPL_VAR taxdescription>"></td>
+  </tr>
+
+  <tr>
+    <td>Prozentsatz</td>
+    <td><input name="rate" size="10" value="<TMPL_VAR rate>"> %</td>
+  </tr>
+
+  <tr>
+    <td>Automatikkonto</td>
+    <td><select name="chart_id">
+    <TMPL_LOOP ACCOUNTS>
+      <TMPL_VAR select_taxaccount>
+    </TMPL_LOOP>
+    </select>
+    
+    </td>
+  </tr>
+
+
+</table>
+
+<TMPL_UNLESS orphaned>
+  <br />
+  Konten, die mit dieser Steuer verknüpft sind:
+  <TMPL_LOOP TAXINUSE>
+    <a href="am.pl?action=edit_account&id=<TMPL_VAR id>&login=<TMPL_VAR 
+      login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>"><TMPL_VAR accno></a>&nbsp;
+  </TMPL_LOOP>
+  <br />
+</TMPL_UNLESS>
+
+<input name="callback" type="hidden" value="<TMPL_VAR callback ESCAPE=HTML>">
+<input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+<input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+<br />
+
+<input type="submit" class="submit" name="action" value="Speichern">
+
+<TMPL_IF orphaned>  
+      <input type="submit" class="submit" name="action"
+      value="Löschen">
+</TMPL_IF>      
+
+</form>
+</body>
+</html>
+

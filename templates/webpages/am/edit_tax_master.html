@@ -1,0 +1,67 @@
+<body>
+<form method="post" action="<TMPL_VAR script>">
+  <input type="hidden" name="id" value="<TMPL_VAR id>">
+  <input type="hidden" name="type" value="tax">
+
+<table width="100%">
+  <tr>
+    <th class="listtop" colspan="2"><TMPL_VAR title> <translate>Tax-O-Matic</translate></th>
+  </tr>
+</table>
+<table width="100%">
+  <tr>
+    <td><translate>tax_taxkey</translate></td>
+    <td><input name="taxkey" size="2" value="<TMPL_VAR taxkey>"></td>
+  </tr>
+
+  <tr>
+    <td><translate>tax_taxdescription</translate></td>
+    <td><input name="taxdescription" size="60" value="<TMPL_VAR taxdescription>"></td>
+  </tr>
+
+  <tr>
+    <td><translate>tax_percent</translate></td>
+    <td><input name="rate" size="10" value="<TMPL_VAR rate>"> %</td>
+  </tr>
+
+  <tr>
+    <td><translate>tax_chartaccno</translate></td>
+    <td><select name="chart_id">
+    <TMPL_LOOP ACCOUNTS>
+      <TMPL_VAR select_taxaccount>
+    </TMPL_LOOP>
+    </select>
+    
+    </td>
+  </tr>
+
+
+</table>
+
+<TMPL_UNLESS orphaned>
+  <br />
+  <translate>Chartaccounts connected to this Tax:</translate>
+  <TMPL_LOOP TAXINUSE>
+    <a href="am.pl?action=edit_account&id=<TMPL_VAR id>&login=<TMPL_VAR 
+      login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>"><TMPL_VAR accno></a>&nbsp;
+  </TMPL_LOOP>
+  <br />
+</TMPL_UNLESS>
+
+<input name="callback" type="hidden" value="<TMPL_VAR callback ESCAPE=HTML>">
+<input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+<input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+<br />
+
+<input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+
+<TMPL_IF orphaned>  
+      <input type="submit" class="submit" name="action"
+      value="<translate>Delete</translate>">
+</TMPL_IF>      
+
+</form>
+</body>
+</html>
+

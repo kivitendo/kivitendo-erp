@@ -2055,4 +2055,181 @@ sub swap_units {
   $main::lxdebug->leave_sub();
 }
 
+sub taxes {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq|SELECT 
+                   t.id,
+                   t.taxkey,
+                   t.taxdescription,
+                   round(t.rate, 2) * 100 AS rate,
+                   c.accno AS taxnumber,
+                   c.description AS account_description
+                 FROM tax t
+                 JOIN chart c on (chart_id = c.id)
+                 ORDER BY taxkey|;
+
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  $form->{TAX} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{TAX} }, $ref;
+  }
+
+  $sth->finish;
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_tax_accounts {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  # get Accounts from chart
+  my $query = qq{ SELECT 
+                 id,
+                 accno || ' - ' || description AS _taxaccount
+               FROM chart
+               WHERE link LIKE '%_tax%'
+               ORDER BY accno 
+             };
+
+  $sth = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
+
+  $form->{ACCOUNTS} = [];
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    push @{ $form->{ACCOUNTS} }, $ref;
+  }
+
+  $sth->finish;
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_tax {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq|SELECT 
+                   taxkey,
+                   taxdescription,
+                   round(rate, 2) * 100 AS rate,
+                   chart_id
+                 FROM tax
+                 WHERE id = ? |;
+                 
+  my $sth = $dbh->prepare($query);
+  $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
+
+  my $ref = $sth->fetchrow_hashref(NAME_lc);
+
+  map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  $sth->finish;
+
+  # see if it is used by a taxkey
+  $query = qq|SELECT count(*) FROM taxkeys
+              WHERE tax_id = ?|;
+  
+  ($form->{orphaned}) = selectrow_query($form, $dbh, $query, $form->{id});
+
+  $form->{orphaned} = !$form->{orphaned};
+  $sth->finish;
+  
+  if (!$form->{orphaned} ) {
+    $query = qq|SELECT DISTINCT c.id, c.accno
+                FROM taxkeys tk
+                LEFT JOIN   tax t ON (t.id = tk.tax_id)
+                LEFT JOIN chart c ON (c.id = tk.chart_id)
+                WHERE tk.tax_id = ?|;
+  
+    $sth = $dbh->prepare($query);
+    $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
+
+    $form->{TAXINUSE} = [];
+    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+      push @{ $form->{TAXINUSE} }, $ref;
+    }
+
+    $sth->finish;
+  }
+  
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub save_tax {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  $form->{rate} = $form->{rate} / 100;
+
+  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id} );
+  if ($form->{id}) {
+    $query = qq|UPDATE _tax SET
+                  taxkey         = ?,
+                  taxdescription = ?,
+                  rate           = ?,
+                  chart_id       = ?
+                WHERE id = ?|;
+    push(@values, $form->{id});
+  } 
+  else {
+    #ok
+    $query = qq|INSERT INTO _tax (
+                  taxkey,
+                  taxdescription,
+                  rate,
+                  chart_id
+                )
+                VALUES (?, ?, ?, ? )|;
+  }
+  do_query($form, $dbh, $query, @values);
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_tax {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+
+  $query = qq|DELETE FROM _tax
+              WHERE id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+
+
 1;
