@@ -2300,7 +2300,11 @@ sub payment_header {
 . qq|</li>
   <li>| . $locale->text("&lt;%total%&gt; -- Amount payable")
 . qq|</li>
+  <li>| . $locale->text("&lt;%total_wo_skonto%&gt; -- Amount payable less discount")
+. qq|</li>
   <li>| . $locale->text("&lt;%invtotal%&gt; -- Invoice total")
+. qq|</li>
+  <li>| . $locale->text("&lt;%invtotal_wo_skonto%&gt; -- Invoice total less discount")
 . qq|</li>
   <li>| . $locale->text("&lt;%currency%&gt; -- The selected currency")
 . qq|</li>

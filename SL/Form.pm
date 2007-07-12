@@ -1370,12 +1370,29 @@ sub set_payment_options {
   ($self->{netto_date}, $self->{skonto_date}) =
     selectrow_query($self, $dbh, $query, $transdate, $self->{terms_netto}, $transdate, $self->{terms_skonto});
 
-  my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
-  my $skonto_amount = $self->parse_amount($myconfig, $total) *
-    $self->{percent_skonto};
+  my ($invtotal, $total);
+  my (%amounts, %formatted_amounts);
 
-  $self->{skonto_amount} =
-    $self->format_amount($myconfig, $skonto_amount, 2);
+  if ($self->{type} =~ /_order$/) {
+    $amounts{invtotal} = $self->{ordtotal};
+    $amounts{total}    = $self->{ordtotal};
+
+  } elsif ($self->{type} =~ /_quotation$/) {
+    $amounts{invtotal} = $self->{quototal};
+    $amounts{total}    = $self->{quototal};
+
+  } else {
+    $amounts{invtotal} = $self->{invtotal};
+    $amounts{total}    = $self->{total};
+  }
+
+  map { $amounts{$_} = $self->parse_amount($myconfig, $amounts{$_}) } keys %amounts;
+
+  $amounts{skonto_amount}      = $amounts{invtotal} * $self->{percent_skonto};
+  $amounts{invtotal_wo_skonto} = $amounts{invtotal} * (1 - $self->{percent_skonto});
+  $amounts{total_wo_skonto}    = $amounts{total}    * (1 - $self->{percent_skonto});
+
+  map { $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}, 2) } keys %amounts;
 
   if ($self->{"language_id"}) {
     $query =
@@ -1403,22 +1420,20 @@ sub set_payment_options {
         ($output_numberformat ne $myconfig->{"numberformat"})) {
       my $saved_numberformat = $myconfig->{"numberformat"};
       $myconfig->{"numberformat"} = $output_numberformat;
-      $self->{skonto_amount} =
-        $self->format_amount($myconfig, $skonto_amount, 2);
+      map { $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}) } keys %amounts;
       $myconfig->{"numberformat"} = $saved_numberformat;
     }
   }
 
   $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
   $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
-  $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
-  $self->{payment_terms} =~ s/<%total%>/$self->{total}/g;
-  $self->{payment_terms} =~ s/<%invtotal%>/$self->{invtotal}/g;
   $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
   $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
   $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
   $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
   $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
+
+  map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
 
   $main::lxdebug->leave_sub();
 

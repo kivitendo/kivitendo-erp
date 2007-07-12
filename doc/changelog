@@ -7,6 +7,9 @@
 
   Neue Features und Verbesserungen:
 
+  - Zahlungskonditionen: Neue Variablen <%invtotal_wo_skonto%> und
+    <%total_wo_skonto%> hinzugefügt, die die Belegsumme bzw. die noch
+    offene Summe abzüglich des Skontobetrags beinhalten.
   - Verkauf: Es wird der Ertrag (Marge) pro Position und gesamt
     angezeigt.
   - Bei allen Listenansichten/Berichten Buttons zum Export der Liste
@@ -117,6 +120,9 @@
 
   Bugfixes:
 
+  - Zahlungskonditionen: Die Variablen <%total%> und <%invtotal%>
+    waren nur bei Rechnungen gefüllt, nicht aber bei Angeboten und
+    Aufträgen.
   - Es wurde verhindert, dass durch Manipulation von $form->{callback}
     beliebiger Code ausgeführt werden kann.
   - Webdav: Wenn eine Pfadkomponente Leerzeichen enthielt
