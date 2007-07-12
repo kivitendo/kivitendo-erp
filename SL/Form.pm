@@ -1392,7 +1392,10 @@ sub set_payment_options {
   $amounts{invtotal_wo_skonto} = $amounts{invtotal} * (1 - $self->{percent_skonto});
   $amounts{total_wo_skonto}    = $amounts{total}    * (1 - $self->{percent_skonto});
 
-  map { $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}, 2) } keys %amounts;
+  foreach (keys %amounts) {
+    $amounts{$_}           = $self->round_amount($amounts{$_}, 2);
+    $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}, 2);
+  }
 
   if ($self->{"language_id"}) {
     $query =
