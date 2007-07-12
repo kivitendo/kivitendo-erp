@@ -3156,7 +3156,7 @@ sub add_tax {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template('am/edit_tax', $parameters_ref));
+  print($form->parse_html_template2('am/edit_tax', $parameters_ref));
 
   $lxdebug->leave_sub();
 }
@@ -3177,7 +3177,7 @@ sub edit_tax {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template('am/edit_tax', $parameters_ref));
+  print($form->parse_html_template2('am/edit_tax', $parameters_ref));
 
   $lxdebug->leave_sub();
 }
@@ -3196,33 +3196,17 @@ sub list_tax {
   $form->header();
   
   # Ausgabe des Templates
-  print($form->parse_html_template('am/list_tax', $parameters_ref));
+  print($form->parse_html_template2('am/list_tax', $parameters_ref));
 
   $lxdebug->leave_sub();
 }
 
 sub _get_taxaccount_selection{
-    $lxdebug->enter_sub();
+  $lxdebug->enter_sub();
 
   AM->get_tax_accounts(\%myconfig, \%$form);
 
-  my $i = 0;
-  foreach my $taxaccount (@{ $form->{ACCOUNTS} } ) {
-
-    # Fill in the Taxaxxounts as select options
-      if ($form->{chart_id} == $taxaccount->{id}) {
-        $form->{ACCOUNTS}[$i]{select_taxaccount} .=
-          qq|<option value="$taxaccount->{id}" selected="selected">
-            $form->{ACCOUNTS}[$i]{_taxaccount}\n|;
-      }
-      else {
-        $form->{ACCOUNTS}[$i]{select_taxaccount} .=
-          qq|<option value="$taxaccount->{id}">
-            $form->{ACCOUNTS}[$i]{_taxaccount}<!-- hallo-->\n|;
-      }
-    $i++;
-  }
-  return;
+  map { $_->{selected} = $form->{chart_id} == $_->{id} } @{ $form->{ACCOUNTS} };
 
   $lxdebug->leave_sub();
 }

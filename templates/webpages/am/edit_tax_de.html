@@ -1,65 +1,53 @@
-<body>
-<form method="post" action="<TMPL_VAR script>">
-  <input type="hidden" name="id" value="<TMPL_VAR id>">
+[% USE HTML %]<body>
+ <form method="post" action="am.pl">
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="type" value="tax">
 
-<table width="100%">
-  <tr>
-    <th class="listtop" colspan="2">Steuer <TMPL_VAR title></th>
-  </tr>
-</table>
-<table width="100%">
-  <tr>
+  <div class="listtop">Steuer [% title %]</div>
+
+  <table width="100%">
+   <tr>
     <td>Steuerschlüssel</td>
-    <td><input name="taxkey" size="2" value="<TMPL_VAR taxkey>"></td>
-  </tr>
+    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]"></td>
+   </tr>
 
-  <tr>
+   <tr>
     <td>Steuername</td>
-    <td><input name="taxdescription" size="60" value="<TMPL_VAR taxdescription>"></td>
-  </tr>
+    <td><input name="taxdescription" size="60" value="[% HTML.escape(taxdescription) %]"></td>
+   </tr>
 
-  <tr>
+   <tr>
     <td>Prozentsatz</td>
-    <td><input name="rate" size="10" value="<TMPL_VAR rate>"> %</td>
-  </tr>
+    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]"> %</td>
+   </tr>
 
-  <tr>
+   <tr>
     <td>Automatikkonto</td>
-    <td><select name="chart_id">
-    <TMPL_LOOP ACCOUNTS>
-      <TMPL_VAR select_taxaccount>
-    </TMPL_LOOP>
-    </select>
-    
-    </td>
-  </tr>
+    <td><select name="chart_id">[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
+   </tr>
 
+  </table>
 
-</table>
-
-<TMPL_UNLESS orphaned>
+  [% IF id %]
+  [% UNLESS orphaned %]
   <br />
   Konten, die mit dieser Steuer verknüpft sind:
-  <TMPL_LOOP TAXINUSE>
-    <a href="am.pl?action=edit_account&id=<TMPL_VAR id>&login=<TMPL_VAR 
-      login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>"><TMPL_VAR accno></a>&nbsp;
-  </TMPL_LOOP>
+  [% FOREACH row = TAXINUSE %]
+  <a href="am.pl?action=edit_account&id=[% HTML.url(row.id) %]&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.accno) %]</a>&nbsp;
+  [% END %]
   <br />
-</TMPL_UNLESS>
+  [% END %]
+  [% END %]
 
-<input name="callback" type="hidden" value="<TMPL_VAR callback ESCAPE=HTML>">
-<input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-<input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
-<br />
+  <input type="submit" class="submit" name="action" value="Speichern">
 
-<input type="submit" class="submit" name="action" value="Speichern">
-
-<TMPL_IF orphaned>  
-      <input type="submit" class="submit" name="action"
-      value="Löschen">
-</TMPL_IF>      
+  [% IF orphaned %][% IF id %]
+  <input type="submit" class="submit" name="action" value="Löschen">
+  [% END %][% END %]
 
 </form>
 </body>

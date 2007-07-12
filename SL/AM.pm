@@ -2098,7 +2098,7 @@ sub get_tax_accounts {
   # get Accounts from chart
   my $query = qq{ SELECT
                  id,
-                 accno || ' - ' || description AS _taxaccount
+                 accno || ' - ' || description AS taxaccount
                FROM chart
                WHERE link LIKE '%_tax%'
                ORDER BY accno

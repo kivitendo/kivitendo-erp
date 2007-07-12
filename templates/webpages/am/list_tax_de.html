@@ -1,53 +1,37 @@
-<body>
+[% USE HTML %]<body>
 
-<table width="100%">
+ <div class="listtop">[% title %]</div>
+
+ <table>
   <tr>
-    <th class="listtop"><TMPL_VAR title ESCAPE=HTML></th>
+   <th class="listheading">Steuerschlüssel</th>
+   <th class="listheading">Steuername</th>
+   <th class="listheading">Prozent</th>
+   <th class="listheading">Automatikkonto</th>
+   <th class="listheading">Beschreibung</th>
   </tr>
-</table>
-<table>
-   <tr>
-     <th class="listheading">Steuerschlüssel</th>
-     <th class="listheading">Steuername</th>
-     <th class="listheading">Prozent</th>
-     <th class="listheading">Automatikkonto</th>
-     <th class="listheading">Beschreibung</th>
-   </tr>
 
-<TMPL_LOOP TAX>
+  [% SET row_odd = '1' %][% FOREACH row = TAX %]
+  <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+   <td align="right">[% HTML.escape(row.taxkey) %]</td>
+   <td><a href="am.pl?action=edit_tax&id=[% HTML.url(row.id) %]&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.taxdescription) %]</a></td>
+   <td align="right">[% HTML.escape(row.rate) %] %</td>
+   <td align="right">[% HTML.escape(row.taxnumber) %]</td>
+   <td>[% HTML.escape(row.account_description) %]</td>
+  </tr>
+  [% END %]
+ </table>
 
+ <p>
+  <form method="post" action="am.pl">
 
-
-<TMPL_IF __odd__>
-   <tr class="listrow1" 
-<TMPL_ELSE> 
-   <tr class="listrow0" 
-</TMPL_IF>
-  onMouseOver="this.style.cursor='pointer';"
-     onclick="window.location.href='am.pl?action=edit_tax&id=<TMPL_VAR id
-       ESCAPE=URL>&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password
-       ESCAPE=URL>&callback=<TMPL_VAR callback ESCAPE=URL>';">
-
-     <td align="right"><TMPL_VAR taxkey ESCAPE=HTML></td>
-     <td><TMPL_VAR taxdescription ESCAPE=HTML></td>
-     <td align="right"><TMPL_VAR rate ESCAPE=HTML> %</td>
-     <td align="right"><TMPL_VAR taxnumber ESCAPE=HTML></td>
-     <td><TMPL_VAR account_description ESCAPE=HTML></td>
-   </tr>
-
-</TMPL_LOOP>
-</table>
-<br />
-<br />
-<form method="post" action="<TMPL_VAR script>">
-
-  <input name="callback" type="hidden" value="<TMPL_VAR callback>">
-  <input type="hidden" name="type" value="tax">
-  <input type="hidden" name="login" value="<TMPL_VAR login>">
-  <input type="hidden" name="password" value="<TMPL_VAR password>">
-  <input class="submit" type="submit" name="action"
-    value="Erfassen">
-</form>
+   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+   <input type="hidden" name="type" value="tax">
+   <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+   <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+   <input class="submit" type="submit" name="action" value="Erfassen">
+  </form>
+ </p>
 
 </body>
 </html>
