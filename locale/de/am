@@ -252,7 +252,6 @@ $self->{texts} = {
   'Tax deleted!'                => 'Steuer gelöscht!',
   'Tax saved!'                  => 'Steuer gespeichert!',
   'Tax-O-Matic'                 => 'Steuer',
-  'Tax-O-Matic account missing!' => 'Automatikkonto fehlt!',
   'Tax-o-matic Account'         => 'Automatikbuchung auf Konto',
   'Taxdescription  missing!'    => 'Steuername fehlt!',
   'Taxkey  missing!'            => 'Steuerschlüssel fehlt!',

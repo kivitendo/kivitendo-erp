@@ -3216,18 +3216,17 @@ sub _get_taxaccount_selection{
 sub save_tax {
   $lxdebug->enter_sub();
 
-  $form->isblank("chart_id", $locale->text('Tax-O-Matic account missing!'));
   $form->isblank("rate", $locale->text('Taxrate missing!'));
   $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
   $form->isblank("taxkey", $locale->text('Taxkey  missing!'));
 
   $form->{rate} = $form->parse_amount(\%myconfig, $form->{rate});
 
-  if ( $form->{rate} <= 0 || $form->{rate} >= 100 ) {
+  if ( $form->{rate} < 0 || $form->{rate} >= 100 ) {
     $form->error($locale->text('Tax Percent is a number between 0 and 100'));
   }
 
-  if ( $form->{rate} <= 0.99 && $form->{rate} >= 0 ) {
+  if ( $form->{rate} <= 0.99 && $form->{rate} > 0 ) {
     $form->error($locale->text('Tax Percent is a number between 0 and 100'));
   }  
 

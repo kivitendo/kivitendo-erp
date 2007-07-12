@@ -23,12 +23,11 @@
 
    <tr>
     <td>Automatikkonto</td>
-    <td><select name="chart_id">[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
+    <td><select name="chart_id"><option value="0">Kein</option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
    </tr>
 
   </table>
 
-  [% IF id %]
   [% UNLESS orphaned %]
   <br />
   Konten, die mit dieser Steuer verknüpft sind:
@@ -37,7 +36,6 @@
   [% END %]
   <br />
   [% END %]
-  [% END %]
 
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
   <input type="hidden" name="login" value="[% HTML.escape(login) %]">
@@ -45,9 +43,9 @@
 
   <input type="submit" class="submit" name="action" value="Speichern">
 
-  [% IF orphaned %][% IF id %]
+  [% IF orphaned %]
   <input type="submit" class="submit" name="action" value="Löschen">
-  [% END %][% END %]
+  [% END %]
 
 </form>
 </body>

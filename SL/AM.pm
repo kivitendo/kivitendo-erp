@@ -2068,10 +2068,9 @@ sub taxes {
                    t.taxkey,
                    t.taxdescription,
                    round(t.rate * 100, 2) AS rate,
-                   c.accno AS taxnumber,
-                   c.description AS account_description
+                   (SELECT accno FROM chart WHERE id = chart_id) AS taxnumber,
+                   (SELECT description FROM chart WHERE id = chart_id) AS account_description
                  FROM tax t
-                 JOIN chart c on (chart_id = c.id)
                  ORDER BY taxkey|;
 
   $sth = $dbh->prepare($query);
@@ -2146,7 +2145,7 @@ sub get_tax {
 
   # see if it is used by a taxkey
   $query = qq|SELECT count(*) FROM taxkeys
-              WHERE tax_id = ?|;
+              WHERE tax_id = ? AND chart_id >0|;
 
   ($form->{orphaned}) = selectrow_query($form, $dbh, $query, $form->{id});
 
@@ -2156,8 +2155,8 @@ sub get_tax {
   if (!$form->{orphaned} ) {
     $query = qq|SELECT DISTINCT c.id, c.accno
                 FROM taxkeys tk
-                LEFT JOIN   tax t ON (t.id = tk.tax_id)
-                LEFT JOIN chart c ON (c.id = tk.chart_id)
+                JOIN   tax t ON (t.id = tk.tax_id)
+                JOIN chart c ON (c.id = tk.chart_id)
                 WHERE tk.tax_id = ?|;
 
     $sth = $dbh->prepare($query);
@@ -2187,7 +2186,7 @@ sub save_tax {
   $form->{rate} = $form->{rate} / 100;
 
   my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id}, $form->{chart_id} );
-  if ($form->{id}) {
+  if ($form->{id} ne "") {
     $query = qq|UPDATE tax SET
                   taxkey         = ?,
                   taxdescription = ?,
