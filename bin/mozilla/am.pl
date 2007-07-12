@@ -3169,6 +3169,8 @@ sub edit_tax {
   AM->get_tax(\%myconfig, \%$form);
   _get_taxaccount_selection();
 
+  $form->{rate} = $form->format_amount(\%myconfig, $form->{rate}, 2);
+
   $form->header();
   
   my $parameters_ref = {
@@ -3185,8 +3187,9 @@ sub list_tax {
 
   AM->taxes(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_tax&login=$form->{login}&password=$form->{password}";
+  map { $_->{rate} = $form->format_amount(\%myconfig, $_->{rate}, 2) } @{ $form->{TAX} };
+
+  $form->{callback} = build_std_url('action=list_tax');
 
   $form->{title} = $locale->text('Tax-O-Matic');
 
@@ -3231,7 +3234,9 @@ sub save_tax {
   $form->isblank("rate", $locale->text('Taxrate missing!'));
   $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
   $form->isblank("taxkey", $locale->text('Taxkey  missing!'));
-  
+
+  $form->{rate} = $form->parse_amount(\%myconfig, $form->{rate});
+
   if ( $form->{rate} <= 0 || $form->{rate} >= 100 ) {
     $form->error($locale->text('Tax Percent is a number between 0 and 100'));
   }

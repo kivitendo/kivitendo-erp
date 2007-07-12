@@ -49,20 +49,20 @@ sub get_account {
   my $dbh = $form->dbconnect($myconfig);
   my $query = qq{
     SELECT c.accno, c.description, c.charttype, c.category,
-      c.link, c.pos_bilanz, c.pos_eur, c.new_chart_id, c.valid_from, 
+      c.link, c.pos_bilanz, c.pos_eur, c.new_chart_id, c.valid_from,
       c.pos_bwa, datevautomatik,
       tk.taxkey_id, tk.pos_ustva, tk.tax_id,
       tk.tax_id || '--' || tk.taxkey_id AS tax, tk.startdate
-    FROM chart c 
-    LEFT JOIN taxkeys tk 
-    ON (c.id=tk.chart_id AND tk.id = 
-      (SELECT id FROM taxkeys 
-       WHERE taxkeys.chart_id = c.id AND startdate <= current_date 
-       ORDER BY startdate DESC LIMIT 1)) 
+    FROM chart c
+    LEFT JOIN taxkeys tk
+    ON (c.id=tk.chart_id AND tk.id =
+      (SELECT id FROM taxkeys
+       WHERE taxkeys.chart_id = c.id AND startdate <= current_date
+       ORDER BY startdate DESC LIMIT 1))
     WHERE c.id = ?
     };
 
-  
+
   $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
@@ -92,12 +92,12 @@ sub get_account {
 
   # get taxkeys and description
   $query = qq{
-    SELECT 
-      id, 
+    SELECT
+      id,
       (SELECT accno FROM chart WHERE id=tax.chart_id) AS chart_accno,
       taxkey,
-      id||'--'||taxkey AS tax, 
-      taxdescription, 
+      id||'--'||taxkey AS tax,
+      taxdescription,
       rate
     FROM tax ORDER BY taxkey
   };
@@ -115,8 +115,8 @@ sub get_account {
   if ($form->{id}) {
     # get new accounts
     $query = qq|SELECT id, accno,description
-                FROM chart 
-                WHERE link = ? 
+                FROM chart
+                WHERE link = ?
                 ORDER BY accno|;
     $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
     $sth = $dbh->prepare($query);
@@ -130,7 +130,7 @@ sub get_account {
     $sth->finish;
 
     # get the taxkeys of account
-    
+
     $query = qq{
       SELECT
         tk.id,
@@ -139,15 +139,15 @@ sub get_account {
         tk.tax_id,
         t.taxdescription,
         t.rate,
-        tk.taxkey_id, 
-        tk.pos_ustva, 
+        tk.taxkey_id,
+        tk.pos_ustva,
         tk.startdate
       FROM taxkeys tk
       LEFT JOIN   tax t ON (t.id = tk.tax_id)
       LEFT JOIN chart c ON (c.id = t.chart_id)
 
       WHERE tk.chart_id = ?
-      ORDER BY startdate DESC 
+      ORDER BY startdate DESC
     };
     $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
     $sth = $dbh->prepare($query);
@@ -160,7 +160,7 @@ sub get_account {
       push @{ $form->{ACCOUNT_TAXKEYS} }, $ref;
     }
 
-    $sth->finish;    
+    $sth->finish;
 
   }
   # check if we have any transactions
@@ -233,27 +233,27 @@ sub save_account {
 
   if ($form->{id}) {
     $query = qq|UPDATE chart SET
-                  accno = ?, 
-                  description = ?, 
+                  accno = ?,
+                  description = ?,
                   charttype = ?,
-                  category = ?, 
+                  category = ?,
                   link = ?,
-                  pos_bwa   = ?, 
+                  pos_bwa   = ?,
                   pos_bilanz = ?,
-                  pos_eur = ?, 
-                  new_chart_id = ?, 
+                  pos_eur = ?,
+                  new_chart_id = ?,
                   valid_from = ?,
                   datevautomatik = ?
                 WHERE id = ?|;
-                
-    @values = (   
-                  $form->{accno}, 
-                  $form->{description}, 
+
+    @values = (
+                  $form->{accno},
+                  $form->{description},
                   $form->{charttype},
-                  $form->{category}, 
+                  $form->{category},
                   $form->{link},
                   conv_i($form->{pos_bwa}),
-                  conv_i($form->{pos_bilanz}), 
+                  conv_i($form->{pos_bilanz}),
                   conv_i($form->{pos_eur}),
                   conv_i($form->{new_chart_id}),
                   conv_date($form->{valid_from}),
@@ -261,43 +261,43 @@ sub save_account {
                 $form->{id},
     );
 
-  } 
+  }
   elsif ($form->{id} && !$form->{new_chart_valid}) {
 
     $query = qq|
-                  UPDATE chart 
-                  SET new_chart_id = ?, 
+                  UPDATE chart
+                  SET new_chart_id = ?,
                   valid_from = ?
                   WHERE id = ?
              |;
-             
-    @values = (   
-                  conv_i($form->{new_chart_id}), 
+
+    @values = (
+                  conv_i($form->{new_chart_id}),
                   conv_date($form->{valid_from}),
                   $form->{id}
               );
-  } 
+  }
   else {
 
     $query = qq|
                   INSERT INTO chart (
-                      accno, 
-                      description, 
+                      accno,
+                      description,
                       charttype,
-                      category, 
+                      category,
                       link,
-                      pos_bwa, 
-                      pos_bilanz, 
+                      pos_bwa,
+                      pos_bilanz,
                       pos_eur,
-                      new_chart_id, 
+                      new_chart_id,
                       valid_from,
                       datevautomatik )
                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              |;
 
     @values = (
-                      $form->{accno}, 
-                      $form->{description}, 
+                      $form->{accno},
+                      $form->{description},
                       $form->{charttype},
                       $form->{category}, $form->{link},
                       conv_i($form->{pos_bwa}),
@@ -308,21 +308,21 @@ sub save_account {
               );
 
   }
-  
+
   do_query($form, $dbh, $query, @values);
 
   #Save Taxkeys
 
   my @taxkeys = ();
-  
+
   my $MAX_TRIES = 10; # Maximum count of taxkeys in form
   my $tk_count;
-  
+
   READTAXKEYS:
   for $tk_count (0 .. $MAX_TRIES) {
-    
+
     # Loop control
-    
+
     # Check if the account already exists, else cancel
     last READTAXKEYS if ( $form->{'id'} == 0);
 
@@ -339,7 +339,7 @@ sub save_account {
     }
 
     # Add valid taxkeys into the array
-    push @taxkeys , 
+    push @taxkeys ,
       {
         id        => ($form->{"taxkey_id_$tk_count"} eq 'NEW') ? conv_i('') : conv_i($form->{"taxkey_id_$tk_count"}),
         tax_id    => conv_i($form->{"taxkey_tax_$tk_count"}),
@@ -348,7 +348,7 @@ sub save_account {
         pos_ustva => conv_i($form->{"taxkey_pos_ustva_$tk_count"}),
         delete    => ( $form->{"taxkey_del_$tk_count"} eq 'delete' ) ? '1' : '',
       };
-      
+
     $tk_count++;
   }
 
@@ -356,7 +356,7 @@ sub save_account {
   for my $j (0 .. $#taxkeys){
     if ( defined $taxkeys[$j]{'id'} ){
       # delete Taxkey?
-      
+
       if ($taxkeys[$j]{'delete'}){
         $query = qq{
           DELETE FROM taxkeys WHERE id = ?
@@ -365,12 +365,12 @@ sub save_account {
         @values = ($taxkeys[$j]{'id'});
 
         do_query($form, $dbh, $query, @values);
-      
+
         next TAXKEY;
       }
 
       # UPDATE Taxkey
-      
+
       $query = qq{
         UPDATE taxkeys
         SET taxkey_id = (SELECT taxkey FROM tax WHERE tax.id = ?),
@@ -379,20 +379,20 @@ sub save_account {
             pos_ustva = ?,
             startdate = ?
         WHERE id = ?
-      };    
+      };
       @values = (
         $taxkeys[$j]{'tax_id'},
         $taxkeys[$j]{'chart_id'},
-        $taxkeys[$j]{'tax_id'}, 
+        $taxkeys[$j]{'tax_id'},
         $taxkeys[$j]{'pos_ustva'},
-        $taxkeys[$j]{'startdate'}, 
-        $taxkeys[$j]{'id'},  
+        $taxkeys[$j]{'startdate'},
+        $taxkeys[$j]{'id'},
       );
       do_query($form, $dbh, $query, @values);
     }
     else {
       # INSERT Taxkey
-      
+
       $query = qq{
         INSERT INTO taxkeys (
           taxkey_id,
@@ -402,18 +402,18 @@ sub save_account {
           startdate
         )
         VALUES ((SELECT taxkey FROM tax WHERE tax.id = ?), ?, ?, ?, ?)
-      };    
+      };
       @values = (
-        $taxkeys[$j]{'tax_id'}, 
-        $taxkeys[$j]{'chart_id'},  
-        $taxkeys[$j]{'tax_id'}, 
+        $taxkeys[$j]{'tax_id'},
+        $taxkeys[$j]{'chart_id'},
+        $taxkeys[$j]{'tax_id'},
         $taxkeys[$j]{'pos_ustva'},
-        $taxkeys[$j]{'startdate'}, 
+        $taxkeys[$j]{'startdate'},
       );
-      
+
       do_query($form, $dbh, $query, @values);
     }
-  
+
   }
 
   # commit
@@ -2063,11 +2063,11 @@ sub taxes {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT 
+  my $query = qq|SELECT
                    t.id,
                    t.taxkey,
                    t.taxdescription,
-                   round(t.rate, 2) * 100 AS rate,
+                   round(t.rate * 100, 2) AS rate,
                    c.accno AS taxnumber,
                    c.description AS account_description
                  FROM tax t
@@ -2096,12 +2096,12 @@ sub get_tax_accounts {
   my $dbh = $form->dbconnect($myconfig);
 
   # get Accounts from chart
-  my $query = qq{ SELECT 
+  my $query = qq{ SELECT
                  id,
                  accno || ' - ' || description AS _taxaccount
                FROM chart
                WHERE link LIKE '%_tax%'
-               ORDER BY accno 
+               ORDER BY accno
              };
 
   $sth = $dbh->prepare($query);
@@ -2127,14 +2127,14 @@ sub get_tax {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT 
+  my $query = qq|SELECT
                    taxkey,
                    taxdescription,
-                   round(rate, 2) * 100 AS rate,
+                   round(rate * 100, 2) AS rate,
                    chart_id
                  FROM tax
                  WHERE id = ? |;
-                 
+
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
@@ -2147,19 +2147,19 @@ sub get_tax {
   # see if it is used by a taxkey
   $query = qq|SELECT count(*) FROM taxkeys
               WHERE tax_id = ?|;
-  
+
   ($form->{orphaned}) = selectrow_query($form, $dbh, $query, $form->{id});
 
   $form->{orphaned} = !$form->{orphaned};
   $sth->finish;
-  
+
   if (!$form->{orphaned} ) {
     $query = qq|SELECT DISTINCT c.id, c.accno
                 FROM taxkeys tk
                 LEFT JOIN   tax t ON (t.id = tk.tax_id)
                 LEFT JOIN chart c ON (c.id = tk.chart_id)
                 WHERE tk.tax_id = ?|;
-  
+
     $sth = $dbh->prepare($query);
     $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
@@ -2170,7 +2170,7 @@ sub get_tax {
 
     $sth->finish;
   }
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -2182,7 +2182,7 @@ sub save_tax {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
   $form->{rate} = $form->{rate} / 100;
 
@@ -2196,8 +2196,8 @@ sub save_tax {
                   taxnumber      = (SELECT accno FROM chart WHERE id= ? )
                 WHERE id = ?|;
     push(@values, $form->{id});
-  } 
-  else {
+
+  } else {
     #ok
     $query = qq|INSERT INTO tax (
                   taxkey,
@@ -2210,7 +2210,7 @@ sub save_tax {
   }
   do_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
+  $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
@@ -2221,13 +2221,13 @@ sub delete_tax {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
   $query = qq|DELETE FROM tax
               WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
-  $dbh->disconnect;
+  $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
