@@ -147,7 +147,7 @@ sub do_copy {
     my $query = $iconv->convert($copy_statements[$statement]);
     my $sth   = $dbh->prepare($query) || mydberror($query);
 
-    for my $copy_line ( 1 .. $#{$copy_data[$statement]} ) {
+    for my $copy_line ( 0 .. $#{$copy_data[$statement]} ) {
       #print $copy_data[$statement][$copy_line] . "<br />"
       $sth->execute(split m/;/, $iconv->convert($copy_data[$statement][$copy_line]), -1) || mydberror($query);
     }
