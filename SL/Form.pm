@@ -386,10 +386,15 @@ sub header {
 
   if ($ENV{HTTP_USER_AGENT}) {
 
-    if ($self->{stylesheet} && (-f "css/$self->{stylesheet}")) {
-      $stylesheet =
-        qq|<LINK REL="stylesheet" HREF="css/$self->{stylesheet}" TYPE="text/css" TITLE="Lx-Office stylesheet">
- |;
+    my $stylesheets = "$self->{stylesheet} $self->{stylesheets}";
+
+    $stylesheets =~ s|^\s*||;
+    $stylesheets =~ s|\s*$||;
+    foreach my $file (split m/\s+/, $stylesheets) {
+      $file =~ s|.*/||;
+      next if (! -f "css/$file");
+
+      $stylesheet .= qq|<link rel="stylesheet" href="css/$file" TYPE="text/css" TITLE="Lx-Office stylesheet">\n|;
     }
 
     $self->{favicon}    = "favicon.ico" unless $self->{favicon};

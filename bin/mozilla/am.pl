@@ -413,16 +413,14 @@ sub list_account {
 
   foreach $ca (@{ $form->{CA} }) {
 
-    $ca->{debit}  = "&nbsp;";
-    $ca->{credit} = "&nbsp;";
+    $ca->{debit}  = "";
+    $ca->{credit} = "";
 
     if ($ca->{amount} > 0) {
-      $ca->{credit} =
-        $form->format_amount(\%myconfig, $ca->{amount}, 2, "&nbsp;");
+      $ca->{credit} = $form->format_amount(\%myconfig, $ca->{amount}, 2);
     }
     if ($ca->{amount} < 0) {
-      $ca->{debit} =
-        $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2, "&nbsp;");
+      $ca->{debit} = $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2);
     }
     $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:''; 
     $ca->{link_edit_account} = 
@@ -437,16 +435,16 @@ sub list_account {
              ."&password=$form->{password}&action=list_account_details&";
   
   
-  my $pjx = new CGI::Ajax( 
-             'list_account_details' => $list_account_details_url 
-  );
+  my $pjx = new CGI::Ajax('list_account_details' => $list_account_details_url);
 
   # Eneable AJAX debuging
   #$pjx->DEBUG(1);
   #$pjx->JSDEBUG(1);
     
   push(@ { $form->{AJAX} }, $pjx);
-  
+
+  $form->{stylesheets} = "list_accounts.css";
+
   $form->header;
   
   
@@ -455,7 +453,7 @@ sub list_account {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template('am/list_accounts', $parameters_ref));
+  print($form->parse_html_template2('am/list_accounts', $parameters_ref));
   
   $lxdebug->leave_sub();
 

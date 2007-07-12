@@ -1,199 +1,65 @@
+[% USE HTML %]<body>
 
-  <style type="text/css">
-  
-  /* Kontenliste Styles */
+ <br/><div id='pjxdebugrequest'></div><br/>
 
-  .coa_listtop { 
-	background-color:rgb(236,233,216); 
-	text-align:left;
-	padding:5px;
-	font-size:12pt; 
-	color:black; 
-	font-weight: bolder;
-	border-style:dashed;
-	border-width:thin;
-  }
+ <div class="coa_listtop">[% title %]</div>
 
-  .coa_listheading { 
-	background-color:rgb(236,233,216); 
-	color: black; 
-	background-image:url("../image/fade.png");
-  }
-  
-  .coa_listheading_element { 
-	font-size:10pt; 
-	padding:3px;
-	font-weight:bolder;
-	text-align:left;
-	border-style:dotted;
-	border-width:thin;
-  }
-  
-  .coa_listrow1 { 
-	background-color: rgb(208,207,201); 
-	color: black; 
-	vertical-align: top; 
-  }
+ <br />
 
-  .coa_listrow0 { 
-        background-color: rgb(236,233,216); 
-        color: black; 
-        vertical-align: top; 
-  }
-
-  .coa_amount {
-        text-align:right;
-        font-familiy:monospace;
-  }
-
-  .coa_account_header {
-        font-size:10pt; 
-	padding:3px;
-	font-weight:bolder;
-	text-align:left;
-	border-style:none;
-	border-width:thin;
-  
-  }
-
-  .coa_account_header_sc {
-        font-size:10pt; 
-	padding:3px;
-	font-weight:bolder;
-	text-align:left;
-	border-style:none;
-	border-width:thin;
-        cursor:s-resize;
-  }
-  
-  .coa_detail {
-	padding:0px;
-	border-style:none;
-  }
-  
-  .coa_detail_emph {
-        font-size:10pt;
-        font-weight:bold;
-        color:darkred;
-  }
-                    
-  .coa_details_header {
-        font-size:8pt; 
-	padding:3px;
-	font-weight:bolder;
-	text-align:center;
-	border-style:none;
-	border-width:thin;
-  }
-
-  .coa_details_header2 {
-        font-size:8pt; 
-	padding:3px;
-	font-weight:normal;
-	text-align:left;
-	border-style:none;
-	border-width:thin;
-  }
-  
-  </style>
-
-</head>
-
-<body>
-
-<br/><div id='pjxdebugrequest'></div><br/>
-
-
-<table width=100%>
-  <tr class="coa_listtop">
-      <th class="coa_listtop"><TMPL_VAR title ESCAPE=HTML></th>
-  </tr>
-</table>
-
-<br />
-
-<table width="100%">
+ <table width="100%">
 
   <colgroup>
-      <col width="10%">
-      <col width="10%">
-      <col width="10%">
-      <col width="50%">
-      <col width="10%">
-      <col width="10%">
+   <col width="10%">
+   <col width="10%">
+   <col width="10%">
+   <col width="50%">
+   <col width="10%">
+   <col width="10%">
   </colgroup>
-  
+
   <tr class="coa_listheading">
-    
-    <td class="coa_listheading_element">
-        <translate>Account</translate>
-    </td>
-    <td colspan="3" class="coa_listheading_element">
-        <translate>Description (Click on Description for details)</translate>
-    </td>
-    <td class="coa_listheading_element">
-        <translate>Debit</translate>
-    </td>
-    <td class="coa_listheading_element">
-        <translate>Credit</translate>
+   <td class="coa_listheading_element"><translate>Account</translate></td>
+   <td colspan="3" class="coa_listheading_element"><translate>Description (Click on Description for details)</translate></td>
+   <td class="coa_listheading_element"><translate>Debit</translate></td>
+   <td class="coa_listheading_element"><translate>Credit</translate></td>
+  </tr>
+
+  [% SET row_odd = '1' %][% FOREACH row = CA %]
+
+  [% IF row.heading %]
+  <tr>
+   <td class="accountlistheading"><a href="[% row.link_edit_account %]">[% HTML.escape(row.accno) %]</a></td>
+   <td colspan="5" class="accountlistheading">[% HTML.escape(row.description) %]</td>
+  </tr>
+
+  [% ELSE %]
+
+  <tr class="coa_listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+
+   <td class="coa_account_header">
+    <b><a href="[% row.link_edit_account %]" >[% HTML.escape(row.accno) %]</a></b>
+   </td>
+
+   <input type="hidden" name="chart_id" value="[% HTML.escape(row.id) %]" id="chart_id_[% HTML.escape(row.id) %]" >
+   <td colspan="3" id="accountcontent[% HTML.escape(row.id) %]-title" class="coa_account_header_sc"
+       onclick="list_account_details( ['chart_id_[% HTML.escape(row.id) %]'], ['ajaxcontent[% HTML.escape(row.id) %]'] )">
+    [% HTML.escape(row.description) %]
+   </td>
+
+    <td class="coa_account_header"><div class="coa_amount">[% HTML.escape(row.debit) %]</div></td>
+    <td class="coa_account_header"><div class="coa_amount">[% HTML.escape(row.credit) %]</div>
     </td>
   </tr>
 
-<TMPL_LOOP CA>
-
-  <TMPL_IF heading>
-        <tr>
-          <td class="accountlistheading">
-            <a href="<TMPL_VAR link_edit_account>" >
-            <TMPL_VAR accno>
-            </a>
-          </td>
-          <td colspan="5" class="accountlistheading">
-            <TMPL_VAR description>
-          </td>
-        </tr>
-  <TMPL_ELSE>
-
-    <TMPL_IF __odd__>
-        <tr class="coa_listrow1">
-    <TMPL_ELSE>
-        <tr class="coa_listrow0">
-    </TMPL_IF>
-    
-
-    <td class="coa_account_header">
-        <b><a href="<TMPL_VAR link_edit_account>" ><TMPL_VAR accno></a></b>
-
-    </td>
-    <input type="hidden" name="chart_id" value="<TMPL_VAR id ESCAPE=HTML>"
-    id="chart_id_<TMPL_VAR id ESCAPE=HTML>" >
-    <td colspan="3" id="accountcontent<TMPL_VAR id
-      ESCAPE=HTML>-title" class="coa_account_header_sc"
-      onclick="list_account_details( ['chart_id_<TMPL_VAR id ESCAPE=HTML>'],
-      ['ajaxcontent<TMPL_VAR id ESCAPE=HTML>'] )">
-    <TMPL_VAR description ESCAPE=HTML>&nbsp;
-    </td>
-    <td class="coa_account_header">
-            <div class="coa_amount"><TMPL_VAR debit></div>
-    </td>
-    <td class="coa_account_header">
-            <div class="coa_amount"><TMPL_VAR credit>&nbsp;</div>
-    </td>
-  </tr>
   <tr class="coa_detail">
-    <td colspan="6" width="100%"> 
-        <div id="ajaxcontent<TMPL_VAR id ESCAPE=HTML>">
-      </div>
-    </td>
+   <td colspan="6" width="100%"><div id="ajaxcontent[% HTML.escape(row.id) %]"></div></td>
   </tr>
-  
-  </TMPL_IF>
-  
-</TMPL_LOOP>
 
-</table>
+  [% END %]
+
+  [% END %]
+
+ </table>
 
 </body>
 </html>
-
-
