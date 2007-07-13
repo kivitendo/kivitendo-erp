@@ -468,8 +468,8 @@ sub do_insert_taxkeys {
 
       "ALTER TABLE taxkeys DROP COLUMN pos_ustva;",
       "ALTER TABLE taxkeys ADD COLUMN pos_ustva text;",
-      "INSERT INTO taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate)
-            SELECT id, 0, 0, NULL, '01.01.1970' FROM chart WHERE charttype='A';",
+#      "INSERT INTO taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate)
+#            SELECT id, 0, 0, NULL, '01.01.1970' FROM chart WHERE charttype='A';",
       "UPDATE chart SET taxkey_id = 0 WHERE taxkey_id ISNULL;",
       "UPDATE taxkeys SET pos_ustva='000' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN (4010, 4015, 4020, 4025, 4030, 4035, 4040, 4045, 4050, 4310, 4315, 4320, 4322, 4325, 4330, 4335, 4340, 4345, 4350, 4450, 4029, 4329));",
       "UPDATE taxkeys SET pos_ustva='011' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN (4029, 4329));",
