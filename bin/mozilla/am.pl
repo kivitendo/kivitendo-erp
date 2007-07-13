@@ -161,7 +161,7 @@ sub account_header {
         if ($item eq ''){
           $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="" selected="selected">-\n|;
         } 
-        elsif ( $item == $taxkey_used->{pos_ustva} ) {
+        elsif ( $item eq $taxkey_used->{pos_ustva} ) {
           $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item" selected="selected">$item\n|;
         }
         else {
