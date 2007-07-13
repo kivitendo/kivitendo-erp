@@ -1153,7 +1153,8 @@ sub get_delivery {
                         transdate,
                         description,
                         qty,
-                        unit);
+                        unit,
+                        sellprice);
 
 
 
@@ -1171,6 +1172,8 @@ sub get_delivery {
     qq|<th class=listheading>| . $locale->text('Qty') . qq|</th>|;
   $column_header{unit} =
     qq|<th class=listheading>| . $locale->text('Unit') . qq|</th>|;
+  $column_header{sellprice} =
+    qq|<th class=listheading>| . $locale->text('Sell Price') . qq|</th>|;
   $result .= qq|
 
 <table width=100%>
@@ -1195,7 +1198,7 @@ sub get_delivery {
     } else {
       map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
     }
-
+    $column_data{sellprice} = "<td>". $form->format_amount(\%myconfig,$ref->{sellprice},2)."&nbsp;</td>";
     $i++;
     $i %= 2;
     $result .= "

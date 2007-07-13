@@ -136,6 +136,7 @@ $self->{texts} = {
   'Select a part'               => 'Artikel ausw&auml;hlen',
   'Select a project'            => 'Projekt ausw&auml;hlen',
   'Select an employee'          => 'Angestellten ausw&auml;hlen',
+  'Sell Price'                  => 'Verkaufspreis',
   'Shipping Address'            => 'Lieferadresse',
   'Steuersatz'                  => 'Steuersatz',
   'Storno Invoice'              => 'Stornorechnung',

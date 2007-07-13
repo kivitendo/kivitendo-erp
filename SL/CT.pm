@@ -764,7 +764,7 @@ sub get_delivery {
   my $query =
     qq|SELECT s.shiptoname, i.qty, | .
     qq|  ${arap}.transdate, ${arap}.invnumber, ${arap}.ordnumber, | .
-    qq|  invoice.description, invoice.unit | .
+    qq|  i.description, i.unit, i.sellprice | .
     qq|FROM $arap | .
     qq|LEFT JOIN shipto s ON | .
     ($arap eq "ar"
