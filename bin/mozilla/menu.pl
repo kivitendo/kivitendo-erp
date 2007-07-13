@@ -52,10 +52,10 @@ sub display {
 
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
-  <frame  src="kopf.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}" name="kopf"  scrolling="NO">
+  <frame  src="kopf.pl?login=$form->{login}&password=$form->{password}" name="kopf"  scrolling="NO">
   <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" >
-    <frame src="$form->{script}?login=$form->{login}&password=$form->{password}&action=acc_menu&path=$form->{path}" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
-    <frame src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" name="main_window" scrolling="auto">
+    <frame src="$form->{script}?login=$form->{login}&password=$form->{password}&action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
+    <frame src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" name="main_window" scrolling="auto">
   </frameset>
   <noframes>
   You need a browser that can read frames to see this page.
@@ -72,9 +72,6 @@ sub acc_menu {
   $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
-  $menu = new Menu "custom_$menufile" if (-f "custom_$menufile");
-  $menu = new Menu "$form->{login}_$menufile"
-    if (-f "$form->{login}_$menufile");
 
   $form->{title} = $locale->text('Accounting Menu');
 
@@ -124,13 +121,16 @@ sub section_menu {
     # than 20 chars and store it in an array.
     # use this array later instead of the &nbsp;-ed label
     @chunks = ();
-    my ($i,$l) =(-1, 20);
+    my ($i,$l) = (-1, 20);
     map {
-      $l += length $_; 
-      if ($l < 20) { $chunks[$i] .= " $_";
-      } else { $l =length $_; $chunks[++$i] = $_; }
+      if (($l += length $_) < 20) {
+        $chunks[$i] .= " $_";
+      } else { 
+        $l = length $_; 
+        $chunks[++$i] = $_; 
+      }
     } split / /, $label;
-    map { $chunks[$_] =~ s/ /&nbsp;/ } 0..$#chunks;
+    map { s/ /&nbsp;/ } @chunks;
     # end multi line
 
     $label =~ s/ /&nbsp;/g;
@@ -198,7 +198,7 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         #print qq|<br>\n|;

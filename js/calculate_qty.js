@@ -10,7 +10,6 @@ function calculate_qty_selection_window(input_name, alu, formel, row) {
     "action=" + action + "&" +
     "login=" + encodeURIComponent(document.getElementsByName("login")[0].value) + "&" +
     "password=" + encodeURIComponent(document.getElementsByName("password")[0].value) + "&" +
-    "path=" + encodeURIComponent(document.getElementsByName("path")[0].value) + "&" +
     "name=" + escape(name) + "&" +
     "input_name=" + escape(input_name) + "&" +
     "description=" + escape(description) + "&" +

@@ -1,43 +1,13 @@
 /* stylesheet for LX-Office ERP */
 
-/* general stuff */
-/*
-A:link { color: #a0522d; text-decoration: none; }
-A:visited { color: #0522d; text-decoration: none; }
-A:active { color: #a0522d; text-decoration: underline; }
-A:hover { color: white;
-          background-color: rgb(187,187,187);
-	  text-decoration: none;
-}
-*/
-A:link { color: black; text-decoration: none; }
-A:visited { color: black; text-decoration: none; }
-A:active { color: black; text-decoration: underline; }
-
-/*
-	Menu: oberste Linkebene
-*/
-A.nohover:hover { 
-	/* color: black;*/
-	color:#8c1919;
-	/* font-weight: bolder;
-	background-image: url("px_3.gif");
-	text-decoration:none; 
-	*/
-}
-
-
-/*
-	Menu : Unterpunkte
-*/
-A:hover { 
-	color:#8c1919;
-/*	color: black;
-	font-weight: bolder;
-	background-color: #FFFFCC;
-	text-decoration:none; 
-*/
-}
+/* The look of links */
+A:link { color: mediumblue; text-decoration: none; }
+A:visited { color: mediumblue; text-decoration: none; }
+A:active { color: black; text-decoration: none; }
+A:hover { color: black;
+           background-color: lemonchiffon;
+           text-decoration: none;
+         }
 
 
 body {
@@ -113,7 +83,7 @@ body.menu {
 
 
 /*
-	ï¿½erschriftsbalken
+	Überschriftsbalken
 */
 .listtop { 
 	background-color: rgb(236,233,216); 
@@ -153,8 +123,16 @@ body.menu {
 	border-style:dotted;
 	border-width:thin;
 }
-	
-	
+
+.accountlistheading { 
+	font-size: 10pt; 
+	padding:3px;
+	color: white; 
+	font-weight: bold;
+	text-align:left;
+	background-color:rgb(133,132,129);
+}
+
 .subsubheading {
   color: black;
   font-weight: bolder;
@@ -172,11 +150,6 @@ body.menu {
 }
 
 	
-A.listheading:link, A.listheading:active, A.listheading:visited {
-  color: black;
-  text-decoration: none; 
- }
-
 .listrow1 { 
 	background-color: rgb(208,207,201); 
 	color: black; 
@@ -216,6 +189,11 @@ h2.error {
   font-size: 14pt;
 }
 
+fieldset {
+  margin-top:15px;
+  color: black;
+  font-weight: bolder;
+}
 
 /* media stuff */
 
@@ -231,3 +209,16 @@ h2.error {
   }
 }
 
+.filecontent {
+  border: 1px solid blue;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+label {
+  cursor:pointer;
+}
+
+.unbalanced_ledger {
+  background-color: #ffa0a0;
+}

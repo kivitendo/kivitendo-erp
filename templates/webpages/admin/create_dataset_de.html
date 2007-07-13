@@ -1,0 +1,57 @@
+[% USE HTML %]<body class="admin">
+
+  <h2>[% title %]</h2>
+
+  <form method="post" action="admin.pl">
+
+   <table>
+    <tr>
+     <th valign="top" align="right" nowrap>existierende Datenbanken</th>
+     <td valign="top">[% HTML.escape(dbsources) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Datenbank anlegen</th>
+     <td><input name="db"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Schriftsatz</th>
+     <td>
+      <select name="encoding">
+       [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th valign="top" align="right" nowrap>Kontenplan anlegen</th>
+     <td>
+      <select name="chart">
+       [% FOREACH row = CHARTS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
+   </table>
+
+   <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
+   <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
+   <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
+   <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
+   <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
+   <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
+
+   <input type="hidden" name="callback" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+
+   <input type="hidden" name="nextsub" value="dbcreate">
+
+   <hr size="3" noshade>
+
+   <p><input type="submit" class="submit" name="action" value="Weiter"></p>
+
+  </form>
+
+</body>
+</html>

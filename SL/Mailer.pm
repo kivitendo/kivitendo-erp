@@ -30,6 +30,8 @@
 
 package Mailer;
 
+use SL::Common;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -87,7 +89,9 @@ sub mime_quote_text {
 sub send {
   $main::lxdebug->enter_sub();
 
-  my ($self, $out) = @_;
+  my ($self) = @_;
+
+  local (*IN, *OUT);
 
   my $boundary = time;
   $boundary = "LxOffice-$self->{version}-$boundary";
@@ -95,18 +99,11 @@ sub send {
   $domain =~ s/(.*?\@|>)//g;
   my $msgid = "$boundary\@$domain";
 
-  $self->{charset} = "ISO-8859-15" unless $self->{charset};
+  $self->{charset} = Common::DEFAULT_CHARSET unless $self->{charset};
 
-  if ($out) {
-    if (!open(OUT, $out)) {
-      $main::lxdebug->leave_sub();
-      return "$out : $!";
-    }
-  } else {
-    if (!open(OUT, ">-")) {
-      $main::lxdebug->leave_sub();
-      return "STDOUT : $!";
-    }
+  if (!open(OUT, $main::sendmail)) {
+    $main::lxdebug->leave_sub();
+    return "$main::sendmail : $!";
   }
 
   $self->{contenttype} = "text/plain" unless $self->{contenttype};
@@ -147,6 +144,17 @@ $self->{message}
 
     foreach my $attachment (@{ $self->{attachments} }) {
 
+      my $filename;
+
+      if (ref($attachment) eq "HASH") {
+        $filename = $attachment->{"name"};
+        $attachment = $attachment->{"filename"};
+      } else {
+        $filename = $attachment;
+        # strip path
+        $filename =~ s/(.*\/|$self->{fileid})//g;
+      }
+
       my $application =
         ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/)
         ? "text"
@@ -158,11 +166,6 @@ $self->{message}
         $main::lxdebug->leave_sub();
         return "$attachment : $!";
       }
-
-      my $filename = $attachment;
-
-      # strip path
-      $filename =~ s/(.*\/|$self->{fileid})//g;
 
       print OUT qq|--${boundary}
 Content-Type: $application/$self->{format}; name="$filename"; charset="$self->{charset}"

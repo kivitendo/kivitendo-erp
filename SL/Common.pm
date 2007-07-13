@@ -10,6 +10,28 @@ package Common;
 
 use Time::HiRes qw(gettimeofday);
 
+use SL::DBUtils;
+
+use vars qw(@db_encodings %db_encoding_to_charset);
+
+@db_encodings = (
+  { "label" => "ASCII",          "dbencoding" => "SQL_ASCII", "charset" => "ASCII" },
+  { "label" => "UTF-8 Unicode",  "dbencoding" => "UNICODE",   "charset" => "UTF-8" },
+  { "label" => "ISO 8859-1",     "dbencoding" => "LATIN1",    "charset" => "ISO-8859-1" },
+  { "label" => "ISO 8859-2",     "dbencoding" => "LATIN2",    "charset" => "ISO-8859-2" },
+  { "label" => "ISO 8859-3",     "dbencoding" => "LATIN3",    "charset" => "ISO-8859-3" },
+  { "label" => "ISO 8859-4",     "dbencoding" => "LATIN4",    "charset" => "ISO-8859-4" },
+  { "label" => "ISO 8859-5",     "dbencoding" => "LATIN5",    "charset" => "ISO-8859-5" },
+  { "label" => "ISO 8859-15",    "dbencoding" => "LATIN9",    "charset" => "ISO-8859-15" },
+  { "label" => "KOI8-R",         "dbencoding" => "KOI8",      "charset" => "KOI8-R" },
+  { "label" => "Windows CP1251", "dbencoding" => "WIN",       "charset" => "CP1251" },
+  { "label" => "Windows CP866",  "dbencoding" => "ALT",       "charset" => "CP866" },
+);
+
+%db_encoding_to_charset = map { $_->{dbencoding}, $_->{charset} } @db_encodings;
+
+use constant DEFAULT_CHARSET => 'ISO-8859-15';
+
 sub unique_id {
   my ($a, $b) = gettimeofday();
   return "${a}-${b}-${$}";
@@ -28,11 +50,11 @@ sub retrieve_parts {
 
   my (@filter_values, $filter);
   if ($form->{"partnumber"}) {
-    $filter .= " AND (partnumber ILIKE ?)";
+    $filter .= qq| AND (partnumber ILIKE ?)|;
     push(@filter_values, '%' . $form->{"partnumber"} . '%');
   }
   if ($form->{"description"}) {
-    $filter .= " AND (description ILIKE ?)";
+    $filter .= qq| AND (description ILIKE ?)|;
     push(@filter_values, '%' . $form->{"description"} . '%');
   }
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -40,7 +62,10 @@ sub retrieve_parts {
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, partnumber, description FROM parts $filter ORDER BY $order_by $order_dir";
+  my $query =
+    qq|SELECT id, partnumber, description | .
+    qq|FROM parts $filter | .
+    qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $parts = [];
@@ -64,11 +89,11 @@ sub retrieve_projects {
 
   my (@filter_values, $filter);
   if ($form->{"projectnumber"}) {
-    $filter .= " AND (projectnumber ILIKE ?)";
+    $filter .= qq| AND (projectnumber ILIKE ?)|;
     push(@filter_values, '%' . $form->{"projectnumber"} . '%');
   }
   if ($form->{"description"}) {
-    $filter .= " AND (description ILIKE ?)";
+    $filter .= qq| AND (description ILIKE ?)|;
     push(@filter_values, '%' . $form->{"description"} . '%');
   }
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -76,7 +101,10 @@ sub retrieve_projects {
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, projectnumber, description FROM project $filter ORDER BY $order_by $order_dir";
+  my $query =
+    qq|SELECT id, projectnumber, description | .
+    qq|FROM project $filter | .
+    qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $projects = [];
@@ -100,7 +128,7 @@ sub retrieve_employees {
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
-    $filter .= " AND (name ILIKE ?)";
+    $filter .= qq| AND (name ILIKE ?)|;
     push(@filter_values, '%' . $form->{"name"} . '%');
   }
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -108,7 +136,10 @@ sub retrieve_employees {
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, name FROM employee $filter ORDER BY $order_by $order_dir";
+  my $query =
+    qq|SELECT id, name | .
+    qq|FROM employee $filter | .
+    qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $employees = [];
@@ -132,17 +163,21 @@ sub retrieve_delivery_customer {
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
-    $filter .= " (name ILIKE '%$form->{name}%') AND";
+    $filter .= qq| (name ILIKE ?) AND|;
     push(@filter_values, '%' . $form->{"name"} . '%');
   }
-  #substr($filter, 1, 3) = "WHERE" if ($filter);
 
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, name, customernumber, (street || ', ' || zipcode || city) as address FROM customer WHERE $filter business_id=(SELECT id from business WHERE description='Endkunde') ORDER BY $order_by $order_dir";
+  my $query =
+    qq!SELECT id, name, customernumber, (street || ', ' || zipcode || city) AS address ! .
+    qq!FROM customer ! .
+    qq!WHERE $filter business_id = (SELECT id FROM business WHERE description = 'Endkunde') ! .
+    qq!ORDER BY $order_by $order_dir!;
   my $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
+  $sth->execute(@filter_values) ||
+    $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $delivery_customers = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$delivery_customers}, $ref);
@@ -164,17 +199,20 @@ sub retrieve_vendor {
 
   my (@filter_values, $filter);
   if ($form->{"name"}) {
-    $filter .= " (name ILIKE '%$form->{name}%') AND";
+    $filter .= qq| (name ILIKE ?) AND|;
     push(@filter_values, '%' . $form->{"name"} . '%');
   }
-  #substr($filter, 1, 3) = "WHERE" if ($filter);
 
   $order_by =~ s/[^a-zA-Z_]//g;
   $order_dir = $order_dir ? "ASC" : "DESC";
 
-  my $query = "SELECT id, name, customernumber, (street || ', ' || zipcode || city) as address FROM customer WHERE $filter business_id=(SELECT id from business WHERE description='Händler') ORDER BY $order_by $order_dir";
+  my $query =
+    qq!SELECT id, name, customernumber, (street || ', ' || zipcode || city) AS address FROM customer ! .
+    qq!WHERE $filter business_id = (SELECT id FROM business WHERE description = 'Händler') ! .
+    qq!ORDER BY $order_by $order_dir!;
   my $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
+  $sth->execute(@filter_values) ||
+    $form->dberror($query . " (" . join(", ", @filter_values) . ")");
   my $vendors = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$vendors}, $ref);
@@ -185,6 +223,216 @@ sub retrieve_vendor {
   $main::lxdebug->leave_sub();
 
   return $vendors;
+}
+
+sub mkdir_with_parents {
+  $main::lxdebug->enter_sub();
+
+  my ($full_path) = @_;
+
+  my $path = "";
+
+  $full_path =~ s|/+|/|;
+
+  foreach my $part (split(m|/|, $full_path)) {
+    $path .= "/" if ($path);
+    $path .= $part;
+
+    die("Could not create directory '$path' because a file exists with " .
+        "the same name.\n") if (-f $path);
+
+    if (! -d $path) {
+      mkdir($path, 0770) || die("Could not create the directory '$path'. " .
+                                "OS error: $!\n");
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub webdav_folder {
+  $main::lxdebug->enter_sub();
+
+  my ($form) = @_;
+
+  return $main::lxdebug->leave_sub()
+    unless ($main::webdav && $form->{id});
+
+  my ($path, $number);
+
+  $form->{WEBDAV} = [];
+
+  if ($form->{type} eq "sales_quotation") {
+    ($path, $number) = ("angebote", $form->{quonumber});
+  } elsif ($form->{type} eq "sales_order") {
+    ($path, $number) = ("bestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "request_quotation") {
+    ($path, $number) = ("anfragen", $form->{quonumber});
+  } elsif ($form->{type} eq "purchase_order") {
+    ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "credit_note") {
+    ($path, $number) = ("gutschriften", $form->{invnumber});
+  } elsif ($form->{vc} eq "customer") {
+    ($path, $number) = ("rechnungen", $form->{invnumber});
+  } else {
+    ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
+  }
+
+  return $main::lxdebug->leave_sub() unless ($path && $number);
+
+  $number =~ s|[/\\]|_|g;
+
+  $path = "webdav/${path}/${number}";
+
+  if (!-d $path) {
+    mkdir_with_parents($path);
+
+  } else {
+    my $base_path = substr($ENV{'SCRIPT_NAME'}, 1);
+    $base_path =~ s|[^/]+$||;
+    $base_path =~ s|/$||;
+
+    if (opendir $dir, $path) {
+      foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
+        next if (($file eq '.') || ($file eq '..'));
+
+        my $fname = $file;
+        $fname  =~ s|.*/||;
+
+        my $is_directory = -d "$path/$file";
+
+        $file  = join('/', map { $form->escape($_) } grep { $_ } split m|/+|, "$path/$file");
+        $file .=  '/' if ($is_directory);
+
+        push @{ $form->{WEBDAV} }, {
+          'name' => $fname,
+          'link' => ($ENV{"HTTPS"} ? "https://" : "http://") . $ENV{'SERVER_NAME'} . "/$base_path/$file",
+          'type' => $is_directory ? $main::locale->text('Directory') : $main::locale->text('File'),
+        };
+      }
+
+      closedir $dir;
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_vc_details {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $vc, $vc_id) = @_;
+
+  $vc = $vc eq "customer" ? "customer" : "vendor";
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query;
+
+  $query =
+    qq|SELECT
+         vc.*,
+         pt.description AS payment_terms,
+         b.description AS business,
+         l.description AS language
+       FROM ${vc} vc
+       LEFT JOIN payment_terms pt ON (vc.payment_id = pt.id)
+       LEFT JOIN business b ON (vc.business_id = b.id)
+       LEFT JOIN language l ON (vc.language_id = l.id)
+       WHERE vc.id = ?|;
+  my $ref = selectfirst_hashref_query($form, $dbh, $query, $vc_id);
+
+  if (!$ref) {
+    $dbh->disconnect();
+    $main::lxdebug->leave_sub();
+    return 0;
+  }
+
+  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+
+  map { $form->{$_} = $form->format_amount($myconfig, $form->{$_} * 1) } qw(discount creditlimit);
+
+  $query = qq|SELECT * FROM shipto WHERE (trans_id = ?)|;
+  $form->{SHIPTO} = selectall_hashref_query($form, $dbh, $query, $vc_id);
+
+  $query = qq|SELECT * FROM contacts WHERE (cp_cv_id = ?)|;
+  $form->{CONTACTS} = selectall_hashref_query($form, $dbh, $query, $vc_id);
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return 1;
+}
+
+sub get_shipto_by_id {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $shipto_id, $prefix) = @_;
+
+  $prefix ||= "";
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
+  my $ref   = selectfirst_hashref_query($form, $dbh, $query, $shipto_id);
+
+  map { $form->{"${prefix}${_}"} = $ref->{$_} } keys %{ $ref } if $ref;
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub save_email_status {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my ($table, $query, $dbh);
+
+  if ($form->{script} eq 'oe.pl') {
+    $table = 'oe';
+
+  } elsif ($form->{script} eq 'is.pl') {
+    $table = 'ar';
+
+  } elsif ($form->{script} eq 'ir.pl') {
+    $table = 'ap';
+
+  }
+
+  return $main::lxdebug->leave_sub() if (!$form->{id} || !$table || !$form->{formname});
+
+  $dbh = $form->get_standard_dbh($myconfig);
+
+  my ($intnotes) = selectrow_query($form, $dbh, qq|SELECT intnotes FROM $table WHERE id = ?|, $form->{id});
+
+  $intnotes =~ s|\r||g;
+  $intnotes =~ s|\n$||;
+
+  $intnotes .= "\n\n" if ($intnotes);
+
+  my $cc  = $main::locale->text('Cc') . ": $form->{cc}\n"   if $form->{cc};
+  my $bcc = $main::locale->text('Bcc') . ": $form->{bcc}\n" if $form->{bcc};
+  my $now = scalar localtime;
+
+  $intnotes .= $main::locale->text('[email]') . "\n"
+    . $main::locale->text('Date') . ": $now\n"
+    . $main::locale->text('To (email)') . ": $form->{email}\n"
+    . "${cc}${bcc}"
+    . $main::locale->text('Subject') . ": $form->{subject}\n\n"
+    . $main::locale->text('Message') . ": $form->{message}";
+
+  $intnotes =~ s|\r||g;
+
+  do_query($form, $dbh, qq|UPDATE $table SET intnotes = ? WHERE id = ?|, $intnotes, $form->{id});
+
+  $form->save_status($dbh);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
 }
 
 1;

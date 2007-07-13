@@ -36,7 +36,13 @@ use SL::OP;
 use SL::IS;
 use SL::IR;
 
-require "$form->{path}/arap.pl";
+use strict ("vars", "subs");
+#use warnings;
+
+require "bin/mozilla/arap.pl";
+require "bin/mozilla/common.pl";
+
+our ($form, %myconfig, $lxdebug, $locale);
 
 1;
 
@@ -44,6 +50,8 @@ require "$form->{path}/arap.pl";
 
 sub payment {
   $lxdebug->enter_sub();
+
+  my (@curr);
 
   $form->{ARAP} = ($form->{type} eq 'receipt') ? "AR" : "AP";
   $form->{arap} = lc $form->{ARAP};
@@ -87,7 +95,7 @@ sub payment {
   } @{ $form->{PR}{ $form->{ARAP} } };
 
   # currencies
-  @curr = split /:/, $form->{currencies};
+  @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
     $curr[0];
@@ -105,6 +113,9 @@ sub payment {
 
 sub form_header {
   $lxdebug->enter_sub();
+
+  my ($vc, $vclabel, $allvc, $arap, $department, $exchangerate);
+  my ($jsscript, $button1, $button2, $onload);
 
   $vclabel = ucfirst $form->{vc};
   $vclabel = $locale->text($vclabel);
@@ -145,7 +156,7 @@ sub form_header {
     }
   }
 
-  foreach $item ($form->{vc}, account, currency, $form->{ARAP}, department) {
+  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}, "department") {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -177,13 +188,13 @@ sub form_header {
 	    </tr>
 | if $form->{selectdepartment};
 
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=datepaid id=datepaid size=11 title="$myconfig{dateformat}" value="$form->{datepaid}">
+       <td><input name=datepaid id=datepaid size=11 title="$myconfig{dateformat}" value="$form->{datepaid}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=datepaid id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
@@ -195,15 +206,17 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
 
   $arap = lc $form->{ARAP};
-
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -276,12 +289,6 @@ sub form_header {
 	    <table>
 	      $department
 	      <tr>
-	        <th align=right nowrap>| . $locale->text($form->{ARAP}) . qq|</th>
-		<td colspan=3><select name=$form->{ARAP}>$form->{"select$form->{ARAP}"}</select>
-		</td>
-		<input type=hidden name="select$form->{ARAP}" value="$form->{"select$form->{ARAP}"}">
-	      </tr>
-	      <tr>
 		<th align=right nowrap>| . $locale->text('Account') . qq|</th>
 		<td colspan=3><select name=account>$form->{selectaccount}</select>
 		<input type=hidden name=selectaccount value="$form->{selectaccount}">
@@ -303,9 +310,9 @@ sub form_header {
 		<td colspan=3><input name=source value="$form->{source}" size=10></td>
 	      </tr>
 	      <tr>
-		<th align=right nowrap>| . $locale->text('Amount') . qq|</th>
-		<td colspan=3><input name=amount size=10 value=|
-    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|></td>
+		<th align="right" nowrap>| . $locale->text('Amount') . qq|</th>
+		<td colspan="3"><input name="amount" size="10" value="|
+    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|" onBlur=\"check_right_number_format(this)\"></td>
 	      </tr>
 	    </table>
 	  </td>
@@ -322,6 +329,9 @@ $jsscript
 
 sub list_invoices {
   $lxdebug->enter_sub();
+
+  my (@column_index, %column_data, $colspan, $invoice);
+  my ($totalamount, $totaldue, $totalpaid);
 
   @column_index = qw(invnumber transdate amount due checked paid);
 
@@ -360,7 +370,9 @@ sub list_invoices {
         </tr>
 |;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
+
+    my $j = 0;
 
     map {
       $form->{"${_}_$i"} =
@@ -437,6 +449,8 @@ sub list_invoices {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  my ($media, $format, $latex_templates);
+
   $form->{DF}{ $form->{format} } = "selected";
   $form->{OP}{ $form->{media} }  = "selected";
 
@@ -464,7 +478,6 @@ sub form_footer {
 </table>
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -483,14 +496,7 @@ sub form_footer {
   print qq|
 <select name=format>$format</select>
 <select name=media>$media</select>
-|;
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -504,6 +510,8 @@ sub update {
   $lxdebug->enter_sub();
 
   my ($new_name_selected) = @_;
+
+  my ($buysell, $newvc, $updated, $exchangerate, $amount);
 
   if ($form->{vc} eq 'customer') {
     $buysell = "buy";
@@ -579,8 +587,8 @@ sub update {
 
     $form->{queued} = "";
 
-    $i = 0;
-    foreach $ref (@{ $form->{PR} }) {
+    my $i = 0;
+    foreach my $ref (@{ $form->{PR} }) {
       $i++;
       $form->{"id_$i"}        = $ref->{id};
       $form->{"invnumber_$i"} = $ref->{invnumber};
@@ -607,7 +615,7 @@ sub update {
   # Modified from $amount = $form->{amount} by J.Zach to update amount to total
   # payment amount in Zahlungsausgang
   $amount = 0;
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
 
     map {
       $form->{"${_}_$i"} =
@@ -655,8 +663,8 @@ sub post {
       unless $form->{exchangerate};
   }
 
-  $msg1 = "$form->{origtitle} posted!";
-  $msg2 = "Cannot post $form->{origtitle}!";
+  my $msg1 = "$form->{origtitle} posted!";
+  my $msg2 = "Cannot post $form->{origtitle}!";
 
   # $locale->text('Payment posted!')
   # $locale->text('Receipt posted!')
@@ -673,20 +681,22 @@ sub post {
 sub print {
   $lxdebug->enter_sub();
 
+  my ($whole, $check, %queued, $spool, $filename, $userspath);
+
   &check_form;
 
-  ($whole, $form->{decimal}) = split /\./, $form->{amount};
+  ($whole, $form->{decimal}) = split(/\./, $form->{amount});
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
-  $form->{decimal} .= "00";
+  #$form->{decimal} .= "00";
   $form->{decimal} = substr($form->{decimal}, 0, 2);
 
   $check = new CP $myconfig{countrycode};
   $check->init;
   $form->{text_amount} = $check->num2text($whole);
 
-  &{"$form->{vc}_details"};
+  call_sub("$form->{vc}_details");
 
   $form->{callback} = "";
 
@@ -700,11 +710,13 @@ sub print {
     $form->{pdf} = 1;
   }
 
+  delete $form->{OUT};
+
   if ($form->{media} eq 'printer') {
     $form->{OUT} = "| $myconfig{printer}";
   }
   if ($form->{media} eq 'queue') {
-    %queued = split / /, $form->{queued};
+    %queued = map { s|.*/|| } split / /, $form->{queued};
 
     if ($filename = $queued{ $form->{formname} }) {
       unlink "$spool/$filename";
@@ -728,7 +740,7 @@ sub print {
 
   if ($form->{media} ne 'screen') {
     $form->{callback} =
-      "$form->{script}?action=payment&vc=$form->{vc}&path=$form->{path}&login=$form->{login}&password=$form->{password}&all_vc=$form->{all_vc}";
+      "$form->{script}?action=payment&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&all_vc=$form->{all_vc}";
 
     $form->redirect if (CP->process_payment(\%myconfig, \%$form));
     $form->error($locale->text('Cannot post payment!'));
@@ -743,6 +755,8 @@ sub vendor_details { IR->vendor_details(\%myconfig, \%$form) }
 sub check_form {
   $lxdebug->enter_sub();
 
+  my ($closedto, $datepaid, $amount);
+
   &check_name($form->{vc});
 
   if ($form->{currency} ne $form->{oldcurrency}) {
@@ -750,6 +764,7 @@ sub check_form {
     exit;
   }
 
+  $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
 
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
@@ -761,9 +776,9 @@ sub check_form {
   $amount = $form->parse_amount(\%myconfig, $form->{amount});
   $form->{amount} = $amount;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
-      $amount -= $form->parse_amount($myconfig, $form->{"paid_$i"});
+      $amount -= $form->parse_amount(\%myconfig, $form->{"paid_$i"});
 
       push(@{ $form->{paid} },      $form->{"paid_$i"});
       push(@{ $form->{due} },       $form->{"due_$i"});

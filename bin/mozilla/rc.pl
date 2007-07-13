@@ -33,6 +33,8 @@
 
 use SL::RC;
 
+require "bin/mozilla/common.pl";
+
 1;
 
 # end of main
@@ -47,12 +49,14 @@ sub reconciliation {
     @{ $form->{PR} };
 
   $form->{title} = $locale->text('Reconciliation');
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{"jsscript"} = 1;
   $form->header;
+  $onload = qq|focus()|;
+  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
 
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -71,10 +75,10 @@ sub reconciliation {
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('From') . qq|</th>
-	  <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}">
+	  <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
      <input type="button" name="fromdate" id="trigger_fromdate" value="?"></td>
 	  <th align=right>| . $locale->text('Until') . qq|</th>
-	  <td><input name=todate id=todate size=11 title="$myconfig{dateformat}">
+	  <td><input name=todate id=todate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
      <input type="button" name="todate" id="trigger_todate" value="?"></td>
 	</tr>
       </table>
@@ -92,7 +96,6 @@ sub reconciliation {
 <br>
 <input type=hidden name=nextsub value=get_payments>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -108,7 +111,7 @@ sub reconciliation {
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub get_payments {
   $lxdebug->enter_sub();
@@ -366,7 +369,6 @@ sub display_form {
 <input type=hidden name=fromdate value=$form->{fromdate}>
 <input type=hidden name=todate value=$form->{todate}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -376,14 +378,8 @@ sub display_form {
 <input type=submit class=submit name=action value="|
     . $locale->text('Select all') . qq|">
 <input type=submit class=submit name=action value="|
-    . $locale->text('Done') . qq|">|;
+    . $locale->text('Done') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
 </form>
 
 </body>
@@ -427,7 +423,7 @@ sub done {
   $lxdebug->enter_sub();
 
   $form->{callback} =
-    "$form->{script}?path=$form->{path}&action=reconciliation&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=reconciliation&login=$form->{login}&password=$form->{password}";
 
   $form->error($locale->text('Out of balance!')) if ($form->{difference} *= 1);
 

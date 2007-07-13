@@ -37,6 +37,8 @@ package PE;
 
 use Data::Dumper;
 
+use SL::DBUtils;
+
 sub projects {
   $main::lxdebug->enter_sub();
 
@@ -45,50 +47,53 @@ sub projects {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $sortorder = ($form->{sort}) ? $form->{sort} : "projectnumber";
+  my ($where, @values);
 
-  my $query = qq|SELECT p.id, p.projectnumber, p.description
-                 FROM project p
-		 WHERE 1 = 1|;
+  foreach my $column (qw(projectnumber description)) {
+    if ($form->{$column}) {
+      $where .= qq|AND $column ILIKE ? |;
+      push(@values, '%' . $form->{$column} . '%');
+    }
+  }
 
-  if ($form->{projectnumber}) {
-    my $projectnumber = $form->like(lc $form->{projectnumber});
-    $query .= " AND lower(projectnumber) LIKE '$projectnumber'";
-  }
-  if ($form->{projectdescription}) {
-    my $description = $form->like(lc $form->{projectdescription});
-    $query .= " AND lower(description) LIKE '$description'";
-  }
   if ($form->{status} eq 'orphaned') {
-    $query .= " AND id NOT IN (SELECT p.id
-                               FROM project p, acc_trans a
-			       WHERE p.id = a.project_id)
-                AND id NOT IN (SELECT p.id
-		               FROM project p, invoice i
-			       WHERE p.id = i.project_id)
-		AND id NOT IN (SELECT p.id
-		               FROM project p, orderitems o
-			       WHERE p.id = o.project_id)";
+    my %col_prefix = ("ar" => "global", "ap" => "global", "oe" => "global");
+    my $first = 1;
+
+    $where .= qq|AND id NOT IN (|;
+    foreach my $table (qw(acc_trans invoice orderitems rmaitems ar ap oe)) {
+      $where .= "UNION " unless ($first);
+      $first = 0;
+      $where .=
+        qq|SELECT DISTINCT $col_prefix{$table}project_id FROM $table | .
+        qq|WHERE NOT $col_prefix{$table}project_id ISNULL |;
+    }
+    $where .= qq|) |;
   }
 
-  $query .= qq|
-		 ORDER BY $sortorder|;
-
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my $i = 0;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{project_list} }, $ref;
-    $i++;
+  if ($form->{active} eq "active") {
+    $where .= qq|AND active |;
+  } elsif ($form->{active} eq "inactive") {
+    $where .= qq|AND NOT active |;
   }
 
-  $sth->finish;
+  substr($where, 0, 4) = "WHERE " if ($where);
+
+  my $sortorder = $form->{sort} ? $form->{sort} : "projectnumber";
+  $sortorder =~ s/[^a-z_]//g;
+  my $query =
+    qq|SELECT id, projectnumber, description, active | .
+    qq|FROM project | .
+    $where .
+    qq|ORDER BY $sortorder|;
+
+  $form->{project_list} =
+    selectall_hashref_query($form, $dbh, $query, @values);
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
-  return $i;
+  return scalar(@{ $form->{project_list} });
 }
 
 sub get_project {
@@ -99,11 +104,12 @@ sub get_project {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT p.*
-                 FROM project p
-	         WHERE p.id = $form->{id}|;
+  my $query =
+    qq|SELECT * FROM project | .
+    qq|WHERE id = ?|;
+	my @values = ($form->{id});
   my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $sth->execute(@values) || $form->dberror($query);
 
   my $ref = $sth->fetchrow_hashref(NAME_lc);
 
@@ -112,16 +118,21 @@ sub get_project {
   $sth->finish;
 
   # check if it is orphaned
-  $query = qq|SELECT count(*)
-              FROM acc_trans a
-	      WHERE a.project_id = $form->{id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my %col_prefix = ("ar" => "global", "ap" => "global", "oe" => "global");
+  @values = ();
+  $query = qq|SELECT |;
+  my $first = 1;
+  foreach my $table (qw(acc_trans invoice orderitems rmaitems ar ap oe)) {
+    $query .= " + " unless ($first);
+    $first = 0;
+    $query .=
+      qq|(SELECT COUNT(*) FROM $table | .
+      qq| WHERE $col_prefix{$table}project_id = ?) |;
+    push(@values, $form->{id});
+  }
 
-  ($form->{orphaned}) = $sth->fetchrow_array;
+  ($form->{orphaned}) = selectrow_query($form, $dbh, $query, @values);
   $form->{orphaned} = !$form->{orphaned};
-
-  $sth->finish;
 
   $dbh->disconnect;
 
@@ -136,19 +147,19 @@ sub save_project {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  map { $form->{$_} =~ s/\'/\'\'/g } qw(projectnumber description);
+  my @values = ($form->{projectnumber}, $form->{description});
 
   if ($form->{id}) {
-    $query = qq|UPDATE project SET
-                projectnumber = '$form->{projectnumber}',
-		description = '$form->{description}'
-		WHERE id = $form->{id}|;
+    $query =
+      qq|UPDATE project SET projectnumber = ?, description = ?, active = ? | .
+      qq|WHERE id = ?|;
+    push(@values, ($form->{active} ? 't' : 'f'), $form->{id});
   } else {
-    $query = qq|INSERT INTO project
-                (projectnumber, description)
-                VALUES ('$form->{projectnumber}', '$form->{description}')|;
+    $query =
+      qq|INSERT INTO project (projectnumber, description, active) | .
+      qq|VALUES (?, ?, 't')|;
   }
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 
@@ -160,54 +171,40 @@ sub partsgroups {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $var;
-
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $sortorder = ($form->{sort}) ? $form->{sort} : "partsgroup";
-
-  my $query = qq|SELECT g.*
-                 FROM partsgroup g|;
-
-  my $where = "1 = 1";
+  my ($where, @values);
 
   if ($form->{partsgroup}) {
-    $var = $form->like(lc $form->{partsgroup});
-    $where .= " AND lower(g.partsgroup) LIKE '$var'";
+    $where .= qq| AND partsgroup ILIKE ?|;
+    push(@values, '%' . $form->{partsgroup} . '%');
   }
-  $query .= qq|
-               WHERE $where
-	       ORDER BY $sortorder|;
 
   if ($form->{status} eq 'orphaned') {
-    $query = qq|SELECT g.*
-                FROM partsgroup g
-                LEFT JOIN parts p ON (p.partsgroup_id = g.id)
-		WHERE $where
-                EXCEPT
-                SELECT g.*
-	        FROM partsgroup g
-	        JOIN parts p ON (p.partsgroup_id = g.id)
-	        WHERE $where
-		ORDER BY $sortorder|;
+    $where .=
+      qq| AND id NOT IN | .
+      qq|  (SELECT DISTINCT partsgroup_id FROM parts | .
+      qq|   WHERE NOT partsgroup_id ISNULL) |;
   }
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  substr($where, 0, 4) = "WHERE " if ($where);
 
-  my $i = 0;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{item_list} }, $ref;
-    $i++;
-  }
+  my $sortorder = $form->{sort} ? $form->{sort} : "partsgroup";
+  $sortorder =~ s/[^a-z_]//g;
 
-  $sth->finish;
+  my $query =
+    qq|SELECT id, partsgroup FROM partsgroup | .
+    $where .
+    qq|ORDER BY $sortorder|;
+
+  $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
-  return $i;
+  return scalar(@{ $form->{item_list} });
 }
 
 sub save_partsgroup {
@@ -218,19 +215,17 @@ sub save_partsgroup {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  map { $form->{$_} =~ s/\'/\'\'/g } qw(partsgroup);
   $form->{discount} /= 100;
 
+  my @values = ($form->{partsgroup});
+
   if ($form->{id}) {
-    $query = qq|UPDATE partsgroup SET
-                partsgroup = '$form->{partsgroup}'
-		WHERE id = $form->{id}|;
+    $query = qq|UPDATE partsgroup SET partsgroup = ? WHERE id = ?|;
+		push(@values, $form->{id});
   } else {
-    $query = qq|INSERT INTO partsgroup
-                (partsgroup)
-                VALUES ('$form->{partsgroup}')|;
+    $query = qq|INSERT INTO partsgroup (partsgroup) VALUES (?)|;
   }
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 
@@ -245,28 +240,16 @@ sub get_partsgroup {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT p.*
-                 FROM partsgroup p
-	         WHERE p.id = $form->{id}|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
+  my $query =
+    qq|SELECT pg.*, | .
+    qq|(SELECT COUNT(*) FROM parts WHERE partsgroup_id = ?) = 0 AS orphaned | .
+    qq|FROM partsgroup pg | .
+    qq|WHERE pg.id = ?|;
+  my $sth = prepare_execute_query($form, $dbh, $query, $form->{id},
+                                  $form->{id});
   my $ref = $sth->fetchrow_hashref(NAME_lc);
 
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  $sth->finish;
-
-  # check if it is orphaned
-  $query = qq|SELECT count(*)
-              FROM parts p
-	      WHERE p.partsgroup_id = $form->{id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  ($form->{orphaned}) = $sth->fetchrow_array;
-  $form->{orphaned} = !$form->{orphaned};
-
+  map({ $form->{$_} = $ref->{$_} } keys(%{$ref}));
   $sth->finish;
 
   $dbh->disconnect;
@@ -282,9 +265,13 @@ sub delete_tuple {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM $form->{type}
-	      WHERE id = $form->{id}|;
-  $dbh->do($query) || $form->dberror($query);
+  my $table =
+    $form->{type} eq "project" ? "project" :
+    $form->{type} eq "pricegroup" ? "pricegroup" :
+    "partsgroup";
+
+  $query = qq|DELETE FROM $table WHERE id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
 
   $dbh->disconnect;
 
@@ -299,55 +286,49 @@ sub pricegroups {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $var;
-
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $sortorder = ($form->{sort}) ? $form->{sort} : "pricegroup";
-
-  my $query = qq|SELECT g.id, g.pricegroup
-                 FROM pricegroup g|;
-
-  my $where = "1 = 1";
+  my ($where, @values);
 
   if ($form->{pricegroup}) {
-    $var = $form->like(lc $form->{pricegroup});
-    $where .= " AND lower(g.pricegroup) LIKE '$var'";
+    $where .= qq| AND pricegroup ILIKE ?|;
+    push(@values, '%' . $form->{pricegroup} . '%');
   }
-  $query .= qq|
-               WHERE $where
-	       ORDER BY $sortorder|;
 
   if ($form->{status} eq 'orphaned') {
-    $query = qq|SELECT pg.*
-                FROM pricegroup pg
-                LEFT JOIN prices p ON (p.pricegroup_id = pg.id)
-		WHERE $where
-                EXCEPT
-                SELECT pg.*
-	        FROM pricegroup pg
-	        JOIN prices p ON (p.pricegroup_id = pg.id)
-	        WHERE $where
-		ORDER BY $sortorder|;
+    my $first = 1;
+
+    $where .= qq| AND id NOT IN (|;
+    foreach my $table (qw(invoice orderitems prices rmaitems)) {
+      $where .= "UNION " unless ($first);
+      $first = 0;
+      $where .=
+        qq|SELECT DISTINCT pricegroup_id FROM $table | .
+        qq|WHERE NOT pricegroup_id ISNULL |;
+    }
+    $where .= qq|) |;
   }
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  substr($where, 0, 4) = "WHERE " if ($where);
 
-  my $i = 0;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{item_list} }, $ref;
-    $i++;
-  }
+  my $sortorder = $form->{sort} ? $form->{sort} : "pricegroup";
+  $sortorder =~ s/[^a-z_]//g;
 
-  $sth->finish;
+  my $query =
+    qq|SELECT id, pricegroup FROM pricegroup | .
+    $where .
+    qq|ORDER BY $sortorder|;
+
+  $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
-  return $i;
+  return scalar(@{ $form->{item_list} });
 }
+
 ########################
 # save pricegruop to database
 #
@@ -358,26 +339,25 @@ sub save_pricegroup {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-
-  map { $form->{$_} =~ s/\'/\'\'/g } qw(pricegroup);
+  my $query;
 
   $form->{discount} /= 100;
 
+  my @values = ($form->{pricegroup});
+
   if ($form->{id}) {
-    $query = qq|UPDATE pricegroup SET
-                pricegroup = '$form->{pricegroup}'
-		WHERE id = $form->{id}|;
+    $query = qq|UPDATE pricegroup SET pricegroup = ? WHERE id = ? |;
+		push(@values, $form->{id});
   } else {
-    $query = qq|INSERT INTO pricegroup
-                (pricegroup)
-                VALUES ('$form->{pricegroup}')|;
+    $query = qq|INSERT INTO pricegroup (pricegroup) VALUES (?)|;
   }
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
+
 ############################
 # get one pricegroup from database
 #
@@ -389,29 +369,27 @@ sub get_pricegroup {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT p.id, p.pricegroup
-                 FROM pricegroup p
-	         WHERE p.id = $form->{id}|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
+  my $query = qq|SELECT id, pricegroup FROM pricegroup WHERE id = ?|;
+  my $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
   my $ref = $sth->fetchrow_hashref(NAME_lc);
 
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
+  map({ $form->{$_} = $ref->{$_} } keys(%{$ref}));
 
   $sth->finish;
 
-  # check if it is orphaned
-  $query = qq|SELECT count(*)
-              FROM prices p
-	      WHERE p.pricegroup_id = $form->{id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $first = 1;
 
-  ($form->{orphaned}) = $sth->fetchrow_array;
+  my @values = ();
+  $query = qq|SELECT |;
+  foreach my $table (qw(invoice orderitems prices rmaitems)) {
+    $query .= " + " unless ($first);
+    $first = 0;
+    $query .= qq|(SELECT COUNT(*) FROM $table WHERE pricegroup_id = ?) |;
+    push(@values, $form->{id});
+  }
+
+  ($form->{orphaned}) = selectrow_query($form, $dbh, $query, @values);
   $form->{orphaned} = !$form->{orphaned};
-
-  $sth->finish;
 
   $dbh->disconnect;
 

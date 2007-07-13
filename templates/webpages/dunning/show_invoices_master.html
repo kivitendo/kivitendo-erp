@@ -1,0 +1,88 @@
+<body>
+ <script type="text/javascript" src="js/checkbox_utils.js"></script>
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/dunning.js"></script>
+
+ <div class="listtop" width="100%"><TMPL_VAR title></div>
+
+ <p><translate>The columns &quot;Dunning Duedate&quot;, &quot;Total
+   Fees&quot; and &quot;Interest&quot; show data for the previous
+   dunning created for this invoice.</translate></p>
+
+ <form name="Form" method="post" action="dn.pl">
+
+  <table width="100%">
+   <th class="listheading" colspan="2"><translate>Current / Next Level</translate></th>
+
+   <th class="listheading">
+    <input type="checkbox" name="selectall_active" id="selectall_active" onclick="checkbox_check_all('selectall_active', 'active_', 1, <TMPL_VAR rowcount>);">
+    <label for="selectall_active"><translate>Active?</translate></label>
+   </th>
+
+   <th class="listheading">
+    <input type="checkbox" name="selectall_email" id="selectall_email" onclick="checkbox_check_all('selectall_email', 'email_', 1, <TMPL_VAR rowcount>);">
+    <label for="selectall_email"><translate>eMail?</translate></label>
+   </th>
+
+   <th class="listheading"><translate>Customername</translate></th>
+   <th class="listheading"><translate>Invno.</translate></th>
+   <th class="listheading"><translate>Invdate</translate></th>
+   <th class="listheading"><translate>Inv. Duedate</translate></th>
+   <th class="listheading"><translate>Amount</translate></th>
+   <th class="listheading"><translate>Dunning Duedate</translate></th>
+   <th class="listheading"><translate>Total Fees</translate></th>
+   <th class="listheading"><translate>Interest</translate></th>
+
+   <!-- Ausgabe der einzelnen Zeilen -->
+
+   <TMPL_LOOP DUNNINGS>
+    <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+
+     <td>
+      <input type="hidden" name="inv_id_<TMPL_VAR __counter__>" size="2" value="<TMPL_VAR id ESCAPE=HTML>">
+      <input type="hidden" name="customer_id_<TMPL_VAR __counter__>" size="2" value="<TMPL_VAR customer_id ESCAPE=HTML>">
+      <TMPL_IF dunning_level><TMPL_VAR dunning_level ESCAPE=HTML><TMPL_ELSE>&nbsp;</TMPL_IF>
+     </td>
+
+     <td>
+      <select name="next_dunning_config_id_<TMPL_VAR __counter__>">
+       <TMPL_LOOP DUNNING_CONFIG><option value="<TMPL_VAR id ESCAPE=HTML>" <TMPL_IF SELECTED>selected</TMPL_IF>><TMPL_VAR dunning_description ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+
+     <td><input type="checkbox" name="active_<TMPL_VAR __counter__>" value="1" <TMPL_IF active>checked</TMPL_IF>></td>
+     <td><input type="checkbox" name="email_<TMPL_VAR __counter__>" value="1" <TMPL_IF email>checked</TMPL_IF>></td>
+     <td><input type="hidden" name="customername_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR customername ESCAPE=HTML>"><TMPL_VAR customername ESCAPE=HTML></td>
+     <td><input type="hidden" name="invnumber_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR invnumber ESCAPE=HTML>"><TMPL_VAR invnumber ESCAPE=HTML></td>
+     <td><input type="hidden" name="invdate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR transdate ESCAPE=HTML>"><TMPL_VAR transdate ESCAPE=HTML></td>
+     <td><input type="hidden" name="inv_duedate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR duedate ESCAPE=HTML>"><TMPL_VAR duedate ESCAPE=HTML></td>
+     <td align="right"><input type="hidden" name="amount_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR amount ESCAPE=HTML>"><TMPL_VAR amount ESCAPE=HTML></td>
+     <td><TMPL_VAR next_duedate ESCAPE=HTML></td>
+     <td align="right"><input type="hidden" name="fee_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR fee ESCAPE=HTML>"><TMPL_VAR fee ESCAPE=HTML></td>
+     <td align="right"><input type="hidden" name="interest_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR interest ESCAPE=HTML>"><TMPL_VAR interest ESCAPE=HTML></td>
+    </tr>
+   </TMPL_LOOP>
+  </table>
+
+  <hr size=3 noshade>
+
+  <TMPL_VAR PRINT_OPTIONS>
+
+  <br>
+
+  <input name="rowcount" type="hidden" value="<TMPL_VAR rowcount ESCAPE=HTML>">
+  <input name="groupinvoices" type="hidden" value="<TMPL_VAR groupinvoices ESCAPE=HTML>">
+
+  <input name="callback" type="hidden" value="<TMPL_VAR callback ESCAPE=HTML>">
+  <input name="nextsub" type="hidden" value="save_dunning">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="action" value="<translate>Continue</translate>">
+
+  <input type="submit" name="dummy" value="<translate>Continue</translate>"
+         <TMPL_UNLESS DEBUG_DUNNING>onclick="this.disabled=true; this.value='<translate>The dunning process started</translate>'; document.Form.submit()"</TMPL_UNLESS>>
+
+ </form>
+</body>
+</html>

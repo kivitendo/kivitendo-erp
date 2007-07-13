@@ -1,0 +1,85 @@
+<body>
+
+ <div class="listtop" width="100%">Lieferadresse &uuml;bernehmen</div>
+
+ <p>Sie haben die folgende Lieferadresse eingegeben oder ausgew&auml;hlt:</p>
+
+ <p>
+  <table>
+   <tr>
+    <th align="right" valign="top">Name:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptoname ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Abteilung:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptodepartment_1 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">&nbsp;</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptodepartment_2 ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Straße:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptostreet ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">PLZ:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptozipcode ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Stadt:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptocity ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Land:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptocountry ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Kontakt:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptocontact ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Telefon:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptophone ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Fax:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptofax ESCAPE=HTML></td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">eMail:</th>
+    <td valign="top"><TMPL_VAR CFDD_shiptoemail ESCAPE=HTML></td>
+   </tr>
+  </table>
+ </p>
+
+  Wollen Sie diese Lieferadresse in den neuen Lieferantenauftrag &uuml;bernehmen, damit der H&auml;ndler die Waren direkt an Ihren Kunden liefern kann?
+ </p>
+
+ <form method="post" action="oe.pl">
+
+  <p>
+   <input type="submit" name="action" value="Ja">&nbsp;
+   <input type="submit" name="action" value="Nein">
+  </p>
+
+  <input type="hidden" name="yes_nextsub" value="check_for_direct_delivery_yes">
+  <input type="hidden" name="no_nextsub" value="check_for_direct_delivery_no">
+
+  <TMPL_LOOP VARIABLES>
+   <input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>"></TMPL_LOOP>
+
+ </form>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+[% USE HTML %]<form method="post" action="ic.pl">
+
+ <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+
+ <input type="hidden" name="item" value="[% HTML.escape(searchitems) %]">
+
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+
+ [% SWITCH searchitems %]
+   [% CASE 'part' %]Neue Ware
+   [% CASE 'service' %]Neue Dienstleistung
+   [% CASE 'assembly' %]Neues Erzeugnis
+ [% END %]
+ <br>
+ <input class="submit" type="submit" name="action" value="Erfassen">
+
+</form>

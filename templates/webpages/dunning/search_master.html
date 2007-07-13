@@ -1,0 +1,136 @@
+<body onLoad="<TMPL_VAR onload>">
+
+ <script type="text/javascript" src="js/common.js"></script>
+
+ <form method="post" name="search" action="dn.pl">
+
+  <div class="listtop"><TMPL_VAR title></div>
+
+  <table width="100%">
+   <tr height="5"></tr>
+   <tr>
+    <td>
+     <table>
+      <tr>
+       <th align="right"><translate>Customer</translate></th>
+       <td colspan="3">
+        <TMPL_IF SHOW_CUSTOMER_DDBOX>
+         <select name="customer_id">
+          <option value=""></option>
+          <TMPL_LOOP ALL_CUSTOMERS><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR name ESCAPE=HTML></option>
+          </TMPL_LOOP>
+         </select>
+         <TMPL_ELSE>
+         <input name="customer" size="35">
+        </TMPL_IF>
+       </td>
+      </tr>
+
+      <TMPL_IF SHOW_DUNNING_LEVELS>
+       <tr>
+        <th align="right" nowrap><translate>Next Dunning Level</translate></th>
+        <td colspan="3">
+         <select name="dunning_level">
+          <option value=""></option>
+          <TMPL_LOOP DUNNING><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR dunning_description ESCAPE=HTML></option>
+          </TMPL_LOOP>
+         </select>
+        </td>
+       </tr>
+      </TMPL_IF>
+
+      <TMPL_IF SHOW_DEPARTMENT_DDBOX>
+       <tr>
+        <th align="right" nowrap><translate>Department</translate></th>
+        <td colspan="3">
+         <select name="department_id">
+          <option value=""></option>
+          <TMPL_LOOP ALL_DEPARTMENTS><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR description ESCAPE=HTML></option>
+          </TMPL_LOOP>
+         </select>
+        </td>
+       </tr>
+      </TMPL_IF>
+
+      <tr>
+       <th align="right" nowrap><translate>Invoice Number</translate></th>
+       <td colspan="3"><input name="invnumber" size="20"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap><translate>Order Number</translate></th>
+       <td colspan="3"><input name="ordnumber" size="20"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap><translate>Notes</translate></th>
+       <td colspan="3"><input name="notes" size="40"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap><translate>Invdate from</translate></th>
+       <td>
+        <input name="transdatefrom" id="transdatefrom" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input type="button" name="transdatefrom" id="trigger1" value="?">
+       </td>
+       <th align="right" nowrap><translate>To</translate></th>
+       <td>
+        <input name="transdateto" id="transdateto" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input type="button" name="transdateto" id="trigger2" value="?">
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap><translate>Dunning Date from</translate></th>
+       <td>
+        <input name="dunningfrom" id="dunningfrom" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input type="button" name="dunningfrom" id="trigger3" value="?">
+       </td>
+       <th align="right" nowrap><translate>To</translate></th>
+       <td>
+        <input name="dunningto" id="dunningto" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input type="button" name="dunningto" id="trigger4" value="?">
+       </td>
+      </tr>
+
+     </table>
+    </td>
+   </tr>
+
+   <tr><td><hr size="3" noshade></td></tr>
+
+   <tr>
+    <td>
+     <table>
+      <tr>
+       <th align="right" nowrap><translate>Show old dunnings</translate></th>
+       <td><input type="checkbox" value="1" name="showold"></td>
+      </tr>
+     </table>
+    </td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="nextsub" value="show_dunning">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+  <br>
+
+  <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      Calendar.setup({ inputField : "transdatefrom", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger1" });
+      Calendar.setup({ inputField : "transdateto", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger2" });
+      Calendar.setup({ inputField : "dunningfrom", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger3" });
+      Calendar.setup({ inputField : "dunningto", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger4" });
+    -->
+ </script>
+
+</body>
+
+</html>

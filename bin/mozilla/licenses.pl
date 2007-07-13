@@ -35,6 +35,8 @@ use SL::IC;
 use SL::IS;
 use SL::LICENSES;
 
+require "bin/mozilla/common.pl";
+
 sub quot {
   $lxdebug->enter_sub();
   $_[0] =~ s/\"/\&quot;/g;
@@ -56,7 +58,7 @@ sub form_header {
 
 sub form_footer {
   $lxdebug->enter_sub();
-  my @items = ("path", "login", "password", "old_callback", "previousform");
+  my @items = qw(login password old_callback previousform);
   push(@items, @{ $form->{"hidden"} });
   map({
       print("<input type=hidden name=$_ value=\"" . quot($form->{$_}) . "\">\n"
@@ -364,7 +366,7 @@ sub update {
 
 sub continue {
   $lxdebug->enter_sub();
-  &{ $form->{nextsub} };
+  call_sub($form->{"nextsub"});
   $lxdebug->leave_sub();
 }
 
@@ -499,13 +501,8 @@ sub do_search {
   LICENSES->search(\%myconfig, $form);
 
   $callback = "";
-  foreach (
-           ("db",          "path",        "login",         "password",
-            "partnumber",  "description", "customer_name", "all",
-            "expiring_in", "show_expired")
-    ) {
-    $callback .= "\&${_}=" . $form->escape($form->{$_}, 1);
-  }
+  map { $callback .= "\&${_}=" . $form->escape($form->{$_}, 1) }
+    qw(db login password partnumber description customer_name all expiring_in show_expired);
   $details    = $form->{"script"} . "?action=details" . $callback . "\&id=";
   $invdetails = "is.pl?action=edit" . $callback . "\&id=";
   $callback   = $form->{"script"} . "?action=do_search" . $callback;

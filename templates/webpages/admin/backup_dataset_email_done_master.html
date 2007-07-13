@@ -1,0 +1,13 @@
+[% USE HTML %]<body class="admin">
+
+ <h2>[% title %]</h2>
+
+ <p><translate>The dataset backup has been sent via email to [% HTML.escape(to) %].</translate></p>
+
+ <form method="post" action="admin.pl">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+  <input type="hidden" name="nextsub" value="list_users">
+  <input type="submit" name="action" value="<translate>Continue</translate>">
+ </form>
+</body>
+</html>

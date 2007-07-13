@@ -40,10 +40,24 @@ use Data::Dumper;
 
 use Cwd;
 use HTML::Template;
+use Template;
 use SL::Template;
 use CGI::Ajax;
+use SL::DBUtils;
+use SL::Mailer;
 use SL::Menu;
+use SL::User;
+use SL::Common;
 use CGI;
+
+my $standard_dbh;
+
+sub DESTROY {
+  if ($standard_dbh) {
+    $standard_dbh->disconnect();
+    undef $standard_dbh;
+  }
+}
 
 sub _input_to_hash {
   $main::lxdebug->enter_sub(2);
@@ -66,61 +80,77 @@ sub _request_to_hash {
   $main::lxdebug->enter_sub(2);
 
   my ($input) = @_;
-  my ($i,        $loc,  $key,    $val);
-  my (%ATTACH,   $f,    $header, $header_body, $len, $buf);
-  my ($boundary, @list, $size,   $body, $x, $blah, $name);
 
-  if ($ENV{'CONTENT_TYPE'}
-      && ($ENV{'CONTENT_TYPE'} =~ /multipart\/form-data; boundary=(.+)$/)) {
-    $boundary = quotemeta('--' . $1);
-    @list     = split(/$boundary/, $input);
-
-    # For some reason there are always 2 extra, that are empty
-    $size = @list - 2;
-
-    for ($x = 1; $x <= $size; $x++) {
-      $header_body = $list[$x];
-      $header_body =~ /\r\n\r\n|\n\n/;
-
-      # Here we split the header and body
-      $header = $`;
-      $body   = $';    #'
-      $body =~ s/\r\n$//;
-
-      # Now we try to get the file name
-      $name = $header;
-      $name =~ /name=\"(.+)\"/;
-      ($name, $blah) = split(/\"/, $1);
-
-      # If the form name is not attach, then we need to parse this like
-      # regular form data
-      if ($name ne "attach") {
-        $body =~ s/%([0-9a-fA-Z]{2})/pack("c",hex($1))/eg;
-        $ATTACH{$name} = $body;
-
-        # Otherwise it is an attachment and we need to finish it up
-      } elsif ($name eq "attach") {
-        $header =~ /filename=\"(.+)\"/;
-        $ATTACH{'FILE_NAME'} = $1;
-        $ATTACH{'FILE_NAME'} =~ s/\"//g;
-        $ATTACH{'FILE_NAME'} =~ s/\s//g;
-        $ATTACH{'FILE_CONTENT'} = $body;
-
-        for ($i = $x; $list[$i]; $i++) {
-          $list[$i] =~ s/^.+name=$//;
-          $list[$i] =~ /\"(\w+)\"/;
-          $ATTACH{$1} = $';    #'
-        }
-      }
-    }
-
-    $main::lxdebug->leave_sub(2);
-    return %ATTACH;
-
-      } else {
+  if (!$ENV{'CONTENT_TYPE'}
+      || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
     $main::lxdebug->leave_sub(2);
     return _input_to_hash($input);
   }
+
+  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr);
+  my %params;
+
+  my $boundary = '--' . $1;
+
+  foreach my $line (split m/\n/, $input) {
+    last if (($line eq "${boundary}--") || ($line eq "${boundary}--\r"));
+
+    if (($line eq $boundary) || ($line eq "$boundary\r")) {
+      $params{$name} =~ s|\r?\n$|| if $name;
+
+      undef $name, $filename;
+
+      $headers_done   = 0;
+      $content_type   = "text/plain";
+      $boundary_found = 1;
+      $need_cr        = 0;
+
+      next;
+    }
+
+    next unless $boundary_found;
+
+    if (!$headers_done) {
+      $line =~ s/[\r\n]*$//;
+
+      if (!$line) {
+        $headers_done = 1;
+        next;
+      }
+
+      if ($line =~ m|^content-disposition\s*:.*?form-data\s*;|i) {
+        if ($line =~ m|filename\s*=\s*"(.*?)"|i) {
+          $filename = $1;
+          substr $line, $-[0], $+[0] - $-[0], "";
+        }
+
+        if ($line =~ m|name\s*=\s*"(.*?)"|i) {
+          $name = $1;
+          substr $line, $-[0], $+[0] - $-[0], "";
+        }
+
+        $params{$name}    = "";
+        $params{FILENAME} = $filename if ($filename);
+
+        next;
+      }
+
+      if ($line =~ m|^content-type\s*:\s*(.*?)$|i) {
+        $content_type = $1;
+      }
+
+      next;
+    }
+
+    next unless $name;
+
+    $params{$name} .= "${line}\n";
+  }
+
+  $params{$name} =~ s|\r?\n$|| if $name;
+
+  $main::lxdebug->leave_sub(2);
+  return %params;
 }
 
 sub new {
@@ -129,6 +159,11 @@ sub new {
   my $type = shift;
 
   my $self = {};
+
+  if ($LXDebug::watch_form) {
+    require SL::Watchdog;
+    tie %{ $self }, 'SL::Watchdog';
+  }
 
   read(STDIN, $_, $ENV{CONTENT_LENGTH});
 
@@ -146,7 +181,7 @@ sub new {
   $self->{action} = lc $self->{action};
   $self->{action} =~ s/( |-|,|\#)/_/g;
 
-  $self->{version}   = "2.4.1";
+  $self->{version}   = "2.4.3";
 
   $main::lxdebug->leave_sub();
 
@@ -168,12 +203,7 @@ sub debug {
 sub escape {
   $main::lxdebug->enter_sub(2);
 
-  my ($self, $str, $beenthere) = @_;
-
-  # for Apache 2 we escape strings twice
-  #if (($ENV{SERVER_SOFTWARE} =~ /Apache\/2/) && !$beenthere) {
-  #  $str = $self->escape($str, 1);
-  #}
+  my ($self, $str) = @_;
 
   $str =~ s/([^a-zA-Z0-9_.-])/sprintf("%%%02x", ord($1))/ge;
 
@@ -242,17 +272,11 @@ sub hide_form {
   my $self = shift;
 
   if (@_) {
-    for (@_) {
-      print qq|<input type=hidden name="$_" value="|
-        . $self->quote($self->{$_})
-        . qq|">\n|;
-    }
+    map({ print($main::cgi->hidden("-name" => $_, "-default" => $self->{$_}) . "\n"); } @_);
   } else {
-    delete $self->{header};
     for (sort keys %$self) {
-      print qq|<input type=hidden name="$_" value="|
-        . $self->quote($self->{$_})
-        . qq|">\n|;
+      next if (($_ eq "header") || (ref($self->{$_}) ne ""));
+      print($main::cgi->hidden("-name" => $_, "-default" => $self->{$_}) . "\n");
     }
   }
 
@@ -260,6 +284,8 @@ sub hide_form {
 
 sub error {
   $main::lxdebug->enter_sub();
+
+  $main::lxdebug->show_backtrace();
 
   my ($self, $msg) = @_;
   if ($ENV{HTTP_USER_AGENT}) {
@@ -356,14 +382,19 @@ sub header {
     return;
   }
 
-  my ($stylesheet, $favicon, $charset);
+  my ($stylesheet, $favicon);
 
   if ($ENV{HTTP_USER_AGENT}) {
 
-    if ($self->{stylesheet} && (-f "css/$self->{stylesheet}")) {
-      $stylesheet =
-        qq|<LINK REL="stylesheet" HREF="css/$self->{stylesheet}" TYPE="text/css" TITLE="Lx-Office stylesheet">
- |;
+    my $stylesheets = "$self->{stylesheet} $self->{stylesheets}";
+
+    $stylesheets =~ s|^\s*||;
+    $stylesheets =~ s|\s*$||;
+    foreach my $file (split m/\s+/, $stylesheets) {
+      $file =~ s|.*/||;
+      next if (! -f "css/$file");
+
+      $stylesheet .= qq|<link rel="stylesheet" href="css/$file" TYPE="text/css" TITLE="Lx-Office stylesheet">\n|;
     }
 
     $self->{favicon}    = "favicon.ico" unless $self->{favicon};
@@ -374,23 +405,15 @@ sub header {
   |;
     }
 
-    if ($self->{charset}) {
-      $charset =
-        qq|<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=$self->{charset}">
-  |;
-    }
+    my $db_charset = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+
     if ($self->{landscape}) {
       $pagelayout = qq|<style type="text/css">
                         \@page { size:landscape; }
                         </style>|;
     }
-    if ($self->{fokus}) {
-      $fokus = qq|<script type="text/javascript">
-<!--
-function fokus(){document.$self->{fokus}.focus();}
-//-->
-</script>|;
-    }
+
+    my $fokus = qq|  document.$self->{fokus}.focus();| if ($self->{"fokus"});
 
     #Set Calendar
     my $jsscript = "";
@@ -409,11 +432,11 @@ function fokus(){document.$self->{fokus}.focus();}
       ($self->{title})
       ? "$self->{title} - $self->{titlebar}"
       : $self->{titlebar};
-    $ajax = "";
+    my $ajax = "";
     foreach $item (@ { $self->{AJAX} }) {
       $ajax .= $item->show_javascript();
     }
-    print qq|Content-Type: text/html
+    print qq|Content-Type: text/html; charset=${db_charset};
 
 <html>
 <head>
@@ -421,22 +444,30 @@ function fokus(){document.$self->{fokus}.focus();}
   $stylesheet
   $pagelayout
   $favicon
-  $charset
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=${db_charset}">
   $jsscript
   $ajax
-  $fokus
+
+  <script type="text/javascript">
+  <!--
+    function fokus() {
+      $fokus
+    }
+  //-->
+  </script>
+
   <meta name="robots" content="noindex,nofollow" />
   <script type="text/javascript" src="js/highlight_input.js"></script>
   <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
-  
+
   <script type="text/javascript" src="js/tabcontent.js">
-  
+
   /***********************************************
-  * Tab Content script- © Dynamic Drive DHTML code library (www.dynamicdrive.com)
+  * Tab Content script- Dynamic Drive DHTML code library (www.dynamicdrive.com)
   * This notice MUST stay intact for legal use
   * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
   ***********************************************/
-  
+
   </script>
 
   $extra_code
@@ -449,24 +480,25 @@ function fokus(){document.$self->{fokus}.focus();}
   $main::lxdebug->leave_sub();
 }
 
-sub parse_html_template {
+sub _prepare_html_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $file, $additional_params) = @_;
   my $language;
 
-  if (!defined($main::myconfig) || !defined($main::myconfig{"countrycode"})) {
+  if (!defined(%main::myconfig) || !defined($main::myconfig{"countrycode"})) {
     $language = $main::language;
   } else {
     $language = $main::myconfig{"countrycode"};
   }
+  $language = "de" unless ($language);
 
   if (-f "templates/webpages/${file}_${language}.html") {
     if ((-f ".developer") &&
         (-f "templates/webpages/${file}_master.html") &&
         ((stat("templates/webpages/${file}_master.html"))[9] >
          (stat("templates/webpages/${file}_${language}.html"))[9])) {
-      my $info = "Developper information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
+      my $info = "Developer information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
         "Please re-run 'locales.pl' in 'locale/${language}'.";
       print(qq|<pre>$info</pre>|);
       die($info);
@@ -482,14 +514,6 @@ sub parse_html_template {
     die($info);
   }
 
-  my $template = HTML::Template->new("filename" => $file,
-                                     "die_on_bad_params" => 0,
-                                     "strict" => 0,
-                                     "case_sensitive" => 1,
-                                     "loop_context_vars" => 1,
-                                     "global_vars" => 1);
-
-  $additional_params = {} unless ($additional_params);
   if ($self->{"DEBUG"}) {
     $additional_params->{"DEBUG"} = $self->{"DEBUG"};
   }
@@ -508,20 +532,72 @@ sub parse_html_template {
     $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
   }
 
-  $additional_params->{"conf_jscalendar"} = $main::jscalendar;
-  $additional_params->{"conf_lizenzen"} = $main::lizenzen;
-  $additional_params->{"conf_latex_templates"} = $main::latex;
+  $additional_params->{"conf_webdav"}                 = $main::webdav;
+  $additional_params->{"conf_lizenzen"}               = $main::lizenzen;
+  $additional_params->{"conf_latex_templates"}        = $main::latex;
   $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
 
-  my @additional_param_names = keys(%{$additional_params});
+  if (%main::debug_options) {
+    map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $file;
+}
+
+sub parse_html_template {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $file, $additional_params) = @_;
+
+  $additional_params ||= { };
+
+  $file = $self->_prepare_html_template($file, $additional_params);
+
+  my $template = HTML::Template->new("filename" => $file,
+                                     "die_on_bad_params" => 0,
+                                     "strict" => 0,
+                                     "case_sensitive" => 1,
+                                     "loop_context_vars" => 1,
+                                     "global_vars" => 1);
+
   foreach my $key ($template->param()) {
-    my $param = $self->{$key};
-    $param = $additional_params->{$key} if (grep(/^${key}$/, @additional_param_names));
+    my $param = $additional_params->{$key} || $self->{$key};
     $param = [] if (($template->query("name" => $key) eq "LOOP") && (ref($param) ne "ARRAY"));
     $template->param($key => $param);
   }
 
   my $output = $template->output();
+
+  $output = $main::locale->{iconv}->convert($output) if ($main::locale);
+
+  $main::lxdebug->leave_sub();
+
+  return $output;
+}
+
+sub parse_html_template2 {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $file, $additional_params) = @_;
+
+  $additional_params ||= { };
+
+  $file = $self->_prepare_html_template($file, $additional_params);
+
+  my $template = Template->new({ 'INTERPOLATE' => 0,
+                                 'EVAL_PERL'   => 0,
+                                 'ABSOLUTE'    => 1,
+                                 'CACHE_SIZE'  => 0,
+                               }) || die;
+
+  map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
+
+  my $output;
+  $template->process($file, $additional_params, \$output);
+
+  $output = $main::locale->{iconv}->convert($output) if ($main::locale);
 
   $main::lxdebug->leave_sub();
 
@@ -576,38 +652,26 @@ sub write_trigger {
 
   # set dateform for jsscript
   # default
-  $ifFormat = "%d.%m.%Y";
-  if ($myconfig->{dateformat} eq "dd.mm.yy") {
-    $ifFormat = "%d.%m.%Y";
-  } else {
-    if ($myconfig->{dateformat} eq "dd-mm-yy") {
-      $ifFormat = "%d-%m-%Y";
-    } else {
-      if ($myconfig->{dateformat} eq "dd/mm/yy") {
-        $ifFormat = "%d/%m/%Y";
-      } else {
-        if ($myconfig->{dateformat} eq "mm/dd/yy") {
-          $ifFormat = "%m/%d/%Y";
-        } else {
-          if ($myconfig->{dateformat} eq "mm-dd-yy") {
-            $ifFormat = "%m-%d-%Y";
-          } else {
-            if ($myconfig->{dateformat} eq "yyyy-mm-dd") {
-              $ifFormat = "%Y-%m-%d";
-            }
-          }
-        }
-      }
-    }
-  }
+  my %dateformats = (
+    "dd.mm.yy" => "%d.%m.%Y",
+    "dd-mm-yy" => "%d-%m-%Y",
+    "dd/mm/yy" => "%d/%m/%Y",
+    "mm/dd/yy" => "%m/%d/%Y",
+    "mm-dd-yy" => "%m-%d-%Y",
+    "yyyy-mm-dd" => "%Y-%m-%d",
+    );
 
+  my $ifFormat = defined($dateformats{$myconfig{"dateformat"}}) ?
+    $dateformats{$myconfig{"dateformat"}} : "%d.%m.%Y";
+
+  my @triggers;
   while ($#_ >= 2) {
     push @triggers, qq|
        Calendar.setup(
       {
       inputField : "| . (shift) . qq|",
       ifFormat :"$ifFormat",
-      align : "| .  (shift) . qq|", 
+      align : "| .  (shift) . qq|",
       button : "| . (shift) . qq|"
       }
       );
@@ -631,7 +695,9 @@ sub redirect {
 
   if ($self->{callback}) {
 
-    ($script, $argv) = split(/\?/, $self->{callback});
+    ($script, $argv) = split(/\?/, $self->{callback}, 2);
+    $script =~ s|.*/||;
+    $script =~ s|[^a-zA-Z0-9_\.]||g;
     exec("perl", "$script", $argv);
 
   } else {
@@ -658,13 +724,24 @@ sub format_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
-  
+
   if ($amount eq "") {
     $amount = 0;
   }
   my $neg = ($amount =~ s/-//);
 
-  $amount = $self->round_amount($amount, $places) if ($places =~ /\d/);
+  if (defined($places) && ($places ne '')) {
+    if ($places < 0) {
+      $amount *= 1;
+      $places *= -1;
+
+      my ($actual_places) = ($amount =~ /\.(\d+)/);
+      $actual_places = length($actual_places);
+      $places = $actual_places > $places ? $actual_places : $places;
+    }
+
+    $amount = $self->round_amount($amount, $places);
+  }
 
   my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
   my @p = split(/\./, $amount); # split amount at decimal point
@@ -679,7 +756,7 @@ sub format_amount {
     ($dash =~ /DRCR/) ? ($neg ? "$amount DR" : "$amount CR" ) :
                         ($neg ? "-$amount"   : "$amount" )    ;
   };
-    
+
 
   $main::lxdebug->leave_sub(2);
   return $amount;
@@ -689,18 +766,6 @@ sub parse_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount) = @_;
-
-  if ($myconfig->{in_numberformat} == 1) {
-    # Extra input number format 1000.00 or 1000,00
-    $amount =~ s/,/\./g;
-    $amount = scalar reverse $amount;
-    $amount =~ s/\./DOT/;
-    $amount =~ s/\.//g;
-    $amount =~ s/DOT/\./;
-    $amount = scalar reverse $amount;
-    $main::lxdebug->leave_sub(2);
-    return ($amount * 1);
-  }
 
   if (   ($myconfig->{numberformat} eq '1.000,00')
       || ($myconfig->{numberformat} eq '1000,00')) {
@@ -744,7 +809,9 @@ sub parse_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $userspath) = @_;
-  my $template;
+  my ($template, $out);
+
+  local (*IN, *OUT);
 
   $self->{"cwd"} = getcwd();
   $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
@@ -761,7 +828,7 @@ sub parse_template {
              (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
     $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
   } elsif ( $self->{"format"} =~ /elsterwinston/i ) {
-    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);  
+    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
   } elsif ( $self->{"format"} =~ /elstertaxbird/i ) {
     $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
   } elsif ( defined $self->{'format'}) {
@@ -769,7 +836,7 @@ sub parse_template {
   } elsif ( $self->{'format'} eq '' ) {
     $self->error("No Outputformat given: $self->{'format'}");
   } else { #Catch the rest
-    $self->error("Outputformat not defined: $self->{'format'}");  
+    $self->error("Outputformat not defined: $self->{'format'}");
   }
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
@@ -780,13 +847,26 @@ sub parse_template {
          co_ustid taxnumber duns));
   map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
       qw(company address signature));
+  map({ $self->{$_} =~ s/\\n/\n/g; } qw(company address signature));
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
   my $fileid = time;
-  $self->{tmpfile} = "$userspath/${fileid}.$self->{IN}" if ( $self->{tmpfile} eq '' );
+  my $prepend_userspath;
+
+  if (!$self->{tmpfile}) {
+    $self->{tmpfile}   = "${fileid}.$self->{IN}";
+    $prepend_userspath = 1;
+  }
+
+  $prepend_userspath = 1 if substr($self->{tmpfile}, 0, length $userspath) eq $userspath;
+
+  $self->{tmpfile} =~ s|.*/||;
+  $self->{tmpfile} =~ s/[^a-zA-Z0-9\._\ \-]//g;
+  $self->{tmpfile} = "$userspath/$self->{tmpfile}" if $prepend_userspath;
+
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
     $self->{OUT} = ">$self->{tmpfile}";
@@ -810,13 +890,12 @@ sub parse_template {
 
     if ($self->{media} eq 'email') {
 
-      use SL::Mailer;
-
       my $mail = new Mailer;
 
       map { $mail->{$_} = $self->{$_} }
-        qw(cc bcc subject message version format charset);
-      $mail->{to}     = qq|$self->{email}|;
+        qw(cc bcc subject message version format);
+      $mail->{charset} = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+      $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";
       $myconfig->{signature} =~ s/\\r\\n/\\n/g;
@@ -839,7 +918,12 @@ sub parse_template {
 
       } else {
 
-        @{ $mail->{attachments} } = ($self->{tmpfile}) unless ($self->{do_not_attach});
+        if (!$self->{"do_not_attach"}) {
+          @{ $mail->{attachments} } =
+            ({ "filename" => $self->{"tmpfile"},
+               "name" => $self->{"attachment_filename"} ?
+                 $self->{"attachment_filename"} : $self->{"tmpfile"} });
+        }
 
         $mail->{message}       =~ s/\r\n/\n/g;
         $myconfig->{signature} =~ s/\\n/\n/g;
@@ -847,7 +931,7 @@ sub parse_template {
 
       }
 
-      my $err = $mail->send($out);
+      my $err = $mail->send();
       $self->error($self->cleanup . "$err") if ($err);
 
     } else {
@@ -868,7 +952,10 @@ sub parse_template {
           open(OUT, $self->{OUT})
             or $self->error($self->cleanup . "$self->{OUT} : $!");
         } else {
-          $self->{attachment_filename} = $self->{tmpfile} if ($self->{attachment_filename} eq '');
+          $self->{attachment_filename} = ($self->{attachment_filename}) 
+                                       ? $self->{attachment_filename}
+                                       : $self->generate_attachment_filename();
+
           # launch application
           print qq|Content-Type: | . $template->get_mime_type() . qq|
 Content-Disposition: attachment; filename="$self->{attachment_filename}"
@@ -898,6 +985,56 @@ Content-Length: $numbytes
 
   chdir("$self->{cwd}");
   $main::lxdebug->leave_sub();
+}
+
+sub get_formname_translation {
+  my ($self, $formname) = @_;
+
+  $formname ||= $self->{formname};
+
+  my %formname_translations = (
+     bin_list            => $main::locale->text('Bin List'),
+     credit_note         => $main::locale->text('Credit Note'),
+     invoice             => $main::locale->text('Invoice'),
+     packing_list        => $main::locale->text('Packing List'),
+     pick_list           => $main::locale->text('Pick List'),
+     proforma            => $main::locale->text('Proforma Invoice'),
+     purchase_order      => $main::locale->text('Purchase Order'),
+     request_quotation   => $main::locale->text('RFQ'),
+     sales_order         => $main::locale->text('Confirmation'),
+     sales_quotation     => $main::locale->text('Quotation'),
+     storno_invoice      => $main::locale->text('Storno Invoice'),
+     storno_packing_list => $main::locale->text('Storno Packing List'),
+  );
+
+  return $formname_translations{$formname}
+}
+
+sub generate_attachment_filename {
+  my ($self) = @_;
+
+  my $attachment_filename = $self->get_formname_translation();
+  my $prefix = 
+      (grep { $self->{"type"} eq $_ } qw(invoice credit_note)) ? "inv"
+    : ($self->{"type"} =~ /_quotation$/)                       ? "quo"
+    :                                                            "ord";
+
+  if ($attachment_filename && $self->{"${prefix}number"}) {
+    $attachment_filename .= "_" . $self->{"${prefix}number"}
+                            . (  $self->{format} =~ /pdf/i          ? ".pdf"
+                               : $self->{format} =~ /postscript/i   ? ".ps"
+                               : $self->{format} =~ /opendocument/i ? ".odt"
+                               : $self->{format} =~ /html/i         ? ".html"
+                               :                                      "");
+    $attachment_filename =~ s/ /_/g;
+    my %umlaute = ( "ä" => "ae", "ö" => "oe", "ü" => "ue", 
+                    "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue", "ß" => "ss");
+    map { $attachment_filename =~ s/$_/$umlaute{$_}/g } keys %umlaute;
+  } else {
+    $attachment_filename = "";
+  }
+
+  return $attachment_filename;
 }
 
 sub cleanup {
@@ -965,7 +1102,7 @@ sub datetonum {
 # Database routines used throughout
 
 sub dbconnect {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig) = @_;
 
@@ -980,7 +1117,7 @@ sub dbconnect {
     $dbh->do($myconfig->{dboptions}) || $self->dberror($myconfig->{dboptions});
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $dbh;
 }
@@ -989,7 +1126,7 @@ sub dbconnect_noauto {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig) = @_;
-
+  
   # connect to database
   $dbh =
     DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser},
@@ -1006,19 +1143,29 @@ sub dbconnect_noauto {
   return $dbh;
 }
 
+sub get_standard_dbh {
+  $main::lxdebug->enter_sub(2);
+
+  my ($self, $myconfig) = @_;
+
+  $standard_dbh ||= $self->dbconnect_noauto($myconfig);
+
+  $main::lxdebug->leave_sub(2);
+
+  return $standard_dbh;
+}
+
 sub update_balance {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $table, $field, $where, $value) = @_;
+  my ($self, $dbh, $table, $field, $where, $value, @values) = @_;
 
   # if we have a value, go do it
   if ($value != 0) {
 
     # retrieve balance from table
     my $query = "SELECT $field FROM $table WHERE $where FOR UPDATE";
-    my $sth   = $dbh->prepare($query);
-
-    $sth->execute || $self->dberror($query);
+    my $sth = prepare_execute_query($self, $dbh, $query, @values);
     my ($balance) = $sth->fetchrow_array;
     $sth->finish;
 
@@ -1026,7 +1173,7 @@ sub update_balance {
 
     # update balance
     $query = "UPDATE $table SET $field = $balance WHERE $where";
-    $dbh->do($query) || $self->dberror($query);
+    do_query($self, $dbh, $query, @values);
   }
   $main::lxdebug->leave_sub();
 }
@@ -1040,14 +1187,32 @@ sub update_exchangerate {
   if ($curr eq '') {
     $main::lxdebug->leave_sub();
     return;
+  }  
+  my $query = qq|SELECT curr FROM defaults|;
+
+  my ($currency) = selectrow_query($self, $dbh, $query);
+  my ($defaultcurrency) = split m/:/, $currency;
+
+
+  if ($curr eq $defaultcurrency) {
+    $main::lxdebug->leave_sub();
+    return;
   }
 
   my $query = qq|SELECT e.curr FROM exchangerate e
-                 WHERE e.curr = '$curr'
-	         AND e.transdate = '$transdate'
-		 FOR UPDATE|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+                 WHERE e.curr = ? AND e.transdate = ?
+                 FOR UPDATE|;
+  my $sth = prepare_execute_query($self, $dbh, $query, $curr, $transdate);
+
+  if ($buy == 0) {
+    $buy = "";
+  }
+  if ($sell == 0) {
+    $sell = "";
+  }
+
+  $buy = conv_i($buy, "NULL");
+  $sell = conv_i($sell, "NULL");
 
   my $set;
   if ($buy != 0 && $sell != 0) {
@@ -1061,14 +1226,15 @@ sub update_exchangerate {
   if ($sth->fetchrow_array) {
     $query = qq|UPDATE exchangerate
                 SET $set
-		WHERE curr = '$curr'
-		AND transdate = '$transdate'|;
+                WHERE curr = ?
+                AND transdate = ?|;
+    
   } else {
     $query = qq|INSERT INTO exchangerate (curr, buy, sell, transdate)
-                VALUES ('$curr', $buy, $sell, '$transdate')|;
+                VALUES (?, $buy, $sell, ?)|;
   }
   $sth->finish;
-  $dbh->do($query) || $self->dberror($query);
+  do_query($self, $dbh, $query, $curr, $transdate);
 
   $main::lxdebug->leave_sub();
 }
@@ -1080,11 +1246,14 @@ sub save_exchangerate {
 
   my $dbh = $self->dbconnect($myconfig);
 
-  my ($buy, $sell) = (0, 0);
+  my ($buy, $sell);
+
   $buy  = $rate if $fld eq 'buy';
   $sell = $rate if $fld eq 'sell';
 
+
   $self->update_exchangerate($dbh, $currency, $transdate, $buy, $sell);
+
 
   $dbh->disconnect;
 
@@ -1098,80 +1267,28 @@ sub get_exchangerate {
 
   unless ($transdate) {
     $main::lxdebug->leave_sub();
-    return "";
+    return 1;
+  }
+
+  my $query = qq|SELECT curr FROM defaults|;
+
+  my ($currency) = selectrow_query($self, $dbh, $query);
+  my ($defaultcurrency) = split m/:/, $currency;
+
+  if ($currency eq $defaultcurrency) {
+    $main::lxdebug->leave_sub();
+    return 1;
   }
 
   my $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.curr = '$curr'
-		 AND e.transdate = '$transdate'|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+                 WHERE e.curr = ? AND e.transdate = ?|;
+  my ($exchangerate) = selectrow_query($self, $dbh, $query, $curr, $transdate);
 
-  my ($exchangerate) = $sth->fetchrow_array;
-  $sth->finish;
 
-  if ($exchangerate == 0) {
-    $exchangerate = 1;
-  }
 
   $main::lxdebug->leave_sub();
 
   return $exchangerate;
-}
-
-sub set_payment_options {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $transdate) = @_;
-
-  if ($self->{payment_id}) {
-
-    my $dbh = $self->dbconnect($myconfig);
-
-
-    my $query = qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long FROM payment_terms p
-                  WHERE p.id = $self->{payment_id}|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
-    ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto}, $self->{payment_terms}) = $sth->fetchrow_array;
-
-    if ($transdate eq "") {
-      if ($self->{invdate}) {
-        $transdate = $self->{invdate};
-      } else {
-        $transdate = $self->{transdate};
-      }
-    }
-
-    $sth->finish;
-    my $query = qq|SELECT date '$transdate' + $self->{terms_netto} AS netto_date,date '$transdate' + $self->{terms_skonto} AS skonto_date  FROM payment_terms
-                  LIMIT 1|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);    
-    ($self->{netto_date}, $self->{skonto_date}) = $sth->fetchrow_array;
-    $sth->finish;
-
-    my $total = ($self->{invtotal}) ? $self->{invtotal} : $self->{ordtotal};
-
-    $self->{skonto_amount} = $self->format_amount($myconfig, ($self->parse_amount($myconfig, $total) * $self->{percent_skonto}), 2);
-
-    $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
-    $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
-    $self->{payment_terms} =~ s/<%skonto_amount%>/$self->{skonto_amount}/g;
-    $self->{payment_terms} =~ s/<%total%>/$self->{total}/g;
-    $self->{payment_terms} =~ s/<%invtotal%>/$self->{invtotal}/g;
-    $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
-    $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
-    $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
-    $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
-    $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
-
-    $dbh->disconnect;
-  }
-
-  $main::lxdebug->leave_sub();
-
 }
 
 sub check_exchangerate {
@@ -1184,21 +1301,145 @@ sub check_exchangerate {
     return "";
   }
 
-  my $dbh = $self->dbconnect($myconfig);
+  my ($defaultcurrency) = $self->get_default_currency($myconfig);
 
+  if ($currency eq $defaultcurrency) {
+    $main::lxdebug->leave_sub();
+    return 1;
+  }
+
+  my $dbh   = $self->get_standard_dbh($myconfig);
   my $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.curr = '$currency'
-		 AND e.transdate = '$transdate'|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+                 WHERE e.curr = ? AND e.transdate = ?|;
 
-  my ($exchangerate) = $sth->fetchrow_array;
-  $sth->finish;
-  $dbh->disconnect;
+  my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
+
+  $exchangerate = 1 if ($exchangerate eq "");
 
   $main::lxdebug->leave_sub();
 
   return $exchangerate;
+}
+
+sub get_default_currency {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+  my $dbh = $self->get_standard_dbh($myconfig);
+
+  my $query = qq|SELECT curr FROM defaults|;
+
+  my ($curr)            = selectrow_query($self, $dbh, $query);
+  my ($defaultcurrency) = split m/:/, $curr;
+
+  $main::lxdebug->leave_sub();
+
+  return $defaultcurrency;
+}
+
+
+sub set_payment_options {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $transdate) = @_;
+
+  return $main::lxdebug->leave_sub() unless ($self->{payment_id});
+
+  my $dbh = $self->get_standard_dbh($myconfig);
+
+  my $query =
+    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long | .
+    qq|FROM payment_terms p | .
+    qq|WHERE p.id = ?|;
+
+  ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
+   $self->{payment_terms}) =
+     selectrow_query($self, $dbh, $query, $self->{payment_id});
+
+  if ($transdate eq "") {
+    if ($self->{invdate}) {
+      $transdate = $self->{invdate};
+    } else {
+      $transdate = $self->{transdate};
+    }
+  }
+
+  $query =
+    qq|SELECT ?::date + ?::integer AS netto_date, ?::date + ?::integer AS skonto_date | .
+    qq|FROM payment_terms|;
+  ($self->{netto_date}, $self->{skonto_date}) =
+    selectrow_query($self, $dbh, $query, $transdate, $self->{terms_netto}, $transdate, $self->{terms_skonto});
+
+  my ($invtotal, $total);
+  my (%amounts, %formatted_amounts);
+
+  if ($self->{type} =~ /_order$/) {
+    $amounts{invtotal} = $self->{ordtotal};
+    $amounts{total}    = $self->{ordtotal};
+
+  } elsif ($self->{type} =~ /_quotation$/) {
+    $amounts{invtotal} = $self->{quototal};
+    $amounts{total}    = $self->{quototal};
+
+  } else {
+    $amounts{invtotal} = $self->{invtotal};
+    $amounts{total}    = $self->{total};
+  }
+
+  map { $amounts{$_} = $self->parse_amount($myconfig, $amounts{$_}) } keys %amounts;
+
+  $amounts{skonto_amount}      = $amounts{invtotal} * $self->{percent_skonto};
+  $amounts{invtotal_wo_skonto} = $amounts{invtotal} * (1 - $self->{percent_skonto});
+  $amounts{total_wo_skonto}    = $amounts{total}    * (1 - $self->{percent_skonto});
+
+  foreach (keys %amounts) {
+    $amounts{$_}           = $self->round_amount($amounts{$_}, 2);
+    $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}, 2);
+  }
+
+  if ($self->{"language_id"}) {
+    $query =
+      qq|SELECT t.description_long, l.output_numberformat, l.output_dateformat, l.output_longdates | .
+      qq|FROM translation_payment_terms t | .
+      qq|LEFT JOIN language l ON t.language_id = l.id | .
+      qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
+    my ($description_long, $output_numberformat, $output_dateformat,
+      $output_longdates) =
+      selectrow_query($self, $dbh, $query,
+                      $self->{"language_id"}, $self->{"payment_id"});
+
+    $self->{payment_terms} = $description_long if ($description_long);
+
+    if ($output_dateformat) {
+      foreach my $key (qw(netto_date skonto_date)) {
+        $self->{$key} =
+          $main::locale->reformat_date($myconfig, $self->{$key},
+                                       $output_dateformat,
+                                       $output_longdates);
+      }
+    }
+
+    if ($output_numberformat &&
+        ($output_numberformat ne $myconfig->{"numberformat"})) {
+      my $saved_numberformat = $myconfig->{"numberformat"};
+      $myconfig->{"numberformat"} = $output_numberformat;
+      map { $formatted_amounts{$_} = $self->format_amount($myconfig, $amounts{$_}) } keys %amounts;
+      $myconfig->{"numberformat"} = $saved_numberformat;
+    }
+  }
+
+  $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
+  $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
+  $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
+  $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
+  $self->{payment_terms} =~ s/<%account_number%>/$self->{account_number}/g;
+  $self->{payment_terms} =~ s/<%bank%>/$self->{bank}/g;
+  $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
+
+  map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
+
+  $main::lxdebug->leave_sub();
+
 }
 
 sub get_template_language {
@@ -1209,18 +1450,9 @@ sub get_template_language {
   my $template_code = "";
 
   if ($self->{language_id}) {
-
-    my $dbh = $self->dbconnect($myconfig);
-
-
-    my $query = qq|SELECT l.template_code FROM language l
-                  WHERE l.id = $self->{language_id}|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
-    ($template_code) = $sth->fetchrow_array;
-    $sth->finish;
-    $dbh->disconnect;
+    my $dbh = $self->get_standard_dbh($myconfig);
+    my $query = qq|SELECT template_code FROM language WHERE id = ?|;
+    ($template_code) = selectrow_query($self, $dbh, $query, $self->{language_id});
   }
 
   $main::lxdebug->leave_sub();
@@ -1236,18 +1468,9 @@ sub get_printer_code {
   my $template_code = "";
 
   if ($self->{printer_id}) {
-
-    my $dbh = $self->dbconnect($myconfig);
-
-
-    my $query = qq|SELECT p.template_code,p.printer_command FROM printers p
-                  WHERE p.id = $self->{printer_id}|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
-    ($template_code, $self->{printer_command}) = $sth->fetchrow_array;
-    $sth->finish;
-    $dbh->disconnect;
+    my $dbh = $self->get_standard_dbh($myconfig);
+    my $query = qq|SELECT template_code, printer_command FROM printers WHERE id = ?|;
+    ($template_code, $self->{printer_command}) = selectrow_query($self, $dbh, $query, $self->{printer_id});
   }
 
   $main::lxdebug->leave_sub();
@@ -1263,68 +1486,74 @@ sub get_shipto {
   my $template_code = "";
 
   if ($self->{shipto_id}) {
-
-    my $dbh = $self->dbconnect($myconfig);
-
-
-    my $query = qq|SELECT s.* FROM shipto s
-                  WHERE s.shipto_id = $self->{shipto_id}|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-    $ref = $sth->fetchrow_hashref(NAME_lc);
-    map { $self->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;  
-    $dbh->disconnect;
+    my $dbh = $self->get_standard_dbh($myconfig);
+    my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
+    my $ref = selectfirst_hashref_query($self, $dbh, $query, $self->{shipto_id});
+    map({ $self->{$_} = $ref->{$_} } keys(%$ref));
   }
 
   $main::lxdebug->leave_sub();
-
 }
 
 sub add_shipto {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $id, $module) = @_;
-##LINET
+
   my $shipto;
-  foreach my $item (
-    qw(name department_1 department_2 street zipcode city country contact phone fax email)
-    ) {
+  my @values;
+
+  foreach my $item (qw(name department_1 department_2 street zipcode city country
+                       contact phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
-    $self->{"shipto$item"} =~ s/\'/\'\'/g;
+    push(@values, $self->{"shipto${item}"});
   }
+
   if ($shipto) {
     if ($self->{shipto_id}) {
-      my $query = qq| UPDATE shipto set
-                      shiptoname = '$self->{shiptoname}',
-                      shiptodepartment_1 = '$self->{shiptodepartment_1}',
-                      shiptodepartment_2 = '$self->{shiptodepartment_2}',
-                      shiptostreet = '$self->{shiptostreet}',
-                      shiptozipcode = '$self->{shiptozipcode}',
-                      shiptocity = '$self->{shiptocity}',
-                      shiptocountry = '$self->{shiptocountry}',
-                      shiptocontact = '$self->{shiptocontact}',
-                      shiptophone = '$self->{shiptophone}',
-                      shiptofax = '$self->{shiptofax}',
-                      shiptoemail = '$self->{shiptoemail}'
-                      WHERE shipto_id = $self->{shipto_id}|;
-      $dbh->do($query) || $self->dberror($query);
+      my $query = qq|UPDATE shipto set
+                       shiptoname = ?,
+                       shiptodepartment_1 = ?,
+                       shiptodepartment_2 = ?,
+                       shiptostreet = ?,
+                       shiptozipcode = ?,
+                       shiptocity = ?,
+                       shiptocountry = ?,
+                       shiptocontact = ?,
+                       shiptophone = ?,
+                       shiptofax = ?,
+                       shiptoemail = ?
+                     WHERE shipto_id = ?|;
+      do_query($self, $dbh, $query, @values, $self->{shipto_id});
     } else {
-      my $query =
-      qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2, shiptostreet,
-                   shiptozipcode, shiptocity, shiptocountry, shiptocontact,
-		   shiptophone, shiptofax, shiptoemail, module) VALUES ($id,
-		   '$self->{shiptoname}', '$self->{shiptodepartment_1}', '$self->{shiptodepartment_2}', '$self->{shiptostreet}',
-		   '$self->{shiptozipcode}', '$self->{shiptocity}',
-		   '$self->{shiptocountry}', '$self->{shiptocontact}',
-		   '$self->{shiptophone}', '$self->{shiptofax}',
-		   '$self->{shiptoemail}', '$module')|;
-      $dbh->do($query) || $self->dberror($query);
+      my $query = qq|SELECT * FROM shipto
+                     WHERE shiptoname = ? AND
+                       shiptodepartment_1 = ? AND
+                       shiptodepartment_2 = ? AND
+                       shiptostreet = ? AND
+                       shiptozipcode = ? AND
+                       shiptocity = ? AND
+                       shiptocountry = ? AND
+                       shiptocontact = ? AND
+                       shiptophone = ? AND
+                       shiptofax = ? AND
+                       shiptoemail = ? AND
+                       module = ? AND 
+                       trans_id = ?|;
+      my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
+      if(!$insert_check){
+        $query =
+          qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
+                                 shiptostreet, shiptozipcode, shiptocity, shiptocountry,
+                                 shiptocontact, shiptophone, shiptofax, shiptoemail, module)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+        do_query($self, $dbh, $query, $id, @values, $module);
+      }
     }
   }
-##/LINET
+
   $main::lxdebug->leave_sub();
 }
 
@@ -1333,15 +1562,38 @@ sub get_employee {
 
   my ($self, $dbh) = @_;
 
-  my $query = qq|SELECT e.id, e.name FROM employee e
-                 WHERE e.login = '$self->{login}'|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  my $query = qq|SELECT id, name FROM employee WHERE login = ?|;
+  ($self->{"employee_id"}, $self->{"employee"}) = selectrow_query($self, $dbh, $query, $self->{login});
+  $self->{"employee_id"} *= 1;
 
-  ($self->{employee_id}, $self->{employee}) = $sth->fetchrow_array;
-  $self->{employee_id} *= 1;
+  $main::lxdebug->leave_sub();
+}
 
-  $sth->finish;
+sub get_salesman {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $salesman_id) = @_;
+
+  $main::lxdebug->leave_sub() and return unless $salesman_id;
+
+  my $dbh = $self->get_standard_dbh($myconfig);
+
+  my ($login) =
+    selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|,
+                    $salesman_id);
+
+  if ($login) {
+    my $user = new User($main::memberfile, $login);
+    map({ $self->{"salesman_$_"} = $user->{$_}; }
+        qw(address businessnumber co_ustid company duns email fax name
+           taxnumber tel));
+    $self->{salesman_login} = $login;
+
+    $self->{salesman_name} = $login
+      if ($self->{salesman_name} eq "");
+
+    map({ $self->{"salesman_$_"} =~ s/\\n/\n/g; } qw(address company));
+  }
 
   $main::lxdebug->leave_sub();
 }
@@ -1351,61 +1603,365 @@ sub get_duedate {
 
   my ($self, $myconfig) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
-  my $query = qq|SELECT current_date+terms_netto FROM payment_terms
-                 WHERE id = '$self->{payment_id}'|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  ($self->{duedate}) = $sth->fetchrow_array;
-
-  $sth->finish;
+  my $dbh = $self->get_standard_dbh($myconfig);
+  my $query = qq|SELECT current_date + terms_netto FROM payment_terms WHERE id = ?|;
+  ($self->{duedate}) = selectrow_query($self, $dbh, $query, $self->{payment_id});
 
   $main::lxdebug->leave_sub();
 }
 
-# get other contact for transaction and form - html/tex
-sub get_contact {
+sub _get_contacts {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $id) = @_;
+  my ($self, $dbh, $id, $key) = @_;
 
-  my $query = qq|SELECT c.*
-              FROM contacts c
-              WHERE cp_id=$id|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  $key = "all_contacts" unless ($key);
 
-  $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $query =
+    qq|SELECT cp_id, cp_cv_id, cp_name, cp_givenname, cp_abteilung | .
+    qq|FROM contacts | .
+    qq|WHERE cp_cv_id = ? | .
+    qq|ORDER BY lower(cp_name)|;
 
-  push @{ $self->{$_} }, $ref;
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query, $id);
 
-  $sth->finish;
   $main::lxdebug->leave_sub();
 }
 
-# get contacts for id, if no contact return {"","","","",""}
-sub get_contacts {
+sub _get_projects {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $id) = @_;
+  my ($self, $dbh, $key) = @_;
 
-  my $query = qq|SELECT c.cp_id, c.cp_cv_id, c.cp_name, c.cp_givenname, c.cp_abteilung
-              FROM contacts c
-              WHERE cp_cv_id=$id|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  my ($all, $old_id, $where, @values);
 
-  my $i = 0;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_contacts} }, $ref;
-    $i++;
+  if (ref($key) eq "HASH") {
+    my $params = $key;
+
+    $key = "ALL_PROJECTS";
+
+    foreach my $p (keys(%{$params})) {
+      if ($p eq "all") {
+        $all = $params->{$p};
+      } elsif ($p eq "old_id") {
+        $old_id = $params->{$p};
+      } elsif ($p eq "key") {
+        $key = $params->{$p};
+      }
+    }
   }
 
-  if ($i == 0) {
-    push @{ $self->{all_contacts} }, { { "", "", "", "", "", "" } };
+  if (!$all) {
+    $where = "WHERE active ";
+    if ($old_id) {
+      if (ref($old_id) eq "ARRAY") {
+        my @ids = grep({ $_ } @{$old_id});
+        if (@ids) {
+          $where .= " OR id IN (" . join(",", map({ "?" } @ids)) . ") ";
+          push(@values, @ids);
+        }
+      } else {
+        $where .= " OR (id = ?) ";
+        push(@values, $old_id);
+      }
+    }
   }
-  $sth->finish;
+
+  my $query =
+    qq|SELECT id, projectnumber, description, active | .
+    qq|FROM project | .
+    $where .
+    qq|ORDER BY lower(projectnumber)|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query, @values);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_shipto {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $vc_id, $key) = @_;
+
+  $key = "all_shipto" unless ($key);
+
+  # get shipping addresses
+  my $query = qq|SELECT * FROM shipto WHERE trans_id = ?|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query, $vc_id);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_printers {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_printers" unless ($key);
+
+  my $query = qq|SELECT id, printer_description, printer_command, template_code FROM printers|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_charts {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $params) = @_;
+
+  $key = $params->{key};
+  $key = "all_charts" unless ($key);
+
+  my $transdate = quote_db_date($params->{transdate});
+
+  my $query =
+    qq|SELECT c.id, c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id | .
+    qq|FROM chart c | .
+    qq|LEFT JOIN taxkeys tk ON | .
+    qq|(tk.id = (SELECT id FROM taxkeys | .
+    qq|          WHERE taxkeys.chart_id = c.id AND startdate <= $transdate | .
+    qq|          ORDER BY startdate DESC LIMIT 1)) | .
+    qq|ORDER BY c.accno|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_taxcharts {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_taxcharts" unless ($key);
+
+  my $query = qq|SELECT * FROM tax ORDER BY taxkey|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_taxzones {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_taxzones" unless ($key);
+
+  my $query = qq|SELECT * FROM tax_zones ORDER BY id|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_employees {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $default_key, $key) = @_;
+
+  $key = $default_key unless ($key);
+  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee ORDER BY name|);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_business_types {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_business_types" unless ($key);
+  $self->{$key} =
+    selectall_hashref_query($self, $dbh, qq|SELECT * FROM business|);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_languages {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_languages" unless ($key);
+
+  my $query = qq|SELECT * FROM language ORDER BY id|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_dunning_configs {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_dunning_configs" unless ($key);
+
+  my $query = qq|SELECT * FROM dunning_config ORDER BY dunning_level|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_currencies {
+$main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_currencies" unless ($key);
+
+  my $query = qq|SELECT curr AS currency FROM defaults|;
+ 
+  $self->{$key} = [split(/\:/ , selectfirst_hashref_query($self, $dbh, $query)->{currency})];
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_payments {
+$main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_payments" unless ($key);
+
+  my $query = qq|SELECT * FROM payment_terms ORDER BY id|;
+ 
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_customers {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_customers" unless ($key);
+
+  my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_vendors {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_vendors" unless ($key);
+
+  my $query = qq|SELECT * FROM vendor WHERE NOT obsolete ORDER BY name|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_departments {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key = "all_departments" unless ($key);
+
+  my $query = qq|SELECT * FROM department ORDER BY description|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_lists {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift;
+  my %params = @_;
+
+  my $dbh = $self->get_standard_dbh(\%main::myconfig);
+  my ($sth, $query, $ref);
+
+  my $vc = $self->{"vc"} eq "customer" ? "customer" : "vendor";
+  my $vc_id = $self->{"${vc}_id"};
+
+  if ($params{"contacts"}) {
+    $self->_get_contacts($dbh, $vc_id, $params{"contacts"});
+  }
+
+  if ($params{"shipto"}) {
+    $self->_get_shipto($dbh, $vc_id, $params{"shipto"});
+  }
+
+  if ($params{"projects"} || $params{"all_projects"}) {
+    $self->_get_projects($dbh, $params{"all_projects"} ?
+                         $params{"all_projects"} : $params{"projects"},
+                         $params{"all_projects"} ? 1 : 0);
+  }
+
+  if ($params{"printers"}) {
+    $self->_get_printers($dbh, $params{"printers"});
+  }
+
+  if ($params{"languages"}) {
+    $self->_get_languages($dbh, $params{"languages"});
+  }
+
+  if ($params{"charts"}) {
+    $self->_get_charts($dbh, $params{"charts"});
+  }
+
+  if ($params{"taxcharts"}) {
+    $self->_get_taxcharts($dbh, $params{"taxcharts"});
+  }
+
+  if ($params{"taxzones"}) {
+    $self->_get_taxzones($dbh, $params{"taxzones"});
+  }
+
+  if ($params{"employees"}) {
+    $self->_get_employees($dbh, "all_employees", $params{"employees"});
+  }
+  
+  if ($params{"salesmen"}) {
+    $self->_get_employees($dbh, "all_salesmen", $params{"salesmen"});
+  }
+
+  if ($params{"business_types"}) {
+    $self->_get_business_types($dbh, $params{"business_types"});
+  }
+
+  if ($params{"dunning_configs"}) {
+    $self->_get_dunning_configs($dbh, $params{"dunning_configs"});
+  }
+  
+  if($params{"currencies"}) {
+    $self->_get_currencies($dbh, $params{"currencies"});
+  }
+  
+  if($params{"customers"}) {
+    $self->_get_customers($dbh, $params{"customers"});
+  }
+  
+  if($params{"vendors"}) {
+    $self->_get_vendors($dbh, $params{"vendors"});
+  }
+  
+  if($params{"payments"}) {
+    $self->_get_payments($dbh, $params{"payments"});
+  }
+
+  if($params{"departments"}) {
+    $self->_get_departments($dbh, $params{"departments"});
+  }
+
   $main::lxdebug->leave_sub();
 }
 
@@ -1416,49 +1972,45 @@ sub get_name {
   my ($self, $myconfig, $table) = @_;
 
   # connect to database
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
-  my $name           = $self->like(lc $self->{$table});
-  my $customernumber = $self->like(lc $self->{customernumber});
+  $table = $table eq "customer" ? "customer" : "vendor";
+  my $arap = $self->{arap} eq "ar" ? "ar" : "ap";
 
-  if ($self->{customernumber} ne "") {
-    $query = qq~SELECT c.id, c.name,
-                  c.street || ' ' || c.zipcode || ' ' || c.city || ' ' || c.country AS address
-                  FROM $table c
-                  WHERE (lower(c.customernumber) LIKE '$customernumber') AND (not c.obsolete)
-                  ORDER BY c.name~;
+  my ($query, @values);
+
+  if (!$self->{openinvoices}) {
+    my $where;
+    if ($self->{customernumber} ne "") {
+      $where = qq|(vc.customernumber ILIKE ?)|;
+      push(@values, '%' . $self->{customernumber} . '%');
+    } else {
+      $where = qq|(vc.name ILIKE ?)|;
+      push(@values, '%' . $self->{$table} . '%');
+    }
+
+    $query =
+      qq~SELECT vc.id, vc.name,
+           vc.street || ' ' || vc.zipcode || ' ' || vc.city || ' ' || vc.country AS address
+         FROM $table vc
+         WHERE $where AND (NOT vc.obsolete)
+         ORDER BY vc.name~;
   } else {
-    $query = qq~SELECT c.id, c.name,
-                 c.street || ' ' || c.zipcode || ' ' || c.city || ' ' || c.country AS address
-                 FROM $table c
-		 WHERE (lower(c.name) LIKE '$name') AND (not c.obsolete)
-		 ORDER BY c.name~;
+    $query =
+      qq~SELECT DISTINCT vc.id, vc.name,
+           vc.street || ' ' || vc.zipcode || ' ' || vc.city || ' ' || vc.country AS address
+         FROM $arap a
+         JOIN $table vc ON (a.${table}_id = vc.id)
+         WHERE NOT (a.amount = a.paid) AND (vc.name ILIKE ?)
+         ORDER BY vc.name~;
+    push(@values, '%' . $self->{$table} . '%');
   }
 
-  if ($self->{openinvoices}) {
-    $query = qq~SELECT DISTINCT c.id, c.name,
-                c.street || ' ' || c.zipcode || ' ' || c.city || ' ' || c.country AS address
-		FROM $self->{arap} a
-		JOIN $table c ON (a.${table}_id = c.id)
-		WHERE NOT a.amount = a.paid
-		AND lower(c.name) LIKE '$name'
-		ORDER BY c.name~;
-  }
-  my $sth = $dbh->prepare($query);
-
-  $sth->execute || $self->dberror($query);
-
-  my $i = 0;
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push(@{ $self->{name_list} }, $ref);
-    $i++;
-  }
-  $sth->finish;
-  $dbh->disconnect;
+  $self->{name_list} = selectall_hashref_query($self, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
 
-  return $i;
+  return scalar(@{ $self->{name_list} });
 }
 
 # the selection sub is used in the AR, AP, IS, IR and OE module
@@ -1469,28 +2021,19 @@ sub all_vc {
   my ($self, $myconfig, $table, $module) = @_;
 
   my $ref;
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
+
+  $table = $table eq "customer" ? "customer" : "vendor";
 
   my $query = qq|SELECT count(*) FROM $table|;
-  my $sth   = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-  my ($count) = $sth->fetchrow_array;
-  $sth->finish;
+  my ($count) = selectrow_query($self, $dbh, $query);
 
   # build selection list
   if ($count < $myconfig->{vclimit}) {
-    $query = qq|SELECT id, name
-		FROM $table WHERE not obsolete
-		ORDER BY name|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push @{ $self->{"all_$table"} }, $ref;
-    }
-
-    $sth->finish;
-
+    $query = qq|SELECT id, name, salesman_id
+                FROM $table WHERE NOT obsolete
+                ORDER BY name|;
+    $self->{"all_$table"} = selectall_hashref_query($self, $dbh, $query);
   }
 
   # get self
@@ -1498,21 +2041,14 @@ sub all_vc {
 
   # setup sales contacts
   $query = qq|SELECT e.id, e.name
-	      FROM employee e
-	      WHERE e.sales = '1'
-	      AND NOT e.id = $self->{employee_id}|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_employees} }, $ref;
-  }
-  $sth->finish;
+              FROM employee e
+              WHERE (e.sales = '1') AND (NOT e.id = ?)|;
+  $self->{all_employees} = selectall_hashref_query($self, $dbh, $query, $self->{employee_id});
 
   # this is for self
-  push @{ $self->{all_employees} },
-    { id   => $self->{employee_id},
-      name => $self->{employee} };
+  push(@{ $self->{all_employees} },
+       { id   => $self->{employee_id},
+         name => $self->{employee} });
 
   # sort the whole thing
   @{ $self->{all_employees} } =
@@ -1521,125 +2057,76 @@ sub all_vc {
   if ($module eq 'AR') {
 
     # prepare query for departments
-    $query = qq|SELECT d.id, d.description
-		FROM department d
-		WHERE d.role = 'P'
-		ORDER BY 2|;
+    $query = qq|SELECT id, description
+                FROM department
+                WHERE role = 'P'
+                ORDER BY description|;
 
   } else {
-    $query = qq|SELECT d.id, d.description
-		FROM department d
-		ORDER BY 2|;
+    $query = qq|SELECT id, description
+                FROM department
+                ORDER BY description|;
   }
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_departments} }, $ref;
-  }
-  $sth->finish;
+  $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
   # get languages
   $query = qq|SELECT id, description
               FROM language
-	      ORDER BY 1|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+              ORDER BY id|;
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{languages} }, $ref;
-  }
-  $sth->finish;
+  $self->{languages} = selectall_hashref_query($self, $dbh, $query);
 
   # get printer
   $query = qq|SELECT printer_description, id
               FROM printers
-	      ORDER BY 1|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+              ORDER BY printer_description|;
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{printers} }, $ref;
-  }
-  $sth->finish;
-
+  $self->{printers} = selectall_hashref_query($self, $dbh, $query);
 
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-	      ORDER BY 1|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+              ORDER BY sortkey|;
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{payment_terms} }, $ref;
-  }
-  $sth->finish;
-  $dbh->disconnect;
+  $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query);
+
   $main::lxdebug->leave_sub();
 }
-
 
 sub language_payment {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig) = @_;
-  undef $self->{languages};
-  undef $self->{payment_terms};
-  undef $self->{printers};
 
-  my $ref;
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
   # get languages
   my $query = qq|SELECT id, description
-              FROM language
-	      ORDER BY 1|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+                 FROM language
+                 ORDER BY id|;
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{languages} }, $ref;
-  }
-  $sth->finish;
+  $self->{languages} = selectall_hashref_query($self, $dbh, $query);
 
   # get printer
   $query = qq|SELECT printer_description, id
               FROM printers
-	      ORDER BY 1|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+              ORDER BY printer_description|;
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{printers} }, $ref;
-  }
-  $sth->finish;
+  $self->{printers} = selectall_hashref_query($self, $dbh, $query);
 
   # get payment terms
   $query = qq|SELECT id, description
               FROM payment_terms
-	      ORDER BY 1|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+              ORDER BY sortkey|;
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{payment_terms} }, $ref;
-  }
-  $sth->finish;
+  $self->{payment_terms} = selectall_hashref_query($self, $dbh, $query);
 
   # get buchungsgruppen
   $query = qq|SELECT id, description
               FROM buchungsgruppen|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
 
-  $self->{BUCHUNGSGRUPPEN} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{BUCHUNGSGRUPPEN} }, $ref;
-  }
-  $sth->finish;
+  $self->{BUCHUNGSGRUPPEN} = selectall_hashref_query($self, $dbh, $query);
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -1649,28 +2136,20 @@ sub all_departments {
 
   my ($self, $myconfig, $table) = @_;
 
-  my $dbh   = $self->dbconnect($myconfig);
-  my $where = "1 = 1";
+  my $dbh = $self->get_standard_dbh($myconfig);
+  my $where;
 
-  if (defined $table) {
-    if ($table eq 'customer') {
-      $where = " d.role = 'P'";
-    }
+  if ($table eq 'customer') {
+    $where = "WHERE role = 'P' ";
   }
 
-  my $query = qq|SELECT d.id, d.description
-                 FROM department d
-	         WHERE $where
-	         ORDER BY 2|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  my $query = qq|SELECT id, description
+                 FROM department
+                 $where
+                 ORDER BY description|;
+  $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_departments} }, $ref;
-  }
-  $sth->finish;
-
-  $dbh->disconnect;
+  delete($self->{all_departments}) unless (@{ $self->{all_departments} });
 
   $main::lxdebug->leave_sub();
 }
@@ -1678,47 +2157,59 @@ sub all_departments {
 sub create_links {
   $main::lxdebug->enter_sub();
 
-  my ($self, $module, $myconfig, $table) = @_;
+  my ($self, $module, $myconfig, $table, $provided_dbh) = @_;
+
+  my ($fld, $arap);
+  if ($table eq "customer") {
+    $fld = "buy";
+    $arap = "ar";
+  } else {
+    $table = "vendor";
+    $fld = "sell";
+    $arap = "ap";
+  }
 
   $self->all_vc($myconfig, $table, $module);
 
   # get last customers or vendors
-  my ($query, $sth);
+  my ($query, $sth, $ref);
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $provided_dbh ? $provided_dbh : $self->get_standard_dbh($myconfig);
   my %xkeyref = ();
 
   if (!$self->{id}) {
 
     my $transdate = "current_date";
     if ($self->{transdate}) {
-      $transdate = qq|'$self->{transdate}'|;
+      $transdate = $dbh->quote($self->{transdate});
     }
-  
+
     # now get the account numbers
     $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
                 FROM chart c, taxkeys tk
-                WHERE c.link LIKE '%$module%' AND c.id=tk.chart_id AND tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)
+                WHERE (c.link LIKE ?) AND (c.id = tk.chart_id) AND tk.id =
+                  (SELECT id FROM taxkeys WHERE (taxkeys.chart_id = c.id) AND (startdate <= $transdate) ORDER BY startdate DESC LIMIT 1)
                 ORDER BY c.accno|;
-  
+
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
+
+    do_statement($self, $sth, $query, '%' . $module . '%');
+
     $self->{accounts} = "";
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-  
+    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+
       foreach my $key (split(/:/, $ref->{link})) {
         if ($key =~ /$module/) {
-  
+
           # cross reference for keys
           $xkeyref{ $ref->{accno} } = $key;
-  
+
           push @{ $self->{"${module}_links"}{$key} },
             { accno       => $ref->{accno},
               description => $ref->{description},
               taxkey      => $ref->{taxkey_id},
               tax_id      => $ref->{tax_id} };
-  
+
           $self->{accounts} .= "$ref->{accno} " unless $key =~ /tax/;
         }
       }
@@ -1726,98 +2217,68 @@ sub create_links {
   }
 
   # get taxkeys and description
-  $query = qq|SELECT id, taxkey, taxdescription
-              FROM tax|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  $ref = $sth->fetchrow_hashref(NAME_lc);
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{TAXKEY} }, $ref;
-  }
-
-  $sth->finish;
-
-
-  # get tax zones
-  $query = qq|SELECT id, description
-              FROM tax_zones|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{TAXZONE} }, $ref;
-  }
-  $sth->finish;
+  $query = qq|SELECT id, taxkey, taxdescription FROM tax|;
+  $self->{TAXKEY} = selectall_hashref_query($self, $dbh, $query);
 
   if (($module eq "AP") || ($module eq "AR")) {
-
     # get tax rates and description
-    $query = qq| SELECT * FROM tax t|;
-    $sth   = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-    $self->{TAX} = ();
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      push @{ $self->{TAX} }, $ref;
-    }
-    $sth->finish;
+    $query = qq|SELECT * FROM tax|;
+    $self->{TAX} = selectall_hashref_query($self, $dbh, $query);
   }
 
   if ($self->{id}) {
-    my $arap = ($table eq 'customer') ? 'ar' : 'ap';
+    $query =
+      qq|SELECT
+           a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid,
+           a.duedate, a.ordnumber, a.taxincluded, a.curr AS currency, a.notes,
+           a.intnotes, a.department_id, a.amount AS oldinvtotal,
+           a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
+           c.name AS $table,
+           d.description AS department,
+           e.name AS employee
+         FROM $arap a
+         JOIN $table c ON (a.${table}_id = c.id)
+         LEFT JOIN employee e ON (e.id = a.employee_id)
+         LEFT JOIN department d ON (d.id = a.department_id)
+         WHERE a.id = ?|;
+    $ref = selectfirst_hashref_query($self, $dbh, $query, $self->{id});
 
-    $query = qq|SELECT a.cp_id, a.invnumber, a.transdate,
-                a.${table}_id, a.datepaid, a.duedate, a.ordnumber,
-		a.taxincluded, a.curr AS currency, a.notes, a.intnotes,
-		c.name AS $table, a.department_id, d.description AS department,
-		a.amount AS oldinvtotal, a.paid AS oldtotalpaid,
-		a.employee_id, e.name AS employee, a.gldate, a.type
-		FROM $arap a
-		JOIN $table c ON (a.${table}_id = c.id)
-		LEFT JOIN employee e ON (e.id = a.employee_id)
-		LEFT JOIN department d ON (d.id = a.department_id)
-		WHERE a.id = $self->{id}|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-
-    $ref = $sth->fetchrow_hashref(NAME_lc);
     foreach $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
     }
-    $sth->finish;
-
 
     my $transdate = "current_date";
     if ($self->{transdate}) {
-      $transdate = qq|'$self->{transdate}'|;
+      $transdate = $dbh->quote($self->{transdate});
     }
-  
+
     # now get the account numbers
     $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-                FROM chart c, taxkeys tk
-                WHERE c.link LIKE '%$module%' AND (((tk.chart_id=c.id) AND NOT(c.link like '%_tax%')) OR (NOT(tk.chart_id=c.id) AND (c.link like '%_tax%'))) AND (((tk.id = (SELECT id from taxkeys where taxkeys.chart_id =c.id AND startdate<=$transdate ORDER BY startdate desc LIMIT 1)) AND NOT(c.link like '%_tax%')) OR (c.link like '%_tax%'))
+                FROM chart c
+                LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
+                WHERE c.link LIKE ?
+                  AND (tk.id = (SELECT id FROM taxkeys WHERE taxkeys.chart_id = c.id AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1)
+                    OR c.link LIKE '%_tax%')
                 ORDER BY c.accno|;
-  
+
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-  
+    do_statement($self, $sth, $query, "%$module%");
+
     $self->{accounts} = "";
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-  
+    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+
       foreach my $key (split(/:/, $ref->{link})) {
         if ($key =~ /$module/) {
-  
+
           # cross reference for keys
           $xkeyref{ $ref->{accno} } = $key;
-  
+
           push @{ $self->{"${module}_links"}{$key} },
             { accno       => $ref->{accno},
               description => $ref->{description},
               taxkey      => $ref->{taxkey_id},
               tax_id      => $ref->{tax_id} };
-  
+
           $self->{accounts} .= "$ref->{accno} " unless $key =~ /tax/;
         }
       }
@@ -1825,31 +2286,38 @@ sub create_links {
 
 
     # get amounts from individual entries
-    $query = qq|SELECT c.accno, c.description, a.source, a.amount, a.memo,
-                a.transdate, a.cleared, a.project_id, p.projectnumber, a.taxkey, t.rate, t.id
-		FROM acc_trans a
-		JOIN chart c ON (c.id = a.chart_id)
-		LEFT JOIN project p ON (p.id = a.project_id)
-                LEFT JOIN tax t ON (t.id=(SELECT tk.tax_id from taxkeys tk WHERE (tk.taxkey_id=a.taxkey) AND ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id=a.taxkey) THEN tk.chart_id=a.chart_id ELSE 1=1 END) OR (c.link='%tax%')) AND startdate <=a.transdate ORDER BY startdate DESC LIMIT 1)) 
-                WHERE a.trans_id = $self->{id}
-		AND a.fx_transaction = '0'
-		ORDER BY a.oid,a.transdate|;
+    $query =
+      qq|SELECT
+           c.accno, c.description,
+           a.source, a.amount, a.memo, a.transdate, a.cleared, a.project_id, a.taxkey,
+           p.projectnumber,
+           t.rate, t.id
+         FROM acc_trans a
+         LEFT JOIN chart c ON (c.id = a.chart_id)
+         LEFT JOIN project p ON (p.id = a.project_id)
+         LEFT JOIN tax t ON (t.id= (SELECT tk.tax_id FROM taxkeys tk
+                                    WHERE (tk.taxkey_id=a.taxkey) AND
+                                      ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id = a.taxkey)
+                                        THEN tk.chart_id = a.chart_id
+                                        ELSE 1 = 1
+                                        END)
+                                       OR (c.link='%tax%')) AND
+                                      (startdate <= a.transdate) ORDER BY startdate DESC LIMIT 1))
+         WHERE a.trans_id = ?
+         AND a.fx_transaction = '0'
+         ORDER BY a.oid, a.transdate|;
     $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-
-    my $fld = ($table eq 'customer') ? 'buy' : 'sell';
+    do_statement($self, $sth, $query, $self->{id});
 
     # get exchangerate for currency
     $self->{exchangerate} =
-      $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate},
-                              $fld);
+      $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate}, $fld);
     my $index = 0;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
     while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
       $ref->{exchangerate} =
-        $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate},
-                                $fld);
+        $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate}, $fld);
       if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {
         $index++;
       }
@@ -1862,35 +2330,26 @@ sub create_links {
     }
 
     $sth->finish;
-    $query = qq|SELECT d.curr AS currencies, d.closedto, d.revtrans,
-                  (SELECT c.accno FROM chart c
-		   WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
-                  (SELECT c.accno FROM chart c
-		   WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
-		FROM defaults d|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-
-    $ref = $sth->fetchrow_hashref(NAME_lc);
+    $query =
+      qq|SELECT
+           d.curr AS currencies, d.closedto, d.revtrans,
+           (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
+           (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
+         FROM defaults d|;
+    $ref = selectfirst_hashref_query($self, $dbh, $query);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
 
   } else {
 
     # get date
-    $query = qq|SELECT current_date AS transdate,
-                d.curr AS currencies, d.closedto, d.revtrans,
-                  (SELECT c.accno FROM chart c
-		   WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
-                  (SELECT c.accno FROM chart c
-		   WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
-		FROM defaults d|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
-
-    $ref = $sth->fetchrow_hashref(NAME_lc);
+    $query =
+       qq|SELECT
+            current_date AS transdate, d.curr AS currencies, d.closedto, d.revtrans,
+            (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
+            (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
+          FROM defaults d|;
+    $ref = selectfirst_hashref_query($self, $dbh, $query);
     map { $self->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
 
     if ($self->{"$self->{vc}_id"}) {
 
@@ -1901,20 +2360,13 @@ sub create_links {
 
       $self->lastname_used($dbh, $myconfig, $table, $module);
 
-      my $fld = ($table eq 'customer') ? 'buy' : 'sell';
-
       # get exchangerate for currency
       $self->{exchangerate} =
-        $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate},
-                                $fld);
+        $self->get_exchangerate($dbh, $self->{currency}, $self->{transdate}, $fld);
 
     }
 
   }
-
-  $sth->finish;
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1925,6 +2377,7 @@ sub lastname_used {
   my ($self, $dbh, $myconfig, $table, $module) = @_;
 
   my $arap  = ($table eq 'customer') ? "ar" : "ap";
+  $table = $table eq "customer" ? "customer" : "vendor";
   my $where = "1 = 1";
 
   if ($self->{type} =~ /_order/) {
@@ -1937,29 +2390,22 @@ sub lastname_used {
   }
 
   my $query = qq|SELECT MAX(id) FROM $arap
-		              WHERE $where
-			      AND ${table}_id > 0|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  my ($trans_id) = $sth->fetchrow_array;
-  $sth->finish;
+                 WHERE $where AND ${table}_id > 0|;
+  my ($trans_id) = selectrow_query($self, $dbh, $query);
 
   $trans_id *= 1;
-  $query = qq|SELECT ct.name, a.curr, a.${table}_id,
-              current_date + ct.terms AS duedate, a.department_id,
-	      d.description AS department
-	      FROM $arap a
-	      JOIN $table ct ON (a.${table}_id = ct.id)
-	      LEFT JOIN department d ON (a.department_id = d.id)
-	      WHERE a.id = $trans_id|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  ($self->{$table},  $self->{currency},      $self->{"${table}_id"},
-   $self->{duedate}, $self->{department_id}, $self->{department})
-    = $sth->fetchrow_array;
-  $sth->finish;
+  $query =
+    qq|SELECT
+         a.curr, a.${table}_id, a.department_id,
+         d.description AS department,
+         ct.name, current_date + ct.terms AS duedate
+       FROM $arap a
+       LEFT JOIN $table ct ON (a.${table}_id = ct.id)
+       LEFT JOIN department d ON (a.department_id = d.id)
+       WHERE a.id = ?|;
+  ($self->{currency},   $self->{"${table}_id"}, $self->{department_id},
+   $self->{department}, $self->{$table},        $self->{duedate})
+    = selectrow_query($self, $dbh, $query, $trans_id);
 
   $main::lxdebug->leave_sub();
 }
@@ -1969,29 +2415,20 @@ sub current_date {
 
   my ($self, $myconfig, $thisdate, $days) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
-  my ($sth, $query);
+  my $dbh = $self->get_standard_dbh($myconfig);
+  my $query;
 
   $days *= 1;
   if ($thisdate) {
     my $dateformat = $myconfig->{dateformat};
     $dateformat .= "yy" if $myconfig->{dateformat} !~ /^y/;
-
-    $query = qq|SELECT to_date('$thisdate', '$dateformat') + $days AS thisdate
-                FROM defaults|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    $thisdate = $dbh->quote($thisdate);
+    $query = qq|SELECT to_date($thisdate, '$dateformat') + $days AS thisdate|;
   } else {
-    $query = qq|SELECT current_date AS thisdate
-                FROM defaults|;
-    $sth = $dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    $query = qq|SELECT current_date AS thisdate|;
   }
 
-  ($thisdate) = $sth->fetchrow_array;
-  $sth->finish;
-
-  $dbh->disconnect;
+  ($thisdate) = selectrow_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 
@@ -2051,47 +2488,45 @@ sub update_status {
   my $dbh = $self->dbconnect_noauto($myconfig);
 
   my $query = qq|DELETE FROM status
-                 WHERE formname = '$self->{formname}'
-		 AND trans_id = ?|;
-  my $sth = $dbh->prepare($query) || $self->dberror($query);
+                 WHERE (formname = ?) AND (trans_id = ?)|;
+  my $sth = prepare_query($self, $dbh, $query);
 
   if ($self->{formname} =~ /(check|receipt)/) {
     for $i (1 .. $self->{rowcount}) {
-      $sth->execute($self->{"id_$i"} * 1) || $self->dberror($query);
-      $sth->finish;
+      do_statement($self, $sth, $query, $self->{formname}, $self->{"id_$i"} * 1);
     }
   } else {
-    $sth->execute($self->{id}) || $self->dberror($query);
-    $sth->finish;
+    do_statement($self, $sth, $query, $self->{formname}, $self->{id});
   }
+  $sth->finish();
 
   my $printed = ($self->{printed} =~ /$self->{formname}/) ? "1" : "0";
   my $emailed = ($self->{emailed} =~ /$self->{formname}/) ? "1" : "0";
 
   my %queued = split / /, $self->{queued};
+  my @values;
 
   if ($self->{formname} =~ /(check|receipt)/) {
 
     # this is a check or receipt, add one entry for each lineitem
     my ($accno) = split /--/, $self->{account};
-    $query = qq|INSERT INTO status (trans_id, printed, spoolfile, formname,
-		chart_id) VALUES (?, '$printed',
-		'$queued{$self->{formname}}', '$self->{prinform}',
-		(SELECT c.id FROM chart c WHERE c.accno = '$accno'))|;
-    $sth = $dbh->prepare($query) || $self->dberror($query);
+    $query = qq|INSERT INTO status (trans_id, printed, spoolfile, formname, chart_id)
+                VALUES (?, ?, ?, ?, (SELECT c.id FROM chart c WHERE c.accno = ?))|;
+    @values = ($printed, $queued{$self->{formname}}, $self->{prinform}, $accno);
+    $sth = prepare_query($self, $dbh, $query);
 
     for $i (1 .. $self->{rowcount}) {
       if ($self->{"checked_$i"}) {
-        $sth->execute($self->{"id_$i"}) || $self->dberror($query);
-        $sth->finish;
+        do_statement($self, $sth, $query, $self->{"id_$i"}, @values);
       }
     }
+    $sth->finish();
+
   } else {
-    $query = qq|INSERT INTO status (trans_id, printed, emailed,
-		spoolfile, formname)
-		VALUES ($self->{id}, '$printed', '$emailed',
-		'$queued{$self->{formname}}', '$self->{formname}')|;
-    $dbh->do($query) || $self->dberror($query);
+    $query = qq|INSERT INTO status (trans_id, printed, emailed, spoolfile, formname)
+                VALUES (?, ?, ?, ?, ?)|;
+    do_query($self, $dbh, $query, $self->{id}, $printed, $emailed,
+             $queued{$self->{formname}}, $self->{formname});
   }
 
   $dbh->commit;
@@ -2111,9 +2546,8 @@ sub save_status {
   my $emailforms = $self->{emailed};
 
   my $query = qq|DELETE FROM status
-                 WHERE formname = '$self->{formname}'
-		 AND trans_id = $self->{id}|;
-  $dbh->do($query) || $self->dberror($query);
+                 WHERE (formname = ?) AND (trans_id = ?)|;
+  do_query($self, $dbh, $query, $self->{formname}, $self->{id});
 
   # this only applies to the forms
   # checks and receipts are posted when printed or queued
@@ -2125,11 +2559,9 @@ sub save_status {
       $printed = ($self->{printed} =~ /$self->{formname}/) ? "1" : "0";
       $emailed = ($self->{emailed} =~ /$self->{formname}/) ? "1" : "0";
 
-      $query = qq|INSERT INTO status (trans_id, printed, emailed,
-                  spoolfile, formname)
-		  VALUES ($self->{id}, '$printed', '$emailed',
-		  '$queued{$formname}', '$formname')|;
-      $dbh->do($query) || $self->dberror($query);
+      $query = qq|INSERT INTO status (trans_id, printed, emailed, spoolfile, formname)
+                  VALUES (?, ?, ?, ?, ?)|;
+      do_query($self, $dbh, $query, $self->{id}, $printed, $emailed, $queued{$formname}, $formname);
 
       $formnames  =~ s/$self->{formname}//;
       $emailforms =~ s/$self->{formname}//;
@@ -2150,19 +2582,102 @@ sub save_status {
     $emailed = ($emailforms =~ /$self->{formname}/) ? "1" : "0";
 
     $query = qq|INSERT INTO status (trans_id, printed, emailed, formname)
-		VALUES ($self->{id}, '$printed', '$emailed', '$formname')|;
-    $dbh->do($query) || $self->dberror($query);
+                VALUES (?, ?, ?, ?)|;
+    do_query($self, $dbh, $query, $self->{id}, $printed, $emailed, $formname);
   }
 
   $main::lxdebug->leave_sub();
 }
 
+#--- 4 locale ---#
+# $main::locale->text('SAVED')
+# $main::locale->text('DELETED')
+# $main::locale->text('ADDED')
+# $main::locale->text('PAYMENT POSTED')
+# $main::locale->text('POSTED')
+# $main::locale->text('POSTED AS NEW')
+# $main::locale->text('ELSE')
+# $main::locale->text('SAVED FOR DUNNING')
+# $main::locale->text('DUNNING STARTED')
+# $main::locale->text('PRINTED')
+# $main::locale->text('MAILED')
+# $main::locale->text('SCREENED')
+# $main::locale->text('CANCELED')
+# $main::locale->text('invoice')
+# $main::locale->text('proforma')
+# $main::locale->text('sales_order')
+# $main::locale->text('packing_list')
+# $main::locale->text('pick_list')
+# $main::locale->text('purchase_order')
+# $main::locale->text('bin_list')
+# $main::locale->text('sales_quotation')
+# $main::locale->text('request_quotation')
+
+sub save_history {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift();
+  my $dbh = shift();
+
+  if(!exists $self->{employee_id}) {
+    &get_employee($self, $dbh);
+  }
+
+  my $query =
+   qq|INSERT INTO history_erp (trans_id, employee_id, addition, what_done, snumbers) | .
+   qq|VALUES (?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?)|;
+  my @values = (conv_i($self->{id}), $self->{login},
+                $self->{addition}, $self->{what_done}, "$self->{snumbers}");
+  do_query($self, $dbh, $query, @values);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_history {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $trans_id, $restriction, $order) = @_;
+  my ($orderBy, $desc) = split(/\-\-/, $order);
+  $order = " ORDER BY " . ($order eq "" ? " h.itime " : ($desc == 1 ? $orderBy . " DESC " : $orderBy . " "));
+  my @tempArray;
+  my $i = 0;
+  if ($trans_id ne "") {
+    my $query =
+      qq|SELECT h.employee_id, h.itime::timestamp(0) AS itime, h.addition, h.what_done, emp.name, h.snumbers, h.trans_id AS id | .
+      qq|FROM history_erp h | .
+      qq|LEFT JOIN employee emp ON (emp.id = h.employee_id) | .
+      qq|WHERE trans_id = | . $trans_id
+      . $restriction . qq| |
+      . $order;
+      
+    my $sth = $dbh->prepare($query) || $self->dberror($query);
+
+    $sth->execute() || $self->dberror("$query");
+
+    while(my $hash_ref = $sth->fetchrow_hashref()) {
+      $hash_ref->{addition} = $main::locale->text($hash_ref->{addition});
+      $hash_ref->{what_done} = $main::locale->text($hash_ref->{what_done});
+      $hash_ref->{snumbers} =~ s/^.+_(.*)$/$1/g;
+      $tempArray[$i++] = $hash_ref;
+    }
+    $main::lxdebug->leave_sub() and return \@tempArray 
+      if ($i > 0 && $tempArray[0] ne "");
+  }
+  $main::lxdebug->leave_sub();
+  return 0;
+}
+
 sub update_defaults {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $fld) = @_;
+  my ($self, $myconfig, $fld, $provided_dbh) = @_;
 
-  my $dbh   = $self->dbconnect_noauto($myconfig);
+  my $dbh;
+  if ($provided_dbh) {
+    $dbh = $provided_dbh;
+  } else {
+    $dbh = $self->dbconnect_noauto($myconfig);
+  }
   my $query = qq|SELECT $fld FROM defaults FOR UPDATE|;
   my $sth   = $dbh->prepare($query);
 
@@ -2170,14 +2685,22 @@ sub update_defaults {
   my ($var) = $sth->fetchrow_array;
   $sth->finish;
 
-  $var++;
+  if ($var =~ m/\d+$/) {
+    my $new_var  = (substr $var, $-[0]) * 1 + 1;
+    my $len_diff = length($var) - $-[0] - length($new_var);
+    $var         = substr($var, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_var;
 
-  $query = qq|UPDATE defaults
-              SET $fld = '$var'|;
-  $dbh->do($query) || $self->dberror($query);
+  } else {
+    $var = $var . '1';
+  }
 
-  $dbh->commit;
-  $dbh->disconnect;
+  $query = qq|UPDATE defaults SET $fld = ?|;
+  do_query($self, $dbh, $query, $var);
+
+  if (!$provided_dbh) {
+    $dbh->commit;
+    $dbh->disconnect;
+  }
 
   $main::lxdebug->leave_sub();
 
@@ -2187,51 +2710,41 @@ sub update_defaults {
 sub update_business {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $business_id) = @_;
+  my ($self, $myconfig, $business_id, $provided_dbh) = @_;
 
-  my $dbh   = $self->dbconnect_noauto($myconfig);
-  my $query =
-    qq|SELECT customernumberinit FROM business  WHERE id=$business_id FOR UPDATE|;
-  my $sth = $dbh->prepare($query);
-
-  $sth->execute || $self->dberror($query);
-  my ($var) = $sth->fetchrow_array;
-  $sth->finish;
-  if ($var ne "") {
-    $var++;
+  my $dbh;
+  if ($provided_dbh) {
+    $dbh = $provided_dbh;
+  } else {
+    $dbh = $self->dbconnect_noauto($myconfig);
   }
-  $query = qq|UPDATE business
-              SET customernumberinit = '$var' WHERE id=$business_id|;
-  $dbh->do($query) || $self->dberror($query);
+  my $query =
+    qq|SELECT customernumberinit FROM business
+       WHERE id = ? FOR UPDATE|;
+  my ($var) = selectrow_query($self, $dbh, $query, $business_id);
 
-  $dbh->commit;
-  $dbh->disconnect;
+  if ($var =~ m/\d+$/) {
+    my $new_var  = (substr $var, $-[0]) * 1 + 1;
+    my $len_diff = length($var) - $-[0] - length($new_var);
+    $var         = substr($var, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_var;
+
+  } else {
+    $var = $var . '1';
+  }
+
+  $query = qq|UPDATE business
+              SET customernumberinit = ?
+              WHERE id = ?|;
+  do_query($self, $dbh, $query, $var, $business_id);
+
+  if (!$provided_dbh) {
+    $dbh->commit;
+    $dbh->disconnect;
+  }
 
   $main::lxdebug->leave_sub();
 
   return $var;
-}
-
-sub get_salesman {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $salesman) = @_;
-
-  my $dbh   = $self->dbconnect($myconfig);
-  my $query =
-    qq|SELECT id, name FROM customer  WHERE (customernumber ilike '%$salesman%' OR name ilike '%$salesman%') AND business_id in (SELECT id from business WHERE salesman)|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  my $i = 0;
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push(@{ $self->{salesman_list} }, $ref);
-    $i++;
-  }
-  $dbh->commit;
-  $main::lxdebug->leave_sub();
-
-  return $i;
 }
 
 sub get_partsgroup {
@@ -2239,31 +2752,27 @@ sub get_partsgroup {
 
   my ($self, $myconfig, $p) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   my $query = qq|SELECT DISTINCT pg.id, pg.partsgroup
                  FROM partsgroup pg
-		 JOIN parts p ON (p.partsgroup_id = pg.id)|;
+                 JOIN parts p ON (p.partsgroup_id = pg.id) |;
+  my @values;
 
   if ($p->{searchitems} eq 'part') {
-    $query .= qq|
-                 WHERE p.inventory_accno_id > 0|;
+    $query .= qq|WHERE p.inventory_accno_id > 0|;
   }
   if ($p->{searchitems} eq 'service') {
-    $query .= qq|
-                 WHERE p.inventory_accno_id IS NULL|;
+    $query .= qq|WHERE p.inventory_accno_id IS NULL|;
   }
   if ($p->{searchitems} eq 'assembly') {
-    $query .= qq|
-                 WHERE p.assembly = '1'|;
+    $query .= qq|WHERE p.assembly = '1'|;
   }
   if ($p->{searchitems} eq 'labor') {
-    $query .= qq|
-                 WHERE p.inventory_accno_id > 0 AND p.income_accno_id IS NULL|;
+    $query .= qq|WHERE (p.inventory_accno_id > 0) AND (p.income_accno_id IS NULL)|;
   }
 
-  $query .= qq|
-		 ORDER BY partsgroup|;
+  $query .= qq|ORDER BY partsgroup|;
 
   if ($p->{all}) {
     $query = qq|SELECT id, partsgroup FROM partsgroup
@@ -2272,22 +2781,16 @@ sub get_partsgroup {
 
   if ($p->{language_code}) {
     $query = qq|SELECT DISTINCT pg.id, pg.partsgroup,
-                t.description AS translation
+                  t.description AS translation
                 FROM partsgroup pg
-		JOIN parts p ON (p.partsgroup_id = pg.id)
-		LEFT JOIN translation t ON (t.trans_id = pg.id AND t.language_code = '$p->{language_code}')
-		ORDER BY translation|;
+                JOIN parts p ON (p.partsgroup_id = pg.id)
+                LEFT JOIN translation t ON ((t.trans_id = pg.id) AND (t.language_code = ?))
+                ORDER BY translation|;
+    @values = ($p->{language_code});
   }
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  $self->{all_partsgroup} = selectall_hashref_query($self, $dbh, $query, @values);
 
-  $self->{all_partsgroup} = ();
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_partsgroup} }, $ref;
-  }
-  $sth->finish;
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -2296,321 +2799,60 @@ sub get_pricegroup {
 
   my ($self, $myconfig, $p) = @_;
 
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh($myconfig);
 
   my $query = qq|SELECT p.id, p.pricegroup
                  FROM pricegroup p|;
 
-  $query .= qq|
-		 ORDER BY pricegroup|;
+  $query .= qq| ORDER BY pricegroup|;
 
   if ($p->{all}) {
     $query = qq|SELECT id, pricegroup FROM pricegroup
                 ORDER BY pricegroup|;
   }
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  $self->{all_pricegroup} = ();
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $self->{all_pricegroup} }, $ref;
-  }
-  $sth->finish;
-  $dbh->disconnect;
+  $self->{all_pricegroup} = selectall_hashref_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 }
 
-sub audittrail {
-  my ($self, $dbh, $myconfig, $audittrail) = @_;
+sub all_years {
+# usage $form->all_years($myconfig, [$dbh])
+# return list of all years where bookings found
+# (@all_years)
 
-  # table, $reference, $formname, $action, $id, $transdate) = @_;
+  $main::lxdebug->enter_sub();
 
-  my $query;
-  my $rv;
-  my $disconnect;
+  my ($self, $myconfig, $dbh) = @_;
 
-  if (!$dbh) {
-    $dbh        = $self->dbconnect($myconfig);
-    $disconnect = 1;
-  }
+  $dbh ||= $self->get_standard_dbh($myconfig);
 
-  # if we have an id add audittrail, otherwise get a new timestamp
+  # get years
+  my $query = qq|SELECT (SELECT MIN(transdate) FROM acc_trans),
+                   (SELECT MAX(transdate) FROM acc_trans)|;
+  my ($startdate, $enddate) = selectrow_query($self, $dbh, $query);
 
-  if ($audittrail->{id}) {
-
-    $query = qq|SELECT audittrail FROM defaults|;
-
-    if ($dbh->selectrow_array($query)) {
-      my ($null, $employee_id) = $self->get_employee($dbh);
-
-      if ($self->{audittrail} && !$myconfig) {
-        chop $self->{audittrail};
-
-        my @a = split /\|/, $self->{audittrail};
-        my %newtrail = ();
-        my $key;
-        my $i;
-        my @flds = qw(tablename reference formname action transdate);
-
-        # put into hash and remove dups
-        while (@a) {
-          $key = "$a[2]$a[3]";
-          $i   = 0;
-          $newtrail{$key} = { map { $_ => $a[$i++] } @flds };
-          splice @a, 0, 5;
-        }
-
-        $query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
-		    formname, action, employee_id, transdate)
-	            VALUES ($audittrail->{id}, ?, ?,
-		    ?, ?, $employee_id, ?)|;
-        my $sth = $dbh->prepare($query) || $self->dberror($query);
-
-        foreach $key (
-          sort {
-            $newtrail{$a}{transdate} cmp $newtrail{$b}{transdate}
-          } keys %newtrail
-          ) {
-          $i = 1;
-          for (@flds) { $sth->bind_param($i++, $newtrail{$key}{$_}) }
-
-          $sth->execute || $self->dberror;
-          $sth->finish;
-        }
-      }
-
-      if ($audittrail->{transdate}) {
-        $query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
-		    formname, action, employee_id, transdate) VALUES (
-		    $audittrail->{id}, '$audittrail->{tablename}', |
-          . $dbh->quote($audittrail->{reference}) . qq|,
-		    '$audittrail->{formname}', '$audittrail->{action}',
-		    $employee_id, '$audittrail->{transdate}')|;
-      } else {
-        $query = qq|INSERT INTO audittrail (trans_id, tablename, reference,
-		    formname, action, employee_id) VALUES ($audittrail->{id},
-		    '$audittrail->{tablename}', |
-          . $dbh->quote($audittrail->{reference}) . qq|,
-		    '$audittrail->{formname}', '$audittrail->{action}',
-		    $employee_id)|;
-      }
-      $dbh->do($query);
-    }
+  if ($myconfig->{dateformat} =~ /^yy/) {
+    ($startdate) = split /\W/, $startdate;
+    ($enddate) = split /\W/, $enddate;
   } else {
-
-    $query = qq|SELECT current_timestamp FROM defaults|;
-    my ($timestamp) = $dbh->selectrow_array($query);
-
-    $rv =
-      "$audittrail->{tablename}|$audittrail->{reference}|$audittrail->{formname}|$audittrail->{action}|$timestamp|";
+    (@_) = split /\W/, $startdate;
+    $startdate = $_[2];
+    (@_) = split /\W/, $enddate;
+    $enddate = $_[2];
   }
 
-  $dbh->disconnect if $disconnect;
+  my @all_years;
+  $startdate = substr($startdate,0,4);
+  $enddate = substr($enddate,0,4);
 
-  $rv;
-
-}
-
-package Locale;
-
-sub new {
-  $main::lxdebug->enter_sub();
-
-  my ($type, $country, $NLS_file) = @_;
-  my $self = {};
-
-  if ($country && -d "locale/$country") {
-    local *IN;
-    $self->{countrycode} = $country;
-    if (open(IN, "locale/$country/$NLS_file")) {
-      my $code = join("", <IN>);
-      eval($code);
-      close(IN);
-    }
+  while ($enddate >= $startdate) {
+    push @all_years, $enddate--;
   }
 
-  $self->{NLS_file} = $NLS_file;
-
-  push @{ $self->{LONG_MONTH} },
-    ("January",   "February", "March",    "April",
-     "May ",      "June",     "July",     "August",
-     "September", "October",  "November", "December");
-  push @{ $self->{SHORT_MONTH} },
-    (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec));
+  return @all_years;
 
   $main::lxdebug->leave_sub();
-
-  bless $self, $type;
-}
-
-sub text {
-  my ($self, $text) = @_;
-
-  return (exists $self->{texts}{$text}) ? $self->{texts}{$text} : $text;
-}
-
-sub findsub {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $text) = @_;
-
-  if (exists $self->{subs}{$text}) {
-    $text = $self->{subs}{$text};
-  } else {
-    if ($self->{countrycode} && $self->{NLS_file}) {
-      Form->error(
-         "$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $text;
-}
-
-sub date {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $date, $longformat) = @_;
-
-  my $longdate  = "";
-  my $longmonth = ($longformat) ? 'LONG_MONTH' : 'SHORT_MONTH';
-
-  if ($date) {
-
-    # get separator
-    $spc = $myconfig->{dateformat};
-    $spc =~ s/\w//g;
-    $spc = substr($spc, 1, 1);
-
-    if ($date =~ /\D/) {
-      if ($myconfig->{dateformat} =~ /^yy/) {
-        ($yy, $mm, $dd) = split /\D/, $date;
-      }
-      if ($myconfig->{dateformat} =~ /^mm/) {
-        ($mm, $dd, $yy) = split /\D/, $date;
-      }
-      if ($myconfig->{dateformat} =~ /^dd/) {
-        ($dd, $mm, $yy) = split /\D/, $date;
-      }
-    } else {
-      $date = substr($date, 2);
-      ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
-    }
-
-    $dd *= 1;
-    $mm--;
-    $yy = ($yy < 70) ? $yy + 2000 : $yy;
-    $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
-
-    if ($myconfig->{dateformat} =~ /^dd/) {
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$dd$spc$mm$spc$yy";
-      } else {
-        $longdate = "$dd";
-        $longdate .= ($spc eq '.') ? ". " : " ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
-      }
-    } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
-
-      # Use German syntax with the ISO date style "yyyy-mm-dd" because
-      # Lx-Office is mainly used in Germany or German speaking countries.
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$yy-$mm-$dd";
-      } else {
-        $longdate = "$dd. ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
-      }
-    } else {
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$mm$spc$dd$spc$yy";
-      } else {
-        $longdate = &text($self, $self->{$longmonth}[$mm]) . " $dd, $yy";
-      }
-    }
-
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $longdate;
-}
-
-sub parse_date {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $date, $longformat) = @_;
-
-  unless ($date) {
-    $main::lxdebug->leave_sub();
-    return ();
-  }
-
-  # get separator
-  $spc = $myconfig->{dateformat};
-  $spc =~ s/\w//g;
-  $spc = substr($spc, 1, 1);
-
-  if ($date =~ /\D/) {
-    if ($myconfig->{dateformat} =~ /^yy/) {
-      ($yy, $mm, $dd) = split /\D/, $date;
-    } elsif ($myconfig->{dateformat} =~ /^mm/) {
-      ($mm, $dd, $yy) = split /\D/, $date;
-    } elsif ($myconfig->{dateformat} =~ /^dd/) {
-      ($dd, $mm, $yy) = split /\D/, $date;
-    }
-  } else {
-    $date = substr($date, 2);
-    ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
-  }
-
-  $dd *= 1;
-  $mm *= 1;
-  $yy = ($yy < 70) ? $yy + 2000 : $yy;
-  $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
-
-  $main::lxdebug->leave_sub();
-  return ($yy, $mm, $dd);
-}
-
-sub reformat_date {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $date, $output_format, $longformat) = @_;
-
-  $main::lxdebug->leave_sub() and return "" unless ($date);
-
-  my ($yy, $mm, $dd) = $self->parse_date($myconfig, $date);
-
-  $output_format =~ /d+/;
-  substr($output_format, $-[0], $+[0] - $-[0]) =
-    sprintf("%0" . (length($&)) . "d", $dd);
-
-  $output_format =~ /m+/;
-  substr($output_format, $-[0], $+[0] - $-[0]) =
-    sprintf("%0" . (length($&)) . "d", $mm);
-
-  $output_format =~ /y+/;
-  if (length($&) == 2) {
-    $yy -= $yy >= 2000 ? 2000 : 1900;
-  }
-  substr($output_format, $-[0], $+[0] - $-[0]) =
-    sprintf("%0" . (length($&)) . "d", $yy);
-
-  $main::lxdebug->leave_sub();
-
-  return $output_format;
 }
 
 1;

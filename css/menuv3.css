@@ -2,15 +2,19 @@ body {
 behavior:url("css/csshover.htc");
 }
 
-#menu{
-width:100%;
+#menu {
+width:99.8%;
 float:left;
+background:url(../image/bg_css_menu.png) repeat bottom;
+border:1px solid;
+border-color:#ccc #888 #555 #bbb;
 }
 
 #menu a, #menu h2, #menu div.x {
 font:11px/16px arial,helvetica,sans-serif;
 display:block;
-border-width:1px;
+border:0;
+border-right:1px;
 border-style:solid;
 border-color:#ccc #888 #555 #bbb;
 white-space:nowrap;
@@ -18,31 +22,36 @@ margin:0;
 padding:1px 0 1px 3px;
 }
 
-#menu h2{
+#menu h2 {
 color:#fff;
-background:#000 url(../image/bg_css_menu.png) repeat 100% 100%;
+padding:0 5px;
 }
 
-#menu a{
-background:#eee;
-text-decoration:none;
-}
-
-#menu a, #menu a:visited{
+#menu a, #menu a:visited, #menu div.x, #menu div.x:visited {
 color:#000;
+text-decoration:none;
+padding-right:10px;
 }
 
-#menu a:hover{
+#menu a {
+background:#eee;
+}
+
+#menu div.x, #menu div.x:visited {
+background:#eee url(../image/right.gif) no-repeat right;
+}
+
+#menu a:hover, #menu div.x:hover {
 color:#a00;
-background:#ddd;
+background-color:#ddd;
 }
 
-#menu a:active{
+#menu a:active, #menu div.x:active {
 color:#060;
-background:#ccc;
+background-color:#ccc;
 }
 
-#menu ul{
+#menu ul {
 list-style:none;
 margin:0;
 padding:0;
@@ -50,20 +59,42 @@ float:left;
 min-width:7em;
 }
 
-#menu li{
+#menu li {
 position:relative;
+float:none;
+border:0;
 }
 
-#menu ul ul{
+/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far 
+ * correction: the bug will change the height of the parent element! this will also cause the whole menu to grow 
+ * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has
+ * a bottom border, which just looks ugly
+ * the trick: color the bottom border with the same color as the bottom pixel of the background image - noone notices */
+#menu ul li {
+border:solid;
+border-color:#ccd5e5;
+border-width:0 0 1px 0;
+}
+
+#menu ul ul li {
+border:solid;
+border-width:0 0 1px 0;
+}
+
+/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below 
+ * causing the menu to close. Opera 9 has the same bug btw. */
+#menu ul ul {
 position:absolute;
 z-index:500;
 top:auto;
 display:none;
+background:#000;
 }
 
-#menu ul ul ul{
+#menu ul ul ul {
 top:0;
 left:100%;
+background:#000;
 }
 
 /* Begin non-anchor hover selectors */
@@ -74,12 +105,12 @@ older version of csshover.htc - V1.21.041022. It
 improves IE's performance speed to use the older
 file and this method */
 
-div#menu h2:hover{
-background:#A3C5FF url(../image/expand3.gif) no-repeat -999px -9999px;
+div#menu h2:hover {
+background:#A3C5FF;
 color:#a00;
 }
 
-div#menu li:hover{
+div#menu li:hover {
 cursor:pointer;
 z-index:100;
 }
@@ -98,36 +129,3 @@ div#menu li li li li:hover ul
 
 /* End of non-anchor hover selectors */
 
-/* Styling for Expand */
-
-#menu a.x, #menu a.x:visited{
-/*font-weight:bold;*/
-color:#000;
-background:#eee url(../image/expand3.gif) no-repeat 100% 100%;
-}
-
-#menu a.x:hover{
-color:#fff;
-background:#000;
-}
-
-#menu a.x:active{
-color:#060;
-background:#ccc;
-}
-
-#menu div.x, #menu div.x:visited{
-/*font-weight:bold;*/
-color:#000;
-background:#eee url(../image/expand3.gif) no-repeat 100% 100%;
-}
-
-#menu div.x:hover{
-color:#a00;
-background:#ddd;
-}
-
-#menu div.x:active{
-color:#060;
-background:#ccc;
-}

@@ -1,0 +1,12 @@
+<TMPL_IF SHOW_CONTINUE_BUTTON>
+ <translate>New sales order</translate><br>
+ <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+</TMPL_IF>
+ <input type="hidden" name="nextsub" value="edit">
+ <input type="hidden" name="type" value="<TMPL_VAR type ESCAPE=HTML>">
+ <input type="hidden" name="vc" value="<TMPL_VAR vc ESCAPE=HTML>">
+ <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+ <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="callback" value="<TMPL_VAR callback ESCAPE=HTML>">
+ <input type="hidden" name="rowcount" value="<TMPL_VAR rowcount ESCAPE=HTML>">
+</form>

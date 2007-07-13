@@ -9,36 +9,37 @@
 #
 ######################################################################
 
-use Data::Dumper;
-
+use SL::Form;
 use SL::Common;
+use SL::MoreCommon;
 
-sub save_form {
+sub build_std_url {
   $lxdebug->enter_sub();
 
-  my (@names, @values);
-  foreach my $key (keys(%{$form})) {
-    push(@names, "\$form->{\"$key\"}");
-    push(@values, $form->{$key});
+  my $script = $form->{script};
+
+  my @parts;
+
+  foreach my $key ((qw(login password), @_)) {
+    next unless ($key);
+
+    if ($key =~ /(.*?)=(.*)/) {
+      if ($1 eq 'script') {
+        $script = $2;
+      } else {
+        push @parts, $key;
+      }
+
+    } else {
+      push @parts, "${key}=" . E($form->{$key});
+    }
   }
-  my $dumper = Data::Dumper->new(\@values, \@names);
-  $dumper->Indent(0);
-  my $old_form = $dumper->Dump();
+
+  my $url = "${script}?" . join('&', @parts);
 
   $lxdebug->leave_sub();
 
-  return $old_form;
-}
-
-sub restore_form {
-  $lxdebug->enter_sub();
-
-  my ($old_form, $no_delete) = @_;
-
-  map({ delete($form->{$_}); } keys(%{$form})) unless ($no_delete);
-  eval($old_form);
-
-  $lxdebug->leave_sub();
+  return $url;
 }
 
 sub select_employee {
@@ -74,7 +75,7 @@ sub select_employee_internal {
 
   restore_form($form->{"old_form"});
 
-  &{ $callback_sub }($new_id, $new_name);
+  call_sub($callback_sub, $new_id, $new_name);
 
   $lxdebug->leave_sub();
 }
@@ -144,7 +145,7 @@ sub select_part_internal {
 
   restore_form($form->{"old_form"});
 
-  &{ $callback_sub }($new_item);
+  call_sub($callback_sub, $new_item);
 
   $lxdebug->leave_sub();
 }
@@ -167,7 +168,7 @@ sub part_selection_internal {
 
   my $callback = "$form->{script}?action=part_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password partnumber description input_partnumber input_description input_partsid), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password partnumber description input_partnumber input_description input_partsid), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(partnumber description);
   my %header_title = ( "partnumber" => $locale->text("Part Number"),
@@ -208,7 +209,7 @@ sub project_selection_internal {
 
   my $callback = "$form->{script}?action=project_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password projectnumber description input_projectnumber input_description input_project_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password projectnumber description input_projectnumber input_description input_project_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(projectnumber description);
   my %header_title = ( "projectnumber" => $locale->text("Project Number"),
@@ -249,7 +250,7 @@ sub employee_selection_internal {
 
   my $callback = "$form->{script}?action=employee_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -289,7 +290,7 @@ sub delivery_customer_selection {
 
   my $callback = "$form->{script}?action=delivery_customer_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name customernumber address);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -331,7 +332,7 @@ sub vendor_selection {
 
   my $callback = "$form->{script}?action=vendor_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name customernumber address);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -407,7 +408,7 @@ sub set_longdescription {
 
   my $callback = "$form->{script}?action=set_longdescription&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   $form->{"title"} = $locale->text("Enter longdescription");
   $form->header();
@@ -418,6 +419,21 @@ sub set_longdescription {
 
 sub H {
   return $form->quote_html($_[0]);
+}
+
+sub Q {
+  return $form->quote($_[0]);
+}
+
+sub E {
+  return $form->escape($_[0]);
+}
+
+sub NTI {
+  my ($element) = @_;
+
+  $element =~ s/tabindex\s*=\s*"\d+"//;
+  return $element;
 }
 
 sub format_dates {
@@ -487,6 +503,91 @@ sub reformat_numbers {
 
   $myconfig{"numberformat"} = $saved_numberformat;
 
+  $lxdebug->leave_sub();
+}
+
+sub show_history {
+	$lxdebug->enter_sub();
+	my $dbh = $form->dbconnect(\%myconfig);
+	my ($sort, $sortby) = split(/\-\-/, $form->{order});
+  $sort =~ s/.*\.(.*)/$1/;
+  
+	$form->{title} = $locale->text("History");
+    $form->header();
+    print $form->parse_html_template( "common/show_history", {
+    	"DATEN" => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
+    	"SUCCESS" => ($form->get_history($dbh,$form->{input_name}) ne "0"),
+      uc($sort) => 1,
+      uc($sort)."BY" => $sortby
+    	} );
+	
+	$dbh->disconnect();
+	$lxdebug->leave_sub();	
+}
+
+sub call_sub {
+  $lxdebug->enter_sub();
+
+  my $name = shift;
+
+  if (!$name) {
+    $form->error($locale->text("Trying to call a sub without a name"));
+  }
+
+  $name =~ s/[^a-zA-Z0-9_]//g;
+
+  if (!defined(&{ $name })) {
+    $form->error(sprintf($locale->text("Attempt to call an undefined sub named '%s'"), $name));
+  }
+
+  &{ $name }(@_);
+
+  $lxdebug->leave_sub();
+}
+
+sub show_vc_details {
+	$lxdebug->enter_sub();
+
+  $form->{vc} = $form->{vc} eq "customer" ? "customer" : "vendor";
+  $form->isblank("vc_id",
+                 $form->{vc} eq "customer" ?
+                 $locale->text("No customer has been selected yet.") :
+                 $locale->text("No vendor has been selected yet."));
+
+  Common->get_vc_details(\%myconfig, $form, $form->{vc}, $form->{vc_id});
+
+  $form->{title} = $form->{vc} eq "customer" ?
+    $locale->text("Customer details") : $locale->text("Vendor details");
+  $form->header();
+  print($form->parse_html_template("common/show_vc_details",
+                                   { "is_customer" => $form->{vc} eq "customer" }));
+
+	$lxdebug->leave_sub();
+}
+
+sub mark_as_paid_common {
+  $lxdebug->enter_sub();
+  use SL::DBUtils;
+  my ($myconfig, $db_name) = @_;
+
+  if($form->{mark_as_paid}) {
+    my $dbh ||= $form->get_standard_dbh($myconfig);
+    my $query = qq|UPDATE $db_name SET paid = amount WHERE id = ?|;
+    do_query($form, $dbh, $query, $form->{id});
+    $dbh->commit();
+    $form->redirect($locale->text("Marked as paid"));
+}
+  else {
+    my $referer = $ENV{HTTP_REFERER};
+    $referer =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&login\=$form->{login}\&password\=$form->{password}\&id\=$form->{id}\&$2/;
+    $form->header();
+    print qq|<body>|;
+    print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
+    print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
+    print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
+    print qq|</body></html>|;
+}
+  
   $lxdebug->leave_sub();
 }
 

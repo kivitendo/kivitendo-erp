@@ -1,0 +1,13 @@
+[% USE HTML %]<body class="admin">
+
+ <h2>[% title %]</h2>
+
+ <p>Die Datenbanksicherung wurde per Email an [% HTML.escape(to) %] verschickt.</p>
+
+ <form method="post" action="admin.pl">
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+  <input type="hidden" name="nextsub" value="list_users">
+  <input type="submit" name="action" value="Weiter">
+ </form>
+</body>
+</html>

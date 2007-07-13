@@ -25,6 +25,55 @@
 
 package USTVA;
 
+sub report_variables {
+  # Get all positions for taxreport out of the database
+  # Needs Databaseupdate Pg-upgrade2/USTVA_abstraction.pl
+  
+  return unless defined wantarray;
+  
+  my ( $self,
+       $arg_ref) = @_;
+       
+  my $myconfig   = $arg_ref->{myconfig};
+  my $form       = $arg_ref->{form};
+  my $type       = $arg_ref->{type}; # 'paied' || 'received' || ''
+  my $attribute  = $arg_ref->{attribute}; # 
+  my $dec_places = (defined $arg_ref->{dec_places}) ? $arg_ref->{dec_places}:undef;
+
+  my $where_type = "AND tax.report_headings.type = '$type'" if ( $type );
+  my $where_dcp  = "AND tax.report_variables.dec_places = '$dec_places'" if ( defined $dec_places );
+
+  my $query = qq|
+    SELECT $attribute
+    FROM tax.report_variables 
+    LEFT JOIN tax.report_headings 
+      ON (tax.report_variables.heading_id = tax.report_headings.id)
+    WHERE 1=1 
+    $where_type
+    $where_dcp  
+  |;
+  
+  $main::lxdebug->message(LXDebug::QUERY, "\$query= \n $query\n");
+  
+  my $dbh = $form->dbconnect($myconfig);
+  my $sth = $dbh->prepare($query);
+
+  $sth->execute() || $form->dberror($query);
+  
+  my @positions;
+  
+  while ( my $row_ref = $sth->fetchrow_arrayref() ) {
+    push @positions, @$row_ref;  # Copy the array contents
+  }
+  
+  $sth->finish;
+  
+  $dbh->disconnect;
+  
+  return @positions;
+  
+}
+
 sub create_steuernummer {
   $main::lxdebug->enter_sub();
 
@@ -40,8 +89,8 @@ sub create_steuernummer {
   my $h = 0;
   my $i = 0;
 
-  $steuernummer_new       = $part;
-  $elstersteuernummer_new = $elster_FFFF;
+  $steuernummer_new        = $part;
+  $elstersteuernummer_new  = $elster_FFFF;
   $elstersteuernummer_new .= '0';
 
   for ($h = 1; $h < $patterncount; $h++) {
@@ -63,38 +112,40 @@ sub create_steuernummer {
 sub steuernummer_input {
   $main::lxdebug->enter_sub();
 
-  ($elsterland, $elsterFFFF, $steuernummer) = @_;
+  my ($self, $elsterland, $elsterFFFF, $steuernummer) = @_;
 
+  my $steuernummer_input = '';
+  
   $elster_land  = $elsterland;
   $elster_FFFF  = $elsterFFFF;
   $steuernummer = '0000000000' if ($steuernummer eq '');
 
   # $steuernummer formatieren (nur Zahlen) -> $stnr
-  $stnr = $steuernummer;
+  my $stnr = $steuernummer;
   $stnr =~ s/\D+//g;
 
   #Pattern description Elstersteuernummer
   my %elster_STNRformat = (
-                        'Mecklenburg Vorpommern' => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Hessen'                 => '0FF BBB UUUUP',    # ' ' 3
-                        'Nordrhein Westfalen'    => 'FFF/BBBB/UUUP',    # '/' 3
-                        'Schleswig Holstein'     => 'FF BBB UUUUP',     # ' ' 2
-                        'Berlin'                 => 'FF/BBB/UUUUP',     # '/' 3
-                        'Thüringen'              => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Sachsen'                => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Hamburg'                => 'FF/BBB/UUUUP',     # '/' 3
-                        'Baden Würtemberg'       => 'FF/BBB/UUUUP',     # '/' 2
-                        'Sachsen Anhalt'         => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Saarland'               => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Bremen'                 => 'FF BBB UUUUP',     # ' ' 3
-                        'Bayern'                 => 'FFF/BBB/UUUUP',    # '/' 3
-                        'Rheinland Pfalz'        => 'FF/BBB/UUUU/P',    # '/' 4
-                        'Niedersachsen'          => 'FF/BBB/UUUUP',     # '/' 3
-                        'Brandenburg'            => 'FFF/BBB/UUUUP',    # '/' 3
+      'Mecklenburg Vorpommern' => 'FFF/BBB/UUUUP',    # '/' 3
+      'Hessen'                 => '0FF BBB UUUUP',    # ' ' 3
+      'Nordrhein Westfalen'    => 'FFF/BBBB/UUUP',    # '/' 3
+      'Schleswig Holstein'     => 'FF BBB UUUUP',     # ' ' 2
+      'Berlin'                 => 'FF/BBB/UUUUP',     # '/' 3
+      'Thüringen'              => 'FFF/BBB/UUUUP',    # '/' 3
+      'Sachsen'                => 'FFF/BBB/UUUUP',    # '/' 3
+      'Hamburg'                => 'FF/BBB/UUUUP',     # '/' 3
+      'Baden Würtemberg'       => 'FF/BBB/UUUUP',     # '/' 2
+      'Sachsen Anhalt'         => 'FFF/BBB/UUUUP',    # '/' 3
+      'Saarland'               => 'FFF/BBB/UUUUP',    # '/' 3
+      'Bremen'                 => 'FF BBB UUUUP',     # ' ' 3
+      'Bayern'                 => 'FFF/BBB/UUUUP',    # '/' 3
+      'Rheinland Pfalz'        => 'FF/BBB/UUUU/P',    # '/' 4
+      'Niedersachsen'          => 'FF/BBB/UUUUP',     # '/' 3
+      'Brandenburg'            => 'FFF/BBB/UUUUP',    # '/' 3
   );
 
   #split the pattern
-  $elster_pattern = $elster_STNRformat{$elster_land};
+  my $elster_pattern = $elster_STNRformat{$elster_land};
   my @elster_pattern = split(' ', $elster_pattern);
   my $delimiter      = '&nbsp;';
   my $patterncount   = @elster_pattern;
@@ -108,76 +159,77 @@ sub steuernummer_input {
   # no we have an array of patternparts and a delimiter
   # create the first automated and fixed part and delimiter
 
-  print qq|<b><font size="+1">|;
-  $part = '';
+  $steuernummer_input .= qq|<b><font size="+1">|;
+  my $part = '';
 SWITCH: {
     $elster_pattern[0] eq 'FFF' && do {
       $part = substr($elster_FFFF, 1, 4);
-      print qq|$part|;
+      $steuernummer_input .= qq|$part|;
       last SWITCH;
     };
     $elster_pattern[0] eq '0FF' && do {
       $part = '0' . substr($elster_FFFF, 2, 4);
-      print qq|$part|;
+      $steuernummer_input .= qq|$part|;
       last SWITCH;
     };
     $elster_pattern[0] eq 'FF' && do {
       $part = substr($elster_FFFF, 2, 4);
-      print qq|$part|;
+      $steuernummer_input .= qq|$part|;
       last SWITCH;
     };
     1 == 1 && do {
-      print qq|Fehler!|;
+      $steuernummer_input .= qq|Fehler!|;
       last SWITCH;
     };
   }
 
   #now the rest of the Steuernummer ...
-  print qq|</b></font>|;
-  print qq|\n
+  $steuernummer_input .= qq|</b></font>|;
+  $steuernummer_input .= qq|\n
            <input type=hidden name="elster_pattern" value="$elster_pattern">
            <input type=hidden name="patterncount" value="$patterncount">
            <input type=hidden name="patternlength" value="$patterncount">
            <input type=hidden name="delimiter" value="$delimiter">
            <input type=hidden name="part" value="$part">
   |;
-  my $h = 0;
-  my $i = 0;
-  my $j = 0;
-  $k = 0;
 
-  for ($h = 1; $h < $patterncount; $h++) {
-    print qq|&nbsp;$delimiter&nbsp;\n|;
-    for ($i = 1; $i <= length($elster_pattern[$h]); $i++) {
-      print qq|<select name="part_$h\_$i">\n|;
+  my $k = 0;
 
-      for ($j = 0; $j <= 9; $j++) {
-        print qq|      <option value="$j"|;
+  for (my $h = 1; $h < $patterncount; $h++) {
+    $steuernummer_input .= qq|&nbsp;$delimiter&nbsp;\n|;
+    for (my $i = 1; $i <= length($elster_pattern[$h]); $i++) {
+      $steuernummer_input .= qq|<select name="part_$h\_$i">\n|;
+
+      for (my $j = 0; $j <= 9; $j++) {
+        $steuernummer_input .= qq|      <option value="$j"|;
         if ($steuernummer ne '') {
           if ($j eq substr($stnr, length($part) + $k, 1)) {
-            print qq| selected|;
+            $steuernummer_input .= qq| selected|;
           }
         }
-        print qq|>$j</option>\n|;
+        $steuernummer_input .= qq|>$j</option>\n|;
       }
       $k++;
-      print qq|</select>\n|;
+      $steuernummer_input .= qq|</select>\n|;
     }
   }
+  
   $main::lxdebug->leave_sub();
+  
+  return $steuernummer_input;
 }
 
 sub fa_auswahl {
   $main::lxdebug->enter_sub();
 
-  use SL::Form;
+#  use SL::Form;
 
   # Referenz wird übergeben, hash of hash wird nicht
   # in neues  Hash kopiert, sondern direkt über die Referenz verändert
   # Prototyp für diese Konstruktion
 
-  my ($land, $elsterFFFF, $elster_init) =
-    @_;    #Referenz auf Hash von Hash übergeben
+  my ($self, $land, $elsterFFFF, $elster_init) = @_;
+  
   my $terminal = '';
   my $FFFF     = $elsterFFFF;
   my $ffff     = '';
@@ -191,8 +243,7 @@ sub fa_auswahl {
   #}
 
   #if ( $terminal eq 'mozilla' or $terminal eq 'js' ) {
-  print qq|
-        <br>
+  my $fa_auswahl = qq|
         <script language="Javascript">
         function update_auswahl()
         {
@@ -203,7 +254,7 @@ sub fa_auswahl {
                 |;
 
   foreach $elster_land (sort keys %$elster_init) {
-    print qq|
+    $fa_auswahl .= qq|
                if (elsterBLAuswahl.options[elsterBLAuswahl.selectedIndex].
                value == "$elster_land")
                {
@@ -217,14 +268,14 @@ sub fa_auswahl {
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
                    keys(%elster_land_fa)
       ) {
-      print qq|
+      $fa_auswahl .= qq|
                    elsterFAAuswahl.options[$j] = new Option("$elster_land_fa{$ffff} ($ffff)","$ffff");|;
       $j++;
     }
-    print qq|
+    $fa_auswahl .= qq|
                }|;
   }
-  print qq|
+  $fa_auswahl .= qq|
         }
         </script>
 
@@ -236,18 +287,18 @@ sub fa_auswahl {
             <td>
               <select size="1" name="elsterland_new" onchange="update_auswahl()">|;
   if ($land eq '') {
-    print qq|<option value="Auswahl" $checked>hier auswählen...</option>\n|;
+    $fa_auswahl .= qq|<option value="Auswahl" $checked>hier auswählen...</option>\n|;
   }
   foreach $elster_land (sort keys %$elster_init) {
-    print qq|
+    $fa_auswahl .= qq|
                   <option value="$elster_land"|;
     if ($elster_land eq $land and $checked eq '') {
-      print qq| selected|;
+      $fa_auswahl .= qq| selected|;
     }
-    print qq|>$elster_land</option>
+    $fa_auswahl .= qq|>$elster_land</option>
              |;
   }
-  print qq|
+  $fa_auswahl .= qq|
             </td>
           </tr>
           |;
@@ -259,34 +310,35 @@ sub fa_auswahl {
     $elster_land_fa{$FFFF} = $elster_init->{$elster_land}->{$FFFF}->[0];
   }
 
-  print qq|
+  $fa_auswahl .= qq|
            <tr>
               <td>Finanzamt
               </td>
               <td>
                  <select size="1" name="elsterFFFF_new">|;
   if ($elsterFFFF eq '') {
-    print qq|<option value="Auswahl" $checked>hier auswählen...</option>|;
+    $fa_auswahl .= qq|<option value="Auswahl" $checked>hier auswählen...</option>|;
   } else {
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
                    keys(%elster_land_fa)
       ) {
 
-      print qq|
+      $fa_auswahl .= qq|
                         <option value="$ffff"|;
       if ($ffff eq $elsterFFFF and $checked eq '') {
-        print qq| selected|;
+        $fa_auswahl .= qq| selected|;
       }
-      print qq|>$elster_land_fa{$ffff} ($ffff)</option>|;
+      $fa_auswahl .= qq|>$elster_land_fa{$ffff} ($ffff)</option>|;
     }
   }
-  print qq|
+  $fa_auswahl .= qq|
                  </td>
               </tr>
             </table>
             </select>|;
 
   $main::lxdebug->leave_sub();
+  return $fa_auswahl;
 }
 
 sub info {
@@ -400,7 +452,8 @@ sub stichtag {
 sub query_finanzamt {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form) = @_;
+  my ($self, $myconfig, $form) = @_;
+
   my $dbh = $form->dbconnect($myconfig) or $self->error(DBI->errstr);
 
   #Test, if table finanzamt exist
@@ -509,12 +562,12 @@ sub process_query {
 
   #  return unless (-f $filename);
 
-  open(FH, "$filename") or $form->error("$filename : $!\n");
+  open my $FH, "<", "$filename" or $form->error("$filename : $!\n");
   my $query = "";
   my $sth;
   my @quote_chars;
 
-  while (<FH>) {
+  while (<$FH>) {
 
     # Remove DOS and Unix style line endings.
     s/[\r\n]//g;
@@ -553,7 +606,7 @@ sub process_query {
     }
   }
 
-  close FH;
+  close $FH;
 
   $main::lxdebug->leave_sub();
 }
@@ -568,12 +621,32 @@ sub ustva {
 
   my $last_period     = 0;
   my $category        = "pos_ustva";
-  my @category_cent = qw(511 861 36 80 971 931 98 96 53 74
-    85 65 66 61 62 67 63 64 59 69 39 83
-    Z43 Z45 Z53 Z62 Z65 Z67);
 
-  my @category_euro = qw(41 44 49 43 48 51 86 35 77 76 91 97 93
-    95 94 42 60 45 52 73 84);
+  my @category_cent = USTVA->report_variables({
+      myconfig    => $myconfig,
+      form        => $form,
+      type        => '',
+      attribute   => 'position',
+      dec_places  => '2',
+  });
+  
+  push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
+  
+  my @category_euro = USTVA->report_variables({
+      myconfig    => $myconfig,
+      form        => $form,
+      type        => '',
+      attribute   => 'position',
+      dec_places  => '0',
+  });
+                           
+  push @category_euro, USTVA->report_variables({
+      myconfig    => $myconfig,
+      form        => $form,
+      type        => '',
+      attribute   => 'position',
+      dec_places  => '0',
+  });
 
   $form->{decimalplaces} *= 1;
 
@@ -583,47 +656,103 @@ sub ustva {
   foreach $item (@category_euro) {
     $form->{"$item"} = 0;
   }
+  my $coa_name = coa_get($dbh);
+  $form->{coa} = $coa_name;
+  
+  # Controlvariable for templates
+  $form->{"$coa_name"} = '1';
+
+  $main::lxdebug->message(LXDebug::DEBUG2, "COA: '$form->{coa}',  \$form->{$coa_name} = 1");
 
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
                       $form, $category);
 
+  ###########################################
   #
-  # Berechnung der USTVA Formularfelder
+  # Nationspecific Modfications
+  #
+  ###########################################
+  
+  # Germany
+  
+  if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU'){
+  
+    # 16%/19% Umstellung
+    # Umordnen der Kennziffern
+    if ( $form->{year} < 2007) {
+      $form->{35} += $form->{81};
+      $form->{36} += $form->{811};
+      $form->{95} += $form->{89};
+      $form->{98} += $form->{891};
+      map { delete $form->{$_} } qw(81 811 89 891);
+    } else {
+      $form->{35} += $form->{51};
+      $form->{36} += $form->{511};
+      $form->{95} += $form->{97};
+      $form->{98} += $form->{971};
+      map { delete $form->{$_} } qw(51 511 97 971);
+    }
+
+  }
+
+
+  # Fixme: Wird auch noch für Oesterreich gebraucht, 
+  # weil kein eigenes Ausgabeformular
+  # sotte aber aus der allgeméinen Steuerberechnung verschwinden
+  #
+  # Berechnung der USTVA Formularfelder laut Bogen 207
   #
 
   $form->{"51r"} = $form->{"511"};
   $form->{"86r"} = $form->{"861"};
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
-  $form->{"Z43"} =
-  $form->{"511"} + $form->{"861"} + $form->{"36"} + $form->{"80"} +
-  $form->{"971"} + $form->{"931"} + $form->{"96"} + $form->{"98"};
+
+  $form->{"Z43"} = $form->{"511"}     + $form->{"811"} + $form->{"861"} 
+                     + $form->{"36"}  + $form->{"80"}  + $form->{"971"} 
+                     + $form->{"891"} + $form->{"931"} + $form->{"96"} 
+                     + $form->{"98"};
+
   $form->{"Z45"} = $form->{"Z43"};
-  $form->{"Z53"} = $form->{"Z43"};
-  $form->{"Z62"} =
-  $form->{"Z43"} - $form->{"66"} - $form->{"61"} - $form->{"62"} -
-  $form->{"63"} - $form->{"64"} - $form->{"59"};
-  $form->{"Z65"} = $form->{"Z62"} - $form->{"69"};
-  $form->{"83"}  = $form->{"Z65"} - $form->{"39"};
-  # Hier fehlen moeglicherweise noch einige Berechnungen!
+
+  $form->{"Z53"} = $form->{"Z45"}     + $form->{"53"}  + $form->{"74"}  
+                     + $form->{"85"}  + $form->{"65"};
+                     
+  $form->{"Z62"} = $form->{"Z43"}     - $form->{"66"}  - $form->{"61"} 
+                     - $form->{"62"}  - $form->{"67"}  - $form->{"63"}  
+                     - $form->{"64"}  - $form->{"59"};
+                      
+  $form->{"Z65"} = $form->{"Z62"}     - $form->{"69"};
+  $form->{"83"}  = $form->{"Z65"}     - $form->{"39"};
   
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
 
+sub coa_get {
+
+  my ($dbh) = @_;
+  
+  my $query= qq|SELECT coa FROM defaults|;
+
+  my $sth = $dbh->prepare($query);
+  
+  $sth->execute || $form->dberror($query);
+    
+  ($ref) = $sth->fetchrow_array;
+  
+  return $ref;
+
+};
+
 sub get_accounts_ustva {
   $main::lxdebug->enter_sub();
 
   my ($dbh, $last_period, $fromdate, $todate, $form, $category) = @_;
 
-  my ($null, $department_id) = split /--/, $form->{department};
-
   my $query;
-  my $dpt_where;
-  my $dpt_join;
-  my $project;
-  my $where    = "1 = 1";
+  my $where    = "";
   my $glwhere  = "";
   my $subwhere = "";
   my $ARwhere  = "";
@@ -631,137 +760,185 @@ sub get_accounts_ustva {
   my $arwhere  = "";
   my $item;
 
+    my $gltaxkey_where = "(tk.pos_ustva>=59 AND tk.pos_ustva<=66)";
+
   if ($fromdate) {
     if ($form->{method} eq 'cash') {
       $subwhere .= " AND transdate >= '$fromdate'";
       $glwhere = " AND ac.transdate >= '$fromdate'";
-      $ARwhere .= " AND acc.transdate >= '$fromdate'";
-      $APwhere .= " AND AP.transdate >= '$fromdate'"; 
+      $ARwhere .= " AND acc.transdate >= '$fromdate'"; 
     }
+    $APwhere .= " AND AP.transdate >= '$fromdate'";
     $where .= " AND ac.transdate >= '$fromdate'";
   }
 
   if ($todate) {
     $where    .= " AND ac.transdate <= '$todate'";
     $ARwhere  .= " AND acc.transdate <= '$todate'";
-    $subwhere .= " AND transdate <= '$todate'";
-    $APwhere  .= " AND AP.transdate <= '$todate'";     
   }
 
-  if ($department_id) {
-    $dpt_join = qq|
-               JOIN department t ON (a.department_id = t.id)
-		  |;
-    $dpt_where = qq|
-               AND t.id = $department_id
-	           |;
-  }
-
-  if ($form->{project_id}) {
-    $project = qq|
-                 AND ac.project_id = $form->{project_id}
-		 |;
-  }
-#########################################
-# Method eq 'cash' = IST Versteuerung
-#########################################
+  ############################################
+  # Method eq 'cash' = IST Versteuerung
+  ############################################
+  # Betrifft nur die eingenommene Umsatzsteuer
+  #
+  ############################################
 
   if ($form->{method} eq 'cash') {  
 
     $query = qq|
- SELECT
-   -- Alle tatsaechlichen Zahlungseingaenge 
-   -- im Voranmeldezeitraum erfassen 
-   -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
-   SUM( ac.amount * 
-      -- Bezahlt / Rechnungssumme
-     ( 
-       SELECT SUM(acc.amount)
-       FROM acc_trans acc
-       INNER JOIN chart c ON (acc.chart_id = c.id AND c.link like '%AR_paid%')
-       WHERE
-        1=1 
-        $ARwhere
-        AND acc.trans_id = ac.trans_id
-        )
-     / 
-     ( 
-      select amount from ar where id = ac.trans_id  
-     )
-   ) AS amount,
-   c.pos_ustva
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   --JOIN ar ON (ar.id = ac.trans_id)
-   where 
-     1=1 
-     -- Here no where, please. All Transactions ever should be
-     -- testet if they are paied in the USTVA report period.
-   GROUP BY c.pos_ustva
-
- UNION -- alle Ausgaben AP erfassen
-
-     SELECT
-     sum(ac.amount) AS amount, pos_ustva
-     FROM acc_trans ac
-     JOIN AP ON (AP.id = ac.trans_id )
-     JOIN chart c ON (c.id = ac.chart_id AND pos_ustva NOT LIKE '')
-     WHERE
-       1=1
-       $APwhere
-       $dpt_where
-       $project
-     GROUP BY pos_ustva
-
- UNION -- alle Ausgaben und Einnahmen direkter gl Buchungen erfassen
-
-   SELECT sum
-   (
-     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-     END
-   ) AS amount, c.$category
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   JOIN gl a ON (a.id = ac.trans_id)
-   $dpt_join
-   WHERE $where
-   $dpt_from
-   AND NOT (c.link = 'AR' OR c.link = 'AP')
-   $project
-   GROUP BY c.$category
-   |;
-
-  } else { 
-#########################################
-# Method eq 'accrual' = Soll Versteuerung
-#########################################
-
-    if ($department_id) {
-      $dpt_join = qq|
-	      JOIN dpt_trans t ON (t.trans_id = ac.trans_id)
-	      |;
-      $dpt_where = qq|
-               AND t.department_id = $department_id
-	      |;
-    }
+       SELECT
+         -- USTVA IST-Versteuerung
+         -- 
+         -- Alle tatsaechlichen _Zahlungseingaenge_ 
+         -- im Voranmeldezeitraum erfassen 
+         -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
+         SUM( ac.amount * 
+            -- Bezahlt / Rechnungssumme
+           ( 
+             SELECT SUM(acc.amount)
+             FROM acc_trans acc
+             INNER JOIN chart c ON (acc.chart_id   =   c.id 
+                                    AND c.link   like  '%AR_paid%')
+             WHERE
+              1=1 
+              $ARwhere
+              AND acc.trans_id = ac.trans_id
+              )
+           / 
+           ( 
+            SELECT amount FROM ar WHERE id = ac.trans_id  
+           )
+         ) AS amount,
+         tk.pos_ustva
+       FROM acc_trans ac
+       LEFT JOIN chart c ON (c.id  = ac.chart_id)
+       LEFT JOIN ar      ON (ar.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id   = ac.chart_id 
+             -- AND taxkey_id  = ac.taxkey 
+             AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+       WHERE 
+       1=1 
+       -- Here no where, please. All Transactions ever should be
+       -- testet if they are paied in the USTVA report period.
+       GROUP BY tk.pos_ustva
+    |;
+   
+  } elsif ($form->{method} eq 'accrual') {
+    #########################################
+    # Method eq 'accrual' = Soll Versteuerung
+    #########################################
 
     $query = qq|
-   SELECT sum
-   (
-     CASE WHEN c.link LIKE '%AR%' THEN ac.amount * -1
-          WHEN c.link LIKE '%AP%' THEN ac.amount * 1
-     END		 
-   ) AS amount, c.$category
-   FROM acc_trans ac
-   JOIN chart c ON (c.id = ac.chart_id)
-   $dpt_join
-   WHERE $where
-   $dpt_where
-   $project
-   GROUP BY c.$category
-   |;
+       -- Alle Einnahmen AR und pos_ustva erfassen
+       SELECT
+         - sum(ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac 
+       JOIN chart c ON (c.id = ac.chart_id) 
+       JOIN ar ON (ar.id = ac.trans_id)
+       JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id   = ac.chart_id 
+             AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+       $dpt_join
+       WHERE 1 = 1
+       $where
+       GROUP BY tk.pos_ustva
+  |;
+   
+  } else {
+  
+    $self->error("Unknown tax method: $form->{method}")
+
   }
+  
+  #########################################
+  # Ausgaben und Gl Buchungen sind gleich
+  # für Ist- und Soll-Versteuerung
+  #########################################
+  $query .= qq| 
+     UNION -- alle Ausgaben AP erfassen
+
+       SELECT
+         sum(ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac
+       JOIN ap ON (ap.id = ac.trans_id )
+       JOIN chart c ON (c.id = ac.chart_id)
+       LEFT JOIN taxkeys tk ON (
+           tk.id = (
+             SELECT id FROM taxkeys 
+             WHERE 1=1
+               AND chart_id=ac.chart_id 
+               --AND taxkey_id = ac.taxkey 
+               AND startdate <= COALESCE(AP.transdate)
+             ORDER BY startdate DESC LIMIT 1
+           )
+       )
+       WHERE
+       1=1
+       $where
+       GROUP BY tk.pos_ustva
+
+     UNION -- Einnahmen direkter gl Buchungen erfassen
+
+       SELECT sum
+         ( - ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac
+       JOIN chart c ON (c.id = ac.chart_id)
+       JOIN gl a ON (a.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id=ac.chart_id 
+             AND NOT $gltaxkey_where  
+             AND startdate <= COALESCE(ac.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+
+       $dpt_join
+       WHERE 1 = 1
+       $where
+       GROUP BY tk.pos_ustva
+
+
+     UNION -- Ausgaben direkter gl Buchungen erfassen
+
+       SELECT sum
+         (ac.amount) AS amount, 
+         tk.pos_ustva
+       FROM acc_trans ac
+       JOIN chart c ON (c.id = ac.chart_id)
+       JOIN gl a ON (a.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (
+         tk.id = (
+           SELECT id FROM taxkeys 
+           WHERE chart_id=ac.chart_id 
+             AND $gltaxkey_where 
+             AND startdate <= COALESCE(ac.transdate)
+           ORDER BY startdate DESC LIMIT 1
+         )
+       )
+
+       $dpt_join
+       WHERE 1 = 1
+       $where
+       GROUP BY tk.pos_ustva
+
+  |;
 
   my @accno;
   my $accno;
@@ -772,24 +949,62 @@ sub get_accounts_ustva {
   $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
               
   my $sth = $dbh->prepare($query);
+  
   $sth->execute || $form->dberror($query);
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
-# Bug 365 solved?!
-   $ref->{amount} *= -1;
-    if ($category eq "pos_bwa") {
-      if ($last_period) {
-        $form->{ $ref->{$category} }{kumm} += $ref->{amount};
-      } else {
-        $form->{ $ref->{$category} }{jetzt} += $ref->{amount};
-      }
-    } else {
-      $form->{ $ref->{$category} } += $ref->{amount};
-    }
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    # Bug 365 solved?!
+    $ref->{amount} *= -1;
+    $form->{ $ref->{$category} } += $ref->{amount};
   }
+
   $sth->finish;
 
   $main::lxdebug->leave_sub();
+
 }
+
+sub get_config {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $userspath, $filename) = @_;
+
+  $form->error("Missing Parameter: @_") if !$userspath || !$filename;
+
+  my $form = $main::form;
+
+  $filename = "$form->{login}_$filename";
+  $filename =~ s|.*/||;
+  $filename = "$userspath/$filename";
+  open my $FACONF, "<", $filename or sub {# Annon Sub
+    # catch open error
+    # create file if file does not exist
+    open my $FANEW, ">", $filename  or $form->error("CREATE: $filename : $!");
+    close $FANEW                    or $form->error("CLOSE: $filename : $!");
+    
+    #try again open file
+    open my $FACONF, "<", $filename or $form->error("OPEN: $filename : $!");
+  };
+
+  while (<$FACONF>) {
+    last if (/^\[/);
+    next if (/^(\#|\s)/);
+
+    # remove comments
+    s/\s#.*//g;
+
+    # remove any trailing whitespace
+    s/^\s*(.*?)\s*$/$1/;
+    my ($key, $value) = split(/=/, $_, 2);
+
+    $form->{$key} = "$value";
+
+  }
+
+  close $FACONF;
+
+  $main::lxdebug->leave_sub();
+}
+
 
 1;

@@ -34,75 +34,66 @@
 
 package OP;
 
+use SL::DBUtils;
+
 sub overpayment {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $dbh, $amount, $ml) = @_;
 
   my $fxamount = $form->round_amount($amount * $form->{exchangerate}, 2);
-  my ($paymentaccno) = split /--/, $form->{account};
+  my ($paymentaccno) = split(/--/, $form->{account});
 
-  my $vc_id = "$form->{vc}_id";
+  my $vc_id = $form->{vc} eq "customer" ? "customer_id" : "vendor_id";
+  my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
 
-  my $uid = time;
-  $uid .= $form->{login};
+  my $query = qq|SELECT nextval('glid')|;
+  my ($new_id) = selectrow_query($form, $dbh, $query);
 
   # add AR/AP header transaction with a payment
-  $query = qq|INSERT INTO $form->{arap} (invnumber, employee_id)
-	      VALUES ('$uid', (SELECT e.id FROM employee e
-			     WHERE e.login = '$form->{login}'))|;
-  $dbh->do($query) || $form->dberror($query);
+  $query =
+    qq|INSERT INTO $arap (id, invnumber, employee_id) | .
+    qq|VALUES (?, ?, (SELECT id FROM employee WHERE login = ?))|;
+  my @values = ($new_id, $form->{login}, $form->{login});
+  do_query($form, $dbh, $query, @values);
 
-  $query = qq|SELECT a.id FROM $form->{arap} a
-	    WHERE a.invnumber = '$uid'|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  ($uid) = $sth->fetchrow_array;
-  $sth->finish;
-
-  my $invnumber = ($form->{invnumber}) ? $form->{invnumber} : $uid;
-  $query = qq|UPDATE $form->{arap} set
-	      invnumber = '$invnumber',
-	      $vc_id = $form->{"$form->{vc}_id"},
-	      transdate = '$form->{datepaid}',
-	      datepaid = '$form->{datepaid}',
-	      duedate = '$form->{datepaid}',
-	      netamount = 0,
-	      amount = 0,
-	      paid = $fxamount,
-	      curr = '$form->{currency}',
-	      department_id = $form->{department_id}
-	      WHERE id = $uid|;
-  $dbh->do($query) || $form->dberror($query);
+  my $invnumber = ($form->{invnumber}) ? $form->{invnumber} : $new_id;
+  $query =
+    qq|UPDATE $arap SET invnumber = ?, $vc_id = ?, transdate = ?, datepaid = ?, | .
+    qq|duedate = ?, netamount = ?, amount = ?, paid = ?, | .
+    qq|curr = ?, department_id = ? | .
+    qq|WHERE id = ?|;
+  @values = ($invnumber, $form->{$vc_id},
+             conv_date($form->{datepaid}), conv_date($form->{datepaid}),
+             conv_date($form->{datepaid}), 0, 0, $fxamount, $form->{currency},
+             $form->{department_id}, $new_id);
+  do_query($form, $dbh, $query, @values);
 
   # add AR/AP
   ($accno) = split /--/, $form->{ $form->{ARAP} };
 
-  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount)
-	      VALUES ($uid, (SELECT c.id FROM chart c
-			     WHERE c.accno = '$accno'),
-	      '$form->{datepaid}', $fxamount * $ml)|;
-  $dbh->do($query) || $form->dberror($query);
+  $query =
+    qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount) | .
+    qq|VALUES (?, (SELECT id FROM chart WHERE accno = ? ), ?, ?)|;
+	@values = ($new_id, $accno, conv_date($form->{datepaid}), $fxamount * $ml);
+  do_query($form, $dbh, $query, @values);
 
   # add payment
-  $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
-	      amount, source, memo)
-	      VALUES ($uid, (SELECT c.id FROM chart c
-			     WHERE c.accno = '$paymentaccno'),
-		'$form->{datepaid}', $amount * $ml * -1,
-		'$form->{source}', '$form->{memo}')|;
-  $dbh->do($query) || $form->dberror($query);
+  $query =
+    qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, source, memo) | .
+    qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?)|;
+  @values = ($new_id, $paymentaccno, conv_date($form->{datepaid}),
+             $amount * $ml * -1, $form->{source}, $form->{memo});
+  do_query($form, $dbh, $query, @values);
 
   # add exchangerate difference
   if ($fxamount != $amount) {
-    $query = qq|INSERT INTO acc_trans (trans_id, chart_id, transdate,
-		amount, cleared, fx_transaction)
-		VALUES ($uid, (SELECT c.id FROM chart c
-			       WHERE c.accno = '$paymentaccno'),
-	      '$form->{datepaid}', ($fxamount - $amount) * $ml * -1,
-	      '1', '1')|;
-    $dbh->do($query) || $form->dberror($query);
+    $query =
+      qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, cleared, fx_transaction) | .
+      qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?)|;
+	  @values = ($new_id, $paymentaccno, conv_date($form->{datepaid}),
+               (($fxamount - $amount) * $ml * -1), 1, 1);
+    do_query($form, $dbh, $query, @values);
   }
 
   $main::lxdebug->leave_sub();

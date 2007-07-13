@@ -30,6 +30,11 @@
 #
 #######################################################################
 
+BEGIN {
+  unshift @INC, "modules/YAML"; # Use our own version of YAML.
+  push @INC, "modules";         # Only use our own versions of modules if there's no system version.
+}
+
 # setup defaults, DO NOT CHANGE
 $userspath  = "users";
 $templates  = "templates";
@@ -42,9 +47,14 @@ $| = 1;
 use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
+use CGI;
 use SL::Form;
+use SL::Locale;
 
 eval { require "lx-erp.conf"; };
+eval { require "lx-erp-local.conf"; } if -f "lx-erp-local.conf";
+
+require "bin/mozilla/common.pl";
 
 if (defined($latex) && !defined($latex_templates)) {
   $latex_templates = $latex;
@@ -52,6 +62,7 @@ if (defined($latex) && !defined($latex_templates)) {
 }
 
 $form = new Form;
+$cgi = new CGI('');
 
 # name of this script
 $0 =~ tr/\\/\//;
@@ -66,6 +77,8 @@ $script =~ s/\.pl//;
 
 # pull in DBI
 use DBI;
+
+$form->{login} =~ s|.*/||;
 
 # check for user config file, could be missing or ???
 eval { require("$userspath/$form->{login}.conf"); };
@@ -89,28 +102,23 @@ $locale = new Locale "$myconfig{countrycode}", "$script";
 $form->error($locale->text('Incorrect Password!'))
   if ($form->{password} ne $myconfig{password});
 
-$form->{path} =~ s/\.\.\///g;
-if ($form->{path} !~ /^bin\//) {
-  $form->error($locale->text('Invalid path!') . "\n");
-}
-
 # did sysadmin lock us out
 if (-e "$userspath/nologin") {
   $form->error($locale->text('System currently down for maintenance!'));
 }
 
 # pull in the main code
-require "$form->{path}/$form->{script}";
+require "bin/mozilla/$form->{script}";
 
 # customized scripts
-if (-f "$form->{path}/custom_$form->{script}") {
-  eval { require "$form->{path}/custom_$form->{script}"; };
+if (-f "bin/mozilla/custom_$form->{script}") {
+  eval { require "bin/mozilla/custom_$form->{script}"; };
   $form->error($@) if ($@);
 }
 
 # customized scripts for login
-if (-f "$form->{path}/$form->{login}_$form->{script}") {
-  eval { require "$form->{path}/$form->{login}_$form->{script}"; };
+if (-f "bin/mozilla/$form->{login}_$form->{script}") {
+  eval { require "bin/mozilla/$form->{login}_$form->{script}"; };
   $form->error($@) if ($@);
 }
 
@@ -122,7 +130,7 @@ if ($form->{action}) {
     . $locale->text('Version')
     . " $form->{version} - $myconfig{name} - $myconfig{dbname}";
 
-  &{ $locale->findsub($form->{action}) };
+  call_sub($locale->findsub($form->{action}));
 } else {
   $form->error($locale->text('action= not defined!'));
 }

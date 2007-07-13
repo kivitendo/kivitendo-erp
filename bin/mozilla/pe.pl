@@ -34,6 +34,8 @@
 
 use SL::PE;
 
+require "bin/mozilla/common.pl";
+
 1;
 
 # end of main
@@ -45,18 +47,20 @@ sub add {
 
   # construct callback
   $form->{callback} =
-    "$form->{script}?action=add&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&type=$form->{type}&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
-  &{"form_$form->{type}_header"};
-  &{"form_$form->{type}_footer"};
+  call_sub("form_$form->{type}_header");
+  call_sub("form_$form->{type}_footer");
 
   $lxdebug->leave_sub();
 }
 
 sub edit {
   $lxdebug->enter_sub();
-
+  # show history button
+  $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
+  #/show hhistory button
   $form->{title} = "Edit";
 
   if ($form->{type} eq 'project') {
@@ -68,8 +72,8 @@ sub edit {
   if ($form->{type} eq 'pricegroup') {
     PE->get_pricegroup(\%myconfig, \%$form);
   }
-  &{"form_$form->{type}_header"};
-  &{"form_$form->{type}_footer"};
+  call_sub("form_$form->{type}_header");
+  call_sub("form_$form->{type}_footer");
 
   $lxdebug->leave_sub();
 }
@@ -85,12 +89,22 @@ sub search {
     $number = qq|
 	<tr>
 	  <th align=right width=1%>| . $locale->text('Number') . qq|</th>
-	  <td><input name=projectnumber size=20></td>
+	  <td>| . $cgi->textfield('-name' => 'projectnumber', '-size' => 20) . qq|</td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td><input name=description size=60></td>
+	  <td>| . $cgi->textfield('-name' => 'description', '-size' => 60) . qq|</td>
 	</tr>
+  <tr>
+    <th>&nbsp;</th>
+    <td>| .
+    $cgi->radio_group('-name' => 'active', '-default' => 'active',
+                      '-values' => ['active', 'inactive', 'both'],
+                      '-labels' => { 'active' => ' ' . $locale->text("Active"),
+                                     'inactive' => ' ' . $locale->text("Inactive"),
+                                     'both' => ' ' . $locale->text("Both") })
+    . qq|</td>
+  </tr>
 |;
 
   }
@@ -159,7 +173,6 @@ sub search {
 
 <input type=hidden name=nextsub value=$report>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -183,7 +196,8 @@ sub project_report {
   PE->projects(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=project_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+    "$form->{script}?action=project_report&type=$form->{type}&login=$form->{login}&password=$form->{password}&status=$form->{status}&active=" .
+    E($form->{active});
   $href = $callback;
 
   if ($form->{status} eq 'all') {
@@ -205,7 +219,9 @@ sub project_report {
       "\n<br>" . $locale->text('Description') . " : $form->{description}";
   }
 
-  @column_index = $form->sort_columns(qw(projectnumber description));
+  @column_index = qw(projectnumber description);
+
+  push(@column_index, "active") if ("both" eq $form->{active});
 
   $column_header{projectnumber} =
       qq|<th><a class=listheading href=$href&sort=projectnumber>|
@@ -215,6 +231,8 @@ sub project_report {
       qq|<th><a class=listheading href=$href&sort=description>|
     . $locale->text('Description')
     . qq|</a></th>|;
+  $column_header{active} =
+      qq|<th class="listheading">| . $locale->text('Active') . qq|</th>|;
 
   $form->{title} = $locale->text('Projects');
 
@@ -259,8 +277,12 @@ sub project_report {
 |;
 
     $column_data{projectnumber} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{projectnumber}</td>|;
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{projectnumber}</td>|;
     $column_data{description} = qq|<td>$ref->{description}&nbsp;</td>|;
+    $column_data{active} =
+      qq|<td>| .
+      ($ref->{active} ? $locale->text("Yes") : $locale->text("No")) .
+      qq|</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -285,19 +307,12 @@ sub project_report {
 
 <input type=hidden name=type value=$form->{type}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -317,12 +332,37 @@ sub form_project_header {
 
   $form->{description} =~ s/\"/&quot;/g;
 
+  my $projectnumber =
+    $cgi->textfield('-name' => 'projectnumber', '-size' => 20,
+                    '-default' => $form->{projectnumber});
+
+  my $description;
   if (($rows = $form->numtextrows($form->{description}, 60)) > 1) {
     $description =
-      qq|<textarea name="description" rows=$rows cols=60 style="width: 100%" wrap=soft>$form->{description}</textarea>|;
+      $cgi->textarea('-name' => 'description', '-rows' => $rows, '-cols' => 60,
+                     '-style' => 'width: 100%', '-wrap' => 'soft',
+                     '-default' => $form->{description});
   } else {
     $description =
-      qq|<input name=description size=60 value="$form->{description}">|;
+      $cgi->textfield('-name' => 'description', '-size' => 60,
+                      '-default' => $form->{description});
+  }
+
+  my $active;
+  if ($form->{id}) {
+    $active =
+      qq|
+  <tr>
+    <th>&nbsp;</th>
+    <td>| .
+      $cgi->radio_group('-name' => 'active',
+                        '-values' => [1, 0],
+                        '-default' => $form->{active} * 1,
+                        '-labels' => { 1 => $locale->text("Active"),
+                                       0 => $locale->text("Inactive") })
+      . qq|</td>
+  </tr>
+|;
   }
 
   $form->header;
@@ -345,12 +385,13 @@ sub form_project_header {
       <table>
 	<tr>
 	  <th align=right>| . $locale->text('Number') . qq|</th>
-	  <td><input name=projectnumber size=20 value="$form->{projectnumber}"></td>
+	  <td>$projectnumber</td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Description') . qq|</th>
 	  <td>$description</td>
 	</tr>
+      $active
       </table>
     </td>
   </tr>
@@ -370,7 +411,6 @@ sub form_project_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -384,9 +424,15 @@ sub form_project_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
+  if ($form->{id}) {
+    # button for saving history
+    print qq|
+      <input type=button onclick=set_history_window(|
+      . $form->{id}
+      . qq|); name=history id=history value=|
+      . $locale->text('history')
+      . qq|>|;
+    # /button for saving history
   }
 
   print qq|
@@ -419,6 +465,13 @@ sub save {
     PE->save_pricegroup(\%myconfig, \%$form);
     $form->redirect($locale->text('Pricegroup saved!'));
   }
+  # saving the history
+  if(!exists $form->{addition} && $form->{id} ne "") {
+    $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
+  	$form->{addition} = "SAVED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history 
 
   $lxdebug->leave_sub();
 }
@@ -437,11 +490,17 @@ sub delete {
   if ($form->{type} eq 'pricegroup') {
     $form->redirect($locale->text('Pricegroup deleted!'));
   }
-
+  # saving the history
+  if(!exists $form->{addition}) {
+    $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
+  	$form->{addition} = "DELETED";
+  	$form->save_history($form->dbconnect(\%myconfig));
+  }
+  # /saving the history
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub partsgroup_report {
   $lxdebug->enter_sub();
@@ -450,7 +509,7 @@ sub partsgroup_report {
   PE->partsgroups(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=partsgroup_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+    "$form->{script}?action=partsgroup_report&type=$form->{type}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
 
   if ($form->{status} eq 'all') {
     $option = $locale->text('All');
@@ -511,7 +570,7 @@ sub partsgroup_report {
 |;
 
     $column_data{partsgroup} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partsgroup}</td>|;
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{partsgroup}</td>|;
     map { print "$column_data{$_}\n" } @column_index;
 
     print "
@@ -535,19 +594,12 @@ sub partsgroup_report {
 
 <input type=hidden name=type value=$form->{type}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -609,7 +661,6 @@ sub form_partsgroup_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -623,11 +674,14 @@ sub form_partsgroup_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
+# button for saving history
+print qq|
+  	<input type=button onclick=set_history_window(|
+  	. $form->{id} 
+  	. qq|); name=history id=history value=|
+  	. $locale->text('history') 
+  	. qq|>|;
+# /button for saving history
   print qq|
 </form>
 
@@ -648,7 +702,7 @@ sub pricegroup_report {
   PE->pricegroups(\%myconfig, \%$form);
 
   $callback =
-    "$form->{script}?action=pricegroup_report&type=$form->{type}&path=$form->{path}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
+    "$form->{script}?action=pricegroup_report&type=$form->{type}&login=$form->{login}&password=$form->{password}&status=$form->{status}";
 
   if ($form->{status} eq 'all') {
     $option = $locale->text('All');
@@ -711,7 +765,7 @@ sub pricegroup_report {
         <tr valign=top class=listrow$i>
 |;
     $column_data{pricegroup} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{pricegroup}</td>|;
+      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{pricegroup}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -736,19 +790,12 @@ sub pricegroup_report {
 
 <input type=hidden name=type value=$form->{type}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -814,7 +861,6 @@ sub form_pricegroup_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -828,11 +874,14 @@ sub form_pricegroup_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
+# button for saving history
+print qq|
+  	<input type=button onclick=set_history_window(|
+  	. $form->{id} 
+  	. qq|); name=history id=history value=|
+  	. $locale->text('history') 
+  	. qq|>|;
+# /button for saving history
   print qq|
 </form>
 

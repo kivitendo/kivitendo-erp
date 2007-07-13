@@ -1,0 +1,75 @@
+<body>
+
+ <div class="listheading"><TMPL_VAR title></div>
+
+ <form method="post" name="Form" action="amtemplates.pl">
+
+  <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR name ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>"></TMPL_LOOP>
+
+  <TMPL_IF SHOW_EDIT_OPTIONS>
+   <p>
+    <translate>Template</translate>
+    <select name="formname">
+     <TMPL_LOOP FORMNAME><option value="<TMPL_VAR value ESCAPE=HTML>" <TMPL_IF default>selected</TMPL_IF>><TMPL_VAR label ESCAPE=HTML></option></TMPL_LOOP>
+    </select>
+
+    <TMPL_IF SHOW_LANGUAGE>
+     <translate>Language</translate>
+     <select name="language">
+      <TMPL_LOOP LANGUAGE><option value="<TMPL_VAR value ESCAPE=HTML>" <TMPL_IF default>selected</TMPL_IF>><TMPL_VAR label ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </TMPL_IF>
+
+    <TMPL_IF SHOW_PRINTER>
+     <translate>Printer</translate>
+     <select name="printer">
+      <TMPL_LOOP PRINTER><option value="<TMPL_VAR value ESCAPE=HTML>" <TMPL_IF default>selected</TMPL_IF>><TMPL_VAR label ESCAPE=HTML></option></TMPL_LOOP>
+     </select>
+    </TMPL_IF>
+
+    <input type="hidden" name="display_nextsub" value="display_template">
+
+    <input name="action" type="submit" class="submit" value="<translate>Display</translate>">
+
+   </p>
+
+   <hr>
+  </TMPL_IF>
+
+
+
+  <TMPL_IF SHOW_CONTENT>
+   <p>
+    <div class="listtop">
+     <TMPL_IF CAN_EDIT><translate>Edit file</translate><TMPL_ELSE><translate>Display file</translate></TMPL_IF> <TMPL_VAR display_filename ESCAPE=HTML>
+    </div>
+   </p>
+
+   <TMPL_IF CAN_EDIT>
+    <p><textarea name="content" id="content" cols="100" rows="25"><TMPL_VAR content ESCAPE=HTML></textarea></p>
+
+    <p>
+     <input type="hidden" name="save_nextsub" value="save_template">
+     <input type="submit" name="action" value="<translate>Save</translate>">
+    </p>
+
+    <TMPL_ELSE>
+
+    <input type="hidden" name="edit_nextsub" value="edit_template">
+
+    <p><input name="action" type="submit" class="submit" value="<translate>Edit</translate>"></p>
+
+    <p><pre class="filecontent"><TMPL_VAR content ESCAPE=HTML></pre></p>
+
+    <TMPL_IF SHOW_SECOND_EDIT_BUTTON>
+     <p><input name="action" type="submit" class="submit" value="<translate>Edit</translate>"></p>
+    </TMPL_IF>
+
+   </TMPL_IF> <!-- CAN_EDIT -->
+
+  </TMPL_IF> <!-- SHOW_CONTENT -->
+
+ </form>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<body onload="fokus()">
+
+<form name="Form" method="post" action="<TMPL_VAR script>">
+
+<table width="100%">
+  <tr class="listtop">
+
+    <th class="listtop"><TMPL_VAR title></th>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <td>
+      <table>
+        <tr>
+          <th align="right" nowrap>An</th>
+
+          <td><input name="email" size="30" value="<TMPL_VAR email>"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>Cc</th>
+          <td><input name="cc" size="30" value="<TMPL_VAR cc>"></td>
+        </tr>
+<TMPL_IF SHOW_BCC>
+        <tr>
+          <th align="right" nowrap>Bcc</th>
+          <td><input name="bcc" size="30" value="<TMPL_VAR bcc>"></td>
+        </tr></TMPL_IF>
+        <tr>
+          <th align="right" nowrap>Betreff</th>
+
+          <td><input name="subject" size="30" value="<TMPL_VAR subject>"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>Name des Anhangs</th>
+          <td><input name="attachment_filename" size="30" value="<TMPL_VAR a_filename>"></td>
+      </table>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <table>
+        <tr>
+          <th align="left" nowrap>Nachricht</th>
+        </tr>
+        <tr>
+          <td><textarea name="message" rows="15" cols="60" wrap="soft"><TMPL_VAR message></textarea></td>
+
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+
+<TMPL_VAR _print_options_>
+<TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR name>" value="<TMPL_VAR value ESCAPE=HTML>"></TMPL_LOOP>
+
+    </td>
+  </tr>
+
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+</table>
+
+<input type="hidden" name="nextsub" value="send_email">
+
+<br>
+<input name="action" class="submit" type="submit" value="Weiter">
+</form>
+
+</body>
+</html>

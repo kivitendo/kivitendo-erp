@@ -49,7 +49,6 @@ $lxtest = {
     #Lx defaults (usualy no need for editing)
     rootlogin       => "root login",
     memberfile      => "users/members",
-    path            => 'bin%2Fmozilla',
 
     # Put your own setting for individual tests after here...
 

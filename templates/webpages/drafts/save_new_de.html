@@ -1,0 +1,36 @@
+<body>
+
+ <form action="<TMPL_VAR script ESCAPE=HTML>" method="post">
+
+  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
+  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+
+  <input type="hidden" name="SAVED_FORM" value="<TMPL_VAR SAVED_FORM ESCAPE=HTML>">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop">Entwurf speichern</th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr>
+    <td>Geben Sie eine Beschreibung f&uuml;r diesen Entwurf ein.</td>
+   </tr>
+
+   <tr>
+    <td>
+    Beschreibung:
+    <input name="draft_description">
+    </td>
+   </tr>
+
+   <tr>
+    <td>
+     <input type="submit" class="submit" name="action" value="Entwurf speichern">
+    </td>
+   </tr>
+  </table>
+
+ </form>
+</body>
+</html>

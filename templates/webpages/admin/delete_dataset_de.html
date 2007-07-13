@@ -1,0 +1,32 @@
+[% USE HTML %]<body class="admin">
+
+ <h2>[% title %]</h2>
+
+ <form method="post" action="admin.pl">
+
+  <p>Sie k&ouml;nnen nur Datenbanken l&ouml;schen, die momentan nicht in Benutzung sind.
+   Wenn Sie eine solche Datenbank l&ouml;schen wollen, so m&uuml;ssen Sie zuerst die Benutzer bearbeiten, die die fragliche Datenbank benutzen, und sie so &auml;ndern, dass sie eine andere Datenbank benutzen.</p>
+
+  <p>Bitte w&auml;hlen Sie die zu l&ouml;schende Datenbank aus:
+   <select name="db">[% FOREACH row = DBSOURCES %]<option>[% HTML.escape(row.name) %]</option>[% END %]</select>
+  </p>
+
+  <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
+  <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
+  <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
+  <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
+  <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
+  <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
+
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+
+  <input type="hidden" name="nextsub" value="dbdelete">
+
+  <p><input type="submit" class="submit" name="action" value="Weiter"></p>
+
+ </form>
+
+</body>
+</html>

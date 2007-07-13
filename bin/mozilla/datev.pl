@@ -35,7 +35,9 @@ use SL::DATEV;
 
 # end of main
 
-sub continue { &{ $form->{nextsub} } }
+require "bin/mozilla/common.pl";
+
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub export {
   $lxdebug->enter_sub();
@@ -80,7 +82,7 @@ sub export {
 	  <td align=left nowrap>| . $locale->text("Mandantennummer") . qq|</td>
 	  <td><input name=mandantennr size=10 maxlength=5 value="$form->{mandantennr}"></td>
 
-	  <td align=left nowrap>| . $locale->text("Datenträgernummer") . qq|</td>
+	  <td align=left nowrap>| . $locale->text("Medium Number") . qq|</td>
 	  <td><input name=datentraegernr size=5 maxlength=3 value="$form->{datentraegernr}"></td>
 	</tr>
 	<tr>
@@ -111,7 +113,6 @@ sub export {
 
 <input type=hidden name=nextsub value=export2>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -246,7 +247,6 @@ sub export_bewegungsdaten {
 
 <input type=hidden name=nextsub value=export3>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -312,7 +312,6 @@ sub export_stammdaten {
 
 <input type=hidden name=nextsub value=export3>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -334,7 +333,7 @@ sub export3 {
   DATEV->save_datev_stamm(\%myconfig, \%$form);
 
   my $link = $form->{"script"} . "?";
-  map({ $link .= "${_}=" . $form->escape($form->{$_}) . "&"; } qw(path login password));
+  map({ $link .= "${_}=" . $form->escape($form->{$_}) . "&"; } qw(login password));
   $link .= "action=download";
 
   if ($form->{kne}) {

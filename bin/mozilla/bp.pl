@@ -32,8 +32,11 @@
 #======================================================================
 
 use SL::BP;
+use Data::Dumper;
 
 1;
+
+require "bin/mozilla/common.pl";
 
 # end of main
 
@@ -152,18 +155,18 @@ sub search {
   }
 
   # use JavaScript Calendar or not
-  $form->{jsscript} = $jscalendar;
+  $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}">
+       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdatefrom id="trigger1" value=|
       . $locale->text('button') . qq|></td>
       |;
     $button2 = qq|
-       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}">
+       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdateto name=transdateto id="trigger2" value=|
       . $locale->text('button') . qq|></td>
      |;
@@ -176,15 +179,16 @@ sub search {
 
     # without JavaScript Calendar
     $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
     $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
+                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
   }
-
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-
+  $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body>
+<body onLoad="$onload">
 
 <form method=post action=$form->{script}>
 
@@ -225,7 +229,6 @@ sub search {
 
 <input type=hidden name=nextsub value=list_spool>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -310,6 +313,10 @@ sub yes {
 sub print {
   $lxdebug->enter_sub();
 
+  $form->get_lists(printers => 'ALL_PRINTERS');
+  # use the command stored in the databse or fall back to $myconfig{printer}
+  my $selected_printer = (grep { $_->{id} eq $form->{printer} } @{ $form->{ALL_PRINTERS} })[0]->{'printer_command'} || $myconfig{printer};
+
   if ($form->{callback}) {
     map { $form->{callback} .= "&checked_$_=1" if $form->{"checked_$_"} }
       (1 .. $form->{rowcount});
@@ -318,10 +325,9 @@ sub print {
 
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
-      $form->{OUT} = "| $myconfig{printer}";
       $form->info($locale->text('Printing ... '));
 
-      if (BP->print_spool(\%myconfig, \%$form, $spool)) {
+      if (BP->print_spool(\%myconfig, \%$form, $spool, "| $selected_printer")) {
         print $locale->text('done');
         $form->redirect($locale->text('Marked entries printed!'));
       }
@@ -345,11 +351,11 @@ sub list_spool {
 
   $title = $form->escape($form->{title});
   $href  =
-    "$form->{script}?action=list_spool&path=$form->{path}&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
+    "$form->{script}?action=list_spool&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   $title = $form->escape($form->{title}, 1);
   $callback =
-    "$form->{script}?action=list_spool&path=$form->{path}&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
+    "$form->{script}?action=list_spool&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   if ($form->{ $form->{vc} }) {
     $callback .= "&$form->{vc}=" . $form->escape($form->{ $form->{vc} }, 1);
@@ -499,11 +505,11 @@ sub list_spool {
     }
 
     $column_data{invnumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{invnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{invnumber}</a></td>";
     $column_data{ordnumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{ordnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{ordnumber}</a></td>";
     $column_data{quonumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
     $column_data{name}      = "<td>$ref->{name}</td>";
     $column_data{spoolfile} =
       qq|<td><a href=$spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
@@ -548,12 +554,11 @@ sub list_spool {
 
 <input type=hidden name=account value="$form->{account}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 |;
 
-  if ($myconfig{printer}) {
+#  if ($myconfig{printer}) {
     print qq|
 <input type=hidden name=transdateto value=$form->{transdateto}>
 <input type=hidden name=transdatefrom value=$form->{transdatefrom}>
@@ -565,16 +570,17 @@ sub list_spool {
 <input class=submit type=submit name=action value="|
       . $locale->text('Select all') . qq|">
 <input class=submit type=submit name=action value="|
-      . $locale->text('Print') . qq|">
-<input class=submit type=submit name=action value="|
       . $locale->text('Remove') . qq|">
+<input class=submit type=submit name=action value="|
+      . $locale->text('Print') . qq|">
 |;
-  }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
+$form->get_lists(printers=>"ALL_PRINTERS");
+print qq|<select name="printer">|;
+print map(qq|<option value="$_->{id}">| . $form->quote_html($_->{printer_description}) . qq|</option>|, @{ $form->{ALL_PRINTERS} });
+print qq|</select>|;
+
+#  }
 
   print qq|
 </form>
@@ -583,7 +589,7 @@ sub list_spool {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub select_all {
@@ -595,5 +601,5 @@ sub select_all {
   $lxdebug->leave_sub();
 }
 
-sub continue { &{ $form->{nextsub} } }
+sub continue { call_sub($form->{"nextsub"}); }
 

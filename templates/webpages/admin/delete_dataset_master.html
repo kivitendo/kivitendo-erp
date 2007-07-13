@@ -1,0 +1,35 @@
+[% USE HTML %]<body class="admin">
+
+ <h2>[% title %]</h2>
+
+ <form method="post" action="admin.pl">
+
+  <p><translate>You can only delete datasets that are not in
+    use.</translate>
+   <translate>If you want to delete such a dataset you have to edit
+    the user(s) that are using the dataset in question and have them
+    use another dataset.</translate></p>
+
+  <p><translate>Please seletct the dataset you want to delete:</translate>
+   <select name="db">[% FOREACH row = DBSOURCES %]<option>[% HTML.escape(row.name) %]</option>[% END %]</select>
+  </p>
+
+  <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
+  <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
+  <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
+  <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
+  <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
+  <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
+
+  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+
+  <input type="hidden" name="nextsub" value="dbdelete">
+
+  <p><input type="submit" class="submit" name="action" value="<translate>Continue</translate>"></p>
+
+ </form>
+
+</body>
+</html>

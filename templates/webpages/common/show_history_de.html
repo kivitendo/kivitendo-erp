@@ -1,0 +1,182 @@
+<form>
+<input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
+<input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
+</form> 
+<TMPL_IF NAME=SUCCESS>
+<script type="text/javascript">
+  function orderBy(order,desc) {
+    var reg = /\&order\=(.+)\-\-(\d)$/;
+    reg.exec(document.location.href);
+    if(RegExp.$1 == order) {
+      document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--" + desc;
+    }
+    else {
+      if(reg.test(document.location.href)) {
+        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--" + desc;
+      }
+      else {
+        document.location.href = document.location.href + "&order=" + order + "--" + desc;
+      }
+    }
+  }
+</script>
+<div style="position: absolute; top:10px; left:10px; clip:rect(0px, 700px, 407px, 0px);">
+<table style="width: 700px; height: 360px;">
+	<tr>
+		<th class="listtop">
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+			     &nbsp;Zeitpunkt&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+              <TMPL_IF NAME=ITIME>
+                <TMPL_IF NAME=ITIMEBY>
+                  <tr><td><a href="javascript:orderBy('h.itime',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('h.itime',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('h.itime',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('h.itime',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
+		</th>
+		<th class=listtop>
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+            &nbsp;Mitarbeiter&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+              <TMPL_IF NAME=NAME>
+                <TMPL_IF NAME=NAMEBY>
+                  <tr><td height="0" width="0"><a href="javascript:orderBy('emp.name',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td height="0" width="0"><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('emp.name',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('emp.name',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('emp.name',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
+		</th>
+		<th class=listtop>
+      <table>
+        <tr>
+          <td>
+			      &nbsp;Aktion&nbsp;
+          </td>
+        </tr>
+      </table>
+		</th>
+		<th class=listtop>
+      <table>
+        <tr>
+          <td>
+            &nbsp;Zusatz&nbsp;
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;ID-Nummer (intern)&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+              <TMPL_IF NAME=TRANS_ID>
+                <TMPL_IF NAME=TRANS_IDBY>
+                  <tr><td height="0" width="0"><a href="javascript:orderBy('h.trans_id',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td height="0" width="0"><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('h.trans_id',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('h.trans_id',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('h.trans_id',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;Buchungsnummer&nbsp;
+          </td>
+          <td valign="top">
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0" >
+              <TMPL_IF NAME=SNUMBERS>
+                <TMPL_IF NAME=SNUMBERSBY>
+                  <tr><td height="0" width="0"><a href="javascript:orderBy('h.snumbers',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td height="0" width="0"><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+                <TMPL_ELSE>
+                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+                  <tr><td><a href="javascript:orderBy('h.snumbers',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+                </TMPL_IF>
+              <TMPL_ELSE>
+                <tr><td><a href="javascript:orderBy('h.snumbers',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+                <tr><td><a href="javascript:orderBy('h.snumbers',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+              </TMPL_IF>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </th>
+	</tr>
+  <tbody height="380px" width="580px" style="overflow:auto;">
+<TMPL_LOOP NAME=DATEN>
+  <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+		<td nowrap>
+			&nbsp;<TMPL_VAR NAME=itime ESCAPE=HTML>&nbsp;
+		</td>
+		<td nowrap>
+			&nbsp;<TMPL_VAR NAME=name ESCAPE=HTML>&nbsp;
+		</td>
+		<td>
+			&nbsp;<TMPL_VAR NAME=addition ESCAPE=HTML>&nbsp;
+		</td>
+		<td>
+      &nbsp;<TMPL_VAR NAME=what_done ESCAPE=HTML>&nbsp;
+    </td>
+    <td>
+      &nbsp;<TMPL_VAR NAME=id ESCAPE=HTML>&nbsp;
+    </td>
+    <td>
+      &nbsp;<TMPL_VAR NAME=snumbers ESCAPE=HTML>&nbsp;
+    </td>
+	</tr>	
+</TMPL_LOOP>
+</tbody>
+</table>
+</div>
+<div style="position:absolute; bottom:10px; left:10px;">
+<TMPL_ELSE>
+<b>Keine Suchergebnisse gefunden!</b><br>
+</TMPL_IF>
+<p>
+<TMPL_IF NAME=NONEWWINDOW>
+<input type="button" onclick="javascript:history.back(-1);" value="zurück">
+<TMPL_ELSE>
+<input type="button" onclick="javascript:window.close();" value="schließen">
+</TMPL_IF>
+</p>
+</div>

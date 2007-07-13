@@ -35,19 +35,24 @@ use SL::AM;
 use SL::CA;
 use SL::Form;
 use SL::User;
+use SL::USTVA;
+use SL::Iconv;
+use CGI::Ajax;
+use CGI;
 
 use Data::Dumper;
 
 1;
 
-require "$form->{path}/common.pl";
+require "bin/mozilla/common.pl";
 
 # end of main
 
-sub add    { &{"add_$form->{type}"} }
-sub edit   { &{"edit_$form->{type}"} }
-sub save   { &{"save_$form->{type}"} }
-sub delete { &{"delete_$form->{type}"} }
+sub add      { call_sub("add_$form->{type}"); }
+sub delete   { call_sub("delete_$form->{type}"); }
+sub save     { call_sub("save_$form->{type}"); }
+sub edit     { call_sub("edit_$form->{type}"); }
+sub continue { call_sub($form->{"nextsub"}); }
 
 sub add_account {
   $lxdebug->enter_sub();
@@ -57,7 +62,7 @@ sub add_account {
   AM->get_account(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &account_header;
@@ -85,127 +90,108 @@ sub edit_account {
 sub account_header {
   $lxdebug->enter_sub();
 
+  if ( $form->{action} eq 'edit_account') {
+    $form->{account_exists} = '1';
+  } 
+  
   $form->{title} = $locale->text("$form->{title} Account");
 
-  $checked{ $form->{charttype} } = "checked";
-  $checked{"$form->{category}_"} = "checked";
-  $checked{CT_tax} = ($form->{CT_tax}) ? "" : "checked";
+  $form->{"$form->{charttype}_checked"} = "checked";
+  $form->{"$form->{category}_checked"}  = "checked";
 
-  $form->{description} =~ s/\"/&quot;/g;
+  $form->{select_tax} = "";
+
+  my @tax_report_pos = USTVA->report_variables({
+      myconfig   => \%myconfig, 
+      form       => $form, 
+      type       => '', 
+      attribute  => 'position',
+      calc       => '',
+  });
 
   if (@{ $form->{TAXKEY} }) {
-    foreach $item (@{ $form->{TAXKEY} }) {
-      if ($item->{tax} == $form->{tax}) {
-        $form->{selecttaxkey} .=
-          "<option value=$item->{tax} selected>$item->{taxdescription}\n";
-      } else {
-        $form->{selecttaxkey} .=
-          "<option value=$item->{tax}>$item->{taxdescription}\n";
-      }
+    foreach my $item (@{ $form->{TAXKEY} }) {
+      $item->{rate} = $item->{rate} * 100 . '%';
+    }
 
+    # Fill in empty row for new Taxkey
+    $newtaxkey_ref = {
+      id             => '',
+      chart_id       => '',
+      accno          => '',
+      tax_id         => '',
+      taxdescription => '',
+      rate           => '',
+      taxkey_id      => '',
+      pos_ustva      => '',
+      startdate      => '',
+    };
+
+    push @{ $form->{ACCOUNT_TAXKEYS} }, $newtaxkey_ref;
+
+    my $i = 0;
+    foreach my $taxkey_used (@{ $form->{ACCOUNT_TAXKEYS} } ) {
+
+      # Fill in a runningnumber
+      $form->{ACCOUNT_TAXKEYS}[$i]{runningnumber} = $i;
+
+      # Fill in the Taxkeys as select options
+      foreach my $item (@{ $form->{TAXKEY} }) {
+        if ($item->{id} == $taxkey_used->{tax_id}) {
+          $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
+            qq|<option value="$item->{id}" selected="selected">|
+            . sprintf("%.2d", $item->{taxkey}) 
+            . qq|. $item->{taxdescription} ($item->{rate}) |
+            . $locale->text('Tax-o-matic Account') 
+            . qq|: $item->{chart_accno}\n|;
+        } 
+        else {
+          $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
+            qq|<option value="$item->{id}">|
+            . sprintf("%.2d", $item->{taxkey}) 
+            . qq|. $item->{taxdescription} ($item->{rate}) |
+            . $locale->text('Tax-o-matic Account')
+            . qq|: $item->{chart_accno}\n|;
+        }
+
+      }
+      
+      # Fill in the USTVA Numbers as select options
+      foreach my $item ( '', sort({ $a cmp $b } @tax_report_pos) ) {
+        if ($item eq ''){
+          $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="" selected="selected">-\n|;
+        } 
+        elsif ( $item eq $taxkey_used->{pos_ustva} ) {
+          $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item" selected="selected">$item\n|;
+        }
+        else {
+          $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item">$item\n|;
+        }
+
+      }      
+
+      $i++;
     }
   }
 
-  $taxkey = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Steuersatz') . qq|</th>
-		<td><select name=tax>$form->{selecttaxkey}</select></td>
-		<th align=right>| . $locale->text('Gültig ab') . qq|</th>
-                <td><input name=startdate value="$form->{startdate}"></td>
-	      </tr>|;
-
+  # Newaccount Folgekonto 
   if (@{ $form->{NEWACCOUNT} }) {
     if (!$form->{new_chart_valid}) {
-      $form->{selectnewaccount} = "<option value=></option>";
+      $form->{selectnewaccount} = qq|<option value=""> |. $locale->text('None') .q|</option>|;
     }
     foreach $item (@{ $form->{NEWACCOUNT} }) {
       if ($item->{id} == $form->{new_chart_id}) {
         $form->{selectnewaccount} .=
-          "<option value=$item->{id} selected>$item->{accno}--$item->{description}</option>";
+          qq|<option value="$item->{id}" selected>$item->{accno}--$item->{description}</option>|;
       } elsif (!$form->{new_chart_valid}) {
         $form->{selectnewaccount} .=
-          "<option value=$item->{id}>$item->{accno}--$item->{description}</option>";
+          qq|<option value="$item->{id}">$item->{accno}--$item->{description}</option>|;
       }
 
     }
   }
 
-  $newaccount = qq|
-	      <tr>
-                <td colspan=2>
-                  <table>
-                    <tr>
-		      <th align=right>| . $locale->text('Folgekonto') . qq|</th>
-		      <td><select name=new_chart_id>$form->{selectnewaccount}</select></td>
-                      <th align=right>| . $locale->text('Gültig ab') . qq|</th>
-		      <td><input name=valid_from value="$form->{valid_from}"></td>
-                    </tr>
-                  </table>
-                </td>
-	      </tr>|;
-
-  $form->{selectustva} = "<option>\n";
-
-  %ustva = (35  => $locale->text('UStVA-Nr. 35'),
-            36  => $locale->text('UStVA-Nr. 36'),
-            39  => $locale->text('UStVA-Nr. 39'),
-            41  => $locale->text('UStVA-Nr. 41'),
-            42  => $locale->text('UStVA-Nr. 42'),
-            43  => $locale->text('UStVA-Nr. 43'),
-            44  => $locale->text('UStVA-Nr. 44'),
-            45  => $locale->text('UStVA-Nr. 45'),
-            48  => $locale->text('UStVA-Nr. 48'),
-            49  => $locale->text('UStVA-Nr. 49'),
-            51  => $locale->text('UStVA-Nr. 51 left'),
-            511 => $locale->text('UStVA-Nr. 51 right'),
-            52  => $locale->text('UStVA-Nr. 52'),
-            53  => $locale->text('UStVA-Nr. 53'),
-            59  => $locale->text('UStVA-Nr. 59'),
-            60  => $locale->text('UStVA-Nr. 60'),
-            61  => $locale->text('UStVA-Nr. 61'),
-            62  => $locale->text('UStVA-Nr. 62'),
-            63  => $locale->text('UStVA-Nr. 63'),
-            64  => $locale->text('UStVA-Nr. 64'),
-            65  => $locale->text('UStVA-Nr. 65'),
-            66  => $locale->text('UStVA-Nr. 66'),
-            67  => $locale->text('UStVA-Nr. 67'),
-            69  => $locale->text('UStVA-Nr. 69'),
-            73  => $locale->text('UStVA-Nr. 73'),
-            74  => $locale->text('UStVA-Nr. 74'),
-            76  => $locale->text('UStVA-Nr. 76'),
-            77  => $locale->text('UStVA-Nr. 77'),
-            80  => $locale->text('UStVA-Nr. 80'),
-            84  => $locale->text('UStVA-Nr. 84'),
-            85  => $locale->text('UStVA-Nr. 85'),
-            86  => $locale->text('UStVA-Nr. 86 left'),
-            861 => $locale->text('UStVA-Nr. 86 right'),
-            91  => $locale->text('UStVA-Nr. 91'),
-            93  => $locale->text('UStVA-Nr. 93 left'),
-            931 => $locale->text('UStVA-Nr. 93 right'),
-            94  => $locale->text('UStVA-Nr. 94'),
-            95  => $locale->text('UStVA-Nr. 95'),
-            96  => $locale->text('UStVA-Nr. 96'),
-            97  => $locale->text('UStVA-Nr. 97 links'),
-            971 => $locale->text('UStVA-Nr. 97 rechts'),
-            98  => $locale->text('UStVA-Nr. 98'));
-
-  foreach $item (sort({ $a cmp $b } keys %ustva)) {
-    if ($item == $form->{pos_ustva}) {
-      $form->{selectustva} .= "<option value=$item selected>$ustva{$item}\n";
-    } else {
-      $form->{selectustva} .= "<option value=$item>$ustva{$item}\n";
-    }
-
-  }
-
-  $ustva = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Umsatzsteuervoranmeldung') . qq|</th>
-		<td><select name=pos_ustva>$form->{selectustva}</select></td>
-		<input type=hidden name=selectustva value="$form->{selectustva}">
-	      </tr>|;
-
-  $form->{selecteur} = "<option>\n";
+  $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
   %eur = (1  => "Umsatzerlöse",
           2  => "sonstige Erlöse",
           3  => "Privatanteile",
@@ -238,22 +224,16 @@ sub account_header {
           30 => "Ausserordentlicher Aufwand",
           31 => "Betriebliche Steuern");
   foreach $item (sort({ $a <=> $b } keys(%eur))) {
+    my $text = H(SL::Iconv::convert("ISO-8859-15", $dbcharset, $eur{$item}));
     if ($item == $form->{pos_eur}) {
-      $form->{selecteur} .= "<option value=$item selected>$eur{$item}\n";
+      $select_eur .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     } else {
-      $form->{selecteur} .= "<option value=$item>$eur{$item}\n";
+      $select_eur .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     }
 
   }
 
-  $eur = qq|
-	      <tr>
-		<th align=right>| . $locale->text('EUER') . qq|</th>
-		<td><select name=pos_eur>$form->{selecteur}</select></td>
-		<input type=hidden name=selecteur value="$form->{selecteur}">
-	      </tr>|;
-
-  $form->{selectbwa} = "<option>\n";
+  $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
   %bwapos = (1  => 'Umsatzerlöse',
              2  => 'Best.Verdg.FE/UE',
@@ -278,194 +258,89 @@ sub account_header {
              34 => 'Verr.kalk.Kosten',
              35 => 'Steuern Eink.u.Ertr.');
   foreach $item (sort({ $a <=> $b } keys %bwapos)) {
+    my $text = H(SL::Iconv::convert("ISO-8859-15", $dbcharset, $bwapos{$item}));
     if ($item == $form->{pos_bwa}) {
-      $form->{selectbwa} .= "<option value=$item selected>$bwapos{$item}\n";
+      $select_bwa .= qq|<option value="$item" selected>|. sprintf("%.2d", $item) .qq|. $text\n|;
     } else {
-      $form->{selectbwa} .= "<option value=$item>$bwapos{$item}\n";
+      $select_bwa .= qq|<option value="$item">|. sprintf("%.2d", $item) .qq|. $text\n|;
     }
 
   }
 
-  $bwa = qq|
-	      <tr>
-		<th align=right>| . $locale->text('BWA') . qq|</th>
-		<td><select name=pos_bwa>$form->{selectbwa}</select></td>
-		<input type=hidden name=selectbwa value="$form->{selectbwa}">
-	      </tr>|;
+# Wieder hinzugefügt zu evaluationszwecken (us) 09.03.2007
+  $select_bilanz = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+  foreach $item ((1, 2, 3, 4)) {
+    if ($item == $form->{pos_bilanz}) {
+      $select_bilanz .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|.\n|;
+    } else {
+      $select_bilanz .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|.\n|;
+    }
 
-# Entfernt bis es ordentlich umgesetzt wird (hli) 30.03.2006
-#  $form->{selectbilanz} = "<option>\n";
-#  foreach $item ((1, 2, 3, 4)) {
-#    if ($item == $form->{pos_bilanz}) {
-#      $form->{selectbilanz} .= "<option value=$item selected>$item\n";
-#    } else {
-#      $form->{selectbilanz} .= "<option value=$item>$item\n";
-#    }
-#
-#  }
-#
-#  $bilanz = qq|
-#	      <tr>
-#		<th align=right>| . $locale->text('Bilanz') . qq|</th>
-#		<td><select name=pos_bilanz>$form->{selectbilanz}</select></td>
-#		<input type=hidden name=selectbilanz value="$form->{selectbilanz}">
-#	      </tr>|;
-
-  # this is for our parser only!
-  # type=submit $locale->text('Add Account')
-  # type=submit $locale->text('Edit Account')
-  $form->{type} = "account";
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=account>
-<input type=hidden name=orphaned value=$form->{orphaned}>
-<input type=hidden name=new_chart_valid value=$form->{new_chart_valid}>
-
-<input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>
-<input type=hidden name=income_accno_id value=$form->{income_accno_id}>
-<input type=hidden name=expense_accno_id value=$form->{expense_accno_id}>
-<input type=hidden name=fxgain_accno_id value=$form->{fxgain_accno_id}>
-<input type=hidden name=fxloss_accno_id value=$form->{fxloss_accno_id}>
-
-<table border=0 width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr valign=top>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('Account Number') . qq|</th>
-	  <td><input name=accno size=20 value=$form->{accno}></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td><input name=description size=40 value="$form->{description}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Account Type') . qq|</th>
-	  <td>
-	    <table>
-	      <tr valign=top>
-		<td><input name=category type=radio class=radio value=A $checked{A_}>&nbsp;|
-    . $locale->text('Asset') . qq|\n<br>
-		<input name=category type=radio class=radio value=L $checked{L_}>&nbsp;|
-    . $locale->text('Liability') . qq|\n<br>
-		<input name=category type=radio class=radio value=Q $checked{Q_}>&nbsp;|
-    . $locale->text('Equity') . qq|\n<br>
-		<input name=category type=radio class=radio value=I $checked{I_}>&nbsp;|
-    . $locale->text('Revenue') . qq|\n<br>
-		<input name=category type=radio class=radio value=E $checked{E_}>&nbsp;|
-    . $locale->text('Expense') . qq|<br>
-		<input name=category type=radio class=radio value=C $checked{C_}>&nbsp;|
-    . $locale->text('Costs') . qq|</td>
-		<td width=50>&nbsp;</td>
-		<td>
-		<input name=charttype type=radio class=radio value="H" $checked{H}>&nbsp;|
-    . $locale->text('Heading') . qq|<br>
-		<input name=charttype type=radio class=radio value="A" $checked{A}>&nbsp;|
-    . $locale->text('Account') . qq|</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-|;
-
-  if ($form->{charttype} eq "A") {
-    print qq|
-	<tr>
-	  <td colspan=2>
-	    <table>
-	      <tr>
-		<th align=left>|
-      . $locale->text('Is this a summary account to record') . qq|</th>
-		<td>
-		<input name=AR type=checkbox class=checkbox value=AR $form->{AR}>&nbsp;|
-      . $locale->text('AR')
-      . qq|&nbsp;<input name=AP type=checkbox class=checkbox value=AP $form->{AP}>&nbsp;|
-      . $locale->text('AP')
-      . qq|&nbsp;<input name=IC type=checkbox class=checkbox value=IC $form->{IC}>&nbsp;|
-      . $locale->text('Inventory')
-      . qq|</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-	<tr>
-	  <th colspan=2>| . $locale->text('Include in drop-down menus') . qq|</th>
-	</tr>
-	<tr valign=top>
-	  <td colspan=2>
-	    <table width=100%>
-	      <tr>
-		<th align=left>| . $locale->text('Receivables') . qq|</th>
-		<th align=left>| . $locale->text('Payables') . qq|</th>
-		<th align=left>| . $locale->text('Parts Inventory') . qq|</th>
-		<th align=left>| . $locale->text('Service Items') . qq|</th>
-	      </tr>
-	      <tr>
-		<td>
-		<input name=AR_amount type=checkbox class=checkbox value=AR_amount $form->{AR_amount}>&nbsp;|
-      . $locale->text('Revenue') . qq|\n<br>
-		<input name=AR_paid type=checkbox class=checkbox value=AR_paid $form->{AR_paid}>&nbsp;|
-      . $locale->text('Receipt') . qq|\n<br>
-		<input name=AR_tax type=checkbox class=checkbox value=AR_tax $form->{AR_tax}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-		<td>
-		<input name=AP_amount type=checkbox class=checkbox value=AP_amount $form->{AP_amount}>&nbsp;|
-      . $locale->text('Expense/Asset') . qq|\n<br>
-		<input name=AP_paid type=checkbox class=checkbox value=AP_paid $form->{AP_paid}>&nbsp;|
-      . $locale->text('Payment') . qq|\n<br>
-		<input name=AP_tax type=checkbox class=checkbox value=AP_tax $form->{AP_tax}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-		<td>
-		<input name=IC_sale type=checkbox class=checkbox value=IC_sale $form->{IC_sale}>&nbsp;|
-      . $locale->text('Revenue') . qq|\n<br>
-		<input name=IC_cogs type=checkbox class=checkbox value=IC_cogs $form->{IC_cogs}>&nbsp;|
-      . $locale->text('Expense') . qq|\n<br>
-		<input name=IC_taxpart type=checkbox class=checkbox value=IC_taxpart $form->{IC_taxpart}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-		<td>
-		<input name=IC_income type=checkbox class=checkbox value=IC_income $form->{IC_income}>&nbsp;|
-      . $locale->text('Revenue') . qq|\n<br>
-		<input name=IC_expense type=checkbox class=checkbox value=IC_expense $form->{IC_expense}>&nbsp;|
-      . $locale->text('Expense') . qq|\n<br>
-		<input name=IC_taxservice type=checkbox class=checkbox value=IC_taxservice $form->{IC_taxservice}>&nbsp;|
-      . $locale->text('Tax') . qq|
-		</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-|;
   }
 
-  print qq|
-        $taxkey
-        $ustva
-        $eur
-	$bwa
-        $bilanz
-      </table>
-    </td>
-  </tr>
-  $newaccount
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
+  # this is for our parser only! Do not remove.
+  # type=submit $locale->text('Add Account')
+  # type=submit $locale->text('Edit Account')
+  
+  $form->{type} = "account";
+
+  # preselections category
+ 
+  $select_category = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+
+  %category = (
+      'A'  => $locale->text('Asset'),
+      'L'  => $locale->text('Liability'),
+      'Q'  => $locale->text('Equity'),
+      'I'  => $locale->text('Revenue'),      
+      'E'  => $locale->text('Expense'),
+      'C'  => $locale->text('Costs'),
+  );
+  foreach $item ( sort({ $a <=> $b } keys %category) ) {
+    if ($item eq $form->{category}) {
+      $select_category .= qq|<option value="$item" selected="selected">$category{$item} (|. sprintf("%s", $item) .qq|)\n|;
+    } else {
+      $select_category .= qq|<option value="$item">$category{$item} (|. sprintf("%s", $item) .qq|)\n|;
+    }
+
+  }
+  
+  # preselection chart type
+  my $select_charttype = q{};
+
+  my %charttype = (
+      'A'  => $locale->text('Account'),
+      'H'  => $locale->text('Header'),
+  );
+  
+  foreach $item ( sort({ $a <=> $b } keys %charttype) ) {
+    if ($item eq $form->{charttype}) {
+      $select_charttype .= qq|<option value="$item" selected="selected">$charttype{$item}\n|;
+
+    } else {
+      $select_charttype .= qq|<option value="$item">$charttype{$item}\n|;
+    }
+
+  }
+
+  my $ChartTypeIsAccount = ($form->{charttype} eq "A") ? "1":"";
+  
+  $form->header();
+  
+  my $parameters_ref = {
+    ChartTypeIsAccount         => $ChartTypeIsAccount,
+    select_category            => $select_category,
+    select_charttype           => $select_charttype,
+    newaccount                 => $newaccount,
+    checked                    => $checked,
+    select_bwa                 => $select_bwa,
+    select_bilanz              => $select_bilanz,
+    select_eur                 => $select_eur,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template('am/edit_accounts', $parameters_ref));
+
 
   $lxdebug->leave_sub();
 }
@@ -477,7 +352,6 @@ sub form_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -494,11 +368,6 @@ sub form_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
   print qq|
 </form>
 
@@ -512,8 +381,12 @@ sub form_footer {
 sub save_account {
   $lxdebug->enter_sub();
 
-  $form->isblank("accno",    $locale->text('Account Number missing!'));
-  $form->isblank("category", $locale->text('Account Type missing!'));
+  $form->isblank("accno",       $locale->text('Account Number missing!'));
+  $form->isblank("description", $locale->text('Account Description missing!'));
+  
+  if ($form->{charttype} eq 'A'){
+    $form->isblank("category",  $locale->text('Account Type missing!'));
+  }
 
   $form->redirect($locale->text('Account saved!'))
     if (AM->save_account(\%myconfig, \%$form));
@@ -531,38 +404,77 @@ sub list_account {
 
   # construct callback
   $callback =
-    "$form->{script}?action=list_account&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
 
-  @column_index = qw(accno gifi_accno description debit credit link);
 
-  $column_header{accno} = qq|<th>| . $locale->text('Account') . qq|</a></th>|;
-  $column_header{gifi_accno} =
-    qq|<th>| . $locale->text('GIFI') . qq|</a></th>|;
-  $column_header{description} =
-    qq|<th>| . $locale->text('Description') . qq|</a></th>|;
-  $column_header{debit}  = qq|<th>| . $locale->text('Debit') . qq|</a></th>|;
-  $column_header{credit} = qq|<th>| . $locale->text('Credit') . qq|</a></th>|;
-  $column_header{link}   = qq|<th>| . $locale->text('Link') . qq|</a></th>|;
+
+  # escape callback
+  $callback = $form->escape($callback);
+
+  foreach $ca (@{ $form->{CA} }) {
+
+    $ca->{debit}  = "";
+    $ca->{credit} = "";
+
+    if ($ca->{amount} > 0) {
+      $ca->{credit} = $form->format_amount(\%myconfig, $ca->{amount}, 2);
+    }
+    if ($ca->{amount} < 0) {
+      $ca->{debit} = $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2);
+    }
+    $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:''; 
+    $ca->{link_edit_account} = 
+        qq|$form->{script}?action=edit_account&id=$ca->{id}|
+       .qq|&login=$form->{login}|
+       .qq|&password=$form->{password}&callback=$callback|;
+  }
+  
+  # Ajax 
+  my $list_account_details_url = 
+              "$form->{script}?login=$form->{login}"
+             ."&password=$form->{password}&action=list_account_details&";
+  
+  
+  my $pjx = new CGI::Ajax('list_account_details' => $list_account_details_url);
+
+  # Eneable AJAX debuging
+  #$pjx->DEBUG(1);
+  #$pjx->JSDEBUG(1);
+    
+  push(@ { $form->{AJAX} }, $pjx);
+
+  $form->{stylesheets} = "list_accounts.css";
 
   $form->header;
-  $colspan = $#column_index + 1;
+  
+  
+  my $parameters_ref = {
+  #   hidden_variables                => $_hidden_variables_ref,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template2('am/list_accounts', $parameters_ref));
+  
+  $lxdebug->leave_sub();
 
-  print qq|
-<body>
+}
 
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=$colspan>$form->{title}</th>
-  </tr>
-  <tr height=5></tr>
-  <tr class=listheading>
-|;
 
-  map { print "$column_header{$_}\n" } @column_index;
+sub list_account_details {
+# Ajax Funktion aus list_account_details  
+  $lxdebug->enter_sub();
 
-  print qq|
-</tr>
-|;
+  my $chart_id = $form->{args};
+  
+  CA->all_accounts(\%myconfig, \%$form, $chart_id);
+
+  $form->{title} = $locale->text('Chart of Accounts');
+
+  # construct callback
+  $callback =
+    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
+
+  $form->header;
 
   # escape callback
   $callback = $form->escape($callback);
@@ -578,53 +490,75 @@ sub list_account {
     }
     if ($ca->{amount} < 0) {
       $ca->{debit} =
-        $form->format_amount(\%myconfig, -$ca->{amount}, 2, "&nbsp;");
+        $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2, "&nbsp;");
     }
 
-    $ca->{link} =~ s/:/<br>/og;
-
-    if ($ca->{charttype} eq "H") {
-      print qq|<tr class=listheading>|;
-
-      $column_data{accno} =
-        qq|<th><a href=$form->{script}?action=edit_account&id=$ca->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{accno}</a></th>|;
-      $column_data{gifi_accno} =
-        qq|<th><a href=$form->{script}?action=edit_gifi&accno=$ca->{gifi_accno}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{gifi_accno}</a>&nbsp;</th>|;
-      $column_data{description} = qq|<th>$ca->{description}&nbsp;</th>|;
-      $column_data{debit}       = qq|<th>&nbsp;</th>|;
-      $column_data{credit}      = qq| <th>&nbsp;</th>|;
-      $column_data{link}        = qq|<th>&nbsp;</th>|;
-
-    } else {
-      $i++;
-      $i %= 2;
-      print qq|
-<tr valign=top class=listrow$i>|;
-      $column_data{accno} =
-        qq|<td><a href=$form->{script}?action=edit_account&id=$ca->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{accno}</a></td>|;
-      $column_data{gifi_accno} =
-        qq|<td><a href=$form->{script}?action=edit_gifi&accno=$ca->{gifi_accno}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{gifi_accno}</a>&nbsp;</td>|;
-      $column_data{description} = qq|<td>$ca->{description}&nbsp;</td>|;
-      $column_data{debit}       = qq|<td align=right>$ca->{debit}</td>|;
-      $column_data{credit}      = qq|<td align=right>$ca->{credit}</td>|;
-      $column_data{link}        = qq|<td>$ca->{link}&nbsp;</td>|;
-
+    my @links = split( q{:}, $ca->{link});
+    
+    $ca->{link} = q{};
+    
+    foreach my $link (@links){
+      $link = ( $link eq 'AR')             ? $locale->text('Account Link AR')
+               : ( $link eq 'AP')             ? $locale->text('Account Link AP')
+               : ( $link eq 'IC')             ? $locale->text('Account Link IC')
+               : ( $link eq 'AR_amount' )     ? $locale->text('Account Link AR_amount')
+               : ( $link eq 'AR_paid' )       ? $locale->text('Account Link AR_paid')
+               : ( $link eq 'AR_tax' )        ? $locale->text('Account Link AR_tax')
+               : ( $link eq 'AP_amount' )     ? $locale->text('Account Link AP_amount')
+               : ( $link eq 'AP_paid' )       ? $locale->text('Account Link AP_paid')
+               : ( $link eq 'AP_tax' )        ? $locale->text('Account Link AP_tax')
+               : ( $link eq 'IC_sale' )       ? $locale->text('Account Link IC_sale')
+               : ( $link eq 'IC_cogs' )       ? $locale->text('Account Link IC_cogs')
+               : ( $link eq 'IC_taxpart' )    ? $locale->text('Account Link IC_taxpart')
+               : ( $link eq 'IC_income' )     ? $locale->text('Account Link IC_income')
+               : ( $link eq 'IC_expense' )    ? $locale->text('Account Link IC_expense')
+               : ( $link eq 'IC_taxservice' ) ? $locale->text('Account Link IC_taxservice')
+#               : ( $link eq 'CT_tax' )        ? $locale->text('Account Link CT_tax')
+               : $locale->text('Unknown Link') . ': ' . $link;
+      
+      $ca->{link} .= ($link ne '') ?  "[$link] ":'';
     }
+    
+    $ca->{startdate}      =~ s/,/<br>/og;
+    $ca->{tk_ustva}       =~ s/,/<br>/og;
+    $ca->{taxkey}         =~ s/,/<br>/og;
+    $ca->{taxaccount}     =~ s/,/<br>/og;
+    $ca->{taxdescription} =~ s/,/<br>/og;
+    $ca->{datevautomatik} = ($ca->{datevautomatik}) ? $locale->text('On'):$locale->text('Off');
 
-    map { print "$column_data{$_}\n" } @column_index;
+    $ca->{category} = ($ca->{category} eq 'A') ? $locale->text('Account Category A')
+                    : ($ca->{category} eq 'E') ? $locale->text('Account Category E')
+                    : ($ca->{category} eq 'L') ? $locale->text('Account Category L')
+                    : ($ca->{category} eq 'I') ? $locale->text('Account Category I')
+                    : ($ca->{category} eq 'Q') ? $locale->text('Account Category Q')
+                    : ($ca->{category} eq 'C') ? $locale->text('Account Category C')
+                    : ($ca->{category} eq 'G') ? $locale->text('Account Category G')
+                    : $locale->text('Unknown Category') . ': ' . $ca->{category};
 
-    print "</tr>\n";
+    $ca->{link_edit_account} = 
+        qq|$form->{script}?action=edit_account&id=$ca->{id}|
+       .qq|&login=$form->{login}|
+       .qq|&password=$form->{password}&callback=$callback|;
   }
 
-  print qq|
-  <tr><td colspan=$colspan><hr size=3 noshade></td></tr>
-</table>
 
-</body>
-</html>
-|;
 
+
+  my $parameters_ref = {
+  
+  
+  #   hidden_variables                => $_hidden_variables_ref,
+  };
+  
+  # Ausgabe des Templates
+  #my $q = CGI->new();
+  my $result = $form->parse_html_template('am/list_account_details', $parameters_ref);
+  
+  print $result;
+#  print "chart_id:$chart_id, form->chartid:$form->{chart_id}, rest=$rest";
+      
   $lxdebug->leave_sub();
+
 }
 
 sub delete_account {
@@ -647,236 +581,6 @@ sub delete_account {
   $lxdebug->leave_sub();
 }
 
-sub list_gifi {
-  $lxdebug->enter_sub();
-
-  @{ $form->{fields} } = (accno, description);
-  $form->{table}     = "gifi";
-  $form->{sortorder} = "accno";
-
-  AM->gifi_accounts(\%myconfig, \%$form);
-
-  $form->{title} = $locale->text('GIFI');
-
-  # construct callback
-  $callback =
-    "$form->{script}?action=list_gifi&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-
-  @column_index = qw(accno description);
-
-  $column_header{accno} = qq|<th>| . $locale->text('GIFI') . qq|</a></th>|;
-  $column_header{description} =
-    qq|<th>| . $locale->text('Description') . qq|</a></th>|;
-
-  $form->header;
-  $colspan = $#column_index + 1;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=$colspan>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-</tr>
-|;
-
-  # escape callback
-  $callback = $form->escape($callback);
-
-  foreach $ca (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    print qq|
-<tr valign=top class=listrow$i>|;
-
-    $column_data{accno} =
-      qq|<td><a href=$form->{script}?action=edit_gifi&coa=1&accno=$ca->{accno}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ca->{accno}</td>|;
-    $column_data{description} = qq|<td>$ca->{description}&nbsp;</td>|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print "</tr>\n";
-  }
-
-  print qq|
-  <tr>
-    <td colspan=$colspan><hr size=3 noshade></td>
-  </tr>
-</table>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub add_gifi {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Add";
-
-  # construct callback
-  $form->{callback} =
-    "$form->{script}?action=list_gifi&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-
-  $form->{coa} = 1;
-
-  &gifi_header;
-  &gifi_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub edit_gifi {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Edit";
-
-  AM->get_gifi(\%myconfig, \%$form);
-
-  &gifi_header;
-  &gifi_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub gifi_header {
-  $lxdebug->enter_sub();
-
-  $form->{title} = $locale->text("$form->{title} GIFI");
-
-  # $locale->text('Add GIFI')
-  # $locale->text('Edit GIFI')
-
-  $form->{description} =~ s/\"/&quot;/g;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=id value=$form->{accno}>
-<input type=hidden name=type value=gifi>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('GIFI') . qq|</th>
-	  <td><input name=accno size=20 value=$form->{accno}></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td><input name=description size=60 value="$form->{description}"></td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub gifi_footer {
-  $lxdebug->enter_sub();
-
-  print qq|
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br><input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
-
-  if ($form->{coa}) {
-    print qq|
-<input type=submit class=submit name=action value="|
-      . $locale->text('Copy to COA') . qq|">
-|;
-
-    if ($form->{accno} && $form->{orphaned}) {
-      print qq|<input type=submit class=submit name=action value="|
-        . $locale->text('Delete') . qq|">|;
-    }
-  }
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
-  </form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub save_gifi {
-  $lxdebug->enter_sub();
-
-  $form->isblank("accno", $locale->text('GIFI missing!'));
-  AM->save_gifi(\%myconfig, \%$form);
-  $form->redirect($locale->text('GIFI saved!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub copy_to_coa {
-  $lxdebug->enter_sub();
-
-  $form->isblank("accno", $locale->text('GIFI missing!'));
-
-  AM->save_gifi(\%myconfig, \%$form);
-
-  delete $form->{id};
-  $form->{gifi_accno} = $form->{accno};
-  $form->{title}      = "Add";
-  $form->{charttype}  = "A";
-
-  &account_header;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub delete_gifi {
-  $lxdebug->enter_sub();
-
-  AM->delete_gifi(\%myconfig, \%$form);
-  $form->redirect($locale->text('GIFI deleted!'));
-
-  $lxdebug->leave_sub();
-}
-
 sub add_department {
   $lxdebug->enter_sub();
 
@@ -884,7 +588,7 @@ sub add_department {
   $form->{role}  = "P";
 
   $form->{callback} =
-    "$form->{script}?action=add_department&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_department&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &department_header;
@@ -912,7 +616,7 @@ sub list_department {
   AM->departments(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_department&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_department&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -968,7 +672,7 @@ sub list_department {
     $profitcenter = ($ref->{role} eq "P") ? "X" : "";
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_department&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_department&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
     $column_data{cost}   = qq|<td align=center>$costcenter</td>|;
     $column_data{profit} = qq|<td align=center>$profitcenter</td>|;
 
@@ -995,19 +699,12 @@ sub list_department {
 
 <input type=hidden name=type value=department>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
   </body>
@@ -1098,7 +795,7 @@ sub add_lead {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_lead&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_lead&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &lead_header;
@@ -1128,7 +825,7 @@ sub list_lead {
   AM->lead(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_lead&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_lead&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1172,7 +869,7 @@ sub list_lead {
 	$lead = $ref->{lead};
 	
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_lead&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{lead}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_lead&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{lead}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -1194,19 +891,12 @@ sub list_lead {
 
 <input type=hidden name=type value=lead>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
+    . $locale->text('Add') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
   </body>
@@ -1281,7 +971,7 @@ sub add_business {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_business&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_business&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &business_header;
@@ -1311,7 +1001,7 @@ sub list_business {
   AM->business(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_business&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_business&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1364,13 +1054,11 @@ sub list_business {
 |;
 
     $discount =
-      $form->format_amount(\%myconfig, $ref->{discount} * 100, 1, "&nbsp");
+      $form->format_amount(\%myconfig, $ref->{discount} * 100);
     $description =
-      ($ref->{salesman})
-      ? "<b>$ref->{description}</b>"
-      : "$ref->{description}";
+      $ref->{description};
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_business&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$description</td>|;
+      qq|<td><a href=$form->{script}?action=edit_business&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$description</td>|;
     $column_data{discount}           = qq|<td align=right>$discount</td>|;
     $column_data{customernumberinit} =
       qq|<td align=right>$ref->{customernumberinit}</td>|;
@@ -1398,19 +1086,11 @@ sub list_business {
 
 <input type=hidden name=type value=business>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -1425,7 +1105,6 @@ sub business_header {
   $lxdebug->enter_sub();
 
   $form->{title}    = $locale->text("$form->{title} Business");
-  $form->{salesman} = "checked" if $form->{salesman};
 
   # $locale->text('Add Business')
   # $locale->text('Edit Business')
@@ -1461,10 +1140,6 @@ sub business_header {
     <th align=right>| . $locale->text('Customernumberinit') . qq|</th>
     <td><input name=customernumberinit size=10 value=$form->{customernumberinit}></td>
   </tr>
-  <tr>
-    <td align=right>| . $locale->text('Salesman') . qq|</td>
-    <td><input name=salesman class=checkbox type=checkbox value=1 $form->{salesman}></td>
-  </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>
 </table>
@@ -1477,6 +1152,7 @@ sub save_business {
   $lxdebug->enter_sub();
 
   $form->isblank("description", $locale->text('Description missing!'));
+  $form->{discount} = $form->parse_amount(\%myconfig, $form->{discount}) / 100;
   AM->save_business(\%myconfig, \%$form);
   $form->redirect($locale->text('Business saved!'));
 
@@ -1498,7 +1174,7 @@ sub add_language {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_language&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_language&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &language_header;
@@ -1528,7 +1204,7 @@ sub list_language {
   AM->language(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_language&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_language&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -1594,7 +1270,7 @@ sub list_language {
 
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_language&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_language&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
     $column_data{template_code}           = qq|<td align=right>$ref->{template_code}</td>|;
     $column_data{article_code} =
       qq|<td align=right>$ref->{article_code}</td>|;
@@ -1636,19 +1312,11 @@ sub list_language {
 
 <input type=hidden name=type value=language>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -1777,7 +1445,7 @@ sub add_buchungsgruppe {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_buchungsgruppe&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_buchungsgruppe&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
   AM->get_buchungsgruppe(\%myconfig, \%$form);
   $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
@@ -1812,53 +1480,65 @@ sub list_buchungsgruppe {
   AM->buchungsgruppe(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_buchungsgruppe&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_buchungsgruppe&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Buchungsgruppen');
 
-  @column_index = qw(description inventory_accno income_accno_0 expense_accno_0 income_accno_1 expense_accno_1 income_accno_2 expense_accno_2 income_accno_3 expense_accno_3 );
+  @column_index = qw(up down description inventory_accno
+                     income_accno_0 expense_accno_0
+                     income_accno_1 expense_accno_1
+                     income_accno_2 expense_accno_2
+                     income_accno_3 expense_accno_3 );
 
+  $column_header{up} =
+      qq|<th class="listheading" width="16">|
+    . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
+    . qq|</th>|;
+  $column_header{down} =
+      qq|<th class="listheading" width="16">|
+    . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
+    . qq|</th>|;
   $column_header{description} =
-      qq|<th class=listheading width=60%>|
+      qq|<th class="listheading" width="40%">|
     . $locale->text('Description')
     . qq|</th>|;
   $column_header{inventory_accno} =
-      qq|<th class=listheading width=10%>|
+      qq|<th class=listheading>|
     . $locale->text('Bestandskonto')
     . qq|</th>|;
   $column_header{income_accno_0} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse Inland')
+    . $locale->text('National Revenues')
     . qq|</th>|;
   $column_header{expense_accno_0} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand Inland')
+    . $locale->text('National Expenses')
     . qq|</th>|;
   $column_header{income_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU m. UStId')
+    . $locale->text('Revenues EU with UStId')
     . qq|</th>|;
   $column_header{expense_accno_1} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand EU m. UStId')
+    . $locale->text('Expenses EU with UStId')
     . qq|</th>|;
   $column_header{income_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse EU o. UStId')
+    . $locale->text('Revenues EU without UStId')
     . qq|</th>|;
   $column_header{expense_accno_2} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand EU o. UStId')
+    . $locale->text('Expenses EU without UStId')
     . qq|</th>|;
   $column_header{income_accno_3} =
       qq|<th class=listheading>|
-    . $locale->text('Erlöse Ausland')
+    . $locale->text('Foreign Revenues')
     . qq|</th>|;
   $column_header{expense_accno_3} =
       qq|<th class=listheading>|
-    . $locale->text('Aufwand Ausland')
+    . $locale->text('Foreign Expenses')
     . qq|</th>|;
   $form->header;
 
@@ -1882,6 +1562,11 @@ sub list_buchungsgruppe {
         </tr>
 |;
 
+  my $swap_link = qq|$form->{script}?action=swap_buchungsgruppen&|;
+  map({ $swap_link .= $_ . "=" . $form->escape($form->{$_}) . "&" }
+      qw(login password));
+
+  my $row = 0;
   foreach $ref (@{ $form->{ALL} }) {
 
     $i++;
@@ -1891,9 +1576,30 @@ sub list_buchungsgruppe {
         <tr valign=top class=listrow$i>
 |;
 
+    if ($row) {
+      my $pref = $form->{ALL}->[$row - 1];
+      $column_data{up} =
+        qq|<td align="center" valign="center" width="16">| .
+        qq|<a href="${swap_link}id1=$ref->{id}&id2=$pref->{id}">| .
+        qq|<img border="0" src="image/up.png" alt="| . $locale->text("up") . qq|">| .
+        qq|</a></td>|;
+    } else {
+      $column_data{up} = qq|<td width="16">&nbsp;</td>|;
+    }
+
+    if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
+      $column_data{down} = qq|<td width="16">&nbsp;</td>|;
+    } else {
+      my $nref = $form->{ALL}->[$row + 1];
+      $column_data{down} =
+        qq|<td align="center" valign="center" width="16">| .
+        qq|<a href="${swap_link}id1=$ref->{id}&id2=$nref->{id}">| .
+        qq|<img border="0" src="image/down.png" alt="| . $locale->text("down") . qq|">| .
+        qq|</a></td>|;
+    }
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_buchungsgruppe&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_buchungsgruppe&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
     $column_data{inventory_accno}           = qq|<td align=right>$ref->{inventory_accno}</td>|;
     $column_data{income_accno_0} =
       qq|<td align=right>$ref->{income_accno_0}</td>|;
@@ -1913,6 +1619,8 @@ sub list_buchungsgruppe {
     print qq|
 	</tr>
 |;
+
+    $row++;
   }
 
   print qq|
@@ -1931,19 +1639,11 @@ sub list_buchungsgruppe {
 
 <input type=hidden name=type value=buchungsgruppe>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -1959,8 +1659,8 @@ sub buchungsgruppe_header {
 
   $form->{title}    = $locale->text("$form->{title} Buchungsgruppe");
 
-  # $locale->text('Buchungsgruppe hinzufügen')
-  # $locale->text('Buchungsgruppe bearbeiten')
+  # $locale->text('Add Accounting Group')
+  # $locale->text('Edit Accounting Group')
 
   my ($acc_inventory, $acc_income, $acc_expense) = ({}, {}, {});
   my %acc_type_map = (
@@ -2010,11 +1710,11 @@ sub buchungsgruppe_header {
 
   $linkaccounts .= qq|
 	      <tr>
-		<th align=right>| . $locale->text('Erlöse Inland') . qq|</th>
+		<th align=right>| . $locale->text('National Revenues') . qq|</th>
 		<td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand Inland') . qq|</th>
+		<th align=right>| . $locale->text('National Expenses') . qq|</th>
 		<td><select name=expense_accno_id_0>$form->{selectIC_expense}</select></td>
 	      </tr>|;
   if ($form->{id}) {
@@ -2024,11 +1724,11 @@ sub buchungsgruppe_header {
     $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_1}/  value=$form->{expense_accno_id_1} selected/;
   }
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse EU m. UStId') . qq|</th>
+		<th align=right>| . $locale->text('Revenues EU with UStId') . qq|</th>
 		<td><select name=income_accno_id_1>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand EU m UStId') . qq|</th>
+		<th align=right>| . $locale->text('Expenses EU with UStId') . qq|</th>
 		<td><select name=expense_accno_id_1>$form->{selectIC_expense}</select></td>
 	      </tr>|;
 
@@ -2040,11 +1740,11 @@ sub buchungsgruppe_header {
   }
 
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse EU o. UStId') . qq|</th>
+		<th align=right>| . $locale->text('Revenues EU without UStId') . qq|</th>
 		<td><select name=income_accno_id_2>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand EU o. UStId') . qq|</th>
+		<th align=right>| . $locale->text('Expenses EU without UStId') . qq|</th>
 		<td><select name=expense_accno_id_2>$form->{selectIC_expense}</select></td>
 	      </tr>|;
 
@@ -2056,11 +1756,11 @@ sub buchungsgruppe_header {
   }
 
   $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Erlöse Ausland') . qq|</th>
+		<th align=right>| . $locale->text('Foreign Revenues') . qq|</th>
 		<td><select name=income_accno_id_3>$form->{selectIC_income}</select></td>
 	      </tr>
 	      <tr>
-		<th align=right>| . $locale->text('Aufwand Ausland') . qq|</th>
+		<th align=right>| . $locale->text('Foreign Expenses') . qq|</th>
 		<td><select name=expense_accno_id_3>$form->{selectIC_expense}</select></td>
 	      </tr>
 |;
@@ -2100,7 +1800,7 @@ sub save_buchungsgruppe {
   $form->isblank("description", $locale->text('Description missing!'));
 
   AM->save_buchungsgruppe(\%myconfig, \%$form);
-  $form->redirect($locale->text('Buchungsgruppe gespeichert!'));
+  $form->redirect($locale->text('Accounting Group saved!'));
 
   $lxdebug->leave_sub();
 }
@@ -2109,7 +1809,16 @@ sub delete_buchungsgruppe {
   $lxdebug->enter_sub();
 
   AM->delete_buchungsgruppe(\%myconfig, \%$form);
-  $form->redirect($locale->text('Buchungsgruppe gelöscht!'));
+  $form->redirect($locale->text('Accounting Group deleted!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub swap_buchungsgruppen {
+  $lxdebug->enter_sub();
+
+  AM->swap_sortkeys(\%myconfig, $form, "buchungsgruppen");
+  list_buchungsgruppe();
 
   $lxdebug->leave_sub();
 }
@@ -2121,7 +1830,7 @@ sub add_printer {
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_printer&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_printer&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   &printer_header;
@@ -2151,7 +1860,7 @@ sub list_printer {
   AM->printer(\%myconfig, \%$form);
 
   $form->{callback} =
-    "$form->{script}?action=list_printer&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+    "$form->{script}?action=list_printer&login=$form->{login}&password=$form->{password}";
 
   $callback = $form->escape($form->{callback});
 
@@ -2205,7 +1914,7 @@ sub list_printer {
 
 
     $column_data{printer_description} =
-      qq|<td><a href=$form->{script}?action=edit_printer&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{printer_description}</td>|;
+      qq|<td><a href=$form->{script}?action=edit_printer&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{printer_description}</td>|;
     $column_data{printer_command}           = qq|<td align=right>$ref->{printer_command}</td>|;
     $column_data{template_code} =
       qq|<td align=right>$ref->{template_code}</td>|;
@@ -2233,19 +1942,11 @@ sub list_printer {
 
 <input type=hidden name=type value=printer>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -2324,19 +2025,22 @@ sub delete_printer {
   $lxdebug->leave_sub();
 }
 
-
 sub add_payment {
   $lxdebug->enter_sub();
 
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add_payment&path=$form->{path}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add_payment&login=$form->{login}&password=$form->{password}"
     unless $form->{callback};
 
   $form->{terms_netto} = 0;
   $form->{terms_skonto} = 0;
   $form->{percent_skonto} = 0;
+  my @languages = AM->language(\%myconfig, $form, 1);
+  map({ $_->{"language"} = $_->{"description"};
+        $_->{"language_id"} = $_->{"id"}; } @languages);
+  $form->{"TRANSLATION"} = \@languages;
   &payment_header;
   &form_footer;
 
@@ -2348,7 +2052,9 @@ sub edit_payment {
 
   $form->{title} = "Edit";
 
-  AM->get_payment(\%myconfig, \%$form);
+  AM->get_payment(\%myconfig, $form);
+  $form->{percent_skonto} =
+    $form->format_amount(\%myconfig, $form->{percent_skonto} * 100);
 
   &payment_header;
 
@@ -2363,15 +2069,23 @@ sub list_payment {
 
   AM->payment(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_payment&path=$form->{path}&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = build_std_url("action=list_payment");
 
   $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Payment Terms');
 
-  @column_index = qw(description description_long terms_netto terms_skonto percent_skonto);
+  @column_index = qw(up down description description_long terms_netto
+                     terms_skonto percent_skonto);
 
+  $column_header{up} =
+      qq|<th class="listheading" align="center" valign="center" width="16">|
+    . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
+    . qq|</th>|;
+  $column_header{down} =
+      qq|<th class="listheading" align="center" valign="center" width="16">|
+    . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
+    . qq|</th>|;
   $column_header{description} =
       qq|<th class=listheading>|
     . $locale->text('Description')
@@ -2415,6 +2129,9 @@ sub list_payment {
         </tr>
 |;
 
+  my $swap_link = build_std_url("action=swap_payment_terms");
+
+  my $row = 0;
   foreach $ref (@{ $form->{ALL} }) {
 
     $i++;
@@ -2424,21 +2141,48 @@ sub list_payment {
         <tr valign=top class=listrow$i>
 |;
 
+    if ($row) {
+      my $pref = $form->{ALL}->[$row - 1];
+      $column_data{up} =
+        qq|<td align="center" valign="center" width="16">| .
+        qq|<a href="${swap_link}&id1=$ref->{id}&id2=$pref->{id}">| .
+        qq|<img border="0" src="image/up.png" alt="| . $locale->text("up") . qq|">| .
+        qq|</a></td>|;
+    } else {
+      $column_data{up} = qq|<td width="16">&nbsp;</td>|;
+    }
+
+    if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
+      $column_data{down} = qq|<td width="16">&nbsp;</td>|;
+    } else {
+      my $nref = $form->{ALL}->[$row + 1];
+      $column_data{down} =
+        qq|<td align="center" valign="center" width="16">| .
+        qq|<a href="${swap_link}&id1=$ref->{id}&id2=$nref->{id}">| .
+        qq|<img border="0" src="image/down.png" alt="| . $locale->text("down") . qq|">| .
+        qq|</a></td>|;
+    }
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_payment&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
-    $column_data{description_long}           = qq|<td align=right>$ref->{description_long}</td>|;
+      qq|<td><a href="| .
+      build_std_url("action=edit_payment", "id=$ref->{id}", "callback=$callback") .
+      qq|">| . H($ref->{description}) . qq|</a></td>|;
+    $column_data{description_long} =
+      qq|<td>| . H($ref->{description_long}) . qq|</td>|;
     $column_data{terms_netto} =
       qq|<td align=right>$ref->{terms_netto}</td>|;
     $column_data{terms_skonto} =
       qq|<td align=right>$ref->{terms_skonto}</td>|;
     $column_data{percent_skonto} =
-      qq|<td align=right>$ref->{percent_skonto} %</td>|;
+      qq|<td align=right>| .
+      $form->format_amount(\%myconfig, $ref->{percent_skonto} * 100) .
+      qq|%</td>|;
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
 	</tr>
 |;
+    $row++;
   }
 
   print qq|
@@ -2457,19 +2201,11 @@ sub list_payment {
 
 <input type=hidden name=type value=payment>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
+    . $locale->text('Add') . qq|">
 
   </form>
 
@@ -2515,6 +2251,22 @@ sub payment_header {
     <th align=right>| . $locale->text('Long Description') . qq|</th>
     <td><input name=description_long size=50 value="$form->{description_long}"></td>
   </tr>
+|;
+
+  foreach my $language (@{ $form->{"TRANSLATION"} }) {
+    print qq|
+  <tr>
+    <th align="right">| .
+    sprintf($locale->text('Translation (%s)'),
+            $language->{"language"})
+    . qq|</th>
+    <td><input name="description_long_$language->{language_id}" size="50"
+         value="| . Q($language->{"description_long"}) . qq|"></td>
+  </tr>
+|;
+  }
+
+  print qq|
   <tr>
     <th align=right>| . $locale->text('Netto Terms') . qq|</th>
     <td><input name=terms_netto size=10 value="$form->{terms_netto}"></td>
@@ -2530,7 +2282,42 @@ sub payment_header {
   <td colspan=2><hr size=3 noshade></td>
   </tr>
 </table>
-|;
+
+<p>| . $locale->text("You can use the following strings in the long " .
+                     "description and all translations. They will be " .
+                     "replaced by their actual values by Lx-Office " .
+                     "before they're output.")
+. qq|</p>
+
+<ul>
+  <li>| . $locale->text("&lt;%netto_date%&gt; -- Date the payment is due in " .
+                        "full")
+. qq|</li>
+  <li>| . $locale->text("&lt;%skonto_date%&gt; -- Date the payment is due " .
+                        "with discount")
+. qq|</li>
+  <li>| . $locale->text("&lt;%skonto_amount%&gt; -- The deductible amount")
+. qq|</li>
+  <li>| . $locale->text("&lt;%total%&gt; -- Amount payable")
+. qq|</li>
+  <li>| . $locale->text("&lt;%total_wo_skonto%&gt; -- Amount payable less discount")
+. qq|</li>
+  <li>| . $locale->text("&lt;%invtotal%&gt; -- Invoice total")
+. qq|</li>
+  <li>| . $locale->text("&lt;%invtotal_wo_skonto%&gt; -- Invoice total less discount")
+. qq|</li>
+  <li>| . $locale->text("&lt;%currency%&gt; -- The selected currency")
+. qq|</li>
+  <li>| . $locale->text("&lt;%terms_netto%&gt; -- The number of days for " .
+                        "full payment")
+. qq|</li>
+  <li>| . $locale->text("&lt;%account_number%&gt; -- Your account number")
+. qq|</li>
+  <li>| . $locale->text("&lt;%bank%&gt; -- Your bank")
+. qq|</li>
+  <li>| . $locale->text("&lt;%bank_code%&gt; -- Your bank code")
+. qq|</li>
+</ul>|;
 
   $lxdebug->leave_sub();
 }
@@ -2538,7 +2325,9 @@ sub payment_header {
 sub save_payment {
   $lxdebug->enter_sub();
 
-  $form->isblank("description", $locale->text('Language missing!'));
+  $form->isblank("description", $locale->text('Description missing!'));
+  $form->{"percent_skonto"} =
+    $form->parse_amount(\%myconfig, $form->{percent_skonto}) / 100;
   AM->save_payment(\%myconfig, \%$form);
   $form->redirect($locale->text('Payment Terms saved!'));
 
@@ -2554,331 +2343,11 @@ sub delete_payment {
   $lxdebug->leave_sub();
 }
 
-sub add_sic {
+sub swap_payment_terms {
   $lxdebug->enter_sub();
 
-  $form->{title} = "Add";
-
-  $form->{callback} =
-    "$form->{script}?action=add_sic&path=$form->{path}&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
-
-  &sic_header;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub edit_sic {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Edit";
-
-  AM->get_sic(\%myconfig, \%$form);
-
-  &sic_header;
-
-  $form->{orphaned} = 1;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub list_sic {
-  $lxdebug->enter_sub();
-
-  AM->sic(\%myconfig, \%$form);
-
-  $form->{callback} =
-    "$form->{script}?action=list_sic&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-
-  $callback = $form->escape($form->{callback});
-
-  $form->{title} = $locale->text('Standard Industrial Codes');
-
-  @column_index = qw(code description);
-
-  $column_header{code} =
-    qq|<th class=listheading>| . $locale->text('Code') . qq|</th>|;
-  $column_header{description} =
-    qq|<th class=listheading>| . $locale->text('Description') . qq|</th>|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  foreach $ref (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    if ($ref->{sictype} eq 'H') {
-      print qq|
-        <tr valign=top class=listheading>
-|;
-      $column_data{code} =
-        qq|<th><a href=$form->{script}?action=edit_sic&code=$ref->{code}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{code}</th>|;
-      $column_data{description} = qq|<th>$ref->{description}</th>|;
-
-    } else {
-      print qq|
-        <tr valign=top class=listrow$i>
-|;
-
-      $column_data{code} =
-        qq|<td><a href=$form->{script}?action=edit_sic&code=$ref->{code}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{code}</td>|;
-      $column_data{description} = qq|<td>$ref->{description}</td>|;
-
-    }
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-	</tr>
-|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=sic>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
-  </form>
-
-  </body>
-  </html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub sic_header {
-  $lxdebug->enter_sub();
-
-  $form->{title} = $locale->text("$form->{title} SIC");
-
-  # $locale->text('Add SIC')
-  # $locale->text('Edit SIC')
-
-  $form->{code}        =~ s/\"/&quot;/g;
-  $form->{description} =~ s/\"/&quot;/g;
-
-  $checked = ($form->{sictype} eq 'H') ? "checked" : "";
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=type value=sic>
-<input type=hidden name=id value=$form->{code}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=2>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <th align=right>| . $locale->text('Code') . qq|</th>
-    <td><input name=code size=10 value=$form->{code}></td>
-  <tr>
-  <tr>
-    <td></td>
-    <th align=left><input name=sictype type=checkbox style=checkbox value="H" $checked> |
-    . $locale->text('Heading') . qq|</th>
-  <tr>
-  <tr>
-    <th align=right>| . $locale->text('Description') . qq|</th>
-    <td><input name=description size=60 value="$form->{description}"></td>
-  </tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub save_sic {
-  $lxdebug->enter_sub();
-
-  $form->isblank("code",        $locale->text('Code missing!'));
-  $form->isblank("description", $locale->text('Description missing!'));
-  AM->save_sic(\%myconfig, \%$form);
-  $form->redirect($locale->text('SIC saved!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub delete_sic {
-  $lxdebug->enter_sub();
-
-  AM->delete_sic(\%myconfig, \%$form);
-  $form->redirect($locale->text('SIC deleted!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub display_stylesheet {
-  $lxdebug->enter_sub();
-
-  $form->{file} = "css/$myconfig{stylesheet}";
-  &display_form;
-
-  $lxdebug->leave_sub();
-}
-
-sub display_form {
-  $lxdebug->enter_sub();
-
-  $form->{file} =~ s/^(.:)*?\/|\.\.\///g;
-  $form->{file} =~ s/^\/*//g;
-  $form->{file} =~ s/$userspath//;
-
-  $form->error("$!: $form->{file}") unless -f $form->{file};
-
-  AM->load_template(\%$form);
-
-  $form->{title} = $form->{file};
-
-  # if it is anything but html
-  if ($form->{file} !~ /\.html$/) {
-    $form->{body} = "<pre>\n$form->{body}\n</pre>";
-  }
-
-  $form->header;
-
-  print qq|
-<body>
-
-$form->{body}
-
-<form method=post action=$form->{script}>
-
-<input name=file type=hidden value=$form->{file}>
-<input name=type type=hidden value=template>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input name=action type=submit class=submit value="|
-    . $locale->text('Edit') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
-  </form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub edit_template {
-  $lxdebug->enter_sub();
-
-  AM->load_template(\%$form);
-
-  $form->{title} = $locale->text('Edit Template');
-
-  # convert &nbsp to &amp;nbsp;
-  $form->{body} =~ s/&nbsp;/&amp;nbsp;/gi;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input name=file type=hidden value=$form->{file}>
-<input name=type type=hidden value=template>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input name=callback type=hidden value="$form->{script}?action=display_form&file=$form->{file}&path=$form->{path}&login=$form->{login}&password=$form->{password}">
-
-<textarea name=body rows=25 cols=70>
-$form->{body}
-</textarea>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print q|
-  </form>
-
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub save_template {
-  $lxdebug->enter_sub();
-
-  AM->save_template(\%$form);
-  $form->redirect($locale->text('Template saved!'));
+  AM->swap_sortkeys(\%myconfig, $form, "payment_terms");
+  list_payment();
 
   $lxdebug->leave_sub();
 }
@@ -2933,13 +2402,34 @@ sub config {
   if (!$myconfig{"template_format"}) {
     $myconfig{"template_format"} = "pdf";
   }
-  $template_format = "";
+  my $template_format = "";
   foreach $item (@formats) {
     $template_format .=
       "<option value=\"$item->{value}\"" .
       ($item->{"value"} eq $myconfig{"template_format"} ?
        " selected" : "") .
        ">" . H($item->{"name"}) . "</option>";
+  }
+
+  if (!$myconfig{"default_media"}) {
+    $myconfig{"default_media"} = "screen";
+  }
+  my %selected = ($myconfig{"default_media"} => "selected");
+  my $default_media = qq|
+  <option value="screen" $selected{'screen'}>| . $locale->text("Screen") . qq|</option>
+  <option value="printer" $selected{'printer'}>| . $locale->text("Printer") . qq|</option>
+  <option value="queue" $selected{'queue'}>| . $locale->text("Queue") . qq|</option>
+|;
+
+  %selected = ();
+  $selected{$myconfig{"default_printer_id"}} = "selected"
+    if ($myconfig{"default_printer_id"});
+  my $default_printer = qq|<option></option>|;
+  AM->printer(\%myconfig, $form);
+  foreach my $printer (@{$form->{"ALL"}}) {
+    $default_printer .= qq|<option value="| . Q($printer->{"id"}) .
+      qq|" $selected{$printer->{'id'}}>| .
+      H($printer->{"printer_description"}) . qq|</option>|;
   }
 
   %countrycodes = User->country_codes;
@@ -2954,19 +2444,6 @@ sub config {
   }
   $countrycodes = "<option>American English\n$countrycodes";
 
-  # use an other input number format than output numberformat
-  # look at Form.pm, sub parse_amount
-  my $in_numberformat = '';
-  $text1 = qq|value="0">| . $locale->text('equal Outputformat');
-  $text2 = qq|value="1">| . $locale->text('1000,00 or 1000.00');
-  @in_nf = ($text1, $text2);
-  foreach $item (@in_nf) {
-    $in_numberformat .=
-      (substr($item, 7, 1) eq $myconfig{in_numberformat})
-      ? "<option selected $item\n"
-      : "<option $item\n";
-  }
-
   foreach $key (keys %{ $form->{IC} }) {
     foreach $accno (sort keys %{ $form->{IC}{$key} }) {
       $myconfig{$key} .=
@@ -2976,9 +2453,13 @@ sub config {
     }
   }
 
-  opendir CSS, "css/.";
-  @all = grep /.*\.css$/, readdir CSS;
-  closedir CSS;
+#  opendir CSS, "css/.";
+#  @all = grep /.*\.css$/, readdir CSS;
+#  closedir CSS;
+
+# css dir has styles that are not intended as general layouts.
+# reverting to hardcoded list
+  @all = qw(lx-office-erp.css Win2000.css);
 
   foreach $item (@all) {
     if ($item eq $myconfig{stylesheet}) {
@@ -3061,10 +2542,6 @@ sub config {
 	  <th align=right>| . $locale->text('Output Number Format') . qq|</th>
 	  <td><select name=numberformat>$numberformat</select></td>
 	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Input Number Format') . qq|</th>
-	  <td><select name=in_numberformat>$in_numberformat</select></td>
-	</tr>
 
 	<tr>
 	  <th align=right>| . $locale->text('Dropdown Limit') . qq|</th>
@@ -3101,6 +2578,14 @@ sub config {
 	<tr>
 	  <th align=right>| . $locale->text('Default template format') . qq|</th>
 	  <td><select name="template_format">$template_format</select></td>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Default output medium') . qq|</th>
+	  <td><select name="default_media">$default_media</select></td>
+	</tr>
+	<tr>
+	  <th align=right>| . $locale->text('Default printer') . qq|</th>
+	  <td><select name="default_printer_id">$default_printer</select></td>
 	</tr>
 	<tr>
 	  <th align=right>| . $locale->text('Number of copies') . qq|</th>
@@ -3245,20 +2730,13 @@ print qq|      </table>
   </tr>
 </table>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
 <br>
 <input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
+    . $locale->text('Save') . qq|">
 
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
   </form>
 
 </body>
@@ -3278,26 +2756,6 @@ sub save_preferences {
      AM->save_preferences(\%myconfig, \%$form, $memberfile, $userspath, $webdav
      ));
   $form->error($locale->text('Cannot save preferences!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub backup {
-  $lxdebug->enter_sub();
-
-  if ($form->{media} eq 'email') {
-    $form->error($locale->text('No email address for') . " $myconfig{name}")
-      unless ($myconfig{email});
-
-    $form->{OUT} = "$sendmail";
-
-  }
-
-  AM->backup(\%myconfig, \%$form, $userspath);
-
-  if ($form->{media} eq 'email') {
-    $form->redirect($locale->text('Backup sent to') . qq| $myconfig{email}|);
-  }
 
   $lxdebug->leave_sub();
 }
@@ -3322,7 +2780,6 @@ sub audit_control {
 
 <form method=post action=$form->{script}>
 
-<input type=hidden name=path value=$form->{path}>
 <input type=hidden name=login value=$form->{login}>
 <input type=hidden name=password value=$form->{password}>
 
@@ -3388,205 +2845,6 @@ sub doclose {
   $lxdebug->leave_sub();
 }
 
-sub add_warehouse {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Add";
-
-  $form->{callback} =
-    "$form->{script}?action=add_warehouse&path=$form->{path}&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
-
-  &warehouse_header;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub edit_warehouse {
-  $lxdebug->enter_sub();
-
-  $form->{title} = "Edit";
-
-  AM->get_warehouse(\%myconfig, \%$form);
-
-  &warehouse_header;
-  &form_footer;
-
-  $lxdebug->leave_sub();
-}
-
-sub list_warehouse {
-  $lxdebug->enter_sub();
-
-  AM->warehouses(\%myconfig, \%$form);
-
-  $form->{callback} =
-    "$form->{script}?action=list_warehouse&path=$form->{path}&login=$form->{login}&password=$form->{password}";
-
-  $callback = $form->escape($form->{callback});
-
-  $form->{title} = $locale->text('Warehouses');
-
-  @column_index = qw(description);
-
-  $column_header{description} =
-      qq|<th class=listheading width=100%>|
-    . $locale->text('Description')
-    . qq|</th>|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  foreach $ref (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    print qq|
-        <tr valign=top class=listrow$i>
-|;
-
-    $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_warehouse&id=$ref->{id}&path=$form->{path}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-	</tr>
-|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=warehouse>
-
-<input type=hidden name=path value=$form->{path}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">|;
-
-  if ($form->{menubar}) {
-    require "$form->{path}/menu.pl";
-    &menubar;
-  }
-
-  print qq|
-  </form>
-
-  </body>
-  </html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub warehouse_header {
-  $lxdebug->enter_sub();
-
-  $form->{title} = $locale->text("$form->{title} Warehouse");
-
-  # $locale->text('Add Warehouse')
-  # $locale->text('Edit Warehouse')
-
-  $form->{description} =~ s/\"/&quot;/g;
-
-  if (($rows = $form->numtextrows($form->{description}, 60)) > 1) {
-    $description =
-      qq|<textarea name="description" rows=$rows cols=60 wrap=soft>$form->{description}</textarea>|;
-  } else {
-    $description =
-      qq|<input name=description size=60 value="$form->{description}">|;
-  }
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=warehouse>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=2>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <th align=right>| . $locale->text('Description') . qq|</th>
-    <td>$description</td>
-  </tr>
-  <tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub save_warehouse {
-  $lxdebug->enter_sub();
-
-  $form->isblank("description", $locale->text('Description missing!'));
-  AM->save_warehouse(\%myconfig, \%$form);
-  $form->redirect($locale->text('Warehouse saved!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub delete_warehouse {
-  $lxdebug->enter_sub();
-
-  AM->delete_warehouse(\%myconfig, \%$form);
-  $form->redirect($locale->text('Warehouse deleted!'));
-
-  $lxdebug->leave_sub();
-}
-
-sub continue {
-  $lxdebug->enter_sub();
-
-  &{ $form->{nextsub} };
-
-  $lxdebug->leave_sub();
-}
-
 sub edit_units {
   $lxdebug->enter_sub();
 
@@ -3596,15 +2854,11 @@ sub edit_units {
 
   @languages = AM->language(\%myconfig, $form, 1);
 
-  @unit_list = ();
-  foreach $name (sort({ lc($a) cmp lc($b) } grep({ !$units->{$_}->{"base_unit"} } keys(%{$units})))) {
-    map({ push(@unit_list, $units->{$_}); }
-        sort({ ($units->{$a}->{"resolved_factor"} * 1) <=> ($units->{$b}->{"resolved_factor"} * 1) }
-             grep({ $units->{$_}->{"resolved_base_unit"} eq $name } keys(%{$units}))));
-  }
+  @unit_list = sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } values(%{$units}));
+
   my $i = 1;
   foreach (@unit_list) {
-    $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"}, 5) if ($_->{"factor"});
+    $_->{"factor"} = $form->format_amount(\%myconfig, $_->{"factor"} * 1) if ($_->{"factor"});
     $_->{"UNITLANGUAGES"} = [];
     foreach my $lang (@languages) {
       push(@{ $_->{"UNITLANGUAGES"} },
@@ -3621,12 +2875,15 @@ sub edit_units {
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
   $ddbox = AM->unit_select_data($units, undef, 1);
 
+  my $updownlink = build_std_url("action=swap_units", "unit_type");
+
   $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
   $form->header();
   print($form->parse_html_template("am/edit_units",
                                    { "UNITS" => \@unit_list,
                                      "NEW_BASE_UNIT_DDBOX" => $ddbox,
-                                     "LANGUAGES" => \@languages }));
+                                     "LANGUAGES" => \@languages,
+                                     "updownlink" => $updownlink }));
 
   $lxdebug->leave_sub();
 }
@@ -3759,6 +3016,231 @@ sub save_unit {
   $form->{"saved_message"} = $locale->text("The units have been saved.");
 
   edit_units();
+
+  $lxdebug->leave_sub();
+}
+
+sub show_history_search {
+	$lxdebug->enter_sub();
+	
+	$form->{title} = $locale->text("History Search");
+    $form->header();
+    
+    print $form->parse_html_template("/common/search_history");
+	
+	$lxdebug->leave_sub();
+}
+
+sub show_am_history {
+	$lxdebug->enter_sub();
+	my %search = ( "Artikelnummer" => "parts",
+				   "Kundennummer"  => "customer",
+				   "Lieferantennummer" => "vendor",
+				   "Projektnummer" => "project",
+				   "Buchungsnummer" => "oe",
+				   "Eingangsrechnungnummer" => "ap",
+				   "Ausgangsrechnungnummer" => "ar",
+           "Mahnungsnummer" => "dunning"
+		);
+	my %searchNo = ( "Artikelnummer" => "partnumber",
+				     "Kundennummer"  => "customernumber",
+				     "Lieferantennummer" => "vendornumber",
+				     "Projektnummer" => "projectnummer",
+				     "Buchungsnummer" => "ordnumber",
+				     "Eingangsrechnungnummer" => "invnumber",
+				     "Ausgangsrechnungnummer" => "invnumber",
+             "Mahnungsnummer" => "dunning_id"
+		);
+	
+	my $restriction;
+	my $tempNo = 0;
+	foreach(split(/\,/, $form->{einschraenkungen})) {
+		if($tempNo == 0) {
+			$restriction .= " AND addition = '" . $_ . "'";
+			$tempNo = 1;
+		} 
+		else {
+			$restriction .= " OR addition = '" . $_ . "'";
+		}
+	}
+	$restriction .= (($form->{transdate} ne "" && $form->{reqdate} ne "") 
+						? qq| AND st.itime::date >= '| . $form->{transdate} . qq|' AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+						: (($form->{transdate} ne "" && $form->{reqdate} eq "") 
+							? qq| AND st.itime::date >= '| . $form->{transdate} . qq|'|
+							: ($form->{transdate} eq "" && $form->{reqdate} ne "") 
+								? qq| AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+								: ""
+							)
+						);
+  $restriction .= ($form->{mitarbeiter} eq "" ? "" 
+          : ($form->{mitarbeiter} =~ /^[0-9]*$/  
+            ? " AND employee_id = " . $form->{mitarbeiter} 
+            : " AND employee_id = " . &get_employee_id($form->{mitarbeiter}, $dbh)));
+  
+	my $dbh = $form->dbconnect(\%myconfig);
+	my $query = qq|SELECT trans_id AS id FROM history_erp | . 
+                ($form->{'searchid'} ? 
+                  qq| WHERE snumbers = '| . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'| : 
+                  qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
+
+  my $sth = $dbh->prepare($query);
+	
+	$sth->execute() || $form->dberror($query);
+  
+  $form->{title} = $locale->text("History Search");
+	$form->header();
+	
+  my $i = 1;
+  my $daten = qq||;
+  while(my $hash_ref = $sth->fetchrow_hashref()){
+    if($i) {
+      $daten .= $hash_ref->{id};
+      $i = 0;
+    }
+    else {
+      $daten .= " OR trans_id = " . $hash_ref->{id};
+    }
+  }
+  
+  my ($sort, $sortby) = split(/\-\-/, $form->{order});
+  $sort =~ s/.*\.(.*)$/$1/;
+
+	print $form->parse_html_template("/common/show_history", 
+    {"DATEN" => $form->get_history($dbh, $daten, $restriction, $form->{order}),
+     "SUCCESS" => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
+     "NONEWWINDOW" => 1,
+     uc($sort) => 1,
+     uc($sort)."BY" => $sortby
+    });
+	$dbh->disconnect();
+  $lxdebug->leave_sub();
+}
+
+sub get_employee_id {
+	$lxdebug->enter_sub();
+	my $query = qq|SELECT id FROM employee WHERE name = '| . $_[0] . qq|'|;
+	my $sth = $_[1]->prepare($query);
+	$sth->execute() || $form->dberror($query);
+	my $return = $sth->fetch();
+	$sth->finish();
+	return ${$return}[0];
+	$lxdebug->leave_sub();
+}
+
+sub swap_units {
+  $lxdebug->enter_sub();
+
+  my $dir = $form->{"dir"} eq "down" ? "down" : "up";
+  my $unit_type = $form->{"unit_type"} eq "dimension" ?
+    "dimension" : "service";
+  AM->swap_units(\%myconfig, $form, $dir, $form->{"name"}, $unit_type);
+
+  edit_units();
+
+  $lxdebug->leave_sub();
+}
+
+sub add_tax {
+  $lxdebug->enter_sub();
+
+  $form->{title} =  $locale->text('Add');
+
+  $form->{callback} =
+    "$form->{script}?action=add_tax&login=$form->{login}&password=$form->{password}"
+    unless $form->{callback};
+
+  _get_taxaccount_selection();
+
+  $form->header();
+  
+  my $parameters_ref = {
+#    ChartTypeIsAccount         => $ChartTypeIsAccount,
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template2('am/edit_tax', $parameters_ref));
+
+  $lxdebug->leave_sub();
+}
+
+sub edit_tax {
+  $lxdebug->enter_sub();
+
+  $form->{title} =  $locale->text('Edit');
+
+  AM->get_tax(\%myconfig, \%$form);
+  _get_taxaccount_selection();
+
+  $form->{rate} = $form->format_amount(\%myconfig, $form->{rate}, 2);
+
+  $form->header();
+  
+  my $parameters_ref = {
+  };
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template2('am/edit_tax', $parameters_ref));
+
+  $lxdebug->leave_sub();
+}
+
+sub list_tax {
+  $lxdebug->enter_sub();
+
+  AM->taxes(\%myconfig, \%$form);
+
+  map { $_->{rate} = $form->format_amount(\%myconfig, $_->{rate}, 2) } @{ $form->{TAX} };
+
+  $form->{callback} = build_std_url('action=list_tax');
+
+  $form->{title} = $locale->text('Tax-O-Matic');
+
+  $form->header();
+  
+  # Ausgabe des Templates
+  print($form->parse_html_template2('am/list_tax', $parameters_ref));
+
+  $lxdebug->leave_sub();
+}
+
+sub _get_taxaccount_selection{
+  $lxdebug->enter_sub();
+
+  AM->get_tax_accounts(\%myconfig, \%$form);
+
+  map { $_->{selected} = $form->{chart_id} == $_->{id} } @{ $form->{ACCOUNTS} };
+
+  $lxdebug->leave_sub();
+}
+
+sub save_tax {
+  $lxdebug->enter_sub();
+
+  $form->isblank("rate", $locale->text('Taxrate missing!'));
+  $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
+  $form->isblank("taxkey", $locale->text('Taxkey  missing!'));
+
+  $form->{rate} = $form->parse_amount(\%myconfig, $form->{rate});
+
+  if ( $form->{rate} < 0 || $form->{rate} >= 100 ) {
+    $form->error($locale->text('Tax Percent is a number between 0 and 100'));
+  }
+
+  if ( $form->{rate} <= 0.99 && $form->{rate} > 0 ) {
+    $form->error($locale->text('Tax Percent is a number between 0 and 100'));
+  }  
+
+  AM->save_tax(\%myconfig, \%$form);
+  $form->redirect($locale->text('Tax saved!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub delete_tax {
+  $lxdebug->enter_sub();
+
+  AM->delete_tax(\%myconfig, \%$form);
+  $form->redirect($locale->text('Tax deleted!'));
 
   $lxdebug->leave_sub();
 }

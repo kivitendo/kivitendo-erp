@@ -5,7 +5,6 @@ function parts_language_selection_window(input_name) {
     "action=parts_language_selection&" +
     "login=" + escape(document.ic.login.value) + "&" +
     "password=" + escape(document.ic.password.value) + "&" +
-    "path=" + escape(document.ic.path.value) + "&" +
     "id=" + escape(document.ic.id.value) + "&" +
     "language_values=" + escape(document.ic.language_values.value) + "&" +
     "name=" + escape(name) + "&" +

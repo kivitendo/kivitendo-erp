@@ -25,7 +25,7 @@ foreach $item (@ARGV) {
 }
 
 opendir DIR, "$bindir" or die "$!";
-@progfiles = grep { /\.pl/; !/(_|^\.)/ } readdir DIR;
+@progfiles = grep { /\.pl$/ && !/(_|^\.)/ } readdir DIR;
 seekdir DIR, 0;
 @customfiles = grep /_/, readdir DIR;
 closedir DIR;
@@ -327,7 +327,7 @@ sub scanfile {
       if (/require\s+\W.*\.pl/) {
         my $newfile = $&;
         $newfile =~ s/require\s+\W//;
-        $newfile =~ s/\$form->{path}\///;
+        $newfile =~ s|bin/mozilla||;
 #         &scanfile("$bindir/$newfile", 0, $scanned_files);
          $cached{$file}{scan}{"$bindir/$newfile"} = 1;
       } elsif (/use\s+SL::(.*?);/) {
@@ -336,7 +336,7 @@ sub scanfile {
       }
 
       # is this a template call?
-      if (/parse_html_template\s*\(\s*[\"\']([\w\/]+)/) {
+      if (/parse_html_template2?\s*\(\s*[\"\']([\w\/]+)/) {
         my $newfile = "$basedir/templates/webpages/$1_master.html";
         if (-f $newfile) {
 #           &scanhtmlfile($newfile);

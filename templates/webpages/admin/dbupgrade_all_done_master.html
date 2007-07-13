@@ -1,0 +1,20 @@
+[% USE HTML%]
+[% IF NOTHING_TO_DO %]
+ <p><translate>No datasets have been selected.</translate></p>
+
+ [% ELSE %]
+
+ <hr>
+
+ <p><translate>All database upgrades have been applied.</translate></p>
+[% END %]
+
+<form method="post" action="admin.pl">
+ <input type="hidden" name="nextsub" value="list_users">
+ <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+
+ <input type="submit" name="action" value="<translate>Continue</translate>">
+</form>
+
+</body>
+</html>

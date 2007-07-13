@@ -15,9 +15,7 @@ foreach (@felder) {
 }
 $login =
     "[" . $login
-  . " - <a href=\"login.pl?path="
-  . $form->{"path"}
-  . "&password="
+  . " - <a href=\"login.pl?password="
   . $form->{"password"}
   . "&action=logout\" target=\"_top\">"
   . $locale->text('Logout')
@@ -44,7 +42,7 @@ $datum =
   . $Jahr . " - ";
 
 #$zeit="<div id='Uhr'>".$Stunden.":".$Minuten.":".$Sekunden."</div>";
-$zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
+my $zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
 
 print qq|
 <script type="text/javascript">
@@ -102,11 +100,11 @@ window.onload=clockon
 
 #
 print qq|
-<body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0">
+<body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0" style="background-image: url('image/fade.png'); background-repeat:repeat-x;">
 
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
 	<tr>
-		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
+		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">| . $locale->text('drucken') . qq|</a>]</td>
 		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
   . $login . $datum . qq| <script>writeclock()</script>&nbsp;
 		</td>

@@ -1,0 +1,55 @@
+[% USE HTML %]<body class="admin">
+
+ <h2>[% title %]</h2>
+
+ [% IF ALL_UPDATED %]
+  Alle Datenbanken sind auf aktuellem Stand.
+
+  [% ELSE %]
+
+  <form method="post" action="admin.pl">
+
+   <p>Folgende Datenbanken müssen aktualisiert werden:</p>
+
+   <table>
+    <tr>
+     <th class="listtop">Aktualisieren?</th>
+     <th class="listtop">Datenbank</th>
+     <th class="listtop">Treiber</th>
+     <th class="listtop">Datenbankcomputer</th>
+     <th class="listtop">Port</th>
+     <th class="listtop">Benutzer</th>
+    </tr>
+
+    [% SET odd = '1' %][% USE NEED_UPDATES_it = Iterator(NEED_UPDATES) %][% FOREACH row = NEED_UPDATES_it %]
+     <tr class="listrow[% IF odd %]1[% SET odd='0' %][% ELSE %]0[% SET odd = '1' %][% END %]">
+      <td><input type="checkbox" name="update_[% NEED_UPDATES_it.count %]" value="1" checked></td>
+      <td><input type="hidden" name="dbname_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbname) %]">[% HTML.escape(row.dbname) %]</td>
+      <td><input type="hidden" name="dbdriver_[% NEED_UPDATES_it.count %]" value="Pg">PostgreSQL</td>
+      <td><input type="hidden" name="dbhost_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbhost) %]">[% HTML.escape(row.dbhost) %]</td>
+      <td><input type="hidden" name="dbport_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbport) %]">[% HTML.escape(row.dbport) %]</td>
+      <td><input type="hidden" name="dbuser_[% NEED_UPDATES_it.count %]" value="[% HTML.escape(row.dbuser) %]">[% HTML.escape(row.dbuser) %]</td>
+     </tr>
+
+     [% IF NEED_UPDATES_it.last %]
+      <input type="hidden" name="rowcount" value="[% NEED_UPDATES_it.size %]">
+     [% END %]
+    [% END %]
+   </table>
+
+   <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+   <input type="hidden" name="nextsub" value="dbupdate">
+
+   <hr size="3" noshade>
+
+   <br>
+
+   <input type="submit" class="submit" name="action" value="Weiter">
+
+  </form>
+
+ [% END %]
+
+</body>
+</html>

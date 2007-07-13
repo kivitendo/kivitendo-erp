@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 
+BEGIN {
+  unshift @INC, "modules/YAML"; # Use our own version of YAML.
+  push @INC, "modules";         # Only use our own versions of modules if there's no system version.
+}
+
 use DBI;
 use Data::Dumper;
 
@@ -21,8 +26,6 @@ require "lx-erp.conf";
 
 $form = new Form;
 $form->{"script"} = "oe.pl";
-$form->{"path"} = "bin/mozilla";
-
 
 $ENV{'HOME'} = getcwd() . "/$userspath";
 

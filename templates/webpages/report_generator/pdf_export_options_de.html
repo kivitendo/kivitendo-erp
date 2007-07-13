@@ -1,0 +1,107 @@
+<body>
+
+ <script type="text/javascript">
+  <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      }
+
+    -->
+ </script>
+
+ <div class="listheading" width="100%"><TMPL_VAR title ESCAPE=HTML></div>
+
+ <form action="<TMPL_VAR script ESCAPE=HTML>" method="post" name="report_generator_form">
+
+  <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
+  </TMPL_LOOP>
+
+  <input type="hidden" name="report_generator_pdf_options_set" value="1">
+  <input type="hidden" name="report_generator_dispatch_to" value="">
+  <input type="hidden" name="action" value="report_generator_dispatcher">
+
+  <table>
+   <tr>
+    <td align="right">Seitenformat</td>
+    <td>
+     <select name="report_generator_pdf_options_paper_size">
+      <option value="A3">A3</option>
+      <option value="A4" selected>A4</option>
+      <option value="letter">Letter</option>
+      <option value="legal">Legal</option>
+     </select>
+     <select name="report_generator_pdf_options_orientation">
+      <option value="portrait">Hochformat</option>
+      <option value="landscape" selected>Querformat</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right">Schriftgr&ouml;&szlig;e</td>
+    <td><input name="report_generator_pdf_options_font_size" size="4" value="10">pt</td>
+   </tr>
+
+   <tr>
+    <td align="right">Seitenr&auml;nder:</td>
+   </tr>
+
+   <tr>
+    <td align="right">Oben</td>
+    <td><input name="report_generator_pdf_options_margin_top" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right">Links</td>
+    <td><input name="report_generator_pdf_options_margin_left" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right">Unten</td>
+    <td><input name="report_generator_pdf_options_margin_bottom" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right">Rechts</td>
+    <td><input name="report_generator_pdf_options_margin_right" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+   </tr>
+
+   <tr>
+    <td align="right" valign="top">Optionen:</td>
+    <td valign="top">
+     <input type="checkbox" name="report_generator_pdf_options_number" value="1" checked>
+     Seiten nummerieren
+     <TMPL_IF SHOW_PRINTERS>
+      <br>
+      <input type="checkbox" name="report_generator_pdf_options_print" value="1">
+      Liste ausdrucken
+     </TMPL_IF>
+    </td>
+   </tr>
+
+   <TMPL_IF SHOW_PRINTERS>
+    <tr>
+     <td align="right">Drucker</td>
+     <td>
+      <select name="report_generator_pdf_options_printer_id">
+       <TMPL_LOOP ALL_PRINTERS><option value="<TMPL_VAR id ESCAPE=HTML>"<TMPL_IF selected> selected</TMPL_IF>><TMPL_VAR printer_description ESCAPE=HTML></option></TMPL_LOOP>
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">Kopien</td>
+     <td><input name="report_generator_pdf_options_copies" size="4" value="<TMPL_VAR copies ESCAPE=HTML>"></td>
+    </tr>
+   </TMPL_IF>
+  </table>
+
+  <p>
+   <button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button>
+   <button type="button" class="submit" onclick="submit_report_generator_form('report_generator_back')">Zurück</button>
+  </p>
+
+ </form>
+</body>
+</html>

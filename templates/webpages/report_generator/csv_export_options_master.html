@@ -1,0 +1,85 @@
+<body>
+
+ <script type="text/javascript">
+  <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      }
+
+    -->
+ </script>
+
+ <div class="listheading" width="100%"><TMPL_VAR title ESCAPE=HTML></div>
+
+ <form action="<TMPL_VAR script ESCAPE=HTML>" method="post" name="report_generator_form">
+
+  <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
+  </TMPL_LOOP>
+
+  <input type="hidden" name="report_generator_csv_options_set" value="1">
+  <input type="hidden" name="report_generator_dispatch_to" value="">
+  <input type="hidden" name="action" value="report_generator_dispatcher">
+
+  <table>
+   <tr>
+    <td align="right"><translate>Quote chararacter</translate></td>
+    <td>
+     <select name="report_generator_csv_options_quote_char" style="width: 300px">
+      <option value="&quot;" selected>&quot;</option>
+      <option value="'">'</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Escape character</translate></td>
+    <td>
+     <select name="report_generator_csv_options_escape_char" style="width: 300px">
+      <option value="QUOTE_CHAR" selected><translate>Same as the quote character</translate></option>
+      <option value="&quot;">&quot;</option>
+      <option value="'">'</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Separator chararacter</translate></td>
+    <td>
+     <select name="report_generator_csv_options_sep_char" style="width: 300px">
+      <option value=";" selected>;</option>
+      <option value=",">,</option>
+      <option value=":">:</option>
+      <option value="TAB">TAB (<translate>The tabulator character</translate>)</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right"><translate>Line endings</translate></td>
+    <td>
+     <select name="report_generator_csv_options_eol_style" style="width: 300px">
+      <option value="DOS">DOS/Windows (CR/LF)</option>
+      <option value="Unix" selected>Unix (LF)</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right" valign="top"><translate>Options</translate>:</td>
+    <td valign="top">
+     <input type="checkbox" name="report_generator_csv_options_headers" value="1" checked>
+     <translate>Include column headings</translate>
+    </td>
+   </tr>
+
+  </table>
+
+  <p>
+   <button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')"><translate>Export as CSV</translate></button>
+   <button type="button" class="submit" onclick="submit_report_generator_form('report_generator_back')"><translate>Back</translate></button>
+  </p>
+
+ </form>
+</body>
+</html>

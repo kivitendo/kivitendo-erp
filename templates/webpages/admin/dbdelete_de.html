@@ -1,0 +1,16 @@
+[% USE HTML %]<body class="admin">
+
+  <h2>[% title %]</h2>
+
+  <form method="post" action="admin.pl">
+
+   <p>Die Datenbank [% HTML.escape(db) %] wurde erfolgreich gel&ouml;scht.</p>
+
+   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+   <input type="hidden" name="nextsub" value="list_users">
+
+   <p><input type="submit" class="submit" name="action" value="Weiter"></p>
+  </form>
+
+</body>
+</html>

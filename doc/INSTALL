@@ -1,14 +1,16 @@
-Aktuelle Installations- und Konfigurationshinweise: 
-===================================================
+Aktuelle Installations- und Konfigurationshinweise
+==================================================
 
 gibt es:
 
--auf der Lx-Office Homepage unter
-http://lx-office.org/index.php?id=dokumentation
--im Lx-Office-Wiki unter Dokumentation
-http://wiki.lx-office.org/index.php/Lx-Office_ERP
--im Lx-Office-Forum:
-http://www.lx-office.org/forum/
+- auf der Lx-Office Homepage unter
+  http://lx-office.org/index.php?id=dokumentation
+
+- im Lx-Office-Wiki unter Dokumentation
+  http://wiki.lx-office.org/index.php/Lx-Office_ERP
+
+- im Lx-Office-Forum:
+  http://www.lx-office.org/forum/
 
 =======================================
 
@@ -18,37 +20,72 @@ Installationsanleitung
 
 Folgende Pakete müssen installiert sein:
 ========================================
+
 Webserver (Apache)
-PostgreSQL - Datenbank 
-Perl-DBI, Perl-DBD, Perl-HTML-Template, Perl-CGI-Ajax, Perl-Class-Accessor
-Diese Pakete können bei den unterschiedlichen Distributionen anders heißen. 
-(Debian: apache, postgresql, libdbi-perl, libdbd-pg-perl,  libpgperl, libhtml-template-perl, libclass-accessor-perl) 
-(Fedora: httpd, postgresql-server, perl-DBI, perl-DBD-Pg) 
-(SuSE: apache2, postgresql-server,  perl-DBI, perl-DBD-Pg)
+PostgreSQL - Datenbank
+
+Benötigte Perl-Pakete, die nicht Bestandteil einer
+Standard-Perl-Installation sind:
+
+* DBI
+* DBD::Pg
+* HTML::Template
+* CGI::Ajax
+* Class::Accessor
+* Archive::Zip
+* Text::Iconv
+* Text::CSV_XS
+* IO::Wrap (aus dem Paket IO::Stringy)
+* YAML
+* Template
+
+Diese Pakete können bei den unterschiedlichen Distributionen anders
+heißen.
+
+Für Debian beötigen Sie diese Pakete:
+
+  apache, postgresql, libdbi-perl, libdbd-pg-perl, libpgperl,
+  libhtml-template-perl, libclass-accessor-perl, libarchive-zip-perl,
+  libtext-iconv-perl, libyaml-perl, libtext-csv-perl,
+  libio-stringy-perl, libtemplate-perl
+
+Für Fedora Core beötigen Sie unter anderem diese Pakete:
+
+  httpd, postgresql-server, perl-DBI, perl-DBD-Pg
+
+Für OpenSuSE beötigen Sie diese Pakete:
+
+  apache2, postgresql-server, perl-DBI, perl-DBD-Pg, perl-Archive-Zip,
+  perl-Class-Accessor, perl-Text-Iconv, perl-Text-CSV_XS,
+  perl-HTML-Template, perl-IO-stringy, perl-Template-Toolkit
 
 
-Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß es mit der CPAN-Shell installiert werden.
-Leider ist dazu nicht jeder in der Lage. LxO liefert daher das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
+Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß
+es mit der CPAN-Shell installiert werden.  Leider gibt es Fälle, in
+denen das nicht möglich oder praktikabel ist. LxO liefert daher das
+Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
 
 
 Die PostgreSQL Konfiguration muß angepasst werden.
 ==================================================
-In der Datei postgresql.conf (/var/lib/pgsql/data/ oder /etc/postgresql/) muß folgender Wert verändert werden:
+
+In der Datei postgresql.conf (/var/lib/pgsql/data/ oder
+/etc/postgresql/) muß folgender Wert verändert werden:
 
 TCPIP_SOCKET = 1 #  Nur PostgreSQL < 8.0
 
 default_with_oids = on # Nur PostgreSQL >= 8.0
 
 
-In der Datei pg_hba.conf (/var/lib/pgsql/data/ oder /etc/postgresql/) müssen die Berichtigungen für den 
-Zugriff geändert werden:
+In der Datei pg_hba.conf (/var/lib/pgsql/data/ oder /etc/postgresql/)
+müssen die Berichtigungen für den Zugriff geändert werden:
 
-alte Eintragung: 
+alte Eintragung:
 ----------------
 local	all all	ident sameuser
 host all all 127.0.0.1 255.0.0.0	ident sameuser
 
-Änderung: 
+Änderung:
 ---------
 local	all all	trust
 host all all 127.0.0.1 255.0.0.0	trust
@@ -59,10 +96,12 @@ local   all         lxoffice                                           password
 host    all         lxoffice      127.0.0.1         255.255.255.255    password
 
 
-Installation des Programmpaketes 
+Installation des Programmpaketes
 ================================
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.4.x.tgz) in den DocumentRoot des Webservers
-(/var/www/html/ oder /srv/www/htdocs oder /var/www/) entpacken.
+
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.4.x.tgz) in den
+DocumentRoot des Webservers (/var/www/html/ oder /srv/www/htdocs oder
+/var/www/) entpacken.
 
 tar xvzf lxoffice-erp-2.4.x.tgz
 
@@ -70,9 +109,11 @@ Verändern Sie evtl. noch den Namen des Verzeichnisses
 
 mv lxoffice-erp/ lx-erp/
 
-oder noch besser, Sie verwenden einen Alias in der Webserverkonfiguration.
+oder noch besser, Sie verwenden einen Alias in der
+Webserverkonfiguration.
 
-Das Verzeichnis muß dem Webserverbenutzer (Debian: www-data, Fedora: apache, SuSE: wwwrun) übergeben werden:
+Das Verzeichnis muß dem Webserverbenutzer (Debian: www-data, Fedora:
+apache, SuSE: wwwrun) übergeben werden:
 
 chown apache: -R lx-office-erp/
 
@@ -80,41 +121,47 @@ chown apache: -R lx-office-erp/
 Datenbankbenutzer anlegen
 =========================
 
-Es sollte zum Zugriff auf die PostgreSQL Datenbank ein Datenbankbenutzer angelegt werden. Führen Sie dazu 
-folgende Befehle nacheinander aus.
+Es sollte zum Zugriff auf die PostgreSQL Datenbank ein
+Datenbankbenutzer angelegt werden. Führen Sie dazu folgende Befehle
+nacheinander aus.
 
 su - postgres
-createuser -d lxoffice (ohne Passwort) 
+createuser -d lxoffice (ohne Passwort)
 oder besser
 createuser -d -P lxoffice (mit Passwort)
 
-Wenn Sie später einen Datenbankzugriff konfigurieren, verändern Sie den evtl. voreingestellten Benutzer 
-"postgres" auf "lxoffice".
+Wenn Sie später einen Datenbankzugriff konfigurieren, verändern Sie
+den evtl. voreingestellten Benutzer "postgres" auf "lxoffice".
 
 
-PostgreSQL - Datenbank erweitern 
+PostgreSQL - Datenbank erweitern
 ================================
-In der Datenbank "template1" sollte bevor die restliche Konfiguration von LxOffice ERP erfolgt noch folgende
-Funktion hinzugefügt werden:
+
+In der Datenbank "template1" sollte bevor die restliche Konfiguration
+von LxOffice ERP erfolgt noch folgende Funktion hinzugefügt werden:
 
 su postgres
 psql template1  (Zugriff über Admintool auf die Datenbank)
 create function plpgsql_call_handler ()
 returns opaque
-as '/usr/lib/pgsql/plpgsql.so'	
+as '/usr/lib/pgsql/plpgsql.so'
 language 'c';
 
 create language 'plpgsql' handler plpgsql_call_handler
 lancompiler 'pl/pgsql';
 
-!!!! Bitte beachten Sie, das der Pfad zur Datei plpgsql.so und der Name von Distribution zu Distribution verschieden sein kann.
-Bei z.B. Debian befindet sie sich unter '/usr/lib/postgresql/lib/plpgsql.so'.
+!!!! Bitte beachten Sie, das der Pfad zur Datei plpgsql.so und der
+Name von Distribution zu Distribution verschieden sein kann.  Bei
+z.B. Debian befindet sie sich unter
+'/usr/lib/postgresql/lib/plpgsql.so'.
 
 
-Apache Konfiguration 
+Apache Konfiguration
 ====================
-Der Zugriff auf das Programmverzeichnis muß in der Apache Webserver- konfiguration httpd.conf 
-(/etc/httpd/conf/) [bei SuSE evtl. httpd2.conf] konfiguriert werden:
+
+Der Zugriff auf das Programmverzeichnis muß in der Apache Webserver-
+konfiguration httpd.conf (/etc/httpd/conf/) [bei SuSE
+evtl. httpd2.conf] konfiguriert werden:
 
 AddHandler cgi-script .pl
 Alias /lx-erp/ /var/www/lx-erp/
@@ -128,24 +175,36 @@ Alias /lx-erp/ /var/www/lx-erp/
   Deny from All
 </Directory>
 
-!!!Vor den einzelnen Optionen muß bei einigen Distributionen ein Plus "+" gesetzt werden.
+!!!Vor den einzelnen Optionen muß bei einigen Distributionen ein Plus
+"+" gesetzt werden.
 
-Auf einigen Webservern werden manchmal die Grafiken und Style-Sheets nicht ausgeliefert. Daher die Apache-Konfig um diese Zeile erweitern:
+Auf einigen Webservern werden manchmal die Grafiken und Style-Sheets
+nicht ausgeliefert. Daher die Apache-Konfig um diese Zeile erweitern:
 
 EnableSendfile Off
 
-Datenbank anlegen 
+Datenbank anlegen
 =================
-Das Administrationsmenü finden Sie unter: 
+
+Das Administrationsmenü finden Sie unter:
 
 http://localhost/lx-erp/admin.pl
 
-Zuerst muß eine Datenbank angelegt werden. Anschließend ein Benutzer. Verwenden Sie für den 
-Datenbankzugriff den eben angelegten Benutzer lxoffice. 
+Zuerst muß eine Datenbank angelegt werden. Anschließend ein
+Benutzer. Verwenden Sie für den Datenbankzugriff den eben angelegten
+Benutzer lxoffice.
+
+Wenn Sie für die Lx-Office-Installation nicht den europäischen
+Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
+müssen Sie vor dem Anlegen der Datenbank in der Datei 'lx-erp.conf'
+die Variable '$dbcharset' auf den Wert 'UTF-8' setzen. Zusätzlich muss
+beim Anlegen der Datenbank 'UTF-8 Unicode' als Schriftsatz ausgewählt
+werden.
 
 
 OpenDocument-Vorlagen
 =====================
+
 Lx-Office unterstützt die Verwendung von Vorlagen im
 OpenDocument-Format, wie es OpenOffice.org ab Version 2
 erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
@@ -204,8 +263,13 @@ des Programmpakets" oben bereits erledigt, kann aber erneut überprüft
 werden, wenn die Konvertierung nach PDF fehlschlägt.
 
 
-Lx-Office ERP verwenden 
+Lx-Office ERP verwenden
 =======================
-Einloggen können Sie sich unter: 
+
+Einloggen können Sie sich unter:
 
 http://localhost/lx-office-erp/login.pl
+
+Die Administrationsseite erreichen Sie unter:
+
+http://localhost/lx-office-erp/admin.pl

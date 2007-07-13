@@ -36,22 +36,23 @@
 
 package CA;
 use Data::Dumper;
+use SL::DBUtils;
 
 sub all_accounts {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, $chart_id) = @_;
 
-  my $amount = ();
+  my %amount;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT c.accno,
-                 SUM(a.amount) AS amount
-                 FROM chart c, acc_trans a
-		 WHERE c.id = a.chart_id
-		 GROUP BY c.accno|;
+  my $query =
+    qq|SELECT c.accno, SUM(a.amount) AS amount | .
+    qq|FROM chart c, acc_trans a | .
+    qq|WHERE c.id = a.chart_id | .
+    qq|GROUP BY c.accno|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
@@ -60,33 +61,53 @@ sub all_accounts {
   }
   $sth->finish;
 
-  $query = qq|SELECT accno, description
-              FROM gifi|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $where = "AND c.id = $chart_id" if ($chart_id ne '');
 
-  my $gifi = ();
-  while (my ($accno, $description) = $sth->fetchrow_array) {
-    $gifi{$accno} = $description;
-  }
-  $sth->finish;
+  $query = qq{
+    SELECT 
+      c.accno,
+      c.id,
+      c.description,
+      c.charttype,
+      c.category,
+      c.link,
+      c.pos_bwa,
+      c.pos_bilanz,
+      c.pos_eur,
+      c.valid_from,
+      c.datevautomatik,
+      comma(tk.startdate) AS startdate,
+      comma(tk.taxkey_id) AS taxkey,
+      comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescription,
+      comma(tx.taxnumber) AS taxaccount,
+      comma(tk.pos_ustva) AS tk_ustva,
+      ( SELECT accno
+      FROM chart c2
+      WHERE c2.id = c.id
+      ) AS new_account
+    FROM chart c
+    LEFT JOIN taxkeys tk ON (c.id = tk.chart_id)
+    LEFT JOIN tax tx ON (tk.tax_id = tx.id)
+    WHERE 1=1
+    $where
+    GROUP BY c.accno, c.id, c.description, c.charttype, c.gifi_accno,
+      c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,      
+      c.datevautomatik
+    ORDER BY c.accno
+  };
 
-  $query = qq|SELECT c.id, c.accno, c.description, c.charttype, c.gifi_accno,
-              c.category, c.link
-              FROM chart c
-	      ORDER BY accno|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $sth = prepare_execute_query($form, $dbh, $query);
+
+  $form->{CA} = [];
 
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
-    $ca->{amount}           = $amount{ $ca->{accno} };
-    $ca->{gifi_description} = $gifi{ $ca->{gifi_accno} };
+    $ca->{amount} = $amount{ $ca->{accno} };
     if ($ca->{amount} < 0) {
       $ca->{debit} = $ca->{amount} * -1;
     } else {
       $ca->{credit} = $ca->{amount};
     }
-    push @{ $form->{CA} }, $ca;
+    push(@{ $form->{CA} }, $ca);
   }
 
   $sth->finish;
@@ -104,25 +125,13 @@ sub all_transactions {
   my $dbh = $form->dbconnect($myconfig);
 
   # get chart_id
-  my $query = qq|SELECT c.id FROM chart c
-                 WHERE c.accno = '$form->{accno}'|;
-  if ($form->{accounttype} eq 'gifi') {
-    $query = qq|SELECT c.id FROM chart c
-                WHERE c.gifi_accno = '$form->{gifi_accno}'|;
-  }
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my @id = ();
-  while (my ($id) = $sth->fetchrow_array) {
-    push @id, $id;
-  }
-  $sth->finish;
+  my $query = qq|SELECT id FROM chart WHERE accno = ?|;
+  my @id = selectall_array_query($form, $dbh, $query, $form->{accno});
 
   my $fromdate_where;
   my $todate_where;
 
-  my $where = '1 = 1';
+  my $where = qq|1 = 1|;
 
   # build WHERE clause from dates if any
   #  if ($form->{fromdate}) {
@@ -132,41 +141,22 @@ sub all_transactions {
   #    $where .= " AND ac.transdate <= '$form->{todate}'";
   #  }
 
+  my (@values, @where_values, @subwhere_values);
   if ($form->{fromdate}) {
-    $fromto = " AND ac.transdate >= '$form->{fromdate}'";
-    $subwhere .= " AND transdate >= '$form->{fromdate}'";
-    $glwhere = " AND ac.transdate >= '$form->{fromdate}'";
+    $where .= qq| AND ac.transdate >= ?|;
+    $subwhere .= qq| AND transdate >= ?|;
+    push(@where_values, conv_date($form->{fromdate}));
+    push(@subwhere_values, conv_date($form->{fromdate}));
   }
 
   if ($form->{todate}) {
-    $fromto   .= " AND ac.transdate <= '$form->{todate}'";
-    $subwhere .= " AND transdate <= '$form->{todate}'";
-    $glwhere .= " AND ac.transdate <= '$form->{todate}'";
+    $where .= qq| AND ac.transdate <= ?|;
+    $subwhere .= qq| AND transdate <= ?|;
+    push(@where_values, conv_date($form->{todate}));
+    push(@subwhere_values, conv_date($form->{todate}));
   }
 
-  if ($form->{eur}) {
-    $AR_PAID = qq|AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AR_paid%'
-		     $subwhere
-		   )|;
-    $AP_PAID = qq|AND ac.trans_id IN
-		   (
-		     SELECT trans_id
-		     FROM acc_trans
-		     JOIN chart ON (chart_id = id)
-		     WHERE link LIKE '%AP_paid%'
-		     $subwhere
-		   )|;
-  } else {
-    $where .= $fromto;
-    $AR_PAID = "";
-    $AP_PAID = "";
-    $glwhere = "";    # note! gl will be aliased as "a" later...
-  }
+
   my $sortorder = join ', ',
     $form->sort_columns(qw(transdate reference description));
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
@@ -177,261 +167,193 @@ sub all_transactions {
                  description => 3);
   map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
 
-  my ($null, $department_id) = split /--/, $form->{department};
-  my $dpt_where;
-  my $dpt_join;
+  my ($null, $department_id) = split(/--/, $form->{department});
+  my ($dpt_where, $dpt_join, @department_values);
   if ($department_id) {
-    $dpt_join = qq|
-                   JOIN department t ON (t.id = a.department_id)
-		  |;
-    $dpt_where = qq|
-		   AND t.id = $department_id
-		  |;
+    $dpt_join = qq| JOIN department t ON (t.id = a.department_id) |;
+    $dpt_where = qq| AND t.id = ? |;
+    @department_values = ($department_id);
   }
 
-  my $project;
+  my ($project, @project_values);
   if ($form->{project_id}) {
-    $project = qq|
-                 AND ac.project_id = $form->{project_id}
-		 |;
+    $project = qq| AND ac.project_id = ? |;
+    @project_values = (conv_i($form->{project_id}));
   }
 
-  if ($form->{accno} || $form->{gifi_accno}) {
+  if ($form->{accno}) {
 
     # get category for account
-    $query = qq|SELECT c.category
-                FROM chart c
-		WHERE c.accno = '$form->{accno}'|;
-
-    if ($form->{accounttype} eq 'gifi') {
-      $query = qq|SELECT c.category
-                FROM chart c
-		WHERE c.gifi_accno = '$form->{gifi_accno}'
-		AND c.charttype = 'A'|;
-    }
-
-    $sth = $dbh->prepare($query);
-
-    $sth->execute || $form->dberror($query);
-    ($form->{category}) = $sth->fetchrow_array;
-    $sth->finish;
+    $query = qq|SELECT category FROM chart WHERE accno = ?|;
+    ($form->{category}) = selectrow_query($form, $dbh, $query, $form->{accno});
 
     if ($form->{fromdate}) {
-
       # get beginning balance
-      $query = qq|SELECT SUM(ac.amount)
-		  FROM acc_trans ac
-		  JOIN chart c ON (ac.chart_id = c.id)
-		  $dpt_join
-		  WHERE c.accno = '$form->{accno}'
-		  AND ac.transdate < '$form->{fromdate}'
-		  $dpt_where
-		  $project
-		  |;
+      $query =
+        qq|SELECT SUM(ac.amount) | .
+        qq|FROM acc_trans ac | .
+        qq|JOIN chart c ON (ac.chart_id = c.id) | .
+        $dpt_join .
+        qq|WHERE c.accno = ? | .
+        qq|AND ac.transdate < ? | .
+        $dpt_where .
+        $project;
+      @values = ($form->{accno}, conv_date($form->{fromdate}),
+                 @department_values, @project_values);
 
       if ($form->{project_id}) {
+        $query .=
+          qq|UNION | .
 
-        $query .= qq|
+          qq|SELECT SUM(ac.qty * ac.sellprice) | .
+          qq|FROM invoice ac | .
+          qq|JOIN ar a ON (ac.trans_id = a.id) | .
+          qq|JOIN parts p ON (ac.parts_id = p.id) | .
+          qq|JOIN chart c ON (p.income_accno_id = c.id) | .
+          $dpt_join .
+          qq|WHERE c.accno = ? | .
+          qq|  AND a.transdate < ? | .
+          qq|  AND c.category = 'I' | .
+          $dpt_where .
+          $project .
 
-	       UNION
+          qq|UNION | .
 
-	          SELECT SUM(ac.qty * ac.sellprice)
-		  FROM invoice ac
-		  JOIN ar a ON (ac.trans_id = a.id)
-		  JOIN parts p ON (ac.parts_id = p.id)
-		  JOIN chart c ON (p.income_accno_id = c.id)
-		  $dpt_join
-		  WHERE c.accno = '$form->{accno}'
-		  AND a.transdate < '$form->{fromdate}'
-		  AND c.category = 'I'
-		  $dpt_where
-		  $project
+          qq|SELECT SUM(ac.qty * ac.sellprice) | .
+          qq|FROM invoice ac | .
+          qq|JOIN ap a ON (ac.trans_id = a.id) | .
+          qq|JOIN parts p ON (ac.parts_id = p.id) | .
+          qq|JOIN chart c ON (p.expense_accno_id = c.id) | .
+          $dpt_join .
+          qq|WHERE c.accno = ? | .
+          qq|  AND a.transdate < ? | .
+          qq|  AND c.category = 'E' | .
+          $dpt_where .
+          $project;
 
-	       UNION
-
-	          SELECT SUM(ac.qty * ac.sellprice)
-		  FROM invoice ac
-		  JOIN ap a ON (ac.trans_id = a.id)
-		  JOIN parts p ON (ac.parts_id = p.id)
-		  JOIN chart c ON (p.expense_accno_id = c.id)
-		  $dpt_join
-		  WHERE c.accno = '$form->{accno}'
-		  AND a.transdate < '$form->{fromdate}'
-		  AND c.category = 'E'
-		  $dpt_where
-		  $project
-		  |;
-
+        push(@values,
+             $form->{accno}, conv_date($form->{transdate}),
+             @department_values, @project_values,
+             $form->{accno}, conv_date($form->{transdate}),
+             @department_values, @project_values);
       }
 
-      if ($form->{accounttype} eq 'gifi') {
-        $query = qq|SELECT SUM(ac.amount)
-		  FROM acc_trans ac
-		  JOIN chart c ON (ac.chart_id = c.id)
-		  $dpt_join
-		  WHERE c.gifi_accno = '$form->{gifi_accno}'
-		  AND ac.transdate < '$form->{fromdate}'
-		  $dpt_where
-		  $project
-		  |;
-
-        if ($form->{project_id}) {
-
-          $query .= qq|
-
-	       UNION
-
-	          SELECT SUM(ac.qty * ac.sellprice)
-		  FROM invoice ac
-		  JOIN ar a ON (ac.trans_id = a.id)
-		  JOIN parts p ON (ac.parts_id = p.id)
-		  JOIN chart c ON (p.income_accno_id = c.id)
-		  $dpt_join
-		  WHERE c.gifi_accno = '$form->{gifi_accno}'
-		  AND a.transdate < '$form->{fromdate}'
-		  AND c.category = 'I'
-		  $dpt_where
-		  $project
-
-	       UNION
-
-	          SELECT SUM(ac.qty * ac.sellprice)
-		  FROM invoice ac
-		  JOIN ap a ON (ac.trans_id = a.id)
-		  JOIN parts p ON (ac.parts_id = p.id)
-		  JOIN chart c ON (p.expense_accno_id = c.id)
-		  $dpt_join
-		  WHERE c.gifi_accno = '$form->{gifi_accno}'
-		  AND a.transdate < '$form->{fromdate}'
-		  AND c.category = 'E'
-		  $dpt_where
-		  $project
-		  |;
-
-        }
-      }
-
-      $sth = $dbh->prepare($query);
-
-      $sth->execute || $form->dberror($query);
-      ($form->{balance}) = $sth->fetchrow_array;
-      $sth->finish;
+      ($form->{balance}) = selectrow_query($form, $dbh, $query, @values);
     }
   }
 
   $query = "";
   my $union = "";
+  @values = ();
 
   foreach my $id (@id) {
-
-    # NOTE:
-    #  Postgres is really picky about the order of implicit CROSS JOINs with ','
-    #  if you alias the  tables and want to use the alias later in another JOIN.
-    #  the alias you want to use has to be the most recent in the list, otherwise
-    #  Postgres will overwrite the alias internally and complain.
-    #  For this reason, in the next 3 SELECTs, the 'a' alias is last in the list.
-    #  Don't change this, and if you do, substitute the ',' with CROSS JOIN
-    #  ... that also works.
+    
+    # NOTE: Postgres is really picky about the order of implicit CROSS
+    #  JOINs with ',' if you alias the tables and want to use the
+    #  alias later in another JOIN.  the alias you want to use has to
+    #  be the most recent in the list, otherwise Postgres will
+    #  overwrite the alias internally and complain.  For this reason,
+    #  in the next 3 SELECTs, the 'a' alias is last in the list.
+    #  Don't change this, and if you do, substitute the ',' with CROSS
+    #  JOIN ... that also works.
 
     # get all transactions
-    $query .= qq|$union
-      SELECT a.id, a.reference, a.description, ac.transdate,
-	     $false AS invoice, ac.amount, 'gl' as module
-		FROM acc_trans ac, gl a $dpt_join
-		WHERE $where
-		$glwhere
-		$dpt_where
-		$project
-		AND ac.chart_id = $id
-		AND ac.trans_id = a.id
-      UNION
-      SELECT a.id, a.invnumber, c.name, ac.transdate,
-	     a.invoice, ac.amount, 'ar' as module
-		FROM acc_trans ac, customer c, ar a $dpt_join
-		WHERE $where
-		$dpt_where
-		$project
-		AND ac.chart_id = $id
-		AND ac.trans_id = a.id
-                $AR_PAID
-		AND a.customer_id = c.id
-      UNION
-      SELECT a.id, a.invnumber, v.name, ac.transdate,
-	     a.invoice, ac.amount, 'ap' as module
-		FROM acc_trans ac, vendor v, ap a $dpt_join
-		WHERE $where
-		$dpt_where
-		$project
-		AND ac.chart_id = $id
-		AND ac.trans_id = a.id
-		$AP_PAID
-		AND a.vendor_id = v.id
-		|;
-    $union = qq|
-      UNION ALL
-      |;
+    $query .=
+      $union .
+      qq|SELECT a.id, a.reference, a.description, ac.transdate, | .
+      qq|  $false AS invoice, ac.amount, 'gl' as module | .
+      qq|FROM acc_trans ac, gl a | .
+      $dpt_join .
+      qq|WHERE | . $where . $dpt_where . $project .
+      qq|  AND ac.chart_id = ? | .
+      qq| AND ac.trans_id = a.id | .
+
+      qq|UNION ALL | .
+
+      qq|SELECT a.id, a.invnumber, c.name, ac.transdate, | .
+      qq|  a.invoice, ac.amount, 'ar' as module | .
+      qq|FROM acc_trans ac, customer c, ar a | .
+      $dpt_join .
+      qq|WHERE | . $where . $dpt_where . $project .
+      qq| AND ac.chart_id = ? | .
+      qq| AND NOT a.storno | .
+      qq| AND ac.trans_id = a.id | .
+      qq| AND a.customer_id = c.id | .
+
+      qq|UNION ALL | .
+
+      qq|SELECT a.id, a.invnumber, v.name, ac.transdate, | .
+      qq|  a.invoice, ac.amount, 'ap' as module | .
+      qq|FROM acc_trans ac, vendor v, ap a | .
+      $dpt_join .
+      qq|WHERE | . $where . $dpt_where . $project .
+      qq| AND ac.chart_id = ? | .
+      qq| AND ac.trans_id = a.id | .
+      qq| AND NOT a.storno | .
+      qq| AND a.vendor_id = v.id |;
+
+    push(@values,
+         @where_values, @department_values, @project_values, $id,
+         @where_values, @department_values, @project_values, $id,
+         @where_values, @department_values, @project_values, $id);
+
+    $union = qq|UNION ALL |;
 
     if ($form->{project_id}) {
 
       $fromdate_where =~ s/ac\./a\./;
       $todate_where   =~ s/ac\./a\./;
 
-      $query .= qq|
+      $query .=
+        qq|UNION ALL | .
 
-             UNION ALL
+        qq|SELECT a.id, a.invnumber, c.name, a.transdate, | .
+        qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module | .
+        qq|FROM ar a | .
+        qq|JOIN invoice ac ON (ac.trans_id = a.id) | .
+        qq|JOIN parts p ON (ac.parts_id = p.id) | .
+        qq|JOIN customer c ON (a.customer_id = c.id) | .
+        $dpt_join .
+        qq|WHERE p.income_accno_id = ? | .
+        $fromdate_where .
+        $todate_where .
+        $dpt_where .
+        $project .
 
-                 SELECT a.id, a.invnumber, c.name, a.transdate,
-	         a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module
-		 FROM ar a
-		 JOIN invoice ac ON (ac.trans_id = a.id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN customer c ON (a.customer_id = c.id)
-		 $dpt_join
-		 WHERE p.income_accno_id = $id
-		 $fromdate_where
-		 $todate_where
-		 $dpt_where
-		 $project
+        qq|UNION ALL | .
 
-             UNION ALL
+        qq|SELECT a.id, a.invnumber, v.name, a.transdate, | .
+        qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module | .
+        qq|FROM ap a | .
+        qq|JOIN invoice ac ON (ac.trans_id = a.id) | .
+        qq|JOIN parts p ON (ac.parts_id = p.id) | .
+        qq|JOIN vendor v ON (a.vendor_id = v.id) | .
+        $dpt_join .
+        qq|WHERE p.expense_accno_id = ? | .
+        $fromdate_where .
+        $todate_where .
+        $dpt_where .
+        $project;
 
-                 SELECT a.id, a.invnumber, v.name, a.transdate,
-	         a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module
-		 FROM ap a
-		 JOIN invoice ac ON (ac.trans_id = a.id)
-		 JOIN parts p ON (ac.parts_id = p.id)
-		 JOIN vendor v ON (a.vendor_id = v.id)
-		 $dpt_join
-		 WHERE p.expense_accno_id = $id
-		 $fromdate_where
-		 $todate_where
-		 $dpt_where
-		 $project
-		 |;
+      push(@values,
+           $id, @department_values, @project_values,
+           $id, @department_values, @project_values);
 
       $fromdate_where =~ s/a\./ac\./;
       $todate_where   =~ s/a\./ac\./;
 
     }
 
-    $union = qq|
-             UNION ALL
-                 |;
+    $union = qq|UNION ALL|;
   }
 
-  $query .= qq|
-      ORDER BY $sortorder|;
+  my $sort = grep({ $form->{sort} eq $_ } qw(transdate reference description)) ? $form->{sort} : 'transdate';
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  $query .= qq|ORDER BY $sort|;
+  $sth = prepare_execute_query($form, $dbh, $query, @values);
 
+  $form->{CA} = [];
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
-
-    # gl
-    if ($ca->{module} eq "gl") {
-      $ca->{module} = "gl";
-    }
-
     # ap
     if ($ca->{module} eq "ap") {
       $ca->{module} = ($ca->{invoice}) ? 'ir' : 'ap';
@@ -450,7 +372,9 @@ sub all_transactions {
       $ca->{debit}  = 0;
     }
 
-    push @{ $form->{CA} }, $ca;
+    $ca->{index} = join "--", map { $ca->{$_} } qw(id reference description);
+
+    push(@{ $form->{CA} }, $ca);
 
   }
 

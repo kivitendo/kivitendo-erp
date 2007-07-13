@@ -1,0 +1,80 @@
+[% USE HTML %]<body>
+
+ <script type="text/javascript">
+  <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      }
+
+    -->
+ </script>
+
+ [% IF MESSAGE %]
+  <p>[% MESSAGE %]</p>
+ [% END %]
+
+ <div class="listtop" width="100%">[% TITLE %]</div>
+
+ [% IF TOP_INFO_TEXT %]
+  <p>[% TOP_INFO_TEXT %]</p>
+ [% END %]
+
+ [% RAW_TOP_INFO_TEXT %]
+
+ [% IF DATA_PRESENT %]
+ <p>
+  <table width="100%">
+   <tr>
+    [% FOREACH col = COLUMN_HEADERS %]
+     <th class="listheading">[% IF col.link %]<a href="[% col.link %]">[% END %][% HTML.escape(col.text) %][% IF col.link %][% IF col.show_sort_indicator %]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[% END %]</a>[% ELSE %][% IF col.show_sort_indicator %]<img src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[% END %][% END %]</th>
+    [% END %]
+   </tr>
+
+   [% FOREACH row = ROWS %]
+    [% IF row.IS_CONTROL %]
+     [% IF row.IS_SEPARATOR %]<tr><td colspan="[% row.NUM_COLUMNS %]"><hr size="3" noshade></td></tr>[% END %][% IF row.IS_COLSPAN_DATA %]<tr><td colspan="[% row.NUM_COLUMNS %]">[% row.data %]</td></tr>[% END %]
+     [% ELSE %]
+     <tr class="listrow[% row.outer_idx_odd %]">
+      [% FOREACH col = row.COLUMNS %]<td[% IF col.align %] align="[% col.align %]"[% END %][% IF col.valign %] valign="[% col.valign %]"[% END %][% IF col.class %] class="[% col.class %]"[% END %]>[% IF col.raw_data %][% col.raw_data %][% END %][% USE iterator(col.CELL_ROWS) %][% FOREACH cell_row = iterator %][% IF cell_row.data %][% IF cell_row.link %]<a href="[% cell_row.link %]">[% END %][% cell_row.data %][% IF cell_row.link %]</a>[% END %][% END %][% UNLESS iterator.last %]<br>[% END %][% END %]</td>
+      [% END %]
+     </tr>
+    [% END %]
+   [% END %]
+
+   <tr><td colspan="[% NUM_COLUMNS %]"><hr size="3" noshade></td></tr>
+
+  </table>
+ </p>
+ [% ELSE %]
+  <p><translate>No data was found.</translate></p>
+ [% END %]
+
+ [% RAW_BOTTOM_INFO_TEXT %]
+
+ [% IF BOTTOM_INFO_TEXT %]
+  <p>[% BOTTOM_INFO_TEXT %]</p>
+ [% END %]
+
+ [% IF SHOW_EXPORT_BUTTONS %]
+  <form action="[% HTML.escape(script) %]" name="report_generator_form" method="post">
+   <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+   <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+
+   [% FOREACH var = EXPORT_VARIABLES %]<input type="hidden" name="report_generator_hidden_[% var.key %]" value="[% HTML.escape(var.value) %]">
+   [% END %]
+
+   <input type="hidden" name="report_generator_nextsub" value="[% HTML.escape(EXPORT_NEXTSUB) %]">
+   <input type="hidden" name="report_generator_variable_list" value="[% HTML.escape(EXPORT_VARIABLE_LIST) %]">
+   <input type="hidden" name="report_generator_dispatch_to" value="">
+   <input type="hidden" name="action" value="report_generator_dispatcher">
+
+   <p>
+    Listenexport<br>
+    [% IF ALLOW_PDF_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button>[% END %]
+    [% IF ALLOW_CSV_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')">Als CSV exportieren</button>[% END %]
+   </p>
+  </form>
+ [% END %]
+
+</body>

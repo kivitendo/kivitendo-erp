@@ -1,0 +1,53 @@
+[% USE HTML %]<body>
+ <form method="post" action="am.pl">
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="type" value="tax">
+
+  <div class="listtop"><translate>Tax-O-Matic</translate> [% title %]</div>
+
+  <table width="100%">
+   <tr>
+    <td><translate>tax_taxkey</translate></td>
+    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]"></td>
+   </tr>
+
+   <tr>
+    <td><translate>tax_taxdescription</translate></td>
+    <td><input name="taxdescription" size="60" value="[% HTML.escape(taxdescription) %]"></td>
+   </tr>
+
+   <tr>
+    <td><translate>tax_percent</translate></td>
+    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]"> %</td>
+   </tr>
+
+   <tr>
+    <td><translate>tax_chartaccno</translate></td>
+    <td><select name="chart_id"><option value="0"><translate>None</translate></option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
+   </tr>
+
+  </table>
+
+  [% UNLESS orphaned %]
+  <br />
+  <translate>Chartaccounts connected to this Tax:</translate>
+  [% FOREACH row = TAXINUSE %]
+  <a href="am.pl?action=edit_account&id=[% HTML.url(row.id) %]&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.accno) %]</a>&nbsp;
+  [% END %]
+  <br />
+  [% END %]
+
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+
+  <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+
+  [% IF orphaned %]
+  <input type="submit" class="submit" name="action" value="<translate>Delete</translate>">
+  [% END %]
+
+</form>
+</body>
+</html>
+

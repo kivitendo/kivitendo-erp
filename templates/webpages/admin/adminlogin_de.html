@@ -1,0 +1,29 @@
+[% USE HTML %]<body class="admin" onload="document.getElementById('rpw').focus()">
+
+ <div align="center">
+
+  <a href="http://www.lx-office.org"><img src="image/lx-office-erp.png" border="0"></a>
+
+  <h1 class="login">Version [% HTML.escape(version) %]</h1>
+
+  <h2>Administration</h2>
+
+  <form method="post" action="admin.pl">
+
+   <table>
+    <tr>
+     <th>Passwort</th>
+     <td><input type="password" name="rpw" id="rpw"></td>
+     <td><input type="submit" class="submit" name="action" value="Anmeldung"></td>
+    </tr>
+    <input type="hidden" name="action" value="login">
+   </table>
+
+  </form>
+
+  <p><a href="http://www.lx-office.org/">Lx-Office-Webseite</a></p>
+
+ </div>
+
+</body>
+</html>

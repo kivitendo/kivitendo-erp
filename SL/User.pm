@@ -34,7 +34,13 @@
 
 package User;
 
+use IO::File;
+use Fcntl qw(:seek);
+
 use SL::DBUpgrade2;
+use SL::DBUtils;
+use SL::Iconv;
+use SL::Inifile;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -43,6 +49,10 @@ sub new {
   my $self = {};
 
   if ($login ne "") {
+    local *MEMBER;
+
+    $login =~ s|.*/||;
+
     &error("", "$memfile locked!") if (-f "${memfile}.LCK");
 
     open(MEMBER, "$memfile") or &error("", "$memfile : $!");
@@ -50,8 +60,8 @@ sub new {
     while (<MEMBER>) {
       if (/^\[$login\]/) {
         while (<MEMBER>) {
-          last if /^\[/;
-          next if /^(#|\s)/;
+          last if m/^\[/;
+          next if m/^(#|\s)/;
 
           # remove comments
           s/\s#.*//g;
@@ -83,13 +93,15 @@ sub new {
 sub country_codes {
   $main::lxdebug->enter_sub();
 
+  local *DIR;
+
   my %cc       = ();
   my @language = ();
 
   # scan the locale directory and read in the LANGUAGE files
-  opendir DIR, "locale";
+  opendir(DIR, "locale");
 
-  my @dir = grep !/(^\.\.?$|\..*)/, readdir DIR;
+  my @dir = grep(!/(^\.\.?$|\..*)/, readdir(DIR));
 
   foreach my $dir (@dir) {
     next unless open(FH, "locale/$dir/LANGUAGE");
@@ -111,6 +123,8 @@ sub login {
 
   my ($self, $form, $userspath) = @_;
 
+  local *FH;
+
   my $rc = -3;
 
   if ($self->{login}) {
@@ -129,11 +143,11 @@ sub login {
     }
 
     unless (-e "$userspath/$self->{login}.conf") {
-      $self->create_config("$userspath/$self->{login}.conf");
+      $self->create_config();
     }
 
     do "$userspath/$self->{login}.conf";
-    $myconfig{dbpasswd} = unpack 'u', $myconfig{dbpasswd};
+    $myconfig{dbpasswd} = unpack('u', $myconfig{dbpasswd});
 
     # check if database is down
     my $dbh =
@@ -151,18 +165,14 @@ sub login {
 
     # add login to employee table if it does not exist
     # no error check for employee table, ignore if it does not exist
-    $query = qq|SELECT e.id FROM employee e WHERE e.login = '$self->{login}'|;
-    $sth   = $dbh->prepare($query);
-    $sth->execute;
-
-    my ($login) = $sth->fetchrow_array;
-    $sth->finish;
+    $query = qq|SELECT id FROM employee WHERE login = ?|;
+    my ($login) = selectrow_query($form, $dbh, $query, $self->{login});
 
     if (!$login) {
-      $query = qq|INSERT INTO employee (login, name, workphone, role)
-                  VALUES ('$self->{login}', '$myconfig{name}',
-		  '$myconfig{tel}', 'user')|;
-      $dbh->do($query);
+      $query = qq|INSERT INTO employee (login, name, workphone, role)| .
+               qq|VALUES (?, ?, ?, ?)|;
+      my @values = ($self->{login}, $myconfig{name}, $myconfig{tel}, "user");
+      do_query($form, $dbh, $query, @values);
     }
 
     $self->create_schema_info_table($form, $dbh);
@@ -205,6 +215,8 @@ sub login {
 
       $self->dbupdate($form);
       $self->dbupdate2($form, $controls);
+
+      close(FH);
 
       # remove lock file
       unlink("$userspath/nologin");
@@ -298,10 +310,11 @@ sub dbsources {
     or $form->dberror;
 
   if ($form->{dbdriver} eq 'Pg') {
-
-    $query = qq|SELECT datname FROM pg_database WHERE NOT ((datname = 'template0') OR (datname = 'template1'))|;
-    $sth   = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
+    $query =
+      qq|SELECT datname FROM pg_database | .
+      qq|WHERE NOT datname IN ('template0', 'template1')|;
+    $sth = $dbh->prepare($query);
+    $sth->execute() || $form->dberror($query);
 
     while (my ($db) = $sth->fetchrow_array) {
 
@@ -314,28 +327,29 @@ sub dbsources {
           DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
           or $form->dberror;
 
-        $query = qq|SELECT p.tablename FROM pg_tables p
-		    WHERE p.tablename = 'defaults'
-		    AND p.tableowner = '$form->{dbuser}'|;
+        $query =
+          qq|SELECT tablename FROM pg_tables | .
+          qq|WHERE (tablename = 'defaults') AND (tableowner = ?)|;
         my $sth = $dbh->prepare($query);
-        $sth->execute || $form->dberror($query);
+        $sth->execute($form->{dbuser}) ||
+          $form->dberror($query . " ($form->{dbuser})");
 
         if ($sth->fetchrow_array) {
-          push @dbsources, $db;
+          push(@dbsources, $db);
         }
         $sth->finish;
         $dbh->disconnect;
         next;
       }
-      push @dbsources, $db;
+      push(@dbsources, $db);
     }
   }
 
   if ($form->{dbdriver} eq 'Oracle') {
     if ($form->{only_acc_db}) {
-      $query = qq|SELECT o.owner FROM dba_objects o
-		  WHERE o.object_name = 'DEFAULTS'
-		  AND o.object_type = 'TABLE'|;
+      $query =
+        qq|SELECT owner FROM dba_objects | .
+        qq|WHERE object_name = 'DEFAULTS' AND object_type = 'TABLE'|;
     } else {
       $query = qq|SELECT username FROM dba_users|;
     }
@@ -344,7 +358,7 @@ sub dbsources {
     $sth->execute || $form->dberror($query);
 
     while (my ($db) = $sth->fetchrow_array) {
-      push @dbsources, $db;
+      push(@dbsources, $db);
     }
   }
 
@@ -366,11 +380,12 @@ sub dbcreate {
   my $dbh =
     DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
     or $form->dberror;
-
+  $form->{db} =~ s/\"//g;
   my %dbcreate = (
     'Pg'     => qq|CREATE DATABASE "$form->{db}"|,
     'Oracle' =>
-      qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|
+    qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS | .
+    qq|TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|
   );
 
   my %dboptions = (
@@ -385,14 +400,14 @@ sub dbcreate {
     push(@{$dboptions{"Pg"}}, "TEMPLATE = $dbdefault");
   }
 
-  my $query = qq|$dbcreate{$form->{dbdriver}}|;
+  my $query = $dbcreate{$form->{dbdriver}};
   $query .= " WITH " . join(" ", @{$dboptions{"Pg"}}) if (@{$dboptions{"Pg"}});
 
-  $dbh->do($query) || $form->dberror($query);
+  do_query($form, $dbh, $query);
 
   if ($form->{dbdriver} eq 'Oracle') {
-    $query = qq|GRANT CONNECT,RESOURCE TO "$form->{db}"|;
-    $dbh->do($query) || $form->dberror($query);
+    $query = qq|GRANT CONNECT, RESOURCE TO "$form->{db}"|;
+    do_query($form, $dbh, $query);
   }
   $dbh->disconnect;
 
@@ -407,21 +422,17 @@ sub dbcreate {
   $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
     or $form->dberror;
 
-  # create the tables
-  my $filename = qq|sql/lx-office.sql|;
-  $self->process_query($form, $dbh, $filename);
+  my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
+  $db_charset ||= Common::DEFAULT_CHARSET;
 
-  # load gifi
-  ($filename) = split /_/, $form->{chart};
-  $filename =~ s/_//;
-  $self->process_query($form, $dbh, "sql/${filename}-gifi.sql");
+  # create the tables
+  $self->process_query($form, $dbh, "sql/lx-office.sql", undef, $db_charset);
 
   # load chart of accounts
-  $filename = qq|sql/$form->{chart}-chart.sql|;
-  $self->process_query($form, $dbh, $filename);
+  $self->process_query($form, $dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
 
-  $query = "UPDATE defaults SET coa = " . $dbh->quote($form->{"chart"});
-  $dbh->do($query) || $form->dberror($query);
+  $query = "UPDATE defaults SET coa = ?";
+  do_query($form, $dbh, $query, $form->{chart});
 
   $dbh->disconnect;
 
@@ -436,11 +447,31 @@ sub dbcreate {
 sub process_perl_script {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename, $version) = @_;
+  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  open(FH, "$filename") or $form->error("$filename : $!\n");
-  my $contents = join("", <FH>);
-  close(FH);
+  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
+
+  my $file_charset = Common::DEFAULT_CHARSET;
+
+  if (ref($version_or_control) eq "HASH") {
+    $file_charset = $version_or_control->{charset};
+
+  } else {
+    while (<$fh>) {
+      last if !/^--/;
+      next if !/^--\s*\@charset:\s*(.+)/;
+      $file_charset = $1;
+      last;
+    }
+    $fh->seek(0, SEEK_SET);
+  }
+
+  my $contents = join "", <$fh>;
+  $fh->close();
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  my $iconv = SL::Iconv::get_converter($file_charset, $db_charset);
 
   $dbh->begin_work();
 
@@ -470,8 +501,13 @@ sub process_perl_script {
     exit(0);
   }
 
-  if ($version) {
-    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version));
+  if (ref($version_or_control) eq "HASH") {
+    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
+             $dbh->quote($version_or_control->{"tag"}) . ", " .
+             $dbh->quote($form->{"login"}) . ")");
+  } elsif ($version_or_control) {
+    $dbh->do("UPDATE defaults SET version = " .
+             $dbh->quote($version_or_control));
   }
   $dbh->commit();
 
@@ -481,18 +517,28 @@ sub process_perl_script {
 sub process_query {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbh, $filename, $version_or_control) = @_;
+  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  #  return unless (-f $filename);
-
-  open(FH, "$filename") or $form->error("$filename : $!\n");
+  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
   my $query = "";
   my $sth;
   my @quote_chars;
 
+  my $file_charset = Common::DEFAULT_CHARSET;
+  while (<$fh>) {
+    last if !/^--/;
+    next if !/^--\s*\@charset:\s*(.+)/;
+    $file_charset = $1;
+    last;
+  }
+  $fh->seek(0, SEEK_SET);
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
   $dbh->begin_work();
 
-  while (<FH>) {
+  while (<$fh>) {
+    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
 
     # Remove DOS and Unix style line endings.
     chomp;
@@ -523,7 +569,9 @@ sub process_query {
             my $errstr = $dbh->errstr;
             $sth->finish();
             $dbh->rollback();
-            $form->dberror("The database update/creation did not succeed. The file ${filename} containing the following query failed:<br>${query}<br>" .
+            $form->dberror("The database update/creation did not succeed. " .
+                           "The file ${filename} containing the following " .
+                           "query failed:<br>${query}<br>" .
                            "The error message was: ${errstr}<br>" .
                            "All changes in that file have been reverted.");
           }
@@ -548,7 +596,7 @@ sub process_query {
   }
   $dbh->commit();
 
-  close FH;
+  $fh->close();
 
   $main::lxdebug->leave_sub();
 }
@@ -557,17 +605,17 @@ sub dbdelete {
   $main::lxdebug->enter_sub();
 
   my ($self, $form) = @_;
-
+  $form->{db} =~ s/\"//g;
   my %dbdelete = ('Pg'     => qq|DROP DATABASE "$form->{db}"|,
-                  'Oracle' => qq|DROP USER $form->{db} CASCADE|);
+                  'Oracle' => qq|DROP USER "$form->{db}" CASCADE|);
 
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
   my $dbh =
     DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
     or $form->dberror;
-  my $query = qq|$dbdelete{$form->{dbdriver}}|;
-  $dbh->do($query) || $form->dberror($query);
+  my $query = $dbdelete{$form->{dbdriver}};
+  do_query($form, $dbh, $query);
 
   $dbh->disconnect;
 
@@ -578,6 +626,8 @@ sub dbsources_unused {
   $main::lxdebug->enter_sub();
 
   my ($self, $form, $memfile) = @_;
+
+  local *FH;
 
   my @dbexcl    = ();
   my @dbsources = ();
@@ -617,93 +667,45 @@ sub dbneedsupdate {
 
   my ($self, $form) = @_;
 
-  my %dbsources = ();
-  my $query;
+  my $members  = Inifile->new($main::memberfile);
+  my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
 
-  $form->{sid} = $form->{dbdefault};
-  &dbconnect_vars($form, $form->{dbdefault});
+  my ($query, $sth, %dbs_needing_updates);
 
-  my $dbh =
-    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-    or $form->dberror;
+  foreach my $login (grep /[a-z]/, keys %{ $members }) {
+    my $member = $members->{$login};
 
-  if ($form->{dbdriver} eq 'Pg') {
+    map { $form->{$_} = $member->{$_} } qw(dbname dbuser dbpasswd dbhost dbport);
+    dbconnect_vars($form, $form->{dbname});
+    $main::lxdebug->dump(0, "form", $form);
+    my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
 
-    $query = qq|SELECT d.datname FROM pg_database d, pg_user u
-                WHERE d.datdba = u.usesysid
-		AND u.usename = '$form->{dbuser}'|;
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
+    next unless $dbh;
 
-    while (my ($db) = $sth->fetchrow_array) {
+    my $version;
 
-      next if ($db =~ /^template/);
-
-      &dbconnect_vars($form, $db);
-
-      my $dbh =
-        DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-        or $form->dberror;
-
-      $query = qq|SELECT t.tablename FROM pg_tables t
-		  WHERE t.tablename = 'defaults'|;
-      my $sth = $dbh->prepare($query);
-      $sth->execute || $form->dberror($query);
-
-      if ($sth->fetchrow_array) {
-        $query = qq|SELECT version FROM defaults|;
-        my $sth = $dbh->prepare($query);
-        $sth->execute;
-
-        if (my ($version) = $sth->fetchrow_array) {
-          $dbsources{$db} = $version;
-        }
-        $sth->finish;
-      }
-      $sth->finish;
-      $dbh->disconnect;
+    $query = qq|SELECT version FROM defaults|;
+    $sth = prepare_query($form, $dbh, $query);
+    if ($sth->execute()) {
+      ($version) = $sth->fetchrow_array();
     }
-    $sth->finish;
-  }
+    $sth->finish();
+    $dbh->disconnect();
 
-  if ($form->{dbdriver} eq 'Oracle') {
-    $query = qq|SELECT o.owner FROM dba_objects o
-		WHERE o.object_name = 'DEFAULTS'
-		AND o.object_type = 'TABLE'|;
+    next unless $version;
 
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    while (my ($db) = $sth->fetchrow_array) {
-
-      $form->{dbuser} = $db;
-      &dbconnect_vars($form, $db);
-
-      my $dbh =
-        DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-        or $form->dberror;
-
-      $query = qq|SELECT version FROM defaults|;
-      my $sth = $dbh->prepare($query);
-      $sth->execute;
-
-      if (my ($version) = $sth->fetchrow_array) {
-        $dbsources{$db} = $version;
-      }
-      $sth->finish;
-      $dbh->disconnect;
+    if (update_available($form->{dbdriver}, $version) || update2_available($form, $controls)) {
+      my $dbinfo = {};
+      map { $dbinfo->{$_} = $member->{$_} } grep /^db/, keys %{ $member };
+      $dbs_needing_updates{$member->{dbhost} . "::" . $member->{dbname}} = $dbinfo;
     }
-    $sth->finish;
   }
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
-  return %dbsources;
+  return values %dbs_needing_updates;
 }
 
-## LINET
 sub calc_version {
   $main::lxdebug->enter_sub(2);
 
@@ -745,14 +747,14 @@ sub cmp_script_version {
 
   return $res_a <=> $res_b;
 }
-## /LINET
 
 sub update_available {
   my ($dbdriver, $cur_version) = @_;
 
-  opendir SQLDIR, "sql/${dbdriver}-upgrade" or &error("", "sql/${dbdriver}-upgrade: $!");
-  my @upgradescripts =
-    grep(/$form->{dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir(SQLDIR));
+  local *SQLDIR;
+
+  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
+  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
   closedir SQLDIR;
 
   return ($#upgradescripts > -1);
@@ -765,12 +767,13 @@ sub create_schema_info_table {
 
   my $query = "SELECT tag FROM schema_info LIMIT 1";
   if (!$dbh->do($query)) {
+    $dbh->rollback();
     $query =
-      "CREATE TABLE schema_info (" .
-      "  tag text, " .
-      "  login text, " .
-      "  itime timestamp DEFAULT now(), " .
-      "  PRIMARY KEY (tag))";
+      qq|CREATE TABLE schema_info (| .
+      qq|  tag text, | .
+      qq|  login text, | .
+      qq|  itime timestamp DEFAULT now(), | .
+      qq|  PRIMARY KEY (tag))|;
     $dbh->do($query) || $form->dberror($query);
   }
 
@@ -782,6 +785,8 @@ sub dbupdate {
 
   my ($self, $form) = @_;
 
+  local *SQLDIR;
+
   $form->{sid} = $form->{dbdefault};
 
   my @upgradescripts = ();
@@ -791,16 +796,19 @@ sub dbupdate {
   if ($form->{dbupdate}) {
 
     # read update scripts into memory
-    opendir SQLDIR, "sql/" . $form->{dbdriver} . "-upgrade" or &error("", "sql/" . $form->{dbdriver} . "-upgrade : $!");
-    ## LINET
+    opendir(SQLDIR, "sql/" . $form->{dbdriver} . "-upgrade")
+      or &error("", "sql/" . $form->{dbdriver} . "-upgrade : $!");
     @upgradescripts =
       sort(cmp_script_version
-           grep(/$form->{dbdriver}-upgrade-.*?\.(sql|pl)$/, readdir(SQLDIR)));
-    ## /LINET
-    closedir SQLDIR;
+           grep(/$form->{dbdriver}-upgrade-.*?\.(sql|pl)$/,
+                readdir(SQLDIR)));
+    closedir(SQLDIR);
   }
 
-  foreach my $db (split / /, $form->{dbupdate}) {
+  my $db_charset = $main::dbcharset;
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  foreach my $db (split(/ /, $form->{dbupdate})) {
 
     next unless $form->{$db};
 
@@ -814,19 +822,11 @@ sub dbupdate {
 
     # check version
     $query = qq|SELECT version FROM defaults|;
-    my $sth = $dbh->prepare($query);
-
-    # no error check, let it fall through
-    $sth->execute;
-
-    my $version = $sth->fetchrow_array;
-    $sth->finish;
+    my ($version) = selectrow_query($form, $dbh, $query);
 
     next unless $version;
 
-    ## LINET
     $version = calc_version($version);
-    ## /LINET
 
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
@@ -835,10 +835,8 @@ sub dbupdate {
 
       my ($mindb, $maxdb) = split /-/, $a;
       my $str_maxdb = $maxdb;
-      ## LINET
       $mindb = calc_version($mindb);
       $maxdb = calc_version($maxdb);
-      ## /LINET
 
       next if ($version >= $maxdb);
 
@@ -848,9 +846,11 @@ sub dbupdate {
       # apply upgrade
       $main::lxdebug->message(DEBUG2, "Applying Update $upgradescript");
       if ($file_type eq "sql") {
-        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
+                             "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       } else {
-        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb);
+        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
+                                   "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       }
 
       $version = $maxdb;
@@ -880,6 +880,9 @@ sub dbupdate2 {
 
   @upgradescripts = sort_dbupdate_controls($controls);
 
+  my $db_charset = $main::dbcharset;
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
   foreach my $db (split / /, $form->{dbupdate}) {
 
     next unless $form->{$db};
@@ -894,7 +897,9 @@ sub dbupdate2 {
 
     map({ $_->{"applied"} = 0; } @upgradescripts);
 
-    $query = "SELECT tag FROM schema_info";
+    $self->create_schema_info_table($form, $dbh);
+
+    $query = qq|SELECT tag FROM schema_info|;
     $sth = $dbh->prepare($query);
     $sth->execute() || $form->dberror($query);
     while (($tag) = $sth->fetchrow_array()) {
@@ -915,6 +920,8 @@ sub dbupdate2 {
     foreach my $control (@upgradescripts) {
       next if ($control->{"applied"});
 
+      $control->{description} = SL::Iconv::convert($control->{charset}, $db_charset, $control->{description});
+
       $control->{"file"} =~ /\.(sql|pl)$/;
       my $file_type = $1;
 
@@ -925,10 +932,10 @@ sub dbupdate2 {
 
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade2/$control->{file}", $control);
+                             "-upgrade2/$control->{file}", $control, $db_charset);
       } else {
         $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade2/$control->{file}", $control);
+                                   "-upgrade2/$control->{file}", $control, $db_charset);
       }
     }
 
@@ -957,11 +964,12 @@ sub update2_available {
 
   my ($query, $tag, $sth);
 
-  $query = "SELECT tag FROM schema_info";
+  $query = qq|SELECT tag FROM schema_info|;
   $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query);
-  while (($tag) = $sth->fetchrow_array()) {
-    $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+  if ($sth->execute()) {
+    while (($tag) = $sth->fetchrow_array()) {
+      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+    }
   }
   $sth->finish();
   $dbh->disconnect();
@@ -976,11 +984,15 @@ sub update2_available {
 sub create_config {
   $main::lxdebug->enter_sub();
 
-  my ($self, $filename) = @_;
+  my ($self) = @_;
 
-  @config = &config_vars;
+  local *CONF;
 
-  open(CONF, ">$filename") or $self->error("$filename : $!");
+  @config = config_vars();
+
+  my $userspath = $main::userspath;
+
+  open(CONF, ">", "$userspath/$self->{login}.conf") || $self->error("$userspath/$self->{login}.conf : $!");
 
   # create the config file
   print CONF qq|# configuration file for $self->{login}
@@ -988,7 +1000,7 @@ sub create_config {
 \%myconfig = (
 |;
 
-  foreach $key (sort @config) {
+  foreach my $key (sort @config) {
     $self->{$key} =~ s/\'/\\\'/g;
     print CONF qq|  $key => '$self->{$key}',\n|;
   }
@@ -1004,6 +1016,8 @@ sub save_member {
   $main::lxdebug->enter_sub();
 
   my ($self, $memberfile, $userspath) = @_;
+
+  local (*FH, *CONF);
 
   my $newmember = 1;
 
@@ -1078,8 +1092,7 @@ sub save_member {
   unlink "${memberfile}.LCK";
 
   # create conf file
-  $self->create_config("$userspath/$self->{login}.conf")
-    unless $self->{'root login'};
+  $self->create_config() unless $self->{'root login'};
 
   $main::lxdebug->leave_sub();
 }
@@ -1087,12 +1100,13 @@ sub save_member {
 sub config_vars {
   $main::lxdebug->enter_sub();
 
-  my @conf = qw(acs address admin businessnumber charset company countrycode
+  my @conf = qw(acs address admin businessnumber company countrycode
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
-    dbname dbuser dbpasswd email fax name numberformat in_numberformat password
-    printer role sid signature stylesheet tel templates vclimit angebote bestellungen rechnungen
-    anfragen lieferantenbestellungen einkaufsrechnungen taxnumber co_ustid duns menustyle
-    template_format copies show_form_details);
+    dbname dbuser dbpasswd email fax name numberformat password
+    printer role sid signature stylesheet tel templates vclimit angebote
+    bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen
+    taxnumber co_ustid duns menustyle template_format default_media
+    default_printer_id copies show_form_details);
 
   $main::lxdebug->leave_sub();
 
@@ -1103,6 +1117,8 @@ sub error {
   $main::lxdebug->enter_sub();
 
   my ($self, $msg) = @_;
+
+  $main::lxdebug->show_backtrace();
 
   if ($ENV{HTTP_USER_AGENT}) {
     print qq|Content-Type: text/html

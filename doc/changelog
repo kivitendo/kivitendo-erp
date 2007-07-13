@@ -1,6 +1,480 @@
 ####################################
 # Veraenderungen von Lx-Office ERP #
 ####################################
+
+
+2007-07-13 - Version 2.4.3
+
+  Neue Features und Verbesserungen:
+
+  - Zahlungskonditionen: Neue Variablen <%invtotal_wo_skonto%> und
+    <%total_wo_skonto%> hinzugefügt, die die Belegsumme bzw. die noch
+    offene Summe abzüglich des Skontobetrags beinhalten.
+  - Verkauf: Es wird der Ertrag (Marge) pro Position und gesamt
+    angezeigt.
+  - Bei allen Listenansichten/Berichten Buttons zum Export der Liste
+    als CSV- oder als PDF-Datei implementiert. Dieses PDF kann auch
+    direkt gedruckt werden. Zusätzlich wird die aktuelle
+    Sortierspalte und -richtung angezeigt.
+  - Eingangsrechnung: Als Rechnungsdatum wird das Datum der letzten
+    Eingangsrechnung vorausgewählt. Zusätzlich wird das
+    Fälligkeitsdatum in Abhängigkeit von den beim Lieferanten
+    ausgewählten Zahlungsbedingungen gesetzt.
+  - Kundenauftrag/Lieferantenbestellung: Wenn alle Positionen
+    vollständig geliefert wurden (also in allen Positionen der
+    Lagerein-/-ausgang == Anzahl ist), so wird beim Speichern das Flag
+    "Gelifert" automatisch gesetzt.
+  - Kunden-/Lieferantenstammdaten: Beim Ansprechpartner steht in der
+    Drop-Down-Box oben 'Neuer Ansprechpartner' anstelle eines leeren
+    Eintrages, damit der Benutzer besser weiß, was hier passiert.
+  - Neue Funktion "als bezahlt markieren" bei Rechnungen.
+  - Alle Rechnungsmasken: Unterhalb der Zahlungsein- und -ausgänge
+    werden die bisher gezahlte Summe und der noch ausstehende Betrag
+    angezeigt.
+  - Mahnwesen:
+    * Bei den Mahnungsübersichten wurden Checkboxen eingefügt, mit
+      denen alle Einträge an- und abgewählt werden können.
+    * Beim Anlegen von Mahnungen können automatisch
+      Debitorenrechnungen über die Mahngebühren und Zinsen angelegt
+      werden. Diese werden ebenfalls als PDF ausgedruckt.
+    * Beim Bericht über aktive Mahnungen können jetzt mehrere
+      Mahnungen und die dazugehörigen Rechnungen über Gebühren und
+      Zinsen gleichzeitig ausgedruckt werden.
+    * Mahnungen können wahlweise am Bildschirm oder direkt auf
+      Druckern ausgegeben werden. Zusätzlich können andere Sprachen
+      ausgewählt werden.
+  - Debitoren- und Kreditorenrechnungen können storniert werden.
+  - Beim Erstellen eines Lieferantenauftrages aus einem Kundenauftrag
+    wird überprüft, ob eine Lieferadresse ausgewählt oder eingegeben
+    war. Wenn ja, so wird der Benutzer gefragt, ob er diese
+    Lieferadresse beibehalten will, damit der Lieferant direkt an den
+    Kunden liefern kann.
+  - Datenbankadministration: Eine Backup- und eine
+    Wiederherstellungsfunktionen für einzelne Datenbanken
+    implementiert.
+  - In den Drop-Down-Boxen mit den Lieferanschriften werden nun der
+    Name, die Abteilung, die Straße und der Ort angezeigt, um
+    Lieferadressen besser unterscheiden zu können.
+  - Bei Einkaufs-/Verkaufsmasken sowie bei Debitoren- und
+    Kreditorenbuchungen wird ein Button angezeigt, der ein
+    Popupfenster öffnet, das zum ausgewählten Kunden/Lieferanten alle
+    Stammdaten inklusive Ansprechpartner und Lieferadressen anzeigt.
+  - Die Einkaufs- und Verkaufsmasken wurden etwas aufgeräumt und
+    übersichtlicher gestaltet.
+  - Dialogbuchen:
+    * Neue Checkbox "Details anzeigen", die einige Spalten verbirgt,
+      wenn sie nicht aktiv ist.
+    * Der in der ersten Zeile bei "Soll" eingetragene Wert wird
+      automatisch in die zweite Zeile bei "Haben" eingetragen.
+    * Es wird das Datum und die Nummer der letzten Buchung angezeigt.
+  - Wenn eine Datei 'lx-erp-local.conf' existiert, so wird diese nach
+    der 'lx-erp.conf' eingelesen.
+  - Unterstützung für andere Zeichensätze als ISO-8859-1 und
+    ISO-8859-15 (z.B. UTF-8) implementiert.
+  - Die Farbgebung des JavaScript-Menüs wurde an die Farbgebung des
+    CSS-Menüs angepasst.
+  - Die Masken zum Auflisten und Bearbeiten von Konten wurden
+    grundlegend überarbeitet und vereinfacht.
+  - Ein neues Feld 'Vorgangsbezeichnung' bei allen Einkaufs- und
+    Verkaufsmasken hinzugefügt.
+  - Das Kommandozeilentool 'scripts/dbupgrade2_tool.pl' kann jetzt
+    Datenbankupgrades einspielen.
+  - Bei den Listen der Einkaufs- und Verkaufsrechnungen wird in der
+    Spalte "Typ" noch genauer unterschieden.
+  - Die History-Funktion speichert nun auch Rechnungs-,
+    Angebotsnummern etc.
+  - Die Funktionen zum Bearbeiten der HTML- und LaTeX-Vorlagen wurden
+    komplett neu geschrieben. Es ist jetzt auch möglich, Vorlagen für
+    die vom Benutzer eingerichteten Sprachen und Drucker zu erstellen
+    und zu bearbeiten. Außerdem können die Vorlagen für alle
+    konfigurierten Mahnstufen bearbeitet werden.
+  - Beim Verschicken von Sammelrechnungen per Email wird der Name des
+    Anhangs besser gewählt (z.B. "Sammelrechnung_Datum.pdf").
+  - Bei Kundenaufträgen wird die Checkbox "geliefert" auch angezeigt,
+    bevor der Auftrag gespeichert wurde.
+  - Eingabefelder für Datumsangaben und Zahlen werden nun per
+    Javascript auf falsche Formate überprüft (noch nicht
+    flächendeckend implementiert).
+  - Wenn bei Einkaufs-/Verkaufs-/Debitoren- oder Kreditorenmasken der
+    Kunde/Lieferant per Drop-Down-Box gewechselt wird, so wird das
+    Formular automatisch erneuert.
+  - Kunden- und Lieferantenstammdatenberichte können jetzt nach
+    Kunden-/Lieferantentyp gefiltert werden.
+  - Bei Kunden- und Lieferantenstammdatenberichten werden
+    standardmäßig nur noch die gültigen Einträge angezeigt. Die
+    ungültigen können zusätzlich angezeigt werden.
+  - Bei Einkaufs- und Verkaufsmasken ist es nun möglich, keinen
+    Ansprechpartner auszuwählen.
+  - Kunden kann ein Verkäufer zugewiesen werden. In den
+    Verkaufsmasken kann jedem Beleg zusätzlich zum Bearbeiter ( =
+    aktueller Lx-Office-Benutzer) noch ein separater Verkäufer
+    zugeordnet werden, der mit dem beim Kunden hinterlegten Verkäufer
+    vorbelegt ist.
+  - Bei "Als neu speichern" wird nur dann eine neue Rechnungs-,
+    Angebotsnummer etc vergeben, wenn die bisherige Nummer nicht
+    manuell verändert wurde. Ansonsten wird die Eingabe des Benutzers
+    beibehalten.
+  - Einkaufs-/Verkaufsmasken: zur Berechnung des Fälligkeitsdatum
+    werden anstelle des nicht mehr existierenden Zahlungsziels die
+    ausgewählten Zahlungsbedingungen benutzt.
+
+  Bugfixes:
+
+  - Zahlungskonditionen: Die Variablen <%total%> und <%invtotal%>
+    waren nur bei Rechnungen gefüllt, nicht aber bei Angeboten und
+    Aufträgen.
+  - Es wurde verhindert, dass durch Manipulation von $form->{callback}
+    beliebiger Code ausgeführt werden kann.
+  - Webdav: Wenn eine Pfadkomponente Leerzeichen enthielt
+    (z.B. "Storno zu ..."), dann wurden komplett falsche Links erzeugt.
+  - Bei Einkaufsrechnungen wurde das falsche Datumsfeld zur Berechnung
+    der Steuern herangezogen, sodass für 2006 19% benutzt wurde.
+  - Beim Erfassen von Dienstleistungen wurde beim "Erneuern" die
+    Drop-Down-Box für die Zahlungskonditionen nicht erneut aufgebaut.
+  - Beim Aufrufen bestehender Dialogbuchungen wurde das Feld 'Beleg'
+    nicht aus der Datenbank geholt.
+  - Webdav: Beim Erstellen der Ordner werden Pfadtrennzeichen (also
+    '/' und '\') durch Unterstriche ersetzt.
+  - In der Buchungsliste wurden Buchungen zusammengefasst, wenn ihre
+    Beschreibungsfelder identisch waren, auch wenn sie aus
+    unterschiedlichen Buchungen stammten.
+  - Bei der Suche nach Artikeln wird nicht mehr zwischen Groß- und
+    Kleinschreibung unterschieden.
+  - Die Funktionen zum Buchen von Zahlungsein- und -ausgängen wurde
+    komplett neu geschrieben und bezieht seine Daten direkt aus der
+    Datenbank, um bisherige Zahlungsein- und -ausgänge vor dem Buchen
+    der neuen Einträge zu entfernen.
+  - Der Wechselkurscode wurde komplett überarbeitet.
+  - Datenbankadministration: Die Funktion zur Aktualisierung von
+    Datenbanken so angepasst, dass sie auch die Scripte in
+    sql/Pg-upgrade2 verarbeiten kann.
+  - Nullbuchungen ( = Buchungen in der Finanzbuchhaltung mit Wert 0)
+    werden nicht mehr zugelassen.
+  - Die GuV zeigt die echten Werte und nicht mehr Beträge an.
+  - Angebots-/Rechnungsnummern etc werden um Leerzeichen am Anfang und
+    Ende bereinigt, sodass verhindert wird, dass Lx-Office leere
+    Nummern erzeugt, die später in der Liste der Belege nicht
+    anwählbar sind.
+  - Beim Stornieren aller Belege werden die Daten aus der Datenbank
+    geladen und nicht die vom Benutzer im Formular eingetragenen Daten
+    benutzt.
+  - Beim Stornieren von Einkaufs- und Verkaufsrechnungen wurden die
+    bisherigen Zahlungsaus- und -eingänge auch in der neuen
+    Stornorechnung verzeichnet.
+  - Alle Systemaufrufe (z.B. "system") und Pfadangaben (z.B. bei
+    "open") werden vor Verwendung überprüft und bereinigt.
+  - Alle Datenbankanfragen wurden auf die Verwendung von
+    parametrisierten Queries umgestellt. Wo dies nicht möglich war,
+    wurden Werte richtig gequotet.
+  - Mahnwesen:
+    * Die Dokumentation zu den Vorlagenvariablen wurde um die im
+      Mahnungswesen verfügbaren Variablen erweitert.
+    * In der Liste der neu zu erstellenden Mahnungen wurden die
+      Gebühren und Zinsen falsch angezeigt.
+    * Bereits angemahnte Rechnungen wurden zu früh zur erneuten
+      Mahnung angeboten.
+    * Beim Anlegen wurde eine Mahnstufenkonfiguration für alle
+      Rechnungen benutzt, auch wenn unterschiedliche Stufen vom
+      Benutzer ausgewählt waren.
+    * Es konnten Mahnungen erstellt werden, die Rechnungen
+      verschiedener Kunden enthielten.
+  - Beim Anlegen neuer Rechnungen wurde das Kreditlimit der
+    Lieferanten nicht richtig berechnet.
+  - In den Einkaufs- und Verkaufsmasken wurde die Drop-Down-Box für
+    die Steuerzone bei jedem Aufbau auf "Inland" zurückgesetzt.
+  - Nummernkreise können jetzt auch Sonderzeichen wie
+    Gleichheitszeichen enthalten.
+  - Beim Umwandeln von Lieferantenaufträgen in Kundenaufträge und
+    umgekehrt wird die Auftragsnummer gelöscht, damit sie beim
+    Speichern automatisch aus dem richtigen Nummernkreis neu vergeben
+    oder vom Benutzer eingegeben werden kann.
+  - Stornierte Rechnungen werden bei den Listen der offenen
+    Forderungen und Verbindlichkeiten nicht mehr angezeigt.
+  - Einkaufs- und Verkaufsbelege werden beim Verschicken per Email nur
+    dann vorher gespeichert, wenn sie noch gar nicht gespeichert
+    waren. Außerdem werden die Zahlenformatierungen richtig beachtet.
+  - Kunden-/Lieferantennamen mit Zeilenumbrüchen im Namen werden
+    bereinigt.
+  - Lieferadressen werden nun nicht mehr doppelt gespeichert.
+  - Beim Bearbeiten von Lieferanschriften wurden die Abteilungs-Felder
+    der Rechnungsadresse nicht angezeigt.
+  - Wenn "Stuer im Preis inbegriffen" angeklickt war, dann wurden die
+    falschen Beträge beim Drucken in den Summenvariablen hinterlegt.
+  - Die Einheiten bei Erzeugnissen wurden in Einkaufs- und
+    Verkaufsrechnungen nicht richtig angezeigt.
+  - Große Teile toten Codes entfernt (u.a. zum Thema GIFI, customer
+    tax, vendor tax).
+  - Beim Erstellen von Aufträgen/Buchungen aus der
+    Kunden-/Lieferantenstammdatenmaske heraus wurden die Bemerkungen
+    des Kunden/Lieferanten nicht in die internen Bemerkung des neuen
+    Beleges übernommen.
+  - Bei Buchungen mit "Zahlung buchen" wird der Steuerschlüssel
+    richtig gespeichert.
+  - Dialogbuchen: Bei neu hinzugefügten Zeilen wird der
+    Steuerschlüssel richtig vorausgewählt.
+  - Tab-Indices wurden entfernt, weil sie unvollständig waren und
+    dadurch die Navigation per Tab-Taste unnötig erschwert wurde.
+  - Dialogbuchen, Debitorenbuchungen: Wird das Buchungsdatum
+    verändert, so wird der Steuerschlüssel unter Beibehaltung des
+    ausgewählten Kontos richtig gesetzt.
+  - Der Storno-Button wird nur angezeigt, wenn die Rechnung noch nicht
+    storniert wurde. Zusätzlich wurde das mehrmalige Stornieren
+    verhindert.
+  - Rechnungs- und Gutschriftsnummern werden nun direkt innerhalb der
+    Backend-Routinen innerhalb der gleichen Transaktion vergeben, in
+    der auch die eigentliche Rechnung etc gespeichert wird. Damit soll
+    besser verhindert werden, dass sich Löcher in den Nummernkreisen
+    ergeben.
+  - SKR 03: Mehrere falsche Einträge bezüglich der Steuerschlüssel
+    wurden behoben.
+  - Dialogbuchen: Beim Aufrufen bestehender Buchungen werden die
+    Projektnummern richtig in der Drop-Down-Box vorausgewählt.
+  - Bei Debitoren-, Kreditoren- und Dialogbuchungsmasken werden die
+    Steuerkonten richtig vorausgewählt, wenn die Masken geöffnet werden.
+  - Nachkommastellen bei Einkaufspreisen bei Dienstleistungen
+    verschwanden beim Speichern.
+  - Verbesserung des USTVA-Moduls für den Einsatz in Österreich
+  - Diverse Fehler im USTVA-Modul behoben
+
+  - Bugfix 713 - eMail als Interne Notiz in Verkaufs-/
+    Einkaufs-Dokumenten
+  - Bugfix 710 - Einkaufsrechnungen von 2006 werden mit 19% Steuer
+    verrechnet
+  - Bugfix 703 - Drucken eines Lieferantenauftrages erzeugt SQL-ERROR
+  - Bugfix 701 - Verkauf -> Auftrag erfassen -> Löschen
+  - Bugfix 700 - Verkauf -> Auftrag erfassen -> Rechnung
+  - Bugfix 691 - Es können beliebig viele Mahnungen erzeugt werden
+  - Bugfix 690 - keine Rechnung über 0,00&#8364; möglich
+  - Bugfix 689 - Nach DB-Update kein weiter-Button
+  - Bugfix 686 - Historien-Button unter Stammdaten->Projekt erfassen
+  - Bugfix 685 - Stammdaten -> Dienstleistung erffassen
+    Zahlungskonditionen nach "Erneuern"
+  - Bugfix 684 - Stammdaten -> Dienstleistung erffassen Formel hat keine textarea
+  - Bugfix 681 - Debitorenbuchungen: Liste als PDF exportieren
+  - Bugfix 678 - Nummernkreise für selbst angelegte Kundentypen werden
+    nicht übernommen
+  - Bugfix 675 - zurück-button in "Lx-Office ERP
+    Datenbankadministration / Datenbank sichern" fehlt
+  - Bugfix 670 - Mahnung anlegen
+  - Bugfix 668 - Datenbankupdate schlägt fehl
+  - Bugfix 662 - Storno von Dialogbuchung erzeugt fehlermeldung
+  - Bugfix 661 - Einkaufsrechnung: Selectbox Lieferant ist falsch
+    sortiert oder unsortiert
+  - Bugfix 658 - Beim Aufrufen eines Belegs wird der Bearbeiter nicht
+    mehr angezeigt
+  - Bugfix 657 - Wenn für Kunden/Lieferanten keine Dropdownbox
+    angezeigt wird, steht die interne ID mit im Feld
+  - Bugfix 656 - Angebot löschen geht nicht
+  - Bugfix 655 - Verkaufsangebot bearbeiten: Währungseinheit EUR,
+    Wechselkurs: 0,000,
+  - Bugfix 654 - In der PDF Ausgabe von Verkaufsrechnungen fehlen
+    Kundendaten
+  - Bugfix 653 - Stammdaten Waren Suche nach Hersteller schlägt fehl
+  - Bugfix 652 - Datenbankadministration / Datenbank sichern per
+    Email: Ungültiges Passwort
+  - Bugfix 651 - Kreditorenbuchung, Debitorenbuchung:Zahlung erfassen:
+    Fehler Nullbuchung!
+  - Bugfix 650 - admin.pl: Benutzer ändern, speichern, Fehler
+  - Bugfix 646 - Dialogbuchungen: Storno von Stornobuchungen ist
+    möglich.
+  - Bugfix 645 - Kreditorenbuchung Historie funktioniert nicht
+  - Bugfix 644 - Der Javascriptcheck für Zahleneingaben bei Zahlungen
+    zeigt Fehler, wo keine sind.
+  - Bugfix 643 - Storno macht probleme bei kommazahlen in der Zahlung
+  - Bugfix 642 - Kreditorenbuchung Storno funktioniert nicht                                   |
+  - Bugfix 641 - Debitorenbuchung Storno funktioniert nicht
+  - Bugfix 640 - Einkaufsrechnungen Storno funktioniert nicht
+  - Bugfix 639 - Ausgangsrechnungen: Checkbox Steuer im Preis
+    inbegriffen funktioniert nicht
+  - Bugfix 638 - Redirect übernimmt keine Mitarbeiter Filterkriterien
+  - Bugfix 637 - Es können Belege mit Leerzeichen als Belegnummer
+    angelegt werden
+  - Bugfix 636 - Keine Lagerveränderung bei Gutschrift
+  - Bugfix 633 - Mahnwesen stimmt Abstand zwischen verschiedenen
+    Mahnstufen nicht
+  - Bugfix 631 - Wenn Mahnungen für mehrere Kunden erzeugt werden,
+    haben alle die gleiche Adresse
+  - Bugfix 630 - Fehler beim anklicken einer Referenz bei Übersicht
+    Zahlungsein/ausgang
+  - Bugfix 629 - Buchungen werden in die Historie aufgenommen, obwohl
+    die Buchung noch nicht vollzogen wurde
+  - Bugfix 626 - Logout bei diversen Funktionsaufrufen
+  - Bugfix 625 - Fehler in WebDAV
+  - Bugfix 624 - Rückerstattungen erhöhen Aufwandskonten in GuV
+    anstatt sie zu verringern
+  - Bugfix 622 - UTF-8-Zeichensatz wird immer angezeigt
+  - Bugfix 619 - Rechnungsversand via eMail erzeugt 10fache
+    Positionsbeträge
+  - Bugfix 618 - Buchung mit verschiedenen Steuersätzen aufs gleiche
+    Konto schlägt fehl
+  - Bugfix 617 - GuV - Position Umsatzsteuer 7%
+  - Bugfix 614 - Drucken und Emailen von offener Rechnung erzeugt zwei
+    duplikate der Rechnung
+  - Bugfix 613 - Entwurf speichern geht nur bei neuen Rechnungen,
+    nicht bei bereits angelegten
+  - Bugfix 610 - Rechnung drucken erzeugt Postgresfehler
+  - Bugfix 609 - Longdescription wird nicht gequoted/escaped
+  - Bugfix 608 - Feld Titel bei Kunden > Ansprechpartner = zu kurz
+  - Bugfix 607 - Emailen von noch nicht gebuchten Rechnung bucht
+    Rechnung nicht
+  - Bugfix 603 - Interne Bemerkungen werden nicht weiter gegeben
+  - Bugfix 602 - Mahnungen werden falsch angezeigt nach Erstellung
+  - Bugfix 598 - Angebotsnummer bei "Angebot als neu speichern"
+    übernehmen
+  - Bugfix 596 - neue Zahlenformate wirken nicht auf alle Zahlen in
+    Formularen
+  - Bugfix 595 - Link fuer neues Fenster in der Uhrzeitlinie
+  - Bugfix 592 - eventual / alternativ im Angebot ermöglichen
+  - Bugfix 585 - USTVA - doppelt minus = plus                                                  |
+  - Bugfix 583 - Zahlungen werden ohne taxkey in der acc_trans
+    gespeichert
+  - Bugfix 582 - Verkaufsrechnung: Steuerschlüssel stimmen nicht mit
+    identischer Debitorenbuchung überein.
+  - Bugfix 581 - Debitorenbuchung: Steuerschlüssel stimmen nicht mit
+    identischer Verkaufsrechnung überein.
+  - Bugfix 579 - UStVA wird falsch berechnet
+  - Bugfix 578 - Rechnung erfassen - wenn artikel ein erzeugnis ist
+    die Einheit falsch
+  - Bugfix 577 - Debitorenbuchung: Falsches Konto wird ausgewählt nach
+    update
+  - Bugfix 576 - Nettosumme bei MwSt incl.
+  - Bugfix 575 - Diskrepanzen zwischen Storno einer Rechnung und
+    Originalrechnung
+  - Bugfix 574 - Links besser hervorheben
+  - Bugfix 573 - r2023- Dialogbuchung: Falsche Steuersätze werden
+    ausgewählt
+  - Bugfix 572 - Kreditorenbuchung nicht moeglich
+  - Bugfix 567 - Nachkommastellen vom Einkaufspreis verschwinden
+  - Bugfix 564 - Datev Export in Version 2.4.0, 2.4.1 rechnet immer
+    mit 19 Prozent Umsatzsteuer
+  - Bugfix 553 - neue Fehlermeldung im Mahnlauf
+  - Bugfix 543 - Keine Auftragsbearbeitung bei Kunden mit
+    Zeilenumbruch im Firmenname
+  - Bugfix 526 - Konto 1588 (Einfuhrumsatzsteuer) wird bei UStVA
+    ignoriert
+  - Bugfix 523 - Mehrfachstornierungen möglich
+  - Bugfix 473 - Fehler bei der Mahnungsausgabe
+  - Bugfix 472 - stornierte Rechnung taucht nicht in Buchungsjounal
+    auf
+  - Bugfix 435 - r1379:Datenbankupgrade über admin.pl schlägt fehl
+  - Bugfix 428 - Anzeige der Grafik einer Kontaktperson in
+    Kontaktpersonübersicht fehlerhaft
+  - Bugfix 414 - Dialogbuchen nicht vorhandenes Feld Projekt Bezug auf
+    Bug 149
+  - Bugfix 405 - Suchbegriffe mit Umlauten werden nicht gefunden
+  - Bugfix 342 - Datumsangaben werden nicht auf Korrektheit geprüft
+  - Bugfix 328 - Quoten auch in der ap, oder?
+  - Bugfix 324 - SQL-Fehler bei Zahlungsausgang
+  - Bugfix 313 - update wechselkurstabelle
+  - Bugfix 272 - syntax fehler in hidden-form-feldern
+  - Bugfix 269 - Buchungen lassen sich beliebig oft stornieren
+  - Bugfix 242 - Splittbuchen: Debitorenbuchung diverse Fehler
+  - Bugfix 211 - Debitoren und Kreditorenbuchung mit mehreren
+    Buchungszeilen
+  - Bugfix 208 - Buchungsjournal: Fehlbuchungen anzeigen
+  - Bugfix 172 - Zeilenumbruch in <%partnotes%> wird in Latex als ^M
+    dargestellt
+  - Bugfix 152 - Kein Projekt-Eingabefeld beim Dialogbuchen ...
+  - Bugfix 149 - projekt_id wird nicht in acc_trans eingetragen bei
+    Rechnungserstellung
+  - Bugfix 62 - Usability: Nach Dialogbuchung Formular wieder anzeigen
+  - Bugfix 93 - Keine negativen Konten in GuV
+
+2007-02-23 - Version 2.4.2
+
+  - USTVA Buchungsgruppe Inland: Konten angepasst und getestet
+  - USTVA IST und Soll Versteuerung: Querys angepasst und getestete
+  - USTVA Testscript
+  - Kontenplan: Mehr Informationen in die Tabelle gebracht. Darstellung in
+    HTML::Template realisiert.
+  - Betr. Steueranzeige unterhalb von Rechnungen, Angeboten, etc: an die neuen
+    Taxkeys angepasst.
+  - Unbalanced Ledger Fehlermeldung im Buchungsjournal wieder hinzugefuegt.
+    Das Buchungsjournal wird immer dargestellt. Im Falle eines Fehlers
+    (soll+vst) - (haben+ust) > 0.001
+    wird im Tabellenfuss die 'Unbalanced Ledger' Meldung ausgegeben mit dem
+    Bilanzfehlerbetrag.
+  - Einkaufs-, Verkaufs-, Debitoren- und Kreditorenrechnungen können
+    als Entwurf gespeichert und später weiter bearbeitet werden. Dabei
+    werden sie nicht gebucht.
+  - Vorlagenausdruck: Variablen "fax", "phone" und "email" bei
+    Kundenstammdaten werden nun auch als "customerfax",
+    "customerphone" und "customeremail" zur Verfügung gestellt.
+  - Globale Projektnummern bei Einkaufs- und Verkaufsbelegen hinzugefügt.
+    Nach Projektnummern kann gefiltert werden, und sie können in der Liste
+    mit angezeigt werden (auch in der Finanzbuchhaltung). Projektnummern
+    werden als Drop-Down-Box angezeigt.
+  - Bugfixes und Code-Reorganisierung beim "Webdav"-Feature. Beim
+    Anlegen von Verzeichnissen werden auch eventuell fehlende
+    Elternverzeichnisse angelegt. Bei jedem Neuaufbau der Maske wird
+    die Liste der vorhandenen Dateien aktualisiert, nicht nur beim
+    Speichern & Laden.
+  - Bei höheren Mahnstufen wurde die Rechnung mehrmals angezeigt
+  - In der Uebersicht der Mahnungen hat ein Klick auf die Rechnungsnummer
+    nicht die Rechnungsmaske geöffnet
+  - Kundenbericht liess sich nicht nach Adresse sortieren
+  - Bei Einkaufs- und Verkaufsmasken Felder für Angebots- und Auftragsdatum
+    hinzugefügt
+  - Keine Fehlermeldung beim Drucken von Proforma-Rechnungen mehr
+  - Mahnungen können nachträglich erneut ausgedruckt werden
+  - Zahlungskonditionen können für jede Sprache übersetzt werden
+  - Buchungsgruppen und Zahlungskonditionen können in den Systemeinstellungen
+    umsortiert werden (damit auch andere Standardbuchungsgruppe beim Anlegen
+    von Waren auswählbar)
+  - Debitoren- und Kreditorenbuchungen: Neue Funktion zum Buchen von
+    Zahlungsein- und ausgängen
+  - Debitoren- und Kreditorenbuchungen: Beim Aufrufen aus dem Buchungsjournal
+    werden die Gegenkonten richtig angezeigt
+  - In den Benutzereinstellungen können Standardwerte für den Ausgabekanal
+    und den Drucker eingestellt werden, die von Lx-Office vorselektiert werden
+  - Neues Flag "Geliefert" bei Auftragsbestätigungen und Lieferantenaufträgen
+  - Bei Einkaufsrechnungen gibt es einen "Erneuern"-Button, um
+    Zahlungsausgänge besser buchen zu können
+  - Bei Debitoren-/Kreditorenbuchungen sowie bei Dialogbuchungen wird
+    das vorbelegte Datum jetzt aus der richtigen Tabelle geholt
+  - Bei EUR wurden in der Kontenliste keine unbezahlten Rechnungen angezeigt
+  - EAN-Codes hinzugefügt
+  - Einkauf/Verkauf: Es werden jetzt auch Positionen gespeichert und
+    ausgedruckt, deren Anzahl 0 ist
+  - CSS-Menü funktioniert nun auch mit dem Internet Explorer
+  - Beim Verschicken per Email kann dem Anhang ein individueller Name gegeben
+    werden, der mit "Belegart_Belegnummer.ext" vorbelegt ist (z.B.
+    "Rechnung_5.pdf")
+  - Administration: Datenbankencodingoption Latin 9 (ISO-8859-15) hinzugefügt
+  - Beim Login wird überprüft, ob alle benötigten Perl-Module installiert
+    sind
+  - Funktion "Details anzeigen" hat auf einigen Browsern nicht richtig
+    funktioniert
+  - Beim Bearbeiten der Lieferadresse wird die Rechnungsadresse wieder
+    angezeigt
+  - Variable "terms" (Zahlungsziel in Tagen) wurde entfernt, weil es
+    mit Zahlungskonditionen ein wesentlich mächtigeres Werkzeug gibt
+  - Mehr Sonderzeichen werden in die richten LaTeX-Codes übersetzt
+  - USTVA Screens in HTML-Templates verlagert
+  - USTVA Taxbird kleinere Anpassungen zur Kompatibilität
+  - Bugfix 546 - sql/Pg-upgrade2 führt keine *.pl Updateskripte aus
+  - Bugfix 540 - Mahnungen
+  - Bugfix 537 - Fehler beim erzeugen eines Berichtes
+  - Bugfix 536 - Erfassung eines Kunden mit bereits bestehender Kundennummer
+    ergibt unverständliche Fehlermeldung
+  - Bugfix 534 - Mahnwesen funktioniert nicht richtig
+  - Bugfix 533 - "Swiss German" Kontenrahmen: Waren werden unter
+    Diesnstleistungen geführt
+  - Bugfix 535 - Auftrag in Englisch statt Deutsch
+  - Bugfix 529 - Dezimalstelle von Produktpreisen verschiebt sich
+  - Bugfix 526 - Konto 1588 (Einfuhrumsatzsteuer) wird bei UStVA ignoriert
+  - Bugfix 525 - Proformarechnung: Datum fehlt!
+  - Bugfix 522 - Bestelldatum in Rechnung
+  - Bugfix 519 - unterhalb von templates gibt es ein Verzeichnis webpages,
+    das da wohl nicht hingehören
+  - Bugfix 517 - Menüeinträge im CSS-Menü werden umgebrochen
+  - Bugfix 511 - Stammdaten-Kunden-Lieferungen
+  - Bugfix 471 - voreingestellter Ausgabekanal wird nicht übernommen
+  - Bugfix 455 - fehlerhafte Anzeige im Buchungsjournal bei unterschiedl.
+    Rechn.- und Bezahldaten
+  - Bugfix 361 - webdav Ansicht
+  - Bugfix 181 - Webdav Fehler bei Detailansicht einer Einkaufsrechnung
+
 2007-01-19 - Version 2.4.1
   - CSV-Import auf Verwendung von Buchungsgruppen angepasst
   - Bei Einkaufs- und Verkaufsmasken lassen sich die zweiten Positionszeilen
@@ -113,7 +587,7 @@
   - Bugfix 409 - Bericht Waren funktioniert nicht bei Bestellt, etc.
   - Viele weitere Bugfixes
 
-2006-03-07 - Version 2.2.2 (942 - 970) 
+2006-03-07 - Version 2.2.2 (942 - 970)
   - Bugfix 308 - falsches Quoten bei Kreditorenbuchungen
   - Bugfix 306 - UStVa Vorschau vervollstaendigt
 
@@ -128,7 +602,7 @@
 
 2006-02-03 - Version 2.2.0 - Revision testing (542 - 855)
 
-  - Neues Menü - horizontal Anordnung 
+  - Neues Menü - horizontal Anordnung
   - Splitbuchungen für Kreditoren-, Debitoren- und Dialogbuchungen
   - Preisgruppen für Waren und Erzeugnisse
   - Sammelbestellungen aus Aufträgen generieren
@@ -143,11 +617,11 @@
     Quoting überarbeitet
     Fix für Perl 5.6.x - Block Syntaxfehler
     SQL-Performance "Raussuchen letzter Kunde" optimiert
-    Fehlerhafte Seriennummernsuche bei Angeboten/Aufträgen 
-    DATEV Bug: Kein Timeout bei großen Exporten 
+    Fehlerhafte Seriennummernsuche bei Angeboten/Aufträgen
+    DATEV Bug: Kein Timeout bei großen Exporten
     DATEV Bug: Fehler bei negativen Umsätzen
     BWA Bug: Fehler bei der Berechnung der Summen
-    Kundenübersicht Auftragsnummer wurde nicht angezeigt 
+    Kundenübersicht Auftragsnummer wurde nicht angezeigt
   - Bugfixes Bugzilla
     Bug#49:   UStVa Rundungsfehler
     Bug#124:  UBL behoben
@@ -165,7 +639,7 @@
     Bug#187:  UBL im Buchungsjournal, wenn nicht alle ausgewählt war
     Bug#189:  Rundungsfehler behoben
     Bug#190:  Abteilung1/2 bei Lieferadresse konnten nicht gespeichert werden
-    Bug#198:  Rechnung nicht angezeigt nach Eingabe einer Lieferanschrift 
+    Bug#198:  Rechnung nicht angezeigt nach Eingabe einer Lieferanschrift
     Bug#199:  Speichern eines Lieferantenauftrages nicht möglich
     Bug#204:  Storno bei Splitbuchungen fehlerhaft
     Bug#205:  In Dialogbuchungen MwSt. bei Buchungen nicht berücksichtigt

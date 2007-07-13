@@ -55,6 +55,9 @@ td {
     <li><a href="dokumentenvorlagen-und-variablen.html#allgemein_stammdaten">
       Stammdaten von Kunden und Lieferanten</a></li>
 
+    <li><a href="dokumentenvorlagen-und-variablen.html#allgemein_bearbeiter">
+      Informationen &uuml;ber den Bearbeiter</a></li>
+
     <li><a href="dokumentenvorlagen-und-variablen.html#allgemein_verkaeufer">
       Informationen &uuml;ber den Verk&auml;ufer</a></li>
 
@@ -75,6 +78,24 @@ td {
 
     <li><a href="dokumentenvorlagen-und-variablen.html#invoice_zahlungen">
       Variablen f&uuml;r die Zahlungseing&auml;nge</a></li>
+   </ol>
+  </li>
+
+  <li><a href="dokumentenvorlagen-und-variablen.html#dunning">
+    Variablen in Mahnungen und Rechnungen &uuml;ber Mahngeb&uuml;hren</a>
+
+   <ol>
+    <li><a href="dokumentenvorlagen-und-variablen.html#dunning_vorlagennamen">
+      Namen der Vorlagen</a></li>
+
+    <li><a href="dokumentenvorlagen-und-variablen.html#dunning_allgemein">
+      Allgemeine Variablen in Mahnungen</a></li>
+
+    <li><a href="dokumentenvorlagen-und-variablen.html#dunning_details">
+      Variablen f&uuml;r jede gemahnte Rechnung in einer Mahnung</a></li>
+
+    <li><a href="dokumentenvorlagen-und-variablen.html#dunning_invoice">
+      Variablen in automatisch erzeugten Rechnungen &uuml;ber Mahngeb&uuml;hren</a></li>
    </ol>
   </li>
 
@@ -194,7 +215,7 @@ td {
    </tr>
    <tr>
     <td><code>business</code></td>
-    <td>Kundentyp</td>
+    <td>Kunden-/Lieferantentyp</td>
    </tr>
    <tr>
     <td><code>city</code></td>
@@ -241,12 +262,24 @@ td {
     <td>Kreditlimit</td>
    </tr>
    <tr>
-    <td><code>customernumber</code></td>
-    <td>Kundennummer; nur f&uuml;r Kunden</td>
+    <td><code>customeremail</code></td>
+    <td>Email des Kunden; nur f&uuml;r Kunden</td>
+   </tr>
+   <tr>
+    <td><code>customerfax</code></td>
+    <td>Faxnummer des Kunden; nur f&uuml;r Kunden</td>
    </tr>
    <tr>
     <td><code>customernotes</code></td>
     <td>Bemerkungen beim Kunden; nur f&uuml;r Kunden</td>
+   </tr>
+   <tr>
+    <td><code>customernumber</code></td>
+    <td>Kundennummer; nur f&uuml;r Kunden</td>
+   </tr>
+   <tr>
+    <td><code>customerphone</code></td>
+    <td>Telefonnummer des Kunden; nur f&uuml;r Kunden</td>
    </tr>
    <tr>
     <td><code>discount</code></td>
@@ -378,8 +411,8 @@ td {
   sondern schlicht Kopien der Lieferdatenvariablen sind
   (z.B. <code>shiptocontact</code>).</p>
 
- <h3><a name="allgemein_verkaeufer">
-   Informationen &uuml;ber den Verkäufer:</a></h3>
+ <h3><a name="allgemein_bearbeiter">
+   Informationen &uuml;ber den Bearbeiter:</a></h3>
 
  <p>
   <table border="1">
@@ -426,6 +459,59 @@ td {
    </tr>
    <tr>
     <td><code>employee_tel</code></td>
+    <td>Telefonnummer</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="allgemein_verkaeufer">
+   Informationen &uuml;ber den Verk&auml;fer (nur bei Verkaufsmasken):</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>salesman_address</code></td>
+    <td>Adressfeld</td>
+   </tr>
+   <tr>
+    <td><code>salesman_businessnumber</code></td>
+    <td>Firmennummer</td>
+   </tr>
+   <tr>
+    <td><code>salesman_company</code></td>
+    <td>Firmenname</td>
+   </tr>
+   <tr>
+    <td><code>salesman_co_ustid</code></td>
+    <td>Usatzsteuer-Identifikationsnummer</td>
+   </tr>
+   <tr>
+    <td><code>salesman_duns</code></td>
+    <td>DUNS-Nummer</td>
+   </tr>
+   <tr>
+    <td><code>salesman_email</code></td>
+    <td>Email</td>
+   </tr>
+   <tr>
+    <td><code>salesman_fax</code></td>
+    <td>Fax</td>
+   </tr>
+   <tr>
+    <td><code>salesman_name</code></td>
+    <td>voller Name</td>
+   </tr>
+   <tr>
+    <td><code>salesman_signature</code></td>
+    <td>Signatur</td>
+   </tr>
+   <tr>
+    <td><code>salesman_taxnumber</code></td>
+    <td>Steuernummer</td>
+   </tr>
+   <tr>
+    <td><code>salesman_tel</code></td>
     <td>Telefonnummer</td>
    </tr>
   </table>
@@ -488,6 +574,10 @@ td {
     <td>Fälligkeitsdatum</td>
    </tr>
    <tr>
+    <td><code>globalprojectnumber</code></td>
+    <td>Projektnummer des ganzen Beleges</td>
+   </tr>
+   <tr>
     <td><code>intnotes</code></td>
     <td>Interne Bemerkungen</td>
    </tr>
@@ -508,12 +598,20 @@ td {
     <td>Bemerkungen der Rechnung</td>
    </tr>
    <tr>
+    <td><code>orddate</code></td>
+    <td>Auftragsdatum</td>
+   </tr>
+   <tr>
     <td><code>ordnumber</code></td>
     <td>Auftragsnummer, wenn die Rechnung aus einem Auftrag erstellt wurde</td>
    </tr>
    <tr>
     <td><code>payment_terms</code></td>
     <td>Zahlungskonditionen</td>
+   </tr>
+   <tr>
+    <td><code>quodate</code></td>
+    <td>Angebotsdatum</td>
    </tr>
    <tr>
     <td><code>quonumber</code></td>
@@ -540,6 +638,10 @@ td {
    <tr>
     <td><code>total</code></td>
     <td>Restsumme der Rechnung (Summe abz&uuml;glich bereits bezahlter Posten)</td>
+   </tr>
+   <tr>
+    <td><code>transaction_description</code></td>
+    <td>Vorgangsbezeichnung</td>
    </tr>
    <tr>
     <td><code>transdate</code></td>
@@ -666,6 +768,173 @@ td {
    <tr>
     <td><code>forex</code></td>
     <td>Konto</td>
+   </tr>
+  </table>
+ </p>
+
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="dunning">Variablen in Mahnungen und Rechnungen &uuml;ber Mahngeb&uuml;hren</a></h2>
+
+ <h3><a name="dunning_vorlagennamen">Namen der Vorlagen</a></h3>
+
+ <p>Die Namen der Vorlagen werden im System-Men&uuml; vom Benutzer
+  eingegeben. Wird f&uuml;r ein Mahnlevel die Option zur automatischen
+  Erstellung einer Rechnung &uuml;ber die Mahngeb&uuml;hren und Zinsen
+  aktiviert, so wird der Name der Vorlage f&uuml;r diese Rechnung aus
+  dem Vorlagenname f&uuml;r diese Mahnstufe mit dem
+  Zusatz <code>_invoice</code> gebildet. Weiterhin werden die
+  K&uuml;rzel f&uuml;r die ausgew&auml;hlte Sprache und den
+  ausgew&auml;hlten Drucker angeh&auml;ngt.</p>
+
+ <h3><a name="dunning_allgemein">Allgemeine Variablen in Mahnungen:</a></h3>
+
+ <p>Die Variablen des Verkäufers stehen wie gewohnt
+  als <code>employee_...</code> zur Verfügung. Die Adressdaten des
+  Kunden stehen als Variablen <code>name</code>, <code>street</code>,
+  <code>zipcode</code>, <code>city</code>, <code>country</code>,
+  <code>department_1</code>, <code>department_2</code>, und
+  <code>email</code> zur Verfügung.
+ </p>
+
+ <p>Weitere Variablen beinhalten:</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>dunning_date</code></td>
+    <td>Datum der Mahnung</td>
+   </tr>
+   <tr>
+    <td><code>dunning_duedate</code></td>
+    <td>F&auml;lligkeitsdatum f&uuml;r diese Mahhnung</td>
+   </tr>
+   <tr>
+    <td><code>fee</code></td>
+    <td>Kummulative Mahngebühren</td>
+   </tr>
+   <tr>
+    <td><code>interest_rate</code></td>
+    <td>Zinssatz per anno in Prozent</td>
+   </tr>
+   <tr>
+    <td><code>total_amount</code></td>
+    <td>Gesamter noch zu zahlender Betrag als <code>fee</code> + <code>total_interest</code> + <code>total_open_amount</code></td>
+   </tr>
+   <tr>
+    <td><code>total_interest</code></td>
+    <td>Zinsen per anno &uuml;ber alle Rechnungen</td>
+   </tr>
+   <tr>
+    <td><code>total_open_amount</code></td>
+    <td>Summe &uuml;ber alle offene Betr&auml;ge der Rechnungen</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="dunning_details">
+   Variablen f&uuml;r jede gemahnte Rechnung in einer Mahnung:</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>dn_amount</code></td>
+    <td>Rechnungssumme (brutto)</td>
+   </tr>
+   <tr>
+    <td><code>dn_duedate</code></td>
+    <td>Originales F&auml;lligkeitsdatum der Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_dunning_date</code></td>
+    <td>Datum der Mahnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_dunning_duedate</code></td>
+    <td>F&auml;lligkeitsdatum der Mahnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_fee</code></td>
+    <td>Kummulative Mahngeb&uuml;hr</td>
+   </tr>
+   <tr>
+    <td><code>dn_interest</code></td>
+    <td>Zinsen per anno f&uuml;r diese Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>dn_invnumber</code></td>
+    <td>Rechnungsnummer</td>
+   </tr>
+   <tr>
+    <td><code>dn_linetotal</code></td>
+    <td>Noch zu zahlender Betrag (ergibt sich aus <code>dn_open_amount + dn_fee + dn_interest</code>)</td>
+   </tr>
+   <tr>
+    <td><code>dn_netamount</code></td>
+    <td>Rechnungssumme (netto)</td>
+   </tr>
+   <tr>
+    <td><code>dn_open_amount</code></td>
+    <td>Offener Rechnungsbetrag</td>
+   </tr>
+   <tr>
+    <td><code>dn_ordnumber</code></td>
+    <td>Bestellnummer</td>
+   </tr>
+   <tr>
+    <td><code>dn_transdate</code></td>
+    <td>Rechnungsdatum</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="dunning_invoice">Variablen in automatisch erzeugten
+   Rechnungen &uuml;ber Mahngeb&uuml;hren</a></h3>
+
+ <p>Die Variablen des Verkäufers stehen wie gewohnt
+  als <code>employee_...</code> zur Verfügung. Die Adressdaten des
+  Kunden stehen als Variablen <code>name</code>, <code>street</code>,
+  <code>zipcode</code>, <code>city</code>, <code>country</code>,
+  <code>department_1</code>, <code>department_2</code>, und
+  <code>email</code> zur Verfügung.
+ </p>
+
+ <p>Weitere Variablen beinhalten:</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>duedate</code></td>
+    <td>Fälligkeitsdatum der Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>dunning_id</code></td>
+    <td>Mahnungsnummer</td>
+   </tr>
+   <tr>
+    <td><code>fee</code></td>
+    <td>Mahngeb&uuml;hren</td>
+   </tr>
+   <tr>
+    <td><code>interest</code></td>
+    <td>Zinsen</td>
+   </tr>
+   <tr>
+    <td><code>invamount</code></td>
+    <td>Rechnungssumme (ergibt sich aus <code>fee + interest</code>)</td>
+   </tr>
+   <tr>
+    <td><code>invdate</code></td>
+    <td>Rechnungsdatum</td>
+   </tr>
+   <tr>
+    <td><code>invnumber</code></td>
+    <td>Rechnungsnummer</td>
    </tr>
   </table>
  </p>

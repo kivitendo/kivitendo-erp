@@ -31,19 +31,21 @@ use DBI;
 use SL::User;
 use SL::Form;
 
+require "bin/mozilla/common.pl";
+
 $form = new Form;
 
 $locale = new Locale $language, "login";
 
 # customization
-if (-f "$form->{path}/custom_$form->{script}") {
-  eval { require "$form->{path}/custom_$form->{script}"; };
+if (-f "bin/mozilla/custom_$form->{script}") {
+  eval { require "bin/mozilla/custom_$form->{script}"; };
   $form->error($@) if ($@);
 }
 
 # per login customization
-if (-f "$form->{path}/$form->{login}_$form->{script}") {
-  eval { require "$form->{path}/$form->{login}_$form->{script}"; };
+if (-f "bin/mozilla/$form->{login}_$form->{script}") {
+  eval { require "bin/mozilla/$form->{login}_$form->{script}"; };
   $form->error($@) if ($@);
 }
 
@@ -53,7 +55,7 @@ $form->{titlebar} =
 
 if ($form->{action}) {
   $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
-  &{ $locale->findsub($form->{action}) };
+  call_sub($locale->findsub($form->{action}));
 } else {
   &login_screen;
 }
@@ -105,7 +107,6 @@ sub login_screen {
 		<th align=right>| . $locale->text('Password') . qq|</th>
 		<td><input class=login type=password name=password size=30 tabindex="2"></td>
 	      </tr>
-	      <input type=hidden name=path value=$form->{path}>
 	    </table>
 
 	    <br>
@@ -151,13 +152,13 @@ sub login {
   # made it this far, execute the menu
   if ($user->{menustyle} eq "v3") {
     $form->{callback} =
-      "menuv3.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+      "menuv3.pl?login=$form->{login}&password=$form->{password}&action=display";
   } elsif ($user->{menustyle} eq "neu") {
     $form->{callback} =
-      "menunew.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+      "menunew.pl?login=$form->{login}&password=$form->{password}&action=display";
   } else {
     $form->{callback} =
-      "menu.pl?login=$form->{login}&password=$form->{password}&path=$form->{path}&action=display";
+      "menu.pl?login=$form->{login}&password=$form->{password}&action=display";
   }
 
   $form->redirect;
@@ -171,7 +172,7 @@ sub logout {
   unlink "$userspath/$form->{login}.conf";
 
   # remove the callback to display the message
-  $form->{callback} = "login.pl?path=$form->{path}&action=&login=";
+  $form->{callback} = "login.pl?action=&login=";
   $form->redirect($locale->text('You are logged out!'));
 
   $lxdebug->leave_sub();
@@ -187,7 +188,7 @@ sub company_logo {
   $myconfig{address} =~ s/\\n/<br>/g;
   $myconfig{dbhost} = $locale->text('localhost') unless $myconfig{dbhost};
 
-  map { $form->{$_} = $myconfig{$_} } qw(charset stylesheet);
+  $form->{stylesheet} = $myconfig{stylesheet};
 
   $form->{title} = $locale->text('About');
 

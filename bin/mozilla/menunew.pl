@@ -52,7 +52,7 @@ sub display {
   &acc_menu;
 
   print qq|
-<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo&path=$form->{path}" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
+<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
 <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
 </p>
 </iframe>
@@ -65,11 +65,12 @@ sub display {
 
 sub clock_line {
 
-  $login = "["
+  $fensterlink="menunew.pl?login=$form->{login}&password=$form->{password}&action=display";
+  $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
+
+  $login = "[Nutzer "
     . $form->{login}
-    . " - <a href=\"login.pl?path="
-    . $form->{"path"}
-    . "&password="
+    . " - <a href=\"login.pl?password="
     . $form->{"password"}
     . "&action=logout\" target=\"_top\">"
     . $locale->text('Logout')
@@ -100,62 +101,23 @@ sub clock_line {
   print qq|
 <script type="text/javascript">
 <!--
-var clockid=new Array()
-var clockidoutside=new Array()
-var i_clock=-1
-var thistime= new Date()
-var hours= | . $Stunden . qq|;
-var minutes= | . $Minuten . qq|;
-var seconds= | . $Sekunden . qq|;
-if (eval(hours) <10) {hours="0"+hours}
-if (eval(minutes) < 10) {minutes="0"+minutes}
-if (seconds < 10) {seconds="0"+seconds}
-//var thistime = hours+":"+minutes+":"+seconds
-var thistime = hours+":"+minutes
-
-function writeclock() {
-	i_clock++
-	if (document.all \|\| document.getElementById \|\| document.layers) {
-		clockid[i_clock]="clock"+i_clock
-		document.write("<font family=arial size=2><span id='"+clockid[i_clock]+"' style='position:relative'>"+thistime+"</span></font>")
-	}
-}
-
 function clockon() {
-	thistime= new Date()
-	hours=thistime.getHours()
-	minutes=thistime.getMinutes()
-	seconds=thistime.getSeconds()
-	if (eval(hours) <10) {hours="0"+hours}
-	if (eval(minutes) < 10) {minutes="0"+minutes}
-	if (seconds < 10) {seconds="0"+seconds}
-	//thistime = hours+":"+minutes+":"+seconds
-	thistime = hours+":"+minutes
-
-	if (document.all) {
-		for (i=0;i<=clockid.length-1;i++) {
-			var thisclock=eval(clockid[i])
-			thisclock.innerHTML=thistime
-		}
-	}
-
-	if (document.getElementById) {
-		for (i=0;i<=clockid.length-1;i++) {
-			document.getElementById(clockid[i]).innerHTML=thistime
-		}
-	}
-	var timer=setTimeout("clockon()",60000)
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
+  var timer=setTimeout("clockon()", 10000);
 }
-//window.onload=clockon
+window.onload=clockon
 //-->
 </script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
-	<tr>
-		<td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
-		<td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
-    . $login . $datum . qq| <script>writeclock()</script>&nbsp;
-		</td>
-	</tr>
+  <tr>
+    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> &nbsp; $fenster &nbsp; [<a href="JavaScript:top.main_window.print()">drucken</a>]</td>
+    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+      $login $datum <span id='clock_id' style='position:relative'></span>&nbsp;
+    </td>
+  </tr>
 </table>
 |;
 }
@@ -164,13 +126,39 @@ sub acc_menu {
   $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
-  $menu = new Menu "custom_$menufile" if (-f "custom_$menufile");
-  $menu = new Menu "$form->{login}_$menufile"
-    if (-f "$form->{login}_$menufile");
 
   $| = 1;
 
   print qq|
+<style>
+<!--
+
+.itemBorder {
+  border: 1px solid black
+}
+
+.itemText {
+  text-decoration: none;
+  color: #000000;
+  font: 12px Arial, Helvetica
+}
+
+.rootItemText {
+  text-decoration: none;
+  color: #ffffff;
+  font: 12px Arial, Helvetica
+}
+
+.menu {
+  color:#ffffff;
+  background:url(image/bg_css_menu.png) repeat bottom;
+  border:1px solid;
+  border-color:#ccc #888 #555 #bbb;
+}
+
+-->
+</style>
+
 <script type="text/javascript">
 <!--
 var isDOM = (document.getElementById ? true : false); 
@@ -288,7 +276,7 @@ function writeMenus() {
 			if (borderClass) str += 'class="' + borderClass + '" "';
 			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
 			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
-			str +='<tr><td style="cursor:crosshair;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
+			str +='<tr><td class="' + textClass + '" style="cursor:pointer;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
 			if (target > 0) {
 				menu[target][0].parentMenu = currMenu;
 				menu[target][0].parentItem = currItem;
@@ -328,14 +316,14 @@ function writeMenus() {
    }
 }
 var menu = new Array();
-var defOver = '#AAAAFF', defBack = '#8888DD';
+var defOver = '#cccccc';
+var defBack = '#dddddd';
 var defLength = 22;
 menu[0] = new Array();
-menu[0][0] = new Menu(false, '', 5, 18, 19, '#AAAAFF', '#AAAAFF', '', 'itemText');
+menu[0][0] = new Menu(false, '', 5, 18, 19, '#cccccc', '', '', 'rootItemText');
 
 |;
 
-  #
   &section_menu($menu);
 
   print qq|
@@ -353,22 +341,13 @@ function moveRoot() {
 }
 //  End -->
 </script>
-<style>
-<!--
 
-.itemBorder { border: 1px solid black }
-.itemText { text-decoration: none; color: #FFFFFF; font: 12px Arial, Helvetica }
-
--->
-</style>
-
-<!--body bgcolor="#AAAAff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0"-->
 <BODY scrolling="no" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0" style="margin: 0" onLoad="writeMenus(); clockon();" onResize="if (isNS4) nsResizeHandler()">
-<!--BODY marginwidth="0" marginheight="0" style="margin: 0" onLoad="writeMenus()" onResize="if (isNS4) nsResizeHandler()"-->
 
 
-<table bgcolor="#AAAAFF" width="100%" border="0" cellpadding="0" cellspacing="0">
+<table class="menu" width="100%" border="0" cellpadding="0" cellspacing="0">
 <tr><td height="21"><font size="1"> </font></td></tr></table>
+
 
 |;
 
@@ -422,7 +401,7 @@ sub section_menu {
     } else {
       if ($menu->{$item}{module}) {
 
-        #UntermenÃ¼punkte
+        #Untermenüpunkte
         $target = $menu->{$item}{target};
         $uri    = $menu->menuitemNew(\%myconfig, \%$form, $item, $level);
 
@@ -444,7 +423,7 @@ sub section_menu {
         print
           qq|menu[$pm][0] = new Menu(true, '>', 0, 20, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;
 
-        #print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?path=bin/mozilla&action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+        #print qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?action=acc_menu&level=$ml_&login=$form->{login}&password=$form->{password}" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         #print qq|<br>\n|;
