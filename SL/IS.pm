@@ -686,7 +686,6 @@ sub post_invoice {
       # get pricegroup_id and save it
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
       $pricegroup_id *= 1;
-      my $subtotal = $form->{"subtotal_$i"} * 1;
 
       # save detail record in invoice table
       $query =
@@ -704,7 +703,7 @@ sub post_invoice {
                  $form->{"unit_$i"}, conv_date($form->{"deliverydate_$i"}), conv_i($form->{"project_id_$i"}),
                  $form->{"serialnumber_$i"}, conv_i($pricegroup_id),
                  $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
-                 $form->{"cusordnumber_$i"}, $baseqty, $subtotal,
+                 $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
                  $form->{"lastcost_$i"});
       do_query($form, $dbh, $query, @values);
