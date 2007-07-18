@@ -787,371 +787,555 @@ sub assembly_item {
 # Warning, deep magic ahead.
 # This function gets all parts from the database according to the filters specified
 #
-# filter strings:
-#   partnumber ean description partsgroup serialnumber make model drawing microfiche
-#   transdatefrom transdateto sort
+# specials:
+#   sort revers  - sorting field + direction
+#   top100
+#
+# simple filter strings (every one of those also has a column flag prefixed with 'l_' associated):
+#   partnumber ean description partsgroup microfiche drawing 
+#
+# column flags:
+#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_bin l_rop l_image l_drawing l_microfiche l_partsgroup 
 #
 # exclusives:
 #   itemstatus  = active | onhand | short | obsolete | orphaned
 #   searchitems = part | assembly | service
 #
-# column flags:
-#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_bin l_rop l_image l_drawing l_microfiche l_partsgroup 
-#
+# joining filters:
+#   make model                               - makemodel
+#   serialnumber transdatefrom transdateto   - invoice/orderitems
+#   
 # binary flags:
-#   bought sold onorder ordered rfq quoted onhand short
-#   l_serialnumber l_linetotal l_subtotal l_soldtotal l_deliverydate
-#   revers top100
+#   bought sold onorder ordered rfq quoted   - aggreg joins with invoices/orders 
+#   l_linetotal l_subtotal                   - aggreg joins to display totals (complicated) - NOT IMPLEMENTED here, implementation at frontend
+#   l_soldtotal                              - aggreg join to display total of sold quantity
+#   onhand                                   - as above, but masking the simple itemstatus results (doh!)
+#   short                                    - NOT IMPLEMENTED as form filter, only as itemstatus option
+#   l_serialnumber                           - belonges to serialnumber filter
+#   l_deliverydate                           - displays deliverydate is sold etc. flags are active
+#
+# not working: 
+#   l_soldtotal                              - aggreg join to display total of sold quantity
+#   onhand                                   - as above, but masking the simple itemstatus results (doh!)
+#   masking of onhand in bsooqr mode         - ToDO: fixme
+#
+# disabled sanity checks and changes:
+#  - searchitems = assembly will no longer disable bought
+#  - searchitems = service will no longer disable make and model, although services don't have make/model, it doesn't break the query
+#  - itemstatus = orphaned will no longer disable onhand short bought sold onorder ordered rfq quoted transdate[from|to]
+#  - itemstatus = obsolete will no longer disable onhand, short
+#  - allow sorting by ean
+#  - serialnumber filter also works if l_serialnumber isn't ticked
+#  - onhand doesn't get masked by it's oi or invoice counterparts atm. ToDO: fix this
+#  - sorting will now change sorting if the requested sorting column isn't checked and doesn't get checked as a side effect
 #
 sub all_parts {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $dbh = $form->get_standard_dbh($myconfig);
 
-  my $where = qq|1 = 1|;
-  my (@values, $var, $flds, $group, $limit);
+  $form->{parts} = +{ };
 
-  foreach my $item (qw(partnumber drawing microfiche ean pg.partsgroup)) {
-    my $column = $item;
-    $column =~ s/.*\.//; # get rid of table prefixes
-    if ($form->{$column}) {
-      $where .= qq| AND ($item ILIKE ?)|;
-      push(@values, "%$form->{$column}%");
-    }
-  }
+  my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing);
+  my @makemodel_filters    = qw(make model);
+  my @invoice_oi_filters   = qw(serialnumber soldtotal);
+  my @apoe_filters         = qw(transdate);
+  my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, qw(serialnumber));
+  my @simple_l_switches    = (@all_columns, qw(listprice sellprice lastcost priceupdate weight unit bin rop image));
+  my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
+  my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module);
+  my @deliverydate_flags   = qw(deliverydate);
+#  my @other_flags          = qw(onhand); # ToDO: implement these
+#  my @inactive_flags       = qw(l_subtotal short l_linetotal);
 
-  # special case for description
-  if ($form->{description}
-      && !(   $form->{bought}  || $form->{sold} || $form->{onorder}
-           || $form->{ordered} || $form->{rfq} || $form->{quoted})) {
-    $where .= qq| AND (p.description ILIKE ?)|;
-    push(@values, "%$form->{description}%");
-  }
-
-  # special case for serialnumber
-  if ($form->{l_serialnumber} && $form->{serialnumber}) {
-    $where .= qq| AND (serialnumber ILIKE ?)|;
-    push(@values, "%$form->{serialnumber}%");
-  }
-
-  if ($form->{searchitems} eq 'part') {
-    $where .= qq| AND (p.inventory_accno_id > 0) |;
-  }
-
-  if ($form->{searchitems} eq 'assembly') {
-    $form->{bought} = "";
-    $where .= qq| AND p.assembly|;
-  }
-
-  if ($form->{searchitems} eq 'service') {
-    $where .= qq| AND (p.inventory_accno_id IS NULL) AND NOT (p.assembly = '1')|;
-    # irrelevant for services
-    map { $form->{$_} = '' } qw(make model);
-  }
-
-  # items which were never bought, sold or on an order
-  if ($form->{itemstatus} eq 'orphaned') {
-    map { $form->{$_} = 0  } qw(onhand short bought sold onorder ordered rfq quoted);
-    map { $form->{$_} = '' } qw(transdatefrom transdateto);
-
-    $where .=
-      qq| AND (p.onhand = 0)
-          AND p.id NOT IN
-            (
-              SELECT DISTINCT parts_id FROM invoice
-              UNION
-              SELECT DISTINCT parts_id FROM assembly
-              UNION
-              SELECT DISTINCT parts_id FROM orderitems
-            )|;
-  }
-
-  my %status2condition = (
-    active   => " AND (p.obsolete = '0')",
-    obsolete => " AND (p.obsolete = '1')",
-    onhand   => " AND (p.onhand > 0)",
-    short    => " AND (p.onhand < p.rop)",
+  my %joins = (
+    partsgroup => 'LEFT JOIN partsgroup pg ON p.partsgroup_id = pg.id',
+    makemodel  => 'LEFT JOIN makemodel mm ON mm.parts_id = p.id',
+    invoice_oi => 
+      q|LEFT JOIN (                                                                                                                                      
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem, 'invoice'    AS ioi FROM invoice UNION             
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, 'orderitems' AS ioi FROM orderitems                
+       ) AS ioi ON ioi.parts_id = p.id|,
+    apoe       => 
+      q|LEFT JOIN (                                                                                                                                     
+         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id, NULL AS deliverydate FROM ap UNION
+         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,         deliverydate FROM ar UNION
+         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, NULL AS deliverydate FROM oe
+       ) AS apoe ON ioi.trans_id = apoe.id|,
+    cv         =>
+      q|LEFT JOIN (                                                                
+           SELECT id, name, 'customer' AS cv FROM customer UNION                   
+           SELECT id, name, 'vendor'   AS cv FROM vendor                           
+         ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
   );
-  $where .= $status2condition{$form->{itemstatus}};
+  my @join_order = qw(partsgroup makemodel invoice_oi apoe cv);
+  my %joins_needed = (0) x scalar keys %joins;
 
-  $form->{onhand} = $form->{short} = 0 if ($form->{itemstatus} eq 'obsolete');
+  #===== switches and simple filters ========#
 
-  my @subcolumns;
-  foreach my $column (qw(make model)) {
-    push @subcolumns, $column if $form->{$column};
+  my @select_tokens = qw(id);
+  my @where_tokens  = qw(1=1);
+  my @group_tokens  = ();
+
+  # special case transdate
+  if (grep { $form->{$_} } qw(transdatefrom transdateto)) {
+    $form->{"l_transdate"} = 1;
+    push @select_tokens, 'transdate';
+    for (qw(transdatefrom transdateto)) {
+      next unless $form->{$_};
+      push @where_tokens, sprintf "transdate %s ?", /from$/ ? '>=' : '<=';
+      push @bind_vars,    $form->{$_};
+    }
   }
-  if (@subcolumns) {
-    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE | . (join " AND ", map { "($_ ILIKE ?)"; } @subcolumns) . ")";
-    push @values, map { '%' . $form->{$_} . '%' } @subcolumns;
+
+  foreach (@simple_filters, @makemodel_filters, @invoice_oi_filters) {
+    next unless $form->{$_};
+    $form->{"l_$_"} = '1'; # show the column
+    push @where_tokens, "$_ ILIKE ?"; 
+    push @bind_vars,    "%$form->{$_}%";
   }
 
+  foreach (@simple_l_switches) {
+    next unless $form->{"l_$_"};
+    push @select_tokens, $_;
+  }
+
+  for ($form->{searchitems}) {
+    push @where_tokens, 'p.inventory_accno_id > 0'     if /part/;
+    push @where_tokens, 'p.inventory_accno_id IS NULL' if /service/;
+    push @where_tokens, 'NOT p.assembly'               if /service/;
+    push @where_tokens, '    p.assembly'               if /assembly/;
+  }
+
+  for ($form->{itemstatus}) {
+    push @where_tokens, 'p.id NOT IN 
+        (SELECT DISTINCT parts_id FROM invoice UNION  
+         SELECT DISTINCT parts_id FROM assembly UNION 
+         SELECT DISTINCT parts_id FROM orderitems)'    if /orphaned/;
+    push @where_tokens, 'p.onhand = 0'                 if /orphaned/;
+    push @where_tokens, 'NOT p.obsolete'               if /active/;
+    push @where_tokens, '    p.obsolete',              if /obsolete/;
+    push @where_tokens, 'p.onhand > 0',                if /onhand/;
+    push @where_tokens, 'p.onhand < p.rop',            if /short/;
+  }                       
+
+
+  my @sort_cols = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
+  $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols;
+  my $order_clause = " ORDER BY $form->{sort} " . ($form->{revers} ? 'DESC' : 'ASC');
+
+  my $limit_clause = " LIMIT 100" if $form->{top100};
+
+  #=== joins and complicated filters ========#
+ 
+  my $bsooqr = $form->{bought}  || $form->{sold}
+            || $form->{ordered} || $form->{onorder}
+            || $form->{quoted}  || $form->{rfq};
+ 
+  my @bsooqr;
+  push @select_tokens, @qsooqr_flags                                          if $bsooqr;
+  push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
+  push @bsooqr_tokens, q|module = 'ir' AND NOT ioi.assemblyitem|              if $form->{bought};
+  push @bsooqr_tokens, q|module = 'is' AND NOT ioi.assemblyitem|              if $form->{sold};
+  push @bsooqr_tokens, q|module = 'oe' AND NOT quotation AND cv = 'customer'| if $form->{ordered};
+  push @bsooqr_tokens, q|module = 'oe' AND NOT quotation AND cv = 'vendor'|   if $form->{onorder};
+  push @bsooqr_tokens, q|module = 'oe' AND     quotation AND cv = 'customer'| if $form->{quoted};
+  push @bsooqr_tokens, q|module = 'oe' AND     quotation AND cv = 'vendor'|   if $form->{rfq};
+  push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
+
+  $joins_needed{partsgroup}  = 1;
+  $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
+  $joins_needed{cv}          = 1 if $bsooqr;
+  $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
+  $joins_needed{invoice_oi}  = 1 if $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
+
+  # special case for description search.
+  # up in the simple filter section the description filter got interpreted as something like: WHERE description ILIKE '%$form->{description}%'
+  # now we'd like to search also for the masked description entered in orderitems and invoice, so...
+  # find the old entries in of @where_tokens and @bind_vars, and adjust them
+  if ($joins_needed{invoice_oi}) {
+    for (my ($wi, $bi) = (0)x2; $wi <= $#where_tokens; $bi++ if $where_tokens[$wi++] =~ /\?/) {
+      next unless $where_tokens[$wi] =~ /^description ILIKE/;
+      splice @where_tokens, $wi, 1, 'p.description ILIKE ? OR ioi.description ILIKE ?';
+      splice @bind_vars,    $bi, 0, $bind_vars[$bi];
+      last;
+    }
+  }
+
+  # now the master trick: soldtotal.
   if ($form->{l_soldtotal}) {
-    $where .= qq| AND (p.id = i.parts_id) AND (i.qty >= 0)|;
-    $group = qq| GROUP BY p.id, p.partnumber, p.description, p.onhand, p.unit, p.bin, p.sellprice, p.listprice, p.lastcost, p.priceupdate, pg.partsgroup|;
+    push @where_tokens, 'ioi.qty >= 0';
+    push @group_tokens, @select_tokens;
+    push @select_tokens, 'SUM(ioi.qty) AS soldtotal';
   }
 
-  $limit = qq| LIMIT 100| if ($form->{top100});
+  #============= build query ================#
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my %table_prefix = (
+     deliverydate => 'apoe.', serialnumber => 'ioi.', 
+     transdate    => 'apoe.', trans_id     => 'ioi.', 
+     module       => 'apoe.', name         => 'cv.',  
+     ordnumber    => 'apoe.', make         => 'mm.',  
+     quonumber    => 'apoe.', model        => 'mm.',  
+     invnumber    => 'apoe.',                         
+     'SUM(ioi.qty) AS soldtotal' => ' ',
+  );
+  
+  map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
 
-  my @sort_cols = qw(id partnumber description partsgroup bin priceupdate onhand
-                     invnumber ordnumber quonumber name drawing microfiche
-                     serialnumber soldtotal deliverydate);
+  my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @select_tokens;
+  my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
+  my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
+  my $group_clause  = ' GROUP BY ' . join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @group_tokens;
 
-  my $sortorder = "partnumber";
-  $sortorder = $form->{sort} if ($form->{sort} && grep({ $_ eq $form->{sort} } @sort_cols));
-  $sortorder .= " DESC" if ($form->{revers});
+  my $query = qq|SELECT DISTINCT $select_clause FROM parts p $join_clause WHERE $where_clause $group_clause $order_clause $limit_clause|;
+  $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
 
-  my $query = "";
-
-  if ($form->{l_soldtotal}) {
-    $form->{soldtotal} = 'soldtotal';
-    $query =
-      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit, 
-           p.bin, p.sellprice, p.listprice, p.lastcost, 
-           p.priceupdate, pg.partsgroup,sum(i.qty) AS soldtotal 
-         FROM parts p 
-         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id), invoice i
-         WHERE $where
-         $group
-         ORDER BY $sortorder $limit|;
-  } else {
-    $query =
-      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit,
-           p.bin, p.sellprice, p.listprice, p.lastcost, p.rop, p.weight,
-           p.priceupdate, p.image, p.drawing, p.microfiche,
-           pg.partsgroup
-         FROM parts p
-         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-         WHERE $where
-         $group
-         ORDER BY $sortorder $limit|;
-  }
-
-  my @all_values = @values;
-
-  # rebuild query for bought and sold items
-  if (   $form->{bought}
-      || $form->{sold}
-      || $form->{onorder}
-      || $form->{ordered}
-      || $form->{rfq}
-      || $form->{quoted}) {
-    my $union = "";
-    $query = "";
-    @all_values = ();
-
-    if ($form->{bought} || $form->{sold}) {
-
-      my @invvalues = @values;
-      my $invwhere = "$where";
-      $invwhere .= qq| AND i.assemblyitem = '0'|;
-
-      if ($form->{transdatefrom}) {
-        $invwhere .= qq| AND a.transdate >= ?|;
-        push(@invvalues, $form->{transdatefrom});
-      }
-
-      if ($form->{transdateto}) {
-        $invwhere .= qq| AND a.transdate <= ?|;
-        push(@invvalues, $form->{transdateto});
-      }
-
-      if ($form->{description}) {
-        $invwhere .= qq| AND i.description ILIKE ?|;
-        push(@invvalues, '%' . $form->{description} . '%');
-      }
-
-      $flds =
-        qq|p.id, p.partnumber, i.description, i.serialnumber,
-           i.qty AS onhand, i.unit, p.bin, i.sellprice,
-           p.listprice, p.lastcost, p.rop, p.weight,
-           p.priceupdate, p.image, p.drawing, p.microfiche,
-           pg.partsgroup,
-           a.invnumber, a.ordnumber, a.quonumber, i.trans_id,
-           ct.name, i.deliverydate|;
-
-      if ($form->{bought}) {
-        $query =
-          qq|SELECT $flds, 'ir' AS module, '' AS type, 1 AS exchangerate
-             FROM invoice i
-             JOIN parts p ON (p.id = i.parts_id)
-             JOIN ap a ON (a.id = i.trans_id)
-             JOIN vendor ct ON (a.vendor_id = ct.id)
-             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-             WHERE $invwhere|;
-
-        $union = qq| UNION |;
-
-        push(@all_values, @invvalues);
-      }
-
-      if ($form->{sold}) {
-        $query .=
-          qq|$union
-
-             SELECT $flds, 'is' AS module, '' AS type, 1 As exchangerate
-             FROM invoice i
-             JOIN parts p ON (p.id = i.parts_id)
-             JOIN ar a ON (a.id = i.trans_id)
-             JOIN customer ct ON (a.customer_id = ct.id)
-             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-             WHERE $invwhere|;
-        $union = qq| UNION |;
-
-        push(@all_values, @invvalues);
-      }
-    }
-
-    if ($form->{onorder} || $form->{ordered}) {
-      my @ordvalues = @values;
-      my $ordwhere = $where . qq| AND o.quotation = '0'|;
-
-      if ($form->{transdatefrom}) {
-        $ordwhere .= qq| AND o.transdate >= ?|;
-        push(@ordvalues, $form->{transdatefrom});
-      }
-
-      if ($form->{transdateto}) {
-        $ordwhere .= qq| AND o.transdate <= ?|;
-        push(@ordvalues, $form->{transdateto});
-      }
-
-      if ($form->{description}) {
-        $ordwhere .= qq| AND oi.description ILIKE ?|;
-        push(@ordvalues, '%' . $form->{description} . '%');
-      }
-
-      if ($form->{ordered}) {
-        $query .=
-          qq|$union
-
-             SELECT p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
-               oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
-               p.listprice, p.lastcost, p.rop, p.weight,
-               p.priceupdate, p.image, p.drawing, p.microfiche,
-               pg.partsgroup,
-               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-               ct.name, NULL AS deliverydate,
-               'oe' AS module, 'sales_order' AS type,
-               (SELECT buy FROM exchangerate ex
-                WHERE ex.curr = o.curr AND ex.transdate = o.transdate) AS exchangerate
-             FROM orderitems oi
-             JOIN parts p ON (oi.parts_id = p.id)
-             JOIN oe o ON (oi.trans_id = o.id)
-             JOIN customer ct ON (o.customer_id = ct.id)
-             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-             WHERE $ordwhere AND (o.customer_id > 0)|;
-        $union = qq| UNION |;
-
-        push(@all_values, @ordvalues);
-      }
-
-      if ($form->{onorder}) {
-        $query .=
-          qq|$union
-
-             SELECT p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
-               oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
-               p.listprice, p.lastcost, p.rop, p.weight,
-               p.priceupdate, p.image, p.drawing, p.microfiche,
-               pg.partsgroup,
-               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-               ct.name, NULL AS deliverydate,
-               'oe' AS module, 'purchase_order' AS type,
-               (SELECT sell FROM exchangerate ex
-               WHERE ex.curr = o.curr AND (ex.transdate = o.transdate)) AS exchangerate
-             FROM orderitems oi
-             JOIN parts p ON (oi.parts_id = p.id)
-             JOIN oe o ON (oi.trans_id = o.id)
-             JOIN vendor ct ON (o.vendor_id = ct.id)
-             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-             WHERE $ordwhere AND (o.vendor_id > 0)|;
-        $union = qq| UNION |;
-
-        push(@all_values, @ordvalues);
-      }
-
-    }
-
-    if ($form->{rfq} || $form->{quoted}) {
-      my $quowhere = $where . qq| AND o.quotation = '1'|;
-      my @quovalues = @values;
-
-      if ($form->{transdatefrom}) {
-        $quowhere .= qq| AND o.transdate >= ?|;
-        push(@quovalues, $form->{transdatefrom});
-      }
-
-      if ($form->{transdateto}) {
-        $quowhere .= qq| AND o.transdate <= ?|;
-        push(@quovalues, $form->{transdateto});
-      }
-
-      if ($form->{description}) {
-        $quowhere .= qq| AND oi.description ILIKE ?|;
-        push(@quovalues, '%' . $form->{description} . '%');
-      }
-
-      if ($form->{quoted}) {
-        $query .=
-          qq|$union
-
-             SELECT
-               p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
-               oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
-               p.listprice, p.lastcost, p.rop, p.weight,
-               p.priceupdate, p.image, p.drawing, p.microfiche,
-               pg.partsgroup,
-               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-               ct.name, NULL AS deliverydate, 'oe' AS module, 'sales_quotation' AS type,
-               (SELECT buy FROM exchangerate ex
-                WHERE (ex.curr = o.curr) AND (ex.transdate = o.transdate)) AS exchangerate
-             FROM orderitems oi
-             JOIN parts p ON (oi.parts_id = p.id)
-             JOIN oe o ON (oi.trans_id = o.id)
-             JOIN customer ct ON (o.customer_id = ct.id)
-             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-             WHERE $quowhere
-             AND o.customer_id > 0|;
-        $union = qq| UNION |;
-
-        push(@all_values, @quovalues);
-      }
-
-      if ($form->{rfq}) {
-        $query .=
-          qq|$union
-
-             SELECT p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
-               oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
-               p.listprice, p.lastcost, p.rop, p.weight,
-               p.priceupdate, p.image, p.drawing, p.microfiche,
-               pg.partsgroup,
-               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
-               ct.name, NULL AS deliverydate,
-               'oe' AS module, 'request_quotation' AS type,
-               (SELECT sell FROM exchangerate ex
-               WHERE (ex.curr = o.curr) AND (ex.transdate = o.transdate)) AS exchangerate
-             FROM orderitems oi
-             JOIN parts p ON (oi.parts_id = p.id)
-             JOIN oe o ON (oi.trans_id = o.id)
-             JOIN vendor ct ON (o.vendor_id = ct.id)
-             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-             WHERE $quowhere
-             AND o.vendor_id > 0|;
-
-        push(@all_values, @quovalues);
-      }
-
-    }
-    $query .= qq| ORDER BY  | . $sortorder;
-
-  }
-
-  $form->{parts} = selectall_hashref_query($form, $dbh, $query, @all_values);
-
+##  my $where = qq|1 = 1|;
+##  my (@values, $var, $flds, $group, $limit);
+##
+##  foreach my $item (qw(partnumber drawing microfiche ean pg.partsgroup)) {
+##    my $column = $item;
+##    $column =~ s/.*\.//; # get rid of table prefixes
+##    if ($form->{$column}) {
+##      $where .= qq| AND ($item ILIKE ?)|;
+##      push(@values, "%$form->{$column}%");
+##    }
+##  }
+##
+##  # special case for description
+##  if ($form->{description}
+##      && !(   $form->{bought}  || $form->{sold} || $form->{onorder}
+##           || $form->{ordered} || $form->{rfq} || $form->{quoted})) {
+##    $where .= qq| AND (p.description ILIKE ?)|;
+##    push(@values, "%$form->{description}%");
+##  }
+##
+##  # special case for serialnumber
+##  if ($form->{l_serialnumber} && $form->{serialnumber}) {
+##    $where .= qq| AND (serialnumber ILIKE ?)|;
+##    push(@values, "%$form->{serialnumber}%");
+##  }
+##
+##  if ($form->{searchitems} eq 'part') {
+##    $where .= qq| AND (p.inventory_accno_id > 0) |;
+##  }
+##
+##  if ($form->{searchitems} eq 'assembly') {
+##    $form->{bought} = "";
+##    $where .= qq| AND p.assembly|;
+##  }
+##
+##  if ($form->{searchitems} eq 'service') {
+##    $where .= qq| AND (p.inventory_accno_id IS NULL) AND NOT (p.assembly = '1')|;
+##    # irrelevant for services
+##    map { $form->{$_} = '' } qw(make model);
+##  }
+##
+##  # items which were never bought, sold or on an order
+##  if ($form->{itemstatus} eq 'orphaned') {
+##    map { $form->{$_} = 0  } qw(onhand short bought sold onorder ordered rfq quoted);
+##    map { $form->{$_} = '' } qw(transdatefrom transdateto);
+##
+##    $where .=
+##      qq| AND (p.onhand = 0)
+##          AND p.id NOT IN
+##            (
+##              SELECT DISTINCT parts_id FROM invoice
+##              UNION
+##              SELECT DISTINCT parts_id FROM assembly
+##              UNION
+##              SELECT DISTINCT parts_id FROM orderitems
+##            )|;
+##  }
+##
+##  my %status2condition = (
+##    active   => " AND (p.obsolete = '0')",
+##    obsolete => " AND (p.obsolete = '1')",
+##    onhand   => " AND (p.onhand > 0)",
+##    short    => " AND (p.onhand < p.rop)",
+##  );
+##  $where .= $status2condition{$form->{itemstatus}};
+##
+##  $form->{onhand} = $form->{short} = 0 if ($form->{itemstatus} eq 'obsolete');
+##
+##  my @subcolumns;
+##  foreach my $column (qw(make model)) {
+##    push @subcolumns, $column if $form->{$column};
+##  }
+##  if (@subcolumns) {
+##    $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE | . (join " AND ", map { "($_ ILIKE ?)"; } @subcolumns) . ")";
+##    push @values, map { '%' . $form->{$_} . '%' } @subcolumns;
+##  }
+##
+##  if ($form->{l_soldtotal}) {
+##    $where .= qq| AND (p.id = i.parts_id) AND (i.qty >= 0)|;
+##    $group = qq| GROUP BY p.id, p.partnumber, p.description, p.onhand, p.unit, p.bin, p.sellprice, p.listprice, p.lastcost, p.priceupdate, pg.partsgroup|;
+##  }
+##
+##  $limit = qq| LIMIT 100| if ($form->{top100});
+##
+##  # connect to database
+##  my $dbh = $form->dbconnect($myconfig);
+##
+##  my @sort_cols = qw(id partnumber description partsgroup bin priceupdate onhand
+##                     invnumber ordnumber quonumber name drawing microfiche
+##                     serialnumber soldtotal deliverydate);
+##
+##  my $sortorder = "partnumber";
+##  $sortorder = $form->{sort} if ($form->{sort} && grep({ $_ eq $form->{sort} } @sort_cols));
+##  $sortorder .= " DESC" if ($form->{revers});
+##
+##  my $query = "";
+##
+##  if ($form->{l_soldtotal}) {
+##    $form->{soldtotal} = 'soldtotal';
+##    $query =
+##      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit, 
+##           p.bin, p.sellprice, p.listprice, p.lastcost, 
+##           p.priceupdate, pg.partsgroup,sum(i.qty) AS soldtotal 
+##         FROM parts p 
+##         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id), invoice i
+##         WHERE $where
+##         $group
+##         ORDER BY $sortorder $limit|;
+##  } else {
+##    $query =
+##      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit,
+##           p.bin, p.sellprice, p.listprice, p.lastcost, p.rop, p.weight,
+##           p.priceupdate, p.image, p.drawing, p.microfiche,
+##           pg.partsgroup
+##         FROM parts p
+##         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##         WHERE $where
+##         $group
+##         ORDER BY $sortorder $limit|;
+##  }
+##
+##  my @all_values = @values;
+##
+##  # rebuild query for bought and sold items
+##  if (   $form->{bought}
+##      || $form->{sold}
+##      || $form->{onorder}
+##      || $form->{ordered}
+##      || $form->{rfq}
+##      || $form->{quoted}) {
+##    my $union = "";
+##    $query = "";
+##    @all_values = ();
+##
+##    if ($form->{bought} || $form->{sold}) {
+##
+##      my @invvalues = @values;
+##      my $invwhere = "$where";
+#      $invwhere .= qq| AND i.assemblyitem = '0'|;
+##
+##      if ($form->{transdatefrom}) {
+##        $invwhere .= qq| AND a.transdate >= ?|;
+##        push(@invvalues, $form->{transdatefrom});
+##      }
+##
+##      if ($form->{transdateto}) {
+##        $invwhere .= qq| AND a.transdate <= ?|;
+##        push(@invvalues, $form->{transdateto});
+##      }
+##
+##      if ($form->{description}) {
+##        $invwhere .= qq| AND i.description ILIKE ?|;
+##        push(@invvalues, '%' . $form->{description} . '%');
+##      }
+##
+##      $flds =
+##        qq|p.id, p.partnumber, i.description, i.serialnumber,
+#           i.qty AS onhand, i.unit, p.bin, i.sellprice,
+##           p.listprice, p.lastcost, p.rop, p.weight,
+##           p.priceupdate, p.image, p.drawing, p.microfiche,
+##           pg.partsgroup,
+##           a.invnumber, a.ordnumber, a.quonumber, i.trans_id,
+##           ct.name, i.deliverydate|;
+##
+##      if ($form->{bought}) {
+##        $query =
+##          qq|SELECT $flds, 'ir' AS module, '' AS type, 1 AS exchangerate
+##             FROM invoice i
+##             JOIN parts p ON (p.id = i.parts_id)
+##             JOIN ap a ON (a.id = i.trans_id)
+##             JOIN vendor ct ON (a.vendor_id = ct.id)
+##             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##             WHERE $invwhere|;
+##
+##        $union = qq| UNION |;
+##
+##        push(@all_values, @invvalues);
+##      }
+##
+##      if ($form->{sold}) {
+##        $query .=
+##          qq|$union
+##
+##             SELECT $flds, 'is' AS module, '' AS type, 1 As exchangerate
+##             FROM invoice i
+##             JOIN parts p ON (p.id = i.parts_id)
+##             JOIN ar a ON (a.id = i.trans_id)
+##             JOIN customer ct ON (a.customer_id = ct.id)
+##             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##             WHERE $invwhere|;
+##        $union = qq| UNION |;
+##
+##        push(@all_values, @invvalues);
+##      }
+##    }
+##
+##    if ($form->{onorder} || $form->{ordered}) {
+##      my @ordvalues = @values;
+##      my $ordwhere = $where . qq| AND o.quotation = '0'|;
+##
+##      if ($form->{transdatefrom}) {
+##        $ordwhere .= qq| AND o.transdate >= ?|;
+##        push(@ordvalues, $form->{transdatefrom});
+##      }
+##
+##      if ($form->{transdateto}) {
+##        $ordwhere .= qq| AND o.transdate <= ?|;
+##        push(@ordvalues, $form->{transdateto});
+##      }
+##
+##      if ($form->{description}) {
+##        $ordwhere .= qq| AND oi.description ILIKE ?|;
+##        push(@ordvalues, '%' . $form->{description} . '%');
+##      }
+##
+##      if ($form->{ordered}) {
+##        $query .=
+##          qq|$union
+##
+##             SELECT p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+##               oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
+##               p.listprice, p.lastcost, p.rop, p.weight,
+##               p.priceupdate, p.image, p.drawing, p.microfiche,
+##               pg.partsgroup,
+##               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
+##               ct.name, NULL AS deliverydate,
+##               'oe' AS module, 'sales_order' AS type,
+##               (SELECT buy FROM exchangerate ex
+##                WHERE ex.curr = o.curr AND ex.transdate = o.transdate) AS exchangerate
+##             FROM orderitems oi
+##             JOIN parts p ON (oi.parts_id = p.id)
+##             JOIN oe o ON (oi.trans_id = o.id)
+##             JOIN customer ct ON (o.customer_id = ct.id)
+##             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##             WHERE $ordwhere AND (o.customer_id > 0)|;
+##        $union = qq| UNION |;
+##
+##        push(@all_values, @ordvalues);
+##      }
+##
+##      if ($form->{onorder}) {
+##        $query .=
+##          qq|$union
+##
+##             SELECT p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+##               oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
+##               p.listprice, p.lastcost, p.rop, p.weight,
+##               p.priceupdate, p.image, p.drawing, p.microfiche,
+##               pg.partsgroup,
+##               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
+##               ct.name, NULL AS deliverydate,
+##               'oe' AS module, 'purchase_order' AS type,
+##               (SELECT sell FROM exchangerate ex
+##               WHERE ex.curr = o.curr AND (ex.transdate = o.transdate)) AS exchangerate
+##             FROM orderitems oi
+##             JOIN parts p ON (oi.parts_id = p.id)
+##             JOIN oe o ON (oi.trans_id = o.id)
+##             JOIN vendor ct ON (o.vendor_id = ct.id)
+##             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##             WHERE $ordwhere AND (o.vendor_id > 0)|;
+##        $union = qq| UNION |;
+##
+##        push(@all_values, @ordvalues);
+##      }
+##
+##    }
+##
+##    if ($form->{rfq} || $form->{quoted}) {
+##      my $quowhere = $where . qq| AND o.quotation = '1'|;
+##      my @quovalues = @values;
+##
+##      if ($form->{transdatefrom}) {
+##        $quowhere .= qq| AND o.transdate >= ?|;
+##        push(@quovalues, $form->{transdatefrom});
+##      }
+##
+##      if ($form->{transdateto}) {
+##        $quowhere .= qq| AND o.transdate <= ?|;
+##        push(@quovalues, $form->{transdateto});
+##      }
+##
+##      if ($form->{description}) {
+##        $quowhere .= qq| AND oi.description ILIKE ?|;
+##        push(@quovalues, '%' . $form->{description} . '%');
+##      }
+##
+##      if ($form->{quoted}) {
+##        $query .=
+##          qq|$union
+##
+##             SELECT
+##               p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+##               oi.qty AS onhand, oi.unit, p.bin, oi.sellprice,
+##               p.listprice, p.lastcost, p.rop, p.weight,
+##               p.priceupdate, p.image, p.drawing, p.microfiche,
+##               pg.partsgroup,
+##               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
+##               ct.name, NULL AS deliverydate, 'oe' AS module, 'sales_quotation' AS type,
+##               (SELECT buy FROM exchangerate ex
+##                WHERE (ex.curr = o.curr) AND (ex.transdate = o.transdate)) AS exchangerate
+##             FROM orderitems oi
+##             JOIN parts p ON (oi.parts_id = p.id)
+##             JOIN oe o ON (oi.trans_id = o.id)
+##             JOIN customer ct ON (o.customer_id = ct.id)
+##             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##             WHERE $quowhere
+##             AND o.customer_id > 0|;
+##        $union = qq| UNION |;
+##
+##        push(@all_values, @quovalues);
+##      }
+##
+##      if ($form->{rfq}) {
+##        $query .=
+##          qq|$union
+##
+##             SELECT p.id, p.partnumber, oi.description, oi.serialnumber AS serialnumber,
+##               oi.qty * -1 AS onhand, oi.unit, p.bin, oi.sellprice,
+##               p.listprice, p.lastcost, p.rop, p.weight,
+##               p.priceupdate, p.image, p.drawing, p.microfiche,
+##               pg.partsgroup,
+##               '' AS invnumber, o.ordnumber, o.quonumber, oi.trans_id,
+##               ct.name, NULL AS deliverydate,
+##               'oe' AS module, 'request_quotation' AS type,
+##               (SELECT sell FROM exchangerate ex
+##               WHERE (ex.curr = o.curr) AND (ex.transdate = o.transdate)) AS exchangerate
+##             FROM orderitems oi
+##             JOIN parts p ON (oi.parts_id = p.id)
+##             JOIN oe o ON (oi.trans_id = o.id)
+##             JOIN vendor ct ON (o.vendor_id = ct.id)
+##             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+##             WHERE $quowhere
+##             AND o.vendor_id > 0|;
+##
+##        push(@all_values, @quovalues);
+##      }
+##
+##    }
+##    $query .= qq| ORDER BY  | . $sortorder;
+##
+##  }
+##
+##  $form->{parts} = selectall_hashref_query($form, $dbh, $query, @all_values);
+#
   my @assemblies;
   # include individual items for assemblies
   if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
