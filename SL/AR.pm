@@ -635,7 +635,7 @@ sub storno {
   $storno_row->{invnumber}  = 'Storno-' . $storno_row->{invnumber};
   $storno_row->{amount}    *= -1;
   $storno_row->{netamount} *= -1;
-  $storno_row->{paid}       = $storno_amount->{amount};
+  $storno_row->{paid}       = $storno_row->{amount};
 
   delete @$storno_row{qw(itime mtime)};
 
