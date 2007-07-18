@@ -37,14 +37,18 @@
             <TMPL_VAR co_email ESCAPE=HTML>
             <br />
             <br />
+
             <translate>Tax Number</translate>:&nbsp;
+<TMPL_IF COA_Germany>
             <TMPL_VAR taxnumber_given>
             <br />
             <translate>ELSTER Tax Number</translate>:&nbsp;
             <TMPL_VAR elstersteuernummer ESCAPE=HTML>
             <br />
             <br />
-
+<TMPL_ELSE>
+            <TMPL_VAR taxnumber>
+</TMPL_IF>
             </fieldset>
             <br />
             
@@ -52,12 +56,12 @@
               <fieldset>
               <legend>
                 <input checked="checked" 
-                 title = "<translate>Assume Tax Consultant Data in Tax Computation?</translate>"
-                 name = "FA_steuerberater" 
-                 id = "steuerberater" 
-                 class = "checkbox" 
-                 type = "checkbox"
-                 value = "1" >
+                 title="<translate>Assume Tax Consultant Data in Tax Computation?</translate>"
+                 name="FA_steuerberater" 
+                 id="steuerberater" 
+                 class="checkbox" 
+                 type="checkbox"
+                 value="1" >
                  &nbsp;<b><translate>Tax Consultant</translate></b>
                 </legend>
                 
@@ -91,9 +95,6 @@
             </fieldset>
           </td>
           <td width="50%" valign="top">	  
-
-<!--            TMPL_IF FA_Name                   -->
-
               <fieldset>
               <legend>
                  <b><translate>Tax Office</translate></b>
@@ -160,27 +161,15 @@
               <legend>
               <b><translate>Outputformat</translate></b>
               </legend>
+<TMPL_IF COA_Germany>
               <TMPL_VAR select_options>
-              </fieldset>
-              
-            <TMPL_ELSE>
+<TMPL_ELSE>
+              <SELECT name="format">
+                <option value="generic"><translate>Preview</translate></option>
+              </SELECT>
+</TMPL_if>
 
-              <td width="50%" valign="bottom">
-              <fieldset>
-              <legend>
-              <b><translate>Hints</translate></b>
-              </legend>
-              <h2 class="confirm">
-              <translate>Missing Preferences: Outputroutine
-                 disabled</translate>
-              </h2>
-              <h3><translate>Help</translate></h3>
-              <ul>
-              <li><translate>Hint-Missing-Preferences</translate></li>
-              </ul>
               </fieldset>
-
-            </TMPL_IF>
           </td>
         </tr>
       </table>

@@ -25,6 +25,31 @@
 
 package USTVA;
 
+use SL::DBUtils;
+
+sub get_coa {
+  
+  my ( $self, $form, $myconfig) = @_;
+  
+  my $query = q{ SELECT coa FROM defaults };
+  
+  my $dbh = $form->dbconnect($myconfig);
+  my $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+
+  my ($coa) = selectrow_query($form, $dbh, $query);  
+  
+  $sth->finish;
+  $dbh->disconnect;
+  
+  $form->{coa} = $coa;
+  $form->{"COA_$coa"} = '1';
+  $form->{COA_Germany} = '1' if ( $coa eq 'Germany-DATEV-SKR03EU' or $coa eq 'Germany-DATEV-SKR04EU');
+
+  return;
+}
+
+
 sub report_variables {
   # Get all positions for taxreport out of the database
   # Needs Databaseupdate Pg-upgrade2/USTVA_abstraction.pl
@@ -52,8 +77,6 @@ sub report_variables {
     $where_type
     $where_dcp  
   |;
-  
-  $main::lxdebug->message(LXDebug::QUERY, "\$query= \n $query\n");
   
   my $dbh = $form->dbconnect($myconfig);
   my $sth = $dbh->prepare($query);

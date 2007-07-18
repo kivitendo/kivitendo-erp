@@ -37,14 +37,18 @@
             <TMPL_VAR co_email ESCAPE=HTML>
             <br />
             <br />
+
             Steuernummer:&nbsp;
+<TMPL_IF COA_Germany>
             <TMPL_VAR taxnumber_given>
             <br />
             ELSTER-Steuernummer:&nbsp;
             <TMPL_VAR elstersteuernummer ESCAPE=HTML>
             <br />
             <br />
-
+<TMPL_ELSE>
+            <TMPL_VAR taxnumber>
+</TMPL_IF>
             </fieldset>
             <br />
             
@@ -52,12 +56,12 @@
               <fieldset>
               <legend>
                 <input checked="checked" 
-                 title = "Beraterdaten in UStVA übernehmen?"
-                 name = "FA_steuerberater" 
-                 id = "steuerberater" 
-                 class = "checkbox" 
-                 type = "checkbox"
-                 value = "1" >
+                 title="Beraterdaten in UStVA übernehmen?"
+                 name="FA_steuerberater" 
+                 id="steuerberater" 
+                 class="checkbox" 
+                 type="checkbox"
+                 value="1" >
                  &nbsp;<b>Steuerberater/-in</b>
                 </legend>
                 
@@ -91,9 +95,6 @@
             </fieldset>
           </td>
           <td width="50%" valign="top">	  
-
-<!--            TMPL_IF FA_Name                   -->
-
               <fieldset>
               <legend>
                  <b>Finanzamt</b>
@@ -160,26 +161,15 @@
               <legend>
               <b>Ausgabeformat</b>
               </legend>
+<TMPL_IF COA_Germany>
               <TMPL_VAR select_options>
-              </fieldset>
-              
-            <TMPL_ELSE>
+<TMPL_ELSE>
+              <SELECT name="format">
+                <option value="generic">Druckvorschau</option>
+              </SELECT>
+</TMPL_if>
 
-              <td width="50%" valign="bottom">
-              <fieldset>
-              <legend>
-              <b>Hinweise</b>
-              </legend>
-              <h2 class="confirm">
-              Die Ausgabefunktionen sind wegen unzureichender Voreinstellungen deaktiviert!
-              </h2>
-              <h3>Hilfe</h3>
-              <ul>
-              <li>Bitte fehlende USTVA Einstellungen ergänzen (Menüpunkt: System-> UStVA Einstellungen)</li>
-              </ul>
               </fieldset>
-
-            </TMPL_IF>
           </td>
         </tr>
       </table>

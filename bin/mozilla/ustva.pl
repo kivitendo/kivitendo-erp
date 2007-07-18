@@ -197,12 +197,16 @@ sub report {
     }
   ];
  
+  # Which COA is in use? 
   
+  USTVA->get_coa($form, $myconfig);
+
   my $template_ref = {
     openings         => $openings,  
     company_given    => $company_given,
     address_given    => $address_given,     
     taxnumber_given  => $taxnumber_given,
+    taxnumber        => $myconfig->{taxnumber},
     select_year      => $select_year,      
     period_local     => $period_local,
     method_local     => $method_local,
@@ -210,6 +214,7 @@ sub report {
     checkbox_kz_10   => $checkbox_kz_10,
     tax_office_banks => $tax_office_banks_ref,    
     select_options   => &show_options,    
+
   };
   
   print($form->parse_html_template('ustva/report', $template_ref));
@@ -1005,39 +1010,45 @@ sub generate_ustva {
       exit(0);
     }
 
-  # Austria
-  } elsif ($form->{coa} eq 'Austria') {
+  
+  } else  # Outputformat for generic output
+  {
 
-    #
-    # Outputformat specific customisation's
-    #
+    my @category_cent = USTVA->report_variables({
+        myconfig    => \%myconfig,
+        form        => $form,
+        type        => '',
+        attribute   => 'position',
+        dec_places  => '2',
+    });
 
-    my @category_euro = qw(
-      511 861 36   80   971  931  98   96   53   74
-      85  65  66   61   62   67   63   64   59   69 
-      39  83  811  891  Z43  Z45  Z53  Z62  Z65  Z67
-      41 44 49 43 48 51 86 35 77 76 91 89
-      97 93 95 94 42 60 45 52 73 84 81 
-    );
-    
+    my @category_euro = USTVA->report_variables({
+        myconfig    => \%myconfig,
+        form        => $form,
+        type        => '',
+        attribute   => 'position',
+        dec_places  => '0',
+    });
 
-    if ( $form->{format} eq 'html') { # Formatierungen für HTML Ausgabe
+    $form->{"Watchdog::USTVA"} = 1;
+    $form->{USTVA} = [];
 
-      $form->{IN} = $form->{type} . '.html';
-      $form->{padding} = "&nbsp;&nbsp;";
-      $form->{bold}    = "<b>";
-      $form->{endbold} = "</b>";
-      $form->{br}      = "<br>";
-      $form->{address} =~ s/\\n/\n/g;
-
-      foreach $number (@category_euro) {
-        $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '0');
+    if ( $form->{format} eq 'generic') { # Formatierungen für HTML Ausgabe
+      
+      my $rec_ref = {};
+      for my $kennziffer (@category_cent, @category_euro) {
+        $rec_ref = {};
+        $rec_ref->{id} = $kennziffer;
+        $rec_ref->{amount} = $form->format_amount(\%myconfig, $form->{$kennziffer}, 2, '0');
+        
+        $lxdebug->message($LXDebug::DEBUG, "Kennziffer $kennziffer: '$form->{$kennziffer}'" );
+        $lxdebug->dump($LXDebug::DEBUG, $rec_ref );
+        push @ { $form->{USTVA} }, $rec_ref;
       }
+      
     }
-    
-  }
 
-  # end nation specific customisations
+  }
   
   if ( $form->{period} eq '13' and $form->{format} ne 'html') {
     $form->header;
@@ -1050,7 +1061,22 @@ sub generate_ustva {
   $form->{templates} = $myconfig{templates};
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
-  $form->parse_template(\%myconfig, $userspath);
+  if ($form->{format} eq 'generic'){
+
+    $form->header();
+
+    $template_ref = {
+        taxnumber => $myconfig{taxnumber},
+    };
+
+    print($form->parse_html_template2('ustva/generic_taxreport', $template_ref));
+
+  } else
+  { 
+
+    $form->parse_template(\%myconfig, $userspath);
+
+  }
 
   $lxdebug->leave_sub();
 }
@@ -1114,6 +1140,10 @@ sub config_step1 {
     push @{ $_hidden_variables_ref}, 
         { 'variable' => $variable, 'value' => $form->{$variable} };
   }
+
+# Which COA is in use? 
+  
+  USTVA->get_coa($form, \%myconfig);
 
   # hä? kann die weg?
   my $steuernummer_new = '';
@@ -1256,8 +1286,6 @@ sub config_step2 {
     type                    elster_init 
     saved                   callback
   );
-
-
 
   foreach my $variable (@_hidden_form_variables) {
     push @{ $_hidden_variables_ref}, 

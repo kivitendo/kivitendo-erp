@@ -155,7 +155,14 @@
            <font size="+1">Steuernummer</font>
            </legend>
            <br>
+<TMPL_IF COA_Germany>
            <TMPL_VAR input_steuernummer>
+<TMPL_ELSE>
+Bitte bei den Einstellungen des aktuellen Benutzers im Administrationsmodul
+  angeben.
+</TMPL_IF>
+
+
            </H2><br>
            </fieldset>
            <br>

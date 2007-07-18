@@ -1,0 +1,26 @@
+[% USE HTML %]<body>
+
+<h1><translate>Generic Tax Report</translate></h1>
+<p><translate>Taxnumber</translate>: [% taxnumber %]</p>
+<p><translate>Year</translate>: [% year %]</p>
+<p><translate>Period</translate>: [% period %]</p>
+<br />
+<table width="33%">
+  <tr>
+    <th><translate>Tax Position</translate></th>
+    <th><translate>Amount</translate></th>
+  </tr>
+[% SET row_odd = '1' %]
+[% FOREACH row = USTVA %]
+  <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[%
+SET row_odd = '1' %][% END %]">
+
+    <td align="left">[% HTML.escape(row.id) %]</td>
+    <td align="right">[% HTML.escape(row.amount) %]</td>
+  </tr>
+[% END %]
+
+</table>
+
+</html>
+</body>

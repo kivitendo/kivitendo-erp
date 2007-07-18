@@ -155,7 +155,14 @@
            <font size="+1"><translate>Tax Number</translate></font>
            </legend>
            <br>
+<TMPL_IF COA_Germany>
            <TMPL_VAR input_steuernummer>
+<TMPL_ELSE>
+<translate>Please enter the taxnumber in the administration menu user
+preferences</translate>
+</TMPL_IF>
+
+
            </H2><br>
            </fieldset>
            <br>
