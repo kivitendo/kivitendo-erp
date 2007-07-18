@@ -1549,7 +1549,7 @@ sub generate_report {
   $form->{ledgerchecks} = 'Y' if (   $form->{bought} || $form->{sold} || $form->{onorder}
                                   || $form->{ordered} || $form->{rfq} || $form->{quoted});
 
-  # if something should be aktivated if something else is active, enter it here
+  # if something should be activated if something else is active, enter it here
   my %dependencies = (
     onhand       => [ qw(l_onhand) ],
     short        => [ qw(l_onhand) ],
@@ -1714,7 +1714,7 @@ sub generate_report {
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
                        'attachment_basename'   => $attachment_basenames{$form->{searchitems}} . strftime('_%Y%m%d', localtime time),
-    );
+  );
   $report->set_options_from_form();
 
   $report->set_columns(%column_defs);
@@ -1728,9 +1728,12 @@ sub generate_report {
   my %subtotals = map { $_ => 0 } ('onhand', @subtotal_columns);
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my $idx       = 0;
-  my $same_item = $form->{parts}->[0]->{ $form->{sort} } if (scalar @{ $form->{parts} });
+  my $same_item = $form->{parts}[0]{ $form->{sort} } if (scalar @{ $form->{parts} });
 
+  # postprocess parts
   foreach my $ref (@{ $form->{parts} }) {
+
+    # fresh row, for inserting later
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
 
     $ref->{exchangerate}  = 1 unless $ref->{exchangerate};
@@ -1742,8 +1745,8 @@ sub generate_report {
     my $onhand = $ref->{onhand};
 
     if ($ref->{assemblyitem}) {
-      $row->{partnumber}->{align} = 'right';
-      $row->{onhand}->{data}      = 0;
+      $row->{partnumber}{align}   = 'right';
+      $row->{onhand}{data}        = 0;
       $onhand                     = 0 if ($form->{sold});
     }
 
@@ -1752,11 +1755,11 @@ sub generate_report {
     $row->{description}->{link} = $edit_link;
 
     foreach (qw(sellprice listprice lastcost)) {
-      $row->{$_}->{data}            = $form->format_amount(\%myconfig, $ref->{$_}, -2);
-      $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{$_}, 2);
+      $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{$_}, -2);
+      $row->{"linetotal$_"}{data} = $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{$_}, 2);
     }
 
-    map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $ref->{$_}); } qw(onhand rop weight soldtotal);
+    map { $row->{$_}{data} = $form->format_amount(\%myconfig, $ref->{$_}); } qw(onhand rop weight soldtotal);
 
     if (!$ref->{assemblyitem}) {
       foreach my $col (@subtotal_columns) {
@@ -1767,25 +1770,28 @@ sub generate_report {
       $subtotals{onhand} += $onhand;
     }
 
+    # set module stuff
     if ($ref->{module} eq 'oe') {
       my $edit_oe_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{type}), 'id=' . E($ref->{trans_id}), 'callback');
-      $row->{ordnumber}->{link} = $edit_oe_link;
-      $row->{quonumber}->{link} = $edit_oe_link if (!$ref->{ordnumber});
+      $row->{ordnumber}{link} = $edit_oe_link;
+      $row->{quonumber}{link} = $edit_oe_link if (!$ref->{ordnumber});
 
     } else {
-      $row->{invnumber}->{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'type=invoice', 'id=' . E($ref->{trans_id}), 'callback');
+      $row->{invnumber}{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'type=invoice', 'id=' . E($ref->{trans_id}), 'callback');
     }
 
+    # set properties of images
     if ($ref->{image} && (lc $report->{options}->{output_format} eq 'html')) {
-      $row->{image}->{data}     = '';
-      $row->{image}->{raw_data} = '<a href="' . H($ref->{image}) . '"><img src="' . H($ref->{image}) . '" height="32" border="0"></a>';
+      $row->{image}{data}     = '';
+      $row->{image}{raw_data} = '<a href="' . H($ref->{image}) . '"><img src="' . H($ref->{image}) . '" height="32" border="0"></a>';
     }
-    map { $row->{$_}->{link} = $ref->{$_} } qw(drawing microfiche);
+    map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
     $report->add_data($row);
 
-    my $next_ref = $form->{parts}->[$idx + 1];
+    my $next_ref = $form->{parts}[$idx + 1];
 
+    # insert subtotal rows
     if (($form->{l_subtotal} eq 'Y') &&
         (!$next_ref ||
          (!$next_ref->{assemblyitem} && ($same_item ne $next_ref->{ $form->{sort} })))) {
