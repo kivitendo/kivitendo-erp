@@ -221,66 +221,43 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  if ($form->{old_employee_id}) {
-    $form->{employee_id} = $form->{old_employee_id};
-  }
-  if ($form->{old_salesman_id}) {
-    $form->{salesman_id} = $form->{old_salesman_id};
-  }
-
+  $form->{employee_id}     = $form->{old_employee_id} if $form->{old_employee_id};
+  $form->{salesman_id}     = $form->{old_salesman_id} if $form->{old_salesman_id};
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-
-
-  $form->{radier} =
-    ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
-
-  $form->{exchangerate} =
-    $form->format_amount(\%myconfig, $form->{exchangerate});
-
-  $form->{creditlimit} =
-    $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
-  $form->{creditremaining} =
-    $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
+  $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{exchangerate}    = $form->format_amount(\%myconfig, $form->{exchangerate});
+  $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
+  $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
   $exchangerate = "";
   if ($form->{currency} ne $form->{defaultcurrency}) {
     if ($form->{forex}) {
-      $exchangerate .= qq|
-                <th align=right nowrap>|
-        . $locale->text('Exchangerate') . qq|</th>
-                <td>$form->{exchangerate}<input type=hidden name=exchangerate value=$form->{exchangerate}></td>
-|;
+      $exchangerate .= qq| <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
+                             <td>$form->{exchangerate}<input type=hidden name=exchangerate value=$form->{exchangerate}></td>\n|;
     } else {
-      $exchangerate .= qq|
-                <th align=right nowrap>|
-        . $locale->text('Exchangerate') . qq|</th>
-                <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>
-|;
+      $exchangerate .= qq| <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
+                             <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>\n|;
     }
   }
-  $exchangerate .= qq|
-<input type=hidden name=forex value=$form->{forex}>
-|;
+  $exchangerate .= qq| <input type=hidden name=forex value=$form->{forex}>\n|;
 
   my @old_project_ids = ($form->{"globalproject_id"});
-  map({ push(@old_project_ids, $form->{"project_id_$_"})
-          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+  map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
-  $form->get_lists("contacts" => "ALL_CONTACTS",
-                   "projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 0,
+  $form->get_lists("contacts"   => "ALL_CONTACTS",
+                   "projects"   => { "key"  => "ALL_PROJECTS",
+                                   "all"    => 0,
                                    "old_id" => \@old_project_ids },
-                   "taxzones" => "ALL_TAXZONES",
-                   "employees" => "ALL_SALESMEN",
+                   "taxzones"   => "ALL_TAXZONES",
+                   "employees"  => "ALL_SALESMEN",
                    "currencies" => "ALL_CURRENCIES",
-                   "vendors" => "ALL_VENDORS");
+                   "vendors"    => "ALL_VENDORS");
 
   my %labels;
   my @values = (undef);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
     push(@values, $item->{"cp_id"});
-    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
-      ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
+    $labels{$item->{"cp_id"}} = $item->{"cp_name"} . ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
 
   my $contact;
@@ -288,10 +265,8 @@ sub form_header {
     $contact = qq|
     <tr>
       <th align="right">| . $locale->text('Contact Person') . qq|</th>
-      <td>| .
-      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values, '-style' => 'width: 250px',
-                           '-labels' => \%labels, '-default' => $form->{"cp_id"}))
-      . qq|
+      <td>| .  NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values, '-style' => 'width: 250px',
+                                    '-labels' => \%labels, '-default' => $form->{"cp_id"})) . qq|
       </td>
     </tr>|;
   }
@@ -302,10 +277,8 @@ sub form_header {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"projectnumber"};
   }
-  my $globalprojectnumber =
-    NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
-                         '-labels' => \%labels,
-                         '-default' => $form->{"globalproject_id"}));
+  my $globalprojectnumber = NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values, '-labels' => \%labels,
+                                                 '-default' => $form->{"globalproject_id"}));
  
   %labels = ();
   @values = ();
@@ -321,9 +294,8 @@ sub form_header {
     $currencies = qq|
     <tr>
       <th align="right">| . $locale->text('Currency') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      <td>| .  NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
+                                    '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
   }
@@ -336,13 +308,12 @@ sub form_header {
     $labels{$item->{"id"}} = $item->{"name"};
   }
   my $employees = qq|
-      <tr>
+    <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      <td>| .  NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
+                                    '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
-      </tr>|;
+    </tr>|;
 
   %labels = ();
   @values = ();
@@ -376,12 +347,10 @@ sub form_header {
     $taxzone = qq|
     <tr>
       <th align="right">| . $locale->text('Steuersatz') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
-                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')) . qq|
+      <td>| .  NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
+                                    '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')) . qq|
       </td>
     </tr>|;
-
   } else {
     $taxzone = qq|
     <tr>
@@ -394,7 +363,7 @@ sub form_header {
   }
 
   $department = qq|
-              <tr>
+           <tr>
 	      <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
 	      <td colspan="3"><select name="department" style="width: 250px">$form->{selectdepartment}</select>
 	      <input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
@@ -410,14 +379,10 @@ sub form_header {
 
   $button1 = qq|
      <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=invdate id="trigger1" value=|
-    . $locale->text('button') . qq|></td>
-     |;
+      <input type=button name=invdate id="trigger1" value=| . $locale->text('button') . qq|></td>\n|;
   $button2 = qq|
      <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
-      <input type=button name=duedate id="trigger2" value=|
-    . $locale->text('button') . qq|></td></td>
-   |;
+      <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|></td></td>\n|;
 
   #write Trigger
   $jsscript =
@@ -428,10 +393,7 @@ sub form_header {
   $form->{"javascript"} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{javascript}   .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
-  $jsscript .=
-    $form->write_trigger(\%myconfig, 2,
-                         "orddate", "BL", "trigger_orddate",
-                         "quodate", "BL", "trigger_quodate");
+  $jsscript .= $form->write_trigger(\%myconfig, 2, "orddate", "BL", "trigger_orddate", "quodate", "BL", "trigger_quodate");
 
   $form->header;
   $onload = qq|focus()|;

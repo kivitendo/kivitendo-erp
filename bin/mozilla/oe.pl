@@ -2137,23 +2137,19 @@ sub invoice {
 
     # also copy deliverydate from the order
     $form->{deliverydate} = $form->{reqdate} if $form->{reqdate};
-    $form->{orddate} = $form->{transdate};
+    $form->{orddate}      = $form->{transdate};
   } else {
     $form->isblank("quonumber", $locale->text('Quotation Number missing!'));
     $form->isblank("transdate", $locale->text('Quotation Date missing!'));
-    $form->{ordnumber} = "";
-    $form->{quodate} = $form->{transdate};
+    $form->{ordnumber}    = "";
+    $form->{quodate}      = $form->{transdate};
   }
   
-  if($form->{payment_id}) { 
-    $payment_id = $form->{payment_id};
-  }
+  $payment_id = $form->{payment_id} if $form->{payment_id};
   
   # if the name changed get new values
   if (&check_name($form->{vc})) {
-    if($form->{payment_id} eq "") { 
-      $form->{payment_id} = $payment_id;
-    }
+    $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
     &update;
     exit;
   }
@@ -2161,10 +2157,9 @@ sub invoice {
   $form->{cp_id} *= 1;
 
   for $i (1 .. $form->{rowcount}) {
-    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
-                                                     $form->{"${_}_${i}"})
-            if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor));
+    for (qw(ship qty sellprice listprice basefactor)) {
+      $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
+    }
   }
 
   if (   $form->{type} =~ /_order/
@@ -2174,9 +2169,7 @@ sub invoice {
     $buysell = ($form->{type} eq 'sales_order') ? "buy" : "sell";
 
     $orddate      = $form->current_date(\%myconfig);
-    $exchangerate =
-      $form->check_exchangerate(\%myconfig, $form->{currency}, $orddate,
-                                $buysell);
+    $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $orddate, $buysell);
 
     if (!$exchangerate) {
       &backorder_exchangerate($orddate, $buysell);
@@ -2197,8 +2190,7 @@ sub invoice {
   }
 
   $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
-  $form->{duedate} =
-    $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+  $form->{duedate}   = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
 
   $form->{id}     = '';
   $form->{closed} = 0;
@@ -2219,7 +2211,9 @@ sub invoice {
     $script         = "ir";
     $buysell        = 'sell';
   }
-  if ($form->{type} eq 'sales_order' || $form->{type} eq 'sales_quotation') {
+
+  if (   $form->{type} eq 'sales_order' 
+      || $form->{type} eq 'sales_quotation') {
     $form->{title}  = $locale->text('Add Sales Invoice');
     $form->{script} = 'is.pl';
     $script         = "is";
@@ -2227,8 +2221,7 @@ sub invoice {
   }
 
   # bo creates the id, reset it
-  map { delete $form->{$_} }
-    qw(id subject message cc bcc printed emailed queued);
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
   $form->{ $form->{vc} } =~ s/--.*//g;
   $form->{type} = "invoice";
 

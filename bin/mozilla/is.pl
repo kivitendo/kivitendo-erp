@@ -279,32 +279,20 @@ sub prepare_invoice {
 sub form_header {
   $lxdebug->enter_sub();
 
-  if ($form->{old_employee_id}) {
-    $form->{employee_id} = $form->{old_employee_id};
-  }
-  if ($form->{old_salesman_id}) {
-    $form->{salesman_id} = $form->{old_salesman_id};
-  }
+  $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
+  $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   if ($edit) {
-
     if ($form->{type} eq "credit_note") {
       $form->{title} = $locale->text('Edit Credit Note');
-
-      if ($form->{storno}) {
-        $form->{title} = $locale->text('Edit Storno Credit Note');
-      }
+      $form->{title} = $locale->text('Edit Storno Credit Note') if $form->{storno};
     } else {
       $form->{title} = $locale->text('Edit Sales Invoice');
-
-      if ($form->{storno}) {
-        $form->{title} = $locale->text('Edit Storno Invoice');
-      }
+      $form->{title} = $locale->text('Edit Storno Invoice')     if $form->{storno};
     }
   }
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-  $form->{radier} =
-    ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   $payment = qq|<option value=""></option>|;
   foreach $item (@{ $form->{payment_terms} }) {
@@ -315,42 +303,37 @@ sub form_header {
     }
   }
 
-  my $set_duedate_url =
-    "$form->{script}?login=$form->{login}&password=$form->{password}&action=set_duedate";
+  my $set_duedate_url = "$form->{script}?login=$form->{login}&password=$form->{password}&action=set_duedate";
 
   my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
   push(@ { $form->{AJAX} }, $pjx);
 
   my @old_project_ids = ($form->{"globalproject_id"});
-  map({ push(@old_project_ids, $form->{"project_id_$_"})
-          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+  map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
-  $form->get_lists("contacts" => "ALL_CONTACTS",
-                   "shipto" => "ALL_SHIPTO",
-                   "projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 0,
-                                   "old_id" => \@old_project_ids },
-                   "employees" => "ALL_SALESMEN",
-                   "taxzones" => "ALL_TAXZONES",
+  $form->get_lists("contacts"   => "ALL_CONTACTS",
+                   "shipto"     => "ALL_SHIPTO",
+                   "projects"   => { "key"    => "ALL_PROJECTS",
+                                     "all"    => 0,
+                                     "old_id" => \@old_project_ids },
+                   "employees"  => "ALL_SALESMEN",
+                   "taxzones"   => "ALL_TAXZONES",
                    "currencies" => "ALL_CURRENCIES",
-                   "customers" => "ALL_CUSTOMERS");
+                   "customers"  => "ALL_CUSTOMERS");
 
   my %labels;
   my @values = (undef);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
     push(@values, $item->{"cp_id"});
-    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
-      ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
+    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .  ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
   my $contact;
   if (scalar @values > 1) {
     $contact = qq|
     <tr>
       <th align="right">| . $locale->text('Contact Person') . qq|</th>
-      <td>| .
-      NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values, '-style' => 'width: 250px',
-                           '-labels' => \%labels, '-default' => $form->{"cp_id"}))
-      . qq|
+      <td>| .  NTI($cgi->popup_menu('-name' => 'cp_id', '-values' => \@values, '-style' => 'width: 250px',
+                                    '-labels' => \%labels, '-default' => $form->{"cp_id"})) . qq|
       </td>
     </tr>|;
   }
@@ -365,9 +348,8 @@ sub form_header {
   my $employees = qq|
     <tr>
       <th align="right">| . $locale->text('Employee') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      <td>| . NTI($cgi->popup_menu('-name' => 'employee_id', '-default' => $form->{"employee_id"},
+                                   '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
 
@@ -404,10 +386,9 @@ sub form_header {
     $shipto = qq|
     <tr>
       <th align="right">| . $locale->text('Shipping Address') . qq|</th>
-      <td>| .
-      NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values, '-style' => 'width: 250px',
-                           '-labels' => \%labels, '-default' => $form->{"shipto_id"}))
-    . qq|</td>|;
+      <td>| . NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values, '-style' => 'width: 250px',
+                                   '-labels' => \%labels, '-default' => $form->{"shipto_id"})). qq|
+      </td>|;
   }
 
   %labels = ();
@@ -423,9 +404,8 @@ sub form_header {
     $currencies = qq|
     <tr>
       <th align="right">| . $locale->text('Currency') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
-                             '-values' => \@values, '-labels' => \%labels)) . qq|
+      <td>| . NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
+                                   '-values' => \@values, '-labels' => \%labels)) . qq|
       </td>
     </tr>|;
   }
@@ -436,10 +416,9 @@ sub form_header {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"projectnumber"};
   }
-  my $globalprojectnumber =
-    NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
-                         '-labels' => \%labels,
-                         '-default' => $form->{"globalproject_id"}));
+  my $globalprojectnumber = NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
+                                                 '-labels' => \%labels,
+                                                 '-default' => $form->{"globalproject_id"}));
 
   %labels = ();
   @values = ();
@@ -449,13 +428,11 @@ sub form_header {
   }
 
   $salesman =
-    qq|<tr>
-          <th align="right">| . $locale->text('Salesman') . qq|</th>
-          <td>| .
-     NTI($cgi->popup_menu('-name' => 'salesman_id', '-default' => $form->{salesman_id} ? $form->{salesman_id} : $form->{employee_id},
-                          '-values' => \@values, '-labels' => \%labels))
-     . qq|</td>
-         </tr>|;
+    qq|<tr> <th align="right">| . $locale->text('Salesman') . qq|</th>
+         <td>| . NTI($cgi->popup_menu('-name' => 'salesman_id', '-values' => \@values, '-labels' => \%labels,
+                                      '-default' => $form->{salesman_id} ? $form->{salesman_id} : $form->{employee_id})) . qq|
+         </td>
+       </tr>|;
 
   %labels = ();
   @values = ();
@@ -468,9 +445,8 @@ sub form_header {
     $taxzone = qq|
     <tr>
       <th align="right">| . $locale->text('Steuersatz') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
-                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px',)) . qq|
+      <td>| . NTI($cgi->popup_menu('-name' => 'taxzone_id', '-default' => $form->{"taxzone_id"},
+                                   '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px',)) . qq|
       </td>
     </tr>|;
 
@@ -488,8 +464,7 @@ sub form_header {
   # set option selected
   foreach $item (qw(AR customer currency department employee)) {
     $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~
-      s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
+    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
   if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
@@ -498,37 +473,27 @@ sub form_header {
     $creditwarning = 0;
   }
 
-  $form->{exchangerate} =
-    $form->format_amount(\%myconfig, $form->{exchangerate});
-
-  $form->{creditlimit} =
-    $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
-  $form->{creditremaining} =
-    $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
+  $form->{exchangerate}    = $form->format_amount(\%myconfig, $form->{exchangerate});
+  $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
+  $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
   $exchangerate = "";
   if ($form->{currency} ne $form->{defaultcurrency}) {
     if ($form->{forex}) {
-      $exchangerate .=
-          qq|<th align="right">|
-        . $locale->text('Exchangerate')
-        . qq|</th><td>$form->{exchangerate}<input type="hidden" name="exchangerate" value="$form->{exchangerate}"></td>|;
+      $exchangerate .= qq|<th align="right">| . $locale->text('Exchangerate') . qq|</th>
+                          <td>$form->{exchangerate}<input type="hidden" name="exchangerate" value="$form->{exchangerate}"></td>|;
     } else {
-      $exchangerate .=
-          qq|<th align="right">|
-        . $locale->text('Exchangerate')
-        . qq|</th><td><input name="exchangerate" size="10" value="$form->{exchangerate}"></td>|;
+      $exchangerate .= qq|<th align="right">| . $locale->text('Exchangerate') . qq|</th>
+                          <td><input name="exchangerate" size="10" value="$form->{exchangerate}"></td>|;
     }
   }
-  $exchangerate .= qq|
-<input type="hidden" name="forex" value="$form->{forex}">
-|;
+  $exchangerate .= qq|\n<input type="hidden" name="forex" value="$form->{forex}">\n|;
 
   $department = qq|
               <tr>
 	        <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
 		<td colspan="3"><select name="department" style="width: 250px">$form->{selectdepartment}</select>
-		<input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
+                  <input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
 		</td>
 	      </tr>
 | if $form->{selectdepartment};
@@ -604,8 +569,7 @@ sub form_header {
   }
 
   if ($form->{resubmit} && ($form->{format} eq "html")) {
-    $onload =
-      qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
+    $onload = qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
   } elsif ($form->{resubmit}) {
     $onload = qq|document.invoice.submit()|;
   } else {

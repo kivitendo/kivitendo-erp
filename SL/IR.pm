@@ -38,6 +38,7 @@ use SL::AM;
 use SL::Common;
 use SL::DBUtils;
 use SL::MoreCommon;
+use List::Util qw(min);
 
 sub post_invoice {
   $main::lxdebug->enter_sub();
@@ -59,10 +60,8 @@ sub post_invoice {
   if (!$payments_only) {
     if ($form->{id}) {
       &reverse_invoice($dbh, $form);
-
     } else {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-
       do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber) VALUES (?, '')|, $form->{id});
     }
   }
@@ -73,16 +72,10 @@ sub post_invoice {
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate =
-      $form->check_exchangerate($myconfig, $form->{currency},
-                                $form->{transdate}, 'sell');
+    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'sell');
   }
 
-  $form->{exchangerate} =
-    ($exchangerate)
-    ? $exchangerate
-    : $form->parse_amount($myconfig, $form->{exchangerate});
-
+  $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
   $form->{exchangerate} = 1 unless ($form->{exchangerate} * 1);
 
   my %item_units;
@@ -92,15 +85,10 @@ sub post_invoice {
   for my $i (1 .. $form->{rowcount}) {
     next unless $form->{"id_$i"};
 
-    $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
+    $form->{"qty_$i"}  = $form->parse_amount($myconfig, $form->{"qty_$i"});
+    $form->{"qty_$i"} *= -1 if $form->{storno};
 
-    if ($form->{storno}) {
-      $form->{"qty_$i"} *= -1;
-    }
-
-    if ($main::eur) {
-      $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"};
-    }
+    $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"} if $main::eur;
 
     # get item baseunit
     if (!$item_units{$form->{"id_$i"}}) {
@@ -111,8 +99,8 @@ sub post_invoice {
     my $item_unit = $item_units{$form->{"id_$i"}};
 
     if (defined($all_units->{$item_unit}->{factor})
-        && ($all_units->{$item_unit}->{factor} ne '')
-        && ($all_units->{$item_unit}->{factor} * 1 != 0)) {
+            && ($all_units->{$item_unit}->{factor} ne '')
+            && ($all_units->{$item_unit}->{factor} * 1 != 0)) {
       $basefactor = $all_units->{$form->{"unit_$i"}}->{factor} / $all_units->{$item_unit}->{factor};
     } else {
       $basefactor = 1;
@@ -125,10 +113,8 @@ sub post_invoice {
     $taxrate     = 0;
 
     $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
-    my $fxsellprice = $form->{"sellprice_$i"};
-
-    my ($dec) = ($fxsellprice =~ /\.(\d+)/);
-    $dec = length $dec;
+    (my $fxsellprice = $form->{"sellprice_$i"}) =~ /\.(\d+)/;
+    my $dec = length $1;
     my $decimalplaces = ($dec > 2) ? $dec : 2;
 
     map { $taxrate += $form->{"${_}_rate"} } @taxaccounts;
@@ -175,8 +161,7 @@ sub post_invoice {
       $form->{amount}{ $form->{id} }{ $form->{"inventory_accno_$i"} } -= $linetotal;
 
       # adjust and round sellprice
-      $form->{"sellprice_$i"} =
-        $form->round_amount($form->{"sellprice_$i"} * $form->{exchangerate}, $decimalplaces);
+      $form->{"sellprice_$i"} = $form->round_amount($form->{"sellprice_$i"} * $form->{exchangerate}, $decimalplaces);
 
       $lastinventoryaccno = $form->{"inventory_accno_$i"};
 
@@ -187,9 +172,7 @@ sub post_invoice {
       @values = ($form->{"sellprice_$i"}, conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
 
-      if (!$form->{shipped}) {
-        $form->update_balance($dbh, "parts", "onhand", qq|id = ?|, $baseqty, $form->{"id_$i"})
-      }
+      $form->update_balance($dbh, "parts", "onhand", qq|id = ?|, $baseqty, $form->{"id_$i"}) if !$form->{shipped};
 
       # check if we sold the item already and
       # make an entry for the expense and inventory
@@ -207,13 +190,7 @@ sub post_invoice {
       my $totalqty = $base_qty;
 
       while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-
-        my $qty = $ref->{base_qty} + $ref->{allocated};
-
-        if (($qty - $totalqty) > 0) {
-          $qty = $totalqty;
-        }
-
+        my $qty    = min $totalqty, ($ref->{base_qty} + $ref->{allocated});
         $linetotal = $form->round_amount(($form->{"sellprice_$i"} * $qty) / $basefactor, 2);
 
         if ($ref->{allocated} < 0) {
@@ -233,17 +210,13 @@ sub post_invoice {
 
         } elsif ($linetotal != 0) {
           # add entry for inventory, this one is for the sold item
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey)
-                      VALUES (?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?))|;
-          @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal,
-                     $ref->{transdate}, $ref->{inventory_accno_id});
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) VALUES (?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?))|;
+          @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id});
           do_query($form, $dbh, $query, @values);
 
           # add expense
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey)
-                      VALUES (?, ?, ?, ?, (SELECT taxkey from tax WHERE chart_id = ?))|;
-          @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1),
-                     $ref->{transdate}, $ref->{expense_accno_id});
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) VALUES (?, ?, ?, ?, (SELECT taxkey from tax WHERE chart_id = ?))|;
+          @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id});
           do_query($form, $dbh, $query, @values);
         }
 
@@ -252,7 +225,7 @@ sub post_invoice {
 
         $allocated += $qty;
 
-        last if (($totalqty -= $qty) <= 0);
+        last if ($totalqty -= $qty) <= 0;
       }
 
       $sth->finish();
@@ -274,17 +247,13 @@ sub post_invoice {
       if ($form->round_amount($taxrate, 7) == 0) {
         if ($form->{taxincluded}) {
           foreach $item (@taxaccounts) {
-            $taxamount =
-              $linetotal * $form->{"${item}_rate"}
-              / (1 + abs($form->{"${item}_rate"}));
+            $taxamount = $linetotal * $form->{"${item}_rate"} / (1 + abs($form->{"${item}_rate"}));
             $totaltax += $taxamount;
             $form->{amount}{ $form->{id} }{$item} -= $taxamount;
           }
-
         } else {
           map { $form->{amount}{ $form->{id} }{$_} -= $linetotal * $form->{"${_}_rate"} } @taxaccounts;
         }
-
       } else {
         map { $form->{amount}{ $form->{id} }{$_} -= $taxamount * $form->{"${_}_rate"} / $taxrate } @taxaccounts;
       }
@@ -341,7 +310,7 @@ sub post_invoice {
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{"paid_$i"}  = $form->parse_amount($myconfig, $form->{"paid_$i"});
     $form->{paid}      += $form->{"paid_$i"};
-    $form->{datepaid}   = $form->{"datepaid_$i"} if ($form->{"datepaid_$i"});
+    $form->{datepaid}   = $form->{"datepaid_$i"} if $form->{"datepaid_$i"};
   }
 
   my ($tax, $paiddiff) = (0, 0);
@@ -368,12 +337,9 @@ sub post_invoice {
     $expensediff += $paiddiff;
 
     ######## this only applies to tax included
-    if ($lastinventoryaccno) {
-      $form->{amount}{ $form->{id} }{$lastinventoryaccno} -= $invoicediff;
-    }
-    if ($lastexpenseaccno) {
-      $form->{amount}{ $form->{id} }{$lastexpenseaccno} -= $expensediff;
-    }
+    
+    $form->{amount}{ $form->{id} }{$lastinventoryaccno} -= $invoicediff if $lastinventoryaccno;
+    $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $expensediff if $lastexpenseaccno;
 
   } else {
     $amount    = $form->round_amount($netamount * $form->{exchangerate}, 2);
@@ -392,21 +358,20 @@ sub post_invoice {
 
   $form->{amount}{ $form->{id} }{ $form->{AP} } = $netamount + $tax;
 
-  if ($form->{paid} != 0) {
-    $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2);
-  }
+  
+  $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
   # update exchangerate
-  if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
-    $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate});
-  }
+  
+  $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate})
+    if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
 
   # record acc_trans transactions
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
 
-      next if ($payments_only || !$form->{amount}{$trans_id}{$accno});
+      next if $payments_only || !$form->{amount}{$trans_id}{$accno};
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
@@ -426,13 +391,12 @@ sub post_invoice {
   }
 
   # force AP entry if 0
-  if ($form->{amount}{ $form->{id} }{ $form->{AP} } == 0) {
-    $form->{amount}{ $form->{id} }{ $form->{AP} } = $form->{paid};
-  }
+  
+  $form->{amount}{ $form->{id} }{ $form->{AP} } = $form->{paid} if $form->{amount}{$form->{id}}{$form->{AP}} == 0;
 
   # record payments and offsetting AP
   for my $i (1 .. $form->{paidaccounts}) {
-    next if ($form->{"paid_$i"} == 0);
+    next if $form->{"paid_$i"} == 0;
 
     my ($accno)            = split /--/, $form->{"AP_paid_$i"};
     $form->{"datepaid_$i"} = $form->{invdate} unless ($form->{"datepaid_$i"});
@@ -463,17 +427,12 @@ sub post_invoice {
     if ($form->{currency} eq $defaultcurrency) {
       $form->{"exchangerate_$i"} = 1;
     } else {
-      $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
-
-      $form->{"exchangerate_$i"} =
-        ($exchangerate)
-        ? $exchangerate
-        : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
+      $exchangerate              = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+      $form->{"exchangerate_$i"} = $exchangerate || $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
     }
 
     # exchangerate difference
-    $form->{fx}{$accno}{ $form->{"datepaid_$i"} } +=
-      $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) + $paiddiff;
+    $form->{fx}{$accno}{ $form->{"datepaid_$i"} } += $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) + $paiddiff;
 
     # gain/loss
     $amount =
@@ -481,7 +440,6 @@ sub post_invoice {
       ($form->{"paid_$i"} * $form->{"exchangerate_$i"});
     if ($amount > 0) {
       $form->{fx}{ $form->{fxgain_accno} }{ $form->{"datepaid_$i"} } += $amount;
-
     } else {
       $form->{fx}{ $form->{fxloss_accno} }{ $form->{"datepaid_$i"} } += $amount;
     }
@@ -489,11 +447,8 @@ sub post_invoice {
     $paiddiff = 0;
 
     # update exchange rate
-    if (($form->{currency} ne $defaultcurrency) && !$exchangerate) {
-      $form->update_exchangerate($dbh, $form->{currency},
-                                 $form->{"datepaid_$i"},
-                                 0, $form->{"exchangerate_$i"});
-    }
+    $form->update_exchangerate($dbh, $form->{currency}, $form->{"datepaid_$i"}, 0, $form->{"exchangerate_$i"})
+      if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
   }
 
   # record exchange rate differences and gains/losses
@@ -529,46 +484,28 @@ sub post_invoice {
   $form->{department_id} = (split /--/, $form->{department})[1];
   $form->{invnumber}     = $form->{id} unless $form->{invnumber};
 
-  $taxzone_id = 0 if ((3 < $taxzone_id) || (0 > $taxzone_id));
+  $taxzone_id = 0 if (3 < $taxzone_id) || (0 > $taxzone_id);
 
   # save AP record
   $query = qq|UPDATE ap SET
-                invnumber = ?,
-                ordnumber = ?,
-                quonumber = ?,
-                transdate = ?,
-                orddate = ?,
-                quodate = ?,
-                vendor_id = ?,
-                amount = ?,
-                netamount = ?,
-                paid = ?,
-                datepaid = ?,
-                duedate = ?,
-                invoice = '1',
-                taxzone_id = ?,
-                taxincluded = ?,
-                notes = ?,
-                intnotes = ?,
-                curr = ?,
-                department_id = ?,
-                storno = ?,
-                storno_id = ?,
-                globalproject_id = ?,
-                cp_id = ?,
-                employee_id = ?
+                invnumber    = ?, ordnumber   = ?, quonumber     = ?, transdate   = ?,
+                orddate      = ?, quodate     = ?, vendor_id     = ?, amount      = ?,
+                netamount    = ?, paid        = ?, duedate       = ?, datepaid    = ?,
+                invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded = ?,
+                intnotes     = ?, curr        = ?, storno_id     = ?, storno      = ?,
+                cp_id        = ?, employee_id = ?, department_id = ?, 
+                globalproject_id = ?
               WHERE id = ?|;
-  @values = ($form->{invnumber}, $form->{ordnumber}, $form->{quonumber},
-             conv_date($form->{invdate}), conv_date($form->{orddate}), conv_date($form->{quodate}),
-             conv_i($form->{vendor_id}), $amount, $netamount, $form->{paid},
-             $form->{paid} ? conv_date($form->{datepaid}) : undef,
-             conv_date($form->{duedate}), $taxzone_id,
-             $form->{taxincluded} ? 't' : 'f',
-             $form->{notes}, $form->{intnotes}, $form->{currency}, conv_i($form->{department_id}),
-             $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}),
-             conv_i($form->{globalproject_id}), conv_i($form->{cp_id}),
-             conv_i($form->{employee_id}),
-             conv_i($form->{id}));
+  @values = (
+                $form->{invnumber},          $form->{ordnumber},           $form->{quonumber},      conv_date($form->{invdate}),
+      conv_date($form->{orddate}), conv_date($form->{quodate}),     conv_i($form->{vendor_id}),               $amount,
+                $netamount,                  $form->{paid},      conv_date($form->{duedate}),       $form->{paid} ? conv_date($form->{datepaid}) : undef,
+            '1',                             $taxzone_id,                  $form->{notes},          $form->{taxincluded} ? 't' : 'f',
+                $form->{intnotes},           $form->{currency},     conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
+         conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}), 
+         conv_i($form->{globalproject_id}),
+         conv_i($form->{id})
+  );
   do_query($form, $dbh, $query, @values);
 
   if ($form->{storno}) {
