@@ -978,7 +978,7 @@ sub all_parts {
      module       => 'apoe.', name         => 'cv.',  
      ordnumber    => 'apoe.', make         => 'mm.',  
      quonumber    => 'apoe.', model        => 'mm.',  
-     invnumber    => 'apoe.',                         
+     invnumber    => 'apoe.', partsgroup   => 'pg.',
      'SUM(ioi.qty) AS soldtotal' => ' ',
   );
   
