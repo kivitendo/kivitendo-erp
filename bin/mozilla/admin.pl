@@ -168,7 +168,7 @@ sub add_user {
   my $myconfig = {
     "vclimit"      => 200,
     "countrycode"  => "de",
-    "numberformat" => "1000,00",
+    "numberformat" => "1.000,00",
     "dateformat"   => "dd.mm.yy",
     "stylesheet"   => "lx-office-erp.css",
     "menustyle"    => "v3",
