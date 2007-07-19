@@ -294,11 +294,7 @@ sub error {
 
   } else {
 
-    if ($self->{error_function}) {
-      &{ $self->{error_function} }($msg);
-    } else {
-      die "Error: $msg\n";
-    }
+    die "Error: $msg\n";
   }
 
   $main::lxdebug->leave_sub();

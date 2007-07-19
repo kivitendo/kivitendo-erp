@@ -386,11 +386,7 @@ sub info {
 
   } else {
 
-    if ($form->{error_function}) {
-      &{ $form->{error_function} }($msg);
-    } else {
-      die "Hinweis: $msg\n";
-    }
+    die "Hinweis: $msg\n";
   }
 
   $main::lxdebug->leave_sub();
