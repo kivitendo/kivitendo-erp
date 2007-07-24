@@ -46,7 +46,6 @@ require "bin/mozilla/drafts.pl";
 
 sub add {
   $lxdebug->enter_sub();
-  $form->{"Watchdog::invdate,duedate,vendor,vendor_id"} = 1;
 
   return $lxdebug->leave_sub() if (load_draft_maybe());
 
