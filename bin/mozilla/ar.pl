@@ -1532,8 +1532,8 @@ sub ar_transactions {
     map { $subtotals{$_} += $ar->{$_};
           $totals{$_}    += $ar->{$_} } @subtotal_columns;
 
-    $subtotals{marge_percent} = $subtotals{marge_total} / $subtotals{netamount} * 100;
-    $totals{marge_percent} = $totals{marge_total} / $totals{netamount} * 100;
+    $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
+    $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
 

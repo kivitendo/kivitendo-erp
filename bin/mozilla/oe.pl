@@ -1779,8 +1779,9 @@ sub orders {
 
     map { $subtotals{$_} += $oe->{$_};
           $totals{$_}    += $oe->{$_} } @subtotal_columns;
-    $subtotals{marge_percent} = $subtotals{marge_total} / $subtotals{netamount} * 100;
-    $totals{marge_percent} = $totals{marge_total} / $totals{netamount} * 100;
+
+    $subtotals{marge_percent} = $subtotals{netamount} ? ($subtotals{marge_total} * 100 / $subtotals{netamount}) : 0;
+    $totals{marge_percent}    = $totals{netamount}    ? ($totals{marge_total}    * 100 / $totals{netamount}   ) : 0;
 
     map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent);
 
