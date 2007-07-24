@@ -1761,7 +1761,7 @@ sub orders {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount marge_total);
+  my @subtotal_columns = qw(netamount amount marge_total marge_percent);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1779,6 +1779,8 @@ sub orders {
 
     map { $subtotals{$_} += $oe->{$_};
           $totals{$_}    += $oe->{$_} } @subtotal_columns;
+    $subtotals{marge_percent} = $subtotals{marge_total} / $subtotals{netamount} * 100;
+    $totals{marge_percent} = $totals{marge_total} / $totals{netamount} * 100;
 
     map { $oe->{$_} = $form->format_amount(\%myconfig, $oe->{$_}, 2) } qw(netamount tax amount marge_total marge_percent);
 
