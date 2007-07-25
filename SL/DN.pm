@@ -109,7 +109,7 @@ sub save_config {
                (dunning_level, dunning_description, email_subject, email_body,
                 template, fee, interest_rate, active, auto, email,
                 email_attachment, payment_terms, terms, create_invoices_for_fees)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       }
       do_query($form, $dbh, $query, @values);
     }
