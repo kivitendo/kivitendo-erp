@@ -53,6 +53,7 @@
     [% IF DUNNING_it.last %][% SET rowcount = DUNNING_it.size + 1 %][% END %]
    [% END %]
 
+   [%- UNLESS rowcount %][% SET rowcount = '1' %][% END -%]
    <tr valign="top" class="listrow[% IF odd %]1[% ELSE %]0[% END %]">
     <td>
      <input type="hidden" name="dunning_level_[% rowcount %]" value="[% rowcount %]">
