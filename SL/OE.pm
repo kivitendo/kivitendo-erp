@@ -605,34 +605,21 @@ sub retrieve {
   if ($form->{id}) {
 
     # get default accounts and last order number
-    $query =
-      qq|SELECT (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.inventory_accno_id = c.id) AS inventory_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.income_accno_id = c.id) AS income_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.expense_accno_id = c.id) AS expense_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.fxgain_accno_id = c.id) AS fxgain_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.fxloss_accno_id = c.id) AS fxloss_accno, | .
-      qq|d.curr AS currencies | .
-      qq|FROM defaults d|;
+    $query = qq|SELECT (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
+                       (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
+                       (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
+                       (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
+                       (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
+                d.curr AS currencies
+                FROM defaults d|;
   } else {
-    $query =
-      qq|SELECT (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.inventory_accno_id = c.id) AS inventory_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.income_accno_id = c.id) AS income_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.expense_accno_id = c.id) AS expense_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.fxgain_accno_id = c.id) AS fxgain_accno, | .
-      qq|       (SELECT c.accno FROM chart c | .
-      qq|        WHERE d.fxloss_accno_id = c.id) AS fxloss_accno, | .
-      qq|d.curr AS currencies, | .
-      qq|current_date AS transdate, current_date AS reqdate | .
-      qq|FROM defaults d|;
+    $query = qq|SELECT (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
+                       (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
+                       (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
+                       (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
+                       (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
+                d.curr AS currencies, current_date AS transdate, current_date AS reqdate
+                FROM defaults d|;
   }
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -658,20 +645,22 @@ sub retrieve {
     # so if any of these infos is important (or even different) for any item,
     # it will be killed out and then has to be fetched from the item scope query further down
     $query =
-      qq|SELECT o.cp_id, o.ordnumber, o.transdate, o.reqdate, | .
-      qq|  o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes, | .
-      qq|  o.curr AS currency, e.name AS employee, o.employee_id, o.salesman_id, | .
-      qq|  o.${vc}_id, cv.name AS ${vc}, o.amount AS invtotal, | .
-      qq|  o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber, | .
-      qq|  d.description AS department, o.payment_id, o.language_id, o.taxzone_id, | .
-      qq|  o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id, | .
-      qq|  o.globalproject_id, o.delivered, o.transaction_description | .
-      qq|FROM oe o | .
-      qq|JOIN ${vc} cv ON (o.${vc}_id = cv.id) | .
-      qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
-      qq|LEFT JOIN department d ON (o.department_id = d.id) | .
- 		  ($form->{id} ? qq|WHERE o.id = ?| :
-       qq|WHERE o.id IN (| . join(', ', map("? ", @ids)) . qq|)|);
+      qq|SELECT o.cp_id, o.ordnumber, o.transdate, o.reqdate,
+           o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes,
+           o.curr AS currency, e.name AS employee, o.employee_id, o.salesman_id,
+           o.${vc}_id, cv.name AS ${vc}, o.amount AS invtotal,
+           o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
+           d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
+           o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
+           o.globalproject_id, o.delivered, o.transaction_description
+         FROM oe o
+         JOIN ${vc} cv ON (o.${vc}_id = cv.id)
+         LEFT JOIN employee e ON (o.employee_id = e.id)
+         LEFT JOIN department d ON (o.department_id = d.id) | .
+        ($form->{id} 
+         ? "WHERE o.id = ?" 
+         : "WHERE o.id IN (" . join(', ', map("? ", @ids)) . ")"
+        );
     @values = $form->{id} ? ($form->{id}) : @ids;
     $sth = prepare_execute_query($form, $dbh, $query, @values);
 
@@ -694,20 +683,17 @@ sub retrieve {
 
     if ($form->{delivery_customer_id}) {
       $query = qq|SELECT name FROM customer WHERE id = ?|;
-      ($form->{delivery_customer_string}) =
-        selectrow_query($form, $dbh, $query, $form->{delivery_customer_id});
+      ($form->{delivery_customer_string}) = selectrow_query($form, $dbh, $query, $form->{delivery_customer_id});
     }
 
     if ($form->{delivery_vendor_id}) {
       $query = qq|SELECT name FROM customer WHERE id = ?|;
-      ($form->{delivery_vendor_string}) =
-        selectrow_query($form, $dbh, $query, $form->{delivery_vendor_id});
+      ($form->{delivery_vendor_string}) = selectrow_query($form, $dbh, $query, $form->{delivery_vendor_id});
     }
 
     # shipto and pinted/mailed/queued status makes only sense for single id retrieve
     if (!@ids) {
-      $query = qq|SELECT s.* FROM shipto s | .
-               qq|WHERE s.trans_id = ? AND s.module = 'OE'|;
+      $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module = 'OE'|;
       $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
 
       $ref = $sth->fetchrow_hashref(NAME_lc);
@@ -716,16 +702,13 @@ sub retrieve {
       $sth->finish;
 
       # get printed, emailed and queued
-      $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname | .
-               qq|FROM status s | .
-               qq|WHERE s.trans_id = ?|;
+      $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname FROM status s WHERE s.trans_id = ?|;
       $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
 
       while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
         $form->{printed} .= "$ref->{formname} " if $ref->{printed};
         $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
-        $form->{queued} .= "$ref->{formname} $ref->{spoolfile} "
-          if $ref->{spoolfile};
+        $form->{queued}  .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
       }
       $sth->finish;
       map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
@@ -734,8 +717,7 @@ sub retrieve {
     my %oid = ('Pg'     => 'oid',
                'Oracle' => 'rowid');
 
-    my $transdate =
-      $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
+    my $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
 
     $form->{taxzone_id} = 0 unless ($form->{taxzone_id});
 
@@ -743,27 +725,28 @@ sub retrieve {
     # this query looks up all information about the items
     # stuff different from the whole will not be overwritten, but saved with a suffix.
     $query =
-      qq|SELECT o.id AS orderitems_id, | .
-      qq|  c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid, | .
-      qq|  c2.accno AS income_accno, c2.new_chart_id AS income_new_chart, date($transdate)  - c2.valid_from as income_valid, | .
-      qq|  c3.accno AS expense_accno, c3.new_chart_id AS expense_new_chart, date($transdate) - c3.valid_from as expense_valid, | .
-      qq|  oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe,  | .
-      qq|  p.partnumber, p.assembly, o.description, o.qty, | .
-      qq|  o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, | .
-      qq|  o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost, | .
-      qq|  o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription, | .
-      qq|  pr.projectnumber, p.formel, | .
-      qq|  pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup | .
-      qq|FROM orderitems o | .
-      qq|JOIN parts p ON (o.parts_id = p.id) | .
-      qq|JOIN oe ON (o.trans_id = oe.id) | .
-      qq|LEFT JOIN chart c1 ON ((SELECT inventory_accno_id FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c1.id) | .
-      qq|LEFT JOIN chart c2 ON ((SELECT income_accno_id_$form->{taxzone_id} FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c2.id) | .
-      qq|LEFT JOIN chart c3 ON ((SELECT expense_accno_id_$form->{taxzone_id} FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c3.id) | .
-      qq|LEFT JOIN project pr ON (o.project_id = pr.id) | .
-      qq|LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id) | .
-      ($form->{id} ? qq|WHERE o.trans_id = ?| :
-       qq|WHERE o.trans_id IN (| . join(", ", map("?", @ids)) . qq|)|) .
+      qq|SELECT o.id AS orderitems_id,
+           c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid, 
+           c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from as income_valid,
+           c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from as expense_valid,
+           oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe,
+           p.partnumber, p.assembly, o.description, o.qty,
+           o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id,
+           o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost,
+           o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,
+           pr.projectnumber, p.formel,
+           pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
+         FROM orderitems o
+         JOIN parts p ON (o.parts_id = p.id)
+         JOIN oe ON (o.trans_id = oe.id)
+         LEFT JOIN chart c1 ON ((SELECT inventory_accno_id                   FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c1.id)
+         LEFT JOIN chart c2 ON ((SELECT income_accno_id_$form->{taxzone_id}  FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c2.id)
+         LEFT JOIN chart c3 ON ((SELECT expense_accno_id_$form->{taxzone_id} FROM buchungsgruppen WHERE id=p.buchungsgruppen_id) = c3.id)
+         LEFT JOIN project pr ON (o.project_id = pr.id)
+         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id) | .
+      ($form->{id}
+       ? qq|WHERE o.trans_id = ?|
+       : qq|WHERE o.trans_id IN (| . join(", ", map("?", @ids)) . qq|)|) .
       qq|ORDER BY o.$oid{$myconfig->{dbdriver}}|;
 
     @ids = $form->{id} ? ($form->{id}) : @ids;
@@ -819,8 +802,7 @@ sub retrieve {
       delete $ref->{orderitems_id} if (@ids);
 
       # get tax rates and description
-      $accno_id =
-        ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
+      $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       $query =
         qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber | .
         qq|FROM tax t LEFT JOIN chart c on (c.id = t.chart_id) | .
@@ -860,9 +842,7 @@ sub retrieve {
 
   }
 
-  $form->{exchangerate} =
-    $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate},
-                            ($form->{vc} eq 'customer') ? "buy" : "sell");
+  $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? "buy" : "sell");
 
   Common::webdav_folder($form) if ($main::webdav);
 
