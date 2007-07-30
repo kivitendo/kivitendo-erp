@@ -1449,7 +1449,7 @@ sub print_options {
       opthash("opendocument", $form->{DF}{opendocument}, $locale->text("OpenDocument/OASIS")) : undef;
 
   push @LANGUAGE_ID, 
-    map { opthash($_->{id}, ($_->{id} eq $form->{language} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
+    map { opthash($_->{id}, ($_->{id} eq $form->{language_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
       if (ref $form->{languages} eq 'ARRAY');
 
   push @PRINTER_ID, 
