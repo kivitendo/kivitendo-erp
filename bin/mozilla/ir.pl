@@ -955,14 +955,11 @@ sub update {
           && ($form->{"description_$i"} eq "")) {
         $form->{rowcount}--;
         $form->{"discount_$i"} = "";
-        &display_form;
-          } else {
+        display_form();
 
+      } else {
         $form->{"id_$i"}   = 0;
-        $form->{"unit_$i"} = $locale->text('ea');
-
-        &new_item;
-
+        new_item();
       }
     }
   }

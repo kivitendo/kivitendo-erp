@@ -871,12 +871,11 @@ sub new_item {
     . $locale->text('Part') . qq|<br>
   <input class="radio" type="radio" name="item" value="service">&nbsp;|
     . $locale->text('Service');
-print $cgi->hidden("-name" => "previousform", "-value" => $previousform);
-map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } 
-     qw(rowcount vc login password));
-     map({ print($cgi->hidden("-name" => $_, "-value" => $form->{"$__$i"})); }
-     ("partnumber", "description"));
-print $cgi->hidden("-name" => "taxaccount2", "-value" => $form->{taxaccounts});
+
+  print $cgi->hidden("-name" => "previousform", "-value" => $previousform);
+  map { print $cgi->hidden("-name" => $_, "-value" => $form->{$_}); }        qw(rowcount vc login password);
+  map { print $cgi->hidden("-name" => $_, "-value" => $form->{"${_}_$i"}); } qw(partnumber description unit sellprice);
+  print $cgi->hidden("-name" => "taxaccount2", "-value" => $form->{taxaccounts});
 
 print qq|
 <input type="hidden" name="nextsub" value="add">
