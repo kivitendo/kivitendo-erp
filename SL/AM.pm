@@ -1128,8 +1128,6 @@ sub swap_sortkeys {
        (SELECT sortkey FROM $table WHERE id = ?) AS sortkey2|;
   my @values = ($form->{"id1"}, $form->{"id2"});
   my @sortkeys = selectrow_query($form, $dbh, $query, @values);
-  $main::lxdebug->dump(0, "v", \@values);
-  $main::lxdebug->dump(0, "s", \@sortkeys);
 
   $query = qq|UPDATE $table SET sortkey = ? WHERE id = ?|;
   my $sth = $dbh->prepare($query);
