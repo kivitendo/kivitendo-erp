@@ -1120,25 +1120,24 @@ sub swap_sortkeys {
   my ($self, $myconfig, $form, $table) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
   my $query =
     qq|SELECT
        (SELECT sortkey FROM $table WHERE id = ?) AS sortkey1,
        (SELECT sortkey FROM $table WHERE id = ?) AS sortkey2|;
-  my @values = ($form->{"id1"}, $form->{"id2"});
+  my @values   = ($form->{"id1"}, $form->{"id2"});
   my @sortkeys = selectrow_query($form, $dbh, $query, @values);
 
-  $query = qq|UPDATE $table SET sortkey = ? WHERE id = ?|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute($sortkeys[1], $form->{"id1"}) ||
-    $form->dberror($query . " ($sortkeys[1], $form->{id1})");
-  $sth->execute($sortkeys[0], $form->{"id2"}) ||
-    $form->dberror($query . " ($sortkeys[0], $form->{id2})");
+  $query  = qq|UPDATE $table SET sortkey = ? WHERE id = ?|;
+  my $sth = prepare_query($form, $dbh, $query);
+
+  do_statement($form, $sth, $query, $sortkeys[1], $form->{"id1"});
+  do_statement($form, $sth, $query, $sortkeys[0], $form->{"id2"});
+
   $sth->finish();
 
   $dbh->commit();
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
