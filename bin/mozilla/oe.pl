@@ -38,6 +38,7 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
+use List::Util qw(max);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -324,25 +325,16 @@ sub prepare_order {
 sub form_header {
   $lxdebug->enter_sub();
 
-  my $checkedclosed = $form->{"closed"} ? "checked" : "";
+  my $checkedclosed    = $form->{"closed"}    ? "checked" : "";
   my $checkeddelivered = $form->{"delivered"} ? "checked" : "";
 
-  if ($form->{old_employee_id}) {
-    $form->{employee_id} = $form->{old_employee_id};
-  }
-  if ($form->{old_salesman_id}) {
-    $form->{salesman_id} = $form->{old_salesman_id};
-  }
+  $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
+  $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-
-  if ($form->{old_employee_id}) {
-    $form->{employee_id} = $form->{old_employee_id};
-  }
-  if ($form->{old_salesman_id}) {
-    $form->{salesman_id} = $form->{old_salesman_id};
-  }
+  $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
+  $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   map { $form->{$_} =~ s/\"/&quot;/g }
     qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
@@ -365,39 +357,32 @@ sub form_header {
    |;
 
   #write Trigger
-  $jsscript =
-    Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1",
-                        "reqdate", "BL", "trigger2");
+  $jsscript = Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1", "reqdate", "BL", "trigger2");
 
   my @tmp;
 
   if (($form->{"type"} eq "sales_order") ||
       ($form->{"type"} eq "purchase_order")) {
-    push(@tmp, qq|
-          <input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1" $checkeddelivered>
-          <label for="delivered">| . $locale->text('Delivered') . qq|</label>|);
+    push(@tmp, qq|<input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1" $checkeddelivered>
+                  <label for="delivered">| . $locale->text('Delivered') . qq|</label>|);
   }
 
   if ($form->{id}) {
-    push(@tmp, qq|
-          <input name="closed" id="closed" type="checkbox" class="checkbox" value="1" $checkedclosed>
-          <label for="closed">| . $locale->text('Closed') . qq|</label>|);
+    push(@tmp, qq|<input name="closed" id="closed" type="checkbox" class="checkbox" value="1" $checkedclosed>
+                  <label for="closed">| . $locale->text('Closed') . qq|</label>|);
   }
 
   if (@tmp) {
-    $openclosed .= qq|
-      <tr>
-        <td colspan=| . (2 * scalar(@tmp)) . qq| align=center>| . join("\n", @tmp) . qq|
-        </td>
-      </tr>
-|;
+    $openclosed .= qq|<tr>
+                        <td colspan=| . (2 * scalar(@tmp)) . qq| align=center>| . join("\n", @tmp) . qq|
+                        </td>
+                      </tr>\n|;
   }
 
   # set option selected
   foreach $item ($form->{vc}, currency, department, ($form->{vc} eq "customer" ? customer : vendor)) {
     $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~
-      s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
+    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
   #quote select[customer|vendor] Bug 133
@@ -429,8 +414,7 @@ sub form_header {
   my @values = (undef);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
     push(@values, $item->{"cp_id"});
-    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .
-      ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
+    $labels{$item->{"cp_id"}} = $item->{"cp_name"} . ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
 
   my $contact;
@@ -506,10 +490,9 @@ sub form_header {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"projectnumber"};
   }
-  my $globalprojectnumber =
-    NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
-                         '-labels' => \%labels,
-                         '-default' => $form->{"globalproject_id"}));
+  my $globalprojectnumber = NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values,
+                                                 '-labels' => \%labels,
+                                                 '-default' => $form->{"globalproject_id"}));
   
   my $salesmen = "";
   %labels = ();
@@ -582,40 +565,26 @@ sub form_header {
     </tr>|;
   }
 
-  $form->{exchangerate} =
-    $form->format_amount(\%myconfig, $form->{exchangerate});
+  $form->{exchangerate} = $form->format_amount(\%myconfig, $form->{exchangerate});
+  $form->{exchangerate} = "" unless $form->{exchangerate};
 
-  if (!$form->{exchangerate}) {
-    $form->{exchangerate} = "";
-  }
+  $creditwarning = (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) ? 1 : 0;
 
-  if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
-    $creditwarning = 1;
-  } else {
-    $creditwarning = 0;
-  }
+  $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
+  $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
-  $form->{creditlimit} =
-    $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
-  $form->{creditremaining} =
-    $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
-
-  $exchangerate = qq|
-<input type=hidden name=forex value=$form->{forex}>
-|;
+  $exchangerate = qq|\n<input type=hidden name=forex value=$form->{forex}>\n|;
 
   if ($form->{currency} ne $form->{defaultcurrency}) {
     if ($form->{forex}) {
       $exchangerate .=
-          qq|<th align=right>|
-        . $locale->text('Exchangerate')
+          qq|<th align=right>| . $locale->text('Exchangerate')
         . qq|</th><td>$form->{exchangerate}</td>
       <input type=hidden name=exchangerate value=$form->{exchangerate}>
 |;
     } else {
       $exchangerate .=
-          qq|<th align=right>|
-        . $locale->text('Exchangerate')
+          qq|<th align=right>| . $locale->text('Exchangerate')
         . qq|</th><td><input name=exchangerate size=10 value=$form->{exchangerate}></td>|;
     }
   }
@@ -683,10 +652,7 @@ sub form_header {
 	      </tr>
 |;
   } else {
-    $reqlabel =
-      ($form->{type} eq 'sales_quotation')
-      ? $locale->text('Valid until')
-      : $locale->text('Required by');
+    $reqlabel = ($form->{type} eq 'sales_quotation') ? $locale->text('Valid until') : $locale->text('Required by');
     if ($form->{type} eq 'sales_quotation') {
       $ordnumber = qq|
 	      <tr>
@@ -707,20 +673,9 @@ sub form_header {
 
     }
 
-    $ordnumber .= qq|
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Quotation Date') . qq|</th>
-                $button1
-              </tr>
-	      <tr>
-		<th align=right nowrap=true>$reqlabel</th>
-                $button2
-	      </tr>
-|;
-    $creditremaining = qq| <tr>
-                            <td colspan=4></td>
-                            $shipto
-                          </tr>|;
+    $ordnumber      .= qq| <tr> <th align=right nowrap>| . $locale->text('Quotation Date') . qq|</th> $button1 </tr>
+                           <tr> <th align=right nowrap=true>$reqlabel</th> $button2 </tr>\n|;
+    $creditremaining = qq| <tr> <td colspan=4></td> $shipto </tr>|;
   }
 
   $department = qq|
@@ -732,35 +687,23 @@ sub form_header {
 	      </tr> | if $form->{selectdepartment};
 
   if ($form->{type} eq 'sales_order') {
-    if ($form->{selectemployee}) {
-      $employee .= qq|
-        <input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
-    }
+    $employee .= qq|\n<input type="hidden" name="customer_klass" value="$form->{customer_klass}">| if $form->{selectemployee};
   } else {
-    $employee .= qq|
-      <input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
-  }
-  if ($form->{resubmit} && ($form->{format} eq "html")) {
-    $onload =
-      qq|window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()|;
-  } elsif ($form->{resubmit}) {
-    $onload = qq|document.oe.submit()|;
-  } else {
-    $onload = "focus()";
+    $employee .= qq|\n<input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
   }
 
   $credittext = $locale->text('Credit Limit exceeded!!!');
-  if ($creditwarning) {
-    $onload = qq|alert('$credittext')|;
-  }
-  
+
+  $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()"
+          : ($form->{resubmit})                                ? "document.oe.submit()"
+          : ($creditwarning)                                   ? "alert('$credittext')"
+          :                                                      "focus()";
+
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
+  $onload .= qq|;setupPoints('|.   $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   
-  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
-  # show history button js
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
-  #/show history button js
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
   $form->header;
@@ -778,8 +721,11 @@ sub form_header {
 
   $form->hide_form(qw(id action type vc formname media format proforma queued printed emailed
                       title discount creditlimit creditremaining tradediscount business
-                      max_dunning_level dunning_amount));
-
+                      max_dunning_level dunning_amount shiptoname shiptostreet shiptozipcode
+                      shiptocity shiptocountry shiptocontact shiptophone shiptofax 
+                      shiptodepartment_1 shiptodepartment_2 shiptoemail 
+                      message email subject cc bcc taxpart taxservice taxaccounts), 
+                      map { $_.'_rate', $_.'_description' } split / /, $form->{taxaccounts} );
   print qq|
 
 <table width=100%>
@@ -858,39 +804,8 @@ print qq|	    </table>
 
 $jsscript
 
-<!-- shipto are in hidden variables -->
-
-<input type=hidden name=shiptoname value="$form->{shiptoname}">
-<input type=hidden name=shiptostreet value="$form->{shiptostreet}">
-<input type=hidden name=shiptozipcode value="$form->{shiptozipcode}">
-<input type=hidden name=shiptocity value="$form->{shiptocity}">
-<input type=hidden name=shiptocountry value="$form->{shiptocountry}">
-<input type=hidden name=shiptocontact value="$form->{shiptocontact}">
-<input type=hidden name=shiptophone value="$form->{shiptophone}">
-<input type=hidden name=shiptofax value="$form->{shiptofax}">
-<input type=hidden name=shiptodepartment_1 value="$form->{shiptodepartment_1}">
-<input type=hidden name=shiptodepartment_2 value="$form->{shiptodepartment_2}">
-<input type=hidden name=shiptoemail value="$form->{shiptoemail}">
-
-<!-- email variables -->
-<input type=hidden name=message value="$form->{message}">
-<input type=hidden name=email value="$form->{email}">
-<input type=hidden name=subject value="$form->{subject}">
-<input type=hidden name=cc value="$form->{cc}">
-<input type=hidden name=bcc value="$form->{bcc}">
-
-<input type=hidden name=taxpart value="$form->{taxpart}">
-<input type=hidden name=taxservice value="$form->{taxservice}">
-
-<input type=hidden name=taxaccounts value="$form->{taxaccounts}">
 |;
 
-  foreach $item (split / /, $form->{taxaccounts}) {
-    print qq|
-<input type=hidden name="${item}_rate" value=$form->{"${item}_rate"}>
-<input type=hidden name="${item}_description" value="$form->{"${item}_description"}">
-|;
-  }
   $lxdebug->leave_sub();
 }
 
@@ -1190,34 +1105,24 @@ sub update {
 
   set_headings($form->{"id"} ? "edit" : "add");
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(exchangerate creditlimit creditremaining);
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
   $form->{update} = 1;
       
-  if($form->{payment_id}) { 
-    $payment_id = $form->{payment_id};
-  }
+  $payment_id = $form->{payment_id} if $form->{payment_id};
   
   &check_name($form->{vc});
   
-  if($form->{payment_id} eq "") { 
-    $form->{payment_id} = $payment_id;
-  }
+  $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
   
   $buysell              = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                  $exchangerate =
-                    $form->check_exchangerate(
-                    \%myconfig, $form->{currency}, $form->{transdate}, $buysell
-                    )));
+  $form->{exchangerate} = $exchangerate if 
+    $form->{forex} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
 
   # for pricegroups
   $i = $form->{rowcount};
 
-  $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
+  $exchangerate = $form->{exchangerate} || 1;
 
   if (   ($form->{"partnumber_$i"} eq "")
       && ($form->{"description_$i"} eq "")
@@ -1232,14 +1137,14 @@ sub update {
         || $form->{type} eq 'request_quotation') {
       IR->retrieve_item(\%myconfig, \%$form);
     }
-    if ($form->{type} eq 'sales_order' || $form->{type} eq 'sales_quotation') {
+    if (   $form->{type} eq 'sales_order' 
+        || $form->{type} eq 'sales_quotation') {
       IS->retrieve_item(\%myconfig, \%$form);
     }
 
     my $rows = scalar @{ $form->{item_list} };
 
-    $form->{"discount_$i"} =
-      $form->format_amount(\%myconfig, $form->{discount} * 100);
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{discount} * 100);
 
     if ($rows) {
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
@@ -1251,51 +1156,31 @@ sub update {
 
       } else {
 
-        $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
-        if ($form->{"not_discountable_$i"}) {
-          $form->{"discount_$i"} = 0;
-        }
-        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
-          qw(partnumber description unit);
-        map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
-          keys %{ $form->{item_list}[0] };
-        if ($form->{"part_payment_id_$i"} ne "") {
-          $form->{payment_id} = $form->{"part_payment_id_$i"};
-        }
+        $sellprice             = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+        $form->{"discount_$i"} = 0 if $form->{"not_discountable_$i"};
+        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
+        map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
+        $form->{payment_id} = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
 
-        $s = ($sellprice) ? $sellprice : $form->{"sellprice_$i"};
-
-        ($dec) = ($s =~ /\.(\d+)/);
-        $dec           = length $dec;
-        $decimalplaces = ($dec > 2) ? $dec : 2;
+        ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
+        $decimalplaces = max 2, length $1;
 
         if ($sellprice) {
           $form->{"sellprice_$i"} = $sellprice;
         } else {
-
           $form->{"sellprice_$i"} *= (1 - $form->{tradediscount});
-
-          # if there is an exchange rate adjust sellprice
-          $form->{"sellprice_$i"} /= $exchangerate;
+          $form->{"sellprice_$i"} /= $exchangerate;   # if there is an exchange rate adjust sellprice
         }
 
-        $amount =
-          $form->{"sellprice_$i"} * $form->{"qty_$i"} *
-          (1 - $form->{"discount_$i"} / 100);
-        map { $form->{"${_}_base"} = 0 } (split / /, $form->{taxaccounts});
-        map { $form->{"${_}_base"} += $amount }
-          (split / /, $form->{"taxaccounts_$i"});
-        map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) }
-          split / /, $form->{taxaccounts}
-          if !$form->{taxincluded};
+        $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        map { $form->{"${_}_base"} = 0 }                                 split / /, $form->{taxaccounts};
+        map { $form->{"${_}_base"} += $amount }                          split / /, $form->{"taxaccounts_$i"};
+        map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{taxaccounts} if !$form->{taxincluded};
 
         $form->{creditremaining} -= $amount;
 
-        $form->{"sellprice_$i"} =
-          $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                               $decimalplaces);
-        $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+        $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+        $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
         # get pricegroups for parts
         IS->get_pricegroups_for_parts(\%myconfig, \%$form);

@@ -678,16 +678,15 @@ sub retrieve_invoice {
 
   # get default accounts and last invoice number
 
-  $query=
-    qq|SELECT
-         (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
-         (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
-         (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
-         (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
-         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
-         d.curr AS currencies
-         $q_invdate
-         FROM defaults d|;
+  $query = qq|SELECT
+               (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
+               (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
+               (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
+               (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
+               (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
+               d.curr AS currencies
+               $q_invdate
+               FROM defaults d|;
   $ref = selectfirst_hashref_query($form, $dbh, $query);
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -699,17 +698,16 @@ sub retrieve_invoice {
   }
 
   # retrieve invoice
-  $query =
-    qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
-         orddate, quodate, globalproject_id,
-         ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
-         intnotes, curr AS currency
-       FROM ap
-       WHERE id = ?|;
+  $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
+                orddate, quodate, globalproject_id,
+                ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
+                intnotes, curr AS currency
+              FROM ap
+              WHERE id = ?|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "sell");
+  $form->{exchangerate}  = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "sell");
 
   # get shipto
   $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module = 'AP')|;
@@ -725,39 +723,18 @@ sub retrieve_invoice {
   # retrieve individual items
   $query =
     qq|SELECT
-        c1.accno                         AS inventory_accno,
-        c1.new_chart_id                  AS inventory_new_chart,
-        date($transdate) - c1.valid_from AS inventory_valid,
+        c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from AS inventory_valid,
+        c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from AS income_valid,
+        c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from AS expense_valid,
 
-        c2.accno                         AS income_accno,
-        c2.new_chart_id                  AS income_new_chart,
-        date($transdate) - c2.valid_from AS income_valid,
-
-        c3.accno                         AS expense_accno,
-        c3.new_chart_id                  AS expense_new_chart,
-        date($transdate) - c3.valid_from AS expense_valid,
-
-        i.description, i.qty, i.fxsellprice AS sellprice,
-        i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
-
-        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin,
-        pr.projectnumber,
-        pg.partsgroup
+        i.description, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
+        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin, pr.projectnumber, pg.partsgroup 
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
-        LEFT JOIN chart c1 ON
-          ((SELECT inventory_accno_id
-            FROM buchungsgruppen
-            WHERE id = p.buchungsgruppen_id) = c1.id)
-        LEFT JOIN chart c2 ON
-          ((SELECT income_accno_id_${taxzone_id}
-            FROM buchungsgruppen
-            WHERE id = p.buchungsgruppen_id) = c2.id)
-        LEFT JOIN chart c3 ON
-          ((SELECT expense_accno_id_${taxzone_id}
-            FROM buchungsgruppen
-            WHERE id = p.buchungsgruppen_id) = c3.id)
+        LEFT JOIN chart c1 ON ((SELECT inventory_accno_id             FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
+        LEFT JOIN chart c2 ON ((SELECT income_accno_id_${taxzone_id}  FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c2.id)
+        LEFT JOIN chart c3 ON ((SELECT expense_accno_id_${taxzone_id} FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c3.id)
         LEFT JOIN project pr    ON (i.project_id = pr.id)
         LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
 
@@ -767,37 +744,24 @@ sub retrieve_invoice {
   $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    if (!$ref->{"part_inventory_accno_id"}) {
-      map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid));
-    }
+    map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
     delete($ref->{"part_inventory_accno_id"});
 
     foreach my $type (qw(inventory income expense)) {
       while ($ref->{"${type}_new_chart"} && ($ref->{"${type}_valid"} >=0)) {
-        my $query =
-          qq|SELECT accno, new_chart_id, date($transdate) - valid_from
-             FROM chart
-             WHERE id = ?|;
-        ($ref->{"${type}_accno"},
-         $ref->{"${type}_new_chart"},
-         $ref->{"${type}_valid"})
-          = selectrow_query($form, $dbh, $query, $ref->{"${type}_new_chart"});
+        my $query = qq|SELECT accno, new_chart_id, date($transdate) - valid_from FROM chart WHERE id = ?|;
+        @$ref{ map $type.$_, qw(_accno _new_chart _valid) } = selectrow_query($form, $dbh, $query, $ref->{"${type}_new_chart"});
       }
     }
 
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
-         FROM tax t
+      qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber FROM tax t
          LEFT JOIN chart c ON (c.id = t.chart_id)
          WHERE t.id in
-           (SELECT tk.tax_id
-            FROM taxkeys tk
-            WHERE tk.chart_id =
-              (SELECT id
-               FROM chart
-               WHERE accno = ?)
+           (SELECT tk.tax_id FROM taxkeys tk
+            WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?)
               AND (startdate <= $transdate)
             ORDER BY startdate DESC
             LIMIT 1)

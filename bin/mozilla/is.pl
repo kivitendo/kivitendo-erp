@@ -34,6 +34,7 @@
 use SL::IS;
 use SL::PE;
 use Data::Dumper;
+use List::Util qw(max);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -467,11 +468,7 @@ sub form_header {
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  if (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) {
-    $creditwarning = 1;
-  } else {
-    $creditwarning = 0;
-  }
+  $creditwarning = (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) ? 1 : 0;
 
   $form->{exchangerate}    = $form->format_amount(\%myconfig, $form->{exchangerate});
   $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
@@ -561,29 +558,21 @@ sub form_header {
     #write Trigger
     $jsscript =
       Form->write_trigger(\%myconfig,     "3",
-                          "invdate",      "BL",
-                          "trigger1",     "duedate",
-                          "BL",           "trigger2",
-                          "deliverydate", "BL",
-                          "trigger3");
+                          "invdate",      "BL", "trigger1", 
+                          "duedate",      "BL", "trigger2",
+                          "deliverydate", "BL", "trigger3");
   }
 
-  if ($form->{resubmit} && ($form->{format} eq "html")) {
-    $onload = qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|;
-  } elsif ($form->{resubmit}) {
-    $onload = qq|document.invoice.submit()|;
-  } else {
-    $onload = "focus()";
-  }
+  $credittext = $locale->text('Credit Limit exceeded!!!');
+  $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|
+          : ($form->{resubmit})                                ? qq|document.invoice.submit()|
+          : ($creditwarning)                                   ? qq|alert('$credittext')|
+          :                                                      "focus()";
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  $credittext = $locale->text('Credit Limit exceeded!!!');
-  if ($creditwarning) {
-    $onload = qq|alert('$credittext')|;
-  }
 
-  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
-  $form->{javascript}   .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
   $jsscript .=
     $form->write_trigger(\%myconfig, 2,
@@ -606,7 +595,11 @@ sub form_header {
 
   $form->hide_form(qw(id action type media format queued printed emailed title vc discount
                       creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
-                      max_dunning_level dunning_amount));
+                      max_dunning_level dunning_amount
+                      shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax 
+                      shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts),
+                      map { $_.'_rate', $_,'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} );
+   
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
 
   print qq|
@@ -749,23 +742,11 @@ print qq|     <tr>
   <tr>
     <td>
     </td>
-  </tr>
-| .
-$jsscript
-. qq|
-<!-- shipto are in hidden variables -->
-| ;
-map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); }
-       qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2));
-print qq|<!-- email variables --> |;
-map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); }
-    qw(message email subject cc bcc taxaccounts));
-print qq|<input type="hidden" name="webdav" value="| . $webdav . qq|">|;
+  </tr> 
+  $jsscript
+|;
+  print qq|<input type="hidden" name="webdav" value="$webdav">|;
 
-  foreach $item (split(/ /, $form->{taxaccounts})) {
-    map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); }
-    ("${item}_rate", "${item}_description", "${item}_taxnumber"));
-  }
   $lxdebug->leave_sub();
 }
 
@@ -1188,52 +1169,28 @@ sub mark_as_paid {
 sub update {
   $lxdebug->enter_sub();
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(exchangerate creditlimit creditremaining);
-  if ($form->{second_run}) {
-    $form->{print_and_post} = 0;
-  }
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
-
-  if($form->{taxincluded}) {
-    $taxincluded = "checked";
-  }
+  $form->{print_and_post} = 0         if $form->{second_run};
+  $taxincluded            = "checked" if $form->{taxincluded};
   $form->{update} = 1;
 
   &check_name(customer);
 
-  if(!$form->{taxincluded}) {
-    $form->{taxincluded} = $taxincluded;
-  }
+  $form->{taxincluded} ||= $taxincluded;
 
-
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                       $exchangerate =
-                         $form->check_exchangerate(
-                         \%myconfig, $form->{currency}, $form->{invdate}, 'buy'
-                         )));
+  $form->{exchangerate} = $exchangerate if
+    $form->{forex} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
-      map {
-        $form->{"${_}_$i"} =
-          $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
-      } qw(paid exchangerate);
-
-      $form->{"exchangerate_$i"} = $exchangerate
-        if (
-            $form->{"forex_$i"} = (
-                 $exchangerate =
-                   $form->check_exchangerate(
-                   \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy'
-                   )));
-    }
+    next unless $form->{"paid_$i"};
+    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
+    $form->{"exchangerate_$i"} = $exchangerate if
+      $form->{"forex_$i"} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
   }
 
   $i            = $form->{rowcount};
-  $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
+  $exchangerate = $form->{exchangerate} || 1;
 
   # if last row empty, check the form otherwise retrieve new item
   if (   ($form->{"partnumber_$i"} eq "")
@@ -1249,8 +1206,7 @@ sub update {
 
     $rows = scalar @{ $form->{item_list} };
 
-    $form->{"discount_$i"} =
-      $form->format_amount(\%myconfig, $form->{discount} * 100);
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{discount} * 100);
 
     if ($rows) {
       $form->{"qty_$i"} = ($form->{"qty_$i"} * 1) ? $form->{"qty_$i"} : 1;
@@ -1264,27 +1220,18 @@ sub update {
 
         $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
-        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
-          qw(partnumber description unit);
-        map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
-          keys %{ $form->{item_list}[0] };
-        if ($form->{"part_payment_id_$i"} ne "") {
-          $form->{payment_id} = $form->{"part_payment_id_$i"};
-        }
+        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
+        map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
+        
+        $form->{payment_id}    = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
+        $form->{"discount_$i"} = 0                             if $form->{"not_discountable_$i"};
 
-        if ($form->{"not_discountable_$i"}) {
-          $form->{"discount_$i"} = 0;
-        }
-
-        $s = ($sellprice) ? $sellprice : $form->{"sellprice_$i"};
-        ($dec) = ($s =~ /\.(\d+)/);
-        $dec           = length $dec;
-        $decimalplaces = ($dec > 2) ? $dec : 2;
+        ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
+        $decimalplaces = max 2, length $1;
 
         if ($sellprice) {
           $form->{"sellprice_$i"} = $sellprice;
         } else {
-
           # if there is an exchange rate adjust sellprice
           $form->{"sellprice_$i"} *= (1 - $form->{tradediscount});
           $form->{"sellprice_$i"} /= $exchangerate;
@@ -1292,36 +1239,24 @@ sub update {
 
         $form->{"listprice_$i"} /= $exchangerate;
 
-        $amount =
-          $form->{"sellprice_$i"} * $form->{"qty_$i"} *
-          (1 - $form->{"discount_$i"} / 100);
-        map { $form->{"${_}_base"} = 0 } (split / /, $form->{taxaccounts});
-        map { $form->{"${_}_base"} += $amount }
-          (split / /, $form->{"taxaccounts_$i"});
-        map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) }
-          split / /, $form->{"taxaccounts_$i"}
-          if !$form->{taxincluded};
+        $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        map { $form->{"${_}_base"} = 0 }                                 split / /, $form->{taxaccounts};
+        map { $form->{"${_}_base"} += $amount }                          split / /, $form->{"taxaccounts_$i"};
+        map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{"taxaccounts_$i"} if !$form->{taxincluded};
 
         $form->{creditremaining} -= $amount;
 
-        map {
-          $form->{"${_}_$i"} =
-            $form->format_amount(\%myconfig, $form->{"${_}_$i"},
-                                 $decimalplaces)
-        } qw(sellprice listprice);
+        map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice listprice);
 
-        $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"});
+        $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
 
         if ($lizenzen) {
           if ($form->{"inventory_accno_$i"} ne "") {
             $form->{"lizenzen_$i"} = qq|<option></option>|;
             foreach $item (@{ $form->{LIZENZEN}{ $form->{"id_$i"} } }) {
-              $form->{"lizenzen_$i"} .=
-                qq|<option value="$item->{"id"}">$item->{"licensenumber"}</option>|;
+              $form->{"lizenzen_$i"} .= qq|<option value="$item->{"id"}">$item->{"licensenumber"}</option>|;
             }
-            $form->{"lizenzen_$i"} .=
-              qq|<option value=-1>Neue Lizenz</option>|;
+            $form->{"lizenzen_$i"} .= qq|<option value=-1>Neue Lizenz</option>|;
           }
         }
 

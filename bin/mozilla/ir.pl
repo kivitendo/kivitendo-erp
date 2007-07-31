@@ -34,6 +34,7 @@
 use SL::IR;
 use SL::IS;
 use SL::PE;
+use List::Util qw(max);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -216,8 +217,7 @@ sub form_header {
   # set option selected
   foreach $item (qw(AP vendor currency department)) {
     $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~
-      s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
+    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
   $form->{employee_id}     = $form->{old_employee_id} if $form->{old_employee_id};
@@ -232,10 +232,10 @@ sub form_header {
   if ($form->{currency} ne $form->{defaultcurrency}) {
     if ($form->{forex}) {
       $exchangerate .= qq| <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
-                             <td>$form->{exchangerate}<input type=hidden name=exchangerate value=$form->{exchangerate}></td>\n|;
+                           <td>$form->{exchangerate}<input type=hidden name=exchangerate value=$form->{exchangerate}></td>\n|;
     } else {
       $exchangerate .= qq| <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
-                             <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>\n|;
+                           <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>\n|;
     }
   }
   $exchangerate .= qq| <input type=hidden name=forex value=$form->{forex}>\n|;
@@ -245,8 +245,8 @@ sub form_header {
 
   $form->get_lists("contacts"   => "ALL_CONTACTS",
                    "projects"   => { "key"  => "ALL_PROJECTS",
-                                   "all"    => 0,
-                                   "old_id" => \@old_project_ids },
+                                     "all"    => 0,
+                                     "old_id" => \@old_project_ids },
                    "taxzones"   => "ALL_TAXZONES",
                    "employees"  => "ALL_SALESMEN",
                    "currencies" => "ALL_CURRENCIES",
@@ -330,8 +330,8 @@ sub form_header {
         (($myconfig{vclimit} <=  scalar(@values))
               ? qq|<input type="text" value="| . H($form->{vendor}) . qq|" name="vendor">|
               : (NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{oldvendor},
-                             '-onChange' => 'document.getElementById(\'update_button\').click();',
-                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
+                                      '-onChange' => 'document.getElementById(\'update_button\').click();',
+                                      '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
         <input type="button" value="?" onclick="show_vc_details('vendor')">
       </td>|;
 
@@ -367,8 +367,7 @@ sub form_header {
 	      <td colspan="3"><select name="department" style="width: 250px">$form->{selectdepartment}</select>
 	      <input type="hidden" name="selectdepartment" value="$form->{selectdepartment}">
 	      </td>
-	    </tr>
-| if $form->{selectdepartment};
+	    </tr>\n| if $form->{selectdepartment};
 
   $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
@@ -378,24 +377,25 @@ sub form_header {
 
   $button1 = qq|
      <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=invdate id="trigger1" value=| . $locale->text('button') . qq|></td>\n|;
+         <input type=button name=invdate id="trigger1" value=| . $locale->text('button') . qq|></td>\n|;
   $button2 = qq|
      <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
-      <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|></td></td>\n|;
+                    <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|></td></td>\n|;
 
   #write Trigger
   $jsscript =
-    Form->write_trigger(\%myconfig, "2", "invdate", "BL", "trigger1",
+    Form->write_trigger(\%myconfig, "2", 
+                        "invdate", "BL", "trigger1",
                         "duedate", "BL", "trigger2");
 
-  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
-  $form->{"javascript"} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->{javascript}   .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
   $jsscript .= $form->write_trigger(\%myconfig, 2, "orddate", "BL", "trigger_orddate", "quodate", "BL", "trigger_quodate");
 
   $form->header;
-  $onload = qq|focus()|;
+  $onload  = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
@@ -404,9 +404,10 @@ sub form_header {
 <form method=post action=$form->{script}>
 |;
 
-  $form->hide_form(qw(id title vc type level creditlimit creditremaining
-                      closedto locked shippted storno storno_id
-                      max_dunning_level dunning_amount));
+  $form->hide_form(qw(id title vc type level creditlimit creditremaining closedto locked shippted storno storno_id
+                      max_dunning_level dunning_amount vendor_id oldvendor selectvendor taxaccounts
+                      fxgain_accno fxloss_accno taxpart taxservice),
+                      map { $_.'_rate', $_.'_description' } split / /, $form->{taxaccounts} );
 
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
 
@@ -419,9 +420,6 @@ sub form_header {
     <td valign="top">
 	    <table>
         $vendors
-        <input type="hidden" name="vendor_id" value="$form->{vendor_id}">
-        <input type="hidden" name="oldvendor" value="$form->{oldvendor}">
-        <input type="hidden" name="selectvendor" value= "$form->{selectvendor}">
         $contact
         <tr>
           <td align="right">| . $locale->text('Credit Limit') . qq|</td>
@@ -483,14 +481,7 @@ sub form_header {
 
 $jsscript
 
-<input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
-<input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
 <input type=hidden name=webdav value=$webdav>
-
-<input type=hidden name=taxpart value="$form->{taxpart}">
-<input type=hidden name=taxservice value="$form->{taxservice}">
-
-<input type=hidden name=taxaccounts value="$form->{taxaccounts}">
 |;
 
   foreach $item (split / /, $form->{taxaccounts}) {
@@ -854,38 +845,22 @@ sub mark_as_paid {
 sub update {
   $lxdebug->enter_sub();
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(exchangerate creditlimit creditremaining);
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
   &check_name(vendor);
 
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                      $exchangerate =
-                        $form->check_exchangerate(
-                        \%myconfig, $form->{currency}, $form->{invdate}, 'sell'
-                        )));
+  $form->{exchangerate} = $exchangerate if
+    $form->{forex} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
 
   for $i (1 .. $form->{paidaccounts}) {
-    if ($form->{"paid_$i"}) {
-      map {
-        $form->{"${_}_$i"} =
-          $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
-      } qw(paid exchangerate);
-
-      $form->{"exchangerate_$i"} = $exchangerate
-        if (
-            $form->{"forex_$i"} = (
-                $exchangerate =
-                  $form->check_exchangerate(
-                  \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell'
-                  )));
-    }
+    next unless $form->{"paid_$i"};
+    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
+    $form->{"exchangerate_$i"} = $exchangerate if
+      $form->{"forex_$i"} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
   }
 
   $i            = $form->{rowcount};
-  $exchangerate = ($form->{exchangerate} * 1) ? $form->{exchangerate} * 1 : 1;
+  $exchangerate = ($form->{exchangerate} * 1) || 1;
 
   if (   ($form->{"partnumber_$i"} eq "")
       && ($form->{"description_$i"} eq "")
@@ -912,35 +887,23 @@ sub update {
         # override sellprice if there is one entered
         $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
-        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
-          qw(partnumber description unit);
+        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
+        map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
-        map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} }
-          keys %{ $form->{item_list}[0] };
-
-        $s = ($sellprice) ? $sellprice : $form->{"sellprice_$i"};
-
-        ($dec) = ($s =~ /\.(\d+)/);
-        $dec           = length $dec;
-        $decimalplaces = ($dec > 2) ? $dec : 2;
+        ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
+        $decimalplaces = max 2, length $1;
 
         if ($sellprice) {
           $form->{"sellprice_$i"} = $sellprice;
         } else {
-
           # if there is an exchange rate adjust sellprice
           $form->{"sellprice_$i"} /= $exchangerate;
         }
 
-        $amount =
-          $form->{"sellprice_$i"} * $form->{"qty_$i"} *
-          (1 - $form->{"discount_$i"} / 100);
+        $amount                   = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
         $form->{creditremaining} -= $amount;
-        $form->{"sellprice_$i"} =
-          $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                               $decimalplaces);
-        $form->{"qty_$i"} =
-          $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+        $form->{"sellprice_$i"}   = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+        $form->{"qty_$i"}         = $form->format_amount(\%myconfig, $form->{"qty_$i"},       $dec_qty);
       }
 
       &display_form;
