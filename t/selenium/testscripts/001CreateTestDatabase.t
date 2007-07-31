@@ -1,7 +1,15 @@
 ### Create Database
 
 $sel->open_ok($lxtest->{lxadmin});
-$sel->title_is("Lx-Office ERP Administration -");
+#$sel->title_is("Lx-Office ERP Administration -");
+#
+if($sel->get_title() eq "") {
+  $sel->open_ok($lxtest->{lxadmin_url});
+  $sel->click_ok("//input[(\@name=\"action\") and (\@value=\"Anmeldung\")]");
+  $sel->wait_for_page_to_load_ok($lxtest->{timeout});
+}
+
+$sel->title_is("Lx-Office ERP ".$lxtest->{version}." Administration -");
 
 diag('Lock the system');
 $sel->click_ok("//input[(\@name=\"action\") and (\@value=\"System sperren\")]");
@@ -14,7 +22,6 @@ $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->title_is("Lx-Office ERP / Datenbankadministration -");
 $sel->type_ok("dbuser", $lxtest->{dbuser});
 $sel->type_ok("dbpasswd", $lxtest->{dbpasswd});
-$sel->type_ok("dbuser", $lxtest->{dbuser});
 $sel->type_ok("dbhost", $lxtest->{dbhost});
 $sel->type_ok("dbport", $lxtest->{dbport});
 $sel->type_ok("dbdefault", $lxtest->{dbdefault});

@@ -51,7 +51,7 @@ for (my $i=0; $i <= $count; $i++){
 }
 
 #$sel->click_ok("//input[\@value=\"$lxtest->{db}\"]");
-$sel->check_ok("//input[\@name=\"db$lxtest->{db}\"]");
+#$sel->check_ok("//input[\@name=\"db$lxtest->{db}\"]");
 $sel->click_ok("//input[(\@name=\"action\") and (\@value=\"Weiter\")]");
 $sel->title_like( qr/Lx-Office ERP Datenbankadministration/ );
 

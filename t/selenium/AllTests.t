@@ -77,8 +77,9 @@
   ok(defined $lxtest->{dbuser}, "found dbuser in config");
   ok(defined $lxtest->{dbpasswd}, "found dbpasswd in config");
 
-  $lxtest->{lxadmin} = $lxtest->{lxbaseurl} . "admin.pl?rpw=$lxtest->{rpw}&nextsub=list_users&action=Weiter";
-
+  $lxtest->{lxadmin_url} = $lxtest->{lxbaseurl} . "admin.pl";
+  $lxtest->{lxadmin_with_get} = $lxtest->{lxadmin_url} . "?rpw=$lxtest->{rpw}&nextsub=list_users&action=Weiter";
+  $lxtest->{lxadmin} = $lxtest->{lxadmin_url} . "?rpw=$lxtest->{rpw}&nextsub=list_users&action=Weiter";
 
 
 
