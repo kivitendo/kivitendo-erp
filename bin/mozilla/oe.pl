@@ -411,17 +411,19 @@ sub form_header {
           if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists("contacts" => "ALL_CONTACTS",
-                   "shipto" => "ALL_SHIPTO",
-                   "projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 0,
-                                   "old_id" => \@old_project_ids },
-                   "employees" => "ALL_EMPLOYEES",
-                   "salesmen" => "ALL_SALESMEN",
-                   "taxzones" => "ALL_TAXZONES",
-                   "payments" => "ALL_PAYMENTS",
+  $form->get_lists("contacts"   => "ALL_CONTACTS",
+                   "shipto"     => "ALL_SHIPTO",
+                   "projects"   => {
+                     "key"      => "ALL_PROJECTS",
+                     "all"      => 0,
+                     "old_id"   => \@old_project_ids
+                   },
+                   "employees"  => "ALL_EMPLOYEES",
+                   "salesmen"   => "ALL_SALESMEN",
+                   "taxzones"   => "ALL_TAXZONES",
+                   "payments"   => "ALL_PAYMENTS",
                    "currencies" => "ALL_CURRENCIES",
-                   $vc => "ALL_" . uc($vc));
+                   $vc          => "ALL_" . uc($vc));
 
   my %labels;
   my @values = (undef);
