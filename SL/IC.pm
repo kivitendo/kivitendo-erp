@@ -792,10 +792,10 @@ sub assembly_item {
 #   top100
 #
 # simple filter strings (every one of those also has a column flag prefixed with 'l_' associated):
-#   partnumber ean description partsgroup microfiche drawing 
+#   partnumber ean description partsgroup microfiche drawing
 #
 # column flags:
-#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_bin l_rop l_image l_drawing l_microfiche l_partsgroup 
+#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_bin l_rop l_image l_drawing l_microfiche l_partsgroup
 #
 # exclusives:
 #   itemstatus  = active | onhand | short | obsolete | orphaned
@@ -804,9 +804,9 @@ sub assembly_item {
 # joining filters:
 #   make model                               - makemodel
 #   serialnumber transdatefrom transdateto   - invoice/orderitems
-#   
+#
 # binary flags:
-#   bought sold onorder ordered rfq quoted   - aggreg joins with invoices/orders 
+#   bought sold onorder ordered rfq quoted   - aggreg joins with invoices/orders
 #   l_linetotal l_subtotal                   - aggreg joins to display totals (complicated) - NOT IMPLEMENTED here, implementation at frontend
 #   l_soldtotal                              - aggreg join to display total of sold quantity
 #   onhand                                   - as above, but masking the simple itemstatus results (doh!)
@@ -814,7 +814,7 @@ sub assembly_item {
 #   l_serialnumber                           - belonges to serialnumber filter
 #   l_deliverydate                           - displays deliverydate is sold etc. flags are active
 #
-# not working: 
+# not working:
 #   l_soldtotal                              - aggreg join to display total of sold quantity
 #   onhand                                   - as above, but masking the simple itemstatus results (doh!)
 #   masking of onhand in bsooqr mode         - ToDO: fixme
@@ -852,21 +852,21 @@ sub all_parts {
   my %joins = (
     partsgroup => 'LEFT JOIN partsgroup pg ON p.partsgroup_id = pg.id',
     makemodel  => 'LEFT JOIN makemodel mm ON mm.parts_id = p.id',
-    invoice_oi => 
-      q|LEFT JOIN (                                                                                                                                      
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem, 'invoice'    AS ioi FROM invoice UNION             
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, 'orderitems' AS ioi FROM orderitems                
+    invoice_oi =>
+      q|LEFT JOIN (
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem, 'invoice'    AS ioi FROM invoice UNION
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, 'orderitems' AS ioi FROM orderitems
        ) AS ioi ON ioi.parts_id = p.id|,
-    apoe       => 
-      q|LEFT JOIN (                                                                                                                                     
+    apoe       =>
+      q|LEFT JOIN (
          SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id, NULL AS deliverydate FROM ap UNION
          SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,         deliverydate FROM ar UNION
          SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, NULL AS deliverydate FROM oe
        ) AS apoe ON ioi.trans_id = apoe.id|,
     cv         =>
-      q|LEFT JOIN (                                                                
-           SELECT id, name, 'customer' AS cv FROM customer UNION                   
-           SELECT id, name, 'vendor'   AS cv FROM vendor                           
+      q|LEFT JOIN (
+           SELECT id, name, 'customer' AS cv FROM customer UNION
+           SELECT id, name, 'vendor'   AS cv FROM vendor
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
   );
   my @join_order = qw(partsgroup makemodel invoice_oi apoe cv);
@@ -892,7 +892,7 @@ sub all_parts {
   foreach (@simple_filters, @makemodel_filters, @invoice_oi_filters) {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
-    push @where_tokens, "$_ ILIKE ?"; 
+    push @where_tokens, "$_ ILIKE ?";
     push @bind_vars,    "%$form->{$_}%";
   }
 
@@ -909,16 +909,16 @@ sub all_parts {
   }
 
   for ($form->{itemstatus}) {
-    push @where_tokens, 'p.id NOT IN 
-        (SELECT DISTINCT parts_id FROM invoice UNION  
-         SELECT DISTINCT parts_id FROM assembly UNION 
+    push @where_tokens, 'p.id NOT IN
+        (SELECT DISTINCT parts_id FROM invoice UNION
+         SELECT DISTINCT parts_id FROM assembly UNION
          SELECT DISTINCT parts_id FROM orderitems)'    if /orphaned/;
     push @where_tokens, 'p.onhand = 0'                 if /orphaned/;
     push @where_tokens, 'NOT p.obsolete'               if /active/;
     push @where_tokens, '    p.obsolete',              if /obsolete/;
     push @where_tokens, 'p.onhand > 0',                if /onhand/;
     push @where_tokens, 'p.onhand < p.rop',            if /short/;
-  }                       
+  }
 
 
   my @sort_cols = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
@@ -928,11 +928,11 @@ sub all_parts {
   my $limit_clause = " LIMIT 100" if $form->{top100};
 
   #=== joins and complicated filters ========#
- 
+
   my $bsooqr = $form->{bought}  || $form->{sold}
             || $form->{ordered} || $form->{onorder}
             || $form->{quoted}  || $form->{rfq};
- 
+
   my @bsooqr;
   push @select_tokens, @qsooqr_flags                                          if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
@@ -973,15 +973,15 @@ sub all_parts {
   #============= build query ================#
 
   my %table_prefix = (
-     deliverydate => 'apoe.', serialnumber => 'ioi.', 
-     transdate    => 'apoe.', trans_id     => 'ioi.', 
-     module       => 'apoe.', name         => 'cv.',  
-     ordnumber    => 'apoe.', make         => 'mm.',  
-     quonumber    => 'apoe.', model        => 'mm.',  
+     deliverydate => 'apoe.', serialnumber => 'ioi.',
+     transdate    => 'apoe.', trans_id     => 'ioi.',
+     module       => 'apoe.', name         => 'cv.',
+     ordnumber    => 'apoe.', make         => 'mm.',
+     quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
      'SUM(ioi.qty) AS soldtotal' => ' ',
   );
-  
+
   map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
 
   my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @select_tokens;
@@ -1092,10 +1092,10 @@ sub all_parts {
 ##  if ($form->{l_soldtotal}) {
 ##    $form->{soldtotal} = 'soldtotal';
 ##    $query =
-##      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit, 
-##           p.bin, p.sellprice, p.listprice, p.lastcost, 
-##           p.priceupdate, pg.partsgroup,sum(i.qty) AS soldtotal 
-##         FROM parts p 
+##      qq|SELECT p.id, p.partnumber, p.description, p.onhand, p.unit,
+##           p.bin, p.sellprice, p.listprice, p.lastcost,
+##           p.priceupdate, pg.partsgroup,sum(i.qty) AS soldtotal
+##         FROM parts p
 ##         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id), invoice i
 ##         WHERE $where
 ##         $group
