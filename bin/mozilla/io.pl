@@ -529,7 +529,7 @@ sub display_row {
     }
     my $subtotalchecked = ($form->{"subtotal_$i"}) ? "checked" : "";
     print qq|
-          <b>|.$locale->text('Subtotal').qq|</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" "$subtotalchecked">
+          <b>|.$locale->text('Subtotal').qq|</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" $subtotalchecked>
 |;
 
     if ($form->{"id_$i"} && $is_sales) {
