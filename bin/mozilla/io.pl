@@ -33,11 +33,13 @@
 #
 #######################################################################
 
+use CGI;
+use CGI::Ajax;
+use List::Util qw(max);
+
 use SL::Common;
 use SL::CT;
 use SL::IC;
-use CGI::Ajax;
-use CGI;
 
 require "bin/mozilla/common.pl";
 
@@ -297,19 +299,14 @@ sub display_row {
         $form->{"unit_old_$i"} = $form->{"selected_unit_$i"};
       }
     }
+
     ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
-    $dec           = length $dec;
-    $decimalplaces = ($dec > 2) ? $dec : 2;
+    $decimalplaces = max length($dec), 2;
 
-    $discount =
-      $form->round_amount(
-                        $form->{"sellprice_$i"} * $form->{"discount_$i"} / 100,
-                        $decimalplaces);
+    $discount  = (100 - $form->{"discount_$i"} * 1) / 100;
+    $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} * $discount, $decimalplaces);
 
-    $linetotal =
-      $form->round_amount($form->{"sellprice_$i"} - $discount, $decimalplaces);
-    $linetotal = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
-    my $real_sellprice = $form->{"sellprice_$i"} - $discount;
+    my $real_sellprice = $form->{"sellprice_$i"} * $discount;
 
     # marge calculations
     my ($marge_font_start, $marge_font_end);

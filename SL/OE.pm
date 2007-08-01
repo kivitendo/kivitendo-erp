@@ -34,6 +34,8 @@
 
 package OE;
 
+use List::Util qw(max);
+
 use SL::AM;
 use SL::Common;
 use SL::DBUtils;
@@ -931,89 +933,64 @@ sub order_details {
         $position++;
       }
 
-      push(@{ $form->{runningnumber} }, $i);
-      push(@{ $form->{number} },        qq|$form->{"partnumber_$i"}|);
-      push(@{ $form->{description} },   qq|$form->{"description_$i"}|);
-      push(@{ $form->{longdescription} },   qq|$form->{"longdescription_$i"}|);
-      push(@{ $form->{qty} },
-           $form->format_amount($myconfig, $form->{"qty_$i"}));
-      push(@{ $form->{ship} },
-           $form->format_amount($myconfig, $form->{"ship_$i"}));
-      push(@{ $form->{unit} },         qq|$form->{"unit_$i"}|);
-      push(@{ $form->{bin} },          qq|$form->{"bin_$i"}|);
-      push(@{ $form->{"partnotes"} },  qq|$form->{"partnotes_$i"}|);
-      push(@{ $form->{serialnumber} }, qq|$form->{"serialnumber_$i"}|);
-      push(@{ $form->{reqdate} },      qq|$form->{"reqdate_$i"}|);
+      push @{ $form->{runningnumber} },   $position;
+      push @{ $form->{number} },          $form->{"partnumber_$i"};
+      push @{ $form->{description} },     $form->{"description_$i"};
+      push @{ $form->{longdescription} }, $form->{"longdescription_$i"};
+      push @{ $form->{qty} },             $form->format_amount($myconfig, $form->{"qty_$i"});
+      push @{ $form->{ship} },            $form->format_amount($myconfig, $form->{"ship_$i"});
+      push @{ $form->{unit} },            $form->{"unit_$i"};
+      push @{ $form->{bin} },             $form->{"bin_$i"};
+      push @{ $form->{partnotes} },       $form->{"partnotes_$i"};
+      push @{ $form->{serialnumber} },    $form->{"serialnumber_$i"};
+      push @{ $form->{reqdate} },         $form->{"reqdate_$i"};
+      push @{ $form->{sellprice} },       $form->{"sellprice_$i"};
+      push @{ $form->{listprice} },       $form->{"listprice_$i"};
 
-      push(@{ $form->{sellprice} }, $form->{"sellprice_$i"});
+      my $sellprice     = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+      my ($dec)         = ($sellprice =~ /\.(\d+)/);
+      my $decimalplaces = max 2, length($dec);
 
-      push(@{ $form->{listprice} }, $form->{"listprice_$i"});
+      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $form->{"discount_$i"} / 100, $decimalplaces);
+      my $linetotal            = $form->round_amount($form->{"qty_$i"} * $sellprice * (100 - $form->{"discount_$i"}) / 100, 2);
+      my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice, 2);
+      $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
-      my $sellprice = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
-      my ($dec) = ($sellprice =~ /\.(\d+)/);
-      $dec = length $dec;
-      my $decimalplaces = ($dec > 2) ? $dec : 2;
+      push @{ $form->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
 
-      my $i_discount =
-        $form->round_amount(
-                            $sellprice * $form->parse_amount($myconfig,
-                                                 $form->{"discount_$i"}) / 100,
-                            $decimalplaces);
+      $linetotal = ($linetotal != 0) ? $linetotal : '';
 
-      my $discount =
-        $form->round_amount($form->{"qty_$i"} * $i_discount, $decimalplaces);
+      push @{ $form->{discount} },  ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, $decimalplaces) : '';
+      push @{ $form->{p_discount} }, $form->{"discount_$i"};
 
-      # keep a netprice as well, (sellprice - discount)
-      #$form->{"netprice_$i"} = $sellprice - $discount;
-      $form->{"netprice_$i"} = $sellprice - $i_discount;
-      my $nodiscount_linetotal =
-        $form->round_amount($form->{"qty_$i"} * $sellprice, 2);
-      my $linetotal =
-        $form->round_amount($form->{"qty_$i"} * $form->{"netprice_$i"}, 2);
-
-      push(@{ $form->{netprice} },
-           ($form->{"netprice_$i"} != 0)
-           ? $form->format_amount(
-                                 $myconfig, $form->{"netprice_$i"},
-                                 $decimalplaces
-             )
-           : " ");
-
-      $discount =
-        ($discount != 0)
-        ? $form->format_amount($myconfig, $discount * -1, $decimalplaces)
-        : " ";
-      $linetotal = ($linetotal != 0) ? $linetotal : " ";
-
-      push(@{ $form->{discount} },   $discount);
-      push(@{ $form->{p_discount} }, $form->{"discount_$i"});
-
-      $form->{ordtotal} += $linetotal;
-      $discount_subtotal += $linetotal;
+      $form->{ordtotal}         += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
-      $nodiscount_subtotal += $nodiscount_linetotal;
-      $form->{discount_total} += $form->parse_amount($myconfig, $discount);
+      $form->{discount_total}   += $discount;
+
+      if ($subtotal_header) {
+        $discount_subtotal   += $linetotal;
+        $nodiscount_subtotal += $nodiscount_linetotal;
+      }
 
       if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
-        $discount_subtotal = $form->format_amount($myconfig, $discount_subtotal, 2);
-        push(@{ $form->{discount_sub} },  $discount_subtotal);
-        $nodiscount_subtotal = $form->format_amount($myconfig, $nodiscount_subtotal, 2);
-        push(@{ $form->{nodiscount_sub} }, $nodiscount_subtotal);
-        $discount_subtotal = 0;
+        push @{ $form->{discount_sub} },   $form->format_amount($myconfig, $discount_subtotal,   2);
+        push @{ $form->{nodiscount_sub} }, $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+
+        $discount_subtotal   = 0;
         $nodiscount_subtotal = 0;
-        $subtotal_header = 0;
+        $subtotal_header     = 0;
+
       } else {
-        push(@{ $form->{discount_sub} }, "");
-        push(@{ $form->{nodiscount_sub} }, "");
+        push @{ $form->{discount_sub} },   "";
+        push @{ $form->{nodiscount_sub} }, "";
       }
 
-      if ($linetotal == $netto_linetotal) {
+      if (!$form->{"discount_$i"}) {
         $nodiscount += $linetotal;
       }
-      push(@{ $form->{linetotal} },
-           $form->format_amount($myconfig, $linetotal, 2));
-      push(@{ $form->{nodiscount_linetotal} },
-           $form->format_amount($myconfig, $nodiscount_linetotal, 2));
+
+      push @{ $form->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
+      push @{ $form->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
 
       push(@{ $form->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
 
@@ -1101,24 +1078,22 @@ sub order_details {
          $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
     push(@{ $form->{taxnumber} }, $form->{"${item}_taxnumber"});
   }
-  $yesdiscount = $form->{nodiscount_total} - $nodiscount;
+
   $form->{nodiscount_subtotal} = $form->format_amount($myconfig, $form->{nodiscount_total}, 2);
-  $form->{discount_total} = $form->format_amount($myconfig, $form->{discount_total}, 2);
-  $form->{nodiscount} = $form->format_amount($myconfig, $nodiscount, 2);
-  $form->{yesdiscount} = $form->format_amount($myconfig, $yesdiscount, 2);
+  $form->{discount_total}      = $form->format_amount($myconfig, $form->{discount_total}, 2);
+  $form->{nodiscount}          = $form->format_amount($myconfig, $nodiscount, 2);
+  $form->{yesdiscount}         = $form->format_amount($myconfig, $form->{nodiscount_total} - $nodiscount, 2);
 
   if($form->{taxincluded}) {
     $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal} - $tax, 2);
-  }
-  else {
+  } else {
     $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
   }
-  $form->{ordtotal} =
-    ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
+
+  $form->{ordtotal} = ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
 
   # format amounts
-  $form->{quototal} = $form->{ordtotal} =
-    $form->format_amount($myconfig, $form->{ordtotal}, 2);
+  $form->{quototal} = $form->{ordtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
 
   if ($form->{type} =~ /_quotation/) {
     $form->set_payment_options($myconfig, $form->{quodate});
