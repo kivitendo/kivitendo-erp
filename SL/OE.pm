@@ -588,7 +588,7 @@ sub retrieve {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my ($query, @values, @ids);
+  my ($query, $query_add, @values, @ids, $sth);
 
   # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
   map {
@@ -602,31 +602,19 @@ sub retrieve {
     undef @ids;
   }
 
-  if ($form->{id}) {
+  $query_add = qq|, current_date AS transdate, current_date AS reqdate| if (!$form->{id});
 
-    # get default accounts and last order number
-    $query = qq|SELECT (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
-                       (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
-                       (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
-                       (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
-                       (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
-                d.curr AS currencies
-                FROM defaults d|;
-  } else {
-    $query = qq|SELECT (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
-                       (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
-                       (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
-                       (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
-                       (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
-                d.curr AS currencies, current_date AS transdate, current_date AS reqdate
-                FROM defaults d|;
-  }
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  # get default accounts
+  $query = qq|SELECT (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
+                     (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
+                     (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
+                     (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
+                     (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
+              d.curr AS currencies
+              $query_add
+              FROM defaults d|;
+  my $ref = selectfirst_hashref_query($form, $dbh, $query);
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-  $sth->finish;
 
   ($form->{currency}) = split(/:/, $form->{currencies});
 
