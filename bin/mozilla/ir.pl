@@ -61,7 +61,7 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-  $form->{"Watchdog::qty_1"} = 1;
+
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
   #/show hhistory button
