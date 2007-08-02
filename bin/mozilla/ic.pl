@@ -1736,10 +1736,11 @@ sub generate_report {
     # fresh row, for inserting later
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
 
-    $ref->{exchangerate}  = 1 unless $ref->{exchangerate};
-    $ref->{sellprice}    *= $ref->{exchangerate};
-    $ref->{listprice}    *= $ref->{exchangerate};
-    $ref->{lastcost}     *= $ref->{exchangerate};
+    $ref->{exchangerate} ||= 1;
+    $ref->{price_factor} ||= 1;
+    $ref->{sellprice}     *= $ref->{exchangerate} / $ref->{price_factor};
+    $ref->{listprice}     *= $ref->{exchangerate} / $ref->{price_factor};
+    $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
     my $onhand = $ref->{onhand};
@@ -1986,6 +1987,7 @@ sub form_header {
   my ($notdiscountableok, $notdiscountable);
   my ($formula, $formula_label, $imagelinks, $obsolete, $shopok, $shop);
 
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
 
   map({ $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, -2) }
       qw(sellprice listprice lastcost gv));
@@ -2326,6 +2328,22 @@ sub form_header {
     $unit_select .= AM->unit_select_html($units, "unit", $form->{"unit"});
   }
 
+  my $price_factor;
+  if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
+    my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
+    my %labels =      map { $_->{id} => $_->{description} } @{ $form->{ALL_PRICE_FACTORS} };
+
+    $price_factor =
+        qq|<tr><th align="right">|
+      . $locale->text('Price Factor')
+      . qq|</th><td>|
+      . NTI($cgi->popup_menu('-name'    => 'price_factor_id',
+                             '-default' => $form->{price_factor_id},
+                             '-values'  => \@values,
+                             '-labels'  => \%labels))
+      . qq|</td></tr>|;
+  }
+
   $form->{fokus} = "ic.partnumber";
   $form->header;
 
@@ -2439,6 +2457,7 @@ sub form_header {
 		<td><input name=sellprice size=11 value=$form->{sellprice}></td>
 	      </tr>
 	      $lastcost
+	      $price_factor
 	      <tr>
 		<th align="right" nowrap="true">| . $locale->text('Unit') . qq|</th>
 		<td>$unit_select</td>
@@ -2892,7 +2911,7 @@ sub save {
 
     # now take it apart and restore original values
     foreach my $item (split /&/, $previousform) {
-      my ($key, $value) = split /=/, $item, 2;
+      my ($key, $value) = split m/=/, $item, 2;
       $value =~ s/%26/&/g;
       $form->{$key} = $value;
     }
