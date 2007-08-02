@@ -1876,6 +1876,20 @@ sub _get_departments {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_price_factors {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key ||= "all_price_factors";
+
+  my $query = qq|SELECT * FROM price_factors ORDER BY sortkey|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -1956,6 +1970,10 @@ sub get_lists {
 
   if($params{"departments"}) {
     $self->_get_departments($dbh, $params{"departments"});
+  }
+
+  if ($params{price_factors}) {
+    $self->_get_price_factors($dbh, $params{price_factors});
   }
 
   $main::lxdebug->leave_sub();

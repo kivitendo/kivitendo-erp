@@ -230,6 +230,10 @@ sub save {
   my %taxaccounts;
   my $netamount = 0;
 
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
+  my $price_factor;
+
   for my $i (1 .. $form->{rowcount}) {
 
     map({ $form->{"${_}_$i"} =
@@ -275,8 +279,8 @@ sub save {
       $form->{"inventory_accno_$i"} *= 1;
       $form->{"expense_accno_$i"}   *= 1;
 
-      $linetotal =
-        $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
+      $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
+      $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       @taxaccounts = split(/ /, $form->{"taxaccounts_$i"});
       $taxrate     = 0;
@@ -324,7 +328,7 @@ sub save {
         }
       }
 
-      $netamount += $form->{"sellprice_$i"} * $form->{"qty_$i"};
+      $netamount += $form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor;
 
       $reqdate =
         ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
@@ -342,13 +346,14 @@ sub save {
       $query .= qq|trans_id, parts_id, description, longdescription, qty, base_qty, | .
                 qq|sellprice, discount, unit, reqdate, project_id, serialnumber, ship, | .
                 qq|pricegroup_id, ordnumber, transdate, cusordnumber, subtotal, | .
-                qq|marge_percent, marge_total, lastcost) | .
+                qq|marge_percent, marge_total, lastcost, price_factor_id, price_factor, marge_price_factor) | .
                 qq|VALUES (|;
       if($form->{"orderitems_id_$i"}) {
         $query .= qq|?,|;
         push(@values, $form->{"orderitems_id_$i"});
       }
-      $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   (SELECT factor FROM price_factors WHERE id = ?), ?)|;
 		  push(@values,
            conv_i($form->{id}), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $form->{"longdescription_$i"},
@@ -359,7 +364,9 @@ sub save {
            $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
            $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
-           $form->{"lastcost_$i"});
+           $form->{"lastcost_$i"},
+           conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
+           conv_i($form->{"marge_price_factor_$i"}));
       do_query($form, $dbh, $query, @values);
 
       $form->{"sellprice_$i"} = $fxsellprice;
@@ -724,6 +731,7 @@ sub retrieve {
            o.sellprice, o.parts_id AS id, o.unit, o.discount, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id,
            o.reqdate, o.project_id, o.serialnumber, o.ship, o.lastcost,
            o.ordnumber, o.transdate, o.cusordnumber, o.subtotal, o.longdescription,
+           o.price_factor_id, o.price_factor, o.marge_price_factor,
            pr.projectnumber, p.formel,
            pg.partsgroup, o.pricegroup_id, (SELECT pricegroup FROM pricegroup WHERE id=o.pricegroup_id) as pricegroup
          FROM orderitems o
@@ -873,6 +881,15 @@ sub order_details {
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  my %price_factors;
+
+  foreach my $pfac (@{ $form->{ALL_PRICE_FACTORS} }) {
+    $price_factors{$pfac->{id}}  = $pfac;
+    $pfac->{factor}             *= 1;
+    $pfac->{formatted_factor}    = $form->format_amount($myconfig, $pfac->{factor});
+  }
+
   # sort items by partsgroup
   for $i (1 .. $form->{rowcount}) {
     $partsgroup = "";
@@ -900,7 +917,8 @@ sub order_details {
     qw(runningnumber number description longdescription qty ship unit bin
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
-       linetotal  nodiscount_linetotal tax_rate projectnumber);
+       linetotal  nodiscount_linetotal tax_rate projectnumber
+       price_factor price_factor_name);
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -933,27 +951,31 @@ sub order_details {
         $position++;
       }
 
-      push @{ $form->{runningnumber} },   $position;
-      push @{ $form->{number} },          $form->{"partnumber_$i"};
-      push @{ $form->{description} },     $form->{"description_$i"};
-      push @{ $form->{longdescription} }, $form->{"longdescription_$i"};
-      push @{ $form->{qty} },             $form->format_amount($myconfig, $form->{"qty_$i"});
-      push @{ $form->{ship} },            $form->format_amount($myconfig, $form->{"ship_$i"});
-      push @{ $form->{unit} },            $form->{"unit_$i"};
-      push @{ $form->{bin} },             $form->{"bin_$i"};
-      push @{ $form->{partnotes} },       $form->{"partnotes_$i"};
-      push @{ $form->{serialnumber} },    $form->{"serialnumber_$i"};
-      push @{ $form->{reqdate} },         $form->{"reqdate_$i"};
-      push @{ $form->{sellprice} },       $form->{"sellprice_$i"};
-      push @{ $form->{listprice} },       $form->{"listprice_$i"};
+      my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
+
+      push @{ $form->{runningnumber} },     $position;
+      push @{ $form->{number} },            $form->{"partnumber_$i"};
+      push @{ $form->{description} },       $form->{"description_$i"};
+      push @{ $form->{longdescription} },   $form->{"longdescription_$i"};
+      push @{ $form->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});
+      push @{ $form->{ship} },              $form->format_amount($myconfig, $form->{"ship_$i"});
+      push @{ $form->{unit} },              $form->{"unit_$i"};
+      push @{ $form->{bin} },               $form->{"bin_$i"};
+      push @{ $form->{partnotes} },         $form->{"partnotes_$i"};
+      push @{ $form->{serialnumber} },      $form->{"serialnumber_$i"};
+      push @{ $form->{reqdate} },           $form->{"reqdate_$i"};
+      push @{ $form->{sellprice} },         $form->{"sellprice_$i"};
+      push @{ $form->{listprice} },         $form->{"listprice_$i"};
+      push @{ $form->{price_factor} },      $price_factor->{formatted_factor};
+      push @{ $form->{price_factor_name} }, $price_factor->{description};
 
       my $sellprice     = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
       my $decimalplaces = max 2, length($dec);
 
-      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $form->{"discount_$i"} / 100, $decimalplaces);
-      my $linetotal            = $form->round_amount($form->{"qty_$i"} * $sellprice * (100 - $form->{"discount_$i"}) / 100, 2);
-      my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice, 2);
+      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $form->{"discount_$i"} / 100 / $price_factor->{factor}, $decimalplaces);
+      my $linetotal            = $form->round_amount($form->{"qty_$i"} * $sellprice * (100 - $form->{"discount_$i"}) / 100 / $price_factor->{factor}, 2);
+      my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
       push @{ $form->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';

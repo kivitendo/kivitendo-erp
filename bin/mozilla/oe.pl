@@ -403,12 +403,13 @@ sub form_header {
                      "all"      => 0,
                      "old_id"   => \@old_project_ids
                    },
-                   "employees"  => "ALL_EMPLOYEES",
-                   "salesmen"   => "ALL_SALESMEN",
-                   "taxzones"   => "ALL_TAXZONES",
-                   "payments"   => "ALL_PAYMENTS",
-                   "currencies" => "ALL_CURRENCIES",
-                   $vc          => "ALL_" . uc($vc));
+                   "employees"     => "ALL_EMPLOYEES",
+                   "salesmen"      => "ALL_SALESMEN",
+                   "taxzones"      => "ALL_TAXZONES",
+                   "payments"      => "ALL_PAYMENTS",
+                   "currencies"    => "ALL_CURRENCIES",
+                   $vc             => "ALL_" . uc($vc),
+                   "price_factors" => "ALL_PRICE_FACTORS");
 
   my %labels;
   my @values = (undef);
@@ -1161,6 +1162,8 @@ sub update {
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
         $form->{payment_id} = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
+
+        $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
 
         ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
         $decimalplaces = max 2, length $1;

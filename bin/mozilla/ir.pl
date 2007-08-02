@@ -61,7 +61,7 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
-  
+  $form->{"Watchdog::qty_1"} = 1;
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
   #/show hhistory button
@@ -243,14 +243,15 @@ sub form_header {
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
-  $form->get_lists("contacts"   => "ALL_CONTACTS",
-                   "projects"   => { "key"  => "ALL_PROJECTS",
-                                     "all"    => 0,
-                                     "old_id" => \@old_project_ids },
-                   "taxzones"   => "ALL_TAXZONES",
-                   "employees"  => "ALL_SALESMEN",
-                   "currencies" => "ALL_CURRENCIES",
-                   "vendors"    => "ALL_VENDORS");
+  $form->get_lists("contacts"      => "ALL_CONTACTS",
+                   "projects"      => { "key"  => "ALL_PROJECTS",
+                                      "all"    => 0,
+                                      "old_id" => \@old_project_ids },
+                   "taxzones"      => "ALL_TAXZONES",
+                   "employees"     => "ALL_SALESMEN",
+                   "currencies"    => "ALL_CURRENCIES",
+                   "vendors"       => "ALL_VENDORS",
+                   "price_factors" => "ALL_PRICE_FACTORS");
 
   my %labels;
   my @values = (undef);
@@ -889,6 +890,8 @@ sub update {
 
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
+
+        $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
 
         ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
         $decimalplaces = max 2, length $1;

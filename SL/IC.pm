@@ -422,7 +422,8 @@ sub save {
          ean = ?,
          not_discountable = ?,
          microfiche = ?,
-         partsgroup_id = ?
+         partsgroup_id = ?,
+         price_factor_id = ?
        WHERE id = ?|;
   @values = ($form->{partnumber},
              $form->{description},
@@ -451,6 +452,7 @@ sub save {
              $form->{not_discountable} ? 't' : 'f',
              $form->{microfiche},
              conv_i($partsgroup_id),
+             conv_i($form->{price_factor_id}),
              conv_i($form->{id})
   );
   do_query($form, $dbh, $query, @values);
@@ -850,8 +852,9 @@ sub all_parts {
 #  my @inactive_flags       = qw(l_subtotal short l_linetotal);
 
   my %joins = (
-    partsgroup => 'LEFT JOIN partsgroup pg ON p.partsgroup_id = pg.id',
-    makemodel  => 'LEFT JOIN makemodel mm ON mm.parts_id = p.id',
+    partsgroup => 'LEFT JOIN partsgroup pg      ON (pg.id       = p.partsgroup_id)',
+    makemodel  => 'LEFT JOIN makemodel mm       ON (mm.parts_id = p.id)',
+    pfac       => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
     invoice_oi =>
       q|LEFT JOIN (
          SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem, 'invoice'    AS ioi FROM invoice UNION
@@ -869,12 +872,12 @@ sub all_parts {
            SELECT id, name, 'vendor'   AS cv FROM vendor
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
   );
-  my @join_order = qw(partsgroup makemodel invoice_oi apoe cv);
-  my %joins_needed = (0) x scalar keys %joins;
+  my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac);
+  my %joins_needed;
 
   #===== switches and simple filters ========#
 
-  my @select_tokens = qw(id);
+  my @select_tokens = qw(id factor);
   my @where_tokens  = qw(1=1);
   my @group_tokens  = ();
 
@@ -945,6 +948,7 @@ sub all_parts {
   push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
 
   $joins_needed{partsgroup}  = 1;
+  $joins_needed{pfac}        = 1;
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
   $joins_needed{cv}          = 1 if $bsooqr;
   $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
@@ -967,7 +971,7 @@ sub all_parts {
   if ($form->{l_soldtotal}) {
     push @where_tokens, 'ioi.qty >= 0';
     push @group_tokens, @select_tokens;
-    push @select_tokens, 'SUM(ioi.qty) AS soldtotal';
+    push @select_tokens, 'SUM(ioi.qty)';
   }
 
   #============= build query ================#
@@ -979,17 +983,25 @@ sub all_parts {
      ordnumber    => 'apoe.', make         => 'mm.',
      quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
-     'SUM(ioi.qty) AS soldtotal' => ' ',
+     factor       => 'pfac.',
+     'SUM(ioi.qty)' => ' ',
+  );
+
+  my %renamed_columns = (
+    'factor'       => 'price_factor',
+    'SUM(ioi.qty)' => 'soldtotal',
   );
 
   map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
+  map { $renamed_columns{$_} = ' AS ' . $renamed_columns{$_} } keys %renamed_columns;
 
-  my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @select_tokens;
+  my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ . $renamed_columns{$_} } @select_tokens;
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = ' GROUP BY ' . join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @group_tokens if scalar @group_tokens;
 
   my $query = qq|SELECT DISTINCT $select_clause FROM parts p $join_clause WHERE $where_clause $group_clause $order_clause $limit_clause|;
+
   $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
 
 ##  my $where = qq|1 = 1|;

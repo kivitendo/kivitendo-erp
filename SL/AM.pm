@@ -2228,6 +2228,77 @@ sub delete_tax {
   $main::lxdebug->leave_sub();
 }
 
+sub save_price_factor {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my $query;
+  my @values = ($form->{description}, conv_i($form->{factor}));
+
+  if ($form->{id}) {
+    $query = qq|UPDATE price_factors SET description = ?, factor = ? WHERE id = ?|;
+    push @values, conv_i($form->{id});
+
+  } else {
+    $query = qq|INSERT INTO price_factors (description, factor, sortkey) VALUES (?, ?, (SELECT COALESCE(MAX(sortkey), 0) + 1 FROM price_factors))|;
+  }
+
+  do_query($form, $dbh, $query, @values);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_all_price_factors {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  $form->{PRICE_FACTORS} = selectall_hashref_query($form, $dbh, qq|SELECT * FROM price_factors ORDER BY sortkey|);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_price_factor {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my $query = qq|SELECT description, factor,
+                   ((SELECT COUNT(*) FROM parts      WHERE price_factor_id = ?) +
+                    (SELECT COUNT(*) FROM invoice    WHERE price_factor_id = ?) +
+                    (SELECT COUNT(*) FROM orderitems WHERE price_factor_id = ?)) = 0 AS orphaned
+                 FROM price_factors WHERE id = ?|;
+
+  ($form->{description}, $form->{factor}, $form->{orphaned}) = selectrow_query($form, $dbh, $query, (conv_i($form->{id})) x 4);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_price_factor {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  do_query($form, $dbh, qq|DELETE FROM price_factors WHERE id = ?|, conv_i($form->{id}));
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
 
 
 1;

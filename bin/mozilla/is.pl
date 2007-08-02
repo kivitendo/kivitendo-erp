@@ -312,15 +312,16 @@ sub form_header {
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
-  $form->get_lists("contacts"   => "ALL_CONTACTS",
-                   "shipto"     => "ALL_SHIPTO",
-                   "projects"   => { "key"    => "ALL_PROJECTS",
-                                     "all"    => 0,
-                                     "old_id" => \@old_project_ids },
-                   "employees"  => "ALL_SALESMEN",
-                   "taxzones"   => "ALL_TAXZONES",
-                   "currencies" => "ALL_CURRENCIES",
-                   "customers"  => "ALL_CUSTOMERS");
+  $form->get_lists("contacts"      => "ALL_CONTACTS",
+                   "shipto"        => "ALL_SHIPTO",
+                   "projects"      => { "key"    => "ALL_PROJECTS",
+                                        "all"    => 0,
+                                        "old_id" => \@old_project_ids },
+                   "employees"     => "ALL_SALESMEN",
+                   "taxzones"      => "ALL_TAXZONES",
+                   "currencies"    => "ALL_CURRENCIES",
+                   "customers"     => "ALL_CUSTOMERS",
+                   "price_factors" => "ALL_PRICE_FACTORS");
 
   my %labels;
   my @values = (undef);
@@ -1225,6 +1226,8 @@ sub update {
         
         $form->{payment_id}    = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
         $form->{"discount_$i"} = 0                             if $form->{"not_discountable_$i"};
+
+        $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
 
         ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
         $decimalplaces = max 2, length $1;

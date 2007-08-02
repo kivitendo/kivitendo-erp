@@ -82,6 +82,10 @@ sub post_invoice {
   my $q_item_unit = qq|SELECT unit FROM parts WHERE id = ?|;
   my $h_item_unit = prepare_query($form, $dbh, $q_item_unit);
 
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
+  my $price_factor;
+
   for my $i (1 .. $form->{rowcount}) {
     next unless $form->{"id_$i"};
 
@@ -119,9 +123,11 @@ sub post_invoice {
 
     map { $taxrate += $form->{"${_}_rate"} } @taxaccounts;
 
+    $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
+
     if ($form->{"inventory_accno_$i"}) {
 
-      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
+      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       if ($form->{taxincluded}) {
         $taxamount              = $linetotal * ($taxrate / (1 + $taxrate));
@@ -151,8 +157,8 @@ sub post_invoice {
       }
 
       # add purchase to inventory, this one is without the tax!
-      $amount    = $form->{"sellprice_$i"} * $form->{"qty_$i"} * $form->{exchangerate};
-      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2) * $form->{exchangerate};
+      $amount    = $form->{"sellprice_$i"} * $form->{"qty_$i"} * $form->{exchangerate} / $price_factor;
+      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2) * $form->{exchangerate};
       $linetotal = $form->round_amount($linetotal, 2);
 
       # this is the difference for the inventory
@@ -230,9 +236,9 @@ sub post_invoice {
 
       $sth->finish();
 
-    } else {
+    } else {                    # if ($form->{"inventory_accno_id_$i"})
 
-      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
+      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       if ($form->{taxincluded}) {
         $taxamount              = $linetotal * ($taxrate / (1 + $taxrate));
@@ -258,8 +264,8 @@ sub post_invoice {
         map { $form->{amount}{ $form->{id} }{$_} -= $taxamount * $form->{"${_}_rate"} / $taxrate } @taxaccounts;
       }
 
-      $amount    = $form->{"sellprice_$i"} * $form->{"qty_$i"} * $form->{exchangerate};
-      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2) * $form->{exchangerate};
+      $amount    = $form->{"sellprice_$i"} * $form->{"qty_$i"} * $form->{exchangerate} / $price_factor;
+      $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2) * $form->{exchangerate};
       $linetotal = $form->round_amount($linetotal, 2);
 
       # this is the difference for expense
@@ -286,13 +292,14 @@ sub post_invoice {
     $query =
       qq|INSERT INTO invoice (trans_id, parts_id, description, qty, base_qty,
                               sellprice, fxsellprice, allocated, unit, deliverydate,
-                              project_id, serialnumber)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+                              project_id, serialnumber, price_factor_id, price_factor, marge_price_factor)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?)|;
     @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $form->{"qty_$i"} * -1,
                $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
-               conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"});
+               conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
+               conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}));
     do_query($form, $dbh, $query, @values);
   }
 
@@ -728,7 +735,8 @@ sub retrieve_invoice {
         c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from AS expense_valid,
 
         i.description, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
-        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin, pr.projectnumber, pg.partsgroup 
+        i.price_factor_id, i.price_factor, i.marge_price_factor,
+        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin, pr.projectnumber, pg.partsgroup
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
@@ -947,7 +955,9 @@ sub retrieve_item {
          p.id, p.partnumber, p.description, p.lastcost AS sellprice, p.listprice,
          p.unit, p.assembly, p.bin, p.onhand, p.formel,
          p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
-         p.inventory_accno_id,
+         p.inventory_accno_id, p.price_factor_id,
+
+         pfac.factor AS price_factor,
 
          c1.accno                         AS inventory_accno,
          c1.new_chart_id                  AS inventory_new_chart,
@@ -977,6 +987,7 @@ sub retrieve_item {
            FROM buchungsgruppen
            WHERE id = p.buchungsgruppen_id) = c3.id)
        LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
+       LEFT JOIN price_factors pfac ON (pfac.id = p.price_factor_id)
        WHERE $where|;
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
 

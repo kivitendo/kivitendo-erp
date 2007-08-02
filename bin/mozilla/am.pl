@@ -3244,3 +3244,99 @@ sub delete_tax {
 
   $lxdebug->leave_sub();
 }
+
+sub add_price_factor {
+  $lxdebug->enter_sub();
+
+  $form->{title}      = $locale->text('Add Price Factor');
+  $form->{callback} ||= build_std_url('action=add_price_factor');
+  $form->{fokus}      = 'description';
+
+  $form->header();
+  print $form->parse_html_template2('am/edit_price_factor');
+
+  $lxdebug->leave_sub();
+}
+
+sub edit_price_factor {
+  $lxdebug->enter_sub();
+
+  $form->{title}      = $locale->text('Edit Price Factor');
+  $form->{callback} ||= build_std_url('action=add_price_factor');
+  $form->{fokus}      = 'description';
+
+  AM->get_price_factor(\%myconfig, $form);
+
+  $form->{factor} = $form->format_amount(\%myconfig, $form->{factor} * 1);
+
+  $form->header();
+  print $form->parse_html_template2('am/edit_price_factor');
+
+  $lxdebug->leave_sub();
+}
+
+sub list_price_factors {
+  $lxdebug->enter_sub();
+
+  AM->get_all_price_factors(\%myconfig, \%$form);
+
+  my $previous;
+  foreach my $current (@{ $form->{PRICE_FACTORS} }) {
+    if ($previous) {
+      $previous->{next_id}    = $current->{id};
+      $current->{previous_id} = $previous->{id};
+    }
+
+    $current->{factor} = $form->format_amount(\%myconfig, $current->{factor} * 1);
+
+    $previous = $current;
+  }
+
+  $form->{callback} = build_std_url('action=list_price_factors');
+  $form->{title}    = $locale->text('Price Factors');
+  $form->{url_base} = build_std_url('callback');
+
+  $form->header();
+  print $form->parse_html_template2('am/list_price_factors');
+
+  $lxdebug->leave_sub();
+}
+
+sub save_price_factor {
+  $lxdebug->enter_sub();
+
+  $form->isblank("description", $locale->text('Description missing!'));
+  $form->isblank("factor", $locale->text('Factor missing!'));
+
+  $form->{factor} = $form->parse_amount(\%myconfig, $form->{factor});
+
+  AM->save_price_factor(\%myconfig, $form);
+
+  $form->{callback} .= '&MESSAGE=' . $form->escape($locale->text('Price factor saved!')) if ($form->{callback});
+
+  $form->redirect($locale->text('Price factor saved!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub delete_price_factor {
+  $lxdebug->enter_sub();
+
+  AM->delete_price_factor(\%myconfig, \%$form);
+
+  $form->{callback} .= '&MESSAGE=' . $form->escape($locale->text('Price factor deleted!')) if ($form->{callback});
+
+  $form->redirect($locale->text('Price factor deleted!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub swap_price_factors {
+  $lxdebug->enter_sub();
+
+  AM->swap_sortkeys(\%myconfig, $form, 'price_factors');
+  list_price_factors();
+
+  $lxdebug->leave_sub();
+}
+

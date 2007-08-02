@@ -1736,10 +1736,11 @@ sub generate_report {
     # fresh row, for inserting later
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
 
-    $ref->{exchangerate}  = 1 unless $ref->{exchangerate};
-    $ref->{sellprice}    *= $ref->{exchangerate};
-    $ref->{listprice}    *= $ref->{exchangerate};
-    $ref->{lastcost}     *= $ref->{exchangerate};
+    $ref->{exchangerate} ||= 1;
+    $ref->{price_factor} ||= 1;
+    $ref->{sellprice}     *= $ref->{exchangerate} / $ref->{price_factor};
+    $ref->{listprice}     *= $ref->{exchangerate} / $ref->{price_factor};
+    $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
     my $onhand = $ref->{onhand};
@@ -1986,6 +1987,7 @@ sub form_header {
   my ($notdiscountableok, $notdiscountable);
   my ($formula, $formula_label, $imagelinks, $obsolete, $shopok, $shop);
 
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
 
   map({ $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, -2) }
       qw(sellprice listprice lastcost gv));
@@ -2326,6 +2328,22 @@ sub form_header {
     $unit_select .= AM->unit_select_html($units, "unit", $form->{"unit"});
   }
 
+  my $price_factor;
+  if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
+    my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
+    my %labels =      map { $_->{id} => $_->{description} } @{ $form->{ALL_PRICE_FACTORS} };
+
+    $price_factor =
+        qq|<tr><th align="right">|
+      . $locale->text('Price Factor')
+      . qq|</th><td>|
+      . NTI($cgi->popup_menu('-name'    => 'price_factor_id',
+                             '-default' => $form->{price_factor_id},
+                             '-values'  => \@values,
+                             '-labels'  => \%labels))
+      . qq|</td></tr>|;
+  }
+
   $form->{fokus} = "ic.partnumber";
   $form->header;
 
@@ -2439,6 +2457,7 @@ sub form_header {
 		<td><input name=sellprice size=11 value=$form->{sellprice}></td>
 	      </tr>
 	      $lastcost
+	      $price_factor
 	      <tr>
 		<th align="right" nowrap="true">| . $locale->text('Unit') . qq|</th>
 		<td>$unit_select</td>
@@ -2892,7 +2911,7 @@ sub save {
 
     # now take it apart and restore original values
     foreach my $item (split /&/, $previousform) {
-      my ($key, $value) = split /=/, $item, 2;
+      my ($key, $value) = split m/=/, $item, 2;
       $value =~ s/%26/&/g;
       $form->{$key} = $value;
     }
@@ -2912,8 +2931,7 @@ sub save {
       $form->{weight}    -= $form->{"weight_$i"} * $form->{"qty_$i"};
 
       # change/add values for assembly item
-      map { $form->{"${_}_$i"} = $newform{$_} }
-        qw(partnumber description bin unit weight listprice sellprice inventory_accno income_accno expense_accno);
+      map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit weight listprice sellprice inventory_accno income_accno expense_accno price_factor_id);
 
       $form->{sellprice} += $form->{"sellprice_$i"} * $form->{"qty_$i"};
       $form->{weight}    += $form->{"weight_$i"} * $form->{"qty_$i"};
@@ -2924,15 +2942,17 @@ sub save {
       $i = $form->{rowcount};
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
 
-      map { $form->{"${_}_$i"} = $newform{$_} }
-        qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice);
+      map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice lastcost price_factor_id);
+
       $form->{"sellprice_$i"} = $newform{lastcost} if ($form->{vendor_id});
+
       if ($form->{exchangerate} != 0) {
         $form->{"sellprice_$i"} /= $form->{exchangerate};
       }
+
       $lxdebug->message($LXDebug::DEBUG1, qq|sellprice_$i in previousform 2 = | . $form->{"sellprice_$i"} . qq|\n|);
-      map { $form->{"taxaccounts_$i"} .= "$_ " } split / /,
-        $newform{taxaccount};
+
+      map { $form->{"taxaccounts_$i"} .= "$_ " } split / /, $newform{taxaccount};
       chop $form->{"taxaccounts_$i"};
       foreach my $item (qw(description rate taxnumber)) {
         my $index = $form->{"taxaccounts_$i"} . "_$item";
@@ -2940,26 +2960,28 @@ sub save {
       }
 
       # credit remaining calculation
-      $amount =
-        $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"} / 100) *
-        $form->{"qty_$i"};
-      map { $form->{"${_}_base"} += $amount }
-        (split / /, $form->{"taxaccounts_$i"});
-      map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) }
-        split / /, $form->{"taxaccounts_$i"}
-        if !$form->{taxincluded};
+      $amount = $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"} / 100) * $form->{"qty_$i"};
+
+      map { $form->{"${_}_base"} += $amount } (split / /, $form->{"taxaccounts_$i"});
+      map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{"taxaccounts_$i"} if !$form->{taxincluded};
 
       $form->{creditremaining} -= $amount;
 
       # redo number formatting, because invoice parse them!
-      $i = $form->{rowcount};
-      map {
-        $form->{"${_}_$i"} =
-          $form->format_amount(\%myconfig, $form->{"${_}_$i"})
-      } qw(weight listprice sellprice rop);
+      map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}) } qw(weight listprice sellprice rop);
     }
 
     $form->{"id_$i"} = $parts_id;
+
+    # Get the actual price factor (not just the ID) for the marge calculation.
+    $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+    foreach my $pfac (@{ $form->{ALL_PRICE_FACTORS} }) {
+      next if ($pfac->{id} != $newform{price_factor_id});
+      $form->{"marge_price_factor_$i"} = $pfac->{factor};
+      last;
+    }
+    delete $form->{ALL_PRICE_FACTORS};
+
     delete $form->{action};
 
     # restore original callback

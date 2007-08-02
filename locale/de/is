@@ -257,7 +257,6 @@ $self->{texts} = {
   '[email]'                     => '[email]',
   'bin_list'                    => 'Lagerliste',
   'button'                      => '?',
-  'ea'                          => 'St.',
   'emailed to'                  => 'gemailt an',
   'history'                     => 'Historie',
   'invoice'                     => 'Rechnung',
