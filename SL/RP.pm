@@ -800,7 +800,7 @@ sub trial_balance {
   # but we use the same function to collect information
 
   if ($form->{project_id}) {
-    $project = qq| AND ac.project_id = | . conv_i($form->{project_id}, 'NULL') . qq|) |;
+    $project = qq| AND (ac.project_id = | . conv_i($form->{project_id}, 'NULL') . qq|) |;
   }
 
   # get beginning balances
@@ -1642,7 +1642,7 @@ sub bwa {
       $form->{ "$key" . "neutraleraufwand" } +
       $form->{ "$key" . "neutralertrag" };
     $form->{ "$key" . "ergebnis" } =
-      $form->{ "$key" . "ergebnisvorsteuern" } + $form->{35}{$key};
+      $form->{ "$key" . "ergebnisvorsteuern" } - $form->{35}{$key};
 
     if ($form->{ "$key" . "gesamtleistung" } > 0) {
       foreach $category (@categories) {
