@@ -694,9 +694,10 @@ sub select_item {
 
     map { $ref->{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
 
-    #sk tradediscount
-    $ref->{sellprice} =
-      $form->round_amount($ref->{sellprice} * (1 - $form->{tradediscount}), 2);
+    my $display_sellprice  = $ref->{sellprice} * (1 - $form->{tradediscount});
+    $display_sellprice    /= $ref->{price_factor} if ($ref->{price_factor});
+    $display_sellprice     = $form->format_amount(\%myconfig, $display_sellprice, 2);
+
     $column_data{ndx} =
       qq|<td><input name="ndx" class="radio" type="radio" value="$i" $checked></td>|;
     $column_data{partnumber} =
@@ -705,7 +706,7 @@ sub select_item {
       qq|<td><input name="new_description_$i" type="hidden" value="$ref->{description}">$ref->{description}</td>|;
     $column_data{sellprice} =
       qq|<td align="right"><input name="new_sellprice_$i" type="hidden" value="$ref->{sellprice}">|
-      . $form->format_amount(\%myconfig, $ref->{sellprice}, 2, "&nbsp;")
+      . $display_sellprice
       . qq|</td>|;
     $column_data{onhand} =
       qq|<td align="right"><input name="new_onhand_$i" type="hidden" value="$ref->{onhand}">|
