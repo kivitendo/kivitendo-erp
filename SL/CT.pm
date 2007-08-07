@@ -638,6 +638,7 @@ sub search {
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
     qq|WHERE $where|;
 
+  my @saved_values = @values;
   # redo for invoices, orders and quotations
   if ($form->{l_invnumber} || $form->{l_ordnumber} || $form->{l_quonumber}) {
     my ($ar, $union, $module);
@@ -661,6 +662,9 @@ sub search {
     }
 
     if ( $form->{l_ordnumber} ) {
+      if ($union eq "UNION") {
+        push(@values, @saved_values);
+      }
       $query .=
         qq| $union | .
         qq|SELECT ct.*, b.description AS business,| .
@@ -675,6 +679,9 @@ sub search {
     }
 
     if ( $form->{l_quonumber} ) {
+      if ($union eq "UNION") {
+        push(@values, @saved_values);
+      }
       $query .=
         qq| $union | .
         qq|SELECT ct.*, b.description AS business, | .
