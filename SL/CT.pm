@@ -506,15 +506,24 @@ sub save_vendor {
 
   $query = undef;
   if ( $form->{cp_id} ) {
-    $query =
-      qq|UPDATE contacts SET | .
-      qq|  cp_greeting = ?, | .
-      qq|  cp_title = ?, | .
-      qq|  cp_givenname = ?, | .
-      qq|  cp_name = ?, | .
-      qq|  cp_email = ?, | .
-      qq|  cp_phone1 = ?, | .
-      qq|  cp_phone2 = ? | .
+    $query = qq|UPDATE contacts SET | .
+      qq|cp_greeting = ?, | .
+      qq|cp_title = ?,  | .
+      qq|cp_givenname = ?, | .
+      qq|cp_name = ?, | .
+      qq|cp_email = ?, | .
+      qq|cp_phone1 = ?, | .
+      qq|cp_phone2 = ?, | .
+      qq|cp_abteilung = ?, | .
+      qq|cp_fax = ?, | .
+      qq|cp_mobile1 = ?, | .
+      qq|cp_mobile2 = ?, | .
+      qq|cp_satphone = ?, | .
+      qq|cp_satfax = ?, | .
+      qq|cp_project = ?, | .
+      qq|cp_privatphone = ?, | .
+      qq|cp_privatemail = ?, | .
+      qq|cp_birthday = ? | .
       qq|WHERE cp_id = ?|;
     @values = (
       $form->{cp_greeting},
@@ -524,20 +533,45 @@ sub save_vendor {
       $form->{cp_email},
       $form->{cp_phone1},
       $form->{cp_phone2},
-      $form->{cp_id});
+      $form->{cp_abteilung},
+      $form->{cp_fax},
+      $form->{cp_mobile1},
+      $form->{cp_mobile2},
+      $form->{cp_satphone},
+      $form->{cp_satfax},
+      $form->{cp_project},
+      $form->{cp_privatphone},
+      $form->{cp_privatemail},
+      $form->{cp_birthday},
+      $form->{cp_id}
+      );
   } elsif ( $form->{cp_name} || $form->{cp_givenname} ) {
     $query =
-      qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname, cp_name, cp_email, cp_phone1, cp_phone2) | .
-      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?)|;
+      qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname,  | .
+      qq|  cp_name, cp_email, cp_phone1, cp_phone2, cp_abteilung, cp_fax, cp_mobile1, | .
+      qq|  cp_mobile2, cp_satphone, cp_satfax, cp_project, cp_privatphone, cp_privatemail, | .
+      qq|  cp_birthday) | .
+      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     @values = (
-      conv_i($form->{id}),
+      $form->{id},
       $form->{cp_greeting},
       $form->{cp_title},
       $form->{cp_givenname},
       $form->{cp_name},
       $form->{cp_email},
       $form->{cp_phone1},
-      $form->{cp_phone2});
+      $form->{cp_phone2},
+      $form->{cp_abteilung},
+      $form->{cp_fax},
+      $form->{cp_mobile1},
+      $form->{cp_mobile2},
+      $form->{cp_satphone},
+      $form->{cp_satfax},
+      $form->{cp_project},
+      $form->{cp_privatphone},
+      $form->{cp_privatemail},
+      $form->{cp_birthday}
+      );
   }
   do_query($form, $dbh, $query, @values) if ($query);
 
