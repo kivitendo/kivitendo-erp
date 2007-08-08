@@ -198,6 +198,7 @@ sub create_invoice_for_fees {
   }
 
   my ($ar_id) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
+  my $curr = $form->get_default_currency($myconfig);
 
   $query =
     qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
@@ -220,7 +221,7 @@ sub create_invoice_for_fees {
          ?,                     -- netamount
          0,                     -- paid
          -- duedate:
-         (SELECT duedate FROM dunning WHERE dunning_id = ?),
+         (SELECT duedate FROM dunning WHERE dunning_id = ? LIMIT 1),
          'f',                   -- invoice
          ?,                     -- curr
          ?,                     -- notes
@@ -233,7 +234,7 @@ sub create_invoice_for_fees {
              $amount,
              $amount,
              $dunning_id,       # duedate
-             (split m/:/, $myconfig->{currency})[0], # currency
+             $curr,             # default currency
              sprintf($main::locale->text('Automatically created invoice for fee and interest for dunning %s'), $dunning_id), # notes
              $form->{login});   # employee_id
   do_query($form, $dbh, $query, @values);
@@ -802,7 +803,7 @@ sub print_invoice_for_fees {
 
   $query =
     qq|SELECT
-         ar.invnumber, ar.transdate, ar.amount, ar.netamount,
+         ar.invnumber, ar.transdate AS invdate, ar.amount, ar.netamount,
          ar.duedate,   ar.notes,     ar.notes AS invoicenotes,
 
          c.name,      c.department_1,   c.department_2, c.street, c.zipcode, c.city, c.country,
