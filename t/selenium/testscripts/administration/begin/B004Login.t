@@ -1,6 +1,6 @@
 ### Login
 
-diag("TestLogin");
+diag("Login");
 
 $sel->open_ok($lxtest->{lxbaseurl}."/login.pl");
 
@@ -18,5 +18,4 @@ if($sel->title_is("Datenbankaktualisierung - Lx-Office Version 2.4.3 - -")) {
   $sel->wait_for_page_to_load_ok($lxtest->{timeout}); 
 }
 
-$sel->title_is("Lx-Office Version 2.4.3 - Selenium - " $lxtest->{db});
-1;
+$sel->title_is("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db});

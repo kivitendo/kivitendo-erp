@@ -9,7 +9,7 @@ if($sel->get_title() eq "") {
   $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 }
 
-$sel->title_is("Lx-Office ERP ".$lxtest->{version}." Administration -");
+$sel->title_is("Lx-Office ERP Administration -");
 
 diag('Lock the system');
 $sel->click_ok("//input[(\@name=\"action\") and (\@value=\"System sperren\")]");
@@ -30,7 +30,7 @@ $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->title_is("Lx-Office ERP Datenbankadministration / Datenbank anlegen -");
 $sel->type_ok("db", $lxtest->{db});
 $sel->select_ok("encoding", "label=ISO 8859-1");
-$sel->click_ok("//input[(\@name=\"chart\") and (\@value=\"Germany-DATEV-SKR03EU\")]");
+$sel->select_ok("chart", "label=Germany-DATEV-SKR03EU");
 $sel->click_ok("//input[(\@name=\"action\") and (\@value=\"Weiter\")]");
 $sel->wait_for_page_to_load_ok($lxtest->{timeoutlong});
 $sel->title_is("Lx-Office ERP Datenbankadministration / Datenbank anlegen -");
