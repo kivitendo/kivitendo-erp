@@ -959,7 +959,7 @@ sub post_invoice {
   do_query($form, $dbh, $query, @values);
   
   if($form->{"formname"} eq "credit_note") {
-    for my $i (1 .. $form->{paidaccounts}) {
+    for my $i (1 .. $form->{rowcount}) {
       $query = qq|UPDATE parts SET onhand = onhand - ? WHERE id = ?|;
       @values = (conv_i($form->{"qty_$i"}), conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
