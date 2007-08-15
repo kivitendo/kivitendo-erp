@@ -546,7 +546,7 @@ sub post_invoice {
     my $basqty;
 
     $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
-    $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
+    $form->{"marge_total_$i"} = $form->parse_amount($myconfig, $form->{"marge_total_$i"}) * 1;
     $form->{"lastcost_$i"} = $form->{"lastcost_$i"} * 1;
 
     if ($form->{storno}) {
@@ -691,7 +691,7 @@ sub post_invoice {
                  $form->{"serialnumber_$i"}, conv_i($pricegroup_id),
                  $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
                  $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
-                 $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
+                 $form->{"marge_percent_$i"}, $form->{"marge_total_$i"},
                  $form->{"lastcost_$i"},
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                  conv_i($form->{"marge_price_factor_$i"}));

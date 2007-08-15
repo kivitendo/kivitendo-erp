@@ -334,12 +334,12 @@ sub display_row {
     }
 
     my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
-    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"} / $marge_price_factor) * $form->{"qty_$i"} * $marge_adjust_credit_note;
-    $form->{"marge_total"}      += $form->{"marge_absolut_$i"};
+    $form->{"marge_total_$i"}  = ($real_sellprice - $form->{"lastcost_$i"} / $marge_price_factor) * $form->{"qty_$i"} * $marge_adjust_credit_note;
+    $form->{"marge_total"}      += $form->{"marge_total_$i"};
     $form->{"lastcost_total"}   += $form->{"lastcost_$i"} * $form->{"qty_$i"} / $marge_price_factor;
     $form->{"sellprice_total"}  += $real_sellprice * $form->{"qty_$i"};
 
-    map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
+    map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_total marge_percent);
 
     # convert " to &quot;
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
@@ -495,7 +495,7 @@ sub display_row {
          "id_$i", "inventory_accno_$i", "bin_$i", "partsgroup_$i", "partnotes_$i",
          "income_accno_$i", "expense_accno_$i", "listprice_$i", "assembly_$i",
          "taxaccounts_$i", "ordnumber_$i", "transdate_$i", "cusordnumber_$i",
-         "longdescription_$i", "basefactor_$i", "marge_absolut_$i", "marge_percent_$i", "lastcost_$i",
+         "longdescription_$i", "basefactor_$i", "marge_total_$i", "marge_percent_$i", "lastcost_$i",
          "marge_price_factor_$i"));
 
 ########################################
@@ -561,7 +561,7 @@ sub display_row {
       }
 
       print qq|
-          ${marge_font_start}<b>| . $locale->text('Ertrag') . qq|</b>&nbsp;$form->{"marge_absolut_$i"}&nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}
+          ${marge_font_start}<b>| . $locale->text('Ertrag') . qq|</b>&nbsp;$form->{"marge_total_$i"}&nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}
           &nbsp;<b>| . $locale->text('LP') . qq|</b>&nbsp;| . $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2) . qq|
           &nbsp;<b>| . $locale->text('EK') . qq|</b>&nbsp;| . $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) . $marge_price_factor;
     }
@@ -1028,7 +1028,7 @@ sub check_form {
   $lxdebug->enter_sub();
   my @a     = ();
   my $count = 0;
-  my @flds  = (qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id language_values sellprice_pg pricegroup_old price_old price_new unit_old ordnumber transdate longdescription basefactor marge_absolut marge_percent marge_price_factor lastcost price_factor_id));
+  my @flds  = (qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id language_values sellprice_pg pricegroup_old price_old price_new unit_old ordnumber transdate longdescription basefactor marge_total marge_percent marge_price_factor lastcost price_factor_id));
 
   # remove any makes or model rows
   if ($form->{item} eq 'part') {
