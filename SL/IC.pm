@@ -892,10 +892,14 @@ sub all_parts {
     }
   }
 
+  my %simple_filter_table_prefix = (
+     description  => 'p.',
+  );
+
   foreach (@simple_filters, @makemodel_filters, @invoice_oi_filters) {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
-    push @where_tokens, "$_ ILIKE ?";
+    push @where_tokens, "$simple_filter_table_prefix{$_}$_ ILIKE ?";
     push @bind_vars,    "%$form->{$_}%";
   }
 
