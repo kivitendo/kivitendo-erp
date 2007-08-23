@@ -162,5 +162,5 @@
     }
     printf "\n\t\%s\n\t%s\n","Be ensure, that usage is promitted by login and db status!","\xAF" x 58;
   }
-
+unlink("/tmp/lxtest-temp.conf");
 exit 1;

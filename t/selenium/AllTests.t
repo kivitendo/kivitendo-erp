@@ -39,7 +39,6 @@
   use Test::More qw(no_plan);
   use IO::Socket;
 
-
   if(-f "/tmp/lxtest-temp.conf") {
     eval { require('/tmp/lxtest-temp.conf'); };
   }
@@ -74,9 +73,9 @@
 
 
     $lxtest->{test_id} = time; # create individual ids by unixtime
-    $lxtest->{testuserlogin}   = $lxtest->{testlogin} . $lxtest->{test_id};
-    $lxtest->{testuserpasswd}  = $lxtest->{test_id};
-    $lxtest->{db}              = $lxtest->{db} . $lxtest->{test_id};
+    $lxtest->{testuserlogin}   = $lxtest->{testlogin} . $lxtest->{test_id} if(!$lxtest->{testuserlogin});
+    $lxtest->{testuserpasswd}  = $lxtest->{test_id} if(!$lxtest->{testuserpasswd});
+    $lxtest->{db}              = $lxtest->{db} . $lxtest->{test_id} if(!($lxtest->{db} =~ /^seleniumtestdatabase[0-9]{10}$/));
 
     ok(defined $lxtest->{rpw}, "Get root password");
   
@@ -115,6 +114,9 @@
         require_ok("t/selenium/testscripts/". $scriptdir . "/" . $_) if ( $_ =~ /^\w\d\d\d.*\.t$/);
       }
       closedir(SCRIPTS);
+    }
+    if($!) {
+      @! = ("Test fehlgeschlagen!");
     }
     $sel->stop();
   }

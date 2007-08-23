@@ -1,5 +1,6 @@
 
 $sel->open_ok($lxtest->{lxadmin});
+
 $sel->title_is("Lx-Office ERP Administration -");
 
 diag('Lock the system');

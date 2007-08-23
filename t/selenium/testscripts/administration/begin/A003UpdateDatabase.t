@@ -2,6 +2,7 @@
 
 # NOTEST: some preruns for initializing missing parameters
 $sel->open($lxtest->{lxadmin});
+
 $sel->click("//input[(\@name=\"action\") and (\@value=\"Datenbankadministration\")]");
 $sel->wait_for_page_to_load($lxtest->{timeout});
 $sel->type("dbuser", $lxtest->{dbuser});
@@ -59,4 +60,4 @@ $sel->title_like( qr/Lx-Office ERP Datenbankadministration/ );
 #$sel->click_ok("//input[(\@name=\"action\") and (\@value=\"System entsperren\")]");
 #$sel->wait_for_page_to_load_ok($lxtest->{timeout});
 #$sel->title_is("Lx-Office ERP Administration -");
-
+1;

@@ -1,8 +1,4 @@
-diag("CreateProductGroups");
-
-if(!$sel->get_title("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db})){
-  require_ok("../../begin/B004Login.t");
-}
+diag("Create product groups");
 
 $sel->select_frame_ok("relative=up");
 $sel->click_ok("link=Warengruppe erfassen");
