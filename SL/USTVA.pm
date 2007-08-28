@@ -878,7 +878,7 @@ sub get_accounts_ustva {
    
   } else {
   
-    $self->error("Unknown tax method: $form->{method}")
+    $form->error("Unknown tax method: $form->{method}")
 
   }
   
