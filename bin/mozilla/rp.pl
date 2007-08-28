@@ -39,7 +39,6 @@ use POSIX qw(strftime);
 
 use SL::PE;
 use SL::RP;
-use SL::USTVA;
 use SL::Iconv;
 use SL::ReportGenerator;
 
@@ -107,8 +106,7 @@ sub report {
             'receipts'             => 'Receipts',
             'payments'             => 'Payments',
             'projects'             => 'Project Transactions',
-            'bwa'                  => 'Betriebswirtschaftliche Auswertung',
-            'ustva'                => 'Umsatzsteuervoranmeldung',);
+            'bwa'                  => 'Betriebswirtschaftliche Auswertung',);
 
   $form->{title} = $locale->text($title{ $form->{report} });
 
@@ -153,49 +151,43 @@ sub report {
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
   $jsscript = "";
-  if ($form->{report} eq "ustva") {
-    $department = "";
-  } else {
-    if ($form->{report} eq "balance_sheet") {
-      $name_1    = "asofdate";
-      $id_1      = "asofdate";
-      $value_1   = "$form->{asofdate}";
-      $trigger_1 = "trigger1";
-      $name_2    = "compareasofdate";
-      $id_2      = "compareasofdate";
-      $value_2   = "$form->{compareasofdate}";
-      $trigger_2 = "trigger2";
-    } elsif ($form->{report} =~ /(receipts|payments)$/) {
-      $name_1    = "fromdate";
-      $id_1      = "fromdate";
-      $value_1   = "$form->{fromdate}";
-      $trigger_1 = "trigger1";
-      $name_2    = "todate";
-      $id_2      = "todate";
-      $value_2   = "";
-      $trigger_2 = "trigger2";
-    } else {
-      if (($form->{report} eq "ar_aging") || ($form->{report} eq "ap_aging")) {
-        $name_1    = "";
-        $id_1      = "";
-        $value_1   = "";
-        $trigger_1 = "";
-        $name_2    = "todate";
-        $id_2      = "todate";
-        $value_2   = "";
-        $trigger_2 = "trigger2";
+  if ($form->{report} eq "balance_sheet") {
+    $name_1    = "asofdate";
+    $id_1      = "asofdate";
+    $value_1   = "$form->{asofdate}";
+    $trigger_1 = "trigger1";
+    $name_2    = "compareasofdate";
+    $id_2      = "compareasofdate";
+    $value_2   = "$form->{compareasofdate}";
+    $trigger_2 = "trigger2";
+  } elsif ($form->{report} =~ /(receipts|payments)$/) {
+    $name_1    = "fromdate";
+    $id_1      = "fromdate";
+    $value_1   = "$form->{fromdate}";
+    $trigger_1 = "trigger1";
+    $name_2    = "todate";
+    $id_2      = "todate";
+    $value_2   = "";
+    $trigger_2 = "trigger2";
+  } elsif (($form->{report} eq "ar_aging") || ($form->{report} eq "ap_aging")) {
+    $name_1    = "";
+    $id_1      = "";
+    $value_1   = "";
+    $trigger_1 = "";
+    $name_2    = "todate";
+    $id_2      = "todate";
+    $value_2   = "";
+    $trigger_2 = "trigger2";
 
-      } else {
-        $name_1    = "fromdate";
-        $id_1      = "fromdate";
-        $value_1   = "$form->{fromdate}";
-        $trigger_1 = "trigger1";
-        $name_2    = "todate";
-        $id_2      = "todate";
-        $value_2   = "";
-        $trigger_2 = "trigger2";
-      }
-    }
+  } else {
+    $name_1    = "fromdate";
+    $id_1      = "fromdate";
+    $value_1   = "$form->{fromdate}";
+    $trigger_1 = "trigger1";
+    $name_2    = "todate";
+    $id_2      = "todate";
+    $value_2   = "";
+    $trigger_2 = "trigger2";
   }
 
   # with JavaScript Calendar
@@ -521,107 +513,6 @@ $checked></td>
          </tr>
                                     
 $jsscript
-|;
-  }
-
-  if ($form->{report} eq "ustva") {
-
-    print qq|
-
-        <br>
-        <input type=hidden name=nextsub value=generate_ustva>
-</table>
-<table>
-	<tr>
-	  <th align=left><input name=reporttype class=radio type=radio value="custom" checked> |
-      . $locale->text('Zeitraum') . qq|</th>
-	</tr>
-	<tr>
-	  <th colspan=1>| . $locale->text('Year') . qq|</th>
-	  <td><input name=year size=11 title="|
-      . $locale->text('YYYY') . qq|" value="$year"></td>
-	</tr>
-|;
-
-    print qq|
-	<tr>
-		<td align=right>
-<b> | . $locale->text('Yearly') . qq|</b> </td>
-		<th align=left>| . $locale->text('Quarterly') . qq|</th>
-		<th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
-	</tr>
-	<tr>
-		<td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"
-$checked></td>
-		<td><input name=duetyp class=radio type=radio value="A" $checked >&nbsp;1. |
-      . $locale->text('Quarter') . qq|</td>
-|;
-    $checked = "checked";
-    print qq|
-		<td><input name=duetyp class=radio type=radio value="1" $checked >&nbsp;|
-      . $locale->text('January') . qq|</td>
-|;
-    $checked = "";
-    print qq|
-		<td><input name=duetyp class=radio type=radio value="5" $checked >&nbsp;|
-      . $locale->text('May') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="9" $checked >&nbsp;|
-      . $locale->text('September') . qq|</td>
-
-	</tr>
-	<tr>
-		<td align= right>&nbsp;</td>
-		<td><input name=duetyp class=radio type=radio value="B" $checked>&nbsp;2. |
-      . $locale->text('Quarter') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="2" $checked >&nbsp;|
-      . $locale->text('February') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="6" $checked >&nbsp;|
-      . $locale->text('June') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="10" $checked >&nbsp;|
-      . $locale->text('October') . qq|</td>
-	</tr>
-	<tr>
-		<td> &nbsp;</td>
-		<td><input name=duetyp class=radio type=radio value="C" $checked>&nbsp;3. |
-      . $locale->text('Quarter') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="3" $checked >&nbsp;|
-      . $locale->text('March') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="7" $checked >&nbsp;|
-      . $locale->text('July') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="11" $checked >&nbsp;|
-      . $locale->text('November') . qq|</td>
-
-	</tr>
-	<tr>
-		<td> &nbsp;</td>
-		<td><input name=duetyp class=radio type=radio value="D" $checked>&nbsp;4. |
-      . $locale->text('Quarter') . qq|&nbsp;</td>
-		<td><input name=duetyp class=radio type=radio value="4" $checked >&nbsp;|
-      . $locale->text('April') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="8" $checked >&nbsp;|
-      . $locale->text('August') . qq|</td>
-		<td><input name=duetyp class=radio type=radio value="12" $checked >&nbsp;|
-      . $locale->text('December') . qq|</td>
-
-	</tr>
-	<tr>
-   		<td colspan=5><hr size=3 noshade></td>
-	</tr>
-	<tr>
-	  <th align=left>| . $locale->text('Method') . qq|</th>
-	  <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
-      . $locale->text('Accrual') . qq|
-	  &nbsp;<input name=method class=radio type=radio value=cash $cash>|
-      . $locale->text('EUR') . qq|</td>
-	</tr>
-	<tr>
-	  <th colspan=4>|;
-##########
-
-    &print_options();
-    print qq|
-	  </th>
-	</tr>
 |;
   }
 
@@ -986,27 +877,7 @@ $jsscript
 
 <input type=submit class=submit name=action value="|
     . $locale->text('Continue') . qq|">
-|;
 
-  # Hier Aufruf von get_config zum Einlesen der Finanzamtdaten
-  USTVA->get_config($userspath, 'finanzamt.ini');
-
-  $disabled = qq|disabled="disabled"|;
-  $disabled = '' if ($form->{elster} eq '1');
-  if ($form->{report} eq 'ustva') {
-    print qq|
-  <input type=submit class=submit name=action value="|
-      . $locale->text('debug') . qq|">
-  <input type=submit class=submit name=action $disabled
-   value="| . $locale->text('winston_export') . qq|">
-  |;
-    print qq|
-   <input type=submit class=submit name=action value="|
-      . $locale->text('config') . qq|">
-  |;
-  }
-
-  print qq|
 </form>
 
 </body>
@@ -2259,30 +2130,6 @@ sub list_payments {
   $lxdebug->leave_sub();
 }
 
-sub config {
-  $lxdebug->enter_sub();
-  edit();
-
-  #$form->header;
-  #print qq|Hallo|;
-  $lxdebug->leave_sub();
-}
-
-sub debug {
-
-  $form->debug();
-
-}
-
-sub winston_export {
-  $lxdebug->enter_sub();
-
-  #create_winston();
-  $form->{winston} = 1;
-  &generate_ustva();
-  $lxdebug->leave_sub();
-}
-
 sub print_options {
   $lxdebug->enter_sub();
 
@@ -2305,14 +2152,9 @@ sub print_options {
   $form->{OP}{ $form->{media} }    = "selected";
   $form->{SM}{ $form->{sendmode} } = "selected";
 
-  if ($form->{report} eq 'ustva') {
-    $type = qq|
-	    <option value=ustva $form->{PD}{ustva}>| . $locale->text('ustva');
-  } else {
-    $type = qq|
+  $type = qq|
 	    <option value=statement $form->{PD}{statement}>|
       . $locale->text('Statement');
-  }
 
   if ($form->{media} eq 'email') {
     $media = qq|
@@ -2331,14 +2173,9 @@ sub print_options {
 
   if ($latex_templates) {
     $format .= qq|
-            <option value=html $form->{DF}{html}>|
-      . $locale->text('HTML') . qq|
-	    <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF');
-    if ($form->{report} ne 'ustva') {
-      $format . qq|
-            <option value=postscript $form->{DF}{postscript}>|
-        . $locale->text('Postscript');
-    }
+            <option value=html $form->{DF}{html}>| . $locale->text('HTML')
+      . qq| <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF')
+      . qq| <option value=postscript $form->{DF}{postscript}>| . $locale->text('Postscript');
   }
 
   my $output = qq|
@@ -2560,232 +2397,3 @@ sub generate_bwa {
   $lxdebug->leave_sub();
 }
 
-sub generate_ustva {
-  $lxdebug->enter_sub();
-
-  # Hier Aufruf von get_config zum Einlesen der Finanzamtdaten
-  USTVA->get_config($userspath, 'finanzamt.ini');
-
-  #  &get_project(generate_bwa);
-  @anmeldungszeitraum =
-    qw(0401, 0402, 0403, 0404, 0405, 0405, 0406, 0407, 0408, 0409, 0410, 0411, 0412, 0441, 0442, 0443, 0444);
-
-  foreach $item (@anmeldungszeitraum) {
-    $form->{$item} = "";
-  }
-  if ($form->{reporttype} eq "custom") {
-
-    #forgotten the year --> thisyear
-    if ($form->{year} !~ m/^\d\d\d\d$/) {
-      $locale->date(\%myconfig, $form->current_date(\%myconfig), 0) =~
-        /(\d\d\d\d)/;
-      $form->{year} = $1;
-    }
-
-    #yearly report
-    if ($form->{duetyp} eq "13") {
-      $form->{fromdate} = "1.1.$form->{year}";
-      $form->{todate}   = "31.12.$form->{year}";
-    }
-
-    #Quater reports
-    if ($form->{duetyp} eq "A") {
-      $form->{fromdate} = "1.1.$form->{year}";
-      $form->{todate}   = "31.3.$form->{year}";
-      $form->{"0441"}   = "X";
-    }
-    if ($form->{duetyp} eq "B") {
-      $form->{fromdate} = "1.4.$form->{year}";
-      $form->{todate}   = "30.6.$form->{year}";
-      $form->{"0442"}   = "X";
-    }
-    if ($form->{duetyp} eq "C") {
-      $form->{fromdate} = "1.7.$form->{year}";
-      $form->{todate}   = "30.9.$form->{year}";
-      $form->{"0443"}   = "X";
-    }
-    if ($form->{duetyp} eq "D") {
-      $form->{fromdate} = "1.10.$form->{year}";
-      $form->{todate}   = "31.12.$form->{year}";
-      $form->{"0444"}   = "X";
-    }
-
-    #Monthly reports
-  SWITCH: {
-      $form->{duetyp} eq "1" && do {
-        $form->{fromdate} = "1.1.$form->{year}";
-        $form->{todate}   = "31.1.$form->{year}";
-        $form->{"0401"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "2" && do {
-        $form->{fromdate} = "1.2.$form->{year}";
-
-        #this works from 1901 to 2099, 1900 and 2100 fail.
-        $leap = ($form->{year} % 4 == 0) ? "29" : "28";
-        $form->{todate} = "$leap.2.$form->{year}";
-        $form->{"0402"} = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "3" && do {
-        $form->{fromdate} = "1.3.$form->{year}";
-        $form->{todate}   = "31.3.$form->{year}";
-        $form->{"0403"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "4" && do {
-        $form->{fromdate} = "1.4.$form->{year}";
-        $form->{todate}   = "30.4.$form->{year}";
-        $form->{"0404"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "5" && do {
-        $form->{fromdate} = "1.5.$form->{year}";
-        $form->{todate}   = "31.5.$form->{year}";
-        $form->{"0405"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "6" && do {
-        $form->{fromdate} = "1.6.$form->{year}";
-        $form->{todate}   = "30.6.$form->{year}";
-        $form->{"0406"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "7" && do {
-        $form->{fromdate} = "1.7.$form->{year}";
-        $form->{todate}   = "31.7.$form->{year}";
-        $form->{"0407"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "8" && do {
-        $form->{fromdate} = "1.8.$form->{year}";
-        $form->{todate}   = "31.8.$form->{year}";
-        $form->{"0408"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "9" && do {
-        $form->{fromdate} = "1.9.$form->{year}";
-        $form->{todate}   = "30.9.$form->{year}";
-        $form->{"0409"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "10" && do {
-        $form->{fromdate} = "1.10.$form->{year}";
-        $form->{todate}   = "31.10.$form->{year}";
-        $form->{"0410"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "11" && do {
-        $form->{fromdate} = "1.11.$form->{year}";
-        $form->{todate}   = "30.11.$form->{year}";
-        $form->{"0411"}   = "X";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "12" && do {
-        $form->{fromdate} = "1.12.$form->{year}";
-        $form->{todate}   = "31.12.$form->{year}";
-        $form->{"0412"}   = "X";
-        last SWITCH;
-      };
-    }
-  }
-
-  #    $locale->date(\%myconfig, $form->current_date(\%myconfig), 0)=~ /(\d\d\d\d)/;
-  #    $form->{year}= $1;
-  #    $form->{fromdate}="1.1.$form->{year}";
-  #    $form->{todate}="31.3.$form->{year}";
-  #    $form->{period} = $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
-  #  }
-
-  RP->ustva(\%myconfig, \%$form);
-
-  ($form->{department}) = split /--/, $form->{department};
-
-  $form->{period} =
-    $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
-  $form->{todate} = $form->current_date(\%myconfig) unless $form->{todate};
-
-  # if there are any dates construct a where
-  if ($form->{fromdate} || $form->{todate}) {
-
-    unless ($form->{todate}) {
-      $form->{todate} = $form->current_date(\%myconfig);
-    }
-
-    $longtodate  = $locale->date(\%myconfig, $form->{todate}, 1);
-    $shorttodate = $locale->date(\%myconfig, $form->{todate}, 0);
-
-    $longfromdate  = $locale->date(\%myconfig, $form->{fromdate}, 1);
-    $shortfromdate = $locale->date(\%myconfig, $form->{fromdate}, 0);
-
-    $form->{this_period} = "$shortfromdate\n$shorttodate";
-    $form->{period}      =
-        $locale->text('for Period')
-      . qq|<br>\n$longfromdate |
-      . $locale->text('bis')
-      . qq| $longtodate|;
-  }
-
-  if ($form->{comparefromdate} || $form->{comparetodate}) {
-    $longcomparefromdate =
-      $locale->date(\%myconfig, $form->{comparefromdate}, 1);
-    $shortcomparefromdate =
-      $locale->date(\%myconfig, $form->{comparefromdate}, 0);
-
-    $longcomparetodate  = $locale->date(\%myconfig, $form->{comparetodate}, 1);
-    $shortcomparetodate = $locale->date(\%myconfig, $form->{comparetodate}, 0);
-
-    $form->{last_period} = "$shortcomparefromdate\n$shortcomparetodate";
-    $form->{period} .=
-        "\n$longcomparefromdate "
-      . $locale->text('bis')
-      . qq| $longcomparetodate|;
-  }
-
-  $form->{Datum_heute} =
-    $locale->date(\%myconfig, $form->current_date(\%myconfig), 0);
-
-  if (   $form->{format} eq 'pdf'
-      or $form->{format} eq 'postscript') {
-    $form->{padding} = "~~";
-    $form->{bold}    = "\textbf{";
-    $form->{endbold} = "}";
-    $form->{br}      = '\\\\';
-
-    @numbers = qw(51r 86r 97r 93r 96 43 45
-      66 62 67);
-    foreach $number (@numbers) {
-      $form->{$number} =~ s/,/~~/g;
-    }
-
-      } elsif ($form->{format} eq 'html') {
-    $form->{padding} = "&nbsp;&nbsp;";
-    $form->{bold}    = "<b>";
-    $form->{endbold} = "</b>";
-    $form->{br}      = "<br>"
-
-  }
-
-  # setup variables for the form
-  @a = qw(company address businessnumber);
-  map { $form->{$_} = $myconfig{$_} } @a;
-
-  $form->{address} =~ s/\\n/$form->{br}/g;
-
-  if ($form->{winston} eq '1') {
-    create_winston();
-
-  } else {
-    $form->{templates} = $myconfig{templates};
-    $form->{IN}        = "$form->{type}";
-    $form->{IN} .= '.tex'
-      if (   $form->{format} eq 'pdf'
-          or $form->{format} eq 'postscript');
-    $form->{IN} .= '.html' if ($form->{format} eq 'html');
-
-    $form->parse_template(\%myconfig, $userspath);
-
-    # $form->parse_template;
-  }
-  $lxdebug->leave_sub();
-}
