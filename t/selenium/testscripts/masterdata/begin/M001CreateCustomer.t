@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Create first Customer");
 
 if(!$sel->get_title("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db})){
@@ -19,7 +24,7 @@ $sel->type_ok("street", "Grummelburger 111");
 $sel->type_ok("zipcode", "37115");
 $sel->type_ok("city", "Musterstadt");
 $sel->type_ok("country", "Germany");
-$sel->type_ok("creditlimit", "100");
+$sel->type_ok("creditlimit", "10000000");
 $sel->type_ok("discount", "5");
 $sel->type_ok("account_number", "1");
 $sel->select_ok("salesman_id", "label=Selenium");
@@ -71,6 +76,7 @@ $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->select_frame_ok("main_window");
 $sel->click_ok("link=Rechnungsadresse");
 $sel->click_ok("customernumber");
+$sel->type_ok("creditlimit", "10000000");
 $sel->type_ok("customernumber", "2");
 $sel->click_ok("greeting");
 $sel->type_ok("greeting", "Herr");
@@ -92,6 +98,7 @@ $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->select_frame_ok("main_window");
 $sel->click_ok("customernumber");
 $sel->type_ok("customernumber", "3");
+$sel->type_ok("creditlimit", "10000000");
 $sel->click_ok("greeting");
 $sel->type_ok("greeting", "Frau");
 $sel->type_ok("name", "TestFrau3");
@@ -104,3 +111,4 @@ $sel->type_ok("city", "Brunnenberge");
 $sel->type_ok("country", "Austria");
 $sel->click_ok("document.ct.action[1]");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
+1;

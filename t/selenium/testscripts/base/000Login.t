@@ -1,5 +1,11 @@
 ### Login
 
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
+
 diag("Login");
 
 $sel->open_ok($lxtest->{lxbaseurl}."/login.pl");
@@ -24,6 +30,7 @@ if($sel->get_title() eq "Datenbankaktualisierung - Lx-Office Version 2.4.3 - -")
   $sel->click_ok("//input[(\@type=\"submit\") and (\@value=\"Weiter\")]");
   $sel->wait_for_page_to_load_ok($lxtest->{timeout}); 
 }
-
-
+  
 $sel->title_is("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db});
+
+1;

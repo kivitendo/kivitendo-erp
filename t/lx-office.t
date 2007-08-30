@@ -46,7 +46,8 @@
                "printing" => 't/selenium/TestPrinting.t',
                "programm" => 't/selenium/TestProgramm.t',
                "reports" => 't/selenium/TestReports.t' );
-  my $testonly = 0;
+  my $showtests = 0;
+  my $singletest = 0;
   my $nodb = 0;
   my @totest;
   
@@ -71,8 +72,10 @@
     print "\t\t  -admin\tonly runs testscripts for \"administration\"\n";
     print "\t\t  -testbed\tcreates a standardized test database\n";
     print "\t\t  -nodb\t\tdoesn't create a db! Only use with \n\t\t\t\t--username, --userpasswd, --dbname, --dbport, --dbhost, --dbuser, --dbpasswd, --rootpasswd arguments!\n";
-    print "\t\t  -testsonly\tfinally shows all tests available only\n";
+    print "\t\t  -showtests\tfinally shows all tests available only\n";
+    print "\t\t  -singletest\toption flag for using single tests shown in \"-showtests\"\n";
     printf "\n\t\targuments:\n\t\t%s\n","\xAF" x 10;
+    print "\t\t  --test=\tname of Test shown in showtests seperated by , (Only joined by -singletest)\n";
     print "\t\t  --username=\tuser login name\n";
     print "\t\t  --userpasswd=\tuser login password\n";
     print "\t\t  --dbname=\tname of used db (leave empty whether dbname is seleniumtestdatabase)\n";
@@ -90,30 +93,38 @@
     $_ = $ARGV[0];
 
     if ( /^--help$/ ) { usage; last }
-    if ( /^-testonly$/) { $testonly = 1; shift; next }
-    if ( /^-nodb$/ ) { $nodb = 1; shift; next }
-    if ( /^-(masterdata)$/ ) { push @totest, $1; shift; next }
-    if ( /^-(system)$/ ) { push @totest, $1; shift; next }
-    if ( /^-(selling)$/ ) { push @totest, $1; shift; next }
-    if ( /^-(purchase)$/ ) { push @totest, $1; shift; next }
-    if ( /^-(testbed)$/ ) { push @totest, $1; shift; next }
-    if ( /^-(admin)$/ ) { push @totest, $1; shift; next }
-    if ( /^--username=(.*)$/ ) { $lxtest{testuserlogin} = $1; shift; next }
-    if ( /^--userpasswd=(.*)$/ ) { $lxtest{testuserpasswd} = $1; shift; next }
-    if ( /^--dbname=(.*)$/ ) { $lxtest{db} = $1; shift; next }
-    if ( /^--dbport=(.*)$/ ) { $lxtest{dbport} = $1; shift; next }
-    if ( /^--dbhost=(.*)$/ ) { $lxtest{dbhost} = $1; shift; next }
-    if ( /^--dbuser=(.*)$/ ) { $lxtest{dbuser} = $1; shift; next }
-    if ( /^--dbpasswd=(.*)$/ ) { $lxtest{dbpasswd} = $1; shift; next }
-    if ( /^--rootpasswd=(.*)$/ ) { $lxtest{rpw} = $1; shift; next }
-    if ( /^([A-Z].*)$/ ) { push @totest, shift; next }
-    if ( /^-/ ) {
+    elsif ( /^-showtests$/) { $showtests = 1; shift; next }
+    elsif ( /^-nodb$/ ) { $nodb = 1; shift; next }
+    elsif ( /^-(masterdata)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(system)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(selling)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(purchase)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(testbed)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(payments)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(admin)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(printing)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(reports)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(accounting)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(purchase)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-(programm)$/ ) { push @totest, $1; shift; next }
+    elsif ( /^-singletest$/ ) { $singletest = 1; shift; next }
+    elsif ( /^--username=(.*)$/ ) { $lxtest{testuserlogin} = $1; shift; next }
+    elsif ( /^--userpasswd=(.*)$/ ) { $lxtest{testuserpasswd} = $1; shift; next }
+    elsif ( /^--dbname=(.*)$/ ) { $lxtest{db} = $1; shift; next }
+    elsif ( /^--dbport=(.*)$/ ) { $lxtest{dbport} = $1; shift; next }
+    elsif ( /^--dbhost=(.*)$/ ) { $lxtest{dbhost} = $1; shift; next }
+    elsif ( /^--dbuser=(.*)$/ ) { $lxtest{dbuser} = $1; shift; next }
+    elsif ( /^--dbpasswd=(.*)$/ ) { $lxtest{dbpasswd} = $1; shift; next }
+    elsif ( /^--rootpasswd=(.*)$/ ) { $lxtest{rpw} = $1; shift; next }
+    elsif ( /^--test=(.*)$/ ) { foreach (split(/\,/, $1)) { push @totest, $_; } shift; next }
+    elsif ( /^([A-Z].*)$/ ) { push @totest, shift; next }
+    else {
         print STDERR "$0: ERROR: unrecognized option '$_' ?\n";
         usage;
     }
     last;
   }
-  
+  unlink("/tmp/lxtest-temp.conf") if (-f "/tmp/lxtest-temp.conf");
   open TEMPCONF, "+>/tmp/lxtest-temp.conf";
   print TEMPCONF '$lxtest = {'."\n";
   foreach (keys(%lxtest)) {
@@ -121,25 +132,26 @@
   }
   print TEMPCONF '};';
   close TEMPCONF;
-
-  my $testscriptdir = 't/selenium/testscripts/';
-  opendir(ROOT, $testscriptdir);
-  foreach my $dir ( readdir( ROOT ) ) {
-    if(-d $testscriptdir . $dir && $dir ne "begin" && $dir ne "end" && $dir ne "..") {
-      opendir(DIR, $testscriptdir . $dir . "/begin");
-      foreach ( readdir(DIR) ) {
-        $tests{ substr ( substr( $_, 4 ), 0, -2 ) } = $testscriptdir . ($dir eq "." ? "" : $dir . "/") . "begin/" . $_ if ( $_ =~ /^\w\d\d\d.*\.t$/ );
-      }
-      closedir(DIR);
-      opendir(DIR, $testscriptdir . $dir . "/end");
-      foreach (readdir(DIR)) {
-        $tests{ substr ( substr( $_, 4 ), 0, -2 ) } = $testscriptdir . ($dir eq "." ? "" : $dir . "/") . "end/" . $_ if ( $_ =~ /^\w\d\d\d.*\.t$/ );
-      }
-      closedir(DIR);
-    }
-  }
-  closedir(ROOT);
   
+  if($singletest || $showtests) {
+    my $testscriptdir = 't/selenium/testscripts/';
+    opendir(ROOT, $testscriptdir);
+    foreach my $dir ( readdir( ROOT ) ) {
+      if(-d $testscriptdir . $dir && $dir ne "begin" && $dir ne "end" && $dir ne "..") {
+        opendir(DIR, $testscriptdir . $dir . "/begin");
+        foreach ( readdir(DIR) ) {
+          $tests{ substr ( substr( $_, 4 ), 0, -2 ) } = $testscriptdir . ($dir eq "." ? "" : $dir . "/") . "begin/" . $_ if ( $_ =~ /^\w\d\d\d.*\.t$/ );
+        }
+        closedir(DIR);
+        opendir(DIR, $testscriptdir . $dir . "/end");
+        foreach (readdir(DIR)) {
+          $tests{ substr ( substr( $_, 4 ), 0, -2 ) } = $testscriptdir . ($dir eq "." ? "" : $dir . "/") . "end/" . $_ if ( $_ =~ /^\w\d\d\d.*\.t$/ );
+        }
+        closedir(DIR);
+      }
+    }
+    closedir(ROOT);
+  }
   push @totest, "all" if(!$totest[0]);
   
 
@@ -149,13 +161,14 @@
   
 
 ## Frontendtests:
-  
-  foreach (@totest) {
-    &runtests(
-      $tests{$_},
-    ) if (!$testonly);
+  if (!$showtests) {
+    foreach (@totest) {
+      &runtests(
+        $tests{$_},
+     );
+    }
   }
-  if($testonly) {
+  elsif($showtests) {
     printf "\tFollowing testscripts are present:\n\t%s\n","\xAF" x 34;;
     foreach (sort(keys(%tests))) {
       print "\t\t" . $_ ."\n" if( /^[A-Z].*$/ );

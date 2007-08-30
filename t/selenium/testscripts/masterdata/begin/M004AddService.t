@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Add service");
 
 if(!$sel->get_title("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db})){
@@ -39,3 +44,4 @@ $sel->type_ok("price_2", "0,1");
 $sel->type_ok("price_1", "0,1");
 $sel->click_ok("document.ic.action[1]");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
+1;

@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Add customer/vendor types");
 
 $sel->select_frame_ok("relative=up");
@@ -14,3 +19,4 @@ $sel->type_ok("description", "Kleinkäufer");
 $sel->type_ok("customernumberinit", "200");
 $sel->click_ok("action");
 $sel->wait_for_page_to_load($lxtest->{timeout});
+1;

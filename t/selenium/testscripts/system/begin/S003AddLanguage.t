@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Add languages");
 
 $sel->select_frame_ok("relative=up");

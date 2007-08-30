@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Create vendor");
 
 if(!$sel->get_title("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db})){
@@ -118,4 +123,4 @@ $sel->type_ok("cp_birthday", "14.05.1971");
 $sel->click_ok("link=Lieferungen");
 $sel->click_ok("document.ct.action[1]");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
-
+1;

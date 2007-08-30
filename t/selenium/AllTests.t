@@ -61,6 +61,11 @@
 #     plan tests => 200; # Need to be cutomized
 #   }
   sub init_server {
+    my $singlefileonly = 0;
+    if ($_[0] eq "singlefileonly") {  
+      $singlefileonly = 1;
+      shift;
+    }
     if(!server_is_running) {
       print "No selenium server found! "
            ."Maybe you forgot to start it or "
@@ -108,12 +113,17 @@
 
     diag('Starting Selenium tests...');
     
-    foreach my $scriptdir (@_) {
-      opendir(SCRIPTS, 't/selenium/testscripts/' . $scriptdir);
-      foreach (sort readdir(SCRIPTS)) {
-        require_ok("t/selenium/testscripts/". $scriptdir . "/" . $_) if ( $_ =~ /^\w\d\d\d.*\.t$/);
+    if(!$singlefileonly) {
+      foreach my $scriptdir (@_) {
+        opendir(SCRIPTS, 't/selenium/testscripts/' . $scriptdir);
+        foreach (sort readdir(SCRIPTS)) {
+          require_ok("t/selenium/testscripts/". $scriptdir . "/" . $_) if ( $_ =~ /^\w\d\d\d.*\.t$/);
+        }
+        closedir(SCRIPTS);
       }
-      closedir(SCRIPTS);
+    }
+    else {
+      foreach (@_) { require_ok($_); }
     }
     if($!) {
       @! = ("Test fehlgeschlagen!");

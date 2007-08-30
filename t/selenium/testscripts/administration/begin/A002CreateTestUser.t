@@ -1,5 +1,11 @@
-
 ### Create new user
+
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly", $0);
+  exit(0);
+}
+
 diag("Create test user '$lxtest->{testuserlogin}'");
 $sel->open_ok($lxtest->{lxadmin});
 
@@ -31,3 +37,4 @@ $sel->type_ok("dbpasswd", $lxtest->{dbpasswd});
 $sel->click_ok("action");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->title_is("Lx-Office ERP Administration -");
+1;

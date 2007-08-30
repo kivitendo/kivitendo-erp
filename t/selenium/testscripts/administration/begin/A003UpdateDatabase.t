@@ -1,4 +1,9 @@
 ### Update Database
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly", $0);
+  exit(0);
+}
 
 # NOTEST: some preruns for initializing missing parameters
 $sel->open($lxtest->{lxadmin});

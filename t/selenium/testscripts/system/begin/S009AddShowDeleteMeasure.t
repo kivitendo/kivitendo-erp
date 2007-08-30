@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Add show and delete measure");
 
 $sel->select_frame_ok("relative=up");
@@ -40,4 +45,4 @@ $sel->wait_for_page_to_load($lxtest->{timeout});
 $sel->click_ok("delete_8");
 $sel->click_ok("document.forms[0].action[1]");
 $sel->wait_for_page_to_load($lxtest->{timeout});
-
+1;

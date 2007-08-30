@@ -1,5 +1,9 @@
 ### Create Database
-
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly", $0);
+  exit(0);
+}
 $sel->open_ok($lxtest->{lxadmin});
 
 if($sel->get_title() eq "") {
@@ -11,7 +15,7 @@ if($sel->get_title() eq "") {
 $sel->title_is("Lx-Office ERP Administration -");
 
 diag('Lock the system');
-$sel->click_ok("//input[(\@name=\"action\") and (\@value=\"System sperren\")]");
+$sel->click_ok("document.forms[0].action[3]"); # Button für System sperren
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 
 $sel->title_is("Lx-Office ERP Administration -");
@@ -38,6 +42,7 @@ $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->title_is("Lx-Office ERP Administration -");
 
 diag('Unlock the system');
-$sel->click_ok("//input[(\@name=\"action\") and (\@value=\"System entsperren\")]");
+$sel->click_ok("document.forms[0].action[3]"); # BUtton für System entsperren
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->title_is("Lx-Office ERP Administration -");
+1;

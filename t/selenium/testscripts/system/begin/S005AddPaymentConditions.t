@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 diag("Add payment conditions");
 
 $sel->select_frame_ok("relative=up");
@@ -12,3 +17,4 @@ $sel->type_ok("percent_skonto", "3");
 $sel->type_ok("terms_skonto", "97");
 $sel->click_ok("action");
 $sel->wait_for_page_to_load($lxtest->{timeout});
+1;

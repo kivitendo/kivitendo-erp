@@ -3,20 +3,26 @@ if(!defined $sel) {
   init_server("singlefileonly",$0);
   exit(0);
 }
-
-diag("Add project");
+diag("Delete project");
 
 if(!$sel->get_title("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db})){
-  require_ok("../../begin/B004Login.t");
+  require_ok("M000Login.t");
 }
 
 $sel->select_frame_ok("relative=up");
 $sel->title_is("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db});
-$sel->click_ok("link=Projekt erfassen");
+$sel->click_ok("link=Projekte");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->select_frame_ok("main_window");
-$sel->type_ok("projectnumber", "1001");
-$sel->type_ok("description", "tausend und eine Nacht");
 $sel->click_ok("action");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
+$sel->text_is("link=1001", "1001");
+$sel->click_ok("link=1001");
+$sel->wait_for_page_to_load_ok($lxtest->{timeout});
+TODO: {
+  local $TODO= "Benutzte Projekte können nicht gelöscht werden!";
+  $sel->click_ok("document.forms[0].action[1]");
+  $sel->wait_for_page_to_load_ok($lxtest->{timeout});
+}
+
 1;

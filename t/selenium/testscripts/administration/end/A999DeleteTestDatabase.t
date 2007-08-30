@@ -1,3 +1,8 @@
+if(!defined $sel) {
+  require "t/selenium/AllTests.t";
+  init_server("singlefileonly",$0);
+  exit(0);
+}
 
 $sel->open_ok($lxtest->{lxadmin});
 
@@ -32,3 +37,4 @@ diag('Unlock the system');
 $sel->click_ok("//input[(\@name=\"action\") and (\@value=\"System entsperren\")]");
 $sel->wait_for_page_to_load_ok($lxtest->{timeout});
 $sel->title_is("Lx-Office ERP Administration -");
+1;
