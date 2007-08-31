@@ -103,7 +103,10 @@ sub load_draft {
   if ($old_form) {
     $old_form = YAML::Load($old_form);
 
-    @{$form}{keys %{ $old_form } } = @{$old_form}{keys %{ $old_form } };
+    my %dont_save_vars      = map { $_ => 1 } @Drafts::dont_save;
+    my @restore_vars        = grep { !$skip_vars{$_} } keys %{ $old_form };
+
+    @{$form}{@restore_vars} = @{$old_form}{@restore_vars};
 
     $form->{draft_id}              = $id;
     $form->{draft_description}     = $description;

@@ -34,12 +34,14 @@ sub get_module {
   return ($module, $submodule);
 }
 
+@dont_save = qw(login password stylesheet action);
+
 sub save {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $draft_id, $draft_description) = @_;
 
-  my ($dbh, $sth, $query, %saved, @dont_save, $dumped);
+  my ($dbh, $sth, $query, %saved, $dumped);
 
   $dbh = $form->dbconnect_noauto($myconfig);
 
@@ -54,7 +56,6 @@ sub save {
     do_query($form, $dbh, $query, $draft_id, $module, $submodule);
   }
 
-  @dont_save = qw(login password action);
   map({ $saved{$_} = $form->{$_};
         delete($form->{$_}); } @dont_save);
 
