@@ -499,7 +499,7 @@ sub save_vendor {
     conv_i( $form->{language_id}),
     $form->{username},
     $form->{user_password},
-    conv_i($form->{v_customer_id}),
+    $form->{v_customer_id},
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);
