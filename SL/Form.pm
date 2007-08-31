@@ -758,6 +758,22 @@ sub format_amount {
   return $amount;
 }
 #
+
+sub format_string {
+  $main::lxdebug->enter_sub(2);
+
+  my $self  = shift;
+  my $input = shift;
+
+  $input =~ s/(^|[^\#]) \#  (\d+)  /$1$_[$2 - 1]/gx;
+  $input =~ s/(^|[^\#]) \#\{(\d+)\}/$1$_[$2 - 1]/gx;
+  $input =~ s/\#\#/\#/g;
+
+  $main::lxdebug->leave_sub(2);
+
+  return $input;
+}
+
 sub parse_amount {
   $main::lxdebug->enter_sub(2);
 
