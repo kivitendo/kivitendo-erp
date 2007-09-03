@@ -61,7 +61,7 @@
 #     plan tests => 200; # Need to be cutomized
 #   }
   sub init_server {
-    my $singlefileonly = 0;
+    our $singlefileonly = 0;
     if ($_[0] eq "singlefileonly") {  
       $singlefileonly = 1;
       shift;
@@ -115,7 +115,7 @@
     
     if(!$singlefileonly) {
       foreach my $scriptdir (@_) {
-        opendir(SCRIPTS, 't/selenium/testscripts/' . $scriptdir);
+        opendir(SCRIPTS, 't/selenium/testscripts/' . $scriptdir) or die "Can't open directory!" . $!;
         foreach (sort readdir(SCRIPTS)) {
           require_ok("t/selenium/testscripts/". $scriptdir . "/" . $_) if ( $_ =~ /^\w\d\d\d.*\.t$/);
         }
@@ -129,6 +129,17 @@
       @! = ("Test fehlgeschlagen!");
     }
     $sel->stop();
+  }
+  
+  sub start_login() {
+    require "t/selenium/testscripts/base/000Login.t" if(!$sel->{_page_opened});
+    skip("Failed page to load pages!",) if(!$sel->{_page_opened});
+
+    if($sel->get_title() ne "Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db}){
+      require "t/selenium/testscripts/base/000Login.t";
+    }
+
+    $sel->select_frame_ok("relative=up");
   }
   
 1;
