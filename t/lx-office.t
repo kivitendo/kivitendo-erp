@@ -34,7 +34,7 @@
   use diagnostics;
   use Carp;
   use Test::Harness;
-
+  
   my %tests = ("all" => 't/selenium/TestAllTests.t',
                "system" => 't/selenium/TestSystem.t',
                "selling" => 't/selenium/TestSelling.t',
@@ -176,4 +176,6 @@
     printf "\n\t\%s\n\t%s\n","Be ensure, that usage is promitted by login and db status!","\xAF" x 58;
   }
 unlink("/tmp/lxtest-temp.conf");
+
+
 exit 1;

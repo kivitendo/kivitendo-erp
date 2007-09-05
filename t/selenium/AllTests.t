@@ -61,7 +61,7 @@
 #     plan tests => 200; # Need to be cutomized
 #   }
   sub init_server {
-    our $singlefileonly = 0;
+    my $singlefileonly = 0;
     if ($_[0] eq "singlefileonly") {  
       $singlefileonly = 1;
       shift;
@@ -117,13 +117,21 @@
       foreach my $scriptdir (@_) {
         opendir(SCRIPTS, 't/selenium/testscripts/' . $scriptdir) or die "Can't open directory!" . $!;
         foreach (sort readdir(SCRIPTS)) {
-          require_ok("t/selenium/testscripts/". $scriptdir . "/" . $_) if ( $_ =~ /^\w\d\d\d.*\.t$/);
+          if ( $_ =~ /^\w\d\d\d.*\.t$|^\d\d\d.*\.t$/  && !$sel->{ran_tests}{"t/selenium/testscripts/". $scriptdir . "/" . $_}) {
+            require_ok("t/selenium/testscripts/". $scriptdir . "/" . $_);
+            $sel->{ran_tests}{"t/selenium/testscripts/". $scriptdir . "/" . $_} = 1;
+          }
         }
         closedir(SCRIPTS);
       }
     }
     else {
-      foreach (@_) { require_ok($_); }
+      foreach (@_) { 
+        if ( $_ =~ /^.*\/\w\d\d\d.*\.t$|^.*\/\d\d\d.*\.t$/  && !$sel->{ran_tests}{$_}) {
+          require_ok($_); 
+          $sel->{ran_tests}{$_} = 1;
+        }
+      }
     }
     if($!) {
       @! = ("Test fehlgeschlagen!");

@@ -32,5 +32,5 @@ if($sel->get_title() eq "Datenbankaktualisierung - Lx-Office Version 2.4.3 - -")
 }
   
 $sel->title_is("Lx-Office Version 2.4.3 - Selenium - " . $lxtest->{db});
-
+$sel->{ran_tests}{"t/selenium/testscripts/base/999Logout.t"} = 0;
 1;
