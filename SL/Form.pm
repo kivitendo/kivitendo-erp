@@ -591,7 +591,9 @@ sub parse_html_template2 {
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
 
   my $output;
-  $template->process($file, $additional_params, \$output);
+  if (!$template->process($file, $additional_params, \$output)) {
+    print STDERR $template->error();
+  }
 
   $output = $main::locale->{iconv}->convert($output) if ($main::locale);
 
