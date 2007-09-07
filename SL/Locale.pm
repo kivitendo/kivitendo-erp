@@ -91,13 +91,20 @@ sub new {
 }
 
 sub text {
-  my ($self, $text) = @_;
+  my $self = shift;
+  my $text = shift;
 
   if (exists $self->{texts}->{$text}) {
-    return $self->{iconv}->convert($self->{texts}->{$text});
+    $text = $self->{iconv}->convert($self->{texts}->{$text});
+  } else {
+    $text = $self->{iconv_english}->convert($text);
   }
 
-  return $self->{iconv_english}->convert($text);
+  if (@_) {
+    $text = Form->format_string($text, @_);
+  }
+
+  return $text;
 }
 
 sub findsub {

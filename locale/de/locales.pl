@@ -277,7 +277,7 @@ sub extract_text_between_parenthesis {
       } elsif (($cur_char eq '"') || ($cur_char eq '\'')) {
         $inside_string = $cur_char;
 
-      } elsif ($cur_char eq ")") {
+      } elsif (($cur_char eq ")") || ($cur_char eq ',')) {
         return ($text, substr($line, $pos + 1));
       }
 
