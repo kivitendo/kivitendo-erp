@@ -504,7 +504,7 @@ sub close_order {
 
   my ($self, $myconfig, $form) = @_;
 
-  $main::lxdebug->leave_sub() unless ($form->{"id"});
+  return $main::lxdebug->leave_sub() unless ($form->{"id"});
 
   my $dbh = $form->dbconnect($myconfig);
   do_query($form, $dbh, qq|UPDATE oe SET closed = TRUE where id = ?|,
