@@ -2352,33 +2352,30 @@ sub swap_payment_terms {
   $lxdebug->leave_sub();
 }
 
+sub _build_cfg_options {
+  my $idx   = shift;
+  my $array = uc($idx) . 'S';
+
+  $form->{$array} = [];
+  foreach my $item (@_) {
+    push @{ $form->{$array} }, {
+      'name'     => $item,
+      'value'    => $item,
+      'selected' => $item eq $myconfig{$idx},
+    };
+  }
+}
+
 sub config {
   $lxdebug->enter_sub();
 
   # get defaults for account numbers and last numbers
   AM->defaultaccounts(\%myconfig, \%$form);
 
-  foreach $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
-    $dateformat .=
-      ($item eq $myconfig{dateformat})
-      ? "<option selected>$item\n"
-      : "<option>$item\n";
-  }
+  map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
 
-  foreach $item (qw(1,000.00 1000.00 1.000,00 1000,00)) {
-    $numberformat .=
-      ($item eq $myconfig{numberformat})
-      ? "<option selected>$item\n"
-      : "<option>$item\n";
-  }
-
-  foreach $item (qw(name company address signature)) {
-    $myconfig{$item} =~ s/\"/&quot;/g;
-  }
-
-  foreach $item (qw(address signature)) {
-    $myconfig{$item} =~ s/\\n/\r\n/g;
-  }
+  _build_cfg_options('dateformat', qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
+  _build_cfg_options('numberformat', qw(1,000.00 1000.00 1.000,00 1000,00));
 
   @formats = ();
   if ($opendocument_templates && $openofficeorg_writer_bin &&
@@ -2402,346 +2399,79 @@ sub config {
   if (!$myconfig{"template_format"}) {
     $myconfig{"template_format"} = "pdf";
   }
-  my $template_format = "";
+  $form->{TEMPLATE_FORMATS} = [];
   foreach $item (@formats) {
-    $template_format .=
-      "<option value=\"$item->{value}\"" .
-      ($item->{"value"} eq $myconfig{"template_format"} ?
-       " selected" : "") .
-       ">" . H($item->{"name"}) . "</option>";
+    push @{ $form->{TEMPLATE_FORMATS} }, {
+      'name'     => $item->{name},
+      'value'    => $item->{value},
+      'selected' => $item->{value} eq $myconfig{template_format},
+    };
   }
 
   if (!$myconfig{"default_media"}) {
     $myconfig{"default_media"} = "screen";
   }
-  my %selected = ($myconfig{"default_media"} => "selected");
-  my $default_media = qq|
-  <option value="screen" $selected{'screen'}>| . $locale->text("Screen") . qq|</option>
-  <option value="printer" $selected{'printer'}>| . $locale->text("Printer") . qq|</option>
-  <option value="queue" $selected{'queue'}>| . $locale->text("Queue") . qq|</option>
-|;
 
-  %selected = ();
-  $selected{$myconfig{"default_printer_id"}} = "selected"
-    if ($myconfig{"default_printer_id"});
-  my $default_printer = qq|<option></option>|;
+  my %selected = ($myconfig{"default_media"} => "selected");
+  $form->{MEDIA} = [
+    { 'name' => $locale->text('Screen'),  'value' => 'screen',  'selected' => $selected{screen}, },
+    { 'name' => $locale->text('Printer'), 'value' => 'printer', 'selected' => $selected{printer}, },
+    { 'name' => $locale->text('Queue'),   'value' => 'queue',   'selected' => $selected{queue}, },
+    ];
+
   AM->printer(\%myconfig, $form);
+
+  $form->{PRINTERS} = [];
   foreach my $printer (@{$form->{"ALL"}}) {
-    $default_printer .= qq|<option value="| . Q($printer->{"id"}) .
-      qq|" $selected{$printer->{'id'}}>| .
-      H($printer->{"printer_description"}) . qq|</option>|;
+    push @{ $form->{PRINTERS} }, {
+      'name'     => $printer->{printer_description},
+      'value'    => $printer->{id},
+      'selected' => $printer->{id} == $myconfig{default_printer_id},
+    };
   }
 
   %countrycodes = User->country_codes;
-  $countrycodes = '';
-  foreach $key (sort { $countrycodes{$a} cmp $countrycodes{$b} }
-                keys %countrycodes
-    ) {
-    $countrycodes .=
-      ($myconfig{countrycode} eq $key)
-      ? "<option selected value=$key>$countrycodes{$key}\n"
-      : "<option value=$key>$countrycodes{$key}\n";
+
+  $countrycodes{""} = "American English";
+  $form->{COUNTRYCODES} = [];
+  foreach $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
+    push @{ $form->{COUNTRYCODES} }, {
+      'name'     => $countrycodes{$countrycode},
+      'value'    => $countrycode,
+      'selected' => $countrycode eq $myconfig{countrycode},
+    };
   }
-  $countrycodes = "<option>American English\n$countrycodes";
 
   foreach $key (keys %{ $form->{IC} }) {
-    foreach $accno (sort keys %{ $form->{IC}{$key} }) {
-      $myconfig{$key} .=
-        ($form->{IC}{$key}{$accno}{id} == $form->{defaults}{$key})
-        ? "<option selected>$accno--$form->{IC}{$key}{$accno}{description}\n"
-        : "<option>$accno--$form->{IC}{$key}{$accno}{description}\n";
+    foreach $accno (sort keys %{ $form->{IC}->{$key} }) {
+      my $array = "ACCNOS_" . uc($key);
+      $form->{$array} ||= [];
+
+      my $value = "${accno}--" . $form->{IC}->{$key}->{$accno}->{description};
+      push @{ $form->{$array} }, {
+        'name'     => $value,
+        'value'    => $value,
+        'selected' => $form->{IC}->{$key}->{$accno}->{id} == $form->{defaults}->{$key},
+      };
     }
   }
 
-#  opendir CSS, "css/.";
-#  @all = grep /.*\.css$/, readdir CSS;
-#  closedir CSS;
-
-# css dir has styles that are not intended as general layouts.
-# reverting to hardcoded list
-  @all = qw(lx-office-erp.css Win2000.css);
-
-  foreach $item (@all) {
-    if ($item eq $myconfig{stylesheet}) {
-      $selectstylesheet .= qq|<option selected>$item\n|;
-    } else {
-      $selectstylesheet .= qq|<option>$item\n|;
-    }
-  }
-  $selectstylesheet .= "<option>\n";
-
-  $form->{title} = $locale->text('Edit Preferences for') . qq| $form->{login}|;
-
-  $form->header;
-
-  if ($myconfig{menustyle} eq "old") {
-    $menustyle_old = "checked";
-  } elsif ($myconfig{menustyle} eq "neu") {
-    $menustyle_neu = "checked";
-  } elsif ($myconfig{menustyle} eq "v3") {
-    $menustyle_v3 = "checked";
+  $form->{STYLESHEETS} = [];
+  foreach $item (qw(lx-office-erp.css Win2000.css)) {
+    push @{ $form->{STYLESHEETS} }, {
+      'name'     => $item,
+      'value'    => $item,
+      'selected' => $item eq $myconfig{stylesheet},
+    };
   }
 
-  my ($show_form_details, $hide_form_details);
-  $myconfig{"show_form_details"} = 1
-    unless (defined($myconfig{"show_form_details"}));
-  $show_form_details = "checked" if ($myconfig{"show_form_details"});
-  $hide_form_details = "checked" unless ($myconfig{"show_form_details"});
+  $myconfig{show_form_details}              = 1 unless (defined($myconfig{show_form_details}));
+  $form->{"menustyle_$myconfig{menustyle}"} = 1;
 
-  print qq|
-<body>
+  $form->{title}                            = $locale->text('Edit Preferences for #1', $form->{login});
 
-<form method=post action=$form->{script}>
-
-<input type=hidden name=old_password value=$myconfig{password}>
-<input type=hidden name=type value=preferences>
-<input type=hidden name=role value=$myconfig{role}>
-
-<table width=100%>
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-	  <th align=right>| . $locale->text('Name') . qq|</th>
-	  <td><input name=name size=15 value="$myconfig{name}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Password') . qq|</th>
-	  <td><input type=password name=new_password size=10 value=$myconfig{password}></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('E-mail') . qq|</th>
-	  <td><input name=email size=30 value="$myconfig{email}"></td>
-	</tr>
-	<tr valign=top>
-	  <th align=right>| . $locale->text('Signature') . qq|</th>
-	  <td><textarea name=signature rows=3 cols=50>$myconfig{signature}</textarea></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Phone') . qq|</th>
-	  <td><input name=tel size=14 value="$myconfig{tel}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Fax') . qq|</th>
-	  <td><input name=fax size=14 value="$myconfig{fax}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Company') . qq|</th>
-	  <td><input name=company size=30 value="$myconfig{company}"></td>
-	</tr>
-	<tr valign=top>
-	  <th align=right>| . $locale->text('Address') . qq|</th>
-	  <td><textarea name=address rows=4 cols=50>$myconfig{address}</textarea></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Date Format') . qq|</th>
-	  <td><select name=dateformat>$dateformat</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Output Number Format') . qq|</th>
-	  <td><select name=numberformat>$numberformat</select></td>
-	</tr>
-
-	<tr>
-	  <th align=right>| . $locale->text('Dropdown Limit') . qq|</th>
-	  <td><input name=vclimit size=10 value="$myconfig{vclimit}"></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Language') . qq|</th>
-	  <td><select name=countrycode>$countrycodes</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Stylesheet') . qq|</th>
-	  <td><select name=usestylesheet>$selectstylesheet</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Setup Menu') . qq|</th>
-	  <td><input name=menustyle type=radio class=radio value=v3 $menustyle_v3>&nbsp;| .
-    $locale->text("Top (CSS)") . qq|
-	  <input name=menustyle type=radio class=radio value=neu $menustyle_neu>&nbsp;| .
-    $locale->text("Top (Javascript)") . qq|
-    <input name=menustyle type=radio class=radio value=old $menustyle_old>&nbsp;| .
-    $locale->text("Old (on the side)") . qq|</td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('Form details (second row)') . qq|</th>
-    <td><input type="radio" id="rad_show_form_details" name="show_form_details" value="1" $show_form_details>&nbsp;
-    <label for="rad_show_form_details">| . $locale->text('Show by default') . qq|</label>
-    <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" $hide_form_details>&nbsp;
-    <label for="rad_hide_form_details">| . $locale->text('Hide by default') . qq|</label></td>
-	</tr>
-	<input name=printer type=hidden value="$myconfig{printer}">
-	<tr class=listheading>
-	  <th colspan=2>| . $locale->text("Print options") . qq|</th>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Default template format') . qq|</th>
-	  <td><select name="template_format">$template_format</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Default output medium') . qq|</th>
-	  <td><select name="default_media">$default_media</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Default printer') . qq|</th>
-	  <td><select name="default_printer_id">$default_printer</select></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Number of copies') . qq|</th>
-	  <td><input name="copies" size="10" value="| .
-    $form->quote($myconfig{"copies"}) . qq|"></td>
-	</tr>
-
-
-	<tr class=listheading>
-	  <th colspan=2>&nbsp;</th>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Business Number') . qq|</th>
-	  <td><input name=businessnumber size=25 value="$myconfig{businessnumber}"></td>
-	</tr>
-	<tr>
-		<th align=right>| . $locale->text('Year End') . qq| (mm/dd)</th>
-		<td><input name=yearend size=5 value=$form->{defaults}{yearend}></td>
-	</tr>
-	<tr class=listheading>
-	  <th colspan=2>|
-    . $locale->text('Last Numbers & Default Accounts') . qq|</th>
-	</tr>
-	<tr>
-	  <td colspan=2>
-	    <table width=100%>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Inventory Account') . qq|</th>
-		<td><select name=inventory_accno>$myconfig{IC}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Revenue Account') . qq|</th>
-		<td><select name=income_accno>$myconfig{IC_income}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Expense Account') . qq|</th>
-		<td><select name=expense_accno>$myconfig{IC_expense}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Foreign Exchange Gain') . qq|</th>
-		<td><select name=fxgain_accno>$myconfig{FX_gain}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Foreign Exchange Loss') . qq|</th>
-		<td><select name=fxloss_accno>$myconfig{FX_loss}</select></td>
-	      </tr>
-	      <tr>
-		<td colspan=2>|
-    . $locale->text(
-    'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies'
-    )
-    . qq|<br><input name=curr size=40 value="$form->{defaults}{curr}"></td>
-	      </tr>
-            </table>
-          </td>
-         </tr>
-         <tr>
-           <td colspan=2>
-             <table width=100%>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Last Invoice Number') . qq|</th>
-		<td><input name=invnumber size=10 value=$form->{defaults}{invnumber}></td>
-                <th align=right nowrap>|
-    . $locale->text('Last Customer Number') . qq|</th>
-		<td><input name=customernumber size=10 value=$form->{defaults}{customernumber}></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>|
-    . $locale->text('Last Credit Note Number') . qq|</th>
-		<td><input name=cnnumber size=10 value=$form->{defaults}{cnnumber}></td>
-                <th align=right nowrap>|
-    . $locale->text('Last Vendor Number') . qq|</th>
-		<td><input name=vendornumber size=10 value=$form->{defaults}{vendornumber}></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>|
-    . $locale->text('Last Sales Order Number') . qq|</th>
-		<td><input name=sonumber size=10 value=$form->{defaults}{sonumber}></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>|
-    . $locale->text('Last Purchase Order Number') . qq|</th>
-		<td><input name=ponumber size=10 value=$form->{defaults}{ponumber}></td>
-                <th align=right nowrap>|
-    . $locale->text('Last Article Number') . qq|</th>
-		<td><input name=articlenumber size=10 value=$form->{defaults}{articlenumber}></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>|
-    . $locale->text('Last Sales Quotation Number') . qq|</th>
-		<td><input name=sqnumber size=10 value=$form->{defaults}{sqnumber}></td>
-                <th align=right nowrap>|
-    . $locale->text('Last Service Number') . qq|</th>
-		<td><input name=servicenumber size=10 value=$form->{defaults}{servicenumber}></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Last RFQ Number') . qq|</th>
-		<td><input name=rfqnumber size=10 value=$form->{defaults}{rfqnumber}></td>
-                <th align=right nowrap></th>
-		<td></td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>|;
-# 	<tr class=listheading>
-# 	  <th colspan=2>| . $locale->text('Tax Accounts') . qq|</th>
-# 	</tr>
-# 	<tr>
-# 	  <td colspan=2>
-# 	    <table>
-# 	      <tr>
-# 		<th>&nbsp;</th>
-# 		<th>| . $locale->text('Rate') . qq| (%)</th>
-# 		<th>| . $locale->text('Number') . qq|</th>
-# 	      </tr>
-# |;
-# 
-#   foreach $accno (sort keys %{ $form->{taxrates} }) {
-#     print qq|
-#               <tr>
-# 		<th align=right>$form->{taxrates}{$accno}{description}</th>
-# 		<td><input name=$form->{taxrates}{$accno}{id} size=6 value=$form->{taxrates}{$accno}{rate}></td>
-# 		<td><input name="taxnumber_$form->{taxrates}{$accno}{id}" value="$form->{taxrates}{$accno}{taxnumber}"></td>
-# 	      </tr>
-# |;
-#     $form->{taxaccounts} .= "$form->{taxrates}{$accno}{id} ";
-#   }
-# 
-#   chop $form->{taxaccounts};
-# 
-#   print qq|
-# <input name=taxaccounts type=hidden value="$form->{taxaccounts}">
-# 
-#             </table>
-# 	  </td>
-# 	</tr>
-print qq|      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">
-
-  </form>
-
-</body>
-</html>
-|;
+  $form->header();
+  print $form->parse_html_template2('am/config');
 
   $lxdebug->leave_sub();
 }
