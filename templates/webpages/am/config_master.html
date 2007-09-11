@@ -1,0 +1,303 @@
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="am.pl"name="Form">
+
+  <input type="hidden" name="type" value="preferences">
+  <input type="hidden" name="role" value="[% HTML.escape(myconfig_role) %]">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+  <input type="hidden" name="old_password" value="[% HTML.escape(myconfig_password) %]">
+
+  <p>
+   <table>
+    <tr>
+     <th align="right"><translate>Name</translate></th>
+     <td><input name="name" size="15" value="[% HTML.escape(myconfig_name) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Password</translate></th>
+     <td><input type="password" name="new_password" size="10" value="[% HTML.escape(myconfig_password) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>E-mail</translate></th>
+     <td><input name="email" size="30" value="[% HTML.escape(myconfig_email) %]"></td>
+    </tr>
+
+    <tr valign="top">
+     <th align="right"><translate>Signature</translate></th>
+     <td><textarea name="signature" rows="3" cols="50">[% HTML.escape(myconfig_signature) %]</textarea></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Phone</translate></th>
+     <td><input name="tel" size="14" value="[% HTML.escape(myconfig_tel) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Fax</translate></th>
+     <td><input name="fax" size="14" value="[% HTML.escape(myconfig_fax) %]"></td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Company</translate></th>
+     <td><input name="company" size="30" value="[% HTML.escape(myconfig_company) %]"></td>
+    </tr>
+    <tr valign="top">
+     <th align="right"><translate>Address</translate></th>
+     <td><textarea name="address" rows="4" cols="50">[% HTML.escape(myconfig_address) %]</textarea></td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Date Format</translate></th>
+     <td>
+      <select name="dateformat">
+       [%- FOREACH row = DATEFORMATS %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Output Number Format</translate></th>
+     <td>
+      <select name="numberformat">
+       [%- FOREACH row = NUMBERFORMATS %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Dropdown Limit</translate></th>
+     <td><input name="vclimit" size="10" value="[% HTML.escape(myconfig_vclimit) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Language</translate></th>
+     <td>
+      <select name="countrycode">
+       [%- FOREACH row = COUNTRYCODES %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Stylesheet</translate></th>
+     <td>
+      <select name="usestylesheet">
+       [%- FOREACH row = STYLESHEETS %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Setup Menu</translate></th>
+     <td>
+      <input name="menustyle" id="menustyle_v3" type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>&nbsp;
+      <label for="menustyle_v3"><translate>Top (CSS)</translate></label>
+      <input name="menustyle" id="menustyle_neu" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>&nbsp;
+      <label for="menustyle_neu"><translate>Top (Javascript)</translate></label>
+      <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;
+      <label for="menustyle_old"><translate>Old (on the side)</translate></label>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Form details (second row)</translate></th>
+     <td>
+      <input type="radio" id="rad_show_form_details" name="show_form_details" value="1" [% IF myconfig_show_form_details %]checked[% END %]>&nbsp;
+      <label for="rad_show_form_details"><translate>Show by default</translate></label>
+      <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" [% UNLESS myconfig_show_form_details %]checked[% END %]>&nbsp;
+      <label for="rad_hide_form_details"><translate>Hide by default</translate></label></td>
+    </tr>
+
+    <input name="printer" type="hidden" value="[% HTML.escape(myconfig_printer) %]">
+    <tr class="listheading">
+     <th colspan="2"><translate>Print options</translate></th>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Default template format</translate></th>
+     <td>
+      <select name="template_format">
+       [%- FOREACH row = TEMPLATE_FORMATS %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Default output medium</translate></th>
+     <td>
+      <select name="default_media">
+       [%- FOREACH row = MEDIA %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Default printer</translate></th>
+     <td>
+      <select name="default_printer_id">
+       [%- FOREACH row = PRINTERS %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Number of copies</translate></th>
+     <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
+    </tr>
+
+
+    <tr class="listheading">
+     <th colspan="2">&nbsp;</th>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Business Number</translate></th>
+     <td><input name="businessnumber" size="25" value="[% HTML.escape(myconfig_businessnumber) %]"></td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Year End</translate> (mm/dd)</th>
+     <td><input name="yearend" size="5" value="[% HTML.escape(defaults_yearend) %]"></td>
+    </tr>
+
+    <tr class="listheading">
+     <th colspan="2"><translate>Last Numbers & Default Accounts</translate></th>
+    </tr>
+
+    <tr>
+     <td colspan="2">
+      <table width="100%">
+       <tr>
+        <th align="right" nowrap><translate>Inventory Account</translate></th>
+        <td>
+         <select name="inventory_accno">
+          [%- FOREACH row = ACCNOS_IC %]
+          <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+          [%- END %]
+         </select>
+        </td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Revenue Account</translate></th>
+        <td>
+         <select name="income_accno">
+          [%- FOREACH row = ACCNOS_IC_INCOME %]
+          <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+          [%- END %]
+         </select>
+        </td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Expense Account</translate></th>
+        <td>
+         <select name="expense_accno">
+          [%- FOREACH row = ACCNOS_IC_EXPENSE %]
+          <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+          [%- END %]
+         </select>
+        </td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Foreign Exchange Gain</translate></th>
+        <td>
+         <select name="fxgain_accno">
+          [%- FOREACH row = ACCNOS_FX_GAIN %]
+          <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+          [%- END %]
+         </select>
+        </td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Foreign Exchange Loss</translate></th>
+        <td>
+         <select name="fxloss_accno">
+          [%- FOREACH row = ACCNOS_FX_LOSS %]
+          <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+          [%- END %]
+         </select>
+        </td>
+       </tr>
+
+       <tr>
+        <td colspan="2">
+         <translate>Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies</translate><br>
+         <input name="curr" size="40" value="[% HTML.escape(defaults_curr) %]">
+        </td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+
+    <tr>
+     <td colspan="2">
+      <table width="100"%>
+       <tr>
+        <th align="right" nowrap><translate>Last Invoice Number</translate></th>
+        <td><input name="invnumber" size="10" value="[% HTML.escape(defaults_invnumber) %]"></td>
+        <th align="right" nowrap><translate>Last Customer Number</translate></th>
+        <td><input name="customernumber" size="10" value="[% HTML.escape(defaults_customernumber) %]"></td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Last Credit Note Number</translate></th>
+        <td><input name="cnnumber" size="10" value="[% HTML.escape(defaults_cnnumber) %]"></td>
+        <th align="right" nowrap><translate>Last Vendor Number</translate></th>
+        <td><input name="vendornumber" size="10" value="[% HTML.escape(defaults_vendornumber) %]"></td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Last Sales Order Number</translate></th>
+        <td><input name="sonumber" size="10" value="[% HTML.escape(defaults_sonumber) %]"></td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Last Purchase Order Number</translate></th>
+        <td><input name="ponumber" size="10" value="[% HTML.escape(defaults_ponumber) %]"></td>
+        <th align="right" nowrap><translate>Last Article Number</translate></th>
+        <td><input name="articlenumber" size="10" value="[% HTML.escape(defaults_articlenumber) %]"></td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Last Sales Quotation Number</translate></th>
+        <td><input name="sqnumber" size="10" value="[% HTML.escape(defaults_sqnumber) %]"></td>
+        <th align="right" nowrap><translate>Last Service Number</translate></th>
+        <td><input name="servicenumber" size="10" value="[% HTML.escape(defaults_servicenumber) %]"></td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap><translate>Last RFQ Number</translate></th>
+        <td><input name="rfqnumber" size="10" value="[% HTML.escape(defaults_rfqnumber) %]"></td>
+       </tr>
+
+      </table>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr height="3" noshade>
+
+  <p><input type="submit" class="submit" name="action" value="<translate>Save</translate>"></p>
+ </form>
+
+</body>
+</html>
