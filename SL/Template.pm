@@ -92,6 +92,8 @@ sub format_string {
                  '&', quotemeta("\n"),
                  '"', '\$', '%', '_', '#', quotemeta('^'),
                  '{', '}',  '<', '>', '£', "\r", '±', '\xe1',
+                 '²', '³',
+
                  ],
      quotemeta("\\") => '\\textbackslash ',
      '<pagebreak>'   => '',
@@ -110,7 +112,9 @@ sub format_string {
      '±'             => '$\pm$',
      '\xe1'          => '$\bullet$',
      quotemeta('^')  => '\^\\',
-     quotemeta("\n") => '\newline '
+     quotemeta("\n") => '\newline ',
+     '²'             => '$^2$',
+     '³'             => '$^3$',
      );
 
   map({ $variable =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
