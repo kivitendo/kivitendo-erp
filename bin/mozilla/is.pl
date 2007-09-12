@@ -599,7 +599,7 @@ sub form_header {
                       max_dunning_level dunning_amount
                       shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax 
                       shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts),
-                      map { $_.'_rate', $_,'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} );
+                      map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} );
    
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
 
