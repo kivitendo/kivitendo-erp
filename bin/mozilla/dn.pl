@@ -124,11 +124,11 @@ sub show_invoices {
   $form->{jsscript}       = 1;
   $form->{callback}     ||= build_std_url("action=show_invoices", qw(login password customer invnumber ordnumber groupinvoices minamount dunning_level notes));
 
-  $form->{PRINT_OPTIONS}  = print_options({ 'inline'          => 1,
-                                            'no_queue'        => 1,
-                                            'no_postscript'   => 1,
-                                            'no_html'         => 1,
-                                            'no_opendocument' => 1, });
+  $form->{PRINT_OPTIONS}  = print_options('inline'          => 1,
+                                          'no_queue'        => 1,
+                                          'no_postscript'   => 1,
+                                          'no_html'         => 1,
+                                          'no_opendocument' => 1,);
 
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
@@ -282,11 +282,11 @@ sub show_dunning {
                    'languages' => 'languages');
 
   $form->{type}          = 'dunning';
-  $form->{PRINT_OPTIONS} = print_options({ 'inline'          => 1,
-                                           'no_queue'        => 1,
-                                           'no_postscript'   => 1,
-                                           'no_html'         => 1,
-                                           'no_opendocument' => 1, });
+  $form->{PRINT_OPTIONS} = print_options('inline'          => 1,
+                                         'no_queue'        => 1,
+                                         'no_postscript'   => 1,
+                                         'no_html'         => 1,
+                                         'no_opendocument' => 1,);
   $form->{title}         = $locale->text('Dunning overview');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);

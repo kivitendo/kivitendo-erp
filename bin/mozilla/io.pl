@@ -1404,9 +1404,7 @@ sub send_email {
 sub print_options {
   $lxdebug->enter_sub();
 
-  my ($options) = @_;
-
-  $options ||= { };
+  my %options = @_;
 
   # names 3 parameters and returns a hashref, for use in templates
   sub opthash { +{ value => shift, selected => shift, oname => shift } }
@@ -1461,21 +1459,21 @@ sub print_options {
       opthash("screen", $form->{OP}{screen}, $locale->text('Screen')),
     (scalar @{ $form->{printers} } && $latex_templates) ?
       opthash("printer", $form->{OP}{printer}, $locale->text('Printer')) : undef,
-    ($latex_templates && !$options->{no_queue}) ?
+    ($latex_templates && !$options{no_queue}) ?
       opthash("queue", $form->{OP}{queue}, $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
   push @FORMAT, grep $_,
     ($opendocument_templates && $openofficeorg_writer_bin && $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)
-     && !$options->{no_opendocument_pdf}) ?
+     && !$options{no_opendocument_pdf}) ?
       opthash("opendocument_pdf", $form->{DF}{"opendocument_pdf"}, $locale->text("PDF (OpenDocument/OASIS)")) : undef,
     ($latex_templates) ?
       opthash("pdf", $form->{DF}{pdf}, $locale->text('PDF')) : undef,
-    ($latex_templates && !$options->{no_postscript}) ?
+    ($latex_templates && !$options{no_postscript}) ?
       opthash("postscript", $form->{DF}{postscript}, $locale->text('Postscript')) : undef,
-    (!$options->{no_html}) ?
+    (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
-    ($opendocument_templates && !$options->{no_opendocument}) ?
+    ($opendocument_templates && !$options{no_opendocument}) ?
       opthash("opendocument", $form->{DF}{opendocument}, $locale->text("OpenDocument/OASIS")) : undef;
 
   push @LANGUAGE_ID, 
@@ -1486,7 +1484,7 @@ sub print_options {
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
       if ((ref $form->{printers} eq 'ARRAY') && scalar @{ $form->{printers } });
 
-  @SELECTS = map { sname => lc $_, DATA => \@$_, show => scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
+  @SELECTS = map { sname => lc $_, DATA => \@$_, show => !$options{"hide_" . lc($_)} && scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
 
   my %dont_display_groupitems = (
     'dunning' => 1,
@@ -1502,7 +1500,7 @@ sub print_options {
 
   my $print_options = $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
 
-  if ($options->{inline}) {
+  if ($options{inline}) {
     $lxdebug->leave_sub() and return $print_options;
   } else {
     print $print_options; $lxdebug->leave_sub();
