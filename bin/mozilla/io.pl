@@ -1368,7 +1368,7 @@ sub edit_e_mail {
   print $form->parse_html_template('generic/edit_email', 
                                   { title           => $title,
                                     a_filename      => $attachment_filename,
-                                    _print_options_ => print_options({ 'inline' => 1 }),
+                                    _print_options_ => print_options('inline' => 1),
                                     HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
                                     SHOW_BCC        => $myconfig{role} eq 'admin' });
 
