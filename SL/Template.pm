@@ -158,8 +158,6 @@ sub substitute_vars {
     my ($var, @options) = split(/\s+/, $1);
     my $value = $form->{$var};
 
-    $main::lxdebug->message(0, "REPL var: $1");
-
     for (my $i = 0; $i < scalar(@indices); $i++) {
       last unless (ref($value) eq "ARRAY");
       $value = $value->[$indices[$i]];
