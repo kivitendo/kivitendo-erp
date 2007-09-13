@@ -400,6 +400,52 @@ sub parse_first_line {
   return 1;
 }
 
+sub _parse_config_option {
+  my $self = shift;
+  my $line = shift;
+
+  $line =~ s/^\s*//;
+  $line =~ s/\s*$//;
+
+  my ($key, $value) = split m/\s*=\s*/, $line, 2;
+
+  if ($key eq 'tag-style') {
+    $self->set_tag_style(split(m/\s+/, $value, 2));
+  }
+}
+
+sub _parse_config_lines {
+  my $self  = shift;
+  my $lines = shift;
+
+  my ($comment_start, $comment_end) = ("", "");
+
+  if (ref $self eq 'LaTeXTemplate') {
+    $comment_start = '\s*%';
+  } elsif (ref $self eq 'HTMLTemplate') {
+    $comment_start = '\s*<!--';
+    $comment_end   = '>\s*';
+  } else {
+    $comment_start = '\s*\#';
+  }
+
+  my $num_lines = scalar @{ $lines };
+  my $i         = 0;
+
+  while ($i < $num_lines) {
+    my $line = $lines->[$i];
+
+    if ($line !~ m/^${comment_start}\s*config\s*:(.*)${comment_end}$/i) {
+      $i++;
+      next;
+    }
+
+    $self->_parse_config_option($1);
+    splice @{ $lines }, $i, 1;
+    $num_lines--;
+  }
+}
+
 sub parse {
   my $self = $_[0];
   local *OUT = $_[1];
@@ -412,7 +458,7 @@ sub parse {
   my @lines = <IN>;
   close(IN);
 
-  return 0 if (!$self->parse_first_line($lines[0]));
+  $self->_parse_config_lines(\@lines);
 
   my $contents = join("", @lines);
 

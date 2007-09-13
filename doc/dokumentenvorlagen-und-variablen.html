@@ -48,6 +48,9 @@ td {
   <li><a href="dokumentenvorlagen-und-variablen.html#zuordnung_dateinamen">
     Zuordnung von Dateinamen zu den Funktionen</a></li>
 
+  <li><a href="dokumentenvorlagen-und-variablen.html#tag_style">
+    Anfang und Ende der Tags ver&auml;ndern</a></li>
+
   <li><a href="dokumentenvorlagen-und-variablen.html#allgemeine_variablen">
     Allgemeine Variablen, die in allen Vorlagen vorhanden sind</a><br>
 
@@ -133,7 +136,11 @@ td {
  <p>Dies ist eine Auflistung der Standard-Dokumentenvorlagen und aller
   zur Bearbeitung verf&uuml;gbaren Variablen. Eine Variable wird in
   einer Vorlage durch ihren Inhalt ersetzt, wenn sie in der Form
-  <code>&lt;%variablenname%&gt;</code> verwendet wird.</p>
+  <code>&lt;%variablenname%&gt;</code> verwendet wird. F&uuml;r LaTeX-
+  und HTML-Vorlagen kann man die Form dieser Tags auch
+  <a href="dokumentenvorlagen-und-variablen.html#tag_style">
+   ver&auml;ndern</a>.
+ </p>
 
  <p>Fr&uuml;her wurde hier nur &uuml;ber LaTeX gesprochen. Inzwischen
   unterst&uuml;tzt Lx-Office aber auch OpenDocument-Vorlagen. Sofern
@@ -163,6 +170,36 @@ td {
    <code>key</code>s sind verf&uuml;gbar.</li>
 
  </ol>
+
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="tag_style">
+   Anfang und Ende der Tags ver&auml;ndern</a></h2>
+
+ <p>Der Standardstil f&uuml;r Tags sieht vor, dass ein Tag mit dem
+  Kleinerzeichen und einem Prozentzeichen beginnt und mit dem
+  Prozentzeichen und dem Gr&ouml;&szlig;erzeichen endet,
+  beispielsweise <code>&lt;%customer%&gt;</code>. Da diese Form aber
+  z.B. in LaTeX zu Problemen f&uuml;hren kann, weil das Prozentzeichen
+  dort Kommentare einleitet, kann pro HTML- oder
+  LaTeX-Dokumentenvorlage der Stil umgestellt werden.</p>
+
+ <p>Dazu werden in die Datei Zeilen geschrieben, die mit dem f&uuml;r
+  das Format g&uuml;ltigen Kommentarzeichen anfangen,
+  dann <code>config:</code> enthalten, die entsprechende Option setzen
+  und bei HTML-Dokumentenvorlagen mit dem Kommentarendzeichen
+  enden. Beispiel f&uuml;r LaTeX:</p>
+
+ <p><code>% config: tag-style=($ $)</code></p>
+
+ <p>Dies w&uuml;rde Lx-Office dazu veranlassen, Variablen zu ersetzen,
+  wenn sie wie folgt aussehen: <code>($customer$)</code>. Das
+  äquivalente Beispiel f&uuml;r HTML-Dokumentenvorlagen sieht so
+  aus:</p>
+
+ <p><code>&lt;!-- config: tag-stye=($ $)&gt;</code></p>
 
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
