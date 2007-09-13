@@ -28,12 +28,25 @@ sub new {
 sub _init {
   my $self = shift;
 
-  $self->{"source"} = shift;
-  $self->{"form"} = shift;
-  $self->{"myconfig"} = shift;
-  $self->{"userspath"} = shift;
+  $self->{source}    = shift;
+  $self->{form}      = shift;
+  $self->{myconfig}  = shift;
+  $self->{userspath} = shift;
 
-  $self->{"error"} = undef;
+  $self->{error}     = undef;
+
+  $self->set_tag_style('<%', '%>');
+}
+
+sub set_tag_style {
+  my $self              = shift;
+  my $tag_start         = shift;
+  my $tag_end           = shift;
+
+  $self->{tag_start}    = $tag_start;
+  $self->{tag_end}      = $tag_end;
+  $self->{tag_start_qm} = quotemeta $tag_start;
+  $self->{tag_end_qm}   = quotemeta $tag_end;
 }
 
 sub cleanup {
@@ -140,16 +153,19 @@ sub substitute_vars {
 
   my $form = $self->{"form"};
 
-  while ($text =~ /<\%(.*?)\%>/) {
+  while ($text =~ /$self->{tag_start_qm}(.+?)$self->{tag_end_qm}/) {
+    my ($tag_pos, $tag_len) = ($-[0], $+[0] - $-[0]);
     my ($var, @options) = split(/\s+/, $1);
     my $value = $form->{$var};
+
+    $main::lxdebug->message(0, "REPL var: $1");
 
     for (my $i = 0; $i < scalar(@indices); $i++) {
       last unless (ref($value) eq "ARRAY");
       $value = $value->[$indices[$i]];
     }
     $value = $self->format_string($value) unless (grep(/^NOESCAPE$/, @options));
-    substr($text, $-[0], $+[0] - $-[0]) = $value;
+    substr($text, $tag_pos, $tag_len) = $value;
   }
 
   return $text;
@@ -205,8 +221,8 @@ sub parse_foreach {
         # and <%lastpage%>
 
         my $psum = $form->format_amount($self->{"myconfig"}, $sum, 2);
-        $pb =~ s/<%sumcarriedforward%>/$psum/g;
-        $pb =~ s/<%lastpage%>/$current_page/g;
+        $pb =~ s/$self->{tag_start_qm}sumcarriedforward$self->{tag_end_qm}/$psum/g;
+        $pb =~ s/$self->{tag_start_qm}lastpage$self->{tag_end_qm}/$current_page/g;
 
         my $new_text = $self->parse_block($pb, (@indices, $i));
         return undef unless (defined($new_text));
@@ -236,36 +252,43 @@ sub parse_foreach {
 sub find_end {
   my ($self, $text, $pos, $var, $not) = @_;
 
+  my $tag_start_len = length $self->{tag_start};
+
   my $depth = 1;
   $pos = 0 unless ($pos);
 
   while ($pos < length($text)) {
     $pos++;
 
-    next if (substr($text, $pos - 1, 2) ne '<%');
+    next if (substr($text, $pos - 1, length($self->{tag_start})) ne $self->{tag_start});
 
-    if ((substr($text, $pos + 1, 2) eq 'if') || (substr($text, $pos + 1, 3) eq 'for')) {
+    my $keyword_pos = $pos - 1 + $tag_start_len;
+
+    if ((substr($text, $keyword_pos, 2) eq 'if') || (substr($text, $keyword_pos, 3) eq 'for')) {
       $depth++;
 
-    } elsif ((substr($text, $pos + 1, 4) eq 'else') && (1 == $depth)) {
+    } elsif ((substr($text, $keyword_pos, 4) eq 'else') && (1 == $depth)) {
       if (!$var) {
-        $self->{"error"} = '<%else%> outside of <%if%> / <%ifnot%>.';
+        $self->{"error"} =
+            "$self->{tag_start}else$self->{tag_end} outside of "
+          . "$self->{tag_start}if$self->{tag_end} / "
+          . "$self->{tag_start}ifnot$self->{tag_end}.";
         return undef;
       }
 
       my $block = substr($text, 0, $pos - 1);
       substr($text, 0, $pos - 1) = "";
-      $text =~ s!^<\%[^\%]+\%>!!;
-      $text = '<%if' . ($not ?  " " : "not ") . $var . '%>' . $text;
+      $text =~ s!^$self->{tag_start_qm}.+?$self->{tag_end_qm}!!;
+      $text =  $self->{tag_start} . 'if' . ($not ?  " " : "not ") . $var . $self->{tag_end} . $text;
 
       return ($block, $text);
 
-    } elsif (substr($text, $pos + 1, 3) eq 'end') {
+    } elsif (substr($text, $keyword_pos, 3) eq 'end') {
       $depth--;
       if ($depth == 0) {
         my $block = substr($text, 0, $pos - 1);
         substr($text, 0, $pos - 1) = "";
-        $text =~ s!^<\%[^\%]+\%>!!;
+        $text =~ s!^$self->{tag_start_qm}.+?$self->{tag_end_qm}!!;
 
         return ($block, $text);
       }
@@ -283,8 +306,8 @@ sub parse_block {
   my $new_contents = "";
 
   while ($contents ne "") {
-    my $pos_if = index($contents, '<%if');
-    my $pos_foreach = index($contents, '<%foreach');
+    my $pos_if      = index($contents, $self->{tag_start} . 'if');
+    my $pos_foreach = index($contents, $self->{tag_start} . 'foreach');
 
     if ((-1 == $pos_if) && (-1 == $pos_foreach)) {
       $new_contents .= $self->substitute_vars($contents, @indices);
@@ -295,8 +318,8 @@ sub parse_block {
       $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_foreach), @indices);
       substr($contents, 0, $pos_foreach) = "";
 
-      if ($contents !~ m|^<\%foreach (.*?)\%>|) {
-        $self->{"error"} = "Malformed <\%foreach\%>.";
+      if ($contents !~ m|^$self->{tag_start_qm}foreach (.+?)$self->{tag_end_qm}|) {
+        $self->{"error"} = "Malformed $self->{tag_start}foreach$self->{tag_end}.";
         $main::lxdebug->leave_sub();
         return undef;
       }
@@ -308,7 +331,7 @@ sub parse_block {
       my $block;
       ($block, $contents) = $self->find_end($contents);
       if (!$block) {
-        $self->{"error"} = "Unclosed <\%foreach\%>." unless ($self->{"error"});
+        $self->{"error"} = "Unclosed $self->{tag_start}foreach$self->{tag_end}." unless ($self->{"error"});
         $main::lxdebug->leave_sub();
         return undef;
       }
@@ -324,8 +347,8 @@ sub parse_block {
       $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_if), @indices);
       substr($contents, 0, $pos_if) = "";
 
-      if ($contents !~ m|^<\%if\s*(not)?\s+(.*?)\%>|) {
-        $self->{"error"} = "Malformed <\%if\%>.";
+      if ($contents !~ m|^$self->{tag_start_qm}if\s*(not)?\s+(.*?)$self->{tag_end_qm}|) {
+        $self->{"error"} = "Malformed $self->{tag_start}if$self->{tag_end}.";
         $main::lxdebug->leave_sub();
         return undef;
       }
@@ -336,7 +359,7 @@ sub parse_block {
 
       ($block, $contents) = $self->find_end($contents, 0, $var, $not);
       if (!$block) {
-        $self->{"error"} = "Unclosed <\%if${not}\%>." unless ($self->{"error"});
+        $self->{"error"} = "Unclosed $self->{tag_start}if${not}$self->{tag_end}." unless ($self->{"error"});
         $main::lxdebug->leave_sub();
         return undef;
       }
@@ -363,6 +386,22 @@ sub parse_block {
   return $new_contents;
 }
 
+sub parse_first_line {
+  my $self = shift;
+  my $line = shift || "";
+
+  if ($line =~ m/([^\s]+)set-tag-style([^\s]+)/) {
+    if ($1 eq $2) {
+      $self->{error} = "The tag start and end markers must not be equal.";
+      return 0;
+    }
+
+    $self->set_tag_style($1, $2);
+  }
+
+  return 1;
+}
+
 sub parse {
   my $self = $_[0];
   local *OUT = $_[1];
@@ -372,13 +411,15 @@ sub parse {
     $self->{"error"} = "$!";
     return 0;
   }
-  @_ = <IN>;
+  my @lines = <IN>;
   close(IN);
 
-  my $contents = join("", @_);
+  return 0 if (!$self->parse_first_line($lines[0]));
+
+  my $contents = join("", @lines);
 
   # detect pagebreak block and its parameters
-  if ($contents =~ /<%pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*%>(.*?)<%end(\s*pagebreak)?%>/s) {
+  if ($contents =~ /$self->{tag_start_qm}pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*$self->{tag_end_qm}(.*?)$self->{tag_start_qm}end(\s*pagebreak)?$self->{tag_end_qm}/s) {
     $self->{"chars_per_line"} = $1;
     $self->{"lines_on_first_page"} = $2;
     $self->{"lines_on_second_page"} = $3;
