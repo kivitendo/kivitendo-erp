@@ -48,9 +48,11 @@ sub new {
 
   $self->{data_present} = 0;
 
+  bless $self, $type;
+
   $self->set_options(@_) if (@_);
 
-  return bless $self, $type;
+  return $self;
 }
 
 sub set_columns {
