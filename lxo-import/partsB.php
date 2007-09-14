@@ -39,6 +39,10 @@ if ($_POST["ok"]=="Hilfe") {
 	foreach($parts as $key=>$val) {
 		echo "$key => $val<br>";
 	}
+	echo "<br>Die erste Zeile enth&auml;lt die Feldnamen der Daten in ihrer richtigen Reihenfolge<br>";
+	echo "Geben Sie das Trennzeichen der Datenspalten ein. Steuerzeichen k&ouml;nnen mit ihrem Dezimalwert gef&uuml;hrt von einem &quot;#&quot; eingegebn werden (#11).<br><br>"; 
+	echo "Der &quot;sellprice&quot; kann um den eingegeben Wert  ge&auml;ndert werden.<br><br>";
+	echo "Bei vorhandenen Artikelnummern (in der db), kann entweder ein Update auf den Preis durchgef&uuml;hrt werden oder der Artikel mit anderer Artikelnummer eingef&uuml;gt werden.<br><br>";
 	echo "Jeder Artikel mu&szlig; einer Buchungsgruppe zugeordnet werden. ";
 	echo "Dazu mu&szlig; entweder in der Maske eine Standardbuchungsgruppe gew&auml;hlt werden <br>";
 	echo "oder es wird ein g&uuml;ltiges Konto in 'income_accno_id' und 'expense_accno_id' eingegeben. ";
@@ -50,6 +54,10 @@ clearstatcache ();
 
 $test    = $_POST["test"];
 $trenner = ($_POST["trenner"])?$_POST["trenner"]:",";
+$trennzeichen = ($_POST["trennzeichen"])?$_POST["trennzeichen"]:"";
+$precision = $_POST["precision"];
+$quotation = $_POST["quotation"];
+$quottype = $_POST["quottype"];
 $file    = "parts";
 
 /* no data? */
@@ -81,7 +89,10 @@ if (!chkUsr($login))
 
 /* first check all elements */
 echo "Checking data:<br>";
-$err = import_parts($db, $file, $trenner, $parts, TRUE, FALSE, FALSE,$_POST);
+$_test=$_POST;
+$_test["precision"]=-1;
+$_test["quotation"]=0;
+$err = import_parts($db, $file, $trenner, $trennzeichen, $parts, TRUE, FALSE, FALSE,$_test);
 echo "$err Errors found\n";
 
 
@@ -89,7 +100,7 @@ if ($err!=0)
 	exit(0);
 
 /* just print data or insert it, if test is false */
-import_parts($db, $file, $trenner, $parts, FALSE, !$test, TRUE,$_POST);
+import_parts($db, $file, $trenner, $trennzeichen, $parts, FALSE, !$test, TRUE,$_POST);
 
 } else {
 	$bugrus=getAllBG($db);
@@ -102,7 +113,26 @@ import_parts($db, $file, $trenner, $parts, FALSE, !$test, TRUE,$_POST);
 <input type="hidden" name="login" value="<?= $login ?>">
 <table>
 <tr><td></td><td><input type="submit" name="ok" value="Hilfe"></td></tr>
-<tr><td>Trennzeichen</td><td><input type="text" size="2" maxlength="1" name="trenner" value=";"></td></tr>
+<tr><td>Trennzeichen</td><td>
+		<input type="radio" name="trenner" value=";" checked>Semikolon 
+		<input type="radio" name="trenner" value=",">Komma 
+		<input type="radio" name="trenner" value="#9">Tabulator
+		<input type="radio" name="trenner" value=" ">Leerzeichen
+		<input type="radio" name="trenner" value="other"> 
+		<input type="text" size="2" name="trennzeichen" value=""> 
+</td></tr>
+<tr><td>VK-Preis<br>Nachkomma:</td><td><input type="Radio" name="precision" value="0">0  
+			<input type="Radio" name="precision" value="1">1 
+			<input type="Radio" name="precision" value="2" checked>2 
+			<input type="Radio" name="precision" value="3">3 
+			<input type="Radio" name="precision" value="4">4 
+			<input type="Radio" name="precision" value="5">5 
+	</td></tr>
+<tr><td>VK-Preis<br>Aufschlag:</td><td><input type="text" name="quotation" size="5" value="0"> 
+			<input type="radio" name="quottype" value="P" checked>% 
+			<input type="radio" name="quottype" value="A">Absolut</td></tr>
+<tr><td>Vorhandene<br>Artikelnummer:</td><td><input type="radio" name="update" value="U" checked>Preis update durchf&uuml;hren<br>
+					<input type="radio" name="update" value="I">mit neuer Nummer einf&uuml;gen</td></tr>
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Art</td><td><input type="Radio" name="ware" value="W">Ware &nbsp; 
 		    <input type="Radio" name="ware" value="D">Dienstleistung

@@ -69,8 +69,8 @@ $parts = array(
 	"weight" => "Gewicht in Benutzerdefinition",
 	"onhand" => "Lagerbestand",
 	"notes" => "Beschreibung",
-	"makemodel" => "Hersteller",
-	"model" => "Modellbezeichnung",
+	//"makemodel" => "Hersteller",
+	//"model" => "Modellbezeichnung",
 	"bin" => "Lagerort",
 	"image" => "Pfad/Dateiname",
 	"drawing" => "Pfad/Dateiname",
@@ -88,6 +88,7 @@ $parts = array(
 	"shop" => "Shopartikel (Y/N)",
 	"assembly" => "Stückliste (Y/N); wird noch nicht unterstützt",
 	"partsgroup" => "Warengruppenbezeichnung",
+	"partsgroup1" => "2.Warengruppenbezeichnung",
 	//"income_accno_0" => "?Nummer? für Erlöse Inland",
 	//"income_accno_1" => "?Nummer? für Erlöse EG",
 	//"income_accno_3" => "?Nummer? für Erlöse Ausland",
@@ -287,6 +288,10 @@ class myDB extends DB {
  var $showErr = false;
  var $db = false;
  var $debug = false;
+ var $logsql = false;
+ var $errfile = false;
+ var $logfile = false;
+
 
 /****************************************************
 * uudecode
@@ -317,13 +322,17 @@ class myDB extends DB {
 			echo "$sql : $err\n";
 	}
 
-	function showDebug($sql) {
+	function showDebug($sql) {	
 		echo $sql."\n";
 		if ($this->debug==2) {
 			print_r($this->rc);
 		};
 	}
 
+	function logSql($sql) {
+		if (!$this->logfile)  $this->logfile=fopen("import.sql","a");
+		fputs($this->logfile,$sql."\n");
+	}
 	function myDB($usr) {
 		// Datenbankparameter des ERP-Users benutzen.
 		$tmp = file_get_contents("../users/$usr.conf");
@@ -357,6 +366,7 @@ class myDB extends DB {
 
 	function query($sql) {
 		$this->rc=@$this->db->query($sql);
+		if ($this->logsql) $this->logSql($sql);
 		if ($this->debug) $this->showDebug($sql);
 		if(DB::isError($this->rc)) {
 			$this->dbFehler($sql,$this->rc->getMessage());
@@ -367,6 +377,7 @@ class myDB extends DB {
 	}
 	function getAll($sql) {
 		$this->rc=@$this->db->getAll($sql,DB_FETCHMODE_ASSOC);
+		if ($this->logsql) $this->logSql($sql);
 		if ($this->debug) $this->showDebug($sql);
 		if(DB::isError($this->rc)) {
 			$this->dbFehler($sql,$this->rc->getMessage());

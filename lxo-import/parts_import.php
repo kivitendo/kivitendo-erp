@@ -23,12 +23,27 @@ function getPartsgroupId($db, $value, $add) {
 	return $rs[0]["id"];
 }
 
+//Muß noch eingebunden werden
+function getMakemodel($db,$hersteller,$model,$partsid,$add=true) {
+	$sql="select * from makemodel where make like '$hersteller' and model like = '$model'";
+	$rs=$db->getAll($sql);
+	if (empty($rs[0]["id"]) && $add) {
+		$sql="insert into makemodel (parts_id,make,model) values ($partsid,'$hersteller','$model')";    
+		$rc=$db->query($sql);
+		if (!$rc) return "f";
+		return getMakemodel($db,$hersteller,$model,$partsid,false);
+	}
+	if ($rs[0]["parts_id"]==$partsid) { return "t"; }
+	else { return "f"; }
+}
+
 function getAccnoId($db, $accno) {
 	$sql = "select id from chart where accno='$accno'";
 	$rs=$db->getAll($sql);
 	return $rs[0]["id"];
 }
 
+//Auf Artikelnummer testen, bzw. neue Nummer erzeugen
 function chkPartNumber($db,$number,$check) {
 	if ($number<>"") {
 		$sql = "select * from parts where partnumber = '$number'";
@@ -52,6 +67,27 @@ function chkPartNumber($db,$number,$check) {
 		if ($rs[0]["id"]>0) return "";
 	}
 	return $number;
+}
+
+//Artikelnummer testen und wenn vorhanden Preis ändern
+function chkPartNumberUpd($db,$sellprice,$partnumber,$check){
+	if ($partnumber=="") {
+		$nummer=chkPartNumber($db,$partnumber,$check);
+		if ($nummer=="") { return -99; }
+		else { return $nummer; };
+	}
+	$sql = "select * from parts where partnumber = '$partnumber'";
+	$rs=$db->getAll($sql);
+	if ($rs[0]["id"]>0) {
+		if ($check) return -1;
+		$sql="update parts set sellprice = $sellprice where partnumber = '$partnumber'";
+		$rc=$db->query($sql);
+		if ($rc) return -1;
+		return -99;
+	}
+	$nummer=chkPartNumber($db,$partnumber,$check);
+	if ($nummer=="") { return -99; }
+	else { return $nummer; };
 }
 
 function getBuchungsgruppe($db, $income, $expense) {
@@ -93,8 +129,23 @@ function show($show, $things) {
 		echo $things;
 }
 
-function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$maske) {
+function getStdUnit($db,$type) {
+	$sql="select * from units where type='$type' order by sortkey limit 1";
+	$rs=$db->getAll($sql);
+	if (empty($rs[0]["name"])) return "Stck";
+	return $rs[0]["name"];
+}
 
+function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $insert, $show,$maske) {
+
+	$pgshow=false;
+	$note2show=false;
+	$fehler=0;
+	$precision=$maske["precision"];
+	$quotation=$maske["quotation"];
+	$quottype=$maske["quottype"];
+
+	$Update=($maske["update"]=="U")?true:false;
 	/* field description */
 	$parts_fld = array_keys($fields);
 
@@ -105,22 +156,64 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 	 * read first line with table descriptions
 	 */
 	show( $show, "<table border='1'><tr><td>#</td>\n");
+	if ($trenner=="other") $trenner=trim($trennzeichen);
+	if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
 	$infld=fgetcsv($f,1200,$trenner);
 	foreach ($infld as $fld) {
 		$fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
 		$in_fld[]=$fld;
 		if (in_array(trim($fld),$parts_fld)) {
-			show( $show, "<td>$fld</td>\n");
+			if ($fld=="partsgroup" || $fld=="partsgroup1" ) {
+				$pgshow=true;
+			} else {
+				show( $show, "<td>$fld</td>\n");
+			}
 		}
 	}
-
+	if (!in_array("unit",$infld)) {
+		$stdunitW=getStdUnit($db,"dimension");
+		$stdunitD=getStdUnit($db,"service");
+		$unit=true;
+		show( $show, "<td>unit</td>\n");
+	};
+	if ($pgshow) show( $show, "<td>partsgroup</td>\n");
+	$posprice=0;
+	$posnumber=0;
+	$j=0;
+	foreach ($infld as $value) { 
+		if ($infld[$j]=="sellprice") $posprice=$j;  
+		if ($infld[$j]=="partnumber") $posnumber=$j;
+		$j++; 
+	}
 	$m=0;		/* line */
 	$errors=0;	/* number of errors detected */
 	$income_accno = "";
 	$expense_accno = "";
-	while ( ($zeile=fgetcsv($f,1200,$trenner)) != FALSE) {
+	if ($quottype=="P") $quotation=($quotation+100)/100;
+	while ( ($zeile=fgetcsv($f,15000,$trenner)) != FALSE) {
 		$i=0;	/* column */
 	        $m++;	/* increase line */
+
+		if ($Update) {
+			$sellprice=$zeile[$posprice];
+			$partnumber=$zeile[$posnumber];
+			$sellprice = str_replace(",", ".", $sellprice);
+			if ($quotation<>0) {
+				if ($quottype=="A") { $sellprice += $quotation; }
+				else { $sellprice = $sellprice * $quotation; }
+			};
+			if ($precision>=0) $sellprice = round($sellprice,$precision);
+			$rc=chkPartNumberUpd($db,$sellprice,$partnumber,!$insert);
+			if ($rc==-1) {
+				show($show,"<tr><td>Update </td><td>$partnumber:$sellprice</td></tr>\n");
+				continue;
+			} else if ($rc==-99) {
+				show($show,"<tr><td>Fehler Zeile $m</td></tr>\n");
+				continue;
+			} else {
+				$zeile[$posnumber]=$rc;
+			}
+		};
 
 		$sql="insert into $file ";
 		$keys="(";
@@ -132,6 +225,7 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 		$dienstleistung=false;
 		$artikel=-1;
 		$partNr=false;
+		$pg_name_val="";
 		foreach($zeile as $data) {
 			/* check if column will be imported */
 			if (!in_array(trim($in_fld[$i]),$parts_fld)) {
@@ -139,31 +233,35 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 				continue;
 			};
 			$data=trim($data);
-			//$data=addslashes($data);
 			$key=$in_fld[$i];
 			/* add key and data */
-			if ($data==false or empty($data) or !$data) {
-				show( $show, "<td>NULL</td>\n");
+
+			/* special case partsgroup1 */
+			if ($key == "partsgroup1") {
+				if ($pg_name_val<>"") {
+					if ($data<>"")	$pg_name_val.="!".$data;
+				} else {
+					$pg_name_val=$data;
+				}
 				$i++;
 				continue;
-			}
-
-			/* special case partsgroup */
-			if ($key == "partsgroup") {
-
-				/* get ID of partsgroup or add new 
-				 * partsgroup_id */
-				$data = getPartsgroupId($db, $data, $insert);
-				$key  = "partsgroup_id";
-
-				/* TODO error handling */
-
+			} else if ($key == "partsgroup") {
+			        /* special case partsgroup */
+				$pg_name_val=$data;
+				$i++;
+				continue;
 			} else if ($key == "lastcost" || 
 				   $key == "sellprice") {
 				
 				/* convert 0,0 numeric into 0.0 */
 				$data = str_replace(",", ".", $data);
-
+				if ($key == "sellprice") {
+					if ($quotation<>0) {
+						if ($quottype=="A") { $data += $quotation; }
+						else { $data = $data * $quotation; }
+					};
+					if ($precision>=0) $data = round($data,$precision);
+				}
 			} else if ($key == "partnumber") {
 				$partNr=true;
 				$partnumber=chkPartNumber($db,$data,$check);
@@ -183,6 +281,12 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 				$data=mb_convert_encoding($data,"ISO-8859-15","auto");
 				$data=addslashes($data);
 			} else if ($key == "unit") {
+				if ($data=="") {
+					if ($maske["ware"]=="W") { $data=$stdunitW; }
+					else if ($maske["ware"]=="D") { $data=$stdunitD; }
+					//else if ($maske["ware"]=="G") { $data=$stdunitD; //Noch machen!}
+					else { $data=$stdunitW; };
+				}
 				/* convert stück and Stunde */
 				if (preg_match("/^st..?ck$/i", $data))
 					$data = "Stck";
@@ -211,15 +315,37 @@ function import_parts($db, $file, $trenner, $fields, $check, $insert, $show,$mas
 				show( $show, "<td>$data</td>\n");
 				continue;
 			}
+			if ($data==false or empty($data) or !$data) {
+				show( $show, "<td>NULL</td>\n");
+				$i++;
+				continue;
+			}
 			/* convert JA to Yes */
-			if ($data == "J" )
-				$data = "Y";
-
+			if ($data === "J" || $data === "j")  $data = "Y";
 			$vals.="'".$data."',";
-			show( $show, "<td>$data</td>\n");
+			show( $show, "<td>".htmlentities($data)."</td>\n");
 			$keys.=$key.",";
-	
 			$i++;
+		}
+		if ($unit) {
+			if ($maske["ware"]=="D") { $einh=$stdunitD; }
+			else  { $einh=$stdunitW; }
+			$keys.="unit,";
+			$vals.="'$einh',";
+			show( $show,"<td>$einh</td>\n");
+		}
+		/* special case partsgroup */
+		if ($pgshow) {
+			if ($pg_name_val) {
+				/* get ID of partsgroup or add new 
+				 * partsgroup_id */
+				$ID = getPartsgroupId($db, $pg_name_val, $insert);
+				$keys.= "partsgroup_id,";
+				$vals.="'".$ID."',";
+				show( $show, "<td>".htmlentities($pg_name_val).":$ID</td>\n");
+			} else {
+				show( $show,"<td>NULL</td>\n");
+			}
 		}
 		if ($artikel==-1) {
 			if ($maske["ware"]=="D") {  $artikel=false; }
