@@ -131,6 +131,14 @@ sub dump {
     my $dumper = Data::Dumper->new([$variable]);
     $dumper->Sortkeys(1);
     $self->message($level, "dumping ${name}:\n" . $dumper->Dump());
+
+    # Data::Dumper does not reset the iterator belonging to this hash
+    # if 'Sortkeys' is true. Therefore clear the iterator manually.
+    # See "perldoc -f each".
+    if ($variable && ('HASH' eq ref $variable)) {
+      keys %{ $variable };
+    }
+
   } else {
     $self->message($level,
                    "dumping ${name}: Data::Dumper not available; "
