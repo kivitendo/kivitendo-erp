@@ -72,10 +72,11 @@ sub transactions {
     qq|  o.marge_total, o.marge_percent, | .
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
-    qq|  e.name AS employee | .
+    qq|  e.name AS employee, s.name AS salesman | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
+    qq|LEFT JOIN employee s ON (o.salesman_id = s.id) | .
     qq|LEFT JOIN exchangerate ex ON (ex.curr = o.curr | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
@@ -108,6 +109,11 @@ sub transactions {
   if ($form->{employee_id}) {
     $query .= " AND o.employee_id = ?";
     push @values, conv_i($form->{employee_id});
+  }
+  
+  if ($form->{salesman_id}) {
+    $query .= " AND o.salesman_id = ?";
+    push @values, conv_i($form->{salesman_id});
   }
 
   if (!$form->{open} && !$form->{closed}) {
@@ -151,6 +157,7 @@ sub transactions {
      "quonumber" => "o.quonumber",
      "name" => "ct.name",
      "employee" => "e.name",
+     "salesman" => "e.name",
      "shipvia" => "o.shipvia",
      "transaction_description" => "o.transaction_description");
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {

@@ -1307,10 +1307,12 @@ sub search {
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
 
-  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 1 },
+  $form->get_lists("projects"  => { "key" => "ALL_PROJECTS",
+                                    "all" => 1 },
                    "employees" => "ALL_EMPLOYEES",
-                   $vc => "ALL_" . uc($vc));
+                   "salesmen"  => "ALL_SALESMEN",
+                   $vc         => "ALL_" . uc($vc)
+                  );
 
   my %labels = ();
   my @values = ("");
@@ -1329,6 +1331,14 @@ sub search {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
   }
+  
+  #salesmen
+  my %labels_salesmen = ();
+  my @values_salesmen = ('');
+  foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
+    push(@values_salesmen, $item->{"id"});
+    $labels_salesmen{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
+  }
 
   my $employee_block = qq|
     <tr>
@@ -1337,6 +1347,14 @@ sub search {
         NTI($cgi->popup_menu('-name'   => 'employee_id',
                              '-values' => \@values,
                              '-labels' => \%labels)) . qq|
+      </td>
+    </tr>
+    <tr>
+      <th align="right">| . $locale->text('Salesman') . qq|</th>
+      <td>| .
+        NTI($cgi->popup_menu('-name'   => 'salesman_id',
+                             '-values' => \@values_salesmen,
+                             '-labels' => \%labels_salesmen)) . qq|
       </td>
     </tr>|;
 
@@ -1420,6 +1438,7 @@ sub search {
 	      <tr>
 	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vc_label</td>
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
+	        
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> |
     . $locale->text('Ship via') . qq|</td>
 	      </tr>
@@ -1446,6 +1465,8 @@ sub search {
 	      <tr>
 	        <td><input name="l_subtotal" class=checkbox type=checkbox value=Y> |
     . $locale->text('Subtotal') . qq|</td>
+                <td><input name="l_salesman" class="checkbox" type="checkbox" value="Y"> |
+    . $locale->text('Salesman') . qq|</td>
 	      </tr>
 	    </table>
           </td>
@@ -1513,6 +1534,7 @@ sub orders {
     "name",                    "netamount",
     "tax",                     "amount",
     "curr",                    "employee",
+    "salesman",
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
     "delivered", "marge_total", "marge_percent"
@@ -1551,7 +1573,7 @@ sub orders {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
-                                                        transaction_description transdatefrom transdateto type vc employee_id);
+                                                        transaction_description transdatefrom transdateto type vc employee_id salesman_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -1567,7 +1589,8 @@ sub orders {
     'tax'                     => { 'text' => $locale->text('Tax'), },
     'amount'                  => { 'text' => $locale->text('Total'), },
     'curr'                    => { 'text' => $locale->text('Curr'), },
-    'employee'                => { 'text' => $locale->text('Salesperson'), },
+    'employee'                => { 'text' => $locale->text('Employee'), },
+    'salesman'                => { 'text' => $locale->text('Salesman'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
@@ -1577,7 +1600,7 @@ sub orders {
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), }
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee shipvia)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia)) {
     $column_defs{$name}->{link} = $href . "&sort=$name";
   }
 
