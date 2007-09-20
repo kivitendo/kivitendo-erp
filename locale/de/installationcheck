@@ -7,6 +7,7 @@ $self->{texts} = {
   'File'                        => 'Datei',
   'Here\'s an example command line:' => 'Hier ist eine Kommandozeile, die als Beispiel dient:',
   'Message'                     => 'Nachricht',
+  'Missing parameter #1 in call to sub #2.' => 'Fehlernder Parameter \'#1\' in Funktionsaufruf \'#2\'.',
   'Module home page'            => 'Modul-Webseite',
   'Module name'                 => 'Modulname',
   'One or more Perl modules missing' => 'Ein oder mehr Perl-Module fehlen',

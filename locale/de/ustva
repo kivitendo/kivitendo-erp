@@ -66,6 +66,7 @@ $self->{texts} = {
   'Missing \'tag\' field.'      => 'Fehlendes Feld \'tag\'.',
   'Missing Method!'             => 'Fehlender Voranmeldungszeitraum',
   'Missing Tax Authoritys Preferences' => 'Fehlende Angaben zum Finanzamt!',
+  'Missing parameter #1 in call to sub #2.' => 'Fehlernder Parameter \'#1\' in Funktionsaufruf \'#2\'.',
   'More than one control file with the tag \'%s\' exist.' => 'Es gibt mehr als eine Kontrolldatei mit dem Tag \'%s\'.',
   'Name'                        => 'Name',
   'No Company Address given'    => 'Keine Firmenadresse hinterlegt!',
