@@ -444,7 +444,7 @@ sub save {
 
   # add shipto
   $form->{name} = $form->{ $form->{vc} };
-  $form->{name} =~ s/--$form->{"$form->{vc}_id"}//;
+  $form->{name} =~ s/--\Q$form->{"$form->{vc}_id"}\E//;
 
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "OE");
@@ -824,7 +824,7 @@ sub retrieve {
           $ptr->{accno} = $i;
         }
         $ref->{taxaccounts} .= "$ptr->{accno} ";
-        if (!($form->{taxaccounts} =~ /$ptr->{accno}/)) {
+        if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
           $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
           $form->{"$ptr->{accno}_description"} = $ptr->{taxdescription};
           $form->{"$ptr->{accno}_taxnumber"}   = $ptr->{taxnumber};

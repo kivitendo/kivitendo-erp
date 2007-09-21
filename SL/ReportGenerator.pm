@@ -231,7 +231,7 @@ sub get_visible_columns {
   my $self   = shift;
   my $format = shift;
 
-  return grep { my $c = $self->{columns}->{$_}; $c && $c->{visible} && (($c->{visible} == 1) || ($c->{visible} =~ /${format}/i)) } @{ $self->{column_order} };
+  return grep { my $c = $self->{columns}->{$_}; $c && $c->{visible} && (($c->{visible} == 1) || ($c->{visible} =~ /\Q${format}\E/i)) } @{ $self->{column_order} };
 }
 
 sub html_format {

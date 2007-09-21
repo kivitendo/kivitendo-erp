@@ -70,7 +70,7 @@ sub display {
 sub acc_menu {
   $lxdebug->enter_sub();
   $mainlevel = $form->{level};
-  $mainlevel =~ s/$mainlevel--//g;
+  $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = new Menu "$menufile";
 
   $form->{title} = $locale->text('Accounting Menu');
@@ -106,7 +106,7 @@ sub section_menu {
     $item  = shift @menuorder;
     $label = $item;
     $ml    = $item;
-    $label =~ s/$level--//g;
+    $label =~ s/\Q$level\E--//g;
     $ml    =~ s/--.*//;
     if ($ml eq $mainlevel) { $zeige = 1; }
     else { $zeige = 0; }
@@ -138,7 +138,7 @@ sub section_menu {
 
     if ($menu->{$item}{submenu}) {
       $menu->{$item}{$item} = !$form->{$item};
-      if ($form->{level} && $item =~ /^$form->{level}/) {
+      if ($form->{level} && $item =~ /^\Q$form->{level}\E/) {
 
         # expand menu
         if ($zeige) {

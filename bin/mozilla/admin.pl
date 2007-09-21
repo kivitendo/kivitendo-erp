@@ -438,7 +438,7 @@ sub save {
         open(TEMP, "$templates/$file")
           or $form->error("$templates/$file : $ERRNO");
 
-        $file =~ s/$form->{mastertemplates}-//;
+        $file =~ s/\Q$form->{mastertemplates}\E-//;
         open(NEW, ">$form->{templates}/$file")
           or $form->error("$form->{templates}/$file : $ERRNO");
 

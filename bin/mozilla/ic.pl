@@ -1910,7 +1910,7 @@ sub link_part {
 
       # if this is a tax field
       if ($key =~ /IC_tax/) {
-        if ($key =~ /$item/) {
+        if ($key =~ /\Q$item\E/) {
           $form->{taxaccounts} .= "$ref->{accno} ";
           $form->{"IC_tax_$ref->{accno}_description"} =
             "$ref->{accno}--$ref->{description}";

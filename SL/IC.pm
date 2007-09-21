@@ -577,7 +577,7 @@ sub save {
   $form->{taxaccount} = "";
   while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
     $form->{taxaccount} .= "$ptr->{accno} ";
-    if (!($form->{taxaccount2} =~ /$ptr->{accno}/)) {
+    if (!($form->{taxaccount2} =~ /\Q$ptr->{accno}\E/)) {
       $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
       $form->{"$ptr->{accno}_description"} = $ptr->{description};
       $form->{"$ptr->{accno}_taxnumber"}   = $ptr->{taxnumber};
@@ -1562,7 +1562,7 @@ sub create_links {
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     foreach my $key (split(/:/, $ref->{link})) {
-      if ($key =~ /$module/) {
+      if ($key =~ /\Q$module\E/) {
         if (   ($ref->{id} eq $ref->{inventory_accno_id})
             || ($ref->{id} eq $ref->{income_accno_id})
             || ($ref->{id} eq $ref->{expense_accno_id})) {

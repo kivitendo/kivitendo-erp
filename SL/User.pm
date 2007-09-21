@@ -830,7 +830,7 @@ sub dbupdate {
 
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
-      $a =~ s/^$form->{dbdriver}-upgrade-|\.(sql|pl)$//g;
+      $a =~ s/^\Q$form->{dbdriver}\E-upgrade-|\.(sql|pl)$//g;
       my $file_type = $1;
 
       my ($mindb, $maxdb) = split /-/, $a;
@@ -1036,7 +1036,7 @@ sub save_member {
   truncate(CONF, 0);
 
   while ($line = shift @config) {
-    if ($line =~ /^\[$self->{login}\]/) {
+    if ($line =~ /^\[\Q$self->{login}\E\]/) {
       $newmember = 0;
       last;
     }

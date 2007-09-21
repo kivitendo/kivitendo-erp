@@ -75,7 +75,7 @@ sub acc_menu {
   $locale = Locale->new($language, "menu");
 
   $mainlevel = $form->{level};
-  $mainlevel =~ s/$mainlevel--//g;
+  $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = new Menu "$menufile";
 
   $| = 1;

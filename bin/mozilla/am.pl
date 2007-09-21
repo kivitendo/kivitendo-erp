@@ -1688,11 +1688,11 @@ sub buchungsgruppe_header {
 
   if ($form->{id}) {
     $form->{selectIC} =~ s/selected//g;
-    $form->{selectIC} =~ s/ value=$form->{inventory_accno_id}/  value=$form->{inventory_accno_id} selected/;
+    $form->{selectIC} =~ s/ value=\Q$form->{inventory_accno_id}\E/  value=$form->{inventory_accno_id} selected/;
     $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=$form->{income_accno_id_0}/  value=$form->{income_accno_id_0} selected/;
+    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_0}\E/  value=$form->{income_accno_id_0} selected/;
     $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_0}/  value=$form->{expense_accno_id_0} selected/;
+    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_0}\E/  value=$form->{expense_accno_id_0} selected/;
   }
 
   if (!$eur) {
@@ -1719,9 +1719,9 @@ sub buchungsgruppe_header {
 	      </tr>|;
   if ($form->{id}) {
     $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=$form->{income_accno_id_1}/  value=$form->{income_accno_id_1} selected/;
+    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_1}\E/  value=$form->{income_accno_id_1} selected/;
     $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_1}/  value=$form->{expense_accno_id_1} selected/;
+    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_1}\E/  value=$form->{expense_accno_id_1} selected/;
   }
   $linkaccounts .= qq|	      <tr>
 		<th align=right>| . $locale->text('Revenues EU with UStId') . qq|</th>
@@ -1734,9 +1734,9 @@ sub buchungsgruppe_header {
 
   if ($form->{id}) {
     $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=$form->{income_accno_id_2}/  value=$form->{income_accno_id_2} selected/;
+    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_2}\E/  value=$form->{income_accno_id_2} selected/;
     $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_2}/  value=$form->{expense_accno_id_2} selected/;
+    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_2}\E/  value=$form->{expense_accno_id_2} selected/;
   }
 
   $linkaccounts .= qq|	      <tr>
@@ -1750,9 +1750,9 @@ sub buchungsgruppe_header {
 
   if ($form->{id}) {
     $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=$form->{income_accno_id_3}/  value=$form->{income_accno_id_3} selected/;
+    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_3}\E/  value=$form->{income_accno_id_3} selected/;
     $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=$form->{expense_accno_id_3}/  value=$form->{expense_accno_id_3} selected/;
+    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_3}\E/  value=$form->{expense_accno_id_3} selected/;
   }
 
   $linkaccounts .= qq|	      <tr>

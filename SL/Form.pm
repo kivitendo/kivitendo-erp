@@ -2231,7 +2231,7 @@ sub create_links {
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
 
       foreach my $key (split(/:/, $ref->{link})) {
-        if ($key =~ /$module/) {
+        if ($key =~ /\Q$module\E/) {
 
           # cross reference for keys
           $xkeyref{ $ref->{accno} } = $key;
@@ -2300,7 +2300,7 @@ sub create_links {
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
 
       foreach my $key (split(/:/, $ref->{link})) {
-        if ($key =~ /$module/) {
+        if ($key =~ /\Q$module\E/) {
 
           # cross reference for keys
           $xkeyref{ $ref->{accno} } = $key;
@@ -2532,8 +2532,8 @@ sub update_status {
   }
   $sth->finish();
 
-  my $printed = ($self->{printed} =~ /$self->{formname}/) ? "1" : "0";
-  my $emailed = ($self->{emailed} =~ /$self->{formname}/) ? "1" : "0";
+  my $printed = ($self->{printed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
+  my $emailed = ($self->{emailed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
 
   my %queued = split / /, $self->{queued};
   my @values;
@@ -2588,15 +2588,15 @@ sub save_status {
     my %queued = split / /, $self->{queued};
 
     foreach my $formname (keys %queued) {
-      $printed = ($self->{printed} =~ /$self->{formname}/) ? "1" : "0";
-      $emailed = ($self->{emailed} =~ /$self->{formname}/) ? "1" : "0";
+      $printed = ($self->{printed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
+      $emailed = ($self->{emailed} =~ /\Q$self->{formname}\E/) ? "1" : "0";
 
       $query = qq|INSERT INTO status (trans_id, printed, emailed, spoolfile, formname)
                   VALUES (?, ?, ?, ?, ?)|;
       do_query($self, $dbh, $query, $self->{id}, $printed, $emailed, $queued{$formname}, $formname);
 
-      $formnames  =~ s/$self->{formname}//;
-      $emailforms =~ s/$self->{formname}//;
+      $formnames  =~ s/\Q$self->{formname}\E//;
+      $emailforms =~ s/\Q$self->{formname}\E//;
 
     }
   }
@@ -2610,8 +2610,8 @@ sub save_status {
   map { $status{$_}{emailed} = 1 } split / +/, $emailforms;
 
   foreach my $formname (keys %status) {
-    $printed = ($formnames  =~ /$self->{formname}/) ? "1" : "0";
-    $emailed = ($emailforms =~ /$self->{formname}/) ? "1" : "0";
+    $printed = ($formnames  =~ /\Q$self->{formname}\E/) ? "1" : "0";
+    $emailed = ($emailforms =~ /\Q$self->{formname}\E/) ? "1" : "0";
 
     $query = qq|INSERT INTO status (trans_id, printed, emailed, formname)
                 VALUES (?, ?, ?, ?)|;

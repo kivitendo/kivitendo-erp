@@ -1869,7 +1869,7 @@ sub print_form {
     %queued = map { s|.*/|| } split / /, $form->{queued};
 
     if ($filename = $queued{ $form->{formname} }) {
-      $form->{queued} =~ s/$form->{formname} $filename//;
+      $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
       unlink "$spool/$filename";
       $filename =~ s/\..*$//g;
     } else {

@@ -152,7 +152,7 @@ $self->{message}
       } else {
         $filename = $attachment;
         # strip path
-        $filename =~ s/(.*\/|$self->{fileid})//g;
+        $filename =~ s/(.*\/|\Q$self->{fileid}\E)//g;
       }
 
       my $application =

@@ -124,7 +124,7 @@ window.onload=clockon
 
 sub acc_menu {
   $mainlevel = $form->{level};
-  $mainlevel =~ s/$mainlevel--//g;
+  $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = new Menu "$menufile";
 
   $| = 1;
@@ -370,7 +370,7 @@ sub section_menu {
     $item  = shift @menuorder;
     $label = $item;
     $ml    = $item;
-    $label =~ s/$level--//g;
+    $label =~ s/\Q$level\E--//g;
     $ml    =~ s/--.*//;
     $label = $locale->text($label);
     $label =~ s/ /&nbsp;/g;

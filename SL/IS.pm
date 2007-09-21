@@ -780,7 +780,7 @@ sub post_invoice {
 
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
-      next unless ($form->{expense_inventory} =~ /$accno/);
+      next unless ($form->{expense_inventory} =~ /\Q$accno\E/);
 
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
 
@@ -979,7 +979,7 @@ sub post_invoice {
 
   # add shipto
   $form->{name} = $form->{customer};
-  $form->{name} =~ s/--$form->{customer_id}//;
+  $form->{name} =~ s/--\Q$form->{customer_id}\E//;
 
   if (!$form->{shipto_id}) {
     $form->add_shipto($dbh, $form->{id}, "AR");
@@ -1458,7 +1458,7 @@ sub retrieve_invoice {
         }
         $ref->{taxaccounts} .= "$ptr->{accno} ";
 
-        if (!($form->{taxaccounts} =~ /$ptr->{accno}/)) {
+        if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
           $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
           $form->{"$ptr->{accno}_description"} = $ptr->{taxdescription};
           $form->{"$ptr->{accno}_taxnumber"}   = $ptr->{taxnumber};
@@ -1801,7 +1801,7 @@ sub retrieve_item {
       }
       $ref->{taxaccounts} .= "$ptr->{accno} ";
 
-      if (!($form->{taxaccounts} =~ /$ptr->{accno}/)) {
+      if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
         $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
         $form->{"$ptr->{accno}_description"} = $ptr->{taxdescription};
         $form->{"$ptr->{accno}_taxnumber"}   = $ptr->{taxnumber};

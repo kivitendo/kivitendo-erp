@@ -503,7 +503,7 @@ sub convert_to_postscript {
     return 0;
   }
 
-  $form->{tmpfile} =~ s/$userspath\///g;
+  $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
   for (my $run = 1; $run <= 2; $run++) {
     system("latex --interaction=nonstopmode $form->{tmpfile} " .
@@ -542,7 +542,7 @@ sub convert_to_pdf {
     return 0;
   }
 
-  $form->{tmpfile} =~ s/$userspath\///g;
+  $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
   for (my $run = 1; $run <= 2; $run++) {
     system("pdflatex --interaction=nonstopmode $form->{tmpfile} " .
@@ -650,7 +650,7 @@ sub convert_to_postscript {
     return 0;
   }
 
-  $form->{"tmpfile"} =~ s/$userspath\///g;
+  $form->{"tmpfile"} =~ s/\Q$userspath\E\///g;
   my $psfile = $form->{"tmpfile"};
   $psfile =~ s/.html/.ps/;
   if ($psfile eq $form->{"tmpfile"}) {
@@ -683,7 +683,7 @@ sub convert_to_pdf {
     return 0;
   }
 
-  $form->{"tmpfile"} =~ s/$userspath\///g;
+  $form->{"tmpfile"} =~ s/\Q$userspath\E\///g;
   my $pdffile = $form->{"tmpfile"};
   $pdffile =~ s/.html/.pdf/;
   if ($pdffile eq $form->{"tmpfile"}) {

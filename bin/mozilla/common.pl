@@ -578,8 +578,11 @@ sub mark_as_paid_common {
     $form->redirect($locale->text("Marked as paid"));
 }
   else {
-    my $referer = $ENV{HTTP_REFERER};
-    $referer =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&login\=$form->{login}\&password\=$form->{password}\&id\=$form->{id}\&$2/;
+    my $referer  =  $ENV{HTTP_REFERER};
+    my $login    =  $form->escape($form->{login});
+    my $password =  $form->escape($form->{password});
+    my $id       =  $form->escape($form->{id});
+    $referer     =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&login\=$login\&password\=$password\&id\=$id\&$2/;
     $form->header();
     print qq|<body>|;
     print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;

@@ -532,7 +532,7 @@ sub post_invoice {
 
   # add shipto
   $form->{name} = $form->{vendor};
-  $form->{name} =~ s/--$form->{vendor_id}//;
+  $form->{name} =~ s/--\Q$form->{vendor_id}\E//;
   $form->add_shipto($dbh, $form->{id}, "AP");
 
   # delete zero entries
@@ -786,7 +786,7 @@ sub retrieve_invoice {
 
       $ref->{taxaccounts} .= "$ptr->{accno} ";
 
-      if (!($form->{taxaccounts} =~ /$ptr->{accno}/)) {
+      if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
         $form->{"$ptr->{accno}_rate"}         = $ptr->{rate};
         $form->{"$ptr->{accno}_description"}  = $ptr->{taxdescription};
         $form->{"$ptr->{accno}_taxnumber"}    = $ptr->{taxnumber};
@@ -1033,7 +1033,7 @@ sub retrieve_item {
 
       $ref->{taxaccounts} .= "$ptr->{accno} ";
 
-      if (!($form->{taxaccounts} =~ /$ptr->{accno}/)) {
+      if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
         $form->{"$ptr->{accno}_rate"}         = $ptr->{rate};
         $form->{"$ptr->{accno}_description"}  = $ptr->{taxdescription};
         $form->{"$ptr->{accno}_taxnumber"}    = $ptr->{taxnumber};
