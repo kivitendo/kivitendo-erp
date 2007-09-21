@@ -301,6 +301,7 @@ class myDB extends DB {
 * http://de3.php.net/base64_decode (bug #171)
 *****************************************************/
 	function uudecode($encode) {
+	  $encode=stripslashes($encode);
 	  $b64chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 	  $encode = preg_replace("/^./m","",$encode);
