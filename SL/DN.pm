@@ -686,7 +686,7 @@ sub print_dunning {
          dcfg.email_subject, dcfg.email_body, dcfg.email_attachment,
 
          ar.transdate,       ar.duedate,      ar.customer_id,
-         ar.invnumber,       ar.ordnumber,
+         ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
          ar.amount - ar.paid AS open_amount,
          ar.amount - ar.paid + da.fee + da.interest AS linetotal
@@ -712,10 +712,13 @@ sub print_dunning {
   $query =
     qq|SELECT
          c.id AS customer_id, c.name,         c.street,       c.zipcode, c.city,
-         c.country,           c.department_1, c.department_2, c.email, c.customernumber
+         c.country,           c.department_1, c.department_2, c.email, c.customernumber,
+         -- contact information
+         co.*
        FROM dunning d
-       LEFT JOIN ar         ON (d.trans_id = ar.id)
-       LEFT JOIN customer c ON (ar.customer_id = c.id)
+       LEFT JOIN ar          ON (d.trans_id = ar.id)
+       LEFT JOIN customer c  ON (ar.customer_id = c.id)
+       LEFT JOIN contacts co ON (ar.cp_id = co.cp_id)
        WHERE (d.dunning_id = ?)
        LIMIT 1|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
