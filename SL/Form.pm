@@ -726,18 +726,23 @@ sub format_amount {
   if ($amount eq "") {
     $amount = 0;
   }
-  my $neg = ($amount =~ s/-//);
-
+  
+  # Hey watch out! The amount can be an exponential term like 1.13686837721616e-13
+  
+  my $neg = ($amount =~ s/^-//);
+  my $exp = ($amount =~ m/[e]/) ? 1 : 0;
+  
   if (defined($places) && ($places ne '')) {
-    if ($places < 0) {
-      $amount *= 1;
-      $places *= -1;
+    if (not $exp) {
+      if ($places < 0) {
+        $amount *= 1;
+        $places *= -1;
 
-      my ($actual_places) = ($amount =~ /\.(\d+)/);
-      $actual_places = length($actual_places);
-      $places = $actual_places > $places ? $actual_places : $places;
+        my ($actual_places) = ($amount =~ /\.(\d+)/);
+        $actual_places = length($actual_places);
+        $places = $actual_places > $places ? $actual_places : $places;
+      }
     }
-
     $amount = $self->round_amount($amount, $places);
   }
 
@@ -862,6 +867,10 @@ sub parse_template {
   map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
       qw(company address signature));
   map({ $self->{$_} =~ s/\\n/\n/g; } qw(company address signature));
+
+  map({ $self->{"${_}"} = $myconfig->{$_}; }
+      qw(co_ustid));
+              
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
