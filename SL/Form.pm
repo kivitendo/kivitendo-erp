@@ -2299,7 +2299,7 @@ sub create_links {
                 LEFT JOIN taxkeys tk ON (tk.chart_id = c.id)
                 WHERE c.link LIKE ?
                   AND (tk.id = (SELECT id FROM taxkeys WHERE taxkeys.chart_id = c.id AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1)
-                    OR c.link LIKE '%_tax%')
+                    OR c.link LIKE '%_tax%' OR c.taxkey_id IS NULL)
                 ORDER BY c.accno|;
 
     $sth = $dbh->prepare($query);
