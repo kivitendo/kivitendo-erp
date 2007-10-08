@@ -453,6 +453,10 @@ sub form_header {
       </td><input type=hidden name="select$form->{vc}" value="| .
     Q($form->{"select$form->{vc}"}) . qq|">|;
 
+  if ($form->{vc} eq 'customer') {
+    $vc .= qq|<input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
+  }
+
   %labels = ();
   @values = ("");
   foreach my $item (@{ $form->{"ALL_PAYMENTS"} }) {
@@ -686,12 +690,6 @@ sub form_header {
 		<input type=hidden name=selectdepartment value="$form->{selectdepartment}">
 		</td>
 	      </tr> | if $form->{selectdepartment};
-
-  if ($form->{type} eq 'sales_order') {
-    $employee .= qq|\n<input type="hidden" name="customer_klass" value="$form->{customer_klass}">| if $form->{selectemployee};
-  } else {
-    $employee .= qq|\n<input type="hidden" name="customer_klass" value="$form->{customer_klass}">|;
-  }
 
   $credittext = $locale->text('Credit Limit exceeded!!!');
 
