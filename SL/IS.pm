@@ -1518,7 +1518,7 @@ sub get_customer {
   $query =
     qq|SELECT
          c.name AS customer, c.discount, c.creditlimit, c.terms,
-         c.email, c.cc, c.bcc, c.language_id, c.payment_id AS customer_payment_id,
+         c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
@@ -1549,23 +1549,6 @@ sub get_customer {
        ORDER BY dunning_level DESC LIMIT 1|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, $cid);
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  #check whether payment_terms are better than old payment_terms
-  if (($form->{payment_id} ne "") && ($form->{customer_payment_id} ne "")) {
-    $query =
-      qq|SELECT
-          (SELECT ranking FROM payment_terms WHERE id = ?),
-          (SELECT ranking FROM payment_terms WHERE id = ?)|;
-    my ($old_ranking, $new_ranking)
-      = selectrow_query($form, $dbh, $query, conv_i($form->{payment_id}), conv_i($form->{customer_payment_id}));
-    if ($new_ranking > $old_ranking) {
-      $form->{payment_id} = $form->{customer_payment_id};
-    }
-  }
-
-  if ($form->{payment_id} eq "") {
-    $form->{payment_id} = $form->{customer_payment_id};
-  }
 
   $form->{creditremaining} = $form->{creditlimit};
   $query = qq|SELECT SUM(amount - paid) FROM ar WHERE customer_id = ?|;
@@ -1752,19 +1735,6 @@ sub retrieve_item {
          $ref->{"${type}_new_chart"},
          $ref->{"${type}_valid"})
           = selectrow_query($form, $dbh, $query, $ref->{"${type}_new_chart"});
-      }
-    }
-
-    #check whether payment_terms are better than old payment_terms
-    if (($form->{payment_id} ne "") && ($form->{part_payment_id} ne "")) {
-      $query =
-        qq|SELECT
-            (SELECT ranking FROM payment_terms WHERE id = ?),
-            (SELECT ranking FROM payment_terms WHERE id = ?)|;
-      my ($old_ranking, $new_ranking)
-        = selectrow_query($form, $dbh, $query, conv_i($form->{payment_id}), conv_i($form->{part_payment_id}));
-      if ($new_ranking > $old_ranking) {
-        $form->{payment_id} = $form->{customer_payment_id};
       }
     }
 

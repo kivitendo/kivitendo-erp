@@ -1336,12 +1336,10 @@ sub save_payment {
 
   $query = qq|UPDATE payment_terms SET
               description = ?, description_long = ?,
-              ranking = ?,
               terms_netto = ?, terms_skonto = ?,
               percent_skonto = ?
               WHERE id = ?|;
   my @values = ($form->{description}, $form->{description_long},
-                $form->{ranking} * 1,
                 $form->{terms_netto} * 1, $form->{terms_skonto} * 1,
                 $form->{percent_skonto} * 1,
                 $form->{id});
