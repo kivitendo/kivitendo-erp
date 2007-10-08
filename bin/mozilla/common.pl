@@ -37,7 +37,7 @@ sub build_std_url {
 
   my $url = "${script}?" . join('&', @parts);
 
-  $lxdebug->leave_sub();
+  $lxdebug->leave_sub(2);
 
   return $url;
 }
