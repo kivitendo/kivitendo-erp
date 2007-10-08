@@ -14,7 +14,7 @@ use SL::Common;
 use SL::MoreCommon;
 
 sub build_std_url {
-  $lxdebug->enter_sub();
+  $lxdebug->enter_sub(2);
 
   my $script = $form->{script};
 
