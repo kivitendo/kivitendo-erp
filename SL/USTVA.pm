@@ -796,6 +796,21 @@ sub get_accounts_ustva {
     $ARwhere  .= " AND acc.transdate <= '$todate'";
   }
 
+  my $acc_trans_where = '1=1';
+  if ($fromdate || $todate) {
+    $acc_trans_where = "ac.trans_id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE ";
+
+    if ($fromdate) {
+      $acc_trans_where .= "transdate >= '$fromdate'";
+    }
+    if ($todate) {
+      $acc_trans_where .= " AND " if ($fromdate);
+      $acc_trans_where .= "transdate <= '$todate'";
+    }
+
+    $acc_trans_where .= ")";
+  }
+
   ############################################
   # Method eq 'cash' = IST Versteuerung
   ############################################
@@ -843,9 +858,7 @@ sub get_accounts_ustva {
          )
        )
        WHERE 
-       1=1 
-       -- Here no where, please. All Transactions ever should be
-       -- testet if they are paied in the USTVA report period.
+       $acc_trans_where
        GROUP BY tk.pos_ustva
     |;
    
