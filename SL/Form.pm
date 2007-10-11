@@ -1016,18 +1016,18 @@ sub get_formname_translation {
   $formname ||= $self->{formname};
 
   my %formname_translations = (
-     bin_list            => $main::locale->text('Bin List'),
-     credit_note         => $main::locale->text('Credit Note'),
-     invoice             => $main::locale->text('Invoice'),
-     packing_list        => $main::locale->text('Packing List'),
-     pick_list           => $main::locale->text('Pick List'),
-     proforma            => $main::locale->text('Proforma Invoice'),
-     purchase_order      => $main::locale->text('Purchase Order'),
-     request_quotation   => $main::locale->text('RFQ'),
-     sales_order         => $main::locale->text('Confirmation'),
-     sales_quotation     => $main::locale->text('Quotation'),
-     storno_invoice      => $main::locale->text('Storno Invoice'),
-     storno_packing_list => $main::locale->text('Storno Packing List'),
+    bin_list            => $main::locale->text('Bin List'),
+    credit_note         => $main::locale->text('Credit Note'),
+    invoice             => $main::locale->text('Invoice'),
+    packing_list        => $main::locale->text('Packing List'),
+    pick_list           => $main::locale->text('Pick List'),
+    proforma            => $main::locale->text('Proforma Invoice'),
+    purchase_order      => $main::locale->text('Purchase Order'),
+    request_quotation   => $main::locale->text('RFQ'),
+    sales_order         => $main::locale->text('Confirmation'),
+    sales_quotation     => $main::locale->text('Quotation'),
+    storno_invoice      => $main::locale->text('Storno Invoice'),
+    storno_packing_list => $main::locale->text('Storno Packing List'),
   );
 
   return $formname_translations{$formname}
