@@ -149,17 +149,18 @@ sub transactions {
   }
 
   my $sortorder = join(', ', ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
-  my %allowed_sort_columns =
-    ("transdate" => "o.transdate",
-     "reqdate" => "o.reqdate",
-     "id" => "o.id",
-     "ordnumber" => "o.ordnumber",
-     "quonumber" => "o.quonumber",
-     "name" => "ct.name",
-     "employee" => "e.name",
-     "salesman" => "e.name",
-     "shipvia" => "o.shipvia",
-     "transaction_description" => "o.transaction_description");
+  my %allowed_sort_columns = (
+    "transdate"               => "o.transdate",
+    "reqdate"                 => "o.reqdate",
+    "id"                      => "o.id",
+    "ordnumber"               => "o.ordnumber",
+    "quonumber"               => "o.quonumber",
+    "name"                    => "ct.name",
+    "employee"                => "e.name",
+    "salesman"                => "e.name",
+    "shipvia"                 => "o.shipvia",
+    "transaction_description" => "o.transaction_description"
+  );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}};
   }
