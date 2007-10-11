@@ -446,4 +446,15 @@ sub check_params {
   }
 }
 
+sub check_params_x {
+  my $params = shift;
+
+  foreach my $key (@_) {
+    if (!exists $params->{$key}) {
+      my $subroutine = (caller(1))[3];
+      $main::form->error($main::locale->text("Missing parameter #1 in call to sub #2.", $key, $subroutine));
+    }
+  }
+}
+
 1;
