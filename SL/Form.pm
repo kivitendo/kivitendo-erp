@@ -434,6 +434,7 @@ sub header {
     }
     print qq|Content-Type: text/html; charset=${db_charset};
 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
   <title>$self->{titlebar}</title>
