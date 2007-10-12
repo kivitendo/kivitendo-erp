@@ -2395,10 +2395,6 @@ sub form_header {
         <tr valign=top>
           <td width=70%>
             <table width="100%" height="100%">
-              <tr class="listheading">
-                <th class="listheading" align="center" colspan=2>|
-    . $locale->text('') . qq|</th>
-              </tr>
               <td colspan=2>
                 <table>
                   $buchungsgruppe
