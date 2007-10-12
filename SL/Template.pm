@@ -1366,7 +1366,7 @@ sub format_string {
 
   foreach my $key (keys(%markup_replace)) {
     my $value = $markup_replace{$key};
-    $variable =~ s|\&lt;${key}\&gt;|<text:span text:style-name=\"TLXO${rnd}${value}\">|gi;
+    $variable =~ s|\&lt;${key}\&gt;|<text:span text:style-name=\"TLXO${rnd}${value}\">|gi; #"
     $variable =~ s|\&lt;/${key}\&gt;|</text:span>|gi;
   }
 

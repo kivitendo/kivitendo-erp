@@ -49,6 +49,7 @@ use SL::Menu;
 use SL::User;
 use SL::Common;
 use CGI;
+use List::Util qw(max min sum);
 
 my $standard_dbh;
 
@@ -98,7 +99,8 @@ sub _request_to_hash {
     if (($line eq $boundary) || ($line eq "$boundary\r")) {
       $params{$name} =~ s|\r?\n$|| if $name;
 
-      undef $name, $filename;
+      undef $name;
+      undef $filename;
 
       $headers_done   = 0;
       $content_type   = "text/plain";
@@ -331,20 +333,17 @@ sub info {
   $main::lxdebug->leave_sub();
 }
 
+# calculates the number of rows in a textarea based on the content and column number
+# can be capped with maxrows
 sub numtextrows {
   $main::lxdebug->enter_sub();
-
   my ($self, $str, $cols, $maxrows) = @_;
 
-  my $rows = 0;
-
-  map { $rows += int(((length) - 2) / $cols) + 1 } split /\r/, $str;
-
-  $maxrows = $rows unless defined $maxrows;
+  my $rows   = sum map { int((length() - 2) / $cols) + 1 } split /\r/, $str;
+  $maxrows ||= $rows;
 
   $main::lxdebug->leave_sub();
-
-  return ($rows > $maxrows) ? $maxrows : $rows;
+  return min $rows, $maxrows;
 }
 
 sub dberror {
@@ -1206,13 +1205,13 @@ sub update_exchangerate {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $curr, $transdate, $buy, $sell) = @_;
-
+  my ($query);
   # some sanity check for currency
   if ($curr eq '') {
     $main::lxdebug->leave_sub();
     return;
   }  
-  my $query = qq|SELECT curr FROM defaults|;
+  $query = qq|SELECT curr FROM defaults|;
 
   my ($currency) = selectrow_query($self, $dbh, $query);
   my ($defaultcurrency) = split m/:/, $currency;
@@ -1223,7 +1222,7 @@ sub update_exchangerate {
     return;
   }
 
-  my $query = qq|SELECT e.curr FROM exchangerate e
+  $query = qq|SELECT e.curr FROM exchangerate e
                  WHERE e.curr = ? AND e.transdate = ?
                  FOR UPDATE|;
   my $sth = prepare_execute_query($self, $dbh, $query, $curr, $transdate);
@@ -1288,13 +1287,14 @@ sub get_exchangerate {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $curr, $transdate, $fld) = @_;
+  my ($query);
 
   unless ($transdate) {
     $main::lxdebug->leave_sub();
     return 1;
   }
 
-  my $query = qq|SELECT curr FROM defaults|;
+  $query = qq|SELECT curr FROM defaults|;
 
   my ($currency) = selectrow_query($self, $dbh, $query);
   my ($defaultcurrency) = split m/:/, $currency;
@@ -1304,7 +1304,7 @@ sub get_exchangerate {
     return 1;
   }
 
-  my $query = qq|SELECT e.$fld FROM exchangerate e
+  $query = qq|SELECT e.$fld FROM exchangerate e
                  WHERE e.curr = ? AND e.transdate = ?|;
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $curr, $transdate);
 
@@ -2500,8 +2500,7 @@ sub redo_rows {
 
   my @ndx = ();
 
-  map { push @ndx, { num => $new->[$_ - 1]->{runningnumber}, ndx => $_ } }
-    (1 .. $count);
+  map { push @ndx, { num => $new->[$_ - 1]->{runningnumber}, ndx => $_ } } 1 .. $count;
 
   my $i = 0;
 
@@ -2587,7 +2586,7 @@ sub save_status {
   my $formnames  = $self->{printed};
   my $emailforms = $self->{emailed};
 
-  my $query = qq|DELETE FROM status
+  $query = qq|DELETE FROM status
                  WHERE (formname = ?) AND (trans_id = ?)|;
   do_query($self, $dbh, $query, $self->{formname}, $self->{id});
 

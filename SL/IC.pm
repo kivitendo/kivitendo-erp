@@ -839,7 +839,7 @@ sub all_parts {
 
   $form->{parts} = +{ };
 
-  my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing);
+  my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand);
   my @makemodel_filters    = qw(make model);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
@@ -1394,8 +1394,6 @@ sub update_prices {
 
   my $group;
   my $limit;
-
-  my @where_values;
 
   if ($item ne 'make') {
     foreach my $item (qw(partnumber drawing microfiche make model pg.partsgroup)) {

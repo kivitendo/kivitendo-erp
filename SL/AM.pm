@@ -594,7 +594,6 @@ sub lead {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  $form->{ALL};
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{ALL} }, $ref;
   }
@@ -690,7 +689,6 @@ sub business {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  $form->{ALL};
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     push @{ $form->{ALL} }, $ref;
   }
@@ -962,12 +960,13 @@ sub get_buchungsgruppe {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $query;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
   if ($form->{id}) {
-    my $query =
+    $query =
       qq|SELECT description, inventory_accno_id,
          (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno,
          income_accno_id_0,
@@ -997,7 +996,7 @@ sub get_buchungsgruppe {
 
     $sth->finish;
 
-    my $query =
+    $query =
       qq|SELECT count(id) = 0 AS orphaned
          FROM parts
          WHERE buchungsgruppen_id = ?|;
@@ -1538,7 +1537,7 @@ sub save_preferences {
   # save first currency in myconfig
   $form->{currency} = substr($form->{curr}, 0, 3);
 
-  my $myconfig = new User "$memberfile", "$form->{login}";
+  $myconfig = new User "$memberfile", "$form->{login}";
 
   foreach my $item (keys %$form) {
     $myconfig->{$item} = $form->{$item};

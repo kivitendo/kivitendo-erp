@@ -20,11 +20,21 @@ use strict;
 use warnings FATAL =>'all';
 use diagnostics;
 
-my $dir = IO::Dir->new("SL/");
+use Getopt::Long;
 
-my @files = grep {/\.pm$/} $dir->read();
+my $parse_SL         = 1;
+my $parse_binmozilla = 0;
+GetOptions("sl!"         => \$parse_SL,
+           "pm!"         => \$parse_SL,
+           "binmozilla!" => \$parse_binmozilla,
+           "pl!"         => \$parse_binmozilla,
+           );
 
-@files = grep { s{^}{SL\/}gxms } @files;
+my @files = ();
+push @files, grep { /\.pm$/ && s{^}{SL/}gxms         } IO::Dir->new("SL/")->read()          if $parse_SL;
+push @files, grep { /\.pl$/ && s{^}{bin/mozilla/}gxms} IO::Dir->new("bin/mozilla/")->read() if $parse_binmozilla;
+
+#map { s{^}{SL\/}gxms } @files;
 
 #print Dumper(@files);
 

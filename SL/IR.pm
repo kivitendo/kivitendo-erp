@@ -305,7 +305,7 @@ sub post_invoice {
 
   $h_item_unit->finish();
 
-  my $project_id = conv_i($form->{"globalproject_id"});
+  $project_id = conv_i($form->{"globalproject_id"});
 
   $form->{datepaid} = $form->{invdate};
 
@@ -637,18 +637,18 @@ sub delete_invoice {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-
+  my $query;
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   &reverse_invoice($dbh, $form);
 
   # delete zero entries
-  my $query = qq|DELETE FROM acc_trans WHERE amount = 0|;
+  $query = qq|DELETE FROM acc_trans WHERE amount = 0|;
   do_query($form, $dbh, $query);
 
   # delete AP record
-  my $query = qq|DELETE FROM ap WHERE id = ?|;
+  $query = qq|DELETE FROM ap WHERE id = ?|;
   do_query($form, $dbh, $query, conv_i($form->{id}));
 
   my $rc = $dbh->commit;
