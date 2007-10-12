@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
 BEGIN {
-  unshift @INC, "modules/YAML"; # Use our own version of YAML.
-  push @INC, "modules";         # Only use our own versions of modules if there's no system version.
+  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
 use SL::InstallationCheck;
