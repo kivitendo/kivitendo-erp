@@ -2395,12 +2395,14 @@ sub form_header {
         <tr valign=top>
           <td width=70%>
             <table width="100%" height="100%">
-              <td colspan=2>
-                <table>
-                  $buchungsgruppe
-                  $linkaccounts
-                </table>
-              </td>
+              <tr>
+                <td colspan=2>
+                  <table>
+                    $buchungsgruppe
+                    $linkaccounts
+                  </table>
+                </td>
+              </tr>
               <tr>
                 <th align="left">| . $locale->text('Notes') . qq|</th>
                 <th align="left">$formula_label</th>
