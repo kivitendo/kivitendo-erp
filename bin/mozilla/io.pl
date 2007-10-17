@@ -561,10 +561,12 @@ sub display_row {
       }
 
       print qq|
-          ${marge_font_start}<b>| . $locale->text('Ertrag') . qq|</b>&nbsp;$form->{"marge_total_$i"}&nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}
+          ${marge_font_start}<b>| . $locale->text('Ertrag') . qq|</b>&nbsp;$form->{"marge_total_$i"}&nbsp;$form->{"marge_percent_$i"} % ${marge_font_end}|;
+   }
+   print qq|
           &nbsp;<b>| . $locale->text('LP') . qq|</b>&nbsp;| . $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2) . qq|
           &nbsp;<b>| . $locale->text('EK') . qq|</b>&nbsp;| . $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) . $marge_price_factor;
-    }
+
 
     print qq|
 	  </td>
