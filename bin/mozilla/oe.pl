@@ -1101,10 +1101,12 @@ sub form_footer {
 
 sub update {
   $lxdebug->enter_sub();
+  
+  my ($recursive_call) = shift;
 
   set_headings($form->{"id"} ? "edit" : "add");
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining) unless $recursive_call;
   $form->{update} = 1;
       
   $payment_id = $form->{payment_id} if $form->{payment_id};

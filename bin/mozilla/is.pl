@@ -1170,7 +1170,9 @@ sub mark_as_paid {
 sub update {
   $lxdebug->enter_sub();
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
+  my ($recursive_call) = shift;
+
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining) unless $recursive_call;
 
   $form->{print_and_post} = 0         if $form->{second_run};
   $taxincluded            = "checked" if $form->{taxincluded};
