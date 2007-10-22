@@ -46,6 +46,7 @@ use SL::ReportGenerator;
 our ($form, $locale, %myconfig, $lxdebug);
 
 require "bin/mozilla/io.pl";
+require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -109,44 +110,33 @@ sub search {
      |;
 
     #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "transdatefrom", "BL", "trigger1",
-                          "transdateto", "BL", "trigger2");
+    $jsscript = Form->write_trigger(\%myconfig, "2", "transdatefrom", "BL", "trigger1", "transdateto", "BL", "trigger2");
   } else {
 
     # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
-    $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
+    $button1 = qq| <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
+    $button2 = qq| <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
   }
 
   unless ($form->{searchitems} eq 'service') {
 
-    $onhand = qq|
-            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;|
-      . $locale->text('On Hand') . qq|
-            <input name=itemstatus class=radio type=radio value=short>&nbsp;|
-      . $locale->text('Short') . qq|
+    $onhand = qq| <input name=itemstatus class=radio type=radio value=onhand>&nbsp;| . $locale->text('On Hand') . qq|
+                  <input name=itemstatus class=radio type=radio value=short>&nbsp;| . $locale->text('Short') . qq|
 |;
 
     $makemodel = qq|
         <tr>
-          <th align=right nowrap>| . $locale->text('Make') . qq|</th>
-          <td><input name=make size=20></td>
-          <th align=right nowrap>| . $locale->text('Model') . qq|</th>
-          <td><input name=model size=20></td>
+          <th align=right nowrap>| . $locale->text('Make') . qq|</th> <td><input name=make size=20></td>
+          <th align=right nowrap>| . $locale->text('Model') . qq|</th> <td><input name=model size=20></td>
         </tr>
 |;
 
     $serialnumber = qq|
-          <th align=right nowrap>| . $locale->text('Serial Number') . qq|</th>
-          <td><input name=serialnumber size=20></td>
+          <th align=right nowrap>| . $locale->text('Serial Number') . qq|</th> <td><input name=serialnumber size=20></td>
 |;
 
     $l_serialnumber = qq|
-        <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;|
-      . $locale->text('Serial Number') . qq|</td>
+        <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Serial Number') . qq|</td>
 |;
 
   }

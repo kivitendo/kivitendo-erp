@@ -586,6 +586,7 @@ sub parse_html_template2 {
                                  'EVAL_PERL'   => 0,
                                  'ABSOLUTE'    => 1,
                                  'CACHE_SIZE'  => 0,
+                                 'PLUGIN_BASE' => 'SL::Template::Plugin',
                                }) || die;
 
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
@@ -1865,11 +1866,12 @@ $main::lxdebug->enter_sub();
 sub _get_customers {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $key) = @_;
+  my ($self, $dbh, $key, $limit) = @_;
 
   $key = "all_customers" unless ($key);
+  $limit_clause = "LIMIT $limit" if $limit;
 
-  my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name|;
+  my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name $limit_clause|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -1985,11 +1987,19 @@ sub get_lists {
   }
   
   if($params{"customers"}) {
-    $self->_get_customers($dbh, $params{"customers"});
+    if (ref $params{"customers"} eq 'HASH') {
+      $self->_get_customers($dbh, $params{"customers"}{key}, $params{"customers"}{limit});
+    } else {
+      $self->_get_customers($dbh, $params{"customers"});
+    }
   }
   
   if($params{"vendors"}) {
-    $self->_get_vendors($dbh, $params{"vendors"});
+    if (ref $params{"vendors"} eq 'HASH') {
+      $self->_get_vendors($dbh, $params{"vendors"}{key}, $params{"vendors"}{limit});
+    } else {
+      $self->_get_vendors($dbh, $params{"vendors"});
+    }
   }
   
   if($params{"payments"}) {

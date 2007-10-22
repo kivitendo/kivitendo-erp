@@ -37,6 +37,7 @@ use Data::Dumper;
 use List::Util qw(max);
 
 require "bin/mozilla/io.pl";
+require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/drafts.pl";
 

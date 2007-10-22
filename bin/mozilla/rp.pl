@@ -1443,7 +1443,7 @@ sub aging {
   if ($form->{arap} eq 'ar') {
     $raw_top_info_text    = $form->parse_html_template('rp/aging_ar_top');
     $raw_bottom_info_text = $form->parse_html_template('rp/aging_ar_bottom', { 'row_idx' => $row_idx,
-                                                                               'PRINT_OPTIONS' => print_options(1), });
+                                                                               'PRINT_OPTIONS' => print_options(inline => 1), });
     $report->set_options('raw_top_info_text'    => $raw_top_info_text,
                          'raw_bottom_info_text' => $raw_bottom_info_text);
   }

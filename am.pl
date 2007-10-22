@@ -47,7 +47,7 @@ $| = 1;
 use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
-use CGI;
+use CGI qw( -no_xhtml);
 use SL::Form;
 use SL::Locale;
 
@@ -63,6 +63,11 @@ if (defined($latex) && !defined($latex_templates)) {
 
 $form = new Form;
 $cgi = new CGI('');
+
+# this prevents most of the tabindexes being created by CGI.
+# note: most. popup menus and selecttables will still have tabindexes
+# use common.pl's NTI function to get rid of those
+local $CGI::TABINDEX = 0;
 
 # name of this script
 $0 =~ tr/\\/\//;

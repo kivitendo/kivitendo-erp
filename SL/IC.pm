@@ -930,7 +930,17 @@ sub all_parts {
 
   my @sort_cols = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
   $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols;
-  my $order_clause = " ORDER BY $form->{sort} " . ($form->{revers} ? 'DESC' : 'ASC');
+
+  my $sort_order = ($form->{revers} ? ' DESC' : ' ASC');
+
+  # special case: sorting by partnumber
+  # since partnumbers are expected to be prefixed integers, a special sorting is implemented sorting first lexically by prefix and then by suffix.
+  # and yes, that expression is designed to hold that array of regexes only once, so the map is kinda messy, sorry about that.
+  # ToDO: implement proper functional sorting
+  $form->{sort} = join ', ', map { push @select_tokens, $_; ($table_prefix{$_} = "substring(partnumber,'[") . $_ } qw|^[:digit:]]+') [:digit:]]+')::INTEGER|
+    if $form->{sort} eq 'partnumber';
+
+  my $order_clause = " ORDER BY $form->{sort} $sort_order";
 
   my $limit_clause = " LIMIT 100" if $form->{top100};
 
@@ -980,7 +990,8 @@ sub all_parts {
 
   #============= build query ================#
 
-  my %table_prefix = (
+  %table_prefix = (
+     %table_prefix,
      deliverydate => 'apoe.', serialnumber => 'ioi.',
      transdate    => 'apoe.', trans_id     => 'ioi.',
      module       => 'apoe.', name         => 'cv.',

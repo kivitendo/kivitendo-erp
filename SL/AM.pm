@@ -1880,6 +1880,17 @@ sub units_in_use {
   $main::lxdebug->leave_sub();
 }
 
+# if $a is translatable to $b, return the factor between them.
+# else return 1
+sub convert_unit {
+  $main::lxdebug->enter_sub(2);
+  ($this, $a, $b, $all_units) = @_;
+
+  $main::lxdebug->leave_sub(2) and return 0 unless $all_units->{$a} && $all_units->{$b};
+  $main::lxdebug->leave_sub(2) and return 0 unless $all_units->{$a}{base_unit} eq $all_units->{$b}{base_unit};
+  $main::lxdebug->leave_sub(2) and return $all_units->{$a}{factor} / $all_units->{$b}{factor}; 
+}
+
 sub unit_select_data {
   $main::lxdebug->enter_sub();
 

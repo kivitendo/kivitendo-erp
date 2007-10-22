@@ -244,8 +244,7 @@ sub save {
 
   for my $i (1 .. $form->{rowcount}) {
 
-    map({ $form->{"${_}_$i"} =
-            $form->parse_amount($myconfig, $form->{"${_}_$i"}) } qw(qty ship));
+    map({ $form->{"${_}_$i"} = $form->parse_amount($myconfig, $form->{"${_}_$i"}) } qw(qty ship));
 
     if ($form->{"id_$i"}) {
 
@@ -256,8 +255,7 @@ sub save {
       my $basefactor = 1;
       if (defined($all_units->{$item_unit}->{factor}) &&
           (($all_units->{$item_unit}->{factor} * 1) != 0)) {
-        $basefactor = $all_units->{$form->{"unit_$i"}}->{factor} /
-          $all_units->{$item_unit}->{factor};
+        $basefactor = $all_units->{$form->{"unit_$i"}}->{factor} / $all_units->{$item_unit}->{factor};
       }
       my $baseqty = $form->{"qty_$i"} * $basefactor;
 
@@ -266,23 +264,17 @@ sub save {
       $form->{"lastcost_$i"} = $form->{"lastcost_$i"} * 1;
 
       # set values to 0 if nothing entered
-      $form->{"discount_$i"} =
-        $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
+      $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
 
-      $form->{"sellprice_$i"} =
-        $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+      $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       $fxsellprice = $form->{"sellprice_$i"};
 
       my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
       $dec = length($dec);
       my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      $discount =
-        $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"},
-                            $decimalplaces);
-      $form->{"sellprice_$i"} =
-        $form->round_amount($form->{"sellprice_$i"} - $discount,
-                            $decimalplaces);
+      $discount = $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"}, $decimalplaces);
+      $form->{"sellprice_$i"} = $form->round_amount($form->{"sellprice_$i"} - $discount, $decimalplaces);
 
       $form->{"inventory_accno_$i"} *= 1;
       $form->{"expense_accno_$i"}   *= 1;
@@ -311,15 +303,10 @@ sub save {
       if ($form->round_amount($taxrate, 7) == 0) {
         if ($form->{taxincluded}) {
           foreach $item (@taxaccounts) {
-            $taxamount =
-              $form->round_amount($linetotal * $form->{"${item}_rate"} /
-                                    (1 + abs($form->{"${item}_rate"})),
-                                  2);
-
+            $taxamount = $form->round_amount($linetotal * $form->{"${item}_rate"} / (1 + abs($form->{"${item}_rate"})), 2);
             $taxaccounts{$item} += $taxamount;
             $taxdiff            += $taxamount;
-
-            $taxbase{$item} += $taxbase;
+            $taxbase{$item}     += $taxbase;
           }
           $taxaccounts{ $taxaccounts[0] } += $taxdiff;
         } else {
@@ -330,16 +317,14 @@ sub save {
         }
       } else {
         foreach $item (@taxaccounts) {
-          $taxaccounts{$item} +=
-            $taxamount * $form->{"${item}_rate"} / $taxrate;
+          $taxaccounts{$item} += $taxamount * $form->{"${item}_rate"} / $taxrate;
           $taxbase{$item} += $taxbase;
         }
       }
 
       $netamount += $form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor;
 
-      $reqdate =
-        ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
+      $reqdate = ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
 
       # get pricegroup_id and save ist
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
@@ -362,7 +347,7 @@ sub save {
       }
       $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                    (SELECT factor FROM price_factors WHERE id = ?), ?)|;
-		  push(@values,
+        push(@values,
            conv_i($form->{id}), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $form->{"longdescription_$i"},
            $form->{"qty_$i"}, $baseqty,
@@ -394,17 +379,10 @@ sub save {
   if ($form->{currency} eq $form->{defaultcurrency}) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate =
-      $form->check_exchangerate($myconfig,
-                                $form->{currency},
-                                $form->{transdate},
-                                ($form->{vc} eq 'customer') ? 'buy' : 'sell');
+    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? 'buy' : 'sell');
   }
 
-  $form->{exchangerate} =
-    ($exchangerate)
-    ? $exchangerate
-    : $form->parse_amount($myconfig, $form->{exchangerate});
+  $form->{exchangerate} = ($exchangerate) ? $exchangerate : $form->parse_amount($myconfig, $form->{exchangerate});
 
   my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
 
@@ -456,12 +434,10 @@ sub save {
 
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
     if ($form->{vc} eq 'customer') {
-      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate},
-                                 $form->{exchangerate}, 0);
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, $form->{exchangerate}, 0);
     }
     if ($form->{vc} eq 'vendor') {
-      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate},
-                                 0, $form->{exchangerate});
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, 0, $form->{exchangerate});
     }
   }
 
@@ -471,13 +447,13 @@ sub save {
     &adj_onhand($dbh, $form, $ml * -1);
   }
 
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
-
   $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
                                        "quonumber" : "ordnumber"};
 
   Common::webdav_folder($form) if ($main::webdav);
+
+  my $rc = $dbh->commit;
+  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -918,8 +894,7 @@ sub order_details {
     $sth->finish();
   }
 
-  $form->{"globalprojectnumber"} =
-    $projectnumbers{$form->{"globalproject_id"}};
+  $form->{"globalprojectnumber"} = $projectnumbers{$form->{"globalproject_id"}};
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
@@ -1041,9 +1016,8 @@ sub order_details {
 
       if ($taxamount != 0) {
         foreach my $item (split / /, $form->{"taxaccounts_$i"}) {
-          $taxaccounts{$item} +=
-            $taxamount * $form->{"${item}_rate"} / $taxrate;
-          $taxbase{$item} += $taxbase;
+          $taxaccounts{$item} += $taxamount * $form->{"${item}_rate"} / $taxrate;
+          $taxbase{$item}     += $taxbase;
         }
       }
 
@@ -1056,8 +1030,7 @@ sub order_details {
         # get parts and push them onto the stack
         my $sortorder = "";
         if ($form->{groupitems}) {
-          $sortorder =
-            qq|ORDER BY pg.partsgroup, a.$oid{$myconfig->{dbdriver}}|;
+          $sortorder = qq|ORDER BY pg.partsgroup, a.$oid{$myconfig->{dbdriver}}|;
         } else {
           $sortorder = qq|ORDER BY a.$oid{$myconfig->{dbdriver}}|;
         }
@@ -1075,19 +1048,13 @@ sub order_details {
 
         while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-            map({ push(@{ $form->{$_} }, "") }
-                grep({ $_ ne "description" } @arrays));
+            map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
             push(@{ $form->{description} }, $sameitem);
           }
 
-          push(@{ $form->{description} },
-               $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}
-                 )
-                 . qq|, $ref->{partnumber}, $ref->{description}|);
-
-          map({ push(@{ $form->{$_} }, "") }
-              grep({ $_ ne "description" } @arrays));
+          push(@{ $form->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|); 
+          map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
         }
         $sth->finish;
       }
@@ -1195,17 +1162,13 @@ sub adj_onhand {
       my ($item_unit) = selectrow_query($form, $dbh, $query, $ref->{parts_id});
 
       my $basefactor = 1;
-      if (defined($all_units->{$item_unit}->{factor}) &&
-          (($all_units->{$item_unit}->{factor} * 1) != 0)) {
-        $basefactor = $all_units->{$ref->{unit}}->{factor} /
-          $all_units->{$item_unit}->{factor};
+      if (defined($all_units->{$item_unit}->{factor}) && (($all_units->{$item_unit}->{factor} * 1) != 0)) {
+        $basefactor = $all_units->{$ref->{unit}}->{factor} / $all_units->{$item_unit}->{factor};
       }
       my $baseqty = $ref->{ship} * $basefactor;
 
       # adjust onhand in parts table
-      $form->update_balance($dbh, "parts", "onhand",
-                            qq|id = $ref->{parts_id}|,
-                            $baseqty * $ml);
+      $form->update_balance($dbh, "parts", "onhand", qq|id = $ref->{parts_id}|, $baseqty * $ml);
     }
   }
 

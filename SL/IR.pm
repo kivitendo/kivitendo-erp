@@ -811,7 +811,10 @@ sub retrieve_invoice {
 sub get_vendor {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, $params) = @_;
+
+  $params = $form unless defined $params && ref $params eq "HASH";
+  $main::lxdebug->message(0, Dumper($params));
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -819,17 +822,27 @@ sub get_vendor {
   my $dateformat = $myconfig->{dateformat};
   $dateformat .= "yy" if $myconfig->{dateformat} !~ /^y/;
 
-  my $vid = conv_i($form->{vendor_id});
+  my $vid = conv_i($params->{vendor_id});
+  my $vnr = conv_i($params->{vendornumber});
 
   my $duedate =
-    ($form->{invdate})
-    ? "to_date(" . $dbh->quote($form->{invdate}) . ", '$dateformat')"
+    ($params->{invdate})
+    ? "to_date(" . $dbh->quote($params->{invdate}) . ", '$dateformat')"
     : "current_date";
 
   # get vendor
+  @values = ();
+  if ($vid) {
+    $where .= 'AND v.id = ?';
+    push @values, $vid;
+  }
+  if ($vnr) {
+    $where .= 'AND v.vendornumber = ?';
+    push @values, $vnr;
+  }
   my $query =
     qq|SELECT
-         v.name AS vendor, v.creditlimit, v.terms, v.notes AS intnotes,
+         v.id, v.name AS vendor, v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
          v.street, v.zipcode, v.city, v.country, v.taxzone_id,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
@@ -837,15 +850,15 @@ sub get_vendor {
        FROM vendor v
        LEFT JOIN business b       ON (b.id = v.business_id)
        LEFT JOIN payment_terms pt ON (v.payment_id = pt.id)
-       WHERE v.id = ?|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $vid);
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
+       WHERE 1=1 $where|;
+  $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
+  map { $params->{$_} = $ref->{$_} } keys %$ref;
 
-  $form->{creditremaining} = $form->{creditlimit};
+  $params->{creditremaining} = $params->{creditlimit};
 
   $query = qq|SELECT SUM(amount - paid) FROM ap WHERE vendor_id = ?|;
   my ($unpaid_invoices) = selectfirst_array_query($form, $dbh, $query, $vid);
-  $form->{creditremaining} -= $unpaid_invoices;
+  $params->{creditremaining} -= $unpaid_invoices;
 
   $query = qq|SELECT o.amount,
                 (SELECT e.sell
@@ -857,21 +870,21 @@ sub get_vendor {
   my $sth = prepare_execute_query($form, $dbh, $query, $vid);
   while (my ($amount, $exch) = $sth->fetchrow_array()) {
     $exch = 1 unless $exch;
-    $form->{creditremaining} -= $amount * $exch;
+    $params->{creditremaining} -= $amount * $exch;
   }
   $sth->finish();
 
   # get shipto if we do not convert an order or invoice
-  if (!$form->{shipto}) {
-    delete @{$form}{qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail)};
+  if (!$params->{shipto}) {
+    delete @{$params}{qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail)};
 
     $query = qq|SELECT * FROM shipto WHERE (trans_id = ?) AND (module= 'CT')|;
     $ref = selectfirst_hashref_query($form, $dbh, $query, $vid);
-    @{$form}{keys %$ref} = @{$ref}{keys %$ref};
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
+    @{$params}{keys %$ref} = @{$ref}{keys %$ref};
+    map { $params->{$_} = $ref->{$_} } keys %$ref;
   }
 
-  if (!$form->{id} && $form->{type} !~ /_(order|quotation)/) {
+  if (!$params->{id} && $params->{type} !~ /_(order|quotation)/) {
     # setup last accounts used
     $query =
       qq|SELECT c.id, c.accno, c.description, c.link, c.category
@@ -888,24 +901,24 @@ sub get_vendor {
       if ($ref->{category} eq 'E') {
         $i++;
 
-        if ($form->{initial_transdate}) {
+        if ($params->{initial_transdate}) {
           my $tax_query = qq|SELECT tk.tax_id, t.rate FROM taxkeys tk
                              LEFT JOIN tax t ON (tk.tax_id = t.id)
                              WHERE (tk.chart_id = ?) AND (startdate <= ?)
                              ORDER BY tk.startdate DESC
                              LIMIT 1|;
-          my ($tax_id, $rate) = selectrow_query($form, $dbh, $tax_query, $ref->{id}, $form->{initial_transdate});
-          $form->{"taxchart_$i"} = "${tax_id}--${rate}";
+          my ($tax_id, $rate) = selectrow_query($form, $dbh, $tax_query, $ref->{id}, $params->{initial_transdate});
+          $params->{"taxchart_$i"} = "${tax_id}--${rate}";
         }
 
-        $form->{"AP_amount_$i"} = "$ref->{accno}--$tax_id";
+        $params->{"AP_amount_$i"} = "$ref->{accno}--$tax_id";
       }
 
       if ($ref->{category} eq 'L') {
-        $form->{APselected} = $form->{AP_1} = $ref->{accno};
+        $params->{APselected} = $params->{AP_1} = $ref->{accno};
       }
     }
-    $form->{rowcount} = $i if ($i && !$form->{type});
+    $params->{rowcount} = $i if ($i && !$params->{type});
   }
 
   $dbh->disconnect();
