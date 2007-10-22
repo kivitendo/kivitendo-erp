@@ -1,0 +1,27 @@
+
+<tr>
+ <td>
+  <input type="hidden" name="show_details" value="<TMPL_VAR show_details>"  /> 
+  <input type="checkbox" id="cb_show_details" onclick="show_form_details(<TMPL_VAR show_details_new>);" <TMPL_VAR show_details_checked>>
+  <label for="cb_show_details">Details anzeigen</label><br>
+  <table width="100%">
+   <tr class="listheading"><TMPL_LOOP HEADER><TMPL_IF display>
+    <th align="left" nowrap width="<TMPL_VAR width>" class="listheading"><TMPL_VAR value></th></TMPL_IF></TMPL_LOOP>
+   </tr>
+
+   <TMPL_LOOP ROWS>
+     <tr valign="top" class="listrow<TMPL_VAR __odd__>"><TMPL_LOOP ROW1>
+      <td align="<TMPL_VAR align>"><TMPL_VAR value></td></TMPL_LOOP>
+     </tr>
+     
+     <TMPL_LOOP HIDDENS><TMPL_VAR value>
+     </TMPL_LOOP>
+     
+     <tr class="listrow<TMPL_VAR __odd__>" <TMPL_UNLESS show_details>style="display:none;"</TMPL_UNLESS>><td colspan="<TMPL_VAR colspan>"><TMPL_LOOP ROW2>
+      <TMPL_VAR value></TMPL_LOOP>
+     </td></tr>
+   </TMPL_LOOP>
+
+  </table>
+ </td>
+</tr>

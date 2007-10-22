@@ -1,0 +1,194 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+<body onLoad="[% onload %]">
+
+  <form method=post name=oe action="[% script %]">
+
+    <script type="text/javascript" src="js/common.js"></script>
+    <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
+    <script type="text/javascript" src="js/vendor_selection.js"></script>
+    <script type="text/javascript" src="js/calculate_qty.js"></script>
+
+[%- FOREACH row = HIDDENS %]
+   <input type="hidden" name="[% row.name %]" value="[% HTML.escape(row.value) %]" > 
+[%- END %]
+
+    <table width=100%>
+      <tr class=listtop>
+        <th class=listtop>[% title %]</th>
+      </tr>
+      <tr height="5"></tr>
+      <tr>
+        <td>
+          <table width="100%">
+            <tr valign=top>
+              <td width=50%>
+                <table width=100%>
+                  <tr>
+                    [% vc %]
+[%- IF contact %]
+                  <tr>
+                    <th align="right"><translate>Contact Person</translate></th>
+                    <td>[% contact %]</td>
+                  </tr>
+[%- END %]
+[%- IF shipto %]
+                  <tr>
+                    <th align="right"><translate>Shipping Address</translate></th>
+                    <td>[% shipto %]</td>
+                  </tr>
+[%- END %]
+[%- IF is_order %]
+                  <tr>
+                    <td align="right"><translate>Credit Limit</translate></td>
+                    <td>[% LxERP.format_amount(creditlimit, 0) %]; <translate>Remaining</translate> <span class="plus[% is_credit_remaining_negativ %]">[% LxERP.format_amount(creditremaining, 0) %]</span></td>
+                  </tr>
+[%- END %]
+[%- IF business %]
+                  <tr>
+                    <th align="right">[% business_label %]</th>
+                    <td>[% business %]; <translate>Trade Discount</translate> [% LxERP.format_percent(tradediscount) %] %</td>
+                  </tr>
+[%- END %]
+[%- IF max_dunning_level %]
+                  <tr>
+                    <th align="right"><translate>Max. Dunning Level</translate>:</th>
+                    <td>
+                      <b>[% max_dunning_level %]</b>;
+                      <translate>Dunning Amount</translate>: <b>[% LxERP.format_amount(dunning_amount, 2) %]</b>
+                    </td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th align="right"><translate>Steuersatz</translate></th>
+                    <td>[% taxzone %]</td>
+                  </tr>
+[%- IF selectdepartment %]
+                  <tr>
+                    <th align="right" nowrap><translate>Department</translate></th>
+                    <td colspan=3><select name=department style="width: 250px">[% selectdepartment %]</select>
+                    <input type=hidden name=selectdepartment value="[% HTML.escape(selectdepartment) %]">
+                    </td>
+                  </tr>
+[%- END %]
+                  <tr>
+[%- IF currencies %]
+                  <tr>
+                    <th align="right"><translate>Currency</translate></th>
+                    <td>[% currencies %]</td>
+                  </tr>
+[%- END %]
+[%- IF show_exchangerate %]
+                  <tr>
+                    <th align=right><translate>Exchangerate</translate></th>
+                    <td>
+                     [%~ IF forex ~%]
+                      [% LxERP.format_amount(exchangerate, 0) %]
+                     [%~ ELSE ~%]
+                      <input name=exchangerate size=10 value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+                     [%~ END ~%]
+                    </td>
+                  </tr>
+[%- END %]
+[%- IF is_sales %]
+                  <tr>
+                    <th align=right><translate>Motiv</translate></th>
+                    <td style="font-weight:bold" colspan=3><input name=motiv size=35 value="[% HTML.escape(motiv) %]"></td>
+                  </tr>
+[%- END -%]
+                  <tr>
+                    <th align=right><translate>Shipping Point</translate></th>
+                    <td colspan=3><input name=shippingpoint size=35 value="[% HTML.escape(shippingpoint) %]"></td>
+                  </tr>
+                  <tr>
+                    <th align=right><translate>Ship via</translate></th>
+                    <td colspan=3><input name=shipvia size=35 value="[% HTML.escape(shipvia) %]"></td>
+                  </tr>
+                  <tr>
+                    <th align="right"><translate>Transaction description</translate></th>
+                    <td colspan="3"><input name="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"></td>
+                  </tr>
+[%- IF show_delivery_customer %]
+                  <tr>
+                    <td colspan=4>
+                      <table>
+                        <tr>
+                          <td colspan=2>
+                          <button type="button" onclick="delivery_customer_selection_window('delivery_customer_string','delivery_customer_id')"><translate>Choose Customer</translate></button>
+                        </td>
+                          <td colspan=2><input type=hidden name=delivery_customer_id value="[% HTML.escape(delivery_customer_id) %]">
+                          <input size=45 id=delivery_customer_string name=delivery_customer_string value="[% HTML.escape(delivery_customer_string) %]"></td>
+                        </tr>
+                        <tr>
+                          <td colspan=2>
+                            <button type="button" onclick="vendor_selection_window('delivery_vendor_string','delivery_vendor_id')"><translate>Choose Vendor</translate></button>
+                          </td>
+                          <td colspan=2><input type=hidden name=delivery_vendor_id value="[% HTML.escape(delivery_vendor_id) %]">
+                          <input size=45 id=vendor_string name=delivery_vendor_string value="[% HTML.escape(delivery_vendor_string) %]"></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr> 
+[%- END %]
+                </table>
+              </td>
+              <td align=right>
+                <table>
+              [% openclosed %]
+                  <tr>
+                    <th align="right"><translate>Employee</translate></th>
+                    <td>[% employee %]</td>
+                  </tr>
+[%- IF salesmen %]
+                  <tr>
+                    <th align="right"><translate>Salesman</translate></th>
+                    <td>[% salesmen %]</td>
+                  </tr>
+[%- END %]
+[%- IF is_order %]
+                  <tr>
+                    <th width=70% align=right nowrap><translate>Order Number</translate></th>
+                    <td><input name=ordnumber size=11 value="[% ordnumber %]"></td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th width=70% align=right nowrap>[% IF is_req_quo %]<translate>RFQ Number</translate>[% ELSE %]<translate>Quotation Number</translate>[% END %]</th>
+                    <td><input name=quonumber size=11 value="[% quonumber %]"></td>
+                  </tr>
+[%- IF is_order %]<tr>
+                    <th width=70% align=right nowrap><translate>Customer Order Number</translate></th>
+                    <td><input name=cusordnumber size=11 value="[% cusordnumber %]"></td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th align=right nowrap>
+                     [%~ IF is_order ~%]
+                      <translate>Order Date</translate>
+                     [%~ ELSE ~%]
+                      <translate>Quotation Date</translate>
+                     [%~ END ~%]
+                    </th>
+                    [% button1 %]
+                  </tr>
+                  <tr>
+                    <th align=right nowrap>
+                     [%~ IF is_sales_quo ~%]
+                      <translate>Valid until</translate>
+                     [%~ ELSE ~%]
+                      <translate>Required by</translate>
+                     [%~ END ~%]
+                    </th>
+                    [% button2 %]
+                  </tr>
+                  <tr>
+                    <th width="70%" align="right" nowrap><translate>Project Number</translate></th>
+                    <td>[% globalprojectnumber %]</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      [% jsscript %]

@@ -1,0 +1,25 @@
+  <body>
+
+    <h4 class="error">Dieser Artikel ist nicht in der Datenbank!
+
+
+    <p>Was ist dieser Artikel?</h4>
+
+    <form method="post" action="ic.pl">
+
+      <p>
+
+      <input class="radio" type="radio" name="item" value="part" checked>&nbsp;Ware<br>
+      <input class="radio" type="radio" name="item" value="service">&nbsp;Dienstleistung
+      <p>
+
+      <TMPL_LOOP HIDDENS><TMPL_VAR value>
+      </TMPL_LOOP>
+
+      <input type="hidden" name="nextsub" value="add">
+      <input class="submit" type="submit" name="action" value="Weiter">
+    </form>
+
+  </body>
+</html>
+

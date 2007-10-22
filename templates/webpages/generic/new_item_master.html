@@ -1,0 +1,25 @@
+  <body>
+
+    <h4 class="error"><translate>Item not on file!</translate>
+
+
+    <p><translate>What type of item is this?</translate></h4>
+
+    <form method="post" action="ic.pl">
+
+      <p>
+
+      <input class="radio" type="radio" name="item" value="part" checked>&nbsp;<translate>Part</translate><br>
+      <input class="radio" type="radio" name="item" value="service">&nbsp;<translate>Service</translate>
+      <p>
+
+      <TMPL_LOOP HIDDENS><TMPL_VAR value>
+      </TMPL_LOOP>
+
+      <input type="hidden" name="nextsub" value="add">
+      <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+    </form>
+
+  </body>
+</html>
+
