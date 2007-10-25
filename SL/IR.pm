@@ -814,7 +814,6 @@ sub get_vendor {
   my ($self, $myconfig, $form, $params) = @_;
 
   $params = $form unless defined $params && ref $params eq "HASH";
-  $main::lxdebug->message(0, Dumper($params));
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
