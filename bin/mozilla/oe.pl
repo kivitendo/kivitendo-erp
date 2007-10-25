@@ -300,7 +300,9 @@ sub prepare_order {
 sub form_header {
   $lxdebug->enter_sub();
   my @custom_hiddens;
-  %TMPL_VAR = ();
+
+  # Container for template variables. Unfortunately this has to be visible in form_footer too, so not my.
+  our %TMPL_VAR = ();
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
@@ -310,19 +312,19 @@ sub form_header {
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
-  map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(ordnumber quonumber shippingpoint shipvia notes intnotes shiptoname
+  map { $form->{$_} = H($form->{$_}) }
+    qw(shippingpoint shipvia notes intnotes shiptoname
        shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
        shiptophone shiptofax shiptodepartment_1 shiptodepartment_2);
  
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
   $TMPL_VAR{button1} = qq|
-     <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\">
+     <td nowrap><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=transdate id="trigger1" value=| . $locale->text('button') . qq|></td>
     |;
   $TMPL_VAR{button2} = qq|
-     <td width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\">
+     <td nowrap width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\">
       <input type=button name=reqdate name=reqdate id="trigger2" value=| . $locale->text('button') . qq|></td>
    |;
   #write Trigger
@@ -382,7 +384,7 @@ sub form_header {
        ($myconfig{vclimit} <=  scalar(@values)) 
         ? $cgi->textfield(-value => H($form->{"old$form->{vc}"} =~ /^(.*)\-\-.*$/), -name => $form->{vc}) 
         : NTI($cgi->popup_menu('-name' => "$form->{vc}", '-default' => $form->{"old$form->{vc}"}, 
-                               '-onChange' => 'document.getElementById(\'update_button\').click();',
+                               '-onChange' => "document.getElementById('update_button').click();",
                                '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px'));
 
   # payments (for footer)
@@ -393,6 +395,10 @@ sub form_header {
 
   # shipto
   @values = ("", map { $_->{shipto_id} } @{ $form->{ALL_SHIPTO} });
+  $TMPL_VAR{ALL_SHIPTO} = $form->{ALL_SHIPTO};
+  for my $item ( @{ $TMPL_VAR{ALL_SHIPTO} }) {
+     $item->{label} = join "; ", grep { $_ } map { $item->{"shipto${_}" } } qw(name department_1 street city);
+  }
   %labels = map { my $item=$_; $_->{shipto_id} => join "; ", grep { $_ } map { $item->{"shipto${_}" } } qw(name department_1 street city) } @{ $form->{ALL_SHIPTO} };
   $TMPL_VAR{shipto} = NTI($cgi->popup_menu('-name' => 'shipto_id', '-values' => \@values, '-style' => 'width: 250px',
                                            '-labels' => \%labels, '-default' => $form->{"shipto_id"})) if scalar @values > 1;
@@ -2013,7 +2019,7 @@ sub display_row {
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => 1, },
     {  id => 'sellprice_pg',  width => 15,    value => $locale->text('Pricegroup'),           display => $form->{type} =~ /^sales_/,  },
-    {  id => 'discount',      width => undef, value => $locale->text('Discount'),             display => $form->{vc} eq 'customer', },
+    {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => $form->{vc} eq 'customer', },
     {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => 1, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
   ); 
