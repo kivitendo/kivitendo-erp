@@ -150,69 +150,24 @@ sub display_row {
   # Eintrag fuer Version 2.2.0 geaendert #
   # neue Optik im Rechnungsformular      #
 ########################################
-  $column_data{runningnumber} =
-      qq|<th align="left" nowrap width="5" class="listheading">|
-    . $locale->text('No.')
-    . qq|</th>|;
-  $column_data{partnumber} =
-      qq|<th align="left" nowrap width="12" class="listheading">|
-    . $locale->text('Number')
-    . qq|</th>|;
-  $column_data{description} =
-      qq|<th align="left" nowrap width="30" class="listheading">|
-    . $locale->text('Part Description')
-    . qq|</th>|;
+  $column_data{runningnumber} = qq|<th align="left" nowrap width="5%"  class="listheading">| . $locale->text('No.') .         qq|</th>|;
+  $column_data{partnumber}    = qq|<th align="left" nowrap width="12%" class="listheading">| . $locale->text('Number') .      qq|</th>|;
+  $column_data{description}   = qq|<th align="left" nowrap width="30%" class="listheading">| . $locale->text('Part Description') . qq|</th>|;
   if ($form->{"type"} eq "purchase_order") {
-    $column_data{ship} =
-      qq|<th align="left" nowrap width="5" class="listheading">|
-      . $locale->text('Ship rcvd')
-      . qq|</th>|;
+    $column_data{ship}        = qq|<th align="left" nowrap width="5%"  class="listheading">| . $locale->text('Ship rcvd') .   qq|</th>|;
   } else {
-    $column_data{ship} =
-      qq|<th align="left" nowrap width="5" class="listheading">|
-      . $locale->text('Ship')
-      . qq|</th>|;
+    $column_data{ship}        = qq|<th align="left" nowrap width="5%"  class="listheading">| . $locale->text('Ship') .        qq|</th>|;
   }
-  $column_data{qty} =
-      qq|<th align="left" nowrap width="5" class="listheading">|
-    . $locale->text('Qty')
-    . qq|</th>|;
-  $column_data{unit} =
-      qq|<th align="left" nowrap width="5" class="listheading">|
-    . $locale->text('Unit')
-    . qq|</th>|;
-  $column_data{license} =
-      qq|<th align="left" nowrap width="10" class="listheading">|
-    . $locale->text('License')
-    . qq|</th>|;
-  $column_data{serialnr} =
-      qq|<th align="left" nowrap width="10" class="listheading">|
-    . $locale->text('Serial No.')
-    . qq|</th>|;
-  $column_data{projectnr} =
-      qq|<th align="left" nowrap width="10" class="listheading">|
-    . $locale->text('Project')
-    . qq|</th>|;
-  $column_data{sellprice} =
-      qq|<th align="left" nowrap width="15" class="listheading">|
-    . $locale->text('Price')
-    . qq|</th>|;
-  $column_data{sellprice_pg} =
-      qq|<th align="left" nowrap width="15" class="listheading">|
-    . $locale->text('Pricegroup')
-    . qq|</th>|;
-  $column_data{discount} =
-      qq|<th align="left" class="listheading">|
-    . $locale->text('Discount')
-    . qq|</th>|;
-  $column_data{linetotal} =
-      qq|<th align="left" nowrap width="10" class="listheading">|
-    . $locale->text('Extended')
-    . qq|</th>|;
-  $column_data{bin} =
-      qq|<th align="left" nowrap width="10" class="listheading">|
-    . $locale->text('Bin')
-    . qq|</th>|;
+  $column_data{qty}           = qq|<th align="left" nowrap width="5%"  class="listheading">| . $locale->text('Qty') .         qq|</th>|;
+  $column_data{unit}          = qq|<th align="left" nowrap width="20%" class="listheading">| . $locale->text('Unit') .        qq|</th>|;
+  $column_data{license}       = qq|<th align="left" nowrap width="10%" class="listheading">| . $locale->text('License') .     qq|</th>|;
+  $column_data{serialnr}      = qq|<th align="left" nowrap width="10%" class="listheading">| . $locale->text('Serial No.') .  qq|</th>|;
+  $column_data{projectnr}     = qq|<th align="left" nowrap width="10%" class="listheading">| . $locale->text('Project') .     qq|</th>|;
+  $column_data{sellprice}     = qq|<th align="left" nowrap width="15%" class="listheading">| . $locale->text('Price') .       qq|</th>|;
+  $column_data{sellprice_pg}  = qq|<th align="left" nowrap width="15%" class="listheading">| . $locale->text('Pricegroup') .  qq|</th>|;
+  $column_data{discount}      = qq|<th align="left" nowrap width="5%"  class="listheading">| . $locale->text('Discount') .    qq|</th>|;
+  $column_data{linetotal}     = qq|<th align="left" nowrap width="10%" class="listheading">| . $locale->text('Extended') .    qq|</th>|;
+  $column_data{bin}           = qq|<th align="left" nowrap width="10%" class="listheading">| . $locale->text('Bin') .         qq|</th>|;
 ############## ENDE Neueintrag ##################
 
   $myconfig{"show_form_details"} = 1
