@@ -67,6 +67,12 @@ sub do_statement {
 sub dump_query {
   my ($level, $msg, $query) = splice(@_, 0, 3);
 
+  my $filename = $self_filename = 'SL/DBUtils.pm';
+  my $caller_level;
+  while ($filename eq $self_filename) {
+    (undef, $filename, $line, $subroutine) = caller $caller_level++;
+  }
+
   while ($query =~ /\?/) {
     my $value = shift(@_);
     $value =~ s/\'/\\\'/g;
@@ -78,7 +84,9 @@ sub dump_query {
 
   $msg .= " " if ($msg);
 
-  $main::lxdebug->message($level, $msg . $query);
+  my $info = "$subroutine called from $filename:$line\n";
+
+  $main::lxdebug->message($level, $info . $msg . $query);
 }
 
 sub quote_db_date {
