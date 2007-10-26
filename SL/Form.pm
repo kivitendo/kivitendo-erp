@@ -383,11 +383,8 @@ sub header {
     my $doctype;
 
     if ($ENV{'HTTP_USER_AGENT'} =~ m/MSIE\s+\d/) {
-      $main::lxdebug->message(0, "yeah");
       # Only set the DOCTYPE for Internet Explorer. Other browsers have problems displaying the menu otherwise.
       $doctype = qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">\n|;
-    } else {
-      $main::lxdebug->message(0, "nope");
     }
 
     my $stylesheets = "$self->{stylesheet} $self->{stylesheets}";
