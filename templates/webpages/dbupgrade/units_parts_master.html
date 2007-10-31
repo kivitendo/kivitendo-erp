@@ -1,16 +1,16 @@
-<div class="listtop"><translate>Step 1 of 3: Parts</translate></div>
+[% USE HTML %]<div class="listtop"><translate>Step 1 of 3: Parts</translate></div>
 
 <form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="unit_type" value="dimension">
  <input type="hidden" name="action" value="login">
  <input type="hidden" name="action2" value="">
 
- <TMPL_IF saved_message>
-  <p><TMPL_VAR saved_message></p>
- </TMPL_IF>
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
 
  <div class="subsubheading"><translate>Add unit</translate></div>
 
@@ -26,7 +26,7 @@
 
  <p>
   <translate>The following units exist already:</translate>
-  <TMPL_LOOP NEW_BASE_UNIT_DDBOX><TMPL_IF name><TMPL_VAR name ESCAPE=HTML><TMPL_UNLESS __last__>; </TMPL_UNLESS></TMPL_IF></TMPL_LOOP>
+  [% FOREACH row = NEW_BASE_UNIT_DDBOX %][% IF row.name %][% HTML.escape(row.name) %][% UNLESS loop.last %]; [% END %][% END %][% END %]
  </p>
 
  <hr>
@@ -40,7 +40,7 @@
    <th align="right"><translate>Base unit</translate></th>
    <td>
     <select name="new_base_unit">
-     <TMPL_LOOP NEW_BASE_UNIT_DDBOX><option <TMPL_VAR selected>><TMPL_VAR name></option></TMPL_LOOP>
+     [% FOREACH row = NEW_BASE_UNIT_DDBOX %]<option [% row.selected %]>[% row.name %]</option>[% END %]
     </select>
    </td>
   </tr>
@@ -67,19 +67,19 @@
    <th class="listheading"><translate>New unit</translate></th>
   </tr>
 
-  <TMPL_LOOP UNKNOWN_PART_UNITS>
-   <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+  [% FOREACH row = UNKNOWN_PART_UNITS %]
+   <tr class="listrow[% loop.count % 2 %]">
     <td>
-     <TMPL_VAR name ESCAPE=HTML>
-     <input type="hidden" name="old_unit_<TMPL_VAR __counter__>" value="<TMPL_VAR name ESCAPE=HTML>">
+     [% HTML.escape(row.name) %]
+     <input type="hidden" name="old_unit_[% loop.count %]" value="[% HTML.escape(row.name) %]">
     </td>
     <td>
-     <select name="new_unit_<TMPL_VAR __counter__>">
-      <TMPL_LOOP NEW_UNITS><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="new_unit_[% loop.count %]">
+      [% FOREACH row_new = row.NEW_UNITS %]<option>[% HTML.escape(row_new.name) %]</option>[% END %]
      </select>
     </td>
-    <TMPL_IF __last__><input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>"></TMPL_IF>
-  </TMPL_LOOP>
+    [% IF loop.last %]<input type="hidden" name="rowcount" value="[% loop.count %]">[% END %]
+  [% END %]
  </table>
 
  <input type="submit" onclick="document.Form.action2.value = 'assign_units'; document.Form.submit();" name="dummy" value="<translate>Assign units</translate>">

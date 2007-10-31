@@ -11,8 +11,8 @@ sub mydberror {
 sub myshowerror {
   my ($msg) = @_;
 
-  print($main::form->parse_html_template("dbupgrade/units_error",
-                                         { "message" => $msg }));
+  print($main::form->parse_html_template2("dbupgrade/units_error",
+                                          { "message" => $msg }));
   return 2;
 }
 
@@ -117,9 +117,7 @@ sub update_steuersaetze {
     return update_steuersaetze_skr04();
   }
 
-  print($form->parse_html_template("dbupgrade/" .
-                                   "std_buchungsgruppen_unknown_coa",
-                                   { "coa" => $coa }));
+  print($form->parse_html_template2("dbupgrade/std_buchungsgruppen_unknown_coa", { "coa" => $coa }));
 
   return 1;
 }

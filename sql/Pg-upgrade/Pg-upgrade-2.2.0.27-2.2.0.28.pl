@@ -11,8 +11,8 @@ sub mydberror {
 sub myshowerror {
   my ($msg) = @_;
 
-  print($main::form->parse_html_template("dbupgrade/units_error",
-                                         { "message" => $msg }));
+  print($main::form->parse_html_template2("dbupgrade/units_error",
+                                          { "message" => $msg }));
   return 2;
 }
 
@@ -76,8 +76,8 @@ sub update_guess_chart_of_accounts {
 
   my @coas = map(+{ "name" => $_ }, @valid_coas);
 
-  print($form->parse_html_template("dbupgrade/coa_guess",
-                                   { "COAS" => \@coas }));
+  print($form->parse_html_template2("dbupgrade/coa_guess",
+                                    { "COAS" => \@coas }));
 
   return 2;
 }

@@ -1,11 +1,11 @@
-<form name="Form" method="post" action="login.pl">
+[% USE HTML %]<form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="action" value="login">
 
  <p>
-  Lx-Office wird gleich die Datenbank <b><TMPL_VAR dbname ESCAPE=HTML></b> aktualisieren. Sie sollten eine Sicherungskopie der Datenbank erstellen, bevor Sie fortfahren, da die Aktualisierung unter Umst&auml;nden nicht umkehrbar ist.
+  Lx-Office wird gleich die Datenbank <b>[% HTML.escape(dbname) %]</b> aktualisieren. Sie sollten eine Sicherungskopie der Datenbank erstellen, bevor Sie fortfahren, da die Aktualisierung unter Umst&auml;nden nicht umkehrbar ist.
  </p>
 
  <input type="submit" name="dummy" value="Weiter">

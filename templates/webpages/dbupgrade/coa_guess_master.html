@@ -1,15 +1,15 @@
-<div class="listtop"><translate>Select the chart of accounts in use</translate></div>
+[% USE HTML %]<div class="listtop"><translate>Select the chart of accounts in use</translate></div>
 
 <form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="action" value="login">
  <input type="hidden" name="action2" value="">
 
- <TMPL_IF saved_message>
-  <p><TMPL_VAR saved_message></p>
- </TMPL_IF>
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
 
  <p>
   <translate>Please select the chart of accounts this installation
@@ -18,7 +18,7 @@
 
  <p>
   <translate>Chart of accounts</translate>:
-  <select name="coa"><TMPL_LOOP COAS><option><TMPL_VAR name></option></TMPL_LOOP></select>
+  <select name="coa">[% FOREACH row = COAS %]<option>[% row.name %]</option>[% END %]</select>
  </p>
 
  <input type="submit" onclick="document.Form.action2.value = 'set_coa'; document.Form.submit();" name="dummy" value="<translate>Continue</translate>">

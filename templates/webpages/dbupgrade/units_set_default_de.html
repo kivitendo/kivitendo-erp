@@ -1,9 +1,9 @@
-<div class="listtop">Schritt 3 von 3: Standardeinheiten</div>
+[% USE HTML %]<div class="listtop">Schritt 3 von 3: Standardeinheiten</div>
 
 <form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="unit_type" value="dimension">
  <input type="hidden" name="action" value="login">
  <input type="hidden" name="action2" value="">
@@ -18,7 +18,7 @@
    <td>Ma&szlig;einheit:</td>
    <td>
     <select name="default_dimension_unit">
-     <TMPL_LOOP DIMENSION_DDBOX><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+     [% FOREACH row = DIMENSION_DDBOX %]<option>[% HTML.escape(row.name) %]</option>[% END %]
     </select>
    </td>
   </tr>
@@ -27,7 +27,7 @@
    <td>Dienstleistungseinheit:</td>
    <td>
     <select name="default_service_unit">
-     <TMPL_LOOP SERVICE_DDBOX><option><TMPL_VAR name ESCAPE=HTML></option></TMPL_LOOP>
+     [% FOREACH row = SERVICE_DDBOX %]<option>[% HTML.escape(row.name) %]</option>[% END %]
     </select>
    </td>
   </tr>

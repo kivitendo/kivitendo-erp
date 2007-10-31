@@ -48,8 +48,8 @@ sub update_templates {
 
   if (@warnings) {
     @warnings = map(+{ "message" => $_ }, @warnings);
-    print($form->parse_html_template("dbupgrade/update_templates_warnings",
-                                     { "WARNINGS" => \@warnings }));
+    print($form->parse_html_template2("dbupgrade/update_templates_warnings",
+                                      { "WARNINGS" => \@warnings }));
   }
 
   return 1;

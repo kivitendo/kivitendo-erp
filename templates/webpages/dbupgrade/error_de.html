@@ -1,6 +1,6 @@
-<p>Die Datenbankaktualisierung/erstellung schlug fehl. Die Datei <TMPL_VAR file ESCAPE=HTML> enthielt den folgenden Fehler:
+[% USE HTML %]<p>Die Datenbankaktualisierung/erstellung schlug fehl. Die Datei [% HTML.escape(file) %] enthielt den folgenden Fehler:
  <br>
- <TMPL_VAR error>
+ [% error %]
  <br>
  Alle &Auml;nderungen in dieser Datei wurden r&uuml;ckg&auml;ngig gemacht.
 </p>

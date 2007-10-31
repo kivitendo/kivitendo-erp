@@ -1,9 +1,9 @@
-<p><translate>...done</translate></p>
+[% USE HTML %]<p><translate>...done</translate></p>
 
-<form action="<TMPL_VAR menufile>">
+<form action="[% menufile %]">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="action" value="display">
 
  <p><input type="submit" value="<translate>Continue</translate>"></p>

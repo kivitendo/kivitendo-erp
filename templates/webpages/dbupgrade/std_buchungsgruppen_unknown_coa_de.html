@@ -1,20 +1,19 @@
-<div class="listtop">Unbekannter Kontenrahmen</div>
+[% USE HTML %]<div class="listtop">Unknown chart of accounts</div>
 
 <form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="path" value="<TMPL_VAR path ESCAPE=HTML>">
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="action" value="login">
  <input type="hidden" name="action2" value="">
 
- <TMPL_IF saved_message>
-  <p><TMPL_VAR saved_message></p>
- </TMPL_IF>
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
 
  <p>
-  Hinweis:
-  Diese Installation benutzt einen unbekannten Kontenrahmen (&quot;<TMPL_VAR coa ESCAPE=HTML>&quot;). Dieses Datenbankupgrade kann die Standardbuchungsgruppen nicht automatisch anlegen.
+  Note:
+  This installation uses an unknown chart of accounts (&quot;[% HTML.escape(coa) %]&quot;). This database upgrade cannot create standard buchungsgruppen automatically.
  </p>
 
  <hr>

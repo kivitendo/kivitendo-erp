@@ -193,13 +193,13 @@ sub login {
       $form->{"stylesheet"} = "lx-office-erp.css";
       $form->{"title"} = $main::locale->text("Dataset upgrade");
       $form->header();
-      print($form->parse_html_template("dbupgrade/header"));
+      print($form->parse_html_template2("dbupgrade/header"));
 
       $form->{dbupdate} = "db$myconfig{dbname}";
       $form->{ $form->{dbupdate} } = 1;
 
       if ($form->{"show_dbupdate_warning"}) {
-        print($form->parse_html_template("dbupgrade/warning"));
+        print($form->parse_html_template2("dbupgrade/warning"));
         exit(0);
       }
 
@@ -226,8 +226,8 @@ sub login {
         $self->{"menustyle"} eq "neu" ? "menunew.pl" :
         "menu.pl";
 
-      print($form->parse_html_template("dbupgrade/footer",
-                                       { "menufile" => $menufile }));
+      print($form->parse_html_template2("dbupgrade/footer",
+                                        { "menufile" => $menufile }));
 
       $rc = -2;
 
@@ -492,9 +492,9 @@ sub process_perl_script {
   }
 
   if (!defined($result)) {
-    print($form->parse_html_template("dbupgrade/error",
-                                     { "file" => $filename,
-                                       "error" => $@ }));
+    print($form->parse_html_template2("dbupgrade/error",
+                                      { "file" => $filename,
+                                        "error" => $@ }));
     exit(0);
   } elsif (1 != $result) {
     unlink("users/nologin") if (2 == $result);
@@ -927,8 +927,8 @@ sub dbupdate2 {
 
       # apply upgrade
       $main::lxdebug->message(DEBUG2, "Applying Update $control->{file}");
-      print($form->parse_html_template("dbupgrade/upgrade_message2",
-                                       $control));
+      print($form->parse_html_template2("dbupgrade/upgrade_message2",
+                                        $control));
 
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .

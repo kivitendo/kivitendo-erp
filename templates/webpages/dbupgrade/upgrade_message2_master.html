@@ -1,4 +1,4 @@
-<ul>
- <li><translate>Applying <TMPL_VAR file ESCAPE=HTML>:</translate> <TMPL_VAR description></li>
+[% USE HTML %]<ul>
+ <li><translate>Applying [% HTML.escape(file) %]:</translate> [% description %]</li>
 </ul>
 

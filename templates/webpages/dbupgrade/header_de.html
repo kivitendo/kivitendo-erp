@@ -1,7 +1,7 @@
-<body>
+[% USE HTML %]<body>
 
  <table width="100%">
   <tr>
-   <td class="listtop">Datenbankaktualisierung (<TMPL_VAR dbname ESCAPE=HTML>)</td>
+   <td class="listtop">Datenbankaktualisierung ([% HTML.escape(dbname) %])</td>
   </tr>
  </table>

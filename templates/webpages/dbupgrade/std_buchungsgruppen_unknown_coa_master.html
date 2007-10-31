@@ -1,20 +1,20 @@
-<div class="listtop"><translate>Unknown chart of accounts</translate></div>
+[% USE HTML %]<div class="listtop"><translate>Unknown chart of accounts</translate></div>
 
 <form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="action" value="login">
  <input type="hidden" name="action2" value="">
 
- <TMPL_IF saved_message>
-  <p><TMPL_VAR saved_message></p>
- </TMPL_IF>
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
 
  <p>
   <translate>Note</translate>:
   <translate>This installation uses an unknown chart of accounts
-   (&quot;<TMPL_VAR coa ESCAPE=HTML>&quot;). This database upgrade
+   (&quot;[% HTML.escape(coa) %]&quot;). This database upgrade
    cannot create standard buchungsgruppen automatically.</translate>
  </p>
 

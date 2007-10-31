@@ -1,16 +1,16 @@
-<div class="listtop"><translate>Step 2 of 3: Services</translate></div>
+[% USE HTML %]<div class="listtop"><translate>Step 2 of 3: Services</translate></div>
 
 <form name="Form" method="post" action="login.pl">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="hashed_password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="hashed_password" value="[% HTML.escape(password) %]">
  <input type="hidden" name="type" value="parts">
  <input type="hidden" name="action" value="login">
  <input type="hidden" name="action2" value="">
 
- <TMPL_IF saved_message>
-  <p><TMPL_VAR saved_message></p>
- </TMPL_IF>
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
 
  <div class="subsubheading"><translate>Existing Buchungsgruppen</translate></div>
 
@@ -18,70 +18,70 @@
   <translate>The following Buchungsgruppen have already been created:</translate>
   <br>
   <ul>
-   <TMPL_LOOP BUCHUNGSGRUPPEN>
+   [% FOREACH row = BUCHUNGSGRUPPEN %]
     <li>
-     <TMPL_VAR description ESCAPE=HTML>:
-     <translate>Invetory</translate>: <TMPL_VAR inventory_accno>;
+     [% HTML.escape(row.description) %]:
+     <translate>Inventory</translate>: [% row.inventory_accno %];
 
      <translate>Income accno</translate>/<translate>Expense accno</translate>
-     <translate>National</translate>: <TMPL_VAR income_accno_0>/<TMPL_VAR expense_accno_0>;
+     <translate>National</translate>: [% row.income_accno_0 %]/[% row.expense_accno_0 %];
 
      <translate>Income accno</translate>/<translate>Expense accno</translate>
-     <translate>EU with VAT ID</translate>: <TMPL_VAR income_accno_1>/<TMPL_VAR expense_accno_1>;
+     <translate>EU with VAT ID</translate>: [% row.income_accno_1 %]/[% row.expense_accno_1 %];
 
      <translate>Income accno</translate>/<translate>Expense accno</translate>
-     <translate>EU without VAT ID</translate>: <TMPL_VAR income_accno_2>/<TMPL_VAR expense_accno_2>;
+     <translate>EU without VAT ID</translate>: [% row.income_accno_2 %]/[% row.expense_accno_2 %];
 
      <translate>Income accno</translate>/<translate>Expense accno</translate>
-     <translate>International</translate>: <TMPL_VAR income_accno_3>/<TMPL_VAR expense_accno_3>
+     <translate>International</translate>: [% row.income_accno_3 %]/[% row.expense_accno_3 %]
     </li>
-   </TMPL_LOOP>
+   [% END %]
   </ul>
  </p>
 
- <TMPL_LOOP LIST>
-  <div class="subsubheading"><translate>New Buchungsgruppe <TMPL_VAR __counter__></translate></div>
+ [% FOREACH row = LIST %]
+  <div class="subsubheading"><translate>New Buchungsgruppe [% loop.count %]</translate></div>
 
   <table>
    <tr>
     <td><translate>Description</translate>:</td>
-    <td><input name="description_<TMPL_VAR __counter__>"></td>
+    <td><input name="description_[% loop.count %]"></td>
    </tr>
 
-   <TMPL_IF eur>
-    <input type="hidden" name="inventory_accno_id_<TMPL_VAR __counter__>" value="<TMPL_VAR std_inventory_accno_id>">
-    <TMPL_ELSE>
+   [% IF row.eur %]
+    <input type="hidden" name="inventory_accno_id_[% loop.count %]" value="[% std_inventory_accno_id %]">
+    [% ELSE %]
     <tr>
      <td><translate>Inventory</translate>:</td>
      <td>
-      <select name="inventory_accno_id_<TMPL_VAR __counter__>">
-       <TMPL_LOOP ACC_INVENTORY><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+      <select name="inventory_accno_id_[% loop.count %]">
+       [% FOREACH acc_row = ACC_INVENTORY %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
       </select>
      </td>
     </tr>
-   </TMPL_IF>
+   [% END %]
 
    <tr>
     <td><translate>Income accno</translate> <translate>National</translate>:</td>
     <td>
-     <input type="hidden" name="income_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR income_accno_id ESCAPE=HTML>">
-     <TMPL_VAR income_accno ESCAPE=HTML>--<TMPL_VAR income_description ESCAPE=HTML>
+     <input type="hidden" name="income_accno_id_0_[% loop.count %]" value="[% HTML.escape(row.income_accno_id) %]">
+     [% HTML.escape(row.income_accno) %]--[% HTML.escape(row.income_description) %]
     </td>
    </tr>
 
    <tr>
     <td><translate>Expense accno</translate> <translate>National</translate>:</td>
     <td>
-     <input type="hidden" name="expense_accno_id_0_<TMPL_VAR __counter__>" value="<TMPL_VAR expense_accno_id ESCAPE=HTML>">
-     <TMPL_VAR expense_accno ESCAPE=HTML>--<TMPL_VAR expense_description ESCAPE=HTML>
+     <input type="hidden" name="expense_accno_id_0_[% loop.count %]" value="[% HTML.escape(row.expense_accno_id) %]">
+     [% HTML.escape(row.expense_accno) %]--[% HTML.escape(row.expense_description) %]
     </td>
    </tr>
 
    <tr>
     <td><translate>Income accno</translate> <translate>EU with VAT ID</translate>:</td>
     <td>
-     <select name="income_accno_id_1_<TMPL_VAR __counter__>">
-      <TMPL_LOOP ACC_INCOME><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="income_accno_id_1_[% loop.count %]">
+      [% FOREACH acc_row = ACC_INCOME %]<option value="[% id %]" [% selected %]>[% HTML.escape(accno) %]--[% HTML.escape(description) %]</option>[% END %]
      </select>
     </td>
    </tr>
@@ -89,8 +89,8 @@
    <tr>
     <td><translate>Expense accno</translate> <translate>EU with VAT ID</translate>:</td>
     <td>
-     <select name="expense_accno_id_1_<TMPL_VAR __counter__>">
-      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="expense_accno_id_1_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% id %]" [% selected %]>[% HTML.escape(accno) %]--[% HTML.escape(description) %]</option>[% END %]
      </select>
     </td>
    </tr>
@@ -98,8 +98,8 @@
    <tr>
     <td><translate>Income accno</translate> <translate>EU without VAT ID</translate>:</td>
     <td>
-     <select name="income_accno_id_2_<TMPL_VAR __counter__>">
-      <TMPL_LOOP ACC_INCOME><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="income_accno_id_2_[% loop.count %]">
+      [% FOREACH acc_row = ACC_INCOME %]<option value="[% id %]" [% selected %]>[% HTML.escape(accno) %]--[% HTML.escape(description) %]</option>[% END %]
      </select>
     </td>
    </tr>
@@ -107,8 +107,8 @@
    <tr>
     <td><translate>Expense accno</translate> <translate>EU without VAT ID</translate>:</td>
     <td>
-     <select name="expense_accno_id_2_<TMPL_VAR __counter__>">
-      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="expense_accno_id_2_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% id %]" [% selected %]>[% HTML.escape(accno) %]--[% HTML.escape(description) %]</option>[% END %]
      </select>
     </td>
    </tr>
@@ -116,8 +116,8 @@
    <tr>
     <td><translate>Income accno</translate> <translate>International</translate>:</td>
     <td>
-     <select name="income_accno_id_3_<TMPL_VAR __counter__>">
-      <TMPL_LOOP ACC_INCOME><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="income_accno_id_3_[% loop.count %]">
+      [% FOREACH acc_row = ACC_INCOME %]<option value="[% id %]" [% selected %]>[% HTML.escape(accno) %]--[% HTML.escape(description) %]</option>[% END %]
      </select>
     </td>
    </tr>
@@ -125,19 +125,19 @@
    <tr>
     <td><translate>Expense accno</translate> <translate>International</translate>:</td>
     <td>
-     <select name="expense_accno_id_3_<TMPL_VAR __counter__>">
-      <TMPL_LOOP ACC_EXPENSE><option value="<TMPL_VAR id>" <TMPL_VAR selected>><TMPL_VAR accno ESCAPE=HTML>--<TMPL_VAR description ESCAPE=HTML></option></TMPL_LOOP>
+     <select name="expense_accno_id_3_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% id %]" [% selected %]>[% HTML.escape(accno) %]--[% HTML.escape(description) %]</option>[% END %]
      </select>
     </td>
    </tr>
   </table>
 
-  <TMPL_IF __last__>
-   <input type="hidden" name="rowcount" value="<TMPL_VAR __counter__>">
-  </TMPL_IF>
+  [% IF loop.last %]
+   <input type="hidden" name="rowcount" value="[% loop.count %]">
+  [% END %]
 
   <hr>
- </TMPL_LOOP>
+ [% END %]
 
  <input type="submit" onclick="document.Form.action2.value = 'create_buchungsgruppen'; document.Form.submit();" name="dummy" value="<translate>Create Buchungsgruppen</translate>">
 

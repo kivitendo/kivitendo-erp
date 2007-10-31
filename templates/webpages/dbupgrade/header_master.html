@@ -1,7 +1,7 @@
-<body>
+[% USE HTML %]<body>
 
  <table width="100%">
   <tr>
-   <td class="listtop"><translate>Dataset upgrade</translate> (<TMPL_VAR dbname ESCAPE=HTML>)</td>
+   <td class="listtop"><translate>Dataset upgrade</translate> ([% HTML.escape(dbname) %])</td>
   </tr>
  </table>
