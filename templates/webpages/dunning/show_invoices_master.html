@@ -1,9 +1,9 @@
-<body>
+[% USE HTML %]<body>
  <script type="text/javascript" src="js/checkbox_utils.js"></script>
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
- <div class="listtop" width="100%"><TMPL_VAR title></div>
+ <div class="listtop" width="100%">[% title %]</div>
 
  <p><translate>The columns &quot;Dunning Duedate&quot;, &quot;Total
    Fees&quot; and &quot;Interest&quot; show data for the previous
@@ -15,12 +15,12 @@
    <th class="listheading" colspan="2"><translate>Current / Next Level</translate></th>
 
    <th class="listheading">
-    <input type="checkbox" name="selectall_active" id="selectall_active" onclick="checkbox_check_all('selectall_active', 'active_', 1, <TMPL_VAR rowcount>);">
+    <input type="checkbox" name="selectall_active" id="selectall_active" onclick="checkbox_check_all('selectall_active', 'active_', 1, [% rowcount %]);">
     <label for="selectall_active"><translate>Active?</translate></label>
    </th>
 
    <th class="listheading">
-    <input type="checkbox" name="selectall_email" id="selectall_email" onclick="checkbox_check_all('selectall_email', 'email_', 1, <TMPL_VAR rowcount>);">
+    <input type="checkbox" name="selectall_email" id="selectall_email" onclick="checkbox_check_all('selectall_email', 'email_', 1, [% rowcount %]);">
     <label for="selectall_email"><translate>eMail?</translate></label>
    </th>
 
@@ -35,53 +35,53 @@
 
    <!-- Ausgabe der einzelnen Zeilen -->
 
-   <TMPL_LOOP DUNNINGS>
-    <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+   [% FOREACH row = DUNNINGS %]
+    <tr class="listrow[% loop.count % 2 %]">
 
      <td>
-      <input type="hidden" name="inv_id_<TMPL_VAR __counter__>" size="2" value="<TMPL_VAR id ESCAPE=HTML>">
-      <input type="hidden" name="customer_id_<TMPL_VAR __counter__>" size="2" value="<TMPL_VAR customer_id ESCAPE=HTML>">
-      <TMPL_IF dunning_level><TMPL_VAR dunning_level ESCAPE=HTML><TMPL_ELSE>&nbsp;</TMPL_IF>
+      <input type="hidden" name="inv_id_[% loop.count %]" size="2" value="[% HTML.escape(row.id) %]">
+      <input type="hidden" name="customer_id_[% loop.count %]" size="2" value="[% HTML.escape(row.customer_id) %]">
+      [% IF row.dunning_level %][% HTML.escape(row.dunning_level) %][% ELSE %]&nbsp;[% END %]
      </td>
 
      <td>
-      <select name="next_dunning_config_id_<TMPL_VAR __counter__>">
-       <TMPL_LOOP DUNNING_CONFIG><option value="<TMPL_VAR id ESCAPE=HTML>" <TMPL_IF SELECTED>selected</TMPL_IF>><TMPL_VAR dunning_description ESCAPE=HTML></option></TMPL_LOOP>
+      <select name="next_dunning_config_id_[% loop.count %]">
+       [% FOREACH cfg_row = DUNNING_CONFIG %]<option value="[% HTML.escape(cfg_row.id) %]" [% IF cfg_row.SELECTED %]selected[% END %]>[% HTML.escape(cfg_row.dunning_description) %]</option>[% END %]
       </select>
      </td>
 
-     <td><input type="checkbox" name="active_<TMPL_VAR __counter__>" value="1" <TMPL_IF active>checked</TMPL_IF>></td>
-     <td><input type="checkbox" name="email_<TMPL_VAR __counter__>" value="1" <TMPL_IF email>checked</TMPL_IF>></td>
-     <td><input type="hidden" name="customername_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR customername ESCAPE=HTML>"><TMPL_VAR customername ESCAPE=HTML></td>
-     <td><input type="hidden" name="invnumber_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR invnumber ESCAPE=HTML>"><TMPL_VAR invnumber ESCAPE=HTML></td>
-     <td><input type="hidden" name="invdate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR transdate ESCAPE=HTML>"><TMPL_VAR transdate ESCAPE=HTML></td>
-     <td><input type="hidden" name="inv_duedate_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR duedate ESCAPE=HTML>"><TMPL_VAR duedate ESCAPE=HTML></td>
-     <td align="right"><input type="hidden" name="amount_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR amount ESCAPE=HTML>"><TMPL_VAR amount ESCAPE=HTML></td>
-     <td><TMPL_VAR next_duedate ESCAPE=HTML></td>
-     <td align="right"><input type="hidden" name="fee_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR fee ESCAPE=HTML>"><TMPL_VAR fee ESCAPE=HTML></td>
-     <td align="right"><input type="hidden" name="interest_<TMPL_VAR __counter__>" size="6" value="<TMPL_VAR interest ESCAPE=HTML>"><TMPL_VAR interest ESCAPE=HTML></td>
+     <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
+     <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
+     <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
+     <td><input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">[% HTML.escape(row.invnumber) %]</td>
+     <td><input type="hidden" name="invdate_[% loop.count %]" size="6" value="[% HTML.escape(row.transdate) %]">[% HTML.escape(row.transdate) %]</td>
+     <td><input type="hidden" name="inv_duedate_[% loop.count %]" size="6" value="[% HTML.escape(row.duedate) %]">[% HTML.escape(row.duedate) %]</td>
+     <td align="right"><input type="hidden" name="amount_[% loop.count %]" size="6" value="[% HTML.escape(row.amount) %]">[% HTML.escape(row.amount) %]</td>
+     <td>[% HTML.escape(row.next_duedate) %]</td>
+     <td align="right"><input type="hidden" name="fee_[% loop.count %]" size="6" value="[% HTML.escape(row.fee) %]">[% HTML.escape(row.fee) %]</td>
+     <td align="right"><input type="hidden" name="interest_[% loop.count %]" size="6" value="[% HTML.escape(row.interest) %]">[% HTML.escape(row.interest) %]</td>
     </tr>
-   </TMPL_LOOP>
+   [% END %]
   </table>
 
   <hr size=3 noshade>
 
-  <TMPL_VAR PRINT_OPTIONS>
+  [% PRINT_OPTIONS %]
 
   <br>
 
-  <input name="rowcount" type="hidden" value="<TMPL_VAR rowcount ESCAPE=HTML>">
-  <input name="groupinvoices" type="hidden" value="<TMPL_VAR groupinvoices ESCAPE=HTML>">
+  <input name="rowcount" type="hidden" value="[% HTML.escape(rowcount) %]">
+  <input name="groupinvoices" type="hidden" value="[% HTML.escape(groupinvoices) %]">
 
-  <input name="callback" type="hidden" value="<TMPL_VAR callback ESCAPE=HTML>">
+  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
   <input name="nextsub" type="hidden" value="save_dunning">
 
-  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
   <input type="hidden" name="action" value="<translate>Continue</translate>">
 
   <input type="submit" name="dummy" value="<translate>Continue</translate>"
-         <TMPL_UNLESS DEBUG_DUNNING>onclick="this.disabled=true; this.value='<translate>The dunning process started</translate>'; document.Form.submit()"</TMPL_UNLESS>>
+         [% UNLESS DEBUG_DUNNING %]onclick="this.disabled=true; this.value='<translate>The dunning process started</translate>'; document.Form.submit()"[% END %]>
 
  </form>
 </body>

@@ -1,4 +1,4 @@
-<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+[% USE HTML %]<body onload="[% onload %]">
 
  <script type="text/javascript">
   <!--
@@ -12,26 +12,26 @@
 
  <form name="Form">
 
-  <input type="hidden" name="input_subject" value="<TMPL_VAR input_subject ESCAPE=HTML>">
-  <input type="hidden" name="input_body" value="<TMPL_VAR input_body ESCAPE=HTML>">
-  <input type="hidden" name="input_attachment" value="<TMPL_VAR input_attachment ESCAPE=HTML>">
+  <input type="hidden" name="input_subject" value="[% HTML.escape(input_subject) %]">
+  <input type="hidden" name="input_body" value="[% HTML.escape(input_body) %]">
+  <input type="hidden" name="input_attachment" value="[% HTML.escape(input_attachment) %]">
 
-  <div class="listtop" width="100%"><TMPL_VAR title></div>
+  <div class="listtop" width="100%">[% title %]</div>
 
   <table width="100%">
    <tr>
     <td valign="top"><translate>Subject:</translate></td>
-    <td valign="top"><input id="email_subject" name="email_subject" size="40" value="<TMPL_VAR email_subject ESCAPE=HTML>"></td>
+    <td valign="top"><input id="email_subject" name="email_subject" size="40" value="[% HTML.escape(email_subject) %]"></td>
    </tr>
 
    <tr>
     <td valign="top"><translate>Body:</translate></td>
-    <td valign="top"><textarea id="email_body" name="email_body" rows="20" cols="70" wrap="soft"><TMPL_VAR email_body ESCAPE=HTML></textarea></td>
+    <td valign="top"><textarea id="email_body" name="email_body" rows="20" cols="70" wrap="soft">[% HTML.escape(email_body) %]</textarea></td>
    </tr>
 
    <tr>
     <td valign="top"><translate>Attach PDF:</translate></td>
-    <td valign="top"><input id="email_attachment" type="checkbox" name="email_attachment" value="1" <TMPL_IF email_attachment>checked</TMPL_IF>></td>
+    <td valign="top"><input id="email_attachment" type="checkbox" name="email_attachment" value="1" [% IF email_attachment %]checked[% END %]></td>
    </tr>
   </table>
 

@@ -1,8 +1,8 @@
- <script type="text/javascript" src="js/common.js"></script>
+[% USE HTML %] <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
  <form method="post" action="dn.pl">
 
-  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 

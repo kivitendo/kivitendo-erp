@@ -1,10 +1,10 @@
-<body onLoad="<TMPL_VAR onload>">
+[% USE HTML %]<body onLoad="[% onload %]">
 
  <script type="text/javascript" src="js/common.js"></script>
 
  <form method="post" name="search" action="dn.pl">
 
-  <div class="listtop"><TMPL_VAR title></div>
+  <div class="listtop">[% title %]</div>
 
   <table width="100%">
    <tr height="5"></tr>
@@ -14,43 +14,43 @@
       <tr>
        <th align="right"><translate>Customer</translate></th>
        <td colspan="3">
-        <TMPL_IF SHOW_CUSTOMER_DDBOX>
+        [% IF SHOW_CUSTOMER_DDBOX %]
          <select name="customer_id">
           <option value=""></option>
-          <TMPL_LOOP ALL_CUSTOMERS><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR name ESCAPE=HTML></option>
-          </TMPL_LOOP>
+          [% FOREACH row = ALL_CUSTOMERS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %]</option>
+          [% END %]
          </select>
-         <TMPL_ELSE>
+         [% ELSE %]
          <input name="customer" size="35">
-        </TMPL_IF>
+        [% END %]
        </td>
       </tr>
 
-      <TMPL_IF SHOW_DUNNING_LEVELS>
+      [% IF SHOW_DUNNING_LEVELS %]
        <tr>
         <th align="right" nowrap><translate>Next Dunning Level</translate></th>
         <td colspan="3">
          <select name="dunning_level">
           <option value=""></option>
-          <TMPL_LOOP DUNNING><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR dunning_description ESCAPE=HTML></option>
-          </TMPL_LOOP>
+          [% FOREACH row = DUNNING %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.dunning_description) %]</option>
+          [% END %]
          </select>
         </td>
        </tr>
-      </TMPL_IF>
+      [% END %]
 
-      <TMPL_IF SHOW_DEPARTMENT_DDBOX>
+      [% IF SHOW_DEPARTMENT_DDBOX %]
        <tr>
         <th align="right" nowrap><translate>Department</translate></th>
         <td colspan="3">
          <select name="department_id">
           <option value=""></option>
-          <TMPL_LOOP ALL_DEPARTMENTS><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR description ESCAPE=HTML></option>
-          </TMPL_LOOP>
+          [% FOREACH row = ALL_DEPARTMENTS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</option>
+          [% END %]
          </select>
         </td>
        </tr>
-      </TMPL_IF>
+      [% END %]
 
       <tr>
        <th align="right" nowrap><translate>Invoice Number</translate></th>
@@ -70,12 +70,12 @@
       <tr>
        <th align="right" nowrap><translate>Invdate from</translate></th>
        <td>
-        <input name="transdatefrom" id="transdatefrom" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
         <input type="button" name="transdatefrom" id="trigger1" value="?">
        </td>
        <th align="right" nowrap><translate>To</translate></th>
        <td>
-        <input name="transdateto" id="transdateto" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
         <input type="button" name="transdateto" id="trigger2" value="?">
        </td>
       </tr>
@@ -83,12 +83,12 @@
       <tr>
        <th align="right" nowrap><translate>Dunning Date from</translate></th>
        <td>
-        <input name="dunningfrom" id="dunningfrom" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input name="dunningfrom" id="dunningfrom" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
         <input type="button" name="dunningfrom" id="trigger3" value="?">
        </td>
        <th align="right" nowrap><translate>To</translate></th>
        <td>
-        <input name="dunningto" id="dunningto" size="11" title="<TMPL_VAR myconfig_dateformat" onBlur="check_right_date_format(this)">
+        <input name="dunningto" id="dunningto" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
         <input type="button" name="dunningto" id="trigger4" value="?">
        </td>
       </tr>
@@ -113,8 +113,8 @@
 
   <input type="hidden" name="nextsub" value="show_dunning">
 
-  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
   <br>
 
@@ -124,10 +124,10 @@
 
  <script type="text/javascript">
   <!--
-      Calendar.setup({ inputField : "transdatefrom", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger1" });
-      Calendar.setup({ inputField : "transdateto", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger2" });
-      Calendar.setup({ inputField : "dunningfrom", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger3" });
-      Calendar.setup({ inputField : "dunningto", ifFormat :"<TMPL_VAR myconfig_jsc_dateformat>", align : "BR", button : "trigger4" });
+      Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
+      Calendar.setup({ inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger2" });
+      Calendar.setup({ inputField : "dunningfrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger3" });
+      Calendar.setup({ inputField : "dunningto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger4" });
     -->
  </script>
 

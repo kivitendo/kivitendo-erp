@@ -1,17 +1,17 @@
-<script type="text/javascript" src="js/common.js"></script>
+[% USE HTML %]<script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript">
  <!--
      function setup_controls() {
        fokus();
-       setupDateFormat('<TMPL_VAR myconfig_dateformat>', 'Falsches Datumsformat!');
-       setupPoints('<TMPL_VAR myconfig_numberformat>', 'Falsches Format');
+       setupDateFormat('[% myconfig_dateformat %]', 'Falsches Datumsformat!');
+       setupPoints('[% myconfig_numberformat %]', 'Falsches Format');
      }
    -->
 </script>
 
 <body onLoad="setup_controls();">
 
- <div class="listtop"><TMPL_VAR title></div>
+ <div class="listtop">[% title %]</div>
 
  <form method="post" name="search" action="dn.pl">
 
@@ -19,40 +19,40 @@
    <tr>
     <th align="right">Kunde</th>
     <td colspan="3">
-     <TMPL_IF SHOW_CUSTOMER_SELECTION>
+     [% IF SHOW_CUSTOMER_SELECTION %]
       <select name="customer">
        <option></option>
-       <TMPL_LOOP all_customer><option><TMPL_VAR name ESCAPE=HTML>--<TMPL_VAR id ESCAPE=HTML></option></TMPL_LOOP>
+       [% FOREACH row = all_customer %]<option>[% HTML.escape(row.name) %]--[% HTML.escape(row.id) %]</option>[% END %]
       </select>
-      <TMPL_ELSE>
-      <input name=customer size=35>
-     </TMPL_IF>
+      [% ELSE %]
+      <input name="customer" size="35">
+     [% END %]
     </td>
    </tr>
 
-   <TMPL_IF SHOW_DUNNING_LEVEL_SELECTION>
+   [% IF SHOW_DUNNING_LEVEL_SELECTION %]
     <tr>
      <th align="right">Nächste Mahnstufe</th>
      <td colspan="3">
       <select name="dunning_level">
        <option></option>
-       <TMPL_LOOP DUNNING><option value="<TMPL_VAR id ESCAPE=HTML>"><TMPL_VAR dunning_description ESCAPE=HTML></option></TMPL_LOOP>
+       [% FOREACH row = DUNNING %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.dunning_description) %]</option>[% END %]
       </select>
      </td>
     </tr>
-   </TMPL_IF>
+   [% END %]
 
-   <TMPL_IF SHOW_DEPARTMENT_SELECTION>
+   [% IF SHOW_DEPARTMENT_SELECTION %]
     <tr>
      <th align="right">Abteilung</th>
      <td colspan="3">
       <select name="department">
        <option></option>
-       <TMPL_LOOP all_departments><option><TMPL_VAR description ESCAPE=HTML>--<TMPL_VAR id ESCAPE=HTML></option></TMPL_LOOP>
+       [% FOREACH row = all_departments %]<option>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>[% END %]
       </select>
      </td>
     </tr>
-   </TMPL_IF>
+   [% END %]
 
    <tr>
     <th align="right" nowrap>Rechnungsnummer</th>
@@ -84,8 +84,8 @@
 
   <input type="hidden" name="nextsub" value="show_invoices">
 
-  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
   <br>
   <input class="submit" type="submit" name="action" value="Weiter">
