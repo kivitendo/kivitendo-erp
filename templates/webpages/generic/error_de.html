@@ -1,14 +1,12 @@
-<body>
- <table width=100%>
+[% USE HTML %]<body>
+ <table width="100%">
   <tr>
-   <th class=listtop><TMPL_VAR NAME=title DEFAULT="Fehler!"></th>
+   <th class="listtop">[% IF title_error %][% title_error %][% ELSE %]Fehler![% END %]</th>
   </tr>
   <tr height="5"></tr>
 
-  <tr><td><TMPL_VAR NAME=label_error></td></tr>
+  <tr><td>[% label_error %]</td></tr>
  </table>
-
- <TMPL_VAR NAME=DEBUG>
 
 </body>
 </html>

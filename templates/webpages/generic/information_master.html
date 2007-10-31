@@ -1,14 +1,12 @@
-<body>
- <table width=100%>
+[% USE HTML %]<body>
+ <table width="100%">
   <tr>
-   <th class=listtop><TMPL_VAR NAME=title DEFAULT="<translate>Information</translate>"></th>
+   <th class="listtop">[% IF title_information %][% title_information %][% ELSE %]<translate>Information</translate>[% END %]</th>
   </tr>
   <tr height="5"></tr>
 
-  <tr><td><TMPL_VAR NAME=label_information></td></tr>
+  <tr><td>[% label_information %]</td></tr>
  </table>
-
- <TMPL_VAR NAME=DEBUG>
 
 </body>
 </html>

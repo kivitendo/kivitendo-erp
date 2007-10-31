@@ -676,6 +676,7 @@ sub request_for_quotation {
 
 sub edit_e_mail {
   $lxdebug->enter_sub();
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
     $form->{resubmit}       = 0;
@@ -699,16 +700,16 @@ sub edit_e_mail {
   $form->header;
 
   my (@dont_hide_key_list, %dont_hide_key, @hidden_keys);
-  @dont_hide_key_list = qw(action email cc bcc subject message formname sendmode format header override);
+  @dont_hide_key_list = qw(action email cc bcc subject message sendmode format header override);
   @dont_hide_key{@dont_hide_key_list} = (1) x @dont_hide_key_list;
-  @hidden_keys = grep { !$dont_hide_key{$_} } grep { !ref $form->{$_} } keys %$form;
+  @hidden_keys = sort grep { !$dont_hide_key{$_} } grep { !ref $form->{$_} } keys %$form;
 
-  print $form->parse_html_template('generic/edit_email', 
-                                  { title           => $title,
-                                    a_filename      => $attachment_filename,
-                                    _print_options_ => print_options('inline' => 1),
-                                    HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
-                                    SHOW_BCC        => $myconfig{role} eq 'admin' });
+  print $form->parse_html_template2('generic/edit_email',
+                                    { title           => $title,
+                                      a_filename      => $attachment_filename,
+                                      _print_options_ => print_options('inline' => 1),
+                                      HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
+                                      SHOW_BCC        => $myconfig{role} eq 'admin' });
 
   $lxdebug->leave_sub();
 }

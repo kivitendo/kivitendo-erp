@@ -611,9 +611,10 @@ sub parse_html_template2 {
 sub show_generic_error {
   my ($self, $error, $title, $action) = @_;
 
-  my $add_params = {};
-  $add_params->{"title"} = $title if ($title);
-  $self->{"label_error"} = $error;
+  my $add_params = {
+    'title_error' => $title,
+    'label_error' => $error,
+  };
 
   my @vars;
   if ($action) {
@@ -626,21 +627,26 @@ sub show_generic_error {
   }
   $add_params->{"VARIABLES"} = \@vars;
 
+  $self->{title} = $title if ($title);
+
   $self->header();
-  print($self->parse_html_template("generic/error", $add_params));
+  print $self->parse_html_template2("generic/error", $add_params);
 
   die("Error: $error\n");
 }
 
 sub show_generic_information {
-  my ($self, $error, $title) = @_;
+  my ($self, $text, $title) = @_;
 
-  my $add_params = {};
-  $add_params->{"title"} = $title if ($title);
-  $self->{"label_information"} = $error;
+  my $add_params = {
+    'title_information' => $title,
+    'label_information' => $text,
+  };
+
+  $self->{title} = $title if ($title);
 
   $self->header();
-  print($self->parse_html_template("generic/information", $add_params));
+  print $self->parse_html_template2("generic/information", $add_params);
 
   die("Information: $error\n");
 }

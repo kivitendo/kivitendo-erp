@@ -395,9 +395,9 @@ sub calculate_qty {
   $form->{formel} = $formel; 
   $form->{"title"} = $locale->text("Please enter values");
   $form->header();
-  print($form->parse_html_template("generic/calculate_qty", { "HEADER" => \@header,
-                                                                   "VARIABLES" => \@variable,
-                                                                   "onload" => $onload }));
+  print($form->parse_html_template2("generic/calculate_qty", { "HEADER"    => \@header,
+                                                               "VARIABLES" => \@variable,
+                                                               "onload"    => $onload }));
 
   $lxdebug->leave_sub();
 }

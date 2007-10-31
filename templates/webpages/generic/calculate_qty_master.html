@@ -1,13 +1,13 @@
-<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+[% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
 
-  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
-  <input type="hidden" name="input_id" value="<TMPL_VAR NAME=input_id ESCAPE=HTML>">
+  <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
+  <input type="hidden" name="input_id" value="[% HTML.escape(input_id) %]">
 
   <table width="100%">
    <tr>
-    <th class="listtop"><TMPL_VAR NAME=title></th>
+    <th class="listtop">[% title %]</th>
    </tr>
    <tr height="5"></tr>
 
@@ -18,17 +18,17 @@
 
      <table>
       <tr class="listheading">
-       <TMPL_LOOP NAME=HEADER>
-        <th nowrap class="listheading"><TMPL_VAR NAME=column_title></a></th>
-       </TMPL_LOOP>
+       [% FOREACH col = HEADER %]
+        <th nowrap class="listheading">[% col.column_title %]</a></th>
+       [% END %]
       </tr>
 
-      <TMPL_LOOP NAME=VARIABLES>
-       <tr class="listrow<TMPL_IF NAME=__odd__>1<TMPL_ELSE>0</TMPL_IF>">
-        <td><TMPL_VAR NAME=description ESCAPE=HTML>:</td><td><input id="<TMPL_VAR NAME=name>" name="<TMPL_VAR NAME=name>" value=></td>
-        <td><TMPL_VAR NAME=unit ESCAPE=HTML></td>
+      [% FOREACH row = VARIABLES %]
+       <tr class="listrow[% loop.count % 2 %]">
+        <td>[% HTML.escape(row.description) %]:</td><td><input id="[% row.name %]" name="[% row.name %]" value=""></td>
+        <td>[% HTML.escape(row.unit) %]</td>
        </tr>
-      </TMPL_LOOP>
+      [% END %]
      </table>
 
     </td>
@@ -40,10 +40,10 @@
  <script type="text/javascript">
   <!--//
       function calculate_qty() {
-        <TMPL_LOOP NAME=VARIABLES>
-        var <TMPL_VAR NAME=name> = document.getElementsByName("<TMPL_VAR NAME=name>")[0].value.replace(/,/g, ".");
-       </TMPL_LOOP>
-        var result = <TMPL_VAR NAME=formel>;
+        [% FOREACH row = VARIABLES %]
+        var [% row.name %] = document.getElementsByName("[% row.name %]")[0].value.replace(/,/g, ".");
+       [% END %]
+        var result = [% formel %];
         result = number_format(result, 2, ",", ".");
         window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
         self.close();
