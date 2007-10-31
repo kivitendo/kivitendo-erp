@@ -1,133 +1,63 @@
- <TMPL_LOOP CA> 
-        <table width="100%">
+[% USE HTML %] [% FOREACH row = CA %]
+<table width="100%">
 
-          <colgroup>
-            <col width="10%">
-            <col width="10%">
-            <col width="10%">
-            <col width="50%">
-            <col width="10%">
-            <col width="10%">
-          </colgroup>
+ <colgroup>
+  <col width="10%">
+  <col width="10%">
+  <col width="10%">
+  <col width="50%">
+  <col width="10%">
+  <col width="10%">
+ </colgroup>
 
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td rowspan="8" class="coa_detail_emph">[% IF row.id %][% HTML.escape(row.id) %][% ELSE %]-[% END %]</td>
+  <td colspan="5" class="coa_detail_emph">[% HTML.escape(row.category) %]&nbsp;</td>
+ </tr>
 
-              <td rowspan="8" class="coa_detail_emph"><TMPL_VAR id ESCAPE=HTML DEFAULT="-"></td>
-              <td colspan="5" class="coa_detail_emph"><TMPL_VAR category ESCAPE=HTML>&nbsp;</td>
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td colspan="5" class="coa_detail_emph">
+   [% IF row.link %][% HTML.escape(row.link) %][% ELSE %]-[% END %]
+  </td>
+ </tr>
 
-            </tr>                                
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              <td colspan="5" class="coa_detail_emph">
-                <TMPL_IF link>
-                <TMPL_VAR name="link" ESCAPE="HTML" DEFAULT="-">
-                <TMPL_ELSE>
-                -
-                </TMPL_IF>
-                </td>
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td colspan="5" class="coa_details_header"><translate>Taxlink_coa</translate></td>
+ </tr>
 
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td class="coa_details_header2"><translate>Taxkey_coa</translate></td>
+  <td class="coa_details_header2"><translate>Taxaccount_coa</translate></td>
+  <td class="coa_details_header2"><translate>Taxdescription_coa</translate></td>
+  <td class="coa_details_header2"><translate>Posustva_coa</translate></td>
+  <td class="coa_details_header2"><translate>Startdate_coa</translate></td>
+ </tr>
 
-           </tr>                                
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td class="coa_detail_emph">[% IF row.taxkey         %][% HTML.escape(row.taxkey).replace(',', '<br>')         %][% ELSE %]-[% END %]</td>
+  <td class="coa_detail_emph">[% IF row.taxaccount     %][% HTML.escape(row.taxaccount).replace(',', '<br>')     %][% ELSE %]-[% END %]</td>
+  <td class="coa_detail_emph">[% IF row.taxdescription %][% HTML.escape(row.taxdescription).replace(',', '<br>') %][% ELSE %]-[% END %]</td>
+  <td class="coa_detail_emph">[% IF row.tk_ustva       %][% HTML.escape(row.tk_ustva).replace(',', '<br>')       %][% ELSE %]-[% END %]</td>
+  <td class="coa_detail_emph">[% IF row.startdate      %][% HTML.escape(row.startdate).replace(',', '<br>')      %][% ELSE %]-[% END %]</td>
+ </tr>
 
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              <td colspan="5" class="coa_details_header"><translate>Taxlink_coa</translate></td>
-           </tr>
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td colspan="5" class="coa_details_header"><translate>Report Positions</translate></td>
+ </tr>
 
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              <td class="coa_details_header2"><translate>Taxkey_coa</translate></td>
-              <td class="coa_details_header2"><translate>Taxaccount_coa</translate></td>
-              <td class="coa_details_header2"><translate>Taxdescription_coa</translate></td>
-              <td class="coa_details_header2"><translate>Posustva_coa</translate></td>
-              <td class="coa_details_header2"><translate>Startdate_coa</translate></td>
-            </tr>
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td class="coa_details_header2"><translate>pos_bwa</translate></td>
+  <td class="coa_details_header2"><translate>pos_bilanz</translate></td>
+  <td class="coa_details_header2"><translate>pos_eur</translate></td>
+  <td colspan="2" class="coa_details_header2"><translate>Datevautomatik</translate></td>
+ </tr>
 
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              
-              <td class="coa_detail_emph">
-                <TMPL_IF taxkey>
-                <TMPL_VAR taxkey         DEFAULT="-" >
-                <TMPL_ELSE>
-                -
-                </TMPL_IF>
-              </td>
-              <td class="coa_detail_emph">
-                <TMPL_IF taxaccount> 
-                <TMPL_VAR taxaccount     DEFAULT="-" >
-                <TMPL_ELSE>
-                -
-                </TMPL_IF>
-              </td>
-              <td class="coa_detail_emph">
-                <TMPL_IF taxdescription> 
-                <TMPL_VAR taxdescription DEFAULT="-" >
-                <TMPL_ELSE>
-                -
-                </TMPL_IF>
-              </td>
-              <td class="coa_detail_emph">
-                <TMPL_IF tk_ustva> 
-                <TMPL_VAR tk_ustva       DEFAULT="-" >
-                <TMPL_ELSE>
-                -
-                </TMPL_IF>
-              </td>
-              <td class="coa_detail_emph">
-                <TMPL_IF startdate> 
-                <TMPL_VAR startdate      DEFAULT="-" >
-                <TMPL_ELSE>
-                -
-                </TMPL_IF>
-              </td>
-           </tr>
+ <tr class="coa_listrow[% loop.count % 2 %]">
+  <td class="coa_detail_emph">[% IF row.pos_bwa    %][% HTML.escape(row.pos_bwa)    %][% ELSE %]-[% END %]</td>
+  <td class="coa_detail_emph">[% IF row.pos_bilanz %][% HTML.escape(row.pos_bilanz) %][% ELSE %]-[% END %]</td>
+  <td class="coa_detail_emph">[% IF row.pos_eur    %][% HTML.escape(row.pos_eur)    %][% ELSE %]-[% END %]</td>
+  <td colspan="2" class="coa_detail_emph">[% IF row.datevautomatik %]<translate>On</translate>[% ELSE %]<translate>Off</translate>[% END %]</td>
+ </tr>
+</table>
 
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              <td colspan="5" class="coa_details_header"><translate>Report Positions</translate></td>
-           </tr>
-
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              <td class="coa_details_header2"><translate>pos_bwa</translate></td>
-              <td class="coa_details_header2"><translate>pos_bilanz</translate></td>
-              <td class="coa_details_header2"><translate>pos_eur</translate></td>
-              <td colspan="2" class="coa_details_header2"><translate>Datevautomatik</translate></td>
-           </tr>
-            
-           <TMPL_IF __odd__>
-           <tr class="coa_listrow1">
-           <TMPL_ELSE>
-           <tr class="coa_listrow0">
-           </TMPL_IF>
-              <td class="coa_detail_emph"><TMPL_VAR pos_bwa    ESCAPE=HTML DEFAULT="-"></td>
-              <td class="coa_detail_emph"><TMPL_VAR pos_bilanz ESCAPE=HTML DEFAULT="-"></td>
-              <td class="coa_detail_emph"><TMPL_VAR pos_eur    ESCAPE=HTML DEFAULT="-"></td>
-              <td colspan="2" class="coa_detail_emph"><TMPL_VAR datevautomatik  ESCAPE=HTML DEFAULT="-"></td>
-           </tr>
-        </table>
-
-</TMPL_LOOP CA>
+[% END %]

@@ -1,4 +1,4 @@
-<script type="text/javascript" src="js/FormManager.js" >
+[% USE HTML %]<script type="text/javascript" src="js/FormManager.js" >
 /****************************************************
 * Form Dependency Manager- By Twey- http://www.twey.co.uk
 * Visit Dynamic Drive for this script and more: http://www.dynamicdrive.com
@@ -12,21 +12,21 @@ window.onload = function() {
 </script>
 
 <body>
-<form method="post" name="EditAccount" action="<TMPL_VAR script>">
+<form method="post" name="EditAccount" action="am.pl">
 
-<input type="hidden" name="id"                 value="<TMPL_VAR id>">
+<input type="hidden" name="id"                 value="[% HTML.escape(id) %]">
 <input type="hidden" name="type"               value="account">
-<input type="hidden" name="orphaned"           value="<TMPL_VAR orphaned>">
-<input type="hidden" name="new_chart_valid"    value="<TMPL_VAR new_chart_valid>">
-<input type="hidden" name="inventory_accno_id" value="<TMPL_VAR inventory_accno_id>">
-<input type="hidden" name="income_accno_id"    value="<TMPL_VAR income_accno_id>">
-<input type="hidden" name="expense_accno_id"   value="<TMPL_VAR expense_accno_id>">
-<input type="hidden" name="fxgain_accno_id"    value="<TMPL_VAR fxgain_accno_id>">
-<input type="hidden" name="fxloss_accno_id"    value="<TMPL_VAR fxloss_accno_id>">
+<input type="hidden" name="orphaned"           value="[% HTML.escape(orphaned) %]">
+<input type="hidden" name="new_chart_valid"    value="[% HTML.escape(new_chart_valid) %]">
+<input type="hidden" name="inventory_accno_id" value="[% HTML.escape(inventory_accno_id) %]">
+<input type="hidden" name="income_accno_id"    value="[% HTML.escape(income_accno_id) %]">
+<input type="hidden" name="expense_accno_id"   value="[% HTML.escape(expense_accno_id) %]">
+<input type="hidden" name="fxgain_accno_id"    value="[% HTML.escape(fxgain_accno_id) %]">
+<input type="hidden" name="fxloss_accno_id"    value="[% HTML.escape(fxloss_accno_id) %]">
 
 <table border="0" width="100%">
   <tr>
-    <th class="listtop"><TMPL_VAR title></th>
+    <th class="listtop">[% title %]</th>
   </tr>
 </table>
 
@@ -40,16 +40,15 @@ window.onload = function() {
         <label>
           Kontonummer
         </label></td>
-        <td><input name="accno" size="20" value="<TMPL_VAR accno>"></td>
+        <td><input name="accno" size="20" value="[% HTML.escape(accno) %]"></td>
     </tr>
     <tr>
       <td>
         <label>
           Beschreibung
-        </label>  
+        </label>
       </td>
-      <td><input name="description" size="40" value="<TMPL_VAR 
-              description ESCAPE=HTML>"></td>
+      <td><input name="description" size="40" value="[% HTML.escape(description) %]"></td>
     </tr>
     <tr>
       <td>
@@ -58,25 +57,24 @@ window.onload = function() {
 
         </label>
       </td>
-      <td><select name="charttype"><TMPL_VAR 
-              select_charttype></select></td>
+      <td><select name="charttype">[% select_charttype %]</select></td>
     </tr>
-  </table>    
-</fieldset>  
+  </table>
+</fieldset>
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>Kontoart</legend>
   <select name="category" id="AccountType" class="DEPENDS ON charttype BEING A">
-          <TMPL_VAR select_category></select>
+          [% select_category %]</select>
 </fieldset>
 
-<TMPL_IF ChartTypeIsAccount>
+[% IF ChartTypeIsAccount %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>Buchungskonto in</legend>
-    <input name="AR" type="checkbox" class="checkbox" value="AR" <TMPL_VAR AR ESCAPE=HTML>>
+    <input name="AR" type="checkbox" class="checkbox" value="AR" [% HTML.escape(AR) %]>
     &nbsp;Verkauf
-    <input name="AP" type="checkbox" class="checkbox" value="AP" <TMPL_VAR AP ESCAPE=HTML>>
+    <input name="AP" type="checkbox" class="checkbox" value="AP" [% HTML.escape(AP) %]>
     &nbsp;Einkauf
-    <input name="IC" type="checkbox" class="checkbox" value="IC" <TMPL_VAR IC ESCAPE=HTML>>
+    <input name="IC" type="checkbox" class="checkbox" value="IC" [% HTML.escape(IC) %]>
     &nbsp;Inventar
 </fieldset>
 
@@ -92,46 +90,46 @@ window.onload = function() {
     <tr>
       <td>
         <input name="AR_amount" type="checkbox" class="checkbox" value="AR_amount"
-          <TMPL_VAR AR_amount ESCAPE=HTML>>&nbsp; 
+          [% HTML.escape(AR_amount) %]>&nbsp;
         Erlöskonto <br>
-        <input name="AR_paid" type="checkbox" class="checkbox" value="AR_paid" 
-          <TMPL_VAR AR_paid ESCAPE=HTML>>&nbsp; 
+        <input name="AR_paid" type="checkbox" class="checkbox" value="AR_paid"
+          [% HTML.escape(AR_paid) %]>&nbsp;
         Zahlungseingang <br>
-        <input name="AR_tax" type="checkbox" class="checkbox" value="AR_tax" 
-          <TMPL_VAR AR_tax ESCAPE=HTML>>&nbsp; 
+        <input name="AR_tax" type="checkbox" class="checkbox" value="AR_tax"
+          [% HTML.escape(AR_tax) %]>&nbsp;
         Steuer
       </td>
       <td>
-        <input name="AP_amount" type="checkbox" class="checkbox" value="AP_amount" 
-          <TMPL_VAR AP_amount ESCAPE=HTML>>&nbsp; 
+        <input name="AP_amount" type="checkbox" class="checkbox" value="AP_amount"
+          [% HTML.escape(AP_amount) %]>&nbsp;
         Aufwand/Anlagen <br>
-        <input name="AP_paid" type="checkbox" class="checkbox" value="AP_paid" 
-          <TMPL_VAR AP_paid ESCAPE=HTML>>&nbsp; 
+        <input name="AP_paid" type="checkbox" class="checkbox" value="AP_paid"
+          [% HTML.escape(AP_paid) %]>&nbsp;
         Zahlungsausgang <br>
-        <input name="AP_tax" type="checkbox" class="checkbox" value="AP_tax" 
-            <TMPL_VAR AP_tax ESCAPE=HTML>>&nbsp; 
+        <input name="AP_tax" type="checkbox" class="checkbox" value="AP_tax"
+            [% HTML.escape(AP_tax) %]>&nbsp;
         Steuer
       </td>
       <td>
-        <input name="IC_sale" type="checkbox" class="checkbox" value="IC_sale" 
-          <TMPL_VAR IC_sale ESCAPE=HTML>>&nbsp; 
+        <input name="IC_sale" type="checkbox" class="checkbox" value="IC_sale"
+          [% HTML.escape(IC_sale) %]>&nbsp;
         Erlöskonto <br>
-        <input name="IC_cogs" type="checkbox" class="checkbox" value="IC_cogs" 
-          <TMPL_VAR IC_cogs ESCAPE=HTML>>&nbsp; 
+        <input name="IC_cogs" type="checkbox" class="checkbox" value="IC_cogs"
+          [% HTML.escape(IC_cogs) %]>&nbsp;
         Aufwandskonto <br>
-        <input name="IC_taxpart" type="checkbox" class="checkbox" value="IC_taxpart" 
-          <TMPL_VAR IC_taxpart ESCAPE=HTML>>&nbsp; 
+        <input name="IC_taxpart" type="checkbox" class="checkbox" value="IC_taxpart"
+          [% HTML.escape(IC_taxpart) %]>&nbsp;
         Steuer
       </td>
       <td>
         <input name=IC_income type=checkbox class=checkbox value="IC_income"
-          <TMPL_VAR IC_income ESCAPE=HTML>>&nbsp; 
+          [% HTML.escape(IC_income) %]>&nbsp;
         Erlöskonto <br>
-        <input name=IC_expense type=checkbox class=checkbox value="IC_expense" 
-          <TMPL_VAR IC_expense ESCAPE=HTML>>&nbsp; 
+        <input name=IC_expense type=checkbox class=checkbox value="IC_expense"
+          [% HTML.escape(IC_expense) %]>&nbsp;
         Aufwandskonto <br>
         <input name=IC_taxservice type=checkbox class=checkbox value="IC_taxservice"
-          <TMPL_VAR IC_taxservice ESCAPE=HTML>>&nbsp; 
+          [% HTML.escape(IC_taxservice) %]>&nbsp;
         Steuer
       </td>
     </tr>
@@ -144,39 +142,39 @@ window.onload = function() {
   </legend>
 
             <table>
-<TMPL_IF account_exists >
+[% IF account_exists %]
               <tr>
                 <th align="left">Steuerschlüssel</th>
                 <th align="left">Gültig ab</th>
                 <th align="left">UStVA</th>
                 <th align="left">Löschen ? </th>
               </tr>
-<TMPL_LOOP ACCOUNT_TAXKEYS >
+[% FOREACH tk = ACCOUNT_TAXKEYS %]
               <tr>
-    <TMPL_IF id>
-                <input type="hidden" name="taxkey_id_<TMPL_VAR runningnumber>" value="<TMPL_VAR id>">
-                <td><select name="taxkey_tax_<TMPL_VAR runningnumber>"><TMPL_VAR selecttaxkey></select></td>
-                <td><input name="taxkey_startdate_<TMPL_VAR runningnumber>" value="<TMPL_VAR startdate>"></td>
-                <td><select name="taxkey_pos_ustva_<TMPL_VAR runningnumber>"><TMPL_VAR select_tax></select></td>
-                <td><input name="taxkey_del_<TMPL_VAR runningnumber>" type="checkbox"
+    [% IF tk.id %]
+                <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="[% tk.id %]">
+                <td><select name="taxkey_tax_[% tk.runningnumber %]">[% tk.selecttaxkey %]</select></td>
+                <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="[% HTML.escape(tk.startdate) %]"></td>
+                <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
+                <td><input name="taxkey_del_[% tk.runningnumber %]" type="checkbox"
                 class="checkbox" value="delete"></td>
-    <TMPL_ELSE>
-                <input type="hidden" name="taxkey_id_<TMPL_VAR runningnumber>" value="NEW">
-                <td><select name="taxkey_tax_<TMPL_VAR runningnumber>"><TMPL_VAR selecttaxkey></select></td>
-                <td><input name="taxkey_startdate_<TMPL_VAR runningnumber>" value="<TMPL_VAR startdate>"></td>
-                <td><select name="taxkey_pos_ustva_<TMPL_VAR runningnumber>"><TMPL_VAR select_tax></select></td>
+    [% ELSE %]
+                <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="NEW">
+                <td><select name="taxkey_tax_[% tk.runningnumber %]">[% tk.selecttaxkey %]</select></td>
+                <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="[% HTML.escape(tk.startdate) %]"></td>
+                <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
                 <td>&nbsp;</td>
-    </TMPL_IF>            
+    [% END %]
               </tr>
 
-</TMPL_LOOP>
-<TMPL_ELSE>
+[% END %]
+[% ELSE %]
 <tr>
   <td align="center" colspan="4"><p>Einstellungen sind nach
   dem Speichern des Kontos verfügbar...</p>
   </td>
 </tr>
-</TMPL_IF>
+[% END %]
             </table>
 </fieldset>
 
@@ -185,30 +183,27 @@ window.onload = function() {
   <table>
         <tr>
           <th align="left">Einnahmen-/Überschussrechnung</th>
-          <td colspan="3"><select name="pos_eur"><TMPL_VAR select_eur></select></td>
+          <td colspan="3"><select name="pos_eur">[% select_eur %]</select></td>
         </tr>
         <tr>
           <th align="left">BWA</th>
-          <td colspan="3"><select name="pos_bwa"><TMPL_VAR select_bwa></select></td>
+          <td colspan="3"><select name="pos_bwa">[% select_bwa %]</select></td>
         </tr>
         <tr>
           <th align="left">Bilanz</th>
-          <td colspan="3"><select name="pos_bilanz"><TMPL_VAR select_bilanz></select></td>
+          <td colspan="3"><select name="pos_bilanz">[% select_bilanz %]</select></td>
         </tr>
         <tr>
           <th align="left">Datevexport</th>
-          <td colspan="3"><input name="datevautomatik" type="checkbox"
-          class="checkbox" value="T" <TMPL_IF
-          datevautomatik>checked="checked" </TMPL_IF>></td>
+          <td colspan="3"><input name="datevautomatik" type="checkbox" class="checkbox" value="T" [% IF datevautomatik %]checked [% END %]></td>
         </tr>
         <tr>
           <th align="left">Folgekonto</th>
-          <td><select name="new_chart_id"><TMPL_VAR selectnewaccount></select></td>
+          <td><select name="new_chart_id">[% selectnewaccount %]</select></td>
           <th align="left">Gültig ab</th>
-          <td><input name="valid_from" value="<TMPL_VAR valid_from>"></td>
-        </tr>        
+          <td><input name="valid_from" value="[% valid_from %]"></td>
+        </tr>
   </table>
-</TMPL_IF>
+[% END %]
 </fieldset>
 <hr size="3" noshade>
-

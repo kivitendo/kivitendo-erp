@@ -145,8 +145,7 @@ sub display_template_form {
 
       push(@values,
            { "value"   => $file,
-             "label"   => ref($setup) ? $setup->{"translation"} : $setup,
-             "default" => $file eq $form->{"formname"} });
+             "label"   => ref($setup) ? $setup->{"translation"} : $setup });
     }
 
     # "zahlungserinnerung" => $locale->text('Payment Reminder'),
@@ -155,54 +154,45 @@ sub display_template_form {
       next if !$ref->{"template"};
 
       push(@values,
-           { "value"   => $ref->{"template"},
-             "label"   => $locale->text('Payment Reminder') . ": " . $ref->{"dunning_description"},
-             "default" => $ref->{"template"} eq $form->{"formname"} });
+           { "value" => $ref->{"template"},
+             "label" => $locale->text('Payment Reminder') . ": " . $ref->{"dunning_description"} });
     }
 
     @values = sort({ $a->{"label"} cmp $b->{"label"} } @values);
 
-    $options{"FORMNAME"} = [ @values ];
+    $options{FORMNAME} = [ @values ];
 
     #
     # Setup "language" selection
     #
 
-    @values = ( { "value" => "", "label" => "", "default" => 0 } );
+    @values = ();
 
     foreach my $item (@{ $form->{"ALL_LANGUAGES"} }) {
       next unless ($item->{"template_code"});
 
-      my $key = "$item->{id}--$item->{template_code}";
-
       push(@values,
-           { "value"   => $key,
-             "label"   => $item->{"description"},
-             "default" => $key eq $form->{"language"} });
+           { "value" => "$item->{id}--$item->{template_code}",
+             "label" => $item->{"description"} });
     }
 
-    $options{"LANGUAGE"} = [ @values ];
-    $options{"SHOW_LANGUAGE"} = scalar(@values) > 1;
-
-    @values = ( { "value" => "", "label" => "", "default" => 0 } );
+    $options{LANGUAGE} = [ @values ];
 
     #
     # Setup "printer" selection
     #
 
+    @values = ();
+
     foreach my $item (@{ $form->{"ALL_PRINTERS"} }) {
       next unless ($item->{"template_code"});
 
-      my $key = "$item->{id}--$item->{template_code}";
-
       push(@values,
-           { "value"   => $key,
-             "label"   => $item->{"printer_description"},
-             "default" => $key eq $form->{"printer"} });
+           { "value" => "$item->{id}--$item->{template_code}",
+             "label" => $item->{"printer_description"} });
     }
 
-    $options{"PRINTER"} = [ @values ];
-    $options{"SHOW_PRINTER"} = scalar(@values) > 1;
+    $options{PRINTER} = [ @values ];
 
   } else {
     push(@hidden, qw(formname language printer));
@@ -231,7 +221,7 @@ sub display_template_form {
   $options{"HIDDEN"} = [ map(+{ "name" => $_, "value" => $form->{$_} }, @hidden) ];
 
   $form->header;
-  print($form->parse_html_template("am/edit_templates", \%options));
+  print($form->parse_html_template2("am/edit_templates", \%options));
 
   $lxdebug->leave_sub();
 }

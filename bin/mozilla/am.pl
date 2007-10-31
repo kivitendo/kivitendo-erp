@@ -339,7 +339,7 @@ sub account_header {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template('am/edit_accounts', $parameters_ref));
+  print($form->parse_html_template2('am/edit_accounts', $parameters_ref));
 
 
   $lxdebug->leave_sub();
@@ -398,18 +398,10 @@ sub save_account {
 sub list_account {
   $lxdebug->enter_sub();
 
+  $form->{callback}     = build_std_url('action=list_account');
+  my $link_edit_account = build_std_url('action=edit_account', 'callback');
+
   CA->all_accounts(\%myconfig, \%$form);
-
-  $form->{title} = $locale->text('Chart of Accounts');
-
-  # construct callback
-  $callback =
-    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
-
-
-
-  # escape callback
-  $callback = $form->escape($callback);
 
   foreach $ca (@{ $form->{CA} }) {
 
@@ -423,19 +415,11 @@ sub list_account {
       $ca->{debit} = $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2);
     }
     $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:''; 
-    $ca->{link_edit_account} = 
-        qq|$form->{script}?action=edit_account&id=$ca->{id}|
-       .qq|&login=$form->{login}|
-       .qq|&password=$form->{password}&callback=$callback|;
+    $ca->{link_edit_account} = $link_edit_account . '&id=' . E($ca->{id});
   }
   
   # Ajax 
-  my $list_account_details_url = 
-              "$form->{script}?login=$form->{login}"
-             ."&password=$form->{password}&action=list_account_details&";
-  
-  
-  my $pjx = new CGI::Ajax('list_account_details' => $list_account_details_url);
+  my $pjx = new CGI::Ajax('list_account_details' => build_std_url('action=list_account_details'));
 
   # Eneable AJAX debuging
   #$pjx->DEBUG(1);
@@ -444,6 +428,7 @@ sub list_account {
   push(@ { $form->{AJAX} }, $pjx);
 
   $form->{stylesheets} = "list_accounts.css";
+  $form->{title}       = $locale->text('Chart of Accounts');
 
   $form->header;
   
@@ -461,23 +446,12 @@ sub list_account {
 
 
 sub list_account_details {
-# Ajax Funktion aus list_account_details  
+# Ajax Funktion aus list_account_details
   $lxdebug->enter_sub();
 
   my $chart_id = $form->{args};
-  
+
   CA->all_accounts(\%myconfig, \%$form, $chart_id);
-
-  $form->{title} = $locale->text('Chart of Accounts');
-
-  # construct callback
-  $callback =
-    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}";
-
-  $form->header;
-
-  # escape callback
-  $callback = $form->escape($callback);
 
   foreach $ca (@{ $form->{CA} }) {
 
@@ -494,11 +468,11 @@ sub list_account_details {
     }
 
     my @links = split( q{:}, $ca->{link});
-    
+
     $ca->{link} = q{};
-    
+
     foreach my $link (@links){
-      $link = ( $link eq 'AR')             ? $locale->text('Account Link AR')
+      $link =    ( $link eq 'AR')             ? $locale->text('Account Link AR')
                : ( $link eq 'AP')             ? $locale->text('Account Link AP')
                : ( $link eq 'IC')             ? $locale->text('Account Link IC')
                : ( $link eq 'AR_amount' )     ? $locale->text('Account Link AR_amount')
@@ -515,16 +489,8 @@ sub list_account_details {
                : ( $link eq 'IC_taxservice' ) ? $locale->text('Account Link IC_taxservice')
 #               : ( $link eq 'CT_tax' )        ? $locale->text('Account Link CT_tax')
                : $locale->text('Unknown Link') . ': ' . $link;
-      
       $ca->{link} .= ($link ne '') ?  "[$link] ":'';
     }
-    
-    $ca->{startdate}      =~ s/,/<br>/og;
-    $ca->{tk_ustva}       =~ s/,/<br>/og;
-    $ca->{taxkey}         =~ s/,/<br>/og;
-    $ca->{taxaccount}     =~ s/,/<br>/og;
-    $ca->{taxdescription} =~ s/,/<br>/og;
-    $ca->{datevautomatik} = ($ca->{datevautomatik}) ? $locale->text('On'):$locale->text('Off');
 
     $ca->{category} = ($ca->{category} eq 'A') ? $locale->text('Account Category A')
                     : ($ca->{category} eq 'E') ? $locale->text('Account Category E')
@@ -534,29 +500,13 @@ sub list_account_details {
                     : ($ca->{category} eq 'C') ? $locale->text('Account Category C')
                     : ($ca->{category} eq 'G') ? $locale->text('Account Category G')
                     : $locale->text('Unknown Category') . ': ' . $ca->{category};
-
-    $ca->{link_edit_account} = 
-        qq|$form->{script}?action=edit_account&id=$ca->{id}|
-       .qq|&login=$form->{login}|
-       .qq|&password=$form->{password}&callback=$callback|;
   }
 
+  $form->{title} = $locale->text('Chart of Accounts');
+  $form->header();
 
+  print $form->parse_html_template2('am/list_account_details');
 
-
-  my $parameters_ref = {
-  
-  
-  #   hidden_variables                => $_hidden_variables_ref,
-  };
-  
-  # Ausgabe des Templates
-  #my $q = CGI->new();
-  my $result = $form->parse_html_template('am/list_account_details', $parameters_ref);
-  
-  print $result;
-#  print "chart_id:$chart_id, form->chartid:$form->{chart_id}, rest=$rest";
-      
   $lxdebug->leave_sub();
 
 }
@@ -2609,11 +2559,11 @@ sub edit_units {
 
   $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
   $form->header();
-  print($form->parse_html_template("am/edit_units",
-                                   { "UNITS" => \@unit_list,
-                                     "NEW_BASE_UNIT_DDBOX" => $ddbox,
-                                     "LANGUAGES" => \@languages,
-                                     "updownlink" => $updownlink }));
+  print($form->parse_html_template2("am/edit_units",
+                                    { "UNITS"               => \@unit_list,
+                                      "NEW_BASE_UNIT_DDBOX" => $ddbox,
+                                      "LANGUAGES"           => \@languages,
+                                      "updownlink"          => $updownlink }));
 
   $lxdebug->leave_sub();
 }

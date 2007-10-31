@@ -1,22 +1,22 @@
-<body>
+[% USE HTML %]<body>
 
- <TMPL_IF NAME=saved_message>
-  <p><TMPL_VAR NAME=saved_message></p>
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
 
   <hr>
- </TMPL_IF>
+ [% END %]
 
- <form method="post" action="<TMPL_VAR NAME=script ESCAPE=HTML>">
+ <form method="post" action="[% HTML.escape(script) %]">
 
- <input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
- <input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
  <input type="hidden" name="type" value="unit">
- <input type="hidden" name="unit_type" value="<TMPL_VAR NAME=unit_type ESCAPE=HTML>">
+ <input type="hidden" name="unit_type" value="[% HTML.escape(unit_type) %]">
 
  <table width="100%">
   <tr>
-   <th class="listtop" colspan="2"><TMPL_VAR NAME=title></th>
+   <th class="listtop" colspan="2">[% title %]</th>
   </tr>
   <tr height="5"></tr>
  </table>
@@ -47,7 +47,7 @@
    <th align="right">Basiseinheit</th>
    <td>
     <select name="new_base_unit">
-     <TMPL_LOOP NAME=NEW_BASE_UNIT_DDBOX><option <TMPL_VAR NAME=selected>><TMPL_VAR NAME=name></option></TMPL_LOOP>
+     [% FOREACH row = NEW_BASE_UNIT_DDBOX %]<option [% row.selected %]>[% row.name %]</option>[% END %]
     </select>
    </td>
   </tr>
@@ -56,14 +56,14 @@
    <td><input name="new_factor"></td>
   </tr>
 
-  <TMPL_LOOP LANGUAGES>
+  [% FOREACH language = LANGUAGES %]
    <tr>
-    <th align="right"><TMPL_VAR description></th>
-    <td><input name="new_localized_<TMPL_VAR id>" size="20" maxlength="20"></td>
+    <th align="right">[% language.description %]</th>
+    <td><input name="new_localized_[% language.id %]" size="20" maxlength="20"></td>
     <th align="right">Plural</th>
-    <td><input name="new_localized_plural_<TMPL_VAR id>" size="20" maxlength="20"></td>
+    <td><input name="new_localized_plural_[% language.id %]" size="20" maxlength="20"></td>
    </tr>
-  </TMPL_LOOP>
+  [% END %]
  </table>
 
  <input type="submit" class="submit" name="action" value="Erfassen">
@@ -98,51 +98,51 @@
    <th class="listheading">Einheit</th>
    <th class="listheading">Basiseinheit</th>
    <th class="listheading">Faktor</th>
-   <TMPL_LOOP LANGUAGES>
-    <th class="listheading"><TMPL_VAR description></th>
-   </TMPL_LOOP>
+   [% FOREACH language = LANGUAGES %]
+    <th class="listheading">[% language.description %]</th>
+   [% END %]
   </tr>
 
-  <TMPL_LOOP NAME=UNITS>
+  [% FOREACH row = UNITS %]
    <tr>
-    <td width="32" align="center" valign="center"><TMPL_IF __first__><img src="image/transparent16x16.gif"><TMPL_ELSE><a href="<TMPL_VAR updownlink>&dir=up&name=<TMPL_VAR name ESCAPE=URL>"><img alt="hoch" src="image/up.png"></a></TMPL_IF><TMPL_IF __last__><img src="image/transparent16x16.gif"><TMPL_ELSE><a href="<TMPL_VAR updownlink>&dir=down&name=<TMPL_VAR name ESCAPE=URL>"><img alt="runter" src="image/down.png"></a></TMPL_IF></td>
-    <TMPL_IF NAME=in_use>
+    <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="hoch" src="image/up.png"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="runter" src="image/down.png"></a>[% END %]</td>
+    [% IF row.in_use %]
      <td>
-      <input type="hidden" name="unchangeable_<TMPL_VAR NAME=__counter__>" value="1">
-      <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">
+      <input type="hidden" name="unchangeable_[% loop.count %]" value="1">
+      <input type="hidden" name="old_name_[% loop.count %]" value="[% HTML.escape(row.name) %]">
      </td>
 
-     <td><TMPL_VAR NAME=name ESCAPE=HTML></td>
-     <td><TMPL_IF NAME=base_unit><TMPL_VAR NAME=base_unit ESCAPE=HTML><TMPL_ELSE>---</TMPL_IF></td>
-     <td><TMPL_IF NAME=base_unit><TMPL_VAR NAME=factor ESCAPE=HTML><TMPL_ELSE>---</TMPL_IF></td>
+     <td>[% HTML.escape(row.name) %]</td>
+     <td>[% IF row.base_unit %][% HTML.escape(row.base_unit) %][% ELSE %]---[% END %]</td>
+     <td>[% IF row.base_unit %][% HTML.escape(row.factor) %][% ELSE %]---[% END %]</td>
 
-     <TMPL_ELSE>
+     [% ELSE %]
 
-     <td align="center"><input type="checkbox" name="delete_<TMPL_VAR NAME=__counter__>"></td>
+     <td align="center"><input type="checkbox" name="delete_[% loop.count %]"></td>
      <td>
-      <input type="hidden" name="old_name_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=name>">
-      <input name="name_<TMPL_VAR NAME=__counter__>" size="10" maxlength="20" value="<TMPL_VAR NAME=name>">
+      <input type="hidden" name="old_name_[% loop.count %]" value="[% HTML.escape(row.name) %]">
+      <input name="name_[% loop.count %]" size="10" maxlength="20" value="[% HTML.escape(row.name) %]">
      </td>
      <td>
-      <select name="base_unit_<TMPL_VAR NAME=__counter__>">
-       <TMPL_LOOP NAME=BASE_UNIT_DDBOX><option <TMPL_VAR NAME=selected>><TMPL_VAR NAME=name></option></TMPL_LOOP>
+      <select name="base_unit_[% loop.count %]">
+       [% FOREACH option = row.BASE_UNIT_DDBOX %]<option [% option.selected %]>[% HTML.escape(option.name) %]</option>[% END %]
       </select>
      </td>
-     <td><input name="factor_<TMPL_VAR NAME=__counter__>" size="8" value="<TMPL_VAR NAME=factor>"></td>
-    </TMPL_IF>
+     <td><input name="factor_[% loop.count %]" size="8" value="[% row.factor %]"></td>
+    [% END %]
 
-    <TMPL_LOOP UNITLANGUAGES>
+    [% FOREACH language = row.UNITLANGUAGES %]
      <td>
       S:
-      <input name="localized_<TMPL_VAR idx>_<TMPL_VAR language_id>" value="<TMPL_VAR localized>" size="6" maxlength="20">
+      <input name="localized_[% language.idx %]_[% language.language_id %]" value="[% HTML.escape(language.localized) %]" size="6" maxlength="20">
       P:
-      <input name="localized_plural_<TMPL_VAR idx>_<TMPL_VAR language_id>" value="<TMPL_VAR localized_plural>" size="6" maxlength="20">
+      <input name="localized_plural_[% language.idx %]_[% language.language_id %]" value="[% HTML.escape(language.localized_plural) %]" size="6" maxlength="20">
      </td>
-    </TMPL_LOOP>
+    [% END %]
    </tr>
 
-   <TMPL_IF NAME=__last__><input type="hidden" name="rowcount" value="<TMPL_VAR NAME=__counter__>"></TMPL_IF>
-  </TMPL_LOOP>
+   [% IF loop.last %]<input type="hidden" name="rowcount" value="[% loop.count %]">[% END %]
+  [% END %]
  </table>
 
  <input type="submit" class="submit" name="action" value="Speichern">
