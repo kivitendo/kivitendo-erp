@@ -1087,8 +1087,8 @@ sub orders {
   }
 
   $report->set_options('top_info_text'        => join("\n", @options),
-                       'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
+                       'raw_top_info_text'    => $form->parse_html_template2('oe/orders_top'),
+                       'raw_bottom_info_text' => $form->parse_html_template2('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
@@ -1840,7 +1840,7 @@ sub check_for_direct_delivery {
   $form->{VARIABLES} = [ map { { "key" => $_, "value" => $form->{$_} } } grep { ref $_ eq "" } keys %{ $form } ];
 
   $form->header();
-  print $form->parse_html_template("oe/check_for_direct_delivery");
+  print $form->parse_html_template2("oe/check_for_direct_delivery");
 
   $lxdebug->leave_sub();
 

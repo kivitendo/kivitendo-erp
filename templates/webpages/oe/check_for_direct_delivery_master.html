@@ -1,4 +1,4 @@
-<body>
+[% USE HTML %]<body>
 
  <div class="listtop" width="100%"><translate>Carry over shipping address</translate></div>
 
@@ -8,57 +8,57 @@
   <table>
    <tr>
     <th align="right" valign="top"><translate>Name</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptoname ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptoname) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Department</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptodepartment_1 ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptodepartment_1) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top">&nbsp;</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptodepartment_2 ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptodepartment_2) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Street</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptostreet ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptostreet) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Zipcode</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptozipcode ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptozipcode) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>City</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptocity ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptocity) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Country</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptocountry ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptocountry) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Contact</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptocontact ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptocontact) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Phone</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptophone ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptophone) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>Fax</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptofax ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptofax) %]</td>
    </tr>
 
    <tr>
     <th align="right" valign="top"><translate>E-mail</translate>:</th>
-    <td valign="top"><TMPL_VAR CFDD_shiptoemail ESCAPE=HTML></td>
+    <td valign="top">[% HTML.escape(CFDD_shiptoemail) %]</td>
    </tr>
   </table>
  </p>
@@ -76,8 +76,9 @@
   <input type="hidden" name="yes_nextsub" value="check_for_direct_delivery_yes">
   <input type="hidden" name="no_nextsub" value="check_for_direct_delivery_no">
 
-  <TMPL_LOOP VARIABLES>
-   <input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>"></TMPL_LOOP>
+  [%- FOREACH row = VARIABLES %]
+  <input type="hidden" name="[% HTML.escape(row.key) %]" value="[% HTML.escape(row.value) %]">
+  [%- END %]
 
  </form>
 
