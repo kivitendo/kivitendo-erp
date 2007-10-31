@@ -1,11 +1,11 @@
-<body>
+[% USE HTML %]<body>
 
- <form action="<TMPL_VAR script ESCAPE=HTML>" method="post">
+ <form action="[% HTML.escape(script) %]" method="post">
 
-  <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
-  <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
-  <input type="hidden" name="SAVED_FORM" value="<TMPL_VAR SAVED_FORM ESCAPE=HTML>">
+  <input type="hidden" name="SAVED_FORM" value="[% HTML.escape(SAVED_FORM) %]">
 
   <table width="100%">
    <tr>
