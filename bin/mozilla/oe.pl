@@ -2199,11 +2199,9 @@ sub display_row {
     push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, };
   }
 
-  print $form->parse_html_template('oe/sales_order', { ROWS   => \@ROWS, 
-                                                       HEADER => \@HEADER,
-                                                       show_details_checked => ($form->{show_details} ? "checked" : ""),
-                                                       show_details_new     => !$form->{show_details},
-                                                     });
+  print $form->parse_html_template2('oe/sales_order', { ROWS   => \@ROWS,
+                                                        HEADER => \@HEADER,
+                                                      });
 
   if (0 != ($form->{sellprice_total} * 1)) {
     $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;
