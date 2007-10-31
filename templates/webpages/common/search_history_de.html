@@ -1,4 +1,4 @@
-<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>
+[% USE HTML %]<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>
 <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
 <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
 <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
@@ -6,8 +6,8 @@
 
 <form method="post" onSubmit="javascript:set_history_uri();">
 
-<input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
-<input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
+<input type="hidden" name="login" value="[% HTML.escape(login) %]">
+<input type="hidden" name="password" value="[% HTML.escape(password) %]">
 <input type="hidden" name="action" value="show_am_history">
 
 	<table>
@@ -21,10 +21,10 @@
 					<!--
                     function uncheckOther(id) {
 						if(!(
-						    (document.getElementById('non-deleted').checked == false) 
-					    	&& 
-						    (document.getElementById('both').checked == false) 
-						    && 
+						    (document.getElementById('non-deleted').checked == false)
+					    	&&
+						    (document.getElementById('both').checked == false)
+						    &&
 						    (document.getElementById('deleted').checked == false)
 						  )) {
 								if(id == "deleted") {
@@ -41,7 +41,7 @@
 								}
 						}
 					}
-					
+
 					var defaults = new Array('SAVED', 'DELETED', 'ADDED', 'PAYMENT POSTED', 'POSTED', 'POSTED AS NEW', 'SAVED FOR DUNNING', 'DUNNING STARTED', 'PRINTED');
 					var translated = new Object();
 					translated['SAVED'] = 'Gespeichert';
@@ -53,20 +53,20 @@
 					translated['SAVED FOR DUNNING'] = 'Gespeichert';
 					translated['DUNNING STARTED'] = 'Mahnprozess gestartet';
 					translated['PRINTED'] = 'Gedruckt';
-					
+
 					var jscalender = "<table valign=\"top\">"
 									+ "<tr><td colspan=\"2\"><b>Zeitraum:&nbsp;</b></td></tr>"
 									+ "<tr><td>von:&nbsp;"
-									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=transdate ESCAPE=HTML>\" onChange=\"document.getElementById(\'transdate_hidden\').value=this.value;\">"
+									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(transdate) %]\" onChange=\"document.getElementById(\'transdate_hidden\').value=this.value;\">"
 									+ "<input type=\"button\" name=\"transdate\" id=\"trigger1\" value=\"?\">"
 									+ "&nbsp;</td><td>bis:&nbsp;"
-									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"<TMPL_VAR NAME=myconfig_dateformat ESCAPE=HTML>\" value=\"<TMPL_VAR NAME=reqdate ESCAPE=HTML>\" onChange=\"document.getElementById(\'reqdate_hidden\').value=this.value;\">"
+									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(reqdate) %]\" onChange=\"document.getElementById(\'reqdate_hidden\').value=this.value;\">"
 									+ "<input type=\"button\" name=\"reqdate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
 					var mitarbeiter = "<table valign=\"top\">"
 									+ "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
 									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter' onChange=\"document.getElementById(\'mitarbeiter_hidden\').value=this.value;\"></td>"
 									+ "</tr></table>";
-					
+
 					var tempString = "";
 					function addForm(last, remove) {
 						if(last == "INIT") {
@@ -78,7 +78,7 @@
 							document.getElementById('selectEmployee').innerHTML = mitarbeiter;
 							document.getElementById('selectDate').innerHTML = jscalender;
 							document.getElementById('selectTable').innerHTML = tempString;
-							
+
 							Calendar.setup(
       			    		{
 		                      inputField : "transdate",
@@ -94,7 +94,7 @@
 		                  	  align : "BL",
         		          	  button : "trigger2"
           					});
-						}			
+						}
 						else {
 							defaults.splice(remove,1);
 							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>Sie haben bereits die folgenden Einschr&auml;nkungen vorgenommen:</b><br>") : ("<br>")) + translated[last];
@@ -112,7 +112,7 @@
 							}
 						}
 					}
-					
+
 					function resetAll() {
 						document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\">Ja";
 						document.getElementById('inputText').innerHTML = "";
@@ -142,7 +142,7 @@
 						 Nach welchem <b>Begriff</b> wollen Sie suchen?
 						</td>
 						<td>
-							<input type="text" name="searchid" id="searchid" value="<TMPL_VAR NAME=searchid ESCAPE=HTML>">
+							<input type="text" name="searchid" id="searchid" value="[% HTML.escape(searchid) %]">
 						</td>
 					</tr>
 					<tr>
@@ -185,6 +185,6 @@
 					</tr>
 				</table>
 			</td>
-		</tr>	
+		</tr>
 	</table>
 </form>

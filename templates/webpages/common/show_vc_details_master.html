@@ -1,12 +1,12 @@
-<body>
+[% USE HTML %]<body>
 
  <div width="100%" class="listtop">
-  <TMPL_IF is_customer><translate>Customer details</translate><TMPL_ELSE><translate>Vendor details</translate></TMPL_IF> &quot;<TMPL_VAR name ESCAPE=HTML>&quot;
+  [% IF is_customer %]<translate>Customer details</translate>[% ELSE %]<translate>Vendor details</translate>[% END %] &quot;[% HTML.escape(name) %]&quot;
  </div>
 
  <p><translate>Jump to</translate> <a href="#billing"><translate>Billing Address</translate></a>
-  <TMPL_LOOP SHIPTO>, <a href="#shipping<TMPL_VAR __counter__>"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</a></TMPL_LOOP>
-  <TMPL_LOOP CONTACTS>, <a href="#contact<TMPL_VAR __counter__>"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</a></TMPL_LOOP></p>
+  [% FOREACH shipto = SHIPTO %], <a href="#shipping[% loop.count %]"><translate>Shipping Address</translate> &quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a>[% END %]
+  [% FOREACH contact = CONTACTS %], <a href="#contact[% loop.count %]"><translate>Contact Person</translate> &quot;[% HTML.escape(contact.cp_name) %]&quot;</a>[% END %]</p>
 
  <hr>
 
@@ -15,119 +15,119 @@
  <table>
   <tr>
    <td align="right"><translate>Customer Number</translate></td>
-   <td><TMPL_VAR customernumber ESCAPE=HTML></td>
+   <td>[% HTML.escape(customernumber) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Company Name</translate></td>
-   <td><TMPL_VAR name ESCAPE=HTML></td>
+   <td>[% HTML.escape(name) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Department</translate></td>
-   <td><TMPL_VAR department_1 ESCAPE=HTML><TMPL_IF department_2><TMPL_IF department_1>; </TMPL_IF><TMPL_VAR department_2 ESCAPE=HTML></TMPL_IF></td>
+   <td>[% HTML.escape(department_1) %][% IF department_2 %][% IF department_1 %]; [% END %][% HTML.escape(department_2) %][% END %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Street</translate></td>
-   <td><TMPL_VAR street ESCAPE=HTML></td>
+   <td>[% HTML.escape(street) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Zip, City</translate></td>
-   <td><TMPL_VAR zipcode ESCAPE=HTML> <TMPL_VAR city ESCAPE=HTML></td>
+   <td>[% HTML.escape(zipcode) %] [% HTML.escape(city) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Country</translate></td>
-   <td><TMPL_VAR country ESCAPE=HTML></td>
+   <td>[% HTML.escape(country) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Contact Person</translate></td>
-   <td><TMPL_IF greeting><TMPL_VAR greeting ESCAPE=HTML> </TMPL_IF><TMPL_VAR contact ESCAPE=HTML></td>
+   <td>[% IF greeting %][% HTML.escape(greeting) %] [% END %][% HTML.escape(contact) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Phone</translate></td>
-   <td><TMPL_VAR phone ESCAPE=HTML></td>
+   <td>[% HTML.escape(phone) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Fax</translate></td>
-   <td><TMPL_VAR fax ESCAPE=HTML></td>
+   <td>[% HTML.escape(fax) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>E-mail</translate></td>
-   <td><TMPL_VAR email ESCAPE=HTML></td>
+   <td>[% HTML.escape(email) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Homepage</translate></td>
-   <td><TMPL_VAR homepage ESCAPE=HTML></td>
+   <td>[% HTML.escape(homepage) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Credit Limit</translate></td>
-   <td><TMPL_VAR creditlimit ESCAPE=HTML></td>
+   <td>[% HTML.escape(creditlimit) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Discount</translate></td>
-   <td><TMPL_VAR discount ESCAPE=HTML>%</td>
+   <td>[% HTML.escape(discount) %]%</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Payment Terms</translate></td>
-   <td><TMPL_VAR payment_terms ESCAPE=HTML></td>
+   <td>[% HTML.escape(payment_terms) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Tax Number</translate></td>
-   <td><TMPL_VAR taxnumber ESCAPE=HTML></td>
+   <td>[% HTML.escape(taxnumber) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>USt-IdNr.</translate></td>
-   <td><TMPL_VAR ustid ESCAPE=HTML></td>
+   <td>[% HTML.escape(ustid) %]</td>
   </tr>
 
-  <TMPL_IF is_customer>
+  [% IF is_customer %]
    <tr>
     <td align="right"><translate>KNr. beim Kunden</translate></td>
-    <td><TMPL_VAR c_vendor_id ESCAPE=HTML></td>
+    <td>[% HTML.escape(c_vendor_id) %]</td>
    </tr>
-  </TMPL_IF>
+  [% END %]
 
   <tr>
    <td align="right"><translate>Account Number</translate></td>
-   <td><TMPL_VAR account_number ESCAPE=HTML></td>
+   <td>[% HTML.escape(account_number) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Bank Code</translate></td>
-   <td><TMPL_VAR bank_code ESCAPE=HTML></td>
+   <td>[% HTML.escape(bank_code) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Bank</translate></td>
-   <td><TMPL_VAR bank ESCAPE=HTML></td>
+   <td>[% HTML.escape(bank) %]</td>
   </tr>
 
   <tr>
-   <td align="right"><TMPL_IF is_customer><translate>Customer type</translate><TMPL_ELSE><translate>Vendor type</translate></TMPL_IF></td>
-   <td><TMPL_VAR business ESCAPE=HTML></td>
+   <td align="right">[% IF is_customer %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</td>
+   <td>[% HTML.escape(business) %]</td>
   </tr>
 
   <tr>
    <td align="right"><translate>Language</translate></td>
-   <td><TMPL_VAR language ESCAPE=HTML></td>
+   <td>[% HTML.escape(language) %]</td>
   </tr>
 
   <tr>
    <td align="right" valign="top"><translate>Notes</translate></td>
-   <td valign="top"><TMPL_VAR notes ESCAPE=HTML></td>
+   <td valign="top">[% HTML.escape(notes) %]</td>
   </tr>
 
  </table>
@@ -139,66 +139,66 @@
 
 
 
- <TMPL_LOOP SHIPTO>
+ [% FOREACH row = SHIPTO %]
 
   <hr>
 
   <p><translate>Jump to</translate> <a href="#billing"><translate>Billing Address</translate></a>
-   <TMPL_LOOP SHIPTO>, <a href="#shipping<TMPL_VAR __counter__>"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</a></TMPL_LOOP>
-   <TMPL_LOOP CONTACTS>, <a href="#contact<TMPL_VAR __counter__>"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</a></TMPL_LOOP></p>
+   [% FOREACH shipto = SHIPTO %], <a href="#shipping[% loop.count %]"><translate>Shipping Address</translate> &quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a>[% END %]
+   [% FOREACH contact = CONTACTS %], <a href="#contact[% loop.count %]"><translate>Contact Person</translate> &quot;[% HTML.escape(contact.cp_name) %]&quot;</a>[% END %]</p>
 
   <hr>
 
-  <a name="shipping<TMPL_VAR __counter__>"><div class="listheading"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</div></a>
+  <a name="shipping[% loop.count %]"><div class="listheading"><translate>Shipping Address</translate> &quot;[% HTML.escape(row.shiptoname) %]&quot;</div></a>
 
   <table>
    <tr>
     <td align="right"><translate>Company Name</translate></td>
-    <td><TMPL_VAR shiptoname ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptoname) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Department</translate></td>
-    <td><TMPL_VAR shiptodepartment_1 ESCAPE=HTML><TMPL_IF shiptodepartment_2><TMPL_IF shiptodepartment_1>; </TMPL_IF><TMPL_VAR shiptodepartment_2 ESCAPE=HTML></TMPL_IF></td>
+    <td>[% HTML.escape(row.shiptodepartment_1) %][% IF row.shiptodepartment_2 %][% IF row.shiptodepartment_1 %]; [% END %][% HTML.escape(row.shiptodepartment_2) %][% END %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Street</translate></td>
-    <td><TMPL_VAR shiptostreet ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptostreet) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Zip, City</translate></td>
-    <td><TMPL_VAR shiptozipcode ESCAPE=HTML> <TMPL_VAR shiptocity ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptozipcode) %] [% HTML.escape(row.shiptocity) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Country</translate></td>
-    <td><TMPL_VAR shiptocountry ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptocountry) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Contact Person</translate></td>
-    <td><TMPL_VAR shiptocontact ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptocontact) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Phone</translate></td>
-    <td><TMPL_VAR shiptophone ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptophone) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Fax</translate></td>
-    <td><TMPL_VAR shiptofax ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptofax) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>E-mail</translate></td>
-    <td><TMPL_VAR shiptoemail ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.shiptoemail) %]</td>
    </tr>
 
   </table>
- </TMPL_LOOP>
+ [% END %]
 
 
 
@@ -209,107 +209,107 @@
 
 
 
- <TMPL_LOOP CONTACTS>
+ [% FOREACH row = CONTACTS %]
 
   <hr>
 
   <p><translate>Jump to</translate> <a href="#billing"><translate>Billing Address</translate></a>
-   <TMPL_LOOP SHIPTO>, <a href="#shipping<TMPL_VAR __counter__>"><translate>Shipping Address</translate> &quot;<TMPL_VAR shiptoname ESCAPE=HTML>&quot;</a></TMPL_LOOP>
-   <TMPL_LOOP CONTACTS>, <a href="#contact<TMPL_VAR __counter__>"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</a></TMPL_LOOP></p>
+   [% FOREACH shipto = SHIPTO %], <a href="#shipping[% loop.count %]"><translate>Shipping Address</translate> &quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a>[% END %]
+   [% FOREACH contact = CONTACTS %], <a href="#contact[% loop.count %]"><translate>Contact Person</translate> &quot;[% HTML.escape(contact.cp_name) %]&quot;</a>[% END %]</p>
 
   <hr>
 
-  <a name="contact<TMPL_VAR __counter__>"><div class="listheading"><translate>Contact Person</translate> &quot;<TMPL_VAR cp_name ESCAPE=HTML>&quot;</div></a>
+  <a name="contact[% loop.count %]"><div class="listheading"><translate>Contact Person</translate> &quot;[% HTML.escape(row.cp_name) %]&quot;</div></a>
 
   <table>
    <tr>
     <td align="right"><translate>Greeting</translate></td>
-    <td><TMPL_VAR cp_greeting ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_greeting) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Title</translate></td>
-    <td><TMPL_VAR cp_title ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_title) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Given Name</translate></td>
-    <td><TMPL_VAR cp_givenname ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_givenname) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Name</translate></td>
-    <td><TMPL_VAR cp_name ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_name) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Department</translate></td>
-    <td><TMPL_VAR cp_abteilung ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_abteilung) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Phone1</translate></td>
-    <td><TMPL_VAR cp_phone1 ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_phone1) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Phone2</translate></td>
-    <td><TMPL_VAR cp_phone2 ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_phone2) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Fax</translate></td>
-    <td><TMPL_VAR cp_fax ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_fax) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Mobile1</translate></td>
-    <td><TMPL_VAR cp_mobile1 ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_mobile1) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Mobile2</translate></td>
-    <td><TMPL_VAR cp_mobile2 ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_mobile2) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Sat. Phone</translate></td>
-    <td><TMPL_VAR cp_satphone ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_satphone) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Sat. Fax</translate></td>
-    <td><TMPL_VAR cp_satfax ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_satfax) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Project</translate></td>
-    <td><TMPL_VAR cp_project ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_project) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>E-mail</translate></td>
-    <td><TMPL_VAR cp_email ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_email) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Private Phone</translate></td>
-    <td><TMPL_VAR cp_privatphone ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_privatphone) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Private E-mail</translate></td>
-    <td><TMPL_VAR cp_privatemail ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_privatemail) %]</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Birthday</translate></td>
-    <td><TMPL_VAR cp_birthday ESCAPE=HTML></td>
+    <td>[% HTML.escape(row.cp_birthday) %]</td>
    </tr>
 
   </table>
 
- </TMPL_LOOP>
+ [% END %]
 
 </body>
 </html>

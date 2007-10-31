@@ -1505,7 +1505,7 @@ sub ar_transactions {
   }
 
   $report->set_options('top_info_text'        => join("\n", @options),
-                       'raw_bottom_info_text' => $form->parse_html_template('ar/ar_transactions_bottom'),
+                       'raw_bottom_info_text' => $form->parse_html_template2('ar/ar_transactions_bottom'),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $locale->text('invoice_list') . strftime('_%Y%m%d', localtime time),

@@ -2706,7 +2706,7 @@ sub show_history_search {
 	$form->{title} = $locale->text("History Search");
     $form->header();
     
-    print $form->parse_html_template("/common/search_history");
+    print $form->parse_html_template2("common/search_history");
 	
 	$lxdebug->leave_sub();
 }
@@ -2785,7 +2785,7 @@ sub show_am_history {
   my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)$/$1/;
 
-	print $form->parse_html_template("/common/show_history", 
+	print $form->parse_html_template2("common/show_history", 
     {"DATEN" => $form->get_history($dbh, $daten, $restriction, $form->{order}),
      "SUCCESS" => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
      "NONEWWINDOW" => 1,

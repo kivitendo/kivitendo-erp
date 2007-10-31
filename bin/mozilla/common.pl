@@ -514,7 +514,7 @@ sub show_history {
   
 	$form->{title} = $locale->text("History");
     $form->header();
-    print $form->parse_html_template( "common/show_history", {
+    print $form->parse_html_template2( "common/show_history", {
     	"DATEN" => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
     	"SUCCESS" => ($form->get_history($dbh,$form->{input_name}) ne "0"),
       uc($sort) => 1,
@@ -559,8 +559,8 @@ sub show_vc_details {
   $form->{title} = $form->{vc} eq "customer" ?
     $locale->text("Customer details") : $locale->text("Vendor details");
   $form->header();
-  print($form->parse_html_template("common/show_vc_details",
-                                   { "is_customer" => $form->{vc} eq "customer" }));
+  print($form->parse_html_template2("common/show_vc_details",
+                                    { "is_customer" => $form->{vc} eq "customer" }));
 
 	$lxdebug->leave_sub();
 }

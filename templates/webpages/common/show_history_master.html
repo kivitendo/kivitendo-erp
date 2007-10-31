@@ -1,8 +1,8 @@
-<form>
-<input type="hidden" name="login" value="<TMPL_VAR NAME=login ESCAPE=HTML>">
-<input type="hidden" name="password" value="<TMPL_VAR NAME=password ESCAPE=HTML>">
-</form> 
-<TMPL_IF NAME=SUCCESS>
+[% USE HTML %]<form>
+<input type="hidden" name="login" value="[% HTML.escape(login) %]">
+<input type="hidden" name="password" value="[% HTML.escape(password) %]">
+</form>
+[% IF SUCCESS %]
 <script type="text/javascript">
   function orderBy(order,desc) {
     var reg = /\&order\=(.+)\-\-(\d)$/;
@@ -31,18 +31,18 @@
           </td>
           <td valign="top">
             <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
-              <TMPL_IF NAME=ITIME>
-                <TMPL_IF NAME=ITIMEBY>
+              [% IF ITIME %]
+                [% IF ITIMEBY %]
                   <tr><td><a href="javascript:orderBy('h.itime',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                <TMPL_ELSE>
+                [% ELSE %]
                   <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td><a href="javascript:orderBy('h.itime',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                </TMPL_IF>
-              <TMPL_ELSE>
+                [% END %]
+              [% ELSE %]
                 <tr><td><a href="javascript:orderBy('h.itime',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                 <tr><td><a href="javascript:orderBy('h.itime',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              </TMPL_IF>
+              [% END %]
             </table>
           </td>
         </tr>
@@ -56,18 +56,18 @@
           </td>
           <td valign="top">
             <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
-              <TMPL_IF NAME=NAME>
-                <TMPL_IF NAME=NAMEBY>
+              [% IF NAME %]
+                [% IF NAMEBY %]
                   <tr><td height="0" width="0"><a href="javascript:orderBy('emp.name',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td height="0" width="0"><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                <TMPL_ELSE>
+                [% ELSE %]
                   <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td><a href="javascript:orderBy('emp.name',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                </TMPL_IF>
-              <TMPL_ELSE>
+                [% END %]
+              [% ELSE %]
                 <tr><td><a href="javascript:orderBy('emp.name',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                 <tr><td><a href="javascript:orderBy('emp.name',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              </TMPL_IF>
+              [% END %]
             </table>
           </td>
         </tr>
@@ -99,18 +99,18 @@
           </td>
           <td valign="top">
             <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
-              <TMPL_IF NAME=TRANS_ID>
-                <TMPL_IF NAME=TRANS_IDBY>
+              [% IF TRANS_ID %]
+                [% IF TRANS_IDBY %]
                   <tr><td height="0" width="0"><a href="javascript:orderBy('h.trans_id',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td height="0" width="0"><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                <TMPL_ELSE>
+                [% ELSE %]
                   <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td><a href="javascript:orderBy('h.trans_id',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                </TMPL_IF>
-              <TMPL_ELSE>
+                [% END %]
+              [% ELSE %]
                 <tr><td><a href="javascript:orderBy('h.trans_id',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                 <tr><td><a href="javascript:orderBy('h.trans_id',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              </TMPL_IF>
+              [% END %]
             </table>
           </td>
         </tr>
@@ -124,18 +124,18 @@
           </td>
           <td valign="top">
             <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0" >
-              <TMPL_IF NAME=SNUMBERS>
-                <TMPL_IF NAME=SNUMBERSBY>
+              [% IF SNUMBERS %]
+                [% IF SNUMBERSBY %]
                   <tr><td height="0" width="0"><a href="javascript:orderBy('h.snumbers',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td height="0" width="0"><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                <TMPL_ELSE>
+                [% ELSE %]
                   <tr><td><a title="<translate>order</translate>" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
                   <tr><td><a href="javascript:orderBy('h.snumbers',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                </TMPL_IF>
-              <TMPL_ELSE>
+                [% END %]
+              [% ELSE %]
                 <tr><td><a href="javascript:orderBy('h.snumbers',0);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&and;</a></td></tr>
                 <tr><td><a href="javascript:orderBy('h.snumbers',1);" title="<translate>order</translate>" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              </TMPL_IF>
+              [% END %]
             </table>
           </td>
         </tr>
@@ -143,40 +143,40 @@
     </th>
 	</tr>
   <tbody height="380px" width="580px" style="overflow:auto;">
-<TMPL_LOOP NAME=DATEN>
-  <tr class="listrow<TMPL_IF __odd__>1<TMPL_ELSE>0</TMPL_IF>">
+[% FOREACH row = DATEN %]
+  <tr class="listrow[% loop.count % 2 %]">
 		<td nowrap>
-			&nbsp;<TMPL_VAR NAME=itime ESCAPE=HTML>&nbsp;
+			&nbsp;[% HTML.escape(row.itime) %]&nbsp;
 		</td>
 		<td nowrap>
-			&nbsp;<TMPL_VAR NAME=name ESCAPE=HTML>&nbsp;
+			&nbsp;[% HTML.escape(row.name) %]&nbsp;
 		</td>
 		<td>
-			&nbsp;<TMPL_VAR NAME=addition ESCAPE=HTML>&nbsp;
+			&nbsp;[% HTML.escape(row.addition) %]&nbsp;
 		</td>
 		<td>
-      &nbsp;<TMPL_VAR NAME=what_done ESCAPE=HTML>&nbsp;
+      &nbsp;[% HTML.escape(row.what_done) %]&nbsp;
     </td>
     <td>
-      &nbsp;<TMPL_VAR NAME=id ESCAPE=HTML>&nbsp;
+      &nbsp;[% HTML.escape(row.id) %]&nbsp;
     </td>
     <td>
-      &nbsp;<TMPL_VAR NAME=snumbers ESCAPE=HTML>&nbsp;
+      &nbsp;[% HTML.escape(row.snumbers) %]&nbsp;
     </td>
-	</tr>	
-</TMPL_LOOP>
+	</tr>
+[% END %]
 </tbody>
 </table>
 </div>
 <div style="position:absolute; bottom:10px; left:10px;">
-<TMPL_ELSE>
+[% ELSE %]
 <b><translate>Keine Suchergebnisse gefunden!</translate></b><br>
-</TMPL_IF>
+[% END %]
 <p>
-<TMPL_IF NAME=NONEWWINDOW>
+[% IF NONEWWINDOW %]
 <input type="button" onclick="javascript:history.back(-1);" value="<translate>back</translate>">
-<TMPL_ELSE>
+[% ELSE %]
 <input type="button" onclick="javascript:window.close();" value="<translate>close</translate>">
-</TMPL_IF>
+[% END %]
 </p>
 </div>
