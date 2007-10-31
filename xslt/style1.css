@@ -1,0 +1,14 @@
+treechildren::-moz-tree-row(hover){background-color:#eef !important;}
+tree{-moz-appearance: none !important;border:0px solid black !important;padding-top:2px;background: white}
+treechildren::-moz-tree-column{background: white}
+
+toolbar{-moz-appearance: none !important;background:lavender !important;border-bottom:1px solid black;border-top:1px solid black;}
+menubar{-moz-appearance: none !important;background:darkblue !important;border:0px}
+splitter{-moz-appearance: none !important;background:lavender !important;border:0px solid black !important}
+iframe{border-left:1px solid black !important}
+#sidebar{background:grey;max-width:450px;width:150px;font-family:arial;font-size:12px;margin:0px;border-right:1px solid black}
+menubar menu{-moz-appearance: none !important;color:white !important;}
+menubar menu:hover{-moz-appearance: none;background:lightblue !important}
+menu menu{-moz-appearance: none !important;color:black !important;}
+menu menu:hover{-moz-appearance: none;background:lightgrey !important}
+toolbarbutton{padding:5px !important;margin:2px !important}

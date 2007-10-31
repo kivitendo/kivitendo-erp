@@ -224,6 +224,7 @@ sub login {
       my $menufile =
         $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
         $self->{"menustyle"} eq "neu" ? "menunew.pl" :
+        $self->{"menustyle"} eq "xml" ? "menuXML.pl" :
         "menu.pl";
 
       print($form->parse_html_template2("dbupgrade/footer",
@@ -1106,7 +1107,7 @@ sub config_vars {
     printer role sid signature stylesheet tel templates vclimit angebote
     bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen
     taxnumber co_ustid duns menustyle template_format default_media
-    default_printer_id copies show_form_details);
+    default_printer_id copies show_form_details favorites);
 
   $main::lxdebug->leave_sub();
 

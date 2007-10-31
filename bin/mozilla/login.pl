@@ -156,6 +156,9 @@ sub login {
   } elsif ($user->{menustyle} eq "neu") {
     $form->{callback} =
       "menunew.pl?login=$form->{login}&password=$form->{password}&action=display";
+  } elsif ($user->{menustyle} eq "xml") {
+    $form->{callback} =
+      "menuXML.pl?login=$form->{login}&password=$form->{password}&action=display";
   } else {
     $form->{callback} =
       "menu.pl?login=$form->{login}&password=$form->{password}&action=display";

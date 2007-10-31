@@ -164,6 +164,64 @@ sub menuitem_v3 {
   return $str;
 }
 
+sub menuitem_XML {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $item, $other) = @_;
+
+  my $module = $form->{script};
+  my $action = "section_menu";
+  my $target = "";
+
+  if ($self->{$item}{module}) {
+    $module = $self->{$item}{module};
+  }
+  if ($self->{$item}{action}) {
+    $action = $self->{$item}{action};
+  }
+  if ($self->{$item}{target}) {
+    $target = $self->{$item}{target};
+  }
+
+  my $level = $form->escape($item);
+
+  my $str = qq| link="$module?action=| . $form->escape($action) .
+    qq|&amp;level=| . $form->escape($level);
+  map({ $str .= "&amp;${_}=" . $form->escape($form->{$_}); } qw(login password));
+
+  my @vars = qw(module action target href);
+
+  if ($self->{$item}{href}) {
+    $str  = qq| link=$self->{$item}{href}|;
+    @vars = qw(module target href);
+  }
+
+  map { delete $self->{$item}{$_} } @vars;
+
+  # add other params
+  foreach my $key (keys %{ $self->{$item} }) {
+    $str .= "&amp;" . $form->escape($key, 1) . "=";
+    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
+    $value = $myconfig->{$value} . "/$conf" if ($conf);
+    $str .= $form->escape($value, 1);
+  }
+
+  $str .= '"';
+
+
+
+  if ($other) {
+    foreach my $key (keys(%{$other})) {
+      $str .= qq| ${key}="| . $form->quote($other->{$key}) . qq|"|;
+    }
+  }
+
+
+  $main::lxdebug->leave_sub();
+
+  return $str;
+}
+
 sub menuitemNew {
   my ($self, $myconfig, $form, $item) = @_;
 
