@@ -45,7 +45,7 @@ sub display {
   $form->{date} = clock_line();
   $form->{menu} = acc_menu();
 
-  print $form->parse_html_template("menu/menuv3");
+  print $form->parse_html_template2("menu/menuv3");
 
 }
 

@@ -1,4 +1,4 @@
-<body style="padding:0px; margin:0px;">
+[% USE HTML %]<body style="padding:0px; margin:0px;">
 
  <script type="text/javascript">
 <!--
@@ -17,14 +17,14 @@ window.onload=clockon
   <tr>
    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
     &nbsp;
-    [<a href="menuv3.pl?action=display&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>" target="_blank"><translate>new Window</translate></a>]
+    [<a href="menuv3.pl?action=display&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]" target="_blank"><translate>new Window</translate></a>]
     &nbsp;
     [<a href="JavaScript:top.main_window.print()"><translate>print</translate></a>]
    </td>
    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
-    [<translate>User</translate>: <TMPL_VAR login ESCAPE=HTML> -
-    <a href="login.pl?action=logout&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>" target="_top"><translate>logout</translate></a>]
-    <TMPL_VAR date> <span id='clock_id' style='position:relative'></span>&nbsp;
+    [<translate>User</translate>: [% HTML.escape(login) %] -
+    <a href="login.pl?action=logout&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]" target="_top"><translate>logout</translate></a>]
+    [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
    </td>
   </tr>
  </table>
@@ -32,13 +32,13 @@ window.onload=clockon
 
  <div id="menu">
 
-  <TMPL_VAR menu>
+  [% menu %]
 
  </div>
 
  <div style="clear: both;"></div>
 
- <iframe id="win1" src="login.pl?action=company_logo&login=<TMPL_VAR login ESCAPE=URL>&password=<TMPL_VAR password ESCAPE=URL>" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
+ <iframe id="win1" src="login.pl?action=company_logo&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
   <p><translate>MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES</translate></p>
  </iframe>
 </body>
