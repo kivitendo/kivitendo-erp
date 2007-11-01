@@ -3,7 +3,6 @@ $self->{texts} = {
 
 $self->{subs} = {
   'acc_menu'                    => 'acc_menu',
-  'clock_line'                  => 'clock_line',
   'display'                     => 'display',
   'print_menu'                  => 'print_menu',
 };
