@@ -39,7 +39,6 @@ package Form;
 use Data::Dumper;
 
 use Cwd;
-use HTML::Template;
 use Template;
 use SL::Template;
 use CGI::Ajax;
@@ -545,37 +544,6 @@ sub _prepare_html_template {
   $main::lxdebug->leave_sub();
 
   return $file;
-}
-
-sub parse_html_template {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $file, $additional_params) = @_;
-
-  $additional_params ||= { };
-
-  $file = $self->_prepare_html_template($file, $additional_params);
-
-  my $template = HTML::Template->new("filename" => $file,
-                                     "die_on_bad_params" => 0,
-                                     "strict" => 0,
-                                     "case_sensitive" => 1,
-                                     "loop_context_vars" => 1,
-                                     "global_vars" => 1);
-
-  foreach my $key ($template->param()) {
-    my $param = $additional_params->{$key} || $self->{$key};
-    $param = [] if (($template->query("name" => $key) eq "LOOP") && (ref($param) ne "ARRAY"));
-    $template->param($key => $param);
-  }
-
-  my $output = $template->output();
-
-  $output = $main::locale->{iconv}->convert($output) if ($main::locale);
-
-  $main::lxdebug->leave_sub();
-
-  return $output;
 }
 
 sub parse_html_template2 {

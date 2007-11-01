@@ -8,7 +8,6 @@ use vars qw(@required_modules);
   { "name" => "CGI::Ajax", "url" => "http://search.cpan.org/~bct/" },
   { "name" => "DBI", "url" => "http://search.cpan.org/~timb/" },
   { "name" => "DBD::Pg", "url" => "http://search.cpan.org/~dbdpg/" },
-  { "name" => "HTML::Template", "url" => "http://search.cpan.org/~samtregar/" },
   { "name" => "Archive::Zip", "url" => "http://search.cpan.org/~adamk/" },
   { "name" => "Text::Iconv", "url" => "http://search.cpan.org/~mpiotr/" },
   { "name" => "Time::HiRes", "url" => "http://search.cpan.org/~jhi/" },
