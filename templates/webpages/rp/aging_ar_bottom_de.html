@@ -1,17 +1,17 @@
- <input type="hidden" name="rowcount" value="<TMPL_VAR row_idx ESCAPE=HTML>">
+[% USE HTML %] <input type="hidden" name="rowcount" value="[% HTML.escape(row_idx) %]">
 
- <TMPL_VAR PRINT_OPTIONS>
+ [% PRINT_OPTIONS %]
 
- <input type="hidden" name="todate" value="<TMPL_VAR todate ESCAPE=HTML>">
- <input type="hidden" name="title" value="<TMPL_VAR title ESCAPE=HTML>">
- <input type="hidden" name="arap" value="<TMPL_VAR arap ESCAPE=HTML>">
- <input type="hidden" name="ct" value="<TMPL_VAR ct ESCAPE=HTML>">
- <input type="hidden" name="customer" value="<TMPL_VAR customer ESCAPE=HTML>">
- <input type="hidden" name="vendor" value="<TMPL_VAR vendor ESCAPE=HTML>">
- <input type="hidden" name="department" value="<TMPL_VAR department ESCAPE=HTML>">
+ <input type="hidden" name="todate" value="[% HTML.escape(todate) %]">
+ <input type="hidden" name="title" value="[% HTML.escape(title) %]">
+ <input type="hidden" name="arap" value="[% HTML.escape(arap) %]">
+ <input type="hidden" name="ct" value="[% HTML.escape(ct) %]">
+ <input type="hidden" name="customer" value="[% HTML.escape(customer) %]">
+ <input type="hidden" name="vendor" value="[% HTML.escape(vendor) %]">
+ <input type="hidden" name="department" value="[% HTML.escape(department) %]">
 
- <input type="hidden" name="login" value="<TMPL_VAR login ESCAPE=HTML>">
- <input type="hidden" name="password" value="<TMPL_VAR password ESCAPE=HTML>">
+ <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+ <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
  Sammelrechnung
  <br>
