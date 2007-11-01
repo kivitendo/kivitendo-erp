@@ -3073,10 +3073,19 @@ sub parts_language_selection {
 
   my $languages = IC->retrieve_languages(\%myconfig, $form);
 
+  if ($form->{language_values} ne "") {
+    foreach $item (split(/---\+\+\+---/, $form->{language_values})) {
+      my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
 
-  my $callback = "$form->{script}?action=parts_language_selection&";
-  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password name input_name), grep({ /^[fl]_/ } keys %$form)));
+      foreach my $language (@{ $languages }) {
+        next unless ($language->{id} == $language_id);
+
+        $language->{translation}     = $translation;
+        $language->{longdescription} = $longdescription;
+        last;
+      }
+    }
+  }
 
   my @header_sort = qw(name longdescription);
   my %header_title = ( "name" => $locale->text("Name"),
