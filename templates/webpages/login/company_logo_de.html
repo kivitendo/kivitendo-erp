@@ -1,0 +1,48 @@
+[% USE HTML %][% USE LxERP %]<body>
+ [%- DEFAULT myconfig_dbhost = 'localhost' %]
+
+ <center>
+  <a href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0"></a>
+
+  <h2 class="login">Version [% version %]</h2>
+
+  <p>Lizensiert für</p>
+
+  <p>
+   <b>
+    [% HTML.escape(myconfig_company) %]
+    <br>
+    [% HTML.escape(myconfig_address).replace('\\\\n', '<br>') %]
+   </b>
+
+   <br>
+
+   <table border="0">
+    <tr>
+     <th align="left">Benutzer</th>
+     <td>[% HTML.escape(myconfig_name) %]</td>
+    </tr>
+    <tr>
+     <th align="left">Datenbank</th>
+     <td>[% HTML.escape(myconfig_dbname) %]</td>
+    </tr>
+    <tr>
+     <th align="left">Datenbankcomputer</th>
+     <td>[% HTML.escape(myconfig_dbhost) %]</td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+     <th colspan="2" align="center"><a href="http://lx-office.org" target="blank">http://lx-office.org</a></th>
+    </tr>
+    <tr>
+     <th colspan="2" align="center"><a href="mailto:info&#064;lx-office.org" target="blank">info&#064;lx-office.org</a></th>
+    </tr>
+   </table>
+
+ </center>
+
+</body>
+</html>

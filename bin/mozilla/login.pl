@@ -50,14 +50,14 @@ if (-f "bin/mozilla/$form->{login}_$form->{script}") {
 }
 
 # window title bar, user info
-$form->{titlebar} =
-  "Lx-Office " . $locale->text('Version') . " $form->{version}";
+$form->{titlebar} = "Lx-Office " . $locale->text('Version') . " $form->{version}";
 
 if ($form->{action}) {
   $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
   call_sub($locale->findsub($form->{action}));
+
 } else {
-  &login_screen;
+  login_screen();
 }
 
 1;
@@ -72,59 +72,7 @@ sub login_screen {
   $form->{fokus} = "loginscreen.login";
   $form->header;
 
-  print qq|
-
-
-<body class=login onLoad="fokus()">
-
-<pre>
-
-</pre>
-
-<center>
-<table class=login border=3 cellpadding=20>
-  <tr>
-    <td class=login align=center><a href="http://www.lx-office.org" target=_top><img src="image/lx-office-erp.png" border=0></a>
-<h1 class=login align=center>|
-    . $locale->text('Version') . qq| $form->{version}
-</h1>
-
-<p>
-
-<form method=post name=loginscreen action=$form->{script}>
-
-  <input type="hidden" name="show_dbupdate_warning" value="1">
-
-      <table width=100%>
-	<tr>
-	  <td align=center>
-	    <table>
-	      <tr>
-		<th align=right>| . $locale->text('Login Name') . qq|</th>
-		<td><input class=login name=login size=30 tabindex="1"></td>
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Password') . qq|</th>
-		<td><input class=login type=password name=password size=30 tabindex="2"></td>
-	      </tr>
-	    </table>
-
-	    <br>
-	    <input type=submit name=action value="| . $locale->text('Login') . qq|" tabindex="3">
-
-	  </td>
-	</tr>
-      </table>
-
-</form>
-
-    </td>
-  </tr>
-</table>
-
-</body>
-</html>
-|;
+  print $form->parse_html_template('login/login_screen');
 
   $lxdebug->leave_sub();
 }
@@ -132,39 +80,30 @@ sub login_screen {
 sub login {
   $lxdebug->enter_sub();
 
-  $form->error($locale->text('You did not enter a name!'))
-    unless ($form->{login});
+  $form->error($locale->text('You did not enter a name!')) unless ($form->{login});
 
   $user = new User $memberfile, $form->{login};
 
   # if we get an error back, bale out
-  if (($errno = $user->login(\%$form, $userspath)) <= -1) {
-    $errno *= -1;
-    $err[1] = $err[3] = $locale->text('Incorrect username or password!');
-
-    if ($errno == 2) {
+  if (($result = $user->login(\%$form, $userspath)) <= -1) {
+    if ($result == -2) {
       exit;
     }
 
-    $form->error($err[$errno]);
+    $form->error($locale->text('Incorrect username or password!'));
   }
+
+  my %style_to_script_map = ( 'v3'  => 'v3',
+                              'neu' => 'new',
+                              'xml' => 'XML',
+    );
+
+  my $menu_script = $style_to_script_map{$user->{menustyle}} || '';
 
   # made it this far, execute the menu
-  if ($user->{menustyle} eq "v3") {
-    $form->{callback} =
-      "menuv3.pl?login=$form->{login}&password=$form->{password}&action=display";
-  } elsif ($user->{menustyle} eq "neu") {
-    $form->{callback} =
-      "menunew.pl?login=$form->{login}&password=$form->{password}&action=display";
-  } elsif ($user->{menustyle} eq "xml") {
-    $form->{callback} =
-      "menuXML.pl?login=$form->{login}&password=$form->{password}&action=display";
-  } else {
-    $form->{callback} =
-      "menu.pl?login=$form->{login}&password=$form->{password}&action=display";
-  }
+  $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display');
 
-  $form->redirect;
+  $form->redirect();
 
   $lxdebug->leave_sub();
 }
@@ -185,64 +124,16 @@ sub company_logo {
   $lxdebug->enter_sub();
 
   require "$userspath/$form->{login}.conf";
-  $locale = new Locale $myconfig{countrycode}, "login"
-    unless ($language eq $myconfig{countrycode});
 
-  $myconfig{address} =~ s/\\n/<br>/g;
-  $myconfig{dbhost} = $locale->text('localhost') unless $myconfig{dbhost};
+  $locale             =  new Locale $myconfig{countrycode}, "login" if ($language ne $myconfig{countrycode});
 
-  $form->{stylesheet} = $myconfig{stylesheet};
-
-  $form->{title} = $locale->text('About');
+  $form->{stylesheet} =  $myconfig{stylesheet};
+  $form->{title}      =  $locale->text('About');
 
   # create the logo screen
-  $form->header unless $form->{noheader};
+  $form->header() unless $form->{noheader};
 
-  print qq|
-<body>
-<center>
-<a href="http://www.lx-office.org" target=_top><img src="image/lx-office-erp.png" border=0></a>
-<h2 class=login>| . $locale->text('Version') . qq| $form->{version}</h2>
-
-| . $locale->text('Licensed to') . qq|
-<p>
-<b>
-$myconfig{company}
-<br>$myconfig{address}
-</b>
-
-
-<br>
-<table border=0>
-  <tr>
-    <th align=left>| . $locale->text('User') . qq|</th>
-    <td>$myconfig{name}</td>
-  </tr>
-  <tr>
-    <th align=left>| . $locale->text('Dataset') . qq|</th>
-    <td>$myconfig{dbname}</td>
-  </tr>
-  <tr>
-    <th align=left>| . $locale->text('Database Host') . qq|</th>
-    <td>$myconfig{dbhost}</td>
-  </tr>
-  <tr>
-  </tr>
-  <tr>
-  </tr>
-  <tr>
-    <th colspan="2" align="center"><a href="http://lx-office.org" target="blank">http://lx-office.org</a></th>
-  </tr>
-  <tr>
-    <th colspan="2" align="center"><a href="mailto:info&#064;lx-office.org" target="blank">info&#064;lx-office.org</a></th>
-  </tr>
-</table>
-
-</center>
-
-</body>
-</html>
-|;
+  print $form->parse_html_template('login/company_logo');
 
   $lxdebug->leave_sub();
 }

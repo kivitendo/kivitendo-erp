@@ -23,5 +23,14 @@ sub format_percent {
   return $self->format_amount($var * 100, $places, $skip_zero);
 }
 
+sub escape_br {
+  my ($self, $var) = @_;
+
+  $var =~ s/\r//g;
+  $var =~ s/\n/<br>/g;
+
+  return $var;
+}
+
 1;
 
