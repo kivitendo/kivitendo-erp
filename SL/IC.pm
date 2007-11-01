@@ -1690,11 +1690,14 @@ sub retrieve_languages {
     $query =
       qq|SELECT l.id, l.description, tr.translation, tr.longdescription
          FROM language l
-         LEFT OUTER JOIN translation tr ON (tr.language_id = l.id) AND (tr.parts_id = ?)|;
+         LEFT OUTER JOIN translation tr ON (tr.language_id = l.id) AND (tr.parts_id = ?)
+         ORDER BY lower(l.description)|;
     @values = (conv_i($form->{id}));
 
   } else {
-    $query = qq|SELECT id, description FROM language|;
+    $query = qq|SELECT id, description
+                FROM language
+                ORDER BY lower(description)|;
   }
 
   my $languages = selectall_hashref_query($form, $dbh, $query, @values);
