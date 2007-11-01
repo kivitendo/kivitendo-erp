@@ -80,6 +80,123 @@ sub select_employee_internal {
   $lxdebug->leave_sub();
 }
 
+## Customers/Vendors
+
+sub check_customer_or_vendor {
+  $lxdebug->enter_sub();
+
+  my ($field, $cov_selected_nextsub, $is_vendor) = @_;
+
+  if ($form->{"f_${field}"} eq $form->{"f_old_${field}"}) {
+    $lxdebug->leave_sub();
+    return 1;
+  }
+
+  my $type = $is_vendor ? $locale->text("vendor") : $locale->text("customer");
+
+  my $old_form = save_form();
+  $form->{"name"} = $form->{"f_${field}"};
+  $form->{"obsolete"} = 1;
+  my $covs;
+  $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, "name", 1, $is_vendor);
+  restore_form($old_form);
+
+  if (0 == scalar(@{$covs})) {
+    $form->header();
+    $form->show_generic_error(sprintf($locale->text("There is no %s whose name matches '%s'."), $type, $form->{"f_${field}"}));
+
+    $lxdebug->leave_sub();
+    return 0;
+
+  }
+
+  if (1 != scalar(@{$covs})) {
+    # If there is more than one CoV with the same name
+    # then we have to check if the ID is set, too. Otherwise
+    # we'd be stuck in an endless loop.
+    if ($form->{"f_${field}_id"}) {
+      foreach my $cov (@{$covs}) {
+        if (($form->{"f_${field}_id"} == $cov->{"id"}) &&
+            ($form->{"f_${field}"} eq $cov->{"name"})) {
+          $lxdebug->leave_sub();
+          return 1;
+        }
+      }
+    }
+
+    $form->{"cov_selected_nextsub"} = $cov_selected_nextsub;
+    $form->{"check_cov_field"} = $field;
+    select_customer_or_vendor("cov_selected", $is_vendor, @{$covs});
+    $lxdebug->leave_sub();
+    return 0;
+  }
+
+  $form->{"f_${field}_id"} = $covs->[0]->{"id"};
+  $form->{"f_${field}"} = $covs->[0]->{"name"};
+
+  $lxdebug->leave_sub();
+
+  return 1;
+}
+
+sub select_customer_or_vendor {
+  $lxdebug->enter_sub();
+
+  my ($callback_sub, $is_vendor, @covs) = @_;
+
+  my $old_form = save_form();
+
+  if (0 == scalar(@covs)) {
+    delete($form->{"name"});
+    $form->{"obsolete"} = 1;
+    my $c = Common->retrieve_customers_or_vendors(\%myconfig, $form, "name", 1, $is_vendor);
+    restore_form($old_form);
+    @covs = @{$c};
+  }
+
+  $form->header();
+  print($form->parse_html_template("generic/select_customer_or_vendor",
+                                   { "COVS" => \@covs,
+                                     "old_form" => $old_form,
+                                     "title" => $is_vendor ? $locale->text("Select a vendor") : $locale->text("Select a customer"),
+                                     "nextsub" => "select_cov_internal",
+                                     "callback_sub" => $callback_sub }));
+
+  $lxdebug->leave_sub();
+}
+
+sub cov_selected {
+  $lxdebug->enter_sub();
+  my ($new_id, $new_name) = @_;
+
+  my $field = $form->{"check_cov_field"};
+  delete($form->{"check_cov_field"});
+
+  $form->{"f_${field}_id"} = $new_id;
+  $form->{"f_${field}"} = $new_name;
+  $form->{"f_old_${field}"} = $new_name;
+
+  &{ $form->{"cov_selected_nextsub"} }();
+
+  $lxdebug->leave_sub();
+}
+
+sub select_cov_internal {
+  $lxdebug->enter_sub();
+
+  my ($new_id, $new_name, $callback_sub);
+
+  my $new_id = $form->{"new_id_" . $form->{"selection"}};
+  my $new_name = $form->{"new_name_" . $form->{"selection"}};
+  my $callback_sub = $form->{"callback_sub"};
+
+  restore_form($form->{"old_form"});
+
+  &{ $callback_sub }($new_id, $new_name);
+
+  $lxdebug->leave_sub();
+}
+
 sub select_part {
   $lxdebug->enter_sub();
 
@@ -588,4 +705,143 @@ sub mark_as_paid_common {
   $lxdebug->leave_sub();
 }
 
+sub cov_selection_internal {
+  $lxdebug->enter_sub();
+
+  $order_by = "name";
+  $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
+  $order_dir = 1;
+  $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
+
+  my $type = $form->{"is_vendor"} ? $locale->text("vendor") : $locale->text("customer");
+
+  $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, $order_by, $order_dir, $form->{"is_vendor"}, $form->{"allow_both"});
+  map({ $covs->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$covs}));
+  if (0 == scalar(@{$covs})) {
+    $form->show_generic_information(sprintf($locale->text("No %s was found matching the search parameters."), $type));
+  } elsif (1 == scalar(@{$covs})) {
+    $onload = "cov_selected('1')";
+  }
+
+  my $callback = "$form->{script}?action=cov_selection_internal&";
+  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
+      (qw(login path password name input_name input_id is_vendor allow_both), grep({ /^[fl]_/ } keys %$form)));
+
+  my @header_sort = qw(name address contact);
+  my %header_title = ( "name" => $locale->text("Name"),
+                       "address" => $locale->text("Address"),
+                       "contact" => $locale->text("Contact"),
+                       );
+
+  my @header =
+    map(+{ "column_title" => $header_title{$_},
+           "column" => $_,
+           "callback" => $callback . "order_by=${_}&order_dir=" . ($order_by eq $_ ? 1 - $order_dir : $order_dir),
+         },
+        @header_sort);
+
+  foreach my $cov (@{ $covs }) {
+    $cov->{address} = "$cov->{street}, $cov->{zipcode} $cov->{city}";
+    $cov->{address} =~ s{^,}{}x;
+    $cov->{address} =~ s{\ +}{\ }gx;
+
+    $cov->{contact} = join " ", map { $cov->{$_} } qw(cp_greeting cp_title cp_givenname cp_name);
+    $cov->{contact} =~ s{\ +}{\ }gx;
+  }
+
+  $form->{"title"} = $form->{is_vendor} ? $locale->text("Select a vendor") : $locale->text("Select a customer");
+  $form->header();
+  print($form->parse_html_template("generic/cov_selection", { "HEADER" => \@header,
+                                                              "COVS" => $covs,
+                                                              "onload" => $onload }));
+
+  $lxdebug->leave_sub();
+}
+
+sub check_cov2 {
+  $lxdebug->enter_sub();
+
+  my $callback_sub = shift;
+
+  if (!$form->{customer}
+      || ($form->{customer} eq $form->{old_customer})
+      || ("$form->{customer}--$form->{customer_id}" eq $form->{old_customer})) {
+    $lxdebug->leave_sub();
+    return;
+  }
+
+  $old_name     = $form->{name};
+  $form->{name} = $form->{customer};
+
+  my $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, "name", "ASC", 0, 1);
+
+  $form->{name} = $old_name;
+
+  if (0 == scalar @{$covs}) {
+    $form->show_generic_information(sprintf($locale->text("No %s was found matching the search parameters."), $type));
+
+  } elsif (1 == scalar @{ $covs }) {
+    $form->{customer}           = $covs->[0]->{name};
+    $form->{old_customer}       = $covs->[0]->{name};
+    $form->{customer_id}        = $covs->[0]->{id};
+    $form->{customer_is_vendor} = $covs->[0]->{customer_is_vendor};
+
+  } else {
+    $form->{new_cov_nextsub} = $callback_sub;
+
+    delete @{$form}{qw(customer customer_is_vendor customer_id old_customer action)};
+    my @hidden = map { { 'key' => $_, 'value' => $form->{$_} } } grep { '' eq ref $form->{$_} } keys %{ $form };
+
+    foreach my $cov (@{ $covs }) {
+      $cov->{address} = "$cov->{street}, $cov->{zipcode} $cov->{city}";
+      $cov->{address} =~ s{^,}{}x;
+      $cov->{address} =~ s{\ +}{\ }gx;
+
+      $cov->{contact} = join " ", map { $cov->{$_} } qw(cp_greeting cp_title cp_givenname cp_name);
+      $cov->{contact} =~ s{\ +}{\ }gx;
+    }
+
+    $form->{title} = $locale->text("Select a vendor or customer");
+    $form->header();
+
+    print $form->parse_html_template("generic/cov_selection2", { "COVS" => $covs, "HIDDEN" => \@hidden });
+
+    exit 0;
+  }
+
+  $lxdebug->leave_sub();
+}
+
+sub cov_selected2 {
+  $lxdebug->enter_sub();
+
+  if (!$form->{new_cov} || !$form->{new_cov_nextsub}) {
+    $form->error($locale->text('No customer has been selected.'));
+  }
+
+  map { $form->{$_} = $form->{"new_cov_${_}_$form->{new_cov}"} } qw(customer customer_id customer_is_vendor);
+  $form->{old_customer} = $form->{customer};
+
+  &{ $form->{new_cov_nextsub} }();
+
+  $lxdebug->leave_sub();
+}
+
+sub select_item_selection_internal {
+  $lxdebug->enter_sub();
+
+  @items = SystemBrace->retrieve_select_items(\%myconfig, $form, $form->{"select_item_type"});
+  if (0 == scalar(@items)) {
+    $form->show_generic_information($locale->text("No item was found."));
+  } elsif (1 == scalar(@items)) {
+    $onload = "select_item_selected('1')";
+  }
+
+  $form->{"title"} = $locale->text("Select an entry");
+  $form->header();
+  print($form->parse_html_template("generic/select_item_selection", { "SELECT_ITEMS" => \@items,
+                                                                      "onload" => $onload }));
+
+  $lxdebug->leave_sub();
+}
 1;

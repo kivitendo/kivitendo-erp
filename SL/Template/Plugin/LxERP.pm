@@ -2,6 +2,7 @@ package SL::Template::Plugin::LxERP;
 
 use base qw( Template::Plugin );
 use Template::Plugin;
+use List::Util qw(first);
 
 sub new {
   my $class   = shift;

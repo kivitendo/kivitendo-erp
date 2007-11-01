@@ -8,14 +8,15 @@
     <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
     <script type="text/javascript" src="js/vendor_selection.js"></script>
     <script type="text/javascript" src="js/calculate_qty.js"></script>
+    <script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
 
 [%- FOREACH row = HIDDENS %]
-   <input type="hidden" name="[% row.name %]" value="[% HTML.escape(row.value) %]" > 
+   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
 [%- END %]
 
     <table width=100%>
       <tr class=listtop>
-        <th class=listtop>[% title %]</th>
+        <th class=listtop>[% HTML.escape(title) %]</th>
       </tr>
       <tr height="5"></tr>
       <tr>
@@ -25,17 +26,47 @@
               <td width=50%>
                 <table width=100%>
                   <tr>
-                    [% vc %]
-[%- IF contact %]
+                    <th align="right">[% IF vc == 'customer' %]Kunde[% ELSE %]Lieferant[% END %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = vc,
+                           style      = 'width: 250px', 
+                           DATA       = vc == 'customer' ? ALL_CUSTOMERS : ALL_VENDORS,
+                           id_sub     = 'vc_keys',
+                           label_key  = 'name',
+                           select     = vc_select,
+                           limit      = vclimit,
+                           onChange   = "document.getElementById('update_button').click();" -%]
+                      <input type="button" value="D" onclick="show_vc_details('[% vc %]')">
+                    </td>
+                  </tr>
+[%- IF ALL_CONTACTS.size %]
                   <tr>
                     <th align="right">Ansprechpartner</th>
-                    <td>[% contact %]</td>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'cp_id', 
+                           style      = 'width: 250px', 
+                           DATA       = ALL_CONTACTS, 
+                           id_key     = 'cp_id', 
+                           label_sub  = 'contact_labels',
+                           show_empty = 1 -%]
+                    </td>
                   </tr>
 [%- END %]
-[%- IF shipto %]
+[%- IF ALL_SHIPTO %] 
                   <tr>
                     <th align="right">Lieferadresse</th>
-                    <td>[% shipto %]</td>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'shipto_id', 
+                           style      = 'width: 250px', 
+                           DATA       = ALL_SHIPTO, 
+                           id_key     = 'shipto_id', 
+                           label_sub  = 'shipto_labels',
+                           show_empty = 1,
+                           onChange   = "document.getElementById('update_button').click();" -%]
+                    </td>
                   </tr>
 [%- END %]
 [%- IF is_order %]
@@ -47,21 +78,28 @@
 [%- IF business %]
                   <tr>
                     <th align="right">[% business_label %]</th>
-                    <td>[% business %]; Rabatt [% LxERP.format_percent(tradediscount) %] %</td>
+                    <td>[% HTML.escape(business) %]; Rabatt [% LxERP.format_percent(tradediscount) %] %</td>
                   </tr>
 [%- END %]
 [%- IF max_dunning_level %]
                   <tr>
                     <th align="right">höchste Mahnstufe:</th>
                     <td>
-                      <b>[% max_dunning_level %]</b>;
+                      <b>[% HTML.escape(max_dunning_level) %]</b>;
                       gemahnter Betrag: <b>[% LxERP.format_amount(dunning_amount, 2) %]</b>
                     </td>
                   </tr>
 [%- END %]
                   <tr>
                     <th align="right">Steuersatz</th>
-                    <td>[% taxzone %]</td>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'taxzone_id', 
+                           style      = 'width: 250px', 
+                           DATA       = ALL_TAXZONES, 
+                           id_key     = 'id', 
+                           label_key  = 'description' -%]
+                    </td>
                   </tr>
 [%- IF selectdepartment %]
                   <tr>
@@ -95,7 +133,7 @@
                     <th align=right>Motiv</th>
                     <td style="font-weight:bold" colspan=3><input name=motiv size=35 value="[% HTML.escape(motiv) %]"></td>
                   </tr>
-[%- END -%]
+[%- END %]
                   <tr>
                     <th align=right>Versandort</th>
                     <td colspan=3><input name=shippingpoint size=35 value="[% HTML.escape(shippingpoint) %]"></td>
@@ -137,27 +175,41 @@
               [% openclosed %]
                   <tr>
                     <th align="right">Bearbeiter</th>
-                    <td>[% employee %]</td>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'employee_id', 
+                           DATA       = ALL_EMPLOYEES, 
+                           id_key     = 'id', 
+                           label_sub  = 'sales_employee_labels' -%]
+                    </td>
                   </tr>
-[%- IF salesmen %]
+[%- IF is_sales and ALL_SALESMEN.size %]
                   <tr>
                     <th align="right">Verkäufer/in</th>
-                    <td>[% salesmen %]</td>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'salesman_id', 
+                           default    = salesman_id ? salesman_id : employee_id, 
+                           DATA       = ALL_SALESMEN, 
+                           id_key     = 'id', 
+                           label_sub  = 'sales_employee_labels' -%]
+                    </td>
                   </tr>
 [%- END %]
 [%- IF is_order %]
                   <tr>
                     <th width=70% align=right nowrap>Auftragsnummer</th>
-                    <td><input name=ordnumber size=11 value="[% ordnumber %]"></td>
+                    <td><input name=ordnumber size=11 value="[% HTML.escape(ordnumber) %]"></td>
                   </tr>
 [%- END %]
                   <tr>
                     <th width=70% align=right nowrap>[% IF is_req_quo %]Anfragenummer[% ELSE %]Angebotsnummer[% END %]</th>
-                    <td><input name=quonumber size=11 value="[% quonumber %]"></td>
+                    <td><input name=quonumber size=11 value="[% HTML.escape(quonumber) %]"></td>
                   </tr>
-[%- IF is_order %]<tr>
+[%- IF is_order %]
+                  <tr>
                     <th width=70% align=right nowrap>Bestellnummer des Kunden</th>
-                    <td><input name=cusordnumber size=11 value="[% cusordnumber %]"></td>
+                    <td><input name=cusordnumber size=11 value="[% HTML.escape(cusordnumber) %]"></td>
                   </tr>
 [%- END %]
                   <tr>
@@ -182,7 +234,15 @@
                   </tr>
                   <tr>
                     <th width="70%" align="right" nowrap>Projektnummer</th>
-                    <td>[% globalprojectnumber %]</td>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'globalproject_id', 
+                           DATA       = ALL_PROJECTS, 
+                           id_key     = 'id', 
+                           label_key  = 'projectnumber',
+                           show_empty = 1,
+                           onChange   = "document.getElementById('update_button').click();" -%]
+                    </td>
                   </tr>
                 </table>
               </td>

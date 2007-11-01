@@ -154,6 +154,69 @@ sub retrieve_employees {
   return $employees;
 }
 
+sub retrieve_customers_or_vendors {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form, $order_by, $order_dir, $is_vendor, $allow_both) = @_;
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my (@filter_values, $filter);
+  if ($form->{"name"}) {
+    $filter .= " AND (TABLE.name ILIKE ?)";
+    push(@filter_values, '%' . $form->{"name"} . '%');
+  }
+  if (!$form->{"obsolete"}) {
+    $filter .= " AND NOT TABLE.obsolete";
+  }
+  substr($filter, 1, 3) = "WHERE" if ($filter);
+
+  $order_by =~ s/[^a-zA-Z_]//g;
+  $order_dir = $order_dir ? "ASC" : "DESC";
+
+  my (@queries, @query_parameters);
+
+  if ($allow_both || !$is_vendor) {
+    my $c_filter = $filter;
+    $c_filter =~ s/TABLE/c/g;
+    push(@queries, qq|SELECT
+                        c.id, c.name, 0 AS customer_is_vendor,
+                        c.street, c.zipcode, c.city,
+                        ct.cp_greeting, ct.cp_title, ct.cp_givenname, ct.cp_name
+                      FROM customer c
+                      LEFT JOIN contacts ct ON (c.id = ct.cp_cv_id)
+                      $c_filter|);
+    push(@query_parameters, @filter_values);
+  }
+
+  if ($allow_both || $is_vendor) {
+    my $v_filter = $filter;
+    $v_filter =~ s/TABLE/v/g;
+    push(@queries, qq|SELECT
+                        v.id, v.name, 1 AS customer_is_vendor,
+                        v.street, v.zipcode, v.city,
+                        ct.cp_greeting, ct.cp_title, ct.cp_givenname, ct.cp_name
+                      FROM vendor v
+                      LEFT JOIN contacts ct ON (v.id = ct.cp_cv_id)
+                      $v_filter|);
+    push(@query_parameters, @filter_values);
+  }
+
+  my $query = join(" UNION ", @queries) . " ORDER BY $order_by $order_dir";
+  my $sth = $dbh->prepare($query);
+  $sth->execute(@query_parameters) || $form->dberror($query . " (" . join(", ", @query_parameters) . ")");
+  my $customers = [];
+  while (my $ref = $sth->fetchrow_hashref()) {
+    push(@{$customers}, $ref);
+  }
+  $sth->finish();
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return $customers;
+}
+
 sub retrieve_delivery_customer {
   $main::lxdebug->enter_sub();
 

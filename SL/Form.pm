@@ -555,11 +555,12 @@ sub parse_html_template {
 
   $file = $self->_prepare_html_template($file, $additional_params);
 
-  my $template = Template->new({ 'INTERPOLATE' => 0,
-                                 'EVAL_PERL'   => 0,
-                                 'ABSOLUTE'    => 1,
-                                 'CACHE_SIZE'  => 0,
-                                 'PLUGIN_BASE' => 'SL::Template::Plugin',
+  my $template = Template->new({ 'INTERPOLATE'  => 0,
+                                 'EVAL_PERL'    => 0,
+                                 'ABSOLUTE'     => 1,
+                                 'CACHE_SIZE'   => 0,
+                                 'PLUGIN_BASE'  => 'SL::Template::Plugin',
+                                 'INCLUDE_PATH' => '.:templates/webpages',
                                }) || die;
 
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };

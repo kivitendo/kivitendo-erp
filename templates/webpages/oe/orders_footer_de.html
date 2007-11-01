@@ -16,7 +16,15 @@
 	      </tr>
               <tr>
                 <th align="right">Zahlungskonditionen</th>
-                <td>[% payments %]</td>
+                <td>
+                      [%- INCLUDE 'generic/multibox.html' 
+                           name       = 'payment_id', 
+                           style      = 'width: 250px', 
+                           DATA       = ALL_PAYMENTS, 
+                           id_key     = 'id', 
+                           label_key  = 'description',
+                           show_empty = 1 -%]
+                </td>
 	    </tr>
       </table>
 	  </td>
