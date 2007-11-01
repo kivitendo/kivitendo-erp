@@ -307,9 +307,9 @@ sub delivery_customer_selection {
 
   $form->{"title"} = $locale->text("Select a Customer");
   $form->header();
-  print($form->parse_html_template("generic/select_delivery_customer", { "HEADER" => \@header,
-                                                                   "DELIVERY" => $delivery,
-                                                                   "onload" => $onload }));
+  print $form->parse_html_template2("generic/select_delivery_customer", { "HEADER"   => \@header,
+                                                                          "DELIVERY" => $delivery,
+                                                                          "onload"   => $onload });
 
   $lxdebug->leave_sub();
 }
@@ -349,9 +349,9 @@ sub vendor_selection {
 
   $form->{"title"} = $locale->text("Select a Customer");
   $form->header();
-  print($form->parse_html_template("generic/select_vendor", { "HEADER" => \@header,
-                                                                   "VENDOR" => $vendor,
-                                                                   "onload" => $onload }));
+  print $form->parse_html_template2("generic/select_vendor", { "HEADER" => \@header,
+                                                               "VENDOR" => $vendor,
+                                                               "onload" => $onload });
 
   $lxdebug->leave_sub();
 }
@@ -405,14 +405,9 @@ sub calculate_qty {
 sub set_longdescription {
   $lxdebug->enter_sub();
 
-
-  my $callback = "$form->{script}?action=set_longdescription&";
-  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
-
-  $form->{"title"} = $locale->text("Enter longdescription");
+  $form->{title} = $locale->text("Enter longdescription");
   $form->header();
-  print($form->parse_html_template("generic/set_longdescription"));
+  print $form->parse_html_template2("generic/set_longdescription");
 
   $lxdebug->leave_sub();
 }

@@ -1,26 +1,16 @@
-<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+[% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
 
-  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
+  <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
 
-  <table width="100%">
-   <tr>
-    <th class="listtop"><TMPL_VAR NAME=title></th>
-   </tr>
-   <tr height="5"></tr>
+  <div class="listtop">[% title %]</div>
 
-   <tr><td>Bitte den Langtext eingeben</td></tr>
+  <p>Bitte den Langtext eingeben</p>
 
-   <tr>
-    <td>
+  <p><textarea id="longdescription" name="longdescription" rows="15" cols="45" wrap="soft">[% HTML.escape(longdescription) %]</textarea></p>
 
-<textarea id="longdescription" name="longdescription" rows="15" cols="45" wrap="soft"><TMPL_VAR NAME=longdescription ESCAPE=HTML></textarea>
-
-    </td>
-   </tr>
-  </table>
- <button type="button" onclick="longdescription_updated()">Übernehmen</button></td>
+  <p><button type="button" onclick="longdescription_updated()">Übernehmen</button></p>
  </form>
 
  <script type="text/javascript">
@@ -30,7 +20,7 @@
 
         self.close();
       }
-      //TESSSSST-->
+    -->
  </script>
 
 </body>
