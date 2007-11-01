@@ -1,32 +1,36 @@
-<html>
+[% USE HTML %]<html>
  <body>
 
-  <div width="100%"><TMPL_VAR TITLE></div>
+  <div width="100%">[% TITLE %]</div>
 
-  <TMPL_IF TOP_INFO_TEXT>
-   <p><TMPL_VAR TOP_INFO_TEXT></p>
-  </TMPL_IF>
+  [%- IF TOP_INFO_TEXT %]
+  <p>[% TOP_INFO_TEXT %]</p>
+  [%- END %]
 
   <p>
    <table width="100%">
     <tr>
-     <TMPL_LOOP COLUMN_HEADERS>
-      <th><TMPL_IF link><a href="<TMPL_VAR link>"></TMPL_IF><TMPL_VAR text ESCAPE=HTML><TMPL_IF link></a></TMPL_IF></th>
-     </TMPL_LOOP>
+     [%- FOREACH col = COLUMN_HEADERS %]
+     <th>[% IF col.link %]<a href="[% col.link %]">[% END %][% HTML.escape(col.text) %][% IF col.link %]</a>[% END %]</th>
+     [%- END %]
     </tr>
 
-    <TMPL_LOOP ROWS>
-     <tr>
-      <TMPL_LOOP COLUMNS><td<TMPL_IF align> align="<TMPL_VAR align>"</TMPL_IF><TMPL_IF valign> valign="<TMPL_VAR valign>"</TMPL_IF>><TMPL_LOOP CELL_ROWS><TMPL_IF data><TMPL_VAR data></TMPL_IF><TMPL_UNLESS __last__><br></TMPL_UNLESS></TMPL_LOOP></td></TMPL_LOOP>
-     </tr>
-    </TMPL_LOOP>
+    [%- FOREACH row = ROWS %]
+    <tr>
+     [%- FOREACH col = row.COLUMNS %]
+     <td[% IF col.align %] align="[% col.align %]"[% END %][% IF col.valign %] valign="[% col.valign %]"[% END %]>
+      [%- FOREACH cell_row = col.CELL_ROWS %][%- cell_row.data %][%- UNLESS loop.last %]<br>[%- END %][%- END %]
+     </td>
+     [%- END %]
+    </tr>
+    [%- END %]
 
    </table>
   </p>
 
-  <TMPL_IF BOTTOM_INFO_TEXT>
-   <p><TMPL_VAR BOTTOM_INFO_TEXT></p>
-  </TMPL_IF>
+  [%- IF BOTTOM_INFO_TEXT %]
+  <p>[% BOTTOM_INFO_TEXT %]</p>
+  [%- END %]
 
  </body>
 </html>

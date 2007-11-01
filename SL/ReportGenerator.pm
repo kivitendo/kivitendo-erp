@@ -420,7 +420,7 @@ END
     $form->error($locale->text('Could not write the temporary HTML file.'));
   }
 
-  $html_file->print($form->parse_html_template('report_generator/pdf_report', $variables));
+  $html_file->print($form->parse_html_template2('report_generator/pdf_report', $variables));
   $html_file->close();
 
   my $cmdline =

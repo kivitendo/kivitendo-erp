@@ -1,4 +1,4 @@
-<body>
+[% USE HTML %]<body>
 
  <script type="text/javascript">
   <!--
@@ -10,12 +10,13 @@
     -->
  </script>
 
- <div class="listheading" width="100%"><TMPL_VAR title ESCAPE=HTML></div>
+ <div class="listheading" width="100%">[% HTML.escape(title) %]</div>
 
- <form action="<TMPL_VAR script ESCAPE=HTML>" method="post" name="report_generator_form">
+ <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form">
 
-  <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
-  </TMPL_LOOP>
+  [%- FOREACH var = HIDDEN %]
+  <input type="hidden" name="[% HTML.escape(var.key) %]" value="[% HTML.escape(var.value) %]">
+  [%- END %]
 
   <input type="hidden" name="report_generator_csv_options_set" value="1">
   <input type="hidden" name="report_generator_dispatch_to" value="">

@@ -1,4 +1,6 @@
-<body>
+[% USE HTML %][% USE LxERP %]<body>
+
+ [%- SET default_margin = LxERP.format_amount(1.5) %]
 
  <script type="text/javascript">
   <!--
@@ -10,12 +12,13 @@
     -->
  </script>
 
- <div class="listheading" width="100%"><TMPL_VAR title ESCAPE=HTML></div>
+ <div class="listheading" width="100%">[% HTML.escape(title) %]</div>
 
- <form action="<TMPL_VAR script ESCAPE=HTML>" method="post" name="report_generator_form">
+ <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form">
 
-  <TMPL_LOOP HIDDEN><input type="hidden" name="<TMPL_VAR key ESCAPE=HTML>" value="<TMPL_VAR value ESCAPE=HTML>">
-  </TMPL_LOOP>
+  [%- FOREACH var = HIDDEN %]
+  <input type="hidden" name="[% HTML.escape(var.key) %]" value="[% HTML.escape(var.value) %]">
+  [%- END %]
 
   <input type="hidden" name="report_generator_pdf_options_set" value="1">
   <input type="hidden" name="report_generator_dispatch_to" value="">
@@ -40,7 +43,7 @@
 
    <tr>
     <td align="right"><translate>Font size</translate></td>
-    <td><input name="report_generator_pdf_options_font_size" size="4" value="10">pt</td>
+    <td><input name="report_generator_pdf_options_font_size" size="4" value="10"> pt</td>
    </tr>
 
    <tr>
@@ -49,22 +52,22 @@
 
    <tr>
     <td align="right"><translate>Top</translate></td>
-    <td><input name="report_generator_pdf_options_margin_top" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+    <td><input name="report_generator_pdf_options_margin_top" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Left</translate></td>
-    <td><input name="report_generator_pdf_options_margin_left" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+    <td><input name="report_generator_pdf_options_margin_left" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Bottom</translate></td>
-    <td><input name="report_generator_pdf_options_margin_bottom" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+    <td><input name="report_generator_pdf_options_margin_bottom" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
    </tr>
 
    <tr>
     <td align="right"><translate>Right</translate></td>
-    <td><input name="report_generator_pdf_options_margin_right" size="4" value="<TMPL_VAR default_margin ESCAPE=HTML>">cm</td>
+    <td><input name="report_generator_pdf_options_margin_right" size="4" value="[% HTML.escape(default_margin) %]"> cm</td>
    </tr>
 
    <tr>
@@ -72,29 +75,31 @@
     <td valign="top">
      <input type="checkbox" name="report_generator_pdf_options_number" value="1" checked>
      <translate>Number pages</translate>
-     <TMPL_IF SHOW_PRINTERS>
+     [% IF ALL_PRINTERS.size %]
       <br>
       <input type="checkbox" name="report_generator_pdf_options_print" value="1">
       <translate>Print list</translate>
-     </TMPL_IF>
+     [% END %]
     </td>
    </tr>
 
-   <TMPL_IF SHOW_PRINTERS>
+   [% IF ALL_PRINTERS.size %]
     <tr>
      <td align="right"><translate>Printer</translate></td>
      <td>
       <select name="report_generator_pdf_options_printer_id">
-       <TMPL_LOOP ALL_PRINTERS><option value="<TMPL_VAR id ESCAPE=HTML>"<TMPL_IF selected> selected</TMPL_IF>><TMPL_VAR printer_description ESCAPE=HTML></option></TMPL_LOOP>
+       [%- FOREACH printer = ALL_PRINTERS %]
+       <option value="[% HTML.escape(printer.id) %]"[% IF printer.selected %] selected[% END %]>[% HTML.escape(printer.printer_description) %]</option>
+       [%- END %]
       </select>
      </td>
     </tr>
 
     <tr>
      <td align="right"><translate>Copies</translate></td>
-     <td><input name="report_generator_pdf_options_copies" size="4" value="<TMPL_VAR copies ESCAPE=HTML>"></td>
+     <td><input name="report_generator_pdf_options_copies" size="4" value="[% HTML.escape(copies) %]"></td>
     </tr>
-   </TMPL_IF>
+   [% END %]
   </table>
 
   <p>
