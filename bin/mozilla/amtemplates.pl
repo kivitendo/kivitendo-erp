@@ -221,7 +221,7 @@ sub display_template_form {
   $options{"HIDDEN"} = [ map(+{ "name" => $_, "value" => $form->{$_} }, @hidden) ];
 
   $form->header;
-  print($form->parse_html_template2("am/edit_templates", \%options));
+  print($form->parse_html_template("am/edit_templates", \%options));
 
   $lxdebug->leave_sub();
 }

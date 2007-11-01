@@ -336,7 +336,7 @@ sub scanfile {
       }
 
       # is this a template call?
-      if (/parse_html_template2?\s*\(\s*[\"\']([\w\/]+)/) {
+      if (/parse_html_template\s*\(\s*[\"\']([\w\/]+)/) {
         my $newfile = "$basedir/templates/webpages/$1_master.html";
         if (-f $newfile) {
 #           &scanhtmlfile($newfile);

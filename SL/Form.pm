@@ -546,7 +546,7 @@ sub _prepare_html_template {
   return $file;
 }
 
-sub parse_html_template2 {
+sub parse_html_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $file, $additional_params) = @_;
@@ -598,7 +598,7 @@ sub show_generic_error {
   $self->{title} = $title if ($title);
 
   $self->header();
-  print $self->parse_html_template2("generic/error", $add_params);
+  print $self->parse_html_template("generic/error", $add_params);
 
   die("Error: $error\n");
 }
@@ -614,7 +614,7 @@ sub show_generic_information {
   $self->{title} = $title if ($title);
 
   $self->header();
-  print $self->parse_html_template2("generic/information", $add_params);
+  print $self->parse_html_template("generic/information", $add_params);
 
   die("Information: $error\n");
 }

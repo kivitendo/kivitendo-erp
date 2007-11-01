@@ -302,14 +302,14 @@ sub display_create_bgs_dialog {
     $entry->{"eur"} = $main::eur;
   }
 
-  # $form->parse_html_template2("dbupgrade/buchungsgruppen_parts")
-  # $form->parse_html_template2("dbupgrade/buchungsgruppen_services")
-  # $form->parse_html_template2("dbupgrade/buchungsgruppen_assemblies")
+  # $form->parse_html_template("dbupgrade/buchungsgruppen_parts")
+  # $form->parse_html_template("dbupgrade/buchungsgruppen_services")
+  # $form->parse_html_template("dbupgrade/buchungsgruppen_assemblies")
 
-  print($form->parse_html_template2("dbupgrade/buchungsgruppen_${type}",
-                                    { "LIST" => $list,
-                                      "BUCHUNGSGRUPPEN" => $buchungsgruppen,
-                                    }));
+  print($form->parse_html_template("dbupgrade/buchungsgruppen_${type}",
+                                   { "LIST"            => $list,
+                                     "BUCHUNGSGRUPPEN" => $buchungsgruppen,
+                                   }));
 }
 
 sub create_buchungsgruppen {
@@ -459,7 +459,7 @@ sub do_update {
 
   my ($acc_inventory, $acc_income, $acc_expense) = retrieve_accounts();
 
-  print($form->parse_html_template2("dbupgrade/buchungsgruppen_header"));
+  print($form->parse_html_template("dbupgrade/buchungsgruppen_header"));
 
   if (scalar(@{$parts})) {
     display_create_bgs_dialog("parts", $parts,
@@ -467,7 +467,7 @@ sub do_update {
                               $buchungsgruppen);
     return 2;
   } else {
-    print($form->parse_html_template2("dbupgrade/buchungsgruppen_parts_done"));
+    print($form->parse_html_template("dbupgrade/buchungsgruppen_parts_done"));
   }
 
   if (scalar(@{$services})) {
@@ -476,7 +476,7 @@ sub do_update {
                               $buchungsgruppen);
     return 2;
   } else {
-    print($form->parse_html_template2("dbupgrade/buchungsgruppen_services_done"));
+    print($form->parse_html_template("dbupgrade/buchungsgruppen_services_done"));
   }
 
   if (scalar(@{$assemblies})) {
@@ -485,10 +485,10 @@ sub do_update {
                               $buchungsgruppen);
     return 2;
   } else {
-    print($form->parse_html_template2("dbupgrade/buchungsgruppen_assemblies_done"));
+    print($form->parse_html_template("dbupgrade/buchungsgruppen_assemblies_done"));
   }
 
-  print($form->parse_html_template2("dbupgrade/buchungsgruppen_footer"));
+  print($form->parse_html_template("dbupgrade/buchungsgruppen_footer"));
 
   return 1;
 }

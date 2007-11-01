@@ -69,7 +69,7 @@ use SL::User;
 # $locale->text('Nov')
 # $locale->text('Dec')
 
-# $form->parse_html_template2('generic/util_hidden_variables');
+# $form->parse_html_template('generic/util_hidden_variables');
 
 #############################
 
@@ -217,7 +217,7 @@ sub report {
 
   };
   
-  print($form->parse_html_template2('ustva/report', $template_ref));
+  print($form->parse_html_template('ustva/report', $template_ref));
 
 
 
@@ -1069,7 +1069,7 @@ sub generate_ustva {
         taxnumber => $myconfig{taxnumber},
     };
 
-    print($form->parse_html_template2('ustva/generic_taxreport', $template_ref));
+    print($form->parse_html_template('ustva/generic_taxreport', $template_ref));
 
   } else
   { 
@@ -1161,7 +1161,7 @@ sub config_step1 {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('ustva/config_step1', $template_ref));
+  print($form->parse_html_template('ustva/config_step1', $template_ref));
 
   $lxdebug->leave_sub();
 }
@@ -1301,7 +1301,7 @@ sub config_step2 {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('ustva/config_step2', $template_ref));
+  print($form->parse_html_template('ustva/config_step2', $template_ref));
 
 
   $lxdebug->leave_sub();

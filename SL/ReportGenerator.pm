@@ -344,7 +344,7 @@ sub generate_html_content {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
 
-  return $self->{form}->parse_html_template2('report_generator/html_report', $variables);
+  return $self->{form}->parse_html_template('report_generator/html_report', $variables);
 }
 
 sub verify_paper_size {
@@ -420,7 +420,7 @@ END
     $form->error($locale->text('Could not write the temporary HTML file.'));
   }
 
-  $html_file->print($form->parse_html_template2('report_generator/pdf_report', $variables));
+  $html_file->print($form->parse_html_template('report_generator/pdf_report', $variables));
   $html_file->close();
 
   my $cmdline =

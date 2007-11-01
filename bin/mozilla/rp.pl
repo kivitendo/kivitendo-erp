@@ -1441,9 +1441,9 @@ sub aging {
   $report->add_data(create_aging_subtotal_row(\%totals, \@columns, \@periods, 'listtotal'));
 
   if ($form->{arap} eq 'ar') {
-    $raw_top_info_text    = $form->parse_html_template2('rp/aging_ar_top');
-    $raw_bottom_info_text = $form->parse_html_template2('rp/aging_ar_bottom', { 'row_idx' => $row_idx,
-                                                                                'PRINT_OPTIONS' => print_options(inline => 1), });
+    $raw_top_info_text    = $form->parse_html_template('rp/aging_ar_top');
+    $raw_bottom_info_text = $form->parse_html_template('rp/aging_ar_bottom', { 'row_idx' => $row_idx,
+                                                                               'PRINT_OPTIONS' => print_options(inline => 1), });
     $report->set_options('raw_top_info_text'    => $raw_top_info_text,
                          'raw_bottom_info_text' => $raw_bottom_info_text);
   }

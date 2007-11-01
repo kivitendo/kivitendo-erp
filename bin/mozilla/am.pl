@@ -339,7 +339,7 @@ sub account_header {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('am/edit_accounts', $parameters_ref));
+  print($form->parse_html_template('am/edit_accounts', $parameters_ref));
 
 
   $lxdebug->leave_sub();
@@ -438,7 +438,7 @@ sub list_account {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('am/list_accounts', $parameters_ref));
+  print($form->parse_html_template('am/list_accounts', $parameters_ref));
   
   $lxdebug->leave_sub();
 
@@ -505,7 +505,7 @@ sub list_account_details {
   $form->{title} = $locale->text('Chart of Accounts');
   $form->header();
 
-  print $form->parse_html_template2('am/list_account_details');
+  print $form->parse_html_template('am/list_account_details');
 
   $lxdebug->leave_sub();
 
@@ -2421,7 +2421,7 @@ sub config {
   $form->{title}                            = $locale->text('Edit Preferences for #1', $form->{login});
 
   $form->header();
-  print $form->parse_html_template2('am/config');
+  print $form->parse_html_template('am/config');
 
   $lxdebug->leave_sub();
 }
@@ -2559,11 +2559,11 @@ sub edit_units {
 
   $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
   $form->header();
-  print($form->parse_html_template2("am/edit_units",
-                                    { "UNITS"               => \@unit_list,
-                                      "NEW_BASE_UNIT_DDBOX" => $ddbox,
-                                      "LANGUAGES"           => \@languages,
-                                      "updownlink"          => $updownlink }));
+  print($form->parse_html_template("am/edit_units",
+                                   { "UNITS"               => \@unit_list,
+                                     "NEW_BASE_UNIT_DDBOX" => $ddbox,
+                                     "LANGUAGES"           => \@languages,
+                                     "updownlink"          => $updownlink }));
 
   $lxdebug->leave_sub();
 }
@@ -2706,7 +2706,7 @@ sub show_history_search {
 	$form->{title} = $locale->text("History Search");
     $form->header();
     
-    print $form->parse_html_template2("common/search_history");
+    print $form->parse_html_template("common/search_history");
 	
 	$lxdebug->leave_sub();
 }
@@ -2785,7 +2785,7 @@ sub show_am_history {
   my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)$/$1/;
 
-	print $form->parse_html_template2("common/show_history", 
+	print $form->parse_html_template("common/show_history", 
     {"DATEN" => $form->get_history($dbh, $daten, $restriction, $form->{order}),
      "SUCCESS" => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
      "NONEWWINDOW" => 1,
@@ -2838,7 +2838,7 @@ sub add_tax {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('am/edit_tax', $parameters_ref));
+  print($form->parse_html_template('am/edit_tax', $parameters_ref));
 
   $lxdebug->leave_sub();
 }
@@ -2859,7 +2859,7 @@ sub edit_tax {
   };
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('am/edit_tax', $parameters_ref));
+  print($form->parse_html_template('am/edit_tax', $parameters_ref));
 
   $lxdebug->leave_sub();
 }
@@ -2878,7 +2878,7 @@ sub list_tax {
   $form->header();
   
   # Ausgabe des Templates
-  print($form->parse_html_template2('am/list_tax', $parameters_ref));
+  print($form->parse_html_template('am/list_tax', $parameters_ref));
 
   $lxdebug->leave_sub();
 }
@@ -2933,7 +2933,7 @@ sub add_price_factor {
   $form->{fokus}      = 'description';
 
   $form->header();
-  print $form->parse_html_template2('am/edit_price_factor');
+  print $form->parse_html_template('am/edit_price_factor');
 
   $lxdebug->leave_sub();
 }
@@ -2950,7 +2950,7 @@ sub edit_price_factor {
   $form->{factor} = $form->format_amount(\%myconfig, $form->{factor} * 1);
 
   $form->header();
-  print $form->parse_html_template2('am/edit_price_factor');
+  print $form->parse_html_template('am/edit_price_factor');
 
   $lxdebug->leave_sub();
 }
@@ -2977,7 +2977,7 @@ sub list_price_factors {
   $form->{url_base} = build_std_url('callback');
 
   $form->header();
-  print $form->parse_html_template2('am/list_price_factors');
+  print $form->parse_html_template('am/list_price_factors');
 
   $lxdebug->leave_sub();
 }

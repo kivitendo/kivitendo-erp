@@ -24,7 +24,7 @@ sub save_draft {
     $form->{remove_draft} = 1;
 
     $form->header();
-    print($form->parse_html_template2("drafts/save_new"));
+    print($form->parse_html_template("drafts/save_new"));
 
     return $lxdebug->leave_sub();
   }
@@ -70,10 +70,10 @@ sub load_draft_maybe {
   my $saved_form = save_form();
 
   $form->header();
-  print($form->parse_html_template2("drafts/load",
-                                    { "DRAFTS" => \@drafts,
-                                      "SAVED_FORM" => $saved_form,
-                                      "draft_nextsub" => $draft_nextsub }));
+  print($form->parse_html_template("drafts/load",
+                                   { "DRAFTS"        => \@drafts,
+                                     "SAVED_FORM"    => $saved_form,
+                                     "draft_nextsub" => $draft_nextsub }));
 
   $lxdebug->leave_sub();
 

@@ -74,7 +74,7 @@ sub edit_config {
   $form->{callback} ||= build_std_url("action=edit_config");
 
   $form->header();
-  print $form->parse_html_template2("dunning/edit_config");
+  print $form->parse_html_template("dunning/edit_config");
 
   $lxdebug->leave_sub();
 }
@@ -96,7 +96,7 @@ sub add {
   $form->{fokus}    = "search.customer";
   $form->header();
 
-  print $form->parse_html_template2("dunning/add");
+  print $form->parse_html_template("dunning/add");
 
   $lxdebug->leave_sub();
 }
@@ -131,7 +131,7 @@ sub show_invoices {
                                           'no_opendocument' => 1,);
 
   $form->header();
-  print $form->parse_html_template2("dunning/show_invoices");
+  print $form->parse_html_template("dunning/show_invoices");
 
   $lxdebug->leave_sub();
 }
@@ -233,7 +233,7 @@ sub set_email {
 
   $form->{"title"} = $locale->text("Set eMail text");
   $form->header();
-  print($form->parse_html_template2("dunning/set_email"));
+  print($form->parse_html_template("dunning/set_email"));
 
   $lxdebug->leave_sub();
 }
@@ -260,7 +260,7 @@ sub search {
     . qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|
     . qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
-  print $form->parse_html_template2("dunning/search");
+  print $form->parse_html_template("dunning/search");
 
   $lxdebug->leave_sub();
 
@@ -361,8 +361,8 @@ sub show_dunning {
 
   $report->add_data($current_dunning_rows) if (scalar @{ $current_dunning_rows });
 
-  $report->set_options('raw_top_info_text'    => $form->parse_html_template2('dunning/show_dunning_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template2('dunning/show_dunning_bottom'),
+  $report->set_options('raw_top_info_text'    => $form->parse_html_template('dunning/show_dunning_top'),
+                       'raw_bottom_info_text' => $form->parse_html_template('dunning/show_dunning_bottom'),
                        'output_format'        => 'HTML',
                        'attachment_basename'  => $locale->text('dunning_list') . strftime('_%Y%m%d', localtime time),
     );

@@ -80,7 +80,7 @@ sub search {
   $form->{fokus} = 'Form.name';
 
   $form->header();
-  print $form->parse_html_template2('ct/search');
+  print $form->parse_html_template('ct/search');
 
   $lxdebug->leave_sub();
 }
@@ -163,7 +163,7 @@ sub list_names {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   $report->set_options('top_info_text'         => join("\n", @options),
-                       'raw_bottom_info_text'  => $form->parse_html_template2('ct/list_names_bottom'),
+                       'raw_bottom_info_text'  => $form->parse_html_template('ct/list_names_bottom'),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
                        'attachment_basename'   => $attachment_basename . strftime('_%Y%m%d', localtime time),

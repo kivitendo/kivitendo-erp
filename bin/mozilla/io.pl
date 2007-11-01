@@ -354,7 +354,7 @@ sub new_item {
   push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
 
   $form->header();
-  print $form->parse_html_template2("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
+  print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
 
   $lxdebug->leave_sub();
 }
@@ -701,12 +701,12 @@ sub edit_e_mail {
   @dont_hide_key{@dont_hide_key_list} = (1) x @dont_hide_key_list;
   @hidden_keys = sort grep { !$dont_hide_key{$_} } grep { !ref $form->{$_} } keys %$form;
 
-  print $form->parse_html_template2('generic/edit_email',
-                                    { title           => $title,
-                                      a_filename      => $attachment_filename,
-                                      _print_options_ => print_options('inline' => 1),
-                                      HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
-                                      SHOW_BCC        => $myconfig{role} eq 'admin' });
+  print $form->parse_html_template('generic/edit_email',
+                                   { title           => $title,
+                                     a_filename      => $attachment_filename,
+                                     _print_options_ => print_options('inline' => 1),
+                                     HIDDEN          => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
+                                     SHOW_BCC        => $myconfig{role} eq 'admin' });
 
   $lxdebug->leave_sub();
 }
@@ -834,7 +834,7 @@ sub print_options {
     remove_draft_checked => $form->{remove_draft} ? "checked" : ''
   );
 
-  my $print_options = $form->parse_html_template2("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
+  my $print_options = $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
 
   if ($options{inline}) {
     $lxdebug->leave_sub();

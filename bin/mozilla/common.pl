@@ -307,9 +307,9 @@ sub delivery_customer_selection {
 
   $form->{"title"} = $locale->text("Select a Customer");
   $form->header();
-  print $form->parse_html_template2("generic/select_delivery_customer", { "HEADER"   => \@header,
-                                                                          "DELIVERY" => $delivery,
-                                                                          "onload"   => $onload });
+  print $form->parse_html_template("generic/select_delivery_customer", { "HEADER"   => \@header,
+                                                                         "DELIVERY" => $delivery,
+                                                                         "onload"   => $onload });
 
   $lxdebug->leave_sub();
 }
@@ -349,9 +349,9 @@ sub vendor_selection {
 
   $form->{"title"} = $locale->text("Select a Customer");
   $form->header();
-  print $form->parse_html_template2("generic/select_vendor", { "HEADER" => \@header,
-                                                               "VENDOR" => $vendor,
-                                                               "onload" => $onload });
+  print $form->parse_html_template("generic/select_vendor", { "HEADER" => \@header,
+                                                              "VENDOR" => $vendor,
+                                                              "onload" => $onload });
 
   $lxdebug->leave_sub();
 }
@@ -395,9 +395,9 @@ sub calculate_qty {
   $form->{formel} = $formel; 
   $form->{"title"} = $locale->text("Please enter values");
   $form->header();
-  print($form->parse_html_template2("generic/calculate_qty", { "HEADER"    => \@header,
-                                                               "VARIABLES" => \@variable,
-                                                               "onload"    => $onload }));
+  print($form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
+                                                              "VARIABLES" => \@variable,
+                                                              "onload"    => $onload }));
 
   $lxdebug->leave_sub();
 }
@@ -407,7 +407,7 @@ sub set_longdescription {
 
   $form->{title} = $locale->text("Enter longdescription");
   $form->header();
-  print $form->parse_html_template2("generic/set_longdescription");
+  print $form->parse_html_template("generic/set_longdescription");
 
   $lxdebug->leave_sub();
 }
@@ -509,7 +509,7 @@ sub show_history {
   
 	$form->{title} = $locale->text("History");
     $form->header();
-    print $form->parse_html_template2( "common/show_history", {
+    print $form->parse_html_template( "common/show_history", {
     	"DATEN" => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
     	"SUCCESS" => ($form->get_history($dbh,$form->{input_name}) ne "0"),
       uc($sort) => 1,
@@ -554,8 +554,7 @@ sub show_vc_details {
   $form->{title} = $form->{vc} eq "customer" ?
     $locale->text("Customer details") : $locale->text("Vendor details");
   $form->header();
-  print($form->parse_html_template2("common/show_vc_details",
-                                    { "is_customer" => $form->{vc} eq "customer" }));
+  print $form->parse_html_template("common/show_vc_details", { "is_customer" => $form->{vc} eq "customer" });
 
 	$lxdebug->leave_sub();
 }

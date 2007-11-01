@@ -1700,7 +1700,7 @@ sub generate_report {
   );
 
   $report->set_options('top_info_text'         => $locale->text('Options') . ': ' . join(', ', grep $_, @options),
-                       'raw_bottom_info_text'  => $form->parse_html_template2('ic/generate_report_bottom'),
+                       'raw_bottom_info_text'  => $form->parse_html_template('ic/generate_report_bottom'),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
                        'attachment_basename'   => $attachment_basenames{$form->{searchitems}} . strftime('_%Y%m%d', localtime time),
@@ -3101,9 +3101,9 @@ sub parts_language_selection {
 
   $form->{"title"} = $locale->text("Language Values");
   $form->header();
-  print $form->parse_html_template2("ic/parts_language_selection", { "HEADER"    => \@header,
-                                                                     "LANGUAGES" => $languages,
-                                                                     "onload"    => $onload });
+  print $form->parse_html_template("ic/parts_language_selection", { "HEADER"    => \@header,
+                                                                    "LANGUAGES" => $languages,
+                                                                    "onload"    => $onload });
 
   $lxdebug->leave_sub();
 }

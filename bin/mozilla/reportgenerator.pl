@@ -44,7 +44,7 @@ sub report_generator_export_as_pdf {
 
   $form->{title} = $locale->text('PDF export -- options');
   $form->header();
-  print $form->parse_html_template2('report_generator/pdf_export_options', { 'HIDDEN' => \@form_values });
+  print $form->parse_html_template('report_generator/pdf_export_options', { 'HIDDEN' => \@form_values });
 
   $lxdebug->leave_sub();
 }
@@ -63,7 +63,7 @@ sub report_generator_export_as_csv {
 
   $form->{title} = $locale->text('CSV export -- options');
   $form->header();
-  print $form->parse_html_template2('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
+  print $form->parse_html_template('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
 
   $lxdebug->leave_sub();
 }

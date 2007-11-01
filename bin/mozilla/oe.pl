@@ -484,7 +484,7 @@ sub form_header {
      is_pur_ord      => scalar ($form->{type} =~ /purchase_order$/),
   );
 
-  print $form->parse_html_template2("oe/orders_header", { %TMPL_VAR });
+  print $form->parse_html_template("oe/orders_header", { %TMPL_VAR });
 
   $lxdebug->leave_sub();
 }
@@ -541,7 +541,7 @@ sub form_footer {
 
   $form->{oldinvtotal} = $form->{invtotal};
 
-  print $form->parse_html_template2("oe/orders_footer", {
+  print $form->parse_html_template("oe/orders_footer", {
      %TMPL_VAR,
      webdav          => $webdav,
      print_options   => print_options(inline => 1),
@@ -1087,8 +1087,8 @@ sub orders {
   }
 
   $report->set_options('top_info_text'        => join("\n", @options),
-                       'raw_top_info_text'    => $form->parse_html_template2('oe/orders_top'),
-                       'raw_bottom_info_text' => $form->parse_html_template2('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
+                       'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
+                       'raw_bottom_info_text' => $form->parse_html_template('oe/orders_bottom', { 'SHOW_CONTINUE_BUTTON' => $allow_multiple_orders }),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
@@ -1840,7 +1840,7 @@ sub check_for_direct_delivery {
   $form->{VARIABLES} = [ map { { "key" => $_, "value" => $form->{$_} } } grep { ref $_ eq "" } keys %{ $form } ];
 
   $form->header();
-  print $form->parse_html_template2("oe/check_for_direct_delivery");
+  print $form->parse_html_template("oe/check_for_direct_delivery");
 
   $lxdebug->leave_sub();
 
@@ -2199,9 +2199,9 @@ sub display_row {
     push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, };
   }
 
-  print $form->parse_html_template2('oe/sales_order', { ROWS   => \@ROWS,
-                                                        HEADER => \@HEADER,
-                                                      });
+  print $form->parse_html_template('oe/sales_order', { ROWS   => \@ROWS,
+                                                       HEADER => \@HEADER,
+                                                     });
 
   if (0 != ($form->{sellprice_total} * 1)) {
     $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;

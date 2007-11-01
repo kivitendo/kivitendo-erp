@@ -13,8 +13,7 @@ sub mydberror {
 sub myshowerror {
   my ($msg) = @_;
 
-  print($main::form->parse_html_template2("dbupgrade/units_error",
-                                          { "message" => $msg }));
+  print $main::form->parse_html_template("dbupgrade/units_error", { "message" => $msg });
   return 2;
 }
 
@@ -219,15 +218,15 @@ sub update_units_steps_1_2 {
     map({ push(@unknown_parts, { "name" => $_, "NEW_UNITS" => $ddbox }); }
         sort({ lc($a) cmp lc($b) } keys(%unknown_dimension_units)));
 
-    print($form->parse_html_template2("dbupgrade/units_parts",
-                                      { "NEW_BASE_UNIT_DDBOX" => $ddbox,
-                                        "UNKNOWN_PART_UNITS" => \@unknown_parts,
-                                      }));
+    print $form->parse_html_template("dbupgrade/units_parts",
+                                     { "NEW_BASE_UNIT_DDBOX" => $ddbox,
+                                       "UNKNOWN_PART_UNITS"  => \@unknown_parts,
+                                     });
 
     return 2;
 
   } else {
-    print($form->parse_html_template2("dbupgrade/units_parts_done"));
+    print $form->parse_html_template("dbupgrade/units_parts_done");
   }
 
   if (scalar(keys(%unknown_service_units)) != 0) {
@@ -238,15 +237,15 @@ sub update_units_steps_1_2 {
     map({ push(@unknown_services, { "name" => $_, "NEW_UNITS" => $ddbox }); }
         sort({ lc($a) cmp lc($b) } keys(%unknown_service_units)));
 
-    print($form->parse_html_template2("dbupgrade/units_services",
-                                      { "NEW_BASE_UNIT_DDBOX" => $ddbox,
-                                        "UNKNOWN_PART_UNITS" => \@unknown_services,
-                                      }));
+    print $form->parse_html_template("dbupgrade/units_services",
+                                     { "NEW_BASE_UNIT_DDBOX" => $ddbox,
+                                       "UNKNOWN_PART_UNITS"  => \@unknown_services,
+                                     }));
 
     return 2;
 
   } else {
-    print($form->parse_html_template2("dbupgrade/units_services_done"));
+    print $form->parse_html_template("dbupgrade/units_services_done");
   }
 
   return 0;
@@ -271,13 +270,13 @@ sub update_units_step_3 {
     my $service_units = retrieve_units(\%dbup_myconfig, $form, "service");
     my $service_ddbox = unit_select_data($service_units);
 
-    print($form->parse_html_template2("dbupgrade/units_set_default",
-                                      { "DIMENSION_DDBOX" => $dimension_ddbox,
-                                        "SERVICE_DDBOX" => $service_ddbox }));
+    print $form->parse_html_template("dbupgrade/units_set_default",
+                                     { "DIMENSION_DDBOX" => $dimension_ddbox,
+                                       "SERVICE_DDBOX"   => $service_ddbox });
     return 2;
 
   } else {
-    print($form->parse_html_template2("dbupgrade/units_set_default_done"));
+    print $form->parse_html_template("dbupgrade/units_set_default_done");
     return 1;
   }
 }
@@ -330,7 +329,7 @@ sub update_units {
 
   my $res;
 
-  print($form->parse_html_template2("dbupgrade/units_header"));
+  print $form->parse_html_template("dbupgrade/units_header");
 
   if ($form->{"action2"} eq "add_unit") {
     $res = update_units_add_unit();

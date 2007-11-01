@@ -627,7 +627,7 @@ sub generate_report {
       . '</span></p> ';
   }
 
-  $raw_bottom_info_text .= $form->parse_html_template2('gl/generate_report_bottom');
+  $raw_bottom_info_text .= $form->parse_html_template('gl/generate_report_bottom');
 
   $report->set_options('raw_bottom_info_text' => $raw_bottom_info_text);
 
