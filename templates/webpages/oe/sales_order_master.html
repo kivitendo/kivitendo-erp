@@ -14,7 +14,7 @@
       <td align="[% row1.align %]">[% row1.value %]</td>[% END %]
      </tr>
 
-     [% FOREACH hidden = HIDDENS %][% hidden.value %]
+     [% FOREACH hidden = row.HIDDENS %][% hidden.value %]
      [% END %]
 
      <tr class="listrow[% loop.count % 2 %]" [% UNLESS show_details %]style="display:none;"[% END %]><td colspan="[% row.colspan %]">[% FOREACH row2 = row.ROW2 %]
