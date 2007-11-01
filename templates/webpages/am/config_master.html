@@ -106,7 +106,14 @@
       <label for="menustyle_neu"><translate>Top (Javascript)</translate></label>
       <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;
       <label for="menustyle_old"><translate>Old (on the side)</translate></label>
+      <input name="menustyle" id="menustyle_xml" type="radio" class="radio" value="xml" [% IF menustyle_xml %]checked[% END %]>&nbsp;
+      <label for="menustyle_xml">XML (XUL,...)</label>
      </td>
+    </tr>
+
+    <tr valign="top">
+     <th align="right">Favoriten</th>
+     <td><textarea name="favorites" rows="4" cols="50">[% HTML.escape(myconfig_favorites) %]</textarea></td>
     </tr>
 
     <tr>
