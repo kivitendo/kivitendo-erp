@@ -3092,9 +3092,9 @@ sub parts_language_selection {
 
   $form->{"title"} = $locale->text("Language Values");
   $form->header();
-  print($form->parse_html_template("ic/parts_language_selection", { "HEADER" => \@header,
-                                                                   "LANGUAGES" => $languages,
-                                                                   "onload" => $onload }));
+  print $form->parse_html_template2("ic/parts_language_selection", { "HEADER"    => \@header,
+                                                                     "LANGUAGES" => $languages,
+                                                                     "onload"    => $onload });
 
   $lxdebug->leave_sub();
 }

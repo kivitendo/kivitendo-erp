@@ -1,13 +1,12 @@
-<body <TMPL_IF NAME=onload>onload="<TMPL_VAR NAME=onload>"</TMPL_IF>>
+[% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
 
-  <input type="hidden" name="input_name" value="<TMPL_VAR NAME=input_name ESCAPE=HTML>">
+  <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
+
+  <div class="listtop">[% title %]</div>
 
   <table width="100%">
-   <tr>
-    <th class="listtop"><TMPL_VAR NAME=title></th>
-   </tr>
    <tr height="5"></tr>
 
    <tr><td><translate>Please insert your language values below</translate></td></tr>
@@ -18,28 +17,28 @@
      <table>
       <tr class="listheading">
        <th class="listheading">&nbsp;</th>
-       <TMPL_LOOP NAME=HEADER>
-        <th nowrap class="listheading"><a href="<TMPL_VAR NAME=callback ESCAPE=HTML>"><TMPL_VAR NAME=column_title></a></th>
-       </TMPL_LOOP>
+       [%- FOREACH col = HEADER %]
+       <th nowrap class="listheading">[% col.column_title %]</th>
+       [%- END %]
       </tr>
 
-      <TMPL_LOOP NAME=LANGUAGES>
-       <tr class="listrow<TMPL_IF NAME=__odd__>1<TMPL_ELSE>0</TMPL_IF>">
-        <td><input type="hidden" id="id_<TMPL_VAR NAME=__counter__>" name="id_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=id ESCAPE=HTML>">
-        <TMPL_VAR NAME=description ESCAPE=HTML></td>
+      [%- FOREACH row = LANGUAGES %]
+      <tr class="listrow[% loop.count % 2 %]">
+       <td><input type="hidden" id="id_[% loop.count %]" name="id_[% loop.count %]" value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</td>
+       <td><input  id="translation_[% loop.count %]" name="translation_[% loop.count %]" value="[% HTML.escape(row.translation) %]"></td>
+       <td><input  id="longdescription_[% loop.count %]" name="longdescription_[% loop.count %]" value="[% HTML.escape(row.longdescription) %]"></td>
+      </tr>
 
-         <td><input  id="translation_<TMPL_VAR NAME=__counter__>" name="translation_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=translation ESCAPE=HTML>"></td>
-         <td><input  id="longdescription_<TMPL_VAR NAME=__counter__>" name="longdescription_<TMPL_VAR NAME=__counter__>" value="<TMPL_VAR NAME=longdescription ESCAPE=HTML>"></td>
-
-        </tr>
-        <TMPL_IF NAME=__last__><input type="hidden" id="rowcount" name="rowcount" value="<TMPL_VAR NAME=__counter__>"></TMPL_IF>
-      </TMPL_LOOP>
+      [%- IF loop.last %]
+      <input type="hidden" id="rowcount" name="rowcount" value="[% loop.count %]">
+      [%- END %]
+      [%- END %]
      </table>
 
     </td>
    </tr>
   </table>
- <button type="button" onclick="languages_updated()"><translate>Close</translate></button></td>
+  <button type="button" onclick="languages_updated()"><translate>Close</translate></button></td>
  </form>
 
  <script type="text/javascript">
@@ -56,7 +55,7 @@
 
         self.close();
       }
-      //TESSSSST-->
+      -->
  </script>
 
 </body>
