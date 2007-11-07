@@ -4,7 +4,26 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
 <xsl:template match="/">
-  <xsl:apply-templates/>
+  <xsl:choose>
+    <xsl:when test="system-property('xsl:vendor')='Transformiix'">
+      <xsl:apply-templates/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates mode="html"/>
+    </xsl:otherwise>
+  </xsl:choose>
+</xsl:template>
+
+<xsl:template match="doc" mode="html">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+      <meta http-equiv="refresh" content="2;url=menuv3.pl?action=display&amp;login={/doc/login}&amp;password={/doc/password}"/>
+    </head>
+    <body>
+Ihr Browser unterstuetzt kein XUL!<br/>
+wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menuv3.pl?action=display&amp;login={/doc/login}&amp;password={/doc/password}">hier</a>
+    </body>
+  </html>
 </xsl:template>
 
 <!-- main document structure -->
@@ -143,7 +162,7 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
 <!-- ***************************************************************************  -->
 
 
-<!-- template f¸r die uhr
+<!-- template fuer die uhr
 ********************************************************************************  -->
 <xsl:template name="uhr">
 
@@ -227,7 +246,12 @@ window.open(path,"_new","")
   if(event.keyCode==13) doSearch()
   }
   //setInterval("updateClock()",1000)
-  
+  function MyGoBack(){
+document.getElementById("main_window").contentWindow.history.back()
+}
+  function MyGoForward(){
+document.getElementById("main_window").contentWindow.history.forward()
+}
   </html:script>
 </xsl:template>
 <!-- ***************************************************************************  -->
@@ -240,6 +264,9 @@ window.open(path,"_new","")
   <toolbarbutton label="Logout" link="{/*//item[@id='Programm--Logout']/@link}" target="_top" oncommand="openLink(event)">
     <image src="image/icons/24x24/Programm--Logout.png" width="24" height="24" />
   </toolbarbutton>
+<toolbarseparator/>
+ <toolbarbutton label="back" tooltiptext="hallo" oncommand="MyGoBack()"/>
+  <toolbarbutton label="forward" tooltip="Neues Fenster" oncommand="MyGoForward()"/>
 </xsl:template>
 <!-- ***************************************************************************  -->
 
@@ -247,12 +274,12 @@ window.open(path,"_new","")
 <!-- searchbox
 ****************************************************************************  -->
 <xsl:template name="searchbox">
-<vbox style="padding-top:5px">
+<vbox style="padding-top:2px">
   <hbox>
 
     <textbox height="22px" style="font-size:12px;margin-right:0px" width="200px" id="searchboxtext" onkeypress="checkEnter(event)"/>
 <toolbarbutton type="toolbar" width="20" height="20" style="padding:5px !important"
-image="xslt/images/16x16/CRM--Schnellsuche.png" flex="0" oncommand="doSearch()"/>
+image="image/icons/16x16/CRM--Schnellsuche.png" flex="0" oncommand="doSearch()"/>
 </hbox>
 
 </vbox>
@@ -298,7 +325,7 @@ image="xslt/images/16x16/CRM--Schnellsuche.png" flex="0" oncommand="doSearch()"/
     <input name="l_partnumber" class="checkbox" type="checkbox" value="Y" checked="true"/>Artikelnummer
     <input name="l_description" class="checkbox" type="checkbox" value="Y" checked="true"/>Artikelbeschreibung
     <input name="l_serialnumber" class="checkbox" type="checkbox" value="Y"/>Seriennummer
-    <input name="l_unit" class="checkbox" type="checkbox" value="Y" checked="true"/>Maﬂeinheit
+    <input name="l_unit" class="checkbox" type="checkbox" value="Y" checked="true"/>Maszeinheit
     <input name="l_listprice" class="checkbox" type="checkbox" value="Y"/>Listenpreis
     <input name="l_sellprice" class="checkbox" type="checkbox" value="Y" checked="true"/>Verkaufspreis
     <input name="l_lastcost" class="checkbox" type="checkbox" value="Y" checked="true"/>Einkaufspreis
