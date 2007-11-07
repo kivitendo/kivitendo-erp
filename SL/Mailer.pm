@@ -33,6 +33,8 @@ package Mailer;
 use SL::Common;
 use SL::Template;
 
+my $num_sent = 0;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -94,7 +96,8 @@ sub send {
 
   local (*IN, *OUT);
 
-  my $boundary =  time();
+  $num_sent++;
+  my $boundary = time() . "-$$-${num_sent}";
   $boundary    =  "LxOffice-$self->{version}-$boundary";
   my $domain   =  $self->{from};
   $domain      =~ s/(.*?\@|>)//g;
