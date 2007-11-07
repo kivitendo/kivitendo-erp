@@ -31,6 +31,7 @@
 package Mailer;
 
 use SL::Common;
+use SL::Template;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -93,17 +94,28 @@ sub send {
 
   local (*IN, *OUT);
 
-  my $boundary = time;
-  $boundary = "LxOffice-$self->{version}-$boundary";
-  my $domain = $self->{from};
-  $domain =~ s/(.*?\@|>)//g;
-  my $msgid = "$boundary\@$domain";
+  my $boundary =  time();
+  $boundary    =  "LxOffice-$self->{version}-$boundary";
+  my $domain   =  $self->{from};
+  $domain      =~ s/(.*?\@|>)//g;
+  my $msgid    =  "$boundary\@$domain";
+
+  my $form     =  $main::form;
+  my $myconfig =  \%main::myconfig;
+
+  my $email    =  $myconfig->{email};
+  $email       =~ s/[^\w\.\-\+=@]//ig;
+
+  $form->{myconfig_email} = $email;
+
+  my $template =  PlainTextTemplate->new(undef, $form, $myconfig);
+  my $sendmail =  $template->parse_block($main::sendmail);
 
   $self->{charset} = Common::DEFAULT_CHARSET unless $self->{charset};
 
-  if (!open(OUT, $main::sendmail)) {
+  if (!open(OUT, $sendmail)) {
     $main::lxdebug->leave_sub();
-    return "$main::sendmail : $!";
+    return "$sendmail : $!";
   }
 
   $self->{contenttype} = "text/plain" unless $self->{contenttype};
