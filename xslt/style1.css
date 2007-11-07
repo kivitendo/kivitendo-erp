@@ -11,4 +11,3 @@ menubar menu{-moz-appearance: none !important;color:white !important;}
 menubar menu:hover{-moz-appearance: none;background:lightblue !important}
 menu menu{-moz-appearance: none !important;color:black !important;}
 menu menu:hover{-moz-appearance: none;background:lightgrey !important}
-toolbarbutton{padding:5px !important;margin:2px !important}
