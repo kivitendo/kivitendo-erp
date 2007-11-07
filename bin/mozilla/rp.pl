@@ -1656,9 +1656,7 @@ sub print_form {
   }
 
   $form->{IN}  = "$form->{type}.$suffix";
-  $form->{OUT} =
-    $form->{media} eq 'email'   ? $sendmail              :
-    $form->{media} eq 'printer' ? "| $myconfig{printer}" : "";
+  $form->{OUT} = $form->{media} eq 'printer' ? "| $myconfig{printer}" : "";
 
   # Save $form->{email} because it will be overwritten.
   $form->{EMAIL_RECIPIENT} = $form->{email};

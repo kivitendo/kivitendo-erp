@@ -191,7 +191,7 @@ sub save_dunning {
       foreach my $level (values %{ $levels }) {
         next unless scalar @{ $level };
 
-        DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool, $sendmail);
+        DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool);
       }
     }
 
@@ -204,7 +204,7 @@ sub save_dunning {
                       "customer_id"            => $form->{"customer_id_$i"},
                       "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
                       "email"                  => $form->{"email_$i"}, } ];
-      DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool, $sendmail);
+      DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool);
     }
   }
 

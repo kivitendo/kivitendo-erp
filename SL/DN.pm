@@ -266,7 +266,7 @@ sub create_invoice_for_fees {
 sub save_dunning {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $rows, $userspath, $spool, $sendmail) = @_;
+  my ($self, $myconfig, $form, $rows, $userspath, $spool) = @_;
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
