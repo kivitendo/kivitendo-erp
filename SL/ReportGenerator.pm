@@ -268,19 +268,32 @@ sub prepare_html_content {
   }
 
   my ($outer_idx, $inner_idx) = (0, 0);
+  my $next_border_top;
   my @rows;
 
   foreach my $row_set (@{ $self->{data} }) {
     if ('HASH' eq ref $row_set) {
+      if ($row_set->{type} eq 'separator') {
+        if (! scalar @rows) {
+          $next_border_top = 1;
+        } else {
+          $rows[-1]->{BORDER_BOTTOM} = 1;
+        }
+
+        next;
+      }
+
       my $row_data = {
         'IS_CONTROL'      => 1,
-        'IS_SEPARATOR'    => $row_set->{type} eq 'separator',
         'IS_COLSPAN_DATA' => $row_set->{type} eq 'colspan_data',
         'NUM_COLUMNS'     => scalar @visible_columns,
+        'BORDER_TOP'      => $next_border_top,
         'data'            => $row_set->{data},
       };
 
       push @rows, $row_data;
+
+      $next_border_top = 0;
 
       next;
     }
@@ -306,9 +319,12 @@ sub prepare_html_content {
         'outer_idx'     => $outer_idx,
         'outer_idx_odd' => $outer_idx % 2,
         'inner_idx'     => $inner_idx,
+        'BORDER_TOP'    => $next_border_top,
       };
 
       push @rows, $row_data;
+
+      $next_border_top = 0;
     }
   }
 
