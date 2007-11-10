@@ -1513,7 +1513,7 @@ sub get_customer {
   }
 
   my $cid = conv_i($form->{customer_id});
-
+  my $payment_id = ($form->{payment_id}) ? "($form->{payment_id} = pt.id) OR" : "";
   # get customer
   $query =
     qq|SELECT
@@ -1525,7 +1525,7 @@ sub get_customer {
          b.discount AS tradediscount, b.description AS business
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)
-       LEFT JOIN payment_terms pt ON (($form->{payment_id} = pt.id) OR (c.payment_id = pt.id))
+       LEFT JOIN payment_terms pt ON ($payment_id (c.payment_id = pt.id))
        WHERE c.id = ?|;
   push @values, $cid;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
