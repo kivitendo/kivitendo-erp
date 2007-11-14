@@ -311,7 +311,15 @@ sub prepare_html_content {
             'data' => $self->html_format($col->{data}->[$i]),
             'link' => $col->{link}->[$i],
           };
-        };
+        }
+
+        # Force at least a &nbsp; to be displayed so that browsers
+        # will format the table cell (e.g. borders etc).
+        if (!scalar @{ $col->{CELL_ROWS} }) {
+          push @{ $col->{CELL_ROWS} }, { 'data' => '&nbsp;' };
+        } elsif ((1 == scalar @{ $col->{CELL_ROWS} }) && !$col->{CELL_ROWS}->[0]->{data}) {
+          $col->{CELL_ROWS}->[0]->{data} = '&nbsp;';
+        }
       }
 
       my $row_data = {
