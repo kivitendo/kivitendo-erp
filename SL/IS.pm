@@ -1513,7 +1513,13 @@ sub get_customer {
   }
 
   my $cid = conv_i($form->{customer_id});
-  my $payment_id = ($form->{payment_id}) ? "($form->{payment_id} = pt.id) OR" : "";
+  my $payment_id;
+
+  if ($form->{payment_id}) {
+    $payment_id = "(pt.id = ?) OR";
+    push @values, conv_i($form->{payment_id});
+  }
+
   # get customer
   $query =
     qq|SELECT
