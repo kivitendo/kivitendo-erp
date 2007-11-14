@@ -120,6 +120,8 @@ sub display_row {
   my $service_units   = AM->retrieve_units(\%myconfig, $form, "service");
   my $all_units       = AM->retrieve_units(\%myconfig, $form);
 
+  my %price_factors   = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
+
   my $colspan = scalar @column_index;
 
   $form->{invsubtotal} = 0;
@@ -179,15 +181,30 @@ sub display_row {
     $this_unit    = $form->{"selected_unit_$i"} if AM->convert_unit($this_unit, $form->{"selected_unit_$i"}, $all_units);
     $this_unit  ||= "kg";
 
-    $column_data{"unit"} = AM->unit_select_html($local_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
+    my $price_factor_select;
+    if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
+      my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
+      my %labels =      map { $_->{id} => $_->{description} } @{ $form->{ALL_PRICE_FACTORS} };
+
+      $price_factor_select =
+        NTI($cgi->popup_menu('-name'    => "price_factor_id_$i",
+                             '-default' => $form->{"price_factor_id_$i"},
+                             '-values'  => \@values,
+                             '-labels'  => \%labels,
+                             '-style'   => 'width:90px'))
+        . ' ';
+    }
+
+    $column_data{"unit"} = $price_factor_select . AM->unit_select_html($local_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
 
     $form->{"sellprice_$i"} =~ /\.(\d+)/;
     $decimalplaces = max 2, length $1;
 
-    $discount  = $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"} / 100, $decimalplaces);
-    $linetotal = $form->round_amount($form->{"sellprice_$i"} - $discount, $decimalplaces);
-    $linetotal = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
+    $price_factor   = $price_factors{$form->{"price_factor_id_$i"}} || 1;
+    $discount       = $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"} / 100, $decimalplaces);
+    $linetotal      = $form->round_amount(($form->{"sellprice_$i"} - $discount) / $price_factor, $decimalplaces);
+    $linetotal      = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
 
     # convert " to &quot;
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit unit_old);
@@ -247,21 +264,22 @@ sub display_row {
 
 # begin marge calculations
     my $marge_color;
-    my $real_sellprice = $form->{"sellprice_$i"} - $discount;
+    my $real_sellprice     = ($form->{"sellprice_$i"} - $discount) / $price_factor;
+    my $marge_price_factor = $form->{"marge_price_factor_$i"} * 1 || 1;
 
     $form->{"lastcost_$i"} *= 1;
     $form->{"marge_percent_$i"} = 0;
 
     if ($real_sellprice && ($form->{"qty_$i"} * 1)) {
-      $form->{"marge_percent_$i"}     = ($real_sellprice - $form->{"lastcost_$i"}) * 100 / $real_sellprice;
+      $form->{"marge_percent_$i"}     = ($real_sellprice - $form->{"lastcost_$i"} / $marge_price_factor) * 100 / $real_sellprice;
       $myconfig{marge_percent_warn} ||= 15;
       $marge_color                    = 'color="#ff0000"' if $form->{"id_$i"} && ($form->{"marge_percent_$i"} < (1 * $myconfig{marge_percent_warn}));
     }
 
     my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
-    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"}) * $form->{"qty_$i"} * $marge_adjust_credit_note;
+    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"} / $marge_price_factor) * $form->{"qty_$i"} * $marge_adjust_credit_note;
     $form->{"marge_total"}      += $form->{"marge_absolut_$i"};
-    $form->{"lastcost_total"}   += $form->{"lastcost_$i"} * $form->{"qty_$i"};
+    $form->{"lastcost_total"}   += $form->{"lastcost_$i"} * $form->{"qty_$i"} / $marge_price_factor;
     $form->{"sellprice_total"}  += $real_sellprice * $form->{"qty_$i"};
 
     map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
@@ -279,7 +297,7 @@ sub display_row {
           map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" } 
             qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
-               longdescription basefactor marge_absolut marge_percent lastcost)
+               longdescription basefactor marge_absolut marge_percent marge_price_factor lastcost)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));
