@@ -979,7 +979,7 @@ sub orders {
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'open'                    => { 'text' => $locale->text('Open'), },
     'delivered'               => { 'text' => $locale->text('Delivered'), },
-    'marge_total'                   => { 'text' => $locale->text('Ertrag'), },
+    'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), }
   );
 
