@@ -142,7 +142,8 @@ sub display_row {
   $deliverydate  = $locale->text('Required by');
 
   # special alignings
-  my %align = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal);
+  my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal);
+  my %nowrap = map { $_ => 1 }       qw(description unit);
 
   $form->{marge_total}           = 0;
   $form->{sellprice_total}       = 0;
@@ -249,7 +250,7 @@ sub display_row {
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 
-    my @ROW1 = map { value => $column_data{$_}, align => $align{$_} }, @column_index;
+    my @ROW1 = map { value => $column_data{$_}, align => $align{$_}, nowrap => $nowrap{$_} }, @column_index;
 
     # second row
     my @ROW2 = ();

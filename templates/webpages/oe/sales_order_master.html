@@ -11,7 +11,7 @@
 
    [% FOREACH row = ROWS %]
      <tr valign="top" class="listrow[% loop.count % 2 %]">[% FOREACH row1 = row.ROW1 %]
-      <td align="[% row1.align %]">[% row1.value %]</td>[% END %]
+      <td align="[% row1.align %]"[% IF row1.nowrap %] nowrap[% END %]>[% row1.value %]</td>[% END %]
      </tr>
 
      [% FOREACH hidden = row.HIDDENS %][% hidden.value %]
