@@ -28,24 +28,25 @@
 	    </tr>
       </table>
 	  </td>
+[%- IF is_sales %]
           <td>
             <table>
 
-[%- IF is_sales %]
             <tr>
               <th  align=left>Ertrag</th>
-              <td>[% LxERP.format_amount(marge_total, 2) %] %</td>
+              <td align="right">[% LxERP.format_amount(marge_total, 2) %]</td>
             </tr>
             <tr>
               <th  align=left>Ertrag prozentual</th>
-              <td>[% LxERP.format_amount(marge_percent, 2) %] %</td>
+              <td align="right">[% LxERP.format_amount(marge_percent, 2) %]</td>
+              <td>%</td>
             </tr>
-[%- END %]
 
             <input type=hidden name="marge_total" value="[% marge_total %]">
             <input type=hidden name="marge_percent" value="[% marge_percent %]">
             </table>
           </td>
+[%- END %]
 	  <td align=right>
 [%- IF taxaccounts %]
             <input name=taxincluded class=checkbox type=checkbox value=1 [% IF taxincluded %]checked[% END %]><b>Steuer im Preis inbegriffen</b><br><br>
