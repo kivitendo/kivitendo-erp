@@ -3,6 +3,7 @@ package SL::ReportGenerator;
 use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
+use Text::Iconv;
 
 use SL::Form;
 
@@ -52,7 +53,31 @@ sub new {
 
   $self->set_options(@_) if (@_);
 
+  $self->_init_escaped_strings_map();
+
   return $self;
+}
+
+sub _init_escaped_strings_map {
+  my $self = shift;
+
+  $self->{escaped_strings_map} =
+    ('&auml;'  => 'ä',
+     '&ouml;'  => 'ö',
+     '&uuml;'  => 'ü',
+     '&Auml;'  => 'Ä',
+     '&Ouml;'  => 'Ö',
+     '&Uuml;'  => 'Ü',
+     '&szlig;' => 'ß',
+     '&gt;'    => '>',
+     '&lt;'    => '<',
+     '&quot;'  => '"');
+
+  my $iconv = $main::locale->{iconv_iso8859};
+
+  if ($iconv) {
+    map { $self->{escaped_strings_map}->{$_} = $iconv->convert($self->{escaped_strings_map}->{$_}) } keys %{ $self->{escaped_strings_map} };
+  }
 }
 
 sub set_columns {
@@ -492,6 +517,19 @@ END
   }
 }
 
+sub unescape_string {
+  my $self = shift;
+  my $text = shift;
+
+  foreach my $key (keys %{ $self->{escaped_strigns_map} }) {
+    $text =~ s/\Q$key\E/$self->{escaped_strings_map}->{$key}/g;
+  }
+
+  $text =~ s/\Q&amp;\E/&/g;
+
+  return $text;
+}
+
 sub generate_csv_content {
   my $self = shift;
 
@@ -517,7 +555,7 @@ sub generate_csv_content {
   my @visible_columns = $self->get_visible_columns('CSV');
 
   if ($opts->{headers}) {
-    $csv->print($stdout, [ map { $self->{columns}->{$_}->{text} } @visible_columns ]);
+    $csv->print($stdout, [ map { $self->unescape_for_csv($self->{columns}->{$_}->{text}) } @visible_columns ]);
   }
 
   foreach my $row_set (@{ $self->{data} }) {

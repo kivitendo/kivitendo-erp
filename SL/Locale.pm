@@ -70,10 +70,11 @@ sub new {
       $self->{charset} = Common::DEFAULT_CHARSET;
     }
 
-    my $db_charset = $main::dbcharset;
-    $db_charset ||= Common::DEFAULT_CHARSET;
-    $self->{iconv} = Text::Iconv->new($self->{charset}, $db_charset);
-    $self->{iconv_english} = Text::Iconv->new("ASCII", $db_charset);
+    my $db_charset         = $main::dbcharset || Common::DEFAULT_CHARSET;
+
+    $self->{iconv}         = Text::Iconv->new($self->{charset}, $db_charset);
+    $self->{iconv_english} = Text::Iconv->new('ASCII',          $db_charset);
+    $self->{iconv_iso8859} = Text::Iconv->new('ISO-8859-15',    $db_charset);
   }
 
   $self->{NLS_file} = $NLS_file;

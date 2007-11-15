@@ -11,7 +11,7 @@
    <table width="100%">
     <tr>
      [%- FOREACH col = COLUMN_HEADERS %]
-     <th>[% IF col.link %]<a href="[% col.link %]">[% END %][% HTML.escape(col.text) %][% IF col.link %]</a>[% END %]</th>
+     <th>[% IF col.link %]<a href="[% col.link %]">[% END %][% col.text %][% IF col.link %]</a>[% END %]</th>
      [%- END %]
     </tr>
 
