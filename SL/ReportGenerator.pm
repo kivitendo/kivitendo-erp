@@ -555,7 +555,7 @@ sub generate_csv_content {
   my @visible_columns = $self->get_visible_columns('CSV');
 
   if ($opts->{headers}) {
-    $csv->print($stdout, [ map { $self->unescape_for_csv($self->{columns}->{$_}->{text}) } @visible_columns ]);
+    $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}) } @visible_columns ]);
   }
 
   foreach my $row_set (@{ $self->{data} }) {
