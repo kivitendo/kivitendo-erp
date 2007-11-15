@@ -61,17 +61,18 @@ sub new {
 sub _init_escaped_strings_map {
   my $self = shift;
 
-  $self->{escaped_strings_map} =
-    ('&auml;'  => 'ä',
-     '&ouml;'  => 'ö',
-     '&uuml;'  => 'ü',
-     '&Auml;'  => 'Ä',
-     '&Ouml;'  => 'Ö',
-     '&Uuml;'  => 'Ü',
-     '&szlig;' => 'ß',
-     '&gt;'    => '>',
+  $self->{escaped_strings_map} = {
+    '&auml;'  => 'ä',
+    '&ouml;'  => 'ö',
+    '&uuml;'  => 'ü',
+    '&Auml;'  => 'Ä',
+    '&Ouml;'  => 'Ö',
+    '&Uuml;'  => 'Ü',
+    '&szlig;' => 'ß',
+    '&gt;'    => '>',
      '&lt;'    => '<',
-     '&quot;'  => '"');
+    '&quot;'  => '"',
+  };
 
   my $iconv = $main::locale->{iconv_iso8859};
 
@@ -521,7 +522,7 @@ sub unescape_string {
   my $self = shift;
   my $text = shift;
 
-  foreach my $key (keys %{ $self->{escaped_strigns_map} }) {
+  foreach my $key (keys %{ $self->{escaped_strings_map} }) {
     $text =~ s/\Q$key\E/$self->{escaped_strings_map}->{$key}/g;
   }
 
