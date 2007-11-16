@@ -1474,68 +1474,83 @@ sub save_template {
   return $error;
 }
 
+sub save_defaults {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my %accnos;
+  map { ($accnos{$_}) = split(m/--/, $form->{$_}) } qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno);
+
+  $form->{curr}  =~ s/ //g;
+  my @currencies =  grep { $_ ne '' } split m/:/, $form->{curr};
+  my $currency   =  join ':', @currencies;
+
+  # these defaults are database wide
+
+  my $query =
+    qq|UPDATE defaults SET
+        inventory_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?),
+        income_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
+        expense_accno_id   = (SELECT c.id FROM chart c WHERE c.accno = ?),
+        fxgain_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
+        fxloss_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
+        invnumber          = ?,
+        cnnumber           = ?,
+        sonumber           = ?,
+        ponumber           = ?,
+        sqnumber           = ?,
+        rfqnumber          = ?,
+        customernumber     = ?,
+        vendornumber       = ?,
+        articlenumber      = ?,
+        servicenumber      = ?,
+        yearend            = ?,
+        curr               = ?,
+        businessnumber     = ?|;
+  my @values = ($accnos{inventory_accno}, $accnos{income_accno}, $accnos{expense_accno},
+                $accnos{fxgain_accno},    $accnos{fxloss_accno},
+                $form->{invnumber},       $form->{cnnumber},
+                $form->{sonumber},        $form->{ponumber},
+                $form->{sqnumber},        $form->{rfqnumber},
+                $form->{customernumber},  $form->{vendornumber},
+                $form->{articlenumber},   $form->{servicenumber},
+                $form->{yearend},         $currency,
+                $form->{businessnumber});
+  do_query($form, $dbh, $query, @values);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $memberfile, $userspath, $webdav) = @_;
 
-  map { ($form->{$_}) = split(/--/, $form->{$_}) }
-    qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
-  my @a;
-  $form->{curr} =~ s/ //g;
-  map { push(@a, uc pack "A3", $_) if $_ } split(/:/, $form->{curr});
-  $form->{curr} = join ':', @a;
-
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  # these defaults are database wide
-  # user specific variables are in myconfig
-  # save defaults
-  my $query =
-    qq|UPDATE defaults SET | .
-    qq|inventory_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-    qq|income_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-    qq|expense_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-    qq|fxgain_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-    qq|fxloss_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-    qq|invnumber = ?, | .
-    qq|cnnumber  = ?, | .
-    qq|sonumber = ?, | .
-    qq|ponumber = ?, | .
-    qq|sqnumber = ?, | .
-    qq|rfqnumber = ?, | .
-    qq|customernumber = ?, | .
-    qq|vendornumber = ?, | .
-    qq|articlenumber = ?, | .
-    qq|servicenumber = ?, | .
-    qq|yearend = ?, | .
-    qq|curr = ?, | .
-    qq|businessnumber = ?|;
-  my @values = ($form->{inventory_accno}, $form->{income_accno},
-                $form->{expense_accno},
-                $form->{fxgain_accno}, $form->{fxloss_accno},
-                $form->{invnumber}, $form->{cnnumber},
-                $form->{sonumber}, $form->{ponumber},
-                $form->{sqnumber}, $form->{rfqnumber},
-                $form->{customernumber}, $form->{vendornumber},
-                $form->{articlenumber}, $form->{servicenumber},
-                $form->{yearend}, $form->{curr},
-                $form->{businessnumber});
-  do_query($form, $dbh, $query, @values);
+  my ($currency, $businessnumber) = selectrow_query($form, $dbh, qq|SELECT curr, businessnumber FROM defaults|);
 
   # update name
-  $query = qq|UPDATE employee
-              SET name = ?
-              WHERE login = ?|;
+  my $query = qq|UPDATE employee SET name = ? WHERE login = ?|;
   do_query($form, $dbh, $query, $form->{name}, $form->{login});
 
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
+  my $rc = $dbh->commit();
 
   # save first currency in myconfig
-  $form->{currency} = substr($form->{curr}, 0, 3);
+  $currency               =~ s/:.*//;
+  $form->{currency}       =  $currency;
+
+  $form->{businessnumber} =  $businessnumber;
 
   $myconfig = new User "$memberfile", "$form->{login}";
 

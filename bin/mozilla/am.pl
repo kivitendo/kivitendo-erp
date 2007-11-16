@@ -2302,6 +2302,46 @@ sub swap_payment_terms {
   $lxdebug->leave_sub();
 }
 
+sub edit_defaults {
+  $lxdebug->enter_sub();
+
+  # get defaults for account numbers and last numbers
+  AM->defaultaccounts(\%myconfig, \%$form);
+
+  map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
+
+  foreach $key (keys %{ $form->{IC} }) {
+    foreach $accno (sort keys %{ $form->{IC}->{$key} }) {
+      my $array = "ACCNOS_" . uc($key);
+      $form->{$array} ||= [];
+
+      my $value = "${accno}--" . $form->{IC}->{$key}->{$accno}->{description};
+      push @{ $form->{$array} }, {
+        'name'     => $value,
+        'value'    => $value,
+        'selected' => $form->{IC}->{$key}->{$accno}->{id} == $form->{defaults}->{$key},
+      };
+    }
+  }
+
+  $form->{title} = $locale->text('Ranges of numbers and default accounts');
+
+  $form->header();
+  print $form->parse_html_template('am/edit_defaults');
+
+  $lxdebug->leave_sub();
+}
+
+sub save_defaults {
+  $lxdebug->enter_sub();
+
+  AM->save_defaults();
+
+  $form->redirect($locale->text('Defaults saved.'));
+
+  $lxdebug->leave_sub();
+}
+
 sub _build_cfg_options {
   my $idx   = shift;
   my $array = uc($idx) . 'S';
@@ -2318,11 +2358,6 @@ sub _build_cfg_options {
 
 sub config {
   $lxdebug->enter_sub();
-
-  # get defaults for account numbers and last numbers
-  AM->defaultaccounts(\%myconfig, \%$form);
-
-  map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
 
   _build_cfg_options('dateformat', qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
   _build_cfg_options('numberformat', qw(1,000.00 1000.00 1.000,00 1000,00));
@@ -2390,20 +2425,6 @@ sub config {
       'value'    => $countrycode,
       'selected' => $countrycode eq $myconfig{countrycode},
     };
-  }
-
-  foreach $key (keys %{ $form->{IC} }) {
-    foreach $accno (sort keys %{ $form->{IC}->{$key} }) {
-      my $array = "ACCNOS_" . uc($key);
-      $form->{$array} ||= [];
-
-      my $value = "${accno}--" . $form->{IC}->{$key}->{$accno}->{description};
-      push @{ $form->{$array} }, {
-        'name'     => $value,
-        'value'    => $value,
-        'selected' => $form->{IC}->{$key}->{$accno}->{id} == $form->{defaults}->{$key},
-      };
-    }
   }
 
   $form->{STYLESHEETS} = [];

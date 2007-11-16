@@ -1,0 +1,148 @@
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="am.pl"name="Form">
+
+  <input type="hidden" name="type" value="defaults">
+  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
+  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
+
+  <p>
+   <table>
+    <tr class="listheading">
+     <th colspan="4">Nummernkreise</th>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Letzte Rechnungsnummer</th>
+     <td><input name="invnumber" size="10" value="[% HTML.escape(defaults_invnumber) %]"></td>
+     <th align="right" nowrap>Letzte Kundennummer</th>
+     <td><input name="customernumber" size="10" value="[% HTML.escape(defaults_customernumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Letzte Gutschriftnummer</th>
+     <td><input name="cnnumber" size="10" value="[% HTML.escape(defaults_cnnumber) %]"></td>
+     <th align="right" nowrap>Letzte Lieferantennummer</th>
+     <td><input name="vendornumber" size="10" value="[% HTML.escape(defaults_vendornumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Letzte Auftragsnummer</th>
+     <td><input name="sonumber" size="10" value="[% HTML.escape(defaults_sonumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Letzte Lieferantenautragsnummer</th>
+     <td><input name="ponumber" size="10" value="[% HTML.escape(defaults_ponumber) %]"></td>
+     <th align="right" nowrap>Letzte Artikelnummer</th>
+     <td><input name="articlenumber" size="10" value="[% HTML.escape(defaults_articlenumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Letzte Angebotsnummer</th>
+     <td><input name="sqnumber" size="10" value="[% HTML.escape(defaults_sqnumber) %]"></td>
+     <th align="right" nowrap>Letzte Dienstleistungsnr.</th>
+     <td><input name="servicenumber" size="10" value="[% HTML.escape(defaults_servicenumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Letzte Anfragenummer</th>
+     <td><input name="rfqnumber" size="10" value="[% HTML.escape(defaults_rfqnumber) %]"></td>
+    </tr>
+
+    <tr class="listheading">
+     <th colspan="4">Standardkonten</th>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Warenbestand</th>
+     <td colspan="3">
+      <select name="inventory_accno">
+       [%- FOREACH row = ACCNOS_IC %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Erlöskonto</th>
+     <td colspan="3">
+      <select name="income_accno">
+       [%- FOREACH row = ACCNOS_IC_INCOME %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Aufwandskonto</th>
+     <td colspan="3">
+      <select name="expense_accno">
+       [%- FOREACH row = ACCNOS_IC_EXPENSE %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Wechselkurserträge</th>
+     <td colspan="3">
+      <select name="fxgain_accno">
+       [%- FOREACH row = ACCNOS_FX_GAIN %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Wechselkursaufwendungen</th>
+     <td colspan="3">
+      <select name="fxloss_accno">
+       [%- FOREACH row = ACCNOS_FX_LOSS %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr class="listheading">
+     <th colspan="4">Verschiedenes</th>
+    </tr>
+
+    <tr>
+     <th align="right">Firmennummer</th>
+     <td colspan="3"><input name="businessnumber" size="25" value="[% HTML.escape(defaults_businessnumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right">Jahresende (mm/dd)</th>
+     <td colspan="3"><input name="yearend" size="5" value="[% HTML.escape(defaults_yearend) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right">W&auml;hrungen <sup>(1)</sup></th>
+     <td colspan="3"><input name="curr" size="20" value="[% HTML.escape(defaults_curr) %]"></td>
+    </tr>
+
+   </table>
+  </p>
+
+  <hr height="3" noshade>
+
+  <p><input type="submit" class="submit" name="action" value="Speichern"></p>
+
+  <hr height="3" noshade>
+
+  <p>
+   (1) Geben Sie Ihre und weitere Währungen mit bis zu drei Buchstaben pro Währung und Währungen durch Doppelpunkte getrennt ein (z.B. EUR:USD:CAD)
+  </p>
+ </form>
+
+</body>
+</html>

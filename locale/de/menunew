@@ -90,6 +90,7 @@ $self->{texts} = {
   'Purchase Orders'             => 'Lieferantenaufträge',
   'Quotations'                  => 'Angebote',
   'RFQs'                        => 'Preisanfragen',
+  'Ranges of numbers and default accounts' => 'Nummernkreise und Standardkonten',
   'Receipt'                     => 'Zahlungseingang',
   'Receipts'                    => 'Zahlungseingänge',
   'Reconciliation'              => 'Kontenabgleich',
