@@ -203,36 +203,24 @@ sub get_part {
   $sth->finish;
 
   # is it an orphan
-  $query =
-    qq|SELECT i.parts_id
-       FROM invoice i
-       WHERE (i.parts_id = ?)
+  my @referencing_tables = qw(invoice orderitems invoice inventory rmaitems);
+  my %column_map         = ( );
+  my $parts_id           = conv_i($form->{id});
 
-       UNION
+  $form->{orphaned}      = 1;
 
-       SELECT o.parts_id
-       FROM orderitems o
-       WHERE (o.parts_id = ?)
+  foreach my $table (@referencing_tables) {
+    my $column  = $column_map{$table} || 'parts_id';
+    $query      = qq|SELECT $column FROM $table WHERE $column = ? LIMIT 1|;
+    my ($found) = selectrow_query($form, $dbh, $query, $parts_id);
 
-       UNION
-
-       SELECT a.parts_id
-       FROM assembly a
-       WHERE (a.parts_id = ?)|;
-  @values = (conv_i($form->{id}), conv_i($form->{id}), conv_i($form->{id}));
-  ($form->{orphaned}) = selectrow_query($form, $dbh, $query, @values);
-  $form->{orphaned} = !$form->{orphaned};
-
-  $form->{"unit_changeable"} = 1;
-  foreach my $table (qw(invoice assembly orderitems inventory license)) {
-    $query = qq|SELECT COUNT(*) FROM $table WHERE parts_id = ?|;
-    my ($count) = selectrow_query($form, $dbh, $query, conv_i($form->{"id"}));
-
-    if ($count) {
-      $form->{"unit_changeable"} = 0;
+    if ($found) {
+      $form->{orphaned} = 0;
       last;
     }
   }
+
+  $form->{"unit_changeable"} = $form->{orphaned};
 
   $dbh->disconnect;
 
@@ -724,9 +712,9 @@ sub delete {
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my %columns = ( "assembly" => "id", "alternate" => "id", "parts" => "id" );
+  my %columns = ( "assembly" => "id", "parts" => "id" );
 
-  for my $table (qw(prices partstax makemodel inventory assembly parts)) {
+  for my $table (qw(prices partstax makemodel inventory assembly license translation parts)) {
     my $column = defined($columns{$table}) ? $columns{$table} : "parts_id";
     do_query($form, $dbh, qq|DELETE FROM $table WHERE $column = ?|, @values);
   }
