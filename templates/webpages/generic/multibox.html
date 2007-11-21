@@ -39,20 +39,20 @@
 [%- END -%]
 [%- IF DATA.size and limit < DATA.size %]
 <input type="text" 
- [%~ IF name     %] name="[%     HTML.escape(name)     %]"[% END ~%]
- [%~ IF id       %] id="[%       HTML.escape(id)       %]"[% END ~%]
- [%~ IF default  %] value="[%    HTML.escape(default)  %]"[% END ~%]
- [%~ IF style    %] style="[%    HTML.escape(style)    %]"[% END ~%]
+ [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END %]
+ [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END %]
+ [%- IF default  %] value="[%    HTML.escape(default)  %]"[% END %]
+ [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END %]
 >
-[%~ IF select %]
+[%- IF select %]
   <button type="button" onclick="[% select %]">?</button>
-[% END ~%]
+[% END %]
 [%- ELSE %]
 <select 
- [%~ IF name     %] name="[%     HTML.escape(name)     %]"[% END ~%]
- [%~ IF id       %] id="[%       HTML.escape(id)       %]"[% END ~%]
- [%~ IF style    %] style="[%    HTML.escape(style)    %]"[% END ~%]
- [%~ IF onChange %] onChange="[% HTML.escape(onChange) %]"[% END ~%]
+ [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END %]
+ [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END %]
+ [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END %]
+ [%- IF onChange %] onChange="[% HTML.escape(onChange) %]"[% END %]
 >
   [%- IF show_empty %]
   <option value=""></option>

@@ -120,11 +120,11 @@
                   <tr>
                     <th align=right><translate>Exchangerate</translate></th>
                     <td>
-                     [%~ IF forex ~%]
+                     [%- IF forex %]
                       [% LxERP.format_amount(exchangerate, 0) %]
-                     [%~ ELSE ~%]
+                     [%- ELSE %]
                       <input name=exchangerate size=10 value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
-                     [%~ END ~%]
+                     [%- END %]
                     </td>
                   </tr>
 [%- END %]
@@ -214,21 +214,21 @@
 [%- END %]
                   <tr>
                     <th align=right nowrap>
-                     [%~ IF is_order ~%]
+                     [%- IF is_order %]
                       <translate>Order Date</translate>
-                     [%~ ELSE ~%]
+                     [%- ELSE %]
                       <translate>Quotation Date</translate>
-                     [%~ END ~%]
+                     [%- END %]
                     </th>
                     [% button1 %]
                   </tr>
                   <tr>
                     <th align=right nowrap>
-                     [%~ IF is_sales_quo ~%]
+                     [%- IF is_sales_quo %]
                       <translate>Valid until</translate>
-                     [%~ ELSE ~%]
+                     [%- ELSE %]
                       <translate>Required by</translate>
-                     [%~ END ~%]
+                     [%- END %]
                     </th>
                     [% button2 %]
                   </tr>
