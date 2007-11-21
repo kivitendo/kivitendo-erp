@@ -1023,21 +1023,21 @@ sub print_options {
       opthash("screen",              $form->{OP}{screen},              $locale->text('Screen')),
     (scalar @{ $form->{printers} } && $latex_templates) ?
       opthash("printer",             $form->{OP}{printer},             $locale->text('Printer')) : undef,
-    ($latex_templates && !$options->{no_queue}) ?
+    ($latex_templates && !$options{no_queue}) ?
       opthash("queue",               $form->{OP}{queue},               $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
   push @FORMAT, grep $_,
     ($opendocument_templates && $openofficeorg_writer_bin && $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)
-     && !$options->{no_opendocument_pdf}) ?
+     && !$options{no_opendocument_pdf}) ?
       opthash("opendocument_pdf",    $form->{DF}{"opendocument_pdf"},  $locale->text("PDF (OpenDocument/OASIS)")) : undef,
     ($latex_templates) ?
       opthash("pdf",                 $form->{DF}{pdf},                 $locale->text('PDF')) : undef,
-    ($latex_templates && !$options->{no_postscript}) ?
+    ($latex_templates && !$options{no_postscript}) ?
       opthash("postscript",          $form->{DF}{postscript},          $locale->text('Postscript')) : undef,
-    (!$options->{no_html}) ?
+    (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
-    ($opendocument_templates && !$options->{no_opendocument}) ?
+    ($opendocument_templates && !$options{no_opendocument}) ?
       opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef;
 
   push @LANGUAGE_ID, 
