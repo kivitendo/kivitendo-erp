@@ -1597,8 +1597,6 @@ sub generate_report {
     push @options, $optiontexts{$key};
   }
 
-  IC->all_parts(\%myconfig, \%$form);
-
   # special case for lastcost
   $form->{l_lastcost} = "" if $form->{ledgerchecks};
 
@@ -1641,6 +1639,8 @@ sub generate_report {
   }
 
   $form->{l_lastcost} = "" if ($form->{searchitems} eq 'assembly' && !$form->{bom});
+
+  IC->all_parts(\%myconfig, \%$form);
 
   my @columns =
     qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
