@@ -98,7 +98,9 @@ sub search {
 
   $form->header;
 
-  print $form->parse_html_template('ic/search', { is_assembly => $is_assembly, is_service => $is_service, dateformat => $myconfig{dateformat} });
+  print $form->parse_html_template('ic/search', { is_assembly => $is_assembly, 
+                                                  is_service  => $is_service, 
+                                                  dateformat  => $myconfig{dateformat}, });
 
   $lxdebug->leave_sub();
 }    #end search()
@@ -106,170 +108,12 @@ sub search {
 sub search_update_prices {
   $lxdebug->enter_sub();
 
-  my ($onhand, $makemodel, $serialnumber, $l_serialnumber, $toplevel, $bought);
-
-  $form->{title} = $locale->text('Update prices');
-  IC->get_pricegroups(\%myconfig, \%$form);
-
-  # use JavaScript Calendar or not
-#   $form->{jsscript} = 1;
-#   $jsscript = "";
-#   if ($form->{jsscript}) {
-# 
-#     # with JavaScript Calendar
-#     $button1 = qq|
-#        <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>
-#        <td><input type=button name=transdatefrom id="trigger1" value=|
-#       . $locale->text('button') . qq|></td>
-#       |;
-#     $button2 = qq|
-#        <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>
-#        <td><input type=button name=transdateto name=transdateto id="trigger2" value=|
-#       . $locale->text('button') . qq|></td>
-#      |;
-# 
-#     #write Trigger
-#     $jsscript =
-#       Form->write_trigger(\%myconfig, "2", "transdatefrom", "BL", "trigger1",
-#                           "transdateto", "BL", "trigger2");
-#   } else {
-# 
-#     # without JavaScript Calendar
-#     $button1 = qq|
-#                               <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
-#     $button2 = qq|
-#                               <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}"></td>|;
-#   }
-
-    $onhand = qq|
-            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;| . $locale->text('On Hand') . qq|
-            <input name=itemstatus class=radio type=radio value=short>&nbsp;| . $locale->text('Short') . qq|
-|;
-
-    $makemodel = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Make') . qq|</th>
-          <td><input name=make size=20></td>
-          <th align=right nowrap>| . $locale->text('Model') . qq|</th>
-          <td><input name=model size=20></td>
-        </tr>
-|;
-
-    $serialnumber = qq|
-          <th align=right nowrap>| . $locale->text('Serial Number') . qq|</th>
-          <td><input name=serialnumber size=20></td>
-|;
-
-    $l_serialnumber = qq|
-        <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Serial Number') . qq|</td>
-|;
-
-
+  my $pricegroups = IC->get_pricegroups(\%myconfig, \%$form);
 
   $form->header;
 
-  print qq|
-<body>
+  print $form->parse_html_template('ic/search_update_prices', { PRICE_ROWS => $pricegroups });
 
-<form method=post action=$form->{script}>
-
-<input type=hidden name=title value="$form->{title}">
-
-<table width="100%">
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr valign=top>
-    <td>
-      <table>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Part Number') . qq|</th>
-          <td><input name=partnumber size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Part Description') . qq|</th>
-          <td colspan=3><input name=description size=40></td>
-        </tr>
-	<tr>
-          <th align=right nowrap>| . $locale->text('Group') . qq|</th>
-          <td><input name=partsgroup size=20></td>
-	  $serialnumber
-	</tr>
-	$makemodel
-        <tr>
-          <th align=right nowrap>| . $locale->text('Drawing') . qq|</th>
-          <td><input name=drawing size=20></td>
-          <th align=right nowrap>| . $locale->text('Microfiche') . qq|</th>
-          <td><input name=microfiche size=20></td>
-        </tr>
-	$toplevel
-        <tr>
-          <td></td>
-          <td colspan=3>
-            <input name=itemstatus class=radio type=radio value=active checked>&nbsp;| . $locale->text('Active') . qq|
-	    $onhand
-            <input name=itemstatus class=radio type=radio value=obsolete>&nbsp;| . $locale->text('Obsolete') . qq|
-            <input name=itemstatus class=radio type=radio value=orphaned>&nbsp;| . $locale->text('Orphaned') . qq|
-	  </td>
-	</tr>
-	$bought
-        <tr>
-	  <td></td>
-          <td colspan=3>
-	    <hr size=1 noshade>
-	  </td>
-	</tr>|;
-  print qq|
-  <tr>
-    <td colspan=4>
-      <table width=100%>
-        <tr>
-          <th class="listheading">| . $locale->text('Preisklasse') . qq|</th>
-          <th class="listheading">| . $locale->text('Preis') . qq|</th>
-          <th class="listheading">| . $locale->text('Prozentual/Absolut') . qq|</th>
-        </tr>
-        <tr>
-          <td>| . $locale->text('Sell Price') . qq|</td>
-          <td><input name="sellprice" size=11 value="$form->{"sellprice"}"></td>
-          <td><input name="sellprice_type" class=radio type=radio value=percent checked>/<input name="sellprice_type" class=radio type=radio value=absolut></td>
-        </tr>
-        <tr>
-          <td>| . $locale->text('List Price') . qq|</td>
-          <td><input name="listprice" size=11 value="$form->{"listprice"}"></td>
-          <td><input name="listprice_type" class=radio type=radio value=percent checked>/<input name="listprice_type" class=radio type=radio value=absolut></td>
-        </tr>
-|;
-  for my $i (1 .. $form->{price_rows}) {
-    print qq|
-        <tr>
-          <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
-          <td width=50%><input name="price_$i" size=11></td>
-          <input type=hidden name="pricegroup_id_$i" value="$form->{"pricegroup_id_$i"}">
-          <td><input name="pricegroup_type_$i" class=radio type=radio value=percent checked>/<input name="pricegroup_type_$i" class=radio type=radio value=absolut></td>
-        </tr>
-|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-
-  <tr><td colspan=4><hr size=3 noshade></td></tr>
-</table>
-<input type=hidden name=nextsub value=confirm_price_update>
-<input type=hidden name=price_rows value=$form->{price_rows}>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
   $lxdebug->leave_sub();
 }    #end search()
 
@@ -297,13 +141,10 @@ sub confirm_price_update {
   print qq|
 <h2 class=confirm>| . $locale->text('Confirm!') . qq|</h2>
 
-<h4>|
-    . $locale->text('Are you sure you want to update the prices')
-. qq| </h4>
+<h4>| . $locale->text('Are you sure you want to update the prices') . qq| </h4>
 
 <p>
-<input name=action class=submit type=submit value="|
-    . $locale->text('Continue') . qq|">
+<input name=action class=submit type=submit value="| . $locale->text('Continue') . qq|">
 </form>
 |;
 

@@ -253,6 +253,8 @@ sub get_pricegroups {
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
+
+  return $pricegroups;
 }
 
 sub retrieve_buchungsgruppen {
