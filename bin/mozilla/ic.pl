@@ -142,10 +142,8 @@ sub search_update_prices {
 #   }
 
     $onhand = qq|
-            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;|
-      . $locale->text('On Hand') . qq|
-            <input name=itemstatus class=radio type=radio value=short>&nbsp;|
-      . $locale->text('Short') . qq|
+            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;| . $locale->text('On Hand') . qq|
+            <input name=itemstatus class=radio type=radio value=short>&nbsp;| . $locale->text('Short') . qq|
 |;
 
     $makemodel = qq|
@@ -163,8 +161,7 @@ sub search_update_prices {
 |;
 
     $l_serialnumber = qq|
-        <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;|
-      . $locale->text('Serial Number') . qq|</td>
+        <td><input name=l_serialnumber class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Serial Number') . qq|</td>
 |;
 
 
@@ -189,8 +186,7 @@ sub search_update_prices {
           <td><input name=partnumber size=20></td>
         </tr>
         <tr>
-          <th align=right nowrap>|
-    . $locale->text('Part Description') . qq|</th>
+          <th align=right nowrap>| . $locale->text('Part Description') . qq|</th>
           <td colspan=3><input name=description size=40></td>
         </tr>
 	<tr>
@@ -209,13 +205,10 @@ sub search_update_prices {
         <tr>
           <td></td>
           <td colspan=3>
-            <input name=itemstatus class=radio type=radio value=active checked>&nbsp;|
-    . $locale->text('Active') . qq|
+            <input name=itemstatus class=radio type=radio value=active checked>&nbsp;| . $locale->text('Active') . qq|
 	    $onhand
-            <input name=itemstatus class=radio type=radio value=obsolete>&nbsp;|
-    . $locale->text('Obsolete') . qq|
-            <input name=itemstatus class=radio type=radio value=orphaned>&nbsp;|
-    . $locale->text('Orphaned') . qq|
+            <input name=itemstatus class=radio type=radio value=obsolete>&nbsp;| . $locale->text('Obsolete') . qq|
+            <input name=itemstatus class=radio type=radio value=orphaned>&nbsp;| . $locale->text('Orphaned') . qq|
 	  </td>
 	</tr>
 	$bought
