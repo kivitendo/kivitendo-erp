@@ -1,0 +1,101 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+<body>
+
+<form method=post action=[% script %]>
+
+<input type=hidden name=title value="Preise aktualisieren">
+
+<table width="100%">
+  <tr><th class=listtop>Preise aktualisieren</th></tr>
+  <tr height="5"></tr>
+  <tr valign=top>
+    <td>
+      <table>
+        <tr>
+          <th align=right nowrap>Artikelnummer</th>
+          <td><input name=partnumber size=20></td>
+        </tr>
+        <tr>
+          <th align=right nowrap>Artikelbeschreibung</th>
+          <td colspan=3><input name=description size=40></td>
+        </tr>
+	<tr>
+          <th align=right nowrap>Warengruppe</th>
+          <td><input name=partsgroup size=20></td>
+          <th align=right nowrap>Seriennummer</th>
+          <td><input name=serialnumber size=20></td>
+	</tr>
+        <tr>
+          <th align=right nowrap>Hersteller</th>
+          <td><input name=make size=20></td>
+          <th align=right nowrap>Modell</th>
+          <td><input name=model size=20></td>
+        </tr>
+        <tr>
+          <th align=right nowrap>Zeichnung</th>
+          <td><input name=drawing size=20></td>
+          <th align=right nowrap>Mikrofilm</th>
+          <td><input name=microfiche size=20></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td colspan=3>
+            <input name=itemstatus class=radio type=radio value=active checked>&nbsp;Aktiv
+            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;Auf Lager
+            <input name=itemstatus class=radio type=radio value=short>&nbsp;Knapp
+            <input name=itemstatus class=radio type=radio value=obsolete>&nbsp;Ungültig
+            <input name=itemstatus class=radio type=radio value=orphaned>&nbsp;Nie benutzt
+	  </td>
+	</tr>
+        <tr>
+	  <td></td>
+          <td colspan=3>
+	    <hr size=1 noshade>
+	  </td>
+	</tr>
+  <tr>
+    <td colspan=4>
+      <table width=100%>
+        <tr>
+          <th class="listheading">Preisgruppe</th>
+          <th class="listheading">Preis</th>
+          <th class="listheading">Prozentual/Absolut</th>
+        </tr>
+        <tr>
+          <td>Verkaufspreis</td>
+          <td><input name="sellprice" size=11 value="[% sellprice %]"></td>
+          <td><input name="sellprice_type" class=radio type=radio value=percent checked>/<input name="sellprice_type" class=radio type=radio value=absolut></td>
+        </tr>
+        <tr>
+          <td>Listenpreis</td>
+          <td><input name="listprice" size=11 value="[% listprice %]"></td>
+          <td><input name="listprice_type" class=radio type=radio value=percent checked>/<input name="listprice_type" class=radio type=radio value=absolut></td>
+        </tr>
+[%- FOREACH row = PRICE_ROWS %]
+        <tr>
+          <td width=50%><input type=hidden name="pricegroup_[% loop.count %]" size=30  value="[% row.pricegroup %]">[% row.pricegroup %]</td>
+          <td width=50%><input name="price_[% loop.count %]" size=11></td>
+          <input type=hidden name="pricegroup_id_[% loop.count %]" value="[% row.id %]">
+          <td><input name="pricegroup_type_[% loop.count %]" class=radio type=radio value=percent checked>/<input name="pricegroup_type_[% loop.count %]" class=radio type=radio value=absolut></td>
+        </tr>
+[%- END  %]
+
+      </table>
+    </td>
+  </tr>
+
+  <tr><td colspan=4><hr size=3 noshade></td></tr>
+</table>
+<input type=hidden name=nextsub value=confirm_price_update>
+<input type=hidden name=price_rows value=[% price_rows %]>
+
+<input type=hidden name=login value=[% login %]>
+<input type=hidden name=password value=[% password %]>
+
+<br>
+<input class=submit type=submit name=action value="Weiter">
+</form>
+
+</body>
+</html>
