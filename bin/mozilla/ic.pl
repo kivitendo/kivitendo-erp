@@ -152,62 +152,15 @@ sub choice {
 
   $form->header;
 
-  print qq|
-  <body>
-
-  <form method=post action=$form->{script}>
-
-  <input type=hidden name=searchitems value=$form->{searchitems}>
-  <input type=hidden name=title value="$form->{title}">
-
-  <input type=hidden name=revers value="$form->{revers}">
-  <input type=hidden name=lastsort value="$form->{lastsort}">|;
-
-  print qq|
-      <table>
-	<tr class=listheading>
-         <th class=listheading nowrap>| . $locale->text('Part Number') . qq|</th>
-         <th class=listheading nowrap>| . $locale->text('Part Description') . qq|</th>
-        </tr>
-        <tr valign=top>
-         <td><input type=text name=partnumber size=20 value=></td>
-         <td><input type=text name=description size=30 value=></td>
-       </tr>
-      </table>
-     <br>|;
-
-  print qq|
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input type=hidden name=itemstatus value="$form->{itemstatus}">
-<input type=hidden name=l_linetotal value="$form->{l_linetotal}">
-<input type=hidden name=l_partnumber value="$form->{l_partnumber}">
-<input type=hidden name=l_description value="$form->{l_description}">
-<input type=hidden name=l_onhand value="$form->{l_onhand}">
-<input type=hidden name=l_unit value="$form->{l_unit}">
-<input type=hidden name=l_sellprice value="$form->{l_sellprice}">
-<input type=hidden name=l_linetotalsellprice value="$form->{l_linetotalsellprice}">
-<input type=hidden name=sort value="$form->{sort}">
-<input type=hidden name=revers value="$form->{revers}">
-<input type=hidden name=lastsort value="$form->{lastsort}">
-
-<input type=hidden name=bom value="$form->{bom}">
-<input type=hidden name=titel value="$form->{titel}">
-<input type=hidden name=searchitems value="$form->{searchitems}">
-
-<input type=hidden name=row value=$j>
-
-<input type=hidden name=nextsub value=item_selected>
-
-<input type=hidden name=test value=item_selected>
-
-<input name=lastndx type=hidden value=$lastndx>
-
-<input name=ndxs_counter type=hidden value=$form->{ndxs_counter}>
-
-<input name=extras type=hidden value=$form->{extras}>|;
+  push @custom_hiddens, qw(login password searchitems title bom titel revers lastsort sort ndxs_counter extras);
+  push @custom_hiddens, qw(itemstatus l_linetotal l_partnumber l_description l_onhand l_unit l_sellprice l_linetotalsellprice);
+  my @HIDDENS = (
+        +{ name => 'row',     value => $j              },
+        +{ name => 'nextsub', value => 'item_selected' },
+        +{ name => 'test',    value => 'item_selected' },
+        +{ name => 'lastndx', value => $lastndx        },
+    map(+{ name => $_,        value => $form->{$_}     }, @custom_hiddens),
+  );
 
   my ($partnumber, $description, $unit, $sellprice, $soldtotal);
   # if choice set data
@@ -253,15 +206,8 @@ sub choice {
     }    #rof
   }    #fi
 
-  print $totop100;
+  print $form->parse_html_template('ic/choice', +{ HIDDENS => \@HIDDENS, totop100 => $totop100 });
 
-  print qq|
-     <input class=submit type=submit name=action value="|
-    . $locale->text('list') . qq|">
-    </form>
-
-   </body>
-  </html>|;
   $lxdebug->leave_sub();
 }    #end choice
 
@@ -420,7 +366,7 @@ sub addtop100 {
 
   $form->{top100}      = "top100";
   $form->{l_soldtotal} = "Y";
-  $form->{soldtotal}   = "soldtotal";
+#  $form->{soldtotal}   = "soldtotal";
   $form->{sort}        = "soldtotal";
   $form->{l_qty}       = "N";
   $form->{l_linetotal} = "";

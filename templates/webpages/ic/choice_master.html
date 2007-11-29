@@ -1,0 +1,28 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+<body>
+
+  <form method=post action="[% script %]">
+
+[%- FOREACH row = HIDDENS %]
+   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
+[%- END %]
+
+      <table>
+	<tr class=listheading>
+         <th class=listheading nowrap><translate>Part Number</translate></th>
+         <th class=listheading nowrap><translate>Part Description</translate></th>
+        </tr>
+        <tr valign=top>
+         <td><input type=text name=partnumber size=20 value=></td>
+         <td><input type=text name=description size=30 value=></td>
+       </tr>
+      </table>
+     <br>
+
+  [% totop100 %]
+
+     <input class=submit type=submit name=action value="<translate>list</translate>"> </form>
+
+   </body>
+  </html>
