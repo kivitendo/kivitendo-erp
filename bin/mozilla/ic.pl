@@ -120,33 +120,12 @@ sub search_update_prices {
 sub confirm_price_update {
   $lxdebug->enter_sub();
 
-
   $form->{nextsub} = "update_prices";
   $form->header;
 
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-|;
-
-  # delete action variable
   map { delete $form->{$_} } qw(action header);
-
-  foreach my $key (keys %$form) {
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
-  }
-
-  print qq|
-<h2 class=confirm>| . $locale->text('Confirm!') . qq|</h2>
-
-<h4>| . $locale->text('Are you sure you want to update the prices') . qq| </h4>
-
-<p>
-<input name=action class=submit type=submit value="| . $locale->text('Continue') . qq|">
-</form>
-|;
+  
+  print $form->parse_html_template('ic/confirm_price_update', { HIDDENS => [ map { name => $_, value => $form->{$_} }, keys %$form ] });
 
   $lxdebug->leave_sub();
 }

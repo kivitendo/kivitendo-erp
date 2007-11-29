@@ -1,0 +1,17 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+<body>
+
+<form method=post action="[% script %]">
+
+[%- FOREACH row = HIDDENS %]
+   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
+[%- END %]
+
+<h2 class=confirm><translate>Confirm!</translate></h2>
+
+<h4><translate>Are you sure you want to update the prices</translate></h4>
+
+<p>
+<input name=action class=submit type=submit value="<translate>Continue</translate>">
+</form>
