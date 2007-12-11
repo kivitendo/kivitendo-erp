@@ -20,7 +20,13 @@
       </table>
      <br>
 
-  [% totop100 %]
+[%- FOREACH row = PARTS %]
+  <input type=hidden name=totop100_partnumber_[% loop.count %] value="[% row.totop100_partnumber %]">
+  <input type=hidden name=totop100_description_[% loop.count %] value="[% row.totop100_description %]">
+  <input type=hidden name=totop100_unit_[% loop.count %] value="[% row.totop100_unit %]">
+  <input type=hidden name=totop100_sellprice_[% loop.count %] value="[% row.totop100_sellprice %]">
+  <input type=hidden name=totop100_soldtotal_[% loop.count %] value="[% row.totop100_soldtotal %]">
+[%- END %]
 
      <input class=submit type=submit name=action value="auflisten"> </form>
 

@@ -52,6 +52,14 @@ require "bin/mozilla/reportgenerator.pl";
 
 1;
 
+# Parserhappy(R):
+# type=submit $locale->text('Add Part')
+# type=submit $locale->text('Add Service')
+# type=submit $locale->text('Add Assembly')
+# type=submit $locale->text('Edit Part')
+# type=submit $locale->text('Edit Service')
+# type=submit $locale->text('Edit Assembly')
+
 # end of main
 
 sub add {
@@ -164,49 +172,49 @@ sub choice {
 
   my ($partnumber, $description, $unit, $sellprice, $soldtotal);
   # if choice set data
-  if ($form->{ndx}) {
-    for (my $i = 0; $i < $form->{ndxs_counter}; $i++) {
-
-      # prepeare data
-      $partnumber  = $form->{"totop100_partnumber_$j"};
-      $description = $form->{"totop100_description_$j"};
-      $unit        = $form->{"totop100_unit_$j"};
-      $sellprice   = $form->{"totop100_sellprice_$j"};
-      $soldtotal   = $form->{"totop100_soldtotal_$j"};
-
-      # insert data into top100
-      push @{ $form->{parts} },
-        { number      => "",
-          partnumber  => "$partnumber",
-          description => "$description",
-          unit        => "$unit",
-          sellprice   => "$sellprice",
-          soldtotal   => "$soldtotal" };
-    }    #rof
-  }    #fi
+#  if ($form->{ndx}) {
+#    for my $i (0 .. $form->{ndxs_counter}) {
+#
+#      # insert data into top100
+#      push @{ $form->{parts} },
+#        { number      => "",
+#          partnumber  => $form->{"totop100_partnumber_$j"},
+#          description => $form->{"totop100_description_$j"},
+#          unit        => $form->{"totop100_unit_$j"},
+#          sellprice   => $form->{"totop100_sellprice_$j"},
+#          soldtotal   => $form->{"totop100_soldtotal_$j"},
+#        };
+#    }    #rof
+#  }    #fi
 
   $totop100 = "";
 
   # set data for next page
-  if (($form->{ndxs_counter}) > 0) {
-    for (my $i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
-      $partnumber  = $form->{"totop100_partnumber_$i"};
-      $description = $form->{"totop100_description_$i"};
-      $unit        = $form->{"totop100_unit_$i"};
-      $sellprice   = $form->{"totop100_sellprice_$i"};
-      $soldtotal   = $form->{"totop100_soldtotal_$i"};
+  for my $i (1 .. $form->{ndxs_counter}) {
+    $partnumber  = $form->{"totop100_partnumber_$i"};
+    $description = $form->{"totop100_description_$i"};
+    $unit        = $form->{"totop100_unit_$i"};
+    $sellprice   = $form->{"totop100_sellprice_$i"};
+    $soldtotal   = $form->{"totop100_soldtotal_$i"};
 
-      $totop100 .= qq|
-<input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
-<input type=hidden name=totop100_description_$i value=$form->{"totop100_description_$i"}>
-<input type=hidden name=totop100_unit_$i value=$form->{"totop100_unit_$i"}>
-<input type=hidden name=totop100_sellprice_$i value=$form->{"totop100_sellprice_$i"}>
-<input type=hidden name=totop100_soldtotal_$i value=$form->{"totop100_soldtotal_$i"}>
-      |;
-    }    #rof
-  }    #fi
+  push @PARTS, {
+    totop100_partnumber  => $form->{"totop100_partnumber_$i"},
+    totop100_description => $form->{"totop100_description_$i"},
+    totop100_unit        => $form->{"totop100_unit_$i"},
+    totop100_sellprice   => $form->{"totop100_sellprice_$i"},
+    totop100_soldtotal   => $form->{"totop100_soldtotal_$i"},
+  }
 
-  print $form->parse_html_template('ic/choice', +{ HIDDENS => \@HIDDENS, totop100 => $totop100 });
+#    $totop100 .= qq|
+#<input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
+#<input type=hidden name=totop100_description_$i value=$form->{"totop100_description_$i"}>
+#<input type=hidden name=totop100_unit_$i value=$form->{"totop100_unit_$i"}>
+#<input type=hidden name=totop100_sellprice_$i value=$form->{"totop100_sellprice_$i"}>
+#<input type=hidden name=totop100_soldtotal_$i value=$form->{"totop100_soldtotal_$i"}>
+#    |;
+  }    #rof
+
+  print $form->parse_html_template('ic/choice', +{ HIDDENS => \@HIDDENS, PARTS => \@PARTS });
 
   $lxdebug->leave_sub();
 }    #end choice
@@ -491,16 +499,13 @@ sub addtop100 {
   }
   if ($form->{serialnumber}) {
     $callback .= "&serialnumber=$form->{serialnumber}";
-    $option   .=
-      $locale->text('Serial Number') . qq| : $form->{serialnumber}<br>|;
+    $option   .= $locale->text('Serial Number') . qq| : $form->{serialnumber}<br>|;
   }
   if ($form->{description}) {
-    $callback .= "&description=$form->{description}";
+    $callback   .= "&description=$form->{description}";
     $description = $form->{description};
-    $description =~ s/
-/<br>/g;
-    $option .=
-      $locale->text('Part Description') . qq| : $form->{description}<br>|;
+    $description =~ s/\n/<br>/g;
+    $option     .= $locale->text('Part Description') . qq| : $form->{description}<br>|;
   }
   if ($form->{make}) {
     $callback .= "&make=$form->{make}";
@@ -756,8 +761,7 @@ sub addtop100 {
       $onhand = 0 if ($form->{sold});
     }
 
-    $ref->{description} =~ s/
-/<br>/g;
+    $ref->{description} =~ s/\n/<br>/g;
 
     $column_data{number} =
         "<td align=right>"
@@ -1405,10 +1409,7 @@ sub link_part {
 
   if (@{ $form->{all_partsgroup} }) {
     $form->{selectpartsgroup} = qq|<option>\n|;
-    map {
-      $form->{selectpartsgroup} .=
-        qq|<option value="$_->{partsgroup}--$_->{id}">$_->{partsgroup}\n|
-    } @{ $form->{all_partsgroup} };
+    map { $form->{selectpartsgroup} .= qq|<option value="$_->{partsgroup}--$_->{id}">$_->{partsgroup}\n| } @{ $form->{all_partsgroup} };
   }
 
   if ($form->{item} eq 'assembly') {
@@ -1436,500 +1437,35 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
-  my ($payment, $rows, $notes, $description, $ean, $buchungsgruppe, $partsgroup, $group, $tax, $lastcost, $eur, $linkaccounts, $weight, $n, $rop, $bin, $vegv);
-  my ($notdiscountableok, $notdiscountable);
-  my ($formula, $formula_label, $imagelinks, $obsolete, $shopok, $shop);
+  $form->{eur}              = $eur; # config dumps into namespace - yuck
+  $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
+  $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
 
+  map { $form->{"is_$_"}  = ($form->{item} eq $_) } qw(part service assembly);
+  map { $form->{$_}       =~ s/"/&quot;/g;        } qw(unit);
+ 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
 
-  map({ $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, -2) }
-      qw(sellprice listprice lastcost gv));
-
-  map { $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}) }
-    qw(weight rop stock);
-
-  foreach my $item (qw(partnumber description unit notes)) {
-    $form->{$item} =~ s/\"/&quot;/g;
-  }
-
-  $payment = qq|<option value=""></option>|;
-  foreach my $item (@{ $form->{payment_terms} }) {
-    if ($form->{payment_id} eq $item->{id}) {
-      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
-    } else {
-      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
-    }
-  }
-
-
-  if (($rows = $form->numtextrows($form->{notes}, 40)) < 2) {
-    $rows = 4;
-  }
-
-  $notes =
-    qq|<textarea name=notes rows=$rows cols=45 wrap=soft>$form->{notes}</textarea>|;
-  if (($rows = $form->numtextrows($form->{description}, 40)) > 1) {
-    $description =
-      qq|<textarea name="description" rows=$rows cols=40 wrap=soft>$form->{description}</textarea>|;
-  } else {
-    $description =
-      qq|<input name=description size=40 value="$form->{description}">|;
-  }
-
-  $ean =  qq|<input name=ean size=40 value="$form->{ean}">|;
-
-  foreach my $item (split / /, $form->{taxaccounts}) {
-    $form->{"IC_tax_$item"} = ($form->{"IC_tax_$item"}) ? "checked" : "";
-  }
+  $rows = 4 if $rows = $form->numtextrows($form->{notes}, 40) < 2;
+  $form->{notes_rows} = $rows;
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
-  if (@{ $form->{BUCHUNGSGRUPPEN} }) {
-    foreach my $item (@{ $form->{BUCHUNGSGRUPPEN} }) {
-      if ($item->{id} == $form->{buchungsgruppen_id}) {
-        $form->{selectbuchungsgruppe} .=
-          "<option value=$item->{id} selected>$item->{description}\n";
-      } elsif (($form->{id} && $form->{orphaned}) || (!$form->{id})) {
-        $form->{selectbuchungsgruppe} .=
-          "<option value=$item->{id}>$item->{description}\n";
-      }
+  @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || $form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
 
-    }
-  }
-
-  $buchungsgruppe = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Buchungsgruppe') . qq|</th>
-		<td><select name=buchungsgruppen_id>$form->{selectbuchungsgruppe}</select></td>
-	      </tr>|;
-
-
-  # set option
-  foreach my $item (qw(IC IC_income IC_expense)) {
-    if ($form->{$item}) {
-      if ($form->{id} && $form->{orphaned}) {
-        $form->{"select$item"} =~ s/ selected//;
-        $form->{"select$item"} =~
-          s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
-      } else {
-        $form->{"select$item"} = qq|<option selected>$form->{$item}|;
-      }
-    }
-  }
-
-  if ($form->{selectpartsgroup}) {
-    $form->{selectpartsgroup} = $form->unescape($form->{selectpartsgroup});
-    $partsgroup =
-      qq|<input type=hidden name=selectpartsgroup value="|
-      . $form->escape($form->{selectpartsgroup}, 1) . qq|">|;
-    $form->{selectpartsgroup} =~
-      s/(<option value="\Q$form->{partsgroup}\E")/$1 selected/;
-
-    $partsgroup .=
-      qq|<select name=partsgroup>$form->{selectpartsgroup}</select>|;
-    $group = $locale->text('Group');
-  }
-
-  # tax fields
-  foreach my $item (split / /, $form->{taxaccounts}) {
-    $tax .= qq|
-      <input class=checkbox type=checkbox name="IC_tax_$item" value=1 $form->{"IC_tax_$item"}>&nbsp;<b>$form->{"IC_tax_${item}_description"}</b>
-      <br><input type=hidden name=IC_tax_${item}_description value="$form->{"IC_tax_${item}_description"}">
-|;
-  }
-
-  $form->{obsolete} = "checked" if $form->{obsolete};
-
-  $lastcost = qq|
- 	      <tr>
-                <th align="right" nowrap="true">|
-    . $locale->text('Last Cost') . qq|</th>
-                <td><input name=lastcost size=11 value=$form->{lastcost}></td>
-              </tr>
-|;
-  if (!$eur) {
-    $linkaccounts = qq|
-               <tr>
-		<th align=right>| . $locale->text('Inventory') . qq|</th>
-		<td><select name=IC>$form->{selectIC}</select></td>
-		<input name=selectIC type=hidden value="$form->{selectIC}">
-	      </tr>|;
-  }
-
-  if ($form->{item} eq "part") {
-
-    $linkaccounts .= qq|
-	      <tr>
-		<th align=right>| . $locale->text('Revenue') . qq|</th>
-		<td><select name=IC_income>$form->{selectIC_income}</select></td>
-		<input name=selectIC_income type=hidden value="$form->{selectIC_income}">
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Expense') . qq|</th>
-		<td><select name=IC_expense>$form->{selectIC_expense}</select></td>
-		<input name=selectIC_expense type=hidden value="$form->{selectIC_expense}">
-	      </tr>
-|;
-
-    $weight = qq|
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('Weight') . qq|</th>
-		<td>
-		  <table>
-		    <tr>
-		      <td>
-			<input name=weight size=10 value=$form->{weight}>
-		      </td>
-		    </tr>
-		  </table>
-		</td>
-	      </tr>
-|;
-
-  }
-
-  if ($form->{item} eq "assembly") {
-
-    $lastcost = "";
-
-    $linkaccounts = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Revenue') . qq|</th>
-		<td><select name=IC_income>$form->{selectIC_income}</select></td>
-		<input name=selectIC_income type=hidden value="$form->{selectIC_income}">
-	      </tr>
-|;
-
-    $weight = qq|
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('Weight') . qq|</th>
-		<td>
-		  <table>
-		    <tr>
-		      <td>
-			&nbsp;$form->{weight}
-			<input type=hidden name=weight value=$form->{weight}>
-		      </td>
-		    </tr>
-		  </table>
-		</td>
-	      </tr>
-|;
-
-  }
-
-  if ($form->{item} eq "service") {
-
-    $linkaccounts = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Revenue') . qq|</th>
-		<td><select name=IC_income>$form->{selectIC_income}</select></td>
-		<input name=selectIC_income type=hidden value="$form->{selectIC_income}">
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Expense') . qq|</th>
-		<td><select name=IC_expense>$form->{selectIC_expense}</select></td>
-		<input name=selectIC_expense type=hidden value="$form->{selectIC_expense}">
-	      </tr>
-|;
-
-  }
-  $linkaccounts = qq|<input type=hidden name=IC_income value="$form->{IC_income_default}">|;
-
-  if ($form->{IC_cogs_default}) {
-    $form->{IC_expense_default} = $form->{IC_cogs_default};
-  }
-
-  if (($form->{item} eq "service") || ($form->{item} eq "part")) {
-    $linkaccounts .= qq|<input type=hidden name=IC_expense value="$form->{IC_expense_default}">|;
-  }
-  if ($form->{item} eq "part") {
-    $linkaccounts .= qq|<input type=hidden name=IC value="$form->{IC_default}">|;
-  }
-
-  if ($form->{item} ne 'service') {
-    $n   = ($form->{onhand} > 0) ? "1" : "0";
-    $rop = qq|
-	      <tr>
-		<th align="right" nowrap>| . $locale->text('On Hand') . qq|</th>
-		<th align=left nowrap class="plus$n">&nbsp;|
-      . $form->format_amount(\%myconfig, $form->{onhand}) . qq|</th>
-	      </tr>
-|;
-
-    if ($form->{item} eq 'assembly') {
-      $rop .= qq|
-              <tr>
-	        <th align="right" nowrap>| . $locale->text('Stock') . qq|</th>
-		<td><input name=stock size=10 value=$form->{stock}></td>
-	      </tr>
-|;
-    }
-
-    $rop .= qq|
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('ROP') . qq|</th>
-		<td><input name=rop size=10 value=$form->{rop}></td>
-	      </tr>
-|;
-
-    $bin = qq|
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('Bin') . qq|</th>
-		<td><input name=bin size=10 value=$form->{bin}></td>
-	      </tr>
-|;
-    $vegv = qq|
- 	      <tr>
-		<th align="right" nowrap="true">|
-      . $locale->text('Verrechnungseinheit') . qq|</th>
-		<td><input name=ve size=10 value=$form->{ve}></td>
-	      </tr>
-              <tr>
-		<th align="right" nowrap="true">|
-      . $locale->text('Business Volume') . qq|</th>
-		<td><input name=gv size=10 value=$form->{gv}></td>
-	      </tr>
-|;
-    $notdiscountableok = ($form->{not_discountable}) == 1 ? "checked" : "";
-    $notdiscountable .= qq|
-              <tr>
-                <th align=right nowrap>|
-    . $locale->text('Not Discountable') . qq|</th>
-                <td><input class=checkbox type=checkbox name=not_discountable value=1 $notdiscountableok></td>
-             </tr>
-|;
-
-    $formula =
-      qq|<ilayer><layer  onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('| . $locale->text('The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>') . qq|')"><textarea name=formel rows=4 cols=30 wrap=soft>$form->{formel}</textarea></layer><ilayer>|;
-
-    $formula_label = $locale->text('Formula');
-
-    $imagelinks = qq|
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-	  <th align=right nowrap>| . $locale->text('Image') . qq|</th>
-	  <td><input name=image size=40 value="$form->{image}"></td>
-	  <th align=right nowrap>| . $locale->text('Microfiche') . qq|</th>
-	  <td><input name=microfiche size=20 value="$form->{microfiche}"></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Drawing') . qq|</th>
-	  <td><input name=drawing size=40 value="$form->{drawing}"></td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-|;
-
-  }
-
-  if ($form->{id}) {
-    $obsolete = qq|
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('Obsolete') . qq|</th>
-		<td><input name=obsolete type=checkbox class=checkbox value=1 $form->{obsolete}></td>
-	      </tr>
-|;
-  }
-  $shopok = $form->{shop} == 1 ? "checked" : "";
-  $shop .= qq|
-              <tr>
-                <th align=right nowrap>|
-    . $locale->text('Shopartikel') . qq|</th>
-                <td><input class=checkbox type=checkbox name=shop value=1 $shopok></td>
-             </tr>
-|;
-
-
-  # type=submit $locale->text('Add Part')
-  # type=submit $locale->text('Add Service')
-  # type=submit $locale->text('Add Assembly')
-
-  # type=submit $locale->text('Edit Part')
-  # type=submit $locale->text('Edit Service')
-  # type=submit $locale->text('Edit Assembly')
-  # use JavaScript Calendar or not
-  my ($jsscript, $button1);
+  # use JavaScript Calendar or not (yes!)
   $form->{jsscript} = 1;
-  $jsscript = "";
-  if ($form->{jsscript}) {
 
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td width="13"><input name=priceupdate id=priceupdate size=11  title="$myconfig{dateformat}" value="$form->{priceupdate}"></td>
-       <td width="4" align="left"><input type=button name=priceupdate id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "1", "priceupdate", "BL", "trigger1");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}"></td>|;
-  }
-
-  my $unit_select = '<input type="hidden" name="unit_changeable" value="' . $form->{"unit_changeable"} . '">';
-  if (!$form->{"unit_changeable"}) {
-    $unit_select .= '<input type="hidden" name="unit" value="' . $form->{"unit"} . '">' . $form->{"unit"};
-  } else {
-    my $units = AM->retrieve_units(\%myconfig, $form, $form->{"item"} eq "service" ? "service" : "dimension");
-    $unit_select .= AM->unit_select_html($units, "unit", $form->{"unit"});
-  }
-
-  my $price_factor;
-  if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
-    my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
-    my %labels =      map { $_->{id} => $_->{description} } @{ $form->{ALL_PRICE_FACTORS} };
-
-    $price_factor =
-        qq|<tr><th align="right">|
-      . $locale->text('Price Factor')
-      . qq|</th><td>|
-      . NTI($cgi->popup_menu('-name'    => 'price_factor_id',
-                             '-default' => $form->{price_factor_id},
-                             '-values'  => \@values,
-                             '-labels'  => \%labels))
-      . qq|</td></tr>|;
-  }
+  $units = AM->retrieve_units(\%myconfig, $form, $form->{"item"} eq "service" ? "service" : "dimension");
+  $form->{ALL_UNITS} = [ map +{ name => $_ }, sort { $units->{$a}{sortkey} <=> $units->{$b}{sortkey} } keys %$units ];
 
   $form->{fokus} = "ic.partnumber";
+
   $form->header;
-
-  print qq|
-  <body onLoad="fokus()">
- <script type="text/javascript" src="js/common.js"></script>
- <script type="text/javascript" src="js/parts_language_selection.js"></script>
-
-<form method=post name="ic" action=$form->{script}>
-
-<input name=id type=hidden value=$form->{id}>
-<input name=item type=hidden value=$form->{item}>
-<input name=title type=hidden value="$form->{title}">
-<input name=makemodel type=hidden value="$form->{makemodel}">
-<input name=alternate type=hidden value="$form->{alternate}">
-<input name=onhand type=hidden value=$form->{onhand}>
-<input name=orphaned type=hidden value=$form->{orphaned}>
-<input name=taxaccounts type=hidden value="$form->{taxaccounts}">
-<input name=rowcount type=hidden value=$form->{rowcount}>
-<input name=eur type=hidden value=$eur>
-<input name=language_values type=hidden value="$form->{language_values}">
-<input name="original_partnumber" type="hidden" value="| . $form->quote($form->{"original_partnumber"}) . qq|">
-
-<table width="100%">
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width="100%">
-        <tr valign=top>
-          <th align=left>| . $locale->text('Part Number') . qq|</th>
-          <th align=left>| . $locale->text('Part Description') . qq|</th>
-          <th align=left>$group</th>
-        </tr>
-	<tr valign=top>
-          <td><input name=partnumber value="$form->{partnumber}" size=20></td>
-          <td>$description</td>
-          <td>$partsgroup</td>
-	  <input type=hidden name=oldpartsgroup value="$form->{oldpartsgroup}">
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table width="100%" height="100%">
-        <tr valign=top>
-          <td width=70%>
-            <table width="100%" height="100%">
-              <tr>
-                <td colspan=2>
-                  <table>
-                    $buchungsgruppe
-                    $linkaccounts
-                  </table>
-                </td>
-              </tr>
-              <tr>
-                <th align="left">| . $locale->text('Notes') . qq|</th>
-                <th align="left">$formula_label</th>
-              </tr>
-              <tr>
-                <td>
-                  $notes
-                </td>
-                <td>
-                  $formula
-                </td>
-              </tr>
-              <tr>
-                <th align="left"></th>
-                <th align="left">| . $locale->text('EAN-Code') . qq|</th>
-              </tr>
-              <tr>
-                <td>
-                  <button type="button" onclick="parts_language_selection_window('language_values')">| . $locale->text('Set Language Values') . qq|</button>
-                </td>
-		<td>
-	 	  $ean	
-		</td>
-              </tr>
-              <tr>
-              <td colspan=2>
-                <table>
-                <tr>
-	       <th align=right>| . $locale->text('Payment Terms') . qq|</th>
-	         <td><select name=payment_id>$payment</select></td>
-                </tr>
-               </table>
-              </td>
-              </tr>
-            </table>
-          </td>
-	  <td width="30%">
-	    <table width="100%">
-	      <tr>
-                <th align="right" nowrap="true">|
-    . $locale->text('Updated') . qq|</th>
-                $button1
-              </tr>
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('List Price') . qq|</th>
-		<td><input name=listprice size=11 value=$form->{listprice}></td>
-	      </tr>
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('Sell Price') . qq|</th>
-		<td><input name=sellprice size=11 value=$form->{sellprice}></td>
-	      </tr>
-	      $lastcost
-	      $price_factor
-	      <tr>
-		<th align="right" nowrap="true">| . $locale->text('Unit') . qq|</th>
-		<td>$unit_select</td>
-	      </tr>
-	      $weight
-	      $rop
-	      $bin
-              $notdiscountable
-              $vegv
-              $shop
-	      $obsolete
-	    </table>
-	  </td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-  $imagelinks
-
-$jsscript
-|;
+  print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS}, 
+                                                       ALL_UNITS         => $form->{ALL_UNITS},
+                                                       BUCHUNGSGRUPPEN   => $form->{BUCHUNGSGRUPPEN},
+                                                       payment_terms     => $form->{payment_terms},
+                                                       all_partsgroup    => $form->{all_partsgroup}});
   $lxdebug->leave_sub();
 }
 
@@ -1943,10 +1479,8 @@ sub form_footer {
 	  <td>
             <table width="100%">
               <tr>
-                <th colspan=2 align=right>|
-      . $locale->text('Total') . qq|&nbsp;</th>
-                <th align=right>|
-      . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2) . qq|</th>
+                <th colspan=2 align=right>| . $locale->text('Total') . qq|&nbsp;</th>
+                <th align=right>| . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2) . qq|</th>
               </tr>
             </table>
           </td>
