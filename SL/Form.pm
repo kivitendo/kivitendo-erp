@@ -59,36 +59,71 @@ sub DESTROY {
   }
 }
 
-sub _input_to_hash {
+sub _store_value {
   $main::lxdebug->enter_sub(2);
 
-  my $input = $_[0];
-  my %in    = ();
-  my @pairs = split(/&/, $input);
+  my $self  = shift;
+  my $key   = shift;
+  my $value = shift;
 
-  foreach (@pairs) {
-    my ($name, $value) = split(/=/, $_, 2);
-    $in{$name} = unescape(undef, $value);
+  my $curr  = $self;
+
+  while ($key =~ /\[\+?\]\.|\./) {
+    substr($key, 0, $+[0]) = '';
+
+    if ($& eq '.') {
+      $curr->{$`} ||= { };
+      $curr         = $curr->{$`};
+
+    } else {
+      $curr->{$`} ||= [ ];
+      if (!scalar @{ $curr->{$`} } || $& eq '[+].') {
+        push @{ $curr->{$`} }, { };
+      }
+
+      $curr = $curr->{$`}->[-1];
+    }
   }
+
+  $curr->{$key} = $value;
 
   $main::lxdebug->leave_sub(2);
 
-  return %in;
+  return \$curr->{$key};
+}
+
+sub _input_to_hash {
+  $main::lxdebug->enter_sub(2);
+
+  my $self  = shift;
+  my $input = shift;
+
+  my @pairs = split(/&/, $input);
+
+  foreach (@pairs) {
+    my ($key, $value) = split(/=/, $_, 2);
+    $self->_store_value($self->unescape($key), $self->unescape($value));
+  }
+
+  $main::lxdebug->leave_sub(2);
 }
 
 sub _request_to_hash {
   $main::lxdebug->enter_sub(2);
 
-  my ($input) = @_;
+  my $self  = shift;
+  my $input = shift;
 
   if (!$ENV{'CONTENT_TYPE'}
       || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
+
+    $self->_input_to_hash($input);
+
     $main::lxdebug->leave_sub(2);
-    return _input_to_hash($input);
+    return;
   }
 
-  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr);
-  my %params;
+  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous);
 
   my $boundary = '--' . $1;
 
@@ -96,9 +131,9 @@ sub _request_to_hash {
     last if (($line eq "${boundary}--") || ($line eq "${boundary}--\r"));
 
     if (($line eq $boundary) || ($line eq "$boundary\r")) {
-      $params{$name} =~ s|\r?\n$|| if $name;
+      ${ $previous } =~ s|\r?\n$|| if $previous;
 
-      undef $name;
+      undef $previous;
       undef $filename;
 
       $headers_done   = 0;
@@ -130,8 +165,8 @@ sub _request_to_hash {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $params{$name}    = "";
-        $params{FILENAME} = $filename if ($filename);
+        $previous         = $self->_store_value($name, '');
+        $self->{FILENAME} = $filename if ($filename);
 
         next;
       }
@@ -143,15 +178,14 @@ sub _request_to_hash {
       next;
     }
 
-    next unless $name;
+    next unless $previous;
 
-    $params{$name} .= "${line}\n";
+    ${ $previous } .= "${line}\n";
   }
 
-  $params{$name} =~ s|\r?\n$|| if $name;
+  ${ $previous } =~ s|\r?\n$|| if $previous;
 
   $main::lxdebug->leave_sub(2);
-  return %params;
 }
 
 sub new {
@@ -176,17 +210,18 @@ sub new {
     $_ = $ARGV[0];
   }
 
-  my %parameters = _request_to_hash($_);
-  map({ $self->{$_} = $parameters{$_}; } keys(%parameters));
+  bless $self, $type;
 
-  $self->{action} = lc $self->{action};
-  $self->{action} =~ s/( |-|,|\#)/_/g;
+  $self->_request_to_hash($_);
 
-  $self->{version}   = "2.4.3";
+  $self->{action}  =  lc $self->{action};
+  $self->{action}  =~ s/( |-|,|\#)/_/g;
+
+  $self->{version} =  "2.4.3";
 
   $main::lxdebug->leave_sub();
 
-  bless $self, $type;
+  return $self;
 }
 
 sub debug {
