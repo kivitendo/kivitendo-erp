@@ -224,6 +224,58 @@ sub new {
   return $self;
 }
 
+sub _flatten_variables_rec {
+  $main::lxdebug->enter_sub(2);
+
+  my $self   = shift;
+  my $curr   = shift;
+  my $prefix = shift;
+  my $key    = shift;
+
+  my @result;
+
+  if ('' eq ref $curr->{$key}) {
+    @result = ({ 'key' => $prefix . $key, 'value' => $curr->{$key} });
+
+  } elsif ('HASH' eq ref $curr->{$key}) {
+    foreach my $hash_key (sort keys %{ $curr->{$key} }) {
+      push @result, $self->_flatten_variables_rec($curr->{$key}, $prefix . $key . '.', $hash_key);
+    }
+
+  } else {
+    foreach my $idx (0 .. scalar @{ $curr->{$key} } - 1) {
+      my $first_array_entry = 1;
+
+      foreach my $hash_key (sort keys %{ $curr->{$key}->[$idx] }) {
+        push @result, $self->_flatten_variables_rec($curr->{$key}->[$idx], $prefix . $key . ($first_array_entry ? '[+].' : '[].'), $hash_key);
+        $first_array_entry = 0;
+      }
+    }
+  }
+
+  $main::lxdebug->leave_sub(2);
+
+  return @result;
+}
+
+sub flatten_variables {
+  $main::lxdebug->enter_sub(2);
+
+  my $self = shift;
+  my @keys = @_;
+
+  my @variables;
+
+  foreach (@keys) {
+    push @variables, $self->_flatten_variables_rec($self, '', $_);
+  }
+
+  $main::lxdebug->leave_sub(2);
+
+  return @variables;
+}
+
+
 sub debug {
   $main::lxdebug->enter_sub();
 
@@ -395,9 +447,14 @@ sub isblank {
 
   my ($self, $name, $msg) = @_;
 
-  if ($self->{$name} =~ /^\s*$/) {
-    $self->error($msg);
+  my $curr = $self;
+  foreach my $part (split '.', $name) {
+    if (!$curr->{$part} || ($curr->{$part} =~ /^\s*$/)) {
+      $self->error($msg);
+    }
+    $curr = $curr->{$part};
   }
+
   $main::lxdebug->leave_sub();
 }
 
