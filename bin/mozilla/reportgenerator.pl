@@ -34,8 +34,7 @@ sub report_generator_export_as_pdf {
     return;
   }
 
-  my @form_values;
-  map { push @form_values, { 'key' => $_, 'value' => $form->{$_} } } keys %{ $form };
+  my @form_values = $form->flatten_variables(keys %{ $form });
 
   $form->get_lists('printers' => 'ALL_PRINTERS');
   map { $_->{selected} = $myconfig{default_printer_id} == $_->{id} } @{ $form->{ALL_PRINTERS} };
@@ -58,8 +57,7 @@ sub report_generator_export_as_csv {
     return;
   }
 
-  my @form_values;
-  map { push @form_values, { 'key' => $_, 'value' => $form->{$_} } } keys %{ $form };
+  my @form_values = $form->flatten_variables(keys %{ $form });
 
   $form->{title} = $locale->text('CSV export -- options');
   $form->header();

@@ -44,7 +44,7 @@ sub new {
   };
   $self->{export}   = {
     'nextsub'       => '',
-    'variable_list' => '',
+    'variable_list' => [],
   };
 
   $self->{data_present} = 0;
@@ -209,7 +209,7 @@ sub set_export_options {
 
   $self->{export} = {
     'nextsub'       => shift,
-    'variable_list' => join(" ", @_),
+    'variable_list' => [ @_ ],
   };
 }
 
@@ -362,10 +362,7 @@ sub prepare_html_content {
     }
   }
 
-  my @export_variables;
-  foreach my $key (split m/ +/, $self->{export}->{variable_list}) {
-    push @export_variables, { 'key' => $key, 'value' => $self->{form}->{$key} };
-  }
+  my @export_variables = $self->{form}->flatten_variables(@{ $self->{export}->{variable_list} });
 
   my $allow_pdf_export = $opts->{allow_pdf_export} && (-x $main::html2ps_bin) && (-x $main::ghostscript_bin);
 
@@ -382,7 +379,7 @@ sub prepare_html_content {
     'NUM_COLUMNS'          => scalar @column_headers,
     'ROWS'                 => \@rows,
     'EXPORT_VARIABLES'     => \@export_variables,
-    'EXPORT_VARIABLE_LIST' => $self->{export}->{variable_list},
+    'EXPORT_VARIABLE_LIST' => join(' ', @{ $self->{export}->{variable_list} }),
     'EXPORT_NEXTSUB'       => $self->{export}->{nextsub},
     'DATA_PRESENT'         => $self->{data_present},
   };
