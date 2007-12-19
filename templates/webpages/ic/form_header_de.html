@@ -182,7 +182,6 @@
 [%- UNLESS unit_changeable %]
                   <input type="hidden" name="unit" value="[% unit%]">[% unit %]
 [%- ELSE %]
-                 <!-- [% unit_select %] -->
                     [%- INCLUDE generic/multibox.html 
                           name       = 'unit',
                           DATA       = ALL_UNITS,
@@ -269,14 +268,5 @@
 [%- END %]
 
 <script type="text/javascript">
-       <!--
-       Calendar.setup(
-      {
-      inputField : "priceupdate",
-      ifFormat :"%d.%m.%Y",
-      align : "BL",
-      button : "trigger1"
-      }
-      );
-       //-->
+  <!-- Calendar.setup({ inputField : "priceupdate", ifFormat :"%d.%m.%Y", align : "BL", button : "trigger1" }); //--> 
 </script>
