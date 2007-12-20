@@ -64,11 +64,13 @@ if ($form->{action}) {
 
 sub login_screen {
   $lxdebug->enter_sub();
+  my ($msg) = @_;
 
   if (-f "css/lx-office-erp.css") {
     $form->{stylesheet} = "lx-office-erp.css";
   }
 
+  $form->{msg}   = $msg;
   $form->{fokus} = "loginscreen.login";
   $form->header;
 
@@ -80,17 +82,18 @@ sub login_screen {
 sub login {
   $lxdebug->enter_sub();
 
-  $form->error($locale->text('You did not enter a name!')) unless ($form->{login});
+  unless ($form->{login}) {
+    login_screen($locale->text('You did not enter a name!'));
+    exit;
+  }
 
   $user = new User $memberfile, $form->{login};
 
   # if we get an error back, bale out
   if (($result = $user->login(\%$form, $userspath)) <= -1) {
-    if ($result == -2) {
-      exit;
-    }
-
-    $form->error($locale->text('Incorrect username or password!'));
+    exit if $result == -2;
+    login_screen($locale->text('Incorrect username or password!'));
+    exit;
   }
 
   my %style_to_script_map = ( 'v3'  => 'v3',
