@@ -5,7 +5,6 @@
 
 $self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
-  ' Number'                     => ' Nummer',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   ' missing!'                   => ' fehlt!',
   '&lt;%account_number%&gt; -- Your account number' => '&lt;%account_number%&gt; -- Ihre Kontonummer',

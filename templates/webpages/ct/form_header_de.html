@@ -1,0 +1,443 @@
+<body onLoad="fokus()">
+<table width=100%>
+  <tr>
+    <th class=listtop>[% title %]</th>
+  </tr>
+</table>
+
+
+<form method=post name="ct" action=[% script %] onKeyUp="highlight(event)" onClick="highlight(event)">
+
+
+
+<ul id="maintab" class="shadetabs">
+<li class="selected"><a href="#" rel="billing">Rechnungsadresse</a></li>
+<li><a href="#" rel="shipto">Lieferadresse</a></li>
+<li><a href="#" rel="contacts">Ansprechpartner</a></li>
+<li><a href="#" rel="deliveries">Lieferungen</a></li>
+
+</ul>
+
+<div class="tabcontentstyle">
+
+<div id="billing" class="tabcontent">
+
+      <table width=100%>
+	<tr height="5"></tr>
+	<tr>
+[%- IF is_customer %]
+	  <th align=right nowrap>Kundennummer</th>
+	  <td><input name="customernumber" size=35 value="[% customernumber %]"></td>
+[% ELSE %]
+	  <th align=right nowrap>Lieferantennummer</th>
+	  <td><input name="vendornumber" size=35 value="[% vendornumber %]"></td>
+[% END %]
+	</tr>
+        <tr>
+          <th align=right nowrap>Anrede</th>
+          <td>
+            <input id=greeting name=greeting size=30 value="[% greeting %]">&nbsp;
+              [%- INCLUDE generic/multibox.html 
+                    name       = 'selected_company_greeting',
+                    DATA       = MB_COMPANY_GREETINGS,
+                    show_empty = 1,
+                    id_key     = 'id',
+                    label_key  = 'description',
+              -%]
+          </td>
+        </tr>
+	<tr>
+	  <th align=right nowrap>Firmenname</th>
+	  <td><input name=name size=35 maxlength=75 value="[% name %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Abteilung</th>
+	  <td><input name=department_1 size=16 maxlength=75 value="[% department_1 %]">
+	  <input name=department_2 size=16 maxlength=75 value="[% department_2 %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Straße</th>
+	  <td><input name=street size=35 maxlength=75 value="[% street %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>PLZ/Stadt</th>
+	  <td><input name=zipcode size=5 maxlength=10 value="[% zipcode %]">
+          <input name=city size=30 maxlength=75 value="[% city %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Land</th>
+	  <td><input name=country size=35 maxlength=75 value="[% country %]"></td>
+	</tr>
+	<tr>
+          <th align=right nowrap>Kontakt</th>
+          <td><input name=contact size=28 maxlength=75 value="[% contact %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Telefon</th>
+	  <td><input name=phone size=30 maxlength=30 value="[% phone %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Fax</th>
+	  <td><input name=fax size=30 maxlength=30 value="[% fax %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>eMail</th>
+	  <td><input name=email size=45 value="[% email %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Homepage</th>
+	  <td><input name=homepage size=45 value="[% homepage %]"></td>
+	</tr>
+</table>
+<table>
+	<tr>
+	  <th align=right>Kreditlimit</th>
+	  <td><input name=creditlimit size=9 value="[% LxERP.format_amount(creditlimit, 0) %]"></td>
+	  <input type="hidden" name="terms" value="[% terms %]">
+	  <th align=right>Zahlungskonditionen</th>
+          <td>
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'payment_id',
+                  DATA       = payment_terms,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_key  = 'description',
+            -%]
+          </td>
+	  <th align=right>Rabatt</th>
+	  <td><input name=discount size=4 value="[% LxERP.format_amount(discount) %]">
+	  %</td>
+	</tr>
+	<tr>
+	  <th align=right>Steuernummer</th>
+	  <td><input name=taxnumber size=20 value="[% taxnumber %]"></td>
+          <th align=right>USt-IdNr.</th>
+	  <td><input name="ustid" maxlength="14" size="20" value="[% ustid %]"></td>
+[%- IF is_sustomer %]
+          <th align=right>KNr. beim Kunden</th>
+          <td><input name=c_vendor_id size=10 value="[% c_vendor_id %]"></td>
+[%- ELSE %]
+          <th align=right>Kundennummer</th>
+          <td><input name=v_customer_id size=10 value="[% v_customer_id %]"></td>
+[%- END %]
+	</tr>
+        <tr>
+          <th align=right>Kontonummer</th>
+          <td><input name="account_number" size="10" maxlength="15" value="[% account_number %]"></td>
+          <th align=right>Bankleitzahl</th>
+          <td><input name="bank_code" size="10" maxlength="10" value="[% bank_code %]"></td>
+          <th align=right>Bank</th>
+          <td><input name=bank size=30 value="[% bank %]"></td>
+        </tr>
+	<tr>
+ 	  <th align=right>Kunden-/Lieferantentyp</th>
+	  <td>
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'business',
+                  DATA       = all_business,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_key  = 'description',
+            -%]
+          </td>
+	  <th align=right>Sprache</th>
+          <td>
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'language_id',
+                  DATA       = languages,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_key  = 'description',
+            -%]
+          </td>
+
+[%- IF is_customer %]
+          <th align=right>Preisgruppe</th>
+          <td>
+[%- IF is_customer %]
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'klass',
+                  DATA       = all_pricegroup,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_key  = 'pricegroup',
+           -%]
+[% END %]
+          </td>
+[%- END  %]
+        </tr>
+        <tr>
+          <td align=right>Ungültig</td>
+          <td><input name=obsolete class=checkbox type=checkbox value=1 [% IF obsolete %]checked[% END %]></td>
+	</tr>
+        <tr>
+          <th align=right>Steuersatz</th>
+          <td>
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'taxzone_id',
+                  DATA       = ALL_TAXZONES,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_key  = 'description',
+            -%]
+          </td>
+[%- IF is_customer %]
+          <th align="right">Verkäufer/in</th>
+          <td>
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'salesman_id',
+                  DATA       = ALL_SALESMEN,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_sub  = 'salesman_label',
+            -%]
+          </td>
+[%- END %]
+        </tr>
+      </table>
+  <table>
+  <tr>
+    <th align=left nowrap>Bemerkungen</th>
+  </tr>
+  <tr>
+    <td><textarea name=notes rows=3 cols=60 wrap=soft>[% notes %]</textarea></td>
+  </tr>
+
+            </table>
+          </td>
+        </tr>
+</table>
+<br style="clear: left" /></div>
+
+      <div id="shipto" class="tabcontent">
+
+      <table width=100%>
+        <tr>
+          <th align=right>Lieferadresse</th>
+          <td>
+            [%- INCLUDE generic/multibox.html 
+                  name       = 'shipto_id',
+                  id         = 'shipto_id',
+                  DATA       = SHIPTO,
+                  onChange   = "get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail'])",
+                  id_key     = 'shipto_id',
+                  label_sub  = 'shipto_label',
+                  label_key  = 'shipto_label',
+            -%]
+          </td>
+        </tr>
+	<tr>
+	  <th align=right nowrap>Firmenname</th>
+	  <td><input id=shiptoname name=shiptoname size=35 maxlength=75 value="[% shiptoname %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Abteilung</th>
+          <td><input id=shiptodepartment_1 name=shiptodepartment_1 size=16 maxlength=75 value="[% shiptodepartment_1 %]">
+	  <input id=shiptodepartment_2 name=shiptodepartment_2 size=16 maxlength=75 value="[% shiptodepartment_2 %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Straße</th>
+	  <td><input id=shiptostreet name=shiptostreet size=35 maxlength=75 value="[% shiptostreet %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>PLZ/Stadt</th>
+	  <td><input id=shiptozipcode name=shiptozipcode size=5 maxlength=75 value="[% shiptozipcode %]">
+          <input id=shiptocity name=shiptocity size=30 maxlength=75 value="[% shiptocity %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Land</th>
+	  <td><input id=shiptocountry name=shiptocountry size=35 maxlength=75 value="[% shiptocountry %]"></td>
+	</tr>
+	<tr>
+          <th align=right nowrap>Kontakt</th>
+	  <td><input id=shiptocontact name=shiptocontact size=30 maxlength=75 value="[% shiptocontact %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Telefon</th>
+	  <td><input id=shiptophone name=shiptophone size=30 maxlength=30 value="[% shiptophone %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>Fax</th>
+	  <td><input id=shiptofax name=shiptofax size=30 maxlength=30 value="[% shiptofax %]"></td>
+	</tr>
+	<tr>
+	  <th align=right nowrap>eMail</th>
+	  <td><input id=shiptoemail name=shiptoemail size=45 value="[% shiptoemail %]"></td>
+	</tr>
+        <tr>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+           <td>&nbsp;</td>
+       </tr>
+
+    </table>
+<br style="clear: left" /></div>
+
+<div id="contacts" class="tabcontent">
+<table>
+    <tr>
+         <td colspan=3>
+	 	<input type=hidden name=cp_id value=[% cp_id %]>
+                <table>
+                  <tr>
+                    <th align=right>Ansprechpartner</th>
+                    <td>
+                      [%- INCLUDE generic/multibox.html 
+                            name       = 'cp_id',
+                            id         = 'cp_id',
+                            DATA       = CONTACTS,
+                            onChange   = "get_contact(['cp_id__' + this.value], ['cp_name', 'cp_greeting', 'cp_title', 'cp_givenname', 'cp_phone1', 'cp_phone2', 'cp_email', 'cp_abteilung', 'cp_fax', 'cp_mobile1', 'cp_mobile2', 'cp_satphone', 'cp_satfax', 'cp_project', 'cp_privatphone', 'cp_privatemail', 'cp_birthday'])",
+                            id_key     = 'cp_id',
+                            label_key  = 'cp_name',
+                      -%]
+                    </td>
+                  </tr>
+                <tr>
+	          <th align=left nowrap>Anrede</th>
+                  <td>
+                    <input id=cp_greeting name=cp_greeting size=40 maxlength=75 value="[% cp_greeting %]">&nbsp;
+                      [%- INCLUDE generic/multibox.html 
+                            name       = 'selected_cp_greeting',
+                            DATA       = MB_GREETINGS,
+                            show_empty = 1,
+                            id_key     = 'id',
+                            label_key  = 'description',
+                      -%]
+                  </td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Titel</th>
+                  <td>
+                    <input id=cp_title name=cp_title size=40 maxlength=75 value="[% cp_title %]">&nbsp;
+                      [%- INCLUDE generic/multibox.html 
+                            name       = 'selected_cp_title',
+                            DATA       = MB_TITLES,
+                            show_empty = 1,
+                            id_key     = 'id',
+                            label_key  = 'description',
+                      -%]
+                  </td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Abteilung</th>
+                  <td><input id=cp_abteilung name=cp_abteilung size=40 value="[% cp_abteilung %]">&nbsp;
+                      [%- INCLUDE generic/multibox.html 
+                            name       = 'selected_cp_abteilung',
+                            DATA       = MB_DEPARTMENT,
+                            show_empty = 1,
+                            id_key     = 'id',
+                            label_key  = 'description',
+                      -%]
+                  </td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Vorname</th>
+                  <td><input id="cp_givenname" name="cp_givenname" size="40" maxlength="75" value="[% cp_givenname %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>Name</th>
+                  <td><input id="cp_name" name="cp_name" size="40" maxlength="75" value="[% cp_name %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>Telefon 1 </th>
+                  <td><input id="cp_phone1" name="cp_phone1" size="40" maxlength="75" value="[% cp_phone1 %]"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Telefon 2</th>
+                  <td><input id="cp_phone2" name="cp_phone2" size="40" maxlength="75" value="[% cp_phone2 %]"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Fax</th>
+                  <td><input id=cp_fax name=cp_fax size=40 value="[% cp_fax %]"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Mobile 1</th>
+                  <td><input id=cp_mobile1 name=cp_mobile1 size=40 value="[% cp_mobile1 %]"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Mobile 2</th>
+                  <td><input id=cp_mobile2 name=cp_mobile2 size=40 value="[% cp_mobile2 %]"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Sat. Tel.</th>
+                  <td><input id=cp_satphone name=cp_satphone size=40 value="[% cp_satphone %]"></td>
+                </tr>
+                <tr>
+                  <th align=left nowrap>Sat. Fax</th>
+                  <td><input id=cp_satfax name=cp_satfax size=40 value="[% cp_satfax %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>Projekt</th>
+                  <td><input id=cp_project name=cp_project size=40 value="[% cp_project %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>eMail</th>
+                  <td><input id=cp_email name=cp_email size=40 value="[% cp_email %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>Privates Tel.</th>
+                  <td><input id=cp_privatphone name=cp_privatphone size=40 value="[% cp_privatphone %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>Private eMail</th>
+                  <td><input id=cp_privatemail name=cp_privatemail size=40 value="[% cp_privatemail %]"></td>
+                </tr>
+                <tr>
+	          <th align=left nowrap>Geburtstag</th>
+                  <td><input id=cp_birthday name=cp_birthday size=40 value="[% cp_birthday %]"></td>
+                </tr>
+                
+          </table>
+        </td>
+        </tr>
+        <tr height="5"></tr>
+          <tr>
+            <th align=right nowrap>Bcc</th>
+            <td><input name=bcc size=35 value="[% bcc %]"></td>
+          </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      
+<br style="clear: left" /></div>
+<div id="deliveries" class="tabcontent">
+  <table>
+    <tr>
+      <th align=right>Lieferadresse</th>
+      <td>
+        [%- INCLUDE generic/multibox.html 
+              name       = 'delivery_id',
+              id         = 'delivery_id',
+              DATA       = SHIPTO,
+              onChange   = "get_delivery(['shipto_id__' + this.value, 'from__' + from.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])",
+              id_key     = 'shipto_id',
+              label_sub  = 'shipto_label',
+       -%]
+      </td>
+    </tr>
+    <tr>
+      <th align=left nowrap>Von</th>
+      <td><input id=from name=from size=10 maxlength=10 value="[% from %]">
+        <input type="button" name="fromB" id="trigger_from" value="?"></td>
+      <th align=left nowrap>Bis</th>
+      <td><input id=to name=to size=10 maxlength=10 value="[% to %]">
+        <input type="button" name="toB" id="trigger_to" value="?"></td>
+    </tr>       
+    <tr>
+     <td colspan=4>
+      <div id=delivery>
+      </div>
+      </td>
+    </tr>
+  </table>
+<br style="clear: left" /></div>
+
+</div>
+
+<script type="text/javascript"><!--
+  Calendar.setup({ inputField : "fromB", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_from" });
+  Calendar.setup({ inputField : "toB", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_to" });
+//--></script>
