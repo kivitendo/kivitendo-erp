@@ -332,12 +332,6 @@ sub save_account {
       next READTAXKEYS;
     }
 
-    # check if there is at least one relation to pos_ustva or tax_id
-    if ( $form->{"taxkey_pos_ustva_$tk_count"} eq '' && $form->{"taxkey_tax_$tk_count"} == 0 ) {
-      $tk_count++;
-      next READTAXKEYS;
-    }
-
     # Add valid taxkeys into the array
     push @taxkeys ,
       {
@@ -345,7 +339,7 @@ sub save_account {
         tax_id    => conv_i($form->{"taxkey_tax_$tk_count"}),
         startdate => conv_date($form->{"taxkey_startdate_$tk_count"}),
         chart_id  => conv_i($form->{"id"}),
-        pos_ustva => $form->{"taxkey_pos_ustva_$tk_count"},
+        pos_ustva => conv_i($form->{"taxkey_pos_ustva_$tk_count"}),
         delete    => ( $form->{"taxkey_del_$tk_count"} eq 'delete' ) ? '1' : '',
       };
 
