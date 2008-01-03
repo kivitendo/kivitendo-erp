@@ -151,43 +151,49 @@ sub dump {
 sub index {
   $main::lxdebug->enter_sub(); 
   my ($self) = @_;
-  $self->{ INDEX };
   $main::lxdebug->leave_sub(); 
+  return $self->{ INDEX };
 }
 
 sub number {
   $main::lxdebug->enter_sub(); 
   my ($self) = @_;
-  $self->{ NUMBER };
   $main::lxdebug->leave_sub(); 
+  return $self->{ NUMBER };
 }
 
+sub count {
+  $main::lxdebug->enter_sub(); 
+  my ($self) = @_;
+  $main::lxdebug->leave_sub(); 
+  return $self->{ COUNT };
+}
 sub max {
   $main::lxdebug->enter_sub(); 
   my ($self) = @_;
-  $self->{ MAX };
   $main::lxdebug->leave_sub(); 
+  return $self->{ MAX };
 }
 
 sub size {
   $main::lxdebug->enter_sub(); 
   my ($self) = @_;
-  $self->{ SIZE };
   $main::lxdebug->leave_sub(); 
+  return $self->{ SIZE };
 }
 
 sub first {
   $main::lxdebug->enter_sub(); 
   my ($self) = @_;
-  $self->{ FIRST };
   $main::lxdebug->leave_sub(); 
+  return $self->{ FIRST };
 }
 
 sub last {
   $main::lxdebug->enter_sub(); 
   my ($self) = @_;
-  $self->{ LAST};
   $main::lxdebug->leave_sub(); 
+  return $self->{ LAST};
 }
 
 1;
