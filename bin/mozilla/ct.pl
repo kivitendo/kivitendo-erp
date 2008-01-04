@@ -272,75 +272,8 @@ sub form_header {
 sub form_footer {
   $lxdebug->enter_sub();
 
-  $label     = ucfirst $form->{db};
-  $quotation =
-    ($form->{db} eq 'customer')
-    ? $locale->text('Save and Quotation')
-    : $locale->text('Save and RFQ');
-  $arap =
-    ($form->{db} eq 'customer')
-    ? $locale->text('Save and AR Transaction')
-    : $locale->text('Save and AP Transaction');
-
-##<input class=submit type=submit name=action value="|.$locale->text("Save and Quotation").qq|">
-##<input class=submit type=submit name=action value="|.$locale->text("Save and RFQ").qq|">
-##<input class=submit type=submit name=action value="|.$locale->text("Save and AR Transaction").qq|">
-##<input class=submit type=submit name=action value="|.$locale->text("Save and AP Transaction").qq|">
-
-  print qq|
-<input name=id type=hidden id=cvid value=$form->{id}>
-<input name=business_save type=hidden value="$form->{selectbusiness}">
-<input name=title_save type=hidden value="$form->{title}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
-<input type=hidden name=callback value="$form->{callback}">
-<input type=hidden name=db id=db value=$form->{db}>
-
-
-
-<br>
-<input class=submit type=submit name=action accesskey="s" value="|
-    . $locale->text("Save") . qq|">
-<input class=submit type=submit name=action accesskey="s" value="|
-    . $locale->text("Save and Close") . qq|">
-<input class=submit type=submit name=action value="$arap">
-<input class=submit type=submit name=action value="|
-    . $locale->text("Save and Invoice") . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text("Save and Order") . qq|">
-<input class=submit type=submit name=action value="$quotation">
-|;
-
-  if ($form->{id} && $form->{status} eq 'orphaned') {
-    print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Delete')
-      . qq|">\n|;
-  }
-
-  # button for saving history
-  if($form->{id} ne "") {
-    print qq|
-  	  <input type=button class=submit onclick=set_history_window(|
-  	  . $form->{id} 
-  	  . qq|); name=history id=history value=|
-  	  . $locale->text('history') 
-  	  . qq|>|;
-  }
-  # /button for saving history
-
-  print qq|
-
-  </form>
-<script type="text/javascript">
-//Start Tab Content script for UL with id="maintab" Separate multiple ids each with a comma.
-initializetabcontent("maintab")
-</script>
-</body>
-</html>
-|;
-
+  print $form->parse_html_template('ct/form_footer', { is_orphaned => $form->{status} eq 'orphaned',
+                                                       is_customer => $form->{db}     eq 'customer' });
   $lxdebug->leave_sub();
 }
 

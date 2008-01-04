@@ -1,0 +1,32 @@
+
+<input name=id type=hidden id=cvid value=[% id %]>
+<input name=business_save type=hidden value="[% selectbusiness %]">
+<input name=title_save type=hidden value="[% title %]">
+
+<input type=hidden name=login value=[% login %]>
+<input type=hidden name=password value=[% password %]>
+
+<input type=hidden name=callback value="[% callback %]">
+<input type=hidden name=db id=db value=[% db %]>
+
+<br>
+  <input class=submit type=submit name=action accesskey="s" value="Speichern">
+  <input class=submit type=submit name=action accesskey="s" value="Speichern und schließen">
+  <input class=submit type=submit name=action value=" [% IF is_cumstomer %]Speichern und Debitorenbuchung erfassen[% ELSE %]Speichern und Kreditorenbuchung erfassen[% END %]">
+  <input class=submit type=submit name=action value="Speichern und Rechnung erfassen">
+  <input class=submit type=submit name=action value="Speichern und Auftrag erfassen">
+  <input class=submit type=submit name=action value="[% IF is_customer %]Speichern und Angebot[% ELSE %]Speichern und Lieferantenanfrage[% END %]">
+[%- IF id AND is_orphaned %]
+  <input class=submit type=submit name=action value="Löschen">
+[%- END %]
+[%- IF id %]
+  <input type=button class=submit onclick=set_history_window([% id %]); name=history id=history value=Historie>|;
+[%- END %]
+
+  </form>
+<script type="text/javascript">
+//Start Tab Content script for UL with id="maintab" Separate multiple ids each with a comma.
+initializetabcontent("maintab")
+</script>
+</body>
+</html>
