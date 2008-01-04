@@ -1,0 +1,30 @@
+[% USE LxERP %]
+<table width=100%>
+  <tr>
+    <td>
+      <table width=100%>
+        <tr class=listheading>
+          <th class=listheading><translate>Shipping Address</translate></th>
+          <th class=listheading><translate>Invoice</translate></th>
+          <th class=listheading><translate>Order</translate></th>
+          <th class=listheading><translate>Invdate</translate></th>
+          <th class=listheading><translate>Description</translate></th>
+          <th class=listheading><translate>Qty</translate></th>
+          <th class=listheading><translate>Unit</translate></th>
+          <th class=listheading><translate>Sell Price</translate></th>
+        </tr>
+[%- FOREACH row = DELIVERY %]
+        <tr class=listrow[% loop.count % 2 %]>
+          
+          <td>[% row.shiptoname UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
+          <td>[% row.invnumber   %]&nbsp;</td>
+          <td>[% row.ordnumber   %]&nbsp;</td>
+          <td>[% row.transdate   %]&nbsp;</td>
+          <td>[% row.description %]&nbsp;</td>
+          <td>[% row.qty         %]&nbsp;</td>
+          <td>[% row.unit        %]&nbsp;</td>
+          <td>[% LxERP.format_amount(row.sellprice, 2) %]&nbsp;</td>
+        </tr>
+[%- END %]
+
+     </table>

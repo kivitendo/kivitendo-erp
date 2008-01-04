@@ -542,85 +542,9 @@ sub get_delivery {
 
   CT->get_delivery(\%myconfig, \%$form );
 
-  @column_index =
-    $form->sort_columns(shiptoname,
-                        invnumber,
-                        ordnumber,
-                        transdate,
-                        description,
-                        qty,
-                        unit,
-                        sellprice);
-
-
-
-  $column_header{shiptoname} =
-    qq|<th class=listheading>| . $locale->text('Shipping Address') . qq|</th>|;
-  $column_header{invnumber} =
-      qq|<th class=listheading>|. $locale->text('Invoice'). qq|</th>|;
-  $column_header{ordnumber} =
-      qq|<th class=listheading>|. $locale->text('Order'). qq|</th>|;
-  $column_header{transdate} =
-    qq|<th class=listheading>| . $locale->text('Invdate') . qq|</th>|;
-  $column_header{description} =
-    qq|<th class=listheading>| . $locale->text('Description') . qq|</th>|;
-  $column_header{qty} =
-    qq|<th class=listheading>| . $locale->text('Qty') . qq|</th>|;
-  $column_header{unit} =
-    qq|<th class=listheading>| . $locale->text('Unit') . qq|</th>|;
-  $column_header{sellprice} =
-    qq|<th class=listheading>| . $locale->text('Sell Price') . qq|</th>|;
-  $result .= qq|
-
-<table width=100%>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>
-|;
-
-  map { $result .= "$column_header{$_}\n" } @column_index;
-
-  $result .= qq|
-        </tr>
-|;
-
-
-  foreach $ref (@{ $form->{DELIVERY} }) {
-
-    if ($ref->{shiptoname} eq $sameshiptoname) {
-      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
-      $column_data{shiptoname} = "<td>&nbsp;</td>";
-    } else {
-      map { $column_data{$_} = "<td>$ref->{$_}&nbsp;</td>" } @column_index;
-    }
-    $column_data{sellprice} = "<td>". $form->format_amount(\%myconfig,$ref->{sellprice},2)."&nbsp;</td>";
-    $i++;
-    $i %= 2;
-    $result .= "
-        <tr class=listrow$i>
-";
-
-    map { $result .= "$column_data{$_}\n" } @column_index;
-
-    $result .= qq|
-        </tr>
-|;
-
-    $sameshiptoname = $ref->{shiptoname};
-
-  }
-
-  $result .= qq|
-      </table>
-|;
-
-
-  my $q = new CGI;
-  print $q->header();
-  print $result;
+  print CGI->new->header();
+  print $form->parse_html_template('ct/get_delivery');
   $lxdebug->leave_sub();
-
 }
 
 sub continue { call_sub($form->{nextsub}); }
