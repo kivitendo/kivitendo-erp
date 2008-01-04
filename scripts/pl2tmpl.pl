@@ -12,4 +12,5 @@
 #
 
 s/\$form->\{(?:"([^}]+)"|([^}]+))\}/[% $+ %]/g;
-s/\| \s* \. \s* \$locale->text \( ' ([^)]+) ' \) \s* \. \s* qq\|/<translate>$1<\/translate>/xg;
+s/\| \s* \. \s* \$locale->text \( ' ([^']+) ' \) \s* \. \s* qq\|/<translate>$1<\/translate>/xg;
+s/\| \s* \. \s* \$locale->text \( " ([^"]+) " \) \s* \. \s* qq\|/<translate>$1<\/translate>/xg;
