@@ -19,6 +19,13 @@ $dbupdir2 = "$basedir/sql/Pg-upgrade2";
 $menufile = "menu.ini";
 $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 
+%referenced_html_files = ();
+
+# Arguments:
+#   -v verbose
+#   -n no custom files
+#   -h extended checks on HTML templates
+
 foreach $item (@ARGV) {
   $item =~ s/-//g;
   $arg{$item} = 1;
@@ -242,6 +249,11 @@ close(FH);
 $trlanguage = $language[0];
 chomp $trlanguage;
 
+if ($arg{h}) {
+  search_unused_htmlfiles();
+  search_translated_htmlfiles_wo_master();
+}
+
 $per = sprintf("%.1f", ($count - $notext) / $count * 100);
 print "\n$trlanguage - ${per}%";
 print " - $notext missing" if $notext;
@@ -343,8 +355,8 @@ sub scanfile {
 #           &converthtmlfile($newfile);
            $cached{$file}{scanh}{$newfile} = 1;
           print "." if $arg{v};
-        } else {
-          print "W: missing HTML template: $newfile (referenced from $file)\n";
+        } elsif ($arg{h}) {
+          print "W: missing HTML template: " . strip_base($newfile) . " (referenced from " . strip_base($file) . ")\n";
         }
       }
 
@@ -429,6 +441,8 @@ sub scanfile {
   map { &scanfile($_, 0, $scanned_files) } keys %{$cached{$file}{scan}};
   map { &scanfile($_, 1, $scanned_files) } keys %{$cached{$file}{scannosubs}};
   map { &scanhtmlfile($_)  }    keys %{$cached{$file}{scanh}};
+
+  @referenced_html_files{keys %{$cached{$file}{scanh}}} = (1) x scalar keys %{$cached{$file}{scanh}};
 }
 
 sub scanmenu {
@@ -573,4 +587,50 @@ sub converthtmlfile {
 
   close(IN);
   close(OUT);
+}
+
+sub search_unused_htmlfiles {
+  my @unscanned_dirs = ('../../templates/webpages');
+
+  while (scalar @unscanned_dirs) {
+    my $dir = shift @unscanned_dirs;
+
+    foreach my $entry (<$dir/*>) {
+      if (-d $entry) {
+        push @unscanned_dirs, $entry;
+
+      } elsif (($entry =~ /_master.html$/) && -f $entry && !$referenced_html_files{$entry}) {
+        print "W: unused HTML template: " . strip_base($entry) . "\n";
+
+      }
+    }
+  }
+}
+
+sub search_translated_htmlfiles_wo_master {
+  my @unscanned_dirs = ('../../templates/webpages');
+
+  while (scalar @unscanned_dirs) {
+    my $dir = shift @unscanned_dirs;
+
+    foreach my $entry (<$dir/*>) {
+      if (-d $entry) {
+        push @unscanned_dirs, $entry;
+
+      } elsif (($entry =~ /_[a-z]+\.html$/) && ($entry !~ /_master.html$/) && -f $entry) {
+        my $master =  $entry;
+        $master    =~ s/[a-z]+\.html$/master.html/;
+        if (! -f $master) {
+          print "W: translated HTML template without master: " . strip_base($entry) . "\n";
+        }
+      }
+    }
+  }
+}
+
+sub strip_base {
+  $_[0] =~ s|^../../||;
+  $_[0] =~ s|templates/webpages/||;
+
+  return $_[0];
 }
