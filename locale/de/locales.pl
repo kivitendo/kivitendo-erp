@@ -343,6 +343,8 @@ sub scanfile {
 #           &converthtmlfile($newfile);
            $cached{$file}{scanh}{$newfile} = 1;
           print "." if $arg{v};
+        } else {
+          print "W: missing HTML template: $newfile (referenced from $file)\n";
         }
       }
 
@@ -435,7 +437,7 @@ sub scanmenu {
   my $fh = new FileHandle;
   open $fh, "$file" or die "$! : $file";
 
-  my @a = grep /^\[/, <$fh>;
+  my @a = grep m/^\[/, <$fh>;
   close($fh);
 
   # strip []
