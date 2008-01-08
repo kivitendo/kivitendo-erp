@@ -343,8 +343,10 @@ sub scanfile {
 #         &scanfile("$bindir/$newfile", 0, $scanned_files);
          $cached{$file}{scan}{"$bindir/$newfile"} = 1;
       } elsif (/use\s+SL::(.*?);/) {
+        my $module =  $1;
+        $module    =~ s|::|/|g;
 #         &scanfile("../../SL/${1}.pm", 1, $scanned_files);
-         $cached{$file}{scannosubs}{"../../SL/${1}.pm"} = 1;
+        $cached{$file}{scannosubs}{"../../SL/${module}.pm"} = 1;
       }
 
       # is this a template call?
