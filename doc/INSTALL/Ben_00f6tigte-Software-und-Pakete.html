@@ -1,0 +1,75 @@
+<html lang="en">
+<head>
+<title>Benötigte Software und Pakete - Lx-Office Installationsanleitung</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Lx-Office Installationsanleitung">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Aktuelle-Hinweise.html#Aktuelle-Hinweise" title="Aktuelle Hinweise">
+<link rel="next" href="Installation-des-Programmpaketes.html#Installation-des-Programmpaketes" title="Installation des Programmpaketes">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Ben%f6tigte-Software-und-Pakete"></a>
+<a name="Ben_00f6tigte-Software-und-Pakete"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Installation-des-Programmpaketes.html#Installation-des-Programmpaketes">Installation des Programmpaketes</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="Aktuelle-Hinweise.html#Aktuelle-Hinweise">Aktuelle Hinweise</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">2 Benötigte Software und Pakete</h2>
+
+<p>Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache) und ein Datenbankserver (PostgreSQL) benötigt.
+
+   <p>Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind:
+
+     <ul>
+<li>DBI
+<li>DBD::Pg
+<li>CGI::Ajax
+<li>Class::Accessor
+<li>Archive::Zip
+<li>Text::Iconv
+<li>Text::CSV_XS
+<li>IO::Wrap (aus dem Paket IO::Stringy)
+<li>YAML
+<li>Template
+</ul>
+
+   <p>Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
+
+   <p>Für Debian oder Ubuntu benötigen Sie diese Pakete:
+
+   <p><code>apache postgresql libdbi-perl libdbd-pg-perl libpgperl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl</code>
+
+   <p>Für Fedora Core benötigen Sie unter anderem diese Pakete:
+
+   <p><code>httpd postgresql-server perl-DBI perl-DBD-Pg</code>
+
+   <p>Für OpenSuSE benötigen Sie diese Pakete:
+
+   <p><code>apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit</code>
+
+   <p>Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß
+es mit der CPAN-Shell installiert werden.  Leider gibt es Fälle, in
+denen das nicht möglich oder praktikabel ist. Lx-Office liefert daher
+das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
+
+<!--  -->
+</body></html>
+

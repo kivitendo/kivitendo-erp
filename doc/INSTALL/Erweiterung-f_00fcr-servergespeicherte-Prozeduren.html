@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+<title>Erweiterung für servergespeicherte Prozeduren - Lx-Office Installationsanleitung</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Lx-Office Installationsanleitung">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration" title="Anpassung der PostgreSQL-Konfiguration">
+<link rel="prev" href="_00c4nderungen-an-Konfigurationsdateien.html#g_t_00c4nderungen-an-Konfigurationsdateien" title="Änderungen an Konfigurationsdateien">
+<link rel="next" href="Datenbankbenutzer-anlegen.html#Datenbankbenutzer-anlegen" title="Datenbankbenutzer anlegen">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Erweiterung-f%fcr-servergespeicherte-Prozeduren"></a>
+<a name="Erweiterung-f_00fcr-servergespeicherte-Prozeduren"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Datenbankbenutzer-anlegen.html#Datenbankbenutzer-anlegen">Datenbankbenutzer anlegen</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="_00c4nderungen-an-Konfigurationsdateien.html#g_t_00c4nderungen-an-Konfigurationsdateien">Änderungen an Konfigurationsdateien</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>
+<hr>
+</div>
+
+<h3 class="section">4.2 Erweiterung für servergespeicherte Prozeduren</h3>
+
+<p>In der Datenbank <code>template1</code> muss die Unterstützung für
+servergespeicherte Prozeduren eingerichet werden. Melden Sie sich
+dafür als Benutzer &ldquo;postgres&rdquo; an der Datenbank an, und führen Sie
+die folgenden Kommandos aus:
+
+   <p><code>create function plpgsql_call_handler () returns opaque as '/usr/lib/pgsql/plpgsql.so' language 'c';
+<br>
+create language 'plpgsql' handler plpgsql_call_handler
+lancompiler 'pl/pgsql';</code>
+
+   <p>Bitte beachten Sie, dass der Pfad zur Datei <code>plpgsql.so</code> von
+Distribution zu Distribution verschiedlich sein kann. Bei
+Debian/Ubuntu befindet sie sich unter
+<code>/usr/lib/postgresql/lib/plpgsql.so</code>.
+
+<!--  -->
+</body></html>
+

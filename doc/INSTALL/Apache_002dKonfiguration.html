@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+<title>Apache-Konfiguration - Lx-Office Installationsanleitung</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Lx-Office Installationsanleitung">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration" title="Anpassung der PostgreSQL-Konfiguration">
+<link rel="next" href="Benutzer-und-Datenbanken-anlegen.html#Benutzer-und-Datenbanken-anlegen" title="Benutzer und Datenbanken anlegen">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Apache-Konfiguration"></a>
+<a name="Apache_002dKonfiguration"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Benutzer-und-Datenbanken-anlegen.html#Benutzer-und-Datenbanken-anlegen">Benutzer und Datenbanken anlegen</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">5 Apache-Konfiguration</h2>
+
+<p>Der Zugriff auf das Programmverzeichnis muss in der Apache
+Webserverkonfigurationsdatei <code>httpd.conf</code> eingestellt
+werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
+anderen Datei hinzu, die beim Starten des Webservers eingelesen wird:
+
+   <p><code><br>
+AddHandler cgi-script .pl
+<br>
+Alias /lx-erp/ /var/www/lx-erp/
+<br>
+&lt;Directory /var/www/lx-erp&gt;
+<br>
+  Options ExecCGI Includes FollowSymlinks
+<br>
+&lt;/Directory&gt;
+<br>
+<br>
+&lt;Directory /var/www/lx-erp/users&gt;
+<br>
+  Order Deny,Allow
+<br>
+  Deny from All
+<br>
+&lt;/Directory&gt;
+<br>
+</code>
+
+   <p>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher das
+Lx-Office-Archiv entpacket haben.
+
+   <p>Achtung: Vor den einzelnen Optionen muss bei einigen Distributionen ein
+Plus `<samp><span class="samp">+</span></samp>' gesetzt werden.
+
+   <p>Auf einigen Webservern werden manchmal die Grafiken und Style-Sheets
+nicht ausgeliefert. In solchen Fällen hat es oft geholfen, die
+folgende Option in die Konfiguration aufzunehmen:
+
+   <p><code>EnableSendfile Off</code>
+
+<!--  -->
+</body></html>
+

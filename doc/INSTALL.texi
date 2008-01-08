@@ -1,0 +1,361 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@documentencoding ISO-8859-15
+@setfilename INSTALL.info
+@settitle Lx-Office Installationsanleitung
+@c %**end of header
+
+@c @copying
+@c Die Lx-Office Installationsanleitung kann beliebig weiter verwendet
+@c werden.
+@c @end copying
+
+@titlepage
+@title Lx-Office Installationsanleitung
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Inhalt der Anleitung
+@end ifnottex
+
+@menu
+* Aktuelle Hinweise:: Andere Informationsquellen als diese Anleitung
+* Benötigte Software und Pakete:: Vorraussetzungen zum Betrieb von Lx-Office
+* Installation des Programmpaketes:: Installationsort, Berechtigungen
+* Anpassung der PostgreSQL-Konfiguration:: Verschiedene Aspekte der Datenbankkonfiguration
+* Apache-Konfiguration:: Einrichtung eines Aliases und Optionen für das Ausführen von CGI-Scripten
+* Benutzer und Datenbanken anlegen:: Letzte Schritte vor der Anmeldung
+* OpenDocument-Vorlagen:: Wichtige Hinweise zum Erstellen und zur Verwendung von Dokumentenvorlagen
+* Lx-Office ERP verwenden:: Die URLs zur Anmeldung und Administration
+@end menu
+
+@c ---------------------------------------------------------------
+
+@node Aktuelle Hinweise
+@chapter Aktuelle Hinweise
+
+Aktuelle Installations- und Konfigurationshinweise gibt es:
+
+@itemize
+@item
+auf der Lx-Office Homepage unter @uref{http://lx-office.org/index.php?id=dokumentation}
+
+@item
+im Lx-Office-Wiki unter Dokumentation (@uref{http://wiki.lx-office.org/index.php/Lx-Office_ERP})
+
+@item
+im Lx-Office-Forum: @uref{http://www.lx-office.org/forum/}
+@end itemize
+
+@c ---------------------------------------------------------------
+
+@node Benötigte Software und Pakete
+@chapter Benötigte Software und Pakete
+
+Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache) und ein Datenbankserver (PostgreSQL) benötigt.
+
+Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind:
+
+@itemize
+@item
+DBI
+@item
+DBD::Pg
+@item
+CGI::Ajax
+@item
+Class::Accessor
+@item
+Archive::Zip
+@item
+Text::Iconv
+@item
+Text::CSV_XS
+@item
+IO::Wrap (aus dem Paket IO::Stringy)
+@item
+YAML
+@item
+Template
+@end itemize
+
+Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
+
+Für Debian oder Ubuntu benötigen Sie diese Pakete:
+
+@code{apache postgresql libdbi-perl libdbd-pg-perl libpgperl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl}
+
+Für Fedora Core benötigen Sie unter anderem diese Pakete:
+
+@code{httpd postgresql-server perl-DBI perl-DBD-Pg}
+
+Für OpenSuSE benötigen Sie diese Pakete:
+
+@code{apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit}
+
+Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß
+es mit der CPAN-Shell installiert werden.  Leider gibt es Fälle, in
+denen das nicht möglich oder praktikabel ist. Lx-Office liefert daher
+das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
+
+@c ---------------------------------------------------------------
+
+@node Installation des Programmpaketes
+@chapter Installation des Programmpaketes
+
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.4.x.tgz) wird im
+Dokumentenverzeichnis des Webservers (z.B. @code{/var/www/html/},
+@code{/srv/www/htdocs} oder @code{/var/www/}) entpackt:
+
+@code{cd /var/www
+@*
+tar xvzf lxoffice-erp-2.4.x.tgz}
+
+Verändern Sie evtl. noch den Namen des Verzeichnisses mit
+
+@code{mv lxoffice-erp/ lx-erp/}
+
+Alternativ können Sie auch einen Alias in der Webserverkonfiguration
+benutzen, um auf das tatsächliche Installationsverzeichnis zu
+verweisen.
+
+Das Verzeichnis muß für den Benutzer beschreibbar sein, unter dem der
+Webserver läuft. Dieser ist bei verschiedenen Distributionen
+unterschiedlich (z.B. bei Debian/Ubuntu @code{www-data}, bei Fedora
+core @code{apache} oder bei OpenSuSE @code{wwwrun}).
+
+@code{chown -R www-data: lx-office-erp/}
+
+@c ---------------------------------------------------------------
+
+@node Anpassung der PostgreSQL-Konfiguration
+@chapter Anpassung der PostgreSQL-Konfiguration
+
+PostgreSQL muss auf verschiedene Weisen angepasst werden.
+
+@menu
+* Änderungen an Konfigurationsdateien:: Anpassungen für Anmeldung am Server und Featureunterstützung
+* Erweiterung für servergespeicherte Prozeduren:: Lx-Office benutzt servergespeicherte Prozeduren
+* Datenbankbenutzer anlegen:: Um den Zugriff besser zu reglementieren
+@end menu
+
+@node Änderungen an Konfigurationsdateien
+@section Änderungen an Konfigurationsdateien
+
+In der Datei @code{postgresql.conf}, die je nach Distribution in
+verschiedenen Verzeichnissen liegen kann
+(z.B. @code{/var/lib/pgsql/data/} oder @code{/etc/postgresql/}, muss
+sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Dieser
+Parameter lautet
+
+@code{TCPIP_SOCKET = 1}
+
+Bei PostgreSQL-Versionen ab v8.0 und neuer muss zusätzlich der
+folgende Parameter gesetzt werden:
+
+@code{default_with_oids = on}
+
+In der Datei @code{pg_hba.conf}, die im gleichen Verzeichnis wie die
+@code{postgresql.conf} zu finden sein sollte, müssen die
+Berichtigungen für den Zugriff geändert werden. Hier gibt es mehrere
+Möglichkeiten. Eine besteht darin, lokale Verbindungen immer
+zuzulassen
+
+@code{local all all trust
+@*
+host all all 127.0.0.1 255.0.0.0 trust}
+
+Besser ist es, für eine bestimmte Datenbank Zugriff nur per Passwort
+zuzulassen. Beispielsweise:
+
+@code{local   all         lxoffice                                           password
+@*
+host    all         lxoffice      127.0.0.1         255.255.255.255    password}
+
+@c ---------------------------------------------------------------
+
+@node Erweiterung für servergespeicherte Prozeduren
+@section Erweiterung für servergespeicherte Prozeduren
+
+In der Datenbank @code{template1} muss die Unterstützung für
+servergespeicherte Prozeduren eingerichet werden. Melden Sie sich
+dafür als Benutzer ``postgres'' an der Datenbank an, und führen Sie
+die folgenden Kommandos aus:
+
+@code{create function plpgsql_call_handler () returns opaque as '/usr/lib/pgsql/plpgsql.so' language 'c';
+@*
+create language 'plpgsql' handler plpgsql_call_handler
+lancompiler 'pl/pgsql';}
+
+Bitte beachten Sie, dass der Pfad zur Datei @code{plpgsql.so} von
+Distribution zu Distribution verschiedlich sein kann. Bei
+Debian/Ubuntu befindet sie sich unter
+@code{/usr/lib/postgresql/lib/plpgsql.so}.
+
+
+@c ---------------------------------------------------------------
+
+@node Datenbankbenutzer anlegen
+@section Datenbankbenutzer anlegen
+
+Wenn Sie nicht den Datenbanksuperuser ``postgres'' zum Zugriff
+benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
+anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen können:
+
+@code{su - postgres
+@*
+createuser -d -P lxoffice}
+
+Wenn Sie später einen Datenbankzugriff konfigurieren, verändern Sie
+den evtl. voreingestellten Benutzer ``postgres'' auf ``lxoffice''
+bzw. den hier gewählten Benutzernamen.
+
+@c ---------------------------------------------------------------
+
+@node Apache-Konfiguration
+@chapter Apache-Konfiguration
+
+Der Zugriff auf das Programmverzeichnis muss in der Apache
+Webserverkonfigurationsdatei @code{httpd.conf} eingestellt
+werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
+anderen Datei hinzu, die beim Starten des Webservers eingelesen wird:
+
+@code{@*
+AddHandler cgi-script .pl
+@*
+Alias /lx-erp/ /var/www/lx-erp/
+@*
+<Directory /var/www/lx-erp>
+@*
+  Options ExecCGI Includes FollowSymlinks
+@*
+</Directory>
+@*
+@*
+<Directory /var/www/lx-erp/users>
+@*
+  Order Deny,Allow
+@*
+  Deny from All
+@*
+</Directory>
+@*
+}
+
+Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher das
+Lx-Office-Archiv entpacket haben.
+
+Achtung: Vor den einzelnen Optionen muss bei einigen Distributionen ein
+Plus @samp{+} gesetzt werden.
+
+Auf einigen Webservern werden manchmal die Grafiken und Style-Sheets
+nicht ausgeliefert. In solchen Fällen hat es oft geholfen, die
+folgende Option in die Konfiguration aufzunehmen:
+
+@code{EnableSendfile Off}
+
+@c ---------------------------------------------------------------
+
+@node Benutzer und Datenbanken anlegen
+@chapter Benutzer und Datenbanken anlegen
+
+Nach der Installation müssen Benutzer und Datenbanken angelegt werden.
+Dieses geschieht im Administrationsmenü, dass Sie unter folgender URL
+finden:
+
+@code{http://localhost/lx-erp/admin.pl}
+
+Zuerst muss eine Datenbank angelegt werden, anschließend ein
+Benutzer. Verwenden Sie für den Datenbankzugriff den eben angelegten
+Benutzer ``lxoffice''.
+
+Wenn Sie für die Lx-Office-Installation nicht den europäischen
+Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
+müssen Sie vor dem Anlegen der Datenbank in der Datei ``lx-erp.conf''
+die Variable @code{$dbcharset} auf den Wert ``UTF-8''
+setzen. Zusätzlich muss beim Anlegen der Datenbank ``UTF-8 Unicode''
+als Schriftsatz ausgewählt werden.
+
+@c ---------------------------------------------------------------
+
+@node OpenDocument-Vorlagen
+@chapter OpenDocument-Vorlagen
+
+Lx-Office unterstützt die Verwendung von Vorlagen im
+OpenDocument-Format, wie es OpenOffice.org ab Version 2
+erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
+auch aus diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
+OpenDocument-Vorlagen zu aktivieren muss in der Datei ``lx-erp.conf''
+die Variable @code{$opendocument_templates} auf ``1'' stehen.  Dieses
+ist die Standardeinstellung.
+
+Weiterhin muss in der Datei ``lx-erp.conf'' die Variable
+@code{$dbcharset} auf die Zeichenkodierung gesetzt werden, die auch
+bei der Speicherung der Daten in der Datenbank verwendet wird. Diese
+ist in den meisten Fällen "ISO-8859-15".
+
+Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
+weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
+OpenOffice.org benötigt. Soll dieses Feature genutzt werden, so muss
+neben OpenOffice.org ab Version 2 auch der ``X virtual frame buffer''
+(xvfb) installiert werden.  Bei Debian ist er im Paket ``xvfb''
+enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
+
+Nach der Installation müssen in der Datei ``lx-erp.conf'' zwei weitere
+Variablen angepasst werden: @code{$openofficeorg_writer_bin} muss den
+vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
+@code{$xvfb_bin} muss den Pfad zum ``X virtual frame buffer''
+enthalten.
+
+Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
+OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn
+die Variable @code{$openofficeorg_daemon} gesetzt ist, startet ein
+OpenOffice, das auch nach der Umwandlung des Dokumentes gestartet
+bleibt. Bei weiteren Umwandlungen wird dann diese laufende Instanz
+benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung deutlich
+reduziert wird, weil nicht für jedes Dokument ein OpenOffice gestartet
+werden muss. Der Nachteil ist, dass diese Methode Python und die
+Python-UNO-Bindings benötigt, die Bestandteil von OpenOffice 2 sind.
+
+Ist @code{$openofficeorg_daemon} nicht gesetzt, so wird für jedes
+Dokument OpenOffice neu gestartet und die Konvertierung mit Hilfe
+eines Makros durchgeführt. Dieses Makro muss in der Dokumentenvorlage
+enthalten sein und ``Standard.Conversion.ConvertSelfToPDF()''
+heißen. Die Beispielvorlage @samp{templates/German-invoice.odt}
+enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
+ebenfalls enthalten sein muss.
+
+Als letztes muss herausgefunden werden, welchen Namen OpenOffice.org
+Writer dem Verzeichnis mit den Benutzereinstellungen gibt. Unter
+Debian ist dies momentan @code{~/.openoffice.org2}. Sollte der Name
+bei Ihrer OpenOffice.org-Installation anders sein, so muss das
+Verzeichnis @code{users/.openoffice.org2} entsprechend umbenannt
+werden. Ist der Name z.B. einfach nur @code{.openoffice}, so wäre
+folgender Befehl auszuführen:
+
+@code{mv users/.openoffice.org2 users/.openoffice}
+
+Dieses Verzeichnis, wie auch das komplette @code{users}-Verzeichnis,
+muss vom Webserver beschreibbar sein. Dieses wurde in Schritt
+@code{Installation des Programmpakets} oben bereits erledigt, kann
+aber erneut überprüft werden, wenn die Konvertierung nach PDF
+fehlschlägt.
+
+@c ---------------------------------------------------------------
+
+@node Lx-Office ERP verwenden
+@chapter Lx-Office ERP verwenden
+
+Nach erfolgreicher Installation ist der Loginbildschirm unter
+folgender URL erreichbar:
+
+@uref{http://localhost/lx-office-erp/login.pl}
+
+Die Administrationsseite erreichen Sie unter:
+
+@uref{http://localhost/lx-office-erp/admin.pl}
+
+@bye
