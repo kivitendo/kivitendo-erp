@@ -12,7 +12,7 @@
    <b>
     [% HTML.escape(myconfig_company) %]
     <br>
-    [% HTML.escape(myconfig_address).replace('\\\\n', '<br>') %]
+    [% HTML.escape(myconfig_address).replace('\\\\n', '<br>').replace('\n', '<br>') %]
    </b>
 
    <br>

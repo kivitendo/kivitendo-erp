@@ -15,9 +15,7 @@ foreach (@felder) {
 }
 $login =
     "[" . $login
-  . " - <a href=\"login.pl?password="
-  . $form->{"password"}
-  . "&action=logout\" target=\"_top\">"
+  . " - <a href=\"login.pl?action=logout\" target=\"_top\">"
   . $locale->text('Logout')
   . "</a>] ";
 my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,

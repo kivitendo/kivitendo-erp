@@ -91,8 +91,29 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Non-taxable Sales')
 # $locale->text('Non-taxable Purchases')
 
+my $rp_access_map = {
+  'projects'         => 'report',
+  'ar_aging'         => 'general_ledger',
+  'ap_aging'         => 'general_ledger',
+  'receipts'         => 'cash',
+  'payments'         => 'cash',
+  'trial_balance'    => 'report',
+  'income_statement' => 'report',
+  'bwa'              => 'report',
+  'balance_sheet'    => 'report',
+};
+
+sub check_rp_access {
+  my $right   = $rp_access_map->{$form->{report}};
+  $right    ||= 'DOES_NOT_EXIST';
+
+  $auth->assert($right);
+}
+
 sub report {
   $lxdebug->enter_sub();
+
+  check_rp_access();
 
   %title = ('balance_sheet'        => 'Balance Sheet',
             'income_statement'     => 'Income Statement',
@@ -872,9 +893,6 @@ $jsscript
 </table>
 
 <br>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <input type=submit class=submit name=action value="|
     . $locale->text('Continue') . qq|">
 
@@ -891,6 +909,9 @@ sub continue { call_sub($form->{"nextsub"}); }
 
 sub get_project {
   $lxdebug->enter_sub();
+
+  $auth->assert('report');
+
   my $nextsub = shift;
 
   $form->{project_id} = $form->{project_id_1};
@@ -913,6 +934,8 @@ sub get_project {
 
 sub generate_income_statement {
   $lxdebug->enter_sub();
+
+  $auth->assert('report');
 
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
@@ -1081,6 +1104,8 @@ sub generate_income_statement {
 sub generate_balance_sheet {
   $lxdebug->enter_sub();
 
+  $auth->assert('report');
+
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
@@ -1106,9 +1131,7 @@ sub generate_balance_sheet {
   $form->{IN} = "balance_sheet.html";
 
   # setup company variables for the form
-  map { $form->{$_} = $myconfig{$_};
-        $form->{$_} =~ s/\\n/\n/g; }
-    (qw(company address businessnumber nativecurr));
+  map { $form->{$_} = $myconfig{$_}; } (qw(company address businessnumber nativecurr));
 
   $form->{templates} = $myconfig{templates};
 
@@ -1119,6 +1142,8 @@ sub generate_balance_sheet {
 
 sub generate_projects {
   $lxdebug->enter_sub();
+
+  $auth->assert('report');
 
   &get_project(generate_projects);
   $form->{projectnumber} = $form->{projectnumber_1};
@@ -1140,6 +1165,8 @@ sub generate_projects {
 #
 sub generate_trial_balance {
   $lxdebug->enter_sub();
+
+  $auth->assert('report');
 
   # get for each account initial balance, debits and credits
   RP->trial_balance(\%myconfig, \%$form);
@@ -1290,6 +1317,8 @@ sub list_accounts {
 sub generate_ar_aging {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   # split customer
   ($form->{customer}) = split(/--/, $form->{customer});
 
@@ -1306,6 +1335,8 @@ sub generate_ar_aging {
 
 sub generate_ap_aging {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   # split vendor
   ($form->{vendor}) = split(/--/, $form->{vendor});
@@ -1340,6 +1371,8 @@ sub create_aging_subtotal_row {
 
 sub aging {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
@@ -1470,6 +1503,8 @@ sub select_all {
 sub e_mail {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   # get name and email addresses
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"statement_$i"}) {
@@ -1545,6 +1580,7 @@ sub e_mail {
 
   # save all other variables
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1574,6 +1610,8 @@ sub e_mail {
 sub send_email {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{subject} = $locale->text('Statement') . qq| - $form->{todate}|
     unless $form->{subject};
 
@@ -1591,6 +1629,8 @@ sub send_email {
 
 sub print {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   if ($form->{media} eq 'printer') {
     $form->error($locale->text('Select postscript or PDF!'))
@@ -1625,6 +1665,8 @@ sub print {
 
 sub print_form {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my %replacements =
     (
@@ -1738,6 +1780,9 @@ sub print_form {
 
 sub statement_details {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   my ($ref) = @_;
 
   push @{ $form->{invnumber} }, $ref->{invnumber};
@@ -1761,6 +1806,8 @@ sub statement_details {
 sub generate_tax_report {
   $lxdebug->enter_sub();
 
+  $auth->assert('report');
+
   RP->tax_report(\%myconfig, \%$form);
 
   $descvar     = "$form->{accno}_description";
@@ -1771,13 +1818,13 @@ sub generate_tax_report {
 
   # construct href
   $href =
-    "$form->{script}?&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
+    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
 
   # construct callback
   $description = $form->escape($form->{$descvar},   1);
   $department  = $form->escape($form->{department}, 1);
   $callback    =
-    "$form->{script}?&action=generate_tax_report&login=$form->{login}&password=$form->{password}&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
+    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
 
   $title = $form->escape($form->{title});
   $href .= "&title=$title";
@@ -1916,7 +1963,7 @@ sub generate_tax_report {
 
     $column_data{id}        = qq|<td>$ref->{id}</td>|;
     $column_data{invnumber} =
-      qq|<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>|;
+      qq|<td><a href=$module?action=edit&id=$ref->{id}&callback=$callback>$ref->{invnumber}</a></td>|;
     $column_data{transdate} = qq|<td>$ref->{transdate}</td>|;
     $column_data{name}      = qq|<td>$ref->{name}&nbsp;</td>|;
 
@@ -2012,6 +2059,8 @@ sub tax_subtotal {
 
 sub list_payments {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   if ($form->{account}) {
     ($form->{paymentaccounts}) = split /--/, $form->{account};
@@ -2205,6 +2254,9 @@ sub print_options {
 
 sub generate_bwa {
   $lxdebug->enter_sub();
+
+  $auth->assert('report');
+
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";

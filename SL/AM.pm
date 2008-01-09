@@ -37,6 +37,7 @@
 
 package AM;
 
+use Carp;
 use Data::Dumper;
 use SL::DBUtils;
 
@@ -1528,7 +1529,7 @@ sub save_defaults {
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $memberfile, $userspath, $webdav) = @_;
+  my ($self, $myconfig, $form, $webdav) = @_;
 
   my $dbh = $form->get_standard_dbh($myconfig);
 
@@ -1546,13 +1547,25 @@ sub save_preferences {
 
   $form->{businessnumber} =  $businessnumber;
 
-  $myconfig = new User "$memberfile", "$form->{login}";
+  my $myconfig = new User($form->{login});
 
   foreach my $item (keys %$form) {
     $myconfig->{$item} = $form->{$item};
   }
 
-  $myconfig->save_member($memberfile, $userspath);
+  $myconfig->save_member($memberfile);
+
+  my $auth = $main::auth;
+
+  if ($auth->can_change_password()
+      && defined $form->{new_password}
+      && ($form->{new_password} ne '********')) {
+    $auth->change_password($form->{login}, $form->{new_password});
+
+    $form->{password} = $form->{new_password};
+    $auth->set_session_value('password', $form->{password});
+    $auth->create_or_refresh_session();
+  }
 
   if ($webdav) {
     @webdavdirs =
@@ -1820,6 +1833,21 @@ sub retrieve_units {
   return $units;
 }
 
+sub retrieve_all_units {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift;
+
+  if (!$main::all_units) {
+    $main::all_units = $self->retrieve_units(\%main::myconfig, $main::form);
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $main::all_units;
+}
+
+
 sub translate_units {
   $main::lxdebug->enter_sub();
 
@@ -1889,6 +1917,34 @@ sub units_in_use {
   $main::lxdebug->leave_sub();
 }
 
+sub convertible_units {
+  $main::lxdebug->enter_sub();
+
+  my $self        = shift;
+  my $units       = shift;
+  my $filter_unit = shift;
+  my $not_smaller = shift;
+
+  my $conv_units = [];
+
+  $filter_unit = $units->{$filter_unit};
+
+  foreach my $name (sort { lc $a cmp lc $b } keys %{ $units }) {
+    my $unit = $units->{$name};
+
+    if (($unit->{base_unit} eq $filter_unit->{base_unit}) &&
+        (!$not_smaller || ($unit->{factor} >= $filter_unit->{factor}))) {
+      push @{$conv_units}, $unit;
+    }
+  }
+
+  my @sorted = sort { $b->{factor} <=> $a->{factor} } @{ $conv_units };
+
+  $main::lxdebug->leave_sub();
+
+  return \@sorted;
+}
+
 # if $a is translatable to $b, return the factor between them.
 # else return 1
 sub convert_unit {
@@ -1903,7 +1959,7 @@ sub convert_unit {
 sub unit_select_data {
   $main::lxdebug->enter_sub();
 
-  my ($self, $units, $selected, $empty_entry) = @_;
+  my ($self, $units, $selected, $empty_entry, $convertible_into) = @_;
 
   my $select = [];
 
@@ -1912,10 +1968,14 @@ sub unit_select_data {
   }
 
   foreach my $unit (sort({ $units->{$a}->{"sortkey"} <=> $units->{$b}->{"sortkey"} } keys(%{$units}))) {
-    push(@{$select}, { "name" => $unit,
-                       "base_unit" => $units->{$unit}->{"base_unit"},
-                       "factor" => $units->{$unit}->{"factor"},
-                       "selected" => ($unit eq $selected) ? "selected" : "" });
+    if (!$convertible_into ||
+        ($units->{$convertible_into} &&
+         ($units->{$convertible_into}->{base_unit} eq $units->{$unit}->{base_unit}))) {
+      push @{$select}, { "name"      => $unit,
+                         "base_unit" => $units->{$unit}->{"base_unit"},
+                         "factor"    => $units->{$unit}->{"factor"},
+                         "selected"  => ($unit eq $selected) ? "selected" : "" };
+    }
   }
 
   $main::lxdebug->leave_sub();
@@ -1942,6 +2002,36 @@ sub unit_select_html {
   $main::lxdebug->leave_sub();
 
   return $select;
+}
+
+sub sum_with_unit {
+  $main::lxdebug->enter_sub();
+
+  my $self  = shift;
+
+  my $units = $self->retrieve_all_units();
+
+  my $sum   = 0;
+  my $base_unit;
+
+  while (2 <= scalar(@_)) {
+    my $qty  = shift(@_);
+    my $unit = $units->{shift(@_)};
+
+    croak "No unit defined with name $unit" if (!defined $unit);
+
+    if (!$base_unit) {
+      $base_unit = $unit->{base_unit};
+    } elsif ($base_unit ne $unit->{base_unit}) {
+      croak "Adding values with incompatible base units $base_unit/$unit->{base_unit}";
+    }
+
+    $sum += $qty * $unit->{factor};
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return wantarray ? ($sum, $baseunit) : $sum;
 }
 
 sub add_unit {

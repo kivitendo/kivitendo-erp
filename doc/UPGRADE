@@ -4,6 +4,33 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v2.4.4
+==================
+
+Mit Version 2.4.4 wurde der Code zur Benutzerauthentifizierung neu
+geschrieben. Die Umstellung erfordert eine manuelle
+Konfiguration. Bestehende Benutzeraccounts können aber von Lx-Office
+automatisch übernommen werden.
+
+Bitte lesen Sie für die Basiseinrichtung der Konfiguration die Datei
+"doc/INSTALL/index.html" und dort die Kapitel
+"Benutzerauthentifizierung und Administratorpasswort" sowie "Benutzer-
+und Gruppenverwaltung".
+
+Nach der Einrichtung der Datei "config/authentication.pl" muss im
+Webbrowser das Administrationsinterface aufgerufen werden. Nach
+erfolgter Anmeldung werden Sie durch den Upgradeprozess geleitet.
+
+Weiterhin hat sich der Speicherort der Datei "lx-erp.conf" verändert.
+Sie liegt nun im Unterverzeichnis "config". Einstellungen, die in der
+alten Datei getätigt wurden, müssen manuell übernommen werden. Die
+alte Datei im Lx-Offfice-Stammverzeichnis kann daraufhin gelöscht
+werden.
+
+Die weiteren erforderlichen Datenbankupgrades werden erst vorgenommen,
+wenn sich ein Benutzer erfolgreich anmeldet.
+
+
 Upgrade von v2.4.0 und neuer auf v2.4.3
 =======================================
 

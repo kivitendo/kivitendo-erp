@@ -48,6 +48,8 @@ require "bin/mozilla/drafts.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   return $lxdebug->leave_sub() if (load_draft_maybe());
 
   if ($form->{type} eq "credit_note") {
@@ -62,9 +64,7 @@ sub add {
   }
 
 
-  $form->{callback} =
-    "$form->{script}?action=add&type=$form->{type}&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "$form->{script}?action=add&type=$form->{type}" unless $form->{callback};
 
   $form{jsscript} = "date";
 
@@ -81,6 +81,8 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -111,6 +113,8 @@ sub edit {
 
 sub invoice_links {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
 
   $form->{vc} = 'customer';
 
@@ -231,6 +235,8 @@ sub invoice_links {
 sub prepare_invoice {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   if ($form->{type} eq "credit_note") {
     $form->{type}     = "credit_note";
     $form->{formname} = "credit_note";
@@ -281,6 +287,8 @@ sub prepare_invoice {
 sub form_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
@@ -305,7 +313,7 @@ sub form_header {
     }
   }
 
-  my $set_duedate_url = "$form->{script}?login=$form->{login}&password=$form->{password}&action=set_duedate";
+  my $set_duedate_url = "$form->{script}?action=set_duedate";
 
   my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
   push(@ { $form->{AJAX} }, $pjx);
@@ -549,12 +557,12 @@ sub form_header {
     $button2 = qq|
       <td width="13"><input name="duedate" id="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\">
        <input type="button" name="duedate" id="trigger2" value="|
-      . $locale->text('button') . qq|"></td></td>
+      . $locale->text('button') . qq|"></td>
     |;
     $button3 = qq|
       <td width="13"><input name="deliverydate" id="deliverydate" size="11" title="$myconfig{dateformat}" value="$form->{deliverydate}" onBlur=\"check_right_date_format(this)\">
        <input type="button" name="deliverydate" id="trigger3" value="|
-      . $locale->text('button') . qq|"></td></td>
+      . $locale->text('button') . qq|"></td>
     |;
 
     #write Trigger
@@ -754,6 +762,8 @@ print qq|     <tr>
 
 sub form_footer {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
 
   $form->{invtotal} = $form->{invsubtotal};
 
@@ -1149,9 +1159,8 @@ if ($form->{type} eq "credit_note") {
 | .
 $cgi->hidden("-name" => "callback", "-value" => $form->{callback})
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
-. $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
-map({ print $cgi->hidden("-name" => $_ , "-value" => $form->{$_});} qw(login password));
-print qq|
+. $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
+. qq|
 </form>
 
 </body>
@@ -1164,12 +1173,18 @@ print qq|
 
 sub mark_as_paid {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
+
   &mark_as_paid_common(\%myconfig,"ar");  
+
   $lxdebug->leave_sub();
 }
 
 sub update {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
 
   my ($recursive_call) = shift;
 
@@ -1299,6 +1314,8 @@ sub update {
 sub post_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->{"paid_$i"}) {
@@ -1331,6 +1348,8 @@ sub post_payment {
 
 sub post {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
@@ -1416,6 +1435,8 @@ sub post {
 sub print_and_post {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   $old_form               = new Form;
   $print_post             = 1;
   $form->{print_and_post} = 1;
@@ -1429,6 +1450,8 @@ sub print_and_post {
 sub use_as_template {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
@@ -1441,6 +1464,8 @@ sub use_as_template {
 sub storno {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   if ($form->{storno}) {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
@@ -1449,9 +1474,7 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
-  map({ my $key = $_; delete($form->{$key})
-          unless (grep({ $key eq $_ } qw(login password id stylesheet type))); }
-      keys(%{ $form }));
+  map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password stylesheet type))); } keys(%{ $form }));
 
   invoice_links();
   prepare_invoice();
@@ -1474,6 +1497,8 @@ sub storno {
 sub preview {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   $form->{preview} = 1;
   $old_form = new Form;
   for (keys %$form) { $old_form->{$_} = $form->{$_} }
@@ -1485,6 +1510,9 @@ sub preview {
 
 sub delete {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
@@ -1500,6 +1528,7 @@ sub delete {
   map { delete $form->{$_} } qw(action header);
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
   }
@@ -1523,6 +1552,8 @@ sub delete {
 
 sub credit_note {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
 
   $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} =
@@ -1577,6 +1608,9 @@ sub credit_note {
 
 sub yes {
   $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
+
   if (IS->delete_invoice(\%myconfig, \%$form, $spool)) {
     # saving the history
   	if(!exists $form->{addition}) {
@@ -1595,6 +1629,8 @@ sub yes {
 sub e_mail {
   $lxdebug->enter_sub();
 
+  $auth->assert('invoice_edit');
+
   if (!$form->{id}) {
     $print_post = 1;
 
@@ -1602,10 +1638,7 @@ sub e_mail {
 
     post();
 
-    my %saved_vars;
-    map({ $saved_vars{$_} = $form->{$_}; } qw(id invnumber));
-    restore_form($saved_form);
-    map({ $form->{$_} = $saved_vars{$_}; } qw(id invnumber));
+    restore_form($saved_form, 0, qw(id invnumber));
   }
 
   edit_e_mail();

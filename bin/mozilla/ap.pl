@@ -79,13 +79,13 @@ require "bin/mozilla/reportgenerator.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   return $lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "ap.pl?action=add" unless $form->{callback};
 
   AP->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
@@ -99,6 +99,8 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{title} = "Edit";
 
   &create_links;
@@ -110,6 +112,8 @@ sub edit {
 sub display_form {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   &form_header;
   &form_footer;
 
@@ -118,6 +122,8 @@ sub display_form {
 
 sub create_links {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $form->create_links("AP", \%myconfig, "vendor");
   $taxincluded = $form->{taxincluded};
@@ -173,6 +179,8 @@ sub create_links {
 
 sub form_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $title = $form->{title};
   $form->{title} = $locale->text("$title Accounts Payables Transaction");
@@ -743,13 +751,12 @@ $jsscript
 sub form_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   print qq|
 
 <input name=callback type=hidden value="$form->{callback}">
 <input name="gldate" type="hidden" value="| . Q($form->{gldate}) . qq|">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 |
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
@@ -813,12 +820,18 @@ sub form_footer {
 
 sub mark_as_paid {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   &mark_as_paid_common(\%myconfig,"ap");  
+
   $lxdebug->leave_sub();
 }
 
 sub update {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my $display = shift;
 
@@ -911,6 +924,8 @@ sub update {
 sub post_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   for $i (1 .. $form->{paidaccounts}) {
@@ -944,6 +959,8 @@ sub post_payment {
 
 sub post {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   # check if there is a vendor, invoice and due date
   $form->isblank("transdate", $locale->text("Invoice Date missing!"));
@@ -1022,6 +1039,8 @@ sub post {
 sub post_as_new {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{postasnew} = 1;
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1038,6 +1057,8 @@ sub post_as_new {
 sub use_as_template {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
@@ -1049,6 +1070,8 @@ sub use_as_template {
 
 sub delete {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $form->{title} = $locale->text('Confirm!');
 
@@ -1063,6 +1086,7 @@ sub delete {
 |;
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1087,6 +1111,9 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   if (AP->delete_transaction(\%myconfig, \%$form, $spool)) {
     # saving the history
     if(!exists $form->{addition}) {
@@ -1104,6 +1131,8 @@ sub yes {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger | vendor_invoice_edit');
 
   # setup vendor selection
   $form->all_vc(\%myconfig, "vendor", "AP");
@@ -1297,8 +1326,6 @@ $jsscript
 
 <br>
 <input type=hidden name=nextsub value=$form->{nextsub}>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -1331,6 +1358,8 @@ sub create_subtotal_row {
 
 sub ap_transactions {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger | vendor_invoice_edit');
 
   ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor});
 
@@ -1490,6 +1519,8 @@ sub ap_transactions {
 
 sub storno {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   if (IS->has_storno(\%myconfig, $form, 'ap')) {
     $form->{title} = $locale->text("Cancel Accounts Payables Transaction");

@@ -36,12 +36,14 @@ $menufile = "menu.ini";
 
 use DBI;
 use CGI;
-use POSIX qw(strftime);
-use IO::File;
-use Fcntl;
 use English qw(-no_match_vars);
+use Fcntl;
+use File::Copy;
+use IO::File;
+use POSIX qw(strftime);
 use Sys::Hostname;
 
+use SL::Auth;
 use SL::Form;
 use SL::Mailer;
 use SL::User;
@@ -51,13 +53,20 @@ use SL::DBUpgrade2;
 use SL::DBUtils;
 
 require "bin/mozilla/common.pl";
+require "bin/mozilla/admin_groups.pl";
 
 our $cgi = new CGI('');
 
 $form = new Form;
-$form->{"root"} = "root login";
 
 $locale = new Locale $language, "admin";
+
+our $auth = SL::Auth->new();
+if ($auth->session_tables_present()) {
+  $auth->expire_sessions();
+  $auth->restore_session();
+  $auth->set_session_value('rpw', $form->{rpw});
+}
 
 # customization
 if (-f "bin/mozilla/custom_$form->{script}") {
@@ -70,16 +79,15 @@ $form->{favicon}    = "favicon.ico";
 
 if ($form->{action}) {
 
-
   $subroutine = $locale->findsub($form->{action});
 
-  if ($subroutine eq 'login') {
-    if ($form->{rpw}) {
-      $form->{rpw} = crypt $form->{rpw}, "ro";
-    }
+  if ($auth->authenticate_root($form->{rpw}, 0)) {
+    $form->{error_message} = $locale->text('Incorrect Password!');
+    adminlogin();
+    exit;
   }
 
-  check_password();
+  $auth->create_or_refresh_session() if ($auth->session_tables_present());
 
   call_sub($subroutine);
 
@@ -88,18 +96,6 @@ if ($form->{action}) {
   # if there are no drivers bail out
   $form->error($locale->text('No Database Drivers available!'))
     unless (User->dbdrivers);
-
-  # create memberfile
-  if (!-f $memberfile) {
-    open(FH, ">$memberfile") or $form->error("$memberfile : $ERRNO");
-    print FH qq|# SQL-Ledger Accounting members
-
-[root login]
-password=
-
-|;
-    close FH;
-  }
 
   adminlogin();
 
@@ -111,47 +107,208 @@ password=
 
 sub adminlogin {
 
-  $form->{title} =
-    qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
+  $form->{title} = qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
 
   $form->header();
   print $form->parse_html_template('admin/adminlogin');
 }
 
 sub login {
+  check_auth_db_and_tables();
   list_users();
 }
 
-sub list_users {
+sub logout {
+  $auth->destroy_session();
+  adminlogin();
+}
 
-  $form->error($locale->text('File locked!')) if (-f "${memberfile}.LCK");
+sub check_auth_db_and_tables {
+  my %params;
 
-  open(FH, "$memberfile") or $form->error("$memberfile : $ERRNO");
+  map { $params{"db_${_}"} = $auth->{DB_config}->{$_} } keys %{ $auth->{DB_config} };
 
-  my %members;
+  if (!$auth->check_database()) {
+    $form->{title} = $locale->text('Authentification database creation');
+    $form->header();
+    print $form->parse_html_template('admin/check_auth_database', \%params);
 
-  while (<FH>) {
-    chomp;
+    exit 0;
+  }
 
-    if (/^\[.*\]/) {
-      $login = $_;
-      $login =~ s/(\[|\])//g;
+  if (!$auth->check_tables()) {
+    $form->{title} = $locale->text('Authentification tables creation');
+    $form->header();
+    print $form->parse_html_template('admin/check_auth_tables', \%params);
 
-      $members{$login} = { "login" => $login };
+    exit 0;
+  }
+
+  if (-f $memberfile) {
+    my $memberdir = "";
+
+    if ($memberfile =~ m|^.*/|) {
+      $memberdir = $&;
     }
 
-    if (/^([a-z]+)=(.*)/) {
-      $members{$login}->{$1} = $2;
+    my $backupdir = "${memberdir}member-file-migration";
+
+    $form->{title} = $locale->text('User data migration');
+    $form->header();
+    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $memberfile,
+                                                               'backupdir'  => $backupdir });
+
+    exit 0
+  }
+}
+
+sub create_auth_db {
+  $auth->create_database('superuser'          => $form->{db_superuser},
+                         'superuser_password' => $form->{db_superuser_password},
+                         'template'           => $form->{db_template});
+  login();
+}
+
+sub create_auth_tables {
+  $auth->create_tables();
+  $auth->set_session_value('rpw', $form->{rpw});
+  $auth->create_or_refresh_session();
+
+  login();
+}
+
+sub migrate_users {
+  $lxdebug->enter_sub();
+
+  my $memberdir = "";
+
+  if ($memberfile =~ m|^.*/|) {
+    $memberdir = $&;
+  }
+
+  my $backupdir = "${memberdir}member-file-migration";
+
+  if (! -d $backupdir && !mkdir $backupdir, 0700) {
+    $form->error(sprintf($locale->text('The directory "%s" could not be created:\n%s'), $backupdir, $!));
+  }
+
+  copy $memberfile, "users/member-file-migration/members";
+
+  my $in = IO::File->new($memberfile, "r");
+
+  $form->error($locale->text('Could not open the old memberfile.')) if (!$in);
+
+  my (%members, $login);
+
+  while (<$in>) {
+    chomp;
+
+    next if (m/^\s*\#/);
+
+    if (m/^\[.*\]/) {
+      $login = $_;
+      $login =~ s/(\[|\])//g;
+      $login =~ s/^\s*//;
+      $login =~ s/\s*$//;
+
+      $members{$login} = { "login" => $login };
+      next;
+    }
+
+    if ($login && m/=/) {
+      my ($key, $value) = split m/\s*=\s*/, $_, 2;
+      $key   =~ s|^\s*||;
+      $value =~ s|\s*$||;
+
+      $value =~ s|\\r||g;
+      $value =~ s|\\n|\n|g;
+
+      $members{$login}->{$key} = $value;
     }
   }
 
-  close(FH);
+  $in->close();
 
   delete $members{"root login"};
+
+  map { $_->{dbpasswd} = unpack 'u', $_->{dbpasswd} } values %members;
+
+  while (my ($login, $params) = each %members) {
+    $auth->save_user($login, %{ $params });
+    $auth->change_password($login, $params->{password}, 1);
+
+    my $conf_file = "${memberdir}${login}.conf";
+
+    if (-f $conf_file) {
+      copy   $conf_file, "${backupdir}/${login}.conf";
+      unlink $conf_file;
+    }
+  }
+
+  unlink $memberfile;
+
+  my @member_list = sort { lc $a->{login} cmp lc $b->{login} } values %members;
+
+  $form->{title} = $locale->text('User data migration');
+  $form->header();
+  print $form->parse_html_template('admin/user_migration_done', { 'MEMBERS' => \@member_list });
+
+  $lxdebug->leave_sub();
+}
+
+sub create_standard_group_ask {
+  $form->{title} = $locale->text('Create a standard group');
+
+  $form->header();
+  print $form->parse_html_template("admin/create_standard_group_ask");
+}
+
+sub create_standard_group {
+  my %members = $auth->read_all_users();
+
+  my $groups = $auth->read_groups();
+
+  foreach my $group (values %{$groups}) {
+    if (($form->{group_id} != $group->{id})
+        && ($form->{name} eq $group->{name})) {
+      $form->show_generic_error($locale->text("A group with that name does already exist."));
+    }
+  }
+
+  my $group = {
+    'name'        => $locale->text('Full Access'),
+    'description' => $locale->text('Full access to all functions'),
+    'rights'      => { map { $_ => 1 } SL::Auth::all_rights() },
+    'members'     => [ map { $_->{id} } values %members ],
+  };
+
+  $auth->save_group($group);
+
+  user_migration_complete(1);
+}
+
+sub dont_create_standard_group {
+  user_migration_complete(0);
+}
+
+sub user_migration_complete {
+  my $standard_group_created = shift;
+
+  $form->{title} = $locale->text('User migration complete');
+  $form->header();
+
+  print $form->parse_html_template('admin/user_migration_complete', { 'standard_group_created' => $standard_group_created });
+}
+
+sub list_users {
+  my %members = $auth->read_all_users();
+
+  delete $members{"root login"};
+
   map { $_->{templates} =~ s|.*/||; } values %members;
 
-  $form->{title}  = "Lx-Office ERP " . $locale->text('Administration');
-  $form->{LOCKED} = -e "$userspath/nologin";
+  $form->{title}   = "Lx-Office ERP " . $locale->text('Administration');
+  $form->{LOCKED}  = -e "$userspath/nologin";
   $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
 
   $form->header();
@@ -177,7 +334,7 @@ sub add_user {
   edit_user_form($myconfig);
 }
 
-sub edit {
+sub edit_user {
 
   $form->{title} =
       "Lx-Office ERP "
@@ -188,10 +345,7 @@ sub edit {
   $form->isblank("login", $locale->text("The login is missing."));
 
   # get user
-  my $myconfig = new User "$memberfile", "$form->{login}";
-
-  $myconfig->{signature} =~ s/\\n/\r\n/g;
-  $myconfig->{address}   =~ s/\\n/\r\n/g;
+  my $myconfig = new User($form->{login});
 
   # strip basedir from templates directory
   $myconfig->{templates} =~ s|.*/||;
@@ -255,81 +409,37 @@ sub edit_user_form {
 
   map { $form->{"myc_${_}"} = $myconfig->{$_} } keys %{ $myconfig };
 
-  # access control
-  my @acsorder = ();
-  my %acs      = ();
-  my %excl     = ();
-  open(FH, $menufile) or $form->error("$menufile : $ERRNO");
+  my $groups = [];
 
-  while ($item = <FH>) {
-    next unless $item =~ /\[/;
-    next if $item =~ /\#/;
+  if ($form->{edit}) {
+    my $user_id    = $auth->get_user_id($form->{login});
+    my $all_groups = $auth->read_groups();
 
-    $item =~ s/(\[|\])//g;
-    chomp $item;
-
-    my ($level, $menuitem);
-
-    if ($item =~ /--/) {
-      ($level, $menuitem) = split /--/, $item, 2;
-    } else {
-      $level    = $item;
-      $menuitem = $item;
-      push @acsorder, $item;
+    foreach my $group (values %{ $all_groups }) {
+      push @{ $groups }, $group if (grep { $user_id == $_ } @{ $group->{members} });
     }
 
-    $acs{$level} ||= [];
-    push @{ $acs{$level} }, $menuitem;
-
+    $groups = [ sort { lc $a->{name} cmp lc $b->{name} } @{ $groups } ];
   }
 
-  foreach $item (split(/;/, $myconfig->{acs})) {
-    ($key, $value) = split /--/, $item, 2;
-    $excl{$key}{$value} = 1;
-  }
-
-  $form->{ACLS}    = [];
-  $form->{all_acs} = "";
-
-  foreach $key (@acsorder) {
-    my $acl = { "checked" => $form->{login} ? !$excl{$key}->{$key} : 1,
-                "name"    => "${key}--${key}",
-                "title"   => $key,
-                "SUBACLS" => [], };
-    $form->{all_acs} .= "${key}--${key};";
-
-    foreach $item (@{ $acs{$key} }) {
-      next if ($key eq $item);
-
-      my $subacl = { "checked" => $form->{login} ? !$excl{$key}->{$item} : 1,
-                     "name"    => "${key}--${item}",
-                     "title"   => $item };
-      push @{ $acl->{SUBACLS} }, $subacl;
-      $form->{all_acs} .= "${key}--${item};";
-    }
-    push @{ $form->{ACLS} }, $acl;
-  }
-
-  chop $form->{all_acs};
+  $form->{CAN_CHANGE_PASSWORD} = $auth->can_change_password();
 
   $form->header();
-  print $form->parse_html_template("admin/edit_user");
+  print $form->parse_html_template("admin/edit_user", { 'GROUPS' => $groups });
 }
 
-sub save {
-
+sub save_user {
   $form->{dbdriver} = 'Pg';
 
   # no spaces allowed in login name
-  ($form->{login}) = split / /, $form->{login};
-
+  $form->{login} =~ s|\s||g;
   $form->isblank("login", $locale->text('Login name missing!'));
 
   # check for duplicates
   if (!$form->{edit}) {
-    $temp = new User "$memberfile", "$form->{login}";
+    my %members = $auth->read_all_users();
 
-    if ($temp->{login}) {
+    if ($members{$form->{login}}) {
       $form->error("$form->{login} " . $locale->text('is already a member!'));
     }
   }
@@ -353,17 +463,7 @@ sub save {
   $form->{templates} =~ s|.*/||;
   $form->{templates} =  "$templates/$form->{templates}";
 
-  $myconfig = new User "$memberfile", "$form->{login}";
-
-  # redo acs variable and delete all the acs codes
-  my @acs;
-  foreach $item (split m|;|, $form->{all_acs}) {
-    my $name =  "ACS_${item}";
-    $name    =~ s| |+|g;
-    push @acs, $item if !$form->{$name};
-    delete $form->{$name};
-  }
-  $form->{acs} = join ";", @acs;
+  $myconfig = new User($form->{login});
 
   $form->isblank("dbname", $locale->text('Dataset missing!'));
   $form->isblank("dbuser", $locale->text('Database User missing!'));
@@ -377,7 +477,13 @@ sub save {
     $myconfig->{stylesheet} = $form->{userstylesheet};
   }
 
-  $myconfig->save_member($memberfile, $userspath);
+  $myconfig->save_member();
+
+  if ($auth->can_change_password()
+      && defined $form->{new_password}
+      && ($form->{new_password} ne '********')) {
+    $auth->change_password($form->{login}, $form->{new_password});
+  }
 
   if ($webdav) {
     @webdavdirs =
@@ -457,22 +563,18 @@ sub save {
 
 }
 
-sub delete {
-  $form->error($locale->text('File locked!')) if (-f ${memberfile} . LCK);
-  open(FH, ">${memberfile}.LCK") or $form->error("${memberfile}.LCK : $ERRNO");
-  close(FH);
+sub delete_user {
+  my %members   = $auth->read_all_users();
+  my $templates = $members{$form->{login}}->{templates};
 
-  my $members = Inifile->new($memberfile);
-  my $templates = $members->{$form->{login}}->{templates};
-  delete $members->{$form->{login}};
-  $members->write();
-  unlink "${memberfile}.LCK";
+  $auth->delete_user($form->{login});
 
   if ($templates) {
     my $templates_in_use = 0;
-    foreach $login (keys %{ $members }) {
-      next if $login =~ m/^[A-Z]+$/;
-      next if $members->{$login}->{templates} ne $templates;
+
+    foreach $login (keys %members) {
+      next if $form->{login} eq $login;
+      next if $members{$login}->{templates} ne $templates;
       $templates_in_use = 1;
       last;
     }
@@ -482,9 +584,6 @@ sub delete {
       rmdir $templates;
     }
   }
-
-  # delete config file for user
-  unlink "$userspath/$form->{login}.conf";
 
   $form->redirect($locale->text('User deleted!'));
 
@@ -510,48 +609,6 @@ sub get_value {
   $value =~ s/^\s*(.*?)\s*$/$1/;
 
   $value;
-}
-
-sub change_admin_password {
-
-  $form->{title} =
-      qq|Lx-Office ERP |
-    . $locale->text('Administration') . " / "
-    . $locale->text('Change Admin Password');
-
-  $form->header();
-  print $form->parse_html_template("admin/change_admin_password");
-}
-
-sub change_password {
-  if ($form->{"password"} ne $form->{"password_again"}) {
-    $form->{title} =
-      qq|Lx-Office ERP |
-      . $locale->text('Administration') . " / "
-      . $locale->text('Change Admin Password');
-
-    $form->header();
-    $form->error($locale->text("The passwords do not match."));
-  }
-
-  $root->{password} = $form->{password};
-
-  $root->{'root login'} = 1;
-  $root->save_member($memberfile);
-
-  $form->{callback} =
-    "$form->{script}?action=list_users&rpw=$root->{password}";
-
-  $form->redirect($locale->text('Password changed!'));
-}
-
-sub check_password {
-  $root = new User "$memberfile", $form->{root};
-
-  if (!defined($root->{password}) || ($root->{password} ne $form->{rpw})) {
-    $form->error($locale->text('Incorrect Password!'));
-  }
-
 }
 
 sub pg_database_administration {
@@ -681,7 +738,7 @@ sub dbcreate {
 }
 
 sub delete_dataset {
-  @dbsources = User->dbsources_unused(\%$form, $memberfile);
+  @dbsources = User->dbsources_unused($form);
   $form->error($locale->text('Nothing to delete!')) unless @dbsources;
 
   $form->{title} =
@@ -974,8 +1031,7 @@ sub unlock_system {
 
   unlink "$userspath/nologin";
 
-  $form->{callback} =
-    "$form->{script}?action=list_users&rpw=$root->{password}";
+  $form->{callback} = "admin.pl?action=list_users";
 
   $form->redirect($locale->text('Lockfile removed!'));
 
@@ -987,9 +1043,57 @@ sub lock_system {
     or $form->error($locale->text('Cannot create Lock!'));
   close(FH);
 
-  $form->{callback} =
-    "$form->{script}?action=list_users&rpw=$root->{password}";
+  $form->{callback} = "admin.pl?action=list_users";
 
   $form->redirect($locale->text('Lockfile created!'));
 
 }
+
+sub yes {
+  call_sub($form->{yes_nextsub});
+}
+
+sub no {
+  call_sub($form->{no_nextsub});
+}
+
+sub add {
+  call_sub($form->{add_nextsub});
+}
+
+sub edit {
+  $form->{edit_nextsub} ||= 'edit_user';
+
+  call_sub($form->{edit_nextsub});
+}
+
+sub delete {
+  $form->{delete_nextsub} ||= 'delete_user';
+
+  call_sub($form->{delete_nextsub});
+}
+
+sub save {
+  $form->{save_nextsub} ||= 'save_user';
+
+  call_sub($form->{save_nextsub});
+}
+
+sub back {
+  call_sub($form->{back_nextsub});
+}
+
+sub dispatcher {
+  foreach my $action (qw(create_standard_group dont_create_standard_group)) {
+    if ($form->{"action_${action}"}) {
+      call_sub($action);
+      return;
+    }
+  }
+
+  call_sub($form->{default_action}) if ($form->{default_action});
+
+  $form->error($locale->text('No action defined.'));
+}
+
+1;

@@ -5,8 +5,6 @@
  <form method="post" action="am.pl"name="Form">
 
   <input type="hidden" name="type" value="defaults">
-  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
-  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
   <p>
    <table>
@@ -50,6 +48,25 @@
     <tr>
      <th align="right" nowrap><translate>Last RFQ Number</translate></th>
      <td><input name="rfqnumber" size="10" value="[% HTML.escape(defaults_rfqnumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Last Sales Delivery Order Number</translate></th>
+     <td><input name="sdonumber" size="10" value="[% HTML.escape(defaults_sdonumber) %]"></td>
+     <th align="right" nowrap><translate>Last Purchase Delivery Order Number</translate></th>
+     <td><input name="pdonumber" size="10" value="[% HTML.escape(defaults_pdonumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Last Return Material Slip Number</translate></th>
+     <td><input name="rmsnumber" size="10" value="[% HTML.escape(defaults_rmsnumber) %]"></td>
+     <th align="right" nowrap><translate>Last Order Request Number</translate></th>
+     <td><input name="oreqnumber" size="10" value="[% HTML.escape(defaults_oreqnumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Last Release Material Slip Number</translate></th>
+     <td><input name="rlmsnumber" size="10" value="[% HTML.escape(defaults_rlmsnumber) %]"></td>
     </tr>
 
     <tr class="listheading">

@@ -1,0 +1,80 @@
+[% USE HTML %]<body>
+ <form name="Form" method="post" action="admin.pl">
+
+
+  [% IF message %]
+  <p>[% message %]</p>
+  [% END %]
+
+  <div class="listtop">Gruppen bearbeiten</div>
+
+  <br>
+
+  <div class="listheading">Gruppen bearbeiten und l&ouml;schen</div>
+
+  [% IF num_groups %]
+  <p>
+   <select name="group_id" size="10">
+    [% FOREACH row = GROUPS %]
+    <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %][% IF row.description %] ([% HTML.escape(row.description) %])[% END %]</option>
+    [% END %]
+   </select>
+  </p>
+  [% ELSE %]
+  <p>Es wurden noch keine Gruppen angelegt.</p>
+  [% END %]
+
+  <p>
+   [% IF num_groups %]
+   <input type="hidden" name="edit_nextsub" value="edit_group">
+   <input type="hidden" name="delete_nextsub" value="delete_group">
+   <input type="submit" class="submit" name="action" value="Bearbeiten">
+   <input type="submit" class="submit" name="action" value="Löschen">
+   [% END %]
+   <input type="hidden" name="back_nextsub" value="list_users">
+   <input type="submit" class="submit" name="action" value="Zurück">
+  </p>
+ </form>
+
+ <hr size="2" noshade>
+
+ <div class="listheading">Grouppenzugeh&ouml;rigkeit</div>
+
+ <p>Bearbeiten der Mitgliedschaft aller Benutzer in allen Gruppen:</p>
+
+ <form method="post" action="admin.pl">
+  <p>
+   <input type="hidden" name="edit_nextsub" value="edit_group_membership">
+   <input type="submit" class="submit" name="action" value="Bearbeiten">
+  </p>
+
+ </form>
+
+ <hr size="2" noshade>
+
+ <div class="listheading">Neue Gruppe erfassen</div>
+
+ <form method="post" action="admin.pl">
+  <p>
+   <table border="0">
+    <tr>
+     <td>Name:</td>
+     <td><input name="name" maxlength="50"></td>
+    </tr>
+
+    <tr>
+     <td>Beschreibung:</td>
+     <td><input name="description"></td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <input type="hidden" name="add_nextsub" value="add_group">
+   <input type="submit" class="submit" name="action" value="Erfassen">
+  </p>
+
+ </form>
+
+</body>
+</html>

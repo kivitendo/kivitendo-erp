@@ -3,9 +3,6 @@
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
  <input name="db" type="hidden" value="[% HTML.escape(db) %]">
 
- <input name="login" type="hidden" value="[% HTML.escape(login) %]">
- <input name="password" type="hidden" value="[% HTML.escape(password) %]">
-
  [% IF IS_CUSTOMER %]<translate>New customer</translate>[% ELSE %]<translate>New vendor</translate>[% END %]<br>
 
  <input class="submit" type="submit" name="action" value="<translate>Add</translate>">

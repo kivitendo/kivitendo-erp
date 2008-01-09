@@ -46,6 +46,9 @@ sub quot {
 
 sub form_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   $form->{jsscript} = 1;
   $form->header();
 
@@ -58,7 +61,10 @@ sub form_header {
 
 sub form_footer {
   $lxdebug->enter_sub();
-  my @items = qw(login password old_callback previousform);
+
+  $auth->assert('license_edit');
+
+  my @items = qw(old_callback previousform);
   push(@items, @{ $form->{"hidden"} });
   map({
       print("<input type=hidden name=$_ value=\"" . quot($form->{$_}) . "\">\n"
@@ -81,6 +87,9 @@ sub set_std_hidden {
 
 sub print_part_selection {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   form_header();
   set_std_hidden("business");
 
@@ -135,6 +144,9 @@ sub print_part_selection {
 
 sub print_customer_selection {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   form_header();
   set_std_hidden("parts_id", "partnumber", "description");
 
@@ -195,6 +207,9 @@ sub print_customer_selection {
 
 sub print_license_form {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   print(
     qq|
 <table width=100%>
@@ -281,6 +296,9 @@ sub print_license_form {
 
 sub add {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   if (!$lizenzen) {
     $form->error(
                  $locale->text(
@@ -296,6 +314,9 @@ sub add {
 
 sub do_add {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   $form->{"hidden"} = ["parts_id"];
   form_header();
 
@@ -360,7 +381,11 @@ sub do_add {
 
 sub update {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   do_add();
+
   $lxdebug->leave_sub();
 }
 
@@ -372,6 +397,8 @@ sub continue {
 
 sub save {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
 
   ($form->{customername}, $form->{customer_id}) = split /--/,
     $form->{customer};
@@ -421,6 +448,7 @@ sub save {
 
     # put callback together
     foreach $key (keys %$form) {
+      next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
 
       # do single escape for Apache 2.0
       $value = $form->escape($form->{$key}, 1);
@@ -443,6 +471,9 @@ sub save {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   if (!$lizenzen) {
     $form->error(
                  $locale->text(
@@ -498,11 +529,14 @@ sub search {
 
 sub do_search {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   LICENSES->search(\%myconfig, $form);
 
   $callback = "";
   map { $callback .= "\&${_}=" . $form->escape($form->{$_}, 1) }
-    qw(db login password partnumber description customer_name all expiring_in show_expired);
+    qw(db partnumber description customer_name all expiring_in show_expired);
   $details    = $form->{"script"} . "?action=details" . $callback . "\&id=";
   $invdetails = "is.pl?action=edit" . $callback . "\&id=";
   $callback   = $form->{"script"} . "?action=do_search" . $callback;
@@ -606,6 +640,9 @@ sub do_search {
 
 sub details {
   $lxdebug->enter_sub();
+
+  $auth->assert('license_edit');
+
   LICENSES->get_license(\%myconfig, $form);
   map(
     { $form->{$_} = $form->{"license"}->{$_}; } keys(%{ $form->{"license"} }));

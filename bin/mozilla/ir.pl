@@ -49,6 +49,8 @@ require "bin/mozilla/drafts.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('vendor_invoice_edit');
+
   return $lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = $locale->text('Add Vendor Invoice');
@@ -62,6 +64,8 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
@@ -78,6 +82,8 @@ sub edit {
 
 sub invoice_links {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   # create links
   $form->{webdav}   = $webdav;
@@ -182,6 +188,8 @@ sub invoice_links {
 sub prepare_invoice {
   $lxdebug->enter_sub();
 
+  $auth->assert('vendor_invoice_edit');
+
   if ($form->{id}) {
 
     map { $form->{$_} =~ s/\"/&quot;/g } qw(invnumber ordnumber quonumber);
@@ -214,6 +222,8 @@ sub prepare_invoice {
 
 sub form_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   # set option selected
   foreach $item (qw(AP vendor currency department)) {
@@ -382,7 +392,7 @@ sub form_header {
          <input type=button name=invdate id="trigger1" value=| . $locale->text('button') . qq|></td>\n|;
   $button2 = qq|
      <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
-                    <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|></td></td>\n|;
+                    <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|></td>\n|;
 
   #write Trigger
   $jsscript =
@@ -498,6 +508,8 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   $form->{invtotal} = $form->{invsubtotal};
 
@@ -811,7 +823,7 @@ sub form_footer {
   }
 
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers);
-  $form->hide_form(qw(rowcount callback draft_id draft_description login password));
+  $form->hide_form(qw(rowcount callback draft_id draft_description));
 
   # button for saving history
   if($form->{id} ne "") {
@@ -840,12 +852,18 @@ print qq|</form>
 
 sub mark_as_paid {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
+
   &mark_as_paid_common(\%myconfig,"ap");  
+
   $lxdebug->leave_sub();
 }
 
 sub update {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
@@ -936,6 +954,8 @@ sub update {
 sub storno {
   $lxdebug->enter_sub();
 
+  $auth->assert('vendor_invoice_edit');
+
   if ($form->{storno}) {
     $form->error($locale->text('Cannot storno storno invoice!'));
   }
@@ -975,6 +995,8 @@ sub storno {
 sub use_as_template {
   $lxdebug->enter_sub();
 
+  $auth->assert('vendor_invoice_edit');
+
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
@@ -986,6 +1008,8 @@ sub use_as_template {
 
 sub post_payment {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   for $i (1 .. $form->{paidaccounts}) {
@@ -1028,6 +1052,8 @@ sub post_payment {
 
 sub post {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1102,6 +1128,8 @@ sub post {
 sub delete {
   $lxdebug->enter_sub();
 
+  $auth->assert('vendor_invoice_edit');
+
   $form->header;
   print qq|
 <body>
@@ -1113,6 +1141,7 @@ sub delete {
   map { delete $form->{$_} } qw(action header);
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1134,6 +1163,9 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
+
+  $auth->assert('vendor_invoice_edit');
+
   if (IR->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {

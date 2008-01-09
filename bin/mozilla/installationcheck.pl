@@ -6,6 +6,8 @@ sub verify_installation {
 
   return unless ($form{"action"} && ($script eq "login.pl"));
 
+  SL::InstallationCheck::check_for_conditional_dependencies();
+
   my @missing_modules = SL::InstallationCheck::test_all_modules();
   return if (scalar(@missing_modules) == 0);
 

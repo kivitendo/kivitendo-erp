@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+<title>Passwortüberprüfung - Lx-Office Installationsanleitung</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Lx-Office Installationsanleitung">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Benutzerauthentifizierung-und-Administratorpasswort.html#Benutzerauthentifizierung-und-Administratorpasswort" title="Benutzerauthentifizierung und Administratorpasswort">
+<link rel="prev" href="Authentifizierungsdatenbank.html#Authentifizierungsdatenbank" title="Authentifizierungsdatenbank">
+<link rel="next" href="Name-des-Session_002dCookies.html#Name-des-Session_002dCookies" title="Name des Session-Cookies">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Passwort%fcberpr%fcfung"></a>
+<a name="Passwort_00fcberpr_00fcfung"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Name-des-Session_002dCookies.html#Name-des-Session_002dCookies">Name des Session-Cookies</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="Authentifizierungsdatenbank.html#Authentifizierungsdatenbank">Authentifizierungsdatenbank</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="Benutzerauthentifizierung-und-Administratorpasswort.html#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>
+<hr>
+</div>
+
+<h3 class="section">6.4 Passwortüberprüfung</h3>
+
+<p>Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen die
+Authentifizierungsdatenbank und gegen einen externen LDAP- oder
+Active-Directory-Server. Welche davon benutzt wird, regelt der
+Parameter <code>$self-&gt;{module}</code>.
+
+   <p>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
+gespeichert werden, so muss der Parameter <code>$self-&gt;{module}</code> den
+Wert `<samp><span class="samp">DB</span></samp>' enthalten. In diesem Fall können sowohl der
+Administrator als auch die Benutzer selber ihre Psaswörter in
+Lx-Office ändern.
+
+   <p>Soll hingegen ein externer LDAP- oder Active-Directory-Server benutzt
+werden, so muss der Parameter <code>$self-&gt;{module}</code> auf `<samp><span class="samp">LDAP</span></samp>'
+gesetzt werden. In diesem Fall müssen zusätzliche Informationen über
+den LDAP-Server in <code>$self-&gt;{LDAP_config}</code> angegeben werden:
+
+     <ul>
+<li>`<samp><span class="samp">host</span></samp>' &ndash; Der Rechnername oder die IP-Adresse des LDAP- oder Active-Directory-Servers. Diese Angabe ist zwingend erforderlich. 
+<li>`<samp><span class="samp">port</span></samp>' &ndash; Die Portnummer des LDAP-Servers; meist 389. 
+<li>`<samp><span class="samp">tls</span></samp>' &ndash; Wenn Verbindungsverschlüsselung gewünscht ist, so diesen Wert auf `<samp><span class="samp">1</span></samp>' setzen, andernfalls auf `<samp><span class="samp">0</span></samp>' belassen
+<li>`<samp><span class="samp">attribute'</span></samp>' &ndash; Das LDAP-Attribut, in dem der Benutzername steht, den der Benutzer eingegeben hat. Für Active-Directory-Server
+  ist dies meist `<samp><span class="samp">sAMAccountName</span></samp>', für andere LDAP-Server hingegen `<samp><span class="samp">uid</span></samp>'. Diese Angabe ist zwingend erforderlich. 
+<li>`<samp><span class="samp">base_dn</span></samp>' &ndash; Der Abschnitt des LDAP-Baumes, der durchsucht werden soll. Diese Angabe ist zwingend erforderlich. 
+<li>`<samp><span class="samp">filter</span></samp>' &ndash; Ein optionaler LDAP-Filter. Enthält dieser Filter das Wort <code>&lt;%login%&gt;</code>, so wird dieses durch den vom Benutzer
+  eingegebenen Benutzernamen ersetzt. Andernfalls wird der LDAP-Baum nach einem Element durchsucht, bei dem das oben angegebene Attribut
+  mit dem Benutzernamen identisch ist. 
+<li>`<samp><span class="samp">bind_dn</span></samp>' und `<samp><span class="samp">bind_password</span></samp>' &ndash; Wenn der LDAP-Server eine Anmeldung erfordert, bevor er durchsucht werden kann (z.B. ist dies bei
+  Active-Directory-Servern der Fall), so kann diese hier angegeben werden. Für Active-Directory-Server kann als `<samp><span class="samp">bind_dn</span></samp>' entweder eine
+  komplette LDAP-DN wie z.B. `<samp><span class="samp">cn=Martin Mustermann,cn=Users,dc=firmendomain</span></samp>' auch nur der volle Name des Benutzers
+  eingegeben werden; in diesem Beispiel also `<samp><span class="samp">Martin Mustermann</span></samp>'. 
+</ul>
+
+   </body></html>
+

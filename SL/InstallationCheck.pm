@@ -1,5 +1,8 @@
 package SL::InstallationCheck;
 
+use English '-no_match_vars';
+use IO::File;
+
 use vars qw(@required_modules);
 
 @required_modules = (
@@ -16,6 +19,7 @@ use vars qw(@required_modules);
   { "name" => "Text::CSV_XS", "url" => "http://search.cpan.org/~hmbrand/" },
   { "name" => "List::Util", "url" => "http://search.cpan.org/~gbarr/" },
   { "name" => "Template", "url" => "http://search.cpan.org/~abw/" },
+  { "name" => "Digest::MD5", "url" => "http://search.cpan.org/~gaas/" },
   );
 
 sub module_available {
@@ -25,6 +29,34 @@ sub module_available {
     return 0;
   } else {
     return 1;
+  }
+}
+
+my %conditional_dependencies;
+
+sub check_for_conditional_dependencies {
+  if (!$conditional_dependencies{net_ldap}) {
+    $conditional_dependencies{net_ldap} = 1;
+
+    my $in = IO::File->new('config/authentication.pl', 'r');
+    if ($in) {
+      my $self = {};
+      my $code;
+
+      while (my $line = <$in>) {
+        $code .= $line;
+      }
+      $in->close();
+
+      eval $code;
+
+      if (! $EVAL_ERROR) {
+
+        if ($self->{module} && ($self->{module} eq 'LDAP')) {
+          push @required_modules, { 'name' => 'Net::LDAP', 'url' => 'http://search.cpan.org/~gbarr/' };
+        }
+      }
+    }
   }
 }
 

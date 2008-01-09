@@ -2,7 +2,10 @@ package SL::Template::Plugin::LxERP;
 
 use base qw( Template::Plugin );
 use Template::Plugin;
-use List::Util qw(first);
+
+use List::Util qw(min);
+
+use SL::AM;
 
 sub new {
   my $class   = shift;
@@ -16,6 +19,15 @@ sub format_amount {
 
   return $main::form->format_amount(\%main::myconfig, $var * 1, $places) unless $skip_zero && $var == 0;
   return '';
+}
+
+sub format_amount_units {
+  my ($self, $amount, $amount_unit, $part_unit) = @_;
+
+  return $main::form->format_amount_units('amount'      => $amount,
+                                          'part_unit'   => $part_unit,
+                                          'amount_unit' => $amount_unit,
+                                          'conv_units'  => 'convertible_not_smaller');
 }
 
 sub format_percent {
@@ -33,5 +45,49 @@ sub escape_br {
   return $var;
 }
 
-1;
+sub format_string {
+  my $self   = shift;
+  my $string = shift;
 
+  return $main::form->format_string($string, @_);
+}
+
+sub numtextrows {
+  my $self = shift;
+
+  return $main::form->numtextrows(@_);
+}
+
+sub _turn90_word {
+  my $self = shift;
+  my $word = shift || "";
+
+  return join '<br>', map { $main::form->quote_html($_) } split(m//, $word);
+}
+
+sub turn90 {
+  my $self            = shift;
+  my $word            = shift;
+  my $args            = shift;
+
+  $args             ||= { };
+  $word             ||= "";
+
+  $args->{split_by} ||= 'chars';
+  $args->{class}      = " class=\"$args->{class}\"" if ($args->{class});
+
+  if ($args->{split_by} eq 'words') {
+    my @words = split m/\s+/, $word;
+
+    if (1 >= scalar @words) {
+      return $self->_turn90_word($words[0]);
+    }
+
+    return qq|<table><tr>| . join('', map { '<td valign="bottom"' . $args->{class} . '>' . $self->_turn90_word($_) . '</td>' } @words) . qq|</tr></table>|;
+
+  } else {
+    return $self->_turn90_word($word);
+  }
+}
+
+1;

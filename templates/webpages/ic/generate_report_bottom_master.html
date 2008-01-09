@@ -4,9 +4,6 @@
 
  <input type="hidden" name="item" value="[% HTML.escape(searchitems) %]">
 
- <input type="hidden" name="login" value="[% HTML.escape(login) %]">
- <input type="hidden" name="password" value="[% HTML.escape(password) %]">
-
  [% SWITCH searchitems %]
    [% CASE 'part' %]<translate>New part</translate>
    [% CASE 'service' %]<translate>New service</translate>

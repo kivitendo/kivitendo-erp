@@ -32,14 +32,12 @@
   <br />
   Konten, die mit dieser Steuer verknüpft sind:
   [% FOREACH row = TAXINUSE %]
-  <a href="am.pl?action=edit_account&id=[% HTML.url(row.id) %]&login=[% HTML.url(login) %]&password=[% HTML.url(password) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.accno) %]</a>&nbsp;
+  <a href="am.pl?action=edit_account&id=[% HTML.url(row.id) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.accno) %]</a>&nbsp;
   [% END %]
   <br />
   [% END %]
 
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
-  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
 
   <input type="submit" class="submit" name="action" value="Speichern">
 

@@ -29,6 +29,7 @@ use vars qw(@db_encodings %db_encoding_to_charset);
 );
 
 %db_encoding_to_charset = map { $_->{dbencoding}, $_->{charset} } @db_encodings;
+%charset_to_db_encoding = map { $_->{charset}, $_->{dbencoding} } @db_encodings;
 
 use constant DEFAULT_CHARSET => 'ISO-8859-15';
 
@@ -49,14 +50,22 @@ sub retrieve_parts {
   my $dbh = $form->dbconnect($myconfig);
 
   my (@filter_values, $filter);
-  if ($form->{"partnumber"}) {
-    $filter .= qq| AND (partnumber ILIKE ?)|;
-    push(@filter_values, '%' . $form->{"partnumber"} . '%');
+
+  foreach (qw(partnumber description)) {
+    next unless $form->{$_};
+
+    $filter .= qq| AND ($_ ILIKE ?)|;
+    push @filter_values, '%' . $form->{$_} . '%';
   }
-  if ($form->{"description"}) {
-    $filter .= qq| AND (description ILIKE ?)|;
-    push(@filter_values, '%' . $form->{"description"} . '%');
+
+  if ($form->{no_assemblies}) {
+    $filter .= qq| AND (NOT COALESCE(assembly, 'f'))|;
   }
+
+  if ($form->{no_services}) {
+    $filter .= qq| AND (COALESCE(inventory_accno_id, 0) > 0)|;
+  }
+
   substr($filter, 1, 3) = "WHERE" if ($filter);
 
   $order_by =~ s/[^a-zA-Z_]//g;

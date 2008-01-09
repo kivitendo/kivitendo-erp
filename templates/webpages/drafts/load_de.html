@@ -2,9 +2,6 @@
 
  <form action="[% HTML.escape(script) %]" method="post">
 
-  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
-  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
-
   <input type="hidden" name="SAVED_FORM" value="[% HTML.escape(SAVED_FORM) %]">
 
   <table width="100%">
@@ -33,7 +30,7 @@
        <tr class="listrow[% loop.count % 2 %]">
         <td><input type="checkbox" name="checked_[% row.id %]" value="1"></td>
         <td>[% HTML.escape(row.itime) %]</td>
-        <td><a href="[% HTML.url(script) %]?login=[% HTML.url(login) %]&password=[% HTML.url(password) %]&action=load_draft&id=[% HTML.url(row.id) %]">[% HTML.escape(row.description) %]</a></td>
+        <td><a href="[% HTML.url(script) %]?action=load_draft&id=[% HTML.url(row.id) %]">[% HTML.escape(row.description) %]</a></td>
         <td>[% HTML.escape(row.employee_name) %]</td>
        </tr>
       [% END %]

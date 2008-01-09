@@ -28,14 +28,30 @@
 #######################################################################
 
 use DBI;
+use SL::Auth;
 use SL::User;
 use SL::Form;
 
 require "bin/mozilla/common.pl";
 
+# This is required because the am.pl in the root directory
+# is not scanned by locales.pl:
+# $form->parse_html_template('login/password_error')
+
 $form = new Form;
 
+if (! -f 'config/authentication.pl') {
+  show_error('login/authentication_pl_missing');
+}
+
 $locale = new Locale $language, "login";
+
+our $auth = SL::Auth->new();
+if (!$auth->session_tables_present()) {
+  show_error('login/auth_db_unreachable');
+}
+$auth->expire_sessions();
+$auth->restore_session();
 
 # customization
 if (-f "bin/mozilla/custom_$form->{script}") {
@@ -53,6 +69,17 @@ if (-f "bin/mozilla/$form->{login}_$form->{script}") {
 $form->{titlebar} = "Lx-Office " . $locale->text('Version') . " $form->{version}";
 
 if ($form->{action}) {
+  our %myconfig = $auth->read_user($form->{login}) if ($form->{login});
+
+  if (!$myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
+    $form->{error_message} = $locale->text('Incorrect Password!');
+    login_screen();
+    exit;
+  }
+
+  $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
+  $auth->create_or_refresh_session();
+
   $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
   call_sub($locale->findsub($form->{action}));
 
@@ -87,10 +114,10 @@ sub login {
     exit;
   }
 
-  $user = new User $memberfile, $form->{login};
+  $user = new User $form->{login};
 
   # if we get an error back, bale out
-  if (($result = $user->login(\%$form, $userspath)) <= -1) {
+  if (($result = $user->login($form)) <= -1) {
     exit if $result == -2;
     login_screen($locale->text('Incorrect username or password!'));
     exit;
@@ -106,6 +133,8 @@ sub login {
   # made it this far, execute the menu
   $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display');
 
+  $auth->set_cookie_environment_variable();
+
   $form->redirect();
 
   $lxdebug->leave_sub();
@@ -114,10 +143,10 @@ sub login {
 sub logout {
   $lxdebug->enter_sub();
 
-  unlink "$userspath/$form->{login}.conf";
+  $auth->destroy_session();
 
   # remove the callback to display the message
-  $form->{callback} = "login.pl?action=&login=";
+  $form->{callback} = "login.pl?action=";
   $form->redirect($locale->text('You are logged out!'));
 
   $lxdebug->leave_sub();
@@ -125,8 +154,6 @@ sub logout {
 
 sub company_logo {
   $lxdebug->enter_sub();
-
-  require "$userspath/$form->{login}.conf";
 
   $locale             =  new Locale $myconfig{countrycode}, "login" if ($language ne $myconfig{countrycode});
 
@@ -139,4 +166,19 @@ sub company_logo {
   print $form->parse_html_template('login/company_logo');
 
   $lxdebug->leave_sub();
+}
+
+sub show_error {
+  my $template           = shift;
+  $locale                = Locale->new($language, 'all');
+  $myconfig{countrycode} = $language;
+  $form->{stylesheet}    = 'css/lx-office-erp.css';
+
+  $form->header();
+  print $form->parse_html_template($template);
+
+  # $form->parse_html_template('login/auth_db_unreachable');
+  # $form->parse_html_template('login/authentication_pl_missing');
+
+  exit;
 }

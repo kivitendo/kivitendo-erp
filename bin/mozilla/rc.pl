@@ -42,6 +42,8 @@ require "bin/mozilla/common.pl";
 sub reconciliation {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   RC->paymentaccounts(\%myconfig, \%$form);
 
   $selection = "";
@@ -96,9 +98,6 @@ sub reconciliation {
 <br>
 <input type=hidden name=nextsub value=get_payments>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <input type=submit class=submit name=action value="|
     . $locale->text('Continue') . qq|">
 
@@ -116,6 +115,8 @@ sub continue { call_sub($form->{"nextsub"}); }
 sub get_payments {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   ($form->{accno}, $form->{account}) = split /--/, $form->{accno};
 
   RC->payment_transactions(\%myconfig, \%$form);
@@ -127,6 +128,8 @@ sub get_payments {
 
 sub display_form {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   @column_index = qw(cleared transdate source name credit debit balance);
 
@@ -369,9 +372,6 @@ sub display_form {
 <input type=hidden name=fromdate value=$form->{fromdate}>
 <input type=hidden name=todate value=$form->{todate}>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input type=submit class=submit name=action value="|
     . $locale->text('Update') . qq|">
@@ -392,6 +392,8 @@ sub display_form {
 sub update {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   RC->payment_transactions(\%myconfig, \%$form);
 
   foreach $ref (@{ $form->{PR} }) {
@@ -409,6 +411,8 @@ sub update {
 sub select_all {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   RC->payment_transactions(\%myconfig, \%$form);
 
   map { $_->{cleared} = "checked" unless $_->{fx_transaction} }
@@ -422,8 +426,9 @@ sub select_all {
 sub done {
   $lxdebug->enter_sub();
 
-  $form->{callback} =
-    "$form->{script}?action=reconciliation&login=$form->{login}&password=$form->{password}";
+  $auth->assert('cash');
+
+  $form->{callback} = "$form->{script}?action=reconciliation";
 
   $form->error($locale->text('Out of balance!')) if ($form->{difference} *= 1);
 

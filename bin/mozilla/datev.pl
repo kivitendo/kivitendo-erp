@@ -42,6 +42,8 @@ sub continue { call_sub($form->{"nextsub"}); }
 sub export {
   $lxdebug->enter_sub();
 
+  $auth->assert('datev_export');
+
   $form->{title} = $locale->text("DATEX - Export Assistent");
 
   DATEV->get_datev_stamm(\%myconfig, \%$form);
@@ -113,9 +115,6 @@ sub export {
 
 <input type=hidden name=nextsub value=export2>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input type=submit class=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -130,6 +129,8 @@ sub export {
 sub export2 {
   $lxdebug->enter_sub();
 
+  $auth->assert('datev_export');
+
   if ($form->{exporttype} == 0) {
     &export_bewegungsdaten();
   } else {
@@ -140,6 +141,8 @@ sub export2 {
 
 sub export_bewegungsdaten {
   $lxdebug->enter_sub();
+
+  $auth->assert('datev_export');
 
   $form->{title} = $locale->text("DATEX - Export Assistent");
 
@@ -247,9 +250,6 @@ sub export_bewegungsdaten {
 
 <input type=hidden name=nextsub value=export3>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input type=submit class=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -264,6 +264,8 @@ sub export_bewegungsdaten {
 
 sub export_stammdaten {
   $lxdebug->enter_sub();
+
+  $auth->assert('datev_export');
 
   $form->{title} = $locale->text("DATEX - Export Assistent");
 
@@ -312,9 +314,6 @@ sub export_stammdaten {
 
 <input type=hidden name=nextsub value=export3>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input type=submit class=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -330,11 +329,11 @@ sub export_stammdaten {
 sub export3 {
   $lxdebug->enter_sub();
 
+  $auth->assert('datev_export');
+
   DATEV->save_datev_stamm(\%myconfig, \%$form);
 
-  my $link = $form->{"script"} . "?";
-  map({ $link .= "${_}=" . $form->escape($form->{$_}) . "&"; } qw(login password));
-  $link .= "action=download";
+  my $link = "datev.pl?action=download";
 
   if ($form->{kne}) {
     my @filenames = DATEV->kne_export(\%myconfig, \%$form);
@@ -363,6 +362,8 @@ sub export3 {
 
 sub download {
   $lxdebug->enter_sub();
+
+  $auth->assert('datev_export');
 
   my $tmp_name = Common->tmpname();
   my $zip_name = strftime("lx-office-datev-export-%Y%m%d.zip",

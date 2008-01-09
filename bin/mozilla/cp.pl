@@ -42,7 +42,7 @@ use strict ("vars", "subs");
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
-our ($form, %myconfig, $lxdebug, $locale);
+our ($form, %myconfig, $lxdebug, $locale, $auth);
 
 1;
 
@@ -50,6 +50,8 @@ our ($form, %myconfig, $lxdebug, $locale);
 
 sub payment {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   my (@curr);
 
@@ -113,6 +115,8 @@ sub payment {
 
 sub form_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   my ($vc, $vclabel, $allvc, $arap, $department, $exchangerate);
   my ($jsscript, $button1, $button2, $onload);
@@ -218,7 +222,7 @@ sub form_header {
   print qq|
 <body onLoad="$onload">
 
-<form method=post action=$form->{script}>
+<form method=post action=cp.pl>
 
 <input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
 <input type=hidden name=closedto value=$form->{closedto}>
@@ -329,6 +333,8 @@ $jsscript
 
 sub list_invoices {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   my (@column_index, %column_data, $colspan, $invoice);
   my ($totalamount, $totaldue, $totalpaid);
@@ -449,6 +455,8 @@ sub list_invoices {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   my ($media, $format, $latex_templates);
 
   $form->{DF}{ $form->{format} } = "selected";
@@ -478,9 +486,6 @@ sub form_footer {
 </table>
 <input type=hidden name=rowcount value=$form->{rowcount}>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input class=submit type=submit name=action value="|
     . $locale->text('Update') . qq|">
@@ -508,6 +513,8 @@ sub form_footer {
 
 sub update {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   my ($new_name_selected) = @_;
 
@@ -656,6 +663,8 @@ sub update {
 sub post {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   &check_form;
 
   if ($form->{currency} ne $form->{defaultcurrency}) {
@@ -681,6 +690,8 @@ sub post {
 sub print {
   $lxdebug->enter_sub();
 
+  $auth->assert('cash');
+
   my ($whole, $check, %queued, $spool, $filename, $userspath);
 
   &check_form;
@@ -696,7 +707,11 @@ sub print {
   $check->init;
   $form->{text_amount} = $check->num2text($whole);
 
-  call_sub("$form->{vc}_details");
+  if ($form->{vc} eq 'customer') {
+    IS->customer_details(\%myconfig, $form);
+  } else {
+    IR->vendor_details(\%myconfig, $form);
+  }
 
   $form->{callback} = "";
 
@@ -739,8 +754,7 @@ sub print {
   $form->parse_template(\%myconfig, $userspath);
 
   if ($form->{media} ne 'screen') {
-    $form->{callback} =
-      "$form->{script}?action=payment&vc=$form->{vc}&login=$form->{login}&password=$form->{password}&all_vc=$form->{all_vc}";
+    $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&all_vc=$form->{all_vc}";
 
     $form->redirect if (CP->process_payment(\%myconfig, \%$form));
     $form->error($locale->text('Cannot post payment!'));
@@ -749,11 +763,10 @@ sub print {
   $lxdebug->leave_sub();
 }
 
-sub customer_details { IS->customer_details(\%myconfig, \%$form) }
-sub vendor_details { IR->vendor_details(\%myconfig, \%$form) }
-
 sub check_form {
   $lxdebug->enter_sub();
+
+  $auth->assert('cash');
 
   my ($closedto, $datepaid, $amount);
 

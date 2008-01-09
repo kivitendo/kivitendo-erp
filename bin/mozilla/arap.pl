@@ -47,6 +47,9 @@ require "bin/mozilla/common.pl";
 sub check_name {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger         | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit | sales_quotation_edit      | purchase_order_edit | cash');
+
   my ($name) = @_;
 
   $name = $name eq "customer" ? "customer" : "vendor";
@@ -124,6 +127,9 @@ sub check_name {
 
 sub select_name {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   my ($table) = @_;
 
@@ -208,6 +214,7 @@ sub select_name {
 
   # save all other form variables
   foreach $key (keys %${form}) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input name=$key type=hidden value="$form->{$key}">\n|;
   }
@@ -230,6 +237,9 @@ sub select_name {
 
 sub name_selected {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   # replace the variable with the one checked
 
@@ -256,27 +266,11 @@ sub name_selected {
   $lxdebug->leave_sub();
 }
 
-sub add_transaction {
-  $lxdebug->enter_sub();
-
-  my ($module) = @_;
-
-  delete $form->{script};
-  $form->{action} = "add";
-  $form->{type}   = "invoice" if $module =~ /(is|ir)/;
-
-  $form->{callback} = $form->escape($form->{callback}, 1);
-  map { $argv .= "$_=$form->{$_}&" } keys %$form;
-
-  $form->{callback} = "$module.pl?$argv";
-
-  $form->redirect;
-
-  $lxdebug->leave_sub();
-}
-
 sub check_project {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   for $i (1 .. $form->{rowcount}) {
     my $suffix = $i ? "_$i" : "";
@@ -296,12 +290,9 @@ sub check_project {
         }
 
         if ($rows == 1) {
-          $form->{"${prefix}project_id${suffix}"} =
-            $form->{project_list}->[0]->{id};
-          $form->{"${prefix}projectnumber${suffix}"} =
-            $form->{project_list}->[0]->{projectnumber};
-          $form->{"old${prefix}projectnumber${suffix}"} =
-            $form->{project_list}->[0]->{projectnumber};
+          $form->{"${prefix}project_id${suffix}"}       = $form->{project_list}->[0]->{id};
+          $form->{"${prefix}projectnumber${suffix}"}    = $form->{project_list}->[0]->{projectnumber};
+          $form->{"old${prefix}projectnumber${suffix}"} = $form->{project_list}->[0]->{projectnumber};
         } else {
 
           # not on file
@@ -318,6 +309,9 @@ sub check_project {
 
 sub select_project {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   my ($is_global) = @_;
 
@@ -402,6 +396,7 @@ sub select_project {
 
   # save all other form variables
   foreach $key (keys %${form}) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input name=$key type=hidden value="$form->{$key}">\n|;
   }
@@ -424,6 +419,9 @@ sub select_project {
 
 sub project_selected {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   # replace the variable with the one checked
 
@@ -456,9 +454,4 @@ sub project_selected {
 }
 
 sub continue       { call_sub($form->{"nextsub"}); }
-sub gl_transaction { &add }
-sub ar_transaction { &add_transaction('ar') }
-sub ap_transaction { &add_transaction('ap') }
-sub sales_invoice  { &add_transaction('is') }
-sub vendor_invoice { &add_transaction('ir') }
 

@@ -88,9 +88,6 @@
 
  [% IF SHOW_EXPORT_BUTTONS %]
   <form action="[% HTML.escape(script) %]" name="report_generator_form" method="post">
-   <input type="hidden" name="login" value="[% HTML.escape(login) %]">
-   <input type="hidden" name="password" value="[% HTML.escape(password) %]">
-
    [% FOREACH var = EXPORT_VARIABLES %]<input type="hidden" name="report_generator_hidden_[% var.key %]" value="[% HTML.escape(var.value) %]">
    [% END %]
 

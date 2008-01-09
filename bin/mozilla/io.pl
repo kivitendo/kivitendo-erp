@@ -35,11 +35,12 @@
 
 use CGI;
 use CGI::Ajax;
-use List::Util qw(max);
+use List::Util qw(max first);
 
 use SL::Common;
 use SL::CT;
 use SL::IC;
+use SL::IO;
 
 require "bin/mozilla/common.pl";
 
@@ -92,7 +93,15 @@ use Data::Dumper;
 ########################################
 sub display_row {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   my $numrows = shift;
+
+  my ($readonly, $stock_in_out, $stock_in_out_title);
+
+  my $is_purchase = (first { $_ eq $form->{type} } qw(request_quotation purchase_order)) || ($form->{script} eq 'ir.pl');
 
   # column_index
   my @header_sort = qw(runningnumber partnumber description ship qty unit sellprice_pg sellprice discount linetotal);
@@ -103,13 +112,14 @@ sub display_row {
     {  id => 'ship',          width => 5,     value => ($form->{type} eq 'purchase_order' ? $locale->text('Ship rcvd') : $locale->text('Ship')),                 
        display => $form->{type} =~ /sales_order/ || ($form->{type} =~ /purchase_order/ && !($lizenzen && $form->{vc} eq "customer")) , },
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
+    {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => 1, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
     {  id => 'license',       width => 10,    value => $locale->text('License'),              display => 0, },
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => 1, },
-    {  id => 'sellprice_pg',  width => 15,    value => $locale->text('Pricegroup'),           display => $form->{type} =~ /^sales_/,  },
-    {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => $form->{vc} eq 'customer', },
+    {  id => 'sellprice_pg',  width => 15,    value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/),  },
+    {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => ($form->{vc} eq 'customer'), },
     {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => 1, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
   ); 
@@ -182,21 +192,21 @@ sub display_row {
     $this_unit    = $form->{"selected_unit_$i"} if AM->convert_unit($this_unit, $form->{"selected_unit_$i"}, $all_units);
     $this_unit  ||= "kg";
 
-    my $price_factor_select;
     if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
       my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
       my %labels =      map { $_->{id} => $_->{description} } @{ $form->{ALL_PRICE_FACTORS} };
 
-      $price_factor_select =
+      $column_data{price_factor} =
         NTI($cgi->popup_menu('-name'    => "price_factor_id_$i",
                              '-default' => $form->{"price_factor_id_$i"},
                              '-values'  => \@values,
                              '-labels'  => \%labels,
-                             '-style'   => 'width:90px'))
-        . ' ';
+                             '-style'   => 'width:90px'));
+    } else {
+      $column_data{price_factor} = '&nbsp;';
     }
 
-    $column_data{"unit"} = $price_factor_select . AM->unit_select_html($local_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
+    $column_data{"unit"} = AM->unit_select_html($local_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
 
     $form->{"sellprice_$i"} =~ /\.(\d+)/;
@@ -289,23 +299,27 @@ sub display_row {
                    $marge_color, $locale->text('Ertrag'),$form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"},
                    $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
                    $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) }
-      if $form->{"id_$i"} && $form->{type} =~ /^sales_/;
+      if $form->{"id_$i"} && $form->{type} =~ /^sales_/ && !$is_delivery_order;
 # / marge calculations ending
+
+    my @hidden_vars;
+
+    push @hidden_vars, qw(partunit) if ($is_purchase);
 
     my @HIDDENS = map { value => $_}, (
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
           map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" } 
-            qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
-               income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
-               longdescription basefactor marge_absolut marge_percent marge_price_factor lastcost)
+            (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
+                income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
+                longdescription basefactor marge_absolut marge_percent marge_price_factor lastcost), @hidden_vars)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));
 
     $form->{invsubtotal} += $linetotal;
 
-    push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, };
+    push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, };
   }
 
   print $form->parse_html_template('oe/sales_order', { ROWS   => \@ROWS,
@@ -324,6 +338,10 @@ sub display_row {
 
 sub set_pricegroup {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   my $rowcount = shift;
   for $j (1 .. $rowcount) {
     next unless $form->{PRICES}{$j};
@@ -344,6 +362,10 @@ sub set_pricegroup {
 
 sub select_item {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   @column_index = qw(ndx partnumber description onhand unit sellprice);
 
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
@@ -449,6 +471,7 @@ sub select_item {
 
   # save all other form variables
   foreach $key (keys %${form}) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input name="$key" type="hidden" value="$form->{$key}">\n|;
   }
@@ -470,6 +493,9 @@ sub select_item {
 
 sub item_selected {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
 
   # replace the last row with the checked row
   $i = $form->{rowcount};
@@ -569,6 +595,9 @@ sub item_selected {
 sub new_item {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   # change callback
   $form->{old_callback} = $form->escape($form->{callback}, 1);
   $form->{callback}     = $form->escape("$form->{script}?action=display_form", 1);
@@ -580,6 +609,7 @@ sub new_item {
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc login password);
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit sellprice);
   push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
 
   $form->header();
   print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
@@ -589,28 +619,26 @@ sub new_item {
 
 sub check_form {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   my @a     = ();
   my $count = 0;
-  my @flds  = (qw(id partnumber description qty ship sellprice unit discount inventory_accno income_accno expense_accno listprice taxaccounts bin assembly weight projectnumber project_id oldprojectnumber runningnumber serialnumber partsgroup payment_id not_discountable shop ve gv buchungsgruppen_id language_values sellprice_pg pricegroup_old price_old price_new unit_old ordnumber transdate longdescription basefactor marge_total marge_percent marge_price_factor lastcost price_factor_id));
+
+  my @flds = qw(id partnumber description qty ship sellprice unit
+                discount inventory_accno income_accno expense_accno listprice
+                taxaccounts bin assembly weight projectnumber project_id
+                oldprojectnumber runningnumber serialnumber partsgroup payment_id
+                not_discountable shop ve gv buchungsgruppen_id language_values
+                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
+                transdate longdescription basefactor marge_total marge_percent
+                marge_price_factor lastcost price_factor_id);
 
   # remove any makes or model rows
   if ($form->{item} eq 'part') {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
       qw(listprice sellprice lastcost weight rop);
-
-    @flds = (make, model);
-    for my $i (1 .. ($form->{makemodel_rows})) {
-      if (($form->{"make_$i"} ne "") || ($form->{"model_$i"} ne "")) {
-        push @a, {};
-        my $j = $#a;
-
-        map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
-        $count++;
-      }
-    }
-
-    $form->redo_rows(\@flds, \@a, $count, $form->{makemodel_rows});
-    $form->{makemodel_rows} = $count;
 
   } elsif ($form->{item} eq 'assembly') {
 
@@ -643,23 +671,6 @@ sub check_form {
 
     $form->redo_rows(\@flds, \@a, $count, $form->{assembly_rows});
     $form->{assembly_rows} = $count;
-
-    $count = 0;
-    @flds  = qw(make model);
-    @a     = ();
-
-    for my $i (1 .. ($form->{makemodel_rows})) {
-      if (($form->{"make_$i"} ne "") || ($form->{"model_$i"} ne "")) {
-        push @a, {};
-        my $j = $#a;
-
-        map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
-        $count++;
-      }
-    }
-
-    $form->redo_rows(\@flds, \@a, $count, $form->{makemodel_rows});
-    $form->{makemodel_rows} = $count;
 
   } elsif ($form->{item} eq 'service') {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(listprice sellprice lastcost);
@@ -716,6 +727,9 @@ sub check_form {
 sub invoicetotal {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   $form->{oldinvtotal} = 0;
 
   # add all parts and deduct paid
@@ -754,6 +768,9 @@ sub invoicetotal {
 sub validate_items {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   # check if items are valid
   if ($form->{rowcount} == 1) {
     &update;
@@ -770,6 +787,10 @@ sub validate_items {
 
 sub order {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
@@ -837,6 +858,10 @@ sub order {
 
 sub quotation {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
@@ -902,6 +927,9 @@ sub request_for_quotation {
 sub edit_e_mail {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
     $form->{resubmit}       = 0;
@@ -925,7 +953,7 @@ sub edit_e_mail {
   $form->header;
 
   my (@dont_hide_key_list, %dont_hide_key, @hidden_keys);
-  @dont_hide_key_list = qw(action email cc bcc subject message sendmode format header override);
+  @dont_hide_key_list = qw(action email cc bcc subject message sendmode format header override login password);
   @dont_hide_key{@dont_hide_key_list} = (1) x @dont_hide_key_list;
   @hidden_keys = sort grep { !$dont_hide_key{$_} } grep { !ref $form->{$_} } keys %$form;
 
@@ -942,9 +970,11 @@ sub edit_e_mail {
 sub send_email {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   my $callback = $form->{script} . "?action=edit";
-  map({ $callback .= "\&${_}=" . E($form->{$_}); }
-      qw(login password type id));
+  map({ $callback .= "\&${_}=" . E($form->{$_}); } qw(type id));
 
   print_form("return");
 
@@ -967,6 +997,9 @@ sub send_email {
 # the inline options is untested, but intended to be used later in metatemplating
 sub print_options {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit     | vendor_invoice_edit        | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit | dunning_edit');
 
   my %options = @_;
 
@@ -1077,6 +1110,10 @@ sub print_options {
 sub print {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit | ' .
+                'order_request_edit_all     | order_request_edit');
+
   if ($form->{print_nextsub}) {
     call_sub($form->{print_nextsub});
     $lxdebug->leave_sub();
@@ -1111,6 +1148,10 @@ sub print {
 
 sub print_form {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit     | vendor_invoice_edit        | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit');
+
   my ($old_form) = @_;
 
   $inv       = "inv";
@@ -1174,10 +1215,9 @@ sub print_form {
   if ($form->{formname} eq 'pick_list') {
     $inv                  = "ord";
     $due                  = "req";
-    $form->{"${inv}date"} =
-      ($form->{transdate}) ? $form->{transdate} : $form->{invdate};
-    $form->{label} = $locale->text('Pick List');
-    $order = 1 unless $form->{type} eq 'invoice';
+    $form->{"${inv}date"} = ($form->{transdate}) ? $form->{transdate} : $form->{invdate};
+    $form->{label}        = $locale->text('Pick List');
+    $order                = 1 unless $form->{type} eq 'invoice';
   }
   if ($form->{formname} eq 'purchase_order') {
     $inv                  = "ord";
@@ -1275,7 +1315,7 @@ sub print_form {
   $salesman_id_saved = $form->{salesman_id};
   $cp_id_saved = $form->{cp_id};
 
-  call_sub("$form->{vc}_details");
+  call_sub("$form->{vc}_details") if ($form->{vc});
 
   $form->{language_id} = $language_saved;
   $form->{payment_id} = $payment_id_saved;
@@ -1304,7 +1344,15 @@ sub print_form {
   ($form->{employee}) = split /--/, $form->{employee};
 
   # create the form variables
-  if ($order) {
+  if ($form->{formname} eq 'order_request') {
+    order_request_details();
+  } elsif ($form->{formname} eq 'return_material_slip') {
+    rms_details();
+  } elsif ($form->{formname} eq 'release_material_slip') {
+    rlms_details();
+  } elsif ($form->{type} =~ /_delivery_order$/) {
+    DO->order_details();
+  } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
   } else {
     IS->invoice_details(\%myconfig, \%$form, $locale);
@@ -1548,6 +1596,9 @@ sub vendor_details {
 sub post_as_new {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   $form->{postasnew} = 1;
   map { delete $form->{$_} } qw(printed emailed queued);
 
@@ -1558,6 +1609,10 @@ sub post_as_new {
 
 sub ship_to {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
   }
@@ -1686,6 +1741,7 @@ sub ship_to {
   $form->{title} = $title;
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
   }
@@ -1709,6 +1765,9 @@ sub ship_to {
 sub new_license {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   my $row = shift;
 
   # change callback
@@ -1724,6 +1783,7 @@ sub new_license {
   # save all other form variables in a previousform variable
   $form->{row} = $row;
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
 
     # escape ampersands
     $form->{$key} =~ s/&/%26/g;
@@ -1738,7 +1798,7 @@ sub new_license {
   map { $form->{$_} = $form->escape($form->{$_}, 1) }
     qw(partnumber description);
   $form->{callback} =
-    qq|$form->{script}?login=$form->{login}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
+    qq|$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
   $form->redirect;
 
   $lxdebug->leave_sub();
@@ -1746,6 +1806,9 @@ sub new_license {
 
 sub relink_accounts {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
 
   $form->{"taxaccounts"} =~ s/\s*$//;
   $form->{"taxaccounts"} =~ s/^\s*//;
@@ -1765,6 +1828,9 @@ sub relink_accounts {
 
 sub set_duedate {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
 
   $form->get_duedate(\%myconfig);
 

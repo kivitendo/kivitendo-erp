@@ -7,6 +7,7 @@ require Exporter;
              dump_query quote_db_date
              selectfirst_hashref_query selectfirst_array_query
              selectall_hashref_query selectall_array_query
+             selectall_as_map
              prepare_execute_query prepare_query);
 
 sub conv_i {
@@ -194,6 +195,31 @@ sub selectfirst_array_query {
   return @ret;
 }
 
+sub selectall_as_map {
+  $main::lxdebug->enter_sub(2);
+
+  my ($form, $dbh, $query, $key_col, $value_col) = splice(@_, 0, 5);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @_);
+
+  my %hash;
+  if ('' eq ref $value_col) {
+    while (my $ref = $sth->fetchrow_hashref()) {
+      $hash{$ref->{$key_col}} = $ref->{$value_col};
+    }
+  } else {
+    while (my $ref = $sth->fetchrow_hashref()) {
+      $hash{$ref->{$key_col}} = { map { $_ => $ref->{$_} } @{ $value_col } };
+    }
+  }
+
+  $sth->finish();
+
+  $main::lxdebug->leave_sub(2);
+
+  return %hash;
+}
+
 1;
 
 
@@ -303,6 +329,10 @@ Prepares and executes a query using DBUtils functions, retireves the first row f
 =item selectall_hashref_query FORM,DBH,QUERY,ARRAY
 
 Prepares and executes a query using DBUtils functions, retireves all data from the database, and returns it in hashref mode. This is slightly confusing, as the data structure will actually be a reference to an array, containing hashrefs for each row.
+
+=item selectall_as_map FORM,DBH,QUERY,KEY_COL,VALUE_COL,ARRAY
+
+Prepares and executes a query using DBUtils functions, retireves all data from the database, and creates a hash from the results using KEY_COL as the column for the hash keys and VALUE_COL for its values.
 
 =back
 

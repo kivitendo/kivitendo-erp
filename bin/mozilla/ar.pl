@@ -84,6 +84,8 @@ require "bin/mozilla/reportgenerator.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   return $lxdebug->leave_sub() if (load_draft_maybe());
 
   # saving the history
@@ -95,9 +97,7 @@ sub add {
   # /saving the history 
   
   $form->{title}    = "Add";
-  $form->{callback} =
-    "$form->{script}?action=add&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "ar.pl?action=add" unless $form->{callback};
 
   AR->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
@@ -109,6 +109,9 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
@@ -124,6 +127,8 @@ sub edit {
 sub display_form {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   &form_header;
   &form_footer;
 
@@ -132,6 +137,8 @@ sub display_form {
 
 sub create_links {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my ($duedate, $taxincluded, @curr);
 
@@ -199,6 +206,8 @@ sub create_links {
 
 sub form_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($taxincluded, $notes, $department, $customer, $employee, $amount, $project);
@@ -787,6 +796,8 @@ $jsscript
 sub form_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   my ($transdate, $closedto);
 
   print qq|
@@ -794,9 +805,6 @@ sub form_footer {
 <input name=gldate type=hidden value="| . Q($form->{gldate}) . qq|">
 
 <input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 |
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
@@ -871,12 +879,18 @@ sub form_footer {
 
 sub mark_as_paid {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   &mark_as_paid_common(\%myconfig,"ar");  
+
   $lxdebug->leave_sub();
 }
 
 sub update {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my $display = shift;
 
@@ -973,6 +987,8 @@ sub update {
 sub post_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   for my $i (1 .. $form->{paidaccounts}) {
@@ -1000,12 +1016,17 @@ sub post_payment {
 }
 
 sub _post {
+
+  $auth->assert('general_ledger');
+
   # inline post
   post(1);
 }
 
 sub post {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   my ($inline) = @_;
 
@@ -1075,6 +1096,8 @@ sub post {
 sub post_as_new {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{postasnew} = 1;
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1091,6 +1114,8 @@ sub post_as_new {
 sub use_as_template {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
@@ -1102,6 +1127,8 @@ sub use_as_template {
 
 sub delete {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $form->{title} = $locale->text('Confirm!');
 
@@ -1116,6 +1143,7 @@ sub delete {
 |;
 
   foreach my $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1140,6 +1168,9 @@ sub delete {
 
 sub yes {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   if (AR->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
@@ -1157,6 +1188,8 @@ sub yes {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger | invoice_edit');
 
   my ($customer, $department);
   my ($jsscript, $button1, $button2, $onload);
@@ -1367,9 +1400,6 @@ sub search {
 
 <input type=hidden name=nextsub value=$form->{nextsub}>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input class=submit type=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -1406,6 +1436,8 @@ sub create_subtotal_row {
 
 sub ar_transactions {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger | invoice_edit');
 
   my ($callback, $href, @columns);
 
@@ -1582,6 +1614,8 @@ sub ar_transactions {
 
 sub storno {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   # don't cancel cancelled transactions
   if (IS->has_storno(\%myconfig, $form, 'ar')) {

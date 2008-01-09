@@ -57,6 +57,8 @@ sub edit {
 sub display_template {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{edit} = 0;
   display_template_form();
 
@@ -66,6 +68,8 @@ sub display_template {
 sub edit_template {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{edit} = 1;
   display_template_form();
 
@@ -74,6 +78,8 @@ sub edit_template {
 
 sub save_template {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->isblank("formname", $locale->text("You're not editing a file.")) unless ($form->{type} eq "stylesheet");
 
@@ -91,6 +97,8 @@ sub save_template {
 sub display_template_form {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{"formname"} =~ s|.*/||;
   my $format = $form->{"format"} eq "html" ? "html" : "tex";
 
@@ -98,7 +106,7 @@ sub display_template_form {
 
   my %options;
 
-  my @hidden = qw(login password type format);
+  my @hidden = qw(type format);
 
   if (($form->{"type"} ne "stylesheet") && !$form->{"edit"}) {
     $options{"SHOW_EDIT_OPTIONS"} = 1;

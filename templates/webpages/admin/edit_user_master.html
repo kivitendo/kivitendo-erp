@@ -10,13 +10,12 @@
      <table>
       <tr>
        <th align="right"><translate>Login</translate></th>
-       <td><input name="login" value="[% HTML.escape(myc_login) %]"></td>
+       <td>[% IF edit %]<input type="hidden" name="login" value="[% HTML.escape(myc_login) %]">[% HTML.escape(myc_login) %][% ELSE %]<input name="login" value="[% HTML.escape(myc_login) %]">[% END %]</td>
       </tr>
 
       <tr>
        <th align="right"><translate>Password</translate></th>
-       <td><input type="password" name="password" size="8" value="[% HTML.escape(myc_password) %]"></td>
-       <input type="hidden" name="old_password" value="[% HTML.escape(myc_password) %]">
+       <td>[% IF CAN_CHANGE_PASSWORD %]<input type="password" name="new_password" size="8" value="********">[% ELSE %]********[% END %]</td>
       </tr>
 
       <tr>
@@ -147,9 +146,12 @@
       <tr>
        <th align="right"><translate>Setup Menu</translate></th>
        <td>
-        <input name="menustyle" type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>&nbsp;<translate>Top (CSS)</translate>
-        <input name="menustyle" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>&nbsp;<translate>Top (Javascript)</translate>
-        <input name="menustyle" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;<translate>Old (on the side)</translate>
+        <input name="menustyle" id="menustyle_v3"  type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>
+        <label for="menustyle_v3">&nbsp;<translate>Top (CSS)</translate></label>
+        <input name="menustyle" id="menustyle_neu" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>
+        <label for="menustyle_neu">&nbsp;<translate>Top (Javascript)</translate></label>
+        <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>
+        <label for="menustyle_old">&nbsp;<translate>Old (on the side)</translate></label>
        </td>
       </tr>
 
@@ -185,36 +187,9 @@
        <th align="right"><translate>Password</translate></th>
        <td><input name="dbpasswd" type="password" size="10" value="[% HTML.escape(myc_dbpasswd) %]"></td>
       </tr>
-
-      <input type="hidden" name="old_dbpasswd" value="[% HTML.escape(myc_dbpasswd) %]">
      </table>
     </td>
    </tr>
-
-   <tr>
-    <td colspan="2"><hr size="2" noshade></td>
-   </tr>
-
-   <tr class="listheading"><th colspan="2"><translate>Access Control</translate></th></tr>
-
-   [% FOREACH acl = ACLS %]
-    <tr>
-     <td valign="top">
-      <input type="checkbox" name="ACS_[% HTML.escape(acl.name) %]" id="ACS_[% HTML.escape(acl.name) %]" value="1" [% IF acl.checked %]checked[% END %]>
-      <label for="ACS_[% HTML.escape(acl.name) %]">[% HTML.escape(acl.title) %]</label>
-     </td>
-
-     <td valign="top">
-      [% USE SUBACLS_it = Iterator(acl.SUBACLS) %][% FOREACH subacl = SUBACLS_it %]
-       <input type="checkbox" name="ACS_[% HTML.escape(subacl.name) %]" id="ACS_[% HTML.escape(subacl.name) %]" value="1" [% IF subacl.checked %]checked[% END %]>
-       <label for="ACS_[% HTML.escape(subacl.name) %]">[% HTML.escape(subacl.title) %]</label>
-       [% UNLESS SUBACLS_it.last %]<br>[% END %]
-      [% END %]
-     </td>
-    </tr>
-   [% END %]
-
-   <input type="hidden" name="all_acs" value="[% HTML.escape(all_acs) %]">
 
    <tr><td colspan="2"><hr size="3" noshade></td></tr>
 
@@ -226,26 +201,60 @@
     <td colspan="2">
      <table>
       <tr>
-       <td><input name="angebote" class="checkbox" type="checkbox" value="1" [% IF myc_angebote %]checked[% END %]>&nbsp;Angebot</td>
-       <td><input name="bestellungen" class="checkbox" type="checkbox" value="1" [% IF myc_bestellungen %]checked[% END %]>&nbsp;Bestellung</td>
-       <td><input name="rechnungen" class="checkbox" type="checkbox" value="1" [% IF myc_rechnung %]checked[% END %]>&nbsp;Rechnung</td>
+       <td>
+        <input name="angebote" id="angebote"class="checkbox" type="checkbox" value="1" [% IF myc_angebote %]checked[% END %]>
+        <label for="angebote">&nbsp;Angebot</label>
+       </td>
+       <td>
+        <input name="bestellungen" id="bestellungen" class="checkbox" type="checkbox" value="1" [% IF myc_bestellungen %]checked[% END %]>
+        <label for="bestellungen">&nbsp;Bestellung</label>
+       </td>
+       <td>
+        <input name="rechnungen" id="rechnungen" class="checkbox" type="checkbox" value="1" [% IF myc_rechnung %]checked[% END %]>
+        <label for="rechnungen">&nbsp;Rechnung</label>
+       </td>
       </tr>
 
       <tr>
-       <td><input name="anfragen" class="checkbox" type="checkbox" value="1" [% IF myc_anfragen %]checked[% END %]>&nbsp;Anfragen</td>
-       <td><input name="lieferantenbestellungen" class="checkbox" type="checkbox" value="1" [% IF myc_lieferantenbestellungen %]checked[% END %]>&nbsp;Lieferantenbestellung</td>
-       <td><input name="einkaufsrechnungen" class="checkbox" type="checkbox" value="1" [% IF myc_einkaufsrechnungen %]checked[% END %]>&nbsp;Einkaufsrechnung</td>
+       <td>
+        <input name="anfragen" id="anfragen" class="checkbox" type="checkbox" value="1" [% IF myc_anfragen %]checked[% END %]>
+        <label for="anfragen">&nbsp;Anfragen</label>
+       </td>
+       <td>
+        <input name="lieferantenbestellungen" id="lieferantenbestellungen" class="checkbox" type="checkbox" value="1" [% IF myc_lieferantenbestellungen %]checked[% END %]>
+        <label for="lieferantenbestellungen">&nbsp;Lieferantenbestellung</label>
+       </td>
+       <td>
+        <input name="einkaufsrechnungen" id="einkaufsrechnungen" class="checkbox" type="checkbox" value="1" [% IF myc_einkaufsrechnungen %]checked[% END %]>
+        <label for="einkaufsrechnungen">&nbsp;Einkaufsrechnung</label>
+       </td>
       </tr>
      </table>
     </td>
    </tr>
 
+   [% IF edit %]
+   <tr><td colspan="2"><hr size="3" noshade></td></tr>
+
+   <tr class="listheading">
+    <th colspan="2"><translate>Group membership</translate></th>
+   </tr>
+
+   <tr>
+    <td colspan="2"><translate>The user is a member in the following group(s):</translate></td>
+   </tr>
+
+   <tr>
+    <td colspan="2">[% USE GROUPS_it = Iterator(GROUPS) %][% FOREACH row = GROUPS_it %]<a href="admin.pl?action=edit_group&group_id=[% HTML.url(row.id) %]">[% HTML.escape(row.name) %]</a>
+     [% UNLESS GROUPS_it.last %] | [% END %][% END %]</td>
+   </tr>
+   [% END %]
+
    <tr><td colspan="2"><hr size="3" noshade></td></tr>
 
   </table>
 
-  <input name="callback" type="hidden" value="admin.pl?action=list_users&rpw=[% HTML.url(rpw) %]">
-  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+  <input name="callback" type="hidden" value="admin.pl?action=list_users">
 
   <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
 

@@ -1,0 +1,58 @@
+<html lang="en">
+<head>
+<title>Grundlagen zur Benutzerauthentifizierung - Lx-Office Installationsanleitung</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="Lx-Office Installationsanleitung">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Benutzerauthentifizierung-und-Administratorpasswort.html#Benutzerauthentifizierung-und-Administratorpasswort" title="Benutzerauthentifizierung und Administratorpasswort">
+<link rel="next" href="Administratorpasswort.html#Administratorpasswort" title="Administratorpasswort">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Grundlagen-zur-Benutzerauthentifizierung"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Administratorpasswort.html#Administratorpasswort">Administratorpasswort</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="Benutzerauthentifizierung-und-Administratorpasswort.html#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>
+<hr>
+</div>
+
+<h3 class="section">6.1 Grundlagen zur Benutzerauthentifizierung</h3>
+
+<p>Lx-Office verwaltet die Benutzerinformationen in einer Datenbank, die
+im folgenden &ldquo;Authentifizierungsdatenbank&rdquo; genannt wird. Für jeden
+Benutzer kann dort eine eigene Datenbank für die eigentlichen
+Finanzdaten hinterlegt sein. Diese beiden Datenbanken können, müssen
+aber nicht unterschiedlich sein.
+
+   <p>Im einfachsten Fall gibt es für Lx-Office nur eine einzige Datenbank,
+in der sowohl die Benutzerinformationen als auch die Daten abgelegt
+werden.
+
+   <p>Zusätzlich ermöglicht es Lx-Office, dass die Benutzerpasswörter
+entweder gegen die Authentifizierungsdatenbank oder gegen einen
+LDAP-Server überprüft werden.
+
+   <p>Welche Art der Passwortüberprüfung Lx-Office benutzt und wie Lx-Office
+die Authentifizierungsdatenbank erreichen kann, wird in der
+Konfigurationsdatei <code>config/authentication.pl</code> festgelegt. Diese
+muss bei der Installation und bei einem Upgrade von einer Version vor
+v2.4.4 angelegt werden. Eine Beispielkonfigurationsdatei
+<code>config/authentication.pl.default</code> existiert, die als Vorlage
+benutzt werden kann.
+
+   </body></html>
+

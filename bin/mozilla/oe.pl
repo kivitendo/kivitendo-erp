@@ -59,8 +59,24 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Workflow request_quotation');
 # $locale->text('Workflow sales_quotation');
 
+my $oe_access_map = {
+  'sales_order'       => 'sales_order_edit',
+  'purchase_order'    => 'purchase_order_edit',
+  'request_quotation' => 'request_quotation_edit',
+  'sales_quotation'   => 'sales_quotation_edit',
+};
+
+sub check_oe_access {
+  my $right   = $oe_access_map->{$form->{type}};
+  $right    ||= 'DOES_NOT_EXIST';
+
+  $auth->assert($right);
+}
+
 sub set_headings {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   my ($action) = @_;
 
@@ -99,10 +115,12 @@ sub set_headings {
 sub add {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   set_headings("add");
 
   $form->{callback} =
-    "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&type=$form->{type}&vc=$form->{vc}"
     unless $form->{callback};
 
   &order_links;
@@ -114,6 +132,9 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
@@ -161,6 +182,9 @@ sub edit {
 
 sub order_links {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+
   # get customer/vendor
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
@@ -279,6 +303,9 @@ sub order_links {
 
 sub prepare_order {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+
   $form->{formname} = $form->{type} unless $form->{formname};
 
   my $i = 0;
@@ -300,6 +327,8 @@ sub prepare_order {
 sub form_header {
   $lxdebug->enter_sub();
   my @custom_hiddens;
+
+  check_oe_access();
 
   # Container for template variables. Unfortunately this has to be visible in form_footer too, so not my.
   our %TMPL_VAR = ();
@@ -445,6 +474,8 @@ sub form_header {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   $form->{invtotal} = $form->{invsubtotal};
 
   $rows    = max 2, $form->numtextrows($form->{notes}, 25, 8);
@@ -509,6 +540,8 @@ sub update {
   $lxdebug->enter_sub();
   
   my ($recursive_call) = shift;
+
+  check_oe_access();
 
   set_headings($form->{"id"} ? "edit" : "add");
 
@@ -622,6 +655,8 @@ sub update {
 
 sub search {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   if ($form->{type} eq 'purchase_order') {
     $form->{title} = $locale->text('Purchase Orders');
@@ -825,6 +860,8 @@ $employee_block
 	      <tr>
 		<td><input name="l_id" class=checkbox type=checkbox value=Y> | . $locale->text('ID') . qq|</td>
 		<td><input name="l_$ordnumber" class=checkbox type=checkbox value=Y checked> $ordlabel</td>
+	      </tr>
+	      <tr>
 		<td><input name="l_transdate" class=checkbox type=checkbox value=Y checked> | . $locale->text('Date') . qq|</td>
 		<td><input name="l_reqdate" class=checkbox type=checkbox value=Y checked> | . $locale->text('Required by') . qq|</td>
 	      </tr>
@@ -864,8 +901,6 @@ $jsscript
 
 <br>
 <input type=hidden name=nextsub value=orders>
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 <input type=hidden name=vc value=$form->{vc}>
 <input type=hidden name=type value=$form->{type}>
 
@@ -900,6 +935,8 @@ sub create_subtotal_row {
 
 sub orders {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
@@ -1121,6 +1158,8 @@ sub orders {
 sub check_delivered_flag {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   if (($form->{type} ne 'sales_order') && ($form->{type} ne 'purchase_order')) {
     return $lxdebug->leave_sub();
   }
@@ -1146,6 +1185,8 @@ sub check_delivered_flag {
 
 sub save_and_close {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1245,6 +1286,8 @@ sub save_and_close {
 
 sub save {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1347,6 +1390,8 @@ sub save {
 sub delete {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   $form->header;
 
   if ($form->{type} =~ /_order$/) {
@@ -1367,6 +1412,7 @@ sub delete {
   map { delete $form->{$_} } qw(action header);
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1393,6 +1439,8 @@ sub delete {
 sub delete_order_quotation {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   if ($form->{type} =~ /_order$/) {
     $msg = $locale->text('Order deleted!');
     $err = $locale->text('Cannot delete order!');
@@ -1418,6 +1466,9 @@ sub delete_order_quotation {
 
 sub invoice {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+  $auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{old_employee_id} = $form->{employee_id};
   $form->{old_salesman_id} = $form->{salesman_id};
@@ -1583,6 +1634,9 @@ sub invoice {
 
 sub backorder_exchangerate {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+
   my ($orddate, $buysell) = @_;
 
   $form->header;
@@ -1597,6 +1651,7 @@ sub backorder_exchangerate {
   map { delete $form->{$_} } qw(action header exchangerate);
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -1604,9 +1659,6 @@ sub backorder_exchangerate {
   $form->{title} = $locale->text('Add Exchangerate');
 
   print qq|
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input type=hidden name=exchangeratedate value=$orddate>
 <input type=hidden name=buysell value=$buysell>
@@ -1733,6 +1785,8 @@ sub create_backorder {
 sub save_as_new {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   $form->{saveasnew} = 1;
   $form->{closed}    = 0;
   map { delete $form->{$_} } qw(printed emailed queued);
@@ -1755,6 +1809,8 @@ sub save_as_new {
 sub check_for_direct_delivery_yes {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   $form->{direct_delivery_checked} = 1;
   delete @{$form}{grep /^shipto/, keys %{ $form }};
   map { s/^CFDD_//; $form->{$_} = $form->{"CFDD_${_}"} } grep /^CFDD_/, keys %{ $form };
@@ -1766,6 +1822,8 @@ sub check_for_direct_delivery_yes {
 sub check_for_direct_delivery_no {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   $form->{direct_delivery_checked} = 1;
   delete @{$form}{grep /^shipto/, keys %{ $form }};
   purchase_order();
@@ -1775,6 +1833,8 @@ sub check_for_direct_delivery_no {
 
 sub check_for_direct_delivery {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   if ($form->{direct_delivery_checked}
       || (!$form->{shiptoname} && !$form->{shiptostreet} && !$form->{shipto_id})) {
@@ -1790,7 +1850,7 @@ sub check_for_direct_delivery {
   }
 
   delete $form->{action};
-  $form->{VARIABLES} = [ map { { "key" => $_, "value" => $form->{$_} } } grep { ref $_ eq "" } keys %{ $form } ];
+  $form->{VARIABLES} = [ map { { "key" => $_, "value" => $form->{$_} } } grep { ($_ ne 'login') && ($_ ne 'password') && (ref $_ eq "") } keys %{ $form } ];
 
   $form->header();
   print $form->parse_html_template("oe/check_for_direct_delivery");
@@ -1802,6 +1862,9 @@ sub check_for_direct_delivery {
 
 sub purchase_order {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+  $auth->assert('purchase_order_edit');
 
   if ($form->{type} eq 'sales_order') {
     check_for_direct_delivery();
@@ -1830,6 +1893,9 @@ sub purchase_order {
 sub sales_order {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+  $auth->assert('sales_order_edit');
+
   if (   $form->{type} eq 'sales_quotation'
       || $form->{type} eq 'request_quotation') {
     OE->close_order(\%myconfig, $form);
@@ -1852,6 +1918,9 @@ sub sales_order {
 
 sub poso {
   $lxdebug->enter_sub();
+
+  check_oe_access();
+  $auth->assert('purchase_order_edit | sales_order_edit');
 
   $form->{transdate} = $form->current_date(\%myconfig);
   delete $form->{duedate};
@@ -1893,6 +1962,8 @@ sub poso {
 sub e_mail {
   $lxdebug->enter_sub();
 
+  check_oe_access();
+
   $form->{print_and_save} = 1;
 
   $print_post = 1;
@@ -1901,10 +1972,7 @@ sub e_mail {
 
   save();
 
-  my %saved_vars;
-  map({ $saved_vars{$_} = $form->{$_}; } qw(id ordnumber quonumber));
-  restore_form($saved_form);
-  map({ $form->{$_} = $saved_vars{$_}; } qw(id ordnumber quonumber));
+  restore_form($saved_form, 0, qw(id ordnumber quonumber));
 
   edit_e_mail();
 
@@ -1924,6 +1992,8 @@ sub no {
 # ###############################################################################################
 sub display_form {
   $lxdebug->enter_sub();
+
+  check_oe_access();
 
   $form->{"taxaccounts"} =~ s/\s*$//;
   $form->{"taxaccounts"} =~ s/^\s*//;

@@ -1,0 +1,18 @@
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="admin.pl">
+
+  <p>Die folgenden Benutzer wurden in die Authentifizierungsdatenbank migriert:</p>
+
+  <p>[% FOREACH row = MEMBERS %][% row.login %] [% END %]</p>
+
+  <input type="hidden" name="nextsub" value="create_standard_group_ask">
+
+  <input type="submit" class="submit" name="action" value="Weiter">
+
+ </form>
+
+</body>
+</html>

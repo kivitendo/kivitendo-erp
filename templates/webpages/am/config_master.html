@@ -6,9 +6,6 @@
 
   <input type="hidden" name="type" value="preferences">
   <input type="hidden" name="role" value="[% HTML.escape(myconfig_role) %]">
-  <input type="hidden" name="login" value="[% HTML.escape(login) %]">
-  <input type="hidden" name="password" value="[% HTML.escape(password) %]">
-  <input type="hidden" name="old_password" value="[% HTML.escape(myconfig_password) %]">
 
   <p>
    <table>
@@ -19,7 +16,13 @@
 
     <tr>
      <th align="right"><translate>Password</translate></th>
-     <td><input type="password" name="new_password" size="10" value="[% HTML.escape(myconfig_password) %]"></td>
+     <td>
+      [%- IF CAN_CHANGE_PASSWORD %]
+      <input type="password" name="new_password" size="10" value="********">
+      [%- ELSE %]
+      <input type="hidden" name="new_password" value="********">
+      [%- END %]
+     </td>
     </tr>
 
     <tr>

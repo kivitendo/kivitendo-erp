@@ -54,10 +54,12 @@ require "bin/mozilla/reportgenerator.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   $form->{title} = "Add";
 
   $form->{callback} =
-    "$form->{script}?action=add&db=$form->{db}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&db=$form->{db}"
     unless $form->{callback};
 
   CT->populate_drop_down_boxes(\%myconfig, \%$form);
@@ -70,6 +72,8 @@ sub add {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
@@ -87,6 +91,8 @@ sub search {
 
 sub list_names {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
@@ -208,6 +214,8 @@ sub list_names {
 sub edit {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
   #/show hhistory button
@@ -235,6 +243,8 @@ sub edit {
 sub form_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   $form->get_lists("employees" => "ALL_SALESMEN",
                    "taxzones"  => "ALL_TAXZONES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
@@ -252,7 +262,7 @@ sub form_header {
   unshift @{ $form->{CONTACTS} }, +{ cp_id     => '0', cp_name => $locale->text('New contact') };
 
   push @{ $form->{AJAX} }, map { 
-    new CGI::Ajax( "get_$_" => "$form->{script}?login=$form->{login}&password=$form->{password}&action=get_$_" ) 
+    new CGI::Ajax( "get_$_" => "$form->{script}?action=get_$_" ) 
   } qw(shipto contact delivery);
 
   $form->{title} = $form->{title_save} 
@@ -272,6 +282,8 @@ sub form_header {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   print $form->parse_html_template('ct/form_footer', { is_orphaned => $form->{status} eq 'orphaned',
                                                        is_customer => $form->{db}     eq 'customer' });
   $lxdebug->leave_sub();
@@ -279,6 +291,8 @@ sub form_footer {
 
 sub add_transaction {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit & general_ledger');
 
 #  # saving the history
 #  if(!exists $form->{addition}) {
@@ -298,7 +312,7 @@ sub add_transaction {
   $name = $form->escape("$form->{name}", 1);
 
   $form->{callback} =
-    "$form->{script}?login=$form->{login}&password=$form->{password}&action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&callback=$form->{callback}";
+    "$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&callback=$form->{callback}";
   $form->redirect;
 
   $lxdebug->leave_sub();
@@ -306,6 +320,8 @@ sub add_transaction {
 
 sub save_and_ap_transaction {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit & general_ledger');
 
   $form->{script} = "ap.pl";
   # saving the history
@@ -322,6 +338,8 @@ sub save_and_ap_transaction {
 sub save_and_ar_transaction {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit & general_ledger');
+
   $form->{script} = "ar.pl";
   # saving the history
   if(!exists $form->{addition}) {
@@ -336,6 +354,12 @@ sub save_and_ar_transaction {
 
 sub save_and_invoice {
   $lxdebug->enter_sub();
+
+  if ($form->{db} eq 'customer') {
+    $auth->assert('customer_vendor_edit & invoice_edit');
+  } else {
+    $auth->assert('customer_vendor_edit & vendor_invoice_edit');
+  }
 
   $form->{script} = ($form->{db} eq 'customer') ? "is.pl" : "ir.pl";
   $form->{type} = "invoice";
@@ -353,6 +377,8 @@ sub save_and_invoice {
 sub save_and_rfq {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit & request_quotation_edit');
+
   $form->{script} = "oe.pl";
   $form->{type}   = "request_quotation";
   # saving the history
@@ -368,6 +394,8 @@ sub save_and_rfq {
 
 sub save_and_quotation {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit & sales_quotation_edit');
 
   $form->{script} = "oe.pl";
   $form->{type}   = "sales_quotation";
@@ -385,6 +413,8 @@ sub save_and_quotation {
 sub save_and_order {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit & sales_order_edit');
+
   $form->{script} = "oe.pl";
   $form->{type}   =
     ($form->{db} eq 'customer') ? "sales_order" : "purchase_order";
@@ -401,6 +431,8 @@ sub save_and_order {
 
 sub save_and_close {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
 
   # $locale->text('Customer saved!')
   # $locale->text('Vendor saved!')
@@ -431,6 +463,8 @@ sub save_and_close {
 
 sub save {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
 
   # $locale->text('Customer saved!')
   # $locale->text('Vendor saved!')
@@ -469,6 +503,8 @@ sub save {
 sub delete {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   # $locale->text('Customer deleted!')
   # $locale->text('Cannot delete customer!')
   # $locale->text('Vendor deleted!')
@@ -496,6 +532,8 @@ sub delete {
 sub display {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   &form_header();
   &form_footer();
 
@@ -505,12 +543,16 @@ sub display {
 sub update {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   &display();
   $lxdebug->leave_sub();
 }
 
 sub get_contact {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
 
   CT->get_contact(\%myconfig, \%$form);
 
@@ -526,6 +568,8 @@ sub get_contact {
 sub get_shipto {
   $lxdebug->enter_sub();
 
+  $auth->assert('customer_vendor_edit');
+
   CT->get_shipto(\%myconfig, \%$form);
 
   my $q = new CGI;
@@ -539,6 +583,8 @@ sub get_shipto {
 
 sub get_delivery {
   $lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
 
   CT->get_delivery(\%myconfig, \%$form );
 

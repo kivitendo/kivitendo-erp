@@ -9,8 +9,9 @@
 #
 ######################################################################
 
-use SL::Form;
 use SL::Common;
+use SL::DBUtils;
+use SL::Form;
 use SL::MoreCommon;
 
 sub build_std_url {
@@ -20,7 +21,7 @@ sub build_std_url {
 
   my @parts;
 
-  foreach my $key ((qw(login password), @_)) {
+  foreach my $key (@_) {
     next unless ($key);
 
     if ($key =~ /(.*?)=(.*)/) {
@@ -31,7 +32,9 @@ sub build_std_url {
       }
 
     } else {
-      push @parts, "${key}=" . E($form->{$key});
+      foreach my $var ($form->flatten_variables($key)) {
+        push @parts, E($var->{key}) . '=' . E($var->{value});
+      }
     }
   }
 
@@ -42,43 +45,7 @@ sub build_std_url {
   return $url;
 }
 
-sub select_employee {
-  $lxdebug->enter_sub();
-
-  my ($callback_sub, @employees) = @_;
-
-  if (0 == scalar(@employees)) {
-    @employees = SystemBrace->get_all_employees(\%myconfig, $form);
-  }
-
-  my $old_form = save_form();
-
-  $form->header();
-  print($form->parse_html_template("generic/select_employee",
-                                   { "EMPLOYEES" => \@employees,
-                                     "old_form" => $old_form,
-                                     "title" => $locale->text("Select an employee"),
-                                     "nextsub" => "select_employee_internal",
-                                     "callback_sub" => $callback_sub }));
-
-  $lxdebug->leave_sub();
-}
-
-sub select_employee_internal {
-  $lxdebug->enter_sub();
-
-  my ($new_id, $new_name, $callback_sub);
-
-  my $new_id = $form->{"new_id_" . $form->{"selection"}};
-  my $new_name = $form->{"new_name_" . $form->{"selection"}};
-  my $callback_sub = $form->{"callback_sub"};
-
-  restore_form($form->{"old_form"});
-
-  call_sub($callback_sub, $new_id, $new_name);
-
-  $lxdebug->leave_sub();
-}
+# -------------------------------------------------------------------------
 
 ## Customers/Vendors
 
@@ -223,15 +190,15 @@ sub select_part {
   my $old_form = save_form();
 
   $form->header();
-  print($form->parse_html_template("generic/select_part",
-                                   { "PARTS" => \@parts,
-                                     "old_form" => $old_form,
-                                     "title" => $locale->text("Select a part"),
-                                     "nextsub" => "select_part_internal",
-                                     "callback_sub" => $callback_sub,
-                                     "has_charge" => $has_charge,
-                                     "remap_parts_id" => $remap_parts_id,
-                                     "remap_partnumber" => $remap_partnumber }));
+  print $form->parse_html_template("generic/select_part",
+                                   { "PARTS"            => \@parts,
+                                     "old_form"         => $old_form,
+                                     "title"            => $locale->text("Select a part"),
+                                     "nextsub"          => "select_part_internal",
+                                     "callback_sub"     => $callback_sub,
+                                     "has_charge"       => $has_charge,
+                                     "remap_parts_id"   => $remap_parts_id,
+                                     "remap_partnumber" => $remap_partnumber });
 
   $lxdebug->leave_sub();
 }
@@ -242,25 +209,27 @@ sub select_part_internal {
   my ($new_item, $callback_sub);
 
   my $re = "^new_.*_" . $form->{"selection"};
-  map({
-    my $key = $_;
-    $key =~ s/^new_//;
-    $key =~ s/_\d+$//;
-    $new_item->{$key} = $form->{$_};
-  } grep(/$re/, keys(%{$form})));
 
-  if ($form->{"remap_parts_id"}) {
-    $new_item->{"parts_id"} = $new_item->{"id"};
-    delete($new_item->{"id"});
-  }
-  if ($form->{"remap_partnumber"}) {
-    $new_item->{"partnumber"} = $new_item->{"number"};
-    delete($new_item->{"number"});
+  foreach (grep /$re/, keys %{ $form }) {
+    my $new_key           =  $_;
+    $new_key              =~ s/^new_//;
+    $new_key              =~ s/_\d+$//;
+    $new_item->{$new_key} =  $form->{$_};
   }
 
-  my $callback_sub = $form->{"callback_sub"};
+  if ($form->{remap_parts_id}) {
+    $new_item->{parts_id} = $new_item->{id};
+    delete $new_item->{id};
+  }
 
-  restore_form($form->{"old_form"});
+  if ($form->{remap_partnumber}) {
+    $new_item->{partnumber} = $new_item->{number};
+    delete $new_item->{number};
+  }
+
+  my $callback_sub = $form->{callback_sub};
+
+  restore_form($form->{old_form});
 
   call_sub($callback_sub, $new_item);
 
@@ -270,10 +239,14 @@ sub select_part_internal {
 sub part_selection_internal {
   $lxdebug->enter_sub();
 
-  $order_by = "description";
-  $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
+  $order_by  = "description";
+  $order_by  = $form->{"order_by"} if (defined($form->{"order_by"}));
   $order_dir = 1;
   $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
+
+  %options   = map { $_ => 1 } split m/:/, $form->{options};
+
+  map { $form->{$_} = 1 if ($options{$_}) } qw(no_services no_assemblies stockable);
 
   $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
   map({ $parts->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$parts}));
@@ -285,7 +258,7 @@ sub part_selection_internal {
 
   my $callback = "$form->{script}?action=part_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password partnumber description input_partnumber input_description input_partsid), grep({ /^[fl]_/ } keys %$form)));
+      (qw(partnumber description input_partnumber input_description input_partsid), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(partnumber description);
   my %header_title = ( "partnumber" => $locale->text("Part Number"),
@@ -301,53 +274,225 @@ sub part_selection_internal {
 
   $form->{"title"} = $locale->text("Select a part");
   $form->header();
-  print($form->parse_html_template("generic/part_selection", { "HEADER" => \@header,
-                                                               "PARTS" => $parts,
-                                                               "onload" => $onload }));
+  print $form->parse_html_template("generic/part_selection", { "HEADER" => \@header,
+                                                               "PARTS"  => $parts,
+                                                               "onload" => $onload });
 
   $lxdebug->leave_sub();
 }
+
+# -------------------------------------------------------------------------
 
 sub project_selection_internal {
   $lxdebug->enter_sub();
 
-  $order_by = "description";
-  $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
-  $order_dir = 1;
-  $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
+  $auth->check_right($form->{login}, 'project_edit');
 
-  $projects = Common->retrieve_projects(\%myconfig, $form, $order_by, $order_dir);
-  map({ $projects->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$projects}));
-  if (0 == scalar(@{$projects})) {
-    $form->show_generic_information($locale->text("No project was found matching the search parameters."));
-  } elsif (1 == scalar(@{$projects})) {
+  my %valid_order_by_fields = ('description' => 1, 'projectnumber' => 1);
+
+  $order_by  = "description";
+  $order_by  = $form->{order_by} if ($valid_order_by_fields{$form->{order_by}});
+  $order_dir = !defined $form->{order_dir} ? 1 : $form->{order_dir} ? 1 : 0;
+
+  $projects  = Common->retrieve_projects(\%myconfig, $form, $order_by, $order_dir);
+
+  if (1 == scalar @{ $projects }) {
     $onload = "project_selected('1')";
   }
 
-  my $callback = "$form->{script}?action=project_selection_internal&";
-  map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password projectnumber description input_projectnumber input_description input_project_id), grep({ /^[fl]_/ } keys %$form)));
+  my $callback = build_std_url('action=project_selection_internal', qw(projectnumber description input_projectnumber input_description input_project_id),
+                               grep { /^[fl]_/ } keys %{ $form });
 
-  my @header_sort = qw(projectnumber description);
+  my @header_sort  = qw(projectnumber description);
   my %header_title = ( "projectnumber" => $locale->text("Project Number"),
-                       "description" => $locale->text("Project description"),
+                       "description"   => $locale->text("Project description"),
                        );
 
   my @header =
     map(+{ "column_title" => $header_title{$_},
-           "column" => $_,
-           "callback" => $callback . "order_by=${_}&order_dir=" . ($order_by eq $_ ? 1 - $order_dir : $order_dir),
+           "column"       => $_,
+           "callback"     => $callback . "&order_by=${_}&order_dir=" . ($order_by eq $_ ? 1 - $order_dir : $order_dir),
          },
         @header_sort);
 
-  $form->{"title"} = $locale->text("Select a project");
+  $form->{title} = $locale->text("Select a project");
   $form->header();
-  print($form->parse_html_template("generic/project_selection", { "HEADER" => \@header,
+  print $form->parse_html_template("generic/project_selection", { "HEADER"   => \@header,
                                                                   "PROJECTS" => $projects,
-                                                                  "onload" => $onload }));
+                                                                  "onload"   => $onload });
 
   $lxdebug->leave_sub();
 }
+
+sub new_project {
+  $lxdebug->enter_sub();
+
+  delete @{$form}{qw(action login password)};
+
+  my $callback = build_std_url('action=project_created', grep { '' eq ref $form->{$_} } keys %{ $form });
+
+  my $argv = "action=add&type=project&callback=" . E($callback);
+
+  exec("perl", "pe.pl", $argv);
+}
+
+sub project_created {
+  $lxdebug->enter_sub();
+
+  $form->{title} = $locale->text("Select a project");
+  $form->header();
+
+  my $args = {
+    'PROJECTS' => [ { map { $_ => $form->{"new_$_"} } qw(id projectnumber description) } ],
+    'HEADER'   => [],
+    'onload'   => "project_selected('1')",
+  };
+
+  print $form->parse_html_template("generic/project_selection", $args);
+
+  $lxdebug->leave_sub();
+}
+
+sub project_selection_check {
+  $lxdebug->enter_sub();
+
+  my ($id_field, $number_field, $description_field, $project_selected_nextsub, $prefix) = @_;
+
+  $prefix = "f_" unless defined($prefix);
+
+  if (!$form->{"${prefix}${number_field}"} &&
+      (!$description_field || !$form->{"${prefix}${description_field}"})) {
+    delete $form->{"${prefix}${id_field}"};
+    delete $form->{"${prefix}old_${number_field}"};
+    delete $form->{"${prefix}old_${description_field}"} if ($description_field);
+
+    $lxdebug->leave_sub();
+    return 1;
+  }
+
+  if (($form->{"${prefix}${number_field}"}      eq $form->{"${prefix}old_${number_field}"}) &&
+      (!$description_field ||
+       (($form->{"${prefix}${description_field}"} eq $form->{"${prefix}old_${description_field}"})))) {
+    $lxdebug->leave_sub();
+    return 1;
+  }
+
+  my $old_form = save_form();
+
+  $form->{projectnumber} = $form->{"${prefix}${number_field}"};
+  $form->{full_search}   = 1;
+
+  if ($description_field) {
+    $form->{description} = $form->{"${prefix}${description_field}"};
+  } else {
+    delete $form->{description};
+  }
+
+  my $projects = Common->retrieve_projects(\%myconfig, $form, "projectnumber", 1);
+  restore_form($old_form);
+
+  if (0 == scalar @{$projects}) {
+    $form->error(sprintf($locale->text("There is no project whose project number matches '%s'."), $form->{"${prefix}${number_field}"}));
+
+    $lxdebug->leave_sub();
+    return 0;
+  }
+
+  if (1 != scalar(@{$projects})) {
+    $form->{project_selected_nextsub}        = $project_selected_nextsub;
+    $form->{check_project_id_field}          = $id_field;
+    $form->{check_project_number_field}      = $number_field;
+    $form->{check_project_description_field} = $description_field;
+
+    project_selection("project_selection_selected", $prefix, @{ $projects });
+
+    $lxdebug->leave_sub();
+    return 0;
+  }
+
+  $form->{"${prefix}${id_field}"}         = $projects->[0]->{id};
+  $form->{"${prefix}${number_field}"}     = $projects->[0]->{projectnumber};
+  $form->{"${prefix}old_${number_field}"} = $projects->[0]->{projectnumber};
+
+  if ($description_field) {
+    $form->{"${prefix}${description_field}"}     = $projects->[0]->{description};
+    $form->{"${prefix}old_${description_field}"} = $projects->[0]->{description};
+  }
+
+  $lxdebug->leave_sub();
+
+  return 1;
+}
+
+sub project_selection {
+  $lxdebug->enter_sub();
+
+  my ($callback_sub, $prefix, @projects) = @_;
+
+  if (0 == scalar @projects) {
+    my $old_form = save_form();
+    map { delete($form->{$_}); } qw(projectnumber description);
+
+    @projects = @{ Common->retrieve_projects(\%myconfig, $form, "projectnumber", 1) };
+
+    restore_form($old_form);
+  }
+
+  $form->header();
+  print $form->parse_html_template("generic/select_project",
+                                   { "PROJECTS"     => \@projects,
+                                     "old_form"     => save_form(qw(login password)),
+                                     "title"        => $locale->text("Select an project"),
+                                     "nextsub"      => "project_selection_step2",
+                                     "prefix"       => $prefix,
+                                     "callback_sub" => $callback_sub });
+
+  $lxdebug->leave_sub();
+}
+
+sub project_selection_step2 {
+  $lxdebug->enter_sub();
+
+  my ($new_id, $new_name, $callback_sub);
+
+  my $new_id          = $form->{"new_id_"          . $form->{selection}};
+  my $new_number      = $form->{"new_number_"      . $form->{selection}};
+  my $new_description = $form->{"new_description_" . $form->{selection}};
+  my $callback_sub    = $form->{callback_sub};
+  my $prefix          = $form->{prefix};
+
+  restore_form($form->{old_form}, 0, qw(login password));
+  delete $form->{header};
+
+  call_sub($callback_sub, $new_id, $new_number, $new_description, $prefix);
+
+  $lxdebug->leave_sub();
+}
+
+sub project_selection_selected {
+  $lxdebug->enter_sub();
+
+  my ($new_id, $new_number, $new_description, $prefix) = @_;
+
+  my ($id_field, $number_field, $description_field)    = ($form->{check_project_id_field}, $form->{check_project_number_field}, $form->{check_project_description_field});
+
+  map { delete $form->{"check_project_${_}_field"} } qw(id number description);
+
+  $form->{"${prefix}${id_field}"}         = $new_id;
+  $form->{"${prefix}${number_field}"}     = $new_number;
+  $form->{"${prefix}old_${number_field}"} = $new_number;
+
+  if ($description_field) {
+    $form->{"${prefix}${description_field}"}     = $new_description;
+    $form->{"${prefix}old_${description_field}"} = $new_description;
+  }
+
+  call_sub($form->{project_selected_nextsub});
+
+  $lxdebug->leave_sub();
+}
+
+# -------------------------------------------------------------------------
 
 sub employee_selection_internal {
   $lxdebug->enter_sub();
@@ -367,7 +512,7 @@ sub employee_selection_internal {
 
   my $callback = "$form->{script}?action=employee_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -389,6 +534,8 @@ sub employee_selection_internal {
   $lxdebug->leave_sub();
 }
 
+# -------------------------------------------------------------------------
+
 sub delivery_customer_selection {
   $lxdebug->enter_sub();
 
@@ -407,7 +554,7 @@ sub delivery_customer_selection {
 
   my $callback = "$form->{script}?action=delivery_customer_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name customernumber address);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -431,6 +578,8 @@ sub delivery_customer_selection {
   $lxdebug->leave_sub();
 }
 
+# -------------------------------------------------------------------------
+
 sub vendor_selection {
   $lxdebug->enter_sub();
 
@@ -449,7 +598,7 @@ sub vendor_selection {
 
   my $callback = "$form->{script}?action=vendor_selection&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login password name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
+      (qw(name input_name input_id), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name customernumber address);
   my %header_title = ( "name" => $locale->text("Name"),
@@ -473,6 +622,8 @@ sub vendor_selection {
   $lxdebug->leave_sub();
 }
 
+# -------------------------------------------------------------------------
+
 sub calculate_qty {
   $lxdebug->enter_sub();
 
@@ -484,7 +635,7 @@ sub calculate_qty {
   my ($variable_string, $formel) = split /###/,$form->{formel};
 
 
-  split /;/, $variable_string;
+  split m/;/, $variable_string;
   foreach $item (@_) {
     my($name, $valueunit) = split /=/,$item;
     my($value, $unit) = split / /, $valueunit;
@@ -509,7 +660,7 @@ sub calculate_qty {
            "column" => $_,
          },
         @header_sort);
-  $form->{formel} = $formel; 
+  $form->{formel} = $formel;
   $form->{"title"} = $locale->text("Please enter values");
   $form->header();
   print($form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
@@ -518,6 +669,8 @@ sub calculate_qty {
 
   $lxdebug->leave_sub();
 }
+
+# -------------------------------------------------------------------------
 
 sub set_longdescription {
   $lxdebug->enter_sub();
@@ -528,6 +681,8 @@ sub set_longdescription {
 
   $lxdebug->leave_sub();
 }
+
+# -------------------------------------------------------------------------
 
 sub H {
   return $form->quote_html($_[0]);
@@ -618,12 +773,14 @@ sub reformat_numbers {
   $lxdebug->leave_sub();
 }
 
+# -------------------------------------------------------------------------
+
 sub show_history {
 	$lxdebug->enter_sub();
 	my $dbh = $form->dbconnect(\%myconfig);
 	my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)/$1/;
-  
+
 	$form->{title} = $locale->text("History");
     $form->header();
     print $form->parse_html_template( "common/show_history", {
@@ -632,10 +789,12 @@ sub show_history {
       uc($sort) => 1,
       uc($sort)."BY" => $sortby
     	} );
-	
+
 	$dbh->disconnect();
-	$lxdebug->leave_sub();	
+	$lxdebug->leave_sub();
 }
+
+# -------------------------------------------------------------------------
 
 sub call_sub {
   $lxdebug->enter_sub();
@@ -657,6 +816,8 @@ sub call_sub {
   $lxdebug->leave_sub();
 }
 
+# -------------------------------------------------------------------------
+
 sub show_vc_details {
 	$lxdebug->enter_sub();
 
@@ -676,9 +837,30 @@ sub show_vc_details {
 	$lxdebug->leave_sub();
 }
 
+# -------------------------------------------------------------------------
+
+sub retrieve_partunits {
+  $lxdebug->enter_sub();
+
+  my @part_ids = grep { $_ } map { $form->{"id_${_}"} } (1..$form->{rowcount});
+
+  if (@part_ids) {
+    my %partunits = IO->retrieve_partunits('part_ids' => \@part_ids);
+
+    foreach my $i (1..$form->{rowcount}) {
+      next unless ($form->{"id_${i}"});
+      $form->{"partunit_${i}"} = $partunits{$form->{"id_${i}"}};
+    }
+  }
+
+  $lxdebug->leave_sub();
+}
+
+# -------------------------------------------------------------------------
+
 sub mark_as_paid_common {
   $lxdebug->enter_sub();
-  use SL::DBUtils;
+
   my ($myconfig, $db_name) = @_;
 
   if($form->{mark_as_paid}) {
@@ -687,21 +869,18 @@ sub mark_as_paid_common {
     do_query($form, $dbh, $query, $form->{id});
     $dbh->commit();
     $form->redirect($locale->text("Marked as paid"));
-}
-  else {
-    my $referer  =  $ENV{HTTP_REFERER};
-    my $login    =  $form->escape($form->{login});
-    my $password =  $form->escape($form->{password});
-    my $id       =  $form->escape($form->{id});
-    $referer     =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&login\=$login\&password\=$password\&id\=$id\&$2/;
+
+  } else {
+    my $referer = $ENV{HTTP_REFERER};
+    $referer =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&id\=$form->{id}\&$2/;
     $form->header();
     print qq|<body>|;
     print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
     print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
     print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
     print qq|</body></html>|;
-}
-  
+  }
+
   $lxdebug->leave_sub();
 }
 

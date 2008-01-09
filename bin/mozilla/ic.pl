@@ -65,10 +65,12 @@ require "bin/mozilla/reportgenerator.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   $form->{title} = $locale->text('Add ' . ucfirst $form->{item});
 
   $form->{callback} =
-    "$form->{script}?action=add&item=$form->{item}&login=$form->{login}&password=$form->{password}"
+    "$form->{script}?action=add&item=$form->{item}"
     unless $form->{callback};
 
   $form->{"unit_changeable"} = 1;
@@ -82,6 +84,8 @@ sub add {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   # switch for backward sorting
   $form->{revers} = 0;
@@ -116,6 +120,8 @@ sub search {
 sub search_update_prices {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   my $pricegroups = IC->get_pricegroups(\%myconfig, \%$form);
 
   $form->header;
@@ -127,6 +133,8 @@ sub search_update_prices {
 
 sub confirm_price_update {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   $form->{nextsub} = "update_prices";
   $form->header;
@@ -141,6 +149,8 @@ sub confirm_price_update {
 sub update_prices {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   if (IC->update_prices(\%myconfig, \%$form)) {
     $form->redirect($form->{update_count} . $locale->text('prices updated!'));
   } else {
@@ -153,6 +163,8 @@ sub update_prices {
 sub choice {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   our ($j, $lastndx);
   my ($totop100);
 
@@ -160,7 +172,7 @@ sub choice {
 
   $form->header;
 
-  push @custom_hiddens, qw(login password searchitems title bom titel revers lastsort sort ndxs_counter extras);
+  push @custom_hiddens, qw(searchitems title bom titel revers lastsort sort ndxs_counter extras);
   push @custom_hiddens, qw(itemstatus l_linetotal l_partnumber l_description l_onhand l_unit l_sellprice l_linetotalsellprice);
   my @HIDDENS = (
         +{ name => 'row',     value => $j              },
@@ -222,6 +234,8 @@ sub choice {
 sub list {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   our ($lastndx);
   our ($partnumber, $description, $unit, $sellprice, $soldtotal);
 
@@ -281,9 +295,6 @@ sub list {
 
 <br>
 
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input type=hidden name=itemstatus value="$form->{itemstatus}">
 <input type=hidden name=l_linetotal value="$form->{l_linetotal}">
@@ -346,6 +357,8 @@ sub list {
 sub top100 {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   if ($form->{ndx}) {
     $form->{ndxs_counter}++;
 
@@ -366,6 +379,8 @@ sub top100 {
 
 sub addtop100 {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   my ($revers, $lastsort, $callback, $option, $description, $sameitem,
       $partnumber, $unit, $sellprice, $soldtotal, $totop100, $onhand, $align);
@@ -396,7 +411,7 @@ sub addtop100 {
   }    #fi
 
   $callback =
-    "$form->{script}?action=top100&login=$form->{login}&password=$form->{password}&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
+    "$form->{script}?action=top100&searchitems=$form->{searchitems}&itemstatus=$form->{itemstatus}&bom=$form->{bom}&l_linetotal=$form->{l_linetotal}&title="
     . $form->escape($form->{title}, 1);
 
   # if we have a serialnumber limit search
@@ -823,15 +838,15 @@ sub addtop100 {
 
     $column_data{invnumber} =
       ($ref->{module} ne 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{invnumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=invoice&id=$ref->{trans_id}&callback=$callback>$ref->{invnumber}</a></td>"
       : "<td>$ref->{invnumber}</td>";
     $column_data{ordnumber} =
       ($ref->{module} eq 'oe')
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{ordnumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&callback=$callback>$ref->{ordnumber}</a></td>"
       : "<td>$ref->{ordnumber}</td>";
     $column_data{quonumber} =
       ($ref->{module} eq 'oe' && !$ref->{ordnumber})
-      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{quonumber}</a></td>"
+      ? "<td><a href=$ref->{module}.pl?action=edit&type=$ref->{type}&id=$ref->{trans_id}&callback=$callback>$ref->{quonumber}</a></td>"
       : "<td>$ref->{quonumber}</td>";
 
     $column_data{name} = "<td>$ref->{name}</td>";
@@ -903,9 +918,6 @@ sub addtop100 {
 
 <form method=post action=$form->{script}>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <input type=hidden name=itemstatus value="$form->{itemstatus}">
 <input type=hidden name=l_linetotal value="$form->{l_linetotal}">
 <input type=hidden name=l_partnumber value="$form->{l_partnumber}">
@@ -964,10 +976,12 @@ sub addtop100 {
 #  l_partsgroup l_subtotal l_soldtotal l_deliverydate
 #
 # hiddens: 
-#  nextsub login password revers lastsort sort ndxs_counter
+#  nextsub revers lastsort sort ndxs_counter
 #
 sub generate_report {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   my ($revers, $lastsort, $description);
 
@@ -1287,6 +1301,8 @@ sub generate_report {
 sub parts_subtotal {
   $lxdebug->enter_sub();
   
+  $auth->assert('part_service_assembly_edit');
+
   # imports
   our (%column_data, @column_index);
   our ($subtotalonhand, $totalsellprice, $totallastcost, $totallistprice, $subtotalsellprice, $subtotallastcost, $subtotallistprice);
@@ -1330,6 +1346,9 @@ sub parts_subtotal {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
+
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
@@ -1347,6 +1366,8 @@ sub edit {
 
 sub link_part {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   IC->create_links("IC", \%myconfig, \%$form);
 
@@ -1437,6 +1458,8 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   $form->{eur}              = $eur; # config dumps into namespace - yuck
   $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
@@ -1472,6 +1495,8 @@ sub form_header {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   if ($form->{item} eq "assembly") {
 
     print qq|
@@ -1490,8 +1515,6 @@ sub form_footer {
   }
 
   print qq|
-      <input type=hidden name=login value=$form->{login}>
-      <input type=hidden name=password value=$form->{password}>
       <input type=hidden name=callback value="$form->{callback}">
       <input type=hidden name=previousform value="$form->{previousform}">
       <input type=hidden name=taxaccount2 value="$form->{taxaccount2}">
@@ -1730,7 +1753,7 @@ sub assembly_row {
 
       } else {
         $href =
-          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&login=$form->{login}&password=$form->{password}&rowcount=$i&previousform=$previousform|;
+          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i&previousform=$previousform|;
         $column_data{partnumber} =
           qq|<td><input type=hidden name="partnumber_$i" value="$form->{"partnumber_$i"}"><a href=$href>$form->{"partnumber_$i"}</a></td>|;
         $column_data{runningnumber} =
@@ -1835,6 +1858,8 @@ sub update {
 
 sub save {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   my ($parts_id, %newform, $previousform, $amount, $callback);
 
@@ -1996,6 +2021,8 @@ sub save {
 sub save_as_new {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
@@ -2014,6 +2041,9 @@ sub save_as_new {
 
 sub delete {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
+
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
@@ -2032,6 +2062,8 @@ sub delete {
 
 sub price_row {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   my ($numrows) = @_;
 
@@ -2065,6 +2097,8 @@ sub price_row {
 
 sub parts_language_selection {
   $lxdebug->enter_sub();
+
+  $auth->assert('part_service_assembly_edit');
 
   our ($onload);
 

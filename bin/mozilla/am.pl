@@ -31,6 +31,7 @@
 #
 #======================================================================
 
+use SL::Auth;
 use SL::AM;
 use SL::CA;
 use SL::Form;
@@ -57,13 +58,13 @@ sub continue { call_sub($form->{"nextsub"}); }
 sub add_account {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title}     = "Add";
   $form->{charttype} = "A";
   AM->get_account(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_account&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=list_account" unless $form->{callback};
 
   &account_header;
   &form_footer;
@@ -73,6 +74,8 @@ sub add_account {
 
 sub edit_account {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = "Edit";
   AM->get_account(\%myconfig, \%$form);
@@ -89,6 +92,8 @@ sub edit_account {
 
 sub account_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   if ( $form->{action} eq 'edit_account') {
     $form->{account_exists} = '1';
@@ -348,12 +353,11 @@ sub account_header {
 sub form_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   print qq|
 
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
+<input name=callback type=hidden value="| . H($form->{callback}) . qq|">
 
 <br>|;
   if ((!$form->{id}) || ($form->{id} && $form->{orphaned}) || (($form->{type} eq "account") && (!$form->{new_chart_valid}))) {
@@ -381,6 +385,8 @@ sub form_footer {
 sub save_account {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("accno",       $locale->text('Account Number missing!'));
   $form->isblank("description", $locale->text('Account Description missing!'));
   
@@ -397,6 +403,8 @@ sub save_account {
 
 sub list_account {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{callback}     = build_std_url('action=list_account');
   my $link_edit_account = build_std_url('action=edit_account', 'callback');
@@ -448,6 +456,8 @@ sub list_account {
 sub list_account_details {
 # Ajax Funktion aus list_account_details
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   my $chart_id = $form->{args};
 
@@ -514,6 +524,8 @@ sub list_account_details {
 sub delete_account {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = $locale->text('Delete Account');
 
   foreach $id (
@@ -534,12 +546,12 @@ sub delete_account {
 sub add_department {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
   $form->{role}  = "P";
 
-  $form->{callback} =
-    "$form->{script}?action=add_department&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_department" unless $form->{callback};
 
   &department_header;
   &form_footer;
@@ -549,6 +561,8 @@ sub add_department {
 
 sub edit_department {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -563,10 +577,11 @@ sub edit_department {
 sub list_department {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->departments(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_department&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = "am.pl?action=list_department";
 
   $callback = $form->escape($form->{callback});
 
@@ -622,7 +637,7 @@ sub list_department {
     $profitcenter = ($ref->{role} eq "P") ? "X" : "";
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_department&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href="am.pl?action=edit_department&id=$ref->{id}&callback=$callback">$ref->{description}</td>|;
     $column_data{cost}   = qq|<td align=center>$costcenter</td>|;
     $column_data{profit} = qq|<td align=center>$profitcenter</td>|;
 
@@ -643,14 +658,11 @@ sub list_department {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=department>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -666,6 +678,8 @@ sub list_department {
 
 sub department_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = $locale->text("$form->{title} Department");
 
@@ -690,7 +704,7 @@ sub department_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=department>
@@ -723,6 +737,8 @@ sub department_header {
 sub save_department {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Description missing!'));
   AM->save_department(\%myconfig, \%$form);
   $form->redirect($locale->text('Department saved!'));
@@ -733,6 +749,8 @@ sub save_department {
 sub delete_department {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_department(\%myconfig, \%$form);
   $form->redirect($locale->text('Department deleted!'));
 
@@ -742,11 +760,11 @@ sub delete_department {
 sub add_lead {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add_lead&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_lead" unless $form->{callback};
 
   &lead_header;
   &form_footer;
@@ -756,6 +774,8 @@ sub add_lead {
 
 sub edit_lead {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -772,10 +792,11 @@ sub edit_lead {
 sub list_lead {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->lead(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_lead&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = "am.pl?action=list_lead";
 
   $callback = $form->escape($form->{callback});
 
@@ -818,8 +839,7 @@ sub list_lead {
 
 	$lead = $ref->{lead};
 	
-    $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_lead&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{lead}</td>|;
+    $column_data{description} = qq|<td><a href="am.pl?action=edit_lead&id=$ref->{id}&callback=$callback">$ref->{lead}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -835,14 +855,11 @@ sub list_lead {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=lead>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -859,6 +876,8 @@ sub list_lead {
 sub lead_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = $locale->text("$form->{title} Lead");
 
   # $locale->text('Add Lead')
@@ -874,7 +893,7 @@ sub lead_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=lead>
@@ -899,6 +918,8 @@ sub lead_header {
 sub save_lead {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Description missing!'));
   AM->save_lead(\%myconfig, \%$form);
   $form->redirect($locale->text('lead saved!'));
@@ -909,6 +930,8 @@ sub save_lead {
 sub delete_lead {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_lead(\%myconfig, \%$form);
   $form->redirect($locale->text('lead deleted!'));
 
@@ -918,11 +941,11 @@ sub delete_lead {
 sub add_business {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add_business&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_business" unless $form->{callback};
 
   &business_header;
   &form_footer;
@@ -948,10 +971,11 @@ sub edit_business {
 sub list_business {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->business(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_business&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = "am.pl?action=list_business";
 
   $callback = $form->escape($form->{callback});
 
@@ -1007,8 +1031,7 @@ sub list_business {
       $form->format_amount(\%myconfig, $ref->{discount} * 100);
     $description =
       $ref->{description};
-    $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_business&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$description</td>|;
+    $column_data{description} = qq|<td><a href="am.pl?action=edit_business&id=$ref->{id}&callback=$callback">$description</td>|;
     $column_data{discount}           = qq|<td align=right>$discount</td>|;
     $column_data{customernumberinit} =
       qq|<td align=right>$ref->{customernumberinit}</td>|;
@@ -1030,14 +1053,11 @@ sub list_business {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=business>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -1054,6 +1074,8 @@ sub list_business {
 sub business_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title}    = $locale->text("$form->{title} Business");
 
   # $locale->text('Add Business')
@@ -1068,7 +1090,7 @@ sub business_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=business>
@@ -1101,6 +1123,8 @@ sub business_header {
 sub save_business {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Description missing!'));
   $form->{discount} = $form->parse_amount(\%myconfig, $form->{discount}) / 100;
   AM->save_business(\%myconfig, \%$form);
@@ -1112,6 +1136,8 @@ sub save_business {
 sub delete_business {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_business(\%myconfig, \%$form);
   $form->redirect($locale->text('Business deleted!'));
 
@@ -1121,11 +1147,11 @@ sub delete_business {
 sub add_language {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add_language&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_language" unless $form->{callback};
 
   &language_header;
   &form_footer;
@@ -1135,6 +1161,8 @@ sub add_language {
 
 sub edit_language {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -1151,10 +1179,11 @@ sub edit_language {
 sub list_language {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->language(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_language&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = "am.pl?action=list_language";
 
   $callback = $form->escape($form->{callback});
 
@@ -1220,7 +1249,7 @@ sub list_language {
 
 
     $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_language&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+      qq|<td><a href="am.pl?action=edit_language&id=$ref->{id}&callback=$callback">$ref->{description}</td>|;
     $column_data{template_code}           = qq|<td align=right>$ref->{template_code}</td>|;
     $column_data{article_code} =
       qq|<td align=right>$ref->{article_code}</td>|;
@@ -1256,14 +1285,11 @@ sub list_language {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=language>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -1279,6 +1305,8 @@ sub list_language {
 
 sub language_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Language");
 
@@ -1317,7 +1345,7 @@ sub language_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=language>
@@ -1368,6 +1396,8 @@ sub language_header {
 sub save_language {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Language missing!'));
   $form->isblank("template_code", $locale->text('Template Code missing!'));
   $form->isblank("article_code", $locale->text('Article Code missing!'));
@@ -1380,6 +1410,8 @@ sub save_language {
 sub delete_language {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_language(\%myconfig, \%$form);
   $form->redirect($locale->text('Language deleted!'));
 
@@ -1390,13 +1422,14 @@ sub delete_language {
 sub add_buchungsgruppe {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   # $locale->text("Add Buchungsgruppe")
   # $locale->text("Edit Buchungsgruppe")
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add_buchungsgruppe&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_buchungsgruppe" unless $form->{callback};
+
   AM->get_buchungsgruppe(\%myconfig, \%$form);
   $form->{"inventory_accno_id"} = $form->{"std_inventory_accno_id"};
   for (my $i = 0; 4 > $i; $i++) {
@@ -1413,6 +1446,8 @@ sub add_buchungsgruppe {
 sub edit_buchungsgruppe {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Edit";
 
   AM->get_buchungsgruppe(\%myconfig, \%$form);
@@ -1427,10 +1462,11 @@ sub edit_buchungsgruppe {
 sub list_buchungsgruppe {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->buchungsgruppe(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_buchungsgruppe&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = "am.pl?action=list_buchungsgruppe";
 
   $callback = $form->escape($form->{callback});
 
@@ -1512,9 +1548,7 @@ sub list_buchungsgruppe {
         </tr>
 |;
 
-  my $swap_link = qq|$form->{script}?action=swap_buchungsgruppen&|;
-  map({ $swap_link .= $_ . "=" . $form->escape($form->{$_}) . "&" }
-      qw(login password));
+  my $swap_link = qq|am.pl?action=swap_buchungsgruppen&|;
 
   my $row = 0;
   foreach $ref (@{ $form->{ALL} }) {
@@ -1548,8 +1582,7 @@ sub list_buchungsgruppe {
         qq|</a></td>|;
     }
 
-    $column_data{description} =
-      qq|<td><a href=$form->{script}?action=edit_buchungsgruppe&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{description}</td>|;
+    $column_data{description} = qq|<td><a href="am.pl?action=edit_buchungsgruppe&id=$ref->{id}&callback=$callback">$ref->{description}</td>|;
     $column_data{inventory_accno}           = qq|<td align=right>$ref->{inventory_accno}</td>|;
     $column_data{income_accno_0} =
       qq|<td align=right>$ref->{income_accno_0}</td>|;
@@ -1583,14 +1616,11 @@ sub list_buchungsgruppe {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=buchungsgruppe>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -1606,6 +1636,8 @@ sub list_buchungsgruppe {
 
 sub buchungsgruppe_header {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Buchungsgruppe");
 
@@ -1721,7 +1753,7 @@ sub buchungsgruppe_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=buchungsgruppe>
@@ -1747,6 +1779,8 @@ sub buchungsgruppe_header {
 sub save_buchungsgruppe {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Description missing!'));
 
   AM->save_buchungsgruppe(\%myconfig, \%$form);
@@ -1758,6 +1792,8 @@ sub save_buchungsgruppe {
 sub delete_buchungsgruppe {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_buchungsgruppe(\%myconfig, \%$form);
   $form->redirect($locale->text('Accounting Group deleted!'));
 
@@ -1766,6 +1802,8 @@ sub delete_buchungsgruppe {
 
 sub swap_buchungsgruppen {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, "buchungsgruppen");
   list_buchungsgruppe();
@@ -1777,11 +1815,11 @@ sub swap_buchungsgruppen {
 sub add_printer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add_printer&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_printer" unless $form->{callback};
 
   &printer_header;
   &form_footer;
@@ -1791,6 +1829,8 @@ sub add_printer {
 
 sub edit_printer {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -1807,10 +1847,11 @@ sub edit_printer {
 sub list_printer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->printer(\%myconfig, \%$form);
 
-  $form->{callback} =
-    "$form->{script}?action=list_printer&login=$form->{login}&password=$form->{password}";
+  $form->{callback} = "am.pl?action=list_printer";
 
   $callback = $form->escape($form->{callback});
 
@@ -1863,8 +1904,7 @@ sub list_printer {
 |;
 
 
-    $column_data{printer_description} =
-      qq|<td><a href=$form->{script}?action=edit_printer&id=$ref->{id}&login=$form->{login}&password=$form->{password}&callback=$callback>$ref->{printer_description}</td>|;
+    $column_data{printer_description} = qq|<td><a href="am.pl?action=edit_printer&id=$ref->{id}&callback=$callback">$ref->{printer_description}"</td>|;
     $column_data{printer_command}           = qq|<td align=right>$ref->{printer_command}</td>|;
     $column_data{template_code} =
       qq|<td align=right>$ref->{template_code}</td>|;
@@ -1886,14 +1926,11 @@ sub list_printer {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=printer>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -1910,6 +1947,8 @@ sub list_printer {
 sub printer_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title}    = $locale->text("$form->{title} Printer");
 
   # $locale->text('Add Printer')
@@ -1925,7 +1964,7 @@ sub printer_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=printer>
@@ -1958,6 +1997,8 @@ sub printer_header {
 sub save_printer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("printer_description", $locale->text('Description missing!'));
   $form->isblank("printer_command", $locale->text('Printer Command missing!'));
   AM->save_printer(\%myconfig, \%$form);
@@ -1969,6 +2010,8 @@ sub save_printer {
 sub delete_printer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_printer(\%myconfig, \%$form);
   $form->redirect($locale->text('Printer deleted!'));
 
@@ -1978,11 +2021,11 @@ sub delete_printer {
 sub add_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add_payment&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "am.pl?action=add_payment" unless $form->{callback};
 
   $form->{terms_netto} = 0;
   $form->{terms_skonto} = 0;
@@ -2000,6 +2043,8 @@ sub add_payment {
 sub edit_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Edit";
 
   AM->get_payment(\%myconfig, $form);
@@ -2016,6 +2061,8 @@ sub edit_payment {
 
 sub list_payment {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   AM->payment(\%myconfig, \%$form);
 
@@ -2145,14 +2192,11 @@ sub list_payment {
 </table>
 
 <br>
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input name=callback type=hidden value="$form->{callback}">
 
 <input type=hidden name=type value=payment>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input class=submit type=submit name=action value="|
     . $locale->text('Add') . qq|">
@@ -2169,6 +2213,8 @@ sub list_payment {
 sub payment_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title}    = $locale->text("$form->{title} Payment Terms");
 
   # $locale->text('Add Payment Terms')
@@ -2183,7 +2229,7 @@ sub payment_header {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=am.pl>
 
 <input type=hidden name=id value=$form->{id}>
 <input type=hidden name=type value=payment>
@@ -2275,6 +2321,8 @@ sub payment_header {
 sub save_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Description missing!'));
   $form->{"percent_skonto"} =
     $form->parse_amount(\%myconfig, $form->{percent_skonto}) / 100;
@@ -2287,6 +2335,8 @@ sub save_payment {
 sub delete_payment {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_payment(\%myconfig, \%$form);
   $form->redirect($locale->text('Payment terms deleted!'));
 
@@ -2295,6 +2345,8 @@ sub delete_payment {
 
 sub swap_payment_terms {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, "payment_terms");
   list_payment();
@@ -2438,6 +2490,7 @@ sub config {
 
   $myconfig{show_form_details}              = 1 unless (defined($myconfig{show_form_details}));
   $form->{"menustyle_$myconfig{menustyle}"} = 1;
+  $form->{CAN_CHANGE_PASSWORD}              = $auth->can_change_password();
 
   $form->{title}                            = $locale->text('Edit Preferences for #1', $form->{login});
 
@@ -2452,10 +2505,7 @@ sub save_preferences {
 
   $form->{stylesheet} = $form->{usestylesheet};
 
-  $form->redirect($locale->text('Preferences saved!'))
-    if (
-     AM->save_preferences(\%myconfig, \%$form, $memberfile, $userspath, $webdav
-     ));
+  $form->redirect($locale->text('Preferences saved!')) if (AM->save_preferences(\%myconfig, \%$form, $webdav));
   $form->error($locale->text('Cannot save preferences!'));
 
   $lxdebug->leave_sub();
@@ -2463,6 +2513,8 @@ sub save_preferences {
 
 sub audit_control {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} = $locale->text('Audit Control');
 
@@ -2479,10 +2531,7 @@ sub audit_control {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
+<form method=post action=am.pl>
 
 <table width=100%>
   <tr><th class=listtop>$form->{title}</th></tr>
@@ -2528,6 +2577,8 @@ sub audit_control {
 sub doclose {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->closebooks(\%myconfig, \%$form);
 
   if ($form->{revtrans}) {
@@ -2548,6 +2599,8 @@ sub doclose {
 
 sub edit_units {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"}, "resolved_");
   AM->units_in_use(\%myconfig, $form, $units);
@@ -2592,6 +2645,8 @@ sub edit_units {
 sub add_unit {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("new_name", $locale->text("The name is missing."));
   $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
   $all_units = AM->retrieve_units(\%myconfig, $form);
@@ -2628,6 +2683,8 @@ sub add_unit {
 sub set_unit_languages {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   my ($unit, $languages, $idx) = @_;
 
   $unit->{"LANGUAGES"} = [];
@@ -2645,6 +2702,8 @@ sub set_unit_languages {
 
 sub save_unit {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $old_units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"}, "resolved_");
   AM->units_in_use(\%myconfig, $form, $old_units);
@@ -2724,6 +2783,8 @@ sub save_unit {
 sub show_history_search {
 	$lxdebug->enter_sub();
 	
+  $auth->assert('config');
+
 	$form->{title} = $locale->text("History Search");
     $form->header();
     
@@ -2734,6 +2795,9 @@ sub show_history_search {
 
 sub show_am_history {
 	$lxdebug->enter_sub();
+
+  $auth->assert('config');
+
 	my %search = ( "Artikelnummer" => "parts",
 				   "Kundennummer"  => "customer",
 				   "Lieferantennummer" => "vendor",
@@ -2819,6 +2883,9 @@ sub show_am_history {
 
 sub get_employee_id {
 	$lxdebug->enter_sub();
+
+  $auth->assert('config');
+
 	my $query = qq|SELECT id FROM employee WHERE name = '| . $_[0] . qq|'|;
 	my $sth = $_[1]->prepare($query);
 	$sth->execute() || $form->dberror($query);
@@ -2830,6 +2897,8 @@ sub get_employee_id {
 
 sub swap_units {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   my $dir = $form->{"dir"} eq "down" ? "down" : "up";
   my $unit_type = $form->{"unit_type"} eq "dimension" ?
@@ -2844,11 +2913,11 @@ sub swap_units {
 sub add_tax {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} =  $locale->text('Add');
 
-  $form->{callback} =
-    "$form->{script}?action=add_tax&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} ||= "am.pl?action=add_tax";
 
   _get_taxaccount_selection();
 
@@ -2866,6 +2935,8 @@ sub add_tax {
 
 sub edit_tax {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title} =  $locale->text('Edit');
 
@@ -2888,6 +2959,8 @@ sub edit_tax {
 sub list_tax {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->taxes(\%myconfig, \%$form);
 
   map { $_->{rate} = $form->format_amount(\%myconfig, $_->{rate}, 2) } @{ $form->{TAX} };
@@ -2907,6 +2980,8 @@ sub list_tax {
 sub _get_taxaccount_selection{
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->get_tax_accounts(\%myconfig, \%$form);
 
   map { $_->{selected} = $form->{chart_id} == $_->{id} } @{ $form->{ACCOUNTS} };
@@ -2916,6 +2991,8 @@ sub _get_taxaccount_selection{
 
 sub save_tax {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->isblank("rate", $locale->text('Taxrate missing!'));
   $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
@@ -2940,6 +3017,8 @@ sub save_tax {
 sub delete_tax {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_tax(\%myconfig, \%$form);
   $form->redirect($locale->text('Tax deleted!'));
 
@@ -2948,6 +3027,8 @@ sub delete_tax {
 
 sub add_price_factor {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title}      = $locale->text('Add Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
@@ -2961,6 +3042,8 @@ sub add_price_factor {
 
 sub edit_price_factor {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   $form->{title}      = $locale->text('Edit Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
@@ -2978,6 +3061,8 @@ sub edit_price_factor {
 
 sub list_price_factors {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   AM->get_all_price_factors(\%myconfig, \%$form);
 
@@ -3006,6 +3091,8 @@ sub list_price_factors {
 sub save_price_factor {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->isblank("description", $locale->text('Description missing!'));
   $form->isblank("factor", $locale->text('Factor missing!'));
 
@@ -3023,6 +3110,8 @@ sub save_price_factor {
 sub delete_price_factor {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   AM->delete_price_factor(\%myconfig, \%$form);
 
   $form->{callback} .= '&MESSAGE=' . $form->escape($locale->text('Price factor deleted!')) if ($form->{callback});
@@ -3034,6 +3123,8 @@ sub delete_price_factor {
 
 sub swap_price_factors {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, 'price_factors');
   list_price_factors();

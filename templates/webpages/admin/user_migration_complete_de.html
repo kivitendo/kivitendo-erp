@@ -1,0 +1,24 @@
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="admin.pl">
+
+  [%- IF standard_group_created %]
+  <p>Eine Gruppe namens &quot;Vollzugriff&quot; wurde angelegt.</p>
+  [%- END %]
+
+
+  <p>Der Prozess der Benutzerdatenmigration ist abgeschlossen.
+   Sie werden nun zum Administrationsbereich weitergeleitet.</p>
+
+  <input type="hidden" name="nextsub" value="list_users">
+
+  <p>
+   <input type="submit" class="submit" name="action" value="Weiter">
+  </p>
+
+ </form>
+
+</body>
+</html>

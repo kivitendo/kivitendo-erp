@@ -40,8 +40,37 @@ require "bin/mozilla/common.pl";
 
 # end of main
 
+sub assert_bp_access {
+  my %access_map = (
+    'invoice'           => 'invoice_edit',
+    'sales_order'       => 'sales_order_edit',
+    'sales_quotation'   => 'sales_quotation_edit',
+    'purchase_order'    => 'purchase_order_edit',
+    'request_quotation' => 'request_quotation_edit',
+    'check'             => 'cash',
+    'receipt'           => 'cash',
+  );
+
+  if ($form->{type} && $access_map{$form->{type}}) {
+    $auth->assert($access_map{$form->{type}});
+
+  } elsif ($form->{type} eq 'packing_list') {
+    $lxdebug->message(0, "1");
+    if (!$auth->assert('sales_order_edit', 1)) {
+    $lxdebug->message(0, "2");
+      $auth->assert('invoice_edit') ;
+    }
+    $lxdebug->message(0, "3");
+
+  } else {
+    $auth->assert('DOES_NOT_EXIST');
+  }
+}
+
 sub search {
   $lxdebug->enter_sub();
+
+  assert_bp_access();
 
   # $locale->text('Sales Invoices')
   # $locale->text('Packing Lists')
@@ -190,7 +219,7 @@ sub search {
   print qq|
 <body onLoad="$onload">
 
-<form method=post action=$form->{script}>
+<form method=post action=bp.pl>
 
 <input type=hidden name=vc value=$form->{vc}>
 <input type=hidden name=type value=$form->{type}>
@@ -229,9 +258,6 @@ sub search {
 
 <input type=hidden name=nextsub value=list_spool>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input class=submit type=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -251,6 +277,8 @@ $jsscript
 sub remove {
   $lxdebug->enter_sub();
 
+  assert_bp_access();
+
   $selected = 0;
 
   for $i (1 .. $form->{rowcount}) {
@@ -269,12 +297,13 @@ sub remove {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=bp.pl>
 |;
 
   map { delete $form->{$_} } qw(action header);
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
 
@@ -300,6 +329,8 @@ sub remove {
 sub yes {
   $lxdebug->enter_sub();
 
+  assert_bp_access();
+
   $form->info($locale->text('Removing marked entries from queue ...'));
   $form->{callback} .= "&header=1" if $form->{callback};
 
@@ -312,6 +343,8 @@ sub yes {
 
 sub print {
   $lxdebug->enter_sub();
+
+  assert_bp_access();
 
   $form->get_lists(printers => 'ALL_PRINTERS');
   # use the command stored in the databse or fall back to $myconfig{printer}
@@ -343,6 +376,8 @@ sub print {
 sub list_spool {
   $lxdebug->enter_sub();
 
+  assert_bp_access();
+
   $form->{ $form->{vc} } = $form->unescape($form->{ $form->{vc} });
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) =
     split(/--/, $form->{ $form->{vc} });
@@ -350,12 +385,11 @@ sub list_spool {
   BP->get_spoolfiles(\%myconfig, \%$form);
 
   $title = $form->escape($form->{title});
-  $href  =
-    "$form->{script}?action=list_spool&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
+  $href  = "bp.pl?action=list_spool&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   $title = $form->escape($form->{title}, 1);
   $callback =
-    "$form->{script}?action=list_spool&login=$form->{login}&password=$form->{password}&vc=$form->{vc}&type=$form->{type}&title=$title";
+    "bp.pl?action=list_spool&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   if ($form->{ $form->{vc} }) {
     $callback .= "&$form->{vc}=" . $form->escape($form->{ $form->{vc} }, 1);
@@ -454,7 +488,7 @@ sub list_spool {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=bp.pl>
 
 <table width=100%>
   <tr>
@@ -505,11 +539,11 @@ sub list_spool {
     }
 
     $column_data{invnumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{invnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&type=$form->{type}&callback=$callback>$ref->{invnumber}</a></td>";
     $column_data{ordnumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{ordnumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&type=$form->{type}&callback=$callback>$ref->{ordnumber}</a></td>";
     $column_data{quonumber} =
-      "<td><a href=$module?action=edit&id=$ref->{id}&login=$form->{login}&password=$form->{password}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
+      "<td><a href=$module?action=edit&id=$ref->{id}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
     $column_data{name}      = "<td>$ref->{name}</td>";
     $column_data{spoolfile} =
       qq|<td><a href=$spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
@@ -553,9 +587,6 @@ sub list_spool {
 <input type=hidden name=sort value="$form->{sort}">
 
 <input type=hidden name=account value="$form->{account}">
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 |;
 
 #  if ($myconfig{printer}) {
@@ -594,6 +625,8 @@ print qq|</select>|;
 
 sub select_all {
   $lxdebug->enter_sub();
+
+  assert_bp_access();
 
   map { $form->{"checked_$_"} = 1 } (1 .. $form->{rowcount});
   &list_spool;

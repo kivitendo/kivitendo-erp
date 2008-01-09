@@ -33,7 +33,10 @@
 #======================================================================
 
 package IC;
+
 use Data::Dumper;
+use YAML;
+
 use SL::DBUtils;
 
 sub get_part {
@@ -62,6 +65,8 @@ sub get_part {
 
   # copy to $form variables
   map { $form->{$_} = $ref->{$_} } (keys %{$ref});
+
+  $form->{onhand} *= 1;
 
   my %oid = ('Pg'     => 'a.oid',
              'Oracle' => 'a.rowid');
@@ -1828,5 +1833,56 @@ sub retrieve_accounts {
 
   $main::lxdebug->leave_sub(2);
 }
+
+sub get_basic_part_info {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(id));
+
+  my @ids      = 'ARRAY' eq ref $params{id} ? @{ $params{id} } : ($params{id});
+
+  if (!scalar @ids) {
+    $main::lxdebug->leave_sub();
+    return ();
+  }
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $form->get_standard_dbh($myconfig);
+
+  my $query    = qq|SELECT id, partnumber, description, unit FROM parts WHERE id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
+
+  my $info     = selectall_hashref_query($form, $dbh, $query, map { conv_i($_) } @ids);
+
+  if ($params{vendor_id}) {
+    $query     = qq|SELECT * FROM parts_vendor WHERE (parts_id = ?) AND (vendor_id = ?)|;
+    my $sth    = prepare_query($form, $dbh, $query);
+
+    foreach my $part (@{ $info }) {
+      do_statement($form, $sth, $query, $part->{id}, conv_i($params{vendor_id}));
+      $part->{vendor_info} = $sth->fetchrow_hashref();
+    }
+
+    $sth->finish();
+  }
+
+  if ('' eq ref $params{id}) {
+    $info = $info->[0] || { };
+
+    $main::lxdebug->leave_sub();
+    return $info;
+  }
+
+  my %info_map = map { $_->{id} => $_ } @{ $info };
+
+  $main::lxdebug->leave_sub();
+
+  return %info_map;
+}
+
 
 1;

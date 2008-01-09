@@ -74,6 +74,8 @@ require "bin/mozilla/reportgenerator.pl";
 sub chart_of_accounts {
   $lxdebug->enter_sub();
 
+  $auth->assert('report');
+
   $form->{title} = $locale->text('Chart of Accounts');
 
   CA->all_accounts(\%myconfig, \%$form);
@@ -136,6 +138,8 @@ sub chart_of_accounts {
 sub list {
   $lxdebug->enter_sub();
 
+  $auth->assert('report');
+
   $form->{title} = $locale->text('List Transactions');
   $form->{title} .= " - " . $locale->text('Account') . " $form->{accno}";
 
@@ -197,9 +201,6 @@ sub list {
   <tr><td><hr size=3 noshade></td></tr>
 </table>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br><input class=submit type=submit name=action value="|
     . $locale->text('List Transactions') . qq|">
 </form>
@@ -213,6 +214,8 @@ sub list {
 
 sub list_transactions {
   $lxdebug->enter_sub();
+
+  $auth->assert('report');
 
   $form->{title} = $locale->text('Account') . " $form->{accno} - $form->{description}";
 

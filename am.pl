@@ -48,11 +48,22 @@ use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
 use CGI qw( -no_xhtml);
+use SL::Auth;
 use SL::Form;
 use SL::Locale;
 
-eval { require "lx-erp.conf"; };
-eval { require "lx-erp-local.conf"; } if -f "lx-erp-local.conf";
+eval { require "config/lx-erp.conf"; };
+eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
+
+our $cgi  = new CGI('');
+our $form = new Form;
+
+our $auth = SL::Auth->new();
+if (!$auth->session_tables_present()) {
+  _show_error('login/auth_db_unreachable');
+}
+$auth->expire_sessions();
+$auth->restore_session();
 
 require "bin/mozilla/common.pl";
 
@@ -60,9 +71,6 @@ if (defined($latex) && !defined($latex_templates)) {
   $latex_templates = $latex;
   undef($latex);
 }
-
-$form = new Form;
-$cgi = new CGI('');
 
 # this prevents most of the tabindexes being created by CGI.
 # note: most. popup menus and selecttables will still have tabindexes
@@ -83,34 +91,36 @@ $script =~ s/\.pl//;
 # pull in DBI
 use DBI;
 
-$form->{login} =~ s|.*/||;
-
-# check for user config file, could be missing or ???
-eval { require("$userspath/$form->{login}.conf"); };
-if ($@) {
-  $locale = new Locale "$language", "$script";
-
-  $form->{callback} = "";
-  $msg1             = $locale->text('You are logged out!');
-  $msg2             = $locale->text('Login');
-  $form->redirect("$msg1 <p><a href=login.pl target=_top>$msg2</a>");
-}
-
-$myconfig{dbpasswd} = unpack 'u', $myconfig{dbpasswd};
-map { $form->{$_} = $myconfig{$_} } qw(stylesheet charset)
-  unless (($form->{action} eq 'save') && ($form->{type} eq 'preferences'));
-
 # locale messages
-$locale = new Locale "$myconfig{countrycode}", "$script";
-
-# check password
-$form->error($locale->text('Incorrect Password!'))
-  if ($form->{password} ne $myconfig{password});
+$locale = new Locale($language, "$script");
 
 # did sysadmin lock us out
 if (-e "$userspath/nologin") {
   $form->error($locale->text('System currently down for maintenance!'));
 }
+
+$form->{login} =~ s|.*/||;
+
+%myconfig = $auth->read_user($form->{login});
+
+if (!$myconfig{login}) {
+  _show_error('login/password_error');
+}
+
+# locale messages
+$locale = new Locale "$myconfig{countrycode}", "$script";
+
+if (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0)) {
+  _show_error('login/password_error');
+}
+
+$auth->set_session_value('login', $form->{login}, 'password', $form->{password});
+$auth->create_or_refresh_session();
+
+delete $form->{password};
+
+map { $form->{$_} = $myconfig{$_} } qw(stylesheet charset)
+  unless (($form->{action} eq 'save') && ($form->{type} eq 'preferences'));
 
 # pull in the main code
 require "bin/mozilla/$form->{script}";
@@ -138,6 +148,17 @@ if ($form->{action}) {
   call_sub($locale->findsub($form->{action}));
 } else {
   $form->error($locale->text('action= not defined!'));
+}
+
+sub _show_error {
+  my $template           = shift;
+  $locale                = Locale->new($language, 'all');
+  $myconfig{countrycode} = $language;
+  $form->{stylesheet}    = 'css/lx-office-erp.css';
+
+  $form->header();
+  print $form->parse_html_template($template);
+  exit;
 }
 
 # end

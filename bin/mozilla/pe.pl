@@ -43,6 +43,8 @@ require "bin/mozilla/common.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = "Add";
 
   # construct callback
@@ -58,6 +60,9 @@ sub add {
 
 sub edit {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
@@ -80,6 +85,8 @@ sub edit {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   if ($form->{type} eq 'project') {
     $report        = "project_report";
@@ -190,6 +197,8 @@ sub search {
 
 sub project_report {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   map { $form->{$_} = $form->unescape($form->{$_}) }
     (projectnumber, description);
@@ -325,6 +334,8 @@ sub project_report {
 sub form_project_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = $locale->text("$form->{title} Project");
 
   # $locale->text('Add Project')
@@ -407,6 +418,8 @@ sub form_project_header {
 sub form_project_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   print qq|
 
 <input name=callback type=hidden value="$form->{callback}">
@@ -448,6 +461,8 @@ sub form_project_footer {
 sub save {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   if ($form->{type} eq 'project') {
     $form->isblank("projectnumber", $locale->text('Project Number missing!'));
     PE->save_project(\%myconfig, \%$form);
@@ -479,6 +494,8 @@ sub save {
 sub delete {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   PE->delete_tuple(\%myconfig, \%$form);
 
   if ($form->{type} eq 'project') {
@@ -504,6 +521,8 @@ sub continue { call_sub($form->{"nextsub"}); }
 
 sub partsgroup_report {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   map { $form->{$_} = $form->unescape($form->{$_}) } (partsgroup);
   PE->partsgroups(\%myconfig, \%$form);
@@ -612,6 +631,8 @@ sub partsgroup_report {
 sub form_partsgroup_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   $form->{title} = $locale->text("$form->{title} Group");
 
   # $locale->text('Add Group')
@@ -657,6 +678,8 @@ sub form_partsgroup_header {
 sub form_partsgroup_footer {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   print qq|
 
 <input name=callback type=hidden value="$form->{callback}">
@@ -697,6 +720,8 @@ print qq|
 #
 sub pricegroup_report {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   map { $form->{$_} = $form->unescape($form->{$_}) } (pricegroup);
   PE->pricegroups(\%myconfig, \%$form);
@@ -811,6 +836,8 @@ sub pricegroup_report {
 sub form_pricegroup_header {
   $lxdebug->enter_sub();
 
+  $auth->assert('config');
+
   # $locale->text('Add Pricegroup')
   # $locale->text('Edit Pricegroup')
 
@@ -856,6 +883,8 @@ sub form_pricegroup_header {
 #
 sub form_pricegroup_footer {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   print qq|
 

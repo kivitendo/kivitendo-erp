@@ -1,0 +1,47 @@
+[% USE HTML %][% USE LxERP %]<body>
+
+ <div class="listtop"><translate>Edit group membership</translate></div>
+
+ <p><translate>Select the checkboxes that match users to the groups
+   they should belong to.</translate></p>
+
+ <form action="admin.pl">
+
+  <p>
+   <table border="0">
+    [% SET row_is_odd = '1' %][% USE users_it = Iterator(USERS) %][% FOREACH user = users_it %]
+
+    [% IF user.repeat_headings %]
+    <tr>
+     <th class="listheading" valign="bottom"><translate>Login</translate></th>
+     <th class="listheading" valign="bottom"><translate>Name</translate></th>
+     [% FOREACH column = HEADINGS %]<th class="listheading" valign="bottom" align="center">[% LxERP.turn90(column.title) %]</th>
+     [% END %]
+    </tr>
+    [% END %]
+
+    <tr class="listrow[% IF row_is_odd %]1[% SET row_is_odd = '0' %][% ELSE %]0[% SET row_is_odd = '1' %][% END %]">
+     <td valign="center">[% HTML.escape(user.login) %]</td>
+     <td valign="center">[% HTML.escape(user.name) %]</td>
+     [% FOREACH group = user.GROUPS %]
+     <td valign="center" align="center">
+      <input type="checkbox" name="u_[% HTML.escape(user.id) %]_g_[% HTML.escape(group.id) %]" [% IF group.is_member %]checked[% END %]>
+     </td>
+     [% END %]
+    </tr>
+    [% END %]
+   </table>
+  </p>
+
+  <input type="hidden" name="save_nextsub" value="save_group_membership">
+  <input type="hidden" name="back_nextsub" value="edit_groups">
+
+  <p>
+   <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+   <input type="submit" class="submit" name="action" value="<translate>Back</translate>">
+  </p>
+
+ </form>
+
+</body>
+</html>

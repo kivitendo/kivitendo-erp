@@ -1,0 +1,49 @@
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="admin.pl">
+
+  <p>
+
+   Lx-Office wurde auf eine gruppenbasierte Benutzerzugriffsverwaltung umgestellt.
+
+   Sie m&uuml;ssen mindestens eine Benutzergruppe anlegen, ihr Zugriff auf die verschiedenen Funktionsbereiche von Lx-Office gew&auml;hren und Benutzer dieser Gruppe zuordnen.
+
+   Andernfalls haben alle Benutzer nur Zugriff auf ihre Benutzereinstellungen.
+
+  </p>
+
+  <p>
+
+   Im Rahmen dieser Benutzerdatenmigration kann Lx-Office eine solche Gruppe f&uuml;r Sie anlegen und allen Benutzern Zugriff auf alle Lx-Office-Funktionen gew&auml;hren.
+
+   Dieses entspricht dem Verhalten von Lx-Office vor Version 2.4.4.
+
+  </p>
+
+  <p>
+
+   Alternativ k&ouml;nnen Sie diesen Schritt &uuml;berspringen und selber Gruppen anlegen.
+
+  </p>
+
+  <p>
+
+   Wollen Sie, dass Lx-Office eine Gruppe mit Zugriff auf alle Funktionen anlegt?
+
+   Diese Gruppe wird &quot;Vollzugriff&quot; genannt.
+
+  </p>
+
+  <input type="hidden" name="action" value="dispatcher">
+
+  <p>
+   <input type="submit" class="submit" name="action_create_standard_group" value="Ja">
+   <input type="submit" class="submit" name="action_dont_create_standard_group" value="Nein">
+  </p>
+
+ </form>
+
+</body>
+</html>

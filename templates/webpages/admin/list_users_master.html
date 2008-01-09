@@ -19,7 +19,7 @@
     [% SET row_odd = '1' %]
     [% FOREACH row = MEMBERS %]
      <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
-      <td><a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]&rpw=[% HTML.url(rpw) %]">[% HTML.escape(row.login) %]</a></td>
+      <td><a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]">[% HTML.escape(row.login) %]</a></td>
       <td>[% HTML.escape(row.name) %]</td>
       <td>[% HTML.escape(row.company) %]</td>
       <td>[% HTML.escape(row.dbdriver) %]</td>
@@ -33,16 +33,16 @@
    </table>
   </p>
 
-  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
 
   <input type="submit" class="submit" name="action" value="<translate>Add User</translate>">
-  <input type="submit" class="submit" name="action" value="<translate>Change Admin Password</translate>">
+  <input type="submit" class="submit" name="action" value="<translate>Edit groups</translate>">
   <input type="submit" class="submit" name="action" value="<translate>Pg Database Administration</translate>">
   [% IF LOCKED %]
    <input type="submit" class="submit" name="action" value="<translate>Unlock System</translate>">
    [% ELSE %]
    <input type="submit" class="submit" name="action" value="<translate>Lock System</translate>">
   [% END %]
+  <input type="submit" class="submit" name="action" value="<translate>Logout</translate>">
 
   <p><translate>Click on login name to edit!</translate></p>
 

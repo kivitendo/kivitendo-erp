@@ -1,0 +1,114 @@
+[% USE HTML %]<body>
+ <form name="Form" method="post" action="admin.pl">
+
+  <input type="hidden" name="group_id" value="[% HTML.escape(group_id) %]">
+
+  <input type="hidden" name="back_nextsub" value="edit_groups">
+
+  [% IF message %]
+  <p>[% message %]</p>
+  [% END %]
+
+  <div class="listtop">Gruppe bearbeiten [% HTML.escape(name) %]</div>
+
+  <table width="100%">
+   <tr>
+    <td>
+     <table>
+      <tr class="listheading">
+       <td><b>Benutzer in<br>dieser Gruppe</b></td>
+       <td>&nbsp;</td>
+       <td><b>Benutzer nicht in dieser Gruppe</b></td>
+      </tr>
+
+      <tr>
+       <td valign="center">
+        <select name="user_id_in_group" size="10">
+         [% FOREACH user = USERS_IN_GROUP %]<option value="[% HTML.escape(user.id) %]">[% HTML.escape(user.login) %]</option>[% END %]
+        </select>
+       </td>
+
+       <td valign="center">
+        <input type="submit" class="submit" name="action" value="Zu Gruppe hinzufügen">
+        <br>
+        <br>
+        <input type="submit" class="submit" name="action" value="Aus Gruppe entfernen">
+       </td>
+
+       <td valign="center">
+        <select name="user_id_not_in_group" size="10">
+         [% FOREACH user = USERS_NOT_IN_GROUP %]<option value="[% HTML.escape(user.id) %]">[% HTML.escape(user.login) %]</option>[% END %]
+        </select>
+       </td>
+      </tr>
+
+      <tr>
+       <td>
+        <input type="submit" class="submit" name="action" value="Zurück">
+       </td>
+      </tr>
+     </table>
+
+     <hr>
+
+     <table>
+      <tr class="listheading">
+       <td colspan="2">Rechte bearbeiten</td>
+      </tr>
+
+      [% FOREACH right = RIGHTS %]
+      <tr>
+       <td>
+        [% IF right.is_section %]
+        <i>[% right.description %]</i>
+        [% ELSE %]
+        <input type="checkbox" name="[% HTML.escape(right.right) %]_granted" id="[% HTML.escape(right.right) %]_granted" [% IF right.granted %]checked[% END %]>
+        <label for="[% HTML.escape(right.right) %]_granted">[% IF right.description %][% right.description %][% ELSE %]<i>[% HTML.escape(right.right) %]</i>[% END %]</label>
+        [% END %]
+       </td>
+      </tr>
+      [% END %]
+
+      <tr>
+       <td>
+        <input type="hidden" name="save_nextsub" value="save_group">
+        <input type="submit" class="submit" name="action" value="Speichern">
+        &nbsp;
+        <input type="submit" class="submit" name="action" value="Zurück">
+       </td>
+      </tr>
+     </table>
+
+     <hr>
+
+     <table>
+      <tr class="listheading">
+       <td colspan="2">Gruppe umbenennen</td>
+      </tr>
+
+      <tr>
+       <td>Name:</td>
+       <td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td>
+      </tr>
+
+      <tr>
+       <td>Beschreibung:</td>
+       <td><input name="description" value="[% HTML.escape(description) %]"></td>
+      </tr>
+
+      <tr>
+       <td>
+        <input type="hidden" name="save_nextsub" value="save_group">
+        <input type="submit" class="submit" name="action" value="Speichern">
+        &nbsp;
+        <input type="submit" class="submit" name="action" value="Zurück">
+       </td>
+      </tr>
+     </table>
+    </td>
+   </tr>
+  </table>
+ </form>
+
+</body>
+</html>

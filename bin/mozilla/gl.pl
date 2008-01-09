@@ -38,7 +38,6 @@ use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
@@ -77,11 +76,11 @@ require "bin/mozilla/reportgenerator.pl";
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{title} = "Add";
 
-  $form->{callback} =
-    "$form->{script}?action=add&login=$form->{login}&password=$form->{password}"
-    unless $form->{callback};
+  $form->{callback} = "gl.pl?action=add" unless $form->{callback};
 
   # we use this only to set a default date
   GL->transaction(\%myconfig, \%$form);
@@ -118,6 +117,8 @@ sub add {
 
 sub prepare_transaction {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   GL->transaction(\%myconfig, \%$form);
 
@@ -191,6 +192,8 @@ sub prepare_transaction {
 sub edit {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   prepare_transaction();
 
   $form->{title} = "Edit";
@@ -207,6 +210,8 @@ sub edit {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $form->{title} = $locale->text('Journal');
 
@@ -281,7 +286,7 @@ sub search {
   print qq|
 <body onLoad="$onload">
 
-<form method=post action=$form->{script}>
+<form method=post action=gl.pl>
 
 <input type=hidden name=sort value=transdate>
 
@@ -382,9 +387,6 @@ $jsscript
 
 <input type=hidden name=nextsub value=generate_report>
 
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
-
 <br>
 <input class=submit type=submit name=action value="|
     . $locale->text('Continue') . qq|">
@@ -414,6 +416,8 @@ sub create_subtotal_row {
 
 sub generate_report {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $form->{sort} ||= "transdate";
 
@@ -639,6 +643,8 @@ sub generate_report {
 sub update {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{oldtransdate} = $form->{transdate};
 
   my @a           = ();
@@ -745,6 +751,8 @@ sub display_form {
   my ($init) = @_;
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   &form_header($init);
 
   #   for $i (1 .. $form->{rowcount}) {
@@ -762,6 +770,8 @@ sub display_form {
 sub display_rows {
   my ($init) = @_;
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   $form->{debit_1}     = 0 if !$form->{"debit_1"};
   $form->{totaldebit}  = 0;
@@ -955,6 +965,9 @@ sub display_rows {
 sub form_header {
   my ($init) = @_;
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   $title         = $form->{title};
   $form->{title} = $locale->text("$title General Ledger Transaction");
   $readonly      = ($form->{id}) ? "readonly" : "";
@@ -1055,7 +1068,7 @@ sub form_header {
   print qq|
 <body onLoad="fokus()">
 
-<form method=post name="gl" action=$form->{script}>
+<form method=post name="gl" action=gl.pl>
 |;
 
   $form->hide_form(qw(id closedto locked storno storno_id previous_id previous_gldate));
@@ -1189,6 +1202,9 @@ $jsscript
 
 sub form_footer {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
   ($dec) = ($form->{totaldebit} =~ /\.(\d+)/);
   $dec = length $dec;
   $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -1209,9 +1225,6 @@ sub form_footer {
   </td>
   </tr>
 </table>
-
-<input type=hidden name=login value=$form->{login}>
-<input type=hidden name=password value=$form->{password}>
 
 <input name=callback type=hidden value="$form->{callback}">
 
@@ -1260,7 +1273,7 @@ sub delete {
   print qq|
 <body>
 
-<form method=post action=$form->{script}>
+<form method=post action=gl.pl>
 |;
 
   map { $form->{$_} =~ s/\"/&quot;/g } qw(reference description);
@@ -1268,6 +1281,7 @@ sub delete {
   delete $form->{header};
 
   foreach $key (keys %$form) {
+    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
   }
 
@@ -1464,6 +1478,8 @@ sub post_transaction {
 sub post {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{title}  = $locale->text("$form->{title} General Ledger Transaction");
   $form->{storno} = 0;
 
@@ -1478,6 +1494,8 @@ sub post {
 sub post_as_new {
   $lxdebug->enter_sub();
 
+  $auth->assert('general_ledger');
+
   $form->{id} = 0;
   &add;
   $lxdebug->leave_sub();
@@ -1486,6 +1504,8 @@ sub post_as_new {
 
 sub storno {
   $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
 
   # don't cancel cancelled transactions
   if (IS->has_storno(\%myconfig, $form, 'gl')) {
@@ -1508,3 +1528,6 @@ sub storno {
   $lxdebug->leave_sub();
 }
 
+sub continue {
+  call_sub($form->{nextsub});
+}

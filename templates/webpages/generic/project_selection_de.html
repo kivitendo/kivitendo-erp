@@ -1,0 +1,108 @@
+[% USE HTML %]<body [% IF onload %]onload="[% onload %]"[% END %]>
+
+ <form action="[% HTML.escape(script) %]" method="post" name="Form">
+
+  <input type="hidden" name="input_projectnumber" value="[% HTML.escape(input_projectnumber) %]">
+  <input type="hidden" name="input_old_projectnumber" value="[% HTML.escape(input_old_projectnumber) %]">
+  <input type="hidden" name="input_description" value="[% HTML.escape(input_description) %]">
+  <input type="hidden" name="input_project_id" value="[% HTML.escape(input_project_id) %]">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   <table width="100%">
+    <tr>
+     <td>
+      [%- UNLESS PROJECTS.size %]
+      Es wurde kein Projekt gefunden, auf das die Suchparameter zutreffen.
+      [%- IF AUTH_RIGHTS_PROJECT_EDIT %]
+      Sie k&ouml;nnen jedoch ein neues Projekt anlegen, das dann automatisch ausgew&auml;hlt wird.
+      [%- END %]
+      [%- ELSE %]
+      Bitte w&auml;hlen Sie ein Projekt aus der Liste aus.
+      [%- IF AUTH_RIGHTS_PROJECT_EDIT %]
+      Alternativ k&ouml;nnen Sie auch ein neues Projekt anlegen, das dann automatisch ausgew&auml;hlt wird.
+      [%- END %]
+      [%- END %]
+     </td>
+    </tr>
+
+    [% UNLESS no_projects_found %]
+    <tr>
+     <td>
+
+      <table>
+       <tr class="listheading">
+        <th class="listheading">&nbsp;</th>
+        [% FOREACH row = HEADER %]
+        <th nowrap class="listheading"><a href="[% HTML.escape(row.callback) %]">[% row.column_title %]</a></th>
+        [% END %]
+       </tr>
+
+       [%- SET row_odd = '1' %][%- USE projects_it = Iterator(PROJECTS) %][%- FOREACH project = projects_it %]
+       <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+        <td><button type="button" onclick="project_selected('[% projects_it.count %]')">auswählen</button></td>
+
+        <td>
+         <input type="hidden" id="id_[% projects_it.count %]" name="id_[% projects_it.count %]" value="[% HTML.escape(project.id) %]">
+         <input type="hidden" id="projectnumber_[% projects_it.count %]" name="projectnumber_[% projects_it.count %]" value="[% HTML.escape(project.projectnumber) %]">
+         [% HTML.escape(project.projectnumber) %]</td>
+        <td><input type="hidden" id="description_[% projects_it.count %]" name="description_[% projects_it.count %]" value="[% HTML.escape(project.description) %]">
+         [% HTML.escape(project.description) %]</td>
+       </tr>
+       [% END %]
+      </table>
+
+     </td>
+    </tr>
+    [% END %]
+   </table>
+  </p>
+
+  [%- IF AUTH_RIGHTS_PROJECT_EDIT %]
+  <p><input type="submit" name="action" value="Neues Projekt"></p>
+  [%- END %]
+
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      function project_selected(selected) {
+        var projectnumber = document.getElementById("projectnumber_" + selected).value
+        var description   = document.getElementById("description_" + selected).value
+        var id            = document.getElementById("id_" + selected).value
+        var pnum_name     = document.Form.input_projectnumber.value;
+
+        window.opener.document.getElementsByName(pnum_name)[0].value = projectnumber;
+
+        if (document.Form.input_description.value != "") {
+          window.opener.document.getElementsByName(document.Form.input_description.value)[0].value = description;
+        }
+
+        if (document.Form.input_project_id.value != "") {
+          window.opener.document.getElementsByName(document.Form.input_project_id.value)[0].value = id;
+        }
+
+        if (document.Form.input_old_projectnumber.value != "") {
+          window.opener.document.getElementsByName(document.Form.input_old_projectnumber.value)[0].value = projectnumber;
+        }
+
+        var prefix = "";
+        if (pnum_name.substr(0, 2) == "f_") {
+          prefix = "f_";
+          pnum_name = pnum_name.substr(2);
+        }
+
+        pnum_name = prefix + "old_" + pnum_name;
+        var input = window.opener.document.getElementsByName(pnum_name)[0];
+        if (input) {
+          input.value = projectnumber;
+        }
+
+        self.close();
+      }
+      //-->
+ </script>
+
+</body>
+</html>

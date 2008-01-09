@@ -37,6 +37,7 @@ package User;
 use IO::File;
 use Fcntl qw(:seek);
 
+use SL::Auth;
 use SL::DBUpgrade2;
 use SL::DBUtils;
 use SL::Iconv;
@@ -45,48 +46,17 @@ use SL::Inifile;
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $memfile, $login) = @_;
+  my ($type, $login) = @_;
+
   my $self = {};
 
   if ($login ne "") {
-    local *MEMBER;
-
-    $login =~ s|.*/||;
-
-    &error("", "$memfile locked!") if (-f "${memfile}.LCK");
-
-    open(MEMBER, "$memfile") or &error("", "$memfile : $!");
-
-    while (<MEMBER>) {
-      if (/^\[$login\]/) {
-        while (<MEMBER>) {
-          last if m/^\[/;
-          next if m/^(#|\s)/;
-
-          # remove comments
-          s/\s#.*//g;
-
-          # remove any trailing whitespace
-          s/^\s*(.*?)\s*$/$1/;
-
-          ($key, $value) = split(/=/, $_, 2);
-
-          if (($key eq "stylesheet") && ($value eq "sql-ledger.css")) {
-            $value = "lx-office-erp.css";
-          }
-
-          $self->{$key} = $value;
-        }
-
-        $self->{login} = $login;
-
-        last;
-      }
-    }
-    close MEMBER;
+    my %user_data = $main::auth->read_user($login);
+    map { $self->{$_} = $user_data{$_} } keys %user_data;
   }
 
   $main::lxdebug->leave_sub();
+
   bless $self, $type;
 }
 
@@ -121,33 +91,14 @@ sub country_codes {
 sub login {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $userspath) = @_;
+  my ($self, $form) = @_;
 
   local *FH;
 
   my $rc = -3;
 
   if ($self->{login}) {
-
-    if ($self->{password}) {
-      if ($form->{hashed_password}) {
-        $form->{password} = $form->{hashed_password};
-      } else {
-        $form->{password} = crypt($form->{password},
-                                  substr($self->{login}, 0, 2));
-      }
-      if ($self->{password} ne $form->{password}) {
-        $main::lxdebug->leave_sub();
-        return -1;
-      }
-    }
-
-    unless (-e "$userspath/$self->{login}.conf") {
-      $self->create_config();
-    }
-
-    do "$userspath/$self->{login}.conf";
-    $myconfig{dbpasswd} = unpack('u', $myconfig{dbpasswd});
+    my %myconfig = $main::auth->read_user($self->{login});
 
     # check if database is down
     my $dbh =
@@ -163,17 +114,7 @@ sub login {
     my ($dbversion) = $sth->fetchrow_array;
     $sth->finish;
 
-    # add login to employee table if it does not exist
-    # no error check for employee table, ignore if it does not exist
-    $query = qq|SELECT id FROM employee WHERE login = ?|;
-    my ($login) = selectrow_query($form, $dbh, $query, $self->{login});
-
-    if (!$login) {
-      $query = qq|INSERT INTO employee (login, name, workphone, role)| .
-               qq|VALUES (?, ?, ?, ?)|;
-      my @values = ($self->{login}, $myconfig{name}, $myconfig{tel}, "user");
-      do_query($form, $dbh, $query, @values);
-    }
+    $self->create_employee_entry($form, $dbh, \%myconfig);
 
     $self->create_schema_info_table($form, $dbh);
 
@@ -185,7 +126,7 @@ sub login {
       parse_dbupdate_controls($form, $myconfig{"dbdriver"});
 
     map({ $form->{$_} = $myconfig{$_} }
-        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect));
+        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
 
     if (update_available($myconfig{"dbdriver"}, $dbversion) ||
         update2_available($form, $controls)) {
@@ -204,7 +145,7 @@ sub login {
       }
 
       # update the tables
-      open(FH, ">$userspath/nologin") or die("$!");
+      open(FH, ">$main::userspath/nologin") or die("$!");
 
       # required for Oracle
       $form->{dbdefault} = $sid;
@@ -219,7 +160,7 @@ sub login {
       close(FH);
 
       # remove lock file
-      unlink("$userspath/nologin");
+      unlink("$main::userspath/nologin");
 
       my $menufile =
         $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
@@ -625,41 +566,21 @@ sub dbdelete {
 sub dbsources_unused {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $memfile) = @_;
-
-  local *FH;
-
-  my @dbexcl    = ();
-  my @dbsources = ();
-
-  $form->error('File locked!') if (-f "${memfile}.LCK");
-
-  # open members file
-  open(FH, "$memfile") or $form->error("$memfile : $!");
-
-  while (<FH>) {
-    if (/^dbname=/) {
-      my ($null, $item) = split(/=/);
-      push @dbexcl, $item;
-    }
-  }
-
-  close FH;
+  my ($self, $form) = @_;
 
   $form->{only_acc_db} = 1;
-  my @db = &dbsources("", $form);
 
-  push @dbexcl, $form->{dbdefault};
+  my %members = $main::auth->read_all_users();
+  my %dbexcl  = map { $_ => 1 } grep { $_ } map { $_->{dbname} } values %members;
 
-  foreach $item (@db) {
-    unless (grep /$item$/, @dbexcl) {
-      push @dbsources, $item;
-    }
-  }
+  $dbexcl{$form->{dbdefault}}             = 1;
+  $dbexcl{$main::auth->{DB_config}->{db}} = 1;
+
+  my @dbunused = grep { !$dbexcl{$_} } dbsources("", $form);
 
   $main::lxdebug->leave_sub();
 
-  return @dbsources;
+  return @dbunused;
 }
 
 sub dbneedsupdate {
@@ -667,17 +588,17 @@ sub dbneedsupdate {
 
   my ($self, $form) = @_;
 
-  my $members  = Inifile->new($main::memberfile);
+  my %members  = $main::auth->read_all_users();
   my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
 
   my ($query, $sth, %dbs_needing_updates);
 
-  foreach my $login (grep /[a-z]/, keys %{ $members }) {
-    my $member = $members->{$login};
+  foreach my $login (grep /[a-z]/, keys %members) {
+    my $member = $members{$login};
 
     map { $form->{$_} = $member->{$_} } qw(dbname dbuser dbpasswd dbhost dbport);
     dbconnect_vars($form, $form->{dbname});
-    $main::lxdebug->dump(0, "form", $form);
+
     my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
 
     next unless $dbh;
@@ -820,6 +741,8 @@ sub dbupdate {
       DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
       or $form->dberror;
 
+    $dbh->do($form->{dboptions}) if ($form->{dboptions});
+
     # check version
     $query = qq|SELECT version FROM defaults|;
     my ($version) = selectrow_query($form, $dbh, $query);
@@ -894,6 +817,8 @@ sub dbupdate2 {
     my $dbh =
       DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
       or $form->dberror;
+
+    $dbh->do($form->{dboptions}) if ($form->{dboptions});
 
     map({ $_->{"applied"} = 0; } @upgradescripts);
 
@@ -980,118 +905,43 @@ sub update2_available {
   return 0;
 }
 
-sub create_config {
+sub save_member {
   $main::lxdebug->enter_sub();
 
   my ($self) = @_;
 
-  local *CONF;
+  # format dbconnect and dboptions string
+  dbconnect_vars($self, $self->{dbname});
 
-  @config = config_vars();
+  map { $self->{$_} =~ s/\r//g; } qw(address signature);
 
-  my $userspath = $main::userspath;
+  $main::auth->save_user($self->{login}, map { $_, $self->{$_} } config_vars());
 
-  open(CONF, ">", "$userspath/$self->{login}.conf") || $self->error("$userspath/$self->{login}.conf : $!");
-
-  # create the config file
-  print CONF qq|# configuration file for $self->{login}
-
-\%myconfig = (
-|;
-
-  foreach my $key (sort @config) {
-    $self->{$key} =~ s/\'/\\\'/g;
-    print CONF qq|  $key => '$self->{$key}',\n|;
+  my $dbh = DBI->connect($self->{dbconnect}, $self->{dbuser}, $self->{dbpasswd});
+  if ($dbh) {
+    $self->create_employee_entry($form, $dbh, $self);
+    $dbh->disconnect();
   }
-
-  print CONF qq|);\n\n|;
-
-  close CONF;
 
   $main::lxdebug->leave_sub();
 }
 
-sub save_member {
+sub create_employee_entry {
   $main::lxdebug->enter_sub();
 
-  my ($self, $memberfile, $userspath) = @_;
+  my $self     = shift;
+  my $form     = shift;
+  my $dbh      = shift;
+  my $myconfig = shift;
 
-  local (*FH, *CONF);
+  # add login to employee table if it does not exist
+  # no error check for employee table, ignore if it does not exist
+  my ($login)  = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
 
-  my $newmember = 1;
-
-  # format dbconnect and dboptions string
-  &dbconnect_vars($self, $self->{dbname});
-
-  $self->error('File locked!') if (-f "${memberfile}.LCK");
-  open(FH, ">${memberfile}.LCK") or $self->error("${memberfile}.LCK : $!");
-  close(FH);
-
-  open(CONF, "+<$memberfile") or $self->error("$memberfile : $!");
-
-  @config = <CONF>;
-
-  seek(CONF, 0, 0);
-  truncate(CONF, 0);
-
-  while ($line = shift @config) {
-    if ($line =~ /^\[\Q$self->{login}\E\]/) {
-      $newmember = 0;
-      last;
-    }
-    print CONF $line;
+  if (!$login) {
+    $query = qq|INSERT INTO employee (login, name, workphone, role) VALUES (?, ?, ?, ?)|;
+    do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}, "user"));
   }
-
-  # remove everything up to next login or EOF
-  while ($line = shift @config) {
-    last if ($line =~ /^\[/);
-  }
-
-  # this one is either the next login or EOF
-  print CONF $line;
-
-  while ($line = shift @config) {
-    print CONF $line;
-  }
-
-  print CONF qq|[$self->{login}]\n|;
-
-  if ((($self->{dbpasswd} ne $self->{old_dbpasswd}) || $newmember)
-      && $self->{root}) {
-    $self->{dbpasswd} = pack 'u', $self->{dbpasswd};
-    chop $self->{dbpasswd};
-  }
-  if (defined($self->{new_password})) {
-    if ($self->{new_password} ne $self->{old_password}) {
-      $self->{password} = crypt $self->{new_password},
-        substr($self->{login}, 0, 2)
-        if $self->{new_password};
-    }
-  } else {
-    if ($self->{password} ne $self->{old_password}) {
-      $self->{password} = crypt $self->{password}, substr($self->{login}, 0, 2)
-        if $self->{password};
-    }
-  }
-
-  if ($self->{'root login'}) {
-    @config = ("password");
-  } else {
-    @config = &config_vars;
-  }
-
-  # replace \r\n with \n
-  map { $self->{$_} =~ s/\r\n/\\n/g } qw(address signature);
-  foreach $key (sort @config) {
-    print CONF qq|$key=$self->{$key}\n|;
-  }
-
-  print CONF "\n";
-  close CONF;
-  unlink "${memberfile}.LCK";
-
-  # create conf file
-  $self->create_config() unless $self->{'root login'};
 
   $main::lxdebug->leave_sub();
 }

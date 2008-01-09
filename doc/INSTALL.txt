@@ -10,9 +10,22 @@ Inhalt der Anleitung
   4.2 Erweiterung für servergespeicherte Prozeduren
   4.3 Datenbankbenutzer anlegen
 5 Apache-Konfiguration
-6 Benutzer und Datenbanken anlegen
-7 OpenDocument-Vorlagen
-8 Lx-Office ERP verwenden
+6 Benutzerauthentifizierung und Administratorpasswort
+  6.1 Grundlagen zur Benutzerauthentifizierung
+  6.2 Administratorpasswort
+  6.3 Authentifizierungsdatenbank
+  6.4 Passwortüberprüfung
+  6.5 Name des Session-Cookies
+  6.6 Anlegen der Authentifizierungsdatenbank
+7 Benutzer- und Gruppenverwaltung
+  7.1 Zusammenhänge
+  7.2 Datenbanken anlegen
+  7.3 Gruppen anlegen
+  7.4 Benutzer anlegen
+  7.5 Gruppenmitgliedschaften verwalten
+  7.6 Migration alter Installationen
+8 OpenDocument-Vorlagen
+9 Lx-Office ERP verwenden
 
 
 Inhalt der Anleitung
@@ -207,40 +220,288 @@ Option in die Konfiguration aufzunehmen:
 
    `EnableSendfile Off'
 
-6 Benutzer und Datenbanken anlegen
-**********************************
+6 Benutzerauthentifizierung und Administratorpasswort
+*****************************************************
 
-Nach der Installation müssen Benutzer und Datenbanken angelegt werden.
-Dieses geschieht im Administrationsmenü, dass Sie unter folgender URL
-finden:
+Informationen über die Einrichtung der Benutzerauthentifizierung, über
+die Verwaltung von Gruppen und weitere Einstellungen
+
+6.1 Grundlagen zur Benutzerauthentifizierung
+============================================
+
+Lx-Office verwaltet die Benutzerinformationen in einer Datenbank, die
+im folgenden "Authentifizierungsdatenbank" genannt wird. Für jeden
+Benutzer kann dort eine eigene Datenbank für die eigentlichen
+Finanzdaten hinterlegt sein. Diese beiden Datenbanken können, müssen
+aber nicht unterschiedlich sein.
+
+   Im einfachsten Fall gibt es für Lx-Office nur eine einzige Datenbank,
+in der sowohl die Benutzerinformationen als auch die Daten abgelegt
+werden.
+
+   Zusätzlich ermöglicht es Lx-Office, dass die Benutzerpasswörter
+entweder gegen die Authentifizierungsdatenbank oder gegen einen
+LDAP-Server überprüft werden.
+
+   Welche Art der Passwortüberprüfung Lx-Office benutzt und wie
+Lx-Office die Authentifizierungsdatenbank erreichen kann, wird in der
+Konfigurationsdatei `config/authentication.pl' festgelegt. Diese muss
+bei der Installation und bei einem Upgrade von einer Version vor v2.4.4
+angelegt werden. Eine Beispielkonfigurationsdatei
+`config/authentication.pl.default' existiert, die als Vorlage benutzt
+werden kann.
+
+6.2 Administratorpasswort
+=========================
+
+Das Passwort, das zum Zugriff auf das Aministrationsinterface benutzt
+wird, wird ebenfalls in dieser Datei gespeichert. Es kann auch nur dort
+und nicht mehr im Administrationsinterface selber geändert werden. Der
+Parameter dazu heißt `$self->{admin_password}'.
+
+6.3 Authentifizierungsdatenbank
+===============================
+
+Die Verbindung zur Authentifizierungsdatenbank wird mit den Parametern
+in `$self->{DB_config}' konfiguriert. Hier sind die folgenden Parameter
+anzugeben:
+
+   * `host' - Der Rechnername oder die IP-Adresse des Datenbankservers
+
+   * `port' - Die Portnummer des Datenbankservers, meist 5432
+
+   * `db' - Der Name der Authentifizierungsdatenbank
+
+   * `user' - Der Benutzername, mit dem sich Lx-Office beim
+     Datenbankserver anmeldet (z.B. "postgres")
+
+   * `password' - Das Passwort für den Datenbankbenutzer
+
+   Die Datenbank muss noch nicht existieren. Lx-Office kann sie
+automatisch anlegen (mehr dazu siehe unten).
+
+6.4 Passwortüberprüfung
+=======================
+
+Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen die
+Authentifizierungsdatenbank und gegen einen externen LDAP- oder
+Active-Directory-Server. Welche davon benutzt wird, regelt der
+Parameter `$self->{module}'.
+
+   Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
+gespeichert werden, so muss der Parameter `$self->{module}' den Wert
+`DB' enthalten. In diesem Fall können sowohl der Administrator als auch
+die Benutzer selber ihre Psaswörter in Lx-Office ändern.
+
+   Soll hingegen ein externer LDAP- oder Active-Directory-Server benutzt
+werden, so muss der Parameter `$self->{module}' auf `LDAP' gesetzt
+werden. In diesem Fall müssen zusätzliche Informationen über den
+LDAP-Server in `$self->{LDAP_config}' angegeben werden:
+
+   * `host' - Der Rechnername oder die IP-Adresse des LDAP- oder
+     Active-Directory-Servers. Diese Angabe ist zwingend erforderlich.
+
+   * `port' - Die Portnummer des LDAP-Servers; meist 389.
+
+   * `tls' - Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
+     Wert auf `1' setzen, andernfalls auf `0' belassen
+
+   * `attribute'' - Das LDAP-Attribut, in dem der Benutzername steht,
+     den der Benutzer eingegeben hat. Für Active-Directory-Server   ist
+     dies meist `sAMAccountName', für andere LDAP-Server hingegen
+     `uid'. Diese Angabe ist zwingend erforderlich.
+
+   * `base_dn' - Der Abschnitt des LDAP-Baumes, der durchsucht werden
+     soll. Diese Angabe ist zwingend erforderlich.
+
+   * `filter' - Ein optionaler LDAP-Filter. Enthält dieser Filter das
+     Wort `<%login%>', so wird dieses durch den vom Benutzer
+     eingegebenen Benutzernamen ersetzt. Andernfalls wird der LDAP-Baum
+     nach einem Element durchsucht, bei dem das oben angegebene Attribut
+      mit dem Benutzernamen identisch ist.
+
+   * `bind_dn' und `bind_password' - Wenn der LDAP-Server eine
+     Anmeldung erfordert, bevor er durchsucht werden kann (z.B. ist
+     dies bei   Active-Directory-Servern der Fall), so kann diese hier
+     angegeben werden. Für Active-Directory-Server kann als `bind_dn'
+     entweder eine   komplette LDAP-DN wie z.B. `cn=Martin
+     Mustermann,cn=Users,dc=firmendomain' auch nur der volle Name des
+     Benutzers   eingegeben werden; in diesem Beispiel also `Martin
+     Mustermann'.
+
+6.5 Name des Session-Cookies
+============================
+
+Sollen auf einem Server mehrere Lx-Office-Installationen aufgesetzt
+werden, so müssen die Namen der Session-Cookies für alle Installationen
+unterschiedlich sein. Der Name des Cookies wird mit dem Parameter
+`$self->{cookie_name}' gesetzt.
+
+   Diese Angabe ist optional, wenn nur eine Installation auf dem Server
+existiert.
+
+6.6 Anlegen der Authentifizierungsdatenbank
+===========================================
+
+Nachdem alle Einstellungen in `config/authentication.pl' vorgenommen
+wurden, muss Lx-Office die Authentifizierungsdatenbank anlegen. Dieses
+geschieht automatisch, wenn Sie sich im Administrationsmodul anmelden,
+das unter der folgenden URL erreichbar sein sollte:
 
    `http://localhost/lx-erp/admin.pl'
 
-   Zuerst muss eine Datenbank angelegt werden, anschließend ein
-Benutzer. Verwenden Sie für den Datenbankzugriff den eben angelegten
-Benutzer "lxoffice".
+7 Benutzer- und Gruppenverwaltung
+*********************************
+
+Nach der Installation müssen Benutzer, Gruppen und Datenbanken angelegt
+werden.  Dieses geschieht im Administrationsmenü, dass Sie unter
+folgender URL finden:
+
+   `http://localhost/lx-erp/admin.pl'
+
+   Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
+`config/authentication.pl' eingetragen haben.
+
+7.1 Zusammenhänge
+=================
+
+Lx-Office verwendet eine Datenbank zum Speichern all seiner
+Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
+mit Lx-Office arbeiten zu können, muss eine Person einen
+Benutzeraccount haben. Jedem Benutzeraccount wiederum wird genau eine
+Datenbank zugewiesen, mit der dieser Benutzer arbeiten kann. Es ist
+möglich und normal, dass mehreren Benutzern die selbe Datenbank
+zugewiesen wird, sodass sie alle mit den selben Daten arbeiten können.
+
+   Die Basisdaten der Benutzer, die in der Administration eingegeben
+werden können, werden in einer zweiten Datenbank gespeichert, der
+bereits erwähnten Authentifizierungsdatenbank. Diese ist also den
+Produktivdaten enthaltenden Datenbanken vorgeschaltet. Pro
+Lx-Office-Installation gibt es nur eine Authentifizierungsdatenbank,
+aber beliebig viele Datenbanken mit Firmendaten.
+
+   Lx-Office lann seinen Benutzern Zugriff auf bestimmte
+Funktionsbereiche erlauben oder verbieten. Wird der Zugriff nicht
+gestattet, so werden der entsprechenden Menüpunkte auch nicht
+angezeigt. Diese Rechte werden ebenfalls in der
+Authentifizierungsdatenbank gespeichert.
+
+   Um Rechte verteilen zu können, verwendet Lx-Office ein
+Gruppen-Prinzip. Einer Gruppe kann der Zugriff auf bestimmte Bereiche
+erlaubt werden. Ein Benutzer wiederum kann Mitglied in einer oder
+mehrerer Gruppen sein. Der Benutzer hat Zugriff auf alle diejenigen
+Funktionen, die mindestens einer Gruppe erlaubt sind, in der der
+Benutzer Mitglied ist.
+
+   Die allgemeine Reihenfolge, in der Datenbanken, Gruppen und Benutzer
+angelegt werden sollten, lautet:
+
+  1. Datenbank anlegen
+
+  2. Gruppen anlegen
+
+  3. Benutzer anlegen
+
+  4. Benutzer den Gruppen zuordnen
+
+7.2 Datenbanken anlegen
+=======================
+
+Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für den
+Datenbankzugriff den vorhin angelegten Benutzer (in unseren Beispielen
+ist dies `lxoffice').
 
    Wenn Sie für die Lx-Office-Installation nicht den europäischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
-müssen Sie vor dem Anlegen der Datenbank in der Datei "lx-erp.conf" die
-Variable `$dbcharset' auf den Wert "UTF-8" setzen. Zusätzlich muss beim
-Anlegen der Datenbank "UTF-8 Unicode" als Schriftsatz ausgewählt werden.
+müssen Sie vor dem Anlegen der Datenbank in der Datei
+`config/lx-erp.conf' die Variable `$dbcharset' auf den Wert `UTF-8'
+setzen. Zusätzlich muss beim Anlegen der Datenbank `UTF-8 Unicode' als
+Schriftsatz ausgewählt werden.
 
-7 OpenDocument-Vorlagen
+   Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
+verwenden müssen, da diese Einstellungen momentan global in Lx-Office
+vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
+Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
+angelegt worden sein.
+
+7.3 Gruppen anlegen
+===================
+
+Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein Name
+gegeben werden, eine Beschreibung ist hingegen optional. Nach dem
+Anlegen können Sie die verschiedenen Bereiche wählen, auf die
+Mitglieder dieser Gruppe Zugriff haben sollen.
+
+   Benutzergruppen sind unabhängig von Datenbanken, da sie in der
+Authentifizierungsdatenbank gespeichert werden. Sie gelten für alle
+Datenbanken, die in dieser Installation verwaltet werden.
+
+7.4 Benutzer anlegen
+====================
+
+Beim Anlegen von Benutzern werden für viele Parameter
+Standardeinstellungen vorgenommen, die den Gepflogenheiten des
+deutschen Raumes entsprechen.
+
+   Zwingend anzugeben sind der Loginname sowie die komplette
+Datenbankkonfiguration. Wenn die Passwortauthentifizierung über die
+Datenbank eingestellt ist, so kann hier auch das Benutzerpasswort
+gesetzt bzw. geändert werden. Ist hingegen die LDAP-Authentifizierung
+aktiv, so ist das Passwort-Feld deaktiviert.
+
+   In der Datenbankkonfiguration müssen die Zugriffsdaten einer der eben
+angelegten Datenbanken eingetragen werden.
+
+7.5 Gruppenmitgliedschaften verwalten
+=====================================
+
+Nach dem Anlegen von Benutzern und Gruppen müssen Benutzer den Gruppen
+zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
+
+  1. In der Gruppenverwaltung wählt man eine Gruppe aus. Im folgenden
+     Dialog kann man dann einzeln die Benutzer der Gruppe hinzufügen.
+
+  2. In der Gruppenverwaltung wählt man das Tool zur Verwaltung der
+     Gruppenmitgliedschaft. Hier wird eine Matrix angezeigt, die alle im
+     System angelegten Gruppen und Benutzer enthält. Durch Setzen der
+     Häkchen wird der Benutzer in der ausgewählten Zeile der Gruppe in
+     der ausgewählten Spalte hinzugefügt.
+
+7.6 Migration alter Installationen
+==================================
+
+Wenn Lx-Office 2.4.4 über eine ältere Version installiert wird, in der
+die Benutzerdaten noch im Dateisystem im Verzeichnis `users' verwaltet
+wurden, so bietet Lx-Office die Möglichkeit, diese Benutzerdaten
+automatisch in die Authentifizierungsdatenbank zu übernehmen. Dies
+geschieht, wenn man sich nach dem Update der Installation das erste Mal
+im Administrationsbereich anmeldet. Findet Lx-Office die Datei
+`users/members', so wird der Migrationsprozess gestartet.
+
+   Der Migrationsprozess ist nahezu vollautomatisch. Alle Benutzerdaten
+können übernommen werden. Nach den Benutzerdaten bietet Lx-Office noch
+die Möglichkeit an, dass automatisch eine Benutzergruppe angelegt wird.
+Dieser Gruppe wird Zugriff auf alle Funktionen von Lx-Office gewährt.
+Alle migrierten Benutzern werden Mitglied in dieser Gruppe. Damit wird
+das Verhalten von Lx-Office bis Version 2.4.3 inklusive
+wiederhergestellt, und die Benutzer können sich sofort wieder anmelden
+und mit dem System arbeiten.
+
+8 OpenDocument-Vorlagen
 ***********************
 
 Lx-Office unterstützt die Verwendung von Vorlagen im
 OpenDocument-Format, wie es OpenOffice.org ab Version 2 erzeugt.
 Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als auch aus
 diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
-OpenDocument-Vorlagen zu aktivieren muss in der Datei "lx-erp.conf" die
-Variable `$opendocument_templates' auf "1" stehen.  Dieses ist die
-Standardeinstellung.
+OpenDocument-Vorlagen zu aktivieren muss in der Datei
+`config/lx-erp.conf' die Variable `$opendocument_templates' auf `1'
+stehen.  Dieses ist die Standardeinstellung.
 
-   Weiterhin muss in der Datei "lx-erp.conf" die Variable `$dbcharset'
-auf die Zeichenkodierung gesetzt werden, die auch bei der Speicherung
-der Daten in der Datenbank verwendet wird. Diese ist in den meisten
-Fällen "ISO-8859-15".
+   Weiterhin muss in der Datei `config/lx-erp.conf' die Variable
+`$dbcharset' auf die Zeichenkodierung gesetzt werden, die auch bei der
+Speicherung der Daten in der Datenbank verwendet wird. Diese ist in den
+meisten Fällen "ISO-8859-15".
 
    Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
 weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
@@ -249,9 +510,9 @@ neben OpenOffice.org ab Version 2 auch der "X virtual frame buffer"
 (xvfb) installiert werden.  Bei Debian ist er im Paket "xvfb"
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-   Nach der Installation müssen in der Datei "lx-erp.conf" zwei weitere
-Variablen angepasst werden: `$openofficeorg_writer_bin' muss den
-vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
+   Nach der Installation müssen in der Datei `config/lx-erp.conf' zwei
+weitere Variablen angepasst werden: `$openofficeorg_writer_bin' muss
+den vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
 `$xvfb_bin' muss den Pfad zum "X virtual frame buffer" enthalten.
 
    Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
@@ -286,7 +547,7 @@ vom Webserver beschreibbar sein. Dieses wurde in Schritt `Installation
 des Programmpakets' oben bereits erledigt, kann aber erneut überprüft
 werden, wenn die Konvertierung nach PDF fehlschlägt.
 
-8 Lx-Office ERP verwenden
+9 Lx-Office ERP verwenden
 *************************
 
 Nach erfolgreicher Installation ist der Loginbildschirm unter folgender

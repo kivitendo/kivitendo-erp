@@ -8,6 +8,10 @@
 
   <h2><translate>Administration</translate></h2>
 
+  [% IF error_message %]
+  <p><span class="error_message">[% error_message %]</span></p>
+  [% END %]
+
   <form method="post" action="admin.pl">
 
    <table>

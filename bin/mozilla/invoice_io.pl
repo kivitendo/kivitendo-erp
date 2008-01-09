@@ -596,7 +596,11 @@ sub set_pricegroup {
 sub display_form {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+
   relink_accounts();
+  retrieve_partunits() if ($form->{type} =~ /_delivery_order$/);
 
   my $new_rowcount = $form->{"rowcount"} * 1 + 1;
   $form->{"project_id_${new_rowcount}"} = $form->{"globalproject_id"};
@@ -657,8 +661,7 @@ sub display_form {
 
     &{$subroutine}($numrows);
 
-    $numrows    = ++$form->{makemodel_rows};
-    $subroutine = "makemodel_row";
+    $numrows    = 0;
   }
   if ($form->{item} eq 'assembly') {
     $numrows    = $form->{price_rows};

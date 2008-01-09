@@ -9,15 +9,26 @@ BEGIN {
 use SL::LXDebug;
 $lxdebug = LXDebug->new();
 
+use SL::Auth;
 use SL::Form;
 use SL::Locale;
 
-eval { require "lx-erp.conf"; };
+eval { require "config/lx-erp.conf"; };
+eval { require "config/lx-erp-local.conf"; } if (-f "config/lx-erp-local.conf");
 
 $form = new Form;
 
-eval { require("$userspath/$form->{login}.conf"); };
+our $auth     = SL::Auth->new();
+if (!$auth->session_tables_present()) {
+  _show_error('login/auth_db_unreachable');
+}
+$auth->expire_sessions();
+$auth->restore_session();
+
+our %myconfig = $auth->read_user($form->{login});
 
 $locale = new Locale "$myconfig{countrycode}", "kopf";
+
+delete $form->{password};
 
 eval { require "bin/mozilla/kopf.pl"; };

@@ -41,12 +41,13 @@ use SL::ReportGenerator;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 require "bin/mozilla/io.pl";
-require "bin/mozilla/arap.pl";
 
 1;
 
 sub edit_config {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   DN->get_config(\%myconfig, \%$form);
   $form->get_lists('charts' => { 'key'       => 'ALL_CHARTS',
@@ -82,6 +83,8 @@ sub edit_config {
 sub add {
   $lxdebug->enter_sub();
 
+  $auth->assert('dunning_edit');
+
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
 
@@ -104,6 +107,8 @@ sub add {
 sub show_invoices {
   $lxdebug->enter_sub();
 
+  $auth->assert('dunning_edit');
+
   DN->get_invoices(\%myconfig, \%$form);
   $form->{title} = $locale->text('Start Dunning Process');
 
@@ -122,7 +127,7 @@ sub show_invoices {
   $form->{type}           = 'dunning';
   $form->{rowcount}       = scalar @{ $form->{DUNNINGS} };
   $form->{jsscript}       = 1;
-  $form->{callback}     ||= build_std_url("action=show_invoices", qw(login password customer invnumber ordnumber groupinvoices minamount dunning_level notes));
+  $form->{callback}     ||= build_std_url("action=show_invoices", qw(customer invnumber ordnumber groupinvoices minamount dunning_level notes));
 
   $form->{PRINT_OPTIONS}  = print_options('inline'          => 1,
                                           'no_queue'        => 1,
@@ -138,6 +143,8 @@ sub show_invoices {
 
 sub save {
   $lxdebug->enter_sub();
+
+  $auth->assert('config');
 
   for my $i (1 .. $form->{rowcount}) {
     if ($form->{"dunning_description_$i"} ne "") {
@@ -163,6 +170,8 @@ sub save {
 
 sub save_dunning {
   $lxdebug->enter_sub();
+
+  $auth->assert('dunning_edit');
 
   my $active=1;
   my @rows = ();
@@ -231,6 +240,8 @@ sub save_dunning {
 sub set_email {
   $lxdebug->enter_sub();
 
+  $auth->assert('dunning_edit');
+
   $form->{"title"} = $locale->text("Set eMail text");
   $form->header();
   print($form->parse_html_template("dunning/set_email"));
@@ -240,6 +251,8 @@ sub set_email {
 
 sub search {
   $lxdebug->enter_sub();
+
+  $auth->assert('dunning_edit');
 
   $form->get_lists("customers"   => "ALL_CUSTOMERS",
                    "departments" => "ALL_DEPARTMENTS");
@@ -268,6 +281,8 @@ sub search {
 
 sub show_dunning {
   $lxdebug->enter_sub();
+
+  $auth->assert('dunning_edit');
 
   my @filter_field_list = qw(customer_id customer dunning_level department_id invnumber ordnumber
                              transdatefrom transdateto dunningfrom dunningto notes showold);
@@ -378,6 +393,8 @@ sub show_dunning {
 sub print_dunning {
   $lxdebug->enter_sub();
 
+  $auth->assert('dunning_edit');
+
   $form->{rowcount}     = 1;
   $form->{selected_1}   = 1;
   $form->{dunning_id_1} = $form->{dunning_id};
@@ -389,6 +406,8 @@ sub print_dunning {
 
 sub print_multiple {
   $lxdebug->enter_sub();
+
+  $auth->assert('dunning_edit');
 
   $form->{title} = $locale->text('Print dunnings');
 
@@ -419,6 +438,10 @@ sub print_multiple {
   }
 
   $lxdebug->leave_sub();
+}
+
+sub continue {
+  call_sub($form->{nextsub});
 }
 
 # end of main

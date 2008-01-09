@@ -38,16 +38,21 @@
 package Form;
 use Data::Dumper;
 
-use Cwd;
-use Template;
-use SL::Template;
+use CGI;
 use CGI::Ajax;
+use Cwd;
+use List::Util qw(min max);
+use SL::Auth;
+use SL::Auth::DB;
+use SL::Auth::LDAP;
+use SL::AM;
+use SL::Common;
 use SL::DBUtils;
 use SL::Mailer;
 use SL::Menu;
+use SL::Template;
 use SL::User;
-use SL::Common;
-use CGI;
+use Template;
 use List::Util qw(max min sum);
 
 my $standard_dbh;
@@ -275,6 +280,22 @@ sub flatten_variables {
   return @variables;
 }
 
+sub flatten_standard_variables {
+  $main::lxdebug->enter_sub(2);
+
+  my $self      = shift;
+  my %skip_keys = map { $_ => 1 } (qw(login password header stylesheet titlebar version), @_);
+
+  my @variables;
+
+  foreach (grep { ! $skip_keys{$_} } keys %{ $self }) {
+    push @variables, $self->_flatten_variables_rec($self, '', $_);
+  }
+
+  $main::lxdebug->leave_sub(2);
+
+  return @variables;
+}
 
 sub debug {
   $main::lxdebug->enter_sub();
@@ -286,6 +307,24 @@ sub debug {
   map { print "$_ = $self->{$_}\n" } (sort keys %{$self});
 
   $main::lxdebug->leave_sub();
+}
+
+sub dumper {
+  $main::lxdebug->enter_sub(2);
+
+  my $self          = shift;
+  my $password      = $self->{password};
+
+  $self->{password} = 'X' x 8;
+
+  local $Data::Dumper::Sortkeys = 1;
+  my $output                    = Dumper($self);
+
+  $self->{password} = $password;
+
+  $main::lxdebug->leave_sub(2);
+
+  return $output;
 }
 
 sub escape {
@@ -343,10 +382,11 @@ sub quote_html {
   my ($self, $str) = @_;
 
   my %replace =
-    ('order' => ['"', '<', '>'],
-     '<'             => '&lt;',
-     '>'             => '&gt;',
-     '"'             => '&quot;',
+    ('order' => ['&', '"', '<', '>'],
+     '<'     => '&lt;',
+     '>'     => '&gt;',
+     '"'     => '&quot;',
+     '&'     => '&amp;',
     );
 
   map({ $str =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
@@ -355,6 +395,33 @@ sub quote_html {
 
   return $str;
 }
+
+sub unquote_html {
+  $main::lxdebug->enter_sub(2);
+
+  my ($self, $str) = @_;
+
+  my %replace  =
+    ('&auml;'  => 'ä',
+     '&ouml;'  => 'ö',
+     '&uuml;'  => 'ü',
+     '&Auml;'  => 'Ä',
+     '&Ouml;'  => 'Ö',
+     '&Uuml;'  => 'Ü',
+     '&szlig;' => 'ß',
+     '&gt;'    => '>',
+     '&lt;'    => '<',
+     '&quot;'  => '"',
+    );
+
+  map { $str =~ s/\Q$_\E/$replace{$_}/g; } keys %replace;
+  $str =~ s/\&amp;/\&/g;
+
+  $main::lxdebug->leave_sub(2);
+
+  return $str;
+}
+
 
 sub hide_form {
   my $self = shift;
@@ -423,13 +490,16 @@ sub info {
 # can be capped with maxrows
 sub numtextrows {
   $main::lxdebug->enter_sub();
-  my ($self, $str, $cols, $maxrows) = @_;
+  my ($self, $str, $cols, $maxrows, $minrows) = @_;
+
+  $minrows ||= 1;
 
   my $rows   = sum map { int((length() - 2) / $cols) + 1 } split /\r/, $str;
   $maxrows ||= $rows;
 
   $main::lxdebug->leave_sub();
-  return min $rows, $maxrows;
+
+  return max(min($rows, $maxrows), $minrows);
 }
 
 sub dberror {
@@ -467,6 +537,9 @@ sub header {
     $main::lxdebug->leave_sub();
     return;
   }
+
+  my $cgi   = $main::cgi;
+  $cgi    ||= CGI->new('');
 
   my ($stylesheet, $favicon);
 
@@ -528,9 +601,32 @@ sub header {
     foreach $item (@ { $self->{AJAX} }) {
       $ajax .= $item->show_javascript();
     }
-    print qq|Content-Type: text/html; charset=${db_charset};
 
-${doctype}<html>
+    my $base_path;
+
+    if ($ENV{HTTP_X_FORWARDED_FOR}) {
+      $base_path =  $ENV{HTTP_REFERER};
+      $base_path =~ s|^.*?://.*?/|/|;
+    } else {
+      $base_path =  $ENV{REQUEST_URI};
+    }
+    $base_path =~ s|[^/]+$||;
+    $base_path =~ s|/$||;
+
+    my $session_cookie;
+    if (defined $main::auth) {
+      my $session_cookie_value   = $main::auth->get_session_id();
+      $session_cookie_value    ||= 'NO_SESSION';
+
+      $session_cookie = $cgi->cookie('-name'  => $main::auth->get_session_cookie_name(),
+                                     '-value' => $session_cookie_value,
+                                     '-path'  => $base_path);
+    }
+
+    print $cgi->header('-type'    => 'text/html',
+                       '-charset' => $db_charset,
+                       '-cookie'  => $session_cookie);
+    print qq|${doctype}<html>
 <head>
   <title>$self->{titlebar}</title>
   $stylesheet
@@ -631,6 +727,12 @@ sub _prepare_html_template {
 
   if (%main::debug_options) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
+  }
+
+  if ($main::auth && $main::auth->{RIGHTS} && $main::auth->{RIGHTS}->{$self->{login}}) {
+    while (my ($key, $value) = each %{ $main::auth->{RIGHTS}->{$self->{login}} }) {
+      $additional_params->{"AUTH_RIGHTS_" . uc($key)} = $value;
+    }
   }
 
   $main::lxdebug->leave_sub();
@@ -837,7 +939,71 @@ sub format_amount {
   $main::lxdebug->leave_sub(2);
   return $amount;
 }
-#
+
+sub format_amount_units {
+  $main::lxdebug->enter_sub();
+
+  my $self             = shift;
+  my %params           = @_;
+
+  Common::check_params(\%params, qw(amount part_unit));
+
+  my $myconfig         = \%main::myconfig;
+  my $amount           = $params{amount};
+  my $places           = $params{places};
+  my $part_unit_name   = $params{part_unit};
+  my $amount_unit_name = $params{amount_unit};
+  my $conv_units       = $params{conv_units};
+  my $max_places       = $params{max_places};
+
+  AM->retrieve_all_units();
+  my $all_units        = $main::all_units;
+
+  if (('' eq ref $conv_units) && ($conv_units =~ /convertible/)) {
+    $conv_units = AM->convertible_units($all_units, $part_unit_name, $conv_units eq 'convertible_not_smaller');
+  }
+
+  if (!scalar @{ $conv_units }) {
+    my $result = $self->format_amount($myconfig, $amount, $places, undef, $max_places) . " " . $part_unit_name;
+    $main::lxdebug->leave_sub();
+    return $result;
+  }
+
+  my $part_unit  = $all_units->{$part_unit_name};
+  my $conv_unit  = ($amount_unit_name && ($amount_unit_name ne $part_unit_name)) ? $all_units->{$amount_unit_name} : $part_unit;
+
+  $amount       *= $conv_unit->{factor};
+
+  my @values;
+
+  foreach my $unit (@$conv_units) {
+    my $last = $unit->{name} eq $part_unit->{name};
+    if (!$last) {
+      $num     = int($amount / $unit->{factor});
+      $amount -= $num * $unit->{factor};
+    }
+
+    if ($last ? $amount : $num) {
+      push @values, { "unit"   => $unit->{name},
+                      "amount" => $last ? $amount / $unit->{factor} : $num,
+                      "places" => $last ? $places : 0 };
+    }
+
+    last if $last;
+  }
+
+  if (!@values) {
+    push @values, { "unit"   => $part_unit_name,
+                    "amount" => 0,
+                    "places" => 0 };
+  }
+
+  my $result = join " ", map { $self->format_amount($myconfig, $_->{amount}, $_->{places}, undef, $max_places), $_->{unit} } @values;
+
+  $main::lxdebug->leave_sub();
+
+  return $result;
+}
 
 sub format_string {
   $main::lxdebug->enter_sub(2);
@@ -853,6 +1019,8 @@ sub format_string {
 
   return $input;
 }
+
+#
 
 sub parse_amount {
   $main::lxdebug->enter_sub(2);
@@ -937,9 +1105,6 @@ sub parse_template {
   map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
       qw(email tel fax name signature company address businessnumber
          co_ustid taxnumber duns));
-  map({ $self->{"employee_${_}"} =~ s/\\n/\n/g; }
-      qw(company address signature));
-  map({ $self->{$_} =~ s/\\n/\n/g; } qw(company address signature));
 
   map({ $self->{"${_}"} = $myconfig->{$_}; }
       qw(co_ustid));
@@ -994,14 +1159,15 @@ sub parse_template {
       $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";
-      $myconfig->{signature} =~ s/\\r\\n/\\n/g;
+      $myconfig->{signature} =~ s/\r//g;
 
       # if we send html or plain text inline
       if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
         $mail->{contenttype} = "text/html";
 
-        $mail->{message}       =~ s/\r\n/<br>\n/g;
-        $myconfig->{signature} =~ s/\\n/<br>\n/g;
+        $mail->{message}       =~ s/\r//g;
+        $mail->{message}       =~ s/\n/<br>\n/g;
+        $myconfig->{signature} =~ s/\n/<br>\n/g;
         $mail->{message} .= "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
 
         open(IN, $self->{tmpfile})
@@ -1021,9 +1187,8 @@ sub parse_template {
                  $self->{"attachment_filename"} : $self->{"tmpfile"} });
         }
 
-        $mail->{message}       =~ s/\r\n/\n/g;
-        $myconfig->{signature} =~ s/\\n/\n/g;
-        $mail->{message} .= "\n-- \n$myconfig->{signature}";
+        $mail->{message}  =~ s/\r//g;
+        $mail->{message} .=  "\n-- \n$myconfig->{signature}";
 
       }
 
@@ -1109,7 +1274,7 @@ sub get_formname_translation {
 sub generate_attachment_filename {
   my ($self) = @_;
 
-  my $attachment_filename = $self->get_formname_translation();
+  my $attachment_filename = $self->unquote_html($self->get_formname_translation());
   my $prefix = 
       (grep { $self->{"type"} eq $_ } qw(invoice credit_note)) ? "inv"
     : ($self->{"type"} =~ /_quotation$/)                       ? "quo"
@@ -1688,8 +1853,6 @@ sub get_salesman {
 
     $self->{salesman_name} = $login
       if ($self->{salesman_name} eq "");
-
-    map({ $self->{"salesman_$_"} =~ s/\\n/\n/g; } qw(address company));
   }
 
   $main::lxdebug->leave_sub();
@@ -1862,7 +2025,7 @@ sub _get_employees {
   my ($self, $dbh, $default_key, $key) = @_;
 
   $key = $default_key unless ($key);
-  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee ORDER BY name|);
+  $self->{$key} = selectall_hashref_query($self, $dbh, qq|SELECT * FROM employee ORDER BY lower(name)|);
 
   $main::lxdebug->leave_sub();
 }
@@ -1978,14 +2141,72 @@ sub _get_departments {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_price_factors {
+sub _get_warehouses {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $key) = @_;
+  my ($self, $dbh, $param) = @_;
 
-  $key ||= "all_price_factors";
+  my ($key, $bins_key, $q_access, @values);
 
-  my $query = qq|SELECT * FROM price_factors ORDER BY sortkey|;
+  if ('' eq ref $param) {
+    $key = $param;
+  } else {
+    $key      = $param->{key};
+    $bins_key = $param->{bins};
+
+    if ($param->{access}) {
+      $q_access =
+        qq| AND EXISTS (
+              SELECT wa.employee_id
+              FROM warehouse_access wa
+              WHERE (wa.employee_id  = (SELECT id FROM employee WHERE login = ?))
+                AND (wa.warehouse_id = w.id)
+                AND (wa.access IN ('ro', 'rw')))|;
+      push @values, $param->{access};
+    }
+
+    if ($param->{no_personal}) {
+      $q_access .= qq| AND (w.personal_warehouse_of IS NULL)|;
+
+    } elsif ($param->{personal}) {
+      $q_access .= qq| AND (w.personal_warehouse_of = ?)|;
+      push @values, conv_i($param->{personal});
+    }
+  }
+
+  my $query = qq|SELECT w.* FROM warehouse w
+                 WHERE (NOT w.invalid) AND
+                   ((SELECT COUNT(b.*) FROM bin b WHERE b.warehouse_id = w.id) > 0)
+                   $q_access
+                 ORDER BY w.sortkey|;
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query, @values);
+
+  if ($bins_key) {
+    $query = qq|SELECT id, description FROM bin WHERE warehouse_id = ?|;
+    my $sth = prepare_query($self, $dbh, $query);
+
+    foreach my $warehouse (@{ $self->{$key} }) {
+      do_statement($self, $sth, $query, $warehouse->{id});
+      $warehouse->{$bins_key} = [];
+
+      while (my $ref = $sth->fetchrow_hashref()) {
+        push @{ $warehouse->{$bins_key} }, $ref;
+      }
+    }
+    $sth->finish();
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _get_simple {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $table, $key, $sortkey) = @_;
+
+  my $query  = qq|SELECT * FROM $table|;
+  $query    .= qq| ORDER BY $sortkey| if ($sortkey);
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -2083,7 +2304,11 @@ sub get_lists {
   }
 
   if ($params{price_factors}) {
-    $self->_get_price_factors($dbh, $params{price_factors});
+    $self->_get_simple($dbh, 'price_factors', $params{price_factors}, 'sortkey');
+  }
+
+  if ($params{warehouses}) {
+    $self->_get_warehouses($dbh, $params{warehouses});
   }
 
   $main::lxdebug->leave_sub();

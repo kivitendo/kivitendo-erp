@@ -34,6 +34,7 @@
 
 package Menu;
 
+use SL::Auth;
 use SL::Inifile;
 
 sub new {
@@ -46,9 +47,13 @@ sub new {
 
   map { $self->{$_} = $inifile->{$_} } keys %{ $inifile };
 
+  bless $self, $type;
+
+  $self->set_access();
+
   $main::lxdebug->leave_sub();
 
-  bless $self, $type;
+  return $self;
 }
 
 sub menuitem {
@@ -72,8 +77,7 @@ sub menuitem {
 
   my $level = $form->escape($item);
 
-  my $str =
-    qq|<a style="vertical-align:top" href=$module?action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+  my $str = qq|<a style="vertical-align:top" href=$module?action=$action&level=$level|;
 
   my @vars = qw(module action target href);
 
@@ -124,9 +128,7 @@ sub menuitem_v3 {
 
   my $level = $form->escape($item);
 
-  my $str = qq|<a href="$module?action=| . $form->escape($action) .
-    qq|&level=| . $form->escape($level);
-  map({ $str .= "&${_}=" . $form->escape($form->{$_}); } qw(login password));
+  my $str = qq|<a href="$module?action=| . $form->escape($action) . qq|&level=| . $form->escape($level);
 
   my @vars = qw(module action target href);
 
@@ -237,8 +239,7 @@ sub menuitemNew {
   }
 
   my $level = $form->escape($item);
-  my $str   =
-    qq|$module?action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
+  my $str   = qq|$module?action=$action&level=$level|;
   my @vars = qw(module action target href);
 
   if ($self->{$item}{href}) {
@@ -299,6 +300,104 @@ sub generate_acl {
 
   foreach my $item (@items) {
     $self->generate_acl($item, $hash); #unless ($menulevel);
+  }
+}
+
+sub parse_access_string {
+  my $self   = shift;
+  my $key    = shift;
+  my $access = shift;
+
+  my @stack;
+  my $cur_ary = [];
+
+  push @stack, $cur_ary;
+
+  while ($access =~ m/^([a-z_]+|\||\&|\(|\)|\s+)/) {
+    my $token = $1;
+    substr($access, 0, length($1)) = "";
+
+    next if ($token =~ /\s/);
+
+    if ($token eq "(") {
+      my $new_cur_ary = [];
+      push @stack, $new_cur_ary;
+      push @{$cur_ary}, $new_cur_ary;
+      $cur_ary = $new_cur_ary;
+
+    } elsif ($token eq ")") {
+      pop @stack;
+      if (!@stack) {
+        $main::form->error("Error in menu.ini for entry ${key}: missing '('");
+      }
+      $cur_ary = $stack[-1];
+
+    } elsif (($token eq "|") || ($token eq "&")) {
+      push @{$cur_ary}, $token;
+
+    } else {
+      push @{$cur_ary}, $main::auth->check_right($main::form->{login}, $token, 1);
+    }
+  }
+
+  if ($access) {
+    $main::form->error("Error in menu.ini for entry ${name}: unrecognized token at the start of '$access'\n");
+  }
+
+  if (1 < scalar @stack) {
+    $main::form->error("Error in menu.ini for entry ${name}: Missing ')'\n");
+  }
+
+  return SL::Auth::evaluate_rights_ary($stack[0]);
+}
+
+sub set_access {
+  my $self = shift;
+
+  my $key;
+
+  foreach $key (@{ $self->{ORDER} }) {
+    my $entry = $self->{$key};
+
+    $entry->{GRANTED}              = $entry->{ACCESS} ? $self->parse_access_string($key, $entry->{ACCESS}) : 1;
+    $entry->{IS_MENU}              = $entry->{submenu} || ($key !~ m/--/);
+    $entry->{NUM_VISIBLE_CHILDREN} = 0;
+
+    if ($key =~ m/--/) {
+      my $parent = $key;
+      substr($parent, rindex($parent, '--')) = '';
+      $entry->{GRANTED} &&= $self->{$parent}->{GRANTED};
+    }
+
+    $entry->{VISIBLE} = $entry->{GRANTED};
+  }
+
+  foreach $key (reverse @{ $self->{ORDER} }) {
+    my $entry = $self->{$key};
+
+    if ($entry->{IS_MENU}) {
+      $entry->{VISIBLE} &&= $entry->{NUM_VISIBLE_CHILDREN} > 0;
+    }
+
+    next if (($key !~ m/--/) || !$entry->{VISIBLE});
+
+    my $parent = $key;
+    substr($parent, rindex($parent, '--')) = '';
+    $self->{$parent}->{NUM_VISIBLE_CHILDREN}++;
+  }
+
+#   $self->dump_visible();
+
+  $self->{ORDER} = [ grep { $self->{$_}->{VISIBLE} } @{ $self->{ORDER} } ];
+
+  map { delete @{$self->{$_}}{qw(GRANTED IS_MENU NUM_VISIBLE_CHILDREN VISIBLE ACCESS)} if ($_ ne 'ORDER') } keys %{ $self };
+}
+
+sub dump_visible {
+  my $self = shift;
+  foreach my $key (@{ $self->{ORDER} }) {
+    my $entry = $self->{$key};
+    $main::lxdebug->message(0, "$entry->{GRANTED} $entry->{VISIBLE} $entry->{NUM_VISIBLE_CHILDREN} $key");
   }
 }
 

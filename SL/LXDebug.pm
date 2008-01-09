@@ -104,9 +104,9 @@ sub leave_sub {
 }
 
 sub show_backtrace {
-  my ($self) = @_;
+  my ($self, $force) = @_;
 
-  return 1 unless ($global_level & BACKTRACE_ON_ERROR);
+  return 1 unless ($force || ($global_level & BACKTRACE_ON_ERROR));
 
   $self->message(BACKTRACE_ON_ERROR, "Starting full caller dump:");
   my $level = 0;
@@ -128,14 +128,22 @@ sub dump {
   my ($self, $level, $name, $variable) = @_;
 
   if ($data_dumper_available) {
+    my $password;
+    if ($variable && ('Form' eq ref $variable) && defined $variable->{password}) {
+      $password             = $variable->{password};
+      $variable->{password} = 'X' x 8;
+    }
+
     my $dumper = Data::Dumper->new([$variable]);
     $dumper->Sortkeys(1);
     $self->message($level, "dumping ${name}:\n" . $dumper->Dump());
 
+    $variable->{password} = $password if (defined $password);
+
     # Data::Dumper does not reset the iterator belonging to this hash
     # if 'Sortkeys' is true. Therefore clear the iterator manually.
     # See "perldoc -f each".
-    if ($variable && ('HASH' eq ref $variable)) {
+    if ($variable && (('HASH' eq ref $variable) || ('Form' eq ref $variable))) {
       keys %{ $variable };
     }
 

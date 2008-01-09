@@ -24,7 +24,6 @@
 # German Tax authority Module and later ELSTER Interface
 #======================================================================
 
-require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 
 #use strict;
@@ -69,12 +68,12 @@ use SL::User;
 # $locale->text('Nov')
 # $locale->text('Dec')
 
-# $form->parse_html_template('generic/util_hidden_variables');
-
 #############################
 
 sub report {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
 
   my $myconfig = \%myconfig;
 
@@ -113,9 +112,8 @@ sub report {
 
   my $company_given = ($form->{company} ne '') 
     ? qq|<h3>$form->{company}</h3>\n|
-    : qq|<a href=am.pl?action=config|
-      . qq|&level=Programm--Preferences&login=$form->{login}|
-      . qq|&password=$form->{password}>| 
+    : qq|<a href="am.pl?action=config|
+      . qq|&level=Programm--Preferences">| 
       . $locale->text('No Company Name given') . qq|!</a><br>|;
 
 
@@ -139,9 +137,8 @@ sub report {
     ? qq|$form->{co_street}<br>|
         . qq|$form->{co_street1}<br>|
         . qq|$form->{co_zip} $form->{co_city}|
-    : qq|<a href=am.pl?action=config|
-        . qq|&level=Programm--Preferences&login=$form->{login}|
-        . qq|&password=$form->{password}>| 
+    : qq|<a href="am.pl?action=config|
+        . qq|&level=Programm--Preferences">| 
         . $locale->text('No Company Address given') 
         . qq|!</a>\n|;
 
@@ -153,8 +150,7 @@ sub report {
   my $taxnumber_given = ($form->{steuernummer} ne '')
     ? qq|$form->{steuernummer}|
     : qq|<a href="ustva.pl?action="config_step1"|
-      . qq|&level=Programm--Finanzamteinstellungen&login=$form->{login}|
-      . qq|&password=$form->{password}">Keine Steuernummer hinterlegt!|
+      . qq|&level=Programm--Finanzamteinstellungen">Keine Steuernummer hinterlegt!|
       . qq|</a><br>|;
 
   my $ustva_vorauswahl = &ustva_vorauswahl();
@@ -229,6 +225,8 @@ sub report {
 sub help {
   $lxdebug->enter_sub();
 
+  $auth->assert('advance_turnover_tax_return');
+
   # parse help documents under doc
   my $tmp = $form->{templates};
   $form->{templates} = 'doc';
@@ -244,6 +242,8 @@ sub help {
 sub show {
   $lxdebug->enter_sub();
 
+  $auth->assert('advance_turnover_tax_return');
+
   #&generate_ustva();
   no strict 'refs';
   $lxdebug->leave_sub();
@@ -253,6 +253,8 @@ sub show {
 
 sub ustva_vorauswahl {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
 
   my $select_vorauswahl;
 
@@ -490,6 +492,8 @@ sub debug {
 sub show_options {
   $lxdebug->enter_sub();
 
+  $auth->assert('advance_turnover_tax_return');
+
   #  $form->{PD}{$form->{type}} = "selected";
   #  $form->{DF}{$form->{format}} = "selected";
   #  $form->{OP}{$form->{media}} = "selected";
@@ -533,6 +537,8 @@ sub show_options {
 
 sub generate_ustva {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
 
   # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
@@ -1030,7 +1036,6 @@ sub generate_ustva {
         dec_places  => '0',
     });
 
-    $form->{"Watchdog::USTVA"} = 1;
     $form->{USTVA} = [];
 
     if ( $form->{format} eq 'generic') { # Formatierungen für HTML Ausgabe
@@ -1084,6 +1089,8 @@ sub generate_ustva {
 sub config_step1 {
   $lxdebug->enter_sub();
 
+  $auth->assert('advance_turnover_tax_return');
+
   # edit all taxauthority prefs
 
   $form->header;
@@ -1092,14 +1099,6 @@ sub config_step1 {
   my $land = $form->{elsterland};
   my $amt  = $form->{elsterFFFF};
 
-
-  if ($form->{cbscript} ne '' and $form->{cblogin} ne '') {
-    $callback =  qq|$form->{cbscript}|
-                .qq|?action="config_step1"|
-                .qq|&login="$form->{cblogin}"|
-                .qq|&root="$form->{cbroot}"|
-                .qq|&rpw="$form->{cbrpw}"|;
-  }
 
   $form->{title} = $locale->text('Tax Office Preferences');
 
@@ -1133,7 +1132,7 @@ sub config_step1 {
     FA_BLZ_2            FA_Kontonummer_2  FA_Bankbezeichnung_oertlich
     FA_Oeffnungszeiten  FA_Email          FA_Internet
     steuernummer        elsterland        elstersteuernummer
-    elsterFFFF          login             password
+    elsterFFFF
   );
 
   foreach my $variable (@_hidden_form_variables) {
@@ -1168,6 +1167,9 @@ sub config_step1 {
 
 sub config_step2 {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
+
   $form->header();
 
 #  print qq|
@@ -1282,7 +1284,6 @@ sub config_step2 {
     FA_voranmeld            method
     FA_dauerfrist           FA_71 
     elster                  
-    login                   password 
     type                    elster_init 
     saved                   callback
   );
@@ -1309,6 +1310,9 @@ sub config_step2 {
 
 sub create_steuernummer {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
+
   my $part           = $form->{part};
   my $patterncount   = $form->{patterncount};
   my $delimiter      = $form->{delimiter};
@@ -1345,6 +1349,8 @@ sub create_steuernummer {
 
 sub save {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
 
   my $filename = "$form->{login}_$form->{filename}";
   $filename =~ s|.*/||;
@@ -1426,6 +1432,9 @@ sub back {
 
 sub elster_hash {
   $lxdebug->enter_sub();
+
+  $auth->assert('advance_turnover_tax_return');
+
   my $finanzamt = USTVA->query_finanzamt(\%myconfig, \%$form);
   $lxdebug->leave_sub();
   return $finanzamt;
