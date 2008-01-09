@@ -68,7 +68,13 @@ if (-f "bin/mozilla/$form->{login}_$form->{script}") {
 # window title bar, user info
 $form->{titlebar} = "Lx-Office " . $locale->text('Version') . " $form->{version}";
 
-if ($form->{action}) {
+my $action = $form->{action};
+
+if (!$action && $auth->{SESSION}->{login}) {
+  $action = 'login';
+}
+
+if ($action) {
   our %myconfig = $auth->read_user($form->{login}) if ($form->{login});
 
   if (!$myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
@@ -81,7 +87,7 @@ if ($form->{action}) {
   $auth->create_or_refresh_session();
 
   $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
-  call_sub($locale->findsub($form->{action}));
+  call_sub($locale->findsub($action));
 
 } else {
   login_screen();
