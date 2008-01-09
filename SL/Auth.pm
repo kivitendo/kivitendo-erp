@@ -97,7 +97,7 @@ sub authenticate_root {
   my $is_crypted    = shift;
 
   $password         = crypt $password, 'ro' if (!$password || !$is_crypted);
-  $admin_password   = crypt "$self->{admin_password}", 'ro';
+  my $admin_password   = crypt "$self->{admin_password}", 'ro';
 
   $main::lxdebug->leave_sub();
 
@@ -325,7 +325,7 @@ sub read_all_users {
 
   while (my $ref = $sth->fetchrow_hashref()) {
     $users{$ref->{login}}                    ||= { 'login' => $ref->{login}, 'id' => $ref->{id} };
-    $users{$ref->{login}}->{$ref->{cfg_key}}   = $ref->{cfg_value} if (($cfg_key ne 'login') && ($cfg_key ne 'id'));
+    $users{$ref->{login}}->{$ref->{cfg_key}}   = $ref->{cfg_value} if (($ref->{cfg_key} ne 'login') && ($ref->{cfg_key} ne 'id'));
   }
 
   $sth->finish();

@@ -12,20 +12,25 @@ geschrieben. Die Umstellung erfordert eine manuelle
 Konfiguration. Bestehende Benutzeraccounts können aber von Lx-Office
 automatisch übernommen werden.
 
-Bitte lesen Sie für die Basiseinrichtung der Konfiguration die Datei
-"doc/INSTALL/index.html" und dort die Kapitel
+ Bevor Sie sich das erste mal einloggen
+ --------------------------------------
+
+Kopieren Sie bitte die Datei lx-erp.conf und ggfs. lx-erp-local.conf
+in das neue Unterverzeichnis config/. Die alte Datei im Lx-Office-
+Stammverzeichnis kann daraufhin gelöscht werdern.
+
+Als nächstes muss die neue Datenbankauthetifikation konfiguriert werden.
+Diese Einstellungen werden in der Datei "config/authentification.pl"
+gemacht, für die ein kommentiertes Template bereitliegt.
+
+Weitere Informationen zu dieser Datei finden Sie in der Dokumentation
+"doc/INSTALL/index.html" und dort in den Kapiteleln
 "Benutzerauthentifizierung und Administratorpasswort" sowie "Benutzer-
 und Gruppenverwaltung".
 
 Nach der Einrichtung der Datei "config/authentication.pl" muss im
 Webbrowser das Administrationsinterface aufgerufen werden. Nach
 erfolgter Anmeldung werden Sie durch den Upgradeprozess geleitet.
-
-Weiterhin hat sich der Speicherort der Datei "lx-erp.conf" verändert.
-Sie liegt nun im Unterverzeichnis "config". Einstellungen, die in der
-alten Datei getätigt wurden, müssen manuell übernommen werden. Die
-alte Datei im Lx-Offfice-Stammverzeichnis kann daraufhin gelöscht
-werden.
 
 Die weiteren erforderlichen Datenbankupgrades werden erst vorgenommen,
 wenn sich ein Benutzer erfolgreich anmeldet.
