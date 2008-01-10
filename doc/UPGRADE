@@ -19,12 +19,14 @@ Kopieren Sie bitte die Datei lx-erp.conf und ggfs. lx-erp-local.conf
 in das neue Unterverzeichnis config/. Die alte Datei im Lx-Office-
 Stammverzeichnis kann daraufhin gelöscht werdern.
 
-Als nächstes muss die neue Datenbankauthetifikation konfiguriert werden.
-Diese Einstellungen werden in der Datei "config/authentification.pl"
-gemacht, für die ein kommentiertes Template bereitliegt.
+Als nächstes muss die neue datenbankgestützte Benutzerverwaltung
+konfiguriert werden. Die dafür notwendigen Einstellungen werden in der
+Datei "config/authentification.pl" vorgenommen, für die eine
+kommentierte Vorlage in "config/authentication.pl.default"
+bereitliegt.
 
 Weitere Informationen zu dieser Datei finden Sie in der Dokumentation
-"doc/INSTALL/index.html" und dort in den Kapiteleln
+"doc/INSTALL/index.html" und dort in den Kapiteln
 "Benutzerauthentifizierung und Administratorpasswort" sowie "Benutzer-
 und Gruppenverwaltung".
 
