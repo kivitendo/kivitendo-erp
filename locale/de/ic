@@ -209,6 +209,7 @@ $self->{texts} = {
   'Receipt, payment, reconciliation' => 'Zahlungseingang, Zahlungsausgang, Kontenabgleich',
   'Reports'                     => 'Berichte',
   'Reqdate'                     => 'Lieferdatum',
+  'Request for Quotation'       => 'Anfrage',
   'Required by'                 => 'Lieferdatum',
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',

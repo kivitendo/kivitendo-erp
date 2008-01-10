@@ -1033,8 +1033,10 @@ sub print_options {
       opthash("pick_list",           $form->{PD}{pick_list},           $locale->text('Pick List')),
       opthash("packing_list",        $form->{PD}{packing_list},        $locale->text('Packing List')) 
     ) : undef,
-    ($form->{type} =~ /_quotation$/) ?
-      opthash("$`_quotation",        $form->{PD}{"$`_quotation"},      $locale->text('Quotation')) : undef,
+    ($form->{type} =~ /sales_quotation$/) ?
+      opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')) : undef,
+    ($form->{type} =~ /request_quotation$/) ?
+      opthash('request_quotation',   $form->{PD}{request_quotation},   $locale->text('Request for Quotation')) : undef,
     ($form->{type} eq 'invoice') ? (
       opthash("invoice",             $form->{PD}{invoice},             $locale->text('Invoice')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
