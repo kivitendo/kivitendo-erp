@@ -36,7 +36,10 @@
 #======================================================================
 
 package CT;
+
 use Data::Dumper;
+
+use SL::CVar;
 use SL::DBUtils;
 
 sub get_tuple {
@@ -381,6 +384,11 @@ sub save_customer {
   # add shipto
   $form->add_shipto( $dbh, $form->{id}, "CT" );
 
+  CVar->save_custom_variables('dbh'       => $dbh,
+                              'module'    => 'CT',
+                              'trans_id'  => $form->{id},
+                              'variables' => $form);
+
   $rc = $dbh->commit();
   $dbh->disconnect();
 
@@ -578,6 +586,11 @@ sub save_vendor {
   # add shipto
   $form->add_shipto( $dbh, $form->{id}, "CT" );
 
+  CVar->save_custom_variables('dbh'       => $dbh,
+                              'module'    => 'CT',
+                              'trans_id'  => $form->{id},
+                              'variables' => $form);
+
   $rc = $dbh->commit();
   $dbh->disconnect();
 
@@ -664,6 +677,15 @@ sub search {
   if ($form->{business_id}) {
     $where .= qq| AND (business_id = ?)|;
     push(@values, conv_i($form->{business_id}));
+  }
+
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
+                                                            'trans_id_field' => 'ct.id',
+                                                            'filter'         => $form);
+
+  if ($cvar_where) {
+    $where .= qq| AND ($cvar_where)|;
+    push @values, @cvar_values;
   }
 
   my $query =

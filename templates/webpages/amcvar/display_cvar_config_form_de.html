@@ -1,0 +1,117 @@
+[% USE HTML %]<body onload="document.Form.name.focus();">
+
+ <style type="text/css">
+  .small {
+    font-size: 0.75em;
+  }
+ </style>
+
+ <div class="listtop">[% title %]</div>
+
+ <form action="amcvar.pl" name="Form" method="post">
+
+  <p>
+   <table>
+    <tr>
+     <td align="right">Name<sup><span class="small">(1)</span></sup></td>
+     <td><input name="name" value="[% HTML.escape(name) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Beschreibung<sup><span class="small">(2)</span></sup></td>
+     <td><input name="description" value="[% HTML.escape(description) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Typ</td>
+     <td>
+      <select name="type">
+       [%- FOREACH row = TYPES %]
+       <option value="[% HTML.escape(row.type) %]"[% IF row.type == type %] selected[% END %]>[% HTML.escape(row.type_tr) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">Standardwert<sup><span class="small">(3)</span></sup></td>
+     <td><input name="default_value" value="[% HTML.escape(default_value) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Optionen<sup><span class="small">(4)</span></sup></td>
+     <td><input name="options" value="[% HTML.escape(options) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Durchsuchbar<sup><span class="small"></span></sup></td>
+     <td>
+      <input type="radio" name="searchable" id="searchable_1" value="1"[% IF searchable %] checked[% END %]>
+      <label for="searchable_1">Ja</label>
+      <input type="radio" name="searchable" id="searchable_0" value="0"[% UNLESS searchable %] checked[% END %]>
+      <label for="searchable_0">Nein</label>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">In Berichten anzeigbar<sup><span class="small"></span></sup></td>
+     <td>
+      <select name="inclusion">
+       <option value="no"[% UNLESS includeable %] selected[% END %]>Nein</option>
+       <option value="yes"[% IF includeable && !included_by_default %] selected[% END %]>Ja</option>
+       <option value="yes_default_on"[% IF included_by_default %] selected[% END %]>Ja, standardm&auml;&szlig;ig an</option>
+      </select>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <input type="hidden" name="module" value="[% HTML.escape(module) %]">
+  <input type="hidden" name="id"     value="[% HTML.escape(id) %]">
+
+  <p>
+   <input type="submit" name="action" value="Speichern">
+   [%- IF id %]
+   <input type="submit" name="action" value="Löschen">
+   [%- END %]
+  </p>
+
+  <hr>
+
+  <h3>Anmerkungen</h3>
+
+  <p>
+   (1) Der Variablenname darf nur aus Zeichen (keine Umlaute), Ziffern und Unterstrichen bestehen. Er muss mit einem Buchstaben beginnen. Beispiel: weihnachtsgruss_verschicken
+  </p>
+
+  <p>
+   (2) Die Beschreibung wird in der jeweiligen Maske angezeigt. Sie sollte kurz und pr&auml;gnant sein.
+  </p>
+
+  <p>
+   (3) Die Bedeutung des Standardwertes h&auml;ngt vom Variablentypen ab:
+   <br>
+   <ul>
+    <li>Textzeilen, Textfelder und Zahlenvariablen: Der Standardwert wird so wie er ist &uuml;bernommen.</li>
+    <li>Ja/Nein-Variablen: Wenn der Standardwert nicht leer ist, so wird die Checkbox standardm&auml;&szlig;ig angehakt.</li>
+    <li>Datums- und Uhrzeitvariablen: Wenn der Standardwert 'NOW' ist, so wird das aktuelle Datum/die aktuelle Uhrzeit eingef&uuml;gt. Andernfalls wird der Standardwert so wie er ist benutzt.</li>
+   </ul>
+  </p>
+
+  <p>
+   (4) Die verf&uuml;gbaren Optionen h&auml;ngen vom Variablentypen ab:
+   <br>
+   <ul>
+    <li>Textzeilen: 'MAXLENGTH=n' setzt eine Maximall&auml;nge von n Zeichen.</li>
+    <li>Textfelder: 'WIDTH=w HEIGHT=h' setzen die Breite und die H&ouml;he des Textfeldes. Wenn nicht anders angegeben, so werden sie 30 Zeichen breit und f&uuml;nf Zeichen hoch dargestellt.</li>
+    <li>Zahlenvariablen: Mit 'PRECISION=n' erzwingt man, dass Zahlen mit n Nachkommastellen formatiert werden.</li>
+    <li>Auswahlboxen: Das Optionenfeld muss die f&uuml;r die Auswahl verf&uuml;gbaren Eintr&auml;ge enthalten. Die Eintr&auml;ge werden mit '##' voneinander getrennt. Beispiel: 'Fr&uuml;h##Normal##Sp&auml;t'.</li>
+   </ul>
+   <br>
+   Andere Eingaben werden ignoriert.
+  </p>
+
+ </form>
+
+</body>
+</html>

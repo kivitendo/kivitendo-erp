@@ -124,6 +124,7 @@ $self->{texts} = {
   'More than one control file with the tag \'%s\' exist.' => 'Es gibt mehr als eine Kontrolldatei mit dem Tag \'%s\'.',
   'MwSt. inkl.'                 => 'MwSt. inkl.',
   'Name'                        => 'Name',
+  'No'                          => 'Nein',
   'No %s was found matching the search parameters.' => 'Es wurde kein %s gefunden, auf den die Suchparameter zutreffen.',
   'No Customer was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Endkunde gefunden',
   'No Vendor was found matching the search parameters.' => 'Zu dem Suchbegriff wurde kein Händler gefunden',

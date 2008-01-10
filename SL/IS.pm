@@ -37,6 +37,7 @@ package IS;
 use List::Util qw(max);
 
 use SL::AM;
+use SL::CVar;
 use SL::Common;
 use SL::DBUtils;
 use SL::MoreCommon;
@@ -463,6 +464,12 @@ sub customer_details {
 
     map { $form->{"dv_$_"} = $ref->{$_} } keys %$ref;
   }
+
+  my $custom_variables = CVar->get_custom_variables('dbh'      => $dbh,
+                                                    'module'   => 'CT',
+                                                    'trans_id' => $form->{customer_id});
+  map { $form->{"vc_cvar_$_->{name}"} = $_->{value} } @{ $custom_variables };
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

@@ -1,0 +1,132 @@
+[% USE HTML %]<body onload="document.Form.name.focus();">
+
+ <style type="text/css">
+  .small {
+    font-size: 0.75em;
+  }
+ </style>
+
+ <div class="listtop">[% title %]</div>
+
+ <form action="amcvar.pl" name="Form" method="post">
+
+  <p>
+   <table>
+    <tr>
+     <td align="right"><translate>Name</translate><sup><span class="small">(1)</span></sup></td>
+     <td><input name="name" value="[% HTML.escape(name) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Description</translate><sup><span class="small">(2)</span></sup></td>
+     <td><input name="description" value="[% HTML.escape(description) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Type</translate></td>
+     <td>
+      <select name="type">
+       [%- FOREACH row = TYPES %]
+       <option value="[% HTML.escape(row.type) %]"[% IF row.type == type %] selected[% END %]>[% HTML.escape(row.type_tr) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Default value</translate><sup><span class="small">(3)</span></sup></td>
+     <td><input name="default_value" value="[% HTML.escape(default_value) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Options</translate><sup><span class="small">(4)</span></sup></td>
+     <td><input name="options" value="[% HTML.escape(options) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Searchable</translate><sup><span class="small"></span></sup></td>
+     <td>
+      <input type="radio" name="searchable" id="searchable_1" value="1"[% IF searchable %] checked[% END %]>
+      <label for="searchable_1"><translate>Yes</translate></label>
+      <input type="radio" name="searchable" id="searchable_0" value="0"[% UNLESS searchable %] checked[% END %]>
+      <label for="searchable_0"><translate>No</translate></label>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Includeable in reports</translate><sup><span class="small"></span></sup></td>
+     <td>
+      <select name="inclusion">
+       <option value="no"[% UNLESS includeable %] selected[% END %]><translate>No</translate></option>
+       <option value="yes"[% IF includeable && !included_by_default %] selected[% END %]><translate>Yes</translate></option>
+       <option value="yes_default_on"[% IF included_by_default %] selected[% END %]><translate>Yes, included by default</translate></option>
+      </select>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <input type="hidden" name="module" value="[% HTML.escape(module) %]">
+  <input type="hidden" name="id"     value="[% HTML.escape(id) %]">
+
+  <p>
+   <input type="submit" name="action" value="<translate>Save</translate>">
+   [%- IF id %]
+   <input type="submit" name="action" value="<translate>Delete</translate>">
+   [%- END %]
+  </p>
+
+  <hr>
+
+  <h3><translate>Annotations</translate></h3>
+
+  <p>
+   (1) <translate>The variable name must only consist of letters,
+    numbers and underscores. It must begin with a letter. Example:
+    send_christmas_present</translate>
+  </p>
+
+  <p>
+   (2) <translate>The description is shown on the form. Chose
+    something short and descriptive.</translate>
+  </p>
+
+  <p>
+   (3) <translate>The default value depends on the variable type:</translate>
+   <br>
+   <ul>
+    <li><translate>Text, text field and number variables: The default
+      value will be used as-is.</translate></li>
+    <li><translate>Boolean variables: If the default value is
+      non-empty then the checkbox will be checked by default and
+      unchecked otherwise.</translate></li>
+    <li><translate>Date and timestamp variables: If the default value
+      equals 'NOW' then the current date/current timestamp will be
+      used. Otherwise the default value is copied as-is.</translate></li>
+   </ul>
+  </p>
+
+  <p>
+   (4) <translate>The available options depend on the varibale
+    type:</translate>
+   <br>
+   <ul>
+    <li><translate>Text variables: 'MAXLENGTH=n' sets the maximum
+      entry length to 'n'.</translate></li>
+    <li><translate>Text field variables: 'WIDTH=w HEIGHT=h' sets the
+      width and height of the text field. They default to 30 and 5
+      respectively.</translate></li>
+    <li><translate>Number variables: 'PRECISION=n' forces numbers to
+      be shown with exactly n decimal places.</translate></li>
+    <li><translate>Selection fields: The option field must contain the
+      available options for the selection. Options are separated by
+      '##', for example 'Early##Normal##Late'.</translate></li>
+   </ul>
+   <br>
+   <translate>Other values are ignored.</translate>
+  </p>
+
+ </form>
+
+</body>
+</html>

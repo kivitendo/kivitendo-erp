@@ -1108,6 +1108,11 @@ sub vendor_details {
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
+  my $custom_variables = CVar->get_custom_variables('dbh'      => $dbh,
+                                                    'module'   => 'CT',
+                                                    'trans_id' => $form->{vendor_id});
+  map { $form->{"vc_cvar_$_->{name}"} = $_->{value} } @{ $custom_variables };
+
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();

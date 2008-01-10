@@ -1,0 +1,79 @@
+[% USE HTML %]<body>
+
+ [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
+
+ <div class="listtop">[% title %]</div>
+
+ <p>
+  <table width="100%">
+   <tr>
+    <td class="listheading" width="0%"></td>
+    <td class="listheading" width="0%"></td>
+    <td class="listheading" width="20%"><translate>Name</translate></td>
+    <td class="listheading" width="20%"><translate>Description</translate></td>
+    <td class="listheading" width="20%"><translate>Type</translate></td>
+    <td class="listheading" width="20%"><translate>Searchable</translate></td>
+    <td class="listheading" width="20%"><translate>Includeable in reports</translate></td>
+   </tr>
+
+   [%- FOREACH cfg = CONFIGS %]
+   <tr class="listrow[% loop.count % 2 %]">
+    <td>
+     [%- IF cfg.previous_id %]
+     <a href="amcvar.pl?action=swap_cvar_configs&module=[% HTML.url(module) %]&id1=[% HTML.url(cfg.previous_id) %]&id2=[% HTML.url(cfg.id) %]">
+      <img border="0" src="image/up.png"></a>
+     [%- END %]
+    </td>
+
+    <td>
+     [%- IF cfg.next_id %]
+     <a href="amcvar.pl?action=swap_cvar_configs&module=[% HTML.url(module) %]&id1=[% HTML.url(cfg.next_id) %]&id2=[% HTML.url(cfg.id) %]">
+      <img border="0" src="image/down.png"></a>
+     [%- END %]
+    </td>
+
+    <td>
+     <a href="amcvar.pl?action=edit_cvar_config&module=[% HTML.url(module) %]&id=[% HTML.url(cfg.id) %]&callback=[% HTML.url(callback) %]">
+      [% HTML.escape(cfg.name) %]
+     </a>
+    </td>
+
+    <td>[% HTML.escape(cfg.description) %]</td>
+    <td>[% HTML.escape(cfg.type_tr) %]</td>
+
+    <td>
+     [%- IF cfg.searchable %]
+     <translate>Yes</translate>
+     [%- ELSE %]
+     <translate>No</translate>
+     [%- END %]
+    </td>
+
+    <td>
+     [%- IF cfg.included_by_default %]
+     <translate>Yes, included by default</translate>
+     [%- ELSIF cfg.includeable %]
+     <translate>Yes</translate>
+     [%- ELSE %]
+     <translate>No</translate>
+     [%- END %]
+    </td>
+   </tr>
+   [%- END %]
+  </table>
+ </p>
+
+ <hr height="3">
+
+ <p>
+  <form method="post" action="amcvar.pl">
+   <input type="hidden" name="add_nextsub" value="add_cvar_config">
+   <input type="hidden" name="module" value="[% HTML.escape(module) %]">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+   <input type="submit" class="submit" name="action" value="<translate>Add</translate>">
+  </form>
+ </p>
+
+</body>
+</html>

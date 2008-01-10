@@ -37,6 +37,7 @@ use CGI;
 use CGI::Ajax;
 use List::Util qw(max first);
 
+use SL::CVar;
 use SL::Common;
 use SL::CT;
 use SL::IC;
@@ -1412,7 +1413,7 @@ sub print_form {
     $form->{language} = "_" . $form->{language};
   }
 
-  # Format dates.
+  # Format dates and numbers.
   format_dates($output_dateformat, $output_longdates,
                qw(invdate orddate quodate pldate duedate reqdate transdate
                   shippingdate deliverydate validitydate paymentdate
@@ -1447,6 +1448,16 @@ sub print_form {
                    qw(qty price_factor),
                    grep({ /^qty_\d+$/
                         } keys(%{$form})));
+
+  my ($cvar_date_fields, $cvar_number_fields) = CVar->get_field_format_list('module' => 'CT', 'prefix' => 'vc_');
+
+  if (scalar @{ $cvar_date_fields }) {
+    format_dates($output_dateformat, $output_longdates, @{ $cvar_date_fields });
+  }
+
+  while (my ($precision, $field_list) = each %{ $cvar_number_fields }) {
+    reformat_numbers($output_numberformat, $precision, @{ $field_list });
+  }
 
   $form->{IN} = "$form->{formname}$form->{language}${printer_code}.html";
   if ($form->{format} eq 'postscript') {

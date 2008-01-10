@@ -1,0 +1,79 @@
+[% USE HTML %]<body>
+
+ [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
+
+ <div class="listtop">[% title %]</div>
+
+ <p>
+  <table width="100%">
+   <tr>
+    <td class="listheading" width="0%"></td>
+    <td class="listheading" width="0%"></td>
+    <td class="listheading" width="20%">Name</td>
+    <td class="listheading" width="20%">Beschreibung</td>
+    <td class="listheading" width="20%">Typ</td>
+    <td class="listheading" width="20%">Durchsuchbar</td>
+    <td class="listheading" width="20%">In Berichten anzeigbar</td>
+   </tr>
+
+   [%- FOREACH cfg = CONFIGS %]
+   <tr class="listrow[% loop.count % 2 %]">
+    <td>
+     [%- IF cfg.previous_id %]
+     <a href="amcvar.pl?action=swap_cvar_configs&module=[% HTML.url(module) %]&id1=[% HTML.url(cfg.previous_id) %]&id2=[% HTML.url(cfg.id) %]">
+      <img border="0" src="image/up.png"></a>
+     [%- END %]
+    </td>
+
+    <td>
+     [%- IF cfg.next_id %]
+     <a href="amcvar.pl?action=swap_cvar_configs&module=[% HTML.url(module) %]&id1=[% HTML.url(cfg.next_id) %]&id2=[% HTML.url(cfg.id) %]">
+      <img border="0" src="image/down.png"></a>
+     [%- END %]
+    </td>
+
+    <td>
+     <a href="amcvar.pl?action=edit_cvar_config&module=[% HTML.url(module) %]&id=[% HTML.url(cfg.id) %]&callback=[% HTML.url(callback) %]">
+      [% HTML.escape(cfg.name) %]
+     </a>
+    </td>
+
+    <td>[% HTML.escape(cfg.description) %]</td>
+    <td>[% HTML.escape(cfg.type_tr) %]</td>
+
+    <td>
+     [%- IF cfg.searchable %]
+     Ja
+     [%- ELSE %]
+     Nein
+     [%- END %]
+    </td>
+
+    <td>
+     [%- IF cfg.included_by_default %]
+     Ja, standardm&auml;&szlig;ig an
+     [%- ELSIF cfg.includeable %]
+     Ja
+     [%- ELSE %]
+     Nein
+     [%- END %]
+    </td>
+   </tr>
+   [%- END %]
+  </table>
+ </p>
+
+ <hr height="3">
+
+ <p>
+  <form method="post" action="amcvar.pl">
+   <input type="hidden" name="add_nextsub" value="add_cvar_config">
+   <input type="hidden" name="module" value="[% HTML.escape(module) %]">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+   <input type="submit" class="submit" name="action" value="Erfassen">
+  </form>
+ </p>
+
+</body>
+</html>

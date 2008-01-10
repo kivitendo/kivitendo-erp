@@ -1,0 +1,63 @@
+[% USE HTML %]
+
+   [%- FOREACH var = variables %]
+   [%- IF var.searchable %]
+   <tr>
+    <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
+    <td valign="top">
+
+     [%- IF var.type == 'bool' %]
+     <select name="cvar_[% HTML.escape(var.name) %]">
+      <option value="">---</option>
+      <option value="yes">Ja</option>
+      <option value="no">Nein</option>
+     </select>
+
+     [%- ELSIF var.type == 'date' %]
+     von
+     <input name="cvar_[% HTML.escape(var.name) %]_from" size="12">
+     <input type="button" name="cvar_[% HTML.escape(var.name) %]_from_button" id="cvar_[% HTML.escape(var.name) %]_from_trigger" value="?">
+     bis
+     <input name="cvar_[% HTML.escape(var.name) %]_to" size="12">
+     <input type="button" name="cvar_[% HTML.escape(var.name) %]_to_button" id="cvar_[% HTML.escape(var.name) %]_to_trigger" value="?">
+
+     <script type="text/javascript">
+      <!--
+          Calendar.setup({ inputField : "cvar_[% HTML.escape(var.name) %]_from",
+                           ifFormat   :"[% myconfig_jsc_dateformat %]",
+                           align      : "BR",
+                           button     : "cvar_[% HTML.escape(var.name) %]_from_trigger" });
+          Calendar.setup({ inputField : "cvar_[% HTML.escape(var.name) %]_to",
+                           ifFormat   :"[% myconfig_jsc_dateformat %]",
+                           align      : "BR",
+                           button     : "cvar_[% HTML.escape(var.name) %]_to_trigger" });
+        -->
+     </script>
+
+     [%- ELSIF var.type == 'number' %]
+     <select name="cvar_[% HTML.escape(var.name) %]_qtyop">
+      <option selected>==</option>
+      <option>=/=</option>
+      <option>&gt;</option>
+      <option>&gt;=</option>
+      <option>&lt;</option>
+      <option>&lt;=</option>
+     </select>
+     <input name="cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
+
+     [% ELSIF var.type == 'select' %]
+     <select name="cvar_[% HTML.escape(var.name) %]">
+      <option value="" selected>---</option>
+      [%- FOREACH option = var.OPTIONS %]
+      <option>[% HTML.escape(option.value) %]</option>
+      [%- END %]
+     </select>
+
+     [%- ELSE %]
+     <input name="cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
+
+     [%- END %]
+    </td>
+   </tr>
+   [%- END %]
+   [%- END %]

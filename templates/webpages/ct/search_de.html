@@ -38,6 +38,8 @@
    </tr>
    [% END %]
 
+   [% CUSTOM_VARIABLES_FILTER_CODE %]
+
    <tr>
     <td></td>
     <td>
@@ -125,6 +127,9 @@
         <label for="l_quonumber">[% IF IS_CUSTOMER %]Angebote[% ELSE %]Preisanfragen[% END %]</label>
        </td>
       </tr>
+
+      [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+
      </table>
     </td>
    </tr>

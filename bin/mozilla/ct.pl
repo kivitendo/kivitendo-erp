@@ -42,6 +42,7 @@ use CGI::Ajax;
 use POSIX qw(strftime);
 
 use SL::CT;
+use SL::CVar;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -80,8 +81,15 @@ sub search {
   $form->get_lists("business_types" => "ALL_BUSINESS_TYPES");
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
-  $form->{title} = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
-  $form->{fokus} = 'Form.name';
+  $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
+  ($form->{CUSTOM_VARIABLES_FILTER_CODE},
+   $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES},
+                                                                           'include_prefix' => 'l_',
+                                                                           'include_value'  => 'Y');
+
+  $form->{jsscript} = 1;
+  $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
+  $form->{fokus}    = 'Form.name';
 
   $form->header();
   print $form->parse_html_template('ct/search');
@@ -97,6 +105,8 @@ sub list_names {
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
   CT->search(\%myconfig, \%$form);
+
+  my $cvar_configs = CVar->get_configs('module' => 'CT');
 
   my @options;
   if ($form->{status} eq 'all') {
@@ -125,6 +135,11 @@ sub list_names {
     'ordnumber', 'quonumber'
   );
 
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
   my %column_defs = (
     'id'                => { 'text' => $locale->text('ID'), },
     "$form->{db}number" => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
@@ -141,6 +156,7 @@ sub list_names {
     'invnumber'         => { 'text' => $locale->text('Invoice'), },
     'ordnumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Sales Order') : $locale->text('Purchase Order'), },
     'quonumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Quotation')   : $locale->text('Request for Quotation'), },
+    %column_defs_cvars,
   );
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
@@ -182,6 +198,12 @@ sub list_names {
   $report->set_export_options('list_names', @hidden_variables);
 
   $report->set_sort_indicator($form->{sort}, 1);
+
+  CVar->add_custom_variables_to_report('module'         => 'CT',
+                                       'trans_id_field' => 'id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{CT});
 
   my $previous_id;
 
@@ -272,6 +294,12 @@ sub form_header {
   CT->query_titles_and_greetings(\%myconfig, \%$form);
   map { $form->{"MB_$_"} = [ map +{ id => $_, description => $_ }, @{ $form->{$_} } ] } qw(TITLES GREETINGS COMPANY_GREETINGS DEPARTMENT);
 ## /LINET
+
+  $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'CT', 'trans_id' => $form->{id});
+
+  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
+
+  $main::lxdebug->dump(0, "cvar", $form->{CUSTOM_VARIABLES});
 
   $form->header;
   print $form->parse_html_template('ct/form_header');
