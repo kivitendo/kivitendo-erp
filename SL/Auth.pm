@@ -92,12 +92,12 @@ sub _read_auth_config {
 sub authenticate_root {
   $main::lxdebug->enter_sub();
 
-  my $self          = shift;
-  my $password      = shift;
-  my $is_crypted    = shift;
+  my $self           = shift;
+  my $password       = shift;
+  my $is_crypted     = shift;
 
-  $password         = crypt $password, 'ro' if (!$password || !$is_crypted);
-  my $admin_password   = crypt "$self->{admin_password}", 'ro';
+  $password          = crypt $password, 'ro' if (!$password || !$is_crypted);
+  my $admin_password = crypt "$self->{admin_password}", 'ro';
 
   $main::lxdebug->leave_sub();
 
