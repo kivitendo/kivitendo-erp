@@ -31,10 +31,11 @@
 #
 #======================================================================
 
+use SL::FU;
 use SL::IR;
 use SL::IS;
 use SL::PE;
-use List::Util qw(max);
+use List::Util qw(max sum);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -400,9 +401,14 @@ sub form_header {
                         "invdate", "BL", "trigger1",
                         "duedate", "BL", "trigger2");
 
+  my $follow_up_vc         =  $form->{vendor};
+  $follow_up_vc            =~ s/--.*?//;
+  my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
+
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
+  $form->{javascript} .= qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
 
   $jsscript .= $form->write_trigger(\%myconfig, 2, "orddate", "BL", "trigger_orddate", "quodate", "BL", "trigger_quodate");
 
@@ -608,6 +614,20 @@ sub form_footer {
   $form->{invtotal}    =
     $form->format_amount(\%myconfig, $form->{invtotal}, 2, 0);
 
+  my $follow_ups_block;
+  if ($form->{id}) {
+    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+
+    if (@{ $follow_ups} ) {
+      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
+      $follow_ups_block = qq|
+      <tr>
+        <td colspan="2">| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</td>
+      </tr>
+|;
+    }
+  }
+
   print qq|
   <tr>
     <td colspan=$colspan>
@@ -623,6 +643,7 @@ sub form_footer {
 		<td>$notes</td>
 		<td>$intnotes</td>
 	      </tr>
+        $follow_ups_block
 	    </table>
 	  </td>
 	  <td colspan=2 align=right width=100%>
@@ -811,6 +832,9 @@ sub form_footer {
   }
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Use As Template') . qq|">
+        <input type="button" class="submit" onclick="follow_up_window()" value="|
+      . $locale->text('Follow-Up')
+      . qq|">
 |;
 
   }

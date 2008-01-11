@@ -26,6 +26,11 @@
                            show_empty = 1 -%]
                 </td>
 	    </tr>
+      [%- IF id && num_follow_ups %]
+      <tr>
+       <td colspan="2">[% LxERP.format_string('Es gibt #1 Wiedervorlage(n), von denen #2 f&auml;llig ist/sind.', num_follow_ups, num_due_follow_ups) %]</td>
+      </tr>
+      [%- END %]
       </table>
 	  </td>
 [%- IF is_sales %]
@@ -108,6 +113,7 @@
 <input class=submit type=submit name=action value="Speichern und schließen">
 
 [%- IF id %]
+  <input type="button" class="submit" onclick="follow_up_window()" value="Wiedervorlage">
   <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="Historie">
 
   <br>[% label_workflow %]<br>

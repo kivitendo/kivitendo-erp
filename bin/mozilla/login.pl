@@ -33,6 +33,7 @@ use SL::User;
 use SL::Form;
 
 require "bin/mozilla/common.pl";
+require "bin/mozilla/todo.pl";
 
 # This is required because the am.pl in the root directory
 # is not scanned by locales.pl:
@@ -163,6 +164,8 @@ sub company_logo {
 
   $locale             =  new Locale $myconfig{countrycode}, "login" if ($language ne $myconfig{countrycode});
 
+  $form->{todo_list}  = create_todo_list();
+
   $form->{stylesheet} =  $myconfig{stylesheet};
   $form->{title}      =  $locale->text('About');
 
@@ -188,3 +191,4 @@ sub show_error {
 
   exit;
 }
+

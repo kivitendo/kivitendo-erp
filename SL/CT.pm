@@ -39,8 +39,11 @@ package CT;
 
 use Data::Dumper;
 
+use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
+use SL::FU;
+use SL::Notes;
 
 sub get_tuple {
   $main::lxdebug->enter_sub();
@@ -71,6 +74,52 @@ sub get_tuple {
       qq|WHERE ct.id = ?|;
     ($form->{salesman}) =
       selectrow_query($form, $dbh, $query, $form->{salesman_id});
+  }
+
+  my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $form->{login});
+  $query =
+    qq|SELECT n.*, n.itime::DATE AS created_on,
+         e.name AS created_by_name, e.login AS created_by_login
+       FROM notes n
+       LEFT JOIN employee e ON (n.created_by = e.id)
+       WHERE (n.trans_id = ?) AND (n.trans_module = 'ct')|;
+  $form->{NOTES} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
+
+  $query =
+    qq|SELECT fu.follow_up_date, fu.done AS follow_up_done, e.name AS created_for_name, e.name AS created_for_login
+       FROM follow_ups fu
+       LEFT JOIN employee e ON (fu.created_for_user = e.id)
+       WHERE (fu.note_id = ?)
+         AND NOT COALESCE(fu.done, FALSE)
+         AND (   (fu.created_by = ?)
+              OR (fu.created_by IN (SELECT DISTINCT what FROM follow_up_access WHERE who = ?)))|;
+  $sth = prepare_query($form, $dbh, $query);
+
+  foreach my $note (@{ $form->{NOTES} }) {
+    do_statement($form, $sth, $query, conv_i($note->{id}), conv_i($note->{created_by}), conv_i($employee_id));
+    $ref = $sth->fetchrow_hashref();
+
+    map { $note->{$_} = $ref->{$_} } keys %{ $ref } if ($ref);
+  }
+
+  $sth->finish();
+
+  if ($form->{edit_note_id}) {
+    $query =
+      qq|SELECT n.id AS NOTE_id, n.subject AS NOTE_subject, n.body AS NOTE_body,
+           fu.id AS FU_id, fu.follow_up_date AS FU_date, fu.done AS FU_done, fu.created_for_user AS FU_created_for_user
+         FROM notes n
+         LEFT JOIN follow_ups fu ON ((n.id = fu.note_id) AND NOT COALESCE(fu.done, FALSE))
+         WHERE n.id = ?|;
+    $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{edit_note_id}));
+
+    if ($ref) {
+      foreach my $key (keys %{ $ref }) {
+        my $new_key       =  $key;
+        $new_key          =~ s/^([^_]+)/\U\1\E/;
+        $form->{$new_key} =  $ref->{$key};
+      }
+    }
   }
 
   # check if it is orphaned
@@ -384,6 +433,9 @@ sub save_customer {
   # add shipto
   $form->add_shipto( $dbh, $form->{id}, "CT" );
 
+  $self->_save_note('dbh' => $dbh);
+  $self->_delete_selected_notes('dbh' => $dbh);
+
   CVar->save_custom_variables('dbh'       => $dbh,
                               'module'    => 'CT',
                               'trans_id'  => $form->{id},
@@ -585,6 +637,9 @@ sub save_vendor {
 
   # add shipto
   $form->add_shipto( $dbh, $form->{id}, "CT" );
+
+  $self->_save_note('dbh' => $dbh);
+  $self->_delete_selected_notes('dbh' => $dbh);
 
   CVar->save_custom_variables('dbh'       => $dbh,
                               'module'    => 'CT',
@@ -841,6 +896,85 @@ sub get_delivery {
   $form->{DELIVERY} = selectall_hashref_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _save_note {
+  $main::lxdebug->enter_sub();
+
+  my $self   = shift;
+  my %params = @_;
+
+  my $form   = $main::form;
+
+  Common::check_params(\%params, 'dbh');
+
+  if (!$form->{NOTE_subject}) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $dbh = $params{dbh};
+
+  my %follow_up;
+  my %note = (
+    'id'           => $form->{NOTE_id},
+    'subject'      => $form->{NOTE_subject},
+    'body'         => $form->{NOTE_body},
+    'trans_id'     => $form->{id},
+    'trans_module' => 'ct',
+  );
+
+  $note{id} = Notes->save(%note);
+
+  if ($form->{FU_date}) {
+    %follow_up = (
+      'id'               => $form->{FU_id},
+      'note_id'          => $note{id},
+      'follow_up_date'   => $form->{FU_date},
+      'created_for_user' => $form->{FU_created_for_user},
+      'done'             => $form->{FU_done} ? 1 : 0,
+      'subject'          => $form->{NOTE_subject},
+      'body'             => $form->{NOTE_body},
+      'LINKS'            => [
+        {
+          'trans_id'     => $form->{id},
+          'trans_type'   => $form->{db} eq 'customer' ? 'customer' : 'vendor',
+          'trans_info'   => $form->{name},
+        },
+      ],
+    );
+
+    $follow_up{id} = FU->save(%follow_up);
+
+  } elsif ($form->{FU_id}) {
+    do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|, conv_i($form->{FU_id}));
+    do_query($form, $dbh, qq|DELETE FROM follow_ups      WHERE id = ?|,           conv_i($form->{FU_id}));
+  }
+
+  delete @{$form}{grep { /^NOTE_|^FU_/ } keys %{ $form }};
+
+  $main::lxdebug->leave_sub();
+}
+
+sub _delete_selected_notes {
+  $main::lxdebug->enter_sub();
+
+  my $self   = shift;
+  my %params = @_;
+
+  Common::check_params(\%params, 'dbh');
+
+  my $form = $main::form;
+  my $dbh  = $params{dbh};
+
+  foreach my $i (1 .. $form->{NOTES_rowcount}) {
+    next unless ($form->{"NOTE_delete_$i"} && $form->{"NOTE_id_$i"});
+
+    Notes->delete('dbh' => $params{dbh},
+                  'id'  => $form->{"NOTE_id_$i"});
+  }
 
   $main::lxdebug->leave_sub();
 }

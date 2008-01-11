@@ -1,0 +1,29 @@
+[% USE HTML %][% USE LxERP %]
+
+<div class="listtop">&Uuml;berf&auml;llige Angebote</div>
+
+<p>
+ <table width="100%">
+  <tr>
+   <td class="listheading">Datum</td>
+   <td class="listheading">gültig bis</td>
+   <td class="listheading">Auftrag</td>
+   <td class="listheading">Kunde</td>
+   <td class="listheading">Vorgangsbezeichnung</td>
+   <td class="listheading">Betrag</td>
+   <td class="listheading">Bearbeiter</td>
+  </tr>
+
+  [%- FOREACH row = QUOTATIONS %]
+  <tr class="listrow[% loop.count % 2 %]">
+   <td>[% HTML.escape(row.transdate) %]</td>
+   <td>[% HTML.escape(row.reqdate) %]</td>
+   <td><a href="[% edit_url %]&id=[% HTML.url(row.id) %]">[% HTML.escape(row.quonumber) %]</a></td>
+   <td>[% HTML.escape(row.customer) %]</td>
+   <td>[% HTML.escape(row.transaction_description) %]</td>
+   <td>[% HTML.escape(LxERP.format_amount(row.amount, 2)) %]</td>
+   <td>[% HTML.escape(row.employee) %]</td>
+  </tr>
+  [%- END %]
+ </table>
+</p>

@@ -31,10 +31,11 @@
 #
 #======================================================================
 
+use SL::FU;
 use SL::IS;
 use SL::PE;
 use Data::Dumper;
-use List::Util qw(max);
+use List::Util qw(max sum);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -574,6 +575,11 @@ sub form_header {
   }
 
   $credittext = $locale->text('Credit Limit exceeded!!!');
+
+  my $follow_up_vc         =  $form->{customer};
+  $follow_up_vc            =~ s/--.*?//;
+  my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
+
   $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|
           : ($form->{resubmit})                                ? qq|document.invoice.submit()|
           : ($creditwarning)                                   ? qq|alert('$credittext')|
@@ -599,6 +605,7 @@ sub form_header {
 <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
 <script type="text/javascript" src="js/vendor_selection.js"></script>
 <script type="text/javascript" src="js/calculate_qty.js"></script>
+<script type="text/javascript" src="js/follow_up.js"></script>
 
 <form method="post" name="invoice" action="$form->{script}">
 | ;
@@ -613,6 +620,11 @@ sub form_header {
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
 
   print qq|
+
+<input type="hidden" name="follow_up_trans_id_1" value="| . H($form->{id}) . qq|">
+<input type="hidden" name="follow_up_trans_type_1" value="sales_invoice">
+<input type="hidden" name="follow_up_trans_info_1" value="| . H($follow_up_trans_info) . qq|">
+<input type="hidden" name="follow_up_rowcount" value="1">
 
 <input type="hidden" name="lizenzen" value="$lizenzen">
 
@@ -860,6 +872,20 @@ sub form_footer {
   $form->{invtotal}    =
     $form->format_amount(\%myconfig, $form->{invtotal}, 2, 0);
 
+  my $follow_ups_block;
+  if ($form->{id}) {
+    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+
+    if (@{ $follow_ups} ) {
+      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
+      $follow_ups_block = qq|
+      <tr>
+        <td colspan="2">| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</td>
+      </tr>
+|;
+    }
+  }
+
   print qq|
   <tr>
     <td>
@@ -878,6 +904,7 @@ sub form_footer {
                 <td><select name="payment_id" onChange="if (this.value) set_duedate(['payment_id__' + this.value],['duedate'])">$payment
                 </select></td>
 	      </tr>
+        $follow_ups_block
 	    </table>
 	  </td>
           <td>
@@ -1095,18 +1122,18 @@ if ($form->{type} eq "credit_note") {
     print qq|<input class="submit" type="submit" name="action" value="|
       . $locale->text('Use As Template') . qq|">
 |;
-  if ($form->{id} && !($form->{type} eq "credit_note")) {
-    print qq|
+    if ($form->{id} && !($form->{type} eq "credit_note")) {
+      print qq|
     <input class="submit" type="submit" name="action" value="|
       . $locale->text('Credit Note') . qq|">
 |;
-  }
+    }
     if ($form->{radier}) {
     print qq|
     <input class="submit" type="submit" name="action" value="|
       . $locale->text('Delete') . qq|">
 |;
-  }
+    }
 
 
     if ($invdate > $closedto) {
@@ -1115,6 +1142,11 @@ if ($form->{type} eq "credit_note") {
         . $locale->text('Order') . qq|">
 |;
     }
+
+    print qq|
+      <input type="button" class="submit" onclick="follow_up_window()" value="|
+      . $locale->text('Follow-Up')
+      . qq|">|;
 
   } else {
     if ($invdate > $closedto) {

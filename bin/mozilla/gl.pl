@@ -32,7 +32,9 @@
 #======================================================================
 
 use POSIX qw(strftime);
+use List::Util qw(sum);
 
+use SL::FU;
 use SL::GL;
 use SL::IS;
 use SL::PE;
@@ -1068,6 +1070,9 @@ sub form_header {
   print qq|
 <body onLoad="fokus()">
 
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/follow_up.js"></script>
+
 <form method=post name="gl" action=gl.pl>
 |;
 
@@ -1076,6 +1081,10 @@ sub form_header {
   print qq|
 <input type=hidden name=title value="$title">
 
+<input type="hidden" name="follow_up_trans_id_1" value="| . H($form->{id}) . qq|">
+<input type="hidden" name="follow_up_trans_type_1" value="gl_transaction">
+<input type="hidden" name="follow_up_trans_info_1" value="| . H($form->{id}) . qq|">
+<input type="hidden" name="follow_up_rowcount" value="1">
 
 <table width=100%>
   <tr>
@@ -1205,6 +1214,16 @@ sub form_footer {
 
   $auth->assert('general_ledger');
 
+  my $follow_ups_block;
+  if ($form->{id}) {
+    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+
+    if (@{ $follow_ups} ) {
+      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
+      $follow_ups_block = qq|<p>| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</p>|;
+    }
+  }
+
   ($dec) = ($form->{totaldebit} =~ /\.(\d+)/);
   $dec = length $dec;
   $decimalplaces = ($dec > 2) ? $dec : 2;
@@ -1228,6 +1247,8 @@ sub form_footer {
 
 <input name=callback type=hidden value="$form->{callback}">
 
+$follow_ups_block
+
 <br>
 |;
 
@@ -1246,6 +1267,11 @@ sub form_footer {
         <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|" accesskey="b">
         <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">|;
     }
+
+    print qq|
+        <input type="button" class="submit" onclick="follow_up_window()" value="|
+      . $locale->text('Follow-Up')
+      . qq|"> |;
 
   } else {
     if ($transdate > $closedto) {

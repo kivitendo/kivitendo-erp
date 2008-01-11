@@ -15,6 +15,7 @@
 <li><a href="#" rel="shipto"><translate>Shipping Address</translate></a></li>
 <li><a href="#" rel="contacts">Ansprechpartner</a></li>
 <li><a href="#" rel="deliveries"><translate>Lieferungen</translate></a></li>
+<li><a href="#" rel="vcnotes"><translate>Notes</translate></a></li>
 [%- IF CUSTOM_VARIABLES.size %]
 <li><a href="#" rel="custom_variables"><translate>Custom Variables</translate></a></li>
 [%- END %]
@@ -436,6 +437,90 @@
     </tr>
   </table>
 <br style="clear: left" /></div>
+
+<div id="vcnotes" class="tabcontent">
+
+ [%- IF NOTES && NOTES.size %]
+ <p>
+  <table>
+   <tr>
+    <th class="listheading"><translate>Delete</translate></th>
+    <th class="listheading"><translate>Subject</translate></th>
+    <th class="listheading"><translate>Created on</translate></th>
+    <th class="listheading"><translate>Created by</translate></th>
+    <th class="listheading"><translate>Follow-Up Date</translate></th>
+    <th class="listheading"><translate>Follow-Up for</translate></th>
+    <th class="listheading"><translate>Follow-Up done</translate></th>
+   </tr>
+
+   [%- FOREACH row = NOTES %]
+   <tr class="listrow[% loop.count % 2 %]">
+    <input type="hidden" name="NOTE_id_[% loop.count %]" value="[% HTML.escape(row.id) %]">
+    <td>[% UNLESS NOTE_id && (NOTE_id == row.id) %]<input type="checkbox" name="NOTE_delete_[% loop.count %]" value="1">[% END %]</td>
+    <td><a href="ct.pl?action=edit&db=[% HTML.escape(db) %]&id=[% HTML.escape(id) %]&edit_note_id=[% HTML.escape(row.id) %]">[% HTML.escape(row.subject) %]</a></td>
+    <td>[% HTML.escape(row.created_on) %]</td>
+    <td>[% IF row.created_by_name %][% HTML.escape(row.created_by_name) %][% ELSE %][% HTML.escape(row.created_by_login) %][% END %]</td>
+    <td>[% HTML.escape(row.follow_up_date) %]</td>
+    <td>[% IF row.created_for_name %][% HTML.escape(row.created_for_name) %][% ELSE %][% HTML.escape(row.created_for_login) %][% END %]</td>
+    <td>[% IF row.follow_up_date %][% IF row.follow_up_done %]<translate>Yes</translate>[% ELSE %]<translate>No</translate>[% END %][% END %]</td>
+   </tr>
+   [%- END %]
+   <input type="hidden" name="NOTES_rowcount" value="[% NOTES.size %]">
+  </table>
+ </p>
+ [%- END %]
+
+ <div class="listtop">[% IF NOTE_id %]<translate>Edit note</translate>[% ELSE %]<translate>Add note</translate>[% END %]</div>
+
+ <input type="hidden" name="NOTE_id" value="[% HTML.escape(NOTE_id) %]">
+ <input type="hidden" name="FU_id" value="[% HTML.escape(FU_id) %]">
+
+ <p>
+  <table>
+   <tr>
+    <td valign="right"><translate>Subject</translate></td>
+    <td><input name="NOTE_subject" value="[% HTML.escape(NOTE_subject) %]" size="50"></td>
+   </tr>
+
+   <tr>
+    <td valign="right" align="top"><translate>Body</translate></td>
+    <td align="top"><textarea cols="50" rows="10" name="NOTE_body">[% HTML.escape(NOTE_body) %]</textarea></td>
+   </tr>
+
+   <tr>
+    <td valign="right"><translate>Follow-Up On</translate></td>
+    <td>
+     <input name="FU_date" id="FU_date" value="[% HTML.escape(FU_date) %]" size="12">
+     <input type="button" name="FU_date_button" id="FU_date_trigger" value="?">
+     <translate>for</translate>
+     <select name="FU_created_for_user">
+     [%- FOREACH row = ALL_EMPLOYEES %]
+     <option value="[% HTML.escape(row.id) %]"[% IF (NOTE_id && (row.id == FU_created_for_user)) || (row.login == login) %] selected[% END %]>
+      [%- IF row.name %][%- HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
+     </option>
+     [%- END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td></td>
+    <td>
+     <input type="checkbox" name="FU_done" id="FU_done" value="1"[% IF FU_done %] checked[% END %]>
+     <label for="FU_done"><translate>Follow-Up done</translate></label>
+    </td>
+   </tr>
+  </table>
+ </p>
+
+ <br style="clear: left" />
+</div>
+
+<script type="text/javascript">
+ <!--
+     Calendar.setup({ inputField : "FU_date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "FU_date_trigger" });
+   -->
+</script>
 
 [%- IF CUSTOM_VARIABLES.size %]
 <div id="custom_variables" class="tabcontent">

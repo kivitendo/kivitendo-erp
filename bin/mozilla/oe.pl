@@ -33,12 +33,13 @@
 
 use POSIX qw(strftime);
 
+use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
-use List::Util qw(max reduce);
+use List::Util qw(max reduce sum);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -431,6 +432,19 @@ sub form_header {
 
   $credittext = $locale->text('Credit Limit exceeded!!!');
 
+  my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
+  $follow_up_vc                   =~ s/--.*?//;
+  $TMPL_VAR{follow_up_trans_info} =  ($form->{type} =~ /_quotation$/ ? $form->{quonumber} : $form->{ordnumber}) . " ($follow_up_vc)";
+
+  if ($form->{id}) {
+    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+
+    if (scalar @{ $follow_ups }) {
+      $TMPL_VAR{num_follow_ups}     = scalar                    @{ $follow_ups };
+      $TMPL_VAR{num_due_follow_ups} = sum map { $_->{due} * 1 } @{ $follow_ups };
+    }
+  }
+
   $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()"
           : ($form->{resubmit})                                ? "document.oe.submit()"
           : ($creditwarning)                                   ? "alert('$credittext')"
@@ -439,7 +453,7 @@ sub form_header {
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|.   $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   $TMPL_VAR{onload} = $onload;
-  
+
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
@@ -2015,5 +2029,23 @@ sub display_form {
   &form_footer;
 
   $lxdebug->leave_sub();
+}
+
+sub report_for_todo_list {
+  $lxdebug->enter_sub();
+
+  my $quotations = OE->transactions_for_todo_list();
+  my $content;
+
+  if (@{ $quotations }) {
+    my $edit_url = build_std_url('script=oe.pl', 'action=edit', 'type=sales_quotation', 'vc=customer');
+
+    $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS' => $quotations,
+                                                                           'edit_url'   => $edit_url });
+  }
+
+  $lxdebug->leave_sub();
+
+  return $content;
 }
 

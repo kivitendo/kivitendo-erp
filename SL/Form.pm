@@ -2213,6 +2213,20 @@ sub _get_simple {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_groups {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $key) = @_;
+
+  $key ||= "all_groups";
+
+  my $groups = $main::auth->read_groups();
+
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
 sub get_lists {
   $main::lxdebug->enter_sub();
 
@@ -2309,6 +2323,10 @@ sub get_lists {
 
   if ($params{warehouses}) {
     $self->_get_warehouses($dbh, $params{warehouses});
+  }
+
+  if ($params{groups}) {
+    $self->_get_groups($dbh, $params{groups});
   }
 
   $main::lxdebug->leave_sub();

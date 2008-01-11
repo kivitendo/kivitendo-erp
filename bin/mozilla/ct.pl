@@ -267,10 +267,11 @@ sub form_header {
 
   $auth->assert('customer_vendor_edit');
 
-  $form->get_lists("employees" => "ALL_SALESMEN",
+  $form->get_lists("employees" => "ALL_EMPLOYEES",
                    "taxzones"  => "ALL_TAXZONES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
+  $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
   $form->{is_admin}       = $myconfig{role} eq 'admin';
   $form->{is_customer}    = $form->{db}     eq 'customer';
@@ -295,11 +296,11 @@ sub form_header {
   map { $form->{"MB_$_"} = [ map +{ id => $_, description => $_ }, @{ $form->{$_} } ] } qw(TITLES GREETINGS COMPANY_GREETINGS DEPARTMENT);
 ## /LINET
 
+  $form->{NOTES} ||= [ ];
+
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'CT', 'trans_id' => $form->{id});
 
   CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
-
-  $main::lxdebug->dump(0, "cvar", $form->{CUSTOM_VARIABLES});
 
   $form->header;
   print $form->parse_html_template('ct/form_header');

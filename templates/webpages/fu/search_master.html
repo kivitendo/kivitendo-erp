@@ -1,0 +1,122 @@
+[% USE HTML %]
+<body onload="on_load()">
+
+ <script type="text/javascript">
+  <!--
+      function on_load() {
+        Calendar.setup({ inputField : "follow_up_date_from", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "follow_up_date_from_trigger" });
+        Calendar.setup({ inputField : "follow_up_date_to",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "follow_up_date_to_trigger" });
+        Calendar.setup({ inputField : "itime_from",          ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "itime_from_trigger" });
+        Calendar.setup({ inputField : "itime_to",            ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "itime_to_trigger" });
+        document.Form.subject.focus();
+      }
+    -->
+ </script>
+
+ <div class="listtop">[% title %]</div>
+
+ <form action="fu.pl" method="post" name="Form">
+  <input type="hidden" name="nextsub" value="report">
+
+  <p>
+   <table>
+    <tr>
+     <td align="right"><translate>Created for</translate></td>
+     <td>
+      <select name="created_for">
+       <option></option>
+       [%- FOREACH row = EMPLOYEES %]
+       <option value="[% HTML.escape(row.id) %]">
+        [%- IF row.name %]
+        [%- HTML.escape(row.name) %] ([% HTML.escape(row.login) %])
+        [%- ELSE %]
+        [%- HTML.escape(row.login) %]
+        [%- END %]
+       </option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Subject</translate></td>
+     <td><input name="subject" size="20"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Body</translate></td>
+     <td><input name="body" size="20"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Reference</translate></td>
+     <td><input name="reference" size="20"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Follow-Up Date</translate></td>
+     <td>
+      <translate>From</translate>
+      <input name="follow_up_date_from" id="follow_up_date_from" size="12">
+      <input type="button" name="follow_up_date_from_button" id="follow_up_date_from_trigger" value="?">
+      <translate>To (time)</translate>
+      <input name="follow_up_date_to" id="follow_up_date_to" size="12">
+      <input type="button" name="follow_up_date_to_button" id="follow_up_date_to_trigger" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Created on</translate></td>
+     <td>
+      <translate>From</translate>
+      <input name="itime_from" id="itime_from" size="12">
+      <input type="button" name="itime_from_button" id="itime_from_trigger" value="?">
+      <translate>To (time)</translate>
+      <input name="itime_to" id="itime_to" size="12">
+      <input type="button" name="itime_to_button" id="itime_to_trigger" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Include in Report</translate></td>
+     <td>
+
+      <table>
+       <tr>
+        <td>
+         <input type="checkbox" name="due_only" id="due_only" value="1" checked>
+         <label for="due_only"><translate>Only due follow-ups</translate></label>
+        </td>
+
+        <td>
+         <input type="checkbox" name="all_users" id="all_users" value="1" checked>
+         <label for="all_users"><translate>Other users' follow-ups</translate></label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input type="checkbox" name="not_done" id="not_done" value="1" checked>
+         <label for="not_done"><translate>Not done yet</translate></label>
+        </td>
+
+        <td>
+         <input type="checkbox" name="done" id="done" value="1">
+         <label for="done"><translate>Done</translate></label>
+        </td>
+       </tr>
+      </table>
+
+     </td>
+    </tr>
+
+   </table>
+  </p>
+
+  <p>
+   <input type="submit" name="action" value="<translate>Continue</translate>">
+  </p>
+ </form>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+[% USE HTML %]<body onload="on_load();">
+
+ <script type="text/javascript">
+  <!--
+      function on_load() {
+        Calendar.setup({ inputField : "follow_up_date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "follow_up_date_trigger" });
+        document.Form.subject.focus();
+      }
+    -->
+ </script>
+
+ <form action="fu.pl" method="post" name="Form">
+
+  [%- IF SAVED_MESSAGE %]
+  <p>[% SAVED_MESSAGE %]</p>
+  [%- END %]
+
+  <div class="listtop">[% title %]</div>
+
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+  <input type="hidden" name="POPUP_MODE" value="[% HTML.escape(POPUP_MODE) %]">
+
+  <p>
+   <table>
+    <tr>
+     <td valign="top">Wiedervorlage f&uuml;r Benutzer</td>
+     <td valign="top">
+      <select name="created_for_user">
+       [%- FOREACH row = EMPLOYEES %]
+       <option value="[% HTML.escape(row.id) %]"[% IF created_for_user == row.id %] selected[% END %]>
+        [%- IF row.name %][% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
+       </option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td valign="right">Wiedervorlagedatum</td>
+     <td>
+      <input name="follow_up_date" id="follow_up_date" value="[% HTML.escape(follow_up_date) %]" size="12">
+      <input type="button" name="follow_up_date_button" id="follow_up_date_trigger" value="?">
+    </tr>
+
+    <tr>
+     <td valign="right">Betreff</td>
+     <td><input name="subject" value="[% HTML.escape(subject) %]" size="50"></td>
+    </tr>
+
+    <tr>
+     <td valign="right" align="top">Text</td>
+     <td align="top"><textarea cols="50" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <input type="hidden" name="action" value="dispatcher">
+   <input type="submit" class="submit" name="action_save" value="Speichern">
+   [%- IF id %]
+   <input type="submit" class="submit" name="action_finish" value="Abschlie&szlig;en">
+   <input type="submit" class="submit" name="action_delete" value="Löschen">
+   [%- END %]
+   [%- IF POPUP_MODE %]
+   <input type="submit" class="submit" onclick="window.close()" value="Abbrechen">
+   [%- END %]
+  </p>
+
+  [%- IF POPUP_MODE %]
+  [%- IF FOLLOW_UPS.size %]
+  <hr height="3" noshade>
+
+  <div class="listtop">Noch nicht erledigte Wiedervorlagen f&uuml;r dieses Dokument</div>
+
+  <p>
+   <table>
+    <tr>
+     <th class="listheading">Wiedervorlagedatum</th>
+     <th class="listheading">Betreff</th>
+     <th class="listheading">Erstellt von</th>
+     <th class="listheading">Wiedervorlage für</th>
+    </tr>
+
+    [%- FOREACH row = FOLLOW_UPS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td valign="top">[% HTML.escape(row.follow_up_date) %]</td>
+     <td valign="top"><a href="fu.pl?action=edit&id=[% HTML.escape(row.id) %][% IF POPUP_MODE %]&POPUP_MODE=1[% END %]">[% HTML.escape(row.subject) %]</a></td>
+     <td valign="top">[% HTML.escape(row.created_by_name) %]</td>
+     <td valign="top">[% HTML.escape(row.created_for_user_name) %]</td>
+    </tr>
+    [%- END %]
+   </table>
+  </p>
+  [%- END %]
+  [%- END %]
+
+  [%- FOREACH row = LINKS %]
+  <input type="hidden" name="trans_id_[% loop.count %]"   value="[% HTML.escape(row.trans_id) %]">
+  <input type="hidden" name="trans_type_[% loop.count %]" value="[% HTML.escape(row.trans_type) %]">
+  <input type="hidden" name="trans_info_[% loop.count %]" value="[% HTML.escape(row.trans_info) %]">
+  [%- END %]
+
+  <input type="hidden" name="trans_rowcount" value="[% LINKS.size %]">
+ </form>
+
+</body>
+</html>

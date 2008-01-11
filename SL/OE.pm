@@ -184,6 +184,41 @@ sub transactions {
   $main::lxdebug->leave_sub();
 }
 
+sub transactions_for_todo_list {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $query    = qq|SELECT id FROM employee WHERE login = ?|;
+  my ($e_id)   = selectrow_query($form, $dbh, $query, $form->{login});
+
+  $query       =
+    qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,
+         c.name AS customer,
+         e.name AS employee
+       FROM oe
+       LEFT JOIN customer c ON (oe.customer_id = c.id)
+       LEFT JOIN employee e ON (oe.employee_id = e.id)
+       WHERE (COALESCE(quotation, FALSE) = TRUE)
+         AND (COALESCE(closed,    FALSE) = FALSE)
+         AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
+         AND NOT (oe.reqdate ISNULL)
+         AND (oe.reqdate < current_date)
+       ORDER BY transdate|;
+
+  my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id);
+
+  $main::lxdebug->leave_sub();
+
+  return $quotations;
+}
+
 sub save {
   $main::lxdebug->enter_sub();
 
