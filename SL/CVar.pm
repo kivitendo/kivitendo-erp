@@ -524,7 +524,7 @@ sub get_field_format_list {
 
   foreach my $config (@{ $configs }) {
     my $name = "$params{prefix}cvar_$config->{name}";
-    $main::lxdebug->message(0, "name  $name");
+
     if ($config->{type} eq 'date') {
       push @{ $date_fields }, $name;
 
