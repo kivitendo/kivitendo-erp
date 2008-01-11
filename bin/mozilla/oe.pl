@@ -545,7 +545,7 @@ sub update {
 
   set_headings($form->{"id"} ? "edit" : "add");
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining) unless $recursive_call;
+  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
   $form->{update} = 1;
       
   $payment_id = $form->{payment_id} if $form->{payment_id};
@@ -1579,9 +1579,6 @@ sub invoice {
 
   map { $form->{"select$_"} = "" } ($form->{vc}, currency);
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(creditlimit creditremaining);
-
   $currency = $form->{currency};
   &invoice_links;
 
@@ -1950,9 +1947,6 @@ sub poso {
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
       qw(partnumber description unit);
   }
-
-  map { $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, 0, "0") }
-    qw(creditlimit creditremaining);
 
   &update;
 
