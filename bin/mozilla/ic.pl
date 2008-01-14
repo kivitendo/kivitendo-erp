@@ -1473,7 +1473,7 @@ sub form_header {
   $form->{notes_rows} = $rows;
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
-  @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || $form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
+  @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
 
   # use JavaScript Calendar or not (yes!)
   $form->{jsscript} = 1;
