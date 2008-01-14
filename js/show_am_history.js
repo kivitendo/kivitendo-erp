@@ -1,8 +1,6 @@
 function set_history_uri() {
   document.location.href = "am.pl?" +
     "action=show_am_history&" +
-    "login=" +  encodeURIComponent(document.getElementsByName("login")[0].value)+ "&"+
-    "password=" + encodeURIComponent(document.getElementsByName("password")[0].value) + "&" +
     "longdescription=" + "&" +
     "einschraenkungen=" + document.getElementById("einschraenkungen").value + "&" +
     "transdate=" + document.getElementById("transdate_hidden").value + "&" +

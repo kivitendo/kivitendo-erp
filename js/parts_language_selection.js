@@ -3,8 +3,6 @@ function parts_language_selection_window(input_name) {
   var name = document.getElementsByName(input_name)[0].value;
   url = "ic.pl?" +
     "action=parts_language_selection&" +
-    "login="           + escape_more(document.ic.login.value)           + "&" +
-    "password="        + escape_more(document.ic.password.value)        + "&" +
     "id="              + escape_more(document.ic.id.value)              + "&" +
     "language_values=" + escape_more(document.ic.language_values.value) + "&" +
     "name="            + escape_more(name)                              + "&" +

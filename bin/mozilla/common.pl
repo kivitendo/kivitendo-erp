@@ -415,7 +415,7 @@ sub cov_selection_internal {
 
   my $callback = "$form->{script}?action=cov_selection_internal&";
   map({ $callback .= "$_=" . $form->escape($form->{$_}) . "&" }
-      (qw(login path password name input_name input_id is_vendor allow_both), grep({ /^[fl]_/ } keys %$form)));
+      (qw(name input_name input_id is_vendor allow_both), grep({ /^[fl]_/ } keys %$form)));
 
   my @header_sort = qw(name address contact);
   my %header_title = ( "name" => $locale->text("Name"),

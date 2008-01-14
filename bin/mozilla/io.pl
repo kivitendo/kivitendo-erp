@@ -607,10 +607,9 @@ sub new_item {
   my $previousform = join '&', map { $form->{$_} =~ s/&/%26/; "$_=$form->{$_}" } grep { !/action/ } keys %$form;
 
   push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
-  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc login password);
+  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit sellprice);
   push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
 
   $form->header();
   print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );

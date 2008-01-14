@@ -53,12 +53,6 @@ sub display {
 <!ENTITY szlig "ß">
 ]>|;
   print qq|<doc>|;
-  print qq|<login>|;
-  print $form->{login};
-  print qq|</login>|;
-  print qq|<password>|;
-  print $form->{password};
-  print qq|</password>|;
   print qq|<name>|;
   print %myconfig->{name};
   print qq|</name>|;
