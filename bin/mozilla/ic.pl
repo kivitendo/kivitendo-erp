@@ -1954,6 +1954,8 @@ sub save {
 
       map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice lastcost price_factor_id);
 
+      $form->{"longdescription_$i"} = $newform{notes};
+
       $form->{"sellprice_$i"} = $newform{lastcost} if ($form->{vendor_id});
 
       if ($form->{exchangerate} != 0) {
