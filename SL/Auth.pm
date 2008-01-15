@@ -423,7 +423,7 @@ sub restore_session {
   $form   = $main::form;
 
   $dbh    = $self->dbconnect();
-  $query  = qq|SELECT *, (mtime < (now() - '24h'::interval)) AS is_expired FROM auth.session WHERE id = ?|;
+  $query  = qq|SELECT *, (mtime < (now() - '8h'::interval)) AS is_expired FROM auth.session WHERE id = ?|;
 
   $cookie = selectfirst_hashref_query($form, $dbh, $query, $session_id);
 
@@ -477,13 +477,13 @@ sub expire_sessions {
        WHERE session_id IN
          (SELECT id
           FROM auth.session
-          WHERE (mtime < (now() - '24h'::interval)))|;
+          WHERE (mtime < (now() - '8h'::interval)))|;
 
   do_query($main::form, $dbh, $query);
 
   $query =
     qq|DELETE FROM auth.session
-       WHERE (mtime < (now() - '24h'::interval))|;
+       WHERE (mtime < (now() - '8h'::interval))|;
 
   do_query($main::form, $dbh, $query);
 
