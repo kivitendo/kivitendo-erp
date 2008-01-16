@@ -27,13 +27,25 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #######################################################################
 
+use SL::TODO;
+
 sub create_todo_list {
   $lxdebug->enter_sub();
 
+  my %params   = @_;
+  my $postfix  = '_login' if ($params{login_screen});
+
+  my %todo_cfg = TODO->get_user_config('login' => $form->{login});
+
+  if ($params{login_screen} && !$todo_cfg{show_after_login}) {
+    $lxdebug->leave_sub();
+    return '';
+  }
+
   my (@todo_items, $todo_list);
 
-  push @todo_items, todo_list_follow_ups();
-  push @todo_items, todo_list_overdue_sales_quotations();
+  push @todo_items, todo_list_follow_ups()               if ($todo_cfg{"show_follow_ups${postfix}"});
+  push @todo_items, todo_list_overdue_sales_quotations() if ($todo_cfg{"show_overdue_sales_quotations${postfix}"});
 
   @todo_items = grep { $_ } @todo_items;
   $todo_list  = join("", @todo_items);

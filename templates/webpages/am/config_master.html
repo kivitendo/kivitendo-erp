@@ -8,6 +8,7 @@
    <li class="selected"><a href="#" rel="page_personal_settings"><translate>Personal settings</translate></a></li>
    <li><a href="#" rel="page_display_options"><translate>Display options</translate></a></li>
    <li><a href="#" rel="page_print_options"><translate>Print options</translate></a></li>
+   <li><a href="#" rel="page_todo_list_options"><translate>TODO list options</translate></a></li>
   </ul>
 
   <input type="hidden" name="type" value="preferences">
@@ -191,6 +192,53 @@
       <th align="right"><translate>Number of copies</translate></th>
       <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
      </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="page_todo_list_options" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right"><translate>Show your TODO list after loggin in</translate></th>
+      <td colspan="2">
+       <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_1" value="1"[% IF todo_cfg.show_after_login %] checked[% END %]>
+       <label for="todo_cfg_show_after_login_1"><translate>Yes</translate></label>
+       <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_0" value="0"[% IF !todo_cfg.show_after_login %] checked[% END %]>
+       <label for="todo_cfg_show_after_login_0"><translate>No</translate></label>
+      </td>
+     </tr>
+
+     <tr class="listheading">
+      <th colspan="3"><translate>Configuration of individual TODO items</translate></th>
+     </tr>
+
+     <tr>
+      <th align="right"><translate>Show follow ups...</translate></th>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_follow_ups" id="todo_cfg_show_follow_ups" value="1"[% IF todo_cfg.show_follow_ups %] checked[% END %]>
+       <label for="todo_cfg_show_follow_ups"><translate>...on the TODO list</translate></label>
+      </td>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_follow_ups_login" id="todo_cfg_show_follow_ups_login" value="1"[% IF todo_cfg.show_follow_ups_login %] checked[% END %]>
+       <label for="todo_cfg_show_follow_ups_login"><translate>...after loggin in</translate></label>
+      </td>
+     </tr>
+
+     [%- IF AUTH_RIGHTS_SALES_QUOTATION_EDIT %]
+     <tr>
+      <th align="right"><translate>Show overdue sales quotations...</translate></th>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations" id="todo_cfg_show_overdue_sales_quotations" value="1"[% IF todo_cfg.show_overdue_sales_quotations %] checked[% END %]>
+       <label for="todo_cfg_show_overdue_sales_quotations"><translate>...on the TODO list</translate></label>
+      </td>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations_login" id="todo_cfg_show_overdue_sales_quotations_login" value="1"[% IF todo_cfg.show_overdue_sales_quotations_login %] checked[% END %]>
+       <label for="todo_cfg_show_overdue_sales_quotations_login"><translate>...after loggin in</translate></label>
+      </td>
+     </tr>
+     [%- END %]
     </table>
 
     <br style="clear: left" />

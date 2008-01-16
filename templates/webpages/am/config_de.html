@@ -8,6 +8,7 @@
    <li class="selected"><a href="#" rel="page_personal_settings">Pers&ouml;nliche Einstellungen</a></li>
    <li><a href="#" rel="page_display_options">Anzeigeoptionen</a></li>
    <li><a href="#" rel="page_print_options">Druckoptionen</a></li>
+   <li><a href="#" rel="page_todo_list_options">Aufgabenlistenoptionen</a></li>
   </ul>
 
   <input type="hidden" name="type" value="preferences">
@@ -191,6 +192,53 @@
       <th align="right">Anzahl Kopien</th>
       <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
      </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="page_todo_list_options" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right">Aufgabenliste nach dem Anmelden anzeigen</th>
+      <td colspan="2">
+       <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_1" value="1"[% IF todo_cfg.show_after_login %] checked[% END %]>
+       <label for="todo_cfg_show_after_login_1">Ja</label>
+       <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_0" value="0"[% IF !todo_cfg.show_after_login %] checked[% END %]>
+       <label for="todo_cfg_show_after_login_0">Nein</label>
+      </td>
+     </tr>
+
+     <tr class="listheading">
+      <th colspan="3">Konfiguration f&uuml;r die einzelnen Aufgabenlistenpunkte</th>
+     </tr>
+
+     <tr>
+      <th align="right">Zeige Wiedervorlagen...</th>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_follow_ups" id="todo_cfg_show_follow_ups" value="1"[% IF todo_cfg.show_follow_ups %] checked[% END %]>
+       <label for="todo_cfg_show_follow_ups">...auf der Aufgabenliste</label>
+      </td>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_follow_ups_login" id="todo_cfg_show_follow_ups_login" value="1"[% IF todo_cfg.show_follow_ups_login %] checked[% END %]>
+       <label for="todo_cfg_show_follow_ups_login">...nach dem Anmelden</label>
+      </td>
+     </tr>
+
+     [%- IF AUTH_RIGHTS_SALES_QUOTATION_EDIT %]
+     <tr>
+      <th align="right">Zeige &uuml;berf&auml;llige Angebote...</th>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations" id="todo_cfg_show_overdue_sales_quotations" value="1"[% IF todo_cfg.show_overdue_sales_quotations %] checked[% END %]>
+       <label for="todo_cfg_show_overdue_sales_quotations">...auf der Aufgabenliste</label>
+      </td>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations_login" id="todo_cfg_show_overdue_sales_quotations_login" value="1"[% IF todo_cfg.show_overdue_sales_quotations_login %] checked[% END %]>
+       <label for="todo_cfg_show_overdue_sales_quotations_login">...nach dem Anmelden</label>
+      </td>
+     </tr>
+     [%- END %]
     </table>
 
     <br style="clear: left" />
