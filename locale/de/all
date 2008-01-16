@@ -136,6 +136,7 @@ $self->{texts} = {
   'Add unit'                    => 'Einheit hinzuf&uuml;gen',
   'Address'                     => 'Adresse',
   'Administration'              => 'Administration',
+  'Administration area'         => 'Administrationsbereich',
   'Advance turnover tax return' => 'Umsatzsteuervoranmeldung',
   'Aktion'                      => 'Aktion',
   'All'                         => 'Alle',

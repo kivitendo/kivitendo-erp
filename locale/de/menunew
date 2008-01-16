@@ -34,6 +34,7 @@ $self->{texts} = {
   'Add Transaction'             => 'Dialogbuchen',
   'Add Vendor'                  => 'Lieferant erfassen',
   'Add Vendor Invoice'          => 'Einkaufsrechnung erfassen',
+  'Administration area'         => 'Administrationsbereich',
   'Advance turnover tax return' => 'Umsatzsteuervoranmeldung',
   'All reports'                 => 'Alle Berichte (Konten&uuml;bersicht, Saldenbilanz, GuV, BWA, Bilanz, Projektbuchungen)',
   'Assemblies'                  => 'Erzeugnisse',
