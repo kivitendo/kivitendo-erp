@@ -57,4 +57,9 @@ $self->{LDAP_config} = {
 # Der Name des Cookies kann geändert werden, sofern gewünscht.
 # $self->{cookie_name} = 'lx_office_erp_session_id';
 
+# Die Zeitspanne, bis eine inaktive Session ungültig wird, kann
+# hier geändert werden. Der Standardwert ist acht Stunden.
+# Die Angabe ist in Minuten.
+# $self->{session_timeout} = 8 * 60;
+
 1;
