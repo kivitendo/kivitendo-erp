@@ -1,182 +1,211 @@
-[% USE HTML %]<body>
+[% USE HTML %]<body onLoad="fokus()">
 
  <div class="listtop">[% title %]</div>
 
- <form method="post" action="am.pl"name="Form">
+ <form method="post" action="am.pl" name="Form" onKeyUp="highlight(event)" onClick="highlight(event)">
+
+  <ul id="maintab" class="shadetabs">
+   <li class="selected"><a href="#" rel="page_personal_settings">Pers&ouml;nliche Einstellungen</a></li>
+   <li><a href="#" rel="page_display_options">Anzeigeoptionen</a></li>
+   <li><a href="#" rel="page_print_options">Print options</a></li>
+  </ul>
 
   <input type="hidden" name="type" value="preferences">
   <input type="hidden" name="role" value="[% HTML.escape(myconfig_role) %]">
 
-  <p>
-   <table>
-    <tr>
-     <th align="right">Name</th>
-     <td><input name="name" size="15" value="[% HTML.escape(myconfig_name) %]"></td>
-    </tr>
+  <div class="tabcontentstyle">
 
-    <tr>
-     <th align="right">Passwort</th>
-     <td>
-      [%- IF CAN_CHANGE_PASSWORD %]
-      <input type="password" name="new_password" size="10" value="********">
-      [%- ELSE %]
-      <input type="hidden" name="new_password" value="********">
-      [%- END %]
-     </td>
-    </tr>
+   <div id="page_personal_settings" class="tabcontent">
 
-    <tr>
-     <th align="right">eMail</th>
-     <td><input name="email" size="30" value="[% HTML.escape(myconfig_email) %]"></td>
-    </tr>
+    <table>
+     <tr>
+      <th align="right">Name</th>
+      <td><input name="name" size="15" value="[% HTML.escape(myconfig_name) %]"></td>
+     </tr>
 
-    <tr valign="top">
-     <th align="right">Unterschrift</th>
-     <td><textarea name="signature" rows="3" cols="50">[% HTML.escape(myconfig_signature) %]</textarea></td>
-    </tr>
-
-    <tr>
-     <th align="right">Telefon</th>
-     <td><input name="tel" size="14" value="[% HTML.escape(myconfig_tel) %]"></td>
-    </tr>
-
-    <tr>
-     <th align="right">Fax</th>
-     <td><input name="fax" size="14" value="[% HTML.escape(myconfig_fax) %]"></td>
-    </tr>
-    <tr>
-     <th align="right">Firma</th>
-     <td><input name="company" size="30" value="[% HTML.escape(myconfig_company) %]"></td>
-    </tr>
-    <tr valign="top">
-     <th align="right">Adresse</th>
-     <td><textarea name="address" rows="4" cols="50">[% HTML.escape(myconfig_address) %]</textarea></td>
-    </tr>
-    <tr>
-     <th align="right">Datumsformat</th>
-     <td>
-      <select name="dateformat">
-       [%- FOREACH row = DATEFORMATS %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+     <tr>
+      <th align="right">Passwort</th>
+      <td>
+       [%- IF CAN_CHANGE_PASSWORD %]
+       <input type="password" name="new_password" size="10" value="********">
+       [%- ELSE %]
+       <input type="hidden" name="new_password" value="********">
        [%- END %]
-      </select>
-     </td>
-    </tr>
-    <tr>
-     <th align="right">Zahlenformat (Ausgabe)</th>
-     <td>
-      <select name="numberformat">
-       [%- FOREACH row = NUMBERFORMATS %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-       [%- END %]
-      </select>
-     </td>
-    </tr>
+      </td>
+     </tr>
 
-    <tr>
-     <th align="right">Auswahllistenbegrenzung</th>
-     <td><input name="vclimit" size="10" value="[% HTML.escape(myconfig_vclimit) %]"></td>
-    </tr>
+     <tr>
+      <th align="right">eMail</th>
+      <td><input name="email" size="30" value="[% HTML.escape(myconfig_email) %]"></td>
+     </tr>
 
-    <tr>
-     <th align="right">Sprache</th>
-     <td>
-      <select name="countrycode">
-       [%- FOREACH row = COUNTRYCODES %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-       [%- END %]
-      </select>
-     </td>
-    </tr>
+     <tr valign="top">
+      <th align="right">Unterschrift</th>
+      <td><textarea name="signature" rows="3" cols="50">[% HTML.escape(myconfig_signature) %]</textarea></td>
+     </tr>
 
-    <tr>
-     <th align="right">Stilvorlage</th>
-     <td>
-      <select name="usestylesheet">
-       [%- FOREACH row = STYLESHEETS %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-       [%- END %]
-      </select>
-     </td>
-    </tr>
+     <tr>
+      <th align="right">Telefon</th>
+      <td><input name="tel" size="14" value="[% HTML.escape(myconfig_tel) %]"></td>
+     </tr>
 
-    <tr>
-     <th align="right">Menüsetup</th>
-     <td>
-      <input name="menustyle" id="menustyle_v3" type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>&nbsp;
-      <label for="menustyle_v3">Oben (mit CSS)</label>
-      <input name="menustyle" id="menustyle_neu" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>&nbsp;
-      <label for="menustyle_neu">Oben (mit Javascript)</label>
-      <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;
-      <label for="menustyle_old">Alt (seitlich)</label>
-      <input name="menustyle" id="menustyle_xml" type="radio" class="radio" value="xml" [% IF menustyle_xml %]checked[% END %]>&nbsp;
-      <label for="menustyle_xml">XML (XUL,...)</label>
-     </td>
-    </tr>
+     <tr>
+      <th align="right">Fax</th>
+      <td><input name="fax" size="14" value="[% HTML.escape(myconfig_fax) %]"></td>
+     </tr>
+     <tr>
+      <th align="right">Firma</th>
+      <td><input name="company" size="30" value="[% HTML.escape(myconfig_company) %]"></td>
+     </tr>
+     <tr valign="top">
+      <th align="right">Adresse</th>
+      <td><textarea name="address" rows="4" cols="50">[% HTML.escape(myconfig_address) %]</textarea></td>
+     </tr>
+    </table>
 
-    <tr valign="top">
-     <th align="right">Favoriten</th>
-     <td><textarea name="favorites" rows="4" cols="50">[% HTML.escape(myconfig_favorites) %]</textarea></td>
-    </tr>
+    <br style="clear: left" />
+   </div>
 
-    <tr>
-     <th align="right">Formulardetails (zweite Positionszeile)</th>
-     <td>
-      <input type="radio" id="rad_show_form_details" name="show_form_details" value="1" [% IF myconfig_show_form_details %]checked[% END %]>&nbsp;
-      <label for="rad_show_form_details">Standardm&auml;&szlig;ig anzeigen</label>
-      <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" [% UNLESS myconfig_show_form_details %]checked[% END %]>&nbsp;
-      <label for="rad_hide_form_details">Standardm&auml;&szlig;ig verstecken</label></td>
-    </tr>
+   <div id="page_display_options" class="tabcontent">
 
-    <input name="printer" type="hidden" value="[% HTML.escape(myconfig_printer) %]">
-    <tr class="listheading">
-     <th colspan="2">Druckoptionen</th>
-    </tr>
+    <table>
+     <tr>
+      <th align="right">Datumsformat</th>
+      <td>
+       <select name="dateformat">
+        [%- FOREACH row = DATEFORMATS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+     <tr>
+      <th align="right">Zahlenformat (Ausgabe)</th>
+      <td>
+       <select name="numberformat">
+        [%- FOREACH row = NUMBERFORMATS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
 
-    <tr>
-     <th align="right">Standardvorlagenformat</th>
-     <td>
-      <select name="template_format">
-       [%- FOREACH row = TEMPLATE_FORMATS %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-       [%- END %]
-      </select>
-     </td>
-    </tr>
+     <tr>
+      <th align="right">Auswahllistenbegrenzung</th>
+      <td><input name="vclimit" size="10" value="[% HTML.escape(myconfig_vclimit) %]"></td>
+     </tr>
 
-    <tr>
-     <th align="right">Standardausgabekanal</th>
-     <td>
-      <select name="default_media">
-       [%- FOREACH row = MEDIA %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-       [%- END %]
-      </select>
-     </td>
-    </tr>
+     <tr>
+      <th align="right">Sprache</th>
+      <td>
+       <select name="countrycode">
+        [%- FOREACH row = COUNTRYCODES %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
 
-    <tr>
-     <th align="right">Standarddrucker</th>
-     <td>
-      <select name="default_printer_id">
-       [%- FOREACH row = PRINTERS %]
-       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-       [%- END %]
-      </select>
-     </td>
-    </tr>
+     <tr>
+      <th align="right">Stilvorlage</th>
+      <td>
+       <select name="usestylesheet">
+        [%- FOREACH row = STYLESHEETS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
 
-    <tr>
-     <th align="right">Anzahl Kopien</th>
-     <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
-    </tr>
-   </table>
-  </p>
+     <tr>
+      <th align="right">Menüsetup</th>
+      <td>
+       <input name="menustyle" id="menustyle_v3" type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>&nbsp;
+       <label for="menustyle_v3">Oben (mit CSS)</label>
+       <input name="menustyle" id="menustyle_neu" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>&nbsp;
+       <label for="menustyle_neu">Oben (mit Javascript)</label>
+       <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;
+       <label for="menustyle_old">Alt (seitlich)</label>
+       <input name="menustyle" id="menustyle_xml" type="radio" class="radio" value="xml" [% IF menustyle_xml %]checked[% END %]>&nbsp;
+       <label for="menustyle_xml">XML (XUL,...)</label>
+      </td>
+     </tr>
 
-  <hr height="3" noshade>
+     <tr valign="top">
+      <th align="right">Favoriten</th>
+      <td><textarea name="favorites" rows="4" cols="50">[% HTML.escape(myconfig_favorites) %]</textarea></td>
+     </tr>
+
+     <tr>
+      <th align="right">Formulardetails (zweite Positionszeile)</th>
+      <td>
+       <input type="radio" id="rad_show_form_details" name="show_form_details" value="1" [% IF myconfig_show_form_details %]checked[% END %]>&nbsp;
+       <label for="rad_show_form_details">Standardm&auml;&szlig;ig anzeigen</label>
+       <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" [% UNLESS myconfig_show_form_details %]checked[% END %]>&nbsp;
+       <label for="rad_hide_form_details">Standardm&auml;&szlig;ig verstecken</label></td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="page_print_options" class="tabcontent">
+
+    <table>
+     <input name="printer" type="hidden" value="[% HTML.escape(myconfig_printer) %]">
+
+     <tr>
+      <th align="right">Standardvorlagenformat</th>
+      <td>
+       <select name="template_format">
+        [%- FOREACH row = TEMPLATE_FORMATS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Standardausgabekanal</th>
+      <td>
+       <select name="default_media">
+        [%- FOREACH row = MEDIA %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Standarddrucker</th>
+      <td>
+       <select name="default_printer_id">
+        [%- FOREACH row = PRINTERS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Anzahl Kopien</th>
+      <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+  </div>
 
   <p><input type="submit" class="submit" name="action" value="Speichern"></p>
  </form>
+
+ <script type="text/javascript">
+  <!--
+      //Start Tab Content script for UL with id="maintab" Separate multiple ids each with a comma.
+      initializetabcontent("maintab");
+    -->
+ </script>
 
 </body>
 </html>
