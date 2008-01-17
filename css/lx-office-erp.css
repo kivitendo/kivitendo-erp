@@ -124,6 +124,15 @@ body.menu {
 	border-width:thin;
 }
 
+.listheadingcontent { 
+	font-size: 9pt; 
+	background-color: 
+	rgb(236,233,216); 
+	color: black; 
+	font-weight: bolder;
+	text-align:left;
+}
+
 .accountlistheading { 
 	font-size: 10pt; 
 	padding:3px;
@@ -221,4 +230,11 @@ label {
 
 .unbalanced_ledger {
   background-color: #ffa0a0;
+}
+
+.error_message {
+  color: #000000;
+  border: 1px solid #8b0000;
+  background-color: #ffcccc;
+  padding: 3px;
 }
