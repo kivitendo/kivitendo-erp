@@ -1,8 +1,12 @@
 package SL::Auth;
 
-use constant OK           =>   0;
-use constant ERR_PASSWORD =>   1;
-use constant ERR_BACKEND  => 100;
+use constant OK              =>   0;
+use constant ERR_PASSWORD    =>   1;
+use constant ERR_BACKEND     => 100;
+
+use constant SESSION_OK      =>   0;
+use constant SESSION_NONE    =>   1;
+use constant SESSION_EXPIRED =>   2;
 
 use Digest::MD5 qw(md5_hex);
 use IO::File;
@@ -419,7 +423,10 @@ sub restore_session {
 
   $self->{SESSION}   = { };
 
-  return $main::lxdebug->leave_sub() if (!$session_id);
+  if (!$session_id) {
+    $main::lxdebug->leave_sub();
+    return SESSION_NONE;
+  }
 
   my ($dbh, $query, $sth, $cookie, $ref, $form);
 
@@ -433,7 +440,7 @@ sub restore_session {
   if (!$cookie || $cookie->{is_expired} || ($cookie->{ip_address} ne $ENV{REMOTE_ADDR})) {
     $self->destroy_session();
     $main::lxdebug->leave_sub();
-    return;
+    return SESSION_EXPIRED;
   }
 
   $query = qq|SELECT sess_key, sess_value FROM auth.session_content WHERE session_id = ?|;
@@ -447,6 +454,8 @@ sub restore_session {
   $sth->finish();
 
   $main::lxdebug->leave_sub();
+
+  return SESSION_OK;
 }
 
 sub destroy_session {

@@ -63,7 +63,7 @@ if (!$auth->session_tables_present()) {
   _show_error('login/auth_db_unreachable');
 }
 $auth->expire_sessions();
-$auth->restore_session();
+my $session_result = $auth->restore_session();
 
 require "bin/mozilla/common.pl";
 
@@ -99,19 +99,23 @@ if (-e "$userspath/nologin") {
   $form->error($locale->text('System currently down for maintenance!'));
 }
 
+if (SL::Auth::SESSION_EXPIRED == $session_result) {
+  _show_error('login/password_error', 'session');
+}
+
 $form->{login} =~ s|.*/||;
 
 %myconfig = $auth->read_user($form->{login});
 
 if (!$myconfig{login}) {
-  _show_error('login/password_error');
+  _show_error('login/password_error', 'password');
 }
 
 # locale messages
 $locale = new Locale "$myconfig{countrycode}", "$script";
 
 if (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0)) {
-  _show_error('login/password_error');
+  _show_error('login/password_error', 'password');
 }
 
 $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
@@ -152,7 +156,10 @@ if ($form->{action}) {
 
 sub _show_error {
   my $template           = shift;
+  my $error_type         = shift;
   $locale                = Locale->new($language, 'all');
+  $form->{error}         = $locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
+  $form->{error}         = $locale->text('Incorrect password!.')                   if ($error_type eq 'password');
   $myconfig{countrycode} = $language;
   $form->{stylesheet}    = 'css/lx-office-erp.css';
 

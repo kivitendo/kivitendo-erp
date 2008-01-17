@@ -52,7 +52,7 @@ if (!$auth->session_tables_present()) {
   show_error('login/auth_db_unreachable');
 }
 $auth->expire_sessions();
-$auth->restore_session();
+my $session_result = $auth->restore_session();
 
 # customization
 if (-f "bin/mozilla/custom_$form->{script}") {
@@ -68,6 +68,12 @@ if (-f "bin/mozilla/$form->{login}_$form->{script}") {
 
 # window title bar, user info
 $form->{titlebar} = "Lx-Office " . $locale->text('Version') . " $form->{version}";
+
+if (SL::Auth::SESSION_EXPIRED == $session_result) {
+  $form->{error_message} = $locale->text('The session is invalid or has expired.');
+  login_screen();
+  exit;
+}
 
 my $action = $form->{action};
 
@@ -104,9 +110,8 @@ sub login_screen {
     $form->{stylesheet} = "lx-office-erp.css";
   }
 
-  $form->{msg}   = $msg;
-  $form->{fokus} = "loginscreen.login";
-  $form->header;
+  $form->{msg} = $msg;
+  $form->header();
 
   print $form->parse_html_template('login/login_screen');
 

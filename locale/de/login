@@ -283,6 +283,7 @@ $self->{texts} = {
   'The creation of the authentication database failed:' => 'Das Anlegen der Authentifizierungsdatenbank schlug fehl:',
   'The follow-up date is missing.' => 'Das Wiedervorlagedatum fehlt.',
   'The list has been printed.'  => 'Die Liste wurde ausgedruckt.',
+  'The session is invalid or has expired.' => 'Die Session ist ung&uuml;ltig oder abgelaufen.',
   'The subject is missing.'     => 'Der Betreff fehlt.',
   'To (email)'                  => 'An',
   'Total'                       => 'Summe',
