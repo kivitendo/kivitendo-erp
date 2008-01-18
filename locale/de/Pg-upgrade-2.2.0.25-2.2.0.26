@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
   'Database update error:'      => 'Fehler beim Datenbankupgrade:',

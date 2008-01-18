@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   'A group with that name does already exist.' => 'Eine Gruppe mit diesem Namen gibt es bereits.',
   'A temporary directory could not be created:' => 'Ein tempor&auml;res Verzeichnis konnte nicht erstellt werden:',

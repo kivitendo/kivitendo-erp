@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   'At least one Perl module that Lx-Office ERP requires for running is not installed on your system.' => 'Mindestes ein Perl-Modul, das Lx-Office ERP zur Ausf&uuml;hrung ben&ouml;tigt, ist auf Ihrem System nicht installiert.',
   'Bcc'                         => 'Bcc',

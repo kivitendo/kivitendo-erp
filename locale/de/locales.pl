@@ -120,7 +120,9 @@ sub handle_file {
 
   open FH, ">$file" or die "$! : $file";
 
-  print FH q|$self->{texts} = {
+  print FH q|#!/usr/bin/perl
+
+$self->{texts} = {
 |;
 
   foreach $key (sort keys %locale) {
@@ -188,7 +190,9 @@ $self->{subs} = {
 
 open FH, ">all" or die "$! : all";
 
-print FH q|# These are all the texts to build the translations files.
+print FH q|#!/usr/bin/perl
+
+# These are all the texts to build the translations files.
 # The file has the form of 'english text'  => 'foreign text',
 # you can add the translation in this file or in the 'missing' file
 # run locales.pl from this directory to rebuild the translation files
@@ -225,7 +229,9 @@ close FH;
 if (@missing) {
   open FH, ">missing" or die "$! : missing";
 
-  print FH q|# add the missing texts and run locales.pl to rebuild
+  print FH q|#!/usr/bin/perl
+
+# add the missing texts and run locales.pl to rebuild
 
 $missing = {
 |;

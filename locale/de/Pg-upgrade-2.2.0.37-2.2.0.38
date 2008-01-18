@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   'Could not copy %s to %s. Reason: %s' => 'Die Datei &quot;%s&quot; konnte nicht nach &quot;%s&quot; kopiert werden. Grund: %s',
   'Could not open the file users/members.' => 'Die Datei &quot;users/members&quot; konnte nicht ge&ouml;ffnet werden.',

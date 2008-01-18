@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   '1. Quarter'                  => '1. Quartal',
   '2. Quarter'                  => '2. Quartal',

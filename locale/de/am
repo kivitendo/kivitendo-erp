@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   '&lt;%account_number%&gt; -- Your account number' => '&lt;%account_number%&gt; -- Ihre Kontonummer',
   '&lt;%bank%&gt; -- Your bank' => '&lt;%bank%&gt; -- Der Name Ihrer Bank',

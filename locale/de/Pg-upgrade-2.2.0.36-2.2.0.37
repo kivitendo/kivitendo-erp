@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
 };
 

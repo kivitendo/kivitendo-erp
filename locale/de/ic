@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 $self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
