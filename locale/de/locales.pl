@@ -640,8 +640,10 @@ sub search_translated_htmlfiles_wo_master {
 }
 
 sub strip_base {
-  $_[0] =~ s|^../../||;
-  $_[0] =~ s|templates/webpages/||;
+  my $s =  "$_[0]";             # Create a copy of the string.
 
-  return $_[0];
+  $s    =~ s|^../../||;
+  $s    =~ s|templates/webpages/||;
+
+  return $s;
 }
