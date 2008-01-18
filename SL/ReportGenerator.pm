@@ -343,7 +343,7 @@ sub prepare_html_content {
         # will format the table cell (e.g. borders etc).
         if (!scalar @{ $col->{CELL_ROWS} }) {
           push @{ $col->{CELL_ROWS} }, { 'data' => '&nbsp;' };
-        } elsif ((1 == scalar @{ $col->{CELL_ROWS} }) && !$col->{CELL_ROWS}->[0]->{data}) {
+        } elsif ((1 == scalar @{ $col->{CELL_ROWS} }) && (!defined $col->{CELL_ROWS}->[0]->{data} || ($col->{CELL_ROWS}->[0]->{data} eq ''))) {
           $col->{CELL_ROWS}->[0]->{data} = '&nbsp;';
         }
       }
