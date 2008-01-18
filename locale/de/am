@@ -118,6 +118,7 @@ $self->{texts} = {
   'Defaults saved.'             => 'Die Standardeinstellungen wurden gespeichert.',
   'Delete'                      => 'Löschen',
   'Delete Account'              => 'Konto löschen',
+  'Delivery Order'              => 'Lieferschein',
   'Department deleted!'         => 'Abteilung gelöscht.',
   'Department saved!'           => 'Abteilung gespeichert.',
   'Departments'                 => 'Abteilungen',

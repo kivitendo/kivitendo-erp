@@ -1,0 +1,96 @@
+[% USE HTML %][% USE LxERP %]<!-- <body> -->
+<!--  <form> -->
+<!--   <p> -->
+<!--    <table> -->
+
+ [%- IF closed %]
+ [%- SET RO = ' readonly' %]
+ [%- END %]
+
+    <tr>
+     <td>
+      <table>
+       <tr valign="bottom">
+        <th align="left">Bemerkungen</th>
+        <th align="left">interne Bemerkungen</th>
+       </tr>
+
+       <tr valign="top">
+        <td><textarea name="notes" rows="[% LxERP.numtextrows(notes, 25, 8, 2) %]" cols="25" wrap="soft"[% RO %]>[% HTML.escape(notes) %]</textarea></td>
+        <td><textarea name="intnotes" rows="[% LxERP.numtextrows(intnotes, 35, 8, 2) %]" cols="35" wrap="soft"[% RO %]>[% HTML.escape(intnotes) %]</textarea></td>
+       </tr>
+      </table>
+
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  [%- IF conf_webdav %]
+  <div class="listtop" align="left">Dokumente im WebDAV-Repository</div>
+
+  <p>
+   <table width="100%">
+    <tr>
+     <td align="left" width="30%"><b>Dateiname</b></td>
+     <td align="left" width="70%"><b>WebDAV-Link</b></td>
+    </tr>
+
+    [%- FOREACH file = WEBDAV %]
+    <tr>
+     <td align="left">[% HTML.escape(file.name) %]</td>
+     <td align="left"><a href="[% HTML.escape(file.link) %]">[% HTML.escape(file.type) %]</a></td>
+    </tr>
+    [%- END %]
+
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+  [%- END %]
+
+  <p>[% PRINT_OPTIONS %]</p>
+
+  <p>
+   Lieferschein bearbeiten<br>
+   <input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
+   [%- UNLESS closed %]
+   [%- IF vc == 'customer' %]
+   <input class="submit" type="submit" name="action" value="Lieferadresse">
+   [%- END %]
+   [%- END %]
+   <input class="submit" type="submit" name="action" value="Drucken">
+   <input class="submit" type="submit" name="action" value="eMail">
+   [%- UNLESS closed %]
+   <input class="submit" type="submit" name="action" value="Speichern">
+   [%- IF vc == 'customer' %]
+   <input class="submit" type="submit" name="action" value="Auslagern und abschließen">
+   [%- ELSE %]
+   <input class="submit" type="submit" name="action" value="Einlagern und abschließen">
+   [%- END %]
+   [%- END %]
+   [%- IF id %]
+   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="Historie">
+   [%- END %]
+  </p>
+
+  [%- IF id %]
+  <p>
+   Workflow Lieferschein<br>
+   <input class="submit" type="submit" name="action" value="als neu speichern">
+   [% UNLESS closed %]
+   <input class="submit" type="submit" name="action" value="Löschen">
+   [% END %]
+   <input class="submit" type="submit" name="action" value="Rechnung">
+  </p>
+  [%- END %]
+
+  <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+
+ </form>
+
+</body>
+</html>

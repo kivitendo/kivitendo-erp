@@ -45,6 +45,7 @@ $self->{texts} = {
   'Dataset upgrade'             => 'Datenbankaktualisierung',
   'Date'                        => 'Datum',
   'Delete'                      => 'Löschen',
+  'Delivery Order'              => 'Lieferschein',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Description'                 => 'Beschreibung',
   'Directory'                   => 'Verzeichnis',

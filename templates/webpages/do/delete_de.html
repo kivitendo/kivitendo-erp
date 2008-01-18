@@ -1,0 +1,22 @@
+[% USE HTML %][% USE LxERP %]<body>
+
+ <div class="listtop">Lieferschein l&ouml;schen</div>
+
+ <form method="post" action="do.pl">
+
+  <h2 class="confirm">Best&auml;tigen</h2>
+
+  <p>[% LxERP.format_string('Sind Sie sicher, dass Sie Lieferschein #1 l&ouml;schen wollen?', donumber) %]</p>
+
+  [%- FOREACH row = VARIABLES %]
+  <input type="hidden" name="[% HTML.escape(row.key) %]" value="[% HTML.escape(row.value) %]">
+  [%- END %]
+
+  <input type="hidden" name="yes_nextsub" value="delete_delivery_order">
+  <input type="hidden" name="no_nextsub" value="update">
+  <input name="action" class="submit" type="submit" value="Ja">
+  <input name="action" class="submit" type="submit" value="Nein">
+ </form>
+
+</body>
+</html>

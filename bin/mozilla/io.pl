@@ -96,13 +96,28 @@ sub display_row {
   $lxdebug->enter_sub();
 
   $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit | ' .
+                'sales_delivery_order_edit  | purchase_delivery_order_edit');
 
   my $numrows = shift;
 
   my ($readonly, $stock_in_out, $stock_in_out_title);
 
-  my $is_purchase = (first { $_ eq $form->{type} } qw(request_quotation purchase_order)) || ($form->{script} eq 'ir.pl');
+  my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
+  my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
+  my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
+
+  if ($is_delivery_order) {
+    $readonly             = ' readonly' if ($form->{closed});
+
+    if ($form->{type} eq 'sales_delivery_order') {
+      $stock_in_out_title = $locale->text('Release From Stock');
+      $stock_in_out       = 'out';
+    } else {
+      $stock_in_out_title = $locale->text('Transfer To Stock');
+      $stock_in_out       = 'in';
+    }
+  }
 
   # column_index
   my @header_sort = qw(runningnumber partnumber description ship qty unit sellprice_pg sellprice discount linetotal);
@@ -118,11 +133,12 @@ sub display_row {
     {  id => 'license',       width => 10,    value => $locale->text('License'),              display => 0, },
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
-    {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => 1, },
-    {  id => 'sellprice_pg',  width => 15,    value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/),  },
-    {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => ($form->{vc} eq 'customer'), },
-    {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => 1, },
+    {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
+    {  id => 'sellprice_pg',  width => 15,    value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/) && !$is_delivery_order,  },
+    {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => ($form->{vc} eq 'customer') && !$is_delivery_order, },
+    {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
+    {  id => 'stock_in_out',  width => 10,    value => $stock_in_out_title,                   display => $is_delivery_order, },
   ); 
   my @column_index = map { $_->{id} } grep { $_->{display} } @HEADER;
 
@@ -153,7 +169,7 @@ sub display_row {
   $deliverydate  = $locale->text('Required by');
 
   # special alignings
-  my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal);
+  my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal stock_in_out);
   my %nowrap = map { $_ => 1 }       qw(description unit);
 
   $form->{marge_total}           = 0;
@@ -261,6 +277,10 @@ sub display_row {
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 
+    if ($is_delivery_order) {
+      $column_data{stock_in_out} = (!$form->{"assembly_$i"} && $form->{"inventory_accno_$i"}) ? calculate_stock_in_out($i) : '&nbsp;';
+    }
+
     my @ROW1 = map { value => $column_data{$_}, align => $align{$_}, nowrap => $nowrap{$_} }, @column_index;
 
     # second row
@@ -304,6 +324,12 @@ sub display_row {
 # / marge calculations ending
 
     my @hidden_vars;
+
+    if ($is_delivery_order) {
+      map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount);
+      push @hidden_vars, qw(sellprice discount);
+      push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
+    }
 
     push @hidden_vars, qw(partunit) if ($is_purchase);
 
@@ -633,7 +659,8 @@ sub check_form {
                 not_discountable shop ve gv buchungsgruppen_id language_values
                 sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
                 transdate longdescription basefactor marge_total marge_percent
-                marge_price_factor lastcost price_factor_id);
+                marge_price_factor lastcost price_factor_id
+                stock_out stock_in);
 
   # remove any makes or model rows
   if ($form->{item} eq 'part') {
@@ -999,7 +1026,8 @@ sub print_options {
   $lxdebug->enter_sub();
 
   $auth->assert('part_service_assembly_edit     | vendor_invoice_edit        | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit | dunning_edit');
+                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit | dunning_edit |' .
+                'sales_delivery_order_edit      | purchase_delivery_order_edit');
 
   my %options = @_;
 
@@ -1030,8 +1058,6 @@ sub print_options {
     ($form->{type} eq 'sales_order') ? (
       opthash("sales_order",         $form->{PD}{sales_order},         $locale->text('Confirmation')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
-      opthash("pick_list",           $form->{PD}{pick_list},           $locale->text('Pick List')),
-      opthash("packing_list",        $form->{PD}{packing_list},        $locale->text('Packing List')) 
     ) : undef,
     ($form->{type} =~ /sales_quotation$/) ?
       opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')) : undef,
@@ -1040,12 +1066,15 @@ sub print_options {
     ($form->{type} eq 'invoice') ? (
       opthash("invoice",             $form->{PD}{invoice},             $locale->text('Invoice')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
-      opthash("packing_list",        $form->{PD}{packing_list},        $locale->text('Packing List'))
     ) : undef,
     ($form->{type} eq 'invoice' && $form->{storno}) ? (
       opthash("storno_invoice",      $form->{PD}{storno_invoice},      $locale->text('Storno Invoice')),
       opthash("storno_packing_list", $form->{PD}{storno_packing_list}, $locale->text('Storno Packing List')) 
     ) : undef,
+    ($form->{type} =~ /_delivery_order$/) ? (
+      opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
+      opthash('pick_list',           $form->{PD}{pick_list},           $locale->text('Pick List')),
+    ) : undef;
     ($form->{type} eq 'credit_note') ?
       opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef;
 
@@ -1152,7 +1181,8 @@ sub print_form {
   $lxdebug->enter_sub();
 
   $auth->assert('part_service_assembly_edit     | vendor_invoice_edit        | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit');
+                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit |' .
+                'sales_delivery_order_edit      | purchase_delivery_order_edit');
 
   my ($old_form) = @_;
 
@@ -1214,13 +1244,6 @@ sub print_form {
     # set invnumber for template packing_list 
     $form->{invnumber}   = $form->{ordnumber};
   }
-  if ($form->{formname} eq 'pick_list') {
-    $inv                  = "ord";
-    $due                  = "req";
-    $form->{"${inv}date"} = ($form->{transdate}) ? $form->{transdate} : $form->{invdate};
-    $form->{label}        = $locale->text('Pick List');
-    $order                = 1 unless $form->{type} eq 'invoice';
-  }
   if ($form->{formname} eq 'purchase_order') {
     $inv                  = "ord";
     $due                  = "req";
@@ -1262,6 +1285,14 @@ sub print_form {
     $form->{label}        = $locale->text('RFQ');
     $numberfld            = "rfqnumber";
     $order                = 1;
+  }
+
+  if ($form->{type} =~ /_delivery_order$/) {
+    undef $due;
+    $inv                  = "do";
+    $form->{"${inv}date"} = $form->{transdate};
+    $numberfld            = $form->{type} =~ /^sales/ ? 'sdonumber' : 'pdonumber';
+    $form->{label}        = $form->{formname} eq 'pick_list' ? $locale->text('Pick List') : $locale->text('Delivery Order');
   }
 
   $form->isblank("email", $locale->text('E-mail address missing!'))
@@ -1412,7 +1443,7 @@ sub print_form {
     $form->{language} = "_" . $form->{language};
   }
 
-  # Format dates and numbers.
+  # Format dates.
   format_dates($output_dateformat, $output_longdates,
                qw(invdate orddate quodate pldate duedate reqdate transdate
                   shippingdate deliverydate validitydate paymentdate

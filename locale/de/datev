@@ -48,6 +48,7 @@ $self->{texts} = {
   'Date'                        => 'Datum',
   'Datum von'                   => 'Datum von',
   'December'                    => 'Dezember',
+  'Delivery Order'              => 'Lieferschein',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Directory'                   => 'Verzeichnis',
   'ELSE'                        => 'Zusatz',

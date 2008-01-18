@@ -36,6 +36,7 @@ $self->{texts} = {
   'DUNNING STARTED'             => 'Mahnprozess gestartet',
   'Dataset upgrade'             => 'Datenbankaktualisierung',
   'Date'                        => 'Datum',
+  'Delivery Order'              => 'Lieferschein',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Directory'                   => 'Verzeichnis',
   'ELSE'                        => 'Zusatz',

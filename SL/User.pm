@@ -955,7 +955,8 @@ sub config_vars {
     printer role sid signature stylesheet tel templates vclimit angebote
     bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen
     taxnumber co_ustid duns menustyle template_format default_media
-    default_printer_id copies show_form_details favorites);
+    default_printer_id copies show_form_details favorites
+    pdonumber sdonumber);
 
   $main::lxdebug->leave_sub();
 

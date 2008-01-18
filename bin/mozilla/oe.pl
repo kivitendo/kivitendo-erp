@@ -1967,6 +1967,53 @@ sub poso {
   $lxdebug->leave_sub();
 }
 
+sub delivery_order {
+  $lxdebug->enter_sub();
+
+  if ($form->{type} =~ /^sales/) {
+    $auth->assert('sales_delivery_order_edit');
+
+    $form->{vc}    = 'customer';
+    $form->{type}  = 'sales_delivery_order';
+
+  } else {
+    $auth->assert('purchase_delivery_order_edit');
+
+    $form->{vc}    = 'vendor';
+    $form->{type}  = 'purchase_delivery_order';
+  }
+
+  require "bin/mozilla/do.pl";
+
+  $form->{cp_id}           *= 1;
+  $form->{transdate}        = $form->current_date(\%myconfig);
+  delete $form->{duedate};
+
+  $form->{closed}           = 0;
+
+  $form->{old_employee_id}  = $form->{employee_id};
+  $form->{old_salesman_id}  = $form->{salesman_id};
+
+  # reset
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal);
+
+  for $i (1 .. $form->{rowcount}) {
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor);
+  }
+
+  my %old_values = map { $_ => $form->{$_} } qw(customer_id oldcustomer customer vendor_id oldvendor vendor);
+
+  order_links();
+
+  prepare_order();
+
+  map { $form->{$_} = $old_values{$_} if ($old_values{$_}) } keys %old_values;
+
+  update();
+
+  $lxdebug->leave_sub();
+}
+
 sub e_mail {
   $lxdebug->enter_sub();
 
@@ -2002,6 +2049,8 @@ sub display_form {
   $lxdebug->enter_sub();
 
   check_oe_access();
+
+  retrieve_partunits() if ($form->{type} =~ /_delivery_order$/);
 
   $form->{"taxaccounts"} =~ s/\s*$//;
   $form->{"taxaccounts"} =~ s/^\s*//;

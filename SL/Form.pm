@@ -53,7 +53,7 @@ use SL::Menu;
 use SL::Template;
 use SL::User;
 use Template;
-use List::Util qw(max min sum);
+use List::Util qw(first max min sum);
 
 my $standard_dbh;
 
@@ -1257,18 +1257,20 @@ sub get_formname_translation {
   $formname ||= $self->{formname};
 
   my %formname_translations = (
-    bin_list            => $main::locale->text('Bin List'),
-    credit_note         => $main::locale->text('Credit Note'),
-    invoice             => $main::locale->text('Invoice'),
-    packing_list        => $main::locale->text('Packing List'),
-    pick_list           => $main::locale->text('Pick List'),
-    proforma            => $main::locale->text('Proforma Invoice'),
-    purchase_order      => $main::locale->text('Purchase Order'),
-    request_quotation   => $main::locale->text('RFQ'),
-    sales_order         => $main::locale->text('Confirmation'),
-    sales_quotation     => $main::locale->text('Quotation'),
-    storno_invoice      => $main::locale->text('Storno Invoice'),
-    storno_packing_list => $main::locale->text('Storno Packing List'),
+    bin_list                => $main::locale->text('Bin List'),
+    credit_note             => $main::locale->text('Credit Note'),
+    invoice                 => $main::locale->text('Invoice'),
+    packing_list            => $main::locale->text('Packing List'),
+    pick_list               => $main::locale->text('Pick List'),
+    proforma                => $main::locale->text('Proforma Invoice'),
+    purchase_order          => $main::locale->text('Purchase Order'),
+    request_quotation       => $main::locale->text('RFQ'),
+    sales_order             => $main::locale->text('Confirmation'),
+    sales_quotation         => $main::locale->text('Quotation'),
+    storno_invoice          => $main::locale->text('Storno Invoice'),
+    storno_packing_list     => $main::locale->text('Storno Packing List'),
+    sales_delivery_order    => $main::locale->text('Delivery Order'),
+    purchase_delivery_order => $main::locale->text('Delivery Order'),
   );
 
   return $formname_translations{$formname}
@@ -1278,10 +1280,11 @@ sub generate_attachment_filename {
   my ($self) = @_;
 
   my $attachment_filename = $self->unquote_html($self->get_formname_translation());
-  my $prefix = 
-      (grep { $self->{"type"} eq $_ } qw(invoice credit_note)) ? "inv"
-    : ($self->{"type"} =~ /_quotation$/)                       ? "quo"
-    :                                                            "ord";
+  my $prefix =
+      (first { $self->{type} eq $_ } qw(invoice credit_note)) ? 'inv'
+    : ($self->{type} =~ /_quotation$/)                        ? 'quo'
+    : ($self->{type} =~ /_delivery_order$/)                   ? 'do'
+    :                                                           'ord';
 
   if ($attachment_filename && $self->{"${prefix}number"}) {
     $attachment_filename .= "_" . $self->{"${prefix}number"}
