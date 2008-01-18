@@ -648,6 +648,7 @@ sub post_invoice {
         if ($form->{"assembly_$i"}) {
           # record assembly item as allocated
           &process_assembly($dbh, $form, $form->{"id_$i"}, $baseqty);
+
         } else {
           $allocated = &cogs($dbh, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
         }
