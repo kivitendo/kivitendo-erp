@@ -2517,7 +2517,8 @@ sub get_all_warehouses {
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
 
-  my $query = qq|SELECT w.id, w.description, w.invalid
+  my $query = qq|SELECT w.id, w.description, w.invalid,
+                   (SELECT COUNT(b.description) FROM bin b WHERE b.warehouse_id = w.id) AS number_of_bins,
                  FROM warehouse w
                  ORDER BY w.sortkey|;
 
