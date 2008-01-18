@@ -2407,5 +2407,154 @@ sub delete_price_factor {
   $main::lxdebug->leave_sub();
 }
 
+sub save_warehouse {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my ($query, @values, $sth);
+
+  if (!$form->{id}) {
+    $query        = qq|SELECT nextval('id')|;
+    ($form->{id}) = selectrow_query($form, $dbh, $query);
+
+    $query        = qq|INSERT INTO warehouse (id, sortkey) VALUES (?, (SELECT COALESCE(MAX(sortkey), 0) + 1 FROM warehouse))|;
+    do_query($form, $dbh, $query, $form->{id});
+  }
+
+  do_query($form, $dbh, qq|UPDATE warehouse SET description = ?, invalid = ? WHERE id = ?|,
+           $form->{description}, $form->{invalid} ? 't' : 'f', conv_i($form->{id}));
+
+  if (0 < $form->{number_of_new_bins}) {
+    $query = qq|INSERT INTO bin (warehouse_id, description) VALUES (?, ?)|;
+    $sth   = prepare_query($form, $dbh, $query);
+
+    foreach my $i (1..$form->{number_of_new_bins}) {
+      do_statement($form, $sth, $query, conv_i($form->{id}), "$form->{prefix}${i}");
+    }
+
+    $sth->finish();
+  }
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub save_bins {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my ($query, @values, $commit_necessary, $sth);
+
+  @values = map { $form->{"id_${_}"} } grep { $form->{"delete_${_}"} } (1..$form->{rowcount});
+
+  if (@values) {
+    $query = qq|DELETE FROM bin WHERE id IN (| . join(', ', ('?') x scalar(@values)) . qq|)|;
+    do_query($form, $dbh, $query, @values);
+
+    $commit_necessary = 1;
+  }
+
+  $query = qq|UPDATE bin SET description = ? WHERE id = ?|;
+  $sth   = prepare_query($form, $dbh, $query);
+
+  foreach my $row (1..$form->{rowcount}) {
+    next if ($form->{"delete_${row}"});
+
+    do_statement($form, $sth, $query, $form->{"description_${row}"}, conv_i($form->{"id_${row}"}));
+
+    $commit_necessary = 1;
+  }
+
+  $sth->finish();
+
+  $dbh->commit() if ($commit_necessary);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_warehouse {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my $id      = conv_i($form->{id});
+  my $query   = qq|SELECT i.bin_id FROM inventory i WHERE i.bin_id IN (SELECT b.id FROM bin b WHERE b.warehouse_id = ?) LIMIT 1|;
+  my ($count) = selectrow_query($form, $dbh, $query, $id);
+
+  if ($count) {
+    $main::lxdebug->leave_sub();
+    return 0;
+  }
+
+  do_query($form, $dbh, qq|DELETE FROM warehouse_access WHERE warehouse_id = ?|, conv_i($form->{id}));
+  do_query($form, $dbh, qq|DELETE FROM bin              WHERE warehouse_id = ?|, conv_i($form->{id}));
+  do_query($form, $dbh, qq|DELETE FROM warehouse        WHERE id           = ?|, conv_i($form->{id}));
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+
+  return 1;
+}
+
+sub get_all_warehouses {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my $query = qq|SELECT w.id, w.description, w.invalid
+                 FROM warehouse w
+                 ORDER BY w.sortkey|;
+
+  $form->{WAREHOUSES} = selectall_hashref_query($form, $dbh, $query);
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_warehouse {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my $id    = conv_i($form->{id});
+  my $query = qq|SELECT w.description, w.invalid
+                 FROM warehouse w
+                 WHERE w.id = ?|;
+
+  my $ref   = selectfirst_hashref_query($form, $dbh, $query, $id, $id);
+
+  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
+
+  $query = qq|SELECT b.*, EXISTS
+                (SELECT i.warehouse_id
+                 FROM inventory i
+                 WHERE i.bin_id = b.id
+                 LIMIT 1)
+                AS in_use
+              FROM bin b
+              WHERE b.warehouse_id = ?|;
+
+  $form->{BINS} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
+
+  $main::lxdebug->leave_sub();
+}
 
 1;

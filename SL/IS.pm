@@ -645,32 +645,10 @@ sub post_invoice {
 
       if ($form->{"inventory_accno_$i"} || $form->{"assembly_$i"}) {
 
-        # adjust parts onhand quantity
-
         if ($form->{"assembly_$i"}) {
-
-          # do not update if assembly consists of all services
-          $query =
-            qq|SELECT sum(p.inventory_accno_id)
-               FROM parts p
-               JOIN assembly a ON (a.parts_id = p.id)
-               WHERE a.id = ?|;
-          $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id_$i"}));
-
-          if ($sth->fetchrow_array) {
-            $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
-                                  $baseqty * -1, $form->{"id_$i"})
-              unless $form->{shipped};
-          }
-          $sth->finish;
-
           # record assembly item as allocated
           &process_assembly($dbh, $form, $form->{"id_$i"}, $baseqty);
         } else {
-          $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
-                                $baseqty * -1, $form->{"id_$i"})
-            unless $form->{shipped};
-
           $allocated = &cogs($dbh, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
         }
       }
@@ -1236,18 +1214,7 @@ sub reverse_invoice {
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
 
-    if ($ref->{inventory_accno_id} || $ref->{assembly}) {
-
-      # if the invoice item is not an assemblyitem adjust parts onhand
-      if (!$ref->{assemblyitem}) {
-
-        # adjust onhand in parts table
-        $form->update_balance($dbh, "parts", "onhand", qq|id = $ref->{parts_id}|, $ref->{qty});
-      }
-
-      # loop if it is an assembly
-      next if ($ref->{assembly});
-
+    if ($ref->{inventory_accno_id}) {
       # de-allocated purchases
       $query =
         qq|SELECT i.id, i.trans_id, i.allocated
@@ -1824,6 +1791,8 @@ sub retrieve_item {
         }
       }
     }
+
+    $ref->{onhand} *= 1;
 
     push @{ $form->{item_list} }, $ref;
 

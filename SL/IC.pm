@@ -325,14 +325,8 @@ sub save {
     }
 
     if ($form->{item} eq 'assembly') {
-      if ($form->{onhand} != 0) {
-        &adjust_inventory($dbh, $form, $form->{id}, $form->{onhand} * -1);
-      }
-
       # delete assembly records
       do_query($form, $dbh, qq|DELETE FROM assembly WHERE id = ?|, conv_i($form->{id}));
-
-      $form->{onhand} += $form->{stock};
     }
 
     # delete tax records
@@ -352,7 +346,6 @@ sub save {
     do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber) VALUES (?, '')|, $form->{id});
 
     $form->{orphaned} = 1;
-    $form->{onhand} = $form->{stock} if $form->{item} eq 'assembly';
     if ($form->{partnumber} eq "" && $form->{"item"} eq "service") {
       $form->{partnumber} = $form->update_defaults($myconfig, "servicenumber");
     }
@@ -532,24 +525,12 @@ sub save {
       }
     }
 
-    # adjust onhand for the parts
-    if ($form->{onhand} != 0) {
-      &adjust_inventory($dbh, $form, $form->{id}, $form->{onhand});
-    }
-
     @a = localtime;
     $a[5] += 1900;
     $a[4]++;
     my $shippingdate = "$a[5]-$a[4]-$a[3]";
 
     $form->get_employee($dbh);
-
-    # add inventory record
-    $query =
-      qq|INSERT INTO inventory (warehouse_id, parts_id, qty, shippingdate, employee_id)
-         VALUES (0, ?, ?, '$shippingdate', ?)|;
-    @values = (conv_i($form->{id}), $form->{stock}, conv_i($form->{employee_id}));
-    do_query($form, $dbh, $query, @values);
 
   }
 
@@ -648,67 +629,6 @@ sub retrieve_assemblies {
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
-}
-
-sub restock_assemblies {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  for my $i (1 .. $form->{rowcount}) {
-
-    $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
-
-    if ($form->{"qty_$i"} != 0) {
-      &adjust_inventory($dbh, $form, $form->{"id_$i"}, $form->{"qty_$i"});
-    }
-
-  }
-
-  my $rc = $dbh->commit;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
-}
-
-sub adjust_inventory {
-  $main::lxdebug->enter_sub();
-
-  my ($dbh, $form, $id, $qty) = @_;
-
-  my $query =
-    qq|SELECT p.id, p.inventory_accno_id, p.assembly, a.qty
-       FROM parts p, assembly a
-       WHERE (a.parts_id = p.id) AND (a.id = ?)|;
-  my $sth = prepare_execute_query($form, $dbh, $query, conv_i($id));
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-
-    my $allocate = $qty * $ref->{qty};
-
-    # is it a service item, then loop
-    $ref->{inventory_accno_id} *= 1;
-    next if (($ref->{inventory_accno_id} == 0) && !$ref->{assembly});
-
-    # adjust parts onhand
-    $form->update_balance($dbh, "parts", "onhand",
-                          qq|id = $ref->{id}|,
-                          $allocate * -1);
-  }
-
-  $sth->finish;
-
-  # update assembly
-  my $rc = $form->update_balance($dbh, "parts", "onhand", qq|id = ?|, $qty, $id);
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
 }
 
 sub delete {
@@ -1013,6 +933,8 @@ sub all_parts {
   my $query = qq|SELECT DISTINCT $select_clause FROM parts p $join_clause WHERE $where_clause $group_clause $order_clause $limit_clause|;
 
   $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
+
+  map { $_->{onhand} *= 1 } @{ $form->{parts} };
 
 ##  my $where = qq|1 = 1|;
 ##  my (@values, $var, $flds, $group, $limit);

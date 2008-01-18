@@ -178,8 +178,6 @@ sub post_invoice {
       @values = ($form->{"sellprice_$i"}, conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
 
-      $form->update_balance($dbh, "parts", "onhand", qq|id = ?|, $baseqty, $form->{"id_$i"}) if !$form->{shipped};
-
       # check if we sold the item already and
       # make an entry for the expense and inventory
       $query =
@@ -571,9 +569,6 @@ sub reverse_invoice {
     $netamount += $form->round_amount($ref->{sellprice} * $ref->{qty} * -1, 2);
 
     next unless $ref->{inventory_accno_id};
-
-    # update onhand
-    $form->update_balance($dbh, "parts", "onhand", qq|id = $ref->{parts_id}|, $ref->{qty});
 
     # if $ref->{allocated} > 0 than we sold that many items
     next if ($ref->{allocated} <= 0);
@@ -1056,6 +1051,8 @@ sub retrieve_item {
 
     $stw->finish();
     chop $ref->{taxaccounts};
+
+    $ref->{onhand} *= 1;
 
     push @{ $form->{item_list} }, $ref;
 

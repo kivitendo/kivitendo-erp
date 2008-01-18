@@ -68,11 +68,6 @@ sub save_license {
   $sth->execute || $form->dberror($query);
   $sth->finish();
 
-  if ($form->{own_product}) {
-    $form->update_balance($dbh, "parts", "onhand", qq|id = ?|,
-                          1, $form->{parts_id});
-  }
-
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();

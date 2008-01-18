@@ -47,6 +47,126 @@ sub build_std_url {
 
 # -------------------------------------------------------------------------
 
+sub select_part {
+  $lxdebug->enter_sub();
+
+  my ($callback_sub, @parts) = @_;
+
+  my $remap_parts_id = 0;
+  if (defined($parts[0]->{parts_id}) && !defined($parts[0]->{id})) {
+    $remap_parts_id = 1;
+    map { $_->{id} = $_->{parts_id}; } @parts;
+  }
+
+  my $remap_partnumber = 0;
+  if (defined($parts[0]->{partnumber}) && !defined($parts[0]->{number})) {
+    $remap_partnumber = 1;
+    map { $_->{number} = $_->{partnumber}; } @parts;
+  }
+
+  my $has_charge = 0;
+  if (defined($parts[0]->{chargenumber})) {
+    $has_charge = 1;
+    map { $_->{has_charge} = 1; } @parts;
+  }
+
+  my $old_form = save_form();
+
+  $form->header();
+  print $form->parse_html_template("generic/select_part",
+                                   { "PARTS"            => \@parts,
+                                     "old_form"         => $old_form,
+                                     "title"            => $locale->text("Select a part"),
+                                     "nextsub"          => "select_part_internal",
+                                     "callback_sub"     => $callback_sub,
+                                     "has_charge"       => $has_charge,
+                                     "remap_parts_id"   => $remap_parts_id,
+                                     "remap_partnumber" => $remap_partnumber });
+
+  $lxdebug->leave_sub();
+}
+
+sub select_part_internal {
+  $lxdebug->enter_sub();
+
+  my ($new_item, $callback_sub);
+
+  my $re = "^new_.*_" . $form->{selection};
+
+  foreach (grep /$re/, keys %{ $form }) {
+    my $new_key           =  $_;
+    $new_key              =~ s/^new_//;
+    $new_key              =~ s/_\d+$//;
+    $new_item->{$new_key} =  $form->{$_};
+  }
+
+  if ($form->{remap_parts_id}) {
+    $new_item->{parts_id} = $new_item->{id};
+    delete $new_item->{id};
+  }
+
+  if ($form->{remap_partnumber}) {
+    $new_item->{partnumber} = $new_item->{number};
+    delete $new_item->{number};
+  }
+
+  my $callback_sub = $form->{callback_sub};
+
+  restore_form($form->{old_form});
+
+  call_sub($callback_sub, $new_item);
+
+  $lxdebug->leave_sub();
+}
+
+sub part_selection_internal {
+  $lxdebug->enter_sub();
+
+  $order_by  = "description";
+  $order_by  = $form->{"order_by"} if (defined($form->{"order_by"}));
+  $order_dir = 1;
+  $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
+
+  %options   = map { $_ => 1 } split m/:/, $form->{options};
+
+  map { $form->{$_} = 1 if ($options{$_}) } qw(no_services no_assemblies stockable);
+
+  $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
+
+  if (0 == scalar(@{$parts})) {
+    $form->show_generic_information($locale->text("No part was found matching the search parameters."));
+  } elsif (1 == scalar(@{$parts})) {
+    $onload = "part_selected('1')";
+  }
+
+  map { $parts->[$_]->{selected} = $_ ? 0 : 1; } (0..$#{$parts});
+
+  my $callback = build_std_url('action=part_selection_internal', qw(partnumber description input_partnumber input_description input_partsid),
+                               grep({ /^[fl]_/ } keys %{ $form }));
+
+  my @header_sort  = qw(partnumber description);
+  my %header_title = ( "partnumber"  => $locale->text("Part Number"),
+                       "description" => $locale->text("Part description"),
+                       );
+
+  my @header =
+    map(+{ "column_title" => $header_title{$_},
+           "column"       => $_,
+           "callback"     => $callback . "order_by=${_}&order_dir=" . ($order_by eq $_ ? 1 - $order_dir : $order_dir),
+         },
+        @header_sort);
+
+  $form->{title} = $locale->text("Select a part");
+  $form->header();
+  print $form->parse_html_template("generic/part_selection", { "HEADER" => \@header,
+                                                               "PARTS"  => $parts,
+                                                               "onload" => $onload });
+
+  $lxdebug->leave_sub();
+}
+
+# -------------------------------------------------------------------------
+
 sub delivery_customer_selection {
   $lxdebug->enter_sub();
 

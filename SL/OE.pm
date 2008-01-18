@@ -242,8 +242,6 @@ sub save {
 
   if ($form->{id}) {
 
-    &adj_onhand($dbh, $form, $ml) if $form->{type} =~ /_order$/;
-
     $query = qq|DELETE FROM orderitems WHERE trans_id = ?|;
     do_query($form, $dbh, $query, $form->{id});
 
@@ -382,7 +380,7 @@ sub save {
       }
       $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                    (SELECT factor FROM price_factors WHERE id = ?), ?)|;
-        push(@values,
+      push(@values,
            conv_i($form->{id}), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $form->{"longdescription_$i"},
            $form->{"qty_$i"}, $baseqty,
@@ -476,12 +474,6 @@ sub save {
     }
   }
 
-  if ($form->{type} =~ /_order$/) {
-
-    # adjust onhand
-    &adj_onhand($dbh, $form, $ml * -1);
-  }
-
   $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
                                        "quonumber" : "ordnumber"};
 
@@ -556,24 +548,8 @@ sub delete {
   }
   $sth->finish;
 
-  $query = qq|SELECT o.parts_id, o.ship FROM orderitems o | .
-           qq|WHERE o.trans_id = ?|;
-  @values = (conv_i($form->{id}));
-  $sth = $dbh->prepare($query);
-  $sth->execute(@values) || $self->dberror($query);
-
-  while (my ($id, $ship) = $sth->fetchrow_array) {
-    $form->update_balance($dbh, "parts", "onhand", qq|id = $id|, $ship * -1);
-  }
-  $sth->finish;
-
   # delete-values
   @values = (conv_i($form->{id}));
-
-  # delete inventory
-  $query = qq|DELETE FROM inventory | .
-           qq|WHERE oe_id = ?|;
-  do_query($form, $dbh, $query, @values);
 
   # delete status entries
   $query = qq|DELETE FROM status | .
@@ -1151,65 +1127,6 @@ sub project_description {
   $main::lxdebug->leave_sub();
 
   return $value;
-}
-
-sub adj_onhand {
-  $main::lxdebug->enter_sub();
-
-  my ($dbh, $form, $ml) = @_;
-
-  my $all_units = $form->{all_units};
-
-  my $query =
-    qq|SELECT oi.parts_id, oi.ship, oi.unit, p.inventory_accno_id, p.assembly | .
-    qq|   FROM orderitems oi | .
-    qq|   JOIN parts p ON (p.id = oi.parts_id) | .
-    qq|   WHERE oi.trans_id = ?|;
-  my @values = ($form->{id});
-  my $sth = $dbh->prepare($query);
-  $sth->execute(@values) || $form->dberror($query);
-
-  $query =
-    qq|SELECT sum(p.inventory_accno_id) | .
-    qq|FROM parts p | .
-    qq|JOIN assembly a ON (a.parts_id = p.id) | .
-    qq|WHERE a.id = ?|;
-  my $ath = $dbh->prepare($query) || $form->dberror($query);
-
-  my $ispa;
-
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    if ($ref->{inventory_accno_id} || $ref->{assembly}) {
-
-      # do not update if assembly consists of all services
-      if ($ref->{assembly}) {
-        $ath->execute($ref->{parts_id}) || $form->dberror($query);
-
-        ($ispa) = $sth->fetchrow_array;
-        $ath->finish;
-
-        next unless $ispa;
-
-      }
-
-      # get item baseunit
-      $query = qq|SELECT unit FROM parts WHERE id = ?|;
-      my ($item_unit) = selectrow_query($form, $dbh, $query, $ref->{parts_id});
-
-      my $basefactor = 1;
-      if (defined($all_units->{$item_unit}->{factor}) && (($all_units->{$item_unit}->{factor} * 1) != 0)) {
-        $basefactor = $all_units->{$ref->{unit}}->{factor} / $all_units->{$item_unit}->{factor};
-      }
-      my $baseqty = $ref->{ship} * $basefactor;
-
-      # adjust onhand in parts table
-      $form->update_balance($dbh, "parts", "onhand", qq|id = $ref->{parts_id}|, $baseqty * $ml);
-    }
-  }
-
-  $sth->finish;
-
-  $main::lxdebug->leave_sub();
 }
 
 1;

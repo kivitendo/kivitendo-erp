@@ -1,0 +1,127 @@
+[% USE HTML %][% USE JavaScript %]<body onload="on_load();">
+
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/part_selection.js"></script>
+ <script type="text/javascript">
+   <!--
+      warehouses = new Array();
+      [%- USE WAREHOUSES_it = Iterator(WAREHOUSES) %][%- FOREACH warehouse = WAREHOUSES_it %]
+      warehouses[[% WAREHOUSES_it.count - 1 %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['id'] = [% warehouse.id %];
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][0] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][0]['description'] = "---";
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][0]['id'] = "";
+      [% USE BINS_it = Iterator(warehouse.BINS) %][% FOREACH bin = BINS_it %]
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count %]]['description'] = "[% JavaScript.escape(bin.description) %]";
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count %]]['id'] = [% bin.id %];
+      [% END %]
+      [% END %]
+
+      function warehouse_selected(warehouse_id, bin_id) {
+        var control = document.getElementById("bin_id");
+
+        for (var i = control.options.length - 1; i >= 0; i--) {
+          control.options[i] = null;
+        }
+
+        var warehouse_index = 0;
+
+        for (i = 0; i < warehouses.length; i++)
+          if (warehouses[i]['id'] == warehouse_id) {
+            warehouse_index = i;
+            break;
+          }
+
+        var warehouse = warehouses[warehouse_index];
+        var bin_index = 0;
+
+        for (i = 0; i < warehouse['bins'].length; i++)
+          if (warehouse['bins'][i]['id'] == bin_id) {
+            bin_index = i;
+            break;
+          }
+
+        for (i = 0; i < warehouse['bins'].length; i++) {
+          control.options[i] = new Option(warehouse['bins'][i]['description'], warehouse['bins'][i]['id']);
+        }
+
+
+        control.options[bin_index].selected = true;
+      }
+
+      function on_load() {
+        warehouse_selected(0, 0);
+        document.Form.partnumber.focus();
+      }
+     -->
+ </script>
+
+ <form name="Form" method="post" action="wh.pl">
+
+  <input type="hidden" name="nextsub" value="[% HTML.escape(nextsub) %]">
+
+  [% IF saved_message %]
+  <p>[% saved_message %]</p>
+  [% END %]
+
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   Wenn Sie f&uuml;r die Artikelnummer und / oder die Beschreibung etwas eingeben, so werden nur die Lagerpl&auml;tze angezeigt, in denen Waren eingelagert sind, die Ihre Suchbegriffe enthalten.
+  </p>
+
+  <p>
+   <table>
+    <tr>
+     <th align="right" nowrap>Quelllager:</th>
+     <td>
+      <select name="warehouse_id" id="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
+       [%- FOREACH warehouse = WAREHOUSES %]
+       <option value="[% HTML.escape(warehouse.id) %]">[% warehouse.description %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Lagerplatz:</th>
+     <td><select id="bin_id" name="bin_id"></select></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Artikelauswahl eingrenzen:</th>
+     <td></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Artikelnummer</th>
+     <td>
+      <input type="hidden" name="parts_id" id="parts_id">
+      <input name="partnumber" id="partnumber" size="30">
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Artikelbeschreibung</th>
+     <td>
+      <input name="description" size="30">
+      <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', 'no_services:no_assemblies')" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap>Chargennummer</th>
+     <td><input name="chargenumber" size="30"></td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <input type="submit" class="submit" name="action" value="Weiter">
+  </p>
+ </form>
+
+</body>
+</html>

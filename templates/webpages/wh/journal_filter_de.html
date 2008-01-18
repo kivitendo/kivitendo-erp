@@ -1,0 +1,217 @@
+[% USE HTML %][% USE JavaScript %]<body onload="on_load();">
+
+ <script type="text/javascript">
+   <!--
+      warehouses = new Array();
+      warehouses[0] = new Array();
+      warehouses[0]['id'] = "0";
+      warehouses[0]['bins'] = new Array();
+      warehouses[0]['bins'][0] = new Array();
+      warehouses[0]['bins'][0]['description'] = "---";
+      warehouses[0]['bins'][0]['id'] = "";
+      [%- USE WAREHOUSES_it = Iterator(WAREHOUSES) %][%- FOREACH warehouse = WAREHOUSES_it %]
+      warehouses[[% WAREHOUSES_it.count %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count %]]['id'] = [% warehouse.id %];
+      warehouses[[% WAREHOUSES_it.count %]]['bins'] = new Array();
+      warehouses[[% WAREHOUSES_it.count %]]['bins'][0] = new Array();
+      warehouses[[% WAREHOUSES_it.count %]]['bins'][0]['description'] = "---";
+      warehouses[[% WAREHOUSES_it.count %]]['bins'][0]['id'] = "";
+      [% USE BINS_it = Iterator(warehouse.BINS) %][% FOREACH bin = BINS_it %]
+      warehouses[[% WAREHOUSES_it.count %]]['bins'][[% BINS_it.count %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count %]]['bins'][[% BINS_it.count %]]['description'] = "[% JavaScript.escape(bin.description) %]";
+      warehouses[[% WAREHOUSES_it.count %]]['bins'][[% BINS_it.count %]]['id'] = [% bin.id %];
+      [% END %]
+      [% END %]
+
+      function warehouse_selected(warehouse_id, bin_id) {
+        var control = document.getElementById("bin_id");
+
+        for (var i = control.options.length - 1; i >= 0; i--) {
+          control.options[i] = null;
+        }
+
+        var warehouse_index = 0;
+
+        for (i = 0; i < warehouses.length; i++)
+          if (warehouses[i]['id'] == warehouse_id) {
+            warehouse_index = i;
+            break;
+          }
+
+        var warehouse = warehouses[warehouse_index];
+        var bin_index = 0;
+
+        for (i = 0; i < warehouse['bins'].length; i++)
+          if (warehouse['bins'][i]['id'] == bin_id) {
+            bin_index = i;
+            break;
+          }
+
+        for (i = 0; i < warehouse['bins'].length; i++) {
+          control.options[i] = new Option(warehouse['bins'][i]['description'], warehouse['bins'][i]['id']);
+        }
+
+
+        control.options[bin_index].selected = true;
+      }
+
+      function on_load() {
+        warehouse_selected(0, 0);
+        document.Form.partnumber.focus();
+      }
+     -->
+ </script>
+
+ <div class="listtop">Bericht &uuml;ber Lagerbewegungen</div>
+
+ <form method="post" name="Form" action="wh.pl">
+
+  <input type="hidden" name="nextsub" value="generate_journal">
+
+  <p>
+   <table>
+    <tr>
+     <th class="listheading" align="left" valign="top" colspan="6" nowrap>Filter</th>
+    </tr>
+
+    <tr>
+     <td>
+      <table>
+       <tr>
+        <th align="right" nowrap>Lager:</th>
+        <td>
+         <select name="warehouse_id" id="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
+          <option value="">---</option>
+          [%- FOREACH warehouse = WAREHOUSES %]
+          <option value="[% HTML.escape(warehouse.id) %]">[% warehouse.description %]</option>
+          [%- END %]
+         </select>
+        </td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Lagerplatz:</th>
+        <td><select name="bin_id" id="bin_id"></select></td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Artikelnummer:</th>
+        <td><input name="partnumber" id="partnumber" size=20></td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Artikelbeschreibung:</th>
+        <td><input name="description" size=40></td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Chargennummer:</th>
+        <td><input name="chargenumber" size=40></td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Umlagermenge:</th>
+        <td>
+         <select name="qty_op">
+          <option value="dontcare">---</option>
+          <option value="atleast">Mindestens</option>
+          <option value="atmost">H&ouml;chstens</option>
+          <option value="exact">Genau</option>
+         </select>
+         <input name="qty">
+         <select name="qty_unit">
+          [%- FOREACH unit = UNITS %]<option>[% unit.name %]</option>[% END %]
+         </select>
+        </td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Von</th>
+        <td>
+         <input name="fromdate" id="fromdate" size="11" title="[% myconfig_dateformat %]">
+         <input type="button" name="b_fromdate" id="fromdate_trigger" value="?">
+        </td>
+       </tr>
+       <tr>
+        <th align="right">Bis</th>
+        <td>
+         <input name="todate" id="todate" size="11" title="[% myconfig_dateformat %]">
+         <input type="button" name="b_todate" id="todate_trigger" value="?">
+        </td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+
+    <tr height="5"><td>&nbsp;</td></tr>
+
+    <tr>
+     <th class="listheading" align="left" valign="top" colspan="6" nowrap>In Bericht aufnehmen</th>
+    </tr>
+
+    <tr>
+     <td>
+      <table>
+       <tr>
+        <td><input name="l_partdescription" id="l_partdescription" class="checkbox" type="hidden" value="Y" checked></td>
+        <td nowrap><label for="l_partdescription">Artikelbeschreibung</label></td>
+        <td><input name="l_qty" id="l_qty" class="checkbox" type="hidden" value="Y" checked></td>
+        <td nowrap><label for="l_qty">Menge</label></td>
+       </tr>
+       <tr>
+        <td align="right"><input name="l_date" id="l_date" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_date">Datum</label></td>
+        <td align="right"><input name="l_partnumber" id="l_partnumber" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_partnumber">Artikelnummer</label></td>
+        <td align="right"><input name="l_chargenumber" id="l_chargenumber" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_chargenumber">Chargennummer</label></td>
+       </tr>
+       <tr>
+        <td align="right"><input name="l_trans_id" id="l_trans_id" class="checkbox" type="checkbox" value="Y"></td>
+        <td nowrap><label for="l_trans_id">Trans-ID</label></td>
+        <td align="right"><input name="l_trans_type" id="l_trans_type" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_trans_type">Trasfertyp</label></td>
+        <td align="right"><input name="l_comment" id="l_comment" class="checkbox" type="checkbox" value="Y"></td>
+        <td nowrap><label for="l_comment">Kommentar</label></td>
+       </tr>
+       <tr>
+        <td align="right"><input name="l_warehouse_from" id="l_warehouse_from" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_warehouse_from">Quelllager</label></td>
+        <td align="right"><input name="l_bin_from" id="l_bin_from" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_bin_from">Quelllagerplatz</label></td>
+        <td align="right"><input name="l_warehouse_to" id="l_warehouse_to" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_warehouse_to">Ziellager</label></td>
+        <td align="right"><input name="l_bin_to" id="l_bin_to" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_bin_to">Ziellagerplatz</label></td>
+       </tr>
+       <tr>
+        <td align="right"><input name="l_employee" id="l_employee" class="checkbox" type="checkbox" value="Y"></td>
+        <td nowrap><label for="l_employee">Bearbeiter</label></td>
+        <td align="right"><input name="l_projectnumber" id="l_projectnumber" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_projectnumber">Projektnummer</label></td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <input type="submit" class="submit" name="action" value="Weiter">
+  </p>
+ </form>
+
+  <script type="text/javascript">
+    <!--
+    Calendar.setup( {
+      inputField : "fromdate",
+      ifFormat :"[% myconfig_jsc_dateformat %]",
+      align : "BR",
+      button : "fromdate_trigger"
+    });
+
+     Calendar.setup( {
+      inputField : "todate",
+      ifFormat :"[% myconfig_jsc_dateformat %]",
+      align : "BL",
+      button : "todate_trigger"
+    });
+     //-->
+  </script>
+
+</body>
+</html>

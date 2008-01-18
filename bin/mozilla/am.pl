@@ -3136,3 +3136,131 @@ sub swap_price_factors {
   $lxdebug->leave_sub();
 }
 
+sub add_warehouse {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  $form->{title}      = $locale->text('Add Warehouse');
+  $form->{callback} ||= build_std_url('action=add_warehouse');
+  $form->{fokus}      = 'description';
+
+  $form->header();
+  print $form->parse_html_template('am/edit_warehouse');
+
+  $lxdebug->leave_sub();
+}
+
+sub edit_warehouse {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  AM->get_warehouse(\%myconfig, $form);
+
+  $form->get_lists('employees' => 'EMPLOYEES');
+
+  $form->{title}      = $locale->text('Edit Warehouse');
+  $form->{callback} ||= build_std_url('action=list_warehouses');
+  $form->{fokus}      = 'description';
+
+  $form->header();
+  print $form->parse_html_template('am/edit_warehouse');
+
+  $lxdebug->leave_sub();
+}
+
+sub list_warehouses {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  AM->get_all_warehouses(\%myconfig, $form);
+
+  my $previous;
+  foreach my $current (@{ $form->{WAREHOUSES} }) {
+    if ($previous) {
+      $previous->{next_id}    = $current->{id};
+      $current->{previous_id} = $previous->{id};
+    }
+
+    $previous = $current;
+  }
+
+  $form->{callback} = build_std_url('action=list_warehouses');
+  $form->{title}    = $locale->text('Warehouses');
+  $form->{url_base} = build_std_url('callback');
+
+  $form->header();
+  print $form->parse_html_template('am/list_warehouses');
+
+  $lxdebug->leave_sub();
+}
+
+sub save_warehouse {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  $form->isblank("description", $locale->text('Description missing!'));
+
+  $form->{number_of_new_bins} = $form->parse_amount(\%myconfig, $form->{number_of_new_bins});
+
+  AM->save_warehouse(\%myconfig, $form);
+
+  $form->{callback} .= '&saved_message=' . E($locale->text('Warehouse saved.')) if ($form->{callback});
+
+  $form->redirect($locale->text('Warehouse saved.'));
+
+  $lxdebug->leave_sub();
+}
+
+sub swap_warehouses {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  AM->swap_sortkeys(\%myconfig, $form, 'warehouse');
+  list_warehouses();
+
+  $lxdebug->leave_sub();
+}
+
+sub delete_warehouse {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  if (!$form->{confirmed}) {
+    $form->{title} = $locale->text('Confirmation');
+
+    $form->header();
+    print $form->parse_html_template('am/confirm_delete_warehouse');
+    exit 0;
+  }
+
+  if (AM->delete_warehouse(\%myconfig, $form)) {
+    $form->{callback} .= '&saved_message=' . E($locale->text('Warehouse deleted.')) if ($form->{callback});
+    $form->redirect($locale->text('Warehouse deleted.'));
+
+  } else {
+    $form->error($locale->text('The warehouse could not be deleted because it has already been used.'));
+  }
+
+  $lxdebug->leave_sub();
+}
+
+sub save_bin {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  AM->save_bins(\%myconfig, $form);
+
+  $form->{callback} .= '&saved_message=' . E($locale->text('Bins saved.')) if ($form->{callback});
+
+  $form->redirect($locale->text('Bins saved.'));
+
+  $lxdebug->leave_sub();
+}
+
