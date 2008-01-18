@@ -2540,7 +2540,7 @@ sub get_warehouse {
                  FROM warehouse w
                  WHERE w.id = ?|;
 
-  my $ref   = selectfirst_hashref_query($form, $dbh, $query, $id, $id);
+  my $ref   = selectfirst_hashref_query($form, $dbh, $query, $id);
 
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
