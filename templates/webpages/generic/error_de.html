@@ -1,12 +1,32 @@
 [% USE HTML %]<body>
- <table width="100%">
-  <tr>
-   <th class="listtop">[% IF title_error %][% title_error %][% ELSE %]Fehler![% END %]</th>
-  </tr>
-  <tr height="5"></tr>
 
-  <tr><td>[% label_error %]</td></tr>
- </table>
+ <div class="listtop">[% IF title_error %][% title_error %][% ELSE %]Fehler![% END %]</div>
+
+ <p>[% label_error %]</p>
+
+ [%- IF SHOW_BACK_BUTTON %]
+ <form>
+  <p>
+   <input type="button" onclick="history.back()" value="Zurück">
+  </p>
+ </form>
+
+ [%- ELSIF SHOW_BUTTON %]
+
+ <form action="[% HTML.escape(script) %]" method="post">
+
+  [%- FOREACH var = VARIABLES %]
+  <input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
+  [%- END %]
+
+  <input type="hidden" name="action" value="[% HTML.escape(action) %]">
+
+  <p>
+   <input type="submit" value="[% BUTTON_LABEL %]">
+  </p>
+ </form>
+
+ [%- END %]
 
 </body>
 </html>

@@ -772,23 +772,26 @@ sub parse_html_template {
 }
 
 sub show_generic_error {
-  my ($self, $error, $title, $action) = @_;
+  my ($self, $error, %params) = @_;
 
   my $add_params = {
-    'title_error' => $title,
+    'title_error' => $params{title},
     'label_error' => $error,
   };
 
-  my @vars;
-  if ($action) {
-    map({ delete($self->{$_}); } qw(action));
-    map({ push(@vars, { "name" => $_, "value" => $self->{$_} })
-            if (!ref($self->{$_})); }
-        keys(%{$self}));
-    $add_params->{"SHOW_BUTTON"} = 1;
-    $add_params->{"BUTTON_LABEL"} = $action;
+  if ($params{action}) {
+    my @vars;
+
+    map { delete($self->{$_}); } qw(action);
+    map { push @vars, { "name" => $_, "value" => $self->{$_} } if (!ref($self->{$_})); } keys %{ $self };
+
+    $add_params->{SHOW_BUTTON}  = 1;
+    $add_params->{BUTTON_LABEL} = $params{label} || $params{action};
+    $add_params->{VARIABLES}    = \@vars;
+
+  } elsif ($params{back_button}) {
+    $add_params->{SHOW_BACK_BUTTON} = 1;
   }
-  $add_params->{"VARIABLES"} = \@vars;
 
   $self->{title} = $title if ($title);
 
