@@ -390,8 +390,9 @@ sub prepare_html_content {
 sub generate_html_content {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
-
-  return $self->{form}->parse_html_template('report_generator/html_report', $variables);
+  my $report_template = $self->{form}->{report_template} ? $self->{form}->{report_template} : 'report_generator/html_report';
+  # $form->parse_html_template('report_generator/html_report', $variables));
+  return $self->{form}->parse_html_template($report_template, $variables);
 }
 
 sub verify_paper_size {
@@ -410,6 +411,7 @@ sub generate_pdf_content {
   my $form      = $self->{form};
   my $myconfig  = $self->{myconfig};
   my $opt       = $self->{options}->{pdf_export};
+  my $report_template = $form->{report_template} ? $form->{report_template} : 'report_generator/pdf_report';
 
   my $opt_number     = $opt->{number}                     ? 'number : 1'    : '';
   my $opt_landscape  = $opt->{orientation} eq 'landscape' ? 'landscape : 1' : '';
@@ -466,8 +468,8 @@ END
     unlink $cfg_file_name;
     $form->error($locale->text('Could not write the temporary HTML file.'));
   }
-
-  $html_file->print($form->parse_html_template('report_generator/pdf_report', $variables));
+  # $form->parse_html_template('report_generator/pdf_report', $variables));
+  $html_file->print($form->parse_html_template($report_template, $variables));
   $html_file->close();
 
   my $cmdline =
