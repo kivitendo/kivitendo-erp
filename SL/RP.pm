@@ -804,32 +804,36 @@ sub trial_balance {
   }
 
   # get beginning balances
-  if ($form->{fromdate}) {
-    $query =
-      qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
-         FROM acc_trans ac
-         JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
-         WHERE (ac.transdate < ?)
-           $dpt_where
-           $project
-         GROUP BY c.accno, c.category, c.description |;
+  $query =
+    qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
+        FROM acc_trans ac
+        JOIN chart c ON (ac.chart_id = c.id)
+        $dpt_join
+        WHERE (ac.transdate < (select date_trunc('year', date ?)))
+          $dpt_where
+          $project
+        GROUP BY c.accno, c.category, c.description |;
 
-    $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
+  $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
 
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-      $balance{ $ref->{accno} } = $ref->{amount};
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
 
-      if ($ref->{amount} != 0 && $form->{all_accounts}) {
-        $trb{ $ref->{accno} }{description} = $ref->{description};
-        $trb{ $ref->{accno} }{charttype}   = 'A';
-        $trb{ $ref->{accno} }{category}    = $ref->{category};
+    if ($ref->{amount} != 0 || $form->{all_accounts}) {
+      $trb{ $ref->{accno} }{description} = $ref->{description};
+      $trb{ $ref->{accno} }{charttype}   = 'A';
+      if ($ref->{category} ne "I" &&  $ref->{category} ne "E") {
+        if ($ref->{amount} > 0) {
+          $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
+        } else {
+          $trb{ $ref->{accno} }{soll_eb}   = $ref->{amount} * -1;
+        }
       }
-
+      $trb{ $ref->{accno} }{category}    = $ref->{category};
     }
-    $sth->finish;
 
   }
+  $sth->finish;
+
 
   # get headings
   $query =
@@ -851,6 +855,8 @@ sub trial_balance {
   $sth->finish;
 
   $where = " 1 = 1 ";
+  $saldowhere = " 1 = 1 ";
+  $sumwhere = " 1 = 1 ";
   my $tofrom;
 
   if ($form->{fromdate} || $form->{todate}) {
@@ -858,19 +864,27 @@ sub trial_balance {
       my $fromdate = conv_dateq($form->{fromdate});
       $tofrom   .= " AND (ac.transdate >= $fromdate)";
       $subwhere .= " AND (transdate >= $fromdate)";
+      $sumsubwhere .= " AND (transdate >= (select date_trunc('year', date $fromdate))) ";
+      $saldosubwhere .= " AND (((c.category='I' OR c.category='E') AND transdate>=(select date_trunc('year', date $fromdate))) OR (c.category NOT IN ('I', 'E'))) ";
       $invwhere .= " AND (a.transdate >= $fromdate)";
+      $glsaldowhere .= " AND (((c.category='I' OR c.category='E') AND ac.transdate>=(select date_trunc('year', date $fromdate))) OR (c.category NOT IN ('I', 'E'))) ";
       $glwhere = " AND (ac.transdate >= $fromdate)";
+      $glsumwhere = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
     }
     if ($form->{todate}) {
       my $todate = conv_dateq($form->{todate});
       $tofrom   .= " AND (ac.transdate <= $todate)";
       $invwhere .= " AND (a.transdate <= $todate)";
+      $saldosubwhere .= " AND (transdate <= $todate)";
+      $sumsubwhere .= " AND (transdate <= $todate)";
       $subwhere .= " AND (transdate <= $todate)";
       $glwhere  .= " AND (ac.transdate <= $todate)";
-    }
+      $glsumwhere .= " AND (ac.transdate <= $todate) ";
+      $glsaldowhere .= " AND (ac.transdate <= $todate) ";
+   }
   }
 
-  if ($form->{eur}) {
+  if ($form->{method} eq "cash") {
     $where .=
       qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                 ac.trans_id IN
@@ -897,8 +911,63 @@ sub trial_balance {
                (ac.trans_id in (SELECT id from gl)
                 $glwhere)
               )|;
+    $saldowhere .=       
+qq| AND ((ac.trans_id IN (SELECT id from ar) AND
+                ac.trans_id IN
+                  (
+                    SELECT trans_id
+                    FROM acc_trans
+                    JOIN chart ON (chart_id = id)
+                    WHERE (link LIKE '%AR_paid%')
+                      $saldosubwhere
+                  )
+               )
+               OR
+               (ac.trans_id in (SELECT id from ap) AND
+                ac.trans_id IN
+                  (
+                    SELECT trans_id
+                    FROM acc_trans
+                    JOIN chart ON (chart_id = id)
+                    WHERE (link LIKE '%AP_paid%')
+                      $saldosubwhere
+                  )
+               )
+               OR
+               (ac.trans_id in (SELECT id from gl)
+                $glsaldowhere)
+              )|;
+    $sumwhere .=       
+qq| AND ((ac.trans_id IN (SELECT id from ar) AND
+                ac.trans_id IN
+                  (
+                    SELECT trans_id
+                    FROM acc_trans
+                    JOIN chart ON (chart_id = id)
+                    WHERE (link LIKE '%AR_paid%')
+                      $sumsubwhere
+                  )
+               )
+               OR
+               (ac.trans_id in (SELECT id from ap) AND
+                ac.trans_id IN
+                  (
+                    SELECT trans_id
+                    FROM acc_trans
+                    JOIN chart ON (chart_id = id)
+                    WHERE (link LIKE '%AP_paid%')
+                      $sumsubwhere
+                  )
+               )
+               OR
+               (ac.trans_id in (SELECT id from gl)
+                $glsumwhere)
+              )|;
+
   } else {
     $where .= $tofrom;
+    $saldowhere .= $glsaldowhere;
+    $sumwhere .= $glsumwhere;
   }
 
   $query = qq|
@@ -979,7 +1048,46 @@ sub trial_balance {
             $dpt_where
             $project
           AND ac.amount > 0
-          AND c.accno = ?) AS credit |;
+          AND c.accno = ?) AS credit,
+        (SELECT SUM(ac.amount)
+         FROM acc_trans ac
+         JOIN chart c ON (ac.chart_id = c.id)
+         $dpt_join
+         WHERE $saldowhere
+           $dpt_where
+           $project
+         AND c.accno = ?) AS saldo,
+
+        (SELECT SUM(ac.amount)
+         FROM acc_trans ac
+         JOIN chart c ON (ac.chart_id = c.id)
+         $dpt_join
+         WHERE $sumwhere
+           $dpt_where
+           $project
+         AND amount > 0
+         AND c.accno = ?) AS sum_credit,
+
+        (SELECT SUM(ac.amount)
+         FROM acc_trans ac
+         JOIN chart c ON (ac.chart_id = c.id)
+         $dpt_join
+         WHERE $sumwhere
+           $dpt_where
+           $project
+         AND amount < 0
+         AND c.accno = ?) AS sum_debit,
+
+        (SELECT max(ac.transdate) FROM acc_trans ac
+        JOIN chart c ON (ac.chart_id = c.id)
+        $dpt_join
+        WHERE $where
+          $dpt_where
+          $project
+        AND c.accno = ?) AS last_transaction
+
+
+ |;
 
   $drcr = prepare_query($form, $dbh, $q_drcr);
 
@@ -1007,50 +1115,108 @@ sub trial_balance {
            WHERE $invwhere
              $dpt_where
              $project
-           AND c.accno = ?) AS credit |;
+           AND c.accno = ?) AS credit,
+
+        (SELECT SUM(ac.amount)
+         FROM acc_trans ac
+         JOIN chart c ON (ac.chart_id = c.id)
+         $dpt_join
+         WHERE $saldowhere
+           $dpt_where
+           $project
+         AND c.accno = ?) AS saldo,
+
+        (SELECT SUM(ac.amount)
+         FROM acc_trans ac
+         JOIN chart c ON (ac.chart_id = c.id)
+         $dpt_join
+         WHERE $sumwhere
+           $dpt_where
+           $project
+         AND amount > 0
+         AND c.accno = ?) AS sum_credit,
+
+        (SELECT SUM(ac.amount)
+         FROM acc_trans ac
+         JOIN chart c ON (ac.chart_id = c.id)
+         $dpt_join
+         WHERE $sumwhere
+           $dpt_where
+           $project
+         AND amount < 0
+         AND c.accno = ?) AS sum_debit,
+
+
+        (SELECT max(ac.transdate) FROM acc_trans ac
+        JOIN chart c ON (ac.chart_id = c.id)
+        $dpt_join
+        WHERE $where
+          $dpt_where
+          $project
+        AND c.accno = ?) AS last_transaction
+ |;
 
     $project_drcr = prepare_query($form, $dbh, $q_project_drcr);
   }
 
-  my ($debit, $credit);
+  my ($debit, $credit, $saldo, $soll_saldo, $haben_saldo,$soll_kummuliert, $haben_kummuliert, $last_transaction);
 
   foreach my $accno (sort keys %trb) {
     $ref = {};
 
     $ref->{accno} = $accno;
     map { $ref->{$_} = $trb{$accno}{$_} }
-      qw(description category charttype amount);
+      qw(description category charttype amount soll_eb haben_eb);
 
     $ref->{balance} = $form->round_amount($balance{ $ref->{accno} }, 2);
 
     if ($trb{$accno}{charttype} eq 'A') {
 
       # get DR/CR
-      do_statement($form, $drcr, $q_drcr, $ref->{accno}, $ref->{accno});
+      do_statement($form, $drcr, $q_drcr, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno});
 
-      ($debit, $credit) = (0, 0);
-      while (($debit, $credit) = $drcr->fetchrow_array) {
+      ($debit, $credit, $saldo, $haben_saldo, $soll_saldo, $soll_kumuliert, $haben_kumuliert) = (0, 0, 0, 0, 0, 0, 0);
+      $last_transaction = "";
+      while (($debit, $credit, $saldo, $haben_kumuliert, $soll_kumuliert, $last_transaction) = $drcr->fetchrow_array) {
         $ref->{debit}  += $debit;
         $ref->{credit} += $credit;
+        if ($saldo >= 0) {
+          $ref->{haben_saldo} += $saldo;
+        } else {
+          $ref->{soll_saldo} += $saldo * -1;
+        }
+        $ref->{last_transaction} = $last_transaction;
+        $ref->{soll_kumuliert} = $soll_kumuliert * -1;
+        $ref->{haben_kumuliert} = $haben_kumuliert;
       }
       $drcr->finish;
 
       if ($form->{project_id}) {
 
         # get DR/CR
-        do_statement($form, $project_drcr, $q_project_drcr, $ref->{accno}, $ref->{accno});
+        do_statement($form, $project_drcr, $q_project_drcr, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno});
 
         ($debit, $credit) = (0, 0);
-        while (($debit, $credit) = $project_drcr->fetchrow_array) {
+        while (($debit, $credit, $saldo, $haben_kumuliert, $soll_kumuliert, $last_transaction) = $project_drcr->fetchrow_array) {
           $ref->{debit}  += $debit;
           $ref->{credit} += $credit;
+          if ($saldo >= 0) {
+            $ref->{haben_saldo} += $saldo;
+          } else {
+            $ref->{soll_saldo} += $saldo * -1;
+          }
+          $ref->{soll_kumuliert} += $soll_kumuliert * -1;
+          $ref->{haben_kumuliert} += $haben_kumuliert;
         }
         $project_drcr->finish;
       }
 
       $ref->{debit}  = $form->round_amount($ref->{debit},  2);
       $ref->{credit} = $form->round_amount($ref->{credit}, 2);
-
+      $ref->{haben_saldo}  = $form->round_amount($ref->{haben_saldo},  2);
+      $ref->{soll_saldo} = $form->round_amount($ref->{soll_saldo}, 2);
+      $ref->{haben_kumuliert}  = $form->round_amount($ref->{haben_kumuliert},  2);
+      $ref->{soll_kumuliert} = $form->round_amount($ref->{soll_kumuliert}, 2);
     }
 
     # add subtotal
@@ -1059,6 +1225,10 @@ sub trial_balance {
     if ($accno) {
       $trb{$accno}{debit}  += $ref->{debit};
       $trb{$accno}{credit} += $ref->{credit};
+      $trb{$accno}{soll_saldo}  += $ref->{soll_saldo};
+      $trb{$accno}{haben_saldo} += $ref->{haben_saldo};
+      $trb{$accno}{soll_kumuliert}  += $ref->{soll_kumuliert};
+      $trb{$accno}{haben_kumuliert} += $ref->{haben_kumuliert};
     }
 
     push @{ $form->{TB} }, $ref;
@@ -1073,7 +1243,10 @@ sub trial_balance {
       if ($accno eq $ref->{accno}) {
         $ref->{debit}  = $trb{$accno}{debit};
         $ref->{credit} = $trb{$accno}{credit};
-      }
+        $ref->{soll_saldo}  = $trb{$accno}{soll_saldo};
+        $ref->{haben_saldo} = $trb{$accno}{haben_saldo};
+        $ref->{soll_kumuliert}  = $trb{$accno}{soll_kumuliert};
+        $ref->{haben_kumuliert} = $trb{$accno}{haben_kumuliert};      }
     }
   }
 

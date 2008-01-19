@@ -586,36 +586,122 @@ $jsscript
 
   if ($form->{report} eq "trial_balance") {
     print qq|
-        <input type=hidden name=nextsub value=generate_trial_balance>
-        <input type=hidden name=eur value=$eur>
-       <tr>
-	  <th align=right>| . $locale->text('From') . qq|</th>
-          <td>
-            $button1
-            $button1_2
-          </td>
-	  <th align=right>| . $locale->text('Bis') . qq|</th>
-	  <td>
-            $button2
-            $button2_2
-          </td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
 	<tr>
-	  <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
-	  <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;|
-      . $locale->text('Heading') . qq|
-	  <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;|
-      . $locale->text('Subtotal') . qq|
-	  <input name=all_accounts class=checkbox type=checkbox value=Y>&nbsp;|
-      . $locale->text('All Accounts') . qq|</td>
+	  <th align=right nowrap>| . $locale->text('Project') . qq|</th>
+	  <td colspan=3>$projectnumber</td>
 	</tr>
+        <input type=hidden name=nextsub value=generate_trial_balance>
+</table>
+<table>
+	<tr>
+	  <th align=left><input name=reporttype class=radio type=radio value="custom" checked> |
+      . $locale->text('Customized Report') . qq|</th>
+	</tr>
+	<tr>
+	  <th colspan=1>| . $locale->text('Year') . qq|</th>
+	  <td><input name=year size=11 title="|
+      . $locale->text('YYYY') . qq|" value="$year"></td>
+	</tr>
+|;
 
+    print qq|
+	<tr>
+		<td align=right>
+<b> | . $locale->text('Yearly') . qq|</b> </td>
+		<th align=left>| . $locale->text('Quarterly') . qq|</th>
+		<th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
+	</tr>
+	<tr>
+		<td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"
+$checked></td>
+		<td><input name=duetyp class=radio type=radio value="A" $checked >&nbsp;1. |
+      . $locale->text('Quarter') . qq|</td>
+|;
+    $checked = "checked";
+    print qq|
+		<td><input name=duetyp class=radio type=radio value="1" $checked >&nbsp;|
+      . $locale->text('January') . qq|</td>
+|;
+    $checked = "";
+    print qq|
+		<td><input name=duetyp class=radio type=radio value="5" $checked >&nbsp;|
+      . $locale->text('May') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="9" $checked >&nbsp;|
+      . $locale->text('September') . qq|</td>
+
+	</tr>
+	<tr>
+		<td align= right>&nbsp;</td>
+		<td><input name=duetyp class=radio type=radio value="B" $checked>&nbsp;2. |
+      . $locale->text('Quarter') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="2" $checked >&nbsp;|
+      . $locale->text('February') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="6" $checked >&nbsp;|
+      . $locale->text('June') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="10" $checked >&nbsp;|
+      . $locale->text('October') . qq|</td>
+	</tr>
+	<tr>
+		<td> &nbsp;</td>
+		<td><input name=duetyp class=radio type=radio value="C" $checked>&nbsp;3. |
+      . $locale->text('Quarter') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="3" $checked >&nbsp;|
+      . $locale->text('March') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="7" $checked >&nbsp;|
+      . $locale->text('July') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="11" $checked >&nbsp;|
+      . $locale->text('November') . qq|</td>
+
+	</tr>
+	<tr>
+		<td> &nbsp;</td>
+		<td><input name=duetyp class=radio type=radio value="D" $checked>&nbsp;4. |
+      . $locale->text('Quarter') . qq|&nbsp;</td>
+		<td><input name=duetyp class=radio type=radio value="4" $checked >&nbsp;|
+      . $locale->text('April') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="8" $checked >&nbsp;|
+      . $locale->text('August') . qq|</td>
+		<td><input name=duetyp class=radio type=radio value="12" $checked >&nbsp;|
+      . $locale->text('December') . qq|</td>
+
+	</tr>
+	<tr>
+   		<td colspan=5><hr size=3 noshade></td>
+	</tr>
+	<tr>
+          <th align=left><input name=reporttype class=radio type=radio value="free" $checked> |
+      . $locale->text('Free report period') . qq|</th>
+	  <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
+	      $button1
+              $button1_2&nbsp;
+	      | . $locale->text('Bis') . qq|&nbsp;
+	      $button2
+              $button2_2
+          </td>
+        </tr>
+	<tr>
+   		<td colspan=5><hr size=3 noshade></td>
+	</tr>
+	<tr>
+	  <th align=leftt>| . $locale->text('Method') . qq|</th>
+	  <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
+      . $locale->text('Accrual') . qq|
+	  &nbsp;<input name=method class=radio type=radio value=cash $cash>|
+      . $locale->text('EUR') . qq|</td>
+	</tr>
+       <tr>
+         <th align=right colspan=4>|
+      . $locale->text('All Accounts')
+      . qq|</th>
+             <td><input name=all_accounts type=checkbox value=1></td>
+         </tr>
+        <tr>
+         <th align=right colspan=4>|
+      . $locale->text('Decimalplaces')
+      . qq|</th>
+             <td><input name=decimalplaces size=3 value="2"></td>
+         </tr>
+                                    
 $jsscript
 |;
   }
@@ -1168,14 +1254,241 @@ sub generate_trial_balance {
 
   $auth->assert('report');
 
+  if ($form->{reporttype} eq "custom") {
+
+    #forgotten the year --> thisyear
+    if ($form->{year} !~ m/^\d\d\d\d$/) {
+      $locale->date(\%myconfig, $form->current_date(\%myconfig), 0) =~
+        /(\d\d\d\d)/;
+      $form->{year} = $1;
+    }
+
+    #yearly report
+    if ($form->{duetyp} eq "13") {
+      $form->{fromdate} = "1.1.$form->{year}";
+      $form->{todate}   = "31.12.$form->{year}";
+    }
+
+    #Quater reports
+    if ($form->{duetyp} eq "A") {
+      $form->{fromdate} = "1.1.$form->{year}";
+      $form->{todate}   = "31.3.$form->{year}";
+    }
+    if ($form->{duetyp} eq "B") {
+      $form->{fromdate} = "1.4.$form->{year}";
+      $form->{todate}   = "30.6.$form->{year}";
+    }
+    if ($form->{duetyp} eq "C") {
+      $form->{fromdate} = "1.7.$form->{year}";
+      $form->{todate}   = "30.9.$form->{year}";
+    }
+    if ($form->{duetyp} eq "D") {
+      $form->{fromdate} = "1.10.$form->{year}";
+      $form->{todate}   = "31.12.$form->{year}";
+    }
+
+    #Monthly reports
+  SWITCH: {
+      $form->{duetyp} eq "1" && do {
+        $form->{fromdate} = "1.1.$form->{year}";
+        $form->{todate}   = "31.1.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "2" && do {
+        $form->{fromdate} = "1.2.$form->{year}";
+
+        #this works from 1901 to 2099, 1900 and 2100 fail.
+        $leap = ($form->{year} % 4 == 0) ? "29" : "28";
+        $form->{todate} = "$leap.2.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "3" && do {
+        $form->{fromdate} = "1.3.$form->{year}";
+        $form->{todate}   = "31.3.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "4" && do {
+        $form->{fromdate} = "1.4.$form->{year}";
+        $form->{todate}   = "30.4.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "5" && do {
+        $form->{fromdate} = "1.5.$form->{year}";
+        $form->{todate}   = "31.5.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "6" && do {
+        $form->{fromdate} = "1.6.$form->{year}";
+        $form->{todate}   = "30.6.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "7" && do {
+        $form->{fromdate} = "1.7.$form->{year}";
+        $form->{todate}   = "31.7.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "8" && do {
+        $form->{fromdate} = "1.8.$form->{year}";
+        $form->{todate}   = "31.8.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "9" && do {
+        $form->{fromdate} = "1.9.$form->{year}";
+        $form->{todate}   = "30.9.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "10" && do {
+        $form->{fromdate} = "1.10.$form->{year}";
+        $form->{todate}   = "31.10.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "11" && do {
+        $form->{fromdate} = "1.11.$form->{year}";
+        $form->{todate}   = "30.11.$form->{year}";
+        last SWITCH;
+      };
+      $form->{duetyp} eq "12" && do {
+        $form->{fromdate} = "1.12.$form->{year}";
+        $form->{todate}   = "31.12.$form->{year}";
+        last SWITCH;
+      };
+    }
+  }
+
+
   # get for each account initial balance, debits and credits
   RP->trial_balance(\%myconfig, \%$form);
 
-  $form->{nextsub} = "generate_trial_balance";
-  $form->{title}   = $locale->text('Trial Balance');
-  list_accounts('generate_trial_balance');
+
+  $form->{rowcount} = scalar @{ $form->{TB} };
+
+  my @columns = (
+    "accno",               "description",
+    "last_transaction",    "soll_eb",
+    "haben_eb",
+    "soll",                 "haben",
+    "soll_kumuliert", "haben_kumuliert",
+    "soll_saldo", "haben_saldo"
+  );
+
+
+  my $attachment_basename;
+
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
+
+  my @hidden_variables = ();
+  push @hidden_variables, qw(fromdate todate year cash );
+
+  my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
+
+  my %column_defs = (
+    'accno'                   => { 'text' => $locale->text('Account Number'), },
+    'description'             => { 'text' => $locale->text('Description'), },
+    'last_transaction'        => { 'text' => $locale->text('Last Transaction'), },
+    'soll_eb'                 => { 'text' => $locale->text('Debit Starting Balance'), },
+    'haben_eb'                => { 'text' => $locale->text('Credit Starting Balance'), },
+    'soll'                    => { 'text' => $locale->text('Debit'), },
+    'haben'                   => { 'text' => $locale->text('Credit'), },
+    'soll_kumuliert'          => { 'text' => $locale->text('Sum Debit'), },
+    'haben_kumuliert'         => { 'text' => $locale->text('Sum Credit'), },
+    'soll_saldo'              => { 'text' => $locale->text('Saldo Debit'), },
+    'haben_saldo'                => { 'text' => $locale->text('Saldo Credit'), }
+  );
+
+
+
+  my %column_alignment = map { $_ => 'right' } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
+
+  map { $column_defs{$_}->{visible} =  1 } @columns;
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('trial_balance', @hidden_variables);
+
+  $report->set_sort_indicator($form->{sort}, 1);
+
+  my @options;
+
+
+  $form->{template_fromto} = $locale->date(\%myconfig, $form->{fromdate}, 0) . "&nbsp; - &nbsp;" . $locale->date(\%myconfig, $form->{todate}, 0);
+  $form->{template_to} = $locale->date(\%myconfig, $form->{todate}, 0);
+
+  $report->set_options('output_format'        => 'HTML',
+                       'title'                => $form->{title},
+                       'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form();
+  # $form->parse_html_template('report_generator/html_report_susa', $variables));
+  $form->{report_template} = 'report_generator/html_report_susa';
+  # add sort and escape callback, this one we use for the add sub
+  $form->{callback} = $href .= "&sort=$form->{sort}";
+
+  # escape callback for href
+  $callback = $form->escape($href);
+
+  my @subtotal_columns = qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
+
+  my %totals    = map { $_ => 0 } @subtotal_columns;
+
+  my $edit_url = build_std_url('action=edit', 'type', 'vc');
+
+  foreach $accno (@{ $form->{TB} }) {
+
+    $accno->{soll} = $accno->{debit};
+    $accno->{haben} = $accno->{credit};
+    map { $totals{$_}    += $accno->{$_} } @subtotal_columns;
+
+    map { $accno->{$_} = $form->format_amount(\%myconfig, $accno->{$_}, 2) } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
+
+    map { $accno->{$_} = ($accno->{$_} == 0) ? '' : $accno->{$_} } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
+
+    my $row = { };
+
+    foreach my $column (@columns) {
+      $row->{$column} = {
+        'data'  => $accno->{$column},
+        'align' => $column_alignment{$column},
+      };
+    }
+
+
+    $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
+
+    my $row_set = [ $row ];
+
+
+    $report->add_data($row_set);
+
+    $idx++;
+  }
+
+  $report->add_separator();
+
+  $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
+
+  $report->generate_with_headers();
 
   $lxdebug->leave_sub();
+
+}
+
+sub create_subtotal_row {
+  $lxdebug->enter_sub();
+
+  my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
+
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } @{ $subtotal_columns };
+
+  $row->{tax}->{data} = $form->format_amount(\%myconfig, $totals->{amount} - $totals->{netamount}, 2);
+
+  map { $totals->{$_} = 0 } @{ $subtotal_columns };
+
+  $lxdebug->leave_sub();
+
+  return $row;
 }
 
 sub create_list_accounts_subtotal_row {
