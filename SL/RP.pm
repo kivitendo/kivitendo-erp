@@ -809,7 +809,7 @@ sub trial_balance {
         FROM acc_trans ac
         JOIN chart c ON (ac.chart_id = c.id)
         $dpt_join
-        WHERE (ac.transdate < (select date_trunc('year', date ?)))
+        WHERE (ac.transdate < (select date_trunc('year', ?::date)))
           $dpt_where
           $project
         GROUP BY c.accno, c.category, c.description |;
