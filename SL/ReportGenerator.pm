@@ -7,6 +7,10 @@ use Text::Iconv;
 
 use SL::Form;
 
+# Cause locales.pl to parse these files:
+# parse_html_template('report_generator/html_report')
+# parse_html_template('report_generator/pdf_report')
+
 sub new {
   my $type = shift;
 
@@ -21,6 +25,8 @@ sub new {
     'output_format'         => 'HTML',
     'allow_pdf_export'      => 1,
     'allow_csv_export'      => 1,
+    'html_template'         => 'report_generator/html_report',
+    'pdf_template'          => 'report_generator/pdf_report',
     'pdf_export'            => {
       'paper_size'          => 'A4',
       'orientation'         => 'landscape',
@@ -390,9 +396,8 @@ sub prepare_html_content {
 sub generate_html_content {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
-  my $report_template = $self->{form}->{report_template} ? $self->{form}->{report_template} : 'report_generator/html_report';
-  # $form->parse_html_template('report_generator/html_report', $variables));
-  return $self->{form}->parse_html_template($report_template, $variables);
+
+  return $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
 }
 
 sub verify_paper_size {
@@ -411,7 +416,6 @@ sub generate_pdf_content {
   my $form      = $self->{form};
   my $myconfig  = $self->{myconfig};
   my $opt       = $self->{options}->{pdf_export};
-  my $report_template = $form->{report_template} ? $form->{report_template} : 'report_generator/pdf_report';
 
   my $opt_number     = $opt->{number}                     ? 'number : 1'    : '';
   my $opt_landscape  = $opt->{orientation} eq 'landscape' ? 'landscape : 1' : '';
@@ -468,8 +472,8 @@ END
     unlink $cfg_file_name;
     $form->error($locale->text('Could not write the temporary HTML file.'));
   }
-  # $form->parse_html_template('report_generator/pdf_report', $variables));
-  $html_file->print($form->parse_html_template($report_template, $variables));
+
+  $html_file->print($form->parse_html_template($self->{options}->{pdf_template}, $variables));
   $html_file->close();
 
   my $cmdline =

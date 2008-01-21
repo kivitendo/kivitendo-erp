@@ -91,6 +91,8 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Non-taxable Sales')
 # $locale->text('Non-taxable Purchases')
 
+# $form->parse_html_template('rp/html_report_susa')
+
 my $rp_access_map = {
   'projects'         => 'report',
   'ar_aging'         => 'general_ledger',
@@ -1417,10 +1419,11 @@ sub generate_trial_balance {
   $report->set_options('output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
+                       'html_template'        => 'report_generator/html_report_susa',
+                       'pdf_template'         => 'report_generator/html_report_susa',
     );
   $report->set_options_from_form();
-  # $form->parse_html_template('report_generator/html_report_susa', $variables));
-  $form->{report_template} = 'report_generator/html_report_susa';
+
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
