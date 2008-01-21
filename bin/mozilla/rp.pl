@@ -1419,8 +1419,8 @@ sub generate_trial_balance {
   $report->set_options('output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
-                       'html_template'        => 'report_generator/html_report_susa',
-                       'pdf_template'         => 'report_generator/html_report_susa',
+                       'html_template'        => 'rp/html_report_susa',
+                       'pdf_template'         => 'rp/html_report_susa',
     );
   $report->set_options_from_form();
 
