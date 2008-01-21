@@ -30,6 +30,8 @@
 # common routines for gl, ar, ap, is, ir, oe
 #
 
+use SL::Projects;
+
 # any custom scripts for this one
 if (-f "bin/mozilla/custom_arap.pl") {
   eval { require "bin/mozilla/custom_arap.pl"; };
@@ -281,7 +283,8 @@ sub check_project {
 
         # get new project
         $form->{projectnumber} = $form->{"${prefix}projectnumber${suffix}"};
-        if (($rows = PE->projects(\%myconfig, $form)) > 1) {
+        my %params             = map { $_ => $form->{$_} } qw(projectnumber description active);
+        if (($rows = Projects->search_projects(%params)) > 1) {
 
           # check form->{project_list} how many there are
           $form->{rownumber} = $i;

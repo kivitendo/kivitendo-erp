@@ -1,0 +1,52 @@
+[% USE HTML %]<body>
+
+ <form method="post" action="projects.pl">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   <table>
+    <tr>
+     <th align="right"><translate>Number</translate></th>
+     <td><input name="filter.projectnumber" size="20"></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Description</translate></th>
+     <td><input name="filter.description" size="60"></td>
+    </tr>
+
+    <tr>
+     <th>&nbsp;</th>
+     <td>
+      <input type="radio" name="filter.active" id="active_active" value="active" checked>
+      <label for="active_active"><translate>Active</translate></label>
+      <input type="radio" name="filter.active" id="active_inactive" value="inactive">
+      <label for="active_inactive"><translate>Inactive</translate></label>
+      <input type="radio" name="filter.active" id="active_both" value="both">
+      <label for="active_both"><translate>Both</translate></label>
+     </td>
+    </tr>
+
+    <tr>
+     <td>&nbsp;</td>
+     <td>
+      <input type="radio" name="filter.status" id="status_all" value="all" checked>
+      <label for="status_all"><translate>All</translate></label>
+      <input type="radio" name="filter.status" id="status_orphaned" value="orphaned">
+      <label for="status_orphaned"><translate>Orphaned</translate></label>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  <input type="hidden" name="nextsub" value="project_report">
+
+  <p>
+   <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+  </p>
+ </form>
+
+</body>
+</html>

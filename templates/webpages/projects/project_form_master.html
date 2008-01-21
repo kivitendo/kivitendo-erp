@@ -1,0 +1,63 @@
+[% USE HTML %][% USE LxERP %]<body>
+
+ [%- IF message %]
+ <p>[% message %]</p>
+
+ <hr>
+ [%- END %]
+
+ <form method="post" action="projects.pl">
+
+  <input type="hidden" name="project.id" value="[% HTML.escape(project.id) %]">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   <table>
+    <tr>
+     <th align="right"><translate>Number</translate></th>
+     <td><input name="project.projectnumber" size="20" value="[% HTML.escape(project.projectnumber) %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right"><translate>Description</translate></th>
+     <td>
+      [%- SET rows = LxERP.numtextrows(project.description, 60) %]
+      [%- IF rows > 1 %]
+      <textarea name="project.description" rows="rows" cols="60" style="width: 100%" wrap="soft">[% HTML.escape(project.description) %]</textarea>
+      [%- ELSE %]
+      <input name="project.description" size="60" value="[% HTML.escape(project.description) %]">
+      [%- END %]
+     </td>
+    </tr>
+
+    [%- IF project.id %]
+    <tr>
+     <th align="right">&nbsp;</th>
+     <td>
+      <input type="radio" name="project.active" id="active_1" value="1"[% IF project.active %] checked[% END %]><label for="active_1"><translate>Active</translate></label>
+      <input type="radio" name="project.active" id="active_0" value="0"[% IF !project.active %] checked[% END %]><label for="active_0"><translate>Inactive</translate></label>
+     </td>
+    </tr>
+    [%- END %]
+   </table>
+  </p>
+
+  <p><hr size="3" noshade></p>
+
+  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+
+  <p>
+   <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+   [%- IF project.id %]
+   <input type="submit" class="submit" name="action" value="<translate>Save as new</translate>">
+   [%- IF project.orphaned %]
+   <input type="submit" class="submit" name="action" value="<translate>Delete</translate>">
+   [%- END %]
+   <input type="button" onclick="set_history_window([% HTML.escape(project.id) %]);" name="history" id="history" value="<translate>history</translate>">
+   [%- END %]
+  </p>
+ </form>
+
+</body>
+</html>

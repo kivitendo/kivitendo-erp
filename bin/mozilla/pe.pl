@@ -27,8 +27,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #======================================================================
 #
-# project administration
-# partsgroup administration
+# partsgroup, pricegroup administration
 #
 #======================================================================
 
@@ -68,9 +67,6 @@ sub edit {
   #/show hhistory button
   $form->{title} = "Edit";
 
-  if ($form->{type} eq 'project') {
-    PE->get_project(\%myconfig, \%$form);
-  }
   if ($form->{type} eq 'partsgroup') {
     PE->get_partsgroup(\%myconfig, \%$form);
   }
@@ -88,33 +84,6 @@ sub search {
 
   $auth->assert('config');
 
-  if ($form->{type} eq 'project') {
-    $report        = "project_report";
-    $sort          = 'projectnumber';
-    $form->{title} = $locale->text('Projects');
-
-    $number = qq|
-	<tr>
-	  <th align=right width=1%>| . $locale->text('Number') . qq|</th>
-	  <td>| . $cgi->textfield('-name' => 'projectnumber', '-size' => 20) . qq|</td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td>| . $cgi->textfield('-name' => 'description', '-size' => 60) . qq|</td>
-	</tr>
-  <tr>
-    <th>&nbsp;</th>
-    <td>| .
-    $cgi->radio_group('-name' => 'active', '-default' => 'active',
-                      '-values' => ['active', 'inactive', 'both'],
-                      '-labels' => { 'active' => ' ' . $locale->text("Active"),
-                                     'inactive' => ' ' . $locale->text("Inactive"),
-                                     'both' => ' ' . $locale->text("Both") })
-    . qq|</td>
-  </tr>
-|;
-
-  }
   if ($form->{type} eq 'partsgroup') {
     $report        = "partsgroup_report";
     $sort          = 'partsgroup';
@@ -192,273 +161,11 @@ sub search {
   $lxdebug->leave_sub();
 }
 
-sub project_report {
-  $lxdebug->enter_sub();
-
-  $auth->assert('config');
-
-  map { $form->{$_} = $form->unescape($form->{$_}) }
-    (projectnumber, description);
-  PE->projects(\%myconfig, \%$form);
-
-  $callback =
-    "$form->{script}?action=project_report&type=$form->{type}&status=$form->{status}&active=" .
-    E($form->{active});
-  $href = $callback;
-
-  if ($form->{status} eq 'all') {
-    $option = $locale->text('All');
-  }
-  if ($form->{status} eq 'orphaned') {
-    $option .= $locale->text('Orphaned');
-  }
-  if ($form->{projectnumber}) {
-    $href     .= "&projectnumber=" . $form->escape($form->{projectnumber});
-    $callback .= "&projectnumber=$form->{projectnumber}";
-    $option   .=
-      "\n<br>" . $locale->text('Project') . " : $form->{projectnumber}";
-  }
-  if ($form->{description}) {
-    $href     .= "&description=" . $form->escape($form->{description});
-    $callback .= "&description=$form->{description}";
-    $option   .=
-      "\n<br>" . $locale->text('Description') . " : $form->{description}";
-  }
-
-  @column_index = qw(projectnumber description);
-
-  push(@column_index, "active") if ("both" eq $form->{active});
-
-  $column_header{projectnumber} =
-      qq|<th><a class=listheading href=$href&sort=projectnumber>|
-    . $locale->text('Number')
-    . qq|</a></th>|;
-  $column_header{description} =
-      qq|<th><a class=listheading href=$href&sort=description>|
-    . $locale->text('Description')
-    . qq|</a></th>|;
-  $column_header{active} =
-      qq|<th class="listheading">| . $locale->text('Active') . qq|</th>|;
-
-  $form->{title} = $locale->text('Projects');
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-	<tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  # escape callback
-  $form->{callback} = $callback .= "&sort=$form->{sort}";
-
-  # escape callback for href
-  $callback = $form->escape($callback);
-
-  foreach $ref (@{ $form->{project_list} }) {
-
-    $i++;
-    $i %= 2;
-
-    print qq|
-        <tr valign=top class=listrow$i>
-|;
-
-    $column_data{projectnumber} =
-      qq|<td><a href=$form->{script}?action=edit&type=$form->{type}&status=$form->{status}&id=$ref->{id}&callback=$callback>$ref->{projectnumber}</td>|;
-    $column_data{description} = qq|<td>$ref->{description}&nbsp;</td>|;
-    $column_data{active} =
-      qq|<td>| .
-      ($ref->{active} ? $locale->text("Yes") : $locale->text("No")) .
-      qq|</td>|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print "
-        </tr>
-";
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=$form->{script}>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=$form->{type}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
-
-  </form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub form_project_header {
-  $lxdebug->enter_sub();
-
-  $auth->assert('config');
-
-  $form->{title} = $locale->text("$form->{title} Project");
-
-  # $locale->text('Add Project')
-  # $locale->text('Edit Project')
-
-  $form->{description} =~ s/\"/&quot;/g;
-
-  my $projectnumber =
-    $cgi->textfield('-name' => 'projectnumber', '-size' => 20,
-                    '-default' => $form->{projectnumber});
-
-  my $description;
-  if (($rows = $form->numtextrows($form->{description}, 60)) > 1) {
-    $description =
-      $cgi->textarea('-name' => 'description', '-rows' => $rows, '-cols' => 60,
-                     '-style' => 'width: 100%', '-wrap' => 'soft',
-                     '-default' => $form->{description});
-  } else {
-    $description =
-      $cgi->textfield('-name' => 'description', '-size' => 60,
-                      '-default' => $form->{description});
-  }
-
-  my $active;
-  if ($form->{id}) {
-    $active =
-      qq|
-  <tr>
-    <th>&nbsp;</th>
-    <td>| .
-      $cgi->radio_group('-name' => 'active',
-                        '-values' => [1, 0],
-                        '-default' => $form->{active} * 1,
-                        '-labels' => { 1 => $locale->text("Active"),
-                                       0 => $locale->text("Inactive") })
-      . qq|</td>
-  </tr>
-|;
-  }
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=project>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('Number') . qq|</th>
-	  <td>$projectnumber</td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td>$description</td>
-	</tr>
-      $active
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $lxdebug->leave_sub();
-}
-
-sub form_project_footer {
-  $lxdebug->enter_sub();
-
-  $auth->assert('config');
-
-  print qq|
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<br><input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">
-|;
-
-  if ($form->{id} && $form->{orphaned}) {
-    print qq|
-<input type=submit class=submit name=action value="|
-      . $locale->text('Delete') . qq|">|;
-  }
-
-  if ($form->{id}) {
-    # button for saving history
-    print qq|
-      <input type=button onclick=set_history_window(|
-      . $form->{id}
-      . qq|); name=history id=history value=|
-      . $locale->text('history')
-      . qq|>|;
-    # /button for saving history
-  }
-
-  print qq|
-</form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
-}
-
 sub save {
   $lxdebug->enter_sub();
 
   $auth->assert('config');
 
-  if ($form->{type} eq 'project') {
-    $form->isblank("projectnumber", $locale->text('Project Number missing!'));
-    PE->save_project(\%myconfig, \%$form);
-    $form->redirect($locale->text('Project saved!'));
-  }
   if ($form->{type} eq 'partsgroup') {
     $form->isblank("partsgroup", $locale->text('Group missing!'));
     PE->save_partsgroup(\%myconfig, \%$form);
@@ -489,9 +196,6 @@ sub delete {
 
   PE->delete_tuple(\%myconfig, \%$form);
 
-  if ($form->{type} eq 'project') {
-    $form->redirect($locale->text('Project deleted!'));
-  }
   if ($form->{type} eq 'partsgroup') {
     $form->redirect($locale->text('Group deleted!'));
   }

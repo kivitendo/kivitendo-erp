@@ -28,8 +28,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #======================================================================
 #
-# Project module
-# also used for partsgroups
+# Partsgroups and pricegroups
 #
 #======================================================================
 
@@ -38,133 +37,6 @@ package PE;
 use Data::Dumper;
 
 use SL::DBUtils;
-
-sub projects {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my ($where, @values);
-
-  foreach my $column (qw(projectnumber description)) {
-    if ($form->{$column}) {
-      $where .= qq|AND $column ILIKE ? |;
-      push(@values, '%' . $form->{$column} . '%');
-    }
-  }
-
-  if ($form->{status} eq 'orphaned') {
-    my %col_prefix = ("ar" => "global", "ap" => "global", "oe" => "global");
-    my $first = 1;
-
-    $where .= qq|AND id NOT IN (|;
-    foreach my $table (qw(acc_trans invoice orderitems rmaitems ar ap oe)) {
-      $where .= "UNION " unless ($first);
-      $first = 0;
-      $where .=
-        qq|SELECT DISTINCT $col_prefix{$table}project_id FROM $table | .
-        qq|WHERE NOT $col_prefix{$table}project_id ISNULL |;
-    }
-    $where .= qq|) |;
-  }
-
-  if ($form->{active} eq "active") {
-    $where .= qq|AND active |;
-  } elsif ($form->{active} eq "inactive") {
-    $where .= qq|AND NOT active |;
-  }
-
-  substr($where, 0, 4) = "WHERE " if ($where);
-
-  my $sortorder = $form->{sort} ? $form->{sort} : "projectnumber";
-  $sortorder =~ s/[^a-z_]//g;
-  my $query =
-    qq|SELECT id, projectnumber, description, active | .
-    qq|FROM project | .
-    $where .
-    qq|ORDER BY $sortorder|;
-
-  $form->{project_list} =
-    selectall_hashref_query($form, $dbh, $query, @values);
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return scalar(@{ $form->{project_list} });
-}
-
-sub get_project {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $query =
-    qq|SELECT * FROM project | .
-    qq|WHERE id = ?|;
-	my @values = ($form->{id});
-  my $sth = $dbh->prepare($query);
-  $sth->execute(@values) || $form->dberror($query);
-
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
-
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  $sth->finish;
-
-  # check if it is orphaned
-  my %col_prefix = ("ar" => "global", "ap" => "global", "oe" => "global");
-  @values = ();
-  $query = qq|SELECT |;
-  my $first = 1;
-  foreach my $table (qw(acc_trans invoice orderitems rmaitems ar ap oe)) {
-    $query .= " + " unless ($first);
-    $first = 0;
-    $query .=
-      qq|(SELECT COUNT(*) FROM $table | .
-      qq| WHERE $col_prefix{$table}project_id = ?) |;
-    push(@values, $form->{id});
-  }
-
-  ($form->{orphaned}) = selectrow_query($form, $dbh, $query, @values);
-  $form->{orphaned} = !$form->{orphaned};
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub save_project {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my @values = ($form->{projectnumber}, $form->{description});
-
-  if ($form->{id}) {
-    $query =
-      qq|UPDATE project SET projectnumber = ?, description = ?, active = ? | .
-      qq|WHERE id = ?|;
-    push(@values, ($form->{active} ? 't' : 'f'), $form->{id});
-  } else {
-    $query =
-      qq|INSERT INTO project (projectnumber, description, active) | .
-      qq|VALUES (?, ?, 't')|;
-  }
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
 
 sub partsgroups {
   $main::lxdebug->enter_sub();
@@ -265,10 +137,7 @@ sub delete_tuple {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $table =
-    $form->{type} eq "project" ? "project" :
-    $form->{type} eq "pricegroup" ? "pricegroup" :
-    "partsgroup";
+  my $table = $form->{type} eq "pricegroup" ? "pricegroup" : "partsgroup";
 
   $query = qq|DELETE FROM $table WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});

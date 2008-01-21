@@ -763,6 +763,7 @@ sub parse_html_template {
   if (!$template->process($file, $additional_params, \$output)) {
     print STDERR $template->error();
   }
+  $main::lxdebug->message(0, "err " . $template->error());
 
   $output = $main::locale->{iconv}->convert($output) if ($main::locale);
 
