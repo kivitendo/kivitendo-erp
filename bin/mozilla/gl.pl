@@ -451,36 +451,22 @@ sub generate_report {
   my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto category l_subtotal);
   push @hidden_variables, map { "l_${_}" } @columns;
 
-  my (@options, $date_option);
-  if ($form->{accno}) {
-    push @options, $locale->text('Account') . " : $form->{accno} $form->{account_description}";
-  }
-  if ($form->{source}) {
-    push @options, $locale->text('Source') . " : $form->{source}";
-  }
-  if ($form->{reference}) {
-    push @options, $locale->text('Reference') . " : $form->{reference}";
-  }
+  my (@options, @date_options);
+  push @options,      $locale->text('Account')     . " : $form->{accno} $form->{account_description}" if ($form->{accno});
+  push @options,      $locale->text('Source')      . " : $form->{source}"                             if ($form->{source});
+  push @options,      $locale->text('Reference')   . " : $form->{reference}"                          if ($form->{reference});
+  push @options,      $locale->text('Description') . " : $form->{description}"                        if ($form->{description});
+  push @options,      $locale->text('Notes')       . " : $form->{notes}"                              if ($form->{notes});
+
+  push @date_options, $locale->text('From'), $locale->date(\%myconfig, $form->{datefrom}, 1)          if ($form->{datefrom});
+  push @date_options, $locale->text('Bis'),  $locale->date(\%myconfig, $form->{dateto},   1)          if ($form->{dateto});
+  push @options,      join(' ', @date_options)                                                        if (scalar @date_options);
+
   if ($form->{department}) {
     my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";
   }
-  if ($form->{description}) {
-    push @options, $locale->text('Description') . " : $form->{description}";
-  }
-  if ($form->{notes}) {
-    push @options, $locale->text('Notes') . " : $form->{notes}";
-  }
-  if ($form->{datefrom}) {
-    $date_option = $locale->text('From') . " " . $locale->date(\%myconfig, $form->{datefrom}, 1);
-  }
-  if ($form->{dateto}) {
-    if ($form->{datefrom}) {
-      $date_option .= " ";
-    }
-    $date_option .= $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{dateto}, 1);
-  }
-  push @options, $date_option if $date_option;
+
 
   my $callback = build_std_url('action=generate_report', @hidden_variables);
 
