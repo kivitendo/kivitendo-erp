@@ -31,6 +31,7 @@
      <select name="report_generator_pdf_options_paper_size">
       <option value="A3">A3</option>
       <option value="A4" selected>A4</option>
+      <option value="A5">A5</option>
       <option value="letter">Letter</option>
       <option value="legal">Legal</option>
      </select>
@@ -41,9 +42,39 @@
     </td>
    </tr>
 
+   [%- IF ALLOW_FONT_SELECTION %]
+   <tr>
+    <td align="right">Schriftart</td>
+    <td>
+     <select name="report_generator_pdf_options_font_name">
+      <option>Courier</option>
+      <option>Georgia</option>
+      <option>Helvetica</option>
+      <option>Times</option>
+      <option selected>Verdana</option>
+     </select>
+    </td>
+   </tr>
+   [%- END %]
+
    <tr>
     <td align="right">Schriftgr&ouml;&szlig;e</td>
-    <td><input name="report_generator_pdf_options_font_size" size="4" value="10"> pt</td>
+    <td>
+     <select name="report_generator_pdf_options_font_size">
+      <option>6</option>
+      <option selected>7</option>
+      <option>8</option>
+      <option>9</option>
+      <option>10</option>
+      <option>11</option>
+      <option>12</option>
+      <option>13</option>
+      <option>14</option>
+      <option>15</option>
+     </select>
+     &nbsp;
+     pt
+    </td>
    </tr>
 
    <tr>

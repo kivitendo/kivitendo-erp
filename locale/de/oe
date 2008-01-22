@@ -204,6 +204,7 @@ $self->{texts} = {
   'Packing List'                => 'Lieferschein',
   'Packing List Date missing!'  => 'Datum für Verpackungsliste fehlt!',
   'Packing List Number missing!' => 'Verpackungslistennummer fehlt!',
+  'Page #1/#2'                  => 'Seite #1/#2',
   'Part Description'            => 'Artikelbeschreibung',
   'Part Number'                 => 'Artikelnummer',
   'Part description'            => 'Artikelbeschreibung',

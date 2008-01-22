@@ -22,3 +22,19 @@ foreach my $module (@SL::InstallationCheck::required_modules) {
     print(" ok\n");
   }
 }
+
+foreach my $module (@SL::InstallationCheck::optional_modules) {
+  print("Looking for $module->{name} (optional)...");
+  if (!SL::InstallationCheck::module_available($module->{"name"})) {
+    print(" NOT found\n" .
+          "  The module '$module->{name}' is not available on your system.\n" .
+          "  While it is not strictly needed it provides extra functionality\n" .
+          "  and should be installed.\n" .
+          "  You can install it with the CPAN shell, e.g.\n" .
+          "    perl -MCPAN -e \"install $module->{name}\"\n" .
+          "  or download it from this URL and install it manually:\n" .
+          "    $module->{url}\n\n");
+  } else {
+    print(" ok\n");
+  }
+}

@@ -3,7 +3,7 @@ package SL::InstallationCheck;
 use English '-no_match_vars';
 use IO::File;
 
-use vars qw(@required_modules);
+use vars qw(@required_modules @optional_modules);
 
 @required_modules = (
   { "name" => "Class::Accessor", "url" => "http://search.cpan.org/~kasei/" },
@@ -20,6 +20,10 @@ use vars qw(@required_modules);
   { "name" => "List::Util", "url" => "http://search.cpan.org/~gbarr/" },
   { "name" => "Template", "url" => "http://search.cpan.org/~abw/" },
   { "name" => "Digest::MD5", "url" => "http://search.cpan.org/~gaas/" },
+  );
+
+@optional_modules = (
+  { "name" => "PDF::API2", "url" => "http://search.cpan.org/~areibens/" },
   );
 
 sub module_available {

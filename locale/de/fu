@@ -86,6 +86,7 @@ $self->{texts} = {
   'POSTED AS NEW'               => 'Als neu gebucht',
   'PRINTED'                     => 'Gedruckt',
   'Packing List'                => 'Lieferschein',
+  'Page #1/#2'                  => 'Seite #1/#2',
   'Pick List'                   => 'Sammelliste',
   'Proforma Invoice'            => 'Proformarechnung',
   'Purchase Order'              => 'Lieferantenauftrag',

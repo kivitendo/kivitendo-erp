@@ -41,9 +41,14 @@ sub report_generator_export_as_pdf {
 
   $form->{copies} = max $myconfig{copies} * 1, 1;
 
+  my $allow_font_selection = 1;
+  eval { require PDF::API2; };
+  $allow_font_selection = 0 if ($@);
+
   $form->{title} = $locale->text('PDF export -- options');
   $form->header();
-  print $form->parse_html_template('report_generator/pdf_export_options', { 'HIDDEN' => \@form_values });
+  print $form->parse_html_template('report_generator/pdf_export_options', { 'HIDDEN'               => \@form_values,
+                                                                            'ALLOW_FONT_SELECTION' => $allow_font_selection, });
 
   $lxdebug->leave_sub();
 }

@@ -28,9 +28,10 @@ sub new {
     'html_template'         => 'report_generator/html_report',
     'pdf_template'          => 'report_generator/pdf_report',
     'pdf_export'            => {
-      'paper_size'          => 'A4',
+      'paper_size'          => 'a4',
       'orientation'         => 'landscape',
-      'font_size'           => '10',
+      'font_name'           => 'Verdana',
+      'font_size'           => '7',
       'margin_top'          => 1.5,
       'margin_left'         => 1.5,
       'margin_bottom'       => 1.5,
@@ -187,7 +188,13 @@ sub set_options {
   my $self    = shift;
   my %options = @_;
 
-  map { $self->{options}->{$_} = $options{$_} } keys %options;
+  while (my ($key, $value) = each %options) {
+    if ($key eq 'pdf_export') {
+      map { $self->{options}->{pdf_export}->{$_} = $value->{$_} } keys %{ $value };
+    } else {
+      $self->{options}->{$key} = $value;
+    }
+  }
 }
 
 sub set_options_from_form {
@@ -372,6 +379,9 @@ sub prepare_html_content {
 
   my $allow_pdf_export = $opts->{allow_pdf_export} && (-x $main::html2ps_bin) && (-x $main::ghostscript_bin);
 
+  eval { require PDF::API2; require PDF::Table; };
+  $allow_pdf_export |= 1 if (! $@);
+
   my $variables = {
     'TITLE'                => $opts->{title},
     'TOP_INFO_TEXT'        => $self->html_format($opts->{top_info_text}),
@@ -400,6 +410,205 @@ sub generate_html_content {
   return $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
 }
 
+sub _cm2bp {
+  # 1 bp = 1/72 in
+  # 1 in = 2.54 cm
+  return $_[0] * 72 / 2.54;
+}
+
+sub render_pdf_with_pdf_api2 {
+  my $self       = shift;
+  my $variables  = $self->prepare_html_content();
+  my $form       = $self->{form};
+  my $myconfig   = $self->{myconfig};
+
+  my $opts       = $self->{options};
+  my $params     = $opts->{pdf_export};
+
+  my (@data, @column_props, @cell_props);
+
+  my $data_row        = [];
+  my $cell_props_row  = [];
+  my @visible_columns = $self->get_visible_columns('HTML');
+
+  foreach $name (@visible_columns) {
+    $column = $self->{columns}->{$name};
+
+    push @{ $data_row },       $column->{text};
+    push @{ $cell_props_row }, {};
+    push @column_props,        { 'justify' => $column->{align} eq 'right' ? 'right' : 'left' };
+  }
+
+  push @data,       $data_row;
+  push @cell_props, $cell_props_row;
+
+  my $num_columns = scalar @column_props;
+
+  foreach my $row_set (@{ $self->{data} }) {
+    if ('HASH' eq ref $row_set) {
+      if ($row_set->{type} eq 'colspan_data') {
+        push @data, [ $row_set->{data} ];
+
+        $cell_props_row = [];
+        push @cell_props, $cell_props_row;
+
+        foreach (0 .. $num_columns - 1) {
+          push @{ $cell_props_row }, { 'background_color' => '#000000',
+                                       'font_color'       => '#ffffff', };
+        }
+      }
+      next;
+    }
+
+    foreach my $row (@{ $row_set }) {
+      $data_row = [];
+      push @data, $data_row;
+
+      my $col_idx = 0;
+      foreach my $col_name (@visible_columns) {
+        my $col = $row->{$col_name};
+        push @{ $data_row }, join("\n", @{ $col->{data} });
+
+        $column_props[$col_idx]->{justify} = 'right' if ($col->{align} eq 'right');
+
+        $col_idx++;
+      }
+
+      $cell_props_row = [];
+      push @cell_props, $cell_props_row;
+
+      foreach (0 .. $num_columns - 1) {
+        push @{ $cell_props_row }, { };
+      }
+    }
+  }
+
+  foreach my $i (0 .. scalar(@data) - 1) {
+    my $aref             = $data[$i];
+    my $num_columns_here = scalar @{ $aref };
+
+    if ($num_columns_here < $num_columns) {
+      push @{ $aref }, ('') x ($num_columns - $num_columns_here);
+    } elsif ($num_columns_here > $num_columns) {
+      splice @{ $aref }, $num_columns;
+    }
+  }
+
+  my $papersizes = {
+    'a3'         => [ 842, 1190 ],
+    'a4'         => [ 595,  842 ],
+    'a5'         => [ 420,  595 ],
+    'letter'     => [ 612,  792 ],
+    'legal'      => [ 612, 1008 ],
+  };
+
+  my %supported_fonts = map { $_ => 1 } qw(courier georgia helvetica times verdana);
+
+  my $paper_size  = defined $params->{paper_size} && defined $papersizes->{lc $params->{paper_size}} ? lc $params->{paper_size} : 'a4';
+  my ($paper_width, $paper_height);
+
+  if (lc $params->{orientation} eq 'landscape') {
+    ($paper_width, $paper_height) = @{$papersizes->{$paper_size}}[1, 0];
+  } else {
+    ($paper_width, $paper_height) = @{$papersizes->{$paper_size}}[0, 1];
+  }
+
+  my $margin_top        = _cm2bp($params->{margin_top}    || 1.5);
+  my $margin_bottom     = _cm2bp($params->{margin_bottom} || 1.5);
+  my $margin_left       = _cm2bp($params->{margin_left}   || 1.5);
+  my $margin_right      = _cm2bp($params->{margin_right}  || 1.5);
+
+  my $table             = PDF::Table->new();
+  my $pdf               = PDF::API2->new();
+  my $page              = $pdf->page();
+
+  $pdf->mediabox($paper_width, $paper_height);
+
+  my $font              = $pdf->corefont(defined $params->{font_name} && $supported_fonts{lc $params->{font_name}} ? ucfirst $params->{font_name} : 'Verdana',
+                                         '-encoding' => $main::dbcharset || 'ISO-8859-15');
+  my $font_size         = $params->{font_size} || 7;
+  my $title_font_size   = $font_size + 1;
+  my $padding           = 1;
+  my $font_height       = $font_size + 2 * $padding;
+  my $title_font_height = $font_size + 2 * $padding;
+
+  my $header_height     = 2 * $title_font_height if ($opts->{title});
+  my $footer_height     = 2 * $font_height       if ($params->{number});
+
+  my $top_text_height   = 0;
+
+  if ($self->{options}->{top_info_text}) {
+    my $top_text     =  $self->{options}->{top_info_text};
+    $top_text        =~ s/\r//g;
+    $top_text        =~ s/\n+$//;
+
+    my @lines        =  split m/\n/, $top_text;
+    $top_text_height =  $font_height * scalar @lines;
+
+    foreach my $line_no (0 .. scalar(@lines) - 1) {
+      my $y_pos    = $paper_height - $margin_top - $header_height - $line_no * $font_height;
+      my $text_obj = $page->text();
+
+      $text_obj->font($font, $font_size);
+      $text_obj->translate($margin_left, $y_pos);
+      $text_obj->text($lines[$line_no]);
+    }
+  }
+
+  $table->table($pdf,
+                $page,
+                \@data,
+                'x'                     => $margin_left,
+                'w'                     => $paper_width - $margin_left - $margin_right,
+                'start_y'               => $paper_height - $margin_top                  - $header_height                  - $top_text_height,
+                'next_y'                => $paper_height - $margin_top                  - $header_height,
+                'start_h'               => $paper_height - $margin_top - $margin_bottom - $header_height - $footer_height - $top_text_height,
+                'next_h'                => $paper_height - $margin_top - $margin_bottom - $header_height - $footer_height,
+                'padding'               => 1,
+                'background_color_odd'  => '#ffffff',
+                'background_color_even' => '#eeeeee',
+                'font'                  => $font,
+                'font_size'             => $font_size,
+                'font_color'            => '#000000',
+                'header_props'          => {
+                  'bg_color'            => '#ffffff',
+                  'repeat'              => 1,
+                  'font_color'          => '#000000',
+                },
+                'column_props'          => \@column_props,
+                'cell_props'            => \@cell_props,
+    );
+
+  foreach my $page_num (1..$pdf->pages()) {
+    my $curpage  = $pdf->openpage($page_num);
+
+    if ($params->{number}) {
+      my $label    = $main::locale->text("Page #1/#2", $page_num, $pdf->pages());
+      my $text_obj = $curpage->text();
+
+      $text_obj->font($font, $font_size);
+      $text_obj->translate(($paper_width - $margin_left - $margin_right) / 2 + $margin_left - $text_obj->advancewidth($label) / 2, $margin_bottom);
+      $text_obj->text($label);
+    }
+
+    if ($opts->{title}) {
+      my $text_obj = $curpage->text();
+
+      $text_obj->font($font, $title_font_size);
+      $text_obj->translate(($paper_width - $margin_left - $margin_right) / 2 + $margin_left - $text_obj->advancewidth($opts->{title}) / 2,
+                           $paper_height - $margin_top);
+      $text_obj->text($opts->{title}, '-underline' => 1);
+    }
+  }
+
+  my $filename = $self->get_attachment_basename();
+
+  print qq|content-type: application/pdf\n|;
+  print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
+
+  print $pdf->stringify();
+}
+
 sub verify_paper_size {
   my $self                 = shift;
   my $requested_paper_size = lc shift;
@@ -410,7 +619,7 @@ sub verify_paper_size {
   return $allowed_paper_sizes{$requested_paper_size} ? $requested_paper_size : $default_paper_size;
 }
 
-sub generate_pdf_content {
+sub render_pdf_with_html2ps {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
   my $form      = $self->{form};
@@ -518,6 +727,18 @@ END
   } else {
     unlink $cfg_file_name, $html_file_name;
     $form->error($locale->text('Could not spawn html2ps or GhostScript.'));
+  }
+}
+
+sub generate_pdf_content {
+  my $self = shift;
+
+  eval { require PDF::API2; require PDF::Table; };
+
+  if ($@) {
+    return $self->render_pdf_with_html2ps(@_);
+  } else {
+    return $self->render_pdf_with_pdf_api2(@_);
   }
 }
 
