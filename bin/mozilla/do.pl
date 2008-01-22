@@ -417,7 +417,7 @@ sub orders {
   my @columns = qw(
     transdate
     id                      donumber
-    ordnumber               oreqnumber
+    ordnumber
     name                    employee
     shipvia                 globalprojectnumber
     transaction_description
@@ -445,7 +445,6 @@ sub orders {
     'id'                      => { 'text' => $locale->text('ID'), },
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
-    'oreqnumber'              => { 'text' => $locale->text('Order Request Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Salesperson'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
@@ -455,7 +454,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
   );
 
-  foreach my $name (qw(id transdate donumber ordnumber oreqnumber name employee shipvia)) {
+  foreach my $name (qw(id transdate donumber ordnumber name employee shipvia)) {
     $column_defs{$name}->{link} = $href . "&sort=$name";
   }
 
@@ -524,7 +523,6 @@ sub orders {
 
   my $edit_url       = build_std_url('action=edit', 'type', 'vc');
   my $edit_order_url = build_std_url('script=oe.pl', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'), 'action=edit');
-  my $edit_oreq_url  = build_std_url('script=pkoreq.pl', 'action=edit');
 
   foreach $dord (@{ $form->{DO} }) {
     $dord->{open}      = $dord->{closed}    ? $locale->text('No')  : $locale->text('Yes');
@@ -532,9 +530,8 @@ sub orders {
 
     my $row = { map { $_ => { 'data' => $dord->{$_} } } @columns };
 
-    $row->{donumber}->{link}   = $edit_url       . "&id=" . E($dord->{id})      . "&callback=${callback}";
-    $row->{ordnumber}->{link}  = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}";
-    $row->{oreqnumber}->{link} = $edit_oreq_url  . "&id=" . E($dord->{oreq_id}) . "&callback=${callback}";
+    $row->{donumber}->{link}  = $edit_url       . "&id=" . E($dord->{id})      . "&callback=${callback}";
+    $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}";
 
     $report->add_data($row);
   }

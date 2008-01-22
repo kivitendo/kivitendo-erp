@@ -305,13 +305,6 @@
         <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"[% RO %]></td>
        </tr>
 
-       [%- UNLESS is_customer %]
-       <tr>
-        <th width="70%" align="right" nowrap>Bestellanfragenummer</th>
-        <td><input name="oreqnumber" size="11" value="[% HTML.escape(oreqnumber) %]"[% RO %]></td>
-       </tr>
-       [%- END %]
-
        <tr>
         <th align="right" nowrap>Lieferscheindatum</th>
         <td nowrap>

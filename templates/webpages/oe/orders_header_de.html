@@ -208,12 +208,6 @@
                     <td><input name=ordnumber size=11 value="[% HTML.escape(ordnumber) %]"></td>
                   </tr>
 [%- END %]
-[%- IF is_pur_ord || is_req_quo %]
-                  <tr>
-                    <th width=70% align=right nowrap>Bestellanfragenummer</th>
-                    <td><input name=oreqnumber size=11 value="[% HTML.escape(oreqnumber) %]"></td>
-                  </tr>
-[%- END %]
                   <tr>
                     <th width=70% align=right nowrap>[% IF is_req_quo %]Anfragenummer[% ELSE %]Angebotsnummer[% END %]</th>
                     <td><input name=quonumber size=11 value="[% HTML.escape(quonumber) %]"></td>

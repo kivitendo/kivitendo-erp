@@ -55,13 +55,6 @@
      <td colspan="3"><input name="ordnumber" class="fixed_width"></td>
     </tr>
 
-    [%- UNLESS is_customer %]
-    <tr>
-     <th align="right"><translate>Order Request Number</translate></th>
-     <td colspan="3"><input name="oreqnumber" class="fixed_width"></td>
-    </tr>
-    [%- END %]
-
     [%- IF ALL_DEPARTMENTS.size %]
     <tr>
      <th align="right" nowrap><translate>Department</translate></th>
@@ -184,13 +177,6 @@
          <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y">
          <label for="l_cusordnumber"><translate>Customer Order Number</translate></label>
         </td>
-
-        [%- UNLESS is_customer %]
-        <td>
-         <input name="l_oreqnumber" id="l_oreqnumber" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_oreqnumber"><translate>Order Request Number</translate></label>
-        </td>
-        [%- END %]
        </tr>
 
        <tr>

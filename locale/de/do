@@ -162,7 +162,6 @@ $self->{texts} = {
   'Order Date missing!'         => 'Auftragsdatum fehlt!',
   'Order Number'                => 'Auftragsnummer',
   'Order Number missing!'       => 'Auftragsnummer fehlt!',
-  'Order Request Number'        => 'Bestellanfragenummer',
   'Others'                      => 'Andere',
   'PAYMENT POSTED'              => 'Rechung gebucht',
   'PDF'                         => 'PDF',

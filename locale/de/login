@@ -212,7 +212,6 @@ $self->{texts} = {
   'Order Date missing!'         => 'Auftragsdatum fehlt!',
   'Order Number'                => 'Auftragsnummer',
   'Order Number missing!'       => 'Auftragsnummer fehlt!',
-  'Order Request Number'        => 'Bestellanfragenummer',
   'Order deleted!'              => 'Auftrag gelöscht!',
   'Other users\' follow-ups'    => 'Wiedervorlagen anderer Benutzer',
   'Others'                      => 'Andere',

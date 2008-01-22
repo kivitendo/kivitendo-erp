@@ -56,21 +56,19 @@ sub transactions {
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
   $query =
-    qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.oreqnumber, dord.transdate,
+    qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.transdate,
          ct.name, dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
          dord.transaction_description,
          pr.projectnumber AS globalprojectnumber,
          e.name AS employee,
          sm.name AS salesman,
-         oreq.id AS oreq_id,
          oe.id AS oe_id
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
        LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
-       LEFT JOIN order_request oreq ON (dord.oreqnumber = oreq.oreqnumber)
        LEFT JOIN oe ON ((dord.ordnumber = oe.ordnumber) AND NOT COALESCE(oe.quotation, FALSE))|;
 
   push @where, ($form->{type} eq 'sales_delivery_order' ? '' : 'NOT ') . qq|COALESCE(dord.is_sales, FALSE)|;
@@ -138,7 +136,6 @@ sub transactions {
     "id"                      => "dord.id",
     "donumber"                => "dord.donumber",
     "ordnumber"               => "dord.ordnumber",
-    "oreqnumber"              => "dord.oreqnumber",
     "name"                    => "ct.name",
     "employee"                => "e.name",
     "salesman"                => "sm.name",
@@ -226,10 +223,9 @@ sub save {
          id, delivery_order_id, parts_id, description, longdescription, qty, base_qty,
          sellprice, discount, unit, reqdate, project_id, serialnumber,
          ordnumber, transdate, cusordnumber,
-         lastcost, price_factor_id, price_factor, marge_price_factor,
-         v_partnumber, v_description)
+         lastcost, price_factor_id, price_factor, marge_price_factor)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-         (SELECT factor FROM price_factors WHERE id = ?), ?, ?, ?)|;
+         (SELECT factor FROM price_factors WHERE id = ?), ?)|;
   my $h_item = prepare_query($form, $dbh, $q_item);
 
   my $q_item_stock =
@@ -277,8 +273,7 @@ sub save {
                $form->{"cusordnumber_$i"},
                $form->{"lastcost_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
-               conv_i($form->{"marge_price_factor_$i"}),
-               $form->{"v_partnumber_$i"}, $form->{"v_description_$i"});
+               conv_i($form->{"marge_price_factor_$i"}));
     do_statement($form, $h_item, $q_item, @values);
 
     my $stock_info = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_$i"});
@@ -299,7 +294,7 @@ sub save {
   # save DO record
   $query =
     qq|UPDATE delivery_orders SET
-         donumber = ?, ordnumber = ?, cusordnumber = ?, oreqnumber = ?, transdate = ?, vendor_id = ?,
+         donumber = ?, ordnumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?,
          customer_id = ?, reqdate = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?,
@@ -308,7 +303,7 @@ sub save {
        WHERE id = ?|;
 
   @values = ($form->{donumber}, $form->{ordnumber},
-             $form->{cusordnumber}, $form->{oreqnumber}, conv_date($form->{transdate}),
+             $form->{cusordnumber}, conv_date($form->{transdate}),
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
              conv_date($reqdate), $form->{shippingpoint}, $form->{shipvia},
              $form->{notes}, $form->{intnotes},
@@ -454,7 +449,7 @@ sub retrieve {
     # so if any of these infos is important (or even different) for any item,
     # it will be killed out and then has to be fetched from the item scope query further down
     $query =
-      qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.oreqnumber, dord.transdate, dord.reqdate,
+      qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate,
            dord.shippingpoint, dord.shipvia, dord.notes, dord.intnotes,
            e.name AS employee, dord.employee_id, dord.salesman_id,
            dord.${vc}_id, cv.name AS ${vc},
@@ -514,7 +509,6 @@ sub retrieve {
            doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
            doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
            doi.price_factor_id, doi.price_factor, doi.marge_price_factor,
-           doi.v_partnumber, doi.v_description,
            pr.projectnumber,
            pg.partsgroup
          FROM delivery_order_items doi
@@ -627,8 +621,7 @@ sub order_details {
     qw(runningnumber number description longdescription qty unit
        partnotes serialnumber reqdate projectnumber
        si_runningnumber si_number si_description
-       si_warehouse si_bin si_chargenumber si_qty si_unit
-       v_partnumber v_description);
+       si_warehouse si_bin si_chargenumber si_qty si_unit);
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -661,8 +654,6 @@ sub order_details {
     push @{ $form->{serialnumber} },    $form->{"serialnumber_$i"};
     push @{ $form->{reqdate} },         $form->{"reqdate_$i"};
     push @{ $form->{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
-    push @{ $form->{v_partnumber} },    $form->{"v_partnumber_$i"};
-    push @{ $form->{v_description} },   $form->{"v_description_$i"};
 
     if ($form->{"assembly_$i"}) {
       $sameitem = "";
