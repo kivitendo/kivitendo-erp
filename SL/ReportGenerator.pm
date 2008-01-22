@@ -423,7 +423,7 @@ sub render_pdf_with_pdf_api2 {
   my $myconfig   = $self->{myconfig};
 
   my $opts       = $self->{options};
-  my $params     = $opts->{pdf_export};
+  my $pdfopts    = $opts->{pdf_export};
 
   my (@data, @column_props, @cell_props);
 
@@ -504,19 +504,19 @@ sub render_pdf_with_pdf_api2 {
 
   my %supported_fonts = map { $_ => 1 } qw(courier georgia helvetica times verdana);
 
-  my $paper_size  = defined $params->{paper_size} && defined $papersizes->{lc $params->{paper_size}} ? lc $params->{paper_size} : 'a4';
+  my $paper_size  = defined $pdfopts->{paper_size} && defined $papersizes->{lc $pdfopts->{paper_size}} ? lc $pdfopts->{paper_size} : 'a4';
   my ($paper_width, $paper_height);
 
-  if (lc $params->{orientation} eq 'landscape') {
+  if (lc $pdfopts->{orientation} eq 'landscape') {
     ($paper_width, $paper_height) = @{$papersizes->{$paper_size}}[1, 0];
   } else {
     ($paper_width, $paper_height) = @{$papersizes->{$paper_size}}[0, 1];
   }
 
-  my $margin_top        = _cm2bp($params->{margin_top}    || 1.5);
-  my $margin_bottom     = _cm2bp($params->{margin_bottom} || 1.5);
-  my $margin_left       = _cm2bp($params->{margin_left}   || 1.5);
-  my $margin_right      = _cm2bp($params->{margin_right}  || 1.5);
+  my $margin_top        = _cm2bp($pdfopts->{margin_top}    || 1.5);
+  my $margin_bottom     = _cm2bp($pdfopts->{margin_bottom} || 1.5);
+  my $margin_left       = _cm2bp($pdfopts->{margin_left}   || 1.5);
+  my $margin_right      = _cm2bp($pdfopts->{margin_right}  || 1.5);
 
   my $table             = PDF::Table->new();
   my $pdf               = PDF::API2->new();
@@ -524,16 +524,16 @@ sub render_pdf_with_pdf_api2 {
 
   $pdf->mediabox($paper_width, $paper_height);
 
-  my $font              = $pdf->corefont(defined $params->{font_name} && $supported_fonts{lc $params->{font_name}} ? ucfirst $params->{font_name} : 'Verdana',
+  my $font              = $pdf->corefont(defined $pdfopts->{font_name} && $supported_fonts{lc $pdfopts->{font_name}} ? ucfirst $pdfopts->{font_name} : 'Verdana',
                                          '-encoding' => $main::dbcharset || 'ISO-8859-15');
-  my $font_size         = $params->{font_size} || 7;
+  my $font_size         = $pdfopts->{font_size} || 7;
   my $title_font_size   = $font_size + 1;
   my $padding           = 1;
   my $font_height       = $font_size + 2 * $padding;
   my $title_font_height = $font_size + 2 * $padding;
 
   my $header_height     = 2 * $title_font_height if ($opts->{title});
-  my $footer_height     = 2 * $font_height       if ($params->{number});
+  my $footer_height     = 2 * $font_height       if ($pdfopts->{number});
 
   my $top_text_height   = 0;
 
@@ -582,7 +582,7 @@ sub render_pdf_with_pdf_api2 {
   foreach my $page_num (1..$pdf->pages()) {
     my $curpage  = $pdf->openpage($page_num);
 
-    if ($params->{number}) {
+    if ($pdfopts->{number}) {
       my $label    = $main::locale->text("Page #1/#2", $page_num, $pdf->pages());
       my $text_obj = $curpage->text();
 
@@ -604,8 +604,8 @@ sub render_pdf_with_pdf_api2 {
   my $content = $pdf->stringify();
 
   my $printer_command;
-  if ($params->{print} && $params->{printer_id}) {
-    $form->{printer_id} = $params->{printer_id};
+  if ($pdfopts->{print} && $pdfopts->{printer_id}) {
+    $form->{printer_id} = $pdfopts->{printer_id};
     $form->get_printer_code($myconfig);
     $printer_command = $form->{printer_command};
   }
@@ -613,7 +613,7 @@ sub render_pdf_with_pdf_api2 {
   if ($printer_command) {
     $self->_print_content('printer_command' => $printer_command,
                           'content'         => $content,
-                          'copies'          => $params->{copies});
+                          'copies'          => $pdfopts->{copies});
     $form->{report_generator_printed} = 1;
 
   } else {
