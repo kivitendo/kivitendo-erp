@@ -601,12 +601,29 @@ sub render_pdf_with_pdf_api2 {
     }
   }
 
-  my $filename = $self->get_attachment_basename();
+  my $content = $pdf->stringify();
 
-  print qq|content-type: application/pdf\n|;
-  print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
+  my $printer_command;
+  if ($params->{print} && $params->{printer_id}) {
+    $form->{printer_id} = $params->{printer_id};
+    $form->get_printer_code($myconfig);
+    $printer_command = $form->{printer_command};
+  }
 
-  print $pdf->stringify();
+  if ($printer_command) {
+    $self->_print_content('printer_command' => $printer_command,
+                          'content'         => $content,
+                          'copies'          => $params->{copies});
+    $form->{report_generator_printed} = 1;
+
+  } else {
+    my $filename = $self->get_attachment_basename();
+
+    print qq|content-type: application/pdf\n|;
+    print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
+
+    print $content;
+  }
 }
 
 sub verify_paper_size {
@@ -712,21 +729,27 @@ END
     unlink $cfg_file_name, $html_file_name;
 
     if ($printer_command && $content) {
-      foreach my $i (1 .. max $opt->{copies}, 1) {
-        my $printer = IO::File->new("| ${printer_command}");
-        if (!$printer) {
-          $form->error($locale->text('Could not spawn the printer command.'));
-        }
-        $printer->print($content);
-        $printer->close();
-      }
-
+      $self->_print_content('printer_command' => $printer_command,
+                            'content'         => $content,
+                            'copies'          => $opt->{copies});
       $form->{report_generator_printed} = 1;
     }
 
   } else {
     unlink $cfg_file_name, $html_file_name;
     $form->error($locale->text('Could not spawn html2ps or GhostScript.'));
+  }
+}
+
+sub _print_content {
+  my $self   = shift;
+  my %params = @_;
+
+  foreach my $i (1 .. max $params{copies}, 1) {
+    my $printer = IO::File->new("| $params{printer_command}");
+    $main::form->error($main::locale->text('Could not spawn the printer command.')) if (!$printer);
+    $printer->print($params{content});
+    $printer->close();
   }
 }
 
