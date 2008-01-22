@@ -631,7 +631,7 @@ sub verify_paper_size {
   my $requested_paper_size = lc shift;
   my $default_paper_size   = shift;
 
-  my %allowed_paper_sizes  = map { $_ => 1 } qw(a3 a4 letter legal);
+  my %allowed_paper_sizes  = map { $_ => 1 } qw(a3 a4 a5 letter legal);
 
   return $allowed_paper_sizes{$requested_paper_size} ? $requested_paper_size : $default_paper_size;
 }
