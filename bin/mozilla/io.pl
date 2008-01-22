@@ -327,7 +327,7 @@ sub display_row {
 
     if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount);
-      push @hidden_vars, qw(sellprice discount);
+      push @hidden_vars, qw(sellprice discount price_factor_id);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
 
