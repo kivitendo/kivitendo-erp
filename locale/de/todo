@@ -379,6 +379,7 @@ $self->{subs} = {
   'H'                           => 'H',
   'NTI'                         => 'NTI',
   'Q'                           => 'Q',
+  '_check_io_auth'              => '_check_io_auth',
   '_collect_links'              => '_collect_links',
   'add'                         => 'add',
   'backorder_exchangerate'      => 'backorder_exchangerate',

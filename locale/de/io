@@ -245,6 +245,7 @@ $self->{subs} = {
   'H'                           => 'H',
   'NTI'                         => 'NTI',
   'Q'                           => 'Q',
+  '_check_io_auth'              => '_check_io_auth',
   'build_std_url'               => 'build_std_url',
   'calculate_qty'               => 'calculate_qty',
   'call_sub'                    => 'call_sub',

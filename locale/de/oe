@@ -353,6 +353,7 @@ $self->{subs} = {
   'H'                           => 'H',
   'NTI'                         => 'NTI',
   'Q'                           => 'Q',
+  '_check_io_auth'              => '_check_io_auth',
   'add'                         => 'add',
   'backorder_exchangerate'      => 'backorder_exchangerate',
   'build_std_url'               => 'build_std_url',

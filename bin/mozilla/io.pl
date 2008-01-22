@@ -88,6 +88,13 @@ use SL::IS;
 use SL::PE;
 use SL::AM;
 use Data::Dumper;
+
+sub _check_io_auth {
+  $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | ' .
+                'purchase_delivery_order_edit | sales_delivery_order_edit');
+}
+
 ########################################
 # Eintrag fuer Version 2.2.0 geaendert #
 # neue Optik im Rechnungsformular      #
@@ -95,9 +102,7 @@ use Data::Dumper;
 sub display_row {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit | ' .
-                'sales_delivery_order_edit  | purchase_delivery_order_edit');
+  _check_io_auth();
 
   my $numrows = shift;
 
@@ -366,8 +371,7 @@ sub display_row {
 sub set_pricegroup {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   my $rowcount = shift;
   for $j (1 .. $rowcount) {
@@ -390,8 +394,7 @@ sub set_pricegroup {
 sub select_item {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   @column_index = qw(ndx partnumber description onhand unit sellprice);
 
@@ -521,8 +524,7 @@ sub select_item {
 sub item_selected {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   # replace the last row with the checked row
   $i = $form->{rowcount};
@@ -622,8 +624,7 @@ sub item_selected {
 sub new_item {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   # change callback
   $form->{old_callback} = $form->escape($form->{callback}, 1);
@@ -646,8 +647,7 @@ sub new_item {
 sub check_form {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   my @a     = ();
   my $count = 0;
@@ -754,8 +754,7 @@ sub check_form {
 sub invoicetotal {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   $form->{oldinvtotal} = 0;
 
@@ -795,8 +794,7 @@ sub invoicetotal {
 sub validate_items {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   # check if items are valid
   if ($form->{rowcount} == 1) {
@@ -815,8 +813,7 @@ sub validate_items {
 sub order {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
@@ -886,8 +883,7 @@ sub order {
 sub quotation {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
@@ -954,8 +950,7 @@ sub request_for_quotation {
 sub edit_e_mail {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
@@ -997,8 +992,7 @@ sub edit_e_mail {
 sub send_email {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   my $callback = $form->{script} . "?action=edit";
   map({ $callback .= "\&${_}=" . E($form->{$_}); } qw(type id));
@@ -1025,9 +1019,7 @@ sub send_email {
 sub print_options {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit     | vendor_invoice_edit        | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit | dunning_edit |' .
-                'sales_delivery_order_edit      | purchase_delivery_order_edit');
+  _check_io_auth();
 
   my %options = @_;
 
@@ -1141,9 +1133,7 @@ sub print_options {
 sub print {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | ' .
-                'purchase_delivery_order_edit | sales_delivery_order_edit');
+  _check_io_auth();
 
   if ($form->{print_nextsub}) {
     call_sub($form->{print_nextsub});
@@ -1180,9 +1170,7 @@ sub print {
 sub print_form {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit     | vendor_invoice_edit        | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit         | sales_quotation_edit       | purchase_order_edit |' .
-                'sales_delivery_order_edit      | purchase_delivery_order_edit');
+  _check_io_auth();
 
   my ($old_form) = @_;
 
@@ -1618,7 +1606,9 @@ sub print_form {
 
 sub customer_details {
   $lxdebug->enter_sub();
+
   IS->customer_details(\%myconfig, \%$form, @_);
+
   $lxdebug->leave_sub();
 }
 
@@ -1633,8 +1623,7 @@ sub vendor_details {
 sub post_as_new {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   $form->{postasnew} = 1;
   map { delete $form->{$_} } qw(printed emailed queued);
@@ -1647,8 +1636,7 @@ sub post_as_new {
 sub ship_to {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   if ($form->{second_run}) {
     $form->{print_and_post} = 0;
@@ -1802,8 +1790,7 @@ sub ship_to {
 sub new_license {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   my $row = shift;
 
@@ -1844,8 +1831,7 @@ sub new_license {
 sub relink_accounts {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   $form->{"taxaccounts"} =~ s/\s*$//;
   $form->{"taxaccounts"} =~ s/^\s*//;
@@ -1866,8 +1852,7 @@ sub relink_accounts {
 sub set_duedate {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit');
+  _check_io_auth();
 
   $form->get_duedate(\%myconfig);
 
@@ -1875,7 +1860,7 @@ sub set_duedate {
   $result = "$form->{duedate}";
   print $q->header();
   print $result;
-  $lxdebug->leave_sub();
 
+  $lxdebug->leave_sub();
 }
 
