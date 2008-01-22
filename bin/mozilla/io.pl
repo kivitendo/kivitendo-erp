@@ -128,7 +128,7 @@ sub display_row {
     {  id => 'ship',          width => 5,     value => ($form->{type} eq 'purchase_order' ? $locale->text('Ship rcvd') : $locale->text('Ship')),                 
        display => $form->{type} =~ /sales_order/ || ($form->{type} =~ /purchase_order/ && !($lizenzen && $form->{vc} eq "customer")) , },
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
-    {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => 1, },
+    {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
     {  id => 'license',       width => 10,    value => $locale->text('License'),              display => 0, },
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
