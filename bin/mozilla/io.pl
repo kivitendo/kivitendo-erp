@@ -1141,9 +1141,9 @@ sub print_options {
 sub print {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit     | sales_quotation_edit | purchase_order_edit | ' .
-                'order_request_edit_all     | order_request_edit');
+  $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+                'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | ' .
+                'purchase_delivery_order_edit | sales_delivery_order_edit');
 
   if ($form->{print_nextsub}) {
     call_sub($form->{print_nextsub});
@@ -1377,13 +1377,7 @@ sub print_form {
   ($form->{employee}) = split /--/, $form->{employee};
 
   # create the form variables
-  if ($form->{formname} eq 'order_request') {
-    order_request_details();
-  } elsif ($form->{formname} eq 'return_material_slip') {
-    rms_details();
-  } elsif ($form->{formname} eq 'release_material_slip') {
-    rlms_details();
-  } elsif ($form->{type} =~ /_delivery_order$/) {
+  if ($form->{type} =~ /_delivery_order$/) {
     DO->order_details();
   } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
