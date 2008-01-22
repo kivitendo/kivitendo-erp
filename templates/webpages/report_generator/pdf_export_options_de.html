@@ -104,12 +104,12 @@
    <tr>
     <td align="right" valign="top">Optionen:</td>
     <td valign="top">
-     <input type="checkbox" name="report_generator_pdf_options_number" value="1" checked>
-     Seiten nummerieren
+     <input type="checkbox" name="report_generator_pdf_options_number" id="report_generator_pdf_options_number" value="1" checked>
+     <label for="report_generator_pdf_options_number">Seiten nummerieren</label>
      [% IF ALL_PRINTERS.size %]
       <br>
-      <input type="checkbox" name="report_generator_pdf_options_print" value="1">
-      Liste ausdrucken
+      <input type="checkbox" name="report_generator_pdf_options_print" id="report_generator_pdf_options_print" value="1">
+      <label for="report_generator_pdf_options_print">Liste ausdrucken</label>
      [% END %]
     </td>
    </tr>

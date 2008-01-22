@@ -104,12 +104,12 @@
    <tr>
     <td align="right" valign="top"><translate>Options</translate>:</td>
     <td valign="top">
-     <input type="checkbox" name="report_generator_pdf_options_number" value="1" checked>
-     <translate>Number pages</translate>
+     <input type="checkbox" name="report_generator_pdf_options_number" id="report_generator_pdf_options_number" value="1" checked>
+     <label for="report_generator_pdf_options_number"><translate>Number pages</translate></label>
      [% IF ALL_PRINTERS.size %]
       <br>
-      <input type="checkbox" name="report_generator_pdf_options_print" value="1">
-      <translate>Print list</translate>
+      <input type="checkbox" name="report_generator_pdf_options_print" id="report_generator_pdf_options_print" value="1">
+      <label for="report_generator_pdf_options_print"><translate>Print list</translate></label>
      [% END %]
     </td>
    </tr>
