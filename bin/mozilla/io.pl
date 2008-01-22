@@ -1856,10 +1856,7 @@ sub set_duedate {
 
   $form->get_duedate(\%myconfig);
 
-  my $q = new CGI;
-  $result = "$form->{duedate}";
-  print $q->header();
-  print $result;
+  print $cgi->header() . $form->{duedate};
 
   $lxdebug->leave_sub();
 }
