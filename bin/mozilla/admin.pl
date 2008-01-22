@@ -628,7 +628,8 @@ sub dbselect_source {
 
   $form->{title}     = "Lx-Office ERP / " . $locale->text('Database Administration');
 
-  $form->{ALLOW_DBBACKUP} = "$pg_dump_exe" ne "DISABLED";
+  # Intentionnaly disabled unless fixed to work with the authentication DB.
+  $form->{ALLOW_DBBACKUP} = 0; # "$pg_dump_exe" ne "DISABLED";
 
   $form->header();
   print $form->parse_html_template("admin/dbadmin");
