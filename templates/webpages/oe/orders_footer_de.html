@@ -2,98 +2,101 @@
 [%- USE LxERP %]
   <tr>
     <td>
-      <table width=100%>
-	<tr valign=bottom>
-	  <td>
-	    <table>
-	      <tr>
-		<th align=left>Bemerkungen</th>
-		<th align=left>interne Bemerkungen</th>
-	      </tr>
-	      <tr valign=top>
-		<td>[% notes %]</td>
+      <table width="100%">
+        <tr valign="bottom">
+          <td>
+            <table>
+              <tr>
+                <th align="left">Bemerkungen</th>
+                <th align="left">interne Bemerkungen</th>
+              </tr>
+              <tr valign="top">
+                <td>[% notes %]</td>
                 <td>[% intnotes %]</td>
-	      </tr>
+              </tr>
               <tr>
                 <th align="right">Zahlungskonditionen</th>
                 <td>
-                      [%- INCLUDE 'generic/multibox.html' 
-                           name       = 'payment_id', 
-                           style      = 'width: 250px', 
-                           DATA       = ALL_PAYMENTS, 
-                           id_key     = 'id', 
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'payment_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_PAYMENTS,
+                           id_key     = 'id',
                            label_key  = 'description',
                            show_empty = 1 -%]
                 </td>
-	    </tr>
+            </tr>
       [%- IF id && num_follow_ups %]
       <tr>
        <td colspan="2">[% LxERP.format_string('Es gibt #1 Wiedervorlage(n), von denen #2 f&auml;llig ist/sind.', num_follow_ups, num_due_follow_ups) %]</td>
       </tr>
       [%- END %]
       </table>
-	  </td>
+          </td>
 [%- IF is_sales %]
           <td>
             <table>
 
             <tr>
-              <th  align=left>Ertrag</th>
+              <th  align="left">Ertrag</th>
               <td align="right">[% LxERP.format_amount(marge_total, 2) %]</td>
             </tr>
             <tr>
-              <th  align=left>Ertrag prozentual</th>
+              <th  align="left">Ertrag prozentual</th>
               <td align="right">[% LxERP.format_amount(marge_percent, 2) %]</td>
               <td>%</td>
             </tr>
 
-            <input type=hidden name="marge_total" value="[% marge_total %]">
-            <input type=hidden name="marge_percent" value="[% marge_percent %]">
+            <input type="hidden" name="marge_total" value="[% HTML.escape(marge_total) %]">
+            <input type="hidden" name="marge_percent" value="[% HTML.escape(marge_percent) %]">
             </table>
           </td>
 [%- END %]
-	  <td align=right>
+          <td align="right">
 [%- IF taxaccounts %]
-            <input name=taxincluded class=checkbox type=checkbox value=1 [% IF taxincluded %]checked[% END %]><b>Steuer im Preis inbegriffen</b><br><br>
+            <input name="taxincluded" class="checkbox" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b>Steuer im Preis inbegriffen</b><br><br>
 [%- END %]
-	    <table>
-	      [% subtotal %]
-	      [% tax %]
-	      <tr>
-		<th align=right>Summe</th>
-		<td align=right>[% LxERP.format_amount(invtotal, 2) %]</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
+            <table>
+              [% subtotal %]
+              [% tax %]
+              <tr>
+                <th align="right">Summe</th>
+                <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
       </table>
     </td>
   </tr>
-<input type=hidden name=oldinvtotal value="[% HTML.escape(oldinvtotal) %]">
-<input type=hidden name=oldtotalpaid value="[% HTML.escape(totalpaid) %]">
+  <input type="hidden" name="oldinvtotal" value="[% HTML.escape(oldinvtotal) %]">
+  <input type="hidden" name="oldtotalpaid" value="[% HTML.escape(totalpaid) %]">
   <tr>
-    <td><hr size=3 noshade></td>
+    <td><hr size="3" noshade></td>
   </tr>
 
 [%- IF webdav %]
   <tr>
-    <th class=listtop align=left>Dokumente im Webdav-Repository</th>
+    <th class="listtop" align="left">Dokumente im Webdav-Repository</th>
   </tr>
-    <table width=100%>
+  <tr>
+   <td>
+    <table width="100%">
      <tr>
-      <td align=left width=30%><b>Dateiname</b></td>
-      <td align=left width=70%><b>Webdavlink</b></td>
+      <td align="left" width="30%"><b>Dateiname</b></td>
+      <td align="left" width="70%"><b>Webdavlink</b></td>
      </tr>
- [%- FOREACH file = WEBDAV %] 
+ [%- FOREACH file="WEBDAV" %]
       <tr>
-        <td align="left">[% file.name %]</td>
-        <td align="left"><a href="[% file.link %]">[% file.type %]</a></td>
+        <td align="left">[% HTML.escape(file.name) %]</td>
+        <td align="left"><a href="[% file.link %]">[% HTML.escape(file.type) %]</a></td>
       </tr>
  [%- END %]
     </table>
+   </td>
   </tr>
   <tr>
-    <td><hr size=3 noshade></td>
+    <td><hr size="3" noshade></td>
   </tr>
 [%- END %]
 
@@ -105,52 +108,52 @@
 </table>
 
 [% label_edit %]<br>
-<input class=submit type=submit name=action id=update_button value="Erneuern">
-<input class=submit type=submit name=action value="Lieferadresse">
-<input class=submit type=submit name=action value="Drucken">
-<input class=submit type=submit name=action value="eMail">
-<input class=submit type=submit name=action value="Speichern">
-<input class=submit type=submit name=action value="Speichern und schließen">
+<input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
+<input class="submit" type="submit" name="action" value="Lieferadresse">
+<input class="submit" type="submit" name="action" value="Drucken">
+<input class="submit" type="submit" name="action" value="eMail">
+<input class="submit" type="submit" name="action" value="Speichern">
+<input class="submit" type="submit" name="action" value="Speichern und schließen">
 
 [%- IF id %]
   <input type="button" class="submit" onclick="follow_up_window()" value="Wiedervorlage">
   <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="Historie">
 
   <br>[% label_workflow %]<br>
-  <input class=submit type=submit name=action value="als neu speichern">
-  <input class=submit type=submit name=action value="Löschen">
+  <input class="submit" type="submit" name="action" value="als neu speichern">
+  <input class="submit" type="submit" name="action" value="Löschen">
 
   [%- IF is_sales_quo %]
-    <input class=submit type=submit name=action value="Kundenauftrag">
+    <input class="submit" type="submit" name="action" value="Kundenauftrag">
   [%- END %]
 
   [%- IF is_req_quo %]
-    <input class=submit type=submit name=action value="Lieferantenauftrag">
+    <input class="submit" type="submit" name="action" value="Lieferantenauftrag">
   [%- END %]
 
   [%- IF is_sales_ord || is_pur_ord %]
     <input class="submit" type="submit" name="action" value="Lieferschein">
   [%- END %]
 
-  <input class=submit type=submit name=action value="Rechnung">
+  <input class="submit" type="submit" name="action" value="Rechnung">
 
   <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
   [%- IF is_sales_ord %]
-    <input class=submit type=submit name=action value="Lieferantenauftrag">
-    <input class=submit type=submit name=action value="Angebot">
+    <input class="submit" type="submit" name="action" value="Lieferantenauftrag">
+    <input class="submit" type="submit" name="action" value="Angebot">
   [%- ELSE %]
    [%- IF is_pur_ord %]
-    <input class=submit type=submit name=action value="Kundenauftrag">
-    <input class=submit type=submit name=action value="Anfrage">
+    <input class="submit" type="submit" name="action" value="Kundenauftrag">
+    <input class="submit" type="submit" name="action" value="Anfrage">
    [%- ELSE %]
-    <input class=submit type=submit name=action value="Auftrag">
+    <input class="submit" type="submit" name="action" value="Auftrag">
    [%- END %]
   [%- END %]
 [%- END %]
 
-<input type=hidden name=saved_xyznumber value="[% HTML.escape(saved_xyznumber) %]">
-<input type=hidden name=rowcount value="[% HTML.escape(rowcount) %]">
-<input type=hidden name=callback value="[% callback %]">
+<input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
+<input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+<input type="hidden" name="callback" value="[% callback %]">
 
 </form>
 
