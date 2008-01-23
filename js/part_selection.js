@@ -33,6 +33,7 @@ function part_selection_window(input_partnumber, input_description, input_partsi
     "input_partnotes="         + escape_more(input_partnotes)   + "&" +
     "filter="                  + escape_more(filter)            + "&" +
     "options="                 + escape_more(options)           + "&" +
+    "formname="                + escape_more(formname)          + "&" +
     "allow_creation="          + (allow_creation ? "1" : "0")   + "&" +
     "action_on_part_selected=" + (null == action_on_part_selected ? "" : action_on_part_selected.value);
   //alert(url);

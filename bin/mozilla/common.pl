@@ -127,9 +127,19 @@ sub part_selection_internal {
   $order_dir = 1;
   $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
 
-  %options   = map { $_ => 1 } split m/:/, $form->{options};
+  my %options;
 
-  map { $form->{$_} = 1 if ($options{$_}) } qw(no_services no_assemblies);
+  foreach my $opt (split m/:/, $form->{options}) {
+    if ($opt =~ /=/) {
+      my ($key, $value) = split m/=/, $opt, 2;
+      $options{$key} = $value;
+
+    } else {
+      $options{$opt} = 1;
+    }
+  }
+
+  map { $form->{$_} = $options{$_} if ($options{$_}) } qw(no_services no_assemblies click_button);
 
   $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
 
@@ -155,6 +165,8 @@ sub part_selection_internal {
            "callback"     => $callback . "order_by=${_}&order_dir=" . ($order_by eq $_ ? 1 - $order_dir : $order_dir),
          },
         @header_sort);
+
+  $form->{formname} ||= 'Form';
 
   $form->{title} = $locale->text("Select a part");
   $form->header();

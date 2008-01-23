@@ -96,7 +96,7 @@
      <th align="right" nowrap><translate>Part Description</translate></th>
      <td>
       <input name="description" size="30" value="[% HTML.escape(description) %]">
-      <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', 'no_services:no_assemblies')" value="?">
+      <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', 'no_services:no_assemblies:click_button=update_button')" value="?">
      </td>
     </tr>
 
@@ -124,7 +124,7 @@
   </p>
 
   <p>
-   <input type="submit" class="submit" name="action" value="<translate>Update</translate>">
+   <input type="submit" class="submit" name="action" id="update_button" value="<translate>Update</translate>">
    [%- IF parts_id %]
    <input type="submit" class="submit" name="action" value="<translate>Stock</translate>">
    [%- END %]
