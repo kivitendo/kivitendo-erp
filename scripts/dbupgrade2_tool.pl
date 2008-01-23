@@ -20,6 +20,7 @@ use SL::LXDebug;
 
 $lxdebug = LXDebug->new();
 
+use SL::Auth;
 use SL::Form;
 use SL::User;
 use SL::Locale;
@@ -33,7 +34,7 @@ use SL::DBUtils;
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
 my ($opt_user, $opt_apply);
 
-our (%myconfig, $form, $user);
+our (%myconfig, $form, $user, $auth);
 
 sub show_help {
   my $help_text = <<'END_HELP'
@@ -308,12 +309,22 @@ dump_graphviz($opt_graphviz) if (defined $opt_graphviz);
 dump_nodeps()                if ($opt_nodeps);
 
 if ($opt_user) {
-  my $file_name = "users/${opt_user}.conf";
+  $auth = SL::Auth->new();
+  if (!$auth->session_tables_present()) {
+    $form->error("The session and user management tables are not present in the " .
+                 "authentication database. Please use the administration web interface " .
+                 "and to create them.");
+  }
 
-  eval { require($file_name); };
-  $form->error("File '$file_name' was not found") if $@;
+  %myconfig = $auth->read_user($opt_user);
+
+  if (!$myconfig{login}) {
+    $form->error($form->format_string("The user '#1' does not exist.", $opt_user));
+  }
+
   $locale = new Locale($myconfig{countrycode}, "all");
-  $user = new User("users/members", $opt_user);
+  $user   = new User($opt_user);
+
   map { $form->{$_} = $myconfig{$_} } keys %myconfig;
 }
 
