@@ -58,6 +58,7 @@ require "bin/mozilla/reportgenerator.pl";
 #  $locale->text('found')
 #  $locale->text('missing')
 #  $locale->text('stock')
+#  $locale->text('shipped')
 #  $locale->text('transfer')
 #  $locale->text('used')
 #  $locale->text('return_material')

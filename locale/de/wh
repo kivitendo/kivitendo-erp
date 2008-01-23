@@ -194,6 +194,7 @@ $self->{texts} = {
   'return_material'             => 'Materialr&uuml;ckgabe',
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
+  'shipped'                     => 'verschickt',
   'stock'                       => 'Einlagerung',
   'transfer'                    => 'Umlagerung',
   'used'                        => 'Verbraucht',
