@@ -164,6 +164,7 @@ sub dump_graphviz {
 
   print OUT
     "digraph db_dependencies {\n" .
+    "graph [size=\"16.53,11.69!\"];\n" .
     "node [shape=box style=filled fillcolor=white];\n";
 
   my %ranks;
