@@ -128,6 +128,10 @@
     <input class=submit type=submit name=action value="<translate>Purchase Order</translate>">
   [%- END %]
 
+  [%- IF is_sales_ord || is_pur_ord %]
+    <input class="submit" type="submit" name="action" value="<translate>Delivery Order</translate>">
+  [%- END %]
+
   <input class=submit type=submit name=action value="<translate>Invoice</translate>">
 
   <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>

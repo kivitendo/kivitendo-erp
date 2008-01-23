@@ -494,6 +494,7 @@ $self->{subs} = {
   'abbrechen'                   => 'cancel',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
+  'lieferschein'                => 'delivery_order',
   'email'                       => 'e_mail',
   'abschlie&szlig;en'           => 'finish',
   'rechnung'                    => 'invoice',

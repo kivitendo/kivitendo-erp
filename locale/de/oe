@@ -456,6 +456,7 @@ $self->{subs} = {
   'yes'                         => 'yes',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
+  'lieferschein'                => 'delivery_order',
   'email'                       => 'e_mail',
   'rechnung'                    => 'invoice',
   'neue_ware'                   => 'new_part',
