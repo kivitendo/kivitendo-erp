@@ -32,7 +32,7 @@ use SL::DBUtils;
 #######
 
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
-my ($opt_user, $opt_apply);
+my ($opt_user, $opt_apply, $opt_applied);
 
 our (%myconfig, $form, $user, $auth);
 
@@ -61,6 +61,8 @@ dbupgrade2_tool.pl [options]
     --apply=tag          Applies the database upgrades 'tag' and all
                          upgrades it depends on. If '--apply' is used
                          then the option '--user' must be used as well.
+    --applied            List the applied database upgrades for the
+                         database that the user given with '--user' uses.
     --help               Show this help and exit.
 
   Options:
@@ -258,6 +260,60 @@ sub apply_upgrade {
   $dbh->disconnect();
 }
 
+sub dump_sql_result {
+  my ($results, $column_order) = @_;
+
+  my %column_lengths = map { $_, length $_ } keys %{ $results->[0] };
+
+  foreach my $row (@{ $results }) {
+    map { $column_lengths{$_} = length $row->{$_} if (length $row->{$_} > $column_lengths{$_}) } keys %{ $row };
+  }
+
+  my @sorted_names;
+  if ($column_order && scalar @{ $column_order }) {
+    @sorted_names = @{ $column_order };
+  } else {
+    @sorted_names = sort keys %column_lengths;
+  }
+
+  my $format       = join('|', map { '%-' . $column_lengths{$_} . 's' } @sorted_names) . "\n";
+
+  printf $format, @sorted_names;
+  print  join('+', map { '-' x $column_lengths{$_} } @sorted_names) . "\n";
+
+  foreach my $row (@{ $results }) {
+    printf $format, map { $row->{$_} } @sorted_names;
+  }
+  printf "(\%d row\%s)\n", scalar @{ $results }, scalar @{ $results } > 1 ? 's' : '';
+}
+
+sub dump_applied {
+  my @results;
+
+  my $dbh = $form->dbconnect_noauto(\%myconfig);
+
+  $dbh->{PrintWarn}  = 0;
+  $dbh->{PrintError} = 0;
+
+  $user->create_schema_info_table($form, $dbh);
+
+  my $query = qq|SELECT tag, login, itime FROM schema_info ORDER BY itime|;
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
+  while (my $ref = $sth->fetchrow_hashref()) {
+    push @results, $ref;
+  }
+  $sth->finish();
+
+  $dbh->disconnect();
+
+  if (!scalar @results) {
+    print "No database upgrades have been applied yet.\n";
+  } else {
+    dump_sql_result(\@results, [qw(tag login itime)]);
+  }
+}
+
 sub build_upgrade_order {
   my $name  = shift;
   my $order = shift;
@@ -296,6 +352,7 @@ GetOptions("list"       => \$opt_list,
            "graphviz:s" => \$opt_graphviz,
            "user=s"     => \$opt_user,
            "apply=s"    => \$opt_apply,
+           "applied"    => \$opt_applied,
            "help"       => \$opt_help,
   );
 
@@ -330,6 +387,11 @@ if ($opt_user) {
 }
 
 if ($opt_apply) {
-  $form->error("--apply used but no configuration file given with --user.") if (!$user);
+  $form->error("--apply used but no user name given with --user.") if (!$user);
   apply_upgrade($opt_apply);
+}
+
+if ($opt_applied) {
+  $form->error("--applied used but no user name given with --user.") if (!$user);
+  dump_applied();
 }
