@@ -129,7 +129,7 @@ sub part_selection_internal {
 
   %options   = map { $_ => 1 } split m/:/, $form->{options};
 
-  map { $form->{$_} = 1 if ($options{$_}) } qw(no_services no_assemblies stockable);
+  map { $form->{$_} = 1 if ($options{$_}) } qw(no_services no_assemblies);
 
   $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
 

@@ -285,7 +285,6 @@ sub transfer_stock_update_part {
 
     $form->{no_services}   = 1;
     $form->{no_assemblies} = 1;
-    $form->{stockable}     = 1;
 
     my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
 
