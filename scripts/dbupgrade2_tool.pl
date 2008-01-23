@@ -79,124 +79,123 @@ sub error {
 }
 
 sub calc_rev_depends {
-  map({ $_->{"rev_depends"} = []; } values(%{$controls}));
-  foreach my $control (values(%{$controls})) {
-    map({ push(@{$controls->{$_}{"rev_depends"}}, $control->{"tag"}) }
-        @{$control->{"depends"}});
+  map { $_->{rev_depends} = []; } values %{ $controls };
+
+  foreach my $control (values %{ $controls }) {
+    map { push @{ $controls->{$_}->{rev_depends} }, $control->{tag} } @{ $control->{depends} };
   }
 }
 
 sub dump_list {
   my @sorted_controls = sort_dbupdate_controls($controls);
 
-  print("LIST VIEW\n\n");
-  print("number tag depth priority\n");
+  print "LIST VIEW\n\n" .
+    "number tag depth priority\n";
+
   $i = 0;
   foreach (@sorted_controls) {
-    print("$i $_->{tag} $_->{depth} $_->{priority}\n");
+    print "$i $_->{tag} $_->{depth} $_->{priority}\n";
     $i++;
   }
 
-  print("\n");
+  print "\n";
 }
 
 sub dump_node {
   my ($tag, $depth) = @_;
 
-  print(" " x $depth . $tag . "\n");
+  print " " x $depth . $tag . "\n";
 
-  my $c = $controls->{$tag};
-  my $num = scalar(@{$c->{"depends"}});
-  for (my $i = 0; $i < $num; $i++) {
-    dump_node($c->{"depends"}[$i], $depth + 1);
+  foreach my $dep_tag (@{ $controls->{$tag}->{depends} }) {
+    dump_node($dep_tag, $depth + 1);
   }
 }
 
 sub dump_tree {
-  print("TREE VIEW\n\n");
+  print "TREE VIEW\n\n";
 
   calc_rev_depends();
 
   my @sorted_controls = sort_dbupdate_controls($controls);
 
   foreach my $control (@sorted_controls) {
-    dump_node($control->{"tag"}, "") unless (@{$control->{"rev_depends"}});
+    dump_node($control->{tag}, "") unless (@{ $control->{rev_depends} });
   }
 
-  print("\n");
+  print "\n";
 }
 
 sub dump_node_reverse {
   my ($tag, $depth) = @_;
 
-  print(" " x $depth . $tag . "\n");
+  print " " x $depth . $tag . "\n";
 
-  my $c = $controls->{$tag};
-  my $num = scalar(@{$c->{"rev_depends"}});
-  for (my $i = 0; $i < $num; $i++) {
-    dump_node_reverse($c->{"rev_depends"}[$i], $depth + 1);
+  foreach my $dep_tag (@{ $controls->{$tag}->{rev_depends} }) {
+    dump_node_reverse($dep_tag, $depth + 1);
   }
 }
 
 sub dump_tree_reverse {
-  print("REVERSE TREE VIEW\n\n");
+  print "REVERSE TREE VIEW\n\n";
 
   calc_rev_depends();
 
   my @sorted_controls = sort_dbupdate_controls($controls);
 
   foreach my $control (@sorted_controls) {
-    last if ($control->{"depth"} > 1);
-    dump_node_reverse($control->{"tag"}, "");
+    last if ($control->{depth} > 1);
+    dump_node_reverse($control->{tag}, "");
   }
 
-  print("\n");
+  print "\n";
 }
 
 sub dump_graphviz {
   my $file_name = shift || "db_dependencies.ps";
 
-  print("GRAPHVIZ POSTCRIPT\n\n");
-  print("Output will be written to '${file_name}'\n");
+  print "GRAPHVIZ POSTCRIPT\n\n";
+  print "Output will be written to '${file_name}'\n";
 
   calc_rev_depends();
 
   $dot = "|dot -Tps ";
   open OUT, "${dot}> \"${file_name}\"" || die;
 
-  print(OUT
-        "digraph db_dependencies {\n" .
-        "node [shape=box style=filled fillcolor=white];\n");
-  my %ranks;
-  foreach my $c (values(%{$controls})) {
-    $ranks{$c->{"depth"}} ||= [];
+  print OUT
+    "digraph db_dependencies {\n" .
+    "node [shape=box style=filled fillcolor=white];\n";
 
-    my ($pre, $post) = ('node [fillcolor=lightgray] ', 'node [fillcolor=white] ') if !@{ $c->{"rev_depends"} };
+  my %ranks;
+  foreach my $c (values %{ $controls }) {
+    $ranks{$c->{depth}} ||= [];
+
+    my ($pre, $post) = ('node [fillcolor=lightgray] ', 'node [fillcolor=white] ') if (!scalar @{ $c->{rev_depends} });
 
     push @{ $ranks{$c->{"depth"}} }, qq|${pre}"$c->{tag}"; ${post}|;
   }
-  foreach (sort(keys(%ranks))) {
+
+  foreach (sort keys %ranks) {
     print OUT "{ rank = same; ", join("", @{ $ranks{$_} }), " }\n";
   }
-  foreach my $c (values(%{$controls})) {
-    print(OUT "$c->{tag};\n");
-    foreach my $d (@{$c->{"depends"}}) {
-      print(OUT "$c->{tag} -> $d;\n");
+
+  foreach my $c (values %{ $controls }) {
+    print OUT "$c->{tag};\n";
+
+    foreach my $d (@{ $c->{depends} }) {
+      print OUT "$c->{tag} -> $d;\n";
     }
   }
-  print(OUT "}\n");
-  close(OUT);
+
+  print OUT "}\n";
+  close OUT;
 }
 
 sub dump_nodeps {
   calc_rev_depends();
 
-  print("SCRIPTS NO OTHER SCRIPTS DEPEND ON\n\n" .
-        join("\n",
-             map({ $_->{"tag"} }
-                 grep({ !@{$_->{"rev_depends"}} }
-                      values(%{$controls})))) .
-        "\n\n");
+  print "SCRIPTS NO OTHER SCRIPTS DEPEND ON\n\n" .
+    join("\n", map { $_->{tag} } grep { !scalar @{ $_->{rev_depends} } } values %{ $controls }) .
+    "\n\n";
 }
 
 sub apply_upgrade {
@@ -206,7 +205,7 @@ sub apply_upgrade {
 
   if ($name eq "ALL") {
     calc_rev_depends();
-    @all_tags = map { $_->{"tag"} } grep { !@{$_->{"rev_depends"}} } values %{$controls};
+    @all_tags = map { $_->{tag} } grep { !@{$_->{rev_depends}} } values %{ $controls };
 
   } else {
     $form->error("Unknown dbupgrade tag '$name'") if (!$controls->{$name});
@@ -217,7 +216,7 @@ sub apply_upgrade {
     build_upgrade_order($tag, \@order, \%tags);
   }
 
-  my @upgradescripts = map { $controls->{$_}->{"applied"} = 0; $controls->{$_} } @order;
+  my @upgradescripts = map { $controls->{$_}->{applied} = 0; $controls->{$_} } @order;
 
   my $dbh = $form->dbconnect_noauto(\%myconfig);
 
@@ -230,18 +229,18 @@ sub apply_upgrade {
   $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
   while (($tag) = $sth->fetchrow_array()) {
-    $controls->{$tag}->{"applied"} = 1 if defined $controls->{$tag};
+    $controls->{$tag}->{applied} = 1 if defined $controls->{$tag};
   }
   $sth->finish();
 
-  @upgradescripts = sort { $a->{"priority"} <=> $b->{"priority"} } grep { !$_->{"applied"} } @upgradescripts;
+  @upgradescripts = sort { $a->{priority} <=> $b->{priority} } grep { !$_->{applied} } @upgradescripts;
   if (!@upgradescripts) {
     print "The upgrade has already been applied.\n";
     exit 0;
   }
 
   foreach my $control (@upgradescripts) {
-    $control->{"file"} =~ /\.(sql|pl)$/;
+    $control->{file} =~ /\.(sql|pl)$/;
     my $file_type = $1;
 
     # apply upgrade
@@ -264,7 +263,7 @@ sub build_upgrade_order {
 
   my $control = $controls->{$name};
 
-  foreach my $dependency (@{ $control->{"depends"} }) {
+  foreach my $dependency (@{ $control->{depends} }) {
     next if $tags->{$dependency};
     $tags->{$dependency} = 1;
     build_upgrade_order($dependency, $order, $tag);
@@ -278,7 +277,8 @@ sub build_upgrade_order {
 #######
 #######
 
-eval { require "lx-erp.conf"; };
+eval { require "config/lx-erp.conf"; };
+eval { require "config/lx-erp-local.conf"; } if (-f "config/lx-erp-local.conf");
 
 $form = Form->new();
 $locale = Locale->new("de", "login");
@@ -287,41 +287,25 @@ $locale = Locale->new("de", "login");
 #######
 #######
 
-GetOptions("list" => \$opt_list,
-           "tree" => \$opt_tree,
-           "rtree" => \$opt_rtree,
-           "nodeps" => \$opt_nodeps,
+GetOptions("list"       => \$opt_list,
+           "tree"       => \$opt_tree,
+           "rtree"      => \$opt_rtree,
+           "nodeps"     => \$opt_nodeps,
            "graphviz:s" => \$opt_graphviz,
-           "user=s" => \$opt_user,
-           "apply=s" => \$opt_apply,
-           "help" => \$opt_help,
+           "user=s"     => \$opt_user,
+           "apply=s"    => \$opt_apply,
+           "help"       => \$opt_help,
   );
 
-if ($opt_help) {
-  show_help();
-}
+show_help() if ($opt_help);
 
 $controls = parse_dbupdate_controls($form, "Pg");
 
-if ($opt_list) {
-  dump_list();
-}
-
-if ($opt_tree) {
-  dump_tree();
-}
-
-if ($opt_rtree) {
-  dump_tree_reverse();
-}
-
-if (defined $opt_graphviz) {
-  dump_graphviz($opt_graphviz);
-}
-
-if ($opt_nodeps) {
-  dump_nodeps();
-}
+dump_list()                  if ($opt_list);
+dump_tree()                  if ($opt_tree);
+dump_tree_reverse()          if ($opt_rtree);
+dump_graphviz($opt_graphviz) if (defined $opt_graphviz);
+dump_nodeps()                if ($opt_nodeps);
 
 if ($opt_user) {
   my $file_name = "users/${opt_user}.conf";
