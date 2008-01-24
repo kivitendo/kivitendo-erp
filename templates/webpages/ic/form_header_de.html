@@ -1,272 +1,300 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 <body onLoad="fokus()">
+
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/parts_language_selection.js"></script>
 
-<form method=post name="ic" action="[% script %]">
+ <form method="post" name="ic" action="[% script %]">
 
-<input name=id type=hidden value="[% id %]">
-<input name=item type=hidden value="[% item %]">
-<input name=title type=hidden value="[% title %]">
-<input name=makemodel type=hidden value="[% makemodel %]">
-<input name=alternate type=hidden value="[% alternate %]">
-<input name=onhand type=hidden value="[% onhand %]">
-<input name=orphaned type=hidden value="[% orphaned %]">
-<input name=taxaccounts type=hidden value="[% taxaccounts %]">
-<input name=rowcount type=hidden value="[% rowcount %]">
-<input name=eur type=hidden value="[% eur %]">
-<input name=language_values type=hidden value="[% language_values %]">
-<input name="original_partnumber" type="hidden" value="[% HTML.escape(original_partnumber) %]">
+  <input name="id" type="hidden" value="[% HTML.escape(id) %]">
+  <input name="item" type="hidden" value="[% HTML.escape(item) %]">
+  <input name="title" type="hidden" value="[% HTML.escape(title) %]">
+  <input name="makemodel" type="hidden" value="[% HTML.escape(makemodel) %]">
+  <input name="alternate" type="hidden" value="[% HTML.escape(alternate) %]">
+  <input name="onhand" type="hidden" value="[% HTML.escape(onhand) %]">
+  <input name="orphaned" type="hidden" value="[% HTML.escape(orphaned) %]">
+  <input name="taxaccounts" type="hidden" value="[% HTML.escape(taxaccounts) %]">
+  <input name="rowcount" type="hidden" value="[% HTML.escape(rowcount) %]">
+  <input name="eur" type="hidden" value="[% HTML.escape(eur) %]">
+  <input name="language_values" type="hidden" value="[% HTML.escape(language_values) %]">
+  <input name="original_partnumber" type="hidden" value="[% HTML.escape(original_partnumber) %]">
 
-<table width="100%">
-  <tr>
-    <th class=listtop>[% title %]</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   <table width="100%">
+    <tr>
+     <td>
       <table width="100%">
-        <tr valign=top>
-          <th align=left>Artikelnummer</th>
-          <th align=left>Artikelbeschreibung</th>
-[%- IF all_partsgroup.size %]
-          <th align=left>Warengruppe</th>
-[% END %]
-        </tr>
-	<tr valign=top>
-          <td><input name=partnumber value="[% HTML.escape(partnumber) %]" size=20></td>
-          <td>
-[%- IF description_area %]
-      <textarea name="description" rows="[% rows %]" cols=40 wrap=soft>[% HTML.escape(description) %]</textarea>
-[%- ELSE %]
-      <input name=description size=40 value="[% HTML.escape(description) %]">
-[%- END %]
-          </td>
-[%- IF all_partsgroup.size %]
-          <td>
-              [%- INCLUDE generic/multibox.html 
-                    name       = 'selectpartsgroup',
-                    DATA       = all_partsgroup,
-                    show_empty = 1,
-                    id_sub     = 'pg_keys',
-                    label_key  = 'partsgroup',
-              -%]
-          </td>
-[% END %]
-	  <input type=hidden name=oldpartsgroup value="[% oldpartsgroup %]">
-	</tr>
+       <tr valign="top">
+        <th align="left">Artikelnummer</th>
+        <th align="left">Artikelbeschreibung</th>
+        [%- IF all_partsgroup.size %]
+        <th align="left">Warengruppe</th>
+        [% END %]
+       </tr>
+
+       <tr valign="top">
+        <td><input name="partnumber" value="[% HTML.escape(partnumber) %]" size="20"></td>
+        <td>
+         [%- IF description_area %]
+         <textarea name="description" rows="[% HTML.escape(rows) %]" cols="40" wrap="soft">[% HTML.escape(description) %]</textarea>
+         [%- ELSE %]
+         <input name="description" size="40" value="[% HTML.escape(description) %]">
+         [%- END %]
+        </td>
+
+        [%- IF all_partsgroup.size %]
+        <td>
+         [%- INCLUDE generic/multibox.html
+         name       = 'selectpartsgroup',
+         DATA       = all_partsgroup,
+         show_empty = 1,
+         id_sub     = 'pg_keys',
+         label_key  = 'partsgroup',
+         -%]
+        </td>
+        [%- END %]
+        <input type="hidden" name="oldpartsgroup" value="[% HTML.escape(oldpartsgroup) %]">
+       </tr>
       </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
+     </td>
+    </tr>
+
+    <tr>
+     <td>
       <table width="100%" height="100%">
-        <tr valign=top>
-          <td width=70%>
-            <table width="100%" height="100%">
-              <tr>
-                <td colspan=2>
-                  <table>
-[%- IF BUCHUNGSGRUPPEN.size %]
-                    <tr>
-                      <th align=right>Buchungsgruppe</th>
-                      <td>
-                      [%- INCLUDE generic/multibox.html 
-                            name       = 'buchungsgruppen_id',
-                            DATA       = BUCHUNGSGRUPPEN,
-                            id_key     = 'id',
-                            label_key  = 'description',
-                      -%]
-                    </tr>
-[%- END %]
-                    <input type=hidden name=IC_income value="[% IC_income_default %]">
-[%- UNLESS is_assembly %]
-                    <input type=hidden name=IC_expense value="[% IC_expense_default %]">
-[%- END %]
-[%- IF is_part %]
-                    <input type=hidden name=IC value="[% IC_default %]">
-[%- END %]
-                  </table>
-                </td>
-              </tr>
-              <tr>
-                <th align="left">Bemerkungen</th>
-[%- UNLESS is_service %]
-                <th align="left">Formel</th>
-[%- END %]
-              </tr>
-              <tr>
-                <td>
-                  <textarea name=notes rows=[% notes_rows %] cols=45 wrap=soft>[% HTML.escape(notes) %]</textarea>
-                </td>
-[%- UNLESS is_service %]
-                <td>
-                  <ilayer>
-                    <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('Die Formeln m&uuml;ssen in der folgenden Syntax eingegeben werden:<br>Bei normalen Artikeln:<br>Variablenname= Variable Einheit;<br>Variablenname2= Variable2 Einheit2;<br>...<br>###<br>Variable + Variable2 * ( Variable - Variable2 )<br>Bitte achten Sie auf die Leerzeichen in der Formel<br>Es muss jeweils die Gesamte Zeile eingegeben werden')">
-                    <textarea name=formel rows=4 cols=30 wrap=soft>[% formel %]</textarea></layer><ilayer>
-                </td>
-[%- END %]
-              </tr>
-              <tr>
-                <th align="left"></th>
-                <th align="left">EAN-Code</th>
-              </tr>
-              <tr>
-                <td>
-                  <button type="button" onclick="parts_language_selection_window('language_values')">Spracheinstellungen</button>
-                </td>
-		<td>
-	 	  <input name=ean size=40 value="[% ean %]">
-		</td>
-              </tr>
-              <tr>
-              <td colspan=2>
-                <table>
-                <tr>
-	       <th align=right>Zahlungskonditionen</th>
-	         <td>
-                    [%- INCLUDE generic/multibox.html 
-                          name       = 'payment_id',
-                          DATA       = payment_terms,
-                          show_empty = 1,
-                          id_key     = 'id',
-                          label_key  = 'description',
-                    -%]
-                 </td>
-                </tr>
-               </table>
-              </td>
-              </tr>
+       <tr valign="top">
+        <td width="70%">
+         <table width="100%" height="100%">
+          <tr>
+           <td colspan="2">
+            <table>
+             [%- IF BUCHUNGSGRUPPEN.size %]
+             <tr>
+              <th align="right">Buchungsgruppe</th>
+              <td>
+               [%- INCLUDE generic/multibox.html
+                     name       = 'buchungsgruppen_id',
+                     DATA       = BUCHUNGSGRUPPEN,
+                     id_key     = 'id',
+                     label_key  = 'description',
+               -%]
+             </tr>
+             [%- END %]
+             <input type="hidden" name="IC_income" value="[% HTML.escape(IC_income_default) %]">
+             [%- UNLESS is_assembly %]
+             <input type="hidden" name="IC_expense" value="[% HTML.escape(IC_expense_default) %]">
+             [%- END %]
+             [%- IF is_part %]
+             <input type="hidden" name="IC" value="[% HTML.escape(IC_default) %]">
+             [%- END %]
             </table>
-          </td>
-	  <td width="30%">
-	    <table width="100%">
-	      <tr>
-                <th align="right" nowrap="true">Erneuert am</th>
-                <td width="13"><input name=priceupdate id=priceupdate size=11  title="[% dateformat %]" value="[% priceupdate %]"></td>
-                <td width="4" align="left"><input type=button name=priceupdate id="trigger1" value=?></td>
-              </tr>
-	      <tr>
-		<th align="right" nowrap="true">Listenpreis</th>
-		<td><input name=listprice size=11 value=[% LxERP.format_amount(listprice) %]></td>
-	      </tr>
-	      <tr>
-		<th align="right" nowrap="true">Verkaufspreis</th>
-		<td><input name=sellprice size=11 value=[% LxERP.format_amount(sellprice) %]></td>
-	      </tr>
-[%- UNLESS is_assembly %]
- 	      <tr>
-                <th align="right" nowrap="true">Einkaufspreis</th>
-                <td><input name=lastcost size=11 value=[% LxERP.format_amount(lastcost) %]></td>
-              </tr>
-[%- END %]
-[%- IF ALL_PRICE_FACTORS.size %]
-              <tr>
-                <th align="right">Preisfaktor</th>
-                <td>
-                    [%- INCLUDE generic/multibox.html 
-                          name       = 'price_factors_id',
-                          DATA       = ALL_PRICE_FACTORS,
-                          show_empty = 1,
-                          id_key     = 'id',
-                          label_key  = 'description',
-                    -%]
-                </td>
-              </tr>
-[%- END %]
-	      <tr>
-		<th align="right" nowrap="true">Einheit</th>
-		<td>
-                  <input type="hidden" name="unit_changeable" value="[% unit_changeable %]">
-[%- UNLESS unit_changeable %]
-                  <input type="hidden" name="unit" value="[% unit%]">[% unit %]
-[%- ELSE %]
-                    [%- INCLUDE generic/multibox.html 
-                          name       = 'unit',
-                          DATA       = ALL_UNITS,
-                          id_key     = 'name',
-                          label_key  = 'name',
-                    -%]
-[%- END %]
-                </td>
-	      </tr>
-[%- UNLESS is_service %]
-	      <tr>
-		<th align="right" nowrap="true">Gewicht</th>
-		<td>
-		  <table><tr><td>[% IF is_assembly %]&nbsp;[% LxERP.format_amount(weight) %][% END %]<input [% IF is_assembly %]type=hidden [% END %] size=10 name=weight value="[% LxERP.format_amount(weight) %]"></td></tr></table>
-		</td>
-	      </tr>
-[%- END %]
-[%- UNLESS is_service %]
-	      <tr>
-		<th align="right" nowrap>Auf Lager</th>
-		<th align=left nowrap class="plus[% IF onhand > 0 %]1[% ELSE %]0[% END %]">&nbsp;[% LxERP.format_amount(onhand) %]</th>
-	      </tr>
+           </td>
+          </tr>
 
-  [%- IF is_assembly %]
-              <tr>
-	        <th align="right" nowrap>Einlagern</th>
-		<td><input name=stock size=10 value="[% LxERP.format_amount(stock) %]"></td>
-	      </tr>
-  [%- END %]
-	      <tr>
-		<th align="right" nowrap="true">Mindestlagerbestand</th>
-		<td><input name=rop size=10 value="[% LxERP.format_amount(rop) %]"></td>
-	      </tr>
-	      <tr>
-		<th align="right" nowrap="true">Lagerplatz</th>
-		<td><input name=bin size=10 value="[% bin %]"></td>
-	      </tr>
-              <tr>
-                <th align=right nowrap>Nicht rabattierfähig</th>
-                <td><input class=checkbox type=checkbox name=not_discountable value=1 [% IF not_discountable %]checked[% END %]></td>
-             </tr>
- 	      <tr>
-		<th align="right" nowrap="true">Verrechnungseinheit</th>
-		<td><input name=ve size=10 value="[% ve %]"></td>
-	      </tr>
-              <tr>
-		<th align="right" nowrap="true">Geschäftsvolumen</th>
-		<td><input name=gv size=10 value="[% LxERP.format_amount(gv) %]"></td>
-	      </tr>
-[%- END %]
-[%- IF id %]
-	      <tr>
-		<th align="right" nowrap="true">Ungültig</th>
-		<td><input name=obsolete type=checkbox class=checkbox value=1 [% IF obsolete %]checked[% END %]></td>
-	      </tr>
-[%- END %]
-              <tr>
-                <th align=right nowrap>Shopartikel</th>
-                <td><input class=checkbox type=checkbox name=shop value=1 [% IF shop %]checked[% END %]></td>
-             </tr>
-	    </table>
-	  </td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-[% UNLESS is_service %]
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-	  <th align=right nowrap>Grafik</th>
-	  <td><input name=image size=40 value="[% image %]"></td>
-	  <th align=right nowrap>Mikrofilm</th>
-	  <td><input name=microfiche size=20 value="[% microfiche %]"></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>Zeichnung</th>
-	  <td><input name=drawing size=40 value="[% drawing %]"></td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-[%- END %]
+          <tr>
+           <th align="left">Bemerkungen</th>
+           [%- UNLESS is_service %]
+           <th align="left">Formel</th>
+           [%- END %]
+          </tr>
 
-<script type="text/javascript">
-  <!-- Calendar.setup({ inputField : "priceupdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" }); //--> 
-</script>
+          <tr>
+           <td>
+            <textarea name="notes" rows="[% HTML.escape(notes_rows) %]" cols="45" wrap="soft">[% HTML.escape(notes) %]</textarea>
+           </td>
+
+           [%- UNLESS is_service %]
+           <td>
+            <ilayer>
+             <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('Die Formeln m&uuml;ssen in der folgenden Syntax eingegeben werden:<br>Bei normalen Artikeln:<br>Variablenname= Variable Einheit;<br>Variablenname2= Variable2 Einheit2;<br>...<br>###<br>Variable + Variable2 * ( Variable - Variable2 )<br>Bitte achten Sie auf die Leerzeichen in der Formel<br>Es muss jeweils die Gesamte Zeile eingegeben werden')">
+              <textarea name="formel" rows="4" cols="30" wrap="soft">[% HTML.escape(formel) %]</textarea></layer></ilayer>
+           </td>
+           [%- END %]
+          </tr>
+
+          <tr>
+           <th align="left"></th>
+           <th align="left">EAN-Code</th>
+          </tr>
+
+          <tr>
+           <td>
+            <button type="button" onclick="parts_language_selection_window('language_values')">Spracheinstellungen</button>
+           </td>
+           <td>
+            <input name="ean" size="40" value="[% HTML.escape(ean) %]">
+           </td>
+          </tr>
+
+          <tr>
+           <td colspan="2">
+            <table>
+             <tr>
+              <th align="right">Zahlungskonditionen</th>
+              <td>
+               [%- INCLUDE generic/multibox.html
+                     name       = 'payment_id',
+                     DATA       = payment_terms,
+                     show_empty = 1,
+                     id_key     = 'id',
+                     label_key  = 'description',
+               -%]
+              </td>
+             </tr>
+            </table>
+           </td>
+          </tr>
+         </table>
+        </td>
+
+        <td width="30%">
+         <table width="100%">
+          <tr>
+           <th align="right" nowrap="true">Erneuert am</th>
+           <td width="13">
+            <input name="priceupdate" id="priceupdate" size="11"  title="[% HTML.escape(dateformat) %]" value="[% HTML.escape(priceupdate) %]">
+            <input type="button" name="priceupdate" id="trigger1" value="?">
+           </td>
+          </tr>
+
+          <tr>
+           <th align="right" nowrap="true">Listenpreis</th>
+           <td><input name="listprice" size="11" value="[% LxERP.format_amount(listprice) %]"></td>
+          </tr>
+
+          <tr>
+           <th align="right" nowrap="true">Verkaufspreis</th>
+           <td><input name="sellprice" size="11" value="[% LxERP.format_amount(sellprice) %]"></td>
+          </tr>
+
+          [%- UNLESS is_assembly %]
+          <tr>
+           <th align="right" nowrap="true">Einkaufspreis</th>
+           <td><input name="lastcost" size="11" value="[% LxERP.format_amount(lastcost) %]"></td>
+          </tr>
+          [%- END %]
+
+          [%- IF ALL_PRICE_FACTORS.size %]
+          <tr>
+           <th align="right">Preisfaktor</th>
+           <td>
+            [%- INCLUDE generic/multibox.html
+                  name       = 'price_factors_id',
+                  DATA       = ALL_PRICE_FACTORS,
+                  show_empty = 1,
+                  id_key     = 'id',
+                  label_key  = 'description',
+            -%]
+           </td>
+          </tr>
+          [%- END %]
+
+          <tr>
+           <th align="right" nowrap="true">Einheit</th>
+           <td>
+            <input type="hidden" name="unit_changeable" value="[% HTML.escape(unit_changeable) %]">
+            [%- UNLESS unit_changeable %]
+            <input type="hidden" name="unit" value="[% HTML.escape(unit) %]">[% HTML.escape(unit) %]
+            [%- ELSE %]
+            [%- INCLUDE generic/multibox.html
+                  name       = 'unit',
+                  DATA       = ALL_UNITS,
+                  id_key     = 'name',
+                  label_key  = 'name',
+            -%]
+            [%- END %]
+           </td>
+          </tr>
+
+          [%- UNLESS is_service %]
+          <tr>
+           <th align="right" nowrap="true">Gewicht</th>
+           <td>
+            [%- IF is_assembly %]&nbsp;[% LxERP.format_amount(weight) %][%- END %]
+            <input[% IF is_assembly %] type="hidden"[% END %] size="10" name="weight" value="[% LxERP.format_amount(weight) %]">
+           </td>
+          </tr>
+          [%- END %]
+
+          [%- UNLESS is_service %]
+          <tr>
+           <th align="right" nowrap>Auf Lager</th>
+           <th align="left" nowrap class="plus[% IF onhand > 0 %]1[% ELSE %]0[% END %]">&nbsp;[% LxERP.format_amount(onhand) %]</th>
+          </tr>
+
+          [%- IF is_assembly %]
+          <tr>
+           <th align="right" nowrap>Einlagern</th>
+           <td><input name="stock" size="10" value="[% LxERP.format_amount(stock) %]"></td>
+          </tr>
+          [%- END %]
+
+          <tr>
+           <th align="right" nowrap="true">Mindestlagerbestand</th>
+           <td><input name="rop" size="10" value="[% LxERP.format_amount(rop) %]"></td>
+          </tr>
+
+          <tr>
+           <th align="right" nowrap="true">Lagerplatz</th>
+           <td><input name="bin" size="10" value="[% HTML.escape(bin) %]"></td>
+          </tr>
+
+          <tr>
+           <th align="right" nowrap><label for="not_discountable">Nicht rabattierfähig</label></th>
+           <td><input class="checkbox" type="checkbox" name="not_discountable" id="not_discountable" value="1" [% IF not_discountable %]checked[% END %]></td>
+          </tr>
+
+          <tr>
+           <th align="right" nowrap="true">Verrechnungseinheit</th>
+           <td><input name="ve" size="10" value="[% HTML.escape(ve) %]"></td>
+          </tr>
+
+          <tr>
+           <th align="right" nowrap="true">Geschäftsvolumen</th>
+           <td><input name="gv" size="10" value="[% LxERP.format_amount(gv) %]"></td>
+          </tr>
+
+          [%- END %]
+          [%- IF id %]
+          <tr>
+           <th align="right" nowrap="true"><label for="obsolete">Ungültig</label></th>
+           <td><input name="obsolete" id="obsolete" type="checkbox" class="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
+          </tr>
+          [%- END %]
+
+          <tr>
+           <th align="right" nowrap><label for="shop">Shopartikel</label></th>
+           <td><input class="checkbox" type="checkbox" name="shop" id="shop" value="1" [% IF shop %]checked[% END %]></td>
+          </tr>
+         </table>
+        </td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+
+    [% UNLESS is_service %]
+    <tr>
+     <td>
+      <table width="100%">
+       <tr>
+        <th align="right" nowrap>Grafik</th>
+        <td><input name="image" size="40" value="[% HTML.escape(image) %]"></td>
+        <th align="right" nowrap>Mikrofilm</th>
+        <td><input name="microfiche" size="20" value="[% HTML.escape(microfiche) %]"></td>
+       </tr>
+       <tr>
+        <th align="right" nowrap>Zeichnung</th>
+        <td><input name="drawing" size="40" value="[% HTML.escape(drawing) %]"></td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+    [%- END %]
+
+    <script type="text/javascript">
+     <!-- Calendar.setup({ inputField : "priceupdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" }); //-->
+    </script>
