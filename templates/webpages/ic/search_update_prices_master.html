@@ -2,97 +2,116 @@
 [%- USE LxERP %]
 <body>
 
-<form method=post action=[% script %]>
+ <form method="post" action="ic.pl">
 
-<input type=hidden name=title value="<translate>Update prices</translate>">
+  <input type="hidden" name="title" value="<translate>Update prices</translate>">
 
-<table width="100%">
-  <tr><th class=listtop><translate>Update prices</translate></th></tr>
-  <tr height="5"></tr>
-  <tr valign=top>
-    <td>
-      <table>
-        <tr>
-          <th align=right nowrap><translate>Part Number</translate></th>
-          <td><input name=partnumber size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap><translate>Part Description</translate></th>
-          <td colspan=3><input name=description size=40></td>
-        </tr>
-	<tr>
-          <th align=right nowrap><translate>Group</translate></th>
-          <td><input name=partsgroup size=20></td>
-          <th align=right nowrap><translate>Serial Number</translate></th>
-          <td><input name=serialnumber size=20></td>
-	</tr>
-        <tr>
-          <th align=right nowrap><translate>Make</translate></th>
-          <td><input name=make size=20></td>
-          <th align=right nowrap><translate>Model</translate></th>
-          <td><input name=model size=20></td>
-        </tr>
-        <tr>
-          <th align=right nowrap><translate>Drawing</translate></th>
-          <td><input name=drawing size=20></td>
-          <th align=right nowrap><translate>Microfiche</translate></th>
-          <td><input name=microfiche size=20></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td colspan=3>
-            <input name=itemstatus class=radio type=radio value=active checked>&nbsp;<translate>Active</translate>
-            <input name=itemstatus class=radio type=radio value=onhand>&nbsp;<translate>On Hand</translate>
-            <input name=itemstatus class=radio type=radio value=short>&nbsp;<translate>Short</translate>
-            <input name=itemstatus class=radio type=radio value=obsolete>&nbsp;<translate>Obsolete</translate>
-            <input name=itemstatus class=radio type=radio value=orphaned>&nbsp;<translate>Orphaned</translate>
-	  </td>
-	</tr>
-        <tr>
-	  <td></td>
-          <td colspan=3>
-	    <hr size=1 noshade>
-	  </td>
-	</tr>
-  <tr>
-    <td colspan=4>
-      <table width=100%>
-        <tr>
-          <th class="listheading"><translate>Preisklasse</translate></th>
-          <th class="listheading"><translate>Preis</translate></th>
-          <th class="listheading"><translate>Prozentual/Absolut</translate></th>
-        </tr>
-        <tr>
-          <td><translate>Sell Price</translate></td>
-          <td><input name="sellprice" size=11 value="[% sellprice %]"></td>
-          <td><input name="sellprice_type" class=radio type=radio value=percent checked>/<input name="sellprice_type" class=radio type=radio value=absolut></td>
-        </tr>
-        <tr>
-          <td><translate>List Price</translate></td>
-          <td><input name="listprice" size=11 value="[% listprice %]"></td>
-          <td><input name="listprice_type" class=radio type=radio value=percent checked>/<input name="listprice_type" class=radio type=radio value=absolut></td>
-        </tr>
-[%- FOREACH row = PRICE_ROWS %]
-        <tr>
-          <td width=50%><input type=hidden name="pricegroup_[% loop.count %]" size=30  value="[% row.pricegroup %]">[% row.pricegroup %]</td>
-          <td width=50%><input name="price_[% loop.count %]" size=11></td>
-          <input type=hidden name="pricegroup_id_[% loop.count %]" value="[% row.id %]">
-          <td><input name="pricegroup_type_[% loop.count %]" class=radio type=radio value=percent checked>/<input name="pricegroup_type_[% loop.count %]" class=radio type=radio value=absolut></td>
-        </tr>
-[%- END  %]
+  <div class="listtop"><translate>Update prices</translate></div>
 
-      </table>
-    </td>
-  </tr>
+  <p>
+   <table>
+    <tr>
+     <th align="right" nowrap><translate>Part Number</translate></th>
+     <td><input name="partnumber" size="20"></td>
+    </tr>
 
-  <tr><td colspan=4><hr size=3 noshade></td></tr>
-</table>
-<input type=hidden name=nextsub value=confirm_price_update>
-<input type=hidden name=price_rows value=[% price_rows %]>
+    <tr>
+     <th align="right" nowrap><translate>Part Description</translate></th>
+     <td colspan="3"><input name="description" size="20"></td>
+    </tr>
 
-<br>
-<input class=submit type=submit name=action value="<translate>Continue</translate>">
-</form>
+    <tr>
+     <th align="right" nowrap><translate>Group</translate></th>
+     <td><input name="partsgroup" size="20"></td>
+     <th align="right" nowrap><translate>Serial Number</translate></th>
+     <td><input name="serialnumber" size="20"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Make</translate></th>
+     <td><input name="make" size="20"></td>
+     <th align="right" nowrap><translate>Model</translate></th>
+     <td><input name="model" size="20"></td>
+    </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Drawing</translate></th>
+     <td><input name="drawing" size="20"></td>
+     <th align="right" nowrap><translate>Microfiche</translate></th>
+     <td><input name="microfiche" size="20"></td>
+    </tr>
+
+    <tr>
+     <td></td>
+     <td colspan="3">
+      <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
+      <label for="itemstatus_active"><translate>Active</translate></label>
+      <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
+      <label for="itemstatus_onhand"><translate>On Hand</translate></label>
+      <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
+      <label for="itemstatus_short"><translate>Short</translate></label>
+      <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
+      <label for="itemstatus_obsolete"><translate>Obsolete</translate></label>
+      <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
+      <label for="itemstatus_orphaned"><translate>Orphaned</translate></label>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="1" noshade>
+
+  <p>
+   <table>
+    <tr>
+     <th class="listheading"><translate>Preisklasse</translate></th>
+     <th class="listheading"><translate>Preis</translate></th>
+     <th class="listheading"><translate>Prozentual/Absolut</translate></th>
+    </tr>
+
+    <tr>
+     <td><translate>Sell Price</translate></td>
+     <td><input name="sellprice" size="11" value="[% HTML.escape(sellprice) %]"></td>
+     <td align="center">
+      <input name="sellprice_type" class="radio" type="radio" value="percent" checked> /
+      <input name="sellprice_type" class="radio" type="radio" value="absolut">
+     </td>
+    </tr>
+
+    <tr>
+     <td><translate>List Price</translate></td>
+     <td><input name="listprice" size="11" value="[% HTML.escape(listprice) %]"></td>
+     <td align="center">
+      <input name="listprice_type" class="radio" type="radio" value="percent" checked> /
+      <input name="listprice_type" class="radio" type="radio" value="absolut">
+     </td>
+    </tr>
+
+    [%- FOREACH row = PRICE_ROWS %]
+    <input type="hidden" name="pricegroup_id_[% loop.count %]" value="[% HTML.escape(row.id) %]">
+
+    <tr>
+     <td><input type="hidden" name="pricegroup_[% loop.count %]" size="30"  value="[% HTML.escape(row.pricegroup) %]">[% HTML.escape(row.pricegroup) %]</td>
+     <td><input name="price_[% loop.count %]" size="11"></td>
+     <td align="center">
+      <input name="pricegroup_type_[% loop.count %]" class="radio" type="radio" value="percent" checked> /
+      <input name="pricegroup_type_[% loop.count %]" class="radio" type="radio" value="absolut">
+     </td>
+    </tr>
+    [%- END %]
+
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  <input type="hidden" name="nextsub" value="confirm_price_update">
+  <input type="hidden" name="price_rows" value="[% HTML.escape(price_rows) %]">
+
+  <p>
+   <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+  </p>
+ </form>
 
 </body>
 </html>
