@@ -37,7 +37,6 @@
 # $locale->text('Add Customer')
 # $locale->text('Add Vendor')
 
-use CGI;
 use CGI::Ajax;
 use POSIX qw(strftime);
 
@@ -585,11 +584,9 @@ sub get_contact {
 
   CT->get_contact(\%myconfig, \%$form);
 
-  my $q = new CGI;
   $result = "$form->{cp_name}";
   map { $result .= "__pjx__" . $form->{$_} } qw(cp_greeting cp_title cp_givenname cp_phone1 cp_phone2 cp_email cp_abteilung cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax cp_project cp_privatphone cp_privatemail cp_birthday);
-  print $q->header();
-  print $result;
+  print $cgi->header(), $result;
   $lxdebug->leave_sub();
 
 }
@@ -601,11 +598,9 @@ sub get_shipto {
 
   CT->get_shipto(\%myconfig, \%$form);
 
-  my $q = new CGI;
   $result = "$form->{shiptoname}";
   map { $result .= "__pjx__" . $form->{$_} } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
-  print $q->header();
-  print $result;
+  print $cgi->header(), $result;
   $lxdebug->leave_sub();
 
 }
@@ -617,8 +612,8 @@ sub get_delivery {
 
   CT->get_delivery(\%myconfig, \%$form );
 
-  print CGI->new->header();
-  print $form->parse_html_template('ct/get_delivery');
+  print $cgi->header(), $form->parse_html_template('ct/get_delivery');
+
   $lxdebug->leave_sub();
 }
 
