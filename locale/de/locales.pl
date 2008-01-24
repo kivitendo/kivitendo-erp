@@ -10,6 +10,8 @@ use POSIX;
 use FileHandle;
 use Data::Dumper;
 
+use List::Util qw(first);
+
 $| = 1;
 
 $basedir  = "../..";
@@ -481,9 +483,10 @@ sub scanmenu {
 
 sub scanhtmlfile {
   local *IN;
- 
+
   if (!defined $cached{$_[0]}) {
- 
+    my %plugins = ( 'loaded' => { }, 'needed' => { } );
+
     open(IN, $_[0]) || die $_[0];
 
     my $copying = 0;
@@ -491,6 +494,15 @@ sub scanhtmlfile {
     my $text = "";
     while (my $line = <IN>) {
       chomp($line);
+
+      while ($line =~ m/\[\%[^\w]*use[^\w]+(\w+)[^\w]*?\%\]/gi) {
+        $plugins{loaded}->{$1} = 1;
+      }
+
+      while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
+        my $plugin = $1;
+        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator));
+      }
 
       while ("" ne $line) {
         if (!$copying) {
@@ -532,6 +544,12 @@ sub scanhtmlfile {
     }
 
     close(IN);
+
+    foreach my $plugin (keys %{ $plugins{needed} }) {
+      next if ($plugins{loaded}->{$plugin});
+      print "E: " . strip_base($_[0]) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
+    }
+
     &converthtmlfile($_[0]);
   }
 
