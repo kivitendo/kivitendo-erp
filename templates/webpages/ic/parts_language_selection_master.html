@@ -6,56 +6,57 @@
 
   <div class="listtop">[% title %]</div>
 
-  <table width="100%">
-   <tr height="5"></tr>
+  <p><translate>Please insert your language values below</translate></p>
 
-   <tr><td><translate>Please insert your language values below</translate></td></tr>
+  <p>
+   <table>
+    <tr class="listheading">
+     <th class="listheading">&nbsp;</th>
+     [%- FOREACH col = HEADER %]
+     <th nowrap class="listheading">[% col.column_title %]</th>
+     [%- END %]
+    </tr>
 
-   <tr>
-    <td>
+    [%- FOREACH row = LANGUAGES %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td><input type="hidden" id="id_[% loop.count %]" name="id_[% loop.count %]" value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</td>
+     <td><input  id="translation_[% loop.count %]" name="translation_[% loop.count %]" value="[% HTML.escape(row.translation) %]"></td>
+     <td><input  id="longdescription_[% loop.count %]" name="longdescription_[% loop.count %]" value="[% HTML.escape(row.longdescription) %]"></td>
+    </tr>
 
-     <table>
-      <tr class="listheading">
-       <th class="listheading">&nbsp;</th>
-       [%- FOREACH col = HEADER %]
-       <th nowrap class="listheading">[% col.column_title %]</th>
-       [%- END %]
-      </tr>
+    [%- IF loop.last %]
+    <input type="hidden" id="rowcount" name="rowcount" value="[% loop.count %]">
+    [%- END %]
+    [%- END %]
+   </table>
+  </p>
 
-      [%- FOREACH row = LANGUAGES %]
-      <tr class="listrow[% loop.count % 2 %]">
-       <td><input type="hidden" id="id_[% loop.count %]" name="id_[% loop.count %]" value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</td>
-       <td><input  id="translation_[% loop.count %]" name="translation_[% loop.count %]" value="[% HTML.escape(row.translation) %]"></td>
-       <td><input  id="longdescription_[% loop.count %]" name="longdescription_[% loop.count %]" value="[% HTML.escape(row.longdescription) %]"></td>
-      </tr>
+  <p>
+   <button type="button" onclick="languages_updated()"><translate>Close</translate></button>
+  </p>
 
-      [%- IF loop.last %]
-      <input type="hidden" id="rowcount" name="rowcount" value="[% loop.count %]">
-      [%- END %]
-      [%- END %]
-     </table>
-
-    </td>
-   </tr>
-  </table>
-  <button type="button" onclick="languages_updated()"><translate>Close</translate></button></td>
  </form>
 
  <script type="text/javascript">
   <!--
       function languages_updated() {
         var languages = "";
-        for (var i = 1; i <= ( document.getElementsByName("rowcount")[0].value); i++) {
-          var id = "id_" + i ;
-          var translation = "translation_" + i ;
+        for (var i = 1; i <= (document.getElementsByName("rowcount")[0].value); i++) {
+          var id              = "id_" + i ;
+          var translation     = "translation_" + i ;
           var longdescription = "longdescription_" + i;
-          languages = languages + "---+++---" + document.getElementsByName( id )[0].value + "--++--" + document.getElementsByName( translation )[0].value + "--++--"  + document.getElementsByName( longdescription )[0].value;
+
+          languages = languages +
+            "---+++---" + document.getElementsByName( id )[0].value +
+            "--++--" + document.getElementsByName( translation )[0].value +
+            "--++--"  + document.getElementsByName( longdescription )[0].value;
         }
+
         window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = languages;
 
         self.close();
       }
-      -->
+      //-->
  </script>
 
 </body>
