@@ -1,29 +1,33 @@
+[% USE HTML %]
 
-<input name=id type=hidden id=cvid value=[% id %]>
-<input name=business_save type=hidden value="[% selectbusiness %]">
-<input name=title_save type=hidden value="[% title %]">
+<input name="id" type="hidden" id="cvid" value="[% HTML.escape(id) %]">
+<input name="business_save" type="hidden" value="[% HTML.escape(selectbusiness) %]">
+<input name="title_save" type="hidden" value="[% HTML.escape(title) %]">
 
-<input type=hidden name=callback value="[% callback %]">
-<input type=hidden name=db id=db value=[% db %]>
+<input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+<input type="hidden" name="db" id="db" value="[% HTML.escape(db) %]">
 
 <br>
-  <input class=submit type=submit name=action accesskey="s" value="<translate>Save</translate>">
-  <input class=submit type=submit name=action accesskey="s" value="<translate>Save and Close</translate>">
-  <input class=submit type=submit name=action value=" [% IF is_cumstomer %]<translate>Save and AR Transaction</translate>[% ELSE %]<translate>Save and AP Transaction</translate>[% END %]">
-  <input class=submit type=submit name=action value="<translate>Save and Invoice</translate>">
-  <input class=submit type=submit name=action value="<translate>Save and Order</translate>">
-  <input class=submit type=submit name=action value="[% IF is_customer %]<translate>Save and Quotation</translate>[% ELSE %]<translate>Save and RFQ</translate>[% END %]">
+  <input class="submit" type="submit" name="action" accesskey="s" value="<translate>Save</translate>">
+  <input class="submit" type="submit" name="action" accesskey="s" value="<translate>Save and Close</translate>">
+  <input class="submit" type="submit" name="action" value=" [% IF is_cumstomer %]<translate>Save and AR Transaction</translate>[% ELSE %]<translate>Save and AP Transaction</translate>[% END %]">
+  <input class="submit" type="submit" name="action" value="<translate>Save and Invoice</translate>">
+  <input class="submit" type="submit" name="action" value="<translate>Save and Order</translate>">
+  <input class="submit" type="submit" name="action" value="[% IF is_customer %]<translate>Save and Quotation</translate>[% ELSE %]<translate>Save and RFQ</translate>[% END %]">
 [%- IF id AND is_orphaned %]
-  <input class=submit type=submit name=action value="<translate>Delete</translate>">
+  <input class="submit" type="submit" name="action" value="<translate>Delete</translate>">
 [%- END %]
 [%- IF id %]
-  <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="<translate>history</translate>">
+  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %]);" name="history" id="history" value="<translate>history</translate>">
 [%- END %]
 
   </form>
-<script type="text/javascript">
-//Start Tab Content script for UL with id="maintab" Separate multiple ids each with a comma.
-initializetabcontent("maintab")
-</script>
+
+ <script type="text/javascript">
+  <!--
+      //Start Tab Content script for UL with id="maintab".
+      initializetabcontent("maintab");
+    -->
+ </script>
 </body>
 </html>

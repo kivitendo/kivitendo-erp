@@ -1,28 +1,27 @@
 [% USE LxERP %]
-<table width=100%>
+<table width="100%">
   <tr>
     <td>
-      <table width=100%>
-        <tr class=listheading>
-          <th class=listheading>Lieferadresse</th>
-          <th class=listheading>Rechnung</th>
-          <th class=listheading>Auftrag</th>
-          <th class=listheading>Rechnungsdatum</th>
-          <th class=listheading>Beschreibung</th>
-          <th class=listheading>Menge</th>
-          <th class=listheading>Einheit</th>
-          <th class=listheading>Verkaufspreis</th>
+      <table width="100%">
+        <tr class="listheading">
+          <th class="listheading">Lieferadresse</th>
+          <th class="listheading">Rechnung</th>
+          <th class="listheading">Auftrag</th>
+          <th class="listheading">Rechnungsdatum</th>
+          <th class="listheading">Beschreibung</th>
+          <th class="listheading">Menge</th>
+          <th class="listheading">Einheit</th>
+          <th class="listheading">Verkaufspreis</th>
         </tr>
 [%- FOREACH row = DELIVERY %]
-        <tr class=listrow[% loop.count % 2 %]>
-          
-          <td>[% row.shiptoname UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
-          <td>[% row.invnumber   %]&nbsp;</td>
-          <td>[% row.ordnumber   %]&nbsp;</td>
-          <td>[% row.transdate   %]&nbsp;</td>
-          <td>[% row.description %]&nbsp;</td>
-          <td>[% row.qty         %]&nbsp;</td>
-          <td>[% row.unit        %]&nbsp;</td>
+        <tr class="listrow[% loop.count % 2 %]">
+          <td>[% HTML.escape(row.shiptoname) UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
+          <td>[% HTML.escape(row.invnumber)   %]&nbsp;</td>
+          <td>[% HTML.escape(row.ordnumber)   %]&nbsp;</td>
+          <td>[% HTML.escape(row.transdate)   %]&nbsp;</td>
+          <td>[% HTML.escape(row.description) %]&nbsp;</td>
+          <td>[% HTML.escape(row.qty)         %]&nbsp;</td>
+          <td>[% HTML.escape(row.unit)        %]&nbsp;</td>
           <td>[% LxERP.format_amount(row.sellprice, 2) %]&nbsp;</td>
         </tr>
 [%- END %]
