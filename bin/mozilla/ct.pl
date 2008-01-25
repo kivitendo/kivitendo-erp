@@ -110,23 +110,14 @@ sub list_names {
   my @options;
   if ($form->{status} eq 'all') {
     push @options, $locale->text('All');
-
   } elsif ($form->{status} eq 'orphaned') {
     push @options, $locale->text('Orphaned');
   }
 
-  if ($form->{name}) {
-    push @options, $locale->text('Name') . " : $form->{name}";
-  }
-  if ($form->{contact}) {
-    push @options, $locale->text('Contact') . " : $form->{contact}";
-  }
-  if ($form->{"$form->{db}number"}) {
-    push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}|;
-  }
-  if ($form->{email}) {
-    push @options, $locale->text('E-mail') . " : $form->{email}";
-  }
+  push @options, $locale->text('Name') . " : $form->{name}"                    if $form->{name};
+  push @options, $locale->text('Contact') . " : $form->{contact}"              if $form->{contact};
+  push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}| if $form->{"$form->{db}number"};
+  push @options, $locale->text('E-mail') . " : $form->{email}"                 if $form->{email};
 
   my @columns = (
     'id',        'name',  "$form->{db}number", 'address',  'contact',  'phone',
