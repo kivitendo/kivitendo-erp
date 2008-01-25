@@ -2,17 +2,21 @@
 [%- USE LxERP %]
 <body>
 
-<form method=post action="[% script %]">
+ <form method="post" action="ic.pl">
 
-[%- FOREACH row = HIDDENS %]
-   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
-[%- END %]
+  [%- FOREACH row = HIDDENS %]
+  <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
+  [%- END %]
 
-<h2 class=confirm>Bestätigen Sie!</h2>
+  <h2 class="confirm">Bestätigen Sie!</h2>
 
-<h4>Sind Sie sicher, dass Sie die Preise 
+  <h4>Sind Sie sicher, dass Sie die Preise 
 aktualisieren wollen?</h4>
 
-<p>
-<input name=action class=submit type=submit value="Weiter">
-</form>
+  <p>
+   <input name="action" class="submit" type="submit" value="Weiter">
+   <input type="button" class="submit" onclick="history.back()" value="Zurück">
+  </p>
+ </form>
+</body>
+</html>

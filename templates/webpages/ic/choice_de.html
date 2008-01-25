@@ -2,33 +2,37 @@
 [%- USE LxERP %]
 <body>
 
-  <form method=post action="[% script %]">
+ <form method="post" action="ic.pl">
 
-[%- FOREACH row = HIDDENS %]
-   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
-[%- END %]
+  [%- FOREACH row = HIDDENS %]
+  <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
+  [%- END %]
 
-      <table>
-	<tr class=listheading>
-         <th class=listheading nowrap>Artikelnummer</th>
-         <th class=listheading nowrap>Artikelbeschreibung</th>
-        </tr>
-        <tr valign=top>
-         <td><input type=text name=partnumber size=20 value=></td>
-         <td><input type=text name=description size=30 value=></td>
-       </tr>
-      </table>
-     <br>
+  <p>
+   <table>
+    <tr class="listheading">
+     <th class="listheading" nowrap>Artikelnummer</th>
+     <th class="listheading" nowrap>Artikelbeschreibung</th>
+    </tr>
+    <tr valign="top">
+     <td><input type="text" name="partnumber" size="20"></td>
+     <td><input type="text" name="description" size="30"></td>
+    </tr>
+   </table>
+  </p>
 
-[%- FOREACH row = PARTS %]
-  <input type=hidden name=totop100_partnumber_[% loop.count %] value="[% row.totop100_partnumber %]">
-  <input type=hidden name=totop100_description_[% loop.count %] value="[% row.totop100_description %]">
-  <input type=hidden name=totop100_unit_[% loop.count %] value="[% row.totop100_unit %]">
-  <input type=hidden name=totop100_sellprice_[% loop.count %] value="[% row.totop100_sellprice %]">
-  <input type=hidden name=totop100_soldtotal_[% loop.count %] value="[% row.totop100_soldtotal %]">
-[%- END %]
+  [%- FOREACH row = PARTS %]
+  <input type="hidden" name="totop100_partnumber_[% loop.count %]" value="[% row.totop100_partnumber %]">
+  <input type="hidden" name="totop100_description_[% loop.count %]" value="[% row.totop100_description %]">
+  <input type="hidden" name="totop100_unit_[% loop.count %]" value="[% row.totop100_unit %]">
+  <input type="hidden" name="totop100_sellprice_[% loop.count %]" value="[% row.totop100_sellprice %]">
+  <input type="hidden" name="totop100_soldtotal_[% loop.count %]" value="[% row.totop100_soldtotal %]">
+  [%- END %]
 
-     <input class=submit type=submit name=action value="auflisten"> </form>
+  <p>
+   <input class="submit" type="submit" name="action" value="auflisten">
+  </p>
+ </form>
 
-   </body>
-  </html>
+</body>
+</html>
