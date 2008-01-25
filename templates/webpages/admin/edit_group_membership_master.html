@@ -9,7 +9,7 @@
 
   <p>
    <table border="0">
-    [% SET row_is_odd = '1' %][% USE users_it = Iterator(USERS) %][% FOREACH user = users_it %]
+    [% FOREACH user = USERS %]
 
     [% IF user.repeat_headings %]
     <tr>
@@ -20,7 +20,7 @@
     </tr>
     [% END %]
 
-    <tr class="listrow[% IF row_is_odd %]1[% SET row_is_odd = '0' %][% ELSE %]0[% SET row_is_odd = '1' %][% END %]">
+    <tr class="listrow[% loop.count % 2 %]">
      <td valign="center">[% HTML.escape(user.login) %]</td>
      <td valign="center">[% HTML.escape(user.name) %]</td>
      [% FOREACH group = user.GROUPS %]

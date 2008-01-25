@@ -7,7 +7,7 @@
   <p><translate>The following users have been migrated into the
     authentication database:</translate></p>
 
-  <p>[% FOREACH row = MEMBERS %][% row.login %] [% END %]</p>
+  <p>[% FOREACH row = MEMBERS %][% HTML.escape(row.login) %] [% END %]</p>
 
   <input type="hidden" name="nextsub" value="create_standard_group_ask">
 

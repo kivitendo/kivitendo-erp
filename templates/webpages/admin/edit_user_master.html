@@ -245,8 +245,8 @@
    </tr>
 
    <tr>
-    <td colspan="2">[% USE GROUPS_it = Iterator(GROUPS) %][% FOREACH row = GROUPS_it %]<a href="admin.pl?action=edit_group&group_id=[% HTML.url(row.id) %]">[% HTML.escape(row.name) %]</a>
-     [% UNLESS GROUPS_it.last %] | [% END %][% END %]</td>
+    <td colspan="2">[% FOREACH row = GROUPS %]<a href="admin.pl?action=edit_group&group_id=[% HTML.url(row.id) %]">[% HTML.escape(row.name) %]</a>
+     [% UNLESS loop.last %] | [% END %][% END %]</td>
    </tr>
    [% END %]
 
