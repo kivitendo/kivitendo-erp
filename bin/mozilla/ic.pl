@@ -270,7 +270,7 @@ sub list {
   for ($j = 1; $j <= $i; $j++) {
 
     print qq|
-        <tr class=listrow1>|;
+        <tr class=listrow| . ($j % 2) . qq|>|;
     if ($j == 1) {
       print qq|
 	    <td><input name=ndx class=radio type=radio value=$j checked></td>|;
@@ -752,8 +752,8 @@ sub addtop100 {
     }    #rof
   }    #fi
        # build data for columns
+  my $i = 0;
   foreach my $ref (@{ $form->{parts} }) {
-    my $i = 0;
 
     if ($form->{l_subtotal} eq 'Y' && !$ref->{assemblyitem}) {
       if ($sameitem ne $ref->{ $form->{sort} }) {
