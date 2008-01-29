@@ -4,7 +4,6 @@ use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
 use Text::Iconv;
-use PDF::Table;
 
 use SL::Form;
 
