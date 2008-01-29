@@ -4,6 +4,7 @@ use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
 use Text::Iconv;
+use PDF::Table;
 
 use SL::Form;
 
@@ -453,8 +454,9 @@ sub render_pdf_with_pdf_api2 {
         push @cell_props, $cell_props_row;
 
         foreach (0 .. $num_columns - 1) {
-          push @{ $cell_props_row }, { 'background_color' => '#000000',
-                                       'font_color'       => '#ffffff', };
+          push @{ $cell_props_row }, { 'background_color' => '#666666',
+                                       'font_color'       => '#ffffff',
+                                       'colspan'          => $_ == 0 ? -1 : undef, };
         }
       }
       next;

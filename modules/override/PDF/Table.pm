@@ -5,6 +5,7 @@ use strict;
 use warnings;
 our $VERSION = '0.9.3';
 
+use List::Util qw(sum);
 
 ############################################################
 #
@@ -205,7 +206,7 @@ sub text_block
 # table - utility method to build multi-row, multicolumn tables
 ############################################################
 sub table
-	{
+{
 	my $self	= shift;
 	my $pdf 	= shift;
 	my $page 	= shift;
@@ -403,7 +404,7 @@ sub table
 		# Calc real column widths and expand table width if needed.
 		my $calc_column_widths; 
 		($calc_column_widths, $width) = $self->CalcColumnWidths( $col_props, $width );
-
+        my $num_cols     = scalar @{ $calc_column_widths };
 		my $comp_cnt 	 = 1;
 		$rows_counter	 = 0;
 
@@ -449,7 +450,7 @@ sub table
 			# Check for safety reasons
 			if( $bot_marg < 0 )
 			{	# This warning should remain i think
-				print "!!! Warning: !!! Incorrect Table Geometry! Setting bottom margin to end of sheet!\n";
+# 				print "!!! Warning: !!! Incorrect Table Geometry! Setting bottom margin to end of sheet!\n";
 				$bot_marg = 0;
 			}
 
@@ -492,6 +493,8 @@ sub table
 				my $cur_x		 = $xbase;
 				my $leftovers 	 = undef;	# Reference to text that is returned from textblock()
 				my $do_leftovers = 0;
+
+                my ($colspan, @vertical_lines);
 
 				# Process every column from current row
 				for( my $j = 0; $j < scalar( @$record); $j++ ) 
@@ -547,13 +550,24 @@ sub table
 					}
 					#TODO: Implement Center text align
 					$col_props->[$j]->{justify} = $col_props->[$j]->{justify} || 'left';
+
+                    my $this_width;
+                    if (!$first_row && $cell_props->[$row_cnt]->[$j]->{colspan}) {
+                        $colspan     = -1 == $cell_props->[$row_cnt]->[$j]->{colspan} ? $num_cols - $j : $cell_props->[$row_cnt]->[$j]->{colspan};
+                        my $last_idx = $j + $colspan - 1;
+                        $this_width  = sum @{ $calc_column_widths }[$j..$last_idx];
+
+                    } else {
+                        $this_width = $calc_column_widths->[$j];
+                    }
+
 					# If the content is wider than the specified width, we need to add the text as a text block
-					if($record->[$j] !~ m#(.\n.)# and  $record_widths->[$j] and ($record_widths->[$j] < $calc_column_widths->[$j]))
+					if($record->[$j] !~ m#(.\n.)# and  $record_widths->[$j] and ($record_widths->[$j] < $this_width))
 					{
 						my $space = $pad_left;
 						if($col_props->[$j]->{justify} eq 'right')
 						{
-							$space = $calc_column_widths->[$j] -($txt->advancewidth($record->[$j]) + $pad_right);
+							$space = $this_width -($txt->advancewidth($record->[$j]) + $pad_right);
 						}
 						$txt->translate( $cur_x + $space, $text_start );
 						$txt->text( $record->[$j] );
@@ -566,7 +580,7 @@ sub table
 						    $record->[$j],
 						    x        => $cur_x + $pad_left,
 						    y        => $text_start,
-						    w        => $calc_column_widths->[$j] - $pad_w,
+						    w        => $this_width - $pad_w,
 							h		 => $cur_y - $bot_marg - $pad_top - $pad_bot,
 							align    => $col_props->[$j]->{justify},
 							lead	 => $lead
@@ -581,6 +595,9 @@ sub table
 						}
 					}
 					$cur_x += $calc_column_widths->[$j];
+
+                    push @vertical_lines, (!$colspan || (1 >= $colspan)) ? 1 : 0;
+                    $colspan-- if ($colspan);
 				}
 				if( $do_leftovers )
 				{
@@ -613,7 +630,14 @@ sub table
 						}
 						$gfx_bg->fill();
 					}
+
 					$cur_x += $calc_column_widths->[$j];
+
+                    if ($line_w && $vertical_lines[$j] && ($j != (scalar(@{ $record }) - 1))) {
+                        $gfx->move($cur_x, $cur_y);
+                        $gfx->vline($cur_y - $row_h);
+                        $gfx->fillcolor($border_color);
+                    }
 				}#End of for(my $j....
 
 				$cur_y -= $row_h;
@@ -626,19 +650,14 @@ sub table
 			}# End of while(scalar(@{$data}) and $cur_y-$row_h > $bot_marg)
 
 			# Draw vertical lines
-			$gfx->move(  $xbase, $table_top_y);
-			$gfx->vline( $cur_y );
-			my $cur_x = $xbase;
-			for( my $j = 0; $j < scalar(@$record); $j++ )
-			{
-				$cur_x += $calc_column_widths->[$j];
-				$gfx->move(  $cur_x, $table_top_y );
-				$gfx->vline( $cur_y );
-
-			}
-			# ACTUALLY draw all the lines
-			$gfx->fillcolor( $border_color);
-			$gfx->stroke if $line_w;
+            if ($line_w) {
+                $gfx->move($xbase, $table_top_y);
+                $gfx->vline($cur_y);
+                $gfx->move($xbase + sum(@{ $calc_column_widths }[0..$num_cols - 1]), $table_top_y);
+                $gfx->vline($cur_y);
+                $gfx->fillcolor($border_color);
+                $gfx->stroke();
+            }
 			$pg_cnt++;
 		}# End of while(scalar(@{$data}))
 	}# End of if(ref $data eq 'ARRAY')
@@ -656,7 +675,6 @@ sub CalcColumnWidths
 	my $min_width 	= 0;
 
 	my $calc_widths	;
-
 	for(my $j = 0; $j < scalar( @$col_props); $j++)
 	{
 		$min_width += $col_props->[$j]->{min_w};
