@@ -189,7 +189,6 @@ sub menuitem_XML {
 
   my $str = qq| link="$module?action=| . $form->escape($action) .
     qq|&amp;level=| . $form->escape($level);
-  map({ $str .= "&amp;${_}=" . $form->escape($form->{$_}); } qw(login password));
 
   my @vars = qw(module action target href);
 
