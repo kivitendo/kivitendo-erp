@@ -1905,7 +1905,7 @@ sub list_printer {
 |;
 
 
-    $column_data{printer_description} = qq|<td><a href="am.pl?action=edit_printer&id=$ref->{id}&callback=$callback">$ref->{printer_description}"</td>|;
+    $column_data{printer_description} = qq|<td><a href="am.pl?action=edit_printer&id=$ref->{id}&callback=$callback">$ref->{printer_description}</td>|;
     $column_data{printer_command}           = qq|<td align=right>$ref->{printer_command}</td>|;
     $column_data{template_code} =
       qq|<td align=right>$ref->{template_code}</td>|;
