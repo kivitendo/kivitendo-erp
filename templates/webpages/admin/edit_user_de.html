@@ -146,12 +146,12 @@
       <tr>
        <th align="right">Menüsetup</th>
        <td>
-        <input name="menustyle" id="menustyle_v3"  type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>
-        <label for="menustyle_v3">&nbsp;Oben (mit CSS)</label>
-        <input name="menustyle" id="menustyle_neu" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>
-        <label for="menustyle_neu">&nbsp;Oben (mit Javascript)</label>
-        <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>
-        <label for="menustyle_old">&nbsp;Alt (seitlich)</label>
+        <select name="menustyle">
+         <option value="v3"[% IF menustyle_v3 %] selected[% END %]>Oben (mit CSS)</option>
+         <option value="neu"[% IF menustyle_neu %] selected[% END %]>Oben (mit Javascript)</option>
+         <option value="xml"[% IF menustyle_xml %] selected[% END %]>Oben (XUL; nur f&uuml;r Mozilla Firefox)</option>
+         <option value="old"[% IF menustyle_old %] selected[% END %]>Alt (seitlich)</option>
+        </select>
        </td>
       </tr>
 
