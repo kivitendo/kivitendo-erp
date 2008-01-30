@@ -18,11 +18,11 @@
 <xsl:template match="doc" mode="html">
   <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-      <meta http-equiv="refresh" content="2;url=menuv3.pl?action=display&amp;login={/doc/login}&amp;password={/doc/password}"/>
+      <meta http-equiv="refresh" content="2;url=menuv3.pl?action=display"/>
     </head>
     <body>
 Ihr Browser unterstuetzt kein XUL!<br/>
-wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menuv3.pl?action=display&amp;login={/doc/login}&amp;password={/doc/password}">hier</a>
+wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menuv3.pl?action=display">hier</a>
     </body>
   </html>
 </xsl:template>
@@ -242,7 +242,7 @@ document.getElementById("main_window").contentWindow.history.forward()
 ****************************************************************************  -->
 <xsl:template name="specialbuttons">
   <toolbarbutton image="image/icons/24x24/Batch Printing.png" tooltiptext="hallo" oncommand="PrintW(event)"/>
-  <toolbarbutton image="image/icons/24x24/Neues Fenster.png" tooltip="Neues Fenster" link="menuXML.pl?action=display&amp;login={/doc/login}&amp;password={/doc/password}" target="_top" oncommand="openLinkNewWindow(event)"/>
+  <toolbarbutton image="image/icons/24x24/Neues Fenster.png" tooltip="Neues Fenster" link="menuXML.pl?action=display" target="_top" oncommand="openLinkNewWindow(event)"/>
   <toolbarbutton label="Logout" link="{/*//item[@id='Programm--Logout']/@link}" target="_top" oncommand="openLink(event)">
     <image src="image/icons/24x24/Programm--Logout.png" width="24" height="24" />
   </toolbarbutton>
@@ -324,8 +324,6 @@ image="image/icons/16x16/CRM--Schnellsuche.png" flex="0" oncommand="doSearch()"/
     <input name="l_soldtotal" class="checkbox" type="checkbox" value="Y"/>Verkaufte Anzahl
     <input name="l_deliverydate" class="checkbox" type="checkbox" value="Y"/>Lieferdatum
     <input type="hidden" name="nextsub" value="generate_report"/>
-    <input type="hidden" name="login" value="{/doc/login}"/>
-    <input type="hidden" name="password" value="{/doc/password}"/>
     <input type="hidden" name="revers" value="0"/>
     <input type="hidden" name="lastsort" value=""/>
     <input type="hidden" name="sort" value="description"/>
