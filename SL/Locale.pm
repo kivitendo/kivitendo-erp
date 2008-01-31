@@ -185,8 +185,6 @@ sub _read_special_chars_file {
     $scmap->{order}                                            = [ map { $self->_handle_markup($_) } split m/\s+/, $order ];
     $self->{special_chars_map}->{"${format}-reverse"}->{order} = [ grep { $_ } map { $scmap->{$_} } reverse @{ $scmap->{order} } ];
   }
-
-  $main::lxdebug->dump(0, "scm", $self->{special_chars_map});
 }
 
 sub text {
