@@ -134,6 +134,7 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
+  $form->{"Watchdog::description_3"} = 1;
   check_oe_access();
 
   # show history button
@@ -319,7 +320,6 @@ sub prepare_order {
     $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * ($form->{id} ? 100 : 1));
     $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
     $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"});
-    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit);
   }
 
   $lxdebug->leave_sub();

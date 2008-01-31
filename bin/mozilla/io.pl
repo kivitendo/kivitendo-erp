@@ -239,9 +239,6 @@ sub display_row {
     $linetotal      = $form->round_amount(($form->{"sellprice_$i"} - $discount) / $price_factor, $decimalplaces);
     $linetotal      = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
 
-    # convert " to &quot;
-    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit unit_old);
-
     $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
     $column_data{description} = ((($rows = $form->numtextrows($form->{"description_$i"}, 30, 6)) > 1) # if description is too large, use a textbox instead
