@@ -147,3 +147,9 @@ function show_alert_and_focus(input_name, errorMessage) {
   return false;
 }
   
+function get_input_value(input_name) {
+  var the_input = document.getElementsByName(input_name);
+  if (the_input && the_input[0])
+    return the_input[0].value;
+  return '';
+}

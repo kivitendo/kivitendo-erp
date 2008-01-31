@@ -1,6 +1,24 @@
 [% USE HTML %]<body class="admin">
 
- <form method="post" action="admin.pl">
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript">
+  <!--
+      function open_connection_test_window() {
+        // host name port user passwd
+        var url = "admin.pl?action=test_db_connection&" +
+          "dbhost="   + escape_more(get_input_value("dbhost"))   + "&" +
+          "dbname="   + escape_more(get_input_value("dbname"))   + "&" +
+          "dbuser="   + escape_more(get_input_value("dbuser"))   + "&" +
+          "dbpasswd=" + escape_more(get_input_value("dbpasswd")) + "&";
+
+        var parm = centerParms(400,300) + ",width=400,height=300,status=yes,scrollbars=yes";
+
+        window.open(url, "_new_generic", parm);
+      }
+    -->
+ </script>
+
+ <form name="Form" method="post" action="admin.pl">
 
   <div class="listtop" width="100%">[% title %]</div>
 
@@ -186,6 +204,10 @@
        <td><input name="dbuser" size="15" value="[% HTML.escape(myc_dbuser) %]"></td>
        <th align="right"><translate>Password</translate></th>
        <td><input name="dbpasswd" type="password" size="10" value="[% HTML.escape(myc_dbpasswd) %]"></td>
+      </tr>
+
+      <tr>
+       <td colspan="2"><input type="button" class="submit" onclick="open_connection_test_window();" value="<translate>Test connection</translate>"></td>
       </tr>
      </table>
     </td>

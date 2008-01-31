@@ -635,6 +635,22 @@ sub dbselect_source {
   print $form->parse_html_template("admin/dbadmin");
 }
 
+sub test_db_connection {
+  $form->{dbdriver} = 'Pg';
+  User::dbconnect_vars($form, $form->{dbname});
+
+  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
+
+  $form->{connection_ok} = $dbh ? 1 : 0;
+  $form->{errstr}        = $DBI::errstr;
+
+  $dbh->disconnect() if ($dbh);
+
+  $form->{title} = $locale->text('Database Connection Test');
+  $form->header();
+  print $form->parse_html_template("admin/test_db_connection");
+}
+
 sub continue {
   call_sub($form->{"nextsub"});
 }
