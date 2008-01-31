@@ -1246,30 +1246,58 @@ sub get_formname_translation {
   return $formname_translations{$formname}
 }
 
-sub generate_attachment_filename {
+sub get_number_prefix_for_type {
   my ($self) = @_;
 
-  my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix =
       (first { $self->{type} eq $_ } qw(invoice credit_note)) ? 'inv'
     : ($self->{type} =~ /_quotation$/)                        ? 'quo'
     : ($self->{type} =~ /_delivery_order$/)                   ? 'do'
     :                                                           'ord';
 
+  return $prefix;
+}
+
+sub get_extension_for_format {
+  my ($self)    = @_;
+
+  my $extension = $self->{format} =~ /pdf/i          ? ".pdf"
+                : $self->{format} =~ /postscript/i   ? ".ps"
+                : $self->{format} =~ /opendocument/i ? ".odt"
+                : $self->{format} =~ /html/i         ? ".html"
+                :                                      "";
+
+  return $extension;
+}
+
+sub generate_attachment_filename {
+  my ($self) = @_;
+
+  my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
+  my $prefix              = $self->get_number_prefix_for_type();
+
   if ($attachment_filename && $self->{"${prefix}number"}) {
-    $attachment_filename .= "_" . $self->{"${prefix}number"}
-                            . (  $self->{format} =~ /pdf/i          ? ".pdf"
-                               : $self->{format} =~ /postscript/i   ? ".ps"
-                               : $self->{format} =~ /opendocument/i ? ".odt"
-                               : $self->{format} =~ /html/i         ? ".html"
-                               :                                      "");
-    $attachment_filename =  $main::locale->quote_special_chars('filenames', $attachment_filename);
-    $attachment_filename =~ s|[\s/\\]+|_|g;
+    $attachment_filename .=  "_" . $self->{"${prefix}number"} . $self->get_extension_for_format();
+    $attachment_filename  =  $main::locale->quote_special_chars('filenames', $attachment_filename);
+    $attachment_filename  =~ s|[\s/\\]+|_|g;
   } else {
     $attachment_filename = "";
   }
 
   return $attachment_filename;
+}
+
+sub generate_email_subject {
+  my ($self) = @_;
+
+  my $subject = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
+  my $prefix  = $self->get_number_prefix_for_type();
+
+  if ($subject && $self->{"${prefix}number"}) {
+    $subject .= " " . $self->{"${prefix}number"}
+  }
+
+  return $subject;
 }
 
 sub cleanup {
