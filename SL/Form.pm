@@ -511,7 +511,7 @@ sub create_http_response {
                                    '-path'  => $base_path);
   }
 
-  my %cgi_params = ('-type' => $params{type});
+  my %cgi_params = ('-type' => $params{content_type});
   $cgi_params{'-charset'} = $params{charset} if ($parmas{charset});
 
   my $output = $cgi->header('-cookie' => $session_cookie,
@@ -594,8 +594,8 @@ sub header {
       $ajax .= $item->show_javascript();
     }
 
-    print $self->create_http_response('type'    => 'text/html',
-                                      'charset' => $db_charset,);
+    print $self->create_http_response('content_type' => 'text/html',
+                                      'charset'      => $db_charset,);
     print qq|${doctype}<html>
 <head>
   <title>$self->{titlebar}</title>
