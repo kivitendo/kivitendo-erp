@@ -415,6 +415,31 @@ sub _parse_config_lines {
   }
 }
 
+sub _force_mandatory_packages {
+  my $self  = shift;
+  my $lines = shift;
+
+  my (%used_packages, $document_start_line);
+
+  foreach my $i (0 .. scalar @{ $lines } - 1) {
+    if ($lines->[$i] =~ m/\\usepackage[^{]*{(.*?)}/) {
+      $used_packages{$1} = 1;
+
+    } elsif ($lines->[$i] =~ m/\\begin{document}/) {
+      $document_start_line = $i;
+      last;
+
+    }
+  }
+
+  $document_start_line = scalar @{ $lines } - 1 if (!defined $document_start_line);
+
+  if (!$used_packages{textcomp}) {
+    splice @{ $lines }, $document_start_line, 0, "\\usepackage{textcomp}\n";
+    $document_start_line++;
+  }
+}
+
 sub parse {
   my $self = $_[0];
   local *OUT = $_[1];
@@ -428,6 +453,7 @@ sub parse {
   close(IN);
 
   $self->_parse_config_lines(\@lines);
+  $self->_force_mandatory_packages(\@lines);
 
   my $contents = join("", @lines);
 
