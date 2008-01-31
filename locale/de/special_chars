@@ -33,7 +33,7 @@ order=< > \n
 
 [Template/LaTeX]
 order=\\ <pagebreak> & \n \r " $ % _ # ^ { } < > £ ± \xe1 ² ³
-\\=\\textbackslash 
+\\=\\textbackslash\s
 <pagebreak>=
 "=''
 &=\\&
@@ -45,12 +45,12 @@ _=\\_
 }=\\}
 <=$<$
 >=$>$
-£=\\pounds 
-\n=\\newline 
+£=\\pounds\s
+\n=\\newline\s
 \r=
 ±=$\\pm$
 \xe1=$\\bullet$
-^=\\^\\ 
+^=\\^\\\s
 ²=$^2$
 ³=$^3$
 

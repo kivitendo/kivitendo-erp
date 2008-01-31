@@ -105,19 +105,44 @@ sub _init {
 }
 
 sub _handle_markup {
-  my $self = shift;
-  my $str  = shift;
+  my $self    = shift;
+  my $str     = shift;
 
-  if ($str eq "\\n") {
-    return "\n";
-  } elsif ($str eq "\\r") {
-    return "\r";
+  my $escaped = 0;
+  my $new_str = '';
+
+  for (my $i = 0; $i < length $str; $i++) {
+    my $char = substr $str, $i, 1;
+
+    if ($escaped) {
+      if ($char eq 'n') {
+        $new_str .= "\n";
+
+      } elsif ($char eq 'r') {
+        $new_str .= "\r";
+
+      } elsif ($char eq 's') {
+        $new_str .= ' ';
+
+      } elsif ($char eq 'x') {
+        $new_str .= chr(hex(substr($str, $i + 1, 2)));
+        $i       += 2;
+
+      } else {
+        $new_str .= $char;
+      }
+
+      $escaped  = 0;
+
+    } elsif ($char eq '\\') {
+      $escaped  = 1;
+
+    } else {
+      $new_str .= $char;
+    }
   }
 
-  $str =~ s/\\x(..)/chr(hex($1))/eg;
-  $str =~ s/\\(.)/$1/g;
-
-  return $str;
+  return $new_str;
 }
 
 sub _read_special_chars_file {
@@ -160,6 +185,8 @@ sub _read_special_chars_file {
     $scmap->{order}                                            = [ map { $self->_handle_markup($_) } split m/\s+/, $order ];
     $self->{special_chars_map}->{"${format}-reverse"}->{order} = [ grep { $_ } map { $scmap->{$_} } reverse @{ $scmap->{order} } ];
   }
+
+  $main::lxdebug->dump(0, "scm", $self->{special_chars_map});
 }
 
 sub text {
