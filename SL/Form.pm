@@ -1263,8 +1263,8 @@ sub generate_attachment_filename {
                                : $self->{format} =~ /opendocument/i ? ".odt"
                                : $self->{format} =~ /html/i         ? ".html"
                                :                                      "");
-    $attachment_filename =  lc $main::locale->quote_special_chars('filenames', $attachment_filename);
-    $attachment_filename =~ s/ /_/g;
+    $attachment_filename =  $main::locale->quote_special_chars('filenames', $attachment_filename);
+    $attachment_filename =~ s|[\s/\\]+|_|g;
   } else {
     $attachment_filename = "";
   }
