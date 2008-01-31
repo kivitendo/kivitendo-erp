@@ -134,7 +134,6 @@ sub add {
 sub edit {
   $lxdebug->enter_sub();
 
-  $form->{"Watchdog::description_3"} = 1;
   check_oe_access();
 
   # show history button
