@@ -40,7 +40,7 @@ use IO::File;
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $file) = @_;
+  my ($type, $file, %options) = @_;
 
   my $id = "";
   my $skip;
@@ -54,12 +54,16 @@ sub new {
   while (<FH>) {
     chomp;
 
-    # strip comments
-    s/#.*//g;
+    if (!$options{verbatim}) {
+      # strip comments
+      s/\#.*//;
 
-    # remove any trailing whitespace
-    s/^\s*//;
-    s/\s*$//;
+      # remove any trailing whitespace
+      s/^\s*//;
+      s/\s*$//;
+    } else {
+      next if (m/^\s*\#/);
+    }
 
     next unless $_;
 

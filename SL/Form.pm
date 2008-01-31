@@ -376,53 +376,6 @@ sub unquote {
 
 }
 
-sub quote_html {
-  $main::lxdebug->enter_sub(2);
-
-  my ($self, $str) = @_;
-
-  my %replace =
-    ('order' => ['&', '"', '<', '>'],
-     '<'     => '&lt;',
-     '>'     => '&gt;',
-     '"'     => '&quot;',
-     '&'     => '&amp;',
-    );
-
-  map({ $str =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
-
-  $main::lxdebug->leave_sub(2);
-
-  return $str;
-}
-
-sub unquote_html {
-  $main::lxdebug->enter_sub(2);
-
-  my ($self, $str) = @_;
-
-  my %replace  =
-    ('&auml;'  => 'ä',
-     '&ouml;'  => 'ö',
-     '&uuml;'  => 'ü',
-     '&Auml;'  => 'Ä',
-     '&Ouml;'  => 'Ö',
-     '&Uuml;'  => 'Ü',
-     '&szlig;' => 'ß',
-     '&gt;'    => '>',
-     '&lt;'    => '<',
-     '&quot;'  => '"',
-    );
-
-  map { $str =~ s/\Q$_\E/$replace{$_}/g; } keys %replace;
-  $str =~ s/\&amp;/\&/g;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $str;
-}
-
-
 sub hide_form {
   my $self = shift;
 
@@ -1279,7 +1232,7 @@ sub get_formname_translation {
 sub generate_attachment_filename {
   my ($self) = @_;
 
-  my $attachment_filename = $self->unquote_html($self->get_formname_translation());
+  my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix =
       (first { $self->{type} eq $_ } qw(invoice credit_note)) ? 'inv'
     : ($self->{type} =~ /_quotation$/)                        ? 'quo'
@@ -1293,10 +1246,8 @@ sub generate_attachment_filename {
                                : $self->{format} =~ /opendocument/i ? ".odt"
                                : $self->{format} =~ /html/i         ? ".html"
                                :                                      "");
+    $attachment_filename =  lc $main::locale->quote_special_chars('filenames', $attachment_filename);
     $attachment_filename =~ s/ /_/g;
-    my %umlaute = ( "ä" => "ae", "ö" => "oe", "ü" => "ue", 
-                    "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue", "ß" => "ss");
-    map { $attachment_filename =~ s/$_/$umlaute{$_}/g } keys %umlaute;
   } else {
     $attachment_filename = "";
   }

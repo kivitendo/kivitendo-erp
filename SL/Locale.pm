@@ -40,16 +40,31 @@ use Text::Iconv;
 
 use SL::LXDebug;
 use SL::Common;
+use SL::Inifile;
 
 sub new {
   $main::lxdebug->enter_sub();
 
   my ($type, $country, $NLS_file) = @_;
+
   my $self = {};
+  bless $self, $type;
 
   $country  =~ s|.*/||;
   $country  =~ s|\.||g;
   $NLS_file =~ s|.*/||;
+
+  $self->_init($country, $NLS_file);
+
+  $main::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub _init {
+  my $self     = shift;
+  my $country  = shift;
+  my $NLS_file = shift;
 
   if ($country && -d "locale/$country") {
     local *IN;
@@ -70,6 +85,8 @@ sub new {
       $self->{charset} = Common::DEFAULT_CHARSET;
     }
 
+    $self->_read_special_chars_file($country);
+
     my $db_charset         = $main::dbcharset || Common::DEFAULT_CHARSET;
 
     $self->{iconv}         = Text::Iconv->new($self->{charset}, $db_charset);
@@ -85,10 +102,64 @@ sub new {
      "September", "October",  "November", "December");
   push @{ $self->{SHORT_MONTH} },
     (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec));
+}
 
-  $main::lxdebug->leave_sub();
+sub _handle_markup {
+  my $self = shift;
+  my $str  = shift;
 
-  bless $self, $type;
+  if ($str eq "\\n") {
+    return "\n";
+  } elsif ($str eq "\\r") {
+    return "\r";
+  }
+
+  $str =~ s/\\x(..)/chr(hex($1))/eg;
+  $str =~ s/\\(.)/$1/g;
+
+  return $str;
+}
+
+sub _read_special_chars_file {
+  my $self    = shift;
+  my $country = shift;
+
+  if (! -f "locale/$country/special_chars") {
+    $self->{special_chars_map} = {};
+    return;
+  }
+
+  $self->{special_chars_map} = Inifile->new("locale/$country/special_chars", 'verbatim' => 1);
+
+  foreach my $format (keys %{ $self->{special_chars_map} }) {
+    next if (($format eq 'FILE') || ($format eq 'ORDER') || (ref $self->{special_chars_map}->{$format} ne 'HASH'));
+
+    if ($format ne lc $format) {
+      $self->{special_chars_map}->{lc $format} = $self->{special_chars_map}->{$format};
+      delete $self->{special_chars_map}->{$format};
+      $format = lc $format;
+    }
+
+    my $scmap = $self->{special_chars_map}->{$format};
+    my $order = $scmap->{order};
+    delete $scmap->{order};
+
+    foreach my $key (keys %{ $scmap }) {
+      $scmap->{$key} = $self->_handle_markup($scmap->{$key});
+
+      my $new_key    = $self->_handle_markup($key);
+
+      if ($key ne $new_key) {
+        $scmap->{$new_key} = $scmap->{$key};
+        delete $scmap->{$key};
+      }
+    }
+
+    $self->{special_chars_map}->{"${format}-reverse"}          = { reverse %{ $scmap } };
+
+    $scmap->{order}                                            = [ map { $self->_handle_markup($_) } split m/\s+/, $order ];
+    $self->{special_chars_map}->{"${format}-reverse"}->{order} = [ grep { $_ } map { $scmap->{$_} } reverse @{ $scmap->{order} } ];
+  }
 }
 
 sub text {
@@ -268,6 +339,35 @@ sub reformat_date {
   $main::lxdebug->leave_sub();
 
   return $output_format;
+}
+
+sub quote_special_chars {
+  my $self   = shift;
+  my $format = lc shift;
+  my $string = shift;
+
+  if ($self->{special_chars_map} && $self->{special_chars_map}->{$format} && $self->{special_chars_map}->{$format}->{order}) {
+    my $scmap = $self->{special_chars_map}->{$format};
+
+    map { $string =~ s/\Q${_}\E/$scmap->{$_}/g } @{ $scmap->{order} };
+  }
+
+  return $string;
+}
+
+sub unquote_special_chars {
+  my $self    = shift;
+  my $format  = shift;
+
+  return $self->quote_special_chars("${format}-reverse", shift);
+}
+
+sub remap_special_chars {
+  my $self       = shift;
+  my $src_format = shift;
+  my $dst_format = shift;
+
+  return $self->quote_special_chars($dst_format, $self->quote_special_chars("${src_format}-reverse", shift));
 }
 
 1;

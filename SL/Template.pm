@@ -99,38 +99,7 @@ sub format_string {
   my ($self, $variable) = @_;
   my $form = $self->{"form"};
 
-  my %replace =
-    ('order' => [quotemeta("\\"),
-                 '<pagebreak>',
-                 '&', quotemeta("\n"),
-                 '"', '\$', '%', '_', '#', quotemeta('^'),
-                 '{', '}',  '<', '>', '£', "\r", '±', '\xe1',
-                 '²', '³',
-
-                 ],
-     quotemeta("\\") => '\\textbackslash ',
-     '<pagebreak>'   => '',
-     '"'             => "''",
-     '&'             => '\&',
-     '\$'            => '\$',
-     '%'             => '\%',
-     '_'             => '\_',
-     '#'             => '\#',
-     '{'             => '\{',
-     '}'             => '\}',
-     '<'             => '$<$',
-     '>'             => '$>$',
-     '£'             => '\pounds ',
-     "\r"            => "",
-     '±'             => '$\pm$',
-     '\xe1'          => '$\bullet$',
-     quotemeta('^')  => '\^\\',
-     quotemeta("\n") => '\newline ',
-     '²'             => '$^2$',
-     '³'             => '$^3$',
-     );
-
-  map({ $variable =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
+  $variable = $main::locale->quote_special_chars('Template/LaTeX', $variable);
 
   # Allow some HTML markup to be converted into the output format's
   # corresponding markup code, e.g. bold or italic.
@@ -594,14 +563,7 @@ sub format_string {
   my ($self, $variable) = @_;
   my $form = $self->{"form"};
 
-  my %replace =
-    ('order' => ['<', '>', quotemeta("\n")],
-     '<'             => '&lt;',
-     '>'             => '&gt;',
-     quotemeta("\n") => '<br>',
-     );
-
-  map({ $variable =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
+  $variable = $main::locale->quote_special_chars('Template/HTML', $variable);
 
   # Allow some HTML markup to be converted into the output format's
   # corresponding markup code, e.g. bold or italic.
@@ -1342,21 +1304,7 @@ sub format_string {
   my $form = $self->{"form"};
   my $iconv = $self->{"iconv"};
 
-  my %replace =
-    ('order' => ['&', '<', '>', '"', "'",
-                 '\x80',        # Euro
-                 quotemeta("\n"), quotemeta("\r")],
-     '<'             => '&lt;',
-     '>'             => '&gt;',
-     '"'             => '&quot;',
-     "'"             => '&apos;',
-     '&'             => '&amp;',
-     '\x80'          => chr(0xa4), # Euro
-     quotemeta("\n") => '<text:line-break/>',
-     quotemeta("\r") => '',
-     );
-
-  map({ $variable =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
+  $variable = $main::locale->quote_special_chars('Template/OpenDocument', $variable);
 
   # Allow some HTML markup to be converted into the output format's
   # corresponding markup code, e.g. bold or italic.
@@ -1409,14 +1357,7 @@ sub format_string {
   my ($self, $variable) = @_;
   my $form = $self->{"form"};
 
-  my %replace =
-    ('order' => ['<', '>', quotemeta("\n")],
-     '<'             => '&lt;',
-     '>'             => '&gt;',
-     quotemeta("\n") => '<br>',
-     );
-
-  map({ $variable =~ s/$_/$replace{$_}/g; } @{ $replace{"order"} });
+  $variable = $main::locale->quote_special_chars('Template/XML', $variable);
 
   # Allow no markup to be converted into the output format
   my @markup_replace = ('b', 'i', 's', 'u', 'sub', 'sup');

@@ -608,7 +608,7 @@ sub list_spool {
 
 $form->get_lists(printers=>"ALL_PRINTERS");
 print qq|<select name="printer">|;
-print map(qq|<option value="$_->{id}">| . $form->quote_html($_->{printer_description}) . qq|</option>|, @{ $form->{ALL_PRINTERS} });
+print map(qq|<option value="$_->{id}">| . H($_->{printer_description}) . qq|</option>|, @{ $form->{ALL_PRINTERS} });
 print qq|</select>|;
 
 #  }

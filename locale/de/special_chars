@@ -1,0 +1,76 @@
+[HTML]
+order=& ä ö ü Ä Ö Ü ß " < >
+ä=&auml;
+ö=&ouml;
+ü=&uuml;
+Ä=&Auml;
+Ö=&Ouml;
+Ü=&Uuml;
+ß=&szlig;
+"=&quot;
+&=&amp;
+<=&lt;
+>=&ht;
+
+[URL@HTML]
+"=&quot;
+
+[XUL]
+order=&
+&=&quot;
+
+[Template/HTML]
+order=< > \n
+<=&lt;
+>=&gt;
+\n=<br>
+
+[Template/XML]
+order=< > \n
+<=&lt;
+>=&gt;
+\n=<br>
+
+[Template/LaTeX]
+order=\\ <pagebreak> & \n \r " $ % _ # ^ { } < > £ ± \xe1 ² ³
+\\=\\textbackslash 
+<pagebreak>=
+"=''
+&=\\&
+$=\\$
+%=\\%
+_=\\_
+#=\\#
+{=\\{
+}=\\}
+<=$<$
+>=$>$
+£=\\pounds 
+\n=\\newline 
+\r=
+±=$\\pm$
+\xe1=$\\bullet$
+^=\\^\\ 
+²=$^2$
+³=$^3$
+
+[Template/OpenDocument]
+order=& < > " ' \x80 \n \r
+<=&lt;
+>=&gt;
+"=&quot;
+'=&apos;
+&=&amp;
+# Euro sign:
+\x80=\xa4
+\n=<text:line-break/>
+\r=
+
+[filenames]
+ä=ae
+ö=oe
+ü=ue
+Ä=Ae
+Ö=Oe
+Ü=Ue
+ß=ss

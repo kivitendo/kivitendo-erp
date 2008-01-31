@@ -60,32 +60,7 @@ sub new {
 
   $self->set_options(@_) if (@_);
 
-  $self->_init_escaped_strings_map();
-
   return $self;
-}
-
-sub _init_escaped_strings_map {
-  my $self = shift;
-
-  $self->{escaped_strings_map} = {
-    '&auml;'  => 'ä',
-    '&ouml;'  => 'ö',
-    '&uuml;'  => 'ü',
-    '&Auml;'  => 'Ä',
-    '&Ouml;'  => 'Ö',
-    '&Uuml;'  => 'Ü',
-    '&szlig;' => 'ß',
-    '&gt;'    => '>',
-     '&lt;'    => '<',
-    '&quot;'  => '"',
-  };
-
-  my $iconv = $main::locale->{iconv_iso8859};
-
-  if ($iconv) {
-    map { $self->{escaped_strings_map}->{$_} = $iconv->convert($self->{escaped_strings_map}->{$_}) } keys %{ $self->{escaped_strings_map} };
-  }
 }
 
 sub set_columns {
@@ -277,7 +252,7 @@ sub html_format {
   my $self  = shift;
   my $value = shift;
 
-  $value =  $self->{form}->quote_html($value);
+  $value =  $main::locale->quote_special_chars('HTML', $value);
   $value =~ s/\r//g;
   $value =~ s/\n/<br>/g;
 
@@ -767,14 +742,12 @@ sub generate_pdf_content {
 }
 
 sub unescape_string {
-  my $self = shift;
-  my $text = shift;
+  my $self  = shift;
+  my $text  = shift;
+  my $iconv = $main::locale->{iconv};
 
-  foreach my $key (keys %{ $self->{escaped_strings_map} }) {
-    $text =~ s/\Q$key\E/$self->{escaped_strings_map}->{$key}/g;
-  }
-
-  $text =~ s/\Q&amp;\E/&/g;
+  $text     = $main::locale->unquote_special_chars('HTML', $text);
+  $text     = $main::locale->{iconv}->convert($text) if ($main::locale->{iconv});
 
   return $text;
 }

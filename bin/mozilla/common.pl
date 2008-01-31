@@ -328,11 +328,11 @@ sub set_longdescription {
 # -------------------------------------------------------------------------
 
 sub H {
-  return $form->quote_html($_[0]);
+  return $locale->quote_special_chars('HTML', $_[0]);
 }
 
 sub Q {
-  return $form->quote($_[0]);
+  return $locale->quote_special_chars('URL@HTML', $_[0]);
 }
 
 sub E {

@@ -1984,19 +1984,6 @@ sub print_form {
 
   $auth->assert('general_ledger');
 
-  my %replacements =
-    (
-     "ä" => "ae", "ö" => "oe", "ü" => "ue",
-     "Ä" => "Ae", "Ö" => "Oe", "Ü" => "Ue",
-     "ß" => "ss",
-     " " => "_"
-    );
-
-  foreach my $key (keys %replacements) {
-    my $new_key = SL::Iconv::convert("ISO-8859-15", $dbcharset, $key);
-    $replacements{$new_key} = $replacements{$key} if $new_key ne $key;
-  }
-
   $form->{statementdate} = $locale->date(\%myconfig, $form->{todate}, 1);
 
   $form->{templates} = "$myconfig{templates}";
@@ -2075,8 +2062,8 @@ sub print_form {
             $form->format_amount(\%myconfig, $form->{"${_}total"}, 2)
         } (c0, c30, c60, c90, "");
 
-        $form->{attachment_filename} = $locale->text("Statement") . "_$form->{todate}.$attachment_suffix";
-        map({ $form->{attachment_filename} =~ s/$_/$replacements{$_}/g; } keys(%replacements));
+        $form->{attachment_filename} =  $locale->quote_special_chars('filenames', $locale->text("Statement") . "_$form->{todate}.$attachment_suffix");
+        $form->{attachment_filename} =~ s/\s+/_/g;
 
         $form->parse_template(\%myconfig, $userspath);
 
