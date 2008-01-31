@@ -46,7 +46,8 @@ use Encode;
 # end of main
 
 sub display {
-  print "Content-type: text/xml; charset=iso-8859-1\n\n";
+  print $form->create_http_response('content_type' => 'text/xml',
+                                    'charset'      => 'iso-8859-1');
   print qq|<?xml version="1.0" encoding="iso-8859-1"?>\n|;
   print qq|<?xml-stylesheet href="xslt/xulmenu.xsl" type="text/xsl"?>\n|;
   print qq|<!DOCTYPE doc [
