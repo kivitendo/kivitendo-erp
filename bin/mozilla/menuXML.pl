@@ -51,6 +51,9 @@ sub display {
   print qq|<?xml-stylesheet href="xslt/xulmenu.xsl" type="text/xsl"?>\n|;
   print qq|<!DOCTYPE doc [
 <!ENTITY szlig "ß">
+<!ENTITY auml "ä">
+<!ENTITY uuml "ü">
+<!ENTITY ouml "ö">
 ]>|;
   print qq|<doc>|;
   print qq|<name>|;
