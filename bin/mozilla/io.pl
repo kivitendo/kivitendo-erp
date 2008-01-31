@@ -628,7 +628,7 @@ sub new_item {
   $form->{callback}     = $form->escape("$form->{script}?action=display_form", 1);
 
   # save all form variables except action in a previousform variable
-  my $previousform = join '&', map { $form->{$_} =~ s/&/%26/; "$_=$form->{$_}" } grep { !/action/ } keys %$form;
+  my $previousform = join '&', map { my $value = $form->{$_}; $value =~ s/&/%26/; "$_=$value" } grep { !/action/ } keys %$form;
 
   push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
