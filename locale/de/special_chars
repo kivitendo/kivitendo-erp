@@ -13,6 +13,7 @@ order=& ה צ ü ִ ײ Ü ß " < >
 >=&ht;
 
 [URL@HTML]
+order="
 "=&quot;
 
 [XUL]
@@ -67,6 +68,7 @@ order=& < > " ' \x80 \n \r
 \r=
 
 [filenames]
+order=הצüִײÜß
 ה=ae
 צ=oe
 ü=ue
