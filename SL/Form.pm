@@ -481,6 +481,48 @@ sub isblank {
   $main::lxdebug->leave_sub();
 }
 
+sub create_http_response {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $cgi      = $main::cgi;
+  $cgi       ||= CGI->new('');
+
+  my $base_path;
+
+  if ($ENV{HTTP_X_FORWARDED_FOR}) {
+    $base_path =  $ENV{HTTP_REFERER};
+    $base_path =~ s|^.*?://.*?/|/|;
+  } else {
+    $base_path =  $ENV{REQUEST_URI};
+  }
+  $base_path =~ s|[^/]+$||;
+  $base_path =~ s|/$||;
+
+  my $session_cookie;
+  if (defined $main::auth) {
+    my $session_cookie_value   = $main::auth->get_session_id();
+    $session_cookie_value    ||= 'NO_SESSION';
+
+    $session_cookie = $cgi->cookie('-name'  => $main::auth->get_session_cookie_name(),
+                                   '-value' => $session_cookie_value,
+                                   '-path'  => $base_path);
+  }
+
+  my %cgi_params = ('-type' => $params{type});
+  $cgi_params{'-charset'} = $params{charset} if ($parmas{charset});
+
+  my $output = $cgi->header('-cookie' => $session_cookie,
+                            %cgi_params);
+
+  $main::lxdebug->leave_sub();
+
+  return $output;
+}
+
+
 sub header {
   $main::lxdebug->enter_sub();
 
@@ -490,9 +532,6 @@ sub header {
     $main::lxdebug->leave_sub();
     return;
   }
-
-  my $cgi   = $main::cgi;
-  $cgi    ||= CGI->new('');
 
   my ($stylesheet, $favicon);
 
@@ -555,30 +594,8 @@ sub header {
       $ajax .= $item->show_javascript();
     }
 
-    my $base_path;
-
-    if ($ENV{HTTP_X_FORWARDED_FOR}) {
-      $base_path =  $ENV{HTTP_REFERER};
-      $base_path =~ s|^.*?://.*?/|/|;
-    } else {
-      $base_path =  $ENV{REQUEST_URI};
-    }
-    $base_path =~ s|[^/]+$||;
-    $base_path =~ s|/$||;
-
-    my $session_cookie;
-    if (defined $main::auth) {
-      my $session_cookie_value   = $main::auth->get_session_id();
-      $session_cookie_value    ||= 'NO_SESSION';
-
-      $session_cookie = $cgi->cookie('-name'  => $main::auth->get_session_cookie_name(),
-                                     '-value' => $session_cookie_value,
-                                     '-path'  => $base_path);
-    }
-
-    print $cgi->header('-type'    => 'text/html',
-                       '-charset' => $db_charset,
-                       '-cookie'  => $session_cookie);
+    print $self->create_http_response('type'    => 'text/html',
+                                      'charset' => $db_charset,);
     print qq|${doctype}<html>
 <head>
   <title>$self->{titlebar}</title>
