@@ -1274,18 +1274,20 @@ sub aging {
   # connect to database
   my $dbh     = $form->dbconnect($myconfig);
 
-  my ($invoice, $arap, $buysell, $ct, $ct_id);
+  my ($invoice, $arap, $buysell, $ct, $ct_id, $ml);
 
   if ($form->{ct} eq "customer") {
     $invoice = "is";
     $arap = "ar";
     $buysell = "buy";
     $ct = "customer";
+    $ml = -1;
   } else {
     $invoice = "ir";
     $arap = "ap";
     $buysell = "sell";
     $ct = "vendor";
+    $ml = 1;
   }
   $ct_id = "${ct}_id";
 
@@ -1315,84 +1317,18 @@ sub aging {
       street, zipcode, city, country, contact, email,
       phone as customerphone, fax as customerfax, ${ct}number,
       "invnumber", "transdate",
-      (amount - paid) as "c0", 0.00 as "c30", 0.00 as "c60", 0.00 as "c90",
+      (amount - COALESCE((SELECT sum(amount)*$ml FROM acc_trans LEFT JOIN chart ON (acc_trans.chart_id=chart.id) WHERE link ilike '%paid%' AND acc_trans.trans_id=${arap}.id AND acc_trans.transdate <= (date $todate)),0)) as "open", "amount",
       "duedate", invoice, ${arap}.id,
       (SELECT $buysell
        FROM exchangerate
        WHERE (${arap}.curr = exchangerate.curr)
          AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
     FROM ${arap}, ${ct}
-    WHERE (paid != amount)
+    WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))
       AND (${arap}.storno IS FALSE)
       AND (${arap}.${ct}_id = ${ct}.id)
       AND (${ct}.id = ?)
-      AND (transdate <= (date $todate - interval '0 days'))
-      AND (transdate >= (date $todate - interval '30 days'))
-
-    UNION
-
-    -- between 31-60 days
-
-    SELECT ${ct}.id AS ctid, ${ct}.name,
-      street, zipcode, city, country, contact, email,
-      phone as customerphone, fax as customerfax, ${ct}number,
-      "invnumber", "transdate",
-      0.00 as "c0", (amount - paid) as "c30", 0.00 as "c60", 0.00 as "c90",
-      "duedate", invoice, ${arap}.id,
-      (SELECT $buysell
-       FROM exchangerate
-       WHERE (${arap}.curr = exchangerate.curr)
-         AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
-    FROM ${arap}, ${ct}
-    WHERE (paid != amount)
-      AND (${arap}.storno IS FALSE)
-      AND (${arap}.${ct}_id = ${ct}.id)
-      AND (${ct}.id = ?)
-      AND (transdate < (date $todate - interval '30 days'))
-      AND (transdate >= (date $todate - interval '60 days'))
-
-    UNION
-
-    -- between 61-90 days
-
-    SELECT ${ct}.id AS ctid, ${ct}.name,
-      street, zipcode, city, country, contact, email,
-      phone as customerphone, fax as customerfax, ${ct}number,
-      "invnumber", "transdate",
-      0.00 as "c0", 0.00 as "c30", (amount - paid) as "c60", 0.00 as "c90",
-      "duedate", invoice, ${arap}.id,
-      (SELECT $buysell
-       FROM exchangerate
-       WHERE (${arap}.curr = exchangerate.curr)
-         AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
-    FROM ${arap}, ${ct}
-    WHERE (paid != amount)
-      AND (${arap}.storno IS FALSE)
-      AND (${arap}.${ct}_id = ${ct}.id)
-      AND (${ct}.id = ?)
-      AND (transdate < (date $todate - interval '60 days'))
-      AND (transdate >= (date $todate - interval '90 days'))
-
-    UNION
-
-    -- over 90 days
-
-    SELECT ${ct}.id AS ctid, ${ct}.name,
-      street, zipcode, city, country, contact, email,
-      phone as customerphone, fax as customerfax, ${ct}number,
-      "invnumber", "transdate",
-      0.00 as "c0", 0.00 as "c30", 0.00 as "c60", (amount - paid) as "c90",
-      "duedate", invoice, ${arap}.id,
-      (SELECT $buysell
-       FROM exchangerate
-       WHERE (${arap}.curr = exchangerate.curr)
-       AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
-    FROM ${arap}, ${ct}
-    WHERE (paid != amount)
-      AND (${arap}.storno IS FALSE)
-      AND (${arap}.${ct}_id = ${ct}.id)
-      AND (${ct}.id = ?)
-      AND (transdate < (date $todate - interval '90 days'))
+      AND (transdate <= (date $todate))
 
     ORDER BY ctid, transdate, invnumber |;
 
@@ -1414,7 +1350,7 @@ sub aging {
   $form->{AG} = [];
   # for each company that has some stuff outstanding
   while (my ($id) = $sth->fetchrow_array) {
-    do_statement($form, $sth_details, $q_details, $id, $id, $id, $id);
+    do_statement($form, $sth_details, $q_details, $id);
 
     while (my $ref = $sth_details->fetchrow_hashref(NAME_lc)) {
       $ref->{module} = ($ref->{invoice}) ? $invoice : $arap;
