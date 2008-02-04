@@ -4,10 +4,10 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf v2.4.4
+Upgrade auf v2.6.0
 ==================
 
-Mit Version 2.4.4 wurde der Code zur Benutzerauthentifizierung neu
+Mit Version 2.6.0 wurde der Code zur Benutzerauthentifizierung neu
 geschrieben. Die Umstellung erfordert eine manuelle
 Konfiguration. Bestehende Benutzeraccounts können aber von Lx-Office
 automatisch übernommen werden.
