@@ -267,7 +267,7 @@ sub form_header {
   $form->{is_customer}    = $form->{db}     eq 'customer';
   $form->{salesman_label} = sub { $_[0]->{name} ne "" ? $_[0]->{name} : $_[0]->{login} };
   $form->{shipto_label}   = sub { "$_[0]->{shiptoname} $_[0]->{shiptodepartment_1}" };
-  $form->{contacts_label} = sub { "$_[0]->{cp_givenname} $_[0]->{cp_name}" };
+  $form->{contacts_label} = sub { join ", ", grep { $_ } $_[0]->{cp_name}, $_[0]->{cp_givenname} };
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
   $form->{fokus}          = "ct.greeting";
