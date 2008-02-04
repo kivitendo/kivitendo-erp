@@ -1049,16 +1049,16 @@ sub orders {
   $report->set_sort_indicator($form->{sort}, 1);
 
   my @options;
+  my ($department) = split m/--/, $form->{department};
 
-  push @options, $locale->text('Customer') . " : $form->{customer}"                                       if $form->{customer};
-  push @options, $locale->text('Vendor') . " : $form->{vendor}"                                           if $form->{vendor};
-  ($department) = split /--/, $form->{department};
-  push @options, $locale->text('Department') . " : $department"                                           if $form->{department};
-  push @options, $locale->text('Order Number') . " : $form->{ordnumber}"                                  if $form->{ordnumber};
-  push @options, $locale->text('Notes') . " : $form->{notes}"                                             if $form->{notes};
+  push @options, $locale->text('Customer')                . " : $form->{customer}"                        if $form->{customer};
+  push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                          if $form->{vendor};
+  push @options, $locale->text('Department')              . " : $department"                              if $form->{department};
+  push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
+  push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
   push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1)  if $form->{transdatefrom};
-  push @options, $locale->text('Bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto}, 1)     if $form->{transdateto};
+  push @options, $locale->text('Bis')  . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto},   1)  if $form->{transdateto};
   push @options, $locale->text('Open')                                                                    if $form->{open};
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
   push @options, $locale->text('Delivered')                                                               if $form->{delivered};
