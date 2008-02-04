@@ -1045,49 +1045,24 @@ sub orders {
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-
   $report->set_export_options('orders', @hidden_variables);
-
   $report->set_sort_indicator($form->{sort}, 1);
 
   my @options;
-  if ($form->{customer}) {
-    push @options, $locale->text('Customer') . " : $form->{customer}";
-  }
-  if ($form->{vendor}) {
-    push @options, $locale->text('Vendor') . " : $form->{vendor}";
-  }
-  if ($form->{department}) {
-    ($department) = split /--/, $form->{department};
-    push @options, $locale->text('Department') . " : $department";
-  }
-  if ($form->{ordnumber}) {
-    push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
-  }
-  if ($form->{notes}) {
-    push @options, $locale->text('Notes') . " : $form->{notes}";
-  }
-  if ($form->{transaction_description}) {
-    push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
-  }
-  if ($form->{transdatefrom}) {
-    push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-  }
-  if ($form->{transdateto}) {
-    push @options, $locale->text('Bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto}, 1);
-  }
-  if ($form->{open}) {
-    push @options, $locale->text('Open');
-  }
-  if ($form->{closed}) {
-    push @options, $locale->text('Closed');
-  }
-  if ($form->{delivered}) {
-    push @options, $locale->text('Delivered');
-  }
-  if ($form->{notdelivered}) {
-    push @options, $locale->text('Not delivered');
-  }
+
+  push @options, $locale->text('Customer') . " : $form->{customer}"                                       if $form->{customer};
+  push @options, $locale->text('Vendor') . " : $form->{vendor}"                                           if $form->{vendor};
+  ($department) = split /--/, $form->{department};
+  push @options, $locale->text('Department') . " : $department"                                           if $form->{department};
+  push @options, $locale->text('Order Number') . " : $form->{ordnumber}"                                  if $form->{ordnumber};
+  push @options, $locale->text('Notes') . " : $form->{notes}"                                             if $form->{notes};
+  push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
+  push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1)  if $form->{transdatefrom};
+  push @options, $locale->text('Bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto}, 1)     if $form->{transdateto};
+  push @options, $locale->text('Open')                                                                    if $form->{open};
+  push @options, $locale->text('Closed')                                                                  if $form->{closed};
+  push @options, $locale->text('Delivered')                                                               if $form->{delivered};
+  push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
