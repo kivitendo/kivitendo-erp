@@ -160,7 +160,7 @@ sub populate_drop_down_boxes {
   $form->{SHIPTO} = selectall_hashref_query($form, $dbh, $query, $form->{id});
 
   # get contacts
-  $query  = qq|SELECT cp_id, cp_name FROM contacts WHERE cp_cv_id = ?|;
+  $query  = qq|SELECT cp_id, cp_name, cp_givenname FROM contacts WHERE cp_cv_id = ?|;
   $form->{CONTACTS} = selectall_hashref_query($form, $dbh, $query, $form->{id});
 
   # get languages
