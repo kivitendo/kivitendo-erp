@@ -2069,30 +2069,13 @@ sub price_row {
 
   my ($numrows) = @_;
 
-  print qq|
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-          <th class="listheading">| . $locale->text('Preisklasse') . qq|</th>
-          <th class="listheading">| . $locale->text('Preis') . qq|</th>
-        </tr>
-|;
-  for my $i (1 .. $numrows) {
-    print qq|
-        <tr>
-          <td width=50%><input type=hidden name="pricegroup_$i" size=30  value="$form->{"pricegroup_$i"}">$form->{"pricegroup_$i"}</td>
-          <td width=50%><input name="price_$i" size=11 value="$form->{"price_$i"}"></td>
-          <input type=hidden name="pricegroup_id_$i" value="$form->{"pricegroup_id_$i"}">
-        </tr>
-|;
-  }
+  my @PRICES = map +{
+    pricegroup    => $form->{"pricegroup_$_"},
+    pricegroup_id => $form->{"pricegroup_id_$_"},
+    price         => $form->{"price_$_"},
+  }, 1 .. $numrows;
 
-  print qq|
-      </table>
-    </td>
-  </tr>
-|;
+  print $form->parse_html_template('ic/price_row', { PRICES => \@PRICES });
 
   $lxdebug->leave_sub();
 }
