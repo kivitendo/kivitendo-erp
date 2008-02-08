@@ -78,18 +78,8 @@ sub set_columns {
 
 sub set_column_order {
   my $self    = shift;
-
-  my $order   = 0;
-  my %columns = map { $order++; ($_, $order) } @_;
-
-  foreach my $column (sort keys %{ $self->{columns} }) {
-    next if $columns{$column};
-
-    $order++;
-    $columns{$column} = $order;
-  }
-
-  $self->{column_order} = [ sort { $columns{$a} <=> $columns{$b} } keys %columns ];
+  my %seen;
+  $self->{column_order} = [ grep { !$seen{$_}++ } @_, sort keys %{ $self->{columns} } ];
 }
 
 sub set_sort_indicator {
@@ -793,3 +783,252 @@ sub generate_csv_content {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+SL::ReportGenerator.pm: the Lx-Office way of getting data in shape
+
+=head1 SYNOPSIS
+
+  my $report = SL::ReportGenerator->new(\%myconfig, $form);
+     $report->set_options(%options);                         # optional
+     $report->set_columns(%column_defs);
+     $report->set_sort_indicator($column, $direction);       # optional
+     $report->add_data($row1, $row2, @more_rows);
+     $report->generate_with_headers();
+
+This creates a report object, sets a few columns, adds some data and generates a standard report. 
+Sorting of columns will be alphabetic, and options will be set to their defaults.
+The report will be printed including table headers, html headers and http headers.
+
+=head1 DESCRIPTION
+
+Imagine the following scenario:
+There's a simple form, which loads some data from the database, and needs to print it out. You write a template for it.
+Then there may be more than one line. You add a loop in the template.
+Then there are some options made by the user, such as hidden columns. You add more to the template.
+Then it lacks usability. You want it to be able to sort the data. You add code for that.
+Then there are too many results, you need pagination, you want to print or export that data..... and so on.
+
+The ReportGenerator class was designed because this exact scenario happened about half a dozen times in Lx-Office. 
+It's purpose is to manage all those formating, culling, sorting, and templating. 
+Which makes it almost as complicated to use as doing the work for yourself.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item new \%myconfig,$form,%options
+
+Creates a new ReportGenerator object, sets all given options, and returns it.
+
+=item set_columns @columns
+
+Sets the columns available to this report.
+
+=item set_column_order @columns
+
+Sets the order of columns. Any columns not present here are appended in alphabetic order.
+
+=item set_sort_indicator $column,$direction
+
+Sets sorting ot the table by specifying a column and a direction, where the direction will be evaluated to ascending if true.
+Note that this is only for displaying. The data has to be presented already sorted.
+
+=item add_data \@data
+
+=item add_data \%data
+
+Adds data to the report. A given hash_ref is interpreted as a single line of data, every array_ref as a collection of lines. 
+Every line will be expected to be in a kay => value format. Note that this data has to be already sorted. 
+ReportGenerator does no sorting on its own, only provides links to sorting and visual cue as to which column was sorted by.
+
+=item add_separator
+
+Adds a separator line to the report.
+
+=item add_control \%data
+
+Adds a control element to the data. Control elements are an experimental feature to add functionality to a report the regular data cannot.
+Every control element needs to set IS_CONTROL_DATA, in order to be recongnized by the template. 
+Currently the only control element is a colspan element, which can be used as a mini header further down the report.
+
+=item clear_data
+
+Deletes all data filled into the report, but keeps options set.
+
+=item set_options %options
+
+Sets options. For an incomplete list of options, see section configuration.
+
+=item set_options_from_form
+
+Tries to import options from the $form object given at creation
+
+=item set_export_options $next_sub,@variable_list
+
+Sets next_sub and additional variables needed for export.
+
+=item get_attachment_basename
+
+Returns the set attachment_basename option, or 'report' if nothing was set. See configuration for the option.
+
+=item generate_with_headers
+
+Parses the report, adds headers and prints it out. Headers depend on the option 'output_format', 
+for example 'HTML' will add proper table headers, html headers and http headers. See configuration for this option.
+
+=item get_visible_columns $format
+
+Returns a list of columns that will be visible in the report after considering all options or match the given format.
+
+=item html_format $value
+
+Escapes HTML characters in $value and substitutes newlines with '<br>'. Returns the escaped $value.
+
+=item prepare_html_content $column,$name,@column_headers
+
+Parses the data, and sets internal data needed for certain output format. Must be called once before the template is invoked. 
+Should not be called extrenally, since all render and generate functions invoke it anyway.
+ 
+=item generate_html_content
+
+The html generation function. Is invoked by generate_with_headers.
+
+=item generate_pdf_content
+
+The PDF generation function. Is invoked by the pdf render functions.
+
+=item generate_csv_content
+
+The CSV generation function. Uses XS_CSV to parse the information into csv.
+
+=item render_pdf_with_pdf_api2
+
+PDF render function. Uses PDF module.
+
+=item render_pdf_with_html2ps
+
+PDF render function. Uses html2ps to render.
+
+=back
+
+=head1 CONFIGURATION
+
+These are known options and their defaults. Options for pdf export and csv export need to be set as a hashref inside the export option.
+
+=head2 General Options
+
+=over 4
+
+=item std_column_visibility
+
+Standard column visibility. Used if no visibility is set. Use this to save the trouble of enabling every column. Default is no.
+
+=item output_format
+
+Output format. Used by generate_with_headers to determine the format. Supported options are HTML, CSV, and PDF. Default is HTML.
+
+=item allow_pdf_export
+
+Used to determine if a button for PDF export should be displayed. Default is yes.
+
+=item allow_csv_export
+
+Used to determine if a button for CSV export should be displayed. Default is yes.
+
+=item html_template
+
+The template to be used for HTML reports. Default is 'report_generator/html_report'.
+
+=item pdf_template
+
+The template to be used for PDF reports. Default is 'report_generator/pdf_report'.
+
+=back
+
+=head2 PDF Options
+
+=over 4
+
+=item paper_size
+
+Paper size. Default is a4.
+
+=item orientation (landscape)
+
+Landscape or portrait. Default is landscape.
+
+=item font_name 
+
+Default is Verdana.
+
+=item font_size
+
+Default is 7.
+
+=item margin_top
+
+=item margin_left
+
+=item margin_bottom
+
+=item margin_right
+
+Default all to 1.5.
+
+=item number
+
+Default is 1.
+
+=item print
+
+Print or not? Default is no.
+
+=item printer_id
+
+Default 0.
+
+=item copies
+
+Default 1.
+
+=back
+
+=head2 CSV Options
+
+=over 4
+
+=item quote_char
+
+Character to enclose entries. Default is double quote (").
+
+=item sep_char
+
+Character to separate entries. Default is semicolon (;).
+
+=item escape_char
+
+Character to escape the quote_char. Default is souble quote (").
+
+=item eol_style
+
+End of line style. Default is Unix.
+
+=item headers
+
+Include headers? Default is yes.
+
+=back
+
+=head1 SEE ALO
+
+C<Template.pm>
+
+=head1 MODULE AUTHORS
+
+Moritz Bunkus E<lt>mbunkus@linet-services.deE<gt>
+
+L<http://linet-services.de>
