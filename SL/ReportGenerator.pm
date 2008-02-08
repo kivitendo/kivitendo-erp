@@ -824,7 +824,7 @@ Which makes it almost as complicated to use as doing the work for yourself.
 
 Creates a new ReportGenerator object, sets all given options, and returns it.
 
-=item set_columns @columns
+=item set_columns %columns
 
 Sets the columns available to this report.
 
