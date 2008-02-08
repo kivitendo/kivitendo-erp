@@ -96,7 +96,7 @@ sub quote_db_date {
   return "NULL" unless defined $str;
   return "current_date" if $str =~ /current_date/;
 
-  $str =~ s/'/''/g;
+  $str =~ s/\'/\'\'/g;
   return "'$str'";
 }
 
