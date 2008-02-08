@@ -576,9 +576,8 @@ sub get_contact {
 
   CT->get_contact(\%myconfig, \%$form);
 
-  $result = "$form->{cp_name}";
-  map { $result .= "__pjx__" . $form->{$_} } qw(cp_greeting cp_title cp_givenname cp_phone1 cp_phone2 cp_email cp_abteilung cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax cp_project cp_privatphone cp_privatemail cp_birthday);
-  print $cgi->header(), $result;
+  print $cgi->header(), join '__pjx__', map $form->{"cp_$_"}, 
+    qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday);
   $lxdebug->leave_sub();
 
 }
@@ -590,9 +589,8 @@ sub get_shipto {
 
   CT->get_shipto(\%myconfig, \%$form);
 
-  $result = "$form->{shiptoname}";
-  map { $result .= "__pjx__" . $form->{$_} } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact shiptophone shiptofax shiptoemail);
-  print $cgi->header(), $result;
+  print $cgi->header(),  join '__pjx__', map $form->{"shipto$_"},
+    qw(name department_1 department_2 street zipcode city country contact phone fax email);
   $lxdebug->leave_sub();
 
 }
