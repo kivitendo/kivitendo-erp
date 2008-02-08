@@ -842,8 +842,8 @@ Note that this is only for displaying. The data has to be presented already sort
 =item add_data \%data
 
 Adds data to the report. A given hash_ref is interpreted as a single line of data, every array_ref as a collection of lines. 
-Every line will be expected to be in a kay => value format. Note that this data has to be already sorted. 
-ReportGenerator does no sorting on its own, only provides links to sorting and visual cue as to which column was sorted by.
+Every line will be expected to be in a kay => value format. Note that the rows have to be already sorted. 
+ReportGenerator does only colum sorting on its own, and provides links to sorting and visual cue as to which column was sorted by.
 
 =item add_separator
 
