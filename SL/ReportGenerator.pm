@@ -899,7 +899,7 @@ The html generation function. Is invoked by generate_with_headers.
 
 =item generate_pdf_content
 
-The PDF generation function. Is invoked by the pdf render functions.
+The PDF generation function. It is invoked by generate_with_headers, tests whether or not the Perl module PDF::API2 is installed and calls render_pdf_with_pdf_api2 if it is and render_pdf_with_html2ps otherwise.
 
 =item generate_csv_content
 
@@ -907,11 +907,11 @@ The CSV generation function. Uses XS_CSV to parse the information into csv.
 
 =item render_pdf_with_pdf_api2
 
-PDF render function. Uses PDF module.
+PDF render function using the Perl module PDF::API2.
 
 =item render_pdf_with_html2ps
 
-PDF render function. Uses html2ps to render.
+PDF render function using the external application html2ps.
 
 =back
 
@@ -933,7 +933,7 @@ Output format. Used by generate_with_headers to determine the format. Supported 
 
 =item allow_pdf_export
 
-Used to determine if a button for PDF export should be displayed. Default is yes.
+Used to determine if a button for PDF export should be displayed. Default is yes. The PDF button is hidden if neither the Perl module PDF::API2 nor the external applications html2ps and Ghostscript are available regardless of this parameter's value.
 
 =item allow_csv_export
 
@@ -955,7 +955,7 @@ The template to be used for PDF reports. Default is 'report_generator/pdf_report
 
 =item paper_size
 
-Paper size. Default is a4.
+Paper size. Default is a4. Supported paper sizes are a3, a4, a5, letter and legal.
 
 =item orientation (landscape)
 
@@ -963,11 +963,11 @@ Landscape or portrait. Default is landscape.
 
 =item font_name 
 
-Default is Verdana.
+Default is Verdana. Supported font names are Courier, Georgia, Helvetica, Times and Verdana. This option only affects the rendering with PDF::API2.
 
 =item font_size
 
-Default is 7.
+Default is 7. This option only affects the rendering with PDF::API2.
 
 =item margin_top
 
@@ -977,15 +977,15 @@ Default is 7.
 
 =item margin_right
 
-Default all to 1.5.
+The paper margins in cm. They all default to 1.5.
 
 =item number
 
-Default is 1.
+Set to a true value if the pages should be numbered. Default is 1.
 
 =item print
 
-Print or not? Default is no.
+If set then the resulting PDF will be output to a printer. If not it will be downloaded by the user. Default is no.
 
 =item printer_id
 
@@ -1011,7 +1011,7 @@ Character to separate entries. Default is semicolon (;).
 
 =item escape_char
 
-Character to escape the quote_char. Default is souble quote (").
+Character to escape the quote_char. Default is double quote (").
 
 =item eol_style
 
