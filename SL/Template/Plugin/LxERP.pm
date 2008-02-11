@@ -62,7 +62,7 @@ sub _turn90_word {
   my $self = shift;
   my $word = shift || "";
 
-  return join '<br>', map { $locale->quote_special_chars('HTML', $_) } split(m//, $word);
+  return join '<br>', map { $main::locale->quote_special_chars('HTML', $_) } split(m//, $word);
 }
 
 sub turn90 {
