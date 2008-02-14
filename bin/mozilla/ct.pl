@@ -36,6 +36,14 @@
 # $locale->text('Vendors')
 # $locale->text('Add Customer')
 # $locale->text('Add Vendor')
+# $locale->text('Edit Customer')
+# $locale->text('Edit Vendor')
+# $locale->text('Customer saved!')
+# $locale->text('Vendor saved!')
+# $locale->text('Customer deleted!')
+# $locale->text('Cannot delete customer!')
+# $locale->text('Vendor deleted!')
+# $locale->text('Cannot delete vendor!')
 
 use CGI::Ajax;
 use POSIX qw(strftime);
@@ -232,9 +240,6 @@ sub edit {
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
   #/show hhistory button
   
-  # $locale->text('Edit Customer')
-  # $locale->text('Edit Vendor')
-
   CT->get_tuple(\%myconfig, \%$form);
   CT->populate_drop_down_boxes(\%myconfig, \%$form);
 
@@ -271,21 +276,16 @@ sub form_header {
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
   $form->{fokus}          = "ct.greeting";
+  $form->{AJAX}           = [ new CGI::Ajax( map {; "get_$_" => "$form->{script}?action=get_$_" } qw(shipto contact delivery) ) ];
 
   unshift @{ $form->{SHIPTO} },   +{ shipto_id => '0', shiptoname => '' }, +{ shipto_id => '0', shiptoname => 'Alle' };
   unshift @{ $form->{CONTACTS} }, +{ cp_id     => '0', cp_name => $locale->text('New contact') };
 
-  push @{ $form->{AJAX} }, map { 
-    new CGI::Ajax( "get_$_" => "$form->{script}?action=get_$_" ) 
-  } qw(shipto contact delivery);
-
   $form->{title} = $form->{title_save} 
                 || $locale->text("$form->{title} " . ucfirst $form->{db}) . ($form->{title} eq "Edit" ? " $form->{name}" : '');
 
-## LINET: Create a drop-down box with all prior titles and greetings.
   CT->query_titles_and_greetings(\%myconfig, \%$form);
   map { $form->{"MB_$_"} = [ map +{ id => $_, description => $_ }, @{ $form->{$_} } ] } qw(TITLES GREETINGS COMPANY_GREETINGS DEPARTMENT);
-## /LINET
 
   $form->{NOTES} ||= [ ];
 
@@ -454,9 +454,6 @@ sub save_and_close {
 
   $auth->assert('customer_vendor_edit');
 
-  # $locale->text('Customer saved!')
-  # $locale->text('Vendor saved!')
-
   $msg = ucfirst $form->{db};
   $imsg .= " saved!";
 
@@ -485,9 +482,6 @@ sub save {
   $lxdebug->enter_sub();
 
   $auth->assert('customer_vendor_edit');
-
-  # $locale->text('Customer saved!')
-  # $locale->text('Vendor saved!')
 
   $msg = ucfirst $form->{db};
   $imsg .= " saved!";
@@ -524,11 +518,6 @@ sub delete {
   $lxdebug->enter_sub();
 
   $auth->assert('customer_vendor_edit');
-
-  # $locale->text('Customer deleted!')
-  # $locale->text('Cannot delete customer!')
-  # $locale->text('Vendor deleted!')
-  # $locale->text('Cannot delete vendor!')
 
   CT->delete(\%myconfig, \%$form);
 
@@ -575,7 +564,6 @@ sub get_contact {
   $auth->assert('customer_vendor_edit');
 
   CT->get_contact(\%myconfig, \%$form);
-
   print $cgi->header(), join '__pjx__', map $form->{"cp_$_"}, 
     qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday);
   $lxdebug->leave_sub();
@@ -588,7 +576,6 @@ sub get_shipto {
   $auth->assert('customer_vendor_edit');
 
   CT->get_shipto(\%myconfig, \%$form);
-
   print $cgi->header(),  join '__pjx__', map $form->{"shipto$_"},
     qw(name department_1 department_2 street zipcode city country contact phone fax email);
   $lxdebug->leave_sub();
