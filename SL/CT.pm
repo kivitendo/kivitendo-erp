@@ -845,6 +845,13 @@ sub get_shipto {
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
+  $query = qq|SELECT COUNT(shipto_id) AS used FROM (
+    SELECT shipto_id FROM oe UNION
+    SELECT shipto_id FROM ar UNION
+    SELECT shipto_id FROM delivery_orders
+  ) AS stid WHERE shipto_id = ? OR ? = 0|;
+  ($form->{shiptoused}) = selectfirst_array_query($form, $dbh, $query, ($form->{shipto_id})x2);
+
   $sth->finish;
   $dbh->disconnect;
 

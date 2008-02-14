@@ -235,7 +235,7 @@
              name       = 'shipto_id',
              id         = 'shipto_id',
              DATA       = SHIPTO,
-             onChange   = "get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail'])",
+             onChange   = "get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail',enable_delete_shipto])",
              id_key     = 'shipto_id',
              label_sub  = 'shipto_label',
              label_key  = 'shipto_label',
@@ -302,6 +302,7 @@
      </tr>
     </table>
 
+    <input type="submit" id="delete_shipto" name="delete_shipto" value="Lieferadresse l&ouml;schen" disabled>
     <br style="clear: left" />
    </div>
 
@@ -593,4 +594,6 @@
        Calendar.setup({ inputField : "toB",     ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_to" });
        Calendar.setup({ inputField : "FU_date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "FU_date_trigger" });
        //-->
+
+   function enable_delete_shipto(used){ var s=document.getElementById('delete_shipto'); if (s) s.disabled = (used > 0 ? true : false); }
   </script>

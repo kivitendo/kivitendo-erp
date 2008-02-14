@@ -577,7 +577,7 @@ sub get_shipto {
 
   CT->get_shipto(\%myconfig, \%$form);
   print $cgi->header(),  join '__pjx__', map $form->{"shipto$_"},
-    qw(name department_1 department_2 street zipcode city country contact phone fax email);
+    qw(name department_1 department_2 street zipcode city country contact phone fax email used);
   $lxdebug->leave_sub();
 
 }
