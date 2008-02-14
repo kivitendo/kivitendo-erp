@@ -840,17 +840,21 @@ pjx.prototype =  {
     dt = this.target;
     if (dt.constructor != Array) { dt=[dt]; }
     if (data.constructor != Array) { data=[data]; }
-    if (typeof(dt[0])!='function') {
+    if (typeof(dt[0])=='function') {
+       dt[0].apply(this,data);
+    } else {
       for ( var i=0; i<dt.length; i++ ) {
-        var div = document.getElementById(dt[i]);
-        if (div.type =='text' || div.type=='textarea' || div.type=='hidden' ) {
-          div.value=data[i];
-        } else{
-          div.innerHTML = data[i];
+        if (typeof(dt[i])=='function') {
+          dt[i].apply(this,[data[i]]);
+        } else {
+          var div = document.getElementById(dt[i]);
+          if (div.type =='text' || div.type=='textarea' || div.type=='hidden' ) {
+            div.value=data[i];
+          } else{
+            div.innerHTML = data[i];
+          }
         }
       }
-    } else if (typeof(dt[0])=='function') {
-       dt[0].apply(this,data);
     }
     this.pjxCompleted(dt);
  },
