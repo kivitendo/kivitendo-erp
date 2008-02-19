@@ -197,6 +197,7 @@ $self->{subs} = {
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
   'delete'                      => 'delete',
+  'delete_contact'              => 'delete_contact',
   'delete_shipto'               => 'delete_shipto',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'display'                     => 'display',
