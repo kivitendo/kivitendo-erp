@@ -599,9 +599,12 @@ sub delete_shipto {
 
   $auth->assert('customer_vendor_edit');
 
-  CT->delete_shipto($form->{shipto_id});
+  CT->get_shipto(\%myconfig, \%$form);
 
-  @$form{ grep /^shipto/, keys %$form } = undef;
+  unless ($form->{shiptoused}) {
+    CT->delete_shipto($form->{shipto_id});
+    @$form{ grep /^shipto/, keys %$form } = undef;
+  }
 
   edit();
 
@@ -613,9 +616,12 @@ sub delete_contact {
 
   $auth->assert('customer_vendor_edit');
 
-  CT->delete_shipto($form->{cp_id});
+  CT->get_contact(\%myconfig, \%$form);
 
-  @$form{ grep /^cp_/, keys %$form } = undef;
+  unless ($form->{cp_used}) {
+    CT->delete_shipto($form->{cp_id});
+    @$form{ grep /^cp_/, keys %$form } = undef;
+  }
 
   edit();
 
