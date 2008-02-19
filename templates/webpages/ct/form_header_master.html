@@ -316,7 +316,7 @@
              name       = 'cp_id',
              id         = 'cp_id',
              DATA       = CONTACTS,
-             onChange   = "get_contact(['cp_id__' + this.value], ['cp_name', 'cp_greeting', 'cp_title', 'cp_givenname', 'cp_phone1', 'cp_phone2', 'cp_email', 'cp_abteilung', 'cp_fax', 'cp_mobile1', 'cp_mobile2', 'cp_satphone', 'cp_satfax', 'cp_project', 'cp_privatphone', 'cp_privatemail', 'cp_birthday'])",
+             onChange   = "get_contact(['cp_id__'+this.value],['cp_name','cp_greeting','cp_title','cp_givenname','cp_phone1','cp_phone2','cp_email','cp_abteilung','cp_fax','cp_mobile1','cp_mobile2','cp_satphone','cp_satfax','cp_project','cp_privatphone','cp_privatemail','cp_birthday',enable_delete_contact])",
              id_key     = 'cp_id',
              label_sub  = 'contacts_label',
        -%]
@@ -445,6 +445,7 @@
      </tr>
     </table>
 
+    <input type="submit" id="delete_contact" name="action" value="<translate>Delete Contact</translate>" disabled>
     <br style="clear: left" />
    </div>
 
@@ -595,5 +596,6 @@
        Calendar.setup({ inputField : "FU_date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "FU_date_trigger" });
        //-->
 
-   function enable_delete_shipto(used){ var s=document.getElementById('delete_shipto'); if (s) s.disabled = (used > 0 ? true : false); }
+   function enable_delete_shipto(used) { var s=document.getElementById('delete_shipto');  if (s) s.disabled = (used > 0 ? true : false); }
+   function enable_delete_contact(used){ var s=document.getElementById('delete_contact'); if (s) s.disabled = (used > 0 ? true : false); }
   </script>

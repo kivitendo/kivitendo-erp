@@ -236,6 +236,7 @@ $self->{subs} = {
   'erfassen'                    => 'add',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
+  'ansprechpartner_löschen'     => 'delete_contact',
   'lieferadresse_löschen'       => 'delete_shipto',
   'neue_ware'                   => 'new_part',
   'speichern'                   => 'save',

@@ -565,7 +565,7 @@ sub get_contact {
 
   CT->get_contact(\%myconfig, \%$form);
   print $cgi->header(), join '__pjx__', map $form->{"cp_$_"}, 
-    qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday);
+    qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used);
   $lxdebug->leave_sub();
 
 }
@@ -603,7 +603,21 @@ sub delete_shipto {
 
   @$form{ grep /^shipto/, keys %$form } = undef;
 
-  display();
+  edit();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_contact {
+  $main::lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
+
+  CT->delete_shipto($form->{cp_id});
+
+  @$form{ grep /^cp_/, keys %$form } = undef;
+
+  edit();
 
   $main::lxdebug->leave_sub();
 }

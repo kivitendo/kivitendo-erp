@@ -827,6 +827,14 @@ sub get_contact {
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
+  $query = qq|SELECT COUNT(cp_id) AS used FROM (
+    SELECT cp_id FROM oe UNION
+    SELECT cp_id FROM ar UNION
+    SELECT cp_id FROM ap UNION
+    SELECT cp_id FROM delivery_orders
+  ) AS cpid WHERE cp_id = ? OR ? = 0|;
+  ($form->{cp_used}) = selectfirst_array_query($form, $dbh, $query, ($form->{cp_id})x2);
+
   $sth->finish;
   $dbh->disconnect;
 
@@ -997,6 +1005,23 @@ sub delete_shipto {
   my $dbh       = $form->get_standard_dbh(\%myconfig);
 
   do_query($form, $dbh, qq|UPDATE shipto SET trans_id = NULL WHERE shipto_id = ?|, $shipto_id);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_shipto {
+  $main::lxdebug->enter_sub();
+
+  my $self      = shift;
+  my $shipto_id = shift;
+
+  my $form      = $main::form;
+  my %myconfig  = %main::myconfig;
+  my $dbh       = $form->get_standard_dbh(\%myconfig);
+
+  do_query($form, $dbh, qq|UPDATE contacts SET cp_cv_id = NULL WHERE cp_id = ?|, $shipto_id);
 
   $dbh->commit();
 
