@@ -986,4 +986,21 @@ sub _delete_selected_notes {
   $main::lxdebug->leave_sub();
 }
 
+sub delete_shipto {
+  $main::lxdebug->enter_sub();
+
+  my $self      = shift;
+  my $shipto_id = shift;
+
+  my $form      = $main::form;
+  my %myconfig  = %main::myconfig;
+  my $dbh       = $form->get_standard_dbh(\%myconfig);
+
+  do_query($form, $dbh, qq|UPDATE shipto SET trans_id = NULL WHERE shipto_id = ?|, $shipto_id);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

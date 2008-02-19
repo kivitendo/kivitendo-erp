@@ -594,4 +594,18 @@ sub get_delivery {
   $lxdebug->leave_sub();
 }
 
+sub delete_shipto {
+  $main::lxdebug->enter_sub();
+
+  $auth->assert('customer_vendor_edit');
+
+  CT->delete_shipto($form->{shipto_id});
+
+  @$form{ grep /^shipto/, keys %$form } = undef;
+
+  display();
+
+  $main::lxdebug->leave_sub();
+}
+
 sub continue { call_sub($form->{nextsub}); }
