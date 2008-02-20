@@ -1,0 +1,117 @@
+Shop - Schnittstelle Lx-ERP <-> xt:Commerce
+
+
+Info:
+	Die Zusammenarbeit mit der Version 2.6.x wurde nicht getestet!
+
+	Die Anmeldung der Benutzer an LxO hat sich geändert. Auch wurde  Lagerwesen eingeführt.
+	Damit die Schnittstelle mit Version 2.6.0 und neuer funktioniert, sollten hier Anpassungen
+	durchgeführt werden.
+	
+
+Vorraussetzungen:
+	Lx-ERP Version >= 2.4.0 < 2.6.0
+	xt:Commerce 3.04
+	Pear DB, PHP-ImageMagick
+
+Installation:
+Das tar-File unterhalb vom Webserververzeichnis oder vom ERP-Verzeichnis entpacken.
+
+	$ cd /var/www/html
+	$ tar xzf /pfad/zu/xtcomm.tgz
+
+In das Verzeichnis oscomm wechseln und Schreibrechte auf die Datei conf.php und 
+die Verzeichnisse xtcom und tmp für den Webbenutzer (apache,www-data,httpd) vergeben.
+
+	$ chown apache xtcom
+	$ chown apache xtcom/conf.php
+	$ chmod 600 xtcom/conf.php
+	$ chown apache xtcom/tmp
+
+Bitte zuerst einen Benutzer für die ERP anlegen, der mit der Schnittstelle benutzt 
+werden soll. Dann noch die Artikel 'Diverse 16%', 'Versandkosten' und 'Nachname' anlegen.
+Sollen 'PayPal','Mindermengenzuschlag' und '7%'-Artikel extra verwendet werden, legen Sie
+auch diese Artikel zunächst an.
+
+Im Browser dann folgende URL aufrufen:
+
+	http://webserver/pfad/xtcomm/confedit.php
+
+	z.B.: http://localhost/xtcomm/confedit.php
+
+Benutzer und Kennwort für die Erstinstallation sind:
+
+	xtcom / xtcom
+
+Die Maske sogfälltig ausfüllen.
+
+	db-Host		db-Server für die jeweilige Anwendung
+	Database	Namen der Datenbankinstanzen
+	db-User		Username und Kennwort für die jeweilige Instanz
+	User-ID		Mit dieser ID soll in die ERP geschrieben werden
+	CSV-Dir		hier wird die csv-Datei erwartet (Schreibrechte!)
+	Image-Dir	hier liegen die Bilder
+	ftp-Host	Webserver der jeweiligen Anwendung
+	ftp-User	Name und Kennwort für ftp-Zugang
+	ID-xxxx		Interne ID der Waren. Lx-ERP:
+	Shopsprache	Die Id der Voreingestellten Sprache. Nur für diese 
+				werden die Artikel eingestellt.
+	Bildergröße	in Byte
+
+Das Formular abschicken. 
+
+Sollen später Änderungen durchgeführt werden, so muß bei der Anmeldung 
+der ERP-ftp-User als Benutzer verwendet werden.
+
+In der Shopinstanz muß noch eine Tabelle angelegt werden. Das wird 
+normalerweise durch das Programm condedit.php erledigt. Sollte das aus 
+irgend einem Grund nicht funktionieren, führen Sie dazu die
+Datei oscom.sql als Datenbankbenutzer auf die Shopinstanz aus.
+
+	$ mysql -p -u dbuser dbinstanz < xtcom.sql
+	Enter password:
+
+Ist diese Tabelle nicht angelegt, werden Kunden in der ERP immer wieder neu 
+angelegt.
+
+Fehlerquellen:
+Befinden sich ERP und Shop nicht auf dem gleichen Server, achten Sie darauf, das
+die entsprechende Datenbank von Aussen erreichbar ist. Dazu müssen folgende Ports 
+freigeschaltet werden:
+
+	MySQL		3306
+	PostgreSQL	5432
+
+Auch muß auf dem Shopserver ein ftp-Dienst eingerichtet werden, wenn Bilder über-
+tragen werden sollen. Die Firewal ist entsprechend anzupassen.
+
+Arbeiten:
+In der ERP kann nun bei den Artikeln das Häckchen Shop gesetzt werden.
+Bitte auch eine Warengruppe vergeben, da sonst alle Artikel in Default landen.
+Da die ERP nur eine Kategorieebene verwalten kann, muß der ganze Kategorienpfad
+hintelegt werden. Die einzelnen Kategorien werden durch Ausrufezeichen (!) getrennt.
+
+	Hardware -> Monitore -> LCD = Hardware!Monitore!LCD
+
+Die URL für die Shopschnittstelle lautet:
+
+	http://webservername/pfad/xtcom/trans.php
+
+
+Die Schnittstelle kann auch in die ERP integriert werden. Dazu installieren Sie
+die Schnittstelle wie beschrieben unterhalb der ERP. 
+Erweitern Sie die menu.ini um die Einträge im xtcom-Verzeichnis. z.B.:
+
+	$ cat /pfad/zu/xtcom/menu.ini >> /pfad/zu/lx-erp/menu.ini
+
+Unter dem Menüpunkt Shop stehen Ihnen nun die Module shopimport_db und xtcomexport 
+zur Verfügung.
+
+Copyright:
+Die Schnittstelle mit ihren einzelnen Bestandteilen steht unter Copyright der
+Lx-System. Die Schnittstelle und auch einzelne Programmabschnitte unterliegen 
+dem Urheberrecht sowie auch anderer Gesetze zum Schutz des geistigen Eigentums. 
+Sie dürfen weder für kommerzielle Zwecke noch zur bloßen Weitergabe kopiert, 
+verändert oder Dritten zugänglich gemacht werden.
+
+				info@lx-system.de
