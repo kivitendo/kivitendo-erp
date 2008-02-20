@@ -1,0 +1,11 @@
+Es liegen 2 Bestellungen vor. 
+Schäfer 
+Wurst Wichtel AG
+2 Kunden, davon 2 neue(r) Kunde(n).
+ordnumber=9335067731144605458730318097, transdate='2007-02-19', customer_id=2198, amount=11.48, notes=Bezahlung per Vorauskasse
+2200,1463,'',1,8.98
+2200,1568,'Versandkosten',1,2.5
+ordnumber=932625893245291655342188916, transdate='2007-02-20', customer_id=2199, amount=13.6612, notes=Bezahlung per Vorauskasse
+2201,1463,'',1,8.98
+2201,1568,'Versandkosten',1,2.5
+Daten transferiert!
