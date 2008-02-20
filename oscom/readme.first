@@ -1,9 +1,17 @@
-Shop - Schnittstelle Lx-ERP <-> osCommerce/xt:Commerce
+Shop - Schnittstelle Lx-ERP <-> osCommerce
 
 Vorraussetzungen:
-	Lx-ERP Version >= 2.4.0
+	Lx-ERP Version >= 2.4.0 && < 2.6.x
 	osCommerce 2.2 ms 2
 	Pear DB
+
+Info:
+        Die Zusammenarbeit mit der Version 2.6.x wurde nicht getestet!
+
+        Die Anmeldung der Benutzer an LxO hat sich geändert. Auch wurde  Lagerwesen eingeführt.
+        Damit die Schnittstelle mit Version 2.6.0 und neuer funktioniert, sollten hier Anpassungen
+        durchgeführt werden.
+
 
 Installation:
 Das tar-File unterhalb vom Webserververzeichnis oder dem ERP-Verzeichnis entpacken.
