@@ -844,7 +844,7 @@ sub print_invoice_for_fees {
   $form->{interest}   = $form->round_amount($interest,        2);
   $form->{invamount}  = $form->round_amount($fee + $interest, 2);
   $form->{dunning_id} = $dunning_id;
-  $form->{formname}   = "${template}";
+  $form->{formname}   = "${template}_invoice";
 
   map { $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) } qw(fee interest invamount);
 
