@@ -471,7 +471,7 @@ sub form_header {
      is_pur_ord      => scalar ($form->{type} =~ /purchase_order$/),
   );
 
-  print $form->parse_html_template("oe/orders_header", { %TMPL_VAR });
+  print $form->parse_html_template("oe/form_header", { %TMPL_VAR });
 
   $lxdebug->leave_sub();
 }
@@ -530,7 +530,7 @@ sub form_footer {
 
   $form->{oldinvtotal} = $form->{invtotal};
 
-  print $form->parse_html_template("oe/orders_footer", {
+  print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
      webdav          => $webdav,
      print_options   => print_options(inline => 1),
