@@ -163,7 +163,9 @@ sub display_template_form {
 
       push(@values,
            { "value" => $ref->{"template"},
-             "label" => $locale->text('Payment Reminder') . ": " . $ref->{"dunning_description"} });
+             "label" => $locale->text('Payment Reminder') . ": " . $ref->{"dunning_description"} },
+           { "value" => $ref->{"template"} . "_invoice",
+             "label" => $locale->text('Payment Reminder') . ": " . $ref->{"dunning_description"} . ' (' . $locale->text("Invoice for fees") . ')' });
     }
 
     @values = sort({ $a->{"label"} cmp $b->{"label"} } @values);

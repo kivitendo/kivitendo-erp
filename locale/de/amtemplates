@@ -52,6 +52,7 @@ $self->{texts} = {
   'History'                     => 'Historie',
   'Income Statement'            => 'GuV',
   'Invoice'                     => 'Rechnung',
+  'Invoice for fees'            => 'Rechnung über Gebühren',
   'MAILED'                      => 'Gesendet',
   'Manage license keys'         => 'Lizenzschl&uuml;ssel verwalten',
   'Mark as paid?'               => 'Als bezahlt markieren?',
