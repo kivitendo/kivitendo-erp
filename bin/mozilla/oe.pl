@@ -197,99 +197,54 @@ sub order_links {
 
   OE->retrieve(\%myconfig, \%$form);
 
-  $payment_id  = $form->{payment_id}  if $form->{payment_id};
-  $language_id = $form->{language_id} if $form->{language_id};
-  $taxzone_id  = $form->{taxzone_id}  if $form->{taxzone_id};
-  $salesman_id = $form->{salesman_id} if $editing;
-
   # if multiple rowcounts (== collective order) then check if the
   # there were more than one customer (in that case OE::retrieve removes
   # the content from the field)
-  if (   $form->{rowcount}
-      && $form->{type} eq 'sales_order'
-      && defined $form->{customer}
-      && $form->{customer} eq '') {
-
-    #    $main::lxdebug->message(0, "Detected Edit order with concurrent customers");
-    $form->error(
-                 $locale->text(
-                   'Collective Orders only work for orders from one customer!')
-    );
+  if (   $form->{rowcount}          && $form->{type} eq 'sales_order'
+      && defined $form->{customer}  && $form->{customer} eq '') {
+    $form->error($locale->text('Collective Orders only work for orders from one customer!'));
   }
 
-  $taxincluded = $form->{taxincluded};
+  $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
+
+  $payment_id     = $form->{payment_id}  if $form->{payment_id};
+  $language_id    = $form->{language_id} if $form->{language_id};
+  $taxzone_id     = $form->{taxzone_id}  if $form->{taxzone_id};
+  $salesman_id    = $form->{salesman_id} if $editing;
+  $taxincluded    = $form->{taxincluded};
+  $cp_id          = $form->{cp_id};
+  $intnotes       = $form->{intnotes};
   $form->{shipto} = 1 if $form->{id};
 
-  if ($form->{"all_$form->{vc}"}) {
-    unless ($form->{"$form->{vc}_id"}) {
-      $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
-    }
-  }
-
-  $cp_id    = $form->{cp_id};
-  $intnotes = $form->{intnotes};
-
   # get customer / vendor
-  if ($form->{type} =~ /(purchase_order|request_quotation)/) {
-    IR->get_vendor(\%myconfig, \%$form);
+  IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
+  IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
-    #quote all_vendor Bug 133
-    foreach $ref (@{ $form->{all_vendor} }) {
-      $ref->{name} = $form->quote($ref->{name});
-    }
+  $form->{cp_id}       = $cp_id;
+  $form->{payment_id}  = $payment_id  if $payment_id;
+  $form->{language_id} = $language_id if $language_id;
+  $form->{taxzone_id}  = $taxzone_id  if $taxzone_id;
+  $form->{intnotes}    = $intnotes    if $intnotes;
+  $form->{taxincluded} = $taxincluded if $form->{id};
+  $form->{salesman_id} = $salesman_id if $editing;
+  $form->{forex}       = $form->{exchangerate};
+  $form->{employee}    = "$form->{employee}--$form->{employee_id}";
 
-  }
-  if ($form->{type} =~ /sales_(order|quotation)/) {
-    IS->get_customer(\%myconfig, \%$form);
-
-    #quote all_vendor Bug 133
-    foreach $ref (@{ $form->{all_customer} }) {
-      $ref->{name} = $form->quote($ref->{name});
-    }
-
-  }
-  $form->{cp_id} = $cp_id;
-
-  if ($payment_id) {
-    $form->{payment_id} = $payment_id;
-  }
-  if ($language_id) {
-    $form->{language_id} = $language_id;
-  }
-  if ($taxzone_id) {
-    $form->{taxzone_id} = $taxzone_id;
-  }
-  $form->{intnotes} = $intnotes if $intnotes;
+  # build vendor/customer drop down
   ($form->{ $form->{vc} }) = split /--/, $form->{ $form->{vc} };
   $form->{"old$form->{vc}"} = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
 
-  # build the popup menus
   if (@{ $form->{"all_$form->{vc}"} }) {
-    $form->{ $form->{vc} } =
-      qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
-    map { $form->{"select$form->{vc}"} .=
-"<option>$_->{name}--$_->{id}</option>\n" }
-      (@{ $form->{"all_$form->{vc}"} });
+    map { $_->{name} = $form->quote($_->{name}) } @{ $form->{"all_$form->{vc}"} };
+    $form->{ $form->{vc} }       = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
+    $form->{"select$form->{vc}"} = join "\n", map "<option>$_->{name}--$_->{id}</option>", @{ $form->{"all_$form->{vc}"} };
   }
-
-  $form->{taxincluded} = $taxincluded if ($form->{id});
 
   # departments
   if (@{ $form->{all_departments} }) {
-    $form->{selectdepartment} = "<option>\n";
     $form->{department}       = "$form->{department}--$form->{department_id}";
-
-    map {
-      $form->{selectdepartment} .= "<option>$_->{description}--$_->{id}</option>\n"
-    } @{ $form->{all_departments} };
+    $form->{selectdepartment} = join "\n", "<option>", map "<option>$_->{description}--$_->{id}</option>", @{ $form->{all_departments} };
   }
-
-  $form->{employee} = "$form->{employee}--$form->{employee_id}";
-
-  # forex
-  $form->{forex} = $form->{exchangerate};
-
-  $form->{salesman_id} = $salesman_id if ($editing);
 
   $lxdebug->leave_sub();
 }
