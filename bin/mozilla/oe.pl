@@ -197,18 +197,10 @@ sub order_links {
 
   OE->retrieve(\%myconfig, \%$form);
 
-  if ($form->{payment_id}) {
-    $payment_id = $form->{payment_id};
-  }
-  if ($form->{language_id}) {
-    $language_id = $form->{language_id};
-  }
-  if ($form->{taxzone_id}) {
-    $taxzone_id = $form->{taxzone_id};
-  }
-
-  $salesman_id = $form->{salesman_id} if ($editing);
-
+  $payment_id  = $form->{payment_id}  if $form->{payment_id};
+  $language_id = $form->{language_id} if $form->{language_id};
+  $taxzone_id  = $form->{taxzone_id}  if $form->{taxzone_id};
+  $salesman_id = $form->{salesman_id} if $editing;
 
   # if multiple rowcounts (== collective order) then check if the
   # there were more than one customer (in that case OE::retrieve removes
