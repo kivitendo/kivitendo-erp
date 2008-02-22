@@ -337,7 +337,7 @@ sub form_header {
   my @values = (undef);
   foreach my $item (@{ $form->{"ALL_CONTACTS"} }) {
     push(@values, $item->{"cp_id"});
-    $labels{$item->{"cp_id"}} = $item->{"cp_name"} .  ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
+    $labels{$item->{"cp_id"}} = join(',', $item->{"cp_name"}, $item->{"cp_givenname"}) .  ($item->{"cp_abteilung"} ? " ($item->{cp_abteilung})" : "");
   }
   my $contact;
   if (scalar @values > 1) {

@@ -321,7 +321,7 @@ sub form_header {
   # label subs
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
   $TMPL_VAR{shipto_labels}         = sub { join "; ", grep { $_ } map { $_[0]->{"shipto${_}" } } qw(name department_1 street city) };
-  $TMPL_VAR{contact_labels}        = sub { $_[0]->{"cp_name"} . ($_[0]->{cp_abteilung} ? " ($_[0]->{cp_abteilung})" : "") };
+  $TMPL_VAR{contact_labels}        = sub { join(', ', $_[0]->{"cp_name"}, $_[0]->{"cp_givenname"}) . ($_[0]->{cp_abteilung} ? " ($_[0]->{cp_abteilung})" : "") };
   $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" }; 
 
   # vendor/customer
