@@ -112,6 +112,7 @@ $self->{texts} = {
   'History'                     => 'Historie',
   'In-line'                     => 'im Text',
   'Internal Notes'              => 'interne Bemerkungen',
+  'Invnumber missing!'          => 'Rechnungsnummer fehlt!',
   'Invoice'                     => 'Rechnung',
   'Invoice Date'                => 'Rechnungsdatum',
   'Invoice Date missing!'       => 'Rechnungsdatum fehlt!',

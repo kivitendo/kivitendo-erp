@@ -1081,8 +1081,9 @@ sub post {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  $form->isblank("invdate", $locale->text('Invoice Date missing!'));
-  $form->isblank("vendor",  $locale->text('Vendor missing!'));
+  $form->isblank("invdate",   $locale->text('Invoice Date missing!'));
+  $form->isblank("vendor",    $locale->text('Vendor missing!'));
+  $form->isblank("invnumber", $locale->text('Invnumber missing!'));
 
   $form->{invnumber} =~ s/^\s*//g;
   $form->{invnumber} =~ s/\s*$//g;
