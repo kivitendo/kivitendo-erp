@@ -3223,4 +3223,25 @@ sub all_years {
   $main::lxdebug->leave_sub();
 }
 
+sub backup_vars {
+  $main::lxdebug->enter_sub();
+  my $self = shift;
+  my @vars = @_;
+
+  map { $self->{_VAR_BACKUP}->{$_} = $self->{$_} if $self->{$_} } @vars;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub restore_vars {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift;
+  my @vars = @_;
+
+  map { $self->{$_} = $self->{_VAR_BACKUP}->{$_} if $self->{_VAR_BACKUP}->{$_} } @vars;
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

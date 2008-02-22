@@ -200,45 +200,27 @@ sub order_links {
   # if multiple rowcounts (== collective order) then check if the
   # there were more than one customer (in that case OE::retrieve removes
   # the content from the field)
-  if (   $form->{rowcount}          && $form->{type} eq 'sales_order'
-      && defined $form->{customer}  && $form->{customer} eq '') {
-    $form->error($locale->text('Collective Orders only work for orders from one customer!'));
-  }
+  $form->error($locale->text('Collective Orders only work for orders from one customer!'))
+    if          $form->{rowcount}  && $form->{type}     eq 'sales_order'
+     && defined $form->{customer}  && $form->{customer} eq '');
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
-  $payment_id     = $form->{payment_id}  if $form->{payment_id};
-  $language_id    = $form->{language_id} if $form->{language_id};
-  $taxzone_id     = $form->{taxzone_id}  if $form->{taxzone_id};
-  $salesman_id    = $form->{salesman_id} if $editing;
-  $taxincluded    = $form->{taxincluded};
-  $cp_id          = $form->{cp_id};
-  $intnotes       = $form->{intnotes};
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
-  $form->{cp_id}       = $cp_id;
-  $form->{payment_id}  = $payment_id  if $payment_id;
-  $form->{language_id} = $language_id if $language_id;
-  $form->{taxzone_id}  = $taxzone_id  if $taxzone_id;
-  $form->{intnotes}    = $intnotes    if $intnotes;
-  $form->{taxincluded} = $taxincluded if $form->{id};
-  $form->{salesman_id} = $salesman_id if $editing;
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(taxincluded)) if $form->{id};
+  $form->restore_vars(qw(salesman_id)) if $editing;
   $form->{forex}       = $form->{exchangerate};
   $form->{employee}    = "$form->{employee}--$form->{employee_id}";
 
-  # build vendor/customer drop down
-  ($form->{ $form->{vc} }) = split /--/, $form->{ $form->{vc} };
-  $form->{"old$form->{vc}"} = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
-
-  if (@{ $form->{"all_$form->{vc}"} }) {
-    map { $_->{name} = $form->quote($_->{name}) } @{ $form->{"all_$form->{vc}"} };
-    $form->{ $form->{vc} }       = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
-    $form->{"select$form->{vc}"} = join "\n", map "<option>$_->{name}--$_->{id}</option>", @{ $form->{"all_$form->{vc}"} };
-  }
+  # build vendor/customer drop down comatibility... don't ask
+  $form->{"old$form->{vc}"} = $form->{"select$form->{vc}"} = 1;
 
   # departments
   if (@{ $form->{all_departments} }) {
@@ -254,15 +236,14 @@ sub prepare_order {
 
   check_oe_access();
 
-  $form->{formname} = $form->{type} unless $form->{formname};
+  $form->{formname} ||= $form->{type};
 
-  my $i = 0;
   foreach $ref (@{ $form->{form_details} }) {
-    $form->{rowcount} = ++$i;
-    map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
+    $form->{rowcount}++;
+    map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{$ref};
   }
   for my $i (1 .. $form->{rowcount}) {
-    $form->{"reqdate_$i"}   = $form->{"deliverydate_$i"} unless $form->{"reqdate_$i"};
+    $form->{"reqdate_$i"} ||= $form->{"deliverydate_$i"};
     $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * ($form->{id} ? 100 : 1));
     $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
     $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"});
