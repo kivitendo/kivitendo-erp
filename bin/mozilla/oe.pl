@@ -238,6 +238,7 @@ sub prepare_order {
 
   $form->{formname} ||= $form->{type};
 
+  $form->{rowcount} = 0;
   foreach $ref (@{ $form->{form_details} }) {
     $form->{rowcount}++;
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{$ref};
