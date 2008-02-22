@@ -908,7 +908,7 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
   $save_AP = $form->{AP};
-  &check_name(vendor);
+  &check_name("vendor");
   $form->{AP} = $save_AP;
 
   $form->{rowcount} = $count + 1;
@@ -940,6 +940,9 @@ sub update {
      $form->{oldinvtotal});
   $form->{oldinvtotal}  = $form->{invtotal};
   $form->{oldtotalpaid} = $totalpaid;
+
+  # notes
+  $form->{notes} = $form->{intnotes};
 
   &display_form;
 
