@@ -257,9 +257,6 @@ sub form_header {
   # Container for template variables. Unfortunately this has to be visible in form_footer too, so not my.
   our %TMPL_VAR = ();
 
-  $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
-  $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
-
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
