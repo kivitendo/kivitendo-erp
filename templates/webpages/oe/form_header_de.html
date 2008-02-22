@@ -106,11 +106,17 @@
                            label_key  = 'description' -%]
                     </td>
                   </tr>
-[%- IF selectdepartment %]
+[%- IF ALL_DEPARTMENTS %]
                   <tr>
                     <th align="right" nowrap>Abteilung</th>
-                    <td colspan="3"><select name="department" style="width: 250px">[% selectdepartment %]</select>
-                    <input type="hidden" name="selectdepartment" value="[% HTML.escape(selectdepartment) %]">
+                    <td colspan="3">
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'department_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_DEPARTMENTS,
+                           id_key     = 'id',
+                           label_sub  = 'department_labels',
+                           show_empty = 1 -%]
                     </td>
                   </tr>
 [%- END %]

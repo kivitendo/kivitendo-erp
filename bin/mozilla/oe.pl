@@ -202,7 +202,7 @@ sub order_links {
   # the content from the field)
   $form->error($locale->text('Collective Orders only work for orders from one customer!'))
     if          $form->{rowcount}  && $form->{type}     eq 'sales_order'
-     && defined $form->{customer}  && $form->{customer} eq '');
+     && defined $form->{customer}  && $form->{customer} eq '';
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
@@ -220,13 +220,8 @@ sub order_links {
   $form->{employee}    = "$form->{employee}--$form->{employee_id}";
 
   # build vendor/customer drop down comatibility... don't ask
-  $form->{"old$form->{vc}"} = $form->{"select$form->{vc}"} = 1;
-
-  # departments
-  if (@{ $form->{all_departments} }) {
-    $form->{department}       = "$form->{department}--$form->{department_id}";
-    $form->{selectdepartment} = join "\n", "<option>", map "<option>$_->{description}--$_->{id}</option>", @{ $form->{all_departments} };
-  }
+  $form->{"old$form->{vc}"} = $form->{vc};
+  $form->{"select$form->{vc}"} = 1;
 
   $lxdebug->leave_sub();
 }
@@ -321,14 +316,16 @@ sub form_header {
                    "taxzones"      => "ALL_TAXZONES",
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
+                   "departments"   => "ALL_DEPARTMENTS",
                    $vc             => { key   => "ALL_" . uc($vc),
                                         limit => $myconfig{vclimit} + 1 },
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   # label subs
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
-  $TMPL_VAR{shipto_labels} = sub { join "; ", grep { $_ } map { $_[0]->{"shipto${_}" } } qw(name department_1 street city) };
-  $TMPL_VAR{contact_labels} = sub { $_[0]->{"cp_name"} . ($_[0]->{cp_abteilung} ? " ($_[0]->{cp_abteilung})" : "") };
+  $TMPL_VAR{shipto_labels}         = sub { join "; ", grep { $_ } map { $_[0]->{"shipto${_}" } } qw(name department_1 street city) };
+  $TMPL_VAR{contact_labels}        = sub { $_[0]->{"cp_name"} . ($_[0]->{cp_abteilung} ? " ($_[0]->{cp_abteilung})" : "") };
+  $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" }; 
 
   # vendor/customer
   $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };

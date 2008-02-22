@@ -419,7 +419,7 @@ sub save {
 
   my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
 
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
+  ($null, $form->{department_id}) = split(/--/, $form->{department}) if $form->{department};
 
   # save OE record
   $query =
