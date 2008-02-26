@@ -470,11 +470,7 @@ sub save_vendor {
 
   my $query;
 
-  if ( $form->{id} ) {
-    $query = qq|DELETE FROM shipto WHERE (trans_id = ?) AND (module = 'CT')|;
-    do_query($form, $dbh, $query, $form->{id});
-
-  } else {
+  if (!$form->{id}) {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
