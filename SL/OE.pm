@@ -415,7 +415,7 @@ sub save {
     $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? 'buy' : 'sell');
   }
 
-  $form->{exchangerate} = ($exchangerate) ? $exchangerate : $form->parse_amount($myconfig, $form->{exchangerate});
+  $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
 
   my $quotation = $form->{type} =~ /_order$/ ? 'f' : 't';
 

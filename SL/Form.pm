@@ -1578,8 +1578,6 @@ sub check_exchangerate {
 
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
 
-  $exchangerate = 1 if ($exchangerate eq "");
-
   $main::lxdebug->leave_sub();
 
   return $exchangerate;

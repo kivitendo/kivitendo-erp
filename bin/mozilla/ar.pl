@@ -261,13 +261,8 @@ sub form_header {
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                     $exchangerate =
-                       $form->check_exchangerate(
-                       \%myconfig, $form->{currency}, $form->{transdate}, 'buy'
-                       )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   # format amounts
   $form->{exchangerate} =
@@ -961,13 +956,8 @@ sub update {
   $form->{rowcount} = $count + 1;
   map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. $form->{rowcount});
 
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                     $exchangerate =
-                       $form->check_exchangerate(
-                       \%myconfig, $form->{currency}, $form->{transdate}, 'buy'
-                       )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'buy');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
   my $save_AR = $form->{AR};
@@ -986,13 +976,8 @@ sub update {
 
       $totalpaid += $form->{"paid_$i"};
 
-      $form->{"exchangerate_$i"} = $exchangerate
-        if (
-            $form->{"forex_$i"} = (
-                 $exchangerate =
-                   $form->check_exchangerate(
-                   \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy'
-                   )));
+      $form->{"forex_$i"}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
+      $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
     }
   }
 

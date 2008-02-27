@@ -524,9 +524,7 @@ sub post_invoice {
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate =
-      $form->check_exchangerate($myconfig, $form->{currency},
-                                $form->{transdate}, 'buy');
+    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
   }
 
   $form->{exchangerate} =
@@ -820,13 +818,8 @@ sub post_invoice {
       if ($form->{currency} eq $defaultcurrency) {
         $form->{"exchangerate_$i"} = 1;
       } else {
-        $exchangerate =
-          $form->check_exchangerate($myconfig, $form->{currency},
-                                    $form->{"datepaid_$i"}, 'buy');
-
-        $form->{"exchangerate_$i"} =
-          $exchangerate ? $exchangerate
-            : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
+        $exchangerate              = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
+        $form->{"exchangerate_$i"} = $exchangerate || $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
       }
 
       # record AR

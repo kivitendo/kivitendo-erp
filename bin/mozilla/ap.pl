@@ -223,17 +223,11 @@ sub form_header {
   }
   $readonly = ($form->{id}) ? "readonly" : "";
 
-  $form->{radier} =
-    ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
-  $readonly                 = ($form->{radier}) ? "" : $readonly;
+  $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $readonly       = ($form->{radier}) ? "" : $readonly;
 
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                     $exchangerate =
-                       $form->check_exchangerate(
-                       \%myconfig, $form->{currency}, $form->{transdate}, 'sell'
-                       )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
 
   # format amounts
@@ -898,13 +892,8 @@ sub update {
 
   map { $form->{invtotal} += $form->{"amount_$_"} } (1 .. $form->{rowcount});
 
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                    $exchangerate =
-                      $form->check_exchangerate(
-                      \%myconfig, $form->{currency}, $form->{transdate}, 'sell'
-                      )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
   $save_AP = $form->{AP};
@@ -925,13 +914,8 @@ sub update {
 
       $totalpaid += $form->{"paid_$i"};
 
-      $form->{"exchangerate_$i"} = $exchangerate
-        if (
-            $form->{"forex_$i"} = (
-                $exchangerate =
-                  $form->check_exchangerate(
-                  \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell'
-                  )));
+      $form->{"forex_$i"}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+      $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
     }
   }
 

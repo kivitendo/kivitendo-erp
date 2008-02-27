@@ -56,14 +56,8 @@ sub post_transaction {
   if ($form->{currency} eq $form->{defaultcurrency}) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate =
-      $form->check_exchangerate($myconfig, $form->{currency},
-                                $form->{transdate}, 'sell');
-
-    $form->{exchangerate} =
-      ($exchangerate)
-      ? $exchangerate
-      : $form->parse_amount($myconfig, $form->{exchangerate});
+    $exchangerate         = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'sell');
+    $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
   }
 
   for $i (1 .. $form->{rowcount}) {
@@ -271,14 +265,8 @@ sub post_transaction {
       if ($form->{currency} eq $form->{defaultcurrency}) {
         $form->{"exchangerate_$i"} = 1;
       } else {
-        $exchangerate =
-          $form->check_exchangerate($myconfig, $form->{currency},
-                                    $form->{"datepaid_$i"}, 'sell');
-
-        $form->{"exchangerate_$i"} =
-          ($exchangerate)
-          ? $exchangerate
-          : $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
+        $exchangerate              = $form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+        $form->{"exchangerate_$i"} = $exchangerate || $form->parse_amount($myconfig, $form->{"exchangerate_$i"});
       }
       $form->{"AP_paid_$i"} =~ s/\"//g;
 

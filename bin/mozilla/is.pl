@@ -1230,14 +1230,14 @@ sub update {
 
   $form->{taxincluded} ||= $taxincluded;
 
-  $form->{exchangerate} = $exchangerate if
-    $form->{forex} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   for $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
-    $form->{"exchangerate_$i"} = $exchangerate if
-      $form->{"forex_$i"} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
+    $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
+    $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
   }
 
   $i            = $form->{rowcount};
@@ -1618,15 +1618,8 @@ sub credit_note {
   &invoice_links;
 
   $form->{currency}     = $currency;
-  $form->{exchangerate} = "";
-  $form->{forex}        = "";
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                    $exchangerate =
-                      $form->check_exchangerate(
-                      \%myconfig, $form->{currency}, $form->{invdate}, $buysell
-                      )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{invdate}, $buysell);
+  $form->{exchangerate} = $form->{forex} || '';
 
   $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
 

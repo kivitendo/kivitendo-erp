@@ -132,7 +132,7 @@
                     <th align="right"><translate>Exchangerate</translate></th>
                     <td>
                      [%- IF forex %]
-                      [% LxERP.format_amount(exchangerate, 0) %]
+                      [% LxERP.format_amount(exchangerate, 2) %]
                      [%- ELSE %]
                       <input name="exchangerate" size="10" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
                      [%- END %]

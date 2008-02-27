@@ -579,13 +579,8 @@ sub update {
     }
   }
 
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                   $exchangerate =
-                     $form->check_exchangerate(
-                     \%myconfig, $form->{currency}, $form->{datepaid}, $buysell
-                     )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{datepaid}, $buysell);
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $amount = $form->{amount} = $form->parse_amount(\%myconfig, $form->{amount});
 

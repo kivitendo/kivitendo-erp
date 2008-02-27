@@ -854,19 +854,11 @@ sub order {
   &order_links;
 
   $form->{currency}     = $currency;
-  $form->{exchangerate} = "";
-  $form->{forex}        = "";
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                  $exchangerate =
-                    $form->check_exchangerate(
-                    \%myconfig, $form->{currency}, $form->{transdate}, $buysell
-                    )));
+  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
+  $form->{exchangerate} = $form->{forex} || '';
 
   for $i (1 .. $form->{rowcount}) {
-    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
-                                                     $form->{"${_}_${i}"})
+    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
         qw(ship qty sellprice listprice basefactor));
   }
@@ -917,15 +909,8 @@ sub quotation {
   &order_links;
 
   $form->{currency}     = $currency;
-  $form->{exchangerate} = "";
-  $form->{forex}        = "";
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                  $exchangerate =
-                    $form->check_exchangerate(
-                    \%myconfig, $form->{currency}, $form->{transdate}, $buysell
-                    )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, $buysell);
+  $form->{exchangerate} = $form->{forex} || '';
 
   for $i (1 .. $form->{rowcount}) {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,

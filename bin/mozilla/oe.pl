@@ -336,7 +336,7 @@ sub form_header {
   @values = map { $_ } @{ $form->{ALL_CURRENCIES} };
   %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
-  $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency} && $form->{exchangerate};
+  $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
   $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
                                                       '-values' => \@values, '-labels' => \%labels)) if scalar @values;
   push @custom_hiddens, "forex";
@@ -492,8 +492,8 @@ sub update {
   
   $buysell              = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');
-  $form->{exchangerate} = $exchangerate if 
-    $form->{forex} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
+  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $exchangerate = $form->{exchangerate} || 1;
 
@@ -1494,15 +1494,8 @@ sub invoice {
   &invoice_links;
 
   $form->{currency}     = $currency;
-  $form->{exchangerate} = "";
-  $form->{forex}        = "";
-  $form->{exchangerate} = $exchangerate
-    if (
-        $form->{forex} = (
-                    $exchangerate =
-                      $form->check_exchangerate(
-                      \%myconfig, $form->{currency}, $form->{invdate}, $buysell
-                      )));
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{invdate}, $buysell);
+  $form->{exchangerate} = $form->{forex} || '';
 
   $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
 

@@ -671,8 +671,8 @@ sub invoice {
 
   $form->{currency}     = $currency;
   $form->{exchangerate} = "";
-  $form->{forex}        = ($exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, $buysell));
-  $form->{exchangerate} = $exchangerate if ($form->{forex});
+  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, $buysell);
+  $form->{exchangerate} = $form->{forex} if ($form->{forex});
 
   prepare_invoice();
 

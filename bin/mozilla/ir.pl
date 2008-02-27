@@ -893,14 +893,14 @@ sub update {
 
   &check_name(vendor);
 
-  $form->{exchangerate} = $exchangerate if
-    $form->{forex} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
+  $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
+  $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   for $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
-    $form->{"exchangerate_$i"} = $exchangerate if
-      $form->{"forex_$i"} = $exchangerate = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+    $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
+    $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
   }
 
   $i            = $form->{rowcount};
