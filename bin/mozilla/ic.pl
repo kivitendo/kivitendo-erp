@@ -1467,7 +1467,8 @@ sub form_header {
   map { $form->{"is_$_"}  = ($form->{item} eq $_) } qw(part service assembly);
   map { $form->{$_}       =~ s/"/&quot;/g;        } qw(unit);
  
-  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS', 
+                   'partsgroup'    => 'all_partsgroup');
 
   $rows = 4 if $rows = $form->numtextrows($form->{notes}, 40) < 2;
   $form->{notes_rows} = $rows;

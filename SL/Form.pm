@@ -2328,6 +2328,9 @@ sub get_lists {
   if ($params{groups}) {
     $self->_get_groups($dbh, $params{groups});
   }
+  if ($params{partsgroup}) {
+    $self->get_partsgroup(\%main::myconfig, { all => 1, target => $params{partsgroup} });
+  }
 
   $main::lxdebug->leave_sub();
 }
@@ -3117,6 +3120,7 @@ sub get_partsgroup {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $p) = @_;
+  my $target = $p->{target} || 'all_partsgroup';
 
   my $dbh = $self->get_standard_dbh($myconfig);
 
@@ -3155,7 +3159,7 @@ sub get_partsgroup {
     @values = ($p->{language_code});
   }
 
-  $self->{all_partsgroup} = selectall_hashref_query($self, $dbh, $query, @values);
+  $self->{$target} = selectall_hashref_query($self, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
 }
