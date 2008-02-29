@@ -1,7 +1,7 @@
-
 if (!window.a_onload_functions)   var a_onload_functions   = new Object();
 if (!window.a_onsubmit_functions) var a_onsubmit_functions = new Object();
-
+if (!window.a_onfocus_functions)  var a_onfocus_functions  = new Object();
+window.focused_element = null;
 
 function setupPoints(numberformat, wrongFormat) {
   decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,/) ? 6 : 5));
@@ -139,29 +139,27 @@ function get_input_value(input_name) {
   return '';
 }
 
-window.focused_element = null;
-document.addEventListener("focus", function(event){ 
-  var e = event.target;
-  if (is_element_focussable(e)) window.focused_element = e;
-}, true);
+a_onfocus_functions["focus_listener"] = function (event) { 
+  if (focussable(event.target)) window.focused_element = event.target;
+}
 
-function get_cursor_position() {
+a_onsubmit_functions["get_cursor_position"] = function () {
   if (window.focused_element)
-  document.forms[0].cursor_fokus.value = window.focused_element.name;
+    document.forms[0].cursor_fokus.value = window.focused_element.name;
 }
 
 function set_cursor_position(n) {
   document.getElementsByName(n)[0].focus();
 }
 
-function restore_cursor_position() {
+a_onload_functions["restore_cursor_position"] = function () {
   var e = document.getElementsByName('cursor_fokus')[0];
   var f = document.getElementsByName(e.value)[0];
-  if (is_element_focussable(f)) set_cursor_position(f.name)
-   else set_cursor_to_first_element();
+  if (focussable(f)) set_cursor_position(f.name)
+    else set_cursor_to_first_element();
 }
 
-function is_element_focussable(e) {
+function focussable(e) {
   return e && e.type != 'hidden' && e.type != 'submit' && e.disabled != true;
 }
 
@@ -169,24 +167,21 @@ function set_cursor_to_first_element(){
   var df = document.forms;
   for (var f = 0; f < df.length; f++)
     for (var i = 0; i < df[f].length; i++)
-      if (is_element_focussable(df[f][i]))
+      if (focussable(df[f][i]))
         try { df[f][i].focus(); return } catch (er) { }
 }
-a_onload_functions["restore_cursor_position"] = restore_cursor_position;
-a_onsubmit_functions["get_cursor_position"]   = get_cursor_position;
+
+function add_event(e, type, fn, c) {
+  var ret = 0;
+  if (e.addEventListener) ret = e.addEventListener(type, fn, c)
+  else if (e.attachEvent) ret = e.attachEvent('on' + type, fn)
+  else e['on' + type] = fn;
+  return ret;
+} 
 
 function do_load_events() {
-  var oldl = window.onload;
-  window.onload = function() {
-    if (oldl) oldl();
-    if (window.a_onload_functions) 
-      for (var name in window.a_onload_functions) 
-        a_onload_functions[name]();
-  }
-  window.onsubmit = function() {
-    if (window.a_onsubmit_functions) 
-      for (var name in window.a_onsubmit_functions) 
-        a_onsubmit_functions[name]();
-  }
+  for (var name in window.a_onload_functions)   add_event(window, "load",   window.a_onload_functions[name],   false);
+  for (var name in window.a_onsubmit_functions) add_event(window, "submit", window.a_onsubmit_functions[name], false);
+  for (var name in window.a_onfocus_functions)  add_event(window, "focus",  window.a_onfocus_functions[name],  true);
 }
 do_load_events();
