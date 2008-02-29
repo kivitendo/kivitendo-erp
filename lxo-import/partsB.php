@@ -15,7 +15,6 @@ function ende($nr) {
 	exit(1);
 }
 
-print_r($_SESSION);
 if (!$_SESSION["db"]) {
 	$conffile="../config/authentication.pl";
 	if (!is_file($conffile)) {

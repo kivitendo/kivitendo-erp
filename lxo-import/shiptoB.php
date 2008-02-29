@@ -11,31 +11,11 @@ Email: p.reetz@linet-services.de
 Web: http://www.linet-services.de
 
 */
-if ($_GET["login"]) {
-	$login=$_GET["login"];
-} else {
-	$login=$_POST["login"];
-};
-
-require ("import_lib.php");
-$db=new myDB($login);
-$crm=checkCRM();
-
-if ($_POST["ok"]) {
-	$login=$_POST["login"];
-	$test=$_POST["test"];
-
-	
-	$shipto_fld = array_keys($shiptos);
-	$shipto=$shiptos;
-	
-	$nun=time();
-
 	function ende($nr) {
 		echo "Abbruch: $nr\n";
-		echo "Aufruf: shiptoB.php [login customer|vendor] [test] | [felder]\n";
 		exit($nr);
 	}
+
 	if ($_POST["ok"]=="Hilfe") {
 		echo "Importfelder:<br>";
 		echo "Feldname => Bedeutung<br>";
@@ -45,46 +25,67 @@ if ($_POST["ok"]) {
 		exit(0);
 	};
 
+if (!$_SESSION["db"]) {
+	$conffile="../config/authentication.pl";
+	if (!is_file($conffile)) {
+		ende(4);
+	}
+}
+require ("import_lib.php");
+
+if (!anmelden()) ende(5);
+
+/* get DB instance */
+$db=$_SESSION["db"]; //new myDB($login);
+
+
+$crm=checkCRM();
+
+if ($_POST["ok"] == "Import") {
+	$test=$_POST["test"];
+	
+	$shipto_fld = array_keys($shiptos);
+	$shipto=$shiptos;
+	
+	$nun=time();
+
+
 	clearstatcache ();
 
 	$trenner=($_POST["trenner"])?$_POST["trenner"]:",";
 
-if (!empty($_FILES["Datei"]["name"])) { 
-	$file=$_POST["ziel"];
-	if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file."_shipto.csv")) {
+	if (!empty($_FILES["Datei"]["name"])) { 
+		$file=$_POST["ziel"];
+		if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file."_shipto.csv")) {
+			$file=false;
+			echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
+		} 
+	} else if (is_file($_POST["ziel"]."_shipto.csv")) {
+		$file=$_POST["ziel"];
+	} else {
 		$file=false;
-		echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
 	} 
-} else if (is_file($_POST["ziel"]."_shipto.csv")) {
-	$file=$_POST["ziel"];
-} else {
-	$file=false;
-} 
+	if (!$file) ende (2);
 
-if (!$file) ende (2);
+	if (!file_exists($file."_shipto.csv")) ende(5);
 
-if (!file_exists($file."_shipto.csv")) ende(5);
+	$employee=chkUsr($_SESSION["employee"]);
+	if (!$employee) ende(4);
 
-if (!file_exists("../users/$login.conf")) ende(3);
+	if (!$db->chkcol($file)) ende(6);
 
+	$f=fopen($file."_shipto.csv","r");
+	$zeile=fgetcsv($f,1000,$trenner);
+	$first=true;
 
-$employee=chkUsr($login);
-if (!$employee) ende(4);
+	foreach ($zeile as $fld) {
+		$fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
+		$in_fld[]=$fld;
+	}
+	$j=0;
+	$prenumber=$_POST["prenumber"];
+	$zeile=fgetcsv($f,1000,$trenner);
 
-if (!$db->chkcol($file)) ende(6);
-
-$f=fopen($file."_shipto.csv","r");
-$zeile=fgets($f,1000);
-$infld=split($trenner,strtolower($zeile));
-$first=true;
-
-
-foreach ($infld as $fld) {
-	$fld = trim(strtr($fld,array("\""=>"","'"=>"")));
-	$in_fld[]=$fld;
-}
-$j=0;
-$zeile=fgetcsv($f,1000,$trenner);
 while (!feof($f)){
 	$i=-1;
 	$firma="";
@@ -95,33 +96,39 @@ while (!feof($f)){
 	$vals=" values (";
 	foreach($zeile as $data) {
 		$i++;
-		if ($in_fld[$i]=="firma") { 
-			$firma=addslashes(trim($data)); 
-			continue;
-		};
 		if (!in_array($in_fld[$i],$shipto_fld)) {
 			continue;
 		}
 		$data=addslashes(trim($data));
 		if ($in_fld[$i]=="trans_id" && $data) {
 			$data=chkKdId($data);
-			if ($data) $firma="";
 			if (!$id) $id = $data;
 			continue;
-		} 
+		} else  if ($in_fld[$i]=="trans_id") {
+			continue;
+		}
 		if ($in_fld[$i]==$file."number" && $data) {
 			$tmp=getFirma($data,$file);
-			if ($tmp) $firma="";
 			if ($id<>$tmp) $id=$tmp;
 			continue;
-		} 
+		} else if ($in_fld[$i]==$file."number") {
+			continue;
+		}
+		if ($in_fld[$i]=="firma") {
+			if ($id) continue;
+			$data=suchFirma($file,$firma);
+			if ($data) {
+				$id=$data["cp_cv_id"];
+			}
+			continue;
+		}
 		$keys.=$in_fld[$i].",";
 		
 		if ($data==false or empty($data) or !$data) {
                         $vals.="null,";
                 } else {
                 	if (in_array($in_fld[$i],array("cp_fax","cp_phone1","cp_phone2"))) {
-				$data="0".$data;
+				$data=$prenumber.$data;
 			} else if ($in_fld[$i]=="cp_country" && $data) {
 				$data=mkland($data);
 			}
@@ -135,33 +142,28 @@ while (!feof($f)){
 // 		$zeile=fgetcsv($f,1000,$trenner);
 // 		continue;
 // 	}
-	if ($firma) {
-		$data=suchFirma($file,$firma);
-		if ($data) {
-			$vals.=$data["trans_id"].",";
-			$keys.="trans_id,";
-		}
-	} else if ($id) {
-			$vals.=$id.",";
-			$keys.="trans_id,";
-	}
-	if ($keys<>"(") {
+	if ($keys<>"(" && $id) {
+		$vals.=$id.",'CT'";
+		$keys.="trans_id,module";
 		if ($test) {
 			if ($first) {
 				echo "<table border='1'>\n";
 				echo "<tr><th>".str_replace(",","</th><th>",substr($keys,1,-1))."</th></tr>\n";
 				$first=false;
 			};
-			$vals=str_replace("',","'</td><td>",substr($vals,9,-1));
+			$vals=str_replace("',","'</td><td>",$vals);
 			echo "<tr><td>".str_replace("null,","null</td><td>",$vals)."</td></tr>\n";
 			flush();
 		} else {
-			$sql.=substr($keys,0,-1).")";
-			$sql.=substr($vals,0,-1).")";
+			$sql.=$keys.")";
+			$sql.=$vals.")";
 			$rc=$db->query($sql);
 			if (!$rc) echo "Fehler: ".$sql."\n";
 		}
 		$j++;
+	} else {
+		echo $keys."<br>";
+		echo $vals."<br>";
 	};
 	$zeile=fgetcsv($f,1000,$trenner);
 }
@@ -171,11 +173,11 @@ echo $j." $file importiert.\n";} else {
 <p class="listtop">Lieferanschriftimport f&uuml;r die ERP</p>
 <form name="import" method="post" enctype="multipart/form-data" action="shiptoB.php">
 <input type="hidden" name="MAX_FILE_SIZE" value="300000">
-<input type="hidden" name="login" value="<?= $login ?>">
 <table>
 <tr><td></td><td><input type="submit" name="ok" value="Hilfe"></td></tr>
 <tr><td>Zieltabelle</td><td><input type="radio" name="ziel" value="customer" checked>customer <input type="radio" name="ziel" value="vendor">vendor</td></tr>
 <tr><td>Trennzeichen</td><td><input type="text" size="2" maxlength="1" name="trenner" value=";"></td></tr>
+<tr><td>Telefonvorwahl</td><td><input type="text" size="4" maxlength="10" name="prenumber" value=""></td></tr>
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
