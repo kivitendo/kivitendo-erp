@@ -123,9 +123,7 @@ $contactscrm = array(
 	"cp_privatemail" => "private eMail",
 	"cp_notes" => "Bemerkungen",
 	"cp_stichwort1" => "Stichwort(e)",
-	"katalog" => "Katalog",
-	"inhaber" => "Inhaber",
-	"contact_id" => "Kontakt ID"
+	"cp_id" => "Kontakt ID"
 	);
 
 $contacts = array(
@@ -146,9 +144,7 @@ $contacts = array(
 	"cp_privatphone" => "Privattelefon",
 	"cp_privatemail" => "private eMail",
 	"cp_homepage" => "Homepage",
-	"katalog" => "Katalog",
-	"inhaber" => "Inhaber",
-	"contact_id" => "Kontakt ID"
+	"cp_id" => "Kontakt ID"
 	);
 
 function checkCRM() {
@@ -205,7 +201,16 @@ global $db,$file,$test;
 		return $data;
 	}
 }
-
+function chkContact($id) {
+global $db;
+	$sql="select * from contact where cp_id = $id";
+	$rs=$db->getAll($sql);
+	if ($rs[0]["cp_id"]==$id) {
+		return true;
+	} else {
+		return false;
+	}
+}
 function getKdRefId($data) {
 // gibt es die Nummer schon?
 global $db,$file,$test;

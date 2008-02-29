@@ -12,24 +12,16 @@ Web: http://lx-system.de
 
 */
 
-if ($_GET["login"]) {
-	$login=$_GET["login"];
-} else {
-	$login=$_POST["login"];
-};
-if ($_POST["ok"]) {
-
-$nun=time();
-
 require ("import_lib.php");
-$db=new myDB($login);
-$crm=checkCRM();
 
-function ende($nr) {
-	echo "Abbruch: $nr<br>";
-	echo "Fehlende oder falsche Daten.";
-	exit(1);
+if (!$_SESSION["db"]) {
+	$conffile="../config/authentication.pl";
+	if (!is_file($conffile)) {
+		ende(4);
+	}
 }
+
+if (!anmelden()) ende(5);
 
 if ($_POST["ok"]=="Hilfe") {
 	echo "Importfelder:<br>";
@@ -39,6 +31,23 @@ if ($_POST["ok"]=="Hilfe") {
 	}
 	exit(0);
 };
+
+if ($_POST["ok"]) {
+
+$nun=time();
+
+
+/* get DB instance */
+$db=$_SESSION["db"]; //new myDB($login);
+
+$crm=checkCRM();
+
+function ende($nr) {
+	echo "Abbruch: $nr<br>";
+	echo "Fehlende oder falsche Daten.";
+	exit(1);
+}
+
 clearstatcache ();
 //print_r($_FILES);
 $test=$_POST["test"];
@@ -57,16 +66,13 @@ if (!empty($_FILES["Datei"]["name"])) {
 if (!$file) ende (2);
 
 $trenner=($_POST["trenner"])?$_POST["trenner"]:",";
-//echo "../users/$login.conf";
-if (!file_exists("../users/$login.conf")) ende(3);
 
 if (!file_exists("$file.csv")) ende(5);
 
-$db=new myDB($login);
 
 if (!$db->chkcol($file)) ende(6);
 
-$employee=chkUsr($login);
+$employee=chkUsr($_SESSION["employee"]);
 if (!$employee) ende(4);
 
 $kunde_fld = array_keys($address);
@@ -184,6 +190,7 @@ echo $j." $file importiert.\n";
 <p class="listtop">Adressimport f&uuml;r die ERP<p>
 <br>
 <form name="import" method="post" enctype="multipart/form-data" action="addressB.php">
+<!--form name="import" method="post"  action="addressB.php"-->
 <input type="hidden" name="MAX_FILE_SIZE" value="2000000">
 <input type="hidden" name="login" value="<?= $login ?>">
 <table>
