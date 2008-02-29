@@ -9,7 +9,7 @@ Web: http://lx-system.de
 
 */
 
-require_once "DB.php";
+require_once "db.php";
 
 $address = array(
 	"name" => "Firmenname",
@@ -69,6 +69,7 @@ $parts = array(
 	"weight" => "Gewicht in Benutzerdefinition",
 	"onhand" => "Lagerbestand",
 	"notes" => "Beschreibung",
+	"notes1" => "Beschreibung",
 	//"makemodel" => "Hersteller",
 	//"model" => "Modellbezeichnung",
 	"bin" => "Lagerort",
@@ -89,6 +90,9 @@ $parts = array(
 	"assembly" => "Stückliste (Y/N); wird noch nicht unterstützt",
 	"partsgroup" => "Warengruppenbezeichnung",
 	"partsgroup1" => "2.Warengruppenbezeichnung",
+	"partsgroup2" => "3.Warengruppenbezeichnung",
+	"partsgroup3" => "4.Warengruppenbezeichnung",
+	"partsgroup4" => "5.Warengruppenbezeichnung",
 	//"income_accno_0" => "?Nummer? für Erlöse Inland",
 	//"income_accno_1" => "?Nummer? für Erlöse EG",
 	//"income_accno_3" => "?Nummer? für Erlöse Ausland",
@@ -159,7 +163,7 @@ global $db;
 }
 
 function chkUsr($usr) {
-// ist es ein gÃ¼ltiger ERP-Benutzer? Er muÃŸ mindestens 1 x angemeldet gewesen sein.
+// ist es ein gültiger ERP-Benutzer? Er muß mindestens 1 x angemeldet gewesen sein.
 global $db;
 	$sql="select * from employee where login = '$usr'";
 	$rs=$db->getAll($sql);
@@ -280,133 +284,91 @@ function getAllBG($db) {
 	$rs=$db->getAll($sql);
 	return $rs;
 }
-
-class myDB extends DB {
-// Datenbankklasse
-
- var $rc = false;
- var $showErr = false;
- var $db = false;
- var $debug = false;
- var $logsql = false;
- var $errfile = false;
- var $logfile = false;
-
-
-/****************************************************
-* uudecode
-* in: string
-* out: string
-* dekodiert Perl-UU-kodierte Passwort-Strings
-* http://de3.php.net/base64_decode (bug #171)
-*****************************************************/
-	function uudecode($encode) {
-	  $encode=stripslashes($encode);
-	  $b64chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-	  $encode = preg_replace("/^./m","",$encode);
-	  $encode = preg_replace("/\n/m","",$encode);
-	  for($i=0; $i<strlen($encode); $i++) {
-	    if ($encode[$i] == '')
-	      $encode[$i] = ' ';
-	    $encode[$i] = $b64chars[ord($encode[$i])-32];
-	  }
-   
-	  while(strlen($encode) % 4)
-	    $encode .= "=";
-
-	  return base64_decode($encode);
-	}
-
-	function dbFehler($sql,$err) {
-		if ($this->showErr)
-			echo "$sql : $err\n";
-	}
-
-	function showDebug($sql) {	
-		echo $sql."\n";
-		if ($this->debug==2) {
-			print_r($this->rc);
-		};
-	}
-
-	function logSql($sql) {
-		if (!$this->logfile)  $this->logfile=fopen("import.sql","a");
-		fputs($this->logfile,$sql."\n");
-	}
-	function myDB($usr) {
-		// Datenbankparameter des ERP-Users benutzen.
-		$tmp = file_get_contents("../users/$usr.conf");
-		preg_match("/dbname => '(.+)'/",$tmp,$hits);
-		$dbname=$hits[1];
-		preg_match("/dbpasswd => '(.+)'/",$tmp,$hits);
-		if ($hits[1]) {
-			$dbpasswd=$this->uudecode($hits[1]);
-		} else {
-        		$dbpasswd="";
-		};
-		preg_match("/dbuser => '(.+)'/",$tmp,$hits);
-		$dbuser=$hits[1];
-		preg_match("/dbhost => '(.+)'/",$tmp,$hits);
-		$dbhost=$hits[1];
-		if (!$dbhost) $dbhost="localhost";
-		if ($dbpasswd) {
-			$dns=$dbuser.":".$dbpasswd."@".$dbhost."/".$dbname;
-		} else {
-			$dns=$dbuser."@".$dbhost."/".$dbname;
-		};
-		$dns="pgsql://".$dns;
-		$this->db=DB::connect($dns);
-		if (!$this->db) DB::dbFehler("oh oh oh",$this->db->getDebugInfo());
-		if (DB::isError($this->db)) {
-			$this->dbFehler("Connect",$this->db->getDebugInfo());
-			die ($this->db->getDebugInfo());
-		}
-		return $this->db;
-	}
-
-	function query($sql) {
-		$this->rc=@$this->db->query($sql);
-		if ($this->logsql) $this->logSql($sql);
-		if ($this->debug) $this->showDebug($sql);
-		if(DB::isError($this->rc)) {
-			$this->dbFehler($sql,$this->rc->getMessage());
-			return false;
-		} else {
-			return $this->rc;
-		}
-	}
-	function getAll($sql) {
-		$this->rc=@$this->db->getAll($sql,DB_FETCHMODE_ASSOC);
-		if ($this->logsql) $this->logSql($sql);
-		if ($this->debug) $this->showDebug($sql);
-		if(DB::isError($this->rc)) {
-			$this->dbFehler($sql,$this->rc->getMessage());
-			return false;
-		} else {
-			return $this->rc;
-		}
-	}	
-
-	function lock() {
-		$this->query("BEGIN");
-	}
-	function commit() {
-		$this->query("COMMIT");
-	}
-	function rollback() {
-		$this->query("ROLLBACK");
-	}
-	function chkcol($tbl) {
-	// gibt es die Spalte import schon?
-		$rc=$this->db->query("select import from $tbl limit 1");
-		if(DB::isError($rc)) {
-			$rc=$this->db->query("alter table $tbl add column import int4");
-			if(DB::isError($rc)) { return false; }
-			else { return true; }
-		
-		} else { return true; };
-	}
+function anmelden() {
+        ini_set("gc_maxlifetime","3600");
+        $tmp = @file_get_contents("../config/authentication.pl");
+        preg_match("/'db'[ ]*=> '(.+)'/",$tmp,$hits);
+        $dbname=$hits[1];
+        preg_match("/'password'[ ]*=> '(.+)'/",$tmp,$hits);
+        $dbpasswd=$hits[1];
+        preg_match("/'user'[ ]*=> '(.+)'/",$tmp,$hits);
+        $dbuser=$hits[1];
+        preg_match("/'host'[ ]*=> '(.+)'/",$tmp,$hits);
+        $dbhost=($hits[1])?$hits[1]:"localhost";
+        preg_match("/'port'[ ]*=> '(.+)'/",$tmp,$hits);
+        $dbport=($hits[1])?$hits[1]:"5432";
+        preg_match("/^[ ]*\$self->\{cookie_name\}[ ]*=[ ]*'(.+)'/",$tmp,$hits);
+        $cookiename=$hits[1];
+        if (!$cookiename) $cookiename='lx_office_erp_session_id';
+        $cookie=$_COOKIE[$cookiename];
+        if (!$cookie) header("location: ups.html");
+        $auth=authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie);
+        if (!$auth) { return false; };
+        $_SESSION["sessid"]=$cookie;
+        $_SESSION["cookie"]=$cookiename;
+        $_SESSION["employee"]=$auth["login"];
+        $_SESSION["mansel"]=$auth["dbname"];
+        $_SESSION["dbname"]=$auth["dbname"];
+        $_SESSION["dbhost"]=(!$auth["dbhost"])?"localhost":$auth["dbhost"];
+        $_SESSION["dbport"]=(!$auth["dbport"])?"5432":$auth["dbport"];
+        $_SESSION["dbuser"]=$auth["dbuser"];
+        $_SESSION["dbpasswd"]=$auth["dbpasswd"];
+        $_SESSION["db"]=new myDB($_SESSION["dbhost"],$_SESSION["dbuser"],$_SESSION["dbpasswd"],$_SESSION["dbname"],$_SESSION["dbport"],$showErr);
+        $_SESSION["authcookie"]=$authcookie;
+        $sql="select * from employee where login='".$auth["login"]."'";
+        $rs=$_SESSION["db"]->getAll($sql);
+        if(!$rs) {
+                return false;
+        } else {
+                if ($rs) {
+                        $tmp=$rs[0];
+                        $_SESSION["termbegin"]=(($tmp["termbegin"]>=0)?$tmp["termbegin"]:8);
+                        $_SESSION["termend"]=($tmp["termend"])?$tmp["termend"]:19;
+                        $_SESSION["Pre"]=$tmp["pre"];
+                        $_SESSION["interv"]=($tmp["interv"]>0)?$tmp["interv"]:60;
+                        $_SESSION["loginCRM"]=$tmp["id"];
+                        $_SESSION["lang"]=$tmp["countrycode"]; //"de";
+                        $_SESSION["kdview"]=$tmp["kdview"];
+                        $sql="select * from defaults";
+                        $rs=$_SESSION["db"]->getAll($sql);
+                        $_SESSION["ERPver"]=$rs[0]["version"];
+                        return true;
+                } else {
+                        return false;
+                }
+        }
 }
 
-?>
+function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie) {
+        $db=new myDB($dbhost,$dbuser,$dbpasswd,$dbname,$dbport,true);
+        $sql="select sc.session_id,u.id from auth.session_content sc left join auth.user u on ";
+        $sql.="u.login=sc.sess_value left join auth.session s on s.id=sc.session_id ";
+        $sql.="where session_id = '$cookie' and sc.sess_key='login'";// order by s.mtime desc";
+        $rs=$db->getAll($sql,"authuser_1");
+        if (!$rs) return false;
+        $stmp="";
+        if (count($rs)>1) {
+                header("location:../login.pl?action=logout");
+                /*foreach($rs as $row) {
+                        $stmp.=$row["session_id"].",";
+                }
+                $sql1="delete from session where id in (".substr($stmp,-1).")";
+                $sql2="delete from session_content where session_id in (".substr($stmp,-1).")";
+                $db->query($sql1,"authuser_A");
+                $db->query($sql2,"authuser_B");
+                $sql3="insert into session ";*/
+        }
+        $sql="select * from auth.user_config where user_id=".$rs[0]["id"];
+        $rs1=$db->getAll($sql,"authuser_2");
+        $auth=array();
+        $keys=array("login","dbname","dbpasswd","dbhost","dbport","dbuser");
+        foreach ($rs1 as $row) {
+                if (in_array($row["cfg_key"],$keys)) {
+                        $auth[$row["cfg_key"]]=$row["cfg_value"];
+                }
+        }
+        $sql="update auth.session set mtime = '".date("Y-M-d H:i:s.100001")."' where id = '".$rs[0]["session_id"]."'";
+        $db->query($sql,"authuser_3");
+        return $auth;
+}
+

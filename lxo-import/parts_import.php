@@ -23,7 +23,6 @@ function getPartsgroupId($db, $value, $add) {
 	return $rs[0]["id"];
 }
 
-//Muß noch eingebunden werden
 function getMakemodel($db,$hersteller,$model,$partsid,$add=true) {
 	$sql="select * from makemodel where make like '$hersteller' and model like = '$model'";
 	$rs=$db->getAll($sql);
@@ -43,7 +42,6 @@ function getAccnoId($db, $accno) {
 	return $rs[0]["id"];
 }
 
-//Auf Artikelnummer testen, bzw. neue Nummer erzeugen
 function chkPartNumber($db,$number,$check) {
 	if ($number<>"") {
 		$sql = "select * from parts where partnumber = '$number'";
@@ -68,9 +66,7 @@ function chkPartNumber($db,$number,$check) {
 	}
 	return $number;
 }
-
-//Artikelnummer testen und wenn vorhanden Preis ändern
-function chkPartNumberUpd($db,$sellprice,$partnumber,$check){
+function chkPartNumberUpd($db,$sellprice,$partnumber,$descript,$note,$check,$shop='n'){
 	if ($partnumber=="") {
 		$nummer=chkPartNumber($db,$partnumber,$check);
 		if ($nummer=="") { return -99; }
@@ -79,8 +75,9 @@ function chkPartNumberUpd($db,$sellprice,$partnumber,$check){
 	$sql = "select * from parts where partnumber = '$partnumber'";
 	$rs=$db->getAll($sql);
 	if ($rs[0]["id"]>0) {
-		if ($check) return -1;
-		$sql="update parts set sellprice = $sellprice where partnumber = '$partnumber'";
+		$sql="update parts set sellprice = $sellprice, shop='$shop'";
+		if ($descript) $sql.=",description='$descript',notes='$note'"; 
+		$sql.=" where partnumber = '$partnumber'";
 		$rc=$db->query($sql);
 		if ($rc) return -1;
 		return -99;
@@ -136,6 +133,7 @@ function getStdUnit($db,$type) {
 	return $rs[0]["name"];
 }
 
+
 function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $insert, $show,$maske) {
 
 	$pgshow=false;
@@ -144,6 +142,9 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 	$precision=$maske["precision"];
 	$quotation=$maske["quotation"];
 	$quottype=$maske["quottype"];
+	$shop=$maske["shop"];
+	$wgtrenner=$maske["wgtrenner"];
+	$UpdText=($maske["TextUpd"]=="1")?true:false;
 
 	$Update=($maske["update"]=="U")?true:false;
 	/* field description */
@@ -163,8 +164,10 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 		$fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
 		$in_fld[]=$fld;
 		if (in_array(trim($fld),$parts_fld)) {
-			if ($fld=="partsgroup" || $fld=="partsgroup1" ) {
+			if (substr($fld,0,10)=="partsgroup") {
 				$pgshow=true;
+			} else if ($fld=="notes" || $fld=="notes1" ) {
+				$note2show=true;
 			} else {
 				show( $show, "<td>$fld</td>\n");
 			}
@@ -177,23 +180,39 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 		show( $show, "<td>unit</td>\n");
 	};
 	if ($pgshow) show( $show, "<td>partsgroup</td>\n");
+	if ($note2show) show( $show, "<td>notes</td>\n");
 	$posprice=0;
 	$posnumber=0;
+	$posdescript=0;
+	$posnotes=0;
+	$posnotes1=0;
 	$j=0;
 	foreach ($infld as $value) { 
 		if ($infld[$j]=="sellprice") $posprice=$j;  
 		if ($infld[$j]=="partnumber") $posnumber=$j;
+		if ($infld[$j]=="description") $posdescript=$j;
+		if ($infld[$j]=="notes") $posnotes=$j;
+		if ($infld[$j]=="notes1") $posnotes1=$j;
 		$j++; 
 	}
 	$m=0;		/* line */
 	$errors=0;	/* number of errors detected */
 	$income_accno = "";
 	$expense_accno = "";
+
+	/*if ($insert) {
+		$sql="update parts set shop = 'n' where partnumber like '______'";
+		$rc=$db->query($sql);
+		//echo $sql; print_r($rc); echo "<br>";
+		if (!$rc) {
+			echo "Fehler: Artikel nicht aus dem Shop genommen";
+		}
+	};*/
 	if ($quottype=="P") $quotation=($quotation+100)/100;
-	while ( ($zeile=fgetcsv($f,15000,$trenner)) != FALSE) {
+	while ( ($zeile=fgetcsv($f,120000,$trenner)) != FALSE) {
 		$i=0;	/* column */
 	        $m++;	/* increase line */
-
+		
 		if ($Update) {
 			$sellprice=$zeile[$posprice];
 			$partnumber=$zeile[$posnumber];
@@ -203,7 +222,20 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 				else { $sellprice = $sellprice * $quotation; }
 			};
 			if ($precision>=0) $sellprice = round($sellprice,$precision);
-			$rc=chkPartNumberUpd($db,$sellprice,$partnumber,!$insert);
+			if ($UpdText) {
+				$description=$zeile[$posdescript];
+				$note=$zeile[$posnotes];
+				$note1=$zeile[$posnotes1];
+				$note=mb_convert_encoding($note,"ISO-8859-15","ISO-8859-15");
+                        	$note=preg_replace('/""[^ ]/','"',$note);
+                        	$note=" \n".addslashes($note);
+				$note1=mb_convert_encoding($note1,"ISO-8859-15","ISO-8859-15");
+                        	$note1=preg_replace('/""[^ ]/','"',$note1);
+                        	$note.=" \n".addslashes($note1);
+				$rc=chkPartNumberUpd($db,$sellprice,$partnumber,$description,$note,$check);
+			} else {
+				$rc=chkPartNumberUpd($db,$sellprice,$partnumber,false,false,$check);
+			}
 			if ($rc==-1) {
 				show($show,"<tr><td>Update </td><td>$partnumber:$sellprice</td></tr>\n");
 				continue;
@@ -218,14 +250,16 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 		$sql="insert into $file ";
 		$keys="(";
 		$vals=" values (";
-
 		show( $show, "<tr><td>$m</td>\n");
 
 		/* for each column */
 		$dienstleistung=false;
 		$artikel=-1;
 		$partNr=false;
-		$pg_name_val="";
+		$pg_name_val=array();
+		$note_val="";
+		$model="";
+		$hersteller="";
 		foreach($zeile as $data) {
 			/* check if column will be imported */
 			if (!in_array(trim($in_fld[$i]),$parts_fld)) {
@@ -237,20 +271,13 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 			/* add key and data */
 
 			/* special case partsgroup1 */
-			if ($key == "partsgroup1") {
-				if ($pg_name_val<>"") {
-					if ($data<>"")	$pg_name_val.="!".$data;
-				} else {
-					$pg_name_val=$data;
-				}
+			if (substr($key,0,10) == "partsgroup") {
+				if (strlen($key)==10) { $pgnr=0; } 
+				else { $pgnr=substr($key,-1); }
+				$pg_name_val[$pgnr]=$data;
 				$i++;
 				continue;
-			} else if ($key == "partsgroup") {
-			        /* special case partsgroup */
-				$pg_name_val=$data;
-				$i++;
-				continue;
-			} else if ($key == "lastcost" || 
+			} else 	if ($key == "lastcost" || 
 				   $key == "sellprice") {
 				
 				/* convert 0,0 numeric into 0.0 */
@@ -275,11 +302,32 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 					//show( $show, "<td>$partnumber</td>\n");
 				}
 			} else if ($key == "description") {
-				$data=mb_convert_encoding($data,"ISO-8859-15","auto");
+				$data=mb_convert_encoding($data,"ISO-8859-15","ISO-8859-15");
+				$data=preg_replace('/""[^ ]/','"',$data);
 				$data=addslashes($data);
 			} else if ($key == "notes") {
-				$data=mb_convert_encoding($data,"ISO-8859-15","auto");
-				$data=addslashes($data);
+				$data=mb_convert_encoding($data,"ISO-8859-15","ISO-8859-15");
+				$data=preg_replace('/""[^ ]/','"',$data);
+				$notesval=addslashes($data);
+				$i++;
+				continue;
+			} else if ($key == "notes1") {
+				$data=mb_convert_encoding($data,"ISO-8859-15","ISO-8859-15");
+				$data=preg_replace('/""[^ ]/','"',$data);
+				$notesval.=" \n".addslashes($data);
+				$i++;
+				continue;
+				//$key="notes";
+			/*} else if ($key == "makemodel") {
+				$data=mb_convert_encoding($data,"ISO-8859-15","ISO-8859-15");
+				$hersteller=addslashes($data);
+				$i++;
+				continue;
+			} else if ($key == "model") {
+				$data=mb_convert_encoding($data,"ISO-8859-15","ISO-8859-15");
+				$model=addslashes($data);
+				$i++;
+				continue;*/
 			} else if ($key == "unit") {
 				if ($data=="") {
 					if ($maske["ware"]=="W") { $data=$stdunitW; }
@@ -293,6 +341,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 				else if ($data == "Stunde")
 					$data = "Std";
 				/* check if unit exists */
+				//echo "!$data!";
 				if (!existUnit($db, $data)) {
 					echo "Error in line $m: ";
 					echo "Einheit <b>$data</b> existiert nicht ";
@@ -314,12 +363,12 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 				$i++;
 				show( $show, "<td>$data</td>\n");
 				continue;
-			}
+			} 
 			if ($data==false or empty($data) or !$data) {
 				show( $show, "<td>NULL</td>\n");
 				$i++;
 				continue;
-			}
+			}	
 			/* convert JA to Yes */
 			if ($data === "J" || $data === "j")  $data = "Y";
 			$vals.="'".$data."',";
@@ -335,14 +384,33 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 			show( $show,"<td>$einh</td>\n");
 		}
 		/* special case partsgroup */
+		//Mehrere Warengruppennamen werden mit einem Trennzeichen zu einen Namen zusammengefürt.
 		if ($pgshow) {
-			if ($pg_name_val) {
+			foreach($pg_name_val as $pg) {
+				if ($pg>"") $pgname.=$pg.$wgtrenner;
+			};
+			unset($pg_name_val);
+			if ($pgname and $pgname <> "!") {
+				$pgname=substr($pgname,0,-1);
 				/* get ID of partsgroup or add new 
 				 * partsgroup_id */
-				$ID = getPartsgroupId($db, $pg_name_val, $insert);
+				$ID = getPartsgroupId($db, $pgname, $insert);
 				$keys.= "partsgroup_id,";
 				$vals.="'".$ID."',";
-				show( $show, "<td>".htmlentities($pg_name_val).":$ID</td>\n");
+				show( $show, "<td>".htmlentities($pgname).":$ID</td>\n");
+			} else {
+				show( $show,"<td>NULL</td>\n");
+			}
+		}
+		if ($note2show) {
+			if ($notesval) {
+				$keys.="notes,";
+				$vals.="'$notesval',";
+				if (strlen($notesval)>255) {
+					show( $show, "<td>".substr($notesval,0,25)." . . . ".htmlentities(substr($notesval,-25))."</td>\n");
+				} else {
+					show( $show, "<td>$notesval</td>\n");
+				}
 			} else {
 				show( $show,"<td>NULL</td>\n");
 			}
@@ -398,9 +466,16 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 				show( $show, "<td>$partnumber</td>\n");
 			}
 		} 
-		$sql.=$keys."import)";
-		$sql.=$vals.time().")";		
-		//show( $show, "<td> $sql </td>\n");
+		//Automatisch Bilder mit einbinden 
+		//Die Bilder müssen manuell hier (bilder/) her kopiert werden.
+		//Names des Bildes: "bilder/" + Artikelnummer in Grossbuchstaben + ".jpg"
+		//$bild="bilder/".strtoupper($bild).".jpg";
+		//$sql.=$keys."image,shop,weight,import)";
+		//$sql.="$vals'$bild','$shop',3,".time().")";	
+
+		//ohne Bilder
+		$sql.=$keys."shop,weight,import)";
+		$sql.="$vals'$shop',3,".time().")";	
 
 		if ($insert) {
 			show( $show, "<td>");
@@ -412,7 +487,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 			}
 			show( $show, "</td>\n");
 		}
-
+		$pgname="";
 		show( $show, "</tr>\n");
 	}
 
