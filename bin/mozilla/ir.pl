@@ -418,13 +418,13 @@ sub form_header {
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
 <body onLoad="$onload">
-
+<script type="text/javascript" src="js/common.js"></script>
 <form method=post action=$form->{script}>
 |;
 
   $form->hide_form(qw(id title vc type level creditlimit creditremaining closedto locked shippted storno storno_id
                       max_dunning_level dunning_amount vendor_id oldvendor selectvendor taxaccounts
-                      fxgain_accno fxloss_accno taxpart taxservice),
+                      fxgain_accno fxloss_accno taxpart taxservice cursor_fokus),
                       map { $_.'_rate', $_.'_description' } split / /, $form->{taxaccounts} );
 
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};

@@ -72,7 +72,7 @@ sub form_footer {
   } @items);
 
   print(
-    qq|</form>
+    qq|<input type="hidden" name="cursor_field" value='$form->{cursor_field}'></form>
 </body>
 </html>
 |);

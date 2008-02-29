@@ -1,4 +1,8 @@
 
+if (!window.a_onload_functions)   var a_onload_functions   = new Object();
+if (!window.a_onsubmit_functions) var a_onsubmit_functions = new Object();
+
+
 function setupPoints(numberformat, wrongFormat) {
   decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,/) ? 6 : 5));
   if (numberformat.substring(1, 2).match(/\.|\,/)) {
@@ -50,25 +54,6 @@ function set_longdescription_window(input_name) {
   }
 
 function check_right_number_format(input_name) {
-//   if(thpoint) {
-//     if(thpoint == ','){
-//       var thnumbers = input_name.value.split(',');  
-//       thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(".") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(".") : thnumbers[thnumbers.length-1].length), 0);
-//     }
-//     else{
-//       var thnumbers = input_name.value.split('.');  
-//       thnumbers[thnumbers.length-1] = thnumbers[thnumbers.length-1].substring((thnumbers[thnumbers.length-1].lastIndexOf(",") !== -1 ? thnumbers[thnumbers.length-1].lastIndexOf(",") : thnumbers[thnumbers.length-1].length), 0);
-//     }
-//         
-//     for(var i = 0; i < thnumbers.length; i++) {
-//      if(i == 0 && thnumbers[i].length > 3) {
-//       return show_alert_and_focus(input_name, wrongNumberFormat);
-//      }
-//      if(i > 0 && thnumbers[i].length != 3) {
-//        return show_alert_and_focus(input_name, wrongNumberFormat);
-//      }
-//    }
-//   }
   if(decpoint == thpoint) {
     return show_alert_and_focus(input_name, wrongNumberFormat);
   }
@@ -153,3 +138,55 @@ function get_input_value(input_name) {
     return the_input[0].value;
   return '';
 }
+
+window.focused_element = null;
+document.addEventListener("focus", function(event){ 
+  var e = event.target;
+  if (is_element_focussable(e)) window.focused_element = e;
+}, true);
+
+function get_cursor_position() {
+  if (window.focused_element)
+  document.forms[0].cursor_fokus.value = window.focused_element.name;
+}
+
+function set_cursor_position(n) {
+  document.getElementsByName(n)[0].focus();
+}
+
+function restore_cursor_position() {
+  var e = document.getElementsByName('cursor_fokus')[0];
+  var f = document.getElementsByName(e.value)[0];
+  if (is_element_focussable(f)) set_cursor_position(f.name)
+   else set_cursor_to_first_element();
+}
+
+function is_element_focussable(e) {
+  return e && e.type != 'hidden' && e.type != 'submit' && e.disabled != true;
+}
+
+function set_cursor_to_first_element(){
+  var df = document.forms;
+  for (var f = 0; f < df.length; f++)
+    for (var i = 0; i < df[f].length; i++)
+      if (is_element_focussable(df[f][i]))
+        try { df[f][i].focus(); return } catch (er) { }
+}
+a_onload_functions["restore_cursor_position"] = restore_cursor_position;
+a_onsubmit_functions["get_cursor_position"]   = get_cursor_position;
+
+function do_load_events() {
+  var oldl = window.onload;
+  window.onload = function() {
+    if (oldl) oldl();
+    if (window.a_onload_functions) 
+      for (var name in window.a_onload_functions) 
+        a_onload_functions[name]();
+  }
+  window.onsubmit = function() {
+    if (window.a_onsubmit_functions) 
+      for (var name in window.a_onsubmit_functions) 
+        a_onsubmit_functions[name]();
+  }
+}
+do_load_events();
