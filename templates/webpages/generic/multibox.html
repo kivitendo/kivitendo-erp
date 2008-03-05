@@ -45,7 +45,7 @@
  [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END %]
 >
 [%- IF select %]
-  <button type="button" onclick="[% select %]">?</button>
+  <input type="button" onclick="[% select %]" value="?">
 [% END %]
 [%- ELSE %]
 <select 
