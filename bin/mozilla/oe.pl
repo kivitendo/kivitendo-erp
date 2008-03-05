@@ -1798,8 +1798,6 @@ sub purchase_order {
 sub sales_order {
   $lxdebug->enter_sub();
 
-  $form->{"Watchdog::currency"} = 1;
-
   check_oe_access();
   $auth->assert('sales_order_edit');
 
