@@ -1798,6 +1798,8 @@ sub purchase_order {
 sub sales_order {
   $lxdebug->enter_sub();
 
+  $form->{"Watchdog::currency"} = 1;
+
   check_oe_access();
   $auth->assert('sales_order_edit');
 
@@ -1830,20 +1832,16 @@ sub poso {
   $form->{transdate} = $form->current_date(\%myconfig);
   delete $form->{duedate};
 
-  $form->{closed} = 0;
+  $form->{closed}          = 0;
 
   $form->{old_employee_id} = $form->{employee_id};
   $form->{old_salesman_id} = $form->{salesman_id};
 
   # reset
-  map { delete $form->{$_} }
-    qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal);
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal);
 
   for $i (1 .. $form->{rowcount}) {
-    map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
-                                                     $form->{"${_}_${i}"})
-            if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor));
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor);
   }
 
   &order_links;
@@ -1852,8 +1850,7 @@ sub poso {
 
   # format amounts
   for $i (1 .. $form->{rowcount} - 1) {
-    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-      qw(partnumber description unit);
+    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit);
   }
 
   &update;
