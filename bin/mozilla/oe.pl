@@ -1842,7 +1842,11 @@ sub poso {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor);
   }
 
+  my %saved_vars = map { $_ => $form->{$_} } grep { $form->{$_} } qw(currency);
+
   &order_links;
+
+  map { $form->{$_} = $saved_vars{$_} } keys %saved_vars;
 
   &prepare_order;
 
