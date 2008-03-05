@@ -171,11 +171,20 @@ sub edit {
   set_headings("edit");
 
   &order_links;
+
+  $form->{rowcount} = 0;
+  foreach $ref (@{ $form->{form_details} }) {
+    $form->{rowcount}++;
+    map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{$ref};
+  }
+
   &prepare_order;
+
   if ($form->{print_and_save}) {
     $form->{language_id} = $language_id;
     $form->{printer_id} = $printer_id;
   }
+
   &display_form;
 
   $lxdebug->leave_sub();
@@ -233,11 +242,6 @@ sub prepare_order {
 
   $form->{formname} ||= $form->{type};
 
-  $form->{rowcount} = 0;
-  foreach $ref (@{ $form->{form_details} }) {
-    $form->{rowcount}++;
-    map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{$ref};
-  }
   for my $i (1 .. $form->{rowcount}) {
     $form->{"reqdate_$i"} ||= $form->{"deliverydate_$i"};
     $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * ($form->{id} ? 100 : 1));
