@@ -243,7 +243,7 @@ sub display_row {
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
     $column_data{description} = ((($rows = $form->numtextrows($form->{"description_$i"}, 30, 6)) > 1) # if description is too large, use a textbox instead
                                 ? $cgi->textarea( -name => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
-                                : $cgi->textfield(-name => "description_$i",   -size => 30, -value => $form->quote($form->{"description_$i"})))
+                                : $cgi->textfield(-name => "description_$i",   -size => 30, -value => $form->{"description_$i"}))
                                 . $cgi->button(-value => $locale->text('L'), -onClick => "set_longdescription_window('longdescription_$i')");
 
     $form->{"qty_$i"} =~ /\.(\d+)/;
