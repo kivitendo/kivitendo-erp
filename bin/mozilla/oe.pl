@@ -229,8 +229,11 @@ sub order_links {
   $form->{employee}    = "$form->{employee}--$form->{employee_id}";
 
   # build vendor/customer drop down comatibility... don't ask
-  $form->{"old$form->{vc}"} = $form->{vc};
-  $form->{"select$form->{vc}"} = 1;
+  $form->{"old$form->{vc}"}    = $form->{vc};
+  if (@{ $form->{"all_$form->{vc}"} }) {
+    $form->{"select$form->{vc}"} = 1;
+    $form->{$form->{vc}}         = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
+  }
 
   $lxdebug->leave_sub();
 }
