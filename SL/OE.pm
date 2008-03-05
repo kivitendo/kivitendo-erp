@@ -620,7 +620,7 @@ sub retrieve {
   my $ref = selectfirst_hashref_query($form, $dbh, $query);
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  ($form->{currency}) = split(/:/, $form->{currencies});
+  ($form->{currency}) = split(/:/, $form->{currencies}) unless ($form->{currency});
 
   # set reqdate if this is an invoice->order conversion. If someone knows a better check to ensure
   # we come from invoices, feel free.
