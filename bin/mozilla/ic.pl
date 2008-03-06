@@ -33,6 +33,7 @@
 #$locale->text('ea');
 
 use POSIX qw(strftime);
+use List::Util qw(max);
 
 use SL::IC;
 use SL::ReportGenerator;
@@ -1463,15 +1464,13 @@ sub form_header {
   $form->{eur}              = $eur; # config dumps into namespace - yuck
   $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
+  $form->{notes_rows}       =  max 4, $form->numtextrows($form->{notes}, 40), $form->numtextrows($form->{formel}, 40);
 
   map { $form->{"is_$_"}  = ($form->{item} eq $_) } qw(part service assembly);
   map { $form->{$_}       =~ s/"/&quot;/g;        } qw(unit);
  
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS', 
                    'partsgroup'    => 'all_partsgroup');
-
-  $rows = 4 if $rows = $form->numtextrows($form->{notes}, 40) < 2;
-  $form->{notes_rows} = $rows;
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };

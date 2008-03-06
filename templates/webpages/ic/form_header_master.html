@@ -131,7 +131,7 @@
               <td>
                <ilayer>
                 <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('<translate>The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br></translate>')">
-                 <textarea name="formel" rows="4" cols="30" wrap="soft">[% HTML.escape(formel) %]</textarea></layer></ilayer>
+                 <textarea name="formel" rows="[% HTML.escape(notes_rows) %]" cols="30" wrap="soft">[% HTML.escape(formel) %]</textarea></layer></ilayer>
                </td>
               [%- END %]
              </tr>
