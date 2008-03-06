@@ -128,7 +128,7 @@ sub display_row {
   my @header_sort = qw(runningnumber partnumber description ship qty unit sellprice_pg sellprice discount linetotal);
   my @HEADER = (
     {  id => 'runningnumber', width => 5,     value => $locale->text('No.'),                  display => 1, },
-    {  id => 'partnumber',    width => 12,    value => $locale->text('Number'),               display => 1, },
+    {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
     {  id => 'description',   width => 30,    value => $locale->text('Part Description'),     display => 1, },
     {  id => 'ship',          width => 5,     value => ($form->{type} eq 'purchase_order' ? $locale->text('Ship rcvd') : $locale->text('Ship')),                 
        display => $form->{type} =~ /sales_order/ || ($form->{type} =~ /purchase_order/ && !($lizenzen && $form->{vc} eq "customer")) , },
@@ -139,7 +139,7 @@ sub display_row {
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
-    {  id => 'sellprice_pg',  width => 15,    value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/) && !$is_delivery_order,  },
+    {  id => 'sellprice_pg',  width => 8,    value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/) && !$is_delivery_order,  },
     {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => ($form->{vc} eq 'customer') && !$is_delivery_order, },
     {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
@@ -257,7 +257,7 @@ sub display_row {
 
     # build in drop down list for pricesgroups
     if ($form->{"prices_$i"}) {
-      $column_data{sellprice_pg} = qq|<select name="sellprice_pg_$i">$form->{"prices_$i"}</select>|;
+      $column_data{sellprice_pg} = qq|<select name="sellprice_pg_$i" style="width: 8em">$form->{"prices_$i"}</select>|;
       $column_data{sellprice}    = $cgi->textfield(-name => "sellprice_$i", -size => 10, -onBlur => 'check_right_number_format(this)', -value =>
                                    (($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})
                                       ? $form->format_amount(\%myconfig, $form->{"price_new_$i"}, $decimalplaces)
