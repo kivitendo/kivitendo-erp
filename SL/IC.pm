@@ -730,9 +730,9 @@ sub assembly_item {
 #   short                                    - NOT IMPLEMENTED as form filter, only as itemstatus option
 #   l_serialnumber                           - belonges to serialnumber filter
 #   l_deliverydate                           - displays deliverydate is sold etc. flags are active
+#   l_soldtotal                              - aggreg join to display total of sold quantity, works as long as there's no bullshit in soldtotal
 #
 # not working:
-#   l_soldtotal                              - aggreg join to display total of sold quantity
 #   onhand                                   - as above, but masking the simple itemstatus results (doh!)
 #   masking of onhand in bsooqr mode         - ToDO: fixme
 #
@@ -752,7 +752,8 @@ sub all_parts {
   my ($self, $myconfig, $form) = @_;
   my $dbh = $form->get_standard_dbh($myconfig);
 
-  $form->{parts} = +{ };
+  $form->{parts}     = +{ };
+  $form->{soldtotal} = undef if $form->{l_soldtotal}; # security fix. top100 insists on putting strings in there...
 
   my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand);
   my @makemodel_filters    = qw(make model);
