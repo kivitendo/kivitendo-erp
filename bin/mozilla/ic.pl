@@ -30,7 +30,6 @@
 # Inventory Control module
 #
 #======================================================================
-#$locale->text('ea');
 
 use POSIX qw(strftime);
 use List::Util qw(max);
@@ -60,6 +59,14 @@ require "bin/mozilla/reportgenerator.pl";
 # type=submit $locale->text('Edit Part')
 # type=submit $locale->text('Edit Service')
 # type=submit $locale->text('Edit Assembly')
+# $locale->text('Parts')
+# $locale->text('Services')
+# $locale->text('Inventory quantity must be zero before you can set this part obsolete!')
+# $locale->text('Inventory quantity must be zero before you can set this assembly obsolete!')
+# $locale->text('Part Number missing!')
+# $locale->text('Service Number missing!')
+# $locale->text('Assembly Number missing!')
+# $locale->text('ea');
 
 # end of main
 
@@ -70,8 +77,7 @@ sub add {
 
   $form->{title} = $locale->text('Add ' . ucfirst $form->{item});
 
-  $form->{callback} =
-    "$form->{script}?action=add&item=$form->{item}"
+  $form->{callback} = "$form->{script}?action=add&item=$form->{item}"
     unless $form->{callback};
 
   $form->{"unit_changeable"} = 1;
@@ -88,17 +94,9 @@ sub search {
 
   $auth->assert('part_service_assembly_edit');
 
-  # switch for backward sorting
-  $form->{revers} = 0;
-
-  # memory for which table was sort at last time
-  $form->{lastsort} = "";
-
-  # counter for added entries to top100
-  $form->{ndxs_counter} = 0;
-
-  # $locale->text('Parts')
-  # $locale->text('Services')
+  $form->{revers}       = 0;  # switch for backward sorting
+  $form->{lastsort}     = ""; # memory for which table was sort at last time
+  $form->{ndxs_counter} = 0;  # counter for added entries to top100
 
   my $is_service  = $form->{searchitems} eq 'service';
   my $is_assembly = $form->{searchitems} eq 'assembly';
@@ -1885,13 +1883,6 @@ sub save {
 
   $form->error($locale->text('Description must not be empty!')) unless $form->{description};
   $form->error($locale->text('Partnumber must not be set to empty!')) if $form->{id} && !$form->{partnumber};
-
-  # expand dynamic strings
-  # $locale->text('Inventory quantity must be zero before you can set this part obsolete!')
-  # $locale->text('Inventory quantity must be zero before you can set this assembly obsolete!')
-  # $locale->text('Part Number missing!')
-  # $locale->text('Service Number missing!')
-  # $locale->text('Assembly Number missing!')
 
   # save part
   $lxdebug->message($LXDebug::DEBUG1, "ic.pl: sellprice in save = $form->{sellprice}\n");
