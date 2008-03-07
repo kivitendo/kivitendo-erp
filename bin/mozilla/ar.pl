@@ -1377,7 +1377,7 @@ sub search {
 	      <tr>
 		<td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Notes') . qq|</td>
-		<td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
+		<td align=right><input name="l_salesman" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Salesperson') . qq|</td>
 		<td align=right><input name="l_shippingpoint" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Shipping Point') . qq|</td>
@@ -1385,10 +1385,12 @@ sub search {
 		<td nowrap>| . $locale->text('Ship via') . qq|</td>
 	      </tr>
 	      <tr>
-		<td align=right><input name="l_marge_total" class=checkbox type=checkbox value=Y></td><td> |
-    .             $locale->text('Ertrag') . qq|</td>
-		<td align=right><input name="l_marge_percent" class=checkbox type=checkbox value=Y></td><td> |
-    .             $locale->text('Ertrag prozentual') . qq|</td>
+		<td align=right><input name="l_marge_total" class=checkbox type=checkbox value=Y></td>
+                <td nowrap> | . $locale->text('Ertrag') . qq|</td>
+		<td align=right><input name="l_marge_percent" class=checkbox type=checkbox value=Y></td>
+                <td nowrap> | . $locale->text('Ertrag prozentual') . qq|</td>
+		<td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Employee') . qq|</td>
 	      </tr>
 	      <tr>
 		<td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
@@ -1465,7 +1467,7 @@ sub ar_transactions {
 
   @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
-       datepaid due duedate transaction_description notes employee shippingpoint shipvia
+       datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
        marge_total marge_percent globalprojectnumber);
 
   my @hidden_variables = map { "l_${_}" } @columns;
@@ -1489,7 +1491,8 @@ sub ar_transactions {
     'duedate'                 => { 'text' => $locale->text('Due Date'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'notes'                   => { 'text' => $locale->text('Notes'), },
-    'employee'                => { 'text' => $locale->text('Salesperson'), },
+    'salesman'                => { 'text' => $locale->text('Salesperson'), },
+    'employee'                => { 'text' => $locale->text('Employee'), },
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },

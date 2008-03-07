@@ -416,10 +416,12 @@ sub ar_transactions {
     qq|  a.transaction_description, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  c.name, | .
-    qq|  e.name AS employee | .
+    qq|  e.name AS employee, | .
+    qq|  e2.name AS salesman | .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
+    qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)|;
 
   my $where = "1 = 1";
