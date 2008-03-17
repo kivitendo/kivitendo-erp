@@ -513,7 +513,7 @@ sub get_invoices {
   $form->{DUNNINGS} = [];
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    next if !$ref->{terms} || ($ref->{pastdue} < $ref->{terms});
+    next if ($ref->{pastdue} < $ref->{terms});
 
     $ref->{interest} = $form->round_amount($ref->{interest}, 2);
     push(@{ $form->{DUNNINGS} }, $ref);
