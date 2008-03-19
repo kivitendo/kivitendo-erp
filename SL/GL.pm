@@ -109,16 +109,19 @@ sub post_transaction {
   my ($null, $department_id) = split(/--/, $form->{department});
   $department_id *= 1;
 
+  $form->{ob_transaction} *= 1;
+  $form->{cb_transaction} *= 1;
+
   $query =
     qq|UPDATE gl SET
          reference = ?, description = ?, notes = ?,
          transdate = ?, department_id = ?, taxincluded = ?,
-         storno = ?, storno_id = ?
+         storno = ?, storno_id = ?, ob_transaction = ?, cb_transaction = ?
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
              conv_date($form->{transdate}), $department_id, $form->{taxincluded},
-             $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}),
+             $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}), $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f',
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -153,11 +156,11 @@ sub post_transaction {
     if ($amount != 0) {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey)
+                                  source, memo, project_id, taxkey, ob_transaction, cb_transaction)
            VALUES (?, (SELECT id FROM chart WHERE accno = ?),
-                   ?, ?, ?, ?, ?, ?)|;
+                   ?, ?, ?, ?, ?, ?, ?, ?)|;
       @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{transdate}),
-                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey);
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f');
       do_query($form, $dbh, $query, @values);
     }
 
@@ -563,7 +566,8 @@ sub transaction {
   if ($form->{id}) {
     $query =
       qq|SELECT g.reference, g.description, g.notes, g.transdate, g.storno, g.storno_id,
-           d.description AS department, e.name AS employee, g.taxincluded, g.gldate
+           d.description AS department, e.name AS employee, g.taxincluded, g.gldate, 
+         g.ob_transaction, g.cb_transaction
          FROM gl g
          LEFT JOIN department d ON (d.id = g.department_id)
          LEFT JOIN employee e ON (e.id = g.employee_id)

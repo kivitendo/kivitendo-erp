@@ -962,6 +962,9 @@ sub form_header {
 
   $show_details_checked = "checked" if $form->{show_details};
 
+  $ob_transaction_checked = "checked" if $form->{ob_transaction};
+  $cb_transaction_checked = "checked" if $form->{cb_transaction};
+
   # $locale->text('Add General Ledger Transaction')
   # $locale->text('Edit General Ledger Transaction')
 
@@ -1155,7 +1158,17 @@ sub form_header {
 	</tr>|;
   }
 
-  print qq|<tr>
+  print qq|
+      <tr>
+      <tr><td colspan=4><table><tr>
+       <td>
+        | . $locale->text('OB Transaction') . qq|<input type="checkbox" name="ob_transaction" value="1" $ob_transaction_checked>
+       </td>
+       <td>
+        | . $locale->text('CB Transaction') . qq|<input type="checkbox" name="cb_transaction" value="1" $cb_transaction_checked>
+       </td>
+      </tr></table></td></tr>
+      <tr>
        <td width="1%" align="right" nowrap>| . $locale->text('Show details') . qq|</td>
        <td width="1%"><input type="checkbox" onclick="show_form_details();" name="show_details" value="1" $show_details_checked></td>
       </tr>|;
@@ -1260,11 +1273,9 @@ $follow_ups_block
       . qq|"> |;
 
   } else {
-    if ($transdate > $closedto) {
       print qq|
         <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
         <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">|;
-    }
   }
 
   print "
