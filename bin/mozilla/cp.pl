@@ -779,7 +779,7 @@ sub check_form {
   $datepaid = $form->datetonum($form->{datepaid}, \%myconfig);
 
   $form->error($locale->text('Cannot process payment for a closed period!'))
-    if ($datepaid <= $closedto);
+    if ($form->date_closed($form->{"datepaid"}, \%myconfig));
 
   $amount = $form->parse_amount(\%myconfig, $form->{amount});
   $form->{amount} = $amount;
