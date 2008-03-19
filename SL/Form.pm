@@ -2762,36 +2762,52 @@ sub lastname_used {
 
   my ($self, $dbh, $myconfig, $table, $module) = @_;
 
-  my $arap  = ($table eq 'customer') ? "ar" : "ap";
-  $table = $table eq "customer" ? "customer" : "vendor";
-  my $where = "1 = 1";
+  my ($arap, $where);
 
-  if ($self->{type} =~ /_order/) {
+  $table         = $table eq "customer" ? "customer" : "vendor";
+  my %column_map = ("a.curr"                  => "currency",
+                    "a.${table}_id"           => "${table}_id",
+                    "a.department_id"         => "department_id",
+                    "d.description"           => "department",
+                    "ct.name"                 => $table,
+                    "current_date + ct.terms" => "duedate",
+    );
+
+  if ($self->{type} =~ /delivery_order/) {
+    $arap  = 'delivery_orders';
+    delete $column_map{"a.curr"};
+
+  } elsif ($self->{type} =~ /_order/) {
     $arap  = 'oe';
     $where = "quotation = '0'";
-  }
-  if ($self->{type} =~ /_quotation/) {
+
+  } elsif ($self->{type} =~ /_quotation/) {
     $arap  = 'oe';
     $where = "quotation = '1'";
+
+  } elsif ($table eq 'customer') {
+    $arap  = 'ar';
+
+  } else {
+    $arap  = 'ap';
+
   }
 
-  my $query = qq|SELECT MAX(id) FROM $arap
-                 WHERE $where AND ${table}_id > 0|;
-  my ($trans_id) = selectrow_query($self, $dbh, $query);
+  $where           = "($where) AND" if ($where);
+  my $query        = qq|SELECT MAX(id) FROM $arap
+                        WHERE $where ${table}_id > 0|;
+  my ($trans_id)   = selectrow_query($self, $dbh, $query);
+  $trans_id       *= 1;
 
-  $trans_id *= 1;
-  $query =
-    qq|SELECT
-         a.curr, a.${table}_id, a.department_id,
-         d.description AS department,
-         ct.name, current_date + ct.terms AS duedate
-       FROM $arap a
-       LEFT JOIN $table ct ON (a.${table}_id = ct.id)
-       LEFT JOIN department d ON (a.department_id = d.id)
-       WHERE a.id = ?|;
-  ($self->{currency},   $self->{"${table}_id"}, $self->{department_id},
-   $self->{department}, $self->{$table},        $self->{duedate})
-    = selectrow_query($self, $dbh, $query, $trans_id);
+  my $column_spec  = join(', ', map { "${_} AS $column_map{$_}" } keys %column_map);
+  $query           = qq|SELECT $column_spec
+                        FROM $arap a
+                        LEFT JOIN $table     ct ON (a.${table}_id = ct.id)
+                        LEFT JOIN department d  ON (a.department_id = d.id)
+                        WHERE a.id = ?|;
+  my $ref          = selectfirst_hashref_query($self, $dbh, $query, $trans_id);
+
+  map { $self->{$_} = $ref->{$_} } values %column_map;
 
   $main::lxdebug->leave_sub();
 }
