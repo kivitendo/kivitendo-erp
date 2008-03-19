@@ -156,7 +156,8 @@ sub order_links {
 
   my $editing = $form->{id};
 
-  DO->retrieve();
+  DO->retrieve('vc'  => $form->{vc},
+               'ids' => $form->{id});
 
   $payment_id  = $form->{payment_id}  if ($form->{payment_id});
   $language_id = $form->{language_id} if ($form->{language_id});
@@ -415,7 +416,7 @@ sub orders {
   $form->{rowcount} = scalar @{ $form->{DO} };
 
   my @columns = qw(
-    transdate
+    ids                     transdate
     id                      donumber
     ordnumber
     name                    employee
@@ -460,7 +461,8 @@ sub orders {
 
   $form->{"l_type"} = "Y";
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
-  $column_defs{ids}->{visible} = $allow_multiple_orders ? 'HTML' : 0;
+
+  $column_defs{ids}->{visible} = 'HTML';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -508,10 +510,12 @@ sub orders {
     push @options, $locale->text('Not delivered');
   }
 
-  $report->set_options('top_info_text'       => join("\n", @options),
-                       'output_format'       => 'HTML',
-                       'title'               => $form->{title},
-                       'attachment_basename' => $attachment_basename . strftime('_%Y%m%d', localtime time),
+  $report->set_options('top_info_text'        => join("\n", @options),
+                       'raw_top_info_text'    => $form->parse_html_template('do/orders_top'),
+                       'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom'),
+                       'output_format'        => 'HTML',
+                       'title'                => $form->{title},
+                       'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
 
@@ -524,16 +528,27 @@ sub orders {
   my $edit_url       = build_std_url('action=edit', 'type', 'vc');
   my $edit_order_url = build_std_url('script=oe.pl', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'), 'action=edit');
 
+  my $idx            = 1;
+
   foreach $dord (@{ $form->{DO} }) {
     $dord->{open}      = $dord->{closed}    ? $locale->text('No')  : $locale->text('Yes');
     $dord->{delivered} = $dord->{delivered} ? $locale->text('Yes') : $locale->text('No');
 
     my $row = { map { $_ => { 'data' => $dord->{$_} } } @columns };
 
+    $row->{ids}  = {
+      'raw_data' =>   $cgi->hidden('-name' => "trans_id_${idx}", '-value' => $dord->{id})
+                    . $cgi->checkbox('-name' => "multi_id_${idx}", '-value' => 1, '-label' => ''),
+      'valign'   => 'center',
+      'align'    => 'center',
+    };
+
     $row->{donumber}->{link}  = $edit_url       . "&id=" . E($dord->{id})      . "&callback=${callback}";
     $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}";
 
     $report->add_data($row);
+
+    $idx++;
   }
 
   $report->generate_with_headers();
@@ -699,6 +714,69 @@ sub invoice {
 
   }
 
+  display_form();
+
+  $lxdebug->leave_sub();
+}
+
+sub invoice_multi {
+  $lxdebug->enter_sub();
+
+  check_do_access();
+  $auth->assert($form->{type} eq 'sales_delivery_order' ? 'invoice_edit' : 'vendor_invoice_edit');
+
+  my @do_ids = map { $form->{"trans_id_$_"} } grep { $form->{"multi_id_$_"} } (1..$form->{rowcount});
+
+  if (!scalar @do_ids) {
+    $form->show_generic_error($locale->text('You have not selected any delivery order.'), 'back_button' => 1);
+  }
+
+  map { delete $form->{$_} } grep { m/^(?:trans|multi)_id_\d+/ } keys %{ $form };
+
+  if (!DO->retrieve('vc' => $form->{vc}, 'ids' => \@do_ids)) {
+    $form->show_generic_error($form->{vc} eq 'customer' ?
+                              $locale->text('You cannot create an invoice for delivery orders for different customers.') :
+                              $locale->text('You cannot create an invoice for delivery orders from different vendors.'),
+                              'back_button' => 1);
+  }
+
+  $form->{deliverydate}    = $form->{transdate};
+  $form->{transdate}       = $form->current_date(\%myconfig);
+  $form->{duedate}         = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+  $form->{type}            = "invoice";
+  $form->{closed}          = 0;
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
+  my $buysell;
+  if ($form->{type} eq 'purchase_delivery_order') {
+    $form->{title}  = $locale->text('Add Vendor Invoice');
+    $form->{script} = 'ir.pl';
+    $script         = "ir";
+    $buysell        = 'sell';
+
+  } else {
+    $form->{title}  = $locale->text('Add Sales Invoice');
+    $form->{script} = 'is.pl';
+    $script         = "is";
+    $buysell        = 'buy';
+  }
+
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
+
+  $form->{rowcount} = 0;
+  foreach my $ref (@{ $form->{form_details} }) {
+    $form->{rowcount}++;
+    map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
+    map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice discount lastcost);
+  }
+  delete $form->{form_details};
+
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+
+  invoice_links();
+  prepare_invoice();
   display_form();
 
   $lxdebug->leave_sub();

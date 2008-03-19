@@ -425,7 +425,8 @@ sub delete {
 sub retrieve {
   $main::lxdebug->enter_sub();
 
-  my ($self)   = @_;
+  my $self     = shift;
+  my %params   = @_;
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
@@ -435,98 +436,120 @@ sub retrieve {
 
   my ($query, $query_add, @values, $sth, $ref);
 
-  if (!$form->{id}) {
+  my $vc   = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+
+  my $mode = !$params{ids} ? 'default' : ref $params{ids} eq 'ARRAY' ? 'multi' : 'single';
+
+  if ($mode eq 'default') {
     $ref = selectfirst_hashref_query($form, $dbh, qq|SELECT current_date AS transdate, current_date AS reqdate|);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+    # get last name used
+    $form->lastname_used($dbh, $myconfig, $vc) unless $form->{"${vc}_id"};
+
+    $main::lxdebug->leave_sub();
+
+    return 1;
   }
 
-  my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
+  my @do_ids              = map { conv_i($_) } ($mode eq 'multi' ? @{ $params{ids} } : ($params{ids}));
+  my $do_ids_placeholders = join(', ', ('?') x scalar(@do_ids));
 
-  if ($form->{id}) {
+  # retrieve order for single id
+  # NOTE: this query is intended to fetch all information only ONCE.
+  # so if any of these infos is important (or even different) for any item,
+  # it will be killed out and then has to be fetched from the item scope query further down
+  $query =
+    qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate,
+         dord.shippingpoint, dord.shipvia, dord.notes, dord.intnotes,
+         e.name AS employee, dord.employee_id, dord.salesman_id,
+         dord.${vc}_id, cv.name AS ${vc},
+         dord.closed, dord.reqdate, dord.department_id, dord.cusordnumber,
+         d.description AS department, dord.language_id,
+         dord.shipto_id,
+         dord.globalproject_id, dord.delivered, dord.transaction_description
+       FROM delivery_orders dord
+       JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
+       LEFT JOIN employee e ON (dord.employee_id = e.id)
+       LEFT JOIN department d ON (dord.department_id = d.id)
+       WHERE dord.id IN ($do_ids_placeholders)|;
+  $sth = prepare_execute_query($form, $dbh, $query, @do_ids);
 
-    # retrieve order for single id
-    # NOTE: this query is intended to fetch all information only ONCE.
-    # so if any of these infos is important (or even different) for any item,
-    # it will be killed out and then has to be fetched from the item scope query further down
-    $query =
-      qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate,
-           dord.shippingpoint, dord.shipvia, dord.notes, dord.intnotes,
-           e.name AS employee, dord.employee_id, dord.salesman_id,
-           dord.${vc}_id, cv.name AS ${vc},
-           dord.closed, dord.reqdate, dord.department_id, dord.cusordnumber,
-           d.description AS department, dord.language_id,
-           dord.shipto_id,
-           dord.globalproject_id, dord.delivered, dord.transaction_description
-         FROM delivery_orders dord
-         JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
-         LEFT JOIN employee e ON (dord.employee_id = e.id)
-         LEFT JOIN department d ON (dord.department_id = d.id)
-         WHERE dord.id = ?|;
-    $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
+  delete $form->{"${vc}_id"};
+  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    if ($form->{"${vc}_id"} && ($ref->{"${vc}_id"} != $form->{"${vc}_id"})) {
+      $sth->finish();
+      $main::lxdebug->leave_sub();
 
-    $ref = $sth->fetchrow_hashref(NAME_lc);
-    $sth->finish();
+      return 0;
+    }
 
     map { $form->{$_} = $ref->{$_} } keys %$ref if ($ref);
+  }
+  $sth->finish();
 
-    $form->{saved_donumber} = $form->{donumber};
+  $form->{saved_donumber} = $form->{donumber};
 
-    # if not given, fill transdate with current_date
-    $form->{transdate} = $form->current_date($myconfig) unless $form->{transdate};
+  # if not given, fill transdate with current_date
+  $form->{transdate} = $form->current_date($myconfig) unless $form->{transdate};
 
+  if ($mode eq 'single') {
     $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module = 'DO'|;
-    $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
+    $sth   = prepare_execute_query($form, $dbh, $query, $form->{id});
 
-    $ref = $sth->fetchrow_hashref(NAME_lc);
-    delete($ref->{id});
+    $ref   = $sth->fetchrow_hashref(NAME_lc);
+    delete $ref->{id};
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-    $sth->finish;
+    $sth->finish();
 
     # get printed, emailed and queued
     $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname FROM status s WHERE s.trans_id = ?|;
-    $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
+    $sth   = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
       $form->{printed} .= "$ref->{formname} " if $ref->{printed};
       $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
       $form->{queued}  .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
     }
-    $sth->finish;
+    $sth->finish();
     map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
 
-    my %oid = ('Pg'     => 'oid',
-               'Oracle' => 'rowid');
+  } else {
+    delete $form->{id};
+  }
 
-    my $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
+  my %oid = ('Pg'     => 'oid',
+             'Oracle' => 'rowid');
 
-    # retrieve individual items
-    # this query looks up all information about the items
-    # stuff different from the whole will not be overwritten, but saved with a suffix.
-    $query =
-      qq|SELECT doi.id AS delivery_order_items_id,
-           p.partnumber, p.assembly, doi.description, doi.qty,
-           doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.bin, p.notes AS partnotes,
-           doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
-           doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
-           doi.price_factor_id, doi.price_factor, doi.marge_price_factor,
-           pr.projectnumber,
-           pg.partsgroup
-         FROM delivery_order_items doi
-         JOIN parts p ON (doi.parts_id = p.id)
-         JOIN delivery_orders dord ON (doi.delivery_order_id = dord.id)
-         LEFT JOIN project pr ON (doi.project_id = pr.id)
-         LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
-         WHERE doi.delivery_order_id = ?
-         ORDER BY doi.$oid{$myconfig->{dbdriver}}|;
+  # retrieve individual items
+  # this query looks up all information about the items
+  # stuff different from the whole will not be overwritten, but saved with a suffix.
+  $query =
+    qq|SELECT doi.id AS delivery_order_items_id,
+         p.partnumber, p.assembly, doi.description, doi.qty,
+         doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.bin, p.notes AS partnotes,
+         doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
+         doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
+         doi.price_factor_id, doi.price_factor, doi.marge_price_factor,
+         pr.projectnumber,
+         pg.partsgroup
+       FROM delivery_order_items doi
+       JOIN parts p ON (doi.parts_id = p.id)
+       JOIN delivery_orders dord ON (doi.delivery_order_id = dord.id)
+       LEFT JOIN project pr ON (doi.project_id = pr.id)
+       LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+       WHERE doi.delivery_order_id IN ($do_ids_placeholders)
+       ORDER BY doi.$oid{$myconfig->{dbdriver}}|;
 
-    $form->{form_details} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
+  $form->{form_details} = selectall_hashref_query($form, $dbh, $query, @do_ids);
 
+  if ($mode eq 'single') {
     my $in_out = $form->{type} =~ /^sales/ ? 'out' : 'in';
 
     $query =
       qq|SELECT qty, unit, bin_id, warehouse_id, chargenumber
-           FROM delivery_order_items_stock
-           WHERE delivery_order_item_id = ?|;
+         FROM delivery_order_items_stock
+         WHERE delivery_order_item_id = ?|;
     my $sth = prepare_query($form, $dbh, $query);
 
     foreach my $doi (@{ $form->{form_details} }) {
@@ -540,16 +563,13 @@ sub retrieve {
     }
 
     $sth->finish();
-
-  } else {
-    # get last name used
-    $form->lastname_used($dbh, $myconfig, $form->{vc}) unless $form->{"$form->{vc}_id"};
-
   }
 
   Common::webdav_folder($form) if ($main::webdav);
 
   $main::lxdebug->leave_sub();
+
+  return 1;
 }
 
 sub order_details {
