@@ -2524,12 +2524,6 @@ sub audit_control {
 
   AM->closedto(\%myconfig, \%$form);
 
-  if ($form->{revtrans}) {
-    $checked{Y} = "checked";
-  } else {
-    $checked{N} = "checked";
-  }
-
   $form->header;
 
   print qq|
@@ -2543,15 +2537,6 @@ sub audit_control {
   <tr>
     <td>
       <table>
-	<tr>
-	  <td>|
-    . $locale->text('Enforce transaction reversal for all dates') . qq|</th>
-	  <td><input name=revtrans class=radio type=radio value="1" $checked{Y}> |
-    . $locale->text('Yes')
-    . qq| <input name=revtrans class=radio type=radio value="0" $checked{N}> |
-    . $locale->text('No')
-    . qq|</td>
-	</tr>
 	<tr>
 	  <th>| . $locale->text('Close Books up to') . qq|</th>
 	  <td><input name=closedto size=11 title="$myconfig{dateformat}" value=$form->{closedto}></td>
@@ -2585,17 +2570,12 @@ sub doclose {
 
   AM->closebooks(\%myconfig, \%$form);
 
-  if ($form->{revtrans}) {
+  if ($form->{closedto}) {
     $form->redirect(
-                 $locale->text('Transaction reversal enforced for all dates'));
+                    $locale->text('Books closed up to') . " "
+                      . $locale->date(\%myconfig, $form->{closedto}, 1));
   } else {
-    if ($form->{closedto}) {
-      $form->redirect(
-                     $locale->text('Transaction reversal enforced up to') . " "
-                       . $locale->date(\%myconfig, $form->{closedto}, 1));
-    } else {
-      $form->redirect($locale->text('Books are open'));
-    }
+    $form->redirect($locale->text('Books are open'));
   }
 
   $lxdebug->leave_sub();

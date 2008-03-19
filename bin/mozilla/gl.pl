@@ -1457,7 +1457,7 @@ sub post_transaction {
 
   # this is just for the wise guys
   $form->error($locale->text('Cannot post transaction for a closed period!'))
-    if ($transdate <= $closedto);
+    if ($form->date_closed($form->{"transdate"}, \%myconfig));
   if ($form->round_amount($debit, 2) != $form->round_amount($credit, 2)) {
     $form->error($locale->text('Out of balance transaction!'));
   }

@@ -1419,6 +1419,21 @@ sub get_standard_dbh {
   return $standard_dbh;
 }
 
+sub date_closed {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $date, $myconfig) = @_;
+  my $dbh = $self->dbconnect($myconfig);
+
+  my $query = "SELECT 1 FROM defaults WHERE ? < closedto";
+  my $sth = prepare_execute_query($self, $dbh, $query, $date);
+  my ($closed) = $sth->fetchrow_array;
+
+  $main::lxdebug->leave_sub();
+
+  return $closed;
+}
+
 sub update_balance {
   $main::lxdebug->enter_sub();
 

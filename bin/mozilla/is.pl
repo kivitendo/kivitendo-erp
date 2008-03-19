@@ -1356,7 +1356,7 @@ sub post_payment {
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($datepaid <= $closedto);
+        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
@@ -1386,6 +1386,8 @@ sub post {
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
   $form->isblank("customer", $locale->text('Customer missing!'));
+  $form->error($locale->text('Cannot post invoice for a closed period!'))
+        if ($form->date_closed($form->{"invdate"}, \%myconfig));
 
   $form->{invnumber} =~ s/^\s*//g;
   $form->{invnumber} =~ s/\s*$//g;
@@ -1417,7 +1419,7 @@ sub post {
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
       $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($datepaid <= $closedto);
+        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
