@@ -122,6 +122,8 @@ sub display_row {
       $stock_in_out_title = $locale->text('Transfer To Stock');
       $stock_in_out       = 'in';
     }
+
+    retrieve_partunits();
   }
 
   # column_index
@@ -332,8 +334,6 @@ sub display_row {
       push @hidden_vars, qw(sellprice discount price_factor_id);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
-
-    push @hidden_vars, qw(partunit) if ($is_purchase);
 
     my @HIDDENS = map { value => $_}, (
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),

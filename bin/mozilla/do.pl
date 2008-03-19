@@ -756,6 +756,8 @@ sub calculate_stock_in_out {
     return '';
   }
 
+  AM->retrieve_all_units();
+
   my $in_out   = $form->{type} =~ /^sales/ ? 'out' : 'in';
   my $sinfo    = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_${i}"});
 
@@ -763,7 +765,7 @@ sub calculate_stock_in_out {
 
   my $content  = $form->format_amount_units('amount'      => $sum * 1,
                                             'part_unit'   => $form->{"partunit_$i"},
-                                            'amount_unit' => $units->{$form->{"partunit_$i"}}->{base_unit},
+                                            'amount_unit' => $all_units->{$form->{"partunit_$i"}}->{base_unit},
                                             'conv_units'  => 'convertible_not_smaller',
                                             'max_places'  => 2);
   $content    .= qq| <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
