@@ -1309,7 +1309,6 @@ sub all_parts {
     $form->{parts} = \@assemblies;
   }
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
