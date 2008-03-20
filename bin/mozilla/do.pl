@@ -936,11 +936,8 @@ sub display_stock_in_form {
   my $units      = AM->retrieve_units(\%myconfig, $form, "dimension");
   my $units_data = AM->unit_select_data($units, undef, undef, $part_info->{unit});
 
-  my $access     = $auth->check_right($form->{login}, 'all_warehouses') ? undef : $form->{login};
-
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
-                                     'bins'   => 'BINS',
-                                     'access' => $access, });
+                                     'bins'   => 'BINS' });
 
   redo_stock_info('stock_info' => $stock_info, 'add_empty_row' => !$form->{closed});
 

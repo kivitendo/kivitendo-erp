@@ -2498,9 +2498,8 @@ sub delete_warehouse {
     return 0;
   }
 
-  do_query($form, $dbh, qq|DELETE FROM warehouse_access WHERE warehouse_id = ?|, conv_i($form->{id}));
-  do_query($form, $dbh, qq|DELETE FROM bin              WHERE warehouse_id = ?|, conv_i($form->{id}));
-  do_query($form, $dbh, qq|DELETE FROM warehouse        WHERE id           = ?|, conv_i($form->{id}));
+  do_query($form, $dbh, qq|DELETE FROM bin       WHERE warehouse_id = ?|, conv_i($form->{id}));
+  do_query($form, $dbh, qq|DELETE FROM warehouse WHERE id           = ?|, conv_i($form->{id}));
 
   $dbh->commit();
 

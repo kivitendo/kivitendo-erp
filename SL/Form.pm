@@ -2167,41 +2167,22 @@ sub _get_warehouses {
 
   my ($self, $dbh, $param) = @_;
 
-  my ($key, $bins_key, $q_access, @values);
+  my ($key, $bins_key);
 
   if ('' eq ref $param) {
     $key = $param;
+
   } else {
     $key      = $param->{key};
     $bins_key = $param->{bins};
-
-    if ($param->{access}) {
-      $q_access =
-        qq| AND EXISTS (
-              SELECT wa.employee_id
-              FROM warehouse_access wa
-              WHERE (wa.employee_id  = (SELECT id FROM employee WHERE login = ?))
-                AND (wa.warehouse_id = w.id)
-                AND (wa.access IN ('ro', 'rw')))|;
-      push @values, $param->{access};
-    }
-
-    if ($param->{no_personal}) {
-      $q_access .= qq| AND (w.personal_warehouse_of IS NULL)|;
-
-    } elsif ($param->{personal}) {
-      $q_access .= qq| AND (w.personal_warehouse_of = ?)|;
-      push @values, conv_i($param->{personal});
-    }
   }
 
   my $query = qq|SELECT w.* FROM warehouse w
                  WHERE (NOT w.invalid) AND
                    ((SELECT COUNT(b.*) FROM bin b WHERE b.warehouse_id = w.id) > 0)
-                   $q_access
                  ORDER BY w.sortkey|;
 
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query, @values);
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
   if ($bins_key) {
     $query = qq|SELECT id, description FROM bin WHERE warehouse_id = ?|;
