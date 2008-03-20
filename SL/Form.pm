@@ -1412,6 +1412,11 @@ sub get_standard_dbh {
 
   my ($self, $myconfig) = @_;
 
+  if ($standard_dbh && !$standard_dbh->{Active}) {
+    $main::lxdebug->message(LXDebug::INFO, "get_standard_dbh: \$standard_dbh is defined but not Active anymore");
+    undef $standard_dbh;
+  }
+
   $standard_dbh ||= $self->dbconnect_noauto($myconfig);
 
   $main::lxdebug->leave_sub(2);
