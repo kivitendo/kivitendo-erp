@@ -388,7 +388,7 @@ sub addtop100 {
 
   $form->{top100}      = "top100";
   $form->{l_soldtotal} = "Y";
-#  $form->{soldtotal}   = "soldtotal";
+  $form->{soldtotal}   = "soldtotal";
   $form->{sort}        = "soldtotal";
   $form->{l_qty}       = "N";
   $form->{l_linetotal} = "";
@@ -985,6 +985,7 @@ sub generate_report {
   my ($revers, $lastsort, $description);
 
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
+  $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
 
   my $revers     = $form->{revers};
