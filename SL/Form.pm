@@ -41,7 +41,6 @@ use Data::Dumper;
 use CGI;
 use CGI::Ajax;
 use Cwd;
-use List::Util qw(min max);
 use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
