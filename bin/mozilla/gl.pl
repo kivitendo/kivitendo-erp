@@ -1267,7 +1267,8 @@ $follow_ups_block
         <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">|;
     }
 
-    print qq|
+    print qq|        
+        <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
         <input type="button" class="submit" onclick="follow_up_window()" value="|
       . $locale->text('Follow-Up')
       . qq|"> |;
