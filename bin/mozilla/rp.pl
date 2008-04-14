@@ -1447,6 +1447,7 @@ sub generate_trial_balance {
 
 
   $form->{rowcount} = scalar @{ $form->{TB} };
+  $form->{title} = sprintf($locale->text('Trial balance between %s and %s'), $form->{fromdate}, $form->{todate});
 
   my @columns = (
     "accno",               "description",
@@ -1459,13 +1460,13 @@ sub generate_trial_balance {
 
 
   my $attachment_basename;
-
+  $attachment_basename = $locale->text('trial_balance');
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = ();
   push @hidden_variables, qw(fromdate todate year cash );
 
-  my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
+  my $href = build_std_url('action=generate_trial_balance', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
     'accno'                   => { 'text' => $locale->text('Account Number'), },
@@ -1490,7 +1491,7 @@ sub generate_trial_balance {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('trial_balance', @hidden_variables);
+  $report->set_export_options('generate_trial_balance', @hidden_variables);
 
   $report->set_sort_indicator($form->{sort}, 1);
 
@@ -1771,7 +1772,7 @@ sub create_aging_subtotal_row {
 
 sub aging {
   $lxdebug->enter_sub();
-
+  print(STDERR "Bin in Aging\n");
   $auth->assert('general_ledger');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
@@ -1799,6 +1800,7 @@ sub aging {
   $report->set_export_options('generate_' . ($form->{arap} eq 'ar' ? 'ar' : 'ap') . '_aging', @hidden_variables);
 
   my @options;
+  my $attachment_basename;
 
   if ($form->{department}) {
     my ($department) = split /--/, $form->{department};
@@ -1808,10 +1810,14 @@ sub aging {
 
   if (($form->{arap} eq 'ar') && $form->{customer}) {
     push @options, $form->{customer};
+    $attachment_basename = $locale->text('ar_aging_list');
+    $form->{title} = sprintf($locale->text('Ar aging on %s'), $form->{todate});
   }
 
   if (($form->{arap} eq 'ap') && $form->{vendor}) {
     push @options, $form->{vendor};
+    $attachment_basename = $locale->text('ap_aging_list');
+    $form->{title} = sprintf($locale->text('Ap aging on %s'), $form->{todate});
   }
 
   push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);

@@ -809,7 +809,7 @@ sub trial_balance {
         FROM acc_trans ac
         JOIN chart c ON (ac.chart_id = c.id)
         $dpt_join
-        WHERE (ac.transdate < (select date_trunc('year', ?::date)))
+        WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction 
           $dpt_where
           $project
         GROUP BY c.accno, c.category, c.description |;
@@ -865,9 +865,9 @@ sub trial_balance {
       $tofrom   .= " AND (ac.transdate >= $fromdate)";
       $subwhere .= " AND (transdate >= $fromdate)";
       $sumsubwhere .= " AND (transdate >= (select date_trunc('year', date $fromdate))) ";
-      $saldosubwhere .= " AND (((c.category='I' OR c.category='E') AND transdate>=(select date_trunc('year', date $fromdate))) OR (c.category NOT IN ('I', 'E'))) ";
+      $saldosubwhere .= " AND transdate>=(select date_trunc('year', date $fromdate))  ";
       $invwhere .= " AND (a.transdate >= $fromdate)";
-      $glsaldowhere .= " AND (((c.category='I' OR c.category='E') AND ac.transdate>=(select date_trunc('year', date $fromdate))) OR (c.category NOT IN ('I', 'E'))) ";
+      $glsaldowhere .= " AND ac.transdate>=(select date_trunc('year', date $fromdate)) ";
       $glwhere = " AND (ac.transdate >= $fromdate)";
       $glsumwhere = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
     }
@@ -965,9 +965,9 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
               )|;
 
   } else {
-    $where .= $tofrom;
-    $saldowhere .= $glsaldowhere;
-    $sumwhere .= $glsumwhere;
+    $where .= $tofrom . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
+    $saldowhere .= $glsaldowhere . " AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
+    $sumwhere .= $glsumwhere . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
   }
 
   $query = qq|
@@ -1158,6 +1158,7 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
 
     $project_drcr = prepare_query($form, $dbh, $q_project_drcr);
   }
+
 
   my ($debit, $credit, $saldo, $soll_saldo, $haben_saldo,$soll_kummuliert, $haben_kummuliert, $last_transaction);
 
