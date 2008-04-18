@@ -361,6 +361,9 @@ sub scanfile {
   my $dont_include_subs = shift;
   my $scanned_files = shift;
 
+  # sanitize file
+  $file =~ s=/+=/=g;
+
   $scanned_files = {} unless ($scanned_files);
   return if ($scanned_files->{$file});
   $scanned_files->{$file} = 1;
