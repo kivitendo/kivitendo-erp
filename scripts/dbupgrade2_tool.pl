@@ -32,20 +32,20 @@ use SL::DBUtils;
 #######
 
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
-my ($opt_user, $opt_apply, $opt_applied);
+my ($opt_user, $opt_apply, $opt_applied, $opt_format);
 
 our (%myconfig, $form, $user, $auth);
 
 sub show_help {
-  my $help_text = <<'END_HELP'
+  my $help_text = <<"END_HELP"
 dbupgrade2_tool.pl [options]
 
   A validation and information tool for the database upgrade scripts
-  in 'sql/Pg-upgrade2'.
+  in \'sql/Pg-upgrade2\'.
 
   At startup dbupgrade2_tool.pl will always check the consistency
   of all database upgrade scripts (e.g. circular references, invalid
-  formats, missing meta information). You can but don't have to specifiy
+  formats, missing meta information). You can but don\'t have to specifiy
   additional actions.
 
   Actions:
@@ -55,23 +55,24 @@ dbupgrade2_tool.pl [options]
     --graphviz[=file]    Create a Postscript document showing a tree of
                          all database upgrades and their dependencies.
                          If no file name is given then the output is
-                         written to 'db_dependencies.ps'.
+                         written to \'db_dependencies.png\'.
+    --format=...         Format for the graphviz output. Defaults to
+                         \'png\'. All values that the command \'dot\' accepts
+                         for it\'s option \'-T\' are acceptable.
     --nodeps             List all database upgrades that no other upgrade
                          depends on
-    --apply=tag          Applies the database upgrades 'tag' and all
-                         upgrades it depends on. If '--apply' is used
-                         then the option '--user' must be used as well.
+    --apply=tag          Applies the database upgrades \'tag\' and all
+                         upgrades it depends on. If \'--apply\' is used
+                         then the option \'--user\' must be used as well.
     --applied            List the applied database upgrades for the
-                         database that the user given with '--user' uses.
+                         database that the user given with \'--user\' uses.
     --help               Show this help and exit.
 
   Options:
     --user=name          The name of the user configuration to use for
                          database connectivity.
 END_HELP
-    ;
-
-  # Syntax-Highlighting-Fix für Emacs: '
+;
 
   print $help_text;
 
@@ -154,14 +155,17 @@ sub dump_tree_reverse {
 }
 
 sub dump_graphviz {
-  my $file_name = shift || "db_dependencies.ps";
+  my %params    = @_;
 
-  print "GRAPHVIZ POSTCRIPT\n\n";
+  my $format    = $params{format}    || "png";
+  my $file_name = $params{file_name} || "db_dependencies.${format}";
+
+  print "GRAPHVIZ OUTPUT -- format: ${format}\n\n";
   print "Output will be written to '${file_name}'\n";
 
   calc_rev_depends();
 
-  $dot = "|dot -Tps ";
+  $dot = "|dot -T${format} ";
   open OUT, "${dot}> \"${file_name}\"" || die;
 
   print OUT
@@ -350,6 +354,7 @@ GetOptions("list"       => \$opt_list,
            "rtree"      => \$opt_rtree,
            "nodeps"     => \$opt_nodeps,
            "graphviz:s" => \$opt_graphviz,
+           "format:s"   => \$opt_format,
            "user=s"     => \$opt_user,
            "apply=s"    => \$opt_apply,
            "applied"    => \$opt_applied,
@@ -360,11 +365,12 @@ show_help() if ($opt_help);
 
 $controls = parse_dbupdate_controls($form, "Pg");
 
-dump_list()                  if ($opt_list);
-dump_tree()                  if ($opt_tree);
-dump_tree_reverse()          if ($opt_rtree);
-dump_graphviz($opt_graphviz) if (defined $opt_graphviz);
-dump_nodeps()                if ($opt_nodeps);
+dump_list()                                 if ($opt_list);
+dump_tree()                                 if ($opt_tree);
+dump_tree_reverse()                         if ($opt_rtree);
+dump_graphviz('file_name' => $opt_graphviz,
+              'format'    => $opt_format)   if (defined $opt_graphviz);
+dump_nodeps()                               if ($opt_nodeps);
 
 if ($opt_user) {
   $auth = SL::Auth->new();
