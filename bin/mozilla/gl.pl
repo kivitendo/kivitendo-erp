@@ -813,6 +813,10 @@ sub display_rows {
     <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
     $memo = qq|
     <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16"></td>|;
+    $source_hidden = qq|
+    <input type="hidden" name="source_$i" value="$form->{"source_$i"}" size="16">|;
+    $memo_hidden = qq|
+    <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
 
     my $selected_accno_full;
     my ($accno_row) = split(/--/, $form->{"accno_$i"});
@@ -940,6 +944,8 @@ sub display_rows {
 |;
     }
     print qq|
+    $source_hidden
+    $memo_hidden
   </tr>
 |;
   }
