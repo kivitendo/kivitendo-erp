@@ -78,7 +78,7 @@ sub transfer_warehouse_selection {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
-  my $units      = AM->retrieve_units(\%myconfig, $form, 'dimension');
+  my $units      = AM->retrieve_units(\%myconfig, $form);
   $form->{UNITS} = AM->unit_select_data($units, $form->{unit}, 0, $form->{partunit});
 
   if (scalar @{ $form->{WAREHOUSES} }) {
@@ -158,7 +158,7 @@ sub transfer_or_removal_prepare_contents {
 
   $form->show_generic_error($locale->text("The selected warehouse is empty.")) if (0 == scalar(@contents));
 
-  my $all_units = AM->retrieve_units(\%myconfig, $form, 'dimension');
+  my $all_units = AM->retrieve_units(\%myconfig, $form);
 
   foreach (@contents) {
     $_->{qty} = $form->format_amount_units('amount'     => $_->{qty},
@@ -201,7 +201,7 @@ sub transfer_parts {
 
   $form->{sort} = 'bindescription';
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id});
-  my $all_units = AM->retrieve_units(\%myconfig, $form, 'dimension');
+  my $all_units = AM->retrieve_units(\%myconfig, $form);
 
   my @transfers;
 
@@ -402,7 +402,7 @@ sub remove_parts {
 
   $form->{sort} = 'bindescription';
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id});
-  my $all_units = AM->retrieve_units(\%myconfig, $form, 'dimension');
+  my $all_units = AM->retrieve_units(\%myconfig, $form);
 
   my @transfers;
 

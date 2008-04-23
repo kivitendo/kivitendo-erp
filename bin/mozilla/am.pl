@@ -2586,7 +2586,7 @@ sub edit_units {
 
   $auth->assert('config');
 
-  $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"}, "resolved_");
+  $units = AM->retrieve_units(\%myconfig, $form, "resolved_");
   AM->units_in_use(\%myconfig, $form, $units);
   map({ $units->{$_}->{"BASE_UNIT_DDBOX"} = AM->unit_select_data($units, $units->{$_}->{"base_unit"}, 1); } keys(%{$units}));
 
@@ -2610,12 +2610,12 @@ sub edit_units {
     $i++;
   }
 
-  $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
+  $units = AM->retrieve_units(\%myconfig, $form);
   $ddbox = AM->unit_select_data($units, undef, 1);
 
-  my $updownlink = build_std_url("action=swap_units", "unit_type");
+  my $updownlink = build_std_url("action=swap_units");
 
-  $form->{"title"} = sprintf($locale->text("Add and edit %s"), $form->{"unit_type"} eq "dimension" ? $locale->text("dimension units") : $locale->text("service units"));
+  $form->{"title"} = $locale->text("Add and edit units");
   $form->header();
   print($form->parse_html_template("am/edit_units",
                                    { "UNITS"               => \@unit_list,
@@ -2632,7 +2632,7 @@ sub add_unit {
   $auth->assert('config');
 
   $form->isblank("new_name", $locale->text("The name is missing."));
-  $units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"});
+  $units = AM->retrieve_units(\%myconfig, $form);
   $all_units = AM->retrieve_units(\%myconfig, $form);
   $form->show_generic_error($locale->text("A unit with this name does already exist.")) if ($all_units->{$form->{"new_name"}});
 
@@ -2655,7 +2655,7 @@ sub add_unit {
          });
   }
 
-  AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, $form->{"unit_type"}, \@languages);
+  AM->add_unit(\%myconfig, $form, $form->{"new_name"}, $base_unit, $factor, \@languages);
 
   $form->{"saved_message"} = $locale->text("The unit has been saved.");
 
@@ -2689,7 +2689,7 @@ sub save_unit {
 
   $auth->assert('config');
 
-  $old_units = AM->retrieve_units(\%myconfig, $form, $form->{"unit_type"}, "resolved_");
+  $old_units = AM->retrieve_units(\%myconfig, $form, "resolved_");
   AM->units_in_use(\%myconfig, $form, $old_units);
 
   @languages = AM->language(\%myconfig, $form, 1);
@@ -2755,7 +2755,7 @@ sub save_unit {
     }
   }
 
-  AM->save_units(\%myconfig, $form, $form->{"unit_type"}, $new_units, \@delete_units);
+  AM->save_units(\%myconfig, $form, $new_units, \@delete_units);
 
   $form->{"saved_message"} = $locale->text("The units have been saved.");
 
@@ -2885,9 +2885,7 @@ sub swap_units {
   $auth->assert('config');
 
   my $dir = $form->{"dir"} eq "down" ? "down" : "up";
-  my $unit_type = $form->{"unit_type"} eq "dimension" ?
-    "dimension" : "service";
-  AM->swap_units(\%myconfig, $form, $dir, $form->{"name"}, $unit_type);
+  AM->swap_units(\%myconfig, $form, $dir, $form->{"name"});
 
   edit_units();
 

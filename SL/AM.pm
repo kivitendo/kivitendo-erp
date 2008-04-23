@@ -1776,19 +1776,13 @@ sub get_base_unit {
 sub retrieve_units {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $type, $prefix) = @_;
+  my ($self, $myconfig, $form, $prefix) = @_;
 
   my $dbh = $form->dbconnect($myconfig);
 
   my $query = "SELECT *, base_unit AS original_base_unit FROM units";
-  my @values;
-  if ($type) {
-    $query .= " WHERE (type = ?)";
-    @values = ($type);
-  }
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute(@values) || $form->dberror($query . " (" . join(", ", @values) . ")");
+  my $sth = prepare_execute_query($form, $dbh, $query);
 
   my $units = {};
   while (my $ref = $sth->fetchrow_hashref()) {
@@ -2037,16 +2031,16 @@ sub sum_with_unit {
 sub add_unit {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $name, $base_unit, $factor, $type, $languages) = @_;
+  my ($self, $myconfig, $form, $name, $base_unit, $factor, $languages) = @_;
 
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   my $query = qq|SELECT COALESCE(MAX(sortkey), 0) + 1 FROM units|;
   my ($sortkey) = selectrow_query($form, $dbh, $query);
 
-  $query = "INSERT INTO units (name, base_unit, factor, type, sortkey) " .
-    "VALUES (?, ?, ?, ?, ?)";
-  do_query($form, $dbh, $query, $name, $base_unit, $factor, $type, $sortkey);
+  $query = "INSERT INTO units (name, base_unit, factor, sortkey) " .
+    "VALUES (?, ?, ?, ?)";
+  do_query($form, $dbh, $query, $name, $base_unit, $factor, $sortkey);
 
   if ($languages) {
     $query = "INSERT INTO units_language (unit, language_id, localized, localized_plural) VALUES (?, ?, ?, ?)";
@@ -2067,7 +2061,7 @@ sub add_unit {
 sub save_units {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $type, $units, $delete_units) = @_;
+  my ($self, $myconfig, $form, $units, $delete_units) = @_;
 
   my $dbh = $form->dbconnect_noauto($myconfig);
 
@@ -2125,7 +2119,7 @@ sub save_units {
 sub swap_units {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $dir, $name_1, $unit_type) = @_;
+  my ($self, $myconfig, $form, $dir, $name_1) = @_;
 
   my $dbh = $form->dbconnect_noauto($myconfig);
 
@@ -2136,9 +2130,9 @@ sub swap_units {
 
   $query =
     qq|SELECT sortkey FROM units | .
-    qq|WHERE sortkey | . ($dir eq "down" ? ">" : "<") . qq| ? AND type = ? | .
+    qq|WHERE sortkey | . ($dir eq "down" ? ">" : "<") . qq| ? | .
     qq|ORDER BY sortkey | . ($dir eq "down" ? "ASC" : "DESC") . qq| LIMIT 1|;
-  my ($sortkey_2) = selectrow_query($form, $dbh, $query, $sortkey_1, $unit_type);
+  my ($sortkey_2) = selectrow_query($form, $dbh, $query, $sortkey_1);
 
   if (defined($sortkey_1)) {
     $query = qq|SELECT name FROM units WHERE sortkey = ${sortkey_2}|;

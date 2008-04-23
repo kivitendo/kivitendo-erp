@@ -813,7 +813,7 @@ sub check_stock_availability {
 
   my $dbh         = $form->get_standard_dbh($myconfig);
 
-  my $units       = AM->retrieve_units($myconfig, $form, "dimension");
+  my $units       = AM->retrieve_units($myconfig, $form);
 
   my ($partunit)  = selectrow_query($form, $dbh, qq|SELECT unit FROM parts WHERE id = ?|, conv_i($params{parts_id}));
   my $unit_factor = $units->{$partunit}->{factor} || 1;

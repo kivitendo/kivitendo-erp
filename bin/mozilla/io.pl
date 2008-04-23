@@ -150,8 +150,6 @@ sub display_row {
   my @column_index = map { $_->{id} } grep { $_->{display} } @HEADER;
 
   # cache units
-  my $dimension_units = AM->retrieve_units(\%myconfig, $form, "dimension");
-  my $service_units   = AM->retrieve_units(\%myconfig, $form, "service");
   my $all_units       = AM->retrieve_units(\%myconfig, $form);
 
   my %price_factors   = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
@@ -200,10 +198,7 @@ sub display_row {
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
     $form->{"selected_unit_$i"} ||= $form->{"unit_$i"};
 
-    my $local_units = $form->{"inventory_accno_$i"} || $form->{"assembly_$i"} ? $dimension_units 
-                    : $form->{"id_$i"}                                        ? $service_units 
-                    :                                                           $all_units;
-    if (   !$local_units->{$form->{"selected_unit_$i"}}                                          # Die ausgewaehlte Einheit ist fuer diesen Artikel nicht gueltig
+    if (   !$all_units->{$form->{"selected_unit_$i"}}                                            # Die ausgewaehlte Einheit ist fuer diesen Artikel nicht gueltig
         || !AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units)) { # (z.B. Dimensionseinheit war ausgewaehlt, es handelt sich aber
       $form->{"unit_old_$i"} = $form->{"selected_unit_$i"} = $form->{"unit_$i"};                 # um eine Dienstleistung). Dann keinerlei Umrechnung vornehmen.
     }
@@ -230,7 +225,7 @@ sub display_row {
       $column_data{price_factor} = '&nbsp;';
     }
 
-    $column_data{"unit"} = AM->unit_select_html($local_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
+    $column_data{"unit"} = AM->unit_select_html($all_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
 
     $form->{"sellprice_$i"} =~ /\.(\d+)/;

@@ -1477,7 +1477,7 @@ sub form_header {
   # use JavaScript Calendar or not (yes!)
   $form->{jsscript} = 1;
 
-  $units = AM->retrieve_units(\%myconfig, $form, $form->{"item"} eq "service" ? "service" : "dimension");
+  $units = AM->retrieve_units(\%myconfig, $form);
   $form->{ALL_UNITS} = [ map +{ name => $_ }, sort { $units->{$a}{sortkey} <=> $units->{$b}{sortkey} } keys %$units ];
 
   $form->{fokus} = "ic.partnumber";

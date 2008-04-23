@@ -933,7 +933,7 @@ sub display_stock_in_form {
 
   my $part_info  = IC->get_basic_part_info('id' => $form->{parts_id});
 
-  my $units      = AM->retrieve_units(\%myconfig, $form, "dimension");
+  my $units      = AM->retrieve_units(\%myconfig, $form);
   my $units_data = AM->unit_select_data($units, undef, undef, $part_info->{unit});
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
@@ -979,7 +979,7 @@ sub stock_out_form {
 
   my $part_info  = IC->get_basic_part_info('id' => $form->{parts_id});
 
-  my $units      = AM->retrieve_units(\%myconfig, $form, "dimension");
+  my $units      = AM->retrieve_units(\%myconfig, $form);
   my $units_data = AM->unit_select_data($units, undef, undef, $part_info->{unit});
 
   my @contents   = DO->get_item_availability('parts_id' => $form->{parts_id});
@@ -1063,7 +1063,7 @@ sub transfer_in_and_close {
   my @all_requests;
 
   if (@part_ids) {
-    my $units         = AM->retrieve_units(\%myconfig, $form, "dimension");
+    my $units         = AM->retrieve_units(\%myconfig, $form);
     my %part_info_map = IC->get_basic_part_info('id' => \@part_ids);
     my %request_map;
 
@@ -1120,7 +1120,7 @@ sub transfer_out_and_close {
   my @all_requests;
 
   if (@part_ids) {
-    my $units         = AM->retrieve_units(\%myconfig, $form, "dimension");
+    my $units         = AM->retrieve_units(\%myconfig, $form);
     my %part_info_map = IC->get_basic_part_info('id' => \@part_ids);
     my %request_map;
 

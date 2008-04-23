@@ -117,9 +117,9 @@ use Data::Dumper;
 #  }
 ############### ENDE Neueintrag ##################
 #
-#  my $dimension_units = AM->retrieve_units(\%myconfig, $form, "dimension");
-#  my $service_units = AM->retrieve_units(\%myconfig, $form, "service");
 #  my $all_units = AM->retrieve_units(\%myconfig, $form);
+#  my $dimension_units = $all_units;
+#  my $service_units = $all_units;
 #
 #  my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
 #

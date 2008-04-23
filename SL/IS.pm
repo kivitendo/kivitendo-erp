@@ -1828,8 +1828,6 @@ sub get_pricegroups_for_parts {
 
   my $i  = 1;
   my $id = 0;
-  my $dimension_units = AM->retrieve_units($myconfig, $form, "dimension");
-  my $service_units = AM->retrieve_units($myconfig, $form, "service");
   my $all_units = AM->retrieve_units($myconfig, $form);
   while (($form->{"id_$i"}) or ($form->{"new_id_$i"})) {
     $form->{"PRICES"}{$i} = [];
@@ -1862,9 +1860,8 @@ sub get_pricegroups_for_parts {
     # vergleichen und bei Unterschied den Preis entsprechend umrechnen.
     $form->{"selected_unit_$i"} = $form->{"unit_$i"} unless ($form->{"selected_unit_$i"});
 
-    my $check_units = $form->{"inventory_accno_$i"} ? $dimension_units : $service_units;
-    if (!$check_units->{$form->{"selected_unit_$i"}} ||
-        ($check_units->{$form->{"selected_unit_$i"}}->{"base_unit"} ne
+    if (!$all_units->{$form->{"selected_unit_$i"}} ||
+        ($all_units->{$form->{"selected_unit_$i"}}->{"base_unit"} ne
          $all_units->{$form->{"unit_old_$i"}}->{"base_unit"})) {
       # Die ausgewaehlte Einheit ist fuer diesen Artikel nicht gueltig
       # (z.B. Dimensionseinheit war ausgewaehlt, es handelt sich aber
