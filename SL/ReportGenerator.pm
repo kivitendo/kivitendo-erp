@@ -9,7 +9,6 @@ use SL::Form;
 
 # Cause locales.pl to parse these files:
 # parse_html_template('report_generator/html_report')
-# parse_html_template('report_generator/pdf_report')
 
 sub new {
   my $type = shift;
@@ -26,7 +25,6 @@ sub new {
     'allow_pdf_export'      => 1,
     'allow_csv_export'      => 1,
     'html_template'         => 'report_generator/html_report',
-    'pdf_template'          => 'report_generator/pdf_report',
     'pdf_export'            => {
       'paper_size'          => 'a4',
       'orientation'         => 'landscape',
@@ -342,7 +340,7 @@ sub prepare_html_content {
 
   my @export_variables = $self->{form}->flatten_variables(@{ $self->{export}->{variable_list} });
 
-  my $allow_pdf_export = $opts->{allow_pdf_export} && (-x $main::html2ps_bin) && (-x $main::ghostscript_bin);
+  my $allow_pdf_export = $opts->{allow_pdf_export};
 
   eval { require PDF::API2; require PDF::Table; };
   $allow_pdf_export |= 1 if (! $@);
@@ -602,111 +600,6 @@ sub verify_paper_size {
   return $allowed_paper_sizes{$requested_paper_size} ? $requested_paper_size : $default_paper_size;
 }
 
-sub render_pdf_with_html2ps {
-  my $self      = shift;
-  my $variables = $self->prepare_html_content();
-  my $form      = $self->{form};
-  my $myconfig  = $self->{myconfig};
-  my $opt       = $self->{options}->{pdf_export};
-
-  my $opt_number     = $opt->{number}                     ? 'number : 1'    : '';
-  my $opt_landscape  = $opt->{orientation} eq 'landscape' ? 'landscape : 1' : '';
-
-  my $opt_paper_size = $self->verify_paper_size($opt->{paper_size}, 'a4');
-
-  my $html2ps_config = <<"END"
-\@html2ps {
-  option {
-    titlepage: 0;
-    hyphenate: 0;
-    colour: 1;
-    ${opt_landscape};
-    ${opt_number};
-  }
-  paper {
-    type: ${opt_paper_size};
-  }
-  break-table: 1;
-}
-
-\@page {
-  margin-top:    $opt->{margin_top}cm;
-  margin-left:   $opt->{margin_left}cm;
-  margin-bottom: $opt->{margin_bottom}cm;
-  margin-right:  $opt->{margin_right}cm;
-}
-
-BODY {
-  font-family: Helvetica;
-  font-size:   $opt->{font_size}pt;
-}
-
-END
-  ;
-
-  my $printer_command;
-  if ($opt->{print} && $opt->{printer_id}) {
-    $form->{printer_id} = $opt->{printer_id};
-    $form->get_printer_code($myconfig);
-    $printer_command = $form->{printer_command};
-  }
-
-  my $cfg_file_name = Common::tmpname() . '-html2ps-config';
-  my $cfg_file      = IO::File->new($cfg_file_name, 'w') || $form->error($locale->text('Could not write the html2ps config file.'));
-
-  $cfg_file->print($html2ps_config);
-  $cfg_file->close();
-
-  my $html_file_name = Common::tmpname() . '.html';
-  my $html_file      = IO::File->new($html_file_name, 'w');
-
-  if (!$html_file) {
-    unlink $cfg_file_name;
-    $form->error($locale->text('Could not write the temporary HTML file.'));
-  }
-
-  $html_file->print($form->parse_html_template($self->{options}->{pdf_template}, $variables));
-  $html_file->close();
-
-  my $cmdline =
-    "\"${main::html2ps_bin}\" -f \"${cfg_file_name}\" \"${html_file_name}\" | " .
-    "\"${main::ghostscript_bin}\" -q -dSAFER -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sPAPERSIZE=${opt_paper_size} -sOutputFile=- -c .setpdfwrite -";
-
-  my $gs = IO::File->new("${cmdline} |");
-  if ($gs) {
-    my $content;
-
-    if (!$printer_command) {
-      my $filename = $self->get_attachment_basename();
-      print qq|content-type: application/pdf\n|;
-      print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
-
-      while (my $line = <$gs>) {
-        print $line;
-      }
-
-    } else {
-      while (my $line = <$gs>) {
-        $content .= $line;
-      }
-    }
-
-    $gs->close();
-    unlink $cfg_file_name, $html_file_name;
-
-    if ($printer_command && $content) {
-      $self->_print_content('printer_command' => $printer_command,
-                            'content'         => $content,
-                            'copies'          => $opt->{copies});
-      $form->{report_generator_printed} = 1;
-    }
-
-  } else {
-    unlink $cfg_file_name, $html_file_name;
-    $form->error($locale->text('Could not spawn html2ps or GhostScript.'));
-  }
-}
-
 sub _print_content {
   my $self   = shift;
   my %params = @_;
@@ -724,11 +617,7 @@ sub generate_pdf_content {
 
   eval { require PDF::API2; require PDF::Table; };
 
-  if ($@) {
-    return $self->render_pdf_with_html2ps(@_);
-  } else {
-    return $self->render_pdf_with_pdf_api2(@_);
-  }
+  return $self->render_pdf_with_pdf_api2(@_);
 }
 
 sub unescape_string {
@@ -942,10 +831,6 @@ Used to determine if a button for CSV export should be displayed. Default is yes
 =item html_template
 
 The template to be used for HTML reports. Default is 'report_generator/html_report'.
-
-=item pdf_template
-
-The template to be used for PDF reports. Default is 'report_generator/pdf_report'.
 
 =back
 
