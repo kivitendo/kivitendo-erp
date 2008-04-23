@@ -41,7 +41,10 @@
    [%- FOREACH row = HEADER_ROWS %]
    <tr>
     [% FOREACH col = row %]
-     <th class="listheading">
+     <th class="listheading"
+     [%- IF col.align %] align="[% HTML.escape(col.align) %]"[% END -%]
+     [%- IF col.colspan && col.colspan > 1 %] colspan="[% HTML.escape(col.colspan) %]"[% END -%]
+     >
       [%- IF col.link -%]<a href="[% col.link %]">[%- END -%]
       [%- col.text -%]
       [%- IF col.show_sort_indicator -%]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[%- END -%]
@@ -59,6 +62,7 @@
       [%- FOREACH col = row.COLUMNS %]
       <td[% IF col.align %] align="[% col.align %]"[% END %]
          [%- IF col.valign %] valign="[% col.valign %]"[%- END %]
+         [%- IF col.colspan && col.colspan > 1 %] colspan="[% HTML.escape(col.colspan) %]"[% END -%]
          [%- SET tdclass = '' %]
          [%- IF row.BORDER_TOP %][%- SET tdclass = "$tdclass top_border" %][%- END %]
          [%- IF row.BORDER_BOTTOM %][%- SET tdclass = "$tdclass bottom_border" %][%- END %]

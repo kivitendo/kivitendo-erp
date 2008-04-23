@@ -322,7 +322,14 @@ sub prepare_html_content {
     foreach my $row (@{ $row_set }) {
       $inner_idx++;
 
+      my $output_columns = [ ];
+      my $skip_next      = 0;
       foreach my $col_name (@visible_columns) {
+        if ($skip_next) {
+          $skip_next--;
+          next;
+        }
+
         my $col = $row->{$col_name};
         $col->{CELL_ROWS} = [ ];
         foreach my $i (0 .. scalar(@{ $col->{data} }) - 1) {
@@ -339,10 +346,13 @@ sub prepare_html_content {
         } elsif ((1 == scalar @{ $col->{CELL_ROWS} }) && (!defined $col->{CELL_ROWS}->[0]->{data} || ($col->{CELL_ROWS}->[0]->{data} eq ''))) {
           $col->{CELL_ROWS}->[0]->{data} = '&nbsp;';
         }
+
+        push @{ $output_columns }, $col;
+        $skip_next = $col->{colspan} ? $col->{colspan} - 1 : 0;
       }
 
       my $row_data = {
-        'COLUMNS'       => [ map { $row->{$_} } @visible_columns ],
+        'COLUMNS'       => $output_columns,
         'outer_idx'     => $outer_idx,
         'outer_idx_odd' => $outer_idx % 2,
         'inner_idx'     => $inner_idx,
@@ -696,8 +706,16 @@ sub generate_csv_content {
       $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}) } @visible_columns ]);
 
     } else {
-      foreach my $custom_header_row (@{ $self->{custom_headers} }) {
-        $csv->print($stdout, [ map { $self->unescape_string($_->{text}) } @{ $custom_header_row } ]);
+      foreach my $row (@{ $self->{custom_headers} }) {
+        my $fields    = [ ];
+        my $skip_next = 0;
+
+        foreach my $col (@{ $row }) {
+          my $num_output = ($col->{colspan} && ($col->{colspan} > 1)) ? $col->{colspan} : 1;
+          push @{ $fields }, ($self->unescape_string($col->{text})) x $num_output;
+        }
+
+        $csv->print($stdout, $fields);
       }
     }
   }
@@ -706,9 +724,20 @@ sub generate_csv_content {
     next if ('ARRAY' ne ref $row_set);
     foreach my $row (@{ $row_set }) {
       my @data;
+      my $skip_next = 0;
       foreach my $col (@visible_columns) {
+        if ($skip_next) {
+          $skip_next--;
+          next;
+        }
+
+        my $num_output = ($col->{colspan} && ($col->{colspan} > 1)) ? $col->{colspan} : 1;
+        $skip_next     = $num_output - 1;
+
         push @data, join($eol, map { s/\r?\n/$eol/g; $_ } @{ $row->{$col}->{data} });
+        push @data, ('') x $skip_next if ($skip_next);
       }
+
       $csv->print($stdout, \@data);
     }
   }
