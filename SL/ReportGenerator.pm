@@ -396,7 +396,12 @@ sub _cm2bp {
   return $_[0] * 72 / 2.54;
 }
 
-sub render_pdf_with_pdf_api2 {
+sub generate_pdf_content {
+  eval {
+    require PDF::API2;
+    require PDF::Table;
+  };
+
   my $self       = shift;
   my $variables  = $self->prepare_html_content();
   my $form       = $self->{form};
@@ -649,14 +654,6 @@ sub _print_content {
     $printer->print($params{content});
     $printer->close();
   }
-}
-
-sub generate_pdf_content {
-  my $self = shift;
-
-  eval { require PDF::API2; require PDF::Table; };
-
-  return $self->render_pdf_with_pdf_api2(@_);
 }
 
 sub unescape_string {
