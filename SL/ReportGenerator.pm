@@ -189,6 +189,16 @@ sub set_export_options {
   };
 }
 
+sub set_custom_headers {
+  my $self = shift;
+
+  if (@_) {
+    $self->{custom_headers} = [ @_ ];
+  } else {
+    delete $self->{custom_headers};
+  }
+}
+
 sub get_attachment_basename {
   my $self     = shift;
   my $filename =  $self->{options}->{attachment_basename} || 'report';
@@ -267,6 +277,13 @@ sub prepare_html_content {
     };
 
     push @column_headers, $header;
+  }
+
+  my $header_rows;
+  if ($self->{custom_headers}) {
+    $header_rows = $self->{custom_headers};
+  } else {
+    $header_rows = [ \@column_headers ];
   }
 
   my ($outer_idx, $inner_idx) = (0, 0);
@@ -354,7 +371,7 @@ sub prepare_html_content {
     'ALLOW_PDF_EXPORT'     => $allow_pdf_export,
     'ALLOW_CSV_EXPORT'     => $opts->{allow_csv_export},
     'SHOW_EXPORT_BUTTONS'  => ($allow_pdf_export || $opts->{allow_csv_export}) && $self->{data_present},
-    'COLUMN_HEADERS'       => \@column_headers,
+    'HEADER_ROWS'          => $header_rows,
     'NUM_COLUMNS'          => scalar @column_headers,
     'ROWS'                 => \@rows,
     'EXPORT_VARIABLES'     => \@export_variables,
@@ -390,22 +407,43 @@ sub render_pdf_with_pdf_api2 {
 
   my (@data, @column_props, @cell_props);
 
-  my $data_row        = [];
-  my $cell_props_row  = [];
+  my ($data_row, $cell_props_row);
   my @visible_columns = $self->get_visible_columns('HTML');
+  my $num_columns     = scalar @visible_columns;
+  my $num_header_rows = 1;
 
   foreach $name (@visible_columns) {
-    $column = $self->{columns}->{$name};
-
-    push @{ $data_row },       $column->{text};
-    push @{ $cell_props_row }, {};
-    push @column_props,        { 'justify' => $column->{align} eq 'right' ? 'right' : 'left' };
+    push @column_props, { 'justify' => $self->{columns}->{$name}->{align} eq 'right' ? 'right' : 'left' };
   }
 
-  push @data,       $data_row;
-  push @cell_props, $cell_props_row;
+  if (!$self->{custom_headers}) {
+    $data_row       = [];
+    $cell_props_row = [];
+    push @data,       $data_row;
+    push @cell_props, $cell_props_row;
 
-  my $num_columns = scalar @column_props;
+    foreach $name (@visible_columns) {
+      $column = $self->{columns}->{$name};
+
+      push @{ $data_row },       $column->{text};
+      push @{ $cell_props_row }, {};
+    }
+
+  } else {
+    $num_header_rows = scalar @{ $self->{custom_headers} };
+
+    foreach my $custom_header_row (@{ $self->{custom_headers} }) {
+      $data_row       = [];
+      $cell_props_row = [];
+      push @data,       $data_row;
+      push @cell_props, $cell_props_row;
+
+      foreach my $custom_header_col (@{ $custom_header_row }) {
+        push @{ $data_row },       $custom_header_col->{text};
+        push @{ $cell_props_row }, {};
+      }
+    }
+  }
 
   foreach my $row_set (@{ $self->{data} }) {
     if ('HASH' eq ref $row_set) {
@@ -534,6 +572,7 @@ sub render_pdf_with_pdf_api2 {
                 'font'                  => $font,
                 'font_size'             => $font_size,
                 'font_color'            => '#000000',
+                'num_header_rows'       => $num_header_rows,
                 'header_props'          => {
                   'bg_color'            => '#ffffff',
                   'repeat'              => 1,
@@ -656,7 +695,14 @@ sub generate_csv_content {
   my @visible_columns = $self->get_visible_columns('CSV');
 
   if ($opts->{headers}) {
-    $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}) } @visible_columns ]);
+    if (!$self->{custom_headers}) {
+      $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}) } @visible_columns ]);
+
+    } else {
+      foreach my $custom_header_row (@{ $self->{custom_headers} }) {
+        $csv->print($stdout, [ map { $self->unescape_string($_->{text}) } @{ $custom_header_row } ]);
+      }
+    }
   }
 
   foreach my $row_set (@{ $self->{data} }) {

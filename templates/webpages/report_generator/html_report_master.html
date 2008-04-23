@@ -38,11 +38,13 @@
  [% IF DATA_PRESENT %]
  <p>
   <table width="100%">
+   [%- FOREACH row = HEADER_ROWS %]
    <tr>
-    [% FOREACH col = COLUMN_HEADERS %]
+    [% FOREACH col = row %]
      <th class="listheading">[% IF col.link %]<a href="[% col.link %]">[% END %][% col.text %][% IF col.link %][% IF col.show_sort_indicator %]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[% END %]</a>[% ELSE %][% IF col.show_sort_indicator %]<img src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[% END %][% END %]</th>
     [% END %]
    </tr>
+   [%- END %]
 
    [% FOREACH row = ROWS %]
     [% IF row.IS_CONTROL %]

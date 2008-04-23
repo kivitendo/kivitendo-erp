@@ -238,7 +238,9 @@ sub table {
   # Table Header Section
   #=====================================
   # Disable header row into the table
-  my $header_props = 0;
+  my $header_props;
+  my $num_header_rows = 0;
+  my @header_rows;
   # Check if the user enabled it ?
   if (defined $arg{'header_props'} and ref( $arg{'header_props'}) eq 'HASH') {
     # Transfer the reference to local variable
@@ -249,8 +251,9 @@ sub table {
     $header_props->{'font_color'} = $header_props->{'font_color'} || '#000066';
     $header_props->{'font_size'}  = $header_props->{'font_size'}  || $fnt_size + 2;
     $header_props->{'bg_color'}   = $header_props->{'bg_color'}   || '#FFFFAA';
+
+    $num_header_rows              = $arg{'num_header_rows'}       || 1;
   }
-  my $header_row  = undef;
   #=====================================
   # Other Parameters check
   #=====================================
@@ -276,12 +279,14 @@ sub table {
   my $pg_cnt     = 1;
   my $cur_y      = $ybase;
   my $cell_props = $arg{cell_props} || [];   # per cell properties
-  my $row_cnt    = ( ref $header_props and $header_props->{'repeat'} ) ?  1 : 0; # current row in user data
+  my $row_cnt    = $num_header_rows;
 
   #If there is valid data array reference use it!
   if (ref $data eq 'ARRAY') {
     # Copy the header row if header is enabled
-    @$header_row = $$data[0] if defined $header_props;
+    if (defined $header_props) {
+      map { push @header_rows, $$data[$_] } (0..$num_header_rows - 1);
+    }
     # Determine column widths based on content
 
     #  an arrayref whose values are a hashref holding
@@ -292,7 +297,7 @@ sub table {
     #  the actual widths of the column/row intersection
     my $row_props = [];
     # An array ref with the widths of the header row
-    my $header_row_props = [];
+    my @header_row_props;
 
     # Scalars that hold sum of the maximum and minimum widths of all columns
     my ( $max_col_w, $min_col_w ) = ( 0,0 );
@@ -301,9 +306,10 @@ sub table {
     # Hash that will hold the width of every word from input text
     my $word_w       = {};
     my $rows_counter = 0;
-    my $first_row    = 1;
 
     foreach $row ( @{$data} ) {
+      push(@header_row_props, []) if ($rows_counter < $num_header_rows);
+
       my $column_widths = []; #holds the width of each column
       for( my $j = 0; $j < scalar(@$row) ; $j++ ) {
         # look for font information for this column
@@ -360,9 +366,12 @@ sub table {
       }#End of for(my $j....
       $row_props->[$rows_counter] = $column_widths;
       # Copy the calculated row properties of header row.
-      @$header_row_props = @$column_widths if (!$rows_counter and ref $header_props);
+      if (($rows_counter < $num_header_rows) && $header_props) {
+        push(@header_row_props, [ @{ $column_widths } ]);
+      }
       $rows_counter++;
     }
+    $main::lxdebug->dump(0, "hrp", \@header_row_props);
     # Calc real column widths and expand table width if needed.
     my $calc_column_widths;
     ($calc_column_widths, $width) = $self->CalcColumnWidths( $col_props, $width );
@@ -372,6 +381,8 @@ sub table {
 
     my ( $gfx   , $gfx_bg   , $background_color , $font_color,        );
     my ( $bot_marg, $table_top_y, $text_start   , $record,  $record_widths  );
+
+    my $remaining_header_rows = $header_props ? $num_header_rows : 0;
 
     # Each iteration adds a new page as neccessary
     while(scalar(@{$data})) {
@@ -392,14 +403,11 @@ sub table {
         $bot_marg = $table_top_y - $next_h;
 
         if ( ref $header_props and $header_props->{'repeat'}) {
-          # Copy Header Data
-          @$page_header = @$header_row;
-          my $hrp ;
-          @$hrp = @$header_row_props ;
-          # Then prepend it to master data array
-          unshift @$data    ,@$page_header  ;
-          unshift @$row_props ,$hrp     ;
-          $first_row = 1; # Means YES
+          foreach my $idx (0 .. $num_header_rows - 1) {
+            unshift @$data,      [ @{ $header_rows[$idx]      } ];
+            unshift @$row_props, [ @{ $header_row_props[$idx] } ];
+          }
+          $remaining_header_rows = $num_header_rows;
         }
       }
 
@@ -438,7 +446,7 @@ sub table {
         $background_color = $rows_counter % 2 ? $background_color_even  : $background_color_odd;
         $font_color     = $rows_counter % 2 ? $font_color_even    : $font_color_odd;
 
-        if ($first_row and ref $header_props) {
+        if ($remaining_header_rows and ref $header_props) {
           $background_color = $header_props->{'bg_color'}
         }
         $text_start    = $cur_y - $fnt_size - $pad_top;
@@ -455,7 +463,7 @@ sub table {
           $leftovers->[$j] = undef;
 
           # Choose font color
-          if ( $first_row and ref $header_props ) {
+          if ( $remaining_header_rows and ref $header_props ) {
             $txt->fillcolor( $header_props->{'font_color'} );
 
           } elsif ( $cell_props->[$row_cnt][$j]{font_color} ) {
@@ -469,7 +477,7 @@ sub table {
           }
 
           # Choose font size
-          if ( $first_row and ref $header_props ) {
+          if ( $remaining_header_rows and ref $header_props ) {
             $col_fnt_size = $header_props->{'font_size'};
 
           } elsif ( $col_props->[$j]->{'font_size'} ) {
@@ -480,7 +488,7 @@ sub table {
           }
 
           # Choose font family
-          if ( $first_row and ref $header_props ) {
+          if ( $remaining_header_rows and ref $header_props ) {
             $txt->font( $header_props->{'font'}, $header_props->{'font_size'});
 
           } elsif ( $col_props->[$j]->{'font'} ) {
@@ -493,7 +501,7 @@ sub table {
           $col_props->[$j]->{justify} = $col_props->[$j]->{justify} || 'left';
 
           my $this_width;
-          if (!$first_row && $cell_props->[$row_cnt]->[$j]->{colspan}) {
+          if (!$remaining_header_rows && $cell_props->[$row_cnt]->[$j]->{colspan}) {
             $colspan     = -1 == $cell_props->[$row_cnt]->[$j]->{colspan} ? $num_cols - $j : $cell_props->[$row_cnt]->[$j]->{colspan};
             my $last_idx = $j + $colspan - 1;
             $this_width  = sum @{ $calc_column_widths }[$j..$last_idx];
@@ -550,10 +558,10 @@ sub table {
                 $col_props->[$j]->{'background_color'} ||
                 $background_color ) {
             $gfx_bg->rect( $cur_x, $cur_y-$row_h, $calc_column_widths->[$j], $row_h);
-            if ( $cell_props->[$row_cnt][$j]->{'background_color'} && !$first_row ) {
+            if ( $cell_props->[$row_cnt][$j]->{'background_color'} && !$remaining_header_rows ) {
               $gfx_bg->fillcolor($cell_props->[$row_cnt][$j]->{'background_color'});
 
-            } elsif ( $col_props->[$j]->{'background_color'} && !$first_row  ) {
+            } elsif ( $col_props->[$j]->{'background_color'} && !$remaining_header_rows  ) {
               $gfx_bg->fillcolor($col_props->[$j]->{'background_color'});
 
             } else {
@@ -576,8 +584,11 @@ sub table {
         $gfx->move(  $xbase , $cur_y );
         $gfx->hline( $xbase + $width );
         $rows_counter++;
-        $row_cnt++ unless ( $first_row );
-        $first_row = 0;
+        if ($remaining_header_rows) {
+          $remaining_header_rows--;
+        } else {
+          $row_cnt++;
+        }
       }# End of while(scalar(@{$data}) and $cur_y-$row_h > $bot_marg)
 
       # Draw vertical lines
