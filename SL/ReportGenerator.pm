@@ -707,8 +707,7 @@ sub generate_csv_content {
 
     } else {
       foreach my $row (@{ $self->{custom_headers} }) {
-        my $fields    = [ ];
-        my $skip_next = 0;
+        my $fields = [ ];
 
         foreach my $col (@{ $row }) {
           my $num_output = ($col->{colspan} && ($col->{colspan} > 1)) ? $col->{colspan} : 1;
