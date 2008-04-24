@@ -188,57 +188,48 @@ sub all_transactions {
     ($form->{category}) = selectrow_query($form, $dbh, $query, $form->{accno});
 
     if ($form->{fromdate}) {
-      # get beginning balance
+      # get beginning balances
       $query =
-        qq|SELECT SUM(ac.amount) | .
-        qq|FROM acc_trans ac | .
-        qq|JOIN chart c ON (ac.chart_id = c.id) | .
-        $dpt_join .
-        qq|WHERE c.accno = ? | .
-        qq|AND ac.transdate < ? | .
-        $dpt_where .
-        $project;
-      @values = ($form->{accno}, conv_date($form->{fromdate}),
-                 @department_values, @project_values);
+        qq|SELECT SUM(ac.amount) AS amount
+            FROM acc_trans ac
+            JOIN chart c ON (ac.chart_id = c.id)
+            $dpt_join
+            WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction 
+              $dpt_where
+              $project
+            AND c.accno = ?|;
+    
+      ($form->{beginning_balance}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
-      if ($form->{project_id}) {
-        $query .=
-          qq|UNION | .
+      # get last transaction date
+      my $todate = ($form->{todate}) ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $query = qq|SELECT max(ac.transdate) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) $todate AND c.accno = ?|;
+      ($form->{last_transaction}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
-          qq|SELECT SUM(ac.qty * ac.sellprice) | .
-          qq|FROM invoice ac | .
-          qq|JOIN ar a ON (ac.trans_id = a.id) | .
-          qq|JOIN parts p ON (ac.parts_id = p.id) | .
-          qq|JOIN chart c ON (p.income_accno_id = c.id) | .
-          $dpt_join .
-          qq|WHERE c.accno = ? | .
-          qq|  AND a.transdate < ? | .
-          qq|  AND c.category = 'I' | .
-          $dpt_where .
-          $project .
+      # get old saldo
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ?|;
+      ($form->{saldo_old}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
 
-          qq|UNION | .
+      #get old balance
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
+      ($form->{old_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
 
-          qq|SELECT SUM(ac.qty * ac.sellprice) | .
-          qq|FROM invoice ac | .
-          qq|JOIN ap a ON (ac.trans_id = a.id) | .
-          qq|JOIN parts p ON (ac.parts_id = p.id) | .
-          qq|JOIN chart c ON (p.expense_accno_id = c.id) | .
-          $dpt_join .
-          qq|WHERE c.accno = ? | .
-          qq|  AND a.transdate < ? | .
-          qq|  AND c.category = 'E' | .
-          $dpt_where .
-          $project;
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
+      ($form->{old_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
 
-        push(@values,
-             $form->{accno}, conv_date($form->{transdate}),
-             @department_values, @project_values,
-             $form->{accno}, conv_date($form->{transdate}),
-             @department_values, @project_values);
-      }
+      # get current saldo
+      my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) $todate AND c.accno = ?|;
+      ($form->{saldo_new}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
-      ($form->{balance}) = selectrow_query($form, $dbh, $query, @values);
+      #get current balance
+      my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
+      ($form->{current_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
+
+      my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
+      ($form->{current_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
     }
   }
 
@@ -258,39 +249,42 @@ sub all_transactions {
     #  JOIN ... that also works.
 
     # get all transactions
-    $query .=
-      $union .
-      qq|SELECT a.id, a.reference, a.description, ac.transdate, | .
-      qq|  $false AS invoice, ac.amount, 'gl' as module | .
+    $query =
+      qq|SELECT a.id, a.reference, a.description, ac.transdate, ac.chart_id, | .
+      qq|  $false AS invoice, ac.amount, 'gl' as module, | .
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
       qq|FROM acc_trans ac, gl a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq|  AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
+      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) | .
 
       qq|UNION ALL | .
 
-      qq|SELECT a.id, a.invnumber, c.name, ac.transdate, | .
-      qq|  a.invoice, ac.amount, 'ar' as module | .
+      qq|SELECT a.id, a.invnumber, c.name, ac.transdate, ac.chart_id, | .
+      qq|  a.invoice, ac.amount, 'ar' as module, | .
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § . 
       qq|FROM acc_trans ac, customer c, ar a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
-      qq| AND NOT a.storno | .
       qq| AND ac.trans_id = a.id | .
       qq| AND a.customer_id = c.id | .
+      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) | .
 
       qq|UNION ALL | .
 
-      qq|SELECT a.id, a.invnumber, v.name, ac.transdate, | .
-      qq|  a.invoice, ac.amount, 'ap' as module | .
+      qq|SELECT a.id, a.invnumber, v.name, ac.transdate, ac.chart_id, | .
+      qq|  a.invoice, ac.amount, 'ap' as module, | .
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
       qq|FROM acc_trans ac, vendor v, ap a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
-      qq| AND NOT a.storno | .
       qq| AND a.vendor_id = v.id |;
+      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) | .
 
     push(@values,
          @where_values, @department_values, @project_values, $id,
@@ -308,7 +302,8 @@ sub all_transactions {
         qq|UNION ALL | .
 
         qq|SELECT a.id, a.invnumber, c.name, a.transdate, | .
-        qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module | .
+        qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module, | .
+        qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
         qq|FROM ar a | .
         qq|JOIN invoice ac ON (ac.trans_id = a.id) | .
         qq|JOIN parts p ON (ac.parts_id = p.id) | .
@@ -323,7 +318,8 @@ sub all_transactions {
         qq|UNION ALL | .
 
         qq|SELECT a.id, a.invnumber, v.name, a.transdate, | .
-        qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module | .
+        qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module, | .
+        qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
         qq|FROM ap a | .
         qq|JOIN invoice ac ON (ac.trans_id = a.id) | .
         qq|JOIN parts p ON (ac.parts_id = p.id) | .
@@ -352,6 +348,13 @@ sub all_transactions {
   $query .= qq|ORDER BY $sort|;
   $sth = prepare_execute_query($form, $dbh, $query, @values);
 
+  #get detail information for each transaction
+  $trans_query =
+        qq|SELECT accno, | .
+        qq|amount, transdate FROM acc_trans LEFT JOIN chart ON (chart_id=chart.id) WHERE | .
+        qq|trans_id = ? AND sign(amount) <> sign(?) AND chart_id <> ? AND transdate = ?|;
+  my $trans_sth = $dbh->prepare($trans_query);
+
   $form->{CA} = [];
   while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
     # ap
@@ -372,7 +375,27 @@ sub all_transactions {
       $ca->{debit}  = 0;
     }
 
-    $ca->{index} = join "--", map { $ca->{$_} } qw(id reference description);
+    ($ca->{ustkonto},$ca->{ustrate}) = split /--/, $ca->{taxinfo};
+
+    #get detail information for this transaction
+    $trans_sth->execute($ca->{id}, $ca->{amount}, $ca->{chart_id}, $ca->{transdate}) ||
+    $form->dberror($trans_query . " (" . join(", ", $ca->{id}) . ")");
+    while (my $trans = $trans_sth->fetchrow_hashref(NAME_lc)) {
+      if (($ca->{transdate} eq $trans->{transdate}) && ($ca->{amount} * $trans->{amount} < 0)) {
+        if ($trans->{amount} < 0) {
+          $trans->{debit}  = $trans->{amount} * -1;
+          $trans->{credit} = 0;
+        } else {
+          $trans->{credit} = $trans->{amount};
+          $trans->{debit}  = 0;
+        } 
+        push(@{ $ca->{GEGENKONTO} }, $trans);
+      } else {
+        next;
+      }
+    }
+
+    $ca->{index} = join "--", map { $ca->{$_} } qw(id reference description transdate);
 
     push(@{ $form->{CA} }, $ca);
 
