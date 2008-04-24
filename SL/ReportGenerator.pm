@@ -454,8 +454,17 @@ sub generate_pdf_content {
       push @cell_props, $cell_props_row;
 
       foreach my $custom_header_col (@{ $custom_header_row }) {
-        push @{ $data_row },       $custom_header_col->{text};
-        push @{ $cell_props_row }, {};
+        push @{ $data_row }, $custom_header_col->{text};
+
+        my $num_output  = ($custom_header_col->{colspan} * 1 > 1) ? $custom_header_col->{colspan} : 1;
+        if ($num_output > 1) {
+          push @{ $data_row },       ('') x ($num_output - 1);
+          push @{ $cell_props_row }, { 'colspan' => $num_output };
+          push @{ $cell_props_row }, ({ }) x ($num_output - 1);
+
+        } else {
+          push @{ $cell_props_row }, {};
+        }
       }
     }
   }
@@ -478,8 +487,11 @@ sub generate_pdf_content {
     }
 
     foreach my $row (@{ $row_set }) {
-      $data_row = [];
-      push @data, $data_row;
+      $data_row       = [];
+      $cell_props_row = [];
+
+      push @data,       $data_row;
+      push @cell_props, $cell_props_row;
 
       my $col_idx = 0;
       foreach my $col_name (@visible_columns) {
@@ -488,14 +500,14 @@ sub generate_pdf_content {
 
         $column_props[$col_idx]->{justify} = 'right' if ($col->{align} eq 'right');
 
+        my $cell_props = { };
+        push @{ $cell_props_row }, $cell_props;
+
+        if ($col->{colspan} && $col->{colspan} > 1) {
+          $cell_props->{colspan} = $col->{colspan};
+        }
+
         $col_idx++;
-      }
-
-      $cell_props_row = [];
-      push @cell_props, $cell_props_row;
-
-      foreach (0 .. $num_columns - 1) {
-        push @{ $cell_props_row }, { };
       }
     }
   }
