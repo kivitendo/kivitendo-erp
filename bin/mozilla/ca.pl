@@ -475,12 +475,10 @@ sub list_transactions {
 
   CA->all_transactions(\%myconfig, \%$form);
 
-  print(STDERR "EB: $form->{beginning_balance}\n");
 
   my $saldo_old = ($form->{saldo_old} > 0) ? $form->format_amount(\%myconfig, $form->{saldo_old}, 2) . " H" : $form->format_amount(\%myconfig, abs($form->{saldo_old}) , 2) . " S";
 
   my $eb_string = ($form->{beginning_balance} > 0) ? $form->format_amount(\%myconfig, $form->{beginning_balance}, 2) . " H" : $form->format_amount(\%myconfig, abs($form->{beginning_balance}), 2) . " S";
-  print(STDERR "EB: $eb_string\n");
 
   my @options;
   if ($form->{department}) {

@@ -803,13 +803,23 @@ sub trial_balance {
     $project = qq| AND (ac.project_id = | . conv_i($form->{project_id}, 'NULL') . qq|) |;
   }
 
+  my $acc_cash_where = "";
+  my $ar_cash_where = "";
+  my $ap_cash_where = "";
+
+
+  if ($form->{method} eq "cash") {
+    $acc_cash_where = qq| AND (ac.trans_id IN (SELECT id FROM ar WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM ap WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM gl WHERE transdate>='$form->{fromdate}' AND transdate<='$form->{todate}')) |;
+    $ar_ap_cash_where = qq| AND (a.datepaid>='$form->{fromdate}' AND a.datepaid<='$form->{todate}') |;
+  }
+
   # get beginning balances
   $query =
     qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
         FROM acc_trans ac
-        JOIN chart c ON (ac.chart_id = c.id)
+        LEFT JOIN chart c ON (ac.chart_id = c.id)
         $dpt_join
-        WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction 
+        WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction $acc_cash_where
           $dpt_where
           $project
         GROUP BY c.accno, c.category, c.description |;
@@ -821,12 +831,11 @@ sub trial_balance {
     if ($ref->{amount} != 0 || $form->{all_accounts}) {
       $trb{ $ref->{accno} }{description} = $ref->{description};
       $trb{ $ref->{accno} }{charttype}   = 'A';
-      if ($ref->{category} ne "I" &&  $ref->{category} ne "E") {
-        if ($ref->{amount} > 0) {
-          $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
-        } else {
-          $trb{ $ref->{accno} }{soll_eb}   = $ref->{amount} * -1;
-        }
+   
+      if ($ref->{amount} > 0) {
+        $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
+      } else {
+        $trb{ $ref->{accno} }{soll_eb}   = $ref->{amount} * -1;
       }
       $trb{ $ref->{accno} }{category}    = $ref->{category};
     }
