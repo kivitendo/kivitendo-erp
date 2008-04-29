@@ -100,7 +100,20 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
 
 <!-- template for the top menu items
 *********************************************************************************  -->
-<xsl:template match="item"><xsl:choose><xsl:when test="item"><menu id="{@name}_menu" label="{@name}" class="menu-iconic" image="image/icons/16x16/{@id}.png"><menupopup id="file-popup"><xsl:apply-templates/></menupopup></menu></xsl:when><xsl:otherwise><menuitem target="{@target}" link="{@link}" label="{@name}" oncommand="openLink(event)" class="menuitem-iconic" image="image/icons/16x16/{@id}.png" lxid="{@id}" onclick="openLinkNewTab(event)"/></xsl:otherwise></xsl:choose></xsl:template>
+<xsl:template match="item">
+ <xsl:choose>
+  <xsl:when test="item">
+   <menu id="{@name}_menu" label="{@name}" class="menu-iconic" image="image/icons/16x16/{@id}.png">
+    <menupopup id="file-popup">
+     <xsl:apply-templates/>
+    </menupopup>
+   </menu>
+  </xsl:when>
+  <xsl:otherwise>
+   <menuitem target="{@target}" link="{@link}" label="{@name}" oncommand="openLink(event)" class="menuitem-iconic" image="image/icons/16x16/{@id}.png" lxid="{@id}" onclick="openLinkNewTab(event)"/>
+  </xsl:otherwise>
+ </xsl:choose>
+</xsl:template>
 <!-- ***************************************************************************  -->
 
 
