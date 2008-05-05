@@ -618,6 +618,8 @@ sub new_item {
 
   _check_io_auth();
 
+  my $price_key = ($form->{type} =~ m/request_quotation|purchase_order/) || ($form->{script} eq 'ir.pl') ? 'lastcost' : 'sellprice';
+
   # change callback
   $form->{old_callback} = $form->escape($form->{callback}, 1);
   $form->{callback}     = $form->escape("$form->{script}?action=display_form", 1);
@@ -627,8 +629,9 @@ sub new_item {
 
   push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
-  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit sellprice);
+  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit);
   push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
+  push @HIDDENS,      { 'name' => $price_key,     'value' => $form->parse_amount(\%myconfig, $form->{"sellprice_$form->{rowcount}"}) };
 
   $form->header();
   print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
