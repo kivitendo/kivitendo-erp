@@ -289,7 +289,7 @@ sub display_row {
     push @ROW2, { value => qq|<b>$projectnumber</b> | . NTI($cgi->popup_menu('-name'  => "project_id_$i",        '-values'  => \@projectnumber_values,
                                                                              '-labels' => \%projectnumber_labels, '-default' => $form->{"project_id_$i"})) };
     push @ROW2, { value => qq|<b>$reqdate</b> <input name="reqdate_$i" size="11" onBlur="check_right_date_format(this)" value="$form->{"reqdate_$i"}">| }
-      if $form->{type} =~ /order/;
+      if ($form->{type} =~ /order/ ||  $form->{type} =~ /invoice/);
     push @ROW2, { value => sprintf qq|<b>%s</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" %s>|, 
                    $locale->text('Subtotal'), $form->{"subtotal_$i"} ? 'checked' : '' };
 
@@ -319,7 +319,7 @@ sub display_row {
                    $marge_color, $locale->text('Ertrag'),$form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"},
                    $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
                    $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) }
-      if $form->{"id_$i"} && $form->{type} =~ /^sales_/ && !$is_delivery_order;
+      if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/) && !$is_delivery_order;
 # / marge calculations ending
 
     my @hidden_vars;
