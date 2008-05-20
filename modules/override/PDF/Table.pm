@@ -334,6 +334,7 @@ sub table {
           $row->[$j] =~ s#(\b\S{$max_word_len}?)(\S.*?\b)# $1 $2#;
           $myone = 1 if ( defined $2 );
         } while( $myone );
+        $row->[$j] =~ s/^\s+//;
 
         $space_w             = $txt->advancewidth( "\x20" );
         $column_widths->[$j] = 0;
