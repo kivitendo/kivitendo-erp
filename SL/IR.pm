@@ -1075,7 +1075,7 @@ sub vendor_details {
   my @values;
 
   # get contact id, set it if nessessary
-  $form->{cp_id} = (split /--/, $form->{contact})[1];
+  $form->{cp_id} *= 1;
   my $contact = "";
   if ($form->{cp_id}) {
     $contact = "AND cp.cp_id = ?";
