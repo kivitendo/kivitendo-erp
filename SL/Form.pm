@@ -511,7 +511,7 @@ sub create_http_response {
   }
 
   my %cgi_params = ('-type' => $params{content_type});
-  $cgi_params{'-charset'} = $params{charset} if ($parmas{charset});
+  $cgi_params{'-charset'} = $params{charset} if ($params{charset});
 
   my $output = $cgi->header('-cookie' => $session_cookie,
                             %cgi_params);
