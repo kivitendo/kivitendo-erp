@@ -680,7 +680,7 @@ sub search {
   my @values;
 
   my %allowed_sort_columns =
-    map({ $_, 1 } qw(id customernumber name address contact phone fax email
+    map({ $_, 1 } qw(id customernumber vendornumber name address contact phone fax email
                      taxnumber sic_code business invnumber ordnumber quonumber));
   $sortorder =
     $form->{sort} && $allowed_sort_columns{$form->{sort}} ?
