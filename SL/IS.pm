@@ -671,7 +671,7 @@ sub post_invoice {
                  $form->{"description_$i"}, $form->{"longdescription_$i"}, $form->{"qty_$i"},
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
-                 $form->{"unit_$i"}, conv_date($form->{"deliverydate_$i"}), conv_i($form->{"project_id_$i"}),
+                 $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
                  $form->{"serialnumber_$i"}, conv_i($pricegroup_id),
                  $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
                  $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
@@ -1373,7 +1373,7 @@ sub retrieve_invoice {
            c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from as income_valid,
            c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from AS expense_valid,
 
-           i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate,
+           i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
            i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor,
            p.partnumber, p.assembly, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel,
