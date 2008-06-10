@@ -1780,18 +1780,6 @@ sub get_basic_part_info {
 
   my $info     = selectall_hashref_query($form, $dbh, $query, map { conv_i($_) } @ids);
 
-  if ($params{vendor_id}) {
-    $query     = qq|SELECT * FROM parts_vendor WHERE (parts_id = ?) AND (vendor_id = ?)|;
-    my $sth    = prepare_query($form, $dbh, $query);
-
-    foreach my $part (@{ $info }) {
-      do_statement($form, $sth, $query, $part->{id}, conv_i($params{vendor_id}));
-      $part->{vendor_info} = $sth->fetchrow_hashref();
-    }
-
-    $sth->finish();
-  }
-
   if ('' eq ref $params{id}) {
     $info = $info->[0] || { };
 
