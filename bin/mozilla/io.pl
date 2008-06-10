@@ -255,7 +255,8 @@ sub display_row {
       if $form->{"formel_$i"};
     $column_data{ship} = !$form->{"id_$i"} ? '' : $form->format_amount_units('amount'     => $form->{"ship_$i"} * 1,
                                                                              'part_unit'  => $form->{"partunit_$i"},
-                                                                             'max_places' => 2,);
+                                                                             'conv_units' => 'convertible_not_smaller',
+                                                                             'max_places' => 2);
 
     # build in drop down list for pricesgroups
     if ($form->{"prices_$i"}) {
