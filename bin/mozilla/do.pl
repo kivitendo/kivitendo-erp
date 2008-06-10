@@ -905,9 +905,9 @@ sub update_stock_in {
   my $stock_info = [];
 
   foreach my $i (1..$form->{rowcount}) {
+    $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
     push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber qty unit) };
   }
-  $main::lxdebug->dump(0, "si", $stock_info);
 
   display_stock_in_form($stock_info);
 
