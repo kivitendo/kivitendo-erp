@@ -62,14 +62,12 @@ sub transactions {
          dord.transaction_description,
          pr.projectnumber AS globalprojectnumber,
          e.name AS employee,
-         sm.name AS salesman,
-         oe.id AS oe_id
+         sm.name AS salesman
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
-       LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
-       LEFT JOIN oe ON ((dord.ordnumber = oe.ordnumber) AND NOT COALESCE(oe.quotation, FALSE))|;
+       LEFT JOIN project pr ON (dord.globalproject_id = pr.id)|;
 
   push @where, ($form->{type} eq 'sales_delivery_order' ? '' : 'NOT ') . qq|COALESCE(dord.is_sales, FALSE)|;
 
@@ -152,7 +150,23 @@ sub transactions {
 
   $form->{DO} = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $main::lxdebug->dump(0, "DO", $form->{DO});
+  if (scalar @{ $form->{DO} }) {
+    $query =
+      qq|SELECT id
+         FROM oe
+         WHERE NOT COALESCE(quotation, FALSE)
+           AND (ordnumber = ?)
+           AND (COALESCE(${vc}_id, 0) != 0)|;
+
+    my $sth = prepare_query($form, $dbh, $query);
+
+    foreach my $dord (@{ $form->{DO} }) {
+      do_statement($form, $sth, $query, $dord->{ordnumber});
+      ($dord->{oe_id}) = $sth->fetchrow_array();
+    }
+
+    $sth->finish();
+  }
 
   $main::lxdebug->leave_sub();
 }

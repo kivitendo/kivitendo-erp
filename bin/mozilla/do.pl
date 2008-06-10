@@ -383,7 +383,7 @@ sub search {
 
   check_do_access();
 
-  $form->{vc} = $form->{type} eq 'purchase_order' ? 'vendor' : 'customer';
+  $form->{vc} = $form->{type} eq 'purchase_delivery_order' ? 'vendor' : 'customer';
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS",
                                        "all" => 1 },
@@ -646,7 +646,7 @@ sub invoice {
   $lxdebug->enter_sub();
 
   check_do_access();
-  $auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
+  $auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{deliverydate} = $form->{transdate};
   $form->{transdate}    = $form->{invdate} = $form->current_date(\%myconfig);
