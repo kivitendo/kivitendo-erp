@@ -161,6 +161,7 @@ sub transactions {
     my $sth = prepare_query($form, $dbh, $query);
 
     foreach my $dord (@{ $form->{DO} }) {
+      next unless ($dord->{ordnumber});
       do_statement($form, $sth, $query, $dord->{ordnumber});
       ($dord->{oe_id}) = $sth->fetchrow_array();
     }
@@ -901,6 +902,48 @@ sub transfer_in_out {
   WH->transfer(@transfers);
 
   $main::lxdebug->leave_sub();
+}
+
+sub get_shipped_qty {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(type ordnumber));
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $notsales = $params{type} eq 'sales' ? '' : 'NOT';
+
+  my $query    =
+    qq|SELECT doi.parts_id, doi.qty, doi.unit, p.unit AS partunit
+       FROM delivery_order_items doi
+       LEFT JOIN delivery_orders o ON (doi.delivery_order_id = o.id)
+       LEFT JOIN parts p ON (doi.parts_id = p.id)
+       WHERE ($notsales o.is_sales)
+         AND (o.ordnumber = ?)|;
+
+  my %ship      = ();
+  my $entries   = selectall_hashref_query($form, $dbh, $query, $params{ordnumber});
+  my $all_units = AM->retrieve_all_units();
+
+  foreach my $entry (@{ $entries }) {
+    $entry->{qty} *= $all_units->{$entry->{unit}}->{factor} / $all_units->{$entry->{partunit}}->{factor};
+
+    if (!$ship{$entry->{parts_id}}) {
+      $ship{$entry->{parts_id}} = $entry;
+    } else {
+      $ship{$entry->{parts_id}}->{qty} += $entry->{qty};
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return %ship;
 }
 
 1;

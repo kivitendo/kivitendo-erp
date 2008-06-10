@@ -35,7 +35,7 @@
 
 use CGI;
 use CGI::Ajax;
-use List::Util qw(max first);
+use List::Util qw(min max first);
 
 use SL::CVar;
 use SL::Common;
@@ -111,6 +111,7 @@ sub display_row {
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
   my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
+  my $is_s_p_order       = (first { $_ eq $form->{type} } qw(sales_order purchase_order));
 
   if ($is_delivery_order) {
     $readonly             = ' readonly' if ($form->{closed});
@@ -132,8 +133,7 @@ sub display_row {
     {  id => 'runningnumber', width => 5,     value => $locale->text('No.'),                  display => 1, },
     {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
     {  id => 'description',   width => 30,    value => $locale->text('Part Description'),     display => 1, },
-    {  id => 'ship',          width => 5,     value => ($form->{type} eq 'purchase_order' ? $locale->text('Ship rcvd') : $locale->text('Ship')),                 
-       display => $form->{type} =~ /sales_order/ || ($form->{type} =~ /purchase_order/ && !($lizenzen && $form->{vc} eq "customer")) , },
+    {  id => 'ship',          width => 5,     value => $locale->text('Delivered'),            display => $is_s_p_order, },
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
     {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
@@ -188,11 +188,14 @@ sub display_row {
     $projectnumber_labels{$item->{"id"}} = $item->{"projectnumber"};
   }
 
+  _update_part_information();
+  _update_ship() if ($is_s_p_order);
+
   # rows
   for $i (1 .. $numrows) {
 
     # undo formatting
-    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(qty ship discount sellprice price_new price_old) unless ($form->{simple_save});
+    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(qty discount sellprice price_new price_old) unless ($form->{simple_save});
 
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
@@ -250,7 +253,9 @@ sub display_row {
     $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)", -value => $locale->text('*/'))
                        . $cgi->hidden(-name => "formel_$i", -value => $form->{"formel_$i"}) . $cgi->hidden("-name" => "alu_$i", "-value" => $form->{"alu_$i"})
       if $form->{"formel_$i"};
-    $column_data{ship} = $cgi->textfield(-name => "ship_$i", -size => 5, -value => $form->format_amount(\%myconfig, $form->{"ship_$i"}));
+    $column_data{ship} = !$form->{"id_$i"} ? '' : $form->format_amount_units('amount'     => $form->{"ship_$i"} * 1,
+                                                                             'part_unit'  => $form->{"partunit_$i"},
+                                                                             'max_places' => 2,);
 
     # build in drop down list for pricesgroups
     if ($form->{"prices_$i"}) {
@@ -1844,3 +1849,66 @@ sub set_duedate {
   $lxdebug->leave_sub();
 }
 
+sub _update_part_information {
+  $lxdebug->enter_sub();
+
+  my %part_information = IC->get_basic_part_info('id'        => [ grep { $_ } map { $form->{"id_${_}"} } (1..$form->{rowcount}) ],
+                                                 'vendor_id' => $form->{vendor_id});
+
+  $form->{PART_INFORMATION} = \%part_information;
+
+  foreach my $i (1..$form->{rowcount}) {
+    next unless ($form->{"id_${i}"});
+
+    my $info                 = $form->{PART_INFORMATION}->{$form->{"id_${i}"}} || { };
+    $form->{"partunit_${i}"} = $info->{unit};
+  }
+
+  $lxdebug->leave_sub();
+}
+
+sub _update_ship {
+  $lxdebug->enter_sub();
+
+  if (!$form->{ordnumber}) {
+    map { $form->{"ship_$_"} = 0 } (1..$form->{rowcount});
+    $lxdebug->leave_sub();
+    return;
+  }
+
+  AM->retrieve_all_units();
+
+  my %ship = DO->get_shipped_qty('type'      => ($form->{type} eq 'purchase_order') ? 'purchase' : 'sales',
+                                 'ordnumber' => $form->{ordnumber},);
+
+  foreach my $i (1..$form->{rowcount}) {
+    next unless ($form->{"id_${i}"});
+
+    $form->{"ship_$i"} = 0;
+
+    my $ship_entry = $ship{$form->{"id_$i"}};
+
+    next if (!$ship_entry || ($ship_entry->{qty} <= 0));
+
+    my $rowqty =
+      $form->parse_amount(\%myconfig, $form->{"qty_$i"})
+      * $all_units->{$form->{"unit_$i"}}->{factor}
+      / $all_units->{$form->{"partunit_$i"}}->{factor};
+
+    $form->{"ship_$i"}  = min($rowqty, $ship_entry->{qty});
+    $ship_entry->{qty} -= $form->{"ship_$i"};
+  }
+
+  foreach my $i (1..$form->{rowcount}) {
+    next unless ($form->{"id_${i}"});
+
+    my $ship_entry = $ship{$form->{"id_$i"}};
+
+    next if (!$ship_entry || ($ship_entry->{qty} <= 0.01));
+
+    $form->{"ship_$i"} += $ship_entry->{qty};
+    $ship_entry->{qty}  = 0;
+  }
+
+  $lxdebug->leave_sub();
+}
