@@ -235,9 +235,8 @@ sub display_row {
     $decimalplaces = max 2, length $1;
 
     $price_factor   = $price_factors{$form->{"price_factor_id_$i"}} || 1;
-    $discount       = $form->round_amount($form->{"sellprice_$i"} * $form->{"discount_$i"} / 100, $decimalplaces);
-    $linetotal      = $form->round_amount(($form->{"sellprice_$i"} - $discount) / $price_factor, $decimalplaces);
-    $linetotal      = $form->round_amount($linetotal * $form->{"qty_$i"}, 2);
+    $discount       = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} *        $form->{"discount_$i"}  / 100 / $price_factor, 2);
+    $linetotal      = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
 
     $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
