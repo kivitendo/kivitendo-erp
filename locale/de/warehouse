@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+
+$self->{texts} = {
+};
+
+$self->{subs} = {
+  'do_update'                   => 'do_update',
+  'print_question'              => 'print_question',
+  'weiter'                      => 'continue',
+};
+
+1;
