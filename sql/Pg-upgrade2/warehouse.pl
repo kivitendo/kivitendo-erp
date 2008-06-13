@@ -1,7 +1,70 @@
--- @tag: warehouse
--- @description: Diverse neue Tabellen und Spalten zur Mehrlagerf&auml;higkeit
--- @depends: release_2_4_3
+# @tag: warehouse
+# @description:  Diverse neue Tabellen und Spalten zur Mehrlagerf&auml;higkeit inkl. Migration
+# @depends: release_2_4_3
 
+
+die("This script cannot be run from the command line.") unless ($main::form);
+$do_sql_migration = 0;
+
+sub print_question {
+  print $main::form->parse_html_template("dbupgrade/warehouse_form");
+}
+
+sub do_update {
+  if (!$main::form->{do_migrate}
+      && (selectfirst_array_query($main::form, $dbh, $check_sql))[0]) { # check if update is needed
+    print_question();
+    return 2;
+  } else {
+    if ($main::form->{do_migrate} eq 'Y') {
+      # if yes, both warehouse and bin must be given
+      if (!$main::form->{import_warehouse} || !$main::form->{bin_default}) {
+        print_question();
+        return 2;
+      }
+      # flag for extra code
+      $do_sql_migration = 1;
+    }
+  }
+  my $warehouse = $main::form->{import_warehouse} ne '' ? $main::form->{import_warehouse} : "Transfer";
+  my $bin       = $main::form->{bin_default}      ne '' ? $main::form->{bin_default}      : "1";
+
+
+  my $migration_code = <<EOF
+
+-- Warehouse anpassen
+INSERT INTO warehouse (description) VALUES ('$warehouse');
+
+UPDATE tmp_parts SET bin = NULL WHERE bin = '';
+
+-- Warenbestand wiederherstellen
+INSERT INTO bin 
+ (warehouse_id, description) 
+ (SELECT DISTINCT warehouse.id, COALESCE(bin, '$bin') 
+   FROM warehouse, tmp_parts 
+   WHERE warehouse.description='$warehouse');
+INSERT INTO inventory 
+ (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id)
+ (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id 
+  FROM transfer_type, warehouse, tmp_parts, bin
+  WHERE warehouse.description = '$warehouse' 
+    AND COALESCE(bin, '$bin') = bin.description 
+    AND transfer_type.description = 'stock');
+EOF
+;
+
+  # do standard code
+  my $query  = $sqlcode;
+     $query .= $migration_code if $do_sql_migration;
+
+  do_query($main::form, $dbh, $query);
+
+  return 1;
+}
+
+
+
+$sqlcode = <<EOF
 -- Tabelle "bin" für Lagerplätze.
 CREATE TABLE bin (
   id integer NOT NULL DEFAULT nextval('id'),
@@ -88,6 +151,8 @@ ALTER TABLE inventory ADD COLUMN chargenumber text;
 ALTER TABLE inventory ADD COLUMN comment text;
 
 -- "onhand" in "parts" über einen Trigger automatisch berechnen lassen.
+-- Vorher Warenbestand sichern JZ
+SELECT id, onhand, bin INTO TEMP TABLE tmp_parts FROM parts WHERE onhand > 0;
 ALTER TABLE parts DROP COLUMN onhand;
 ALTER TABLE parts ADD COLUMN onhand numeric(25,5);
 UPDATE parts SET onhand = COALESCE((SELECT SUM(qty) FROM inventory WHERE inventory.parts_id = parts.id), 0);
@@ -114,4 +179,13 @@ END;
 CREATE TRIGGER trig_update_onhand
   AFTER INSERT OR UPDATE OR DELETE ON inventory
   FOR EACH ROW EXECUTE PROCEDURE update_onhand();
+EOF
+;
 
+
+$check_sql = <<EOF
+SELECT COUNT(id) FROM parts WHERE onhand > 0;
+EOF
+;
+
+return do_update();
