@@ -600,6 +600,10 @@ sub list_transactions {
 
     $ca->{ustrate} = $form->format_amount(\%myconfig, $ca->{ustrate} * 100, 2) if ($ca->{ustrate} != 0);
 
+    if ($ca->{memo} ne "") {
+      $ca->{description} .= "\n" . $ca->{memo};
+    }
+
     
 
     foreach my $gegenkonto (@{ $ca->{GEGENKONTO} }) {

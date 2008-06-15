@@ -261,7 +261,7 @@ sub all_transactions {
     $query =
       qq|SELECT a.id, a.reference, a.description, ac.transdate, ac.chart_id, | .
       qq|  $false AS invoice, ac.amount, 'gl' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo § .
       qq|FROM acc_trans ac, gl a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
@@ -273,7 +273,7 @@ sub all_transactions {
 
       qq|SELECT a.id, a.invnumber, c.name, ac.transdate, ac.chart_id, | .
       qq|  a.invoice, ac.amount, 'ar' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § . 
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § . 
       qq|FROM acc_trans ac, customer c, ar a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
@@ -286,7 +286,7 @@ sub all_transactions {
 
       qq|SELECT a.id, a.invnumber, v.name, ac.transdate, ac.chart_id, | .
       qq|  a.invoice, ac.amount, 'ap' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
       qq|FROM acc_trans ac, vendor v, ap a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
