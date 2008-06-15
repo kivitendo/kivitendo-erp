@@ -1351,7 +1351,7 @@ sub aging {
        $dpt_join
        WHERE $where
          AND (a.${ct_id} = ct.id)
-         AND (a.paid != a.amount)
+         AND ((a.paid != a.amount) OR ((a.datepaid > $todate) AND (datepaid is NOT NULL)))
          AND (a.transdate <= $todate)
        ORDER BY ct.name|;
 
