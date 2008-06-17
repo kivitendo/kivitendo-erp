@@ -1891,7 +1891,7 @@ sub _update_ship {
     next if (!$ship_entry || ($ship_entry->{qty} <= 0));
 
     my $rowqty =
-      $form->parse_amount(\%myconfig, $form->{"qty_$i"})
+      ($form->{simple_save} ? $form->{"qty_$i"} : $form->parse_amount(\%myconfig, $form->{"qty_$i"}))
       * $all_units->{$form->{"unit_$i"}}->{factor}
       / $all_units->{$form->{"partunit_$i"}}->{factor};
 
