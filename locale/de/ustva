@@ -90,6 +90,7 @@ $self->{texts} = {
   'Missing Method!'             => 'Fehlender Voranmeldungszeitraum',
   'Missing Tax Authoritys Preferences' => 'Fehlende Angaben zum Finanzamt!',
   'Missing parameter #1 in call to sub #2.' => 'Fehlernder Parameter \'#1\' in Funktionsaufruf \'#2\'.',
+  'Missing parameter (at least one of #1) in call to sub #2.' => 'Fehlernder Parameter (mindestens einer aus \'#1\') in Funktionsaufruf \'#2\'.',
   'More than one control file with the tag \'%s\' exist.' => 'Es gibt mehr als eine Kontrolldatei mit dem Tag \'%s\'.',
   'Name'                        => 'Name',
   'No %s was found matching the search parameters.' => 'Es wurde kein %s gefunden, auf den die Suchparameter zutreffen.',

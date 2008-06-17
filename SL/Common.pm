@@ -511,9 +511,23 @@ sub check_params {
   my $params = shift;
 
   foreach my $key (@_) {
-    if (!defined $params->{$key}) {
+    if ((ref $key eq '') && !defined $params->{$key}) {
       my $subroutine = (caller(1))[3];
       $main::form->error($main::locale->text("Missing parameter #1 in call to sub #2.", $key, $subroutine));
+
+    } elsif (ref $key eq 'ARRAY') {
+      my $found = 0;
+      foreach $subkey (@{ $key }) {
+        if (defined $params->{$subkey}) {
+          $found = 1;
+          last;
+        }
+      }
+
+      if (!$found) {
+        my $subroutine = (caller(1))[3];
+        $main::form->error($main::locale->text("Missing parameter (at least one of #1) in call to sub #2.", join(', ', @{ $key }), $subroutine));
+      }
     }
   }
 }
@@ -522,9 +536,23 @@ sub check_params_x {
   my $params = shift;
 
   foreach my $key (@_) {
-    if (!exists $params->{$key}) {
+    if ((ref $key eq '') && !exists $params->{$key}) {
       my $subroutine = (caller(1))[3];
       $main::form->error($main::locale->text("Missing parameter #1 in call to sub #2.", $key, $subroutine));
+
+    } elsif (ref $key eq 'ARRAY') {
+      my $found = 0;
+      foreach $subkey (@{ $key }) {
+        if (exists $params->{$subkey}) {
+          $found = 1;
+          last;
+        }
+      }
+
+      if (!$found) {
+        my $subroutine = (caller(1))[3];
+        $main::form->error($main::locale->text("Missing parameter (at least one of #1) in call to sub #2.", join(', ', @{ $key }), $subroutine));
+      }
     }
   }
 }
