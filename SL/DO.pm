@@ -342,6 +342,10 @@ sub save {
   # save printed, emailed, queued
   $form->save_status($dbh);
 
+  $self->close_order_if_delivered('do_id' => $form->{id},
+                                  'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
+                                  'dbh'   => $dbh,);
+
   my $rc = $dbh->commit();
 
   $form->{saved_donumber} = $form->{donumber};
@@ -353,19 +357,79 @@ sub save {
   return $rc;
 }
 
-sub close_order {
+sub close_order_if_delivered {
   $main::lxdebug->enter_sub();
 
-  my ($self)   = @_;
+  my $self   = shift;
+  my %params = @_;
 
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
+  Common::check_params(\%params, qw(do_id type));
 
-  return $main::lxdebug->leave_sub() unless ($form->{id});
+  my $myconfig    = \%main::myconfig;
+  my $form        = $main::form;
 
-  my $dbh = $form->get_standard_dbh($myconfig);
-  do_query($form, $dbh, qq|UPDATE do SET closed = TRUE where id = ?|, conv_i($form->{id}));
-  $dbh->commit();
+  my $dbh         = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $query       = qq|SELECT ordnumber FROM delivery_orders WHERE id = ?|;
+  my ($ordnumber) = selectfirst_array_query($form, $dbh, $query, conv_i($params{do_id}));
+
+  return $main::lxdebug->leave_sub() if (!$ordnumber);
+
+  my $vc      = $params{type} eq 'purchase' ? 'vendor' : 'customer';
+  $query      = qq|SELECT id
+                   FROM oe
+                   WHERE NOT COALESCE(quotation, FALSE)
+                     AND (COALESCE(${vc}_id, 0) > 0)
+                     AND (ordnumber = ?)
+                   ORDER BY id
+                   LIMIT 1|;
+
+  my ($oe_id) = selectfirst_array_query($form, $dbh, $query, $ordnumber);
+
+  return $main::lxdebug->leave_sub() if (!$oe_id);
+
+  my $all_units = AM->retrieve_all_units();
+
+  my %shipped   = $self->get_shipped_qty('type'      => $params{type},
+                                         'ordnumber' => $ordnumber,);
+  my %ordered   = ();
+
+  $query        = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
+                     FROM orderitems oi
+                     LEFT JOIN parts p ON (oi.parts_id = p.id)
+                     WHERE (oi.trans_id = ?)|;
+  my $sth       = prepare_execute_query($form, $dbh, $query, $oe_id);
+
+  while (my $ref = $sth->fetchrow_hashref()) {
+    $ref->{baseqty} = $ref->{qty} * $all_units->{$ref->{unit}}->{factor} / $all_units->{$ref->{partunit}}->{factor};
+
+    if ($ordered{$ref->{parts_id}}) {
+      $ordered{$ref->{parts_id}}->{baseqty} += $ref->{baseqty};
+    } else {
+      $ordered{$ref->{parts_id}}             = $ref;
+    }
+  }
+
+  $sth->finish();
+
+  map { $_->{baseqty} = $_->{qty} * $all_units->{$_->{unit}}->{factor} / $all_units->{$_->{partunit}}->{factor} } values %shipped;
+
+  my $delivered = 1;
+  foreach my $part (values %ordered) {
+    if (!$shipped{$part->{parts_id}} || ($shipped{$part->{parts_id}}->{baseqty} < $part->{baseqty})) {
+      $delivered = 0;
+      last;
+    }
+  }
+
+  if ($delivered) {
+    $query = qq|UPDATE oe
+                SET delivered = TRUE, closed = TRUE
+                WHERE id = ?|;
+    do_query($form, $dbh, $query, $oe_id);
+
+    $dbh->commit() if (!$params{dbh});
+  }
 
   $main::lxdebug->leave_sub();
 }
