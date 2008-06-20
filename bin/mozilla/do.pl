@@ -1060,6 +1060,10 @@ sub set_stock_out {
 sub transfer_in {
   $lxdebug->enter_sub();
 
+  if (DO->is_marked_as_delivered('id' => $form->{id})) {
+    $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred in.'), 'back_button' => 1);
+  }
+
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_in_${_}"} } (1 .. $form->{rowcount});
   my @all_requests;
 
@@ -1115,6 +1119,10 @@ sub transfer_in {
 
 sub transfer_out {
   $lxdebug->enter_sub();
+
+  if (DO->is_marked_as_delivered('id' => $form->{id})) {
+    $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred out.'), 'back_button' => 1);
+  }
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_out_${_}"} } (1 .. $form->{rowcount});
   my @all_requests;

@@ -1010,4 +1010,25 @@ sub get_shipped_qty {
   return %ship;
 }
 
+sub is_marked_as_delivered {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(id));
+
+  my $myconfig    = \%main::myconfig;
+  my $form        = $main::form;
+
+  my $dbh         = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my ($delivered) = selectfirst_array_query($form, $dbh, qq|SELECT delivered FROM delivery_orders WHERE id = ?|, conv_i($params{id}));
+
+  $main::lxdebug->leave_sub();
+
+  return $delivered ? 1 : 0;
+}
+
+
 1;
