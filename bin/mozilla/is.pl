@@ -1192,6 +1192,7 @@ if ($form->{type} eq "credit_note") {
 $cgi->hidden("-name" => "callback", "-value" => $form->{callback})
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
+. $cgi->hidden('-name' => 'close_do_ids', '-default' => [$form->{close_do_ids}])
 . qq|
 </form>
 

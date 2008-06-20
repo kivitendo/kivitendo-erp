@@ -342,9 +342,9 @@ sub save {
   # save printed, emailed, queued
   $form->save_status($dbh);
 
-  $self->close_order_if_delivered('do_id' => $form->{id},
-                                  'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
-                                  'dbh'   => $dbh,);
+  $self->mark_order_if_delivered('do_id' => $form->{id},
+                                 'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
+                                 'dbh'   => $dbh,);
 
   my $rc = $dbh->commit();
 
@@ -357,7 +357,7 @@ sub save {
   return $rc;
 }
 
-sub close_order_if_delivered {
+sub mark_order_if_delivered {
   $main::lxdebug->enter_sub();
 
   my $self   = shift;
@@ -430,6 +430,33 @@ sub close_order_if_delivered {
 
     $dbh->commit() if (!$params{dbh});
   }
+
+  $main::lxdebug->leave_sub();
+}
+
+sub close_orders {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(ids));
+
+  if (('ARRAY' ne ref $params{ids}) || !scalar @{ $params{ids} }) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $query    = qq|UPDATE delivery_orders SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar(@{ $params{ids} })) . qq|)|;
+
+  do_query($form, $dbh, $query, map { conv_i($_) } @{ $params{ids} });
+
+  $dbh->commit() unless ($params{dbh});
 
   $main::lxdebug->leave_sub();
 }

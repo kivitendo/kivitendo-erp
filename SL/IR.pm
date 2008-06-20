@@ -37,6 +37,7 @@ package IR;
 use SL::AM;
 use SL::Common;
 use SL::DBUtils;
+use SL::DO;
 use SL::MoreCommon;
 use List::Util qw(min);
 
@@ -538,8 +539,13 @@ sub post_invoice {
 
   Common::webdav_folder($form) if ($main::webdav);
 
-  my $rc = 1;
+  my @close_do_ids = map { $_ * 1 } grep { $_ } split m/\s+/, $form->{close_do_ids};
+  if (scalar @close_do_ids) {
+    DO->close_orders('dbh' => $dbh,
+                     'ids' => \@close_do_ids);
+  }
 
+  my $rc = 1;
   if (!$provided_dbh) {
     $rc = $dbh->commit();
     $dbh->disconnect();

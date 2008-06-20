@@ -648,6 +648,8 @@ sub invoice {
   check_do_access();
   $auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
+  $form->{close_do_ids} = $form->{id};
+
   $form->{deliverydate} = $form->{transdate};
   $form->{transdate}    = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate}      = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
@@ -740,6 +742,7 @@ sub invoice_multi {
                               'back_button' => 1);
   }
 
+  $form->{close_do_ids}    = join ' ', @do_ids;
   $form->{deliverydate}    = $form->{transdate};
   $form->{transdate}       = $form->current_date(\%myconfig);
   $form->{duedate}         = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);

@@ -806,7 +806,7 @@ sub form_footer {
   </tr>
 </table>
 <br>
-|;
+| . $cgi->hidden('-name' => 'close_do_ids', '-default' => [$form->{close_do_ids}]);
 
   $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
