@@ -1,6 +1,6 @@
-[% USE HTML %][% USE LxERP %][% USE JavaScript %]<body[% UNLESS closed %] onload="on_load();"[% END %]>
+[% USE HTML %][% USE LxERP %][% USE JavaScript %]<body[% UNLESS delivered %] onload="on_load();"[% END %]>
 
- [%- UNLESS closed %]
+ [%- UNLESS delivered %]
  <script type="text/javascript">
   <!--
       warehouses = new Array();
@@ -100,7 +100,7 @@
     <tr [% IF row.stock_error %] class="tr_error"[% ELSE %]class="listrow[% loop.count % 2 %]"[% END %]>
      <td>[% loop.count %]</td>
 
-     [%- IF closed %]
+     [%- IF delivered %]
 
      <td>[% HTML.escape(row.warehouse_description) %]</td>
      <td>[% HTML.escape(row.bin_description) %]</td>
@@ -140,7 +140,7 @@
   <hr size="3" noshade>
 
   <p>
-   [%- IF closed %]
+   [%- IF delivered %]
    <button type="button" class="submit" name="action" onclick="window.close()">Fenster Schlie&szlig;en</button>
    [%- ELSE %]
    <input class="submit" type="submit" name="action" value="Erneuern">

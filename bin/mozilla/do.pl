@@ -789,6 +789,7 @@ sub save_as_new {
 
   $form->{saveasnew} = 1;
   $form->{closed}    = 0;
+  $form->{delivered} = 0;
   map { delete $form->{$_} } qw(printed emailed queued);
 
   # Let Lx-Office assign a new order number if the user hasn't changed the
@@ -939,7 +940,7 @@ sub display_stock_in_form {
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS' });
 
-  redo_stock_info('stock_info' => $stock_info, 'add_empty_row' => !$form->{closed});
+  redo_stock_info('stock_info' => $stock_info, 'add_empty_row' => !$form->{delivered});
 
   get_basic_bin_wh_info($stock_info);
 
@@ -986,7 +987,7 @@ sub stock_out_form {
 
   my $stock_info = DO->unpack_stock_information('packed' => $form->{stock});
 
-  if (!$form->{closed}) {
+  if (!$form->{delivered}) {
     foreach my $row (@contents) {
       $row->{available_qty} = $form->format_amount_units('amount'      => $row->{qty} * 1,
                                                          'part_unit'   => $part_info->{unit},
@@ -1012,7 +1013,7 @@ sub stock_out_form {
 
   $form->header();
   print $form->parse_html_template('do/stock_out_form', { 'UNITS'      => $units_data,
-                                                          'WHCONTENTS' => $form->{closed} ? $stock_info : \@contents,
+                                                          'WHCONTENTS' => $form->{delivered} ? $stock_info : \@contents,
                                                           'PART_INFO'  => $part_info, });
 
   $lxdebug->leave_sub();
@@ -1056,7 +1057,7 @@ sub set_stock_out {
   $lxdebug->leave_sub();
 }
 
-sub transfer_in_and_close {
+sub transfer_in {
   $lxdebug->enter_sub();
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_in_${_}"} } (1 .. $form->{rowcount});
@@ -1093,7 +1094,7 @@ sub transfer_in_and_close {
     }
 
     if (@{ $form->{ERRORS} }) {
-      push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been closed. The warehouse contents have not changed.');
+      push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
       update();
       $lxdebug->leave_sub();
@@ -1105,7 +1106,6 @@ sub transfer_in_and_close {
   DO->transfer_in_out('direction' => 'in',
                       'requests'  => \@all_requests);
 
-  $form->{closed}    = 1;
   $form->{delivered} = 1;
 
   save();
@@ -1113,7 +1113,7 @@ sub transfer_in_and_close {
   $lxdebug->leave_sub();
 }
 
-sub transfer_out_and_close {
+sub transfer_out {
   $lxdebug->enter_sub();
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_out_${_}"} } (1 .. $form->{rowcount});
@@ -1186,7 +1186,7 @@ sub transfer_out_and_close {
     }
 
     if (@{ $form->{ERRORS} }) {
-      push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been closed. The warehouse contents have not changed.');
+      push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
       update();
       $lxdebug->leave_sub();
@@ -1198,7 +1198,6 @@ sub transfer_out_and_close {
   DO->transfer_in_out('direction' => 'out',
                       'requests'  => \@all_requests);
 
-  $form->{closed}    = 1;
   $form->{delivered} = 1;
 
   save();

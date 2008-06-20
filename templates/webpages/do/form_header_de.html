@@ -16,7 +16,7 @@
         setupDateFormat('[% myconfig_dateformat %]', 'Falsches Datumsformat!');
         setupPoints('[% myconfig_numberformat %]', 'Falsches Format');
 
-        [%- UNLESS closed %]
+        [%- UNLESS delivered %]
         Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_trigger" });
         [%- END %]
       }
@@ -42,7 +42,7 @@
  [%- SET the_oldvc = oldvendor %]
  [%- SET is_customer = '0' %]
  [%- END %]
- [%- IF closed %]
+ [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- SET DISABLED = ' disabled' %]
  [%- END %]
@@ -101,7 +101,7 @@
         <input type="hidden" name="old[% vc %]" value="[% HTML.escape(the_oldvc) %]">
         <th align="right">[% IF is_customer %]Kunde[% ELSE %]Lieferant[% END %]</th>
         <td>
-         [%- UNLESS !closed && SHOW_VC_DROP_DOWN %]
+         [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]
          <input type="text" value="[% HTML.escape(oldvcname) %]" name="[% HTML.escape(vc) %]"[% RO %]>
          [%- ELSE %]
          <select name="[% vc %]" class="fixed_width" onchange="document.do.update_button.click();"[% RO %]>
@@ -118,7 +118,7 @@
         <tr>
          <th align="right">Ansprechpartner</th>
          <td>
-          [%- IF closed %]
+          [%- IF delivered %]
           <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
           [%- IF cp_id == row.cp_id %]
           [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
@@ -141,7 +141,7 @@
         <tr>
          <th align="right">Lieferadresse</th>
          <td>
-          [%- IF closed %]
+          [%- IF delivered %]
           <input type="hidden" name="shipto_id" value="[% HTML.escape(shipto_id) %]">
           [%- FOREACH row = ALL_SHIPTO %]
           [%- IF shipto_id == row.shipto_id %]
@@ -191,7 +191,7 @@
        <tr>
         <th align="right" nowrap>Abteilung</th>
         <td colspan="3">
-         [%- IF closed %]
+         [%- IF delivered %]
          <input type="hidden" name="department" value="[% HTML.escape(department) %]">
          [%- FOREACH row = ALL_DEPARTMENTS %]
          [% IF department == row.value %][% HTML.escape(row.description) %]--[% HTML.escape(row.id) %][% END %]
@@ -229,24 +229,36 @@
      <td align="right">
       <table>
 
-       [%- IF vc == 'customer' %]
        <tr>
         <td colspan="2" align="center">
-         <input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1"[% IF delivered %] checked[% END %][% DISABLED %]>
-         <label for="delivered">Geliefert</label>
+         [%- IF delivered %]
+          [%- IF is_customer %]
+          ausgelagert
+          [%- ELSE %]
+          eingelagert
+          [%- END %]
+         [%- ELSE %]
+          [%- IF is_customer %]
+          noch nicht ausgelagert
+          [%- ELSE %]
+          noch nicht eingelagert
+          [%- END %]
+         [%- END %]
+         ;
          [%- IF closed %]
-         <input type="hidden" name="delivered" value="1">
+          Geschlossen
+         [%- ELSE %]
+          Offen
          [%- END %]
         </td>
        </tr>
-       [%- ELSE %]
+
        <input type="hidden" name="delivered" value="[% HTML.escape(delivered) %]">
-       [%- END %]
 
        <tr>
         <th align="right">Bearbeiter</th>
         <td>
-         [%- IF closed %]
+         [%- IF delivered %]
          <input type="hidden" name="employee_id" value="[% HTML.escape(employee_id) %]">
          [%- FOREACH row = ALL_EMPLOYEES %]
          [% IF row.id == employee_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
@@ -272,7 +284,7 @@
        <tr>
         <th align="right">Verkäufer/in</th>
         <td>
-         [%- IF closed %]
+         [%- IF delivered %]
          <input type="hidden" name="salesman_id" value="[% HTML.escape(salesman_id) %]">
          [%- FOREACH row = ALL_SALESMEN %]
          [% IF row.id == the_salesman_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
@@ -310,14 +322,14 @@
         <td nowrap>
          <input name="transdate" id="transdate" size="11" title="[% HTML.escape(myconfig_dateformat) %]" value="[% HTML.escape(transdate) %]"
                 onBlur="check_right_date_format(this)"[% RO %]>
-         [% UNLESS closed %]<input type="button" name="b_transdate" id="transdate_trigger" value="?">[% END %]
+         [% UNLESS delivered %]<input type="button" name="b_transdate" id="transdate_trigger" value="?">[% END %]
         </td>
        </tr>
 
        <tr>
         <th width="70%" align="right" nowrap>Projektnummer</th>
         <td>
-         [%- IF closed %]
+         [%- IF delivered %]
          <input type="hidden" name="globalproject_id" value="[% HTML.escape(globalproject_id) %]">
          [%- FOREACH row = ALL_PROJECTS %]
          [% IF globalproject_id == row.id %][% HTML.escape(row.projectnumber) %][% END %]

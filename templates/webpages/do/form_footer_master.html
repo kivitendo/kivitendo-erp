@@ -3,7 +3,7 @@
 <!--   <p> -->
 <!--    <table> -->
 
- [%- IF closed %]
+ [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- END %]
 
@@ -56,19 +56,19 @@
   <p>
    <translate>Edit the Delivery Order</translate><br>
    <input class="submit" type="submit" name="action" id="update_button" value="<translate>Update</translate>">
-   [%- UNLESS closed %]
+   [%- UNLESS delivered %]
    [%- IF vc == 'customer' %]
    <input class="submit" type="submit" name="action" value="<translate>Ship to</translate>">
    [%- END %]
    [%- END %]
    <input class="submit" type="submit" name="action" value="<translate>Print</translate>">
    <input class="submit" type="submit" name="action" value="<translate>E-mail</translate>">
-   [%- UNLESS closed %]
+   [%- UNLESS delivered %]
    <input class="submit" type="submit" name="action" value="<translate>Save</translate>">
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action" value="<translate>Transfer out and close</translate>">
+   <input class="submit" type="submit" name="action" value="<translate>Transfer out</translate>">
    [%- ELSE %]
-   <input class="submit" type="submit" name="action" value="<translate>Transfer in and close</translate>">
+   <input class="submit" type="submit" name="action" value="<translate>Transfer in</translate>">
    [%- END %]
    [%- END %]
    [%- IF id %]
@@ -80,7 +80,7 @@
   <p>
    <translate>Workflow Delivery Order</translate><br>
    <input class="submit" type="submit" name="action" value="<translate>Save as new</translate>">
-   [% UNLESS closed %]
+   [% UNLESS delivered %]
    <input class="submit" type="submit" name="action" value="<translate>Delete</translate>">
    [% END %]
    <input class="submit" type="submit" name="action" value="<translate>Invoice</translate>">

@@ -3,7 +3,7 @@
 <!--   <p> -->
 <!--    <table> -->
 
- [%- IF closed %]
+ [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- END %]
 
@@ -56,19 +56,19 @@
   <p>
    Lieferschein bearbeiten<br>
    <input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
-   [%- UNLESS closed %]
+   [%- UNLESS delivered %]
    [%- IF vc == 'customer' %]
    <input class="submit" type="submit" name="action" value="Lieferadresse">
    [%- END %]
    [%- END %]
    <input class="submit" type="submit" name="action" value="Drucken">
    <input class="submit" type="submit" name="action" value="eMail">
-   [%- UNLESS closed %]
+   [%- UNLESS delivered %]
    <input class="submit" type="submit" name="action" value="Speichern">
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action" value="Auslagern und abschließen">
+   <input class="submit" type="submit" name="action" value="Auslagern">
    [%- ELSE %]
-   <input class="submit" type="submit" name="action" value="Einlagern und abschließen">
+   <input class="submit" type="submit" name="action" value="Einlagern">
    [%- END %]
    [%- END %]
    [%- IF id %]
@@ -80,7 +80,7 @@
   <p>
    Workflow Lieferschein<br>
    <input class="submit" type="submit" name="action" value="als neu speichern">
-   [% UNLESS closed %]
+   [% UNLESS delivered %]
    <input class="submit" type="submit" name="action" value="Löschen">
    [% END %]
    <input class="submit" type="submit" name="action" value="Rechnung">

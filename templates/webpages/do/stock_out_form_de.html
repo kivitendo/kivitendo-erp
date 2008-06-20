@@ -1,6 +1,6 @@
 [% USE HTML %][% USE LxERP %]<body>
 
- [%- IF closed %]
+ [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- END %]
 
@@ -42,15 +42,16 @@
 
   [%- ELSE %]
 
-  <input type="hidden" name="nextsub"  value="set_stock_out">
-  <input type="hidden" name="rowcount" value="[% HTML.escape(WHCONTENTS.size) %]">
-  <input type="hidden" name="in_out"   value="out">
-  <input type="hidden" name="parts_id" value="[% HTML.escape(parts_id) %]">
-  <input type="hidden" name="partunit" value="[% HTML.escape(PART_INFO.unit) %]">
-  <input type="hidden" name="do_qty"   value="[% HTML.escape(do_qty) %]">
-  <input type="hidden" name="do_unit"  value="[% HTML.escape(do_unit) %]">
-  <input type="hidden" name="row"      value="[% HTML.escape(row) %]">
-  <input type="hidden" name="closed"   value="[% HTML.escape(closed) %]">
+  <input type="hidden" name="nextsub"   value="set_stock_out">
+  <input type="hidden" name="rowcount"  value="[% HTML.escape(WHCONTENTS.size) %]">
+  <input type="hidden" name="in_out"    value="out">
+  <input type="hidden" name="parts_id"  value="[% HTML.escape(parts_id) %]">
+  <input type="hidden" name="partunit"  value="[% HTML.escape(PART_INFO.unit) %]">
+  <input type="hidden" name="do_qty"    value="[% HTML.escape(do_qty) %]">
+  <input type="hidden" name="do_unit"   value="[% HTML.escape(do_unit) %]">
+  <input type="hidden" name="row"       value="[% HTML.escape(row) %]">
+  <input type="hidden" name="closed"    value="[% HTML.escape(closed) %]">
+  <input type="hidden" name="delivered" value="[% HTML.escape(delivered) %]">
 
   <p>
    <table>
@@ -59,7 +60,7 @@
      <th class="listheading">Lager</th>
      <th class="listheading">Lagerplatz</th>
      <th class="listheading">Chargennummer</th>
-     [%- UNLESS closed %]
+     [%- UNLESS delivered %]
      <th align="right" class="listheading">Lagerbestand</th>
      [%- END %]
      <th align="right" class="listheading">Menge</th>
@@ -73,7 +74,7 @@
      <td>[% HTML.escape(row.bindescription) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
 
-     [%- IF closed %]
+     [%- IF delivered %]
 
      <td>[% HTML.escape(LxERP.format_amount(row.stock_qty)) %]</td>
      <td>[% HTML.escape(row.stock_unit) %]</td>
@@ -104,7 +105,7 @@
   <hr size="3" noshade>
 
   <p>
-   [%- IF closed %]
+   [%- IF delivered %]
    <button type="button" class="submit" name="action" onclick="window.close()">Fenster Schlie&szlig;en</button>
    [%- ELSE %]
    <input class="submit" type="submit" name="action" value="Weiter">
