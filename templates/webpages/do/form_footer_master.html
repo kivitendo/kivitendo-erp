@@ -72,6 +72,9 @@
    [%- END %]
    [%- END %]
    [%- IF id %]
+   [%- UNLESS closed %]
+   <input class="submit" type="submit" name="action" value="<translate>Mark closed</translate>">
+   [%- END %]
    <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="<translate>history</translate>">
    [%- END %]
   </p>

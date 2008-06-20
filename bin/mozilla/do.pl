@@ -1216,6 +1216,19 @@ sub transfer_out {
   $lxdebug->leave_sub();
 }
 
+sub mark_closed {
+  $lxdebug->enter_sub();
+
+  DO->close_orders('ids' => [ $form->{id} ]);
+
+  $form->{closed} = 1;
+
+  update();
+
+  $lxdebug->leave_sub();
+}
+
+
 sub yes {
   call_sub($form->{yes_nextsub});
 }
