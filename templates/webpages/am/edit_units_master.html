@@ -101,7 +101,7 @@
 
   [% FOREACH row = UNITS %]
    <tr>
-    <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="<translate>up</translate>" src="image/up.png"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="<translate>down</translate>" src="image/down.png"></a>[% END %]</td>
+    <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="<translate>up</translate>" src="image/up.png" border="0"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="<translate>down</translate>" src="image/down.png" border="0"></a>[% END %]</td>
     [% IF row.in_use %]
      <td>
       <input type="hidden" name="unchangeable_[% loop.count %]" value="1">
