@@ -686,7 +686,12 @@ sub search {
     $form->{sort} && $allowed_sort_columns{$form->{sort}} ?
     $form->{sort} : "name";
   $form->{sort} = $sortorder;
-  $sortorder = "country,city,street" if ($sortorder eq "address");
+
+  if ($sortorder eq "address") {
+    $sortorder = "lower(country), lower(city), lower(street)";
+  } elsif ($sortorder ne 'id') {
+    $sortorder = "lower($sortorder)";
+  }
 
   if ($form->{"${cv}number"}) {
     $where .= " AND ct.${cv}number ILIKE ?";
