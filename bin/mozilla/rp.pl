@@ -189,10 +189,10 @@ sub report {
     $value_2   = "";
     $trigger_2 = "trigger2";
   } elsif (($form->{report} eq "ar_aging") || ($form->{report} eq "ap_aging")) {
-    $name_1    = "";
-    $id_1      = "";
-    $value_1   = "";
-    $trigger_1 = "";
+    $name_1    = "fromdate";
+    $id_1      = "fromdate";
+    $value_1   = "$form->{fromdate}";
+    $trigger_1 = "trigger1";
     $name_2    = "todate";
     $id_2      = "todate";
     $value_2   = "";
@@ -788,10 +788,12 @@ $jsscript
 	  <td>$vc</td>
 	</tr>
 	<tr>
-	  <th align=right>| . $locale->text('Bis') . qq|</th>
-	  <td>
-            $button1
-            $button1_2
+	  <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
+	      $button1
+              $button1_2&nbsp;
+	      | . $locale->text('Bis') . qq|&nbsp;
+	      $button2
+              $button2_2
           </td>
 	</tr>
         <input type=hidden name=type value=statement>
@@ -1666,7 +1668,7 @@ sub create_aging_subtotal_row {
 
 sub aging {
   $lxdebug->enter_sub();
-  print(STDERR "Bin in Aging\n");
+
   $auth->assert('general_ledger');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
@@ -1714,7 +1716,11 @@ sub aging {
     $form->{title} = sprintf($locale->text('Ap aging on %s'), $form->{todate});
   }
 
-  push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
+  if ($form->{fromdate}) {
+    push @options, $locale->text('for Period') . " " . $locale->text('From') . " " .$locale->date(\%myconfig, $form->{fromdate}, 1) . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
+  } else {
+    push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
+  }
 
   my $attachment_basename = $form->{ct} eq 'customer' ? $locale->text('ar_aging_list') : $locale->text('ap_aging_list');
 

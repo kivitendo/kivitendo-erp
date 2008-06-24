@@ -1303,6 +1303,9 @@ sub aging {
 
   $form->{todate} = $form->current_date($myconfig) unless ($form->{todate});
   my $todate = conv_dateq($form->{todate});
+  my $fromdate = conv_dateq($form->{fromdate});
+
+  my $fromwhere = ($form->{fromdate} ne "") ? " AND (transdate >= (date $fromdate)) " : "";
 
   my $where = " 1 = 1 ";
   my ($name, $null);
@@ -1338,7 +1341,7 @@ sub aging {
       AND (${arap}.storno IS FALSE)
       AND (${arap}.${ct}_id = ${ct}.id)
       AND (${ct}.id = ?)
-      AND (transdate <= (date $todate))
+      AND (transdate <= (date $todate) $fromwhere )
 
     ORDER BY ctid, transdate, invnumber |;
 
@@ -1352,7 +1355,7 @@ sub aging {
        WHERE $where
          AND (a.${ct_id} = ct.id)
          AND ((a.paid != a.amount) OR ((a.datepaid > $todate) AND (datepaid is NOT NULL)))
-         AND (a.transdate <= $todate)
+         AND (a.transdate <= $todate $fromwhere)
        ORDER BY ct.name|;
 
   my $sth = prepare_execute_query($form, $dbh, $query);
