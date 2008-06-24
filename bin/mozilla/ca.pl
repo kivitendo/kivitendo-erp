@@ -349,6 +349,9 @@ $checked></td>
       . qq|</th>
              <td><input name=decimalplaces size=3 value="2"></td>
          </tr>
+         <tr>
+            <td><input name="subtotal" class=checkbox type=checkbox value=1> | . $locale->text('Subtotal') . qq|</td>
+         </tr>
                                     
 $jsscript
   <tr><td colspan=5 ><hr size=3 noshade></td></tr>
@@ -519,6 +522,13 @@ sub list_transactions {
     'ustkonto'     => { 'text' => $locale->text('USt-Konto'), },
      'ustrate'     => { 'text' => $locale->text('Satz %'), },
  );
+
+  my @hidden_variables = qw(accno fromdate todate description accounttype l_heading subtotal department projectnumber project_id sort);
+
+  my $link = build_std_url('action=list_transactions', grep { $form->{$_} } @hidden_variables);
+
+  $form->{callback} = $link . '&sort=' . E($form->{sort});
+
   my %column_alignment = map { $_ => 'right' } qw(debit credit);
 
   @custom_headers = ();
@@ -540,9 +550,9 @@ sub list_transactions {
  ];
  # Zeile 2:
  push @custom_headers, [
-   { 'text' => $locale->text('Date'), },
-   { 'text' => $locale->text('Reference'), },
-   { 'text' => $locale->text('Description'), },
+   { 'text' => $locale->text('Date'), 'link' => $link . "&sort=transdate", },
+   { 'text' => $locale->text('Reference'), 'link' => $link . "&sort=reference",  },
+   { 'text' => $locale->text('Description'), 'link' => $link . "&sort=description",  },
    { 'text' => $locale->text('Gegenkonto'), },
    { 'text' => $locale->text('Debit'), },
    { 'text' => $locale->text('Credit'), },
@@ -552,12 +562,7 @@ sub list_transactions {
 
 
 
-  my @hidden_variables = qw(accno fromdate todate description accounttype l_heading l_subtotal department projectnumber project_id sort);
 
-  my $link = build_std_url('action=list_transactions', grep { $form->{$_} } @hidden_variables);
-  map { $column_defs{$_}->{link} = $link . "&sort=$_" } qw(transdate reference description);
-
-  $form->{callback} = $link . '&sort=' . E($form->{sort});
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
   $report->set_custom_headers(@custom_headers);
@@ -595,6 +600,12 @@ sub list_transactions {
       $ca->{$_}       = $form->format_amount(\%myconfig, $ca->{$_}, 2) if ($ca->{$_} != 0);
     }
 
+    my $do_subtotal = 0;
+    if (($form->{subtotal})
+        && (($idx == scalar @{ $form->{CA} } - 1)
+            || ($ca->{$form->{sort}} ne $form->{CA}->[$idx + 1]->{$form->{sort}}))) {
+      $do_subtotal = 1;
+    }
 
     my $row = { };
 
@@ -622,27 +633,28 @@ sub list_transactions {
     }
 
     if ($ca->{index} ne $previous_index) {
-      $report->add_data($row_set) if ($row_set);
+#       $report->add_data($row_set) if ($row_set);
 
-      $row_set         = [ ];
+#       $row_set         = [ ];
       $previous_index  = $ca->{index};
 
       $row->{reference}->{link} = build_std_url("script=$ca->{module}.pl", 'action=edit', 'id=' . E($ca->{id}), 'callback');
 
-    } else {
+    } elsif ($ca->{index} eq $previous_index) {
       map { $row->{$_}->{data} = '' } qw(reference description);
       $row->{transdate}->{data} = '' if ($form->{sort} eq 'transdate');
     }
 
+    my $row_set = [];
+
     push @{ $row_set }, $row;
 
-    if (($form->{l_subtotal} eq 'Y')
-        && (($idx == scalar @{ $form->{CA} } - 1)
-            || ($ca->{$form->{sort}} ne $form->{CA}->[$idx + 1]->{$form->{sort}}))) {
-      $report->add_data(create_subtotal_row(\%subtotals, \@columns, \%column_alignment, 'listsubtotal'));
-    }
+    push @{ $row_set }, create_subtotal_row(\%subtotals, \@columns, \%column_alignment, 'listsubtotal') if ($do_subtotal);
+
 
     $idx++;
+    $report->add_data($row_set);
+
   }
 
   $report->add_data($row_set) if ($row_set);

@@ -123,6 +123,7 @@ $self->{texts} = {
   'Storno Invoice'              => 'Stornorechnung',
   'Storno Packing List'         => 'Stornolieferschein',
   'Subject'                     => 'Betreff',
+  'Subtotal'                    => 'Zwischensumme',
   'The \'tag\' field must only consist of alphanumeric characters or the carachters - _ ( )' => 'Das Feld \'tag\' darf nur aus alphanumerischen Zeichen und den Zeichen - _ ( ) bestehen.',
   'The LDAP server "#1:#2" is unreachable. Please check config/authentication.pl.' => 'Der LDAP-Server "#1:#2" ist nicht erreichbar. Bitte &uuml;berpr&uuml;fen Sie die Angaben in config/authentication.pl.',
   'The config file "config/authentication.pl" contained invalid Perl code:' => 'Die Konfigurationsdatei "config/authentication.pl" enthielt ung&uuml;tigen Perl-Code:',

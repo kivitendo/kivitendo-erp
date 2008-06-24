@@ -405,7 +405,7 @@ sub all_transactions {
     }
 
     $ca->{index} = join "--", map { $ca->{$_} } qw(id reference description transdate);
-
+#     $ca->{index} = $ca->{$form->{sort}};
     push(@{ $form->{CA} }, $ca);
 
   }
