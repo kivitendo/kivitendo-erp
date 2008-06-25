@@ -768,7 +768,7 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
-      $main::lxdebug->message(DEBUG2, "Applying Update $upgradescript");
+      $main::lxdebug->message(LXDebug::DEBUG2, "Applying Update $upgradescript");
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
                              "-upgrade/$upgradescript", $str_maxdb, $db_charset);
@@ -852,7 +852,7 @@ sub dbupdate2 {
       my $file_type = $1;
 
       # apply upgrade
-      $main::lxdebug->message(DEBUG2, "Applying Update $control->{file}");
+      $main::lxdebug->message(LXDebug::DEBUG2, "Applying Update $control->{file}");
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
       if ($file_type eq "sql") {
