@@ -4,6 +4,23 @@
 
 
 die("This script cannot be run from the command line.") unless ($main::form);
+
+sub mydberror {
+  my ($msg) = @_;
+  die($dbup_locale->text("Database update error:") .
+      "<br>$msg<br>" . $DBI::errstr);
+}
+
+sub do_query {
+  my ($query, $may_fail) = @_;
+
+  if (!$dbh->do($query)) {
+    mydberror($query) unless ($may_fail);
+    $dbh->rollback();
+    $dbh->begin_work();
+  }
+}
+
 $do_sql_migration = 0;
 
 sub print_question {
@@ -32,12 +49,12 @@ sub do_update {
 
   my $migration_code = <<EOF
 
--- Warehouse anpassen
+-- Adjust warehouse
 INSERT INTO warehouse (description) VALUES ('$warehouse');
 
 UPDATE tmp_parts SET bin = NULL WHERE bin = '';
 
--- Warenbestand wiederherstellen
+-- Restore old onhand
 INSERT INTO bin 
  (warehouse_id, description) 
  (SELECT DISTINCT warehouse.id, COALESCE(bin, '$bin') 
@@ -57,7 +74,7 @@ EOF
   my $query  = $sqlcode;
      $query .= $migration_code if $do_sql_migration;
 
-  do_query($main::form, $dbh, $query);
+  do_query($query);
 
   return 1;
 }
@@ -65,7 +82,7 @@ EOF
 
 
 $sqlcode = <<EOF
--- Tabelle "bin" für Lagerplätze.
+-- Table "bin" for bins.
 CREATE TABLE bin (
   id integer NOT NULL DEFAULT nextval('id'),
   warehouse_id integer NOT NULL,
@@ -80,7 +97,7 @@ CREATE TABLE bin (
 CREATE TRIGGER mtime_bin BEFORE UPDATE ON bin
     FOR EACH ROW EXECUTE PROCEDURE set_mtime();
 
--- Tabelle "warehouse"
+-- Table "warehouse"
 ALTER TABLE warehouse ADD COLUMN sortkey integer;
 CREATE SEQUENCE tmp_counter;
 UPDATE warehouse SET sortkey = nextval('tmp_counter');
@@ -92,7 +109,7 @@ UPDATE warehouse SET invalid = 'f';
 CREATE TRIGGER mtime_warehouse BEFORE UPDATE ON warehouse
     FOR EACH ROW EXECUTE PROCEDURE set_mtime();
 
--- Tabelle "transfer_type"
+-- Table "transfer_type"
 CREATE TABLE transfer_type (
   id integer NOT NULL DEFAULT nextval('id'),
   direction varchar(10) NOT NULL,
@@ -118,7 +135,7 @@ INSERT INTO transfer_type (direction, description, sortkey) VALUES ('out', 'corr
 INSERT INTO transfer_type (direction, description, sortkey) VALUES ('transfer', 'transfer', 10);
 INSERT INTO transfer_type (direction, description, sortkey) VALUES ('transfer', 'correction', 11);
 
--- Anpassungen an "inventory".
+-- Modifications to "inventory".
 DELETE FROM inventory;
 
 ALTER TABLE inventory ADD COLUMN bin_id integer;
@@ -150,8 +167,7 @@ ALTER TABLE inventory ADD FOREIGN KEY (project_id) REFERENCES project (id);
 ALTER TABLE inventory ADD COLUMN chargenumber text;
 ALTER TABLE inventory ADD COLUMN comment text;
 
--- "onhand" in "parts" über einen Trigger automatisch berechnen lassen.
--- Vorher Warenbestand sichern JZ
+-- Let "onhand" in "parts" be calculated automatically by a trigger.
 SELECT id, onhand, bin INTO TEMP TABLE tmp_parts FROM parts WHERE onhand > 0;
 ALTER TABLE parts DROP COLUMN onhand;
 ALTER TABLE parts ADD COLUMN onhand numeric(25,5);
