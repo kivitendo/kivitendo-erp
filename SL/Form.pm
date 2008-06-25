@@ -919,15 +919,18 @@ sub format_amount_units {
   my $self             = shift;
   my %params           = @_;
 
-  Common::check_params(\%params, qw(amount part_unit));
-
   my $myconfig         = \%main::myconfig;
-  my $amount           = $params{amount};
+  my $amount           = $params{amount} * 1;
   my $places           = $params{places};
   my $part_unit_name   = $params{part_unit};
   my $amount_unit_name = $params{amount_unit};
   my $conv_units       = $params{conv_units};
   my $max_places       = $params{max_places};
+
+  if (!$part_unit_name) {
+    $main::lxdebug->leave_sub();
+    return '';
+  }
 
   AM->retrieve_all_units();
   my $all_units        = $main::all_units;
