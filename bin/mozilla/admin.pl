@@ -176,6 +176,18 @@ sub create_auth_tables {
   $auth->set_session_value('rpw', $form->{rpw});
   $auth->create_or_refresh_session();
 
+  if (!-f $memberfile) {
+    # New installation -- create a standard group with full access
+    my $group = {
+      'name'        => $locale->text('Full Access'),
+      'description' => $locale->text('Full access to all functions'),
+      'rights'      => { map { $_ => 1 } SL::Auth::all_rights() },
+      'members'     => [ map { $_->{id} } values %members ],
+    };
+
+    $auth->save_group($group);
+  }
+
   login();
 }
 
