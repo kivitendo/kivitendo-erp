@@ -606,7 +606,12 @@ sub retrieve {
     undef @ids;
   }
 
-  $query_add = qq|, current_date AS transdate, current_date AS reqdate| if (!$form->{id});
+  my $query_add = '';
+  if (!$form->{id}) {
+    my $wday         = (localtime(time))[6];
+    my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
+    $query_add       = qq|, current_date AS transdate, date(current_date + interval '${next_workday} days') AS reqdate|;
+  }
 
   # get default accounts
   $query = qq|SELECT (SELECT c.accno FROM chart c WHERE d.inventory_accno_id = c.id) AS inventory_accno,
