@@ -1,6 +1,6 @@
-if (!window.a_onload_functions)   var a_onload_functions   = new Object();
-if (!window.a_onsubmit_functions) var a_onsubmit_functions = new Object();
-if (!window.a_onfocus_functions)  var a_onfocus_functions  = new Object();
+if (!window.a_onload_functions)   a_onload_functions   = new Object();
+if (!window.a_onsubmit_functions) a_onsubmit_functions = new Object();
+if (!window.a_onfocus_functions)  a_onfocus_functions  = new Object();
 window.focused_element = null;
 
 function setupPoints(numberformat, wrongFormat) {
@@ -139,28 +139,28 @@ function get_input_value(input_name) {
   return '';
 }
 
-a_onfocus_functions["focus_listener"] = function (event) { 
+a_onfocus_functions["focus_listener"] = (function (event) { 
   if (focussable(event.target)) window.focused_element = event.target;
-}
+});
 
-a_onsubmit_functions["get_cursor_position"] = function () {
+a_onsubmit_functions["get_cursor_position"] = (function () {
   if (window.focused_element)
     document.forms[0].cursor_fokus.value = window.focused_element.name;
-}
+});
 
 function set_cursor_position(n) {
   document.getElementsByName(n)[0].focus();
 }
 
-a_onload_functions["restore_cursor_position"] = function () {
+a_onload_functions["restore_cursor_position"] = (function () {
   var e = document.getElementsByName('cursor_fokus')[0];
-  var f = document.getElementsByName(e.value)[0];
+  if (e) var f = document.getElementsByName(e.value)[0];
   if (focussable(f)) set_cursor_position(f.name)
     else set_cursor_to_first_element();
-}
+});
 
 function focussable(e) {
-  return e && e.type != 'hidden' && e.type != 'submit' && e.disabled != true;
+  return e && e.name && e.type != 'hidden' && e.type != 'submit' && e.disabled != true;
 }
 
 function set_cursor_to_first_element(){
@@ -173,15 +173,14 @@ function set_cursor_to_first_element(){
 
 function add_event(e, type, fn, c) {
   var ret = 0;
-  if (e.addEventListener) ret = e.addEventListener(type, fn, c)
-  else if (e.attachEvent) ret = e.attachEvent('on' + type, fn)
+  if (e.addEventListener) e.addEventListener(type, fn, c)
+  else if (e.attachEvent) e.attachEvent('on' + type, fn)
   else e['on' + type] = fn;
-  return ret;
 } 
 
 function do_load_events() {
   for (var name in window.a_onload_functions)   add_event(window, "load",   window.a_onload_functions[name],   false);
   for (var name in window.a_onsubmit_functions) add_event(window, "submit", window.a_onsubmit_functions[name], false);
-  for (var name in window.a_onfocus_functions)  add_event(window, "focus",  window.a_onfocus_functions[name],  true);
+  for (var name in window.a_onfocus_functions)  add_event(window, "focus",  window.a_onfocus_functions[name],  false);
 }
 do_load_events();
