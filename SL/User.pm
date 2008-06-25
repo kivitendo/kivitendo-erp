@@ -344,7 +344,8 @@ sub dbcreate {
   my $query = $dbcreate{$form->{dbdriver}};
   $query .= " WITH " . join(" ", @{$dboptions{"Pg"}}) if (@{$dboptions{"Pg"}});
 
-  do_query($form, $dbh, $query);
+  # Ignore errors if the database exists.
+  $dbh->do($query);
 
   if ($form->{dbdriver} eq 'Oracle') {
     $query = qq|GRANT CONNECT, RESOURCE TO "$form->{db}"|;
