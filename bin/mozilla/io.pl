@@ -252,10 +252,15 @@ sub display_row {
     $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)", -value => $locale->text('*/'))
                        . $cgi->hidden(-name => "formel_$i", -value => $form->{"formel_$i"}) . $cgi->hidden("-name" => "alu_$i", "-value" => $form->{"alu_$i"})
       if $form->{"formel_$i"};
-    $column_data{ship} = !$form->{"id_$i"} ? '' : $form->format_amount_units('amount'     => $form->{"ship_$i"} * 1,
-                                                                             'part_unit'  => $form->{"partunit_$i"},
-                                                                             'conv_units' => 'convertible_not_smaller',
-                                                                             'max_places' => 2);
+
+    $column_data{ship} = '';
+    if ($form->{"id_$i"}) {
+      my $ship_qty        = $form->{"ship_$i"} * 1;
+      $ship_qty          *= $all_units->{$form->{"partunit_$i"}}->{factor};
+      $ship_qty          /= $all_units->{$form->{"unit_$i"}}->{factor};
+
+      $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"};
+    }
 
     # build in drop down list for pricesgroups
     if ($form->{"prices_$i"}) {
