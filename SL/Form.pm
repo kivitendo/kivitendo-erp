@@ -1897,6 +1897,12 @@ sub _get_contacts {
 
   $key = "all_contacts" unless ($key);
 
+  if (!$id) {
+    $self->{$key} = [];
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
   my $query =
     qq|SELECT cp_id, cp_cv_id, cp_name, cp_givenname, cp_abteilung | .
     qq|FROM contacts | .
@@ -1965,10 +1971,15 @@ sub _get_shipto {
 
   $key = "all_shipto" unless ($key);
 
-  # get shipping addresses
-  my $query = qq|SELECT * FROM shipto WHERE trans_id = ?|;
+  if ($vc_id) {
+    # get shipping addresses
+    my $query = qq|SELECT * FROM shipto WHERE trans_id = ?|;
 
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query, $vc_id);
+    $self->{$key} = selectall_hashref_query($self, $dbh, $query, $vc_id);
+
+  } else {
+    $self->{$key} = [];
+  }
 
   $main::lxdebug->leave_sub();
 }
