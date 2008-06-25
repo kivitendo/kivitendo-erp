@@ -188,10 +188,12 @@ sub get_part {
 
   # get translations
   $form->{language_values} = "";
-  $query = qq|SELECT language_id, translation FROM translation WHERE parts_id = ?|;
+  $query = qq|SELECT language_id, translation, longdescription
+              FROM translation
+              WHERE parts_id = ?|;
   my $trq = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-  while ($tr = $trq->fetchrow_hashref(NAME_lc)) {
-    $form->{language_values} .= "---+++---".$tr->{language_id}."--++--".$tr->{translation};
+  while (my $tr = $trq->fetchrow_hashref(NAME_lc)) {
+    $form->{language_values} .= "---+++---" . join('--++--', @{$tr}{qw(language_id translation longdescription)});
   }
   $trq->finish;
 
