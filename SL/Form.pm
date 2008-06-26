@@ -41,6 +41,7 @@ use Data::Dumper;
 use CGI;
 use CGI::Ajax;
 use Cwd;
+use IO::File;
 use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
@@ -729,12 +730,25 @@ sub parse_html_template {
 
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
 
-  my $output;
-  if (!$template->process($file, $additional_params, \$output)) {
-    print STDERR $template->error();
+  my $in = IO::File->new($file, 'r');
+
+  if (!$in) {
+    print STDERR "Error opening template file: $!";
+    $main::lxdebug->leave_sub();
+    return '';
   }
 
-  $output = $main::locale->{iconv}->convert($output) if ($main::locale);
+  my $input = join('', <$in>);
+  $in->close();
+
+  if ($main::locale) {
+    $input = $main::locale->{iconv}->convert($input);
+  }
+
+  my $output;
+  if (!$template->process(\$input, $additional_params, \$output)) {
+    print STDERR $template->error();
+  }
 
   $main::lxdebug->leave_sub();
 
