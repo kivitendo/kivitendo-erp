@@ -85,13 +85,14 @@ sub _init {
       $self->{charset} = Common::DEFAULT_CHARSET;
     }
 
-    $self->_read_special_chars_file($country);
-
     my $db_charset         = $main::dbcharset || Common::DEFAULT_CHARSET;
 
     $self->{iconv}         = Text::Iconv->new($self->{charset}, $db_charset);
+    $self->{iconv_reverse} = Text::Iconv->new($db_charset,      $self->{charset});
     $self->{iconv_english} = Text::Iconv->new('ASCII',          $db_charset);
     $self->{iconv_iso8859} = Text::Iconv->new('ISO-8859-15',    $db_charset);
+
+    $self->_read_special_chars_file($country);
   }
 
   $self->{NLS_file} = $NLS_file;
@@ -166,13 +167,13 @@ sub _read_special_chars_file {
     }
 
     my $scmap = $self->{special_chars_map}->{$format};
-    my $order = $scmap->{order};
+    my $order = $self->{iconv}->convert($scmap->{order});
     delete $scmap->{order};
 
     foreach my $key (keys %{ $scmap }) {
-      $scmap->{$key} = $self->_handle_markup($scmap->{$key});
+      $scmap->{$key} = $self->_handle_markup($self->{iconv}->convert($scmap->{$key}));
 
-      my $new_key    = $self->_handle_markup($key);
+      my $new_key    = $self->_handle_markup($self->{iconv}->convert($key));
 
       if ($key ne $new_key) {
         $scmap->{$new_key} = $scmap->{$key};
@@ -208,14 +209,12 @@ sub findsub {
   $main::lxdebug->enter_sub();
 
   my ($self, $text) = @_;
+  my $text_rev      = $self->{iconv_reverse}->convert($text);
 
-  if (exists $self->{subs}{$text}) {
-    $text = $self->{subs}{$text};
-  } else {
-    if ($self->{countrycode} && $self->{NLS_file}) {
-      Form->error(
-         "$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
-    }
+  if (exists $self->{subs}{$text_rev}) {
+    $text = $self->{subs}{$text_rev};
+  } elsif ($self->{countrycode} && $self->{NLS_file}) {
+    Form->error("$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
   }
 
   $main::lxdebug->leave_sub();
