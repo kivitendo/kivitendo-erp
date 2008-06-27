@@ -1506,6 +1506,8 @@ sub save_defaults {
         vendornumber       = ?,
         articlenumber      = ?,
         servicenumber      = ?,
+        sdonumber          = ?,
+        pdonumber          = ?,
         yearend            = ?,
         curr               = ?,
         businessnumber     = ?|;
@@ -1516,6 +1518,7 @@ sub save_defaults {
                 $form->{sqnumber},        $form->{rfqnumber},
                 $form->{customernumber},  $form->{vendornumber},
                 $form->{articlenumber},   $form->{servicenumber},
+                $form->{sdonumber},       $form->{pdonumber},
                 $form->{yearend},         $currency,
                 $form->{businessnumber});
   do_query($form, $dbh, $query, @values);
