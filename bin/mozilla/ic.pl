@@ -95,20 +95,18 @@ sub search {
   $form->{lastsort}     = ""; # memory for which table was sort at last time
   $form->{ndxs_counter} = 0;  # counter for added entries to top100
 
-  my $is_service  = $form->{searchitems} eq 'service';
-  my $is_assembly = $form->{searchitems} eq 'assembly';
+  my %is_xyz     = map { +"is_$_" => ($form->{searchitems} eq $_) } qw(part service assembly);
 
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
   $form->{title} = $locale->text($form->{title});
-  $form->{title} = $locale->text('Assemblies') if $is_assembly;
+  $form->{title} = $locale->text('Assemblies') if ($is_xyz{assembly});
 
   $form->{jsscript} = 1;
 
   $form->header;
 
-  print $form->parse_html_template('ic/search', { is_assembly => $is_assembly, 
-                                                  is_service  => $is_service, 
-                                                  dateformat  => $myconfig{dateformat}, });
+  print $form->parse_html_template('ic/search', { %is_xyz,
+                                                  dateformat => $myconfig{dateformat}, });
 
   $lxdebug->leave_sub();
 }    #end search()
