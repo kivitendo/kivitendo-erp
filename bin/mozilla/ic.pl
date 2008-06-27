@@ -75,12 +75,9 @@ sub add {
 
   $auth->assert('part_service_assembly_edit');
 
-  $form->{title} = $locale->text('Add ' . ucfirst $form->{item});
-
-  $form->{callback} = "$form->{script}?action=add&item=$form->{item}"
-    unless $form->{callback};
-
-  $form->{"unit_changeable"} = 1;
+  $form->{title}           = $locale->text('Add ' . ucfirst $form->{item});
+  $form->{callback}        = "$form->{script}?action=add&item=$form->{item}" unless $form->{callback};
+  $form->{unit_changeable} = 1;
 
   IC->get_pricegroups(\%myconfig, \%$form);
   &link_part;
