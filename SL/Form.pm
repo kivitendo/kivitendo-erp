@@ -471,7 +471,7 @@ sub isblank {
   my ($self, $name, $msg) = @_;
 
   my $curr = $self;
-  foreach my $part (split /\./, $name) {
+  foreach my $part (split m/\./, $name) {
     if (!$curr->{$part} || ($curr->{$part} =~ /^\s*$/)) {
       $self->error($msg);
     }
