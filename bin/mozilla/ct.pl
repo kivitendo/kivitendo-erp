@@ -64,11 +64,8 @@ sub add {
 
   $auth->assert('customer_vendor_edit');
 
-  $form->{title} = "Add";
-
-  $form->{callback} =
-    "$form->{script}?action=add&db=$form->{db}"
-    unless $form->{callback};
+  $form->{title}    = "Add";
+  $form->{callback} = "$form->{script}?action=add&db=$form->{db}" unless $form->{callback};
 
   CT->populate_drop_down_boxes(\%myconfig, \%$form);
 
