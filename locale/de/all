@@ -176,8 +176,7 @@ $self->{texts} = {
   'Are you sure you want to delete Quotation Number' => 'Sind Sie sicher, dass Angebotnummer gelöscht werden soll?',
   'Are you sure you want to delete Transaction' => 'Buchung wirklich löschen?',
   'Are you sure you want to remove the marked entries from the queue?' => 'Sind Sie sicher, dass die markierten Einträge von der Warteschlange gelöscht werden sollen?',
-  'Are you sure you want to update the prices' => 'Sind Sie sicher, dass Sie die Preise 
-aktualisieren wollen?',
+  'Are you sure you want to update the prices' => 'Sind Sie sicher, dass Sie die Preise aktualisieren wollen?',
   'Article Code'                => 'Artikelkürzel',
   'Article Code missing!'       => 'Artikelkürzel fehlt',
   'As a result, the saved onhand values of the present goods can be stored into a warehouse designated by you, or will be reset for a proper warehouse tracking' => 'Als Konsequenz k&ouml;nnen die gespeicherten Mengen entweder in ein Lager &uuml;berf&uuml;hrt werden, oder f&uuml;r eine frische Lagerverwaltung resettet werden.',
