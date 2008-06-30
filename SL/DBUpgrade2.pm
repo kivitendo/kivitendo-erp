@@ -27,7 +27,7 @@ sub parse_dbupdate_controls {
 
     my $control = {
       "priority" => 1000,
-      "depends" => [],
+      "depends"  => [],
     };
 
     while (<IN>) {
@@ -49,32 +49,27 @@ sub parse_dbupdate_controls {
 
     $control->{charset} ||= Common::DEFAULT_CHARSET;
 
-    _control_error($form, $file_name,
-                   $locale->text("Missing 'tag' field."))
-      unless ($control->{"tag"});
+    if (!$control->{"tag"}) {
+      _control_error($form, $file_name, $locale->text("Missing 'tag' field.")) ;
+    }
 
-    _control_error($form, $file_name,
-                   $locale->text("The 'tag' field must only consist of " .
-                                 "alphanumeric characters or the carachters " .
-                                 "- _ ( )"))
-      if ($control->{"tag"} =~ /[^a-zA-Z0-9_\(\)\-]/);
+    if ($control->{"tag"} =~ /[^a-zA-Z0-9_\(\)\-]/) {
+      _control_error($form, $file_name, $locale->text("The 'tag' field must only consist of alphanumeric characters or the carachters - _ ( )"))
+    }
 
-    _control_error($form, $file_name,
-                   sprintf($locale->text("More than one control file " .
-                                         "with the tag '%s' exist."),
-                           $control->{"tag"}))
-      if (defined($all_controls{$control->{"tag"}}));
+    if (defined($all_controls{$control->{"tag"}})) {
+      _control_error($form, $file_name, sprintf($locale->text("More than one control file with the tag '%s' exist."), $control->{"tag"}))
+    }
 
-    _control_error($form, $file_name,
-                   sprintf($locale->text("Missing 'description' field.")))
-      unless ($control->{"description"});
+    if (!$control->{"description"}) {
+      _control_error($form, $file_name, sprintf($locale->text("Missing 'description' field."))) ;
+    }
 
-    $control->{"priority"} *= 1;
-    $control->{"priority"} = 1000 unless ($control->{"priority"});
+    $control->{"priority"}  *= 1;
+    $control->{"priority"} ||= 1000;
+    $control->{"file"}       = $file;
 
-    $control->{"file"} = $file;
-
-    map({ delete($control->{$_}); } qw(depth applied));
+    delete @{$control}{qw(depth applied)};
 
     $all_controls{$control->{"tag"}} = $control;
 
@@ -83,15 +78,11 @@ sub parse_dbupdate_controls {
 
   foreach my $control (values(%all_controls)) {
     foreach my $dependency (@{$control->{"depends"}}) {
-      _control_error($form, $control->{"file"},
-                     sprintf($locale->text("Unknown dependency '%s'."),
-                             $dependency))
-        if (!defined($all_controls{$dependency}));
+      _control_error($form, $control->{"file"}, sprintf($locale->text("Unknown dependency '%s'."), $dependency)) if (!defined($all_controls{$dependency}));
     }
 
     map({ $_->{"loop"} = 0; } values(%all_controls));
-    _check_for_loops($form, $control->{"file"}, \%all_controls,
-                     $control->{"tag"});
+    _check_for_loops($form, $control->{"file"}, \%all_controls, $control->{"tag"});
   }
 
   map({ _dbupdate2_calculate_depth(\%all_controls, $_->{"tag"}) }
@@ -111,14 +102,12 @@ sub _check_for_loops {
 
   if ($ctrl->{"loop"} == 1) {
     # Not done yet.
-    _control_error($form, $file_name,
-                   $main::locale->text("Dependency loop detected:") .
-                   " " . join(" -> ", @path))
+    _control_error($form, $file_name, $main::locale->text("Dependency loop detected:") . " " . join(" -> ", @path))
+
   } elsif ($ctrl->{"loop"} == 0) {
     # Not checked yet.
     $ctrl->{"loop"} = 1;
-    map({ _check_for_loops($form, $file_name, $controls, $_, @path); }
-        @{ $ctrl->{"depends"} });
+    map({ _check_for_loops($form, $file_name, $controls, $_, @path); } @{ $ctrl->{"depends"} });
     $ctrl->{"loop"} = 2;
   }
 }
@@ -129,8 +118,7 @@ sub _control_error {
   $form = $main::form;
   my $locale = $main::locale;
 
-  $form->error(sprintf($locale->text("Error in database control file '%s': %s"),
-                       $file_name, $message));
+  $form->error(sprintf($locale->text("Error in database control file '%s': %s"), $file_name, $message));
 }
 
 sub _dbupdate2_calculate_depth {
@@ -156,12 +144,9 @@ sub _dbupdate2_calculate_depth {
 }
 
 sub sort_dbupdate_controls {
-  return
-    sort({ $a->{"depth"} != $b->{"depth"} ? $a->{"depth"} <=> $b->{"depth"} :
-             $a->{"priority"} != $b->{"priority"} ?
-             $a->{"priority"} <=> $b->{"priority"} :
-             $a->{"tag"} cmp $b->{"tag"} } values(%{$_[0]}));
+  return sort({   $a->{"depth"}    !=  $b->{"depth"}    ? $a->{"depth"}    <=> $b->{"depth"}
+                : $a->{"priority"} !=  $b->{"priority"} ? $a->{"priority"} <=> $b->{"priority"}
+                :                                         $a->{"tag"}      cmp $b->{"tag"}      } values(%{$_[0]}));
 }
-
 
 1;
