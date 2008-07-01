@@ -1814,12 +1814,12 @@ sub sales_order {
     delete($form->{ordnumber});
   }
 
-  $form->{cp_id}  *= 1;
-  $form->{oe_ids}  = $form->{id};
+  $form->{cp_id}               *= 1;
+  $form->{convert_from_oe_ids}  = $form->{id};
 
-  $form->{title} = $locale->text('Add Sales Order');
-  $form->{vc}    = "customer";
-  $form->{type}  = "sales_order";
+  $form->{title}                = $locale->text('Add Sales Order');
+  $form->{vc}                   = "customer";
+  $form->{type}                 = "sales_order";
 
   &poso;
 
@@ -1883,18 +1883,16 @@ sub delivery_order {
 
   require "bin/mozilla/do.pl";
 
-  $form->{cp_id}           *= 1;
-  $form->{oe_ids}           = $form->{id};
-  $form->{transdate}        = $form->current_date(\%myconfig);
+  $form->{cp_id}               *= 1;
+  $form->{convert_from_oe_ids}  = $form->{id};
+  $form->{transdate}            = $form->current_date(\%myconfig);
   delete $form->{duedate};
-
-  $form->{closed}           = 0;
 
   $form->{old_employee_id}  = $form->{employee_id};
   $form->{old_salesman_id}  = $form->{salesman_id};
 
   # reset
-  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal);
+  delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
 
   for $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor);

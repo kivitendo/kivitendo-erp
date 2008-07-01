@@ -9,9 +9,34 @@ sub create_links {
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(links));
+  if ($params{mode} && ($params{mode} eq 'string')) {
+    Common::check_params_x(\%params, [ qw(from_ids to_ids) ]);
 
-  if (!scalar @{ $params{links} }) {
+  } else {
+    Common::check_params(\%params, qw(links));
+
+  }
+
+  my @links;
+
+  if ($params{mode} && ($params{mode} eq 'string')) {
+    my ($from_to, $to_from) = $params{from_ids} ? qw(from to) : qw(to from);
+    my %ids                 = ( $from_to => [ grep { $_ } map { $_ * 1 } split m/\s+/, $params{"${from_to}_ids"} ] );
+
+    if (my $num = scalar @{ $ids{$from_to} }) {
+      $main::lxdebug->message(0, "3");
+      $ids{$to_from} = [ ($params{"${to_from}_id"}) x $num ];
+      @links         = map { { 'from_table' => $params{from_table},
+                               'from_id'    => $ids{from}->[$_],
+                               'to_table'   => $params{to_table},
+                               'to_id'      => $ids{to}->[$_],      } } (0 .. $num - 1);
+    }
+
+  } else {
+    @links = @{ $params{links} };
+  }
+
+  if (!scalar @links) {
     $main::lxdebug->leave_sub();
     return;
   }
@@ -24,7 +49,7 @@ sub create_links {
   my $query    = qq|INSERT INTO record_links (from_table, from_id, to_table, to_id) VALUES (?, ?, ?, ?)|;
   my $sth      = prepare_query($form, $dbh, $query);
 
-  foreach my $link (@{ $params{links} }) {
+  foreach my $link (@links) {
     next if ('HASH' ne ref $link);
     next if (!$link->{from_table} || !$link->{from_id} || !$link->{to_table} || !$link->{to_id});
 

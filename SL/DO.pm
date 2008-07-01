@@ -344,12 +344,14 @@ sub save {
   $form->save_status($dbh);
 
   # Link this delivery order to the quotations it was created from.
-  my @oe_ids = grep { $_ } map { $_ * 1 } split m/\s+/, $form->{oe_ids};
-  delete $form->{oe_ids};
-  if (scalar @oe_ids) {
-    my @links = map { { 'from_table' => 'oe', 'from_id' => $_, 'to_table' => 'delivery_orders', 'to_id' => $form->{id} } } @oe_ids;
-    RecordLinks->create_links('dbh' => $dbh, 'links' => \@links);
-  }
+  RecordLinks->create_links('dbh'        => $dbh,
+                            'mode'       => 'string',
+                            'from_table' => 'oe',
+                            'from_ids'   => $form->{convert_from_oe_ids},
+                            'to_table'   => 'delivery_orders',
+                            'to_id'      => $form->{id},
+    );
+  delete $form->{convert_from_oe_ids};
 
   $self->mark_orders_if_delivered('do_id' => $form->{id},
                                   'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
