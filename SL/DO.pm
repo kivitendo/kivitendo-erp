@@ -39,6 +39,7 @@ use YAML;
 use SL::AM;
 use SL::Common;
 use SL::DBUtils;
+use SL::RecordLinks;
 
 sub transactions {
   $main::lxdebug->enter_sub();
@@ -342,9 +343,17 @@ sub save {
   # save printed, emailed, queued
   $form->save_status($dbh);
 
-  $self->mark_order_if_delivered('do_id' => $form->{id},
-                                 'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
-                                 'dbh'   => $dbh,);
+  # Link this delivery order to the quotations it was created from.
+  my @oe_ids = grep { $_ } map { $_ * 1 } split m/\s+/, $form->{oe_ids};
+  delete $form->{oe_ids};
+  if (scalar @oe_ids) {
+    my @links = map { { 'from_table' => 'oe', 'from_id' => $_, 'to_table' => 'delivery_orders', 'to_id' => $form->{id} } } @oe_ids;
+    RecordLinks->create_links('dbh' => $dbh, 'links' => \@links);
+  }
+
+  $self->mark_orders_if_delivered('do_id' => $form->{id},
+                                  'type'  => $form->{type} eq 'sales_delivery_order' ? 'sales' : 'purchase',
+                                  'dbh'   => $dbh,);
 
   my $rc = $dbh->commit();
 
@@ -357,7 +366,7 @@ sub save {
   return $rc;
 }
 
-sub mark_order_if_delivered {
+sub mark_orders_if_delivered {
   $main::lxdebug->enter_sub();
 
   my $self   = shift;
@@ -365,40 +374,35 @@ sub mark_order_if_delivered {
 
   Common::check_params(\%params, qw(do_id type));
 
-  my $myconfig    = \%main::myconfig;
-  my $form        = $main::form;
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
 
-  my $dbh         = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $query       = qq|SELECT ordnumber FROM delivery_orders WHERE id = ?|;
-  my ($ordnumber) = selectfirst_array_query($form, $dbh, $query, conv_i($params{do_id}));
+  my @links    = RecordLinks->get_links('dbh'        => $dbh,
+                                        'from_table' => 'oe',
+                                        'to_table'   => 'delivery_orders',
+                                        'to_id'      => $params{do_id});
 
-  return $main::lxdebug->leave_sub() if (!$ordnumber);
+  my ($oe_id)  = $links[0]->{from_id} if (scalar @links);
 
-  my $vc      = $params{type} eq 'purchase' ? 'vendor' : 'customer';
-  $query      = qq|SELECT id
-                   FROM oe
-                   WHERE NOT COALESCE(quotation, FALSE)
-                     AND (COALESCE(${vc}_id, 0) > 0)
-                     AND (ordnumber = ?)
-                   ORDER BY id
-                   LIMIT 1|;
-
-  my ($oe_id) = selectfirst_array_query($form, $dbh, $query, $ordnumber);
+  $main::lxdebug->message(0, "oe_id $oe_id");
 
   return $main::lxdebug->leave_sub() if (!$oe_id);
 
   my $all_units = AM->retrieve_all_units();
-
-  my %shipped   = $self->get_shipped_qty('type'      => $params{type},
-                                         'ordnumber' => $ordnumber,);
-  my %ordered   = ();
 
   $query        = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
                      FROM orderitems oi
                      LEFT JOIN parts p ON (oi.parts_id = p.id)
                      WHERE (oi.trans_id = ?)|;
   my $sth       = prepare_execute_query($form, $dbh, $query, $oe_id);
+
+  my %shipped   = $self->get_shipped_qty('type'  => $params{type},
+                                         'oe_id' => $oe_id,);
+  my %ordered   = ();
+
+  do_statement($form, $sth, $query, $oe_id);
 
   while (my $ref = $sth->fetchrow_hashref()) {
     $ref->{baseqty} = $ref->{qty} * $all_units->{$ref->{unit}}->{factor} / $all_units->{$ref->{partunit}}->{factor};
@@ -424,10 +428,9 @@ sub mark_order_if_delivered {
 
   if ($delivered) {
     $query = qq|UPDATE oe
-                SET delivered = TRUE, closed = TRUE
+                SET delivered = TRUE
                 WHERE id = ?|;
     do_query($form, $dbh, $query, $oe_id);
-
     $dbh->commit() if (!$params{dbh});
   }
 
@@ -1001,25 +1004,33 @@ sub get_shipped_qty {
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(type ordnumber));
+  Common::check_params(\%params, qw(type oe_id));
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $notsales = $params{type} eq 'sales' ? '' : 'NOT';
+  my @links    = RecordLinks->get_links('dbh'        => $dbh,
+                                        'from_table' => 'oe',
+                                        'from_id'    => $params{oe_id},
+                                        'to_table'   => 'delivery_orders');
+  my @values   = map { $_->{to_id} } @links;
 
-  my $query    =
+  if (!scalar @values) {
+    $main::lxdebug->leave_sub();
+    return ();
+  }
+
+  my $query =
     qq|SELECT doi.parts_id, doi.qty, doi.unit, p.unit AS partunit
        FROM delivery_order_items doi
        LEFT JOIN delivery_orders o ON (doi.delivery_order_id = o.id)
        LEFT JOIN parts p ON (doi.parts_id = p.id)
-       WHERE ($notsales o.is_sales)
-         AND (o.ordnumber = ?)|;
+       WHERE o.id IN (| . join(', ', ('?') x scalar @values) . qq|)|;
 
   my %ship      = ();
-  my $entries   = selectall_hashref_query($form, $dbh, $query, $params{ordnumber});
+  my $entries   = selectall_hashref_query($form, $dbh, $query, @values);
   my $all_units = AM->retrieve_all_units();
 
   foreach my $entry (@{ $entries }) {

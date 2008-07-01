@@ -1814,7 +1814,8 @@ sub sales_order {
     delete($form->{ordnumber});
   }
 
-  $form->{cp_id} *= 1;
+  $form->{cp_id}  *= 1;
+  $form->{oe_ids}  = $form->{id};
 
   $form->{title} = $locale->text('Add Sales Order');
   $form->{vc}    = "customer";
@@ -1883,6 +1884,7 @@ sub delivery_order {
   require "bin/mozilla/do.pl";
 
   $form->{cp_id}           *= 1;
+  $form->{oe_ids}           = $form->{id};
   $form->{transdate}        = $form->current_date(\%myconfig);
   delete $form->{duedate};
 

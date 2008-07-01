@@ -1883,8 +1883,8 @@ sub _update_ship {
 
   AM->retrieve_all_units();
 
-  my %ship = DO->get_shipped_qty('type'      => ($form->{type} eq 'purchase_order') ? 'purchase' : 'sales',
-                                 'ordnumber' => $form->{ordnumber},);
+  my %ship = DO->get_shipped_qty('type'  => ($form->{type} eq 'purchase_order') ? 'purchase' : 'sales',
+                                 'oe_id' => $form->{id},);
 
   foreach my $i (1..$form->{rowcount}) {
     next unless ($form->{"id_${i}"});
