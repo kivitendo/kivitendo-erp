@@ -9,7 +9,7 @@ sub create_links {
   my $self     = shift;
   my %params   = @_;
 
-  if ($params{mode} && ($params{mode} eq 'string')) {
+  if ($params{mode} && ($params{mode} eq 'ids')) {
     Common::check_params_x(\%params, [ qw(from_ids to_ids) ]);
 
   } else {
@@ -19,9 +19,15 @@ sub create_links {
 
   my @links;
 
-  if ($params{mode} && ($params{mode} eq 'string')) {
+  if ($params{mode} && ($params{mode} eq 'ids')) {
     my ($from_to, $to_from) = $params{from_ids} ? qw(from to) : qw(to from);
-    my %ids                 = ( $from_to => [ grep { $_ } map { $_ * 1 } split m/\s+/, $params{"${from_to}_ids"} ] );
+    my %ids;
+
+    if ('ARRAY' eq ref $params{"${from_to}_ids"}) {
+      $ids{$from_to} = $params{"${from_to}_ids"};
+    } else {
+      $ids{$from_to} = [ grep { $_ } map { $_ * 1 } split m/\s+/, $params{"${from_to}_ids"} ];
+    }
 
     if (my $num = scalar @{ $ids{$from_to} }) {
       $main::lxdebug->message(0, "3");

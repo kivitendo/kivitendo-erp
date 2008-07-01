@@ -424,7 +424,8 @@ sub form_header {
 
   $form->hide_form(qw(id title vc type level creditlimit creditremaining closedto locked shippted storno storno_id
                       max_dunning_level dunning_amount vendor_id oldvendor selectvendor taxaccounts
-                      fxgain_accno fxloss_accno taxpart taxservice cursor_fokus),
+                      fxgain_accno fxloss_accno taxpart taxservice cursor_fokus
+                      convert_from_oe_ids convert_from_do_ids),
                       map { $_.'_rate', $_.'_description' } split / /, $form->{taxaccounts} );
 
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
@@ -806,7 +807,7 @@ sub form_footer {
   </tr>
 </table>
 <br>
-| . $cgi->hidden('-name' => 'close_do_ids', '-default' => [$form->{close_do_ids}]);
+|;
 
   $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);

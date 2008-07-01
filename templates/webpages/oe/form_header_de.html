@@ -15,6 +15,8 @@
    <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" >
 [%- END %]
 
+    <input type="hidden" name="convert_from_oe_ids" value="[% HTML.escape(convert_from_oe_ids) %]">
+
     <input type="hidden" name="follow_up_trans_id_1" value="[% HTML.escape(id) %]">
     <input type="hidden" name="follow_up_trans_type_1" value="[% HTML.escape(type) %]">
     <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">

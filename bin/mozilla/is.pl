@@ -614,7 +614,8 @@ sub form_header {
                       creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
                       max_dunning_level dunning_amount
                       shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax 
-                      shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus),
+                      shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
+                      convert_from_do_ids convert_from_oe_ids),
                       map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} );
    
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
@@ -1192,7 +1193,6 @@ if ($form->{type} eq "credit_note") {
 $cgi->hidden("-name" => "callback", "-value" => $form->{callback})
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
-. $cgi->hidden('-name' => 'close_do_ids', '-default' => [$form->{close_do_ids}])
 . qq|
 </form>
 

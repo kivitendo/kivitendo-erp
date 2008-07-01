@@ -648,17 +648,15 @@ sub invoice {
   check_do_access();
   $auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
-  $form->{close_do_ids} = $form->{id};
+  $form->{convert_from_do_ids} = $form->{id};
+  $form->{deliverydate}        = $form->{transdate};
+  $form->{transdate}           = $form->{invdate} = $form->current_date(\%myconfig);
+  $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+  $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
-  $form->{deliverydate} = $form->{transdate};
-  $form->{transdate}    = $form->{invdate} = $form->current_date(\%myconfig);
-  $form->{duedate}      = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
-
-  $form->{id}     = '';
-  $form->{closed} = 0;
   $form->{rowcount}--;
 
-  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  delete @{$form}{qw(id closed delivered)};
 
   if ($form->{type} eq 'purchase_delivery_order') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
@@ -742,13 +740,13 @@ sub invoice_multi {
                               'back_button' => 1);
   }
 
-  $form->{close_do_ids}    = join ' ', @do_ids;
-  $form->{deliverydate}    = $form->{transdate};
-  $form->{transdate}       = $form->current_date(\%myconfig);
-  $form->{duedate}         = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
-  $form->{type}            = "invoice";
-  $form->{closed}          = 0;
-  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+  $form->{convert_from_do_ids} = join ' ', @do_ids;
+  $form->{deliverydate}        = $form->{transdate};
+  $form->{transdate}           = $form->current_date(\%myconfig);
+  $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+  $form->{type}                = "invoice";
+  $form->{closed}              = 0;
+  $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
   my $buysell;
   if ($form->{type} eq 'purchase_delivery_order') {

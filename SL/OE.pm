@@ -465,6 +465,16 @@ sub save {
   # save printed, emailed, queued
   $form->save_status($dbh);
 
+  # Link this record to the records it was created from.
+  RecordLinks->create_links('dbh'        => $dbh,
+                            'mode'       => 'ids',
+                            'from_table' => 'oe',
+                            'from_ids'   => $form->{convert_from_oe_ids},
+                            'to_table'   => 'oe',
+                            'to_id'      => $form->{id},
+    );
+  delete $form->{convert_from_oe_ids};
+
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
     if ($form->{vc} eq 'customer') {
       $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, $form->{exchangerate}, 0);
@@ -599,6 +609,10 @@ sub retrieve {
     push @ids, $form->{"trans_id_$_"}
       if ($form->{"multi_id_$_"} and $form->{"trans_id_$_"})
   } (1 .. $form->{"rowcount"});
+
+  if ($form->{rowcount} && scalar @ids) {
+    $form->{convert_from_oe_ids} = join ' ', @ids;
+  }
 
   # if called in multi id mode, and still only got one id, switch back to single id
   if ($form->{"rowcount"} and $#ids == 0) {

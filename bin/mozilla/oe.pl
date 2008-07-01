@@ -234,7 +234,9 @@ sub order_links {
     $form->{"select$form->{vc}"} = 1;
     $form->{$form->{vc}}         = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
   }
-  $form->{"old$form->{vc}"}    = $form->{$form->{vc}};
+
+  $form->{"old$form->{vc}"}  = $form->{$form->{vc}};
+  $form->{"old$form->{vc}"} .= qq|--$form->{"$form->{vc}_id"}| unless ($form->{"old$form->{vc}"} =~ m/--\d+$/);
 
   $lxdebug->leave_sub();
 }
@@ -1455,15 +1457,14 @@ sub invoice {
     OE->close_orders(\%myconfig, \%$form);
   }
 
-  $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
-  $form->{duedate}   = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+  $form->{convert_from_oe_ids} = $form->{id};
+  $form->{transdate}           = $form->{invdate} = $form->current_date(\%myconfig);
+  $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
+  $form->{shipto}              = 1;
+  $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
-  $form->{id}     = '';
-  $form->{closed} = 0;
+  delete @{$form}{qw(id closed)};
   $form->{rowcount}--;
-  $form->{shipto} = 1;
-
-  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
   if ($form->{type} =~ /_order$/) {
     $form->{exchangerate} = $exchangerate;
@@ -1814,12 +1815,11 @@ sub sales_order {
     delete($form->{ordnumber});
   }
 
-  $form->{cp_id}               *= 1;
-  $form->{convert_from_oe_ids}  = $form->{id};
+  $form->{cp_id} *= 1;
 
-  $form->{title}                = $locale->text('Add Sales Order');
-  $form->{vc}                   = "customer";
-  $form->{type}                 = "sales_order";
+  $form->{title}  = $locale->text('Add Sales Order');
+  $form->{vc}     = "customer";
+  $form->{type}   = "sales_order";
 
   &poso;
 
@@ -1835,13 +1835,14 @@ sub poso {
   $form->{transdate} = $form->current_date(\%myconfig);
   delete $form->{duedate};
 
-  $form->{closed}          = 0;
+  $form->{convert_from_oe_ids} = $form->{id};
+  $form->{closed}              = 0;
 
-  $form->{old_employee_id} = $form->{employee_id};
-  $form->{old_salesman_id} = $form->{salesman_id};
+  $form->{old_employee_id}     = $form->{employee_id};
+  $form->{old_salesman_id}     = $form->{salesman_id};
 
   # reset
-  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal);
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered);
 
   for $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor);

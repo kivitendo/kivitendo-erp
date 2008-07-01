@@ -345,7 +345,7 @@ sub save {
 
   # Link this delivery order to the quotations it was created from.
   RecordLinks->create_links('dbh'        => $dbh,
-                            'mode'       => 'string',
+                            'mode'       => 'ids',
                             'from_table' => 'oe',
                             'from_ids'   => $form->{convert_from_oe_ids},
                             'to_table'   => 'delivery_orders',

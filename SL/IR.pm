@@ -539,10 +539,28 @@ sub post_invoice {
 
   Common::webdav_folder($form) if ($main::webdav);
 
-  my @close_do_ids = map { $_ * 1 } grep { $_ } split m/\s+/, $form->{close_do_ids};
-  if (scalar @close_do_ids) {
+  # Link this record to the records it was created from.
+  RecordLinks->create_links('dbh'        => $dbh,
+                            'mode'       => 'ids',
+                            'from_table' => 'oe',
+                            'from_ids'   => $form->{convert_from_oe_ids},
+                            'to_table'   => 'ap',
+                            'to_id'      => $form->{id},
+    );
+  delete $form->{convert_from_oe_ids};
+
+  my @convert_from_do_ids = map { $_ * 1 } grep { $_ } split m/\s+/, $form->{convert_from_do_ids};
+  if (scalar @convert_from_do_ids) {
     DO->close_orders('dbh' => $dbh,
-                     'ids' => \@close_do_ids);
+                     'ids' => \@convert_from_do_ids);
+
+    RecordLinks->create_links('dbh'        => $dbh,
+                              'mode'       => 'ids',
+                              'from_table' => 'delivery_orders',
+                              'from_ids'   => \@convert_from_do_ids,
+                              'to_table'   => 'ap',
+                              'to_id'      => $form->{id},
+      );
   }
 
   my $rc = 1;
