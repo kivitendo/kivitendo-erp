@@ -53,7 +53,7 @@
   <tr>
     <td>
 
-[% _print_options_ %]
+[% print_options %]
 [% FOREACH row = HIDDEN %]<input type="hidden" name="[% row.name %]" value="[% HTML.escape(row.value) %]">
 [% END %]
 
