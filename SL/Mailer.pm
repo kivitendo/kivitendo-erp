@@ -30,6 +30,8 @@
 
 package Mailer;
 
+use Email::Address;
+
 use SL::Common;
 use SL::Template;
 
@@ -97,49 +99,55 @@ sub send {
   local (*IN, *OUT);
 
   $num_sent++;
-  my $boundary = time() . "-$$-${num_sent}";
-  $boundary    =  "LxOffice-$self->{version}-$boundary";
-  my $domain   =  $self->{from};
-  $domain      =~ s/(.*?\@|>)//g;
-  my $msgid    =  "$boundary\@$domain";
+  my $boundary    = time() . "-$$-${num_sent}";
+  $boundary       =  "LxOffice-$self->{version}-$boundary";
+  my $domain      =  $self->{from};
+  $domain         =~ s/(.*?\@|>)//g;
+  my $msgid       =  "$boundary\@$domain";
 
-  my $form     =  $main::form;
-  my $myconfig =  \%main::myconfig;
+  my $form        =  $main::form;
+  my $myconfig    =  \%main::myconfig;
 
-  my $email    =  $myconfig->{email};
-  $email       =~ s/[^\w\.\-\+=@]//ig;
+  my $email       =  $myconfig->{email};
+  $email          =~ s/[^\w\.\-\+=@]//ig;
 
-  $form->{myconfig_email} = $email;
-
-  my $template =  PlainTextTemplate->new(undef, $form, $myconfig);
-  my $sendmail =  $template->parse_block($main::sendmail);
-
-  $self->{charset} = Common::DEFAULT_CHARSET unless $self->{charset};
+  my %temp_form   = ( %{ $form }, 'myconfig_email' => $email );
+  my $template    = PlainTextTemplate->new(undef, \%temp_form, $myconfig);
+  my $sendmail    = $template->parse_block($main::sendmail);
 
   if (!open(OUT, $sendmail)) {
     $main::lxdebug->leave_sub();
     return "$sendmail : $!";
   }
 
-  $self->{contenttype} = "text/plain" unless $self->{contenttype};
-
-  my ($cc, $bcc);
-  $cc  = "Cc: $self->{cc}\n"   if $self->{cc};
-  $bcc = "Bcc: $self->{bcc}\n" if $self->{bcc};
+  $self->{charset}     ||= Common::DEFAULT_CHARSET;
+  $self->{contenttype} ||= "text/plain";
 
   foreach my $item (qw(to cc bcc)) {
+    next unless ($self->{$item});
     $self->{$item} =~ s/\&lt;/</g;
     $self->{$item} =~ s/\$<\$/</g;
     $self->{$item} =~ s/\&gt;/>/g;
     $self->{$item} =~ s/\$>\$/>/g;
   }
 
-  my $subject = $self->mime_quote_text($self->{subject}, 60);
+  my $headers = '';
+  foreach my $item (qw(from to cc)) {
+    next unless ($self->{$item});
+    my (@addr_objects) = Email::Address->parse($self->{$item});
+    next unless (scalar @addr_objects);
 
-  print OUT qq|From: $self->{from}
-To: $self->{to}
-${cc}${bcc}Subject: $subject
-Message-ID: <$msgid>
+    foreach my $addr_obj (@addr_objects) {
+      $addr_obj->phrase($self->mime_quote_text($addr_obj->phrase(), 60))   if ($addr_obj->phrase());
+      $addr_obj->comment($self->mime_quote_text($addr_obj->comment(), 60)) if ($addr_obj->comment());
+
+      $headers .= sprintf("%s: %s\n", ucfirst($item), $addr_obj->format());
+    }
+  }
+
+  $headers .= sprintf("Subject: %s\n", $self->mime_quote_text($self->{subject}, 60));
+
+  print OUT qq|${headers}Message-ID: <$msgid>
 X-Mailer: Lx-Office $self->{version}
 MIME-Version: 1.0
 |;
