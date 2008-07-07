@@ -464,15 +464,16 @@ sub ap_transactions {
 
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $self->{l_employee};
-  my $sortorder = join(', ', @a);
+  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
   if (grep({ $_ eq $form->{sort} }
            qw(transdate id invnumber ordnumber name netamount tax amount
               paid datepaid due duedate notes employee))) {
-    $sortorder = $form->{sort};
+    $sortorder = $form->{sort} . " $sortdir";
   }
 
-  $query .= " ORDER by $sortorder";
+  $query .= " ORDER BY $sortorder";
 
   my $sth = $dbh->prepare($query);
   $sth->execute(@values) ||
