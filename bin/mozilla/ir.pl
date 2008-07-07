@@ -226,6 +226,8 @@ sub form_header {
 
   $auth->assert('vendor_invoice_edit');
 
+  push @{ $form->{AJAX} }, CGI::Ajax->new('set_duedate_vendor' => "$form->{script}?action=set_duedate_vendor");
+
   # set option selected
   foreach $item (qw(AP vendor currency department)) {
     $form->{"select$item"} =~ s/ selected//;
@@ -389,11 +391,18 @@ sub form_header {
   $jsscript = "";
 
   $button1 = qq|
-     <td><input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-         <input type=button name=invdate id="trigger1" value=| . $locale->text('button') . qq|></td>\n|;
+     <td nowrap>
+         <input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"
+                onChange="if (this.value) set_duedate_vendor(['invdate__' + this.value, 'old_duedate__' + document.getElementsByName('duedate')[0].value, 'vendor_id__' + document.getElementsByName('vendor_id')[0].value],['duedate'])">
+         <input type=button name=invdate id="trigger1" value="?">
+     </td>\n|;
+
+#, 'old_duedate__'' + document.getElementsByName('duedate')[0].value, 'vendor_id__' + document.getElementsByName('vendor_id')[0].value],['duedate'])">
   $button2 = qq|
-     <td width="13"><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
-                    <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|></td>\n|;
+     <td width="13" nowrap>
+          <input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
+          <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|>
+     </td>\n|;
 
   #write Trigger
   $jsscript =
@@ -419,7 +428,7 @@ sub form_header {
   print qq|
 <body onLoad="$onload">
 <script type="text/javascript" src="js/common.js"></script>
-<form method=post action=$form->{script}>
+<form method="post" action="ir.pl" name="Form">
 |;
 
   $form->hide_form(qw(id title vc type level creditlimit creditremaining closedto locked shippted storno storno_id
@@ -1203,6 +1212,16 @@ sub yes {
     $form->redirect($locale->text('Invoice deleted!'));
   }
   $form->error($locale->text('Cannot delete invoice!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub set_duedate_vendor {
+  $lxdebug->enter_sub();
+
+  print $cgi->header(), IR->get_duedate('vendor_id' => $form->{vendor_id},
+                                        'invdate'   => $form->{invdate},
+                                        'default'   => $form->{old_duedate});
 
   $lxdebug->leave_sub();
 }
