@@ -241,6 +241,20 @@ sub follow_ups {
     push @values, $employee_id;
   }
 
+  my $order_by = '';
+
+  if ($form->{sort} ne 'title') {
+    my %sort_columns = (
+      'follow_up_date' => [ qw(fu.follow_up_date fu.id) ],
+      'created_on'     => [ qw(created_on fu.id) ],
+      'subject'        => [ qw(lower(n.subject)) ],
+      );
+
+    my $sortdir = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
+    my $sortkey = $sort_columns{$form->{sort}} ? $form->{sort} : 'follow_up_date';
+    $order_by   = 'ORDER BY ' . join(', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} });
+  }
+
   $query  = qq|SELECT fu.*, n.subject, n.body, n.created_by,
                  fu.follow_up_date <= current_date AS due,
                  fu.itime::DATE                    AS created_on,
@@ -253,7 +267,7 @@ sub follow_ups {
                WHERE ((fu.created_by = ?) OR (fu.created_for_user = ?)
                       $where_user)
                  $where
-               ORDER BY fu.follow_up_date DESC, fu.id ASC|;
+               $order_by|;
 
   my $follow_ups = selectall_hashref_query($form, $dbh, $query, @values);
 
@@ -264,6 +278,14 @@ sub follow_ups {
 
   foreach my $fu (@{ $follow_ups }) {
     $fu->{LINKS} = $self->retrieve_links(%{ $fu });
+  }
+
+  if ($form->{sort} eq 'title') {
+    my $dir_factor = !defined $form->{sortdir} ? 1 : $form->{sortdir} ? 1 : -1;
+    $follow_ups    = [ map  { $_->[1] }
+                       sort { ($a->[0] cmp $b->[0]) * $dir_factor }
+                       map  { my $fu = $follow_ups->[$_]; [ @{ $fu->{LINKS} } ? lc($fu->{LINKS}->[0]->{title}) : '', $fu ] }
+                       (0 .. scalar(@{ $follow_ups }) - 1) ];
   }
 
   $main::lxdebug->leave_sub();

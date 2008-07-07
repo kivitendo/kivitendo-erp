@@ -205,6 +205,8 @@ sub report {
 
   my @report_params = qw(created_for subject body reference follow_up_date_from follow_up_date_to itime_from itime_to due_only all_users done not_done);
 
+  report_generator_set_default_sort('follow_up_date', 1);
+
   my $follow_ups    = FU->follow_ups(map { $_ => $form->{$_} } @report_params);
   $form->{rowcount} = scalar @{ $follow_ups };
 
@@ -222,6 +224,12 @@ sub report {
   );
 
   my @columns = qw(selected follow_up_date created_on subject title created_by_name created_for_user_name done);
+  my $href    = build_std_url('action=report', grep { $form->{$_} } @report_params);
+
+  foreach my $name (qw(follow_up_date created_on title subject)) {
+    my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
+  }
 
   my @options;
 
@@ -253,7 +261,7 @@ sub report {
 
   $report->set_export_options('report', @report_params);
 
-  $report->set_sort_indicator('follow_up_date', 1);
+  $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   $report->set_options('raw_top_info_text'    => $form->parse_html_template('fu/report_top',    { 'OPTIONS' => \@options }),
                        'raw_bottom_info_text' => $form->parse_html_template('fu/report_bottom', { 'HIDDEN'  => \@hidden_report_params }),
