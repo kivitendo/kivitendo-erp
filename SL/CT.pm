@@ -687,9 +687,9 @@ sub search {
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
   if ($sortorder eq "address") {
-    $sortorder = "lower(country) ${sortdir}, lower(city) ${sortdir}, lower(street) ${sortdir}";
+    $sortorder  = "lower(country) ${sortdir}, lower(city) ${sortdir}, lower(street) ${sortdir}";
   } elsif ($sortorder ne 'id') {
-    $sortorder = "lower($sortorder) ${sortdir}";
+    $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
   }
