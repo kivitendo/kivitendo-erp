@@ -682,15 +682,16 @@ sub search {
   my %allowed_sort_columns =
     map({ $_, 1 } qw(id customernumber vendornumber name address contact phone fax email
                      taxnumber sic_code business invnumber ordnumber quonumber));
-  $sortorder =
-    $form->{sort} && $allowed_sort_columns{$form->{sort}} ?
-    $form->{sort} : "name";
+  $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   $form->{sort} = $sortorder;
+  my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
   if ($sortorder eq "address") {
-    $sortorder = "lower(country), lower(city), lower(street)";
+    $sortorder = "lower(country) ${sortdir}, lower(city) ${sortdir}, lower(street) ${sortdir}";
   } elsif ($sortorder ne 'id') {
-    $sortorder = "lower($sortorder)";
+    $sortorder = "lower($sortorder) ${sortdir}";
+  } else {
+    $sortorder .= " ${sortdir}";
   }
 
   if ($form->{"${cv}number"}) {

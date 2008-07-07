@@ -108,6 +108,8 @@ sub list_names {
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
+  report_generator_set_default_sort('name', 1);
+
   CT->search(\%myconfig, \%$form);
 
   my $cvar_configs = CVar->get_configs('module' => 'CT');
@@ -159,9 +161,12 @@ sub list_names {
   my @hidden_variables  = (qw(db status obsolete), map { "l_$_" } @columns);
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
   my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_variables);
-  $form->{callback}     = "$callback&sort=" . E($form->{sort});
+  $form->{callback}     = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
 
-  map { $column_defs{$_}->{link} = "${callback}&sort=${_}" } @columns;
+  foreach (@columns) {
+    my $sortdir              = $form->{sort} eq $_ ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$_}->{link} = "${callback}&sort=${_}&sortdir=${sortdir}";
+  }
 
   my ($ordertype, $quotationtype, $attachment_basename);
   if ($form->{IS_CUSTOMER}) {
@@ -192,7 +197,7 @@ sub list_names {
 
   $report->set_export_options('list_names', @hidden_variables);
 
-  $report->set_sort_indicator($form->{sort}, 1);
+  $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   CVar->add_custom_variables_to_report('module'         => 'CT',
                                        'trans_id_field' => 'id',
