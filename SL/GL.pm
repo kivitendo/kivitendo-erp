@@ -323,11 +323,30 @@ sub all_transactions {
 
   my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
 
-  my $sortorder;
+  my %sort_columns =  (
+    'id'           => [ qw(id)                   ],
+    'transdate'    => [ qw(transdate id)         ],
+    'reference'    => [ qw(lower_reference id)   ],
+    'source'       => [ qw(lower_source id)      ],
+    'description'  => [ qw(lower_description id) ],
+    'accno'        => [ qw(accno transdate id)   ],
+    );
+  my %lowered_columns =  (
+    'reference'       => { 'gl' => 'g.reference',   'arap' => 'a.invnumber', },
+    'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
+    'description'     => { 'gl' => 'g.description', 'arap' => 'ct.name',     },
+    );
 
-  if ($form->{sort}) {
-    $form->{sort} =~ s/[^a-zA-Z_]//g;
-    $sortorder = $form->{sort} . ",";
+  my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : 'transdate';
+  my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
+
+  my %columns_for_sorting = ( 'gl' => '', 'arap' => '', );
+  foreach my $spec (@{ $sort_columns{$sortkey} }) {
+    next if ($spec !~ m/^lower_(.*)$/);
+
+    my $column = $1;
+    map { $columns_for_sorting{$_} .= sprintf(', lower(%s) AS lower_%s', $lowered_columns{$column}->{$_}, $column) } qw(gl arap);
   }
 
   my $query =
@@ -336,6 +355,7 @@ sub all_transactions {
         g.description, ac.transdate, ac.source, ac.trans_id,
         ac.amount, c.accno, g.notes, t.chart_id, ac.oid
         $project_columns
+        $columns_for_sorting{gl}
       FROM gl g, acc_trans ac $project_join, chart c
       LEFT JOIN tax t ON (t.chart_id = c.id)
       WHERE $glwhere
@@ -348,6 +368,7 @@ sub all_transactions {
         ct.name, ac.transdate, ac.source, ac.trans_id,
         ac.amount, c.accno, a.notes, t.chart_id, ac.oid
         $project_columns
+        $columns_for_sorting{arap}
       FROM ar a, acc_trans ac $project_join, customer ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $arwhere
@@ -361,6 +382,7 @@ sub all_transactions {
         ct.name, ac.transdate, ac.source, ac.trans_id,
         ac.amount, c.accno, a.notes, t.chart_id, ac.oid
         $project_columns
+        $columns_for_sorting{arap}
       FROM ap a, acc_trans ac $project_join, vendor ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $apwhere
@@ -368,7 +390,7 @@ sub all_transactions {
         AND (a.vendor_id = ct.id)
         AND (a.id = ac.trans_id)
 
-      ORDER BY $sortorder transdate, trans_id, acoid, taxkey DESC|;
+      ORDER BY $sortorder, acoid $sortdir|;
 
   my @values = (@glvalues, @arvalues, @apvalues);
 

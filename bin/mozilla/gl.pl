@@ -421,7 +421,7 @@ sub generate_report {
 
   $auth->assert('general_ledger');
 
-  $form->{sort} ||= "transdate";
+  report_generator_set_default_sort('transdate', 1);
 
   GL->all_transactions(\%myconfig, \%$form);
 
@@ -468,7 +468,7 @@ sub generate_report {
   }
 
 
-  my $callback = build_std_url('action=generate_report', @hidden_variables);
+  my $callback = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   $form->{l_credit_accno}     = 'Y';
   $form->{l_debit_accno}      = 'Y';
@@ -497,14 +497,19 @@ sub generate_report {
     'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
   );
 
-  map { $column_defs{$_}->{link}    = $callback . "&sort=${_}" }  qw(id transdate reference source description);
-  map { $column_defs{$_}->{link}    = $callback . "&sort=accno" } qw(debit_accno credit_accno debit_tax_accno credit_tax_accno debit_tax credit_tax);
+  foreach my $name (qw(id transdate reference source description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
+    my $sortname                = $name =~ m/accno/ ? 'accno' : $name;
+    my $sortdir                 = $sortname eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$name}->{link} = $callback . "&sort=$sortname&sortdir=$sortdir";
+  }
+
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
   map { $column_defs{$_}->{visible} = 0 } qw(debit_accno credit_accno debit_tax_accno credit_tax_accno) if $form->{accno};
 
   my %column_alignment;
-  map { $column_alignment{$_} = 'right' }  qw(balance id debit credit debit_tax credit_tax);
-  map { $column_alignment{$_} = 'center' } qw(transdate reference description source notes debit_accno credit_accno debit_tax_accno credit_tax_accno);
+  map { $column_alignment{$_}     = 'right'  } qw(balance id debit credit debit_tax credit_tax);
+  map { $column_alignment{$_}     = 'center' } qw(transdate reference description source notes debit_accno credit_accno debit_tax_accno credit_tax_accno);
+  map { $column_defs{$_}->{align} = $column_alignment{$_} } keys %column_alignment;
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
@@ -513,7 +518,7 @@ sub generate_report {
 
   $report->set_export_options('generate_report', @hidden_variables);
 
-  $report->set_sort_indicator($form->{sort}, 1);
+  $report->set_sort_indicator($form->{sort} eq 'accno' ? 'debit_accno' : $form->{sort}, $form->{sortdir});
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'output_format'        => 'HTML',
@@ -523,7 +528,7 @@ sub generate_report {
   $report->set_options_from_form();
 
   # add sort to callback
-  $form->{callback} = "$callback&sort=" . E($form->{sort});
+  $form->{callback} = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
 
   $form->{balance} *= $ml;
 
