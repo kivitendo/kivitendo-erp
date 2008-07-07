@@ -1457,7 +1457,7 @@ sub ar_transactions {
   $form->{customer} = $form->unescape($form->{customer});
   ($form->{customer}, $form->{customer_id}) = split(/--/, $form->{customer});
 
-  $form->{sort} ||= 'transdate';
+  report_generator_set_default_sort('transdate', 1);
 
   AR->ar_transactions(\%myconfig, \%$form);
 
@@ -1500,9 +1500,9 @@ sub ar_transactions {
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid
-                       employee shippingpoint shipvia)) {
-    $column_defs{$name}->{link} = $href . "&sort=$name";
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia)) {
+    my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
   my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
@@ -1515,7 +1515,7 @@ sub ar_transactions {
 
   $report->set_export_options('ar_transactions', @hidden_variables);
 
-  $report->set_sort_indicator($form->{sort}, 1);
+  $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my @options;
   if ($form->{customer}) {

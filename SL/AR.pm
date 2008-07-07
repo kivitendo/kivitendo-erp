@@ -468,15 +468,16 @@ sub ar_transactions {
 
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $form->{l_employee};
-  my $sortorder = join(', ', @a);
+  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
   if (grep({ $_ eq $form->{sort} }
            qw(id transdate duedate invnumber ordnumber name
               datepaid employee shippingpoint shipvia))) {
-    $sortorder = $form->{sort};
+    $sortorder = $form->{sort} . " $sortdir";
   }
 
-  $query .= " WHERE $where ORDER by $sortorder";
+  $query .= " WHERE $where ORDER BY $sortorder";
 
   my $sth = $dbh->prepare($query);
   $sth->execute(@values) ||
