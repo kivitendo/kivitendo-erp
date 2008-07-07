@@ -464,7 +464,7 @@ sub ap_transactions {
 
   my @a = (transdate, invnumber, name);
   push @a, "employee" if $self->{l_employee};
-  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
   if (grep({ $_ eq $form->{sort} }

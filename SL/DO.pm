@@ -142,7 +142,7 @@ sub transactions {
     "transaction_description" => "dord.transaction_description"
   );
 
-  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = "dord.id";
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}};

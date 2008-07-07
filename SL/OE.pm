@@ -148,7 +148,7 @@ sub transactions {
     push(@values, '%' . $form->{transaction_description} . '%');
   }
 
-  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "${_} ${sortdir} " } ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
   my %allowed_sort_columns = (
     "transdate"               => "o.transdate",
