@@ -1127,10 +1127,8 @@ sub generate_balance_sheet {
     'soll_kumuliert'          => { 'text' => $locale->text('Sum Debit'), },
     'haben_kumuliert'         => { 'text' => $locale->text('Sum Credit'), },
     'soll_saldo'              => { 'text' => $locale->text('Saldo Debit'), },
-    'haben_saldo'                => { 'text' => $locale->text('Saldo Credit'), }
+    'haben_saldo'             => { 'text' => $locale->text('Saldo Credit'), }
   );
-
-
 
   my %column_alignment = map { $_ => 'right' } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
 
