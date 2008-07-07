@@ -1632,8 +1632,32 @@ sub payments {
     $where .= " AND (ac.memo ILIKE " . $dbh->quote('%' . $form->{memo} . '%') . ") ";
   }
 
-  my $sortorder = join(', ', qw(name invnumber ordnumber transdate source));
-  $sortorder = $form->{sort} if ($form->{sort} && grep({ $_ eq $form->{sort} } qw(transdate invnumber name source memo)));
+  my %sort_columns =  (
+    'transdate'    => [ qw(transdate lower_invnumber lower_name) ],
+    'invnumber'    => [ qw(lower_invnumber lower_name transdate) ],
+    'name'         => [ qw(lower_name transdate)                 ],
+    'source'       => [ qw(lower_source)                         ],
+    'memo'         => [ qw(lower_memo)                           ],
+    );
+  my %lowered_columns =  (
+    'invnumber'       => { 'gl' => 'g.reference',   'arap' => 'a.invnumber', },
+    'memo'            => { 'gl' => 'ac.memo',       'arap' => 'ac.memo',     },
+    'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
+    'name'            => { 'gl' => 'g.description', 'arap' => 'c.name',      },
+    );
+
+  my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : 'transdate';
+  my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
+
+
+  my %columns_for_sorting = ( 'gl' => '', 'arap' => '', );
+  foreach my $spec (@{ $sort_columns{$sortkey} }) {
+    next if ($spec !~ m/^lower_(.*)$/);
+
+    my $column = $1;
+    map { $columns_for_sorting{$_} .= sprintf(', lower(%s) AS lower_%s', $lowered_columns{$column}->{$_}, $column) } qw(gl arap);
+  }
 
   $query = qq|SELECT id, accno, description FROM chart WHERE accno = ?|;
   my $sth = prepare_query($form, $dbh, $query);
@@ -1642,6 +1666,7 @@ sub payments {
       qq|SELECT c.name, a.invnumber, a.ordnumber,
            ac.transdate, ac.amount * $ml AS paid, ac.source,
            a.invoice, a.id, ac.memo, '${arap}' AS module
+           $columns_for_sorting{arap}
          FROM acc_trans ac
          JOIN $arap a ON (ac.trans_id = a.id)
          JOIN $table c ON (c.id = a.${table}_id)
@@ -1655,6 +1680,7 @@ sub payments {
          SELECT g.description, g.reference, NULL AS ordnumber,
            ac.transdate, ac.amount * $ml AS paid, ac.source,
            '0' as invoice, g.id, ac.memo, 'gl' AS module
+           $columns_for_sorting{gl}
          FROM acc_trans ac
          JOIN gl g ON (g.id = ac.trans_id)
          $dpt_join

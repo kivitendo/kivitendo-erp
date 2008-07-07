@@ -2346,6 +2346,8 @@ sub list_payments {
     $option = $locale->text('Department') . " : $department";
   }
 
+  report_generator_set_default_sort('transdate', 1);
+
   RP->payments(\%myconfig, \%$form);
 
   my @hidden_variables = qw(account title department reference source memo fromdate todate
@@ -2365,7 +2367,10 @@ sub list_payments {
   );
   my %column_alignment = ('paid' => 'right');
 
-  map { $column_defs{$_}->{link} = $href . "&sort=$_" } grep { $_ ne 'paid' } @columns;
+  foreach my $name (grep { $_ ne 'paid' } @columns) {
+    my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$name}->{link} = $href . "&sort=${name}&sortdir=$sortdir";
+  }
 
   my @options;
   if ($form->{fromdate}) {
@@ -2392,7 +2397,7 @@ sub list_payments {
 
   $report->set_export_options('list_payments', @hidden_variables);
 
-  $report->set_sort_indicator($form->{sort}, 1);
+  $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my $total_paid    = 0;
 
