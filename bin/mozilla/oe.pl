@@ -888,7 +888,9 @@ sub orders {
 
   ($form->{ $form->{vc} }, $form->{"${form->{vc}}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  $form->{sort} ||= 'transdate';
+  $form->{sort}    ||= 'transdate';
+  $form->{sortdir}   = 1 unless (defined $form->{sortdir});
+  $form->{sortdir}   = $form->{sortdir} ? 1 : 0;
 
   OE->transactions(\%myconfig, \%$form);
 
@@ -967,7 +969,8 @@ sub orders {
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia)) {
-    $column_defs{$name}->{link} = $href . "&sort=$name";
+    my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
   my %column_alignment = map { $_ => 'right' } qw(netamount tax amount curr);
@@ -979,7 +982,7 @@ sub orders {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
   $report->set_export_options('orders', @hidden_variables);
-  $report->set_sort_indicator($form->{sort}, 1);
+  $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my @options;
   my ($department) = split m/--/, $form->{department};

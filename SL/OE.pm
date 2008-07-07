@@ -148,7 +148,8 @@ sub transactions {
     push(@values, '%' . $form->{transaction_description} . '%');
   }
 
-  my $sortorder = join(', ', ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
+  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortorder = join(', ', map { "${_} ${sortdir} " } ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
   my %allowed_sort_columns = (
     "transdate"               => "o.transdate",
     "reqdate"                 => "o.reqdate",
@@ -162,7 +163,7 @@ sub transactions {
     "transaction_description" => "o.transaction_description"
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
-    $sortorder = $allowed_sort_columns{$form->{sort}};
+    $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}";
   }
   $query .= qq| ORDER by | . $sortorder;
 
