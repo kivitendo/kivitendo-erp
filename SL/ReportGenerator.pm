@@ -271,6 +271,7 @@ sub prepare_html_content {
 
     my $header = {
       'name'                     => $name,
+      'align'                    => $column->{align},
       'link'                     => $column->{link},
       'text'                     => $column->{text},
       'show_sort_indicator'      => $name eq $opts->{sort_indicator_column},
@@ -397,6 +398,8 @@ sub prepare_html_content {
 sub generate_html_content {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
+
+  $main::lxdebug->dump(0, "VARs", $variables->{HEADER_ROWS});
 
   return $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
 }

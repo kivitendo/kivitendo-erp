@@ -42,7 +42,7 @@
    <tr>
     [% FOREACH col = row %]
      <th class="listheading"
-     [%- IF col.align %] align="[% HTML.escape(col.align) %]"[% END -%]
+     [%- IF col.align %] align="[% HTML.escape(col.align) %]" style="text-align: [% HTML.escape(col.align) %]"[% END -%]
      [%- IF col.colspan && col.colspan > 1 %] colspan="[% HTML.escape(col.colspan) %]"[% END -%]
      >
       [%- IF col.link -%]<a href="[% col.link %]">[%- END -%]
