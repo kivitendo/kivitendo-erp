@@ -453,7 +453,7 @@ sub parse {
   close(IN);
 
   $self->_parse_config_lines(\@lines);
-  $self->_force_mandatory_packages(\@lines);
+  $self->_force_mandatory_packages(\@lines) if (ref $self eq 'LaTeXTemplate');
 
   my $contents = join("", @lines);
 
