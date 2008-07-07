@@ -142,12 +142,13 @@ sub transactions {
     "transaction_description" => "dord.transaction_description"
   );
 
-  my $sortoder = "dord.id";
+  my $sortdir   = $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortorder = "dord.id";
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}};
   }
 
-  $query .= qq| ORDER by | . $sortorder;
+  $query .= qq| ORDER by | . $sortorder . " $sortdir";
 
   $form->{DO} = selectall_hashref_query($form, $dbh, $query, @values);
 

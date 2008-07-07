@@ -409,7 +409,9 @@ sub orders {
 
   ($form->{ $form->{vc} }, $form->{"${form->{vc}}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  $form->{sort} ||= 'transdate';
+  $form->{sort}    ||= 'transdate';
+  $form->{sortdir}   = 1 unless (defined $form->{sortdir});
+  $form->{sortdir}   = $form->{sortdir} ? 1 : 0;
 
   DO->transactions();
 
@@ -456,7 +458,8 @@ sub orders {
   );
 
   foreach my $name (qw(id transdate donumber ordnumber name employee shipvia)) {
-    $column_defs{$name}->{link} = $href . "&sort=$name";
+    my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
   $form->{"l_type"} = "Y";
@@ -469,7 +472,7 @@ sub orders {
 
   $report->set_export_options('orders', @hidden_variables);
 
-  $report->set_sort_indicator($form->{sort}, 1);
+  $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my @options;
   if ($form->{customer}) {
