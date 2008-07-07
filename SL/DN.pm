@@ -598,7 +598,21 @@ sub get_dunning {
     push(@values, $form->{dunningto});
   }
 
-  $query =
+  my %sort_columns = (
+    'dunning_description' => [ qw(dn.dunning_description customername invnumber) ],
+    'customername'        => [ qw(customername invnumber) ],
+    'invnumber'           => [ qw(a.invnumber) ],
+    'transdate'           => [ qw(a.transdate a.invnumber) ],
+    'duedate'             => [ qw(a.duedate a.invnumber) ],
+    'dunning_date'        => [ qw(dunning_date a.invnumber) ],
+    'dunning_duedate'     => [ qw(dunning_duedate a.invnumber) ],
+    );
+
+  my $sortdir   = !defined $form->{sortdir}    ? 'ASC'         : $form->{sortdir} ? 'ASC' : 'DESC';
+  my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : 'customername';
+  my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
+
+  my $query =
     qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount,
          ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
          da.interest, dn.dunning_description, da.transdate AS dunning_date,
@@ -607,7 +621,7 @@ sub get_dunning {
        JOIN customer ct ON (a.customer_id = ct.id), dunning da
        LEFT JOIN dunning_config dn ON (da.dunning_config_id = dn.id)
        $where
-       ORDER BY name, a.id|;
+       ORDER BY $sortorder|;
 
   $form->{DUNNINGS} = selectall_hashref_query($form, $dbh, $query, @values);
 
