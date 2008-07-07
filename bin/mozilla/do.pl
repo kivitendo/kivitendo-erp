@@ -409,9 +409,7 @@ sub orders {
 
   ($form->{ $form->{vc} }, $form->{"${form->{vc}}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  $form->{sort}    ||= 'transdate';
-  $form->{sortdir}   = 1 unless (defined $form->{sortdir});
-  $form->{sortdir}   = $form->{sortdir} ? 1 : 0;
+  report_generator_set_default_sort('transdate', 1);
 
   DO->transactions();
 

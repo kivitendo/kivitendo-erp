@@ -318,6 +318,7 @@ $self->{subs} = {
   'report_generator_do'         => 'report_generator_do',
   'report_generator_export_as_csv' => 'report_generator_export_as_csv',
   'report_generator_export_as_pdf' => 'report_generator_export_as_pdf',
+  'report_generator_set_default_sort' => 'report_generator_set_default_sort',
   'request_for_quotation'       => 'request_for_quotation',
   'retrieve_partunits'          => 'retrieve_partunits',
   'save'                        => 'save',

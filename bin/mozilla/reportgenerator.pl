@@ -16,6 +16,20 @@ use SL::Common;
 use SL::MoreCommon;
 use SL::ReportGenerator;
 
+sub report_generator_set_default_sort {
+  $lxdebug->enter_sub();
+
+  my $default_sortorder   = shift;
+  my $default_sortdir     = shift;
+
+  $form->{sort}         ||= $default_sortorder;
+  $form->{sortdir}        = $default_sortdir unless (defined $form->{sortdir});
+  $form->{sortdir}        = $form->{sortdir} ? 1 : 0;
+
+  $lxdebug->leave_sub();
+}
+
+
 sub report_generator_export_as_pdf {
   $lxdebug->enter_sub();
 
