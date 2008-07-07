@@ -399,8 +399,6 @@ sub generate_html_content {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
 
-  $main::lxdebug->dump(0, "VARs", $variables->{HEADER_ROWS});
-
   return $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
 }
 
