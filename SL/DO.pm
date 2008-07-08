@@ -389,8 +389,6 @@ sub mark_orders_if_delivered {
 
   my ($oe_id)  = $links[0]->{from_id} if (scalar @links);
 
-  $main::lxdebug->message(0, "oe_id $oe_id");
-
   return $main::lxdebug->leave_sub() if (!$oe_id);
 
   my $all_units = AM->retrieve_all_units();
