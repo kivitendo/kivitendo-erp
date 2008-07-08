@@ -945,6 +945,8 @@ sub order_details {
 
   $form->{"globalprojectnumber"} = $projectnumbers{$form->{"globalproject_id"}};
 
+  $form->{discount} = [];
+
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
        partnotes serialnumber reqdate sellprice listprice netprice

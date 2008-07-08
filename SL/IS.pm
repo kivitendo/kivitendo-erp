@@ -130,6 +130,8 @@ sub invoice_details {
   my $subtotal_header = 0;
   my $subposition = 0;
 
+  $form->{discount} = [];
+
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
        deliverydate_oe ordnumber_oe transdate_oe licensenumber validuntil
