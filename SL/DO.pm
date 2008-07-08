@@ -393,7 +393,7 @@ sub mark_orders_if_delivered {
 
   my $all_units = AM->retrieve_all_units();
 
-  $query        = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
+  my $query     = qq|SELECT oi.parts_id, oi.qty, oi.unit, p.unit AS partunit
                      FROM orderitems oi
                      LEFT JOIN parts p ON (oi.parts_id = p.id)
                      WHERE (oi.trans_id = ?)|;
