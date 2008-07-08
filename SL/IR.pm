@@ -35,6 +35,7 @@
 package IR;
 
 use SL::AM;
+use SL::ARAP;
 use SL::Common;
 use SL::DBUtils;
 use SL::DO;
@@ -562,6 +563,11 @@ sub post_invoice {
                               'to_id'      => $form->{id},
       );
   }
+  delete $form->{convert_from_do_ids};
+
+  ARAP->close_orders_if_billed('dbh'     => $dbh,
+                               'arap_id' => $form->{id},
+                               'table'   => 'ap',);
 
   my $rc = 1;
   if (!$provided_dbh) {

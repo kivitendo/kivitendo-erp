@@ -1446,18 +1446,6 @@ sub invoice {
     }
   }
 
-  # close orders/quotations
-  $form->{closed} = 1;
-
-  # save order if one ordnumber has been given
-  # if not it's most likely a collective order, which can't be saved back
-  # so they just have to be closed
-  if (($form->{ordnumber} ne '') || ($form->{quonumber} ne '')) {
-    OE->close_order(\%myconfig, \%$form) if ($form->{id});
-  } else {
-    OE->close_orders(\%myconfig, \%$form);
-  }
-
   $form->{convert_from_oe_ids} = $form->{id};
   $form->{transdate}           = $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);

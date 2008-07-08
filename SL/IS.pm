@@ -37,6 +37,7 @@ package IS;
 use List::Util qw(max);
 
 use SL::AM;
+use SL::ARAP;
 use SL::CVar;
 use SL::Common;
 use SL::DBUtils;
@@ -994,6 +995,11 @@ sub post_invoice {
                               'to_id'      => $form->{id},
       );
   }
+  delete $form->{convert_from_do_ids};
+
+  ARAP->close_orders_if_billed('dbh'     => $dbh,
+                               'arap_id' => $form->{id},
+                               'table'   => 'ar',);
 
   my $rc = 1;
   if (!$provided_dbh) {
