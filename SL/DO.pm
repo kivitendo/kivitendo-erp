@@ -403,8 +403,6 @@ sub mark_orders_if_delivered {
                                          'oe_id' => $oe_id,);
   my %ordered   = ();
 
-  do_statement($form, $sth, $query, $oe_id);
-
   while (my $ref = $sth->fetchrow_hashref()) {
     $ref->{baseqty} = $ref->{qty} * $all_units->{$ref->{unit}}->{factor} / $all_units->{$ref->{partunit}}->{factor};
 
