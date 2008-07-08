@@ -30,7 +30,6 @@ sub create_links {
     }
 
     if (my $num = scalar @{ $ids{$from_to} }) {
-      $main::lxdebug->message(0, "3");
       $ids{$to_from} = [ ($params{"${to_from}_id"}) x $num ];
       @links         = map { { 'from_table' => $params{from_table},
                                'from_id'    => $ids{from}->[$_],
