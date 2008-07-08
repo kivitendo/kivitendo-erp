@@ -467,14 +467,24 @@ sub save {
   $form->save_status($dbh);
 
   # Link this record to the records it was created from.
-  RecordLinks->create_links('dbh'        => $dbh,
-                            'mode'       => 'ids',
-                            'from_table' => 'oe',
-                            'from_ids'   => $form->{convert_from_oe_ids},
-                            'to_table'   => 'oe',
-                            'to_id'      => $form->{id},
-    );
+  $form->{convert_from_oe_ids} =~ s/^\s+//;
+  $form->{convert_from_oe_ids} =~ s/\s+$//;
+  my @convert_from_oe_ids      =  split m/\s+/, $form->{convert_from_oe_ids};
   delete $form->{convert_from_oe_ids};
+
+  if (scalar @convert_from_oe_ids) {
+    RecordLinks->create_links('dbh'        => $dbh,
+                              'mode'       => 'ids',
+                              'from_table' => 'oe',
+                              'from_ids'   => \@convert_from_oe_ids,
+                              'to_table'   => 'oe',
+                              'to_id'      => $form->{id},
+      );
+
+    $self->_close_quotations_rfqs('dbh'     => $dbh,
+                                  'from_id' => \@convert_from_oe_ids,
+                                  'to_id'   => $form->{id});
+  }
 
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
     if ($form->{vc} eq 'customer') {
@@ -498,40 +508,48 @@ sub save {
   return $rc;
 }
 
-# this function closes multiple orders given in $form->{ordnumber_#}.
-# use this for multiple orders that don't have to be saved back
-# single orders should use OE::save instead.
-sub close_orders {
+sub _close_quotations_rfqs {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my $self     = shift;
+  my %params   = @_;
 
-  # get ids from $form
-  map { push @ids, $form->{"ordnumber_$_"} if $form->{"ordnumber_$_"} }
-    (1 .. $form->{rowcount});
+  Common::check_params(\%params, qw(from_id to_id));
 
-  my $dbh = $form->dbconnect($myconfig);
-  $query = qq|UPDATE oe SET | .
-           qq|closed = TRUE | .
-           qq|WHERE ordnumber IN (|
-    . join(', ', map { $dbh->quote($_) } @ids) . qq|)|;
-  $dbh->do($query) || $form->dberror($query);
-  $dbh->disconnect;
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
 
-  $main::lxdebug->leave_sub();
-}
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-sub close_order {
-  $main::lxdebug->enter_sub();
+  my $query    = qq|SELECT quotation FROM oe WHERE id = ?|;
+  my $sth      = prepare_query($form, $dbh, $query);
 
-  my ($self, $myconfig, $form) = @_;
+  do_statement($form, $sth, $query, conv_i($params{to_id}));
 
-  return $main::lxdebug->leave_sub() unless ($form->{"id"});
+  my ($quotation) = $sth->fetchrow_array();
 
-  my $dbh = $form->dbconnect($myconfig);
-  do_query($form, $dbh, qq|UPDATE oe SET closed = TRUE where id = ?|,
-           $form->{"id"});
-  $dbh->disconnect;
+  if ($quotation) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my @close_ids;
+
+  foreach my $from_id (@{ $params{from_id} }) {
+    $from_id = conv_i($from_id);
+    do_statement($form, $sth, $query, $from_id);
+    ($quotation) = $sth->fetchrow_array();
+    push @close_ids, $from_id if ($quotation);
+  }
+
+  $sth->finish();
+
+  if (scalar @close_ids) {
+    $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_ids) . qq|)|;
+    do_query($form, $dbh, $query, @close_ids);
+
+    $dbh->commit() unless ($params{dbh});
+  }
 
   $main::lxdebug->leave_sub();
 }

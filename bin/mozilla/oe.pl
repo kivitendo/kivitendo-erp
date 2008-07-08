@@ -1769,11 +1769,6 @@ sub purchase_order {
     check_for_direct_delivery();
   }
 
-  if (   $form->{type} eq 'sales_quotation'
-      || $form->{type} eq 'request_quotation') {
-    OE->close_order(\%myconfig, \%$form);
-  }
-
   if ($form->{type} =~ /^sales_/) {
     delete($form->{ordnumber});
   }
@@ -1794,11 +1789,6 @@ sub sales_order {
 
   check_oe_access();
   $auth->assert('sales_order_edit');
-
-  if (   $form->{type} eq 'sales_quotation'
-      || $form->{type} eq 'request_quotation') {
-    OE->close_order(\%myconfig, $form);
-  }
 
   if ($form->{type} eq "purchase_order") {
     delete($form->{ordnumber});
