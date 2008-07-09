@@ -230,6 +230,13 @@ sub save_account {
     $form->{id} = "";
   }
 
+  if (!$form->{id} || $form->{id} eq "") {
+    $query = qq|SELECT nextval('id')|;
+    ($form->{"id"}) = selectrow_query($form, $dbh, $query);
+    $query = qq|INSERT INTO chart (id, accno) VALUES (?, ?)|;
+    do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"});
+  }
+
   my @values;
 
   if ($form->{id}) {
@@ -263,52 +270,6 @@ sub save_account {
     );
 
   }
-  elsif ($form->{id} && !$form->{new_chart_valid}) {
-
-    $query = qq|
-                  UPDATE chart
-                  SET new_chart_id = ?,
-                  valid_from = ?
-                  WHERE id = ?
-             |;
-
-    @values = (
-                  conv_i($form->{new_chart_id}),
-                  conv_date($form->{valid_from}),
-                  $form->{id}
-              );
-  }
-  else {
-
-    $query = qq|
-                  INSERT INTO chart (
-                      accno,
-                      description,
-                      charttype,
-                      category,
-                      link,
-                      pos_bwa,
-                      pos_bilanz,
-                      pos_eur,
-                      new_chart_id,
-                      valid_from,
-                      datevautomatik )
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-             |;
-
-    @values = (
-                      $form->{accno},
-                      $form->{description},
-                      $form->{charttype},
-                      $form->{category}, $form->{link},
-                      conv_i($form->{pos_bwa}),
-                      conv_i($form->{pos_bilanz}), conv_i($form->{pos_eur}),
-                      conv_i($form->{new_chart_id}),
-                      conv_date($form->{valid_from}),
-                      ($form->{datevautomatik} eq 'T') ? 'true':'false',
-              );
-
-  }
 
   do_query($form, $dbh, $query, @values);
 
@@ -325,6 +286,9 @@ sub save_account {
     # Loop control
 
     # Check if the account already exists, else cancel
+
+    print(STDERR "Keine Taxkeys weil ID =: $form->{id}\n");
+
     last READTAXKEYS if ( $form->{'id'} == 0);
 
     # check if there is a startdate

@@ -55,6 +55,7 @@ sub delete   { call_sub("delete_$form->{type}"); }
 sub save     { call_sub("save_$form->{type}"); }
 sub edit     { call_sub("edit_$form->{type}"); }
 sub continue { call_sub($form->{"nextsub"}); }
+sub save_as_new { call_sub("save_as_new_$form->{type}"); }
 
 sub add_account {
   $lxdebug->enter_sub();
@@ -373,6 +374,12 @@ sub form_footer {
       . $locale->text('Delete') . qq|">|;
   }
 
+  if ($form->{id} && $form->{type} eq "account") {
+    print qq|
+    <input class=submit type=submit name=action value="|
+      . $locale->text('Save as new') . qq|">|;
+  }
+
   print qq|
 </form>
 
@@ -395,6 +402,36 @@ sub save_account {
     $form->isblank("category",  $locale->text('Account Type missing!'));
   }
 
+  $form->redirect($locale->text('Account saved!'))
+    if (AM->save_account(\%myconfig, \%$form));
+  $form->error($locale->text('Cannot save account!'));
+
+  $lxdebug->leave_sub();
+}
+
+sub save_as_new_account {
+  $lxdebug->enter_sub();
+
+  $auth->assert('config');
+
+  $form->isblank("accno",       $locale->text('Account Number missing!'));
+  $form->isblank("description", $locale->text('Account Description missing!'));
+  
+  if ($form->{charttype} eq 'A'){
+    $form->isblank("category",  $locale->text('Account Type missing!'));
+  }
+
+  for my $taxkey (0 .. 9) {
+    if ($form->{"taxkey_id_$taxkey"}) {
+      $form->{"taxkey_id_$taxkey"} = "NEW";
+    }
+  }
+
+  $form->{id} = 0;
+  if ($form->{"original_accno"} &&
+      ($form->{"accno"} eq $form->{"original_accno"})) {
+    $form->error($locale->text('Account Number already used!'));
+  }
   $form->redirect($locale->text('Account saved!'))
     if (AM->save_account(\%myconfig, \%$form));
   $form->error($locale->text('Cannot save account!'));

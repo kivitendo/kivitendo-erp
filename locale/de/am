@@ -42,6 +42,7 @@ $self->{texts} = {
   'Account Link IC_sale'        => 'Warenliste Erlöskonto',
   'Account Link IC_taxpart'     => 'Warenliste Steuer',
   'Account Link IC_taxservice'  => 'Dienstleistungen Steuer',
+  'Account Number already used!' => 'Kontonummer ist bereits in Benutzung!',
   'Account Number missing!'     => 'Kontonummer fehlt!',
   'Account Type missing!'       => 'Kontoart fehlt!',
   'Account deleted!'            => 'Konto gelöscht!',
@@ -236,6 +237,7 @@ $self->{texts} = {
   'SAVED FOR DUNNING'           => 'Gespeichert',
   'SCREENED'                    => 'Angezeigt',
   'Save'                        => 'Speichern',
+  'Save as new'                 => 'als neu speichern',
   'Screen'                      => 'Bildschirm',
   'Select a Customer'           => 'Endkunde auswählen',
   'Select a customer'           => 'Einen Kunden ausw&auml;hlen',
@@ -409,6 +411,8 @@ $self->{subs} = {
   'retrieve_partunits'          => 'retrieve_partunits',
   'save'                        => 'save',
   'save_account'                => 'save_account',
+  'save_as_new'                 => 'save_as_new',
+  'save_as_new_account'         => 'save_as_new_account',
   'save_bin'                    => 'save_bin',
   'save_buchungsgruppe'         => 'save_buchungsgruppe',
   'save_business'               => 'save_business',
@@ -444,6 +448,7 @@ $self->{subs} = {
   'kontodaten_bearbeiten'       => 'edit_account',
   'neue_ware'                   => 'new_part',
   'speichern'                   => 'save',
+  'als_neu_speichern'           => 'save_as_new',
 };
 
 1;
