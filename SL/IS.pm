@@ -212,8 +212,9 @@ sub invoice_details {
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
       my $decimalplaces = max 2, length($dec);
 
-      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $form->{"discount_$i"} / 100 / $price_factor->{factor}, $decimalplaces);
-      my $linetotal            = $form->round_amount($form->{"qty_$i"} * $sellprice * (100 - $form->{"discount_$i"}) / 100 / $price_factor->{factor}, 2);
+      my $parsed_discount      = $form->parse_amount($myconfig, $form->{"discount_$i"});
+      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $parsed_discount / 100 / $price_factor->{factor}, $decimalplaces);
+      my $linetotal            = $form->round_amount($form->{"qty_$i"} * $sellprice * (100 - $parsed_discount) / 100 / $price_factor->{factor}, 2);
       my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
@@ -221,7 +222,7 @@ sub invoice_details {
 
       $linetotal = ($linetotal != 0) ? $linetotal : '';
 
-      push @{ $form->{discount} },   ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, $decimalplaces) : '';
+      push @{ $form->{discount} },   ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
       push @{ $form->{p_discount} }, $form->{"discount_$i"};
 
       $form->{total}            += $linetotal;
