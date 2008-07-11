@@ -480,7 +480,6 @@ sub form_footer {
 sub update {
   $lxdebug->enter_sub();
   
-  $form->{"Watchdog::shipvia"} = 1;
   my ($recursive_call) = shift;
 
   check_oe_access();
