@@ -272,11 +272,6 @@ sub form_header {
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
-  map { $form->{$_} = H($form->{$_}) }
-    qw(shippingpoint shipvia notes intnotes shiptoname
-       shiptostreet shiptozipcode shiptocity shiptocountry shiptocontact
-       shiptophone shiptofax shiptodepartment_1 shiptodepartment_2);
- 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
   $TMPL_VAR{button1} = qq|
@@ -428,8 +423,8 @@ sub form_footer {
   $introws = max 2, $form->numtextrows($form->{intnotes}, 35, 8);
   $rows    = max $rows, $introws;
 
-  $TMPL_VAR{notes} = qq|<textarea name=notes rows=$rows cols=25 wrap=soft>$form->{notes}</textarea>|;
-  $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows=$rows cols=35 wrap=soft>$form->{intnotes}</textarea>|;
+  $TMPL_VAR{notes}    = qq|<textarea name=notes rows=$rows cols=25 wrap=soft>| . H($form->{notes}) . qq|</textarea>|;
+  $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows=$introws cols=35 wrap=soft>| . H($form->{intnotes}) . qq|</textarea>|;
 
   if (!$form->{taxincluded}) {
 
@@ -485,6 +480,7 @@ sub form_footer {
 sub update {
   $lxdebug->enter_sub();
   
+  $form->{"Watchdog::shipvia"} = 1;
   my ($recursive_call) = shift;
 
   check_oe_access();
