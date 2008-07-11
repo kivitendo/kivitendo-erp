@@ -46,43 +46,46 @@ use Encode;
 # end of main
 
 sub display {
-  print $form->create_http_response('content_type' => 'text/xml',
-                                    'charset'      => 'iso-8859-1');
-  print qq|<?xml version="1.0" encoding="iso-8859-1"?>\n|;
-  print qq|<?xml-stylesheet href="xslt/xulmenu.xsl" type="text/xsl"?>\n|;
-  print qq|<!DOCTYPE doc [
-<!ENTITY szlig "ß">
-<!ENTITY auml "ä">
-<!ENTITY uuml "ü">
-<!ENTITY ouml "ö">
-]>|;
-  print qq|<doc>|;
-  print qq|<name>|;
-  print %myconfig->{name};
-  print qq|</name>|;
-  print qq|<db>|;
-  print %myconfig->{dbname};
-  print qq|</db>|;
-  print qq|<favorites>|;
-  my $fav=%myconfig->{favorites};
-  my @favorites = split(/;/, $fav);
-  foreach (@favorites) {
-    print qq|<link name="$_"/>|;
-  }
-  print qq|</favorites>|;
-  print qq|<menu>|;
-my $isoencodedmenu=&acc_menu($menu);
- print encode("iso-8859-1",$isoencodedmenu );
+  $locale     = Locale->new($language, "menu");
+  my $charset = $dbcharset || 'ISO-8859-1';
 
-  print qq|</menu>|;
-  print qq|</doc>|;
-  
+  my $text    = $form->create_http_response('content_type' => 'text/xml',
+                                            'charset'      => $charset)
+    . qq|<?xml version="1.0" encoding="${charset}"?>
+<?xml-stylesheet href="xslt/xulmenu.xsl" type="text/xsl"?>
+<!DOCTYPE doc [
+<!ENTITY szlig "| . $locale->{iconv_iso8859}->convert('ß') . qq|">
+<!ENTITY auml "| . $locale->{iconv_iso8859}->convert('ä') . qq|">
+<!ENTITY uuml "| . $locale->{iconv_iso8859}->convert('ö') . qq|">
+<!ENTITY ouml "| . $locale->{iconv_iso8859}->convert('ü') . qq|">
+]>
+
+<doc>
+<name>$myconfig{name}</name>
+
+<db>$myconfig{dbname}</db>
+
+<favorites>|;
+
+  my $fav       = $myconfig{favorites};
+  my @favorites = split m/;/, $fav;
+  foreach (@favorites) {
+    $text .= qq|<link name="$_"/>|;
+  }
+
+  $text .= qq|</favorites>\n|
+    . qq|<menu>\n|
+    . acc_menu()
+    . qq|</menu>\n|
+    . qq|</doc>\n|;
+
+  print $text;
+
+  $main::lxdebug->message(0, "text $text");
 }
 
 
 sub acc_menu {
-  $locale = Locale->new($language, "menu");
-
   $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
