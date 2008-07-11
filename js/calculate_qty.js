@@ -8,12 +8,12 @@ function calculate_qty_selection_window(input_name, alu, formel, row) {
   }  else var action = "calculate_qty";
   url = "common.pl?" +
     "action=" + action + "&" +
-    "name=" + escape(name) + "&" +
-    "input_name=" + escape(input_name) + "&" +
-    "description=" + escape(description) + "&" +
-    "qty=" + escape(qty) + "&" +
-    "row=" + escape(row) + "&" +
-   "formel=" + escape(document.getElementsByName(formel)[0].value)
+    "name=" + encodeURIComponent(name) + "&" +
+    "input_name=" + encodeURIComponent(input_name) + "&" +
+    "description=" + encodeURIComponent(description) + "&" +
+    "qty=" + encodeURIComponent(qty) + "&" +
+    "row=" + encodeURIComponent(row) + "&" +
+   "formel=" + encodeURIComponent(document.getElementsByName(formel)[0].value)
   //alert(url);
   window.open(url, "_new_generic", parm);
 }

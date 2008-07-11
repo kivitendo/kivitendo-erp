@@ -38,18 +38,13 @@ function centerParms(width,height,extra) {
   return string;
 }
 
-function escape_more(s) {
-  s = escape(s);
-  return s.replace(/\+/g, '%2b');
-}
-
 function set_longdescription_window(input_name) {
   var parm = centerParms(600,500) + ",width=600,height=500,status=yes,scrollbars=yes";
   var name = document.getElementsByName(input_name)[0].value;
   url = "common.pl?" +
     "action=set_longdescription&" +
-    "longdescription=" + escape_more(document.getElementsByName(input_name)[0].value) + "&" +
-    "input_name=" + escape_more(input_name) + "&"
+    "longdescription=" + encodeURIComponent(document.getElementsByName(input_name)[0].value) + "&" +
+    "input_name=" + encodeURIComponent(input_name) + "&"
   window.open(url, "_new_generic", parm);
   }
 

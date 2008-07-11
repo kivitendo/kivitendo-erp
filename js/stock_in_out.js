@@ -12,14 +12,14 @@ function open_stock_in_out_window(in_out, row) {
 
   url = "do.pl?" +
     "action=stock_in_out_form&" +
-    "in_out="    + escape_more(in_out)    + "&" +
-    "row="       + escape_more(row)       + "&" +
-    "parts_id="  + escape_more(parts_id)  + "&" +
-    "do_qty="    + escape_more(do_qty)    + "&" +
-    "do_unit="   + escape_more(do_unit)   + "&" +
-    "stock="     + escape_more(stock)     + "&" +
-    "closed="    + escape_more(closed)    + "&" +
-    "delivered=" + escape_more(delivered) + "&" +
+    "in_out="    + encodeURIComponent(in_out)    + "&" +
+    "row="       + encodeURIComponent(row)       + "&" +
+    "parts_id="  + encodeURIComponent(parts_id)  + "&" +
+    "do_qty="    + encodeURIComponent(do_qty)    + "&" +
+    "do_unit="   + encodeURIComponent(do_unit)   + "&" +
+    "stock="     + encodeURIComponent(stock)     + "&" +
+    "closed="    + encodeURIComponent(closed)    + "&" +
+    "delivered=" + encodeURIComponent(delivered) + "&" +
     "";
   //alert(url);
   window.open(url, "_new_generic", parm);

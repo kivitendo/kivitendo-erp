@@ -16,12 +16,12 @@ function follow_up_window() {
       var trans_info = document.getElementsByName("follow_up_trans_info_" + i);
 
       url += "&" +
-        "trans_id_"   + i + "=" + escape_more(typeof trans_id   != "undefined" ? trans_id[0].value   : "") + "&" +
-        "trans_type_" + i + "=" + escape_more(typeof trans_type != "undefined" ? trans_type[0].value : "") + "&" +
-        "trans_info_" + i + "=" + escape_more(typeof trans_info != "undefined" ? trans_info[0].value : "");
+        "trans_id_"   + i + "=" + encodeURIComponent(typeof trans_id   != "undefined" ? trans_id[0].value   : "") + "&" +
+        "trans_type_" + i + "=" + encodeURIComponent(typeof trans_type != "undefined" ? trans_type[0].value : "") + "&" +
+        "trans_info_" + i + "=" + encodeURIComponent(typeof trans_info != "undefined" ? trans_info[0].value : "");
     }
 
-    url += "&trans_rowcount=" + escape_more(trans_rowcount[0].value);
+    url += "&trans_rowcount=" + encodeURIComponent(trans_rowcount[0].value);
   }
 
   //alert(url);

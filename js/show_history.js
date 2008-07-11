@@ -16,6 +16,6 @@ function set_history_window(id) {
   url = "common.pl?" +
     "action=show_history&" +
     "longdescription=" + "&" +
-    "input_name=" + escape(id) + "&"
+    "input_name=" + encodeURIComponent(id) + "&"
   window.open(url, "_new_generic", parm);
 }

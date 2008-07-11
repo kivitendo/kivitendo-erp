@@ -25,15 +25,15 @@ function part_selection_window(input_partnumber, input_description, input_partsi
 
   url = "common.pl?" +
     "action=part_selection_internal&" +
-    "partnumber="              + escape_more(partnumber)        + "&" +
-    "description="             + escape_more(description)       + "&" +
-    "input_partnumber="        + escape_more(input_partnumber)  + "&" +
-    "input_description="       + escape_more(input_description) + "&" +
-    "input_partsid="           + escape_more(input_partsid)     + "&" +
-    "input_partnotes="         + escape_more(input_partnotes)   + "&" +
-    "filter="                  + escape_more(filter)            + "&" +
-    "options="                 + escape_more(options)           + "&" +
-    "formname="                + escape_more(formname)          + "&" +
+    "partnumber="              + encodeURIComponent(partnumber)        + "&" +
+    "description="             + encodeURIComponent(description)       + "&" +
+    "input_partnumber="        + encodeURIComponent(input_partnumber)  + "&" +
+    "input_description="       + encodeURIComponent(input_description) + "&" +
+    "input_partsid="           + encodeURIComponent(input_partsid)     + "&" +
+    "input_partnotes="         + encodeURIComponent(input_partnotes)   + "&" +
+    "filter="                  + encodeURIComponent(filter)            + "&" +
+    "options="                 + encodeURIComponent(options)           + "&" +
+    "formname="                + encodeURIComponent(formname)          + "&" +
     "allow_creation="          + (allow_creation ? "1" : "0")   + "&" +
     "action_on_part_selected=" + (null == action_on_part_selected ? "" : action_on_part_selected.value);
   //alert(url);

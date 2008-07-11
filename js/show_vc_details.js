@@ -7,8 +7,8 @@ function show_vc_details(vc) {
     vc_id = vc_id[0].value;
   url = "common.pl?" +
     "action=show_vc_details&" +
-    "vc=" + escape(vc) + "&" +
-    "vc_id=" + escape(vc_id)
+    "vc=" + encodeURIComponent(vc) + "&" +
+    "vc_id=" + encodeURIComponent(vc_id)
   //alert(url);
   window.open(url, "_new_generic", parm);
 }

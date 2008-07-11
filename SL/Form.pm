@@ -599,11 +599,11 @@ sub header {
                                       'charset'      => $db_charset,);
     print qq|${doctype}<html>
 <head>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=${db_charset}">
   <title>$self->{titlebar}</title>
   $stylesheet
   $pagelayout
   $favicon
-  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=${db_charset}">
   $jsscript
   $ajax
 
@@ -691,6 +691,7 @@ sub _prepare_html_template {
     $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
   }
 
+  $additional_params->{"conf_dbcharset"}              = $main::dbcharset;
   $additional_params->{"conf_webdav"}                 = $main::webdav;
   $additional_params->{"conf_lizenzen"}               = $main::lizenzen;
   $additional_params->{"conf_latex_templates"}        = $main::latex;

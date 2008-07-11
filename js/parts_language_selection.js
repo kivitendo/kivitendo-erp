@@ -3,9 +3,9 @@ function parts_language_selection_window(input_name) {
   var name = document.getElementsByName(input_name)[0].value;
   url = "ic.pl?" +
     "action=parts_language_selection&" +
-    "id="              + escape_more(document.ic.id.value)              + "&" +
-    "language_values=" + escape_more(document.ic.language_values.value) + "&" +
-    "name="            + escape_more(name)                              + "&" +
-    "input_name="      + escape_more(input_name)                        + "&"
+    "id="              + encodeURIComponent(document.ic.id.value)              + "&" +
+    "language_values=" + encodeURIComponent(document.ic.language_values.value) + "&" +
+    "name="            + encodeURIComponent(name)                              + "&" +
+    "input_name="      + encodeURIComponent(input_name)                        + "&"
   window.open(url, "_new_generic", parm);
 }

@@ -3,12 +3,12 @@ function customer_or_vendor_selection_window(input_name, input_id, is_vendor, al
   var name = document.getElementsByName(input_name)[0].value;
   url = "common.pl?" +
     "action=cov_selection_internal&" +
-    "name=" + escape_more(name) + "&" +
-    "input_name=" + escape(input_name) + "&" +
-    "input_id=" + escape(input_id) + "&" +
+    "name=" + encodeURIComponent(name) + "&" +
+    "input_name=" + encodeURIComponent(input_name) + "&" +
+    "input_id=" + encodeURIComponent(input_id) + "&" +
     "is_vendor=" + (is_vendor ? "1" : "0") + "&" +
     "allow_both=" + (allow_both ? "1" : "0") + "&" +
-    "action_on_cov_selected=" + (action_on_cov_selected ? escape(action_on_cov_selected) : "")
+    "action_on_cov_selected=" + (action_on_cov_selected ? encodeURIComponent(action_on_cov_selected) : "")
   //alert(url);
   window.open(url, "_new_cov_selection", parm);
 }

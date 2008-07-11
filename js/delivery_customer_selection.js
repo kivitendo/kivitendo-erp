@@ -3,9 +3,9 @@ function delivery_customer_selection_window(input_name, input_id) {
   var name = document.getElementsByName(input_name)[0].value;
   url = "common.pl?" +
     "action=delivery_customer_selection&" +
-    "name=" + escape(name) + "&" +
-    "input_name=" + escape(input_name) + "&" +
-    "input_id=" + escape(input_id)
+    "name=" + encodeURIComponent(name) + "&" +
+    "input_name=" + encodeURIComponent(input_name) + "&" +
+    "input_id=" + encodeURIComponent(input_id)
   //alert(url);
   window.open(url, "_new_generic", parm);
 }
