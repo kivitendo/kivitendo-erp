@@ -1964,7 +1964,7 @@ sub report_for_todo_list {
   my $content;
 
   if (@{ $quotations }) {
-    my $edit_url = build_std_url('script=oe.pl', 'action=edit', 'type=sales_quotation', 'vc=customer');
+    my $edit_url = build_std_url('script=oe.pl', 'action=edit');
 
     $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS' => $quotations,
                                                                            'edit_url'   => $edit_url });
