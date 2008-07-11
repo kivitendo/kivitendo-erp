@@ -1849,7 +1849,7 @@ sub set_duedate {
 
   $form->get_duedate(\%myconfig);
 
-  print $cgi->header() . $form->{duedate};
+  print $form->ajax_response_header() . $form->{duedate};
 
   $lxdebug->leave_sub();
 }

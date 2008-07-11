@@ -639,6 +639,20 @@ sub header {
   $main::lxdebug->leave_sub();
 }
 
+sub ajax_response_header {
+  $main::lxdebug->enter_sub();
+
+  my ($self) = @_;
+
+  my $db_charset = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+  my $cgi        = $main::cgi || CGI->new('');
+  my $output     = $cgi->header('-charset' => $db_charset);
+
+  $main::lxdebug->leave_sub();
+
+  return $output;
+}
+
 sub _prepare_html_template {
   $main::lxdebug->enter_sub();
 

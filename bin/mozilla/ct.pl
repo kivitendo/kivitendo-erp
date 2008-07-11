@@ -566,7 +566,7 @@ sub get_contact {
   $auth->assert('customer_vendor_edit');
 
   CT->get_contact(\%myconfig, \%$form);
-  print $cgi->header(), join '__pjx__', map $form->{"cp_$_"}, 
+  print $form->ajax_response_header(), join '__pjx__', map $form->{"cp_$_"}, 
     qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used);
   $lxdebug->leave_sub();
 
@@ -578,7 +578,7 @@ sub get_shipto {
   $auth->assert('customer_vendor_edit');
 
   CT->get_shipto(\%myconfig, \%$form);
-  print $cgi->header(),  join '__pjx__', map $form->{"shipto$_"},
+  print $form->ajax_response_header(),  join '__pjx__', map $form->{"shipto$_"},
     qw(name department_1 department_2 street zipcode city country contact phone fax email used);
   $lxdebug->leave_sub();
 
@@ -591,7 +591,7 @@ sub get_delivery {
 
   CT->get_delivery(\%myconfig, \%$form );
 
-  print $cgi->header(), $form->parse_html_template('ct/get_delivery');
+  print $form->ajax_response_header(), $form->parse_html_template('ct/get_delivery');
 
   $lxdebug->leave_sub();
 }

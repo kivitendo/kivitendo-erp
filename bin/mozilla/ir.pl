@@ -1219,9 +1219,9 @@ sub yes {
 sub set_duedate_vendor {
   $lxdebug->enter_sub();
 
-  print $cgi->header(), IR->get_duedate('vendor_id' => $form->{vendor_id},
-                                        'invdate'   => $form->{invdate},
-                                        'default'   => $form->{old_duedate});
+  print $form->ajax_response_header(), IR->get_duedate('vendor_id' => $form->{vendor_id},
+                                                       'invdate'   => $form->{invdate},
+                                                       'default'   => $form->{old_duedate});
 
   $lxdebug->leave_sub();
 }
