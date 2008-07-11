@@ -227,7 +227,10 @@
                       <translate>Quotation Date</translate>
                      [%- END %]
                     </th>
-                    [% button1 %]
+                    <td nowrap>
+                      <input name=transdate id=transdate size=11 title="[% HTML.escape(dateformat) %]" value="[% transdate %]" onBlur="check_right_date_format(this)">
+                      <input type=button name=transdate id="trigger1" value="<translate>button</translate>">
+                    </td>
                   </tr>
                   <tr>
                     <th align="right" nowrap>
@@ -237,7 +240,10 @@
                       <translate>Required by</translate>
                      [%- END %]
                     </th>
-                    [% button2 %]
+                    <td nowrap>
+                      <input name=reqdate id=reqdate size=11 title="[% HTML.escape(dateformat) %]" value="[% reqdate %]" onBlur="check_right_date_format(this)">
+                      <input type=button name=reqdate id="trigger2" value="<translate>button</translate>">
+                    </td>
                   </tr>
                   <tr>
                     <th width="70%" align="right" nowrap><translate>Project Number</translate></th>
@@ -258,4 +264,9 @@
         </td>
       </tr>
 
-      [% jsscript %]
+    <script type="text/javascript">
+     <!--
+       Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
+       Calendar.setup({ inputField : "reqdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+     //-->
+    </script>

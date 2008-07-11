@@ -274,16 +274,6 @@ sub form_header {
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $TMPL_VAR{button1} = qq|
-     <td nowrap><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=transdate id="trigger1" value=| . $locale->text('button') . qq|></td>
-    |;
-  $TMPL_VAR{button2} = qq|
-     <td nowrap width="13"><input name=reqdate id=reqdate size=11 title="$myconfig{dateformat}" value="$form->{reqdate}" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=reqdate name=reqdate id="trigger2" value=| . $locale->text('button') . qq|></td>
-   |;
-  #write Trigger
-  $TMPL_VAR{jsscript} = Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1", "reqdate", "BL", "trigger2");
 
   # openclosed checkboxes
   my @tmp;
@@ -293,18 +283,7 @@ sub form_header {
                         $form->{"closed"}    ? "checked" : "",  $locale->text('Closed')    if $form->{id};
   $TMPL_VAR{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
 
-  # set option selected
-  foreach $item ($form->{vc}, 'currency', 'department', ($form->{vc} eq "customer" ? 'customer' : 'vendor')) {
-    $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
-  }
-
-  #quote select[customer|vendor] Bug 133
-  $form->{"select$form->{vc}"} = $form->quote($form->{"select$form->{vc}"});
-
-  #substitute \n and \r to \s (bug 543)
-  $form->{"select$form->{vc}"} =~ s/[\n\r]/&nbsp;/g;
-  
+  # project ids
   my @old_project_ids = ($form->{"globalproject_id"}, grep { $_ } map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
