@@ -80,8 +80,6 @@ sub display {
     . qq|</doc>\n|;
 
   print $text;
-
-  $main::lxdebug->message(0, "text $text");
 }
 
 
