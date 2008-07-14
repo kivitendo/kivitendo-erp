@@ -1890,21 +1890,15 @@ sub get_salesman {
 
   $main::lxdebug->leave_sub() and return unless $salesman_id;
 
-  my $dbh = $self->get_standard_dbh($myconfig);
-
-  my ($login) =
-    selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|,
-                    $salesman_id);
+  my $dbh     = $self->get_standard_dbh($myconfig);
+  my ($login) = selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|, $salesman_id);
 
   if ($login) {
-    my $user = new User($main::memberfile, $login);
-    map({ $self->{"salesman_$_"} = $user->{$_}; }
-        qw(address businessnumber co_ustid company duns email fax name
-           taxnumber tel));
-    $self->{salesman_login} = $login;
+    my $user = User->new($login);
+    map { $self->{"salesman_$_"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name taxnumber tel);
 
-    $self->{salesman_name} = $login
-      if ($self->{salesman_name} eq "");
+    $self->{salesman_login}   = $login;
+    $self->{salesman_name}  ||= $login;
   }
 
   $main::lxdebug->leave_sub();
