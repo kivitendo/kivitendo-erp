@@ -1895,7 +1895,7 @@ sub get_salesman {
 
   if ($login) {
     my $user = User->new($login);
-    map { $self->{"salesman_$_"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name taxnumber tel);
+    map { $self->{"salesman_$_"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name signature taxnumber tel);
 
     $self->{salesman_login}   = $login;
     $self->{salesman_name}  ||= $login;
