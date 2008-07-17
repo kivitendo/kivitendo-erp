@@ -154,199 +154,199 @@ sub update_prices {
   $lxdebug->leave_sub();
 }
 
-sub choice {
-  $lxdebug->enter_sub();
-
-  $auth->assert('part_service_assembly_edit');
-
-  our ($j, $lastndx);
-  my ($totop100);
-
-  $form->{title} = $locale->text('Top 100 hinzufuegen');
-
-  $form->header;
-
-  push @custom_hiddens, qw(searchitems title bom titel revers lastsort sort ndxs_counter extras);
-  push @custom_hiddens, qw(itemstatus l_linetotal l_partnumber l_description l_onhand l_unit l_sellprice l_linetotalsellprice);
-  my @HIDDENS = (
-        +{ name => 'row',     value => $j              },
-        +{ name => 'nextsub', value => 'item_selected' },
-        +{ name => 'test',    value => 'item_selected' },
-        +{ name => 'lastndx', value => $lastndx        },
-    map(+{ name => $_,        value => $form->{$_}     }, @custom_hiddens),
-  );
-
-  my ($partnumber, $description, $unit, $sellprice, $soldtotal);
-  # if choice set data
-#  if ($form->{ndx}) {
-#    for my $i (0 .. $form->{ndxs_counter}) {
+#sub choice {
+#  $lxdebug->enter_sub();
 #
-#      # insert data into top100
-#      push @{ $form->{parts} },
-#        { number      => "",
-#          partnumber  => $form->{"totop100_partnumber_$j"},
-#          description => $form->{"totop100_description_$j"},
-#          unit        => $form->{"totop100_unit_$j"},
-#          sellprice   => $form->{"totop100_sellprice_$j"},
-#          soldtotal   => $form->{"totop100_soldtotal_$j"},
-#        };
-#    }    #rof
-#  }    #fi
+#  $auth->assert('part_service_assembly_edit');
+#
+#  our ($j, $lastndx);
+#  my ($totop100);
+#
+#  $form->{title} = $locale->text('Top 100 hinzufuegen');
+#
+#  $form->header;
+#
+#  push @custom_hiddens, qw(searchitems title bom titel revers lastsort sort ndxs_counter extras);
+#  push @custom_hiddens, qw(itemstatus l_linetotal l_partnumber l_description l_onhand l_unit l_sellprice l_linetotalsellprice);
+#  my @HIDDENS = (
+#        +{ name => 'row',     value => $j              },
+#        +{ name => 'nextsub', value => 'item_selected' },
+#        +{ name => 'test',    value => 'item_selected' },
+#        +{ name => 'lastndx', value => $lastndx        },
+#    map(+{ name => $_,        value => $form->{$_}     }, @custom_hiddens),
+#  );
+#
+#  my ($partnumber, $description, $unit, $sellprice, $soldtotal);
+#  # if choice set data
+##  if ($form->{ndx}) {
+##    for my $i (0 .. $form->{ndxs_counter}) {
+##
+##      # insert data into top100
+##      push @{ $form->{parts} },
+##        { number      => "",
+##          partnumber  => $form->{"totop100_partnumber_$j"},
+##          description => $form->{"totop100_description_$j"},
+##          unit        => $form->{"totop100_unit_$j"},
+##          sellprice   => $form->{"totop100_sellprice_$j"},
+##          soldtotal   => $form->{"totop100_soldtotal_$j"},
+##        };
+##    }    #rof
+##  }    #fi
+#
+#  $totop100 = "";
+#
+#  # set data for next page
+#  for my $i (1 .. $form->{ndxs_counter}) {
+#    $partnumber  = $form->{"totop100_partnumber_$i"};
+#    $description = $form->{"totop100_description_$i"};
+#    $unit        = $form->{"totop100_unit_$i"};
+#    $sellprice   = $form->{"totop100_sellprice_$i"};
+#    $soldtotal   = $form->{"totop100_soldtotal_$i"};
+#
+#  push @PARTS, {
+#    totop100_partnumber  => $form->{"totop100_partnumber_$i"},
+#    totop100_description => $form->{"totop100_description_$i"},
+#    totop100_unit        => $form->{"totop100_unit_$i"},
+#    totop100_sellprice   => $form->{"totop100_sellprice_$i"},
+#    totop100_soldtotal   => $form->{"totop100_soldtotal_$i"},
+#  }
+#
+##    $totop100 .= qq|
+##<input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
+##<input type=hidden name=totop100_description_$i value=$form->{"totop100_description_$i"}>
+##<input type=hidden name=totop100_unit_$i value=$form->{"totop100_unit_$i"}>
+##<input type=hidden name=totop100_sellprice_$i value=$form->{"totop100_sellprice_$i"}>
+##<input type=hidden name=totop100_soldtotal_$i value=$form->{"totop100_soldtotal_$i"}>
+##    |;
+#  }    #rof
+#
+#  print $form->parse_html_template('ic/choice', +{ HIDDENS => \@HIDDENS, PARTS => \@PARTS });
+#
+#  $lxdebug->leave_sub();
+#}    #end choice
 
-  $totop100 = "";
-
-  # set data for next page
-  for my $i (1 .. $form->{ndxs_counter}) {
-    $partnumber  = $form->{"totop100_partnumber_$i"};
-    $description = $form->{"totop100_description_$i"};
-    $unit        = $form->{"totop100_unit_$i"};
-    $sellprice   = $form->{"totop100_sellprice_$i"};
-    $soldtotal   = $form->{"totop100_soldtotal_$i"};
-
-  push @PARTS, {
-    totop100_partnumber  => $form->{"totop100_partnumber_$i"},
-    totop100_description => $form->{"totop100_description_$i"},
-    totop100_unit        => $form->{"totop100_unit_$i"},
-    totop100_sellprice   => $form->{"totop100_sellprice_$i"},
-    totop100_soldtotal   => $form->{"totop100_soldtotal_$i"},
-  }
-
-#    $totop100 .= qq|
+#sub list {
+#  $lxdebug->enter_sub();
+#
+#  $auth->assert('part_service_assembly_edit');
+#
+#  our ($lastndx);
+#  our ($partnumber, $description, $unit, $sellprice, $soldtotal);
+#
+#  my @sortorders = ("", "partnumber", "description", "all");
+#  my $sortorder = $sortorders[($form->{description} ? 2 : 0) + ($form->{partnumber} ? 1 : 0)];
+#  IC->get_parts(\%myconfig, \%$form, $sortorder);
+#
+#  $form->{title} = $locale->text('Top 100 hinzufuegen');
+#
+#  $form->header;
+#
+#  print qq|
+#<body>
+#  <form method=post action=ic.pl>
+#    <table width=100%>
+#     <tr>
+#      <th class=listtop colspan=6>| . $locale->text('choice part') . qq|</th>
+#     </tr>
+#        <tr height="5"></tr>
+#	<tr class=listheading>
+#	  <th>&nbsp;</th>
+#	  <th class=listheading>| . $locale->text('Part Number') . qq|</th>
+#	  <th class=listheading>| . $locale->text('Part Description') . qq|</th>
+#	  <th class=listheading>| . $locale->text('Unit of measure') . qq|</th>
+#	  <th class=listheading>| . $locale->text('Sell Price') . qq|</th>
+#	  <th class=listheading>| . $locale->text('soldtotal') . qq|</th>
+#	</tr>|;
+#
+#  my $j = 0;
+#  my $i = $form->{rows};
+#
+#  for ($j = 1; $j <= $i; $j++) {
+#
+#    print qq|
+#        <tr class=listrow| . ($j % 2) . qq|>|;
+#    if ($j == 1) {
+#      print qq|
+#	    <td><input name=ndx class=radio type=radio value=$j checked></td>|;
+#    } else {
+#      print qq|
+#	  <td><input name=ndx class=radio type=radio value=$j></td>|;
+#    }
+#    print qq|
+#	  <td><input name="new_partnumber_$j" type=hidden value="$form->{"partnumber_$j"}">$form->{"partnumber_$j"}</td>
+#	  <td><input name="new_description_$j" type=hidden value="$form->{"description_$j"}">$form->{"description_$j"}</td>
+#	  <td><input name="new_unit_$j" type=hidden value="$form->{"unit_$j"}">$form->{"unit_$j"}</td>
+#	  <td><input name="new_sellprice_$j" type=hidden value="$form->{"sellprice_$j"}">$form->{"sellprice_$j"}</td>
+#	  <td><input name="new_soldtotal_$j" type=hidden value="$form->{"soldtotal_$j"}">$form->{"soldtotal_$j"}</td>
+#        </tr>
+#
+#	<input name="new_id_$j" type=hidden value="$form->{"id_$j"}">|;
+#  }
+#
+#  print qq|
+#
+#</table>
+#
+#<br>
+#
+#
+#<input type=hidden name=itemstatus value="$form->{itemstatus}">
+#<input type=hidden name=l_linetotal value="$form->{l_linetotal}">
+#<input type=hidden name=l_partnumber value="$form->{l_partnumber}">
+#<input type=hidden name=l_description value="$form->{l_description}">
+#<input type=hidden name=l_onhand value="$form->{l_onhand}">
+#<input type=hidden name=l_unit value="$form->{l_unit}">
+#<input type=hidden name=l_sellprice value="$form->{l_sellprice}">
+#<input type=hidden name=l_linetotalsellprice value="$form->{l_linetotalsellprice}">
+#<input type=hidden name=sort value="$form->{sort}">
+#<input type=hidden name=revers value="$form->{revers}">
+#<input type=hidden name=lastsort value="$form->{lastsort}">
+#
+#<input type=hidden name=bom value="$form->{bom}">
+#<input type=hidden name=titel value="$form->{titel}">
+#<input type=hidden name=searchitems value="$form->{searchitems}">
+#
+#<input type=hidden name=row value=$j>
+#
+#<input type=hidden name=nextsub value=item_selected>
+#
+#<input name=lastndx type=hidden value=$lastndx>
+#
+#<input name=ndxs_counter type=hidden value=$form->{ndxs_counter}>|;
+#
+#  my $totop100 = "";
+#
+#  if (($form->{ndxs_counter}) > 0) {
+#    for ($i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
+#
+#      $partnumber  = $form->{"totop100_partnumber_$i"};
+#      $description = $form->{"totop100_description_$i"};
+#      $unit        = $form->{"totop100_unit_$i"};
+#      $sellprice   = $form->{"totop100_sellprice_$i"};
+#      $soldtotal   = $form->{"totop100_soldtotal_$i"};
+#
+#      $totop100 .= qq|
 #<input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
 #<input type=hidden name=totop100_description_$i value=$form->{"totop100_description_$i"}>
 #<input type=hidden name=totop100_unit_$i value=$form->{"totop100_unit_$i"}>
 #<input type=hidden name=totop100_sellprice_$i value=$form->{"totop100_sellprice_$i"}>
 #<input type=hidden name=totop100_soldtotal_$i value=$form->{"totop100_soldtotal_$i"}>
-#    |;
-  }    #rof
-
-  print $form->parse_html_template('ic/choice', +{ HIDDENS => \@HIDDENS, PARTS => \@PARTS });
-
-  $lxdebug->leave_sub();
-}    #end choice
-
-sub list {
-  $lxdebug->enter_sub();
-
-  $auth->assert('part_service_assembly_edit');
-
-  our ($lastndx);
-  our ($partnumber, $description, $unit, $sellprice, $soldtotal);
-
-  my @sortorders = ("", "partnumber", "description", "all");
-  my $sortorder = $sortorders[($form->{description} ? 2 : 0) + ($form->{partnumber} ? 1 : 0)];
-  IC->get_parts(\%myconfig, \%$form, $sortorder);
-
-  $form->{title} = $locale->text('Top 100 hinzufuegen');
-
-  $form->header;
-
-  print qq|
-<body>
-  <form method=post action=ic.pl>
-    <table width=100%>
-     <tr>
-      <th class=listtop colspan=6>| . $locale->text('choice part') . qq|</th>
-     </tr>
-        <tr height="5"></tr>
-	<tr class=listheading>
-	  <th>&nbsp;</th>
-	  <th class=listheading>| . $locale->text('Part Number') . qq|</th>
-	  <th class=listheading>| . $locale->text('Part Description') . qq|</th>
-	  <th class=listheading>| . $locale->text('Unit of measure') . qq|</th>
-	  <th class=listheading>| . $locale->text('Sell Price') . qq|</th>
-	  <th class=listheading>| . $locale->text('soldtotal') . qq|</th>
-	</tr>|;
-
-  my $j = 0;
-  my $i = $form->{rows};
-
-  for ($j = 1; $j <= $i; $j++) {
-
-    print qq|
-        <tr class=listrow| . ($j % 2) . qq|>|;
-    if ($j == 1) {
-      print qq|
-	    <td><input name=ndx class=radio type=radio value=$j checked></td>|;
-    } else {
-      print qq|
-	  <td><input name=ndx class=radio type=radio value=$j></td>|;
-    }
-    print qq|
-	  <td><input name="new_partnumber_$j" type=hidden value="$form->{"partnumber_$j"}">$form->{"partnumber_$j"}</td>
-	  <td><input name="new_description_$j" type=hidden value="$form->{"description_$j"}">$form->{"description_$j"}</td>
-	  <td><input name="new_unit_$j" type=hidden value="$form->{"unit_$j"}">$form->{"unit_$j"}</td>
-	  <td><input name="new_sellprice_$j" type=hidden value="$form->{"sellprice_$j"}">$form->{"sellprice_$j"}</td>
-	  <td><input name="new_soldtotal_$j" type=hidden value="$form->{"soldtotal_$j"}">$form->{"soldtotal_$j"}</td>
-        </tr>
-
-	<input name="new_id_$j" type=hidden value="$form->{"id_$j"}">|;
-  }
-
-  print qq|
-
-</table>
-
-<br>
-
-
-<input type=hidden name=itemstatus value="$form->{itemstatus}">
-<input type=hidden name=l_linetotal value="$form->{l_linetotal}">
-<input type=hidden name=l_partnumber value="$form->{l_partnumber}">
-<input type=hidden name=l_description value="$form->{l_description}">
-<input type=hidden name=l_onhand value="$form->{l_onhand}">
-<input type=hidden name=l_unit value="$form->{l_unit}">
-<input type=hidden name=l_sellprice value="$form->{l_sellprice}">
-<input type=hidden name=l_linetotalsellprice value="$form->{l_linetotalsellprice}">
-<input type=hidden name=sort value="$form->{sort}">
-<input type=hidden name=revers value="$form->{revers}">
-<input type=hidden name=lastsort value="$form->{lastsort}">
-
-<input type=hidden name=bom value="$form->{bom}">
-<input type=hidden name=titel value="$form->{titel}">
-<input type=hidden name=searchitems value="$form->{searchitems}">
-
-<input type=hidden name=row value=$j>
-
-<input type=hidden name=nextsub value=item_selected>
-
-<input name=lastndx type=hidden value=$lastndx>
-
-<input name=ndxs_counter type=hidden value=$form->{ndxs_counter}>|;
-
-  my $totop100 = "";
-
-  if (($form->{ndxs_counter}) > 0) {
-    for ($i = 1; ($i < $form->{ndxs_counter} + 1); $i++) {
-
-      $partnumber  = $form->{"totop100_partnumber_$i"};
-      $description = $form->{"totop100_description_$i"};
-      $unit        = $form->{"totop100_unit_$i"};
-      $sellprice   = $form->{"totop100_sellprice_$i"};
-      $soldtotal   = $form->{"totop100_soldtotal_$i"};
-
-      $totop100 .= qq|
-<input type=hidden name=totop100_partnumber_$i value=$form->{"totop100_partnumber_$i"}>
-<input type=hidden name=totop100_description_$i value=$form->{"totop100_description_$i"}>
-<input type=hidden name=totop100_unit_$i value=$form->{"totop100_unit_$i"}>
-<input type=hidden name=totop100_sellprice_$i value=$form->{"totop100_sellprice_$i"}>
-<input type=hidden name=totop100_soldtotal_$i value=$form->{"totop100_soldtotal_$i"}>
-      |;
-    }    #rof
-  }    #fi
-
-  print $totop100;
-
-  print qq|
-<input class=submit type=submit name=action value="|
-    . $locale->text('TOP100') . qq|">
-
-</form>
-</body>
-</html>
-|;
-  $lxdebug->leave_sub();
-}    #end list()
+#      |;
+#    }    #rof
+#  }    #fi
+#
+#  print $totop100;
+#
+#  print qq|
+#<input class=submit type=submit name=action value="|
+#    . $locale->text('TOP100') . qq|">
+#
+#</form>
+#</body>
+#</html>
+#|;
+#  $lxdebug->leave_sub();
+#}    #end list()
 
 sub top100 {
   $lxdebug->enter_sub();
@@ -932,7 +932,7 @@ sub addtop100 {
   print $totop100;
 
   print qq|
-    <input type=hidden name=ndxs_counter value="$form->{ndxs_counter}">
+<!--    <input type=hidden name=ndxs_counter value="$form->{ndxs_counter}">-->
 
     <input class=submit type=submit name=action value="|
     . $locale->text('choice') . qq|">
