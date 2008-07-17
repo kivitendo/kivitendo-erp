@@ -7,6 +7,7 @@
         // host name port user passwd
         var url = "admin.pl?action=test_db_connection&" +
           "dbhost="   + encodeURIComponent(get_input_value("dbhost"))   + "&" +
+          "dbport="   + encodeURIComponent(get_input_value("dbport"))   + "&" +
           "dbname="   + encodeURIComponent(get_input_value("dbname"))   + "&" +
           "dbuser="   + encodeURIComponent(get_input_value("dbuser"))   + "&" +
           "dbpasswd=" + encodeURIComponent(get_input_value("dbpasswd")) + "&";
