@@ -1464,21 +1464,23 @@ sub print_form {
     reformat_numbers($output_numberformat, $precision, @{ $field_list });
   }
 
-  $form->{IN} = "$form->{formname}$form->{language}${printer_code}.html";
+  my $extension = '';
   if ($form->{format} eq 'postscript') {
-    $form->{postscript} = 1;
-    $form->{IN} =~ s/html$/tex/;
+    $form->{postscript}   = 1;
+    $extension            = 'tex';
+
   } elsif ($form->{"format"} =~ /pdf/) {
-    $form->{pdf} = 1;
-    if ($form->{"format"} =~ /opendocument/) {
-      $form->{IN} =~ s/html$/odt/;
-    } else {
-      $form->{IN} =~ s/html$/tex/;
-    }
+    $form->{pdf}          = 1;
+    $extension            = $form->{'format'} =~ m/opendocument/i ? 'odt' : 'tex';
+
   } elsif ($form->{"format"} =~ /opendocument/) {
-    $form->{"opendocument"} = 1;
-    $form->{"IN"} =~ s/html$/odt/;
+    $form->{opendocument} = 1;
+    $extension            = 'odt';
   }
+
+  my $email_extension = '_email' if (($form->{media} eq 'email') && (-f "$myconfig{templates}/$form->{formname}_email$form->{language}${printer_code}.${extension}"));
+
+  $form->{IN}         = "$form->{formname}${email_extension}$form->{language}${printer_code}.${extension}";
 
   delete $form->{OUT};
 
