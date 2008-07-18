@@ -15,6 +15,7 @@ use English '-no_match_vars';
 use DBI;
 use Data::Dumper;
 use Getopt::Long;
+use Text::Iconv;
 
 use SL::LXDebug;
 
@@ -32,7 +33,8 @@ use SL::DBUtils;
 #######
 
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
-my ($opt_user, $opt_apply, $opt_applied, $opt_format);
+my ($opt_user, $opt_apply, $opt_applied, $opt_format, $opt_test_utf8);
+my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword);
 
 our (%myconfig, $form, $user, $auth);
 
@@ -66,11 +68,21 @@ dbupgrade2_tool.pl [options]
                          then the option \'--user\' must be used as well.
     --applied            List the applied database upgrades for the
                          database that the user given with \'--user\' uses.
+    --test-utf8          Tests a PostgreSQL cluster for proper UTF-8 support.
+                         You have to specify the database to test with the
+                         parameters --dbname, --dbhost, --dbport, --dbuser
+                         and --dbpassword.
     --help               Show this help and exit.
 
   Options:
     --user=name          The name of the user configuration to use for
                          database connectivity.
+    --dbname=name        Database connection options for the UTF-8
+    --dbhost=host        handling test.
+    --dbport=port
+    --dbuser=user
+    --dbpassword=pw
+
 END_HELP
 ;
 
@@ -349,16 +361,22 @@ $locale = Locale->new("de", "login");
 #######
 #######
 
-GetOptions("list"       => \$opt_list,
-           "tree"       => \$opt_tree,
-           "rtree"      => \$opt_rtree,
-           "nodeps"     => \$opt_nodeps,
-           "graphviz:s" => \$opt_graphviz,
-           "format:s"   => \$opt_format,
-           "user=s"     => \$opt_user,
-           "apply=s"    => \$opt_apply,
-           "applied"    => \$opt_applied,
-           "help"       => \$opt_help,
+GetOptions("list"         => \$opt_list,
+           "tree"         => \$opt_tree,
+           "rtree"        => \$opt_rtree,
+           "nodeps"       => \$opt_nodeps,
+           "graphviz:s"   => \$opt_graphviz,
+           "format:s"     => \$opt_format,
+           "user=s"       => \$opt_user,
+           "apply=s"      => \$opt_apply,
+           "applied"      => \$opt_applied,
+           "test-utf8"    => \$opt_test_utf8,
+           "dbhost:s"     => \$opt_dbhost,
+           "dbport:s"     => \$opt_dbport,
+           "dbname:s"     => \$opt_dbname,
+           "dbuser:s"     => \$opt_dbuser,
+           "dbpassword:s" => \$opt_dbpassword,
+           "help"         => \$opt_help,
   );
 
 show_help() if ($opt_help);
@@ -400,4 +418,36 @@ if ($opt_apply) {
 if ($opt_applied) {
   $form->error("--applied used but no user name given with --user.") if (!$user);
   dump_applied();
+}
+
+if ($opt_test_utf8) {
+  $form->error("--test-utf8 used but no database name given with --dbname.") if (!$opt_dbname);
+
+  my $iconv_to_utf8      = Text::Iconv->new("ISO-8859-15", "UTF-8");
+  my $iconv_from_utf8    = Text::Iconv->new("UTF-8", "ISO-8859-15");
+
+  my $umlaut_upper       = 'Ä';
+  my $umlaut_upper_utf8  = $iconv_to_utf8->convert($umlaut_upper);
+
+  my $dbconnect          = "dbi:Pg:dbname=${opt_dbname}";
+  $dbconnect            .= ";host=${opt_dbhost}" if ($opt_dbhost);
+  $dbconnect            .= ";port=${opt_dbport}" if ($opt_dbport);
+
+  my $dbh                = DBI->connect($dbconnect, $opt_dbuser, $opt_dbpassword);
+
+  $form->error("UTF-8 test: Database connect failed (" . $DBI::errstr . ")") if (!$dbh);
+
+  my ($umlaut_lower_utf8) = $dbh->selectrow_array(qq|SELECT lower(?)|, undef, $umlaut_upper_utf8);
+
+  $dbh->disconnect();
+
+  my $umlaut_lower = $iconv_from_utf8->convert($umlaut_lower_utf8);
+
+  if ($umlaut_lower eq 'ä') {
+    print "UTF-8 test was successful.\n";
+  } elsif ($umlaut_lower eq 'Ä') {
+    print "UTF-8 test was NOT successful: Umlauts are not modified (this might be partially ok, but you should probably not use UTF-8 on this cluster).\n";
+  } else {
+    print "UTF-8 test was NOT successful: Umlauts are destroyed. Do not use UTF-8 on this cluster.\n";
+  }
 }
