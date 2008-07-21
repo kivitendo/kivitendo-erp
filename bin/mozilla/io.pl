@@ -1366,7 +1366,8 @@ sub print_form {
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
 
-  $form->get_salesman(\%myconfig, $salesman_id_saved);
+  $form->get_employee_data('prefix' => 'employee', 'id' => $form->{employee_id});
+  $form->get_employee_data('prefix' => 'salesman', 'id' => $salesman_id_saved);
 
   if ($form->{shipto_id}) {
     $form->get_shipto(\%myconfig);

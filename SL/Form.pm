@@ -1107,9 +1107,9 @@ sub parse_template {
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
-  map({ $self->{"employee_${_}"} = $myconfig->{$_}; }
-      qw(email tel fax name signature company address businessnumber
-         co_ustid taxnumber duns));
+  if (!$self->{employee_id}) {
+    map { $self->{"employee_${_}"} = $myconfig->{$_}; } qw(email tel fax name signature company address businessnumber co_ustid taxnumber duns);
+  }
 
   map({ $self->{"${_}"} = $myconfig->{$_}; }
       qw(co_ustid));
@@ -1883,22 +1883,31 @@ sub get_employee {
   $main::lxdebug->leave_sub();
 }
 
-sub get_salesman {
+sub get_employee_data {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $salesman_id) = @_;
+  my $self     = shift;
+  my %params   = @_;
 
-  $main::lxdebug->leave_sub() and return unless $salesman_id;
+  Common::check_params(\%params, qw(prefix));
+  Common::check_params_x(\%params, qw(id));
 
-  my $dbh     = $self->get_standard_dbh($myconfig);
-  my ($login) = selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|, $salesman_id);
+  if (!$params{id}) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $myconfig = \%main::myconfig;
+  my $dbh      = $params{dbh} || $self->get_standard_dbh($myconfig);
+
+  my ($login)  = selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|, conv_i($params{id}));
 
   if ($login) {
     my $user = User->new($login);
-    map { $self->{"salesman_$_"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name signature taxnumber tel);
+    map { $self->{$params{prefix} . "_${_}"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name signature taxnumber tel);
 
-    $self->{salesman_login}   = $login;
-    $self->{salesman_name}  ||= $login;
+    $self->{$params{prefix} . '_login'}   = $login;
+    $self->{$params{prefix} . '_name'}  ||= $login;
   }
 
   $main::lxdebug->leave_sub();
