@@ -96,6 +96,7 @@ $self->{texts} = {
   'Please enter a license key.' => 'Bitte geben Sie einen Lizenzschlüssel an.',
   'Please enter a number of licenses.' => 'Bitte geben Sie die Anzahl Lizenzschlüssel an.',
   'Please enter values'         => 'Bitte Werte eingeben',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Purchase Order'              => 'Lieferantenauftrag',
   'Quantity'                    => 'Menge',

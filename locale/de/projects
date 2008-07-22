@@ -89,6 +89,7 @@ $self->{texts} = {
   'Part description'            => 'Artikelbeschreibung',
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Project Number'              => 'Projektnummer',
   'Project Number missing!'     => 'Projektnummer fehlt!',

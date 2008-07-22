@@ -166,6 +166,7 @@ $self->{texts} = {
   'Please enter values'         => 'Bitte Werte eingeben',
   'Post'                        => 'Buchen',
   'Post Payment'                => 'Zahlung buchen',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Project'                     => 'Projekt',
   'Project Number'              => 'Projektnummer',

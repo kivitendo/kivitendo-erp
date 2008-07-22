@@ -212,6 +212,7 @@ $self->{texts} = {
   'Please enter values'         => 'Bitte Werte eingeben',
   'Postscript'                  => 'Postscript',
   'Preferences saved!'          => 'Einstellungen gespeichert!',
+  'Preview'                     => 'Druckvorschau',
   'Price Factors'               => 'Preisfaktoren',
   'Price factor deleted!'       => 'Preisfaktor gel&ouml;scht.',
   'Price factor saved!'         => 'Preisfaktor gespeichert.',

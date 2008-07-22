@@ -98,6 +98,7 @@ $self->{texts} = {
   'Pick List'                   => 'Sammelliste',
   'Please ask your administrator to create warehouses and bins.' => 'Bitten Sie Ihren Administrator, dass er Lager und Lagerpl&auml;tze anlegt.',
   'Please enter values'         => 'Bitte Werte eingeben',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Project Number'              => 'Projektnummer',
   'Purchase Order'              => 'Lieferantenauftrag',

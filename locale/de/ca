@@ -103,6 +103,7 @@ $self->{texts} = {
   'Packing List'                => 'Lieferschein',
   'Page #1/#2'                  => 'Seite #1/#2',
   'Pick List'                   => 'Sammelliste',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Project Number'              => 'Projektnummer',
   'Purchase Order'              => 'Lieferantenauftrag',

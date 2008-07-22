@@ -156,6 +156,7 @@ $self->{texts} = {
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Postscript'                  => 'Postscript',
+  'Preview'                     => 'Druckvorschau',
   'Printer'                     => 'Drucker',
   'Proforma Invoice'            => 'Proformarechnung',
   'Project'                     => 'Projekt',

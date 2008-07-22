@@ -1316,13 +1316,18 @@ sub generate_attachment_filename {
   my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix              = $self->get_number_prefix_for_type();
 
-  if ($attachment_filename && $self->{"${prefix}number"}) {
+  if ($self->{preview} && (first { $self->{type} eq $_ } qw(invoice credit_note))) {
+    $attachment_filename .= ' (' . $main::locale->text('Preview') . ')' . $self->get_extension_for_format();
+
+  } elsif ($attachment_filename && $self->{"${prefix}number"}) {
     $attachment_filename .=  "_" . $self->{"${prefix}number"} . $self->get_extension_for_format();
-    $attachment_filename  =  $main::locale->quote_special_chars('filenames', $attachment_filename);
-    $attachment_filename  =~ s|[\s/\\]+|_|g;
+
   } else {
     $attachment_filename = "";
   }
+
+  $attachment_filename =  $main::locale->quote_special_chars('filenames', $attachment_filename);
+  $attachment_filename =~ s|[\s/\\]+|_|g;
 
   return $attachment_filename;
 }

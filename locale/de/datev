@@ -110,6 +110,7 @@ $self->{texts} = {
   'Password'                    => 'Passwort',
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Purchase Order'              => 'Lieferantenauftrag',
   'Quartal'                     => 'Quartal',

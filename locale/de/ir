@@ -192,6 +192,7 @@ $self->{texts} = {
   'Post'                        => 'Buchen',
   'Post Payment'                => 'Zahlung buchen',
   'Postscript'                  => 'Postscript',
+  'Preview'                     => 'Druckvorschau',
   'Price'                       => 'Preis',
   'Price Factor'                => 'Preisfaktor',
   'Pricegroup'                  => 'Preisgruppe',

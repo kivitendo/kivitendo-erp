@@ -104,6 +104,7 @@ $self->{texts} = {
   'Phone'                       => 'Telefon',
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
+  'Preview'                     => 'Druckvorschau',
   'Proforma Invoice'            => 'Proformarechnung',
   'Purchase Order'              => 'Lieferantenauftrag',
   'Quotation'                   => 'Angebot',

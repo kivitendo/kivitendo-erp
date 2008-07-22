@@ -106,6 +106,7 @@ $self->{texts} = {
   'Post'                        => 'Buchen',
   'Postscript'                  => 'Postscript',
   'Prepayment'                  => 'Vorauszahlung',
+  'Preview'                     => 'Druckvorschau',
   'Print'                       => 'Drucken',
   'Printer'                     => 'Drucker',
   'Proforma Invoice'            => 'Proformarechnung',

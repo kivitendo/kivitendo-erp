@@ -160,6 +160,7 @@ $self->{texts} = {
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Post'                        => 'Buchen',
+  'Preview'                     => 'Druckvorschau',
   'Previous transdate text'     => 'wurde gespeichert am',
   'Previous transnumber text'   => 'Letzte Buchung mit der Buchungsnummer',
   'Proforma Invoice'            => 'Proformarechnung',

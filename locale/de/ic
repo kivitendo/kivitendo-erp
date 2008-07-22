@@ -200,6 +200,7 @@ $self->{texts} = {
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Postscript'                  => 'Postscript',
+  'Preview'                     => 'Druckvorschau',
   'Price'                       => 'Preis',
   'Price Factor'                => 'Preisfaktor',
   'Pricegroup'                  => 'Preisgruppe',

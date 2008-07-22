@@ -91,6 +91,7 @@ $self->{texts} = {
   'Pick List'                   => 'Sammelliste',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Preisgruppe'                 => 'Preisgruppe',
+  'Preview'                     => 'Druckvorschau',
   'Pricegroup'                  => 'Preisgruppe',
   'Pricegroup deleted!'         => 'Preisgruppe gelöscht!',
   'Pricegroup missing!'         => 'Preisgruppe fehlt!',
