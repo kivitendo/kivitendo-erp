@@ -771,6 +771,8 @@ sub parse_html_template {
 }
 
 sub show_generic_error {
+  $main::lxdebug->enter_sub();
+
   my ($self, $error, %params) = @_;
 
   my $add_params = {
@@ -797,10 +799,14 @@ sub show_generic_error {
   $self->header();
   print $self->parse_html_template("generic/error", $add_params);
 
+  $main::lxdebug->leave_sub();
+
   die("Error: $error\n");
 }
 
 sub show_generic_information {
+  $main::lxdebug->enter_sub();
+
   my ($self, $text, $title) = @_;
 
   my $add_params = {
@@ -812,6 +818,8 @@ sub show_generic_information {
 
   $self->header();
   print $self->parse_html_template("generic/information", $add_params);
+
+  $main::lxdebug->leave_sub();
 
   die("Information: $error\n");
 }
