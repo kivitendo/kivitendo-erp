@@ -10,10 +10,18 @@
 <br>
   <input class="submit" type="submit" name="action" accesskey="s" value="Speichern">
   <input class="submit" type="submit" name="action" accesskey="s" value="Speichern und schließen">
-  <input class="submit" type="submit" name="action" value="[% IF is_cumstomer %]Speichern und Debitorenbuchung erfassen[% ELSE %]Speichern und Kreditorenbuchung erfassen[% END %]">
+  [%- IF is_cumstomer %]
+  <input class="submit" type="submit" name="action" value="Speichern und Debitorenbuchung erfassen">
+  [%- ELSE %]
+  <input class="submit" type="submit" name="action" value="Speichern und Kreditorenbuchung erfassen">
+  [%- END %]
   <input class="submit" type="submit" name="action" value="Speichern und Rechnung erfassen">
   <input class="submit" type="submit" name="action" value="Speichern und Auftrag erfassen">
-  <input class="submit" type="submit" name="action" value="[% IF is_customer %]Speichern und Angebot[% ELSE %]Speichern und Lieferantenanfrage[% END %]">
+  [%- IF is_customer %]
+  <input class="submit" type="submit" name="action" value="Speichern und Angebot">
+  [%- ELSE %]
+  <input class="submit" type="submit" name="action" value="Speichern und Lieferantenanfrage">
+  [%- END %]
 [%- IF id AND is_orphaned %]
   <input class="submit" type="submit" name="action" value="Löschen">
 [%- END %]

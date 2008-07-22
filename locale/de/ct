@@ -240,11 +240,13 @@ $self->{subs} = {
   'lieferadresse_löschen'       => 'delete_shipto',
   'neue_ware'                   => 'new_part',
   'speichern'                   => 'save',
+  'speichern_und_kreditorenbuchung_erfassen' => 'save_and_ap_transaction',
   'speichern_und_debitorenbuchung_erfassen' => 'save_and_ar_transaction',
   'speichern_und_schließen'     => 'save_and_close',
   'speichern_und_rechnung_erfassen' => 'save_and_invoice',
   'speichern_und_auftrag_erfassen' => 'save_and_order',
   'speichern_und_angebot'       => 'save_and_quotation',
+  'speichern_und_lieferantenanfrage' => 'save_and_rfq',
 };
 
 1;
