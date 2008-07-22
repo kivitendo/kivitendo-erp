@@ -314,7 +314,9 @@ sub form_footer {
 sub add_transaction {
   $lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & general_ledger');
+  $auth->assert('customer_vendor_edit & ' .
+                '(general_ledger         | invoice_edit         | vendor_invoice_edit | ' .
+                ' request_quotation_edit | sales_quotation_edit | sales_order_edit    | purchase_order_edit)');
 
 #  # saving the history
 #  if(!exists $form->{addition}) {
@@ -435,7 +437,11 @@ sub save_and_quotation {
 sub save_and_order {
   $lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & sales_order_edit');
+  if ($form->{db} eq 'customer') {
+    $auth->assert('customer_vendor_edit & sales_order_edit');
+  } else {
+    $auth->assert('customer_vendor_edit & purchase_order_edit');
+  }
 
   $form->{script} = "oe.pl";
   $form->{type}   =
