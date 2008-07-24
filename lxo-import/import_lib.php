@@ -173,7 +173,7 @@ global $db,$file,$test;
 	if ($test) { return "#####"; }
 	$sql1="select * from defaults";
 	$sql2="update defaults set ".$file."number = '%s'";
-	$db->lock();
+	$db->begin();
 	$rs=$db->getAll($sql1);
 	$nr=$rs[0][$file."number"];
 	preg_match("/^([^0-9]*)([0-9]+)/",$nr,$hits);
