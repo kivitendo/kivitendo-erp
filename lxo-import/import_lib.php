@@ -363,10 +363,14 @@ function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie) {
                 $db->query($sql2,"authuser_B");
                 $sql3="insert into session ";*/
         }
+        $sql="select * from auth.user where id=".$rs[0]["id"];
+        $rs1=$db->getAll($sql,"authuser_1");
+        if (!$rs1) return false;
+        $auth=array();
+        $auth["login"]=$rs1[0]["login"];
         $sql="select * from auth.user_config where user_id=".$rs[0]["id"];
         $rs1=$db->getAll($sql,"authuser_2");
-        $auth=array();
-        $keys=array("login","dbname","dbpasswd","dbhost","dbport","dbuser");
+        $keys=array("dbname","dbpasswd","dbhost","dbport","dbuser");
         foreach ($rs1 as $row) {
                 if (in_array($row["cfg_key"],$keys)) {
                         $auth[$row["cfg_key"]]=$row["cfg_value"];
