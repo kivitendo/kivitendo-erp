@@ -121,19 +121,14 @@ sub report {
   # klären, ob $form->{company_street|_address} gesetzt sind
   if ($form->{address} ne '') {
     my $temp = $form->{address};
-    $temp =~ s/\\n/<br \/>/;
+    $temp =~ s/\n/<br \/>/;
     ($form->{co_street}, $form->{co_city}) = split("<br \/>", $temp);
-    $form->{co_city} =~ s/\\n//g;
+    $form->{co_city} =~ s/\n//g;
   }
 
 
   my $address_given = 
-    ($form->{co_street} ne '' 
-      and ( 
-        $form->{co_zip} ne ''
-          or $form->{co_city} ne ''
-      )
-    ) 
+    ($form->{co_street} && ($form->{co_zip} || $form->{co_city})) 
     ? qq|$form->{co_street}<br>|
         . qq|$form->{co_street1}<br>|
         . qq|$form->{co_zip} $form->{co_city}|
