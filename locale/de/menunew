@@ -135,7 +135,7 @@ $self->{texts} = {
   'Price Factors'               => 'Preisfaktoren',
   'Pricegroups'                 => 'Preisgruppen',
   'Printer'                     => 'Drucker',
-  'Productivity'                => 'Produktivit&auml;t',
+  'Productivity'                => 'Produktivität',
   'Programm'                    => 'Programm',
   'Projects'                    => 'Projekte',
   'Projecttransactions'         => 'Projektbuchungen',
@@ -196,9 +196,10 @@ $self->{texts} = {
 
 $self->{subs} = {
   'acc_menu'                    => 'acc_menu',
+  'calculate_width'             => 'calculate_width',
   'clock_line'                  => 'clock_line',
+  'create_menu'                 => 'create_menu',
   'display'                     => 'display',
-  'section_menu'                => 'section_menu',
   'weiter'                      => 'continue',
 };
 

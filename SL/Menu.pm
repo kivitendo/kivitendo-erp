@@ -107,6 +107,34 @@ sub menuitem {
   return $str;
 }
 
+sub menuitem_new {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $name, $item) = @_;
+
+  my $form        = $main::form;
+
+  my $module      = $self->{$name}->{module} || $form->{script};
+  my $action      = $self->{$name}->{action};
+
+  $item->{target} = $self->{$name}->{target} || "main_window";
+  $item->{href}   = $self->{$name}->{href}   || "${module}?action=" . $form->escape($action);
+
+  my @vars = qw(module target href);
+  push @vars, $action unless ($self->{$name}->{href});
+
+  map { delete $self->{$name}{$_} } @vars;
+
+  # add other params
+  foreach my $key (keys %{ $self->{$name} }) {
+    my ($value, $conf)  = split(m/=/, $self->{$name}->{$key}, 2);
+    $value              = $myconfig->{$value} . "/$conf" if ($conf);
+    $item->{href}      .= "&" . $form->escape($key) . "=" . $form->escape($value);
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
 sub menuitem_v3 {
   $main::lxdebug->enter_sub();
 
@@ -221,43 +249,6 @@ sub menuitem_XML {
   $main::lxdebug->leave_sub();
 
   return $str;
-}
-
-sub menuitemNew {
-  my ($self, $myconfig, $form, $item) = @_;
-
-  my $module = $form->{script};
-  my $action = "section_menu";
-
-  #if ($self->{$item}{module}) {
-  $module = $self->{$item}{module};
-
-  #}
-  if ($self->{$item}{action}) {
-    $action = $self->{$item}{action};
-  }
-
-  my $level = $form->escape($item);
-  my $str   = qq|$module?action=$action&level=$level|;
-  my @vars = qw(module action target href);
-
-  if ($self->{$item}{href}) {
-    $str  = qq|$self->{$item}{href}|;
-    @vars = qw(module target href);
-  }
-
-  map { delete $self->{$item}{$_} } @vars;
-
-  # add other params
-  foreach my $key (keys %{ $self->{$item} }) {
-    $str .= "&" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
-    $value = $myconfig->{$value} . "/$conf" if ($conf);
-    $str .= $form->escape($value, 1);
-  }
-
-  $str .= " ";
-
 }
 
 sub access_control {

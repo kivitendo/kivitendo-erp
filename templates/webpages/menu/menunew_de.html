@@ -1,0 +1,102 @@
+[% USE HTML %]<body style="padding:0px; margin:0px;">
+
+ <script type="text/javascript">
+<!--
+function clockon() {
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
+  var timer=setTimeout("clockon()", 10000);
+}
+window.onload=clockon
+//-->
+ </script>
+
+ <script type="text/javascript" src="js/dhtmlsuite/menu-for-applications.js"></script>
+
+ <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
+  <tr>
+   <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
+    &nbsp;
+    [<a href="menuv3.pl?action=display" target="_blank">neues Fenster</a>]
+    &nbsp;
+    [<a href="JavaScript:top.main_window.print()">drucken</a>]
+   </td>
+   <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+    [Benutzer: [% HTML.escape(login) %] -
+    <a href="login.pl?action=logout" target="_top">abmelden</a>]
+    [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
+   </td>
+  </tr>
+ </table>
+
+ <div id="main_menu_div"></div>
+
+ [%- SET main_id = '100' %]
+ <ul id="main_menu_model">
+ [%- FOREACH mainitem = menu_items %]
+  [%- SET main_id = main_id + 1 %]
+  <li id="[% main_id %]">
+   <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]"[% IF mainitem.target %] target="[% mainitem.target %]"[% END %]>
+    [%- HTML.escape(mainitem.title) %]
+   </a>
+   [%- IF mainitem.subitems %]
+    <ul[%- IF force_ul_width %] width="[% mainitem.max_width * 12 %]"[% END %]>
+     [%- SET sub1_id = main_id * 100 %]
+     [%- FOREACH sub1item = mainitem.subitems %]
+      [%- SET sub1_id = sub1_id + 1 %]
+      <li id="[% sub1_id %]">
+       <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]"[% IF sub1item.target %] target="[% sub1item.target %]"[% END %]>
+        [%- HTML.escape(sub1item.title) %]
+       </a>
+       [%- IF sub1item.subitems %]
+        <ul[%- IF force_ul_width %] width="[% sub1item.max_width * 12 %]"[% END %]>
+         [%- SET sub2_id = sub1_id * 100 %]
+         [%- FOREACH sub2item = sub1item.subitems %]
+          [%- SET sub2_id = sub2_id + 1 %]
+          <li id="[% sub2_id %]">
+           <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]"[% IF sub2item.target %] target="[% sub2item.target %]"[% END %]>
+            [%- HTML.escape(sub2item.title) %]
+           </a>
+          </li>
+         [%- END %]
+        </ul>
+       [%- END %]
+      </li>
+     [%- END %]
+    </ul>
+   [%- END %]
+  </li>
+ [%- END %]
+ </ul>
+
+ <script type="text/javascript">
+  <!--
+
+DHTMLSuite.createStandardObjects();
+
+DHTMLSuite.configObj.setCssPath('css/dhtmlsuite/');
+DHTMLSuite.configObj.setImagePath('image/dhtmlsuite/');
+
+var menu_model = new DHTMLSuite.menuModel();
+menu_model.addItemsFromMarkup('main_menu_model');
+menu_model.init();
+
+var menu_bar = new DHTMLSuite.menuBar();
+menu_bar.addMenuItems(menu_model);
+menu_bar.setTarget('main_menu_div');
+menu_bar.init();
+
+function open_url(url, target) {
+
+}
+
+    -->
+ </script>
+
+ <iframe id="win1" src="login.pl?action=company_logo" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
+  <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen. Bitte w&auml;hlen Sie ein anderes Men&uuml; in der Benutzerkonfiguration im Administrationsmen&uuml; aus.</p>
+ </iframe>
+</body>
+</html>
