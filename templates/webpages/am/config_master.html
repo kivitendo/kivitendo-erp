@@ -121,14 +121,12 @@
      <tr>
       <th align="right"><translate>Setup Menu</translate></th>
       <td>
-       <input name="menustyle" id="menustyle_v3" type="radio" class="radio" value="v3" [% IF menustyle_v3 %]checked[% END %]>&nbsp;
-       <label for="menustyle_v3"><translate>Top (CSS)</translate></label>
-       <input name="menustyle" id="menustyle_neu" type="radio" class="radio" value="neu" [% IF menustyle_neu %]checked[% END %]>&nbsp;
-       <label for="menustyle_neu"><translate>Top (Javascript)</translate></label>
-       <input name="menustyle" id="menustyle_xml" type="radio" class="radio" value="xml" [% IF menustyle_xml %]checked[% END %]>&nbsp;
-       <label for="menustyle_xml"><translate>Top (XUL; only for Mozilla Firefox)</translate></label>
-       <input name="menustyle" id="menustyle_old" type="radio" class="radio" value="old" [% IF menustyle_old %]checked[% END %]>&nbsp;
-       <label for="menustyle_old"><translate>Old (on the side)</translate></label>
+       <select name="menustyle">
+        <option value="v3"[% IF myconfig_menustyle == 'v3' %] selected[% END %]><translate>Top (CSS)</translate></option>
+        <option value="neu"[% IF myconfig_menustyle == 'neu' %] selected[% END %]><translate>Top (Javascript)</translate></option>
+        <option value="xml"[% IF myconfig_menustyle == 'xml' %] selected[% END %]><translate>Top (XUL; only for Mozilla Firefox)</translate></option>
+        <option value="old"[% IF myconfig_menustyle == 'old' %] selected[% END %]><translate>Old (on the side)</translate></option>
+       </select>
       </td>
      </tr>
 
@@ -140,10 +138,11 @@
      <tr>
       <th align="right"><translate>Form details (second row)</translate></th>
       <td>
-       <input type="radio" id="rad_show_form_details" name="show_form_details" value="1" [% IF myconfig_show_form_details %]checked[% END %]>&nbsp;
-       <label for="rad_show_form_details"><translate>Show by default</translate></label>
-       <input type="radio" id="rad_hide_form_details" name="show_form_details" value="0" [% UNLESS myconfig_show_form_details %]checked[% END %]>&nbsp;
-       <label for="rad_hide_form_details"><translate>Hide by default</translate></label></td>
+       <select name="show_form_details">
+        <option value="1"[% IF  myconfig_show_form_details %] selected[% END %]><translate>Show by default</translate></option>
+        <option value="0"[% IF !myconfig_show_form_details %] selected[% END %]><translate>Hide by default</translate></option>
+       </select>
+      </td>
      </tr>
     </table>
 
