@@ -6,9 +6,10 @@ Inhalt der Anleitung
 2 Benötigte Software und Pakete
 3 Installation des Programmpaketes
 4 Anpassung der PostgreSQL-Konfiguration
-  4.1 Änderungen an Konfigurationsdateien
-  4.2 Erweiterung für servergespeicherte Prozeduren
-  4.3 Datenbankbenutzer anlegen
+  4.1 Zeichensätze/die Verwendung von UTF-8
+  4.2 Änderungen an Konfigurationsdateien
+  4.3 Erweiterung für servergespeicherte Prozeduren
+  4.4 Datenbankbenutzer anlegen
 5 Apache-Konfiguration
 6 Benutzerauthentifizierung und Administratorpasswort
   6.1 Grundlagen zur Benutzerauthentifizierung
@@ -128,7 +129,33 @@ unterschiedlich (z.B. bei Debian/Ubuntu `www-data', bei Fedora core
 
 PostgreSQL muss auf verschiedene Weisen angepasst werden.
 
-4.1 Änderungen an Konfigurationsdateien
+4.1 Zeichensätze/die Verwendung von UTF-8
+=========================================
+
+Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet werden.
+Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in Version 8.0
+oder neuer benutzt werden, und der PostgreSQL-Datenbankcluster muss
+ebenfalls mit UTF-8 als Locale angelegt worden sein.
+
+   Dieses ist kann überprüft werden: ist das Encoding der Datenbank
+"template1" "UTF8", so kann auch Lx-Office mit UTF-8 betrieben werden.
+Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
+UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
+Ubuntu kann dies z.B. mit dem folgenden Befehl getan werden:
+
+   `pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2
+clustername'
+
+   Die Datenbankversionsnummer muss an die tatsächlich verwendete
+Versionsnummer angepasst werden.
+
+   Unter anderen Distributionen gibt es ähnliche Methoden.
+
+   Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und ist
+ein Neuanlegen eines weiteren Clusters nicht möglich, so kann Lx-Office
+mit ISO-8850-15 als Encoding betrieben werden.
+
+4.2 Änderungen an Konfigurationsdateien
 =======================================
 
 In der Datei `postgresql.conf', die je nach Distribution in
@@ -159,7 +186,7 @@ zuzulassen. Beispielsweise:
 host    all         lxoffice      127.0.0.1         255.255.255.255
 password'
 
-4.2 Erweiterung für servergespeicherte Prozeduren
+4.3 Erweiterung für servergespeicherte Prozeduren
 =================================================
 
 In der Datenbank `template1' muss die Unterstützung für
@@ -176,7 +203,7 @@ create language 'plpgsql' handler plpgsql_call_handler lancompiler
 Distribution zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu
 befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so'.
 
-4.3 Datenbankbenutzer anlegen
+4.4 Datenbankbenutzer anlegen
 =============================
 
 Wenn Sie nicht den Datenbanksuperuser "postgres" zum Zugriff benutzen
