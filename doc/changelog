@@ -2,6 +2,61 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 
+2008-xx-xx - Version 2.6.0
+
+  Große neue Features:
+
+  - Ein neues Feature "Preisfaktoren" wurde implementiert. Diese
+    können pro Artikel vergeben und in den Masken im Ein- und Verkauf
+    bentuzt werden.
+
+  Kleinere neue Features und Detailverbesserungen:
+
+  - In Verkaufsberichten werden die Margen mit angezeigt.
+  - Die Reihenfolge einiger Menüpunkte wurde dem Arbeitsfluss angepasst.
+  - Beim Anlegen neuer Benutzer werden einige Felder mit sinnvolleren
+    Standardwerten vorbelegt.
+  - Der HTML-Code vieler Masken wurde vom Programmcode getrennt.
+  - LaTeX- und HTML-Druckvorlagen können nun das Format der
+    Variablennamen festlegen (z.B. "$(name)$" anstelle von
+    "<%name%>"), damit sie besser außerhalb von Lx-Office getestet
+    werden können.
+  - Beim Erzeugen von PDFs werden mehr Sonderzeichen in die
+    entsprechenden LaTeX-Notationen umgesetzt.
+  - Bei Verkaufsbelegen wird nach "Bearbeiter" und "Verkäufer"
+    unterschieden. Nach dem "Verkäufer" kann gefiltert werden.
+  - Beim Drucken von Mahnungen stehen Variablen für die Kontaktperson
+    des Kunden zur Verfügung.
+  - Beim Wechsel eines Kunden werden in den Verkaufsmasken immer die
+    Zahlungskonditionen des neuen Kunden ausgewählt.
+  - Die Berechnung der UStVA wurde deutlich beschleunigt.
+  - Deutliche Beschleunigung der Ausgaben von Listenansichten durch
+    Verwendung des Perl-Modules "Template" anstelle von
+    "HTML::Template".
+  - Für Firefox gibt es ein neues, auf XML/XUL basierendes
+    Anwendungsmenü.
+
+
+  Bugfixes:
+
+  - Beim Drucken von Kundenrechnungen war der Steuersatz nicht in der
+    Variablen <%taxdescription%> enthalten.
+  - Beim Erzeugen von Mahnungen gab es Probleme beim Erzeugen der
+    Rechnungen über Mahngebühren und Zinsen.
+  - Bei Lieferanten wurden nicht alle Daten der Ansprechpartner in der
+    Datenbank gespeichert.
+  - Die Rabattberechnung für kleine Preise wurde richtiggestellt.
+  - Einige Fehler, die zur Umgehung der Authenfitizierung benutzt
+    werden konnten, wurden behoben.
+  - Die Storno-Funktion wurde in mehreren Punkten verbessert.
+  - Die Verwendung von Zahlen bei Boolean-Datenbankspalten wurde
+    behoben.
+  - Buchungen im Buchungsjournal wurden unter Umständen falsch
+    dargestellt, wenn auf ein Konto gebucht wurde, das mit keiner
+    Steuer verknüpft war.
+  - Das CSS-Menü funktioniert nun auch mit dem Internet Explorer 7.
+  - Diverse Inkompatibilitäten mit verschiedenen PostgreSQL-Versionen
+    wurden behoben.
 
 2007-07-13 - Version 2.4.3
 
