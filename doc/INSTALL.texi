@@ -104,6 +104,11 @@ es mit der CPAN-Shell installiert werden.  Leider gibt es Fälle, in
 denen das nicht möglich oder praktikabel ist. Lx-Office liefert daher
 das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
 
+Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
+benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
+
+@code{./scripts/installation_check.pl}
+
 @c ---------------------------------------------------------------
 
 @node Installation des Programmpaketes
