@@ -617,15 +617,15 @@ sub header {
 
   <meta name="robots" content="noindex,nofollow" />
   <script type="text/javascript" src="js/highlight_input.js"></script>
-  <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
 
+  <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
   <script type="text/javascript" src="js/tabcontent.js">
 
   /***********************************************
-  * Tab Content script- Dynamic Drive DHTML code library (www.dynamicdrive.com)
-  * This notice MUST stay intact for legal use
-  * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
-  ***********************************************/
+   * Tab Content script v2.2- © Dynamic Drive DHTML code library (www.dynamicdrive.com)
+   * This notice MUST stay intact for legal use
+   * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
+   ***********************************************/
 
   </script>
 

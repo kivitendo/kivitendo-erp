@@ -33,8 +33,18 @@
 
  <script type="text/javascript">
   <!--
-      //Start Tab Content script for UL with id="maintab".
-      initializetabcontent("maintab");
+      Calendar.setup({ inputField : "fromB",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_from" });
+      Calendar.setup({ inputField : "toB",     ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_to" });
+      Calendar.setup({ inputField : "FU_date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "FU_date_trigger" });
+
+      function enable_delete_shipto(used) { var s=document.getElementById('delete_shipto');  if (s) s.disabled = (used > 0 ? true : false); }
+      function enable_delete_contact(used){ var s=document.getElementById('delete_contact'); if (s) s.disabled = (used > 0 ? true : false); }
+
+      var maintab = new ddtabcontent("maintab");
+      maintab.setpersist(true);
+      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+      maintab.init();
+
     -->
  </script>
 </body>
