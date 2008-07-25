@@ -45,8 +45,8 @@ sub display {
   $form->header();
 
 #   $form->{force_ul_width} = $ENV{HTTP_USER_AGENT} =~ m/MSIE\s+6\./;
-  $form->{force_ul_width} = $ENV{HTTP_USER_AGENT} !~ m/Opera/;
-#   $form->{force_ul_width} = 1;
+#   $form->{force_ul_width} = $ENV{HTTP_USER_AGENT} !~ m/Opera/;
+  $form->{force_ul_width} = 1;
   $form->{date}           = clock_line();
   $form->{menu_items}     = acc_menu();
 
