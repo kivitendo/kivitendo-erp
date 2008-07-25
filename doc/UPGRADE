@@ -15,9 +15,10 @@ automatisch übernommen werden.
  Bevor Sie sich das erste mal einloggen
  --------------------------------------
 
-Kopieren Sie bitte die Datei lx-erp.conf und ggfs. lx-erp-local.conf
-in das neue Unterverzeichnis config/. Die alte Datei im Lx-Office-
-Stammverzeichnis kann daraufhin gelöscht werdern.
+Kopieren Sie bitte die Datei "lx-erp.conf" und
+ggfs. "lx-erp-local.conf" in das neue Unterverzeichnis "config/". Die
+alte Datei im Lx-Office-Stammverzeichnis kann daraufhin gelöscht
+werdern.
 
 Als nächstes muss die neue datenbankgestützte Benutzerverwaltung
 konfiguriert werden. Die dafür notwendigen Einstellungen werden in der
