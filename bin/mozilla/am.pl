@@ -2526,10 +2526,9 @@ sub config {
     };
   }
 
-  $myconfig{show_form_details}              = 1 unless (defined($myconfig{show_form_details}));
-  $form->{"menustyle_$myconfig{menustyle}"} = 1;
-  $form->{CAN_CHANGE_PASSWORD}              = $auth->can_change_password();
-  $form->{todo_cfg}                         = { TODO->get_user_config('login' => $form->{login}) };
+  $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
+  $form->{CAN_CHANGE_PASSWORD} = $auth->can_change_password();
+  $form->{todo_cfg}            = { TODO->get_user_config('login' => $form->{login}) };
 
   $form->{title}                            = $locale->text('Edit Preferences for #1', $form->{login});
 
