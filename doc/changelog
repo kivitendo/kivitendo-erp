@@ -4,11 +4,53 @@
 
 2008-xx-xx - Version 2.6.0
 
-  Große neue Features:
+  Größere neue Features:
 
   - Ein neues Feature "Preisfaktoren" wurde implementiert. Diese
     können pro Artikel vergeben und in den Masken im Ein- und Verkauf
     bentuzt werden.
+  - Die Benutzerverwaltung wurde von Dateien im Verzeichnis "users"
+    auf die Verwendung einer Authentifizierungsdatenbank umgestellt.
+    Zusätzlich wurde eine gruppenbasierte Rechteverwaltung
+    implementiert, um Benutzergruppen Zugriff auf Funktionsbereiche
+    von Lx-Office zu gewähren oder zu verhindern.
+    Benutzer können nun auch gegen einen LDAP-Server (z.B. OpenLDAP
+    oder Microsoft Active Directory) authentifiziert werden.
+    Es ist erforderlich, die Dateien "doc/UPGRADE" und
+    "doc/INSTALL/index.html" zu lesen und die angesprochenen Punkte
+    auszuführen, um nach einem Upgrade weiter arbeiten zu können.
+  - Für Kunden-, Lieferanten- und Projektstammdaten können
+    benutzerdefinierte Variablen angelegt und verwaltet werden.
+  - Für Kunden und Lieferanten können beliebige Notizen angelegt
+    werden. Solche Notizen können auf Wiedervorlage gelegt werden.
+  - Einkaufs- und Verkaufsbelege können auf Wiedervorlage gelegt
+    werden. Wiedervorlagen können für beliebige Nutzer erstellt werden
+    (Aufgabe an andere Nutzer deligieren). Anstehende Wiedervorlagen
+    und abgelaufene Angebote werden auf der Startseite in einer
+    Aufgabenliste angezeigt.
+  - Beliebige Notizen können erstellt und auf Wiedervorlage gelegt
+    werden.
+  - Es gibt eine Aufgabenliste, in der z.B. Wiedervorlagen oder
+    überfällige offene Angebote aufgelistet werden. Diese kann nach
+    dem Login angezeigt werden.
+  - Es wurde eine Lagerverwaltung mit beliebig vielen Lagern und
+    Lagerplätzen implementiert. Die Lagerverwaltung interagiert mit
+    Aufträgen und Rechnungen im Ein- und Verkauf sowie dem
+    Lagerbestand in den Artikelstammdaten.
+  - Es wurden Lieferscheine als eigene Belege im Einkauf und Verkauf
+    implementiert. Diese interagieren mit der neuen Lagerverwaltung.
+    Lieferscheine liegen im Arbeitsfluss zwischen Aufträgen und
+    Rechnungen.
+  - Die bisherige Saldenbilanz wurde zu einer richtigen Summen- und
+    Saldenliste umgebaut.
+  - Lx-Office kann durchgängig mit UTF-8 als Zeichensatz betrieben
+    werden.
+  - Die stichtagsbezogene Auswertungen von offenen Forderungen und
+    Verbindlichkeiten wurde implementiert.
+  - Die ehemals kommerziellen Schnittstellen zu osCommerce,
+    olCommerce, xtCommerce und PHPepperShop wurden freigegeben und
+    sind im Quellcode enthalten, allerdings noch nicht auf die
+    Verwendung mit Lx-Office 2.6.0 angepasst.
 
   Kleinere neue Features und Detailverbesserungen:
 
@@ -35,7 +77,72 @@
     "HTML::Template".
   - Für Firefox gibt es ein neues, auf XML/XUL basierendes
     Anwendungsmenü.
-
+  - Einstellungen, die für die ganze Lx-Office-Installation gelten wie
+    z.B. Nummernkreise sind nun über einen eigenen Menüpunkt im Menü
+    "System" verwaltbar. Damit können sie nicht mehr von jedem
+    Benutzer verändert werden.
+  - Wenn man nach einem erfolgreichen Login die selbe Installation in
+    einem zweiten Browserfenster öffnet, so wird gleich die Startseite
+    angezeigt und nicht mehr das Login.
+  - Die Erzeugung von PDFs aus Berichten geschieht nun mit dem
+    Perl-Modul "PDF::API2" anstelle des externen Programmes "html2ps",
+    wodurch die erzeugten PDFs besser aussehen, die Berichte mit mehr
+    Features ausgegeben werden können und die erste Seite auch im
+    Querformat dargestellt wird.
+  - Tabellenzeilen in PDF-Ausgaben von Berichten werden farblich
+    unterschiedlich hinterlegt.
+  - Das Kommandozeilentool "scripts/dbupgrade_tool.pl" kann nun eine
+    Liste aller bereits angewandten Datenbankupgradescripte anzeigen
+    und noch nicht angewandte Upgradescripte und alle Abhängigkeiten
+    anwenden.
+  - Aus der Administrationsmaske heraus kann beim Anlegen oder
+    Bearbeiten eines Benutzers die Verbindung zur Datenbank überprüft
+    werden.
+  - Beim Verschicken von Belegen per Email wird den Betreff analog zum
+    Namen des Anhangs vorbelegt (z.B. "Angebot 123").
+  - Unsterstützung für die UStVA 2008 wurde implementiert.
+  - Kontaktpersonen werden alphabetisch sortiert angezeigt.
+  - In Kunden- und Lieferantenstammdaten können nun auch
+    Lieferadressen und Kontaktpersonen gelöscht werden, sofern diese
+    noch nirgends verwendet wurden.
+  - Die Druckvorlagen für die konfigurierten Mahnungen und Rechnungen
+    zu Mahnungen können über die Oberfläche bearbeitet werden.
+  - Ansprechpartner-Dropdownboxen zeigen jetzt auch den Vornamen an.
+  - Diverse Dialoge (z.B. Warenstammdaten, Einkaufs- und
+    Verkaufsbelege, Benutzereinstellungen) wurden aufgeräumt.
+  - Die Bücherkontrolle wurde überarbeitet.
+  - Dialogbuchungen können als Eröffnungs- oder Schlussbilanzbuchung
+    markiert werden.
+  - Die Ausgabefunktionen fuer offene Forderungen und
+    Verbindlichekeiten und die Summen- und Saldenliste wurde
+    überarbeitet. Sie kann zusätzlich nach Datum eingeschränkt werden.
+  - Die Kontenübersicht wurde deutlich überarbeitet. Sie kann
+    umsortiert werden. Es können Zwischensummen angezeigt werden.
+  - Bei Aufträgen, Angeboten und Preisanfragen das Lieferdatum mit dem
+    nächsten Werktag und nicht dem heutigen Datum vorbelegt.
+  - Die Berichte über Angebote, Aufträge, Preisanfragen,
+    Lieferscheine, Rechnungen, Debitoren- und Kreditorenbuchungen,
+    Kunden und Lieferanten, Mahnungen, Zahlungsein- und -ausgänge
+    sowie das Buchungsjournal wurden um die Möglichkeit erweitert, sie
+    auch absteigend sortieren zu lassen. Betroffen sind Berichte über
+  - Wird das Rechnungsdatum in einer Eingangsrechnung verändert, so
+    wird per AJAX das Fälligkeitsdatum anhand der beim Lieferanten
+    hinterlegten Zahlungsbedingungen berechnet und im Formular
+    ersetzt.
+  - Beim Umwandeln von verschiedenen Belegen in andere Belege
+    (z.B. von Auftrag in Rechnung) wird der Ausgangsbeleg nicht mehr
+    schon beim Druck auf den Button als geschlossen markiert, sondern
+    erst, wenn der Zielbeleg gespeichert bzw. gebucht wird. In einigen
+    Fällen sogar erst noch später (z.B. ein Lieferschein erst dann,
+    wenn all seine Positionen über Rechnungen saldiert wurden).
+  - Konten können beim Bearbeiten mit dem Button "Als neu speichern"
+    kopiert werden.
+  - Beim Verschicken von Emails wird überprüft, ob es im
+    Vorlagenverzeichnis eine Vorlage gibt, deren Name "_email" hinter
+    dem Formulartyp enthält. Diese wird verwendet, sofern sie
+    existiert (z.B. "sales_quotation_email_en.tex" für eine
+    LaTeX-Angebotsvorlage in Englisch). Andernfalls wird die normale
+    Vorlage verwendet.
 
   Bugfixes:
 
@@ -57,6 +164,36 @@
   - Das CSS-Menü funktioniert nun auch mit dem Internet Explorer 7.
   - Diverse Inkompatibilitäten mit verschiedenen PostgreSQL-Versionen
     wurden behoben.
+  - Bei Artikelstammdaten wurden die Übersetzungen unter Umständen
+    nicht richtig übernommen.
+  - Von Lx-Office verschickte Emails haben nun eindeutige Message-IDs.
+  - Von Lx-Office verschickte Emails tragen nun als Envelope-Absender
+    die Emailadresse des aktuellen Benutzers anstelle des
+    Benutzernamens und Hostnamens des Webservers, damit diese Emails
+    nicht als Spam eingestuft werden.
+  - Von Lx-Office verschickte Emails haben den Standards entsprechende
+    MIME codierte Header.
+  - Beim Umwandeln von Auftrag in Rechnung wurden die
+    Zahlungsbedingungen des Kunden und nicht die des Auftrags
+    verwendet.
+  - Alle bekannten Fälle von SQL Injections wurden verhindert.
+  - Diverse Bugs im Dialog zum Bearbeiten von Konten wurden behoben.
+  - Zelleninhalte, die nur die Zahl "0" enthielten, wurden in PDF- und
+    HTML-Ausgaben von Berichten nicht angezeigt.
+  - In manchen Fällen wurde '&quot;' anstelle eines Anführungszeichens
+    in Formularen angezeigt.
+  - Beim Anlegen von Waren aus einem Vorgang heraus wurde der
+    Nachkommaanteil des Preises in der Vorbelegung abgeschnitten.
+  - Wurd beim Anlegen von Waren aus einem Vorgang heraus im Vorgang
+    ein Langtext angegeben, so wird dieser in der neu anzulegenden
+    Ware im Bemerkungsfeld vorbelegt.
+  - Berichte über Lieferantenstammdaten können nach der
+    Lieferantennummer sortiert werden.
+  - Es gab einen Fehler in der Stichtagsbezogenen Auswertungen von
+    offenen Posten.
+  - In Druckvorlagen wurde der Rabatt entweder gar nicht oder mit
+    abgeschnittener Nachkommastelle angezeigt.
+
 
 2007-07-13 - Version 2.4.3
 
