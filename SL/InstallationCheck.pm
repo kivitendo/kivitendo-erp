@@ -20,10 +20,10 @@ use vars qw(@required_modules @optional_modules);
   { "name" => "List::Util", "url" => "http://search.cpan.org/~gbarr/" },
   { "name" => "Template", "url" => "http://search.cpan.org/~abw/" },
   { "name" => "Digest::MD5", "url" => "http://search.cpan.org/~gaas/" },
+  { "name" => "PDF::API2", "url" => "http://search.cpan.org/~areibens/" },
   );
 
 @optional_modules = (
-  { "name" => "PDF::API2", "url" => "http://search.cpan.org/~areibens/" },
   );
 
 sub module_available {

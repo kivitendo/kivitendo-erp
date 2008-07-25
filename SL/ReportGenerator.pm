@@ -5,6 +5,8 @@ use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
 use Text::Iconv;
+use PDF::API2;
+use PDF::Table;
 
 use SL::Form;
 
@@ -370,9 +372,6 @@ sub prepare_html_content {
   my @export_variables = $self->{form}->flatten_variables(@{ $self->{export}->{variable_list} });
 
   my $allow_pdf_export = $opts->{allow_pdf_export};
-
-  eval { require PDF::API2; require PDF::Table; };
-  $allow_pdf_export |= 1 if (! $@);
 
   my $variables = {
     'TITLE'                => $opts->{title},
@@ -921,7 +920,7 @@ Output format. Used by generate_with_headers to determine the format. Supported 
 
 =item allow_pdf_export
 
-Used to determine if a button for PDF export should be displayed. Default is yes. The PDF button is hidden if neither the Perl module PDF::API2 nor the external applications html2ps and Ghostscript are available regardless of this parameter's value.
+Used to determine if a button for PDF export should be displayed. Default is yes.
 
 =item allow_csv_export
 
