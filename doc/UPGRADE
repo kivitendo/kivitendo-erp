@@ -38,6 +38,15 @@ erfolgter Anmeldung werden Sie durch den Upgradeprozess geleitet.
 Die weiteren erforderlichen Datenbankupgrades werden erst vorgenommen,
 wenn sich ein Benutzer erfolgreich anmeldet.
 
+ Neue Perl-Module
+ ----------------
+
+Mit Version 2.6.0 werden zusätzlich die folgenden Perl-Module benötigt,
+die bis Version 2.4.3 inklusive noch keine Voraussetzung waren:
+
+* Digest::MD5
+* PDF::API2
+
 
 Upgrade von v2.4.0 und neuer auf v2.4.3
 =======================================
