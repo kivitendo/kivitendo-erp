@@ -120,7 +120,7 @@ sub post_transaction {
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
-             conv_date($form->{transdate}), $department_id, $form->{taxincluded},
+             conv_date($form->{transdate}), $department_id, $form->{taxincluded} ? 't' : 'f',
              $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}), $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f',
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
