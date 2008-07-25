@@ -455,7 +455,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
   );
 
-  foreach my $name (qw(id transdate donumber ordnumber name employee shipvia)) {
+  foreach my $name (qw(id transdate donumber ordnumber name employee shipvia transaction_description)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

@@ -471,9 +471,7 @@ sub ar_transactions {
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} }
-           qw(id transdate duedate invnumber ordnumber name
-              datepaid employee shippingpoint shipvia))) {
+  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 

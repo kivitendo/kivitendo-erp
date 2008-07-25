@@ -940,7 +940,7 @@ sub orders {
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), }
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia transaction_description)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

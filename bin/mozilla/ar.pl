@@ -1500,7 +1500,7 @@ sub ar_transactions {
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
