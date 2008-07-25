@@ -8,12 +8,12 @@
 
   - Ein neues Feature "Preisfaktoren" wurde implementiert. Diese
     können pro Artikel vergeben und in den Masken im Ein- und Verkauf
-    bentuzt werden.
+    benutzt werden.
   - Die Benutzerverwaltung wurde von Dateien im Verzeichnis "users"
     auf die Verwendung einer Authentifizierungsdatenbank umgestellt.
-    Zusätzlich wurde eine gruppenbasierte Rechteverwaltung
-    implementiert, um Benutzergruppen Zugriff auf Funktionsbereiche
-    von Lx-Office zu gewähren oder zu verhindern.
+    Zusätzlich werden Rechte jetzt in Benutzergruppen verwaltet. 
+    Benutzer erhalten die Freigaben der Benutzergruppen, denen sie
+    zugeordnet sind.
     Benutzer können nun auch gegen einen LDAP-Server (z.B. OpenLDAP
     oder Microsoft Active Directory) authentifiziert werden.
     Es ist erforderlich, die Dateien "doc/UPGRADE" und
@@ -25,7 +25,7 @@
     werden. Solche Notizen können auf Wiedervorlage gelegt werden.
   - Einkaufs- und Verkaufsbelege können auf Wiedervorlage gelegt
     werden. Wiedervorlagen können für beliebige Nutzer erstellt werden
-    (Aufgabe an andere Nutzer deligieren). Anstehende Wiedervorlagen
+    (Aufgabe an andere Nutzer delegieren). Anstehende Wiedervorlagen
     und abgelaufene Angebote werden auf der Startseite in einer
     Aufgabenliste angezeigt.
   - Beliebige Notizen können erstellt und auf Wiedervorlage gelegt
@@ -45,7 +45,7 @@
     Saldenliste umgebaut.
   - Lx-Office kann durchgängig mit UTF-8 als Zeichensatz betrieben
     werden.
-  - Die stichtagsbezogene Auswertungen von offenen Forderungen und
+  - Die stichtagsbezogene Auswertung von offenen Forderungen und
     Verbindlichkeiten wurde implementiert.
   - Die ehemals kommerziellen Schnittstellen zu osCommerce,
     olCommerce, xtCommerce und PHPepperShop wurden freigegeben und
@@ -100,7 +100,7 @@
     werden.
   - Beim Verschicken von Belegen per Email wird den Betreff analog zum
     Namen des Anhangs vorbelegt (z.B. "Angebot 123").
-  - Unsterstützung für die UStVA 2008 wurde implementiert.
+  - Unterstützung für die UStVA 2008 wurde implementiert.
   - Kontaktpersonen werden alphabetisch sortiert angezeigt.
   - In Kunden- und Lieferantenstammdaten können nun auch
     Lieferadressen und Kontaktpersonen gelöscht werden, sofern diese
@@ -113,23 +113,23 @@
   - Die Bücherkontrolle wurde überarbeitet.
   - Dialogbuchungen können als Eröffnungs- oder Schlussbilanzbuchung
     markiert werden.
-  - Die Ausgabefunktionen fuer offene Forderungen und
-    Verbindlichekeiten und die Summen- und Saldenliste wurde
-    überarbeitet. Sie kann zusätzlich nach Datum eingeschränkt werden.
+  - Die Suchfunktionen für offene Forderungen und Verbindlichkeiten
+    und die Summen- und Saldenliste wurden überarbeitet. Sie können
+    zusätzlich nach Datum eingeschränkt werden.
   - Die Kontenübersicht wurde deutlich überarbeitet. Sie kann
     umsortiert werden. Es können Zwischensummen angezeigt werden.
   - Bei Aufträgen, Angeboten und Preisanfragen das Lieferdatum mit dem
-    nächsten Werktag und nicht dem heutigen Datum vorbelegt.
+    nächsten Werktag und nicht dem aktuellen Datum vorbelegt.
   - Die Berichte über Angebote, Aufträge, Preisanfragen,
     Lieferscheine, Rechnungen, Debitoren- und Kreditorenbuchungen,
-    Kunden und Lieferanten, Mahnungen, Zahlungsein- und -ausgänge
+    Kunden und Lieferanten, Mahnungen, Zahlungsein- und Ausgänge
     sowie das Buchungsjournal wurden um die Möglichkeit erweitert, sie
-    auch absteigend sortieren zu lassen. Betroffen sind Berichte über
+    auch absteigend sortieren zu lassen. 
   - Wird das Rechnungsdatum in einer Eingangsrechnung verändert, so
     wird per AJAX das Fälligkeitsdatum anhand der beim Lieferanten
     hinterlegten Zahlungsbedingungen berechnet und im Formular
     ersetzt.
-  - Beim Umwandeln von verschiedenen Belegen in andere Belege
+  - Beim Umwandeln von Belegen in Belege einer anderen Art
     (z.B. von Auftrag in Rechnung) wird der Ausgangsbeleg nicht mehr
     schon beim Druck auf den Button als geschlossen markiert, sondern
     erst, wenn der Zielbeleg gespeichert bzw. gebucht wird. In einigen
@@ -152,8 +152,8 @@
     Rechnungen über Mahngebühren und Zinsen.
   - Bei Lieferanten wurden nicht alle Daten der Ansprechpartner in der
     Datenbank gespeichert.
-  - Die Rabattberechnung für kleine Preise wurde richtiggestellt.
-  - Einige Fehler, die zur Umgehung der Authenfitizierung benutzt
+  - Die Rabattberechnung für kleine Preise wurde berichtigt.
+  - Einige Fehler, die zur Umgehung der Authentifizierung benutzt
     werden konnten, wurden behoben.
   - Die Storno-Funktion wurde in mehreren Punkten verbessert.
   - Die Verwendung von Zahlen bei Boolean-Datenbankspalten wurde
@@ -184,15 +184,18 @@
     in Formularen angezeigt.
   - Beim Anlegen von Waren aus einem Vorgang heraus wurde der
     Nachkommaanteil des Preises in der Vorbelegung abgeschnitten.
-  - Wurd beim Anlegen von Waren aus einem Vorgang heraus im Vorgang
+  - Wurde beim Anlegen von Waren aus einem Vorgang heraus im Vorgang
     ein Langtext angegeben, so wird dieser in der neu anzulegenden
     Ware im Bemerkungsfeld vorbelegt.
   - Berichte über Lieferantenstammdaten können nach der
     Lieferantennummer sortiert werden.
-  - Es gab einen Fehler in der Stichtagsbezogenen Auswertungen von
+  - Es gab einen Fehler in der stichtagsbezogenen Auswertungen von
     offenen Posten.
   - In Druckvorlagen wurde der Rabatt entweder gar nicht oder mit
     abgeschnittener Nachkommastelle angezeigt.
+  - Es ist in Einkaufsrechnungen nun nicht mehr möglich die Rechnungs-
+    nummer vom Lx-Office generieren zu lassen. Stattdessen wird korrekt
+    eine Rechnungsnummer zur Eingabe erwartet.
 
 
 2007-07-13 - Version 2.4.3
