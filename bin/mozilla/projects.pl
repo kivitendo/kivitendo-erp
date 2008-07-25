@@ -32,6 +32,7 @@
 
 use POSIX qw(strftime);
 
+use SL::CVar;
 use SL::Projects;
 use SL::ReportGenerator;
 
@@ -75,6 +76,12 @@ sub search {
 
   $form->{title} = $locale->text('Projects');
 
+  $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Projects');
+  ($form->{CUSTOM_VARIABLES_FILTER_CODE},
+   $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES},
+                                                                           'include_prefix' => 'l_',
+                                                                           'include_value'  => 'Y');
+
   $form->header();
   print $form->parse_html_template('projects/search');
 
@@ -87,21 +94,38 @@ sub project_report {
   $auth->assert('project_edit');
 
   $form->{sort} ||= 'projectnumber';
-
   my $filter      = $form->{filter} || { };
+
   Projects->search_projects(%{ $filter }, 'sort' => $form->{sort});
 
-  my $report      = SL::ReportGenerator->new(\%myconfig, $form);
+  my $cvar_configs = CVar->get_configs('module' => 'Projects');
 
-  my @columns     = qw(projectnumber description active);
-  my @hidden_vars = ('filter');
-  my $href        = build_std_url('action=project_report', @hidden_vars);
+  my $report       = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my %column_defs = (
+  my @columns      = qw(projectnumber description active);
+  my @hidden_vars  = ('filter');
+  my $href         = build_std_url('action=project_report', @hidden_vars);
+
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my %column_defs_cvars            = ();
+  foreach (@includeable_custom_variables) {
+    $column_defs_cvars{"cvar_$_->{name}"} = {
+      'text'    => $_->{description},
+      'visible' => $form->{"l_cvar_$_->{name}"} eq 'Y',
+    };
+  }
+
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
+  my %column_defs  = (
     'projectnumber'            => { 'text' => $locale->text('Number'), },
     'description'              => { 'text' => $locale->text('Description'), },
     'active'                   => { 'text' => $locale->text('Active'), 'visible' => 'both' eq $filter->{active}, },
+    %column_defs_cvars,
     );
+
+  $main::lxdebug->dump(0, "cdc", \@columns);
+  $main::lxdebug->dump(0, "cdc", \%column_defs);
 
   foreach (qw(projectnumber description)) {
     $column_defs{$_}->{link}    = $href . "&sort=$_";
@@ -133,6 +157,12 @@ sub project_report {
     );
   $report->set_options_from_form();
 
+  CVar->add_custom_variables_to_report('module'         => 'Projects',
+                                       'trans_id_field' => 'id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{project_list});
+
   my $edit_url = build_std_url('action=edit&type=project');
   my $callback = $form->escape($href) . '&sort=' . E($form->{sort});
 
@@ -159,6 +189,10 @@ sub display_project_form {
   $form->{project} ||= { };
 
   $form->{title}     = $form->{project}->{id} ? $locale->text("Edit Project") : $locale->text("Add Project");
+
+  $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'Projects', 'trans_id' => $form->{project}->{id});
+  $main::lxdebug->dump(0, "cv", $form->{CUSTOM_VARIABLES});
+  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
 
   $form->header();
   print $form->parse_html_template('projects/project_form');

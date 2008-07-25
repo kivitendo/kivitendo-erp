@@ -16,25 +16,42 @@
      <td><input name="filter.description" size="60"></td>
     </tr>
 
-    <tr>
-     <th>&nbsp;</th>
-     <td>
-      <input type="radio" name="filter.active" id="active_active" value="active" checked>
-      <label for="active_active">Aktiv</label>
-      <input type="radio" name="filter.active" id="active_inactive" value="inactive">
-      <label for="active_inactive">Inaktiv</label>
-      <input type="radio" name="filter.active" id="active_both" value="both">
-      <label for="active_both">Beide</label>
-     </td>
-    </tr>
+    [% CUSTOM_VARIABLES_FILTER_CODE %]
 
     <tr>
-     <td>&nbsp;</td>
+     <th>In Bericht aufnehmen</th>
      <td>
-      <input type="radio" name="filter.status" id="status_all" value="all" checked>
-      <label for="status_all">Alle</label>
-      <input type="radio" name="filter.status" id="status_orphaned" value="orphaned">
-      <label for="status_orphaned">Nie benutzt</label>
+      <table>
+       <tr>
+        <td>
+         <input type="radio" name="filter.active" id="active_active" value="active" checked>
+         <label for="active_active">Aktiv</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.active" id="active_inactive" value="inactive">
+         <label for="active_inactive">Inaktiv</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.active" id="active_both" value="both">
+         <label for="active_both">Beide</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input type="radio" name="filter.status" id="status_all" value="all" checked>
+         <label for="status_all">Alle</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.status" id="status_orphaned" value="orphaned">
+         <label for="status_orphaned">Nie benutzt</label>
+        </td>
+       </tr>
+
+       [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+
+      </table>
+     </td>
     </tr>
    </table>
   </p>

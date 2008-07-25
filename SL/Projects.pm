@@ -37,6 +37,7 @@ package Projects;
 use Data::Dumper;
 
 use SL::DBUtils;
+use SL::CVar;
 
 my %project_id_column_prefixes  = ("ar"              => "global",
                                    "ap"              => "global",
@@ -68,7 +69,7 @@ sub search_projects {
 
   foreach my $column (qw(projectnumber description)) {
     if ($params{$column}) {
-      push @filters, "$column ILIKE ?";
+      push @filters, "p.$column ILIKE ?";
       push @values, '%' . $params{$column} . '%';
     }
   }
@@ -81,22 +82,32 @@ sub search_projects {
                             WHERE NOT $project_id_column_prefixes{$table}project_id ISNULL|;
     }
 
-    push @filters, "id NOT IN (" . join(" UNION ", @sub_filters) . ")";
+    push @filters, "p.id NOT IN (" . join(" UNION ", @sub_filters) . ")";
   }
 
   if ($params{active} eq "active") {
-    push @filters, 'active';
+    push @filters, 'p.active';
 
   } elsif ($params{active} eq "inactive") {
-    push @filters, 'NOT COALESCE(active, FALSE)';
+    push @filters, 'NOT COALESCE(p.active, FALSE)';
   }
+
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'Projects',
+                                                            'trans_id_field' => 'p.id',
+                                                            'filter'         => $form);
+
+  if ($cvar_where) {
+    push @filters, $cvar_where;
+    push @values,  @cvar_values;
+  }
+
 
   my $where = 'WHERE ' . join(' AND ', map { "($_)" } @filters) if (scalar @filters);
 
   my $sortorder =  $params{sort} ? $params{sort} : "projectnumber";
   $sortorder    =~ s/[^a-z_]//g;
-  my $query     = qq|SELECT id, projectnumber, description, active
-                     FROM project
+  my $query     = qq|SELECT p.id, p.projectnumber, p.description, p.active
+                     FROM project p
                      $where
                      ORDER BY $sortorder|;
 
@@ -172,6 +183,11 @@ sub save_project {
 
   @values = ($params{projectnumber}, $params{description}, $params{active} ? 't' : 'f', conv_i($params{id}));
   do_query($form, $dbh, $query, @values);
+
+  CVar->save_custom_variables('dbh'       => $dbh,
+                              'module'    => 'Projects',
+                              'trans_id'  => $params{id},
+                              'variables' => $form);
 
   $dbh->commit();
 
