@@ -1119,9 +1119,7 @@ sub parse_template {
     map { $self->{"employee_${_}"} = $myconfig->{$_}; } qw(email tel fax name signature company address businessnumber co_ustid taxnumber duns);
   }
 
-  map({ $self->{"${_}"} = $myconfig->{$_}; }
-      qw(co_ustid));
-              
+  map { $self->{"${_}"} = $myconfig->{$_}; } qw(co_ustid);
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
