@@ -78,6 +78,8 @@ Text::CSV_XS
 @item
 IO::Wrap (aus dem Paket IO::Stringy)
 @item
+PDF::API2
+@item
 YAML
 @item
 Template

@@ -1,5 +1,5 @@
-Inhaltsverzeichnis
-******************
+Table of Contents
+*****************
 
 Inhalt der Anleitung
 1 Aktuelle Hinweise
@@ -68,6 +68,8 @@ Bestandteil einer Standard-Perl-Installation sind:
    * Text::CSV_XS
 
    * IO::Wrap (aus dem Paket IO::Stringy)
+
+   * PDF::API2
 
    * YAML
 
