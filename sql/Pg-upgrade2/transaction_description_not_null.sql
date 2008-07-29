@@ -1,5 +1,5 @@
 -- @tag: transaction_description_not_null
--- @description: Das Feld "transaction_description" sollte nicht NULL-Werte enthalten.
+-- @description: Das Feld "transaction_description" sollte keine NULL-Werte enthalten.
 -- @depends: transaction_description delivery_orders
 UPDATE ap SET transaction_description = '' WHERE transaction_description IS NULL;
 UPDATE ar SET transaction_description = '' WHERE transaction_description IS NULL;
