@@ -210,7 +210,7 @@ sub get_part {
   $sth->finish;
 
   # is it an orphan
-  my @referencing_tables = qw(invoice orderitems invoice inventory rmaitems);
+  my @referencing_tables = qw(invoice orderitems inventory rmaitems);
   my %column_map         = ( );
   my $parts_id           = conv_i($form->{id});
 
