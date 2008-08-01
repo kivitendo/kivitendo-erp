@@ -780,10 +780,10 @@ sub all_parts {
        ) AS ioi ON ioi.parts_id = p.id|,
     apoe       =>
       q|LEFT JOIN (
-         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id, NULL AS deliverydate FROM ap UNION
-         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,         deliverydate FROM ar UNION
-         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, NULL AS deliverydate FROM oe
-       ) AS apoe ON ioi.trans_id = apoe.id|,
+         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id, NULL AS deliverydate, 'invoice'    AS ioi FROM ap UNION
+         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,         deliverydate, 'invoice'    AS ioi FROM ar UNION
+         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, NULL AS deliverydate, 'orderitems' AS ioi FROM oe
+       ) AS apoe ON ((ioi.trans_id = apoe.id) AND (ioi.ioi = apoe.ioi))|,
     cv         =>
       q|LEFT JOIN (
            SELECT id, name, 'customer' AS cv FROM customer UNION
