@@ -45,7 +45,7 @@
                            limit         = vclimit,
                            allow_textbox = 1,
                            onChange      = "document.getElementById('update_button').click();" -%]
-                      <input type="button" value="D" onclick="show_vc_details('[% HTML.escape(vc) %]')">
+                      <input type="button" value="<translate>Details (one letter abbreviation)</translate>" onclick="show_vc_details('[% HTML.escape(vc) %]')">
                     </td>
                   </tr>
 [%- IF ALL_CONTACTS.size %]

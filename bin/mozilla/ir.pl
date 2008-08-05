@@ -347,7 +347,7 @@ sub form_header {
               : (NTI($cgi->popup_menu('-name' => 'vendor', '-default' => $form->{oldvendor},
                                       '-onChange' => 'document.getElementById(\'update_button\').click();',
                                       '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
-        <input type="button" value="?" onclick="show_vc_details('vendor')">
+        <input type="button" value="| . $locale->text('Details (one letter abbreviation)') . qq|" onclick="show_vc_details('vendor')">
       </td>|;
 
   %labels = ();

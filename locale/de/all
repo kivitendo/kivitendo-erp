@@ -469,6 +469,7 @@ $self->{texts} = {
   'Destination bin'             => 'Ziellagerplatz',
   'Destination warehouse'       => 'Ziellager',
   'Destination warehouse and bin' => 'Ziellager und -lagerplatz',
+  'Details (one letter abbreviation)' => 'D',
   'Difference'                  => 'Differenz',
   'Dimension unit'              => 'Ma&szlig;einheit',
   'Directory'                   => 'Verzeichnis',
