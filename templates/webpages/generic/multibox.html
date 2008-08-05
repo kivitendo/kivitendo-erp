@@ -6,39 +6,40 @@
   decides wether it should be a text field or a drop down box,
   generates the HTML code, and fixes everything just right.
 
-  call:  INCLUDE generic/multibox.html var = var, var2 = .... 
+  call:  INCLUDE generic/multibox.html var = var, var2 = ....
 
   options and variables:
-    name       : name of the select/textfield
-    id         : id of the select/textfield, optional, defaults to name
-    default    : entered/selected value. defaults to a dereference of name, since it is usually set to that for update mechanisms
-    id_key     : key that holds the id in each row.
-    id_sub     : name of a perl sub that calculates the id for each row. will be called with a hashref.
-    label_key  : key that holds the label in each row.
-    label_sub  : name of a perl sub that calculates the label for each row. will be called with a hashref.
-    DATA       : the actual data, expected to be arrayref of hashrefs, usually what's returned by the all_vc routines.
-    limit      : defines the limit of entries, after which a textbox is generated. defaults to vclimit, or, failing to find that, 50.
-    show_empty : show an empty first line in select boxes. defaults to false
-    style      : additional style information
-    onChange   : java magic on change
-    select     : java function call for a selection popup or other magic
+    name          : name of the select/textfield
+    id            : id of the select/textfield, optional, defaults to name
+    default       : entered/selected value. defaults to a dereference of name, since it is usually set to that for update mechanisms
+    id_key        : key that holds the id in each row.
+    id_sub        : name of a perl sub that calculates the id for each row. will be called with a hashref.
+    label_key     : key that holds the label in each row.
+    label_sub     : name of a perl sub that calculates the label for each row. will be called with a hashref.
+    DATA          : the actual data, expected to be arrayref of hashrefs, usually what's returned by the all_vc routines.
+    show_empty    : show an empty first line in select boxes. defaults to false
+    style         : additional style information
+    onChange      : java magic on change
+    select        : java function call for a selection popup or other magic
+    allow_textbox : allow to display a textbox instead of a drop down box if there are more entries than 'limit' entries.
+    limit         : defines the limit of entries, after which a textbox is generated. defaults to vclimit, or, failing to find that, 200.
 -%]
-[%- DEFAULT 
-  limit      = limit != ''   ? limit   : 50
-  id         = id    != ''   ? id      : name
+[%- DEFAULT
+  limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
+  id         = id      != '' ? id      : name
   default    = default != '' ? default : $name
 -%]
 [%- FOREACH row = DATA %]
   [%-
        row.id       = row.$id_key     != ''  ? row.$id_key    : $id_sub(row)
-       row.label    = row.$label_key  != ''  ? row.$label_key 
-                    : $label_sub(row) != ''  ? $label_sub(row) 
+       row.label    = row.$label_key  != ''  ? row.$label_key
+                    : $label_sub(row) != ''  ? $label_sub(row)
                     :                          row.id
        row.selected = default == row.id
   -%]
 [%- END -%]
-[%- IF DATA.size and limit < DATA.size %]
-<input type="text" 
+[%- IF allow_textbox and DATA.size and limit < DATA.size %]
+<input type="text"
  [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END %]
  [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END %]
  [%- IF default  %] value="[%    HTML.escape(default)  %]"[% END %]
@@ -48,7 +49,7 @@
   <input type="button" onclick="[% select %]" value="?">
 [% END %]
 [%- ELSE %]
-<select 
+<select
  [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END %]
  [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END %]
  [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END %]

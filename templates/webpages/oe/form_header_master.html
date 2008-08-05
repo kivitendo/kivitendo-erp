@@ -36,14 +36,15 @@
                     <th align="right">[% IF vc == 'customer' %]<translate>Customer</translate>[% ELSE %]<translate>Vendor</translate>[% END %]</th>
                     <td>
                       [%- INCLUDE 'generic/multibox.html'
-                           name       = vc,
-                           style      = 'width: 250px',
-                           DATA       = vc == 'customer' ? ALL_CUSTOMERS : ALL_VENDORS,
-                           id_sub     = 'vc_keys',
-                           label_key  = 'name',
-                           select     = vc_select,
-                           limit      = vclimit,
-                           onChange   = "document.getElementById('update_button').click();" -%]
+                           name          = vc,
+                           style         = 'width: 250px',
+                           DATA          = vc == 'customer' ? ALL_CUSTOMERS : ALL_VENDORS,
+                           id_sub        = 'vc_keys',
+                           label_key     = 'name',
+                           select        = vc_select,
+                           limit         = vclimit,
+                           allow_textbox = 1,
+                           onChange      = "document.getElementById('update_button').click();" -%]
                       <input type="button" value="D" onclick="show_vc_details('[% HTML.escape(vc) %]')">
                     </td>
                   </tr>
