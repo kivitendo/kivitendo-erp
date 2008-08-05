@@ -1,14 +1,34 @@
-[% USE HTML %]<body>
+[% USE HTML %]
+
+[% BLOCK jump_block %]
+ <p>
+  Springe zu <a href="#billing">Rechnungsadresse</a>
+  [%- FOREACH shipto = SHIPTO %]
+   ,
+   <a href="#shipping[% loop.count %]">
+    Lieferadresse
+    &quot;[% HTML.escape(shipto.shiptoname) %]&quot;
+   </a>
+  [%- END %]
+  [%- FOREACH contact = CONTACTS %]
+   ,
+   <a href="#contact[% loop.count %]">
+    Ansprechpartner
+    &quot;[% HTML.escape(contact.cp_name) %]&quot;
+   </a>
+  [%- END %]
+ </p>
+
+ <hr>
+[% END %]
+
+<body>
 
  <div width="100%" class="listtop">
   [% IF is_customer %]Kundendetails[% ELSE %]Lieferantendetails[% END %] &quot;[% HTML.escape(name) %]&quot;
  </div>
 
- <p>Springe zu <a href="#billing">Rechnungsadresse</a>
-  [% FOREACH shipto = SHIPTO %], <a href="#shipping[% loop.count %]">Lieferadresse &quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a>[% END %]
-  [% FOREACH contact = CONTACTS %], <a href="#contact[% loop.count %]">Ansprechpartner &quot;[% HTML.escape(contact.cp_name) %]&quot;</a>[% END %]</p>
-
- <hr>
+ [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 
  <a name="billing"><div class="listheading">Rechnungsadresse</div></a>
 
@@ -135,19 +155,11 @@
 
 
 
-
-
-
-
  [% FOREACH row = SHIPTO %]
 
   <hr>
 
-  <p>Springe zu <a href="#billing">Rechnungsadresse</a>
-   [% FOREACH shipto = SHIPTO %], <a href="#shipping[% loop.count %]">Lieferadresse &quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a>[% END %]
-   [% FOREACH contact = CONTACTS %], <a href="#contact[% loop.count %]">Ansprechpartner &quot;[% HTML.escape(contact.cp_name) %]&quot;</a>[% END %]</p>
-
-  <hr>
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 
   <a name="shipping[% loop.count %]"><div class="listheading">Lieferadresse &quot;[% HTML.escape(row.shiptoname) %]&quot;</div></a>
 
@@ -213,11 +225,7 @@
 
   <hr>
 
-  <p>Springe zu <a href="#billing">Rechnungsadresse</a>
-   [% FOREACH shipto = SHIPTO %], <a href="#shipping[% loop.count %]">Lieferadresse &quot;[% HTML.escape(shipto.shiptoname) %]&quot;</a>[% END %]
-   [% FOREACH contact = CONTACTS %], <a href="#contact[% loop.count %]">Ansprechpartner &quot;[% HTML.escape(contact.cp_name) %]&quot;</a>[% END %]</p>
-
-  <hr>
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 
   <a name="contact[% loop.count %]"><div class="listheading">Ansprechpartner &quot;[% HTML.escape(row.cp_name) %]&quot;</div></a>
 
