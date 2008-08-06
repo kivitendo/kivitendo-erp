@@ -721,7 +721,7 @@ sub dbupdate {
 }
 
 sub create_dataset {
-  $form->{dbsources} = join " ", map { "[${_}]" } sort User->dbsources(\%$form);
+  $form->{dbsources} = join " ", map { "[${_}]" } sort User->dbsources($form);
 
   $form->{CHARTS} = [];
 
@@ -737,12 +737,24 @@ sub create_dataset {
   my $default_charset = $dbcharset;
   $default_charset ||= Common::DEFAULT_CHARSET;
 
-  $form->{DBENCODINGS} = [];
+  my $cluster_encoding = User->dbclusterencoding($form);
+  if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i)) {
+    if ($dbcharset !~ m/^UTF-?8$/i) {
+      $form->show_generic_error($locale->text('The selected  PostgreSQL installation uses UTF-8 as its encoding. ' .
+                                              'Therefore you have to configure Lx-Office to use UTF-8 as well.'),
+                                'back_button' => 1);
+    }
 
-  foreach my $encoding (@Common::db_encodings) {
-    push @{ $form->{DBENCODINGS} }, { "dbencoding" => $encoding->{dbencoding},
-                                      "label"      => $encoding->{label},
-                                      "selected"   => $encoding->{charset} eq $default_charset };
+    $form->{FORCE_DBENCODING} = 'UNICODE';
+
+  } else {
+    $form->{DBENCODINGS} = [];
+
+    foreach my $encoding (@Common::db_encodings) {
+      push @{ $form->{DBENCODINGS} }, { "dbencoding" => $encoding->{dbencoding},
+                                        "label"      => $encoding->{label},
+                                        "selected"   => $encoding->{charset} eq $default_charset };
+    }
   }
 
   $form->{title} =

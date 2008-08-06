@@ -269,6 +269,7 @@ $self->{texts} = {
   'You cannot create an invoice for delivery orders from different vendors.' => 'Sie können keine Rechnung aus Lieferscheinen von verschiedenen Lieferanten erstellen.',
   'You do not have the permissions to access this function.' => 'Sie verf&uuml;gen nicht &uuml;ber die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
   'You have not selected any delivery order.' => 'Sie haben keinen Lieferschein ausgewählt.',
+  'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.' => 'Ihre PostgreSQL-Installation benutzt UTF-8 als Zeichensatz. Sie müssen deshalb Lx-Office so konfigurieren, dass es ebenfalls UTF-8 als Zeichensatz benutzt.',
   'Zipcode'                     => 'PLZ',
   '[email]'                     => '[email]',
   'bin_list'                    => 'Lagerliste',

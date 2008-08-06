@@ -164,6 +164,7 @@ $self->{texts} = {
   'Yearly'                      => 'jährlich',
   'Yearly taxreport not yet implemented' => 'Jährlicher Steuerreport für dieses Ausgabeformat noch nicht implementiert',
   'You do not have the permissions to access this function.' => 'Sie verf&uuml;gen nicht &uuml;ber die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
+  'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.' => 'Ihre PostgreSQL-Installation benutzt UTF-8 als Zeichensatz. Sie müssen deshalb Lx-Office so konfigurieren, dass es ebenfalls UTF-8 als Zeichensatz benutzt.',
   '[email]'                     => '[email]',
   'accrual'                     => 'Bilanzierung (Soll-Versteuerung)',
   'bin_list'                    => 'Lagerliste',

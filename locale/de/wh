@@ -168,6 +168,7 @@ $self->{texts} = {
   'Yes'                         => 'Ja',
   'You can create warehouses and bins via the menu "System -> Warehouses".' => 'Sie k&ouml;nnen Lager und Lagerpl&auml;tze &uuml;ber das Men&uuml; "System -> Lager" anlegen.',
   'You do not have the permissions to access this function.' => 'Sie verf&uuml;gen nicht &uuml;ber die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
+  'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.' => 'Ihre PostgreSQL-Installation benutzt UTF-8 als Zeichensatz. Sie müssen deshalb Lx-Office so konfigurieren, dass es ebenfalls UTF-8 als Zeichensatz benutzt.',
   '[email]'                     => '[email]',
   'back'                        => 'zurück',
   'bin_list'                    => 'Lagerliste',

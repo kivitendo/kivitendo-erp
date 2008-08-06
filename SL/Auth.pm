@@ -222,7 +222,7 @@ sub create_database {
     $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);
   }
 
-  my $charset    = $main::charset;
+  my $charset    = $main::dbcharset;
   $charset     ||= Common::DEFAULT_CHARSET;
   my $encoding   = $Common::charset_to_db_encoding{$charset};
   $encoding    ||= 'UNICODE';
@@ -234,9 +234,18 @@ sub create_database {
   $dbh->do($query);
 
   if ($dbh->err) {
+    my $error = $dbh->errstr();
+
+    $query                 = qq|SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = 'template0'|;
+    my ($cluster_encoding) = $dbh->selectrow_array($query);
+
+    if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i) && ($encoding !~ m/^(?:UTF-?8|UNICODE)$/i)) {
+      $error = $main::locale->text('Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.');
+    }
+
     $dbh->disconnect();
 
-    $main::form->error($main::locale->text('The creation of the authentication database failed:') . "\n" . $DBI::errstr);
+    $main::form->error($main::locale->text('The creation of the authentication database failed:') . "\n" . $error);
   }
 
   $dbh->disconnect();
@@ -250,7 +259,7 @@ sub create_tables {
   my $self = shift;
   my $dbh  = $self->dbconnect();
 
-  my $charset    = $main::charset;
+  my $charset    = $main::dbcharset;
   $charset     ||= Common::DEFAULT_CHARSET;
 
   $dbh->rollback();

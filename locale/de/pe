@@ -132,6 +132,7 @@ $self->{texts} = {
   'View warehouse content'      => 'Lagerbestand ansehen',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'You do not have the permissions to access this function.' => 'Sie verf&uuml;gen nicht &uuml;ber die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
+  'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.' => 'Ihre PostgreSQL-Installation benutzt UTF-8 als Zeichensatz. Sie müssen deshalb Lx-Office so konfigurieren, dass es ebenfalls UTF-8 als Zeichensatz benutzt.',
   '[email]'                     => '[email]',
   'bin_list'                    => 'Lagerliste',
   'config/authentication.pl: Key "DB_config" is missing.' => 'config/authentication.pl: Das Schl&uuml;sselwort "DB_config" fehlt.',

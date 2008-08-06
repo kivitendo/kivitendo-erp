@@ -311,6 +311,25 @@ sub dbsources {
   return @dbsources;
 }
 
+sub dbclusterencoding {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $form) = @_;
+
+  $form->{dbdefault} ||= $form->{dbuser};
+
+  dbconnect_vars($form, $form->{dbdefault});
+
+  my $dbh                = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) || $form->dberror();
+  my $query              = qq|SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = 'template0'|;
+  my ($cluster_encoding) = $dbh->selectrow_array($query);
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return $cluster_encoding;
+}
+
 sub dbcreate {
   $main::lxdebug->enter_sub();
 

@@ -25,9 +25,14 @@
     <tr>
      <th align="right" nowrap><translate>Multibyte Encoding</translate></th>
      <td>
+      [%- IF FORCE_DBENCODING %]
+      <input type="hidden" name="encoding" value="[% HTML.escape(FORCE_DBENCODING) %]">
+      [% HTML.escape(FORCE_DBENCODING) %]
+      [%- ELSE %]
       <select name="encoding">
        [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
       </select>
+      [%- END %]
      </td>
     </tr>
 
