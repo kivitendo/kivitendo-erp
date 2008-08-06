@@ -166,9 +166,16 @@ mit ISO-8850-15 als Encoding betrieben werden.
 In der Datei `postgresql.conf', die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann (z.B. `/var/lib/pgsql/data/'
 oder `/etc/postgresql/', muss sichergestellt werden, dass
-TCP/IP-Verbindungen aktiviert sind. Dieser Parameter lautet
+TCP/IP-Verbindungen aktiviert sind. Für PostgreSQL vor Version v8.0
+lautete dieser Parameter
 
    `TCPIP_SOCKET = 1'
+
+   Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
+`listen_address' gesteuert. Laufen PostgreSQL und Lx-Office auf
+demselben Rechner, so kann dort der Wert `localhost' verwendet werden.
+Andernfalls müssen Datenbankverbindungen auch von anderen Rechnern aus
+zugelassen werden, was mit dem Wert \`*' geschieht.
 
    Bei PostgreSQL-Versionen ab v8.0 und neuer muss zusätzlich der
 folgende Parameter gesetzt werden:

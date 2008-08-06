@@ -183,10 +183,16 @@ Lx-Office mit ISO-8850-15 als Encoding betrieben werden.
 In der Datei @code{postgresql.conf}, die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann
 (z.B. @code{/var/lib/pgsql/data/} oder @code{/etc/postgresql/}, muss
-sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Dieser
-Parameter lautet
+sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Für
+PostgreSQL vor Version v8.0 lautete dieser Parameter
 
 @code{TCPIP_SOCKET = 1}
+
+Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
+@code{listen_address} gesteuert. Laufen PostgreSQL und Lx-Office auf
+demselben Rechner, so kann dort der Wert @code{localhost} verwendet
+werden. Andernfalls müssen Datenbankverbindungen auch von anderen
+Rechnern aus zugelassen werden, was mit dem Wert \@code{*} geschieht.
 
 Bei PostgreSQL-Versionen ab v8.0 und neuer muss zusätzlich der
 folgende Parameter gesetzt werden:
