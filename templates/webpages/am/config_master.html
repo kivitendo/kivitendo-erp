@@ -1,6 +1,8 @@
 [% USE HTML %]<body onLoad="fokus()">
 
- <div class="listtop">[% title %]</div>
+ <p>
+  <div class="listtop">[% title %]</div>
+ </p>
 
  <form method="post" action="am.pl" name="Form">
 
@@ -249,8 +251,10 @@
 
  <script type="text/javascript">
   <!--
-      //Start Tab Content script for UL with id="maintab" Separate multiple ids each with a comma.
-      initializetabcontent("maintab");
+      var maintab = new ddtabcontent("maintab");
+      maintab.setpersist(true);
+      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+      maintab.init();
     -->
  </script>
 

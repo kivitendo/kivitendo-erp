@@ -6,7 +6,7 @@
  <hr>
  [%- END %]
 
- <div class="listtop">[% title %]</div>
+ <p><div class="listtop">[% title %]</div></p>
 
  <form method="post" action="projects.pl">
 
@@ -90,7 +90,10 @@
 
  <script type="text/javascript">
   <!--
-      initializetabcontent("maintab");
+      var maintab = new ddtabcontent("maintab");
+      maintab.setpersist(true);
+      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+      maintab.init();
     -->
  </script>
 
