@@ -145,7 +145,12 @@ sub login {
       }
 
       # update the tables
-      open(FH, ">$main::userspath/nologin") or die("$!");
+      if (!open(FH, ">$main::userspath/nologin")) {
+        $form->show_generic_error($main::locale->text('A temporary file could not be created. ' .
+                                                      'Please verify that the directory "#1" is writeable by the webserver.',
+                                                      $main::userspath),
+                                  'back_button' => 1);
+      }
 
       # required for Oracle
       $form->{dbdefault} = $sid;

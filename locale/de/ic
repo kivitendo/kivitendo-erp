@@ -4,6 +4,7 @@ $self->{texts} = {
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   '*/'                          => '*/',
+  'A temporary file could not be created. Please verify that the directory "#1" is writeable by the webserver.' => 'Eine temporäre Datei konnte nicht angelegt werden. Bitte stellen Sie sicher, dass das Verzeichnis "#1" vom Webserver beschrieben werden darf.',
   'ADDED'                       => 'Hinzugefügt',
   'AP'                          => 'Einkauf',
   'AP Transaction'              => 'Kreditorenbuchung',

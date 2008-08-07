@@ -34,6 +34,7 @@ $self->{texts} = {
   'A group named &quot;Full Access&quot; has been created.' => 'Eine Gruppe namens &quot;Vollzugriff&quot; wurde angelegt.',
   'A group with that name does already exist.' => 'Eine Gruppe mit diesem Namen gibt es bereits.',
   'A temporary directory could not be created:' => 'Ein tempor&auml;res Verzeichnis konnte nicht erstellt werden:',
+  'A temporary file could not be created. Please verify that the directory "#1" is writeable by the webserver.' => 'Eine temporäre Datei konnte nicht angelegt werden. Bitte stellen Sie sicher, dass das Verzeichnis "#1" vom Webserver beschrieben werden darf.',
   'A temporary file could not be created:' => 'Eine tempor&auml;re Datei konnte nicht erstellt werden:',
   'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
   'ADDED'                       => 'Hinzugefügt',

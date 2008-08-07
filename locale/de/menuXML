@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 $self->{texts} = {
+  'A temporary file could not be created. Please verify that the directory "#1" is writeable by the webserver.' => 'Eine temporäre Datei konnte nicht angelegt werden. Bitte stellen Sie sicher, dass das Verzeichnis "#1" vom Webserver beschrieben werden darf.',
   'AP'                          => 'Einkauf',
   'AR'                          => 'Verkauf',
   'Advance turnover tax return' => 'Umsatzsteuervoranmeldung',

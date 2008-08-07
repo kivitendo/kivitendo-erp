@@ -13,6 +13,7 @@ $self->{texts} = {
   '&lt;%terms_netto%&gt; -- The number of days for full payment' => '&lt;%terms_netto%&gt; -- Die Anzahl Tage, bis die Rechnung in voller H&ouml;he bezahlt werden muss',
   '&lt;%total%&gt; -- Amount payable' => '&lt;%total%&gt; -- Noch zu bezahlender Betrag',
   '&lt;%total_wo_skonto%&gt; -- Amount payable less discount' => '&lt;%total_wo_skonto%&gt; -- Noch zu bezahlender Betrag abz&uuml;glich Skonto',
+  'A temporary file could not be created. Please verify that the directory "#1" is writeable by the webserver.' => 'Eine temporäre Datei konnte nicht angelegt werden. Bitte stellen Sie sicher, dass das Verzeichnis "#1" vom Webserver beschrieben werden darf.',
   'A unit with this name does already exist.' => 'Eine Einheit mit diesem Namen existiert bereits.',
   'ADDED'                       => 'Hinzugefügt',
   'AP'                          => 'Einkauf',
