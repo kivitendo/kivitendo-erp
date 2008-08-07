@@ -122,12 +122,18 @@ tar xvzf lxoffice-erp-2.4.x.tgz'
    Alternativ können Sie auch einen Alias in der Webserverkonfiguration
 benutzen, um auf das tatsächliche Installationsverzeichnis zu verweisen.
 
-   Das Verzeichnis muß für den Benutzer beschreibbar sein, unter dem der
-Webserver läuft. Dieser ist bei verschiedenen Distributionen
-unterschiedlich (z.B. bei Debian/Ubuntu `www-data', bei Fedora core
-`apache' oder bei OpenSuSE `wwwrun').
+   Die Verzeichnisse `datev', `users', `spool' und `webdav' müssen für
+den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
+restlichen Dateien müssen für diesen Benutzer lesbar sein. Der
+Benutzername ist bei verschiedenen Distributionen unterschiedlich (z.B.
+bei Debian/Ubuntu `www-data', bei Fedora core `apache' oder bei
+OpenSuSE `wwwrun').
 
-   `chown -R www-data: lx-office-erp/'
+   Der folgende Befehl ändert den Besitzer für die oben genannten
+Verzeichnisse auf einem Debian/Ubuntu-System:
+
+   `chown -R www-data lx-office-erp/datev lx-office-erp/users
+lx-office-erp/spool lx-office-erp/webdav'
 
 4 Anpassung der PostgreSQL-Konfiguration
 ****************************************
