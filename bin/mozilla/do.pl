@@ -159,30 +159,25 @@ sub order_links {
   DO->retrieve('vc'  => $form->{vc},
                'ids' => $form->{id});
 
-  $payment_id  = $form->{payment_id}  if ($form->{payment_id});
-  $language_id = $form->{language_id} if ($form->{language_id});
-  $taxzone_id  = $form->{taxzone_id}  if ($form->{taxzone_id});
-  $salesman_id = $form->{salesman_id} if ($editing);
-
-
-  $taxincluded    = $form->{taxincluded};
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
   $form->{shipto} = 1 if $form->{id};
+
+  # get customer / vendor
+  if ($form->{vc} eq 'vendor') {
+    IR->get_vendor(\%myconfig, \%$form);
+  } else {
+    IS->get_customer(\%myconfig, \%$form);
+  }
+
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(taxincluded)) if $form->{id};
+  $form->restore_vars(qw(salesman_id)) if $editing;
 
   if ($form->{"all_$form->{vc}"}) {
     unless ($form->{"$form->{vc}_id"}) {
       $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     }
   }
-
-  $cp_id    = $form->{cp_id};
-  $intnotes = $form->{intnotes};
-
-  $form->{cp_id} = $cp_id;
-
-  $form->{payment_id}  = $payment_id  if ($payment_id);
-  $form->{language_id} = $language_id if ($language_id);
-  $form->{taxzone_id}  = $taxzone_id  if ($taxzone_id);
-  $form->{intnotes}    = $intnotes    if ($intnotes);
 
   ($form->{ $form->{vc} })  = split /--/, $form->{ $form->{vc} };
   $form->{"old$form->{vc}"} = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
