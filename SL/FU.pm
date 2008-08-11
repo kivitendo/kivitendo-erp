@@ -181,7 +181,8 @@ sub follow_ups {
   my ($query, $where, $where_user);
 
   my ($employee_id) = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $form->{login});
-  my @values        = ($employee_id, $employee_id);
+  my @values        = ();
+  my @values_user   = ();
 
   if ($params{trans_id}) {
     $where .= qq| AND EXISTS (SELECT * FROM follow_up_links ful
@@ -238,7 +239,7 @@ sub follow_ups {
 
   if ($params{all_users}) {
     $where_user = qq|OR (fu.created_by IN (SELECT DISTINCT what FROM follow_up_access WHERE who = ?))|;
-    push @values, $employee_id;
+    push @values_user, $employee_id;
   }
 
   my $order_by = '';
@@ -269,7 +270,7 @@ sub follow_ups {
                  $where
                $order_by|;
 
-  my $follow_ups = selectall_hashref_query($form, $dbh, $query, @values);
+  my $follow_ups = selectall_hashref_query($form, $dbh, $query, $employee_id, $employee_id, @values_user, @values);
 
   if (!scalar @{ $follow_ups }) {
     $main::lxdebug->leave_sub();
