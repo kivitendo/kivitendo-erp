@@ -157,7 +157,7 @@ sub steuernummer_input {
       'Thüringen'              => 'FFF/BBB/UUUUP',    # '/' 3
       'Sachsen'                => 'FFF/BBB/UUUUP',    # '/' 3
       'Hamburg'                => 'FF/BBB/UUUUP',     # '/' 3
-      'Baden Würtemberg'       => 'FF/BBB/UUUUP',     # '/' 2
+      'Baden Württemberg'      => 'FF/BBB/UUUUP',     # '/' 2
       'Sachsen Anhalt'         => 'FFF/BBB/UUUUP',    # '/' 3
       'Saarland'               => 'FFF/BBB/UUUUP',    # '/' 3
       'Bremen'                 => 'FF BBB UUUUP',     # ' ' 3
@@ -310,7 +310,7 @@ sub fa_auswahl {
             <td>
               <select size="1" name="elsterland_new" onchange="update_auswahl()">|;
   if ($land eq '') {
-    $fa_auswahl .= qq|<option value="Auswahl" $checked>hier auswählen...</option>\n|;
+    $fa_auswahl .= qq|<option value="Auswahl" $checked>| . $main::locale->text('Select federal state...') . qq|</option>\n|;
   }
   foreach $elster_land (sort keys %$elster_init) {
     $fa_auswahl .= qq|
@@ -340,7 +340,7 @@ sub fa_auswahl {
               <td>
                  <select size="1" name="elsterFFFF_new">|;
   if ($elsterFFFF eq '') {
-    $fa_auswahl .= qq|<option value="Auswahl" $checked>hier auswählen...</option>|;
+    $fa_auswahl .= qq|<option value="Auswahl" $checked>| . $main::locale->text('Select tax office...') . qq|</option>|;
   } else {
     foreach $ffff (sort { $elster_land_fa{$a} cmp $elster_land_fa{$b} }
                    keys(%elster_land_fa)
@@ -361,6 +361,7 @@ sub fa_auswahl {
             </select>|;
 
   $main::lxdebug->leave_sub();
+
   return $fa_auswahl;
 }
 
@@ -378,7 +379,7 @@ sub info {
     <br>
     <br>
     <hr>
-    <input type=button value="zurück" onClick="history.go(-1)">
+    <input type=button value="| . $main::locale->text('Back') . qq|" onClick="history.go(-1)">
     </body>
     |;
 
@@ -544,7 +545,7 @@ sub query_finanzamt {
     $land = 'Nordrhein Westfalen'    if (@$FA_finanzamt[0] eq '5');
     $land = 'Hessen'                 if (@$FA_finanzamt[0] eq '6');
     $land = 'Rheinland Pfalz'        if (@$FA_finanzamt[0] eq '7');
-    $land = 'Baden Würtemberg'       if (@$FA_finanzamt[0] eq '8');
+    $land = 'Baden Württemberg'      if (@$FA_finanzamt[0] eq '8');
     $land = 'Bayern'                 if (@$FA_finanzamt[0] eq '9');
     $land = 'Saarland'               if (@$FA_finanzamt[0] eq '10');
     $land = 'Berlin'                 if (@$FA_finanzamt[0] eq '11');
@@ -553,6 +554,8 @@ sub query_finanzamt {
     $land = 'Sachsen'                if (@$FA_finanzamt[0] eq '14');
     $land = 'Sachsen Anhalt'         if (@$FA_finanzamt[0] eq '15');
     $land = 'Thüringen'              if (@$FA_finanzamt[0] eq '16');
+
+    $land = $main::locale->{iconv}->convert($land);
 
     my $ffff = @$FA_finanzamt[1];
 
