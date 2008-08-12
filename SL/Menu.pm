@@ -121,7 +121,7 @@ sub menuitem_new {
   $item->{href}   = $self->{$name}->{href}   || "${module}?action=" . $form->escape($action);
 
   my @vars = qw(module target href);
-  push @vars, $action unless ($self->{$name}->{href});
+  push @vars, 'action' unless ($self->{$name}->{href});
 
   map { delete $self->{$name}{$_} } @vars;
 
