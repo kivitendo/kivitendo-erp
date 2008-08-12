@@ -609,7 +609,7 @@ sub get_accounts_g {
     if ($form->{method} eq 'cash') {
       $subwhere .= " AND (transdate    >= $fromdate)";
       $glwhere   = " AND (ac.transdate >= $fromdate)";
-      $prwhere   = " AND (ar.transdate >= $fromdate)";
+      $prwhere   = " AND (a.transdate  >= $fromdate)";
     } else {
       $where    .= " AND (ac.transdate >= $fromdate)";
     }
@@ -619,7 +619,7 @@ sub get_accounts_g {
     $todate = conv_dateq($todate);
     $subwhere   .= " AND (transdate    <= $todate)";
     $where      .= " AND (ac.transdate <= $todate)";
-    $prwhere    .= " AND (ar.transdate <= $todate)";
+    $prwhere    .= " AND (a.transdate  <= $todate)";
   }
 
   if ($department_id) {
@@ -666,13 +666,11 @@ sub get_accounts_g {
          WHERE $where $dpt_where $glwhere 
            AND NOT ((c.link = 'AR') OR (c.link = 'AP'))
            $project
-
-         $project_union
-        GROUP BY c.$category 
+         GROUP BY c.$category
         |;
 
     if ($form->{project_id}) {
-      $project_union = qq|
+      $query .= qq|
          UNION
 
          SELECT SUM(ac.sellprice * ac.qty * chart_category_to_sgn(c.category)) AS amount, c.$category
