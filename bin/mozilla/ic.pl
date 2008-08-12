@@ -1523,11 +1523,12 @@ sub form_footer {
     . $locale->text('Update') . qq|">
   |;
 
-  unless ($form->{item} eq "service") {
-    print qq|
-      <input type=hidden name=makemodel_rows value=$form->{makemodel_rows}>
-    |;
-  }
+####### moved into makemodel_row #############
+#  unless ($form->{item} eq "service") {
+#    print qq|
+#      <input type=hidden name=makemodel_rows value=$form->{makemodel_rows}>
+#    |;
+#  }
 
   print qq|
      <input type=hidden name=price_rows value=$form->{price_rows}>|;
@@ -1594,32 +1595,8 @@ sub makemodel_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
   
-  print qq|
-  <tr>
-    <td>
-      <table width=100%>
-	<tr>
-	  <th class="listheading">| . $locale->text('Make') . qq|</th>
-	  <th class="listheading">| . $locale->text('Model') . qq|</th>
-	</tr>
-|;
-
-  for my $i (1 .. $numrows) {
-    $form->{"make_$i"}  =~ s/\"/&quot;/g;
-    $form->{"model_$i"} =~ s/\"/&quot;/g;
-    print qq|
-	<tr>
-	  <td width=50%><input name="make_$i" size=30 value="$form->{"make_$i"}"></td>
-	  <td width=50%><input name="model_$i" size=30 value="$form->{"model_$i"}"></td>
-	</tr>
-|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-|;
+  my @mm_data = grep { $_->{make} ne '' || $_->{model} ne '' } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"} }, 1 .. $numrows;
+  print $form->parse_html_template('ic/makemodel', { MM_DATA => [ @mm_data, {} ], mm_rows => scalar @mm_data + 1 });
 
   $lxdebug->leave_sub();
 }

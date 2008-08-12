@@ -661,7 +661,8 @@ sub display_form {
 
     &{$subroutine}($numrows);
 
-    $numrows    = 0;
+    $numrows    = ++$form->{makemodel_rows};
+    $subroutine = "makemodel_row";
   }
   if ($form->{item} eq 'assembly') {
     $numrows    = $form->{price_rows};

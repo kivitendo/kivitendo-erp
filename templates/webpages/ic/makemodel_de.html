@@ -1,0 +1,19 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+  <tr>
+    <td>
+      <table width=100%>
+        <tr>
+          <th class="listheading">Hersteller</th>
+          <th class="listheading">Modell</th>
+        </tr>
+      [%- FOREACH row = MM_DATA %]
+        <tr>
+          <td width=50%><input name="make_[% loop.count %]" size=30 value="[% HTML.escape(row.make) %]"></td>
+          <td width=50%><input name="model_[% loop.count %]" size=30 value="[% HTML.escape(row.model) %]"></td>
+        </tr>
+      [%- END %]
+      </table>
+    </td>
+  </tr>
+  <input type=hidden name=makemodel_rows value=[% mm_rows %]>
