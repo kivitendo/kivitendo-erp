@@ -1,0 +1,58 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+  [%- IF item == 'assembly' %]
+  <tr>
+    <td>
+      <table width="100%">
+        <tr>
+          <th colspan="2" align="right">Summe</th>
+          <th align="right">[% LxERP.format_amount(assemblytotal, 2) %]</th>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <input type="hidden" name="assembly_rows" value="[% HTML.escape(assembly_rows) %]">
+  [%- END %]
+
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+  <input type="hidden" name="previousform" value="[% HTML.escape(previousform) %]">
+  <input type="hidden" name="taxaccount2" value="[% HTML.escape(taxaccount2) %]">
+  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+</table>
+
+<br>
+<input class="submit" type="submit" name="action" value="Erneuern">
+<input type="hidden" name="price_rows" value="[% HTML.escape(price_rows) %]">
+<input class="submit" type="submit" name="action" value="Speichern">
+
+  [%- IF id %]
+    [%- UNLESS previousform %]
+<input class="submit" type="submit" name="action" value="als neu speichern">
+    [%- END %]
+
+    [%- IF orphaned %]
+      [%- UNLESS previousform %]
+        [%- IF item == 'assembly' %] {
+          [%- UNLESS onhand %]
+<input class="submit" type="submit" name="action" value="Löschen">
+          [%- END %]
+        [%- ELSE %]
+<input class="submit" type="submit" name="action" value="Löschen">
+        [%- END %]
+      [%- END %]
+    [%- END %]
+  [%- END %]
+
+  [%- IF id != "" %]
+<input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="Historie">
+  [%- END %]
+
+</form>
+
+<script type="text/javascript" src="js/wz_tooltip.js"></script>
+
+</body>
+</html>

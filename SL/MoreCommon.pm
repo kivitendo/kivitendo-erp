@@ -3,7 +3,7 @@ package SL::MoreCommon;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(save_form restore_form compare_numbers);
+@EXPORT = qw(save_form restore_form compare_numbers any);
 
 use YAML;
 
@@ -76,5 +76,13 @@ sub compare_numbers {
   return $a <=> $b;
 }
 
+sub any (&@) {
+  my $f = shift;
+  return if ! @_;
+  for (@_) {
+    return 1 if $f->();
+  }
+  return 0;
+}
 
 1;

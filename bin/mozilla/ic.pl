@@ -1491,102 +1491,7 @@ sub form_footer {
 
   $auth->assert('part_service_assembly_edit');
 
-  if ($form->{item} eq "assembly") {
-
-    print qq|
-	<tr>
-	  <td>
-            <table width="100%">
-              <tr>
-                <th colspan=2 align=right>| . $locale->text('Total') . qq|&nbsp;</th>
-                <th align=right>| . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2) . qq|</th>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <input type=hidden name=assembly_rows value=$form->{assembly_rows}>
-|;
-  }
-
-  print qq|
-      <input type=hidden name=callback value="$form->{callback}">
-      <input type=hidden name=previousform value="$form->{previousform}">
-      <input type=hidden name=taxaccount2 value="$form->{taxaccount2}">
-      <input type=hidden name=vc value=$form->{vc}>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Update') . qq|">
-  |;
-
-####### moved into makemodel_row #############
-#  unless ($form->{item} eq "service") {
-#    print qq|
-#      <input type=hidden name=makemodel_rows value=$form->{makemodel_rows}>
-#    |;
-#  }
-
-  print qq|
-     <input type=hidden name=price_rows value=$form->{price_rows}>|;
-
-  print qq|
-      <input class=submit type=submit name=action value="|
-    . $locale->text('Save') . qq|">|;
-
-  if ($form->{id}) {
-
-    if (!$form->{previousform}) {
-      print qq|
-      <input class=submit type=submit name=action value="|
-        . $locale->text('Save as new') . qq|">|;
-    }
-
-    if ($form->{orphaned}) {
-      if (!$form->{previousform}) {
-        if ($form->{item} eq 'assembly') {
-          if (!$form->{onhand}) {
-            print qq|
-      <input class=submit type=submit name=action value="|
-              . $locale->text('Delete') . qq|">|;
-          }
-        } else {
-          print qq|
-      <input class=submit type=submit name=action value="|
-            . $locale->text('Delete') . qq|">|;
-        }
-      }
-    }
-  }
-
-  if (!$form->{previousform}) {
-    if ($form->{menubar}) {
-      require "bin/mozilla/menu.pl";
-      &menubar;
-    }
-  }
-# button for saving history
-  if($form->{id} ne "") {
-  	print qq|
-  		<input type=button class=submit onclick=set_history_window(|
-  		. $form->{id} 
-  		. qq|); name=history id=history value=|
-  		. $locale->text('history') 
-  		. qq|>|;
-  }
-# /button for saving history
-  print qq|
-
-</form>
-
-<script type="text/javascript" src="js/wz_tooltip.js"></script>
-
-</body>
-</html>
-|;
+  print $form->parse_html_template('ic/form_footer');
 
   $lxdebug->leave_sub();
 }
@@ -1595,7 +1500,7 @@ sub makemodel_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
   
-  my @mm_data = grep { $_->{make} ne '' || $_->{model} ne '' } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"} }, 1 .. $numrows;
+  my @mm_data = grep { any { $_ ne '' } @$_{qw(make model)} } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"} }, 1 .. $numrows;
   print $form->parse_html_template('ic/makemodel', { MM_DATA => [ @mm_data, {} ], mm_rows => scalar @mm_data + 1 });
 
   $lxdebug->leave_sub();
