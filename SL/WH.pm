@@ -161,7 +161,7 @@ sub get_warehouse_journal {
   }
 
   if ($filter{chargenumber}) {
-    push @filter_ary, "w1.chargenumber ILIKE ?";
+    push @filter_ary, "i1.chargenumber ILIKE ?";
     push @filter_vars, '%' . $filter{chargenumber} . '%';
   }
 
