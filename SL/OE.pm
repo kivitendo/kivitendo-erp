@@ -201,7 +201,7 @@ sub transactions_for_todo_list {
 
   $query       =
     qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,
-         CASE WHEN (COALESCE(0, oe.customer_id) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
+         CASE WHEN (COALESCE(oe.customer_id, 0) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
          c.name AS customer,
          v.name AS vendor,
          e.name AS employee
