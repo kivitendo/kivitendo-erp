@@ -46,26 +46,28 @@ sub do_update {
   my $warehouse = $main::form->{import_warehouse} ne '' ? $main::form->{import_warehouse} : "Transfer";
   my $bin       = $main::form->{bin_default}      ne '' ? $main::form->{bin_default}      : "1";
 
+  $warehouse    = $dbh->quote($warehouse);
+  $bin          = $dbh->quote($bin);
 
   my $migration_code = <<EOF
 
 -- Adjust warehouse
-INSERT INTO warehouse (description) VALUES ('$warehouse');
+INSERT INTO warehouse (description, sortkey, invalid) VALUES ($warehouse, 1, FALSE);
 
 UPDATE tmp_parts SET bin = NULL WHERE bin = '';
 
 -- Restore old onhand
 INSERT INTO bin 
  (warehouse_id, description) 
- (SELECT DISTINCT warehouse.id, COALESCE(bin, '$bin') 
+ (SELECT DISTINCT warehouse.id, COALESCE(bin, $bin) 
    FROM warehouse, tmp_parts 
-   WHERE warehouse.description='$warehouse');
+   WHERE warehouse.description=$warehouse);
 INSERT INTO inventory 
  (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id)
  (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id 
   FROM transfer_type, warehouse, tmp_parts, bin
-  WHERE warehouse.description = '$warehouse' 
-    AND COALESCE(bin, '$bin') = bin.description 
+  WHERE warehouse.description = $warehouse
+    AND COALESCE(bin, $bin) = bin.description 
     AND transfer_type.description = 'stock');
 EOF
 ;
