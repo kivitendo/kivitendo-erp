@@ -53,7 +53,7 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
         <!--<iframe src="xslt/trans.xml" flex="1" id="uhr"/>-->
       </vbox>
       <splitter state="open" collapse="before" resizeafter="farthest"><grippy/></splitter>
-          <html:iframe id="main_window" src="{/*//item[@id='Programm--Version']/@link}" flex="1" style="border:0px"/>
+          <html:iframe id="main_window" src="login.pl?action=company_logo" flex="1" style="border:0px"/>
     </hbox>
   </window>
 </xsl:template>
