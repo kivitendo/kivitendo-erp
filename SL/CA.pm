@@ -76,11 +76,11 @@ sub all_accounts {
       c.pos_eur,
       c.valid_from,
       c.datevautomatik,
-      comma(tk.startdate) AS startdate,
-      comma(tk.taxkey_id) AS taxkey,
+      comma(tk.startdate::text) AS startdate,
+      comma(tk.taxkey_id::text) AS taxkey,
       comma(tx.taxdescription || to_char (tx.rate, '99V99' ) || '%') AS taxdescription,
-      comma(tx.taxnumber) AS taxaccount,
-      comma(tk.pos_ustva) AS tk_ustva,
+      comma(tx.taxnumber::text) AS taxaccount,
+      comma(tk.pos_ustva::text) AS tk_ustva,
       ( SELECT accno
       FROM chart c2
       WHERE c2.id = c.id
