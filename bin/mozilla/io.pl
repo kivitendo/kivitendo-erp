@@ -1878,7 +1878,7 @@ sub _update_part_information {
 sub _update_ship {
   $lxdebug->enter_sub();
 
-  if (!$form->{ordnumber}) {
+  if (!$form->{ordnumber} || !$form->{id}) {
     map { $form->{"ship_$_"} = 0 } (1..$form->{rowcount});
     $lxdebug->leave_sub();
     return;
