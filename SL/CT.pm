@@ -155,8 +155,9 @@ sub populate_drop_down_boxes {
 
   # get shipto address
   $query =
-    qq|SELECT shipto_id, shiptoname, shiptodepartment_1 | .
-    qq|FROM shipto WHERE (trans_id = ?) AND (module = 'CT')|;
+    qq|SELECT shipto_id, shiptoname, shiptodepartment_1, shiptostreet, shiptocity
+       FROM shipto
+       WHERE (trans_id = ?) AND (module = 'CT')|;
   $form->{SHIPTO} = selectall_hashref_query($form, $dbh, $query, $form->{id});
 
   # get contacts

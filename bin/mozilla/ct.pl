@@ -273,7 +273,7 @@ sub form_header {
   $form->{is_admin}       = $myconfig{role} eq 'admin';
   $form->{is_customer}    = $form->{db}     eq 'customer';
   $form->{salesman_label} = sub { $_[0]->{name} ne "" ? $_[0]->{name} : $_[0]->{login} };
-  $form->{shipto_label}   = sub { "$_[0]->{shiptoname} $_[0]->{shiptodepartment_1}" };
+  $form->{shipto_label}   = sub { my $s = shift(@_); join('; ', grep { $_ } map { $s->{"shipto$_"} } qw(name department_1 street city)) || ' ' };
   $form->{contacts_label} = sub { join ", ", grep { $_ } $_[0]->{cp_name}, $_[0]->{cp_givenname} };
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
