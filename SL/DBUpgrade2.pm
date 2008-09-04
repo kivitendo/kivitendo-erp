@@ -47,6 +47,8 @@ sub parse_dbupdate_controls {
       }
     }
 
+    next if ($control->{ignore});
+
     $control->{charset} ||= Common::DEFAULT_CHARSET;
 
     if (!$control->{"tag"}) {
