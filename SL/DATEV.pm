@@ -284,7 +284,7 @@ sub _get_transactions {
       print("$counter ");
     }
 
-    my $i        = [ $ref ];
+    my $trans    = [ $ref ];
 
     my $count    = $ref->{amount};
     my $firstrun = 1;
@@ -293,7 +293,7 @@ sub _get_transactions {
       my $ref2 = $sth->fetchrow_hashref(NAME_lc);
       last unless ($ref2);
 
-      push @{$i}, $ref2;
+      push @{ $trans }, $ref2;
 
       $count    += $ref2->{amount};
       $firstrun  = 0;
@@ -301,63 +301,63 @@ sub _get_transactions {
 
     my %taxid_taxkeys = ();
     my $absumsatz     = 0;
-    if (scalar(@{$i}) <= 2) {
-      push @{ $form->{DATEV} }, \@{$i};
+    if (scalar(@{$trans}) <= 2) {
+      push @{ $form->{DATEV} }, $trans;
       next;
     }
 
-    for my $j (0 .. (scalar(@{$i}) - 1)) {
-      if (abs($i->[$j]->{'amount'}) > abs($absumsatz)) {
-        $absumsatz     = $i->[$j]->{'amount'};
+    for my $j (0 .. (scalar(@{$trans}) - 1)) {
+      if (abs($trans->[$j]->{'amount'}) > abs($absumsatz)) {
+        $absumsatz     = $trans->[$j]->{'amount'};
         $notsplitindex = $j;
       }
-      if (($i->[$j]->{'taxtaxkey'}) && ($i->[$j]->{'taxid'})) {
-        $taxid_taxkeys{$i->[$j]->{'taxtaxkey'}}     = $i->[$j]->{'taxid'};
+      if (($trans->[$j]->{'taxtaxkey'}) && ($trans->[$j]->{'taxid'})) {
+        $taxid_taxkeys{$trans->[$j]->{'taxtaxkey'}}     = $trans->[$j]->{'taxid'};
       }
     }
-    $ml = ($i->[0]->{'umsatz'} > 0) ? 1 : -1;
-    for my $j (0 .. (scalar(@{$i}) - 1)) {
+    $ml = ($trans->[0]->{'umsatz'} > 0) ? 1 : -1;
+    for my $j (0 .. (scalar(@{$trans}) - 1)) {
       if (   ($j != $notsplitindex)
-          && ($i->[$j]->{'chart_id'}  eq "")
-          && (   $i->[$j]->{'taxkey'} eq ""
-              || $i->[$j]->{'taxkey'} eq "0"
-              || $i->[$j]->{'taxkey'} eq "1"
-              || $i->[$j]->{'taxkey'} eq "10"
-              || $i->[$j]->{'taxkey'} eq "11")) {
+          && ($trans->[$j]->{'chart_id'}  eq "")
+          && (   $trans->[$j]->{'taxkey'} eq ""
+              || $trans->[$j]->{'taxkey'} eq "0"
+              || $trans->[$j]->{'taxkey'} eq "1"
+              || $trans->[$j]->{'taxkey'} eq "10"
+              || $trans->[$j]->{'taxkey'} eq "11")) {
         my %blubb = {};
-        map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; } keys(%{ $i->[$notsplitindex] }));
+        map({ $blubb{$_} = $trans->[$notsplitindex]->{$_}; } keys(%{ $trans->[$notsplitindex] }));
 
-        $absumsatz           += $i->[$j]->{'amount'};
-        $blubb{'amount'}      = $i->[$j]->{'amount'} * (-1);
-        $blubb{'umsatz'}      = abs($i->[$j]->{'amount'}) * $ml;
-        $i->[$j]->{'umsatz'}  = abs($i->[$j]->{'amount'}) * $ml;
+        $absumsatz               += $trans->[$j]->{'amount'};
+        $blubb{'amount'}          = $trans->[$j]->{'amount'} * (-1);
+        $blubb{'umsatz'}          = abs($trans->[$j]->{'amount'}) * $ml;
+        $trans->[$j]->{'umsatz'}  = abs($trans->[$j]->{'amount'}) * $ml;
 
-        push @{ $splits[$g] }, \%blubb;    #$i->[$notsplitindex];
-        push @{ $splits[$g] }, $i->[$j];
+        push @{ $splits[$g] }, \%blubb;    #$trans->[$notsplitindex];
+        push @{ $splits[$g] }, $trans->[$j];
         push @{ $form->{DATEV} }, \@{ $splits[$g] };
 
         $g++;
 
-      } elsif (($j != $notsplitindex) && ($i->[$j]->{'chart_id'} eq "")) {
-        $absumsatz += ($i->[$j]->{'amount'} * (1 + $taxes{ $taxid_taxkeys{$i->[$j]->{'taxkey'}} }));
+      } elsif (($j != $notsplitindex) && ($trans->[$j]->{'chart_id'} eq "")) {
+        $absumsatz += ($trans->[$j]->{'amount'} * (1 + $taxes{ $taxid_taxkeys{$trans->[$j]->{'taxkey'}} }));
 
         my %blubb   = {};
-        map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; } keys(%{ $i->[$notsplitindex] }));
+        map({ $blubb{$_} = $trans->[$notsplitindex]->{$_}; } keys(%{ $trans->[$notsplitindex] }));
 
-        $test                = 1 + $taxes{  $taxid_taxkeys{$i->[$j]->{'taxkey'}} };
-        $blubb{'amount'}     = $form->round_amount(($i->[$j]->{'amount'} * $test * -1), 2);
-        $blubb{'umsatz'}     = abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
-        $i->[$j]->{'umsatz'} = abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
+        $test                    = 1 + $taxes{  $taxid_taxkeys{$trans->[$j]->{'taxkey'}} };
+        $blubb{'amount'}         = $form->round_amount(($trans->[$j]->{'amount'} * $test * -1), 2);
+        $blubb{'umsatz'}         = abs($form->round_amount(($trans->[$j]->{'amount'} * $test), 2)) * $ml;
+        $trans->[$j]->{'umsatz'} = abs($form->round_amount(($trans->[$j]->{'amount'} * $test), 2)) * $ml;
 
         push @{ $splits[$g] }, \%blubb;
-        push @{ $splits[$g] }, $i->[$j];
+        push @{ $splits[$g] }, $trans->[$j];
         push @{ $form->{DATEV} }, \@{ $splits[$g] };
         $g++;
       }
     }
 
     if (abs($absumsatz) > 0.01) {
-      $form->error("Datev-Export fehlgeschlagen! Bei Transaktion $i->[0]->{trans_id} $absumsatz\n");
+      $form->error("Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} $absumsatz\n");
     }
   }
   $sth->finish;
