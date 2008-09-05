@@ -793,10 +793,10 @@ sub display_rows {
   my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    my $key = Q($item->{accno}) . "--" . Q($item->{tax_id});
+    my $key = $item->{accno} . "--" . $item->{tax_id};
     $taxchart_init = $item->{taxkey_id} unless (@chart_values);
     push(@chart_values, $key);
-    $chart_labels{$key} = H($item->{accno}) . "--" . H($item->{description});
+    $chart_labels{$key} = $item->{accno} . "--" . $item->{description};
     $charts{$item->{accno}} = $item;
   }
 
@@ -804,11 +804,10 @@ sub display_rows {
   my @taxchart_values = ();
   my %taxcharts = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
-    my $key = Q($item->{id}) . "--" . Q($item->{rate});
+    my $key = $item->{id} . "--" . $item->{rate};
     $taxchart_init = $key if ($taxchart_init eq $item->{taxkey});
     push(@taxchart_values, $key);
-    $taxchart_labels{$key} = H($item->{taxdescription}) . " " .
-      H($item->{rate} * 100) . ' %';
+    $taxchart_labels{$key} = $item->{taxdescription} . " " . $item->{rate} * 100 . ' %';
     $taxcharts{$item->{id}} = $item;
   }
 
