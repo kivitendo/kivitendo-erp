@@ -295,40 +295,38 @@ sub get_transactions {
                 || $i->[$j]->{'taxkey'} eq "0"
                 || $i->[$j]->{'taxkey'} eq "1"
                 || $i->[$j]->{'taxkey'} eq "10"
-                || $i->[$j]->{'taxkey'} eq "11")
-          ) {
+                || $i->[$j]->{'taxkey'} eq "11")) {
           my %blubb = {};
-          map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; }
-              keys(%{ $i->[$notsplitindex] }));
-          $absumsatz += $i->[$j]->{'amount'};
-          $blubb{'amount'}     = $i->[$j]->{'amount'} * (-1);
-          $blubb{'umsatz'}     = abs($i->[$j]->{'amount'}) * $ml;
-          $i->[$j]->{'umsatz'} = abs($i->[$j]->{'amount'}) * $ml;
+          map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; } keys(%{ $i->[$notsplitindex] }));
+
+          $absumsatz           += $i->[$j]->{'amount'};
+          $blubb{'amount'}      = $i->[$j]->{'amount'} * (-1);
+          $blubb{'umsatz'}      = abs($i->[$j]->{'amount'}) * $ml;
+          $i->[$j]->{'umsatz'}  = abs($i->[$j]->{'amount'}) * $ml;
+
           push @{ $splits[$g] }, \%blubb;    #$i->[$notsplitindex];
           push @{ $splits[$g] }, $i->[$j];
           push @{ $form->{DATEV} }, \@{ $splits[$g] };
+
           $g++;
-          } elsif (($j != $notsplitindex) && ($i->[$j]->{'chart_id'} eq "")) {
-          $absumsatz +=
-            ($i->[$j]->{'amount'} * (1 + $taxes{ $taxid_taxkeys{$i->[$j]->{'taxkey'}} }));
-          my %blubb = {};
-          map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; }
-              keys(%{ $i->[$notsplitindex] }));
-          $test = 1 + $taxes{  $taxid_taxkeys{$i->[$j]->{'taxkey'}} };
-          $blubb{'amount'} =
-            $form->round_amount(($i->[$j]->{'amount'} * $test * -1), 2);
 
-          $blubb{'umsatz'} =
-            abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
+        } elsif (($j != $notsplitindex) && ($i->[$j]->{'chart_id'} eq "")) {
+          $absumsatz += ($i->[$j]->{'amount'} * (1 + $taxes{ $taxid_taxkeys{$i->[$j]->{'taxkey'}} }));
 
-          $i->[$j]->{'umsatz'} =
-            abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
+          my %blubb   = {};
+          map({ $blubb{$_} = $i->[$notsplitindex]->{$_}; } keys(%{ $i->[$notsplitindex] }));
+
+          $test                = 1 + $taxes{  $taxid_taxkeys{$i->[$j]->{'taxkey'}} };
+          $blubb{'amount'}     = $form->round_amount(($i->[$j]->{'amount'} * $test * -1), 2);
+          $blubb{'umsatz'}     = abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
+          $i->[$j]->{'umsatz'} = abs($form->round_amount(($i->[$j]->{'amount'} * $test), 2)) * $ml;
 
           push @{ $splits[$g] }, \%blubb;
           push @{ $splits[$g] }, $i->[$j];
           push @{ $form->{DATEV} }, \@{ $splits[$g] };
           $g++;
-          } else {
+
+        } else {
           next;
         }
       }
