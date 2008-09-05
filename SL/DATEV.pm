@@ -26,6 +26,8 @@
 
 package DATEV;
 
+use SL::DBUtils;
+
 use Data::Dumper;
 
 sub get_datev_stamm {
@@ -217,47 +219,61 @@ sub get_dates {
 sub get_transactions {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form, $fromto) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
   $fromto =~ s/transdate/ac\.transdate/g;
 
-  $query = qq|SELECT id, taxkey, rate FROM tax|;
-  $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my %taxes = selectall_as_map($form, $dbh, qq|SELECT id, rate FROM tax|, 'id', 'rate');
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
-    $taxes{ $ref->{id} } = $ref->{rate};
-  }
+  my $query =
+    qq|SELECT ac.oid, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
+         ar.invnumber, ar.duedate, ar.amount as umsatz,
+         ct.name,
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id,
+         t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey
+       FROM acc_trans ac,ar ar, customer ct, chart c
+       LEFT JOIN tax t ON (t.chart_id = c.id)
+       WHERE $fromto
+         AND (ac.trans_id = ar.id)
+         AND (ac.trans_id = ar.id)
+         AND (ar.customer_id = ct.id)
+         AND (ac.chart_id = c.id)
 
-  $sth->finish();
+       UNION ALL
 
-  $query =
-    qq|SELECT ac.oid, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ar.invnumber, ar.duedate, ar.amount as umsatz,
-              ct.name, c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey FROM acc_trans ac,ar ar, customer ct,
-              chart c LEFT JOIN tax t ON
-                 (t.chart_id=c.id)WHERE $fromto AND ac.trans_id=ar.id AND ac.trans_id=ar.id
-              AND ar.customer_id=ct.id AND ac.chart_id=c.id
-              UNION ALL
-              SELECT ac.oid, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey, ap.invnumber, ap.duedate, ap.amount as umsatz,
-              ct.name, c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey FROM acc_trans ac, ap ap, vendor ct, chart c LEFT JOIN tax t ON
-                 (t.chart_id=c.id)
-              WHERE $fromto AND ac.trans_id=ap.id AND ap.vendor_id=ct.id AND ac.chart_id=c.id
-              UNION ALL
-              SELECT ac.oid, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey, gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
-              gl.description AS name, c.accno,  c.taxkey_id as charttax, c.datevautomatik, c.id, t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey FROM acc_trans ac, gl gl,
-              chart c LEFT JOIN tax t ON
-                 (t.chart_id=c.id) WHERE $fromto AND ac.trans_id=gl.id AND ac.chart_id=c.id
-              ORDER BY trans_id, oid|;
+       SELECT ac.oid, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
+         ap.invnumber, ap.duedate, ap.amount as umsatz,
+         ct.name,
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id,
+         t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey
+       FROM acc_trans ac, ap ap, vendor ct, chart c
+       LEFT JOIN tax t ON (t.chart_id = c.id)
+       WHERE $fromto
+         AND (ac.trans_id = ap.id)
+         AND (ap.vendor_id = ct.id)
+         AND (ac.chart_id = c.id)
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+       UNION ALL
+
+       SELECT ac.oid, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
+         gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
+         gl.description AS name,
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id,
+         t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey
+       FROM acc_trans ac, gl gl, chart c
+       LEFT JOIN tax t ON (t.chart_id = c.id)
+       WHERE $fromto
+         AND (ac.trans_id = gl.id)
+         AND (ac.chart_id = c.id)
+
+       ORDER BY trans_id, oid|;
+
+  my $sth = prepare_execute_query($form, $dbh, $query);
+
   $i = 0;
   $g = 0;
   my $counter = 0;
-  @splits;
+  my @splits;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     $count    = 0;
     $firstrun = 1;
