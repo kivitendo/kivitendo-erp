@@ -226,6 +226,8 @@ sub _get_transactions {
 
   my $dbh      =  $form->get_standard_dbh($myconfig);
 
+  my @errors   = ();
+
   $fromto      =~ s/transdate/ac\.transdate/g;
 
   my %taxes    =  selectall_as_map($form, $dbh, qq|SELECT id, rate FROM tax|, 'id', 'rate');
@@ -352,11 +354,13 @@ sub _get_transactions {
     }
 
     if (abs($absumsatz) > 0.01) {
-      $form->error("Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} $absumsatz\n");
+      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)\n";
     }
   }
-  $sth->finish;
-  $dbh->disconnect;
+
+  $sth->finish();
+
+  $form->error(join("<br>\n", @errors)) if (@errors);
 
   $main::lxdebug->leave_sub();
 }
