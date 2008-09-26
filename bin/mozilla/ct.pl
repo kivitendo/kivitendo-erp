@@ -245,9 +245,6 @@ sub edit {
   CT->get_tuple(\%myconfig, \%$form);
   CT->populate_drop_down_boxes(\%myconfig, \%$form);
 
-  # format " into &quot;
-  map { $form->{$_} =~ s/\"/&quot;/g } keys %$form;
-
   $form->{title} = "Edit";
 
   # format discount
