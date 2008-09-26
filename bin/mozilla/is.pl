@@ -637,10 +637,10 @@ sub form_header {
       <table>
         <tr>
           $customers
-          <input type="hidden" name="customer_klass" value="$form->{customer_klass}">
-          <input type="hidden" name="customer_id" value="$form->{customer_id}">
-          <input type="hidden" name="oldcustomer" value="$form->{oldcustomer}">
-          <input type="hidden" name="selectcustomer" value="$form->{selectcustomer}">
+          <input type="hidden" name="customer_klass" value="| . H($form->{customer_klass}) . qq|">
+          <input type="hidden" name="customer_id" value="| . H($form->{customer_id}) . qq|">
+          <input type="hidden" name="oldcustomer" value="| . H($form->{oldcustomer}) . qq|">
+          <input type="hidden" name="selectcustomer" value="| . H($form->{selectcustomer}) . qq|">
         </tr>
         $contact
         $shipto
