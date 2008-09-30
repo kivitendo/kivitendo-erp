@@ -339,7 +339,6 @@ sub update_delivery_order {
 
       } else {
 
-        map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
