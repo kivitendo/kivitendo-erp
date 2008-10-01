@@ -57,7 +57,7 @@ use List::Util qw(first max min sum);
 
 my $standard_dbh;
 
-sub DESTROY {
+END {
   if ($standard_dbh) {
     $standard_dbh->disconnect();
     undef $standard_dbh;
