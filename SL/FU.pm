@@ -36,7 +36,8 @@ sub save {
                                  'trans_id'     => $params{id},
                                  'trans_module' => 'fu',
                                  'subject'      => $params{subject},
-                                 'body'         => $params{body});
+                                 'body'         => $params{body},
+                                 'dbh'          => $dbh,);
 
   $params{done} = 1 if (!defined $params{done});
 
