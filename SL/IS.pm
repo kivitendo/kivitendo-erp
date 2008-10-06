@@ -213,8 +213,10 @@ sub invoice_details {
       my $decimalplaces = max 2, length($dec);
 
       my $parsed_discount      = $form->parse_amount($myconfig, $form->{"discount_$i"});
-      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $parsed_discount / 100 / $price_factor->{factor}, $decimalplaces);
-      my $linetotal            = $form->round_amount($form->{"qty_$i"} * $sellprice * (100 - $parsed_discount) / 100 / $price_factor->{factor}, 2);
+      my $linetotal_exact      =                     $form->{"qty_$i"} * $sellprice * (100 - $parsed_discount) / 100 / $price_factor->{factor};
+      my $linetotal            = $form->round_amount($linetotal_exact, 2);
+      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $parsed_discount / 100 / $price_factor->{factor} - ($linetotal - $linetotal_exact),
+                                                     $decimalplaces);
       my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
