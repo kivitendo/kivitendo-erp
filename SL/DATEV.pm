@@ -207,13 +207,14 @@ sub get_dates {
   }
 
   elsif ($zeitraum eq "zeit") {
-    $fromto .=
-      "'" . $transdatefrom . "' and transdate <= '" . $transdateto . "'";
+    $fromto            .= "'" . $transdatefrom . "' and transdate <= '" . $transdateto . "'";
+    my ($yy, $mm, $dd)  = $main::locale->parse_date(\%main::myconfig, $transdatefrom);
+    $jahr               = $yy;
   }
 
   $main::lxdebug->leave_sub();
 
-  return $fromto;
+  return ($fromto, $jahr);
 }
 
 sub _get_transactions {
@@ -368,13 +369,16 @@ sub _get_transactions {
 sub make_kne_data_header {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form, $fromto) = @_;
+  my ($myconfig, $form, $fromto, $start_jahr) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my @a = localtime;
-  $jahr = $a[5];
+  my $jahr = $start_jahr;
+  if (!$jahr) {
+    my @a = localtime;
+    $jahr = $a[5];
+  }
 
   #Header
   $anwendungsnr = ($fromto) ? "\x31\x31" : "\x31\x33";
@@ -621,7 +625,7 @@ sub kne_buchungsexport {
   Buchungss&auml;tze verarbeitet:
 |;
 
-  $fromto =
+  ($fromto, $start_jahr) =
     &get_dates($form->{zeitraum}, $form->{monat},
                $form->{quartal},  $form->{transdatefrom},
                $form->{transdateto});
@@ -638,7 +642,7 @@ sub kne_buchungsexport {
     my $ed_filename = $export_path . $filename;
     push(@filenames, $filename);
     open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
-    $header = &make_kne_data_header($myconfig, $form, $fromto);
+    $header = &make_kne_data_header($myconfig, $form, $fromto, $start_jahr);
     $remaining_bytes -= length($header);
 
     while (scalar(@{ $form->{DATEV} }) > 0) {
