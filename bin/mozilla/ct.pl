@@ -133,6 +133,7 @@ sub list_names {
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
   my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
 
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
@@ -158,9 +159,9 @@ sub list_names {
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  my @hidden_variables  = (qw(db status obsolete), map { "l_$_" } @columns);
+  my @hidden_variables  = (qw(db status obsolete name contact email cp_name addr_city), "$form->{db}number", @searchable_custom_variables, map { "l_$_" } @columns);
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
-  my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_variables);
+  my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_nondefault);
   $form->{callback}     = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
 
   foreach (@columns) {
