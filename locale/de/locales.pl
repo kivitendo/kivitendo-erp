@@ -276,8 +276,8 @@ if (scalar @lost) {
     "\@lost = (\n";
 
   foreach $entry (@lost) {
-    $entry->{text}        =~ s/\'/\\\'/;
-    $entry->{translation} =~ s/\'/\\\'/;
+    $entry->{text}        =~ s/\'/\\\'/g;
+    $entry->{translation} =~ s/\'/\\\'/g;
     print FH "  { 'text' => '$entry->{text}', 'translation' => '$entry->{translation}' },\n";
   }
 
