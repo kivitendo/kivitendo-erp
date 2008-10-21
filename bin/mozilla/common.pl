@@ -91,7 +91,7 @@ sub select_part_internal {
 
   my ($new_item, $callback_sub);
 
-  my $re = "^new_.*_" . $form->{selection};
+  my $re = "^new_.*_$form->{selection}\$";
 
   foreach (grep /$re/, keys %{ $form }) {
     my $new_key           =  $_;
