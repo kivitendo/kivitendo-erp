@@ -6,11 +6,12 @@
 # this version of locles processes not only all required .pl files
 # but also all parse_html_templated files.
 
-use POSIX;
-use FileHandle;
 use Data::Dumper;
-
+use FileHandle;
+use Getopt::Long;
 use List::Util qw(first);
+use POSIX;
+use Pod::Usage;
 
 $| = 1;
 
@@ -23,15 +24,31 @@ $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 
 %referenced_html_files = ();
 
-# Arguments:
-#   -v verbose
-#   -n no custom files
-#   -h extended checks on HTML templates
+my $opt_v = 0;
+my $opt_n = 0;
+my $opt_c = 0;
 
-foreach $item (@ARGV) {
-  $item =~ s/-//g;
-  $arg{$item} = 1;
+sub parse_args {
+  my ($help, $man);
+
+  GetOptions('no-custom-files' => \$opt_n,
+             'check-files'     => \$opt_c,
+             'verbose'         => \$opt_v,
+             'help'            => \$help,
+             'man'             => \$man,);
+
+  if ($help) {
+    pod2usage(1);
+    exit 0;
+  }
+
+  if ($man) {
+    pod2usage(-exitstatus => 0, -verbose => 2);
+    exit 0;
+  }
 }
+
+parse_args();
 
 opendir DIR, "$bindir" or die "$!";
 @progfiles = grep { /\.pl$/ && !/(_|^\.)/ } readdir DIR;
@@ -40,10 +57,10 @@ seekdir DIR, 0;
 closedir DIR;
 
 # put customized files into @customfiles
-@customfiles = () if ($arg{n});
 
-if ($arg{n}) {
-  @menufiles = ($menufile);
+if ($opt_n) {
+  @customfiles = ();
+  @menufiles   = ($menufile);
 } else {
   opendir DIR, "$basedir" or die "$!";
   @menufiles = grep { /.*?_$menufile$/ } readdir DIR;
@@ -79,7 +96,7 @@ map({ handle_file($_, $dbupdir2); } @dbplfiles2);
 
 sub handle_file {
   my ($file, $dir) = @_;
-  print "\n$file" if $arg{v};
+  print "\n$file" if $opt_v;
   %locale = ();
   %submit = ();
   %subrt  = ();
@@ -105,7 +122,7 @@ sub handle_file {
   if ($file eq 'menunew.pl') {
     foreach $item (@menufiles) {
       &scanmenu("$basedir/$item");
-      print "." if $arg{v};
+      print "." if $opt_v;
     }
   }
 
@@ -291,7 +308,7 @@ close(FH);
 $trlanguage = $language[0];
 chomp $trlanguage;
 
-if ($arg{h}) {
+if ($opt_c) {
   search_unused_htmlfiles();
   search_translated_htmlfiles_wo_master();
 }
@@ -404,8 +421,8 @@ sub scanfile {
 #           &scanhtmlfile($newfile);
 #           &converthtmlfile($newfile);
            $cached{$file}{scanh}{$newfile} = 1;
-          print "." if $arg{v};
-        } elsif ($arg{h}) {
+          print "." if $opt_v;
+        } elsif ($opt_c) {
           print "W: missing HTML template: " . strip_base($newfile) . " (referenced from " . strip_base($file) . ")\n";
         }
       }
@@ -702,3 +719,47 @@ sub strip_base {
 
   return $s;
 }
+
+__END__
+
+=head1 NAME
+
+locales.pl - Collect strings for translation in Lx-Office
+
+=head1 SYNOPSIS
+
+locales.pl [options]
+
+ Options:
+  -n, --no-custom-files  Do not process files whose name contains "_"
+  -c, --check-files      Run extended checks on HTML files
+  -v, --verbose          Be more verbose
+  -h, --help             Show this help
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-n>, B<--no-custom-files>
+
+Do not process files whose name contains "_", e.g. "custom_io.pl".
+
+=item B<-c>, B<--check-files>
+
+Run extended checks on the usage of templates. This can be used to
+discover HTML templates that are never used as well as the usage of
+non-existing HTML templates.
+
+=item B<-v>, B<--verbose>
+
+Be more verbose.
+
+=back
+
+=head1 DESCRIPTION
+
+This script collects strings from Perl files, the menu.ini file and
+HTML templates and puts them into the file "all" for translation.  It
+also distributes those translations back to the individual files.
+
+=cut
