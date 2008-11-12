@@ -98,7 +98,7 @@ sub transfer {
 
     push @values, "$transfer->{comment}";
 
-    $qty = $transfer->{qty};
+    my $qty = $transfer->{qty};
 
     if ($transfer->{unit}) {
       my $partunit = $partunits{$transfer->{parts_id}};
