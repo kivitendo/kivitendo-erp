@@ -420,7 +420,7 @@ sub form_footer {
       }
     }
 
-    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0);
+#    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0); # template does this
 
   } else {
     foreach $item (split / /, $form->{taxaccounts}) {

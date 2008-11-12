@@ -57,7 +57,12 @@
             <input name="taxincluded" class="checkbox" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b>Steuer im Preis inbegriffen</b><br><br>
 [%- END %]
             <table>
-              [% subtotal %]
+[%- IF NOT taxincluded %]
+              <tr>
+                <th align='right'>Zwischensumme</th>
+                <td align='right'>[% LxERP.format_amount(invsubtotal, 2) %]</td>
+              </tr>
+[%- END %]
               [% tax %]
               <tr>
                 <th align="right">Summe</th>
