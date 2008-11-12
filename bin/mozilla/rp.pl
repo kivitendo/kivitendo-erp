@@ -1759,8 +1759,8 @@ sub aging {
 
     if ($previous_ctid != $ref->{ctid}) {
       $row->{statement}->{raw_data} =
-          $cgi->hidden('-name' => "customer_id_${row_idx}", '-value' => $ref->{ctid})
-        . $cgi->checkbox('-name' => "statement_${row_idx}", '-value' => 1, '-label' => '', 'checked' => $ref->{checked});
+          $cgi->hidden('-name' => "customer_id_" . ($row_idx + 1), '-value' => $ref->{ctid})
+        . $cgi->checkbox('-name' => "statement_" . ($row_idx + 1), '-value' => 1, '-label' => '', 'checked' => $ref->{checked});
       $row->{ct}->{data} = $ref->{name};
 
       $row_idx++;
