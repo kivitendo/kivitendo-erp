@@ -974,7 +974,7 @@ sub create_employee_entry {
 sub config_vars {
   $main::lxdebug->enter_sub();
 
-  my @conf = qw(acs address admin businessnumber company countrycode
+  my @conf = qw(address admin businessnumber company countrycode
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
     dbname dbuser dbpasswd email fax name numberformat password
     printer role sid signature stylesheet tel templates vclimit angebote

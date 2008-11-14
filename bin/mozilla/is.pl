@@ -69,10 +69,6 @@ sub add {
 
   $form{jsscript} = "date";
 
-  if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
-  {
-    $form->error("Access Denied");
-  }
   &invoice_links;
   &prepare_invoice;
   &display_form;
@@ -89,10 +85,6 @@ sub edit {
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
 
-  if ($myconfig{acs} =~ "AR--Add Sales Invoice" || $myconfig{acs} =~ "AR--AR")
-  {
-    $form->error("Access Denied");
-  }
   $edit = 1;
   if ($form->{print_and_post}) {
     $form->{action}   = "print";
