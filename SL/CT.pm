@@ -308,6 +308,7 @@ sub save_customer {
     qq|bank_code = ?, | .
     qq|bank = ?, | .
     qq|obsolete = ?, | .
+    qq|direct_debit = ?, | .
     qq|ustid = ?, | .
     qq|username = ?, | .
     qq|salesman_id = ?, | .
@@ -347,6 +348,7 @@ sub save_customer {
     $form->{bank_code},
     $form->{bank},
     $form->{obsolete} ? 't' : 'f',
+    $form->{direct_debit} ? 't' : 'f',
     $form->{ustid},
     $form->{username},
     conv_i($form->{salesman_id}),
@@ -513,6 +515,7 @@ sub save_vendor {
     qq|  bank_code = ?, | .
     qq|  bank = ?, | .
     qq|  obsolete = ?, | .
+    qq|  direct_debit = ?, | .
     qq|  ustid = ?, | .
     qq|  payment_id = ?, | .
     qq|  taxzone_id = ?, | .
@@ -550,6 +553,7 @@ sub save_vendor {
     $form->{bank_code},
     $form->{bank},
     $form->{obsolete} ? 't' : 'f',
+    $form->{direct_debit} ? 't' : 'f',
     $form->{ustid},
     conv_i($form->{payment_id}),
     conv_i($form->{taxzone_id}, 0),
