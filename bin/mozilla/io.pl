@@ -1486,6 +1486,9 @@ sub print_form {
   delete $form->{OUT};
 
   if ($form->{media} eq 'printer') {
+    print (STDERR "io--------------------------------------");
+    print (STDERR  $form->{printer_command});
+    #$form->{OUT} = "| $form->{printer_command} ";
     $form->{OUT} = "| $form->{printer_command} &>/dev/null";
     $form->{printed} .= " $form->{formname}";
     $form->{printed} =~ s/^ //;
