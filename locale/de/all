@@ -474,6 +474,7 @@ $self->{texts} = {
   'Difference'                  => 'Differenz',
   'Dimension unit'              => 'Ma&szlig;einheit',
   'Directory'                   => 'Verzeichnis',
+  'direct debit'		=> 'Lastschrift',
   'Discount'                    => 'Rabatt',
   'Display'                     => 'Anzeigen',
   'Display file'                => 'Datei anzeigen',
