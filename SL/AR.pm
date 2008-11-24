@@ -195,6 +195,10 @@ sub post_transaction {
                  VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
     @values = (conv_i($form->{id}), $form->{AR_amounts}{receivables}, conv_i($form->{receivables}), conv_date($form->{transdate}), $form->{AR_amounts}{receivables});
     do_query($form, $dbh, $query, @values);
+
+  } else {
+    # Record paid amount.
+    do_query($form, $dbh, qq|UPDATE ar SET paid = ? WHERE id = ?|, $form->{paid}, conv_i($form->{id}));
   }
 
   # add paid transactions
