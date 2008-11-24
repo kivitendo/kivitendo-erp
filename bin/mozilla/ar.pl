@@ -1538,10 +1538,10 @@ sub ar_transactions {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
   }
   if ($form->{transdatefrom}) {
-    push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
   }
   if ($form->{transdateto}) {
-    push @options, $locale->text('Bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto}, 1);
+    push @options, $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{transdateto}, 1);
   }
   if ($form->{open}) {
     push @options, $locale->text('Open');

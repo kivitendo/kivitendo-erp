@@ -2374,10 +2374,10 @@ sub list_payments {
 
   my @options;
   if ($form->{fromdate}) {
-    push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{fromdate}, 1);
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{fromdate}, 1);
   }
   if ($form->{todate}) {
-    push @options, $locale->text('bis') . "&nbsp;" . $locale->date(\%myconfig, $form->{todate}, 1);
+    push @options, $locale->text('bis') . " " . $locale->date(\%myconfig, $form->{todate}, 1);
   }
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);

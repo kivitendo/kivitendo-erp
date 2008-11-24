@@ -965,8 +965,8 @@ sub orders {
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
-  push @options, $locale->text('From') . "&nbsp;" . $locale->date(\%myconfig, $form->{transdatefrom}, 1)  if $form->{transdatefrom};
-  push @options, $locale->text('Bis')  . "&nbsp;" . $locale->date(\%myconfig, $form->{transdateto},   1)  if $form->{transdateto};
+  push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)       if $form->{transdatefrom};
+  push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)       if $form->{transdateto};
   push @options, $locale->text('Open')                                                                    if $form->{open};
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
   push @options, $locale->text('Delivered')                                                               if $form->{delivered};
