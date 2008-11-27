@@ -93,7 +93,7 @@ sub save_follow_up {
   $form->isblank('follow_up_date',   $locale->text('The follow-up date is missing.'));
   $form->isblank('subject',          $locale->text('The subject is missing.'));
 
-  my %params = (map({ $_ => $form->{$_} } qw(id subject body created_for_user follow_up_date)), 'done' => 0);
+  my %params = (map({ $_ => $form->{$_} } qw(id subject body note_id created_for_user follow_up_date)), 'done' => 0);
 
   _collect_links(\%params);
 
