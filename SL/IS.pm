@@ -279,29 +279,25 @@ sub invoice_details {
 
       if ($form->round_amount($taxrate, 7) == 0) {
         if ($form->{taxincluded}) {
-          foreach $item (@taxaccounts) {
-            $taxamount =
-              $form->round_amount($linetotal * $form->{"${item}_rate"} /
-                                    (1 + abs($form->{"${item}_rate"})),
-                                  2);
+          foreach my $accno (@taxaccounts) {
+            $taxamount            = $form->round_amount($linetotal * $form->{"${accno}_rate"} / (1 + abs($form->{"${accno}_rate"})), 2);
 
-            $taxaccounts{$item} += $taxamount;
-            $taxdiff            += $taxamount;
+            $taxaccounts{$accno} += $taxamount;
+            $taxdiff             += $taxamount;
 
-            $taxbase{$item} += $taxbase;
+            $taxbase{$accno}     += $taxbase;
           }
           $taxaccounts{ $taxaccounts[0] } += $taxdiff;
         } else {
-          foreach $item (@taxaccounts) {
-            $taxaccounts{$item} += $linetotal * $form->{"${item}_rate"};
-            $taxbase{$item}     += $taxbase;
+          foreach my $accno (@taxaccounts) {
+            $taxaccounts{$accno} += $linetotal * $form->{"${accno}_rate"};
+            $taxbase{$accno}     += $taxbase;
           }
         }
       } else {
-        foreach $item (@taxaccounts) {
-          $taxaccounts{$item} +=
-            $taxamount * $form->{"${item}_rate"} / $taxrate;
-          $taxbase{$item} += $taxbase;
+        foreach my $accno (@taxaccounts) {
+          $taxaccounts{$accno} += $taxamount * $form->{"${accno}_rate"} / $taxrate;
+          $taxbase{$accno}     += $taxbase;
         }
       }
       $tax_rate = $taxrate * 100;

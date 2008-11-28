@@ -1075,9 +1075,9 @@ sub order_details {
       }
 
       if ($taxamount != 0) {
-        foreach my $item (split / /, $form->{"taxaccounts_$i"}) {
-          $taxaccounts{$item} += $taxamount * $form->{"${item}_rate"} / $taxrate;
-          $taxbase{$item}     += $taxbase;
+        foreach my $accno (split / /, $form->{"taxaccounts_$i"}) {
+          $taxaccounts{$accno} += $taxamount * $form->{"${accno}_rate"} / $taxrate;
+          $taxbase{$accno}     += $taxbase;
         }
       }
 
