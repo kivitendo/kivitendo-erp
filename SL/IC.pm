@@ -1796,5 +1796,73 @@ sub get_basic_part_info {
   return %info_map;
 }
 
+sub prepare_parts_for_printing {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $prefix   = $params{prefix} || 'id_';
+  my $rowcount = defined $params{rowcount} ? $params{rowcount} : $form->{rowcount};
+
+  my @part_ids = keys %{ { map { $_ => 1 } grep { $_ } map { $form->{"${prefix}${_}"} } (1 .. $rowcount) } };
+
+  if (!@part_ids) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $placeholders = join ', ', ('?') x scalar(@part_ids);
+  my $query        = qq|SELECT parts_id, make, model
+                        FROM makemodel
+                        WHERE parts_id IN ($placeholders)|;
+  my %makemodel    = ();
+
+  my $sth          = prepare_execute_query($form, $dbh, $query, @part_ids);
+
+  while (my $ref = $sth->fetchrow_hashref()) {
+    $makemodel{$ref->{parts_id}} ||= [];
+    push @{ $makemodel{$ref->{parts_id}} }, $ref;
+  }
+
+  $sth->finish();
+
+  my @columns = qw(ean);
+
+  $query      = qq|SELECT id, | . join(', ', @columns) . qq|
+                   FROM parts
+                   WHERE id IN ($placeholders)|;
+
+  my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
+
+  map { $form->{$_} = [] } (qw(make model), @columns);
+
+  foreach my $i (1 .. $rowcount) {
+    my $id = $form->{"${prefix}${i}"};
+
+    next if (!$id);
+
+    foreach (@columns) {
+      push @{ $form->{$_} }, $data{$id}->{$_};
+    }
+
+    push @{ $form->{make} },  [];
+    push @{ $form->{model} }, [];
+
+    next if (!$makemodel{$id});
+
+    foreach my $ref (@{ $makemodel{$id} }) {
+      map { push @{ $form->{$_}->[-1] }, $ref->{$_} } qw(make model);
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
 
 1;

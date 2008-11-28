@@ -43,6 +43,7 @@ use SL::Common;
 use SL::DBUtils;
 use SL::DO;
 use SL::MoreCommon;
+use SL::IC;
 use Data::Dumper;
 
 sub invoice_details {
@@ -131,6 +132,8 @@ sub invoice_details {
   my $subposition = 0;
 
   $form->{discount} = [];
+
+  IC->prepare_parts_for_printing();
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin

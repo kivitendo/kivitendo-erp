@@ -39,6 +39,7 @@ use List::Util qw(max);
 use SL::AM;
 use SL::Common;
 use SL::DBUtils;
+use SL::IC;
 
 sub transactions {
   $main::lxdebug->enter_sub();
@@ -949,6 +950,8 @@ sub order_details {
   $form->{"globalprojectnumber"} = $projectnumbers{$form->{"globalproject_id"}};
 
   $form->{discount} = [];
+
+  IC->prepare_parts_for_printing();
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
