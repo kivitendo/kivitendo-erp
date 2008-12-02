@@ -533,7 +533,7 @@ sub header {
     return;
   }
 
-  my ($stylesheet, $favicon);
+  my ($stylesheet, $favicon, $pagelayout);
 
   if ($ENV{HTTP_USER_AGENT}) {
     my $doctype;
@@ -591,7 +591,7 @@ sub header {
       ? "$self->{title} - $self->{titlebar}"
       : $self->{titlebar};
     my $ajax = "";
-    foreach $item (@ { $self->{AJAX} }) {
+    foreach my $item (@ { $self->{AJAX} }) {
       $ajax .= $item->show_javascript();
     }
 
@@ -794,7 +794,7 @@ sub show_generic_error {
     $add_params->{SHOW_BACK_BUTTON} = 1;
   }
 
-  $self->{title} = $title if ($title);
+  $self->{title} = $params{title} if $params{title};
 
   $self->header();
   print $self->parse_html_template("generic/error", $add_params);
@@ -821,7 +821,7 @@ sub show_generic_information {
 
   $main::lxdebug->leave_sub();
 
-  die("Information: $error\n");
+  die("Information: $text\n");
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
@@ -844,8 +844,8 @@ sub write_trigger {
     "yyyy-mm-dd" => "%Y-%m-%d",
     );
 
-  my $ifFormat = defined($dateformats{$myconfig{"dateformat"}}) ?
-    $dateformats{$myconfig{"dateformat"}} : "%d.%m.%Y";
+  my $ifFormat = defined($dateformats{$myconfig->{"dateformat"}}) ?
+    $dateformats{$myconfig->{"dateformat"}} : "%d.%m.%Y";
 
   my @triggers;
   while ($#_ >= 2) {
@@ -878,7 +878,7 @@ sub redirect {
 
   if ($self->{callback}) {
 
-    ($script, $argv) = split(/\?/, $self->{callback}, 2);
+    my ($script, $argv) = split(/\?/, $self->{callback}, 2);
     $script =~ s|.*/||;
     $script =~ s|[^a-zA-Z0-9_\.]||g;
     exec("perl", "$script", $argv);
@@ -988,6 +988,7 @@ sub format_amount_units {
   $amount       *= $conv_unit->{factor};
 
   my @values;
+  my $num;
 
   foreach my $unit (@$conv_units) {
     my $last = $unit->{name} eq $part_unit->{name};
@@ -1376,6 +1377,7 @@ sub datetonum {
   $main::lxdebug->enter_sub();
 
   my ($self, $date, $myconfig) = @_;
+  my ($yy, $mm, $dd);
 
   if ($date && $date =~ /\D/) {
 
@@ -1434,7 +1436,7 @@ sub dbconnect_noauto {
   my ($self, $myconfig) = @_;
   
   # connect to database
-  $dbh =
+  my $dbh =
     DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser},
                  $myconfig->{dbpasswd}, { AutoCommit => 0 })
     or $self->dberror;
@@ -2048,6 +2050,7 @@ sub _get_charts {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $params) = @_;
+  my ($key);
 
   $key = $params->{key};
   $key = "all_charts" unless ($key);
@@ -2181,7 +2184,7 @@ sub _get_customers {
   my ($self, $dbh, $key, $limit) = @_;
 
   $key = "all_customers" unless ($key);
-  $limit_clause = "LIMIT $limit" if $limit;
+  my $limit_clause = "LIMIT $limit" if $limit;
 
   my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name $limit_clause|;
 
@@ -2271,19 +2274,19 @@ sub _get_simple {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_groups {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $key) = @_;
-
-  $key ||= "all_groups";
-
-  my $groups = $main::auth->read_groups();
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
-
-  $main::lxdebug->leave_sub();
-}
+#sub _get_groups {
+#  $main::lxdebug->enter_sub();
+#
+#  my ($self, $dbh, $key) = @_;
+#
+#  $key ||= "all_groups";
+#
+#  my $groups = $main::auth->read_groups();
+#
+#  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+#
+#  $main::lxdebug->leave_sub();
+#}
 
 sub get_lists {
   $main::lxdebug->enter_sub();
@@ -2383,9 +2386,10 @@ sub get_lists {
     $self->_get_warehouses($dbh, $params{warehouses});
   }
 
-  if ($params{groups}) {
-    $self->_get_groups($dbh, $params{groups});
-  }
+#  if ($params{groups}) {
+#    $self->_get_groups($dbh, $params{groups});
+#  }
+
   if ($params{partsgroup}) {
     $self->get_partsgroup(\%main::myconfig, { all => 1, target => $params{partsgroup} });
   }
@@ -2624,7 +2628,7 @@ sub create_links {
     do_statement($self, $sth, $query, '%' . $module . '%');
 
     $self->{accounts} = "";
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
 
       foreach my $key (split(/:/, $ref->{link})) {
         if ($key =~ /\Q$module\E/) {
@@ -2671,7 +2675,7 @@ sub create_links {
          WHERE a.id = ?|;
     $ref = selectfirst_hashref_query($self, $dbh, $query, $self->{id});
 
-    foreach $key (keys %$ref) {
+    foreach my $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
     }
 
@@ -2693,7 +2697,7 @@ sub create_links {
     do_statement($self, $sth, $query, "%$module%");
 
     $self->{accounts} = "";
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
 
       foreach my $key (split(/:/, $ref->{link})) {
         if ($key =~ /\Q$module\E/) {
@@ -2743,7 +2747,7 @@ sub create_links {
     my $index = 0;
 
     # store amounts in {acc_trans}{$key} for multiple accounts
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       $ref->{exchangerate} =
         $self->get_exchangerate($dbh, $self->{currency}, $ref->{transdate}, $fld);
       if (!($xkeyref{ $ref->{accno} } =~ /tax/)) {
@@ -2909,7 +2913,7 @@ sub redo_rows {
   # fill rows
   foreach my $item (sort { $a->{num} <=> $b->{num} } @ndx) {
     $i++;
-    $j = $item->{ndx} - 1;
+    my $j = $item->{ndx} - 1;
     map { $self->{"${_}_$i"} = $new->[$j]->{$_} } @{$flds};
   }
 
