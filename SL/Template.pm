@@ -180,8 +180,7 @@ sub parse_foreach {
       }
 
       # Yes we need a manual page break -- or the user has forced one
-      if ((($current_line + $lines) > $lpp) ||
-          ($form->{"description"}->[$i] =~ /<pagebreak>/)) {
+      if ((($current_line + $lines) > $lpp) || ($form->{"description"}->[$i] =~ /<pagebreak>/) || ($form->{"longdescription"}->[$i] =~ /<pagebreak>/)) {
         my $pb = $self->{"pagebreak_block"};
 
         # replace the special variables <%sumcarriedforward%>
