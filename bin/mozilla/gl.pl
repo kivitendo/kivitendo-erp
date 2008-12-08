@@ -1067,7 +1067,7 @@ sub form_header {
   $form->header;
 
   print qq|
-<body onLoad="fokus()">
+<body onLoad="focus()">
 
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
