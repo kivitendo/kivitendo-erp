@@ -609,7 +609,7 @@ sub header {
 
   <script type="text/javascript">
   <!--
-    function fokus() {
+    function focus() {
       $fokus
     }
   //-->

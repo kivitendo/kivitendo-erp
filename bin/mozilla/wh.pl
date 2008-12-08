@@ -602,7 +602,8 @@ sub report {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
-  $form->{onload} .= "fokus('partnumber');";
+  $form->{fokus}   = "partnumber";
+  $form->{onload} .= "focus();";
   $form->{title}   = $locale->text("Report about wareouse contents");
 
   $form->header();
