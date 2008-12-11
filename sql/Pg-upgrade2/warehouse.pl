@@ -63,8 +63,8 @@ INSERT INTO bin
    FROM warehouse, tmp_parts 
    WHERE warehouse.description=$warehouse);
 INSERT INTO inventory 
- (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id)
- (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id 
+ (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id, chargenumber)
+ (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id, ''
   FROM transfer_type, warehouse, tmp_parts, bin
   WHERE warehouse.description = $warehouse
     AND COALESCE(bin, $bin) = bin.description 
