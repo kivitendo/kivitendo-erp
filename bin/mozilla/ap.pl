@@ -1493,9 +1493,20 @@ sub ap_transactions {
 
     map { $ap->{$_} = $form->format_amount(\%myconfig, $ap->{$_}, 2) } qw(netamount tax amount paid due);
 
-    $ap->{type} =
-      $ap->{invoice} ? $locale->text("Invoice (one letter abbreviation)") :
-                       $locale->text("AP Transaction (abbreviation)");
+    my $is_storno  = $ap->{storno} &&  $ap->{storno_id};
+    my $has_storno = $ap->{storno} && !$ap->{storno_id};
+
+    if ($ap->{invoice}) {
+      $ap->{type} =
+          $has_storno       ? $locale->text("Invoice with Storno (abbreviation)")
+        : $is_storno        ? $locale->text("Storno (one letter abbreviation)")
+        :                     $locale->text("Invoice (one letter abbreviation)");
+    } else {
+      $ap->{type} =
+          $has_storno       ? $locale->text("AP Transaction with Storno (abbreviation)")
+        : $is_storno        ? $locale->text("AP Transaction Storno (one letter abbreviation)")
+        :                     $locale->text("AP Transaction (abbreviation)");
+    }
 
     my $row = { };
 

@@ -399,7 +399,7 @@ sub ap_transactions {
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
-    qq|  a.globalproject_id, | .
+    qq|  a.globalproject_id, a.storno, a.storno_id, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee | .
     qq|FROM ap a | .
@@ -407,7 +407,7 @@ sub ap_transactions {
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) |;
 
-  my $where = qq| WHERE COALESCE(storno, false) != true |;
+  my $where = '';
   my @values;
 
   if ($form->{vendor_id}) {
@@ -458,7 +458,7 @@ sub ap_transactions {
   }
 
   if ($where) {
-#     substr($where, 0, 4) = "WHERE";
+    substr($where, 0, 4, " WHERE ");
     $query .= $where;
   }
 
