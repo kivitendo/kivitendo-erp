@@ -1583,8 +1583,8 @@ sub ar_transactions {
 
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
 
-    my $is_storno  = $ar->{storno} && !$ar->{storno_id};
-    my $has_storno = $ar->{storno} && $ar->{storno_id};
+    my $is_storno  = $ar->{storno} &&  $ar->{storno_id};
+    my $has_storno = $ar->{storno} && !$ar->{storno_id};
 
     $ar->{type} =
       $has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :
