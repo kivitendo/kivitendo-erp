@@ -433,6 +433,7 @@ sub get_warehouse_report {
      "chargeid"             => "c.id",
      "warehousedescription" => "w.description",
      "partunit"             => "p.unit",
+     "stock_value"          => "p.lastcost / COALESCE(pfac.factor, 1)",
   );
   my $select_clause = join ', ', map { +/^l_/; "$select_tokens{$'} AS $'" }
         ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
@@ -442,6 +443,14 @@ sub get_warehouse_report {
         ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
           qw(l_parts_id l_partunit) );
 
+  my %join_tokens = (
+    "stock_value" => "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)",
+    );
+
+  my $joins = join ' ', grep { $_ } map { +/^l_/; $join_tokens{"$'"} }
+        ( grep( { !/qty/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),
+          qw(l_parts_id l_qty l_partunit) );
+
   my $query =
     qq|SELECT $select_clause
       $columns
@@ -449,6 +458,7 @@ sub get_warehouse_report {
       LEFT JOIN parts     p ON i.parts_id     = p.id
       LEFT JOIN bin       b ON i.bin_id       = b.id
       LEFT JOIN warehouse w ON i.warehouse_id = w.id
+      $joins
       WHERE $where_clause
       GROUP BY $group_clause $group_by
       ORDER BY $form->{sort}|;
@@ -476,6 +486,8 @@ sub get_warehouse_report {
       $non_empty_bins{$ref->{binid}} = 1;
       @all_fields                    = keys %{ $ref } unless (@all_fields);
     }
+
+    $ref->{stock_value} *= $ref->{qty};
 
     push @contents, $ref;
   }

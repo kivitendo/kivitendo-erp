@@ -625,7 +625,7 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber qty);
+  my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber qty stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber);
@@ -655,12 +655,13 @@ sub generate_report {
     'partdescription'      => { 'text' => $locale->text('Description'), },
     'chargenumber'         => { 'text' => $locale->text('Charge Number'), },
     'qty'                  => { 'text' => $locale->text('Qty'), },
+    'stock_value'          => { 'text' => $locale->text('Stock value'), },
   );
 
   my $href = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
   map { $column_defs{$_}->{link} = $href . "&sort=${_}&order=" . Q($_ eq $sort_col ? 1 - $form->{order} : $form->{order}) } @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(qty);
+  my %column_alignment = map { $_ => 'right' } qw(qty stock_value);
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
@@ -679,14 +680,21 @@ sub generate_report {
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my @contents  = WH->get_warehouse_report(%filter);
 
-  my $subtotal  = 0;
   my $idx       = 0;
 
+  my @subtotals_columns = qw(qty stock_value);
+  my %subtotals         = map { $_ => 0 } @subtotals_columns;
+
+  my $total_stock_value = 0;
+
   foreach $entry (@contents) {
-    $subtotal     += $entry->{qty};
-    $entry->{qty}  = $form->format_amount_units('amount'     => $entry->{qty},
-                                                'part_unit'  => $entry->{partunit},
-                                                'conv_units' => 'convertible');
+    map { $subtotals{$_} += $entry->{$_} } @subtotals_columns;
+    $total_stock_value   += $entry->{stock_value} * 1;
+
+    $entry->{qty}         = $form->format_amount_units('amount'     => $entry->{qty},
+                                                       'part_unit'  => $entry->{partunit},
+                                                       'conv_units' => 'convertible');
+    $entry->{stock_value} = $form->format_amount(\%myconfig, $entry->{stock_value} * 1, 2);
 
     $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
 
@@ -695,10 +703,12 @@ sub generate_report {
             || ($entry->{$sort_col} ne $contents[$idx + 1]->{$sort_col}))) {
 
       my $row = { map { $_ => { 'data' => '', 'class' => 'listsubtotal', 'align' => $column_alignment{$_}, } } @columns };
-      $row->{qty}->{data} = $form->format_amount_units('amount'     => $subtotal,
-                                                       'part_unit'  => $entry->{partunit},
-                                                       'conv_units' => 'convertible');
-      $subtotal = 0;
+      $row->{qty}->{data}         = $form->format_amount_units('amount'     => $subtotals{qty} * 1,
+                                                               'part_unit'  => $entry->{partunit},
+                                                               'conv_units' => 'convertible');
+      $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
+
+      %subtotals                  = map { $_ => 0 } @subtotals_columns;
 
       push @{ $row_set }, $row;
     }
@@ -706,6 +716,20 @@ sub generate_report {
     $report->add_data($row_set);
 
     $idx++;
+  }
+
+  if ($column_defs{stock_value}->{visible}) {
+    $report->add_separator();
+
+    my $row                      = { map { $_ => { 'data' => '', 'class' => 'listsubtotal', } } @columns };
+
+    my $left_col                 = first { $column_defs{$_}->{visible} } @columns;
+
+    $row->{$left_col}->{data}    = $locale->text('Total stock value');
+    $row->{stock_value}->{data}  = $form->format_amount(\%myconfig, $total_stock_value, 2);
+    $row->{stock_value}->{align} = 'right';
+
+    $report->add_data($row);
   }
 
   $report->generate_with_headers();
