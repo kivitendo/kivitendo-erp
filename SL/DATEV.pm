@@ -30,6 +30,29 @@ use SL::DBUtils;
 
 use Data::Dumper;
 
+sub _fill {
+  $main::lxdebug->enter_sub();
+
+  my $text      = shift;
+  my $field_len = shift;
+  my $fill_char = shift;
+  my $alignment = shift || 'right';
+
+  my $text_len  = length $text;
+
+  if ($field_len < $text_len) {
+    $text = substr $text, 0, $field_len;
+
+  } elsif ($field_len > $text_len) {
+    my $filler = ($fill_char) x ($field_len - $text_len);
+    $text      = $alignment eq 'right' ? $filler . $text : $text . $filler;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $text;
+}
+
 sub get_datev_stamm {
   $main::lxdebug->enter_sub();
 
@@ -371,9 +394,6 @@ sub make_kne_data_header {
 
   my ($myconfig, $form, $fromto, $start_jahr) = @_;
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
   my $jahr = $start_jahr;
   if (!$jahr) {
     my @a = localtime;
@@ -381,41 +401,18 @@ sub make_kne_data_header {
   }
 
   #Header
-  $anwendungsnr = ($fromto) ? "\x31\x31" : "\x31\x33";
-  while (length($form->{datentraegernr}) < 3) {
-    $form->{datentraegernr} = "\x30" . $form->{datentraegernr};
-  }
+  my $header  = "\x1D\x181";
+  $header    .= _fill($form->{datentraegernr}, 3, '0');
+  $header    .= ($fromto) ? "11" : "13"; # Anwendungsnummer
+  $header    .= _fill($form->{dfvkz}, 2, '0');
+  $header    .= _fill($form->{beraternr}, 7, '0');
+  $header    .= _fill($form->{mandantennr}, 5, '0');
+  $header    .= _fill($form->{abrechnungsnr} . $jahr, 6, '0');
 
-  $header = "\x1D\x18\x31" . $form->{datentraegernr} . $anwendungsnr;
-
-  $dfvkz = $form->{dfvkz};
-  while (length($dfvkz) < 2) {
-    $dfvkz = "\x30" . $dfvkz;
-  }
-  $header .= $dfvkz;
-
-  $beraternr = $form->{beraternr};
-  while (length($beraternr) < 7) {
-    $beraternr = "\x30" . $beraternr;
-  }
-  $header .= $beraternr;
-
-  $mandantennr = $form->{mandantennr};
-  while (length($mandantennr) < 5) {
-    $mandantennr = "\x30" . $mandantennr;
-  }
-  $header .= $mandantennr;
-
-  $abrechnungsnr = $form->{abrechnungsnr} . $jahr;
-  while (length($abrechnungsnr) < 6) {
-    $abrechnungsnr = "\x30" . $abrechnungsnr;
-  }
-  $header .= $abrechnungsnr;
-
-  $fromto =~ s/transdate|>=|and|\'|<=//g;
-  my ($from, $to) = split /   /, $fromto;
-  $from =~ s/ //g;
-  $to   =~ s/ //g;
+  $fromto         =~ s/transdate|>=|and|\'|<=//g;
+  my ($from, $to) =  split /   /, $fromto;
+  $from           =~ s/ //g;
+  $to             =~ s/ //g;
 
   if ($from ne "") {
     my ($fday, $fmonth, $fyear) = split(/\./, $from);
@@ -445,47 +442,30 @@ sub make_kne_data_header {
     $to = "";
   }
   $header .= $to;
+
   if ($fromto ne "") {
-    $primanota = "\x30\x30\x31";
+    $primanota = "001";
     $header .= $primanota;
   }
 
-  $passwort = $form->{passwort};
-  while (length($passwort) < 4) {
-    $passwort = "\x30" . $passwort;
-  }
-  $header .= $passwort;
-
-  $anwendungsinfo = "\x20" x 16;
-  $header .= $anwendungsinfo;
-  $inputinfo = "\x20" x 16;
-  $header .= $inputinfo;
-
+  $header .= _fill($form->{passwort}, 4, '0');
+  $header .= " " x 16;       # Anwendungsinfo
+  $header .= " " x 16;       # Inputinfo
   $header .= "\x79";
 
   #Versionssatz
-  if ($form->{exporttype} == 0) {
-    $versionssatz = "\xB5" . "1,";
-  } else {
-    $versionssatz = "\xB6" . "1,";
-  }
+  my $versionssatz  = $form->{exporttype} == 0 ? "\xB5" . "1," : "\xB6" . "1,";
 
-  $query = qq| select accno from chart limit 1|;
-  $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $dbh           = $form->get_standard_dbh($myconfig);
+  my $query         = qq|SELECT accno FROM chart LIMIT 1|;
+  my $ref           = selectfirst_hashref_query($form, $dbh, $query);
 
-  $accnolength = $ref->{accno};
-  $sth->finish;
+  $versionssatz    .= length $ref->{accno};
+  $versionssatz    .= ",";
+  $versionssatz    .= length $ref->{accno};
+  $versionssatz    .= ",SELF" . "\x1C\x79";
 
-  $versionssatz .= length($accnolength);
-  $versionssatz .= ",";
-  $versionssatz .= length($accnolength);
-  $versionssatz .= ",SELF" . "\x1C\x79";
-
-  $dbh->disconnect;
-
-  $header .= $versionssatz;
+  $header          .= $versionssatz;
 
   $main::lxdebug->leave_sub();
 
@@ -548,22 +528,21 @@ sub make_ed_versionset {
 
   my ($header, $filename, $blockcount, $fromto) = @_;
 
-  $versionset = "V" . substr($filename, 2, 5);
-  $versionset .= substr($header, 6, 22);
+  my $versionset  = "V" . substr($filename, 2, 5);
+  $versionset    .= substr($header, 6, 22);
+
   if ($fromto ne "") {
     $versionset .= "0000" . substr($header, 28, 19);
   } else {
-    $datum = "\x20" x 16;
+    $datum = " " x 16;
     $versionset .= $datum . "001" . substr($header, 28, 4);
   }
-  while (length($blockcount) < 5) {
-    $blockcount = "0" . $blockcount;
-  }
-  $versionset .= $blockcount;
+
+  $versionset .= _fill($blockcount, 5, '0');
   $versionset .= "001";
-  $versionset .= "\x20\x31";
+  $versionset .= " 1";
   $versionset .= substr($header, -12, 10) . "    ";
-  $versionset .= "\x20" x 53;
+  $versionset .= " " x 53;
 
   $main::lxdebug->leave_sub();
 
@@ -574,31 +553,14 @@ sub make_ev_header {
   $main::lxdebug->enter_sub();
 
   my ($form, $fileno) = @_;
-  $datentraegernr = $form->{datentraegernr};
-  $beraternummer  = $form->{beraternr};
-  $beratername    = $form->{beratername};
-  $anzahl_dateien = $fileno;
 
-  while (length($datentraegernr) < 3) {
-    $datentraegernr .= " ";
-  }
-
-  while (length($beraternummer) < 7) {
-    $beraternummer .= " ";
-  }
-
-  while (length($beratername) < 9) {
-    $beratername .= " ";
-  }
-
-  while (length($anzahl_dateien) < 5) {
-    $anzahl_dateien = "0" . $anzahl_dateien;
-  }
-
-  $ev_header =
-    $datentraegernr . "\x20\x20\x20" . $beraternummer . $beratername . "\x20";
-  $ev_header .= $anzahl_dateien . $anzahl_dateien;
-  $ev_header .= "\x20" x 95;
+  my $ev_header  = _fill($form->{datentraegernr}, 3, ' ', 'left');
+  $ev_header    .= "   ";
+  $ev_header    .= _fill($form->{beraternr}, 7, ' ', 'left');
+  $ev_header    .= _fill($form->{beratername}, 9, ' ', 'left');
+  $ev_header    .= " ";
+  $ev_header    .= (_fill($fileno, 5, '0')) x 2;
+  $ev_header    .= " " x 95;
 
   $main::lxdebug->leave_sub();
 
