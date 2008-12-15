@@ -27,6 +27,7 @@
 package DATEV;
 
 use SL::DBUtils;
+use SL::DATEV::KNEFile;
 
 use Data::Dumper;
 
@@ -500,27 +501,12 @@ sub datetofour {
   return $date;
 }
 
-sub formatumsatz {
-  $main::lxdebug->enter_sub();
+sub trim_leading_zeroes {
+  my $str = shift;
 
-  my ($umsatz, $stellen) = @_;
+  $str =~ s/^0+//g;
 
-  $umsatz =~ s/-//;
-  ($vorkomma, $nachkomma) = split(/\./, $umsatz);
-  $umsatz = "";
-  if ($stellen > 0) {
-    for ($i = $stellen; $i >= $stellen + 2 - length($vorkomma); $i--) {
-      $umsatz .= "0";
-    }
-  }
-  for ($i = 3; $i > length($nachkomma); $i--) {
-    $nachkomma .= "0";
-  }
-  $umsatz = $vorkomma . substr($nachkomma, 0, 2);
-
-  $main::lxdebug->leave_sub();
-
-  return $umsatz;
+  return $str;
 }
 
 sub make_ed_versionset {
@@ -595,17 +581,14 @@ sub kne_buchungsexport {
   my $counter = 0;
   print qq|<br>2. Durchlauf:|;
   while (scalar(@{ $form->{DATEV} })) {
-    my $blockcount      = 1;
-    my $remaining_bytes = 256;
-    my $total_bytes     = 256;
-    my $umsatzsumme     = 0;
-    my $buchungssatz    = "";
+    my $umsatzsumme = 0;
     $filename++;
     my $ed_filename = $export_path . $filename;
     push(@filenames, $filename);
-    open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
     $header = &make_kne_data_header($myconfig, $form, $fromto, $start_jahr);
-    $remaining_bytes -= length($header);
+
+    my $kne_file = SL::DATEV::KNEFile->new();
+    $kne_file->add_block($header);
 
     while (scalar(@{ $form->{DATEV} }) > 0) {
       $transaction = shift @{ $form->{DATEV} };
@@ -615,25 +598,24 @@ sub kne_buchungsexport {
         print("$counter ");
       }
 
-      $umsatz         = 0;
-      $gegenkonto     = "";
-      $konto          = "";
-      $belegfeld1     = "";
-      $datum          = "";
-      $waehrung       = "";
-      $buchungstext   = "";
-      $belegfeld2     = "";
-      $datevautomatik = 0;
-      $taxkey         = 0;
-      $charttax       = 0;
-      %umlaute = ('ä' => 'ae',
-                  'ö' => 'oe',
-                  'ü' => 'ue',
-                  'Ä' => 'Ae',
-                  'Ö' => 'Oe',
-                  'Ü' => 'Ue',
-                  'ß' => 'sz');
-
+      my $umsatz         = 0;
+      my $gegenkonto     = "";
+      my $konto          = "";
+      my $belegfeld1     = "";
+      my $datum          = "";
+      my $waehrung       = "";
+      my $buchungstext   = "";
+      my $belegfeld2     = "";
+      my $datevautomatik = 0;
+      my $taxkey         = 0;
+      my $charttax       = 0;
+      my %umlaute = ('ä' => 'ae',
+                     'ö' => 'oe',
+                     'ü' => 'ue',
+                     'Ä' => 'Ae',
+                     'Ö' => 'Oe',
+                     'Ü' => 'Ue',
+                     'ß' => 'sz');
       for (my $i = 0; $i < $trans_lines; $i++) {
         if ($trans_lines == 2) {
           if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {
@@ -656,39 +638,33 @@ sub kne_buchungsexport {
         if (   ($transaction->[$i]->{'id'} eq $transaction->[$i]->{'chart_id'})
             && ($trans_lines > 2)) {
           undef($transaction->[$i]);
-            } elsif ($transaction->[$i]->{'amount'} > 0) {
+        } elsif ($transaction->[$i]->{'amount'} > 0) {
           $haben = $i;
-            } else {
+        } else {
           $soll = $i;
         }
       }
 
-      $umsatzsumme += abs($umsatz);
-
       # Umwandlung von Umlauten und Sonderzeichen in erlaubte Zeichen bei Textfeldern
       foreach $umlaut (keys(%umlaute)) {
-        $transaction->[$haben]->{'invnumber'} =~
-          s/${umlaut}/${umlaute{$umlaut}}/g;
-        $transaction->[$haben]->{'name'} =~ s/${umlaut}/${umlaute{$umlaut}}/g;
+        $transaction->[$haben]->{'invnumber'} =~ s/${umlaut}/${umlaute{$umlaut}}/g;
+        $transaction->[$haben]->{'name'}      =~ s/${umlaut}/${umlaute{$umlaut}}/g;
       }
 
       $transaction->[$haben]->{'invnumber'} =~ s/[^0-9A-Za-z\$\%\&\*\+\-\/]//g;
-      $transaction->[$haben]->{'name'} =~ s/[^0-9A-Za-z\$\%\&\*\+\-\ \/]//g;
+      $transaction->[$haben]->{'name'}      =~ s/[^0-9A-Za-z\$\%\&\*\+\-\ \/]//g;
 
-      $transaction->[$haben]->{'invnumber'} =
-        substr($transaction->[$haben]->{'invnumber'}, 0, 12);
-      $transaction->[$haben]->{'name'} =
-        substr($transaction->[$haben]->{'name'}, 0, 30);
+      $transaction->[$haben]->{'invnumber'} =  substr($transaction->[$haben]->{'invnumber'}, 0, 12);
+      $transaction->[$haben]->{'name'}      =  substr($transaction->[$haben]->{'name'}, 0, 30);
       $transaction->[$haben]->{'invnumber'} =~ s/\ *$//;
       $transaction->[$haben]->{'name'}      =~ s/\ *$//;
 
       if ($trans_lines >= 2) {
 
-        $gegenkonto = "a" . $transaction->[$haben]->{'accno'};
-        $konto      = "e" . $transaction->[$soll]->{'accno'};
+        $gegenkonto = "a" . trim_leading_zeroes($transaction->[$haben]->{'accno'});
+        $konto      = "e" . trim_leading_zeroes($transaction->[$soll]->{'accno'});
         if ($transaction->[$haben]->{'invnumber'} ne "") {
-          $belegfeld1 =
-            "\xBD" . $transaction->[$haben]->{'invnumber'} . "\x1C";
+          $belegfeld1 = "\xBD" . $transaction->[$haben]->{'invnumber'} . "\x1C";
         }
         $datum = "d";
         $datum .= &datetofour($transaction->[$haben]->{'transdate'}, 0);
@@ -697,117 +673,38 @@ sub kne_buchungsexport {
           $buchungstext = "\x1E" . $transaction->[$haben]->{'name'} . "\x1C";
         }
         if ($transaction->[$haben]->{'duedate'} ne "") {
-          $belegfeld2 = "\xBE"
-            . &datetofour($transaction->[$haben]->{'duedate'}, 1) . "\x1C";
+          $belegfeld2 = "\xBE" . &datetofour($transaction->[$haben]->{'duedate'}, 1) . "\x1C";
         }
       }
 
-      if (($remaining_bytes - length("+" . &formatumsatz($umsatz, 0))) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $umsatz = abs($umsatz);
-      $vorzeichen = ($umsatz > 0) ? "+" : "-";
-      $buchungssatz .= $vorzeichen . &formatumsatz($umsatz, 0);
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
+      $umsatz       = $kne_file->format_amount(abs($umsatz), 0);
+      $umsatzsumme += $umsatz;
+      $kne_file->add_block("+" . $umsatz);
 
-      if ( ($taxkey || $datevautomatik)
-        && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
-        if (($remaining_bytes - length("\x6C" . "11")) <= 6) {
-          $fuellzeichen =
-            ($blockcount * 256 - length($buchungssatz . $header));
-          $buchungssatz .= "\x00" x $fuellzeichen;
-          $blockcount++;
-          $total_bytes = ($blockcount) * 256;
-        }
-        if (!$datevautomatik) {
-          $buchungssatz .= "\x6C" . $taxkey;
-        } else {
-          $buchungssatz .= "\x6C" . "4";
-        }
-        $remaining_bytes = $total_bytes - length($buchungssatz . $header);
+      if (   ( $datevautomatik || $taxkey)
+          && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
+        $kne_file->add_block("\x6C" . (!$datevautomatik ? $taxkey : "4"));
       }
 
-      if (($remaining_bytes - length($gegenkonto)) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $gegenkonto;
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
-      if (($remaining_bytes - length($belegfeld1)) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $belegfeld1;
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
-      if (($remaining_bytes - length($belegfeld2)) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $belegfeld2;
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
-      if (($remaining_bytes - length($datum)) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $datum;
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
-      if (($remaining_bytes - length($konto)) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $konto;
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
-      if (($remaining_bytes - length($buchungstext)) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $buchungstext;
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
-      if (($remaining_bytes - (length($waehrung . "\x79"))) <= 6) {
-        $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
-        $buchungssatz .= "\x00" x $fuellzeichen;
-        $blockcount++;
-        $total_bytes = ($blockcount) * 256;
-      }
-      $buchungssatz .= $waehrung . "\x79";
-      $remaining_bytes = $total_bytes - length($buchungssatz . $header);
-
+      $kne_file->add_block($gegenkonto);
+      $kne_file->add_block($belegfeld1);
+      $kne_file->add_block($belegfeld2);
+      $kne_file->add_block($datum);
+      $kne_file->add_block($konto);
+      $kne_file->add_block($buchungstext);
+      $kne_file->add_block($waehrung . "\x79");
     }
 
-    $mandantenendsumme =
-      "x" . &formatumsatz($umsatzsumme, 14) . "\x79" . "\x7a";
-    $fuellzeichen =
-      256 - (length($header . $buchungssatz . $mandantenendsumme) % 256);
-    $dateiende = "\x00" x $fuellzeichen;
-    print(ED $header);
-    print(ED $buchungssatz);
-    print(ED $mandantenendsumme);
-    print(ED $dateiende);
+    my $mandantenendsumme = "x" . $kne_file->format_amount($umsatzsumme / 100.0, 14) . "\x79\x7a";
+
+    $kne_file->add_block($mandantenendsumme);
+    $kne_file->flush();
+
+    open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
+    print(ED $kne_file->get_data());
     close(ED);
 
-    $ed_versionset[$fileno] =
-      &make_ed_versionset($header, $filename, $blockcount, $fromto);
+    $ed_versionset[$fileno] = &make_ed_versionset($header, $filename, $kne_file->get_block_count(), $fromto);
     $fileno++;
   }
 
@@ -864,14 +761,25 @@ sub kne_stammdatenexport {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query =
-    qq|SELECT c.accno, c.description FROM chart c WHERE c.accno >=|
-    . $dbh->quote($form->{accnofrom}) . qq|
-           AND c.accno <= |
-    . $dbh->quote($form->{accnoto}) . qq| ORDER BY c.accno|;
+  my (@where, @values) = ((), ());
+  if ($form->{accnofrom}) {
+    push @where, 'c.accno >= ?';
+    push @values, $form->{accnofrom};
+  }
+  if ($form->{accnoto}) {
+    push @where, 'c.accno <= ?';
+    push @values, $form->{accnoto};
+  }
 
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
+  my $where_str = ' WHERE ' . join(' AND ', map { "($_)" } @where) if (scalar @where);
+
+  my $query     = qq|SELECT c.accno, c.description
+                     FROM chart c
+                     $where_str
+                     ORDER BY c.accno|;
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute(@values) || $form->dberror($query);
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     if (($remaining_bytes - length("t" . $ref->{'accno'})) <= 6) {
