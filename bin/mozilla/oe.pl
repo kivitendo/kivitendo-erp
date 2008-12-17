@@ -333,7 +333,6 @@ sub form_header {
   # business
   $TMPL_VAR{business_label} = ($form->{vc} eq "customer" ? $locale->text('Customer type') : $locale->text('Vendor type'));
 
-  push @custom_hiddens, "ordnumber"      if $form->{type} =~ /_quotation$/;
   push @custom_hiddens, "customer_klass" if $form->{vc} eq 'customer';
 
   $credittext = $locale->text('Credit Limit exceeded!!!');
@@ -1795,7 +1794,8 @@ sub poso {
   $form->{old_salesman_id}     = $form->{salesman_id};
 
   # reset
-  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered);
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered
+                                ordnumber);
 
   for $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor);
