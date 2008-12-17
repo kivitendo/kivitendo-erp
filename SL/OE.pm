@@ -437,7 +437,7 @@ sub save {
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
        WHERE id = ?|;
 
-  @values = ($form->{ordnumber}, $form->{quonumber},
+  @values = ($form->{ordnumber} || '', $form->{quonumber},
              $form->{cusordnumber}, conv_date($form->{transdate}),
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
              $amount, $netamount, conv_date($reqdate),
