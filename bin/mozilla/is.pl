@@ -532,7 +532,7 @@ sub form_header {
   $jsscript = "";
   if ($form->{type} eq "credit_note") {
     $button1 = qq|
-      <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+      <td nowrap><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
        <input type="button" name="invdate" id="trigger1" value="|
       . $locale->text('button') . qq|"></td>|;
 
@@ -543,7 +543,7 @@ sub form_header {
                           "trigger1");
   } else {
     $button1 = qq|
-      <td><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
+      <td nowrap><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
        <input type="button" name="invdate" id="trigger1" value="|
       . $locale->text('button') . qq|"></td>
       |;
