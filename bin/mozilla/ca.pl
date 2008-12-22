@@ -368,6 +368,20 @@ $jsscript
   $lxdebug->leave_sub();
 }
 
+sub format_debit_credit {
+  $lxdebug->enter_sub();
+
+  my $dc = shift;
+
+  my $formatted_dc  = $form->format_amount(\%myconfig, abs($dc), 2) . ' ';
+  $formatted_dc    .= ($dc > 0) ? $locale->text('Credit (one letter abbreviation)') : $locale->text('Debit (one letter abbreviation)');
+
+  $lxdebug->leave_sub();
+
+  return $formatted_dc;
+}
+
+
 sub list_transactions {
   $lxdebug->enter_sub();
 
@@ -479,9 +493,8 @@ sub list_transactions {
   CA->all_transactions(\%myconfig, \%$form);
 
 
-  my $saldo_old = ($form->{saldo_old} > 0) ? $form->format_amount(\%myconfig, $form->{saldo_old}, 2) . " H" : $form->format_amount(\%myconfig, abs($form->{saldo_old}) , 2) . " S";
-
-  my $eb_string = ($form->{beginning_balance} > 0) ? $form->format_amount(\%myconfig, $form->{beginning_balance}, 2) . " H" : $form->format_amount(\%myconfig, abs($form->{beginning_balance}), 2) . " S";
+  my $saldo_old = format_debit_credit($form->{saldo_old});
+  my $eb_string = format_debit_credit($form->{beginning_balance});
 
   my @options;
   if ($form->{department}) {
@@ -696,7 +709,7 @@ sub list_transactions {
   };
 
   $report->add_data($row);
-  my $saldo_new = ($form->{saldo_new} > 0) ? $form->format_amount(\%myconfig, $form->{saldo_new}, 2) . " H" : $form->format_amount(\%myconfig, abs($form->{saldo_new}) , 2) . " S";
+  my $saldo_new = format_debit_credit($form->{saldo_new});
   my $row = {
      'transdate' => {
        'data'    => "",
