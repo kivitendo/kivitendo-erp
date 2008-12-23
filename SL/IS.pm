@@ -34,6 +34,8 @@
 
 package IS;
 
+use strict;
+
 use List::Util qw(max);
 
 use SL::AM;
@@ -74,12 +76,12 @@ sub invoice_details {
   }
 
   # sort items by partsgroup
-  for $i (1 .. $form->{rowcount}) {
-    $partsgroup = "";
-    if ($form->{"partsgroup_$i"} && $form->{groupitems}) {
-      $partsgroup = $form->{"partsgroup_$i"};
-    }
-    push @partsgroup, [$i, $partsgroup];
+  for my $i (1 .. $form->{rowcount}) {
+#    $partsgroup = "";
+#    if ($form->{"partsgroup_$i"} && $form->{groupitems}) {
+#      $partsgroup = $form->{"partsgroup_$i"};
+#    }
+#    push @partsgroup, [$i, $partsgroup];
     push(@project_ids, $form->{"project_id_$i"}) if ($form->{"project_id_$i"});
   }
 
@@ -198,7 +200,7 @@ sub invoice_details {
       if ($form->{lizenzen}) {
         if ($form->{"licensenumber_$i"}) {
           $query = qq|SELECT licensenumber, validuntil FROM license WHERE id = ?|;
-          ($licensenumber, $validuntil) = selectrow_query($form, $dbh, $query, conv_i($form->{"licensenumber_$i"}));
+          my ($licensenumber, $validuntil) = selectrow_query($form, $dbh, $query, conv_i($form->{"licensenumber_$i"}));
           push(@{ $form->{licensenumber} }, $licensenumber);
           push(@{ $form->{validuntil} }, $locale->date($myconfig, $validuntil, 0));
 
@@ -300,7 +302,7 @@ sub invoice_details {
           $taxbase{$accno}     += $taxbase;
         }
       }
-      $tax_rate = $taxrate * 100;
+      my $tax_rate = $taxrate * 100;
       push(@{ $form->{tax_rate} }, qq|$tax_rate|);
       if ($form->{"assembly_$i"}) {
         $sameitem = "";
@@ -322,7 +324,7 @@ sub invoice_details {
              WHERE (a.bom = '1') AND (a.id = ?) $sortorder|;
         $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id_$i"}));
 
-        while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+        while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
             map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
@@ -398,6 +400,7 @@ sub project_description {
   $main::lxdebug->enter_sub();
 
   my ($self, $dbh, $id) = @_;
+  my $form = \%main::form;
 
   my $query = qq|SELECT description FROM project WHERE id = ?|;
   my ($description) = selectrow_query($form, $dbh, $query, conv_i($id));
@@ -554,7 +557,7 @@ sub post_invoice {
       $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
     }
     my $basefactor;
-    my $basqty;
+    my $baseqty;
 
     $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
     $form->{"marge_total_$i"} = $form->parse_amount($myconfig, $form->{"marge_total_$i"}) * 1;
@@ -1136,7 +1139,7 @@ sub process_assembly {
        WHERE (a.id = ?)|;
   my $sth = prepare_execute_query($form, $dbh, $query, conv_i($id));
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
 
     my $allocated = 0;
 
@@ -1159,7 +1162,7 @@ sub process_assembly {
     $query =
       qq|INSERT INTO invoice (trans_id, description, parts_id, qty, sellprice, fxsellprice, allocated, assemblyitem, unit)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)|;
-    @values = (conv_i($form->{id}), $ref->{description}, conv_i($ref->{parts_id}), $ref->{qty}, 0, 0, $allocated, 't', $ref->{unit});
+    my @values = (conv_i($form->{id}), $ref->{description}, conv_i($ref->{parts_id}), $ref->{qty}, 0, 0, $allocated, 't', $ref->{unit});
     do_query($form, $dbh, $query, @values);
 
   }
@@ -1194,7 +1197,7 @@ sub cogs {
   my $allocated = 0;
   my $qty;
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
     if (($qty = (($ref->{base_qty} * -1) - $ref->{allocated})) > $totalqty) {
       $qty = $totalqty;
     }
@@ -1203,7 +1206,7 @@ sub cogs {
 
     # total expenses and inventory
     # sellprice is the cost of the item
-    $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / $basefactor, 2);
+    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / $basefactor, 2);
 
     if (!$main::eur) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
@@ -1242,7 +1245,7 @@ sub reverse_invoice {
        WHERE i.trans_id = ?|;
   my $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id"}));
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
 
     if ($ref->{inventory_accno_id}) {
       # de-allocated purchases
@@ -1253,8 +1256,8 @@ sub reverse_invoice {
            ORDER BY i.trans_id DESC|;
       my $sth2 = prepare_execute_query($form, $dbh, $query, conv_i($ref->{"parts_id"}));
 
-      while (my $inhref = $sth2->fetchrow_hashref(NAME_lc)) {
-        $qty = $ref->{qty};
+      while (my $inhref = $sth2->fetchrow_hashref('NAME_lc')) {
+        my $qty = $ref->{qty};
         if (($ref->{qty} - $inhref->{allocated}) > 0) {
           $qty = $inhref->{allocated};
         }
@@ -1271,7 +1274,7 @@ sub reverse_invoice {
   $sth->finish;
 
   # delete acc_trans
-  @values = (conv_i($form->{id}));
+  my @values = (conv_i($form->{id}));
   do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, @values);
   do_query($form, $dbh, qq|DELETE FROM invoice WHERE trans_id = ?|, @values);
 
@@ -1312,7 +1315,7 @@ sub delete_invoice {
   $dbh->disconnect;
 
   if ($rc) {
-    map { unlink "$spool/$_" if -f "$spool/$_"; } @{ $spoolfiles };
+    map { unlink "$spool/$_" if -f "$spool/$_"; } @spoolfiles;
   }
 
   $main::lxdebug->leave_sub();
@@ -1386,7 +1389,7 @@ sub retrieve_invoice {
     $query = qq|SELECT printed, emailed, spoolfile, formname FROM status WHERE trans_id = ?|;
     $sth = prepare_execute_query($form, $dbh, $query, $id);
 
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref('NAME_lc')) {
       $form->{printed} .= "$ref->{formname} " if $ref->{printed};
       $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
       $form->{queued} .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
@@ -1429,7 +1432,7 @@ sub retrieve_invoice {
 
     $sth = prepare_execute_query($form, $dbh, $query, $id);
 
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
       map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
       delete($ref->{"part_inventory_accno_id"});
 
@@ -1454,7 +1457,7 @@ sub retrieve_invoice {
       my $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
       $ref->{taxaccounts} = "";
       my $i=0;
-      while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
+      while (my $ptr = $stw->fetchrow_hashref('NAME_lc')) {
 
         if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
           $i++;
@@ -1574,7 +1577,7 @@ sub get_customer {
        WHERE o.customer_id = ?
          AND o.quotation = '0'
          AND o.closed = '0'|;
-  $sth = prepare_execute_query($form, $dbh, $query, $cid);
+  my $sth = prepare_execute_query($form, $dbh, $query, $cid);
 
   while (my ($amount, $exch) = $sth->fetchrow_array) {
     $exch = 1 unless $exch;
@@ -1608,7 +1611,7 @@ sub get_customer {
     $sth = prepare_execute_query($form, $dbh, $query, $cid, $cid);
 
     my $i = 0;
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref('NAME_lc')) {
       if ($ref->{category} eq 'I') {
         $i++;
         $form->{"AR_amount_$i"} = "$ref->{accno}--$ref->{description}";
@@ -1725,7 +1728,7 @@ sub retrieve_item {
        WHERE $where|;
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
 
     # In der Buchungsgruppe ist immer ein Bestandskonto verknuepft, auch wenn
     # es sich um eine Dienstleistung handelt. Bei Dienstleistungen muss das
@@ -1753,7 +1756,7 @@ sub retrieve_item {
     }
 
     # get tax rates and description
-    $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
+    my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
       qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
          FROM tax t
@@ -1767,14 +1770,14 @@ sub retrieve_item {
             LIMIT 1)
          ORDER BY c.accno|;
     @values = ($accno_id, $transdate eq "current_date" ? "now" : $transdate);
-    $stw = $dbh->prepare($query);
+    my $stw = $dbh->prepare($query);
     $stw->execute(@values) || $form->dberror($query);
 
     $ref->{taxaccounts} = "";
     my $i = 0;
-    while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
+    while (my $ptr = $stw->fetchrow_hashref('NAME_lc')) {
 
-      #    if ($customertax{$ref->{accno}}) {
+      #    if ($customertax{$ref->{accno}}) 
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
         $i++;
         $ptr->{accno} = $i;
@@ -1833,7 +1836,7 @@ sub retrieve_item {
              FROM license l
              WHERE l.parts_id = ? AND NOT l.id IN (SELECT li.license_id FROM licenseinvoice li)|;
         my $stw = prepare_execute_query($form, $dbh, $query, conv_i($ref->{id}));
-        while (my $ptr = $stw->fetchrow_hashref(NAME_lc)) {
+        while (my $ptr = $stw->fetchrow_hashref('NAME_lc')) {
           push @{ $form->{LIZENZEN}{ $ref->{id} } }, $ptr;
         }
         $stw->finish;
@@ -1875,15 +1878,15 @@ sub get_pricegroups_for_parts {
       $id = $form->{"new_id_$i"};
     }
 
-    ($price, $selectedpricegroup_id) = split(/--/,
+    my ($price, $selectedpricegroup_id) = split(/--/,
       $form->{"sellprice_pg_$i"});
 
-    $pricegroup_old = $form->{"pricegroup_old_$i"};
+    my $pricegroup_old = $form->{"pricegroup_old_$i"};
     $form->{"new_pricegroup_$i"} = $selectedpricegroup_id;
     $form->{"old_pricegroup_$i"} = $pricegroup_old;
 
-    $price_new = $form->{"price_new_$i"};
-    $price_old = $form->{"price_old_$i"};
+    my $price_new = $form->{"price_new_$i"};
+    my $price_old = $form->{"price_old_$i"};
 
     if (!$form->{"unit_old_$i"}) {
       # Neue Ware aus der Datenbank. In diesem Fall ist unit_$i die
@@ -1919,7 +1922,7 @@ sub get_pricegroups_for_parts {
       $form->{"basefactor_$i"} = 1;
     }
 
-    $query =
+    my $query =
       qq|SELECT
            pricegroup_id,
            (SELECT p.sellprice FROM parts p WHERE p.id = ?) AS default_sellprice,
@@ -1940,10 +1943,10 @@ sub get_pricegroups_for_parts {
           FROM prices
 
           ORDER BY pricegroup|;
-    @values = (conv_i($id), conv_i($id), conv_i($id), conv_i($id));
+    my @values = (conv_i($id), conv_i($id), conv_i($id), conv_i($id));
     my $pkq = prepare_execute_query($form, $dbh, $query, @values);
 
-    while ($pkr = $pkq->fetchrow_hashref(NAME_lc)) {
+    while (my $pkr = $pkq->fetchrow_hashref('NAME_lc')) {
       $pkr->{id}       = $id;
       $pkr->{selected} = '';
 

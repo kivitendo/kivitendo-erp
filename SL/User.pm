@@ -34,6 +34,8 @@
 
 package User;
 
+use strict;
+
 use IO::File;
 use Fcntl qw(:seek);
 
@@ -92,6 +94,7 @@ sub login {
   $main::lxdebug->enter_sub();
 
   my ($self, $form) = @_;
+  our $sid;
 
   local *FH;
 
@@ -680,8 +683,8 @@ sub cmp_script_version {
   $my_a =~ s/.sql$//;
   $my_b =~ s/.*-upgrade-//;
   $my_b =~ s/.sql$//;
-  ($my_a_from, $my_a_to) = split(/-/, $my_a);
-  ($my_b_from, $my_b_to) = split(/-/, $my_b);
+  my ($my_a_from, $my_a_to) = split(/-/, $my_a);
+  my ($my_b_from, $my_b_to) = split(/-/, $my_b);
 
   $res_a = calc_version($my_a_from);
   $res_b = calc_version($my_b_from);
@@ -934,6 +937,7 @@ sub save_member {
   $main::lxdebug->enter_sub();
 
   my ($self) = @_;
+  my $form   = \%main::form;
 
   # format dbconnect and dboptions string
   dbconnect_vars($self, $self->{dbname});
@@ -964,7 +968,7 @@ sub create_employee_entry {
   my ($login)  = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
 
   if (!$login) {
-    $query = qq|INSERT INTO employee (login, name, workphone, role) VALUES (?, ?, ?, ?)|;
+    my $query = qq|INSERT INTO employee (login, name, workphone, role) VALUES (?, ?, ?, ?)|;
     do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}, "user"));
   }
 
