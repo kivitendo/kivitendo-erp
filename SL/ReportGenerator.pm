@@ -1,12 +1,14 @@
 package SL::ReportGenerator;
 
+use strict;
+
 use Encode;
 use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
 use Text::Iconv;
-use PDF::API2;
-use PDF::Table;
+#use PDF::API2;    # these two eat up to .75s on startup. only load them if we actually need them
+#use PDF::Table;
 
 use SL::Form;
 
@@ -440,7 +442,7 @@ sub generate_pdf_content {
   my $font_encoding     = $main::dbcharset || 'ISO-8859-15';
   $self->{text_is_utf8} = $font_encoding =~ m/^utf-?8$/i;
 
-  foreach $name (@visible_columns) {
+  foreach my $name (@visible_columns) {
     push @column_props, { 'justify' => $self->{columns}->{$name}->{align} eq 'right' ? 'right' : 'left' };
   }
 
@@ -450,8 +452,8 @@ sub generate_pdf_content {
     push @data,       $data_row;
     push @cell_props, $cell_props_row;
 
-    foreach $name (@visible_columns) {
-      $column = $self->{columns}->{$name};
+    foreach my $name (@visible_columns) {
+      my $column = $self->{columns}->{$name};
 
       push @{ $data_row },       $self->_decode_text($column->{text});
       push @{ $cell_props_row }, {};
