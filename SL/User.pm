@@ -34,7 +34,7 @@
 
 package User;
 
-use strict;
+#use strict;
 
 use IO::File;
 use Fcntl qw(:seek);
