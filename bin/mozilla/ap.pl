@@ -361,12 +361,12 @@ selectvendor } </select>|
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"> $readonly</td>
+       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
-       <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"> $readonly</td>
+       <td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\" $readonly></td>
        <td><input type=button name=duedate id="trigger2" value=|
       . $locale->text('button') . qq|></td></td>
      |;
@@ -379,9 +379,9 @@ selectvendor } </select>|
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\"> $readonly</td>|;
+      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
     $button2 =
-      qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\"> $readonly</td>|;
+      qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
   }
 
   my $follow_up_vc         =  $form->{vendor};
