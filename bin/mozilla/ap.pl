@@ -498,8 +498,6 @@ $jsscript
     . $locale->text('Amount') . qq|</th>
           <th class=listheading style="width:10%">|
     . $locale->text('Tax') . qq|</th>
-          <th class=listheading style="width:5%">|
-    . $locale->text('Korrektur') . qq|</th>
           <th class=listheading style="width:10%">|
     . $locale->text('Taxkey') . qq|</th>
           <th class=listheading style="width:10%">|
@@ -555,8 +553,6 @@ $jsscript
                            '-default' => $selected_taxchart))
       . qq|</td>|;
 
-    my $korrektur = $form->{"korrektur_$i"} ? 'checked' : '';
-
     my $projectnumber =
       NTI($cgi->popup_menu('-name' => "project_id_$i",
                            '-values' => \@project_values,
@@ -567,8 +563,7 @@ $jsscript
 	<tr>
           <td>$selectAP_amount</td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
-          <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
-          <td><input type="checkbox" name="korrektur_$i" value="1" "$korrektur"></td>
+          <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
           $tax
           <td>$projectnumber</td>
 	</tr>
@@ -869,17 +864,15 @@ sub update {
     if ($form->{"amount_$i"}) {
       push @a, {};
       $j = $#a;
-      if (!$form->{"korrektur_$i"}) {
-        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-        if ($taxkey > 1) {
-          if ($form->{taxincluded}) {
-            $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
-          } else {
-            $form->{"tax_$i"} = $form->{"amount_$i"} * $rate;
-          }
+      ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+      if ($taxkey > 1) {
+        if ($form->{taxincluded}) {
+          $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
         } else {
-          $form->{"tax_$i"} = 0;
+          $form->{"tax_$i"} = $form->{"amount_$i"} * $rate;
         }
+      } else {
+        $form->{"tax_$i"} = 0;
       }
       $form->{"tax_$i"} = $form->round_amount($form->{"tax_$i"}, 2);
 

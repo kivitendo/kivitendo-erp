@@ -785,7 +785,6 @@ $self->{texts} = {
   'Keine Suchergebnisse gefunden!' => 'Keine Suchergebnisse gefunden!',
   'Konten'                      => 'Konten',
   'Kontonummernerweiterung (KNE)' => 'Kontonummernerweiterung (KNE)',
-  'Korrektur'                   => 'Korrektur',
   'L'                           => 'L',
   'LP'                          => 'LP',
   'LaTeX Templates'             => 'LaTeX-Vorlagen',

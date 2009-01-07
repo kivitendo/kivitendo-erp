@@ -701,22 +701,20 @@ sub update {
         $form->{"taxchart_$i"} = "0--0.00";
         $form->{"tax_$i"}      = 0;
       }
-      if (!$form->{"korrektur_$i"}) {
-        ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-        if ($taxkey > 1) {
-          if ($debitcredit) {
-            $debittax = 1;
-          } else {
-            $credittax = 1;
-          }
-          if ($form->{taxincluded}) {
-            $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
-          } else {
-            $form->{"tax_$i"} = $amount * $rate;
-          }
+      ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+      if ($taxkey > 1) {
+        if ($debitcredit) {
+          $debittax = 1;
         } else {
-          $form->{"tax_$i"} = 0;
+          $credittax = 1;
         }
+        if ($form->{taxincluded}) {
+          $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+        } else {
+          $form->{"tax_$i"} = $amount * $rate;
+        }
+      } else {
+        $form->{"tax_$i"} = 0;
       }
 
       for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
@@ -862,8 +860,6 @@ sub display_rows {
       . qq|</td>|;
 
     if ($init) {
-      $korrektur =
-        qq|<td><input type="checkbox" name="korrektur_$i" value="1"></td>|;
       if ($form->{transfer}) {
         $fx_transaction = qq|
         <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
@@ -898,14 +894,9 @@ sub display_rows {
       <td><input type=hidden name="fx_transaction_$i" value="$checked">$x</td>
     |;
         }
-        $checked = ($form->{"korrektur_$i"}) ? "checked" : "";
-        $korrektur =
-          qq|<td><input type="checkbox" name="korrektur_$i" value="1" $checked></td>|;
         $form->hide_form("accno_$i");
 
       } else {
-        $korrektur =
-          qq|<td><input type="checkbox" name="korrektur_$i" value="1"></td>|;
         if ($form->{transfer}) {
           $fx_transaction = qq|
       <td><input name="fx_transaction_$i" class=checkbox type=checkbox value=1></td>
@@ -936,8 +927,7 @@ sub display_rows {
     $fx_transaction
     <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $copy2credit $debitreadonly></td>
     <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
-    <td><input name="tax_$i" size=6 value="$form->{"tax_$i"}"></td>
-    $korrektur
+    <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
     $tax|;
 
     if ($form->{show_details}) {
@@ -1197,8 +1187,6 @@ sub form_header {
           <th class=listheading style="width:10%">|
     . $locale->text('Tax') . qq|</th>
           <th class=listheading style="width:5%">|
-    . $locale->text('Korrektur') . qq|</th>
-          <th class=listheading style="width:10%">|
     . $locale->text('Taxkey') . qq|</th>|;
 
   if ($form->{show_details}) {
@@ -1421,33 +1409,25 @@ sub post_transaction {
       $form->{"taxchart_$i"} = "0--0.00";
       $form->{"tax_$i"}      = 0;
     }
-    if (!$form->{"korrektur_$i"}) {
-      ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-      if ($taxkey > 1) {
-        if ($debitcredit) {
-          $debittax = 1;
-        } else {
-          $credittax = 1;
-        }
-        if ($form->{taxincluded}) {
-          $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
-          if ($debitcredit) {
-            $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
-          } else {
-            $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
-          }
-        } else {
-          $form->{"tax_$i"} = $amount * $rate;
-        }
-      } else {
-        $form->{"tax_$i"} = 0;
-      }
-    } elsif ($form->{taxincluded}) {
+    ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+    if ($taxkey > 1) {
       if ($debitcredit) {
-        $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+        $debittax = 1;
       } else {
-        $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+        $credittax = 1;
       }
+      if ($form->{taxincluded}) {
+        $form->{"tax_$i"} = $amount / ($rate + 1) * $rate;
+        if ($debitcredit) {
+          $form->{"debit_$i"} = $form->{"debit_$i"} - $form->{"tax_$i"};
+        } else {
+          $form->{"credit_$i"} = $form->{"credit_$i"} - $form->{"tax_$i"};
+        }
+      } else {
+        $form->{"tax_$i"} = $amount * $rate;
+      }
+    } else {
+      $form->{"tax_$i"} = 0;
     }
 
     for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }

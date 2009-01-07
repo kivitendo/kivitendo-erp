@@ -214,7 +214,7 @@ sub form_header {
   my ($title, $readonly, $exchangerate, $rows);
   my ($taxincluded, $notes, $department, $customer, $employee, $amount, $project);
   my ($jsscript, $button1, $button2, $onload);
-  my ($selectAR_amount, $selectAR_paid, $korrektur_checked, $ARselected, $tax);
+  my ($selectAR_amount, $selectAR_paid, $ARselected, $tax);
   my (@column_index, %column_data);
 
 
@@ -544,8 +544,6 @@ $jsscript
           <th class=listheading style="width:10%">|
     . $locale->text('Tax') . qq|</th>
           <th class=listheading style="width:5%">|
-    . $locale->text('Korrektur') . qq|</th>
-          <th class=listheading style="width:10%">|
     . $locale->text('Taxkey') . qq|</th>
           <th class=listheading style="width:10%">|
     . $locale->text('Project') . qq|</th>
@@ -600,8 +598,6 @@ $jsscript
                            '-default' => $selected_taxchart))
       . qq|</td>|;
 
-    $korrektur_checked = ($form->{"korrektur_$i"} ? 'checked' : '');
-
     my $projectnumber =
       NTI($cgi->popup_menu('-name' => "project_id_$i",
                            '-values' => \@project_values,
@@ -612,8 +608,7 @@ $jsscript
 	<tr>
           <td>$selectAR_amount</td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
-          <td><input name="tax_$i" size=10 value=$form->{"tax_$i"}></td>
-          <td><input type="checkbox" name="korrektur_$i" value="1" $korrektur_checked></td>
+          <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
           $tax
           <td>$projectnumber</td>
 	</tr>
@@ -932,17 +927,15 @@ sub update {
     if ($form->{"amount_$i"}) {
       push @a, {};
       my $j = $#a;
-      if (!$form->{"korrektur_$i"}) {
-        my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
-        if ($taxkey > 1) {
-          if ($form->{taxincluded}) {
-            $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
-          } else {
-            $form->{"tax_$i"} = $form->{"amount_$i"} * $rate;
-          }
+      my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+      if ($taxkey > 1) {
+        if ($form->{taxincluded}) {
+          $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
         } else {
-          $form->{"tax_$i"} = 0;
+          $form->{"tax_$i"} = $form->{"amount_$i"} * $rate;
         }
+      } else {
+        $form->{"tax_$i"} = 0;
       }
       $form->{"tax_$i"} = $form->round_amount($form->{"tax_$i"}, 2);
 

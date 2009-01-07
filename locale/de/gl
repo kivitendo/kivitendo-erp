@@ -111,7 +111,6 @@ $self->{texts} = {
   'July'                        => 'Juli',
   'Jun'                         => 'Jun',
   'June'                        => 'Juni',
-  'Korrektur'                   => 'Korrektur',
   'Liability'                   => 'Passiva/Mittelherkunft',
   'MAILED'                      => 'Gesendet',
   'Manage license keys'         => 'Lizenzschl&uuml;ssel verwalten',
