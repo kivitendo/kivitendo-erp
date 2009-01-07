@@ -298,12 +298,13 @@ selectvendor } </select>|
   map({ push(@old_project_ids, $form->{"project_id_$_"})
           if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
 
-  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 0,
-                                   "old_id" => \@old_project_ids },
-                   "charts" => { "key" => "ALL_CHARTS",
-                                 "transdate" => $form->{transdate} },
-                   "taxcharts" => "ALL_TAXCHARTS");
+  $form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
+                                    "all"       => 0,
+                                    "old_id"    => \@old_project_ids },
+                   "charts"    => { "key"       => "ALL_CHARTS",
+                                    "transdate" => $form->{transdate} },
+                   "taxcharts" => { "key"       => "ALL_TAXCHARTS",
+                                    "module"    => "AP" },);
 
   map({ $_->{link_split} = [ split(/:/, $_->{link}) ]; }
       @{ $form->{ALL_CHARTS} });

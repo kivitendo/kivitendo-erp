@@ -2077,11 +2077,27 @@ sub _get_charts {
 sub _get_taxcharts {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $key) = @_;
+  my ($self, $dbh, $params) = @_;
 
-  $key = "all_taxcharts" unless ($key);
+  my $key = "all_taxcharts";
+  my @where;
 
-  my $query = qq|SELECT * FROM tax ORDER BY taxkey|;
+  if (ref $params eq 'HASH') {
+    $key = $params->{key} if ($params->{key});
+    if ($params->{module} eq 'AR') {
+      push @where, 'taxkey NOT IN (8, 9, 18, 19)';
+
+    } elsif ($params->{module} eq 'AP') {
+      push @where, 'taxkey NOT IN (1, 2, 3, 12, 13)';
+    }
+
+  } elsif ($params) {
+    $key = $params;
+  }
+
+  my $where = ' WHERE ' . join(' AND ', map { "($_)" } @where) if (@where);
+
+  my $query = qq|SELECT * FROM tax $where ORDER BY taxkey|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
