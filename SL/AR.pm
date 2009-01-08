@@ -86,9 +86,6 @@ sub post_transaction {
     $query = qq|SELECT c.accno, t.taxkey, t.rate FROM tax t LEFT JOIN chart c ON (c.id = t.chart_id) WHERE t.id = ? ORDER BY c.accno|;
     ($form->{AR_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) = selectrow_query($form, $dbh, $query, $form->{"tax_id_$i"});
 
-    $form->{AR_amounts}{"tax_$i"}{taxkey}     = $form->{"taxkey_$i"};
-    $form->{AR_amounts}{"amounts_$i"}{taxkey} = $form->{"taxkey_$i"};
-
     if ($form->{taxincluded} *= 1) {
       $tax = $form->{"korrektur_$i"}
         ? $form->{"tax_$i"}
@@ -172,19 +169,20 @@ sub post_transaction {
     for $i (1 .. $form->{rowcount}) {
       if ($form->{"amount_$i"} != 0) {
         my $project_id = conv_i($form->{"project_id_$i"});
-        $taxkey = $form->{AR_amounts}{"amounts_$i"}{taxkey};
 
         # insert detail records in acc_trans
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
                      VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
-        @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"amount_$i"}), conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id, conv_i($taxkey));
+        @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"amount_$i"}), conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id,
+                   conv_i($form->{"taxkey_$i"}));
         do_query($form, $dbh, $query, @values);
 
         if ($form->{"tax_$i"} != 0) {
           # insert detail records in acc_trans
           $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
                        VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
-          @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"tax_$i"}), conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id, conv_i($taxkey));
+          @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"tax_$i"}), conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id,
+                     conv_i($form->{"taxkey_$i"}));
           do_query($form, $dbh, $query, @values);
         }
       }

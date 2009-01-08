@@ -96,10 +96,7 @@ sub post_transaction {
       qq|ORDER BY c.accno|;
     $sth = $dbh->prepare($query);
     $sth->execute($form->{"tax_id_$i"}) || $form->dberror($query . " (" . $form->{"tax_id_$i"} . ")");
-    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) =
-      $sth->fetchrow_array;
-    $form->{AP_amounts}{"tax_$i"}{taxkey}    = $form->{"taxkey_$i"};
-    $form->{AP_amounts}{"amount_$i"}{taxkey} = $form->{"taxkey_$i"};
+    ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) = $sth->fetchrow_array();
 
     $sth->finish;
     if ($form->{taxincluded} *= 1) {
@@ -212,7 +209,6 @@ sub post_transaction {
       if ($form->{"amount_$i"} != 0) {
         my $project_id;
         $project_id = conv_i($form->{"project_id_$i"});
-        $taxkey = $form->{AP_amounts}{"amount_$i"}{taxkey};
 
         # insert detail records in acc_trans
         $query =
@@ -222,7 +218,7 @@ sub post_transaction {
           qq|  ?, ?, ?, ?)|;
         @values = ($form->{id}, $form->{AP_amounts}{"amount_$i"},
                    $form->{"amount_$i"}, conv_date($form->{transdate}),
-                   $project_id, $taxkey);
+                   $project_id, $form->{"taxkey_$i"});
         do_query($form, $dbh, $query, @values);
 
         if ($form->{"tax_$i"} != 0) {
@@ -234,7 +230,7 @@ sub post_transaction {
             qq|  ?, ?, ?, ?)|;
           @values = ($form->{id}, $form->{AP_amounts}{"tax_$i"},
                      $form->{"tax_$i"}, conv_date($form->{transdate}),
-                     $project_id, $taxkey);
+                     $project_id, $form->{"taxkey_$i"});
           do_query($form, $dbh, $query, @values);
         }
 
