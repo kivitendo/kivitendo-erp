@@ -549,6 +549,8 @@ sub post_invoice {
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
   my $price_factor;
 
+  $form->{amount_cogs} = {};
+
   foreach my $i (1 .. $form->{rowcount}) {
     if ($form->{type} eq "credit_note") {
       $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"}) * -1;
@@ -770,6 +772,35 @@ sub post_invoice {
   }
 
   $project_id = conv_i($form->{"globalproject_id"});
+
+  foreach my $trans_id (keys %{ $form->{amount_cogs} }) {
+    foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
+      next unless ($form->{expense_inventory} =~ /\Q$accno\E/);
+
+      $form->{amount_cogs}{$trans_id}{$accno} = $form->round_amount($form->{amount_cogs}{$trans_id}{$accno}, 2);
+
+      if (!$payments_only && ($form->{amount_cogs}{$trans_id}{$accno} != 0)) {
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id)
+               VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 0, ?)|;
+        @values = (conv_i($trans_id), $accno, $form->{amount_cogs}{$trans_id}{$accno}, conv_date($form->{invdate}), conv_i($project_id));
+        do_query($form, $dbh, $query, @values);
+        $form->{amount_cogs}{$trans_id}{$accno} = 0;
+      }
+    }
+
+    foreach my $accno (keys %{ $form->{amount_cogs}{$trans_id} }) {
+      $form->{amount_cogs}{$trans_id}{$accno} = $form->round_amount($form->{amount_cogs}{$trans_id}{$accno}, 2);
+
+      if (!$payments_only && ($form->{amount_cogs}{$trans_id}{$accno} != 0)) {
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id)
+               VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 0, ?)|;
+        @values = (conv_i($trans_id), $accno, $form->{amount_cogs}{$trans_id}{$accno}, conv_date($form->{invdate}), conv_i($project_id));
+        do_query($form, $dbh, $query, @values);
+      }
+    }
+  }
 
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
@@ -1211,11 +1242,11 @@ sub cogs {
     if (!$main::eur) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
       # add to expense
-      $form->{amount}{ $form->{id} }{ $ref->{expense_accno} } += -$linetotal;
+      $form->{amount_cogs}{ $form->{id} }{ $ref->{expense_accno} } += -$linetotal;
       $form->{expense_inventory} .= " " . $ref->{expense_accno};
       $ref->{inventory_accno} = ($form->{"inventory_accno_$row"}) ? $form->{"inventory_accno_$row"} : $ref->{inventory_accno};
       # deduct inventory
-      $form->{amount}{ $form->{id} }{ $ref->{inventory_accno} } -= -$linetotal;
+      $form->{amount_cogs}{ $form->{id} }{ $ref->{inventory_accno} } -= -$linetotal;
       $form->{expense_inventory} .= " " . $ref->{inventory_accno};
     }
 
