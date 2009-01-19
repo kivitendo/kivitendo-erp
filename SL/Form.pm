@@ -37,7 +37,7 @@
 
 package Form;
 
-use strict;
+#use strict;
 
 use Data::Dumper;
 

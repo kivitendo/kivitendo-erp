@@ -1,6 +1,6 @@
 package SL::Template::Plugin::MultiColumnIterator;
 
-use strict;
+#use strict;
 use base 'Template::Plugin';
 use Template::Constants;
 use Template::Exception;

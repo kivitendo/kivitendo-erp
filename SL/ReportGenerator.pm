@@ -1,6 +1,6 @@
 package SL::ReportGenerator;
 
-use strict;
+#use strict;
 
 use Encode;
 use IO::Wrap;

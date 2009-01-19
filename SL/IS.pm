@@ -34,7 +34,7 @@
 
 package IS;
 
-use strict;
+#use strict;
 
 use List::Util qw(max);
 
