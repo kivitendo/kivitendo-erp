@@ -466,16 +466,9 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 				show( $show, "<td>$partnumber</td>\n");
 			}
 		} 
-		//Automatisch Bilder mit einbinden 
-		//Die Bilder müssen manuell hier (bilder/) her kopiert werden.
-		//Names des Bildes: "bilder/" + Artikelnummer in Grossbuchstaben + ".jpg"
-		//$bild="bilder/".strtoupper($bild).".jpg";
-		//$sql.=$keys."image,shop,weight,import)";
-		//$sql.="$vals'$bild','$shop',3,".time().")";	
 
-		//ohne Bilder
-		$sql.=$keys."shop,weight,import)";
-		$sql.="$vals'$shop',3,".time().")";	
+		$sql.=$keys."shop,import)";
+		$sql.="$vals'$shop',".time().")";	
 
 		if ($insert) {
 			show( $show, "<td>");
