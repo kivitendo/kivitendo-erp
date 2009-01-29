@@ -125,10 +125,19 @@ sub list_names {
   push @options, $locale->text('Contact') . " : $form->{contact}"              if $form->{contact};
   push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}| if $form->{"$form->{db}number"};
   push @options, $locale->text('E-mail') . " : $form->{email}"                 if $form->{email};
+  push @options, $locale->text('Contact person (surname)')
+    . " : $form->{cp_name}"                                                    if $form->{cp_name};
+  push @options, $locale->text('Billing/shipping address (city)')
+    . " : $form->{addr_city}"                                                  if $form->{addr_city};
+
+  push @options, $locale->text('Billing/shipping address (zipcode)')
+    . " : $form->{zipcode}"                                                  if $form->{addr_zipcode};
+  push @options, $locale->text('Billing/shipping address (street)')
+    . " : $form->{street}"                                                  if $form->{addr_street};
 
   my @columns = (
-    'id',        'name',  "$form->{db}number", 'address',  'contact',  'phone',
-    'fax',       'email', 'taxnumber',         'sic_code', 'business', 'invnumber',
+    'id',        'name',  "$form->{db}number", 'contact',  'phone',
+    'fax',       'email', 'taxnumber', 'street', 'zipcode' , 'city', 'business', 'invnumber',
     'ordnumber', 'quonumber'
   );
 
@@ -142,18 +151,19 @@ sub list_names {
     'id'                => { 'text' => $locale->text('ID'), },
     "$form->{db}number" => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
     'name'              => { 'text' => $locale->text('Name'), },
-    'address'           => { 'text' => $locale->text('Address'), },
     'contact'           => { 'text' => $locale->text('Contact'), },
     'phone'             => { 'text' => $locale->text('Phone'), },
     'fax'               => { 'text' => $locale->text('Fax'), },
     'email'             => { 'text' => $locale->text('E-mail'), },
     'cc'                => { 'text' => $locale->text('Cc'), },
     'taxnumber'         => { 'text' => $locale->text('Tax Number'), },
-    'sic_code'          => { 'text' => $locale->text('SIC'), },
     'business'          => { 'text' => $locale->text('Type of Business'), },
     'invnumber'         => { 'text' => $locale->text('Invoice'), },
     'ordnumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Sales Order') : $locale->text('Purchase Order'), },
     'quonumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Quotation')   : $locale->text('Request for Quotation'), },
+    'street'         	=> { 'text' => $locale->text('Street'), },
+    'zipcode'         	=> { 'text' => $locale->text('Zipcode'), },
+    'city'         	=> { 'text' => $locale->text('City'), },
     %column_defs_cvars,
   );
 

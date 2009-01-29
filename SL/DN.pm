@@ -825,7 +825,7 @@ sub print_invoice_for_fees {
 
          c.name,      c.department_1,   c.department_2, c.street, c.zipcode, c.city, c.country,
          c.contact,   c.customernumber, c.phone,        c.fax,    c.email,
-         c.taxnumber, c.sic_code,       c.greeting
+         c.taxnumber, c.greeting
 
        FROM ar
        LEFT JOIN customer c ON (ar.customer_id = c.id)

@@ -4,7 +4,7 @@
 
   <input type="hidden" name="db" value="[% HTML.escape(db) %]">
 
-  <div class="listtop" width="100%">[% title %]</div>
+  <div class="listtop">[% title %]</div>
 
   <table>
    <tr>
@@ -26,7 +26,22 @@
     <th align="right" nowrap><translate>E-mail</translate></th>
     <td><input name="email" size="35"></td>
    </tr>
-
+   <tr>
+    <th align="right" nowrap><translate>Contact person (surname)</translate></th>
+    <td><input name="cp_name" size="35"></td>
+   </tr>
+   </tr>
+    <th align="right" nowrap><translate>Billing/shipping address (street)</translate></th>
+    <td><input name="addr_street" size="35"></td>
+   </tr>
+ <tr>
+    <th align="right" nowrap><translate>Billing/shipping address (zipcode)</translate></th>
+    <td><input name="addr_zipcode" size="35"></td>
+ </tr>
+   <tr>
+    <th align="right" nowrap><translate>Billing/shipping address (city)</translate></th>
+    <td><input name="addr_city" size="35"></td>
+   </tr>
    [% IF SHOW_BUSINESS_TYPES %]
    <tr>
     <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</th>
@@ -59,14 +74,14 @@
    <tr>
     <th align="right" nowrap><translate>Include in Report</translate></th>
     <td>
-     <table>
+     <table border="0">
       <tr>
        <td>
         <input name="l_id" id="l_id" type="checkbox" class="checkbox" value="Y">
         <label for="l_id"><translate>ID</translate></label>
        </td>
        <td>
-        <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" class="checkbox" value="Y">
+        <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" class="checkbox" value="Y" checked>
         <label for="l_[% db %]number">[% IF IS_CUSTOMER %]<translate>Customer Number</translate>[% ELSE %]<translate>Vendor Number</translate>[% END %]</label>
        </td>
        <td>
@@ -74,8 +89,8 @@
         <label for="l_name"><translate>Company Name</translate></label>
        </td>
        <td>
-        <input name="l_address" id="l_address" type="checkbox" class="checkbox" value="Y">
-        <label for="l_address"><translate>Address</translate></label>
+        <input name="l_street" id="l_street" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_street"><translate>Street</translate></label>
        </td>
       </tr>
 
@@ -93,8 +108,8 @@
         <label for="l_fax"><translate>Fax</translate></label>
        </td>
        <td>
-        <input name="l_email" id="l_email" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_email"><translate>E-mail</translate></label>
+	<input name="l_zipcode" id="l_zipcode" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_zipcode"><translate>Zipcode</translate></label>
        </td>
       </tr>
 
@@ -104,13 +119,17 @@
         <label for="l_taxnumber"><translate>Tax Number</translate></label>
        </td>
        <td>
-        <input name="l_sic_code" id="l_sic_code" type="checkbox" class="checkbox" value="Y">
-        <label for="l_sic_code"><translate>SIC</translate></label>
+        <input name="l_email" id="l_email" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_email"><translate>E-mail</translate></label>
        </td>
        <td>
         <input name="l_business" id="l_business" type="checkbox" class="checkbox" value="Y">
         <label for="l_business">[% IF IS_CUSTOMER %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</label>
        </td>
+	<td>
+        <input name="l_city" id="l_city" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_city"><translate>City</translate></label>
+	</td>
       </tr>
 
       <tr>
@@ -126,6 +145,8 @@
         <input name="l_quonumber" id="l_quonumber" type="checkbox" class="checkbox" value="Y">
         <label for="l_quonumber">[% IF IS_CUSTOMER %]<translate>Quotations</translate>[% ELSE %]<translate>RFQs</translate>[% END %]</label>
        </td>
+	<td>
+	</td>
       </tr>
 
       [% CUSTOM_VARIABLES_INCLUSION_CODE %]

@@ -302,7 +302,6 @@ sub save_customer {
     qq|terms = ?, | .
     qq|business_id = ?, | .
     qq|taxnumber = ?, | .
-    qq|sic_code = ?, | .
     qq|language = ?, | .
     qq|account_number = ?, | .
     qq|bank_code = ?, | .
@@ -317,7 +316,8 @@ sub save_customer {
     qq|taxzone_id = ?, | .
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
-    qq|klass = ? | .
+    qq|klass = ?, | .
+    qq|v_customer_id = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{customernumber},
@@ -342,7 +342,6 @@ sub save_customer {
     conv_i($form->{terms}),
     conv_i($form->{business}),
     $form->{taxnumber},
-    $form->{sic},
     $form->{language},
     $form->{account_number},
     $form->{bank_code},
@@ -358,6 +357,7 @@ sub save_customer {
     $form->{user_password},
     $form->{c_vendor_id},
     conv_i($form->{klass}),
+    $form->{v_customer_id},
     $form->{id}
     );
   do_query( $form, $dbh, $query, @values );
@@ -509,7 +509,6 @@ sub save_vendor {
     qq|  creditlimit = ?, | .
     qq|  business_id = ?, | .
     qq|  taxnumber = ?, | .
-    qq|  sic_code = ?, | .
     qq|  language = ?, | .
     qq|  account_number = ?, | .
     qq|  bank_code = ?, | .
@@ -547,7 +546,6 @@ sub save_vendor {
     $form->{creditlimit},
     conv_i($form->{business}),
     $form->{taxnumber},
-    $form->{sic},
     $form->{language},
     $form->{account_number},
     $form->{bank_code},
@@ -685,15 +683,13 @@ sub search {
   my @values;
 
   my %allowed_sort_columns =
-    map({ $_, 1 } qw(id customernumber vendornumber name address contact phone fax email
-                     taxnumber sic_code business invnumber ordnumber quonumber));
+    map({ $_, 1 } qw(id customernumber vendornumber name contact phone fax email
+                     taxnumber business invnumber ordnumber quonumber));
   $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   $form->{sort} = $sortorder;
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder eq "address") {
-    $sortorder  = "lower(country) ${sortdir}, lower(city) ${sortdir}, lower(street) ${sortdir}";
-  } elsif ($sortorder ne 'id') {
+if ($sortorder ne 'id') {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
@@ -709,6 +705,24 @@ sub search {
       $where .= " AND ct.$key ILIKE ?";
       push(@values, '%' . $form->{$key} . '%');
     }
+  }
+
+  if ($form->{cp_name}) {
+    $where .= " AND ct.id IN (SELECT cp_cv_id FROM contacts WHERE lower(cp_name) LIKE lower(?))";
+    push @values, '%' . $form->{cp_name} . '%';
+  }
+
+  if ($form->{addr_city}) {
+    $where .= " AND ((lower(ct.city) LIKE lower(?))
+                     OR
+                     (ct.id IN (
+                        SELECT trans_id
+                        FROM shipto
+                        WHERE (module = 'CT')
+                          AND (lower(shiptocity) LIKE lower(?))
+                      ))
+                     )";
+    push @values, ('%' . $form->{addr_city} . '%') x 2;
   }
 
   if ( $form->{status} eq 'orphaned' ) {
@@ -749,7 +763,17 @@ sub search {
     $where .= qq| AND ($cvar_where)|;
     push @values, @cvar_values;
   }
-
+  # Um nach Straße  in der Berichtsmaske zu suchen ... jb 13.11.2008               
+    if ($form->{addr_street}) {                                                
+      $where .= qq| AND (street ILIKE ?)|;                               
+      push @values, ('%' . $form->{addr_street} . '%');                     
+    }                                                        
+                                                                
+  # Um nach PLZ  in der Berichtsmaske zu suchen ... jb 13.11.2008
+    if ($form->{addr_zipcode}) {                                    
+      $where .= qq| AND (zipcode ILIKE ?)|;                            
+      push @values, ($form->{addr_zipcode} . '%');                      
+    }   
   my $query =
     qq|SELECT ct.*, b.description AS business | .
     qq|FROM $cv ct | .
@@ -815,8 +839,6 @@ sub search {
   $query .= qq| ORDER BY $sortorder|;
 
   $form->{CT} = selectall_hashref_query($form, $dbh, $query, @values);
-  map({ my $ref = $_; $ref->{address} = join(" ", map({ $ref->{$_} } qw(street zipcode city country))); }
-      @{ $form->{CT} });
 
   $main::lxdebug->leave_sub();
 }
