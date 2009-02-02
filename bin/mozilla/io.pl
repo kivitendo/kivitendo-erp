@@ -4,7 +4,10 @@
 # Based on SQL-Ledger Version 2.1.9
 # Web http://www.lx-office.org
 #############################################################################
-# Veraendert 2005-01-05 - Marco Welter <mawe@linux-studio.de> - Neue Optik  #
+# Changelog: Wann - Wer - Was
+# Veraendert 2005-01-05 - Marco Welter <mawe@linux-studio.de> - Neue Optik   			
+# 08.11.2008 - information@richardson-bueren.de jb  - Backport von Revision 7339 xplace - E-Mail-Vorlage automatisch auswählen  
+# 02.02.2009 - information@richardson-bueren.de jb - Backport von Revision 8535 xplace - Erweiterung der Waren bei Lieferantenauftrag um den Eintrag Mindestlagerbestand. Offen: Auswahlliste auf Lieferantenaufträge einschränken -> Erledigt 2.2.09 Prüfung wie das Skript heisst (oe.pl) -> das ist nur die halbe Miete, nochmal mb fragen -> mb gefragt und es gibt die variable is_purchase
 #############################################################################
 # SQL-Ledger, Accounting
 # Copyright (c) 1998-2002
@@ -88,6 +91,9 @@ use SL::IS;
 use SL::PE;
 use SL::AM;
 use Data::Dumper;
+
+#die variablen sind doch auch noch in anderen unterroutinen interessant:
+
 
 sub _check_io_auth {
   $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
@@ -395,10 +401,11 @@ sub set_pricegroup {
 
 sub select_item {
   $lxdebug->enter_sub();
-
+# diese variable kommt schon in der methode display_row vor, kann man die besser wiederverwenden? @mb fragen.  ich check das jetzt erstmal so ein
+  my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   _check_io_auth();
 
-  @column_index = qw(ndx partnumber description onhand unit sellprice);
+  @column_index = qw(ndx partnumber description rop onhand unit sellprice);
 
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
   $column_data{partnumber} =
@@ -407,6 +414,10 @@ sub select_item {
     qq|<th class="listheading">| . $locale->text('Part Description') . qq|</th>|;
   $column_data{sellprice} =
     qq|<th class="listheading">| . $locale->text('Price') . qq|</th>|;
+    if ($is_purchase){ 
+      $column_data{rop} =
+      qq|<th class="listheading">| . $locale->text('ROP') . qq|</th>|;
+    }
   $column_data{onhand} =
     qq|<th class="listheading">| . $locale->text('Qty') . qq|</th>|;
   $column_data{unit} =
@@ -469,6 +480,12 @@ sub select_item {
       qq|<td align="right"><input name="new_onhand_$i" type="hidden" value="$ref->{onhand}">|
       . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
       . qq|</td>|;
+    if ($is_purchase){ 
+    $column_data{rop} =
+      qq|<td align="right"><input name="new_rop$i" type="hidden" value="$ref->{rop}">|
+      . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;")
+      . qq|</td>|;
+    } # ende if oe.pl -> Falls der Aufruf über oe.pl kam, handelt es sich um einen Lieferantenauftrag und uns interessiert auch die Mindestbestandsmenge
     $column_data{unit} =
       qq|<td>$ref->{unit}</td>|;
     $j++;
@@ -1126,6 +1143,10 @@ sub print_options {
 sub print {
   $lxdebug->enter_sub();
 
+# einfach mal hier die sachen für aufrufen
+
+  IC->prepare_parts_for_printing();
+
   _check_io_auth();
 
   if ($form->{print_nextsub}) {
@@ -1363,6 +1384,9 @@ sub print_form {
   } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
   } else {
+
+print(STDERR "davor");
+
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
 
