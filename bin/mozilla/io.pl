@@ -92,9 +92,6 @@ use SL::PE;
 use SL::AM;
 use Data::Dumper;
 
-#die variablen sind doch auch noch in anderen unterroutinen interessant:
-
-
 sub _check_io_auth {
   $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | ' .
@@ -417,7 +414,7 @@ sub select_item {
     if ($is_purchase){ 
       $column_data{rop} =
       qq|<th class="listheading">| . $locale->text('ROP') . qq|</th>|;
-    }
+    }# ende if $is_purchase -> Überschrift Mindestlagerbestand - ähnliche Prüfung weiter unten
   $column_data{onhand} =
     qq|<th class="listheading">| . $locale->text('Qty') . qq|</th>|;
   $column_data{unit} =
@@ -485,7 +482,7 @@ sub select_item {
       qq|<td align="right"><input name="new_rop$i" type="hidden" value="$ref->{rop}">|
       . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;")
       . qq|</td>|;
-    } # ende if oe.pl -> Falls der Aufruf über oe.pl kam, handelt es sich um einen Lieferantenauftrag und uns interessiert auch die Mindestbestandsmenge
+    }# ende if $is_purchase -> Falls der Aufruf über eine Einkaufsmaske kam, handelt es sich um einen Lieferantenauftrag und uns interessiert auch die Mindestbestandsmenge
     $column_data{unit} =
       qq|<td>$ref->{unit}</td>|;
     $j++;
@@ -1143,10 +1140,6 @@ sub print_options {
 sub print {
   $lxdebug->enter_sub();
 
-# einfach mal hier die sachen für aufrufen
-
-  IC->prepare_parts_for_printing();
-
   _check_io_auth();
 
   if ($form->{print_nextsub}) {
@@ -1384,9 +1377,6 @@ sub print_form {
   } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
   } else {
-
-print(STDERR "davor");
-
     IS->invoice_details(\%myconfig, \%$form, $locale);
   }
 
@@ -1510,9 +1500,6 @@ print(STDERR "davor");
   delete $form->{OUT};
 
   if ($form->{media} eq 'printer') {
-    print (STDERR "io--------------------------------------");
-    print (STDERR  $form->{printer_command});
-    #$form->{OUT} = "| $form->{printer_command} ";
     $form->{OUT} = "| $form->{printer_command} &>/dev/null";
     $form->{printed} .= " $form->{formname}";
     $form->{printed} =~ s/^ //;
