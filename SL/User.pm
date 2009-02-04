@@ -553,6 +553,12 @@ sub process_query {
         $query .= $char;
       }
     }
+
+    # Insert a space at the end of each line so that queries split
+    # over multiple lines work properly.
+    if ($query ne '') {
+      $query .= @quote_chars ? "\n" : ' ';
+    }
   }
 
   if (ref($version_or_control) eq "HASH") {
