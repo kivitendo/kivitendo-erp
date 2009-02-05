@@ -147,7 +147,7 @@ sub selectall_hashref_query {
 
   $main::lxdebug->leave_sub(2);
 
-  return $result;
+  return wantarray ? @{ $result } : $result;
 }
 
 sub selectall_array_query {
