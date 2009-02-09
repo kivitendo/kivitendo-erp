@@ -316,8 +316,7 @@ sub save_customer {
     qq|taxzone_id = ?, | .
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
-    qq|klass = ?, | .
-    qq|v_customer_id = ? | .
+    qq|klass = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{customernumber},
@@ -357,7 +356,6 @@ sub save_customer {
     $form->{user_password},
     $form->{c_vendor_id},
     conv_i($form->{klass}),
-    $form->{v_customer_id},
     $form->{id}
     );
   do_query( $form, $dbh, $query, @values );
