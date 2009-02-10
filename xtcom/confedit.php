@@ -87,7 +87,19 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			return 0;
 		}
 	}
-
+	function getBugru() {
+	global $dbP;
+		if (!$dbP) return;
+		$sql ="select  BG.id as bugru,(T.rate * 100) as rate,TK.startdate from buchungsgruppen BG ";
+		$sql.="left join chart C on BG.income_accno_id_0=C.id left join taxkeys TK ";
+		$sql.="on TK.chart_id=C.id left join tax T on T.id=TK.tax_id where ";
+		$sql.="TK.startdate <= now() order by BG.id, TK.startdate";
+		$rs=$dbP->getAll($sql,DB_FETCHMODE_ASSOC);
+		if ($rs) foreach ($rs as $row) {
+			$bugru[$row["bugru"]]=$row["rate"];
+		}
+		return $bugru;
+	}
 	if ($_POST["ok"]=="sichern") {
 		$ok=true;
                 $dsnP = array(
@@ -105,32 +117,31 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			echo $dbP->userinfo;
 			$dbP=false;
 		} else {
-			$sql="SELECT P.id,P.description,(t.rate * 100) as rate FROM ";
-			$sql.="parts P left join chart c on c.id=P.income_accno_id left join tax t on c.taxkey_id=t.taxkey ";
-			$sql.="where P.partnumber = '%s'";
+			$bugru=getBugru();
+ 			$sql="SELECT id,description,buchungsgruppen_id FROM parts where partnumber = '%s'";
 			$rs=$dbP->getall(sprintf($sql,$_POST["div16NR"]));
 			$_POST["div16ID"]=$rs[0][0];
 			$div16txt=addslashes($rs[0][1]);
-			$_POST["div16TAX"]=$rs[0][2];
+			$_POST["div16TAX"]=$bugru[$rs[0][2]];
 			$rs=$dbP->getall(sprintf($sql,$_POST["div07NR"]));
 			$_POST["div07ID"]=$rs[0][0];
-			$_POST["div07TAX"]=$rs[0][2];
+			$_POST["div07TAX"]=$bugru[$rs[0][2]];
 			$div07txt=addslashes($rs[0][1]);
 			$rs=$dbP->getall(sprintf($sql,$_POST["versandNR"]));
 			$_POST["versandID"]=$rs[0][0];
-			$_POST["versandTAX"]=$rs[0][2];
+			$_POST["versandTAX"]=$bugru[$rs[0][2]];
 			$versandtxt=addslashes($rs[0][1]);
 			$rs=$dbP->getall(sprintf($sql,$_POST["nachnNR"]));
 			$_POST["nachnID"]=$rs[0][0];
-			$_POST["nachnTAX"]=$rs[0][2];
+			$_POST["nachnTAX"]=$bugru[$rs[0][2]];
 			$nachntxt=addslashes($rs[0][1]);
 			$rs=$dbP->getall(sprintf($sql,$_POST["minderNR"]));
 			$_POST["minderID"]=$rs[0][0];
-			$_POST["minderTAX"]=$rs[0][2];
+			$_POST["minderTAX"]=$bugru[$rs[0][2]];
 			$mindertxt=addslashes($rs[0][1]);
 			$rs=$dbP->getall(sprintf($sql,$_POST["paypalNR"]));
 			$_POST["paypalID"]=$rs[0][0];
-			$_POST["paypalTAX"]=$rs[0][2];
+			$_POST["paypalTAX"]=$bugru[$rs[0][2]];
 			$paypaltxt=addslashes($rs[0][1]);
 			$rs=$dbP->getall("select id from employee where login = '".$_POST["ERPusrN"]."'");
 			$_POST["ERPusrID"]=$rs[0][0];
@@ -145,7 +156,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
                 );
 		$dbM=@DB::connect($dsnM);
 		if (DB::isError($dbM)||!$dbM) {
-			$ok=false;
+			//$ok=false;
 			echo "Keine Verbindung zum Shop<br>";
 			echo $dbM->userinfo;
 			$dbM=false;
@@ -233,6 +244,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			fputs($f,"\$SpracheAlle=\"".$_POST["SpracheAlle"]."\";\n");
 			fputs($f,"?>");
 			fclose($f);
+			echo "<br>'conf.php' geschriebeni!<br>";
 			if (file_exists ("conf$login.php")) {
         		        require "conf$login.php";
         		} else {
@@ -416,7 +428,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 	<td><input type="text" name="SHOPftppwd" size="15" value="<?= $SHOPftppwd ?>"></td>
 </tr>
 <tr>
-	<td>ID Diverse 16%</td>
+	<td>ID Diverse 19%</td>
 	<td><input type="text" name="div16NR" size="10" value="<?= $div16["NR"] ?>">
 		<input type="checkbox" name="a1" <?= (empty($div16["ID"])?"":"checked") ?>></td>
 	<td>ID Diverse 7%</td>
