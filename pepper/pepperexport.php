@@ -1,13 +1,13 @@
 <?
 /***************************************************************
-* $Id: pepperexport.php,v 2.0 2006/02/06 13:49:11 hli Exp $
+* $Id: pepperexport.php 2009/02/10 14:41:11 hli Exp $
 *Author: Holger Lindemann
 *Copyright: (c) 2004 Lx-System
 *License: non free
 *eMail: info@lx-system.de
-*Version: 1.3.0
+*Version: 1.4.0
 *Shop: PHPeppershop 2.0
-*ERP: Lx-Office ERP >= 2.2.0
+*ERP: Lx-Office ERP >= 2.4.0
 ***************************************************************/
 ?>
 <html>
@@ -16,8 +16,13 @@
 <body>
 
 <?php
+$login=($_GET["login"])?$_GET["login"]:$_POST["login"];
+if (file_exists ("conf$login.php")) {
+	require "conf$login.php";
+} else {
+	require "conf.php";
+}
 require_once "DB.php";
-require_once "conf.php";
 $db=DB::connect($SHOPdns);
 if (!$db) dbFehler("",$db->getDebugInfo());
 if (DB::isError($db)) {
@@ -30,6 +35,16 @@ if (DB::isError($db2)) {
 	dbFehler("",$db2->getDebugInfo());
 	die ($db2->getDebugInfo());
 };
+function query($db,$sql) {
+global $utftrans;
+		if ($utftrans) $sql=utf8_encode($sql);
+		$rc=$db->query($sql);
+		if (DB::isError($rc)) {
+            dbFehler($sql,$rc->userinfo);
+			return false;
+		}
+		return $rc;
+}
 /****************************************************
 * dbFehler
 * in: sql,err = string
@@ -56,11 +71,11 @@ global $db;
 	return $rs[0]["Kunden_Nr"];
 }
 function sonderkosten($transID,$data,$id,$f) {
-global $db2,$versand,$nachn,$minder,$treuh,$paypal;
+global $db2,$versand,$nachn,$minder,$treuh,$paypal,$unit;
 	$sql="insert into orderitems (trans_id, parts_id, description, qty, sellprice, unit, ship, discount) values (";
-	$sql.=$transID.",".${$id}["ID"].",'".${$id}["TXT"]."',1,".$data.",'mal',0,0)";
+	$sql.=$transID.",".${$id}["ID"].",'".${$id}["TXT"]."',1,".$data.",'".$unit."',0,0)";
 	fputs($f,"$transID,".${$id}["ID"].",'".${$id}["TXT"]."',1,$data\n");
-	if (!$db2->query($sql)) { return false; }
+	if (!query($sql)) { return false; }
 	else { return true; };
 }
 function insBestArtikel($zeile,$transID) {
@@ -99,7 +114,8 @@ global $db,$db2,$div07,$div16,$f,
 		}
 		$sql="insert into orderitems (trans_id, parts_id, description, qty, sellprice, unit, ship, discount) values (";
 		$sql.=$transID.",".$artID.",'".$notes."',".$zeile["Anzahl"].",".$preis.",'Stck',0,0)";
-		$rc=$db2->query($sql);
+		$rc=query($db2,$sql);
+
 		if (!$rc) { $ok=false; break; };
 		fputs($f,$transID.",".$artID.",'".$zeile["Artikelname"]."',".$zeile["Anzahl"].",".$preis."\n");
 		echo " - Artikel:[ BuNr.:$artID ArtNr:<b> ".$zeile["Anzahl"]." x ".$zeile["Artikel_Nr"]."</b> :".$zeile["Artikelname"]." ]<br>";
@@ -121,14 +137,14 @@ global $db,$db2,$div07,$div16,$f,
 	}
 	if ($ok) {
 		$sql="update bestellung set Bestellung_bezahlt='Y' WHERE Bestellungs_ID =$BID";
-		$rc=$db->query($sql);
+		$rc=query($db,$sql);
 		fputs($f,"ok\n");
 		return true;
 	} else {
 		$sql="delete from orderitems where trans_id=$transID";
-		$rc=$db->query($sql);
+		$rc=query($db,$sql);
 		$sql="delete from oe where id=$transID";
-		$rc=$db->query($sql);
+		$rc=query($db,$sql);
 		fputs($f,"Fehler (insBestArtikel)!!!!\n");
 		return false;
 	}
@@ -137,22 +153,22 @@ function getNextAnr() {
 global $db2;
 	$sql="select * from defaults";
 	$sql1="update defaults set sonumber=";
-	$rc=$db2->query("BEGIN");
+	$rc=query($db2,"BEGIN");
 	$rs2=$db2->getAll($sql,DB_FETCHMODE_ASSOC);
 	$auftrag=$rs2[0]["sonumber"]+1;
-	$rc=$db2->query($sql1.$auftrag);
-	$rc=$db2->query("COMMIT");
+	$rc=query($db2,$sql1.$auftrag);
+	$rc=query($db2,"COMMIT");
 	return $auftrag;
 }
 function getNextKnr() {
 global $db2;
 	$sql="select * from defaults";
 	$sql1="update defaults set customernumber='";
-	$rc=$db2->query("BEGIN");
+	$rc=query($db2,"BEGIN");
 	$rs2=$db2->getAll($sql,DB_FETCHMODE_ASSOC);
 	$kdnr=$rs2[0]["customernumber"]+1;
-	$rc=$db2->query($sql1.$kdnr."'");
-	$rc=$db2->query("COMMIT");
+	$rc=query($db2,$sql1.$kdnr."'");
+	$rc=query($db2,"COMMIT");
 	return $kdnr;
 }
 function getBestellung() {
@@ -175,7 +191,7 @@ global $db,$db2,$ERPusr,$f,$preA,$auftrnr;
                         $anr=$preA.$refnr;
                 }
                 $sql="insert into oe (notes,ordnumber,cusordnumber) values ('$newID','$anr','$refnr')";
-		$rc=$db2->query($sql);
+		$rc=query($db2,$sql);
 		$sql="select * from oe where notes = '$newID'";
 		$rs2=$db2->getAll($sql,DB_FETCHMODE_ASSOC);
 		$Bezahlung=$zeile["Bezahlungsart"];
@@ -191,7 +207,7 @@ global $db,$db2,$ERPusr,$f,$preA,$auftrnr;
 		$sql.="', customer_id=$kdnr, amount=".$zeile["Rechnungsbetrag"].", netamount=".($zeile["Rechnungsbetrag"]-$zeile["MwSt"]);
 		$sql.=", reqdate='".$zeile["Datum"]."', notes='$Bezahlung', taxincluded='f', curr='EUR',employee_id=".$ERPusr["ID"].", vendor_id=0 ";
 		$sql.="where id=".$rs2[0]["id"];
-		$rc=$db2->query($sql);
+		$rc=query($db2,$sql);
 		fputs($f,"ordnumber=".$zeile["Bestellungs_ID"].", transdate='".$zeile["Datum"]."', customer_id=$kdnr, amount=".($zeile["Rechnungsbetrag"]+$zeile["MwSt"]).", notes=".$zeile["Bezahlungsart"]."\n");
 		echo "Auftrag:[ Buchungsnummer:".$rs2[0]["id"]." AuftrNr:<b>".$anr."</b> ]<br>";
 		if (!insBestArtikel($zeile,$rs2[0]["id"])) { $ok=false; echo " Fehler<br>"; break; } else { echo " ok<br>"; };
@@ -222,7 +238,7 @@ global $db2;
 	};
 	if ($set) {
 		$sql="update customer set ".substr($set,0,-1)." where id=".$rs[0]["id"];
-		$rc=$db2->query($sql);
+		$rc=query($db2,$sql);
 	}
 }
 function insKdData($data) {
@@ -234,7 +250,7 @@ global $db2,$preK,$kdnum;
 		$kdnr=$preK.$data["customers_id"];
 	}
 	$sql="insert into customer (name,customernumber) values ('$newID','$kdnr')";
-	$rc=$db2->query($sql);
+	$rc=query($db2,$sql);
 	$sql="select * from customer where name = '$newID'";
 	$rs=$db2->getAll($sql,DB_FETCHMODE_ASSOC);
 	if ($data["Firma"]) { $set.="set name='".$data["Firma"]."',contact='".$data["Vorname"]." ".$data["Nachname"]."',"; }
@@ -251,7 +267,12 @@ global $db2,$preK,$kdnum;
 	$set.="taxincluded='f' ";
 	$sql="update customer ".$set;
 	$sql.="where id=".$rs[0]["id"];
-	$rc=$db2->query($sql);
+	$sql=utf8_encode($sql);
+	echo $sql."<br>";
+	$rc=query($db2,$sql);
+		if (DB::isError($rc)) {
+            print_r($rc); echo "<br>";
+		}
 	return $rs[0]["id"];
 }
 function checkKunde() {
@@ -269,7 +290,7 @@ global $db,$f;
 			$zeile["Kunden_Nr"]=insKdData($zeile);
 			if ($zeile["Kunden_Nr"]>0) {
 				$sql="update kunde set Kunden_Nr='".$zeile["Kunden_Nr"]."' where k_ID=".$zeile["k_ID"];
-				$rc=$db->query($sql);
+				$rc=query($db,$sql);
 			} else {
 				$ok=false; break;
 			}
