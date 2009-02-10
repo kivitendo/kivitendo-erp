@@ -158,6 +158,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			fputs($f,"\$auftrnr=\"".$_POST["auftrnr"]."\";\n");
 			fputs($f,"\$utftrans=\"".$_POST["utftrans"]."\";\n");
 			fputs($f,"\$kdnum=\"".$_POST["kdnum"]."\";\n");
+			fputs($f,"\$mwst=\"".$_POST["mwst"]."\";\n");
 			fputs($f,"\$pricegroup=\"".$_POST["pricegroup"]."\";\n");
 			fputs($f,"\$unit=\"".$_POST["unit"]."\";\n");
 			fputs($f,"\$showErr=\"true\";\n");
@@ -194,6 +195,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			$paypalNR=$_POST["paypalNR"];
 			$preA=$_POST["preA"];
 			$preK=$_POST["preK"];
+			$mwst=empty($_POST["mwst"])?1:$_POST["mwst"];
 			$kdnum=$_POST["kdnum"];
 			$pricegroup=$_POST["pricegroup"];
 			$unit=$_POST["unit"];
@@ -260,7 +262,8 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 <tr>
 	<td>UTF8-Transl.</td>
 	<td colspan="2"><input type="checkbox" name="utftrans" <?= (empty($utftrans)?"":"checked") ?>></td>
-	<td></td>
+	<td>Preise <input type="radio" name="mwst" value="1" <?= ($mwst==1)?"checked":"" ?>> incl.
+	    <input type="radio" name="mwst" value="0" <?= ($mwst<>1)?"checked":"" ?>> excl. MwSt</td>
 </tr>
 <tr>
 	<td>User-ID</td>
