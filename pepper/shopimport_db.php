@@ -217,11 +217,11 @@ global $db;
 	} else { return false; }
 }
 function updartikel($data,$id) {
-global $db,$bugru;
+global $db,$bugru,$mwst;
 	$sql ="update artikel set Preis=%01.2f,Gewicht=%0.2f,MwSt_Satz=%0.2f,letzteAenderung=now(),";
 	$sql.="Name='%s',Beschreibung='%s',Lagerbestand=%d  where Artikel_ID=%d";
 	$preis=($data["sellprice"]>0)?$data["sellprice"]:$data["stdprice"];
-	$preis+=$preis/100*$bugru[$data["bugru"]];
+	if ($mwst) $preis+=$preis/100*$bugru[$data["bugru"]];
 	$sql=sprintf($sql,$preis,$data["weight"],$bugru[$data["bugru"]],$data["description"],$data["notes"],$data["onhand"],$id);
 	$rc=$db->query($sql);
 	$sql="update artikel_kategorie set FK_Kategorie_ID=".$data["categories_id"]." where FK_Artikel_ID=$id";
@@ -229,7 +229,7 @@ global $db,$bugru;
 	echo "+++<br>";
 }
 function chkartikel($data) {
-global $db,$shop2erp;
+global $db,$shop2erp,$mwst;
 	if ($data["partnumber"]=="") { echo "Artikelnummer fehlt!<br>"; return false;};
 	$sql="select * from artikel A left join artikel_kategorie K on A.Artikel_id=K.FK_Artikel_ID where Artikel_Nr like '".$data["partnumber"]."'";
 	$rs=$db->getAll($sql,DB_FETCHMODE_ASSOC);
@@ -241,7 +241,7 @@ global $db,$shop2erp;
 			else {	$data["picname"]=""; };
 		}
 		$preis=($data["sellprice"]>0)?$data["sellprice"]:$data["stdprice"];
-	    $preis+=$preis/100*$bugru[$data["bugru"]];
+		if ($mwst) $preis+=$preis/100*$bugru[$data["bugru"]];
 		     if ($rs[0]["Preis"]<>$preis)						{ updartikel($data,$rs[0]["Artikel_ID"]); }
 		else if ($rs[0]["Gewicht"]<>$data["weight"])			{ updartikel($data,$rs[0]["Artikel_ID"]); }
 		else if ($rs[0]["Name"]<>$data["description"])			{ updartikel($data,$rs[0]["Artikel_ID"]); }
