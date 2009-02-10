@@ -2,15 +2,23 @@ Shop - Schnittstelle Lx-ERP <-> PHPeppershop
 
 
 Info:
-	Die Zusammenarbeit mit der Version 2.6.x wurde nicht getestet!
+	Die Zusammenarbeit mit der Version 2.6.x wurde nicht getestet! 
+	-geht ;=)
 
 	Die Anmeldung der Benutzer an LxO hat sich geändert. Auch wurde  Lagerwesen eingeführt.
 	Damit die Schnittstelle mit Version 2.6.0 und neuer funktioniert, sollten hier Anpassungen
 	durchgeführt werden.
+
+Update:
+        Die Schnittstelle meldet sich unabhängig mit den hinterlegten Daten an.
+        Da nicht auf Läger gebucht (Auftrag ohne Lagerbewegung) wird, ist auch hier i
+        nichts zu berüchsichtigen.
+        Warenbestand in "parts" ist der Gesamtbestand. Nicht unbedingt der Bestand für
+        den Shop. Sollte vielleicht noch angepasst werden.
 	
 
 Vorraussetzungen:
-	Lx-ERP Version >= 2.4.0 < 2.6.0
+	Lx-ERP Version >= 2.4.0 
 	PHPeppershop 2
 	Pear DB, PHP-ImageMagick
 
