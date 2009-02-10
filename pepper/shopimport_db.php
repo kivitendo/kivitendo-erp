@@ -9,7 +9,12 @@
 *Shop: PHPeppershop 2.0
 *ERP: Lx-Office ERP
 ***************************************************************/
-require_once "conf.php";
+$login=($_GET["login"])?$_GET["login"]:$_POST["login"];
+if (file_exists ("conf$login.php")) {
+	require "conf$login.php";
+} else {
+	require "conf.php";
+}
 require_once "DB.php";
 
 $db=DB::connect($SHOPdns);
@@ -35,19 +40,31 @@ global $showErr;
     if ($showErr)
            echo "</td></tr></table><font color='red'>$sql : $err</font><br>";
 }
-
+function getBugru() {
+global $db2;
+	if (!$db2) return;
+		$sql ="select  BG.id as bugru,(T.rate * 100) as rate,TK.startdate from buchungsgruppen BG ";
+		$sql.="left join chart C on BG.income_accno_id_0=C.id left join taxkeys TK ";
+		$sql.="on TK.chart_id=C.id left join tax T on T.id=TK.tax_id where ";
+		$sql.="TK.startdate <= now() order by BG.id, TK.startdate";
+		$rs=$db2->getAll($sql,DB_FETCHMODE_ASSOC);
+		if ($rs) foreach ($rs as $row) {
+			$bugru[$row["bugru"]]=$row["rate"];
+	}
+	return $bugru;
+}
 // Ab hier Artikelexport aus ERP
 function shopartikel() {
 global $db2,$pricegroup;
 	if ($pricegroup>0) {
-		$sql="SELECT P.partnumber,P.description,P.weight,(t.rate * 100) as rate,G.price as sellprice,P.sellprice as stdprice, ";
+		$sql="SELECT P.partnumber,P.description,P.weight,buchungsgruppen_id as bugru,G.price as sellprice,P.sellprice as stdprice, ";
 		$sql.="PG.partsgroup,P.notes,P.image,P.onhand FROM ";
-		$sql.="chart c left join tax t on c.taxkey_id=t.taxkey, parts P left join partsgroup PG on PG.id=P.partsgroup_id left join prices G on G.parts_id=P.id ";
-		$sql.="where P.shop='t' and c.id=p.income_accno_id  and (G.pricegroup_id=$pricegroup or G.pricegroup_id is null)";
+		$sql.="parts P left join partsgroup PG on PG.id=P.partsgroup_id left join prices G on G.parts_id=P.id ";
+		$sql.="where P.shop='t'  and (G.pricegroup_id=$pricegroup or G.pricegroup_id is null)";
 	} else {
-		$sql="SELECT P.partnumber,P.description,P.weight,(t.rate * 100) as rate,P.sellprice,PG.partsgroup,P.notes,P.image,P.onhand FROM ";
-		$sql.="chart c left join tax t on c.taxkey_id=t.taxkey, parts P left join partsgroup PG on ";
-		$sql.="PG.id=P.partsgroup_id where P.shop='t'  and c.id=p.income_accno_id";
+		$sql="SELECT P.partnumber,P.description,P.weight,buchungsgruppen_id as bugru,P.sellprice,PG.partsgroup,P.notes,P.image,P.onhand FROM ";
+		$sql.="parts P left join partsgroup PG on ";
+		$sql.="PG.id=P.partsgroup_id where P.shop='t'";
 	}
 	$rs=$db2->getAll($sql,DB_FETCHMODE_ASSOC);
 	return $rs;
@@ -200,11 +217,12 @@ global $db;
 	} else { return false; }
 }
 function updartikel($data,$id) {
-global $db;
+global $db,$bugru;
 	$sql ="update artikel set Preis=%01.2f,Gewicht=%0.2f,MwSt_Satz=%0.2f,letzteAenderung=now(),";
 	$sql.="Name='%s',Beschreibung='%s',Lagerbestand=%d  where Artikel_ID=%d";
 	$preis=($data["sellprice"]>0)?$data["sellprice"]:$data["stdprice"];
-	$sql=sprintf($sql,$preis,$data["weight"],$tax[sprintf("%1.4f",$data["rate"])],$data["description"],$data["notes"],$data["onhand"],$id);
+	$preis+=$preis/100*$bugru[$data["bugru"]];
+	$sql=sprintf($sql,$preis,$data["weight"],$bugru[$data["bugru"]],$data["description"],$data["notes"],$data["onhand"],$id);
 	$rc=$db->query($sql);
 	$sql="update artikel_kategorie set FK_Kategorie_ID=".$data["categories_id"]." where FK_Artikel_ID=$id";
 	$rc=$db->query($sql);
@@ -223,6 +241,7 @@ global $db,$shop2erp;
 			else {	$data["picname"]=""; };
 		}
 		$preis=($data["sellprice"]>0)?$data["sellprice"]:$data["stdprice"];
+	    $preis+=$preis/100*$bugru[$data["bugru"]];
 		     if ($rs[0]["Preis"]<>$preis)						{ updartikel($data,$rs[0]["Artikel_ID"]); }
 		else if ($rs[0]["Gewicht"]<>$data["weight"])			{ updartikel($data,$rs[0]["Artikel_ID"]); }
 		else if ($rs[0]["Name"]<>$data["description"])			{ updartikel($data,$rs[0]["Artikel_ID"]); }
@@ -245,6 +264,7 @@ global $db,$shop2erp;
 $artikel=shopartikel();
 echo "Artikelexport ERP -&gt; PHPepper :".count($artikel)." Artikel markiert.<br>";
 if ($artikel) {
+    $bugru=getBugru();
 	$sql="select Thumbnail_Breite from shop_settings";
 	$rs=$db->getAll($sql,DB_FETCHMODE_ASSOC);
 	if ($rs) {
