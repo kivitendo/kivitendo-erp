@@ -1,20 +1,39 @@
 <?
-// $Id: confedit.php,v 0.10 2006/02/06 11:34:30 hli Exp $
+// $Id: confedit.php 2009/02/10 14:41:30 hli Exp $
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
        Header("WWW-Authenticate: Basic realm=\"Configurations-Editor\"");
        Header("HTTP/1.0 401 Unauthorized");
        echo "Sie m&uuml;ssen sich autentifizieren\n";
        exit;
 } else {
-	include "conf.php";
+	$login=($_GET["login"])?$_GET["login"]:$_POST["login"];
+	if (file_exists ("conf$login.php")) {
+		require "conf$login.php";
+	} else {
+		require "conf.php";
+	}
+	if ($_SERVER['PHP_AUTH_USER']<>$ERPftpuser || $_SERVER['PHP_AUTH_PW']<>$ERPftppwd) {
+		Header("WWW-Authenticate: Basic realm=\"My Realm\"");
+		Header("HTTP/1.0 401 Unauthorized");
+		echo "Sie m&uuml;ssen sich autentifizieren\n";
+		exit;
+	}
 	require_once "DB.php";
-	$db=@DB::connect($ERPdns);
-	if (!DB::isError($db)) {
-		$sql="select id,pricegroup from pricegroup";
-		$pgs=$db->getall($sql);
+	function unit($sel) {
+	global $dbP;
+		$sql="select name from units order by sortkey";
+		$pgs=$dbP->getall($sql);
+		if ($sel=='') $sel=$pgs[0][0];
+		if ($pgs) foreach ($pgs as $row) {
+			echo "\t<option value=".$row[0];
+			if ($sel==$row[0]) echo " selected";
+			echo ">".$row[0]."\n";
+		}
 	}
 	function pg($sel) {
-	global $pgs;
+	global $dbP;
+		$sql="select id,pricegroup from pricegroup";
+		$pgs=$dbP->getall($sql);
 		echo "\t<option value=0";
 		if ($sel==0) echo " selected";
 		echo ">Standard VK\n";
@@ -24,55 +43,66 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			echo ">".$row[1]."\n";
 		}
 	}
-    if ($_SERVER['PHP_AUTH_USER']<>$ERPftpuser || $_SERVER['PHP_AUTH_PW']<>$ERPftppwd) {
-		Header("WWW-Authenticate: Basic realm=\"My Realm\"");
-		Header("HTTP/1.0 401 Unauthorized");
-		echo "Sie m&uuml;ssen sich autentifizieren\n";
-		exit;
-	}
 	if ($_POST["ok"]=="sichern") {
 		$ok=true;
-		$dsnP="pgsql://".$_POST["ERPuser"].":".$_POST["ERPpass"]."@".$_POST["ERPhost"]."/".$_POST["ERPdbname"];
-		$dbP=DB::connect($dsnP);
+        $dsnP = array(
+				'phptype'  => 'pgsql',
+				'username' => $_POST["ERPuser"],
+				'password' => $_POST["ERPpass"],
+				'hostspec' => $_POST["ERPhost"],
+				'database' => $_POST["ERPdbname"],
+				'port'     => $_POST["ERPport"]
+        );
+		$dbP=@DB::connect($dsnP);
 		if (DB::isError($dbP)||!$dbP) {
-			$ok=false; 
-			echo "Keine Verbindung zur ERP<br>"; 
+			$ok=false;
+			echo "Keine Verbindung zur ERP<br>";
 			echo $dbP->userinfo;
+			$dbP=false;		
 		}
 		else {
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["div16NR"]."'");
+			$sql="SELECT id,description,buchungsgruppen_id FROM parts where partnumber = '%s'";
+			$rs=$dbP->getall(sprintf($sql,$_POST["div16NR"]));
 			$_POST["div16ID"]=$rs[0][0];
-			$div16txt=$rs[0][1];
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["div07NR"]."'");
+			$div16txt=addslashes($rs[0][1]);
+		    $rs=$dbP->getall(sprintf($sql,$_POST["div07NR"]));
 			$_POST["div07ID"]=$rs[0][0];
-			$div07txt=$rs[0][1];
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["versandNR"]."'");
+			$div07txt=addslashes($rs[0][1]);
+			$rs=$dbP->getall(sprintf($sql,$_POST["versandNR"]));
 			$_POST["versandID"]=$rs[0][0];
-			$versandtxt=$rs[0][1];
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["nachnNR"]."'");
+			$versandtxt=addslashes($rs[0][1]);
+			$rs=$dbP->getall(sprintf($sql,$_POST["nachnNR"]));
 			$_POST["nachnID"]=$rs[0][0];
-			$nachntxt=$rs[0][1];
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["minderNR"]."'");
+			$nachntxt=addslashes($rs[0][1]);
+			$rs=$dbP->getall(sprintf($sql,$_POST["minderNR"]));
 			$_POST["minderID"]=$rs[0][0];
-			$mindertxt=$rs[0][1];
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["paypalNR"]."'");
+			$mindertxt=addslashes($rs[0][1]);
+			$rs=$dbP->getall(sprintf($sql,$_POST["paypalNR"]));
 			$_POST["paypalID"]=$rs[0][0];
-			$paypaltxt=$rs[0][1];
-			$rs=$dbP->getall("select id,description from parts where partnumber = '".$_POST["treuhNR"]."'");
+			$paypaltxt=addslashes($rs[0][1]);
+			$rs=$dbP->getall(sprintf($sql,$_POST["treuhNR"]));
 			$_POST["treuhID"]=$rs[0][0];
-			$treuhtxt=$rs[0][1];
+			$treuhtxt=addslashes($rs[0][1]);
 			$rs=$dbP->getall("select id from employee where login = '".$_POST["ERPusrN"]."'");
 			$_POST["ERPusrID"]=$rs[0][0];
 		}
-		$dsnM="mysql://".$_POST["SHOPuser"].":".$_POST["SHOPpass"]."@".$_POST["SHOPhost"]."/".$_POST["SHOPdbname"];
-		$dbM=DB::connect($dsnM);
-		if (DB::isError($dbM)||!$dbM) { 
-			$ok=false; 
-			echo "Keine Verbindung zum Shop<br>"; 
+        $dsnM = array(
+				'phptype'  => 'mysql',
+				'username' => $_POST["SHOPuser"],
+				'password' => $_POST["SHOPpass"],
+				'hostspec' => $_POST["SHOPhost"],
+				'database' => $_POST["SHOPdbname"],
+				'port'     => $_POST["SHOPport"]
+        );
+		$dbM=@DB::connect($dsnM);
+		if (DB::isError($dbM)||!$dbM) {
+			//$ok=false;
+			echo "Keine Verbindung zum Shop<br>";
 			echo $dbM->userinfo;
-		};
+			$dbM=false;
+		};		
 		if (ok) {
-			$f=fopen("conf.php","w");
+			$f=fopen("conf$login.php","w");
 			$v="1.5";
 			$d=date("Y/m/d H:i:s");
 			fputs($f,"<?\n// Verbindung zur ERP-db\n");
@@ -126,8 +156,10 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			fputs($f,"\$preA=\"".$_POST["preA"]."\";\n");
 			fputs($f,"\$preK=\"".$_POST["preK"]."\";\n");
 			fputs($f,"\$auftrnr=\"".$_POST["auftrnr"]."\";\n");
+			fputs($f,"\$utftrans=\"".$_POST["utftrans"]."\";\n");
 			fputs($f,"\$kdnum=\"".$_POST["kdnum"]."\";\n");
 			fputs($f,"\$pricegroup=\"".$_POST["pricegroup"]."\";\n");
+			fputs($f,"\$unit=\"".$_POST["unit"]."\";\n");
 			fputs($f,"\$showErr=\"true\";\n");
 			fputs($f,"?>");
 			fclose($f);
@@ -164,10 +196,30 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			$preK=$_POST["preK"];
 			$kdnum=$_POST["kdnum"];
 			$pricegroup=$_POST["pricegroup"];
+			$unit=$_POST["unit"];
 			$auftrnr=$_POST["auftrnr"];
+			$utftrans=$_POST["utftrans"];
 		}
 	}	else {
-		require "conf.php";
+		if (file_exists ("conf$login.php")) {
+			require "conf$login.php";
+		} else {
+			require "conf.php";
+		}
+        	$dsnP = array(
+                    'phptype'  => 'pgsql',
+                    'username' => $ERPuser,
+                    'password' => $ERPpass,
+                    'hostspec' => $ERPhost,
+                    'database' => $ERPdbname,
+                    'port'     => $ERPport
+        	);
+		$dbP=@DB::connect($dsnP);
+		if (DB::isError($dbP)||!$dbP) {
+			echo "Keine Verbindung zur ERP<br>";
+			$dbP=false;
+			//echo $dbP->userinfo;
+		}
 	}
 	?>
 <html>
@@ -204,6 +256,11 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 	<td>db-User PWD</td>
 	<td colspan="2"><input type="text" name="ERPpass" size="15" value="<?= $ERPpass ?>"></td>
 	<td><input type="text" name="SHOPpass" size="15" value="<?= $SHOPpass ?>"></td>
+</tr>
+<tr>
+	<td>UTF8-Transl.</td>
+	<td colspan="2"><input type="checkbox" name="utftrans" <?= (empty($utftrans)?"":"checked") ?>></td>
+	<td></td>
 </tr>
 <tr>
 	<td>User-ID</td>
@@ -264,11 +321,17 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 	<td>ID Mindermenge</td>
 	<td><input type="text" name="minderNR" size="10" value="<?= $minder["NR"] ?>">
 		<input type="checkbox" name="a1" <?= (empty($minder["ID"])?"":"checked") ?>></td>
+	<td></td>	
+</tr>
+<tr>
+	<td>Std-Einheit</td>
+	<td><select name="unit">
+<? unit($unit); ?>
+	    </select></td>
 	<td>Preisgruppe</td>
 	<td><select name="pricegroup">
 <? pg($pricegroup); ?>
 	    </select></td>
-</tr>
 <tr>
 	<td colspan="2">Auftragsnummern durch</td>
 	<td><input type="radio" name="auftrnr" value="1" <?= ($auftrnr==1)?"checked":"" ?>> LxO</td>
