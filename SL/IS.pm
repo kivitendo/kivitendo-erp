@@ -143,7 +143,7 @@ sub invoice_details {
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber
-       price_factor price_factor_name);
+       price_factor price_factor_name partsgroup);
 
   my @tax_arrays =
     qw(taxbase tax taxdescription taxrate taxnumber);
@@ -196,6 +196,7 @@ sub invoice_details {
       push @{ $form->{invdate} },           $form->{"invdate"};
       push @{ $form->{price_factor} },      $price_factor->{formatted_factor};
       push @{ $form->{price_factor_name} }, $price_factor->{description};
+      push @{ $form->{partsgroup} },        $form->{"partsgroup_$i"};
 
       if ($form->{lizenzen}) {
         if ($form->{"licensenumber_$i"}) {

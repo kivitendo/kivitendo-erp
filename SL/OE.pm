@@ -958,7 +958,7 @@ sub order_details {
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber
-       price_factor price_factor_name);
+       price_factor price_factor_name partsgroup);
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -1008,6 +1008,7 @@ sub order_details {
       push @{ $form->{listprice} },         $form->{"listprice_$i"};
       push @{ $form->{price_factor} },      $price_factor->{formatted_factor};
       push @{ $form->{price_factor_name} }, $price_factor->{description};
+      push @{ $form->{partsgroup} },        $form->{"partsgroup_$i"};
 
       my $sellprice     = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
