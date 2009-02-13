@@ -241,7 +241,7 @@ sub prepare_invoice {
   if ($form->{id}) {
 
     map { $form->{$_} =~ s/\"/&quot;/g }
-      qw(invnumber ordnumber quonumber shippingpoint shipvia notes intnotes);
+      qw(invnumber ordnumber quonumber shippingpoint shipvia notes intnotes donumber); #frage: muss hier donumber angegeben werden? hier werden doch nur die alten quots wieder ausgemerzt, ist das noch nötig? 12.02.2009 jb
 
     #     # get pricegroups for parts
     #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
@@ -695,6 +695,8 @@ print qq|	    </table>
 	      $employees
         $salesman
 |;
+
+#ergänzung in der maske um das feld Lieferscheinnummer (Delivery Order Number), meiner meinung nach sinnvoll ueber dem feld lieferscheindatum 12.02.2009 jb
 if ($form->{type} eq "credit_note") {
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Credit Note Number') . qq|</th>
@@ -716,6 +718,10 @@ print qq|     <tr>
 	      <tr>
 		<th align="right">| . $locale->text('Due Date') . qq|</th>
                 $button2
+	      </tr>
+	      <tr>
+		<th align="right" nowrap>| . $locale->text('Delivery Order Number') . qq|</th>
+		<td><input name="donumber" size="11" value="$form->{donumber}"></td>
 	      </tr>
 	      <tr>
 		<th align="right">| . $locale->text('Delivery Date') . qq|</th>
