@@ -240,8 +240,6 @@ sub prepare_invoice {
 
   if ($form->{id}) {
 
-    map { $form->{$_} =~ s/\"/&quot;/g }
-      qw(invnumber ordnumber quonumber shippingpoint shipvia notes intnotes donumber); #frage: muss hier donumber angegeben werden? hier werden doch nur die alten quots wieder ausgemerzt, ist das noch nötig? 12.02.2009 jb
 
     #     # get pricegroups for parts
     #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
@@ -268,8 +266,6 @@ sub prepare_invoice {
       $form->{"qty_$i"} =
         $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
-      map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-        qw(partnumber description unit partnotes);
       $form->{rowcount} = $i;
 
     }
