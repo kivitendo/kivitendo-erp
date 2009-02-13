@@ -655,10 +655,13 @@ sub form_header {
 		<th align="right" nowrap>| . $locale->text('Shipping Point') . qq|</th>
 		<td colspan="3"> | .
 		$cgi->textfield("-name" => "shippingpoint", "-size" => 35, "-value" => $form->{shippingpoint}) .
-	  qq|</tr>
+      	  qq|	</td>
+	      </tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Ship via') . qq|</th>
-		<td colspan="3"><input name="shipvia" size="35" value="$form->{shipvia}"></td>
+		<td colspan="3"> | .
+		$cgi->textfield("-name" => "shipvia", "-size" => 35, "-value" => $form->{shipvia}) .
+	  qq|	</td>
 	      </tr>
               <tr>
                 <th align="right">| . $locale->text('Transaction description') . qq|</th>
@@ -696,7 +699,9 @@ print qq|	    </table>
 if ($form->{type} eq "credit_note") {
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Credit Note Number') . qq|</th>
-		<td><input name="invnumber" size="11" value="$form->{invnumber}"></td>
+		<td> |.
+	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .	
+      qq|	</td>
 	      </tr>
 	      <tr>
 		<th align="right">| . $locale->text('Credit Note Date') . qq|</th>
@@ -705,7 +710,9 @@ print qq|     <tr>
 } else {
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Invoice Number') . qq|</th>
-		<td><input name="invnumber" size="11" value="$form->{invnumber}"></td>
+		<td> |.
+	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .	
+      qq|	</td>
 	      </tr>
 	      <tr>
 		<th align="right">| . $locale->text('Invoice Date') . qq|</th>
@@ -717,7 +724,9 @@ print qq|     <tr>
 	      </tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Delivery Order Number') . qq|</th>
-		<td><input name="donumber" size="11" value="$form->{donumber}"></td>
+		<td> |.
+	        $cgi->textfield("-name" => "donumber", "-size" => 11, "-value" => $form->{donumber}) .	
+      qq|	</td>
 	      </tr>
 	      <tr>
 		<th align="right">| . $locale->text('Delivery Date') . qq|</th>
@@ -726,7 +735,9 @@ print qq|     <tr>
 }
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Order Number') . qq|</th>
-		<td><input name="ordnumber" size="11" value="$form->{ordnumber}"></td>
+		<td> |.
+	        $cgi->textfield("-name" => "ordnumber", "-size" => 11, "-value" => $form->{ordnumber}) .	
+      qq|	</td>
 	      </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
@@ -735,7 +746,9 @@ print qq|     <tr>
         </tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Quotation Number') . qq|</th>
-		<td><input name="quonumber" size="11" value="$form->{quonumber}"></td>
+		<td> |.
+	        $cgi->textfield("-name" => "quonumber", "-size" => 11, "-value" => $form->{quonumber}) .	
+      qq|	</td>
 	      </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
@@ -744,7 +757,9 @@ print qq|     <tr>
         </tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Customer Order Number') . qq|</th>
-		<td><input name="cusordnumber" size="11" value="$form->{cusordnumber}"></td>
+		<td> |.
+	        $cgi->textfield("-name" => "cusordnumber", "-size" => 11, "-value" => $form->{cusordnumber}) .	
+      qq|	</td>
 	      </tr>
 	      <tr>
           <th align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
