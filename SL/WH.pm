@@ -463,6 +463,7 @@ sub get_warehouse_report {
       GROUP BY $group_clause $group_by
       ORDER BY $form->{sort}|;
 
+  dump_query(0, "q", $query, @filter_vars);
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars);
 
   my (%non_empty_bins, @all_fields, @contents);
@@ -471,7 +472,7 @@ sub get_warehouse_report {
     $ref->{qty} *= 1;
     my $qty      = $ref->{qty};
 
-    next unless ($qty > 0);
+    next unless ($qty != 0);
 
     if ($f_qty_op) {
       my $part_unit = $all_units->{$ref->{partunit}};
