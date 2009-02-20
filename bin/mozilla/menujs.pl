@@ -123,6 +123,7 @@ window.onload=clockon
 }
 
 sub acc_menu {
+  $locale = Locale->new($language, "menu");
   $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
