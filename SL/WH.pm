@@ -463,7 +463,6 @@ sub get_warehouse_report {
       GROUP BY $group_clause $group_by
       ORDER BY $form->{sort}|;
 
-  dump_query(0, "q", $query, @filter_vars);
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars);
 
   my (%non_empty_bins, @all_fields, @contents);
