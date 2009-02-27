@@ -811,14 +811,17 @@ sub display_rows {
 
   for $i (1 .. $form->{rowcount}) {
 
-    $source = qq|
-    <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
-    $memo = qq|
-    <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16"></td>|;
-    $source_hidden = qq|
-    <input type="hidden" name="source_$i" value="$form->{"source_$i"}" size="16">|;
-    $memo_hidden = qq|
-    <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
+    if ($form->{show_details}) {
+      $source = qq|
+      <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
+      $memo = qq|
+      <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16"></td>|;
+    } else {
+      $source_hidden = qq|
+      <input type="hidden" name="source_$i" value="$form->{"source_$i"}" size="16">|;
+      $memo_hidden = qq|
+      <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
+    }
 
     my $selected_accno_full;
     my ($accno_row) = split(/--/, $form->{"accno_$i"});
