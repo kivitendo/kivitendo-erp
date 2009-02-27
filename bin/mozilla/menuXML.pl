@@ -56,8 +56,8 @@ sub display {
 <!DOCTYPE doc [
 <!ENTITY szlig "| . $locale->{iconv_iso8859}->convert('ß') . qq|">
 <!ENTITY auml "| . $locale->{iconv_iso8859}->convert('ä') . qq|">
-<!ENTITY uuml "| . $locale->{iconv_iso8859}->convert('ö') . qq|">
-<!ENTITY ouml "| . $locale->{iconv_iso8859}->convert('ü') . qq|">
+<!ENTITY ouml "| . $locale->{iconv_iso8859}->convert('ö') . qq|">
+<!ENTITY uuml "| . $locale->{iconv_iso8859}->convert('ü') . qq|">
 ]>
 
 <doc>
