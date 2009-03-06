@@ -225,6 +225,7 @@ $self->{texts} = {
   'Quotation Date missing!'     => 'Angebotsdatum fehlt!',
   'Quotation Number missing!'   => 'Angebotsnummer fehlt!',
   'RFQ'                         => 'Anfrage',
+  'ROP'                         => 'Mindestlagerbestand',
   'Receipt, payment, reconciliation' => 'Zahlungseingang, Zahlungsausgang, Kontenabgleich',
   'Rechnungsnummer'             => 'Rechnungsnummer',
   'Record in'                   => 'Buchen auf',

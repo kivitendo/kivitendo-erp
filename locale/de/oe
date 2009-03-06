@@ -245,6 +245,7 @@ $self->{texts} = {
   'Quotations'                  => 'Angebote',
   'RFQ'                         => 'Anfrage',
   'RFQ Number'                  => 'Anfragenummer',
+  'ROP'                         => 'Mindestlagerbestand',
   'Receipt, payment, reconciliation' => 'Zahlungseingang, Zahlungsausgang, Kontenabgleich',
   'Release From Stock'          => 'Lagerausgang',
   'Reports'                     => 'Berichte',
