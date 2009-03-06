@@ -7,7 +7,7 @@
 <textarea name="cvar_[% HTML.escape(var.name) %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(var.value) %]</textarea>
 
 [%- ELSIF var.type == 'date' %]
-<input name="cvar_[% HTML.escape(var.name) %]" size="12" value="[% HTML.escape(var.value) %]">
+<input name="cvar_[% HTML.escape(var.name) %]" id="cvar_[% HTML.escape(var.name) %]" size="12" value="[% HTML.escape(var.value) %]">
 <input type="button" name="cvar_[% HTML.escape(var.name) %]_button" id="cvar_[% HTML.escape(var.name) %]_trigger" value="?">
 
 <script type="text/javascript">
