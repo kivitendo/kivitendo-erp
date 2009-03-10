@@ -777,9 +777,9 @@ sub form_footer {
       qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="$myconfig{dateformat}" value="$form->{"datepaid_$i"}" onBlur=\"check_right_date_format(this)\">
          <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
     $column_data{"source_$i"} =
-      qq|<td align=center><input name="source_$i" size=11 value=$form->{"source_$i"}></td>|;
+      qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
     $column_data{"memo_$i"} =
-      qq|<td align=center><input name="memo_$i" size=11 value=$form->{"memo_$i"}></td>|;
+      qq|<td align=center><input name="memo_$i" size=11 value="$form->{"memo_$i"}"></td>|;
 
     map { print qq|$column_data{"${_}_$i"}\n| } @column_index;
 
