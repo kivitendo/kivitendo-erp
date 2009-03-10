@@ -655,6 +655,7 @@ sub invoice {
     $form->{title}  = $locale->text('Add Vendor Invoice');
     $form->{script} = 'ir.pl';
     $script         = "ir";
+    $buysell        = 'sell';
 
   } else {
     $form->{title}  = $locale->text('Add Sales Invoice');

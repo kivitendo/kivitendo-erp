@@ -1628,6 +1628,10 @@ sub check_exchangerate {
 
   my ($self, $myconfig, $currency, $transdate, $fld) = @_;
 
+  if ($fld !~/^buy|sell$/) {
+    $self->error('Fatal: check_exchangerate called with invalid buy/sell argument');
+  }
+
   unless ($transdate) {
     $main::lxdebug->leave_sub();
     return "";
