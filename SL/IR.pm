@@ -523,7 +523,7 @@ sub post_invoice {
     do_query($form, $dbh, $query, conv_i($form->{storno_id}));
 
     $query = qq!UPDATE ap SET intnotes = ? || intnotes WHERE id = ?!;
-    do_query($form, $dbh, $query, 'Rechnung storniert am $form->{invdate} ', conv_i($form->{storno_id}));
+    do_query($form, $dbh, $query, "Rechnung storniert am $form->{invdate} ", conv_i($form->{storno_id}));
 
     $query = qq|UPDATE ap SET paid = amount WHERE id = ?|;
     do_query($form, $dbh, $query, conv_i($form->{id}));
