@@ -580,4 +580,31 @@ sub cov_selection_internal {
   $lxdebug->leave_sub();
 }
 
+sub cross(&\@\@) {
+  my $op = shift;
+  use vars qw/@A @B/;
+  local (*A, *B) = @_;    # syms for caller's input arrays
+
+  # Localise $a, $b
+  my ($caller_a, $caller_b) = do
+  {
+    my $pkg = caller();
+    no strict 'refs';
+    \*{$pkg.'::a'}, \*{$pkg.'::b'};
+  };
+
+  my $limit = $#A > $#B? $#A : $#B;    # loop iteration limit
+
+  local(*$caller_a, *$caller_b);
+
+ # This map expression is also the return value.
+  map { my $b_index = $_;
+    map { my $a_index = $_;
+      # assign to $a, $b as refs to caller's array elements
+      (*$caller_a, *$caller_b) = \($A[$a_index], $B[$b_index]);
+      $op->();    # perform the transformation
+    }  0 .. $#A;
+  }  0 .. $#B;
+}
+
 1;
