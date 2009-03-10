@@ -248,9 +248,12 @@ sub prepare_order {
 
   $form->{formname} ||= $form->{type};
 
+  # format discounts if values come from db. either as single id, or as a collective order
+  my $format_discounts = $form->{id} || $form->{convert_from_oe_ids};
+
   for my $i (1 .. $form->{rowcount}) {
     $form->{"reqdate_$i"} ||= $form->{"deliverydate_$i"};
-    $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * ($form->{id} ? 100 : 1));
+    $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * ($format_discounts ? 100 : 1));
     $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
     $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"});
   }
