@@ -306,7 +306,7 @@ sub form_header {
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
   $TMPL_VAR{shipto_labels}         = sub { join "; ", grep { $_ } map { $_[0]->{"shipto${_}" } } qw(name department_1 street city) };
   $TMPL_VAR{contact_labels}        = sub { join(', ', $_[0]->{"cp_name"}, $_[0]->{"cp_givenname"}) . ($_[0]->{cp_abteilung} ? " ($_[0]->{cp_abteilung})" : "") };
-  $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" }; 
+  $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
   # vendor/customer
   $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
@@ -329,7 +329,7 @@ sub form_header {
   # credit remaining
   $creditwarning = (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) ? 1 : 0;
   $TMPL_VAR{is_credit_remaining_negativ} = ($form->{creditremaining} =~ /-/) ? "0" : "1";
-  
+
   # business
   $TMPL_VAR{business_label} = ($form->{vc} eq "customer" ? $locale->text('Customer type') : $locale->text('Vendor type'));
 
@@ -457,7 +457,7 @@ sub form_footer {
 
 sub update {
   $lxdebug->enter_sub();
-  
+
   my ($recursive_call) = shift;
 
   check_oe_access();
@@ -466,13 +466,13 @@ sub update {
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
   $form->{update} = 1;
-      
+
   $payment_id = $form->{payment_id} if $form->{payment_id};
-  
+
   &check_name($form->{vc});
-  
+
   $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
-  
+
   $buysell              = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
@@ -689,7 +689,7 @@ sub search {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
   }
-  
+
   #salesmen
   my %labels_salesmen = ();
   my @values_salesmen = ('');
@@ -723,7 +723,7 @@ sub search {
   my $vc_label = $form->{vc} eq "customer" ? $locale->text('Customer') : $locale->text('Vendor');
   $vc =
     $myconfig{vclimit} <=  scalar(@values)
-    ? qq|<input type="text" value="| . H(($form->{"old$form->{vc}"} =~ /^(.*)\-\-.*$/)) . qq|" name="$form->{vc}">| 
+    ? qq|<input type="text" value="| . H(($form->{"old$form->{vc}"} =~ /^(.*)\-\-.*$/)) . qq|" name="$form->{vc}">|
     : NTI($cgi->popup_menu('-name' => "$form->{vc}",
                            '-default' => $form->{"old$form->{vc}"},
                            '-onChange' => 'document.getElementById(\'update_button\').click();',
@@ -787,7 +787,7 @@ $employee_block
 	      <tr>
 	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vc_label</td>
 	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
-	        
+
 		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> | . $locale->text('Ship via') . qq|</td>
 	      </tr>
 	      <tr>
@@ -1105,14 +1105,14 @@ sub save_and_close {
     if ($form->{currency} ne $form->{defaultcurrency});
 
   &validate_items;
-  
-  if($form->{payment_id}) { 
+
+  if($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
-  
+
   # if the name changed get new values
   if (&check_name($form->{vc})) {
-    if($form->{payment_id} eq "") { 
+    if($form->{payment_id} eq "") {
       $form->{payment_id} = $payment_id;
     }
     &update;
@@ -1207,14 +1207,14 @@ sub save {
     if ($form->{currency} ne $form->{defaultcurrency});
 
   &validate_items;
-  
-  if($form->{payment_id}) { 
+
+  if($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
-  
+
   # if the name changed get new values
   if (&check_name($form->{vc})) {
-    if($form->{payment_id} eq "") { 
+    if($form->{payment_id} eq "") {
       $form->{payment_id} = $payment_id;
     }
     &update;
@@ -1271,7 +1271,7 @@ sub save {
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
   $form->{simple_save} = 1;
   if(!$form->{print_and_save}) {
@@ -1350,7 +1350,7 @@ sub delete_order_quotation {
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
-    # /saving the history 
+    # /saving the history
     $form->info($msg);
     exit();
   }
@@ -1386,9 +1386,9 @@ sub invoice {
     $form->{ordnumber}    = "";
     $form->{quodate}      = $form->{transdate};
   }
-  
+
   $payment_id = $form->{payment_id} if $form->{payment_id};
-  
+
   # if the name changed get new values
   if (&check_name($form->{vc})) {
     $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
@@ -1441,7 +1441,7 @@ sub invoice {
     $buysell        = 'sell';
   }
 
-  if (   $form->{type} eq 'sales_order' 
+  if (   $form->{type} eq 'sales_order'
       || $form->{type} eq 'sales_quotation') {
     $form->{title}  = $locale->text('Add Sales Invoice');
     $form->{script} = 'is.pl';
