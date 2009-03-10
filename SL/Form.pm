@@ -914,12 +914,12 @@ sub format_amount {
   if ($amount eq "") {
     $amount = 0;
   }
-  
+
   # Hey watch out! The amount can be an exponential term like 1.13686837721616e-13
-  
+
   my $neg = ($amount =~ s/^-//);
   my $exp = ($amount =~ m/[e]/) ? 1 : 0;
-  
+
   if (defined($places) && ($places ne '')) {
     if (not $exp) {
       if ($places < 0) {
@@ -1228,7 +1228,7 @@ sub parse_template {
           open(OUT, $self->{OUT})
             or $self->error($self->cleanup . "$self->{OUT} : $!");
         } else {
-          $self->{attachment_filename} = ($self->{attachment_filename}) 
+          $self->{attachment_filename} = ($self->{attachment_filename})
                                        ? $self->{attachment_filename}
                                        : $self->generate_attachment_filename();
 
@@ -1437,7 +1437,7 @@ sub dbconnect_noauto {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig) = @_;
-  
+
   # connect to database
   my $dbh =
     DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser},
@@ -1518,7 +1518,7 @@ sub update_exchangerate {
   if ($curr eq '') {
     $main::lxdebug->leave_sub();
     return;
-  }  
+  }
   $query = qq|SELECT curr FROM defaults|;
 
   my ($currency) = selectrow_query($self, $dbh, $query);
@@ -1559,7 +1559,7 @@ sub update_exchangerate {
                 SET $set
                 WHERE curr = ?
                 AND transdate = ?|;
-    
+
   } else {
     $query = qq|INSERT INTO exchangerate (curr, buy, sell, transdate)
                 VALUES (?, $buy, $sell, ?)|;
@@ -1870,7 +1870,7 @@ sub add_shipto {
                        shiptophone = ? AND
                        shiptofax = ? AND
                        shiptoemail = ? AND
-                       module = ? AND 
+                       module = ? AND
                        trans_id = ?|;
       my $insert_check = selectfirst_hashref_query($self, $dbh, $query, @values, $module, $id);
       if(!$insert_check){
@@ -2177,7 +2177,7 @@ $main::lxdebug->enter_sub();
   $key = "all_currencies" unless ($key);
 
   my $query = qq|SELECT curr AS currency FROM defaults|;
- 
+
   $self->{$key} = [split(/\:/ , selectfirst_hashref_query($self, $dbh, $query)->{currency})];
 
   $main::lxdebug->leave_sub();
@@ -2191,7 +2191,7 @@ $main::lxdebug->enter_sub();
   $key = "all_payments" unless ($key);
 
   my $query = qq|SELECT * FROM payment_terms ORDER BY id|;
- 
+
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
@@ -2356,7 +2356,7 @@ sub get_lists {
   if ($params{"employees"}) {
     $self->_get_employees($dbh, "all_employees", $params{"employees"});
   }
-  
+
   if ($params{"salesmen"}) {
     $self->_get_employees($dbh, "all_salesmen", $params{"salesmen"});
   }
@@ -2368,11 +2368,11 @@ sub get_lists {
   if ($params{"dunning_configs"}) {
     $self->_get_dunning_configs($dbh, $params{"dunning_configs"});
   }
-  
+
   if($params{"currencies"}) {
     $self->_get_currencies($dbh, $params{"currencies"});
   }
-  
+
   if($params{"customers"}) {
     if (ref $params{"customers"} eq 'HASH') {
       $self->_get_customers($dbh, $params{"customers"}{key}, $params{"customers"}{limit});
@@ -2380,7 +2380,7 @@ sub get_lists {
       $self->_get_customers($dbh, $params{"customers"});
     }
   }
-  
+
   if($params{"vendors"}) {
     if (ref $params{"vendors"} eq 'HASH') {
       $self->_get_vendors($dbh, $params{"vendors"}{key}, $params{"vendors"}{limit});
@@ -2388,7 +2388,7 @@ sub get_lists {
       $self->_get_vendors($dbh, $params{"vendors"});
     }
   }
-  
+
   if($params{"payments"}) {
     $self->_get_payments($dbh, $params{"payments"});
   }
@@ -3115,7 +3115,7 @@ sub get_history {
       qq|WHERE trans_id = | . $trans_id
       . $restriction . qq| |
       . $order;
-      
+
     my $sth = $dbh->prepare($query) || $self->dberror($query);
 
     $sth->execute() || $self->dberror("$query");
@@ -3126,7 +3126,7 @@ sub get_history {
       $hash_ref->{snumbers} =~ s/^.+_(.*)$/$1/g;
       $tempArray[$i++] = $hash_ref;
     }
-    $main::lxdebug->leave_sub() and return \@tempArray 
+    $main::lxdebug->leave_sub() and return \@tempArray
       if ($i > 0 && $tempArray[0] ne "");
   }
   $main::lxdebug->leave_sub();
