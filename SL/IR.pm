@@ -344,7 +344,7 @@ sub post_invoice {
     $expensediff += $paiddiff;
 
     ######## this only applies to tax included
-    
+
     $form->{amount}{ $form->{id} }{$lastinventoryaccno} -= $invoicediff if $lastinventoryaccno;
     $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $expensediff if $lastexpenseaccno;
 
@@ -365,11 +365,11 @@ sub post_invoice {
 
   $form->{amount}{ $form->{id} }{ $form->{AP} } = $netamount + $tax;
 
-  
+
   $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
   # update exchangerate
-  
+
   $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate})
     if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
 
@@ -398,7 +398,7 @@ sub post_invoice {
   }
 
   # force AP entry if 0
-  
+
   $form->{amount}{ $form->{id} }{ $form->{AP} } = $form->{paid} if $form->{amount}{$form->{id}}{$form->{AP}} == 0;
 
   # record payments and offsetting AP
@@ -500,7 +500,7 @@ sub post_invoice {
                 netamount    = ?, paid        = ?, duedate       = ?, datepaid    = ?,
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded = ?,
                 intnotes     = ?, curr        = ?, storno_id     = ?, storno      = ?,
-                cp_id        = ?, employee_id = ?, department_id = ?, 
+                cp_id        = ?, employee_id = ?, department_id = ?,
                 globalproject_id = ?
               WHERE id = ?|;
   @values = (
@@ -509,7 +509,7 @@ sub post_invoice {
                 $netamount,                  $form->{paid},      conv_date($form->{duedate}),       $form->{paid} ? conv_date($form->{datepaid}) : undef,
             '1',                             $taxzone_id,                  $form->{notes},          $form->{taxincluded} ? 't' : 'f',
                 $form->{intnotes},           $form->{currency},     conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
-         conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}), 
+         conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}),
          conv_i($form->{globalproject_id}),
          conv_i($form->{id})
   );
