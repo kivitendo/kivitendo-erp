@@ -71,7 +71,7 @@ sub edit {
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
   #/show hhistory button
-  
+
   $form->{title} = $locale->text('Edit Vendor Invoice');
 
   &invoice_links;
@@ -116,7 +116,7 @@ sub invoice_links {
   IR->get_vendor(\%myconfig, \%$form);
   IR->retrieve_invoice(\%myconfig, \%$form);
   $form->{cp_id} = $cp_id;
- 
+
   if ($payment_id) {
     $form->{payment_id} = $payment_id;
   }
@@ -293,7 +293,7 @@ sub form_header {
   }
   my $globalprojectnumber = NTI($cgi->popup_menu('-name' => 'globalproject_id', '-values' => \@values, '-labels' => \%labels,
                                                  '-default' => $form->{"globalproject_id"}));
- 
+
   %labels = ();
   @values = ();
   my $i = 0;
@@ -301,7 +301,7 @@ sub form_header {
     push(@values, $item);
     $labels{$item} = $item;
   }
-  
+
   $form->{currency} = $form->{defaultcurrency} unless $form->{currency};
   my $currencies;
   if (scalar @values) {
@@ -406,7 +406,7 @@ sub form_header {
 
   #write Trigger
   $jsscript =
-    Form->write_trigger(\%myconfig, "2", 
+    Form->write_trigger(\%myconfig, "2",
                         "invdate", "BL", "trigger1",
                         "duedate", "BL", "trigger2");
 
@@ -469,7 +469,7 @@ sub form_header {
 	  <td align=right>
 	    <table>
      $employees
-	      <tr>   
+	      <tr>
 		<th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
 		<td><input name=invnumber size=11 value="$form->{invnumber}"></td>
 	      </tr>
@@ -869,9 +869,9 @@ sub form_footer {
   	  . qq|">|;
   }
   # /button for saving history
-  # mark_as_paid button 
-  if($form->{id} ne "") {  
-    print qq| <input type="submit" class="submit" name="action" value="| 
+  # mark_as_paid button
+  if($form->{id} ne "") {
+    print qq| <input type="submit" class="submit" name="action" value="|
           . $locale->text('mark as paid') . qq|">|;
   }
   # /mark_as_paid button
@@ -889,7 +889,7 @@ sub mark_as_paid {
 
   $auth->assert('vendor_invoice_edit');
 
-  &mark_as_paid_common(\%myconfig,"ap");  
+  &mark_as_paid_common(\%myconfig,"ap");
 
   $lxdebug->leave_sub();
 }
@@ -1006,15 +1006,15 @@ sub storno {
   # Payments must not be recorded for the new storno invoice.
   $form->{paidaccounts} = 0;
   map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
-  
+
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
+    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "CANCELED";
     $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
-  
+
   $form->{storno_id} = $form->{id};
   $form->{storno} = 1;
   $form->{id} = "";
@@ -1144,7 +1144,7 @@ sub post {
   if (IR->post_invoice(\%myconfig, \%$form)){
   	# saving the history
   	if(!exists $form->{addition} && $form->{id} ne "") {
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "POSTED";
   		#$form->{what_done} = $locale->text("Rechnungsnummer") . qq| | . $form->{invnumber};
   		$form->save_history($form->dbconnect(\%myconfig));
@@ -1204,11 +1204,11 @@ sub yes {
   if (IR->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};  
+      $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
-    # /saving the history 
+    # /saving the history
     $form->redirect($locale->text('Invoice deleted!'));
   }
   $form->error($locale->text('Cannot delete invoice!'));
