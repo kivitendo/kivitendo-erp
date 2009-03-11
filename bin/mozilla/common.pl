@@ -580,6 +580,24 @@ sub cov_selection_internal {
   $lxdebug->leave_sub();
 }
 
+=item cross BLOCK ARRAY ARRAY
+
+Evaluates BLOCK for each combination of elements in ARRAY1 and ARRAY2
+and returns a new list consisting of BLOCK's return values.
+The two elements are set to $a and $b.
+Note that those two are aliases to the original value so changing them
+will modify the input arrays.
+
+  # append each to each
+  @a = qw/a b c/;
+  @b = qw/1 2 3/;
+  @x = pairwise { "$a$b" } @a, @b;
+  # returns a1, a2, a3, b1, b2, b3, c1, c2, c3
+
+As cross expects an array but returns a list it is not directly chainable
+at the moment. This will be corrected in the future.
+
+=cut
 sub cross(&\@\@) {
   my $op = shift;
   use vars qw/@A @B/;
