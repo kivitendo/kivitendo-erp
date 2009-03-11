@@ -499,7 +499,7 @@ sub post_invoice {
   if (!$form->{employee_id}) {
     $form->get_employee($dbh);
   }
-  
+
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
@@ -962,26 +962,26 @@ sub post_invoice {
                 curr        = ?, department_id = ?, payment_id    = ?, taxincluded   = ?,
                 type        = ?, language_id   = ?, taxzone_id    = ?, shipto_id     = ?,
                 employee_id = ?, salesman_id   = ?, storno_id     = ?, storno        = ?,
-                cp_id       = ?, marge_total   = ?, marge_percent = ?, 
+                cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
 		donumber    = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
-             conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}), 
-                       $amount,                        $netamount,                       $form->{"paid"},     conv_date($form->{"datepaid"}), 
+             conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
+                       $amount,                        $netamount,                       $form->{"paid"},     conv_date($form->{"datepaid"}),
              conv_date($form->{"duedate"}),  conv_date($form->{"deliverydate"}),    '1',                                $form->{"shippingpoint"},
                        $form->{"shipvia"},      conv_i($form->{"terms"}),                $form->{"notes"},              $form->{"intnotes"},
                        $form->{"currency"},     conv_i($form->{"department_id"}), conv_i($form->{"payment_id"}),        $form->{"taxincluded"} ? 't' : 'f',
                        $form->{"type"},         conv_i($form->{"language_id"}),   conv_i($form->{"taxzone_id"}), conv_i($form->{"shipto_id"}),
-                conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),   conv_i($form->{storno_id}),           $form->{"storno"} ? 't' : 'f', 
+                conv_i($form->{"employee_id"}), conv_i($form->{"salesman_id"}),   conv_i($form->{storno_id}),           $form->{"storno"} ? 't' : 'f',
                 conv_i($form->{"cp_id"}),            1 * $form->{marge_total} ,      1 * $form->{marge_percent},
-                conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}), 
+                conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
 		       $form->{"donumber"}, #das entsprechende feld lieferscheinnummer aus der html-form 12.02.09 jb
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
-  
+
   if($form->{"formname"} eq "credit_note") {
     for my $i (1 .. $form->{rowcount}) {
       $query = qq|UPDATE parts SET onhand = onhand - ? WHERE id = ?|;
@@ -989,7 +989,7 @@ sub post_invoice {
       do_query($form, $dbh, $query, @values);
     }
   }
-  
+
   if ($form->{storno}) {
     $query =
       qq!UPDATE ar SET
@@ -1438,7 +1438,7 @@ sub retrieve_invoice {
     my $transdate = $form->{deliverydate} ? $dbh->quote($form->{deliverydate})
                   : $form->{invdate}      ? $dbh->quote($form->{invdate})
                   :                         "current_date";
-     
+
 
     my $taxzone_id = $form->{taxzone_id} *= 1;
     $taxzone_id = 0 if (0 > $taxzone_id) || (3 < $taxzone_id);
@@ -1488,7 +1488,7 @@ sub retrieve_invoice {
            LEFT JOIN chart c ON (c.id = t.chart_id)
            WHERE t.id IN
              (SELECT tk.tax_id FROM taxkeys tk
-              WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?) 
+              WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?)
                 AND startdate <= date($transdate)
               ORDER BY startdate DESC LIMIT 1)
            ORDER BY c.accno|;
@@ -1815,7 +1815,7 @@ sub retrieve_item {
     my $i = 0;
     while (my $ptr = $stw->fetchrow_hashref('NAME_lc')) {
 
-      #    if ($customertax{$ref->{accno}}) 
+      #    if ($customertax{$ref->{accno}})
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
         $i++;
         $ptr->{accno} = $i;
