@@ -1212,6 +1212,9 @@ sub cogs {
   $main::lxdebug->enter_sub();
 
   my ($dbh, $form, $id, $totalqty, $basefactor, $row) = @_;
+
+  $basefactor ||= 1;
+
   $form->{taxzone_id} *=1;
   my $transdate  = $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
   my $taxzone_id = $form->{"taxzone_id"} * 1;
@@ -1242,7 +1245,7 @@ sub cogs {
 
     # total expenses and inventory
     # sellprice is the cost of the item
-    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / $basefactor, 2);
+    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ( $basefactor || 1 ), 2);
 
     if (!$main::eur) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
