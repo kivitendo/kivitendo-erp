@@ -193,16 +193,15 @@ $self->{message}
         return "$attachment : $!";
       }
 
-      print OUT qq|--${boundary}
-Content-Type: $application/$self->{format}; name="$filename"; |;
-
       # only set charset for attachements of type text. every other type should not have this field
       # refer to bug 883 for detailed information
-      if ($application eq 'text' && $self->{charset}) {
-        print OUT qq|charset="$self->{charset}" |;
+      my $attachment_charset;
+      if (lc $application eq 'text' && $self->{charset}) {
+        $attachment_charset = qq|; charset="$self->{charset}" |;
       }
 
-      print OUT qq|
+      print OUT qq|--${boundary}
+Content-Type: $application/$self->{format}; name="$filename"$attachment_charset
 Content-Transfer-Encoding: BASE64
 Content-Disposition: attachment; filename="$filename"\n\n|;
 
