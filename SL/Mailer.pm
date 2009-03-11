@@ -131,7 +131,7 @@ sub send {
   }
 
   my $headers = '';
-  foreach my $item (qw(from to cc)) {
+  foreach my $item (qw(from to cc bcc)) {
     next unless ($self->{$item});
     my (@addr_objects) = Email::Address->parse($self->{$item});
     next unless (scalar @addr_objects);
