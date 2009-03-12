@@ -464,7 +464,7 @@ $checked></td>
          <th align=right colspan=4>| . $locale->text('Decimalplaces') . qq|</th>
              <td><input name=decimalplaces size=3 value="2"></td>
          </tr>
-                                    
+
 $jsscript
 |;
   }
@@ -601,7 +601,7 @@ $jsscript
          <th align=right colspan=4>| . $locale->text('Decimalplaces') . qq|</th>
              <td><input name=decimalplaces size=3 value="2"></td>
          </tr>
-                                    
+
 $jsscript
 |;
   }
@@ -1167,37 +1167,37 @@ sub generate_balance_sheet {
   my $edit_url = build_std_url('action=edit', 'type', 'vc');
 
 #   foreach $accno (@{ $form->{TB} }) {
-# 
+#
 #     $accno->{soll} = $accno->{debit};
 #     $accno->{haben} = $accno->{credit};
 #     map { $totals{$_}    += $accno->{$_} } @subtotal_columns;
-# 
+#
 #     map { $accno->{$_} = $form->format_amount(\%myconfig, $accno->{$_}, 2) } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-# 
+#
 #     map { $accno->{$_} = ($accno->{$_} == 0) ? '' : $accno->{$_} } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-# 
+#
 #     my $row = { };
-# 
+#
 #     foreach my $column (@columns) {
 #       $row->{$column} = {
 #         'data'  => $accno->{$column},
 #         'align' => $column_alignment{$column},
 #       };
 #     }
-# 
-# 
+#
+#
 #     $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
-# 
+#
 #     my $row_set = [ $row ];
-# 
-# 
+#
+#
 #     $report->add_data($row_set);
-# 
+#
 #     $idx++;
 #   }
-# 
+#
 #   $report->add_separator();
-# 
+#
 #   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
 
   $report->generate_with_headers();
@@ -2063,7 +2063,7 @@ sub print_form {
   	$form->{what_done} = $form->{type};
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
   $lxdebug->leave_sub();
 }
 

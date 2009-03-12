@@ -642,7 +642,7 @@ sub get_accounts_g {
          WHERE $where $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
-         GROUP BY c.$category 
+         GROUP BY c.$category
 
          UNION
 
@@ -654,7 +654,7 @@ sub get_accounts_g {
          WHERE $where $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AP_paid%') $subwhere)
            $project
-         GROUP BY c.$category 
+         GROUP BY c.$category
 
          UNION
 
@@ -663,7 +663,7 @@ sub get_accounts_g {
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN gl a ON (a.id = ac.trans_id)
          $dpt_join
-         WHERE $where $dpt_where $glwhere 
+         WHERE $where $dpt_where $glwhere
            AND NOT ((c.link = 'AR') OR (c.link = 'AP'))
            $project
          GROUP BY c.$category
@@ -682,7 +682,7 @@ sub get_accounts_g {
          WHERE (c.category = 'I') $prwhere $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
-         GROUP BY c.$category 
+         GROUP BY c.$category
 
          UNION
 
@@ -695,7 +695,7 @@ sub get_accounts_g {
          WHERE (c.category = 'E') $prwhere $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AP_paid%') $subwhere)
          $project
-         GROUP BY c.$category 
+         GROUP BY c.$category
          |;
     }
 
@@ -829,7 +829,7 @@ sub trial_balance {
     if ($ref->{amount} != 0 || $form->{all_accounts}) {
       $trb{ $ref->{accno} }{description} = $ref->{description};
       $trb{ $ref->{accno} }{charttype}   = 'A';
-   
+
       if ($ref->{amount} > 0) {
         $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
       } else {
@@ -918,7 +918,7 @@ sub trial_balance {
                (ac.trans_id in (SELECT id from gl)
                 $glwhere)
               )|;
-    $saldowhere .=       
+    $saldowhere .=
 qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                 ac.trans_id IN
                   (
@@ -944,7 +944,7 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                (ac.trans_id in (SELECT id from gl)
                 $glsaldowhere)
               )|;
-    $sumwhere .=       
+    $sumwhere .=
 qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                 ac.trans_id IN
                   (
