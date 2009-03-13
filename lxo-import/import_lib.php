@@ -302,7 +302,7 @@ function anmelden() {
         $dbhost=($hits[1])?$hits[1]:"localhost";
         preg_match("/'port'[ ]*=> '(.+)'/",$tmp,$hits);
         $dbport=($hits[1])?$hits[1]:"5432";
-        preg_match("/^[ ]*\$self->\{cookie_name\}[ ]*=[ ]*'(.+)'/",$tmp,$hits);
+	preg_match("/[ ]*\\\$self->\{cookie_name\}[ ]*=[ ]*'(.+)'/",$tmp,$hits);
         $cookiename=$hits[1];
         if (!$cookiename) $cookiename='lx_office_erp_session_id';
         $cookie=$_COOKIE[$cookiename];
