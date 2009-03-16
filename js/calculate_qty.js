@@ -7,6 +7,7 @@ function calculate_qty_selection_window(input_name, alu, formel, row) {
     var description = document.getElementsByName("description_" + row)[0].value;
   }  else var action = "calculate_qty";
   url = "common.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=" + action + "&" +
     "name=" + encodeURIComponent(name) + "&" +
     "input_name=" + encodeURIComponent(input_name) + "&" +

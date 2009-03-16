@@ -6,6 +6,7 @@ function show_vc_details(vc) {
   if (vc_id)
     vc_id = vc_id[0].value;
   url = "common.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=show_vc_details&" +
     "vc=" + encodeURIComponent(vc) + "&" +
     "vc_id=" + encodeURIComponent(vc_id)

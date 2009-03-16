@@ -2,6 +2,7 @@ function customer_or_vendor_selection_window(input_name, input_id, is_vendor, al
   var parm = centerParms(800,600) + ",width=800,height=600,status=yes,scrollbars=yes";
   var name = document.getElementsByName(input_name)[0].value;
   url = "common.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=cov_selection_internal&" +
     "name=" + encodeURIComponent(name) + "&" +
     "input_name=" + encodeURIComponent(input_name) + "&" +

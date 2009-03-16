@@ -11,6 +11,7 @@ function open_stock_in_out_window(in_out, row) {
   var delivered = document.getElementsByName("delivered")[0].value;
 
   url = "do.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=stock_in_out_form&" +
     "in_out="    + encodeURIComponent(in_out)    + "&" +
     "row="       + encodeURIComponent(row)       + "&" +

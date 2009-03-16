@@ -24,6 +24,7 @@ function part_selection_window(input_partnumber, input_description, input_partsi
     options = "";
 
   url = "common.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=part_selection_internal&" +
     "partnumber="              + encodeURIComponent(partnumber)        + "&" +
     "description="             + encodeURIComponent(description)       + "&" +

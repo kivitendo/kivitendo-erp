@@ -42,6 +42,7 @@ function set_longdescription_window(input_name) {
   var parm = centerParms(600,500) + ",width=600,height=500,status=yes,scrollbars=yes";
   var name = document.getElementsByName(input_name)[0].value;
   url = "common.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=set_longdescription&" +
     "longdescription=" + encodeURIComponent(document.getElementsByName(input_name)[0].value) + "&" +
     "input_name=" + encodeURIComponent(input_name) + "&"

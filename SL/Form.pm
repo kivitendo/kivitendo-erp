@@ -70,11 +70,9 @@ END {
 sub _store_value {
   $main::lxdebug->enter_sub(2);
 
-  my $self  = shift;
+  my $curr  = shift;
   my $key   = shift;
   my $value = shift;
-
-  my $curr  = $self;
 
   while ($key =~ /\[\+?\]\.|\./) {
     substr($key, 0, $+[0]) = '';
@@ -103,14 +101,14 @@ sub _store_value {
 sub _input_to_hash {
   $main::lxdebug->enter_sub(2);
 
-  my $self  = shift;
-  my $input = shift;
+  my $params = shift;
+  my $input  = shift;
 
-  my @pairs = split(/&/, $input);
+  my @pairs  = split(/&/, $input);
 
   foreach (@pairs) {
     my ($key, $value) = split(/=/, $_, 2);
-    $self->_store_value($self->unescape($key), $self->unescape($value));
+    _store_value($params, unescape(undef, $key), unescape(undef, $value));
   }
 
   $main::lxdebug->leave_sub(2);
@@ -119,13 +117,13 @@ sub _input_to_hash {
 sub _request_to_hash {
   $main::lxdebug->enter_sub(2);
 
-  my $self  = shift;
-  my $input = shift;
+  my $params = shift;
+  my $input  = shift;
 
   if (!$ENV{'CONTENT_TYPE'}
       || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
 
-    $self->_input_to_hash($input);
+    _input_to_hash($params, $input);
 
     $main::lxdebug->leave_sub(2);
     return;
@@ -173,8 +171,8 @@ sub _request_to_hash {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $previous         = $self->_store_value($name, '');
-        $self->{FILENAME} = $filename if ($filename);
+        $previous           = _store_value($params, $name, '');
+        $params->{FILENAME} = $filename if ($filename);
 
         next;
       }
@@ -194,6 +192,29 @@ sub _request_to_hash {
   ${ $previous } =~ s|\r?\n$|| if $previous;
 
   $main::lxdebug->leave_sub(2);
+}
+
+sub _recode_recursively {
+  my ($iconv, $param) = @_;
+
+  if (ref $param eq 'HASH') {
+    foreach my $key (keys %{ $param }) {
+      if (!ref $param->{$key}) {
+        $param->{$key} = $iconv->convert($param->{$key});
+      } else {
+        _recode_recursively($iconv, $param->{$key});
+      }
+    }
+
+  } elsif (ref $param eq 'ARRAY') {
+    foreach my $idx (0 .. scalar(@{ $param }) - 1) {
+      if (!ref $param->[$idx]) {
+        $param->[$idx] = $iconv->convert($param->[$idx]);
+      } else {
+        _recode_recursively($iconv, $param->[$idx]);
+      }
+    }
+  }
 }
 
 sub new {
@@ -220,7 +241,22 @@ sub new {
 
   bless $self, $type;
 
-  $self->_request_to_hash($_);
+  my $parameters = { };
+  _request_to_hash($parameters, $_);
+
+  my $db_charset   = $main::dbcharset;
+  $db_charset    ||= Common::DEFAULT_CHARSET;
+
+  if ($parameters->{INPUT_ENCODING} && (lc $parameters->{INPUT_ENCODING} ne $db_charset)) {
+    require Text::Iconv;
+    my $iconv = Text::Iconv->new($parameters->{INPUT_ENCODING}, $db_charset);
+
+    _recode_recursively($iconv, $parameters);
+
+    delete $parameters{INPUT_ENCODING};
+  }
+
+  map { $self->{$_} = $parameters->{$_}; } keys %{ $parameters };
 
   $self->{action}  =  lc $self->{action};
   $self->{action}  =~ s/( |-|,|\#)/_/g;

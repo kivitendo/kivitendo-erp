@@ -4,6 +4,7 @@ function follow_up_window() {
   var parm = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
 
   url = "fu.pl?" +
+    "INPUT_ENCODING=UTF-8&" +
     "action=add" + "&" +
     "POPUP_MODE=1";
 
