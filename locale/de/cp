@@ -210,6 +210,7 @@ $self->{subs} = {
   'check_project'               => 'check_project',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'form_footer'                 => 'form_footer',
   'form_header'                 => 'form_header',

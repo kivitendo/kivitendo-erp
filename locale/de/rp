@@ -298,6 +298,7 @@ $self->{subs} = {
   'create_aging_subtotal_row'   => 'create_aging_subtotal_row',
   'create_list_accounts_subtotal_row' => 'create_list_accounts_subtotal_row',
   'create_subtotal_row'         => 'create_subtotal_row',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'e_mail'                      => 'e_mail',
   'format_dates'                => 'format_dates',

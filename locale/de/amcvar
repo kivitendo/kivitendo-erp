@@ -176,6 +176,7 @@ $self->{subs} = {
   'calculate_qty'               => 'calculate_qty',
   'call_sub'                    => 'call_sub',
   'cov_selection_internal'      => 'cov_selection_internal',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delete'                      => 'delete',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'display_cvar_config_form'    => 'display_cvar_config_form',

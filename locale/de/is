@@ -375,6 +375,7 @@ $self->{subs} = {
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
   'credit_note'                 => 'credit_note',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'customer_details'            => 'customer_details',
   'delete'                      => 'delete',
   'delete_drafts'               => 'delete_drafts',

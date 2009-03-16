@@ -229,6 +229,7 @@ $self->{subs} = {
   'call_sub'                    => 'call_sub',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'format_dates'                => 'format_dates',
   'generate_journal'            => 'generate_journal',

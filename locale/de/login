@@ -432,6 +432,7 @@ $self->{subs} = {
   'create_backorder'            => 'create_backorder',
   'create_subtotal_row'         => 'create_subtotal_row',
   'create_todo_list'            => 'create_todo_list',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'customer_details'            => 'customer_details',
   'delete'                      => 'delete',
   'delete_delivery_order'       => 'delete_delivery_order',

@@ -179,6 +179,7 @@ $self->{subs} = {
   'call_sub'                    => 'call_sub',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'display_form'                => 'display_form',
   'done'                        => 'done',

@@ -160,6 +160,7 @@ $self->{subs} = {
   'calculate_qty'               => 'calculate_qty',
   'call_sub'                    => 'call_sub',
   'cov_selection_internal'      => 'cov_selection_internal',
+  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delete_drafts'               => 'delete_drafts',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'dont_load_draft'             => 'dont_load_draft',
