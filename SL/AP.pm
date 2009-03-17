@@ -578,6 +578,7 @@ sub post_payment {
 
   ($form->{defaultcurrency}) = selectrow_query($form, $dbh, qq|SELECT curr FROM defaults|);
   $form->{defaultcurrency}   = (split m/:/, $form->{defaultcurrency})[0];
+  $form->{currency}          = $form->{defaultcurrency} if ($form->{defaultcurrency} && ($form->{currency} =~ m/^\s*$/));
 
   $form->{exchangerate}      = $form->format_amount($myconfig, $form->{exchangerate});
 
