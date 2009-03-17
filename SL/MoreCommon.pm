@@ -3,7 +3,7 @@ package SL::MoreCommon;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(save_form restore_form compare_numbers any);
+@EXPORT = qw(save_form restore_form compare_numbers any cross);
 
 use YAML;
 
@@ -83,6 +83,48 @@ sub any (&@) {
     return 1 if $f->();
   }
   return 0;
+}
+
+=item cross BLOCK ARRAY ARRAY
+
+Evaluates BLOCK for each combination of elements in ARRAY1 and ARRAY2
+and returns a new list consisting of BLOCK's return values.
+The two elements are set to $a and $b.
+Note that those two are aliases to the original value so changing them
+will modify the input arrays.
+
+  # append each to each
+  @a = qw/a b c/;
+  @b = qw/1 2 3/;
+  @x = pairwise { "$a$b" } @a, @b;
+  # returns a1, a2, a3, b1, b2, b3, c1, c2, c3
+
+As cross expects an array but returns a list it is not directly chainable
+at the moment. This will be corrected in the future.
+
+=cut
+sub cross(&\@\@) {
+  my $op = shift;
+  use vars qw/@A @B/;
+  local (*A, *B) = @_;    # syms for caller's input arrays
+
+  # Localise $a, $b
+  my ($caller_a, $caller_b) = do {
+    my $pkg = caller();
+    no strict 'refs';
+    \*{$pkg.'::a'}, \*{$pkg.'::b'};
+  };
+
+  local(*$caller_a, *$caller_b);
+
+  # This map expression is also the return value.
+  map { my $a_index = $_;
+    map { my $b_index = $_;
+      # assign to $a, $b as refs to caller's array elements
+      (*$caller_a, *$caller_b) = \($A[$a_index], $B[$b_index]);
+      $op->();    # perform the transformation
+    }  0 .. $#B;
+  }  0 .. $#A;
 }
 
 1;
