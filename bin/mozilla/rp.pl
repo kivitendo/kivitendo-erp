@@ -1090,6 +1090,11 @@ sub generate_balance_sheet {
 
   $auth->assert('report');
 
+  $form->{padding} = "&nbsp;&nbsp;";
+  $form->{bold}    = "<b>";
+  $form->{endbold} = "</b>";
+  $form->{br}      = "<br>";
+
   RP->balance_sheet(\%myconfig, \%$form);
 
   $form->{asofdate} = $form->current_date(\%myconfig) unless $form->{asofdate};
@@ -1107,101 +1112,14 @@ sub generate_balance_sheet {
   $form->{last_period} =
     $locale->date(\%myconfig, $form->{compareasofdate}, 0);
 
-  my $attachment_basename;
+  $form->{IN} = "balance_sheet.html";
 
-  my $report = SL::ReportGenerator->new(\%myconfig, $form);
+  # setup company variables for the form
+  map { $form->{$_} = $myconfig{$_}; } (qw(company address businessnumber nativecurr));
 
-  my @hidden_variables = ();
-  push @hidden_variables, qw(fromdate todate year cash );
+  $form->{templates} = $myconfig{templates};
 
-  my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
-
-  my %column_defs = (
-    'accno'                   => { 'text' => $locale->text('Account Number'), },
-    'description'             => { 'text' => $locale->text('Description'), },
-    'last_transaction'        => { 'text' => $locale->text('Last Transaction'), },
-    'soll_eb'                 => { 'text' => $locale->text('Debit Starting Balance'), },
-    'haben_eb'                => { 'text' => $locale->text('Credit Starting Balance'), },
-    'soll'                    => { 'text' => $locale->text('Debit'), },
-    'haben'                   => { 'text' => $locale->text('Credit'), },
-    'soll_kumuliert'          => { 'text' => $locale->text('Sum Debit'), },
-    'haben_kumuliert'         => { 'text' => $locale->text('Sum Credit'), },
-    'soll_saldo'              => { 'text' => $locale->text('Saldo Debit'), },
-    'haben_saldo'             => { 'text' => $locale->text('Saldo Credit'), }
-  );
-
-  my %column_alignment = map { $_ => 'right' } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-
-  map { $column_defs{$_}->{visible} =  1 } @columns;
-
-  $report->set_columns(%column_defs);
-  $report->set_column_order(@columns);
-
-  $report->set_export_options('trial_balance', @hidden_variables);
-
-  $report->set_sort_indicator($form->{sort}, 1);
-
-  my @options;
-
-
-  $form->{template_fromto} = $locale->date(\%myconfig, $form->{fromdate}, 0) . "&nbsp; - &nbsp;" . $locale->date(\%myconfig, $form->{todate}, 0);
-  $form->{template_to} = $locale->date(\%myconfig, $form->{todate}, 0);
-
-  $report->set_options('output_format'        => 'HTML',
-                       'title'                => $form->{title},
-                       'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
-    );
-  $report->set_options_from_form();
-  # $form->parse_html_template('report_generator/html_report_bilanz', $variables));
-  $form->{report_template} = 'report_generator/html_report_bilanz';
-  # add sort and escape callback, this one we use for the add sub
-  $form->{callback} = $href .= "&sort=$form->{sort}";
-
-  # escape callback for href
-  $callback = $form->escape($href);
-
-  my @subtotal_columns = qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-
-  my %totals    = map { $_ => 0 } @subtotal_columns;
-
-  my $edit_url = build_std_url('action=edit', 'type', 'vc');
-
-#   foreach $accno (@{ $form->{TB} }) {
-#
-#     $accno->{soll} = $accno->{debit};
-#     $accno->{haben} = $accno->{credit};
-#     map { $totals{$_}    += $accno->{$_} } @subtotal_columns;
-#
-#     map { $accno->{$_} = $form->format_amount(\%myconfig, $accno->{$_}, 2) } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-#
-#     map { $accno->{$_} = ($accno->{$_} == 0) ? '' : $accno->{$_} } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-#
-#     my $row = { };
-#
-#     foreach my $column (@columns) {
-#       $row->{$column} = {
-#         'data'  => $accno->{$column},
-#         'align' => $column_alignment{$column},
-#       };
-#     }
-#
-#
-#     $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
-#
-#     my $row_set = [ $row ];
-#
-#
-#     $report->add_data($row_set);
-#
-#     $idx++;
-#   }
-#
-#   $report->add_separator();
-#
-#   $report->add_data(create_subtotal_row(\%totals, \@columns, \%column_alignment, \@subtotal_columns, 'listtotal'));
-
-  $report->generate_with_headers();
-
+  $form->parse_template;
 
   $lxdebug->leave_sub();
 }
