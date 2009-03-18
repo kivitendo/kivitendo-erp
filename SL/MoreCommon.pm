@@ -96,7 +96,7 @@ will modify the input arrays.
   # append each to each
   @a = qw/a b c/;
   @b = qw/1 2 3/;
-  @x = pairwise { "$a$b" } @a, @b;
+  @x = cross { "$a$b" } @a, @b;
   # returns a1, a2, a3, b1, b2, b3, c1, c2, c3
 
 As cross expects an array but returns a list it is not directly chainable
