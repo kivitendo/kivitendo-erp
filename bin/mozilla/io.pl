@@ -290,7 +290,7 @@ sub display_row {
     $column_data{bin}         = $form->{"bin_$i"};
 
     if ($is_delivery_order) {
-      $column_data{stock_in_out} = (!$form->{"assembly_$i"} && $form->{"inventory_accno_$i"}) ? calculate_stock_in_out($i) : '&nbsp;';
+      $column_data{stock_in_out} =  $form->{"inventory_accno_$i"} ? calculate_stock_in_out($i) : '&nbsp;';
     }
 
     my @ROW1 = map { value => $column_data{$_}, align => $align{$_}, nowrap => $nowrap{$_} }, @column_index;

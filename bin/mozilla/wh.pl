@@ -104,6 +104,9 @@ sub transfer_warehouse_selection {
     $form->{title}   = $locale->text('Transfer');
     $content         = $form->parse_html_template('wh/warehouse_selection');
 
+  } elsif ($form->{trans_type} eq 'assembly') {
+    $form->{title} = $locale->text('Assembly');
+    $content       = $form->parse_html_template('wh/warehouse_selection_assembly');
   }
 
   $form->header();
@@ -305,6 +308,45 @@ sub transfer_stock_update_part {
   $lxdebug->leave_sub();
 }
 
+# --------------------------------------------------------------------
+# Transfer: assemblies
+# Dies ist die Auswahlmaske für ein assembly. 
+# Die ist einfach von transfer_assembly_update_part kopiert und nur um den trans_type (assembly) korrigiert worden
+# Es wäre schön, hier nochmal check_assembly_max_create auf, um die max. Fertigungszahl herauszufinden.
+# Ich lass das mal als auskommentierte Idee bestehen jb 18.3.09
+# --------------------------------------------------------------------
+
+sub transfer_assembly_update_part {
+  $lxdebug->enter_sub();
+
+  $form->{trans_type} = 'assembly';
+  $form->{qty}        = $form->parse_amount(\%myconfig, $form->{qty});
+
+  if (!$form->{partnumber} && !$form->{description}) {
+    delete @{$form}{qw(parts_id partunit)};
+    transfer_warehouse_selection();
+
+  } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description}) {
+    $form->{assemblies} = 1;
+    $form->{no_assemblies} = 0;
+    my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
+    if (scalar @{ $parts } == 1) {
+      @{$form}{qw(parts_id partnumber description)} = @{$parts->[0]}{qw(id partnumber description)};
+      transfer_stock_get_partunit();
+      transfer_warehouse_selection();
+    } else {
+      select_part('transfer_stock_part_selected', @{ $parts });
+    }
+
+  } else {
+    transfer_stock_get_partunit();
+    transfer_warehouse_selection();
+  }
+
+# hier die oben benannte idee
+#    my $maxcreate = Common->check_assembly_max_create(assembly_id => $form->{parts_id}, dbh => $my_dbh); 
+  $lxdebug->leave_sub();
+}
 sub transfer_stock_part_selected {
   $lxdebug->enter_sub();
 
@@ -325,6 +367,60 @@ sub transfer_stock_get_partunit {
     my $part_info     = IC->get_basic_part_info('id' => $form->{parts_id});
     $form->{partunit} = $part_info->{unit};
   }
+
+  $lxdebug->leave_sub();
+}
+
+# vorüberlegung jb 22.2.2009
+# wir benötigen für diese funktion, die anzahl die vom erzeugnis hergestellt werden soll. vielleicht direkt per js fehleingaben verhindern?
+# ferner dann nochmal mit check_asssembly_max_create gegenprüfen und dann transaktionssicher wegbuchen.
+# wir brauchen eine hilfsfunktion, die nee. brauchen wir nicht. der algorithmus läuft genau wie bei check max_create, nur dass hier auch eine lagerbewegung (verbraucht) stattfindet
+# Manko ist derzeit noch, dass unterschiedliche Lagerplätze, bzw. das Quelllager an sich nicht ausgewählt werden können.
+# Laut Absprache in KW11 09 übernimmt mb hier den rest im April ... jb 18.3.09
+sub create_assembly {
+#  my $maxcreate=shift;	# oben begonnene auskommentierte idee, hier als motiv weiterverfolgen (umkehrungen und sequenzierungen als stilmittel nicht vergessen)
+  $lxdebug->enter_sub();
+
+  $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
+#  my $maxcreate = WH->check_assembly_max_create(assembly_id	=>	$form->{parts_id});
+  if ($form->{qty} <= 0) {
+    $form->show_generic_error($locale->text('Invalid quantity.'), 'back_button' => 1);
+  } #else { if ($form->{qty} > $maxcreate) {	#s.o.
+#	    $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
+#	    $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
+#	  } 
+#  }
+
+  if (!$form->{warehouse_id} || !$form->{bin_id}) {
+    $form->error($locale->text('The warehouse or the bin is missing.'));
+  }
+# WIESO war das nicht vorher schon ein %HASH?? ein hash ist ein hash! das hat mich mehr als eine Stunde gekostet herauszufinden. grr. jb 3.3.2009
+# Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
+  my %TRANSFER = (
+    'transfer_type'    => 'assembly',
+    'login'	=> $form->{login},
+    'dst_warehouse_id' => $form->{warehouse_id},
+    'dst_bin_id'       => $form->{bin_id},
+    'chargenumber'     => $form->{chargenumber},
+    'assembly_id'         => $form->{parts_id},
+    'qty'              => $form->{qty},
+    'unit'             => $form->{unit},
+    'comment'          => $form->{comment},
+  );
+
+  my $ret = WH->transfer_assembly (%TRANSFER);
+# Frage: Ich pack in den return-wert auch gleich die Fehlermeldung. Irgendwelche Nummern als Fehlerkonstanten definieren find ich auch nicht besonders schick...
+# Ideen? jb 18.3.09
+  if ($ret ne "1"){
+    $form->show_generic_error($locale->text($ret), 'back_button' => 1);
+  }
+
+  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber comment)};
+
+  $form->{saved_message} = $locale->text('The assembly has been created.');
+  $form->{trans_type}    = 'assembly';
+
+  transfer_warehouse_selection();
 
   $lxdebug->leave_sub();
 }
