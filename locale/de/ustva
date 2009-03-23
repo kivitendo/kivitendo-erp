@@ -224,7 +224,6 @@ $self->{subs} = {
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
   'create_steuernummer'         => 'create_steuernummer',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'debug'                       => 'debug',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'elster_hash'                 => 'elster_hash',

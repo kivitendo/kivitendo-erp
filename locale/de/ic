@@ -357,7 +357,6 @@ $self->{subs} = {
   'confirm_price_update'        => 'confirm_price_update',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'customer_details'            => 'customer_details',
   'delete'                      => 'delete',
   'delivery_customer_selection' => 'delivery_customer_selection',

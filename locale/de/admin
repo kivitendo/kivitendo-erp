@@ -227,7 +227,6 @@ $self->{subs} = {
   'create_dataset'              => 'create_dataset',
   'create_standard_group'       => 'create_standard_group',
   'create_standard_group_ask'   => 'create_standard_group_ask',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'dbcreate'                    => 'dbcreate',
   'dbdelete'                    => 'dbdelete',
   'dbselect_source'             => 'dbselect_source',

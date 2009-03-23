@@ -396,7 +396,6 @@ $self->{subs} = {
   'cov_selection_internal'      => 'cov_selection_internal',
   'create_backorder'            => 'create_backorder',
   'create_subtotal_row'         => 'create_subtotal_row',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'customer_details'            => 'customer_details',
   'delete'                      => 'delete',
   'delete_delivery_order'       => 'delete_delivery_order',

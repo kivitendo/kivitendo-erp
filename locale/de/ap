@@ -304,7 +304,6 @@ $self->{subs} = {
   'cov_selection_internal'      => 'cov_selection_internal',
   'create_links'                => 'create_links',
   'create_subtotal_row'         => 'create_subtotal_row',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delete'                      => 'delete',
   'delete_drafts'               => 'delete_drafts',
   'delivery_customer_selection' => 'delivery_customer_selection',

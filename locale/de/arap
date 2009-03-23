@@ -172,7 +172,6 @@ $self->{subs} = {
   'check_project'               => 'check_project',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'format_dates'                => 'format_dates',
   'mark_as_paid_common'         => 'mark_as_paid_common',

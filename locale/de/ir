@@ -349,7 +349,6 @@ $self->{subs} = {
   'check_project'               => 'check_project',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'customer_details'            => 'customer_details',
   'delete'                      => 'delete',
   'delete_drafts'               => 'delete_drafts',

@@ -309,7 +309,6 @@ $self->{subs} = {
   'check_form'                  => 'check_form',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'customer_details'            => 'customer_details',
   'delivery_customer_selection' => 'delivery_customer_selection',
   'display_row'                 => 'display_row',

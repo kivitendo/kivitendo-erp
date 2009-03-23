@@ -217,7 +217,6 @@ $self->{subs} = {
   'call_sub'                    => 'call_sub',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delete'                      => 'delete',
   'delete_contact'              => 'delete_contact',
   'delete_shipto'               => 'delete_shipto',

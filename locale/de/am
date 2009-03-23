@@ -377,7 +377,6 @@ $self->{subs} = {
   'config'                      => 'config',
   'continue'                    => 'continue',
   'cov_selection_internal'      => 'cov_selection_internal',
-  'cross(&\@\@)'                => 'cross(&\@\@)',
   'delete'                      => 'delete',
   'delete_account'              => 'delete_account',
   'delete_buchungsgruppe'       => 'delete_buchungsgruppe',
