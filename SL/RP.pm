@@ -1,4 +1,4 @@
-###=====================================================================
+#=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -36,14 +36,27 @@ package RP;
 
 use SL::DBUtils;
 use Data::Dumper;
+use List::Util qw(sum);
+use strict;
+use warnings;
 
+
+# new implementation of balance sheet
+# readme!
+#
+# stuff missing from the original implementation:
+# - bold stuff
+# - format (2 places, varying signs of negative amounts)
+# - rounding (might not be necessary)
+# - accno and subdescription
+# - proper testing for heading charts
+# - transmission from $form to TMPL realm is not as clear as i'd like
 sub balance_sheet {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+  my $dbh      = $form->get_standard_dbh($myconfig);
 
   my $last_period = 0;
   my @categories  = qw(A C L Q);
@@ -54,260 +67,95 @@ sub balance_sheet {
   }
 
   $form->{decimalplaces} *= 1;
+  my $dec = $form->{decimalplaces};
 
-  &get_accounts($dbh, $last_period, "", $form->{asofdate}, $form,
-                \@categories);
+  get_accounts($dbh, $last_period, "", $form->{asofdate}, $form, \@categories);
 
   # if there are any compare dates
   if ($form->{compareasofdate}) {
-
     $last_period = 1;
-    &get_accounts($dbh, $last_period, "", $form->{compareasofdate},
-                  $form, \@categories);
-
+    get_accounts($dbh, $last_period, "", $form->{compareasofdate}, $form, \@categories);
     $form->{last_period} = conv_dateq($form->{compareasofdate});
-
   }
-
-  # disconnect
-  $dbh->disconnect;
 
   # now we got $form->{A}{accno}{ }    assets
   # and $form->{L}{accno}{ }           liabilities
   # and $form->{Q}{accno}{ }           equity
   # build asset accounts
 
-  my $str;
-  my $key;
+  my %account = ('A' => { 'ml'     => -1 },
+                 'L' => { 'ml'     =>  1 },
+                 'Q' => { 'ml'     =>  1 });
 
-  my %account = (
-                 'A' => { 'label'  => 'asset',
-                          'labels' => 'assets',
-                          'ml'     => -1
-                 },
-                 'L' => { 'label'  => 'liability',
-                          'labels' => 'liabilities',
-                          'ml'     => 1
-                 },
-                 'Q' => { 'label'  => 'equity',
-                          'labels' => 'equity',
-                          'ml'     => 1
-                 });
+  my $TMPL_DATA = {};
 
   foreach my $category (grep { !/C/ } @categories) {
 
-    foreach $key (sort keys %{ $form->{$category} }) {
+    $TMPL_DATA->{$category} = [];
 
-      $str = ($form->{l_heading}) ? $form->{padding} : "";
+    foreach my $key (sort keys %{ $form->{$category} }) {
 
-      if ($form->{$category}{$key}{charttype} eq "A") {
-        $str .=
-          ($form->{l_accno})
-          ? "$form->{$category}{$key}{accno} - $form->{$category}{$key}{description}"
-          : "$form->{$category}{$key}{description}";
-      }
-      if ($form->{$category}{$key}{charttype} eq "H") {
+       my $row = { %{ $form->{$category}{$key} } };
+
+      # if charttype "heading" - calculate this entry, start a new batch of charts belonging to this heading and skip the rest bo the loop
+      if ($row->{charttype} eq "H") {
         if ($account{$category}{subtotal} && $form->{l_subtotal}) {
-          $dash = "- ";
-          push(@{ $form->{"$account{$category}{label}_account"} },
-               "$str$form->{bold}$account{$category}{subdescription}$form->{endbold}"
-          );
-          push(@{ $form->{"$account{$category}{label}_this_period"} },
-               $form->format_amount(
-                        $myconfig,
-                        $account{$category}{subthis} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-               ));
-
-          if ($last_period) {
-            push(@{ $form->{"$account{$category}{label}_last_period"} },
-                 $form->format_amount(
-                        $myconfig,
-                        $account{$category}{sublast} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-                 ));
-          }
+          $row->{subdescription} = $account{$category}{subdescription};
+          $row->{this}           = $account{$category}{subthis} * $account{$category}{ml};                   # format: $dec, $dash
+          $row->{last}           = $account{$category}{sublast} * $account{$category}{ml} if $last_period;   # format: $dec, $dash
         }
 
-        $str =
-          "$form->{bold}$form->{$category}{$key}{description}$form->{endbold}";
-
+        $row->{subheader} = 1;
         $account{$category}{subthis}        = $form->{$category}{$key}{this};
         $account{$category}{sublast}        = $form->{$category}{$key}{last};
-        $account{$category}{subdescription} =
-          $form->{$category}{$key}{description};
+        $account{$category}{subdescription} = $form->{$category}{$key}{description};
         $account{$category}{subtotal} = 1;
 
         $form->{$category}{$key}{this} = 0;
         $form->{$category}{$key}{last} = 0;
 
         next unless $form->{l_heading};
-
-        $dash = " ";
       }
 
-      # push description onto array
-      push(@{ $form->{"$account{$category}{label}_account"} }, $str);
+      $row->{this} = $form->{$category}{$key}{this} * $account{$category}{ml};
 
-      if ($form->{$category}{$key}{charttype} eq 'A') {
-        $form->{"total_$account{$category}{labels}_this_period"} +=
-          $form->{$category}{$key}{this} * $account{$category}{ml};
-        $dash = "- ";
+      # only add assets
+      if ($row->{charttype} eq 'A') {
+        $form->{total}{$category}{this} += $row->{this};
       }
-
-      push(@{ $form->{"$account{$category}{label}_this_period"} },
-           $form->format_amount(
-                      $myconfig,
-                      $form->{$category}{$key}{this} * $account{$category}{ml},
-                      $form->{decimalplaces}, $dash
-           ));
 
       if ($last_period) {
-        $form->{"total_$account{$category}{labels}_last_period"} +=
-          $form->{$category}{$key}{last} * $account{$category}{ml};
-
-        push(@{ $form->{"$account{$category}{label}_last_period"} },
-             $form->format_amount(
-                      $myconfig,
-                      $form->{$category}{$key}{last} * $account{$category}{ml},
-                      $form->{decimalplaces}, $dash
-             ));
+        $row->{last}                     = $form->{$category}{$key}{last} * $account{$category}{ml};
+        $form->{total}{$category}{last} += $row->{last};
       }
-    }
 
-    $str = ($form->{l_heading}) ? $form->{padding} : "";
+      push @{ $TMPL_DATA->{$category} }, $row;
+    } # foreach
+
     if ($account{$category}{subtotal} && $form->{l_subtotal}) {
-      push(@{ $form->{"$account{$category}{label}_account"} },
-           "$str$form->{bold}$account{$category}{subdescription}$form->{endbold}"
-      );
-      push(@{ $form->{"$account{$category}{label}_this_period"} },
-           $form->format_amount(
-                        $myconfig,
-                        $account{$category}{subthis} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-           ));
-
-      if ($last_period) {
-        push(@{ $form->{"$account{$category}{label}_last_period"} },
-             $form->format_amount(
-                        $myconfig,
-                        $account{$category}{sublast} * $account{$category}{ml},
-                        $form->{decimalplaces}, $dash
-             ));
-      }
+      $TMPL_DATA->{$category}[-1]{subdescription} = $account{$category}{subdescription};
+      $TMPL_DATA->{$category}[-1]{this}           = $account{$category}{subthis} * $account{$category}{ml};                   # format: $dec, $dash
+      $TMPL_DATA->{$category}[-1]{last}           = $account{$category}{sublast} * $account{$category}{ml} if $last_period;   # format: $dec, $dash
     }
 
+    $TMPL_DATA->{total}{$category}{this} = sum map { $_->{this} } @{ $TMPL_DATA->{$category} };
+    $TMPL_DATA->{total}{$category}{last} = sum map { $_->{last} } @{ $TMPL_DATA->{$category} };
   }
 
-  # totals for assets, liabilities
-  $form->{total_assets_this_period} =
-    $form->round_amount($form->{total_assets_this_period},
-                        $form->{decimalplaces});
-  $form->{total_liabilities_this_period} =
-    $form->round_amount($form->{total_liabilities_this_period},
-                        $form->{decimalplaces});
-  $form->{total_equity_this_period} =
-    $form->round_amount($form->{total_equity_this_period},
-                        $form->{decimalplaces});
+  for my $period (qw(this last)) {
+    next if ($period eq 'last' && !$last_period);
 
-  # calculate earnings
-  $form->{earnings_this_period} =
-    $form->{total_assets_this_period} -
-    $form->{total_liabilities_this_period} - $form->{total_equity_this_period};
-
-  push(@{ $form->{equity_this_period} },
-       $form->format_amount($myconfig,
-                            $form->{earnings_this_period},
-                            $form->{decimalplaces}, "- "
-       ));
-
-  $form->{total_equity_this_period} =
-    $form->round_amount(
-             $form->{total_equity_this_period} + $form->{earnings_this_period},
-             $form->{decimalplaces});
-
-  # add liability + equity
-  $form->{total_this_period} =
-    $form->format_amount(
-    $myconfig,
-    $form->{total_liabilities_this_period} + $form->{total_equity_this_period},
-    $form->{decimalplaces},
-    "- ");
-
-  if ($last_period) {
-
-    # totals for assets, liabilities
-    $form->{total_assets_last_period} =
-      $form->round_amount($form->{total_assets_last_period},
-                          $form->{decimalplaces});
-    $form->{total_liabilities_last_period} =
-      $form->round_amount($form->{total_liabilities_last_period},
-                          $form->{decimalplaces});
-    $form->{total_equity_last_period} =
-      $form->round_amount($form->{total_equity_last_period},
-                          $form->{decimalplaces});
-
-    # calculate retained earnings
-    $form->{earnings_last_period} =
-      $form->{total_assets_last_period} -
-      $form->{total_liabilities_last_period} -
-      $form->{total_equity_last_period};
-
-    push(@{ $form->{equity_last_period} },
-         $form->format_amount($myconfig,
-                              $form->{earnings_last_period},
-                              $form->{decimalplaces}, "- "
-         ));
-
-    $form->{total_equity_last_period} =
-      $form->round_amount(
-             $form->{total_equity_last_period} + $form->{earnings_last_period},
-             $form->{decimalplaces});
-
-    # add liability + equity
-    $form->{total_last_period} =
-      $form->format_amount($myconfig,
-                           $form->{total_liabilities_last_period} +
-                             $form->{total_equity_last_period},
-                           $form->{decimalplaces},
-                           "- ");
-
+    $form->{E}{$period}             = $form->{total}{A}{$period} - $form->{total}{L}{$period} - $form->{total}{Q}{$period};
+    $form->{total}{Q}{$period}     += $form->{E}{$period};
+    $TMPL_DATA->{total}{Q}{$period} = $form->{total}{Q}{$period};
+    $TMPL_DATA->{total}{$period}    = $form->{total}{L}{$period} + $form->{total}{Q}{$period};
   }
 
-  $form->{total_liabilities_last_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_liabilities_last_period},
-                         $form->{decimalplaces}, "- ")
-    if ($form->{total_liabilities_last_period} != 0);
-
-  $form->{total_equity_last_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_equity_last_period},
-                         $form->{decimalplaces}, "- ")
-    if ($form->{total_equity_last_period} != 0);
-
-  $form->{total_assets_last_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_assets_last_period},
-                         $form->{decimalplaces}, "- ")
-    if ($form->{total_assets_last_period} != 0);
-
-  $form->{total_assets_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_assets_this_period},
-                         $form->{decimalplaces}, "- ");
-
-  $form->{total_liabilities_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_liabilities_this_period},
-                         $form->{decimalplaces}, "- ");
-
-  $form->{total_equity_this_period} =
-    $form->format_amount($myconfig,
-                         $form->{total_equity_this_period},
-                         $form->{decimalplaces}, "- ");
+  push @{ $TMPL_DATA->{Q} }, $form->{E};
 
   $main::lxdebug->leave_sub();
+
+  return $TMPL_DATA;
 }
 
 sub get_accounts {
@@ -318,14 +166,15 @@ sub get_accounts {
   my ($null, $department_id) = split /--/, $form->{department};
 
   my $query;
-  my $dpt_where;
-  my $dpt_join;
-  my $project;
-  my $where    = "1 = 1";
-  my $glwhere  = "";
-  my $subwhere = "";
+  my $dpt_where = '';
+  my $dpt_join  = '';
+  my $project   = '';
+  my $where     = "1 = 1";
+  my $glwhere   = "";
+  my $subwhere  = "";
   my $item;
   my $sth;
+  my $dec = $form->{decimalplaces};
 
   my $category = qq| AND (| . join(" OR ", map({ "(c.category = " . $dbh->quote($_) . ")" } @{$categories})) . qq|) |;
 
@@ -340,7 +189,7 @@ sub get_accounts {
   $sth = prepare_execute_query($form, $dbh, $query);
 
   my @headingaccounts = ();
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $form->{ $ref->{category} }{ $ref->{accno} }{description} =
       "$ref->{description}";
     $form->{ $ref->{category} }{ $ref->{accno} }{charttype} = "H";
@@ -536,9 +385,9 @@ sub get_accounts {
   my $accno;
   my $ref;
 
-  my $sth = prepare_execute_query($form, $dbh, $query);
+  $sth = prepare_execute_query($form, $dbh, $query);
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
 
     if ($ref->{category} eq 'C') {
       $ref->{category} = 'A';
@@ -556,8 +405,7 @@ sub get_accounts {
     }
 
     $form->{ $ref->{category} }{ $ref->{accno} }{accno}       = $ref->{accno};
-    $form->{ $ref->{category} }{ $ref->{accno} }{description} =
-      $ref->{description};
+    $form->{ $ref->{category} }{ $ref->{accno} }{description} = $ref->{description};
     $form->{ $ref->{category} }{ $ref->{accno} }{charttype} = "A";
 
     if ($last_period) {
@@ -571,12 +419,8 @@ sub get_accounts {
   # remove accounts with zero balance
   foreach $category (@{$categories}) {
     foreach $accno (keys %{ $form->{$category} }) {
-      $form->{$category}{$accno}{last} =
-        $form->round_amount($form->{$category}{$accno}{last},
-                            $form->{decimalplaces});
-      $form->{$category}{$accno}{this} =
-        $form->round_amount($form->{$category}{$accno}{this},
-                            $form->{decimalplaces});
+      $form->{$category}{$accno}{last} = $form->round_amount($form->{$category}{$accno}{last}, $dec);
+      $form->{$category}{$accno}{this} = $form->round_amount($form->{$category}{$accno}{this}, $dec);
 
       delete $form->{$category}{$accno}
         if (   $form->{$category}{$accno}{this} == 0
@@ -753,7 +597,7 @@ sub get_accounts_g {
 
   my $sth = prepare_execute_query($form, $dbh, $query);
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
     if ($category eq "pos_bwa") {
       if ($last_period) {
         $form->{ $ref->{$category} }{kumm} += $ref->{amount};
@@ -802,13 +646,13 @@ sub trial_balance {
   }
 
   my $acc_cash_where = "";
-  my $ar_cash_where = "";
-  my $ap_cash_where = "";
+#  my $ar_cash_where = "";
+#  my $ap_cash_where = "";
 
 
   if ($form->{method} eq "cash") {
     $acc_cash_where = qq| AND (ac.trans_id IN (SELECT id FROM ar WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM ap WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM gl WHERE transdate>='$form->{fromdate}' AND transdate<='$form->{todate}')) |;
-    $ar_ap_cash_where = qq| AND (a.datepaid>='$form->{fromdate}' AND a.datepaid<='$form->{todate}') |;
+#    $ar_ap_cash_where = qq| AND (a.datepaid>='$form->{fromdate}' AND a.datepaid<='$form->{todate}') |;
   }
 
   # get beginning balances
@@ -824,7 +668,7 @@ sub trial_balance {
 
   $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
 
     if ($ref->{amount} != 0 || $form->{all_accounts}) {
       $trb{ $ref->{accno} }{description} = $ref->{description};
@@ -851,7 +695,7 @@ sub trial_balance {
 
   $sth = prepare_execute_query($form, $dbh, $query);
 
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
     $trb{ $ref->{accno} }{description} = $ref->{description};
     $trb{ $ref->{accno} }{charttype}   = 'H';
     $trb{ $ref->{accno} }{category}    = $ref->{category};
@@ -862,32 +706,39 @@ sub trial_balance {
   $sth->finish;
 
   $where = " 1 = 1 ";
-  $saldowhere = " 1 = 1 ";
-  $sumwhere = " 1 = 1 ";
+  my $saldowhere    = " 1 = 1 ";
+  my $sumwhere      = " 1 = 1 ";
+  my $subwhere      = '';
+  my $sumsubwhere   = '';
+  my $saldosubwhere = '';
+  my $glsaldowhere  = '';
+  my $glsubwhere    = '';
+  my $glwhere       = '';
+  my $glsumwhere    = '';
   my $tofrom;
 
   if ($form->{fromdate} || $form->{todate}) {
     if ($form->{fromdate}) {
       my $fromdate = conv_dateq($form->{fromdate});
-      $tofrom   .= " AND (ac.transdate >= $fromdate)";
-      $subwhere .= " AND (transdate >= $fromdate)";
-      $sumsubwhere .= " AND (transdate >= (select date_trunc('year', date $fromdate))) ";
+      $tofrom        .= " AND (ac.transdate >= $fromdate)";
+      $subwhere      .= " AND (transdate >= $fromdate)";
+      $sumsubwhere   .= " AND (transdate >= (select date_trunc('year', date $fromdate))) ";
       $saldosubwhere .= " AND transdate>=(select date_trunc('year', date $fromdate))  ";
-      $invwhere .= " AND (a.transdate >= $fromdate)";
-      $glsaldowhere .= " AND ac.transdate>=(select date_trunc('year', date $fromdate)) ";
-      $glwhere = " AND (ac.transdate >= $fromdate)";
-      $glsumwhere = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
+      $invwhere      .= " AND (a.transdate >= $fromdate)";
+      $glsaldowhere  .= " AND ac.transdate>=(select date_trunc('year', date $fromdate)) ";
+      $glwhere        = " AND (ac.transdate >= $fromdate)";
+      $glsumwhere     = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
     }
     if ($form->{todate}) {
       my $todate = conv_dateq($form->{todate});
-      $tofrom   .= " AND (ac.transdate <= $todate)";
-      $invwhere .= " AND (a.transdate <= $todate)";
+      $tofrom        .= " AND (ac.transdate <= $todate)";
+      $invwhere      .= " AND (a.transdate <= $todate)";
       $saldosubwhere .= " AND (transdate <= $todate)";
-      $sumsubwhere .= " AND (transdate <= $todate)";
-      $subwhere .= " AND (transdate <= $todate)";
-      $glwhere  .= " AND (ac.transdate <= $todate)";
-      $glsumwhere .= " AND (ac.transdate <= $todate) ";
-      $glsaldowhere .= " AND (ac.transdate <= $todate) ";
+      $sumsubwhere   .= " AND (transdate <= $todate)";
+      $subwhere      .= " AND (transdate <= $todate)";
+      $glwhere       .= " AND (ac.transdate <= $todate)";
+      $glsumwhere    .= " AND (ac.transdate <= $todate) ";
+      $glsaldowhere  .= " AND (ac.transdate <= $todate) ";
    }
   }
 
@@ -1024,7 +875,7 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
   $sth = prepare_execute_query($form, $dbh, $query);
 
   # calculate the debit and credit in the period
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
     $trb{ $ref->{accno} }{description} = $ref->{description};
     $trb{ $ref->{accno} }{charttype}   = 'A';
     $trb{ $ref->{accno} }{category}    = $ref->{category};
@@ -1183,7 +1034,8 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
       # get DR/CR
       do_statement($form, $drcr, $q_drcr, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno}, $ref->{accno});
 
-      ($debit, $credit, $saldo, $haben_saldo, $soll_saldo, $soll_kumuliert, $haben_kumuliert) = (0, 0, 0, 0, 0, 0, 0);
+      ($debit, $credit, $saldo, $haben_saldo, $soll_saldo) = (0, 0, 0, 0, 0);
+      my ($soll_kumuliert, $haben_kumuliert) = (0, 0);
       $last_transaction = "";
       while (($debit, $credit, $saldo, $haben_kumuliert, $soll_kumuliert, $last_transaction) = $drcr->fetchrow_array) {
         $ref->{debit}  += $debit;
@@ -1228,6 +1080,7 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
     }
 
     # add subtotal
+    my @accno;
     @accno = grep { $_ le "$ref->{accno}" } @headingaccounts;
     $accno = pop @accno;
     if ($accno) {
@@ -1246,7 +1099,7 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
   $dbh->disconnect;
 
   # debits and credits for headings
-  foreach $accno (@headingaccounts) {
+  foreach my $accno (@headingaccounts) {
     foreach $ref (@{ $form->{TB} }) {
       if ($accno eq $ref->{accno}) {
         $ref->{debit}  = $trb{$accno}{debit};
@@ -1316,7 +1169,7 @@ sub aging {
 
   my $dpt_join;
   if ($form->{department}) {
-    ($null, $department_id) = split /--/, $form->{department};
+    my ($null, $department_id) = split /--/, $form->{department};
     $dpt_join = qq| JOIN department d ON (a.department_id = d.id) |;
     $where .= qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
@@ -1363,7 +1216,7 @@ sub aging {
   while (my ($id) = $sth->fetchrow_array) {
     do_statement($form, $sth_details, $q_details, $id);
 
-    while (my $ref = $sth_details->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth_details->fetchrow_hashref("NAME_lc")) {
       $ref->{module} = ($ref->{invoice}) ? $invoice : $arap;
       $ref->{exchangerate} = 1 unless $ref->{exchangerate};
       push @{ $form->{AG} }, $ref;
@@ -1489,6 +1342,7 @@ sub tax_report {
   my $sortorder = join ', ', $form->sort_columns(qw(transdate invnumber name));
   $sortorder = $form->{sort} if ($form->{sort} && grep({ $_ eq $form->{sort} } qw(id transdate invnumber name netamount tax)));
 
+  my $query = '';
   if ($form->{report} !~ /nontaxable/) {
     $query =
       qq|SELECT a.id, '0' AS invoice, $transdate AS transdate, a.invnumber, n.name, a.netamount,
@@ -1588,6 +1442,7 @@ sub payments {
 
   my $ml = 1;
   my $arap;
+  my $table;
   if ($form->{db} eq 'ar') {
     $table = 'customer';
     $ml = -1;
@@ -1658,7 +1513,7 @@ sub payments {
   }
 
   $query = qq|SELECT id, accno, description FROM chart WHERE accno = ?|;
-  my $sth = prepare_query($form, $dbh, $query);
+  $sth = prepare_query($form, $dbh, $query);
 
   my $q_details =
       qq|SELECT c.name, a.invnumber, a.ordnumber,
@@ -1731,6 +1586,7 @@ sub bwa {
   &get_accounts_g($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form, "pos_bwa");
 
   # if there are any compare dates
+  my $year;
   if ($form->{fromdate} || $form->{todate}) {
     $last_period = 1;
     if ($form->{fromdate}) {
@@ -1740,18 +1596,18 @@ sub bwa {
       $form->{todate} =~ /[0-9]*\.[0-9]*\.([0-9]*)/;
       $year = $1;
     }
-    $kummfromdate = $form->{comparefromdate};
-    $kummtodate   = $form->{comparetodate};
+    my $kummfromdate = $form->{comparefromdate};
+    my $kummtodate   = $form->{comparetodate};
     &get_accounts_g($dbh, $last_period, $kummfromdate, $kummtodate, $form, "pos_bwa");
   }
 
-  @periods        = qw(jetzt kumm);
-  @gesamtleistung = qw(1 2 3);
-  @gesamtkosten   = qw (10 11 12 13 14 15 16 17 18 19 20);
-  @ergebnisse     =
+  my @periods        = qw(jetzt kumm);
+  my @gesamtleistung = qw(1 2 3);
+  my @gesamtkosten   = qw (10 11 12 13 14 15 16 17 18 19 20);
+  my @ergebnisse     =
     qw (rohertrag betriebrohertrag betriebsergebnis neutraleraufwand neutralerertrag ergebnisvorsteuern ergebnis gesamtleistung gesamtkosten);
 
-  foreach $key (@periods) {
+  foreach my $key (@periods) {
     $form->{ "$key" . "gesamtleistung" } = 0;
     $form->{ "$key" . "gesamtkosten" }   = 0;
 
@@ -1766,10 +1622,10 @@ sub bwa {
                                '0');
       }
     }
-    foreach $item (@gesamtleistung) {
+    foreach my $item (@gesamtleistung) {
       $form->{ "$key" . "gesamtleistung" } += $form->{$item}{$key};
     }
-    foreach $item (@gesamtkosten) {
+    foreach my $item (@gesamtkosten) {
       $form->{ "$key" . "gesamtkosten" } += $form->{$item}{$key};
     }
     $form->{ "$key" . "rohertrag" } =
@@ -1806,7 +1662,7 @@ sub bwa {
                                '0');
         }
       }
-      foreach $item (@ergebnisse) {
+      foreach my $item (@ergebnisse) {
         $form->{ "$key" . "gl" . "$item" } =
           $form->format_amount($myconfig,
                                $form->round_amount(
@@ -1835,7 +1691,7 @@ sub bwa {
                                  '0');
         }
       }
-      foreach $item (@ergebnisse) {
+      foreach my $item (@ergebnisse) {
         $form->{ "$key" . "gk" . "$item" } =
           $form->format_amount($myconfig,
                                $form->round_amount(
@@ -1863,7 +1719,7 @@ sub bwa {
                         '0');
         }
       }
-      foreach $item (@ergebnisse) {
+      foreach my $item (@ergebnisse) {
         $form->{ "$key" . "pk" . "$item" } =
           $form->format_amount($myconfig,
                                $form->round_amount(
@@ -1891,7 +1747,7 @@ sub bwa {
                          '0');
         }
       }
-      foreach $item (@ergebnisse) {
+      foreach my $item (@ergebnisse) {
         $form->{ "$key" . "auf" . "$item" } =
           $form->format_amount($myconfig,
                                $form->round_amount(
@@ -1905,7 +1761,7 @@ sub bwa {
       }
     }
 
-    foreach $item (@ergebnisse) {
+    foreach my $item (@ergebnisse) {
       $form->{ "$key" . "$item" } =
         $form->format_amount($myconfig,
                              $form->round_amount($form->{ "$key" . "$item" },
@@ -1935,10 +1791,10 @@ sub ustva {
   my @categories_euro = qw(48 51 86 91 97 93 94);
   $form->{decimalplaces} *= 1;
 
-  foreach $item (@categories_cent) {
+  foreach my $item (@categories_cent) {
     $form->{"$item"} = 0;
   }
-  foreach $item (@categories_euro) {
+  foreach my $item (@categories_euro) {
     $form->{"$item"} = 0;
   }
 
@@ -1987,13 +1843,13 @@ sub ustva {
   $form->{"65"} = $form->{"43"} - $form->{"66"};
   $form->{"67"} = $form->{"43"} - $form->{"66"};
 
-  foreach $item (@categories_cent) {
+  foreach my $item (@categories_cent) {
     $form->{$item} =
       $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),
                            2, '0');
   }
 
-  foreach $item (@categories_euro) {
+  foreach my $item (@categories_euro) {
     $form->{$item} =
       $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0),
                            0, '0');
@@ -2021,26 +1877,26 @@ sub income_statement {
 
   $form->{decimalplaces} *= 1;
 
-  foreach $item (@categories_einnahmen) {
+  foreach my $item (@categories_einnahmen) {
     $form->{$item} = 0;
   }
-  foreach $item (@categories_ausgaben) {
+  foreach my $item (@categories_ausgaben) {
     $form->{$item} = 0;
   }
 
-  foreach $item (@ergebnisse) {
+  foreach my $item (@ergebnisse) {
     $form->{$item} = 0;
   }
 
   &get_accounts_g($dbh, $last_period, $form->{fromdate}, $form->{todate},
                   $form, "pos_eur");
 
-  foreach $item (@categories_einnahmen) {
+  foreach my $item (@categories_einnahmen) {
     $form->{"eur${item}"} =
       $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
     $form->{"sumeura"} += $form->{$item};
   }
-  foreach $item (@categories_ausgaben) {
+  foreach my $item (@categories_ausgaben) {
     $form->{"eur${item}"} =
       $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
     $form->{"sumeurb"} += $form->{$item};
@@ -2048,7 +1904,7 @@ sub income_statement {
 
   $form->{"guvsumme"} = $form->{"sumeura"} - $form->{"sumeurb"};
 
-  foreach $item (@ergebnisse) {
+  foreach my $item (@ergebnisse) {
     $form->{$item} =
       $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
   }

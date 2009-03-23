@@ -41,6 +41,7 @@ use SL::PE;
 use SL::RP;
 use SL::Iconv;
 use SL::ReportGenerator;
+use Data::Dumper;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -1095,22 +1096,19 @@ sub generate_balance_sheet {
   $form->{endbold} = "</b>";
   $form->{br}      = "<br>";
 
-  RP->balance_sheet(\%myconfig, \%$form);
+  my $data = RP->balance_sheet(\%myconfig, \%$form);
 
   $form->{asofdate} = $form->current_date(\%myconfig) unless $form->{asofdate};
-  $form->{period} =
-    $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
+  $form->{period} = $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
 
   ($form->{department}) = split /--/, $form->{department};
 
   # define Current Earnings account
   $padding = ($form->{l_heading}) ? $form->{padding} : "";
-  push(@{ $form->{equity_account} },
-       $padding . $locale->text('Current Earnings'));
+  push(@{ $form->{equity_account} }, $padding . $locale->text('Current Earnings'));
 
   $form->{this_period} = $locale->date(\%myconfig, $form->{asofdate}, 0);
-  $form->{last_period} =
-    $locale->date(\%myconfig, $form->{compareasofdate}, 0);
+  $form->{last_period} = $locale->date(\%myconfig, $form->{compareasofdate}, 0);
 
   $form->{IN} = "balance_sheet.html";
 
@@ -1119,7 +1117,9 @@ sub generate_balance_sheet {
 
   $form->{templates} = $myconfig{templates};
 
-  $form->parse_template;
+  $form->header();
+  print $form->parse_html_template('rp/balance_sheet', $data);
+#  $form->parse_template();
 
   $lxdebug->leave_sub();
 }
