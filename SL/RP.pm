@@ -92,50 +92,48 @@ sub balance_sheet {
   foreach my $category (grep { !/C/ } @categories) {
 
     $TMPL_DATA->{$category} = [];
+    my $ml  = $account{$category}{ml};
 
     foreach my $key (sort keys %{ $form->{$category} }) {
 
-       my $row = { %{ $form->{$category}{$key} } };
+      my $row = { %{ $form->{$category}{$key} } };
 
       # if charttype "heading" - calculate this entry, start a new batch of charts belonging to this heading and skip the rest bo the loop
+      # header charts are not real charts. start a sub aggregation with them, but don't calculate anything with them
       if ($row->{charttype} eq "H") {
         if ($account{$category}{subtotal} && $form->{l_subtotal}) {
           $row->{subdescription} = $account{$category}{subdescription};
-          $row->{this}           = $account{$category}{subthis} * $account{$category}{ml};                   # format: $dec, $dash
-          $row->{last}           = $account{$category}{sublast} * $account{$category}{ml} if $last_period;   # format: $dec, $dash
+          $row->{this}           = $account{$category}{subthis} * $ml;                   # format: $dec, $dash
+          $row->{last}           = $account{$category}{sublast} * $ml if $last_period;   # format: $dec, $dash
         }
 
         $row->{subheader} = 1;
-        $account{$category}{subthis}        = $form->{$category}{$key}{this};
-        $account{$category}{sublast}        = $form->{$category}{$key}{last};
-        $account{$category}{subdescription} = $form->{$category}{$key}{description};
+        $account{$category}{subthis}        = $row->{this};
+        $account{$category}{sublast}        = $row->{last};
+        $account{$category}{subdescription} = $row->{description};
         $account{$category}{subtotal} = 1;
 
-        $form->{$category}{$key}{this} = 0;
-        $form->{$category}{$key}{last} = 0;
+        $row->{this} = 0;
+        $row->{last} = 0;
 
         next unless $form->{l_heading};
       }
 
-      $row->{this} = $form->{$category}{$key}{this} * $account{$category}{ml};
-
-      # only add assets
-      if ($row->{charttype} eq 'A') {
-        $form->{total}{$category}{this} += $row->{this};
-      }
-
-      if ($last_period) {
-        $row->{last}                     = $form->{$category}{$key}{last} * $account{$category}{ml};
-        $form->{total}{$category}{last} += $row->{last};
+      for my $period (qw(this last)) {
+        next if ($period eq 'last' && !$last_period);
+        # only add assets
+        $row->{$period}                    *= $ml;
+        $form->{total}{$category}{$period} += $row->{$period};      #      if ($row->{charttype} eq 'A') {   # why??
       }
 
       push @{ $TMPL_DATA->{$category} }, $row;
     } # foreach
 
+    # resolve heading/subtotal
     if ($account{$category}{subtotal} && $form->{l_subtotal}) {
       $TMPL_DATA->{$category}[-1]{subdescription} = $account{$category}{subdescription};
-      $TMPL_DATA->{$category}[-1]{this}           = $account{$category}{subthis} * $account{$category}{ml};                   # format: $dec, $dash
-      $TMPL_DATA->{$category}[-1]{last}           = $account{$category}{sublast} * $account{$category}{ml} if $last_period;   # format: $dec, $dash
+      $TMPL_DATA->{$category}[-1]{this}           = $account{$category}{subthis} * $ml;                   # format: $dec, $dash
+      $TMPL_DATA->{$category}[-1]{last}           = $account{$category}{sublast} * $ml if $last_period;   # format: $dec, $dash
     }
 
     $TMPL_DATA->{total}{$category}{this} = sum map { $_->{this} } @{ $TMPL_DATA->{$category} };
