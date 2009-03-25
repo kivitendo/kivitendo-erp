@@ -52,7 +52,7 @@ cnt=`ps aux | grep postgres | wc -l`
 if [ $cnt -eq 0 ]; then
 	tput bel
 	tput bold
-	echo Die postgreSQL-Datebbank ist nicht gestartet
+	echo Die postgreSQL-Datebbank ist nicht gestartet!
 	tput rmso
 	exit 1
 fi
@@ -72,7 +72,7 @@ if [ $v8 -eq 0 ]; then
 	fi
 else
 	tput clear
-	writeln 1 1 Datenbank Verion 8x konnte erreicht werden.
+	writeln 1 1 Datenbank Version 8x konnte erreicht werden.
 fi
 
 echo "CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler" > lxdbinst.sql
@@ -80,9 +80,9 @@ echo "AS '$PLPGSQL', 'plpgsql_call_handler'" >> lxdbinst.sql
 echo "LANGUAGE c;" >> lxdbinst.sql
 echo "CREATE PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;" >> lxdbinst.sql
 
-writeln 2 1 Datebankbenutzer einrichten
+writeln 2 1 Datenbankbenutzer einrichten
 tput bold
-writeln 3 1 "Bitte den Datenbank-Benutzernamen eingeben [lxoffice]: "
+writeln 3 1 "Bitte den Datenbank-Benutzernamen (Kleinbuchstaben) eingeben [lxoffice]: "
 tput rmso
 read LXOUSER
 if [ "$LXOUSER#" == "#" ]; then LXOUSER="lxoffice"; fi
@@ -179,7 +179,7 @@ $PGSQL restart
 
 tput bold
 tput smso
-writeln 20 12 ok. Das solltes es gewesen sein.
+writeln 20 12 ok. Das sollte es gewesen sein.
 tput rmso
 tput rmso
 echo 
