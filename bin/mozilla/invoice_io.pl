@@ -323,7 +323,7 @@ use Data::Dumper;
 #    $qty_dec = length $qty_dec;
 #
 #    $column_data{qty} =
-#        qq|<td align="right"><input name="qty_$i" size="5" value="|
+#        qq|<td align="right" nowrap><input name="qty_$i" size="5" value="|
 #      . $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec) .qq|">|;
 #    if ($form->{"formel_$i"}) {
 #      $column_data{qty} .= qq|<button type="button" onclick="calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)">| . $locale->text('*/') . qq|</button>|
