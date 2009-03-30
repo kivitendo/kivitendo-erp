@@ -1062,7 +1062,6 @@ sub form_header {
   print qq|
 <body onLoad="focus()">
 
-<script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 
 <form method=post name="gl" action=gl.pl>
