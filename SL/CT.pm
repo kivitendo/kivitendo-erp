@@ -923,8 +923,9 @@ sub get_delivery {
   }
   my $query =
     qq|SELECT s.shiptoname, i.qty, | .
-    qq|  ${arap}.transdate, ${arap}.invnumber, ${arap}.ordnumber, | .
-    qq|  i.description, i.unit, i.sellprice | .
+    qq|  ${arap}.id, ${arap}.transdate, ${arap}.invnumber, ${arap}.ordnumber, | .
+    qq|  i.description, i.unit, i.sellprice, | .
+    qq|  oe.id AS oe_id | .
     qq|FROM $arap | .
     qq|LEFT JOIN shipto s ON | .
     ($arap eq "ar"
@@ -932,6 +933,7 @@ sub get_delivery {
      : qq|(ap.id = s.trans_id) |) .
     qq|LEFT JOIN invoice i ON (${arap}.id = i.trans_id) | .
     qq|LEFT join parts p ON (p.id = i.parts_id) | .
+    qq|LEFT JOIN oe ON (oe.ordnumber = ${arap}.ordnumber AND NOT ${arap}.ordnumber = '') | .
     $where .
     qq|ORDER BY ${arap}.transdate DESC LIMIT 15|;
 
