@@ -260,7 +260,7 @@ sub search {
     $button1 = qq|
        <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
        <input type=button name=datefrom id="trigger1" value=|
-      . $locale->text('button') . qq|></td>  
+      . $locale->text('button') . qq|></td>
        |;
     $button2 = qq|
        <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
@@ -1041,7 +1041,7 @@ sub form_header {
     $button1 = qq|
        <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly onBlur=\"check_right_date_format(this)\">
        <input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button') . qq|></td>  
+      . $locale->text('button') . qq|></td>
        |;
 
     #write Trigger
@@ -1121,7 +1121,7 @@ sub form_header {
 	  </td>
 	</tr>|;
   }
-  print qq|	
+  print qq|
 	$department|;
   if ($form->{id}) {
     print qq|
@@ -1237,7 +1237,7 @@ sub form_footer {
     <tr class=listtotal>
     <td></td>
     <th align=right class=listtotal> $form->{totaldebit}</th>
-    <th align=right class=listtotal> $form->{totalcredit}</th> 
+    <th align=right class=listtotal> $form->{totalcredit}</th>
     <td colspan=6></td>
     </tr>
   </table>
@@ -1268,7 +1268,7 @@ $follow_ups_block
         <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">|;
     }
 
-    print qq|        
+    print qq|
         <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
         <input type="button" class="submit" onclick="follow_up_window()" value="|
       . $locale->text('Follow-Up')
@@ -1334,7 +1334,7 @@ sub yes {
   	    $form->{addition} = "DELETED";
   	    $form->save_history($form->dbconnect(\%myconfig));
       }
-    # /saving the history 
+    # /saving the history
     $form->redirect($locale->text('Transaction deleted!'))
   }
   $form->error($locale->text('Cannot delete transaction!'));
@@ -1457,7 +1457,7 @@ sub post_transaction {
     $credit   += $cr + $tax if $cr;
     $taxtotal += $tax if $form->{taxincluded}
   }
-  
+
   $form->{taxincluded} = 0 if !$taxtotal;
 
   # this is just for the wise guys
@@ -1466,11 +1466,11 @@ sub post_transaction {
   if ($form->round_amount($debit, 2) != $form->round_amount($credit, 2)) {
     $form->error($locale->text('Out of balance transaction!'));
   }
-  
+
   if ($form->round_amount($debit, 2) + $form->round_amount($credit, 2) == 0) {
     $form->error($locale->text('Empty transaction!'));
   }
-  
+
   if (($errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
     $errno *= -1;
     $err[1] = $locale->text('Cannot have a value in both Debit and Credit!');
@@ -1484,10 +1484,10 @@ sub post_transaction {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
-    $form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id}; 
+    $form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id};
     $form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
   $lxdebug->leave_sub();
 }
@@ -1538,9 +1538,9 @@ sub storno {
     $form->{addition} = "STORNO";
     $form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
-  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
+  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
   $lxdebug->leave_sub();
 }
