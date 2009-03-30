@@ -761,17 +761,17 @@ if ($sortorder ne 'id') {
     $where .= qq| AND ($cvar_where)|;
     push @values, @cvar_values;
   }
-  # Um nach Straße  in der Berichtsmaske zu suchen ... jb 13.11.2008               
-    if ($form->{addr_street}) {                                                
-      $where .= qq| AND (street ILIKE ?)|;                               
-      push @values, ('%' . $form->{addr_street} . '%');                     
-    }                                                        
-                                                                
-  # Um nach PLZ  in der Berichtsmaske zu suchen ... jb 13.11.2008
-    if ($form->{addr_zipcode}) {                                    
-      $where .= qq| AND (zipcode ILIKE ?)|;                            
-      push @values, ($form->{addr_zipcode} . '%');                      
-    }   
+
+  if ($form->{addr_street}) {
+    $where .= qq| AND (street ILIKE ?)|;
+    push @values, '%' . $form->{addr_street} . '%';
+  }
+
+  if ($form->{addr_zipcode}) {
+    $where .= qq| AND (zipcode ILIKE ?)|;
+    push @values, $form->{addr_zipcode} . '%';
+  }
+
   my $query =
     qq|SELECT ct.*, b.description AS business | .
     qq|FROM $cv ct | .
