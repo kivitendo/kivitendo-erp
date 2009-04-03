@@ -1505,7 +1505,8 @@ sub print_form {
   delete $form->{OUT};
 
   if ($form->{media} eq 'printer') {
-    $form->{OUT} = "| $form->{printer_command} &>/dev/null";
+    #$form->{OUT} = "| $form->{printer_command} &>/dev/null";
+    $form->{OUT} = "| $form->{printer_command} ";
     $form->{printed} .= " $form->{formname}";
     $form->{printed} =~ s/^ //;
   }
