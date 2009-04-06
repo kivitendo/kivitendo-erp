@@ -46,9 +46,7 @@ use warnings;
 #
 # stuff missing from the original implementation:
 # - bold stuff
-# - format (2 places, varying signs of negative amounts)
-# - rounding (might not be necessary)
-# - accno and subdescription
+# - subdescription
 # - proper testing for heading charts
 # - transmission from $form to TMPL realm is not as clear as i'd like
 sub balance_sheet {

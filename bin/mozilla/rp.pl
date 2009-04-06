@@ -1091,6 +1091,7 @@ sub generate_balance_sheet {
 
   $auth->assert('report');
 
+  $form->{decimalplaces} = $form->{decimalplaces} * 1 || 2;
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
