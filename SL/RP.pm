@@ -66,9 +66,6 @@ sub balance_sheet {
     $form->{period} = $form->{this_period} = conv_dateq($form->{asofdate});
   }
 
-  $form->{decimalplaces} *= 1;
-  my $dec = $form->{decimalplaces};
-
   get_accounts($dbh, $last_period, "", $form->{asofdate}, $form, \@categories);
 
   # if there are any compare dates

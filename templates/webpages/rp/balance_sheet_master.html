@@ -19,9 +19,11 @@
   [% FOREACH row = A %]
   <tr>
     <td> </td>
-    <td>[% row.description %]</td>
-    <td align="right">[% row.this %]</td>
-    <td align="right">[% row.last %]</td>
+    <td>[% row.accno _ ' - ' IF l_accno %][% row.description %]</td>
+    <td align="right">[% LxERP.format_amount(row.this,2) %]</td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(row.last,2) %]</td>
+    [%- END %]
   </tr>
   [% END %]
 
@@ -34,8 +36,10 @@
 
   <tr valign="top">
     <th align="left" colspan="2"><translate>TOTAL</translate></th>
-    <td align="right">[% total.A.this %]<hr noshade size="2"></td>
-    <td align="right">[% total.A.last %]<hr noshade size="2"></td>
+    <td align="right">[% LxERP.format_amount(total.A.this,2) %]<hr noshade size="2"></td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(total.A.last,2) %]<hr noshade size="2"></td>
+    [%- END %]
   </tr>
 [% END %]
 
@@ -46,9 +50,11 @@
   [% FOREACH row = L %]
   <tr>
     <td></td>
-    <td>[% row.description %]</td>
-    <td align="right">[% row.this %]</td>
-    <td align="right">[% row.last %]</td>
+    <td>[% row.accno _ ' - ' IF l_accno %][% row.description %]</td>
+    <td align="right">[% LxERP.format_amount(row.this,2) %]</td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(row.last,2) %]</td>
+    [%- END %]
   </tr>
   [% END %]
 
@@ -62,8 +68,10 @@
   <tr valign="top">
     <td></td>
     <th align="left"><translate>TOTAL</translate></th>
-    <td align="right">[% total.L.this %]<br><hr noshade size="2"</td>
-    <td align="right">[% total.L.last %]<br><hr noshade size="2"</td>
+    <td align="right">[% LxERP.format_amount(total.L.this,2) %]<br><hr noshade size="2"</td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(total.L.last,2) %]<br><hr noshade size="2"</td>
+    [%- END %]
   </tr>
 [% END %]
 
@@ -75,8 +83,10 @@
   <tr>
     <td></td>
     <td>[% row.description %]</td>
-    <td align="right">[% row.this %]</td>
-    <td align="right">[% row.last %]</td>
+    <td align="right">[% LxERP.format_amount(row.this,2) %]</td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(row.last,2) %]</td>
+    [%- END %]
   </tr>
   [% END  %]
 
@@ -90,14 +100,18 @@
   <tr valign="top">
     <td></td>
     <th align="left"><translate>TOTAL</translate></th>
-    <td align="right">[% total.Q.this %]<br><hr noshade size="2"</td>
-    <td align="right">[% total.Q.last %]<br><hr noshade size="2"</td>
+    <td align="right">[% LxERP.format_amount(total.Q.this,2) %]<br><hr noshade size="2"</td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(total.Q.last,2) %]<br><hr noshade size="2"</td>
+    [%- END %]
   </tr>
 [% END %]
 
   <tr valign="top">
     <th align="left" colspan="2"><translate>TOTAL</translate> <translate>LIABILITIES</translate> &amp; <translate>EQUITY</translate></th>
-    <td align="right">[% total.this %]<br><hr noshade size="2"></td>
-    <td align="right">[% total.last %]<br><hr noshade size="2"></td>
+    <td align="right">[% LxERP.format_amount(total.this,2) %]<br><hr noshade size="2"></td>
+    [%- IF last_period %]
+    <td align="right">[% LxERP.format_amount(total.last,2) %]<br><hr noshade size="2"></td>
+    [%- END %]
   </tr>
 </table>
