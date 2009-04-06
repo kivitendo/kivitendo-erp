@@ -134,7 +134,7 @@ sub confirm_price_update {
   $form->header;
 
   map { delete $form->{$_} } qw(action header);
-  
+
   print $form->parse_html_template('ic/confirm_price_update', { HIDDENS => [ map { name => $_, value => $form->{$_} }, keys %$form ] });
 
   $lxdebug->leave_sub();
@@ -969,7 +969,7 @@ sub addtop100 {
 #  l_linetotal l_priceupdate l_bin l_rop l_weight l_image l_drawing l_microfiche
 #  l_partsgroup l_subtotal l_soldtotal l_deliverydate
 #
-# hiddens: 
+# hiddens:
 #  nextsub revers lastsort sort ndxs_counter
 #
 sub generate_report {
@@ -1002,10 +1002,10 @@ sub generate_report {
   }    #fi
 
   # special case if we have a serialnumber limit search
-  # serialnumbers are only given in invoices and orders, 
+  # serialnumbers are only given in invoices and orders,
   # so they can only pop up in bought, sold, rfq, and quoted stuff
-  $form->{no_sn_joins} = 'Y' if (   !$form->{bought} && !$form->{sold} 
-                                 && !$form->{rfq}    && !$form->{quoted} 
+  $form->{no_sn_joins} = 'Y' if (   !$form->{bought} && !$form->{sold}
+                                 && !$form->{rfq}    && !$form->{quoted}
                                  && ($form->{l_serialnumber} || $form->{serialnumber}));
 
   # special case for any checkbox of bought | sold | onorder | ordered | rfq | quoted.
@@ -1068,7 +1068,7 @@ sub generate_report {
 
   # generate callback and optionstrings
   my @options;
-  for my  $key (@itemstatus_keys, @callback_keys) { 
+  for my  $key (@itemstatus_keys, @callback_keys) {
     next if ($form->{itemstatus} ne $key && !$form->{$key});
     push @options, $optiontexts{$key};
   }
@@ -1295,7 +1295,7 @@ sub generate_report {
 
 sub parts_subtotal {
   $lxdebug->enter_sub();
-  
+
   $auth->assert('part_service_assembly_edit');
 
   # imports
@@ -1462,8 +1462,8 @@ sub form_header {
 
   map { $form->{"is_$_"}  = ($form->{item} eq $_) } qw(part service assembly);
   map { $form->{$_}       =~ s/"/&quot;/g;        } qw(unit);
- 
-  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS', 
+
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
                    'partsgroup'    => 'all_partsgroup');
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
@@ -1478,7 +1478,7 @@ sub form_header {
   $form->{fokus} = "ic.partnumber";
 
   $form->header;
-  print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS}, 
+  print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS},
                                                        ALL_UNITS         => $form->{ALL_UNITS},
                                                        BUCHUNGSGRUPPEN   => $form->{BUCHUNGSGRUPPEN},
                                                        payment_terms     => $form->{payment_terms},
@@ -1499,7 +1499,7 @@ sub form_footer {
 sub makemodel_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
-  
+
   my @mm_data = grep { any { $_ ne '' } @$_{qw(make model)} } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"} }, 1 .. $numrows;
   print $form->parse_html_template('ic/makemodel', { MM_DATA => [ @mm_data, {} ], mm_rows => scalar @mm_data + 1 });
 
@@ -1754,8 +1754,8 @@ sub save {
   }
 
   if (!$form->{buchungsgruppen_id}) {
-    $form->error($locale->text("Parts must have an entry type.") . " " . 
-     $locale->text("If you see this message, you most likely just setup your LX-Office and haven't added any entry types. If this is the case, the option is accessible for administrators in the System menu.") 
+    $form->error($locale->text("Parts must have an entry type.") . " " .
+     $locale->text("If you see this message, you most likely just setup your LX-Office and haven't added any entry types. If this is the case, the option is accessible for administrators in the System menu.")
     );
   }
 
