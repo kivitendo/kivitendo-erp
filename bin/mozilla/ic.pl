@@ -1239,7 +1239,7 @@ sub generate_report {
 
     # set module stuff
     if ($ref->{module} eq 'oe') {
-      my $edit_oe_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{type}), 'id=' . E($ref->{trans_id}), 'callback');
+      my $edit_oe_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{customer_id} ne '' ? 'sales_order' : 'purchase_order'), 'id=' . E($ref->{trans_id}), 'callback');
       $row->{ordnumber}{link} = $edit_oe_link;
       $row->{quonumber}{link} = $edit_oe_link if (!$ref->{ordnumber});
 
