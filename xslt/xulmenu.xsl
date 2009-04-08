@@ -203,7 +203,7 @@ window.open(path,"_new","")
   function openLinkNewWindow(event)
     {
       var path=event.target.getAttribute("link")
-      window.open(path,"_new","")
+      window.open(path,"_blank","")
     }
   
   function openTreeLink(event)
