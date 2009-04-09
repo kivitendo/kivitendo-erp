@@ -691,7 +691,7 @@ sub generate_journal {
 sub report {
   $lxdebug->enter_sub();
 
-  $auth->assert('warehouse_content | warehouse_management');
+  $auth->assert('warehouse_contents | warehouse_management');
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS', });
@@ -714,7 +714,7 @@ sub report {
 sub generate_report {
   $lxdebug->enter_sub();
 
-  $auth->assert('warehouse_content | warehouse_management');
+  $auth->assert('warehouse_contents | warehouse_management');
 
   $form->{title}   = $locale->text("Report about wareouse contents");
   $form->{sort}  ||= 'partnumber';
