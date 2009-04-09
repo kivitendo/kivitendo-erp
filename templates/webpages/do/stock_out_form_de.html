@@ -83,7 +83,12 @@
 
      <td>[% HTML.escape(row.available_qty) %]</td>
      <td><input name="qty_[% loop.count %]" style="text-align: right;" size="12"
-                value="[% IF row.stock_qty %][% HTML.escape(LxERP.format_amount(row.stock_qty)) %][% END %]"></td>
+                [%- IF row.stock_qty %]
+                value="[% HTML.escape(LxERP.format_amount(row.stock_qty)) %]"
+                [%- ELSIF ((WHCONTENTS.size == 1) && (!row.stock_qty)) %]
+                value="[% HTML.escape(do_qty) %]"
+                [%- END %]
+                ></td>
      <td>
       <select name="unit_[% loop.count %]">
        [%- FOREACH unit = UNITS %]
