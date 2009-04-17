@@ -660,11 +660,22 @@ sub search {
      <input type=button name=transdateto name=transdateto id="trigger4" value=|
     . $locale->text('button') . qq|></td>
    |;
-
+  $button3 = qq|
+     <td><input name=reqdatefrom id=reqdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
+     <input type=button name=reqdatefrom id="trigger5" value=|
+    . $locale->text('button') . qq|></td>
+    |;
+  $button4 = qq|
+     <td><input name=reqdateto id=reqdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
+     <input type=button name=reqdateto name=reqdateto id="trigger6" value=|
+    . $locale->text('button') . qq|></td>
+   |;
+ 
   #write Trigger
   $jsscript =
-    Form->write_trigger(\%myconfig, "2", "transdatefrom", "BR", "trigger3",
-                        "transdateto", "BL", "trigger4");
+   Form->write_trigger(\%myconfig, "4", "transdatefrom", "BR", "trigger3",
+                       "transdateto", "BL", "trigger4",
+                       "reqdatefrom", "BR", "trigger5", "reqdateto", "BL", "trigger6");
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
 
@@ -766,10 +777,15 @@ $employee_block
           <td colspan="3">$projectnumber</td>
         </tr>
         <tr>
-          <th align=right>| . $locale->text('From') . qq|</th> $button1
+          <th align=right>| . $locale->text('Order Date') . " " . $locale->text('From') . qq|</th> $button1
           <th align=right>| . $locale->text('Bis') . qq|</th> $button2
         </tr>
         <input type=hidden name=sort value=transdate>
+        <tr>
+          <th align=right>| . $locale->text('Delivery Date') . " " . $locale->text('From') . qq|</th> $button3
+          <th align=right>| . $locale->text('Bis') . qq|</th> $button4
+        </tr>
+        <input type=hidden name=sort value=reqdate>
         <tr>
           <th align=right>| . $locale->text('Include in Report') . qq|</th>
           <td colspan=5>
@@ -915,7 +931,8 @@ sub orders {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
-                                                        transaction_description transdatefrom transdateto type vc employee_id salesman_id);
+                                                        transaction_description transdatefrom transdateto type vc employee_id salesman_id
+                                                        reqdatefrom reqdateto);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -967,8 +984,16 @@ sub orders {
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
-  push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)       if $form->{transdatefrom};
-  push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)       if $form->{transdateto};
+  if ( $form->{transdatefrom} or $form->{transdateto} ) {
+    push @options, $locale->text('Order Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)     if $form->{transdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)     if $form->{transdateto};
+  };
+  if ( $form->{reqdatefrom} or $form->{reqdateto} ) {
+    push @options, $locale->text('Delivery Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{reqdatefrom}, 1)       if $form->{reqdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{reqdateto},   1)       if $form->{reqdateto};
+  };
   push @options, $locale->text('Open')                                                                    if $form->{open};
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
   push @options, $locale->text('Delivered')                                                               if $form->{delivered};

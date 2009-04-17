@@ -144,6 +144,16 @@ sub transactions {
     push(@values, conv_date($form->{transdateto}));
   }
 
+  if($form->{reqdatefrom}) {
+    $query .= qq| AND o.reqdate >= ?|;
+    push(@values, conv_date($form->{reqdatefrom}));
+  }
+
+  if($form->{reqdateto}) {
+    $query .= qq| AND o.reqdate <= ?|;
+    push(@values, conv_date($form->{reqdateto}));
+  }
+
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
     push(@values, '%' . $form->{transaction_description} . '%');
