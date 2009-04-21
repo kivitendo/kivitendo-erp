@@ -170,6 +170,7 @@ $self->{texts} = {
   'Shipto'                      => 'Lieferanschriften',
   'Show TODO list'              => 'Aufgabenliste anzeigen',
   'Stock'                       => 'Einlagern',
+  'Stock Assembly'              => 'Erzeugnis einlagern',
   'Stylesheet'                  => 'Stilvorlage',
   'Subject'                     => 'Betreff',
   'System'                      => 'System',
