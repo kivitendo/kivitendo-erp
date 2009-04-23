@@ -2,7 +2,7 @@
 
  <div class="listtop">[% title %]</div>
 
- <form method="post" name="ct" action="ct.pl">
+ <form method="post" name="ct" action="ct.pl" onKeyUp="highlight(event)" onClick="highlight(event)">
 
   <ul id="maintab" class="shadetabs">
    <li class="selected"><a href="#" rel="billing">Rechnungsadresse</a></li>
@@ -139,11 +139,18 @@
 
      <tr>
       <th align="right">Kontonummer</th>
-      <td><input name="account_number" size="10" maxlength="15" value="[% HTML.escape(account_number) %]"></td>
+      <td><input name="account_number" size="10" maxlength="100" value="[% HTML.escape(account_number) %]"></td>
       <th align="right">Bankleitzahl</th>
-      <td><input name="bank_code" size="10" maxlength="10" value="[% HTML.escape(bank_code) %]"></td>
+      <td><input name="bank_code" size="10" maxlength="100" value="[% HTML.escape(bank_code) %]"></td>
       <th align="right">Bank</th>
-      <td><input name="bank" size="30" value="[% HTML.escape(bank) %]"></td>
+      <td><input name="bank" size="20" value="[% HTML.escape(bank) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">IBAN</th>
+      <td><input name="iban" size="10" maxlength="100" value="[% HTML.escape(iban) %]"></td>
+      <th align="right">BIC</th>
+      <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
      </tr>
 
      <tr>

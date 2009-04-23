@@ -306,6 +306,8 @@ sub save_customer {
     qq|account_number = ?, | .
     qq|bank_code = ?, | .
     qq|bank = ?, | .
+    qq|iban = ?, | .
+    qq|bic = ?, | .
     qq|obsolete = ?, | .
     qq|direct_debit = ?, | .
     qq|ustid = ?, | .
@@ -345,6 +347,8 @@ sub save_customer {
     $form->{account_number},
     $form->{bank_code},
     $form->{bank},
+    $form->{iban},
+    $form->{bic},
     $form->{obsolete} ? 't' : 'f',
     $form->{direct_debit} ? 't' : 'f',
     $form->{ustid},
@@ -511,6 +515,8 @@ sub save_vendor {
     qq|  account_number = ?, | .
     qq|  bank_code = ?, | .
     qq|  bank = ?, | .
+    qq|  iban = ?, | .
+    qq|  bic = ?, | .
     qq|  obsolete = ?, | .
     qq|  direct_debit = ?, | .
     qq|  ustid = ?, | .
@@ -548,6 +554,8 @@ sub save_vendor {
     $form->{account_number},
     $form->{bank_code},
     $form->{bank},
+    $form->{iban},
+    $form->{bic},
     $form->{obsolete} ? 't' : 'f',
     $form->{direct_debit} ? 't' : 'f',
     $form->{ustid},
@@ -1055,6 +1063,39 @@ sub delete_shipto {
   $dbh->commit();
 
   $main::lxdebug->leave_sub();
+}
+
+sub get_bank_info {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(vc id));
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $table        = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my @ids          = ref $params{id} eq 'ARRAY' ? @{ $params{id} } : ($params{id});
+  my $placeholders = ('?') x scalar @ids;
+  my $query        = qq|SELECT id, name, account_number, bank, bank_code, iban, bic
+                        FROM ${table}
+                        WHERE id IN (${placeholders})|;
+
+  my $result       = selectall_hashref_query($form, $dbh, $query, map { conv_i($_) } @ids);
+
+  if (ref $params{id} eq 'ARRAY') {
+    $result = { map { $_->{id} => $_ } @{ $result } };
+  } else {
+    $result = $result->[0] || { 'id' => $params{id} };
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $result;
 }
 
 1;
