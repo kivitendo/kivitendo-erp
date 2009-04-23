@@ -123,9 +123,6 @@ sub transfer {
 
   $main::lxdebug->leave_sub();
 }
-#
-#	Testfall:
-#
 
 sub transfer_assembly {
   $main::lxdebug->enter_sub();
@@ -145,9 +142,14 @@ sub transfer_assembly {
 #
 # ... Standard-Check oben Ende. Hier die eigentliche SQL-Abfrage
 # select parts_id,qty from assembly where id=1064;
+# Erweiterung für bug 935 am 23.4.09 - Erzeugnisse können Dienstleistungen enthalten, die ja nicht 'lagerbar' sind.
+# select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id=1066 and inventory_accno_id IS NOT NULL;
+# 
 # 
 
-  my $query    = qq|select parts_id,qty from assembly where id = ?|;
+  # my $query    = qq|select parts_id,qty from assembly where id = ?|;
+  my $query	= qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and inventory_accno_id IS NOT NULL|;
+
   my $sth_part_qty_assembly      = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
 # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
