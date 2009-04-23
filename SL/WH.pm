@@ -144,11 +144,14 @@ sub transfer_assembly {
 # select parts_id,qty from assembly where id=1064;
 # Erweiterung für bug 935 am 23.4.09 - Erzeugnisse können Dienstleistungen enthalten, die ja nicht 'lagerbar' sind.
 # select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id=1066 and inventory_accno_id IS NOT NULL;
+# Erweiterung für bug 23.4.09 -2 Erzeugnisse in Erzeugnissen können nicht ausgelagert werden, wenn assembly nicht überprüft wird ...
+# select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id=1066 and parts.inventory_accno_id IS NOT NULL and parts.assembly=false;
+
 # 
 # 
 
   # my $query    = qq|select parts_id,qty from assembly where id = ?|;
-  my $query	= qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and inventory_accno_id IS NOT NULL|;
+  my $query	= qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and inventory_accno_id IS NOT NULL and parts.assembly = FALSE|;
 
   my $sth_part_qty_assembly      = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
