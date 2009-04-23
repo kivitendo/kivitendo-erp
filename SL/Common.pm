@@ -61,6 +61,12 @@ sub retrieve_parts {
   if ($form->{no_assemblies}) {
     $filter .= qq| AND (NOT COALESCE(assembly, 'f'))|;
   }
+  if ($form->{assemblies}) {
+    $filter .= qq| AND assembly='t'|;		# alles was assembly ist rausgeben erweiterung für bin/mozilla/wh.pl -> transfer_assembly_update_part 
+# eigentlich möchte ich diesen filter abbilden: 
+# select distinct partnumber  from parts inner join assembly on (parts.id = assembly.id) where assembly='t';
+# und so common ist die anweisung gar nicht. wie wäre es mit auslagern in WH.pm? -> get_all_working_assemblies? jb 21.2.2009
+  }
 
   if ($form->{no_services}) {
     $filter .= qq| AND (COALESCE(inventory_accno_id, 0) > 0)|;
@@ -363,8 +369,8 @@ sub webdav_folder {
     my $base_path = substr($ENV{'SCRIPT_NAME'}, 1);
     $base_path =~ s|[^/]+$||;
     $base_path =~ s|/$||;
-
-    if (opendir $dir, $path) {
+    # wo kommt der wert für dir her? es wird doch gar nichts übergeben? fix für strict my $dir jb 21.2.
+    if (opendir my $dir, $path) {
       foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
         next if (($file eq '.') || ($file eq '..'));
 
@@ -517,7 +523,7 @@ sub check_params {
 
     } elsif (ref $key eq 'ARRAY') {
       my $found = 0;
-      foreach $subkey (@{ $key }) {
+      foreach my $subkey (@{ $key }) {
         if (defined $params->{$subkey}) {
           $found = 1;
           last;
@@ -542,7 +548,7 @@ sub check_params_x {
 
     } elsif (ref $key eq 'ARRAY') {
       my $found = 0;
-      foreach $subkey (@{ $key }) {
+      foreach my $subkey (@{ $key }) {
         if (exists $params->{$subkey}) {
           $found = 1;
           last;
