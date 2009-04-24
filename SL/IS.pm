@@ -1697,11 +1697,17 @@ sub retrieve_item {
   my $where = qq|NOT p.obsolete = '1'|;
   my @values;
 
-  foreach my $column (qw(p.partnumber p.description pgpartsgroup)) {
+  foreach my $column (qw(p.partnumber p.description pgpartsgroup )) {
     my ($table, $field) = split m/\./, $column;
     next if !$form->{"${field}_${i}"};
     $where .= qq| AND lower(${column}) ILIKE ?|;
     push @values, '%' . $form->{"${field}_${i}"} . '%';
+  }
+
+  #Es soll auch nach EAN gesucht werden, ohne Einschränkung durch Beschreibung
+  if ($form->{"partnumber_$i"} && !$form->{"description_$i"}) {
+	$where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
+	push @values, $form->{"partnumber_$i"};
   }
 
   if ($form->{"description_$i"}) {
