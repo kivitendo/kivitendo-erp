@@ -970,7 +970,12 @@ sub retrieve_item {
     $where .= " AND lower(${table_column}) LIKE lower(?)";
     push @values, '%' . $form->{"${field}_${i}"} . '%';
   }
-
+  #Es soll auch nach EAN gesucht werden, ohne Einschränkung durch Beschreibung
+  if ($form->{"partnumber_$i"} && !$form->{"description_$i"}) {
+      $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
+      push @values, $form->{"partnumber_$i"};
+   }
+ 
   if ($form->{"description_$i"}) {
     $where .= " ORDER BY p.description";
   } else {
