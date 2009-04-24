@@ -139,7 +139,7 @@ sub part_selection_internal {
     }
   }
 
-  map { $form->{$_} = $options{$_} if ($options{$_}) } qw(no_services no_assemblies click_button);
+  map { $form->{$_} = $options{$_} if ($options{$_}) } qw(no_services no_assemblies assemblies click_button);
 
   $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
 
