@@ -299,7 +299,7 @@ sub save {
 
   # undo amount formatting
   map { $form->{$_} = $form->parse_amount($myconfig, $form->{$_}) }
-    qw(rop weight listprice sellprice gv lastcost stock);
+    qw(rop weight listprice sellprice gv lastcost);
 
   my $makemodel = (($form->{make_1}) || ($form->{model_1})) ? 1 : 0;
 

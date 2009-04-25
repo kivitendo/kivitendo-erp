@@ -216,12 +216,6 @@
            <th align="right" nowrap>Auf Lager</th>
            <th align="left" nowrap class="plus[% IF onhand > 0 %]1[% ELSE %]0[% END %]">&nbsp;[% LxERP.format_amount(onhand) %]</th>
           </tr>
-          [%- IF is_assembly %]
-          <tr>
-           <th align="right" nowrap>Einlagern</th>
-           <td><input name="stock" size="10" value="[% LxERP.format_amount(stock) %]"></td>
-          </tr>
-          [%- END %]
           <tr>
            <th align="right" nowrap="true">Mindestlagerbestand</th>
            <td><input name="rop" size="10" value="[% LxERP.format_amount(rop) %]"></td>
