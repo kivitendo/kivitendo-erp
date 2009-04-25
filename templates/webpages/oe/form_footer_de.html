@@ -142,17 +142,17 @@
 
   <input class="submit" type="submit" name="action" value="Rechnung">
 
-  <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
-  [%- IF is_sales_ord %]
-    <input class="submit" type="submit" name="action" value="Lieferantenauftrag">
-    <input class="submit" type="submit" name="action" value="Angebot">
-  [%- ELSE %]
-   [%- IF is_pur_ord %]
-    <input class="submit" type="submit" name="action" value="Kundenauftrag">
-    <input class="submit" type="submit" name="action" value="Anfrage">
-   [%- ELSE %]
-    <input class="submit" type="submit" name="action" value="Auftrag">
-   [%- END %]
+  [%- IF is_sales_ord || is_pur_ord %]
+    <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
+    [%- IF is_sales_ord %]
+      <input class="submit" type="submit" name="action" value="Lieferantenauftrag">
+     <input class="submit" type="submit" name="action" value="Angebot">
+    [%- ELSE %]
+    [%- IF is_pur_ord %]
+      <input class="submit" type="submit" name="action" value="Kundenauftrag">
+     <input class="submit" type="submit" name="action" value="Anfrage">
+    [%- END %]
+    [%- END %]
   [%- END %]
 [%- END %]
 

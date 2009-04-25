@@ -142,17 +142,17 @@
 
   <input class="submit" type="submit" name="action" value="<translate>Invoice</translate>">
 
-  <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
-  [%- IF is_sales_ord %]
-    <input class="submit" type="submit" name="action" value="<translate>Purchase Order</translate>">
-    <input class="submit" type="submit" name="action" value="<translate>Quotation</translate>">
-  [%- ELSE %]
-   [%- IF is_pur_ord %]
-    <input class="submit" type="submit" name="action" value="<translate>Sales Order</translate>">
-    <input class="submit" type="submit" name="action" value="<translate>Request for Quotation</translate>">
-   [%- ELSE %]
-    <input class="submit" type="submit" name="action" value="<translate>Order</translate>">
-   [%- END %]
+  [%- IF is_sales_ord || is_pur_ord %]
+    <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
+    [%- IF is_sales_ord %]
+      <input class="submit" type="submit" name="action" value="<translate>Purchase Order</translate>">
+     <input class="submit" type="submit" name="action" value="<translate>Quotation</translate>">
+    [%- ELSE %]
+    [%- IF is_pur_ord %]
+      <input class="submit" type="submit" name="action" value="<translate>Sales Order</translate>">
+     <input class="submit" type="submit" name="action" value="<translate>Request for Quotation</translate>">
+    [%- END %]
+    [%- END %]
   [%- END %]
 [%- END %]
 
