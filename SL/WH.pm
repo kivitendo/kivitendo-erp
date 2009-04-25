@@ -138,24 +138,25 @@ sub transfer_assembly {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
 
-# Ablauferklärung
-#
-# ... Standard-Check oben Ende. Hier die eigentliche SQL-Abfrage
-# select parts_id,qty from assembly where id=1064;
-# Erweiterung für bug 935 am 23.4.09 - Erzeugnisse können Dienstleistungen enthalten, die ja nicht 'lagerbar' sind.
-# select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id=1066 and inventory_accno_id IS NOT NULL;
-# Erweiterung für bug 23.4.09 -2 Erzeugnisse in Erzeugnissen können nicht ausgelagert werden, wenn assembly nicht überprüft wird ...
-# select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id=1066 and parts.inventory_accno_id IS NOT NULL and parts.assembly=false;
+  # Ablauferklärung
+  #
+  # ... Standard-Check oben Ende. Hier die eigentliche SQL-Abfrage
+  # select parts_id,qty from assembly where id=1064;
+  # Erweiterung für bug 935 am 23.4.09 - Erzeugnisse können Dienstleistungen enthalten, die ja nicht 'lagerbar' sind.
+  # select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id=1066 and inventory_accno_id IS NOT NULL;
+  # Erweiterung für bug 23.4.09 -2 Erzeugnisse in Erzeugnissen können nicht ausgelagert werden, wenn assembly nicht überprüft wird ...
+  # patch von joachim eingespielt 24.4.2009:
+  # my $query    = qq|select parts_id,qty from assembly inner join parts
+  # on assembly.parts_id = parts.id  where assembly.id = ? and
+  # (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
-# 
-# 
 
   # my $query    = qq|select parts_id,qty from assembly where id = ?|;
-  my $query	= qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and inventory_accno_id IS NOT NULL and parts.assembly = FALSE|;
+  my $query	= qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
   my $sth_part_qty_assembly      = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
-# Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
+  # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
   my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, comment, employee_id, qty, trans_id, trans_type_id)
 			    VALUES (?, ?, ?, ?, ?,(SELECT id FROM employee WHERE login = ?), ?, nextval('id'), 
 				    (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
@@ -172,17 +173,17 @@ sub transfer_assembly {
     my $max_parts = get_max_qty_parts($self, parts_id => $currentPart_ID, warehouse_id => $params{dst_warehouse_id}); #$self angeben, damit die Standardkonvention (Name, Parameter) eingehalten wird
 
     if ($partsQTY  > $max_parts){
-
-      # Gibt es hier ein Problem mit nicht "escapten" Zeichen?
-	$kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY) . " Stueck der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>";	# Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
+      # Gibt es hier ein Problem mit nicht "escapten" Zeichen? 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
+      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Stueck der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>";	# Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
+      next;	# die weiteren Überprüfungen sind unnötig
     }
 
-# Eine kurze Vorabfrage, um den Lagerplatz und die Chargennummber zu bestimmen
-# Offen: Die Summe über alle Lagerplätze wird noch nicht gebildet
-# Gelöst: Wir haben vorher schon die Abfrage durchgeführt, ob wir fertigen können.
-# Noch besser gelöst: Wir laufen durch alle benötigten Waren zum Fertigen und geben eine Rückmeldung an den Benutzer was noch fehlt
-# und lösen den Rest dann so wie bei xplace im Barcode-Programm
-# S.a. Kommentar im bin/mozilla-Code mb übernimmt und macht das in ordentlich
+    # Eine kurze Vorabfrage, um den Lagerplatz und die Chargennummber zu bestimmen
+    # Offen: Die Summe über alle Lagerplätze wird noch nicht gebildet
+    # Gelöst: Wir haben vorher schon die Abfrage durchgeführt, ob wir fertigen können.
+    # Noch besser gelöst: Wir laufen durch alle benötigten Waren zum Fertigen und geben eine Rückmeldung an den Benutzer was noch fehlt
+    # und lösen den Rest dann so wie bei xplace im Barcode-Programm
+    # S.a. Kommentar im bin/mozilla-Code mb übernimmt und macht das in ordentlich
 
     my $tempquery =	qq|SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber having SUM(qty)>0|;
     my $tempsth	  =	prepare_execute_query($form, $dbh, $tempquery, $params{dst_warehouse_id}, $currentPart_ID);

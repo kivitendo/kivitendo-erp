@@ -377,25 +377,26 @@ sub transfer_stock_get_partunit {
 # wir brauchen eine hilfsfunktion, die nee. brauchen wir nicht. der algorithmus läuft genau wie bei check max_create, nur dass hier auch eine lagerbewegung (verbraucht) stattfindet
 # Manko ist derzeit noch, dass unterschiedliche Lagerplätze, bzw. das Quelllager an sich nicht ausgewählt werden können.
 # Laut Absprache in KW11 09 übernimmt mb hier den rest im April ... jb 18.3.09
+
 sub create_assembly {
-#  my $maxcreate=shift;	# oben begonnene auskommentierte idee, hier als motiv weiterverfolgen (umkehrungen und sequenzierungen als stilmittel nicht vergessen)
   $lxdebug->enter_sub();
 
   $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
-#  my $maxcreate = WH->check_assembly_max_create(assembly_id	=>	$form->{parts_id});
   if ($form->{qty} <= 0) {
     $form->show_generic_error($locale->text('Invalid quantity.'), 'back_button' => 1);
-  } #else { if ($form->{qty} > $maxcreate) {	#s.o.
-#	    $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
-#	    $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
-#	  } 
-#  }
+  }
+  # TODO Es wäre schön, hier schon die maximale Anzahl der zu fertigenden Erzeugnisse zu haben  
+  #else { if ($form->{qty} > $maxcreate) {	#s.o.
+  #	    $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
+  #	    $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
+  #	  } 
+  #  }
 
   if (!$form->{warehouse_id} || !$form->{bin_id}) {
     $form->error($locale->text('The warehouse or the bin is missing.'));
   }
-# WIESO war das nicht vorher schon ein %HASH?? ein hash ist ein hash! das hat mich mehr als eine Stunde gekostet herauszufinden. grr. jb 3.3.2009
-# Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
+  # WIESO war das nicht vorher schon ein %HASH?? ein hash ist ein hash! das hat mich mehr als eine Stunde gekostet herauszufinden. grr. jb 3.3.2009
+  # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
   my %TRANSFER = (
     'transfer_type'    => 'assembly',
     'login'	=> $form->{login},
@@ -405,14 +406,15 @@ sub create_assembly {
     'assembly_id'         => $form->{parts_id},
     'qty'              => $form->{qty},
     'unit'             => $form->{unit},
-    'comment'          => $form->{comment},
+    'comment'          => $form->{comment}
   );
 
   my $ret = WH->transfer_assembly (%TRANSFER);
-# Frage: Ich pack in den return-wert auch gleich die Fehlermeldung. Irgendwelche Nummern als Fehlerkonstanten definieren find ich auch nicht besonders schick...
-# Ideen? jb 18.3.09
+  # Frage: Ich pack in den return-wert auch gleich die Fehlermeldung. Irgendwelche Nummern als Fehlerkonstanten definieren find ich auch nicht besonders schick...
+  # Ideen? jb 18.3.09
   if ($ret ne "1"){
-    $form->show_generic_error($locale->text($ret), 'back_button' => 1);
+    # Die locale-Funktion kann keine Double-Quotes escapen, deswegen hier erstmal so (ein wahrscheinlich immerwährender Hotfix) s.a. Frage davor jb 25.4.09
+    $form->show_generic_error($ret, 'back_button' => 1);
   }
 
   delete @{$form}{qw(parts_id partnumber description qty unit chargenumber comment)};
