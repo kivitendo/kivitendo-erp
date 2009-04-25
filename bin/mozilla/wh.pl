@@ -842,7 +842,7 @@ sub generate_report {
 sub show_no_warehouses_error {
   $lxdebug->enter_sub();
 
-  my $msg = $locale->text('No warehouse has been created yet.') . ' ';
+  my $msg = $locale->text('No warehouse has been created yet or the quantity of the bins is not configured yet.') . ' ';
 
   if ($auth->check_right($form->{login}, 'config')) {
     $msg .= $locale->text('You can create warehouses and bins via the menu "System -> Warehouses".');
