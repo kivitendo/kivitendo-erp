@@ -105,7 +105,7 @@ sub transfer_warehouse_selection {
     $content         = $form->parse_html_template('wh/warehouse_selection');
 
   } elsif ($form->{trans_type} eq 'assembly') {
-    $form->{title} = $locale->text('Assembly');
+    $form->{title} = $locale->text('Produce Assembly');
     $content       = $form->parse_html_template('wh/warehouse_selection_assembly');
   }
 
