@@ -142,11 +142,7 @@ sub report {
   $form->{co_fax}   = $form->{fax}   unless $form->{co_fax};
   $form->{co_url}   = $form->{urlx}  unless $form->{co_url};
 
-  my $taxnumber_given = ($form->{steuernummer} ne '')
-    ? qq|$form->{steuernummer}|
-    : qq|<a href="ustva.pl?action="config_step1"|
-      . qq|&level=Programm--Finanzamteinstellungen">Keine Steuernummer hinterlegt!|
-      . qq|</a><br>|;
+  my $taxnumber_given = ($form->{steuernummer} ne '') ? $form->{steuernummer} : qq|<a href="ustva.pl?action=config_step1">Keine Steuernummer hinterlegt!</a><br>|;
 
   my $ustva_vorauswahl = &ustva_vorauswahl();
 
