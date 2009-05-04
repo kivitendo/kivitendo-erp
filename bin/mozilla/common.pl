@@ -515,7 +515,15 @@ sub mark_as_paid_common {
 
   } else {
     my $referer = $ENV{HTTP_REFERER};
-    $referer =~ s/^(.*)action\=.*\&(.*)$/$1action\=mark_as_paid\&mark_as_paid\=1\&id\=$form->{id}\&$2/;
+    if ($referer =~ /.*action.*/) {
+      $referer =~ /^(.*)\?action\=.*(\&.*)$/;
+      $script = $1;
+      $callback = $2;
+    } else {
+      $script = $referer;
+      $callback = "";
+    }
+    $referer = $script . "?action=mark_as_paid&mark_as_paid=1&id=$form->{id}" . $callback;
     $form->header();
     print qq|<body>|;
     print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
