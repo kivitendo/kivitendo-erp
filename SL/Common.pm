@@ -62,14 +62,14 @@ sub retrieve_parts {
     $filter .= qq| AND (NOT COALESCE(assembly, FALSE))|;
   }
   if ($form->{assemblies}) {
-    $filter .= qq| AND assembly=TRUE|;		# alles was assembly ist rausgeben erweiterung für bin/mozilla/wh.pl -> transfer_assembly_update_part 
-# eigentlich möchte ich diesen filter abbilden: 
+    $filter .= qq| AND assembly=TRUE|;		# alles was assembly ist rausgeben erweiterung für bin/mozilla/wh.pl -> transfer_assembly_update_part
+# eigentlich möchte ich diesen filter abbilden:
 # select distinct partnumber  from parts inner join assembly on (parts.id = assembly.id) where assembly='t';
 # und so common ist die anweisung gar nicht. wie wäre es mit auslagern in WH.pm? -> get_all_working_assemblies? jb 21.2.2009
   }
 
   if ($form->{no_services}) {
-    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|; # @mb hier nochmal optimieren ... nach kurzer ruecksprache alles i.o. 
+    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|; # @mb hier nochmal optimieren ... nach kurzer ruecksprache alles i.o.
   }
 
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -83,7 +83,6 @@ sub retrieve_parts {
     qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
-    open STDERR, ">>/usr/local/src/lxoffice/users/de.log" or die $!; print STDERR "hier:" . $query . "filter " . $filter . "filterwerte:" . $filter_values[0] .  "\n"; close STDERR;
   my $parts = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$parts}, $ref);
