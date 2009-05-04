@@ -57,6 +57,8 @@ sub retrieve_parts {
     $filter .= qq| AND ($_ ILIKE ?)|;
     push @filter_values, '%' . $form->{$_} . '%';
   }
+$main::lxdebug->dump(0, "assemblies in common", $form->{assemblies});
+$main::lxdebug->dump(0, "no assemblies in common", $form->{no_assemblies});
 
   if ($form->{no_assemblies}) {
     $filter .= qq| AND (NOT COALESCE(assembly, FALSE))|;
@@ -69,8 +71,7 @@ sub retrieve_parts {
   }
 
   if ($form->{no_services}) {
-    #$filter .= qq| AND (COALESCE(inventory_accno_id, 0) > 0) AND (COALESCE (assembly, FALSE))|;
-    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|; # @mb hier nochmal optimieren ...
+    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|; # @mb hier nochmal optimieren ... nach kurzer ruecksprache alles i.o. 
   }
 
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -84,6 +85,12 @@ sub retrieve_parts {
     qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
+
+$main::lxdebug->dump(0, "query", $query);
+
+$main::lxdebug->dump(0, "values", @filter_values);
+
+
   my $parts = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$parts}, $ref);
