@@ -156,7 +156,8 @@ sub transfer_or_removal_prepare_contents {
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id},
                                            "bin_id"       => $form->{bin_id},
                                            "chargenumber" => $form->{chargenumber},
-                                           "partnumber"   => $form->{partnumber},
+					   "partnumber"   => $form->{partnumber},
+					   "ean"   	  => $form->{ean},
                                            "description"  => $form->{description});
 
   $form->show_generic_error($locale->text("The selected warehouse is empty.")) if (0 == scalar(@contents));

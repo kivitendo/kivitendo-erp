@@ -438,6 +438,7 @@ sub get_warehouse_journal {
 #  - partsid      - will return matches with this parts_id only
 #  - description  - will return only matches where the given string is a substring of the description
 #  - chargenumber - will return only matches where the given string is a substring of the chargenumber
+#  - ean	  - will return only matches where the given string is a substring of the ean as stored in the table parts (article)
 #  - charge_ids   - must be an arrayref. will return contents with these ids only
 #  - expires_in   - will only return matches that expire within the given number of days
 #                   will also add a column named 'has_expired' containing if the match has already expired or not
@@ -499,6 +500,10 @@ sub get_warehouse_report {
     push @filter_ary,  "i.chargenumber ILIKE ?";
     push @filter_vars, '%' . $filter{chargenumber} . '%';
   }
+  if ($filter{ean}) {
+    push @filter_ary,  "p.ean ILIKE ?";
+    push @filter_vars, '%' . $filter{ean} . '%';
+  }
 
   # prepare qty comparison for later filtering
   my ($f_qty_op, $f_qty, $f_qty_base_unit);
@@ -534,6 +539,7 @@ sub get_warehouse_report {
      "bindescription"       => "b.description",
      "binid"                => "b.id",
      "chargenumber"         => "i.chargenumber",
+     "ean"         	    => "p.ean",
      "chargeid"             => "c.id",
      "warehousedescription" => "w.description",
      "partunit"             => "p.unit",
