@@ -1232,10 +1232,8 @@ sub parse_template {
       } else {
 
         if (!$self->{"do_not_attach"}) {
-          @{ $mail->{attachments} } =
-            ({ "filename" => $self->{"tmpfile"},
-               "name" => $self->{"attachment_filename"} ?
-                 $self->{"attachment_filename"} : $self->{"tmpfile"} });
+          $mail->{attachments} = [{ "filename" => $self->{"tmpfile"},
+                                    "name"     => $self->{"attachment_filename"} ? $self->{"attachment_filename"} : $self->{"tmpfile"} }];
         }
 
         $mail->{message}  =~ s/\r//g;
