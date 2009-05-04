@@ -1129,25 +1129,37 @@ sub parse_template {
   $self->{"cwd"} = getcwd();
   $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
 
+  my $ext_for_format;
+
   if ($self->{"format"} =~ /(opendocument|oasis)/i) {
-    $template = OpenDocumentTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template       = OpenDocumentTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $ext_for_format = 'odt';
+
   } elsif ($self->{"format"} =~ /(postscript|pdf)/i) {
     $ENV{"TEXINPUTS"} = ".:" . getcwd() . "/" . $myconfig->{"templates"} . ":" . $ENV{"TEXINPUTS"};
-    $template = LaTeXTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
-  } elsif (($self->{"format"} =~ /html/i) ||
-           (!$self->{"format"} && ($self->{"IN"} =~ /html$/i))) {
-    $template = HTMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
-  } elsif (($self->{"format"} =~ /xml/i) ||
-             (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
-    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template         = LaTeXTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $ext_for_format   = 'pdf';
+
+  } elsif (($self->{"format"} =~ /html/i) || (!$self->{"format"} && ($self->{"IN"} =~ /html$/i))) {
+    $template       = HTMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $ext_for_format = 'html';
+
+  } elsif (($self->{"format"} =~ /xml/i) || (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
+    $template       = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $ext_for_format = 'xml';
+
   } elsif ( $self->{"format"} =~ /elsterwinston/i ) {
     $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+
   } elsif ( $self->{"format"} =~ /elstertaxbird/i ) {
     $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+
   } elsif ( defined $self->{'format'}) {
     $self->error("Outputformat not defined. This may be a future feature: $self->{'format'}");
+
   } elsif ( $self->{'format'} eq '' ) {
     $self->error("No Outputformat given: $self->{'format'}");
+
   } else { #Catch the rest
     $self->error("Outputformat not defined: $self->{'format'}");
   }
@@ -1232,8 +1244,10 @@ sub parse_template {
       } else {
 
         if (!$self->{"do_not_attach"}) {
-          $mail->{attachments} = [{ "filename" => $self->{"tmpfile"},
-                                    "name"     => $self->{"attachment_filename"} ? $self->{"attachment_filename"} : $self->{"tmpfile"} }];
+          my $attachment_name  =  $self->{attachment_filename} || $self->{tmpfile};
+          $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+          $mail->{attachments} =  [{ "filename" => $self->{tmpfile},
+                                     "name"     => $attachment_name }];
         }
 
         $mail->{message}  =~ s/\r//g;

@@ -33,6 +33,7 @@ package Mailer;
 use Email::Address;
 
 use SL::Common;
+use SL::MIME;
 use SL::Template;
 
 my $num_sent = 0;
@@ -181,10 +182,10 @@ $self->{message}
         $filename =~ s/(.*\/|\Q$self->{fileid}\E)//g;
       }
 
-      my $application =
-        ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/)
-        ? "text"
-        : "application";
+      my $application    = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? "text" : "application";
+      my $content_type   = SL::MIME->mime_type_from_ext($filename);
+      $content_type      = "${application}/${self->{format}}" if (!$content_type && $self->{format});
+      $content_type    ||= 'application/octet-stream';
 
       open(IN, $attachment);
       if ($?) {
@@ -201,7 +202,7 @@ $self->{message}
       }
 
       print OUT qq|--${boundary}
-Content-Type: $application/$self->{format}; name="$filename"$attachment_charset
+Content-Type: ${content_type}; name="$filename"$attachment_charset
 Content-Transfer-Encoding: BASE64
 Content-Disposition: attachment; filename="$filename"\n\n|;
 
