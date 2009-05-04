@@ -28,20 +28,20 @@ package USTVA;
 use SL::DBUtils;
 
 sub get_coa {
-  
+
   my ( $self, $form, $myconfig) = @_;
-  
+
   my $query = q{ SELECT coa FROM defaults };
-  
+
   my $dbh = $form->dbconnect($myconfig);
   my $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
 
-  my ($coa) = selectrow_query($form, $dbh, $query);  
-  
+  my ($coa) = selectrow_query($form, $dbh, $query);
+
   $sth->finish;
   $dbh->disconnect;
-  
+
   $form->{coa} = $coa;
   $form->{"COA_$coa"} = '1';
   $form->{COA_Germany} = '1' if ( $coa eq 'Germany-DATEV-SKR03EU' or $coa eq 'Germany-DATEV-SKR04EU');
@@ -53,16 +53,16 @@ sub get_coa {
 sub report_variables {
   # Get all positions for taxreport out of the database
   # Needs Databaseupdate Pg-upgrade2/USTVA_abstraction.pl
-  
+
   return unless defined wantarray;
-  
+
   my ( $self,
        $arg_ref) = @_;
-       
+
   my $myconfig   = $arg_ref->{myconfig};
   my $form       = $arg_ref->{form};
   my $type       = $arg_ref->{type}; # 'paied' || 'received' || ''
-  my $attribute  = $arg_ref->{attribute}; # 
+  my $attribute  = $arg_ref->{attribute}; #
   my $dec_places = (defined $arg_ref->{dec_places}) ? $arg_ref->{dec_places}:undef;
 
   my $where_type = "AND tax.report_headings.type = '$type'" if ( $type );
@@ -70,31 +70,31 @@ sub report_variables {
 
   my $query = qq|
     SELECT $attribute
-    FROM tax.report_variables 
-    LEFT JOIN tax.report_headings 
+    FROM tax.report_variables
+    LEFT JOIN tax.report_headings
       ON (tax.report_variables.heading_id = tax.report_headings.id)
-    WHERE 1=1 
+    WHERE 1=1
     $where_type
-    $where_dcp  
+    $where_dcp
   |;
-  
+
   my $dbh = $form->dbconnect($myconfig);
   my $sth = $dbh->prepare($query);
 
   $sth->execute() || $form->dberror($query);
-  
+
   my @positions;
-  
+
   while ( my $row_ref = $sth->fetchrow_arrayref() ) {
     push @positions, @$row_ref;  # Copy the array contents
   }
-  
+
   $sth->finish;
-  
+
   $dbh->disconnect;
-  
+
   return @positions;
-  
+
 }
 
 sub create_steuernummer {
@@ -138,7 +138,7 @@ sub steuernummer_input {
   my ($self, $elsterland, $elsterFFFF, $steuernummer) = @_;
 
   my $steuernummer_input = '';
-  
+
   $elster_land  = $elsterland;
   $elster_FFFF  = $elsterFFFF;
   $steuernummer = '0000000000' if ($steuernummer eq '');
@@ -236,9 +236,9 @@ SWITCH: {
       $steuernummer_input .= qq|</select>\n|;
     }
   }
-  
+
   $main::lxdebug->leave_sub();
-  
+
   return $steuernummer_input;
 }
 
@@ -252,7 +252,7 @@ sub fa_auswahl {
   # Prototyp für diese Konstruktion
 
   my ($self, $land, $elsterFFFF, $elster_init) = @_;
-  
+
   my $terminal = '';
   my $FFFF     = $elsterFFFF;
   my $ffff     = '';
@@ -651,9 +651,9 @@ sub ustva {
       attribute   => 'position',
       dec_places  => '2',
   });
-  
+
   push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
-  
+
   my @category_euro = USTVA->report_variables({
       myconfig    => $myconfig,
       form        => $form,
@@ -661,7 +661,7 @@ sub ustva {
       attribute   => 'position',
       dec_places  => '0',
   });
-                           
+
   push @category_euro, USTVA->report_variables({
       myconfig    => $myconfig,
       form        => $form,
@@ -680,7 +680,7 @@ sub ustva {
   }
   my $coa_name = coa_get($dbh);
   $form->{coa} = $coa_name;
-  
+
   # Controlvariable for templates
   $form->{"$coa_name"} = '1';
 
@@ -694,11 +694,11 @@ sub ustva {
   # Nationspecific Modfications
   #
   ###########################################
-  
+
   # Germany
-  
+
   if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU'){
-  
+
     # 16%/19% Umstellung
     # Umordnen der Kennziffern
     if ( $form->{year} < 2007) {
@@ -718,7 +718,7 @@ sub ustva {
   }
 
 
-  # Fixme: Wird auch noch für Oesterreich gebraucht, 
+  # Fixme: Wird auch noch für Oesterreich gebraucht,
   # weil kein eigenes Ausgabeformular
   # sotte aber aus der allgeméinen Steuerberechnung verschwinden
   #
@@ -730,23 +730,23 @@ sub ustva {
   $form->{"97r"} = $form->{"971"};
   $form->{"93r"} = $form->{"931"};
 
-  $form->{"Z43"} = $form->{"511"}     + $form->{"811"} + $form->{"861"} 
-                     + $form->{"36"}  + $form->{"80"}  + $form->{"971"} 
-                     + $form->{"891"} + $form->{"931"} + $form->{"96"} 
+  $form->{"Z43"} = $form->{"511"}     + $form->{"811"} + $form->{"861"}
+                     + $form->{"36"}  + $form->{"80"}  + $form->{"971"}
+                     + $form->{"891"} + $form->{"931"} + $form->{"96"}
                      + $form->{"98"};
 
   $form->{"Z45"} = $form->{"Z43"};
 
-  $form->{"Z53"} = $form->{"Z45"}     + $form->{"53"}  + $form->{"74"}  
+  $form->{"Z53"} = $form->{"Z45"}     + $form->{"53"}  + $form->{"74"}
                      + $form->{"85"}  + $form->{"65"};
-                     
-  $form->{"Z62"} = $form->{"Z43"}     - $form->{"66"}  - $form->{"61"} 
-                     - $form->{"62"}  - $form->{"67"}  - $form->{"63"}  
+
+  $form->{"Z62"} = $form->{"Z43"}     - $form->{"66"}  - $form->{"61"}
+                     - $form->{"62"}  - $form->{"67"}  - $form->{"63"}
                      - $form->{"64"}  - $form->{"59"};
-                      
+
   $form->{"Z65"} = $form->{"Z62"}     - $form->{"69"};
   $form->{"83"}  = $form->{"Z65"}     - $form->{"39"};
-  
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -755,15 +755,15 @@ sub ustva {
 sub coa_get {
 
   my ($dbh) = @_;
-  
+
   my $query= qq|SELECT coa FROM defaults|;
 
   my $sth = $dbh->prepare($query);
-  
+
   $sth->execute || $form->dberror($query);
-    
+
   ($ref) = $sth->fetchrow_array;
-  
+
   return $ref;
 
 };
@@ -788,7 +788,7 @@ sub get_accounts_ustva {
     if ($form->{method} eq 'cash') {
       $subwhere .= " AND transdate >= '$fromdate'";
       $glwhere = " AND ac.transdate >= '$fromdate'";
-      $ARwhere .= " AND acc.transdate >= '$fromdate'"; 
+      $ARwhere .= " AND acc.transdate >= '$fromdate'";
     }
     $APwhere .= " AND AP.transdate >= '$fromdate'";
     $where .= " AND ac.transdate >= '$fromdate'";
@@ -821,30 +821,30 @@ sub get_accounts_ustva {
   #
   ############################################
 
-  if ($form->{method} eq 'cash') {  
+  if ($form->{method} eq 'cash') {
 
     $query = qq|
        SELECT
          -- USTVA IST-Versteuerung
-         -- 
-         -- Alle tatsaechlichen _Zahlungseingaenge_ 
-         -- im Voranmeldezeitraum erfassen 
+         --
+         -- Alle tatsaechlichen _Zahlungseingaenge_
+         -- im Voranmeldezeitraum erfassen
          -- (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
-         SUM( ac.amount * 
+         SUM( ac.amount *
             -- Bezahlt / Rechnungssumme
-           ( 
+           (
              SELECT SUM(acc.amount)
              FROM acc_trans acc
-             INNER JOIN chart c ON (acc.chart_id   =   c.id 
+             INNER JOIN chart c ON (acc.chart_id   =   c.id
                                     AND c.link   like  '%AR_paid%')
              WHERE
-              1=1 
+              1=1
               $ARwhere
               AND acc.trans_id = ac.trans_id
               )
-           / 
-           ( 
-            SELECT amount FROM ar WHERE id = ac.trans_id  
+           /
+           (
+            SELECT amount FROM ar WHERE id = ac.trans_id
            )
          ) AS amount,
          tk.pos_ustva
@@ -853,18 +853,18 @@ sub get_accounts_ustva {
        LEFT JOIN ar      ON (ar.id = ac.trans_id)
        LEFT JOIN taxkeys tk ON (
          tk.id = (
-           SELECT id FROM taxkeys 
-           WHERE chart_id   = ac.chart_id 
-             -- AND taxkey_id  = ac.taxkey 
+           SELECT id FROM taxkeys
+           WHERE chart_id   = ac.chart_id
+             -- AND taxkey_id  = ac.taxkey
              AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
        )
-       WHERE 
+       WHERE
        $acc_trans_where
        GROUP BY tk.pos_ustva
     |;
-   
+
   } elsif ($form->{method} eq 'accrual') {
     #########################################
     # Method eq 'accrual' = Soll Versteuerung
@@ -873,15 +873,15 @@ sub get_accounts_ustva {
     $query = qq|
        -- Alle Einnahmen AR und pos_ustva erfassen
        SELECT
-         - sum(ac.amount) AS amount, 
+         - sum(ac.amount) AS amount,
          tk.pos_ustva
-       FROM acc_trans ac 
-       JOIN chart c ON (c.id = ac.chart_id) 
+       FROM acc_trans ac
+       JOIN chart c ON (c.id = ac.chart_id)
        JOIN ar ON (ar.id = ac.trans_id)
        JOIN taxkeys tk ON (
          tk.id = (
-           SELECT id FROM taxkeys 
-           WHERE chart_id   = ac.chart_id 
+           SELECT id FROM taxkeys
+           WHERE chart_id   = ac.chart_id
              AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
@@ -891,32 +891,32 @@ sub get_accounts_ustva {
        $where
        GROUP BY tk.pos_ustva
   |;
-   
+
   } else {
-  
+
     $form->error("Unknown tax method: $form->{method}")
 
   }
-  
+
   #########################################
   # Ausgaben und Gl Buchungen sind gleich
   # für Ist- und Soll-Versteuerung
   #########################################
-  $query .= qq| 
+  $query .= qq|
      UNION -- alle Ausgaben AP erfassen
 
        SELECT
-         sum(ac.amount) AS amount, 
+         sum(ac.amount) AS amount,
          tk.pos_ustva
        FROM acc_trans ac
        JOIN ap ON (ap.id = ac.trans_id )
        JOIN chart c ON (c.id = ac.chart_id)
        LEFT JOIN taxkeys tk ON (
            tk.id = (
-             SELECT id FROM taxkeys 
+             SELECT id FROM taxkeys
              WHERE 1=1
-               AND chart_id=ac.chart_id 
-               --AND taxkey_id = ac.taxkey 
+               AND chart_id=ac.chart_id
+               --AND taxkey_id = ac.taxkey
                AND startdate <= COALESCE(AP.transdate)
              ORDER BY startdate DESC LIMIT 1
            )
@@ -929,16 +929,16 @@ sub get_accounts_ustva {
      UNION -- Einnahmen direkter gl Buchungen erfassen
 
        SELECT sum
-         ( - ac.amount) AS amount, 
+         ( - ac.amount) AS amount,
          tk.pos_ustva
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN gl a ON (a.id = ac.trans_id)
        LEFT JOIN taxkeys tk ON (
          tk.id = (
-           SELECT id FROM taxkeys 
-           WHERE chart_id=ac.chart_id 
-             AND NOT $gltaxkey_where  
+           SELECT id FROM taxkeys
+           WHERE chart_id=ac.chart_id
+             AND NOT $gltaxkey_where
              AND startdate <= COALESCE(ac.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
@@ -953,16 +953,16 @@ sub get_accounts_ustva {
      UNION -- Ausgaben direkter gl Buchungen erfassen
 
        SELECT sum
-         (ac.amount) AS amount, 
+         (ac.amount) AS amount,
          tk.pos_ustva
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
        JOIN gl a ON (a.id = ac.trans_id)
        LEFT JOIN taxkeys tk ON (
          tk.id = (
-           SELECT id FROM taxkeys 
-           WHERE chart_id=ac.chart_id 
-             AND $gltaxkey_where 
+           SELECT id FROM taxkeys
+           WHERE chart_id=ac.chart_id
+             AND $gltaxkey_where
              AND startdate <= COALESCE(ac.transdate)
            ORDER BY startdate DESC LIMIT 1
          )
@@ -982,9 +982,9 @@ sub get_accounts_ustva {
   # Show all $query in Debuglevel LXDebug::QUERY
   $callingdetails = (caller (0))[3];
   $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
-              
+
   my $sth = $dbh->prepare($query);
-  
+
   $sth->execute || $form->dberror($query);
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
@@ -1016,7 +1016,7 @@ sub get_config {
     # create file if file does not exist
     open my $FANEW, ">", $filename  or $form->error("CREATE: $filename : $!");
     close $FANEW                    or $form->error("CLOSE: $filename : $!");
-    
+
     #try again open file
     open my $FACONF, "<", $filename or $form->error("OPEN: $filename : $!");
   };
