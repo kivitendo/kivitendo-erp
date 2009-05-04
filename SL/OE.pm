@@ -111,7 +111,7 @@ sub transactions {
     $query .= " AND o.employee_id = ?";
     push @values, conv_i($form->{employee_id});
   }
-  
+
   if ($form->{salesman_id}) {
     $query .= " AND o.salesman_id = ?";
     push @values, conv_i($form->{salesman_id});
@@ -701,8 +701,8 @@ sub retrieve {
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)
          LEFT JOIN department d ON (o.department_id = d.id) | .
-        ($form->{id} 
-         ? "WHERE o.id = ?" 
+        ($form->{id}
+         ? "WHERE o.id = ?"
          : "WHERE o.id IN (" . join(', ', map("? ", @ids)) . ")"
         );
     @values = $form->{id} ? ($form->{id}) : @ids;
@@ -770,7 +770,7 @@ sub retrieve {
     # stuff different from the whole will not be overwritten, but saved with a suffix.
     $query =
       qq|SELECT o.id AS orderitems_id,
-           c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid, 
+           c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from as inventory_valid,
            c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from as income_valid,
            c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from as expense_valid,
            oe.ordnumber AS ordnumber_oe, oe.transdate AS transdate_oe, oe.cusordnumber AS cusordnumber_oe,
@@ -1124,7 +1124,7 @@ sub order_details {
             push(@{ $form->{description} }, $sameitem);
           }
 
-          push(@{ $form->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|); 
+          push(@{ $form->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|);
           map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
         }
         $sth->finish;
