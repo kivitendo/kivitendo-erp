@@ -1535,6 +1535,40 @@ sub ap_transactions {
   $lxdebug->leave_sub();
 }
 
+
+sub vendor_invoice {
+  $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
+
+
+  $form->{script} = 'ir.pl';
+  $script         = "ir";
+  $form->{type} = "invoice";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
+sub ap_transaction {
+  $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
+
+  $form->{script} = 'ap.pl';
+  $script         = "ap";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
 sub storno {
   $lxdebug->enter_sub();
 
