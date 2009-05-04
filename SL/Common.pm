@@ -59,17 +59,18 @@ sub retrieve_parts {
   }
 
   if ($form->{no_assemblies}) {
-    $filter .= qq| AND (NOT COALESCE(assembly, 'f'))|;
+    $filter .= qq| AND (NOT COALESCE(assembly, FALSE))|;
   }
   if ($form->{assemblies}) {
-    $filter .= qq| AND assembly='t'|;		# alles was assembly ist rausgeben erweiterung für bin/mozilla/wh.pl -> transfer_assembly_update_part 
+    $filter .= qq| AND assembly=TRUE|;		# alles was assembly ist rausgeben erweiterung für bin/mozilla/wh.pl -> transfer_assembly_update_part 
 # eigentlich möchte ich diesen filter abbilden: 
 # select distinct partnumber  from parts inner join assembly on (parts.id = assembly.id) where assembly='t';
 # und so common ist die anweisung gar nicht. wie wäre es mit auslagern in WH.pm? -> get_all_working_assemblies? jb 21.2.2009
   }
 
   if ($form->{no_services}) {
-    $filter .= qq| AND (COALESCE(inventory_accno_id, 0) > 0)|;
+    #$filter .= qq| AND (COALESCE(inventory_accno_id, 0) > 0) AND (COALESCE (assembly, FALSE))|;
+    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|; # @mb hier nochmal optimieren ...
   }
 
   substr($filter, 1, 3) = "WHERE" if ($filter);

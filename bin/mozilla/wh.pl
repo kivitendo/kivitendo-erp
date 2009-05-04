@@ -288,7 +288,7 @@ sub transfer_stock_update_part {
   } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description}) {
 
     $form->{no_services}   = 1;
-    $form->{no_assemblies} = 1;
+    $form->{no_assemblies} = 0;	# assemblies duerfen eingelagert werden (z.B. bei retouren)
 
     my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
 
