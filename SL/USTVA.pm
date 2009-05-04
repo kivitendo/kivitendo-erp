@@ -44,7 +44,7 @@ sub get_coa {
 
   $form->{coa} = $coa;
   $form->{"COA_$coa"} = '1';
-  $form->{COA_Germany} = '1' if ( $coa eq 'Germany-DATEV-SKR03EU' or $coa eq 'Germany-DATEV-SKR04EU');
+  $form->{COA_Germany} = '1' if ($coa =~ m/^germany/i);
 
   return;
 }

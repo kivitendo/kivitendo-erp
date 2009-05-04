@@ -1241,6 +1241,7 @@ sub config_step2 {
   $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
 
 
+  USTVA->get_coa($form, \%myconfig);
 
   my $input_steuernummer = USTVA->steuernummer_input(
                              $form->{elsterland},

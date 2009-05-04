@@ -489,7 +489,6 @@ $self->{subs} = {
   'schließen'                   => 'mark_closed',
   'neue_ware'                   => 'new_part',
   'nein'                        => 'no',
-  'auftrag'                     => 'order',
   'drucken'                     => 'print',
   'lieferantenauftrag'          => 'purchase_order',
   'angebot'                     => 'quotation',
