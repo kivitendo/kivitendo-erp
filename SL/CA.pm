@@ -202,9 +202,7 @@ sub all_transactions {
         qq|SELECT SUM(ac.amount) AS amount
             FROM acc_trans ac
             JOIN chart c ON (ac.chart_id = c.id)
-            $dpt_join
             WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
-              $dpt_where
               $project
             AND c.accno = ? $acc_cash_where|;
 
