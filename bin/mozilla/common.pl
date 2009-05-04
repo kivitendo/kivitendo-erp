@@ -515,8 +515,8 @@ sub mark_as_paid_common {
 
   } else {
     my $referer = $ENV{HTTP_REFERER};
-    if ($referer =~ /.*action.*/) {
-      $referer =~ /^(.*)\?action\=.*(\&.*)$/;
+    if ($referer =~ /action/) {
+      $referer =~ /^(.*)\?action\=[^\&]*(\&.*)$/;
       $script = $1;
       $callback = $2;
     } else {
