@@ -64,7 +64,7 @@ sub all_accounts {
   my $where = "AND c.id = $chart_id" if ($chart_id ne '');
 
   $query = qq{
-    SELECT 
+    SELECT
       c.accno,
       c.id,
       c.description,
@@ -91,7 +91,7 @@ sub all_accounts {
     WHERE 1=1
     $where
     GROUP BY c.accno, c.id, c.description, c.charttype, c.gifi_accno,
-      c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,      
+      c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,
       c.datevautomatik
     ORDER BY c.accno
   };
@@ -203,11 +203,11 @@ sub all_transactions {
             FROM acc_trans ac
             JOIN chart c ON (ac.chart_id = c.id)
             $dpt_join
-            WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction 
+            WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
               $dpt_where
               $project
             AND c.accno = ? $acc_cash_where|;
-    
+
       ($form->{beginning_balance}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
       # get last transaction date
@@ -247,7 +247,7 @@ sub all_transactions {
   @values = ();
 
   foreach my $id (@id) {
-    
+
     # NOTE: Postgres is really picky about the order of implicit CROSS
     #  JOINs with ',' if you alias the tables and want to use the
     #  alias later in another JOIN.  the alias you want to use has to
@@ -273,7 +273,7 @@ sub all_transactions {
 
       qq|SELECT a.id, a.invnumber, c.name, ac.transdate, ac.chart_id, | .
       qq|  a.invoice, ac.amount, 'ar' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § . 
+      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
       qq|FROM acc_trans ac, customer c, ar a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
@@ -397,7 +397,7 @@ sub all_transactions {
         } else {
           $trans->{credit} = $trans->{amount};
           $trans->{debit}  = 0;
-        } 
+        }
         push(@{ $ca->{GEGENKONTO} }, $trans);
       } else {
         next;
