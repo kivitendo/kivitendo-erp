@@ -150,7 +150,7 @@ sub transfer_or_removal_prepare_contents {
 
   $form->show_generic_error($locale->text("The source warehouse does not contain any bins.")) if (0 == scalar @{ $warehouse->{BINS} });
 
-  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber partunit);
+  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber partunit ean);
 
   $form->{sort} = 'bindescription';
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id},
