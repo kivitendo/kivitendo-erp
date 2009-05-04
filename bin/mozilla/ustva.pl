@@ -916,7 +916,7 @@ sub generate_ustva {
       }
 
       my %lands = ( # Lx => taxbird # TODO: besser als array...
-                  'Baden Würtemberg'       => '0',
+                  'Baden Württemberg'      => '0',
                   'Bayern'                 => '1',
                   'Berlin'                 => '2',
                   'Brandenburg'            => '3',
