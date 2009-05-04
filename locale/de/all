@@ -1328,7 +1328,6 @@ $self->{texts} = {
   'Step 3 of 3: Default units'  => 'Schritt 3 von 3: Standardeinheiten',
   'Steuersatz'                  => 'Steuersatz',
   'Stock'                       => 'Einlagern',
-  'Stock Assembly'              => 'Erzeugnis einlagern',
   'Stock value'                 => 'Bestandswert',
   'Storno'                      => 'Storno',
   'Storno (one letter abbreviation)' => 'S',
