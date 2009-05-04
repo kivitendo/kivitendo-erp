@@ -93,15 +93,15 @@ sub report {
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
   my @a = qw(
-    signature      name          company       address        businessnumber 
-    tel            fax           email         co_chief       co_department 
+    signature      name          company       address        businessnumber
+    tel            fax           email         co_chief       co_department
     co_custom1     co_custom2    co_custom3    co_custom4     co_custom5
-    co_name1       co_name2      co_street     co_street1     co_zip 
-    co_city        co_city1      co_country    co_tel         co_tel1 
+    co_name1       co_name2      co_street     co_street1     co_zip
+    co_city        co_city1      co_country    co_tel         co_tel1
     co_tel2        co_fax        co_fax1       co_email       co_email1
-    co_url         co_url1       ustid         duns           co_bankname 
+    co_url         co_url1       ustid         duns           co_bankname
     co_bankname1   co_bankname2  co_bankname3  co_blz         co_blz1
-    co_blz2        co_blz3       co_accountnr  co_accountnr1  co_accountnr2 
+    co_blz2        co_blz3       co_accountnr  co_accountnr1  co_accountnr2
     co_accountnr3
   );
 
@@ -110,10 +110,10 @@ sub report {
   my $openings = $form->{FA_Oeffnungszeiten};
   $openings =~ s/\\\\n/<br>/g;
 
-  my $company_given = ($form->{company} ne '') 
+  my $company_given = ($form->{company} ne '')
     ? qq|<h3>$form->{company}</h3>\n|
     : qq|<a href="am.pl?action=config|
-      . qq|&level=Programm--Preferences">| 
+      . qq|&level=Programm--Preferences">|
       . $locale->text('No Company Name given') . qq|!</a><br>|;
 
 
@@ -127,14 +127,14 @@ sub report {
   }
 
 
-  my $address_given = 
-    ($form->{co_street} && ($form->{co_zip} || $form->{co_city})) 
+  my $address_given =
+    ($form->{co_street} && ($form->{co_zip} || $form->{co_city}))
     ? qq|$form->{co_street}<br>|
         . qq|$form->{co_street1}<br>|
         . qq|$form->{co_zip} $form->{co_city}|
     : qq|<a href="am.pl?action=config|
-        . qq|&level=Programm--Preferences">| 
-        . $locale->text('No Company Address given') 
+        . qq|&level=Programm--Preferences">|
+        . $locale->text('No Company Address given')
         . qq|!</a>\n|;
 
   $form->{co_email} = $form->{email} unless $form->{co_email};
@@ -152,7 +152,7 @@ sub report {
 
   my @all_years = $form->all_years(\%myconfig);
 
-  my $select_year = qq|<select name=year title="| 
+  my $select_year = qq|<select name=year title="|
     . $locale->text('Year') . qq|">|;
   foreach my $key (@all_years) {
     $select_year .= qq|<option |;
@@ -166,16 +166,16 @@ sub report {
   my $checkbox_kz_10 = qq|<input name="FA_10" id=FA_10 class=checkbox|
     . qq| type=checkbox value="1" $_checked title = "|
     . $locale->text('Amended Advance Turnover Tax Return (Nr. 10)')
-    . qq|">| 
-    . $locale->text('Amended Advance Turnover Tax Return'); 
+    . qq|">|
+    . $locale->text('Amended Advance Turnover Tax Return');
 
-  my $method_local = ($form->{method} eq 'accrual') ? $locale->text('accrual') 
+  my $method_local = ($form->{method} eq 'accrual') ? $locale->text('accrual')
                    : ($form->{method} eq 'cash')    ? $locale->text('cash')
                    : '';
 
   my $period_local = ( $form->{FA_voranmeld} eq 'month')   ? $locale->text('month')
                    : ( $form->{FA_voranmeld} eq 'quarter') ? $locale->text('quarter')
-                   : '';  
+                   : '';
 
   my $tax_office_banks_ref = [
     { BLZ             => $form->{FA_BLZ_1},
@@ -187,27 +187,27 @@ sub report {
       Bankbezeichnung => $form->{FA_Bankbezeichnung_oertlich}
     }
   ];
- 
-  # Which COA is in use? 
-  
+
+  # Which COA is in use?
+
   USTVA->get_coa($form, $myconfig);
 
   my $template_ref = {
-    openings         => $openings,  
+    openings         => $openings,
     company_given    => $company_given,
-    address_given    => $address_given,     
+    address_given    => $address_given,
     taxnumber_given  => $taxnumber_given,
     taxnumber        => $myconfig->{taxnumber},
-    select_year      => $select_year,      
+    select_year      => $select_year,
     period_local     => $period_local,
     method_local     => $method_local,
     ustva_vorauswahl => $ustva_vorauswahl,
     checkbox_kz_10   => $checkbox_kz_10,
-    tax_office_banks => $tax_office_banks_ref,    
-    select_options   => &show_options,    
+    tax_office_banks => $tax_office_banks_ref,
+    select_options   => &show_options,
 
   };
-  
+
   print($form->parse_html_template('ustva/report', $template_ref));
 
 
@@ -261,7 +261,7 @@ sub ustva_vorauswahl {
   $form->{month} = substr($date, 4, 2);
   $form->{year}  = substr($date, 0, 4);
   $lxdebug->message(LXDebug::DEBUG1, qq|
-    Actual date from Database: $date\n    
+    Actual date from Database: $date\n
     Actual year from Database: $form->{year}\n
     Actual day from Database: $form->{day}\n
     Actual month from Database: $form->{month}\n|);
@@ -468,7 +468,7 @@ sub ustva_vorauswahl {
     $select_vorauswahl .= qq|</select>|;
   }
   $lxdebug->leave_sub();
-  
+
   return $select_vorauswahl;
 }
 
@@ -515,7 +515,7 @@ sub show_options {
       . qq|</option>|
       . qq|<option value=elstertaxbird>|
       . $locale->text('ELSTER Export (Taxbird)')
-      . qq|</option>|;      
+      . qq|</option>|;
   }
 
   #$format .= qq|<option value=elster>|.$locale->text('ELSTER Export nach Winston').qq|</option>|;
@@ -526,7 +526,7 @@ sub show_options {
     . $locale->text('Choose Outputformat') . qq|">$format</select>
   |;
   $lxdebug->leave_sub();
-  
+
   return $show_options;
 }
 
@@ -541,10 +541,10 @@ sub generate_ustva {
 
   # init some form vars
   my @anmeldungszeitraum =
-    qw('0401' '0402' '0403' 
-       '0404' '0405' '0406' 
-       '0407' '0408' '0409' 
-       '0410' '0411' '0412' 
+    qw('0401' '0402' '0403'
+       '0404' '0405' '0406'
+       '0407' '0408' '0409'
+       '0410' '0411' '0412'
        '0441' '0442' '0443' '0444');
 
   foreach my $item (@anmeldungszeitraum) {
@@ -565,7 +565,7 @@ sub generate_ustva {
     #
     # using dates in ISO-8601 format: yyyymmmdd  for Postgres...
     #
-    
+
     #yearly report
     if ($form->{period} eq "13") {
       $form->{fromdate} = "$form->{year}0101";
@@ -673,7 +673,7 @@ sub generate_ustva {
       };
     }
 
-  # Kontrollvariable für die Templates 
+  # Kontrollvariable für die Templates
   $form->{'year2007'} = ($form->{year} >= 2007 ) ? "1":"0";
 
 
@@ -751,11 +751,11 @@ sub generate_ustva {
   # Nation specific customisations
   #
   ################################
-  
+
   # Germany
-  
+
   if ( $form->{coa} eq 'Germany-DATEV-SKR03EU' or $form->{coa} eq 'Germany-DATEV-SKR04EU') {
-      
+
     #
     # Outputformat specific customisation's
     #
@@ -767,7 +767,7 @@ sub generate_ustva {
         attribute   => 'position',
         dec_places  => '2',
     });
-    
+
     push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
 
     my @category_euro = USTVA->report_variables({
@@ -815,7 +815,7 @@ sub generate_ustva {
       foreach $number (@category_cent) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '0');
       }
-      
+
       foreach $number (@category_euro) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '0');
       }
@@ -823,11 +823,11 @@ sub generate_ustva {
     } elsif ( $form->{format} eq 'elsterwinston' ) {
 
       $form->{IN} = 'winston.xml';
-      
+
       #
       # Build Winston filename
       #
-      
+
       my $file = 'U';     # 1. char 'U' = USTVA
       $file .= $form->{period};
       #4. and 5. char = year modulo 100
@@ -843,7 +843,7 @@ sub generate_ustva {
       $form->{tmpfile} = "$userspath/$file";
 
       $form->{attachment_filename} = $file;
-   
+
       # Zahlenformatierung für Winston
 
       my $temp_numberformat = $myconfig{numberformat};
@@ -855,7 +855,7 @@ sub generate_ustva {
       foreach my $number (@category_cent) {
         $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
       }
-      
+
       foreach my $number (@category_euro) {
         $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
       }
@@ -869,26 +869,26 @@ sub generate_ustva {
       );
 
       foreach my $kennziffer (@category_cent, @category_euro) {
-      
+
         next if ( $kennziffer =~ m/Z\d\d/);
         next if (   $form->{$kennziffer} == 0 );
-        
+
         if (defined $winston_id_for{$kennziffer} ) {
           push(@{ $form->{id}}, $winston_id_for{$kennziffer});
         } else {
-          push(@{ $form->{id}}, "Kz$kennziffer"); 
+          push(@{ $form->{id}}, "Kz$kennziffer");
         }
         push(@{ $form->{amount}}, $form->{$kennziffer});
-      }    
+      }
 
     } elsif ( $form->{format} eq 'elstertaxbird' ) {
 
       # Define serveral filenames
       $form->{IN} = 'taxbird.txb';
 
-      $form->{attachment_filename} = "USTVA-" . $form->{period} 
+      $form->{attachment_filename} = "USTVA-" . $form->{period}
       . sprintf("%02d", $form->{year} % 100) . ".txb";
-      
+
       $form->{attachment_filename} =~ s|.*/||;
       $form->{tmpfile} = "$userspath/" . $form->{attachment_filename};
 
@@ -903,7 +903,7 @@ sub generate_ustva {
                      '43' => '14',
                      '44' => '15',
                    );
-      
+
         foreach my $quarter ( keys %periods ) {
           $form->{taxbird_period} = $periods{$quarter} if ( $form->{period} eq $quarter);
         }
@@ -918,7 +918,7 @@ sub generate_ustva {
         USTVA::error( $locale->text('Wrong Period' ));
         exit(0);
       }
-      
+
       my %lands = ( # Lx => taxbird # TODO: besser als array...
                   'Baden Würtemberg'       => '0',
                   'Bayern'                 => '1',
@@ -940,20 +940,20 @@ sub generate_ustva {
       foreach my $land ( keys %lands ){
         $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
       }
-      
+
       $form->{co_zip} = $form->{co_city};
       $form->{co_zip} =~ s/\D//g;
       $form->{co_city} =~ s/\d//g;
       $form->{co_city} =~ s/^\s//g;
-      
+
       ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
       $form->{co_phone_prefix} =~ s/\s//g;
       $form->{co_phone} =~ s/\s//g;
-      
+
        $form->{taxbird_steuernummer} = $form->{steuernummer};
       #      $form->{taxbird_steuernummer} =~ s/\D//g;
       $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
-      
+
       # Numberformatting for Taxbird
       my $temp_numberformat = $myconfig{numberformat};
       # Numberformat must be '1000,00' for Taxbird ?!
@@ -961,17 +961,17 @@ sub generate_ustva {
       foreach my $number (@category_cent) {
         $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';
       }
-      
+
       foreach my $number (@category_euro) {
         $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '0', '') : '';
       }
       # Re-set Numberformat
       $myconfig{numberformat} = $temp_numberformat;
-      
+
       # push Kennziffern to <%foreach Array fo easyer
       # output in xml format. Thx to Moritz.
       my %taxbird_id_for = (
-           
+
           '511'  =>  'Kz51-calc',
           '861'  =>  'Kz86-calc',
           '971'  =>  'Kz97-calc',
@@ -984,8 +984,8 @@ sub generate_ustva {
           'Z65'  =>  'ust-sum+69',
           'Z67'  =>  'ust-vz',
       );
-            
-      
+
+
       for my $kennziffer (@category_cent, @category_euro) {
 
         next if ($kennziffer eq 'Z43');
@@ -994,24 +994,24 @@ sub generate_ustva {
           if (defined $taxbird_id_for{$kennziffer}) {
             push(@{ $form->{id}}, $taxbird_id_for{$kennziffer});
           } else {
-            push(@{ $form->{id}}, "Kz$kennziffer"); 
+            push(@{ $form->{id}}, "Kz$kennziffer");
           }
           push(@{ $form->{amount}}, $form->{$kennziffer});
         }
-      }    
-      
+      }
+
     } elsif ( $form->{format} eq '' ){ # No format error.
       $form->header;
       USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
       exit(0);
-   
+
     } else { # All other Formats are wrong
       $form->header;
       USTVA::error( $locale->text('Application Error. Wrong Format') . ": " . $form->{format} );
       exit(0);
     }
 
-  
+
   } else  # Outputformat for generic output
   {
 
@@ -1034,22 +1034,22 @@ sub generate_ustva {
     $form->{USTVA} = [];
 
     if ( $form->{format} eq 'generic') { # Formatierungen für HTML Ausgabe
-      
+
       my $rec_ref = {};
       for my $kennziffer (@category_cent, @category_euro) {
         $rec_ref = {};
         $rec_ref->{id} = $kennziffer;
         $rec_ref->{amount} = $form->format_amount(\%myconfig, $form->{$kennziffer}, 2, '0');
-        
+
         $lxdebug->message($LXDebug::DEBUG, "Kennziffer $kennziffer: '$form->{$kennziffer}'" );
         $lxdebug->dump($LXDebug::DEBUG, $rec_ref );
         push @ { $form->{USTVA} }, $rec_ref;
       }
-      
+
     }
 
   }
-  
+
   if ( $form->{period} eq '13' and $form->{format} ne 'html') {
     $form->header;
     USTVA::info(
@@ -1057,7 +1057,7 @@ sub generate_ustva {
       'Yearly taxreport not yet implemented')
       . '!');
   }
-    
+
   $form->{templates} = $myconfig{templates};
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
@@ -1072,7 +1072,7 @@ sub generate_ustva {
     print($form->parse_html_template('ustva/generic_taxreport', $template_ref));
 
   } else
-  { 
+  {
 
     $form->parse_template(\%myconfig, $userspath);
 
@@ -1108,22 +1108,22 @@ sub config_step1 {
 
   my $_hidden_variables_ref;
 
-  my %_hidden_local_variables = (    
+  my %_hidden_local_variables = (
     'saved'       => $locale->text('Check Details'),
     'nextsub'     => 'config_step2',
     'warnung'     => '0',
   );
 
   foreach my $variable (keys %_hidden_local_variables) {
-    push @{ $_hidden_variables_ref }, 
+    push @{ $_hidden_variables_ref },
         { 'variable' => $variable, 'value' => $_hidden_local_variables{$variable} };
   }
 
   my @_hidden_form_variables = qw(
-    FA_Name             FA_Strasse        FA_PLZ             
-    FA_Ort              FA_Telefon        FA_Fax           
-    FA_PLZ_Grosskunden  FA_PLZ_Postfach   FA_Postfach 
-    FA_BLZ_1            FA_Kontonummer_1  FA_Bankbezeichnung_1  
+    FA_Name             FA_Strasse        FA_PLZ
+    FA_Ort              FA_Telefon        FA_Fax
+    FA_PLZ_Grosskunden  FA_PLZ_Postfach   FA_Postfach
+    FA_BLZ_1            FA_Kontonummer_1  FA_Bankbezeichnung_1
     FA_BLZ_2            FA_Kontonummer_2  FA_Bankbezeichnung_oertlich
     FA_Oeffnungszeiten  FA_Email          FA_Internet
     steuernummer        elsterland        elstersteuernummer
@@ -1131,12 +1131,12 @@ sub config_step1 {
   );
 
   foreach my $variable (@_hidden_form_variables) {
-    push @{ $_hidden_variables_ref}, 
+    push @{ $_hidden_variables_ref},
         { 'variable' => $variable, 'value' => $form->{$variable} };
   }
 
-# Which COA is in use? 
-  
+# Which COA is in use?
+
   USTVA->get_coa($form, \%myconfig);
 
   # hä? kann die weg?
@@ -1151,9 +1151,9 @@ sub config_step1 {
      checked_quarterly               => $checked_quarterly,
      checked_dauerfristverlaengerung => $checked_dauerfristverlaengerung,
      hidden_variables                => $_hidden_variables_ref,
-     
+
   };
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('ustva/config_step1', $template_ref));
 
@@ -1206,7 +1206,7 @@ sub config_step2 {
     $form->{elsterland}   = $elsterland;
     $form->{elsterFFFF}   = $elsterFFFF;
     $form->{steuernummer} = '';
-    
+
     create_steuernummer();
 
     # rebuild elster_amt
@@ -1243,17 +1243,17 @@ sub config_step2 {
   my $steuernummer = $form->{steuernummer} if ($steuernummer eq '');
 
   $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
-  
-  
+
+
 
   my $input_steuernummer = USTVA->steuernummer_input(
-                             $form->{elsterland}, 
+                             $form->{elsterland},
                              $form->{elsterFFFF},
                              $form->{steuernummer}
   );
 
   $lxdebug->message(LXDebug::DEBUG1, qq|$input_steuernummer|);
- 
+
 
   my $_hidden_variables_ref;
 
@@ -1265,26 +1265,26 @@ sub config_step2 {
       'steuernummer'        => $stnr,
       'lastsub'             => 'config_step1',
       'nextsub'             => 'save',
-      
+
   );
-  
+
   foreach my $variable (keys %_hidden_local_variables) {
-    push @{ $_hidden_variables_ref }, 
+    push @{ $_hidden_variables_ref },
         { 'variable' => $variable, 'value' => $_hidden_local_variables{$variable} };
   }
- 
+
   my @_hidden_form_variables = qw(
-    FA_steuerberater_name   FA_steuerberater_street 
+    FA_steuerberater_name   FA_steuerberater_street
     FA_steuerberater_city   FA_steuerberater_tel
     FA_voranmeld            method
-    FA_dauerfrist           FA_71 
-    elster                  
-    type                    elster_init 
+    FA_dauerfrist           FA_71
+    elster
+    type                    elster_init
     saved                   callback
   );
 
   foreach my $variable (@_hidden_form_variables) {
-    push @{ $_hidden_variables_ref}, 
+    push @{ $_hidden_variables_ref},
         { 'variable' => $variable, 'value' => $form->{$variable} };
   }
 
@@ -1295,7 +1295,7 @@ sub config_step2 {
      callback                        => $callback,
      hidden_variables                => $_hidden_variables_ref,
   };
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('ustva/config_step2', $template_ref));
 
@@ -1364,8 +1364,8 @@ sub save {
   my @config = qw(
     elster              elsterland            elstersteuernummer  steuernummer
     elsteramt           elsterFFFF            FA_Name             FA_Strasse
-    FA_PLZ              FA_Ort                FA_Telefon          FA_Fax 
-    FA_PLZ_Grosskunden  FA_PLZ_Postfach       FA_Postfach         FA_BLZ_1 
+    FA_PLZ              FA_Ort                FA_Telefon          FA_Fax
+    FA_PLZ_Grosskunden  FA_PLZ_Postfach       FA_Postfach         FA_BLZ_1
     FA_Kontonummer_1    FA_Bankbezeichnung_1  FA_BLZ_2            FA_Kontonummer_2
     FA_Bankbezeichnung_oertlich FA_Oeffnungszeiten
     FA_Email FA_Internet FA_voranmeld method FA_steuerberater_name
@@ -1374,9 +1374,9 @@ sub save {
 
   # Hier kommt dann die Plausibilitätsprüfung der ELSTERSteuernummer
   if ($form->{elstersteuernummer} ne '000000000') {
-    
+
     $form->{elster} = '1';
-    
+
     open my $ustvaconfig, ">", "$userspath/$filename" or $form->error("$filename : $!");
 
     # create the config file
@@ -1434,5 +1434,3 @@ sub elster_hash {
   $lxdebug->leave_sub();
   return $finanzamt;
 }
-
-
