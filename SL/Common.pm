@@ -57,8 +57,6 @@ sub retrieve_parts {
     $filter .= qq| AND ($_ ILIKE ?)|;
     push @filter_values, '%' . $form->{$_} . '%';
   }
-$main::lxdebug->dump(0, "assemblies in common", $form->{assemblies});
-$main::lxdebug->dump(0, "no assemblies in common", $form->{no_assemblies});
 
   if ($form->{no_assemblies}) {
     $filter .= qq| AND (NOT COALESCE(assembly, FALSE))|;
@@ -85,12 +83,7 @@ $main::lxdebug->dump(0, "no assemblies in common", $form->{no_assemblies});
     qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) || $form->dberror($query . " (" . join(", ", @filter_values) . ")");
-
-$main::lxdebug->dump(0, "query", $query);
-
-$main::lxdebug->dump(0, "values", @filter_values);
-
-
+    open STDERR, ">>/usr/local/src/lxoffice/users/de.log" or die $!; print STDERR "hier:" . $query . "filter " . $filter . "filterwerte:" . $filter_values[0] .  "\n"; close STDERR;
   my $parts = [];
   while (my $ref = $sth->fetchrow_hashref()) {
     push(@{$parts}, $ref);
