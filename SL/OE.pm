@@ -34,7 +34,7 @@
 
 package OE;
 
-use List::Util qw(max);
+use List::Util qw(max first);
 
 use SL::AM;
 use SL::Common;
@@ -928,7 +928,8 @@ sub order_details {
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
-  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
+                   'departments'   => 'ALL_DEPARTMENTS');
   my %price_factors;
 
   foreach my $pfac (@{ $form->{ALL_PRICE_FACTORS} }) {
@@ -936,6 +937,9 @@ sub order_details {
     $pfac->{factor}             *= 1;
     $pfac->{formatted_factor}    = $form->format_amount($myconfig, $pfac->{factor});
   }
+
+  # lookup department
+  $form->{department} = ( first { $_->{id} eq $form->{department_id} } @{ $form->{ALL_DEPARTMENTS} } )->{description} || '';
 
   # sort items by partsgroup
   for $i (1 .. $form->{rowcount}) {
