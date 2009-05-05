@@ -1266,33 +1266,31 @@ sub generate_trial_balance {
     "accno",               "description",
     "last_transaction",    "soll_eb",
     "haben_eb",
-    "soll",                 "haben",
-    "soll_kumuliert", "haben_kumuliert",
-    "soll_saldo", "haben_saldo"
+    "soll",                "haben",
+    "soll_kumuliert",      "haben_kumuliert",
+    "soll_saldo",          "haben_saldo"
   );
 
 
-  my $attachment_basename;
-  $attachment_basename = $locale->text('trial_balance');
-  my $report = SL::ReportGenerator->new(\%myconfig, $form);
+  my $attachment_basename = $locale->text('trial_balance');
+  my $report              = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @hidden_variables = ();
-  push @hidden_variables, qw(fromdate todate year cash );
+  my @hidden_variables    = qw(fromdate todate year cash);
 
-  my $href = build_std_url('action=generate_trial_balance', grep { $form->{$_} } @hidden_variables);
+  my $href                = build_std_url('action=generate_trial_balance', grep { $form->{$_} } @hidden_variables);
 
-  my %column_defs = (
-    'accno'                   => { 'text' => $locale->text('Account Number'), },
-    'description'             => { 'text' => $locale->text('Description'), },
-    'last_transaction'        => { 'text' => $locale->text('Last Transaction'), },
-    'soll_eb'                 => { 'text' => $locale->text('Debit Starting Balance'), },
-    'haben_eb'                => { 'text' => $locale->text('Credit Starting Balance'), },
-    'soll'                    => { 'text' => $locale->text('Debit'), },
-    'haben'                   => { 'text' => $locale->text('Credit'), },
-    'soll_kumuliert'          => { 'text' => $locale->text('Sum Debit'), },
-    'haben_kumuliert'         => { 'text' => $locale->text('Sum Credit'), },
-    'soll_saldo'              => { 'text' => $locale->text('Saldo Debit'), },
-    'haben_saldo'                => { 'text' => $locale->text('Saldo Credit'), }
+  my %column_defs         = (
+    'accno'               => { 'text' => $locale->text('Account Number'), },
+    'description'         => { 'text' => $locale->text('Description'), },
+    'last_transaction'    => { 'text' => $locale->text('Last Transaction'), },
+    'soll_eb'             => { 'text' => $locale->text('Debit Starting Balance'), },
+    'haben_eb'            => { 'text' => $locale->text('Credit Starting Balance'), },
+    'soll'                => { 'text' => $locale->text('Debit'), },
+    'haben'               => { 'text' => $locale->text('Credit'), },
+    'soll_kumuliert'      => { 'text' => $locale->text('Sum Debit'), },
+    'haben_kumuliert'     => { 'text' => $locale->text('Sum Credit'), },
+    'soll_saldo'          => { 'text' => $locale->text('Saldo Debit'), },
+    'haben_saldo'         => { 'text' => $locale->text('Saldo Credit'), }
   );
 
 
