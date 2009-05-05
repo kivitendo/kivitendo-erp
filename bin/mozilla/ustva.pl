@@ -34,6 +34,8 @@ require "bin/mozilla/common.pl";
 #our ($myconfig);
 #use CGI::Carp "fatalsToBrowser";
 
+use List::Util qw(first);
+
 use SL::PE;
 use SL::RP;
 use SL::USTVA;
@@ -88,7 +90,8 @@ sub report {
   $form->header;
 
   # Einlesen der Finanzamtdaten
-  USTVA->get_config($userspath, 'finanzamt.ini');
+  my $ustva = USTVA->new();
+  $ustva->get_config($userspath, 'finanzamt.ini');
 
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
@@ -186,7 +189,7 @@ sub report {
 
   # Which COA is in use?
 
-  USTVA->get_coa($form, $myconfig);
+  $ustva->get_coa($form, $myconfig);
 
   my $template_ref = {
     openings         => $openings,
@@ -533,7 +536,8 @@ sub generate_ustva {
 
   # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
-  USTVA->get_config($userspath, 'finanzamt.ini');
+  my $ustva = USTVA->new();
+  $ustva->get_config($userspath, 'finanzamt.ini');
 
   # init some form vars
   my @anmeldungszeitraum =
@@ -674,7 +678,7 @@ sub generate_ustva {
 
 
   # Get the USTVA
-  USTVA->ustva(\%myconfig, \%$form);
+  $ustva->ustva(\%myconfig, \%$form);
 
   # reformat Dates to dateformat
   $form->{fromdate} = $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
@@ -756,7 +760,7 @@ sub generate_ustva {
     # Outputformat specific customisation's
     #
 
-    my @category_cent = USTVA->report_variables({
+    my @category_cent = $ustva->report_variables({
         myconfig    => \%myconfig,
         form        => $form,
         type        => '',
@@ -766,7 +770,7 @@ sub generate_ustva {
 
     push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
 
-    my @category_euro = USTVA->report_variables({
+    my @category_euro = $ustva->report_variables({
         myconfig    => \%myconfig,
         form        => $form,
         type        => '',
@@ -915,27 +919,8 @@ sub generate_ustva {
         exit(0);
       }
 
-      my %lands = ( # Lx => taxbird # TODO: besser als array...
-                  'Baden Württemberg'      => '0',
-                  'Bayern'                 => '1',
-                  'Berlin'                 => '2',
-                  'Brandenburg'            => '3',
-                  'Bremen'                 => '4',
-                  'Hamburg'                => '5',
-                  'Hessen'                 => '6',
-                  'Mecklenburg Vorpommern' => '7',
-                  'Niedersachsen'          => '8',
-                  'Nordrhein Westfalen'    => '9',
-                  'Rheinland Pfalz'        => '10',
-                  'Saarland'               => '11',
-                  'Sachsen'                => '12',
-                  'Sachsen Anhalt'         => '13',
-                  'Schleswig Holstein'     => '14',
-                  'Thüringen'              => '15',
-            );
-      foreach my $land ( keys %lands ){
-        $form->{taxbird_land_nr} = $lands{$land} if ($form->{elsterland} eq $land );
-      }
+      my $tax_office           = first { $_->{name} eq $form->{elsterland} } @{ $ustva->{tax_office_information} };
+      $form->{taxbird_land_nr} = $tax_office->{taxbird_nr} if $tax_office;
 
       $form->{co_zip} = $form->{co_city};
       $form->{co_zip} =~ s/\D//g;
@@ -1011,7 +996,7 @@ sub generate_ustva {
   } else  # Outputformat for generic output
   {
 
-    my @category_cent = USTVA->report_variables({
+    my @category_cent = $ustva->report_variables({
         myconfig    => \%myconfig,
         form        => $form,
         type        => '',
@@ -1019,7 +1004,7 @@ sub generate_ustva {
         dec_places  => '2',
     });
 
-    my @category_euro = USTVA->report_variables({
+    my @category_euro = $ustva->report_variables({
         myconfig    => \%myconfig,
         form        => $form,
         type        => '',
@@ -1085,7 +1070,9 @@ sub config_step1 {
   # edit all taxauthority prefs
 
   $form->header;
-  USTVA->get_config($userspath, 'finanzamt.ini');
+
+  my $ustva = USTVA->new();
+  $ustva->get_config($userspath, 'finanzamt.ini');
 
   my $land = $form->{elsterland};
   my $amt  = $form->{elsterFFFF};
@@ -1094,7 +1081,7 @@ sub config_step1 {
   $form->{title} = $locale->text('Tax Office Preferences');
 
 
-  my $select_tax_office = USTVA->fa_auswahl($land, $amt, &elster_hash());
+  my $select_tax_office = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%myconfig, $form));
   my $checked_accrual = q|checked="checked"| if ($form->{method} eq 'accrual');
   my $checked_cash = q|checked="checked"| if ($form->{method} eq 'cash');
   my $checked_monthly = "checked" if ($form->{FA_voranmeld} eq 'month');
@@ -1133,7 +1120,7 @@ sub config_step1 {
 
 # Which COA is in use?
 
-  USTVA->get_coa($form, \%myconfig);
+  $ustva->get_coa($form, \%myconfig);
 
   # hä? kann die weg?
   my $steuernummer_new = '';
@@ -1171,7 +1158,9 @@ sub config_step2 {
   my $elster_amt         = '';
   my $elsterFFFF         = '';
   my $elstersteuernummer = '';
-  USTVA->get_config($userspath, 'finanzamt.ini')
+
+  my $ustva = USTVA->new();
+  $ustva->get_config($userspath, 'finanzamt.ini')
     if ($form->{saved} eq $locale->text('saved'));
 
   # Auf Übergabefehler checken
@@ -1190,7 +1179,7 @@ sub config_step2 {
   my $change = $form->{elsterland} eq $form->{elsterland_new}
     && $form->{elsterFFFF} eq $form->{elsterFFFF_new} ? '0' : '1';
   $change = '0' if ($form->{saved} eq $locale->text('saved'));
-  my $elster_init = &elster_hash();
+  my $elster_init = $ustva->query_finanzamt(\%myconfig, $form);
 
   my %elster_init = %$elster_init;
 
@@ -1241,9 +1230,9 @@ sub config_step2 {
   $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
 
 
-  USTVA->get_coa($form, \%myconfig);
+  $ustva->get_coa($form, \%myconfig);
 
-  my $input_steuernummer = USTVA->steuernummer_input(
+  my $input_steuernummer = $ustva->steuernummer_input(
                              $form->{elsterland},
                              $form->{elsterFFFF},
                              $form->{steuernummer}
@@ -1422,12 +1411,3 @@ sub back {
   $lxdebug->leave_sub();
 }
 
-sub elster_hash {
-  $lxdebug->enter_sub();
-
-  $auth->assert('advance_turnover_tax_return');
-
-  my $finanzamt = USTVA->query_finanzamt(\%myconfig, \%$form);
-  $lxdebug->leave_sub();
-  return $finanzamt;
-}

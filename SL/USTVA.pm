@@ -25,7 +25,52 @@
 
 package USTVA;
 
+use List::Util qw(first);
+
 use SL::DBUtils;
+
+my @tax_office_information = (
+  { 'id' =>  8, 'name' => 'Baden Württemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  9, 'name' => 'Bayern',                 'taxbird_nr' => '1',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 11, 'name' => 'Berlin',                 'taxbird_nr' => '2',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' => 12, 'name' => 'Brandenburg',            'taxbird_nr' => '3',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  4, 'name' => 'Bremen',                 'taxbird_nr' => '4',  'elster_format' => 'FF BBB UUUUP',  },
+  { 'id' =>  2, 'name' => 'Hamburg',                'taxbird_nr' => '5',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  6, 'name' => 'Hessen',                 'taxbird_nr' => '6',  'elster_format' => '0FF BBB UUUUP', },
+  { 'id' => 13, 'name' => 'Mecklenburg Vorpommern', 'taxbird_nr' => '7',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  3, 'name' => 'Niedersachsen',          'taxbird_nr' => '8',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  5, 'name' => 'Nordrhein Westfalen',    'taxbird_nr' => '9',  'elster_format' => 'FFF/BBBB/UUUP', },
+  { 'id' =>  7, 'name' => 'Rheinland Pfalz',        'taxbird_nr' => '10', 'elster_format' => 'FF/BBB/UUUU/P', },
+  { 'id' => 10, 'name' => 'Saarland',               'taxbird_nr' => '11', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 14, 'name' => 'Sachsen',                'taxbird_nr' => '12', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 15, 'name' => 'Sachsen Anhalt',         'taxbird_nr' => '13', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  1, 'name' => 'Schleswig Holstein',     'taxbird_nr' => '14', 'elster_format' => 'FF BBB UUUUP',  },
+  { 'id' => 16, 'name' => 'Thüringen',              'taxbird_nr' => '15', 'elster_format' => 'FFF/BBB/UUUUP', },
+  );
+
+sub new {
+  my $type = shift;
+
+  my $self = {};
+
+  bless $self, $type;
+
+  $self->_init(@_);
+
+  return $self;
+}
+
+sub _init {
+  my $self = shift;
+
+  $self->{tax_office_information} = [];
+
+  foreach (@tax_office_information) {
+    my $entry      = \%{ $_ };
+    $entry->{name} = $main::locale->{iconv_iso8859}->convert($entry->{name});
+    push @{ $self->{tax_office_information} }, $entry;
+  }
+}
 
 sub get_coa {
 
@@ -148,27 +193,10 @@ sub steuernummer_input {
   $stnr =~ s/\D+//g;
 
   #Pattern description Elstersteuernummer
-  my %elster_STNRformat = (
-      'Mecklenburg Vorpommern' => 'FFF/BBB/UUUUP',    # '/' 3
-      'Hessen'                 => '0FF BBB UUUUP',    # ' ' 3
-      'Nordrhein Westfalen'    => 'FFF/BBBB/UUUP',    # '/' 3
-      'Schleswig Holstein'     => 'FF BBB UUUUP',     # ' ' 2
-      'Berlin'                 => 'FF/BBB/UUUUP',     # '/' 3
-      'Thüringen'              => 'FFF/BBB/UUUUP',    # '/' 3
-      'Sachsen'                => 'FFF/BBB/UUUUP',    # '/' 3
-      'Hamburg'                => 'FF/BBB/UUUUP',     # '/' 3
-      'Baden Württemberg'      => 'FF/BBB/UUUUP',     # '/' 2
-      'Sachsen Anhalt'         => 'FFF/BBB/UUUUP',    # '/' 3
-      'Saarland'               => 'FFF/BBB/UUUUP',    # '/' 3
-      'Bremen'                 => 'FF BBB UUUUP',     # ' ' 3
-      'Bayern'                 => 'FFF/BBB/UUUUP',    # '/' 3
-      'Rheinland Pfalz'        => 'FF/BBB/UUUU/P',    # '/' 4
-      'Niedersachsen'          => 'FF/BBB/UUUUP',     # '/' 3
-      'Brandenburg'            => 'FFF/BBB/UUUUP',    # '/' 3
-  );
 
   #split the pattern
-  my $elster_pattern = $elster_STNRformat{$elster_land};
+  my $tax_office     = first { $_->{name} eq $elster_land } @{ $self->{tax_office_information} };
+  my $elster_pattern = $tax_office->{elster_format};
   my @elster_pattern = split(' ', $elster_pattern);
   my $delimiter      = '&nbsp;';
   my $patterncount   = @elster_pattern;
@@ -259,13 +287,6 @@ sub fa_auswahl {
   my $checked  = '';
   $checked = 'checked' if ($elsterFFFF eq '' and $land eq '');
 
-  #if ($ENV{HTTP_USER_AGENT} =~ /(mozilla|opera|w3m)/i){
-  #$terminal='mozilla';
-  #} elsif ($ENV{HTTP_USER_AGENT} =~ /(links|lynx)/i){
-  #$terminal = 'lynx';
-  #}
-
-  #if ( $terminal eq 'mozilla' or $terminal eq 'js' ) {
   my $fa_auswahl = qq|
         <script language="Javascript">
         function update_auswahl()
@@ -538,24 +559,10 @@ sub query_finanzamt {
   my $land      = '';
   foreach my $row (@$array_ref) {
     my $FA_finanzamt = $row;
-    $land = 'Schleswig Holstein'     if (@$FA_finanzamt[0] eq '1');
-    $land = 'Hamburg'                if (@$FA_finanzamt[0] eq '2');
-    $land = 'Niedersachsen'          if (@$FA_finanzamt[0] eq '3');
-    $land = 'Bremen'                 if (@$FA_finanzamt[0] eq '4');
-    $land = 'Nordrhein Westfalen'    if (@$FA_finanzamt[0] eq '5');
-    $land = 'Hessen'                 if (@$FA_finanzamt[0] eq '6');
-    $land = 'Rheinland Pfalz'        if (@$FA_finanzamt[0] eq '7');
-    $land = 'Baden Württemberg'      if (@$FA_finanzamt[0] eq '8');
-    $land = 'Bayern'                 if (@$FA_finanzamt[0] eq '9');
-    $land = 'Saarland'               if (@$FA_finanzamt[0] eq '10');
-    $land = 'Berlin'                 if (@$FA_finanzamt[0] eq '11');
-    $land = 'Brandenburg'            if (@$FA_finanzamt[0] eq '12');
-    $land = 'Mecklenburg Vorpommern' if (@$FA_finanzamt[0] eq '13');
-    $land = 'Sachsen'                if (@$FA_finanzamt[0] eq '14');
-    $land = 'Sachsen Anhalt'         if (@$FA_finanzamt[0] eq '15');
-    $land = 'Thüringen'              if (@$FA_finanzamt[0] eq '16');
+    my $tax_office   = first { $_->{id} == $FA_finanzamt->[0] } @{ $self->{tax_office_information} };
+    $land            = $tax_office->{name};
 
-    $land = $main::locale->{iconv}->convert($land);
+    # $land = $main::locale->{iconv}->convert($land);
 
     my $ffff = @$FA_finanzamt[1];
 
