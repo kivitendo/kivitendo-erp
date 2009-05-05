@@ -1507,7 +1507,7 @@ sub ar_transactions {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('ar_transactions', @hidden_variables, qw(sort sortdir));
+  $report->set_export_options('ar_transactions', @hidden_variables);
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
@@ -1619,41 +1619,6 @@ sub ar_transactions {
 
   $lxdebug->leave_sub();
 }
-
-sub sales_invoice {
-  $lxdebug->enter_sub();
-
-  $auth->assert('invoice_edit');
-
-
-  $form->{script} = 'is.pl';
-  $script         = "is";
-  $form->{type} = "invoice";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
-
-  $lxdebug->leave_sub();
-}
-
-sub ar_transaction {
-  $lxdebug->enter_sub();
-
-  $auth->assert('general_ledger');
-
-
-  $form->{script} = 'ar.pl';
-  $script         = "ar";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
-
-  $lxdebug->leave_sub();
-}
-
-
 
 sub storno {
   $lxdebug->enter_sub();

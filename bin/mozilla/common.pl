@@ -588,4 +588,89 @@ sub cov_selection_internal {
   $lxdebug->leave_sub();
 }
 
+
+# Functions to call add routines beneath different reports
+
+sub sales_invoice {
+  $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
+
+
+  $form->{script} = 'is.pl';
+  $script         = "is";
+  $form->{type} = "invoice";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
+sub ar_transaction {
+  $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
+
+  $form->{script} = 'ar.pl';
+  $script         = "ar";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
+sub vendor_invoice {
+  $lxdebug->enter_sub();
+
+  $auth->assert('invoice_edit');
+
+
+  $form->{script} = 'ir.pl';
+  $script         = "ir";
+  $form->{type} = "invoice";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
+sub ap_transaction {
+  $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
+
+  $form->{script} = 'ap.pl';
+  $script         = "ap";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
+sub gl_transaction {
+  $lxdebug->enter_sub();
+
+  $auth->assert('general_ledger');
+
+
+  $form->{script} = 'gl.pl';
+  $script         = "gl";
+  $locale = new Locale "$myconfig{countrycode}", "$script";
+
+  require "bin/mozilla/$form->{script}";
+  &add;
+
+  $lxdebug->leave_sub();
+}
+
 1;
