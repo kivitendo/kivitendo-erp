@@ -331,28 +331,33 @@ sub export3 {
 
   $auth->assert('datev_export');
 
+  DATEV::clean_temporary_directories();
+
   DATEV->save_datev_stamm(\%myconfig, \%$form);
 
-  my $link = "datev.pl?action=download";
+  my $link = "datev.pl?action=download&download_token=";
 
   if ($form->{kne}) {
-    my @filenames = DATEV->kne_export(\%myconfig, \%$form);
-    if (@filenames) {
-      print(qq|<br><b>| . $locale->text('KNE-Export erfolgreich!') . qq|</b><br>|);
-      $link .= "&filenames=" . $form->escape(join(":", @filenames));
-      print(qq|<br><a href="$link">Download</a>|);
+    my $result = DATEV->kne_export(\%myconfig, \%$form);
+    if ($result && @{ $result->{filenames} }) {
+      $link .= Q($result->{download_token});
+
+      print(qq|<br><b>| . $locale->text('KNE-Export erfolgreich!') . qq|</b><br><br><a href="$link">Download</a>|);
+
     } else {
       $form->error("KNE-Export schlug fehl.");
     }
   } else {
-    my @filenames = DATEV->obe_export(\%myconfig, \%$form);
-    if (@filenames) {
-      print(qq|<br><b>| . $locale->text('OBE-Export erfolgreich!') . qq|</b><br>|);
-      $link .= "&filenames=" . $form->escape(join(":", @filenames));
-      print(qq|<br><a href="$link">Download</a>|);
-    } else {
-      $form->error("OBE-Export schlug fehl.");
-    }
+    # OBE-Export nicht implementiert.
+
+    # my @filenames = DATEV->obe_export(\%myconfig, \%$form);
+    # if (@filenames) {
+    #   print(qq|<br><b>| . $locale->text('OBE-Export erfolgreich!') . qq|</b><br>|);
+    #   $link .= "&filenames=" . $form->escape(join(":", @filenames));
+    #   print(qq|<br><a href="$link">Download</a>|);
+    # } else {
+    #   $form->error("OBE-Export schlug fehl.");
+    # }
   }
 
   print("</body></html>");
@@ -366,21 +371,29 @@ sub download {
   $auth->assert('datev_export');
 
   my $tmp_name = Common->tmpname();
-  my $zip_name = strftime("lx-office-datev-export-%Y%m%d.zip",
-                          localtime(time()));
+  my $zip_name = strftime("lx-office-datev-export-%Y%m%d.zip", localtime(time()));
 
   my $cwd = getcwd();
-  chdir("users") || die("chdir users");
 
-  my @filenames = split(/:/, $form->{"filenames"});
-  map({ s|.*/||; $form->error("Eine der KNE-Exportdateien wurde nicht " .
-                              "gefunden. Wurde der Export bereits " .
-                              "durchgef&uuml;hrt?") unless (-f $_); }
-      @filenames);
+  my $path = DATEV::get_path_for_download_token($form->{download_token});
+  if (!$path) {
+    $form->error($locale->text("Your download does not exist anymore. Please re-run the DATEV export assistant."));
+  }
+
+  chdir($path) || die("chdir $path");
+
+  my @filenames = glob "*";
+
+  if (!@filenames) {
+    chdir($cwd);
+    DATEV::clean_temporary_directories();
+    $form->error($locale->text("Your download does not exist anymore. Please re-run the DATEV export assistant."));
+  }
 
   my $zip = Archive::Zip->new();
-  map({ $zip->addFile($_); } @filenames);
+  map { $zip->addFile($_); } @filenames;
   $zip->writeToFileNamed($tmp_name);
+
   chdir($cwd);
 
   open(IN, $tmp_name) || die("open $tmp_name");
@@ -392,6 +405,8 @@ sub download {
   close(IN);
 
   unlink($tmp_name);
+
+  DATEV::clean_temporary_directories();
 
   $lxdebug->leave_sub();
 }

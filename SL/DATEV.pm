@@ -30,6 +30,66 @@ use SL::DBUtils;
 use SL::DATEV::KNEFile;
 
 use Data::Dumper;
+use File::Path;
+use Time::HiRes qw(gettimeofday);
+
+sub _get_export_path {
+  $main::lxdebug->enter_sub();
+
+  my ($a, $b) = gettimeofday();
+  my $path    = get_path_for_download_token("${a}-${b}-${$}");
+
+  mkpath($path) unless (-d $path);
+
+  $main::lxdebug->leave_sub();
+
+  return $path;
+}
+
+sub get_path_for_download_token {
+  $main::lxdebug->enter_sub();
+
+  my $token = shift;
+  my $path;
+
+  if ($token =~ m|^(\d+)-(\d+)-(\d+)$|) {
+    $path = "${main::userspath}/datev-export-${1}-${2}-${3}";
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $path;
+}
+
+sub get_download_token_for_path {
+  $main::lxdebug->enter_sub();
+
+  my $path = shift;
+  my $token;
+
+  if ($path =~ m|.*datev-export-(\d+)-(\d+)-(\d+)/?$|) {
+    $token = "${1}-${2}-${3}";
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return $token;
+}
+
+sub clean_temporary_directories {
+  $main::lxdebug->enter_sub();
+
+  foreach my $path (glob "${main::userspath}/datev-export-*") {
+    next unless (-d $path);
+
+    my $mtime = (stat($path))[9];
+    next if ((time() - $mtime) < 8 * 60 * 60);
+
+    rmtree $path;
+  }
+
+  $main::lxdebug->leave_sub();
+}
 
 sub _fill {
   $main::lxdebug->enter_sub();
@@ -109,17 +169,17 @@ sub kne_export {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
-  my @rc;
+  my $result;
 
   if ($form->{exporttype} == 0) {
-    @rc = &kne_buchungsexport($myconfig, $form);
+    $result = kne_buchungsexport($myconfig, $form);
   } else {
-    @rc = &kne_stammdatenexport($myconfig, $form);
+    $result = kne_stammdatenexport($myconfig, $form);
   }
 
   $main::lxdebug->leave_sub();
 
-  return @rc;
+  return $result;
 }
 
 sub obe_export {
@@ -560,7 +620,7 @@ sub kne_buchungsexport {
 
   my @filenames;
 
-  my $export_path = $main::userspath . "/";
+  my $export_path = _get_export_path() . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
   my @ed_versionsets;
@@ -724,7 +784,7 @@ sub kne_buchungsexport {
   ###
   $main::lxdebug->leave_sub();
 
-  return @filenames;
+  return { 'download_token' => get_download_token_for_path($export_path), 'filenames' => \@filenames };
 }
 
 sub kne_stammdatenexport {
@@ -741,7 +801,7 @@ sub kne_stammdatenexport {
 
   my @filenames;
 
-  my $export_path = $main::userspath . "/";
+  my $export_path = _get_export_path() . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
   my @ed_versionsets;
@@ -839,7 +899,7 @@ sub kne_stammdatenexport {
 
   $main::lxdebug->leave_sub();
 
-  return @filenames;
+  return { 'download_token' => get_download_token_for_path($export_path), 'filenames' => \@filenames };
 }
 
 1;
