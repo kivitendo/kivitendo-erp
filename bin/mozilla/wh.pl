@@ -281,11 +281,11 @@ sub transfer_stock_update_part {
   $form->{trans_type} = 'stock';
   $form->{qty}        = $form->parse_amount(\%myconfig, $form->{qty});
 
-  if (!$form->{partnumber} && !$form->{description}) {
-    delete @{$form}{qw(parts_id partunit)};
+  if (!$form->{partnumber} && !$form->{description} && !$form->{ean}) {
+    delete @{$form}{qw(parts_id partunit ean)};
     transfer_warehouse_selection();
 
-  } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description}) {
+  } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description} || $form->{ean}) {
 
     $form->{no_services}   = 1;
     $form->{no_assemblies} = 0;	# assemblies duerfen eingelagert werden (z.B. bei retouren)
@@ -293,7 +293,7 @@ sub transfer_stock_update_part {
     my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
 
     if (scalar @{ $parts } == 1) {
-      @{$form}{qw(parts_id partnumber description)} = @{$parts->[0]}{qw(id partnumber description)};
+      @{$form}{qw(parts_id partnumber description ean)} = @{$parts->[0]}{qw(id partnumber description ean)};
       transfer_stock_get_partunit();
       transfer_warehouse_selection();
 
@@ -353,7 +353,7 @@ sub transfer_stock_part_selected {
 
   my $part = shift;
 
-  @{$form}{qw(parts_id partnumber description)} = @{$part}{qw(id partnumber description)};
+  @{$form}{qw(parts_id partnumber description ean)} = @{$part}{qw(id partnumber description ean)};
 
   transfer_stock_get_partunit();
   transfer_warehouse_selection();

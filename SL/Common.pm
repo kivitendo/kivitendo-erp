@@ -51,7 +51,7 @@ sub retrieve_parts {
 
   my (@filter_values, $filter);
 
-  foreach (qw(partnumber description)) {
+  foreach (qw(partnumber description ean)) {
     next unless $form->{$_};
 
     $filter .= qq| AND ($_ ILIKE ?)|;
@@ -62,10 +62,7 @@ sub retrieve_parts {
     $filter .= qq| AND (NOT COALESCE(assembly, FALSE))|;
   }
   if ($form->{assemblies}) {
-    $filter .= qq| AND assembly=TRUE|;		# alles was assembly ist rausgeben erweiterung für bin/mozilla/wh.pl -> transfer_assembly_update_part
-# eigentlich möchte ich diesen filter abbilden:
-# select distinct partnumber  from parts inner join assembly on (parts.id = assembly.id) where assembly='t';
-# und so common ist die anweisung gar nicht. wie wäre es mit auslagern in WH.pm? -> get_all_working_assemblies? jb 21.2.2009
+    $filter .= qq| AND assembly=TRUE|;
   }
 
   if ($form->{no_services}) {
@@ -78,7 +75,7 @@ sub retrieve_parts {
   $order_dir = $order_dir ? "ASC" : "DESC";
 
   my $query =
-    qq|SELECT id, partnumber, description | .
+    qq|SELECT id, partnumber, description, ean | .
     qq|FROM parts $filter | .
     qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);

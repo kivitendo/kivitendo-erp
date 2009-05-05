@@ -20,6 +20,9 @@
      [% IF has_charge %]
      <th class="listheading"><translate>Charge number</translate></th>
      [% END %]
+     [% IF has_ean %]
+     <th class="listheading"><translate>EAN</translate></th>
+     [% END %]
     </tr>
 
     [% FOREACH part = PARTS %]
@@ -46,6 +49,12 @@
       [% HTML.escape(part.chargenumber) %]
      </td>
      [% END %]
+     [% IF has_ean %]
+     <td>
+      <input type="hidden" name="new_ean_[% loop.count %]" value="[% HTML.escape(part.ean) %]">
+      [% HTML.escape(part.ean) %]
+     [% END %]
+     </td>
     </tr>
     [% END %]
    </table>
