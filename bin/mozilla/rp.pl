@@ -1304,8 +1304,6 @@ sub generate_trial_balance {
 
   $report->set_export_options('generate_trial_balance', @hidden_variables);
 
-  $report->set_sort_indicator($form->{sort}, 1);
-
   my @options;
 
 
@@ -1464,8 +1462,6 @@ sub list_accounts {
   $report->set_column_order(@columns);
 
   $report->set_export_options($action, @hidden_variables);
-
-  $report->set_sort_indicator('accno', 1);
 
   my @totals_columns = qw(credit debit begbalance endbalance);
   my %subtotals      = map { $_ => 0 } @totals_columns;
