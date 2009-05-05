@@ -497,7 +497,7 @@ sub generate_report {
     'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
   );
 
-  foreach my $name (qw(id transdate reference source description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
+  foreach my $name (qw(id transdate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
     my $sortname                = $name =~ m/accno/ ? 'accno' : $name;
     my $sortdir                 = $sortname eq $form->{sort} ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $callback . "&sort=$sortname&sortdir=$sortdir";
@@ -564,7 +564,7 @@ sub generate_report {
       }
     }
 
-    foreach my $key (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno ac_transdate)) {
+    foreach my $key (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno ac_transdate source)) {
       my $col = $key eq 'ac_transdate' ? 'transdate' : $key;
       $rows{$col} = [ map { $ref->{$key}->{$_} } sort keys(%{ $ref->{$key} }) ];
     }
@@ -575,9 +575,9 @@ sub generate_report {
     $row->{balance}->{data}        = $form->format_amount(\%myconfig, $form->{balance}, 2);
     $row->{projectnumbers}->{data} = join ", ", sort { lc($a) cmp lc($b) } keys %{ $ref->{projectnumbers} };
 
-    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description source notes);
+    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes);
 
-    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno);
+    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
 
     foreach my $col (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
       $row->{$col}->{link} = [ map { "${callback}&accno=" . E($_) } @{ $rows{$col} } ];

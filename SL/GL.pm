@@ -221,9 +221,9 @@ sub all_transactions {
   }
 
   if ($form->{source}) {
-    $glwhere .= " AND ac.source ILIKE ?";
-    $arwhere .= " AND ac.source ILIKE ?";
-    $apwhere .= " AND ac.source ILIKE ?";
+    $glwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
+    $arwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
+    $apwhere .= " AND ac.trans_id IN (SELECT trans_id from acc_trans WHERE source ILIKE ?)";
     push(@glvalues, '%' . $form->{source} . '%');
     push(@arvalues, '%' . $form->{source} . '%');
     push(@apvalues, '%' . $form->{source} . '%');
@@ -321,7 +321,6 @@ sub all_transactions {
     'id'           => [ qw(id)                   ],
     'transdate'    => [ qw(transdate id)         ],
     'reference'    => [ qw(lower_reference id)   ],
-    'source'       => [ qw(lower_source id)      ],
     'description'  => [ qw(lower_description id) ],
     'accno'        => [ qw(accno transdate id)   ],
     );
@@ -403,6 +402,9 @@ sub all_transactions {
 
     $trans_id = $ref0->{id};
 
+    my $source = $ref0->{source};
+    undef($ref0->{source});
+
     if ($trans_id != $trans_id2) { # first line of a booking
 
       if ($trans_id2) {
@@ -447,13 +449,12 @@ sub all_transactions {
       $i       = 0; # Debit Tax  # AP_tax  # VSt
       $j       = 0; # Credit Tax # AR_tax  # USt
 
-
       if ($ref->{chart_id} > 0) { # all tax accounts first line, no line increasing
         if ($ref->{amount} < 0) {
           if ($ref->{link} =~ /AR_tax/) {
             $ref->{credit_tax}{$j}       = $ref->{amount};
             $ref->{credit_tax_accno}{$j} = $ref->{accno};
-          }
+         }
           if ($ref->{link} =~ /AP_tax/) {
             $ref->{debit_tax}{$i}       = $ref->{amount} * -1;
             $ref->{debit_tax_accno}{$i} = $ref->{accno};
@@ -469,19 +470,19 @@ sub all_transactions {
           }
         }
       } else { #all other accounts first line
+
         if ($ref->{amount} < 0) {
           $ref->{debit}{$k}        = $ref->{amount} * -1;
           $ref->{debit_accno}{$k}  = $ref->{accno};
           $ref->{debit_taxkey}{$k} = $ref->{taxkey};
           $ref->{ac_transdate}{$k} = $ref->{transdate};
-
+          $ref->{source}{$k}       = $source;
         } else {
           $ref->{credit}{$l}        = $ref->{amount} * 1;
           $ref->{credit_accno}{$l}  = $ref->{accno};
           $ref->{credit_taxkey}{$l} = $ref->{taxkey};
           $ref->{ac_transdate}{$l}  = $ref->{transdate};
-
-
+          $ref->{source}{$l}        = $source;
         }
       }
 
@@ -533,22 +534,35 @@ sub all_transactions {
           if ($ref->{debit_accno}{$k} ne "") {
             $k++;
           }
+          if ($ref->{source}{$k} ne "") {
+            $space = " | ";
+          } else {
+            $space = "";
+          }
           $ref->{debit}{$k}        = $ref2->{amount} * - 1;
           $ref->{debit_accno}{$k}  = $ref2->{accno};
           $ref->{debit_taxkey}{$k} = $ref2->{taxkey};
           $ref->{ac_transdate}{$k} = $ref2->{transdate};
+          $ref->{source}{$k}       = $source . $space . $ref->{source}{$k};
         } else {
           if ($ref->{credit_accno}{$l} ne "") {
             $l++;
+          }
+          if ($ref->{source}{$l} ne "") {
+            $space = " | ";
+          } else {
+            $space = "";
           }
           $ref->{credit}{$l}        = $ref2->{amount};
           $ref->{credit_accno}{$l}  = $ref2->{accno};
           $ref->{credit_taxkey}{$l} = $ref2->{taxkey};
           $ref->{ac_transdate}{$l}  = $ref2->{transdate};
+          $ref->{source}{$l}        = $ref->{source}{$l} . $space . $source;
         }
       }
     }
   }
+
   push @{ $form->{GL} }, $ref;
   $sth->finish;
 
