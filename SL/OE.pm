@@ -35,7 +35,6 @@
 package OE;
 
 use List::Util qw(max first);
-
 use SL::AM;
 use SL::Common;
 use SL::DBUtils;
@@ -939,7 +938,8 @@ sub order_details {
   }
 
   # lookup department
-  $form->{department} = ( first { $_->{id} eq $form->{department_id} } @{ $form->{ALL_DEPARTMENTS} } )->{description} || '';
+  # hallo sven, ich bekomme hier einen internal server error, sehr wahrscheinlich weil bei meinen mandanten keine Abteilungen konfiguriert sind
+  #  $form->{department} = ( first { $_->{id} eq $form->{department_id} } @{ $form->{ALL_DEPARTMENTS} } )->{description} || '';
 
   # sort items by partsgroup
   for $i (1 .. $form->{rowcount}) {
