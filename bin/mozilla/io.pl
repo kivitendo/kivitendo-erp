@@ -684,7 +684,7 @@ sub check_form {
                 not_discountable shop ve gv buchungsgruppen_id language_values
                 sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
                 transdate longdescription basefactor marge_total marge_percent
-                marge_price_factor lastcost price_factor_id
+                marge_price_factor lastcost price_factor_id partnotes
                 stock_out stock_in);
 
   # remove any makes or model rows
