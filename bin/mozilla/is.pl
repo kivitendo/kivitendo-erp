@@ -529,7 +529,7 @@ sub form_header {
   if ($form->{type} eq "credit_note") {
     $button1 = qq|
       <td nowrap><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-       <input type="button" name="invdate" id="trigger1" value="|
+       <input type="button" name="invdate_button" id="trigger1" value="|
       . $locale->text('button') . qq|"></td>|;
 
     #write Trigger
@@ -540,17 +540,17 @@ sub form_header {
   } else {
     $button1 = qq|
       <td nowrap><input name="invdate" id="invdate" size="11" title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\">
-       <input type="button" name="invdate" id="trigger1" value="|
+       <input type="button" name="invdate_button" id="trigger1" value="|
       . $locale->text('button') . qq|"></td>
       |;
     $button2 = qq|
       <td width="13"><input name="duedate" id="duedate" size="11" title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\">
-       <input type="button" name="duedate" id="trigger2" value="|
+       <input type="button" name="duedate_button" id="trigger2" value="|
       . $locale->text('button') . qq|"></td>
     |;
     $button3 = qq|
       <td width="13"><input name="deliverydate" id="deliverydate" size="11" title="$myconfig{dateformat}" value="$form->{deliverydate}" onBlur=\"check_right_date_format(this)\">
-       <input type="button" name="deliverydate" id="trigger3" value="|
+       <input type="button" name="deliverydate_button" id="trigger3" value="|
       . $locale->text('button') . qq|"></td>
     |;
 
@@ -911,7 +911,7 @@ sub form_footer {
 	      <tr valign="top">
 		<td>$notes</td>
 		<td>$intnotes</td>
-                <td><select name="payment_id" onChange="if (this.value) set_duedate(['payment_id__' + this.value],['duedate'])">$payment
+                <td><select name="payment_id" onChange="if (this.value) set_duedate(['payment_id__' + this.value, 'invdate__' + invdate.value],['duedate'])">$payment
                 </select></td>
 	      </tr>
         $follow_ups_block

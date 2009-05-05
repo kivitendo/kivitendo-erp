@@ -1984,13 +1984,17 @@ sub get_employee_data {
 sub get_duedate {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig) = @_;
+  my ($self, $myconfig, $reference_date) = @_;
 
-  my $dbh = $self->get_standard_dbh($myconfig);
-  my $query = qq|SELECT current_date + terms_netto FROM payment_terms WHERE id = ?|;
-  ($self->{duedate}) = selectrow_query($self, $dbh, $query, $self->{payment_id});
+  my $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
+
+  my $dbh            = $self->get_standard_dbh($myconfig);
+  my $query          = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
+  my ($duedate)      = selectrow_query($self, $dbh, $query, $self->{payment_id});
 
   $main::lxdebug->leave_sub();
+
+  return $duedate;
 }
 
 sub _get_contacts {

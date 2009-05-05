@@ -1870,9 +1870,10 @@ sub set_duedate {
 
   _check_io_auth();
 
-  $form->get_duedate(\%myconfig);
+  my $invdate = $form->{invdate} eq 'undefined' ? undef : $form->{invdate};
+  my $duedate = $form->get_duedate(\%myconfig, $invdate);
 
-  print $form->ajax_response_header() . $form->{duedate};
+  print $form->ajax_response_header() . $duedate;
 
   $lxdebug->leave_sub();
 }
