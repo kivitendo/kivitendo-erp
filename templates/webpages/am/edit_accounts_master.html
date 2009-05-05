@@ -81,6 +81,7 @@ window.onload = function() {
 
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend><translate>Include in drop-down menus</translate></legend>
+  <p style='font-weight:normal'><translate>These will only be effective if the account is NOT a summary account AND there exists at least one taxkey. Setting the account as a summary account will erase these settings.</translate></p>
   <table width="100%">
     <tr>
       <th align="left"><translate>Receivables</translate></th>
@@ -141,6 +142,7 @@ window.onload = function() {
   <legend>
     <translate>Taxkeys and Taxreport Preferences</translate>
   </legend>
+  <p style='font-weight:normal'><translate>Note: Taxkeys must have a "valid from" date, and will not be in effect otherwise.</translate></p>
 
             <table>
 [% IF account_exists %]

@@ -81,6 +81,7 @@ window.onload = function() {
 
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>In Aufklappmenü aufnehmen</legend>
+  <p style='font-weight:normal'>Dieser Block ist nur dann gültig, wenn das Konto KEIN Bucungskonto ist, und wenn ein gültiger Steuerschlüssel für das Konto existiert. Wird das Konto als Buchungskonto markiert, werden diese Einstellungen entfernt.</p>
   <table width="100%">
     <tr>
       <th align="left">Forderungen</th>
@@ -141,6 +142,7 @@ window.onload = function() {
   <legend>
     Steuerautomatik und UStVA
   </legend>
+  <p style='font-weight:normal'>Achtung: Steuerschlüssel brauchen ein gültiges "Gültig ab"-Datum und werden andernfalls ignoriert.</p>
 
             <table>
 [% IF account_exists %]
