@@ -623,6 +623,7 @@ sub generate_pdf_content {
                 'column_props'          => \@column_props,
                 'cell_props'            => \@cell_props,
                 'max_word_length'       => 60,
+                'border'                => 0.5,
     );
 
   foreach my $page_num (1..$pdf->pages()) {
