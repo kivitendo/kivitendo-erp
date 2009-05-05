@@ -530,18 +530,6 @@ sub generate_report {
   # add sort to callback
   $form->{callback} = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
 
-  $form->{balance} *= $ml;
-
-  if ($form->{accno} && $form->{balance}) {
-    my $row = {
-      'balance' => {
-        'data'  => $form->format_amount(\%myconfig, $form->{balance}, 2),
-        'align' => 'right',
-      },
-    };
-
-    $report->add_data($row);
-  }
 
   my @totals_columns = qw(debit credit debit_tax credit_tax);
   my %subtotals      = map { $_ => 0 } @totals_columns;
@@ -549,7 +537,6 @@ sub generate_report {
   my $idx            = 0;
 
   foreach $ref (@{ $form->{GL} }) {
-    $form->{balance} *= $ml;
 
     my %rows;
 
@@ -559,7 +546,12 @@ sub generate_report {
         my $value         = $ref->{$key}->{$idx};
         $subtotals{$key} += $value;
         $totals{$key}    += $value;
-        $form->{balance}  = abs($form->{balance}) - abs($value);
+        if ($key =~ /debit.*/) {
+          $ml = -1;
+        } else {
+          $ml = 1;
+        }
+        $form->{balance}  = $form->{balance} + $value * $ml;
         push @{ $rows{$key} }, $form->format_amount(\%myconfig, $value, 2);
       }
     }
@@ -572,7 +564,18 @@ sub generate_report {
     my $row = { };
     map { $row->{$_} = { 'data' => '', 'align' => $column_alignment{$_} } } @columns;
 
-    $row->{balance}->{data}        = $form->format_amount(\%myconfig, $form->{balance}, 2);
+    my $sh = "";
+    if ($form->{balance} < 0) {
+      $sh = "(S)";
+      $ml = -1;
+    } elsif ($form->{balance} > 0) {
+      $sh = "(H)";
+      $ml = 1;
+    }
+    my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
+    $data .= $sh;
+
+    $row->{balance}->{data}        = $data;
     $row->{projectnumbers}->{data} = join ", ", sort { lc($a) cmp lc($b) } keys %{ $ref->{projectnumbers} };
 
     map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes);
@@ -606,11 +609,20 @@ sub generate_report {
   my $balanced_ledger = $totals{debit} + $totals{debit_tax} - $totals{credit} - $totals{credit_tax};
 
   my $row = create_subtotal_row(\%totals, \@columns, \%column_alignment, [ qw(debit credit debit_tax credit_tax) ], 'listtotal');
-  $row->{balance} = {
-    'data'  => $form->format_amount(\%myconfig, $form->{balance} * $ml, 2),
-    'align' => 'right',
-    'class' => 'listtotal',
-  };
+
+  my $sh = "";
+  if ($form->{balance} < 0) {
+    $sh = "(S)";
+    $ml = -1;
+  } elsif ($form->{balance} > 0) {
+    $sh = "(H)";
+    $ml = 1;
+  }
+  my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
+  $data .= $sh;
+
+  $row->{balance}->{data}        = $data;
+
   $report->add_data($row);
 
   my $raw_bottom_info_text;
