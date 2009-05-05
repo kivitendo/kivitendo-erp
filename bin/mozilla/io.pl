@@ -5,8 +5,8 @@
 # Web http://www.lx-office.org
 #############################################################################
 # Changelog: Wann - Wer - Was
-# Veraendert 2005-01-05 - Marco Welter <mawe@linux-studio.de> - Neue Optik   			
-# 08.11.2008 - information@richardson-bueren.de jb  - Backport von Revision 7339 xplace - E-Mail-Vorlage automatisch auswählen  
+# Veraendert 2005-01-05 - Marco Welter <mawe@linux-studio.de> - Neue Optik
+# 08.11.2008 - information@richardson-bueren.de jb  - Backport von Revision 7339 xplace - E-Mail-Vorlage automatisch auswählen
 # 02.02.2009 - information@richardson-bueren.de jb - Backport von Revision 8535 xplace - Erweiterung der Waren bei Lieferantenauftrag um den Eintrag Mindestlagerbestand. Offen: Auswahlliste auf Lieferantenaufträge einschränken -> Erledigt 2.2.09 Prüfung wie das Skript heisst (oe.pl) -> das ist nur die halbe Miete, nochmal mb fragen -> mb gefragt und es gibt die variable is_purchase
 #############################################################################
 # SQL-Ledger, Accounting
@@ -149,7 +149,7 @@ sub display_row {
     {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
     {  id => 'stock_in_out',  width => 10,    value => $stock_in_out_title,                   display => $is_delivery_order, },
-  ); 
+  );
   my @column_index = map { $_->{id} } grep { $_->{display} } @HEADER;
 
   # cache units
@@ -162,7 +162,7 @@ sub display_row {
   $form->{invsubtotal} = 0;
   map { $form->{"${_}_base"} = 0 } (split(/ /, $form->{taxaccounts}));
 
-  # about details 
+  # about details
   $myconfig{show_form_details} = 1                            unless (defined($myconfig{show_form_details}));
   $form->{show_details}        = $myconfig{show_form_details} unless (defined($form->{show_details}));
   # /about details
@@ -302,13 +302,13 @@ sub display_row {
 
     # second row
     my @ROW2 = ();
-    push @ROW2, { value => qq|<b>$serialnumber</b> <input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">| } 
+    push @ROW2, { value => qq|<b>$serialnumber</b> <input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}">| }
       if $form->{type} !~ /_quotation/;
     push @ROW2, { value => qq|<b>$projectnumber</b> | . NTI($cgi->popup_menu('-name'  => "project_id_$i",        '-values'  => \@projectnumber_values,
                                                                              '-labels' => \%projectnumber_labels, '-default' => $form->{"project_id_$i"})) };
     push @ROW2, { value => qq|<b>$reqdate</b> <input name="reqdate_$i" size="11" onBlur="check_right_date_format(this)" value="$form->{"reqdate_$i"}">| }
       if ($form->{type} =~ /order/ ||  $form->{type} =~ /invoice/);
-    push @ROW2, { value => sprintf qq|<b>%s</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" %s>|, 
+    push @ROW2, { value => sprintf qq|<b>%s</b>&nbsp;<input type="checkbox" name="subtotal_$i" value="1" %s>|,
                    $locale->text('Subtotal'), $form->{"subtotal_$i"} ? 'checked' : '' };
 
 # begin marge calculations
@@ -351,7 +351,7 @@ sub display_row {
     my @HIDDENS = map { value => $_}, (
           $cgi->hidden("-name" => "unit_old_$i", "-value" => $form->{"selected_unit_$i"}),
           $cgi->hidden("-name" => "price_new_$i", "-value" => $form->format_amount(\%myconfig, $form->{"price_new_$i"})),
-          map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" } 
+          map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
                 longdescription basefactor marge_absolut marge_percent marge_price_factor lastcost), @hidden_vars)
@@ -388,7 +388,7 @@ sub set_pricegroup {
     next unless $form->{PRICES}{$j};
     # build drop down list for pricegroups
     my $option_tmpl = qq|<option value="%s--%s" %s>%s</option>|;
-    $form->{"prices_$j"}  = join '', map { sprintf $option_tmpl, @$_{qw(price pricegroup_id selected pricegroup)} } 
+    $form->{"prices_$j"}  = join '', map { sprintf $option_tmpl, @$_{qw(price pricegroup_id selected pricegroup)} }
                                          (+{ pricegroup => $locale->text("none (pricegroup)") }, @{ $form->{PRICES}{$j} });
 
     foreach $item (@{ $form->{PRICES}{$j} }) {
@@ -416,7 +416,7 @@ sub select_item {
     qq|<th class="listheading">| . $locale->text('Part Description') . qq|</th>|;
   $column_data{sellprice} =
     qq|<th class="listheading">| . $locale->text('Price') . qq|</th>|;
-    if ($is_purchase){ 
+    if ($is_purchase){
       $column_data{rop} =
       qq|<th class="listheading">| . $locale->text('ROP') . qq|</th>|;
     }# ende if $is_purchase -> Überschrift Mindestlagerbestand - ähnliche Prüfung weiter unten
@@ -482,7 +482,7 @@ sub select_item {
       qq|<td align="right"><input name="new_onhand_$i" type="hidden" value="$ref->{onhand}">|
       . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
       . qq|</td>|;
-    if ($is_purchase){ 
+    if ($is_purchase){
     $column_data{rop} =
       qq|<td align="right"><input name="new_rop$i" type="hidden" value="$ref->{rop}">|
       . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;")
@@ -600,7 +600,7 @@ sub item_selected {
 
   $form->{sellprice} += ($form->{"sellprice_$i"} * $form->{"qty_$i"});
   $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
-  
+
   if ($form->{"not_discountable_$i"}) {
     $form->{"discount_$i"} = 0;
   }
@@ -1022,10 +1022,10 @@ sub send_email {
 # generate the printing options displayed at the bottom of oe and is forms.
 # this function will attempt to guess what type of form is displayed, and will generate according options
 #
-# about the coding: 
+# about the coding:
 # this version builds the arrays of options pretty directly. if you have trouble understanding how,
 # the opthash function builds hashrefs which are then pieced together for the template arrays.
-# unneeded options are "undef"ed out, and then grepped out. 
+# unneeded options are "undef"ed out, and then grepped out.
 #
 # the inline options is untested, but intended to be used later in metatemplating
 sub print_options {
@@ -1055,7 +1055,7 @@ sub print_options {
   push @FORMNAME, grep $_,
     ($form->{type} eq 'purchase_order') ? (
       opthash("purchase_order",      $form->{PD}{purchase_order},      $locale->text('Purchase Order')),
-      opthash("bin_list",            $form->{PD}{bin_list},            $locale->text('Bin List')) 
+      opthash("bin_list",            $form->{PD}{bin_list},            $locale->text('Bin List'))
     ) : undef,
     ($form->{type} eq 'credit_note') ?
       opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef,
@@ -1073,7 +1073,7 @@ sub print_options {
     ) : undef,
     ($form->{type} eq 'invoice' && $form->{storno}) ? (
       opthash("storno_invoice",      $form->{PD}{storno_invoice},      $locale->text('Storno Invoice')),
-      opthash("storno_packing_list", $form->{PD}{storno_packing_list}, $locale->text('Storno Packing List')) 
+      opthash("storno_packing_list", $form->{PD}{storno_packing_list}, $locale->text('Storno Packing List'))
     ) : undef,
     ($form->{type} =~ /_delivery_order$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
@@ -1082,7 +1082,7 @@ sub print_options {
     ($form->{type} eq 'credit_note') ?
       opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef;
 
-  push @SENDMODE, 
+  push @SENDMODE,
     opthash("attachment",            $form->{SM}{attachment},          $locale->text('Attachment')),
     opthash("inline",                $form->{SM}{inline},              $locale->text('In-line'))
       if ($form->{media} eq 'email');
@@ -1108,11 +1108,11 @@ sub print_options {
     ($opendocument_templates && !$options{no_opendocument}) ?
       opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef;
 
-  push @LANGUAGE_ID, 
+  push @LANGUAGE_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{language_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
       if (ref $form->{languages} eq 'ARRAY');
 
-  push @PRINTER_ID, 
+  push @PRINTER_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
       if ((ref $form->{printers} eq 'ARRAY') && scalar @{ $form->{printers } });
 
@@ -1241,7 +1241,7 @@ sub print_form {
     $form->{invdate} = $form->{"${inv}date"} = $form->{transdate};
     $form->{label} = $locale->text('Packing List');
     $order = 1;
-    # set invnumber for template packing_list 
+    # set invnumber for template packing_list
     $form->{invnumber}   = $form->{ordnumber};
   }
   if ($form->{formname} eq 'purchase_order') {
@@ -1298,7 +1298,7 @@ sub print_form {
   $form->isblank("email", $locale->text('E-mail address missing!'))
     if ($form->{media} eq 'email');
   $form->isblank("${inv}date",
-           $locale->text($form->{label}) 
+           $locale->text($form->{label})
            . ": "
            . $locale->text(' Date missing!'));
 
@@ -1328,7 +1328,7 @@ sub print_form {
       call_sub($display_form);
       # saving the history
   	  if(!exists $form->{addition}) {
-        $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber}; 
+        $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
   	    $form->{addition} = "PRINTED";
   	    $form->save_history($form->dbconnect(\%myconfig));
       }
@@ -1614,7 +1614,7 @@ sub print_form {
   }
   if ($form->{printing}) {
    call_sub($display_form);
-   exit; 
+   exit;
   }
 
   $lxdebug->leave_sub();
