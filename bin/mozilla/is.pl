@@ -1113,7 +1113,7 @@ if ($form->{type} eq "credit_note") {
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
 
   if ($form->{id}) {
-    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar");
+    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && (($totalpaid == 0) || ($totalpaid eq ""));
 
     print qq|
     <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="|

@@ -826,7 +826,7 @@ sub form_footer {
 |;
 
   if ($form->{id}) {
-    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap");
+    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && (($totalpaid == 0) || ($totalpaid eq ""));
 
     print qq|<input class=submit type=submit name=action value="|
       . $locale->text('Post Payment') . qq|">

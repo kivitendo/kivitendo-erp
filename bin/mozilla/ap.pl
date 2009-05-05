@@ -800,10 +800,10 @@ $follow_ups_block
                 <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">
 |;
     }
-
+    print(STDERR "TOTALPAID $total_paid\n");
     # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
     print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
-      if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap', $form->{id}));
+      if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap', $form->{id}) && (($total_paid == 0) || ($total_paid eq "")));
 
     print qq| <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
               <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|">
