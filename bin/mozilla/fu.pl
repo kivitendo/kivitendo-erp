@@ -259,7 +259,7 @@ sub report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('report', @report_params);
+  $report->set_export_options('report', @report_params, qw(sort sortdir));
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 

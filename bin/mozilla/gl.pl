@@ -499,7 +499,7 @@ sub generate_report {
 
   foreach my $name (qw(id transdate reference source description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
     my $sortname                = $name =~ m/accno/ ? 'accno' : $name;
-    my $sortdir                 = $sortname eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
+    my $sortdir                 = $sortname eq $form->{sort} ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $callback . "&sort=$sortname&sortdir=$sortdir";
   }
 
@@ -516,7 +516,7 @@ sub generate_report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('generate_report', @hidden_variables);
+  $report->set_export_options('generate_report', @hidden_variables, qw(sort sortdir));
 
   $report->set_sort_indicator($form->{sort} eq 'accno' ? 'debit_accno' : $form->{sort}, $form->{sortdir});
 

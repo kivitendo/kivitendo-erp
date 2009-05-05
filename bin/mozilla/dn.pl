@@ -310,7 +310,7 @@ sub show_dunning {
 
   $report->set_options('std_column_visibility' => 1,
                        'title'                 => $form->{title});
-  $report->set_export_options('show_dunning', @filter_field_list);
+  $report->set_export_options('show_dunning', @filter_field_list, qw(sort sortdir));
 
   my %column_defs         =  (
     'checkbox'            => { 'text' => '', 'visible' => 'HTML' },

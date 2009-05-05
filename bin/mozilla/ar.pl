@@ -1507,7 +1507,7 @@ sub ar_transactions {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('ar_transactions', @hidden_variables);
+  $report->set_export_options('ar_transactions', @hidden_variables, qw(sort sortdir));
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 

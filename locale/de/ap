@@ -271,7 +271,6 @@ $self->{texts} = {
   'customer'                    => 'Kunde',
   'history'                     => 'Historie',
   'invoice'                     => 'Rechnung',
-  'invoice_list'                => 'debitorenbuchungsliste',
   'mark as paid'                => 'als bezahlt markieren',
   'no'                          => 'nein',
   'packing_list'                => 'Versandliste',
@@ -284,6 +283,7 @@ $self->{texts} = {
   'sales_order'                 => 'Kundenauftrag',
   'sales_quotation'             => 'Verkaufsangebot',
   'vendor'                      => 'Lieferant',
+  'vendor_invoice_list'         => 'kreditorenbuchungsliste',
   'wrongformat'                 => 'Falsches Format',
   'yes'                         => 'ja',
 };

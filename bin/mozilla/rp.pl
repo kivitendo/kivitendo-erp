@@ -2308,7 +2308,7 @@ sub list_payments {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('list_payments', @hidden_variables);
+  $report->set_export_options('list_payments', @hidden_variables, qw(sort sortdir));
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 

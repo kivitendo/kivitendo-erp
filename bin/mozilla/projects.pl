@@ -132,7 +132,7 @@ sub project_report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('project_report', @hidden_vars);
+  $report->set_export_options('project_report', @hidden_vars, 'sort');
 
   $report->set_sort_indicator($form->{sort}, 1);
 

@@ -645,13 +645,13 @@ sub generate_journal {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('generate_journal', @hidden_variables);
+  $report->set_export_options('generate_journal', @hidden_variables, qw(sort order));
 
   $report->set_sort_indicator($form->{sort}, $form->{order});
 
   $report->set_options('output_format'        => 'HTML',
                        'title'                => $form->{title},
-                       'attachment_basename'  => strftime('warehouse_journal_%Y%m%d', localtime time));
+                       'attachment_basename'  => strftime($locale->text('warehouse_journal_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
@@ -767,13 +767,13 @@ sub generate_report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('generate_report', @hidden_variables);
+  $report->set_export_options('generate_report', @hidden_variables, qw(sort order));
 
   $report->set_sort_indicator($sort_col, $form->{order});
 
   $report->set_options('output_format'        => 'HTML',
                        'title'                => $form->{title},
-                       'attachment_basename'  => strftime('warehouse_report_%Y%m%d', localtime time));
+                       'attachment_basename'  => strftime($locale->text('warehouse_report_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);

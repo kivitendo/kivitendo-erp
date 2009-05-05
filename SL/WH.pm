@@ -301,11 +301,14 @@ sub get_warehouse_journal {
   $filter{na} = '-' unless $filter{na};
 
   # make order, search in $filter and $form
-  $form->{sort}   = $filter{sort}             unless $form->{sort};
-  $form->{order}  = ($form->{sort} = 'itime') unless $form->{sort};
-  $form->{sort}   = 'itime'                   if     $form->{sort} eq "date";
-  $form->{order}  = $filter{order}            unless $form->{order};
-  $form->{sort}  .= (($form->{order}) ? " DESC" : " ASC");
+  my $sort_col   = $form->{sort};
+  my $sort_order = $form->{order};
+
+  $sort_col      = $filter{sort}         unless $sort_col;
+  $sort_order    = ($sort_col = 'itime') unless $sort_col;
+  $sort_col      = 'itime'               if     $sort_col eq 'date';
+  $sort_order    = $filter{order}        unless $sort_order;
+  my $sort_spec  = "${sort_col} " . ($sort_order ? " DESC" : " ASC");
 
   my $where_clause = join(" AND ", @filter_ary) . " AND " if (@filter_ary);
 
@@ -400,7 +403,7 @@ sub get_warehouse_journal {
     WHERE $where_clause i1.qty > 0 AND
           i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) = 1 )
     GROUP BY $group_clause
-    ORDER BY r_$form->{sort}|;
+    ORDER BY r_${sort_spec}|;
 
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars, @filter_vars, @filter_vars);
 
@@ -521,12 +524,15 @@ sub get_warehouse_report {
   map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}description"} || $form->{"l_${_}number"}); } qw(warehouse bin);
 
   # make order, search in $filter and $form
-  $form->{sort}  =  $filter{sort}  unless $form->{sort};
-  $form->{sort}  =  "parts_id"     unless $form->{sort};
-  $form->{order} =  $filter{order} unless $form->{order};
-  $form->{sort}  =~ s/ASC|DESC//; # kill stuff left in from previous queries
-  my $orderby    =  $form->{sort};
-  $form->{sort} .=  (($form->{order}) ? " DESC" : " ASC");
+  my $sort_col    =  $form->{sort};
+  my $sort_order  = $form->{order};
+
+  $sort_col       =  $filter{sort}  unless $sort_col;
+  $sort_col       =  "parts_id"     unless $sort_col;
+  $sort_order     =  $filter{order} unless $sort_order;
+  $sort_col       =~ s/ASC|DESC//; # kill stuff left in from previous queries
+  my $orderby     =  $sort_col;
+  my $sort_spec   =  "${sort_col} " . ($sort_order ? " DESC" : " ASC");
 
   my $where_clause = join " AND ", ("1=1", @filter_ary);
 
@@ -571,7 +577,7 @@ sub get_warehouse_report {
       $joins
       WHERE $where_clause
       GROUP BY $group_clause $group_by
-      ORDER BY $form->{sort}|;
+      ORDER BY $sort_spec|;
 
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars);
 

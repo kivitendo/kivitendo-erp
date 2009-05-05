@@ -219,6 +219,8 @@ $self->{texts} = {
   'transfer'                    => 'Umlagerung',
   'used'                        => 'Verbraucht',
   'vendor'                      => 'Lieferant',
+  'warehouse_journal_list'      => 'lagerbuchungsliste',
+  'warehouse_report_list'       => 'lagerbestandsliste',
   'yes'                         => 'ja',
 };
 

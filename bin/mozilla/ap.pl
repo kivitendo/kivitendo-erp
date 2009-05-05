@@ -1420,7 +1420,7 @@ sub ap_transactions {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
 
-  $report->set_export_options('ap_transactions', @hidden_variables);
+  $report->set_export_options('ap_transactions', @hidden_variables, qw(sort sortdir));
 
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
@@ -1440,7 +1440,7 @@ sub ap_transactions {
                        'raw_bottom_info_text' => $form->parse_html_template('ap/ap_transactions_bottom'),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
-                       'attachment_basename'  => $locale->text('invoice_list') . strftime('_%Y%m%d', localtime time),
+                       'attachment_basename'  => $locale->text('vendor_invoice_list') . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
 
