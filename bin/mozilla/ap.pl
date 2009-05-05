@@ -1425,37 +1425,16 @@ sub ap_transactions {
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my @options;
-  if ($form->{vendor}) {
-    push @options, $locale->text('Vendor') . " : $form->{vendor}";
-  }
-  if ($form->{department}) {
-    ($department) = split /--/, $form->{department};
-    push @options, $locale->text('Department') . " : $department";
-  }
-  if ($form->{invnumber}) {
-    push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
-  }
-  if ($form->{ordnumber}) {
-    push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
-  }
-  if ($form->{notes}) {
-    push @options, $locale->text('Notes') . " : $form->{notes}";
-  }
-  if ($form->{transaction_description}) {
-    push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
-  }
-  if ($form->{transdatefrom}) {
-    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-  }
-  if ($form->{transdateto}) {
-    push @options, $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{transdateto}, 1);
-  }
-  if ($form->{open}) {
-    push @options, $locale->text('Open');
-  }
-  if ($form->{closed}) {
-    push @options, $locale->text('Closed');
-  }
+  push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                         if ($form->{vendor});
+  push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0] if ($form->{department});
+  push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                      if ($form->{invnumber});
+  push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                      if ($form->{ordnumber});
+  push @options, $locale->text('Notes')                   . " : $form->{notes}"                          if ($form->{notes});
+  push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"        if ($form->{transaction_description});
+  push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)      if ($form->{transdatefrom});
+  push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)      if ($form->{transdateto});
+  push @options, $locale->text('Open')                                                                   if ($form->{open});
+  push @options, $locale->text('Closed')                                                                 if ($form->{closed});
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_bottom_info_text' => $form->parse_html_template('ap/ap_transactions_bottom'),
