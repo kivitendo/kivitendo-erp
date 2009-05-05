@@ -938,8 +938,11 @@ sub order_details {
   }
 
   # lookup department
-  # hallo sven, ich bekomme hier einen internal server error, sehr wahrscheinlich weil bei meinen mandanten keine Abteilungen konfiguriert sind
-  #  $form->{department} = ( first { $_->{id} eq $form->{department_id} } @{ $form->{ALL_DEPARTMENTS} } )->{description} || '';
+  foreach my $dept (@{ $form->{ALL_DEPARTMENTS} }) {
+    next unless $dept->{id} eq $form->{department_id};
+    $form->{department} = $dept->{description};
+    last;
+  }
 
   # sort items by partsgroup
   for $i (1 .. $form->{rowcount}) {
