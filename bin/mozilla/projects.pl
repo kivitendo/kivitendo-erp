@@ -124,9 +124,6 @@ sub project_report {
     %column_defs_cvars,
     );
 
-  $main::lxdebug->dump(0, "cdc", \@columns);
-  $main::lxdebug->dump(0, "cdc", \%column_defs);
-
   foreach (qw(projectnumber description)) {
     $column_defs{$_}->{link}    = $href . "&sort=$_";
     $column_defs{$_}->{visible} = 1;
