@@ -1,22 +1,21 @@
 [% USE HTML %]
 [% IF SUCCESS %]
-<script type="text/javascript">
-  function orderBy(order,desc) {
-    var reg = /\&order\=(.+)\-\-(\d)$/;
-    reg.exec(document.location.href);
-    if(RegExp.$1 == order) {
-      document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--" + desc;
-    }
-    else {
-      if(reg.test(document.location.href)) {
-        document.location.href = document.location.href.substring(0,document.location.href.lastIndexOf("&order=")) + "&order=" + order + "--" + desc;
-      }
-      else {
-        document.location.href = document.location.href + "&order=" + order + "--" + desc;
-      }
-    }
-  }
-</script>
+
+[% BLOCK column_header %]
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+             [% IF THIS_COLUMN && !THIS_COLUMN_DOWN %]
+               <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+             [% ELSE %]
+               <tr><td><a href="[% callback %]&order=[% column %]--0" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+             [% END %]
+             [% IF THIS_COLUMN &&  THIS_COLUMN_DOWN %]
+               <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+             [% ELSE %]
+               <tr><td><a href="[% callback %]&order=[% column %]--1" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+             [% END %]
+            </table>
+[% END %]
+
 <table>
 	<tr>
 		<th class="listtop">
@@ -26,20 +25,7 @@
 			     &nbsp;Zeitpunkt&nbsp;
           </td>
           <td valign="top">
-            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
-              [% IF ITIME %]
-                [% IF ITIMEBY %]
-                  <tr><td><a href="javascript:orderBy('h.itime',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% ELSE %]
-                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td><a href="javascript:orderBy('h.itime',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% END %]
-              [% ELSE %]
-                <tr><td><a href="javascript:orderBy('h.itime',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                <tr><td><a href="javascript:orderBy('h.itime',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              [% END %]
-            </table>
+           [% PROCESS column_header THIS_COLUMN=ITIME THIS_COLUMN_DOWN=ITIMEBY column='h.itime' %]
           </td>
         </tr>
       </table>
@@ -51,20 +37,7 @@
             &nbsp;Mitarbeiter&nbsp;
           </td>
           <td valign="top">
-            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
-              [% IF NAME %]
-                [% IF NAMEBY %]
-                  <tr><td height="0" width="0"><a href="javascript:orderBy('emp.name',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td height="0" width="0"><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% ELSE %]
-                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td><a href="javascript:orderBy('emp.name',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% END %]
-              [% ELSE %]
-                <tr><td><a href="javascript:orderBy('emp.name',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                <tr><td><a href="javascript:orderBy('emp.name',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              [% END %]
-            </table>
+           [% PROCESS column_header THIS_COLUMN=NAME THIS_COLUMN_DOWN=NAMEBY column='emp.name' %]
           </td>
         </tr>
       </table>
@@ -94,20 +67,7 @@
            &nbsp;ID-Nummer (intern)&nbsp;
           </td>
           <td valign="top">
-            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
-              [% IF TRANS_ID %]
-                [% IF TRANS_IDBY %]
-                  <tr><td height="0" width="0"><a href="javascript:orderBy('h.trans_id',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td height="0" width="0"><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% ELSE %]
-                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td><a href="javascript:orderBy('h.trans_id',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% END %]
-              [% ELSE %]
-                <tr><td><a href="javascript:orderBy('h.trans_id',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                <tr><td><a href="javascript:orderBy('h.trans_id',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              [% END %]
-            </table>
+            [% PROCESS column_header THIS_COLUMN=TRANS_ID THIS_COLUMN_DOWN=TRANS_IDBY column='h.trans_id' %]
           </td>
         </tr>
       </table>
@@ -119,20 +79,7 @@
            &nbsp;Buchungsnummer&nbsp;
           </td>
           <td valign="top">
-            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0" >
-              [% IF SNUMBERS %]
-                [% IF SNUMBERSBY %]
-                  <tr><td height="0" width="0"><a href="javascript:orderBy('h.snumbers',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td height="0" width="0"><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% ELSE %]
-                  <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
-                  <tr><td><a href="javascript:orderBy('h.snumbers',1);" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-                [% END %]
-              [% ELSE %]
-                <tr><td><a href="javascript:orderBy('h.snumbers',0);" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
-                <tr><td><a href="javascript:orderBy('h.snumbers',1);" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
-              [% END %]
-            </table>
+            [% PROCESS column_header THIS_COLUMN=SNUMBERS THIS_COLUMN_DOWN=SNUMBERSBY column='h.snumbers' %]
           </td>
         </tr>
       </table>

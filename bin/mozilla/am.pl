@@ -2818,6 +2818,9 @@ sub show_am_history {
 
   $auth->assert('config');
 
+  my $callback     = build_std_url(qw(action einschraenkungen fromdate todate mitarbeiter searchid what2search));
+  $form->{order} ||= 'h.itime--1';
+
   my %search = ( "Artikelnummer"          => "parts",
                  "Kundennummer"           => "customer",
                  "Lieferantennummer"      => "vendor",
@@ -2867,7 +2870,8 @@ sub show_am_history {
                                      "SUCCESS"        => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
                                      "NONEWWINDOW"    => 1,
                                      uc($sort)        => 1,
-                                     uc($sort) . "BY" => $sortby
+                                     uc($sort) . "BY" => $sortby,
+                                     'callback'       => $callback,
                                    });
   $dbh->disconnect();
 
