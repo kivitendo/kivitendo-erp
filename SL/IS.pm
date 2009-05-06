@@ -1572,7 +1572,7 @@ sub get_customer {
   # get customer
   $query =
     qq|SELECT
-         c.id AS customer_id, c.name AS customer, c.discount, c.creditlimit, c.terms,
+         c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id,

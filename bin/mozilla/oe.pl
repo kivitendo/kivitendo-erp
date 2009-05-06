@@ -41,6 +41,7 @@ use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
 use List::Util qw(max reduce sum);
+use Data::Dumper;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -465,6 +466,8 @@ sub update {
 
   check_oe_access();
 
+#  $main::lxdebug->message(0, Dumper($form));
+
   set_headings($form->{"id"} ? "edit" : "add");
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
@@ -491,8 +494,8 @@ sub update {
       && ($form->{"partsgroup_$i"}  eq "")) {
 
     $form->{creditremaining} += ($form->{oldinvtotal} - $form->{oldtotalpaid});
-    &check_form;
 
+    &check_form;
   } else {
 
     if ($form->{type} =~ /^sales/) {
@@ -502,8 +505,8 @@ sub update {
     }
 
     my $rows = scalar @{ $form->{item_list} };
-
-    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{discount} * 100);
+    # hier ist das problem fuer bug 817 $form->{discount} wird nicht durchgeschliffen
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{customer_discount} * 100);
 
     if ($rows) {
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});

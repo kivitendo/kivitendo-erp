@@ -1202,6 +1202,7 @@ if ($form->{type} eq "credit_note") {
 $cgi->hidden("-name" => "callback", "-value" => $form->{callback})
 . $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
 . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
+. $cgi->hidden('-name' => 'customer_discount', '-value' => [$form->{customer_discount}])
 . qq|
 </form>
 
@@ -1267,7 +1268,7 @@ sub update {
 
     $rows = scalar @{ $form->{item_list} };
 
-    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{discount} * 100);
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{customer_discount} * 100);
 
     if ($rows) {
       $form->{"qty_$i"} = ($form->{"qty_$i"} * 1) ? $form->{"qty_$i"} : 1;
