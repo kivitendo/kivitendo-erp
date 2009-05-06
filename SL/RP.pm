@@ -669,6 +669,19 @@ sub trial_balance {
   }
 
   if ($options{beginning_balances}) {
+    foreach my $prefix (qw(from to)) {
+      next if ($form->{"${prefix}date"});
+
+      my $min_max = $prefix eq 'from' ? 'min' : 'max';
+      $query      = qq|SELECT ${min_max}(transdate)
+                       FROM acc_trans ac
+                       $dpt_join
+                       WHERE (1 = 1)
+                         $dpt_where
+                         $project|;
+      ($form->{"${prefix}date"}) = selectfirst_array_query($form, $dbh, $query);
+    }
+
     # get beginning balances
     $query =
       qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
@@ -680,7 +693,7 @@ sub trial_balance {
             $project
           GROUP BY c.accno, c.category, c.description |;
 
-    $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
+    $sth = prepare_execute_query($form, $dbh, $query, $form->{fromtdate});
 
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
 
