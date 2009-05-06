@@ -2022,7 +2022,8 @@ sub get_pricegroups_for_parts {
 
           } else {
 
-            $form->{"sellprice_$i"} = $pkr->{price};
+# this sub should not set anything and only return. --sschoeling, 20090506
+#            $form->{"sellprice_$i"} = $pkr->{price};
           }
 
         } elsif ($pkr->{price} == $pkr->{default_sellprice}) {
