@@ -215,7 +215,7 @@ sub account_header {
           14 => "Steuern, Versich., Beiträge",
           15 => "Kfz-Steuern",
           16 => "Kfz-Versicherungen",
-          17 => "Sonst. Fahrtkosten",
+          17 => "Sonst. Fahrzeugkosten",
           18 => "Werbe- und Reisekosten",
           19 => "Instandhaltung u. Werkzeuge",
           20 => "Fachzeitschriften, Bücher",
