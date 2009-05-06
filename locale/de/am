@@ -410,7 +410,6 @@ $self->{subs} = {
   'edit_warehouse'              => 'edit_warehouse',
   'form_footer'                 => 'form_footer',
   'format_dates'                => 'format_dates',
-  'get_employee_id'             => 'get_employee_id',
   'gl_transaction'              => 'gl_transaction',
   'language_header'             => 'language_header',
   'lead_header'                 => 'lead_header',

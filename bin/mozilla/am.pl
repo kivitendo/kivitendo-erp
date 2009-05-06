@@ -2842,8 +2842,11 @@ sub show_am_history {
   my $restriction  = qq| AND (| . join(' OR ', map { " addition = " . $dbh->quote($_) } split(m/\,/, $form->{einschraenkungen})) . qq|)| if $form->{einschraenkungen};
   $restriction    .= qq| AND h.itime::date >= | . conv_dateq($form->{fromdate})                                                          if $form->{fromdate};
   $restriction    .= qq| AND h.itime::date <= | . conv_dateq($form->{todate})                                                            if $form->{todate};
-  $restriction    .= qq| AND employee_id = |    . $form->{mitarbeiter}                                                                   if $form->{mitarbeiter} =~ m/^\d+$/;
-  $restriction    .= qq| AND employee_id = |    . get_employee_id($form->{mitarbeiter}, $dbh)                                            if $form->{mitarbeiter};
+  if ($form->{mitarbeiter} =~ m/^\d+$/) {
+    $restriction  .= qq| AND employee_id = |    . $form->{mitarbeiter};
+  } elsif ($form->{mitarbeiter}) {
+    $restriction  .= qq| AND employee_id = (SELECT id FROM employee WHERE name ILIKE | . $dbh->quote('%' . $form->{mitarbeiter} . '%') . qq|)|;
+  }
 
   my $query = qq|SELECT trans_id AS id FROM history_erp | .
     (  $form->{'searchid'} ? qq| WHERE snumbers = '|  . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'|
@@ -2869,20 +2872,6 @@ sub show_am_history {
   $dbh->disconnect();
 
   $lxdebug->leave_sub();
-}
-
-sub get_employee_id {
-	$lxdebug->enter_sub();
-
-  $auth->assert('config');
-
-	my $query = qq|SELECT id FROM employee WHERE name = '| . $_[0] . qq|'|;
-	my $sth = $_[1]->prepare($query);
-	$sth->execute() || $form->dberror($query);
-	my $return = $sth->fetch();
-	$sth->finish();
-	return ${$return}[0];
-	$lxdebug->leave_sub();
 }
 
 sub swap_units {
