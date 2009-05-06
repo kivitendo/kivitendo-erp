@@ -2847,16 +2847,11 @@ sub show_am_history {
       $restriction .= " OR addition = '" . $_ . "'";
     }
   }
-  $restriction .=
-      $form->{fromdate} ne "" && $form->{todate} ne "" ? qq| AND st.itime::date >= '| . $form->{fromdate} . qq|' AND st.itime::date <= '| . $form->{todate} . qq|'|
-    : $form->{fromdate} ne "" && $form->{todate} eq "" ? qq| AND st.itime::date >= '| . $form->{fromdate} . qq|'|
-    : $form->{fromdate} eq "" && $form->{todate} ne "" ? qq| AND st.itime::date <= '| . $form->{todate} . qq|'|
-    :                                                        ""
-    ;
-  $restriction .=
-      $form->{mitarbeiter} eq ""      ? ""
-    : $form->{mitarbeiter} =~ /^\d+$/ ? " AND employee_id = " . $form->{mitarbeiter}
-    :                                   " AND employee_id = " . get_employee_id($form->{mitarbeiter}, $dbh);
+
+  $restriction .= qq| AND h.itime::date >= | . conv_dateq($form->{fromdate})               if $form->{fromdate};
+  $restriction .= qq| AND h.itime::date <= | . conv_dateq($form->{todate})                 if $form->{todate};
+  $restriction .= qq| AND employee_id = |    . $form->{mitarbeiter}                        if $form->{mitarbeiter} =~ m/^\d+$/;
+  $restriction .= qq| AND employee_id = |    . get_employee_id($form->{mitarbeiter}, $dbh) if $form->{mitarbeiter};
 
   my $dbh = $form->dbconnect(\%myconfig);
   my $query = qq|SELECT trans_id AS id FROM history_erp | .
