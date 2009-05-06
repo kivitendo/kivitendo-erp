@@ -644,7 +644,27 @@ sub trial_balance {
 
 
   if ($form->{method} eq "cash") {
-    $acc_cash_where = qq| AND (ac.trans_id IN (SELECT id FROM ar WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM ap WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM gl WHERE transdate>='$form->{fromdate}' AND transdate<='$form->{todate}')) |;
+    $acc_cash_where =
+      qq| AND (ac.trans_id IN (
+            SELECT id
+            FROM ar
+            WHERE datepaid >= '$form->{fromdate}'
+              AND datepaid <= '$form->{todate}'
+
+            UNION
+
+            SELECT id
+            FROM ap
+            WHERE datepaid >= '$form->{fromdate}'
+              AND datepaid <= '$form->{todate}'
+
+            UNION
+
+            SELECT id
+            FROM gl
+            WHERE transdate >= '$form->{fromdate}'
+              AND transdate <= '$form->{todate}'
+          )) |;
 #    $ar_ap_cash_where = qq| AND (a.datepaid>='$form->{fromdate}' AND a.datepaid<='$form->{todate}') |;
   }
 
