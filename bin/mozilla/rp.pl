@@ -1351,6 +1351,7 @@ sub generate_trial_balance {
 
 
     $row->{$ordnumber}->{link} = $edit_url . "&id=" . E($oe->{id}) . "&callback=${callback}";
+    $row->{accno}->{link} = build_std_url('script=ca.pl', 'action=list_transactions', 'accno=' . E($accno->{accno}), 'description=' . E($accno->{description}), 'fromdate=' . E($form->{fromdate}), 'todate=' . E($form->{todate}), 'method=' . E($form->{method}));
 
     my $row_set = [ $row ];
 
