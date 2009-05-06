@@ -693,7 +693,7 @@ sub trial_balance {
             $project
           GROUP BY c.accno, c.category, c.description |;
 
-    $sth = prepare_execute_query($form, $dbh, $query, $form->{fromtdate});
+    $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
 
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
 
