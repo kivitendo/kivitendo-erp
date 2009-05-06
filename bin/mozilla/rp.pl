@@ -1256,7 +1256,7 @@ sub generate_trial_balance {
 
 
   # get for each account initial balance, debits and credits
-  RP->trial_balance(\%myconfig, \%$form);
+  RP->trial_balance(\%myconfig, \%$form, 'beginning_balances' => 1);
 
 
   $form->{rowcount} = scalar @{ $form->{TB} };

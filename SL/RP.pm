@@ -609,7 +609,7 @@ sub get_accounts_g {
 sub trial_balance {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $myconfig, $form, %options) = @_;
 
   my $dbh = $form->dbconnect($myconfig);
 
@@ -668,36 +668,37 @@ sub trial_balance {
 #    $ar_ap_cash_where = qq| AND (a.datepaid>='$form->{fromdate}' AND a.datepaid<='$form->{todate}') |;
   }
 
-  # get beginning balances
-  $query =
-    qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
-        FROM acc_trans ac
-        LEFT JOIN chart c ON (ac.chart_id = c.id)
-        $dpt_join
-        WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction $acc_cash_where
-          $dpt_where
-          $project
-        GROUP BY c.accno, c.category, c.description |;
+  if ($options{beginning_balances}) {
+    # get beginning balances
+    $query =
+      qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
+          FROM acc_trans ac
+          LEFT JOIN chart c ON (ac.chart_id = c.id)
+          $dpt_join
+          WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction $acc_cash_where
+            $dpt_where
+            $project
+          GROUP BY c.accno, c.category, c.description |;
 
-  $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
+    $sth = prepare_execute_query($form, $dbh, $query, $form->{fromdate});
 
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
 
-    if ($ref->{amount} != 0 || $form->{all_accounts}) {
-      $trb{ $ref->{accno} }{description} = $ref->{description};
-      $trb{ $ref->{accno} }{charttype}   = 'A';
+      if ($ref->{amount} != 0 || $form->{all_accounts}) {
+        $trb{ $ref->{accno} }{description} = $ref->{description};
+        $trb{ $ref->{accno} }{charttype}   = 'A';
 
-      if ($ref->{amount} > 0) {
-        $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
-      } else {
-        $trb{ $ref->{accno} }{soll_eb}   = $ref->{amount} * -1;
+        if ($ref->{amount} > 0) {
+          $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
+        } else {
+          $trb{ $ref->{accno} }{soll_eb}   = $ref->{amount} * -1;
+        }
+        $trb{ $ref->{accno} }{category}    = $ref->{category};
       }
-      $trb{ $ref->{accno} }{category}    = $ref->{category};
+
     }
-
+    $sth->finish;
   }
-  $sth->finish;
-
 
   # get headings
   $query =
@@ -783,7 +784,7 @@ sub trial_balance {
                 $glwhere)
               )|;
     $saldowhere .=
-qq| AND ((ac.trans_id IN (SELECT id from ar) AND
+      qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                 ac.trans_id IN
                   (
                     SELECT trans_id
@@ -809,7 +810,7 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                 $glsaldowhere)
               )|;
     $sumwhere .=
-qq| AND ((ac.trans_id IN (SELECT id from ar) AND
+      qq| AND ((ac.trans_id IN (SELECT id from ar) AND
                 ac.trans_id IN
                   (
                     SELECT trans_id
@@ -1115,12 +1116,13 @@ qq| AND ((ac.trans_id IN (SELECT id from ar) AND
   foreach my $accno (@headingaccounts) {
     foreach $ref (@{ $form->{TB} }) {
       if ($accno eq $ref->{accno}) {
-        $ref->{debit}  = $trb{$accno}{debit};
-        $ref->{credit} = $trb{$accno}{credit};
-        $ref->{soll_saldo}  = $trb{$accno}{soll_saldo};
-        $ref->{haben_saldo} = $trb{$accno}{haben_saldo};
+        $ref->{debit}           = $trb{$accno}{debit};
+        $ref->{credit}          = $trb{$accno}{credit};
+        $ref->{soll_saldo}      = $trb{$accno}{soll_saldo};
+        $ref->{haben_saldo}     = $trb{$accno}{haben_saldo};
         $ref->{soll_kumuliert}  = $trb{$accno}{soll_kumuliert};
-        $ref->{haben_kumuliert} = $trb{$accno}{haben_kumuliert};      }
+        $ref->{haben_kumuliert} = $trb{$accno}{haben_kumuliert};
+      }
     }
   }
 
