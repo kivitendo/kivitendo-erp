@@ -2,9 +2,8 @@
 <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
 <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
 <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
-<script type="text/javascript" src="js/show_am_history.js"></script>
 
-<form method="post" onSubmit="javascript:set_history_uri();">
+<form method="post" action="am.pl">
 
 <input type="hidden" name="action" value="show_am_history">
 
@@ -55,14 +54,14 @@
 					var jscalender = "<table valign=\"top\">"
 									+ "<tr><td colspan=\"2\"><b><translate>Period</translate>:&nbsp;</b></td></tr>"
 									+ "<tr><td><translate>from (time)</translate>:&nbsp;"
-									+ "<input name=\"fromdate\" id=\"fromdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(fromdate) %]\" onChange=\"document.getElementById(\'fromdate_hidden\').value=this.value;\">"
+									+ "<input name=\"fromdate\" id=\"fromdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(fromdate) %]\">"
 									+ "<input type=\"button\" name=\"fromdate\" id=\"trigger1\" value=\"?\">"
 									+ "&nbsp;</td><td><translate>to (time)</translate>:&nbsp;"
-									+ "<input name=\"todate\" id=\"todate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(todate) %]\" onChange=\"document.getElementById(\'todate_hidden\').value=this.value;\">"
+									+ "<input name=\"todate\" id=\"todate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(todate) %]\">"
 									+ "<input type=\"button\" name=\"todate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
 					var mitarbeiter = "<table valign=\"top\">"
 									+ "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
-									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter' onChange=\"document.getElementById(\'mitarbeiter_hidden\').value=this.value;\"></td>"
+									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter'></td>"
 									+ "</tr></table>";
 
 					var tempString = "";
@@ -172,11 +171,8 @@
 					</tr>
 					<tr>
 						<td colspan="6">
-              <input type="hidden" value="" id="fromdate_hidden">
-              <input type="hidden" value="" id="todate_hidden">
-              <input type="hidden" value="" id="mitarbeiter_hidden">
-							<input type="button" value="<translate>submit</translate>" onClick="javascript:set_history_uri();">
-							<input type="reset" value="<translate>reset</translate>" onClick="javascript:resetAll();">
+							<input type="submit" class="submit" value="<translate>submit</translate>">
+							<input type="reset" class="submit" value="<translate>reset</translate>" onClick="javascript:resetAll();">
 						</td>
 						<td>
 						</td>

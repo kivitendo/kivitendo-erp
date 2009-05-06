@@ -474,6 +474,7 @@ $self->{subs} = {
   'neue_ware'                   => 'new_part',
   'speichern'                   => 'save',
   'als_neu_speichern'           => 'save_as_new',
+  'abschicken'                  => 'submit',
 };
 
 1;
