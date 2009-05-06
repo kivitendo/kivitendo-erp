@@ -857,7 +857,7 @@ sub form_footer {
   }
 
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers);
-  $form->hide_form(qw(rowcount callback draft_id draft_description));
+  $form->hide_form(qw(rowcount callback draft_id draft_description vendor_discount));
 
   # button for saving history
   if($form->{id} ne "") {
@@ -876,7 +876,6 @@ sub form_footer {
   }
   # /mark_as_paid button
 print qq|</form>
-
 </body>
 </html>
 |;
@@ -941,6 +940,9 @@ sub update {
         # override sellprice if there is one entered
         $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
+	# ergaenzung fuer bug 736 Lieferanten-Rabatt auch in Einkaufsrechnungen vorbelegen jb
+        $form->{"discount_$i"} = $form->format_amount(\%myconfig, 
+						      $form->{vendor_discount} * 100 );
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 

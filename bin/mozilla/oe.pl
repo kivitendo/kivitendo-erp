@@ -505,8 +505,12 @@ sub update {
     }
 
     my $rows = scalar @{ $form->{item_list} };
+
     # hier ist das problem fuer bug 817 $form->{discount} wird nicht durchgeschliffen
-    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{customer_discount} * 100);
+    # ferner fallunterscheidung fuer verkauf oder einkauf s.a. bug 736	jb 04.05.2009 
+    # select discount as vendor_discount from vendor || 
+    # select discount as customer_discount from customer
+    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"$form->{vc}_discount"} * 100);
 
     if ($rows) {
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
