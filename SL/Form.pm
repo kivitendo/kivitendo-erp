@@ -3383,7 +3383,7 @@ sub backup_vars {
   my $self = shift;
   my @vars = @_;
 
-  map { $self->{_VAR_BACKUP}->{$_} = $self->{$_} if $self->{$_} } @vars;
+  map { $self->{_VAR_BACKUP}->{$_} = $self->{$_} if exists $self->{$_} } @vars;
 
   $main::lxdebug->leave_sub();
 }
@@ -3394,7 +3394,7 @@ sub restore_vars {
   my $self = shift;
   my @vars = @_;
 
-  map { $self->{$_} = $self->{_VAR_BACKUP}->{$_} if $self->{_VAR_BACKUP}->{$_} } @vars;
+  map { $self->{$_} = $self->{_VAR_BACKUP}->{$_} if exists $self->{_VAR_BACKUP}->{$_} } @vars;
 
   $main::lxdebug->leave_sub();
 }
