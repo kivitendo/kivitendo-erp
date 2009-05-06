@@ -716,4 +716,39 @@ sub storno {
   $main::lxdebug->leave_sub();
 }
 
+sub get_chart_balances {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(charts));
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my @ids      = map { $_->{id} } @{ $params{charts} };
+
+  if (!@ids) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $query = qq|SELECT chart_id, SUM(amount) AS sum
+                 FROM acc_trans
+                 WHERE chart_id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)
+                 GROUP BY chart_id|;
+
+  my %balances = selectall_as_map($form, $dbh, $query, 'chart_id', 'sum', @ids);
+
+  foreach my $chart (@{ $params{charts} }) {
+    $chart->{balance} = $balances{ $chart->{id} } || 0;
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
+
 1;

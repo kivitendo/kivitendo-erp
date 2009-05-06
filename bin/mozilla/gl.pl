@@ -780,17 +780,6 @@ sub display_rows {
   $form->{totaldebit}  = 0;
   $form->{totalcredit} = 0;
 
-  my @old_project_ids = ();
-  map({ push(@old_project_ids, $form->{"project_id_$_"})
-          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
-
-  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 0,
-                                   "old_id" => \@old_project_ids },
-                   "charts" => { "key" => "ALL_CHARTS",
-                                 "transdate" => $form->{transdate} },
-                   "taxcharts" => "ALL_TAXCHARTS");
-
   my %project_labels = ();
   my @project_values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
@@ -822,7 +811,6 @@ sub display_rows {
   }
 
   for $i (1 .. $form->{rowcount}) {
-
     if ($form->{show_details}) {
       $source = qq|
       <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
@@ -939,6 +927,7 @@ sub display_rows {
 
     print qq|<tr valign=top>
     $accno
+    <td id="chart_balance_$i" align="right">&nbsp;</td>
     $fx_transaction
     <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $copy2credit $debitreadonly></td>
     <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
@@ -970,6 +959,19 @@ sub form_header {
   $lxdebug->enter_sub();
 
   $auth->assert('general_ledger');
+
+  my @old_project_ids = ();
+  map({ push(@old_project_ids, $form->{"project_id_$_"})
+          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
+
+  $form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
+                                    "all"       => 0,
+                                    "old_id"    => \@old_project_ids },
+                   "charts"    => { "key"       => "ALL_CHARTS",
+                                    "transdate" => $form->{transdate} },
+                   "taxcharts" => "ALL_TAXCHARTS");
+
+  GL->get_chart_balances('charts' => $form->{ALL_CHARTS});
 
   $title         = $form->{title};
   $form->{title} = $locale->text("$title General Ledger Transaction");
@@ -1008,10 +1010,11 @@ sub form_header {
     var txt = document.getElementsByName('debit_1')[0].value;
     document.getElementsByName('credit_2')[0].value = txt;
   };
-
   //-->
-  </script>|;
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
+  </script>
+  <script type="text/javascript" src="js/show_form_details.js"></script>
+  <script type="text/javascript" src="js/jquery.js"></script>
+|;
 
   $form->{selectdepartment} =~ s/ selected//;
   $form->{selectdepartment} =~
@@ -1068,6 +1071,8 @@ sub form_header {
 
   $form->{previous_id}     ||= "--";
   $form->{previous_gldate} ||= "--";
+
+  $jsscript .= $form->parse_html_template('gl/form_header_chart_balances_js');
 
   $form->header;
 
@@ -1194,6 +1199,7 @@ sub form_header {
 	   <tr class=listheading>
 	  <th class=listheading style="width:15%">|
     . $locale->text('Account') . qq|</th>
+	  <th class=listheading style="width:10%">| . $locale->text('Chart balance') . qq|</th>
 	  <th class=listheading style="width:10%">|
     . $locale->text('Debit') . qq|</th>
 	  <th class=listheading style="width:10%">|
@@ -1246,8 +1252,7 @@ sub form_footer {
 
   print qq|
     <tr class=listtotal>
-    <td></td>
-    <th align=right class=listtotal> $form->{totaldebit}</th>
+    <th colspan="3" align=right class=listtotal> $form->{totaldebit}</th>
     <th align=right class=listtotal> $form->{totalcredit}</th>
     <td colspan=6></td>
     </tr>

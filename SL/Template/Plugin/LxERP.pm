@@ -15,9 +15,9 @@ sub new {
 }
 
 sub format_amount {
-  my ($self, $var, $places, $skip_zero) = @_;
+  my ($self, $var, $places, $skip_zero, $dash) = @_;
 
-  return $main::form->format_amount(\%main::myconfig, $var * 1, $places) unless $skip_zero && $var == 0;
+  return $main::form->format_amount(\%main::myconfig, $var * 1, $places, $dash) unless $skip_zero && $var == 0;
   return '';
 }
 

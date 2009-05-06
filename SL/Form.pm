@@ -979,9 +979,9 @@ sub format_amount {
   $amount .= $d[0].$p[1].(0 x ($places - length $p[1])) if ($places || $p[1] ne '');
 
   $amount = do {
-    ($dash =~ /-/)    ? ($neg ? "($amount)"  : "$amount" )    :
-    ($dash =~ /DRCR/) ? ($neg ? "$amount DR" : "$amount CR" ) :
-                        ($neg ? "-$amount"   : "$amount" )    ;
+    ($dash =~ /-/)    ? ($neg ? "($amount)"                            : "$amount" )                              :
+    ($dash =~ /DRCR/) ? ($neg ? "$amount " . $main::locale->text('DR') : "$amount " . $main::locale->text('CR') ) :
+                        ($neg ? "-$amount"                             : "$amount" )                              ;
   };
 
 
