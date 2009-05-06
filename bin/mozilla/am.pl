@@ -2837,23 +2837,14 @@ sub show_am_history {
                    "Mahnungsnummer"         => "dunning_id"
     );
 
-  my $restriction;
-  my $tempNo = 0;
-  foreach(split(/\,/, $form->{einschraenkungen})) {
-    if($tempNo == 0) {
-      $restriction .= " AND addition = '" . $_ . "'";
-      $tempNo       = 1;
-    } else {
-      $restriction .= " OR addition = '" . $_ . "'";
-    }
-  }
-
-  $restriction .= qq| AND h.itime::date >= | . conv_dateq($form->{fromdate})               if $form->{fromdate};
-  $restriction .= qq| AND h.itime::date <= | . conv_dateq($form->{todate})                 if $form->{todate};
-  $restriction .= qq| AND employee_id = |    . $form->{mitarbeiter}                        if $form->{mitarbeiter} =~ m/^\d+$/;
-  $restriction .= qq| AND employee_id = |    . get_employee_id($form->{mitarbeiter}, $dbh) if $form->{mitarbeiter};
-
   my $dbh = $form->dbconnect(\%myconfig);
+
+  my $restriction  = qq| AND (| . join(' OR ', map { " addition = " . $dbh->quote($_) } split(m/\,/, $form->{einschraenkungen})) . qq|)| if $form->{einschraenkungen};
+  $restriction    .= qq| AND h.itime::date >= | . conv_dateq($form->{fromdate})                                                          if $form->{fromdate};
+  $restriction    .= qq| AND h.itime::date <= | . conv_dateq($form->{todate})                                                            if $form->{todate};
+  $restriction    .= qq| AND employee_id = |    . $form->{mitarbeiter}                                                                   if $form->{mitarbeiter} =~ m/^\d+$/;
+  $restriction    .= qq| AND employee_id = |    . get_employee_id($form->{mitarbeiter}, $dbh)                                            if $form->{mitarbeiter};
+
   my $query = qq|SELECT trans_id AS id FROM history_erp | .
     (  $form->{'searchid'} ? qq| WHERE snumbers = '|  . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'|
      :                       qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
