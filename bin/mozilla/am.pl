@@ -2848,9 +2848,9 @@ sub show_am_history {
     }
   }
   $restriction .=
-      $form->{transdate} ne "" && $form->{reqdate} ne "" ? qq| AND st.itime::date >= '| . $form->{transdate} . qq|' AND st.itime::date <= '| . $form->{reqdate} . qq|'|
-    : $form->{transdate} ne "" && $form->{reqdate} eq "" ? qq| AND st.itime::date >= '| . $form->{transdate} . qq|'|
-    : $form->{transdate} eq "" && $form->{reqdate} ne "" ? qq| AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+      $form->{fromdate} ne "" && $form->{todate} ne "" ? qq| AND st.itime::date >= '| . $form->{fromdate} . qq|' AND st.itime::date <= '| . $form->{todate} . qq|'|
+    : $form->{fromdate} ne "" && $form->{todate} eq "" ? qq| AND st.itime::date >= '| . $form->{fromdate} . qq|'|
+    : $form->{fromdate} eq "" && $form->{todate} ne "" ? qq| AND st.itime::date <= '| . $form->{todate} . qq|'|
     :                                                        ""
     ;
   $restriction .=

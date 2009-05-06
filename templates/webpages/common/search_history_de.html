@@ -55,11 +55,11 @@
 					var jscalender = "<table valign=\"top\">"
 									+ "<tr><td colspan=\"2\"><b>Zeitraum:&nbsp;</b></td></tr>"
 									+ "<tr><td>von:&nbsp;"
-									+ "<input name=\"transdate\" id=\"transdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(transdate) %]\" onChange=\"document.getElementById(\'transdate_hidden\').value=this.value;\">"
-									+ "<input type=\"button\" name=\"transdate\" id=\"trigger1\" value=\"?\">"
+									+ "<input name=\"fromdate\" id=\"fromdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(fromdate) %]\" onChange=\"document.getElementById(\'fromdate_hidden\').value=this.value;\">"
+									+ "<input type=\"button\" name=\"fromdate\" id=\"trigger1\" value=\"?\">"
 									+ "&nbsp;</td><td>bis:&nbsp;"
-									+ "<input name=\"reqdate\" id=\"reqdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(reqdate) %]\" onChange=\"document.getElementById(\'reqdate_hidden\').value=this.value;\">"
-									+ "<input type=\"button\" name=\"reqdate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
+									+ "<input name=\"todate\" id=\"todate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(todate) %]\" onChange=\"document.getElementById(\'todate_hidden\').value=this.value;\">"
+									+ "<input type=\"button\" name=\"todate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
 					var mitarbeiter = "<table valign=\"top\">"
 									+ "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
 									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter' onChange=\"document.getElementById(\'mitarbeiter_hidden\').value=this.value;\"></td>"
@@ -79,7 +79,7 @@
 
 							Calendar.setup(
       			    		{
-		                      inputField : "transdate",
+		                      inputField : "fromdate",
         		              ifFormat :"%d.%m.%Y",
                 		      align : "BL",
 		                      button : "trigger1"
@@ -87,7 +87,7 @@
 
 		        		    Calendar.setup(
 		          			{
-        		              inputField : "reqdate",
+        		              inputField : "todate",
                 		  	  ifFormat :"%d.%m.%Y",
 		                  	  align : "BL",
         		          	  button : "trigger2"
@@ -172,8 +172,8 @@
 					</tr>
 					<tr>
 						<td colspan="6">
-              <input type="hidden" value="" id="transdate_hidden">
-              <input type="hidden" value="" id="reqdate_hidden">
+              <input type="hidden" value="" id="fromdate_hidden">
+              <input type="hidden" value="" id="todate_hidden">
               <input type="hidden" value="" id="mitarbeiter_hidden">
 							<input type="button" value="abschicken" onClick="javascript:set_history_uri();">
 							<input type="reset" value="zurücksetzen" onClick="javascript:resetAll();">
