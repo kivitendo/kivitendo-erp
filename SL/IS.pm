@@ -366,6 +366,7 @@ sub invoice_details {
       push(@{ $form->{paymentaccount} }, $description);
       push(@{ $form->{paymentdate} },    $form->{"datepaid_$i"});
       push(@{ $form->{paymentsource} },  $form->{"source_$i"});
+      push(@{ $form->{paymentmemo} },    $form->{"memo_$i"});
 
       $form->{paid} += $form->parse_amount($myconfig, $form->{"paid_$i"});
     }
