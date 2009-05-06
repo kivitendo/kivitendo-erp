@@ -74,7 +74,7 @@ sub payment_transactions {
       qq|   WHERE c2.accno = ?) AS category | .
       qq|FROM acc_trans a | .
       qq|JOIN chart c ON (c.id = a.chart_id) | .
-      qq|WHERE a.transdate < date ? AND a.cleared = '1' AND c.accno = ?|;
+      qq|WHERE a.transdate < ? AND a.cleared = '1' AND c.accno = ?|;
     @values = ($form->{accno}, conv_date($form->{fromdate}), $form->{accno});
 
   } else {
