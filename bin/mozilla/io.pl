@@ -137,7 +137,7 @@ sub display_row {
     {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
     {  id => 'description',   width => 30,    value => $locale->text('Part Description'),     display => 1, },
     {  id => 'ship',          width => 5,     value => $locale->text('Delivered'),            display => $is_s_p_order, },
-    {  id => 'qty',           width => 5,     value => $locale->text('Wo bin ich'),                  display => 1, },
+    {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
     {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
     {  id => 'license',       width => 10,    value => $locale->text('License'),              display => 0, },
