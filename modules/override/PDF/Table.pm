@@ -135,8 +135,8 @@ sub text_block {
       $line_width += $arg{'indent'};
     }
 
-    # Lets take from paragraph as many words as we can put into $width - $indent;
-    while ( @paragraph and $text_object->advancewidth( join("\x20", @line)."\x20" . $paragraph[0]) + $line_width < $width ) {
+    # Lets take from paragraph as many words as we can put into $width - $indent;. Always take at least one word; otherwise we'd end up in an infinite loop.
+    while (!scalar(@line) || (@paragraph && ($text_object->advancewidth( join("\x20", @line)."\x20" . $paragraph[0]) + $line_width < $width))) {
       push(@line, shift(@paragraph));
     }
     $line_width += $text_object->advancewidth(join('', @line));
