@@ -495,6 +495,7 @@ sub list_transactions {
 
   my $saldo_old = format_debit_credit($form->{saldo_old});
   my $eb_string = format_debit_credit($form->{beginning_balance});
+  $form->{balance} = $form->{saldo_old};
 
   my @options;
   if ($form->{department}) {
@@ -524,7 +525,7 @@ sub list_transactions {
 
   push @options, $period;
 
-  my @columns     = qw(transdate reference description gegenkonto debit credit ustkonto ustrate);
+  my @columns     = qw(transdate reference description gegenkonto debit credit ustkonto ustrate balance);
   my %column_defs = (
     'transdate'   => { 'text' => $locale->text('Date'), },
     'reference'   => { 'text' => $locale->text('Reference'), },
@@ -533,7 +534,8 @@ sub list_transactions {
     'credit'      => { 'text' => $locale->text('Credit'), },
     'gegenkonto'     => { 'text' => $locale->text('Gegenkonto'), },
     'ustkonto'     => { 'text' => $locale->text('USt-Konto'), },
-     'ustrate'     => { 'text' => $locale->text('Satz %'), },
+    'balance'          => { 'text' => $locale->text('Balance'), },
+    'ustrate'     => { 'text' => $locale->text('Satz %'), },
  );
 
   my @hidden_variables = qw(accno fromdate todate description accounttype l_heading subtotal department projectnumber project_id sort);
@@ -571,6 +573,7 @@ sub list_transactions {
    { 'text' => $locale->text('Credit'), },
    { 'text' => $locale->text('USt-Konto'), },
    { 'text' => $locale->text('Satz %'), },
+   { 'text' => $locale->text('Balance'), },
  ];
 
 
@@ -595,7 +598,7 @@ sub list_transactions {
 
   $report->set_sort_indicator($form->{sort}, 1);
 
-  $column_defs->{balance}->{visible} = $form->{accno} ? 1 : 0;
+  $column_defs->{balance}->{visible} = 1;
 
   my $ml = ($form->{category} =~ /(A|E)/) ? -1 : 1;
 
@@ -610,6 +613,12 @@ sub list_transactions {
     foreach (qw(debit credit)) {
       $subtotals{$_} += $ca->{$_};
       $totals{$_}    += $ca->{$_};
+      if ($_ =~ /debit.*/) {
+        $ml = -1;
+      } else {
+        $ml = 1;
+      }
+      $form->{balance}= $form->{balance} + $ca->{$_} * $ml;
       $ca->{$_}       = $form->format_amount(\%myconfig, $ca->{$_}, 2) if ($ca->{$_} != 0);
     }
 
@@ -645,6 +654,19 @@ sub list_transactions {
       };
     }
 
+    my $sh = "";
+    if ($form->{balance} < 0) {
+      $sh = " S";
+      $ml = -1;
+    } elsif ($form->{balance} > 0) {
+      $sh = " H";
+      $ml = 1;
+    }
+    my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
+    $data .= $sh;
+
+    $row->{balance}->{data}        = $data;
+
     if ($ca->{index} ne $previous_index) {
 #       $report->add_data($row_set) if ($row_set);
 
@@ -675,7 +697,20 @@ sub list_transactions {
   $report->add_separator();
 
   my $row = create_subtotal_row(\%totals, \@columns, \%column_alignment, 'listtotal');
-  $row->{balance}->{data} = $form->format_amount(\%myconfig, $form->{balance} * $ml, 2);
+
+  my $sh = "";
+  if ($form->{balance} < 0) {
+    $sh = " S";
+    $ml = -1;
+  } elsif ($form->{balance} > 0) {
+    $sh = " H";
+    $ml = 1;
+  }
+  my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
+  $data .= $sh;
+
+  $row->{balance}->{data}        = $data;
+
   $report->add_data($row);
 
 

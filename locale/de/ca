@@ -13,6 +13,7 @@ $self->{texts} = {
   'April'                       => 'April',
   'Aug'                         => 'Aug',
   'August'                      => 'August',
+  'Balance'                     => 'Bilanz',
   'Bcc'                         => 'Bcc',
   'Bin List'                    => 'Lagerliste',
   'Binding to the LDAP server as "#1" failed. Please check config/authentication.pl.' => 'Die Anmeldung am LDAP-Server als "#1" schlug fehl. Bitte &uuml;berpr&uuml;fen Sie die Angaben in config/authentication.pl.',

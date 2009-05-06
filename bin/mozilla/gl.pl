@@ -507,7 +507,7 @@ sub generate_report {
   map { $column_defs{$_}->{visible} = 0 } qw(debit_accno credit_accno debit_tax_accno credit_tax_accno) if $form->{accno};
 
   my %column_alignment;
-  map { $column_alignment{$_}     = 'right'  } qw(balance id debit credit debit_tax credit_tax);
+  map { $column_alignment{$_}     = 'right'  } qw(balance id debit credit debit_tax credit_tax balance);
   map { $column_alignment{$_}     = 'center' } qw(transdate reference description source notes debit_accno credit_accno debit_tax_accno credit_tax_accno);
   map { $column_defs{$_}->{align} = $column_alignment{$_} } keys %column_alignment;
 
@@ -566,10 +566,10 @@ sub generate_report {
 
     my $sh = "";
     if ($form->{balance} < 0) {
-      $sh = "(S)";
+      $sh = " S";
       $ml = -1;
     } elsif ($form->{balance} > 0) {
-      $sh = "(H)";
+      $sh = " H";
       $ml = 1;
     }
     my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
@@ -612,10 +612,10 @@ sub generate_report {
 
   my $sh = "";
   if ($form->{balance} < 0) {
-    $sh = "(S)";
+    $sh = " S";
     $ml = -1;
   } elsif ($form->{balance} > 0) {
-    $sh = "(H)";
+    $sh = " H";
     $ml = 1;
   }
   my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
