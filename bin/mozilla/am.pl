@@ -99,8 +99,8 @@ sub account_header {
 
   if ( $form->{action} eq 'edit_account') {
     $form->{account_exists} = '1';
-  } 
-  
+  }
+
   $form->{title} = $locale->text("$form->{title} Account");
 
   $form->{"$form->{charttype}_checked"} = "checked";
@@ -109,9 +109,9 @@ sub account_header {
   $form->{select_tax} = "";
 
   my @tax_report_pos = USTVA->report_variables({
-      myconfig   => \%myconfig, 
-      form       => $form, 
-      type       => '', 
+      myconfig   => \%myconfig,
+      form       => $form,
+      type       => '',
       attribute  => 'position',
       calc       => '',
   });
@@ -147,27 +147,27 @@ sub account_header {
         if ($item->{id} == $taxkey_used->{tax_id}) {
           $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
             qq|<option value="$item->{id}" selected="selected">|
-            . sprintf("%.2d", $item->{taxkey}) 
+            . sprintf("%.2d", $item->{taxkey})
             . qq|. $item->{taxdescription} ($item->{rate}) |
-            . $locale->text('Tax-o-matic Account') 
+            . $locale->text('Tax-o-matic Account')
             . qq|: $item->{chart_accno}\n|;
-        } 
+        }
         else {
           $form->{ACCOUNT_TAXKEYS}[$i]{selecttaxkey} .=
             qq|<option value="$item->{id}">|
-            . sprintf("%.2d", $item->{taxkey}) 
+            . sprintf("%.2d", $item->{taxkey})
             . qq|. $item->{taxdescription} ($item->{rate}) |
             . $locale->text('Tax-o-matic Account')
             . qq|: $item->{chart_accno}\n|;
         }
 
       }
-      
+
       # Fill in the USTVA Numbers as select options
       foreach my $item ( '', sort({ $a cmp $b } @tax_report_pos) ) {
         if ($item eq ''){
           $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="" selected="selected">-\n|;
-        } 
+        }
         elsif ( $item eq $taxkey_used->{pos_ustva} ) {
           $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item" selected="selected">$item\n|;
         }
@@ -175,13 +175,13 @@ sub account_header {
           $form->{ACCOUNT_TAXKEYS}[$i]{select_tax} .= qq|<option value="$item">$item\n|;
         }
 
-      }      
+      }
 
       $i++;
     }
   }
 
-  # Newaccount Folgekonto 
+  # Newaccount Folgekonto
   if (@{ $form->{NEWACCOUNT} }) {
     if (!$form->{new_chart_valid}) {
       $form->{selectnewaccount} = qq|<option value=""> |. $locale->text('None') .q|</option>|;
@@ -288,18 +288,18 @@ sub account_header {
   # this is for our parser only! Do not remove.
   # type=submit $locale->text('Add Account')
   # type=submit $locale->text('Edit Account')
-  
+
   $form->{type} = "account";
 
   # preselections category
- 
+
   $select_category = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
   %category = (
       'A'  => $locale->text('Asset'),
       'L'  => $locale->text('Liability'),
       'Q'  => $locale->text('Equity'),
-      'I'  => $locale->text('Revenue'),      
+      'I'  => $locale->text('Revenue'),
       'E'  => $locale->text('Expense'),
       'C'  => $locale->text('Costs'),
   );
@@ -311,7 +311,7 @@ sub account_header {
     }
 
   }
-  
+
   # preselection chart type
   my $select_charttype = q{};
 
@@ -319,7 +319,7 @@ sub account_header {
       'A'  => $locale->text('Account'),
       'H'  => $locale->text('Header'),
   );
-  
+
   foreach $item ( sort({ $a <=> $b } keys %charttype) ) {
     if ($item eq $form->{charttype}) {
       $select_charttype .= qq|<option value="$item" selected="selected">$charttype{$item}\n|;
@@ -331,9 +331,9 @@ sub account_header {
   }
 
   my $ChartTypeIsAccount = ($form->{charttype} eq "A") ? "1":"";
-  
+
   $form->header();
-  
+
   my $parameters_ref = {
     ChartTypeIsAccount         => $ChartTypeIsAccount,
     select_category            => $select_category,
@@ -344,7 +344,7 @@ sub account_header {
     select_bilanz              => $select_bilanz,
     select_eur                 => $select_eur,
   };
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('am/edit_accounts', $parameters_ref));
 
@@ -397,7 +397,7 @@ sub save_account {
 
   $form->isblank("accno",       $locale->text('Account Number missing!'));
   $form->isblank("description", $locale->text('Account Description missing!'));
-  
+
   if ($form->{charttype} eq 'A'){
     $form->isblank("category",  $locale->text('Account Type missing!'));
   }
@@ -416,7 +416,7 @@ sub save_as_new_account {
 
   $form->isblank("accno",       $locale->text('Account Number missing!'));
   $form->isblank("description", $locale->text('Account Description missing!'));
-  
+
   if ($form->{charttype} eq 'A'){
     $form->isblank("category",  $locale->text('Account Type missing!'));
   }
@@ -460,32 +460,32 @@ sub list_account {
     if ($ca->{amount} < 0) {
       $ca->{debit} = $form->format_amount(\%myconfig, -1 * $ca->{amount}, 2);
     }
-    $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:''; 
+    $ca->{heading}   = ( $ca->{charttype} eq 'H' ) ? 1:'';
     $ca->{link_edit_account} = $link_edit_account . '&id=' . E($ca->{id});
   }
-  
-  # Ajax 
+
+  # Ajax
   my $pjx = new CGI::Ajax('list_account_details' => build_std_url('action=list_account_details'));
 
   # Eneable AJAX debuging
   #$pjx->DEBUG(1);
   #$pjx->JSDEBUG(1);
-    
+
   push(@ { $form->{AJAX} }, $pjx);
 
   $form->{stylesheets} = "list_accounts.css";
   $form->{title}       = $locale->text('Chart of Accounts');
 
   $form->header;
-  
-  
+
+
   my $parameters_ref = {
   #   hidden_variables                => $_hidden_variables_ref,
   };
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('am/list_accounts', $parameters_ref));
-  
+
   $lxdebug->leave_sub();
 
 }
@@ -876,7 +876,7 @@ sub list_lead {
 |;
 
 	$lead = $ref->{lead};
-	
+
     $column_data{description} = qq|<td><a href="am.pl?action=edit_lead&id=$ref->{id}&callback=$callback">$ref->{lead}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
@@ -2308,11 +2308,11 @@ sub payment_header {
   <tr>
     <th align=right>| . $locale->text('Skonto Terms') . qq|</th>
     <td><input name=terms_skonto size=10 value="$form->{terms_skonto}"></td>
-  </tr>  
+  </tr>
   <tr>
     <th align=right>| . $locale->text('Skonto') . qq| %</th>
     <td><input name=percent_skonto size=10 value="$form->{percent_skonto}"></td>
-  </tr> 
+  </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>
 </table>
@@ -2801,103 +2801,87 @@ sub save_unit {
 }
 
 sub show_history_search {
-	$lxdebug->enter_sub();
-	
+  $lxdebug->enter_sub();
+
   $auth->assert('config');
 
-	$form->{title} = $locale->text("History Search");
-    $form->header();
-    
-    print $form->parse_html_template("common/search_history");
-	
-	$lxdebug->leave_sub();
+  $form->{title} = $locale->text("History Search");
+  $form->header();
+
+  print $form->parse_html_template("common/search_history");
+
+  $lxdebug->leave_sub();
 }
 
 sub show_am_history {
-	$lxdebug->enter_sub();
+  $lxdebug->enter_sub();
 
   $auth->assert('config');
 
-	my %search = ( "Artikelnummer" => "parts",
-				   "Kundennummer"  => "customer",
-				   "Lieferantennummer" => "vendor",
-				   "Projektnummer" => "project",
-				   "Buchungsnummer" => "oe",
-				   "Eingangsrechnungnummer" => "ap",
-				   "Ausgangsrechnungnummer" => "ar",
-           "Mahnungsnummer" => "dunning"
-		);
-	my %searchNo = ( "Artikelnummer" => "partnumber",
-				     "Kundennummer"  => "customernumber",
-				     "Lieferantennummer" => "vendornumber",
-				     "Projektnummer" => "projectnummer",
-				     "Buchungsnummer" => "ordnumber",
-				     "Eingangsrechnungnummer" => "invnumber",
-				     "Ausgangsrechnungnummer" => "invnumber",
-             "Mahnungsnummer" => "dunning_id"
-		);
-	
-	my $restriction;
-	my $tempNo = 0;
-	foreach(split(/\,/, $form->{einschraenkungen})) {
-		if($tempNo == 0) {
-			$restriction .= " AND addition = '" . $_ . "'";
-			$tempNo = 1;
-		} 
-		else {
-			$restriction .= " OR addition = '" . $_ . "'";
-		}
-	}
-	$restriction .= (($form->{transdate} ne "" && $form->{reqdate} ne "") 
-						? qq| AND st.itime::date >= '| . $form->{transdate} . qq|' AND st.itime::date <= '| . $form->{reqdate} . qq|'|
-						: (($form->{transdate} ne "" && $form->{reqdate} eq "") 
-							? qq| AND st.itime::date >= '| . $form->{transdate} . qq|'|
-							: ($form->{transdate} eq "" && $form->{reqdate} ne "") 
-								? qq| AND st.itime::date <= '| . $form->{reqdate} . qq|'|
-								: ""
-							)
-						);
-  $restriction .= ($form->{mitarbeiter} eq "" ? "" 
-          : ($form->{mitarbeiter} =~ /^[0-9]*$/  
-            ? " AND employee_id = " . $form->{mitarbeiter} 
-            : " AND employee_id = " . &get_employee_id($form->{mitarbeiter}, $dbh)));
-  
-	my $dbh = $form->dbconnect(\%myconfig);
-	my $query = qq|SELECT trans_id AS id FROM history_erp | . 
-                ($form->{'searchid'} ? 
-                  qq| WHERE snumbers = '| . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'| : 
-                  qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
+  my %search = ( "Artikelnummer"          => "parts",
+                 "Kundennummer"           => "customer",
+                 "Lieferantennummer"      => "vendor",
+                 "Projektnummer"          => "project",
+                 "Buchungsnummer"         => "oe",
+                 "Eingangsrechnungnummer" => "ap",
+                 "Ausgangsrechnungnummer" => "ar",
+                 "Mahnungsnummer"         => "dunning"
+    );
+  my %searchNo = ( "Artikelnummer"          => "partnumber",
+                   "Kundennummer"           => "customernumber",
+                   "Lieferantennummer"      => "vendornumber",
+                   "Projektnummer"          => "projectnummer",
+                   "Buchungsnummer"         => "ordnumber",
+                   "Eingangsrechnungnummer" => "invnumber",
+                   "Ausgangsrechnungnummer" => "invnumber",
+                   "Mahnungsnummer"         => "dunning_id"
+    );
 
-  my $sth = $dbh->prepare($query);
-	
-	$sth->execute() || $form->dberror($query);
-  
-  $form->{title} = $locale->text("History Search");
-	$form->header();
-	
-  my $i = 1;
-  my $daten = qq||;
-  while(my $hash_ref = $sth->fetchrow_hashref()){
-    if($i) {
-      $daten .= $hash_ref->{id};
-      $i = 0;
-    }
-    else {
-      $daten .= " OR trans_id = " . $hash_ref->{id};
+  my $restriction;
+  my $tempNo = 0;
+  foreach(split(/\,/, $form->{einschraenkungen})) {
+    if($tempNo == 0) {
+      $restriction .= " AND addition = '" . $_ . "'";
+      $tempNo       = 1;
+    } else {
+      $restriction .= " OR addition = '" . $_ . "'";
     }
   }
-  
+  $restriction .=
+      $form->{transdate} ne "" && $form->{reqdate} ne "" ? qq| AND st.itime::date >= '| . $form->{transdate} . qq|' AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+    : $form->{transdate} ne "" && $form->{reqdate} eq "" ? qq| AND st.itime::date >= '| . $form->{transdate} . qq|'|
+    : $form->{transdate} eq "" && $form->{reqdate} ne "" ? qq| AND st.itime::date <= '| . $form->{reqdate} . qq|'|
+    :                                                        ""
+    ;
+  $restriction .=
+      $form->{mitarbeiter} eq ""      ? ""
+    : $form->{mitarbeiter} =~ /^\d+$/ ? " AND employee_id = " . $form->{mitarbeiter}
+    :                                   " AND employee_id = " . get_employee_id($form->{mitarbeiter}, $dbh);
+
+  my $dbh = $form->dbconnect(\%myconfig);
+  my $query = qq|SELECT trans_id AS id FROM history_erp | .
+    (  $form->{'searchid'} ? qq| WHERE snumbers = '|  . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'|
+     :                       qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
+
+  my @ids    = selectall_array_query($form, $dbh, $query);
+  my $daten .= shift @ids;
+  $daten    .= join '', map { " OR trans_id = $_" } @ids;
+
   my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)$/$1/;
 
-	print $form->parse_html_template("common/show_history", 
-    {"DATEN" => $form->get_history($dbh, $daten, $restriction, $form->{order}),
-     "SUCCESS" => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
-     "NONEWWINDOW" => 1,
-     uc($sort) => 1,
-     uc($sort)."BY" => $sortby
-    });
-	$dbh->disconnect();
+  $form->{title} = $locale->text("History Search");
+  $form->header();
+
+  print $form->parse_html_template("common/show_history",
+                                   { "DATEN"          => $form->get_history($dbh, $daten, $restriction, $form->{order}),
+                                     "SUCCESS"        => ($form->get_history($dbh, $daten, $restriction, $form->{order}) ne "0"),
+                                     "NONEWWINDOW"    => 1,
+                                     uc($sort)        => 1,
+                                     uc($sort) . "BY" => $sortby
+                                   });
+  $dbh->disconnect();
+
   $lxdebug->leave_sub();
 }
 
@@ -2940,11 +2924,11 @@ sub add_tax {
   _get_taxaccount_selection();
 
   $form->header();
-  
+
   my $parameters_ref = {
 #    ChartTypeIsAccount         => $ChartTypeIsAccount,
   };
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('am/edit_tax', $parameters_ref));
 
@@ -2964,10 +2948,10 @@ sub edit_tax {
   $form->{rate} = $form->format_amount(\%myconfig, $form->{rate}, 2);
 
   $form->header();
-  
+
   my $parameters_ref = {
   };
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('am/edit_tax', $parameters_ref));
 
@@ -2988,7 +2972,7 @@ sub list_tax {
   $form->{title} = $locale->text('Tax-O-Matic');
 
   $form->header();
-  
+
   # Ausgabe des Templates
   print($form->parse_html_template('am/list_tax', $parameters_ref));
 
@@ -3024,7 +3008,7 @@ sub save_tax {
 
   if ( $form->{rate} <= 0.99 && $form->{rate} > 0 ) {
     $form->error($locale->text('Tax Percent is a number between 0 and 100'));
-  }  
+  }
 
   AM->save_tax(\%myconfig, \%$form);
   $form->redirect($locale->text('Tax saved!'));
@@ -3277,4 +3261,3 @@ sub save_bin {
 
   $lxdebug->leave_sub();
 }
-
