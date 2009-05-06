@@ -17,8 +17,7 @@
     }
   }
 </script>
-<div style="position: absolute; top:10px; left:10px; clip:rect(0px, 700px, 407px, 0px);">
-<table style="width: 700px; height: 360px;">
+<table>
 	<tr>
 		<th class="listtop">
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
@@ -139,7 +138,7 @@
       </table>
     </th>
 	</tr>
-  <tbody height="380px" width="580px" style="overflow:auto;">
+  <tbody>
 [% FOREACH row = DATEN %]
   <tr class="listrow[% loop.count % 2 %]">
 		<td nowrap>
@@ -164,8 +163,6 @@
 [% END %]
 </tbody>
 </table>
-</div>
-<div style="position:absolute; bottom:10px; left:10px;">
 [% ELSE %]
 <b><translate>Keine Suchergebnisse gefunden!</translate></b><br>
 [% END %]
@@ -176,4 +173,3 @@
 <input type="button" onclick="javascript:window.close();" value="<translate>close</translate>">
 [% END %]
 </p>
-</div>
