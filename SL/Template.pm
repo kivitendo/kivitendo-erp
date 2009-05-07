@@ -85,7 +85,7 @@ sub _get_loop_variable_value {
   my @indices = @_;
 
   my $form    = $self->{form};
-  my $value   = $self->{form}->{$var};
+  my $value   = $form->{$var};
 
   for (my $i = 0; $i < scalar(@indices); $i++) {
     last unless (ref($value) eq "ARRAY");
