@@ -526,6 +526,12 @@ sub list_transactions {
 
   push @options, $period;
 
+  $form->{print_date} = $locale->text('Create Date') . " " . $locale->date(\%myconfig, $form->current_date(\%myconfig), 0);
+  push (@options, $form->{print_date});
+
+  $form->{company} = $locale->text('Company') . " " . $myconfig{company};
+  push (@options, $form->{company});
+
   my @columns     = qw(transdate reference description gegenkonto debit credit ustkonto ustrate balance);
   my %column_defs = (
     'transdate'   => { 'text' => $locale->text('Date'), },

@@ -374,6 +374,7 @@ $self->{texts} = {
   'Create Buchungsgruppen'      => 'Buchungsgruppe erfassen',
   'Create Chart of Accounts'    => 'Kontenplan anlegen',
   'Create Dataset'              => 'Datenbank anlegen',
+  'Create Date'                 => 'Erstelldatum',
   'Create a standard group'     => 'Eine Standard-Benutzergruppe anlegen',
   'Create and edit RFQs'        => 'Lieferantenanfragen erfassen und bearbeiten',
   'Create and edit customers and vendors' => 'Kunden und Lieferanten erfassen und bearbeiten',

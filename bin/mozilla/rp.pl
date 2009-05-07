@@ -1308,9 +1308,18 @@ sub generate_trial_balance {
 
 
   $form->{template_fromto} = $locale->date(\%myconfig, $form->{fromdate}, 0) . "&nbsp; - &nbsp;" . $locale->date(\%myconfig, $form->{todate}, 0);
+
+  $form->{print_date} = $locale->text('Create Date') . " " . $locale->date(\%myconfig, $form->current_date(\%myconfig), 0);
+  push (@options, $form->{print_date});
+
+  $form->{company} = $locale->text('Company') . " " . $myconfig{company};
+  push (@options, $form->{company});
+
+
   $form->{template_to} = $locale->date(\%myconfig, $form->{todate}, 0);
 
   $report->set_options('output_format'        => 'HTML',
+                       'top_info_text'        => join("\n", @options),
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
                        'html_template'        => 'rp/html_report_susa',
