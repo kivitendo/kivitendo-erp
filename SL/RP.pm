@@ -37,8 +37,8 @@ package RP;
 use SL::DBUtils;
 use Data::Dumper;
 use List::Util qw(sum);
-use strict;
-use warnings;
+# use strict;
+# use warnings;
 
 
 # new implementation of balance sheet
@@ -700,6 +700,7 @@ sub trial_balance {
       if ($ref->{amount} != 0 || $form->{all_accounts}) {
         $trb{ $ref->{accno} }{description} = $ref->{description};
         $trb{ $ref->{accno} }{charttype}   = 'A';
+        $trb{ $ref->{accno} }{beginning_balance} = $ref->{amount};
 
         if ($ref->{amount} > 0) {
           $trb{ $ref->{accno} }{haben_eb}   = $ref->{amount};
@@ -941,7 +942,7 @@ sub trial_balance {
          WHERE $saldowhere
            $dpt_where
            $project
-         AND c.accno = ?) AS saldo,
+         AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
@@ -1009,7 +1010,7 @@ sub trial_balance {
          WHERE $saldowhere
            $dpt_where
            $project
-         AND c.accno = ?) AS saldo,
+         AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
@@ -1052,7 +1053,7 @@ sub trial_balance {
 
     $ref->{accno} = $accno;
     map { $ref->{$_} = $trb{$accno}{$_} }
-      qw(description category charttype amount soll_eb haben_eb);
+      qw(description category charttype amount soll_eb haben_eb beginning_balance);
 
     $ref->{balance} = $form->round_amount($balance{ $ref->{accno} }, 2);
 
@@ -1100,7 +1101,21 @@ sub trial_balance {
 
       $ref->{debit}  = $form->round_amount($ref->{debit},  2);
       $ref->{credit} = $form->round_amount($ref->{credit}, 2);
-      $ref->{haben_saldo}  = $form->round_amount($ref->{haben_saldo},  2);
+
+      if ($ref->{haben_saldo} != 0) {
+        $ref->{haben_saldo}  = $ref->{haben_saldo} + $ref->{beginning_balance};
+        if ($ref->{haben_saldo} < 0) {
+          $ref->{soll_saldo} = $form->round_amount(($ref->{haben_saldo} *- 1), 2);
+          $ref->{haben_saldo} = 0;
+        }
+      } elsif ($ref->{soll_saldo} != 0) {
+        $ref->{soll_saldo} = $ref->{soll_saldo} - $ref->{beginning_balance};
+        if ($ref->{soll_saldo} < 0) {
+          $ref->{haben_saldo} = $form->round_amount(($ref->{haben_saldo} * -1), 2);
+          $ref->{soll_saldo} = 0;
+        }
+     }
+      $ref->{haben_saldo} = $form->round_amount($ref->{haben_saldo}, 2);
       $ref->{soll_saldo} = $form->round_amount($ref->{soll_saldo}, 2);
       $ref->{haben_kumuliert}  = $form->round_amount($ref->{haben_kumuliert},  2);
       $ref->{soll_kumuliert} = $form->round_amount($ref->{soll_kumuliert}, 2);

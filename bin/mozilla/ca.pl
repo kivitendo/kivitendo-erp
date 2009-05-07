@@ -492,7 +492,8 @@ sub list_transactions {
 
   CA->all_transactions(\%myconfig, \%$form);
 
-
+  $form->{saldo_old} += $form->{beginning_balance};
+  $form->{saldo_new} += $form->{beginning_balance};
   my $saldo_old = format_debit_credit($form->{saldo_old});
   my $eb_string = format_debit_credit($form->{beginning_balance});
   $form->{balance} = $form->{saldo_old};
@@ -654,18 +655,7 @@ sub list_transactions {
       };
     }
 
-    my $sh = "";
-    if ($form->{balance} < 0) {
-      $sh = " S";
-      $ml = -1;
-    } elsif ($form->{balance} > 0) {
-      $sh = " H";
-      $ml = 1;
-    }
-    my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
-    $data .= $sh;
-
-    $row->{balance}->{data}        = $data;
+    $row->{balance}->{data}        = $form->format_amount(\%myconfig, $form->{balance}, 2, 'DRCR');
 
     if ($ca->{index} ne $previous_index) {
 #       $report->add_data($row_set) if ($row_set);
@@ -698,18 +688,8 @@ sub list_transactions {
 
   my $row = create_subtotal_row(\%totals, \@columns, \%column_alignment, 'listtotal');
 
-  my $sh = "";
-  if ($form->{balance} < 0) {
-    $sh = " S";
-    $ml = -1;
-  } elsif ($form->{balance} > 0) {
-    $sh = " H";
-    $ml = 1;
-  }
-  my $data = $form->format_amount(\%myconfig, ($form->{balance} * $ml), 2);
-  $data .= $sh;
 
-  $row->{balance}->{data}        = $data;
+  $row->{balance}->{data}        = $form->format_amount(\%myconfig, $form->{balance}, 2, 'DRCR');
 
   $report->add_data($row);
 
