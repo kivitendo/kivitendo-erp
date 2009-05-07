@@ -39,14 +39,16 @@ sub _init {
 }
 
 sub set_tag_style {
-  my $self              = shift;
-  my $tag_start         = shift;
-  my $tag_end           = shift;
+  my $self                    = shift;
+  my $tag_start               = shift;
+  my $tag_end                 = shift;
 
-  $self->{tag_start}    = $tag_start;
-  $self->{tag_end}      = $tag_end;
-  $self->{tag_start_qm} = quotemeta $tag_start;
-  $self->{tag_end_qm}   = quotemeta $tag_end;
+  $self->{tag_start}          = $tag_start;
+  $self->{tag_end}            = $tag_end;
+  $self->{tag_start_qm}       = quotemeta $tag_start;
+  $self->{tag_end_qm}         = quotemeta $tag_end;
+
+  $self->{substitute_vars_re} = "$self->{tag_start_qm}(.+?)$self->{tag_end_qm}";
 }
 
 sub cleanup {
@@ -77,6 +79,40 @@ sub uses_temp_file {
   return 0;
 }
 
+sub _get_loop_variable_value {
+  my $self    = shift;
+  my $var     = shift;
+  my @indices = @_;
+
+  my $form    = $self->{form};
+  my $value   = $self->{form}->{$var};
+
+  for (my $i = 0; $i < scalar(@indices); $i++) {
+    last unless (ref($value) eq "ARRAY");
+    $value = $value->[$indices[$i]];
+  }
+
+  return $value;
+}
+
+sub substitute_vars {
+  my ($self, $text, @indices) = @_;
+
+  my $form = $self->{"form"};
+
+  while ($text =~ /$self->{substitute_vars_re}/) {
+    my ($tag_pos, $tag_len) = ($-[0], $+[0] - $-[0]);
+    my ($var, @options)     = split(/\s+/, $1);
+
+    my $value               = $self->_get_loop_variable_value($var, @indices);
+    $value                  = $self->format_string($value) unless (grep(/^NOESCAPE$/, @options));
+
+    substr($text, $tag_pos, $tag_len, $value);
+  }
+
+  return $text;
+}
+
 1;
 
 ####
@@ -92,7 +128,9 @@ use vars qw(@ISA);
 sub new {
   my $type = shift;
 
-  return $type->SUPER::new(@_);
+  my $self = $type->SUPER::new(@_);
+
+  return $self;
 }
 
 sub format_string {
@@ -115,27 +153,6 @@ sub format_string {
   $variable =~ s/[\x00-\x1f]//g;
 
   return $variable;
-}
-
-sub substitute_vars {
-  my ($self, $text, @indices) = @_;
-
-  my $form = $self->{"form"};
-
-  while ($text =~ /$self->{tag_start_qm}(.+?)$self->{tag_end_qm}/) {
-    my ($tag_pos, $tag_len) = ($-[0], $+[0] - $-[0]);
-    my ($var, @options) = split(/\s+/, $1);
-    my $value = $form->{$var};
-
-    for (my $i = 0; $i < scalar(@indices); $i++) {
-      last unless (ref($value) eq "ARRAY");
-      $value = $value->[$indices[$i]];
-    }
-    $value = $self->format_string($value) unless (grep(/^NOESCAPE$/, @options));
-    substr($text, $tag_pos, $tag_len) = $value;
-  }
-
-  return $text;
 }
 
 sub parse_foreach {
@@ -756,28 +773,12 @@ sub new {
     }
   }
 
-  $self->{"rnd"} = int(rand(1000000));
+  $self->{"rnd"}   = int(rand(1000000));
   $self->{"iconv"} = Text::Iconv->new($main::dbcharset, "UTF-8");
 
+  $self->set_tag_style('&lt;%', '%&gt;');
+
   return $self;
-}
-
-sub substitute_vars {
-  my ($self, $text, @indices) = @_;
-
-  my $form = $self->{"form"};
-
-  while ($text =~ /\&lt;\%(.*?)\%\&gt;/) {
-    my $value = $form->{$1};
-
-    for (my $i = 0; $i < scalar(@indices); $i++) {
-      last unless (ref($value) eq "ARRAY");
-      $value = $value->[$indices[$i]];
-    }
-    substr($text, $-[0], $+[0] - $-[0]) = $self->format_string($value);
-  }
-
-  return $text;
 }
 
 sub parse_foreach {
