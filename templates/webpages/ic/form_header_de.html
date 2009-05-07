@@ -130,7 +130,7 @@
               [%- UNLESS is_service %]
               <td>
                <ilayer>
-                <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('Die Formeln m&uuml;ssen in der folgenden Syntax eingegeben werden:<br>Bei normalen Artikeln:<br>Variablenname= Variable Einheit;<br>Variablenname2= Variable2 Einheit2;<br>...<br>###<br>Variable + Variable2 * ( Variable - Variable2 )<br>Bitte achten Sie auf die Leerzeichen in der Formel<br>Es muss jeweils die Gesamte Zeile eingegeben werden')">
+                <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('Die Formeln m&uuml;ssen in der folgenden Syntax eingegeben werden:<br>Bei normalen Artikeln:<br>Variablenname = Variable Einheit;<br>Variablenname2 = Variable2 Einheit2;<br>...<br>###<br>Variable + Variable2 * ( Variable - Variable2 )<br>Variablennamen und Einheiten dürfen nur aus alphanumerischen Zeichen bestehen.<br>Es muss jeweils die Gesamte Zeile eingegeben werden')">
                  <textarea name="formel" rows="[% HTML.escape(notes_rows) %]" cols="30" wrap="soft">[% HTML.escape(formel) %]</textarea></layer></ilayer>
                </td>
               [%- END %]

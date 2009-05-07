@@ -276,45 +276,36 @@ sub vendor_selection {
 sub calculate_qty {
   $lxdebug->enter_sub();
 
-  my @variable_sort = ();
-  my %variable_list = ();
-  my $unit_list = ();
   $form->{formel} =~ s/\r\n//g;
 
   my ($variable_string, $formel) = split /###/,$form->{formel};
 
-
-  split m/;/, $variable_string;
-  foreach $item (@_) {
-    my($name, $valueunit) = split /=/,$item;
-    my($value, $unit) = split / /, $valueunit;
-
-    push(@variable_sort, $value);
-    $variable_list{$value} = $name;
-    $unit_list{$value} = $unit;
+  foreach $item (split m/;/, $variable_string) {
+    next unless $item =~ m/^ \s* (\w+) \s* = \s* (\w+) \s* (\w+) \s* $/x;
+    push @variable, {
+      description => $1,
+      name        => $2,
+      unit        => $3,
+    };
   }
 
   my @header_sort = qw(variable value unit);
-  my %header_title = ( "variable" => $locale->text("Variable"),
-                       "value" => $locale->text("Value"),
-                       "unit" => $locale->text("Unit"),
-                     );
+  my %header_title = (
+    variable => $locale->text("Variable"),
+    value    => $locale->text("Value"),
+    unit     => $locale->text("Unit"),
+  );
+  my @header = map +{
+    column_title => $header_title{$_},
+    column       => $_,
+  }, @header_sort;
 
-  my @variable = map(+{ "description" => $variable_list{$_},
-                        "name" => $_,
-                        "unit" => $unit_list{$_} }, @variable_sort);
-
-  my @header =
-    map(+{ "column_title" => $header_title{$_},
-           "column" => $_,
-         },
-        @header_sort);
   $form->{formel} = $formel;
-  $form->{"title"} = $locale->text("Please enter values");
+  $form->{title}  = $locale->text("Please enter values");
   $form->header();
-  print($form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
+  print $form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
                                                               "VARIABLES" => \@variable,
-                                                              "onload"    => $onload }));
+                                                              "onload"    => $onload });
 
   $lxdebug->leave_sub();
 }
