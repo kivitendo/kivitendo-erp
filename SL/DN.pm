@@ -714,12 +714,13 @@ sub print_dunning {
   my $first = 1;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     if ($first) {
-      map({ $form->{"dn_$_"} = []; } keys(%{$ref}));
+      $form->{TEMPLATE_ARRAYS} = {};
+      map({ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} = []; } keys(%{$ref}));
       $first = 0;
     }
     map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2) } qw(amount netamount paid open_amount fee interest linetotal);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
-    map { push @{ $form->{"dn_$_"} }, $ref->{$_}} keys %$ref;
+    map { push @{ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} }, $ref->{$_} } keys %$ref;
   }
   $sth->finish();
 

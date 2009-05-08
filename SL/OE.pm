@@ -977,15 +977,19 @@ sub order_details {
        linetotal  nodiscount_linetotal tax_rate projectnumber
        price_factor price_factor_name partsgroup);
 
+  my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
+
+  $form->{TEMPLATE_ARRAYS} = { map { $_ => [] } (@arrays, @tax_arrays) };
+
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];
 
     if ($item->[1] ne $sameitem) {
-      push(@{ $form->{description} }, qq|$item->[1]|);
+      push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, qq|$item->[1]|);
       $sameitem = $item->[1];
 
-      map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+      map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
     }
 
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
@@ -1010,22 +1014,22 @@ sub order_details {
 
       my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
 
-      push @{ $form->{runningnumber} },     $position;
-      push @{ $form->{number} },            $form->{"partnumber_$i"};
-      push @{ $form->{description} },       $form->{"description_$i"};
-      push @{ $form->{longdescription} },   $form->{"longdescription_$i"};
-      push @{ $form->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});
-      push @{ $form->{ship} },              $form->format_amount($myconfig, $form->{"ship_$i"});
-      push @{ $form->{unit} },              $form->{"unit_$i"};
-      push @{ $form->{bin} },               $form->{"bin_$i"};
-      push @{ $form->{partnotes} },         $form->{"partnotes_$i"};
-      push @{ $form->{serialnumber} },      $form->{"serialnumber_$i"};
-      push @{ $form->{reqdate} },           $form->{"reqdate_$i"};
-      push @{ $form->{sellprice} },         $form->{"sellprice_$i"};
-      push @{ $form->{listprice} },         $form->{"listprice_$i"};
-      push @{ $form->{price_factor} },      $price_factor->{formatted_factor};
-      push @{ $form->{price_factor_name} }, $price_factor->{description};
-      push @{ $form->{partsgroup} },        $form->{"partsgroup_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{runningnumber} },     $position;
+      push @{ $form->{TEMPLATE_ARRAYS}->{number} },            $form->{"partnumber_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{description} },       $form->{"description_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{longdescription} },   $form->{"longdescription_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});
+      push @{ $form->{TEMPLATE_ARRAYS}->{ship} },              $form->format_amount($myconfig, $form->{"ship_$i"});
+      push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{bin} },               $form->{"bin_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{partnotes} },         $form->{"partnotes_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{serialnumber} },      $form->{"serialnumber_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{reqdate} },           $form->{"reqdate_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{listprice} },         $form->{"listprice_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{price_factor} },      $price_factor->{formatted_factor};
+      push @{ $form->{TEMPLATE_ARRAYS}->{price_factor_name} }, $price_factor->{description};
+      push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },        $form->{"partsgroup_$i"};
 
       my $sellprice     = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
@@ -1039,12 +1043,12 @@ sub order_details {
       my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
-      push @{ $form->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
 
       $linetotal = ($linetotal != 0) ? $linetotal : '';
 
-      push @{ $form->{discount} },  ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
-      push @{ $form->{p_discount} }, $form->{"discount_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },  ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} }, $form->{"discount_$i"};
 
       $form->{ordtotal}         += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
@@ -1056,26 +1060,26 @@ sub order_details {
       }
 
       if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
-        push @{ $form->{discount_sub} },   $form->format_amount($myconfig, $discount_subtotal,   2);
-        push @{ $form->{nodiscount_sub} }, $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },   $form->format_amount($myconfig, $discount_subtotal,   2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} }, $form->format_amount($myconfig, $nodiscount_subtotal, 2);
 
         $discount_subtotal   = 0;
         $nodiscount_subtotal = 0;
         $subtotal_header     = 0;
 
       } else {
-        push @{ $form->{discount_sub} },   "";
-        push @{ $form->{nodiscount_sub} }, "";
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },   "";
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} }, "";
       }
 
       if (!$form->{"discount_$i"}) {
         $nodiscount += $linetotal;
       }
 
-      push @{ $form->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
-      push @{ $form->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
 
-      push(@{ $form->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
 
       my ($taxamount, $taxbase);
       my $taxrate = 0;
@@ -1100,7 +1104,7 @@ sub order_details {
       }
 
       $tax_rate = $taxrate * 100;
-      push(@{ $form->{tax_rate} }, qq|$tax_rate|);
+      push(@{ $form->{TEMPLATE_ARRAYS}->{tax_rate} }, qq|$tax_rate|);
 
       if ($form->{"assembly_$i"}) {
         $sameitem = "";
@@ -1126,13 +1130,13 @@ sub order_details {
 
         while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-            map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+            map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
-            push(@{ $form->{description} }, $sameitem);
+            push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, $sameitem);
           }
 
-          push(@{ $form->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|);
-          map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+          push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|);
+          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
         }
         $sth->finish;
       }
@@ -1142,16 +1146,13 @@ sub order_details {
 
   my $tax = 0;
   foreach $item (sort keys %taxaccounts) {
-    push(@{ $form->{taxbase} },
-         $form->format_amount($myconfig, $taxbase{$item}, 2));
-
     $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
-    push(@{ $form->{tax} }, $form->format_amount($myconfig, $taxamount, 2));
-    push(@{ $form->{taxdescription} }, $form->{"${item}_description"}  . q{ } . 100 * $form->{"${item}_rate"} . q{%});
-    push(@{ $form->{taxrate} },
-         $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
-    push(@{ $form->{taxnumber} }, $form->{"${item}_taxnumber"});
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase} },        $form->format_amount($myconfig, $taxbase{$item}, 2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{tax} },            $form->format_amount($myconfig, $taxamount,      2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate} },        $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $form->{"${item}_description"} . q{ } . 100 * $form->{"${item}_rate"} . q{%});
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
   }
 
   $form->{nodiscount_subtotal} = $form->format_amount($myconfig, $form->{nodiscount_total}, 2);

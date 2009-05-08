@@ -79,13 +79,20 @@ sub uses_temp_file {
   return 0;
 }
 
-sub _get_loop_variable_value {
-  my $self    = shift;
-  my $var     = shift;
-  my @indices = @_;
+sub _get_loop_variable {
+  my $self      = shift;
+  my $var       = shift;
+  my $get_array = shift;
+  my @indices   = @_;
 
-  my $form    = $self->{form};
-  my $value   = $form->{$var};
+  my $form      = $self->{form};
+  my $value;
+
+  if (($get_array || @indices) && (ref $form->{TEMPLATE_ARRAYS} eq 'HASH') && (ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY')) {
+    $value = $form->{TEMPLATE_ARRAYS}->{$var};
+  } else {
+    $value = $form->{$var};
+  }
 
   for (my $i = 0; $i < scalar(@indices); $i++) {
     last unless (ref($value) eq "ARRAY");
@@ -104,7 +111,7 @@ sub substitute_vars {
     my ($tag_pos, $tag_len) = ($-[0], $+[0] - $-[0]);
     my ($var, @options)     = split(/\s+/, $1);
 
-    my $value               = $self->_get_loop_variable_value($var, @indices);
+    my $value               = $self->_get_loop_variable($var, 0, @indices);
     $value                  = $self->format_string($value) unless (grep(/^NOESCAPE$/, @options));
 
     substr($text, $tag_pos, $tag_len, $value);
@@ -160,11 +167,7 @@ sub parse_foreach {
 
   my ($form, $new_contents) = ($self->{"form"}, "");
 
-  my $ary = $form->{$var};
-  for (my $i = 0; $i < scalar(@indices); $i++) {
-    last unless (ref($ary) eq "ARRAY");
-    $ary = $ary->[$indices[$i]];
-  }
+  my $ary = $self->_get_loop_variable($var, 1, @indices);
 
   my $sum = 0;
   my $current_page = 1;
@@ -786,11 +789,7 @@ sub parse_foreach {
 
   my ($form, $new_contents) = ($self->{"form"}, "");
 
-  my $ary = $form->{$var};
-  for (my $i = 0; $i < scalar(@indices); $i++) {
-    last unless (ref($ary) eq "ARRAY");
-    $ary = $ary->[$indices[$i]];
-  }
+  my $ary = $self->_get_loop_variable($var, 1, @indices);
 
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
     $form->{"__first__"} = $i == 0;
