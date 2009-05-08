@@ -195,6 +195,7 @@ sub _request_to_hash {
 }
 
 sub _recode_recursively {
+  $main::lxdebug->enter_sub();
   my ($iconv, $param) = @_;
 
   if (ref $param eq 'HASH') {
@@ -215,6 +216,7 @@ sub _recode_recursively {
       }
     }
   }
+  $main::lxdebug->leave_sub();
 }
 
 sub new {
@@ -394,6 +396,7 @@ sub unescape {
 }
 
 sub quote {
+  $main::lxdebug->enter_sub();
   my ($self, $str) = @_;
 
   if ($str && !ref($str)) {
@@ -402,9 +405,11 @@ sub quote {
 
   $str;
 
+  $main::lxdebug->leave_sub();
 }
 
 sub unquote {
+  $main::lxdebug->enter_sub();
   my ($self, $str) = @_;
 
   if ($str && !ref($str)) {
@@ -413,9 +418,11 @@ sub unquote {
 
   $str;
 
+  $main::lxdebug->leave_sub();
 }
 
 sub hide_form {
+  $main::lxdebug->enter_sub();
   my $self = shift;
 
   if (@_) {
@@ -426,7 +433,7 @@ sub hide_form {
       print($main::cgi->hidden("-name" => $_, "-default" => $self->{$_}) . "\n");
     }
   }
-
+  $main::lxdebug->leave_sub();
 }
 
 sub error {
@@ -1312,6 +1319,7 @@ Content-Length: $numbytes
 }
 
 sub get_formname_translation {
+  $main::lxdebug->enter_sub();
   my ($self, $formname) = @_;
 
   $formname ||= $self->{formname};
@@ -1333,10 +1341,12 @@ sub get_formname_translation {
     purchase_delivery_order => $main::locale->text('Delivery Order'),
   );
 
+  $main::lxdebug->leave_sub();
   return $formname_translations{$formname}
 }
 
 sub get_number_prefix_for_type {
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
 
   my $prefix =
@@ -1345,10 +1355,12 @@ sub get_number_prefix_for_type {
     : ($self->{type} =~ /_delivery_order$/)                   ? 'do'
     :                                                           'ord';
 
+  $main::lxdebug->leave_sub();
   return $prefix;
 }
 
 sub get_extension_for_format {
+  $main::lxdebug->enter_sub();
   my ($self)    = @_;
 
   my $extension = $self->{format} =~ /pdf/i          ? ".pdf"
@@ -1357,10 +1369,12 @@ sub get_extension_for_format {
                 : $self->{format} =~ /html/i         ? ".html"
                 :                                      "";
 
+  $main::lxdebug->leave_sub();
   return $extension;
 }
 
 sub generate_attachment_filename {
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
 
   my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
@@ -1379,10 +1393,12 @@ sub generate_attachment_filename {
   $attachment_filename =  $main::locale->quote_special_chars('filenames', $attachment_filename);
   $attachment_filename =~ s|[\s/\\]+|_|g;
 
+  $main::lxdebug->leave_sub();
   return $attachment_filename;
 }
 
 sub generate_email_subject {
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
 
   my $subject = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
@@ -1392,6 +1408,7 @@ sub generate_email_subject {
     $subject .= " " . $self->{"${prefix}number"}
   }
 
+  $main::lxdebug->leave_sub();
   return $subject;
 }
 
