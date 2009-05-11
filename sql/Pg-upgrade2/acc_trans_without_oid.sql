@@ -5,7 +5,7 @@
 CREATE SEQUENCE acc_trans_id_seq;
 
 CREATE TABLE new_acc_trans (
-    acc_trans_id integer DEFAULT nextval('acc_trans_id_seq'),
+    acc_trans_id bigint DEFAULT nextval('acc_trans_id_seq'),
     trans_id integer,
     chart_id integer,
     amount numeric(15,5),
