@@ -41,7 +41,7 @@ sub _fetch_transactions {
     push @where,  qq|at.transdate <= ?|;
     push @values, $params{transdate_to};
   }
-#   $params{trans_id} = 3150;
+
   if ($params{trans_id}) {
     push @where,  qq|at.trans_id = ?|;
     push @values, $params{trans_id};
