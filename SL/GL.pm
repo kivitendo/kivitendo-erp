@@ -344,9 +344,10 @@ sub all_transactions {
 
   my $query =
     qq|SELECT
-        ac.oid AS acoid, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
+        ac.acc_trans_id, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
         g.description, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, g.notes, t.chart_id, ac.oid
+        ac.amount, c.accno, g.notes, t.chart_id,
+        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{gl}
       FROM gl g, acc_trans ac $project_join, chart c
@@ -357,9 +358,10 @@ sub all_transactions {
 
       UNION
 
-      SELECT ac.oid AS acoid, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
+      SELECT ac.acc_trans_id, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, a.notes, t.chart_id, ac.oid
+        ac.amount, c.accno, a.notes, t.chart_id,
+        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
       FROM ar a, acc_trans ac $project_join, customer ct, chart c
@@ -371,9 +373,10 @@ sub all_transactions {
 
       UNION
 
-      SELECT ac.oid AS acoid, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
+      SELECT ac.acc_trans_id, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, a.notes, t.chart_id, ac.oid
+        ac.amount, c.accno, a.notes, t.chart_id,
+        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
       FROM ap a, acc_trans ac $project_join, vendor ct, chart c
@@ -383,7 +386,7 @@ sub all_transactions {
         AND (a.vendor_id = ct.id)
         AND (a.id = ac.trans_id)
 
-      ORDER BY $sortorder, acoid $sortdir|;
+      ORDER BY $sortorder, acc_trans_id $sortdir|;
 
   my @values = (@glvalues, @arvalues, @apvalues);
 
@@ -635,7 +638,7 @@ sub transaction {
               ORDER BY startdate DESC LIMIT 1))
          WHERE (a.trans_id = ?)
            AND (a.fx_transaction = '0')
-         ORDER BY a.oid, a.transdate|;
+         ORDER BY a.acc_trans_id, a.transdate|;
     $form->{GL} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
 
   } else {

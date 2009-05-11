@@ -1063,34 +1063,34 @@ sub _delete_payments {
 
   my ($self, $form, $dbh) = @_;
 
-  my @delete_oids;
+  my @delete_acc_trans_ids;
 
   # Delete old payment entries from acc_trans.
   my $query =
-    qq|SELECT oid
+    qq|SELECT acc_trans_id
        FROM acc_trans
        WHERE (trans_id = ?) AND fx_transaction
 
        UNION
 
-       SELECT at.oid
+       SELECT at.acc_trans_id
        FROM acc_trans at
        LEFT JOIN chart c ON (at.chart_id = c.id)
        WHERE (trans_id = ?) AND (c.link LIKE '%AR_paid%')|;
-  push @delete_oids, selectall_array_query($form, $dbh, $query, conv_i($form->{id}), conv_i($form->{id}));
+  push @delete_acc_trans_ids, selectall_array_query($form, $dbh, $query, conv_i($form->{id}), conv_i($form->{id}));
 
   $query =
-    qq|SELECT at.oid
+    qq|SELECT at.acc_trans_id
        FROM acc_trans at
        LEFT JOIN chart c ON (at.chart_id = c.id)
        WHERE (trans_id = ?)
          AND ((c.link = 'AR') OR (c.link LIKE '%:AR') OR (c.link LIKE 'AR:%'))
-       ORDER BY at.oid
+       ORDER BY at.acc_trans_id
        OFFSET 1|;
-  push @delete_oids, selectall_array_query($form, $dbh, $query, conv_i($form->{id}));
+  push @delete_acc_trans_ids, selectall_array_query($form, $dbh, $query, conv_i($form->{id}));
 
-  if (@delete_oids) {
-    $query = qq|DELETE FROM acc_trans WHERE oid IN (| . join(", ", @delete_oids) . qq|)|;
+  if (@delete_acc_trans_ids) {
+    $query = qq|DELETE FROM acc_trans WHERE acc_trans_id IN (| . join(", ", @delete_acc_trans_ids) . qq|)|;
     do_query($form, $dbh, $query);
   }
 
@@ -1147,7 +1147,7 @@ sub post_payment {
        LEFT JOIN chart c ON (at.chart_id = c.id)
        WHERE (trans_id = ?)
          AND ((c.link = 'AR') OR (c.link LIKE '%:AR') OR (c.link LIKE 'AR:%'))
-       ORDER BY at.oid
+       ORDER BY at.acc_trans_id
        LIMIT 1|;
 
   ($form->{AR}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{id}));

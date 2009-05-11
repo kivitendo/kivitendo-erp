@@ -838,7 +838,7 @@ sub print_invoice_for_fees {
   $ref = selectfirst_hashref_query($form, $dbh, $query, $form->{login});
   map { $form->{"employee_${_}"} = $ref->{$_} } keys %{ $ref };
 
-  $query = qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY oid ASC|;
+  $query = qq|SELECT * FROM acc_trans WHERE trans_id = ? ORDER BY acc_trans_id ASC|;
   $sth   = prepare_execute_query($form, $dbh, $query, $ar_id);
 
   my ($row, $fee, $interest) = (0, 0, 0);

@@ -2829,7 +2829,7 @@ sub create_links {
                                       (startdate <= a.transdate) ORDER BY startdate DESC LIMIT 1))
          WHERE a.trans_id = ?
          AND a.fx_transaction = '0'
-         ORDER BY a.oid, a.transdate|;
+         ORDER BY a.acc_trans_id, a.transdate|;
     $sth = $dbh->prepare($query);
     do_statement($self, $sth, $query, $self->{id});
 

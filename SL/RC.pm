@@ -91,7 +91,7 @@ sub payment_transactions {
   ($form->{beginningbalance}, $form->{category}) =
     selectrow_query($form, $dbh, $query, @values);
 
-  my %oid = ('Pg'     => 'ac.oid',
+  my %oid = ('Pg'     => 'ac.acc_trans_id',
              'Oracle' => 'ac.rowid');
   @values = ();
   $query =
@@ -184,7 +184,7 @@ sub reconcile {
   my $dbh = $form->dbconnect($myconfig);
 
   my ($query, $i);
-  my %oid = ('Pg'     => 'oid',
+  my %oid = ('Pg'     => 'acc_trans_id',
              'Oracle' => 'rowid');
 
   # clear flags

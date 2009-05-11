@@ -332,7 +332,7 @@ sub _get_transactions {
   my %all_taxchart_ids = selectall_as_map($form, $dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
   my $query    =
-    qq|SELECT ac.oid, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
+    qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
          ar.invnumber, ar.duedate, ar.amount as umsatz,
          ct.name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
@@ -347,7 +347,7 @@ sub _get_transactions {
 
        UNION ALL
 
-       SELECT ac.oid, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
+       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
          ap.invnumber, ap.duedate, ap.amount as umsatz,
          ct.name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
@@ -362,7 +362,7 @@ sub _get_transactions {
 
        UNION ALL
 
-       SELECT ac.oid, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
+       SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
          gl.description AS name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
@@ -374,7 +374,7 @@ sub _get_transactions {
          AND $fromto
          $filter
 
-       ORDER BY trans_id, oid|;
+       ORDER BY trans_id, acc_trans_id|;
 
   my $sth = prepare_execute_query($form, $dbh, $query);
 

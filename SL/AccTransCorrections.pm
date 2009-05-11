@@ -53,7 +53,7 @@ sub _fetch_transactions {
   }
 
   my $query = qq!
-    SELECT at.oid, at.*,
+    SELECT at.*,
       c.accno, c.description AS chartdescription, c.charttype, c.category AS chartcategory, c.link AS chartlink,
       COALESCE(gl.reference, COALESCE(ap.invnumber, ar.invnumber)) AS reference,
       COALESCE(ap.invoice, COALESCE(ar.invoice, FALSE)) AS invoice,
@@ -74,7 +74,7 @@ sub _fetch_transactions {
     LEFT JOIN ap      ON (at.trans_id = ap.id)
     LEFT JOIN ar      ON (at.trans_id = ar.id)
     $where
-    ORDER BY at.trans_id, at.oid
+    ORDER BY at.trans_id, at.acc_trans_id
 !;
 
   my @transactions = ();
@@ -410,12 +410,12 @@ sub _check_trans_wrong_taxkeys {
       }
 
       foreach my $entry (@{ $data{$side}->{entries} }) {
-        $entry->{actual_tax}     = $form->round_amount(abs($entry->{tax_entry} ? $entry->{tax_entry}->{amount} : 0), 2);
-        $entry->{expected_tax}   = $form->round_amount(abs($entry->{expected_tax}), 2);
-        $entry->{taxkey_error}   =    ( $entry->{taxkey} && !$entry->{tax_entry})
-                                   || (!$entry->{taxkey} &&  $entry->{tax_entry})
-                                   || (abs($entry->{expected_tax} - $entry->{actual_tax}) >= 0.02);
-        $entry->{tax_entry_oid}  = $entry->{tax_entry}->{oid};
+        $entry->{actual_tax}              = $form->round_amount(abs($entry->{tax_entry} ? $entry->{tax_entry}->{amount} : 0), 2);
+        $entry->{expected_tax}            = $form->round_amount(abs($entry->{expected_tax}), 2);
+        $entry->{taxkey_error}            =    ( $entry->{taxkey} && !$entry->{tax_entry})
+                                            || (!$entry->{taxkey} &&  $entry->{tax_entry})
+                                            || (abs($entry->{expected_tax} - $entry->{actual_tax}) >= 0.02);
+        $entry->{tax_entry_acc_trans_id}  = $entry->{tax_entry}->{acc_trans_id};
         delete $entry->{tax_entry};
 
         $entry->{display_amount}       = $form->round_amount(abs($entry->{amount}) * $storno_mult, 2);
@@ -438,7 +438,7 @@ sub _check_trans_wrong_taxkeys {
 
             my $tax_info = $all_taxes{taxkeys}->{$taxkey};
 
-            next if ((!$tax_info || (0 == $tax_info->{taxrate} * 1)) && $entry->{tax_entry_oid});
+            next if ((!$tax_info || (0 == $tax_info->{taxrate} * 1)) && $entry->{tax_entry_acc_trans_id});
 
             push @{ $entry->{correct_taxkeys} }, {
               'taxkey'      => $taxkey,
@@ -552,7 +552,7 @@ sub _check_trans_wrong_taxkeys {
 #             $solution->{rows}->[$i]->{taxdescription} .= ' ' . $form->format_amount(\%myconfig, $tax_entry->{taxrate} * 100) . ' %';
 
 #             push @{ $solution->{changes} }, {
-#               'oid'    => $entry->{oid},
+#               'acc_trans_id'    => $entry->{acc_trans_id},
 #               'taxkey' => $solution->{taxkeys}->[$i],
 #             };
 #           }
@@ -641,7 +641,7 @@ sub fix_ap_ar_wrong_taxkeys {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my $query    = qq|SELECT 'ap' AS module,
-                      at.oid, at.trans_id, at.chart_id, at.amount, at.taxkey, at.transdate,
+                      at.acc_trans_id, at.trans_id, at.chart_id, at.amount, at.taxkey, at.transdate,
                       c.link
                     FROM acc_trans at
                     LEFT JOIN chart c ON (at.chart_id = c.id)
@@ -651,14 +651,14 @@ sub fix_ap_ar_wrong_taxkeys {
                     UNION
 
                     SELECT 'ar' AS module,
-                      at.oid, at.trans_id, at.chart_id, at.amount, at.taxkey, at.transdate,
+                      at.acc_trans_id, at.trans_id, at.chart_id, at.amount, at.taxkey, at.transdate,
                       c.link
                     FROM acc_trans at
                     LEFT JOIN chart c ON (at.chart_id = c.id)
                     WHERE (trans_id IN (SELECT id FROM ar WHERE NOT invoice))
                       AND (taxkey IN (8, 9, 18, 19))
 
-                    ORDER BY trans_id, oid|;
+                    ORDER BY trans_id, acc_trans_id|;
 
   my $sth      = prepare_execute_query($form, $dbh, $query);
   my @transactions;
@@ -706,29 +706,29 @@ sub fix_ap_ar_wrong_taxkeys {
 
       my %all_taxes = $self->{taxkeys}->get_full_tax_info('transdate' => $non_tax->{transdate});
 
-      push @corrections, ({ 'oid'      => $non_tax->{oid},
-                            'taxkey'   => $taxkey_replacements{$non_tax->{taxkey}},
+      push @corrections, ({ 'acc_trans_id' => $non_tax->{acc_trans_id},
+                            'taxkey'       => $taxkey_replacements{$non_tax->{taxkey}},
                           },
                           {
-                            'oid'      => $tax->{oid},
-                            'taxkey'   => $taxkey_replacements{$non_tax->{taxkey}},
-                            'chart_id' => $all_taxes{taxkeys}->{ $taxkey_replacements{$non_tax->{taxkey}} }->{taxchart_id},
+                            'acc_trans_id' => $tax->{acc_trans_id},
+                            'taxkey'       => $taxkey_replacements{$non_tax->{taxkey}},
+                            'chart_id'     => $all_taxes{taxkeys}->{ $taxkey_replacements{$non_tax->{taxkey}} }->{taxchart_id},
                           });
     }
   }
 
   if (scalar @corrections) {
-    my $q_taxkey_only     = qq|UPDATE acc_trans SET taxkey = ? WHERE oid = ?|;
+    my $q_taxkey_only     = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
     my $h_taxkey_only     = prepare_query($form, $dbh, $q_taxkey_only);
 
-    my $q_taxkey_chart_id = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE oid = ?|;
+    my $q_taxkey_chart_id = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE acc_trans_id = ?|;
     my $h_taxkey_chart_id = prepare_query($form, $dbh, $q_taxkey_chart_id);
 
     foreach my $entry (@corrections) {
       if ($entry->{chart_id}) {
-        do_statement($form, $h_taxkey_chart_id, $q_taxkey_chart_id, $entry->{taxkey}, $entry->{chart_id}, $entry->{oid});
+        do_statement($form, $h_taxkey_chart_id, $q_taxkey_chart_id, $entry->{taxkey}, $entry->{chart_id}, $entry->{acc_trans_id});
       } else {
-        do_statement($form, $h_taxkey_only, $q_taxkey_only, $entry->{taxkey}, $entry->{oid});
+        do_statement($form, $h_taxkey_only, $q_taxkey_only, $entry->{taxkey}, $entry->{acc_trans_id});
       }
     }
 
@@ -752,7 +752,7 @@ sub fix_invoice_inventory_with_taxkeys {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT at.oid, at.*, c.link
+  my $query    = qq|SELECT at.*, c.link
                     FROM acc_trans at
                     LEFT JOIN ar      ON (at.trans_id = ar.id)
                     LEFT JOIN chart c ON (at.chart_id = c.id)
@@ -760,13 +760,13 @@ sub fix_invoice_inventory_with_taxkeys {
 
                     UNION
 
-                    SELECT at.oid, at.*, c.link
+                    SELECT at.*, c.link
                     FROM acc_trans at
                     LEFT JOIN ap      ON (at.trans_id = ap.id)
                     LEFT JOIN chart c ON (at.chart_id = c.id)
                     WHERE (ap.invoice)
 
-                    ORDER BY trans_id, oid|;
+                    ORDER BY trans_id, acc_trans_id|;
 
   my $sth      = prepare_execute_query($form, $dbh, $query);
   my @transactions;
@@ -792,17 +792,17 @@ sub fix_invoice_inventory_with_taxkeys {
 
       foreach my $entry (@{ $sub_transaction }) {
         next if ($entry->{taxkey} == 0);
-        push @corrections, $entry->{oid};
+        push @corrections, $entry->{acc_trans_id};
       }
     }
   }
 
   if (@corrections) {
-    $query = qq|UPDATE acc_trans SET taxkey = 0 WHERE oid = ?|;
+    $query = qq|UPDATE acc_trans SET taxkey = 0 WHERE acc_trans_id = ?|;
     $sth   = prepare_query($form, $dbh, $query);
 
-    foreach my $oid (@corrections) {
-      do_statement($form, $sth, $query, $oid);
+    foreach my $acc_trans_id (@corrections) {
+      do_statement($form, $sth, $query, $acc_trans_id);
     }
 
     $sth->finish();
@@ -827,23 +827,23 @@ sub fix_wrong_taxkeys {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my $q_taxkey_only  = qq|UPDATE acc_trans SET taxkey = ? WHERE oid = ?|;
+  my $q_taxkey_only  = qq|UPDATE acc_trans SET taxkey = ? WHERE acc_trans_id = ?|;
   my $h_taxkey_only  = prepare_query($form, $dbh, $q_taxkey_only);
 
-  my $q_taxkey_chart = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE oid = ?|;
+  my $q_taxkey_chart = qq|UPDATE acc_trans SET taxkey = ?, chart_id = ? WHERE acc_trans_id = ?|;
   my $h_taxkey_chart = prepare_query($form, $dbh, $q_taxkey_chart);
 
-  my $q_transdate    = qq|SELECT transdate FROM acc_trans WHERE oid = ?|;
+  my $q_transdate    = qq|SELECT transdate FROM acc_trans WHERE acc_trans_id = ?|;
   my $h_transdate    = prepare_query($form, $dbh, $q_transdate);
 
   foreach my $fix (@{ $params{fixes} }) {
-    next unless ($fix->{oid});
+    next unless ($fix->{acc_trans_id});
 
-    do_statement($form, $h_taxkey_only, $q_taxkey_only, conv_i($fix->{taxkey}), conv_i($fix->{oid}));
+    do_statement($form, $h_taxkey_only, $q_taxkey_only, conv_i($fix->{taxkey}), conv_i($fix->{acc_trans_id}));
 
-    next unless ($fix->{tax_entry_oid});
+    next unless ($fix->{tax_entry_acc_trans_id});
 
-    do_statement($form, $h_transdate, $q_transdate, conv_i($fix->{tax_entry_oid}));
+    do_statement($form, $h_transdate, $q_transdate, conv_i($fix->{tax_entry_acc_trans_id}));
     my ($transdate) = $h_transdate->fetchrow_array();
 
     my %all_taxes = $self->{taxkeys}->get_full_tax_info('transdate' => $transdate);
@@ -851,7 +851,7 @@ sub fix_wrong_taxkeys {
 
     next unless ($tax_info);
 
-    do_statement($form, $h_taxkey_chart, $q_taxkey_chart, conv_i($fix->{taxkey}), conv_i($tax_info->{taxchart_id}), conv_i($fix->{tax_entry_oid}));
+    do_statement($form, $h_taxkey_chart, $q_taxkey_chart, conv_i($fix->{taxkey}), conv_i($tax_info->{taxchart_id}), conv_i($fix->{tax_entry_acc_trans_id}));
   }
 
   $h_taxkey_only->finish();

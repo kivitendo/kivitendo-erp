@@ -58,7 +58,7 @@
     </tr>
 
     [%- SET curr_row = 0 %]
-    [%- IF (problem.data.module == 'ar') || ((problem.data.module == 'gl') && (problem.acc_trans.credit.entries.first.oid < problem.acc_trans.debit.entries.first.oid)) %]
+    [%- IF (problem.data.module == 'ar') || ((problem.data.module == 'gl') && (problem.acc_trans.credit.entries.first.acc_trans_id < problem.acc_trans.debit.entries.first.acc_trans_id)) %]
      [%- SET order = [ 'credit', 'debit' ] %]
      [%- SET other_side = 'debit' %]
     [%- ELSE %]
@@ -94,8 +94,8 @@
 
        <td>
         [%- IF row.taxkey_error %]
-         <input type="hidden" name="fixes[+].oid" value="[% HTML.escape(row.oid) %]">
-         <input type="hidden" name="fixes[].tax_entry_oid" value="[% HTML.escape(row.tax_entry_oid) %]">
+         <input type="hidden" name="fixes[+].acc_trans_id" value="[% HTML.escape(row.acc_trans_id) %]">
+         <input type="hidden" name="fixes[].tax_entry_acc_trans_id" value="[% HTML.escape(row.tax_entry_acc_trans_id) %]">
          <select name="fixes[].taxkey" style="width: 250px" onchange="enable_fix_button_maybe()">
           <option value="">---bitte auswählen---</option>
           [%- FOREACH taxkey = row.correct_taxkeys %]
