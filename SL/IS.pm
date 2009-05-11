@@ -553,6 +553,7 @@ sub post_invoice {
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
   my $price_factor;
 
+  $form->{amount}      = {};
   $form->{amount_cogs} = {};
 
   foreach my $i (1 .. $form->{rowcount}) {
