@@ -1,0 +1,22 @@
+[% USE HTML %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <p>
+  Die Probleme mit falschen Steuerschlüssel bei Kreditoren- und Debitorenbuchungen wurden behoben.
+
+  Bitte wiederholen Sie die Analyse der Hauptbucheinträge, indem Sie auf diesen Button klicken:
+ </p>
+
+ <p>
+  <form action="acctranscorrections.pl" method="post">
+
+   <input type="hidden" name="action" value="redirect">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+   <input type="submit" value="Analyse wiederholen">
+  </form>
+ </p>
+
+</body>
+</html>

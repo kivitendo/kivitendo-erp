@@ -1,0 +1,27 @@
+[% USE HTML %][% USE LxERP %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <p>
+  Es gibt mindestens eine Einkaufs- oder Verkaufsrechnung, für die Lx-Office einen Steuerschlüssel ungleich 0 verzeichnet hat, obwohl für Warenbestandsbuchugen bei Rechnungen nie Steuern gebucht werden.
+ </p>
+
+ <p>
+  Lx-Office kann solche Probleme automatisch beheben.
+
+  Es wird einfach die Steuerschlüssel auf  0 setzen, was "keine Steuer" bedeutet und für solche Warenbestandsbuchungen der richtige Wert ist.
+ </p>
+
+ <form name="Form" action="acctranscorrections.pl" method="post">
+
+  <p>
+   <input type="hidden" name="action" value="fix_invoice_inventory_with_taxkeys">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+   <input type="submit" class="submit" value="Buchungen korrigieren">
+   <input type="button" class="submit" onclick="history.back()" value="Zurück">
+  </p>
+ </form>
+
+</body>
+</html>

@@ -90,4 +90,11 @@ sub turn90 {
   }
 }
 
+sub abs {
+  my $self = shift;
+  my $var  = shift;
+
+  return $var < 0 ? $var * -1 : $var;
+}
+
 1;

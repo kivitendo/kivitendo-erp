@@ -1,0 +1,137 @@
+[% USE HTML %][% USE LxERP %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <p><translate>Lx-Office has found one or more problems in the general ledger.</translate></p>
+
+ <p>
+  <translate>Period</translate>:
+  [%- IF transdate_from || transdate_to %]
+   [%- IF transdate_from %]
+   <translate>from (time)</translate> [% transdate_from %]
+   [%- END %]
+   [%- IF transdate_to %]
+   <translate>to (time)</translate> [% transdate_to %]
+   [%- END %]
+  [%- ELSE %]
+  <translate>all entries</translate>
+  [%- END %]
+ </p>
+
+ <p>
+  <table width="100%">
+   <tr>
+    <th class="listheading"><translate>Transaction</translate></th>
+    <th class="listheading"><translate>Problem</translate></th>
+    <th class="listheading"><translate>Solution</translate></th>
+   </tr>
+
+   [%- FOREACH problem = PROBLEMS %]
+   <tr class="listrow[% loop.count % 2 %]">
+    <td valign="top">
+     [%- IF problem.type == 'ap_ar_wrong_taxkeys' %]
+      [%- IF problem.ap_problems.size %]
+       <translate>AP Transactions</translate>
+       [%- FOREACH ap = problem.ap_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% ap.link %]">[% HTML.escape(ap.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
+      [%- IF problem.ar_problems.size %]
+       [%- IF problem.ap_problems.size %]; [%- END %]
+       <translate>AR Transactions</translate>
+       [%- FOREACH ar = problem.ar_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% ar.link %]">[% HTML.escape(ar.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
+
+     [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
+      [%- IF problem.ar_problems.size %]
+       <translate>Sales invoices</translate>
+       [%- FOREACH subproblem = problem.ar_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
+      [%- IF problem.ap_problems.size %]
+       [%- IF problem.ar_problems.size %]; [%- END %]
+       <translate>Purchase invoices</translate>
+       [%- FOREACH subproblem = problem.ap_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
+     [%- ELSE %]
+
+     <a href="[% problem.link %]">
+      [%- IF problem.data.module == 'ar' %]
+      <translate>AR Transaction</translate>
+      [%- ELSIF problem.data.module == 'ap' %]
+      <translate>AP Transaction</translate>
+      [%- ELSE %]
+      <translate>General Ledger Transaction</translate>
+      [%- END %]
+      [% HTML.escape(problem.data.reference) %]
+     </a>
+
+      <!-- ( [% problem.data.module %].id = acc_trans.trans_id = [% HTML.escape(problem.data.trans_id) %] ) -->
+
+     [%- END %]
+    </td>
+
+    <td valign="top">
+     [%- IF problem.type == 'split_multiple_credit_and_debit' %]
+     <translate>Transaction has been split on both the credit and the debit side</translate>
+
+     [%- ELSIF problem.type == 'wrong_taxkeys' %]
+     <translate>Wrong tax keys recorded</translate>
+
+     [%- ELSIF problem.type == 'wrong_taxes' %]
+     <translate>Wrong taxes recorded</translate>
+
+     [%- ELSIF problem.type == 'ap_ar_wrong_taxkeys' %]
+     <translate>AP transactions with sales taxkeys and/or AR transactions with input taxkeys</translate>
+
+     [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
+     <translate>Sales and purchase invoices with inventory transactions with taxkeys</translate>
+
+     [%- END %]
+    </td>
+
+    <td valign="top">
+     [%- IF problem.type == 'split_multiple_credit_and_debit' %]
+     <translate>This transaction has to be split into several transactions manually.</translate>
+
+     [%- ELSIF (problem.type == 'wrong_taxkeys') || (problem.type == 'wrong_taxes') %]
+     <a href="acctranscorrections.pl?action=assistant&trans_id=[% HTML.url(problem.data.trans_id) %]&trans_module=[% HTML.url(problem.data.module) %]&trans_reference=[% HTML.url(problem.data.reference) %]&callback=[% callback %]">
+      <translate>Start the correction assistant</translate>
+     </a>
+
+     [%- ELSIF problem.type == 'ap_ar_wrong_taxkeys' %]
+     <a href="acctranscorrections.pl?action=assistant_for_ap_ar_wrong_taxkeys&callback=[% callback %]">
+      <translate>Start the correction assistant</translate>
+     </a>
+
+     [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
+     <a href="acctranscorrections.pl?action=assistant_for_invoice_inventory_with_taxkeys&callback=[% callback %]">
+      <translate>Start the correction assistant</translate>
+     </a>
+
+     [%- END %]
+    </td>
+   </tr>
+   [%- END %]
+
+  </table>
+ </p>
+
+ <hr>
+
+</body>
+</html>

@@ -85,12 +85,13 @@ sub _init {
       $self->{charset} = Common::DEFAULT_CHARSET;
     }
 
-    my $db_charset         = $main::dbcharset || Common::DEFAULT_CHARSET;
+    my $db_charset            = $main::dbcharset || Common::DEFAULT_CHARSET;
 
-    $self->{iconv}         = Text::Iconv->new($self->{charset}, $db_charset);
-    $self->{iconv_reverse} = Text::Iconv->new($db_charset,      $self->{charset});
-    $self->{iconv_english} = Text::Iconv->new('ASCII',          $db_charset);
-    $self->{iconv_iso8859} = Text::Iconv->new('ISO-8859-15',    $db_charset);
+    $self->{iconv}            = Text::Iconv->new($self->{charset}, $db_charset);
+    $self->{iconv_reverse}    = Text::Iconv->new($db_charset,      $self->{charset});
+    $self->{iconv_english}    = Text::Iconv->new('ASCII',          $db_charset);
+    $self->{iconv_iso8859}    = Text::Iconv->new('ISO-8859-15',    $db_charset);
+    $self->{iconv_to_iso8859} = Text::Iconv->new($db_charset,      'ISO-8859-15');
 
     $self->_read_special_chars_file($country);
   }
