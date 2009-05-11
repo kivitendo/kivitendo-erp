@@ -1645,7 +1645,7 @@ sub bwa {
   }
 
   my @periods        = qw(jetzt kumm);
-  my @gesamtleistung = qw(1 2 3);
+  my @gesamtleistung = qw(1 3);
   my @gesamtkosten   = qw (10 11 12 13 14 15 16 17 18 19 20);
   my @ergebnisse     =
     qw (rohertrag betriebrohertrag betriebsergebnis neutraleraufwand neutralerertrag ergebnisvorsteuern ergebnis gesamtleistung gesamtkosten);
@@ -1668,6 +1668,8 @@ sub bwa {
     foreach my $item (@gesamtleistung) {
       $form->{ "$key" . "gesamtleistung" } += $form->{$item}{$key};
     }
+    $form->{ "$key" . "gesamtleistung" } -= $form->{2}{$key};
+
     foreach my $item (@gesamtkosten) {
       $form->{ "$key" . "gesamtkosten" } += $form->{$item}{$key};
     }
