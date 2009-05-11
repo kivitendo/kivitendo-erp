@@ -123,7 +123,14 @@ sub get_tuple {
   }
 
   # check if it is orphaned
-  my $arap = ( $form->{db} eq 'customer' ) ? "ar" : "ap";
+  my $arap      = ( $form->{db} eq 'customer' ) ? "ar" : "ap";
+  my $num_args  = 2;
+  my $makemodel = '';
+  if ($form->{db} eq 'vendor') {
+    $makemodel = qq| UNION SELECT mm.make FROM makemodel mm WHERE mm.make = ?|;
+    $num_args++;
+  }
+
   $query =
     qq|SELECT a.id | .
     qq|FROM $arap a | .
@@ -133,8 +140,10 @@ sub get_tuple {
     qq|SELECT a.id | .
     qq|FROM oe a | .
     qq|JOIN $cv ct ON (a.${cv}_id = ct.id) | .
-    qq|WHERE ct.id = ?|;
-  my ($dummy) = selectrow_query($form, $dbh, $query, $form->{id}, $form->{id});
+    qq|WHERE ct.id = ?|
+    . $makemodel;
+  my ($dummy) = selectrow_query($form, $dbh, $query, (conv_i($form->{id})) x $num_args);
+
   $form->{status} = "orphaned" unless ($dummy);
 
   $dbh->disconnect;

@@ -1464,7 +1464,9 @@ sub form_header {
   map { $form->{$_}       =~ s/"/&quot;/g;        } qw(unit);
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
-                   'partsgroup'    => 'all_partsgroup');
+                   'partsgroup'    => 'all_partsgroup',
+		    'vendors'       => 'ALL_VENDORS',);
+
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
@@ -1478,11 +1480,12 @@ sub form_header {
   $form->{fokus} = "ic.partnumber";
 
   $form->header;
-  print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS},
-                                                       ALL_UNITS         => $form->{ALL_UNITS},
-                                                       BUCHUNGSGRUPPEN   => $form->{BUCHUNGSGRUPPEN},
-                                                       payment_terms     => $form->{payment_terms},
-                                                       all_partsgroup    => $form->{all_partsgroup}});
+  #print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS},
+  #                                                     ALL_UNITS         => $form->{ALL_UNITS},
+  #                                                     BUCHUNGSGRUPPEN   => $form->{BUCHUNGSGRUPPEN},
+  #                                                     payment_terms     => $form->{payment_terms},
+  #                                                     all_partsgroup    => $form->{all_partsgroup}});
+  print $form->parse_html_template('ic/form_header');
   $lxdebug->leave_sub();
 }
 
@@ -1501,6 +1504,7 @@ sub makemodel_row {
   my ($numrows) = @_;
 
   my @mm_data = grep { any { $_ ne '' } @$_{qw(make model)} } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"} }, 1 .. $numrows;
+  delete @{$form}{grep { m/^make_\d+/ || m/^model_\d+/ } keys %{ $form }};
   print $form->parse_html_template('ic/makemodel', { MM_DATA => [ @mm_data, {} ], mm_rows => scalar @mm_data + 1 });
 
   $lxdebug->leave_sub();

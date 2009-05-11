@@ -491,11 +491,11 @@ sub save {
   unless ($form->{item} eq 'service') {
     for my $i (1 .. $form->{makemodel_rows}) {
       if (($form->{"make_$i"}) || ($form->{"model_$i"})) {
-        map { $form->{"${_}_$i"} =~ s/\'/\'\'/g } qw(make model);
 
         $query = qq|INSERT INTO makemodel (parts_id, make, model) | .
 		             qq|VALUES (?, ?, ?)|;
-		    @values = (conv_i($form->{id}), $form->{"make_$i"}, $form->{"model_$i"});
+		    @values = (conv_i($form->{id}), conv_i($form->{"make_$i"}), $form->{"model_$i"});
+
         do_query($form, $dbh, $query, @values);
       }
     }
@@ -1818,9 +1818,11 @@ sub prepare_parts_for_printing {
   }
 
   my $placeholders = join ', ', ('?') x scalar(@part_ids);
-  my $query        = qq|SELECT parts_id, make, model
-                        FROM makemodel
-                        WHERE parts_id IN ($placeholders)|;
+  my $query        = qq|SELECT mm.parts_id, mm.model, v.name AS make
+                        FROM makemodel mm
+                        LEFT JOIN vendor v ON (mm.make = v.id)
+                        WHERE mm.parts_id IN ($placeholders)|;
+
   my %makemodel    = ();
 
   my $sth          = prepare_execute_query($form, $dbh, $query, @part_ids);
