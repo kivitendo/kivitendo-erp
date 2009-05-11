@@ -8,7 +8,8 @@ require Exporter;
              selectfirst_hashref_query selectfirst_array_query
              selectall_hashref_query selectall_array_query
              selectall_as_map
-             prepare_execute_query prepare_query);
+             prepare_execute_query prepare_query
+             create_sort_spec);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -220,6 +221,40 @@ sub selectall_as_map {
   return %hash;
 }
 
+sub create_sort_spec {
+  $main::lxdebug->enter_sub(2);
+
+  my %params = @_;
+
+  # Safety check:
+  $params{defs}    || die;
+  $params{default} || die;
+
+  # The definition of valid columns to sort by.
+  my $defs        = $params{defs};
+
+  # The column name to sort by. Use the default column name if none was given.
+  my %result      = ( 'column' => $params{column} || $params{default} );
+
+  # Overwrite the column name with the default column name if the other one is not valid.
+  $result{column} = $params{default} unless ($defs->{ $result{column} });
+
+  # The sort direction. true means 'sort ascending', false means 'sort descending'.
+  $result{dir}    = defined $params{dir}         ? $params{dir}
+                  : defined $params{default_dir} ? $params{default_dir}
+                  :                                1;
+  $result{dir}    = $result{dir} ?     1 :      0;
+  my $asc_desc    = $result{dir} ? 'ASC' : 'DESC';
+
+  # Create the SQL code.
+  my $cols        = $defs->{ $result{column} };
+  $result{sql}    = join ', ', map { "${_} ${asc_desc}" } @{ ref $cols eq 'ARRAY' ? $cols : [ $cols ] };
+
+  $main::lxdebug->leave_sub(2);
+
+  return %result;
+}
+
 1;
 
 
@@ -250,7 +285,8 @@ SL::DBUTils.pm: All about Databaseconections in Lx
   my @first_result =  selectfirst_array_query($form, $dbh, $query);  # ==
   my @first_result =  selectrow_query($form, $dbh, $query);
   
-    
+  my %sort_spec = create_sort_spec(%params);
+
 =head1 DESCRIPTION
 
 DBUtils is the attempt to reduce the amount of overhead it takes to retrieve information from the database in Lx-Office. Previously it would take about 15 lines of code just to get one single integer out of the database, including failure procedures and importing the necessary packages. Debugging would take even more.
@@ -333,6 +369,56 @@ Prepares and executes a query using DBUtils functions, retireves all data from t
 =item selectall_as_map FORM,DBH,QUERY,KEY_COL,VALUE_COL,ARRAY
 
 Prepares and executes a query using DBUtils functions, retireves all data from the database, and creates a hash from the results using KEY_COL as the column for the hash keys and VALUE_COL for its values.
+
+=back
+
+=head2 UTILITY FUNCTIONS
+
+=over 4
+
+=item create_sort_spec
+
+  params:
+    defs        => { },         # mandatory
+    default     => 'name',      # mandatory
+    column      => 'name',
+    default_dir => 0|1,
+    dir         => 0|1,
+
+  returns hash:
+    column      => 'name',
+    dir         => 0|1,
+    sql         => 'SQL code',
+
+This function simplifies the creation of SQL code for sorting
+columns. It uses a hashref of valid column names, the column name and
+direction requested by the user, the application defaults for the
+column name and the direction and returns the actual column name,
+direction and SQL code that can be used directly in a query.
+
+The parameter 'defs' is a hash reference. The keys are the column
+names as they may come from the application. The values are either
+scalars with SQL code or array references of SQL code. Example:
+
+'defs' => { 'customername' => 'lower(customer.name)',
+            'address'      => [ 'lower(customer.city)', 'lower(customer.street)' ], }
+
+'default' is the default column name to sort by. It must be a key of
+'defs' and should not be come from user input.
+
+The 'column' parameter is the column name as requested by the
+application (e.g. if the user clicked on a column header in a
+report). If it is invalid then the 'default' parameter will be used
+instead.
+
+'default_dir' is the default sort direction. A true value means 'sort
+ascending', a false one 'sort descending'. 'default_dir' defaults to
+'1' if undefined.
+
+The 'dir' parameter is the sort direction as requested by the
+application (e.g. if the user clicked on a column header in a
+report). If it is undefined then the 'default_dir' parameter will be
+used instead.
 
 =back
 
