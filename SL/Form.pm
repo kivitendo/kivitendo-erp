@@ -403,9 +403,9 @@ sub quote {
     $str =~ s/\"/&quot;/g;
   }
 
-  $str;
-
   $main::lxdebug->leave_sub();
+
+  return $str;
 }
 
 sub unquote {
@@ -416,9 +416,9 @@ sub unquote {
     $str =~ s/&quot;/\"/g;
   }
 
-  $str;
-
   $main::lxdebug->leave_sub();
+
+  return $str;
 }
 
 sub hide_form {
