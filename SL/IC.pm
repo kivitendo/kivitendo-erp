@@ -79,7 +79,7 @@ sub get_part {
     # retrieve assembly items
     $query =
       qq|SELECT p.id, p.partnumber, p.description,
-           p.sellprice, p.weight, a.qty, a.bom, p.unit,
+           p.sellprice, p.lastcost, p.weight, a.qty, a.bom, p.unit,
            pg.partsgroup
          FROM parts p
          JOIN assembly a ON (a.parts_id = p.id)

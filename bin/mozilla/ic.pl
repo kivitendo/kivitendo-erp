@@ -1515,7 +1515,7 @@ sub assembly_row {
   our ($deliverydate); # ToDO: cjeck if this indeed comes from global context
 
   @column_index =
-    qw(runningnumber qty unit bom partnumber description partsgroup total);
+    qw(runningnumber qty unit bom partnumber description partsgroup lastcost total);
 
   if ($form->{previousform}) {
     $nochange     = 1;
@@ -1544,6 +1544,7 @@ sub assembly_row {
     $form->{callback} = $callback;
 
     $form->{assemblytotal} = 0;
+    $form->{assembly_purchase_price_total} = 0;
     $form->{weight}        = 0;
 
   }
@@ -1559,6 +1560,8 @@ sub assembly_row {
     . qq|</th>|;
   $column_header{description} =
     qq|<th nowrap width=50%>| . $locale->text('Part Description') . qq|</th>|;
+  $column_header{lastcost} =
+    qq|<th nowrap width=50%>| . $locale->text('Purchase Price') . qq|</th>|;
   $column_header{total} =
     qq|<th align=right nowrap>| . $locale->text('Extended') . qq|</th>|;
   $column_header{bom}        = qq|<th>| . $locale->text('BOM') . qq|</th>|;
@@ -1585,11 +1588,15 @@ sub assembly_row {
 
     $linetotal =
       $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
+    $line_purchase_price  = 
+      $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"}, 2); #lastcost == purchase_price | ungenaue datenbankfeld-übersetzung
     $form->{assemblytotal} += $linetotal;
+    $form->{assembly_purchase_price_total}  += $line_purchase_price;
 
     $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
 
     $linetotal = $form->format_amount(\%myconfig, $linetotal, 2);
+    $line_purchase_price = $form->format_amount(\%myconfig, $line_purchase_price, 2);
 
     if (($i >= 1) && ($i == $numrows)) {
 
@@ -1651,6 +1658,7 @@ sub assembly_row {
         qq|<td><input type=hidden name="description_$i" value="$form->{"description_$i"}">$form->{"description_$i"}</td>|;
     }
 
+    $column_data{lastcost} = qq|<td align=right>$line_purchase_price</td>|;
     $column_data{total} = qq|<td align=right>$linetotal</td>|;
 
     $column_data{deliverydate} = qq|<td align=right>$deliverydate</td>|;
