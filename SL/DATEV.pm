@@ -26,8 +26,11 @@
 
 package DATEV;
 
+use List::Util qw(max);
+
 use SL::DBUtils;
 use SL::DATEV::KNEFile;
+use SL::Taxkeys;
 
 use Data::Dumper;
 use File::Path;
@@ -301,6 +304,14 @@ sub get_dates {
   return ($fromto, $jahr);
 }
 
+sub _sign {
+  my $value = shift;
+
+  return $value < 0 ? -1
+    :    $value > 0 ?  1
+    :                  0;
+}
+
 sub _get_transactions {
   $main::lxdebug->enter_sub();
 
@@ -315,54 +326,58 @@ sub _get_transactions {
 
   $fromto      =~ s/transdate/ac\.transdate/g;
 
-  my %taxes    =  selectall_as_map($form, $dbh, qq|SELECT id, rate FROM tax|, 'id', 'rate');
+  my $taxkeys  = Taxkeys->new();
+  my $filter   = '';            # Useful for debugging purposes
+
+  my %all_taxchart_ids = selectall_as_map($form, $dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
   my $query    =
     qq|SELECT ac.oid, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
          ar.invnumber, ar.duedate, ar.amount as umsatz,
          ct.name,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id,
-         t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey
-       FROM acc_trans ac,ar ar, customer ct, chart c
-       LEFT JOIN tax t ON (t.chart_id = c.id)
-       WHERE $fromto
-         AND (ac.trans_id = ar.id)
-         AND (ac.trans_id = ar.id)
-         AND (ar.customer_id = ct.id)
-         AND (ac.chart_id = c.id)
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
+         ar.invoice
+       FROM acc_trans ac
+       LEFT JOIN ar          ON (ac.trans_id    = ar.id)
+       LEFT JOIN customer ct ON (ar.customer_id = ct.id)
+       LEFT JOIN chart c     ON (ac.chart_id    = c.id)
+       WHERE (ar.id IS NOT NULL)
+         AND $fromto
+         $filter
 
        UNION ALL
 
        SELECT ac.oid, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
          ap.invnumber, ap.duedate, ap.amount as umsatz,
          ct.name,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id,
-         t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey
-       FROM acc_trans ac, ap ap, vendor ct, chart c
-       LEFT JOIN tax t ON (t.chart_id = c.id)
-       WHERE $fromto
-         AND (ac.trans_id = ap.id)
-         AND (ap.vendor_id = ct.id)
-         AND (ac.chart_id = c.id)
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
+         ap.invoice
+       FROM acc_trans ac
+       LEFT JOIN ap        ON (ac.trans_id  = ap.id)
+       LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
+       LEFT JOIN chart c   ON (ac.chart_id  = c.id)
+       WHERE (ap.id IS NOT NULL)
+         AND $fromto
+         $filter
 
        UNION ALL
 
        SELECT ac.oid, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
          gl.description AS name,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id,
-         t.chart_id, t.rate, t.id AS taxid, t.taxkey AS taxtaxkey
-       FROM acc_trans ac, gl gl, chart c
-       LEFT JOIN tax t ON (t.chart_id = c.id)
-       WHERE $fromto
-         AND (ac.trans_id = gl.id)
-         AND (ac.chart_id = c.id)
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
+         FALSE AS invoice
+       FROM acc_trans ac
+       LEFT JOIN gl      ON (ac.trans_id  = gl.id)
+       LEFT JOIN chart c ON (ac.chart_id  = c.id)
+       WHERE (gl.id IS NOT NULL)
+         AND $fromto
+         $filter
 
        ORDER BY trans_id, oid|;
 
-  my $sth     = prepare_execute_query($form, $dbh, $query);
+  my $sth = prepare_execute_query($form, $dbh, $query);
 
-  my @splits;
   my $counter = 0;
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     $counter++;
@@ -379,10 +394,33 @@ sub _get_transactions {
       my $ref2 = $sth->fetchrow_hashref(NAME_lc);
       last unless ($ref2);
 
+      if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
+        $form->error("Unbalanced ledger! old trans_id " . $trans->[0]->{trans_id} . " new trans_id " . $ref2->{trans_id} . " count $count");
+        exit 1;
+      }
+
       push @{ $trans }, $ref2;
 
       $count    += $ref2->{amount};
       $firstrun  = 0;
+    }
+
+    foreach my $i (0 .. scalar(@{ $trans }) - 1) {
+      my $ref        = $trans->[$i];
+      my $prev_ref   = 0 < $i ? $trans->[$i - 1] : undef;
+      if (   $all_taxchart_ids{$ref->{id}}
+          && ($ref->{link} =~ m/(?:AP_tax|AR_tax)/)
+          && (   ($prev_ref && $prev_ref->{taxkey} && (_sign($ref->{amount}) == _sign($prev_ref->{amount})))
+              || $ref->{invoice})) {
+        $ref->{is_tax} = 1;
+      }
+
+      if (   !$ref->{invoice}
+          &&  $ref->{is_tax}
+          && !($prev_ref->{is_tax})
+          &&  (_sign($ref->{amount}) == _sign($prev_ref->{amount}))) {
+        $trans->[$i - 1]->{tax_amount} = $ref->{amount};
+      }
     }
 
     my %taxid_taxkeys = ();
@@ -397,15 +435,14 @@ sub _get_transactions {
         $absumsatz     = $trans->[$j]->{'amount'};
         $notsplitindex = $j;
       }
-      if (($trans->[$j]->{'taxtaxkey'}) && ($trans->[$j]->{'taxid'})) {
-        $taxid_taxkeys{$trans->[$j]->{'taxtaxkey'}}     = $trans->[$j]->{'taxid'};
-      }
     }
 
-    my $ml = ($trans->[0]->{'umsatz'} > 0) ? 1 : -1;
+    my $ml             = ($trans->[0]->{'umsatz'} > 0) ? 1 : -1;
+    my $rounding_error = 0;
+
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
       if (   ($j != $notsplitindex)
-          && ($trans->[$j]->{'chart_id'}  eq "")
+          && !$trans->[$j]->{is_tax}
           && (   $trans->[$j]->{'taxkey'} eq ""
               || $trans->[$j]->{'taxkey'} eq "0"
               || $trans->[$j]->{'taxkey'} eq "1"
@@ -419,27 +456,78 @@ sub _get_transactions {
         $new_trans{'umsatz'}      = abs($trans->[$j]->{'amount'}) * $ml;
         $trans->[$j]->{'umsatz'}  = abs($trans->[$j]->{'amount'}) * $ml;
 
-        push @splits, [ \%new_trans, $trans->[$j] ];
-        push @{ $form->{DATEV} }, $splits[-1];
+        push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
 
-      } elsif (($j != $notsplitindex) && ($trans->[$j]->{'chart_id'} eq "")) {
-        $absumsatz += ($trans->[$j]->{'amount'} * (1 + $taxes{ $taxid_taxkeys{$trans->[$j]->{'taxkey'}} }));
+      } elsif (($j != $notsplitindex) && !$trans->[$j]->{is_tax}) {
+        my %tax_info = $taxkeys->get_full_tax_info('transdate' => $trans->[$j]->{transdate});
 
         my %new_trans = ();
         map { $new_trans{$_} = $trans->[$notsplitindex]->{$_}; } keys %{ $trans->[$notsplitindex] };
 
-        my $tax_rate             = 1 + $taxes{ $taxid_taxkeys{$trans->[$j]->{'taxkey'}} };
-        $new_trans{'amount'}     = $form->round_amount(($trans->[$j]->{'amount'} * $tax_rate * -1), 2);
-        $new_trans{'umsatz'}     = abs($form->round_amount(($trans->[$j]->{'amount'} * $tax_rate), 2)) * $ml;
-        $trans->[$j]->{'umsatz'} = abs($form->round_amount(($trans->[$j]->{'amount'} * $tax_rate), 2)) * $ml;
+        my $tax_rate              = $tax_info{taxkeys}->{ $trans->[$j]->{'taxkey'} }->{taxrate};
+        $new_trans{'net_amount'}  = $trans->[$j]->{'amount'} * -1;
+        $new_trans{'tax_rate'}    = 1 + $tax_rate;
 
-        push @splits, [ \%new_trans, $trans->[$j] ];
-        push @{ $form->{DATEV} }, $splits[-1];
+        if (!$trans->[$j]->{'invoice'}) {
+          $new_trans{'amount'}      = $form->round_amount(-1 * ($trans->[$j]->{amount} + $trans->[$j]->{tax_amount}), 2);
+          $new_trans{'umsatz'}      = abs($new_trans{'amount'}) * $ml;
+          $trans->[$j]->{'umsatz'}  = $new_trans{'umsatz'};
+          $absumsatz               += -1 * $new_trans{'amount'};
+
+        } else {
+          my $unrounded             = $trans->[$j]->{'amount'} * (1 + $tax_rate) * -1; # + $rounding_error;
+          my $rounded               = $form->round_amount($unrounded, 2);
+          $rounding_error          += $unrounded - $rounded;
+          $new_trans{'amount'}      = $rounded;
+          $new_trans{'umsatz'}      = abs($form->round_amount(($trans->[$j]->{'amount'} * (1 + $tax_rate)), 2)) * $ml;
+          $trans->[$j]->{'umsatz'}  = abs($form->round_amount(($trans->[$j]->{'amount'} * (1 + $tax_rate)), 2)) * $ml;
+          $absumsatz               += $form->round_amount($trans->[$j]->{'amount'} + $trans->[$j]->{'amount'} * $tax_rate, 2);
+        }
+
+        push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
       }
     }
 
-    if (abs($absumsatz) > 0.01) {
-      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)\n";
+    my $idx        = 0;
+    my $correction = 0;
+    while (abs($absumsatz) >= 0.01) {
+      if ($idx >= scalar @taxed) {
+        last if (!$correction);
+
+        $correction = 0;
+        $idx        = 0;
+      }
+
+      my $transaction = $taxed[$idx]->[0];
+
+      my $old_amount     = $transaction->{amount};
+      my $old_correction = $correction;
+      my @possible_diffs;
+
+      if (!$transaction->{diff}) {
+        @possible_diffs = (0.01, -0.01);
+      } else {
+        @possible_diffs = ($transaction->{diff});
+      }
+
+      foreach my $diff (@possible_diffs) {
+        my $net_amount = $form->round_amount(($transaction->{amount} + $diff) / $transaction->{tax_rate}, 2);
+        next if ($net_amount != $transaction->{net_amount});
+
+        $transaction->{diff}    = $diff;
+        $transaction->{amount} += $diff;
+        $transaction->{umsatz} += $diff;
+        $absumsatz             -= $diff;
+        $correction             = 1;
+
+        last;
+      }
+
+      $idx++;
+    }
+
+    if (abs($absumsatz) >= 0.01) {
+      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz, Rundungsfehler $rounding_error)\n";
     }
   }
 
@@ -463,7 +551,7 @@ sub make_kne_data_header {
 
   #Header
   my $header  = "\x1D\x181";
-  $header    .= _fill($form->{datentraegernr}, 3, '0');
+  $header    .= _fill($form->{datentraegernr}, 3, ' ', 'left');
   $header    .= ($fromto) ? "11" : "13"; # Anwendungsnummer
   $header    .= _fill($form->{dfvkz}, 2, '0');
   $header    .= _fill($form->{beraternr}, 7, '0');
@@ -669,13 +757,14 @@ sub kne_buchungsexport {
       my $datevautomatik = 0;
       my $taxkey         = 0;
       my $charttax       = 0;
-      my %umlaute = ('ä' => 'ae',
-                     'ö' => 'oe',
-                     'ü' => 'ue',
-                     'Ä' => 'Ae',
-                     'Ö' => 'Oe',
-                     'Ü' => 'Ue',
-                     'ß' => 'sz');
+      my $iconv          = $main::locale->{iconv_iso8859};
+      my %umlaute = ($iconv->convert('ä') => 'ae',
+                     $iconv->convert('ö') => 'oe',
+                     $iconv->convert('ü') => 'ue',
+                     $iconv->convert('Ä') => 'Ae',
+                     $iconv->convert('Ö') => 'Oe',
+                     $iconv->convert('Ü') => 'Ue',
+                     $iconv->convert('ß') => 'sz');
       for (my $i = 0; $i < $trans_lines; $i++) {
         if ($trans_lines == 2) {
           if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {
@@ -695,10 +784,7 @@ sub kne_buchungsexport {
         if ($transaction->[$i]->{'charttax'}) {
           $charttax = $transaction->[$i]->{'charttax'};
         }
-        if (   ($transaction->[$i]->{'id'} eq $transaction->[$i]->{'chart_id'})
-            && ($trans_lines > 2)) {
-          undef($transaction->[$i]);
-        } elsif ($transaction->[$i]->{'amount'} > 0) {
+        if ($transaction->[$i]->{'amount'} > 0) {
           $haben = $i;
         } else {
           $soll = $i;
@@ -743,7 +829,8 @@ sub kne_buchungsexport {
 
       if (   ( $datevautomatik || $taxkey)
           && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
-        $kne_file->add_block("\x6C" . (!$datevautomatik ? $taxkey : "4"));
+#         $kne_file->add_block("\x6C" . (!$datevautomatik ? $taxkey : "4"));
+        $kne_file->add_block("\x6C${taxkey}");
       }
 
       $kne_file->add_block($gegenkonto);
