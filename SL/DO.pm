@@ -895,9 +895,9 @@ sub get_item_availability {
        FROM inventory i
        LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
        LEFT JOIN bin b       ON (i.bin_id       = b.id)
-       WHERE (i.parts_id IN (| . join(', ', ('?') x scalar(@parts_ids)) . qq|))
-         AND qty > 0
-       GROUP BY i.warehouse_id, i.bin_id, i.chargenumber, i.parts_id, w.description, b.description
+       WHERE (i.parts_id IN (| . join(', ', ('?') x scalar(@parts_ids)) . qq|))| .
+#         AND qty > 0	# das führt zu falschen warenbeständen, wenn man über lieferschein auslagert. @mb nochmal besprechen jb 12.5.09
+    qq|GROUP BY i.warehouse_id, i.bin_id, i.chargenumber, i.parts_id, w.description, b.description
        ORDER BY LOWER(w.description), LOWER(b.description), LOWER(i.chargenumber)|;
 
   my $contents = selectall_hashref_query($form, $form->get_standard_dbh($myconfig), $query, @parts_ids);
