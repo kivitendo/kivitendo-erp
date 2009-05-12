@@ -346,8 +346,7 @@ sub all_transactions {
     qq|SELECT
         ac.acc_trans_id, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
         g.description, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, g.notes, t.chart_id,
-        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
+        ac.amount, c.accno, g.notes, t.chart_id
         $project_columns
         $columns_for_sorting{gl}
       FROM gl g, acc_trans ac $project_join, chart c
@@ -360,8 +359,7 @@ sub all_transactions {
 
       SELECT ac.acc_trans_id, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, a.notes, t.chart_id,
-        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
+        ac.amount, c.accno, a.notes, t.chart_id
         $project_columns
         $columns_for_sorting{arap}
       FROM ar a, acc_trans ac $project_join, customer ct, chart c
@@ -375,8 +373,7 @@ sub all_transactions {
 
       SELECT ac.acc_trans_id, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
         ct.name, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, a.notes, t.chart_id,
-        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
+        ac.amount, c.accno, a.notes, t.chart_id
         $project_columns
         $columns_for_sorting{arap}
       FROM ap a, acc_trans ac $project_join, vendor ct, chart c
