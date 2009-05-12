@@ -1232,3 +1232,14 @@ sub no {
 sub update {
   call_sub($form->{update_nextsub} || $form->{nextsub} || 'update_delivery_order');
 }
+
+sub dispatcher {
+  foreach my $action (qw(update ship_to print e_mail save transfer_out transfer_in mark_closed save_as_new invoice delete)) {
+    if ($form->{"action_${action}"}) {
+      call_sub($action);
+      return;
+    }
+  }
+
+  $form->error($locale->text('No action defined.'));
+}

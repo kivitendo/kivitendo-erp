@@ -55,25 +55,26 @@
 
   <p>
    Lieferschein bearbeiten<br>
-   <input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
+   <input type="hidden" name="action" value="dispatcher">
+   <input class="submit" type="submit" name="action_update" id="update_button" value="Erneuern">
    [%- UNLESS delivered %]
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action" value="Lieferadresse">
+   <input class="submit" type="submit" name="action_ship_to" value="Lieferadresse">
    [%- END %]
    [%- END %]
-   <input class="submit" type="submit" name="action" value="Drucken">
-   <input class="submit" type="submit" name="action" value="eMail">
+   <input class="submit" type="submit" name="action_print" value="Drucken">
+   <input class="submit" type="submit" name="action_e_mail" value="eMail">
    [%- UNLESS delivered %]
-   <input class="submit" type="submit" name="action" value="Speichern">
+   <input class="submit" type="submit" name="action_save" value="Speichern">
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action" value="Auslagern">
+   <input class="submit" type="submit" name="action_transfer_out" value="Auslagern">
    [%- ELSE %]
-   <input class="submit" type="submit" name="action" value="Einlagern">
+   <input class="submit" type="submit" name="action_transfer_in" value="Einlagern">
    [%- END %]
    [%- END %]
    [%- IF id %]
    [%- UNLESS closed %]
-   <input class="submit" type="submit" name="action" value="Schließen">
+   <input class="submit" type="submit" name="action_mark_closed" value="Schließen">
    [%- END %]
    <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="Historie">
    [%- END %]
@@ -82,11 +83,11 @@
   [%- IF id %]
   <p>
    Workflow Lieferschein<br>
-   <input class="submit" type="submit" name="action" value="als neu speichern">
+   <input class="submit" type="submit" name="action_save_as_new" value="als neu speichern">
    [% UNLESS delivered %]
-   <input class="submit" type="submit" name="action" value="Löschen">
+   <input class="submit" type="submit" name="action_delete" value="Löschen">
    [% END %]
-   <input class="submit" type="submit" name="action" value="Rechnung">
+   <input class="submit" type="submit" name="action_invoice" value="Rechnung">
   </p>
   [%- END %]
 
