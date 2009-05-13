@@ -33,6 +33,7 @@
 
 use SL::BP;
 use Data::Dumper;
+use List::Util qw(first);
 
 1;
 
@@ -348,7 +349,10 @@ sub print {
 
   $form->get_lists(printers => 'ALL_PRINTERS');
   # use the command stored in the databse or fall back to $myconfig{printer}
-  my $selected_printer = (grep { $_->{id} eq $form->{printer} } @{ $form->{ALL_PRINTERS} })[0]->{'printer_command'} || $myconfig{printer};
+  my $selected_printer =  first { $_ } map ({ $_ ->{printer_command} }
+                                         grep { $_->{id} eq $form->{printer} }
+                                           @{ $form->{ALL_PRINTERS} }),
+                                       $myconfig{printer};
 
   if ($form->{callback}) {
     map { $form->{callback} .= "&checked_$_=1" if $form->{"checked_$_"} }
