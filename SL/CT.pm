@@ -127,7 +127,7 @@ sub get_tuple {
   my $num_args  = 2;
   my $makemodel = '';
   if ($form->{db} eq 'vendor') {
-    $makemodel = qq| UNION SELECT mm.make FROM makemodel mm WHERE mm.make = ?|;
+    $makemodel = qq| UNION SELECT 1 FROM makemodel mm WHERE mm.make = ?|;
     $num_args++;
   }
 
