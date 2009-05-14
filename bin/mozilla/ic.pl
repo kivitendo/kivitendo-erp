@@ -99,7 +99,7 @@ sub search {
 
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
   $form->{title} = $locale->text($form->{title});
-  $form->{title} = $locale->text('Assemblies') if ($is_xyz{assembly});
+  $form->{title} = $locale->text('Assemblies') if ($is_xyz{is_assembly});
 
   $form->{jsscript} = 1;
 
@@ -1592,7 +1592,7 @@ sub assembly_row {
 
     $linetotal =
       $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
-    $line_purchase_price  = 
+    $line_purchase_price  =
       $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"}, 2); #lastcost == purchase_price | ungenaue datenbankfeld-übersetzung
     $form->{assemblytotal} += $linetotal;
     $form->{assembly_purchase_price_total}  += $line_purchase_price;
