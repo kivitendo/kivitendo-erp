@@ -3245,6 +3245,19 @@ sub update_defaults {
   return $var;
 }
 
+=item update_business
+
+PARAMS (not named):
+ \%config,     - config hashref
+ $business_id, - business id
+ $dbh          - optional database handle
+
+handles business (thats customer/vendor types) sequences.
+
+special behaviour for empty strings in customerinitnumber field:
+will in this case not increase the value, and return undef.
+
+=cut
 sub update_business {
   $main::lxdebug->enter_sub();
 
@@ -3260,6 +3273,8 @@ sub update_business {
     qq|SELECT customernumberinit FROM business
        WHERE id = ? FOR UPDATE|;
   my ($var) = selectrow_query($self, $dbh, $query, $business_id);
+
+  return undef unless $var;
 
   if ($var =~ m/\d+$/) {
     my $new_var  = (substr $var, $-[0]) * 1 + 1;
