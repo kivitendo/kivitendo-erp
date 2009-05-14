@@ -708,8 +708,8 @@ sub check_form {
 
         #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
 
-        $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"});
-        $form->{weight}    += ($form->{"qty_$i"} * $form->{"weight_$i"});
+        $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"} / ($form->{"price_factor_$i"} || 1));
+        $form->{weight}    += ($form->{"qty_$i"} * $form->{"weight_$i"} / ($form->{"price_factor_$i"} || 1));
         $count++;
       }
     }
