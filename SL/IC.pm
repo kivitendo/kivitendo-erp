@@ -914,6 +914,7 @@ sub all_parts {
   if ($form->{l_soldtotal}) {
     push @where_tokens, 'ioi.qty >= 0';
     push @group_tokens, @select_tokens;
+     map { s/.*\sAS\s+//si } @group_tokens;
     push @select_tokens, 'SUM(ioi.qty)';
   }
 
@@ -927,6 +928,7 @@ sub all_parts {
      ordnumber    => 'apoe.', make         => 'mm.',
      quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
+     lastcost     => ' ',
      factor       => 'pfac.',
      'SUM(ioi.qty)' => ' ',
   );
