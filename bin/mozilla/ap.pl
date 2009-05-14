@@ -855,7 +855,7 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  @flds  = qw(amount AP_amount projectnumber oldprojectnumber project_id);
+  @flds  = qw(amount AP_amount projectnumber oldprojectnumber project_id taxchart);
   $count = 0;
   for $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} =
@@ -889,9 +889,16 @@ sub update {
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
-  $save_AP = $form->{AP};
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1);
+
   &check_name("vendor");
-  $form->{AP} = $save_AP;
+
+  $form->{AP} = $saved_variables{AP};
+  if ($saved_variables{AP_amount_1} =~ m/.--./) {
+    map { $form->{$_} = $saved_variables{$_} } qw(AP_amount_1 taxchart_1);
+  } else {
+    delete $form->{taxchart_1};
+  }
 
   $form->{rowcount} = $count + 1;
 
