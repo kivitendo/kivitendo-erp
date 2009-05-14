@@ -793,7 +793,7 @@ sub display_rows {
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
     my $key = $item->{accno} . "--" . $item->{tax_id};
-    $taxchart_init = $item->{taxkey_id} unless (@chart_values);
+    $taxchart_init = $item->{tax_id} unless (@chart_values);
     push(@chart_values, $key);
     $chart_labels{$key} = $item->{accno} . "--" . $item->{description};
     $charts{$item->{accno}} = $item;
@@ -804,7 +804,7 @@ sub display_rows {
   my %taxcharts = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
     my $key = $item->{id} . "--" . $item->{rate};
-    $taxchart_init = $key if ($taxchart_init eq $item->{taxkey});
+    $taxchart_init = $key if ($taxchart_init == $item->{id});
     push(@taxchart_values, $key);
     $taxchart_labels{$key} = $item->{taxdescription} . " " . $item->{rate} * 100 . ' %';
     $taxcharts{$item->{id}} = $item;
@@ -839,8 +839,8 @@ sub display_rows {
       $selected_taxchart = "$item->{id}--$item->{rate}";
     }
 
-    $selected_accno = '' if ($init);
-    $selected_taxchart = $taxchart_init unless ($selected_taxchart ne "");
+    $selected_accno      = '' if ($init);
+    $selected_taxchart ||= $taxchart_init;
 
     $accno = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "accno_$i",
@@ -1295,7 +1295,6 @@ $follow_ups_block
     print qq|
         <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
         <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">|;
-    print $form->parse_html_template('gl/form_footer_initial_taxkey_selection');
   }
 
   print "
