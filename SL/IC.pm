@@ -931,6 +931,8 @@ sub all_parts {
      'SUM(ioi.qty)' => ' ',
   );
 
+  $table_prefix{$q_assembly_lastcost} = ' ';
+
   my %renamed_columns = (
     'factor'       => 'price_factor',
     'SUM(ioi.qty)' => 'soldtotal',
@@ -939,7 +941,7 @@ sub all_parts {
   map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
   map { $renamed_columns{$_} = ' AS ' . $renamed_columns{$_} } keys %renamed_columns;
 
-  my $select_clause = join ', ',    map { ((substr($_, 0, 1) eq '(') ? '' : $table_prefix{$_} || "p.") . $_ . $renamed_columns{$_} } @select_tokens;
+  my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ . $renamed_columns{$_} } @select_tokens;
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = ' GROUP BY ' . join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @group_tokens if scalar @group_tokens;
