@@ -852,6 +852,8 @@ sub update {
 
   $form->{invtotal} = 0;
 
+  delete @{ $form }{ grep { m/^tax_\d+$/ } keys %{ $form } };
+
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 

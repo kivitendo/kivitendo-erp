@@ -32,7 +32,7 @@
 #======================================================================
 
 use POSIX qw(strftime);
-use List::Util qw(sum);
+use List::Util qw(sum first);
 
 use SL::AR;
 use SL::FU;
@@ -577,7 +577,13 @@ $jsscript
       $selected_taxchart = "$item->{id}--$item->{rate}";
     }
 
-    $selected_taxchart = $taxchart_init unless ($form->{"taxchart_$i"});
+    if (!$form->{"taxchart_$i"}) {
+      if ($form->{"AR_amount_$i"} =~ m/.--./) {
+        $selected_taxchart = join '--', map { ($_->{id}, $_->{rate}) } first { $_->{id} == $item->{tax_id} } @{ $form->{ALL_TAXCHARTS} };
+      } else {
+        $selected_taxchart = $taxchart_init;
+      }
+    }
 
     $selectAR_amount =
       NTI($cgi->popup_menu('-name' => "AR_amount_$i",
@@ -915,6 +921,8 @@ sub update {
 
   $form->{invtotal} = 0;
 
+  delete @{ $form }{ grep { m/^tax_\d+$/ } keys %{ $form } };
+
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
@@ -954,9 +962,19 @@ sub update {
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
-  my $save_AR = $form->{AR};
-  check_name("customer");
-  $form->{AR} = $save_AR;
+
+  $form->{invdate} = $form->{transdate};
+
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1);
+
+  &check_name("customer");
+
+  $form->{AR} = $saved_variables{AR};
+  if ($saved_variables{AR_amount_1} =~ m/.--./) {
+    map { $form->{$_} = $saved_variables{$_} } qw(AR_amount_1 taxchart_1);
+  } else {
+    delete $form->{taxchart_1};
+  }
 
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
