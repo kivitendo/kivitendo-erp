@@ -80,10 +80,11 @@ sub get_part {
     $query =
       qq|SELECT p.id, p.partnumber, p.description,
            p.sellprice, p.lastcost, p.weight, a.qty, a.bom, p.unit,
-           pg.partsgroup
+           pg.partsgroup, p.price_factor_id, pfac.factor AS price_factor
          FROM parts p
          JOIN assembly a ON (a.parts_id = p.id)
          LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+         LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
          WHERE (a.id = ?)
          ORDER BY $oid{$myconfig->{dbdriver}}|;
     $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
