@@ -35,7 +35,7 @@
 
     [%- IF orphaned %]
       [%- UNLESS previousform %]
-        [%- IF item == 'assembly' %] {
+        [%- IF item == 'assembly' %]
           [%- UNLESS onhand %]
 <input class="submit" type="submit" name="action" value="<translate>Delete</translate>">
           [%- END %]
