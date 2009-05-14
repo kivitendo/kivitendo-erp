@@ -44,6 +44,7 @@ use SL::CVar;
 use SL::DBUtils;
 use SL::FU;
 use SL::Notes;
+use List::MoreUtils qw(true);
 
 sub get_tuple {
   $main::lxdebug->enter_sub();
@@ -704,7 +705,7 @@ sub search {
   $form->{sort} = $sortorder;
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-if ($sortorder ne 'id') {
+  if ($sortorder ne 'id' && 1 >= true { $form->{$_} } qw(l_ordnumber l_quonumber l_invnumber)) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
