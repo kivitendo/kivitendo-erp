@@ -574,9 +574,6 @@ sub addtop100 {
     }
   }
 
-  $form->{l_lastcost} = ""
-    if ($form->{searchitems} eq 'assembly' && !$form->{bom});
-
   foreach my $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
       push @column_index, $item;
@@ -1113,8 +1110,6 @@ sub generate_report {
       $form->{l_linetotallastcost}  = "";
     }
   }
-
-  $form->{l_lastcost} = "" if ($form->{searchitems} eq 'assembly' && !$form->{bom});
 
   IC->all_parts(\%myconfig, \%$form);
 

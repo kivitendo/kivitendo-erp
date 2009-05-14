@@ -793,6 +793,10 @@ sub all_parts {
   my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac);
   my %joins_needed;
 
+  if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
+    @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
+  }
+
   #===== switches and simple filters ========#
 
   my @select_tokens = qw(id factor);
@@ -845,6 +849,12 @@ sub all_parts {
     push @where_tokens, 'p.onhand < p.rop',            if /short/;
   }
 
+  my $q_assembly_lastcost =
+    qq|(SELECT SUM(a_lc.qty * p_lc.lastcost / COALESCE(pfac_lc.factor, 1))
+        FROM assembly a_lc
+        LEFT JOIN parts p_lc            ON (a_lc.parts_id        = p_lc.id)
+        LEFT JOIN price_factors pfac_lc ON (p_lc.price_factor_id = pfac_lc.id)
+        WHERE (a_lc.id = p.id)) AS lastcost|;
 
   my @sort_cols = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
   $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols;
@@ -871,6 +881,7 @@ sub all_parts {
   my @bsooqr;
   push @select_tokens, @qsooqr_flags                                          if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
+  push @select_tokens, $q_assembly_lastcost                                   if ($form->{searchitems} eq 'assembly') && $form->{l_lastcost};
   push @bsooqr_tokens, q|module = 'ir' AND NOT ioi.assemblyitem|              if $form->{bought};
   push @bsooqr_tokens, q|module = 'is' AND NOT ioi.assemblyitem|              if $form->{sold};
   push @bsooqr_tokens, q|module = 'oe' AND NOT quotation AND cv = 'customer'| if $form->{ordered};
@@ -928,7 +939,7 @@ sub all_parts {
   map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
   map { $renamed_columns{$_} = ' AS ' . $renamed_columns{$_} } keys %renamed_columns;
 
-  my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ . $renamed_columns{$_} } @select_tokens;
+  my $select_clause = join ', ',    map { ((substr($_, 0, 1) eq '(') ? '' : $table_prefix{$_} || "p.") . $_ . $renamed_columns{$_} } @select_tokens;
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = ' GROUP BY ' . join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @group_tokens if scalar @group_tokens;
