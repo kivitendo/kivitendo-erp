@@ -472,7 +472,7 @@ sub form_header {
 	    <table>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Customer') . qq|</th>
-		<td colspan=3>$customer <input type="button" value="?" onclick="show_vc_details('customer')"></td>
+		<td colspan=3>$customer <input type="button" value="| . $locale->text('Details (one letter abbreviation)') . qq|" onclick="show_vc_details('customer')"></td>
 		<input type=hidden name=selectcustomer value="$form->{selectcustomer}">
 		<input type=hidden name=oldcustomer value="$form->{oldcustomer}">
 		<input type=hidden name=customer_id value="$form->{customer_id}">
