@@ -845,7 +845,7 @@ sub display_rows {
     $accno = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "accno_$i",
                            '-id' => "accno_$i",
-                           '-onChange' => "setTaxkey(this, $i)",
+                           '-onChange' => "setTaxkey($i)",
                            '-style' => 'width:200px',
                            '-values' => \@chart_values,
                            '-labels' => \%chart_labels,
@@ -990,7 +990,8 @@ sub form_header {
 
   $form->{javascript} = qq|<script type="text/javascript">
   <!--
-  function setTaxkey(accno, row) {
+  function setTaxkey(row) {
+    var accno  = document.getElementById('accno_' + row);
     var taxkey = accno.options[accno.selectedIndex].value;
     var reg = /--([0-9]*)/;
     var found = reg.exec(taxkey);
@@ -1291,9 +1292,10 @@ $follow_ups_block
       . qq|"> |;
 
   } else {
-      print qq|
+    print qq|
         <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
         <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">|;
+    print $form->parse_html_template('gl/form_footer_initial_taxkey_selection');
   }
 
   print "
