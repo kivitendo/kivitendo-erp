@@ -1586,9 +1586,9 @@ sub assembly_row {
     $form->{"partnumber_$i"} =~ s/\"/&quot;/g;
 
     $linetotal =
-      $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"}, 2);
+      $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 2);
     $line_purchase_price  =
-      $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"}, 2); #lastcost == purchase_price | ungenaue datenbankfeld-übersetzung
+      $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 2); #lastcost == purchase_price | ungenaue datenbankfeld-übersetzung
     $form->{assemblytotal} += $linetotal;
     $form->{assembly_purchase_price_total}  += $line_purchase_price;
 
@@ -1672,6 +1672,8 @@ sub assembly_row {
   <input type=hidden name="id_$i" value=$form->{"id_$i"}>
   <input type=hidden name="sellprice_$i" value=$form->{"sellprice_$i"}>
   <input type=hidden name="weight_$i" value=$form->{"weight_$i"}>
+  <input type=hidden name="price_factor_id_$i" value=$form->{"price_factor_id_$i"}>
+  <input type=hidden name="price_factor_$i" value=$form->{"price_factor_$i"}>
 |;
   }
 

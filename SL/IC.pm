@@ -690,9 +690,11 @@ sub assembly_item {
   my $dbh = $form->dbconnect($myconfig);
 
   my $query =
-    qq|SELECT p.id, p.partnumber, p.description, p.sellprice, p.weight, p.onhand, p.unit, pg.partsgroup
+    qq|SELECT p.id, p.partnumber, p.description, p.sellprice, p.weight, p.onhand, p.unit, pg.partsgroup,
+              p.price_factor_id, pfac.factor AS price_factor
        FROM parts p
        LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+       LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
        WHERE $where|;
   $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
 
