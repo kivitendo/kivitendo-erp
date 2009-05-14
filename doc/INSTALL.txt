@@ -81,7 +81,7 @@ heißen.
 
    Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-   `apache postgresql libdbi-perl libdbd-pg-perl libpgperl
+   `apache postgresql libdbi-perl libdbd-pg-perl libpg-perl libpdf-api2-perl
 libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl
 libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl'
 
