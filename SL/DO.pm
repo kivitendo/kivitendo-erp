@@ -819,14 +819,14 @@ sub order_details {
         do_statement($form, $h_bin_wh, $q_bin_wh, conv_i($si->{bin_id}), conv_i($si->{warehouse_id}));
         my $bin_wh = $h_bin_wh->fetchrow_hashref();
 
-        push @{ $form->{si_runningnumber} }, $num_si;
-        push @{ $form->{si_number} },        $form->{"partnumber_$i"};
-        push @{ $form->{si_description} },   $form->{"description_$i"};
-        push @{ $form->{si_warehouse} },     $bin_wh->{warehouse};
-        push @{ $form->{si_bin} },           $bin_wh->{bin};
-        push @{ $form->{si_chargenumber} },  $si->{chargenumber};
-        push @{ $form->{si_qty} },           $form->format_amount($myconfig, $si->{qty} * 1);
-        push @{ $form->{si_unit} },          $si->{unit};
+        push @{ $form->{si_runningnumber}[$position-1] }, $num_si;
+        push @{ $form->{si_number}[$position-1] },        $form->{"partnumber_$i"};
+        push @{ $form->{si_description}[$position-1] },   $form->{"description_$i"};
+        push @{ $form->{si_warehouse}[$position-1] },     $bin_wh->{warehouse};
+        push @{ $form->{si_bin}[$position-1] },           $bin_wh->{bin};
+        push @{ $form->{si_chargenumber}[$position-1] },  $si->{chargenumber};
+        push @{ $form->{si_qty}[$position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
+        push @{ $form->{si_unit}[$position-1] },          $si->{unit};
       }
     }
   }
