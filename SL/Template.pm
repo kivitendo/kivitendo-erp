@@ -223,9 +223,9 @@ sub parse_foreach {
       $sum += $form->parse_amount($self->{"myconfig"},
                                   $form->{"linetotal"}->[$i]);
     }
-    
+
     $form->{"cumulatelinetotal"}[$i] = $form->format_amount($self->{"myconfig"}, $sum, 2);
-    
+
     my $new_text = $self->parse_block($text, (@indices, $i));
     return undef unless (defined($new_text));
     $new_contents .= $start_tag . $new_text . $end_tag;
@@ -350,7 +350,11 @@ sub parse_block {
         return undef;
       }
 
-      my $value = $self->{"form"}->{$var};
+      my $form = $self->{form};
+      $form = $form->{TEMPLATE_ARRAYS} if @indices
+                                       && ref $form->{TEMPLATE_ARRAYS} eq 'HASH'
+                                       && ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY';
+      my $value = $form->{$var};
       for (my $i = 0; $i < scalar(@indices); $i++) {
         last unless (ref($value) eq "ARRAY");
         $value = $value->[$indices[$i]];
@@ -1365,7 +1369,7 @@ sub uses_temp_file {
 ####
 ##########################################################
 
-package XMLTemplate; 
+package XMLTemplate;
 
 use vars qw(@ISA);
 
