@@ -772,16 +772,16 @@ sub order_details {
 
     my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
 
-    push @{ $form->{runningnumber} },   $position;
-    push @{ $form->{number} },          $form->{"partnumber_$i"};
-    push @{ $form->{description} },     $form->{"description_$i"};
-    push @{ $form->{longdescription} }, $form->{"longdescription_$i"};
-    push @{ $form->{qty} },             $form->format_amount($myconfig, $form->{"qty_$i"});
-    push @{ $form->{unit} },            $form->{"unit_$i"};
-    push @{ $form->{partnotes} },       $form->{"partnotes_$i"};
-    push @{ $form->{serialnumber} },    $form->{"serialnumber_$i"};
-    push @{ $form->{reqdate} },         $form->{"reqdate_$i"};
-    push @{ $form->{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
+    push @{ $form->{TEMPLATE_ARRAYS}{runningnumber} },   $position;
+    push @{ $form->{TEMPLATE_ARRAYS}{number} },          $form->{"partnumber_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{description} },     $form->{"description_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{longdescription} }, $form->{"longdescription_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{qty} },             $form->format_amount($myconfig, $form->{"qty_$i"});
+    push @{ $form->{TEMPLATE_ARRAYS}{unit} },            $form->{"unit_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{partnotes} },       $form->{"partnotes_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{serialnumber} },    $form->{"serialnumber_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{reqdate} },         $form->{"reqdate_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
 
     if ($form->{"assembly_$i"}) {
       $sameitem = "";
@@ -819,14 +819,14 @@ sub order_details {
         do_statement($form, $h_bin_wh, $q_bin_wh, conv_i($si->{bin_id}), conv_i($si->{warehouse_id}));
         my $bin_wh = $h_bin_wh->fetchrow_hashref();
 
-        push @{ $form->{si_runningnumber}[$position-1] }, $num_si;
-        push @{ $form->{si_number}[$position-1] },        $form->{"partnumber_$i"};
-        push @{ $form->{si_description}[$position-1] },   $form->{"description_$i"};
-        push @{ $form->{si_warehouse}[$position-1] },     $bin_wh->{warehouse};
-        push @{ $form->{si_bin}[$position-1] },           $bin_wh->{bin};
-        push @{ $form->{si_chargenumber}[$position-1] },  $si->{chargenumber};
-        push @{ $form->{si_qty}[$position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
-        push @{ $form->{si_unit}[$position-1] },          $si->{unit};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_runningnumber}[$position-1] }, $num_si;
+        push @{ $form->{TEMPLATE_ARRAYS}{si_number}[$position-1] },        $form->{"partnumber_$i"};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_description}[$position-1] },   $form->{"description_$i"};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_warehouse}[$position-1] },     $bin_wh->{warehouse};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_bin}[$position-1] },           $bin_wh->{bin};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_chargenumber}[$position-1] },  $si->{chargenumber};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_qty}[$position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
+        push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$position-1] },          $si->{unit};
       }
     }
   }
