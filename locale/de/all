@@ -1293,7 +1293,6 @@ $self->{texts} = {
   'Save draft'                  => 'Entwurf speichern',
   'Saving the file \'%s\' failed. OS error message: %s' => 'Das Speichern der Datei \'%s\' schlug fehl. Fehlermeldung des Betriebssystems: %s',
   'Screen'                      => 'Bildschirm',
-  'Search Dunning'              => 'Mahnung suchen',
   'Searchable'                  => 'Durchsuchbar',
   'Select'                      => 'auswählen',
   'Select a Customer'           => 'Endkunde auswählen',

@@ -264,7 +264,7 @@ sub search {
   $form->{SHOW_DUNNING_LEVELS}   = scalar @{ $form->{DUNNING} };
 
   $form->{jsscript} = 1;
-  $form->{title}    = $locale->text('Search Dunning');
+  $form->{title}    = $locale->text('Dunnings');
   $form->{fokus}    = "search.customer";
 
   $form->header();
