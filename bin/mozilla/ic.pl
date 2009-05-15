@@ -1541,6 +1541,7 @@ sub assembly_row {
     # save form variables in a previousform variable
     foreach my $key (sort keys %$form) {
       next unless ref $form->{$key} eq '' && $form->{$key};
+      next if $key =~ /^select/; # get rid of these stupid select things
 
       # escape ampersands
       $form->{$key} =~ s/&/%26/g;
