@@ -41,6 +41,7 @@ use SL::PE;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
+require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
 1;
@@ -79,6 +80,8 @@ sub add {
   $lxdebug->enter_sub();
 
   $auth->assert('general_ledger');
+
+  return $lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = "Add";
 
@@ -1292,9 +1295,20 @@ $follow_ups_block
       . qq|"> |;
 
   } else {
+    if ($form->{draft_id}) {
+      my $remove_draft_checked = 'checked' if ($form->{remove_draft});
+      print qq|<p>\n|
+        . qq|  <input name="remove_draft" id="remove_draft" type="checkbox" class="checkbox" ${remove_draft_checked}>|
+        . qq|  <label for="remove_draft">| . $locale->text('Remove Draft') . qq|</label>\n|
+        . qq|</p>\n|;
+    }
+
     print qq|
         <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
-        <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">|;
+        <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|"> |
+        . NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'))
+        . $cgi->hidden('-name' => 'draft_id',          '-default' => [$form->{draft_id}])
+        . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
   }
 
   print "
@@ -1518,6 +1532,8 @@ sub post {
   $form->{storno} = 0;
 
   post_transaction();
+
+  remove_draft() if $form->{remove_draft};
 
   $form->{callback} = build_std_url("action=add", "show_details");
   $form->redirect($form->{callback});
