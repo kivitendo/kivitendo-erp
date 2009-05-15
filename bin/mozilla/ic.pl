@@ -1642,7 +1642,7 @@ sub assembly_row {
 
       } else {
         $href =
-          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i&previousform=$previousform|;
+          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i|;
         $column_data{partnumber} =
           qq|<td><input type=hidden name="partnumber_$i" value="$form->{"partnumber_$i"}"><a href=$href>$form->{"partnumber_$i"}</a></td>|;
         $column_data{runningnumber} =
