@@ -208,6 +208,7 @@
            <td>
             [%- IF is_assembly %]&nbsp;[% LxERP.format_amount(weight) %][%- END %]
             <input[% IF is_assembly %] type="hidden"[% END %] size="10" name="weight" value="[% LxERP.format_amount(weight) %]">
+            [% HTML.escape(defaults.weightunit) %]
            </td>
           </tr>
         [%- END %]

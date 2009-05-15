@@ -34,6 +34,7 @@
 use POSIX qw(strftime);
 use List::Util qw(max);
 
+use SL::AM;
 use SL::IC;
 use SL::ReportGenerator;
 
@@ -1191,6 +1192,8 @@ sub generate_report {
   my $idx       = 0;
   my $same_item = $form->{parts}[0]{ $form->{sort} } if (scalar @{ $form->{parts} });
 
+  my $defaults  = AM->get_defaults();
+
   # postprocess parts
   foreach my $ref (@{ $form->{parts} }) {
 
@@ -1222,6 +1225,8 @@ sub generate_report {
     }
 
     map { $row->{$_}{data} = $form->format_amount(\%myconfig, $ref->{$_}); } qw(onhand rop weight soldtotal);
+
+    $row->{weight}->{data} .= ' ' . $defaults->{weightunit};
 
     if (!$ref->{assemblyitem}) {
       foreach my $col (@subtotal_columns) {
@@ -1460,7 +1465,7 @@ sub form_header {
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
                    'partsgroup'    => 'all_partsgroup',
-		    'vendors'       => 'ALL_VENDORS',);
+                   'vendors'       => 'ALL_VENDORS',);
 
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
@@ -1471,6 +1476,8 @@ sub form_header {
 
   $units = AM->retrieve_units(\%myconfig, $form);
   $form->{ALL_UNITS} = [ map +{ name => $_ }, sort { $units->{$a}{sortkey} <=> $units->{$b}{sortkey} } keys %$units ];
+
+  $form->{defaults} = AM->get_defaults();
 
   $form->{fokus} = "ic.partnumber";
 

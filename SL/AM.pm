@@ -1474,7 +1474,8 @@ sub save_defaults {
         pdonumber          = ?,
         yearend            = ?,
         curr               = ?,
-        businessnumber     = ?|;
+        businessnumber     = ?,
+        weightunit         = ?|;
   my @values = ($accnos{inventory_accno}, $accnos{income_accno}, $accnos{expense_accno},
                 $accnos{fxgain_accno},    $accnos{fxloss_accno},
                 $form->{invnumber},       $form->{cnnumber},
@@ -1484,7 +1485,7 @@ sub save_defaults {
                 $form->{articlenumber},   $form->{servicenumber},
                 $form->{sdonumber},       $form->{pdonumber},
                 $form->{yearend},         $currency,
-                $form->{businessnumber});
+                $form->{businessnumber},  $form->{weightunit});
   do_query($form, $dbh, $query, @values);
 
   $dbh->commit();
@@ -1574,6 +1575,26 @@ sub save_preferences {
   return $rc;
 }
 
+sub get_defaults {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $defaults = selectfirst_hashref_query($form, $dbh, qq|SELECT * FROM defaults|) || {};
+
+  $defaults->{weightunit} ||= 'kg';
+
+  $main::lxdebug->leave_sub();
+
+  return $defaults;
+}
+
 sub defaultaccounts {
   $main::lxdebug->enter_sub();
 
@@ -1587,12 +1608,14 @@ sub defaultaccounts {
   my $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  $form->{defaults}             = $sth->fetchrow_hashref(NAME_lc);
-  $form->{defaults}{IC}         = $form->{defaults}{inventory_accno_id};
-  $form->{defaults}{IC_income}  = $form->{defaults}{income_accno_id};
-  $form->{defaults}{IC_expense} = $form->{defaults}{expense_accno_id};
-  $form->{defaults}{FX_gain}    = $form->{defaults}{fxgain_accno_id};
-  $form->{defaults}{FX_loss}    = $form->{defaults}{fxloss_accno_id};
+  $form->{defaults}               = $sth->fetchrow_hashref(NAME_lc);
+  $form->{defaults}{IC}           = $form->{defaults}{inventory_accno_id};
+  $form->{defaults}{IC_income}    = $form->{defaults}{income_accno_id};
+  $form->{defaults}{IC_expense}   = $form->{defaults}{expense_accno_id};
+  $form->{defaults}{FX_gain}      = $form->{defaults}{fxgain_accno_id};
+  $form->{defaults}{FX_loss}      = $form->{defaults}{fxloss_accno_id};
+
+  $form->{defaults}{weightunit} ||= 'kg';
 
   $sth->finish;
 
