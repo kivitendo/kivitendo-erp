@@ -1540,6 +1540,7 @@ sub assembly_row {
 
     # save form variables in a previousform variable
     foreach my $key (sort keys %$form) {
+      next unless ref $form->{$key} eq '' && $form->{$key};
 
       # escape ampersands
       $form->{$key} =~ s/&/%26/g;
@@ -1642,7 +1643,7 @@ sub assembly_row {
 
       } else {
         $href =
-          qq|$form->{script}?action=edit&id=$form->{"id_$i"}|;
+          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i&previousform=$previousform|;
         $column_data{partnumber} =
           qq|<td><input type=hidden name="partnumber_$i" value="$form->{"partnumber_$i"}"><a href=$href>$form->{"partnumber_$i"}</a></td>|;
         $column_data{runningnumber} =
