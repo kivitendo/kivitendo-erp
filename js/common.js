@@ -6,12 +6,12 @@ window.focused_element = null;
 function setupPoints(numberformat, wrongFormat) {
   decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,/) ? 6 : 5));
   if (numberformat.substring(1, 2).match(/\.|\,/)) {
-    thpoint = numberformat.substring(1, 2); 
+    thpoint = numberformat.substring(1, 2);
   }
   else {
     thpoint = null;
   }
-  wrongNumberFormat = wrongFormat + " ( " + numberformat + " ) ";  
+  wrongNumberFormat = wrongFormat + " ( " + numberformat + " ) ";
 }
 
 function setupDateFormat(setDateFormat, setWrongDateFormat) {
@@ -61,7 +61,7 @@ function check_right_number_format(input_name) {
   }
   if(decnumbers.length == 2) {
     if(decnumbers[1].length > 2)  {
-      return show_alert_and_focus(input_name, wrongNumberFormat);
+     /* return show_alert_and_focus(input_name, wrongNumberFormat); */
     }
   }
   else {
@@ -88,7 +88,7 @@ function check_right_date_format(input_name) {
     }
   }
   else {
-    if (dateFormat.lastIndexOf("y") == 3 && !matching.test(input_name.value)) { 
+    if (dateFormat.lastIndexOf("y") == 3 && !matching.test(input_name.value)) {
       return show_alert_and_focus(input_name, wrongDateFormat);
     }
   }
@@ -127,7 +127,7 @@ function show_alert_and_focus(input_name, errorMessage) {
   input_name.focus();
   return false;
 }
-  
+
 function get_input_value(input_name) {
   var the_input = document.getElementsByName(input_name);
   if (the_input && the_input[0])
@@ -135,7 +135,7 @@ function get_input_value(input_name) {
   return '';
 }
 
-a_onfocus_functions["focus_listener"] = (function (event) { 
+a_onfocus_functions["focus_listener"] = (function (event) {
   if (focussable(event.target)) window.focused_element = event.target;
 });
 
@@ -172,7 +172,7 @@ function add_event(e, type, fn, c) {
   if (e.addEventListener) e.addEventListener(type, fn, c)
   else if (e.attachEvent) e.attachEvent('on' + type, fn)
   else e['on' + type] = fn;
-} 
+}
 
 function do_load_events() {
   for (var name in window.a_onload_functions)   add_event(window, "load",   window.a_onload_functions[name],   false);
