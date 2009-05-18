@@ -1680,6 +1680,7 @@ sub assembly_row {
         </tr>
   <input type=hidden name="id_$i" value=$form->{"id_$i"}>
   <input type=hidden name="sellprice_$i" value=$form->{"sellprice_$i"}>
+  <input type=hidden name="lastcost_$i" value=$form->{"lastcost_$i"}>
   <input type=hidden name="weight_$i" value=$form->{"weight_$i"}>
   <input type=hidden name="price_factor_id_$i" value=$form->{"price_factor_id_$i"}>
   <input type=hidden name="price_factor_$i" value=$form->{"price_factor_$i"}>

@@ -695,7 +695,7 @@ sub check_form {
       qw(listprice rop stock);
 
     @flds =
-      qw(id qty unit bom partnumber description sellprice weight runningnumber partsgroup);
+      qw(id qty unit bom partnumber description sellprice weight runningnumber partsgroup lastcost);
 
     for my $i (1 .. ($form->{assembly_rows} - 1)) {
       if ($form->{"qty_$i"}) {
