@@ -889,19 +889,11 @@ The html generation function. Is invoked by generate_with_headers.
 
 =item generate_pdf_content
 
-The PDF generation function. It is invoked by generate_with_headers, tests whether or not the Perl module PDF::API2 is installed and calls render_pdf_with_pdf_api2 if it is and render_pdf_with_html2ps otherwise.
+The PDF generation function. It is invoked by generate_with_headers and renders the PDF with the PDF::API2 library.
 
 =item generate_csv_content
 
 The CSV generation function. Uses XS_CSV to parse the information into csv.
-
-=item render_pdf_with_pdf_api2
-
-PDF render function using the Perl module PDF::API2.
-
-=item render_pdf_with_html2ps
-
-PDF render function using the external application html2ps.
 
 =back
 
