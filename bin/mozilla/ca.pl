@@ -107,6 +107,7 @@ sub chart_of_accounts {
   my %totals = ('debit' => 0, 'credit' => 0);
 
   foreach my $ca (@{ $form->{CA} }) {
+    next unless defined $ca->{amount};
     my $row = { };
 
     foreach (qw(debit credit)) {
@@ -163,7 +164,7 @@ sub list {
 | if $form->{selectdepartment};
   $accrual = ($eur) ? ""        : "checked";
   $cash    = ($eur) ? "checked" : "";
- 
+
   $name_1    = "fromdate";
   $id_1      = "fromdate";
   $value_1   = "$form->{fromdate}";
@@ -352,7 +353,7 @@ $checked></td>
          <tr>
             <td><input name="subtotal" class=checkbox type=checkbox value=1> | . $locale->text('Subtotal') . qq|</td>
          </tr>
-                                    
+
 $jsscript
   <tr><td colspan=5 ><hr size=3 noshade></td></tr>
 </table>
@@ -644,7 +645,7 @@ sub list_transactions {
       $ca->{description} .= " \n " . $ca->{memo};
     }
 
-    
+
 
     foreach my $gegenkonto (@{ $ca->{GEGENKONTO} }) {
       if ($ca->{gegenkonto} eq "") {
