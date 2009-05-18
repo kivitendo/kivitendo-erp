@@ -142,7 +142,7 @@ CREATE TABLE parts (
     not_discountable boolean DEFAULT false,
     buchungsgruppen_id integer,
     payment_id integer
-);
+) WITH OIDS;
 
 
 --
@@ -216,7 +216,7 @@ CREATE TABLE acc_trans (
     taxkey integer,
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone
-);
+) WITH OIDS;
 
 
 --
@@ -248,7 +248,7 @@ CREATE TABLE invoice (
     base_qty real,
     subtotal boolean DEFAULT false,
     longdescription text
-);
+) WITH OIDS;
 
 
 --
@@ -395,7 +395,7 @@ CREATE TABLE assembly (
     bom boolean,
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone
-);
+) WITH OIDS;
 
 
 --
@@ -602,7 +602,7 @@ CREATE TABLE orderitems (
     base_qty real,
     subtotal boolean DEFAULT false,
     longdescription text
-);
+) WITH OIDS;
 
 
 --
@@ -694,7 +694,7 @@ CREATE TABLE partsgroup (
     partsgroup text,
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone
-);
+) WITH OIDS;
 
 
 --
