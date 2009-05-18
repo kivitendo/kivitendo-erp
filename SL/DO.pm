@@ -593,6 +593,7 @@ sub retrieve {
     }
 
     map { $form->{$_} = $ref->{$_} } keys %$ref if ($ref);
+    $form->{donumber_array} .= $form->{donumber} . ' ';
   }
   $sth->finish();
 

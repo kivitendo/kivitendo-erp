@@ -735,6 +735,11 @@ sub invoice_multi {
   }
 
   $form->{convert_from_do_ids} = join ' ', @do_ids;
+  # bei der auswahl von mehreren Lieferscheinen fuer eine Rechnung, die einfach in donumber_array
+  # zwischenspeichern (DO.pm) und als ' '-separierte Liste wieder zurueckschreiben
+  # Hinweis: delete gibt den wert zurueck und loescht danach das element (nett und einfach)
+  # $shell: perldoc perlunc; /delete EXPR
+  $form->{donumber}	       = delete $form->{donumber_array};
   $form->{deliverydate}        = $form->{transdate};
   $form->{transdate}           = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
