@@ -1,5 +1,8 @@
 use Cwd;
-use vars qw($userspath $spool $memberfile $templates $sendmail $language $sid $latex $eur $webdav $lizenzen $pg_dump_exe $pg_restore_exe $watch_form_variables);
+
+use vars qw($dbcharset $eur $ghostscript_bin $html2ps_bin $language $latex_bin $latex_templates $lizenzen $memberfile
+            $opendocument_templates $openofficeorg_daemon $openofficeorg_daemon_port $openofficeorg_writer_bin
+            $pg_dump_exe $pg_restore_exe $sendmail $sid $spool $templates $userspath $vertreter $webdav $xvfb_bin);
 
 # path to user configuration files
 $userspath = "users";
@@ -14,7 +17,7 @@ $templates = "templates";
 $memberfile = "users/members";
 
 # Wenn nicht Bilanzierung dann auf 1 setzen
-$eur= 1;
+$eur = 1;
 
 # location of sendmail
 $sendmail = '| /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>';
@@ -38,6 +41,7 @@ $ENV{PERL5LIB} .= ":/sw/lib/perl5";
 # Aktivierung der verschiedenen Spezialmodule
 $webdav = 0;
 $lizenzen = 1;
+$vertreter = 0;
 
 ## Support fuer OpenDocument-Vorlagen
 # Diese Option legt fest, ob OpenDocument-Vorlagen generell verfuegbar sind.
@@ -63,15 +67,17 @@ $ENV{"PATH"} = $ENV{"PATH"} . ":/usr/X11R6/bin:/usr/X11/bin";
 $xvfb_bin = "/usr/bin/Xvfb";
 
 # Das charset, in dem die Daten in der Datenbank abgelegt sind.
-# $dbcharset = 'UTF-8'; # Für UNICODE UTF-8 
-$dbcharset = "ISO-8859-15";
+$dbcharset = 'UTF-8'; # Für UNICODE UTF-8
+# $dbcharset = "ISO-8859-15";
 
 
 # Pfad zu 'html2ps' zum Export von Listenansichten als PDF
 $html2ps_bin = "/usr/bin/html2ps";
 $ghostscript_bin = "/usr/bin/gs";
 
-
+# Name von bzw. Pfad zu 'pdflatex' oder einer anderen kompatiblen Version
+# wie z.B. 'xetex'
+$latex_bin = 'pdflatex';
 
 # Datenbankbackups werden mit dem externen Programm "pg_dump" erledigt.
 # Wenn es nicht im aktuellen Pfad vorhanden ist, so muss hier der vollständige
@@ -85,16 +91,16 @@ $pg_restore_exe = "pg_restore";
 # Globale Debug-Ausgaben (de-)aktivieren? Moegliche Werte sind
 # LXDebug::NONE   - keine Debugausgaben
 # LXDebug::INFO
-# LXDebug::DEBUG1 
-# LXDebug::DEBUG2 
-# LXDebug::QUERY  - SQL Queries 
+# LXDebug::DEBUG1
+# LXDebug::DEBUG2
+# LXDebug::QUERY  - SQL Queries
 # LXDebug::TRACE  - Tracing von Funktionsaufrufen
 # LXDebug::BACKTRACE_ON_ERROR - Vollständiger Aufrufpfad, wenn $form->error() aufgerufen wird
 # LXDebug::ALL    - alle Debugausgaben
 #
 # LXDebug::DEVEL  - wie INFO | QUERY | TRACE | BACKTRACE_ON_ERROR
 #
-# Beipiel: 
+# Beipiel:
 #   $LXDebug::global_level = LXDebug::TRACE | LXDebug::QUERY;
 $LXDebug::global_level = LXDebug::NONE;
 
@@ -106,4 +112,3 @@ $LXDebug::global_level = LXDebug::NONE;
 $LXDebug::watch_form = 0;
 
 1;
-
