@@ -292,7 +292,9 @@ sub transfer_stock_update_part {
 
     my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
 
-    if (scalar @{ $parts } == 1) {
+    if (!scalar @{ $parts }) {
+      new_item(action => "transfer_stock_update_part");
+    } elsif (scalar @{ $parts } == 1) {
       @{$form}{qw(parts_id partnumber description ean)} = @{$parts->[0]}{qw(id partnumber description ean)};
       transfer_stock_get_partunit();
       transfer_warehouse_selection();
@@ -311,7 +313,7 @@ sub transfer_stock_update_part {
 
 # --------------------------------------------------------------------
 # Transfer: assemblies
-# Dies ist die Auswahlmaske für ein assembly. 
+# Dies ist die Auswahlmaske für ein assembly.
 # Die ist einfach von transfer_assembly_update_part kopiert und nur um den trans_type (assembly) korrigiert worden
 # Es wäre schön, hier nochmal check_assembly_max_create auf, um die max. Fertigungszahl herauszufinden.
 # Ich lass das mal als auskommentierte Idee bestehen jb 18.3.09
@@ -345,7 +347,7 @@ sub transfer_assembly_update_part {
   }
 
 # hier die oben benannte idee
-#    my $maxcreate = Common->check_assembly_max_create(assembly_id => $form->{parts_id}, dbh => $my_dbh); 
+#    my $maxcreate = Common->check_assembly_max_create(assembly_id => $form->{parts_id}, dbh => $my_dbh);
   $lxdebug->leave_sub();
 }
 sub transfer_stock_part_selected {
@@ -386,11 +388,11 @@ sub create_assembly {
   if ($form->{qty} <= 0) {
     $form->show_generic_error($locale->text('Invalid quantity.'), 'back_button' => 1);
   }
-  # TODO Es wäre schön, hier schon die maximale Anzahl der zu fertigenden Erzeugnisse zu haben  
+  # TODO Es wäre schön, hier schon die maximale Anzahl der zu fertigenden Erzeugnisse zu haben
   #else { if ($form->{qty} > $maxcreate) {	#s.o.
   #	    $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
   #	    $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
-  #	  } 
+  #	  }
   #  }
 
   if (!$form->{warehouse_id} || !$form->{bin_id}) {
@@ -878,6 +880,36 @@ sub get_bin_idx {
   }
 
   return -1;
+}
+
+=item new_item
+
+call new item dialogue from warehouse masks.
+
+PARAMS:
+  action  => name of sub to be called when new item is done
+
+=cut
+sub new_item {
+  $main::lxdebug->enter_sub();
+  my %params = @_;
+
+  # change callback
+  $form->{old_callback} = $form->escape($form->{callback}, 1);
+  $form->{callback}     = $form->escape("$form->{script}?action=$params{action}", 1);
+
+  # save all form variables except action in a previousform variable
+  my $previousform = join '&', map { my $value = $form->{$_}; $value =~ s/&/%26/; "$_=$value" } grep { !/action/ } keys %$form;
+
+#  push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
+  push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} }, qw(partnumber description unit vc sellprice ean);
+  push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
+  push @HIDDENS,      { 'name' => 'notes',        'value' => $form->{longdescription} };
+
+  $form->header();
+  print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
+
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
