@@ -908,7 +908,7 @@ sub get_project {
     $form->{projectnumber_1} = $form->{projectnumber};
 
     delete $form->{sort};
-    &check_project;
+    check_project('generate_projects');
 
     # if there is one only, assign id
     $form->{project_id} = $form->{project_id_1};

@@ -275,6 +275,8 @@ sub check_project {
   $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
+  my $nextsub = shift || 'update';
+
   for $i (1 .. $form->{rowcount}) {
     my $suffix = $i ? "_$i" : "";
     my $prefix = $i ? "" : "global";
@@ -289,7 +291,7 @@ sub check_project {
 
           # check form->{project_list} how many there are
           $form->{rownumber} = $i;
-          &select_project($i ? undef : 1);
+          &select_project($i ? undef : 1, $nextsub);
           exit;
         }
 
@@ -317,7 +319,7 @@ sub select_project {
   $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
-  my ($is_global) = @_;
+  my ($is_global, $nextsub) = @_;
 
   @column_index = qw(ndx projectnumber description);
 
@@ -405,9 +407,10 @@ sub select_project {
     print qq|<input name=$key type=hidden value="$form->{$key}">\n|;
   }
 
-  print qq|
-<input type="hidden" name="is_global" value="$is_global">
-<input type=hidden name=nextsub value=project_selected>
+  print
+      $cgi->hidden('-name' => 'is_global',                '-default' => [$is_global])
+    . $cgi->hidden('-name' => 'project_selected_nextsub', '-default' => [$nextsub])
+    . qq|<input type=hidden name=nextsub value=project_selected>
 
 <br>
 <input class=submit type=submit name=action value="|
@@ -446,13 +449,11 @@ sub project_selected {
     map { delete $form->{"new_${_}_$i"} } qw(id projectnumber description);
   }
 
-  map { delete $form->{$_} } qw(ndx lastndx nextsub is_global);
+  my $nextsub = $form->{project_selected_nextsub} || 'update';
 
-  if ($form->{update}) {
-    call_sub($form->{"update"});
-  } else {
-    &update;
-  }
+  map { delete $form->{$_} } qw(ndx lastndx nextsub is_global project_selected_nextsub);
+
+  call_sub($nextsub);
 
   $lxdebug->leave_sub();
 }
