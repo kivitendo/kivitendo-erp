@@ -35,6 +35,7 @@
 package IC;
 
 use Data::Dumper;
+use List::MoreUtils qw(all);
 use YAML;
 
 use SL::DBUtils;
@@ -343,11 +344,7 @@ sub save {
     # Check whether or not the prices have changed. If they haven't
     # then 'priceupdate' should not be updated.
     my $previous_values = selectfirst_hashref_query($form, $dbh, qq|SELECT * FROM parts WHERE id = ?|, conv_i($form->{id})) || {};
-    if (   ($previous_values->{sellprice} == $form->{sellprice})
-        && ($previous_values->{lastcost}  == $form->{lastcost})
-        && ($previous_values->{listprice} == $form->{listprice})) {
-      $priceupdate = '';
-    }
+    $priceupdate        = '' if (all { $previous_values->{$_} == $form->{$_} } qw(sellprice lastcost listprice));
 
   } else {
     my ($count) = selectrow_query($form, $dbh, qq|SELECT COUNT(*) FROM parts WHERE partnumber = ?|, $form->{partnumber});
