@@ -523,8 +523,10 @@ sub convert_to_postscript {
 
   $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
+  my $latex = $self->_get_latex_path();
+
   for (my $run = 1; $run <= 2; $run++) {
-    system("latex --interaction=nonstopmode $form->{tmpfile} " .
+    system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
       $self->{"error"} = $form->cleanup();
@@ -562,8 +564,10 @@ sub convert_to_pdf {
 
   $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
+  my $latex = $self->_get_latex_path();
+
   for (my $run = 1; $run <= 2; $run++) {
-    system("pdflatex --interaction=nonstopmode $form->{tmpfile} " .
+    system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
       $self->{"error"} = $form->cleanup();
@@ -575,6 +579,10 @@ sub convert_to_pdf {
   $form->{tmpfile} =~ s/tex$/pdf/;
 
   $self->cleanup();
+}
+
+sub _get_latex_path {
+  return $main::latex_bin || 'pdflatex';
 }
 
 sub get_mime_type() {
