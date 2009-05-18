@@ -308,6 +308,8 @@ sub save {
 
   my ($query, $sth);
 
+  my $priceupdate = ', priceupdate = current_date';
+
   if ($form->{id}) {
 
     # get old price
@@ -337,6 +339,15 @@ sub save {
 
     # delete translations
     do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
+
+    # Check whether or not the prices have changed. If they haven't
+    # then 'priceupdate' should not be updated.
+    my $previous_values = selectfirst_hashref_query($form, $dbh, qq|SELECT * FROM parts WHERE id = ?|, conv_i($form->{id})) || {};
+    if (   ($previous_values->{sellprice} == $form->{sellprice})
+        && ($previous_values->{lastcost}  == $form->{lastcost})
+        && ($previous_values->{listprice} == $form->{listprice})) {
+      $priceupdate = '';
+    }
 
   } else {
     my ($count) = selectrow_query($form, $dbh, qq|SELECT COUNT(*) FROM parts WHERE partnumber = ?|, $form->{partnumber});
@@ -393,7 +404,6 @@ sub save {
          sellprice = ?,
          lastcost = ?,
          weight = ?,
-         priceupdate = ?,
          unit = ?,
          notes = ?,
          formel = ?,
@@ -415,6 +425,7 @@ sub save {
          microfiche = ?,
          partsgroup_id = ?,
          price_factor_id = ?
+         $priceupdate
        WHERE id = ?|;
   @values = ($form->{partnumber},
              $form->{description},
@@ -424,7 +435,6 @@ sub save {
              $form->{sellprice},
              $form->{lastcost},
              $form->{weight},
-             conv_date($form->{priceupdate}),
              $form->{unit},
              $form->{notes},
              $form->{formel},
