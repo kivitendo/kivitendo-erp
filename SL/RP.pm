@@ -1922,28 +1922,20 @@ sub income_statement {
 
   $form->{decimalplaces} *= 1;
 
-  foreach my $item (@categories_einnahmen) {
-    $form->{$item} = 0;
-  }
-  foreach my $item (@categories_ausgaben) {
-    $form->{$item} = 0;
-  }
 
-  foreach my $item (@ergebnisse) {
-    $form->{$item} = 0;
-  }
 
   &get_accounts_g($dbh, $last_period, $form->{fromdate}, $form->{todate},
                   $form, "pos_eur");
 
+
   foreach my $item (@categories_einnahmen) {
     $form->{"eur${item}"} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
     $form->{"sumeura"} += $form->{$item};
   }
   foreach my $item (@categories_ausgaben) {
     $form->{"eur${item}"} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
     $form->{"sumeurb"} += $form->{$item};
   }
 
@@ -1951,7 +1943,7 @@ sub income_statement {
 
   foreach my $item (@ergebnisse) {
     $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2));
+      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),2);
   }
   $main::lxdebug->leave_sub();
 }
