@@ -511,7 +511,8 @@ sub generate_report {
 
   my %column_alignment;
   map { $column_alignment{$_}     = 'right'  } qw(balance id debit credit debit_tax credit_tax balance);
-  map { $column_alignment{$_}     = 'center' } qw(transdate reference description source notes debit_accno credit_accno debit_tax_accno credit_tax_accno);
+  map { $column_alignment{$_}     = 'center' } qw(reference debit_accno credit_accno debit_tax_accno credit_tax_accno);
+  map { $column_alignment{$_}     = 'left' } qw(description source notes);
   map { $column_defs{$_}->{align} = $column_alignment{$_} } keys %column_alignment;
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
