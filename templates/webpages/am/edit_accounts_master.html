@@ -191,10 +191,11 @@ window.onload = function() {
           <th align="left"><translate>BWA</translate></th>
           <td colspan="3"><select name="pos_bwa">[% select_bwa %]</select></td>
         </tr>
-        <tr>
+	<!-- Diese Steuerfunktion hat keine Auswirkung in der Bilanz und wird erstmal deaktiviert. -->
+        <!-- tr>
           <th align="left"><translate>Bilanz</translate></th>
           <td colspan="3"><select name="pos_bilanz">[% select_bilanz %]</select></td>
-        </tr>
+        </tr -->
         <tr>
           <th align="left"><translate>Datevautomatik</translate></th>
           <td colspan="3"><input name="datevautomatik" type="checkbox" class="checkbox" value="T" [% IF datevautomatik %]checked [% END %]></td>
