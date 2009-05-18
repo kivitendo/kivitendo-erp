@@ -565,7 +565,7 @@ sub form_header {
   $credittext = $locale->text('Credit Limit exceeded!!!');
 
   my $follow_up_vc         =  $form->{customer};
-  $follow_up_vc            =~ s/--.*?//;
+  $follow_up_vc            =~ s/--\d*\s*$//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
   $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? qq|window.open('about:blank','Beleg'); document.invoice.target = 'Beleg';document.invoice.submit()|

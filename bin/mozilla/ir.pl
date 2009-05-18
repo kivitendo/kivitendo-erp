@@ -411,7 +411,7 @@ sub form_header {
                         "duedate", "BL", "trigger2");
 
   my $follow_up_vc         =  $form->{vendor};
-  $follow_up_vc            =~ s/--.*?//;
+  $follow_up_vc            =~ s/--\d*\s*$//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
 
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
