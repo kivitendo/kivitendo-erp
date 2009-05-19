@@ -354,25 +354,23 @@ sub form_header {
     </tr>|;
 
 
-  %labels = ();
-  @values = ();
-  foreach my $item (@{ $form->{"ALL_CUSTOMERS"} }) {
-    push(@values, $item->{name}.qq|--|.$item->{"id"});
-    $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
-  }
-
-  $form->{selectcustomer} = ($myconfig{vclimit} > scalar(@values));
+  $form->{selectcustomer} = $myconfig{vclimit} > scalar(@{ $form->{ALL_CUSTOMERS} });
 
   my $customers = qq|
       <th align="right">| . $locale->text('Customer') . qq|</th>
-      <td>| .
-        (($myconfig{vclimit} <=  scalar(@values))
-              ? qq|<input type="text" value="| . H($form->{customer}) . qq|" name="customer">|
-              : (NTI($cgi->popup_menu('-name' => 'customer', '-default' => $form->{oldcustomer},
-                             '-onChange' => 'document.getElementById(\'update_button\').click();',
-                             '-values' => \@values, '-labels' => \%labels, '-style' => 'width: 250px')))) . qq|
-        <input type="button" value="| . $locale->text('Details (one letter abbreviation)') . qq|" onclick="show_vc_details('customer')">
-      </td>|;
+      <td>|
+      . $form->parse_html_template('generic/multibox',
+                                   { 'name'          => 'customer',
+                                     'style'         => 'width: 250px',
+                                     'DATA'          => $form->{ALL_CUSTOMERS},
+                                     'id_sub'        => 'vc_keys',
+                                     'vc_keys'       => sub { "$_[0]->{name}--$_[0]->{id}" },
+                                     'label_key'     => 'name',
+                                     'select'        => 'customer_or_vendor_selection_window(\'customer\', \'\', 0, 0);',
+                                     'limit'         => $myconfig{vclimit},
+                                     'allow_textbox' => 1,
+                                     'onChange'      => "document.getElementById('update_button').click();" })
+      . qq| <input type="button" value="| . $locale->text('Details (one letter abbreviation)') . qq|" onclick="show_vc_details('customer')"></td>|;
 
   %labels = ();
   @values = ("");
@@ -591,7 +589,7 @@ sub form_header {
 <body onLoad="$onload">
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
-<script type="text/javascript" src="js/vendor_selection.js"></script>
+<script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
 <script type="text/javascript" src="js/calculate_qty.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 
