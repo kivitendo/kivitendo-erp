@@ -182,16 +182,6 @@ sub form_header {
   # $locale->text('AR')
   # $locale->text('AP')
 
-  $department = qq|
-              <tr>
-	        <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-		<td><select name=department>$form->{selectdepartment}</select>
-		<input type=hidden name=selectdepartment value="$form->{selectdepartment}">
-
-	      </td>
-	    </tr>
-| if $form->{selectdepartment};
-
   $form->{jsscript} = 1;
   $jsscript = "";
   if ($form->{jsscript}) {
