@@ -152,18 +152,18 @@
 
           <tr>
            <th align="right" nowrap="true"><translate>List Price</translate></th>
-           <td><input name="listprice" size="11" value="[% LxERP.format_amount(listprice) %]"></td>
+           <td><input name="listprice" size="11" value="[% LxERP.format_amount(listprice, -2) %]"></td>
           </tr>
 
           <tr>
            <th align="right" nowrap="true"><translate>Sell Price</translate></th>
-           <td><input name="sellprice" size="11" value="[% LxERP.format_amount(sellprice) %]"></td>
+           <td><input name="sellprice" size="11" value="[% LxERP.format_amount(sellprice, -2) %]"></td>
           </tr>
 
           [%- UNLESS is_assembly %]
           <tr>
            <th align="right" nowrap="true"><translate>Last Cost</translate></th>
-           <td><input name="lastcost" size="11" value="[% LxERP.format_amount(lastcost) %]"></td>
+           <td><input name="lastcost" size="11" value="[% LxERP.format_amount(lastcost, -2) %]"></td>
           </tr>
           [%- END %]
 
