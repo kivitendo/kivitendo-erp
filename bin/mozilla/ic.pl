@@ -131,12 +131,42 @@ sub confirm_price_update {
 
   $auth->assert('part_service_assembly_edit');
 
+  my @errors      = ();
+  my $value_found = false;
+
+  foreach my $idx (qw(sellprice listprice), (1..$form->{price_rows})) {
+    my $name      = $idx =~ m/\d/ ? $form->{"pricegroup_${idx}"}      : $idx eq 'sellprice' ? $locale->text('Sell Price') : $locale->text('List Price');
+    my $type      = $idx =~ m/\d/ ? $form->{"pricegroup_type_${idx}"} : $form->{"${idx}_type"};
+    my $value_idx = $idx =~ m/\d/ ? "price_${idx}" : $idx;
+    my $value     = $form->parse_amount(\%myconfig, $form->{$value_idx});
+
+    if ((0 > $value) && ($type eq 'percent')) {
+      push @errors, $locale->text('You cannot adjust the price for pricegroup "#1" by a negative percentage.', $name);
+
+    } elsif (!$value && ($form->{$value_idx} ne '')) {
+      push @errors, $locale->text('No valid number entered for pricegroup "#1".', $name);
+
+    } elsif (0 < $value) {
+      $value_found = 1;
+    }
+  }
+
+  push @errors, $locale->text('No prices will be updated because no prices have been entered.') if (!$value_found);
+
+  my $num_matches = IC->get_num_matches_for_priceupdate();
+
+  $form->header();
+
+  if (@errors) {
+    $form->show_generic_error(join('<br>', @errors), 'back_button' => 1);
+  }
+
   $form->{nextsub} = "update_prices";
-  $form->header;
 
   map { delete $form->{$_} } qw(action header);
 
-  print $form->parse_html_template('ic/confirm_price_update', { HIDDENS => [ map { name => $_, value => $form->{$_} }, keys %$form ] });
+  print $form->parse_html_template('ic/confirm_price_update', { HIDDENS     => [ map { name => $_, value => $form->{$_} }, keys %$form ],
+                                                                num_matches => $num_matches });
 
   $lxdebug->leave_sub();
 }
@@ -146,8 +176,10 @@ sub update_prices {
 
   $auth->assert('part_service_assembly_edit');
 
-  if (IC->update_prices(\%myconfig, \%$form)) {
-    $form->redirect($form->{update_count} . $locale->text('prices updated!'));
+  my $num_updated = IC->update_prices(\%myconfig, \%$form);
+
+  if (-1 != $num_updated) {
+    $form->redirect($locale->text('#1 prices were updated.', $num_updated));
   } else {
     $form->error($locale->text('Could not update prices!'));
   }

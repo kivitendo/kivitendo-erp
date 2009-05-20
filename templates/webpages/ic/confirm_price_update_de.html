@@ -10,7 +10,11 @@
 
   <h2 class="confirm">Bestätigen Sie!</h2>
 
-  <h4>Sind Sie sicher, dass Sie die Preise aktualisieren wollen?</h4>
+  <p>
+   [% LxERP.format_string('Ungefähr #1 Preise werden aktualisiert.', num_matches) %]
+  </p>
+
+  <p>Sind Sie sicher, dass Sie die Preise aktualisieren wollen?</p>
 
   <p>
    <input name="action" class="submit" type="submit" value="Weiter">

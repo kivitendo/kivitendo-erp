@@ -997,51 +997,35 @@ sub all_parts {
   $main::lxdebug->leave_sub();
 }
 
-sub update_prices {
+sub _create_filter_for_priceupdate {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my $self     = shift;
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
   my @where_values;
   my $where = '1 = 1';
-  my $var;
 
-  my $group;
-  my $limit;
+  foreach my $item (qw(partnumber drawing microfiche make model pg.partsgroup)) {
+    my $column = $item;
+    $column =~ s/.*\.//;
+    next unless ($form->{$column});
 
-  if ($item ne 'make') {
-    foreach my $item (qw(partnumber drawing microfiche make model pg.partsgroup)) {
-      my $column = $item;
-      $column =~ s/.*\.//;
-      next unless ($form->{$column});
-      $where .= qq| AND $item ILIKE ?|;
-      push(@where_values, '%' . $form->{$column} . '%');
-    }
+    $where .= qq| AND $item ILIKE ?|;
+    push(@where_values, '%' . $form->{$column} . '%');
   }
 
-  # special case for description
-  if ($form->{description}
-      && !(   $form->{bought}  || $form->{sold} || $form->{onorder}
-           || $form->{ordered} || $form->{rfq} || $form->{quoted})) {
-    $where .= qq| AND (p.description ILIKE ?)|;
-    push(@where_values, '%' . $form->{description} . '%');
-  }
+  foreach my $item (qw(description serialnumber)) {
+    next unless ($form->{$item});
 
-  # special case for serialnumber
-  if ($form->{l_serialnumber} && $form->{serialnumber}) {
-    $where .= qq| AND serialnumber ILIKE ?|;
-    push(@where_values, '%' . $form->{serialnumber} . '%');
+    $where .= qq| AND (${item} ILIKE ?)|;
+    push(@where_values, '%' . $form->{$item} . '%');
   }
 
 
   # items which were never bought, sold or on an order
   if ($form->{itemstatus} eq 'orphaned') {
-    $form->{onhand}  = $form->{short}   = 0;
-    $form->{bought}  = $form->{sold}    = 0;
-    $form->{onorder} = $form->{ordered} = 0;
-    $form->{rfq}     = $form->{quoted}  = 0;
-
-    $form->{transdatefrom} = $form->{transdateto} = "";
-
     $where .=
       qq| AND (p.onhand = 0)
           AND p.id NOT IN
@@ -1052,23 +1036,19 @@ sub update_prices {
               UNION
               SELECT DISTINCT parts_id FROM orderitems
             )|;
-  }
 
-  if ($form->{itemstatus} eq 'active') {
+  } elsif ($form->{itemstatus} eq 'active') {
     $where .= qq| AND p.obsolete = '0'|;
-  }
 
-  if ($form->{itemstatus} eq 'obsolete') {
+  } elsif ($form->{itemstatus} eq 'obsolete') {
     $where .= qq| AND p.obsolete = '1'|;
-    $form->{onhand} = $form->{short} = 0;
-  }
 
-  if ($form->{itemstatus} eq 'onhand') {
+  } elsif ($form->{itemstatus} eq 'onhand') {
     $where .= qq| AND p.onhand > 0|;
-  }
 
-  if ($form->{itemstatus} eq 'short') {
+  } elsif ($form->{itemstatus} eq 'short') {
     $where .= qq| AND p.onhand < p.rop|;
+
   }
 
   foreach my $column (qw(make model)) {
@@ -1076,6 +1056,72 @@ sub update_prices {
     $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE $column ILIKE ?|;
     push(@where_values, '%' . $form->{$column} . '%');
   }
+
+  $main::lxdebug->leave_sub();
+
+  return ($where, @where_values);
+}
+
+sub get_num_matches_for_priceupdate {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my ($where, @where_values) = $self->_create_filter_for_priceupdate();
+
+  my $num_updated = 0;
+  my $query;
+
+  for my $column (qw(sellprice listprice)) {
+    next if ($form->{$column} eq "");
+
+    $query =
+      qq|SELECT COUNT(*)
+         FROM parts
+         WHERE id IN
+           (SELECT p.id
+            FROM parts p
+            LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+            WHERE $where)|;
+    my ($result)  = selectfirst_array_query($from, $dbh, $query, @where_values);
+    $num_updated += $result if (0 <= $result);
+  }
+
+  $query =
+    qq|SELECT COUNT(*)
+       FROM prices
+       WHERE parts_id IN
+         (SELECT p.id
+          FROM parts p
+          LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+          WHERE $where) AND (pricegroup_id = ?)|;
+  my $sth = prepare_query($form, $dbh, $query);
+
+  for my $i (1 .. $form->{price_rows}) {
+    next if ($form->{"price_$i"} eq "");
+
+    my ($result)  = do_statement($form, $sth, $query, @where_values, conv_i($form->{"pricegroup_id_$i"}));
+    $num_updated += $result if (0 <= $result);
+  }
+  $sth->finish();
+
+  $main::lxdebug->leave_sub();
+
+  return $num_updated;
+}
+
+sub update_prices {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my ($where, @where_values) = $self->_create_filter_for_priceupdate();
+  my $num_updated = 0;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -1098,7 +1144,8 @@ sub update_prices {
             FROM parts p
             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
             WHERE $where)|;
-    do_query($from, $dbh, $query, $value, @where_values);
+    my $result    = do_query($from, $dbh, $query, $value, @where_values);
+    $num_updated += $result if (0 <= $result);
   }
 
   my $q_add =
@@ -1123,12 +1170,15 @@ sub update_prices {
     next if ($form->{"price_$i"} eq "");
 
     my $value = $form->parse_amount($myconfig, $form->{"price_$i"});
+    my $result;
 
     if ($form->{"pricegroup_type_$i"} eq "percent") {
-      do_statement($form, $sth_multiply, $q_multiply, ($value / 100) + 1, @where_values, conv_i($form->{"pricegroup_id_$i"}));
+      $result = do_statement($form, $sth_multiply, $q_multiply, ($value / 100) + 1, @where_values, conv_i($form->{"pricegroup_id_$i"}));
     } else {
-      do_statement($form, $sth_add, $q_add, $value, @where_values, conv_i($form->{"pricegroup_id_$i"}));
+      $result = do_statement($form, $sth_add, $q_add, $value, @where_values, conv_i($form->{"pricegroup_id_$i"}));
     }
+
+    $num_updated += $result if (0 <= $result);
   }
 
   $sth_add->finish();
@@ -1139,7 +1189,7 @@ sub update_prices {
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return $num_updated;
 }
 
 sub create_links {
