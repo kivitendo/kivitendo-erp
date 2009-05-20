@@ -965,17 +965,21 @@ sub all_parts {
 
   map { $_->{onhand} *= 1 } @{ $form->{parts} };
 
+  # post processing for assembly parts lists (bom)
+  # for each part get the assembly parts and add them into the partlist.
   my @assemblies;
-  # include individual items for assemblies
   if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
            p.unit, p.bin,
            p.sellprice, p.listprice, p.lastcost,
            p.rop, p.weight, p.priceupdate,
-           p.image, p.drawing, p.microfiche
-         FROM parts p, assembly a
-         WHERE (p.id = a.parts_id) AND (a.id = ?)|;
+           p.image, p.drawing, p.microfiche,
+           pfac.factor
+         FROM parts p
+         INNER JOIN assembly a ON (p.id = a.parts_id)
+         $joins{pfac}
+         WHERE a.id = ?|;
     $sth = prepare_query($form, $dbh, $query);
 
     foreach $item (@{ $form->{parts} }) {
@@ -984,6 +988,7 @@ sub all_parts {
 
       while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
         $ref->{assemblyitem} = 1;
+        map { $ref->{$_} /= $ref->{factor} || 1 } qw(sellprice listprice lastcost);
         push(@assemblies, $ref);
       }
       $sth->finish;
