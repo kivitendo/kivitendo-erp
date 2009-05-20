@@ -698,7 +698,7 @@ sub assembly_item {
   my $dbh = $form->dbconnect($myconfig);
 
   my $query =
-    qq|SELECT p.id, p.partnumber, p.description, p.sellprice, 
+    qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
        p.weight, p.onhand, p.unit, pg.partsgroup, p.lastcost,
        p.price_factor_id, pfac.factor AS price_factor
        FROM parts p
@@ -1516,7 +1516,7 @@ sub prepare_parts_for_printing {
 
   $sth->finish();
 
-  my @columns = qw(ean);
+  my @columns = qw(ean image microfiche drawing weight);
 
   $query      = qq|SELECT id, | . join(', ', @columns) . qq|
                    FROM parts
@@ -1524,7 +1524,7 @@ sub prepare_parts_for_printing {
 
   my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
 
-  map { $form->{$_} = [] } (qw(make model), @columns);
+  map { $form->{TEMPLATE_ARRAYS}{$_} = [] } (qw(make model), @columns);
 
   foreach my $i (1 .. $rowcount) {
     my $id = $form->{"${prefix}${i}"};
@@ -1532,16 +1532,16 @@ sub prepare_parts_for_printing {
     next if (!$id);
 
     foreach (@columns) {
-      push @{ $form->{$_} }, $data{$id}->{$_};
+      push @{ $form->{TEMPLATE_ARRAYS}{$_} }, $data{$id}->{$_};
     }
 
-    push @{ $form->{make} },  [];
-    push @{ $form->{model} }, [];
+    push @{ $form->{TEMPLATE_ARRAYS}{make} },  [];
+    push @{ $form->{TEMPLATE_ARRAYS}{model} }, [];
 
     next if (!$makemodel{$id});
 
     foreach my $ref (@{ $makemodel{$id} }) {
-      map { push @{ $form->{$_}->[-1] }, $ref->{$_} } qw(make model);
+      map { push @{ $form->{TEMPLATE_ARRAYS}{$_}->[-1] }, $ref->{$_} } qw(make model);
     }
   }
 
