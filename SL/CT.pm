@@ -918,6 +918,7 @@ sub get_delivery {
 
   my $arap = $form->{db} eq "vendor" ? "ap" : "ar";
   my $db = $form->{db} eq "customer" ? "customer" : "vendor";
+  my $qty_sign = $form->{db} eq 'vendor' ? ' * -1 AS qty' : '';
 
   my $where = " WHERE 1=1 ";
   my @values;
@@ -939,7 +940,7 @@ sub get_delivery {
     push(@values, conv_date($form->{to}));
   }
   my $query =
-    qq|SELECT s.shiptoname, i.qty, | .
+    qq|SELECT s.shiptoname, i.qty $qty_sign, | .
     qq|  ${arap}.id, ${arap}.transdate, ${arap}.invnumber, ${arap}.ordnumber, | .
     qq|  i.description, i.unit, i.sellprice, | .
     qq|  oe.id AS oe_id | .
