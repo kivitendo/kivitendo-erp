@@ -1699,6 +1699,9 @@ sub assembly_row {
 sub update {
   $lxdebug->enter_sub();
 
+  # parse pricegroups. and no, don't rely on check_form for this...
+  map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
+
   if ($form->{item} eq "assembly") {
     my $i = $form->{assembly_rows};
 

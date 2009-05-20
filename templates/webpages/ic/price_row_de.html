@@ -1,4 +1,5 @@
 [%- USE HTML %]
+[%- USE LxERP %]
 [%- IF PRICES.size %]
   <tr>
     <td>
@@ -10,8 +11,8 @@
 [%- FOREACH row = PRICES %]
         <tr>
           <td width=50%><input type=hidden name="pricegroup_[% loop.count %]" size=30  value="[% HTML.escape(row.pricegroup) %]">[% HTML.escape(row.pricegroup) %]</td>
-          <td width=50%><input name="price_[% loop.count %]" size=11 value="[% HTML.escape(row.price) %]"></td>
-          <input type=hidden name="pricegroup_id_[% loop.count %]" value="[% HTML.escape(row.pricegroup_id) %]">
+          <td width=50%><input name="price_[% loop.count %]" size=11 value="[% LxERP.format_amount(row.price, -2) %]"></td>
+          <input type=hidden name="pricegroup_id_[% loop.count %]" value="[% LxERP.format_amount(row.pricegroup_id, -2) %]">
         </tr>
 [%- END %]
       </table>

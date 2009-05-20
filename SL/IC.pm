@@ -127,8 +127,6 @@ sub get_part {
   while (($form->{"klass_$i"}, $form->{"pricegroup_id_$i"},
           $form->{"price_$i"}, $form->{"pricegroup_$i"})
          = $sth->fetchrow_array()) {
-    $form->{"price_$i"} = $form->round_amount($form->{"price_$i"}, 5);
-    $form->{"price_$i"} = $form->format_amount($myconfig, $form->{"price_$i"}, -2);
     push @pricegroups, $form->{"pricegroup_id_$i"};
     $i++;
   }
@@ -156,8 +154,6 @@ sub get_part {
 
     foreach $name (@pricegroups_not_used) {
       $form->{"klass_$i"} = "$name->{id}";
-      $form->{"price_$i"} = $form->round_amount($form->{sellprice}, 5);
-      $form->{"price_$i"} = $form->format_amount($myconfig, $form->{"price_$i"}, -2);
       $form->{"pricegroup_id_$i"} = "$name->{id}";
       $form->{"pricegroup_$i"}    = "$name->{pricegroup}";
       $i++;
