@@ -476,14 +476,14 @@
      </tr>
 
      <tr>
-      <th align="left" nowrap>Von</th>
+      <th align="right" nowrap>Von</th>
       <td>
-       <input id="from" name="from" size="10" maxlength="10" value="[% HTML.escape(from) %]">
+       <input id="from" name="from" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + this.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(from) %]">
        <input type="button" name="fromB" id="trigger_from" value="?">
       </td>
-      <th align="left" nowrap>Bis</th>
+      <th align="right" nowrap>Bis</th>
       <td>
-       <input id="to" name="to" size="10" maxlength="10" value="[% HTML.escape(to) %]">
+       <input id="to" name="to" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + from.value, 'to__' + this.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(to) %]">
        <input type="button" name="toB" id="trigger_to" value="?">
       </td>
      </tr>
