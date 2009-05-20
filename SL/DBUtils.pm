@@ -57,10 +57,9 @@ sub do_statement {
   dump_query(LXDebug::QUERY, '', $query, @_);
 
   if (0 == scalar(@_)) {
-    $sth->execute() || $form->dberror($query);
+    $sth->execute()   || $form->dberror($query);
   } else {
-    $sth->execute(@_) ||
-      $form->dberror($query . " (" . join(", ", @_) . ")");
+    $sth->execute(@_) || $form->dberror($query . " (" . join(", ", @_) . ")");
   }
 
   $main::lxdebug->leave_sub(2);
