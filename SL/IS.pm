@@ -63,6 +63,7 @@ sub invoice_details {
   ($form->{terms}) = selectrow_query($form, $dbh, $query);
 
   my (@project_ids, %projectnumbers);
+  $form->{TEMPLATE_ARRAYS} = {};
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
