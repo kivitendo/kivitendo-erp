@@ -37,14 +37,16 @@ sub do_query {
 
   dump_query(LXDebug::QUERY, '', $query, @_);
 
+  my $result;
   if (0 == scalar(@_)) {
-    $dbh->do($query) || $form->dberror($query);
+    $result = $dbh->do($query)            || $form->dberror($query);
   } else {
-    $dbh->do($query, undef, @_) ||
-      $form->dberror($query . " (" . join(", ", @_) . ")");
+    $result = $dbh->do($query, undef, @_) || $form->dberror($query . " (" . join(", ", @_) . ")");
   }
 
   $main::lxdebug->leave_sub(2);
+
+  return $result;
 }
 
 sub selectrow_query { &selectfirst_array_query }
@@ -56,13 +58,16 @@ sub do_statement {
 
   dump_query(LXDebug::QUERY, '', $query, @_);
 
+  my $result;
   if (0 == scalar(@_)) {
-    $sth->execute()   || $form->dberror($query);
+    $result = $sth->execute()   || $form->dberror($query);
   } else {
-    $sth->execute(@_) || $form->dberror($query . " (" . join(", ", @_) . ")");
+    $result = $sth->execute(@_) || $form->dberror($query . " (" . join(", ", @_) . ")");
   }
 
   $main::lxdebug->leave_sub(2);
+
+  return $result;
 }
 
 sub dump_query {
@@ -337,9 +342,13 @@ Returns 'NULL' if STR is empty.
 
 Uses DBI::do to execute QUERY on DBH using ARRAY for binding values. FORM is only needed for error handling, but should always be passed nevertheless. Use this for insertions or updates that don't need to be prepared.
 
+Returns the result of DBI::do which is -1 in case of an error and the number of affected rows otherwise.
+
 =item do_statement FORM,STH,QUERY,ARRAY
 
 Uses DBI::execute to execute QUERY on DBH using ARRAY for binding values. As with do_query, FORM is only used for error handling. If you are unsure what to use, refer to the documentation of DBI::do and DBI::execute.
+
+Returns the result of DBI::execute which is -1 in case of an error and the number of affected rows otherwise.
 
 =item prepare_execute_query FORM,DBH,QUERY,ARRAY
 
