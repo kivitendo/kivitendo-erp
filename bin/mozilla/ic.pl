@@ -33,6 +33,7 @@
 
 use POSIX qw(strftime);
 use List::Util qw(max);
+use List::MoreUtils qw(any);
 
 use SL::AM;
 use SL::IC;
@@ -1577,7 +1578,11 @@ sub assembly_row {
 
       # escape ampersands
       $form->{$key} =~ s/&/%26/g;
-      $previousform .= qq|$key=$form->{$key}&|;
+      if (any { $key eq $_ } qw(sellprice listprice lastcost)) {
+        $previousform .= sprintf qq|%s=%s&|, $key, $form->format_amount(\%myconfig, $form->{$key});
+      } else {
+        $previousform .= qq|$key=$form->{$key}&|;
+      }
     }
     chop $previousform;
     $previousform = $form->escape($form->escape($previousform, 1));
