@@ -1881,7 +1881,8 @@ sub save {
       # change/add values for assembly item
       map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit weight listprice sellprice inventory_accno income_accno expense_accno price_factor_id);
 
-      $form->{sellprice} += $form->{"sellprice_$i"} * $form->{"qty_$i"};
+      # das ist __voll__ bekloppt, dass so auszurechnen jb 22.5.09
+      #$form->{sellprice} += $form->{"sellprice_$i"} * $form->{"qty_$i"};
       $form->{weight}    += $form->{"weight_$i"} * $form->{"qty_$i"};
 
     } else {

@@ -689,7 +689,8 @@ sub check_form {
 
   } elsif ($form->{item} eq 'assembly') {
 
-    $form->{sellprice} = 0;
+    # fuer assemblies auskommentiert. seiteneffekte? ;-) wird die woanders benoetigt?
+    #$form->{sellprice} = 0;
     $form->{weight}    = 0;
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
       qw(listprice rop stock);
@@ -708,12 +709,13 @@ sub check_form {
 
         #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
 
-        $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"} / ($form->{"price_factor_$i"} || 1));
+        # fuer assemblies auskommentiert. siehe oben
+	#    $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"} / ($form->{"price_factor_$i"} || 1));
         $form->{weight}    += ($form->{"qty_$i"} * $form->{"weight_$i"} / ($form->{"price_factor_$i"} || 1));
         $count++;
       }
     }
-
+    # kann das hier auch weg? s.o. jb
     $form->{sellprice} = $form->round_amount($form->{sellprice}, 2);
 
     $form->redo_rows(\@flds, \@a, $count, $form->{assembly_rows});
