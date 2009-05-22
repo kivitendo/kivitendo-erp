@@ -149,7 +149,7 @@ sub list_names {
 
   my %column_defs = (
     'id'                => { 'text' => $locale->text('ID'), },
-    "$form->{db}number" => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
+    "$form->{db}number" => { 'text' => $locale->text('Number'), },
     'name'              => { 'text' => $locale->text('Name'), },
     'contact'           => { 'text' => $locale->text('Contact'), },
     'phone'             => { 'text' => $locale->text('Phone'), },
@@ -252,7 +252,7 @@ sub edit {
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
   #/show hhistory button
-  
+
   CT->get_tuple(\%myconfig, \%$form);
   CT->populate_drop_down_boxes(\%myconfig, \%$form);
 
@@ -291,7 +291,7 @@ sub form_header {
   unshift @{ $form->{SHIPTO} },   +{ shipto_id => '0', shiptoname => '' }, +{ shipto_id => '0', shiptoname => 'Alle' };
   unshift @{ $form->{CONTACTS} }, +{ cp_id     => '0', cp_name => $locale->text('New contact') };
 
-  $form->{title} = $form->{title_save} 
+  $form->{title} = $form->{title_save}
                 || $locale->text("$form->{title} " . ucfirst $form->{db}) . ($form->{title} eq "Edit" ? " $form->{name}" : '');
 
   CT->query_titles_and_greetings(\%myconfig, \%$form);
@@ -332,7 +332,7 @@ sub add_transaction {
 #  	$form->save_history($form->dbconnect(\%myconfig));
 #  }
 #  # /saving the history
-  
+
   $form->isblank("name", $locale->text("Name missing!"));
   if ($form->{"db"} eq "customer") {
     CT->save_customer(\%myconfig, \%$form);
@@ -545,7 +545,7 @@ sub delete {
   	$form->{addition} = "DELETED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
   $form->redirect($locale->text($msg));
 
   $msg = "Cannot delete $form->{db}";
@@ -580,7 +580,7 @@ sub get_contact {
   $auth->assert('customer_vendor_edit');
 
   CT->get_contact(\%myconfig, \%$form);
-  print $form->ajax_response_header(), join '__pjx__', map $form->{"cp_$_"}, 
+  print $form->ajax_response_header(), join '__pjx__', map $form->{"cp_$_"},
     qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used);
   $lxdebug->leave_sub();
 
