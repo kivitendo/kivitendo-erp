@@ -171,7 +171,6 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor'                      => 'Lieferant',
   'Vendor Invoice'              => 'Einkaufsrechnung',
-  'Vendor Number'               => 'Lieferantennummer',
   'Vendor deleted!'             => 'Lieferant gelöscht!',
   'Vendor details'              => 'Lieferantendetails',
   'Vendor saved!'               => 'Lieferant gespeichert!',
