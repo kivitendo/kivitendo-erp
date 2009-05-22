@@ -1604,11 +1604,11 @@ sub assembly_row {
     . $locale->text('Part Number')
     . qq|</th>|;
   $column_header{description} =
-    qq|<th nowrap width=50%>| . $locale->text('Part Description') . qq|</th>|;
+    qq|<th nowrap width=50% align="left">| . $locale->text('Part Description') . qq|</th>|;
   $column_header{lastcost} =
-    qq|<th nowrap width=50%>| . $locale->text('Purchase Price') . qq|</th>|;
+    qq|<th nowrap width=50%>| . $locale->text('Purchase Prices') . qq|</th>|;
   $column_header{total} =
-    qq|<th align=right nowrap>| . $locale->text('Extended') . qq|</th>|;
+    qq|<th align=right nowrap>| . $locale->text('Sale Prices') . qq|</th>|;
   $column_header{bom}        = qq|<th>| . $locale->text('BOM') . qq|</th>|;
   $column_header{partsgroup} = qq|<th>| . $locale->text('Group') . qq|</th>|;
 
@@ -1632,9 +1632,9 @@ sub assembly_row {
     $form->{"partnumber_$i"} =~ s/\"/&quot;/g;
 
     $linetotal =
-      $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 2);
+      $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 4);
     $line_purchase_price  =
-      $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 2); #lastcost == purchase_price | ungenaue datenbankfeld-übersetzung
+      $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 4); #lastcost == purchase_price | ungenaue datenbankfeld-uebersetzung
     $form->{assemblytotal} += $linetotal;
     $form->{assembly_purchase_price_total}  += $line_purchase_price;
 
@@ -1725,6 +1725,16 @@ sub assembly_row {
   }
 
   print qq|
+	<tr>
+	  <td colspan="6"></td>
+	  <td>| . $locale->text('Totals') . qq|</td>
+          <td align="right">| . $form->format_amount(\%myconfig, $form->{assembly_purchase_price_total}, 2) .
+	qq|</td>        
+  	 <td align="right">| . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2) .
+	qq|  </td>
+	  </tr>
+          <input type="hidden" name="assembly_rows" value="| . $form->{assembly_rows} . 
+      qq|">
       </table>
     </td>
   </tr>

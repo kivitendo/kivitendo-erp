@@ -1,7 +1,8 @@
 [%- USE HTML %]
 [%- USE LxERP %]
   [%- IF item == 'assembly' %]
-  <tr>
+  <!-- Wieder zurueck in die ic.pl, entweder alle Einzelteile auslagern oder gar keine -->
+  <!-- tr>
     <td>
       <table border="0" width="100%">
         <tr>
@@ -11,7 +12,7 @@
       </table>
     </td>
   </tr>
-  <input type="hidden" name="assembly_rows" value="[% HTML.escape(assembly_rows) %]">
+  <input type="hidden" name="assembly_rows" value="[% HTML.escape(assembly_rows) %]" -->
   [%- END %]
 
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
