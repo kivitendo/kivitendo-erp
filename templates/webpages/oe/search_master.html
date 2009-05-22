@@ -1,0 +1,243 @@
+[%- USE HTML %]
+[%- SET vclabel = vc == 'customer' ? '<translate>Customer</translate>' : '<translate>Vendor</translate>' %]
+<body>
+
+<form method="post" action="oe.pl">
+
+ <p><div class="listtop">[% HTML.escape(title) %]</div></p>
+
+<table width="100%">
+ <tr>
+  <td>
+   <table>
+    <tr>
+     <th align="right">[% HTML.escape(vclabel) %]</th>
+     <td colspan="3">
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = vc,
+                 default       = vc == 'customer' ? oldcustomer : oldvendor,
+                 style         = 'width: 250px',
+                 DATA          = ALL_VC,
+                 id_sub        = 'vc_keys',
+                 label_key     = 'name',
+                 select        = vc_select,
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 1,
+                 -%]
+     </td>
+    </tr>
+[%- IF ALL_DEPARTMENTS.size %]
+    <tr>
+     <th align="right" nowrap><translate>Department</translate></th>
+     <td colspan="3">
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'department_id',
+                 style         = 'width: 250px',
+                 DATA          = ALL_DEPARTMENTS,
+                 id_key        = 'id',
+                 label_key     = 'description',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 1,
+            -%]
+     </td>
+    </tr>
+[%- END %]
+    <tr>
+     <th align="right">[% HTML.escape(ordlabel) %]</th>
+     <td colspan="3"><input name="[% HTML.escape(ordnrname) %]" style="width: 250px"></td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Employee</translate></th>
+     <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'employee_id',
+                 style         = 'width: 250px',
+                 DATA          =  ALL_EMPLOYEES,
+                 id_key        = 'id',
+                 label_sub     = 'employee_labels',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 1,
+                 default       = ' ',
+            -%]
+     </td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Salesman</translate></th>
+     <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'salesman_id',
+                 style         = 'width: 250px',
+                 DATA          =  ALL_SALESMEN,
+                 id_key        = 'id',
+                 label_sub     = 'salesman_labels',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 1,
+            -%]
+     </td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Transaction description</translate></th>
+     <td colspan="3"><input name="transaction_description" style="width: 250px"></td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Project Number</translate></th>
+     <td colspan="3">
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'project_id',
+                 style         = "width: 250px",
+                 DATA          =  ALL_PROJECTS,
+                 id_key        = 'id',
+                 label_key     = 'projectnumber',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 1,
+            -%]
+     </td>
+    </tr>
+    <tr>
+     <th align="right"><translate>From</translate></th>
+     <td>
+      <input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
+      <input type="button" name="transdatefrom" id="trigger3" value="?">
+     </td>
+     <th align="right"><translate>Bis</translate></th>
+     <td>
+      <input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
+      <input type="button" name="transdateto" name="transdateto" id="trigger4" value="?">
+     </td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Include in Report</translate></th>
+     <td colspan="5">
+      <table>
+       <tr>
+        <td>
+         <input type="checkbox" name="open" value="1" id="open" checked>
+         <label for="open"><translate>Open</translate></label>
+        </td>
+        <td>
+         <input type="checkbox" name="closed" value="1" id="closed">
+         <label for="closed"><translate>Closed</translate></label>
+        </td>
+       </tr>
+[%- IF type == 'sales_order' OR type == 'purchase_order' %]
+       <tr>
+        <td>
+         <input name="notdelivered" id="notdelivered" class="checkbox" type="checkbox" value="1" checked>
+         <label for="notdelivered"><translate>Not delivered</translate></label>
+        </td>
+        <td>
+         <input name="delivered" id="delivered" class="checkbox" type="checkbox" value="1" checked>
+         <label for="delivered"><translate>Delivered</translate></label>
+        </td>
+       </tr>
+[%- END %]
+       <tr>
+        <td>
+         <input name="l_id" id="l_id" class="checkbox" type="checkbox" value="Y">
+         <label for="l_id"><translate>ID</translate></label>
+        </td>
+        <td>
+         <input name="l_[% HTML.escape(ordnrname) %]" id="l_[% HTML.escape(ordnrname) %]" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_[% HTML.escape(ordnrname) %]">[% HTML.escape(ordlabel) %]</label>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_transdate"><translate>Date</translate></label>
+        </td>
+        <td>
+         <input name="l_reqdate" id="l_reqdate" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_reqdate"><translate>Required by</translate></label>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <input name="l_name" id="l_name" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_name">[% HTML.escape(vclabel) %]
+        </td>
+        <td>
+         <input name="l_employee" id="l_employee" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_employee"><translate>Employee</translate></label>
+        </td>
+        <td>
+         <input name="l_shipvia" id="l_shipvia" class="checkbox" type="checkbox" value="Y">
+         <label for="l_shipvia"><translate>Ship via</translate></label>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <input name="l_netamount" id="l_netamount" class="checkbox" type="checkbox" value="Y">
+         <label for="l_netamount"><translate>Amount</translate></label>
+        </td>
+        <td>
+         <input name="l_tax" id="l_tax" class="checkbox" type="checkbox" value="Y">
+         <label for="l_tax"><translate>Tax</translate></label>
+        </td>
+        <td>
+         <input name="l_amount" id="l_amount" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_amount"><translate>Total</translate></label>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <input name="l_marge_total" id="l_marge_total" class="checkbox" type="checkbox" value="Y">
+         <label for="l_marge_total"><translate>Ertrag</translate></label>
+        </td>
+        <td>
+         <input name="l_marge_percent" id="l_marge_percent" class="checkbox" type="checkbox" value="Y">
+         <label for="l_marge_percent"><translate>Ertrag prozentual</translate></label>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <input name="l_globalprojectnumber" id="l_globalprojectnumber" class="checkbox" type="checkbox" value="Y">
+         <label for="l_globalprojectnumber"><translate>Project Number</translate></label>
+        </td>
+        <td>
+         <input name="l_transaction_description" id="l_transaction_description" class="checkbox" type="checkbox" value="Y">
+         <label for="l_transaction_description"><translate>Transaction description</translate></label>
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <input name="l_subtotal" id="l_subtotal" class="checkbox" type="checkbox" value="Y">
+         <label for="l_subtotal"><translate>Subtotal</translate></label>
+        </td>
+        <td>
+         <input name="l_salesman" id="l_salesman" class="checkbox" type="checkbox" value="Y">
+         <label for="l_salesman"><translate>Salesman</translate></label>
+        </td>
+       </tr>
+[%- IF type == 'sales_order' %]
+       <tr><td colspan="3"><hr></td></tr>
+[%- END %]
+      </table>
+     </td>
+    </tr>
+   </table>
+  </td>
+ </tr>
+</table>
+
+<script type="text/javascript">
+ <!--
+   Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger3" });
+   Calendar.setup({ inputField : "transdateto",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger4" });
+ //-->
+</script>
+
+<br>
+<input type="hidden" name="nextsub" value="orders">
+<input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+<input type="hidden" name="type" value="[% HTML.escape(type) %]">
+<input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+</form>
+
+</body>
+</html>

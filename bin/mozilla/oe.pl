@@ -507,8 +507,8 @@ sub update {
     my $rows = scalar @{ $form->{item_list} };
 
     # hier ist das problem fuer bug 817 $form->{discount} wird nicht durchgeschliffen
-    # ferner fallunterscheidung fuer verkauf oder einkauf s.a. bug 736	jb 04.05.2009 
-    # select discount as vendor_discount from vendor || 
+    # ferner fallunterscheidung fuer verkauf oder einkauf s.a. bug 736	jb 04.05.2009
+    # select discount as vendor_discount from vendor ||
     # select discount as customer_discount from customer
     $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"$form->{vc}_discount"} * 100);
 
@@ -588,274 +588,50 @@ sub search {
   check_oe_access();
 
   if ($form->{type} eq 'purchase_order') {
-    $form->{title} = $locale->text('Purchase Orders');
-    $form->{vc}    = 'vendor';
-    $ordlabel      = $locale->text('Order Number');
-    $ordnumber     = 'ordnumber';
-    $employee      = $locale->text('Employee');
+    $form->{vc}        = 'vendor';
+    $form->{ordnrname} = 'ordnumber';
+    $form->{title}     = $locale->text('Purchase Orders');
+    $form->{ordlabel}  = $locale->text('Order Number');
+
+  } elsif ($form->{type} eq 'request_quotation') {
+    $form->{vc}        = 'vendor';
+    $form->{ordnrname} = 'quonumber';
+    $form->{title}     = $locale->text('Request for Quotations');
+    $form->{ordlabel}  = $locale->text('RFQ Number');
+
+  } elsif ($form->{type} eq 'sales_order') {
+    $form->{vc}        = 'customer';
+    $form->{ordnrname} = 'ordnumber';
+    $form->{title}     = $locale->text('Sales Orders');
+    $form->{ordlabel}  = $locale->text('Order Number');
+
+  } elsif ($form->{type} eq 'sales_quotation') {
+    $form->{vc}        = 'customer';
+    $form->{ordnrname} = 'quonumber';
+    $form->{title}     = $locale->text('Quotations');
+    $form->{ordlabel}  = $locale->text('Quotation Number');
+
+  } else {
+    $form->show_generic_error($locale->text('oe.pl::search called with unknown type'), back_button => 1);
   }
 
-  if ($form->{type} eq 'request_quotation') {
-    $form->{title} = $locale->text('Request for Quotations');
-    $form->{vc}    = 'vendor';
-    $ordlabel      = $locale->text('RFQ Number');
-    $ordnumber     = 'quonumber';
-    $employee      = $locale->text('Employee');
-  }
+  # setup vendor / customer data
+  $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
+  $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
+                   "employees"    => "ALL_EMPLOYEES",
+                   "salesmen"     => "ALL_SALESMEN",
+                   "departments"  => "ALL_DEPARTMENTS",
+                   "$form->{vc}s" => "ALL_VC");
 
-  if ($form->{type} eq 'sales_order') {
-    $form->{title} = $locale->text('Sales Orders');
-    $form->{vc}    = 'customer';
-    $ordlabel      = $locale->text('Order Number');
-    $ordnumber     = 'ordnumber';
-    $employee      = $locale->text('Employee');
-  }
+  # constants and subs for template
+  $form->{jsscript}        = 1;
+  $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
+  $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
+  $form->{salesman_labels} = $form->{employee_labels};
 
-  if ($form->{type} eq 'sales_quotation') {
-    $form->{title} = $locale->text('Quotations');
-    $form->{vc}    = 'customer';
-    $ordlabel      = $locale->text('Quotation Number');
-    $ordnumber     = 'quonumber';
-    $employee      = $locale->text('Employee');
-  }
+  $form->header();
 
-  # setup vendor / customer selection
-  $form->all_vc(\%myconfig, $form->{vc},
-                ($form->{vc} eq 'customer') ? "AR" : "AP");
-
-  # departments
-  if (@{ $form->{all_departments} }) {
-    $form->{selectdepartment} = "<option>\n";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}</option>\n"
-    } (@{ $form->{all_departments} });
-  }
-
-  $department = qq|
-        <tr>
-	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-	</tr>
-| if $form->{selectdepartment};
-
-  my $delivered;
-  if (($form->{"type"} eq "sales_order") ||
-      ($form->{"type"} eq "purchase_order")) {
-    $delivered = qq|
-        <tr>
-          <td><input name="notdelivered" id="notdelivered" class="checkbox" type="checkbox" value="1" checked>
-            <label for="notdelivered">|. $locale->text('Not delivered') . qq|</label></td>
-          <td><input name="delivered" id="delivered" class="checkbox" type="checkbox" value="1" checked>
-            <label for="delivered">| . $locale->text('Delivered') . qq|</label></td>
-        </tr>
-|;
-  }
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
-  $jsscript = "";
-
-  $button1 = qq|
-     <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-     <input type=button name=transdatefrom id="trigger3" value=|
-    . $locale->text('button') . qq|></td>
-    |;
-  $button2 = qq|
-     <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-     <input type=button name=transdateto name=transdateto id="trigger4" value=|
-    . $locale->text('button') . qq|></td>
-   |;
-  $button3 = qq|
-     <td><input name=reqdatefrom id=reqdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-     <input type=button name=reqdatefrom id="trigger5" value=|
-    . $locale->text('button') . qq|></td>
-    |;
-  $button4 = qq|
-     <td><input name=reqdateto id=reqdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-     <input type=button name=reqdateto name=reqdateto id="trigger6" value=|
-    . $locale->text('button') . qq|></td>
-   |;
- 
-  #write Trigger
-  $jsscript =
-   Form->write_trigger(\%myconfig, "4", "transdatefrom", "BR", "trigger3",
-                       "transdateto", "BL", "trigger4",
-                       "reqdatefrom", "BR", "trigger5", "reqdateto", "BL", "trigger6");
-
-  my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-
-  $form->get_lists("projects"  => { "key" => "ALL_PROJECTS",
-                                    "all" => 1 },
-                   "employees" => "ALL_EMPLOYEES",
-                   "salesmen"  => "ALL_SALESMEN",
-                   $vc         => "ALL_" . uc($vc)
-                  );
-
-  my %labels = ();
-  my @values = ("");
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@values, $item->{"id"});
-    $labels{$item->{"id"}} = $item->{"projectnumber"};
-  }
-  my $projectnumber =
-    NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
-                         '-labels' => \%labels));
-
-  #employees
-  %labels = ();
-  @values = ("");
-  foreach my $item (@{ $form->{"ALL_EMPLOYEES"} }) {
-    push(@values, $item->{"id"});
-    $labels{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
-  }
-
-  #salesmen
-  my %labels_salesmen = ();
-  my @values_salesmen = ('');
-  foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
-    push(@values_salesmen, $item->{"id"});
-    $labels_salesmen{$item->{"id"}} = $item->{"name"} ne "" ? $item->{"name"} : $item->{"login"};
-  }
-
-  my $employee_block = qq|
-    <tr>
-      <th align="right">| . $locale->text('Employee') . qq|</th>
-      <td>| .  NTI($cgi->popup_menu('-name'   => 'employee_id', '-values' => \@values, '-labels' => \%labels)) . qq|</td>
-    </tr>
-    <tr>
-      <th align="right">| . $locale->text('Salesman') . qq|</th>
-      <td>| .
-        NTI($cgi->popup_menu('-name'   => 'salesman_id',
-                             '-values' => \@values_salesmen,
-                             '-labels' => \%labels_salesmen)) . qq|
-      </td>
-    </tr>|;
-
-  %labels = ();
-  @values = ("");
-
-  foreach my $item (@{ $form->{($form->{vc} eq "customer" ? "ALL_CUSTOMERS" : "ALL_VENDORS")}}) {
-    push(@values, $item->{name}.qq|--|.$item->{"id"});
-    $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
-  }
-
-  my $vc_label = $form->{vc} eq "customer" ? $locale->text('Customer') : $locale->text('Vendor');
-  $vc =
-    $myconfig{vclimit} <=  scalar(@values)
-    ? qq|<input type="text" value="| . H(($form->{"old$form->{vc}"} =~ /^(.*)\-\-.*$/)) . qq|" name="$form->{vc}">|
-    : NTI($cgi->popup_menu('-name' => "$form->{vc}",
-                           '-default' => $form->{"old$form->{vc}"},
-                           '-onChange' => 'document.getElementById(\'update_button\').click();',
-                           '-values' => \@values,
-                           '-labels' => \%labels));
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>$vc_label</th>
-          <td colspan=3>$vc</td>
-        </tr>
-$department
-        <tr>
-          <th align=right>$ordlabel</th>
-          <td colspan=3><input name="$ordnumber" size=20></td>
-        </tr>
-$employee_block
-        <tr>
-          <th align="right">| . $locale->text('Transaction description') . qq|</th>
-          <td colspan="3"><input name="transaction_description" size=20></td>
-        </tr>
-        <tr>
-          <th align="right">| . $locale->text("Project Number") . qq|</th>
-          <td colspan="3">$projectnumber</td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Order Date') . " " . $locale->text('From') . qq|</th> $button1
-          <th align=right>| . $locale->text('Bis') . qq|</th> $button2
-        </tr>
-        <input type=hidden name=sort value=transdate>
-        <tr>
-          <th align=right>| . $locale->text('Delivery Date') . " " . $locale->text('From') . qq|</th> $button3
-          <th align=right>| . $locale->text('Bis') . qq|</th> $button4
-        </tr>
-        <input type=hidden name=sort value=reqdate>
-        <tr>
-          <th align=right>| . $locale->text('Include in Report') . qq|</th>
-          <td colspan=5>
-	    <table>
-        <tr>
-          <td><input type="checkbox" name="open" value="1" id="open" checked> <label for="open">| . $locale->text("Open") . qq|</td>
-          <td><input type="checkbox" name="closed" value="1" id="closed"> <label for="closed">| . $locale->text("Closed") . qq|</td>
-        </tr>
-        $delivered
-	      <tr>
-		<td><input name="l_id" class=checkbox type=checkbox value=Y> | . $locale->text('ID') . qq|</td>
-		<td><input name="l_$ordnumber" class=checkbox type=checkbox value=Y checked> $ordlabel</td>
-	      </tr>
-	      <tr>
-		<td><input name="l_transdate" class=checkbox type=checkbox value=Y checked> | . $locale->text('Date') . qq|</td>
-		<td><input name="l_reqdate" class=checkbox type=checkbox value=Y checked> | . $locale->text('Required by') . qq|</td>
-	      </tr>
-	      <tr>
-	        <td><input name="l_name" class=checkbox type=checkbox value=Y checked> $vc_label</td>
-	        <td><input name="l_employee" class=checkbox type=checkbox value=Y checked> $employee</td>
-
-		<td><input name="l_shipvia" class=checkbox type=checkbox value=Y> | . $locale->text('Ship via') . qq|</td>
-	      </tr>
-	      <tr>
-		<td><input name="l_netamount" class=checkbox type=checkbox value=Y> | . $locale->text('Amount') . qq|</td>
-		<td><input name="l_tax" class=checkbox type=checkbox value=Y> | . $locale->text('Tax') . qq|</td>
-		<td><input name="l_amount" class=checkbox type=checkbox value=Y checked> | . $locale->text('Total') . qq|</td>
-	      </tr>
-	      <tr>
-		<td><input name="l_marge_total" class=checkbox type=checkbox value=Y> | .             $locale->text('Ertrag') . qq|</td>
-		<td><input name="l_marge_percent" class=checkbox type=checkbox value=Y> | .             $locale->text('Ertrag prozentual') . qq|</td>
-	      </tr>
-	      <tr>
-          <td><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y> | . $locale->text('Project Number') . qq|</td>
-          <td><input name="l_transaction_description" class=checkbox type=checkbox value=Y> | . $locale->text('Transaction description') . qq|</td>
-	      </tr>
-	      <tr>
-	        <td><input name="l_subtotal" class=checkbox type=checkbox value=Y> | . $locale->text('Subtotal') . qq|</td>
-                <td><input name="l_salesman" class="checkbox" type="checkbox" value="Y"> | . $locale->text('Salesman') . qq|</td>
-	      </tr>
-	    </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr><td colspan=4><hr size=3 noshade></td></tr>
-</table>
-
-$jsscript
-
-<br>
-<input type=hidden name=nextsub value=orders>
-<input type=hidden name=vc value=$form->{vc}>
-<input type=hidden name=type value=$form->{type}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
+  print $form->parse_html_template('oe/search');
 
   $lxdebug->leave_sub();
 }

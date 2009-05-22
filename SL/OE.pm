@@ -83,7 +83,8 @@ sub transactions {
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
 
-  my ($null, $department_id) = split /--/, $form->{department};
+  my ($null, $split_department_id) = split /--/, $form->{department};
+  my $department_id = $form->{department_id} || $split_department_id;
   if ($department_id) {
     $query .= qq| AND o.department_id = ?|;
     push(@values, $department_id);
