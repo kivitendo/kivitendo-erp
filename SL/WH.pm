@@ -174,7 +174,7 @@ sub transfer_assembly {
 
     if ($partsQTY  > $max_parts){
       # Gibt es hier ein Problem mit nicht "escapten" Zeichen? 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
-      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Stueck der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>";	# Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
+      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Einheiten der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>";	# Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
       next;	# die weiteren Überprüfungen sind unnötig
     }
 
