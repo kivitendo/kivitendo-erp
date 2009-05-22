@@ -38,7 +38,7 @@ package Inifile;
 use IO::File;
 
 sub new {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($type, $file, %options) = @_;
 
@@ -88,7 +88,7 @@ sub new {
   }
   close FH;
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return bless $self, $type;
 }

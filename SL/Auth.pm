@@ -122,13 +122,13 @@ sub authenticate {
 }
 
 sub dbconnect {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my $self     = shift;
   my $may_fail = shift;
 
   if ($self->{dbh}) {
-    $main::lxdebug->leave_sub();
+    $main::lxdebug->leave_sub(2);
     return $self->{dbh};
   }
 
@@ -629,20 +629,20 @@ sub all_rights_full {
   my $locale = $main::locale;
 
   my @all_rights = (
-    ["--crm",			       $locale->text("CRM optional software")], 
-    ["crm_search",		       $locale->text("CRM search")], 
-    ["crm_new",			       $locale->text("CRM create customers, vendors and contacts")], 
-    ["crm_service",		       $locale->text("CRM services")], 
-    ["crm_admin",		       $locale->text("CRM admin")], 
-    ["crm_adminuser",		       $locale->text("CRM user")], 
-    ["crm_adminstatus",		       $locale->text("CRM status")], 
-    ["crm_email",		       $locale->text("CRM send email")], 
-    ["crm_termin",		       $locale->text("CRM termin")], 
-    ["crm_opportunity",		       $locale->text("CRM opportunity")], 
-    ["crm_knowhow",		       $locale->text("CRM know how")], 
-    ["crm_follow",		       $locale->text("CRM follow up")], 
-    ["crm_notices",		       $locale->text("CRM notices")], 
-    ["crm_other",		       $locale->text("CRM other")], 
+    ["--crm",			       $locale->text("CRM optional software")],
+    ["crm_search",		       $locale->text("CRM search")],
+    ["crm_new",			       $locale->text("CRM create customers, vendors and contacts")],
+    ["crm_service",		       $locale->text("CRM services")],
+    ["crm_admin",		       $locale->text("CRM admin")],
+    ["crm_adminuser",		       $locale->text("CRM user")],
+    ["crm_adminstatus",		       $locale->text("CRM status")],
+    ["crm_email",		       $locale->text("CRM send email")],
+    ["crm_termin",		       $locale->text("CRM termin")],
+    ["crm_opportunity",		       $locale->text("CRM opportunity")],
+    ["crm_knowhow",		       $locale->text("CRM know how")],
+    ["crm_follow",		       $locale->text("CRM follow up")],
+    ["crm_notices",		       $locale->text("CRM notices")],
+    ["crm_other",		       $locale->text("CRM other")],
     ["--master_data",                  $locale->text("Master Data")],
     ["customer_vendor_edit",           $locale->text("Create and edit customers and vendors")],
     ["part_service_assembly_edit",     $locale->text("Create and edit parts, services, assemblies")],
