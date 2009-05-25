@@ -361,6 +361,7 @@ sub form_header {
       <td>|
       . $form->parse_html_template('generic/multibox',
                                    { 'name'          => 'customer',
+                                     'default'       => $form->{oldcustomer},
                                      'style'         => 'width: 250px',
                                      'DATA'          => $form->{ALL_CUSTOMERS},
                                      'id_sub'        => 'vc_keys',
