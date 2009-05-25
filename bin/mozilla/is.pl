@@ -555,7 +555,7 @@ sub form_header {
     #write Trigger
     $jsscript =
       Form->write_trigger(\%myconfig,     "3",
-                          "invdate",      "BL", "trigger1", 
+                          "invdate",      "BL", "trigger1",
                           "duedate",      "BL", "trigger2",
                           "deliverydate", "BL", "trigger3");
   }
@@ -599,11 +599,11 @@ sub form_header {
   $form->hide_form(qw(id action type media format queued printed emailed title vc discount
                       creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
                       max_dunning_level dunning_amount
-                      shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax 
+                      shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
                       shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
                       convert_from_do_ids convert_from_oe_ids),
                       map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} );
-   
+
   print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
 
   print qq|
@@ -698,7 +698,7 @@ if ($form->{type} eq "credit_note") {
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Credit Note Number') . qq|</th>
 		<td> |.
-	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .	
+	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .
       qq|	</td>
 	      </tr>
 	      <tr>
@@ -709,7 +709,7 @@ print qq|     <tr>
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Invoice Number') . qq|</th>
 		<td> |.
-	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .	
+	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .
       qq|	</td>
 	      </tr>
 	      <tr>
@@ -723,7 +723,7 @@ print qq|     <tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Delivery Order Number') . qq|</th>
 		<td> |.
-	        $cgi->textfield("-name" => "donumber", "-size" => 11, "-value" => $form->{donumber}) .	
+	        $cgi->textfield("-name" => "donumber", "-size" => 11, "-value" => $form->{donumber}) .
       qq|	</td>
 	      </tr>
 	      <tr>
@@ -734,7 +734,7 @@ print qq|     <tr>
 print qq|     <tr>
 		<th align="right" nowrap>| . $locale->text('Order Number') . qq|</th>
 		<td> |.
-	        $cgi->textfield("-name" => "ordnumber", "-size" => 11, "-value" => $form->{ordnumber}) .	
+	        $cgi->textfield("-name" => "ordnumber", "-size" => 11, "-value" => $form->{ordnumber}) .
       qq|	</td>
 	      </tr>
         <tr>
@@ -745,7 +745,7 @@ print qq|     <tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Quotation Number') . qq|</th>
 		<td> |.
-	        $cgi->textfield("-name" => "quonumber", "-size" => 11, "-value" => $form->{quonumber}) .	
+	        $cgi->textfield("-name" => "quonumber", "-size" => 11, "-value" => $form->{quonumber}) .
       qq|	</td>
 	      </tr>
         <tr>
@@ -756,7 +756,7 @@ print qq|     <tr>
 	      <tr>
 		<th align="right" nowrap>| . $locale->text('Customer Order Number') . qq|</th>
 		<td> |.
-	        $cgi->textfield("-name" => "cusordnumber", "-size" => 11, "-value" => $form->{cusordnumber}) .	
+	        $cgi->textfield("-name" => "cusordnumber", "-size" => 11, "-value" => $form->{cusordnumber}) .
       qq|	</td>
 	      </tr>
 	      <tr>
@@ -772,7 +772,7 @@ print qq|     <tr>
   <tr>
     <td>
     </td>
-  </tr> 
+  </tr>
   $jsscript
 |;
   print qq|<input type="hidden" name="webdav" value="$webdav">|;
@@ -1185,10 +1185,10 @@ if ($form->{type} eq "credit_note") {
   	  . qq|"> |;
   }
   # /button for saving history
-  
-  # mark_as_paid button 
-  if($form->{id} ne "") {  
-    print qq|<input type="submit" class="submit" name="action" value="| 
+
+  # mark_as_paid button
+  if($form->{id} ne "") {
+    print qq|<input type="submit" class="submit" name="action" value="|
           . $locale->text('mark as paid') . qq|">|;
   }
   # /mark_as_paid button
@@ -1217,7 +1217,7 @@ sub mark_as_paid {
 
   $auth->assert('invoice_edit');
 
-  &mark_as_paid_common(\%myconfig,"ar");  
+  &mark_as_paid_common(\%myconfig,"ar");
 
   $lxdebug->leave_sub();
 }
@@ -1282,7 +1282,7 @@ sub update {
 
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
-        
+
         $form->{payment_id}    = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
         $form->{"discount_$i"} = 0                             if $form->{"not_discountable_$i"};
 
