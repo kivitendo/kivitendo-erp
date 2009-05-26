@@ -482,11 +482,9 @@ sub save {
       ) {
       #$klass = $form->parse_amount($myconfig, $form->{"klass_$i"});
       $price = $form->parse_amount($myconfig, $form->{"price_$i"});
-      $pricegroup_id =
-        $form->parse_amount($myconfig, $form->{"pricegroup_id_$i"});
       $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) | .
                qq|VALUES(?, ?, ?)|;
-      @values = (conv_i($form->{id}), conv_i($pricegroup_id), $price);
+      @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
       do_query($form, $dbh, $query, @values);
     }
   }
