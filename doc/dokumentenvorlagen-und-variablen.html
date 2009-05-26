@@ -82,7 +82,7 @@ td {
     <li><a href="dokumentenvorlagen-und-variablen.html#invoice_zahlungen">
       Variablen f&uuml;r die Zahlungseing&auml;nge</a></li>
 
-    <li><a href="dokumentenvorlagen-und-variablen.html#benutzerdefinierte_variablen_vc">
+    <li><a href="dokumentenvorlagen-und-variablen.html#invoice_benutzerdefinierte_variablen_vc">
       Benutzerdefinierte Kunden- und Lieferantenvariablen</a></li>
    </ol>
   </li>
@@ -106,7 +106,14 @@ td {
   </li>
 
   <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen">
-    Variablen in anderen Vorlagen</a></li>
+    Variablen in anderen Vorlagen</a>
+
+   <ol>
+    <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_quotations">Angebote und Preisanfragen</a></li>
+    <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_orders">Auftragsbest&auml;tigungen und Lieferantenauftr&auml;ge</a></li>
+    <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_delivery_orders">Lieferscheine (Verkauf und Einkauf)</a></li>
+   </ol>
+  </li>
 
   <li><a href="dokumentenvorlagen-und-variablen.html#bloecke">
     Bl&ouml;cke, bedingte Anweisungen und Schleifen</a>
@@ -216,17 +223,66 @@ td {
   geeignet zu ersetzen: &quot;.tex&quot; f&uuml; LaTeX-Vorlagen und
   &quot;.odt&quot; f&uuml;r OpenDocument-Vorlagen.</p>
 
- <ul>
-  <li><code>bin_list.ext</code> -- Lagerliste</li>
-  <li><code>check.ext</code> -- ?</li>
-  <li><code>invoice.ext</code> -- Rechnung</li>
-  <li><code>packing_list.ext</code> -- Verpackungsliste</li>
-  <li><code>pick_list.ext</code> -- Sammelliste</li>
-  <li><code>purcharse_order.ext</code> -- Bestellung an Lieferanten</li>
-  <li><code>request_quotation.ext</code> -- Anfrage an Lieferanten</li>
-  <li><code>sales_order.ext</code> -- Bestellung</li>
-  <li><code>sales_quotation.ext</code> -- Angebot an Kunden</li>
- </ul>
+ <p>
+  <table border="1">
+   <tr>
+    <th>Dateiname</th>
+    <th>Bedeutung</th>
+   </tr>
+   <tr>
+    <td><code>bin_list.ext</code></td>
+    <td>Lagerliste</td>
+   </tr>
+   <tr>
+    <td><code>check.ext</code></td>
+    <td>?</td>
+   </tr>
+   <tr>
+    <td><code>invoice.ext</code></td>
+    <td>Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>packing_list.ext</code></td>
+    <td>Verpackungsliste</td>
+   </tr>
+   <tr>
+    <td><code>pick_list.ext</code></td>
+    <td>Sammelliste</td>
+   </tr>
+   <tr>
+    <td><code>purchase_delivery_order.ext</code></td>
+    <td>Lieferschein (Einkauf)</td>
+   </tr>
+   <tr>
+    <td><code>purcharse_order.ext</code></td>
+    <td>Bestellung an Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>request_quotation.ext</code></td>
+    <td>Anfrage an Lieferanten</td>
+   </tr>
+   <tr>
+    <td><code>sales_delivery_order.ext</code></td>
+    <td>Lieferschein (Verkauf)</td>
+   </tr>
+   <tr>
+    <td><code>sales_order.ext</code></td>
+    <td>Bestellung</td>
+   </tr>
+   <tr>
+    <td><code>sales_quotation.ext</code></td>
+    <td>Angebot an Kunden</td>
+   </tr>
+   <tr>
+    <td><code>zahlungserinnerung.ext</code></td>
+    <td>Mahnung (Dateiname im Programm konfigurierbar)</td>
+   </tr>
+   <tr>
+    <td><code>zahlungserinnerung_invoice.ext</code></td>
+    <td>Rechnung &uuml;ber Mahngeb&uuml;hren (Dateiname im Programm konfigurierbar)</td>
+   </tr>
+  </table>
+ </p>
 
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
@@ -252,6 +308,10 @@ td {
    <tr>
     <td><code>bank_code</code></td>
     <td>Bankleitzahl</td>
+   </tr>
+   <tr>
+    <td><code>bic</code></td>
+    <td>Internationaler Bank-Identifikations-Code (BIC)</td>
    </tr>
    <tr>
     <td><code>business</code></td>
@@ -697,10 +757,6 @@ td {
   <table border="1">
    <tr><th>Variablenname</th><th>Bedeutung</th></tr>
    <tr>
-    <td><code>assembly</code></td>
-    <td>Erzeugnis</td>
-   </tr>
-   <tr>
     <td><code>bin</code></td>
     <td>Stellage</td>
    </tr>
@@ -713,12 +769,44 @@ td {
     <td>Rabatt als Betrag</td>
    </tr>
    <tr>
+    <td><code>discount_sub</code></td>
+    <td>Zwischensumme mit Rabatt</td>
+   </tr>
+   <tr>
+    <td><code>drawing</code></td>
+    <td>Zeichnung</td>
+   </tr>
+   <tr>
+    <td><code>ean</code></td>
+    <td>EAN-Code</td>
+   </tr>
+   <tr>
+    <td><code>image</code></td>
+    <td>Grafik</td>
+   </tr>
+   <tr>
     <td><code>linetotal</code></td>
     <td>Zeilensumme (Anzahl * Einzelpreis)</td>
    </tr>
    <tr>
+    <td><code>longdescription</code></td>
+    <td>Langtext</td>
+   </tr>
+   <tr>
+    <td><code>microfiche</code></td>
+    <td>Mikrofilm</td>
+   </tr>
+   <tr>
     <td><code>netprice</code></td>
     <td>Nettopreis</td>
+   </tr>
+   <tr>
+    <td><code>nodiscount_linetotal</code></td>
+    <td>Zeilensumme ohne Rabatt</td>
+   </tr>
+   <tr>
+    <td><code>nodiscount_sub</code></td>
+    <td>Zwischensumme ohne Rabatt</td>
    </tr>
    <tr>
     <td><code>number</code></td>
@@ -780,6 +868,30 @@ td {
     <td><code>unit</code></td>
     <td>Einheit</td>
    </tr>
+   <tr>
+    <td><code>weight</code></td>
+    <td>Gewicht</td>
+   </tr>
+  </table>
+ </p>
+
+ <p>F&uuml;r jeden Posten gibt es ein Unterarray mit den Informationen &uuml;ber
+  Lieferanten und Lieferantenartikelnummer. Diese m&uuml;ssen mit
+  einer <code>foreach</code>-Schleife ausgegeben werden, da f&uuml;r jeden
+  Artikel mehrere Lieferanteninformationen hinterlegt sein k&ouml;nnen. Die
+  Variablen daf&uuml;r lauten:</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>make</code></td>
+    <td>Lieferant</td>
+   </tr>
+   <tr>
+    <td><code>model</code></td>
+    <td>Lieferantenartikelnummer</td>
+   </tr>
   </table>
  </p>
 
@@ -812,7 +924,7 @@ td {
   </table>
  </p>
 
- <h3><a name="benutzerdefinierte_variablen_vc">
+ <h3><a name="invoice_benutzerdefinierte_variablen_vc">
    Benutzerdefinierte Kunden- und Lieferantenvariablen:</a></h3>
 
  <p>
@@ -1013,6 +1125,106 @@ td {
   z.B. die f&uuml;r bereits verbuchte Zahlungseing&auml;nge. Dies sind
   Variablen, die vom Gesch&auml;ftsablauf her in der entsprechenden Vorlage
   keine Bedeutung haben oder noch nicht belegt sein k&ouml;nnen.</p>
+
+ <p>Im Folgenden werden nur wichtige Unterschiede zu den Variablen in
+  Rechnungen aufgef&uuml;hrt.</p>
+
+ <h3><a name="anderevorlagen_quotations">Angebote und Preisanfragen</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>quonumber</code></td>
+    <td>Angebots- bzw. Anfragenummer</td>
+   </tr>
+   <tr>
+    <td><code>reqdate</code></td>
+    <td>G&uuml;ltigkeitsdatum (bei Angeboten) bzw. Lieferdatum (bei Preisanfragen)</td>
+   </tr>
+   <tr>
+    <td><code>transdate</code></td>
+    <td>Angebots- bzw. Anfragedatum</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="anderevorlagen_orders">Auftragsbest&auml;tigungen und Lieferantenauftr&auml;ge</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>ordnumber</code></td>
+    <td>Auftragsnummer</td>
+   </tr>
+   <tr>
+    <td><code>reqdate</code></td>
+    <td>Lieferdatum</td>
+   </tr>
+   <tr>
+    <td><code>transdate</code></td>
+    <td>Auftragsdatum</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3><a name="anderevorlagen_delivery_orders">Lieferscheine (Verkauf und Einkauf)</a></h3>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>donumber</code></td>
+    <td>Lieferscheinnummer</td>
+   </tr>
+   <tr>
+    <td><code>transdate</code></td>
+    <td>Lieferscheindatum</td>
+   </tr>
+  </table>
+ </p>
+
+ <p>F&uuml;r jede Position eines Lieferscheines gibt es ein Unterarray mit
+  den Informationen dar&uuml;ber, von welchem Lager und Lagerplatz aus die
+  Waren verschickt wurden (Verkaufslieferscheine) bzw. auf welchen
+  Lagerplatz sie eingelagert wurden. Diese m&uuml;ssen mittels
+  einer <code>foreach</code>-Schleife ausgegeben werden. Diese
+  Variablen sind:</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>si_bin</code></td>
+    <td>Lagerplatz</td>
+   </tr>
+   <tr>
+    <td><code>si_chargenumber</code></td>
+    <td>Chargennummer</td>
+   </tr>
+   <tr>
+    <td><code>si_number</code></td>
+    <td>Artikelnummer</td>
+   </tr>
+   <tr>
+    <td><code>si_qty</code></td>
+    <td>Anzahl bzw. Menge</td>
+   </tr>
+   <tr>
+    <td><code>si_runningnumber</code></td>
+    <td>Positionsnummer (1, 2, 3 etc)</td>
+   </tr>
+   <tr>
+    <td><code>si_unit</code></td>
+    <td>Einheit</td>
+   </tr>
+   <tr>
+    <td><code>si_warehouse</code></td>
+    <td>Lager</td>
+   </tr>
+  </table>
+ </p>
 
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
