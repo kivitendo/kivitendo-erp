@@ -144,7 +144,7 @@ sub display_row {
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
-    {  id => 'sellprice_pg',  width => 8,    value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/) && !$is_delivery_order,  },
+    {  id => 'sellprice_pg',  width => 8,     value => $locale->text('Pricegroup'),           display => ($form->{type} =~ /^sales_/) && !$is_delivery_order,  },
     {  id => 'discount',      width => 5,     value => $locale->text('Discount'),             display => !$is_delivery_order, },
     {  id => 'linetotal',     width => 10,    value => $locale->text('Extended'),             display => !$is_delivery_order, },
     {  id => 'bin',           width => 10,    value => $locale->text('Bin'),                  display => 0, },
