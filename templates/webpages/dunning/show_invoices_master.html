@@ -46,7 +46,7 @@
 
      <td>
       <select name="next_dunning_config_id_[% loop.count %]">
-       [% FOREACH cfg_row = DUNNING_CONFIG %]<option value="[% HTML.escape(cfg_row.id) %]" [% IF cfg_row.SELECTED %]selected[% END %]>[% HTML.escape(cfg_row.dunning_description) %]</option>[% END %]
+       [% FOREACH cfg_row = row.DUNNING_CONFIG %]<option value="[% HTML.escape(cfg_row.id) %]" [% IF cfg_row.SELECTED %]selected[% END %]>[% HTML.escape(cfg_row.dunning_description) %]</option>[% END %]
       </select>
      </td>
 
