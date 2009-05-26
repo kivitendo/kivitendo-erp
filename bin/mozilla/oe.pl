@@ -205,7 +205,6 @@ sub order_links {
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
 
   OE->retrieve(\%myconfig, \%$form);
 
@@ -218,6 +217,7 @@ sub order_links {
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
