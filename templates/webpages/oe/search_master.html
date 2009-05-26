@@ -99,7 +99,7 @@
      </td>
     </tr>
     <tr>
-     <th align="right"><translate>From</translate></th>
+     <th align="right"><translate>Order Date</translate> <translate>From</translate></th>
      <td>
       <input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
       <input type="button" name="transdatefrom" id="trigger3" value="?">
@@ -108,6 +108,18 @@
      <td>
       <input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
       <input type="button" name="transdateto" name="transdateto" id="trigger4" value="?">
+     </td>
+    </tr>
+    <tr>
+     <th align="right"><translate>Delivery Date</translate> <translate>From</translate></th>
+     <td>
+      <input name=reqdatefrom id=reqdatefrom size=11 title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
+      <input type=button name=reqdatefrom id="trigger5" value=?>
+     </td>
+     <th align="right"><translate>Bis</translate></th>
+     <td>
+      <input name=reqdateto id=reqdateto size=11 title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
+      <input type=button name=reqdateto name=reqdateto id="trigger6" value=?>
      </td>
     </tr>
     <tr>
@@ -229,6 +241,8 @@
  <!--
    Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger3" });
    Calendar.setup({ inputField : "transdateto",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger4" });
+   Calendar.setup({ inputField : "reqdatefrom",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger5" });
+   Calendar.setup({ inputField : "reqdateto",     ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger6" });
  //-->
 </script>
 
