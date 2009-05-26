@@ -1345,9 +1345,8 @@ sub generate_trial_balance {
     $accno->{haben} = $accno->{credit};
     map { $totals{$_}    += $accno->{$_} } @subtotal_columns;
 
-    map { $accno->{$_} = $form->format_amount(\%myconfig, $accno->{$_}, 2) } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
-
-    map { $accno->{$_} = ($accno->{$_} == 0) ? '' : $accno->{$_} } qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
+    map { $accno->{$_} = $accno->{$_} == 0 ? '' : $form->format_amount(\%myconfig, $accno->{$_}, 2) }
+      qw(soll_eb haben_eb soll haben soll_kumuliert haben_kumuliert soll_saldo haben_saldo);
 
     my $row = { };
 
