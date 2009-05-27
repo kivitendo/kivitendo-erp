@@ -1389,7 +1389,7 @@ sub print_form {
     $form->get_shipto(\%myconfig);
   }
 
-  @a = qw(name street zipcode city country);
+  @a = qw(name street zipcode city country contact);
 
   $shipto = 1;
 
