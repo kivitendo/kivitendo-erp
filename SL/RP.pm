@@ -1111,7 +1111,7 @@ sub trial_balance {
       } elsif ($ref->{soll_saldo} != 0) {
         $ref->{soll_saldo} = $ref->{soll_saldo} - $ref->{beginning_balance};
         if ($ref->{soll_saldo} < 0) {
-          $ref->{haben_saldo} = $form->round_amount(($ref->{haben_saldo} * -1), 2);
+          $ref->{haben_saldo} = $form->round_amount(($ref->{soll_saldo} * -1), 2);
           $ref->{soll_saldo} = 0;
         }
      }
