@@ -471,17 +471,17 @@ sub save {
 
   # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
-    if ($form->{"price_$i"} eq "0") {
+    my $price = $form->parse_amount($myconfig, $form->{"price_$i"});
+    if ($price == 0) {
       $form->{"price_$i"} = $form->{sellprice};
     }
     if (
-        (   $form->{"price_$i"}
+        (   $price
          || $form->{"klass_$i"}
          || $form->{"pricegroup_id_$i"})
-        and $form->{"price_$i"} != $form->{sellprice}
+        and $price != $form->{sellprice}
       ) {
       #$klass = $form->parse_amount($myconfig, $form->{"klass_$i"});
-      $price = $form->parse_amount($myconfig, $form->{"price_$i"});
       $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) | .
                qq|VALUES(?, ?, ?)|;
       @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
