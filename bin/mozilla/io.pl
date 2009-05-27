@@ -693,7 +693,7 @@ sub check_form {
     #$form->{sellprice} = 0;
     $form->{weight}    = 0;
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-      qw(listprice rop stock);
+      qw(listprice sellprice rop stock);
 
     @flds =
       qw(id qty unit bom partnumber description sellprice weight runningnumber partsgroup lastcost);
