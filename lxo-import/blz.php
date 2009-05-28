@@ -1,12 +1,13 @@
 <html>
 <LINK REL="stylesheet" HREF="../css/lx-office-erp.css" TYPE="text/css" TITLE="Lx-Office stylesheet">
 <body>
-<?
+<?php
 /*
 BLZimport mit Browser nach Lx-Office ERP
 Holger Lindemann <hli@lx-system.de>
 */
 
+if ($_POST) {
 
 function ende($nr) {
 	echo "Abbruch: $nr<br>";
@@ -31,6 +32,8 @@ if (!anmelden()) ende(5);
 $db=$_SESSION["db"]; //new myDB($login);
 
 
+<<<<<<< .mine
+=======
 /* display help */
 if ($_POST["ok"]=="Hilfe") {
 	echo "<br>Die erste Zeile enth&auml;lt keine Feldnamen der Daten.<br>";
@@ -40,6 +43,7 @@ if ($_POST["ok"]=="Hilfe") {
 	echo "http://www.bundesbank.de/zahlungsverkehr/zahlungsverkehr_bankleitzahlen_download.php</a>";
 	exit(0);
 } else if ($_POST) {
+>>>>>>> .r3649
 	$test=$_POST["test"];
 
 	clearstatcache ();
@@ -50,6 +54,8 @@ if ($_POST["ok"]=="Hilfe") {
 
 	/* copy file */
 	if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],"blz.txt")) {
+		print_r($_FILES);
+		echo $_FILES["Datei"]["tmp_name"];
 		echo "Upload von Datei fehlerhaft.";
 		echo $_FILES["Datei"]["error"], "<br>";
 		ende (2);
@@ -95,6 +101,16 @@ if ($_POST["ok"]=="Hilfe") {
 						substr($zeile,72,35),substr($zeile,107,27),substr($zeile,134,5),substr($zeile,139,11),
 						substr($zeile,150,2),substr($zeile,152,6),substr($zeile,158,1),substr($zeile,159,1),
 						substr($zeile,160,8));
+<<<<<<< .mine
+			if (!$test){
+				$rc=$db->query($sql);
+				 if(DB::isError($rc)) {
+                        		echo $sql."<br><pre>";
+					echo $rc->getMessage()."</pre><br>";
+					$ok=false;
+					break;
+				}
+=======
 				$rc=$db->query($sql);
 				if ($cnt % 10 == 0) { 
 					if ($cnt % 1000 == 0) { $x=time()-$start; echo sprintf("%dsec %6d<br>",$x,$cnt); }
@@ -112,37 +128,47 @@ if ($_POST["ok"]=="Hilfe") {
 			if (!$rc) { 
 				$ok=false;
 				break;
+>>>>>>> .r3649
 			}
 			$i++;
 		}
 		if ($ok) {
-			$rc=$db->query("COMMIT");
+			if (!$test) $rc=$db->query("COMMIT");
 			echo "<br>$i Daten erfolgreich importierti<br>";
 			if ($cliencoding=="UTF8") $db->query("SET CLIENT_ENCODING TO 'UTF8'");
 			$stop=time();
 			echo $stop-$start." Sekunden";
 		} else {
-			$rc=$db->query("ROLLBACK");
+			if (!$test) $rc=$db->query("ROLLBACK");
+			echo "Fehler in Zeile: ".$i."<br>";
+			echo $sql."<br>";
 			ende(6);
 		}
 	} else {
 		ende(4);
 	}
+<<<<<<< .mine
+} 
+=======
 	echo "</table>";
 } else {
+>>>>>>> .r3649
 ?>
-
 <p class="listtop">BLZ-Import f&uuml;r die ERP<p>
+<br>Die erste Zeile enth&auml;lt keine Feldnamen der Daten.<br>
+Die Datenfelder haben eine feste Breite.<br><br>
+Die Daten k&ouml;nnen hier bezogen werden:<br>
+<a http='http://www.bundesbank.de/zahlungsverkehr/zahlungsverkehr_bankleitzahlen_download.php'>
+http://www.bundesbank.de/zahlungsverkehr/zahlungsverkehr_bankleitzahlen_download.php</a><br><br>
+ggf. das File vorher noch auf UTF8 wandeln: iconv -f latin1 -t  utf8 blz.txt -o blz1.txt<br><br>
 Achtung!! Die bestehenden BLZ-Daten werden zun&auml;chst gel&ouml;scht.
 <br>
 <form name="import" method="post" enctype="multipart/form-data" action="blz.php">
 <input type="hidden" name="MAX_FILE_SIZE" value="20000000">
 <input type="hidden" name="login" value="<?= $login ?>">
 <table>
-<tr><td><input type="submit" name="ok" value="Hilfe"></td><td></td></tr>
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
-<? }; ?>
