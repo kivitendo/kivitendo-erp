@@ -866,14 +866,18 @@ sub all_parts {
 
   my $sort_order = ($form->{revers} ? ' DESC' : ' ASC');
 
+  my $order_clause = " ORDER BY $form->{sort} " . ($form->{revers} ? 'DESC' : 'ASC');
+
   # special case: sorting by partnumber
   # since partnumbers are expected to be prefixed integers, a special sorting is implemented sorting first lexically by prefix and then by suffix.
   # and yes, that expression is designed to hold that array of regexes only once, so the map is kinda messy, sorry about that.
   # ToDO: implement proper functional sorting
-  $form->{sort} = join ', ', map { push @select_tokens, $_; ($table_prefix{$_} = "substring(partnumber,'[") . $_ } qw|^[:digit:]]+') [:digit:]]+')::INTEGER|
-    if $form->{sort} eq 'partnumber';
+  # Nette Idee von Sven, gibt aber Probleme wenn die Artikelnummern groesser als 32bit sind. Korrekt waere es, dass Sort-Natural-Modul zu nehmen
+  # Ich lass das mal hier drin, damit die Idee erhalten bleibt jb 28.5.2009 bug 1018 
+  #$form->{sort} = join ', ', map { push @select_tokens, $_; ($table_prefix{$_} = "substring(partnumber,'[") . $_ } qw|^[:digit:]]+') [:digit:]]+')::INTEGER|
+  #  if $form->{sort} eq 'partnumber';
 
-  my $order_clause = " ORDER BY $form->{sort} $sort_order";
+  #my $order_clause = " ORDER BY $form->{sort} $sort_order";
 
   my $limit_clause = " LIMIT 100" if $form->{top100};
 
