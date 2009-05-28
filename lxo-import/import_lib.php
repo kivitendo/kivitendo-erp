@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 Funktionsbibliothek für den Datenimport in Lx-Office ERP
 
@@ -68,6 +68,7 @@ $parts = array(
 	"unit" => "Einheit",
 	"weight" => "Gewicht in Benutzerdefinition",
 	"onhand" => "Lagerbestand",
+	"bin"	=> "Lagerplatz",
 	"notes" => "Beschreibung",
 	"notes1" => "Beschreibung",
 	//"makemodel" => "Hersteller",
@@ -168,7 +169,7 @@ global $db;
 }
 
 function getKdId() {
-// die nächste freie Kunden-/Lieferantennummer holen
+// die n�chste freie Kunden-/Lieferantennummer holen
 global $db,$file,$test;
 	if ($test) { return "#####"; }
 	$sql1="select * from defaults";
@@ -254,7 +255,8 @@ $land=array("DEUTSC"=>"D","FRANKR"=>"F","SPANIE"=>"ES","ITALIE"=>"I","HOLLAN"=>"
 
 function mkland($data) {
 global $land;
-	$data=strtr($data,array("Ö"=>"OE","Ä"=>"AE","Ü"=>"UE","ö"=>"OE","ä"=>"AE","ü"=>"UE","ß"=>"SS"));
+	$data=strtr($data,array("Ö"=>"OE","Ä"=>"AE","Ü"=>"UE","ö"=>"OE","ä"=>"AE","ü"=>"UE","ß"=>"SS",
+			'�'=>'OE','�'=>'AE','�'=>'UE','�'=>'OE','�'=>'AE','�'=>'UE','�'=>'SS'));
 	$data=strtoupper(substr($data,0,6));
 	$cntr=$land[$data];
 	return (strlen($cntr)>0)?$cntr:substr($data,0,3);
@@ -381,3 +383,9 @@ function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie) {
         return $auth;
 }
 
+function getLager($db) {
+	$sql="select w.description as ort,bin.id,bin.description as platz from 	warehouse w left join bin  on w.id=bin.warehouse_id";
+	$rs=$db->getAll($sql,"getLager");
+	return $rs;
+}
+?>

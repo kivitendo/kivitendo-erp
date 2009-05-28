@@ -55,6 +55,7 @@ if ($_POST["ok"]=="Hilfe") {
 clearstatcache ();
 
 $test    = $_POST["test"];
+$lager    = $_POST["lager"];
 $TextUpd = $_POST["TextUpd"];
 $trenner = ($_POST["trenner"])?$_POST["trenner"]:",";
 $trennzeichen = ($_POST["trennzeichen"])?$_POST["trennzeichen"]:"";
@@ -96,6 +97,8 @@ echo "Checking data:<br>";
 $_test=$_POST;
 $_test["precision"]=-1;
 $_test["quotation"]=0;
+$_test["lager"]=$_POST["lager"];
+$_test["lagerplatz"]=$_POST["lagerplatz"];
 //$_test["shop"]="n";
 //$_test["wgtrenner"]="!";
 $err = import_parts($db, $file, $trenner, $trennzeichen, $parts, TRUE, FALSE, FALSE,$_test);
@@ -110,6 +113,7 @@ import_parts($db, $file, $trenner, $trennzeichen, $parts, FALSE, !$test, TRUE,$_
 
 } else {
 	$bugrus=getAllBG($db);
+	$lagerplatz=getLager($db);
 ?>
 
 <p class="listtop">Artikelimport f&uuml;r die ERP<p>
@@ -154,6 +158,14 @@ import_parts($db, $file, $trenner, $trennzeichen, $parts, FALSE, !$test, TRUE,$_
 	<input type="radio" name="bugrufix" value="0">nie<br>
 	<input type="radio" name="bugrufix" value="1" checked>f&uuml;r alle Artikel verwenden
 	<input type="radio" name="bugrufix" value="2">f&uuml;r Artikel ohne passende Bugru
+	</td></tr>
+<tr><td>Default Lager<br></td><td><select name="lager">
+<?	if ($lagerplatz) foreach ($lagerplatz as $lp) { ?>
+			<option value="<?= $lp["id"] ?>"><?= $lp["ort"] ?>-<?= $lp["platz"] ?>
+<?	} ?>
+	</select>
+	<input type="radio" name="lagerfix" value="1" checked>f&uuml;r alle Artikel verwenden
+	<input type="radio" name="lagerfix" value="2">f&uuml;r Artikel ohne passendes Lager
 	</td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
