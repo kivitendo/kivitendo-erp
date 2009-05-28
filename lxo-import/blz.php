@@ -7,33 +7,7 @@ BLZimport mit Browser nach Lx-Office ERP
 Holger Lindemann <hli@lx-system.de>
 */
 
-if ($_POST) {
 
-function ende($nr) {
-	echo "Abbruch: $nr<br>";
-	echo "Fehlende oder falsche Daten.";
-	exit(1);
-}
-
-if (!$_SESSION["db"]) {
-	$conffile="../config/authentication.pl";
-	if (!is_file($conffile)) {
-		ende(4);
-	}
-}
-require ("import_lib.php");
-
-function l2u($str) {
-	return iconv("ISO-8859-1", "UTF-8",$str);
-}
-
-if (!anmelden()) ende(5);
-/* get DB instance */
-$db=$_SESSION["db"]; //new myDB($login);
-
-
-<<<<<<< .mine
-=======
 /* display help */
 if ($_POST["ok"]=="Hilfe") {
 	echo "<br>Die erste Zeile enth&auml;lt keine Feldnamen der Daten.<br>";
@@ -43,7 +17,30 @@ if ($_POST["ok"]=="Hilfe") {
 	echo "http://www.bundesbank.de/zahlungsverkehr/zahlungsverkehr_bankleitzahlen_download.php</a>";
 	exit(0);
 } else if ($_POST) {
->>>>>>> .r3649
+	function ende($nr) {
+		echo "Abbruch: $nr<br>";
+		echo "Fehlende oder falsche Daten.";
+		exit(1);
+	}
+
+	function l2u($str) {
+		return iconv("ISO-8859-1", "UTF-8",$str);
+	}
+
+	require ("import_lib.php");
+
+	if (!$_SESSION["db"]) {
+		$conffile="../config/authentication.pl";
+		if (!is_file($conffile)) {
+			ende(4);
+		}
+		if (!anmelden()) ende(5);
+	}
+
+
+	/* get DB instance */
+	$db=$_SESSION["db"]; 
+
 	$test=$_POST["test"];
 
 	clearstatcache ();
@@ -67,7 +64,8 @@ if ($_POST["ok"]=="Hilfe") {
 
 	$sqlins="INSERT INTO blz_data (blz,fuehrend,bezeichnung,plz,ort,kurzbez,pan,bic,pzbm,nummer,aekz,bl,folgeblz) ";
 	$sqlins.="VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s',%d,'%s','%s','%s')";
-	$teststr="<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td><td>%s</td></tr>\n";
+	$teststr="<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>";
+	$teststr.="<td>%s</td><td>%s</td><td>%d</td><td>%s</td><td>%s</td><td>%s</td></tr>\n";
 	$sqldel="delete from blz_data";
 	$ok="true";
 	$cnt=0;
@@ -80,17 +78,15 @@ if ($_POST["ok"]=="Hilfe") {
 	$rs = $db->getAll("SELECT current_setting('client_encoding')");
 	$cliencoding = $rs[0]['current_setting'];
 	echo "SRV: $srvencoding - - CLI: $cliencoding<br>";
-	//Datenfile ist immer Latin!!
-	//zwei Möglichkeiten der Zeichenwandlung. Was ist besser??
 	if ($f) {
-		//Cliententcoding nicht umstellen:
-		//if (!$test) { $rc=$db->query("BEGIN");};
 		//Cliententcoding auf Latin:
 		if (!$test) { $rc=$db->query("BEGIN"); if ($cliencoding=="UTF8") $db->query("SET CLIENT_ENCODING TO 'latin-9'"); };
 		if (!$test) $rc=$db->query($sqldel);
 		while (($zeile=fgets($f,256)) != FALSE) {
 			$cnt++;
-			if (!$test) {
+			if (!$test){
+				//Datenfile ist immer Latin!!
+				//zwei Möglichkeiten der Zeichenwandlung. Was ist besser??
 				//Client nicht umgestellt, Zeichen wandeln
 				/*$sql=sprintf($sqlins,substr($zeile,0,8),substr($zeile,8,1),l2u(substr($zeile,9,58)),substr($zeile,67,5),
 						l2u(substr($zeile,72,35)),l2u(substr($zeile,107,27)),substr($zeile,134,5),substr($zeile,139,11),
@@ -101,17 +97,13 @@ if ($_POST["ok"]=="Hilfe") {
 						substr($zeile,72,35),substr($zeile,107,27),substr($zeile,134,5),substr($zeile,139,11),
 						substr($zeile,150,2),substr($zeile,152,6),substr($zeile,158,1),substr($zeile,159,1),
 						substr($zeile,160,8));
-<<<<<<< .mine
-			if (!$test){
 				$rc=$db->query($sql);
-				 if(DB::isError($rc)) {
-                        		echo $sql."<br><pre>";
+				if(DB::isError($rc)) {
+					echo $sql."<br><pre>";
 					echo $rc->getMessage()."</pre><br>";
 					$ok=false;
 					break;
 				}
-=======
-				$rc=$db->query($sql);
 				if ($cnt % 10 == 0) { 
 					if ($cnt % 1000 == 0) { $x=time()-$start; echo sprintf("%dsec %6d<br>",$x,$cnt); }
 					else if ($cnt % 100 == 0) { echo "!"; }
@@ -128,7 +120,6 @@ if ($_POST["ok"]=="Hilfe") {
 			if (!$rc) { 
 				$ok=false;
 				break;
->>>>>>> .r3649
 			}
 			$i++;
 		}
@@ -147,12 +138,8 @@ if ($_POST["ok"]=="Hilfe") {
 	} else {
 		ende(4);
 	}
-<<<<<<< .mine
-} 
-=======
-	echo "</table>";
+	echo "</table><br>Fertig. $i Banken importiert.";
 } else {
->>>>>>> .r3649
 ?>
 <p class="listtop">BLZ-Import f&uuml;r die ERP<p>
 <br>Die erste Zeile enth&auml;lt keine Feldnamen der Daten.<br>
@@ -160,7 +147,7 @@ Die Datenfelder haben eine feste Breite.<br><br>
 Die Daten k&ouml;nnen hier bezogen werden:<br>
 <a http='http://www.bundesbank.de/zahlungsverkehr/zahlungsverkehr_bankleitzahlen_download.php'>
 http://www.bundesbank.de/zahlungsverkehr/zahlungsverkehr_bankleitzahlen_download.php</a><br><br>
-ggf. das File vorher noch auf UTF8 wandeln: iconv -f latin1 -t  utf8 blz.txt -o blz1.txt<br><br>
+Das File vorher <b>nicht</b> auf UTF8 wandeln!<br><br>
 Achtung!! Die bestehenden BLZ-Daten werden zun&auml;chst gel&ouml;scht.
 <br>
 <form name="import" method="post" enctype="multipart/form-data" action="blz.php">
@@ -172,3 +159,4 @@ Achtung!! Die bestehenden BLZ-Daten werden zun&auml;chst gel&ouml;scht.
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
+<?php } ?>
