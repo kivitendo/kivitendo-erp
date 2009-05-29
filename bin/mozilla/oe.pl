@@ -1623,6 +1623,12 @@ sub poso {
 
   &prepare_order;
 
+  # prepare_order assumes that the discount is in db-notation (0.05) and not user-notation (5)
+  # and therefore multiplies the values by 100 in the case of reading from db or making an order from several quotation, so we convert this back into percent-notation for the user interface by multiplying with 0.01
+  for $i (1 .. $form->{rowcount}) {
+    $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 0.01);
+  };
+
   # format amounts
   for $i (1 .. $form->{rowcount} - 1) {
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit);
