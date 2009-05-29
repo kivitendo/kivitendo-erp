@@ -89,7 +89,7 @@ Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache postgresql libdbi-perl libdbd-pg-perl wlibpg-perl libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl}
+@code{apache postgresql libdbi-perl libdbd-pg-perl libpg-perl libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl}
 
 Für Fedora Core benötigen Sie unter anderem diese Pakete:
 
@@ -130,17 +130,17 @@ Alternativ können Sie auch einen Alias in der Webserverkonfiguration
 benutzen, um auf das tatsächliche Installationsverzeichnis zu
 verweisen.
 
-Die Verzeichnisse @code{datev}, @code{users}, @code{spool} und
-@code{webdav} müssen für den Benutzer beschreibbar sein, unter dem der
-Webserver läuft. Die restlichen Dateien müssen für diesen Benutzer
-lesbar sein. Der Benutzername ist bei verschiedenen Distributionen
-unterschiedlich (z.B. bei Debian/Ubuntu @code{www-data}, bei Fedora
-core @code{apache} oder bei OpenSuSE @code{wwwrun}).
+Die Verzeichnisse @code{users}, @code{spool} und @code{webdav} müssen
+für den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
+restlichen Dateien müssen für diesen Benutzer lesbar sein. Der
+Benutzername ist bei verschiedenen Distributionen unterschiedlich
+(z.B. bei Debian/Ubuntu @code{www-data}, bei Fedora core @code{apache}
+oder bei OpenSuSE @code{wwwrun}).
 
 Der folgende Befehl ändert den Besitzer für die oben genannten
 Verzeichnisse auf einem Debian/Ubuntu-System:
 
-@code{chown -R www-data lx-office-erp/datev lx-office-erp/users lx-office-erp/spool lx-office-erp/webdav}
+@code{chown -R www-data lx-office-erp/users lx-office-erp/spool lx-office-erp/webdav}
 
 @c ---------------------------------------------------------------
 
