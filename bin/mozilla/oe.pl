@@ -237,7 +237,10 @@ sub order_links {
   }
 
   $form->{"old$form->{vc}"}  = $form->{$form->{vc}};
-  $form->{"old$form->{vc}"} .= qq|--$form->{"$form->{vc}_id"}| unless ($form->{"old$form->{vc}"} =~ m/--\d+$/);
+
+  if ($form->{"old$form->{vc}"} !~ m/--\d+$/ && $form->{"$form->{vc_}id}"}) {
+    $form->{"old$form->{vc}"} .= qq|--$form->{"$form->{vc}_id"}|
+  }
 
   $lxdebug->leave_sub();
 }
