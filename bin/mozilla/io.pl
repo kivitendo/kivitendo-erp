@@ -1075,9 +1075,7 @@ sub print_options {
     ($form->{type} =~ /_delivery_order$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
       opthash('pick_list',           $form->{PD}{pick_list},           $locale->text('Pick List')),
-    ) : undef,
-    ($form->{type} eq 'credit_note') ?
-      opthash("credit_note",         $form->{PD}{credit_note},         $locale->text('Credit Note')) : undef;
+    ) : undef;
 
   push @SENDMODE,
     opthash("attachment",            $form->{SM}{attachment},          $locale->text('Attachment')),
