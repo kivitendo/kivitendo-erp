@@ -688,7 +688,7 @@ sub trial_balance {
           FROM acc_trans ac
           LEFT JOIN chart c ON (ac.chart_id = c.id)
           $dpt_join
-          WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction $acc_cash_where
+          WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
             $dpt_where
             $project
           GROUP BY c.accno, c.category, c.description |;
@@ -747,23 +747,23 @@ sub trial_balance {
 
   if ($form->{fromdate} || $form->{todate}) {
     if ($form->{fromdate}) {
-      my $fromdate = conv_dateq($form->{fromdate});
+      $fromdate = conv_dateq($form->{fromdate});
       $tofrom        .= " AND (ac.transdate >= $fromdate)";
-      $subwhere      .= " AND (transdate >= $fromdate)";
-      $sumsubwhere   .= " AND (transdate >= (select date_trunc('year', date $fromdate))) ";
-      $saldosubwhere .= " AND transdate>=(select date_trunc('year', date $fromdate))  ";
+      $subwhere      .= " AND (ac.transdate >= $fromdate)";
+      $sumsubwhere   .= " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
+      $saldosubwhere .= " AND (ac,transdate>=(select date_trunc('year', date $fromdate)))  ";
       $invwhere      .= " AND (a.transdate >= $fromdate)";
       $glsaldowhere  .= " AND ac.transdate>=(select date_trunc('year', date $fromdate)) ";
       $glwhere        = " AND (ac.transdate >= $fromdate)";
       $glsumwhere     = " AND (ac.transdate >= (select date_trunc('year', date $fromdate))) ";
     }
     if ($form->{todate}) {
-      my $todate = conv_dateq($form->{todate});
+      $todate = conv_dateq($form->{todate});
       $tofrom        .= " AND (ac.transdate <= $todate)";
       $invwhere      .= " AND (a.transdate <= $todate)";
-      $saldosubwhere .= " AND (transdate <= $todate)";
-      $sumsubwhere   .= " AND (transdate <= $todate)";
-      $subwhere      .= " AND (transdate <= $todate)";
+      $saldosubwhere .= " AND (ac.transdate <= $todate)";
+      $sumsubwhere   .= " AND (ac.transdate <= $todate)";
+      $subwhere      .= " AND (ac.transdate <= $todate)";
       $glwhere       .= " AND (ac.transdate <= $todate)";
       $glsumwhere    .= " AND (ac.transdate <= $todate) ";
       $glsaldowhere  .= " AND (ac.transdate <= $todate) ";
@@ -772,84 +772,10 @@ sub trial_balance {
 
   if ($form->{method} eq "cash") {
     $where .=
-      qq| AND ((ac.trans_id IN (SELECT id from ar) AND
-                ac.trans_id IN
-                  (
-                    SELECT trans_id
-                    FROM acc_trans
-                    JOIN chart ON (chart_id = id)
-                    WHERE (link LIKE '%AR_paid%')
-                      $subwhere
-                  )
-               )
-               OR
-               (ac.trans_id in (SELECT id from ap) AND
-                ac.trans_id IN
-                  (
-                    SELECT trans_id
-                    FROM acc_trans
-                    JOIN chart ON (chart_id = id)
-                    WHERE (link LIKE '%AP_paid%')
-                      $subwhere
-                  )
-               )
-               OR
-               (ac.trans_id in (SELECT id from gl)
-                $glwhere)
-              )|;
-    $saldowhere .=
-      qq| AND ((ac.trans_id IN (SELECT id from ar) AND
-                ac.trans_id IN
-                  (
-                    SELECT trans_id
-                    FROM acc_trans
-                    JOIN chart ON (chart_id = id)
-                    WHERE (link LIKE '%AR_paid%')
-                      $saldosubwhere
-                  )
-               )
-               OR
-               (ac.trans_id in (SELECT id from ap) AND
-                ac.trans_id IN
-                  (
-                    SELECT trans_id
-                    FROM acc_trans
-                    JOIN chart ON (chart_id = id)
-                    WHERE (link LIKE '%AP_paid%')
-                      $saldosubwhere
-                  )
-               )
-               OR
-               (ac.trans_id in (SELECT id from gl)
-                $glsaldowhere)
-              )|;
-    $sumwhere .=
-      qq| AND ((ac.trans_id IN (SELECT id from ar) AND
-                ac.trans_id IN
-                  (
-                    SELECT trans_id
-                    FROM acc_trans
-                    JOIN chart ON (chart_id = id)
-                    WHERE (link LIKE '%AR_paid%')
-                      $sumsubwhere
-                  )
-               )
-               OR
-               (ac.trans_id in (SELECT id from ap) AND
-                ac.trans_id IN
-                  (
-                    SELECT trans_id
-                    FROM acc_trans
-                    JOIN chart ON (chart_id = id)
-                    WHERE (link LIKE '%AP_paid%')
-                      $sumsubwhere
-                  )
-               )
-               OR
-               (ac.trans_id in (SELECT id from gl)
-                $glsumwhere)
-              )|;
-
+      qq| AND(ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM ap WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM gl WHERE transdate>= $fromdate AND transdate<= $todate)) AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL) |;
+    $saldowhere .= qq| AND(ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM ap WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM gl WHERE transdate>= $fromdate AND transdate<= $todate))  AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL) |;
+      
+    $sumwhere .= qq| AND(ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM ap WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM gl WHERE transdate>= $fromdate AND transdate<= $todate)) AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL) |;
   } else {
     $where .= $tofrom . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
     $saldowhere .= $glsaldowhere . " AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
@@ -1108,7 +1034,7 @@ sub trial_balance {
           $ref->{soll_saldo} = $form->round_amount(($ref->{haben_saldo} *- 1), 2);
           $ref->{haben_saldo} = 0;
         }
-      } elsif ($ref->{soll_saldo} != 0) {
+      } else {
         $ref->{soll_saldo} = $ref->{soll_saldo} - $ref->{beginning_balance};
         if ($ref->{soll_saldo} < 0) {
           $ref->{haben_saldo} = $form->round_amount(($ref->{soll_saldo} * -1), 2);

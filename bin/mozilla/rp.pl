@@ -908,7 +908,7 @@ sub get_project {
     $form->{projectnumber_1} = $form->{projectnumber};
 
     delete $form->{sort};
-    check_project('generate_projects');
+    &check_project;
 
     # if there is one only, assign id
     $form->{project_id} = $form->{project_id_1};
@@ -1280,7 +1280,7 @@ sub generate_trial_balance {
   my $href                = build_std_url('action=generate_trial_balance', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs         = (
-    'accno'               => { 'text' => $locale->text('Account Number'), },
+    'accno'               => { 'text' => $locale->text('Account'), },
     'description'         => { 'text' => $locale->text('Description'), },
     'last_transaction'    => { 'text' => $locale->text('Last Transaction'), },
     'soll_eb'             => { 'text' => $locale->text('Debit Starting Balance'), },
