@@ -78,6 +78,10 @@ sub chart_of_accounts {
 
   $form->{title} = $locale->text('Chart of Accounts');
 
+  if ($eur) {
+    $form->{method} = "cash";
+  }
+
   CA->all_accounts(\%myconfig, \%$form);
 
   my @columns     = qw(accno description debit credit);

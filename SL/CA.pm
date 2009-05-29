@@ -48,10 +48,17 @@ sub all_accounts {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
+  if ($form->{method} eq "cash") {
+    $acc_cash_where = qq| AND (a.trans_id IN (SELECT id FROM ar WHERE datepaid>=(select date_trunc('year', current_date)) UNION SELECT id FROM ap WHERE datepaid>=(select date_trunc('year', current_date)) UNION SELECT id FROM gl WHERE transdate>=(select date_trunc('year', current_date)))) |;
+  } else {
+    $acc_cash_where = " AND ((select date_trunc('year', a.transdate::date)) >= (select date_trunc('year', current_date)))";
+  }
+
   my $query =
     qq|SELECT c.accno, SUM(a.amount) AS amount | .
     qq|FROM chart c, acc_trans a | .
     qq|WHERE c.id = a.chart_id | .
+    qq|$acc_cash_where| .
     qq|GROUP BY c.accno|;
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -186,9 +193,15 @@ sub all_transactions {
 
 
   if ($form->{method} eq "cash") {
-    $acc_cash_where = qq| AND (ac.trans_id IN (SELECT id FROM ar WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM ap WHERE datepaid>='$form->{fromdate}' AND datepaid<='$form->{todate}' UNION SELECT id FROM gl WHERE transdate>='$form->{fromdate}' AND transdate<='$form->{todate}')) |;
-    $ar_ap_cash_where = qq| AND (a.datepaid>='$form->{fromdate}' AND a.datepaid<='$form->{todate}') |;
-  }
+    $where = qq| (ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= ? AND datepaid<= ? UNION SELECT id FROM ap WHERE datepaid>= ? AND datepaid<= ? UNION SELECT id FROM gl WHERE transdate>= ? AND transdate<= ?)) |;
+    @where_values = ();
+    push(@where_values, conv_date($form->{fromdate}));
+    push(@where_values, conv_date($form->{todate}));
+    push(@where_values, conv_date($form->{fromdate}));
+    push(@where_values, conv_date($form->{todate}));
+    push(@where_values, conv_date($form->{fromdate}));
+    push(@where_values, conv_date($form->{todate}));
+ }
 
   if ($form->{accno}) {
 
@@ -204,39 +217,39 @@ sub all_transactions {
             JOIN chart c ON (ac.chart_id = c.id)
             WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
               $project
-            AND c.accno = ? $acc_cash_where|;
+            AND c.accno = ?|;
 
       ($form->{beginning_balance}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
       # get last transaction date
       my $todate = ($form->{todate}) ? " AND ac.transdate <= '$form->{todate}' " : "";
-      $query = qq|SELECT max(ac.transdate) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id) WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ?  $acc_cash_where|;
-      ($form->{last_transaction}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT max(ac.transdate) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id) WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ?  AND $where|;
+      ($form->{last_transaction}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno}, @where_values);
 
       # get old saldo
-      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ?  AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) $acc_cash_where|;
-      ($form->{saldo_old}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ?  AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND $where|;
+      ($form->{saldo_old}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno}, @where_values);
 
       #get old balance
-      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  $acc_cash_where|;
-      ($form->{old_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  AND $where|;
+      ($form->{old_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno}, @where_values);
 
-      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  $acc_cash_where|;
-      ($form->{old_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) AND ac.transdate < ? AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  AND $where|;
+      ($form->{old_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno}, @where_values);
 
       # get current saldo
       my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
-      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) $acc_cash_where|;
-      ($form->{saldo_new}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND $where|;
+      ($form->{saldo_new}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno}, @where_values);
 
       #get current balance
       my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
-      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  $acc_cash_where|;
-      ($form->{current_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  AND $where|;
+      ($form->{current_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno}, @where_values);
 
       my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
-      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  $acc_cash_where|;
-      ($form->{current_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
+      $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)  AND $where|;
+      ($form->{current_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno}, @where_values);
     }
   }
 
@@ -278,7 +291,7 @@ sub all_transactions {
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
       qq| AND a.customer_id = c.id | .
-      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) $ar_ap_cash_where| .
+      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)| .
 
       qq|UNION ALL | .
 
@@ -291,8 +304,7 @@ sub all_transactions {
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
       qq| AND a.vendor_id = v.id |;
-      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) $ar_ap_cash_where| .
-
+      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)| .
     push(@values,
          @where_values, @department_values, @project_values, $id,
          @where_values, @department_values, @project_values, $id,
