@@ -172,6 +172,8 @@ sub parse_foreach {
   my $sum = 0;
   my $current_page = 1;
   my ($current_line, $corrent_row) = (0, 1);
+  my $description_array     = $self->_get_loop_variable("description",1);
+  my $longdescription_array = $self->_get_loop_variable("longdescription",1);
 
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
     $form->{"__first__"} = $i == 0;
@@ -179,14 +181,12 @@ sub parse_foreach {
     $form->{"__odd__"} = (($i + 1) % 2) == 1;
     $form->{"__counter__"} = $i + 1;
 
-    if ((scalar(@{$form->{"description"}}) == scalar(@{$ary})) &&
-        $self->{"chars_per_line"}) {
-      my $lines =
-        int(length($form->{"description"}->[$i]) / $self->{"chars_per_line"});
+    if (scalar @{$description_array} == scalar @{$ary} && $self->{"chars_per_line"} != 0) {
+      my $lines = int(length($description_array->[$i]) / $self->{"chars_per_line"});
       my $lpp;
 
-      $form->{"description"}->[$i] =~ s/(\\newline\s?)*$//;
-      my $_description = $form->{"description"}->[$i];
+      $description_array->[$i] =~ s/(\\newline\s?)*$//;
+      my $_description = $description_array->[$i];
       while ($_description =~ /\\newline/) {
         $lines++;
         $_description =~ s/\\newline//;
@@ -200,7 +200,7 @@ sub parse_foreach {
       }
 
       # Yes we need a manual page break -- or the user has forced one
-      if ((($current_line + $lines) > $lpp) || ($form->{"description"}->[$i] =~ /<pagebreak>/) || ($form->{"longdescription"}->[$i] =~ /<pagebreak>/)) {
+      if ((($current_line + $lines) > $lpp) || ($description_array->[$i] =~ /<pagebreak>/) || ($longdescription_array->[$i] =~ /<pagebreak>/)) {
         my $pb = $self->{"pagebreak_block"};
 
         # replace the special variables <%sumcarriedforward%>
