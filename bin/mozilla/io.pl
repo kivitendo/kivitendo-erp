@@ -885,7 +885,7 @@ sub order {
   for $i (1 .. $form->{rowcount}) {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor));
+        qw(ship qty sellprice listprice basefactor discount));
   }
 
   &prepare_order;
@@ -941,7 +941,7 @@ sub quotation {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
                                                      $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor));
+        qw(ship qty sellprice listprice basefactor discount));
   }
 
   &prepare_order;
