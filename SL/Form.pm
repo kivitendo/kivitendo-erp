@@ -263,7 +263,7 @@ sub new {
   $self->{action}  =  lc $self->{action};
   $self->{action}  =~ s/( |-|,|\#)/_/g;
 
-  $self->{version} =  "2.6.0 RC 1";
+  $self->{version} =  "2.6.0";
 
   $main::lxdebug->leave_sub();
 
