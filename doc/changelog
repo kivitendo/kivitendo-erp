@@ -15,10 +15,9 @@
     Benutzer erhalten die Freigaben der Benutzergruppen, denen sie
     zugeordnet sind.
     Benutzer können nun auch gegen einen LDAP-Server (z.B. OpenLDAP
-    oder Microsoft Active Directory) authentifiziert werden.
-    Es ist erforderlich, die Dateien "doc/UPGRADE" und
-    "doc/INSTALL/index.html" zu lesen und die angesprochenen Punkte
-    auszuführen, um nach einem Upgrade weiter arbeiten zu können.
+    oder Microsoft Active Directory) authentifiziert werden.  Wichtige
+    Hinweise zum Upgrade bestehender Installationen befinden sich in
+    den Dateien "doc/UPGRADE" und "doc/INSTALL/index.html".
   - Für Kunden-, Lieferanten- und Projektstammdaten können
     benutzerdefinierte Variablen angelegt und verwaltet werden.
   - Für Kunden und Lieferanten können beliebige Notizen angelegt
@@ -72,9 +71,9 @@
   - Beim Wechsel eines Kunden werden in den Verkaufsmasken immer die
     Zahlungskonditionen des neuen Kunden ausgewählt.
   - Die Berechnung der UStVA wurde deutlich beschleunigt.
-  - Deutliche Beschleunigung der Ausgaben von Listenansichten durch
-    Verwendung des Perl-Modules "Template" anstelle von
-    "HTML::Template".
+  - Ebenfalls wurden die Ausgaben von Listenansichten durch Verwendung
+    des Perl-Modules "Template" anstelle von "HTML::Template"
+    beschleunigt.
   - Für Firefox gibt es ein neues, auf XML/XUL basierendes
     Anwendungsmenü.
   - Einstellungen, die für die ganze Lx-Office-Installation gelten wie
@@ -143,6 +142,58 @@
     existiert (z.B. "sales_quotation_email_en.tex" für eine
     LaTeX-Angebotsvorlage in Englisch). Andernfalls wird die normale
     Vorlage verwendet.
+  - Die Drop-Down-Box für die Lieferanschriften zeigt auch die Straße
+    und den Ort zur einfacheren Unterscheidung an.
+  - Beim Drucken von Einkaufs- und Verkaufsbelegen stehen zusätzliche
+    Variablen der Stammdaten zur Verfügung (EAN, Lieferant,
+    Lieferantenartikelnummer, Warengruppe).
+  - Die Kontrollsequenz "<pagebreak>" zum Erzwingen eines
+    Seitenumbruchs nach der aktuellen Position kann auch im Langtext
+    benutzt werden.
+  - Diverse Bugfixes um den DATEV-Export herum erfordern, dass einige
+    Features entfernt wurden. Dazu gehören: Checkbox "Korrektur" sowie
+    freie Eingabemöglichkeit für Steuerbeträge in Debitoren-,
+    Kreditoren- und Dialogbuchungen.
+  - Bei Kreditorenbuchungen werden die Umsatzsteuer-Steuerschlüssel
+    und bei Debitorenbuchungen die Vorsteuer-Steuerschlüssel nicht
+    mehr angezeigt.
+  - Das Feld "SIC" in den Stammdaten wurde entfernt.
+  - Berichte über Aufträge können anhand des Lieferdatums eingegrenzt
+    werden.
+  - Die Kunden- und Lieferantenstammdaten wurden um Felder "IBAN" und
+    "BIC" erweitert.
+  - Rechnungen können nicht mehr storniert werden, sofern für sie noch
+    nicht korrigierte Zahlungsein- bzw. -ausgänge existieren, um zu
+    vermeiden, dass der Benutzer denkt, dass gebuchte Zahlungen mit
+    storniert würden. Zahlungen zu Rechnungen müssen zuerst über
+    "Zahlung buchen" mit negativen Beträgen entsprechend ausgebucht
+    werden.
+  - Der Menüpunkt "Projektbuchungen" befindet sich jetzt im Menü
+    "Berichte".
+  - Die Dokumentation zu Vorlagenvariablen wurde deutlich erweitert
+    und aktualisiert.
+  - Die Kontenübersicht enthält nun einen laufenden Saldo.
+  - Beim Dialogbuchen werden die Salden der ausgewählten Konten
+    angezeigt.
+  - Die Erzeugnisstammdatenmaske zeigt nun auch den Einkaufspreis der
+    einzelnen Positionen sowie den Gesamteinkaufspreis an.
+  - Stammdatenmasken: Das Feld "Hersteller" wurden von einem
+    Freitextfeld in eine Drop-Down-Box mit allen im System
+    hinterlegten Lieferanten umgewandelt. Ein Datenbankupgrade
+    versucht, eine automatische Zuordnung des vorherigen Freitextes zu
+    existierenden Lieferanten vorzunehmen. Zusätzlich wurden
+    "Hersteller" und "Modell" in "Lieferant" und
+    "Lieferantenartikelnummer" umbenannt.
+  - Die Funktion "Als Vorlage speichern" wurde für Dialogbuchungen
+    implementiert.
+  - Das Feld "Erneuert am" in den Artikelstammdaten ist nun nicht mehr
+    vom Benutzer bearbeitbar und wird nur dann automatisch
+    aktualisiert, wenn sich mindestens einer der Preise geändert hat.
+  - Die Kontenübersicht zeigt nur noch bereits bebuchte Konten an.
+  - Die Funktion "Preise aktualisieren" fragt nun sicherheitshalber
+    mit einer besseren Beschreibung nach und überprüft die gemachten
+    Eingaben rigoros. Nach erfolgtem Update wird die Anzahl der
+    aktualisierten Preise angezeigt.
 
   Bugfixes:
 
@@ -196,7 +247,76 @@
   - Es ist in Einkaufsrechnungen nun nicht mehr möglich die Rechnungs-
     nummer vom Lx-Office generieren zu lassen. Stattdessen wird korrekt
     eine Rechnungsnummer zur Eingabe erwartet.
-
+  - Beim XML/XUL-Menü wird nun auch die TODO-Liste in der Startseite
+    angezeigt.
+  - Die DATEV-Exportfunktion wurde grundlegend überarbeitet; viele
+    Fehler wurden behoben, darunter:
+    * Bessere Berechnung der Bruttobeträge aus den gespeicherten
+      Nettobeträgen
+    * Erkennen weiterer Sonderfälle
+    * Bessere Konformität mit DATEV-KNE-Formatsbeschreibung
+    * Umlaute werden auch bei Nicht-ISO-8859-Codierungen richtig
+      ersetzt.
+    * Die SQL-Queries haben fälschlicherweise gewisse Zeilen aus
+      acc_trans mehrfach zurückgegeben.
+    * Aufeinanderfolgende DATEV-Exporte überschreiben nicht mehr die
+      vorher erzeugten Dateien.
+  - Exporte verschiedener Berichte in CSV oder PDF behalten ihre
+    vorherigen Filter- und Sortierkriterien bei und exportieren nicht
+    mehr alle Einträge.
+  - Beim Drucken von offenen Vorderungen oder Verbindlichkeiten waren
+    einige Spalten um eine Zeile verrutscht.
+  - Die Kompatibilität mit Perl 5.10 wurde verbessert.
+  - In Rechnungslisten waren Stornorechnung und stornierte Rechnung
+    falsch abgekürzt.
+  - Beim Umwandeln von Belegen in einen neuen Auftrag wurde die
+    Auftragsnummer manchmal vorbelegt.
+  - Beim Buchen von Verkaufsrechnungen wurden die Umbuchung der
+    Warenbestandskonten mit falschem Steuerschlüssel gespeichert.
+  - Beim Buchen von Kreditoren- und Debitorenbuchungen wurde unter
+    manchen Bedingungen zwar mit den richtigen Steuersätzen gerechnet,
+    aber es wurden falsche Steuerschlüssel gespeichert.
+  - Beim Dialogbuchen wurden die Felder "Beleg" und "Memo" nicht in
+    der Datenbank gespeichert.
+  - Diverse SQL-Fehler bzgl. ungültiger Abfragen wurden bei Bilanz-
+    und Summen-/Saldenlisten behoben.
+  - Beim Ausdruck war die Variable "partnotes", die die in den
+    Stammdaten hinterlegten Bemerkungen eines Artikels enthält,
+    verrutscht, sofern der Benutzer mindestens einmal Positionen in
+    einem Beleg umsortiert hat.
+  - Das Buchungsjournal zeigte Belegdaten nicht vollständig an, wenn
+    mehrere Belegdaten zu einem Buchungseintrag gehörten. Nach
+    Belegdaten kann nun nicht mehr sortiert werden.
+  - Unter bestimmten Umständen wurde die Sprache, die bei einem
+    Angebot ausgewählt war, beim Laden aus der Datenbank mit der beim
+    Kunden hinterlegten Sprache überschrieben.
+  - Diverse Bugs in der Historiensuchmaschine wurden behoben.
+  - Wenn Waren mit und Kunden ohne Preisgruppen angelegt wurden und
+    dann eine Rechnung mit einem dieser Artikel angelegt wurde, dann
+    wurde der Verkaufspreis immer wieder überschrieben.
+  - Die Formelfunktion wurde toleranter gegenüber nicht exakt
+    formatierter Formeln gemacht.
+  - Berichte über Erzeugnisse können nun auch die Spalte
+    "Einkaufspreis" anzeigen.
+  - Wenn ein Nummernkreis eines Kunden-/Lieferantentyps leer ist, so
+    wird jetzt der Standardnummernkreis benutzt.
+  - Beim Aufrufen der Dialogbuchenmaske werden automatisch die
+    richtigen Steuersätze für die vorausgewählten Konten und für neu
+    angezeigte Zeilen ("Erneuern") auswählen.
+  - Debitoren- und Kreditorenbuchungen: Beim Wechsel des
+    Kunden/Lieferanten werden das Konto und der Steuerschlüssel
+    richtig vorbelegt.
+  - Debitoren- und Kreditorenbuchungen: Die Steuerbeträge werden bei
+    jedem Seitenaufbau automatisch neu berechnet.
+  - Tabellen, für die die OID-Spalte gebraucht wird, werden explizit
+    mit dem SQL-Zusatz "WITH OIDS" angelegt.
+  - Die Gewinn- und Verlustrechnung wird einheitlich mit zwei
+    Nachkommastellen angezeigt.
+  - Beim Erzeugen von Mahnungen wird das Folgemahnlevel richtig
+    ausgewählt, wenn die Rechnung bereits angemahnt wurde.
+  - Wird bei Verkaufsbelegen keine Lieferadresse angegeben, so wird
+    nun auch das Feld "Kontakt" aus den Rechnungsstammdaten für die
+    Variable "shiptocontact" übernommen.
 
 2007-07-13 - Version 2.4.3
 
@@ -887,3 +1007,8 @@
   - Javascript Kalendar, bei allen Datumsfelder. Global ein-/auschaltbar
   - zuweisen von Kontaktpersonen zu Rechnungen,,Angeboten,Aufträgen
   - Bugfixes
+
+# Local Variables:
+# mode: text
+# coding: iso-8859-15
+# End:
