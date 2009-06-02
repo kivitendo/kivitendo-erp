@@ -83,6 +83,10 @@ PDF::API2
 YAML
 @item
 Template
+@item
+List::MoreUtils
+@item
+Email::Address
 @end itemize
 
 Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
@@ -99,10 +103,9 @@ Für OpenSuSE benötigen Sie diese Pakete:
 
 @code{apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit}
 
-Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß
-es mit der CPAN-Shell installiert werden.  Leider gibt es Fälle, in
-denen das nicht möglich oder praktikabel ist. Lx-Office liefert daher
-das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
+Einige Module werden von Lx-Office benötigt, sind aber evtl. nicht als
+Distributionspakete vorhanden, und/oder nicht praktikabel zu installieren.
+In diesen Fällen liefert Lx-Office das Paket mit, und lädt es als Fallback.
 
 Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
@@ -180,7 +183,7 @@ Unter anderen Distributionen gibt es ähnliche Methoden.
 
 Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und ist
 ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
-Lx-Office mit ISO-8850-15 als Encoding betrieben werden.
+Lx-Office mit ISO-8859-15 als Encoding betrieben werden.
 
 @node Änderungen an Konfigurationsdateien
 @section Änderungen an Konfigurationsdateien
@@ -405,7 +408,7 @@ den LDAP-Server in @code{$self->@{LDAP_config@}} angegeben werden:
 @item
 @samp{tls} -- Wenn Verbindungsverschlüsselung gewünscht ist, so diesen Wert auf @samp{1} setzen, andernfalls auf @samp{0} belassen
 @item
-@samp{attribute'} -- Das LDAP-Attribut, in dem der Benutzername steht, den der Benutzer eingegeben hat. Für Active-Directory-Server
+@samp{attribute} -- Das LDAP-Attribut, in dem der Benutzername steht, den der Benutzer eingegeben hat. Für Active-Directory-Server
   ist dies meist @samp{sAMAccountName}, für andere LDAP-Server hingegen @samp{uid}. Diese Angabe ist zwingend erforderlich.
 @item
 @samp{base_dn} -- Der Abschnitt des LDAP-Baumes, der durchsucht werden soll. Diese Angabe ist zwingend erforderlich.
@@ -449,7 +452,7 @@ sein sollte:
 @chapter Benutzer- und Gruppenverwaltung
 
 Nach der Installation müssen Benutzer, Gruppen und Datenbanken
-angelegt werden.  Dieses geschieht im Administrationsmenü, dass Sie
+angelegt werden.  Dieses geschieht im Administrationsmenü, das Sie
 unter folgender URL finden:
 
 @uref{http://localhost/lx-erp/admin.pl}
@@ -484,7 +487,7 @@ Produktivdaten enthaltenden Datenbanken vorgeschaltet. Pro
 Lx-Office-Installation gibt es nur eine Authentifizierungsdatenbank,
 aber beliebig viele Datenbanken mit Firmendaten.
 
-Lx-Office lann seinen Benutzern Zugriff auf bestimmte
+Lx-Office kann seinen Benutzern Zugriff auf bestimmte
 Funktionsbereiche erlauben oder verbieten. Wird der Zugriff nicht
 gestattet, so werden der entsprechenden Menüpunkte auch nicht
 angezeigt. Diese Rechte werden ebenfalls in der
