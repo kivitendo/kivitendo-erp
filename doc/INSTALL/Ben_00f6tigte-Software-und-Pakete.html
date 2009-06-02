@@ -50,6 +50,8 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 <li>PDF::API2
 <li>YAML
 <li>Template
+<li>List::MoreUtils
+<li>Email::Address
 </ul>
 
    <p>Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
@@ -66,10 +68,9 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 
    <p><code>apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit</code>
 
-   <p>Da Perl-CGI-Ajax nicht als Paket für Distributionen bereit steht, muß
-es mit der CPAN-Shell installiert werden.  Leider gibt es Fälle, in
-denen das nicht möglich oder praktikabel ist. Lx-Office liefert daher
-das Paket im CGI-Verzeichnis mit. Das sollte als Fall-Back greifen.
+   <p>Einige Module werden von Lx-Office benötigt, sind aber evtl. nicht als
+Distributionspakete vorhanden, und/oder nicht praktikabel zu installieren. 
+In diesen Fällen liefert Lx-Office das Paket mit, und lädt es als Fallback.
 
    <p>Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
