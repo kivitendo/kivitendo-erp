@@ -2,7 +2,7 @@
 # Veraenderungen von Lx-Office ERP #
 ####################################
 
-2008-xx-xx - Version 2.6.0
+2009-06-02 - Version 2.6.0
 
   Größere neue Features:
 
@@ -11,7 +11,7 @@
     benutzt werden.
   - Die Benutzerverwaltung wurde von Dateien im Verzeichnis "users"
     auf die Verwendung einer Authentifizierungsdatenbank umgestellt.
-    Zusätzlich werden Rechte jetzt in Benutzergruppen verwaltet. 
+    Zusätzlich werden Rechte jetzt in Benutzergruppen verwaltet.
     Benutzer erhalten die Freigaben der Benutzergruppen, denen sie
     zugeordnet sind.
     Benutzer können nun auch gegen einen LDAP-Server (z.B. OpenLDAP
@@ -124,7 +124,7 @@
     Lieferscheine, Rechnungen, Debitoren- und Kreditorenbuchungen,
     Kunden und Lieferanten, Mahnungen, Zahlungsein- und Ausgänge
     sowie das Buchungsjournal wurden um die Möglichkeit erweitert, sie
-    auch absteigend sortieren zu lassen. 
+    auch absteigend sortieren zu lassen.
   - Wird das Rechnungsdatum in einer Eingangsrechnung verändert, so
     wird per AJAX das Fälligkeitsdatum anhand der beim Lieferanten
     hinterlegten Zahlungsbedingungen berechnet und im Formular
