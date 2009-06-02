@@ -169,16 +169,16 @@ sub parse_foreach {
 
   my $ary = $self->_get_loop_variable($var, 1, @indices);
 
-  my $sum = 0;
-  my $current_page = 1;
+  my $sum                          = 0;
+  my $current_page                 = 1;
   my ($current_line, $corrent_row) = (0, 1);
-  my $description_array     = $self->_get_loop_variable("description",1);
-  my $longdescription_array = $self->_get_loop_variable("longdescription",1);
+  my $description_array            = $self->_get_loop_variable("description",     1);
+  my $longdescription_array        = $self->_get_loop_variable("longdescription", 1);
 
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
-    $form->{"__first__"} = $i == 0;
-    $form->{"__last__"} = ($i + 1) == scalar(@{$ary});
-    $form->{"__odd__"} = (($i + 1) % 2) == 1;
+    $form->{"__first__"}   = $i == 1;
+    $form->{"__last__"}    = ($i + 1) == scalar(@{$ary});
+    $form->{"__odd__"}     = (($i + 1) % 2) == 1;
     $form->{"__counter__"} = $i + 1;
 
     if (scalar @{$description_array} == scalar @{$ary} && $self->{"chars_per_line"} != 0) {
