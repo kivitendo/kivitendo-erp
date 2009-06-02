@@ -1,6 +1,6 @@
-####################################
-# Veraenderungen von Lx-Office ERP #
-####################################
+###################################
+# Veränderungen von Lx-Office ERP #
+###################################
 
 2009-06-02 - Version 2.6.0
 
@@ -317,6 +317,208 @@
   - Wird bei Verkaufsbelegen keine Lieferadresse angegeben, so wird
     nun auch das Feld "Kontakt" aus den Rechnungsstammdaten für die
     Variable "shiptocontact" übernommen.
+
+  Liste gefixter Bugs aus dem Bugtracker:
+
+  - Bugfix 92 - Bücherkontrolle
+  - Bugfix 112 - Ohne Zeilensumme wird Menge nicht angezeigt
+  - Bugfix 161 - Zahlungsverkehr - Buchung von Teilbeträgen
+  - Bugfix 268 - Storno funktioniert nicht richtig
+  - Bugfix 325 - Rabattberechnung: unglückliches Runden bei großen Stückzahlen
+  - Bugfix 332 - Kontenübersicht/Vergleichsbilanz mit fehlerhaften Werten
+  - Bugfix 333 - Customer not in file or locked
+  - Bugfix 344 - Auswahl Abteilung
+  - Bugfix 344 - Fehlende Überschriften in Konten/Saldenbilanz
+  - Bugfix 349 - Rabatt des Kundentyps wird nicht berücksichtigt
+  - Bugfix 350 - Die BWA rechnet eine Zwischensumme nicht
+  - Bugfix 367 - DATEV Export Probleme mit Datumsformat
+  - Bugfix 378 - Format und Warenbestandproblem bei Backorders
+  - Bugfix 389 - Formular GuV
+  - Bugfix 426 - Lagerverwaltung und Process_Assembly
+  - Bugfix 434 - Import/Export von CSV per Daranorm
+  - Bugfix 458 - Fehler bei Kontenübersicht und Saldenbilanz
+  - Bugfix 480 - Keine sinnvolle Überprüfung der Eingaben
+  - Bugfix 510 - Status des Druckers anzeigen
+  - Bugfix 513 - Auftrag wandeln
+  - Bugfix 531 - Stammdaten - Berichte - Waren
+  - Bugfix 532 - SKR04: Bilanz und BWA verwenden Aufwandskonten nicht
+  - Bugfix 541 - Programm ändert Steuersätze
+  - Bugfix 544 - Kundenauftrag berechnet MWSt basierend auf Auftragsdatem statt Lieferdatum
+  - Bugfix 565 - ungünstige Bezeichnungen bei erzeuigten PDF Dukumenten
+  - Bugfix 584 - Rundungsdifferenz
+  - Bugfix 612 - Entwurf speichern geht nur bei neuen Rechnungen, nicht bei bereits angelegten
+  - Bugfix 648 - USTVA Position 86 fehlt Umsatzsteuer
+  - Bugfix 663 - Konto hat unterschiedl. Saldo in Übersicht und Einzelanzeige
+  - Bugfix 672 - Riesige Werte in Spalte "Bilanz" in Kontenübersicht
+  - Bugfix 682 - Unicode problem wird behoben
+  - Bugfix 693 - Mahnwesen: Wann nächste Mahnstufe
+  - Bugfix 702 - Verkauf -> Berichte -> Aufträge
+  - Bugfix 708 - Zahlungsverkehr: Kontenabgleich riesige Differenz
+  - Bugfix 715 - genutztes Stylesheet wird bei Rechungsentwürfen mitgespeichert
+  - Bugfix 717 - Update von Debian-Paket überschreibt lokale CSS-Dateien.
+  - Bugfix 718 - Fehlende Abhängigkeiten im Debaian-Paket v2.4.3
+  - Bugfix 719 - Nach Update von Debian 2.4.2 nach 2.4.3 funktioniert die Edit-Funktion der Vorlagen nicht mehr.
+  - Bugfix 720 - Bemerkungen werden nicht Mehr angezeigt
+  - Bugfix 721 - Artikelnummern und Beschreibung werden bei neuen Artikeln nicht mehr in den Erfassungsdialog übernommen.
+  - Bugfix 722 - Die installierte Version sollte ganz links im Menü zu finden sein.
+  - Bugfix 723 - Datenbankaktualisierung 2.4.3 schlägt fehl
+  - Bugfix 724 - ERP 2.4.3 Fehler bei System > UStVa Einstell. und Bericht > UStVA
+  - Bugfix 725 - Sonderzeichen in Warenbeschreibung gehen nicht
+  - Bugfix 727 - Bericht Projektbuchungen geht nicht mehr
+  - Bugfix 728 - BWA summiert falsch
+  - Bugfix 729 - SQL-Error in column "subtotal" beim Buchen einer Verkaufsrechnung
+  - Bugfix 730 - Preisgruppen lassen sich nicht löschen
+  - Bugfix 733 - Speichern der Lieferanten-Stammdaten verstümmelt die Kundennummer
+  - Bugfix 735 - Stammdaten -> Berichte -> Erzeugnisse -> [Top 100] -->> SQL Failure
+  - Bugfix 736 - Lieferantenrabatt wird ignoriert
+  - Bugfix 738 - Teile der Eingabemaske Lieferanten Ansprechpartner werden ignoriert
+  - Bugfix 740 - Die Doku zu den Reportvariablenfür einzelne Zahlungseingänge ist irreführend
+  - Bugfix 741 - Updateproblem: stat findet keine menu.ini
+  - Bugfix 743 - Auswahl in "Aufklappbares Menü aufnehmen" stimmt nicht
+  - Bugfix 744 - Sprache in Angebot wird nicht gepeichert
+  - Bugfix 745 - Hinweis für Nutzung "Verkäufer"
+  - Bugfix 749 - Feld Vorgangsbezeichnung sortierfähig machen
+  - Bugfix 750 - Bericht "Rechnungen": Verkäufer wird falsch angezeigt
+  - Bugfix 751 - Beim Ausdruck von Rechnungen ab 01.01.2007 werden einige Reportvariablen nicht exportiert
+  - Bugfix 752 - Änderung von Buchungsgruppen nicht möglich
+  - Bugfix 753 - Ware nicht in Datenbank
+  - Bugfix 754 - Mahnwesenkonfiguration funktioniert nicht
+  - Bugfix 755 - Fehler bei Änderung von Einkaufsrechnung
+  - Bugfix 757 - Datenrücksicherung schlägt fehl
+  - Bugfix 758 - Buchungsjournal: SQL-Fehler bei anderen Knöpfen als "Alle"
+  - Bugfix 759 - Dialogbuchen auf Konto mit Umsatzsteuer 0% nicht möglich, Spalte taxincluded von Tabelle gl
+  - Bugfix 764 - Mehrfache Bestandsveränderung bei EK-Auftrag->EK-Rechnug
+  - Bugfix 765 - IE7: Drop-Down-Boxen in Kundenstammdatenmasken schließen sofort
+  - Bugfix 766 - XUL menü
+  - Bugfix 767 - Javascript-Menü
+  - Bugfix 768 - Keine Einkaufsmaske funktioniert mehr
+  - Bugfix 769 - Darstellungsfehler der Eingabemasken
+  - Bugfix 770 - Kreditorenbuchung nicht möglich
+  - Bugfix 771 - XUL Menü
+  - Bugfix 772 - Falsches Feld im Tex Formular ustva-2007.tex, Patch anbei
+  - Bugfix 773 - Button "Als bezahlt markieren" in OP Buchhaltung funktioniert nicht.
+  - Bugfix 774 - Ein Icon-Set für das LX-Menü
+  - Bugfix 775 - Saldenbillanz/Kontenübersicht stimmen nicht mit Konten überein
+  - Bugfix 776 - Speichern von Preise >0 und <1 in Preisgruppen bei ZF 1000,00 nicht möglich
+  - Bugfix 778 - r2954: EInkaufsrechnung laesst sich nicht buchen
+  - Bugfix 779 - Mahnung <%dn_dunning_duedate%> in Latex mit Fehler
+  - Bugfix 780 - Stornofunktion: Zahlung nicht mitstorniert
+  - Bugfix 781 - Kundenrabatte werden nicht angezeigt/übernommen
+  - Bugfix 782 - Beim Anlegen von Waren kann keine Buchungsgruppe ausgewählt werden
+  - Bugfix 783 - GuV Berichtsanzeige EÜ Verfahren berücksichtigt Gutschriften nicht
+  - Bugfix 784 - Lagerverwaltung
+  - Bugfix 785 - XML-Verarbeitungsfehler: Nicht definierte Entität
+  - Bugfix 786 - Unter Drucker anzeigen ist ein " im Namen zuviel
+  - Bugfix 787 - Menu Sytem Benutzerdef. Var. unterhalb Kunden u. Lief.
+  - Bugfix 788 - Nach Datenbankupdate alle Waren auf Menge 0
+  - Bugfix 789 - Anzeige der Ansprechpartner in DropDown
+  - Bugfix 790 - Löschen von Lieferadressen und Ansprechpartner
+  - Bugfix 792 - Berichte für Waren
+  - Bugfix 793 - Bemerkungen und Rechnungsnummern
+  - Bugfix 796 - Lieferscheine bleiben offen nach der Umwandlung in eine Rechnung
+  - Bugfix 797 - Ich habe im Auftrag keine Rückmeldung, was schon alles geliefert wurde.
+  - Bugfix 798 - Curser-Positions-Fix
+  - Bugfix 802 - Lieferdatum der Auftragsposition (deliverydate_oe ?) ist bei Rechnungserstellung leer
+  - Bugfix 803 - SQL-Fehler bei Rechnungserstellung
+  - Bugfix 804 - SQL-Fehler bei Rechnungsauswahl in Bericht aller Rechnungen
+  - Bugfix 805 - SQL Fehler bei Berichte Lieferschein
+  - Bugfix 806 - Kontenbezeichnungen von neuen Konten nicht bei Datev Export
+  - Bugfix 809 - Symlinks wurden bei deinstallation nicht entfernt
+  - Bugfix 812 - Buchungsjournal Radiobutton ändern
+  - Bugfix 813 - Waren bearbeiten
+  - Bugfix 815 - Storno von Einkaufsrechnungen funktioniert nicht
+  - Bugfix 816 - Fehler bei Guv Bericht - Bilanzierung - bei Angabe eines Zeitraumes in Kombination mit Projektnummerangabe
+  - Bugfix 817 - Kundenrabatte werden nur bei der ersten Auftragsposition aus Stammdaten übernommen.
+  - Bugfix 820 - Lieferschein (Einkauf) erfassen produziert SQL Fehler bei Lagerwahl
+  - Bugfix 822 - Perlfehler beim Buchen von Erzeugnissen
+  - Bugfix 823 - Fehler bei Export der Lagerliste
+  - Bugfix 824 - Zwischensummen in Angebot werden nicht im frontend angezeigt
+  - Bugfix 827 - PDF-Anhang in E-Mail fehlerhaft.
+  - Bugfix 828 - Datenbankanlage bei Installation
+  - Bugfix 832 - Aufeinanderfolgende Leerzeichen werden gelöscht
+  - Bugfix 833 - Bei "Ware bearbeiten" wird der Preisfaktor nicht gespeichert
+  - Bugfix 834 - Lager vorhanden, aber nicht wählbar beim ein- umlagern
+  - Bugfix 835 - kleiner Fehler in der Install-Dokumentation bei der Postgres-Konfiguration
+  - Bugfix 836 - unvollständige Eingabemaske beim erfassen von Rechnungen und Gutschriften
+  - Bugfix 837 - Benutzeranmeldung schlägt immer fehl
+  - Bugfix 838 - Abbruch der Datenbankaktualisierung
+  - Bugfix 839 - Rechnungsdruck scheitert nach Perl-Update
+  - Bugfix 840 - Zahlungen einer Einkaufsrechnung werden nicht zusammen mit ihr storniert.
+  - Bugfix 841 - SQL-Fehler bei Abfrage
+  - Bugfix 843 - Felder in Waren fehlen
+  - Bugfix 844 - offene Angebote werden in der Aufgabenliste als Preisanfragen dargestellt
+  - Bugfix 846 - Menü Druck -> Rechnung, Sortierpfeil fehlt neben Spaltenüberschrift
+  - Bugfix 847 - Rechnung bearbeiten -> Langtext enthält Müllzeichen, falsche Ausgabekodierung
+  - Bugfix 849 - Einlagern: "?" Button bei bereits gewähltem Artikel
+  - Bugfix 850 - Lager -> Bericht -> Lagerbuchung, Spaltenüberschrift "Trasfertyp"
+  - Bugfix 851 - Überfällige Angebote und Preisanfragen
+  - Bugfix 852 - Bericht Waren zeigt den Lagerplatz nicht an
+  - Bugfix 854 - SQL-Fehler bei Berichte -> Kontoübersicht mit PostgreSQL 8.3.x
+  - Bugfix 855 - Mehrere Artikel (Lagerplatz) auf einmal umlagern
+  - Bugfix 856 - Lager -> Ein-/Umlagern, Entnahme, Feld EAN
+  - Bugfix 858 - Beleg und Memo werden beim Dialogbuchen nicht übernommen
+  - Bugfix 861 - Aufruf einer Importmaske erzeugt php fehler
+  - Bugfix 868 - Einkaufsrechnung erfasen
+  - Bugfix 869 - Aufgabenliste
+  - Bugfix 870 - internal error
+  - Bugfix 871 - Umlaute werden in Dialogbuchen falsch kodiert z.B. &amp;auml;
+  - Bugfix 873 - Kann neue DB nicht in LATIN9 anlegen wenn für DB-Cluster UTF-8 eingestellt ist
+  - Bugfix 875 - Sonderbare Algebra bei Berechnung in der Kontenansicht
+  - Bugfix 876 - Migrierte Lagerbestände sind unveränderbar
+  - Bugfix 879 - Verkauf von Erzeugnissen
+  - Bugfix 881 - keine Blindkopie möglich
+  - Bugfix 882 - Beleg und Memo werden in Einkaufsrechnungen nicht vollständig angezeigt
+  - Bugfix 883 - Falscher Zeichensatz bei E-Mail-Attachment
+  - Bugfix 895 - PDF-Attachments
+  - Bugfix 902 - Warehouse.pl (unstable, rev. 3482) läuft auf Fehler bei Update
+  - Bugfix 903 - neue Datenbank kann nicht erstellt werden wenn LANGUAGE plpgsql nicht vorhanden
+  - Bugfix 904 - Buchen führt zu Server Error
+  - Bugfix 905 - Wandeln Lieferschein in EK-Rechnung
+  - Bugfix 906 - Nummerkreis bei Kundentyp
+  - Bugfix 907 - Beim speichern eines Angebotes erscheint ein SQL-Fehler
+  - Bugfix 909 - Änderungen Rev. 3512
+  - Bugfix 911 - v_customer_id in SL/CT.pm
+  - Bugfix 913 - Benutzerdef.. Variable Datum
+  - Bugfix 920 - Kein Zugriff auf Aufträge aus Stammdaten->Waren, Dienstleistungen
+  - Bugfix 923 - Fokus Dialogbuchen
+  - Bugfix 940 - Projektbuchungsauswahl defekt
+  - Bugfix 941 - OIDs in postgres8
+  - Bugfix 942 - Auswahl verschiedener LaTeX Umgebungen
+  - Bugfix 944 - Kontenübersicht - Option "nur bebuchte Konten"
+  - Bugfix 951 - GuV -> Layout
+  - Bugfix 963 - Gewichtseinheit
+  - Bugfix 969 - Vorbelegung Steuerschlüssel
+  - Bugfix 974 - Bug bei 4099 ??
+  - Bugfix 977 - Nicht übersetzte Überschrift "Assemblys"
+  - Bugfix 978 - Liste der Erzeugnisse: Einkaufspreis fehlt
+  - Bugfix 979 - Erzeugniss anlegen: Kein Einzelteil Einkaufspreis
+  - Bugfix 980 - Erzeugniss auf Rechnung, falscher Ertrag in Details
+  - Bugfix 981 - SQL-Fehler bei Checkbox-Kombinationen unter Stammdaten -> Berichte
+  - Bugfix 982 - Kunde/Lieferanten editieren, Tab Lieferungen, unlogisch
+  - Bugfix 983 - SQL-Fehler Berichte Erzeugnisse mit "Verkaufte Anzahl"
+  - Bugfix 986 - Verkauf Berichte Mahnung: Überschrift/Feldbezeichnung
+  - Bugfix 987 - Erzeugnis, Rechenfehler bei Einzelteil mit Preisfaktor
+  - Bugfix 988 - Erzuegnis editieren: Einzelteil-Artikelnummer-Link zu lang
+  - Bugfix 989 - Lang wird durch Sprache ersetzt
+  - Bugfix 990 - Kleinere Fehler in dokumentenvorlagen-und-variable.html
+  - Bugfix 992 - Rechnungsvariablen
+  - Bugfix 994 - Buchungsjournal->Beschreibung->linksbündig
+  - Bugfix 995 - SuSa->Überschrift->"Konto" statt "Kontonummer"
+  - Bugfix 996 - Ware erfassen, Verkaufspreis nur eine Nachkommastelle
+  - Bugfix 997 - Ware editieren, Feld erneuert am
+  - Bugfix 998 - Einkaufsrechnung, Javascript Warnung bei >2 Nachkommastellen
+  - Bugfix 999 - Wiedervorlage, Angebot, Referenz, id wird angezeigt
+  - Bugfix 1001 - einkauf --> berichte --> lieferschein
+  - Bugfix 1002 - Bilanz
+  - Bugfix 1004 - Erzeugnis bearbeiten, Optik der Einzelteilauflistung
+  - Bugfix 1007 - Lieferantenliste->"Nummer" statt "Lieferantennummer"
+  - Bugfix 1010 - Workflow Lieferschein -> Rechnung übernimmt den Kunden nicht
+  - Bugfix 1011 - Falscher Kunde in angezeigter Verkaufsrechnung
+  - Bugfix 1012 - Vorsteuer 7% Summen- u. Saldenliste
+  - Bugfix 1015 - Variable "contact" wird im Lieferschein nicht als "shiptocontact" uebernommen
+  - Bugfix 1018 - Sortieren der Waren in Stammdaten nach Artikelnummer mit Fehler
+  - Bugfix 1019 - Seit Update Rechnungserstellung mit Latex nicht mehr korrekt möglich
+  - Bugfix 1022 - Nach Datenbankupdate von 2.4.3 auf 2.6.0 unstable erscheint In der Rechnungsmaske im Feld Kunde neben dem KundInnenname mit zwei Bindestrichen angehängt die Buchungsnummer dieses Kunden / dieser Kundin
 
 2007-07-13 - Version 2.4.3
 

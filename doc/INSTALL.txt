@@ -113,12 +113,12 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 3 Installation des Programmpaketes
 **********************************
 
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.4.x.tgz) wird im
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.0.tgz) wird im
 Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
 `/srv/www/htdocs' oder `/var/www/') entpackt:
 
    `cd /var/www
-tar xvzf lxoffice-erp-2.4.x.tgz'
+tar xvzf lxoffice-erp-2.6.0.tgz'
 
    Verändern Sie evtl. noch den Namen des Verzeichnisses mit
 
@@ -187,11 +187,6 @@ lautete dieser Parameter
 demselben Rechner, so kann dort der Wert `localhost' verwendet werden.
 Andernfalls müssen Datenbankverbindungen auch von anderen Rechnern aus
 zugelassen werden, was mit dem Wert \`*' geschieht.
-
-   Bei PostgreSQL-Versionen ab v8.0 und neuer muss zusätzlich der
-folgende Parameter gesetzt werden:
-
-   `default_with_oids = on'
 
    In der Datei `pg_hba.conf', die im gleichen Verzeichnis wie die
 `postgresql.conf' zu finden sein sollte, müssen die Berichtigungen für
