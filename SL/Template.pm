@@ -174,6 +174,9 @@ sub parse_foreach {
   my ($current_line, $corrent_row) = (0, 1);
   my $description_array            = $self->_get_loop_variable("description",     1);
   my $longdescription_array        = $self->_get_loop_variable("longdescription", 1);
+  my $linetotal_array              = $self->_get_loop_variable("linetotal",       1);
+
+  $form->{TEMPLATE_ARRAYS}->{cumulatelinetotal} = [];
 
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
     $form->{"__first__"}   = $i == 1;
@@ -219,12 +222,12 @@ sub parse_foreach {
       }
       $current_line += $lines;
     }
-    if ($i < scalar(@{$form->{"linetotal"}})) {
-      $sum += $form->parse_amount($self->{"myconfig"},
-                                  $form->{"linetotal"}->[$i]);
+
+    if ($i < scalar(@{$linetotal_array})) {
+      $sum += $form->parse_amount($self->{"myconfig"}, $linetotal_array->[$i]);
     }
 
-    $form->{"cumulatelinetotal"}[$i] = $form->format_amount($self->{"myconfig"}, $sum, 2);
+    $form->{TEMPLATE_ARRAYS}->{cumulatelinetotal}->[$i] = $form->format_amount($self->{"myconfig"}, $sum, 2);
 
     my $new_text = $self->parse_block($text, (@indices, $i));
     return undef unless (defined($new_text));
