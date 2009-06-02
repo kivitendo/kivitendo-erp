@@ -1,0 +1,3 @@
+-- @tag: release_2_6_0
+-- @description: Leeres Script, das von allen bis zum Release 2.6.0 hinzugefügten Upgradescripten abhängt, um ein fest definiertes Schema für 2.4.3 zu definieren.
+-- @depends: acc_trans_without_oid ar_add_donumber bank_accounts change_makemodel_vendor_id custom_variables direct_debit follow_ups oe_employee_id_foreignkey record_links sic_code todo_config transaction_description_not_null transfer_type_shipped trigger_assembly_update_lastcost units_no_type_distinction warehouse2
