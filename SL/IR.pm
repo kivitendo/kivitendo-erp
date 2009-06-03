@@ -855,7 +855,8 @@ sub get_vendor {
     : "current_date";
 
   # get vendor
-  @values = ();
+  my @values = ();
+  my $where = '';
   if ($vid) {
     $where .= 'AND v.id = ?';
     push @values, $vid;
@@ -866,7 +867,7 @@ sub get_vendor {
   }
   my $query =
     qq|SELECT
-         v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount, 
+         v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
 	 v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
          v.street, v.zipcode, v.city, v.country, v.taxzone_id,
@@ -976,7 +977,7 @@ sub retrieve_item {
       $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
       push @values, $form->{"partnumber_$i"};
    }
- 
+
   if ($form->{"description_$i"}) {
     $where .= " ORDER BY p.description";
   } else {
