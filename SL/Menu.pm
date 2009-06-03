@@ -122,9 +122,8 @@ sub menuitem_js {
   }
 
   my $level = $form->escape($item);
-  my $str   =
-    qq|$module?action=$action&level=$level&login=$form->{login}&password=$form->{password}|;
-  my @vars = qw(module action target href);
+  my $str   = qq|$module?action=$action&level=$level|;
+  my @vars  = qw(module action target href);
 
   if ($self->{$item}{href}) {
     $str  = qq|$self->{$item}{href}|;

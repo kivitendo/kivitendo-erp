@@ -52,7 +52,7 @@ sub display {
   &acc_menu;
 
   print qq|
-<iframe id="win1" src="login.pl?login=$form->{login}&password=$form->{password}&action=company_logo" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
+<iframe id="win1" src="login.pl?action=company_logo" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
 <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
 </p>
 </iframe>
@@ -65,14 +65,12 @@ sub display {
 
 sub clock_line {
 
-  $fensterlink="menujs.pl?login=$form->{login}&password=$form->{password}&action=display";
+  $fensterlink="menujs.pl?action=display";
   $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
 
   $login = "[Nutzer "
     . $form->{login}
-    . " - <a href=\"login.pl?password="
-    . $form->{"password"}
-    . "&action=logout\" target=\"_top\">"
+    . " - <a href=\"login.pl?action=logout\" target=\"_top\">"
     . $locale->text('Logout')
     . "</a>] ";
   my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
