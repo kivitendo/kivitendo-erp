@@ -1548,13 +1548,12 @@ sub makemodel_row {
 sub assembly_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
-  my (@column_index, %column_data, %column_header);
-  my ($nochange, $callback, $previousform, $linetotal, $href);
+  my (@column_index);
+  my ($nochange, $callback, $previousform, $linetotal, $line_purchase_price, $href);
 
   our ($deliverydate); # ToDO: cjeck if this indeed comes from global context
 
-  @column_index =
-    qw(runningnumber qty unit bom partnumber description partsgroup lastcost total);
+  @column_index = qw(runningnumber qty unit bom partnumber description partsgroup lastcost total);
 
   if ($form->{previousform}) {
     $nochange     = 1;
@@ -1569,176 +1568,90 @@ sub assembly_row {
     # delete action
     map { delete $form->{$_} } qw(action header);
 
-    $previousform = "";
-
     # save form variables in a previousform variable
-    foreach my $key (sort keys %$form) {
-      next unless ref $form->{$key} eq '' && $form->{$key};
-      next if $key =~ /^select/; # get rid of these stupid select things
+    $previousform = $form->escape($form->escape(join '&', map {
+      sprintf "%s=%s", Q($_), /^listprice|lastcost|sellprice$/ ? $form->format_amount(\%myconfig, $form->{$key}) : $form->{$key}
+    } grep { ref $form->{$_} eq '' && $form->{$_} } grep { !/^select/ } sort keys %$form ));
 
-      # escape ampersands
-      $form->{$key} =~ s/&/%26/g;
-      if (any { $key eq $_ } qw(sellprice listprice lastcost)) {
-        $previousform .= sprintf qq|%s=%s&|, $key, $form->format_amount(\%myconfig, $form->{$key});
-      } else {
-        $previousform .= qq|$key=$form->{$key}&|;
-      }
-    }
-    chop $previousform;
-    $previousform = $form->escape($form->escape($previousform, 1));
     $form->{callback} = $callback;
-
     $form->{assemblytotal} = 0;
     $form->{assembly_purchase_price_total} = 0;
     $form->{weight}        = 0;
-
   }
-  $column_header{runningnumber} =
-    qq|<th nowrap width=5%>| . $locale->text('No.') . qq|</th>|;
-  $column_header{qty} =
-    qq|<th align=left nowrap width=10%>| . $locale->text('Qty') . qq|</th>|;
-  $column_header{unit} =
-    qq|<th align=left nowrap width=5%>| . $locale->text('Unit') . qq|</th>|;
-  $column_header{partnumber} =
-      qq|<th align=left nowrap width=20%>|
-    . $locale->text('Part Number')
-    . qq|</th>|;
-  $column_header{description} =
-    qq|<th nowrap width=50% align="left">| . $locale->text('Part Description') . qq|</th>|;
-  $column_header{lastcost} =
-    qq|<th nowrap width=50%>| . $locale->text('Purchase Prices') . qq|</th>|;
-  $column_header{total} =
-    qq|<th align=right nowrap>| . $locale->text('Sale Prices') . qq|</th>|;
-  $column_header{bom}        = qq|<th>| . $locale->text('BOM') . qq|</th>|;
-  $column_header{partsgroup} = qq|<th>| . $locale->text('Group') . qq|</th>|;
 
-  print qq|
-  <tr class=listheading>
-    <th class=listheading>| . $locale->text('Individual Items') . qq|</th>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-|;
+  my %header = (
+   runningnumber => { text =>  $locale->text('No.'),              nowrap => 1, width => '5%'  },
+   qty           => { text =>  $locale->text('Qty'),              nowrap => 1, width => '10%' },
+   unit          => { text =>  $locale->text('Unit'),             nowrap => 1, width => '5%'  },
+   partnumber    => { text =>  $locale->text('Part Number'),      nowrap => 1, width => '20%' },
+   description   => { text =>  $locale->text('Part Description'), nowrap => 1, width => '50%' },
+   lastcost      => { text =>  $locale->text('Purchase Prices'),  nowrap => 1, width => '50%' },
+   total         => { text =>  $locale->text('Sale Prices'),      nowrap => 1,                },
+   bom           => { text =>  $locale->text('BOM'),                                          },
+   partsgroup    => { text =>  $locale->text('Group'),                                        },
+  );
 
-  map { print "\n$column_header{$_}" } @column_index;
-
-  print qq|
-        </tr>
-|;
+  my @ROWS;
 
   for my $i (1 .. $numrows) {
+    my (%row, @row_hiddens);
+
     $form->{"partnumber_$i"} =~ s/\"/&quot;/g;
 
-    $linetotal =
-      $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 4);
-    $line_purchase_price  =
-      $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 4); #lastcost == purchase_price | ungenaue datenbankfeld-uebersetzung
-    $form->{assemblytotal} += $linetotal;
+    $linetotal           = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 4);
+    $line_purchase_price = $form->round_amount($form->{"lastcost_$i"} *  $form->{"qty_$i"} / ($form->{"price_factor_$i"} || 1), 4);
+    $form->{assemblytotal}                  += $linetotal;
     $form->{assembly_purchase_price_total}  += $line_purchase_price;
-
-    $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
-
-    $linetotal = $form->format_amount(\%myconfig, $linetotal, 2);
+    $form->{"qty_$i"}    = $form->format_amount(\%myconfig, $form->{"qty_$i"});
+    $linetotal           = $form->format_amount(\%myconfig, $linetotal, 2);
     $line_purchase_price = $form->format_amount(\%myconfig, $line_purchase_price, 2);
+    $href                = qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i&previousform=$previousform|;
+    map { $row{$_}{data} = "" } qw(qty unit partnumber description bom partsgroup runningnumber);
 
+    # last row
     if (($i >= 1) && ($i == $numrows)) {
-
-      if ($nochange) {
-        map { $column_data{$_} = qq|<td></td>| }
-          qw(qty unit partnumber description bom partsgroup);
-      } else {
-
-        map { $column_data{$_} = qq|<td></td>| } qw(runningnumber unit bom);
-
-        $column_data{qty} =
-          qq|<td><input name="qty_$i" size=5 value="$form->{"qty_$i"}"></td>|;
-        $column_data{partnumber} =
-          qq|<td><input name="partnumber_$i" size=15 value="$form->{"partnumber_$i"}"></td>|;
-        $column_data{description} =
-          qq|<td><input name="description_$i" size=40 value="$form->{"description_$i"}"></td>|;
-        $column_data{partsgroup} =
-          qq|<td><input name="partsgroup_$i" size=10 value="$form->{"partsgroup_$i"}"></td>|;
-
+      if (!$form->{previousform}) {
+        $row{partnumber}{data}  = qq|<input name="partnumber_$i" size=15 value="$form->{"partnumber_$i"}">|;
+        $row{qty}{data}         = qq|<input name="qty_$i" size=5 value="$form->{"qty_$i"}">|;
+        $row{description}{data} = qq|<input name="description_$i" size=40 value="$form->{"description_$i"}">|;
+        $row{partsgroup}{data}  = qq|<input name="partsgroup_$i" size=10 value="$form->{"partsgroup_$i"}">|;
       }
-
+    # other rows
     } else {
-
       if ($form->{previousform}) {
-        $column_data{partnumber} =
-          qq|<td><input type=hidden name="partnumber_$i" value="$form->{"partnumber_$i"}">$form->{"partnumber_$i"}</td>|;
-        $column_data{qty} =
-          qq|<td align=right><input type=hidden name="qty_$i" value="$form->{"qty_$i"}">$form->{"qty_$i"}</td>|;
-
-        $column_data{bom} =
-          qq|<td align=center><input type=hidden name="bom_$i" value=$form->{"bom_$i"}>|;
-        $column_data{bom} .= ($form->{"bom_$i"}) ? "x" : "&nbsp;";
-        $column_data{bom} .= qq|</td>|;
-
-        $column_data{partsgroup} =
-          qq|<td><input type=hidden name="partsgroup_$i" value="$form->{"partsgroup_$i"}">$form->{"partsgroup_$i"}</td>|;
-
+        push @row_hiddens,          qw(qty bom);
+        $row{partnumber}{data}    = $form->{"partnumber_$i"};
+        $row{qty}{data}           = $form->{"qty_$i"};
+        $row{bom}{data}           = $form->{"bom_$i"} ? "x" : "&nbsp;";
+        $row{qty}{align}          = 'right';
       } else {
-        $href =
-          qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i&previousform=$previousform|;
-        $column_data{partnumber} =
-          qq|<td><input type=hidden name="partnumber_$i" value="$form->{"partnumber_$i"}"><a href=$href>$form->{"partnumber_$i"}</a></td>|;
-        $column_data{runningnumber} =
-          qq|<td><input name="runningnumber_$i" size=3 value="$i"></td>|;
-        $column_data{qty} =
-          qq|<td><input name="qty_$i" size=5 value="$form->{"qty_$i"}"></td>|;
-
-        $form->{"bom_$i"} = ($form->{"bom_$i"}) ? "checked" : "";
-        $column_data{bom} =
-          qq|<td align=center><input name="bom_$i" type=checkbox class=checkbox value=1 $form->{"bom_$i"}></td>|;
-
-        $column_data{partsgroup} =
-          qq|<td><input type=hidden name="partsgroup_$i" value="$form->{"partsgroup_$i"}">$form->{"partsgroup_$i"}</td>|;
+        $row{partnumber}{data}    = qq|<a href=$href>$form->{"partnumber_$i"}</a>|;
+        $row{qty}{data}           = qq|<input name="qty_$i" size=5 value="$form->{"qty_$i"}">|;
+        $row{runningnumber}{data} = qq|<input name="runningnumber_$i" size=3 value="$i">|;
+        $row{bom}{data}   = sprintf qq|<input name="bom_$i" type=checkbox class=checkbox value=1 %s>|,
+                                       $form->{"bom_$i"} ? 'checked' : '';
       }
-
-      $column_data{unit} =
-        qq|<td><input type=hidden name="unit_$i" value="$form->{"unit_$i"}">$form->{"unit_$i"}</td>|;
-      $column_data{description} =
-        qq|<td><input type=hidden name="description_$i" value="$form->{"description_$i"}">$form->{"description_$i"}</td>|;
+      push @row_hiddens,        qw(unit description partnumber partsgroup);
+      $row{unit}{data}        = $form->{"unit_$i"};
+      $row{description}{data} = $form->{"description_$i"};
+      $row{partsgroup}{data}  = $form->{"partsgroup_$i"};
+      $row{bom}{align}        = 'center';
     }
 
-    $column_data{lastcost} = qq|<td align=right>$line_purchase_price</td>|;
-    $column_data{total} = qq|<td align=right>$linetotal</td>|;
+    $row{lastcost}{data}      = $line_purchase_price;
+    $row{total}{data}         = $linetotal;
+    $row{deliverydate}{data}  = $deliverydate;
+    $row{lastcost}{align}     = 'right';
+    $row{total}{align}        = 'right';
+    $row{deliverydate}{align} = 'right';
 
-    $column_data{deliverydate} = qq|<td align=right>$deliverydate</td>|;
+    push @row_hiddens, qw(id sellprice lastcost weight price_factor_id price_factor);
+    $row{hiddens} = [ map +{ name => "${_}_$i", value => $form->{"${_}_$i"} }, @row_hiddens ];
 
-    print qq|
-        <tr>|;
-
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|
-        </tr>
-  <input type=hidden name="id_$i" value=$form->{"id_$i"}>
-  <input type=hidden name="sellprice_$i" value=$form->{"sellprice_$i"}>
-  <input type=hidden name="lastcost_$i" value=$form->{"lastcost_$i"}>
-  <input type=hidden name="weight_$i" value=$form->{"weight_$i"}>
-  <input type=hidden name="price_factor_id_$i" value=$form->{"price_factor_id_$i"}>
-  <input type=hidden name="price_factor_$i" value=$form->{"price_factor_$i"}>
-|;
+    push @ROWS, \%row;
   }
 
-  print qq|
-	<tr>
-	  <td colspan="6"></td>
-	  <td>| . $locale->text('Totals') . qq|</td>
-          <td align="right">| . $form->format_amount(\%myconfig, $form->{assembly_purchase_price_total}, 2) .
-	qq|</td>        
-  	 <td align="right">| . $form->format_amount(\%myconfig, $form->{assemblytotal}, 2) .
-	qq|  </td>
-	  </tr>
-          <input type="hidden" name="assembly_rows" value="| . $form->{assembly_rows} . 
-      qq|">
-      </table>
-    </td>
-  </tr>
-|;
+  print $form->parse_html_template('ic/assembly_row', { COLUMNS => \@column_index, ROWS => \@ROWS, HEADER => \%header });
 
   $lxdebug->leave_sub();
 }
