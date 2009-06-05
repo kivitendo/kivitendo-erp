@@ -1657,6 +1657,7 @@ sub delivery_order {
 
   require "bin/mozilla/do.pl";
 
+  $form->{script}               = 'do.pl';
   $form->{cp_id}               *= 1;
   $form->{convert_from_oe_ids}  = $form->{id};
   $form->{transdate}            = $form->current_date(\%myconfig);
