@@ -1588,6 +1588,9 @@ sub get_customer {
        WHERE c.id = ?|;
   push @values, $cid;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
+
+  delete $ref->{salesman_id} if !$ref->{salesman_id};
+
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
   $query =
