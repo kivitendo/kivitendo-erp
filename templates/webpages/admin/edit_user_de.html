@@ -1,6 +1,7 @@
 [% USE HTML %]<body class="admin">
 
  <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/jquery.js"></script>
  <script type="text/javascript">
   <!--
       function open_connection_test_window() {
@@ -19,7 +20,7 @@
     -->
  </script>
 
- <form name="Form" method="post" action="admin.pl">
+ <form name="Form" id="Form" method="post" action="admin.pl">
 
   <div class="listtop" width="100%">[% title %]</div>
 
@@ -29,7 +30,13 @@
      <table>
       <tr>
        <th align="right">Anmeldung</th>
-       <td>[% IF edit %]<input type="hidden" name="login" value="[% HTML.escape(myc_login) %]">[% HTML.escape(myc_login) %][% ELSE %]<input name="login" value="[% HTML.escape(myc_login) %]">[% END %]</td>
+       <td>
+        [%- IF edit %]
+         <input type="hidden" name="login" value="[% HTML.escape(myc_login) %]">[% HTML.escape(myc_login) %]
+        [%- ELSE %]
+         <input name="login" value="[% HTML.escape(myc_login) %]">
+        [%- END %]
+       </td>
       </tr>
 
       <tr>
@@ -280,14 +287,37 @@
 
   <input name="callback" type="hidden" value="admin.pl?action=list_users">
 
-  <input type="submit" class="submit" name="action" value="Speichern">
+  <input type="hidden" name="action" value="dispatcher">
+  <input type="submit" class="submit" name="action_save_user" value="Speichern">
 
   [% IF edit %]
-   <input type="submit" class="submit" name="action" value="Löschen">
+   [% FOREACH row = GROUPS %]
+    <input type="hidden" name="new_user_group_ids[]" value="[% HTML.escape(row.id) %]">
+   [% END %]
+   <input type="hidden" name="new_user_login" id="new_user_login" value="">
+   <input type="hidden" name="action_save_user_as_new" id="action_save_user_as_new" value="">
+   <input type="button" class="submit" id="save_as_new_button" value="als neu speichern">
+   <input type="submit" class="submit" name="action_delete_user" value="Löschen">
    <input type="hidden" name="edit" value="1">
   [% END %]
 
  </form>
+
+ <script type="text/javascript">
+  <!--
+    $(document).ready(function() {
+      $("#save_as_new_button").click(function() {
+        var new_user_login = prompt('Bitte geben Sie das Login für den neuen Benutzer ein.', '');
+        if (!new_user_login || (new_user_login == ''))
+          return;
+
+        $("#action_save_user_as_new").attr('value', '1');
+        $("#new_user_login").attr('value', new_user_login);
+        $("#Form").submit();
+      });
+    });
+    -->
+ </script>
 
 </body>
 </html>

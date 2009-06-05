@@ -452,9 +452,8 @@ sub save_user {
   # check for duplicates
   if (!$form->{edit}) {
     my %members = $auth->read_all_users();
-
     if ($members{$form->{login}}) {
-      $form->error("$form->{login} " . $locale->text('is already a member!'));
+      $form->show_generic_error($locale->text('Another user with the login #1 does already exist.', $form->{login}), 'back_button' => 1);
     }
   }
 
@@ -573,8 +572,30 @@ sub save_user {
     }
   }
 
+  # Add new user to his groups.
+  if (ref $form->{new_user_group_ids} eq 'ARRAY') {
+    my $all_groups = $auth->read_groups();
+    my %user       = $auth->read_user($form->{login});
+
+    foreach my $group_id (@{ $form->{new_user_group_ids} }) {
+      my $group = $all_groups->{$group_id};
+
+      next if !$group;
+
+      push @{ $group->{members} }, $user{id};
+      $auth->save_group($group);
+    }
+  }
+
   $form->redirect($locale->text('User saved!'));
 
+}
+
+sub save_user_as_new {
+  $form->{login} = $form->{new_user_login};
+  delete @{$form}{qw(edit new_user_login)};
+
+  save_user();
 }
 
 sub delete_user {
@@ -1127,7 +1148,8 @@ sub back {
 }
 
 sub dispatcher {
-  foreach my $action (qw(create_standard_group dont_create_standard_group)) {
+  foreach my $action (qw(create_standard_group dont_create_standard_group
+                         save_user delete_user save_user_as_new)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
       return;
