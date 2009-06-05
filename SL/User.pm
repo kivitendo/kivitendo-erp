@@ -955,7 +955,7 @@ sub save_member {
 
   my $dbh = DBI->connect($self->{dbconnect}, $self->{dbuser}, $self->{dbpasswd});
   if ($dbh) {
-    $self->create_employee_entry($form, $dbh, $self);
+    $self->create_employee_entry($form, $dbh, $self, 1);
     $dbh->disconnect();
   }
 
@@ -965,18 +965,23 @@ sub save_member {
 sub create_employee_entry {
   $main::lxdebug->enter_sub();
 
-  my $self     = shift;
-  my $form     = shift;
-  my $dbh      = shift;
-  my $myconfig = shift;
+  my $self            = shift;
+  my $form            = shift;
+  my $dbh             = shift;
+  my $myconfig        = shift;
+  my $update_existing = shift;
 
   # add login to employee table if it does not exist
   # no error check for employee table, ignore if it does not exist
-  my ($login)  = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
+  my ($id)  = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
 
-  if (!$login) {
+  if (!$id) {
     my $query = qq|INSERT INTO employee (login, name, workphone, role) VALUES (?, ?, ?, ?)|;
     do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}, "user"));
+
+  } elsif ($update_existing) {
+    my $query = qq|UPDATE employee SET name = ?, workphone = ?, role = 'user' WHERE id = ?|;
+    do_query($form, $dbh, $query, $myconfig->{name}, $myconfig->{tel}, $id);
   }
 
   $main::lxdebug->leave_sub();
