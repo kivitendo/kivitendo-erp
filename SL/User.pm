@@ -971,6 +971,11 @@ sub create_employee_entry {
   my $myconfig        = shift;
   my $update_existing = shift;
 
+  if (!does_table_exist($dbh, 'employee')) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
   # add login to employee table if it does not exist
   # no error check for employee table, ignore if it does not exist
   my ($id)  = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
