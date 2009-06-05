@@ -358,7 +358,7 @@ sub read_user {
   my $login = shift;
 
   my $dbh   = $self->dbconnect();
-  my $query = qq|SELECT u.id, cfg.cfg_key, cfg.cfg_value
+  my $query = qq|SELECT u.id, u.login, cfg.cfg_key, cfg.cfg_value
                  FROM auth.user_config cfg
                  LEFT JOIN auth."user" u ON (cfg.user_id = u.id)
                  WHERE (u.login = ?)|;
