@@ -67,48 +67,105 @@ END {
   }
 }
 
+=item _store_value()
+
+parses a complex var name, and stores it in the form.
+
+syntax:
+  $form->_store_value($key, $value);
+
+keys must start with a string, and can contain various tokens.
+supported key structures are:
+
+1. simple access
+  simple key strings work as expected
+
+  id => $form->{id}
+
+2. hash access.
+  separating two keys by a dot (.) will result in a hash lookup for the inner value
+  this is similar to the behaviour of java and templating mechanisms.
+
+  filter.description => $form->{filter}->{description}
+
+3. array+hashref access
+
+  adding brackets ([]) before the dot will cause the next hash to be put into an array.
+  using [+] instead of [] will force a new array index. this is useful for recurring
+  data structures like part lists. put a [+] into the first varname, and use [] on the
+  following ones.
+
+  repeating these names in your template:
+
+    invoice.items[+].id
+    invoice.items[].parts_id
+
+  will result in:
+
+    $form->{invoice}->{items}->[
+      {
+        id       => ...
+        parts_id => ...
+      },
+      {
+        id       => ...
+        parts_id => ...
+      }
+      ...
+    ]
+
+4. arrays
+
+  using brackets at the end of a name will result in a pure array to be created.
+  note that you mustn't use [+], which is reserved for array+hash access and will
+  result in undefined behaviour in array context.
+
+  filter.status[]  => $form->{status}->[ val1, val2, ... ]
+
+=cut
 sub _store_value {
   $main::lxdebug->enter_sub(2);
 
-  my $curr  = shift;
+  my $self  = shift;
   my $key   = shift;
   my $value = shift;
 
-  while ($key =~ /\[\+?\]\.|\./) {
-    substr($key, 0, $+[0]) = '';
+  my @tokens = split /((?:\[\+?\])?(?:\.|$))/, $key;
 
-    if ($& eq '.') {
-      $curr->{$`} ||= { };
-      $curr         = $curr->{$`};
+  my $curr;
 
-    } else {
-      $curr->{$`} ||= [ ];
-      if (!scalar @{ $curr->{$`} } || $& eq '[+].') {
-        push @{ $curr->{$`} }, { };
-      }
-
-      $curr = $curr->{$`}->[-1];
-    }
+  if (scalar @tokens) {
+     $curr = \ $self->{ shift @tokens };
   }
 
-  $curr->{$key} = $value;
+  while (@tokens) {
+    my $sep = shift @tokens;
+    my $key = shift @tokens;
+
+    $curr = \ $$curr->[++$#$$curr], next if $sep eq '[]';
+    $curr = \ $$curr->[max 0, $#$$curr]  if $sep eq '[].';
+    $curr = \ $$curr->[++$#$$curr]       if $sep eq '[+].';
+    $curr = \ $$curr->{$key}
+  }
+
+  $$curr = $value;
 
   $main::lxdebug->leave_sub(2);
 
-  return \$curr->{$key};
+  return $curr;
 }
 
 sub _input_to_hash {
   $main::lxdebug->enter_sub(2);
 
-  my $params = shift;
-  my $input  = shift;
+  my $self  = shift;
+  my $input = shift;
 
-  my @pairs  = split(/&/, $input);
+  my @pairs = split(/&/, $input);
 
   foreach (@pairs) {
     my ($key, $value) = split(/=/, $_, 2);
-    _store_value($params, unescape(undef, $key), unescape(undef, $value));
+    $self->_store_value($self->unescape($key), $self->unescape($value)) if ($key);
   }
 
   $main::lxdebug->leave_sub(2);
@@ -117,13 +174,13 @@ sub _input_to_hash {
 sub _request_to_hash {
   $main::lxdebug->enter_sub(2);
 
-  my $params = shift;
-  my $input  = shift;
+  my $self  = shift;
+  my $input = shift;
 
   if (!$ENV{'CONTENT_TYPE'}
       || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
 
-    _input_to_hash($params, $input);
+    $self->_input_to_hash($input);
 
     $main::lxdebug->leave_sub(2);
     return;
@@ -171,8 +228,8 @@ sub _request_to_hash {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $previous           = _store_value($params, $name, '');
-        $params->{FILENAME} = $filename if ($filename);
+        $previous         = $self->_store_value($name, '') if ($name);
+        $self->{FILENAME} = $filename if ($filename);
 
         next;
       }
@@ -243,22 +300,19 @@ sub new {
 
   bless $self, $type;
 
-  my $parameters = { };
-  _request_to_hash($parameters, $_);
+  $self->_request_to_hash($_);
 
   my $db_charset   = $main::dbcharset;
   $db_charset    ||= Common::DEFAULT_CHARSET;
 
-  if ($parameters->{INPUT_ENCODING} && (lc $parameters->{INPUT_ENCODING} ne $db_charset)) {
+  if ($self->{INPUT_ENCODING} && (lc $self->{INPUT_ENCODING} ne $db_charset)) {
     require Text::Iconv;
-    my $iconv = Text::Iconv->new($parameters->{INPUT_ENCODING}, $db_charset);
+    my $iconv = Text::Iconv->new($self->{INPUT_ENCODING}, $db_charset);
 
-    _recode_recursively($iconv, $parameters);
+    _recode_recursively($iconv, $self);
 
-    delete $parameters{INPUT_ENCODING};
+    delete $self{INPUT_ENCODING};
   }
-
-  map { $self->{$_} = $parameters->{$_}; } keys %{ $parameters };
 
   $self->{action}  =  lc $self->{action};
   $self->{action}  =~ s/( |-|,|\#)/_/g;
