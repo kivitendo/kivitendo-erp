@@ -9,7 +9,7 @@ require Exporter;
              selectall_hashref_query selectall_array_query
              selectall_as_map
              prepare_execute_query prepare_query
-             create_sort_spec);
+             create_sort_spec does_table_exist);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -258,6 +258,28 @@ sub create_sort_spec {
 
   return %result;
 }
+
+sub does_table_exist {
+  $main::lxdebug->enter_sub(2);
+
+  my $dbh    = shift;
+  my $table  = shift;
+
+  my $result = 0;
+
+  if ($dbh) {
+    my $sth = $dbh->table_info('', '', $table, 'TABLE');
+    if ($sth) {
+      $result = $sth->fetchrow_hashref();
+      $sth->finish();
+    }
+  }
+
+  $main::lxdebug->leave_sub(2);
+
+  return $result;
+}
+
 
 1;
 
