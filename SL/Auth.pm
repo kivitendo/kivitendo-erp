@@ -358,7 +358,7 @@ sub read_user {
   my $login = shift;
 
   my $dbh   = $self->dbconnect();
-  my $query = qq|SELECT cfg.cfg_key, cfg.cfg_value
+  my $query = qq|SELECT u.id, cfg.cfg_key, cfg.cfg_value
                  FROM auth.user_config cfg
                  LEFT JOIN auth."user" u ON (cfg.user_id = u.id)
                  WHERE (u.login = ?)|;
@@ -368,7 +368,7 @@ sub read_user {
 
   while (my $ref = $sth->fetchrow_hashref()) {
     $user_data{$ref->{cfg_key}} = $ref->{cfg_value};
-    $user_data{login}           = $login;
+    @user_data{qw(id login)}    = @{$ref}{qw(id login)};
   }
 
   $sth->finish();
