@@ -316,7 +316,7 @@ sub save {
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?,
-         is_sales = ?
+         is_sales = ?, taxzone_id = ?, taxincluded = ?, terms = ?, curr = ?
        WHERE id = ?|;
 
   @values = ($form->{donumber}, $form->{ordnumber},
@@ -330,6 +330,7 @@ sub save {
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
              $form->{type} =~ /^sales/ ? 't' : 'f',
+             conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{terms}), $form->{curr},
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -575,7 +576,8 @@ sub retrieve {
          dord.closed, dord.reqdate, dord.department_id, dord.cusordnumber,
          d.description AS department, dord.language_id,
          dord.shipto_id,
-         dord.globalproject_id, dord.delivered, dord.transaction_description
+         dord.globalproject_id, dord.delivered, dord.transaction_description,
+         dort.taxzone_id, dord.taxincluded, dord.terms, dord.curr
        FROM delivery_orders dord
        JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)

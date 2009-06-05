@@ -182,8 +182,6 @@ sub order_links {
   ($form->{ $form->{vc} })  = split /--/, $form->{ $form->{vc} };
   $form->{"old$form->{vc}"} = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
 
-  $form->{taxincluded} = $taxincluded if ($form->{id});
-
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
   $form->{salesman_id} = $salesman_id if ($editing);
