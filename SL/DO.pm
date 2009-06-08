@@ -577,7 +577,7 @@ sub retrieve {
          d.description AS department, dord.language_id,
          dord.shipto_id,
          dord.globalproject_id, dord.delivered, dord.transaction_description,
-         dort.taxzone_id, dord.taxincluded, dord.terms, dord.curr
+         dord.taxzone_id, dord.taxincluded, dord.terms, dord.curr
        FROM delivery_orders dord
        JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
