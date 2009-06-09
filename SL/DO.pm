@@ -33,7 +33,7 @@
 
 package DO;
 
-use List::Util qw(max);
+ use List::Util qw(max);
 use YAML;
 
 use SL::AM;
