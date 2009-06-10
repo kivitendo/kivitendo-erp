@@ -121,24 +121,19 @@ sub list_names {
     push @options, $locale->text('Orphaned');
   }
 
-  push @options, $locale->text('Name') . " : $form->{name}"                    if $form->{name};
-  push @options, $locale->text('Contact') . " : $form->{contact}"              if $form->{contact};
-  push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}| if $form->{"$form->{db}number"};
-  push @options, $locale->text('E-mail') . " : $form->{email}"                 if $form->{email};
-  push @options, $locale->text('Contact person (surname)')
-    . " : $form->{cp_name}"                                                    if $form->{cp_name};
-  push @options, $locale->text('Billing/shipping address (city)')
-    . " : $form->{addr_city}"                                                  if $form->{addr_city};
-
-  push @options, $locale->text('Billing/shipping address (zipcode)')
-    . " : $form->{zipcode}"                                                  if $form->{addr_zipcode};
-  push @options, $locale->text('Billing/shipping address (street)')
-    . " : $form->{street}"                                                  if $form->{addr_street};
+  push @options, $locale->text('Name') . " : $form->{name}"                                    if $form->{name};
+  push @options, $locale->text('Contact') . " : $form->{contact}"                              if $form->{contact};
+  push @options, $locale->text('Number') . qq| : $form->{"$form->{db}number"}|                 if $form->{"$form->{db}number"};
+  push @options, $locale->text('E-mail') . " : $form->{email}"                                 if $form->{email};
+  push @options, $locale->text('Contact person (surname)')           . " : $form->{cp_name}"   if $form->{cp_name};
+  push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}" if $form->{addr_city};
+  push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{zipcode}"   if $form->{addr_zipcode};
+  push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{street}"    if $form->{addr_street};
 
   my @columns = (
-    'id',        'name',  "$form->{db}number", 'contact',  'phone',
-    'fax',       'email', 'taxnumber', 'street', 'zipcode' , 'city', 'business', 'invnumber',
-    'ordnumber', 'quonumber'
+    'id',        'name',      "$form->{db}number",   'contact',  'phone',
+    'fax',       'email',     'taxnumber',           'street',   'zipcode' , 'city',
+    'business',  'invnumber', 'ordnumber',           'quonumber'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
