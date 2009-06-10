@@ -156,9 +156,9 @@ sub list_names {
     'invnumber'         => { 'text' => $locale->text('Invoice'), },
     'ordnumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Sales Order') : $locale->text('Purchase Order'), },
     'quonumber'         => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Quotation')   : $locale->text('Request for Quotation'), },
-    'street'         	=> { 'text' => $locale->text('Street'), },
-    'zipcode'         	=> { 'text' => $locale->text('Zipcode'), },
-    'city'         	=> { 'text' => $locale->text('City'), },
+    'street'            => { 'text' => $locale->text('Street'), },
+    'zipcode'           => { 'text' => $locale->text('Zipcode'), },
+    'city'              => { 'text' => $locale->text('City'), },
     %column_defs_cvars,
   );
 
