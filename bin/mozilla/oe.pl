@@ -634,7 +634,7 @@ sub search {
 
   $form->header();
 
-  print $form->parse_html_template('oe/search');
+  print $form->parse_html_template('oe/search', { %myconfig });
 
   $lxdebug->leave_sub();
 }
