@@ -1194,7 +1194,7 @@ sub parse_template {
 
   if ($self->{"format"} =~ /(opendocument|oasis)/i) {
     $template       = OpenDocumentTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
-    $ext_for_format = 'odt';
+    $ext_for_format = $self->{"format"} =~ m/pdf/ ? 'pdf' : 'odt';
 
   } elsif ($self->{"format"} =~ /(postscript|pdf)/i) {
     $ENV{"TEXINPUTS"} = ".:" . getcwd() . "/" . $myconfig->{"templates"} . ":" . $ENV{"TEXINPUTS"};
