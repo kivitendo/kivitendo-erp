@@ -238,7 +238,7 @@ sub order_links {
 
   $form->{"old$form->{vc}"}  = $form->{$form->{vc}};
 
-  if ($form->{"old$form->{vc}"} !~ m/--\d+$/ && $form->{"$form->{vc_}id}"}) {
+  if ($form->{"old$form->{vc}"} !~ m/--\d+$/ && $form->{"$form->{vc}_id"}) {
     $form->{"old$form->{vc}"} .= qq|--$form->{"$form->{vc}_id"}|
   }
 
