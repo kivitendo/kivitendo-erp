@@ -1479,7 +1479,7 @@ sub print_form {
     reformat_numbers($output_numberformat, $precision, @{ $field_list });
   }
 
-  my $extension = '';
+  my $extension = 'html';
   if ($form->{format} eq 'postscript') {
     $form->{postscript}   = 1;
     $extension            = 'tex';
