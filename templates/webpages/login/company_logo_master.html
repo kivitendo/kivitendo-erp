@@ -39,6 +39,12 @@
     </tr>
    </table>
 
+   <noscript>
+   [% INCLUDE  'generic/information_<translate>master</translate>.html'
+     title_information = '<translate>Your browser does not currently support Javascript.</translate>',
+     label_information = '<translate>A lot of the usability of Lx-Office has been enhanced with javascript. Although it is currently possible to use every aspect of Lx-Office without javascript, we strongly recommend it. In a future version this may change and javascript may be necessary to access advanced features.</translate>',
+   %]
+   </noscript>
  </center>
 
  [%- todo_list %]
