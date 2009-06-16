@@ -893,7 +893,7 @@ sub update {
   $form->{invdate} = $form->{transdate};
   my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1);
 
-  &check_name("vendor");
+  my $vendor_changed = &check_name("vendor");
 
   $form->{AP} = $saved_variables{AP};
   if ($saved_variables{AP_amount_1} =~ m/.--./) {
@@ -928,7 +928,7 @@ sub update {
   $form->{oldtotalpaid} = $totalpaid;
 
   # notes
-  $form->{notes} = $form->{intnotes};
+  $form->{notes} = $form->{intnotes} if $vendor_changed;
 
   &display_form;
 
