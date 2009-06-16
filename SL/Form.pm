@@ -57,6 +57,7 @@ use SL::Template;
 use SL::User;
 use Template;
 use List::Util qw(first max min sum);
+use List::MoreUtils qw(any);
 
 my $standard_dbh;
 
@@ -255,7 +256,7 @@ sub _recode_recursively {
   $main::lxdebug->enter_sub();
   my ($iconv, $param) = @_;
 
-  if (ref $param eq 'HASH') {
+  if (any { ref $param eq $_ } qw(Form HASH)) {
     foreach my $key (keys %{ $param }) {
       if (!ref $param->{$key}) {
         $param->{$key} = $iconv->convert($param->{$key});
