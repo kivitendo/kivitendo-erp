@@ -638,7 +638,7 @@ $jsscript
   $column_data{AP_paid}      = "<th>" . $locale->text('Account') . "</th>";
   $column_data{source}       = "<th>" . $locale->text('Source') . "</th>";
   $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>";
-  $column_data{paid_project_id} = "<th>" . $locale->text('Project Number') . "</th>"; 
+  $column_data{paid_project_id} = "<th>" . $locale->text('Project Number') . "</th>";
 
   print "
         <tr>
@@ -818,8 +818,8 @@ $follow_ups_block
     print qq| <input type="button" class="submit" onclick="set_history_window($form->{id});" name="history" id="history" value="| . $locale->text('history') . qq|"> |;
   }
   # /button for saving history
-  # mark_as_paid button 
-  if($form->{id} ne "") {  
+  # mark_as_paid button
+  if($form->{id} ne "") {
     print qq| <input type="submit" class="submit" name="action" value="| . $locale->text('mark as paid') . qq|"> |;
   }
   # /mark_as_paid button
@@ -838,7 +838,7 @@ sub mark_as_paid {
 
   $auth->assert('general_ledger');
 
-  &mark_as_paid_common(\%myconfig,"ap");  
+  &mark_as_paid_common(\%myconfig,"ap");
 
   $lxdebug->leave_sub();
 }
@@ -1042,7 +1042,7 @@ sub post {
       $form->{addition} = "POSTED";
       $form->save_history($form->dbconnect(\%myconfig));
     }
-    # /saving the history 
+    # /saving the history
     remove_draft() if $form->{remove_draft};
     $form->redirect($locale->text('Transaction posted!'));
   }
@@ -1063,7 +1063,7 @@ sub post_as_new {
   	$form->{addition} = "POSTED AS NEW";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
   &post;
 
   $lxdebug->leave_sub();
@@ -1136,7 +1136,7 @@ sub yes {
   	  $form->{addition} = "DELETED";
       $form->save_history($form->dbconnect(\%myconfig));
     }
-    # /saving the history 
+    # /saving the history
     $form->redirect($locale->text('Transaction deleted!'));
   }
   $form->error($locale->text('Cannot delete transaction!'));
@@ -1540,9 +1540,9 @@ sub storno {
     $form->{addition} = "STORNO";
     $form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
-  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
+  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
   $lxdebug->leave_sub();
 }
