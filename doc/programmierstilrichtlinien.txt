@@ -8,12 +8,6 @@ aber auch, dass Mehrdeutigkeit so weit es geht vermieden wird (Stichworte
 
 Diese Regeln sind keine Schikane, sondern erleichtern allen das Leben!
 
-Zum einfachen Formartieren von Perl-Scripten gibt es das Tool "perltidy",
-das man weitgehend konfigurieren kann. Bei fast allen nachfolgenden Punkten
-sind die dazugehörigen perltidy-Optionen angegeben. perltidy ist bei den
-meisten Linux-Distributionen enthalten und kann ansonten unter
-http://perltidy.sourceforge.net heruntergeladen werden.
-
 Jeder, der einen Patch schickt, sollte sein Script vorher durch perltidy
 laufen lassen. Damit werden einige der nachfolgenden Regeln automatisch
 befolgt, andere hingegen nicht. Dort, wo keine perltidy-Optionen angegeben
@@ -22,10 +16,8 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
 --------------------------------------------------------------------------
 
 1. Es werden keine "echten" TAB-Zeichen sondern Leerzeichen verwendet.
-   Perltidy: -nt
 
 2. Die Einrückung beträgt zwei Leerzeichen.
-   Perltidy: -i=2
    Beispiel:
 
    sub debug {
@@ -34,11 +26,10 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
 
 3. Öffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie
    der letzte Befehl.
-   Perltidy: -nbl -nsbl -bar
    Beispiele:
 
    sub debug {
-   ...
+     ...
    }
 
    oder
@@ -50,16 +41,14 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
 4. Schließende geschweifte Klammern sind so weit eingerückt wie der Befehl/
    die öffnende schließende Klammer, die den Block gestartet hat, und nicht
    auf der Ebene des Inhalts. Die gleichen Beispiele wie bei 3. gelten.
-   Perltidy: macht's automatisch
 
 5. Die Wörter "else" "elsif", "while" befinden sich auf der gleichen
    Zeile wie schließende geschweifte Klammern.
-   Perltidy: -ce
    Beispiele:
 
-   if ($form->{"sum"} > 1000) {
+   if ($form->{sum} > 1000) {
      ...
-   } elsif ($form->{"sum"} > 0) {
+   } elsif ($form->{sum} > 0) {
      ...
    } else {
      ...
@@ -70,101 +59,105 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
    } while ($a > 0);
 
 6. Parameter von Funktionsaufrufen müssen mit runden Klammern versehen
-   werden.
-
-   Achtung: perltidy kann dieses nicht erledigen. Der Programmierer muss
-   selber darauf achten!
+   werden. Davon nicht betroffen sind interne perl Funktionen.
 
    Beispiel:
 
-   debug("Konnte Datei nicht oeffnen.\n");
+   $main::lxdebug->message("Could not find file.");
+   %options = map { $_ => 1 } grep { !/^#/ } @config_file;
 
-7. Verschiedene Klammern
+7. Verschiedene Klammern, Ihre Ausdrücke und Leerzeichen:
 
-  7.1 Aufeinander folgende runde Klammern sollten nicht durch Leerzeichen
-      abgesetzt werden.
-      Perltidy: -pt=2
-      Beispiel:
+  Generell gilt: Hashkeys und Arrayindices sollten _nicht_ durch Leerzeichen
+  abgesetzt werden. Logische Klammerungen ebensowenig, Blöcke schon.
 
-      if (($form->{"debug"} == 1) && (($form->{"sum"} - 100) < 0)) {
+
+  Beispiel:
+
+      if (($form->{debug} == 1) && ($form->{sum} - 100 < 0)) {
         ...
       }
 
-  7.2 Nach und vor eckigen Klammern sollten keine Leerzeichen stehen.
-      Perltidy: -sbt=2
-      Beispiel:
+      $array[$i + 1]             = 4;
+      $form->{sum}              += $form->{"row_$i"};
+      $form->{ $form->{index} } += 1;
 
-      $array[$i + 1] = 4;
-
-  7.3 Nach und vor geschweiften Klammern sollten keine Leerzeichen stehen,
-      es sei denn, sie sind verschachtelt.
-      Beispiel:
-
-      $form->{"sum"} += $form->{"row_${i}"};
-
-      $form->{ $form->{"index"} } += 1;
-
-  7.4 Nach und vor geschweiften Klammern, die Codeblöcke beschränken,
-      sollten Leerzeichen stehen, wenn sich der Codeblock über nur eine
-      Zeile erstreckt.
-      Perltidy: -bbt=0
-      Beispiel:
-
-      map({ $form->{"sum"} += $form->{"row_$_"}; } (1..$rowcount));
-      $form->{ $row + 1 } = 5;
+      map { $form->{sum} += $form->{"row_$_"} } 1..$rowcount;
 
 8. Mehrzeilige Befehle
 
   8.1 Werden die Parameter eines Funktionsaufrufes auf mehrere Zeilen
-      aufgeteilt, so müssen diese bis zu der Spalte eingerückt werden,
+      aufgeteilt, so sollten diese bis zu der Spalte eingerückt werden,
       in der die ersten Funktionsparameter in der ersten Zeile stehen.
-      Perltidy: -lp -vt=1 -vtc=1
       Beispiel:
 
       $sth = $dbh->prepare("SELECT * FROM some_table WHERE col = ?",
-                           $form->{"some_col_value"});
+                           $form->{some_col_value});
 
-  8.2 Wird ein Befehl auf einer neuen Zeile forgesetzt, so ist ab der
-      zweiten Zeile zusätzlich zwei Leerzeichen einzurücken.
-      Perltidy: -ci=2
+  8.3 Ein Spezialfall ist der ternäre Oprator "?:", der am besten in einer
+      übersichtlichen Tabellenstruktur organisiert wird.
+
       Beispiel:
 
-      my $rowcount =
-        $form->{"row_$i"} ? $i : $form->{"rowcount"} - $form->{"rowbase"};
+      my $rowcount = $form->{"row_$i"} ? $i
+                   : $form->{oldcount} ? $form->{oldcount} + 1
+                   :                     $form->{rowcount} - $form->{rowbase};
 
 9. Kommentare
 
   9.1 Kommentare, die alleine in einer Zeile stehen, sollten soweit wie der
       Code eingerückt sein.
-      Perltidy: -ibc
-
   9.2 Seitliche hängende Kommentare sollten einheitlich formatiert werden.
-      Perltidy: -hsc
 
-10. Hash-Keys sind, sofern es sich um Zeichenketten und nicht um
-    Nummern handelt, in Anführungszeichen zu setzen.
+  9.3 Sämtliche Kommentare und Sonstiges im Quellcode ist bitte auf Englisch
+      zu verfassen. So wie ich keine Lust habe französischen Quelltext zu lesen,
+      sollte auch der Lx-Office Quelltext für nicht-Deutschsprachige lesbar sein.
 
-    Achtung: perltidy kann dieses nicht erledigen. Der Programmierer muss
-    selber darauf achten!
+      Beispiel:
+
+      my $found = 0;
+      while (1) {
+        last if $found;
+
+        # complicated check
+        $found = 1 if //
+      }
+
+      $i = 0         # initialize $i
+      $n = $i;       # save $i
+      $i *= $const;  # do something crazy
+      $i = $n;       # recover $i
+
+10. Hashkeys sollten nur in Anführungszeichen stehen, wenn die Interpolation
+    gewünscht ist.
 
     Beispiele:
 
-    $form->{"sum"} = 0;
+    $form->{sum}      = 0;
     $form->{"row_$i"} = $form->{"row_$i"} - 5;
-    $some_hash{42} = 54;
+    $some_hash{42}    = 54;
 
 11. Die Maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen <= 79
-    helfen, weil sie dann im Textmodus / per SSH deutlich besser lesbar
-    sind. Oft genug ist es aber nicht möglich oder nur unter großen
-    Verrenkungen, diese Vorgabe einzuhalten.
+    helfen unter bestimmten Bedingungen, aber wenn die Lesbarkeit unter
+    kurzen Zeilen leidet (wie zum Biespiel in grossen Tabellen), dann
+    ist Lesbarkeit vorzuziehen.
 
-    Zeilen sollten nicht länger als 79 Zeichen sein.
-    Perltidy: -l=79
+    Als Beispiel sei print_options aus bin/mozilla/io.pl angeführt.
 
---------------------------------------------------------------------------
+12. Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind unerwünscht.
+    Sie führen zu unnötigen Whitespaceänderungen die diffs verfälschen.
 
-Vollständige Liste aller Optionen, die ich für perltidy benutze. Diese
-können in ~/.perltidyrc geschrieben werden:
+    Emacs und vim haben beide recht einfach Methoden dafür:
+    emacs kennt das Kommande nuke-trailing-whitespace,
+    vim macht das gleiche manuell über :%s/\s\+$//e
+
+12. Es wird kein perltidy verwendet.
+
+    In der Vergangenheit wurde versucht perltidy zu verwenden um einen
+    einheitlichen Stil zu erlangen, es hat sich aber gezeigt, dass Perltidys
+    sehr eigenwilliges Verhaltes was Zeilenumbrüche angeht oftmals gut
+    formatierten Code zerstört. Für den Interessierten, hier sind die perltidy
+    Optionen die grob den beschriebenen Richtlinien entsprechen.
 
 -syn
 -i=2
