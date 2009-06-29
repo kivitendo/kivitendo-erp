@@ -1,0 +1,47 @@
+[% USE HTML %]<body>
+
+ <p>
+  <div class="listtop">[% HTML.escape(title) %]</div>
+ </p>
+
+ [%- IF message %]
+ <p>
+  [% HTML.escape(message) %]
+ </p>
+ [%- END %]
+
+ <form method="post" action="generictranslations.pl">
+
+  <table>
+
+   <tr>
+    <th class="listheading">&nbsp;</th>
+    <th class="listheading"><translate>male</translate></th>
+    <th class="listheading"><translate>female</translate></th>
+   </tr>
+
+   [%- FOREACH language = LANGUAGES %]
+   <tr>
+    <td>
+     [%- IF language.id == 'default' %]
+     <translate>Default (no language selected)</translate>
+     [%- ELSE %]
+     [%- HTML.escape(language.description) %]
+     [%- END %]
+    </td>
+    <td><input name="translation__[% language.id %]__male" size="40" value="[% HTML.escape(language.male) %]"></td>
+    <td><input name="translation__[% language.id %]__female" size="40" value="[% HTML.escape(language.female) %]"></td>
+   </tr>
+   [%- END %]
+
+  </table>
+
+  <p>
+   <input type="hidden" name="action" value="save_greetings">
+   <input type="submit" class="submit" value="<translate>Save</translate>">
+  </p>
+
+ </form>
+
+</body>
+</html>
