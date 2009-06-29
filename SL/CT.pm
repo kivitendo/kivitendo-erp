@@ -194,26 +194,18 @@ sub query_titles_and_greetings {
 
   my $dbh = $form->dbconnect($myconfig);
 
-#  edit: cp_greeting wurde entfernt, wird durch cp_gender ersetzt
-#  $query =
-#    qq|SELECT DISTINCT(cp_greeting) | .
-#    qq|FROM contacts | .
-#    qq|WHERE cp_greeting ~ '[a-zA-Z]' | .
-#    qq|ORDER BY cp_greeting|;
-#  $form->{GREETINGS} = [ selectall_array_query($form, $dbh, $query) ];
-#
-#  $query =
-#    qq|SELECT DISTINCT(greeting) | .
-#    qq|FROM customer | .
-#    qq|WHERE greeting ~ '[a-zA-Z]' | .
-#    qq|UNION | .
-#    qq|SELECT DISTINCT(greeting) | .
-#    qq|FROM vendor | .
-#    qq|WHERE greeting ~ '[a-zA-Z]' | .
-#    qq|ORDER BY greeting|;
-#  my %tmp;
-#  map({ $tmp{$_} = 1; } selectall_array_query($form, $dbh, $query));
-#  $form->{COMPANY_GREETINGS} = [ sort(keys(%tmp)) ];
+  $query =
+    qq|SELECT DISTINCT(greeting) | .
+    qq|FROM customer | .
+    qq|WHERE greeting ~ '[a-zA-Z]' | .
+    qq|UNION | .
+    qq|SELECT DISTINCT(greeting) | .
+    qq|FROM vendor | .
+    qq|WHERE greeting ~ '[a-zA-Z]' | .
+    qq|ORDER BY greeting|;
+  my %tmp;
+  map({ $tmp{$_} = 1; } selectall_array_query($form, $dbh, $query));
+  $form->{COMPANY_GREETINGS} = [ sort(keys(%tmp)) ];
 
   $query =
     qq|SELECT DISTINCT(cp_title) | .
@@ -377,7 +369,6 @@ sub save_customer {
   $query = undef;
   if ( $form->{cp_id} ) {
     $query = qq|UPDATE contacts SET | .
-      qq|cp_greeting = ?, | .
       qq|cp_title = ?,  | .
       qq|cp_givenname = ?, | .
       qq|cp_name = ?, | .
@@ -397,7 +388,6 @@ sub save_customer {
       qq|cp_gender = ? | .
       qq|WHERE cp_id = ?|;
     @values = (
-      $form->{cp_greeting},
       $form->{cp_title},
       $form->{cp_givenname},
       $form->{cp_name},
@@ -419,14 +409,13 @@ sub save_customer {
       );
   } elsif ( $form->{cp_name} || $form->{cp_givenname} ) {
     $query =
-      qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname,  | .
+      qq|INSERT INTO contacts ( cp_cv_id, cp_title, cp_givenname,  | .
       qq|  cp_name, cp_email, cp_phone1, cp_phone2, cp_abteilung, cp_fax, cp_mobile1, | .
       qq|  cp_mobile2, cp_satphone, cp_satfax, cp_project, cp_privatphone, cp_privatemail, | .
       qq|  cp_birthday, cp_gender) | .
-      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     @values = (
       $form->{id},
-      $form->{cp_greeting},
       $form->{cp_title},
       $form->{cp_givenname},
       $form->{cp_name},
@@ -585,7 +574,6 @@ sub save_vendor {
   $query = undef;
   if ( $form->{cp_id} ) {
     $query = qq|UPDATE contacts SET | .
-      qq|cp_greeting = ?, | .
       qq|cp_title = ?,  | .
       qq|cp_givenname = ?, | .
       qq|cp_name = ?, | .
@@ -605,7 +593,6 @@ sub save_vendor {
       qq|cp_gender = ? | .
       qq|WHERE cp_id = ?|;
     @values = (
-      $form->{cp_greeting},
       $form->{cp_title},
       $form->{cp_givenname},
       $form->{cp_name},
@@ -627,14 +614,13 @@ sub save_vendor {
       );
   } elsif ( $form->{cp_name} || $form->{cp_givenname} ) {
     $query =
-      qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname,  | .
+      qq|INSERT INTO contacts ( cp_cv_id, cp_title, cp_givenname,  | .
       qq|  cp_name, cp_email, cp_phone1, cp_phone2, cp_abteilung, cp_fax, cp_mobile1, | .
       qq|  cp_mobile2, cp_satphone, cp_satfax, cp_project, cp_privatphone, cp_privatemail, | .
       qq|  cp_birthday, cp_gender) | .
-      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     @values = (
       $form->{id},
-      $form->{cp_greeting},
       $form->{cp_title},
       $form->{cp_givenname},
       $form->{cp_name},
@@ -650,7 +636,8 @@ sub save_vendor {
       $form->{cp_project},
       $form->{cp_privatphone},
       $form->{cp_privatemail},
-      $form->{cp_birthday}
+      $form->{cp_birthday},
+      $form->{cp_gender}
       );
   }
   do_query($form, $dbh, $query, @values) if ($query);

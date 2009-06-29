@@ -576,7 +576,7 @@ sub get_contact {
 
   CT->get_contact(\%myconfig, \%$form);
   print $form->ajax_response_header(), join '__pjx__', map $form->{"cp_$_"},
-    qw(name greeting title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used gender);
+    qw(name title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used gender);
   $lxdebug->leave_sub();
 
 }
