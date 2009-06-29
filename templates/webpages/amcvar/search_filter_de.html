@@ -15,10 +15,10 @@
 
      [%- ELSIF var.type == 'date' %]
      von
-     <input name="cvar_[% HTML.escape(var.name) %]_from" size="12">
+     <input name="cvar_[% HTML.escape(var.name) %]_from" id="cvar_[% HTML.escape(var.name) %]_from" size="12">
      <input type="button" name="cvar_[% HTML.escape(var.name) %]_from_button" id="cvar_[% HTML.escape(var.name) %]_from_trigger" value="?">
      bis
-     <input name="cvar_[% HTML.escape(var.name) %]_to" size="12">
+     <input name="cvar_[% HTML.escape(var.name) %]_to" id="cvar_[% HTML.escape(var.name) %]_to" size="12">
      <input type="button" name="cvar_[% HTML.escape(var.name) %]_to_button" id="cvar_[% HTML.escape(var.name) %]_to_trigger" value="?">
 
      <script type="text/javascript">
