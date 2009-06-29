@@ -22,9 +22,12 @@
   <tr>
     <td><hr size="3" noshade></td>
   </tr>
-</table>
+ </table>
 
-<br>
+ <br style="clear: left" />
+</div>
+</div>
+
 <input class="submit" type="submit" name="action" value="Erneuern">
 <input type="hidden" name="price_rows" value="[% HTML.escape(price_rows) %]">
 <input class="submit" type="submit" name="action" value="Speichern">
@@ -54,6 +57,14 @@
 </form>
 
 <script type="text/javascript" src="js/wz_tooltip.js"></script>
+<script type="text/javascript">
+<!--
+    var maintab = new ddtabcontent("maintab");
+    maintab.setpersist(true);
+    maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+    maintab.init();
+  -->
+</script>
 
 </body>
 </html>

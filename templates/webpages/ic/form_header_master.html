@@ -5,6 +5,8 @@
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/parts_language_selection.js"></script>
 
+ <p><div class="listtop">[% title %]</div></p>
+
  <form method="post" name="ic" action="[% script %]">
 
   <input name="id" type="hidden" value="[% HTML.escape(id) %]">
@@ -20,9 +22,13 @@
   <input name="language_values" type="hidden" value="[% HTML.escape(language_values) %]">
   <input name="original_partnumber" type="hidden" value="[% HTML.escape(original_partnumber) %]">
 
-  <div class="listtop">[% title %]</div>
+  <ul id="maintab" class="shadetabs">
+   <li class="selected"><a href="#" rel="master_data"><translate>Master Data</translate></a></li>
+  </ul>
 
-  <p>
+  <div class="tabcontentstyle">
+  <div id="master_data" class="tabcontent">
+
    <table width="100%">
     <tr>
      <td>
