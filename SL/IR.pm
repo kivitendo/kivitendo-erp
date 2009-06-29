@@ -39,6 +39,7 @@ use SL::ARAP;
 use SL::Common;
 use SL::DBUtils;
 use SL::DO;
+use SL::GenericTranslations;
 use SL::MoreCommon;
 use List::Util qw(min);
 
@@ -1146,6 +1147,10 @@ sub vendor_details {
                                                     'module'   => 'CT',
                                                     'trans_id' => $form->{vendor_id});
   map { $form->{"vc_cvar_$_->{name}"} = $_->{value} } @{ $custom_variables };
+
+  $form->{cp_greeting} = GenericTranslations->get('dbh'              => $dbh,
+                                                  'translation_type' => 'greetings::' . ($form->{cp_gender} eq 'f' ? 'female' : 'male'),
+                                                  'allow_fallback'   => 1);
 
   $dbh->disconnect();
 

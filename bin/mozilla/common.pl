@@ -572,7 +572,7 @@ sub cov_selection_internal {
     $cov->{address} =~ s{^,}{}x;
     $cov->{address} =~ s{\ +}{\ }gx;
 
-    $cov->{contact} = join " ", map { $cov->{$_} } qw(cp_greeting cp_title cp_givenname cp_name);
+    $cov->{contact} = join " ", map { $cov->{$_} } qw(cp_gender cp_title cp_givenname cp_name);
     $cov->{contact} =~ s{\ +}{\ }gx;
   }
 

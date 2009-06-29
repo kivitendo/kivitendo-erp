@@ -194,7 +194,7 @@ sub retrieve_customers_or_vendors {
     push(@queries, qq|SELECT
                         c.id, c.name, 0 AS customer_is_vendor,
                         c.street, c.zipcode, c.city,
-                        ct.cp_greeting, ct.cp_title, ct.cp_givenname, ct.cp_name
+                        ct.cp_gender, ct.cp_title, ct.cp_givenname, ct.cp_name
                       FROM customer c
                       LEFT JOIN contacts ct ON (c.id = ct.cp_cv_id)
                       $c_filter|);
@@ -207,7 +207,7 @@ sub retrieve_customers_or_vendors {
     push(@queries, qq|SELECT
                         v.id, v.name, 1 AS customer_is_vendor,
                         v.street, v.zipcode, v.city,
-                        ct.cp_greeting, ct.cp_title, ct.cp_givenname, ct.cp_name
+                        ct.cp_gender, ct.cp_title, ct.cp_givenname, ct.cp_name
                       FROM vendor v
                       LEFT JOIN contacts ct ON (v.id = ct.cp_cv_id)
                       $v_filter|);

@@ -1355,6 +1355,10 @@ Content-Length: $numbytes
 
         while (<IN>) {
           print OUT $_;
+        open(DUMP_OUT, "> /tmp/lx2.dump" );
+        print(DUMP_OUT Dumper($self));
+        close(DUMP_OUT);
+
         }
 
         close(OUT);

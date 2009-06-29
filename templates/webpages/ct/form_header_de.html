@@ -245,7 +245,7 @@
              name       = 'shipto_id',
              id         = 'shipto_id',
              DATA       = SHIPTO,
-             onChange   = "get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail',enable_delete_shipto])",
+             onChange   = "get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail',enable_delete_shipto,set_gender])",
              id_key     = 'shipto_id',
              label_sub  = 'shipto_label',
              label_key  = 'shipto_label',
@@ -326,26 +326,23 @@
              name       = 'cp_id',
              id         = 'cp_id',
              DATA       = CONTACTS,
-             onChange   = "get_contact(['cp_id__'+this.value],['cp_name','cp_greeting','cp_title','cp_givenname','cp_phone1','cp_phone2','cp_email','cp_abteilung','cp_fax','cp_mobile1','cp_mobile2','cp_satphone','cp_satfax','cp_project','cp_privatphone','cp_privatemail','cp_birthday',enable_delete_contact])",
+             onChange   = "get_contact(['cp_id__'+this.value],['cp_name','cp_title','cp_givenname','cp_phone1','cp_phone2','cp_email','cp_abteilung','cp_fax','cp_mobile1','cp_mobile2','cp_satphone','cp_satfax','cp_project','cp_privatphone','cp_privatemail','cp_birthday',enable_delete_contact,set_gender])",
              id_key     = 'cp_id',
              label_sub  = 'contacts_label',
        -%]
       </td>
      </tr>
 
-     <tr>
-      <th align="left" nowrap>Anrede</th>
-      <td>
-       <input id="cp_greeting" name="cp_greeting" size="40" maxlength="75" value="[% HTML.escape(cp_greeting) %]">&nbsp;
-        [%- INCLUDE generic/multibox.html
-              name       = 'selected_cp_greeting',
-              DATA       = MB_GREETINGS,
-              show_empty = 1,
-              id_key     = 'id',
-              label_key  = 'description',
-        -%]
-      </td>
-     </tr>
+    <tr>
+     <th align="left" nowrap>Geschlecht</th>
+     <td>
+      <select id="cp_gender" name="cp_gender">
+       <option value="m"[% IF cp_gender == 'm' %] selected[% END %]>m&auml;nnlich</option>
+       <option value="f"[% IF cp_gender == 'f' %] selected[% END %]>weiblich</option>
+      </select>
+     </td>
+    </tr>
+    <tr>
 
      <tr>
       <th align="left" nowrap>Titel</th>
@@ -598,3 +595,18 @@
    [%- END %]
 
   </div>
+
+  <script type="text/javascript">
+   <!--
+   function set_gender(gender) {
+     var s = document.getElementById('cp_gender');
+     if (s) {
+       s.selectedIndex = (gender == 'f') ? 1 : 0;
+     }
+   }
+  -->
+  
+  </script>
+
+
+

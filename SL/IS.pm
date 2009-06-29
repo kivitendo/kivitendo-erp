@@ -44,6 +44,7 @@ use SL::CVar;
 use SL::Common;
 use SL::DBUtils;
 use SL::DO;
+use SL::GenericTranslations;
 use SL::MoreCommon;
 use SL::IC;
 use Data::Dumper;
@@ -423,6 +424,8 @@ sub customer_details {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
+  my $language_id = $form->{language_id};
+
   # get contact id, set it if nessessary
   $form->{cp_id} *= 1;
 
@@ -483,6 +486,12 @@ sub customer_details {
                                                     'module'   => 'CT',
                                                     'trans_id' => $form->{customer_id});
   map { $form->{"vc_cvar_$_->{name}"} = $_->{value} } @{ $custom_variables };
+
+  $form->{cp_greeting} = GenericTranslations->get('dbh'              => $dbh,
+                                                  'translation_type' => 'greetings::' . ($form->{cp_gender} eq 'f' ? 'female' : 'male'),
+                                                  'language_id'      => $language_id,
+                                                  'allow_fallback'   => 1);
+
 
   $dbh->disconnect;
 

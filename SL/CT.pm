@@ -194,25 +194,26 @@ sub query_titles_and_greetings {
 
   my $dbh = $form->dbconnect($myconfig);
 
-  $query =
-    qq|SELECT DISTINCT(cp_greeting) | .
-    qq|FROM contacts | .
-    qq|WHERE cp_greeting ~ '[a-zA-Z]' | .
-    qq|ORDER BY cp_greeting|;
-  $form->{GREETINGS} = [ selectall_array_query($form, $dbh, $query) ];
-
-  $query =
-    qq|SELECT DISTINCT(greeting) | .
-    qq|FROM customer | .
-    qq|WHERE greeting ~ '[a-zA-Z]' | .
-    qq|UNION | .
-    qq|SELECT DISTINCT(greeting) | .
-    qq|FROM vendor | .
-    qq|WHERE greeting ~ '[a-zA-Z]' | .
-    qq|ORDER BY greeting|;
-  my %tmp;
-  map({ $tmp{$_} = 1; } selectall_array_query($form, $dbh, $query));
-  $form->{COMPANY_GREETINGS} = [ sort(keys(%tmp)) ];
+#  edit: cp_greeting wurde entfernt, wird durch cp_gender ersetzt
+#  $query =
+#    qq|SELECT DISTINCT(cp_greeting) | .
+#    qq|FROM contacts | .
+#    qq|WHERE cp_greeting ~ '[a-zA-Z]' | .
+#    qq|ORDER BY cp_greeting|;
+#  $form->{GREETINGS} = [ selectall_array_query($form, $dbh, $query) ];
+#
+#  $query =
+#    qq|SELECT DISTINCT(greeting) | .
+#    qq|FROM customer | .
+#    qq|WHERE greeting ~ '[a-zA-Z]' | .
+#    qq|UNION | .
+#    qq|SELECT DISTINCT(greeting) | .
+#    qq|FROM vendor | .
+#    qq|WHERE greeting ~ '[a-zA-Z]' | .
+#    qq|ORDER BY greeting|;
+#  my %tmp;
+#  map({ $tmp{$_} = 1; } selectall_array_query($form, $dbh, $query));
+#  $form->{COMPANY_GREETINGS} = [ sort(keys(%tmp)) ];
 
   $query =
     qq|SELECT DISTINCT(cp_title) | .
@@ -392,7 +393,8 @@ sub save_customer {
       qq|cp_project = ?, | .
       qq|cp_privatphone = ?, | .
       qq|cp_privatemail = ?, | .
-      qq|cp_birthday = ? | .
+      qq|cp_birthday = ?, | .
+      qq|cp_gender = ? | .
       qq|WHERE cp_id = ?|;
     @values = (
       $form->{cp_greeting},
@@ -412,6 +414,7 @@ sub save_customer {
       $form->{cp_privatphone},
       $form->{cp_privatemail},
       $form->{cp_birthday},
+      $form->{cp_gender} eq 'f' ? 'f' : 'm',
       $form->{cp_id}
       );
   } elsif ( $form->{cp_name} || $form->{cp_givenname} ) {
@@ -419,8 +422,8 @@ sub save_customer {
       qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname,  | .
       qq|  cp_name, cp_email, cp_phone1, cp_phone2, cp_abteilung, cp_fax, cp_mobile1, | .
       qq|  cp_mobile2, cp_satphone, cp_satfax, cp_project, cp_privatphone, cp_privatemail, | .
-      qq|  cp_birthday) | .
-      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      qq|  cp_birthday, cp_gender) | .
+      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     @values = (
       $form->{id},
       $form->{cp_greeting},
@@ -439,7 +442,8 @@ sub save_customer {
       $form->{cp_project},
       $form->{cp_privatphone},
       $form->{cp_privatemail},
-      $form->{cp_birthday}
+      $form->{cp_birthday},
+      $form->{cp_gender} eq 'f' ? 'f' : 'm',
       );
   }
   do_query( $form, $dbh, $query, @values ) if ($query);
@@ -598,6 +602,7 @@ sub save_vendor {
       qq|cp_privatphone = ?, | .
       qq|cp_privatemail = ?, | .
       qq|cp_birthday = ? | .
+      qq|cp_gender = ? | .
       qq|WHERE cp_id = ?|;
     @values = (
       $form->{cp_greeting},
@@ -617,6 +622,7 @@ sub save_vendor {
       $form->{cp_privatphone},
       $form->{cp_privatemail},
       $form->{cp_birthday},
+      $form->{cp_gender} eq 'f' ? 'f' : 'm',
       $form->{cp_id}
       );
   } elsif ( $form->{cp_name} || $form->{cp_givenname} ) {
@@ -624,8 +630,8 @@ sub save_vendor {
       qq|INSERT INTO contacts ( cp_cv_id, cp_greeting, cp_title, cp_givenname,  | .
       qq|  cp_name, cp_email, cp_phone1, cp_phone2, cp_abteilung, cp_fax, cp_mobile1, | .
       qq|  cp_mobile2, cp_satphone, cp_satfax, cp_project, cp_privatphone, cp_privatemail, | .
-      qq|  cp_birthday) | .
-      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      qq|  cp_birthday, cp_gender) | .
+      qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     @values = (
       $form->{id},
       $form->{cp_greeting},
