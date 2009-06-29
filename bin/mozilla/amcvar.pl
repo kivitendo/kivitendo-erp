@@ -73,15 +73,23 @@ sub list_cvar_configs {
 
   my $previous_config;
 
-  foreach (@configs) {
-    $_->{type_tr} = $translations{$_->{type}};
+  foreach my $config (@configs) {
+    $config->{type_tr} = $translations{$config->{type}};
 
-    if ($previous_config) {
-      $previous_config->{next_id} = $_->{id};
-      $_->{previous_id}           = $previous_config->{id};
+    foreach my $flag (split m/:/, $config->{flags}) {
+      if ($flag =~ m/(.*?)=(.*)/) {
+        $config->{"flag_${1}"}    = $2;
+      } else {
+        $config->{"flag_${flag}"} = 1;
+      }
     }
 
-    $previous_config = $_;
+    if ($previous_config) {
+      $previous_config->{next_id} = $config->{id};
+      $config->{previous_id}      = $previous_config->{id};
+    }
+
+    $previous_config = $config;
   }
 
   $form->{title} = $locale->text('List of custom variables');
@@ -138,6 +146,7 @@ sub save {
 
   $form->{included_by_default} = $form->{inclusion} eq 'yes_default_on';
   $form->{includeable}         = $form->{inclusion} ne 'no';
+  $form->{flags}               = join ':', map { m/^flag_(.*)/; "${1}=" . $form->{$_} } grep { m/^flag_/ } keys %{ $form };
 
   CVar->save_config('module' => $form->{module},
                     'config' => $form);

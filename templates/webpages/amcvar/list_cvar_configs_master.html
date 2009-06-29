@@ -14,6 +14,9 @@
     <td class="listheading" width="20%"><translate>Type</translate></td>
     <td class="listheading" width="20%"><translate>Searchable</translate></td>
     <td class="listheading" width="20%"><translate>Includeable in reports</translate></td>
+    [%- IF module == 'IC' %]
+    <td class="listheading" width="20%"><translate>Editable</translate></td>
+    [%- END %]
    </tr>
 
    [%- FOREACH cfg = CONFIGS %]
@@ -58,6 +61,16 @@
      <translate>No</translate>
      [%- END %]
     </td>
+
+    [%- IF module == 'IC' %]
+    <td>
+     [%- IF cfg.flag_editable %]
+     <translate>Yes</translate>
+     [%- ELSE %]
+     <translate>No</translate>
+     [%- END %]
+    </td>
+    [%- END %]
    </tr>
    [%- END %]
   </table>

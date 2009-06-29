@@ -13,6 +13,19 @@
   <p>
    <table>
     <tr>
+     <td align="right"><translate>Module</translate></td>
+     <td>
+      [%- IF module == 'CT' %]
+      <translate>Customers and vendors</translate>
+      [%- ELSIF module == 'Projects' %]
+      <translate>Projects</translate>
+      [%- ELSIF module == 'IC' %]
+      <translate>Parts, services and assemblies</translate>
+      [%- END %]
+     </td>
+    </tr>
+
+    <tr>
      <td align="right"><translate>Name</translate><sup><span class="small">(1)</span></sup></td>
      <td><input name="name" value="[% HTML.escape(name) %]"></td>
     </tr>
@@ -63,6 +76,18 @@
       </select>
      </td>
     </tr>
+
+    [%- IF module == 'IC' %]
+    <tr>
+     <td align="right"><translate>Editable</translate><sup><span class="small">(5)</span></sup></td>
+     <td>
+      <input type="radio" name="flag_editable" id="flag_editable_1" value="1"[% IF flag_editable %] checked[% END %]>
+      <label for="flag_editable_1"><translate>Yes</translate></label>
+      <input type="radio" name="flag_editable" id="flag_editable_0" value="0"[% UNLESS flag_editable %] checked[% END %]>
+      <label for="flag_editable_0"><translate>No</translate></label>
+     </td>
+    </tr>
+    [%- END %]
    </table>
   </p>
 
@@ -125,6 +150,18 @@
    <br>
    <translate>Other values are ignored.</translate>
   </p>
+
+  [%- IF module == 'IC' %]
+  <p>
+   (5)
+
+   <translate>A variable marked as 'editable' can be changed in each
+    quotation, order, invoice etc.</translate>
+
+   <translate>Otherwise the variable is only available for
+    printing.</translate>
+  </p>
+  [%- END %]
 
  </form>
 

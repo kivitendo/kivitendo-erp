@@ -36,6 +36,7 @@ use List::Util qw(max);
 use List::MoreUtils qw(any);
 
 use SL::AM;
+use SL::CVar;
 use SL::IC;
 use SL::ReportGenerator;
 
@@ -104,6 +105,12 @@ sub search {
   $form->{title} = $locale->text('Assemblies') if ($is_xyz{is_assembly});
 
   $form->{jsscript} = 1;
+
+  $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'IC');
+  ($form->{CUSTOM_VARIABLES_FILTER_CODE},
+   $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES},
+                                                                           'include_prefix' => 'l_',
+                                                                           'include_value'  => 'Y');
 
   $form->header;
 
@@ -1010,6 +1017,8 @@ sub generate_report {
 
   my ($revers, $lastsort, $description);
 
+  my $cvar_configs = CVar->get_configs('module' => 'IC');
+
   $form->{title} = (ucfirst $form->{searchitems}) . "s";
   $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
@@ -1151,6 +1160,12 @@ sub generate_report {
     qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
        priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate);
 
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
   my %column_defs = (
     'bin'                => { 'text' => $locale->text('Bin'), },
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
@@ -1177,12 +1192,13 @@ sub generate_report {
     'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
+    %column_defs_cvars,
   );
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
   map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
 
-  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, map { "l_$_" } @columns);
+  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, @searchable_custom_variables, map { "l_$_" } @columns);
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate);
@@ -1218,6 +1234,12 @@ sub generate_report {
   $report->set_export_options('generate_report', @hidden_variables, qw(sort revers));
 
   $report->set_sort_indicator($form->{sort}, $form->{revers} ? 0 : 1);
+
+  CVar->add_custom_variables_to_report('module'         => 'IC',
+                                       'trans_id_field' => 'id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{parts});
 
   my @subtotal_columns = qw(sellprice listprice lastcost);
   my %subtotals = map { $_ => 0 } ('onhand', @subtotal_columns);
@@ -1513,6 +1535,10 @@ sub form_header {
   $form->{defaults} = AM->get_defaults();
 
   $form->{fokus} = "ic.partnumber";
+
+  $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'IC', 'trans_id' => $form->{id});
+
+  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
 
   $form->header;
   #print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS},

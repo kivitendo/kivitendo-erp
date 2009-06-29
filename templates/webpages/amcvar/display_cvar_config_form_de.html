@@ -13,6 +13,19 @@
   <p>
    <table>
     <tr>
+     <td align="right">Modul</td>
+     <td>
+      [%- IF module == 'CT' %]
+      Kunden und Lieferanten
+      [%- ELSIF module == 'Projects' %]
+      Projekte
+      [%- ELSIF module == 'IC' %]
+      Waren, Dienstleistungen und Erzeugnisse
+      [%- END %]
+     </td>
+    </tr>
+
+    <tr>
      <td align="right">Name<sup><span class="small">(1)</span></sup></td>
      <td><input name="name" value="[% HTML.escape(name) %]"></td>
     </tr>
@@ -63,6 +76,18 @@
       </select>
      </td>
     </tr>
+
+    [%- IF module == 'IC' %]
+    <tr>
+     <td align="right">Bearbeitbar<sup><span class="small">(5)</span></sup></td>
+     <td>
+      <input type="radio" name="flag_editable" id="flag_editable_1" value="1"[% IF flag_editable %] checked[% END %]>
+      <label for="flag_editable_1">Ja</label>
+      <input type="radio" name="flag_editable" id="flag_editable_0" value="0"[% UNLESS flag_editable %] checked[% END %]>
+      <label for="flag_editable_0">Nein</label>
+     </td>
+    </tr>
+    [%- END %]
    </table>
   </p>
 
@@ -110,6 +135,16 @@
    <br>
    Andere Eingaben werden ignoriert.
   </p>
+
+  [%- IF module == 'IC' %]
+  <p>
+   (5)
+
+   Eine als 'editierbar' markierte Variable kann in jedem Angebot, Auftrag, jeder Rechnung etc für jede Position geändert werden.
+
+   Andernfalls steht die Variable nur beim Ausdruck zur Verfügung.
+  </p>
+  [%- END %]
 
  </form>
 

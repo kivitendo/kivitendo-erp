@@ -56,6 +56,8 @@
        <td><input name="microfiche" size="20"></td>
       </tr>
 
+      [% CUSTOM_VARIABLES_FILTER_CODE %]
+
       [%- IF is_assembly %]
       <tr>
        <td></td>
@@ -250,6 +252,8 @@
           <td>
           </td>
          </tr>
+
+         [% CUSTOM_VARIABLES_INCLUSION_CODE %]
         </table>
        </td>
       </tr>

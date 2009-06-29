@@ -79,8 +79,8 @@ sub save_config {
   my $h_id     = prepare_query($form, $dbh, $q_id);
 
   my $q_new    =
-    qq|INSERT INTO custom_variable_configs (name, description, type, default_value, options, searchable, includeable, included_by_default, module, id, sortkey)
-       VALUES                              (?,    ?,           ?,    ?,             ?,       ?,          ?,           ?,                   ?,      ?,
+    qq|INSERT INTO custom_variable_configs (name, description, type, default_value, options, searchable, includeable, included_by_default, module, flags, id, sortkey)
+       VALUES                              (?,    ?,           ?,    ?,             ?,       ?,          ?,           ?,                   ?,      ?,     ?,
          (SELECT COALESCE(MAX(sortkey) + 1, 1) FROM custom_variable_configs))|;
   my $h_new    = prepare_query($form, $dbh, $q_new);
 
@@ -90,7 +90,7 @@ sub save_config {
          type        = ?, default_value       = ?,
          options     = ?, searchable          = ?,
          includeable = ?, included_by_default = ?,
-         module      = ?
+         module      = ?, flags               = ?
        WHERE id  = ?|;
   my $h_update = prepare_query($form, $dbh, $q_update);
 
@@ -118,7 +118,7 @@ sub save_config {
 
     do_statement($form, $h_actual, $q_actual, @{$config}{qw(name description type default_value options)},
                  $config->{searchable} ? 't' : 'f', $config->{includeable} ? 't' : 'f', $config->{included_by_default} ? 't' : 'f',
-                 $params{module}, conv_i($config->{id}));
+                 $params{module}, $config->{flags}, conv_i($config->{id}));
   }
 
   $h_id->finish();

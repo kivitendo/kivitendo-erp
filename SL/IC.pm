@@ -38,6 +38,7 @@ use Data::Dumper;
 use List::MoreUtils qw(all);
 use YAML;
 
+use SL::CVar;
 use SL::DBUtils;
 
 sub get_part {
@@ -565,6 +566,11 @@ sub save {
     }
   }
 
+  CVar->save_custom_variables('dbh'       => $dbh,
+                              'module'    => 'IC',
+                              'trans_id'  => $form->{id},
+                              'variables' => $form);
+
   # commit
   my $rc = $dbh->commit;
   $dbh->disconnect;
@@ -956,6 +962,15 @@ sub all_parts {
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = ' GROUP BY ' . join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @group_tokens if scalar @group_tokens;
+
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'IC',
+                                                            'trans_id_field' => 'p.id',
+                                                            'filter'         => $form);
+
+  if ($cvar_where) {
+    $where_clause .= qq| AND ($cvar_where)|;
+    push @bind_vars, @cvar_values;
+  }
 
   my $query = qq|SELECT DISTINCT $select_clause FROM parts p $join_clause WHERE $where_clause $group_clause $order_clause $limit_clause|;
 
