@@ -186,9 +186,12 @@ $self->{subs} = {
   'save_follow_up'              => 'save_follow_up',
   'search'                      => 'search',
   'update'                      => 'update',
+  'zurück'                      => 'back',
   'abbrechen'                   => 'cancel',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
+  'als_csv_exportieren'         => 'export_as_csv',
+  'als_pdf_exportieren'         => 'export_as_pdf',
   'abschlie&szlig;en'           => 'finish',
   'speichern'                   => 'save',
 };

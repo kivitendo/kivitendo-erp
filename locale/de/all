@@ -908,6 +908,7 @@ $self->{texts} = {
   'List Tax'                    => 'Bearbeiten',
   'List Transactions'           => 'Buchungsliste',
   'List Warehouses'             => 'Lager anzeigen',
+  'List export'                 => 'Listenexport',
   'List of custom variables'    => 'Liste der benutzerdefinierten Variablen',
   'Load draft'                  => 'Entwurf laden',
   'Local Tax Office Preferences' => 'Angaben zum Finanzamt',

@@ -201,7 +201,10 @@ $self->{subs} = {
   'report_generator_export_as_csv' => 'report_generator_export_as_csv',
   'report_generator_export_as_pdf' => 'report_generator_export_as_pdf',
   'report_generator_set_default_sort' => 'report_generator_set_default_sort',
+  'zurück'                      => 'back',
   'weiter'                      => 'continue',
+  'als_csv_exportieren'         => 'export_as_csv',
+  'als_pdf_exportieren'         => 'export_as_pdf',
   'buchungsliste'               => 'list_transactions',
 };
 

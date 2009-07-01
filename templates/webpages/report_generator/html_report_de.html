@@ -109,8 +109,8 @@
 
    <p>
     Listenexport<br>
-    [% IF ALLOW_PDF_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')">Als PDF exportieren</button>[% END %]
-    [% IF ALLOW_CSV_EXPORT %]<button type="button" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')">Als CSV exportieren</button>[% END %]
+    [% IF ALLOW_PDF_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')" value="Als PDF exportieren">[% END %]
+    [% IF ALLOW_CSV_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')" value="Als CSV exportieren">[% END %]
    </p>
   </form>
  [% END %]
