@@ -204,6 +204,7 @@ $self->{subs} = {
   'update'                      => 'update',
   'vendor_invoice'              => 'vendor_invoice',
   'vendor_selection'            => 'vendor_selection',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'fertig'                      => 'done',
   'neue_ware'                   => 'new_part',

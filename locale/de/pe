@@ -210,6 +210,7 @@ $self->{subs} = {
   'vendor_invoice'              => 'vendor_invoice',
   'vendor_selection'            => 'vendor_selection',
   'erfassen'                    => 'add',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'neue_ware'                   => 'new_part',

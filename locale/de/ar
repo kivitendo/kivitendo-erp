@@ -365,6 +365,7 @@ $self->{subs} = {
   'yes'                         => 'yes',
   'debitorenbuchung'            => 'ar_transaction',
   'zurück'                      => 'back',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'entwürfe_löschen'            => 'delete_drafts',

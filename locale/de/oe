@@ -490,6 +490,7 @@ $self->{subs} = {
   'vendor_selection'            => 'vendor_selection',
   'yes'                         => 'yes',
   'zurück'                      => 'back',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'lieferschein'                => 'delivery_order',

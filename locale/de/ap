@@ -358,6 +358,7 @@ $self->{subs} = {
   'kreditorenbuchung'           => 'ap_transaction',
   'kreditorenbuchung_erfassen'  => 'add_accounts_payables_transaction',
   'zurück'                      => 'back',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'entwürfe_löschen'            => 'delete_drafts',

@@ -526,6 +526,7 @@ $self->{subs} = {
   'yes'                         => 'yes',
   'zurück'                      => 'back',
   'abbrechen'                   => 'cancel',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'lieferschein'                => 'delivery_order',

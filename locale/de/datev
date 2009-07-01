@@ -223,6 +223,7 @@ $self->{subs} = {
   'show_vc_details'             => 'show_vc_details',
   'vendor_invoice'              => 'vendor_invoice',
   'vendor_selection'            => 'vendor_selection',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'neue_ware'                   => 'new_part',
 };

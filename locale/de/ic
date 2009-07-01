@@ -432,6 +432,7 @@ $self->{subs} = {
   'dienstleistung_erfassen'     => 'add_service',
   'erzeugnisnummer_fehlt!'      => 'assembly_number_missing!',
   'zurück'                      => 'back',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'erzeugnis_bearbeiten'        => 'edit_assembly',

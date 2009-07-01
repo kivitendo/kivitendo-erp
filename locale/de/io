@@ -315,6 +315,7 @@ $self->{subs} = {
   'vendor_details'              => 'vendor_details',
   'vendor_invoice'              => 'vendor_invoice',
   'vendor_selection'            => 'vendor_selection',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'neue_ware'                   => 'new_part',
 };

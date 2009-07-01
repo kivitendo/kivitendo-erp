@@ -251,6 +251,7 @@ $self->{subs} = {
   'ustva_vorauswahl'            => 'ustva_vorauswahl',
   'vendor_invoice'              => 'vendor_invoice',
   'vendor_selection'            => 'vendor_selection',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'neue_ware'                   => 'new_part',
   'speichern'                   => 'save',

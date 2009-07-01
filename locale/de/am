@@ -469,6 +469,7 @@ $self->{subs} = {
   'vendor_selection'            => 'vendor_selection',
   'erfassen'                    => 'add',
   'konto_erfassen'              => 'add_account',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'kontodaten_bearbeiten'       => 'edit_account',

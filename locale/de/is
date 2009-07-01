@@ -444,6 +444,7 @@ $self->{subs} = {
   'vendor_invoice'              => 'vendor_invoice',
   'vendor_selection'            => 'vendor_selection',
   'yes'                         => 'yes',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'gutschrift'                  => 'credit_note',
   'löschen'                     => 'delete',

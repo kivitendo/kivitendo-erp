@@ -289,6 +289,7 @@ $self->{subs} = {
   'zu_gruppe_hinzufügen'        => 'add_to_group',
   'zurück'                      => 'back',
   'datenbank_sichern'           => 'backup_dataset',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'datenbank_anlegen'           => 'create_dataset',
   'tabellen_anlegen'            => 'create_tables',

@@ -264,6 +264,7 @@ $self->{subs} = {
   'vendor_selection'            => 'vendor_selection',
   'erfassen'                    => 'add',
   'zurück'                      => 'back',
+  'Übernehmen'                  => 'close',
   'weiter'                      => 'continue',
   'löschen'                     => 'delete',
   'ansprechpartner_löschen'     => 'delete_contact',
