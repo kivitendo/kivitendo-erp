@@ -34,6 +34,7 @@ sub _init {
   $self->{userspath} = shift;
 
   $self->{error}     = undef;
+  $self->{quot_re}   = '"';
 
   $self->set_tag_style('<%', '%>');
 }
@@ -118,6 +119,92 @@ sub substitute_vars {
   }
 
   return $text;
+}
+
+sub _parse_block_if {
+  $main::lxdebug->enter_sub();
+
+  my $self         = shift;
+  my $contents     = shift;
+  my $new_contents = shift;
+  my $pos_if       = shift;
+  my @indices      = @_;
+
+  $$new_contents .= $self->substitute_vars(substr($$contents, 0, $pos_if), @indices);
+  substr($$contents, 0, $pos_if) = "";
+
+  if ($$contents !~ m/^$self->{tag_start_qm}if
+                     \s*
+                     (not\b|\!)?           # $1 -- Eventuelle Negierung
+                     \s+
+                     (\b.+?\b)             # $2 -- Name der zu überprüfenden Variablen
+                     (                     # $3 -- Beginn des optionalen Vergleiches
+                       \s*
+                       ([!=])              # $4 -- Negierung des Vergleiches speichern
+                       ([=~])              # $5 -- Art des Vergleiches speichern
+                       \s*
+                       (                   # $6 -- Gequoteter String oder Bareword
+                         $self->{quot_re}
+                         (.*?)(?<!\\)      # $7 -- Gequoteter String -- direkter Vergleich mit eq bzw. ne oder Patternmatching; Escapete Anführungs als Teil des Strings belassen
+                         $self->{quot_re}
+                       |
+                         (\b.+?\b)         # $8 -- Bareword -- als Index für $form benutzen
+                       )
+                     )?
+                     \s*
+                     $self->{tag_end_qm}
+                    /x) {
+    $self->{"error"} = "Malformed $self->{tag_start}if$self->{tag_end}.";
+    $main::lxdebug->leave_sub();
+    return undef;
+  }
+
+  my $not           = $1;
+  my $var           = $2;
+  my $operator_neg  = $4; # '=' oder '!' oder undef, wenn kein Vergleich erkannt
+  my $operator_type = $5; # '=' oder '~' für Stringvergleich oder Regex
+  my $quoted_word   = $7; # nur gültig, wenn quoted string angegeben (siehe unten); dann "value" aus <%if var == "value" %>
+  my $bareword      = $8; # undef, falls quoted string angegeben wurde; andernfalls "othervar" aus <%if var == othervar %>
+
+  $not = !$not if ($operator_neg && $operator_neg eq '!');
+
+  substr($$contents, 0, length($&)) = "";
+
+  my $block;
+  ($block, $$contents) = $self->find_end($$contents, 0, $var, $not);
+  if (!$block) {
+    $self->{"error"} = "Unclosed $self->{tag_start}if$self->{tag_end}." unless ($self->{"error"});
+    $main::lxdebug->leave_sub();
+    return undef;
+  }
+
+  my $value = $self->_get_loop_variable($var, 0, @indices);
+  my $hit   = 0;
+
+  if ($operator_type) {
+    my $compare_to = $bareword ? $self->_get_loop_variable($bareword, 0, @indices) : $quoted_word;
+    if ($operator_type eq '=') {
+      $hit         = ($not && !($value eq $compare_to))     || (!$not && ($value eq $compare_to));
+    } else {
+      $hit         = ($not && !($value =~ m/$compare_to/i)) || (!$not && ($value =~ m/$compare_to/i));
+    }
+
+  } else {
+    $hit           = ($not && ! $value)                     || (!$not &&  $value);
+  }
+
+  if ($hit) {
+    my $new_text = $self->parse_block($block, @indices);
+    if (!defined($new_text)) {
+      $main::lxdebug->leave_sub();
+      return undef;
+    }
+    $$new_contents .= $new_text;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return 1;
 }
 
 1;
@@ -333,73 +420,9 @@ sub parse_block {
       $new_contents .= $new_text;
 
     } else {
-      $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_if), @indices);
-      substr($contents, 0, $pos_if) = "";
-
-      if ($contents !~ m/^$self->{tag_start_qm}if
-                         \s*
-                         (not\b|\!)?         # $1 -- Eventuelle Negierung
-                         \s+
-                         (\b.+?\b)           # $2 -- Name der zu überprüfenden Variablen
-                         (                   # $3 -- Beginn des optionalen Vergleiches
-                           \s*
-                           ([!=])            # $4 -- Negierung des Vergleiches speichern
-                           ([=~])            # $5 -- Art des Vergleiches speichern
-                           \s*
-                           (                 # $6 -- Gequoteter String oder Bareword
-                             "(.*?)(?<!\\)"  # $7 -- Gequoteter String -- direkter Vergleich mit eq bzw. ne oder Patternmatching; Escapete Anführungs als Teil des Strings belassen
-                           |
-                             (\b.+?\b)       # $8 -- Bareword -- als Index für $form benutzen
-                           )
-                         )?
-                         \s*
-                         $self->{tag_end_qm}
-                        /x) {
-        $self->{"error"} = "Malformed $self->{tag_start}if$self->{tag_end}.";
+      if (!$self->_parse_block_if(\$contents, \$new_contents, $pos_if, @indices)) {
         $main::lxdebug->leave_sub();
         return undef;
-      }
-
-      my $not           = $1;
-      my $var           = $2;
-      my $operator_neg  = $4; # '=' oder '!' oder undef, wenn kein Vergleich erkannt
-      my $operator_type = $5; # '=' oder '~' für Stringvergleich oder Regex
-      my $quoted_word   = $7; # nur gültig, wenn quoted string angegeben (siehe unten); dann "value" aus <%if var == "value" %>
-      my $bareword      = $8; # undef, falls quoted string angegeben wurde; andernfalls "othervar" aus <%if var == othervar %>
-
-      $not = !$not if ($operator_neg && $operator_neg eq '!');
-
-      substr($contents, 0, length($&)) = "";
-
-      ($block, $contents) = $self->find_end($contents, 0, $var, $not);
-      if (!$block) {
-        $self->{"error"} = "Unclosed $self->{tag_start}if${not}$self->{tag_end}." unless ($self->{"error"});
-        $main::lxdebug->leave_sub();
-        return undef;
-      }
-
-      my $value = $self->_get_loop_variable($var, 0, @indices);
-      my $hit   = 0;
-
-      if ($operator_type) {
-        my $compare_to = $bareword ? $self->_get_loop_variable($bareword, 0, @indices) : $quoted_word;
-        if ($operator_type eq '=') {
-          $hit         = ($not && !($value eq $compare_to))     || (!$not && ($value eq $compare_to));
-        } else {
-          $hit         = ($not && !($value =~ m/$compare_to/i)) || (!$not && ($value =~ m/$compare_to/i));
-        }
-
-      } else {
-        $hit           = ($not && ! $value)                     || (!$not &&  $value);
-      }
-
-      if ($hit) {
-        my $new_text = $self->parse_block($block, @indices);
-        if (!defined($new_text)) {
-          $main::lxdebug->leave_sub();
-          return undef;
-        }
-        $new_contents .= $new_text;
       }
     }
   }
@@ -825,6 +848,7 @@ sub new {
   $self->{"iconv"} = Text::Iconv->new($main::dbcharset, "UTF-8");
 
   $self->set_tag_style('&lt;%', '%&gt;');
+  $self->{quot_re} = '&quot;';
 
   return $self;
 }
@@ -986,39 +1010,9 @@ sub parse_block {
         $new_contents .= $new_text;
 
       } else {
-        $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_if), @indices);
-        substr($contents, 0, $pos_if) = "";
-
-        if ($contents !~ m|^\&lt;\%if\s*(not)?\s+(.*?)\%\&gt;|) {
-          $self->{"error"} = "Malformed <\%if\%>.";
+        if (!$self->_parse_block_if(\$contents, \$new_contents, $pos_if, @indices)) {
           $main::lxdebug->leave_sub();
           return undef;
-        }
-
-        my ($not, $var) = ($1, $2);
-
-        substr($contents, 0, length($&)) = "";
-
-        ($block, $contents) = $self->find_end($contents, 0, $var, $not);
-        if (!$block) {
-          $self->{"error"} = "Unclosed <\%if${not}\%>." unless ($self->{"error"});
-          $main::lxdebug->leave_sub();
-          return undef;
-        }
-
-        my $value = $self->{"form"}->{$var};
-        for (my $i = 0; $i < scalar(@indices); $i++) {
-          last unless (ref($value) eq "ARRAY");
-          $value = $value->[$indices[$i]];
-        }
-
-        if (($not && !$value) || (!$not && $value)) {
-          my $new_text = $self->parse_block($block, @indices);
-          if (!defined($new_text)) {
-            $main::lxdebug->leave_sub();
-            return undef;
-          }
-          $new_contents .= $new_text;
         }
       }
     }
