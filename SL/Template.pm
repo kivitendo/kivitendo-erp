@@ -384,13 +384,13 @@ sub parse_block {
       if ($operator_type) {
         my $compare_to = $bareword ? $self->_get_loop_variable($bareword, 0, @indices) : $quoted_word;
         if ($operator_type eq '=') {
-          $hit         = ($not && !($value eq $compare_to))    || (!$not && ($value eq $compare_to));
+          $hit         = ($not && !($value eq $compare_to))     || (!$not && ($value eq $compare_to));
         } else {
-          $hit         = ($not && !($value =~ m/$compare_to/)) || (!$not && ($value =~ m/$compare_to/));
+          $hit         = ($not && !($value =~ m/$compare_to/i)) || (!$not && ($value =~ m/$compare_to/i));
         }
 
       } else {
-        $hit           = ($not && ! $value)                    || (!$not &&  $value);
+        $hit           = ($not && ! $value)                     || (!$not &&  $value);
       }
 
       if ($hit) {
