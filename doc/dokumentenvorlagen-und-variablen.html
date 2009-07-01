@@ -119,9 +119,6 @@ td {
     Bl&ouml;cke, bedingte Anweisungen und Schleifen</a>
 
    <ol>
-    <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_ifnot">
-      Der <code>if not</code>-Block</a></li>
-
     <li><a href="dokumentenvorlagen-und-variablen.html#bloecke_if">
       Der <code>if</code>-Block</a></li>
 
@@ -1241,16 +1238,6 @@ td {
   gesondert behandelt werden. Diese sind wie Variablennamen in spezieller
   Weise markiert: <code>&lt;%anweisung%&gt;</code></p>
 
- <h3><a name="bloecke_ifnot">Der <code>if not</code>-Block</a></h3>
-
- <p class="blue"><code>&lt;%if not variablenname%&gt;<br>
-   ...<br>
-   &lt;%end&gt;</code></p>
-
- <p>Eine normale "if-not-then"-Bedingung. Die Zeilen zwischen dem "if not" und
-  dem "end" werden nur ausgegeben, wenn die Variable "variablenname" nicht
-  gesetzt oder gleich 0 ist.</p>
-
  <h3><a name="bloecke_if">Der <code>if</code>-Block</a></h3>
 
  <p class="blue"><code>&lt;%if variablenname%&gt;<br>
@@ -1260,6 +1247,40 @@ td {
  <p>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if" und dem
   "end" werden nur ausgegeben, wenn die Variable "variablenname" gesetzt und
   ungleich 0 ist.</p>
+
+ <p>Die Bedingung kann auch negiert werden, indem das Wort
+  &quot;not&quot; nach dem &quot;if&quot; verwendet
+  wird. Beispiel: <code class="blue">&lt;%if not
+  cp_greeting%&gt;</code></p>
+
+ <p>Zusätzlich zu dem einfachen Test, ob eine Variable gesetzt ist
+  oder nicht, bietet dieser Block auch die Möglichkeit, den Inhalt
+  einer Variablen mit einer festen Zeichenkette oder einer anderen
+  Variablen zu vergleichen. Ob der Vergleich mit einer Zeichenkette
+  oder einer anderen Variablen vorgenommen wird, hängt davon ab, ob
+  die rechte Seite des Vergleichsoperators in Anführungszeichen
+  gesetzt wird (Vergleich mit Zeichenkette) oder nicht (Vergleich mit
+  anderer Variablen). Zwei Beispiele, die beide Vergleiche zeigen:</p>
+
+ <p><code class="blue">&lt;%if var1 == &quot;Wert&quot;%&gt;</code>
+  testet die Variable &quot;var1&quot; auf Übereinstimmung mit der
+  Zeichenkette &quot;Wert&quot;. Mittels &quot;!=&quot; anstelle von
+  &quot;==&quot; würde auf Ungleichheit getestet.</p>
+
+ <p><code class="blue">&lt;%if var1 == var2%&gt;</code> testet die
+  Variable &quot;var1&quot; auf Übereinstimmung mit der Variablen
+  &quot;var2&quot;. Mittels &quot;!=&quot; anstelle von &quot;==&quot;
+  würde auf Ungleichheit getestet. </p>
+
+ <p>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit auch
+  Tests auf Übereinstimmung mit regulären Ausdrücken ohne
+  Berücksichtung der Groß- und Kleinschreibung durchführen. Dazu dient
+  dieselbe Syntax wie oben nur mit &quot;=~&quot; und &quot;!~&quot;
+  als Vergleichsoperatoren.</p>
+
+ <p>Beispiel für einen Test, ob die Variable &quot;intnotes&quot;
+  (interne Bemerkungen) das Wort &quot;schwierig&quot; enthält:
+  <code class="blue">&lt;%if intnotes =~ schwierig%&gt;</code></p>
 
  <h3><a name="bloecke_foreach">Die <code>foreach</code>-Schleife</a></h3>
 
