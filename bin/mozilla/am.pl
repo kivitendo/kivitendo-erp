@@ -2545,7 +2545,7 @@ sub save_preferences {
 
   TODO->save_user_config('login' => $form->{login}, %{ $form->{todo_cfg} || { } });
 
-  $form->redirect($locale->text('Preferences saved!')) if (AM->save_preferences(\%myconfig, \%$form, $webdav));
+  $form->redirect($locale->text('Preferences saved!')) if (AM->save_preferences(\%myconfig, \%$form, 0));
   $form->error($locale->text('Cannot save preferences!'));
 
   $lxdebug->leave_sub();
