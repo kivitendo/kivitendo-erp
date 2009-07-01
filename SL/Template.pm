@@ -336,13 +336,37 @@ sub parse_block {
       $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_if), @indices);
       substr($contents, 0, $pos_if) = "";
 
-      if ($contents !~ m|^$self->{tag_start_qm}if\s*(not)?\s+(.*?)$self->{tag_end_qm}|) {
+      # if ($contents !~ m|^$self->{tag_start_qm}if\s*(not)?\s+(.*?)$self->{tag_end_qm}|) {
+      if ($contents !~ m/^$self->{tag_start_qm}
+                         \s*
+                         (not|\!)?           # $1 -- Eventuelle Negierung
+                         \s*
+                         ([^\s]+)            # $2 -- Name der zu überprüfenden Variablen
+                         (                   # $3 -- Beginn des optionalen Vergleiches
+                           \s*
+                           ([!=])=           # $4 -- Art des Vergleiches speichern
+                           \s*
+                           (                 # $5 -- Gequoteter String oder Bareword
+                             "(.*)(?<!\\)"   # $6 -- Gequoteter String -- direkter Vergleich mit eq bzw. ne; Escapete Anführungs als Teil des Strings belassen
+                           |
+                             ([^\s]+)        # $7 -- Bareword -- als Index für $form benutzen
+                           )
+                         )?
+                         \s*
+                         $self->{tag_end_qm}
+                        /x) {
         $self->{"error"} = "Malformed $self->{tag_start}if$self->{tag_end}.";
         $main::lxdebug->leave_sub();
         return undef;
       }
 
-      my ($not, $var) = ($1, $2);
+      my $not      = $1;
+      my $var      = $2;
+      my $operator = $4;        # '=' oder '!' oder undef, wenn kein Vergleich erkannt
+      my $quoted   = $5;        # nur gültig, wenn quoted string angegeben (siehe unten); dann "value" aus <%if var == "value" %>
+      my $bareword = $7;        # undef, falls quoted string angegeben wurde; andernfalls "othervar" aus <%if var == othervar %>
+
+      $not = !$not if ($operator && $operator eq '!');
 
       substr($contents, 0, length($&)) = "";
 
@@ -353,17 +377,18 @@ sub parse_block {
         return undef;
       }
 
-      my $form = $self->{form};
-      $form = $form->{TEMPLATE_ARRAYS} if @indices
-                                       && ref $form->{TEMPLATE_ARRAYS} eq 'HASH'
-                                       && ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY';
-      my $value = $form->{$var};
-      for (my $i = 0; $i < scalar(@indices); $i++) {
-        last unless (ref($value) eq "ARRAY");
-        $value = $value->[$indices[$i]];
+      my $value = $self->_get_loop_variable($var, 0, @indices);
+      my $hit   = 0;
+
+      if ($operator) {
+        my $compare_to = $bareword ? $self->_get_loop_variable($bareword, 0, @indices) : $quoted;
+        $hit           = ($not && !($value eq $compare_to)) || (!$not && ($value eq $compare_to));
+
+      } else {
+        $hit           = ($not && ! $value)                 || (!$not &&  $value);
       }
 
-      if (($not && !$value) || (!$not && $value)) {
+      if ($hit) {
         my $new_text = $self->parse_block($block, @indices);
         if (!defined($new_text)) {
           $main::lxdebug->leave_sub();
