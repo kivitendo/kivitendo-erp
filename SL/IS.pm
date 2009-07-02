@@ -1919,8 +1919,6 @@ sub retrieve_item {
     map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
   }
 
-  $main::lxdebug->dump(0, "items", $form->{item_list});
-
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
