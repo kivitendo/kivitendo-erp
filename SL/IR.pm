@@ -37,6 +37,7 @@ package IR;
 use SL::AM;
 use SL::ARAP;
 use SL::Common;
+use SL::CVar;
 use SL::DBUtils;
 use SL::DO;
 use SL::GenericTranslations;
@@ -51,6 +52,9 @@ sub post_invoice {
   # connect to database, turn off autocommit
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
 
   my ($query, $sth, @values, $project_id);
   my ($allocated, $taxrate, $taxamount, $taxdiff, $item);
@@ -290,18 +294,29 @@ sub post_invoice {
     next if $payments_only;
 
     # save detail record in invoice table
+    my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('invoiceid')|);
+
     $query =
-      qq|INSERT INTO invoice (trans_id, parts_id, description, qty, base_qty,
+      qq|INSERT INTO invoice (id, trans_id, parts_id, description, qty, base_qty,
                               sellprice, fxsellprice, allocated, unit, deliverydate,
                               project_id, serialnumber, price_factor_id, price_factor, marge_price_factor)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?)|;
-    @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?)|;
+    @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $form->{"qty_$i"} * -1,
                $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}));
     do_query($form, $dbh, $query, @values);
+
+    CVar->save_custom_variables(module       => 'IC',
+                                sub_module   => 'invoice',
+                                trans_id     => $invoice_id,
+                                configs      => $ic_cvar_configs,
+                                variables    => $form,
+                                name_prefix  => 'ic_',
+                                name_postfix => "_$i",
+                                dbh          => $dbh);
   }
 
   $h_item_unit->finish();
@@ -760,6 +775,7 @@ sub retrieve_invoice {
         c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from AS income_valid,
         c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from AS expense_valid,
 
+        i.id AS invoice_id,
         i.description, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
         i.price_factor_id, i.price_factor, i.marge_price_factor,
         p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin, pr.projectnumber, pg.partsgroup
@@ -778,6 +794,15 @@ sub retrieve_invoice {
   $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    # Retrieve custom variables.
+    my $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                           module     => 'IC',
+                                           sub_module => 'invoice',
+                                           trans_id   => $ref->{invoice_id},
+                                          );
+    map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
+    delete $ref->{invoice_id};
+
     map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
     delete($ref->{"part_inventory_accno_id"});
 
