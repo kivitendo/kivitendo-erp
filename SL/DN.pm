@@ -726,9 +726,10 @@ sub print_dunning {
 
   $query =
     qq|SELECT
-         c.id AS customer_id, c.name,         c.street,       c.zipcode, c.city,
-         c.country,           c.department_1, c.department_2, c.email, c.customernumber,
-         -- contact information
+         c.id AS customer_id, c.name,         c.street,       c.zipcode,   c.city,
+         c.country,           c.department_1, c.department_2, c.email,     c.customernumber,
+         c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
+         c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
          co.*
        FROM dunning d
        LEFT JOIN ar          ON (d.trans_id = ar.id)
