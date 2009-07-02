@@ -1097,6 +1097,16 @@ sub retrieve_item {
   }
 
   $sth->finish();
+
+  foreach my $item (@{ $form->{item_list} }) {
+    my $custom_variables = CVar->get_custom_variables(module   => 'IC',
+                                                      trans_id => $item->{id},
+                                                      dbh      => $dbh,
+                                                     );
+
+    map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
+  }
+
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
