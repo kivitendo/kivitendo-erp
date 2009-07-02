@@ -38,6 +38,7 @@ use YAML;
 
 use SL::AM;
 use SL::Common;
+use SL::CVar;
 use SL::DBUtils;
 use SL::RecordLinks;
 
@@ -190,6 +191,9 @@ sub save {
   my $all_units = AM->retrieve_units($myconfig, $form);
   $form->{all_units} = $all_units;
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
+
   $form->{donumber}    = $form->update_defaults($myconfig, $form->{type} eq 'sales_delivery_order' ? 'sdonumber' : 'pdonumber', $dbh) unless $form->{donumber};
   $form->{employee_id} = (split /--/, $form->{employee})[1] if !$form->{employee_id};
   $form->get_employee($dbh) unless ($form->{employee_id});
@@ -300,6 +304,15 @@ sub save {
                  conv_i($sinfo->{bin_id}), $sinfo->{chargenumber});
       do_statement($form, $h_item_stock, $q_item_stock, @values);
     }
+
+    CVar->save_custom_variables(module       => 'IC',
+                                sub_module   => 'delivery_order_items',
+                                trans_id     => $item_id,
+                                configs      => $ic_cvar_configs,
+                                variables    => $form,
+                                name_prefix  => 'ic_',
+                                name_postfix => "_$i",
+                                dbh          => $dbh);
   }
 
   $h_item_id->finish();
@@ -545,6 +558,9 @@ sub retrieve {
 
   my ($query, $query_add, @values, $sth, $ref);
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
+
   my $vc   = $params{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my $mode = !$params{ids} ? 'default' : ref $params{ids} eq 'ARRAY' ? 'multi' : 'single';
@@ -654,6 +670,16 @@ sub retrieve {
 
   $form->{form_details} = selectall_hashref_query($form, $dbh, $query, @do_ids);
 
+  # Retrieve custom variables.
+  foreach my $doi (@{ $form->{form_details} }) {
+    my $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                           module     => 'IC',
+                                           sub_module => 'delivery_order_items',
+                                           trans_id   => $doi->{delivery_order_items_id},
+                                          );
+    map { $doi->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
+  }
+
   if ($mode eq 'single') {
     my $in_out = $form->{type} =~ /^sales/ ? 'out' : 'in';
 
@@ -748,11 +774,15 @@ sub order_details {
 
   my $num_si   = 0;
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+
   my @arrays =
     qw(runningnumber number description longdescription qty unit
        partnotes serialnumber reqdate projectnumber
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_qty si_unit);
+
+  push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -832,6 +862,8 @@ sub order_details {
         push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$position-1] },          $si->{unit};
       }
     }
+
+    map { push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} }, $form->{"ic_cvar_$_->{name}_$i"} } @{ $ic_cvar_configs };
   }
 
   $h_pg->finish();
