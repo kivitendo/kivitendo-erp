@@ -139,6 +139,8 @@ sub invoice_details {
 
   IC->prepare_parts_for_printing();
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
        deliverydate_oe ordnumber_oe transdate_oe licensenumber validuntil
@@ -146,6 +148,8 @@ sub invoice_details {
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber
        price_factor price_factor_name partsgroup);
+
+  push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
@@ -349,6 +353,8 @@ sub invoice_details {
         }
         $sth->finish;
       }
+
+      map { push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} }, $form->{"ic_cvar_$_->{name}_$i"} } @{ $ic_cvar_configs };
     }
   }
 
@@ -508,6 +514,9 @@ sub post_invoice {
 
   my ($query, $sth, $null, $project_id, @values);
   my $exchangerate = 0;
+
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
 
   if (!$form->{employee_id}) {
     $form->get_employee($dbh);
@@ -682,18 +691,20 @@ sub post_invoice {
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
       $pricegroup_id *= 1;
 
+      my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('invoiceid')|);
+
       # save detail record in invoice table
       $query =
-        qq|INSERT INTO invoice (trans_id, parts_id, description, longdescription, qty,
+        qq|INSERT INTO invoice (id, trans_id, parts_id, description, longdescription, qty,
                                 sellprice, fxsellprice, discount, allocated, assemblyitem,
                                 unit, deliverydate, project_id, serialnumber, pricegroup_id,
                                 ordnumber, transdate, cusordnumber, base_qty, subtotal,
                                 marge_percent, marge_total, lastcost,
                                 price_factor_id, price_factor, marge_price_factor)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                    (SELECT factor FROM price_factors WHERE id = ?), ?)|;
 
-      @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}),
+      @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
                  $form->{"description_$i"}, $form->{"longdescription_$i"}, $form->{"qty_$i"},
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
@@ -714,6 +725,15 @@ sub post_invoice {
         @values = (conv_i($form->{"id"}), conv_i($form->{"licensenumber_$i"}));
         do_query($form, $dbh, $query, @values);
       }
+
+      CVar->save_custom_variables(module       => 'IC',
+                                  sub_module   => 'invoice',
+                                  trans_id     => $invoice_id,
+                                  configs      => $ic_cvar_configs,
+                                  variables    => $form,
+                                  name_prefix  => 'ic_',
+                                  name_postfix => "_$i",
+                                  dbh          => $dbh);
     }
   }
 
@@ -1467,6 +1487,7 @@ sub retrieve_invoice {
            c2.accno AS income_accno,    c2.new_chart_id AS income_new_chart,    date($transdate) - c2.valid_from as income_valid,
            c3.accno AS expense_accno,   c3.new_chart_id AS expense_new_chart,   date($transdate) - c3.valid_from AS expense_valid,
 
+           i.id AS invoice_id,
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
            i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor,
@@ -1488,6 +1509,15 @@ sub retrieve_invoice {
     $sth = prepare_execute_query($form, $dbh, $query, $id);
 
     while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
+      # Retrieve custom variables.
+      my $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                             module     => 'IC',
+                                             sub_module => 'invoice',
+                                             trans_id   => $ref->{invoice_id},
+                                            );
+      map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
+      delete $ref->{invoice_id};
+
       map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_inventory_accno_id"};
       delete($ref->{"part_inventory_accno_id"});
 
