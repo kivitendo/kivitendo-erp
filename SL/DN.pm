@@ -457,7 +457,7 @@ sub get_invoices {
     push(@values, $form->{minamount});
   }
 
-  $query =
+  my $query =
     qq|SELECT id
        FROM dunning_config
        WHERE dunning_level = (SELECT MAX(dunning_level) FROM dunning_config)|;
@@ -512,7 +512,7 @@ sub get_invoices {
 
   $form->{DUNNINGS} = [];
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     next if ($ref->{pastdue} < $ref->{terms});
 
     $ref->{interest} = $form->round_amount($ref->{interest}, 2);
@@ -537,7 +537,7 @@ sub get_dunning {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $where = qq| WHERE (da.trans_id = a.id)|;
+  my $where = qq| WHERE (da.trans_id = a.id)|;
 
   my @values;
 
@@ -663,9 +663,10 @@ sub melt_pdfs {
     $form->error($main::locale->text('Could not spawn the printer command.')) unless $out;
 
   } else {
+    my $dunning_filename = $form->get_formname_translation('dunning');
     $out = IO::File->new('>-');
     $out->print(qq|Content-Type: Application/PDF\n| .
-                qq|Content-Disposition: attachment; filename="dunning_${dunning_id}.pdf"\n\n|);
+                qq|Content-Disposition: attachment; filename="${dunning_filename}_${dunning_id}.pdf"\n\n|);
   }
 
   while (my $line = <$in>) {
@@ -712,7 +713,7 @@ sub print_dunning {
 
   my $sth = prepare_execute_query($form, $dbh, $query, $dunning_id);
   my $first = 1;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     if ($first) {
       $form->{TEMPLATE_ARRAYS} = {};
       map({ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} = []; } keys(%{$ref}));
@@ -737,7 +738,7 @@ sub print_dunning {
        LEFT JOIN contacts co ON (ar.cp_id = co.cp_id)
        WHERE (d.dunning_id = ?)
        LIMIT 1|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
+  my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
   $query =
@@ -832,7 +833,7 @@ sub print_invoice_for_fees {
        FROM ar
        LEFT JOIN customer c ON (ar.customer_id = c.id)
        WHERE ar.id = ?|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $ar_id);
+  my $ref = selectfirst_hashref_query($form, $dbh, $query, $ar_id);
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
   $query = qq|SELECT * FROM employee WHERE login = ?|;

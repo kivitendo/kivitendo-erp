@@ -51,6 +51,7 @@ $self->{texts} = {
   'Delivery Order'              => 'Lieferschein',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Directory'                   => 'Verzeichnis',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'Edit greetings'              => 'Anreden bearbeiten',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',

@@ -95,6 +95,7 @@ $self->{texts} = {
   'Description'                 => 'Beschreibung',
   'Directory'                   => 'Verzeichnis',
   'Due'                         => 'Fällig',
+  'Dunning'                     => 'Mahnung',
   'E-mail'                      => 'eMail',
   'E-mail Statement to'         => 'Fälligkeitsabrechnung als eMail an',
   'ELSE'                        => 'Zusatz',

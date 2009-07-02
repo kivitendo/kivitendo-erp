@@ -58,6 +58,7 @@ $self->{texts} = {
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Directory'                   => 'Verzeichnis',
   'Draft saved.'                => 'Entwurf gespeichert.',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',

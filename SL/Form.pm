@@ -1395,6 +1395,7 @@ sub get_formname_translation {
     storno_packing_list     => $main::locale->text('Storno Packing List'),
     sales_delivery_order    => $main::locale->text('Delivery Order'),
     purchase_delivery_order => $main::locale->text('Delivery Order'),
+    dunning                 => $main::locale->text('Dunning'),
   );
 
   $main::lxdebug->leave_sub();

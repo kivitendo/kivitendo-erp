@@ -57,6 +57,7 @@ $self->{texts} = {
   'Delivery Order'              => 'Lieferschein',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Directory'                   => 'Verzeichnis',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'Edit custom variable'        => 'Benutzerdefinierte Variable bearbeiten',
   'Enter longdescription'       => 'Langtext eingeben',

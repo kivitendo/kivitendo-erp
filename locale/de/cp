@@ -72,6 +72,7 @@ $self->{texts} = {
   'Description'                 => 'Beschreibung',
   'Directory'                   => 'Verzeichnis',
   'Due'                         => 'Fällig',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
