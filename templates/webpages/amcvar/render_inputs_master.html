@@ -1,35 +1,40 @@
 [% USE HTML %]
 
-[%- IF var.type == 'bool' %]
-<input type="checkbox" name="cvar_[% HTML.escape(var.name) %]" value="1"[% IF var.value %] checked[% END %]>
+[%- SET var_name = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) -%]
+
+[%- IF hide_non_editable && !var.flag_editable %]
+<input type="hidden" name="[% var_name %]" value="[% HTML.escape(var.value) %]">
+
+[%- ELSIF var.type == 'bool' %]
+<input type="checkbox" name="[% var_name %]" value="1"[% IF var.value %] checked[% END %]>
 
 [%- ELSIF var.type == 'textfield' %]
-<textarea name="cvar_[% HTML.escape(var.name) %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(var.value) %]</textarea>
+<textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(var.value) %]</textarea>
 
 [%- ELSIF var.type == 'date' %]
-<input name="cvar_[% HTML.escape(var.name) %]" id="cvar_[% HTML.escape(var.name) %]" size="12" value="[% HTML.escape(var.value) %]">
-<input type="button" name="cvar_[% HTML.escape(var.name) %]_button" id="cvar_[% HTML.escape(var.name) %]_trigger" value="?">
+<input name="[% var_name %]" id="[% var_name %]" size="12" value="[% HTML.escape(var.value) %]">
+<input name="[% var_name %]_button" id="[% var_name %]_trigger" type="button" value="?">
 
 <script type="text/javascript">
  <!--
-     Calendar.setup({ inputField : "cvar_[% HTML.escape(var.name) %]",
-                      ifFormat   :"[% myconfig_jsc_dateformat %]",
+     Calendar.setup({ inputField : "[% var_name %]",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
                       align      : "BR",
-                      button     : "cvar_[% HTML.escape(var.name) %]_trigger" });
+                      button     : "[% var_name %]_trigger" });
    -->
 </script>
 
 [%- ELSIF var.type == 'timestamp' %]
-<input name="cvar_[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
+<input name="[% var_name %]" value="[% HTML.escape(var.value) %]">
 
 [%- ELSIF var.type == 'select' %]
 
-<select name="cvar_[% HTML.escape(var.name) %]">
+<select name="[% var_name %]">
  [%- FOREACH option = var.OPTIONS %]
  <option[% IF option.value == var.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
  [%- END %]
 </select>
 
 [%- ELSE %]
-<input name="cvar_[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
+<input name="[% var_name %]" value="[% HTML.escape(var.value) %]" [%- IF var.maxlength %] maxlength="[% HTML.escape(var.maxlength) %]"[% END -%]>
 [%- END %]

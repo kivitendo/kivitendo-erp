@@ -33,6 +33,8 @@ sub get_configs {
       $config->{precision} = $1 if ($config->{options} =~ m/precision=(\d+)/i);
 
     }
+
+    $self->_unpack_flags($config);
   }
 
   $main::lxdebug->leave_sub();
@@ -57,9 +59,28 @@ sub get_config {
 
   my $config   = selectfirst_hashref_query($form, $dbh, $query, conv_i($params{id})) || { };
 
+  $self->_unpack_flags($config);
+
   $main::lxdebug->leave_sub();
 
   return $config;
+}
+
+sub _unpack_flags {
+  $main::lxdebug->enter_sub();
+
+  my $self   = shift;
+  my $config = shift;
+
+  foreach my $flag (split m/:/, $config->{flags}) {
+    if ($flag =~ m/(.*?)=(.*)/) {
+      $config->{"flag_${1}"}    = $2;
+    } else {
+      $config->{"flag_${flag}"} = 1;
+    }
+  }
+
+  $main::lxdebug->leave_sub();
 }
 
 sub save_config {
@@ -177,6 +198,7 @@ sub get_custom_variables {
     qq|SELECT text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value
        FROM custom_variables
        WHERE (config_id = ?) AND (trans_id = ?)|;
+  $q_var      .= qq| AND (sub_module = ?)| if $params{sub_module};
   my $h_var    = prepare_query($form, $dbh, $q_var);
 
   my $custom_variables = selectall_hashref_query($form, $dbh, $q_cfg, $params{module});
@@ -201,7 +223,10 @@ sub get_custom_variables {
 
     my $act_var;
     if ($params{trans_id}) {
-      do_statement($form, $h_var, $q_var, conv_i($cvar->{id}), conv_i($params{trans_id}));
+      my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}));
+      push @values, $params{sub_module} if $params{sub_module};
+
+      do_statement($form, $h_var, $q_var, @values);
       $act_var = $h_var->fetchrow_hashref();
     }
 
@@ -263,7 +288,7 @@ sub save_custom_variables {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my @configs  = grep { $_->{module} eq $params{module} } @{ CVar->get_configs() };
+  my @configs  = $params{configs} ? @{ $params{configs} } : grep { $_->{module} eq $params{module} } @{ CVar->get_configs() };
 
   my $query    =
     qq|DELETE FROM custom_variables
@@ -271,17 +296,24 @@ sub save_custom_variables {
          AND (config_id IN (SELECT DISTINCT id
                             FROM custom_variable_configs
                             WHERE module = ?))|;
-  do_query($form, $dbh, $query, conv_i($params{trans_id}), $params{module});
+  my @values   = (conv_i($params{trans_id}), $params{module});
+
+  if ($params{sub_module}) {
+    $query .= qq| AND (sub_module = ?)|;
+    push @values, $params{sub_module};
+  }
+
+  do_query($form, $dbh, $query, @values);
 
   $query  =
-    qq|INSERT INTO custom_variables (config_id, trans_id, bool_value, timestamp_value, text_value, number_value)
-       VALUES                       (?,         ?,        ?,          ?,               ?,          ?)|;
+    qq|INSERT INTO custom_variables (config_id, sub_module, trans_id, bool_value, timestamp_value, text_value, number_value)
+       VALUES                       (?,         ?,          ?,        ?,          ?,               ?,          ?)|;
   my $sth = prepare_query($form, $dbh, $query);
 
   foreach my $config (@configs) {
-    my @values = (conv_i($config->{id}), conv_i($params{trans_id}));
+    my @values = (conv_i($config->{id}), "$params{sub_module}", conv_i($params{trans_id}));
 
-    my $value  = $params{variables}->{"cvar_$config->{name}"};
+    my $value  = $params{variables}->{"$params{name_prefix}cvar_$config->{name}$params{name_postfix}"};
 
     if (($config->{type} eq 'text') || ($config->{type} eq 'textfield') || ($config->{type} eq 'select')) {
       push @values, undef, undef, $value, undef;
@@ -317,8 +349,13 @@ sub render_inputs {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
+  my %options  = ( name_prefix       => "$params{name_prefix}",
+                   name_postfix      => "$params{name_postfix}",
+                   hide_non_editable => $params{hide_non_editable},
+                 );
+
   foreach my $var (@{ $params{variables} }) {
-    $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs', { 'var' => $var });
+    $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs', { 'var' => $var, %options });
   }
 
   $main::lxdebug->leave_sub();
@@ -434,6 +471,9 @@ sub build_filter_query {
     }
 
     if (@sub_where) {
+      push @sub_where,  qq|cvar.sub_module = ?|;
+      push @sub_values, "$params{sub_module}";
+
       push @where,
         qq|$not EXISTS(
              SELECT cvar.id
@@ -481,11 +521,13 @@ sub add_custom_variables_to_report {
   my $query     =
     qq|SELECT text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value, config_id
        FROM custom_variables
-       WHERE (config_id IN (| . join(', ', ('?') x scalar(@cfg_ids)) . qq|)) AND (trans_id = ?)|;
+       WHERE (config_id IN (| . join(', ', ('?') x scalar(@cfg_ids)) . qq|))
+         AND (trans_id = ?)
+         AND (sub_module = ?)|;
   my $sth       = prepare_query($form, $dbh, $query);
 
   foreach my $row (@{ $params{data} }) {
-    do_statement($form, $sth, $query, @cfg_ids, conv_i($row->{$params{trans_id_field}}));
+    do_statement($form, $sth, $query, @cfg_ids, conv_i($row->{$params{trans_id_field}}), "$params{sub_module}");
 
     while (my $ref = $sth->fetchrow_hashref()) {
       my $cfg = $cfg_map{$ref->{config_id}};

@@ -193,6 +193,7 @@ sub display_row {
 
   _update_part_information();
   _update_ship() if ($is_s_p_order);
+  _update_custom_variables();
 
   # rows
   for $i (1 .. $numrows) {
@@ -356,6 +357,9 @@ sub display_row {
 
     $form->{invsubtotal} += $linetotal;
 
+    # Benutzerdefinierte Variablen für Waren/Dienstleistungen/Erzeugnisse
+    _render_custom_variables_inputs(ROW2 => \@ROW2, row => $i);
+
     push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, };
   }
 
@@ -441,6 +445,13 @@ sub select_item {
 
   print qq|</tr>|;
 
+  my @new_fields =
+    qw(bin listprice inventory_accno income_accno expense_accno unit weight
+       assembly taxaccounts partsgroup formel longdescription not_discountable
+       part_payment_id partnotes id lastcost price_factor_id price_factor);
+  push @new_fields, "lizenzen" if ($lizenzen);
+  push @new_fields, grep { m/^ic_cvar_/ } keys %{ $form->{item_list}->[0] };
+
   my $i = 0;
   foreach $ref (@{ $form->{item_list} }) {
     $checked = ($i++) ? "" : "checked";
@@ -493,12 +504,6 @@ sub select_item {
     map { print "\n$column_data{$_}" } @column_index;
 
     print("</tr>\n");
-
-    my @new_fields =
-      qw(bin listprice inventory_accno income_accno expense_accno unit weight
-         assembly taxaccounts partsgroup formel longdescription not_discountable
-         part_payment_id partnotes id lastcost price_factor_id price_factor);
-    push(@new_fields, "lizenzen") if ($lizenzen);
 
     print join "\n", map { $cgi->hidden("-name" => "new_${_}_$i", "-value" => $ref->{$_}) } @new_fields;
     print "\n";
@@ -561,6 +566,9 @@ sub item_selected {
        income_accno expense_accno bin unit weight assembly taxaccounts
        partsgroup formel longdescription not_discountable partnotes lastcost
        price_factor_id price_factor);
+
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+  push @new_fields, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
   map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } @new_fields;
 
@@ -672,16 +680,6 @@ sub check_form {
   my @a     = ();
   my $count = 0;
 
-  my @flds = qw(id partnumber description qty ship sellprice unit
-                discount inventory_accno income_accno expense_accno listprice
-                taxaccounts bin assembly weight projectnumber project_id
-                oldprojectnumber runningnumber serialnumber partsgroup payment_id
-                not_discountable shop ve gv buchungsgruppen_id language_values
-                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
-                transdate longdescription basefactor marge_total marge_percent
-                marge_price_factor lastcost price_factor_id partnotes
-                stock_out stock_in);
-
   # remove any makes or model rows
   if ($form->{item} eq 'part') {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
@@ -695,8 +693,7 @@ sub check_form {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
       qw(listprice sellprice rop stock);
 
-    @flds =
-      qw(id qty unit bom partnumber description sellprice weight runningnumber partsgroup lastcost);
+    my @flds = qw(id qty unit bom partnumber description sellprice weight runningnumber partsgroup lastcost);
 
     for my $i (1 .. ($form->{assembly_rows} - 1)) {
       if ($form->{"qty_$i"}) {
@@ -725,6 +722,18 @@ sub check_form {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(listprice sellprice lastcost);
 
   } else {
+    my @flds = qw(id partnumber description qty ship sellprice unit
+                  discount inventory_accno income_accno expense_accno listprice
+                  taxaccounts bin assembly weight projectnumber project_id
+                  oldprojectnumber runningnumber serialnumber partsgroup payment_id
+                  not_discountable shop ve gv buchungsgruppen_id language_values
+                  sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
+                  transdate longdescription basefactor marge_total marge_percent
+                  marge_price_factor lastcost price_factor_id partnotes
+                  stock_out stock_in);
+
+    my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+    push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
     # this section applies to invoices and orders
     # remove any empty numbers
@@ -1932,6 +1941,50 @@ sub _update_ship {
 
     $form->{"ship_$i"} += $ship_entry->{qty};
     $ship_entry->{qty}  = 0;
+  }
+
+  $lxdebug->leave_sub();
+}
+
+sub _update_custom_variables {
+  $lxdebug->enter_sub();
+
+  $form->{CVAR_CONFIGS}       ||= { };
+  $form->{CVAR_CONFIGS}->{IC}   = CVar->get_configs(module => 'IC');
+
+  $lxdebug->leave_sub();
+}
+
+sub _render_custom_variables_inputs {
+  $lxdebug->enter_sub();
+
+  my %params = @_;
+
+  if (!$form->{CVAR_CONFIGS}->{IC}) {
+    $lxdebug->leave_sub();
+    return;
+  }
+
+  foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
+    $cvar->{value} = $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"};
+  }
+
+  CVar->render_inputs(hide_non_editable => 1,
+                      variables         => $form->{CVAR_CONFIGS}->{IC},
+                      name_prefix       => 'ic_',
+                      name_postfix      => "_$params{row}");
+
+  my $num_visible_cvars = 0;
+  foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
+    my $description = '';
+    if ($cvar->{flag_editable}) {
+      $num_visible_cvars++;
+      $description = $cvar->{description} . ' ';
+    }
+
+    push @{ $params{ROW2} }, { line_break => $num_visible_cvars == 1,
+                               value      => $description . $cvar->{HTML_CODE},
+                             };
   }
 
   $lxdebug->leave_sub();

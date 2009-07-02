@@ -37,6 +37,7 @@ package OE;
 use List::Util qw(max first);
 use SL::AM;
 use SL::Common;
+use SL::CVar;
 use SL::DBUtils;
 use SL::IC;
 
@@ -248,6 +249,9 @@ sub save {
   my $all_units = AM->retrieve_units($myconfig, $form);
   $form->{all_units} = $all_units;
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
+
   $form->{employee_id} = (split /--/, $form->{employee})[1] if !$form->{employee_id};
   unless ($form->{employee_id}) {
     $form->get_employee($dbh);
@@ -256,6 +260,11 @@ sub save {
   my $ml = ($form->{type} eq 'sales_order') ? 1 : -1;
 
   if ($form->{id}) {
+    $query = qq|DELETE FROM custom_variables
+                WHERE (config_id IN (SELECT id FROM custom_variable_configs WHERE module = 'IC'))
+                  AND (sub_module = 'orderitems')
+                  AND (trans_id IN (SELECT id FROM orderitems WHERE trans_id = ?))|;
+    do_query($form, $dbh, $query, $form->{id});
 
     $query = qq|DELETE FROM orderitems WHERE trans_id = ?|;
     do_query($form, $dbh, $query, $form->{id});
@@ -379,24 +388,19 @@ sub save {
       $pricegroup_id *= 1;
 
       # save detail record in orderitems table
+      my $orderitems_id = $form->{"orderitems_id_$i"};
+      ($orderitems_id)  = selectfirst_array_query($form, $dbh, qq|SELECT nextval('orderitemsid')|) if (!$orderitems_id);
+
       @values = ();
-      $query = qq|INSERT INTO orderitems (|;
-      if ($form->{"orderitems_id_$i"}) {
-        $query .= "id, ";
-      }
-      $query .= qq|trans_id, parts_id, description, longdescription, qty, base_qty, | .
-                qq|sellprice, discount, unit, reqdate, project_id, serialnumber, ship, | .
-                qq|pricegroup_id, ordnumber, transdate, cusordnumber, subtotal, | .
-                qq|marge_percent, marge_total, lastcost, price_factor_id, price_factor, marge_price_factor) | .
-                qq|VALUES (|;
-      if($form->{"orderitems_id_$i"}) {
-        $query .= qq|?,|;
-        push(@values, $form->{"orderitems_id_$i"});
-      }
-      $query .= qq|?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                   (SELECT factor FROM price_factors WHERE id = ?), ?)|;
+      $query = qq|INSERT INTO orderitems (
+                    id, trans_id, parts_id, description, longdescription, qty, base_qty,
+                    sellprice, discount, unit, reqdate, project_id, serialnumber, ship,
+                    pricegroup_id, ordnumber, transdate, cusordnumber, subtotal,
+                    marge_percent, marge_total, lastcost, price_factor_id, price_factor, marge_price_factor)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                          (SELECT factor FROM price_factors WHERE id = ?), ?)|;
       push(@values,
-           conv_i($form->{id}), conv_i($form->{"id_$i"}),
+           conv_i($orderitems_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $form->{"longdescription_$i"},
            $form->{"qty_$i"}, $baseqty,
            $fxsellprice, $form->{"discount_$i"},
@@ -412,6 +416,15 @@ sub save {
 
       $form->{"sellprice_$i"} = $fxsellprice;
       $form->{"discount_$i"} *= 100;
+
+      CVar->save_custom_variables(module       => 'IC',
+                                  sub_module   => 'orderitems',
+                                  trans_id     => $orderitems_id,
+                                  configs      => $ic_cvar_configs,
+                                  variables    => $form,
+                                  name_prefix  => 'ic_',
+                                  name_postfix => "_$i",
+                                  dbh          => $dbh);
     }
   }
 
@@ -637,6 +650,9 @@ sub retrieve {
 
   my ($query, $query_add, @values, @ids, $sth);
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
+
   # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
   map {
     push @ids, $form->{"trans_id_$_"}
@@ -798,6 +814,16 @@ sub retrieve {
     $sth = prepare_execute_query($form, $dbh, $query, @values);
 
     while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+      # Retrieve custom variables.
+      my $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                             module     => 'IC',
+                                             sub_module => 'orderitems',
+                                             trans_id   => $ref->{orderitems_id},
+                                            );
+      # $main::lxdebug->dump(0, "cv", $cvars);
+      map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
+
+      # Handle accounts.
       if (!$ref->{"part_inventory_accno_id"}) {
         map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid));
       }
@@ -874,6 +900,7 @@ sub retrieve {
       }
 
       chop $ref->{taxaccounts};
+
       push @{ $form->{form_details} }, $ref;
       $stw->finish;
     }
@@ -971,12 +998,16 @@ sub order_details {
 
   IC->prepare_parts_for_printing();
 
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber
        price_factor price_factor_name partsgroup);
+
+  push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
@@ -1142,6 +1173,7 @@ sub order_details {
         $sth->finish;
       }
 
+      map { push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} }, $form->{"ic_cvar_$_->{name}_$i"} } @{ $ic_cvar_configs };
     }
   }
 

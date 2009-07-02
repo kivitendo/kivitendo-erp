@@ -76,14 +76,6 @@ sub list_cvar_configs {
   foreach my $config (@configs) {
     $config->{type_tr} = $translations{$config->{type}};
 
-    foreach my $flag (split m/:/, $config->{flags}) {
-      if ($flag =~ m/(.*?)=(.*)/) {
-        $config->{"flag_${1}"}    = $2;
-      } else {
-        $config->{"flag_${flag}"} = 1;
-      }
-    }
-
     if ($previous_config) {
       $previous_config->{next_id} = $config->{id};
       $config->{previous_id}      = $previous_config->{id};

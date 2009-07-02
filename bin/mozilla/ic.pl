@@ -1796,6 +1796,9 @@ sub save {
     # don't trample on previous variables
     map { delete $form->{$_} } keys %newform;
 
+    my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+    my @ic_cvar_fields  = map { "cvar_$_->{name}" } @{ $ic_cvar_configs };
+
     # now take it apart and restore original values
     foreach my $item (split /&/, $previousform) {
       my ($key, $value) = split m/=/, $item, 2;
@@ -1819,6 +1822,7 @@ sub save {
 
       # change/add values for assembly item
       map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit weight listprice sellprice inventory_accno income_accno expense_accno price_factor_id);
+      map { $form->{"ic_${_}_$i"} = $newform{$_} } @ic_cvar_fields;
 
       # das ist __voll__ bekloppt, dass so auszurechnen jb 22.5.09
       #$form->{sellprice} += $form->{"sellprice_$i"} * $form->{"qty_$i"};
@@ -1831,6 +1835,7 @@ sub save {
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
 
       map { $form->{"${_}_$i"} = $newform{$_} } qw(partnumber description bin unit listprice inventory_accno income_accno expense_accno sellprice lastcost price_factor_id);
+      map { $form->{"ic_${_}_$i"} = $newform{$_} } @ic_cvar_fields;
 
       $form->{"longdescription_$i"} = $newform{notes};
 

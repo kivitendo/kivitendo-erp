@@ -18,6 +18,7 @@
      [% END %]
 
      <tr class="listrow[% loop.count % 2 %]" [% UNLESS show_details %]style="display:none;"[% END %]><td colspan="[% row.colspan %]">[% FOREACH row2 = row.ROW2 %]
+      [% IF row2.line_break %]<br/>[% END %]
       [% row2.value %][% END %]
      </td></tr>
    [% END %]
