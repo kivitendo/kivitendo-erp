@@ -1915,7 +1915,6 @@ sub retrieve_item {
                                                       dbh      => $dbh,
                                                      );
 
-    $main::lxdebug->dump(0, "cvar", $custom_variables);
     map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
   }
 
