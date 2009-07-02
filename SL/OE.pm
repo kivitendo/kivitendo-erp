@@ -820,7 +820,6 @@ sub retrieve {
                                              sub_module => 'orderitems',
                                              trans_id   => $ref->{orderitems_id},
                                             );
-      # $main::lxdebug->dump(0, "cv", $cvars);
       map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
 
       # Handle accounts.
