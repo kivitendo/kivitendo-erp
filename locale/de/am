@@ -147,6 +147,7 @@ $self->{texts} = {
   'Description missing!'        => 'Beschreibung fehlt.',
   'Directory'                   => 'Verzeichnis',
   'Discount'                    => 'Rabatt',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'Edit'                        => 'Bearbeiten',
   'Edit Account'                => 'Kontodaten bearbeiten',

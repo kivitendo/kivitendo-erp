@@ -74,6 +74,7 @@ $self->{texts} = {
   'Delivery Order'              => 'Lieferschein',
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Directory'                   => 'Verzeichnis',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'ELSTER Export (Taxbird)'     => 'ELSTER-Export nach Taxbird',
   'ELSTER Export (Winston)'     => 'ELSTER Export nach Winston',

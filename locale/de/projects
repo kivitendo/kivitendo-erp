@@ -62,6 +62,7 @@ $self->{texts} = {
   'Dependency loop detected:'   => 'Schleife in den Abh&auml;ngigkeiten entdeckt:',
   'Description'                 => 'Beschreibung',
   'Directory'                   => 'Verzeichnis',
+  'Dunning'                     => 'Mahnung',
   'ELSE'                        => 'Zusatz',
   'Edit Project'                => 'Projekt bearbeiten',
   'Enter longdescription'       => 'Langtext eingeben',
