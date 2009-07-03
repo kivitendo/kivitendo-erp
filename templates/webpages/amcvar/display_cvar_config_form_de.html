@@ -15,13 +15,11 @@
     <tr>
      <td align="right">Modul</td>
      <td>
-      [%- IF module == 'CT' %]
-      Kunden und Lieferanten
-      [%- ELSIF module == 'Projects' %]
-      Projekte
-      [%- ELSIF module == 'IC' %]
-      Waren, Dienstleistungen und Erzeugnisse
-      [%- END %]
+      [%- INCLUDE generic/multibox.html
+            name      = 'module',
+            id_key    = 'module',
+            label_key = 'description',
+            DATA      = MODULES %]
      </td>
     </tr>
 
@@ -91,8 +89,7 @@
    </table>
   </p>
 
-  <input type="hidden" name="module" value="[% HTML.escape(module) %]">
-  <input type="hidden" name="id"     value="[% HTML.escape(id) %]">
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
 
   <p>
    <input type="submit" name="action" value="Speichern">

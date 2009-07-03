@@ -36,6 +36,7 @@ use SL::CVar;
 use SL::Form;
 
 use Data::Dumper;
+use List::MoreUtils qw(any);
 
 1;
 
@@ -54,6 +55,11 @@ our %translations = ('text'      => $locale->text('Free-form text'),
 
 our @types = qw(text textfield number date bool select); # timestamp
 
+our @modules = ({ module => 'CT',       description => $locale->text('Customers and vendors')          },
+                { module => 'IC',       description => $locale->text('Parts, services and assemblies') },
+                { module => 'Projects', description => $locale->text('Projects')                       },
+               );
+
 sub add {
   add_cvar_config();
 }
@@ -62,14 +68,21 @@ sub edit {
   edit_cvar_config();
 }
 
+sub _is_valid_module {
+  my $module = shift;
+
+  return any { $_->{module} eq $module } @modules;
+}
+
 sub list_cvar_configs {
   $lxdebug->enter_sub();
 
   $auth->assert('config');
 
-  $form->{module} ||= $form->{cvar_module};
+  $form->{module} = $form->{module} || $form->{cvar_module} || 'CT';
+  $form->{module} = 'CT' unless _is_valid_module($form->{module});
 
-  my @configs = grep { $_->{module} eq $form->{module} } @{ CVar->get_configs() };
+  my @configs = @{ CVar->get_configs(module => $form->{module}) };
 
   my $previous_config;
 
@@ -86,7 +99,10 @@ sub list_cvar_configs {
 
   $form->{title} = $locale->text('List of custom variables');
   $form->header();
-  print $form->parse_html_template('amcvar/list_cvar_configs', { 'CONFIGS' => \@configs });
+  print $form->parse_html_template('amcvar/list_cvar_configs', { CONFIGS => \@configs,
+                                                                 MODULES => \@modules });
+
+  $main::lxdebug->dump(0, "modules", \@modules);
 
   $lxdebug->leave_sub();
 }
@@ -96,7 +112,7 @@ sub add_cvar_config {
 
   $auth->assert('config');
 
-  $form->{module} ||= $form->{cvar_module};
+  $form->{module} = $form->{module} || $form->{cvar_module} || 'CT';
 
   $form->{edit} = 0;
   display_cvar_config_form();
@@ -176,7 +192,8 @@ sub display_cvar_config_form {
   $form->{title} = $form->{edit} ? $locale->text("Edit custom variable") : $locale->text("Add custom variable");
 
   $form->header();
-  print $form->parse_html_template("amcvar/display_cvar_config_form", { 'TYPES' => \@types });
+  print $form->parse_html_template("amcvar/display_cvar_config_form", { TYPES   => \@types,
+                                                                        MODULES => \@modules });
 
   $lxdebug->leave_sub();
 }
@@ -189,6 +206,17 @@ sub swap_cvar_configs {
   list_cvar_configs();
 
   $lxdebug->leave_sub();
+}
+
+sub dispatcher {
+  foreach my $action (qw(list_cvar_configs add_cvar_config)) {
+    if ($form->{"action_${action}"}) {
+      call_sub($action);
+      return;
+    }
+  }
+
+  $form->error($locale->text('No action defined.'));
 }
 
 1;
