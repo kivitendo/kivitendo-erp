@@ -566,7 +566,7 @@ td {
  </p>
 
  <h3><a name="allgemein_verkaeufer">
-   Informationen &uuml;ber den Verk&auml;fer (nur bei Verkaufsmasken):</a></h3>
+   Informationen &uuml;ber den Verk&auml;ufer (nur bei Verkaufsmasken):</a></h3>
 
  <p>
   <table border="1">
@@ -1234,19 +1234,36 @@ td {
  <h2><a name="bloecke">
    Bl&ouml;cke, bedingte Anweisungen und Schleifen</a></h2>
 
- <p>Der Parser kennt neben den Variablen einige weitere Konstrukte, die
-  gesondert behandelt werden. Diese sind wie Variablennamen in spezieller
-  Weise markiert: <code>&lt;%anweisung%&gt;</code></p>
+ <p>Der Parser kennt neben den Variablen einige weitere Konstrukte,
+  die gesondert behandelt werden. Diese sind wie Variablennamen in
+  spezieller Weise markiert: <code>&lt;%anweisung%&gt;
+  ... &lt;%end%&gt;</code></p>
+
+ <p>Anmerkung zum <code>&lt;%end%&gt;</code>: Der besseren
+  Verständlichkeit halber kann man nach dem <code>end</code> noch
+  beliebig weitere Wörter schreiben, um so zu markieren, welche
+  Anweisung (z.B. <code>if</code> oder <code>foreach</code>) damit
+  abgeschlossen wird.</p>
+
+ <p>Beispiel: Lautet der Beginn eines Blockes
+   z.B. <code class="blue">&lt;%if type ==
+   &quot;sales_quotation&quot;%&gt;</code>, so könnte er mit
+  <code class="blue">&lt;%end%&gt;</code> genauso abgeschlossen werden
+  wie mit
+  <code class="blue">&lt;%end if%&gt;</code> oder auch
+  <code class="blue">&lt;%end type ==
+  &quot;sales_quotation&quot;%&gt;</code>.</p>
 
  <h3><a name="bloecke_if">Der <code>if</code>-Block</a></h3>
 
  <p class="blue"><code>&lt;%if variablenname%&gt;<br>
    ...<br>
-   &lt;%end&gt;</code></p>
+   &lt;%end%&gt;</code></p>
 
- <p>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if" und dem
-  "end" werden nur ausgegeben, wenn die Variable "variablenname" gesetzt und
-  ungleich 0 ist.</p>
+ <p>Eine normale &quot;if-then&quot;-Bedingung. Die Zeilen zwischen
+  dem &quot;if&quot; und dem &quot;end&quot; werden nur ausgegeben,
+  wenn die Variable &quot;variablenname&quot; gesetzt und ungleich 0
+  ist.</p>
 
  <p>Die Bedingung kann auch negiert werden, indem das Wort
   &quot;not&quot; nach dem &quot;if&quot; verwendet
@@ -1270,7 +1287,7 @@ td {
  <p><code class="blue">&lt;%if var1 == var2%&gt;</code> testet die
   Variable &quot;var1&quot; auf Übereinstimmung mit der Variablen
   &quot;var2&quot;. Mittels &quot;!=&quot; anstelle von &quot;==&quot;
-  würde auf Ungleichheit getestet. </p>
+  würde auf Ungleichheit getestet.</p>
 
  <p>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit auch
   Tests auf Übereinstimmung mit regulären Ausdrücken ohne
@@ -1280,13 +1297,14 @@ td {
 
  <p>Beispiel für einen Test, ob die Variable &quot;intnotes&quot;
   (interne Bemerkungen) das Wort &quot;schwierig&quot; enthält:
-  <code class="blue">&lt;%if intnotes =~ schwierig%&gt;</code></p>
+  <code class="blue">&lt;%if intnotes =~
+  &quot;schwierig&quot;%&gt;</code></p>
 
  <h3><a name="bloecke_foreach">Die <code>foreach</code>-Schleife</a></h3>
 
  <p class="blue"><code>&lt;%foreach variablenname%&gt;<br>
    ...<br>
-   &lt;%end&gt;</code></p>
+   &lt;%end%&gt;</code></p>
 
  <p>F&uuml;gt die Zeilen zwischen den beiden Anweisungen so oft ein, wie das
   Perl-Array der Variablen "variablenname" Elemente enth&auml;t. Dieses
@@ -1304,20 +1322,20 @@ td {
    Artikelnummer: &lt;%number%&gt;<br>
    Beschreibung: &lt;%description%&gt;<br>
    ...<br>
-   &lt;%end&gt;</code></p>
+   &lt;%end%&gt;</code></p>
 
  <p>Besonderheit in OpenDocument-Vorlagen: Tritt ein
-  <code>&lt;foreach&gt;</code>-Block innerhalb einer Tabellenzelle
+  <code>&lt;%foreach%&gt;</code>-Block innerhalb einer Tabellenzelle
   auf, so wird die komplette Tabellenzeile so oft wiederholt wie
   notwendig. Tritt er au&szlig;erhalb auf, so wird nur der Inhalt
-  zwischen <code>&lt;foreach&gt;</code> und <code>&lt;end&gt;</code>
+  zwischen <code>&lt;%foreach%&gt;</code> und <code>&lt;%end%&gt;</code>
   wiederholt, nicht aber die komplette Zeile, in der er steht.</p>
 
  <h3><a name="bloecke_pagebreak">Der <code>pagebreak</code>-Block</a></h3>
 
  <p class="blue"><code>&lt;%pagebreak ZpZ ZeS ZzS%&gt;<br>
    ...<br>
-   &lt;%end&gt;</code></p>
+   &lt;%end%&gt;</code></p>
 
  <p>Dieser Block existiert nur in LaTeX-Vorlagen.</p>
 
@@ -1406,8 +1424,8 @@ td {
   href="dokumentenvorlagen-und-variablen.html#bloecke_pagebreak">pagebreak-Block</a>
   voreingestellten Werte einen Seitenumbruch nach der aktuellen
   Rechnungsposition. Dementsprechend funktioniert er nur innerhalb von
-  <code>&lt;foreach...&gt;</code>-Schleifen. Weiterhin ben&ouml;tigt er kein
-  Endtag.</p>
+  <code>&lt;%foreach...%&gt;</code>-Schleifen. Weiterhin ben&ouml;tigt
+  er kein Endtag.</p>
 
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
