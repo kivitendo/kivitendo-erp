@@ -196,7 +196,8 @@ sub post_transaction {
 
   } else {
     # Record paid amount.
-    do_query($form, $dbh, qq|UPDATE ar SET paid = ? WHERE id = ?|, $form->{paid}, conv_i($form->{id}));
+    $query = qq|UPDATE ar SET paid = ?, datepaid = ? WHERE id = ?|;
+    do_query($form, $dbh, $query,  $form->{paid}, $form->{paid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
   }
 
   # add paid transactions

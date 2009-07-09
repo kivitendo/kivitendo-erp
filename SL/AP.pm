@@ -346,8 +346,8 @@ sub post_transaction {
   }
 
   if ($payments_only) {
-    $query = qq|UPDATE ap SET paid = ? WHERE id = ?|;
-    do_query($form, $dbh, $query, $form->{invpaid}, conv_i($form->{id}));
+    $query = qq|UPDATE ap SET paid = ?, datepaid = ? WHERE id = ?|;
+    do_query($form, $dbh, $query,  $form->{invpaid}, $form->{invpaid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
   }
 
   my $rc = 1;
