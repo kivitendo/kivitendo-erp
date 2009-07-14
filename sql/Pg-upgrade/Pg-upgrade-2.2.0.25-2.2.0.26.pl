@@ -240,7 +240,7 @@ sub update_units_steps_1_2 {
     print $form->parse_html_template("dbupgrade/units_services",
                                      { "NEW_BASE_UNIT_DDBOX" => $ddbox,
                                        "UNKNOWN_PART_UNITS"  => \@unknown_services,
-                                     }));
+                                     });
 
     return 2;
 
