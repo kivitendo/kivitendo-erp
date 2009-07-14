@@ -116,7 +116,11 @@ sub print_menu {
         $html .= qq|<li><div class="x">${menu_text}</div><ul>${h}</ul></li>\n|;
       }
     } else {
+      if ($depth>1) {
+      $html .= qq|<li class='sub'>|;
+      } else {
       $html .= qq|<li>|;
+      }
       $html .= $menu->menuitem_v3(\%myconfig, $form, "${parent}$item",
                                   { "title" => $menu_title,
                                     "target" => $target });
