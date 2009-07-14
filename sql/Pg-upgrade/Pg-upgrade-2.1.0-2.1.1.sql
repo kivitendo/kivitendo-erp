@@ -733,112 +733,112 @@ INSERT INTO finanzamt (FA_Land_Nr, FA_BUFA_Nr, FA_Name, FA_Strasse, FA_PLZ, FA_O
 --
 --TABLE ap
 alter table ap rename column paid to paidold;
-alter table ap add column paid numeric(10,5);
+alter table ap add column paid numeric(12,5);
 update ap set paid=paidold;
 alter table ap drop column paidold;
 --
 alter table ap rename column netamount to netamountold;
-alter table ap add column netamount numeric(10,5);
+alter table ap add column netamount numeric(12,5);
 update ap set netamount=netamountold;
 alter table ap drop column netamountold;
 --
 alter table ap rename column amount to amountold;
-alter table ap add column amount numeric(10,5);
+alter table ap add column amount numeric(12,5);
 update ap set amount=amountold;
 alter table ap drop column amountold;
 --
 --TABLE acc_trans
 alter table acc_trans rename column amount to amountold;
-alter table acc_trans add column amount numeric(10,5);
+alter table acc_trans add column amount numeric(12,5);
 update acc_trans set amount=amountold;
 alter table acc_trans drop column amountold;
 --
 --TABLE ar
 alter table ar rename column amount to amountold;
-alter table ar add column amount numeric(10,5);
+alter table ar add column amount numeric(12,5);
 update ar set amount=amountold;
 alter table ar drop column amountold;
 --
 alter table ar rename column netamount to netamountold;
-alter table ar add column netamount numeric(10,5);
+alter table ar add column netamount numeric(12,5);
 update ar set netamount=netamountold;
 alter table ar drop column netamountold;
 --
 alter table ar rename column paid to paidold;
-alter table ar add column paid numeric(10,5);
+alter table ar add column paid numeric(12,5);
 update ar set paid=paidold;
 alter table ar drop column paidold;
 --
 --TABLE customer
 alter table customer rename column creditlimit to creditlimitold;
-alter table customer add column creditlimit numeric(10,5);
+alter table customer add column creditlimit numeric(12,5);
 update customer set creditlimit=creditlimitold;
 alter table customer drop column creditlimitold;
 --
 --TABLE exchangerate
 alter table exchangerate rename column buy to buyold;
-alter table exchangerate add column buy numeric(10,5);
+alter table exchangerate add column buy numeric(12,5);
 update exchangerate set buy=buyold;
 alter table exchangerate drop column buyold;
 --
 alter table exchangerate rename column sell to sellold;
-alter table exchangerate add column sell numeric(10,5);
+alter table exchangerate add column sell numeric(12,5);
 update exchangerate set sell=sellold;
 alter table exchangerate drop column sellold;
 --
 --TABLE invoice
 alter table invoice rename column sellprice to sellpriceold;
-alter table invoice add column sellprice numeric(10,5);
+alter table invoice add column sellprice numeric(12,5);
 update invoice set sellprice=sellpriceold;
 alter table invoice drop column sellpriceold;
 --
 alter table invoice rename column fxsellprice to fxsellpriceold;
-alter table invoice add column fxsellprice numeric(10,5);
+alter table invoice add column fxsellprice numeric(12,5);
 update invoice set fxsellprice=fxsellpriceold;
 alter table invoice drop column fxsellpriceold;
 --
 --TABLE oe
 alter table oe rename column amount to amountold;
-alter table oe add column amount numeric(10,5);
+alter table oe add column amount numeric(12,5);
 update oe set amount=amountold;
 alter table oe drop column amountold;
 --
 alter table oe rename column netamount to netamountold;
-alter table oe add column netamount numeric(10,5);
+alter table oe add column netamount numeric(12,5);
 update oe set netamount=netamountold;
 alter table oe drop column netamountold;
 --
 --TABLE orderitems
 alter table orderitems rename column sellprice to sellpriceold;
-alter table orderitems add column sellprice numeric(10,5);
+alter table orderitems add column sellprice numeric(12,5);
 update orderitems set sellprice=sellpriceold;
 alter table orderitems drop column sellpriceold;
 --
 --TABLE parts
 alter table parts rename column listprice to listpriceold;
-alter table parts add column listprice numeric(10,5);
+alter table parts add column listprice numeric(12,5);
 update parts set listprice=listpriceold;
 alter table parts drop column listpriceold;
 --
 alter table parts rename column sellprice to sellpriceold;
-alter table parts add column sellprice numeric(10,5);
+alter table parts add column sellprice numeric(12,5);
 update parts set sellprice=sellpriceold;
 alter table parts drop column sellpriceold;
 --
 alter table parts rename column lastcost to lastcostold;
-alter table parts add column lastcost numeric(10,5);
+alter table parts add column lastcost numeric(12,5);
 update parts set lastcost=lastcostold;
 alter table parts drop column lastcostold;
 --
 --TABLE tax
 alter table tax rename column rate to rateold;
-alter table tax add column rate numeric(10,5);
+alter table tax add column rate numeric(12,5);
 update tax set rate=rateold;
 alter table tax drop column rateold;
 --
 --TABLE vendor
 alter table vendor rename column creditlimit to creditlimitold;
-alter table vendor add column creditlimit numeric(10,5);
+alter table vendor add column creditlimit numeric(12,5);
 update vendor set creditlimit=creditlimitold;
 alter table vendor drop column creditlimitold;
 --
