@@ -399,7 +399,7 @@ sub retrieve_std_inventory_accno_id {
 
   my $inventory_accno_id;
   if ($inventory_accno) {
-    $query = "SELECT id FROM chart WHERE accno = $inventory_accno";
+    $query = "SELECT id FROM chart WHERE accno = '$inventory_accno'";
     ($inventory_accno_id) = $dbh->selectrow_array($query);
   }
 
