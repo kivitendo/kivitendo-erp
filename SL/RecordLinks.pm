@@ -109,4 +109,57 @@ sub get_links {
   return wantarray ? @{ $links } : $links;
 }
 
+sub get_links_via {
+  $main::lxdebug->enter_sub();
+
+  use SL::MoreCommon;
+  use Data::Dumper;
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, [ qw(from_table from_id to_table to_id) ]);
+  Common::check_params(\%params, "via");
+
+  my @hops = ref $params{via} eq 'ARRAY'
+           ? @{ $params{via} }
+           :    $params{via};
+  unshift @hops, +{ table => $params{from_table}, id => $params{from_id} };
+  push    @hops, +{ table => $params{to_table},   id => $params{to_id} };
+
+  my $myconfig   = \%main::myconfig;
+  my $form       = $main::form;
+
+  my $last_hop = shift @hops;
+  my @links    = undef;
+  for my $hop (@hops) {
+
+    my @temp_links = $self->get_links(
+      from_table => $last_hop->{table},
+      from_id    => $last_hop->{id},
+      to_table   => $hop->{table},
+      to_id      => $hop->{id},
+    );
+
+    if (@links) {
+      @links = grep { $_ }
+               cross {
+                 if (   $a->{to_table} eq $b->{from_table}
+                     && $a->{to_id}    eq $b->{from_id} ) {
+                   +{ $a->{from_table}, $a->{from_id},
+                      $b->{to_table},   $b->{to_table} }
+                 }
+              } @links, @temp_links;
+    } else {
+      @links = @temp_links;
+    }
+
+    $last_hop = $hop;
+  }
+
+  $main::lxdebug->leave_sub();
+
+  return wantarray ? @links : \@links;
+}
+
 1;
