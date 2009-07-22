@@ -1827,8 +1827,7 @@ sub _update_part_information {
 
   my $form     = $main::form;
 
-  my %part_information = IC->get_basic_part_info('id'        => [ grep { $_ } map { $form->{"id_${_}"} } (1..$form->{rowcount}) ],
-                                                 'vendor_id' => $form->{vendor_id});
+  my %part_information = IC->get_basic_part_info('id' => [ grep { $_ } map { $form->{"id_${_}"} } (1..$form->{rowcount}) ]);
 
   $form->{PART_INFORMATION} = \%part_information;
 
