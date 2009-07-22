@@ -137,7 +137,7 @@ sub login {
 
   my %style_to_script_map = ( 'v3'  => 'v3',
                               'neu' => 'new',
-                              'js' => 'js',
+                              'v4' => 'v4',
                               'xml' => 'XML',
     );
 

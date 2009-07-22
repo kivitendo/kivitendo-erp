@@ -1,0 +1,45 @@
+[% USE HTML %]<body style="padding:0px; margin:0px;">
+
+ <script type="text/javascript">
+<!--
+function clockon() {
+  var now = new Date();
+  var h = now.getHours();
+  var m = now.getMinutes();
+  document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
+  var timer=setTimeout("clockon()", 10000);
+}
+window.onload=clockon
+//-->
+ </script>
+
+ <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
+  <tr>
+   <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
+    &nbsp;
+    [<a href="menuv4.pl?action=display" target="_blank">neues Fenster</a>]
+    &nbsp;
+    [<a href="JavaScript:top.main_window.print()">drucken</a>]
+   </td>
+   <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+    [Benutzer: [% HTML.escape(login) %] -
+    <a href="login.pl?action=logout" target="_top">abmelden</a>]
+    [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
+   </td>
+  </tr>
+ </table>
+
+
+ <div id="menu">
+
+  [% menu %]
+
+ </div>
+
+ <div style="clear: both;"></div>
+
+ <iframe id="win1" src="login.pl?action=company_logo" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
+  <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen. Bitte w&auml;hlen Sie ein anderes Men&uuml; in der Benutzerkonfiguration im Administrationsmen&uuml; aus.</p>
+ </iframe>
+</body>
+</html>

@@ -22,9 +22,15 @@ margin:0;
 padding:1px 0 1px 3px;
 }
 
+#menu h2:before {
+    content:" ";
+}
+#menu h2:after {
+    content:" "; 
+}
 #menu h2 {
 color:#fff;
-padding:0 5px;
+padding:2 15px
 }
 
 #menu a, #menu a:visited, #menu div.x, #menu div.x:visited {
@@ -36,7 +42,6 @@ padding-right:10px;
 #menu a {
 background:#eee;
 }
-
 #menu div.x, #menu div.x:visited {
 background:#eee url(../image/right.gif) no-repeat right;
 }
@@ -56,13 +61,18 @@ list-style:none;
 margin:0;
 padding:0;
 float:left;
-min-width:7em;
 }
 
 #menu li {
 position:relative;
 float:none;
 border:0;
+}
+
+li.sub {
+position:relativ;
+left:-25px;
+top:-3px;
 }
 
 /* IE6 spacing bug fix, <li>s without a bottom border get spaced to far 
@@ -88,13 +98,11 @@ position:absolute;
 z-index:500;
 top:auto;
 display:none;
-background:#000;
 }
 
 #menu ul ul ul {
 top:0;
 left:100%;
-background:#000;
 }
 
 /* Begin non-anchor hover selectors */
@@ -125,7 +133,8 @@ div#menu li:hover ul,
 div#menu li li:hover ul,
 div#menu li li li:hover ul,
 div#menu li li li li:hover ul
-{display:block;}
+{display:block; position:relativ: left:10px;}
 
 /* End of non-anchor hover selectors */
+
 
