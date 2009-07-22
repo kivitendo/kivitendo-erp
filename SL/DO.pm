@@ -41,6 +41,7 @@ use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
 use SL::RecordLinks;
+use SL::IC;
 
 sub transactions {
   $main::lxdebug->enter_sub();
@@ -776,11 +777,16 @@ sub order_details {
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
 
+  $form->{TEMPLATE_ARRAYS} = { };
+  IC->prepare_parts_for_printing();
+
   my @arrays =
     qw(runningnumber number description longdescription qty unit
        partnotes serialnumber reqdate projectnumber
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_qty si_unit);
+
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
