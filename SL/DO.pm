@@ -109,7 +109,8 @@ sub transactions {
     push @values, '%' . $form->{$item} . '%';
   }
 
-  if (!($form->{open} && $form->{closed})) {
+  if (($form->{open} || $form->{closed}) &&
+      ($form->{open} ne $form->{closed})) {
     push @where, ($form->{open} ? "NOT " : "") . "COALESCE(dord.closed, FALSE)";
   }
 
