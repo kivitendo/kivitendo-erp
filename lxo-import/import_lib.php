@@ -302,7 +302,7 @@ function anmelden() {
         $dbuser=$hits[1];
         preg_match("/'host'[ ]*=> '(.+)'/",$tmp,$hits);
         $dbhost=($hits[1])?$hits[1]:"localhost";
-        preg_match("/'port'[ ]*=> '(.+)'/",$tmp,$hits);
+        preg_match("/'port'[ ]*=> '?(.+)'?/",$tmp,$hits);
         $dbport=($hits[1])?$hits[1]:"5432";
 	preg_match("/[ ]*\\\$self->\{cookie_name\}[ ]*=[ ]*'(.+)'/",$tmp,$hits);
         $cookiename=$hits[1];
