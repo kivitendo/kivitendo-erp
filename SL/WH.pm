@@ -467,7 +467,7 @@ sub get_warehouse_report {
   my $dbh = $form->get_standard_dbh($myconfig);
 
   # filters
-  my (@filter_ary, @filter_vars, @wh_bin_filter_ary, @wh_bin_filter_vars, $columns, $group_by);
+  my (@filter_ary, @filter_vars, @wh_bin_filter_ary, @wh_bin_filter_vars);
 
   delete $form->{include_empty_bins} unless ($form->{l_warehousedescription} || $form->{l_bindescription});
 
@@ -569,14 +569,13 @@ sub get_warehouse_report {
 
   my $query =
     qq|SELECT $select_clause
-      $columns
       FROM inventory i
       LEFT JOIN parts     p ON i.parts_id     = p.id
       LEFT JOIN bin       b ON i.bin_id       = b.id
       LEFT JOIN warehouse w ON i.warehouse_id = w.id
       $joins
       WHERE $where_clause
-      GROUP BY $group_clause $group_by
+      GROUP BY $group_clause
       ORDER BY $sort_spec|;
 
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars);
