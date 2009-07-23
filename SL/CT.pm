@@ -589,7 +589,7 @@ sub save_vendor {
       qq|cp_project = ?, | .
       qq|cp_privatphone = ?, | .
       qq|cp_privatemail = ?, | .
-      qq|cp_birthday = ? | .
+      qq|cp_birthday = ?, | .
       qq|cp_gender = ? | .
       qq|WHERE cp_id = ?|;
     @values = (

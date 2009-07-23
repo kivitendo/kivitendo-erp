@@ -155,7 +155,7 @@ sub invoice_details {
 
   my @payment_arrays = qw(payment paymentaccount paymentdate paymentsource paymentmemo);
 
-  map { $form->{TEMPLATE_ARRAYS}{$_} => [] } (@arrays, @tax_arrays, @payment_arrays);
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays, @payment_arrays);
 
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];

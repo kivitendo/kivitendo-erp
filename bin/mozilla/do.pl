@@ -732,6 +732,7 @@ sub invoice_multi {
                               'back_button' => 1);
   }
 
+  my $source_type              = $form->{type};
   $form->{convert_from_do_ids} = join ' ', @do_ids;
   # bei der auswahl von mehreren Lieferscheinen fuer eine Rechnung, die einfach in donumber_array
   # zwischenspeichern (DO.pm) und als ' '-separierte Liste wieder zurueckschreiben
@@ -746,7 +747,7 @@ sub invoice_multi {
   $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
   my $buysell;
-  if ($form->{type} eq 'purchase_delivery_order') {
+  if ($source_type eq 'purchase_delivery_order') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
     $form->{script} = 'ir.pl';
     $script         = "ir";

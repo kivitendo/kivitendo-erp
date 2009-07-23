@@ -40,12 +40,12 @@ use SL::Menu;
 # end of main
 
 sub display {
-  $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=" type="text/css">|);
+  $form->header(qq|<link rel="stylesheet" href="css/menuv4.css?id=" type="text/css">|);
 
   $form->{date} = clock_line();
   $form->{menu} = acc_menu();
 
-  print $form->parse_html_template("menu/menuv3");
+  print $form->parse_html_template("menu/menuv4");
 
 }
 
@@ -116,7 +116,11 @@ sub print_menu {
         $html .= qq|<li><div class="x">${menu_text}</div><ul>${h}</ul></li>\n|;
       }
     } else {
+      if ($depth>1) {
+      $html .= qq|<li class='sub'>|;
+      } else {
       $html .= qq|<li>|;
+      }
       $html .= $menu->menuitem_v3(\%myconfig, $form, "${parent}$item",
                                   { "title" => $menu_title,
                                     "target" => $target });

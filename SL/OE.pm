@@ -995,6 +995,7 @@ sub order_details {
 
   $form->{discount} = [];
 
+  $form->{TEMPLATE_ARRAYS} = { };
   IC->prepare_parts_for_printing();
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
@@ -1010,7 +1011,7 @@ sub order_details {
 
   my @tax_arrays = qw(taxbase tax taxdescription taxrate taxnumber);
 
-  $form->{TEMPLATE_ARRAYS} = { map { $_ => [] } (@arrays, @tax_arrays) };
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays);
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {

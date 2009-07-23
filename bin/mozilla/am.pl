@@ -2530,7 +2530,7 @@ sub config {
   $form->{CAN_CHANGE_PASSWORD} = $auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $form->{login}) };
 
-  $form->{title}                            = $locale->text('Edit Preferences for #1', $form->{login});
+  $form->{title}               = $locale->text('Edit Preferences for #1', $form->{login});
 
   $form->header();
   print $form->parse_html_template('am/config');
