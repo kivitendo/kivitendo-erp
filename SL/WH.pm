@@ -602,7 +602,7 @@ sub get_warehouse_report {
       @all_fields                    = keys %{ $ref } unless (@all_fields);
     }
 
-    $ref->{stock_value} *= $ref->{qty};
+    $ref->{stock_value} = ($ref->{stock_value} || 0) * $ref->{qty};
 
     push @contents, $ref;
   }
