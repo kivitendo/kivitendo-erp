@@ -70,9 +70,6 @@ sub get_part {
 
   $form->{onhand} *= 1;
 
-  my %oid = ('Pg'     => 'a.oid',
-             'Oracle' => 'a.rowid');
-
   # part or service item
   $form->{item} = ($form->{inventory_accno}) ? 'part' : 'service';
   if ($form->{assembly}) {
@@ -88,7 +85,7 @@ sub get_part {
          LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
          LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
          WHERE (a.id = ?)
-         ORDER BY $oid{$myconfig->{dbdriver}}|;
+         ORDER BY a.oid|;
     $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
     $form->{assembly_rows} = 0;
