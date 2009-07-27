@@ -835,7 +835,7 @@ pjx.prototype =  {
     var rsp = $decodefn(this.r.responseText);  /* the response from perl */
     var splitval = '__pjx__';  /* to split text */
     /* fix IE problems with undef values in an Array getting squashed*/
-    rsp = rsp.replace(splitval+splitval+'g',splitval+" "+splitval);
+    rsp = rsp.replace(new RegExp(splitval+splitval, "g"),splitval+" "+splitval);
     var data = rsp.split(splitval);  
     dt = this.target;
     if (dt.constructor != Array) { dt=[dt]; }
