@@ -664,7 +664,7 @@ sub orders {
 
   $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
-  ($form->{ $form->{vc} }, $form->{"${form->{vc}}_id"}) = split(/--/, $form->{ $form->{vc} });
+  ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
   report_generator_set_default_sort('transdate', 1);
 
@@ -1273,7 +1273,7 @@ sub invoice {
 
   require "bin/mozilla/$form->{script}";
 
-  map { $form->{"select$_"} = "" } ($form->{vc}, currency);
+  map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
   $currency = $form->{currency};
   &invoice_links;
