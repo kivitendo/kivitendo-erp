@@ -549,7 +549,7 @@ sub save_user {
 
       # copy templates to the directory
       opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $ERRNO");
-      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|xml|txb)$/,
+      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
