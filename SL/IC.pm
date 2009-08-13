@@ -139,7 +139,7 @@ sub get_part {
   $form->{PRICEGROUPS} = selectall_hashref_query($form, $dbh, $query);
 
   #find not used pricegroups
-  while ($tmp = pop(@{ $form->{PRICEGROUPS} })) {
+  while (my $tmp = pop(@{ $form->{PRICEGROUPS} })) {
     my $in_use = 0;
     foreach my $item (@pricegroups) {
       if ($item eq $tmp->{id}) {
@@ -153,7 +153,7 @@ sub get_part {
   # if not used pricegroups are avaible
   if (@pricegroups_not_used) {
 
-    foreach $name (@pricegroups_not_used) {
+    foreach my $name (@pricegroups_not_used) {
       $form->{"klass_$i"} = "$name->{id}";
       $form->{"pricegroup_id_$i"} = "$name->{id}";
       $form->{"pricegroup_$i"}    = "$name->{pricegroup}";
@@ -170,7 +170,7 @@ sub get_part {
     if ($form->{makemodel}) {
       $query = qq|SELECT m.make, m.model FROM makemodel m | .
                qq|WHERE m.parts_id = ?|;
-      @values = ($form->{id});
+      my @values = ($form->{id});
       $sth = $dbh->prepare($query);
       $sth->execute(@values) || $form->dberror("$query (" . join(', ', @values) . ")");
 
@@ -202,7 +202,7 @@ sub get_part {
        FROM chart c, partstax pt
        WHERE (pt.chart_id = c.id) AND (pt.parts_id = ?)|;
   $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-  while (($key) = $sth->fetchrow_array) {
+  while (my ($key) = $sth->fetchrow_array) {
     $form->{amount}{$key} = $key;
   }
 
@@ -245,7 +245,7 @@ sub get_pricegroups {
   my $pricegroups = selectall_hashref_query($form, $dbh, $query);
 
   my $i = 1;
-  foreach $pg (@{ $pricegroups }) {
+  foreach my $pg (@{ $pricegroups }) {
     $form->{"klass_$i"} = "$pg->{id}";
     $form->{"price_$i"} = $form->format_amount($myconfig, $form->{"price_$i"}, -2);
     $form->{"pricegroup_id_$i"} = "$pg->{id}";
@@ -365,7 +365,7 @@ sub save {
   my $partsgroup_id = 0;
 
   if ($form->{partsgroup}) {
-    ($partsgroup, $partsgroup_id) = split(/--/, $form->{partsgroup});
+    (my $partsgroup, $partsgroup_id) = split(/--/, $form->{partsgroup});
   }
 
   my ($subq_inventory, $subq_expense, $subq_income);
@@ -456,7 +456,7 @@ sub save {
   do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
 
   if ($form->{language_values} ne "") {
-    foreach $item (split(/---\+\+\+---/, $form->{language_values})) {
+    foreach my $item (split(/---\+\+\+---/, $form->{language_values})) {
       my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
       if ($translation ne "") {
         $query = qq|INSERT into translation (parts_id, language_id, translation, longdescription)
@@ -505,7 +505,7 @@ sub save {
   }
 
   # insert taxes
-  foreach $item (split(/ /, $form->{taxaccounts})) {
+  foreach my $item (split(/ /, $form->{taxaccounts})) {
     if ($form->{"IC_tax_$item"}) {
       $query =
         qq|INSERT INTO partstax (parts_id, chart_id)
@@ -530,7 +530,7 @@ sub save {
       }
     }
 
-    @a = localtime;
+    my @a = localtime;
     $a[5] += 1900;
     $a[4]++;
     my $shippingdate = "$a[5]-$a[4]-$a[3]";
@@ -553,10 +553,10 @@ sub save {
        FROM chart c, tax t
        WHERE (c.id = t.chart_id) AND (t.taxkey IN (SELECT taxkey_id FROM chart where accno = ?))
        ORDER BY c.accno|;
-  $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
+  my $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
 
   $form->{taxaccount} = "";
-  while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
+  while (my $ptr = $stw->fetchrow_hashref(NAME_lc)) {
     $form->{taxaccount} .= "$ptr->{accno} ";
     if (!($form->{taxaccount2} =~ /\Q$ptr->{accno}\E/)) {
       $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
@@ -813,6 +813,7 @@ sub all_parts {
   my @select_tokens = qw(id factor);
   my @where_tokens  = qw(1=1);
   my @group_tokens  = ();
+  my @bind_vars     = ();
 
   # special case transdate
   if (grep { $form->{$_} } qw(transdatefrom transdateto)) {
@@ -879,7 +880,7 @@ sub all_parts {
   # and yes, that expression is designed to hold that array of regexes only once, so the map is kinda messy, sorry about that.
   # ToDO: implement proper functional sorting
   # Nette Idee von Sven, gibt aber Probleme wenn die Artikelnummern groesser als 32bit sind. Korrekt waere es, dass Sort-Natural-Modul zu nehmen
-  # Ich lass das mal hier drin, damit die Idee erhalten bleibt jb 28.5.2009 bug 1018 
+  # Ich lass das mal hier drin, damit die Idee erhalten bleibt jb 28.5.2009 bug 1018
   #$form->{sort} = join ', ', map { push @select_tokens, $_; ($table_prefix{$_} = "substring(partnumber,'[") . $_ } qw|^[:digit:]]+') [:digit:]]+')::INTEGER|
   #  if $form->{sort} eq 'partnumber';
 
@@ -894,6 +895,7 @@ sub all_parts {
             || $form->{quoted}  || $form->{rfq};
 
   my @bsooqr;
+  my @bsooqr_tokens = ();
   push @select_tokens, @qsooqr_flags                                          if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
   push @select_tokens, $q_assembly_lastcost                                   if ($form->{searchitems} eq 'assembly') && $form->{l_lastcost};
@@ -935,6 +937,7 @@ sub all_parts {
 
   #============= build query ================#
 
+  my %table_prefix;
   %table_prefix = (
      %table_prefix,
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -993,13 +996,13 @@ sub all_parts {
          INNER JOIN assembly a ON (p.id = a.parts_id)
          $joins{pfac}
          WHERE a.id = ?|;
-    $sth = prepare_query($form, $dbh, $query);
+    my $sth = prepare_query($form, $dbh, $query);
 
-    foreach $item (@{ $form->{parts} }) {
+    foreach my $item (@{ $form->{parts} }) {
       push(@assemblies, $item);
       do_statement($form, $sth, $query, conv_i($item->{id}));
 
-      while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+      while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
         $ref->{assemblyitem} = 1;
         map { $ref->{$_} /= $ref->{factor} || 1 } qw(sellprice listprice lastcost);
         push(@assemblies, $ref);
@@ -1069,7 +1072,7 @@ sub _create_filter_for_priceupdate {
   }
 
   foreach my $column (qw(make model)) {
-    next unless ($form->{$colum});
+    next unless ($form->{$column});
     $where .= qq| AND p.id IN (SELECT DISTINCT parts_id FROM makemodel WHERE $column ILIKE ?|;
     push(@where_values, '%' . $form->{$column} . '%');
   }
@@ -1087,7 +1090,7 @@ sub get_num_matches_for_priceupdate {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $dbh      = $form->get_standard_dbh($myconfig);
 
   my ($where, @where_values) = $self->_create_filter_for_priceupdate();
 
@@ -1105,7 +1108,7 @@ sub get_num_matches_for_priceupdate {
             FROM parts p
             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
             WHERE $where)|;
-    my ($result)  = selectfirst_array_query($from, $dbh, $query, @where_values);
+    my ($result)  = selectfirst_array_query($form, $dbh, $query, @where_values);
     $num_updated += $result if (0 <= $result);
   }
 
@@ -1154,14 +1157,14 @@ sub update_prices {
       $operator = '*';
     }
 
-    $query =
+    my $query =
       qq|UPDATE parts SET $column = $column $operator ?
          WHERE id IN
            (SELECT p.id
             FROM parts p
             LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
             WHERE $where)|;
-    my $result    = do_query($from, $dbh, $query, $value, @where_values);
+    my $result    = do_query($form, $dbh, $query, $value, @where_values);
     $num_updated += $result if (0 <= $result);
   }
 
@@ -1218,6 +1221,7 @@ sub create_links {
   my $dbh = $form->dbconnect($myconfig);
 
   my @values = ('%' . $module . '%');
+  my $query;
 
   if ($form->{id}) {
     $query =
@@ -1354,6 +1358,7 @@ sub retrieve_languages {
 
   my @values;
   my $where;
+  my $query;
 
   if ($form->{language_values} ne "") {
     $query =
@@ -1397,7 +1402,7 @@ sub follow_account_chain {
 
   while (1) {
     do_statement($form, $sth, $query, $accno_id);
-    $ref = $sth->fetchrow_hashref();
+    my $ref = $sth->fetchrow_hashref();
     last unless ($ref && $ref->{"is_valid"} &&
                  !grep({ $_ == $ref->{"new_chart_id"} } @visited_accno_ids));
     $accno_id = $ref->{"new_chart_id"};
