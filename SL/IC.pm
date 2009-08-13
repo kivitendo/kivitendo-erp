@@ -748,6 +748,7 @@ sub assembly_item {
 # not working:
 #   onhand                                   - as above, but masking the simple itemstatus results (doh!)
 #   masking of onhand in bsooqr mode         - ToDO: fixme
+#   warehouse onhand
 #
 # disabled sanity checks and changes:
 #  - searchitems = assembly will no longer disable bought
@@ -775,7 +776,7 @@ sub all_parts {
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(listprice sellprice lastcost priceupdate weight unit bin rop image));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
-  my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module);
+  my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
 #  my @other_flags          = qw(onhand); # ToDO: implement these
 #  my @inactive_flags       = qw(l_subtotal short l_linetotal);
@@ -803,6 +804,8 @@ sub all_parts {
   );
   my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac);
   my %joins_needed;
+  my %table_prefix;
+  my %renamed_columns;
 
   if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
     @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
@@ -907,6 +910,9 @@ sub all_parts {
   push @bsooqr_tokens, q|module = 'oe' AND     quotation AND cv = 'vendor'|   if $form->{rfq};
   push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
 
+  $renamed_columns{onhand} = 'onhand_before_bsooqr';
+  $renamed_columns{qty}    = 'onhand';
+
   $joins_needed{partsgroup}  = 1;
   $joins_needed{pfac}        = 1;
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
@@ -937,7 +943,6 @@ sub all_parts {
 
   #============= build query ================#
 
-  my %table_prefix;
   %table_prefix = (
      %table_prefix,
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -953,7 +958,8 @@ sub all_parts {
 
   $table_prefix{$q_assembly_lastcost} = ' ';
 
-  my %renamed_columns = (
+  %renamed_columns = (
+    %renamed_columns,
     'factor'       => 'price_factor',
     'SUM(ioi.qty)' => 'soldtotal',
   );
