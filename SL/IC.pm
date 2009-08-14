@@ -92,7 +92,7 @@ sub get_part {
     $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
     $form->{assembly_rows} = 0;
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       $form->{assembly_rows}++;
       foreach my $key (keys %{$ref}) {
         $form->{"${key}_$form->{assembly_rows}"} = $ref->{$key};
@@ -191,7 +191,7 @@ sub get_part {
               FROM translation
               WHERE parts_id = ?|;
   my $trq = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-  while (my $tr = $trq->fetchrow_hashref(NAME_lc)) {
+  while (my $tr = $trq->fetchrow_hashref("NAME_lc")) {
     $form->{language_values} .= "---+++---" . join('--++--', @{$tr}{qw(language_id translation longdescription)});
   }
   $trq->finish;
@@ -540,13 +540,13 @@ sub save {
   }
 
   #set expense_accno=inventory_accno if they are different => bilanz
-  $vendor_accno =
+  my $vendor_accno =
     ($form->{expense_accno} != $form->{inventory_accno})
     ? $form->{inventory_accno}
     : $form->{expense_accno};
 
   # get tax rates and description
-  $accno_id =
+  my $accno_id =
     ($form->{vc} eq "customer") ? $form->{income_accno} : $vendor_accno;
   $query =
     qq|SELECT c.accno, c.description, t.rate, t.taxnumber
@@ -556,7 +556,7 @@ sub save {
   my $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
 
   $form->{taxaccount} = "";
-  while (my $ptr = $stw->fetchrow_hashref(NAME_lc)) {
+  while (my $ptr = $stw->fetchrow_hashref("NAME_lc")) {
     $form->{taxaccount} .= "$ptr->{accno} ";
     if (!($form->{taxaccount2} =~ /\Q$ptr->{accno}\E/)) {
       $form->{"$ptr->{accno}_rate"}        = $ptr->{rate};
@@ -596,7 +596,7 @@ sub update_assembly {
   $query =
     qq|UPDATE parts SET sellprice = sellprice + ?, weight = weight + ?
        WHERE id = ?|;
-  @values = ($qty * ($form->{sellprice} - $sellprice),
+  my @values = ($qty * ($form->{sellprice} - $sellprice),
              $qty * ($form->{weight} - $weight), conv_i($id));
   do_query($form, $dbh, $query, @values);
 
@@ -688,7 +688,7 @@ sub assembly_item {
     push(@values, conv_i($form->{id}));
   }
 
-  if ($partnumber) {
+  if ($form->{partnumber}) {
     $where .= qq| ORDER BY p.partnumber|;
   } else {
     $where .= qq| ORDER BY p.description|;
@@ -803,9 +803,25 @@ sub all_parts {
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
   );
   my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac);
+
+  my %table_prefix = (
+     deliverydate => 'apoe.', serialnumber => 'ioi.',
+     transdate    => 'apoe.', trans_id     => 'ioi.',
+     module       => 'apoe.', name         => 'cv.',
+     ordnumber    => 'apoe.', make         => 'mm.',
+     quonumber    => 'apoe.', model        => 'mm.',
+     invnumber    => 'apoe.', partsgroup   => 'pg.',
+     lastcost     => ' ',
+     factor       => 'pfac.',
+     'SUM(ioi.qty)' => ' ',
+  );
+
+  my %renamed_columns = (
+    'factor'       => 'price_factor',
+    'SUM(ioi.qty)' => 'soldtotal',
+  );
+
   my %joins_needed;
-  my %table_prefix;
-  my %renamed_columns;
 
   if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
     @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
@@ -943,26 +959,7 @@ sub all_parts {
 
   #============= build query ================#
 
-  %table_prefix = (
-     %table_prefix,
-     deliverydate => 'apoe.', serialnumber => 'ioi.',
-     transdate    => 'apoe.', trans_id     => 'ioi.',
-     module       => 'apoe.', name         => 'cv.',
-     ordnumber    => 'apoe.', make         => 'mm.',
-     quonumber    => 'apoe.', model        => 'mm.',
-     invnumber    => 'apoe.', partsgroup   => 'pg.',
-     lastcost     => ' ',
-     factor       => 'pfac.',
-     'SUM(ioi.qty)' => ' ',
-  );
-
   $table_prefix{$q_assembly_lastcost} = ' ';
-
-  %renamed_columns = (
-    %renamed_columns,
-    'factor'       => 'price_factor',
-    'SUM(ioi.qty)' => 'soldtotal',
-  );
 
   map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
   map { $renamed_columns{$_} = ' AS ' . $renamed_columns{$_} } keys %renamed_columns;
@@ -1008,7 +1005,7 @@ sub all_parts {
       push(@assemblies, $item);
       do_statement($form, $sth, $query, conv_i($item->{id}));
 
-      while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+      while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
         $ref->{assemblyitem} = 1;
         map { $ref->{$_} /= $ref->{factor} || 1 } qw(sellprice listprice lastcost);
         push(@assemblies, $ref);
@@ -1248,7 +1245,7 @@ sub create_links {
   }
 
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     foreach my $key (split(/:/, $ref->{link})) {
       if ($key =~ /\Q$module\E/) {
         if (   ($ref->{id} eq $ref->{inventory_accno_id})
@@ -1317,7 +1314,7 @@ sub get_parts {
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   my $j = 0;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     if (($ref->{partnumber} eq "*") && ($ref->{description} eq "")) {
       next;
     }
@@ -1346,7 +1343,7 @@ sub get_soldtotal {
   my ($dbh, $id) = @_;
 
   my $query = qq|SELECT sum(qty) FROM invoice WHERE parts_id = ?|;
-  my ($sum) = selectrow_query($form, $dbh, $query, conv_i($id));
+  my ($sum) = selectrow_query($main::form, $dbh, $query, conv_i($id));
   $sum ||= 0;
 
   $main::lxdebug->leave_sub();
