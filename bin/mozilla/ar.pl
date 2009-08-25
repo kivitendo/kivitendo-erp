@@ -96,8 +96,8 @@ sub add {
   	$form->{addition} = "ADDED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
-  
+  # /saving the history
+
   $form->{title}    = "Add";
   $form->{callback} = "ar.pl?action=add" unless $form->{callback};
 
@@ -318,8 +318,8 @@ sub form_header {
 
   my $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
-  $customer = ($form->{selectcustomer}) 
-    ? qq|<select name="customer" onchange="document.getElementById('update_button').click();">$form->{selectcustomer}</select>| 
+  $customer = ($form->{selectcustomer})
+    ? qq|<select name="customer" onchange="document.getElementById('update_button').click();">$form->{selectcustomer}</select>|
     : qq|<input name=customer value="$form->{customer}" size=35>|;
 
   $employee = qq|
@@ -685,8 +685,8 @@ $jsscript
   $column_data{exchangerate} = "<th>" . $locale->text('Exch') . "</th>";
   $column_data{AR_paid}      = "<th>" . $locale->text('Account') . "</th>";
   $column_data{source}       = "<th>" . $locale->text('Source') . "</th>";
-  $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>"; 
-  $column_data{paid_project_id} = "<th>" . $locale->text('Project Number') . "</th>"; 
+  $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>";
+  $column_data{paid_project_id} = "<th>" . $locale->text('Project Number') . "</th>";
 
   print "
         <tr>
@@ -883,9 +883,9 @@ $follow_ups_block
     print qq| <input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|> |;
   }
   # /button for saving history
-  # mark_as_paid button 
-  if($form->{id} ne "") {  
-    print qq|<input type="submit" class="submit" name="action" value="| 
+  # mark_as_paid button
+  if($form->{id} ne "") {
+    print qq|<input type="submit" class="submit" name="action" value="|
           . $locale->text('mark as paid') . qq|">|;
   }
   # /mark_as_paid button
@@ -905,7 +905,7 @@ sub mark_as_paid {
 
   $auth->assert('general_ledger');
 
-  &mark_as_paid_common(\%myconfig,"ar");  
+  &mark_as_paid_common(\%myconfig,"ar");
 
   $lxdebug->leave_sub();
 }
@@ -1064,7 +1064,7 @@ sub post {
   my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
-  $form->error($locale->text('Zero amount posting!')) 
+  $form->error($locale->text('Zero amount posting!'))
     unless grep $_*1, map $form->parse_amount(\%myconfig, $form->{"amount_$_"}), 1..$form->{rowcount};
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
@@ -1108,7 +1108,7 @@ sub post {
     $form->{addition} = "POSTED";
     $form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
   remove_draft() if $form->{remove_draft};
 
   $form->redirect($locale->text('Transaction posted!')) unless $inline;
@@ -1128,7 +1128,7 @@ sub post_as_new {
   	$form->{addition} = "POSTED AS NEW";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
   &post;
 
   $lxdebug->leave_sub();
@@ -1201,7 +1201,7 @@ sub yes {
   	  $form->{addition} = "DELETED";
   	  $form->save_history($form->dbconnect(\%myconfig));
     }
-    # /saving the history 
+    # /saving the history
     $form->redirect($locale->text('Transaction deleted!'));
   }
   $form->error($locale->text('Cannot delete transaction!'));
@@ -1246,9 +1246,9 @@ sub search {
 | if $form->{selectdepartment};
 
   $form->{title} = $locale->text('AR Transactions');
-  
+
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  
+
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
   $jsscript = "";
@@ -1412,6 +1412,24 @@ sub search {
 		<td align=right><input name="l_transaction_description" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Transaction description') . qq|</td>
 	      </tr>
+          <tr>
+        <td colspan=4 align=left><b>| . $locale->text('Customer') . qq| </td>
+          </tr>
+          <tr>
+		<td align=right><input name="l_customernumber" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Customer Number') . qq|</td>
+		<td align=right><input name="l_country" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Country') . qq|</td>
+		<td align=right><input name="l_ustid" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('USt-IdNr.') . qq|</td>
+		<td align=right><input name="l_taxzone" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Steuersatz') . qq|</td>
+          </tr>
+          <tr>
+		<td align=right><input name="l_payment" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Payment Terms') . qq|</td>
+          </tr>
+
 	    </table>
 	  </td>
 	</tr>
@@ -1480,7 +1498,7 @@ sub ar_transactions {
   @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber);
+       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber transaction_description notes project_id transdatefrom transdateto);
@@ -1510,6 +1528,11 @@ sub ar_transactions {
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
+    'customernumber'          => { 'text' => $locale->text('Customer Number'), },
+    'country'                 => { 'text' => $locale->text('Country'), },
+    'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
+    'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
+    'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
@@ -1657,9 +1680,9 @@ sub storno {
     $form->{addition} = "STORNO";
     $form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
-  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id}); 
+  $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
   $lxdebug->leave_sub();
 }

@@ -419,14 +419,18 @@ sub ar_transactions {
     qq|  a.marge_total, a.marge_percent, | .
     qq|  a.transaction_description, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
-    qq|  c.name, | .
+    qq|  c.name, c.customernumber, c.country, c.ustid, | .
     qq|  e.name AS employee, | .
-    qq|  e2.name AS salesman | .
+    qq|  e2.name AS salesman, | .
+    qq|  tz.description AS taxzone, | .
+    qq|  pt.description AS payment_terms | .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
-    qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)|;
+    qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
+    qq|LEFT JOIN tax_zones tz ON (tz.id = c.taxzone_id)| .
+    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)|;
 
   my $where = "1 = 1";
   if ($form->{customer_id}) {
@@ -470,7 +474,7 @@ sub ar_transactions {
     }
   }
 
-  my @a = (transdate, invnumber, name);
+  my @a = qw(transdate invnumber name);
   push @a, "employee" if $form->{l_employee};
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
@@ -652,7 +656,7 @@ sub storno {
 
   # now copy acc_trans entries
   $query = qq|SELECT a.*, c.link FROM acc_trans a LEFT JOIN chart c ON a.chart_id = c.id WHERE a.trans_id = ? ORDER BY a.acc_trans_id|;
-  my $rowref = selectall_hashref_query($form, $dbh, $query, $id); 
+  my $rowref = selectall_hashref_query($form, $dbh, $query, $id);
 
   # kill all entries containing payments, which are the last 2n rows, of which the last has link =~ /paid/
   while ($rowref->[-1]{link} =~ /paid/) {
