@@ -390,7 +390,7 @@ sub ap_transactions {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
@@ -400,13 +400,16 @@ sub ap_transactions {
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
     qq|  tz.description AS taxzone, | .
-    qq|  pt.description AS payment_terms | .
+    qq|  pt.description AS payment_terms, | .
+    qq{  ch.accno || ' -- ' || ch.description AS charts } .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = v.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)|;
+    qq|LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)| .
+    qq|LEFT JOIN acc_trans at ON (at.trans_id = a.id)| .
+    qq|INNER JOIN chart ch ON (ch.id = at.chart_id AND ch.link ~ 'AP[[:>:]]')|;
 
   my $where = '';
   my @values;
@@ -474,17 +477,9 @@ sub ap_transactions {
 
   $query .= " ORDER BY $sortorder";
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute(@values) ||
-    $form->dberror($query . " (" . join(", ", @values) . ")");
+  my @result = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $form->{AP} = [];
-  while (my $ap = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{AP} }, $ap;
-  }
-
-  $sth->finish;
-  $dbh->disconnect;
+  $form->{AP} = [ @result ];
 
   $main::lxdebug->leave_sub();
 }
