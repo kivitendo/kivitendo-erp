@@ -1426,7 +1426,7 @@ sub search {
 		<td nowrap>| . $locale->text('Steuersatz') . qq|</td>
           </tr>
           <tr>
-		<td align=right><input name="l_payment" class=checkbox type=checkbox value=Y></td>
+		<td align=right><input name="l_payment_terms" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Payment Terms') . qq|</td>
           </tr>
 

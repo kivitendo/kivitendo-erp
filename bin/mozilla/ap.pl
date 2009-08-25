@@ -1326,6 +1326,23 @@ sub search {
 		<td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Project Number') . qq|</td>
 	      </tr>
+          <tr>
+        <td colspan=4 align=left><b>| . $locale->text('Vendor') . qq| </td>
+          </tr>
+          <tr>
+		<td align=right><input name="l_vendornumber" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Vendor Number') . qq|</td>
+		<td align=right><input name="l_country" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Country') . qq|</td>
+		<td align=right><input name="l_ustid" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('USt-IdNr.') . qq|</td>
+		<td align=right><input name="l_taxzone" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Steuersatz') . qq|</td>
+          </tr>
+          <tr>
+		<td align=right><input name="l_payment_terms" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Payment Terms') . qq|</td>
+          </tr>
 	    </table>
 	  </td>
 	</tr>
@@ -1388,7 +1405,8 @@ sub ap_transactions {
 
   my @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
-       due duedate transaction_description notes employee globalprojectnumber);
+       due duedate transaction_description notes employee globalprojectnumber
+       vendornumber country ustid taxzone payment_terms);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes project_id transdatefrom transdateto);
@@ -1413,6 +1431,11 @@ sub ap_transactions {
     'notes'                   => { 'text' => $locale->text('Notes'), },
     'employee'                => { 'text' => $locale->text('Salesperson'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
+    'vendornumber'            => { 'text' => $locale->text('Vendor Number'), },
+    'country'                 => { 'text' => $locale->text('Country'), },
+    'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
+    'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
+    'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {

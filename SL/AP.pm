@@ -397,11 +397,16 @@ sub ap_transactions {
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
     qq|  a.globalproject_id, a.storno, a.storno_id, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
-    qq|  e.name AS employee | .
+    qq|  e.name AS employee, | .
+    qq|  v.vendornumber, v.country, v.ustid, | .
+    qq|  tz.description AS taxzone, | .
+    qq|  pt.description AS payment_terms | .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
-    qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) |;
+    qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
+    qq|LEFT JOIN tax_zones tz ON (tz.id = v.taxzone_id)| .
+    qq|LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)|;
 
   my $where = '';
   my @values;
@@ -761,7 +766,7 @@ sub storno {
 
   # now copy acc_trans entries
   $query = qq|SELECT a.*, c.link FROM acc_trans a LEFT JOIN chart c ON a.chart_id = c.id WHERE a.trans_id = ? ORDER BY a.acc_trans_id|;
-  my $rowref = selectall_hashref_query($form, $dbh, $query, $id); 
+  my $rowref = selectall_hashref_query($form, $dbh, $query, $id);
 
   # kill all entries containing payments, which are the last 2n rows, of which the last has link =~ /paid/
   while ($rowref->[-1]{link} =~ /paid/) {
