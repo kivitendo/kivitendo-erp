@@ -407,12 +407,12 @@ sub ar_transactions {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh($myconfig);
 
   my @values;
 
   my $query =
-    qq|SELECT a.id, a.invnumber, a.ordnumber, a.transdate, | .
+    qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.transdate, | .
     qq|  a.duedate, a.netamount, a.amount, a.paid, | .
     qq|  a.invoice, a.datepaid, a.terms, a.notes, a.shipvia, | .
     qq|  a.shippingpoint, a.storno, a.storno_id, a.globalproject_id, | .
@@ -423,14 +423,17 @@ sub ar_transactions {
     qq|  e.name AS employee, | .
     qq|  e2.name AS salesman, | .
     qq|  tz.description AS taxzone, | .
-    qq|  pt.description AS payment_terms | .
+    qq|  pt.description AS payment_terms, | .
+    qq{  ch.accno || ' -- ' || ch.description AS charts } .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
     qq|LEFT JOIN tax_zones tz ON (tz.id = c.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)|;
+    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)| .
+    qq|LEFT JOIN acc_trans at ON (at.trans_id = a.id)| .
+    qq|INNER JOIN chart ch ON (ch.id = at.chart_id AND ch.link ~ 'AR[[:>:]]')|;
 
   my $where = "1 = 1";
   if ($form->{customer_id}) {
@@ -485,17 +488,9 @@ sub ar_transactions {
 
   $query .= " WHERE $where ORDER BY $sortorder";
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute(@values) ||
-    $form->dberror($query . " (" . join(", ", @values) . ")");
+  my @result = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $form->{AR} = [];
-  while (my $ar = $sth->fetchrow_hashref(NAME_lc)) {
-    push @{ $form->{AR} }, $ar;
-  }
-
-  $sth->finish;
-  $dbh->disconnect;
+  $form->{AR} = [ @result ];
 
   $main::lxdebug->leave_sub();
 }

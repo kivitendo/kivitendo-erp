@@ -1428,6 +1428,8 @@ sub search {
           <tr>
 		<td align=right><input name="l_payment_terms" class=checkbox type=checkbox value=Y></td>
 		<td nowrap>| . $locale->text('Payment Terms') . qq|</td>
+		<td align=right><input name="l_charts" class=checkbox type=checkbox value=Y></td>
+		<td nowrap>| . $locale->text('Buchungskonto') . qq|</td>
           </tr>
 
 	    </table>
@@ -1498,7 +1500,7 @@ sub ar_transactions {
   @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms);
+       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber transaction_description notes project_id transdatefrom transdateto);
@@ -1533,6 +1535,7 @@ sub ar_transactions {
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
+    'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
