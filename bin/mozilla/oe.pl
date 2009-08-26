@@ -38,6 +38,7 @@ use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
+use SL::MoreCommon qw(ary_diff);
 use SL::PE;
 use SL::ReportGenerator;
 use List::Util qw(max reduce sum);
@@ -1092,8 +1093,8 @@ sub save {
 
   $form->{simple_save} = 1;
   if(!$form->{print_and_save}) {
-    set_headings("edit");
-    &update;
+    delete @{$form}{ary_diff([keys %{ $form }], [qw(login stylesheet id script type)])};
+    edit();
     exit;
   }
   $lxdebug->leave_sub();
