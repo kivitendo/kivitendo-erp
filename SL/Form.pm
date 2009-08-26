@@ -306,11 +306,13 @@ sub new {
   my $db_charset   = $main::dbcharset;
   $db_charset    ||= Common::DEFAULT_CHARSET;
 
-  if ($self->{INPUT_ENCODING} && (lc $self->{INPUT_ENCODING} ne $db_charset)) {
-    require Text::Iconv;
-    my $iconv = Text::Iconv->new($self->{INPUT_ENCODING}, $db_charset);
+  if ($self->{INPUT_ENCODING}) {
+    if (lc $self->{INPUT_ENCODING} ne lc $db_charset) {
+      require Text::Iconv;
+      my $iconv = Text::Iconv->new($self->{INPUT_ENCODING}, $db_charset);
 
-    _recode_recursively($iconv, $self);
+      _recode_recursively($iconv, $self);
+    }
 
     delete $self{INPUT_ENCODING};
   }
