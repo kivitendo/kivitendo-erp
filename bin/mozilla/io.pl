@@ -197,6 +197,7 @@ sub display_row {
 
   # rows
   for $i (1 .. $numrows) {
+    my %column_data = ();
 
     # undo formatting
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(qty discount sellprice price_new price_old) unless ($form->{simple_save});
