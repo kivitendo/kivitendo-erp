@@ -3,7 +3,8 @@ package SL::MoreCommon;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(save_form restore_form compare_numbers any cross);
+@EXPORT    = qw(save_form restore_form compare_numbers any cross);
+@EXPORT_OK = qw(ary_union ary_intersect ary_diff);
 
 use YAML;
 
@@ -125,6 +126,37 @@ sub cross(&\@\@) {
       $op->();    # perform the transformation
     }  0 .. $#B;
   }  0 .. $#A;
+}
+
+sub _ary_calc_union_intersect {
+  my ($a, $b) = @_;
+
+  my %count = ();
+
+  foreach my $e (@$a, @$b) { $count{$e}++ }
+
+  my @union = ();
+  my @isect = ();
+  foreach my $e (keys %count) {
+    push @union, $e;
+    push @isect, $e if $count{$e} == 2;
+  }
+
+  return (\@union, \@isect);
+}
+
+sub ary_union {
+  return @{ (_ary_calc_union_intersect @_)[0] };
+}
+
+sub ary_intersect {
+  return @{ (_ary_calc_union_intersect @_)[1] };
+}
+
+sub ary_diff {
+  my ($a, $b) = @_;
+  my %in_b    = map { $_ => 1 } @$b;
+  return grep { !$in_b{$_} } @$a;
 }
 
 1;
