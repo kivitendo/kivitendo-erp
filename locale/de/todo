@@ -333,6 +333,7 @@ $self->{texts} = {
   'Transactions, AR transactions, AP transactions' => 'Dialogbuchen, Debitorenrechnungen, Kreditorenrechnungen',
   'Transfer To Stock'           => 'Lagereingang',
   'Trying to call a sub without a name' => 'Es wurde versucht, eine Unterfunktion ohne Namen aufzurufen.',
+  'USt-IdNr.'                   => 'USt-IdNr.',
   'Unit'                        => 'Einheit',
   'Unknown dependency \'%s\'.'  => 'Unbekannte Abh&auml;ngigkeit \'%s\'.',
   'Value'                       => 'Wert',

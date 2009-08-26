@@ -681,7 +681,8 @@ sub orders {
     "salesman",
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
-    "delivered", "marge_total", "marge_percent"
+    "delivered", "marge_total", "marge_percent",
+    "country",                 "ustid",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -742,7 +743,9 @@ sub orders {
     'open'                    => { 'text' => $locale->text('Open'), },
     'delivered'               => { 'text' => $locale->text('Delivered'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
-    'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), }
+    'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
+    'country'                 => { 'text' => $locale->text('Country'), },
+    'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia transaction_description)) {

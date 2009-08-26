@@ -73,7 +73,8 @@ sub transactions {
     qq|  o.marge_total, o.marge_percent, | .
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
-    qq|  e.name AS employee, s.name AS salesman | .
+    qq|  e.name AS employee, s.name AS salesman, | .
+    qq|  ct.country, ct.ustid  | .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .

@@ -226,6 +226,19 @@
          <label for="l_salesman">Verkäufer/in</label>
         </td>
        </tr>
+       <tr>
+        <td colspan=4 align=left><b>Kunde</td>
+       </tr>
+       <tr>
+		<td>
+         <input name="l_country" id="l_country" class="checkbox" type="checkbox" value="Y">
+		 <label for="l_country">Land</label>
+        </td>
+		<td>
+         <input name="l_ustid"  id="l_ustid" class="checkbox" type="checkbox" value="Y">
+		 <label for="l_ustid">USt-IdNr.</label>
+        </td>
+       </tr>
 [%- IF type == 'sales_order' %]
        <tr><td colspan="3"><hr></td></tr>
 [%- END %]
