@@ -46,7 +46,7 @@ use SL::ReportGenerator;
 #use warnings;
 
 # global imports
-our ($form, $locale, %myconfig, $lxdebug);
+our ($form, $locale, %myconfig, $lxdebug, $auth);
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -140,7 +140,7 @@ sub confirm_price_update {
   $auth->assert('part_service_assembly_edit');
 
   my @errors      = ();
-  my $value_found = false;
+  my $value_found = undef;
 
   foreach my $idx (qw(sellprice listprice), (1..$form->{price_rows})) {
     my $name      = $idx =~ m/\d/ ? $form->{"pricegroup_${idx}"}      : $idx eq 'sellprice' ? $locale->text('Sell Price') : $locale->text('List Price');
@@ -1023,8 +1023,8 @@ sub generate_report {
   $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
 
-  my $revers     = $form->{revers};
-  my $lastsort   = $form->{lastsort};
+  $revers     = $form->{revers};
+  $lastsort   = $form->{lastsort};
 
   # sorting and direction of sorting
   # ToDO: change this to the simpler field+direction method
@@ -1510,7 +1510,7 @@ sub form_header {
 
   $auth->assert('part_service_assembly_edit');
 
-  $form->{eur}              = $eur; # config dumps into namespace - yuck
+  $form->{eur}              = $main::eur; # config dumps into namespace - yuck
   $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
   $form->{notes_rows}       =  max 4, $form->numtextrows($form->{notes}, 40), $form->numtextrows($form->{formel}, 40);
@@ -1529,7 +1529,7 @@ sub form_header {
   # use JavaScript Calendar or not (yes!)
   $form->{jsscript} = 1;
 
-  $units = AM->retrieve_units(\%myconfig, $form);
+  my $units = AM->retrieve_units(\%myconfig, $form);
   $form->{ALL_UNITS} = [ map +{ name => $_ }, sort { $units->{$a}{sortkey} <=> $units->{$b}{sortkey} } keys %$units ];
 
   $form->{defaults} = AM->get_defaults();
@@ -1577,7 +1577,7 @@ sub assembly_row {
   my (@column_index);
   my ($nochange, $callback, $previousform, $linetotal, $line_purchase_price, $href);
 
-  our ($deliverydate); # ToDO: cjeck if this indeed comes from global context
+  our ($deliverydate); # ToDO: check if this indeed comes from global context
 
   @column_index = qw(runningnumber qty unit bom partnumber description partsgroup lastcost total);
 
@@ -1596,7 +1596,7 @@ sub assembly_row {
 
     # save form variables in a previousform variable
     $previousform = $form->escape($form->escape(join '&', map {
-      sprintf "%s=%s", Q($_), /^listprice|lastcost|sellprice$/ ? $form->format_amount(\%myconfig, $form->{$key}) : $form->{$key}
+      sprintf "%s=%s", Q($_), /^listprice|lastcost|sellprice$/ ? $form->format_amount(\%myconfig, $form->{$_}) : $form->{$_}
     } grep { ref $form->{$_} eq '' && $form->{$_} } grep { !/^select/ } sort keys %$form ));
 
     $form->{callback} = $callback;
@@ -1968,12 +1968,12 @@ sub parts_language_selection {
 
   $auth->assert('part_service_assembly_edit');
 
-  our ($onload);
+  our ($onload, $callback);
 
   my $languages = IC->retrieve_languages(\%myconfig, $form);
 
   if ($form->{language_values} ne "") {
-    foreach $item (split(/---\+\+\+---/, $form->{language_values})) {
+    foreach my $item (split(/---\+\+\+---/, $form->{language_values})) {
       my ($language_id, $translation, $longdescription) = split(/--\+\+--/, $item);
 
       foreach my $language (@{ $languages }) {
