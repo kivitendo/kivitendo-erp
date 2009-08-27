@@ -387,9 +387,6 @@ sub save {
                   AND (trans_id IN (SELECT id FROM orderitems WHERE trans_id = ?))|;
     do_query($form, $dbh, $query, $form->{id});
 
-    $query = qq|DELETE FROM orderitems WHERE trans_id = ?|;
-    do_query($form, $dbh, $query, $form->{id});
-
     $query = qq|DELETE FROM shipto | .
              qq|WHERE trans_id = ? AND module = 'OE'|;
     do_query($form, $dbh, $query, $form->{id});
@@ -417,6 +414,7 @@ sub save {
   my @taxaccounts;
   my %taxaccounts;
   my $netamount = 0;
+  my @processed_orderitems;
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
@@ -518,19 +516,27 @@ sub save {
       $pricegroup_id  = undef if !$pricegroup_id;
 
       # save detail record in orderitems table
-      my $orderitems_id = $form->{"orderitems_id_$i"};
-      ($orderitems_id)  = selectfirst_array_query($form, $dbh, qq|SELECT nextval('orderitemsid')|) if (!$orderitems_id);
+      if (! $form->{"orderitems_id_$i"}) {
+        $query = qq|SELECT nextval('orderitemsid')|;
+        ($form->{"orderitems_id_$i"}) = selectrow_query($form, $dbh, $query);
 
-      @values = ();
-      $query = qq|INSERT INTO orderitems (
-                    id, trans_id, parts_id, description, longdescription, qty, base_qty,
-                    sellprice, discount, unit, reqdate, project_id, serialnumber, ship,
-                    pricegroup_id, ordnumber, transdate, cusordnumber, subtotal,
-                    marge_percent, marge_total, lastcost, price_factor_id, price_factor, marge_price_factor)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                          (SELECT factor FROM price_factors WHERE id = ?), ?)|;
-      push(@values,
-           conv_i($orderitems_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
+        $query = qq|INSERT INTO orderitems (id) VALUES (?)|;
+        do_query($form, $dbh, $query, $form->{"orderitems_id_$i"});
+      }
+      my $orderitems_id = $form->{"orderitems_id_$i"};
+      push @processed_orderitems, $orderitems_id;
+
+       $query = <<SQL;
+         UPDATE orderitems SET
+          trans_id = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?, base_qty = ?,
+          sellprice = ?, discount = ?, unit = ?, reqdate = ?, project_id = ?, serialnumber = ?, ship = ?,
+          pricegroup_id = ?, ordnumber = ?, transdate = ?, cusordnumber = ?, subtotal = ?,
+          marge_percent = ?, marge_total = ?, lastcost = ?, price_factor_id = ?,
+          price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
+        WHERE id = ?
+SQL
+      @values = (
+           conv_i($form->{id}), conv_i($form->{"id_$i"}),
            $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}),
            $form->{"qty_$i"}, $baseqty,
            $fxsellprice, $form->{"discount_$i"},
@@ -541,7 +547,10 @@ sub save {
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"},
            conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
-           conv_i($form->{"marge_price_factor_$i"}));
+           conv_i($form->{"marge_price_factor_$i"}),
+           conv_i($orderitems_id),
+      );
+
       do_query($form, $dbh, $query, @values);
 
       $form->{"sellprice_$i"} = $fxsellprice;
@@ -556,6 +565,16 @@ sub save {
                                   name_postfix => "_$i",
                                   dbh          => $dbh);
     }
+  }
+  # search for orphaned ids
+  $query  = sprintf 'SELECT id FROM orderitems WHERE trans_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_orderitems;
+  @values = (conv_i($form->{id}), map { conv_i($_) } @processed_orderitems);
+  my @orphaned_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+
+  if (scalar @orphaned_ids) {
+    # clean up orderitems
+    $query  = sprintf 'DELETE FROM orderitems WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
+    do_query($form, $dbh, $query, @orphaned_ids);
   }
 
   $reqdate = ($form->{reqdate}) ? $form->{reqdate} : undef;
@@ -1001,7 +1020,7 @@ sub retrieve {
       }
 
       # delete orderitems_id in collective orders, so that they get cloned no matter what
-      delete $ref->{orderitems_id} if (@ids);
+      delete $ref->{orderitems_id} if $is_collective_order;
 
       # get tax rates and description
       my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
