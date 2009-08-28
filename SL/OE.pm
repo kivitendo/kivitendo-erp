@@ -186,7 +186,7 @@ sub transactions {
 
   my %id = ();
   $form->{OE} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $ref->{exchangerate} = 1 unless $ref->{exchangerate};
     push @{ $form->{OE} }, $ref if $ref->{id} != $id{ $ref->{id} };
     $id{ $ref->{id} } = $ref->{id};
@@ -289,6 +289,8 @@ sub save {
   my $project_id;
   my $reqdate;
   my $taxrate;
+  my $taxbase;
+  my $taxdiff;
   my $taxamount = 0;
   my $fxsellprice;
   my %taxbase;
@@ -360,7 +362,7 @@ sub save {
 
       if ($form->round_amount($taxrate, 7) == 0) {
         if ($form->{taxincluded}) {
-          foreach $item (@taxaccounts) {
+          foreach my $item (@taxaccounts) {
             $taxamount = $form->round_amount($linetotal * $form->{"${item}_rate"} / (1 + abs($form->{"${item}_rate"})), 2);
             $taxaccounts{$item} += $taxamount;
             $taxdiff            += $taxamount;
@@ -368,13 +370,13 @@ sub save {
           }
           $taxaccounts{ $taxaccounts[0] } += $taxdiff;
         } else {
-          foreach $item (@taxaccounts) {
+          foreach my $item (@taxaccounts) {
             $taxaccounts{$item} += $linetotal * $form->{"${item}_rate"};
             $taxbase{$item}     += $taxbase;
           }
         }
       } else {
-        foreach $item (@taxaccounts) {
+        foreach my $item (@taxaccounts) {
           $taxaccounts{$item} += $taxamount * $form->{"${item}_rate"} / $taxrate;
           $taxbase{$item} += $taxbase;
         }
@@ -594,7 +596,7 @@ sub delete {
   my $query = qq|SELECT s.spoolfile FROM status s | .
               qq|WHERE s.trans_id = ?|;
   my @values = (conv_i($form->{id}));
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute(@values) || $self->dberror($query);
 
   my $spoolfile;
@@ -670,7 +672,9 @@ sub retrieve {
     undef @ids;
   }
 
-  my $query_add = '';
+  # and remember for the rest of the function
+  my $is_collective_order = scalar @ids;
+
   if (!$form->{id}) {
     my $wday         = (localtime(time))[6];
     my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
@@ -725,7 +729,7 @@ sub retrieve {
     @values = $form->{id} ? ($form->{id}) : @ids;
     $sth = prepare_execute_query($form, $dbh, $query, @values);
 
-    $ref = $sth->fetchrow_hashref(NAME_lc);
+    $ref = $sth->fetchrow_hashref("NAME_lc");
     map { $form->{$_} = $ref->{$_} } keys %$ref;
 
     $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
@@ -757,7 +761,7 @@ sub retrieve {
       $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module = 'OE'|;
       $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
 
-      $ref = $sth->fetchrow_hashref(NAME_lc);
+      $ref = $sth->fetchrow_hashref("NAME_lc");
       delete($ref->{id});
       map { $form->{$_} = $ref->{$_} } keys %$ref;
       $sth->finish;
@@ -766,7 +770,7 @@ sub retrieve {
       $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname FROM status s WHERE s.trans_id = ?|;
       $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
 
-      while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+      while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
         $form->{printed} .= "$ref->{formname} " if $ref->{printed};
         $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
         $form->{queued}  .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
@@ -814,7 +818,7 @@ sub retrieve {
     @ids = $form->{id} ? ($form->{id}) : @ids;
     $sth = prepare_execute_query($form, $dbh, $query, @values);
 
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
       # Retrieve custom variables.
       my $cvars = CVar->get_custom_variables(dbh        => $dbh,
                                              module     => 'IC',
@@ -873,7 +877,7 @@ sub retrieve {
       delete $ref->{orderitems_id} if (@ids);
 
       # get tax rates and description
-      $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
+      my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       $query =
         qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber | .
         qq|FROM tax t LEFT JOIN chart c on (c.id = t.chart_id) | .
@@ -881,10 +885,10 @@ sub retrieve {
         qq|               WHERE tk.chart_id = (SELECT id FROM chart WHERE accno = ?) | .
         qq|                 AND startdate <= $transdate ORDER BY startdate DESC LIMIT 1) | .
         qq|ORDER BY c.accno|;
-      $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
+      my $stw = prepare_execute_query($form, $dbh, $query, $accno_id);
       $ref->{taxaccounts} = "";
       my $i = 0;
-      while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
+      while (my $ptr = $stw->fetchrow_hashref("NAME_lc")) {
         if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
           $i++;
           $ptr->{accno} = $i;
@@ -947,6 +951,11 @@ sub order_details {
   my $position = 0;
   my $subtotal_header = 0;
   my $subposition = 0;
+  my %taxaccounts;
+  my %taxbase;
+  my $tax_rate;
+  my $taxamount;
+
 
   my %oid = ('Pg'     => 'oid',
              'Oracle' => 'rowid');
@@ -1161,7 +1170,7 @@ sub order_details {
         $sth = $dbh->prepare($query);
         $sth->execute(@values) || $form->dberror($query);
 
-        while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+        while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
           if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
             map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
             $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
@@ -1224,7 +1233,7 @@ sub project_description {
   my ($self, $dbh, $id) = @_;
 
   my $query = qq|SELECT description FROM project WHERE id = ?|;
-  my ($value) = selectrow_query($form, $dbh, $query, $id);
+  my ($value) = selectrow_query($main::form, $dbh, $query, $id);
 
   $main::lxdebug->leave_sub();
 
