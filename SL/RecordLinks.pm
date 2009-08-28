@@ -2,6 +2,8 @@ package RecordLinks;
 
 use SL::Common;
 use SL::DBUtils;
+use Data::Dumper;
+use List::Util qw(reduce);
 
 sub create_links {
   $main::lxdebug->enter_sub();
@@ -130,8 +132,8 @@ sub get_links_via {
   my $myconfig   = \%main::myconfig;
   my $form       = $main::form;
 
-  my $last_hop = shift @hops;
-  my @links    = undef;
+  my $last_hop   = shift @hops;
+  my @links;
   for my $hop (@hops) {
 
     my @temp_links = $self->get_links(
@@ -141,25 +143,31 @@ sub get_links_via {
       to_id      => $hop->{id},
     );
 
-    if (@links) {
-      @links = grep { $_ }
-               cross {
-                 if (   $a->{to_table} eq $b->{from_table}
-                     && $a->{to_id}    eq $b->{from_id} ) {
-                   +{ $a->{from_table}, $a->{from_id},
-                      $b->{to_table},   $b->{to_table} }
-                 }
-              } @links, @temp_links;
-    } else {
-      @links = @temp_links;
-    }
+    # short circuit if any of these are empty
+    return wantarray ? () : [] unless scalar @temp_links;
 
-    $last_hop = $hop;
+    push @links, \@temp_links;
+    $last_hop  =  $hop;
   }
+
+  my $result = reduce {
+    [
+      grep { $_ }
+      cross {
+        if (   $a->{to_table} eq $b->{from_table}
+            && $a->{to_id}    eq $b->{from_id} ) {
+          +{ from_table => $a->{from_table},
+             from_id    => $a->{from_id},
+             to_table   => $b->{to_table},
+             to_id      => $b->{to_id} }
+          }
+        } @{ $a }, @{ $b }
+    ]
+  } @links;
 
   $main::lxdebug->leave_sub();
 
-  return wantarray ? @links : \@links;
+  return wantarray ? @{ $result } : $result;
 }
 
 1;
