@@ -811,14 +811,13 @@ sub all_parts {
      lastcost     => ' ',
      factor       => 'pfac.',
      'SUM(ioi.qty)' => ' ',
+     description => 'p.',
   );
 
   my %renamed_columns = (
     'factor'       => 'price_factor',
     'SUM(ioi.qty)' => 'soldtotal',
   );
-
-  my %joins_needed;
 
   if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
     @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
@@ -830,6 +829,7 @@ sub all_parts {
   my @where_tokens  = qw(1=1);
   my @group_tokens  = ();
   my @bind_vars     = ();
+  my %joins_needed  = ();
 
   # special case transdate
   if (grep { $form->{$_} } qw(transdatefrom transdateto)) {
@@ -842,14 +842,10 @@ sub all_parts {
     }
   }
 
-  my %simple_filter_table_prefix = (
-     description  => 'p.',
-  );
-
   foreach (@simple_filters, @makemodel_filters, @invoice_oi_filters) {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
-    push @where_tokens, "$simple_filter_table_prefix{$_}$_ ILIKE ?";
+    push @where_tokens, "$table_prefix{$_}$_ ILIKE ?";
     push @bind_vars,    "%$form->{$_}%";
   }
 

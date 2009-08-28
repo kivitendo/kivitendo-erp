@@ -9,7 +9,8 @@ require Exporter;
              selectall_hashref_query selectall_array_query
              selectall_as_map
              prepare_execute_query prepare_query
-             create_sort_spec does_table_exist);
+             create_sort_spec does_table_exist
+             add_token);
 
 sub conv_i {
   my ($value, $default) = @_;
@@ -280,6 +281,62 @@ sub does_table_exist {
   return $result;
 }
 
+# add token to values.
+# usage:
+#  add_token(
+#    \@where_tokens,
+#    \@where_values,
+#    col => 'id',
+#    val => [ 23, 34, 17 ]
+#    esc => \&conf_i
+#  )
+#  will append to the given arrays:
+#   -> 'id IN (?, ?, ?)'
+#   -> (conv_i(23), conv_i(34), conv_i(17))
+#
+#  features:
+#   - don't care if one or multiple values are given. singlewill result in 'col = ?'
+#   - pass escape routines
+#   - expand for future method
+#   - no need to type "push @where_tokens, 'id = ?'" over and over again
+sub add_token {
+  my $tokens = shift() || [];
+  my $values = shift() || [];
+  my %params = @_;
+  my $col    = $params{col};
+  my $val    = $params{val};
+  my $method = $params{method} || '=';
+  my $escape = $params{esc} || sub { $_ };
+
+  $val = [ $val ] unless ref $val eq 'ARRAY';
+
+  my %escapes = (
+    id     => \&conv_i,
+    date   => \&conv_date,
+  );
+
+  my %methods = (
+    '=' => sub {
+      my $col = shift;
+      return scalar @_ >  1 ? sprintf '%s IN (%s)', $col, join ', ', ("?") x scalar @_
+           : scalar @_ == 1 ? sprintf '%s = ?',     $col
+           :                  undef;
+    },
+  );
+
+  $method = $methods{$method} || $method;
+  $escape = $escapes{$escape} || $escape;
+
+  my $token = $method->($col, @{ $val });
+  my @vals  = map { $escape->($_) } @{ $val };
+
+  return unless $token;
+
+  push @{ $tokens }, $token;
+  push @{ $values }, @vals;
+
+  return ($token, @vals);
+}
 
 1;
 
@@ -293,7 +350,7 @@ SL::DBUTils.pm: All about Databaseconections in Lx
 =head1 SYNOPSIS
 
   use DBUtils;
-  
+
   conv_i($str, $default)
   conv_date($str)
   conv_dateq($str)
@@ -307,10 +364,10 @@ SL::DBUTils.pm: All about Databaseconections in Lx
 
   my $all_results_ref       = selectall_hashref_query($form, $dbh, $query)
   my $first_result_hash_ref = selectfirst_hashref_query($form, $dbh, $query);
-  
+
   my @first_result =  selectfirst_array_query($form, $dbh, $query);  # ==
   my @first_result =  selectrow_query($form, $dbh, $query);
-  
+
   my %sort_spec = create_sort_spec(%params);
 
 =head1 DESCRIPTION
@@ -329,8 +386,8 @@ Every function here should accomplish the follwing things:
   - Safe value binding. Although DBI is far from perfect in terms of binding, the rest of the bindings should happen here.
   - Error handling. Should a query fail, an error message will be generated here instead of in the backend code invoking DBUtils.
 
-Note that binding is not perfect here either... 
-  
+Note that binding is not perfect here either...
+
 =head2 QUOTING FUNCTIONS
 
 =over 4
@@ -386,11 +443,11 @@ Prepares and executes QUERY on DBH using DBI::prepare and DBI::execute. ARRAY is
 
 =item selectrow_query FORM,DBH,QUERY,ARRAY
 
-Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as an arrayref of the first row. 
+Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as an arrayref of the first row.
 
 =item selectfirst_hashref_query FORM,DBH,QUERY,ARRAY
 
-Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as a hashref of the first row. 
+Prepares and executes a query using DBUtils functions, retireves the first row from the database, and returns it as a hashref of the first row.
 
 =item selectall_hashref_query FORM,DBH,QUERY,ARRAY
 
@@ -484,7 +541,7 @@ Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug
 =item A more complicated example, using dynamic binding values:
 
   my @values;
-    
+
   if ($form->{language_values} ne "") {
     $query = qq|SELECT l.id, l.description, tr.translation, tr.longdescription
                   FROM language l
@@ -493,7 +550,7 @@ Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug
   } else {
     $query = qq|SELECT id, description FROM language|;
   }
-  
+
   my $languages = selectall_hashref_query($form, $dbh, $query, @values);
 
 =back
@@ -504,7 +561,7 @@ Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug
 
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
- 
+
 =head1 DOCUMENTATION AUTHORS
 
 Udo Spallek E<lt>udono@gmx.netE<gt>
@@ -526,4 +583,4 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-=cut    
+=cut

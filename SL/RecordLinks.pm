@@ -170,4 +170,34 @@ sub get_links_via {
   return wantarray ? @{ $result } : $result;
 }
 
+sub delete {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, [ qw(from_table from_id to_table to_id) ]);
+
+  my $myconfig   = \%main::myconfig;
+  my $form       = $main::form;
+
+  my $dbh        = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  # content
+  my (@where_tokens, @where_values);
+
+  for my $col (qw(from_table from_id to_table to_id)) {
+    add_token(\@where_tokens, \@where_values, col => $col, val => $params{$col}) if $params{$col};
+  }
+
+  my $where = "WHERE ". join ' AND ', map { "($_)" } @where_tokens if scalar @where_tokens;
+  my $query = "DELETE FROM record_links $where";
+
+  do_query($form, $dbh, $query, @where_values);
+
+  $dbh->commit() unless ($params{dbh});
+
+  $main::lxdebug->leave_sub();
+}
+
 1;
