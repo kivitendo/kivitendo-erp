@@ -819,7 +819,6 @@ sub all_parts {
      'SUM(ioi.qty)' => ' ',
      description  => 'p.',
      qty          => 'ioi.',
-     unit         => 'ioi.',
      serialnumber => 'ioi.',
   );
 
@@ -831,6 +830,7 @@ sub all_parts {
     [ 'description',  'ioi.',  'invoice_oi'  ],
     [ 'deliverydate', 'ioi.',  'invoice_oi'  ],
     [ 'transdate' ,   'apoe.', 'apoe'  ],
+    [ 'unit' ,        'ioi.',  'invoice_oi'  ],
   );
 
   # careful with renames. these are HARD, and any filters done on the original column will break
