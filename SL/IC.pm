@@ -847,21 +847,18 @@ sub all_parts {
     my $joins_needed = shift;
     sub {
       my ($col, $group) = @_;
-      $renamed_columns{$col} ||= $col;
-
       my @coalesce_tokens =
-        map { ($_->[1] || 'p.') . $_->[0] }
+        map  { ($_->[1] || 'p.') . $_->[0] }
         grep { !$_->[2] || $joins_needed->{$_->[2]} }
         grep { $_->[0] eq $col }
-        @column_override,
-        [ $col, $table_prefix{$col} ];
+        @column_override, [ $col, $table_prefix{$col} ];
 
-      my $coalesce   = scalar @coalesce_tokens > 1;
+      my $coalesce = scalar @coalesce_tokens > 1;
       return ($coalesce
         ? sprintf 'COALESCE(%s)', join ', ', @coalesce_tokens
         : shift                              @coalesce_tokens)
-        . ($group && $coalesce
-        ?  " AS $renamed_columns{$col}"
+        . ($group && ($coalesce || $renamed_columns{$col})
+        ?  " AS " . ($renamed_columns{$col} || $col)
         : '');
     }
   };
