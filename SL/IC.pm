@@ -35,7 +35,7 @@
 package IC;
 
 use Data::Dumper;
-use List::MoreUtils qw(all);
+use List::MoreUtils qw(all any);
 use YAML;
 
 use SL::CVar;
@@ -744,17 +744,16 @@ sub assembly_item {
 #
 # not working:
 #   onhand                                   - as above, but masking the simple itemstatus results (doh!)
-#   masking of onhand in bsooqr mode         - ToDO: fixme
 #   warehouse onhand
+#   search by overrides of description
 #
 # disabled sanity checks and changes:
 #  - searchitems = assembly will no longer disable bought
-#  - searchitems = service will no longer disable make and model, although services don't have make/model, it doesn't break the query
-#  - itemstatus = orphaned will no longer disable onhand short bought sold onorder ordered rfq quoted transdate[from|to]
-#  - itemstatus = obsolete will no longer disable onhand, short
+#  - searchitems = service  will no longer disable make and model, although services don't have make/model, it doesn't break the query
+#  - itemstatus  = orphaned will no longer disable onhand short bought sold onorder ordered rfq quoted transdate[from|to]
+#  - itemstatus  = obsolete will no longer disable onhand, short
 #  - allow sorting by ean
 #  - serialnumber filter also works if l_serialnumber isn't ticked
-#  - onhand doesn't get masked by it's oi or invoice counterparts atm. ToDO: fix this
 #  - sorting will now change sorting if the requested sorting column isn't checked and doesn't get checked as a side effect
 #
 sub all_parts {
@@ -770,6 +769,7 @@ sub all_parts {
   my @makemodel_filters    = qw(make model);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
+  my @like_filters         = (@simple_filters, @makemodel_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(listprice sellprice lastcost priceupdate weight unit bin rop image));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
@@ -778,14 +778,20 @@ sub all_parts {
 #  my @other_flags          = qw(onhand); # ToDO: implement these
 #  my @inactive_flags       = qw(l_subtotal short l_linetotal);
 
+  my @select_tokens = qw(id factor);
+  my @where_tokens  = qw(1=1);
+  my @group_tokens  = ();
+  my @bind_vars     = ();
+  my %joins_needed  = ();
+
   my %joins = (
     partsgroup => 'LEFT JOIN partsgroup pg      ON (pg.id       = p.partsgroup_id)',
     makemodel  => 'LEFT JOIN makemodel mm       ON (mm.parts_id = p.id)',
     pfac       => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
     invoice_oi =>
       q|LEFT JOIN (
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem, 'invoice'    AS ioi FROM invoice UNION
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, 'orderitems' AS ioi FROM orderitems
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem,         deliverydate, 'invoice'    AS ioi FROM invoice UNION
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, NULL AS deliverydate, 'orderitems' AS ioi FROM orderitems
        ) AS ioi ON ioi.parts_id = p.id|,
     apoe       =>
       q|LEFT JOIN (
@@ -811,9 +817,23 @@ sub all_parts {
      lastcost     => ' ',
      factor       => 'pfac.',
      'SUM(ioi.qty)' => ' ',
-     description => 'p.',
+     description  => 'p.',
+     qty          => 'ioi.',
+     unit         => 'ioi.',
+     serialnumber => 'ioi.',
   );
 
+  # if the join condition in these blocks are met, the column
+  # of the scecified table will gently override (coalesce actually) the original value
+  # use it to conditionally coalesce values from subtables
+  my @column_override = (
+    #  column name,   prefix,  joins_needed
+    [ 'description',  'ioi.',  'invoice_oi'  ],
+    [ 'deliverydate', 'ioi.',  'invoice_oi'  ],
+    [ 'transdate' ,   'apoe.', 'apoe'  ],
+  );
+
+  # careful with renames. these are HARD, and any filters done on the original column will break
   my %renamed_columns = (
     'factor'       => 'price_factor',
     'SUM(ioi.qty)' => 'soldtotal',
@@ -823,13 +843,30 @@ sub all_parts {
     @simple_l_switches = grep { $_ ne 'lastcost' } @simple_l_switches;
   }
 
-  #===== switches and simple filters ========#
+  my $make_token_builder = sub {
+    my $joins_needed = shift;
+    sub {
+      my ($col, $group) = @_;
+      $renamed_columns{$col} ||= $col;
 
-  my @select_tokens = qw(id factor);
-  my @where_tokens  = qw(1=1);
-  my @group_tokens  = ();
-  my @bind_vars     = ();
-  my %joins_needed  = ();
+      my @coalesce_tokens =
+        map { ($_->[1] || 'p.') . $_->[0] }
+        grep { !$_->[2] || $joins_needed->{$_->[2]} }
+        grep { $_->[0] eq $col }
+        @column_override,
+        [ $col, $table_prefix{$col} ];
+
+      my $coalesce   = scalar @coalesce_tokens > 1;
+      return ($coalesce
+        ? sprintf 'COALESCE(%s)', join ', ', @coalesce_tokens
+        : shift                              @coalesce_tokens)
+        . ($group && $coalesce
+        ?  " AS $renamed_columns{$col}"
+        : '');
+    }
+  };
+
+  #===== switches and simple filters ========#
 
   # special case transdate
   if (grep { $form->{$_} } qw(transdatefrom transdateto)) {
@@ -842,7 +879,7 @@ sub all_parts {
     }
   }
 
-  foreach (@simple_filters, @makemodel_filters, @invoice_oi_filters) {
+  foreach (@like_filters) {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
     push @where_tokens, "$table_prefix{$_}$_ ILIKE ?";
@@ -879,13 +916,7 @@ sub all_parts {
         LEFT JOIN parts p_lc            ON (a_lc.parts_id        = p_lc.id)
         LEFT JOIN price_factors pfac_lc ON (p_lc.price_factor_id = pfac_lc.id)
         WHERE (a_lc.id = p.id)) AS lastcost|;
-
-  my @sort_cols = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
-  $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols;
-
-  my $sort_order = ($form->{revers} ? ' DESC' : ' ASC');
-
-  my $order_clause = " ORDER BY $form->{sort} " . ($form->{revers} ? 'DESC' : 'ASC');
+  $table_prefix{$q_assembly_lastcost} = ' ';
 
   # special case: sorting by partnumber
   # since partnumbers are expected to be prefixed integers, a special sorting is implemented sorting first lexically by prefix and then by suffix.
@@ -902,12 +933,9 @@ sub all_parts {
 
   #=== joins and complicated filters ========#
 
-  my $bsooqr = $form->{bought}  || $form->{sold}
-            || $form->{ordered} || $form->{onorder}
-            || $form->{quoted}  || $form->{rfq};
-
-  my @bsooqr;
+  my $bsooqr        = any { $form->{$_} } @oe_flags;
   my @bsooqr_tokens = ();
+
   push @select_tokens, @qsooqr_flags                                          if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
   push @select_tokens, $q_assembly_lastcost                                   if ($form->{searchitems} eq 'assembly') && $form->{l_lastcost};
@@ -935,7 +963,7 @@ sub all_parts {
   # find the old entries in of @where_tokens and @bind_vars, and adjust them
   if ($joins_needed{invoice_oi}) {
     for (my ($wi, $bi) = (0)x2; $wi <= $#where_tokens; $bi++ if $where_tokens[$wi++] =~ /\?/) {
-      next unless $where_tokens[$wi] =~ /^description ILIKE/;
+      next unless $where_tokens[$wi] =~ /\bdescription ILIKE/;
       splice @where_tokens, $wi, 1, 'p.description ILIKE ? OR ioi.description ILIKE ?';
       splice @bind_vars,    $bi, 0, $bind_vars[$bi];
       last;
@@ -952,15 +980,17 @@ sub all_parts {
 
   #============= build query ================#
 
-  $table_prefix{$q_assembly_lastcost} = ' ';
+  my $token_builder = $make_token_builder->(\%joins_needed);
 
-  map { $table_prefix{$_} = 'ioi.' } qw(description serialnumber qty unit) if $joins_needed{invoice_oi};
-  map { $renamed_columns{$_} = ' AS ' . $renamed_columns{$_} } keys %renamed_columns;
+  my @sort_cols    = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
+     $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols; # sort by id if unknown or invisible column
+  my $sort_order   = ($form->{revers} ? ' DESC' : ' ASC');
+  my $order_clause = " ORDER BY " . $token_builder->($form->{sort}) . ($form->{revers} ? ' DESC' : ' ASC');
 
-  my $select_clause = join ', ',    map { ($table_prefix{$_} || "p.") . $_ . $renamed_columns{$_} } @select_tokens;
+  my $select_clause = join ', ',    map { $token_builder->($_, 1) } @select_tokens;
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
-  my $group_clause  = ' GROUP BY ' . join ', ',    map { ($table_prefix{$_} || "p.") . $_ } @group_tokens if scalar @group_tokens;
+  my $group_clause  = ' GROUP BY ' . join ', ',    map { $token_builder->($_) } @group_tokens if scalar @group_tokens;
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'IC',
                                                             'trans_id_field' => 'p.id',
