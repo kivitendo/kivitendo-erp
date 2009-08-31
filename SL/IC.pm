@@ -944,15 +944,18 @@ sub all_parts {
   push @bsooqr_tokens, q|module = 'oe' AND     quotation AND cv = 'vendor'|   if $form->{rfq};
   push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
 
-  $renamed_columns{onhand} = 'onhand_before_bsooqr';
-  $renamed_columns{qty}    = 'onhand';
-
   $joins_needed{partsgroup}  = 1;
   $joins_needed{pfac}        = 1;
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
   $joins_needed{cv}          = 1 if $bsooqr;
   $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}  = 1 if $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
+
+  # in bsoorq, use qtys instead of onhand
+  if ($joins_needed{invoice_oi}) {
+    $renamed_columns{onhand} = 'onhand_before_bsooqr';
+    $renamed_columns{qty}    = 'onhand';
+  }
 
   # special case for description search.
   # up in the simple filter section the description filter got interpreted as something like: WHERE description ILIKE '%$form->{description}%'
