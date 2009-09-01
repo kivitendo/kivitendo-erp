@@ -121,7 +121,8 @@ sub edit {
   }
 
   if ($form->{print_and_save}) {
-    $form->{action}   = "print";
+    $form->{action}   = "dispatcher";
+    $form->{action_print} = "1";
     $form->{resubmit} = 1;
     $language_id      = $form->{language_id};
     $printer_id       = $form->{printer_id};
@@ -272,6 +273,8 @@ sub form_header {
     if ($form->{format} eq "html") {
       $form->{onload} = "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
     }
+    # emulate click for resubmitting actions
+    $form->{onload} .= "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
     $form->{onload} .= "document.do.submit();"
   }
 
