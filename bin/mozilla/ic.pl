@@ -1753,13 +1753,8 @@ sub save {
   # check if there is a description
   $form->isblank("description", $locale->text("Part Description missing!"));
 
-  if ($form->{obsolete}) {
-    $form->error(
-      $locale->text(
-        "Inventory quantity must be zero before you can set this $form->{item} obsolete!"
-      ))
-      if ($form->{onhand} * 1);
-  }
+  $form->error($locale->text("Inventory quantity must be zero before you can set this $form->{item} obsolete!"))
+    if $form->{obsolete} && $form->{onhand} * 1 && $form->{item} ne 'service';
 
   if (!$form->{buchungsgruppen_id}) {
     $form->error($locale->text("Parts must have an entry type.") . " " .
