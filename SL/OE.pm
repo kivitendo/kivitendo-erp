@@ -976,8 +976,8 @@ sub retrieve_simple {
   my $oe_query    = qq|SELECT * FROM oe         WHERE id = ?|;
   my $oi_query    = qq|SELECT * FROM orderitems WHERE trans_id = ?|;
 
-  my ($order)          = selectall_array_query($form, $dbh, $oe_query, conv_i($params{id}));
-  $order->{orderitems} = selectall_array_query($form, $dbh, $oi_query, conv_i($params{id}));
+  my $order            = selectfirst_hashref_query($form, $dbh, $oe_query, conv_i($params{id}));
+  $order->{orderitems} = selectall_hashref_query(  $form, $dbh, $oi_query, conv_i($params{id}));
 
   $main::lxdebug->leave_sub();
 
