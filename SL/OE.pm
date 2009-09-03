@@ -111,7 +111,18 @@ sub transactions {
       qq|AND ((globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM orderitems oi | .
       qq|   WHERE oi.project_id = ? AND oi.trans_id = o.id))|;
-    push(@values, $form->{"project_id"}, $form->{"project_id"});
+    push(@values, conv_i($form->{"project_id"}), conv_i($form->{"project_id"}));
+  }
+
+  if ($form->{"projectnumber"}) {
+    $query .= <<SQL;
+      AND (pr.projectnumber ILIKE ?) OR EXISTS (
+        SELECT * FROM orderitems oi
+        LEFT JOIN project proi ON proi.id = oi.project_id
+        WHERE proi.projectnumber ILIKE ? AND oi.trans_id = o.id
+      )
+SQL
+    push @values, "%" . $form->{"projectnumber"} . "%", "%" . $form->{"projectnumber"} . "%" ;
   }
 
   if ($form->{"${vc}_id"}) {

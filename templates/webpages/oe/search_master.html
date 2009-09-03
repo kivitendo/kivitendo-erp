@@ -87,7 +87,7 @@
      <th align="right"><translate>Project Number</translate></th>
      <td colspan="3">
             [%- INCLUDE 'generic/multibox.html'
-                 name          = 'project_id',
+                 name          =  vclimit < ALL_PROJECTS.size ? 'projectnumber' : 'project_id',
                  style         = "width: 250px",
                  DATA          =  ALL_PROJECTS,
                  id_key        = 'id',
