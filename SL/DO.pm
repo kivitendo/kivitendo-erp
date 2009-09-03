@@ -660,7 +660,7 @@ sub retrieve {
          doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
          doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
          doi.price_factor_id, doi.price_factor, doi.marge_price_factor,
-         pr.projectnumber,
+         pr.projectnumber, dord.transdate AS dord_transdate,
          pg.partsgroup
        FROM delivery_order_items doi
        JOIN parts p ON (doi.parts_id = p.id)

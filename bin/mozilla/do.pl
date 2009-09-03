@@ -768,6 +768,7 @@ sub invoice_multi {
   $form->{rowcount} = 0;
   foreach my $ref (@{ $form->{form_details} }) {
     $form->{rowcount}++;
+    $ref->{reqdate} ||= $ref->{dord_transdate}; # copy transdates into each invoice row
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
     map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice discount lastcost);
   }
