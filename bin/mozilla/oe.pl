@@ -1478,8 +1478,7 @@ sub save_as_new {
   check_oe_access();
 
   $form->{saveasnew} = 1;
-  $form->{closed}    = 0;
-  map { delete $form->{$_} } qw(printed emailed queued);
+  map { delete $form->{$_} } qw(printed emailed queued delivered closed);
 
   # Let Lx-Office assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
@@ -1490,6 +1489,17 @@ sub save_as_new {
       ($form->{saved_xyznumber} eq $form->{$idx})) {
     delete($form->{$idx});
   }
+
+  # clear reqdate unless changed
+  if ($form->{reqdate} && $form->{id}) {
+    my $saved_order = OE->retrieve_simple(id => $form->{id});
+    if ($saved_order && $saved_order->{reqdate} eq $form->{reqdate}) {
+      delete $form->{reqdate};
+    }
+  }
+
+  # update employee
+  $form->get_employee();
 
   &save;
 
