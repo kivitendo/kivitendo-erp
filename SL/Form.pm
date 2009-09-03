@@ -2021,6 +2021,8 @@ sub get_employee {
 
   my ($self, $dbh) = @_;
 
+  $dbh ||= $self->get_standard_dbh(\%main::myconfig);
+
   my $query = qq|SELECT id, name FROM employee WHERE login = ?|;
   ($self->{"employee_id"}, $self->{"employee"}) = selectrow_query($self, $dbh, $query, $self->{login});
   $self->{"employee_id"} *= 1;
