@@ -829,8 +829,8 @@ sub all_parts {
     #  column name,   prefix,  joins_needed
     [ 'description',  'ioi.',  'invoice_oi'  ],
     [ 'deliverydate', 'ioi.',  'invoice_oi'  ],
-    [ 'transdate' ,   'apoe.', 'apoe'  ],
-    [ 'unit' ,        'ioi.',  'invoice_oi'  ],
+    [ 'transdate',    'apoe.', 'apoe'        ],
+    [ 'unit',         'ioi.',  'invoice_oi'  ],
   );
 
   # careful with renames. these are HARD, and any filters done on the original column will break
@@ -846,18 +846,18 @@ sub all_parts {
   my $make_token_builder = sub {
     my $joins_needed = shift;
     sub {
-      my ($col, $group) = @_;
+      my ($col, $alias) = @_;
       my @coalesce_tokens =
         map  { ($_->[1] || 'p.') . $_->[0] }
         grep { !$_->[2] || $joins_needed->{$_->[2]} }
-        grep { $_->[0] eq $col }
+        grep {  $_->[0] eq $col }
         @column_override, [ $col, $table_prefix{$col} ];
 
       my $coalesce = scalar @coalesce_tokens > 1;
       return ($coalesce
         ? sprintf 'COALESCE(%s)', join ', ', @coalesce_tokens
         : shift                              @coalesce_tokens)
-        . ($group && ($coalesce || $renamed_columns{$col})
+        . ($alias && ($coalesce || $renamed_columns{$col})
         ?  " AS " . ($renamed_columns{$col} || $col)
         : '');
     }
