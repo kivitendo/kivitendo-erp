@@ -41,6 +41,20 @@ use SL::CVar;
 use SL::DBUtils;
 use SL::IC;
 
+=head1 NAME
+
+OE.pm - Order entry module
+
+=head1 DESCRIPTION
+
+OE.pm is part of the OE module. OE is responsible for sales and purchase orders, as well as sales quotations and purchase requests. This file abstracts the database tables C<oe> and C<orderitems>.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=cut
+
 sub transactions {
   $main::lxdebug->enter_sub();
 
@@ -736,7 +750,7 @@ sub retrieve {
                                          "quonumber" : "ordnumber"};
 
     # set all entries for multiple ids blank that yield different information
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
       map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
     }
 
@@ -928,6 +942,46 @@ sub retrieve {
   $main::lxdebug->leave_sub();
 
   return $rc;
+}
+
+=item retrieve_simple PARAMS
+
+simple OE retrieval by id. does not look up customer, vendor, units or any other stuff. only oe and orderitems.
+
+  my $order = retrieve_simple(id => 2);
+
+  $order => {
+    %_OE_CONTENT,
+    orderitems => [
+      %_ORDERITEM_ROW_1,
+      %_ORDERITEM_ROW_2,
+      ...
+    ]
+  }
+
+=cut
+sub retrieve_simple {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(id));
+
+  my $myconfig    = \%main::myconfig;
+  my $form        = $main::form;
+
+  my $dbh         = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $oe_query    = qq|SELECT * FROM oe         WHERE id = ?|;
+  my $oi_query    = qq|SELECT * FROM orderitems WHERE trans_id = ?|;
+
+  my ($order)          = selectall_array_query($form, $dbh, $oe_query, conv_i($params{id}));
+  $order->{orderitems} = selectall_array_query($form, $dbh, $oi_query, conv_i($params{id}));
+
+  $main::lxdebug->leave_sub();
+
+  return $order;
 }
 
 sub order_details {
