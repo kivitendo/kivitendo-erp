@@ -2397,6 +2397,7 @@ sub edit_defaults {
 
   # get defaults for account numbers and last numbers
   AM->defaultaccounts(\%myconfig, \%$form);
+  $form->{ALL_UNITS} = AM->convertible_units(AM->retrieve_all_units(), 'g');
 
   map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
 

@@ -137,7 +137,17 @@
 
     <tr>
      <th align="right"><translate>Weight unit</translate></th>
-     <td colspan="3"><input name="weightunit" size="20" maxlength="5" value="[% HTML.escape(defaults_weightunit) %]"></td>
+ <!--    <td colspan="3"><input name="weightunit" size="20" maxlength="5" value="[% HTML.escape(defaults_weightunit) %]"></td> -->
+     <td>
+      [%- INCLUDE 'generic/multibox.html'
+           name          = 'weightunit',
+           default       = defaults_weightunit,
+           style         = 'size:20; maxength:5',
+           DATA          = ALL_UNITS,
+           id_key        = 'name',
+           label_key     = 'name',
+           -%]
+      </td>
     </tr>
 
    </table>
