@@ -1183,8 +1183,9 @@ sub invoice {
   check_oe_access();
   $auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
-  $form->{old_employee_id} = $form->{employee_id};
   $form->{old_salesman_id} = $form->{salesman_id};
+  $form->get_employee();
+
 
   if ($form->{type} =~ /_order$/) {
 
@@ -1580,6 +1581,8 @@ sub purchase_order {
   $form->{vc}    = "vendor";
   $form->{type}  = "purchase_order";
 
+  $form->get_employee();
+
   &poso;
 
   $lxdebug->leave_sub();
@@ -1600,6 +1603,8 @@ sub sales_order {
   $form->{title}  = $locale->text('Add Sales Order');
   $form->{vc}     = "customer";
   $form->{type}   = "sales_order";
+
+  $form->get_employee();
 
   &poso;
 
@@ -1668,6 +1673,8 @@ sub delivery_order {
     $form->{vc}    = 'vendor';
     $form->{type}  = 'purchase_delivery_order';
   }
+
+  $form->get_employee();
 
   require "bin/mozilla/do.pl";
 
