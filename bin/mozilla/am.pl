@@ -2856,7 +2856,7 @@ sub show_am_history {
     (  $form->{'searchid'} ? qq| WHERE snumbers = '|  . $searchNo{$form->{'what2search'}} . qq|_| . $form->{'searchid'} . qq|'|
      :                       qq| WHERE snumbers ~ '^| . $searchNo{$form->{'what2search'}} . qq|'|);
 
-  my @ids    = selectall_array_query($form, $dbh, $query);
+  my @ids    = grep { $_ * 1 } selectall_array_query($form, $dbh, $query);
   my $daten .= shift @ids;
   $daten    .= join '', map { " OR trans_id = $_" } @ids;
 
