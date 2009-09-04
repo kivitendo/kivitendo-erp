@@ -262,7 +262,7 @@ sub display_row {
     if ($form->{"id_$i"}) {
       my $ship_qty        = $form->{"ship_$i"} * 1;
       $ship_qty          *= $all_units->{$form->{"partunit_$i"}}->{factor};
-      $ship_qty          /= $all_units->{$form->{"unit_$i"}}->{factor};
+      $ship_qty          /= ( $all_units->{$form->{"unit_$i"}}->{factor} || 1 );
 
       $column_data{ship}  = $form->format_amount(\%myconfig, $form->round_amount($ship_qty, 2) * 1) . ' ' . $form->{"unit_$i"};
     }
