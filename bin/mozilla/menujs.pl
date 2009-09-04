@@ -44,6 +44,8 @@ use CGI::Carp qw(fatalsToBrowser);
 # end of main
 
 sub display {
+  $form->{callback}   = $form->unescape($form->{callback});
+  $form->{callback} ||= "login.pl?action=company_logo";
 
   $form->header;
 
@@ -52,7 +54,7 @@ sub display {
   &acc_menu;
 
   print qq|
-<iframe id="win1" src="login.pl?action=company_logo" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
+<iframe id="win1" src="$form->{callback}" width="100%" height="93%" name="main_window" style="position: absolute; border:0px;">
 <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen.
 </p>
 </iframe>
@@ -160,7 +162,7 @@ sub acc_menu {
 
 <script type="text/javascript">
 <!--
-var isDOM = (document.getElementById ? true : false); 
+var isDOM = (document.getElementById ? true : false);
 var isIE4 = ((document.all && !isDOM) ? true : false);
 var isNS4 = (document.layers ? true : false);
 //var KO = (navigator.appName=="Konqueror" \|\| navigator.appName=="Opera") ;
@@ -172,7 +174,7 @@ function getRef(id) {
 }
 function getSty(id) {
 	return (isNS4 ? getRef(id) : getRef(id).style);
-} 
+}
 var popTimer = 0;
 var litNow = new Array();
 function popOver(menuNum, itemNum) {
@@ -351,7 +353,7 @@ function moveRoot() {
 |;
 
   print qq|
-  
+
 |;
 
 }
@@ -379,12 +381,12 @@ sub section_menu {
       $menu->{$item}{$item} = !$form->{$item};
 
       # Untermen
-      if ($mlz{"s$ml"} > 1) { 
-		$z++; 
-		$sm = 1; 
-      } else { 
-		$z = $sm; 
-		$mlz{"s$ml"}++; 
+      if ($mlz{"s$ml"} > 1) {
+		$z++;
+		$sm = 1;
+      } else {
+		$z = $sm;
+		$mlz{"s$ml"}++;
       }
       print
         qq|menu[$mlz{$ml}][$z] = new Item('$label', '#', '', defLength, 0, |

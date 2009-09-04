@@ -49,6 +49,7 @@ sub display {
   $form->{force_ul_width} = 1;
   $form->{date}           = clock_line();
   $form->{menu_items}     = acc_menu();
+  $form->{callback}       = $form->unescape($form->{callback}) || "login.pl?action=company_logo";
 
   print $form->parse_html_template("menu/menunew");
 }

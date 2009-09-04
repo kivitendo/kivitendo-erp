@@ -48,6 +48,7 @@ use Encode;
 sub display {
   $locale     = Locale->new($language, "menu");
   my $charset = $dbcharset || 'ISO-8859-1';
+  my $callback = $form->unescape($form->{callback}) || "login.pl?action=company_logo";
 
   my $text    = $form->create_http_response('content_type' => 'text/xml',
                                             'charset'      => $charset)
@@ -62,7 +63,7 @@ sub display {
 
 <doc>
 <name>$myconfig{name}</name>
-
+<callback>$callback</callback>
 <db>$myconfig{dbname}</db>
 
 <favorites>|;

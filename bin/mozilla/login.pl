@@ -144,7 +144,7 @@ sub login {
   my $menu_script = $style_to_script_map{$user->{menustyle}} || '';
 
   # made it this far, execute the menu
-  $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display');
+  $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display', "callback=" . $form->escape($form->{callback}));
 
   $auth->set_cookie_environment_variable();
 

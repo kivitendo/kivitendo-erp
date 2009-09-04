@@ -1,5 +1,5 @@
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-    xmlns:html="http://www.w3.org/1999/xhtml" 
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns:svg="http://www.w3.org/2000/svg"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 <xsl:output media-type="application/vnd.mozilla.xul+xml"/>
@@ -30,15 +30,16 @@ wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menu
 <!-- main document structure -->
 <!-- ******************************************************************* -->
 <xsl:template match="doc">
-<xsl:processing-instruction
-name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-instruction>
-  <window>
-    <html:title>
-      LX-Office Version <xsl:value-of select='/doc/version'/> 
-      - <xsl:value-of select='/doc/name'/> 
+<xsl:processing-instruction name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-instruction>
+  <xsl:variable name="callback"><xsl:value-of select='/doc/callback'/></xsl:variable>
+  <xsl:variable name="title">
+      LX-Office Version <xsl:value-of select='/doc/version'/>
+      - <xsl:value-of select='/doc/name'/>
       - <xsl:value-of select='/doc/db'/>
-    </html:title>
+    </xsl:variable>
    <!-- <xsl:call-template name="style"/>-->
+  <window title="{$title}">
+  <html:title/>
     <xsl:call-template name="script"/>
     <toolbox>
       <xsl:apply-templates select="menu"/>
@@ -53,7 +54,7 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
         <!--<iframe src="xslt/trans.xml" flex="1" id="uhr"/>-->
       </vbox>
       <splitter state="open" collapse="before" resizeafter="farthest"><grippy/></splitter>
-          <html:iframe id="main_window" src="login.pl?action=company_logo" flex="1" style="border:0px"/>
+          <html:iframe id="main_window" src="{$callback}" flex="1" style="border:0px"/>
     </hbox>
   </window>
 </xsl:template>
@@ -117,7 +118,7 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
 <!-- ***************************************************************************  -->
 
 
-<!-- templates for the treeview 
+<!-- templates for the treeview
 **********************************************************************************   -->
 <xsl:template match="menu" mode="tree">
 <toolbar>
@@ -165,11 +166,11 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
 <!-- ***************************************************************************  -->
 
 
-<!-- scripts 
+<!-- scripts
 ********************************************************************************  -->
 <xsl:template name="script">
   <html:script type="text/ecmascript">
-  
+
   function openLink(event)
     {
     var path=event.target.getAttribute("link")
@@ -183,7 +184,7 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
         bf.setAttribute("src",path)
       }
     }
-    
+
   function openLinkNewTab(event)
     {
     if(event.button!=1) return
@@ -195,17 +196,17 @@ name="xml-stylesheet">href="xslt/style1.css" type="text/css"</xsl:processing-ins
       else
       {
 window.open(path,"_new","")
- 
+
       }
     }
-    
-    
+
+
   function openLinkNewWindow(event)
     {
       var path=event.target.getAttribute("link")
       window.open(path,"_blank","")
     }
-  
+
   function openTreeLink(event)
     {
       var tree=event.target
@@ -213,29 +214,29 @@ window.open(path,"_new","")
       var item=tree.view.getItemAtIndex(selIndex)
       var link=item.getAttribute("link")
       if(link) document.getElementById("main_window").setAttribute("src",link)
-    }  
-  
+    }
+
   function updateClock()
     {
       var d= new Date()
-      var sec=d.getSeconds() 
-      var min=d.getMinutes() 
+      var sec=d.getSeconds()
+      var min=d.getMinutes()
       var std=(d.getHours() % 12 ) + min/60
       document.getElementById("std").setAttribute("transform","rotate("+std*30+",20,20)")
       document.getElementById("min").setAttribute("transform","rotate("+min*6+",20,20)")
       document.getElementById("sec").setAttribute("transform","rotate("+sec*6+",20,20)")
     }
-  
+
   function PrintW()
     {
       document.getElementById("main_window").contentWindow.print()
     }
-  
+
   function doSearch(){
   var t=document.getElementById("searchboxtext").value
   document.getElementById("desc").value=t
   document.getElementById("sb").click()
-  
+
   }
   function checkEnter(event){
   if(event.keyCode==13) doSearch()
@@ -291,10 +292,10 @@ image="image/icons/16x16/CRM--Schnellsuche.png" flex="0" oncommand="doSearch()"/
   <input name="partsgroup" size="20"/>
   <input name="make" size="20"/>
   <input class="submit" type="submit" name="action" value="Weiter" id="sb"/>
-  <div style="display:none" >    
-  <input class="submit" type="submit" name="action" value="Top 100"/> 
-    <input type="hidden" name="serialnumber" size="20"/>  
-    <input type="hidden" name="ean" size="20"/>     
+  <div style="display:none" >
+  <input class="submit" type="submit" name="action" value="Top 100"/>
+    <input type="hidden" name="serialnumber" size="20"/>
+    <input type="hidden" name="ean" size="20"/>
     <input type="hidden" name="searchitems" value="part"/>
     <input type="hidden" name="title" value="Waren"/>
     <input type="hidden" name="revers" value="0"/>
@@ -312,9 +313,9 @@ image="image/icons/16x16/CRM--Schnellsuche.png" flex="0" oncommand="doSearch()"/
     <input  name="onorder" class="checkbox" type="checkbox" value="1"/>
     <input  name="ordered" class="checkbox" type="checkbox" value="1"/>
     <input  name="rfq" class="checkbox" type="checkbox" value="1"/>Anfrage
-    <input  name="quoted" class="checkbox" type="checkbox" value="1"/>Angeboten  
+    <input  name="quoted" class="checkbox" type="checkbox" value="1"/>Angeboten
     <input type="hidden" name="transdatefrom" id="transdatefrom" size="11" title="dd.mm.yy"/>
-    <input  type="button" name="transdatefrom" id="trigger1" value="?"/> 
+    <input  type="button" name="transdatefrom" id="trigger1" value="?"/>
     <input name="transdateto" id="transdateto" size="11" title="dd.mm.yy"/>
     <input type="button" name="transdateto" id="trigger2" value="?"/>
     <input name="l_partnumber" class="checkbox" type="checkbox" value="Y" checked="true"/>Artikelnummer

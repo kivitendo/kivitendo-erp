@@ -42,8 +42,9 @@ use SL::Menu;
 sub display {
   $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=" type="text/css">|);
 
-  $form->{date} = clock_line();
-  $form->{menu} = acc_menu();
+  $form->{date}     = clock_line();
+  $form->{menu}     = acc_menu();
+  $form->{callback} = $form->unescape($form->{callback}) || "login.pl?action=company_logo";
 
   print $form->parse_html_template("menu/menuv3");
 
