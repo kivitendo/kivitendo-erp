@@ -124,13 +124,13 @@ sub _control_error {
 }
 
 sub _dbupdate2_calculate_depth {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($tree, $tag) = @_;
 
   my $node = $tree->{$tag};
 
-  return $main::lxdebug->leave_sub() if (defined($node->{"depth"}));
+  return $main::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
 
   my $max_depth = 0;
 
@@ -142,7 +142,7 @@ sub _dbupdate2_calculate_depth {
 
   $node->{"depth"} = $max_depth + 1;
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 }
 
 sub sort_dbupdate_controls {
