@@ -63,6 +63,7 @@ sub display {
 
 <doc>
 <name>$myconfig{name}</name>
+<version>$form->{version}</version>
 <callback>$callback</callback>
 <db>$myconfig{dbname}</db>
 
