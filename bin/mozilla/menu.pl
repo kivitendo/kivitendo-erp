@@ -51,7 +51,7 @@ sub display {
 
   my $callback   = $form->unescape($form->{callback});
   $callback      = URI->new($callback)->rel($callback) if $callback;
-  $callback      = "login.pl?action=company_logo"      if $callback =~ /^(.\/)?$/;
+  $callback      = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
 
   $form->header;
 

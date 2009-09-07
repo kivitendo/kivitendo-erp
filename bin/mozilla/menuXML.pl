@@ -51,7 +51,7 @@ sub display {
   my $charset = $dbcharset || 'ISO-8859-1';
   my $callback            = $form->unescape($form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;
-  $callback               = "login.pl?action=company_logo"      if $callback =~ /^(.\/)?$/;
+  $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
 
   my $text    = $form->create_http_response('content_type' => 'text/xml',
                                             'charset'      => $charset)

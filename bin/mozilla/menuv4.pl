@@ -46,11 +46,8 @@ sub display {
   $form->{date}     = clock_line();
   $form->{menu}     = acc_menu();
   my $callback      = $form->unescape($form->{callback});
-  $main::lxdebug->message(0, ">>>>>  $callback");
   $callback         = URI->new($callback)->rel($callback) if $callback;
-  $main::lxdebug->message(0, ">>>>>  $callback");
-  $callback         = "login.pl?action=company_logo"      if $callback =~ /^(.\/)?$/;
-  $main::lxdebug->message(0, ">>>>>  $callback");
+  $callback         = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
   $form->{callback} = $callback;
 
   print $form->parse_html_template("menu/menuv4");
