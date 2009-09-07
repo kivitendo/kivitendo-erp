@@ -34,6 +34,7 @@
 
 $menufile = "menu.ini";
 use SL::Menu;
+use URI;
 
 1;
 
@@ -44,7 +45,13 @@ sub display {
 
   $form->{date}     = clock_line();
   $form->{menu}     = acc_menu();
-  $form->{callback} = $form->unescape($form->{callback}) || "login.pl?action=company_logo";
+  my $callback      = $form->unescape($form->{callback});
+  $main::lxdebug->message(0, ">>>>>  $callback");
+  $callback         = URI->new($callback)->rel($callback) if $callback;
+  $main::lxdebug->message(0, ">>>>>  $callback");
+  $callback         = "login.pl?action=company_logo"      if $callback =~ /^(.\/)?$/;
+  $main::lxdebug->message(0, ">>>>>  $callback");
+  $form->{callback} = $callback;
 
   print $form->parse_html_template("menu/menuv4");
 

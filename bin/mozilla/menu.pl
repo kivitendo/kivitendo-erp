@@ -38,6 +38,7 @@
 $menufile = "menu.ini";
 use SL::Menu;
 use Data::Dumper;
+use URI;
 
 1;
 
@@ -48,8 +49,9 @@ $framesize = ($ENV{HTTP_USER_AGENT} =~ /links/i) ? "240" : "190";
 sub display {
   $lxdebug->enter_sub();
 
-  $form->{callback}   = $form->unescape($form->{callback});
-  $form->{callback} ||= "login.pl?action=company_logo";
+  my $callback   = $form->unescape($form->{callback});
+  $callback      = URI->new($callback)->rel($callback) if $callback;
+  $callback      = "login.pl?action=company_logo"      if $callback =~ /^(.\/)?$/;
 
   $form->header;
 
@@ -58,7 +60,7 @@ sub display {
   <frame  src="kopf.pl" name="kopf"  scrolling="NO">
   <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" >
     <frame src="$form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
-    <frame src="$form->{callback}" name="main_window" scrolling="auto">
+    <frame src="$callback" name="main_window" scrolling="auto">
   </frameset>
   <noframes>
   You need a browser that can read frames to see this page.

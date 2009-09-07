@@ -34,6 +34,7 @@
 
 use English qw(-no_match_vars);
 use List::Util qw(max);
+use URI;
 
 use SL::Menu;
 
@@ -49,7 +50,10 @@ sub display {
   $form->{force_ul_width} = 1;
   $form->{date}           = clock_line();
   $form->{menu_items}     = acc_menu();
-  $form->{callback}       = $form->unescape($form->{callback}) || "login.pl?action=company_logo";
+  my $callback            = $form->unescape($form->{callback});
+  $callback               = URI->new($callback)->rel($callback) if $callback;
+  $callback               = "login.pl?action=company_logo"      if $callback =~ /^(.\/)?$/;
+  $form->{callback}       = $callback;
 
   print $form->parse_html_template("menu/menunew");
 }
