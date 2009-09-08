@@ -820,6 +820,8 @@ sub all_parts {
      description  => 'p.',
      qty          => 'ioi.',
      serialnumber => 'ioi.',
+     quotation    => 'apoe.',
+     cv           => 'cv.',
   );
 
   # if the join condition in these blocks are met, the column
@@ -933,7 +935,7 @@ sub all_parts {
   my $bsooqr        = any { $form->{$_} } @oe_flags;
   my @bsooqr_tokens = ();
 
-  push @select_tokens, @qsooqr_flags                                          if $bsooqr;
+  push @select_tokens, @qsooqr_flags, 'quotation', 'cv'                       if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
   push @select_tokens, $q_assembly_lastcost                                   if ($form->{searchitems} eq 'assembly') && $form->{l_lastcost};
   push @bsooqr_tokens, q|module = 'ir' AND NOT ioi.assemblyitem|              if $form->{bought};
