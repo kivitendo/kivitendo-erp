@@ -1561,7 +1561,7 @@ sub get_basic_part_info {
 
   my $dbh      = $form->get_standard_dbh($myconfig);
 
-  my $query    = qq|SELECT id, partnumber, description, unit FROM parts WHERE id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
+  my $query    = qq|SELECT * FROM parts WHERE id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
 
   my $info     = selectall_hashref_query($form, $dbh, $query, map { conv_i($_) } @ids);
 

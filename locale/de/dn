@@ -167,6 +167,7 @@ $self->{texts} = {
   'Number missing in Row'       => 'Nummer fehlt in Zeile',
   'Oct'                         => 'Okt',
   'October'                     => 'Oktober',
+  'On Hand'                     => 'Auf Lager',
   'OpenDocument/OASIS'          => 'OpenDocument/OASIS',
   'Order Date missing!'         => 'Auftragsdatum fehlt!',
   'Order Number missing!'       => 'Auftragsnummer fehlt!',

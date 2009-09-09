@@ -337,6 +337,19 @@ sub display_row {
       if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/) && !$is_delivery_order;
 # / marge calculations ending
 
+# calculate onhand
+    if ($form->{"id_$i"}) {
+      my $part         = IC->get_basic_part_info(id => $form->{"id_$i"});
+      my $onhand_color = 'color="#ff0000"' if  $part->{onhand} < $part->{rop};
+      push @ROW2, { value => sprintf "<b>%s</b> <font %s>%s %s</font>",
+                      $locale->text('On Hand'),
+                      $onhand_color,
+                      $form->format_amount(\%myconfig, $part->{onhand}, 2),
+                      $part->{unit}
+      };
+    }
+# / calculate onhand
+
     my @hidden_vars;
 
     if ($is_delivery_order) {
