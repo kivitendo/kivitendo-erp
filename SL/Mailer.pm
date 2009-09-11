@@ -184,7 +184,7 @@ $self->{message}
 
       my $application    = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? "text" : "application";
       my $content_type   = SL::MIME->mime_type_from_ext($filename);
-      $content_type      = "${application}/${self->{format}}" if (!$content_type && $self->{format});
+      $content_type      = "${application}/$self->{format}" if (!$content_type && $self->{format});
       $content_type    ||= 'application/octet-stream';
 
       open(IN, $attachment);
