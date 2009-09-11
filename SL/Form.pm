@@ -2065,11 +2065,11 @@ sub get_duedate {
 
   my ($self, $myconfig, $reference_date) = @_;
 
-  my $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
+  $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
 
-  my $dbh            = $self->get_standard_dbh($myconfig);
-  my $query          = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-  my ($duedate)      = selectrow_query($self, $dbh, $query, $self->{payment_id});
+  my $dbh         = $self->get_standard_dbh($myconfig);
+  my $query       = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
+  my ($duedate)   = selectrow_query($self, $dbh, $query, $self->{payment_id});
 
   $main::lxdebug->leave_sub();
 
