@@ -527,9 +527,13 @@ sub update {
       } else {
 
         $sellprice             = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
-        $form->{"discount_$i"} = 0 if $form->{"not_discountable_$i"};
+        # hier werden parts (Artikeleigenschaften) aus item_list (retrieve_item aus IS.pm)
+        # (item wahrscheinlich synonym für parts) entsprechend in die form geschrieben ...
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
+        
+        # ... deswegen muss die prüfung, ob es sich um einen nicht rabattierfähigen artikel handelt später erfolgen (Bug 1136)
+        $form->{"discount_$i"} = 0 if $form->{"not_discountable_$i"};
         $form->{payment_id} = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
