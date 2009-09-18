@@ -529,6 +529,10 @@ sub update {
         $sellprice             = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
         # hier werden parts (Artikeleigenschaften) aus item_list (retrieve_item aus IS.pm)
         # (item wahrscheinlich synonym für parts) entsprechend in die form geschrieben ...
+
+        # Wäre dieses Mapping nicht besser in retrieve_items aufgehoben? 
+        #(Eine Funktion bekommt Daten -> ARBEIT -> Rückgabe DATEN)
+        #  Das quot sieht doch auch nach Überarbeitung aus ... (hmm retrieve_items gibt es in IS und IR)
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
         
