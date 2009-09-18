@@ -16,7 +16,7 @@
 [%- FOREACH row = DELIVERY %]
         <tr class="listrow[% loop.count % 2 %]">
           <td>[% HTML.escape(row.shiptoname) UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
-          <td>[% IF row.id %]<a href='is.pl?action=edit&id=[% HTML.escape(row.id) %]'>[% END %][% HTML.escape(row.invnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
+          <td>[% IF row.id %]<a href='[% IF IS_CUSTOMER %]is[% ELSE %]ir[% END %].pl?action=edit&id=[% HTML.escape(row.id) %]'>[% END %][% HTML.escape(row.invnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
           <td>[% IF row.oe_id %]<a href='oe.pl?action=edit&type=sales_order&vc=customer&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
           <td>[% HTML.escape(row.transdate)   || '&nbsp;' %]</td>
           <td>[% HTML.escape(row.description) || '&nbsp;' %]</td>

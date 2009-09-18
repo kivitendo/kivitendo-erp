@@ -599,6 +599,7 @@ sub get_delivery {
   $auth->assert('customer_vendor_edit');
 
   CT->get_delivery(\%myconfig, \%$form );
+  $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
   print $form->ajax_response_header(), $form->parse_html_template('ct/get_delivery');
 
