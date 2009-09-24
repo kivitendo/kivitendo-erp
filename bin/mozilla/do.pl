@@ -279,6 +279,9 @@ sub form_header {
   }
 
   $form->header();
+  # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
+  $form->{department} .= '--' . $form->{department_id};
+
   print $form->parse_html_template('do/form_header');
 
   $lxdebug->leave_sub();

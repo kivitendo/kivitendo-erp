@@ -88,6 +88,7 @@ sub add {
   $form->{callback} = "gl.pl?action=add" unless $form->{callback};
 
   # we use this only to set a default date
+  # yep. aber er holt hier auch schon ALL_CHARTS. Aufwand / Nutzen? jb
   GL->transaction(\%myconfig, \%$form);
 
   map {
@@ -796,6 +797,9 @@ sub display_rows {
   my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
+    if ($item->{charttype} eq 'H'){ #falls überschrift 
+      next;                         #überspringen (Bug 1150)
+    }
     my $key = $item->{accno} . "--" . $item->{tax_id};
     $taxchart_init = $item->{tax_id} unless (@chart_values);
     push(@chart_values, $key);
