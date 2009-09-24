@@ -2065,11 +2065,11 @@ sub get_duedate {
 
   my ($self, $myconfig, $reference_date) = @_;
 
-  my $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
+  $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
 
-  my $dbh            = $self->get_standard_dbh($myconfig);
-  my $query          = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-  my ($duedate)      = selectrow_query($self, $dbh, $query, $self->{payment_id});
+  my $dbh         = $self->get_standard_dbh($myconfig);
+  my $query       = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
+  my ($duedate)   = selectrow_query($self, $dbh, $query, $self->{payment_id});
 
   $main::lxdebug->leave_sub();
 
@@ -2196,7 +2196,7 @@ sub _get_charts {
   my $transdate = quote_db_date($params->{transdate});
 
   my $query =
-    qq|SELECT c.id, c.accno, c.description, c.link, tk.taxkey_id, tk.tax_id | .
+    qq|SELECT c.id, c.accno, c.description, c.link, c.charttype, tk.taxkey_id, tk.tax_id | .
     qq|FROM chart c | .
     qq|LEFT JOIN taxkeys tk ON | .
     qq|(tk.id = (SELECT id FROM taxkeys | .

@@ -737,8 +737,6 @@ sub post_invoice {
     }
   }
 
-  $form->{datepaid} = $form->{invdate};
-
   # total payments, don't move we need it here
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->{type} eq "credit_note") {
