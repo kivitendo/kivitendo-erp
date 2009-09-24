@@ -45,6 +45,7 @@ use SL::DO;
 use SL::GenericTranslations;
 use SL::MoreCommon;
 use SL::IC;
+use SL::IO;
 use Data::Dumper;
 
 use strict;
@@ -948,9 +949,11 @@ sub post_invoice {
     $form->{marge_total} *= -1;
   }
 
+  IO->set_datepaid(table => 'ar', id => $form->{id}, dbh => $dbh);
+
   if ($payments_only) {
-    $query = qq|UPDATE ar SET paid = ?, datepaid = ? WHERE id = ?|;
-    do_query($form, $dbh, $query,  $form->{paid}, $form->{paid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
+    $query = qq|UPDATE ar SET paid = ? WHERE id = ?|;
+    do_query($form, $dbh, $query,  $form->{paid}, conv_i($form->{id}));
 
     if (!$provided_dbh) {
       $dbh->commit();
@@ -988,7 +991,7 @@ sub post_invoice {
   $query = qq|UPDATE ar set
                 invnumber   = ?, ordnumber     = ?, quonumber     = ?, cusordnumber  = ?,
                 transdate   = ?, orddate       = ?, quodate       = ?, customer_id   = ?,
-                amount      = ?, netamount     = ?, paid          = ?, datepaid      = ?,
+                amount      = ?, netamount     = ?, paid          = ?,
                 duedate     = ?, deliverydate  = ?, invoice       = ?, shippingpoint = ?,
                 shipvia     = ?, terms         = ?, notes         = ?, intnotes      = ?,
                 curr        = ?, department_id = ?, payment_id    = ?, taxincluded   = ?,
