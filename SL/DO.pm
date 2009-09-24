@@ -81,10 +81,10 @@ sub transactions {
   }
 
   if ($form->{project_id}) {
-    $query .=
+    push @where,
       qq|(dord.globalproject_id = ?) OR EXISTS
           (SELECT * FROM delivery_order_items doi
-           WHERE (doi.project_id = ?) AND (oi.delivery_order_id = dord.id))|;
+           WHERE (doi.project_id = ?) AND (doi.delivery_order_id = dord.id))|;
     push @values, conv_i($form->{project_id}), conv_i($form->{project_id});
   }
 
