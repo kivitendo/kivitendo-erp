@@ -56,7 +56,7 @@
     <th class="listheading"><translate>Credit</translate></th>
     <th class="listheading"><translate>Debit</translate></th>
     <th class="listheading"><translate>Credit</translate></th>
-  
+   </tr>
    [% FOREACH row = ROWS %]
     [% IF row.IS_CONTROL %]
      [% IF row.IS_COLSPAN_DATA %]<tr><td colspan="[% row.NUM_COLUMNS %]">[% row.data %]</td></tr>[% END %]
