@@ -401,15 +401,19 @@ sub ap_transactions {
     qq|  v.vendornumber, v.country, v.ustid, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
-    qq{  ch.accno || ' -- ' || ch.description AS charts } .
+    qq{  ( SELECT ch.accno || ' -- ' || ch.description
+           FROM acc_trans at
+           LEFT JOIN chart ch ON ch.id = at.chart_id
+           WHERE ch.link ~ 'AP[[:>:]]'
+            AND at.trans_id = a.id
+            LIMIT 1
+          ) AS charts } .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = v.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)| .
-    qq|LEFT JOIN acc_trans at ON (at.trans_id = a.id)| .
-    qq|INNER JOIN chart ch ON (ch.id = at.chart_id AND ch.link ~ 'AP[[:>:]]')|;
+    qq|LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)|;
 
   my $where = '';
   my @values;

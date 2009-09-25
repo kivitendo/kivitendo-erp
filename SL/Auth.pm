@@ -11,6 +11,7 @@ use constant SESSION_EXPIRED =>   2;
 use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
+use List::MoreUtils qw(uniq);
 
 use SL::Auth::DB;
 use SL::Auth::LDAP;
@@ -704,13 +705,14 @@ sub read_groups {
   $sth   = prepare_query($form, $dbh, $query);
 
   foreach $group (values %{$groups}) {
-    $group->{members} = [];
+    my @members;
 
     do_statement($form, $sth, $query, $group->{id});
 
     while ($row = $sth->fetchrow_hashref()) {
-      push @{$group->{members}}, $row->{user_id};
+      push @members, $row->{user_id};
     }
+    $group->{members} = [ uniq @members ];
   }
   $sth->finish();
 
@@ -760,7 +762,7 @@ sub save_group {
   $query  = qq|INSERT INTO auth.user_group (user_id, group_id) VALUES (?, ?)|;
   $sth    = prepare_query($form, $dbh, $query);
 
-  foreach my $user_id (@{ $group->{members} }) {
+  foreach my $user_id (uniq @{ $group->{members} }) {
     do_statement($form, $sth, $query, $user_id, $group->{id});
   }
   $sth->finish();

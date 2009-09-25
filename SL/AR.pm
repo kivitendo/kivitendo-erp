@@ -424,16 +424,20 @@ sub ar_transactions {
     qq|  e2.name AS salesman, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
-    qq{  ch.accno || ' -- ' || ch.description AS charts } .
+    qq{  ( SELECT ch.accno || ' -- ' || ch.description
+           FROM acc_trans at
+           LEFT JOIN chart ch ON ch.id = at.chart_id
+           WHERE ch.link ~ 'AR[[:>:]]'
+            AND at.trans_id = a.id
+            LIMIT 1
+          ) AS charts } .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
     qq|LEFT JOIN tax_zones tz ON (tz.id = c.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)| .
-    qq|LEFT JOIN acc_trans at ON (at.trans_id = a.id)| .
-    qq|INNER JOIN chart ch ON (ch.id = at.chart_id AND ch.link ~ 'AR[[:>:]]')|;
+    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)|;
 
   my $where = "1 = 1";
   if ($form->{customer_id}) {

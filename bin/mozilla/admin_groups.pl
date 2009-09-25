@@ -32,6 +32,8 @@
 #
 #======================================================================
 
+use List::MoreUtils qw(uniq);
+
 sub edit_groups {
   $lxdebug->enter_sub();
 
@@ -114,9 +116,9 @@ sub edit_group {
   my %all_users   = $auth->read_all_users();
   my %users_by_id = map { $_->{id} => $_ } values %all_users;
 
-  my @members     = sort { lc $a->{login} cmp lc $b->{login} } @users_by_id{ @{ $group->{members} } };
+  my @members     = uniq sort { lc $a->{login} cmp lc $b->{login} } @users_by_id{ @{ $group->{members} } };
 
-  my %grouped     = map { $_ => 1 } @{ $group->{members} };
+  my %grouped     = map { $_ => 1 } uniq @{ $group->{members} };
   my @non_members = sort { lc $a->{login} cmp lc $b->{login} } grep { !$grouped{$_->{id}} } values %all_users;
 
   my @rights = map {
@@ -173,7 +175,7 @@ sub add_to_group {
   }
 
   $group = $groups->{$form->{group_id}};
-  push @{ $group->{members} }, $form->{user_id_not_in_group};
+  $group->{members} = [ uniq @{ $group->{members} }, $form->{user_id_not_in_group} ];
 
   $auth->save_group($group);
 
@@ -195,7 +197,7 @@ sub remove_from_group {
   }
 
   $group            = $groups->{$form->{group_id}};
-  $group->{members} = [ grep { $_ ne $form->{user_id_in_group} } @{ $group->{members} } ];
+  $group->{members} = [ uniq grep { $_ ne $form->{user_id_in_group} } @{ $group->{members} } ];
 
   $auth->save_group($group);
 
