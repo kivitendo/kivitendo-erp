@@ -253,6 +253,10 @@
           </tr>
         [%- END %]
           <tr>
+           <th align="right" nowrap><label for="shop">Hat eine Seriennummer</label></th>
+           <td><input class="checkbox" type="checkbox" name="has_sernumber" id="has_sernumber" value="1" [% IF has_sernumber %]checked[% END %]></td>
+          </tr>
+          <tr>
            <th align="right" nowrap><label for="shop">Shopartikel</label></th>
            <td><input class="checkbox" type="checkbox" name="shop" id="shop" value="1" [% IF shop %]checked[% END %]></td>
           </tr>
