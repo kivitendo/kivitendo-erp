@@ -89,6 +89,7 @@ sub edit {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $main::auth->assert('invoice_edit');
 
@@ -96,7 +97,14 @@ sub edit {
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
 
-  $edit = 1;
+  if ($form->{type} eq "credit_note") {
+    $form->{title} = $locale->text('Edit Credit Note');
+    $form->{title} = $locale->text('Edit Storno Credit Note') if $form->{storno};
+  } else {
+    $form->{title} = $locale->text('Edit Sales Invoice');
+    $form->{title} = $locale->text('Edit Storno Invoice')     if $form->{storno};
+  }
+
   my ($language_id, $printer_id);
   if ($form->{print_and_post}) {
     $form->{action}   = "print";
@@ -309,15 +317,6 @@ sub form_header {
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
-  if ($edit) {
-    if ($form->{type} eq "credit_note") {
-      $form->{title} = $locale->text('Edit Credit Note');
-      $form->{title} = $locale->text('Edit Storno Credit Note') if $form->{storno};
-    } else {
-      $form->{title} = $locale->text('Edit Sales Invoice');
-      $form->{title} = $locale->text('Edit Storno Invoice')     if $form->{storno};
-    }
-  }
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
@@ -332,8 +331,7 @@ sub form_header {
 
   my $set_duedate_url = "$form->{script}?action=set_duedate";
 
-  my $pjx = new CGI::Ajax( 'set_duedate' => $set_duedate_url );
-  push(@ { $form->{AJAX} }, $pjx);
+  push @ { $form->{AJAX} }, new CGI::Ajax( 'set_duedate' => $set_duedate_url );
 
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
@@ -383,15 +381,15 @@ sub form_header {
   $TMPL_VAR{customer_name} = $follow_up_vc;
 
 # set option selected
-  foreach my $item (qw(AR customer currency department employee)) {
+  foreach my $item (qw(AR)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
-  $TMPL_VAR{is_type_credit_note} = $form->{type} eq "credit_note";
-  $TMPL_VAR{is_format_html} = $form->{format} eq 'html';
-  $TMPL_VAR{dateformat} = $myconfig{dateformat};
-  $TMPL_VAR{numberformat} = $myconfig{numberformat};
+  $TMPL_VAR{is_type_credit_note} = $form->{type}   eq "credit_note";
+  $TMPL_VAR{is_format_html}      = $form->{format} eq 'html';
+  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
   # hiddens
   $TMPL_VAR{HIDDEN} = [qw(
@@ -406,198 +404,6 @@ sub form_header {
 
   $form->{jsscript} = 1;
   $form->header();
-
-#  print qq|
-#<body onLoad="$onload">
-#<script type="text/javascript" src="js/common.js"></script>
-#<script type="text/javascript" src="js/delivery_customer_selection.js"></script>
-#<script type="text/javascript" src="js/vendor_selection.js"></script>
-#<script type="text/javascript" src="js/calculate_qty.js"></script>
-#<script type="text/javascript" src="js/follow_up.js"></script>
-#
-#<form method="post" name="invoice" action="$form->{script}">
-#| ;
-#
-#  $form->hide_form(qw(id action type media format queued printed emailed title vc discount
-#                      creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
-#                      max_dunning_level dunning_amount
-#                      shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
-#                      shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
-#                      convert_from_do_ids convert_from_oe_ids),
-#                      map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} );
-#
-#  print qq|<p>$form->{saved_message}</p>| if $form->{saved_message};
-#
-#  print qq|
-#
-#<input type="hidden" name="follow_up_trans_id_1" value="| . H($form->{id}) . qq|">
-#<input type="hidden" name="follow_up_trans_type_1" value="sales_invoice">
-#<input type="hidden" name="follow_up_trans_info_1" value="| . H($follow_up_trans_info) . qq|">
-#<input type="hidden" name="follow_up_rowcount" value="1">
-#
-#<input type="hidden" name="lizenzen" value="$lizenzen">
-#
-#<div class="listtop" width="100%">$form->{title}</div>
-#
-#<table width="100%">
-#  <tr>
-#    <td valign="top">
-#      <table>
-#        <tr>
-#          $customers
-#          <input type="hidden" name="customer_klass" value="| . H($form->{customer_klass}) . qq|">
-#          <input type="hidden" name="customer_id" value="| . H($form->{customer_id}) . qq|">
-#          <input type="hidden" name="oldcustomer" value="| . H($form->{oldcustomer}) . qq|">
-#          <input type="hidden" name="selectcustomer" value="| . H($form->{selectcustomer}) . qq|">
-#        </tr>
-#        $contact
-#        $shipto
-#        <tr>
-#          <td align="right">| . $locale->text('Credit Limit') . qq|</td>
-#          <td>$form->{creditlimit}; | . $locale->text('Remaining') . qq| <span class="plus$n">$form->{creditremaining}</span></td>
-#        </tr>
-#        $dunning
-#        $business
-#	      <tr>
-#		<th align="right" nowrap>| . $locale->text('Record in') . qq|</th>
-#		<td colspan="3"><select name="AR" style="width:250px;">$form->{selectAR}</select></td>
-#		<input type="hidden" name="selectAR" value="$form->{selectAR}">
-#	      </tr>
-#              $taxzone
-#	      $department
-#	      <tr>
-#    $currencies
-#		<input type="hidden" name="fxgain_accno" value="$form->{fxgain_accno}">
-#		<input type="hidden" name="fxloss_accno" value="$form->{fxloss_accno}">
-#		$exchangerate
-#	      </tr>
-#	      <tr>
-#		<th align="right" nowrap>| . $locale->text('Shipping Point') . qq|</th>
-#		<td colspan="3"> | .
-#		$cgi->textfield("-name" => "shippingpoint", "-size" => 35, "-value" => $form->{shippingpoint}) .
-#      	  qq|	</td>
-#	      </tr>
-#	      <tr>
-#		<th align="right" nowrap>| . $locale->text('Ship via') . qq|</th>
-#		<td colspan="3"> | .
-#		$cgi->textfield("-name" => "shipvia", "-size" => 35, "-value" => $form->{shipvia}) .
-#	  qq|	</td>
-#	      </tr>
-#              <tr>
-#                <th align="right">| . $locale->text('Transaction description') . qq|</th>
-#                <td colspan="3">| . $cgi->textfield("-name" => "transaction_description", "-size" => 35, "-value" => $form->{transaction_description}) . qq|</td>
-#              </tr>|;
-##               <tr>
-##                 <td colspan=4>
-##                   <table>
-##                     <tr>
-##                       <td colspan=2>
-##                         <button type="button" onclick="delivery_customer_selection_window('delivery_customer_string','delivery_customer_id')">| . $locale->text('Choose Customer') . qq|</button>
-##                       </td>
-##                       <td colspan=2><input type=hidden name=delivery_customer_id value="$form->{delivery_customer_id}">
-##                       <input size=45 id=delivery_customer_string name=delivery_customer_string value="$form->{delivery_customer_string}"></td>
-##                     </tr>
-##                     <tr>
-##                       <td colspan=2>
-##                         <button type="button" onclick="vendor_selection_window('delivery_vendor_string','delivery_vendor_id')">| . $locale->text('Choose Vendor') . qq|</button>
-##                       </td>
-##                       <td colspan=2><input type=hidden name=delivery_vendor_id value="$form->{delivery_vendor_id}">
-##                       <input size=45 id=delivery_vendor_string name=delivery_vendor_string value="$form->{delivery_vendor_string}"></td>
-##                     </tr>
-##                   </table>
-##                 </td>
-##               </tr>
-#print qq|	    </table>
-#	  </td>
-#	  <td align="right" valign="top">
-#	    <table>
-#	      $employees
-#        $salesman
-#|;
-#
-##ergänzung in der maske um das feld Lieferscheinnummer (Delivery Order Number), meiner meinung nach sinnvoll ueber dem feld lieferscheindatum 12.02.2009 jb
-#if ($form->{type} eq "credit_note") {
-#print qq|     <tr>
-#		<th align="right" nowrap>| . $locale->text('Credit Note Number') . qq|</th>
-#		<td> |.
-#	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .
-#      qq|	</td>
-#	      </tr>
-#	      <tr>
-#		<th align="right">| . $locale->text('Credit Note Date') . qq|</th>
-#                $button1
-#	      </tr>|;
-#} else {
-#print qq|     <tr>
-#		<th align="right" nowrap>| . $locale->text('Invoice Number') . qq|</th>
-#		<td> |.
-#	        $cgi->textfield("-name" => "invnumber", "-size" => 11, "-value" => $form->{invnumber}) .
-#      qq|	</td>
-#	      </tr>
-#	      <tr>
-#		<th align="right">| . $locale->text('Invoice Date') . qq|</th>
-#                $button1
-#	      </tr>
-#	      <tr>
-#		<th align="right">| . $locale->text('Due Date') . qq|</th>
-#                $button2
-#	      </tr>
-#	      <tr>
-#		<th align="right" nowrap>| . $locale->text('Delivery Order Number') . qq|</th>
-#		<td> |.
-#	        $cgi->textfield("-name" => "donumber", "-size" => 11, "-value" => $form->{donumber}) .
-#      qq|	</td>
-#	      </tr>
-#	      <tr>
-#		<th align="right">| . $locale->text('Delivery Date') . qq|</th>
-#                $button3
-#	      </tr>|;
-#}
-#print qq|     <tr>
-#		<th align="right" nowrap>| . $locale->text('Order Number') . qq|</th>
-#		<td> |.
-#	        $cgi->textfield("-name" => "ordnumber", "-size" => 11, "-value" => $form->{ordnumber}) .
-#      qq|	</td>
-#	      </tr>
-#        <tr>
-#          <th align="right" nowrap>| . $locale->text('Order Date') . qq|</th>
-#          <td><input name="orddate" id="orddate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{orddate}) . qq|" onBlur=\"check_right_date_format(this)\">
-#           <input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
-#        </tr>
-#	      <tr>
-#		<th align="right" nowrap>| . $locale->text('Quotation Number') . qq|</th>
-#		<td> |.
-#	        $cgi->textfield("-name" => "quonumber", "-size" => 11, "-value" => $form->{quonumber}) .
-#      qq|	</td>
-#	      </tr>
-#        <tr>
-#          <th align="right" nowrap>| . $locale->text('Quotation Date') . qq|</th>
-#          <td><input name="quodate" id="quodate" size="11" title="$myconfig{dateformat}" value="| . Q($form->{quodate}) . qq|" onBlur=\"check_right_date_format(this)\">
-#           <input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
-#        </tr>
-#	      <tr>
-#		<th align="right" nowrap>| . $locale->text('Customer Order Number') . qq|</th>
-#		<td> |.
-#	        $cgi->textfield("-name" => "cusordnumber", "-size" => 11, "-value" => $form->{cusordnumber}) .
-#      qq|	</td>
-#	      </tr>
-#	      <tr>
-#          <th align="right" nowrap>| . $locale->text('Project Number') . qq|</th>
-#          <td>$globalprojectnumber</td>
-#	      </tr>
-#	    </table>
-#          </td>
-#	</tr>
-#      </table>
-#    </td>
-#  </tr>
-#  <tr>
-#    <td>
-#    </td>
-#  </tr>
-#  $jsscript
-#|;
-#  print qq|<input type="hidden" name="webdav" value="$webdav">|;
 
   print $form->parse_html_template("is/form_header", \%TMPL_VAR);
 
