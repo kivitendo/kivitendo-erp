@@ -438,6 +438,7 @@ sub build_filter_query {
 
       my $f_op = $params{filter}->{"${name}_qtyop"};
 
+      my $op;
       if ($f_op eq '==') {
         $op  = '=';
 
@@ -515,6 +516,11 @@ sub add_custom_variables_to_report {
     return;
   }
 
+  # allow sub_module to be a coderef or a fixed value
+  if (ref $params{sub_module} ne 'CODE') {
+    $params{sub_module} = sub { "$params{sub_module}" };
+  }
+
   my %cfg_map   = map { $_->{id} => $_ } @{ $configs };
   my @cfg_ids   = keys %cfg_map;
 
@@ -527,7 +533,7 @@ sub add_custom_variables_to_report {
   my $sth       = prepare_query($form, $dbh, $query);
 
   foreach my $row (@{ $params{data} }) {
-    do_statement($form, $sth, $query, @cfg_ids, conv_i($row->{$params{trans_id_field}}), "$params{sub_module}");
+    do_statement($form, $sth, $query, @cfg_ids, conv_i($row->{$params{trans_id_field}}), $params{sub_module}->($row));
 
     while (my $ref = $sth->fetchrow_hashref()) {
       my $cfg = $cfg_map{$ref->{config_id}};
@@ -535,7 +541,7 @@ sub add_custom_variables_to_report {
       $row->{"cvar_$cfg->{name}"} =
           $cfg->{type} eq 'date'      ? $ref->{date_value}
         : $cfg->{type} eq 'timestamp' ? $ref->{timestamp_value}
-        : $cfg->{type} eq 'number'    ? $form->format_amount($myconfig, $ref->{number_value} * 1, $config->{precision})
+        : $cfg->{type} eq 'number'    ? $form->format_amount($myconfig, $ref->{number_value} * 1, $cfg->{precision})
         : $cfg->{type} eq 'bool'      ? ($ref->{bool_value} ? $locale->text('Yes') : $locale->text('No'))
         :                               $ref->{text_value};
     }

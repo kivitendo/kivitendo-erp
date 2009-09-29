@@ -792,8 +792,8 @@ sub all_parts {
     pfac       => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
     invoice_oi =>
       q|LEFT JOIN (
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem,         deliverydate, 'invoice'    AS ioi FROM invoice UNION
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, NULL AS deliverydate, 'orderitems' AS ioi FROM orderitems
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem,         deliverydate, 'invoice'    AS ioi, id FROM invoice UNION
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, NULL AS deliverydate, 'orderitems' AS ioi, id FROM orderitems
        ) AS ioi ON ioi.parts_id = p.id|,
     apoe       =>
       q|LEFT JOIN (
@@ -824,6 +824,8 @@ sub all_parts {
      serialnumber => 'ioi.',
      quotation    => 'apoe.',
      cv           => 'cv.',
+     "ioi.id"     => ' ',
+     "ioi.ioi"    => ' ',
   );
 
   # if the join condition in these blocks are met, the column
@@ -841,6 +843,8 @@ sub all_parts {
   my %renamed_columns = (
     'factor'       => 'price_factor',
     'SUM(ioi.qty)' => 'soldtotal',
+    'ioi.id'       => 'ioi_id',
+    'ioi.ioi'      => 'ioi',
   );
 
   if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
@@ -937,7 +941,7 @@ sub all_parts {
   my $bsooqr        = any { $form->{$_} } @oe_flags;
   my @bsooqr_tokens = ();
 
-  push @select_tokens, @qsooqr_flags, 'quotation', 'cv'                       if $bsooqr;
+  push @select_tokens, @qsooqr_flags, 'quotation', 'cv', 'ioi.id', 'ioi.ioi'  if $bsooqr;
   push @select_tokens, @deliverydate_flags                                    if $bsooqr && $form->{l_deliverydate};
   push @select_tokens, $q_assembly_lastcost                                   if ($form->{searchitems} eq 'assembly') && $form->{l_lastcost};
   push @bsooqr_tokens, q|module = 'ir' AND NOT ioi.assemblyitem|              if $form->{bought};
@@ -1005,7 +1009,15 @@ sub all_parts {
     push @bind_vars, @cvar_values;
   }
 
-  my $query = qq|SELECT DISTINCT $select_clause FROM parts p $join_clause WHERE $where_clause $group_clause $order_clause $limit_clause|;
+  my $query = <<"  SQL";
+    SELECT DISTINCT $select_clause
+    FROM parts p
+    $join_clause
+    WHERE $where_clause
+    $group_clause
+    $order_clause
+    $limit_clause
+  SQL
 
   $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
 

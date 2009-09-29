@@ -1241,6 +1241,13 @@ sub generate_report {
                                        'column_defs'    => \%column_defs,
                                        'data'           => $form->{parts});
 
+  CVar->add_custom_variables_to_report('module'         => 'IC',
+                                       'sub_module'     => sub { $_[0]->{ioi} },
+                                       'trans_id_field' => 'ioi_id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{parts});
+
   my @subtotal_columns = qw(sellprice listprice lastcost);
   my %subtotals = map { $_ => 0 } ('onhand', @subtotal_columns);
   my %totals    = map { $_ => 0 } @subtotal_columns;
