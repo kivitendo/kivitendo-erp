@@ -39,7 +39,7 @@ package User;
 use IO::File;
 use Fcntl qw(:seek);
 
-use SL::Auth;
+#use SL::Auth;
 use SL::DBUpgrade2;
 use SL::DBUtils;
 use SL::Iconv;

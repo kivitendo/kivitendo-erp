@@ -2,7 +2,7 @@ package SL::Auth::LDAP;
 
 use English '-no_match_vars';
 
-use SL::Auth;
+#use SL::Auth;
 
 sub new {
   $main::lxdebug->enter_sub();

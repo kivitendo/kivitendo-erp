@@ -2,7 +2,7 @@ package SL::Auth::DB;
 
 use DBI;
 
-use SL::Auth;
+#use SL::Auth;
 use SL::DBUtils;
 
 sub new {
