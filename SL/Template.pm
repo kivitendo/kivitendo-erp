@@ -501,7 +501,7 @@ sub _force_mandatory_packages {
   my (%used_packages, $document_start_line);
 
   foreach my $i (0 .. scalar @{ $lines } - 1) {
-    if ($lines->[$i] =~ m/\\usepackage[^{]*{(.*?)}/) {
+    if ($lines->[$i] =~ m/\\usepackage[^\{]*{(.*?)}/) {
       $used_packages{$1} = 1;
 
     } elsif ($lines->[$i] =~ m/\\begin{document}/) {

@@ -364,6 +364,13 @@ sub format_dates {
                                  $dateformat, $longformat);
       }
     }
+    if (ref($form->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{$form->{TEMPLATE_ARRAYS}->{$idx}}); $i++) {
+        $form->{TEMPLATE_ARRAYS}->{$idx}->[$i] =
+          $locale->reformat_date(\%myconfig, $form->{TEMPLATE_ARRAYS}->{$idx}->[$i],
+                                 $dateformat, $longformat);
+      }
+    }
   }
 
   $lxdebug->leave_sub();
