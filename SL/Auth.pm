@@ -517,9 +517,6 @@ sub expire_sessions {
 sub _create_session_id {
   $main::lxdebug->enter_sub();
 
-  my @secs = gettimeofday();
-  srand $secs[1] + $$;
-
   my @data;
   map { push @data, int(rand() * 255); } (1..32);
 
