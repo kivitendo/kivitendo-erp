@@ -4,7 +4,7 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT    = qw(save_form restore_form compare_numbers any cross);
-@EXPORT_OK = qw(ary_union ary_intersect ary_diff);
+@EXPORT_OK = qw(ary_union ary_intersect ary_diff listify);
 
 use YAML;
 
@@ -158,5 +158,11 @@ sub ary_diff {
   my %in_b    = map { $_ => 1 } @$b;
   return grep { !$in_b{$_} } @$a;
 }
+
+sub listify {
+  my @ary = scalar @_ > 1 ? @_ : ref $_[0] eq 'ARRAY' ? @{ $_[0] } : (@_);
+  return wantarray ? @ary : scalar @ary;
+}
++
 
 1;
