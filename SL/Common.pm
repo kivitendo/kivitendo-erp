@@ -9,6 +9,7 @@
 package Common;
 
 use Time::HiRes qw(gettimeofday);
+use Data::Dumper;
 
 use SL::DBUtils;
 
@@ -516,6 +517,8 @@ sub check_params {
   foreach my $key (@_) {
     if ((ref $key eq '') && !defined $params->{$key}) {
       my $subroutine = (caller(1))[3];
+      $main::lxdebug->message(LXDebug->BACKTRACE_ON_ERROR, "[Common::check_params] failed, params object dumped below");
+      $main::lxdebug->message(LXDebug->BACKTRACE_ON_ERROR, Dumper($params));
       $main::form->error($main::locale->text("Missing parameter #1 in call to sub #2.", $key, $subroutine));
 
     } elsif (ref $key eq 'ARRAY') {
@@ -529,6 +532,8 @@ sub check_params {
 
       if (!$found) {
         my $subroutine = (caller(1))[3];
+        $main::lxdebug->message(LXDebug->BACKTRACE_ON_ERROR, "[Common::check_params] failed, params object dumped below");
+        $main::lxdebug->message(LXDebug->BACKTRACE_ON_ERROR, Dumper($params));
         $main::form->error($main::locale->text("Missing parameter (at least one of #1) in call to sub #2.", join(', ', @{ $key }), $subroutine));
       }
     }
