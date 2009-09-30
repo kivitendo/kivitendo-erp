@@ -1,8 +1,10 @@
 package CVar;
 
 use List::Util qw(first);
+use Data::Dumper;
 
 use SL::DBUtils;
+use SL::MoreCommon qw(listify);
 
 sub get_configs {
   $main::lxdebug->enter_sub();
@@ -228,6 +230,8 @@ sub get_custom_variables {
 
       do_statement($form, $h_var, $q_var, @values);
       $act_var = $h_var->fetchrow_hashref();
+
+      $act_var->{valid} = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id});
     }
 
     if ($act_var) {
@@ -236,7 +240,7 @@ sub get_custom_variables {
                      : $cvar->{type} eq 'number'    ? $act_var->{number_value}
                      : $cvar->{type} eq 'bool'      ? $act_var->{bool_value}
                      :                                $act_var->{text_value};
-
+      $cvar->{valid} = $act_var->{valid};
     } else {
       if ($cvar->{type} eq 'date') {
         if ($cvar->{default_value} eq 'NOW') {
@@ -329,6 +333,10 @@ sub save_custom_variables {
     }
 
     do_statement($form, $sth, $query, @values);
+
+    $self->save_custom_variables_validity(trans_id => $params{trans_id}, config_id => $config->{id},
+      validity => ($params{variables}->{"$params{name_prefix}cvar_$config->{name}$params{name_postfix}_valid"} ? 1 : 0)
+    );
   }
 
   $sth->finish();
@@ -356,6 +364,7 @@ sub render_inputs {
 
   foreach my $var (@{ $params{variables} }) {
     $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs', { 'var' => $var, %options });
+    $var->{VALID_BOX} = "<input type=checkbox name='$options{name_prefix}cvar_$var->{name}$options{name_postfix}_valid'@{[!$var->{valid} ? ' checked' : '']}>";
   }
 
   $main::lxdebug->leave_sub();
@@ -587,5 +596,80 @@ sub get_field_format_list {
   return ($date_fields, $number_fields);
 }
 
+=head2 VALIDITY
+
+Suppose the following scenario:
+
+You have a lot of parts in your database, and a set of properties cofigured. Now not every part has every of these properties, some combinations will just make no sense. In order to clean up your inputs a bit, you want to mark certain combinations as invalid, blocking them from modification and possibly display.
+
+Validity is assumed. If you modify validity, you actually save B<invalidity>.
+validity is saved as a function of config_id, and the trans_id
+
+In the naive way, disable an attribute for a specific id (simple)
+
+=cut
+sub save_custom_variables_validity {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(config_id trans_id validity));
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my (@where, @values);
+  add_token(\@where, \@values, col => "config_id", val => $params{config_id}, esc => \&conv_i);
+  add_token(\@where, \@values, col => "trans_id",  val => $params{trans_id},  esc => \&conv_i);
+
+  my $where = scalar @where ? "WHERE " . join ' AND ', @where : '';
+  my $query = qq|DELETE FROM custom_variables_validity $where|;
+
+  do_query($form, $dbh, $query, @values);
+
+  $query  =
+    qq|INSERT INTO custom_variables_validity (config_id, trans_id)
+       VALUES                                (?,         ?       )|;
+  my $sth = prepare_query($form, $dbh, $query);
+
+  unless ($params{validity}) {
+    foreach my $config_id (listify $params{config_id}) {
+      foreach my $trans_id (listify $params{trans_id}) {
+        do_statement($form, $sth, $query, conv_i($config_id), conv_i($trans_id));
+      }
+    }
+  }
+
+  $sth->finish();
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_custom_variables_validity {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(config_id trans_id));
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $query    = qq|SELECT COUNT(*) FROM custom_variables_validity WHERE config_id = ? AND trans_id = ?|;
+
+  my ($validity) = selectfirst_array_query($form, $dbh, $query, conv_i($params{config_id}), conv_i($params{trans_id}));
+
+  $main::lxdebug->leave_sub();
+
+  return $validity;
+}
 
 1;

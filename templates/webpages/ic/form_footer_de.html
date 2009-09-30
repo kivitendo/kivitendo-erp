@@ -30,10 +30,13 @@
 [%- IF CUSTOM_VARIABLES.size %]
 <div id="custom_variables" class="tabcontent">
 
+ <p>Unmarkierte Variablen werden für diesen Artikel nicht in Aufträgen und Rechnungen angezeigt.</p>
+
  <p>
   <table>
    [%- FOREACH var = CUSTOM_VARIABLES %]
    <tr>
+    <td align="right" valign="top">[% var.VALID_BOX %]</td>
     <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
     <td valign="top">[% var.HTML_CODE %]</td>
    </tr>
