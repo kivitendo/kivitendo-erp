@@ -372,7 +372,7 @@ sub display_row {
     $form->{invsubtotal} += $linetotal;
 
     # Benutzerdefinierte Variablen für Waren/Dienstleistungen/Erzeugnisse
-    _render_custom_variables_inputs(ROW2 => \@ROW2, row => $i);
+    _render_custom_variables_inputs(ROW2 => \@ROW2, row => $i, part_id => $form->{"id_$i"});
 
     push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, };
   }
@@ -1980,6 +1980,10 @@ sub _render_custom_variables_inputs {
   }
 
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
+    $cvar->{valid} = $params{part_id}
+      ? CVar->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{part_id})
+      : $vcar->{valid};
+
     $cvar->{value} = $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"};
   }
 
@@ -1991,7 +1995,7 @@ sub _render_custom_variables_inputs {
   my $num_visible_cvars = 0;
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
     my $description = '';
-    if ($cvar->{flag_editable}) {
+    if ($cvar->{flag_editable} && $cvar->{valid}) {
       $num_visible_cvars++;
       $description = $cvar->{description} . ' ';
     }

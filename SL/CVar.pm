@@ -360,11 +360,12 @@ sub render_inputs {
   my %options  = ( name_prefix       => "$params{name_prefix}",
                    name_postfix      => "$params{name_postfix}",
                    hide_non_editable => $params{hide_non_editable},
+                   show_disabled_message => $params{show_disabled_message},
                  );
 
   foreach my $var (@{ $params{variables} }) {
-    $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs', { 'var' => $var, %options });
-    $var->{VALID_BOX} = "<input type=checkbox name='$options{name_prefix}cvar_$var->{name}$options{name_postfix}_valid'@{[$var->{valid} ? ' checked' : '']}>";
+    $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs',     { var => $var, %options });
+    $var->{VALID_BOX} = $form->parse_html_template('amcvar/render_checkboxes', { var => $var, %options });
   }
 
   $main::lxdebug->leave_sub();

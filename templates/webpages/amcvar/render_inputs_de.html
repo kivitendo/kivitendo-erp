@@ -5,6 +5,11 @@
 [%- IF hide_non_editable && !var.flag_editable %]
 <input type="hidden" name="[% var_name %]" value="[% HTML.escape(var.value) %]">
 
+[%- ELSIF !var.valid %]
+  [%- IF show_disabled_message %]
+<i>Element deaktiviert</i>
+  [%- END %]
+
 [%- ELSIF var.type == 'bool' %]
 <input type="checkbox" name="[% var_name %]" value="1"[% IF var.value %] checked[% END %]>
 

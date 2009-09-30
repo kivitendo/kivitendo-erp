@@ -643,6 +643,7 @@ $self->{texts} = {
   'Edit the stylesheet'         => 'Stilvorlage bearbeiten',
   'Edit units'                  => 'Einheiten bearbeiten',
   'Editable'                    => 'Bearbeitbar',
+  'Element disabled'            => 'Element deaktiviert',
   'Employee'                    => 'Bearbeiter',
   'Empty transaction!'          => 'Buchung ist leer!',
   'Enter a description for this new draft.' => 'Geben Sie eine Beschreibung f&uuml;r diesen Entwurf ein.',

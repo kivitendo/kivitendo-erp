@@ -1,0 +1,3 @@
+[%- USE HTML %]
+[%- SET var_valid = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) _ '_valid' -%]
+<input type=checkbox name='[% var_valid %]'[% IF var.valid %] checked[% END %]>

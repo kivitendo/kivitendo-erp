@@ -1545,7 +1545,8 @@ sub form_header {
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'IC', 'trans_id' => $form->{id});
 
-  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
+  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}, show_disabled_message => 1)
+    if (scalar @{ $form->{CUSTOM_VARIABLES} });
 
   $form->header;
   #print $form->parse_html_template('ic/form_header', { ALL_PRICE_FACTORS => $form->{ALL_PRICE_FACTORS},
