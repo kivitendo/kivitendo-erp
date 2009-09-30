@@ -364,7 +364,7 @@ sub render_inputs {
 
   foreach my $var (@{ $params{variables} }) {
     $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs', { 'var' => $var, %options });
-    $var->{VALID_BOX} = "<input type=checkbox name='$options{name_prefix}cvar_$var->{name}$options{name_postfix}_valid'@{[!$var->{valid} ? ' checked' : '']}>";
+    $var->{VALID_BOX} = "<input type=checkbox name='$options{name_prefix}cvar_$var->{name}$options{name_postfix}_valid'@{[$var->{valid} ? ' checked' : '']}>";
   }
 
   $main::lxdebug->leave_sub();
@@ -603,7 +603,7 @@ Suppose the following scenario:
 You have a lot of parts in your database, and a set of properties cofigured. Now not every part has every of these properties, some combinations will just make no sense. In order to clean up your inputs a bit, you want to mark certain combinations as invalid, blocking them from modification and possibly display.
 
 Validity is assumed. If you modify validity, you actually save B<invalidity>.
-validity is saved as a function of config_id, and the trans_id
+iNvalidity is saved as a function of config_id, and the trans_id
 
 In the naive way, disable an attribute for a specific id (simple)
 
@@ -665,11 +665,11 @@ sub get_custom_variables_validity {
 
   my $query    = qq|SELECT COUNT(*) FROM custom_variables_validity WHERE config_id = ? AND trans_id = ?|;
 
-  my ($validity) = selectfirst_array_query($form, $dbh, $query, conv_i($params{config_id}), conv_i($params{trans_id}));
+  my ($invalid) = selectfirst_array_query($form, $dbh, $query, conv_i($params{config_id}), conv_i($params{trans_id}));
 
   $main::lxdebug->leave_sub();
 
-  return $validity;
+  return !$invalid;
 }
 
 1;
