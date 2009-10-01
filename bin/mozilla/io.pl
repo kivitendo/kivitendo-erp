@@ -895,7 +895,7 @@ sub order {
   $script =~ s|.pl$||;
   $locale = new Locale($language, $script);
 
-  map { $form->{"select$_"} = "" } ($form->{vc}, currency);
+  map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
   $currency = $form->{currency};
 
@@ -1982,7 +1982,7 @@ sub _render_custom_variables_inputs {
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
     $cvar->{valid} = $params{part_id}
       ? CVar->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{part_id})
-      : $vcar->{valid};
+      : 1;
 
     $cvar->{value} = $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"};
   }
