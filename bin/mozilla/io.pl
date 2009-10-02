@@ -1449,10 +1449,9 @@ sub print_form {
   }
 
   if ($form->{language} ne "") {
-    map({ $form->{"unit"}->[$_] =
-            AM->translate_units($form, $form->{"language"},
-                                $form->{"unit"}->[$_], $form->{"qty"}->[$_]); }
-        (0..scalar(@{$form->{"unit"}}) - 1));
+    my $template_arrays = $form->{TEMPLATE_ARRAYS} || $form;
+    map { $template_arrays->{unit}->[$_] = AM->translate_units($form, $form->{language}, $template_arrays->{unit}->[$_], $template_arrays->{qty}->[$_]); } (0..scalar(@{ $template_arrays->{unit} }) - 1);
+
     $form->{language} = "_" . $form->{language};
   }
 
