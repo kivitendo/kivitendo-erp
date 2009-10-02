@@ -837,6 +837,7 @@ sub all_parts {
     [ 'deliverydate', 'ioi.',  'invoice_oi'  ],
     [ 'transdate',    'apoe.', 'apoe'        ],
     [ 'unit',         'ioi.',  'invoice_oi'  ],
+    [ 'sellprice',    'ioi.',  'invoice_oi'  ],
   );
 
   # careful with renames. these are HARD, and any filters done on the original column will break
