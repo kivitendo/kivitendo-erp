@@ -315,7 +315,7 @@ if ($opt_c) {
 
 $per = sprintf("%.1f", ($count - $notext) / $count * 100);
 print "\n$trlanguage - ${per}%";
-print " - $notext missing" if $notext;
+print " - $notext/$count missing" if $notext;
 print "\n";
 
 exit;
@@ -577,7 +577,7 @@ sub scanhtmlfile {
             substr($line, 0, $+[0]) = "";
             $text =~ s/\s+/ /g;
 
-            $copying = 0; 
+            $copying = 0;
             if ($issubmit) {
   #            $submit{$text} = 1;
                $cached{$_[0]}{submit}{$text} = 1;
