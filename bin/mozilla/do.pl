@@ -185,8 +185,6 @@ sub order_links {
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
-  $form->{salesman_id} = $salesman_id if ($editing);
-
   $lxdebug->leave_sub();
 }
 
