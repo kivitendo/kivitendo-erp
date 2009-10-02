@@ -351,6 +351,14 @@ sub format_dates {
   $dateformat = $myconfig{"dateformat"} unless ($dateformat);
 
   foreach my $idx (@indices) {
+    if ($form->{TEMPLATE_ARRAYS} && (ref($form->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{$form->{TEMPLATE_ARRAYS}->{$idx}}); $i++) {
+        $form->{TEMPLATE_ARRAYS}->{$idx}->[$i] =
+          $locale->reformat_date(\%myconfig, $form->{TEMPLATE_ARRAYS}->{$idx}->[$i],
+                                 $dateformat, $longformat);
+      }
+    }
+
     next unless (defined($form->{$idx}));
 
     if (!ref($form->{$idx})) {
@@ -361,13 +369,6 @@ sub format_dates {
       for (my $i = 0; $i < scalar(@{$form->{$idx}}); $i++) {
         $form->{$idx}->[$i] =
           $locale->reformat_date(\%myconfig, $form->{$idx}->[$i],
-                                 $dateformat, $longformat);
-      }
-    }
-    if (ref($form->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY") {
-      for (my $i = 0; $i < scalar(@{$form->{TEMPLATE_ARRAYS}->{$idx}}); $i++) {
-        $form->{TEMPLATE_ARRAYS}->{$idx}->[$i] =
-          $locale->reformat_date(\%myconfig, $form->{TEMPLATE_ARRAYS}->{$idx}->[$i],
                                  $dateformat, $longformat);
       }
     }
@@ -385,6 +386,12 @@ sub reformat_numbers {
     if (!$numberformat || ($numberformat eq $myconfig{"numberformat"}));
 
   foreach my $idx (@indices) {
+    if ($form->{TEMPLATE_ARRAYS} && (ref($form->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{$form->{TEMPLATE_ARRAYS}->{$idx}}); $i++) {
+        $form->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $form->parse_amount(\%myconfig, $form->{TEMPLATE_ARRAYS}->{$idx}->[$i]);
+      }
+    }
+
     next unless (defined($form->{$idx}));
 
     if (!ref($form->{$idx})) {
@@ -402,6 +409,12 @@ sub reformat_numbers {
   $myconfig{"numberformat"} = $numberformat;
 
   foreach my $idx (@indices) {
+    if ($form->{TEMPLATE_ARRAYS} && (ref($form->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{$form->{TEMPLATE_ARRAYS}->{$idx}}); $i++) {
+        $form->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $form->format_amount(\%myconfig, $form->{TEMPLATE_ARRAYS}->{$idx}->[$i], $places);
+      }
+    }
+
     next unless (defined($form->{$idx}));
 
     if (!ref($form->{$idx})) {

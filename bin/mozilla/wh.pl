@@ -402,11 +402,11 @@ sub create_assembly {
   # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
   my %TRANSFER = (
     'transfer_type'    => 'assembly',
-    'login'	=> $form->{login},
+    'login'	           => $form->{login},
     'dst_warehouse_id' => $form->{warehouse_id},
     'dst_bin_id'       => $form->{bin_id},
     'chargenumber'     => $form->{chargenumber},
-    'assembly_id'         => $form->{parts_id},
+    'assembly_id'      => $form->{parts_id},
     'qty'              => $form->{qty},
     'unit'             => $form->{unit},
     'comment'          => $form->{comment}
@@ -600,7 +600,7 @@ sub generate_journal {
   $form->{sort}  ||= 'date';
 
   my %filter;
-  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber partdescription chargenumber trans_type comment qty employee projectnumber);
+  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber partdescription chargenumber trans_type comment qty employee oe_id projectnumber);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber);
@@ -635,6 +635,7 @@ sub generate_journal {
     'qty'             => { 'text' => $locale->text('Qty'), },
     'employee'        => { 'text' => $locale->text('Employee'), },
     'projectnumber'   => { 'text' => $locale->text('Project Number'), },
+    'oe_id'           => { 'text' => $locale->text('Document'), },
   );
 
   my $href = build_std_url('action=generate_journal', grep { $form->{$_} } @hidden_variables);
@@ -659,6 +660,16 @@ sub generate_journal {
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my @contents  = WH->get_warehouse_journal(%filter);
 
+  my %doc_types = ( 'sales_quotation'         => { script => 'oe', title => $locale->text('Sales quotation') },
+                    'sales_order'             => { script => 'oe', title => $locale->text('Sales Order') },
+                    'request_quotation'       => { script => 'oe', title => $locale->text('Request quotation') },
+                    'purchase_order'          => { script => 'oe', title => $locale->text('Purchase Order') },
+                    'sales_delivery_order'    => { script => 'do', title => $locale->text('Sales delivery order') },
+                    'purchase_delivery_order' => { script => 'do', title => $locale->text('Purchase delivery order') },
+                    'sales_invoice'           => { script => 'is', title => $locale->text('Sales Invoice') },
+                    'purchase_invoice'        => { script => 'ir', title => $locale->text('Purchase Invoice') },
+                  );
+
   foreach $entry (@contents) {
     $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
                                                       'part_unit'  => $entry->{partunit},
@@ -680,6 +691,16 @@ sub generate_journal {
       'raw_data' => $entry->{trans_type},
       'align'    => $column_alignment{trans_type},
     };
+
+    if ($form->{l_oe_id}) {
+      $row->{oe_id}->{data} = '';
+      my $info              = $entry->{oe_id_info};
+
+      if ($info && $info->{id} && $info->{type} && $doc_types{$info->{type}}) {
+        $row->{oe_id} = { data => $doc_types{ $info->{type} }->{title} . ' ' . $info->{number},
+                          link => build_std_url('script=' . $doc_types{ $info->{type} }->{script} . '.pl', 'action=edit', 'id=' . $info->{id}, 'type=' . $info->{type}) };
+      }
+    }
 
     $report->add_data($row);
   }

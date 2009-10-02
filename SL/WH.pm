@@ -158,13 +158,13 @@ sub transfer_assembly {
 
   # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
   my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, comment, employee_id, qty, trans_id, trans_type_id)
-			    VALUES (?, ?, ?, ?, ?,(SELECT id FROM employee WHERE login = ?), ?, nextval('id'), 
+			    VALUES (?, ?, ?, ?, ?,(SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
 				    (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
   my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
 
   my $kannNichtFertigen ="";	# der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
 
-  while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) {	# Schleife für $query=select parts_id,qty from assembly 
+  while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) {	# Schleife für $query=select parts_id,qty from assembly
 
     my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID = $hash_ref->{parts_id};
@@ -215,9 +215,9 @@ sub transfer_assembly {
     return $kannNichtFertigen;
   }
 
-  # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ... 
+  # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
   my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, comment, employee_id, qty, trans_id, trans_type_id)
-			    VALUES (?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'), 
+			    VALUES (?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
 				    (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
   my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
   do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id}, $params{dst_bin_id}, $params{chargenumber}, $params{comment}, $params{login}, $params{qty});
@@ -328,6 +328,7 @@ sub get_warehouse_journal {
      "comment"              => "i1.comment",
      "trans_type"           => "tt.description",
      "trans_id"             => "i1.trans_id",
+     "oe_id"                => "COALESCE(i1.oe_id, i2.oe_id)",
      "date"                 => "i1.itime::DATE",
      "itime"                => "i1.itime",
      "employee"             => "e.name",
@@ -407,6 +408,45 @@ sub get_warehouse_journal {
 
   my $sth = prepare_execute_query($form, $dbh, $query, @filter_vars, @filter_vars, @filter_vars);
 
+  my ($h_oe_id, $q_oe_id);
+  if ($form->{l_oe_id}) {
+    $q_oe_id = <<SQL;
+      SELECT oe.id AS id,
+        CASE WHEN oe.quotation THEN oe.quonumber ELSE oe.ordnumber END AS number,
+        CASE
+          WHEN oe.customer_id IS NOT NULL AND     COALESCE(oe.quotation, FALSE) THEN 'sales_quotation'
+          WHEN oe.customer_id IS NOT NULL AND NOT COALESCE(oe.quotation, FALSE) THEN 'sales_order'
+          WHEN oe.customer_id IS     NULL AND     COALESCE(oe.quotation, FALSE) THEN 'request_quotation'
+          ELSE                                                                       'purchase_order'
+        END AS type
+      FROM oe
+      WHERE oe.id = ?
+
+      UNION
+
+      SELECT dord.id AS id, dord.donumber AS number,
+        CASE
+          WHEN dord.customer_id IS NULL THEN 'purchase_delivery_order'
+          ELSE                               'sales_delivery_order'
+        END AS type
+      FROM delivery_orders dord
+      WHERE dord.id = ?
+
+      UNION
+
+      SELECT ar.id AS id, ar.invnumber AS number, 'sales_invoice' AS type
+      FROM ar
+      WHERE ar.id = ?
+
+      UNION
+
+      SELECT ap.id AS id, ap.invnumber AS number, 'purchase_invoice' AS type
+      FROM ap
+      WHERE ap.id = ?
+SQL
+    $h_oe_id = prepare_query($form, $dbh, $q_oe_id);
+  }
+
   my @contents = ();
   while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
     map { /^r_/; $ref->{"$'"} = $ref->{$_} } keys %$ref;
@@ -423,10 +463,16 @@ sub get_warehouse_journal {
       next if (('<=' eq $f_qty_op) && ($qty > $f_qty));
     }
 
+    if ($h_oe_id && $ref->{oe_id}) {
+      do_statement($form, $h_oe_id, $q_oe_id, ($ref->{oe_id}) x 4);
+      $ref->{oe_id_info} = $h_oe_id->fetchrow_hashref() || {};
+    }
+
     push @contents, $ref;
   }
 
   $sth->finish();
+  $h_oe_id->finish() if $h_oe_id;
 
   $main::lxdebug->leave_sub();
 
@@ -732,7 +778,7 @@ $main::lxdebug->enter_sub();
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(parts_id warehouse_id)); #die brauchen wir 
+  Common::check_params(\%params, qw(parts_id warehouse_id)); #die brauchen wir
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
@@ -742,10 +788,10 @@ $main::lxdebug->enter_sub();
   my $query = qq| SELECT SUM(qty), bin_id, chargenumber  FROM inventory where parts_id = ? AND warehouse_id = ? GROUP BY bin_id, chargenumber|;
 
   my $sth_QTY      = prepare_execute_query($form, $dbh, $query, ,$params{parts_id}, $params{warehouse_id}); #info: aufruf an DBUtils.pm
-  
+
   my $max_qty_parts = 0; #Initialisierung mit 0
   while (my $ref = $sth_QTY->fetchrow_hashref()) {	# wir laufen über alle chargen und Lagerorte (s.a. SQL-Query oben)
-    $max_qty_parts += $ref->{sum};	
+    $max_qty_parts += $ref->{sum};
   }
 
   $main::lxdebug->leave_sub();
@@ -763,7 +809,7 @@ $main::lxdebug->enter_sub();
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(parts_id )); #die brauchen wir 
+  Common::check_params(\%params, qw(parts_id )); #die brauchen wir
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
@@ -773,9 +819,9 @@ $main::lxdebug->enter_sub();
   my $query = qq| SELECT partnumber, description FROM parts where id = ? |;
 
   my $sth      = prepare_execute_query($form, $dbh, $query, ,$params{parts_id}); #info: aufruf zu DBUtils.pm
-  
-  my $ref = $sth->fetchrow_hashref(); 
-  my $part_description = $ref->{partnumber} . " " . $ref->{description};	
+
+  my $ref = $sth->fetchrow_hashref();
+  my $part_description = $ref->{partnumber} . " " . $ref->{description};
 
   $main::lxdebug->leave_sub();
 
