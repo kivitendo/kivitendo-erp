@@ -66,9 +66,12 @@ sub _init {
   my $country  = shift;
   my $NLS_file = shift;
 
+  $self->{charset}     = Common::DEFAULT_CHARSET;
+  $self->{countrycode} = $country;
+  $self->{NLS_file}    = $NLS_file;
+
   if ($country && -d "locale/$country") {
     local *IN;
-    $self->{countrycode} = $country;
     if (open(IN, "<", "locale/$country/$NLS_file")) {
       my $code = join("", <IN>);
       eval($code);
@@ -80,23 +83,18 @@ sub _init {
       close IN;
 
       chomp $self->{charset};
-
-    } else {
-      $self->{charset} = Common::DEFAULT_CHARSET;
     }
-
-    my $db_charset            = $main::dbcharset || Common::DEFAULT_CHARSET;
-
-    $self->{iconv}            = Text::Iconv->new($self->{charset}, $db_charset);
-    $self->{iconv_reverse}    = Text::Iconv->new($db_charset,      $self->{charset});
-    $self->{iconv_english}    = Text::Iconv->new('ASCII',          $db_charset);
-    $self->{iconv_iso8859}    = Text::Iconv->new('ISO-8859-15',    $db_charset);
-    $self->{iconv_to_iso8859} = Text::Iconv->new($db_charset,      'ISO-8859-15');
-
-    $self->_read_special_chars_file($country);
   }
 
-  $self->{NLS_file} = $NLS_file;
+  my $db_charset            = $main::dbcharset || Common::DEFAULT_CHARSET;
+
+  $self->{iconv}            = Text::Iconv->new($self->{charset}, $db_charset);
+  $self->{iconv_reverse}    = Text::Iconv->new($db_charset,      $self->{charset});
+  $self->{iconv_english}    = Text::Iconv->new('ASCII',          $db_charset);
+  $self->{iconv_iso8859}    = Text::Iconv->new('ISO-8859-15',    $db_charset);
+  $self->{iconv_to_iso8859} = Text::Iconv->new($db_charset,      'ISO-8859-15');
+
+  $self->_read_special_chars_file($country);
 
   push @{ $self->{LONG_MONTH} },
     ("January",   "February", "March",    "April",
