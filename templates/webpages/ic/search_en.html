@@ -1,0 +1,280 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+<body>
+
+ <form method="post" action="ic.pl">
+
+  <input type="hidden" name="searchitems" value="[% HTML.escape(searchitems) %]">
+  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
+
+  <input type="hidden" name="revers" value="[% HTML.escape(revers) %]">
+  <input type="hidden" name="lastsort" value="[% HTML.escape(lastsort) %]">
+
+  <input type="hidden" name="nextsub" value="generate_report">
+  <input type="hidden" name="sort" value="description">
+
+  <input type="hidden" name="ndxs_counter" value="[% HTML.escape(ndxs_counter) %]">
+
+  <div class="listtop">[% title %]</div>
+
+  <table width="100%">
+   <tr height="5"></tr>
+   <tr valign="top">
+    <td>
+     <table>
+      <tr>
+       <th align="right" nowrap>Part Number</th>
+       <td><input name="partnumber" size="20"></td>
+       <th align="right" nowrap>EAN</th>
+       <td><input name="ean" size="20"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Part Description</th>
+       <td colspan="3"><input name="description" size="40"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Group</th>
+       <td><input name="partsgroup" size="20"></td>
+       [%- UNLESS is_service %]
+       <th align="right" nowrap>Serial Number</th> <td><input name="serialnumber" size="20"></td>
+       [%- END %]
+      </tr>
+
+      [%- UNLESS is_service %]
+      <tr>
+       <th align="right" nowrap>Make</th> <td><input name="make" size="20"></td>
+       <th align="right" nowrap>Model</th> <td><input name="model" size="20"></td>
+      </tr>
+      [%- END %]
+
+      <tr>
+       <th align="right" nowrap>Drawing</th>
+       <td><input name="drawing" size="20"></td>
+       <th align="right" nowrap>Microfiche</th>
+       <td><input name="microfiche" size="20"></td>
+      </tr>
+
+      [% CUSTOM_VARIABLES_FILTER_CODE %]
+
+      [%- IF is_assembly %]
+      <tr>
+       <td></td>
+       <td colspan="3">
+        <input name="null" id="null_1" class="radio" type="radio" value="1" checked>&nbsp;<label for="null_1">Top Level</label>
+        <input name="bom" id="bom" class="checkbox" type="checkbox" value="1">&nbsp;<label for="bom">Individual Items</label>
+       </td>
+      </tr>
+      [%- END %]
+
+      <tr>
+       <td></td>
+       <td colspan="3">
+        <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
+        <label for="itemstatus_active">Active</label>
+        [%- UNLESS is_service %]
+        <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
+        <label for="itemstatus_onhand">On Hand</label>
+        <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
+        <label for="itemstatus_short">Short</label>
+        [%- END %]
+        <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
+        <label for="itemstatus_obsolete">Obsolete</label>
+        <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
+        <label for="itemstatus_orphaned">Orphaned</label>
+       </td>
+      </tr>
+
+      <tr>
+       <td></td>
+       <td colspan="3">
+        <table>
+         <tr>
+          <td>
+           <table>
+            <tr>
+             [%- UNLESS is_assembly %]
+             <td><input name="bought" id="bought" class="checkbox" type="checkbox" value="1"></td>
+             <td nowrap><label for="bought">Bought</label></td>
+             [%- END %]
+             <td><input name="sold" id="sold" class="checkbox" type="checkbox" value="1"></td>
+             <td nowrap><label for="sold">Sold</label></td>
+            </tr>
+
+            <tr>
+             <td colspan="4"><hr size="1" noshade></td>
+            </tr>
+
+            <tr>
+             [%- UNLESS is_assembly %]
+             <td><input name="onorder" id="onorder" class="checkbox" type="checkbox" value="1"></td>
+             <td nowrap><label for="onorder">On Order</label></td>
+             [%- END %]
+             <td><input name="ordered" id="ordered" class="checkbox" type="checkbox" value="1"></td>
+             <td nowrap><label for="ordered">Ordered</label></td>
+            </tr>
+
+            <tr>
+             <td colspan="4"><hr size="1" noshade></td>
+            </tr>
+
+            <tr>
+             [%- UNLESS is_assembly %]
+             <td><input name="rfq" id="rfq" class="checkbox" type="checkbox" value="1"></td>
+             <td nowrap><label for="rfq">RFQ</label></td>
+             [%- END %]
+             <td><input name="quoted" id="quoted" class="checkbox" type="checkbox" value="1"></td>
+             <td nowrap><label for="quoted">Quoted</label></td>
+            </tr>
+           </table>
+          </td>
+
+          <td width="5%">&nbsp;</td>
+
+          <td>
+           <table>
+            <tr>
+             <th>From</th>
+             <td><input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(dateformat) %]"></td>
+             <td><input type="button" name="transdatefrom" id="trigger1" value="button"></td>
+             <th>To (time)</th>
+             <td><input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(dateformat) %]"></td>
+             <td><input type="button" name="transdateto" name="transdateto" id="trigger2" value="button"></td>
+            </tr>
+           </table>
+          </td>
+         </tr>
+        </table>
+       </td>
+      </tr>
+
+      <tr>
+       <td></td>
+       <td colspan="3">
+        <hr size="1" noshade>
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Include in Report</th> <td colspan="3">
+        <table>
+         <tr>
+          <td>
+           <input name="l_partnumber" id="l_partnumber" class="checkbox" type="checkbox" value="Y" checked>
+           <label for="l_partnumber">Part Number</label>
+          </td>
+          <td>
+           <input name="l_description" id="l_description" class="checkbox" type="checkbox" value="Y" checked>
+           <label for="l_description">Part Description</label>
+          </td>
+          [%- UNLESS is_service %]
+          <td>
+           <input name="l_serialnumber" id="l_serialnumber" class="checkbox" type="checkbox" value="Y">
+           <label for="l_serialnumber">Serial Number</label>
+          </td>
+          [%- END %]
+          <td>
+           <input name="l_unit" id="l_unit" class="checkbox" type="checkbox" value="Y" checked>
+           <label for="l_unit">Unit of measure</label>
+          </td>
+         </tr>
+
+         <tr>
+          <td>
+           <input name="l_listprice" id="l_listprice" class="checkbox" type="checkbox" value="Y">
+           <label for="l_listprice">List Price</label>
+          </td>
+          <td>
+           <input name="l_sellprice" id="l_sellprice" class="checkbox" type="checkbox" value="Y" checked>
+           <label for="l_sellprice">Sell Price</label>
+          </td>
+          <td>
+           <input name="l_lastcost" id="l_lastcost" class="checkbox" type="checkbox" value="Y" checked>
+           <label for="l_lastcost">Last Cost</label>
+          </td>
+          <td>
+           <input name="l_linetotal" id="l_linetotal" class="checkbox" type="checkbox" value="Y" checked>
+           <label for="l_linetotal">Line Total</label>
+          </td>
+         </tr>
+
+         <tr>
+          <td>
+           <input name="l_priceupdate" id="l_priceupdate" class="checkbox" type="checkbox" value="Y">
+           <label for="l_priceupdate">Updated</label>
+          </td>
+          <td>
+	    <!-- auskommentiert fuer bug nummer 852 - ggf. fuer einen standardlagerplatz verwertet jb 18.5.09-->
+           <!--input name="l_bin" id="l_bin" class="checkbox" type="checkbox" value="Y">
+           <label for="l_bin">Bin</label -->
+           <input name="l_deliverydate" id="l_deliverydate" class="checkbox" type="checkbox" value="Y">
+           <label for="l_deliverydate">deliverydate</label>
+          </td>
+          <td>
+           <input name="l_rop" id="l_rop" class="checkbox" type="checkbox" value="Y">
+           <label for="l_rop">ROP</label>
+          </td>
+          <td>
+           <input name="l_weight" id="l_weight" class="checkbox" type="checkbox" value="Y">
+           <label for="l_weight">Weight</label>
+          </td>
+         </tr>
+
+         <tr>
+          <td>
+           <input name="l_image" id="l_image" class="checkbox" type="checkbox" value="Y">
+           <label for="l_image">Image</label>
+          </td>
+          <td>
+           <input name="l_drawing" id="l_drawing" class="checkbox" type="checkbox" value="Y">
+           <label for="l_drawing">Drawing</label>
+          </td>
+          <td>
+           <input name="l_microfiche" id="l_microfiche" class="checkbox" type="checkbox" value="Y">
+           <label for="l_microfiche">Microfiche</label>
+          </td>
+          <td>
+           <input name="l_partsgroup" id="l_partsgroup" class="checkbox" type="checkbox" value="Y">
+           <label for="l_partsgroup">Group</label>
+          </td>
+         </tr>
+
+         <tr>
+          <td>
+           <input name="l_subtotal" id="l_subtotal" class="checkbox" type="checkbox" value="Y">
+           <label for="l_subtotal">Subtotal</label>
+          </td>
+          <td>
+           <input name="l_soldtotal" id="l_soldtotal" class="checkbox" type="checkbox" value="Y">
+           <label for="l_soldtotal">soldtotal</label>
+          </td>
+          <td>
+          </td>
+         </tr>
+
+         [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+        </table>
+       </td>
+      </tr>
+     </table>
+    </td>
+   </tr>
+   <tr><td colspan="4"><hr size="3" noshade></td></tr>
+  </table>
+
+  <script type="text/javascript">
+   <!--
+       Calendar.setup({ inputField : "transdatefrom",  ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
+       Calendar.setup({ inputField : "transdateto",    ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+       //-->
+  </script>
+
+  <p>
+   <input class="submit" type="submit" name="action" value="Continue">
+   <input class="submit" type="submit" name="action" value="TOP100">
+  </p>
+ </form>
+
+</body>
+</html>

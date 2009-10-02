@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+
+$self->{texts} = {
+  'Logout'                      => 'Logout',
+  'drucken'                     => 'drucken',
+};
+
+$self->{subs} = {
+};
+
+1;

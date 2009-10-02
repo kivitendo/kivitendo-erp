@@ -1,0 +1,144 @@
+[% USE HTML %]<div class="listtop">Step 3 of 3: Assemblies</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="type" value="parts">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="create_buchungsgruppen_assemblies">
+
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
+
+ <div class="subsubheading">Existing Buchungsgruppen</div>
+
+ <p>
+  The following Buchungsgruppen have already been created:
+  <br>
+  <ul>
+   [% FOREACH row = BUCHUNGSGRUPPEN %]
+    <li>
+     [% HTML.escape(row.description) %]:
+     Inventory: [% row.inventory_accno %];
+
+     Income accno/Expense accno
+     National: [% row.income_accno_0 %]/[% row.expense_accno_0 %];
+
+     Income accno/Expense accno
+     EU with VAT ID: [% row.income_accno_1 %]/[% row.expense_accno_1 %];
+
+     Income accno/Expense accno
+     EU without VAT ID: [% row.income_accno_2 %]/[% row.expense_accno_2 %];
+
+     Income accno/Expense accno
+     International: [% row.income_accno_3 %]/[% row.expense_accno_3 %]
+    </li>
+   [% END %]
+  </ul>
+ </p>
+
+ [% FOREACH row = LIST %]
+  <div class="subsubheading">New Buchungsgruppe [% loop.count %]</div>
+
+  <table>
+   <tr>
+    <td>Description:</td>
+    <td><input name="description_[% loop.count %]"></td>
+   </tr>
+
+   [% IF row.eur %]
+    <input type="hidden" name="inventory_accno_id_[% loop.count %]" value="[% std_inventory_accno_id %]">
+    [% ELSE %]
+    <tr>
+     <td>Inventory:</td>
+     <td>
+      <select name="inventory_accno_id_[% loop.count %]">
+       [% FOREACH acc_row = ACC_INVENTORY %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+   [% END %]
+
+   <tr>
+    <td>Income accno National:</td>
+    <td>
+     <input type="hidden" name="income_accno_id_0_[% loop.count %]" value="[% HTML.escape(row.income_accno_id) %]">
+     [% HTML.escape(row.income_accno) %]--[% HTML.escape(row.income_description) %]
+    </td>
+   </tr>
+
+   <tr>
+    <td>Expense accno EU with VAT ID:</td>
+    <td>
+     <select name="expense_accno_id_0_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Income accno EU with VAT ID:</td>
+    <td>
+     <select name="income_accno_id_1_[% loop.count %]">
+      [% FOREACH acc_row = ACC_INCOME %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Expense accno EU with VAT ID:</td>
+    <td>
+     <select name="expense_accno_id_1_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Income accno EU without VAT ID:</td>
+    <td>
+     <select name="income_accno_id_2_[% loop.count %]">
+      [% FOREACH acc_row = ACC_INCOME %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Expense accno EU without VAT ID:</td>
+    <td>
+     <select name="expense_accno_id_2_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Income accno International:</td>
+    <td>
+     <select name="income_accno_id_3_[% loop.count %]">
+      [% FOREACH acc_row = ACC_INCOME %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td>Expense accno International:</td>
+    <td>
+     <select name="expense_accno_id_3_[% loop.count %]">
+      [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+  </table>
+
+  [% IF loop.last %]
+   <input type="hidden" name="rowcount" value="[% loop.count %]">
+  [% END %]
+
+  <hr>
+ [% END %]
+
+ <input type="submit" name="dummy" value="Create Buchungsgruppen">
+
+</form>
+

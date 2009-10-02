@@ -1,0 +1,149 @@
+[% USE HTML %]<body onload="document.Form.name.focus();">
+
+ <style type="text/css">
+  .small {
+    font-size: 0.75em;
+  }
+ </style>
+
+ <div class="listtop">[% title %]</div>
+
+ <form action="amcvar.pl" name="Form" method="post">
+
+  <p>
+   <table>
+    <tr>
+     <td align="right">Module</td>
+     <td>
+      [%- INCLUDE generic/multibox.html
+            name      = 'module',
+            id_key    = 'module',
+            label_key = 'description',
+            DATA      = MODULES %]
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">Name<sup><span class="small">(1)</span></sup></td>
+     <td><input name="name" value="[% HTML.escape(name) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Description<sup><span class="small">(2)</span></sup></td>
+     <td><input name="description" value="[% HTML.escape(description) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Type</td>
+     <td>
+      <select name="type">
+       [%- FOREACH row = TYPES %]
+       <option value="[% HTML.escape(row.type) %]"[% IF row.type == type %] selected[% END %]>[% HTML.escape(row.type_tr) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">Default value<sup><span class="small">(3)</span></sup></td>
+     <td><input name="default_value" value="[% HTML.escape(default_value) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Options<sup><span class="small">(4)</span></sup></td>
+     <td><input name="options" value="[% HTML.escape(options) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right">Searchable<sup><span class="small"></span></sup></td>
+     <td>
+      <input type="radio" name="searchable" id="searchable_1" value="1"[% IF searchable %] checked[% END %]>
+      <label for="searchable_1">Yes</label>
+      <input type="radio" name="searchable" id="searchable_0" value="0"[% UNLESS searchable %] checked[% END %]>
+      <label for="searchable_0">No</label>
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">Includeable in reports<sup><span class="small"></span></sup></td>
+     <td>
+      <select name="inclusion">
+       <option value="no"[% UNLESS includeable %] selected[% END %]>No</option>
+       <option value="yes"[% IF includeable && !included_by_default %] selected[% END %]>Yes</option>
+       <option value="yes_default_on"[% IF included_by_default %] selected[% END %]>Yes, included by default</option>
+      </select>
+     </td>
+    </tr>
+
+    [%- IF module == 'IC' %]
+    <tr>
+     <td align="right">Editable<sup><span class="small">(5)</span></sup></td>
+     <td>
+      <input type="radio" name="flag_editable" id="flag_editable_1" value="1"[% IF flag_editable %] checked[% END %]>
+      <label for="flag_editable_1">Yes</label>
+      <input type="radio" name="flag_editable" id="flag_editable_0" value="0"[% UNLESS flag_editable %] checked[% END %]>
+      <label for="flag_editable_0">No</label>
+     </td>
+    </tr>
+    [%- END %]
+   </table>
+  </p>
+
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
+
+  <p>
+   <input type="submit" name="action" value="Save">
+   [%- IF id %]
+   <input type="submit" name="action" value="Delete">
+   [%- END %]
+  </p>
+
+  <hr>
+
+  <h3>Annotations</h3>
+
+  <p>
+   (1) The variable name must only consist of letters, numbers and underscores. It must begin with a letter. Example: send_christmas_present
+  </p>
+
+  <p>
+   (2) The description is shown on the form. Chose something short and descriptive.
+  </p>
+
+  <p>
+   (3) The default value depends on the variable type:
+   <br>
+   <ul>
+    <li>Text, text field and number variables: The default value will be used as-is.</li>
+    <li>Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.</li>
+    <li>Date and timestamp variables: If the default value equals 'NOW' then the current date/current timestamp will be used. Otherwise the default value is copied as-is.</li>
+   </ul>
+  </p>
+
+  <p>
+   (4) The available options depend on the varibale type:
+   <br>
+   <ul>
+    <li>Text variables: 'MAXLENGTH=n' sets the maximum entry length to 'n'.</li>
+    <li>Text field variables: 'WIDTH=w HEIGHT=h' sets the width and height of the text field. They default to 30 and 5 respectively.</li>
+    <li>Number variables: 'PRECISION=n' forces numbers to be shown with exactly n decimal places.</li>
+    <li>Selection fields: The option field must contain the available options for the selection. Options are separated by '##', for example 'Early##Normal##Late'.</li>
+   </ul>
+   <br>
+   Other values are ignored.
+  </p>
+
+  [%- IF module == 'IC' %]
+  <p>
+   (5)
+
+   A variable marked as 'editable' can be changed in each quotation, order, invoice etc.
+
+   Otherwise the variable is only available for printing.
+  </p>
+  [%- END %]
+
+ </form>
+
+</body>
+</html>

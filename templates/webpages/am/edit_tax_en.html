@@ -1,0 +1,51 @@
+[% USE HTML %]<body>
+ <form method="post" action="am.pl">
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="type" value="tax">
+
+  <div class="listtop">Tax-O-Matic [% title %]</div>
+
+  <table width="100%">
+   <tr>
+    <td>tax_taxkey</td>
+    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]"></td>
+   </tr>
+
+   <tr>
+    <td>tax_taxdescription</td>
+    <td><input name="taxdescription" size="60" value="[% HTML.escape(taxdescription) %]"></td>
+   </tr>
+
+   <tr>
+    <td>tax_percent</td>
+    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]"> %</td>
+   </tr>
+
+   <tr>
+    <td>tax_chartaccno</td>
+    <td><select name="chart_id"><option value="0">None</option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
+   </tr>
+
+  </table>
+
+  [% UNLESS orphaned %]
+  <br />
+  Chartaccounts connected to this Tax:
+  [% FOREACH row = TAXINUSE %]
+  <a href="am.pl?action=edit_account&id=[% HTML.url(row.id) %]&callback=[% HTML.url(callback) %]">[% HTML.escape(row.accno) %]</a>&nbsp;
+  [% END %]
+  <br />
+  [% END %]
+
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+  <input type="submit" class="submit" name="action" value="Save">
+
+  [% IF orphaned %]
+  <input type="submit" class="submit" name="action" value="Delete">
+  [% END %]
+
+</form>
+</body>
+</html>
+

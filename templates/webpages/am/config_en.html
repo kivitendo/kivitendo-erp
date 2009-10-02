@@ -1,0 +1,263 @@
+[% USE HTML %]<body onLoad="fokus()">
+
+ <p>
+  <div class="listtop">[% title %]</div>
+ </p>
+
+ <form method="post" action="am.pl" name="Form">
+
+  <ul id="maintab" class="shadetabs">
+   <li class="selected"><a href="#" rel="page_personal_settings">Personal settings</a></li>
+   <li><a href="#" rel="page_display_options">Display options</a></li>
+   <li><a href="#" rel="page_print_options">Print options</a></li>
+   <li><a href="#" rel="page_todo_list_options">TODO list options</a></li>
+  </ul>
+
+  <input type="hidden" name="type" value="preferences">
+  <input type="hidden" name="role" value="[% HTML.escape(myconfig_role) %]">
+
+  <div class="tabcontentstyle">
+
+   <div id="page_personal_settings" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right">Name</th>
+      <td><input name="name" size="15" value="[% HTML.escape(myconfig_name) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">Password</th>
+      <td>
+       [%- IF CAN_CHANGE_PASSWORD %]
+       <input type="password" name="new_password" size="10" value="********">
+       [%- ELSE %]
+       <input type="hidden" name="new_password" value="********">
+       [%- END %]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">E-mail</th>
+      <td><input name="email" size="30" value="[% HTML.escape(myconfig_email) %]"></td>
+     </tr>
+
+     <tr valign="top">
+      <th align="right">Signature</th>
+      <td><textarea name="signature" rows="3" cols="50">[% HTML.escape(myconfig_signature) %]</textarea></td>
+     </tr>
+
+     <tr>
+      <th align="right">Phone</th>
+      <td><input name="tel" size="14" value="[% HTML.escape(myconfig_tel) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">Fax</th>
+      <td><input name="fax" size="14" value="[% HTML.escape(myconfig_fax) %]"></td>
+     </tr>
+     <tr>
+      <th align="right">Company</th>
+      <td><input name="company" size="30" value="[% HTML.escape(myconfig_company) %]"></td>
+     </tr>
+     <tr valign="top">
+      <th align="right">Address</th>
+      <td><textarea name="address" rows="4" cols="50">[% HTML.escape(myconfig_address) %]</textarea></td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="page_display_options" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right">Date Format</th>
+      <td>
+       <select name="dateformat">
+        [%- FOREACH row = DATEFORMATS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+     <tr>
+      <th align="right">Output Number Format</th>
+      <td>
+       <select name="numberformat">
+        [%- FOREACH row = NUMBERFORMATS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Dropdown Limit</th>
+      <td><input name="vclimit" size="10" value="[% HTML.escape(myconfig_vclimit) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">Language</th>
+      <td>
+       <select name="countrycode">
+        [%- FOREACH row = COUNTRYCODES %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Stylesheet</th>
+      <td>
+       <select name="usestylesheet">
+        [%- FOREACH row = STYLESHEETS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Setup Menu</th>
+      <td>
+       <select name="menustyle">
+        <option value="v3"[% IF myconfig_menustyle == 'v3' %] selected[% END %]>Top (CSS)</option>
+        <option value="v4"[% IF myconfig_menustyle == 'v4' %] selected[% END %]>Top (CSS) new</option>
+        <option value="neu"[% IF myconfig_menustyle == 'neu' %] selected[% END %]>Top (Javascript)</option>
+        <option value="xml"[% IF myconfig_menustyle == 'xml' %] selected[% END %]>Top (XUL; only for Mozilla Firefox)</option>
+        <option value="old"[% IF myconfig_menustyle == 'old' %] selected[% END %]>Old (on the side)</option>
+       </select>
+      </td>
+     </tr>
+
+     <tr valign="top">
+      <th align="right">Favorites</th>
+      <td><textarea name="favorites" rows="4" cols="50">[% HTML.escape(myconfig_favorites) %]</textarea></td>
+     </tr>
+
+     <tr>
+      <th align="right">Form details (second row)</th>
+      <td>
+       <select name="show_form_details">
+        <option value="1"[% IF  myconfig_show_form_details %] selected[% END %]>Show by default</option>
+        <option value="0"[% IF !myconfig_show_form_details %] selected[% END %]>Hide by default</option>
+       </select>
+      </td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="page_print_options" class="tabcontent">
+
+    <table>
+     <input name="printer" type="hidden" value="[% HTML.escape(myconfig_printer) %]">
+
+     <tr>
+      <th align="right">Default template format</th>
+      <td>
+       <select name="template_format">
+        [%- FOREACH row = TEMPLATE_FORMATS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Default output medium</th>
+      <td>
+       <select name="default_media">
+        [%- FOREACH row = MEDIA %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Default printer</th>
+      <td>
+       <select name="default_printer_id">
+        [%- FOREACH row = PRINTERS %]
+        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+        [%- END %]
+       </select>
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">Number of copies</th>
+      <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="page_todo_list_options" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right">Show your TODO list after loggin in</th>
+      <td colspan="2">
+       <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_1" value="1"[% IF todo_cfg.show_after_login %] checked[% END %]>
+       <label for="todo_cfg_show_after_login_1">Yes</label>
+       <input type="radio" name="todo_cfg.show_after_login" id="todo_cfg_show_after_login_0" value="0"[% IF !todo_cfg.show_after_login %] checked[% END %]>
+       <label for="todo_cfg_show_after_login_0">No</label>
+      </td>
+     </tr>
+
+     <tr class="listheading">
+      <th colspan="3">Configuration of individual TODO items</th>
+     </tr>
+
+     <tr>
+      <th align="right">Show follow ups...</th>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_follow_ups" id="todo_cfg_show_follow_ups" value="1"[% IF todo_cfg.show_follow_ups %] checked[% END %]>
+       <label for="todo_cfg_show_follow_ups">...on the TODO list</label>
+      </td>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_follow_ups_login" id="todo_cfg_show_follow_ups_login" value="1"[% IF todo_cfg.show_follow_ups_login %] checked[% END %]>
+       <label for="todo_cfg_show_follow_ups_login">...after loggin in</label>
+      </td>
+     </tr>
+
+     [%- IF AUTH_RIGHTS_SALES_QUOTATION_EDIT %]
+     <tr>
+      <th align="right">Show overdue sales quotations and requests for quotations...</th>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations" id="todo_cfg_show_overdue_sales_quotations" value="1"[% IF todo_cfg.show_overdue_sales_quotations %] checked[% END %]>
+       <label for="todo_cfg_show_overdue_sales_quotations">...on the TODO list</label>
+      </td>
+      <td>
+       <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations_login" id="todo_cfg_show_overdue_sales_quotations_login" value="1"[% IF todo_cfg.show_overdue_sales_quotations_login %] checked[% END %]>
+       <label for="todo_cfg_show_overdue_sales_quotations_login">...after loggin in</label>
+      </td>
+     </tr>
+     [%- END %]
+    </table>
+
+    <br style="clear: left" />
+   </div>
+  </div>
+
+  <p><input type="submit" class="submit" name="action" value="Save"></p>
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      var maintab = new ddtabcontent("maintab");
+      maintab.setpersist(true);
+      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+      maintab.init();
+    -->
+ </script>
+
+</body>
+</html>

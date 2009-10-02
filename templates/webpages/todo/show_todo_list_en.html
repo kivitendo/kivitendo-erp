@@ -1,0 +1,17 @@
+[% USE HTML %]<body>
+
+ <div class="listtop" style="margin-bottom: 10px">Your TODO list</div>
+
+ [%- IF !todo_list %]
+ <p>
+  There are no items on your TODO list at the moment.
+ </p>
+
+ [%- ELSE %]
+
+ [%- todo_list %]
+
+ [%- END %]
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+[% USE HTML %]<body class="admin">
+
+  <h2>[% title %]</h2>
+
+  <form method="post" action="admin.pl">
+
+   <table>
+    <tr>
+     <td>
+
+      <table>
+
+       <input type="hidden" name="dbdriver" value="[% HTML.escape(dbdriver) %]">
+
+       <tr>
+        <td>
+         <table>
+
+          <tr>
+
+           <th align="right">Host</th>
+           <td><input name="dbhost" size="25" value="[% HTML.escape(dbhost) %]"></td>
+           <th align="right">Port</th>
+           <td><input name="dbport" size="5" value="[% HTML.escape(dbport) %]"></td>
+
+          </tr>
+
+          <tr>
+
+           <th align="right">User</th>
+           <td><input name="dbuser" size="10" value="[% HTML.escape(dbuser) %]"></td>
+           <th align="right">Password</th>
+           <td><input type="password" name="dbpasswd" size="10"></td>
+
+          </tr>
+
+          <tr>
+
+           <th align="right">Database template</th>
+           <td colspan="3"><input name="dbdefault" size="10" value="[% HTML.escape(dbdefault) %]"></td>
+
+          </tr>
+
+         </table>
+
+        </td>
+       </tr>
+      </table>
+
+      <input name="callback" type="hidden" value="admin.pl?action=list_users">
+
+      <br>
+
+      <input type="submit" class="submit" name="action" value="Create Dataset">
+      <input type="submit" class="submit" name="action" value="Update Dataset">
+      <input type="submit" class="submit" name="action" value="Delete Dataset">
+      [% IF ALLOW_DBBACKUP %]
+       <input type="submit" class="submit" name="action" value="Backup Dataset">
+       <input type="submit" class="submit" name="action" value="Restore Dataset">
+      [% END %]
+     </td>
+    </tr>
+   </table>
+  </form>
+
+  <p>This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!</p>
+
+  <p>Leave host and port field empty unless you want to make a remote connection.</p>
+
+</body>
+</html>

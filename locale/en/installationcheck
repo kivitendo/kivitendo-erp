@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+$self->{texts} = {
+  'At least one Perl module that Lx-Office ERP requires for running is not installed on your system.' => 'At least one Perl module that Lx-Office ERP requires for running is not installed on your system.',
+  'Bcc'                         => 'Bcc',
+  'Cc'                          => 'Cc',
+  'Date'                        => 'Date',
+  'Directory'                   => 'Directory',
+  'File'                        => 'File',
+  'Here\'s an example command line:' => 'Here\'s an example command line:',
+  'Message'                     => 'Message',
+  'Missing parameter #1 in call to sub #2.' => 'Missing parameter #1 in call to sub #2.',
+  'Missing parameter (at least one of #1) in call to sub #2.' => 'Missing parameter (at least one of #1) in call to sub #2.',
+  'Module home page'            => 'Module home page',
+  'Module name'                 => 'Module name',
+  'One or more Perl modules missing' => 'One or more Perl modules missing',
+  'Please install the below listed modules or ask your system administrator to.' => 'Please install the below listed modules or ask your system administrator to.',
+  'Subject'                     => 'Subject',
+  'The preferred one is to install packages provided by your operating system distribution (e.g. Debian or RPM packages).' => 'The preferred one is to install packages provided by your operating system distribution (e.g. Debian or RPM packages).',
+  'The second way is to use Perl\'s CPAN module and let it download and install the module for you.' => 'The second way is to use Perl\'s CPAN module and let it download and install the module for you.',
+  'The third way is to download the module from the above mentioned URL and to install the module manually following the installations instructions contained in the source archive.' => 'The third way is to download the module from the above mentioned URL and to install the module manually following the installations instructions contained in the source archive.',
+  'There are usually three ways to install Perl modules.' => 'There are usually three ways to install Perl modules.',
+  'To (email)'                  => 'To (email)',
+  'You cannot continue before all required modules are installed.' => 'You cannot continue before all required modules are installed.',
+  '[email]'                     => '[email]',
+};
+
+$self->{subs} = {
+  'verify_installation'         => 'verify_installation',
+};
+
+1;

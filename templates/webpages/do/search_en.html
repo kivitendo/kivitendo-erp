@@ -1,0 +1,242 @@
+[% USE HTML %][% USE LxERP %]<body onload="on_load();">
+
+ [%- IF vc == 'customer' %]
+ [%- SET is_customer = '1' %]
+ [%- ELSE %]
+ [%- SET is_customer = '0' %]
+ [%- END %]
+
+ <script type="text/javascript">
+  <!--
+      function on_load() {
+        Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdatefrom_trigger" });
+        Calendar.setup({ inputField : "transdateto",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdateto_trigger" });
+        document.Form.donumber.focus();
+      }
+    -->
+ </script>
+
+ <style type="text/css">
+  .fixed_width {
+    width: 250px;
+  }
+ </style>
+
+ <form method="post" action="do.pl" name="Form">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   <table>
+    <tr>
+     <th align="right">[% IF is_customer %]Customer[% ELSE %]Vendor[% END %]</th>
+     <td colspan="3">
+      [%- UNLESS SHOW_VC_DROP_DOWN %]
+      <input type="text" name="[% HTML.escape(vc) %]" class="fixed_width">
+      [%- ELSE %]
+      <select name="[% vc %]" class="fixed_width">
+       <option></option>
+       [%- FOREACH row = ALL_VC %]
+       <option>[% HTML.escape(row.name) %]--[% HTML.escape(row.id) %]</option>
+       [%- END %]
+      </select>
+      <input type="hidden" name="select[% vc %]" value="1">
+      [%- END %]
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right">Delivery Order Number</th>
+     <td colspan="3"><input name="donumber" class="fixed_width"></td>
+    </tr>
+
+    <tr>
+     <th align="right">Order Number</th>
+     <td colspan="3"><input name="ordnumber" class="fixed_width"></td>
+    </tr>
+
+    [%- IF ALL_DEPARTMENTS.size %]
+    <tr>
+     <th align="right" nowrap>Department</th>
+     <td colspan="3">
+      <select name="department" class="fixed_width">
+       <option></option>
+       [%- FOREACH row = ALL_DEPARTMENTS %]
+       <option[% IF department == row.value %] selected[% END %]>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+    [%- END %]
+
+    <tr>
+     <th align="right">Employee</th>
+     <td>
+      <select name="employee_id" class="fixed_width">
+       <option></option>
+       [%- FOREACH row = ALL_EMPLOYEES %]
+       <option value="[% HTML.escape(row.id) %]">[% IF row.name %][% HTML.escape(row.name) %][% ELSE %][% HTML.escape(row.login) %][% END %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    [%- IF is_customer %]
+    <tr>
+     <th align="right">Salesman</th>
+     <td>
+      <select name="salesman_id" class="fixed_width">
+       <option></option>
+       [%- FOREACH row = ALL_SALESMEN %]
+       <option value="[% HTML.escape(row.id) %]">[% IF row.name %][% HTML.escape(row.name) %][% ELSE %][% HTML.escape(row.login) %][% END %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+    [%- END %]
+
+    <tr>
+     <th align="right">Transaction description</th>
+     <td colspan="3"><input name="transaction_description" class="fixed_width"></td>
+    </tr>
+
+    <tr>
+     <th align="right">Customer Order Number</th>
+     <td colspan="3"><input name="cusordnumber" class="fixed_width"></td>
+    </tr>
+
+    <tr>
+     <th align="right">Project Number</th>
+     <td colspan="3">
+      <select name="project_id" class="fixed_width">
+       <option></option>
+       [%- FOREACH row = ALL_PROJECTS %]
+       <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.projectnumber) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right">From</th>
+     <td>
+      <input name="transdatefrom" id="transdatefrom" size="11" title="[% myconfig_dateformat %]" onBlur="check_right_date_format(this)">
+      <input type="button" name="transdatefrom_button" id="transdatefrom_trigger" value="?">
+     </td>
+     <th align="right">Bis</th>
+     <td>
+      <input name="transdateto" id="transdateto" size="11" title="[% myconfig_dateformat %]" onBlur="check_right_date_format(this)">
+      <input type="button" name="transdateto_button" id="transdateto_trigger" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right">Include in Report</th>
+     <td colspan="5">
+      <table>
+       <tr>
+        <td>
+         <input type="checkbox" name="open" value="1" id="open" checked>
+         <label for="open">Open</label>
+        </td>
+        <td>
+         <input type="checkbox" name="closed" value="1" id="closed">
+         <label for="closed">Closed</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input name="notdelivered" id="notdelivered" class="checkbox" type="checkbox" value="1" checked>
+         <label for="notdelivered">Not delivered</label>
+        </td>
+        <td>
+         <input name="delivered" id="delivered" class="checkbox" type="checkbox" value="1" checked>
+         <label for="delivered">Delivered</label></td>
+       </tr>
+
+       <tr>
+        <td>
+         <input name="l_id" id="l_id" class="checkbox" type="checkbox" value="Y">
+         <label for="l_id">ID</label>
+        </td>
+
+        <td>
+         <input name="l_donumber" id="l_donumber" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_donumber">Delivery Order Number</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input name="l_ordnumber" id="l_ordnumber" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_ordnumber">Order Number</label>
+        </td>
+
+        <td>
+         <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y">
+         <label for="l_cusordnumber">Customer Order Number</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_transdate">Date</label>
+        </td>
+
+        <td>
+         <input name="l_name" id="l_name" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_name">[% IF is_customer %]Customer[% ELSE %]Vendor[% END %]</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input name="l_employee" id="l_employee" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_employee">Employee</label>
+        </td>
+
+        <td>
+         <input name="l_salesman" id="l_salesman" class="checkbox" type="checkbox" value="Y">
+         <label for="l_salesman">Salesman</label>
+        </td>
+
+        <td>
+         <input name="l_shipvia" id="l_shipvia" class="checkbox" type="checkbox" value="Y">
+         <label for="l_shipvia">Ship via</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input name="l_globalprojectnumber" id="l_globalprojectnumber" class="checkbox" type="checkbox" value="Y">
+         <label for="l_globalprojectnumber">Project Number</label>
+        </td>
+
+        <td>
+         <input name="l_transaction_description" id="l_transaction_description" class="checkbox" type="checkbox" value="Y">
+         <label for="l_transaction_description">Transaction description</label>
+        </td>
+       </tr>
+
+      </table>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  <p>
+   <input type="hidden" name="nextsub" value="orders">
+   <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+   <input type="hidden" name="type" value="[% HTML.escape(type) %]">
+
+   <input class="submit" type="submit" name="action" value="Continue">
+  </p>
+ </form>
+
+</body>
+</html>
+

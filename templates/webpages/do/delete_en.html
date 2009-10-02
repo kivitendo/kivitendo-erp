@@ -1,0 +1,22 @@
+[% USE HTML %][% USE LxERP %]<body>
+
+ <div class="listtop">Delete delivery order</div>
+
+ <form method="post" action="do.pl">
+
+  <h2 class="confirm">Confirm</h2>
+
+  <p>[% LxERP.format_string('Are you sure you want to delete Delivery Order Number #1?', donumber) %]</p>
+
+  [%- FOREACH row = VARIABLES %]
+  <input type="hidden" name="[% HTML.escape(row.key) %]" value="[% HTML.escape(row.value) %]">
+  [%- END %]
+
+  <input type="hidden" name="yes_nextsub" value="delete_delivery_order">
+  <input type="hidden" name="no_nextsub" value="update">
+  <input name="action" class="submit" type="submit" value="Yes">
+  <input name="action" class="submit" type="submit" value="No">
+ </form>
+
+</body>
+</html>

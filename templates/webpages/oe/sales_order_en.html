@@ -1,0 +1,28 @@
+[% USE HTML %]
+<tr>
+ <td>
+  <input type="hidden" name="show_details" value="[% HTML.escape(show_details) %]">
+  <input type="checkbox" id="cb_show_details" onclick="show_form_details([% IF show_details %]0[% ELSE %]1[% END %]);"[%- IF show_details %] checked[% END %]>
+  <label for="cb_show_details">Show details</label><br>
+  <table width="100%">
+   <tr class="listheading">[% FOREACH header = HEADER %][% IF header.display %]
+    <th align="left" nowrap width="[% header.width %]" class="listheading">[% header.value %]</th>[% END %][% END %]
+   </tr>
+
+   [% FOREACH row = ROWS %]
+     <tr valign="top" class="[% IF row.error %]error_message[% ELSE %]listrow[% loop.count % 2 %][% END %]">[% FOREACH row1 = row.ROW1 %]
+      <td align="[% row1.align %]"[% IF row1.nowrap %] nowrap[% END %]>[% row1.value %]</td>[% END %]
+     </tr>
+
+     [% FOREACH hidden = row.HIDDENS %][% hidden.value %]
+     [% END %]
+
+     <tr class="listrow[% loop.count % 2 %]" [% UNLESS show_details %]style="display:none;"[% END %]><td colspan="[% row.colspan %]">[% FOREACH row2 = row.ROW2 %]
+      [% IF row2.line_break %]<br/>[% END %]
+      [% row2.value %][% END %]
+     </td></tr>
+   [% END %]
+
+  </table>
+ </td>
+</tr>

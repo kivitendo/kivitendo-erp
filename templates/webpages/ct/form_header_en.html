@@ -1,0 +1,612 @@
+[% USE HTML %][% USE LxERP %]<body onLoad="fokus()">
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" name="ct" action="ct.pl" onKeyUp="highlight(event)" onClick="highlight(event)">
+
+  <ul id="maintab" class="shadetabs">
+   <li class="selected"><a href="#" rel="billing">Billing Address</a></li>
+   <li><a href="#" rel="shipto">Shipping Address</a></li>
+   <li><a href="#" rel="contacts">Ansprechpartner</a></li>
+   <li><a href="#" rel="deliveries">Lieferungen</a></li>
+   <li><a href="#" rel="vcnotes">Notes</a></li>
+   [%- IF CUSTOM_VARIABLES.size %]
+   <li><a href="#" rel="custom_variables">Custom Variables</a></li>
+   [%- END %]
+  </ul>
+
+  <div class="tabcontentstyle">
+
+   <div id="billing" class="tabcontent">
+
+    <table width="100%">
+     <tr height="5"></tr>
+     <tr>
+      [%- IF is_customer %]
+      <th align="right" nowrap>Customer Number</th>
+      <td><input name="customernumber" size="35" value="[% HTML.escape(customernumber) %]"></td>
+      [%- ELSE %]
+      <th align="right" nowrap>Vendor Number</th>
+      <td><input name="vendornumber" size="35" value="[% HTML.escape(vendornumber) %]"></td>
+      [%- END %]
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Greeting</th>
+      <td>
+       <input id="greeting" name="greeting" size="30" value="[% HTML.escape(greeting) %]">&nbsp;
+       [%- INCLUDE generic/multibox.html
+             name       = 'selected_company_greeting',
+             DATA       = MB_COMPANY_GREETINGS,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Company Name</th>
+      <td><input name="name" size="35" maxlength="75" value="[% HTML.escape(name) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Department</th>
+      <td>
+       <input name="department_1" size="16" maxlength="75" value="[% HTML.escape(department_1) %]">
+       <input name="department_2" size="16" maxlength="75" value="[% HTML.escape(department_2) %]">
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Street</th>
+      <td><input name="street" size="35" maxlength="75" value="[% HTML.escape(street) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Zipcode/City</th>
+      <td>
+       <input name="zipcode" size="5" maxlength="10" value="[% HTML.escape(zipcode) %]">
+       <input name="city" size="30" maxlength="75" value="[% HTML.escape(city) %]">
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Country</th>
+      <td><input name="country" size="35" maxlength="75" value="[% HTML.escape(country) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Contact</th>
+      <td><input name="contact" size="28" maxlength="75" value="[% HTML.escape(contact) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Phone</th>
+      <td><input name="phone" size="30" maxlength="30" value="[% HTML.escape(phone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Fax</th>
+      <td><input name="fax" size="30" maxlength="30" value="[% HTML.escape(fax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>E-mail</th>
+      <td><input name="email" size="45" value="[% HTML.escape(email) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Homepage</th>
+      <td><input name="homepage" size="45" value="[% HTML.escape(homepage) %]"></td>
+     </tr>
+    </table>
+
+    <table>
+     <tr>
+      <th align="right">Credit Limit</th>
+      <td><input name="creditlimit" size="9" value="[% LxERP.format_amount(creditlimit, 0) %]"></td>
+      <input type="hidden" name="terms" value="[% HTML.escape(terms) %]">
+      <th align="right">Payment Terms</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'payment_id',
+             DATA       = payment_terms,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+
+      <th align="right">Discount</th>
+      <td><input name="discount" size="4" value="[% LxERP.format_amount(discount) %]"> %</td>
+     </tr>
+
+     <tr>
+      <th align="right">Tax Number / SSN</th>
+      <td><input name="taxnumber" size="20" value="[% HTML.escape(taxnumber) %]"></td>
+      <!-- Anm.: R&B 15.11.2008 	VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
+	<th align="right">sales tax identification number</th>
+      <td><input name="ustid" maxlength="14" size="20" value="[% HTML.escape(ustid) %]"></td>
+      [%- IF is_customer %]
+      <th align="right">our vendor number at customer</th>
+      <td><input name="c_vendor_id" size="10" value="[% HTML.escape(c_vendor_id) %]"></td>
+      [%- ELSE %]
+      <th align="right">Customer Number</th>
+	<td><input name="v_customer_id" size="10" value="[% HTML.escape(v_customer_id) %]"></td>
+      [%- END %]
+     </tr>
+
+     <tr>
+      <th align="right">Account Number</th>
+      <td><input name="account_number" size="10" maxlength="100" value="[% HTML.escape(account_number) %]"></td>
+      <th align="right">Bank Code Number</th>
+      <td><input name="bank_code" size="10" maxlength="100" value="[% HTML.escape(bank_code) %]"></td>
+      <th align="right">Bank</th>
+      <td><input name="bank" size="20" value="[% HTML.escape(bank) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">IBAN</th>
+      <td><input name="iban" size="10" maxlength="100" value="[% HTML.escape(iban) %]"></td>
+      <th align="right">BIC</th>
+      <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">Type of Business</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'business',
+             DATA       = all_business,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+      <th align="right">Language</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'language_id',
+             DATA       = languages,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+
+      [%- IF is_customer %]
+      <th align="right">Preisklasse</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'klass',
+             DATA       = all_pricegroup,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'pricegroup',
+       -%]
+      </td>
+      [%- END  %]
+     </tr>
+
+     <tr>
+      <td align="right">Obsolete</td>
+      <td><input name="obsolete" class="checkbox" type="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
+      <td align="right">direct debit</td>
+      <td><input name="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
+     </tr>
+
+     <tr>
+      <th align="right">Steuersatz</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'taxzone_id',
+             DATA       = ALL_TAXZONES,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+      [%- IF is_customer %]
+      <th align="right">Salesman</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'salesman_id',
+             DATA       = ALL_SALESMEN,
+             show_empty = 1,
+             id_key     = 'id',
+             label_sub  = 'salesman_label',
+       -%]
+      </td>
+      [%- END %]
+     </tr>
+    </table>
+
+    <table>
+     <tr>
+      <th align="left" nowrap>Notes</th>
+     </tr>
+
+     <tr>
+      <td><textarea name="notes" rows="3" cols="60" wrap="soft">[% HTML.escape(notes) %]</textarea></td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="shipto" class="tabcontent">
+
+    <table width="100%">
+     <tr>
+      <th align="right">Shipping Address</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'shipto_id',
+             id         = 'shipto_id',
+             DATA       = SHIPTO,
+             onChange   = "get_shipto(['shipto_id__' + this.value], ['shiptoname','shiptodepartment_1', 'shiptodepartment_2','shiptostreet','shiptozipcode','shiptocity','shiptocountry','shiptocontact','shiptophone','shiptofax','shiptoemail',enable_delete_shipto,set_gender])",
+             id_key     = 'shipto_id',
+             label_sub  = 'shipto_label',
+             label_key  = 'shipto_label',
+       -%]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Company Name</th>
+      <td><input id="shiptoname" name="shiptoname" size="35" maxlength="75" value="[% HTML.escape(shiptoname) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Abteilung</th>
+      <td>
+       <input id="shiptodepartment_1" name="shiptodepartment_1" size="16" maxlength="75" value="[% HTML.escape(shiptodepartment_1) %]">
+       <input id="shiptodepartment_2" name="shiptodepartment_2" size="16" maxlength="75" value="[% HTML.escape(shiptodepartment_2) %]">
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Street</th>
+      <td><input id="shiptostreet" name="shiptostreet" size="35" maxlength="75" value="[% HTML.escape(shiptostreet) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Zipcode/City</th>
+      <td>
+       <input id="shiptozipcode" name="shiptozipcode" size="5" maxlength="75" value="[% HTML.escape(shiptozipcode) %]">
+       <input id="shiptocity" name="shiptocity" size="30" maxlength="75" value="[% HTML.escape(shiptocity) %]">
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Country</th>
+      <td><input id="shiptocountry" name="shiptocountry" size="35" maxlength="75" value="[% HTML.escape(shiptocountry) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Contact</th>
+      <td><input id="shiptocontact" name="shiptocontact" size="30" maxlength="75" value="[% HTML.escape(shiptocontact) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Phone</th>
+      <td><input id="shiptophone" name="shiptophone" size="30" maxlength="30" value="[% HTML.escape(shiptophone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>Fax</th>
+      <td><input id="shiptofax" name="shiptofax" size="30" maxlength="30" value="[% HTML.escape(shiptofax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>E-mail</th>
+      <td><input id="shiptoemail" name="shiptoemail" size="45" value="[% HTML.escape(shiptoemail) %]"></td>
+     </tr>
+
+     <tr>
+      <td>&nbsp;</td>
+     </tr>
+     <tr>
+      <td>&nbsp;</td>
+     </tr>
+    </table>
+
+    <input type="submit" id="delete_shipto" name="action" value="Delete Shipto" disabled>
+    <br style="clear: left" />
+   </div>
+
+   <div id="contacts" class="tabcontent">
+    <table>
+     <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
+     <tr>
+      <th align="right">Ansprechpartner</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'cp_id',
+             id         = 'cp_id',
+             DATA       = CONTACTS,
+             onChange   = "get_contact(['cp_id__'+this.value],['cp_name','cp_title','cp_givenname','cp_phone1','cp_phone2','cp_email','cp_abteilung','cp_fax','cp_mobile1','cp_mobile2','cp_satphone','cp_satfax','cp_project','cp_privatphone','cp_privatemail','cp_birthday',enable_delete_contact,set_gender])",
+             id_key     = 'cp_id',
+             label_sub  = 'contacts_label',
+       -%]
+      </td>
+     </tr>
+
+    <tr>
+     <th align="left" nowrap>Gender</th>
+     <td>
+      <select id="cp_gender" name="cp_gender">
+       <option value="m"[% IF cp_gender == 'm' %] selected[% END %]>male</option>
+       <option value="f"[% IF cp_gender == 'f' %] selected[% END %]>female</option>
+      </select>
+     </td>
+    </tr>
+    <tr>
+
+     <tr>
+      <th align="left" nowrap>Title</th>
+      <td>
+       <input id="cp_title" name="cp_title" size="40" maxlength="75" value="[% HTML.escape(cp_title) %]">&nbsp;
+       [%- INCLUDE generic/multibox.html
+             name       = 'selected_cp_title',
+             DATA       = MB_TITLES,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Department</th>
+      <td>
+       <input id="cp_abteilung" name="cp_abteilung" size="40" value="[% HTML.escape(cp_abteilung) %]">&nbsp;
+       [%- INCLUDE generic/multibox.html
+             name       = 'selected_cp_abteilung',
+             DATA       = MB_DEPARTMENT,
+             show_empty = 1,
+             id_key     = 'id',
+             label_key  = 'description',
+       -%]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Given Name</th>
+      <td><input id="cp_givenname" name="cp_givenname" size="40" maxlength="75" value="[% HTML.escape(cp_givenname) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Name</th>
+      <td><input id="cp_name" name="cp_name" size="40" maxlength="75" value="[% HTML.escape(cp_name) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Phone1</th>
+      <td><input id="cp_phone1" name="cp_phone1" size="40" maxlength="75" value="[% HTML.escape(cp_phone1) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Phone2</th>
+      <td><input id="cp_phone2" name="cp_phone2" size="40" maxlength="75" value="[% HTML.escape(cp_phone2) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Fax</th>
+      <td><input id="cp_fax" name="cp_fax" size="40" value="[% HTML.escape(cp_fax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Mobile1</th>
+      <td><input id="cp_mobile1" name="cp_mobile1" size="40" value="[% HTML.escape(cp_mobile1) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Mobile2</th>
+      <td><input id="cp_mobile2" name="cp_mobile2" size="40" value="[% HTML.escape(cp_mobile2) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Sat. Phone</th>
+      <td><input id="cp_satphone" name="cp_satphone" size="40" value="[% HTML.escape(cp_satphone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Sat. Fax</th>
+      <td><input id="cp_satfax" name="cp_satfax" size="40" value="[% HTML.escape(cp_satfax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Project</th>
+      <td><input id="cp_project" name="cp_project" size="40" value="[% HTML.escape(cp_project) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>E-mail</th>
+      <td><input id="cp_email" name="cp_email" size="40" value="[% HTML.escape(cp_email) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Private Phone</th>
+      <td><input id="cp_privatphone" name="cp_privatphone" size="40" value="[% HTML.escape(cp_privatphone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Private E-mail</th>
+      <td><input id="cp_privatemail" name="cp_privatemail" size="40" value="[% HTML.escape(cp_privatemail) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Birthday</th>
+      <td><input id="cp_birthday" name="cp_birthday" size="40" value="[% HTML.escape(cp_birthday) %]"></td>
+     </tr>
+
+     <tr>
+      <td colspan="2"><hr></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>Bcc</th>
+      <td><input name="bcc" size="40" value="[% HTML.escape(bcc) %]"></td>
+     </tr>
+    </table>
+
+    <input type="submit" id="delete_contact" name="action" value="Delete Contact" disabled>
+    <br style="clear: left" />
+   </div>
+
+   <div id="deliveries" class="tabcontent">
+    <table>
+     <tr>
+      <th align="right">Shipping Address</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'delivery_id',
+             id         = 'delivery_id',
+             DATA       = SHIPTO,
+             onChange   = "get_delivery(['shipto_id__' + this.value, 'from__' + from.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])",
+             id_key     = 'shipto_id',
+             label_sub  = 'shipto_label',
+       -%]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>From</th>
+      <td>
+       <input id="from" name="from" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + this.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(from) %]">
+       <input type="button" name="fromB" id="trigger_from" value="?">
+      </td>
+      <th align="right" nowrap>To (time)</th>
+      <td>
+       <input id="to" name="to" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + from.value, 'to__' + this.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(to) %]">
+       <input type="button" name="toB" id="trigger_to" value="?">
+      </td>
+     </tr>
+
+     <tr>
+      <td colspan="4">
+       <div id="delivery">
+       </div>
+      </td>
+     </tr>
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   <div id="vcnotes" class="tabcontent">
+
+    [%- IF NOTES && NOTES.size %]
+    <p>
+     <table>
+      <tr>
+       <th class="listheading">Delete</th>
+       <th class="listheading">Subject</th>
+       <th class="listheading">Created on</th>
+       <th class="listheading">Created by</th>
+       <th class="listheading">Follow-Up Date</th>
+       <th class="listheading">Follow-Up for</th>
+       <th class="listheading">Follow-Up done</th>
+      </tr>
+
+      [%- FOREACH row = NOTES %]
+      <tr class="listrow[% loop.count % 2 %]">
+       <input type="hidden" name="NOTE_id_[% loop.count %]" value="[% HTML.escape(row.id) %]">
+       <td>[% UNLESS NOTE_id && (NOTE_id == row.id) %]<input type="checkbox" name="NOTE_delete_[% loop.count %]" value="1">[% END %]</td>
+       <td><a href="ct.pl?action=edit&db=[% HTML.url(db) %]&id=[% HTML.url(id) %]&edit_note_id=[% HTML.url(row.id) %]">[% HTML.escape(row.subject) %]</a></td>
+       <td>[% HTML.escape(row.created_on) %]</td>
+       <td>[% IF row.created_by_name %][% HTML.escape(row.created_by_name) %][% ELSE %][% HTML.escape(row.created_by_login) %][% END %]</td>
+       <td>[% HTML.escape(row.follow_up_date) %]</td>
+       <td>[% IF row.created_for_name %][% HTML.escape(row.created_for_name) %][% ELSE %][% HTML.escape(row.created_for_login) %][% END %]</td>
+       <td>[% IF row.follow_up_date %][% IF row.follow_up_done %]Yes[% ELSE %]No[% END %][% END %]</td>
+      </tr>
+      [%- END %]
+
+      <input type="hidden" name="NOTES_rowcount" value="[% NOTES.size %]">
+
+     </table>
+    </p>
+    [%- END %]
+
+    <div class="listtop">[% IF NOTE_id %]Edit note[% ELSE %]Add note[% END %]</div>
+
+    <input type="hidden" name="NOTE_id" value="[% HTML.escape(NOTE_id) %]">
+    <input type="hidden" name="FU_id" value="[% HTML.escape(FU_id) %]">
+
+    <p>
+     <table>
+      <tr>
+       <td valign="right">Subject</td>
+       <td><input name="NOTE_subject" value="[% HTML.escape(NOTE_subject) %]" size="50"></td>
+      </tr>
+
+      <tr>
+       <td valign="right" align="top">Body</td>
+       <td align="top"><textarea cols="50" rows="10" name="NOTE_body">[% HTML.escape(NOTE_body) %]</textarea></td>
+      </tr>
+
+      <tr>
+       <td valign="right">Follow-Up On</td>
+       <td>
+        <input name="FU_date" id="FU_date" value="[% HTML.escape(FU_date) %]" size="12">
+        <input type="button" name="FU_date_button" id="FU_date_trigger" value="?">
+        for
+        <select name="FU_created_for_user">
+         [%- FOREACH row = ALL_EMPLOYEES %]
+         <option value="[% HTML.escape(row.id) %]"[% IF (NOTE_id && (row.id == FU_created_for_user)) || (row.login == login) %] selected[% END %]>
+          [%- IF row.name %][%- HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
+         </option>
+         [%- END %]
+        </select>
+       </td>
+      </tr>
+
+      <tr>
+       <td>&nbsp;</td>
+       <td>
+        <input type="checkbox" name="FU_done" id="FU_done" value="1"[% IF FU_done %] checked[% END %]>
+        <label for="FU_done">Follow-Up done</label>
+       </td>
+      </tr>
+     </table>
+    </p>
+
+    <br style="clear: left" />
+   </div>
+
+   [%- IF CUSTOM_VARIABLES.size %]
+   <div id="custom_variables" class="tabcontent">
+
+    <p>
+     <table>
+      [%- FOREACH var = CUSTOM_VARIABLES %]
+      <tr>
+       <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
+       <td valign="top">[% var.HTML_CODE %]</td>
+      </tr>
+      [%- END %]
+     </table>
+    </p>
+
+    <br style="clear: left" />
+   </div>
+   [%- END %]
+
+  </div>
+
+  <script type="text/javascript">
+   <!--
+   function set_gender(gender) {
+     var s = document.getElementById('cp_gender');
+     if (s) {
+       s.selectedIndex = (gender == 'f') ? 1 : 0;
+     }
+   }
+  -->
+  
+  </script>
+
+
+

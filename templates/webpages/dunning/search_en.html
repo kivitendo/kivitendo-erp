@@ -1,0 +1,133 @@
+[% USE HTML %]<body onLoad="[% onload %]">
+
+ <script type="text/javascript" src="js/common.js"></script>
+
+ <form method="post" name="search" action="dn.pl">
+
+  <div class="listtop">[% title %]</div>
+
+  <table width="100%">
+   <tr height="5"></tr>
+   <tr>
+    <td>
+     <table>
+      <tr>
+       <th align="right">Customer</th>
+       <td colspan="3">
+        [% IF SHOW_CUSTOMER_DDBOX %]
+         <select name="customer_id">
+          <option value=""></option>
+          [% FOREACH row = ALL_CUSTOMERS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %]</option>
+          [% END %]
+         </select>
+         [% ELSE %]
+         <input name="customer" size="35">
+        [% END %]
+       </td>
+      </tr>
+
+      [% IF SHOW_DUNNING_LEVELS %]
+       <tr>
+        <th align="right" nowrap>Next Dunning Level</th>
+        <td colspan="3">
+         <select name="dunning_level">
+          <option value=""></option>
+          [% FOREACH row = DUNNING %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.dunning_description) %]</option>
+          [% END %]
+         </select>
+        </td>
+       </tr>
+      [% END %]
+
+      [% IF SHOW_DEPARTMENT_DDBOX %]
+       <tr>
+        <th align="right" nowrap>Department</th>
+        <td colspan="3">
+         <select name="department_id">
+          <option value=""></option>
+          [% FOREACH row = ALL_DEPARTMENTS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</option>
+          [% END %]
+         </select>
+        </td>
+       </tr>
+      [% END %]
+
+      <tr>
+       <th align="right" nowrap>Invoice Number</th>
+       <td colspan="3"><input name="invnumber" size="20"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Order Number</th>
+       <td colspan="3"><input name="ordnumber" size="20"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Notes</th>
+       <td colspan="3"><input name="notes" size="40"></td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Invdate from</th>
+       <td>
+        <input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
+        <input type="button" name="transdatefrom" id="trigger1" value="?">
+       </td>
+       <th align="right" nowrap>To (time)</th>
+       <td>
+        <input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
+        <input type="button" name="transdateto" id="trigger2" value="?">
+       </td>
+      </tr>
+
+      <tr>
+       <th align="right" nowrap>Dunning Date from</th>
+       <td>
+        <input name="dunningfrom" id="dunningfrom" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
+        <input type="button" name="dunningfrom" id="trigger3" value="?">
+       </td>
+       <th align="right" nowrap>To (time)</th>
+       <td>
+        <input name="dunningto" id="dunningto" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
+        <input type="button" name="dunningto" id="trigger4" value="?">
+       </td>
+      </tr>
+
+     </table>
+    </td>
+   </tr>
+
+   <tr><td><hr size="3" noshade></td></tr>
+
+   <tr>
+    <td>
+     <table>
+      <tr>
+       <th align="right" nowrap>Show old dunnings</th>
+       <td><input type="checkbox" value="1" name="showold"></td>
+      </tr>
+     </table>
+    </td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="nextsub" value="show_dunning">
+
+  <br>
+
+  <input class="submit" type="submit" name="action" value="Continue">
+
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
+      Calendar.setup({ inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger2" });
+      Calendar.setup({ inputField : "dunningfrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger3" });
+      Calendar.setup({ inputField : "dunningto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger4" });
+    -->
+ </script>
+
+</body>
+
+</html>

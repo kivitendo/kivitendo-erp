@@ -1,0 +1,79 @@
+[% USE HTML %][% USE JavaScript %]<body>
+
+ <form method="post" action="wh.pl">
+
+  <input type="hidden" name="nextsub" value="remove_parts">
+  <input type="hidden" name="warehouse_id" value="[% HTML.escape(warehouse_id) %]">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>Removal from warehouse: [% warehouse_description %]</p>
+
+  <p>
+   <table>
+    <tr>
+     <td>Select type of removal:</td>
+     <td>
+      <select name="transfer_type_id">
+       [%- FOREACH type = TRANSFER_TYPES %]<option value="[% HTML.escape(type.id) %]">[% HTML.escape(type.description) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td>Optional comment:</td>
+     <td><input name="comment" size="20"></td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <table>
+    <tr>
+     <th class="listheading">Bin</th>
+     <th class="listheading">Part Number</th>
+     <th class="listheading">Part Description</th>
+     <th class="listheading">Charge Number</th>
+     <th class="listheading">EAN</th>
+     <th class="listheading">Available qty</th>
+     <th class="listheading">Removal qty</th>
+    </tr>
+
+    [% FOREACH row = CONTENTS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <input type="hidden" name="src_bin_id_[% loop.count %]" value="[% HTML.escape(row.binid) %]">
+     <input type="hidden" name="parts_id_[% loop.count %]" value="[% HTML.escape(row.parts_id) %]">
+     <input type="hidden" name="partnumber_[% loop.count %]" value="[% HTML.escape(row.partnumber) %]">
+     <input type="hidden" name="partdescription_[% loop.count %]" value="[% HTML.escape(row.partdescription) %]">
+     <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
+     <input type="hidden" name="ean_[% loop.count %]" value="[% HTML.escape(row.ean) %]">
+     <td>[% HTML.escape(row.bindescription) %]</td>
+     <td>[% HTML.escape(row.partnumber) %]</td>
+     <td>[% HTML.escape(row.partdescription) %]</td>
+     <td>[% HTML.escape(row.chargenumber) %]</td>
+     <td>[% HTML.escape(row.ean) %]</td>
+     <td>[% HTML.escape(row.qty) %]</td>
+     <td>
+      <input name="qty_[% loop.count %]">
+      <select name="unit_[% loop.count %]">
+       [% FOREACH unit = row.UNITS %]<option[% IF unit.selected %] selected[% END %]>[% HTML.escape(unit.name) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
+    [% END %]
+
+    <input type="hidden" name="rowcount" value="[% CONTENTS.size %]">
+
+    <tr><td colspan="7"><hr size="3" noshade></td></tr>
+
+   </table>
+  </p>
+
+  <p>
+   <input type="submit" class="submit" name="action" value="Continue">
+  </p>
+ </form>
+
+</body>
+</html>

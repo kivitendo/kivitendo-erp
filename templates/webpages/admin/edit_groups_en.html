@@ -1,0 +1,80 @@
+[% USE HTML %]<body>
+ <form name="Form" method="post" action="admin.pl">
+
+
+  [% IF message %]
+  <p>[% message %]</p>
+  [% END %]
+
+  <div class="listtop">Edit groups</div>
+
+  <br>
+
+  <div class="listheading">Edit and delete a group</div>
+
+  [% IF num_groups %]
+  <p>
+   <select name="group_id" size="10">
+    [% FOREACH row = GROUPS %]
+    <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %][% IF row.description %] ([% HTML.escape(row.description) %])[% END %]</option>
+    [% END %]
+   </select>
+  </p>
+  [% ELSE %]
+  <p>No groups have been added yet.</p>
+  [% END %]
+
+  <p>
+   [% IF num_groups %]
+   <input type="hidden" name="edit_nextsub" value="edit_group">
+   <input type="hidden" name="delete_nextsub" value="delete_group">
+   <input type="submit" class="submit" name="action" value="Edit">
+   <input type="submit" class="submit" name="action" value="Delete">
+   [% END %]
+   <input type="hidden" name="back_nextsub" value="list_users">
+   <input type="submit" class="submit" name="action" value="Back">
+  </p>
+ </form>
+
+ <hr size="2" noshade>
+
+ <div class="listheading">Group membership</div>
+
+ <p>Edit the membership of all users in all groups:</p>
+
+ <form method="post" action="admin.pl">
+  <p>
+   <input type="hidden" name="edit_nextsub" value="edit_group_membership">
+   <input type="submit" class="submit" name="action" value="Edit">
+  </p>
+
+ </form>
+
+ <hr size="2" noshade>
+
+ <div class="listheading">Add a new group</div>
+
+ <form method="post" action="admin.pl">
+  <p>
+   <table border="0">
+    <tr>
+     <td>Name:</td>
+     <td><input name="name" maxlength="50"></td>
+    </tr>
+
+    <tr>
+     <td>Description:</td>
+     <td><input name="description"></td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <input type="hidden" name="add_nextsub" value="add_group">
+   <input type="submit" class="submit" name="action" value="Add">
+  </p>
+
+ </form>
+
+</body>
+</html>

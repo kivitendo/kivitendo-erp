@@ -1,0 +1,32 @@
+[% USE HTML %][% USE LxERP %]
+<table width="100%">
+  <tr>
+    <td>
+      <table width="100%">
+        <tr class="listheading">
+          <th class="listheading">Shipping Address</th>
+          <th class="listheading">Invoice</th>
+          <th class="listheading">Order</th>
+          <th class="listheading">Invdate</th>
+          <th class="listheading">Description</th>
+          <th class="listheading">Qty</th>
+          <th class="listheading">Unit</th>
+          <th class="listheading">Sell Price</th>
+        </tr>
+[%- FOREACH row = DELIVERY %]
+        <tr class="listrow[% loop.count % 2 %]">
+          <td>[% HTML.escape(row.shiptoname) UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
+          <td>[% IF row.id %]<a href='[% IF IS_CUSTOMER %]is[% ELSE %]ir[% END %].pl?action=edit&id=[% HTML.escape(row.id) %]'>[% END %][% HTML.escape(row.invnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
+          <td>[% IF row.oe_id %]<a href='oe.pl?action=edit&type=sales_order&vc=customer&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
+          <td>[% HTML.escape(row.transdate)   || '&nbsp;' %]</td>
+          <td>[% HTML.escape(row.description) || '&nbsp;' %]</td>
+          <td>[% HTML.escape(row.qty)         || '&nbsp;' %]</td>
+          <td>[% HTML.escape(row.unit)        || '&nbsp;' %]</td>
+          <td>[% LxERP.format_amount(row.sellprice, 2) || '&nbsp;' %]</td>
+        </tr>
+[%- END %]
+
+     </table>
+[%- IF DELIVERY.size == 15 %]
+     <p>This list is capped at 15 items to keep it fast. If you need a full list, please use reports.</p>
+[%- END %]

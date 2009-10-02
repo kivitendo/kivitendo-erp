@@ -1,0 +1,15 @@
+[% USE HTML %]<form method="post" action="ic.pl">
+
+ <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+
+ <input type="hidden" name="item" value="[% HTML.escape(searchitems) %]">
+
+ [% SWITCH searchitems %]
+   [% CASE 'part' %]New part
+   [% CASE 'service' %]New service
+   [% CASE 'assembly' %]New assembly
+ [% END %]
+ <br>
+ <input class="submit" type="submit" name="action" value="Add">
+
+</form>

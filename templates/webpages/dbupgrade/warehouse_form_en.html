@@ -1,0 +1,19 @@
+[% USE HTML %]<div class="listtop">Warehouse MIgration</div>
+
+<form action="[% script %]" method="POST">
+
+<p>Lx-Office is now able to manage warehouses instead of just tracking the amount of goods in your system. 
+This update will change the nature the onhand of goods is tracked. 
+As a result, the saved onhand values of the present goods can be stored into a warehouse designated by you, or will be reset for a proper warehouse tracking</p>
+
+<p>Do you want to store the existing onhand values into a new warehouse?</p>
+<input id=do_migrate_Y name=do_migrate type=radio value=Y>&nbsp;<label for=do_migrate_Y>Yes</label>
+<input id=do_migrate_N name=do_migrate type=radio value=N checked>&nbsp;<label for=do_migrate_N>No</label>
+
+<p>Please specify a description for the warehouse designated for these goods.</p>
+<input name=import_warehouse size=50>
+
+<p>Since bin is not enforced in the parts data, please specify a bin where goods without a specified bin will be put.<p>
+<input name=bin_default size=50>
+
+<p><input type=submit value="Continue"></p>

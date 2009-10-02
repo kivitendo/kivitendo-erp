@@ -1,0 +1,19 @@
+[% USE HTML %]<body>
+ <form name="Form" method="post" action="admin.pl">
+
+
+  <input type="hidden" name="group_id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="confirmed" value="1">
+
+  <div class="listtop">Delete group</div>
+
+  <p>Do you really want to delete this group: [% name %] ?</p>
+
+  <input type="hidden" name="delete_nextsub" value="delete_group">
+  <input type="submit" class="submit" name="action" value="Delete">
+  <button type="button" onclick="history.back()">Back</button>
+
+ </form>
+
+</body>
+</html>

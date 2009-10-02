@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+$self->{texts} = {
+  'Database update error:'      => 'Database update error:',
+};
+
+$self->{subs} = {
+  'check_coa'                   => 'check_coa',
+  'clear_tables'                => 'clear_tables',
+  'coa_is_empty'                => 'coa_is_empty',
+  'do_copy_tax_report_structure' => 'do_copy_tax_report_structure',
+  'do_insert_buchungsgruppen'   => 'do_insert_buchungsgruppen',
+  'do_insert_chart'             => 'do_insert_chart',
+  'do_insert_tax'               => 'do_insert_tax',
+  'do_insert_taxkeys'           => 'do_insert_taxkeys',
+  'do_query'                    => 'do_query',
+  'mydberror'                   => 'mydberror',
+};
+
+1;

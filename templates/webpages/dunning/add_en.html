@@ -1,0 +1,94 @@
+[% USE HTML %]<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+ <!--
+     function setup_controls() {
+       fokus();
+       setupDateFormat('[% myconfig_dateformat %]', 'Wrong date format!');
+       setupPoints('[% myconfig_numberformat %]', 'wrongformat');
+     }
+   -->
+</script>
+
+<body onLoad="setup_controls();">
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" name="search" action="dn.pl">
+
+  <table>
+   <tr>
+    <th align="right">Customer</th>
+    <td colspan="3">
+     [% IF SHOW_CUSTOMER_SELECTION %]
+      <select name="customer">
+       <option></option>
+       [% FOREACH row = all_customer %]<option>[% HTML.escape(row.name) %]--[% HTML.escape(row.id) %]</option>[% END %]
+      </select>
+      [% ELSE %]
+      <input name="customer" size="35">
+     [% END %]
+    </td>
+   </tr>
+
+   [% IF SHOW_DUNNING_LEVEL_SELECTION %]
+    <tr>
+     <th align="right">Next Dunning Level</th>
+     <td colspan="3">
+      <select name="dunning_level">
+       <option></option>
+       [% FOREACH row = DUNNING %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.dunning_description) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+   [% END %]
+
+   [% IF SHOW_DEPARTMENT_SELECTION %]
+    <tr>
+     <th align="right">Department</th>
+     <td colspan="3">
+      <select name="department">
+       <option></option>
+       [% FOREACH row = all_departments %]<option>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+   [% END %]
+
+   <tr>
+    <th align="right" nowrap>Invoice Number</th>
+    <td colspan="3"><input name="invnumber" size="20"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Order Number</th>
+    <td colspan="3"><input name="ordnumber" size="20"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Notes</th>
+    <td colspan="3"><input name="notes" size="40"></td>
+   </tr>
+
+   <tr><td colspan="2"><hr size="3" noshade></td></tr>
+
+   <tr>
+    <th align="right" nowrap>Minimum Amount</th>
+    <td><input name="minamount" size="6"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Group Invoices</th>
+    <td><input type="checkbox" value="1" name="groupinvoices" checked></td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="nextsub" value="show_invoices">
+
+  <br>
+  <input class="submit" type="submit" name="action" value="Continue">
+
+ </form>
+
+</body>
+
+</html>

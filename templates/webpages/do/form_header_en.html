@@ -1,0 +1,355 @@
+[% USE HTML %][% USE LxERP %]<body onload="on_load()">
+
+ <script type="text/javascript" src="js/show_form_details.js"></script>
+ <script type="text/javascript" src="js/show_history.js"></script>
+ <script type="text/javascript" src="js/show_vc_details.js"></script>
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
+ <script type="text/javascript" src="js/vendor_selection.js"></script>
+ <script type="text/javascript" src="js/calculate_qty.js"></script>
+ <script type="text/javascript" src="js/stock_in_out.js"></script>
+
+ <script type="text/javascript">
+  <!--
+      function on_load() {
+        [% IF onload %][% onload %];[% END %]
+        setupDateFormat('[% myconfig_dateformat %]', 'Falsches Datumsformat!');
+        setupPoints('[% myconfig_numberformat %]', 'wrongformat');
+
+        [%- UNLESS delivered %]
+        Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_trigger" });
+        [%- END %]
+      }
+    -->
+ </script>
+
+ <style type="text/css">
+  .fixed_width {
+    width: 250px;
+  }
+ </style>
+
+ [%- IF vc == 'customer' %]
+ [%- SET vc = 'customer' %]
+ [%- SET the_vc_id = customer_id %]
+ [%- SET the_vc = customer %]
+ [%- SET the_oldvc = oldcustomer %]
+ [%- SET is_customer = '1' %]
+ [%- ELSE %]
+ [%- SET vc = 'vendor' %]
+ [%- SET the_vc_id = vendor_id %]
+ [%- SET the_vc = vendor %]
+ [%- SET the_oldvc = oldvendor %]
+ [%- SET is_customer = '0' %]
+ [%- END %]
+ [%- IF delivered %]
+ [%- SET RO = ' readonly' %]
+ [%- SET DISABLED = ' disabled' %]
+ [%- END %]
+
+ <div class="listtop">[% title %]</div>
+
+ [%- IF ERRORS && ERRORS.size %]
+ <p><font color="#ff0000">[% ERRORS.join('<br>') %]</font></p>
+ [%- END %]
+
+ <form method="post" name="do" action="do.pl">
+
+  <input type="hidden" name="action" value="[% HTML.escape(action) %]">
+  <input type="hidden" name="bcc" value="[% HTML.escape(bcc) %]">
+  <input type="hidden" name="business" value="[% HTML.escape(business) %]">
+  <input type="hidden" name="cc" value="[% HTML.escape(cc) %]">
+  <input type="hidden" name="closed" value="[% HTML.escape(closed) %]">
+  <input type="hidden" name="convert_from_oe_ids" value="[% HTML.escape(convert_from_oe_ids) %]">
+  <input type="hidden" name="curr" value="[% HTML.escape(curr) %]">
+  <input type="hidden" name="customer_klass" value="[% HTML.escape(customer_klass) %]">
+  <input type="hidden" name="discount" value="[% HTML.escape(discount) %]">
+  <input type="hidden" name="dunning_amount" value="[% HTML.escape(dunning_amount) %]">
+  <input type="hidden" name="email" value="[% HTML.escape(email) %]">
+  <input type="hidden" name="emailed" value="[% HTML.escape(emailed) %]">
+  <input type="hidden" name="format" value="[% HTML.escape(format) %]">
+  <input type="hidden" name="formname" value="[% HTML.escape(formname) %]">
+  <input type="hidden" name="id" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="max_dunning_level" value="[% HTML.escape(max_dunning_level) %]">
+  <input type="hidden" name="media" value="[% HTML.escape(media) %]">
+  <input type="hidden" name="message" value="[% HTML.escape(message) %]">
+  <input type="hidden" name="printed" value="[% HTML.escape(printed) %]">
+  <input type="hidden" name="proforma" value="[% HTML.escape(proforma) %]">
+  <input type="hidden" name="queued" value="[% HTML.escape(queued) %]">
+  <input type="hidden" name="saved_donumber" value="[% HTML.escape(saved_donumber) %]">
+  <input type="hidden" name="shiptocity" value="[% HTML.escape(shiptocity) %]">
+  <input type="hidden" name="shiptocontact" value="[% HTML.escape(shiptocontact) %]">
+  <input type="hidden" name="shiptocountry" value="[% HTML.escape(shiptocountry) %]">
+  <input type="hidden" name="shiptodepartment_1" value="[% HTML.escape(shiptodepartment_1) %]">
+  <input type="hidden" name="shiptodepartment_2" value="[% HTML.escape(shiptodepartment_2) %]">
+  <input type="hidden" name="shiptoemail" value="[% HTML.escape(shiptoemail) %]">
+  <input type="hidden" name="shiptofax" value="[% HTML.escape(shiptofax) %]">
+  <input type="hidden" name="shiptoname" value="[% HTML.escape(shiptoname) %]">
+  <input type="hidden" name="shiptophone" value="[% HTML.escape(shiptophone) %]">
+  <input type="hidden" name="shiptostreet" value="[% HTML.escape(shiptostreet) %]">
+  <input type="hidden" name="shiptozipcode" value="[% HTML.escape(shiptozipcode) %]">
+  <input type="hidden" name="subject" value="[% HTML.escape(subject) %]">
+  <input type="hidden" name="taxincluded" value="[% HTML.escape(taxincluded) %]">
+  <input type="hidden" name="taxzone_id" value="[% HTML.escape(taxzone_id) %]">
+  <input type="hidden" name="terms" value="[% HTML.escape(terms) %]">
+  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
+  <input type="hidden" name="type" value="[% HTML.escape(type) %]">
+  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+
+  <p>
+   <table width="100%">
+    <tr valign="top">
+     <td>
+      <table width="100%">
+       <tr>
+        <input type="hidden" name="[% vc %]_id" value="[% HTML.escape(the_vc_id) %]">
+        <input type="hidden" name="old[% vc %]" value="[% HTML.escape(the_oldvc) %]">
+        <th align="right">[% IF is_customer %]Customer[% ELSE %]Vendor[% END %]</th>
+        <td>
+         [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]
+         <input type="text" value="[% HTML.escape(oldvcname) %]" name="[% HTML.escape(vc) %]"[% RO %]>
+         [%- ELSE %]
+         <select name="[% vc %]" class="fixed_width" onchange="document.do.update_button.click();"[% RO %]>
+          [%- FOREACH row = ALL_VC %]
+          <option value="[% HTML.escape(row.value) %]" [% IF the_oldvc == row.value %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+          [%- END %]
+         </select>
+         <input type="hidden" name="select[% vc %]" value="1">
+         [%- END %]
+         <input type="button" value="Details (one letter abbreviation)" onclick="show_vc_details('[% vc %]')">
+        </td>
+
+        [%- IF ALL_CONTACTS.size %]
+        <tr>
+         <th align="right">Contact Person</th>
+         <td>
+          [%- IF delivered %]
+          <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
+          [%- IF cp_id == row.cp_id %]
+          [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
+          [%- END %]
+          [%- ELSE %]
+          <select name="cp_id" class="fixed_width" >
+           <option></option>
+           [%- FOREACH row = ALL_CONTACTS %]
+           <option value="[% HTML.escape(row.cp_id) %]"[% IF cp_id == row.cp_id %] selected[% END %]>
+            [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
+           </option>
+           [%- END %]
+          </select>
+          [%- END %]
+         </td>
+        </tr>
+        [%- END %]
+
+        [%- IF ALL_SHIPTO.size %]
+        <tr>
+         <th align="right">Shipping Address</th>
+         <td>
+          [%- IF delivered %]
+          <input type="hidden" name="shipto_id" value="[% HTML.escape(shipto_id) %]">
+          [%- FOREACH row = ALL_SHIPTO %]
+          [%- IF shipto_id == row.shipto_id %]
+          [%- HTML.escape(row.shiptoname) -%]
+          [%- IF row.shiptodepartment_1 %]; [% HTML.escape(row.shiptodepartment_1) -%][% END -%]
+          [%- IF row.shiptostreet %]; [% HTML.escape(row.shiptostreet) -%][% END -%]
+          [%- IF row.shiptocity %]; [% HTML.escape(row.shiptocity) -%][% END -%]
+          [%- END %]
+          [%- END %]
+
+          [%- ELSE %]
+          <select name="shipto_id" class="fixed_width" >
+           <option></option>
+           [%- FOREACH row = ALL_SHIPTO %]
+           <option value="[% HTML.escape(row.shipto_id) %]"[% IF shipto_id == row.shipto_id %] selected[% END %]>
+            [%- HTML.escape(row.shiptoname) -%]
+            [%- IF row.shiptodepartment_1 %]; [% HTML.escape(row.shiptodepartment_1) -%][% END -%]
+            [%- IF row.shiptostreet %]; [% HTML.escape(row.shiptostreet) -%][% END -%]
+            [%- IF row.shiptocity %]; [% HTML.escape(row.shiptocity) -%][% END -%]
+           </option>
+           [%- END %]
+          </select>
+          [%- END %]
+         </td>
+        </tr>
+        [%- END %]
+
+        [%- IF business %]
+        <tr>
+         <th align="right">[% IF is_customer %]Customer type[% ELSE %]Vendor type[% END %]</th>
+         <td>[% HTML.escape(business) %]</td>
+        </tr>
+        [%- END %]
+
+        [%- IF max_dunning_level %]
+        <tr>
+         <th align="right">Max. Dunning Level</th>
+         <td>
+          <b>[% HTML.escape(max_dunning_level) %]</b>; Dunning Amount:
+          <b>[% HTML.escape(LxERP.format_amount(dunning_amount, 2)) %]</b>
+         </td>
+        </tr>
+        [%- END %]
+       </tr>
+
+       [%- IF ALL_DEPARTMENTS.size %]
+       <tr>
+        <th align="right" nowrap>Department</th>
+        <td colspan="3">
+         [%- IF delivered %]
+         <input type="hidden" name="department" value="[% HTML.escape(department) %]">
+         [%- FOREACH row = ALL_DEPARTMENTS %]
+         [% IF department == row.value %][% HTML.escape(row.description) %]--[% HTML.escape(row.id) %][% END %]
+         [%- END %]
+         [%- ELSE %]
+         <select name="department" class="fixed_width">
+          <option></option>
+          [%- FOREACH row = ALL_DEPARTMENTS %]
+          <option[% IF department == row.value %] selected[% END %]>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>
+          [%- END %]
+         </select>
+         [%- END %]
+        </td>
+       </tr>
+       [%- END %]
+
+       <tr>
+        <th align="right">Shipping Point</th>
+        <td colspan="3"><input name="shippingpoint" size="35" value="[% HTML.escape(shippingpoint) %]"[% RO %]></td>
+       </tr>
+
+       <tr>
+        <th align="right">Ship via</th>
+        <td colspan="3"><input name="shipvia" size="35" value="[% HTML.escape(shipvia) %]"[% RO %]></td>
+       </tr>
+
+       <tr>
+        <th align="right">Transaction description</th>
+        <td colspan="3"><input name="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"[% RO %]></td>
+       </tr>
+
+      </table>
+     </td>
+
+     <td align="right">
+      <table>
+
+       <tr>
+        <td colspan="2" align="center">
+         [%- IF delivered %]
+          [%- IF is_customer %]
+          transferred out
+          [%- ELSE %]
+          transferred in
+          [%- END %]
+         [%- ELSE %]
+          [%- IF is_customer %]
+          not transferred out yet
+          [%- ELSE %]
+          not transferred in yet
+          [%- END %]
+         [%- END %]
+         ;
+         [%- IF closed %]
+          Closed
+         [%- ELSE %]
+          Open
+         [%- END %]
+        </td>
+       </tr>
+
+       <input type="hidden" name="delivered" value="[% HTML.escape(delivered) %]">
+
+       <tr>
+        <th align="right">Employee</th>
+        <td>
+         [%- IF delivered %]
+         <input type="hidden" name="employee_id" value="[% HTML.escape(employee_id) %]">
+         [%- FOREACH row = ALL_EMPLOYEES %]
+         [% IF row.id == employee_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
+         [%- END %]
+         [%- ELSE %]
+         <select name="employee_id">
+          [%- FOREACH row = ALL_EMPLOYEES %]
+          <option value="[% HTML.escape(row.id) %]"[% IF row.id == employee_id %] selected[% END %]>
+           [%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %]
+          </option>
+          [%- END %]
+         </select>
+         [%- END %]
+        </td>
+       </tr>
+
+       [%- IF is_customer %]
+       [%- IF salesman_id %]
+       [%- SET the_salesman_id = salesman_id %]
+       [%- ELSE %]
+       [%- SET the_salesman_id = employee_id %]
+       [%- END %]
+       <tr>
+        <th align="right">Salesman</th>
+        <td>
+         [%- IF delivered %]
+         <input type="hidden" name="salesman_id" value="[% HTML.escape(salesman_id) %]">
+         [%- FOREACH row = ALL_SALESMEN %]
+         [% IF row.id == the_salesman_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
+         [%- END %]
+         [%- ELSE %]
+         <select name="salesman_id">
+          [%- FOREACH row = ALL_SALESMEN %]
+          <option value="[% HTML.escape(row.id) %]"[% IF row.id == the_salesman_id %] selected[% END %]>
+           [%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %]
+          </option>
+          [%- END %]
+         </select>
+         [%- END %]
+        </td>
+       </tr>
+       [%- END %]
+
+       <tr>
+        <th width="70%" align="right" nowrap>Delivery Order Number</th>
+        <td><input name="donumber" size="11" value="[% HTML.escape(donumber) %]"[% RO %]></td>
+       </tr>
+
+       <tr>
+        <th width="70%" align="right" nowrap>Order Number</th>
+        <td><input name="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"[% RO %]></td>
+       </tr>
+
+       <tr>
+        <th width="70%" align="right" nowrap>Customer Order Number</th>
+        <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"[% RO %]></td>
+       </tr>
+
+       <tr>
+        <th align="right" nowrap>Delivery Order Date</th>
+        <td nowrap>
+         <input name="transdate" id="transdate" size="11" title="[% HTML.escape(myconfig_dateformat) %]" value="[% HTML.escape(transdate) %]"
+                onBlur="check_right_date_format(this)"[% RO %]>
+         [% UNLESS delivered %]<input type="button" name="b_transdate" id="transdate_trigger" value="?">[% END %]
+        </td>
+       </tr>
+
+       <tr>
+        <th width="70%" align="right" nowrap>Project Number</th>
+        <td>
+         [%- IF delivered %]
+         <input type="hidden" name="globalproject_id" value="[% HTML.escape(globalproject_id) %]">
+         [%- FOREACH row = ALL_PROJECTS %]
+         [% IF globalproject_id == row.id %][% HTML.escape(row.projectnumber) %][% END %]
+         [%- END %]
+         [%- ELSE %]
+         <select name="globalproject_id">
+          <option></option>
+          [%- FOREACH row = ALL_PROJECTS %]
+          <option value="[% HTML.escape(row.id) %]"[% IF globalproject_id == row.id %] selected[% END %]>[% HTML.escape(row.projectnumber) %]</option>
+          [%- END %]
+         </select>
+         [%- END %]
+        </td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+   </table>

@@ -1,0 +1,52 @@
+[% USE HTML %]<body>
+
+ <form action="[% HTML.escape(script) %]" method="post">
+
+  <input type="hidden" name="SAVED_FORM" value="[% HTML.escape(SAVED_FORM) %]">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop">Load draft</th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr>
+    <td>
+     The following drafts have been saved and can be loaded.
+    </td>
+   </tr>
+
+   <tr>
+    <td>
+     <table>
+      <tr>
+       <th class="listheading">&nbsp;</th>
+       <th class="listheading">Date</th>
+       <th class="listheading">Description</th>
+       <th class="listheading">Employee</th>
+      </tr>
+
+      [% FOREACH row = DRAFTS %]
+       <tr class="listrow[% loop.count % 2 %]">
+        <td><input type="checkbox" name="checked_[% row.id %]" value="1"></td>
+        <td>[% HTML.escape(row.itime) %]</td>
+        <td><a href="[% HTML.url(script) %]?action=load_draft&id=[% HTML.url(row.id) %]">[% HTML.escape(row.description) %]</a></td>
+        <td>[% HTML.escape(row.employee_name) %]</td>
+       </tr>
+      [% END %]
+     </table>
+    </td>
+   </tr>
+
+   <tr>
+    <td>
+     <input type="hidden" name="action" value="draft_action_dispatcher">
+     <input type="submit" class="submit" name="draft_action" value="Skip">
+     <input type="submit" class="submit" name="draft_action" value="Delete drafts">
+    </td>
+   </tr>
+  </table>
+
+ </form>
+</body>
+</html>

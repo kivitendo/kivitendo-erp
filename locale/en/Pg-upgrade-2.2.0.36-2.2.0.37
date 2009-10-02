@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+$self->{texts} = {
+};
+
+$self->{subs} = {
+  'do_update'                   => 'do_update',
+};
+
+1;

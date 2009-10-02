@@ -1,0 +1,26 @@
+[% USE HTML %]  <body>
+
+    <h4 class="error">Item not on file!
+
+
+    <p>What type of item is this?</h4>
+
+    <form method="post" action="ic.pl">
+
+      <p>
+
+      <input class="radio" type="radio" name="item" value="part" checked>&nbsp;Part<br>
+      <input class="radio" type="radio" name="item" value="service">&nbsp;Service
+      <p>
+
+      [%- FOREACH var = HIDDENS %]
+      <input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
+      [%- END %]
+
+      <input type="hidden" name="nextsub" value="add">
+      <input class="submit" type="submit" name="action" value="Continue">
+    </form>
+
+  </body>
+</html>
+

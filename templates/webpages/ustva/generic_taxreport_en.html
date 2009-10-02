@@ -1,0 +1,24 @@
+[% USE HTML %]<body>
+
+<h1>Generic Tax Report</h1>
+<p>Taxnumber: [% taxnumber %]</p>
+<p>Year: [% year %]</p>
+<p>Period: [% period %]</p>
+<br />
+<table width="33%">
+  <tr>
+    <th>Tax Position</th>
+    <th>Amount</th>
+  </tr>
+[% FOREACH row = USTVA %]
+  <tr class="listrow[% loop.count % 2 %]">
+
+    <td align="left">[% HTML.escape(row.id) %]</td>
+    <td align="right">[% HTML.escape(row.amount) %]</td>
+  </tr>
+[% END %]
+
+</table>
+
+</html>
+</body>

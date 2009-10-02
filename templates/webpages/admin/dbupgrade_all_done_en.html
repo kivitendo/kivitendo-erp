@@ -1,0 +1,19 @@
+[% USE HTML%]
+[% IF NOTHING_TO_DO %]
+ <p>No datasets have been selected.</p>
+
+ [% ELSE %]
+
+ <hr>
+
+ <p>All database upgrades have been applied.</p>
+[% END %]
+
+<form method="post" action="admin.pl">
+ <input type="hidden" name="nextsub" value="list_users">
+
+ <input type="submit" name="action" value="Continue">
+</form>
+
+</body>
+</html>

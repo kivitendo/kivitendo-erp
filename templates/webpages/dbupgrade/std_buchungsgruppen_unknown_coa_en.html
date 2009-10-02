@@ -1,0 +1,20 @@
+[% USE HTML %]<div class="listtop">Unknown chart of accounts</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ [% IF saved_message %]
+  <p>[% saved_message %]</p>
+ [% END %]
+
+ <p>
+  Note:
+  This installation uses an unknown chart of accounts (&quot;[% HTML.escape(coa) %]&quot;). This database upgrade cannot create standard buchungsgruppen automatically.
+ </p>
+
+ <hr>
+
+</form>
+

@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+
+$self->{texts} = {
+  'Database update error:'      => 'Database update error:',
+};
+
+$self->{subs} = {
+  'mydberror'                   => 'mydberror',
+  'mydoquery'                   => 'mydoquery',
+  'update_contacts_handle_department' => 'update_contacts_handle_department',
+};
+
+1;

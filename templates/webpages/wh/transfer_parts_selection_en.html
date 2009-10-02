@@ -1,0 +1,119 @@
+[% USE HTML %][% USE JavaScript %]<body onload="on_load();">
+
+ <script type="text/javascript">
+  <!--
+      warehouses = new Array();
+      [% USE WAREHOUSES_it = Iterator(WAREHOUSES) %][% FOREACH wh = WAREHOUSES_it %]
+      warehouses[[% WAREHOUSES_it.count - 1 %]] = new Array();
+      [% USE BINS_it = Iterator(wh.BINS) %][% FOREACH bin = BINS_it %]warehouses[[% WAREHOUSES_it.count - 1 %]][[% BINS_it.count - 1 %]] = ["[% JavaScript.escape(bin.description) %]", "[% JavaScript.escape(bin.id) %]"];
+      [% END %]
+      [% END %]
+
+      function warehouse_selected(row, index) {
+        var cname = "dst_bin_id_" + row;
+        var control = document.getElementById(cname);
+
+        for (var i = control.options.length - 1; i >= 0; i--) {
+          control.options[i] = null;
+        }
+
+        for (i = 0; i < warehouses[index].length; i++) {
+          control.options[i] = new Option(warehouses[index][i][0], warehouses[index][i][1]);
+        }
+
+        control.options[0].selected = true;
+      }
+
+      function on_load() {
+        [% FOREACH row = CONTENTS %]
+        warehouse_selected([% loop.count %], [% initial_warehouse_idx %]);
+        [% END %]
+      }
+    -->
+ </script>
+
+ <form method="post" action="wh.pl">
+
+  <input type="hidden" name="nextsub" value="transfer_parts">
+  <input type="hidden" name="warehouse_id" value="[% HTML.escape(warehouse_id) %]">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>Transfer from warehouse: [% warehouse_description %]</p>
+
+  <p>
+   <table>
+    <tr>
+     <td>Select type of transfer:</td>
+     <td>
+      <select name="transfer_type_id">
+       [%- FOREACH type = TRANSFER_TYPES %]<option value="[% HTML.escape(type.id) %]">[% type.description %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <td>Optional comment:</td>
+     <td><input name="comment" size="20"></td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <table>
+    <tr>
+     <th class="listheading">Source bin</th>
+     <th class="listheading">Part Number</th>
+     <th class="listheading">Part Description</th>
+     <th class="listheading">Charge Number</th>
+     <th class="listheading">EAN</th>
+     <th class="listheading">Available qty</th>
+     <th class="listheading" colspan="2">Transfer qty</th>
+     <th class="listheading" colspan="2">Destination warehouse and bin</th>
+    </tr>
+
+    [% FOREACH row = CONTENTS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <input type="hidden" name="src_bin_id_[% loop.count %]" value="[% HTML.escape(row.binid) %]">
+     <input type="hidden" name="parts_id_[% loop.count %]" value="[% HTML.escape(row.parts_id) %]">
+     <input type="hidden" name="partnumber_[% loop.count %]" value="[% HTML.escape(row.partnumber) %]">
+     <input type="hidden" name="partdescription_[% loop.count %]" value="[% HTML.escape(row.partdescription) %]">
+     <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
+     <input type="hidden" name="ean_[% loop.count %]" value="[% HTML.escape(row.ean) %]">
+     <td>[% HTML.escape(row.bindescription) %]</td>
+     <td>[% HTML.escape(row.partnumber) %]</td>
+     <td>[% HTML.escape(row.partdescription) %]</td>
+     <td>[% HTML.escape(row.chargenumber) %]</td>
+     <td>[% HTML.escape(row.ean) %]</td>
+     <td>[% HTML.escape(row.qty) %]</td>
+     <td><input name="qty_[% loop.count %]" size="8" style="text-align: right"></td>
+     <td>
+      <select name="unit_[% loop.count %]">
+       [% FOREACH unit = row.UNITS %]<option[% IF unit.selected %] selected[% END %]>[% HTML.escape(unit.name) %]</option>[% END %]
+      </select>
+     </td>
+
+     <td>
+      <select name="dst_warehouse_id_[% loop.count %]" onchange="warehouse_selected([% loop.count %], this.selectedIndex)">
+       [% FOREACH wh = WAREHOUSES %]<option value="[% HTML.escape(wh.id) %]"[% IF wh.selected %] selected[% END %]>[% HTML.escape(wh.description) %]</option>[% END %]
+      </select>
+     </td>
+     <td><select id="dst_bin_id_[% loop.count %]" name="dst_bin_id_[% loop.count %]"></select></td>
+    </tr>
+
+    [% END %]
+
+    <input type="hidden" name="rowcount" value="[% CONTENTS.size %]">
+
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  <p>
+   <input type="submit" class="submit" name="action" value="Continue">
+  </p>
+ </form>
+
+</body>
+</html>

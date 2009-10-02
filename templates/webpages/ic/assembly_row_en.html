@@ -1,0 +1,34 @@
+[%- USE LxERP %]
+  <tr class=listheading>
+   <th class=listheading>Individual Items</th>
+  </tr>
+  <tr>
+   <td>
+    <table width=100%>
+     <tr>
+[%- FOREACH col = COLUMNS %]
+[%- SET hcol = HEADER.$col %]
+      <th[% ' nowrap' IF hcol.nowrap %][% ' width=' _ hcol.width IF hcol.width %][% ' align=' _ hcol.align IF hcol.align %]>[% hcol.text %]</th>
+[%- END %]
+     </tr>
+[%- FOREACH row = ROWS %]
+     <tr>
+ [%- FOREACH col = COLUMNS %]
+  [%- SET rcol = row.$col %]
+      <td[% ' align=' _ rcol.align IF rcol.align %]>[%- rcol.data %]</td>
+ [%- END %]
+ [%- FOREACH hidden = row.hiddens %]
+      <input type=hidden name="[% hidden.name %]" value="[% hidden.value %]">
+ [%- END %]
+     </tr>
+[%- END %]
+     <tr>
+      <td colspan="6"></td>
+      <td>Totals</td>
+      <td align="right">[%- LxERP.format_amount(assembly_purchase_price_total, 2) %]</td>
+      <td align="right">[%- LxERP.format_amount(assemblytotal, 2) %]</td>
+     </tr>
+     <input type="hidden" name="assembly_rows" value="[% assembly_rows %]">
+    </table>
+   </td>
+  </tr>

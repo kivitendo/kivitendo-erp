@@ -1,0 +1,27 @@
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ [%- IF connection_ok %]
+
+ <p>The connection was established successfully.</p>
+
+ [%- ELSE %]
+
+ <p>
+  The connection to the database could not be established.
+  Error message from the database driver:
+ </p>
+
+ <p>[% HTML.escape(errstr) %]</p>
+
+ [%- END %]
+
+ <p>
+  <form>
+   <input type="button" class="submit" onclick="window.close()" value="Close Window">
+  </form>
+ </p>
+
+</body>
+</html>

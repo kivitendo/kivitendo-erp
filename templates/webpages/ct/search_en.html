@@ -1,0 +1,165 @@
+[% USE HTML %]<body onload="fokus()">
+
+ <form method="post" action="ct.pl" name="Form">
+
+  <input type="hidden" name="db" value="[% HTML.escape(db) %]">
+
+  <div class="listtop">[% title %]</div>
+
+  <table>
+   <tr>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %]Customer Number[% ELSE %]Vendor Number[% END %]</th>
+    <td><input name="[% IF IS_CUSTOMER %]customer[% ELSE %]vendor[% END %]number" size="35"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Company Name</th>
+    <td><input name="name" size="35"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Contact</th>
+    <td><input name="contact" size="35"></td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>E-mail</th>
+    <td><input name="email" size="35"></td>
+   </tr>
+   <tr>
+    <th align="right" nowrap>Contact person (surname)</th>
+    <td><input name="cp_name" size="35"></td>
+   </tr>
+   </tr>
+    <th align="right" nowrap>Billing/shipping address (street)</th>
+    <td><input name="addr_street" size="35"></td>
+   </tr>
+ <tr>
+    <th align="right" nowrap>Billing/shipping address (zipcode)</th>
+    <td><input name="addr_zipcode" size="35"></td>
+ </tr>
+   <tr>
+    <th align="right" nowrap>Billing/shipping address (city)</th>
+    <td><input name="addr_city" size="35"></td>
+   </tr>
+   [% IF SHOW_BUSINESS_TYPES %]
+   <tr>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %]Customer type[% ELSE %]Vendor type[% END %]</th>
+    <td>
+     <select name="business_id"><option value=""></option>
+      [% FOREACH bt = ALL_BUSINESS_TYPES %]<option value="[% HTML.escape(bt.id) %]">[% HTML.escape(bt.description) %]</option>[% END %]
+     </select>
+    </td>
+   </tr>
+   [% END %]
+
+   [% CUSTOM_VARIABLES_FILTER_CODE %]
+
+   <tr>
+    <td></td>
+    <td>
+     <input name="status" class="radio" type="radio" value="all" checked> All
+     <input name="status" class="radio" type="radio" value="orphaned"> Orphaned
+    </td>
+   </tr>
+
+   <tr>
+    <td></td>
+    <td><input name="obsolete" class="radio" type="radio" value="all"> All
+     <input name="obsolete" class="radio" type="radio" value="Y"> Obsolete
+     <input name="obsolete" class="radio" type="radio" value="N" checked> Not obsolete
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right" nowrap>Include in Report</th>
+    <td>
+     <table border="0">
+      <tr>
+       <td>
+        <input name="l_id" id="l_id" type="checkbox" class="checkbox" value="Y">
+        <label for="l_id">ID</label>
+       </td>
+       <td>
+        <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_[% db %]number">[% IF IS_CUSTOMER %]Customer Number[% ELSE %]Vendor Number[% END %]</label>
+       </td>
+       <td>
+        <input name="l_name" id="l_name" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_name">Company Name</label>
+       </td>
+       <td>
+        <input name="l_street" id="l_street" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_street">Street</label>
+       </td>
+      </tr>
+
+      <tr>
+       <td>
+        <input name="l_contact" id="l_contact" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_contact">Contact</label>
+       </td>
+       <td>
+        <input name="l_phone" id="l_phone" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_phone">Phone</label>
+       </td>
+       <td>
+        <input name="l_fax" id="l_fax" type="checkbox" class="checkbox" value="Y">
+        <label for="l_fax">Fax</label>
+       </td>
+       <td>
+	<input name="l_zipcode" id="l_zipcode" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_zipcode">Zipcode</label>
+       </td>
+      </tr>
+
+      <tr>
+       <td>
+        <input name="l_taxnumber" id="l_taxnumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_taxnumber">Tax Number</label>
+       </td>
+       <td>
+        <input name="l_email" id="l_email" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_email">E-mail</label>
+       </td>
+       <td>
+        <input name="l_business" id="l_business" type="checkbox" class="checkbox" value="Y">
+        <label for="l_business">[% IF IS_CUSTOMER %]Customer type[% ELSE %]Vendor type[% END %]</label>
+       </td>
+	<td>
+        <input name="l_city" id="l_city" type="checkbox" class="checkbox" value="Y" checked>
+        <label for="l_city">City</label>
+	</td>
+      </tr>
+
+      <tr>
+       <td>
+        <input name="l_invnumber" id="l_invnumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_invnumber">Invoices</label>
+       </td>
+       <td>
+        <input name="l_ordnumber" id="l_ordnumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_ordnumber">[% IF IS_CUSTOMER %]Sales Orders[% ELSE %]Purchase Orders[% END %]</label>
+       </td>
+       <td>
+        <input name="l_quonumber" id="l_quonumber" type="checkbox" class="checkbox" value="Y">
+        <label for="l_quonumber">[% IF IS_CUSTOMER %]Quotations[% ELSE %]RFQs[% END %]</label>
+       </td>
+	<td>
+	</td>
+      </tr>
+
+      [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+
+     </table>
+    </td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="nextsub" value="list_names">
+
+  <input type="submit" class="submit" name="action" value="Continue">
+ </form>
+
+</body>
+</html>

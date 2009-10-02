@@ -1,0 +1,28 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+  <tr>
+    <td>
+      <table>
+        <tr>
+          <th class="listheading">Make</th>
+          <th class="listheading">Model</th>
+        </tr>
+      [%- FOREACH row = MM_DATA %]
+        <tr>
+          <td>
+            [%- INCLUDE generic/multibox.html
+                  name       = "make_$loop.count",
+                  default    = row.make,
+                  DATA       = ALL_VENDORS,
+                  show_empty = 1,
+                  label_key  = 'name',
+                  id_key     = 'id',
+            -%]
+          </td>
+          <td><input name="model_[% loop.count %]" size="30" value="[% HTML.escape(row.model) %]"></td>
+        </tr>
+      [%- END %]
+      </table>
+    </td>
+  </tr>
+  <input type="hidden" name="makemodel_rows" value="[% mm_rows %]">

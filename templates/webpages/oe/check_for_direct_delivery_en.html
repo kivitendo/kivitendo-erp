@@ -1,0 +1,86 @@
+[% USE HTML %]<body>
+
+ <div class="listtop" width="100%">Carry over shipping address</div>
+
+ <p>You have entered or selected the following shipping address for this customer:</p>
+
+ <p>
+  <table>
+   <tr>
+    <th align="right" valign="top">Name:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptoname) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Department:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptodepartment_1) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">&nbsp;</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptodepartment_2) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Street:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptostreet) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Zipcode:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptozipcode) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">City:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptocity) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Country:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptocountry) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Contact:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptocontact) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Phone:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptophone) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">Fax:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptofax) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right" valign="top">E-mail:</th>
+    <td valign="top">[% HTML.escape(CFDD_shiptoemail) %]</td>
+   </tr>
+  </table>
+ </p>
+
+  Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?
+ </p>
+
+ <form method="post" action="oe.pl">
+
+  <p>
+   <input type="submit" name="action" value="Yes">&nbsp;
+   <input type="submit" name="action" value="No">
+  </p>
+
+  <input type="hidden" name="yes_nextsub" value="check_for_direct_delivery_yes">
+  <input type="hidden" name="no_nextsub" value="check_for_direct_delivery_no">
+
+  [%- FOREACH row = VARIABLES %]
+  <input type="hidden" name="[% HTML.escape(row.key) %]" value="[% HTML.escape(row.value) %]">
+  [%- END %]
+
+ </form>
+
+</body>
+</html>

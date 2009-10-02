@@ -1,0 +1,100 @@
+[% USE HTML %][% USE LxERP %]<!-- <body> -->
+<!--  <form> -->
+<!--   <p> -->
+<!--    <table> -->
+
+ [%- IF delivered %]
+ [%- SET RO = ' readonly' %]
+ [%- END %]
+
+    <tr>
+     <td>
+      <table>
+       <tr valign="bottom">
+        <th align="left">Notes</th>
+        <th align="left">Internal Notes</th>
+       </tr>
+
+       <tr valign="top">
+        <td><textarea name="notes" rows="[% LxERP.numtextrows(notes, 25, 8, 2) %]" cols="25" wrap="soft"[% RO %]>[% HTML.escape(notes) %]</textarea></td>
+        <td><textarea name="intnotes" rows="[% LxERP.numtextrows(intnotes, 35, 8, 2) %]" cols="35" wrap="soft"[% RO %]>[% HTML.escape(intnotes) %]</textarea></td>
+       </tr>
+      </table>
+
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  [%- IF conf_webdav %]
+  <div class="listtop" align="left">Documents in the WebDAV repository</div>
+
+  <p>
+   <table width="100%">
+    <tr>
+     <td align="left" width="30%"><b>File name</b></td>
+     <td align="left" width="70%"><b>WebDAV link</b></td>
+    </tr>
+
+    [%- FOREACH file = WEBDAV %]
+    <tr>
+     <td align="left">[% HTML.escape(file.name) %]</td>
+     <td align="left"><a href="[% HTML.escape(file.link) %]">[% HTML.escape(file.type) %]</a></td>
+    </tr>
+    [%- END %]
+
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+  [%- END %]
+
+  <p>[% PRINT_OPTIONS %]</p>
+
+  <p>
+   Edit the Delivery Order<br>
+   <input type="hidden" name="action" value="dispatcher">
+   <input class="submit" type="submit" name="action_update" id="update_button" value="Update">
+   [%- UNLESS delivered %]
+   [%- IF vc == 'customer' %]
+   <input class="submit" type="submit" name="action_ship_to" value="Ship to">
+   [%- END %]
+   [%- END %]
+   <input class="submit" type="submit" name="action_print" value="Print">
+   <input class="submit" type="submit" name="action_e_mail" value="E-mail">
+   [%- UNLESS delivered %]
+   <input class="submit" type="submit" name="action_save" value="Save">
+   [%- IF vc == 'customer' %]
+   <input class="submit" type="submit" name="action_transfer_out" value="Transfer out">
+   [%- ELSE %]
+   <input class="submit" type="submit" name="action_transfer_in" value="Transfer in">
+   [%- END %]
+   [%- END %]
+   [%- IF id %]
+   [%- UNLESS closed %]
+   <input class="submit" type="submit" name="action_mark_closed" value="Mark closed">
+   [%- END %]
+   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="history">
+   [%- END %]
+  </p>
+
+  [%- IF id %]
+  <p>
+   Workflow Delivery Order<br>
+   <input class="submit" type="submit" name="action_save_as_new" value="Save as new">
+   [% UNLESS delivered %]
+   <input class="submit" type="submit" name="action_delete" value="Delete">
+   [% END %]
+   <input class="submit" type="submit" name="action_invoice" value="Invoice">
+  </p>
+  [%- END %]
+
+  <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
+
+ </form>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+[% USE HTML %]<body>
+
+ <form action="[% HTML.escape(script) %]" method="post">
+
+  <input type="hidden" name="SAVED_FORM" value="[% HTML.escape(SAVED_FORM) %]">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop">Save draft</th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr>
+    <td>Enter a description for this new draft.</td>
+   </tr>
+
+   <tr>
+    <td>
+    Description:
+    <input name="draft_description">
+    </td>
+   </tr>
+
+   <tr>
+    <td>
+     <input type="submit" class="submit" name="action" value="Save draft">
+    </td>
+   </tr>
+  </table>
+
+ </form>
+</body>
+</html>

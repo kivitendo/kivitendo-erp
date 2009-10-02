@@ -1,0 +1,22 @@
+[% USE HTML %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <p>
+  The wrong taxkeys for inventory transactions for sales and purchase invoices have been fixed.
+
+  Please re-run the analysis for broken general ledger entries by clicking this button:
+ </p>
+
+ <p>
+  <form action="acctranscorrections.pl" method="post">
+
+   <input type="hidden" name="action" value="redirect">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+   <input type="submit" value="Re-run analysis">
+  </form>
+ </p>
+
+</body>
+</html>

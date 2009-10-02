@@ -1,0 +1,69 @@
+[% USE HTML %]<body>
+
+ <form method="post" action="projects.pl">
+
+  <div class="listtop">[% title %]</div>
+
+  <p>
+   <table>
+    <tr>
+     <th align="right">Number</th>
+     <td><input name="filter.projectnumber" size="20"></td>
+    </tr>
+
+    <tr>
+     <th align="right">Description</th>
+     <td><input name="filter.description" size="60"></td>
+    </tr>
+
+    [% CUSTOM_VARIABLES_FILTER_CODE %]
+
+    <tr>
+     <th>Include in Report</th>
+     <td>
+      <table>
+       <tr>
+        <td>
+         <input type="radio" name="filter.active" id="active_active" value="active" checked>
+         <label for="active_active">Active</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.active" id="active_inactive" value="inactive">
+         <label for="active_inactive">Inactive</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.active" id="active_both" value="both">
+         <label for="active_both">Both</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input type="radio" name="filter.status" id="status_all" value="all" checked>
+         <label for="status_all">All</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.status" id="status_orphaned" value="orphaned">
+         <label for="status_orphaned">Orphaned</label>
+        </td>
+       </tr>
+
+       [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+
+      </table>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  <input type="hidden" name="nextsub" value="project_report">
+
+  <p>
+   <input class="submit" type="submit" name="action" value="Continue">
+  </p>
+ </form>
+
+</body>
+</html>

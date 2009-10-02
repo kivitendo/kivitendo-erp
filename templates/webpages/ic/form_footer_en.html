@@ -1,0 +1,92 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+  [%- IF item == 'assembly' %]
+  <!-- Wieder zurueck in die ic.pl, entweder alle Einzelteile auslagern oder gar keine -->
+  <!-- tr>
+    <td>
+      <table border="0" width="100%">
+        <tr>
+          <th colspan="2" align=right>Total&nbsp;</th>
+	  <th align=right>Purchase Price:[% LxERP.format_amount(assembly_purchase_price_total, 2) %]  Sell Price: [% LxERP.format_amount(assemblytotal, 2) %]</th>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <input type="hidden" name="assembly_rows" value="[% HTML.escape(assembly_rows) %]" -->
+  [%- END %]
+
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+  <input type="hidden" name="previousform" value="[% HTML.escape(previousform) %]">
+  <input type="hidden" name="taxaccount2" value="[% HTML.escape(taxaccount2) %]">
+  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+ </table>
+
+ <br style="clear: left" />
+</div>
+
+[%- IF CUSTOM_VARIABLES.size %]
+<div id="custom_variables" class="tabcontent">
+
+ <p>Unchecked custom variables will not appear in orders and invoices.</p>
+
+ <p>
+  <table>
+   [%- FOREACH var = CUSTOM_VARIABLES %]
+   <tr>
+    <td align="right" valign="top">[% var.VALID_BOX %]</td>
+    <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
+    <td valign="top">[% var.HTML_CODE %]</td>
+   </tr>
+   [%- END %]
+  </table>
+ </p>
+
+ <br style="clear: left" />
+</div>
+[%- END %]
+
+</div>
+
+<input class="submit" type="submit" name="action" value="Update">
+<input type="hidden" name="price_rows" value="[% HTML.escape(price_rows) %]">
+<input class="submit" type="submit" name="action" value="Save">
+
+  [%- IF id %]
+    [%- UNLESS previousform %]
+<input class="submit" type="submit" name="action" value="Save as new">
+    [%- END %]
+
+    [%- IF orphaned %]
+      [%- UNLESS previousform %]
+        [%- IF item == 'assembly' %]
+          [%- UNLESS onhand %]
+<input class="submit" type="submit" name="action" value="Delete">
+          [%- END %]
+        [%- ELSE %]
+<input class="submit" type="submit" name="action" value="Delete">
+        [%- END %]
+      [%- END %]
+    [%- END %]
+  [%- END %]
+
+  [%- IF id != "" %]
+<input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="history">
+  [%- END %]
+
+</form>
+
+<script type="text/javascript" src="js/wz_tooltip.js"></script>
+<script type="text/javascript">
+<!--
+    var maintab = new ddtabcontent("maintab");
+    maintab.setpersist(true);
+    maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+    maintab.init();
+  -->
+</script>
+
+</body>
+</html>

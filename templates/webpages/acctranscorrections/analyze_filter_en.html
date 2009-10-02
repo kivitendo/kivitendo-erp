@@ -1,0 +1,51 @@
+[% USE HTML %]
+<body>
+ <p><div class="listheading">[% title %]</div></p>
+
+ <p>
+  Earlier versions of Lx-Office contained bugs which might have led to wrong entries in the general ledger.
+  These wrong entries cannot be fixed automatically.
+  This module can help you identify and correct such entries by analyzing the general ledger and presenting you likely solutions but also allowing you to fix problems yourself.
+ </p>
+
+ <form name="filter" method="post" action="acctranscorrections.pl">
+
+  <p>Time period for the analysis:</p>
+
+  <p>
+   <table>
+    <tr>
+     <td><input type="radio" name="scope" id="scope_full" value="full" checked></td>
+     <td><label for="scope_full">All general ledger entries</label></td>
+    </tr>
+
+    <tr>
+     <td><input type="radio" name="scope" id="scope_period" value="period"></td>
+     <td>
+      Period:
+      from (time)
+      <input name="transdate_from" id="transdate_from" size="10">
+      <input type="button" name="transdate_from_trigger" id="transdate_from_trigger" value="?">
+      to (time)
+      <input name="transdate_to" id="transdate_to" size="10">
+      <input type="button" name="transdate_to_trigger" id="transdate_to_trigger" value="?">
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <p>
+   <input type="submit" value="Start analysis">
+  </p>
+
+  <input type="hidden" name="action" value="analyze">
+ </form>
+
+ <script type="text/javascript">
+  <!--
+    Calendar.setup({ inputField : "transdate_from", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_from_trigger" });
+    Calendar.setup({ inputField : "transdate_to",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_to_trigger" });
+  //-->
+ </script>
+</body>
+</html>
