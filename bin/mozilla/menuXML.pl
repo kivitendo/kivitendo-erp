@@ -47,7 +47,7 @@ use URI;
 # end of main
 
 sub display {
-  $locale     = Locale->new($language, "menu");
+  $locale     = Locale->new($myconfig{countrycode}, "menu");
   my $charset = $dbcharset || 'ISO-8859-1';
   my $callback            = $form->unescape($form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;

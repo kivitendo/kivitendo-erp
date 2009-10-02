@@ -77,7 +77,7 @@ sub clock_line {
 }
 
 sub acc_menu {
-  $locale = Locale->new($language, "menu");
+  $locale = Locale->new($myconfig{countrycode}, "menu");
 
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
