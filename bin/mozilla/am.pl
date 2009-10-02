@@ -2508,7 +2508,6 @@ sub config {
 
   %countrycodes = User->country_codes;
 
-  $countrycodes{""} = "American English";
   $form->{COUNTRYCODES} = [];
   foreach $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
     push @{ $form->{COUNTRYCODES} }, {
