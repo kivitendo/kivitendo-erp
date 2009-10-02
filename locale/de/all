@@ -737,7 +737,6 @@ $self->{texts} = {
   'General ledger and cash'     => 'Finanzbuchhaltung und Zahlungsverkehr',
   'General ledger corrections'  => 'Korrekturen im Hauptbuch',
   'Generic Tax Report'          => 'USTVA Bericht',
-  'German'                      => 'Deutsch',
   'Given Name'                  => 'Vorname',
   'Greeting'                    => 'Anrede',
   'Greetings'                   => 'Anreden',

@@ -101,13 +101,11 @@
      <tr>
       <th align="right"><translate>Language</translate></th>
       <td>
-       <translate>German</translate>
-       <input type="hidden" name="countrycode" value="de">
-<!--       <select name="countrycode">
+       <select name="countrycode">
         [%- FOREACH row = COUNTRYCODES %]
         <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
         [%- END %]
-       </select>-->
+       </select>
       </td>
      </tr>
 
