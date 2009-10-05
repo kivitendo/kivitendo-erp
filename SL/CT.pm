@@ -446,7 +446,8 @@ sub save_customer {
   CVar->save_custom_variables('dbh'       => $dbh,
                               'module'    => 'CT',
                               'trans_id'  => $form->{id},
-                              'variables' => $form);
+                              'variables' => $form,
+                              'always_valid' => 1);
 
   $rc = $dbh->commit();
   $dbh->disconnect();
@@ -651,7 +652,8 @@ sub save_vendor {
   CVar->save_custom_variables('dbh'       => $dbh,
                               'module'    => 'CT',
                               'trans_id'  => $form->{id},
-                              'variables' => $form);
+                              'variables' => $form,
+                              'always_valid' => 1);
 
   $rc = $dbh->commit();
   $dbh->disconnect();
