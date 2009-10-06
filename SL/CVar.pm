@@ -530,7 +530,8 @@ sub add_custom_variables_to_report {
 
   # allow sub_module to be a coderef or a fixed value
   if (ref $params{sub_module} ne 'CODE') {
-    $params{sub_module} = sub { "$params{sub_module}" };
+    my $sub_module = "$params{sub_module}";
+    $params{sub_module} = sub { $sub_module };
   }
 
   my %cfg_map   = map { $_->{id} => $_ } @{ $configs };
