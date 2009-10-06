@@ -8,10 +8,8 @@ aber auch, dass Mehrdeutigkeit so weit es geht vermieden wird (Stichworte
 
 Diese Regeln sind keine Schikane, sondern erleichtern allen das Leben!
 
-Jeder, der einen Patch schickt, sollte sein Script vorher durch perltidy
-laufen lassen. Damit werden einige der nachfolgenden Regeln automatisch
-befolgt, andere hingegen nicht. Dort, wo keine perltidy-Optionen angegeben
-sind, muss der Programmierer selbst für die Einhaltung sorgen.
+Jeder, der einen Patch schickt, sollte seinen Code vorher überprüfen.
+Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 
 --------------------------------------------------------------------------
 
@@ -137,7 +135,7 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
     $form->{"row_$i"} = $form->{"row_$i"} - 5;
     $some_hash{42}    = 54;
 
-11. Die Maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen <= 79
+11. Die maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen <= 79
     helfen unter bestimmten Bedingungen, aber wenn die Lesbarkeit unter
     kurzen Zeilen leidet (wie zum Biespiel in grossen Tabellen), dann
     ist Lesbarkeit vorzuziehen.
@@ -147,44 +145,30 @@ sind, muss der Programmierer selbst für die Einhaltung sorgen.
 12. Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind unerwünscht.
     Sie führen zu unnötigen Whitespaceänderungen die diffs verfälschen.
 
-    Emacs und vim haben beide recht einfach Methoden dafür:
+    Emacs und vim haben beide recht einfache Methoden dafür:
     emacs kennt das Kommande nuke-trailing-whitespace,
-    vim macht das gleiche manuell über :%s/\s\+$//e
+    vim macht das gleiche manuell über :%s/\s\+$//e, mit
+      :au BufWritePre * :%s/\s\+$//e
+    wird das an speichern gebunden.
 
 12. Es wird kein perltidy verwendet.
 
     In der Vergangenheit wurde versucht perltidy zu verwenden um einen
     einheitlichen Stil zu erlangen, es hat sich aber gezeigt, dass Perltidys
     sehr eigenwilliges Verhaltes was Zeilenumbrüche angeht oftmals gut
-    formatierten Code zerstört. Für den Interessierten, hier sind die perltidy
-    Optionen die grob den beschriebenen Richtlinien entsprechen.
+    formatierten Code zerstört. Für den Interessierten sind hier die perltidy
+    Optionen, die grob den beschriebenen Richtlinien entsprechen.
 
--syn
--i=2
--nt
--pt=2
--sbt=2
--ci=2
--ibc
--hsc
--noll
--nsts
--nsfs
--asc
--dsm
--aws
--bbc
--bbs
--bbb
--mbl=1
--nsob
--ce
--nbl
--nsbl
--cti=0
--bbt=0
--bar
--l=79
--lp
--vt=1
--vtc=1
+  -syn -i=2 -nt -pt=2 -sbt=2 -ci=2 -ibc -hsc -noll -nsts -nsfs -asc -dsm
+  -aws -bbc -bbs -bbb -mbl=1 -nsob -ce -nbl -nsbl -cti=0 -bbt=0 -bar -l=79
+  -lp -vt=1 -vtc=1
+
+13. STDERR ist tabu. Unkonditionale Debugmeldungen auch.
+
+    Lx-Office bietet mit dem LXDebug Modul einen brauchbaren Trace/Debug
+    Mechanismus, es gibt also keinen Grund nach STDERR zu schreiben.
+
+    Die LXDebug Methode "message" nimmt als ersten Paramter außerdem eine
+    Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer angezeigt
+    wird. Sollte Meldungen sollten nicht eingecheckt werden, und werden in den
+    meisten Fällen auch vom Repository zurückgewiesen.
