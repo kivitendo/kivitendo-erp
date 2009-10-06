@@ -1,5 +1,7 @@
 package CVar;
 
+use strict;
+
 use List::Util qw(first);
 use Data::Dumper;
 
