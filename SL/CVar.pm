@@ -244,6 +244,8 @@ sub get_custom_variables {
                      :                                $act_var->{text_value};
       $cvar->{valid} = $act_var->{valid};
     } else {
+      $cvar->{valid}  =  1;
+
       if ($cvar->{type} eq 'date') {
         if ($cvar->{default_value} eq 'NOW') {
           $cvar->{value} = $cvar->{current_date};
