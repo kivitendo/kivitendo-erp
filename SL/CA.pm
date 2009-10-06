@@ -60,13 +60,10 @@ sub all_accounts {
     qq|WHERE c.id = a.chart_id | .
     qq|$acc_cash_where| .
     qq|GROUP BY c.accno|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  foreach my $ref (selectall_hashref_query($form, $dbh, $query)) {
     $amount{ $ref->{accno} } = $ref->{amount};
   }
-  $sth->finish;
 
   my $where = "AND c.id = $chart_id" if ($chart_id ne '');
 
