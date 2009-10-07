@@ -131,7 +131,27 @@ sub post_invoice {
     map { $taxrate += $form->{"${_}_rate"} } @taxaccounts;
 
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
+    #####################################################################
+    # das ist aus IS.pm kopiert. schlimm. jb 7.10.2009
+    # ich würde mir wünschen, dass diese vier stellen zusammengefasst werden 
+    # ... vier stellen = (einkauf + verkauf) * (maske + backend)
+    # ansonsten stolpert man immer wieder viermal statt einmal heftig
+    # und auch das undo discount formatting ist nicht besonders wartungsfreundlich
+ 
+    # keep entered selling price
+    my $fxsellprice = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
 
+    # keine ahnung wofür das in IS.pm gemacht wird:
+    #      my ($dec) = ($fxsellprice =~ /\.(\d+)/);
+    #  $dec = length $dec;
+    #  my $decimalplaces = ($dec > 2) ? $dec : 2;
+
+    # undo discount formatting
+    $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
+    # deduct discount
+    $form->{"sellprice_$i"} = $fxsellprice * (1 - $form->{"discount_$i"});
+ 
+    ######################################################################
     if ($form->{"inventory_accno_$i"}) {
 
       $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
@@ -298,12 +318,12 @@ sub post_invoice {
 
     $query =
       qq|INSERT INTO invoice (id, trans_id, parts_id, description, qty, base_qty,
-                              sellprice, fxsellprice, allocated, unit, deliverydate,
+                              sellprice, fxsellprice, discount, allocated, unit, deliverydate,
                               project_id, serialnumber, price_factor_id, price_factor, marge_price_factor)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?)|;
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT factor FROM price_factors WHERE id = ?), ?)|;
     @values = ($invoice_id, conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $form->{"qty_$i"} * -1,
-               $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $allocated,
+               $baseqty * -1, $form->{"sellprice_$i"}, $fxsellprice, $form->{"discount_$i"}, $allocated,
                $form->{"unit_$i"}, conv_date($form->{deliverydate}),
                conv_i($form->{"project_id_$i"}), $form->{"serialnumber_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"marge_price_factor_$i"}));
@@ -777,7 +797,7 @@ sub retrieve_invoice {
 
         i.id AS invoice_id,
         i.description, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
-        i.price_factor_id, i.price_factor, i.marge_price_factor,
+        i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount,
         p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin, pr.projectnumber, pg.partsgroup
 
         FROM invoice i
