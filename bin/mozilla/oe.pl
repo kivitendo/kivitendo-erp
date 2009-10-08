@@ -317,7 +317,7 @@ sub form_header {
   $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
   # vendor/customer
-  $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
+  $TMPL_VAR{vc_keys} = sub { E($_[0]->{name}) . "--$_[0]->{id}" };
   $TMPL_VAR{vclimit} = $myconfig{vclimit};
   $TMPL_VAR{vc_select} = "customer_or_vendor_selection_window('$form->{vc}', '', @{[ $form->{vc} eq 'vendor' ? 1 : 0 ]}, 0)";
   push @custom_hiddens, "$form->{vc}_id";
@@ -530,12 +530,12 @@ sub update {
         # hier werden parts (Artikeleigenschaften) aus item_list (retrieve_item aus IS.pm)
         # (item wahrscheinlich synonym für parts) entsprechend in die form geschrieben ...
 
-        # Wäre dieses Mapping nicht besser in retrieve_items aufgehoben? 
+        # Wäre dieses Mapping nicht besser in retrieve_items aufgehoben?
         #(Eine Funktion bekommt Daten -> ARBEIT -> Rückgabe DATEN)
         #  Das quot sieht doch auch nach Überarbeitung aus ... (hmm retrieve_items gibt es in IS und IR)
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
-        
+
         # ... deswegen muss die prüfung, ob es sich um einen nicht rabattierfähigen artikel handelt später erfolgen (Bug 1136)
         $form->{"discount_$i"} = 0 if $form->{"not_discountable_$i"};
         $form->{payment_id} = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
@@ -638,7 +638,7 @@ sub search {
   # constants and subs for template
   $form->{jsscript}        = 1;
   $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
-  $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
+  $form->{vc_keys}         = sub { E($_[0]->{name}) . "--$_[0]->{id}" };
   $form->{salesman_labels} = $form->{employee_labels};
 
   $form->header();
