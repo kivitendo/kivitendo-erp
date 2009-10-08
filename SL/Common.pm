@@ -346,6 +346,10 @@ sub webdav_folder {
     ($path, $number) = ("anfragen", $form->{quonumber});
   } elsif ($form->{type} eq "purchase_order") {
     ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "sales_delivery_order") {
+    ($path, $number) = ("verkaufslieferscheine", $form->{donumber});
+  } elsif ($form->{type} eq "purchase_delivery_order") {
+    ($path, $number) = ("einkaufslieferscheine", $form->{donumber});
   } elsif ($form->{type} eq "credit_note") {
     ($path, $number) = ("gutschriften", $form->{invnumber});
   } elsif ($form->{vc} eq "customer") {
