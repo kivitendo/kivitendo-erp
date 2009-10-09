@@ -45,7 +45,7 @@ sub save {
 
   do_query($form, $dbh, qq|DELETE FROM follow_up_links WHERE follow_up_id = ?|, conv_i($params{id}));
 
-  my $query = qq|INSERT INTO follow_up_links (follow_up_id, trans_id, trans_type, trans_info) VALUES (?, ?, ?, ?)|;
+  $query = qq|INSERT INTO follow_up_links (follow_up_id, trans_id, trans_type, trans_info) VALUES (?, ?, ?, ?)|;
   my $sth   = prepare_query($form, $dbh, $query);
 
   foreach my $link (@{ $params{LINKS} }) {
