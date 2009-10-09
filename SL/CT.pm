@@ -62,7 +62,7 @@ sub get_tuple {
     qq|ORDER BY cp.cp_id LIMIT 1|;
   my $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -116,7 +116,7 @@ sub get_tuple {
     if ($ref) {
       foreach my $key (keys %{ $ref }) {
         my $new_key       =  $key;
-        $new_key          =~ s/^([^_]+)/\U\1\E/;
+        $new_key          =~ s/^([^_]+)/\U$1\E/;
         $form->{$new_key} =  $ref->{$key};
       }
     }
@@ -155,6 +155,7 @@ sub populate_drop_down_boxes {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $provided_dbh) = @_;
+  my $query;
 
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect($myconfig);
 
@@ -190,7 +191,7 @@ sub query_titles_and_greetings {
   $main::lxdebug->enter_sub();
 
   my ( $self, $myconfig, $form ) = @_;
-  my ( %tmp,  $ref );
+  my ( %tmp,  $ref, $query );
 
   my $dbh = $form->dbconnect($myconfig);
 
@@ -203,7 +204,7 @@ sub query_titles_and_greetings {
     qq|FROM vendor | .
     qq|WHERE greeting ~ '[a-zA-Z]' | .
     qq|ORDER BY greeting|;
-  my %tmp;
+
   map({ $tmp{$_} = 1; } selectall_array_query($form, $dbh, $query));
   $form->{COMPANY_GREETINGS} = [ sort(keys(%tmp)) ];
 
@@ -449,7 +450,7 @@ sub save_customer {
                               'variables' => $form,
                               'always_valid' => 1);
 
-  $rc = $dbh->commit();
+  my $rc = $dbh->commit();
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
@@ -530,7 +531,7 @@ sub save_vendor {
     qq|  user_password = ?, | .
     qq|  v_customer_id = ? | .
     qq|WHERE id = ?|;
-  @values = (
+  my @values = (
     $form->{vendornumber},
     $form->{name},
     $form->{greeting},
@@ -655,7 +656,7 @@ sub save_vendor {
                               'variables' => $form,
                               'always_valid' => 1);
 
-  $rc = $dbh->commit();
+  my $rc = $dbh->commit();
   $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
@@ -695,7 +696,7 @@ sub search {
   my %allowed_sort_columns =
     map({ $_, 1 } qw(id customernumber vendornumber name contact phone fax email
                      taxnumber business invnumber ordnumber quonumber));
-  $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
+  my $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   $form->{sort} = $sortorder;
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
@@ -862,7 +863,7 @@ sub get_contact {
     qq|SELECT * FROM contacts c | .
     qq|WHERE cp_id = ? ORDER BY cp_id limit 1|;
   my $sth = prepare_execute_query($form, $dbh, $query, $form->{cp_id});
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -888,7 +889,7 @@ sub get_shipto {
   my $query = qq|SELECT * FROM shipto WHERE shipto_id = ?|;
   my $sth = prepare_execute_query($form, $dbh, $query, $form->{shipto_id});
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -1032,23 +1033,6 @@ sub _delete_selected_notes {
     Notes->delete('dbh' => $params{dbh},
                   'id'  => $form->{"NOTE_id_$i"});
   }
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_shipto {
-  $main::lxdebug->enter_sub();
-
-  my $self      = shift;
-  my $shipto_id = shift;
-
-  my $form      = $main::form;
-  my %myconfig  = %main::myconfig;
-  my $dbh       = $form->get_standard_dbh(\%myconfig);
-
-  do_query($form, $dbh, qq|UPDATE shipto SET trans_id = NULL WHERE shipto_id = ?|, $shipto_id);
-
-  $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
