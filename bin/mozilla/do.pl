@@ -773,6 +773,8 @@ sub invoice_multi {
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
     map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice discount lastcost);
 		$form->{"discount_$form->{rowcount}"}	= $form->{"discount_$form->{rowcount}"}  * 100;	#s.a. Bug 1151
+		# Anm.: Eine Änderung des discounts in der SL/DO.pm->retrieve (select (doi.discount * 100) as discount) ergibt in psql einen
+		# Wert von 10.0000001490116. Ferner ist der Rabatt in der Rechnung dann bei 1.0 (?). Deswegen lasse ich das hier. jb 10.10.09
   }
   delete $form->{form_details};
 
