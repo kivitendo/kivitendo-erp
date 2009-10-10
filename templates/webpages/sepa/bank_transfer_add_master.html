@@ -1,0 +1,99 @@
+[% USE HTML %][% USE LxERP %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <form action="sepa.pl" method="post">
+  <p>
+   <translate>Please select the source bank account for the transfers:</translate>
+   <br>
+   [%- INCLUDE generic/multibox.html
+         name      = 'bank_account.id',
+         DATA      = BANK_ACCOUNTS,
+         id_key    = 'id',
+         label_sub = 'bank_account_label',
+   -%]
+  </p>
+
+  <p>
+   <table>
+    <tr>
+     <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
+     <th class="listheading"><translate>Vendor</translate></th>
+     <th class="listheading"><translate>Invoice</translate></th>
+     <th class="listheading" align="right"><translate>Amount</translate></th>
+     <th class="listheading" align="right"><translate>Open amount</translate></th>
+     <th class="listheading"><translate>Purpose</translate></th>
+     <th class="listheading" align="right"><translate>Bank transfer amount</translate></th>
+    </tr>
+
+    [%- FOREACH invoice = INVOICES %]
+     <input type="hidden" name="bank_transfers[+].ap_id" value="[% HTML.escape(invoice.id) %]">
+
+     <tr class="listrow[% loop.count % 2 %]">
+      <td align="center">
+       [%- IF invoice.vendor_bank_info_ok %]
+        <input type="checkbox" name="bank_transfers[].selected" value="1">
+       [%- END %]
+      </td>
+      <td>
+       [%- IF loop.first || (previous_vendorname != invoice.vendorname) %]
+        <a href="ct.pl?action=edit&db=vendor&id=[% HTML.url(invoice.vendor_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add') %]">
+         [%- GET HTML.escape(invoice.vendorname);
+             SET previous_vendorname = invoice.vendorname;
+             IF !invoice.vendor_bank_info_ok;
+               GET ' <sup>(1)</sup>';
+               SET show_vendor_bank_info_footnote = '1';
+             END; -%]
+        </a>
+       [%- END -%]
+      </td>
+
+      <td>
+       <a href="[% IF invoice.invoice %]ir[% ELSE %]ap[% END %].pl?action=edit&id=[% HTML.escape(invoice.id) %]">
+        [% HTML.escape(invoice.invnumber) %]
+       </a>
+      </td>
+
+      <td align="right">[% LxERP.format_amount(invoice.invoice_amount, -2) %]</td>
+      <td align="right">[% LxERP.format_amount(invoice.open_amount, -2) %]</td>
+      <td><input name="bank_transfers[].reference" value="[% HTML.escape(invoice.invnumber) %]"></td>
+      <td align="right">
+       <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, -2) %]" style="text-align: right">
+      </td>
+     </tr>
+    [%- END %]
+   </table>
+  </p>
+
+  [%- IF show_vendor_bank_info_footnote %]
+   <p>
+    <sup>(1)</sup> <translate>No bank information has been entered in
+     this vendor's master data entry. You cannot create bank transfers
+     unless you enter bank information.</translate>
+   </p>
+  [%- END %]
+
+  <p>
+   <input type="submit" class="submit" name="action_bank_transfer_create" value="<translate>Step 2</translate>">
+  </p>
+
+  <input type="hidden" name="action" value="dispatcher">
+ </form>
+
+ <script type="text/javascript" src="js/jquery.js"></script>
+ <script type="text/javascript">
+  <!--
+    $(document).ready(function() {
+      $("#select_all").click(function() {
+        var checked = $(this).attr('checked');
+        $('INPUT[name="bank_transfers[].selected"]').each(function() {
+          $(this).attr('checked', checked);
+        });
+      });
+    });
+    -->
+ </script>
+
+</body>
+</html>

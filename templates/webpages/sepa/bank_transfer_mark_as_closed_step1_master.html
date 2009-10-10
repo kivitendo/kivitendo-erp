@@ -1,0 +1,31 @@
+[% USE HTML %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <form action="sepa.pl" method="post">
+  <p>
+   <translate>Do you really want to close the following SEPA exports?
+    No payment will be recorded for bank transfers that haven't been
+    marked as executed yet.</translate>
+  </p>
+
+  <p>
+   <translate>SEPA exports:</translate>
+   [%- FOREACH id = OPEN_EXPORT_IDS %]
+    [%- UNLESS loop.first %], [%- END %]
+    <input type="hidden" name="open_export_ids[]" value="[% HTML.escape(id) %]">
+    <a href="sepa.pl?action=bank_transfer_edit&id=[% HTML.url(id) %]">[% HTML.escape(id) %]</a>
+   [%- END %]
+  </p>
+
+  <p>
+   <input type="submit" class="submit" name="action_bank_transfer_mark_as_closed_step2" value="<translate>Mark as closed</translate>">
+   <input type="button" class="submit" value="<translate>Back</translate>" onclick="history.back()">
+  </p>
+
+  <input type="hidden" name="action" value="dispatcher">
+ </form>
+
+</body>
+</html>

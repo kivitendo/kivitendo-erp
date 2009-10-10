@@ -1,0 +1,11 @@
+[% USE HTML %]
+ <form action="bankaccounts.pl" method="post">
+  <p>
+   <translate>New bank account</translate><br>
+   <input type="submit" value="<translate>Add</translate>">
+  </p>
+
+  <input type="hidden" name="action" value="bank_account_add">
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+ </form>
+
