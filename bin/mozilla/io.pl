@@ -52,8 +52,8 @@ require "bin/mozilla/common.pl";
 if (-f "bin/mozilla/custom_io.pl") {
   eval { require "bin/mozilla/custom_io.pl"; };
 }
-if (-f "bin/mozilla/$form->{login}_io.pl") {
-  eval { require "bin/mozilla/$form->{login}_io.pl"; };
+if (-f "bin/mozilla/$::form->{login}_io.pl") {
+  eval { require "bin/mozilla/$::form->{login}_io.pl"; };
 }
 
 1;
@@ -93,7 +93,7 @@ use SL::AM;
 use Data::Dumper;
 
 sub _check_io_auth {
-  $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+  $main::auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | ' .
                 'purchase_delivery_order_edit | sales_delivery_order_edit');
 }
@@ -950,7 +950,7 @@ sub quotation {
 
   require "bin/mozilla/$form->{script}";
 
-  map { $form->{"select$_"} = "" } ($form->{vc}, currency);
+  map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
   $currency = $form->{currency};
 
@@ -1981,7 +1981,7 @@ sub _render_custom_variables_inputs {
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
     $cvar->{valid} = $params{part_id}
       ? CVar->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{part_id})
-      : 1;
+      : 0;
 
     $cvar->{value} = $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"};
   }
