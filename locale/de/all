@@ -1890,6 +1890,7 @@ $self->{texts} = {
   'config/authentication.pl: Missing parameters in "LDAP_config". Required parameters are "host", "attribute" and "base_dn".' => 'config/authentication.pl: Fehlende Parameter in "LDAP_config". Ben&ouml;tigt werden "host", "attribute" und "base_dn".',
   'continue'                    => 'weiter',
   'correction'                  => 'Korrektur',
+  'cp_greeting to cp_gender migration' => 'Datenumwandlung von Titel nach Geschlecht (cp_greeting to cp_gender)',
   'customer'                    => 'Kunde',
   'customer_list'               => 'kundenliste',
   'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
