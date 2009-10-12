@@ -1,0 +1,70 @@
+[% USE HTML %]
+<body>
+
+[%- IF params.error %]
+ <p><div class="error_message">[% params.error %]</div></p>
+[%- END %]
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <form method="post" action="bankaccounts.pl">
+
+  <p>
+   <table>
+    <tr>
+     <td align="right"><translate>Account number</translate></td>
+     <td><input name="account.account_number" size="20" maxlength="100" value="[% HTML.escape(account.account_number) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Bank code</translate></td>
+     <td><input name="account.bank_code" size="20" maxlength="100" value="[% HTML.escape(account.bank_code) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Bank</translate></td>
+     <td><input name="account.bank" size="30" value="[% HTML.escape(account.bank) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>IBAN</translate></td>
+     <td><input name="account.iban" size="30" maxlength="100" value="[% HTML.escape(account.iban) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>BIC</translate></td>
+     <td><input name="account.bic" size="30" maxlength="100" value="[% HTML.escape(account.bic) %]"></td>
+    </tr>
+
+    <tr>
+     <td align="right"><translate>Chart</translate></td>
+     <td>
+      [%- INCLUDE generic/multibox.html
+            name      = 'account.chart_id',
+            DATA      = CHARTS,
+            id_key    = 'id',
+            label_sub = 'chart_label',
+            style     = 'width: 300px',
+      -%]
+     </td>
+    </tr>
+
+   </table>
+  </p>
+
+  <p>
+   <input type="hidden" name="action" value="dispatcher">
+   <input type="hidden" name="account.id" value="[% HTML.escape(account.id) %]">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+[%- IF account.id %]
+   <input type="submit" name="action_bank_account_save" value="<translate>Save</translate>">
+   <input type="submit" name="action_bank_account_delete" value="<translate>Delete</translate>">
+[%- ELSE %]
+   <input type="submit" name="action_bank_account_save" value="<translate>Add</translate>">
+[%- END %]
+  </p>
+ </form>
+
+</body>
+</html>
