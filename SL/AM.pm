@@ -64,11 +64,11 @@ sub get_account {
     };
 
 
-  $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   foreach my $key (keys %$ref) {
     $form->{"$key"} = $ref->{"$key"};
@@ -79,13 +79,13 @@ sub get_account {
   # get default accounts
   $query = qq|SELECT inventory_accno_id, income_accno_id, expense_accno_id
               FROM defaults|;
-  $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  $ref = $sth->fetchrow_hashref(NAME_lc);
+  $ref = $sth->fetchrow_hashref("NAME_lc");
 
-  map { $form->{$_} = $ref->{$_} } keys %ref;
+  map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
   $sth->finish;
 
@@ -102,13 +102,13 @@ sub get_account {
       rate
     FROM tax ORDER BY taxkey
   };
-  $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{TAXKEY} = [];
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{TAXKEY} }, $ref;
   }
 
@@ -119,12 +119,12 @@ sub get_account {
                 FROM chart
                 WHERE link = ?
                 ORDER BY accno|;
-    $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+    $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
     $sth = $dbh->prepare($query);
     $sth->execute($form->{link}) || $form->dberror($query . " ($form->{link})");
 
     $form->{NEWACCOUNT} = [];
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       push @{ $form->{NEWACCOUNT} }, $ref;
     }
 
@@ -150,14 +150,14 @@ sub get_account {
       WHERE tk.chart_id = ?
       ORDER BY startdate DESC
     };
-    $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+    $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
     $sth = $dbh->prepare($query);
 
     $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
     $form->{ACCOUNT_TAXKEYS} = [];
 
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       push @{ $form->{ACCOUNT_TAXKEYS} }, $ref;
     }
 
@@ -167,7 +167,7 @@ sub get_account {
   # check if we have any transactions
   $query = qq|SELECT a.trans_id FROM acc_trans a
               WHERE a.chart_id = ?|;
-  $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+  $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
   $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
@@ -180,7 +180,7 @@ sub get_account {
   if ($form->{new_chart_id}) {
     $query = qq|SELECT current_date-valid_from FROM chart
                 WHERE id = ?|;
-    $main::lxdebug->message(LXDebug::QUERY, "\$query=\n $query");
+    $main::lxdebug->message(LXDebug->QUERY(), "\$query=\n $query");
     my ($count) = selectrow_query($form, $dbh, $query, $form->{id});
     if ($count >=0) {
       $form->{new_chart_valid} = 1;
@@ -448,11 +448,11 @@ sub departments {
                  FROM department d
                  ORDER BY 2|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{ALL} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -476,7 +476,7 @@ sub get_department {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -499,6 +499,7 @@ sub save_department {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my ($query);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -525,6 +526,7 @@ sub delete_department {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my ($query);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -550,10 +552,10 @@ sub lead {
                  FROM leads
                  ORDER BY 2|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -578,7 +580,7 @@ sub get_lead {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -593,6 +595,7 @@ sub save_lead {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my ($query);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -620,6 +623,7 @@ sub delete_lead {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my ($query);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -645,10 +649,10 @@ sub business {
                  FROM business
                  ORDER BY 2|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -673,7 +677,7 @@ sub get_business {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -688,6 +692,7 @@ sub save_business {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my ($query);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -722,7 +727,7 @@ sub delete_business {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM business
+  my $query = qq|DELETE FROM business
               WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
@@ -745,12 +750,12 @@ sub language {
     "  output_numberformat, output_dateformat, output_longdates " .
     "FROM language ORDER BY description";
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   my $ary = [];
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push(@{ $ary }, $ref);
   }
 
@@ -781,7 +786,7 @@ sub get_language {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -852,12 +857,13 @@ sub delete_language {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $query;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
   foreach my $table (qw(translation_payment_terms units_language)) {
-    my $query = qq|DELETE FROM $table WHERE language_id = ?|;
+    $query = qq|DELETE FROM $table WHERE language_id = ?|;
     do_query($form, $dbh, $query, $form->{"id"});
   }
 
@@ -901,11 +907,11 @@ sub buchungsgruppe {
                  FROM buchungsgruppen
                  ORDER BY sortkey|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{ALL} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -949,7 +955,7 @@ sub get_buchungsgruppe {
     my $sth = $dbh->prepare($query);
     $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-    my $ref = $sth->fetchrow_hashref(NAME_lc);
+    my $ref = $sth->fetchrow_hashref("NAME_lc");
 
     map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -977,7 +983,7 @@ sub get_buchungsgruppe {
 
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     foreach my $key (split(/:/, $ref->{link})) {
       if (!$form->{"std_inventory_accno_id"} && ($key eq "IC")) {
         $form->{"std_inventory_accno_id"} = $ref->{"id"};
@@ -1064,7 +1070,7 @@ sub delete_buchungsgruppe {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM buchungsgruppen WHERE id = ?|;
+  my $query = qq|DELETE FROM buchungsgruppen WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
   $dbh->disconnect;
@@ -1112,11 +1118,11 @@ sub printer {
                  FROM printers
                  ORDER BY 2|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{"ALL"} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -1141,7 +1147,7 @@ sub get_printer {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -1156,6 +1162,7 @@ sub save_printer {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $query;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -1190,7 +1197,7 @@ sub delete_printer {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|DELETE FROM printers
+  my $query = qq|DELETE FROM printers
               WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
@@ -1209,11 +1216,11 @@ sub payment {
 
   my $query = qq|SELECT * FROM payment_terms ORDER BY sortkey|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{ALL} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ALL} }, $ref;
   }
 
@@ -1235,7 +1242,7 @@ sub get_payment {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
   map { $form->{$_} = $ref->{$_} } keys %$ref;
   $sth->finish();
 
@@ -1252,7 +1259,7 @@ sub get_payment {
   $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
 
   my %mapping;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $mapping{ $ref->{"language_id"} } = $ref
       unless (defined($mapping{ $ref->{"language_id"} }));
   }
@@ -1521,7 +1528,7 @@ sub save_preferences {
     $myconfig->{$item} = $form->{$item};
   }
 
-  $myconfig->save_member($memberfile);
+  $myconfig->save_member($main::memberfile);
 
   my $auth = $main::auth;
 
@@ -1536,14 +1543,15 @@ sub save_preferences {
   }
 
   if ($webdav) {
-    @webdavdirs =
+    my @webdavdirs =
       qw(angebote bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen);
-    foreach $directory (@webdavdirs) {
-      $file = "webdav/" . $directory . "/webdav-user";
+    foreach my $directory (@webdavdirs) {
+      my $file = "webdav/" . $directory . "/webdav-user";
+      my $newfile;
       if ($myconfig->{$directory}) {
         open(HTACCESS, "$file") or die "cannot open webdav-user $!\n";
         while (<HTACCESS>) {
-          ($login, $password) = split(/:/, $_);
+          my ($login, $password) = split(/:/, $_);
           if ($login ne $form->{login}) {
             $newfile .= $_;
           }
@@ -1557,7 +1565,7 @@ sub save_preferences {
         $form->{$directory} = 0;
         open(HTACCESS, "$file") or die "cannot open webdav-user $!\n";
         while (<HTACCESS>) {
-          ($login, $password) = split(/:/, $_);
+          my ($login, $password) = split(/:/, $_);
           if ($login ne $form->{login}) {
             $newfile .= $_;
           }
@@ -1608,7 +1616,7 @@ sub defaultaccounts {
   my $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  $form->{defaults}               = $sth->fetchrow_hashref(NAME_lc);
+  $form->{defaults}               = $sth->fetchrow_hashref("NAME_lc");
   $form->{defaults}{IC}           = $form->{defaults}{inventory_accno_id};
   $form->{defaults}{IC_income}    = $form->{defaults}{income_accno_id};
   $form->{defaults}{IC_expense}   = $form->{defaults}{expense_accno_id};
@@ -1626,10 +1634,10 @@ sub defaultaccounts {
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     foreach my $key (split(/:/, $ref->{link})) {
       if ($key =~ /IC/) {
-        $nkey = $key;
+        my $nkey = $key;
         if ($key =~ /cogs/) {
           $nkey = "IC_expense";
         }
@@ -1653,7 +1661,7 @@ sub defaultaccounts {
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     %{ $form->{IC}{FX_gain}{ $ref->{accno} } } = (
                                              id          => $ref->{id},
                                              description => $ref->{description}
@@ -1669,7 +1677,7 @@ sub defaultaccounts {
   $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     %{ $form->{IC}{FX_loss}{ $ref->{accno} } } = (
                                              id          => $ref->{id},
                                              description => $ref->{description}
@@ -1686,7 +1694,7 @@ sub defaultaccounts {
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $form->{taxrates}{ $ref->{accno} }{id}          = $ref->{id};
     $form->{taxrates}{ $ref->{accno} }{description} = $ref->{description};
     $form->{taxrates}{ $ref->{accno} }{taxnumber}   = $ref->{taxnumber}
@@ -1784,7 +1792,7 @@ sub retrieve_units {
   $sth = $dbh->prepare($query_lang);
   $sth->execute() || $form->dberror($query_lang);
   my @languages;
-  while ($ref = $sth->fetchrow_hashref()) {
+  while (my $ref = $sth->fetchrow_hashref()) {
     push(@languages, $ref);
   }
   $sth->finish();
@@ -1804,7 +1812,7 @@ sub retrieve_units {
     }
 
     $sth->execute($unit->{"name"}) || $form->dberror($query_lang . " (" . $unit->{"name"} . ")");
-    while ($ref = $sth->fetchrow_hashref()) {
+    while (my $ref = $sth->fetchrow_hashref()) {
       map({ $unit->{"LANGUAGES"}->{$ref->{"template_code"}}->{$_} = $ref->{$_} } keys(%{$ref}));
     }
   }
@@ -1933,7 +1941,7 @@ sub convertible_units {
 # else return 1
 sub convert_unit {
   $main::lxdebug->enter_sub(2);
-  ($this, $a, $b, $all_units) = @_;
+  my ($this, $a, $b, $all_units) = @_;
 
   $main::lxdebug->leave_sub(2) and return 0 unless $a && $b;
   $main::lxdebug->leave_sub(2) and return 0 unless $all_units->{$a} && $all_units->{$b};
@@ -2016,7 +2024,7 @@ sub sum_with_unit {
 
   $main::lxdebug->leave_sub();
 
-  return wantarray ? ($sum, $baseunit) : $sum;
+  return wantarray ? ($sum, $base_unit) : $sum;
 }
 
 sub add_unit {
@@ -2162,11 +2170,11 @@ sub taxes {
                  FROM tax t
                  ORDER BY taxkey|;
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{TAX} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{TAX} }, $ref;
   }
 
@@ -2192,11 +2200,11 @@ sub get_tax_accounts {
                ORDER BY accno
              };
 
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
   $form->{ACCOUNTS} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{ACCOUNTS} }, $ref;
   }
 
@@ -2226,7 +2234,7 @@ sub get_tax {
   my $sth = $dbh->prepare($query);
   $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -2252,7 +2260,7 @@ sub get_tax {
     $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
 
     $form->{TAXINUSE} = [];
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       push @{ $form->{TAXINUSE} }, $ref;
     }
 
@@ -2268,6 +2276,7 @@ sub save_tax {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $query;
 
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
@@ -2307,6 +2316,7 @@ sub delete_tax {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $query;
 
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
