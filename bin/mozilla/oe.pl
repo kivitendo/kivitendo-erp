@@ -361,7 +361,7 @@ sub form_header {
   $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()"
           : ($form->{resubmit})                                ? "document.oe.submit()"
           : ($creditwarning)                                   ? "alert('$credittext')"
-          :                                                      "focus()";
+          :                                                      "";
 
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|.   $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
@@ -530,12 +530,12 @@ sub update {
         # hier werden parts (Artikeleigenschaften) aus item_list (retrieve_item aus IS.pm)
         # (item wahrscheinlich synonym für parts) entsprechend in die form geschrieben ...
 
-        # Wäre dieses Mapping nicht besser in retrieve_items aufgehoben? 
+        # Wäre dieses Mapping nicht besser in retrieve_items aufgehoben?
         #(Eine Funktion bekommt Daten -> ARBEIT -> Rückgabe DATEN)
         #  Das quot sieht doch auch nach Überarbeitung aus ... (hmm retrieve_items gibt es in IS und IR)
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }    qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
-        
+
         # ... deswegen muss die prüfung, ob es sich um einen nicht rabattierfähigen artikel handelt später erfolgen (Bug 1136)
         $form->{"discount_$i"} = 0 if $form->{"not_discountable_$i"};
         $form->{payment_id} = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";

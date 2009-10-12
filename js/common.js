@@ -1,8 +1,3 @@
-if (!window.a_onload_functions)   a_onload_functions   = new Object();
-if (!window.a_onsubmit_functions) a_onsubmit_functions = new Object();
-if (!window.a_onfocus_functions)  a_onfocus_functions  = new Object();
-window.focused_element = null;
-
 function setupPoints(numberformat, wrongFormat) {
   decpoint = numberformat.substring((numberformat.substring(1, 2).match(/\.|\,/) ? 5 : 4), (numberformat.substring(1, 2).match(/\.|\,/) ? 6 : 5));
   if (numberformat.substring(1, 2).match(/\.|\,/)) {
@@ -135,25 +130,9 @@ function get_input_value(input_name) {
   return '';
 }
 
-a_onfocus_functions["focus_listener"] = (function (event) {
-  if (focussable(event.target)) window.focused_element = event.target;
-});
-
-a_onsubmit_functions["get_cursor_position"] = (function () {
-  if (window.focused_element)
-    document.forms[0].cursor_fokus.value = window.focused_element.name;
-});
-
 function set_cursor_position(n) {
-  document.getElementsByName(n)[0].focus();
+  $('[name=' + n + ']').focus();
 }
-
-a_onload_functions["restore_cursor_position"] = (function () {
-  var e = document.getElementsByName('cursor_fokus')[0];
-  if (e) var f = document.getElementsByName(e.value)[0];
-  if (focussable(f)) set_cursor_position(f.name)
-    else set_cursor_to_first_element();
-});
 
 function focussable(e) {
   return e && e.name && e.type != 'hidden' && e.type != 'submit' && e.disabled != true;
@@ -167,16 +146,32 @@ function set_cursor_to_first_element(){
         try { df[f][i].focus(); return } catch (er) { }
 }
 
-function add_event(e, type, fn, c) {
-  var ret = 0;
-  if (e.addEventListener) e.addEventListener(type, fn, c)
-  else if (e.attachEvent) e.attachEvent('on' + type, fn)
-  else e['on' + type] = fn;
+function getElementByIndirectName(name){
+  var e = document.getElementsByName(name)[0];
+  if (e) return document.getElementsByName(e.value)[0];
 }
 
-function do_load_events() {
-  for (var name in window.a_onload_functions)   add_event(window, "load",   window.a_onload_functions[name],   false);
-  for (var name in window.a_onsubmit_functions) add_event(window, "submit", window.a_onsubmit_functions[name], false);
-  for (var name in window.a_onfocus_functions)  add_event(window, "focus",  window.a_onfocus_functions[name],  false);
+function focus_by_name(name){
+  var f = getElementByIndirectName(name);
+  if (focussable(f)) {
+    set_cursor_position(f.name);
+    return true;
+  }
+  return false;
 }
-do_load_events();
+
+$(document).ready(function () {
+  $('input').focus(function(){
+    if (focussable(this)) window.focused_element = this;
+  });
+  // legacy. sone forms install these
+  if (typeof fokus == 'function') { fokus(); return; }
+  if (focus_by_name('fokus'))        return;
+  if (focus_by_name('cursor_fokus')) return;
+  set_cursor_to_first_element();
+});
+
+$('form').submit(function(){
+  if (window.focused_element)
+    document.forms[0].cursor_fokus.value = window.focused_element.name;
+});

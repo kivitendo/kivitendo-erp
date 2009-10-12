@@ -674,13 +674,22 @@ sub header {
                         </style>|;
     }
 
-    my $fokus = qq|  document.$self->{fokus}.focus();| if ($self->{"fokus"});
+    my $fokus = qq|
+    <script type="text/javascript">
+    <!--
+      function fokus() {
+        document.$self->{fokus}.focus();
+      }
+    //-->
+    </script>
+    | if $self->{"fokus"};
 
     #Set Calendar
     my $jsscript = "";
     if ($self->{jsscript} == 1) {
 
       $jsscript = qq|
+        <script type="text/javascript" src="js/jquery.js"></script>
         <script type="text/javascript" src="js/common.js"></script>
         <style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>
         <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
@@ -711,13 +720,7 @@ sub header {
   $jsscript
   $ajax
 
-  <script type="text/javascript">
-  <!--
-    function focus() {
-      $fokus
-    }
-  //-->
-  </script>
+  $fokus
 
   <meta name="robots" content="noindex,nofollow" />
   <script type="text/javascript" src="js/highlight_input.js"></script>
