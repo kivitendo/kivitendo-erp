@@ -60,7 +60,7 @@ sub post_transaction {
     $form->{exchangerate} = $exchangerate || $form->parse_amount($myconfig, $form->{exchangerate});
   }
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     $form->{AP_amounts}{"amount_$i"} =
       (split(/--/, $form->{"AP_amount_$i"}))[0];
   }
@@ -86,19 +86,21 @@ sub post_transaction {
   # taxincluded doesn't make sense if there is no amount
   $form->{taxincluded} = 0 if ($form->{amount} == 0);
 
-  for $i (1 .. $form->{rowcount}) {
-    ($form->{"tax_id_$i"}, $NULL) = split /--/, $form->{"taxchart_$i"};
+  for my $i (1 .. $form->{rowcount}) {
+    ($form->{"tax_id_$i"}, undef) = split /--/, $form->{"taxchart_$i"};
 
-    $query =
+    my $query =
       qq|SELECT c.accno, t.taxkey, t.rate | .
       qq|FROM tax t LEFT JOIN chart c on (c.id=t.chart_id) | .
       qq|WHERE t.id = ? | .
       qq|ORDER BY c.accno|;
-    $sth = $dbh->prepare($query);
+    my $sth = $dbh->prepare($query);
     $sth->execute($form->{"tax_id_$i"}) || $form->dberror($query . " (" . $form->{"tax_id_$i"} . ")");
     ($form->{AP_amounts}{"tax_$i"}, $form->{"taxkey_$i"}, $form->{"taxrate_$i"}) = $sth->fetchrow_array();
 
     $sth->finish;
+
+    my ($tax, $diff);
     if ($form->{taxincluded} *= 1) {
       if (!$form->{"korrektur_$i"}) {
         $tax =
@@ -160,7 +162,7 @@ sub post_transaction {
                                $form->{exchangerate});
   }
 
-  my ($query, $sth);
+  my ($query, $sth, @values);
 
   if (!$payments_only) {
     # if we have an id delete old records
@@ -194,7 +196,7 @@ sub post_transaction {
                 amount = ?, duedate = ?, paid = ?, datepaid = ?, netamount = ?,
                 curr = ?, notes = ?, department_id = ?, storno = ?, storno_id = ?
                WHERE id = ?|;
-    my @values = ($form->{invnumber}, conv_date($form->{transdate}),
+    @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
                   $form->{taxincluded} ? 't' : 'f', $form->{invtotal},
                   conv_date($form->{duedate}), $form->{invpaid},
@@ -205,7 +207,7 @@ sub post_transaction {
     do_query($form, $dbh, $query, @values);
 
     # add individual transactions
-    for $i (1 .. $form->{rowcount}) {
+    for my $i (1 .. $form->{rowcount}) {
       if ($form->{"amount_$i"} != 0) {
         my $project_id;
         $project_id = conv_i($form->{"project_id_$i"});
@@ -470,7 +472,7 @@ sub ap_transactions {
     $query .= $where;
   }
 
-  my @a = (transdate, invnumber, name);
+  my @a = qw(transdate invnumber name);
   push @a, "employee" if $self->{l_employee};
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
@@ -616,7 +618,8 @@ sub setup_form {
 
   my ($self, $form) = @_;
 
-  my ($exchangerate, $i, $j, $k, $key, $akey, $ref, $index, $taxamount, $totalamount);
+  my ($exchangerate, $i, $j, $k, $key, $akey, $ref, $index, $taxamount, $totalamount, $totaltax, $totalwithholding, $withholdingrate,
+      $taxincluded, $tax, $diff);
 
   # forex
   $form->{forex} = $form->{exchangerate};
