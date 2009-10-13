@@ -195,6 +195,7 @@ sub invoice_links {
   }
 
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
+  $form->{selectcustomer} = 1;
 
   # departments
   if ($form->{all_departments}) {
@@ -356,10 +357,10 @@ sub form_header {
   # customer
   $TMPL_VAR{vc_keys} = sub { "$_[0]->{name}--$_[0]->{id}" };
   $TMPL_VAR{vclimit} = $myconfig{vclimit};
-  $TMPL_VAR{vc_select} = "customer_or_vendor_selection_window('$form->{vc}', '', @{[ $form->{vc} eq 'vendor' ? 1 : 0 ]}, 0)";
-  push @custom_hiddens, "$form->{vc}_id";
-  push @custom_hiddens, "old$form->{vc}";
-  push @custom_hiddens, "select$form->{vc}";
+  $TMPL_VAR{vc_select} = "customer_or_vendor_selection_window('customer', '', 0, 0)";
+  push @custom_hiddens, "customer_id";
+  push @custom_hiddens, "oldcustomer";
+  push @custom_hiddens, "selectcustomer";
 
   # currencies and exchangerate
   my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
@@ -430,18 +431,14 @@ sub form_footer {
     $introws = 2;
   }
   $rows = ($rows > $introws) ? $rows : $introws;
-  my $notes =
-    qq|<textarea name="notes" rows="$rows" cols="26" wrap="soft">$form->{notes}</textarea>|;
-  my $intnotes =
-    qq|<textarea name="intnotes" rows="$rows" cols="35" wrap="soft">$form->{intnotes}</textarea>|;
+  my $notes = qq|<textarea name="notes" rows="$rows" cols="26" wrap="soft">$form->{notes}</textarea>|;
+  my $intnotes = qq|<textarea name="intnotes" rows="$rows" cols="35" wrap="soft">$form->{intnotes}</textarea>|;
 
   $form->{taxincluded} = ($form->{taxincluded} ? "checked" : "");
 
   my $taxincluded = "";
   if ($form->{taxaccounts}) {
-    $taxincluded = qq|
-	        <input name="taxincluded" class="checkbox" type="checkbox" $form->{taxincluded}> <b>|
-      . $locale->text('Tax Included') . qq|</b><br><br>|;
+    $taxincluded = qq| <input name="taxincluded" class="checkbox" type="checkbox" $form->{taxincluded}> <b>| . $locale->text('Tax Included') . qq|</b><br><br>|;
   }
 
   my ($tax, $subtotal);
@@ -449,26 +446,20 @@ sub form_footer {
 
     foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
-        $form->{"${item}_total"} =
-          $form->round_amount(
-                             $form->{"${item}_base"} * $form->{"${item}_rate"},
-                             2);
+        $form->{"${item}_total"} = $form->round_amount( $form->{"${item}_base"} * $form->{"${item}_rate"}, 2);
         $form->{invtotal} += $form->{"${item}_total"};
-        $form->{"${item}_total"} =
-          $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
+        $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
 
         $tax .= qq|
 	      <tr>
-                <th align="right">$form->{"${item}_description"}&nbsp;|
-                                    . $form->{"${item}_rate"} * 100 .qq|%</th>
-		<td align="right">$form->{"${item}_total"}</td>
+                <th align="right">$form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
+                <td align="right">$form->{"${item}_total"}</td>
 	      </tr>
 |;
       }
     }
 
-    $form->{invsubtotal} =
-      $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0);
+    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0);
 
     $subtotal = qq|
 	      <tr>
@@ -482,20 +473,10 @@ sub form_footer {
   if ($form->{taxincluded}) {
     foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
-        $form->{"${item}_total"} =
-          $form->round_amount(
-                           ($form->{"${item}_base"} * $form->{"${item}_rate"} /
-                              (1 + $form->{"${item}_rate"})
-                           ),
-                           2);
-        $form->{"${item}_netto"} =
-          $form->round_amount(
-                          ($form->{"${item}_base"} - $form->{"${item}_total"}),
-                          2);
-        $form->{"${item}_total"} =
-          $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
-        $form->{"${item}_netto"} =
-          $form->format_amount(\%myconfig, $form->{"${item}_netto"}, 2);
+        $form->{"${item}_total"} = $form->round_amount( ($form->{"${item}_base"} * $form->{"${item}_rate"} / (1 + $form->{"${item}_rate"})), 2);
+        $form->{"${item}_netto"} = $form->round_amount( ($form->{"${item}_base"} - $form->{"${item}_total"}), 2);
+        $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
+        $form->{"${item}_netto"} = $form->format_amount(\%myconfig, $form->{"${item}_netto"}, 2);
 
         $tax .= qq|
 	      <tr>
@@ -514,8 +495,7 @@ sub form_footer {
   }
 
   $form->{oldinvtotal} = $form->{invtotal};
-  $form->{invtotal}    =
-    $form->format_amount(\%myconfig, $form->{invtotal}, 2, 0);
+  $form->{invtotal}    = $form->format_amount(\%myconfig, $form->{invtotal}, 2, 0);
 
   my $follow_ups_block;
   if ($form->{id}) {
@@ -671,11 +651,9 @@ if ($form->{type} eq "credit_note") {
     # format amounts
     $totalpaid += $form->{"paid_$i"};
     if ($form->{"paid_$i"}) {
-      $form->{"paid_$i"} =
-        $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+      $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
     }
-    $form->{"exchangerate_$i"} =
-      $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
+    $form->{"exchangerate_$i"} = $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 
     if ($form->{"exchangerate_$i"} == 0) {
       $form->{"exchangerate_$i"} = "";
@@ -754,64 +732,37 @@ if ($form->{type} eq "credit_note") {
     my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && (($totalpaid == 0) || ($totalpaid eq ""));
 
     print qq|
-    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="|
-      . $locale->text('Update') . qq|">
-    <input class="submit" type="submit" name="action" value="|
-      . $locale->text('Ship to') . qq|">
-    <input class="submit" type="submit" name="action" value="|
-      . $locale->text('Print') . qq|">
-    <input class="submit" type="submit" name="action" value="|
-      . $locale->text('E-mail') . qq|"> |;
-    print qq|<input class="submit" type="submit" name="action" value="|
-      . $locale->text('Storno') . qq|"> | if ($show_storno);
-    print qq|<input class="submit" type="submit" name="action" value="|
-      . $locale->text('Post Payment') . qq|">
-|;
-    print qq|<input class="submit" type="submit" name="action" value="|
-      . $locale->text('Use As Template') . qq|">
-|;
+    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="| . $locale->text('Update') . qq|">
+    <input class="submit" type="submit" name="action" value="| . $locale->text('Ship to') . qq|">
+    <input class="submit" type="submit" name="action" value="| . $locale->text('Print') . qq|">
+    <input class="submit" type="submit" name="action" value="| . $locale->text('E-mail') . qq|"> |;
+    print qq|<input class="submit" type="submit" name="action" value="| . $locale->text('Storno') . qq|"> | if ($show_storno);
+    print qq|<input class="submit" type="submit" name="action" value="| . $locale->text('Post Payment') . qq|"> |;
+    print qq|<input class="submit" type="submit" name="action" value="| . $locale->text('Use As Template') . qq|"> |;
     if ($form->{id} && !($form->{type} eq "credit_note")) {
-      print qq|
-    <input class="submit" type="submit" name="action" value="|
-      . $locale->text('Credit Note') . qq|">
-|;
+      print qq| <input class="submit" type="submit" name="action" value="| . $locale->text('Credit Note') . qq|"> |;
     }
     if ($form->{radier}) {
-    print qq|
-    <input class="submit" type="submit" name="action" value="|
-      . $locale->text('Delete') . qq|">
-|;
+      print qq| <input class="submit" type="submit" name="action" value="| . $locale->text('Delete') . qq|"> |;
     }
 
 
     if ($invdate > $closedto) {
-      print qq|
-      <input class="submit" type="submit" name="action" value="|
-        . $locale->text('Order') . qq|">
-|;
+      print qq| <input class="submit" type="submit" name="action" value="| . $locale->text('Order') . qq|"> |;
     }
 
-    print qq|
-      <input type="button" class="submit" onclick="follow_up_window()" value="|
-      . $locale->text('Follow-Up')
-      . qq|">|;
+    print qq| <input type="button" class="submit" onclick="follow_up_window()" value="| . $locale->text('Follow-Up') . qq|">|;
 
   } else {
     if ($invdate > $closedto) {
-      print qq|<input class="submit" type="submit" name="action" id="update_button" value="|
-        . $locale->text('Update') . qq|">
-      <input class="submit" type="submit" name="action" value="|
-        . $locale->text('Ship to') . qq|">
-      <input class="submit" type="submit" name="action" value="|
-        . $locale->text('Preview') . qq|">
-      <input class="submit" type="submit" name="action" value="|
-        . $locale->text('E-mail') . qq|">
-      <input class="submit" type="submit" name="action" value="|
-        . $locale->text('Print and Post') . qq|">
-      <input class="submit" type="submit" name="action" value="|
-        . $locale->text('Post') . qq|"> | .
-        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
-                         '-class' => 'submit'));
+      print qq|
+      <input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">
+      <input class="submit" type="submit" name="action" value="| . $locale->text('Ship to') . qq|">
+      <input class="submit" type="submit" name="action" value="| . $locale->text('Preview') . qq|">
+      <input class="submit" type="submit" name="action" value="| . $locale->text('E-mail') . qq|">
+      <input class="submit" type="submit" name="action" value="| . $locale->text('Print and Post') . qq|">
+      <input class="submit" type="submit" name="action" value="| . $locale->text('Post') . qq|"> | .
+        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'));
     }
   }
 
@@ -828,8 +779,7 @@ if ($form->{type} eq "credit_note") {
 
   # mark_as_paid button
   if($form->{id} ne "") {
-    print qq|<input type="submit" class="submit" name="action" value="|
-          . $locale->text('mark as paid') . qq|">|;
+    print qq|<input type="submit" class="submit" name="action" value="| . $locale->text('mark as paid') . qq|">|;
   }
   # /mark_as_paid button
   print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers) .
