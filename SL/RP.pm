@@ -447,6 +447,7 @@ sub get_accounts_g {
       $subwhere .= " AND (transdate    >= $fromdate)";
       $glwhere   = " AND (ac.transdate >= $fromdate)";
       $prwhere   = " AND (a.transdate  >= $fromdate)";
+      $inwhere   = " AND (acc.transdate >= $fromdate)";
     } else {
       $where    .= " AND (ac.transdate >= $fromdate)";
     }
@@ -457,6 +458,7 @@ sub get_accounts_g {
     $subwhere   .= " AND (transdate    <= $todate)";
     $where      .= " AND (ac.transdate <= $todate)";
     $prwhere    .= " AND (a.transdate  <= $todate)";
+    $inwhere    .= " AND (acc.transdate <= $todate)";
   }
 
   if ($department_id) {
@@ -468,9 +470,42 @@ sub get_accounts_g {
     $project = qq| AND (ac.project_id = | . conv_i($form->{project_id}) . qq|) |;
   }
 
+#
+# GUV patch by Ronny Rentner (Bug 1190)
+#
+# GUV IST-Versteuerung
+#
+# Alle tatsaechlichen _Zahlungseingaenge_
+# im Zeitraum erfassen
+# (Teilzahlungen werden prozentual auf verschiedene Steuern aufgeteilt)
+#
+#
+
   if ($form->{method} eq 'cash') {
     $query =
       qq|
+       SELECT SUM( ac.amount *
+                    (SELECT SUM(acc.amount) * -1
+                     FROM acc_trans acc
+                     INNER JOIN chart c ON (acc.chart_id = c.id AND c.link LIKE '%AR_paid%')
+                     WHERE 1=1 $inwhere AND acc.trans_id = ac.trans_id)
+                  / (SELECT amount FROM ar WHERE id = ac.trans_id)
+                ) AS amount, c.pos_eur
+       FROM acc_trans ac
+       LEFT JOIN chart c ON (c.id  = ac.chart_id)
+       LEFT JOIN ar      ON (ar.id = ac.trans_id)
+       LEFT JOIN taxkeys tk ON (tk.id = (
+                                  SELECT id FROM taxkeys
+                                  WHERE chart_id = ac.chart_id
+                                  AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
+                                  ORDER BY startdate DESC LIMIT 1
+                                  )
+                                )
+      WHERE ac.trans_id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE 1=1 $subwhere)
+
+      GROUP BY c.pos_eur
+
+/*
        SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
@@ -480,7 +515,7 @@ sub get_accounts_g {
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
          GROUP BY c.$category
-
+*/
          UNION
 
          SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
@@ -588,9 +623,7 @@ sub get_accounts_g {
   my $accno;
   my $ref;
 
-  my $sth = prepare_execute_query($form, $dbh, $query);
-
-  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
+  foreach my $ref (selectall_hashref_query($form, $dbh, $query)) {
     if ($category eq "pos_bwa") {
       if ($last_period) {
         $form->{ $ref->{$category} }{kumm} += $ref->{amount};
@@ -601,7 +634,6 @@ sub get_accounts_g {
       $form->{ $ref->{$category} } += $ref->{amount};
     }
   }
-  $sth->finish;
 
   $main::lxdebug->leave_sub();
 }
@@ -774,7 +806,7 @@ sub trial_balance {
     $where .=
       qq| AND(ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM ap WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM gl WHERE transdate>= $fromdate AND transdate<= $todate)) AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL) |;
     $saldowhere .= qq| AND(ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM ap WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM gl WHERE transdate>= $fromdate AND transdate<= $todate))  AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL) |;
-      
+
     $sumwhere .= qq| AND(ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM ap WHERE datepaid>= $fromdate AND datepaid<= $todate UNION SELECT id FROM gl WHERE transdate>= $fromdate AND transdate<= $todate)) AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL) |;
   } else {
     $where .= $tofrom . " AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL) AND (NOT ac.cb_transaction OR ac.cb_transaction IS NULL)";
