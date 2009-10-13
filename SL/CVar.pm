@@ -388,6 +388,8 @@ sub render_search_options {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
+  $params{hidden_cvar_filters} = $myconfig->{hide_cvar_search_options};
+
   $params{include_prefix}   = 'l_' unless defined($params{include_prefix});
   $params{include_value}  ||= '1';
 

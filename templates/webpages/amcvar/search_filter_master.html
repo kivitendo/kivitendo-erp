@@ -2,7 +2,7 @@
 
    [%- FOREACH var = variables %]
    [%- IF var.searchable %]
-   <tr>
+   <tr id='cvar_filter_[% var.name %]'>
     <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
     <td valign="top">
 
@@ -61,3 +61,10 @@
    </tr>
    [%- END %]
    [%- END %]
+[% IF hidden_cvar_filters %]
+   <tr><td></td><td colspan="3"><a href="#" id="cvar_filter-toggle"><i><translate>click here to edit cvars</translate></i></a></td></tr>
+   <script type='text/javascript'>
+     $('#cvar_filter-toggle').click(function() { $('[id^="cvar_filter"]').toggle() });
+     $(document).ready(function(){ $('[id^="cvar_filter_"]').hide() });
+   </script>
+[% END %]

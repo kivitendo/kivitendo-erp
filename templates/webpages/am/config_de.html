@@ -147,6 +147,16 @@
        </select>
       </td>
      </tr>
+
+     <tr>
+      <th align="right">Suchoptionen für Benutzerdefinierte Variablen verstecken</th>
+      <td>
+       <select name="hide_cvar_search_options">
+        <option value="0"[% IF !myconfig_hide_cvar_search_options %] selected[% END %]>Standardm&auml;&szlig;ig anzeigen</option>
+        <option value="1"[% IF  myconfig_hide_cvar_search_options %] selected[% END %]>Standardm&auml;&szlig;ig verstecken</option>
+       </select>
+      </td>
+     </tr>
     </table>
 
     <br style="clear: left" />

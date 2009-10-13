@@ -147,6 +147,16 @@
        </select>
       </td>
      </tr>
+
+     <tr>
+      <th align="right"><translate>Show custom variable search inputs</translate></th>
+      <td>
+       <select name="hide_cvar_search_options">
+        <option value="0"[% IF !myconfig_hide_cvar_search_options %] selected[% END %]><translate>Show by default</translate></option>
+        <option value="1"[% IF  myconfig_hide_cvar_search_options %] selected[% END %]><translate>Hide by default</translate></option>
+       </select>
+      </td>
+     </tr>
     </table>
 
     <br style="clear: left" />
