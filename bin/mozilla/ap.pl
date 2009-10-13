@@ -428,10 +428,10 @@ selectvendor } </select>|
 	      <tr>
 		<th align=right nowrap>| . $locale->text('Vendor') . qq|</th>
 		<td colspan=3>$vendor <input type="button" value="D" onclick="show_vc_details('vendor')"></td>
-		<input type=hidden name=selectvendor value="$form->{selectvendor}">
-		<input type=hidden name=oldvendor value="$form->{oldvendor}">
-		<input type=hidden name=vendor_id value="$form->{vendor_id}">
-		<input type=hidden name=terms value=$form->{terms}>
+		<input type=hidden name=selectvendor value="| . H($form->{selectvendor}) . qq|">
+		<input type=hidden name=oldvendor value="| . H($form->{oldvendor}) . qq|">
+		<input type=hidden name=vendor_id value="| . H($form->{vendor_id}) . qq|">
+		<input type=hidden name=terms value="| . H($form->{terms}) . qq|">
 	      </tr>
 	      <tr>
 	        <td></td>
