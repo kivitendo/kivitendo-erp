@@ -1,1 +1,41 @@
-Directory for automated test scripts.
+Testsuite for Lx-Office.
+
+These tests are a means to ensure basic sanity among the lx-office source
+files. The test framework was originally written by the guys of Bugzilla, and
+has been modified to cope with the Lx-Office structure.
+
+To run a full test use the shell script t/test.sh.
+You can also run every test with the perl interpreter like this:
+
+$ perl t/001compile.t
+
+A makefile for an automated make test would be highly appreciated.
+
+
+
+The Tests:
+
+001compile.t:  Tries to compile every source file. Bails out if any errors occur.
+002goodperl.t: Checks every perl source file for taint, warnings and strict.
+               While taint is not seen mandatory, warnings and strict are.
+003safesys:    Checks is system() and exec() calls are fully qualified.
+004template.t  defunct!
+005no_tabs.t   checks every file for the \t Tab char. don't use tabs please.
+006spelling.t  checks for common spelling errors.
+011pod.t       checks if POD syntax is correct.
+
+
+Wanted Tests:
+
+- module check
+- check if symlinks are missing.
+- check for anything outside lower ascii in pl/pm files (only place for complex
+  coding is locale)
+- check for msdos line endings
+- check for trailing whitespace
+- Devise a test to check if there are modifications to locales without a
+  locales.pl run.
+- Test if parse_template can compile all html templates.
+
+and later:
+- spec tests for pure backend modules like Form.pm and Common.pm
