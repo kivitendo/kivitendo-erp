@@ -31,6 +31,7 @@ Wanted Tests:
 - check if symlinks are missing.
 - check for anything outside lower ascii in pl/pm files (only place for complex
   coding is locale)
+- check for msdos line endings
 - check for trailing whitespace
 - Devise a test to check if there are modifications to locales without a
   locales.pl run.
