@@ -39,6 +39,7 @@ use File::Find;
 
 @files = glob('*');
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.pm$/;}, 'SL');
+find(sub { push(@files, $File::Find::name) if $_ =~ /\.pl$/;}, 'bin/mozilla');
 
 sub have_pkg {
     my ($pkg) = @_;

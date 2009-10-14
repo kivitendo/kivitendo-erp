@@ -27,16 +27,14 @@
 use strict;
 
 use lib 't';
-use lib '../modules/override';
-use lib '../modules/fallback';
 
 use Support::Files;
 
 use Test::More tests => scalar(@Support::Files::testitems);
 
 # Need this to get the available driver information
-use DBI;
-my @DBI_drivers = DBI->available_drivers;
+#use DBI;
+#my @DBI_drivers = DBI->available_drivers;
 
 # Bugzilla requires Perl 5.8.0 now.  Checksetup will tell you this if you run it, but
 # it tests it in a polite/passive way that won't make it fail at compile time.  We'll
@@ -66,21 +64,6 @@ my $perlapp = "\"$^X\"";
 foreach my $file (@testitems) {
     $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
     next if (!$file); # skip null entries
-
-    # Skip mod_perl.pl in all cases. It doesn't compile correctly from the command line.
-    if ($file eq 'mod_perl.pl') {
-        ok(1, "Skipping mod_perl.pl");
-        next;
-    }
-
-    # Check that we have a DBI module to support the DB, if this is a database
-    # module (but not Schema)
-    if ($file =~ m#Bugzilla/DB/([^/]+)\.pm$# && $file ne "Bugzilla/DB/Schema.pm") {
-        if (!grep(lc($_) =~ /$1/i, @DBI_drivers)) {
-            ok(1,$file." - Skipping, as the DBD module not installed");
-            next;
-        }
-    }
 
     open (FILE,$file);
     my $bang = <FILE>;
