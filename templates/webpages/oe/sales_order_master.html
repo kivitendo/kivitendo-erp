@@ -1,9 +1,11 @@
 [% USE HTML %]
 <tr>
  <td>
-  <input type="hidden" name="show_details" value="[% HTML.escape(show_details) %]">
-  <input type="checkbox" id="cb_show_details" onclick="show_form_details([% IF show_details %]0[% ELSE %]1[% END %]);"[%- IF show_details %] checked[% END %]>
+  <input type="checkbox" id="cb_show_details" name="show_details" [%- IF show_details %] checked[% END %]>
   <label for="cb_show_details"><translate>Show details</translate></label><br>
+  <script type="text/javascript">
+   $('#cb_show_details').click(function(){ $('[id$="row2"]').toggle() });
+  </script>
   <table width="100%">
    <tr class="listheading">[% FOREACH header = HEADER %][% IF header.display %]
     <th align="left" nowrap width="[% header.width %]" class="listheading">[% header.value %]</th>[% END %][% END %]
@@ -17,7 +19,7 @@
      [% FOREACH hidden = row.HIDDENS %][% hidden.value %]
      [% END %]
 
-     <tr class="listrow[% loop.count % 2 %]" [% UNLESS show_details %]style="display:none;"[% END %]><td colspan="[% row.colspan %]">[% FOREACH row2 = row.ROW2 %]
+     <tr class="listrow[% loop.count % 2 %]" id="[% loop.count %].row2" [% UNLESS show_details %]style="display:none;"[% END %]><td colspan="[% row.colspan %]">[% FOREACH row2 = row.ROW2 %]
       [% IF row2.line_break %]<br/>[% END %]
       [% row2.value %][% END %]
      </td></tr>
