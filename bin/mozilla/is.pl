@@ -194,6 +194,12 @@ sub invoice_links {
     $form->{shipto_id} = $shipto_id;
   }
 
+  # build vendor/customer drop down comatibility... don't ask
+  if (@{ $form->{"all_customer"} }) {
+    $form->{"selectcustomer"} = 1;
+    $form->{customer}         = qq|$form->{customer}--$form->{"customer_id"}|;
+  }
+
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{selectcustomer} = 1;
 
@@ -393,9 +399,9 @@ sub form_header {
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
   # hiddens
-  $TMPL_VAR{HIDDEN} = [qw(
+  $TMPL_VAR{HIDDENS} = [qw(
     id action type media format queued printed emailed title vc discount
-    creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
+    title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
     shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
