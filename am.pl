@@ -30,22 +30,24 @@
 #
 #######################################################################
 
+#use strict;
+
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
 # setup defaults, DO NOT CHANGE
-$userspath  = "users";
-$templates  = "templates";
-$memberfile = "users/members";
-$sendmail   = "| /usr/sbin/sendmail -t";
+$main::userspath  = "users";
+$main::templates  = "templates";
+$main::memberfile = "users/members";
+$main::sendmail   = "| /usr/sbin/sendmail -t";
 ########## end ###########################################
 
 $| = 1;
 
 use SL::LXDebug;
-$lxdebug = LXDebug->new();
+$main::lxdebug = LXDebug->new();
 
 use CGI qw( -no_xhtml);
 use SL::Auth;
@@ -67,9 +69,9 @@ my $session_result = $auth->restore_session();
 
 require "bin/mozilla/common.pl";
 
-if (defined($latex) && !defined($latex_templates)) {
-  $latex_templates = $latex;
-  undef($latex);
+if (defined($main::latex) && !defined($main::latex_templates)) {
+  $main::latex_templates = $main::latex;
+  undef($main::latex);
 }
 
 # this prevents most of the tabindexes being created by CGI.
@@ -79,8 +81,8 @@ local $CGI::TABINDEX = 0;
 
 # name of this script
 $0 =~ tr/\\/\//;
-$pos = rindex $0, '/';
-$script = substr($0, $pos + 1);
+my $pos = rindex $0, '/';
+my $script = substr($0, $pos + 1);
 
 # we use $script for the language module
 $form->{script} = $script;
@@ -92,10 +94,11 @@ $script =~ s/\.pl//;
 use DBI;
 
 # locale messages
-$locale = new Locale($language, "$script");
+$main::locale = new Locale($main::language, "$script");
+my $locale = $main::locale;
 
 # did sysadmin lock us out
-if (-e "$userspath/nologin") {
+if (-e "$main::userspath/nologin") {
   $form->error($locale->text('System currently down for maintenance!'));
 }
 
@@ -105,7 +108,8 @@ if (SL::Auth::SESSION_EXPIRED == $session_result) {
 
 $form->{login} =~ s|.*/||;
 
-%myconfig = $auth->read_user($form->{login});
+%main::myconfig = $auth->read_user($form->{login});
+my %myconfig = %main::myconfig;
 
 if (!$myconfig{login}) {
   _show_error('login/password_error', 'password');
@@ -157,10 +161,10 @@ if ($form->{action}) {
 sub _show_error {
   my $template           = shift;
   my $error_type         = shift;
-  $locale                = Locale->new($language, 'all');
+  my $locale                = Locale->new($main::language, 'all');
   $form->{error}         = $locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $form->{error}         = $locale->text('Incorrect password!.')                   if ($error_type eq 'password');
-  $myconfig{countrycode} = $language;
+  $myconfig{countrycode} = $main::language;
   $form->{stylesheet}    = 'css/lx-office-erp.css';
 
   $form->header();
