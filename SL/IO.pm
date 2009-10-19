@@ -1,5 +1,7 @@
 package IO;
 
+use strict;
+
 use SL::DBUtils;
 
 sub retrieve_partunits {
