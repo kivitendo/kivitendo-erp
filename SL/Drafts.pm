@@ -14,6 +14,8 @@ use YAML;
 use SL::Common;
 use SL::DBUtils;
 
+use strict;
+
 sub get_module {
   $main::lxdebug->enter_sub();
 
@@ -34,7 +36,7 @@ sub get_module {
   return ($module, $submodule);
 }
 
-@dont_save = qw(login password stylesheet action);
+my @dont_save = qw(login password stylesheet action);
 
 sub save {
   $main::lxdebug->enter_sub();
@@ -91,7 +93,6 @@ sub load {
 
   $sth = prepare_execute_query($form, $dbh, $query, $draft_id);
 
-  my @values;
   if (my $ref = $sth->fetchrow_hashref()) {
     @values = ($ref->{form}, $ref->{id}, $ref->{description});
   }
@@ -142,7 +143,7 @@ sub list {
     qq|LEFT JOIN employee e ON d.employee_id = e.id | .
     qq|WHERE (d.module = ?) AND (d.submodule = ?) | .
     qq|ORDER BY d.itime|;
-  my @values = ($module, $submodule);
+  @values = ($module, $submodule);
 
   $sth = prepare_execute_query($form, $dbh, $query, @values);
 
