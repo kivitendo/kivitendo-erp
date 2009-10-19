@@ -147,52 +147,21 @@ sub invoice_links {
     }
   }
 
-  my $payment_id;
-  if ($form->{payment_id}) {
-    $payment_id = $form->{payment_id};
-  }
-  my $language_id;
-  if ($form->{language_id}) {
-    $language_id = $form->{language_id};
-  }
-  my $taxzone_id;
-  if ($form->{taxzone_id}) {
-    $taxzone_id = $form->{taxzone_id};
-  }
-  my $id;
-  if ($form->{id}) {
-    $id = $form->{id};
-  }
-  my $shipto_id;
-  if ($form->{shipto_id}) {
-    $shipto_id = $form->{shipto_id};
-  }
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes id shipto_id));
 
-  my $cp_id = $form->{cp_id};
   IS->get_customer(\%myconfig, \%$form);
 
   #quote all_customer Bug 133
   foreach my $ref (@{ $form->{all_customer} }) {
     $ref->{name} = $form->quote($ref->{name});
   }
-  if ($id) {
-    $form->{id} = $id;
-  }
-  IS->retrieve_invoice(\%myconfig, \%$form);
-  $form->{cp_id} = $cp_id;
 
-  if ($payment_id) {
-    $form->{payment_id} = $payment_id;
-  }
-  if ($language_id) {
-    $form->{language_id} = $language_id;
-  }
-  if ($taxzone_id) {
-    $form->{taxzone_id} = $taxzone_id;
-  }
-  if ($shipto_id) {
-    $form->{shipto_id} = $shipto_id;
-  }
+  $form->restore_vars(qw(id));
+
+  IS->retrieve_invoice(\%myconfig, \%$form);
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id));
+  $form->restore_vars(qw(taxincluded)) if $form->{id};
+  $form->restore_vars(qw(salesman_id)) if $main::editing;
 
   # build vendor/customer drop down comatibility... don't ask
   if (@{ $form->{"all_customer"} }) {
