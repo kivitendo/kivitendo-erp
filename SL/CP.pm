@@ -37,6 +37,8 @@
 package CP;
 use SL::DBUtils;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub();
 

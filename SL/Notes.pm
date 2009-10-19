@@ -5,6 +5,8 @@ package Notes;
 use SL::Common;
 use SL::DBUtils;
 
+use strict;
+
 sub save {
   $main::lxdebug->enter_sub();
 
@@ -51,7 +53,7 @@ sub retrieve {
 
   my $dbh      = $form->get_standard_dbh($myconfig);
 
-  my $ref      = selectfirst_hashref_query($form, $dbh, qq|SELECT * FROM notes WHERE id = ?|, conv_i($param{id}));
+  my $ref      = selectfirst_hashref_query($form, $dbh, qq|SELECT * FROM notes WHERE id = ?|, conv_i($params{id}));
 
   $main::lxdebug->leave_sub();
 
@@ -79,8 +81,6 @@ sub delete {
   $dbh->commit() unless ($params{dbh});
 
   $main::lxdebug->leave_sub();
-
-  return $ref;
 }
 
 1;

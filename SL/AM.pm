@@ -41,6 +41,8 @@ use Carp;
 use Data::Dumper;
 use SL::DBUtils;
 
+use strict;
+
 sub get_account {
   $main::lxdebug->enter_sub();
 

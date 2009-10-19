@@ -1,10 +1,10 @@
 package Taxkeys;
 
-use strict;
-
 use Memoize;
 
 use SL::DBUtils;
+
+use strict;
 
 sub new {
   my $type = shift;

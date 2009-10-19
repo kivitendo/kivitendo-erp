@@ -1,9 +1,9 @@
 package SL::Chart;
 
-use strict;
-
 use SL::Form;
 use SL::DBUtils;
+
+use strict;
 
 sub list {
   $main::lxdebug->enter_sub();

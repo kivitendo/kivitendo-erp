@@ -1,8 +1,8 @@
 package IO;
 
-use strict;
-
 use SL::DBUtils;
+
+use strict;
 
 sub retrieve_partunits {
   $main::lxdebug->enter_sub();

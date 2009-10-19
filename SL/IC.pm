@@ -41,6 +41,8 @@ use YAML;
 use SL::CVar;
 use SL::DBUtils;
 
+use strict;
+
 sub get_part {
   $main::lxdebug->enter_sub();
 

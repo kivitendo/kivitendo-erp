@@ -43,6 +43,8 @@ use SL::DBUtils;
 use SL::RecordLinks;
 use SL::IC;
 
+use strict;
+
 sub transactions {
   $main::lxdebug->enter_sub();
 
@@ -58,7 +60,7 @@ sub transactions {
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
-  $query =
+  my $query =
     qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.transdate,
          ct.name, dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
@@ -278,7 +280,7 @@ sub save {
     $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
 
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
-    $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
+    my $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
     $reqdate = ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
 
@@ -497,6 +499,7 @@ sub delete {
 
   my $spoolfile;
   my @spoolfiles = ();
+  my @values;
 
   while (($spoolfile) = $sth->fetchrow_array) {
     push @spoolfiles, $spoolfile;
@@ -604,7 +607,7 @@ sub retrieve {
   $sth = prepare_execute_query($form, $dbh, $query, @do_ids);
 
   delete $form->{"${vc}_id"};
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     if ($form->{"${vc}_id"} && ($ref->{"${vc}_id"} != $form->{"${vc}_id"})) {
       $sth->finish();
       $main::lxdebug->leave_sub();
@@ -626,7 +629,7 @@ sub retrieve {
     $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module = 'DO'|;
     $sth   = prepare_execute_query($form, $dbh, $query, $form->{id});
 
-    $ref   = $sth->fetchrow_hashref(NAME_lc);
+    $ref   = $sth->fetchrow_hashref("NAME_lc");
     delete $ref->{id};
     map { $form->{$_} = $ref->{$_} } keys %$ref;
     $sth->finish();
@@ -635,7 +638,7 @@ sub retrieve {
     $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname FROM status s WHERE s.trans_id = ?|;
     $sth   = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
-    while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
       $form->{printed} .= "$ref->{formname} " if $ref->{printed};
       $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
       $form->{queued}  .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
@@ -765,7 +768,7 @@ sub order_details {
                     JOIN parts p ON (a.parts_id = p.id)
                     LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
                     WHERE a.bom = '1'
-                      AND a.id = ? $sortorder|;
+                      AND a.id = ?|;
   my $h_pg     = prepare_query($form, $dbh, $q_pg);
 
   my $q_bin_wh = qq|SELECT (SELECT description FROM bin       WHERE id = ?) AS bin,
@@ -787,9 +790,12 @@ sub order_details {
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_qty si_unit);
 
-  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays);
+  map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+
+  $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
+  my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
 
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
@@ -837,7 +843,7 @@ sub order_details {
 
       do_statement($form, $h_pg, $q_pg, conv_i($form->{"id_$i"}));
 
-      while (my $ref = $h_pg->fetchrow_hashref(NAME_lc)) {
+      while (my $ref = $h_pg->fetchrow_hashref("NAME_lc")) {
         if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
           map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
           $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
@@ -886,6 +892,8 @@ sub project_description {
 
   my ($self, $dbh, $id) = @_;
 
+  my $form     =  $main::form;
+
   my $query = qq|SELECT description FROM project WHERE id = ?|;
   my ($value) = selectrow_query($form, $dbh, $query, $id);
 
@@ -929,6 +937,7 @@ sub get_item_availability {
 
   my @parts_ids = 'ARRAY' eq ref $params{parts_id} ? @{ $params{parts_id} } : ($params{parts_id});
   my $form      = $main::form;
+  my $myconfig  = \%main::myconfig;
 
   my $query     =
     qq|SELECT i.warehouse_id, i.bin_id, i.chargenumber, SUM(qty) AS qty, i.parts_id,
