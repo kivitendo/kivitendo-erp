@@ -42,7 +42,7 @@ sub new {
 
   my ($type, $countrycode) = @_;
 
-  $self = {};
+  my $self = {};
 
   if ($countrycode) {
     if (-f "locale/$countrycode/Num2text") {
@@ -79,7 +79,7 @@ sub paymentaccounts {
   $form->{PR}{ $form->{ARAP} } = ();
   $form->{PR}{"$form->{ARAP}_paid"} = ();
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     foreach my $item (split(/:/, $ref->{link})) {
       if ($item eq $form->{ARAP}) {
         push(@{ $form->{PR}{ $form->{ARAP} } }, $ref);
@@ -163,14 +163,14 @@ sub get_openinvoices {
   my $query =
      qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, a.curr | .
 	   qq|FROM $arap a | .
-     qq|WHERE (a.${vc}_id = ?) AND (a.curr = ? $curr_null) AND NOT (a.amount = paid)|;
+     qq|WHERE (a.${vc}_id = ?) AND (a.curr = ? $curr_null) AND NOT (a.amount = paid)| .
 		 qq|ORDER BY a.id|;
   my $sth = prepare_execute_query($form, $dbh, $query,
                                   conv_i($form->{"${vc}_id"}),
                                   $form->{currency});
 
   $form->{PR} = [];
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
 
     # if this is a foreign currency transaction get exchangerate
     $ref->{exchangerate} =
@@ -189,6 +189,7 @@ sub process_payment {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  my $amount;
 
   # connect to database, turn AutoCommit off
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -201,20 +202,16 @@ sub process_payment {
       $form->parse_amount($myconfig, $form->{exchangerate});
 
     if ($form->{vc} eq 'customer') {
-      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid},
-                                 $form->{exchangerate}, 0);
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid}, $form->{exchangerate}, 0);
     } else {
-      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid}, 0,
-                                 $form->{exchangerate});
+      $form->update_exchangerate($dbh, $form->{currency}, $form->{datepaid}, 0, $form->{exchangerate});
     }
   } else {
     $form->{exchangerate} = 1;
   }
 
-  my $query =
-    qq|SELECT fxgain_accno_id, fxloss_accno_id FROM defaults|;
-  my ($fxgain_accno_id, $fxloss_accno_id) =
-    selectrow_query($form, $dbh, $query);
+  my $query = qq|SELECT fxgain_accno_id, fxloss_accno_id FROM defaults|;
+  my ($fxgain_accno_id, $fxloss_accno_id) = selectrow_query($form, $dbh, $query);
 
   my $buysell = $form->{vc} eq "customer" ? "buy" : "sell";
   my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
@@ -233,9 +230,8 @@ sub process_payment {
       qq|  (c.link LIKE '%:AP:%')) |;
   }
 
-  $paymentamount = $form->{amount};
+  my $paymentamount = $form->{amount};
 
-  #  $paymentamount = $form->{amount};
   my $null;
   ($null, $form->{department_id}) = split(/--/, $form->{department});
   $form->{department_id} *= 1;
@@ -254,8 +250,7 @@ sub process_payment {
     $form->{"due_$i"}  = $form->parse_amount($myconfig, $form->{"due_$i"});
 
     if ($form->{"checked_$i"} && $form->{"paid_$i"}) {
-      $paymentamount =
-        (($paymentamount * 1000) - ($form->{"paid_$i"} * 1000)) / 1000;
+      $paymentamount = (($paymentamount * 1000) - ($form->{"paid_$i"} * 1000)) / 1000;
 
       # get exchangerate for original
       $query =
@@ -298,8 +293,7 @@ sub process_payment {
       do_query($form, $dbh, $query, @values);
 
       # add exchangerate difference if currency ne defaultcurrency
-      $amount =
-        $form->round_amount($form->{"paid_$i"} * ($form->{exchangerate} - 1),
+      $amount = $form->round_amount($form->{"paid_$i"} * ($form->{exchangerate} - 1),
                             2);
       if ($amount != 0) {
 
@@ -339,6 +333,7 @@ sub process_payment {
 
       $amount += $form->{"paid_$i"};
 
+      my $paid;
       # BUG 324
       if ($form->{arap} eq 'ap') {
         $paid = "paid = paid + $amount";
@@ -357,7 +352,7 @@ sub process_payment {
         $form->{addition} = "POSTED";
         $form->save_history($form->dbconnect($myconfig));
       }
-      # /saving the history 
+      # /saving the history
     }
   }
 
@@ -367,6 +362,7 @@ sub process_payment {
     OP::overpayment("", $myconfig, $form, $dbh, $paymentamount, $ml, 1);
   }
 
+  my $rc;
   if ($form->round_amount($paymentamount, 2) < 0) {
     $dbh->rollback;
     $rc = 0;
