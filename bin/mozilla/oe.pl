@@ -1101,7 +1101,7 @@ sub save {
 
   $form->{simple_save} = 1;
   if(!$form->{print_and_save}) {
-    delete @{$form}{ary_diff([keys %{ $form }], [qw(login stylesheet id script type)])};
+    delete @{$form}{ary_diff([keys %{ $form }], [qw(login stylesheet id script type cursor_fokus)])};
     edit();
     exit;
   }
