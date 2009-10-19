@@ -1,4 +1,3 @@
-#!/bin/perl
 #=====================================================================
 # Lx-Office ERP
 # Copyright (c) 2004 by Udo Spallek, Aachen
