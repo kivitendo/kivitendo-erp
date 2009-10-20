@@ -41,6 +41,8 @@ use SL::Mailer;
 use SL::MoreCommon;
 use SL::Template;
 
+use strict;
+
 sub get_config {
   $main::lxdebug->enter_sub();
 

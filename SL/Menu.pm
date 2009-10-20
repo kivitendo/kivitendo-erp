@@ -400,7 +400,10 @@ sub set_access {
 
   $self->{ORDER} = [ grep { $self->{$_}->{VISIBLE} } @{ $self->{ORDER} } ];
 
+  { no strict 'refs';
+  # ToDO: fix this. nuke and pave algorithm without type checking screams for problems.
   map { delete @{$self->{$_}}{qw(GRANTED IS_MENU NUM_VISIBLE_CHILDREN VISIBLE ACCESS)} if ($_ ne 'ORDER') } keys %{ $self };
+  }
 }
 
 sub dump_visible {

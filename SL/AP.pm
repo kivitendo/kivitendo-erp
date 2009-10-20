@@ -37,6 +37,8 @@ package AP;
 use SL::DBUtils;
 use SL::MoreCommon;
 
+use strict;
+
 sub post_transaction {
   $main::lxdebug->enter_sub();
 

@@ -2,6 +2,8 @@ package GenericTranslations;
 
 use SL::DBUtils;
 
+use strict;
+
 sub get {
   $main::lxdebug->enter_sub();
 

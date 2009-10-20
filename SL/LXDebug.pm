@@ -17,6 +17,8 @@ use POSIX qw(strftime);
 
 use YAML;
 
+use strict;
+
 my $data_dumper_available;
 
 our $global_level;

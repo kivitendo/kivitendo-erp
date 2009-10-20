@@ -1,9 +1,9 @@
 package SL::DBUtils;
 
 require Exporter;
-@ISA = qw(Exporter);
+our @ISA = qw(Exporter);
 
-@EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
+our @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_statement
              dump_query quote_db_date
              selectfirst_hashref_query selectfirst_array_query
              selectall_hashref_query selectall_array_query
@@ -36,7 +36,7 @@ sub do_query {
 
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query, @_);
+  dump_query(LXDebug->QUERY(), '', $query, @_);
 
   my $result;
   if (0 == scalar(@_)) {
@@ -57,7 +57,7 @@ sub do_statement {
 
   my ($form, $sth, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query, @_);
+  dump_query(LXDebug->QUERY(), '', $query, @_);
 
   my $result;
   if (0 == scalar(@_)) {
@@ -74,8 +74,9 @@ sub do_statement {
 sub dump_query {
   my ($level, $msg, $query) = splice(@_, 0, 3);
 
-  my $filename = $self_filename = 'SL/DBUtils.pm';
-  my $caller_level;
+  my $self_filename = 'SL/DBUtils.pm';
+  my $filename      = $self_filename;
+  my ($caller_level, $line, $subroutine);
   while ($filename eq $self_filename) {
     (undef, $filename, $line, $subroutine) = caller $caller_level++;
   }
@@ -111,7 +112,7 @@ sub prepare_query {
 
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query, @_);
+  dump_query(LXDebug->QUERY(), '', $query, @_);
 
   my $sth = $dbh->prepare($query) || $form->dberror($query);
 
@@ -125,7 +126,7 @@ sub prepare_execute_query {
 
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  dump_query(LXDebug::QUERY, '', $query, @_);
+  dump_query(LXDebug->QUERY(), '', $query, @_);
 
   my $sth = $dbh->prepare($query) || $form->dberror($query);
   if (scalar(@_) != 0) {
