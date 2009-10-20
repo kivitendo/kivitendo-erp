@@ -38,6 +38,8 @@ use Data::Dumper;
 
 use SL::DBUtils;
 
+use strict;
+
 sub partsgroups {
   $main::lxdebug->enter_sub();
 
@@ -90,6 +92,7 @@ sub save_partsgroup {
   $form->{discount} /= 100;
 
   my @values = ($form->{partsgroup});
+  my $query;
 
   if ($form->{id}) {
     $query = qq|UPDATE partsgroup SET partsgroup = ? WHERE id = ?|;
@@ -119,7 +122,7 @@ sub get_partsgroup {
     qq|WHERE pg.id = ?|;
   my $sth = prepare_execute_query($form, $dbh, $query, $form->{id},
                                   $form->{id});
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map({ $form->{$_} = $ref->{$_} } keys(%{$ref}));
   $sth->finish;
@@ -139,7 +142,7 @@ sub delete_tuple {
 
   my $table = $form->{type} eq "pricegroup" ? "pricegroup" : "partsgroup";
 
-  $query = qq|DELETE FROM $table WHERE id = ?|;
+  my $query = qq|DELETE FROM $table WHERE id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
   $dbh->disconnect;
@@ -240,7 +243,7 @@ sub get_pricegroup {
 
   my $query = qq|SELECT id, pricegroup FROM pricegroup WHERE id = ?|;
   my $sth = prepare_execute_query($form, $dbh, $query, $form->{id});
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map({ $form->{$_} = $ref->{$_} } keys(%{$ref}));
 

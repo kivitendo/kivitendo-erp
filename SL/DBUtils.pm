@@ -12,6 +12,8 @@ our @EXPORT = qw(conv_i conv_date conv_dateq do_query selectrow_query do_stateme
              create_sort_spec does_table_exist
              add_token);
 
+use strict;
+
 sub conv_i {
   my ($value, $default) = @_;
   return (defined($value) && "$value" ne "") ? $value * 1 : $default;

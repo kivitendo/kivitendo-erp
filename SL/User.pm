@@ -34,8 +34,6 @@
 
 package User;
 
-#use strict;
-
 use IO::File;
 use Fcntl qw(:seek);
 
@@ -44,6 +42,8 @@ use SL::DBUpgrade2;
 use SL::DBUtils;
 use SL::Iconv;
 use SL::Inifile;
+
+use strict;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -107,7 +107,7 @@ sub login {
     my $dbh =
       DBI->connect($myconfig{dbconnect}, $myconfig{dbuser},
                    $myconfig{dbpasswd})
-      or $self->error(DBI::errstr);
+      or $self->error($DBI::errstr);
 
     # we got a connection, check the version
     my $query = qq|SELECT version FROM defaults|;
@@ -802,7 +802,7 @@ sub dbupdate {
       last if ($version < $mindb);
 
       # apply upgrade
-      $main::lxdebug->message(LXDebug::DEBUG2, "Applying Update $upgradescript");
+      $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
       if ($file_type eq "sql") {
         $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
                              "-upgrade/$upgradescript", $str_maxdb, $db_charset);
@@ -886,7 +886,7 @@ sub dbupdate2 {
       my $file_type = $1;
 
       # apply upgrade
-      $main::lxdebug->message(LXDebug::DEBUG2, "Applying Update $control->{file}");
+      $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
       if ($file_type eq "sql") {

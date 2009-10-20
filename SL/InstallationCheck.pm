@@ -5,6 +5,8 @@ use IO::File;
 
 use vars qw(@required_modules @optional_modules);
 
+use strict;
+
 @required_modules = (
   { "name" => "Class::Accessor", "url" => "http://search.cpan.org/~kasei/" },
   { "name" => "CGI", "url" => "http://search.cpan.org/~lds/" },

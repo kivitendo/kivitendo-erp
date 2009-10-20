@@ -38,6 +38,8 @@ use Data::Dumper;
 use SL::DBUtils;
 use SL::MoreCommon;
 
+use strict;
+
 our (%myconfig, $form);
 
 sub post_transaction {
@@ -252,7 +254,7 @@ sub post_transaction {
         $amount = $form->round_amount( $form->{"paid_$i"} * ($form->{exchangerate} - $form->{"exchangerate_$i"}) * -1, 2);
 
         if ($amount != 0) {
-          $accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
+          my $accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
           $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey)
                        VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
           @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $accno);
@@ -524,7 +526,8 @@ sub setup_form {
 
   my ($self, $form) = @_;
 
-  my ($exchangerate, $key, $akey, $i, $j, $k, $index, $taxamount, $totaltax, $taxrate, $diff);
+  my ($exchangerate, $key, $akey, $i, $j, $k, $index, $taxamount, $totaltax, $taxrate, $diff, $totalwithholding, $withholdingrate,
+      $totalamount, $taxincluded, $tax);
 
   # forex
   $form->{forex} = $form->{exchangerate};
