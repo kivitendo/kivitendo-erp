@@ -36,6 +36,8 @@ package RC;
 
 use SL::DBUtils;
 
+use strict;
+
 sub paymentaccounts {
   $main::lxdebug->enter_sub();
 

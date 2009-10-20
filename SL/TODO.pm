@@ -4,6 +4,8 @@ package TODO;
 
 use SL::DBUtils;
 
+use strict;
+
 sub get_user_config {
   $main::lxdebug->enter_sub();
 

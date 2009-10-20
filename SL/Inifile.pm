@@ -37,6 +37,8 @@ package Inifile;
 
 use IO::File;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub(2);
 

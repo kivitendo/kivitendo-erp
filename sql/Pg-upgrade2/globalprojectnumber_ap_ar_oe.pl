@@ -2,6 +2,11 @@
 # @description: Neue Spalte f&uuml;r eine globale Projektnummer in Einkaufs- und Verkaufsbelegen
 # @depends: release_2_4_1
 
+use strict;
+
+# import vars from caller
+our ($dbup_locale, $dbup_myconfig, $dbh);
+
 die("This script cannot be run from the command line.") unless ($main::form);
 
 sub mydberror {

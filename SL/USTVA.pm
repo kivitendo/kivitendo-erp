@@ -29,6 +29,8 @@ use List::Util qw(first);
 
 use SL::DBUtils;
 
+use strict;
+
 my @tax_office_information = (
   { 'id' =>  8, 'name' => 'Baden Württemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
   { 'id' =>  9, 'name' => 'Bayern',                 'taxbird_nr' => '1',  'elster_format' => 'FFF/BBB/UUUUP', },
@@ -145,10 +147,14 @@ sub report_variables {
 sub create_steuernummer {
   $main::lxdebug->enter_sub();
 
-  $part           = $form->{part};
-  $patterncount   = $form->{patterncount};
-  $delimiter      = $form->{delimiter};
-  $elster_pattern = $form->{elster_pattern};
+  my $form = $main::form;
+
+  our ($elster_FFFF);
+
+  my $part           = $form->{part};
+  my $patterncount   = $form->{patterncount};
+  my $delimiter      = $form->{delimiter};
+  my $elster_pattern = $form->{elster_pattern};
 
   # rebuild steuernummer and elstersteuernummer
   # es gibt eine gespeicherte steuernummer $form->{steuernummer}
@@ -157,9 +163,9 @@ sub create_steuernummer {
   my $h = 0;
   my $i = 0;
 
-  $steuernummer_new        = $part;
-  $elstersteuernummer_new  = $elster_FFFF;
-  $elstersteuernummer_new .= '0';
+  my $steuernummer_new        = $part;
+  my $elstersteuernummer_new  = $elster_FFFF;
+  $elstersteuernummer_new    .= '0';
 
   for ($h = 1; $h < $patterncount; $h++) {
     $steuernummer_new .= qq|$delimiter|;
@@ -181,6 +187,7 @@ sub steuernummer_input {
   $main::lxdebug->enter_sub();
 
   my ($self, $elsterland, $elsterFFFF, $steuernummer) = @_;
+  our ($elster_FFFF, $elster_land);
 
   my $steuernummer_input = '';
 
@@ -286,6 +293,7 @@ sub fa_auswahl {
   my $ffff     = '';
   my $checked  = '';
   $checked = 'checked' if ($elsterFFFF eq '' and $land eq '');
+  my %elster_land_fa;
 
   my $fa_auswahl = qq|
         <script language="Javascript">
@@ -297,14 +305,14 @@ sub fa_auswahl {
                 elsterFAAuswahl.options.length = 0; // dropdown aufräumen
                 |;
 
-  foreach $elster_land (sort keys %$elster_init) {
+  foreach my $elster_land (sort keys %$elster_init) {
     $fa_auswahl .= qq|
                if (elsterBLAuswahl.options[elsterBLAuswahl.selectedIndex].
                value == "$elster_land")
                {
                |;
     my $j              = 0;
-    my %elster_land_fa = ();
+    %elster_land_fa = ();
     $FFFF = '';
     for $FFFF (keys %{ $elster_init->{$elster_land} }) {
       $elster_land_fa{$FFFF} = $elster_init->{$elster_land}->{$FFFF}->[0];
@@ -333,7 +341,7 @@ sub fa_auswahl {
   if ($land eq '') {
     $fa_auswahl .= qq|<option value="Auswahl" $checked>| . $main::locale->text('Select federal state...') . qq|</option>\n|;
   }
-  foreach $elster_land (sort keys %$elster_init) {
+  foreach my $elster_land (sort keys %$elster_init) {
     $fa_auswahl .= qq|
                   <option value="$elster_land"|;
     if ($elster_land eq $land and $checked eq '') {
@@ -414,6 +422,7 @@ sub info {
   $main::lxdebug->leave_sub();
 }
 
+# 20.10.2009 sschoeling: this sub seems to be orphaned.
 sub stichtag {
   $main::lxdebug->enter_sub();
 
@@ -428,41 +437,43 @@ sub stichtag {
 
   #$today =today * 1;
   $today =~ /(\d\d\d\d)(\d\d)(\d\d)/;
-  $year     = $1;
-  $month    = $2;
-  $day      = $3;
-  $yy       = $year;
-  $mm       = $month;
-  $yymmdd   = "$year$month$day" * 1;
-  $mmdd     = "$month$day" * 1;
-  $stichtag = '';
+  my $year     = $1;
+  my $month    = $2;
+  my $day      = $3;
+  my $yy       = $year;
+  my $mm       = $month;
+  my $yymmdd   = "$year$month$day" * 1;
+  my $mmdd     = "$month$day" * 1;
+  my $stichtag = '';
 
   #$tage_bis = '1234';
   #$ical = '...vcal format';
 
   #if ($FA_voranmeld eq 'month'){
 
-  %liste = ("0110" => 'December',
-            "0210" => 'January',
-            "0310" => 'February',
-            "0410" => 'March',
-            "0510" => 'April',
-            "0610" => 'May',
-            "0710" => 'June',
-            "0810" => 'July',
-            "0910" => 'August',
-            "1010" => 'September',
-            "1110" => 'October',
-            "1210" => 'November');
+  my %liste = (
+    "0110" => 'December',
+    "0210" => 'January',
+    "0310" => 'February',
+    "0410" => 'March',
+    "0510" => 'April',
+    "0610" => 'May',
+    "0710" => 'June',
+    "0810" => 'July',
+    "0910" => 'August',
+    "1010" => 'September',
+    "1110" => 'October',
+    "1210" => 'November',
+  );
 
   #$mm += $dauerfrist
   #$month *= 1;
   $month += 1 if ($day > 10);
   $month    = sprintf("%02d", $month);
   $stichtag = $year . $month . "10";
-  $ust_va   = $month . "10";
+  my $ust_va   = $month . "10";
 
-  foreach $date (%liste) {
+  foreach my $date (%liste) {
     $ust_va = $liste{$date} if ($date eq $stichtag);
   }
 
@@ -486,6 +497,10 @@ sub stichtag {
   #$stichtag =~ /([\d]\d)(\d\d)$/
   #$stichtag = "$1.$2.$yy"
   #$stichtag=$1;
+  our $description; # most probably not existant.
+  our $tage_bis;    # most probably not existant.
+  our $ical;        # most probably not existant.
+
   $main::lxdebug->leave_sub();
   return ($stichtag, $description, $tage_bis, $ical);
 }
@@ -557,6 +572,7 @@ sub query_finanzamt {
   $sth->execute || $form->dberror($query);
   my $array_ref = $sth->fetchall_arrayref();
   my $land      = '';
+  my %finanzamt;
   foreach my $row (@$array_ref) {
     my $FA_finanzamt = $row;
     my $tax_office   = first { $_->{id} == $FA_finanzamt->[0] } @{ $self->{tax_office_information} };
@@ -679,10 +695,10 @@ sub ustva {
 
   $form->{decimalplaces} *= 1;
 
-  foreach $item (@category_cent) {
+  foreach my $item (@category_cent) {
     $form->{"$item"} = 0;
   }
-  foreach $item (@category_euro) {
+  foreach my $item (@category_euro) {
     $form->{"$item"} = 0;
   }
   my $coa_name = coa_get($dbh);
@@ -691,7 +707,7 @@ sub ustva {
   # Controlvariable for templates
   $form->{"$coa_name"} = '1';
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "COA: '$form->{coa}',  \$form->{$coa_name} = 1");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "COA: '$form->{coa}',  \$form->{$coa_name} = 1");
 
   &get_accounts_ustva($dbh, $last_period, $form->{fromdate}, $form->{todate},
                       $form, $category);
@@ -762,6 +778,7 @@ sub ustva {
 sub coa_get {
 
   my ($dbh) = @_;
+  my $form  = $main::form;
 
   my $query= qq|SELECT coa FROM defaults|;
 
@@ -769,7 +786,7 @@ sub coa_get {
 
   $sth->execute || $form->dberror($query);
 
-  ($ref) = $sth->fetchrow_array;
+  my ($ref) = $sth->fetchrow_array;
 
   return $ref;
 
@@ -779,6 +796,7 @@ sub get_accounts_ustva {
   $main::lxdebug->enter_sub();
 
   my ($dbh, $last_period, $fromdate, $todate, $form, $category) = @_;
+  our ($dpt_join);
 
   my $query;
   my $where    = "";
@@ -987,14 +1005,14 @@ sub get_accounts_ustva {
   my $ref;
 
   # Show all $query in Debuglevel LXDebug::QUERY
-  $callingdetails = (caller (0))[3];
-  $main::lxdebug->message(LXDebug::QUERY, "$callingdetails \$query=\n $query");
+  my $callingdetails = (caller (0))[3];
+  $main::lxdebug->message(LXDebug->QUERY(), "$callingdetails \$query=\n $query");
 
   my $sth = $dbh->prepare($query);
 
   $sth->execute || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     # Bug 365 solved?!
     $ref->{amount} *= -1;
     $form->{ $ref->{$category} } += $ref->{amount};
@@ -1011,14 +1029,14 @@ sub get_config {
 
   my ($self, $userspath, $filename) = @_;
 
-  $form->error("Missing Parameter: @_") if !$userspath || !$filename;
-
   my $form = $main::form;
+
+  $form->error("Missing Parameter: @_") if !$userspath || !$filename;
 
   $filename = "$form->{login}_$filename";
   $filename =~ s|.*/||;
   $filename = "$userspath/$filename";
-  open my $FACONF, "<", $filename or sub {# Annon Sub
+  open my $FACONF, "<", $filename or do {# Annon Sub
     # catch open error
     # create file if file does not exist
     open my $FANEW, ">", $filename  or $form->error("CREATE: $filename : $!");

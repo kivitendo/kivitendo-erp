@@ -2,8 +2,14 @@
 # @description:  Diverse neue Tabellen und Spalten zur Mehrlagerf&auml;higkeit inkl. Migration
 # @depends: release_2_4_3
 
+use strict;
 
 die("This script cannot be run from the command line.") unless ($main::form);
+
+# import vars from caller
+our ($dbup_locale, $dbup_myconfig, $dbh, $iconv);
+my $do_sql_migration = 0;
+my ($check_sql, $sqlcode);
 
 sub mydberror {
   my ($msg) = @_;
@@ -21,7 +27,6 @@ sub do_query {
   }
 }
 
-$do_sql_migration = 0;
 
 sub print_question {
   print $main::form->parse_html_template("dbupgrade/warehouse_form");
@@ -57,17 +62,17 @@ INSERT INTO warehouse (description, sortkey, invalid) VALUES ($warehouse, 1, FAL
 UPDATE tmp_parts SET bin = NULL WHERE bin = '';
 
 -- Restore old onhand
-INSERT INTO bin 
- (warehouse_id, description) 
- (SELECT DISTINCT warehouse.id, COALESCE(bin, $bin) 
-   FROM warehouse, tmp_parts 
+INSERT INTO bin
+ (warehouse_id, description)
+ (SELECT DISTINCT warehouse.id, COALESCE(bin, $bin)
+   FROM warehouse, tmp_parts
    WHERE warehouse.description=$warehouse);
-INSERT INTO inventory 
+INSERT INTO inventory
  (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id, chargenumber)
  (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id, ''
   FROM transfer_type, warehouse, tmp_parts, bin
   WHERE warehouse.description = $warehouse
-    AND COALESCE(bin, $bin) = bin.description 
+    AND COALESCE(bin, $bin) = bin.description
     AND transfer_type.description = 'stock');
 EOF
 ;

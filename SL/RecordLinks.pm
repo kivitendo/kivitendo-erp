@@ -5,6 +5,8 @@ use SL::DBUtils;
 use Data::Dumper;
 use List::Util qw(reduce);
 
+use strict;
+
 sub create_links {
   $main::lxdebug->enter_sub();
 

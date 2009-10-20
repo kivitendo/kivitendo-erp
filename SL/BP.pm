@@ -36,6 +36,8 @@ package BP;
 
 use SL::DBUtils;
 
+use strict;
+
 sub get_vc {
   $main::lxdebug->enter_sub();
 
@@ -56,7 +58,7 @@ sub get_vc {
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
   my $arap_type = defined($arap{$form->{type}}) ? $arap{$form->{type}} : 'ar';
 
-  $query =
+  my $query =
     qq|SELECT count(*) | .
     qq|FROM (SELECT DISTINCT ON (vc.id) vc.id FROM $vc vc, $arap_type a, status s | .
     qq|  WHERE a.${vc}_id = vc.id  AND s.trans_id = a.id AND s.formname = ? | .
@@ -72,11 +74,11 @@ sub get_vc {
       qq|WHERE a.${vc}_id = vc.id AND s.trans_id = a.id AND s.formname = ? | .
       qq|  AND s.spoolfile IS NOT NULL|;
 
-    $sth = $dbh->prepare($query);
+    my $sth = $dbh->prepare($query);
     $sth->execute($form->{type}) || $form->dberror($query . " ($form->{type})");
 
     $form->{"all_${vc}"} = [];
-    while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
       push @{ $form->{"all_${vc}"} }, $ref;
     }
     $sth->finish;
@@ -103,7 +105,7 @@ sub payment_accounts {
   $sth->execute($form->{type}) || $form->dberror($query . " ($form->{type})");
 
   $form->{accounts} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{accounts} }, $ref;
   }
 
@@ -192,7 +194,7 @@ sub get_spoolfiles {
     }
   }
 
-  my @a = (transdate, $invnumber, name);
+  my @a = ("transdate", $invnumber, "name");
   my $sortorder = join ', ', $form->sort_columns(@a);
 
   if (grep({ $_ eq $form->{sort} }
@@ -207,7 +209,7 @@ sub get_spoolfiles {
     $form->dberror($query . " (" . join(", ", @values) . ")");
 
   $form->{SPOOL} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     push @{ $form->{SPOOL} }, $ref;
   }
 
@@ -279,7 +281,7 @@ sub print_spool {
       open(OUT, $output) or $form->error("$output : $!");
 
       $form->{"spoolfile_$i"} =~ s|.*/||;
-      $spoolfile = qq|$spool/$form->{"spoolfile_$i"}|;
+      my $spoolfile = qq|$spool/$form->{"spoolfile_$i"}|;
 
       # send file to printer
       open(IN, $spoolfile) or $form->error("$spoolfile : $!");

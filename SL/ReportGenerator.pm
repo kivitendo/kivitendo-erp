@@ -12,6 +12,8 @@ use Text::Iconv;
 
 use SL::Form;
 
+use strict;
+
 # Cause locales.pl to parse these files:
 # parse_html_template('report_generator/html_report')
 
@@ -789,7 +791,7 @@ SL::ReportGenerator.pm: the Lx-Office way of getting data in shape
      $report->add_data($row1, $row2, @more_rows);
      $report->generate_with_headers();
 
-This creates a report object, sets a few columns, adds some data and generates a standard report. 
+This creates a report object, sets a few columns, adds some data and generates a standard report.
 Sorting of columns will be alphabetic, and options will be set to their defaults.
 The report will be printed including table headers, html headers and http headers.
 
@@ -802,8 +804,8 @@ Then there are some options made by the user, such as hidden columns. You add mo
 Then it lacks usability. You want it to be able to sort the data. You add code for that.
 Then there are too many results, you need pagination, you want to print or export that data..... and so on.
 
-The ReportGenerator class was designed because this exact scenario happened about half a dozen times in Lx-Office. 
-It's purpose is to manage all those formating, culling, sorting, and templating. 
+The ReportGenerator class was designed because this exact scenario happened about half a dozen times in Lx-Office.
+It's purpose is to manage all those formating, culling, sorting, and templating.
 Which makes it almost as complicated to use as doing the work for yourself.
 
 =head1 FUNCTIONS
@@ -831,8 +833,8 @@ Note that this is only for displaying. The data has to be presented already sort
 
 =item add_data \%data
 
-Adds data to the report. A given hash_ref is interpreted as a single line of data, every array_ref as a collection of lines. 
-Every line will be expected to be in a kay => value format. Note that the rows have to be already sorted. 
+Adds data to the report. A given hash_ref is interpreted as a single line of data, every array_ref as a collection of lines.
+Every line will be expected to be in a kay => value format. Note that the rows have to be already sorted.
 ReportGenerator does only colum sorting on its own, and provides links to sorting and visual cue as to which column was sorted by.
 
 =item add_separator
@@ -842,7 +844,7 @@ Adds a separator line to the report.
 =item add_control \%data
 
 Adds a control element to the data. Control elements are an experimental feature to add functionality to a report the regular data cannot.
-Every control element needs to set IS_CONTROL_DATA, in order to be recongnized by the template. 
+Every control element needs to set IS_CONTROL_DATA, in order to be recongnized by the template.
 Currently the only control element is a colspan element, which can be used as a mini header further down the report.
 
 =item clear_data
@@ -867,7 +869,7 @@ Returns the set attachment_basename option, or 'report' if nothing was set. See 
 
 =item generate_with_headers
 
-Parses the report, adds headers and prints it out. Headers depend on the option 'output_format', 
+Parses the report, adds headers and prints it out. Headers depend on the option 'output_format',
 for example 'HTML' will add proper table headers, html headers and http headers. See configuration for this option.
 
 =item get_visible_columns $format
@@ -880,9 +882,9 @@ Escapes HTML characters in $value and substitutes newlines with '<br>'. Returns 
 
 =item prepare_html_content $column,$name,@column_headers
 
-Parses the data, and sets internal data needed for certain output format. Must be called once before the template is invoked. 
+Parses the data, and sets internal data needed for certain output format. Must be called once before the template is invoked.
 Should not be called extrenally, since all render and generate functions invoke it anyway.
- 
+
 =item generate_html_content
 
 The html generation function. Is invoked by generate_with_headers.
@@ -939,7 +941,7 @@ Paper size. Default is a4. Supported paper sizes are a3, a4, a5, letter and lega
 
 Landscape or portrait. Default is landscape.
 
-=item font_name 
+=item font_name
 
 Default is Verdana. Supported font names are Courier, Georgia, Helvetica, Times and Verdana. This option only affects the rendering with PDF::API2.
 

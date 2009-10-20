@@ -41,6 +41,8 @@ package GL;
 use Data::Dumper;
 use SL::DBUtils;
 
+use strict;
+
 sub delete_transaction {
   my ($self, $myconfig, $form) = @_;
   $main::lxdebug->enter_sub();
@@ -86,7 +88,7 @@ sub post_transaction {
     $form->{taxincluded} = 0;
   }
 
-  my ($query, $sth);
+  my ($query, $sth, @values, $taxkey, $rate, $posted);
 
   if ($form->{id}) {
 
@@ -196,7 +198,7 @@ sub all_transactions {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-  my ($query, $sth, $source, $null);
+  my ($query, $sth, $source, $null, $space);
 
   my ($glwhere, $arwhere, $apwhere) = ("1 = 1", "1 = 1", "1 = 1");
   my (@glvalues, @arvalues, @apvalues);
@@ -294,7 +296,7 @@ sub all_transactions {
     push(@apvalues, $project_id, $project_id);
   }
 
-  my ($project_columns, %project_join);
+  my ($project_columns, $project_join);
   if ($form->{"l_projectnumbers"}) {
     $project_columns = qq|, ac.project_id, pr.projectnumber|;
     $project_join = qq|LEFT JOIN project pr ON (ac.project_id = pr.id)|;
@@ -315,7 +317,7 @@ sub all_transactions {
     }
   }
 
-  my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
+  my $false = ($myconfig->{dbdriver} eq 'Pg') ? "FALSE" : q|'0'|;
 
   my %sort_columns =  (
     'id'           => [ qw(id)                   ],
@@ -342,7 +344,7 @@ sub all_transactions {
     map { $columns_for_sorting{$_} .= sprintf(', lower(%s) AS lower_%s', $lowered_columns{$column}->{$_}, $column) } qw(gl arap);
   }
 
-  my $query =
+  $query =
     qq|SELECT
         ac.acc_trans_id, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
         g.description, ac.transdate, ac.source, ac.trans_id,
@@ -388,17 +390,18 @@ sub all_transactions {
   my @values = (@glvalues, @arvalues, @apvalues);
 
   # Show all $query in Debuglevel LXDebug::QUERY
-  $callingdetails = (caller (0))[3];
-  dump_query(LXDebug::QUERY, "$callingdetails", $query, @values);
+  my $callingdetails = (caller (0))[3];
+  dump_query(LXDebug->QUERY(), "$callingdetails", $query, @values);
 
   $sth = prepare_execute_query($form, $dbh, $query, @values);
   my $trans_id  = "";
   my $trans_id2 = "";
+  my $balance;
 
   my ($i, $j, $k, $l, $ref, $ref2);
 
   $form->{GL} = [];
-  while (my $ref0 = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref0 = $sth->fetchrow_hashref("NAME_lc")) {
 
     $trans_id = $ref0->{id};
 
@@ -489,7 +492,7 @@ sub all_transactions {
     } else { # following lines of a booking, line increasing
 
       $ref2      = $ref0;
-      $trans_old = $trans_id2;
+#      $trans_old = $trans_id2;   # doesn't seem to be used anymore
       $trans_id2 = $ref2->{id};
 
       $balance =
@@ -596,7 +599,7 @@ sub transaction {
   if ($form->{id}) {
     $query =
       qq|SELECT g.reference, g.description, g.notes, g.transdate, g.storno, g.storno_id,
-           d.description AS department, e.name AS employee, g.taxincluded, g.gldate, 
+           d.description AS department, e.name AS employee, g.taxincluded, g.gldate,
          g.ob_transaction, g.cb_transaction
          FROM gl g
          LEFT JOIN department d ON (d.id = g.department_id)
@@ -701,7 +704,7 @@ sub storno {
 
   # now copy acc_trans entries
   $query = qq|SELECT * FROM acc_trans WHERE trans_id = ?|;
-  my $rowref = selectall_hashref_query($form, $dbh, $query, $id); 
+  my $rowref = selectall_hashref_query($form, $dbh, $query, $id);
 
   for my $row (@$rowref) {
     delete @$row{qw(itime mtime)};

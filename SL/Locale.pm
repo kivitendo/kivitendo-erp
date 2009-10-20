@@ -42,6 +42,8 @@ use SL::LXDebug;
 use SL::Common;
 use SL::Inifile;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -229,6 +231,8 @@ sub date {
   my $longdate  = "";
   my $longmonth = ($longformat) ? 'LONG_MONTH' : 'SHORT_MONTH';
 
+  my ($spc, $yy, $mm, $dd);
+
   if ($date) {
 
     # get separator
@@ -302,6 +306,7 @@ sub parse_date {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $date, $longformat) = @_;
+  my ($spc, $yy, $mm, $dd);
 
   unless ($date) {
     $main::lxdebug->leave_sub();

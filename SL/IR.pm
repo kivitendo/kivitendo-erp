@@ -44,6 +44,8 @@ use SL::GenericTranslations;
 use SL::MoreCommon;
 use List::Util qw(min);
 
+use strict;
+
 sub post_invoice {
   $main::lxdebug->enter_sub();
 
@@ -61,6 +63,7 @@ sub post_invoice {
   my ($amount, $linetotal, $lastinventoryaccno, $lastexpenseaccno);
   my ($netamount, $invoicediff, $expensediff) = (0, 0, 0);
   my $exchangerate = 0;
+  my ($basefactor, $baseqty, @taxaccounts, $totaltax);
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
@@ -133,13 +136,13 @@ sub post_invoice {
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
     #####################################################################
     # das ist aus IS.pm kopiert. schlimm. jb 7.10.2009
-    # ich würde mir wünschen, dass diese vier stellen zusammengefasst werden 
+    # ich würde mir wünschen, dass diese vier stellen zusammengefasst werden
     # ... vier stellen = (einkauf + verkauf) * (maske + backend)
     # ansonsten stolpert man immer wieder viermal statt einmal heftig
     # und auch das undo discount formatting ist nicht besonders wartungsfreundlich
- 
+
     # keep entered selling price
-    my $fxsellprice = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+    $fxsellprice = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
 
     # keine ahnung wofür das in IS.pm gemacht wird:
     #      my ($dec) = ($fxsellprice =~ /\.(\d+)/);
@@ -150,7 +153,7 @@ sub post_invoice {
     $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
     # deduct discount
     $form->{"sellprice_$i"} = $fxsellprice * (1 - $form->{"discount_$i"});
- 
+
     ######################################################################
     if ($form->{"inventory_accno_$i"}) {
 
@@ -218,9 +221,9 @@ sub post_invoice {
            ORDER BY transdate|;
       $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id_$i"}));
 
-      my $totalqty = $base_qty;
+      my $totalqty = $baseqty;
 
-      while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+      while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
         my $qty    = min $totalqty, ($ref->{base_qty} + $ref->{allocated});
         $linetotal = $form->round_amount(($form->{"sellprice_$i"} * $qty) / $basefactor, 2);
 
@@ -631,7 +634,7 @@ sub reverse_invoice {
 
   my $netamount = 0;
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $netamount += $form->round_amount($ref->{sellprice} * $ref->{qty} * -1, 2);
 
     next unless $ref->{inventory_accno_id};
@@ -649,7 +652,7 @@ sub reverse_invoice {
          ORDER BY transdate DESC|;
       my $sth2 = prepare_execute_query($form, $dbh, $query, $ref->{parts_id});
 
-      while (my $pthref = $sth2->fetchrow_hashref(NAME_lc)) {
+      while (my $pthref = $sth2->fetchrow_hashref("NAME_lc")) {
         my $qty = $ref->{allocated};
         if (($ref->{allocated} + $pthref->{allocated}) > 0) {
           $qty = $pthref->{allocated} * -1;
@@ -813,7 +816,7 @@ sub retrieve_invoice {
         ORDER BY i.id|;
   $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     # Retrieve custom variables.
     my $cvars = CVar->get_custom_variables(dbh        => $dbh,
                                            module     => 'IC',
@@ -849,7 +852,7 @@ sub retrieve_invoice {
     $ref->{taxaccounts} = "";
 
     my $i = 0;
-    while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
+    while (my $ptr = $stw->fetchrow_hashref("NAME_lc")) {
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
         $i++;
         $ptr->{accno} = $i;
@@ -923,7 +926,7 @@ sub get_vendor {
        LEFT JOIN business b       ON (b.id = v.business_id)
        LEFT JOIN payment_terms pt ON (v.payment_id = pt.id)
        WHERE 1=1 $where|;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
+  my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
   map { $params->{$_} = $ref->{$_} } keys %$ref;
 
   $params->{creditremaining} = $params->{creditlimit};
@@ -972,14 +975,14 @@ sub get_vendor {
     for $ref (@$refs) {
       if ($ref->{category} eq 'E') {
         $i++;
-
+        my ($tax_id, $rate);
         if ($params->{initial_transdate}) {
           my $tax_query = qq|SELECT tk.tax_id, t.rate FROM taxkeys tk
                              LEFT JOIN tax t ON (tk.tax_id = t.id)
                              WHERE (tk.chart_id = ?) AND (startdate <= ?)
                              ORDER BY tk.startdate DESC
                              LIMIT 1|;
-          my ($tax_id, $rate) = selectrow_query($form, $dbh, $tax_query, $ref->{id}, $params->{initial_transdate});
+          ($tax_id, $rate) = selectrow_query($form, $dbh, $tax_query, $ref->{id}, $params->{initial_transdate});
           $params->{"taxchart_$i"} = "${tax_id}--${rate}";
         }
 
@@ -1082,7 +1085,7 @@ sub retrieve_item {
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   $form->{item_list} = [];
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
 
     # In der Buchungsgruppe ist immer ein Bestandskonto verknuepft, auch wenn
     # es sich um eine Dienstleistung handelt. Bei Dienstleistungen muss das
@@ -1093,7 +1096,7 @@ sub retrieve_item {
     delete($ref->{inventory_accno_id});
 
     # get tax rates and description
-    $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
+    my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
       qq|SELECT c.accno, t.taxdescription, t.rate, t.taxnumber
          FROM tax t
@@ -1113,7 +1116,7 @@ sub retrieve_item {
 
     $ref->{taxaccounts} = "";
     my $i = 0;
-    while ($ptr = $stw->fetchrow_hashref(NAME_lc)) {
+    while (my $ptr = $stw->fetchrow_hashref("NAME_lc")) {
 
       #    if ($customertax{$ref->{accno}}) {
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
@@ -1227,7 +1230,7 @@ sub item_links {
        ORDER BY accno|;
   my $sth = prepare_execute_query($query, $dbh, $query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     foreach my $key (split(/:/, $ref->{link})) {
       if ($key =~ /IC/) {
         push @{ $form->{IC_links}{$key} },

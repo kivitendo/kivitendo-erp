@@ -1,14 +1,16 @@
 package SL::MoreCommon;
 
 require Exporter;
-@ISA = qw(Exporter);
+our @ISA = qw(Exporter);
 
-@EXPORT    = qw(save_form restore_form compare_numbers any cross);
-@EXPORT_OK = qw(ary_union ary_intersect ary_diff listify);
+our @EXPORT    = qw(save_form restore_form compare_numbers any cross);
+our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify);
 
 use YAML;
 
 use SL::AM;
+
+use strict;
 
 sub save_form {
   $main::lxdebug->enter_sub();

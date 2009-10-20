@@ -445,6 +445,7 @@ sub process_perl_script {
 
   $dbh->begin_work();
 
+  # setup dbup_ export vars
   my %dbup_myconfig = ();
   map({ $dbup_myconfig{$_} = $form->{$_}; }
       qw(dbname dbuser dbpasswd dbhost dbport dbconnect));

@@ -34,8 +34,6 @@
 
 package IS;
 
-#use strict;
-
 use List::Util qw(max);
 
 use SL::AM;
@@ -48,6 +46,8 @@ use SL::GenericTranslations;
 use SL::MoreCommon;
 use SL::IC;
 use Data::Dumper;
+
+use strict;
 
 sub invoice_details {
   $main::lxdebug->enter_sub();

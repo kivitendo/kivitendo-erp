@@ -3,9 +3,11 @@ package SL::DBUpgrade2;
 use SL::Common;
 
 require Exporter;
-@ISA = qw(Exporter);
+our @ISA = qw(Exporter);
 
-@EXPORT = qw(parse_dbupdate_controls sort_dbupdate_controls);
+our @EXPORT = qw(parse_dbupdate_controls sort_dbupdate_controls);
+
+use strict;
 
 sub parse_dbupdate_controls {
   $main::lxdebug->enter_sub();

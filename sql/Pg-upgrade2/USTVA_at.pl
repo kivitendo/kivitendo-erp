@@ -2,9 +2,14 @@
 # @description: USTVA Report Daten fuer Oesterreich. Vielen Dank an Gerhard Winkler..
 # @depends: USTVA_abstraction
 
-unless ( $main::form ) { 
+use strict;
+
+unless ( $main::form ) {
   die("This script cannot be run from the command line.");
 }
+
+# import vars from caller
+our ($dbup_locale, $dbup_myconfig, $dbh, $iconv);
 
 if ( check_coa('Austria') ){
 
@@ -12,10 +17,10 @@ if ( check_coa('Austria') ){
     print qq|Eine leere Datenbank mit Kontenrahmen Österreich vorgefunden. <br />
              Die Aktualisierungen werden eingespielt...<br />
              <b>Achtung: Dieses Update ist ungetestet und bedarf weiterer Konfiguration</b>|;
-    
+
     return 1
-      && clear_tables(( 'tax.report_variables', 'tax.report_headings', 
-                        'tax.report_categorys', 'taxkeys', 
+      && clear_tables(( 'tax.report_variables', 'tax.report_headings',
+                        'tax.report_categorys', 'taxkeys',
                         'tax',                  'chart',
                         'buchungsgruppen',
                      ))
@@ -25,9 +30,9 @@ if ( check_coa('Austria') ){
       && do_insert_taxkeys()
       && do_insert_buchungsgruppen()
     ;
-  } 
+  }
   else {
-    print qq|Eine österreichische Datenbank in der bereits Buchungssätze enthalten sind, kann nicht aktualisiert werden.<br /> 
+    print qq|Eine österreichische Datenbank in der bereits Buchungssätze enthalten sind, kann nicht aktualisiert werden.<br />
              Bitte eine neue Datenbank mit Kontenrahmen 'Austria' anlegen.|;
     return 1;
   }
@@ -76,22 +81,22 @@ sub clear_tables {
 }
 
 sub check_coa {
-  
+
   my ( $want_coa ) = @_;
-  
+
   my $query = q{ SELECT count(*) FROM defaults WHERE coa = ? };
-  my ($have_coa) = selectrow_query($form, $dbh, $query, $want_coa);
+  my ($have_coa) = selectrow_query($main::form, $dbh, $query, $want_coa);
 
   return $have_coa;
 
 }
 
 sub coa_is_empty {
-  
-  my $query = q{ SELECT count(*) 
+
+  my $query = q{ SELECT count(*)
                  FROM ar, ap, gl, invoice, acc_trans, customer, vendor, parts
                };
-  my ($empty) = selectrow_query($form, $dbh, $query);
+  my ($empty) = selectrow_query($main::form, $dbh, $query);
 
   $empty = !$empty;
 
@@ -106,16 +111,16 @@ sub do_copy_tax_report_structure {
         "INSERT INTO tax.report_headings (id, category_id, type, description, subdescription) VALUES (0, 0, NULL, NULL, NULL)",
   );
 
-  map({ do_query($_); } @queries);  
+  map({ do_query($_); } @queries);
 
 
   my @copy_statements = (
       "INSERT INTO tax.report_variables (id, position, heading_id, description, dec_places, valid_from) VALUES (?, ?, ?, ?, ?, ?)",
   );
 
-  
+
   my @copy_data = (
-    [ 
+    [
       "1;000;0;a) Gesamtbetrag der Bemessungsgrundlage für Lieferungen und sonstige Leistungen (ohne den nachstehend angeführten Eigenverbrauch) einschließlich Anzahlungen (jeweils ohne Umsatzsteuer);2;1970-01-01",
       "2;001;0;zuzüglich Eigenverbrauch (§1 Abs. 1 Z 2, § 3 Abs. 2 und § 3a Abs. 1a);2;1970-01-01",
       "3;021;0;abzüglich Umsätze für die die Steuerschuld gemäß § 19 Abs. 1 zweiter Satz sowie gemäß § 19 Abs. 1a, Abs. 1b, Abs. 1c auf den Leistungsempfänger übergegangen ist.;2;1970-01-01",
@@ -355,7 +360,7 @@ sub do_insert_chart {
   return 1;
 }
 sub do_insert_tax {
-  
+
   my @copy_statements = (
       "INSERT INTO tax (chart_id, taxnumber, taxkey, taxdescription, itime, mtime, rate, id) VALUES (65, '2510', 7, 'Vorsteuer 10%', '2006-01-30 11:08:23.332857', '2006-02-08 20:28:09.63567', 0.10000, 173);",
       "INSERT INTO tax (chart_id, taxnumber, taxkey, taxdescription, itime, mtime, rate, id) VALUES (64, '2512', 8, 'Vorsteuer 12%', '2006-02-02 17:39:18.535036', '2006-02-08 20:28:21.463869', 0.12000, 174);",
@@ -366,7 +371,7 @@ sub do_insert_tax {
       "INSERT INTO tax (chart_id, taxnumber, taxkey, taxdescription, itime, mtime, rate, id) VALUES (NULL, NULL, 10, 'Im anderen EG-Staat steuerpfl. Lieferung', '2006-01-30 11:08:23.332857', '2006-02-08 12:45:36.44088', NULL, 171);",
       "INSERT INTO tax (chart_id, taxnumber, taxkey, taxdescription, itime, mtime, rate, id) VALUES (NULL, NULL, 11, 'Steuerfreie EG-Lief. an Abn. mit UStIdNr', '2006-01-30 11:08:23.332857', '2006-02-08 12:45:36.44088', NULL, 172);",
       "INSERT INTO tax (chart_id, taxnumber, taxkey, taxdescription, itime, mtime, rate, id) VALUES (NULL, NULL, 0, 'Keine Steuer', '2006-01-30 11:08:23.332857', '2006-02-08 12:45:36.44088', 0.00000, 0);",
- 
+
   );
 
   for my $statement ( 0 .. $#copy_statements ) {
@@ -378,7 +383,7 @@ sub do_insert_tax {
 }
 
 sub do_insert_taxkeys {
-  
+
   my @copy_statements = (
       "INSERT INTO taxkeys VALUES (230, 69, 177, 2, NULL, '1970-01-01');",
       "INSERT INTO taxkeys VALUES (231, 72, 178, 3, NULL, '1970-01-01');",
@@ -476,7 +481,7 @@ sub do_insert_taxkeys {
       "UPDATE taxkeys SET pos_ustva='017' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('4015', '4025', '4035', '4045', '4315', '4325', '4335', '4345'));",
       "UPDATE taxkeys SET pos_ustva='022' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('4040', '4045'));",
       "UPDATE taxkeys SET pos_ustva='122' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('3520'));",
-      "UPDATE taxkeys SET pos_ustva='029' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('4010', '4015'));", 
+      "UPDATE taxkeys SET pos_ustva='029' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('4010', '4015'));",
       "UPDATE taxkeys SET pos_ustva='129' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('3510'));",
       "UPDATE taxkeys SET pos_ustva='025' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('4012'));",
       "UPDATE taxkeys SET pos_ustva='125' WHERE chart_id IN (SELECT id FROM chart WHERE accno IN ('3512'));",

@@ -4,7 +4,9 @@ use Data::Dumper;
 
 require Tie::Hash;
 
-@ISA = (Tie::StdHash);
+our @ISA = qw(Tie::StdHash);
+
+use strict;
 
 my %watched_variables;
 

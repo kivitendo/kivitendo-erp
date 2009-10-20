@@ -6,6 +6,8 @@ use SL::DBUtils;
 use SL::MoreCommon;
 use Data::Dumper;
 
+use strict;
+
 sub close_orders_if_billed {
   $main::lxdebug->enter_sub();
 

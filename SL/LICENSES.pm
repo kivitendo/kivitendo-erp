@@ -35,16 +35,18 @@ package LICENSES;
 
 use SL::Form;
 
+use strict;
+
 sub save_license {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
 
-  $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->dbconnect($myconfig);
 
-  $query =
+  my $query =
     qq| INSERT INTO license (licensenumber) VALUES ('$form->{licensenumber}')|;
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $sth->finish();
 
@@ -52,7 +54,7 @@ sub save_license {
     qq|SELECT l.id FROM license l WHERE l.licensenumber = '$form->{licensenumber}'|;
   $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
-  ($license_id) = $sth->fetchrow_array;
+  my ($license_id) = $sth->fetchrow_array;
   $sth->finish();
 
   # save license
@@ -88,7 +90,7 @@ sub get_customers {
   my $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $form->{"all_customers"} = [];
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
     push(@{ $form->{"all_customers"} }, $ref);
   }
   $sth->finish();
@@ -174,7 +176,7 @@ sub search {
   $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
   $form->{"licenses"} = [];
-  while ($ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
     push(@{ $form->{"licenses"} }, $ref);
   }
 
@@ -207,7 +209,7 @@ sub get_license {
     . $form->{"id"};
   $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
-  $form->{"license"} = $sth->fetchrow_hashref(NAME_lc);
+  $form->{"license"} = $sth->fetchrow_hashref("NAME_lc");
   $sth->finish();
   $dbh->disconnect();
   $main::lxdebug->leave_sub();

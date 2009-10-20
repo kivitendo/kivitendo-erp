@@ -39,6 +39,8 @@ use Data::Dumper;
 use SL::DBUtils;
 use SL::CVar;
 
+use strict;
+
 my %project_id_column_prefixes  = ("ar"              => "global",
                                    "ap"              => "global",
                                    "oe"              => "global",
@@ -178,7 +180,7 @@ sub save_project {
     $params{active} = 1;
   }
 
-  $query  = qq|UPDATE project SET projectnumber = ?, description = ?, active = ?
+  my $query  = qq|UPDATE project SET projectnumber = ?, description = ?, active = ?
                WHERE id = ?|;
 
   @values = ($params{projectnumber}, $params{description}, $params{active} ? 't' : 'f', conv_i($params{id}));

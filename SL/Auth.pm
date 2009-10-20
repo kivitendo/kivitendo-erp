@@ -19,6 +19,8 @@ use SL::Auth::LDAP;
 use SL::User;
 use SL::DBUtils;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -140,7 +142,7 @@ sub dbconnect {
     $dsn .= ';port=' . $cfg->{port};
   }
 
-  $main::lxdebug->message(LXDebug::DEBUG1, "Auth::dbconnect DSN: $dsn");
+  $main::lxdebug->message(LXDebug->DEBUG1, "Auth::dbconnect DSN: $dsn");
 
   $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { 'AutoCommit' => 0 });
 
@@ -215,7 +217,7 @@ sub create_database {
     $dsn .= ';port=' . $cfg->{port};
   }
 
-  $main::lxdebug->message(LXDebug::DEBUG1, "Auth::create_database DSN: $dsn");
+  $main::lxdebug->message(LXDebug->DEBUG1(), "Auth::create_database DSN: $dsn");
 
   my $dbh = DBI->connect($dsn, $params{superuser}, $params{superuser_password});
 
@@ -230,7 +232,7 @@ sub create_database {
 
   my $query = qq|CREATE DATABASE "$cfg->{db}" OWNER "$cfg->{user}" TEMPLATE "$params{template}" ENCODING '$encoding'|;
 
-  $main::lxdebug->message(LXDebug::DEBUG1, "Auth::create_database query: $query");
+  $main::lxdebug->message(LXDebug->DEBUG1(), "Auth::create_database query: $query");
 
   $dbh->do($query);
 

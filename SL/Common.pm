@@ -13,7 +13,9 @@ use Data::Dumper;
 
 use SL::DBUtils;
 
-use vars qw(@db_encodings %db_encoding_to_charset);
+use vars qw(@db_encodings %db_encoding_to_charset %charset_to_db_encoding);
+
+use strict;
 
 @db_encodings = (
   { "label" => "ASCII",          "dbencoding" => "SQL_ASCII", "charset" => "ASCII" },
