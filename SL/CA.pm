@@ -38,12 +38,14 @@ package CA;
 use Data::Dumper;
 use SL::DBUtils;
 
+use strict;
+
 sub all_accounts {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $chart_id) = @_;
 
-  my %amount;
+  my (%amount, $acc_cash_where);
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -104,7 +106,7 @@ sub all_accounts {
 
   $form->{CA} = [];
 
-  while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ca = $sth->fetchrow_hashref("NAME_lc")) {
     $ca->{amount} = $amount{ $ca->{accno} };
     if ($ca->{amount} < 0) {
       $ca->{debit} = $ca->{amount} * -1;
@@ -145,7 +147,7 @@ sub all_transactions {
   #    $where .= " AND ac.transdate <= '$form->{todate}'";
   #  }
 
-  my (@values, @where_values, @subwhere_values);
+  my (@values, @where_values, @subwhere_values, $subwhere);
   if ($form->{fromdate}) {
     $where .= qq| AND ac.transdate >= ?|;
     $subwhere .= qq| AND transdate >= ?|;
@@ -163,7 +165,7 @@ sub all_transactions {
 
   my $sortorder = join ', ',
     $form->sort_columns(qw(transdate reference description));
-  my $false = ($myconfig->{dbdriver} eq 'Pg') ? FALSE: q|'0'|;
+  my $false = ($myconfig->{dbdriver} eq 'Pg') ? "FALSE" : q|'0'|;
 
   # Oracle workaround, use ordinal positions
   my %ordinal = (transdate   => 4,
@@ -236,16 +238,16 @@ sub all_transactions {
       ($form->{old_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{fromdate}, $form->{accno});
 
       # get current saldo
-      my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
       $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id) WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
       ($form->{saldo_new}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
       #get current balance
-      my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
       $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id) WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount < 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
       ($form->{current_balance_debit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
 
-      my $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
+      $todate = ($form->{todate} ne "") ? " AND ac.transdate <= '$form->{todate}' " : "";
       $query = qq|SELECT sum(ac.amount) FROM acc_trans ac LEFT JOIN chart c ON (ac.chart_id = c.id)WHERE ((select date_trunc('year', ac.transdate::date)) >= (select date_trunc('year', ?::date))) $todate AND c.accno = ? AND ac.amount > 0 AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
       ($form->{current_balance_credit}) = selectrow_query($form, $dbh, $query, $form->{fromdate}, $form->{accno});
     }
@@ -301,7 +303,7 @@ sub all_transactions {
       qq|WHERE | . $where . $dpt_where . $project .
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
-      qq| AND a.vendor_id = v.id |;
+      qq| AND a.vendor_id = v.id | .
       qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)| .
     push(@values,
          @where_values, @department_values, @project_values, $id,
@@ -314,6 +316,17 @@ sub all_transactions {
 
       $fromdate_where =~ s/ac\./a\./;
       $todate_where   =~ s/ac\./a\./;
+
+# strict check 20.10.2009 sschoeling
+# the previous version contained the var $ar_ap_cash_where, which was ONLY set by
+# RP->trial_balance() I tried to figure out which bizarre flow through the
+# program would happen to set that var, so that it would be used here later on,
+# (which would be nonsense, since you would normally load chart before
+# claculating balance of said charts) and then decided that any mechanic that
+# complex should fail anyway.
+
+# if anyone is missing a time check on charts, that broke arounf the time
+# trial_balance was rewritten, this would be it
 
       $query .=
         qq|UNION ALL | .
@@ -331,7 +344,6 @@ sub all_transactions {
         $todate_where .
         $dpt_where .
         $project .
-        $ar_ap_cash_where .
         qq|UNION ALL | .
 
         qq|SELECT a.id, a.invnumber, v.name, a.transdate, | .
@@ -346,8 +358,7 @@ sub all_transactions {
         $fromdate_where .
         $todate_where .
         $dpt_where .
-        $project .
-        $ar_ap_cash_where;
+        $project;
       push(@values,
            $id, @department_values, @project_values,
            $id, @department_values, @project_values);
@@ -363,17 +374,17 @@ sub all_transactions {
   my $sort = grep({ $form->{sort} eq $_ } qw(transdate reference description)) ? $form->{sort} : 'transdate';
 
   $query .= qq|ORDER BY $sort|;
-  $sth = prepare_execute_query($form, $dbh, $query, @values);
+  my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
   #get detail information for each transaction
-  $trans_query =
+  my $trans_query =
         qq|SELECT accno, | .
         qq|amount, transdate FROM acc_trans LEFT JOIN chart ON (chart_id=chart.id) WHERE | .
         qq|trans_id = ? AND sign(amount) <> sign(?) AND chart_id <> ? AND transdate = ?|;
   my $trans_sth = $dbh->prepare($trans_query);
 
   $form->{CA} = [];
-  while (my $ca = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ca = $sth->fetchrow_hashref("NAME_lc")) {
     # ap
     if ($ca->{module} eq "ap") {
       $ca->{module} = ($ca->{invoice}) ? 'ir' : 'ap';
@@ -397,7 +408,7 @@ sub all_transactions {
     #get detail information for this transaction
     $trans_sth->execute($ca->{id}, $ca->{amount}, $ca->{chart_id}, $ca->{transdate}) ||
     $form->dberror($trans_query . " (" . join(", ", $ca->{id}) . ")");
-    while (my $trans = $trans_sth->fetchrow_hashref(NAME_lc)) {
+    while (my $trans = $trans_sth->fetchrow_hashref("NAME_lc")) {
       if (($ca->{transdate} eq $trans->{transdate}) && ($ca->{amount} * $trans->{amount} < 0)) {
         if ($trans->{amount} < 0) {
           $trans->{debit}  = $trans->{amount} * -1;

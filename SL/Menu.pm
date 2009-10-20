@@ -37,6 +37,8 @@ package Menu;
 use SL::Auth;
 use SL::Inifile;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -91,7 +93,7 @@ sub menuitem {
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     $str .= "&" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
+    my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
@@ -135,7 +137,7 @@ sub menuitem_js {
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     $str .= "&" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
+    my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
@@ -149,7 +151,8 @@ sub menuitem_new {
 
   my ($self, $name, $item) = @_;
 
-  my $form        = $main::form;
+  my $form        =  $main::form;
+  my $myconfig    = \%main::myconfig;
 
   my $module      = $self->{$name}->{module} || $form->{script};
   my $action      = $self->{$name}->{action};
@@ -207,7 +210,7 @@ sub menuitem_v3 {
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     $str .= "&" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
+    my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
@@ -267,7 +270,7 @@ sub menuitem_XML {
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     $str .= "&amp;" . $form->escape($key, 1) . "=";
-    ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
+    my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $str .= $form->escape($value, 1);
   }
@@ -311,6 +314,10 @@ sub parse_access_string {
   my $key    = shift;
   my $access = shift;
 
+  my $form        =  $main::form;
+  my $auth        =  $main::auth;
+  my $myconfig    = \%main::myconfig;
+
   my @stack;
   my $cur_ary = [];
 
@@ -331,7 +338,7 @@ sub parse_access_string {
     } elsif ($token eq ")") {
       pop @stack;
       if (!@stack) {
-        $main::form->error("Error in menu.ini for entry ${key}: missing '('");
+        $form->error("Error in menu.ini for entry ${key}: missing '('");
       }
       $cur_ary = $stack[-1];
 
@@ -339,16 +346,16 @@ sub parse_access_string {
       push @{$cur_ary}, $token;
 
     } else {
-      push @{$cur_ary}, $main::auth->check_right($main::form->{login}, $token, 1);
+      push @{$cur_ary}, $auth->check_right($form->{login}, $token, 1);
     }
   }
 
   if ($access) {
-    $main::form->error("Error in menu.ini for entry ${name}: unrecognized token at the start of '$access'\n");
+    $form->error("Error in menu.ini for entry ${key}: unrecognized token at the start of '$access'\n");
   }
 
   if (1 < scalar @stack) {
-    $main::form->error("Error in menu.ini for entry ${name}: Missing ')'\n");
+    $main::form->error("Error in menu.ini for entry ${key}: Missing ')'\n");
   }
 
   return SL::Auth::evaluate_rights_ary($stack[0]);
