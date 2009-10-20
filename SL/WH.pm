@@ -37,8 +37,10 @@ package WH;
 use SL::AM;
 use SL::DBUtils;
 use SL::Form;
+
 use warnings;
-#use strict;
+use strict;
+
 sub transfer {
   $main::lxdebug->enter_sub();
 
@@ -242,7 +244,7 @@ sub get_warehouse_journal {
   my $dbh = $form->get_standard_dbh($myconfig);
 
   # filters
-  my (@filter_ary, @filter_vars, $joins);
+  my (@filter_ary, @filter_vars, $joins, %select_tokens, %select);
 
   if ($filter{warehouse_id} ne '') {
     push @filter_ary, "w1.id = ? OR w2.id = ?";
@@ -448,7 +450,7 @@ SQL
   }
 
   my @contents = ();
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     map { /^r_/; $ref->{"$'"} = $ref->{$_} } keys %$ref;
     my $qty = $ref->{"qty"} * 1;
 
@@ -628,7 +630,7 @@ sub get_warehouse_report {
 
   my (%non_empty_bins, @all_fields, @contents);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $ref->{qty} *= 1;
     my $qty      = $ref->{qty};
 

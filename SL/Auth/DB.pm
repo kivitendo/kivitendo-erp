@@ -5,6 +5,8 @@ use DBI;
 #use SL::Auth;
 use SL::DBUtils;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -32,7 +34,7 @@ sub authenticate {
 
   if (!$dbh) {
     $main::lxdebug->leave_sub();
-    return SL::Auth::ERR_BACKEND;
+    return SL::Auth->ERR_BACKEND();
   }
 
   my $query             = qq|SELECT password FROM auth."user" WHERE login = ?|;
@@ -43,7 +45,7 @@ sub authenticate {
 
   $main::lxdebug->leave_sub();
 
-  return $password eq $stored_password ? SL::Auth::OK : SL::Auth::ERR_PASSWORD;
+  return $password eq $stored_password ? SL::Auth->OK() : SL::Auth->ERR_PASSWORD();
 }
 
 sub can_change_password {
@@ -62,7 +64,7 @@ sub change_password {
 
   if (!$dbh) {
     $main::lxdebug->leave_sub();
-    return SL::Auth::ERR_BACKEND
+    return SL::Auth->ERR_BACKEND()
   }
 
   $password = crypt $password, substr($login, 0, 2) if (!$is_crypted);

@@ -37,8 +37,6 @@
 
 package Form;
 
-#use strict;
-
 use Data::Dumper;
 
 use CGI;
@@ -58,6 +56,8 @@ use SL::User;
 use Template;
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(any);
+
+use strict;
 
 my $standard_dbh;
 
@@ -314,7 +314,7 @@ sub new {
       _recode_recursively($iconv, $self);
     }
 
-    delete $self{INPUT_ENCODING};
+    delete $self->{INPUT_ENCODING};
   }
 
   $self->{action}  =  lc $self->{action};
@@ -1588,7 +1588,7 @@ sub get_standard_dbh {
   my ($self, $myconfig) = @_;
 
   if ($standard_dbh && !$standard_dbh->{Active}) {
-    $main::lxdebug->message(LXDebug::INFO, "get_standard_dbh: \$standard_dbh is defined but not Active anymore");
+    $main::lxdebug->message(LXDebug->INFO(), "get_standard_dbh: \$standard_dbh is defined but not Active anymore");
     undef $standard_dbh;
   }
 

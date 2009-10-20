@@ -41,6 +41,8 @@ use SL::CVar;
 use SL::DBUtils;
 use SL::IC;
 
+use strict;
+
 =head1 NAME
 
 OE.pm - Order entry module

@@ -45,6 +45,8 @@ use SL::DBUtils;
 use SL::FU;
 use SL::Notes;
 
+use strict;
+
 sub get_tuple {
   $main::lxdebug->enter_sub();
 

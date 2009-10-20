@@ -32,6 +32,8 @@
 #
 #=====================================================================
 
+use strict;
+
 sub init {
   my $self = shift;
 
@@ -129,7 +131,7 @@ sub num2text {
 
     # add thousand, million
     if ($i) {
-      $num = 10**($i * 3);
+      my $num = 10**($i * 3);
       push(@textnumber, $self->{numbername}{$num});
     }
 

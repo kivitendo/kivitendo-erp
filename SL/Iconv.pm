@@ -6,6 +6,8 @@ use SL::Common;
 
 use vars qw(%converters);
 
+use strict;
+
 sub get_converter {
   my ($from_charset, $to_charset) = @_;
 

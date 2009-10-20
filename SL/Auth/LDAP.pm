@@ -4,6 +4,8 @@ use English '-no_match_vars';
 
 #use SL::Auth;
 
+use strict;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -144,32 +146,32 @@ sub authenticate {
 
   if ($is_crypted) {
     $main::lxdebug->leave_sub();
-    return SL::Auth::ERR_BACKEND;
+    return SL::Auth->ERR_BACKEND();
   }
 
   my $ldap = $self->_connect();
 
   if (!$ldap) {
     $main::lxdebug->leave_sub();
-    return SL::Auth::ERR_BACKEND;
+    return SL::Auth->ERR_BACKEND();
   }
 
   my $dn = $self->_get_user_dn($ldap, $login);
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "LDAP authenticate: dn $dn");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "LDAP authenticate: dn $dn");
 
   if (!$dn) {
     $main::lxdebug->leave_sub();
-    return SL::Auth::ERR_BACKEND;
+    return SL::Auth->ERR_BACKEND();
   }
 
   my $mesg = $ldap->bind($dn, 'password' => $password);
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "LDAP authenticate: bind mesg " . $mesg->error());
+  $main::lxdebug->message(LXDebug->DEBUG2(), "LDAP authenticate: bind mesg " . $mesg->error());
 
   $main::lxdebug->leave_sub();
 
-  return $mesg->is_error() ? SL::Auth::ERR_PASSWORD : SL::Auth::OK;
+  return $mesg->is_error() ? SL::Auth->ERR_PASSWORD() : SL::Auth->OK();
 }
 
 sub can_change_password {
@@ -177,11 +179,14 @@ sub can_change_password {
 }
 
 sub change_password {
-  return SL::Auth::ERR_BACKEND;
+  return SL::Auth->ERR_BACKEND();
 }
 
 sub verify_config {
   $main::lxdebug->enter_sub();
+
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   my $self = shift;
   my $cfg  = $self->{auth}->{LDAP_config};

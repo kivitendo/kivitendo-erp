@@ -36,6 +36,8 @@ use Data::Dumper;
 use File::Path;
 use Time::HiRes qw(gettimeofday);
 
+use strict;
+
 sub _get_export_path {
   $main::lxdebug->enter_sub();
 
@@ -125,11 +127,11 @@ sub get_datev_stamm {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  $query = qq|SELECT * FROM datev|;
-  $sth   = $dbh->prepare($query);
+  my $query = qq|SELECT * FROM datev|;
+  my $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  my $ref = $sth->fetchrow_hashref(NAME_lc);
+  my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
@@ -146,7 +148,7 @@ sub save_datev_stamm {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  $query = qq|DELETE FROM datev|;
+  my $query = qq|DELETE FROM datev|;
   $dbh->do($query) || $form->dberror($query);
 
   $query = qq|INSERT INTO datev
@@ -159,7 +161,7 @@ sub save_datev_stamm {
     . $dbh->quote($form->{mandantennr}) . qq|,|
     . $dbh->quote($form->{datentraegernr}) . qq|,|
     . $dbh->quote($form->{abrechnungsnr}) . qq|)|;
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
   $sth->finish;
 
@@ -201,6 +203,9 @@ sub get_dates {
   $main::lxdebug->enter_sub();
 
   my ($zeitraum, $monat, $quartal, $transdatefrom, $transdateto) = @_;
+  my ($fromto, $jahr, $leap);
+
+  my $form = $main::form;
 
   $fromto = "transdate >= ";
 
@@ -322,6 +327,7 @@ sub _get_transactions {
 
   my $dbh      =  $form->get_standard_dbh($myconfig);
 
+  my ($notsplitindex);
   my @errors   = ();
 
   $fromto      =~ s/transdate/ac\.transdate/g;
@@ -379,7 +385,7 @@ sub _get_transactions {
   my $sth = prepare_execute_query($form, $dbh, $query);
 
   my $counter = 0;
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $counter++;
     if (($counter % 500) == 0) {
       print("$counter ");
@@ -391,7 +397,7 @@ sub _get_transactions {
     my $firstrun = 1;
 
     while (abs($count) > 0.01 || $firstrun) {
-      my $ref2 = $sth->fetchrow_hashref(NAME_lc);
+      my $ref2 = $sth->fetchrow_hashref("NAME_lc");
       last unless ($ref2);
 
       if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
@@ -490,6 +496,7 @@ sub _get_transactions {
 
     my $idx        = 0;
     my $correction = 0;
+    our @taxed;          # most likely defunct
     while (abs($absumsatz) >= 0.01) {
       if ($idx >= scalar @taxed) {
         last if (!$correction);
@@ -542,6 +549,7 @@ sub make_kne_data_header {
   $main::lxdebug->enter_sub();
 
   my ($myconfig, $form, $fromto, $start_jahr) = @_;
+  my ($primanota);
 
   my $jahr = $start_jahr;
   if (!$jahr) {
@@ -626,7 +634,7 @@ sub datetofour {
 
   my ($date, $six) = @_;
 
-  ($day, $month, $year) = split(/\./, $date);
+  my ($day, $month, $year) = split(/\./, $date);
 
   if ($day =~ /^0/) {
     $day = substr($day, 1, 1);
@@ -668,7 +676,7 @@ sub make_ed_versionset {
   if ($fromto ne "") {
     $versionset .= "0000" . substr($header, 28, 19);
   } else {
-    $datum = " " x 16;
+    my $datum = " " x 16;
     $versionset .= $datum . "001" . substr($header, 28, 4);
   }
 
@@ -711,7 +719,7 @@ sub kne_buchungsexport {
   my $export_path = _get_export_path() . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
-  my @ed_versionsets;
+  my @ed_versionset;
   my $fileno = 0;
 
   $form->header;
@@ -721,7 +729,7 @@ sub kne_buchungsexport {
   Buchungss&auml;tze verarbeitet:
 |;
 
-  ($fromto, $start_jahr) =
+  my ($fromto, $start_jahr) =
     &get_dates($form->{zeitraum}, $form->{monat},
                $form->{quartal},  $form->{transdatefrom},
                $form->{transdateto});
@@ -733,14 +741,14 @@ sub kne_buchungsexport {
     $filename++;
     my $ed_filename = $export_path . $filename;
     push(@filenames, $filename);
-    $header = &make_kne_data_header($myconfig, $form, $fromto, $start_jahr);
+    my $header = &make_kne_data_header($myconfig, $form, $fromto, $start_jahr);
 
     my $kne_file = SL::DATEV::KNEFile->new();
     $kne_file->add_block($header);
 
     while (scalar(@{ $form->{DATEV} }) > 0) {
-      $transaction = shift @{ $form->{DATEV} };
-      $trans_lines = scalar(@{$transaction});
+      my $transaction = shift @{ $form->{DATEV} };
+      my $trans_lines = scalar(@{$transaction});
       $counter++;
       if (($counter % 500) == 0) {
         print("$counter ");
@@ -757,6 +765,7 @@ sub kne_buchungsexport {
       my $datevautomatik = 0;
       my $taxkey         = 0;
       my $charttax       = 0;
+      my ($haben, $soll);
       my $iconv          = $main::locale->{iconv_iso8859};
       my %umlaute = ($iconv->convert('ä') => 'ae',
                      $iconv->convert('ö') => 'oe',
@@ -792,7 +801,7 @@ sub kne_buchungsexport {
       }
 
       # Umwandlung von Umlauten und Sonderzeichen in erlaubte Zeichen bei Textfeldern
-      foreach $umlaut (keys(%umlaute)) {
+      foreach my $umlaut (keys(%umlaute)) {
         $transaction->[$haben]->{'invnumber'} =~ s/${umlaut}/${umlaute{$umlaut}}/g;
         $transaction->[$haben]->{'name'}      =~ s/${umlaut}/${umlaute{$umlaut}}/g;
       }
@@ -856,13 +865,13 @@ sub kne_buchungsexport {
   }
 
   #Make EV Verwaltungsdatei
-  $ev_header = &make_ev_header($form, $fileno);
-  $ev_filename = $export_path . $evfile;
+  my $ev_header = &make_ev_header($form, $fileno);
+  my $ev_filename = $export_path . $evfile;
   push(@filenames, $evfile);
   open(EV, "> $ev_filename") or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
 
-  foreach $file (@ed_versionset) {
+  foreach my $file (@ed_versionset) {
     print(EV $ed_versionset[$file]);
   }
   close(EV);
@@ -891,7 +900,7 @@ sub kne_stammdatenexport {
   my $export_path = _get_export_path() . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
-  my @ed_versionsets;
+  my @ed_versionset;
   my $fileno          = 1;
   my $i               = 0;
   my $blockcount      = 1;
@@ -902,8 +911,11 @@ sub kne_stammdatenexport {
   my $ed_filename = $export_path . $filename;
   push(@filenames, $filename);
   open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
-  $header = &make_kne_data_header($myconfig, $form, "");
+  my $header = &make_kne_data_header($myconfig, $form, "");
   $remaining_bytes -= length($header);
+
+  my $fuellzeichen;
+  our $fromto;
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
@@ -928,7 +940,7 @@ sub kne_stammdatenexport {
   my $sth = $dbh->prepare($query);
   $sth->execute(@values) || $form->dberror($query);
 
-  while (my $ref = $sth->fetchrow_hashref(NAME_lc)) {
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     if (($remaining_bytes - length("t" . $ref->{'accno'})) <= 6) {
       $fuellzeichen = ($blockcount * 256 - length($buchungssatz . $header));
       $buchungssatz .= "\x00" x $fuellzeichen;
@@ -958,7 +970,7 @@ sub kne_stammdatenexport {
   print(ED $header);
   print(ED $buchungssatz);
   $fuellzeichen = 256 - (length($header . $buchungssatz . "z") % 256);
-  $dateiende = "\x00" x $fuellzeichen;
+  my $dateiende = "\x00" x $fuellzeichen;
   print(ED "z");
   print(ED $dateiende);
   close(ED);
@@ -967,13 +979,13 @@ sub kne_stammdatenexport {
   $ed_versionset[0] =
     &make_ed_versionset($header, $filename, $blockcount, $fromto);
 
-  $ev_header = &make_ev_header($form, $fileno);
-  $ev_filename = $export_path . $evfile;
+  my $ev_header = &make_ev_header($form, $fileno);
+  my $ev_filename = $export_path . $evfile;
   push(@filenames, $evfile);
   open(EV, "> $ev_filename") or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
 
-  foreach $file (@ed_versionset) {
+  foreach my $file (@ed_versionset) {
     print(EV $ed_versionset[$file]);
   }
   close(EV);

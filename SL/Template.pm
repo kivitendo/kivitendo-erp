@@ -5,8 +5,16 @@
 # Web http://www.lx-office.org
 #
 #====================================================================
+#
+#
+#    NOTE: strict checks are package global. don't check this file
+#            with perl -sc, it will only capture SimpleTemplate
+#
+#
 
 package SimpleTemplate;
+
+use strict;
 
 # Parameters:
 #   1. The template's file name
@@ -218,6 +226,8 @@ package LaTeXTemplate;
 use vars qw(@ISA);
 
 @ISA = qw(SimpleTemplate);
+
+use strict;
 
 sub new {
   my $type = shift;
@@ -666,6 +676,8 @@ use vars qw(@ISA);
 
 @ISA = qw(LaTeXTemplate);
 
+use strict;
+
 sub new {
   my $type = shift;
 
@@ -790,6 +802,8 @@ use vars qw(@ISA);
 
 @ISA = qw(LaTeXTemplate);
 
+use strict;
+
 sub new {
   my $type = shift;
 
@@ -828,10 +842,12 @@ use IO::File;
 
 @ISA = qw(SimpleTemplate);
 
+use strict;
+
 sub new {
   my $type = shift;
 
-  $self = $type->SUPER::new(@_);
+  my $self = $type->SUPER::new(@_);
 
   foreach my $module (qw(Archive::Zip Text::Iconv)) {
     eval("use ${module};");
@@ -1040,7 +1056,7 @@ sub parse {
   }
 
   my $zip = Archive::Zip->new();
-  if (Archive::Zip::AZ_OK != $zip->read($file_name)) {
+  if (Archive::Zip->AZ_OK != $zip->read($file_name)) {
     $self->{"error"} = "File not found/is not a OpenDocument file.";
     $main::lxdebug->leave_sub();
     return 0;
@@ -1117,7 +1133,7 @@ sub is_xvfb_running {
   my $dfname = $self->{"userspath"} . "/xvfb_display";
   my $display;
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "    Looking for $dfname\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "    Looking for $dfname\n");
   if ((-f $dfname) && open(IN, $dfname)) {
     my $pid = <IN>;
     chomp($pid);
@@ -1127,10 +1143,10 @@ sub is_xvfb_running {
     chomp($xauthority);
     close(IN);
 
-    $main::lxdebug->message(LXDebug::DEBUG2, "      found with $pid and $display\n");
+    $main::lxdebug->message(LXDebug->DEBUG2(), "      found with $pid and $display\n");
 
     if ((! -d "/proc/$pid") || !open(IN, "/proc/$pid/cmdline")) {
-      $main::lxdebug->message(LXDebug::DEBUG2, "  no/wrong process #1\n");
+      $main::lxdebug->message(LXDebug->DEBUG2(), "  no/wrong process #1\n");
       unlink($dfname, $xauthority);
       $main::lxdebug->leave_sub();
       return undef;
@@ -1138,7 +1154,7 @@ sub is_xvfb_running {
     my $line = <IN>;
     close(IN);
     if ($line !~ /xvfb/i) {
-      $main::lxdebug->message(LXDebug::DEBUG2, "      no/wrong process #2\n");
+      $main::lxdebug->message(LXDebug->DEBUG2(), "      no/wrong process #2\n");
       unlink($dfname, $xauthority);
       $main::lxdebug->leave_sub();
       return undef;
@@ -1147,7 +1163,7 @@ sub is_xvfb_running {
     $ENV{"XAUTHORITY"} = $xauthority;
     $ENV{"DISPLAY"} = $display;
   } else {
-    $main::lxdebug->message(LXDebug::DEBUG2, "      not found\n");
+    $main::lxdebug->message(LXDebug->DEBUG2(), "      not found\n");
   }
 
   $main::lxdebug->leave_sub();
@@ -1160,7 +1176,7 @@ sub spawn_xvfb {
 
   my ($self) = @_;
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "spawn_xvfb()\n");
+  $main::lxdebug->message(LXDebug->DEBUG2, "spawn_xvfb()\n");
 
   my $display = $self->is_xvfb_running();
 
@@ -1174,18 +1190,18 @@ sub spawn_xvfb {
     $display++;
   }
   $display = ":${display}";
-  $main::lxdebug->message(LXDebug::DEBUG2, "  display $display\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  display $display\n");
 
   my $mcookie = `mcookie`;
   die("Installation error: mcookie not found.") if ($? != 0);
   chomp($mcookie);
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "  mcookie $mcookie\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  mcookie $mcookie\n");
 
   my $xauthority = "/tmp/.Xauthority-" . $$ . "-" . time() . "-" . int(rand(9999999));
   $ENV{"XAUTHORITY"} = $xauthority;
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "  xauthority $xauthority\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  xauthority $xauthority\n");
 
   system("xauth add \"${display}\" . \"${mcookie}\"");
   if ($? != 0) {
@@ -1194,15 +1210,15 @@ sub spawn_xvfb {
     return undef;
   }
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "  about to fork()\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  about to fork()\n");
 
   my $pid = fork();
   if (0 == $pid) {
-    $main::lxdebug->message(LXDebug::DEBUG2, "  Child execing\n");
+    $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
     exec($main::xvfb_bin, $display, "-screen", "0", "640x480x8", "-nolisten", "tcp");
   }
   sleep(3);
-  $main::lxdebug->message(LXDebug::DEBUG2, "  parent dont sleeping\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  parent dont sleeping\n");
 
   local *OUT;
   my $dfname = $self->{"userspath"} . "/xvfb_display";
@@ -1216,7 +1232,7 @@ sub spawn_xvfb {
   print(OUT "$pid\n$display\n$xauthority\n");
   close(OUT);
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "  parent re-testing\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  parent re-testing\n");
 
   if (!$self->is_xvfb_running()) {
     $self->{"error"} = "Conversion to PDF failed because OpenOffice could not be started.";
@@ -1226,7 +1242,7 @@ sub spawn_xvfb {
     return undef;
   }
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "  spawn OK\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  spawn OK\n");
 
   $main::lxdebug->leave_sub();
 
@@ -1239,7 +1255,7 @@ sub is_openoffice_running {
   system("./scripts/oo-uno-test-conn.py $main::openofficeorg_daemon_port " .
          "> /dev/null 2> /dev/null");
   my $res = $? == 0;
-  $main::lxdebug->message(LXDebug::DEBUG2, "  is_openoffice_running(): $?\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  is_openoffice_running(): $?\n");
 
   $main::lxdebug->leave_sub();
 
@@ -1251,7 +1267,7 @@ sub spawn_openoffice {
 
   my ($self) = @_;
 
-  $main::lxdebug->message(LXDebug::DEBUG2, "spawn_openoffice()\n");
+  $main::lxdebug->message(LXDebug->DEBUG2(), "spawn_openoffice()\n");
 
   my ($try, $spawned_oo, $res);
 
@@ -1265,14 +1281,14 @@ sub spawn_openoffice {
     if (!$spawned_oo) {
       my $pid = fork();
       if (0 == $pid) {
-        $main::lxdebug->message(LXDebug::DEBUG2, "  Child daemonizing\n");
+        $main::lxdebug->message(LXDebug->DEBUG2(), "  Child daemonizing\n");
         chdir('/');
         open(STDIN, '/dev/null');
         open(STDOUT, '>/dev/null');
         my $new_pid = fork();
         exit if ($new_pid);
         my $ssres = setsid();
-        $main::lxdebug->message(LXDebug::DEBUG2, "  Child execing\n");
+        $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
         my @cmdline = ($main::openofficeorg_writer_bin,
                        "-minimized", "-norestore", "-nologo", "-nolockcheck",
                        "-headless",
@@ -1281,7 +1297,7 @@ sub spawn_openoffice {
         exec(@cmdline);
       }
 
-      $main::lxdebug->message(LXDebug::DEBUG2, "  Parent after fork\n");
+      $main::lxdebug->message(LXDebug->DEBUG2(), "  Parent after fork\n");
       $spawned_oo = 1;
       sleep(3);
     }
@@ -1386,6 +1402,8 @@ sub format_string {
 }
 
 sub get_mime_type() {
+  my ($self) = @_;
+
   if ($self->{"form"}->{"format"} =~ /pdf/) {
     return "application/pdf";
   } else {
@@ -1409,6 +1427,8 @@ package XMLTemplate;
 use vars qw(@ISA);
 
 @ISA = qw(HTMLTemplate);
+
+use strict;
 
 sub new {
   #evtl auskommentieren

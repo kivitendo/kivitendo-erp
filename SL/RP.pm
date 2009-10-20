@@ -37,9 +37,9 @@ package RP;
 use SL::DBUtils;
 use Data::Dumper;
 use List::Util qw(sum);
-# use strict;
-# use warnings;
 
+# use warnings;
+use strict;
 
 # new implementation of balance sheet
 # readme!
@@ -439,6 +439,7 @@ sub get_accounts_g {
   my $glwhere  = "";
   my $prwhere  = "";
   my $subwhere = "";
+  my $inwhere = "";
   my $item;
 
   if ($fromdate) {
@@ -776,6 +777,7 @@ sub trial_balance {
   my $glwhere       = '';
   my $glsumwhere    = '';
   my $tofrom;
+  my ($fromdate, $todate);
 
   if ($form->{fromdate} || $form->{todate}) {
     if ($form->{fromdate}) {

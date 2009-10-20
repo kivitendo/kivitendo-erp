@@ -36,6 +36,8 @@ package OP;
 
 use SL::DBUtils;
 
+use strict;
+
 sub overpayment {
   $main::lxdebug->enter_sub();
 
@@ -70,7 +72,7 @@ sub overpayment {
   do_query($form, $dbh, $query, @values);
 
   # add AR/AP
-  ($accno) = split /--/, $form->{ $form->{ARAP} };
+  my ($accno) = split /--/, $form->{ $form->{ARAP} };
 
   $query =
     qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount) | .

@@ -1,6 +1,5 @@
 package SL::Template::Plugin::MultiColumnIterator;
 
-#use strict;
 use base 'Template::Plugin';
 use Template::Constants;
 use Template::Exception;
@@ -8,10 +7,12 @@ use Template::Iterator;
 use SL::LXDebug;
 use Data::Dumper;
 
+use strict;
+
 our $AUTOLOAD;
 
 sub new {
-    $main::lxdebug->enter_sub(); 
+    $main::lxdebug->enter_sub();
     my $class   = shift;
     my $context = shift;
     my $data    = shift || [ ];
@@ -36,7 +37,7 @@ sub new {
         $data  = [ $data ] ;
     }
 
-    $main::lxdebug->leave_sub(); 
+    $main::lxdebug->leave_sub();
 
     bless {
         _DATA  => $data,
@@ -47,7 +48,7 @@ sub new {
 
 
 sub get_first {
-    $main::lxdebug->enter_sub(); 
+    $main::lxdebug->enter_sub();
     my $self  = shift;
     my $data  = $self->{ _DATA };
     my $dim   = $self->{ _DIM  };
@@ -55,7 +56,7 @@ sub get_first {
     $self->{ _DATASET } = $self->{ _DATA };
     my $size = int ((scalar @$data - 1) / $dim) + 1;
     my $index = 0;
-    
+
     return (undef, Template::Constants::STATUS_DONE) unless $size;
 
     # initialise various counters, flags, etc.
@@ -63,12 +64,12 @@ sub get_first {
     @$self{ qw( PREV ) } = ( undef );
     $$self{ qw( NEXT ) } = [ @{ $self->{ _DATASET }  }[ map { $index + 1 + $_ * $size } 0 .. ($dim - 1) ] ];
 
-    $main::lxdebug->leave_sub(); 
+    $main::lxdebug->leave_sub();
     return [ @{ $self->{ _DATASET } }[ map { $index + $_ * $size } 0 .. ($dim - 1) ] ];
 }
 
 sub get_next {
-    $main::lxdebug->enter_sub(); 
+    $main::lxdebug->enter_sub();
     my $self = shift;
     my ($max, $index) = @$self{ qw( MAX INDEX ) };
     my $data = $self->{ _DATASET };
@@ -89,11 +90,11 @@ sub get_next {
         @$self{ qw( INDEX COUNT FIRST LAST ) } = ( $index, $index + 1, 0, $index == $max ? 1 : 0 );
         $$self{ qw( PREV ) } = [ @{ $self->{ _DATASET } }[ map { $index - 1 + $_ * $size } 0 .. ($dim - 1) ] ];
         $$self{ qw( NEXT ) } = [ @{ $self->{ _DATASET } }[ map { $index + 1 + $_ * $size } 0 .. ($dim - 1) ] ];
-        $main::lxdebug->leave_sub(); 
+        $main::lxdebug->leave_sub();
         return [ @{ $self->{ _DATASET } }[ map { $index + $_ * $size } 0 .. ($dim - 1) ] ];
     }
     else {
-        $main::lxdebug->leave_sub(); 
+        $main::lxdebug->leave_sub();
         return (undef, Template::Constants::STATUS_DONE);   ## RETURN ##
     }
 }
@@ -131,9 +132,9 @@ sub AUTOLOAD {
 }
 
 sub dump {
-    $main::lxdebug->enter_sub(); 
+    $main::lxdebug->enter_sub();
     my $self = shift;
-    $main::lxdebug->leave_sub(); 
+    $main::lxdebug->leave_sub();
     return join('',
          "<pre>",
          "  Data: ", Dumper($self->{ _DATA  }), "\n",
@@ -149,50 +150,50 @@ sub dump {
 }
 
 sub index {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ INDEX };
 }
 
 sub number {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ NUMBER };
 }
 
 sub count {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ COUNT };
 }
 sub max {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ MAX };
 }
 
 sub size {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ SIZE };
 }
 
 sub first {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ FIRST };
 }
 
 sub last {
-  $main::lxdebug->enter_sub(); 
+  $main::lxdebug->enter_sub();
   my ($self) = @_;
-  $main::lxdebug->leave_sub(); 
+  $main::lxdebug->leave_sub();
   return $self->{ LAST};
 }
 

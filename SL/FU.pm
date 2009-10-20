@@ -8,6 +8,8 @@ use SL::Common;
 use SL::DBUtils;
 use SL::Notes;
 
+use strict;
+
 sub save {
   $main::lxdebug->enter_sub();
 

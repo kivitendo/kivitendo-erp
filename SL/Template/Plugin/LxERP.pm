@@ -7,6 +7,8 @@ use List::Util qw(min);
 
 use SL::AM;
 
+use strict;
+
 sub new {
   my $class   = shift;
   my $context = shift;

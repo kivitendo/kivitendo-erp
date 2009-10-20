@@ -36,6 +36,8 @@ use SL::Common;
 use SL::MIME;
 use SL::Template;
 
+use strict;
+
 my $num_sent = 0;
 
 sub new {

@@ -1,5 +1,7 @@
 package SL::MIME;
 
+use strict;
+
 sub mime_type_from_ext {
   $main::lxdebug->enter_sub();
 

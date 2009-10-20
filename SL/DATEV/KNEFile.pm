@@ -1,5 +1,7 @@
 package SL::DATEV::KNEFile;
 
+use strict;
+
 sub new {
   my $type = shift;
   my $self = {};
@@ -69,6 +71,7 @@ sub format_amount {
   my $self   = shift;
   my $amount = shift;
   my $width  = shift;
+  our $stellen;
 
   $amount =~ s/-//;
   my ($places, $decimal_places) = split m/\./, "$amount";
