@@ -39,9 +39,13 @@ use List::Util qw(first);
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 # end of main
 
 sub assert_bp_access {
+  my $form     = $main::form;
+
   my %access_map = (
     'invoice'           => 'invoice_edit',
     'sales_order'       => 'sales_order_edit',
@@ -53,23 +57,29 @@ sub assert_bp_access {
   );
 
   if ($form->{type} && $access_map{$form->{type}}) {
-    $auth->assert($access_map{$form->{type}});
+    $main::auth->assert($access_map{$form->{type}});
 
   } elsif ($form->{type} eq 'packing_list') {
-    $lxdebug->message(0, "1");
-    if (!$auth->assert('sales_order_edit', 1)) {
-    $lxdebug->message(0, "2");
-      $auth->assert('invoice_edit') ;
+    $main::lxdebug->message(0, "1");
+    if (!$main::auth->assert('sales_order_edit', 1)) {
+    $main::lxdebug->message(0, "2");
+      $main::auth->assert('invoice_edit') ;
     }
-    $lxdebug->message(0, "3");
+    $main::lxdebug->message(0, "3");
 
   } else {
-    $auth->assert('DOES_NOT_EXIST');
+    $main::auth->assert('DOES_NOT_EXIST');
   }
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my ($name, $account, $onload);
 
   assert_bp_access();
 
@@ -96,7 +106,7 @@ sub search {
   # $locale->text('Customer')
   # $locale->text('Vendor')
 
-  %label = (
+  my %label = (
        invoice =>
          { title => 'Sales Invoices', name => 'Customer', l_invnumber => 'Y' },
        packing_list =>
@@ -161,7 +171,7 @@ sub search {
         $account .= qq|
 	  <td colspan=3><select name=account>
 |;
-        foreach $ref (@{ $form->{accounts} }) {
+        foreach my $ref (@{ $form->{accounts} }) {
           $account .= qq|
           <option>$ref->{accno}--$ref->{description}
 |;
@@ -186,7 +196,8 @@ sub search {
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
+  my ($button1, $button2);
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -272,17 +283,20 @@ $jsscript
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub remove {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   assert_bp_access();
 
-  $selected = 0;
+  my $selected = 0;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       $selected = 1;
       last;
@@ -303,7 +317,7 @@ sub remove {
 
   map { delete $form->{$_} } qw(action header);
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
   }
@@ -324,11 +338,15 @@ sub remove {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub yes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   assert_bp_access();
 
@@ -336,14 +354,18 @@ sub yes {
   $form->{callback} .= "&header=1" if $form->{callback};
 
   $form->redirect($locale->text('Removed spoolfiles!'))
-    if (BP->delete_spool(\%myconfig, \%$form, $spool));
+    if (BP->delete_spool(\%myconfig, \%$form, $main::spool));
   $form->error($locale->text('Cannot remove files!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   assert_bp_access();
 
@@ -360,11 +382,11 @@ sub print {
     $form->{callback} .= "&header=1";
   }
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       $form->info($locale->text('Printing ... '));
 
-      if (BP->print_spool(\%myconfig, \%$form, $spool, "| $selected_printer")) {
+      if (BP->print_spool(\%myconfig, \%$form, $main::spool, "| $selected_printer")) {
         print $locale->text('done');
         $form->redirect($locale->text('Marked entries printed!'));
       }
@@ -374,11 +396,15 @@ sub print {
 
   $form->error('Nothing selected!');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_spool {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   assert_bp_access();
 
@@ -388,12 +414,13 @@ sub list_spool {
 
   BP->get_spoolfiles(\%myconfig, \%$form);
 
-  $title = $form->escape($form->{title});
-  $href  = "bp.pl?action=list_spool&vc=$form->{vc}&type=$form->{type}&title=$title";
+  my $title = $form->escape($form->{title});
+  my $href  = "bp.pl?action=list_spool&vc=$form->{vc}&type=$form->{type}&title=$title";
 
   $title = $form->escape($form->{title}, 1);
-  $callback =
+  my $callback =
     "bp.pl?action=list_spool&vc=$form->{vc}&type=$form->{type}&title=$title";
+  my $option;
 
   if ($form->{ $form->{vc} }) {
     $callback .= "&$form->{vc}=" . $form->escape($form->{ $form->{vc} }, 1);
@@ -446,9 +473,9 @@ sub list_spool {
       . $locale->date(\%myconfig, $form->{transdateto}, 1);
   }
 
-  $name = ucfirst $form->{vc};
+  my $name = ucfirst $form->{vc};
 
-  @columns = (transdate);
+  my @columns = qw(transdate);
   if ($form->{type} =~ /(invoice|packing_list|check|receipt)/) {
     push @columns, "invnumber";
   }
@@ -459,9 +486,12 @@ sub list_spool {
     push @columns, "quonumber";
   }
 
-  push @columns, (name, spoolfile);
-  @column_index = $form->sort_columns(@columns);
+  push @columns, qw(name spoolfile);
+  my @column_index = $form->sort_columns(@columns);
   unshift @column_index, "checked";
+
+  my %column_header;
+  my %column_data;
 
   $column_header{checked}   = "<th class=listheading>&nbsp;</th>";
   $column_header{transdate} =
@@ -520,9 +550,11 @@ sub list_spool {
   # escape callback for href
   $callback = $form->escape($callback);
 
-  $i = 0;
+  my $i = 0;
+  my $j = 0;
+  my $spoolfile;
 
-  foreach $ref (@{ $form->{SPOOL} }) {
+  foreach my $ref (@{ $form->{SPOOL} }) {
 
     $i++;
 
@@ -531,7 +563,7 @@ sub list_spool {
     if ($ref->{invoice}) {
       $ref->{module} = ($ref->{module} eq 'ar') ? "is" : "ir";
     }
-    $module = "$ref->{module}.pl";
+    my $module = "$ref->{module}.pl";
 
     $column_data{transdate} = "<td>$ref->{transdate}&nbsp;</td>";
 
@@ -550,7 +582,7 @@ sub list_spool {
       "<td><a href=$module?action=edit&id=$ref->{id}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
     $column_data{name}      = "<td>$ref->{name}</td>";
     $column_data{spoolfile} =
-      qq|<td><a href=$spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
+      qq|<td><a href=$main::spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
 <input type=hidden name="spoolfile_$i" value=$ref->{spoolfile}>
 |;
 
@@ -628,15 +660,17 @@ print qq|</select>|;
 }
 
 sub select_all {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   assert_bp_access();
 
   map { $form->{"checked_$_"} = 1 } (1 .. $form->{rowcount});
   &list_spool;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
-sub continue { call_sub($form->{"nextsub"}); }
+sub continue { call_sub($main::form->{"nextsub"}); }
 
