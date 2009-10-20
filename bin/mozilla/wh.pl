@@ -49,6 +49,8 @@ use Data::Dumper;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
 # parserhappy(R):
 
 # contents of the "transfer_type" table:
@@ -69,9 +71,13 @@ require "bin/mozilla/reportgenerator.pl";
 # --------------------------------------------------------------------
 
 sub transfer_warehouse_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS', });
@@ -112,13 +118,17 @@ sub transfer_warehouse_selection {
   $form->header();
   print $content;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub transfer_parts_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   transfer_or_removal_prepare_contents('direction' => 'transfer');
 
@@ -126,15 +136,19 @@ sub transfer_parts_selection {
   $form->header();
   print $form->parse_html_template("wh/transfer_parts_selection");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub transfer_or_removal_prepare_contents {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
 
   my %args = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS', });
@@ -183,14 +197,18 @@ sub transfer_or_removal_prepare_contents {
   $form->{CONTENTS}       = \@contents;
   $form->{TRANSFER_TYPES} = $transfer_types;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub transfer_parts {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->get_lists('warehouses' => { 'key' => 'WAREHOUSES', 'bins' => 'BINS' });
 
@@ -268,7 +286,7 @@ sub transfer_parts {
 
   transfer_warehouse_selection();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # --------------------------------------------------------------------
@@ -276,7 +294,11 @@ sub transfer_parts {
 # --------------------------------------------------------------------
 
 sub transfer_stock_update_part {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{trans_type} = 'stock';
   $form->{qty}        = $form->parse_amount(\%myconfig, $form->{qty});
@@ -308,7 +330,7 @@ sub transfer_stock_update_part {
     transfer_warehouse_selection();
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # --------------------------------------------------------------------
@@ -320,7 +342,11 @@ sub transfer_stock_update_part {
 # --------------------------------------------------------------------
 
 sub transfer_assembly_update_part {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{trans_type} = 'assembly';
   $form->{qty}        = $form->parse_amount(\%myconfig, $form->{qty});
@@ -348,30 +374,35 @@ sub transfer_assembly_update_part {
 
 # hier die oben benannte idee
 #    my $maxcreate = Common->check_assembly_max_create(assembly_id => $form->{parts_id}, dbh => $my_dbh);
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
+
 sub transfer_stock_part_selected {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $part = shift;
+
+  my $form     = $main::form;
 
   @{$form}{qw(parts_id partnumber description ean)} = @{$part}{qw(id partnumber description ean)};
 
   transfer_stock_get_partunit();
   transfer_warehouse_selection();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub transfer_stock_get_partunit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   if ($form->{parts_id}) {
     my $part_info     = IC->get_basic_part_info('id' => $form->{parts_id});
     $form->{partunit} = $part_info->{unit};
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # vorüberlegung jb 22.2.2009
@@ -382,7 +413,11 @@ sub transfer_stock_get_partunit {
 # Laut Absprache in KW11 09 übernimmt mb hier den rest im April ... jb 18.3.09
 
 sub create_assembly {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
   if ($form->{qty} <= 0) {
@@ -427,11 +462,15 @@ sub create_assembly {
 
   transfer_warehouse_selection();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub transfer_stock {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{qty} = $form->parse_amount(\%myconfig, $form->{qty});
 
@@ -463,7 +502,7 @@ sub transfer_stock {
 
   transfer_warehouse_selection();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # --------------------------------------------------------------------
@@ -471,9 +510,13 @@ sub transfer_stock {
 # --------------------------------------------------------------------
 
 sub removal_parts_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   transfer_or_removal_prepare_contents('direction' => 'out');
 
@@ -481,13 +524,17 @@ sub removal_parts_selection {
   $form->header();
   print $form->parse_html_template("wh/removal_parts_selection");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub remove_parts {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS', });
@@ -566,7 +613,7 @@ sub remove_parts {
 
   transfer_warehouse_selection();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # --------------------------------------------------------------------
@@ -574,9 +621,12 @@ sub remove_parts {
 # --------------------------------------------------------------------
 
 sub journal {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->get_lists('warehouses' => { 'key'  => 'WAREHOUSES',
                                      'bins' => 'BINS', });
@@ -588,13 +638,17 @@ sub journal {
   $form->header();
   print $form->parse_html_template("wh/journal_filter", { "UNITS" => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)) });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub generate_journal {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_management');
+  $main::auth->assert('warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{title}   = $locale->text("WHJournal");
   $form->{sort}  ||= 'date';
@@ -607,8 +661,8 @@ sub generate_journal {
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
-    $form->isblank(qty,      $locale->text('Quantity missing.'));
-    $form->isblank(qty_unit, $locale->text('Unit missing.'));
+    $form->isblank("qty",      $locale->text('Quantity missing.'));
+    $form->isblank("qty_unit", $locale->text('Unit missing.'));
 
     $filter{qty}      = $form->{qty};
     $filter{qty_unit} = $form->{qty_unit};
@@ -670,7 +724,7 @@ sub generate_journal {
                     'purchase_invoice'        => { script => 'ir', title => $locale->text('Purchase Invoice') },
                   );
 
-  foreach $entry (@contents) {
+  foreach my $entry (@contents) {
     $entry->{qty}        = $form->format_amount_units('amount'     => $entry->{qty},
                                                       'part_unit'  => $entry->{partunit},
                                                       'conv_units' => 'convertible');
@@ -707,7 +761,7 @@ sub generate_journal {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # --------------------------------------------------------------------
@@ -715,9 +769,13 @@ sub generate_journal {
 # --------------------------------------------------------------------
 
 sub report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_contents | warehouse_management');
+  $main::auth->assert('warehouse_contents | warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS', });
@@ -734,13 +792,17 @@ sub report {
                                      "WAREHOUSES" => $form->{WAREHOUSES},
                                      "UNITS"      => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)) });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub generate_report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('warehouse_contents | warehouse_management');
+  $main::auth->assert('warehouse_contents | warehouse_management');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{title}   = $locale->text("Report about wareouse contents");
   $form->{sort}  ||= 'partnumber';
@@ -754,8 +816,8 @@ sub generate_report {
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
-    $form->isblank(qty,      $locale->text('Quantity missing.'));
-    $form->isblank(qty_unit, $locale->text('Unit missing.'));
+    $form->isblank("qty",      $locale->text('Quantity missing.'));
+    $form->isblank("qty_unit", $locale->text('Unit missing.'));
 
     $filter{qty}      = $form->{qty};
     $filter{qty_unit} = $form->{qty_unit};
@@ -809,7 +871,7 @@ sub generate_report {
 
   my $total_stock_value = 0;
 
-  foreach $entry (@contents) {
+  foreach my $entry (@contents) {
     map { $subtotals{$_} += $entry->{$_} } @subtotals_columns;
     $total_stock_value   += $entry->{stock_value} * 1;
 
@@ -818,7 +880,7 @@ sub generate_report {
                                                        'conv_units' => 'convertible');
     $entry->{stock_value} = $form->format_amount(\%myconfig, $entry->{stock_value} * 1, 2);
 
-    $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
+    my $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
 
     if (($form->{subtotal} eq 'Y')
         && (($idx == (scalar @contents - 1))
@@ -856,7 +918,7 @@ sub generate_report {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # --------------------------------------------------------------------
@@ -864,11 +926,15 @@ sub generate_report {
 # --------------------------------------------------------------------
 
 sub show_no_warehouses_error {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my $msg = $locale->text('No warehouse has been created yet or the quantity of the bins is not configured yet.') . ' ';
 
-  if ($auth->check_right($form->{login}, 'config')) {
+  if ($main::auth->check_right($form->{login}, 'config')) {
     $msg .= $locale->text('You can create warehouses and bins via the menu "System -> Warehouses".');
   } else {
     $msg .= $locale->text('Please ask your administrator to create warehouses and bins.');
@@ -876,11 +942,13 @@ sub show_no_warehouses_error {
 
   $form->show_generic_error($msg);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub get_warehouse_idx {
   my ($warehouse_id) = @_;
+
+  my $form     = $main::form;
 
   for (my $i = 0; $i < scalar @{$form->{WAREHOUSES}}; $i++) {
     return $i if ($form->{WAREHOUSES}->[$i]->{id} == $warehouse_id);
@@ -891,6 +959,8 @@ sub get_warehouse_idx {
 
 sub get_bin_idx {
   my ($warehouse_index, $bin_id) = @_;
+
+  my $form     = $main::form;
 
   my $warehouse = $form->{WAREHOUSES}->[$warehouse_index];
 
@@ -915,12 +985,15 @@ sub new_item {
   $main::lxdebug->enter_sub();
   my %params = @_;
 
+  my $form     = $main::form;
+
   # change callback
   $form->{old_callback} = $form->escape($form->{callback}, 1);
   $form->{callback}     = $form->escape("$form->{script}?action=$params{action}", 1);
 
   # save all form variables except action in a previousform variable
   my $previousform = join '&', map { my $value = $form->{$_}; $value =~ s/&/%26/; "$_=$value" } grep { !/action/ } keys %$form;
+  my @HIDDENS = ();
 
 #  push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} }, qw(partnumber description unit vc sellprice ean);
@@ -934,14 +1007,17 @@ sub new_item {
 }
 
 sub update {
+  my $form     = $main::form;
   call_sub($form->{update_nextsub} || $form->{nextsub});
 }
 
 sub continue {
+  my $form     = $main::form;
   call_sub($form->{continue_nextsub} || $form->{nextsub});
 }
 
 sub stock {
+  my $form     = $main::form;
   call_sub($form->{stock_nextsub} || $form->{nextsub});
 }
 
