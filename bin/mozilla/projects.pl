@@ -39,23 +39,31 @@ use SL::ReportGenerator;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
-sub add {
-  $lxdebug->enter_sub();
+use strict;
 
-  $auth->assert('project_edit');
+sub add {
+  $main::lxdebug->enter_sub();
+
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   # construct callback
   $form->{callback} = build_std_url('action') unless $form->{callback};
 
   display_project_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('project_edit');
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -66,13 +74,16 @@ sub edit {
 
   display_project_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('project_edit');
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Projects');
 
@@ -85,13 +96,17 @@ sub search {
   $form->header();
   print $form->parse_html_template('projects/search');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub project_report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('project_edit');
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{sort} ||= 'projectnumber';
   my $filter      = $form->{filter} || { };
@@ -163,7 +178,7 @@ sub project_report {
   my $edit_url = build_std_url('action=edit&type=project');
   my $callback = $form->escape($href) . '&sort=' . E($form->{sort});
 
-  foreach $project (@{ $form->{project_list} }) {
+  foreach my $project (@{ $form->{project_list} }) {
     $project->{active} = $project->{active} ? $locale->text('Yes')  : $locale->text('No');
 
     my $row = { map { $_ => { 'data' => $project->{$_} } } keys %{ $project } };
@@ -175,13 +190,16 @@ sub project_report {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_project_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('project_edit');
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{project} ||= { };
 
@@ -194,13 +212,17 @@ sub display_project_form {
   $form->header();
   print $form->parse_html_template('projects/project_form');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('project_edit');
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->isblank("project.projectnumber", $locale->text('Project Number missing!'));
 
@@ -225,22 +247,29 @@ sub save {
 
   $form->redirect($locale->text('Project saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   delete $form->{project}->{id} if ($form->{project});
   save();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('project_edit');
+  $main::auth->assert('project_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my $project = $form->{project} || { };
   Projects->delete_project('id' => $project->{id});
@@ -255,9 +284,9 @@ sub delete {
 
   $form->redirect($locale->text('Project deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub continue {
-  call_sub($form->{nextsub});
+  call_sub($main::form->{nextsub});
 }
