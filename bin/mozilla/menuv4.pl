@@ -32,15 +32,21 @@
 #
 #######################################################################
 
-$menufile = "menu.ini";
 use SL::Menu;
 use URI;
+
+use strict;
+
+my $menufile = "menu.ini";
+my $locale;
 
 1;
 
 # end of main
 
 sub display {
+  my $form     = $main::form;
+
   $form->header(qq|<link rel="stylesheet" href="css/menuv4.css?id=" type="text/css">|);
 
   $form->{date}     = clock_line();
@@ -55,6 +61,8 @@ sub display {
 }
 
 sub clock_line {
+  my $form     = $main::form;
+
   my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
       $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
     = localtime(time);
@@ -77,9 +85,12 @@ sub clock_line {
 }
 
 sub acc_menu {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
   $locale = Locale->new($myconfig{countrycode}, "menu");
 
-  $mainlevel = $form->{level};
+  my $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = new Menu "$menufile";
 
@@ -90,6 +101,10 @@ sub acc_menu {
 
 sub print_menu {
   my ($menu, $parent, $depth) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
   my $html;
 
   die if ($depth * 1 > 5);
