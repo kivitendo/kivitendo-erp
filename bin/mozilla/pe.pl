@@ -35,14 +35,18 @@ use SL::PE;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 1;
 
 # end of main
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
 
   $form->{title} = "Add";
 
@@ -54,13 +58,16 @@ sub add {
   call_sub("form_$form->{type}_header");
   call_sub("form_$form->{type}_footer");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -76,14 +83,18 @@ sub edit {
   call_sub("form_$form->{type}_header");
   call_sub("form_$form->{type}_footer");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
 
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my ($report, $sort, $number);
   if ($form->{type} eq 'partsgroup') {
     $report        = "partsgroup_report";
     $sort          = 'partsgroup';
@@ -158,13 +169,17 @@ sub search {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if ($form->{type} eq 'partsgroup') {
     $form->isblank("partsgroup", $locale->text('Group missing!'));
@@ -184,15 +199,19 @@ sub save {
   	$form->{addition} = "SAVED";
   	$form->save_history($form->dbconnect(\%myconfig));
   }
-  # /saving the history 
+  # /saving the history
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   PE->delete_tuple(\%myconfig, \%$form);
 
@@ -209,22 +228,27 @@ sub delete {
   	$form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
-sub continue { call_sub($form->{"nextsub"}); }
+sub continue { call_sub($main::form->{"nextsub"}); }
 
 sub partsgroup_report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
 
-  map { $form->{$_} = $form->unescape($form->{$_}) } (partsgroup);
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  map { $form->{$_} = $form->unescape($form->{$_}) } qw(partsgroup);
   PE->partsgroups(\%myconfig, \%$form);
 
-  $callback =
+  my $callback =
     "$form->{script}?action=partsgroup_report&type=$form->{type}&status=$form->{status}";
 
+  my ($option);
   if ($form->{status} eq 'all') {
     $option = $locale->text('All');
   }
@@ -236,8 +260,8 @@ sub partsgroup_report {
     $option   .= "\n<br>" . $locale->text('Group') . " : $form->{partsgroup}";
   }
 
-  @column_index = $form->sort_columns(qw(partsgroup));
-
+  my @column_index = $form->sort_columns(qw(partsgroup));
+  my %column_header;
   $column_header{partsgroup} =
     qq|<th class=listheading width=90%>| . $locale->text('Group') . qq|</th>|;
 
@@ -274,7 +298,8 @@ sub partsgroup_report {
   # escape callback for href
   $callback = $form->escape($callback);
 
-  foreach $ref (@{ $form->{item_list} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{item_list} }) {
 
     $i++;
     $i %= 2;
@@ -317,13 +342,16 @@ sub partsgroup_report {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_partsgroup_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text("$form->{title} Group");
 
@@ -364,13 +392,16 @@ sub form_partsgroup_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_partsgroup_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   print qq|
 
@@ -389,9 +420,9 @@ sub form_partsgroup_footer {
 # button for saving history
 print qq|
   	<input type=button onclick=set_history_window(|
-  	. $form->{id} 
+  	. $form->{id}
   	. qq|); name=history id=history value=|
-  	. $locale->text('history') 
+  	. $locale->text('history')
   	. qq|>|;
 # /button for saving history
   print qq|
@@ -401,23 +432,28 @@ print qq|
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 #################################
 # get pricesgroups and build up html-code
 #
 sub pricegroup_report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
 
-  map { $form->{$_} = $form->unescape($form->{$_}) } (pricegroup);
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  map { $form->{$_} = $form->unescape($form->{$_}) } qw(pricegroup);
   PE->pricegroups(\%myconfig, \%$form);
 
-  $callback =
+  my $callback =
     "$form->{script}?action=pricegroup_report&type=$form->{type}&status=$form->{status}";
 
+  my $option;
   if ($form->{status} eq 'all') {
     $option = $locale->text('All');
   }
@@ -430,8 +466,8 @@ sub pricegroup_report {
       "\n<br>" . $locale->text('Pricegroup') . " : $form->{pricegroup}";
   }
 
-  @column_index = $form->sort_columns(qw(pricegroup));
-
+  my @column_index = $form->sort_columns(qw(pricegroup));
+  my %column_header;
   $column_header{pricegroup} =
       qq|<th class=listheading width=90%>|
     . $locale->text('Pricegroup')
@@ -470,7 +506,8 @@ sub pricegroup_report {
   # escape callback for href
   $callback = $form->escape($callback);
 
-  foreach $ref (@{ $form->{item_list} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{item_list} }) {
 
     $i++;
     $i %= 2;
@@ -513,16 +550,19 @@ sub pricegroup_report {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 #######################
 #build up pricegroup_header
 #
 sub form_pricegroup_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   # $locale->text('Add Pricegroup')
   # $locale->text('Edit Pricegroup')
@@ -562,15 +602,18 @@ sub form_pricegroup_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 ######################
 #build up pricegroup_footer
 #
 sub form_pricegroup_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   print qq|
 
@@ -589,9 +632,9 @@ sub form_pricegroup_footer {
 # button for saving history
 print qq|
   	<input type=button onclick=set_history_window(|
-  	. $form->{id} 
+  	. $form->{id}
   	. qq|); name=history id=history value=|
-  	. $locale->text('history') 
+  	. $locale->text('history')
   	. qq|>|;
 # /button for saving history
   print qq|
@@ -601,5 +644,5 @@ print qq|
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
