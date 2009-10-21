@@ -14,8 +14,12 @@ use SL::DBUtils;
 use SL::Form;
 use SL::MoreCommon;
 
+use strict;
+
 sub build_std_url {
-  $lxdebug->enter_sub(2);
+  $main::lxdebug->enter_sub(2);
+
+  my $form     = $main::form;
 
   my $script = $form->{script};
 
@@ -40,7 +44,7 @@ sub build_std_url {
 
   my $url = "${script}?" . join('&', @parts);
 
-  $lxdebug->leave_sub(2);
+  $main::lxdebug->leave_sub(2);
 
   return $url;
 }
@@ -48,9 +52,12 @@ sub build_std_url {
 # -------------------------------------------------------------------------
 
 sub select_part {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($callback_sub, @parts) = @_;
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $remap_parts_id = 0;
   if (defined($parts[0]->{parts_id}) && !defined($parts[0]->{id})) {
@@ -89,11 +96,13 @@ sub select_part {
                                      "remap_parts_id"   => $remap_parts_id,
                                      "remap_partnumber" => $remap_partnumber });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub select_part_internal {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my ($new_item, $callback_sub);
 
@@ -116,21 +125,25 @@ sub select_part_internal {
     delete $new_item->{number};
   }
 
-  my $callback_sub = $form->{callback_sub};
+  $callback_sub = $form->{callback_sub};
 
   restore_form($form->{old_form});
 
   call_sub($callback_sub, $new_item);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub part_selection_internal {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $order_by  = "description";
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $order_by  = "description";
   $order_by  = $form->{"order_by"} if (defined($form->{"order_by"}));
-  $order_dir = 1;
+  my $order_dir = 1;
   $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
 
   my %options;
@@ -147,7 +160,8 @@ sub part_selection_internal {
 
   map { $form->{$_} = $options{$_} if ($options{$_}) } qw(no_services no_assemblies assemblies click_button);
 
-  $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
+  my $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
+  my $onload;
 
   if (0 == scalar(@{$parts})) {
     $form->show_generic_information($locale->text("No part was found matching the search parameters."));
@@ -180,21 +194,27 @@ sub part_selection_internal {
                                                                "PARTS"  => $parts,
                                                                "onload" => $onload });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub delivery_customer_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $order_by = "name";
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $order_by = "name";
   $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
-  $order_dir = 1;
+  my $order_dir = 1;
   $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
 
-  $delivery = Common->retrieve_delivery_customer(\%myconfig, $form, $order_by, $order_dir);
+  my $delivery = Common->retrieve_delivery_customer(\%myconfig, $form, $order_by, $order_dir);
   map({ $delivery->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$delivery}));
+
+  my $onload;
   if (0 == scalar(@{$delivery})) {
     $form->show_generic_information($locale->text("No Customer was found matching the search parameters."));
   } elsif (1 == scalar(@{$delivery})) {
@@ -224,21 +244,27 @@ sub delivery_customer_selection {
                                                                          "DELIVERY" => $delivery,
                                                                          "onload"   => $onload });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub vendor_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $order_by = "name";
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $order_by = "name";
   $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
-  $order_dir = 1;
+  my $order_dir = 1;
   $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
 
-  $vendor = Common->retrieve_vendor(\%myconfig, $form, $order_by, $order_dir);
+  my $vendor = Common->retrieve_vendor(\%myconfig, $form, $order_by, $order_dir);
   map({ $vendor->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$vendor}));
+
+  my $onload;
   if (0 == scalar(@{$vendor})) {
     $form->show_generic_information($locale->text("No Vendor was found matching the search parameters."));
   } elsif (1 == scalar(@{$vendor})) {
@@ -268,19 +294,24 @@ sub vendor_selection {
                                                               "VENDOR" => $vendor,
                                                               "onload" => $onload });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub calculate_qty {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{formel} =~ s/\r\n//g;
 
   my ($variable_string, $formel) = split /###/,$form->{formel};
+  my @variable;
+  my $onload; # note! this sub is mostly called over a javascript invocation, and it's unlikey that onload is set.
 
-  foreach $item (split m/;/, $variable_string) {
+  foreach my $item (split m/;/, $variable_string) {
     next unless $item =~ m/^ \s* (\w+) \s* = \s* (\w+) \s* (\w+) \s* $/x;
     push @variable, {
       description => $1,
@@ -307,33 +338,36 @@ sub calculate_qty {
                                                               "VARIABLES" => \@variable,
                                                               "onload"    => $onload });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub set_longdescription {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text("Enter longdescription");
   $form->header();
   print $form->parse_html_template("generic/set_longdescription");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub H {
-  return $locale->quote_special_chars('HTML', $_[0]);
+  return $main::locale->quote_special_chars('HTML', $_[0]);
 }
 
 sub Q {
-  return $locale->quote_special_chars('URL@HTML', $_[0]);
+  return $main::locale->quote_special_chars('URL@HTML', $_[0]);
 }
 
 sub E {
-  return $form->escape($_[0]);
+  return $main::form->escape($_[0]);
 }
 
 sub NTI {
@@ -344,9 +378,13 @@ sub NTI {
 }
 
 sub format_dates {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($dateformat, $longformat, @indices) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $dateformat = $myconfig{"dateformat"} unless ($dateformat);
 
@@ -374,15 +412,18 @@ sub format_dates {
     }
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub reformat_numbers {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($numberformat, $places, @indices) = @_;
 
-  return $lxdebug->leave_sub()
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  return $main::lxdebug->leave_sub()
     if (!$numberformat || ($numberformat eq $myconfig{"numberformat"}));
 
   foreach my $idx (@indices) {
@@ -430,13 +471,18 @@ sub reformat_numbers {
 
   $myconfig{"numberformat"} = $saved_numberformat;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub show_history {
-	$lxdebug->enter_sub();
+	$main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
 	my $dbh = $form->dbconnect(\%myconfig);
 	my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)/$1/;
@@ -451,15 +497,18 @@ sub show_history {
     	} );
 
 	$dbh->disconnect();
-	$lxdebug->leave_sub();
+	$main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub call_sub {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $name = shift;
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if (!$name) {
     $form->error($locale->text("Trying to call a sub without a name"));
@@ -471,15 +520,22 @@ sub call_sub {
     $form->error(sprintf($locale->text("Attempt to call an undefined sub named '%s'"), $name));
   }
 
-  &{ $name }(@_);
+  {
+    no strict "refs";
+    &{ $name }(@_);
+  }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub show_vc_details {
-	$lxdebug->enter_sub();
+	$main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{vc} = $form->{vc} eq "customer" ? "customer" : "vendor";
   $form->isblank("vc_id",
@@ -494,13 +550,15 @@ sub show_vc_details {
   $form->header();
   print $form->parse_html_template("common/show_vc_details", { "is_customer" => $form->{vc} eq "customer" });
 
-	$lxdebug->leave_sub();
+	$main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub retrieve_partunits {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my @part_ids = grep { $_ } map { $form->{"id_${_}"} } (1..$form->{rowcount});
 
@@ -513,15 +571,18 @@ sub retrieve_partunits {
     }
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
 
 sub mark_as_paid_common {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($myconfig, $db_name) = @_;
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if($form->{mark_as_paid}) {
     my $dbh ||= $form->get_standard_dbh($myconfig);
@@ -532,6 +593,8 @@ sub mark_as_paid_common {
 
   } else {
     my $referer = $ENV{HTTP_REFERER};
+    my $script;
+    my $callback;
     if ($referer =~ /action/) {
       $referer =~ /^(.*)\?action\=[^\&]*(\&.*)$/;
       $script = $1;
@@ -549,21 +612,27 @@ sub mark_as_paid_common {
     print qq|</body></html>|;
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub cov_selection_internal {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $order_by = "name";
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $order_by = "name";
   $order_by = $form->{"order_by"} if (defined($form->{"order_by"}));
-  $order_dir = 1;
+  my $order_dir = 1;
   $order_dir = $form->{"order_dir"} if (defined($form->{"order_dir"}));
 
   my $type = $form->{"is_vendor"} ? $locale->text("vendor") : $locale->text("customer");
 
-  $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, $order_by, $order_dir, $form->{"is_vendor"}, $form->{"allow_both"});
+  my $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, $order_by, $order_dir, $form->{"is_vendor"}, $form->{"allow_both"});
   map({ $covs->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$covs}));
+
+  my $onload;
   if (0 == scalar(@{$covs})) {
     $form->show_generic_information(sprintf($locale->text("No %s was found matching the search parameters."), $type));
   } elsif (1 == scalar(@{$covs})) {
@@ -602,92 +671,107 @@ sub cov_selection_internal {
                                                               "COVS" => $covs,
                                                               "onload" => $onload }));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 # Functions to call add routines beneath different reports
 
 sub sales_invoice {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('invoice_edit');
+  $main::auth->assert('invoice_edit');
 
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{script} = 'is.pl';
-  $script         = "is";
+  my $script      = "is";
   $form->{type} = "invoice";
   $locale = new Locale "$myconfig{countrycode}", "$script";
 
   require "bin/mozilla/$form->{script}";
   &add;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub ar_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
 
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{script} = 'ar.pl';
-  $script         = "ar";
+  my $script      = "ar";
   $locale = new Locale "$myconfig{countrycode}", "$script";
 
   require "bin/mozilla/$form->{script}";
   &add;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub vendor_invoice {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('invoice_edit');
+  $main::auth->assert('invoice_edit');
 
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{script} = 'ir.pl';
-  $script         = "ir";
+  my $script      = "ir";
   $form->{type} = "invoice";
   $locale = new Locale "$myconfig{countrycode}", "$script";
 
   require "bin/mozilla/$form->{script}";
   &add;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub ap_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
 
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{script} = 'ap.pl';
-  $script         = "ap";
+  my $script      = "ap";
   $locale = new Locale "$myconfig{countrycode}", "$script";
 
   require "bin/mozilla/$form->{script}";
   &add;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub gl_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
 
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{script} = 'gl.pl';
-  $script         = "gl";
+  my $script      = "gl";
   $locale = new Locale "$myconfig{countrycode}", "$script";
 
   require "bin/mozilla/$form->{script}";
   &add;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
