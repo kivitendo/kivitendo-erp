@@ -2,10 +2,15 @@ use SL::Auth;
 use SL::Form;
 use SL::GenericTranslations;
 
-sub edit_greetings {
-  $lxdebug->enter_sub();
+use strict;
 
-  $auth->assert('config');
+sub edit_greetings {
+  $main::lxdebug->enter_sub();
+
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->get_lists('languages' => 'LANGUAGES');
 
@@ -33,13 +38,16 @@ sub edit_greetings {
   $form->header();
   print $form->parse_html_template('generictranslations/edit_greetings');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_greetings {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  $main::auth->assert('config');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->get_lists('languages' => 'LANGUAGES');
 
@@ -60,7 +68,7 @@ sub save_greetings {
 
   edit_greetings();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
