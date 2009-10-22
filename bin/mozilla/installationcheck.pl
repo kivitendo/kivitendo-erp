@@ -1,10 +1,14 @@
 use SL::InstallationCheck;
 
+use strict;
+
 sub verify_installation {
   my $script = $0;
   $script =~ s|.*/||;
 
-  return unless ($form{"action"} && ($script eq "login.pl"));
+  my $form     = $main::form;
+
+  return unless ($form->{"action"} && ($script eq "login.pl"));
 
   SL::InstallationCheck::check_for_conditional_dependencies();
 
@@ -12,7 +16,7 @@ sub verify_installation {
   return if (scalar(@missing_modules) == 0);
 
   use SL::Locale;
-  my $locale = new Locale($language, "installationcheck");
+  my $locale = new Locale($main::language, "installationcheck");
 
   print(qq|content-type: text/html
 
