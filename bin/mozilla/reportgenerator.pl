@@ -16,8 +16,12 @@ use SL::Common;
 use SL::MoreCommon;
 use SL::ReportGenerator;
 
+use strict;
+
 sub report_generator_set_default_sort {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my $default_sortorder   = shift;
   my $default_sortdir     = shift;
@@ -26,12 +30,16 @@ sub report_generator_set_default_sort {
   $form->{sortdir}        = $default_sortdir unless (defined $form->{sortdir});
   $form->{sortdir}        = $form->{sortdir} ? 1 : 0;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub report_generator_export_as_pdf {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if ($form->{report_generator_pdf_options_set}) {
     my $saved_form = save_form();
@@ -44,7 +52,7 @@ sub report_generator_export_as_pdf {
       report_generator_do('HTML');
     }
 
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -64,15 +72,18 @@ sub report_generator_export_as_pdf {
   print $form->parse_html_template('report_generator/pdf_export_options', { 'HIDDEN'               => \@form_values,
                                                                             'ALLOW_FONT_SELECTION' => $allow_font_selection, });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report_generator_export_as_csv {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if ($form->{report_generator_csv_options_set}) {
     report_generator_do('CSV');
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -82,21 +93,24 @@ sub report_generator_export_as_csv {
   $form->header();
   print $form->parse_html_template('report_generator/csv_export_options', { 'HIDDEN' => \@form_values });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report_generator_back {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   report_generator_do('HTML');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report_generator_do {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $format  = shift;
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $nextsub = $form->{report_generator_nextsub};
   if (!$nextsub) {
@@ -113,11 +127,14 @@ sub report_generator_do {
 
   call_sub($nextsub);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report_generator_dispatcher {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $nextsub = $form->{report_generator_dispatch_to};
   if (!$nextsub) {
@@ -128,7 +145,7 @@ sub report_generator_dispatcher {
 
   call_sub($nextsub);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
