@@ -35,15 +35,22 @@
 #  2004-12-14 - Holger Lindemann
 #######################################################################
 
-$menufile = "menu.ini";
+my $menufile = "menu.ini";
 use SL::Menu;
 use CGI::Carp qw(fatalsToBrowser);
+
+use strict;
+
+my $locale;
 
 1;
 
 # end of main
 
 sub display {
+
+  my $form     = $main::form;
+
   $form->{callback}   = $form->unescape($form->{callback});
   $form->{callback} ||= "login.pl?action=company_logo";
 
@@ -67,10 +74,12 @@ sub display {
 
 sub clock_line {
 
-  $fensterlink="menujs.pl?action=display";
-  $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
+  my $form     = $main::form;
 
-  $login = "[Nutzer "
+  my $fensterlink="menujs.pl?action=display";
+  my $fenster = "["."<a href=\"$fensterlink\" target=\"_blank\">neues Fenster</a>]";
+
+  my $login = "[Nutzer "
     . $form->{login}
     . " - <a href=\"login.pl?action=logout\" target=\"_top\">"
     . $locale->text('Logout')
@@ -90,14 +99,14 @@ sub clock_line {
                      "April",  "Mai",       "Juni",    "Juli",
                      "August", "September", "Oktober", "November",
                      "Dezember");
-  $datum =
+  my $datum =
       $Wochentage[$Wochentag] . ", der "
     . $Monatstag . "."
     . $Monat . "."
     . $Jahr . " - ";
 
   #$zeit="<div id='Uhr'>".$Stunden.":".$Minuten.":".$Sekunden."</div>";
-  $zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
+  my $zeit = "<div id='Uhr'>" . $Stunden . ":" . $Minuten . "</div>";
   print qq|
 <script type="text/javascript">
 <!--
@@ -123,8 +132,12 @@ window.onload=clockon
 }
 
 sub acc_menu {
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
   $locale = Locale->new($myconfig{countrycode}, "menu");
-  $mainlevel = $form->{level};
+  my $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
 
@@ -361,16 +374,20 @@ function moveRoot() {
 sub section_menu {
   my ($menu, $level) = @_;
 
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
   # build tiered menus
   my @menuorder = $menu->access_control(\%myconfig, $level);
-  $main = 0;
+  my $main = 0;
 
   #$pm=0;
-  $shlp=0;
+  my $shlp=0;
+  my (%mlz, $sm, $z, $pm, $mm);
   while (@menuorder) {
-    $item  = shift @menuorder;
-    $label = $item;
-    $ml    = $item;
+    my $item  = shift @menuorder;
+    my $label = $item;
+    my $ml    = $item;
     $label =~ s/$level--//g;
     $ml    =~ s/--.*//;
     $label = $locale->text($label);
@@ -403,8 +420,8 @@ sub section_menu {
       if ($menu->{$item}{module}) {
 
         #Untermenüpunkte
-        $target = $menu->{$item}{target};
-        $uri    = $menu->menuitem_js(\%myconfig, \%$form, $item, $level);
+        my $target = $menu->{$item}{target};
+        my $uri    = $menu->menuitem_js(\%myconfig, \%$form, $item, $level);
 
         print
           qq|menu[$pm][$sm] = new Item('$label', '$uri', '$target', defLength, 0, 0);\n|;
@@ -416,7 +433,7 @@ sub section_menu {
         %mlz   = ($ml, $pm, "s$ml", 1);
         $shlp = $sm;
         $sm    = 1;
-        $breit = 15 + length($label) * 6;
+        my $breit = 15 + length($label) * 6;
         print
           qq|menu[0][$mm] = new Item('  $label', '#', '', $breit, 10, $pm);	\n|;
         print qq|menu[$pm] = new Array();\n|;
