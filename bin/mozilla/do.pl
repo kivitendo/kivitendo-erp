@@ -48,11 +48,11 @@ require "bin/mozilla/reportgenerator.pl";
 
 use strict;
 
+my $print_post;
+
 1;
 
 # end of main
-
-my $print_post;
 
 sub check_do_access {
   $main::auth->assert($main::form->{type} . '_edit');
