@@ -44,23 +44,28 @@ use CGI;
 
 use Data::Dumper;
 
-1;
-
 require "bin/mozilla/common.pl";
+
+use strict;
+
+1;
 
 # end of main
 
-sub add      { call_sub("add_$form->{type}"); }
-sub delete   { call_sub("delete_$form->{type}"); }
-sub save     { call_sub("save_$form->{type}"); }
-sub edit     { call_sub("edit_$form->{type}"); }
-sub continue { call_sub($form->{"nextsub"}); }
-sub save_as_new { call_sub("save_as_new_$form->{type}"); }
+sub add      { call_sub("add_$main::form->{type}"); }
+sub delete   { call_sub("delete_$main::form->{type}"); }
+sub save     { call_sub("save_$main::form->{type}"); }
+sub edit     { call_sub("edit_$main::form->{type}"); }
+sub continue { call_sub($main::form->{"nextsub"}); }
+sub save_as_new { call_sub("save_as_new_$main::form->{type}"); }
 
 sub add_account {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title}     = "Add";
   $form->{charttype} = "A";
@@ -71,13 +76,16 @@ sub add_account {
   &account_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_account {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
   AM->get_account(\%myconfig, \%$form);
@@ -89,13 +97,17 @@ sub edit_account {
   &account_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub account_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   if ( $form->{action} eq 'edit_account') {
     $form->{account_exists} = '1';
@@ -122,7 +134,7 @@ sub account_header {
     }
 
     # Fill in empty row for new Taxkey
-    $newtaxkey_ref = {
+    my $newtaxkey_ref = {
       id             => '',
       chart_id       => '',
       accno          => '',
@@ -186,7 +198,7 @@ sub account_header {
     if (!$form->{new_chart_valid}) {
       $form->{selectnewaccount} = qq|<option value=""> |. $locale->text('None') .q|</option>|;
     }
-    foreach $item (@{ $form->{NEWACCOUNT} }) {
+    foreach my $item (@{ $form->{NEWACCOUNT} }) {
       if ($item->{id} == $form->{new_chart_id}) {
         $form->{selectnewaccount} .=
           qq|<option value="$item->{id}" selected>$item->{accno}--$item->{description}</option>|;
@@ -198,8 +210,9 @@ sub account_header {
     }
   }
 
-  $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  %eur = (1  => "Umsatzerlöse",
+  my $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+  my %eur = (
+          1  => "Umsatzerlöse",
           2  => "sonstige Erlöse",
           3  => "Privatanteile",
           4  => "Zinserträge",
@@ -230,8 +243,8 @@ sub account_header {
           29 => "Zinsaufwand",
           30 => "Ausserordentlicher Aufwand",
           31 => "Betriebliche Steuern");
-  foreach $item (sort({ $a <=> $b } keys(%eur))) {
-    my $text = H(SL::Iconv::convert("ISO-8859-15", $dbcharset, $eur{$item}));
+  foreach my $item (sort({ $a <=> $b } keys(%eur))) {
+    my $text = H(SL::Iconv::convert("ISO-8859-15", $main::dbcharset, $eur{$item}));
     if ($item == $form->{pos_eur}) {
       $select_eur .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     } else {
@@ -240,9 +253,10 @@ sub account_header {
 
   }
 
-  $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+  my $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
-  %bwapos = (1  => 'Umsatzerlöse',
+  my %bwapos = (
+             1  => 'Umsatzerlöse',
              2  => 'Best.Verdg.FE/UE',
              3  => 'Aktiv.Eigenleistung',
              4  => 'Mat./Wareneinkauf',
@@ -264,8 +278,8 @@ sub account_header {
              33 => 'Sonst.neutr.Ertrag',
              34 => 'Verr.kalk.Kosten',
              35 => 'Steuern Eink.u.Ertr.');
-  foreach $item (sort({ $a <=> $b } keys %bwapos)) {
-    my $text = H(SL::Iconv::convert("ISO-8859-15", $dbcharset, $bwapos{$item}));
+  foreach my $item (sort({ $a <=> $b } keys %bwapos)) {
+    my $text = H(SL::Iconv::convert("ISO-8859-15", $main::dbcharset, $bwapos{$item}));
     if ($item == $form->{pos_bwa}) {
       $select_bwa .= qq|<option value="$item" selected>|. sprintf("%.2d", $item) .qq|. $text\n|;
     } else {
@@ -275,8 +289,8 @@ sub account_header {
   }
 
 # Wieder hinzugefügt zu evaluationszwecken (us) 09.03.2007
-  $select_bilanz = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  foreach $item ((1, 2, 3, 4)) {
+  my $select_bilanz = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+  foreach my $item ((1, 2, 3, 4)) {
     if ($item == $form->{pos_bilanz}) {
       $select_bilanz .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|.\n|;
     } else {
@@ -293,9 +307,9 @@ sub account_header {
 
   # preselections category
 
-  $select_category = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
+  my $select_category = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
-  %category = (
+  my %category = (
       'A'  => $locale->text('Asset'),
       'L'  => $locale->text('Liability'),
       'Q'  => $locale->text('Equity'),
@@ -303,7 +317,7 @@ sub account_header {
       'E'  => $locale->text('Expense'),
       'C'  => $locale->text('Costs'),
   );
-  foreach $item ( sort({ $a <=> $b } keys %category) ) {
+  foreach my $item ( sort({ $a <=> $b } keys %category) ) {
     if ($item eq $form->{category}) {
       $select_category .= qq|<option value="$item" selected="selected">$category{$item} (|. sprintf("%s", $item) .qq|)\n|;
     } else {
@@ -320,7 +334,7 @@ sub account_header {
       'H'  => $locale->text('Header'),
   );
 
-  foreach $item ( sort({ $a <=> $b } keys %charttype) ) {
+  foreach my $item ( sort({ $a <=> $b } keys %charttype) ) {
     if ($item eq $form->{charttype}) {
       $select_charttype .= qq|<option value="$item" selected="selected">$charttype{$item}\n|;
 
@@ -338,8 +352,6 @@ sub account_header {
     ChartTypeIsAccount         => $ChartTypeIsAccount,
     select_category            => $select_category,
     select_charttype           => $select_charttype,
-    newaccount                 => $newaccount,
-    checked                    => $checked,
     select_bwa                 => $select_bwa,
     select_bilanz              => $select_bilanz,
     select_eur                 => $select_eur,
@@ -349,13 +361,16 @@ sub account_header {
   print($form->parse_html_template('am/edit_accounts', $parameters_ref));
 
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   print qq|
 
@@ -387,13 +402,17 @@ sub form_footer {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_account {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("accno",       $locale->text('Account Number missing!'));
   $form->isblank("description", $locale->text('Account Description missing!'));
@@ -406,13 +425,17 @@ sub save_account {
     if (AM->save_account(\%myconfig, \%$form));
   $form->error($locale->text('Cannot save account!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_as_new_account {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("accno",       $locale->text('Account Number missing!'));
   $form->isblank("description", $locale->text('Account Description missing!'));
@@ -436,20 +459,24 @@ sub save_as_new_account {
     if (AM->save_account(\%myconfig, \%$form));
   $form->error($locale->text('Cannot save account!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_account {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{callback}     = build_std_url('action=list_account');
   my $link_edit_account = build_std_url('action=edit_account', 'callback');
 
   CA->all_accounts(\%myconfig, \%$form);
 
-  foreach $ca (@{ $form->{CA} }) {
+  foreach my $ca (@{ $form->{CA} }) {
 
     $ca->{debit}  = "";
     $ca->{credit} = "";
@@ -486,22 +513,26 @@ sub list_account {
   # Ausgabe des Templates
   print($form->parse_html_template('am/list_accounts', $parameters_ref));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 
 sub list_account_details {
 # Ajax Funktion aus list_account_details
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   my $chart_id = $form->{args};
 
   CA->all_accounts(\%myconfig, \%$form, $chart_id);
 
-  foreach $ca (@{ $form->{CA} }) {
+  foreach my $ca (@{ $form->{CA} }) {
 
     $ca->{debit}  = "&nbsp;";
     $ca->{credit} = "&nbsp;";
@@ -555,18 +586,22 @@ sub list_account_details {
 
   print $form->parse_html_template('am/list_account_details');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub delete_account {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} = $locale->text('Delete Account');
 
-  foreach $id (
+  foreach my $id (
     qw(inventory_accno_id income_accno_id expense_accno_id fxgain_accno_id fxloss_accno_id)
     ) {
     if ($form->{id} == $form->{$id}) {
@@ -578,13 +613,15 @@ sub delete_account {
     if (AM->delete_account(\%myconfig, \%$form));
   $form->error($locale->text('Cannot delete account!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_department {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Add";
   $form->{role}  = "P";
@@ -594,13 +631,16 @@ sub add_department {
   &department_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_department {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -609,24 +649,28 @@ sub edit_department {
   &department_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_department {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->departments(\%myconfig, \%$form);
 
   $form->{callback} = "am.pl?action=list_department";
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Departments');
 
-  @column_index = qw(description cost profit);
-
+  my @column_index = qw(description cost profit);
+  my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=90%>|
     . $locale->text('Description')
@@ -662,7 +706,8 @@ sub list_department {
         </tr>
 |;
 
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -671,8 +716,8 @@ sub list_department {
         <tr valign=top class=listrow$i>
 |;
 
-    $costcenter   = ($ref->{role} eq "C") ? "X" : "";
-    $profitcenter = ($ref->{role} eq "P") ? "X" : "";
+    my $costcenter   = ($ref->{role} eq "C") ? "X" : "";
+    my $profitcenter = ($ref->{role} eq "P") ? "X" : "";
 
     $column_data{description} =
       qq|<td><a href="am.pl?action=edit_department&id=$ref->{id}&callback=$callback">$ref->{description}</td>|;
@@ -711,13 +756,16 @@ sub list_department {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub department_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} = $locale->text("$form->{title} Department");
 
@@ -726,6 +774,7 @@ sub department_header {
 
   $form->{description} =~ s/\"/&quot;/g;
 
+  my ($rows, $description);
   if (($rows = $form->numtextrows($form->{description}, 60)) > 1) {
     $description =
       qq|<textarea name="description" rows=$rows cols=60 wrap=soft>$form->{description}</textarea>|;
@@ -734,8 +783,8 @@ sub department_header {
       qq|<input name=description size=60 value="$form->{description}">|;
   }
 
-  $costcenter   = "checked" if $form->{role} eq "C";
-  $profitcenter = "checked" if $form->{role} eq "P";
+  my $costcenter   = "checked" if $form->{role} eq "C";
+  my $profitcenter = "checked" if $form->{role} eq "P";
 
   $form->header;
 
@@ -769,36 +818,46 @@ sub department_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_department {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
   AM->save_department(\%myconfig, \%$form);
   $form->redirect($locale->text('Department saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_department {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_department(\%myconfig, \%$form);
   $form->redirect($locale->text('Department deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_lead {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Add";
 
@@ -807,13 +866,16 @@ sub add_lead {
   &lead_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_lead {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -824,24 +886,28 @@ sub edit_lead {
   $form->{orphaned} = 1;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_lead {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->lead(\%myconfig, \%$form);
 
   $form->{callback} = "am.pl?action=list_lead";
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Lead');
 
-  @column_index = qw(description cost profit);
-
+  my @column_index = qw(description cost profit);
+  my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=100%>|
     . $locale->text('Description')
@@ -866,7 +932,8 @@ sub list_lead {
         </tr>
 |;
 
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -875,7 +942,7 @@ sub list_lead {
         <tr valign=top class=listrow$i>
 |;
 
-	$lead = $ref->{lead};
+#	$lead = $ref->{lead};
 
     $column_data{description} = qq|<td><a href="am.pl?action=edit_lead&id=$ref->{id}&callback=$callback">$ref->{lead}</td>|;
 
@@ -908,13 +975,16 @@ sub list_lead {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub lead_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} = $locale->text("$form->{title} Lead");
 
@@ -923,7 +993,7 @@ sub lead_header {
 
   $form->{description} =~ s/\"/&quot;/g;
 
-  $description =
+  my $description =
       qq|<input name=description size=50 value="$form->{lead}">|;
 
   $form->header;
@@ -950,36 +1020,46 @@ sub lead_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_lead {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
   AM->save_lead(\%myconfig, \%$form);
   $form->redirect($locale->text('lead saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_lead {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_lead(\%myconfig, \%$form);
   $form->redirect($locale->text('lead deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_business {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Add";
 
@@ -988,11 +1068,14 @@ sub add_business {
   &business_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_business {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{title} = "Edit";
 
@@ -1003,24 +1086,28 @@ sub edit_business {
   $form->{orphaned} = 1;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_business {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->business(\%myconfig, \%$form);
 
   $form->{callback} = "am.pl?action=list_business";
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Type of Business');
 
-  @column_index = qw(description discount customernumberinit);
-
+  my @column_index = qw(description discount customernumberinit);
+  my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=60%>|
     . $locale->text('Description')
@@ -1056,7 +1143,8 @@ sub list_business {
         </tr>
 |;
 
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -1065,10 +1153,8 @@ sub list_business {
         <tr valign=top class=listrow$i>
 |;
 
-    $discount =
-      $form->format_amount(\%myconfig, $ref->{discount} * 100);
-    $description =
-      $ref->{description};
+    my $discount    = $form->format_amount(\%myconfig, $ref->{discount} * 100);
+    my $description = $ref->{description};
     $column_data{description} = qq|<td><a href="am.pl?action=edit_business&id=$ref->{id}&callback=$callback">$description</td>|;
     $column_data{discount}           = qq|<td align=right>$discount</td>|;
     $column_data{customernumberinit} =
@@ -1106,13 +1192,17 @@ sub list_business {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub business_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Business");
 
@@ -1155,37 +1245,47 @@ sub business_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_business {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
   $form->{discount} = $form->parse_amount(\%myconfig, $form->{discount}) / 100;
   AM->save_business(\%myconfig, \%$form);
   $form->redirect($locale->text('Business saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_business {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_business(\%myconfig, \%$form);
   $form->redirect($locale->text('Business deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_language {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Add";
 
@@ -1194,13 +1294,16 @@ sub add_language {
   &language_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_language {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -1211,24 +1314,28 @@ sub edit_language {
   $form->{orphaned} = 1;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_language {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->language(\%myconfig, \%$form);
 
   $form->{callback} = "am.pl?action=list_language";
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Languages');
 
-  @column_index = qw(description template_code article_code output_numberformat output_dateformat output_longdates);
-
+  my @column_index = qw(description template_code article_code output_numberformat output_dateformat output_longdates);
+  my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=60%>|
     . $locale->text('Description')
@@ -1276,7 +1383,8 @@ sub list_language {
         </tr>
 |;
 
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -1338,13 +1446,16 @@ sub list_language {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub language_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Language");
 
@@ -1361,7 +1472,7 @@ sub language_header {
   my $numberformat =
     qq|<option value="">| . $locale->text("use program settings") .
     qq|</option>|;
-  foreach $item (qw(1,000.00 1000.00 1.000,00 1000,00)) {
+  foreach my $item (('1,000.00', '1000.00', '1.000,00', '1000,00')) {
     $numberformat .=
       ($item eq $form->{output_numberformat})
       ? "<option selected>$item"
@@ -1372,7 +1483,7 @@ sub language_header {
   my $dateformat =
     qq|<option value="">| . $locale->text("use program settings") .
     qq|</option>|;
-  foreach $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
+  foreach my $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
     $dateformat .=
       ($item eq $form->{output_dateformat})
       ? "<option selected>$item"
@@ -1428,13 +1539,17 @@ sub language_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_language {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Language missing!'));
   $form->isblank("template_code", $locale->text('Template Code missing!'));
@@ -1442,25 +1557,33 @@ sub save_language {
   AM->save_language(\%myconfig, \%$form);
   $form->redirect($locale->text('Language saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_language {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_language(\%myconfig, \%$form);
   $form->redirect($locale->text('Language deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub add_buchungsgruppe {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   # $locale->text("Add Buchungsgruppe")
   # $locale->text("Edit Buchungsgruppe")
@@ -1478,13 +1601,16 @@ sub add_buchungsgruppe {
   &buchungsgruppe_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_buchungsgruppe {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -1494,28 +1620,32 @@ sub edit_buchungsgruppe {
 
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_buchungsgruppe {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->buchungsgruppe(\%myconfig, \%$form);
 
   $form->{callback} = "am.pl?action=list_buchungsgruppe";
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Buchungsgruppen');
 
-  @column_index = qw(up down description inventory_accno
+  my @column_index = qw(up down description inventory_accno
                      income_accno_0 expense_accno_0
                      income_accno_1 expense_accno_1
                      income_accno_2 expense_accno_2
                      income_accno_3 expense_accno_3 );
-
+  my %column_header;
   $column_header{up} =
       qq|<th class="listheading" width="16">|
     . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
@@ -1589,7 +1719,8 @@ sub list_buchungsgruppe {
   my $swap_link = qq|am.pl?action=swap_buchungsgruppen&|;
 
   my $row = 0;
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -1669,13 +1800,16 @@ sub list_buchungsgruppe {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub buchungsgruppe_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Buchungsgruppe");
 
@@ -1691,8 +1825,8 @@ sub buchungsgruppe_header {
     "IC_cogs" => $acc_expense,
     );
 
-  foreach $key (keys(%acc_type_map)) {
-    foreach $ref (@{ $form->{IC_links}{$key} }) {
+  foreach my $key (keys(%acc_type_map)) {
+    foreach my $ref (@{ $form->{IC_links}{$key} }) {
       $acc_type_map{$key}->{$ref->{"id"}} = $ref;
     }
   }
@@ -1715,7 +1849,8 @@ sub buchungsgruppe_header {
     $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_0}\E/  value=$form->{expense_accno_id_0} selected/;
   }
 
-  if (!$eur) {
+  my $linkaccounts;
+  if (!$main::eur) {
     $linkaccounts = qq|
                <tr>
 		<th align=right>| . $locale->text('Inventory') . qq|</th>
@@ -1811,49 +1946,62 @@ sub buchungsgruppe_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_buchungsgruppe {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
 
   AM->save_buchungsgruppe(\%myconfig, \%$form);
   $form->redirect($locale->text('Accounting Group saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_buchungsgruppe {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_buchungsgruppe(\%myconfig, \%$form);
   $form->redirect($locale->text('Accounting Group deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub swap_buchungsgruppen {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, "buchungsgruppen");
   list_buchungsgruppe();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub add_printer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Add";
 
@@ -1862,13 +2010,16 @@ sub add_printer {
   &printer_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_printer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -1879,24 +2030,28 @@ sub edit_printer {
   $form->{orphaned} = 1;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_printer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->printer(\%myconfig, \%$form);
 
   $form->{callback} = "am.pl?action=list_printer";
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Printer');
 
-  @column_index = qw(printer_description printer_command template_code);
-
+  my @column_index = qw(printer_description printer_command template_code);
+  my %column_header;
   $column_header{printer_description} =
       qq|<th class=listheading width=60%>|
     . $locale->text('Printer Description')
@@ -1932,7 +2087,8 @@ sub list_printer {
         </tr>
 |;
 
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -1979,13 +2135,16 @@ sub list_printer {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub printer_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Printer");
 
@@ -2029,37 +2188,48 @@ sub printer_header {
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_printer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("printer_description", $locale->text('Description missing!'));
   $form->isblank("printer_command", $locale->text('Printer Command missing!'));
   AM->save_printer(\%myconfig, \%$form);
   $form->redirect($locale->text('Printer saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_printer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_printer(\%myconfig, \%$form);
   $form->redirect($locale->text('Printer deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Add";
 
@@ -2075,13 +2245,16 @@ sub add_payment {
   &payment_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   $form->{title} = "Edit";
 
@@ -2094,25 +2267,29 @@ sub edit_payment {
   $form->{orphaned} = 1;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->payment(\%myconfig, \%$form);
 
   $form->{callback} = build_std_url("action=list_payment");
 
-  $callback = $form->escape($form->{callback});
+  my $callback = $form->escape($form->{callback});
 
   $form->{title} = $locale->text('Payment Terms');
 
-  @column_index = qw(up down description description_long terms_netto
+  my @column_index = qw(up down description description_long terms_netto
                      terms_skonto percent_skonto);
-
+  my %column_header;
   $column_header{up} =
       qq|<th class="listheading" align="center" valign="center" width="16">|
     . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
@@ -2167,7 +2344,8 @@ sub list_payment {
   my $swap_link = build_std_url("action=swap_payment_terms");
 
   my $row = 0;
-  foreach $ref (@{ $form->{ALL} }) {
+  my ($i, %column_data);
+  foreach my $ref (@{ $form->{ALL} }) {
 
     $i++;
     $i %= 2;
@@ -2245,13 +2423,16 @@ sub list_payment {
   </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub payment_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}    = $locale->text("$form->{title} Payment Terms");
 
@@ -2353,13 +2534,17 @@ sub payment_header {
 . qq|</li>
 </ul>|;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
   $form->{"percent_skonto"} =
@@ -2367,33 +2552,44 @@ sub save_payment {
   AM->save_payment(\%myconfig, \%$form);
   $form->redirect($locale->text('Payment Terms saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_payment(\%myconfig, \%$form);
   $form->redirect($locale->text('Payment terms deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub swap_payment_terms {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, "payment_terms");
   list_payment();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_defaults {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   # get defaults for account numbers and last numbers
   AM->defaultaccounts(\%myconfig, \%$form);
@@ -2401,8 +2597,8 @@ sub edit_defaults {
 
   map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
 
-  foreach $key (keys %{ $form->{IC} }) {
-    foreach $accno (sort keys %{ $form->{IC}->{$key} }) {
+  foreach my $key (keys %{ $form->{IC} }) {
+    foreach my $accno (sort keys %{ $form->{IC}->{$key} }) {
       my $array = "ACCNOS_" . uc($key);
       $form->{$array} ||= [];
 
@@ -2420,20 +2616,26 @@ sub edit_defaults {
   $form->header();
   print $form->parse_html_template('am/edit_defaults');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_defaults {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   AM->save_defaults();
 
   $form->redirect($locale->text('Defaults saved.'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _build_cfg_options {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
   my $idx   = shift;
   my $array = uc($idx) . 'S';
 
@@ -2448,26 +2650,30 @@ sub _build_cfg_options {
 }
 
 sub config {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _build_cfg_options('dateformat', qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
-  _build_cfg_options('numberformat', qw(1,000.00 1000.00 1.000,00 1000,00));
+  _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
 
-  @formats = ();
-  if ($opendocument_templates && $openofficeorg_writer_bin &&
-      $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)) {
+  my @formats = ();
+  if ($main::opendocument_templates && $main::openofficeorg_writer_bin &&
+      $main::xvfb_bin && (-x $main::openofficeorg_writer_bin) && (-x $main::xvfb_bin)) {
     push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
                      "value" => "opendocument_pdf" });
   }
-  if ($latex_templates) {
+  if ($main::latex_templates) {
     push(@formats, { "name" => $locale->text("PDF"), "value" => "pdf" });
   }
   push(@formats, { "name" => "HTML", "value" => "html" });
-  if ($latex_templates) {
+  if ($main::latex_templates) {
     push(@formats, { "name" => $locale->text("Postscript"),
                      "value" => "postscript" });
   }
-  if ($opendocument_templates) {
+  if ($main::opendocument_templates) {
     push(@formats, { "name" => $locale->text("OpenDocument/OASIS"),
                      "value" => "opendocument" });
   }
@@ -2476,7 +2682,7 @@ sub config {
     $myconfig{"template_format"} = "pdf";
   }
   $form->{TEMPLATE_FORMATS} = [];
-  foreach $item (@formats) {
+  foreach my $item (@formats) {
     push @{ $form->{TEMPLATE_FORMATS} }, {
       'name'     => $item->{name},
       'value'    => $item->{value},
@@ -2506,10 +2712,10 @@ sub config {
     };
   }
 
-  %countrycodes = User->country_codes;
+  my %countrycodes = User->country_codes;
 
   $form->{COUNTRYCODES} = [];
-  foreach $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
+  foreach my $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
     push @{ $form->{COUNTRYCODES} }, {
       'name'     => $countrycodes{$countrycode},
       'value'    => $countrycode,
@@ -2518,7 +2724,7 @@ sub config {
   }
 
   $form->{STYLESHEETS} = [];
-  foreach $item (qw(lx-office-erp.css Win2000.css)) {
+  foreach my $item (qw(lx-office-erp.css Win2000.css)) {
     push @{ $form->{STYLESHEETS} }, {
       'name'     => $item,
       'value'    => $item,
@@ -2527,7 +2733,7 @@ sub config {
   }
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
-  $form->{CAN_CHANGE_PASSWORD} = $auth->can_change_password();
+  $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
   $form->{todo_cfg}            = { TODO->get_user_config('login' => $form->{login}) };
 
   $form->{title}               = $locale->text('Edit Preferences for #1', $form->{login});
@@ -2535,11 +2741,15 @@ sub config {
   $form->header();
   print $form->parse_html_template('am/config');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_preferences {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{stylesheet} = $form->{usestylesheet};
 
@@ -2548,13 +2758,17 @@ sub save_preferences {
   $form->redirect($locale->text('Preferences saved!')) if (AM->save_preferences(\%myconfig, \%$form, 0));
   $form->error($locale->text('Cannot save preferences!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub audit_control {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} = $locale->text('Audit Control');
 
@@ -2596,13 +2810,17 @@ sub audit_control {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub doclose {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->closebooks(\%myconfig, \%$form);
 
@@ -2614,21 +2832,25 @@ sub doclose {
     $form->redirect($locale->text('Books are open'));
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_units {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
-  $units = AM->retrieve_units(\%myconfig, $form, "resolved_");
+  $main::auth->assert('config');
+
+  my $units = AM->retrieve_units(\%myconfig, $form, "resolved_");
   AM->units_in_use(\%myconfig, $form, $units);
   map({ $units->{$_}->{"BASE_UNIT_DDBOX"} = AM->unit_select_data($units, $units->{$_}->{"base_unit"}, 1); } keys(%{$units}));
 
-  @languages = AM->language(\%myconfig, $form, 1);
+  my @languages = AM->language(\%myconfig, $form, 1);
 
-  @unit_list = sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } values(%{$units}));
+  my @unit_list = sort({ $a->{"sortkey"} <=> $b->{"sortkey"} } values(%{$units}));
 
   my $i = 1;
   foreach (@unit_list) {
@@ -2647,7 +2869,7 @@ sub edit_units {
   }
 
   $units = AM->retrieve_units(\%myconfig, $form);
-  $ddbox = AM->unit_select_data($units, undef, 1);
+  my $ddbox = AM->unit_select_data($units, undef, 1);
 
   my $updownlink = build_std_url("action=swap_units");
 
@@ -2659,17 +2881,21 @@ sub edit_units {
                                      "LANGUAGES"           => \@languages,
                                      "updownlink"          => $updownlink }));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_unit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("new_name", $locale->text("The name is missing."));
-  $units = AM->retrieve_units(\%myconfig, $form);
-  $all_units = AM->retrieve_units(\%myconfig, $form);
+  my $units = AM->retrieve_units(\%myconfig, $form);
+  my $all_units = AM->retrieve_units(\%myconfig, $form);
   $form->show_generic_error($locale->text("A unit with this name does already exist.")) if ($all_units->{$form->{"new_name"}});
 
   my ($base_unit, $factor);
@@ -2697,13 +2923,15 @@ sub add_unit {
 
   edit_units();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_unit_languages {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   my ($unit, $languages, $idx) = @_;
 
@@ -2717,23 +2945,27 @@ sub set_unit_languages {
          });
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_unit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
-  $old_units = AM->retrieve_units(\%myconfig, $form, "resolved_");
+  $main::auth->assert('config');
+
+  my $old_units = AM->retrieve_units(\%myconfig, $form, "resolved_");
   AM->units_in_use(\%myconfig, $form, $old_units);
 
-  @languages = AM->language(\%myconfig, $form, 1);
+  my @languages = AM->language(\%myconfig, $form, 1);
 
-  $new_units = {};
-  @delete_units = ();
-  foreach $i (1..($form->{"rowcount"} * 1)) {
-    $old_unit = $old_units->{$form->{"old_name_$i"}};
+  my $new_units = {};
+  my @delete_units = ();
+  foreach my $i (1..($form->{"rowcount"} * 1)) {
+    my $old_unit = $old_units->{$form->{"old_name_$i"}};
     if (!$old_unit) {
       $form->show_generic_error(sprintf($locale->text("The unit in row %d has been deleted in the meantime."), $i));
     }
@@ -2763,7 +2995,7 @@ sub save_unit {
     set_unit_languages($new_units->{$form->{"old_name_$i"}}, \@languages, $i);
   }
 
-  foreach $unit (values(%{$new_units})) {
+  foreach my $unit (values(%{$new_units})) {
     next unless ($unit->{"old_name"});
     if ($unit->{"base_unit"}) {
       $form->show_generic_error(sprintf($locale->text("The base unit does not exist or it is about to be deleted in row %d."), $unit->{"row"}))
@@ -2776,11 +3008,11 @@ sub save_unit {
     }
   }
 
-  foreach $unit (values(%{$new_units})) {
+  foreach my $unit (values(%{$new_units})) {
     next if ($unit->{"unchanged_unit"});
 
     map({ $_->{"seen"} = 0; } values(%{$new_units}));
-    $new_unit = $unit;
+    my $new_unit = $unit;
     while ($new_unit->{"base_unit"}) {
       $new_unit->{"seen"} = 1;
       $new_unit = $new_units->{$new_unit->{"base_unit"}};
@@ -2797,26 +3029,33 @@ sub save_unit {
 
   edit_units();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub show_history_search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} = $locale->text("History Search");
   $form->header();
 
   print $form->parse_html_template("common/search_history");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub show_am_history {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   my $callback     = build_std_url(qw(action einschraenkungen fromdate todate mitarbeiter searchid what2search));
   $form->{order} ||= 'h.itime--1';
@@ -2875,26 +3114,32 @@ sub show_am_history {
                                    });
   $dbh->disconnect();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub swap_units {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   my $dir = $form->{"dir"} eq "down" ? "down" : "up";
   AM->swap_units(\%myconfig, $form, $dir, $form->{"name"});
 
   edit_units();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_tax {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} =  $locale->text('Add');
 
@@ -2911,13 +3156,17 @@ sub add_tax {
   # Ausgabe des Templates
   print($form->parse_html_template('am/edit_tax', $parameters_ref));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_tax {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title} =  $locale->text('Edit');
 
@@ -2934,13 +3183,17 @@ sub edit_tax {
   # Ausgabe des Templates
   print($form->parse_html_template('am/edit_tax', $parameters_ref));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_tax {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->taxes(\%myconfig, \%$form);
 
@@ -2952,28 +3205,38 @@ sub list_tax {
 
   $form->header();
 
+  my $parameters_ref = {
+  };
+
   # Ausgabe des Templates
   print($form->parse_html_template('am/list_tax', $parameters_ref));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _get_taxaccount_selection{
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   AM->get_tax_accounts(\%myconfig, \%$form);
 
   map { $_->{selected} = $form->{chart_id} == $_->{id} } @{ $form->{ACCOUNTS} };
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_tax {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("rate", $locale->text('Taxrate missing!'));
   $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
@@ -2992,24 +3255,31 @@ sub save_tax {
   AM->save_tax(\%myconfig, \%$form);
   $form->redirect($locale->text('Tax saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_tax {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_tax(\%myconfig, \%$form);
   $form->redirect($locale->text('Tax deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_price_factor {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}      = $locale->text('Add Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
@@ -3018,13 +3288,17 @@ sub add_price_factor {
   $form->header();
   print $form->parse_html_template('am/edit_price_factor');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_price_factor {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}      = $locale->text('Edit Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
@@ -3037,13 +3311,17 @@ sub edit_price_factor {
   $form->header();
   print $form->parse_html_template('am/edit_price_factor');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_price_factors {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->get_all_price_factors(\%myconfig, \%$form);
 
@@ -3066,13 +3344,17 @@ sub list_price_factors {
   $form->header();
   print $form->parse_html_template('am/list_price_factors');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_price_factor {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
   $form->isblank("factor", $locale->text('Factor missing!'));
@@ -3085,13 +3367,17 @@ sub save_price_factor {
 
   $form->redirect($locale->text('Price factor saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_price_factor {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->delete_price_factor(\%myconfig, \%$form);
 
@@ -3099,24 +3385,30 @@ sub delete_price_factor {
 
   $form->redirect($locale->text('Price factor deleted!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub swap_price_factors {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, 'price_factors');
   list_price_factors();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_warehouse {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{title}      = $locale->text('Add Warehouse');
   $form->{callback} ||= build_std_url('action=add_warehouse');
@@ -3125,13 +3417,17 @@ sub add_warehouse {
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_warehouse {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->get_warehouse(\%myconfig, $form);
 
@@ -3144,13 +3440,17 @@ sub edit_warehouse {
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_warehouses {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->get_all_warehouses(\%myconfig, $form);
 
@@ -3171,13 +3471,17 @@ sub list_warehouses {
   $form->header();
   print $form->parse_html_template('am/list_warehouses');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_warehouse {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
 
@@ -3189,24 +3493,31 @@ sub save_warehouse {
 
   $form->redirect($locale->text('Warehouse saved.'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub swap_warehouses {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('config');
 
   AM->swap_sortkeys(\%myconfig, $form, 'warehouse');
   list_warehouses();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_warehouse {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   if (!$form->{confirmed}) {
     $form->{title} = $locale->text('Confirmation');
@@ -3224,13 +3535,17 @@ sub delete_warehouse {
     $form->error($locale->text('The warehouse could not be deleted because it has already been used.'));
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_bin {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   AM->save_bins(\%myconfig, $form);
 
@@ -3238,5 +3553,5 @@ sub save_bin {
 
   $form->redirect($locale->text('Bins saved.'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
