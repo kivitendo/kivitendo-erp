@@ -37,17 +37,21 @@ use SL::LICENSES;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 sub quot {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
   $_[0] =~ s/\"/\&quot;/g;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
   return $_[0];
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
 
   $form->{jsscript} = 1;
   $form->header();
@@ -56,13 +60,15 @@ sub form_header {
     qq|<body>
 
 <form method=post action=$form->{script}>|);
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
 
   my @items = qw(old_callback previousform);
   push(@items, @{ $form->{"hidden"} });
@@ -76,19 +82,25 @@ sub form_footer {
 </body>
 </html>
 |);
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_std_hidden {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
   $form->{"hidden"} = ["comment", "validuntil", "quantity", @_];
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print_part_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   form_header();
   set_std_hidden("business");
@@ -109,9 +121,10 @@ sub print_part_selection {
   </tr>
         |);
 
-  $j = 1;
-  for ($i = 1; $i <= scalar(@{ $form->{"parts"} }); $i++) {
-    %p = %{ $form->{"parts"}->[$i - 1] };
+  my $j = 1;
+  for (my $i = 1; $i <= scalar(@{ $form->{"parts"} }); $i++) {
+    my %p = %{ $form->{"parts"}->[$i - 1] };
+    my $checked;
     if ($i == 1) {
       $checked = "checked";
     } else {
@@ -139,13 +152,16 @@ sub print_part_selection {
 <input type=submit name=action value=| . $locale->text('Continue') . qq|>|);
 
   form_footer();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print_customer_selection {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   form_header();
   set_std_hidden("parts_id", "partnumber", "description");
@@ -170,9 +186,10 @@ sub print_customer_selection {
 
   print(qq|<tr><td colspan=6><hr size=3 noshade></td></tr>|);
 
-  $j = 1;
-  for ($i = 1; $i <= scalar(@{ $form->{"all_customers"} }); $i++) {
-    %c = %{ $form->{"all_customers"}->[$i - 1] };
+  my $j = 1;
+  for (my $i = 1; $i <= scalar(@{ $form->{"all_customers"} }); $i++) {
+    my %c = %{ $form->{"all_customers"}->[$i - 1] };
+    my $checked;
     if ($i == 1) {
       $checked = "checked";
     } else {
@@ -202,13 +219,17 @@ sub print_customer_selection {
 <input type=submit name=action value=| . $locale->text('Continue') . qq|>|);
 
   form_footer();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print_license_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   print(
     qq|
@@ -236,7 +257,7 @@ sub print_license_form {
       if (!defined($form->{"customer_id"})) {
         $form->{"customer_id"} = $_->{"id"};
       }
-      $selected = ($_->{"id"} * 1) == $form->{"customer_id"} ? "selected" : "";
+      my $selected = ($_->{"id"} * 1) == $form->{"customer_id"} ? "selected" : "";
       print(qq|<option $selected> $_->{"name"}--$_->{"id"}</option>|);
     }
     print(qq|</select></td>|);
@@ -291,15 +312,18 @@ sub print_license_form {
     $form->write_trigger(\%myconfig, 1, "validuntil", "BL",
                          "trigger_validuntil"));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
 
-  if (!$lizenzen) {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  if (!$main::lizenzen) {
     $form->error(
                  $locale->text(
                    'The licensing module has been deactivated in lx-erp.conf.')
@@ -309,19 +333,22 @@ sub add {
   $form->{"initial"} = 1;
 
   do_add();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub do_add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{"hidden"} = ["parts_id"];
   form_header();
 
   if ($form->{"ndx"}) {
-    $ndx = $form->{"ndx"};
+    my $ndx = $form->{"ndx"};
     foreach (keys(%{$form})) {
       next unless (/^new_.*_${ndx}$/);
       s/^new_//;
@@ -337,7 +364,7 @@ sub do_add {
   if ($form->{"customer_name"}) {
     LICENSES->get_customers(\%myconfig, $form);
     if (scalar(@{ $form->{"all_customers"} }) == 1) {
-      %c                       = %{ $form->{"all_customers"}->[0] };
+      my %c                       = %{ $form->{"all_customers"}->[0] };
       $form->{"customer_id"}   = $c{"id"};
       $form->{"customer_name"} = $c{"name"};
     } elsif (scalar(@{ $form->{"all_customers"} }) == 0) {
@@ -376,29 +403,38 @@ sub do_add {
   print_license_form($form->{"parts_id"} && $form->{"customer_id"});
 
   form_footer();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
 
   do_add();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub continue {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
   call_sub($form->{"nextsub"});
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   ($form->{customername}, $form->{customer_id}) = split /--/,
     $form->{customer};
@@ -415,22 +451,23 @@ sub save {
     $form->error($locale->text('Please enter a license key.'));
   }
 
-  $rc = LICENSES->save_license(\%myconfig, \%$form);
+  my $rc = LICENSES->save_license(\%myconfig, \%$form);
 
   # load previous variables
   if ($form->{previousform}) {
 
     # save the new form variables before splitting previousform
+    my %newform;
     map { $newform{$_} = $form->{$_} } keys %$form;
 
-    $previousform = $form->unescape($form->{previousform});
+    my $previousform = $form->unescape($form->{previousform});
 
     # don't trample on previous variables
     map { delete $form->{$_} } keys %newform;
 
     # now take it apart and restore original values
-    foreach $item (split /&/, $previousform) {
-      ($key, $value) = split /=/, $item, 2;
+    foreach my $item (split /&/, $previousform) {
+      my ($key, $value) = split /=/, $item, 2;
       $value =~ s/%26/&/g;
       $form->{$key} = $value;
     }
@@ -442,16 +479,16 @@ sub save {
     delete $form->{action};
 
     # restore original callback
-    $callback = $form->unescape($form->{callback});
+    my $callback = $form->unescape($form->{callback});
     $form->{callback} = $form->unescape($form->{old_callback});
     delete $form->{old_callback};
 
     # put callback together
-    foreach $key (keys %$form) {
+    foreach my $key (keys %$form) {
       next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
 
       # do single escape for Apache 2.0
-      $value = $form->escape($form->{$key}, 1);
+      my $value = $form->escape($form->{$key}, 1);
       $callback .= qq|&$key=$value|;
     }
     $form->{callback} = $callback;
@@ -466,15 +503,18 @@ sub save {
     form_footer();
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
 
-  if (!$lizenzen) {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  if (!$main::lizenzen) {
     $form->error(
                  $locale->text(
                    'The licensing module has been deactivated in lx-erp.conf.')
@@ -524,25 +564,30 @@ sub search {
         |);
 
   form_footer();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub do_search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   LICENSES->search(\%myconfig, $form);
 
-  $callback = "";
+  my $callback = "";
   map { $callback .= "\&${_}=" . $form->escape($form->{$_}, 1) }
     qw(db partnumber description customer_name all expiring_in show_expired);
-  $details    = $form->{"script"} . "?action=details" . $callback . "\&id=";
-  $invdetails = "is.pl?action=edit" . $callback . "\&id=";
+  my $details    = $form->{"script"} . "?action=details" . $callback . "\&id=";
+  my $invdetails = "is.pl?action=edit" . $callback . "\&id=";
   $callback   = $form->{"script"} . "?action=do_search" . $callback;
 
   $form->{"sortby"} = "validuntil" unless ($form->{"sortby"});
   $form->{"sortasc"} *= 1;
+  my %columns;
   foreach (("partnumber", "description", "name", "validuntil", "invnumber")) {
     $columns{$_} = $callback . "\&sortby=${_}\&sortasc=";
     if ($form->{"sortby"} eq $_) {
@@ -595,9 +640,9 @@ sub do_search {
       </tr>
         |);
 
-  $j = 1;
-  for ($i = 0; $i < scalar(@{ $form->{"licenses"} }); $i++) {
-    $ref = $form->{"licenses"}->[$i];
+  my $j = 1;
+  for (my $i = 0; $i < scalar(@{ $form->{"licenses"} }); $i++) {
+    my $ref = $form->{"licenses"}->[$i];
     print(
       qq|
           <tr class=listrow$j>
@@ -635,13 +680,17 @@ sub do_search {
         |);
 
   form_footer();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub details {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('license_edit');
+  $main::auth->assert('license_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   LICENSES->get_license(\%myconfig, $form);
   map(
@@ -696,7 +745,7 @@ sub details {
         |);
 
   form_footer();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
