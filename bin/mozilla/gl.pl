@@ -44,6 +44,8 @@ require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
 1;
 
 # end of main
@@ -76,12 +78,19 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Nov')
 # $locale->text('Dec')
 
+my $tax;
+my $debitlock  = 0;
+my $creditlock = 0;
+
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
 
-  return $lxdebug->leave_sub() if (load_draft_maybe());
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = "Add";
 
@@ -117,14 +126,17 @@ sub add {
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
   &display_form(1);
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub prepare_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   GL->transaction(\%myconfig, \%$form);
 
@@ -150,8 +162,8 @@ sub prepare_transaction {
   my $i        = 1;
   my $tax      = 0;
   my $taxaccno = "";
-  foreach $ref (@{ $form->{GL} }) {
-    $j = $i - 1;
+  foreach my $ref (@{ $form->{GL} }) {
+    my $j = $i - 1;
     if ($tax && ($ref->{accno} eq $taxaccno)) {
       $form->{"tax_$j"}      = abs($ref->{amount});
       $form->{"taxchart_$j"} = $ref->{id} . "--" . $ref->{taxrate};
@@ -192,13 +204,16 @@ sub prepare_transaction {
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   prepare_transaction();
 
@@ -210,14 +225,19 @@ sub edit {
   display_rows();
   form_footer();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   $form->{title} = $locale->text('Journal');
 
@@ -233,7 +253,7 @@ sub search {
     } (@{ $form->{all_departments} });
   }
 
-  $department = qq|
+  my $department = qq|
   	<tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
 	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
@@ -257,7 +277,8 @@ sub search {
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
+  my ($button1, $button2, $onload);
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -401,13 +422,16 @@ $jsscript
 </body>
 </html>
 |;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_subtotal_row {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
 
@@ -415,15 +439,19 @@ sub create_subtotal_row {
 
   map { $totals->{$_} = 0 } @{ $subtotal_columns };
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $row;
 }
 
 sub generate_report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   report_generator_set_default_sort('transdate', 1);
 
@@ -541,7 +569,7 @@ sub generate_report {
   my %totals         = map { $_ => 0 } @totals_columns;
   my $idx            = 0;
 
-  foreach $ref (@{ $form->{GL} }) {
+  foreach my $ref (@{ $form->{GL} }) {
 
     my %rows;
 
@@ -647,13 +675,16 @@ sub generate_report {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{oldtransdate} = $form->{transdate};
 
@@ -663,8 +694,7 @@ sub update {
   my $credittax   = 0;
   my $debitcount  = 0;
   my $creditcount = 0;
-  $debitlock  = 0;
-  $creditlock = 0;
+  my ($debitcredit, $amount);
 
   my @flds =
     qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
@@ -713,12 +743,12 @@ sub update {
         ($form->{"debit_$i"} == 0)
         ? $form->{"credit_$i"}
         : $form->{"debit_$i"};
-      $j = $#a;
+      my $j = $#a;
       if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
         $form->{"taxchart_$i"} = "0--0.00";
         $form->{"tax_$i"}      = 0;
       }
-      ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+      my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
       if ($taxkey > 1) {
         if ($debitcredit) {
           $debittax = 1;
@@ -739,27 +769,30 @@ sub update {
     }
   }
 
-  for $i (1 .. $count) {
-    $j = $i - 1;
+  for my $i (1 .. $count) {
+    my $j = $i - 1;
     for (@flds) { $form->{"${_}_$i"} = $a[$j]->{$_} }
   }
 
-  for $i ($count + 1 .. $form->{rowcount}) {
+  for my $i ($count + 1 .. $form->{rowcount}) {
     for (@flds) { delete $form->{"${_}_$i"} }
   }
 
   $form->{rowcount} = $count + 1;
 
   &display_form;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub display_form {
   my ($init) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   &form_header($init);
 
@@ -771,15 +804,19 @@ sub display_form {
   #   }
   &display_rows($init);
   &form_footer;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub display_rows {
   my ($init) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $cgi      = $main::cgi;
 
   $form->{debit_1}     = 0 if !$form->{"debit_1"};
   $form->{totaldebit}  = 0;
@@ -797,7 +834,7 @@ sub display_rows {
   my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if ($item->{charttype} eq 'H'){ #falls überschrift 
+    if ($item->{charttype} eq 'H'){ #falls überschrift
       next;                         #überspringen (Bug 1150)
     }
     my $key = $item->{accno} . "--" . $item->{tax_id};
@@ -818,7 +855,8 @@ sub display_rows {
     $taxcharts{$item->{id}} = $item;
   }
 
-  for $i (1 .. $form->{rowcount}) {
+  my ($source, $memo, $source_hidden, $memo_hidden);
+  for my $i (1 .. $form->{rowcount}) {
     if ($form->{show_details}) {
       $source = qq|
       <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
@@ -850,7 +888,7 @@ sub display_rows {
     $selected_accno      = '' if ($init);
     $selected_taxchart ||= $taxchart_init;
 
-    $accno = qq|<td>| .
+    my $accno = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "accno_$i",
                            '-id' => "accno_$i",
                            '-onChange' => "setTaxkey($i)",
@@ -870,6 +908,7 @@ sub display_rows {
                            '-default' => $selected_taxchart))
       . qq|</td>|;
 
+    my ($fx_transaction, $checked);
     if ($init) {
       if ($form->{transfer}) {
         $fx_transaction = qq|
@@ -900,7 +939,7 @@ sub display_rows {
       if ($i < $form->{rowcount}) {
         if ($form->{transfer}) {
           $checked = ($form->{"fx_transaction_$i"}) ? "1" : "";
-          $x = ($checked) ? "x" : "";
+          my $x = ($checked) ? "x" : "";
           $fx_transaction = qq|
       <td><input type=hidden name="fx_transaction_$i" value="$checked">$x</td>
     |;
@@ -958,15 +997,19 @@ sub display_rows {
 
   $form->hide_form(qw(rowcount selectaccno));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub form_header {
   my ($init) = @_;
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my @old_project_ids = ();
   map({ push(@old_project_ids, $form->{"project_id_$_"})
@@ -981,14 +1024,14 @@ sub form_header {
 
   GL->get_chart_balances('charts' => $form->{ALL_CHARTS});
 
-  $title         = $form->{title};
+  my $title      = $form->{title};
   $form->{title} = $locale->text("$title General Ledger Transaction");
-  $readonly      = ($form->{id}) ? "readonly" : "";
+  my $readonly   = ($form->{id}) ? "readonly" : "";
 
-  $show_details_checked = "checked" if $form->{show_details};
+  my $show_details_checked = "checked" if $form->{show_details};
 
-  $ob_transaction_checked = "checked" if $form->{ob_transaction};
-  $cb_transaction_checked = "checked" if $form->{cb_transaction};
+  my $ob_transaction_checked = "checked" if $form->{ob_transaction};
+  my $cb_transaction_checked = "checked" if $form->{cb_transaction};
 
   # $locale->text('Add General Ledger Transaction')
   # $locale->text('Edit General Ledger Transaction')
@@ -1029,7 +1072,8 @@ sub form_header {
   $form->{selectdepartment} =~
     s/option>\Q$form->{department}\E/option selected>$form->{department}/;
 
-  if (($rows = $form->numtextrows($form->{description}, 50)) > 1) {
+  my $description;
+  if ((my $rows = $form->numtextrows($form->{description}, 50)) > 1) {
     $description =
       qq|<textarea name=description rows=$rows cols=50 wrap=soft $readonly >$form->{description}</textarea>|;
   } else {
@@ -1037,12 +1081,13 @@ sub form_header {
       qq|<input name=description size=50 value="$form->{description}" $readonly>|;
   }
 
-  $taxincluded = ($form->{taxincluded}) ? "checked" : "";
+  my $taxincluded = ($form->{taxincluded}) ? "checked" : "";
 
   if ($init) {
     $taxincluded = "checked";
   }
 
+  my $department;
   $department = qq|
   	<tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
@@ -1058,7 +1103,8 @@ sub form_header {
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
+  my ($button1, $button2);
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -1231,14 +1277,19 @@ sub form_header {
 
 $jsscript
 |;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   my $follow_ups_block;
   if ($form->{id}) {
@@ -1250,10 +1301,10 @@ sub form_footer {
     }
   }
 
-  ($dec) = ($form->{totaldebit} =~ /\.(\d+)/);
+  my ($dec) = ($form->{totaldebit} =~ /\.(\d+)/);
   $dec = length $dec;
-  $decimalplaces = ($dec > 2) ? $dec : 2;
-  $radieren = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  my $decimalplaces = ($dec > 2) ? $dec : 2;
+  my $radieren = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   map {
     $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, 2, "&nbsp;")
@@ -1277,8 +1328,8 @@ $follow_ups_block
 <br>
 |;
 
-  $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
+  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
   if ($form->{id}) {
 
@@ -1322,12 +1373,15 @@ $follow_ups_block
 </body>
 </html>
 ";
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->header;
 
@@ -1341,7 +1395,7 @@ sub delete {
 
   delete $form->{header};
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
   }
@@ -1357,12 +1411,17 @@ sub delete {
     . $locale->text('Yes') . qq|">
 </form>
 |;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub yes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
   if (GL->delete_transaction(\%myconfig, \%$form)){
     # saving the history
       if(!exists $form->{addition} && $form->{id} ne "") {
@@ -1374,20 +1433,24 @@ sub yes {
     $form->redirect($locale->text('Transaction deleted!'))
   }
   $form->error($locale->text('Cannot delete transaction!'));
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub post_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   # check if there is something in reference and date
   $form->isblank("reference",   $locale->text('Reference missing!'));
   $form->isblank("transdate",   $locale->text('Transaction Date missing!'));
   $form->isblank("description", $locale->text('Description missing!'));
 
-  $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
+  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
   my @a           = ();
   my $count       = 0;
@@ -1395,8 +1458,7 @@ sub post_transaction {
   my $credittax   = 0;
   my $debitcount  = 0;
   my $creditcount = 0;
-  $creditlock = 0;
-  $debitlock  = 0;
+  my $debitcredit;
 
   my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
@@ -1440,15 +1502,15 @@ sub post_transaction {
     if (!$debitcredit && $debittax) {
       $form->{"taxchart_$i"} = "0--0.00";
     }
-    $amount = ($form->{"debit_$i"} == 0)
+    my $amount = ($form->{"debit_$i"} == 0)
             ? $form->{"credit_$i"}
             : $form->{"debit_$i"};
-    $j = $#a;
+    my $j = $#a;
     if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
       $form->{"taxchart_$i"} = "0--0.00";
       $form->{"tax_$i"}      = 0;
     }
-    ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+    my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
     if ($taxkey > 1) {
       if ($debitcredit) {
         $debittax = 1;
@@ -1473,18 +1535,19 @@ sub post_transaction {
     $count++;
   }
 
-  for $i (1 .. $count) {
-    $j = $i - 1;
+  for my $i (1 .. $count) {
+    my $j = $i - 1;
     for (@flds) { $form->{"${_}_$i"} = $a[$j]->{$_} }
   }
 
-  for $i ($count + 1 .. $form->{rowcount}) {
+  for my $i ($count + 1 .. $form->{rowcount}) {
     for (@flds) { delete $form->{"${_}_$i"} }
   }
 
-  for $i (1 .. $form->{rowcount}) {
-    $dr  = $form->{"debit_$i"};
-    $cr  = $form->{"credit_$i"};
+  my ($debit, $credit, $taxtotal);
+  for my $i (1 .. $form->{rowcount}) {
+    my $dr  = $form->{"debit_$i"};
+    my $cr  = $form->{"credit_$i"};
     $tax = $form->{"tax_$i"};
     if ($dr && $cr) {
       $form->error($locale->text('Cannot post transaction with a debit and credit entry for the same account!'));
@@ -1507,8 +1570,9 @@ sub post_transaction {
     $form->error($locale->text('Empty transaction!'));
   }
 
-  if (($errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
+  if ((my $errno = GL->post_transaction(\%myconfig, \%$form)) <= -1) {
     $errno *= -1;
+    my @err;
     $err[1] = $locale->text('Cannot have a value in both Debit and Credit!');
     $err[2] = $locale->text('Debit and credit out of balance!');
     $err[3] = $locale->text('Cannot post a transaction without a value!');
@@ -1525,13 +1589,16 @@ sub post_transaction {
   }
   # /saving the history
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title}  = $locale->text("$form->{title} General Ledger Transaction");
   $form->{storno} = 0;
@@ -1543,24 +1610,30 @@ sub post {
   $form->{callback} = build_std_url("action=add", "show_details");
   $form->redirect($form->{callback});
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
 
   $form->{id} = 0;
   &add;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub storno {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   # don't cancel cancelled transactions
   if (IS->has_storno(\%myconfig, $form, 'gl')) {
@@ -1580,9 +1653,9 @@ sub storno {
 
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub continue {
-  call_sub($form->{nextsub});
+  call_sub($main::form->{nextsub});
 }
