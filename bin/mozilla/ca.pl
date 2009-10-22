@@ -39,6 +39,8 @@ use SL::ReportGenerator;
 
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
 1;
 
 # end of main
@@ -72,13 +74,17 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Dec')
 
 sub chart_of_accounts {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('report');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('report');
 
   $form->{title} = $locale->text('Chart of Accounts');
 
-  if ($eur) {
+  if ($main::eur) {
     $form->{method} = "cash";
   }
 
@@ -137,17 +143,21 @@ sub chart_of_accounts {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('report');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('report');
 
   $form->{title} = $locale->text('List Transactions');
   $form->{title} .= " - " . $locale->text('Account') . " $form->{accno}";
-  $year = (localtime)[5] + 1900;
+  my $year = (localtime)[5] + 1900;
 
   # get departments
   $form->all_departments(\%myconfig);
@@ -160,24 +170,25 @@ sub list {
     } (@{ $form->{all_departments} });
   }
 
-  $department = qq|
+  my $department = qq|
         <tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
 	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
 	</tr>
 | if $form->{selectdepartment};
-  $accrual = ($eur) ? ""        : "checked";
-  $cash    = ($eur) ? "checked" : "";
+  my $accrual = ($main::eur) ? ""        : "checked";
+  my $cash    = ($main::eur) ? "checked" : "";
 
-  $name_1    = "fromdate";
-  $id_1      = "fromdate";
-  $value_1   = "$form->{fromdate}";
-  $trigger_1 = "trigger1";
-  $name_2    = "todate";
-  $id_2      = "todate";
-  $value_2   = "";
-  $trigger_2 = "trigger2";
+  my $name_1    = "fromdate";
+  my $id_1      = "fromdate";
+  my $value_1   = "$form->{fromdate}";
+  my $trigger_1 = "trigger1";
+  my $name_2    = "todate";
+  my $id_2      = "todate";
+  my $value_2   = "";
+  my $trigger_2 = "trigger2";
 
+  my ($button1, $button1_2, $button2, $button2_2, $jsscript);
 
   # with JavaScript Calendar
   if ($form->{jsscript}) {
@@ -225,7 +236,7 @@ sub list {
   }
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-  $onload = qq|focus()|;
+  my $onload = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
@@ -242,7 +253,7 @@ sub list {
 <input type=hidden name=accno value=$form->{accno}>
 <input type=hidden name=description value="$form->{description}">
 <input type=hidden name=sort value=transdate>
-<input type=hidden name=eur value=$eur>
+<input type=hidden name=eur value=$main::eur>
 <input type=hidden name=accounttype value=$form->{accounttype}>
 
 <table border=0 width=100%>
@@ -263,6 +274,7 @@ sub list {
 	</tr>
 |;
 
+    our $checked;
     print qq|
 	<tr>
 		<td align=right>
@@ -370,27 +382,35 @@ $jsscript
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub format_debit_credit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $dc = shift;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my $formatted_dc  = $form->format_amount(\%myconfig, abs($dc), 2) . ' ';
   $formatted_dc    .= ($dc > 0) ? $locale->text('Credit (one letter abbreviation)') : $locale->text('Debit (one letter abbreviation)');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $formatted_dc;
 }
 
 
 sub list_transactions {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('report');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('report');
 
   $form->{title} = $locale->text('Account') . " $form->{accno} - $form->{description}";
 
@@ -438,7 +458,7 @@ sub list_transactions {
         $form->{fromdate} = "1.2.$form->{year}";
 
         #this works from 1901 to 2099, 1900 and 2100 fail.
-        $leap = ($form->{year} % 4 == 0) ? "29" : "28";
+        my $leap = ($form->{year} % 4 == 0) ? "29" : "28";
         $form->{todate} = "$leap.2.$form->{year}";
         last SWITCH;
       };
@@ -558,7 +578,7 @@ sub list_transactions {
 
   my %column_alignment = map { $_ => 'right' } qw(debit credit);
 
-  @custom_headers = ();
+  my @custom_headers = ();
  # Zeile 1:
  push @custom_headers, [
    { 'text' => 'Letzte Buchung', },
@@ -610,7 +630,7 @@ sub list_transactions {
 
   $report->set_sort_indicator($form->{sort}, 1);
 
-  $column_defs->{balance}->{visible} = 1;
+  $column_defs{balance}->{visible} = 1;
 
   my $ml = ($form->{category} =~ /(A|E)/) ? -1 : 1;
 
@@ -706,7 +726,7 @@ sub list_transactions {
 
 
   $report->add_separator();
-  my $row = {
+  $row = {
      'transdate' => {
        'data'    => "",
        'class' => 'listtotal',
@@ -736,7 +756,7 @@ sub list_transactions {
 
   $report->add_data($row);
   my $saldo_new = format_debit_credit($form->{saldo_new});
-  my $row = {
+  $row = {
      'transdate' => {
        'data'    => "",
        'class' => 'listtotal',
@@ -769,11 +789,14 @@ sub list_transactions {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_subtotal_row {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my ($totals, $columns, $column_alignment, $class) = @_;
 
@@ -783,7 +806,7 @@ sub create_subtotal_row {
 
   map { $totals->{$_} = 0 } qw(debit credit);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $row;
 }
