@@ -5,10 +5,14 @@ use SL::ReportGenerator;
 
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
 sub _collect_links {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $dest = shift;
+
+  my $form     = $main::form;
 
   $dest->{LINKS} = [];
 
@@ -18,11 +22,15 @@ sub _collect_links {
     push @{ $dest->{LINKS} }, { map { +"trans_$_" => $form->{"trans_${_}_$i"} } qw(id type info) };
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _collect_links($form);
 
@@ -43,11 +51,14 @@ sub add {
 
   display_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $ref = FU->retrieve('id' => $form->{id});
 
@@ -65,11 +76,13 @@ sub edit {
 
   display_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   $form->get_lists("employees" => "EMPLOYEES");
 
@@ -83,11 +96,14 @@ sub display_form {
   $form->header();
   print $form->parse_html_template('fu/add_edit');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_follow_up {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->isblank('created_for_user', $locale->text('You must chose a user.'));
   $form->isblank('follow_up_date',   $locale->text('The follow-up date is missing.'));
@@ -117,11 +133,14 @@ sub save_follow_up {
 
   report();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub finish {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if ($form->{id}) {
     my $ref = FU->retrieve('id' => $form->{id});
@@ -150,11 +169,14 @@ sub finish {
 
   report();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if ($form->{id}) {
     my $ref = FU->retrieve('id' => $form->{id});
@@ -183,11 +205,14 @@ sub delete {
 
   report();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->get_lists("employees" => "EMPLOYEES");
 
@@ -197,11 +222,16 @@ sub search {
   $form->header();
   print $form->parse_html_template('fu/search');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   my @report_params = qw(created_for subject body reference follow_up_date_from follow_up_date_to itime_from itime_to due_only all_users done not_done);
 
@@ -303,11 +333,13 @@ sub report {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report_for_todo_list {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my @report_params = qw(created_for subject body reference follow_up_date_from follow_up_date_to itime_from itime_to due_only all_users done not_done);
 
@@ -338,13 +370,16 @@ sub report_for_todo_list {
                                                                        'edit_url'   => $edit_url, });
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $content;
 }
 
 sub edit_access_rights {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $access = FU->retrieve_access_rights();
 
@@ -357,11 +392,14 @@ sub edit_access_rights {
   $form->header();
   print $form->parse_html_template('fu/edit_access_rights');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_access_rights {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my %access;
 
@@ -376,26 +414,31 @@ sub save_access_rights {
   $form->{SAVED_MESSAGE} = $locale->text('The access rights have been saved.');
   edit_access_rights();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  call_sub($form->{nextsub});
+  call_sub($main::form->{nextsub});
 }
 
 sub continue {
-  call_sub($form->{nextsub});
+  call_sub($main::form->{nextsub});
 }
 
 sub save {
-  if ($form->{save_nextsub}) {
-    call_sub($form->{save_nextsub});
+  if ($main::form->{save_nextsub}) {
+    call_sub($main::form->{save_nextsub});
   } else {
     save_follow_up();
   }
 }
 
 sub dispatcher {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   foreach my $action (qw(finish save delete)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
