@@ -43,16 +43,21 @@ require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 
+use strict;
+
 1;
 
 # end of main
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
-  return $lxdebug->leave_sub() if (load_draft_maybe());
+  $main::auth->assert('vendor_invoice_edit');
+
+  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = $locale->text('Add Vendor Invoice');
 
@@ -60,13 +65,16 @@ sub add {
   &prepare_invoice;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
@@ -78,22 +86,25 @@ sub edit {
   &prepare_invoice;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub invoice_links {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   # create links
-  $form->{webdav}   = $webdav;
+  $form->{webdav}   = $main::webdav;
   $form->{jsscript} = 1;
 
   $form->create_links("AP", \%myconfig, "vendor");
 
   #quote all_vendor Bug 133
-  foreach $ref (@{ $form->{all_vendor} }) {
+  foreach my $ref (@{ $form->{all_vendor} }) {
     $ref->{name} = $form->quote($ref->{name});
   }
 
@@ -102,6 +113,8 @@ sub invoice_links {
       $form->{vendor_id} = $form->{all_vendor}->[0]->{id};
     }
   }
+
+  my ($payment_id, $language_id, $taxzone_id);
   if ($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
@@ -112,7 +125,7 @@ sub invoice_links {
     $taxzone_id = $form->{taxzone_id};
   }
 
-  $cp_id = $form->{cp_id};
+  my $cp_id = $form->{cp_id};
   IR->get_vendor(\%myconfig, \%$form);
   IR->retrieve_invoice(\%myconfig, \%$form);
   $form->{cp_id} = $cp_id;
@@ -127,6 +140,7 @@ sub invoice_links {
     $form->{taxzone_id} = $taxzone_id;
   }
 
+  my @curr = split(/:/, $form->{currencies}); #seems to be missing
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
@@ -144,16 +158,16 @@ sub invoice_links {
 
   # forex
   $form->{forex} = $form->{exchangerate};
-  $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
+  my $exchangerate = ($form->{exchangerate}) ? $form->{exchangerate} : 1;
 
-  foreach $key (keys %{ $form->{AP_links} }) {
+  foreach my $key (keys %{ $form->{AP_links} }) {
 
-    foreach $ref (@{ $form->{AP_links}{$key} }) {
+    foreach my $ref (@{ $form->{AP_links}{$key} }) {
       $form->{"select$key"} .= "<option>$ref->{accno}--$ref->{description}\n";
     }
 
     if ($key eq "AP_paid") {
-      for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
+      for my $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
         $form->{"AP_paid_$i"} =
           "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
 
@@ -183,26 +197,29 @@ sub invoice_links {
     ($form->datetonum($form->{invdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub prepare_invoice {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   if ($form->{id}) {
 
     map { $form->{$_} =~ s/\"/&quot;/g } qw(invnumber ordnumber quonumber);
 
     my $i = 0;
-    foreach $ref (@{ $form->{invoice_details} }) {
+    foreach my $ref (@{ $form->{invoice_details} }) {
       $i++;
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
 
-      ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+      my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
       $dec           = length $dec;
-      $decimalplaces = ($dec > 2) ? $dec : 2;
+      my $decimalplaces = ($dec > 2) ? $dec : 2;
 
       $form->{"sellprice_$i"} =
         $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
@@ -218,18 +235,23 @@ sub prepare_invoice {
     }
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   push @{ $form->{AJAX} }, CGI::Ajax->new('set_duedate_vendor' => "$form->{script}?action=set_duedate_vendor");
 
   # set option selected
-  foreach $item (qw(AP vendor currency department)) {
+  foreach my $item (qw(AP vendor currency department)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
@@ -242,7 +264,7 @@ sub form_header {
   $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
   $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
-  $exchangerate = "";
+  my $exchangerate = "";
   if ($form->{currency} ne $form->{defaultcurrency}) {
     if ($form->{forex}) {
       $exchangerate .= qq| <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
@@ -316,7 +338,6 @@ sub form_header {
 
   %labels = ();
   @values = ();
-  my $i = 0;
   foreach my $item (@{ $form->{"ALL_SALESMEN"} }) {
     push(@values, $item->{"id"});
     $labels{$item->{"id"}} = $item->{"name"};
@@ -331,7 +352,6 @@ sub form_header {
 
   %labels = ();
   @values = ();
-  my $i = 0;
   foreach my $item (@{ $form->{"ALL_VENDORS"} }) {
     push(@values, $item->{name}.qq|--|.$item->{"id"});
     $labels{$item->{name}.qq|--|.$item->{"id"}} = $item->{"name"};
@@ -357,6 +377,7 @@ sub form_header {
     $labels{$item->{"id"}} = $item->{"description"};
   }
 
+  my $taxzone;
   if (!$form->{"id"}) {
     $taxzone = qq|
     <tr>
@@ -376,7 +397,7 @@ sub form_header {
     </tr>|;
   }
 
-  $department = qq|
+  my $department = qq|
            <tr>
 	      <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
 	      <td colspan="3"><select name="department" style="width: 250px">$form->{selectdepartment}</select>
@@ -384,13 +405,13 @@ sub form_header {
 	      </td>
 	    </tr>\n| if $form->{selectdepartment};
 
-  $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
+  my $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
 
-  $button1 = qq|
+  my $button1 = qq|
      <td nowrap>
          <input name=invdate id=invdate size=11 title="$myconfig{dateformat}" value="$form->{invdate}" onBlur=\"check_right_date_format(this)\"
                 onChange="if (this.value) set_duedate_vendor(['invdate__' + this.value, 'old_duedate__' + document.getElementsByName('duedate')[0].value, 'vendor_id__' + document.getElementsByName('vendor_id')[0].value],['duedate'])">
@@ -398,7 +419,7 @@ sub form_header {
      </td>\n|;
 
 #, 'old_duedate__'' + document.getElementsByName('duedate')[0].value, 'vendor_id__' + document.getElementsByName('vendor_id')[0].value],['duedate'])">
-  $button2 = qq|
+  my $button2 = qq|
      <td width="13" nowrap>
           <input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}"  onBlur=\"check_right_date_format(this)\">
           <input type=button name=duedate id="trigger2" value=| . $locale->text('button') . qq|>
@@ -422,7 +443,7 @@ sub form_header {
   $jsscript .= $form->write_trigger(\%myconfig, 2, "orddate", "BL", "trigger_orddate", "quodate", "BL", "trigger_quodate");
 
   $form->header;
-  $onload  = qq|focus()|;
+  my $onload  = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
@@ -509,26 +530,32 @@ sub form_header {
 
 $jsscript
 
-<input type=hidden name=webdav value=$webdav>
+<input type=hidden name=webdav value=$main::webdav>
 |;
 
-  foreach $item (split / /, $form->{taxaccounts}) {
+  foreach my $item (split / /, $form->{taxaccounts}) {
     print qq|
 <input type=hidden name="${item}_rate" value=$form->{"${item}_rate"}>
 <input type=hidden name="${item}_description" value="$form->{"${item}_description"}">
 |;
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   $form->{invtotal} = $form->{invsubtotal};
 
+  my ($rows, $introws);
   if (($rows = $form->numtextrows($form->{notes}, 25, 8)) < 2) {
     $rows = 2;
   }
@@ -536,14 +563,14 @@ sub form_footer {
     $introws = 2;
   }
   $rows = ($rows > $introws) ? $rows : $introws;
-  $notes =
+  my $notes =
     qq|<textarea name=notes rows=$rows cols=25 wrap=soft>$form->{notes}</textarea>|;
-  $intnotes =
+  my $intnotes =
     qq|<textarea name=intnotes rows=$rows cols=35 wrap=soft>$form->{intnotes}</textarea>|;
 
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
 
-  $taxincluded = "";
+  my $taxincluded = "";
   if ($form->{taxaccounts}) {
     $taxincluded = qq|
 		<input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}> <b>|
@@ -551,9 +578,10 @@ sub form_footer {
 |;
   }
 
+  my ($tax, $subtotal);
   if (!$form->{taxincluded}) {
 
-    foreach $item (split / /, $form->{taxaccounts}) {
+    foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
         $form->{invtotal} += $form->{"${item}_total"} =
           $form->round_amount(
@@ -585,7 +613,7 @@ sub form_footer {
   }
 
   if ($form->{taxincluded}) {
-    foreach $item (split / /, $form->{taxaccounts}) {
+    foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
         $form->{"${item}_total"} =
           $form->round_amount(
@@ -638,6 +666,7 @@ sub form_footer {
     }
   }
 
+  our $colspan;
   print qq|
   <tr>
     <td colspan=$colspan>
@@ -673,7 +702,8 @@ sub form_footer {
     </td>
   </tr>
 |;
-  if ($webdav) {
+  my $webdav_list;
+  if ($main::webdav) {
     $webdav_list = qq|
   <tr>
     <td><hr size=3 noshade></td>
@@ -685,7 +715,7 @@ sub form_footer {
       <td align=left width=30%><b>Dateiname</b></td>
       <td align=left width=70%><b>Webdavlink</b></td>
 |;
-    foreach $file (@{ $form->{WEBDAV} }) {
+    foreach my $file (@{ $form->{WEBDAV} }) {
       $webdav_list .= qq|
       <tr>
         <td align="left">$file->{name}</td>
@@ -709,12 +739,14 @@ sub form_footer {
 	</tr>
 |;
 
+  my @column_index;
   if ($form->{currency} eq $form->{defaultcurrency}) {
     @column_index = qw(datepaid source memo paid AP_paid);
   } else {
     @column_index = qw(datepaid source memo paid exchangerate AP_paid);
   }
 
+  my %column_data;
   $column_data{datepaid}     = "<th>" . $locale->text('Date') . "</th>";
   $column_data{paid}         = "<th>" . $locale->text('Amount') . "</th>";
   $column_data{exchangerate} = "<th>" . $locale->text('Exch') . "</th>";
@@ -734,7 +766,7 @@ sub form_footer {
   my $totalpaid = 0;
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
 
     print qq|
 	<tr>
@@ -754,7 +786,7 @@ sub form_footer {
     $form->{"exchangerate_$i"} =
       $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
 
-    $exchangerate = qq|&nbsp;|;
+    my $exchangerate = qq|&nbsp;|;
     if ($form->{currency} ne $form->{defaultcurrency}) {
       if ($form->{"forex_$i"}) {
         $exchangerate =
@@ -818,8 +850,8 @@ sub form_footer {
 <br>
 |;
 
-  $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
-  $closedto = $form->datetonum($form->{closedto}, \%myconfig);
+  my $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
+  my $closedto = $form->datetonum($form->{closedto}, \%myconfig);
 
   print qq|<input class=submit type=submit name=action id=update_button value="|
     . $locale->text('Update') . qq|">
@@ -880,40 +912,46 @@ print qq|</form>
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub mark_as_paid {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   &mark_as_paid_common(\%myconfig,"ap");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
-  &check_name(vendor);
+  &check_name('vendor');
 
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'sell');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     next unless $form->{"paid_$i"};
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
     $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'sell');
     $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
   }
 
-  $i            = $form->{rowcount};
-  $exchangerate = ($form->{exchangerate} * 1) || 1;
+  my $i            = $form->{rowcount};
+  my $exchangerate = ($form->{exchangerate} * 1) || 1;
 
   if (   ($form->{"partnumber_$i"} eq "")
       && ($form->{"description_$i"} eq "")
@@ -938,10 +976,10 @@ sub update {
       } else {
 
         # override sellprice if there is one entered
-        $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+        my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
 	# ergaenzung fuer bug 736 Lieferanten-Rabatt auch in Einkaufsrechnungen vorbelegen jb
-        $form->{"discount_$i"} = $form->format_amount(\%myconfig, 
+        $form->{"discount_$i"} = $form->format_amount(\%myconfig,
 						      $form->{vendor_discount} * 100 );
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
@@ -949,7 +987,8 @@ sub update {
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
 
         ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
-        $decimalplaces = max 2, length $1;
+        my $dec_qty       = length $1;
+        my $decimalplaces = max 2, $dec_qty;
 
         if ($sellprice) {
           $form->{"sellprice_$i"} = $sellprice;
@@ -958,7 +997,7 @@ sub update {
           $form->{"sellprice_$i"} /= $exchangerate;
         }
 
-        $amount                   = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        my $amount                   = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
         $form->{creditremaining} -= $amount;
         $form->{"sellprice_$i"}   = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
         $form->{"qty_$i"}         = $form->format_amount(\%myconfig, $form->{"qty_$i"},       $dec_qty);
@@ -984,13 +1023,17 @@ sub update {
       }
     }
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub storno {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   if ($form->{storno}) {
     $form->error($locale->text('Cannot storno storno invoice!'));
@@ -1024,14 +1067,17 @@ sub storno {
   $form->{rowcount}++;
   $form->{employee_id} = $employee_id;
   post();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub use_as_template {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
@@ -1039,18 +1085,22 @@ sub use_as_template {
   $form->{invdate} = $form->current_date(\%myconfig);
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     if ($form->{"paid_$i"}) {
-      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+      my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
@@ -1058,10 +1108,8 @@ sub post_payment {
         if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
-        $form->{"exchangerate_$i"} = $form->{exchangerate}
-          if ($invdate == $datepaid);
-        $form->isblank("exchangerate_$i",
-                       $locale->text('Exchangerate for payment missing!'));
+#        $form->{"exchangerate_$i"} = $form->{exchangerate} if ($invdate == $datepaid); # invdate isn't set here
+        $form->isblank("exchangerate_$i", $locale->text('Exchangerate for payment missing!'));
       }
     }
   }
@@ -1083,13 +1131,17 @@ sub post_payment {
 
   $form->error($locale->text('Cannot post payment!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1101,15 +1153,16 @@ sub post {
   $form->{invnumber} =~ s/\s*$//g;
 
   # if the vendor changed get new values
-  if (&check_name(vendor)) {
+  if (&check_name('vendor')) {
     &update;
     exit;
   }
 
   &validate_items;
 
-  $closedto = $form->datetonum($form->{closedto}, \%myconfig);
-  $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
+  my $closedto = $form->datetonum($form->{closedto}, \%myconfig);
+  my $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
+  my $i        = $form->{rowcount};
 
   $form->error($locale->text('Cannot post invoice for a closed period!'))
     if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
@@ -1119,7 +1172,7 @@ sub post {
 
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
-      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+      my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
@@ -1159,13 +1212,16 @@ sub post {
   }
   $form->error($locale->text('Cannot post invoice!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   $form->header;
   print qq|
@@ -1177,7 +1233,7 @@ sub delete {
   # delete action variable
   map { delete $form->{$_} } qw(action header);
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
@@ -1195,13 +1251,17 @@ sub delete {
 </form>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub yes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('vendor_invoice_edit');
 
   if (IR->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
@@ -1215,15 +1275,17 @@ sub yes {
   }
   $form->error($locale->text('Cannot delete invoice!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_duedate_vendor {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   print $form->ajax_response_header(), IR->get_duedate('vendor_id' => $form->{vendor_id},
                                                        'invdate'   => $form->{invdate},
                                                        'default'   => $form->{old_duedate});
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
