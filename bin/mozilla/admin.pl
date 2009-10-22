@@ -32,7 +32,7 @@
 #
 #======================================================================
 
-$menufile = "menu.ini";
+my $menufile = "menu.ini";
 
 use DBI;
 use CGI;
@@ -55,13 +55,13 @@ use SL::DBUtils;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/admin_groups.pl";
 
-our $cgi = new CGI('');
+use strict;
 
-$form = new Form;
-
-$locale = new Locale $language, "admin";
-
+our $cgi    = new CGI('');
+our $form   = new Form;
+our $locale = new Locale $main::language, "admin";
 our $auth = SL::Auth->new();
+
 if ($auth->session_tables_present()) {
   $auth->expire_sessions();
   $auth->restore_session();
@@ -78,7 +78,7 @@ $form->{stylesheet} = "lx-office-erp.css";
 $form->{favicon}    = "favicon.ico";
 
 if ($form->{action}) {
-  if ($auth->authenticate_root($form->{rpw}, 0) != Auth::OK) {
+  if ($auth->authenticate_root($form->{rpw}, 0) != Auth->OK()) {
     $form->{error_message} = $locale->text('Incorrect Password!');
     adminlogin();
     exit;
@@ -88,7 +88,7 @@ if ($form->{action}) {
 
   call_sub($locale->findsub($form->{action}));
 
-} elsif ($auth->authenticate_root($form->{rpw}, 0) == Auth::OK) {
+} elsif ($auth->authenticate_root($form->{rpw}, 0) == Auth->OK()) {
 
   $auth->create_or_refresh_session() if ($auth->session_tables_present());
 
@@ -108,6 +108,8 @@ if ($form->{action}) {
 # end
 
 sub adminlogin {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
 
@@ -121,16 +123,19 @@ sub login {
 }
 
 sub logout {
-  $auth->destroy_session();
+  $main::auth->destroy_session();
   adminlogin();
 }
 
 sub check_auth_db_and_tables {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   my %params;
 
-  map { $params{"db_${_}"} = $auth->{DB_config}->{$_} } keys %{ $auth->{DB_config} };
+  map { $params{"db_${_}"} = $main::auth->{DB_config}->{$_} } keys %{ $auth->{DB_config} };
 
-  if (!$auth->check_database()) {
+  if (!$main::auth->check_database()) {
     $form->{title} = $locale->text('Authentification database creation');
     $form->header();
     print $form->parse_html_template('admin/check_auth_database', \%params);
@@ -138,7 +143,7 @@ sub check_auth_db_and_tables {
     exit 0;
   }
 
-  if (!$auth->check_tables()) {
+  if (!$main::auth->check_tables()) {
     $form->{title} = $locale->text('Authentification tables creation');
     $form->header();
     print $form->parse_html_template('admin/check_auth_tables', \%params);
@@ -146,10 +151,10 @@ sub check_auth_db_and_tables {
     exit 0;
   }
 
-  if (-f $memberfile) {
+  if (-f $main::memberfile) {
     my $memberdir = "";
 
-    if ($memberfile =~ m|^.*/|) {
+    if ($main::memberfile =~ m|^.*/|) {
       $memberdir = $&;
     }
 
@@ -157,7 +162,7 @@ sub check_auth_db_and_tables {
 
     $form->{title} = $locale->text('User data migration');
     $form->header();
-    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $memberfile,
+    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $main::memberfile,
                                                                'backupdir'  => $backupdir });
 
     exit 0
@@ -165,19 +170,25 @@ sub check_auth_db_and_tables {
 }
 
 sub create_auth_db {
-  $auth->create_database('superuser'          => $form->{db_superuser},
+  my $form     = $main::form;
+
+  $main::auth->create_database('superuser'          => $form->{db_superuser},
                          'superuser_password' => $form->{db_superuser_password},
                          'template'           => $form->{db_template});
   login();
 }
 
 sub create_auth_tables {
-  $auth->create_tables();
-  $auth->set_session_value('rpw', $form->{rpw});
-  $auth->create_or_refresh_session();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
-  if (!-f $memberfile) {
+  $main::auth->create_tables();
+  $main::auth->set_session_value('rpw', $form->{rpw});
+  $main::auth->create_or_refresh_session();
+
+  if (!-f $main::memberfile) {
     # New installation -- create a standard group with full access
+    my %members;
     my $group = {
       'name'        => $locale->text('Full Access'),
       'description' => $locale->text('Full access to all functions'),
@@ -185,18 +196,21 @@ sub create_auth_tables {
       'members'     => [ map { $_->{id} } values %members ],
     };
 
-    $auth->save_group($group);
+    $main::auth->save_group($group);
   }
 
   login();
 }
 
 sub migrate_users {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $memberdir = "";
 
-  if ($memberfile =~ m|^.*/|) {
+  if ($main::memberfile =~ m|^.*/|) {
     $memberdir = $&;
   }
 
@@ -206,9 +220,9 @@ sub migrate_users {
     $form->error(sprintf($locale->text('The directory "%s" could not be created:\n%s'), $backupdir, $!));
   }
 
-  copy $memberfile, "users/member-file-migration/members";
+  copy $main::memberfile, "users/member-file-migration/members";
 
-  my $in = IO::File->new($memberfile, "r");
+  my $in = IO::File->new($main::memberfile, "r");
 
   $form->error($locale->text('Could not open the old memberfile.')) if (!$in);
 
@@ -248,8 +262,8 @@ sub migrate_users {
   map { $_->{dbpasswd} = unpack 'u', $_->{dbpasswd} } values %members;
 
   while (my ($login, $params) = each %members) {
-    $auth->save_user($login, %{ $params });
-    $auth->change_password($login, $params->{password}, 1);
+    $main::auth->save_user($login, %{ $params });
+    $main::auth->change_password($login, $params->{password}, 1);
 
     my $conf_file = "${memberdir}${login}.conf";
 
@@ -259,7 +273,7 @@ sub migrate_users {
     }
   }
 
-  unlink $memberfile;
+  unlink $main::memberfile;
 
   my @member_list = sort { lc $a->{login} cmp lc $b->{login} } values %members;
 
@@ -267,10 +281,13 @@ sub migrate_users {
   $form->header();
   print $form->parse_html_template('admin/user_migration_done', { 'MEMBERS' => \@member_list });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_standard_group_ask {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} = $locale->text('Create a standard group');
 
   $form->header();
@@ -278,9 +295,12 @@ sub create_standard_group_ask {
 }
 
 sub create_standard_group {
-  my %members = $auth->read_all_users();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
-  my $groups = $auth->read_groups();
+  my %members = $main::auth->read_all_users();
+
+  my $groups = $main::auth->read_groups();
 
   foreach my $group (values %{$groups}) {
     if (($form->{group_id} != $group->{id})
@@ -296,7 +316,7 @@ sub create_standard_group {
     'members'     => [ map { $_->{id} } values %members ],
   };
 
-  $auth->save_group($group);
+  $main::auth->save_group($group);
 
   user_migration_complete(1);
 }
@@ -308,6 +328,9 @@ sub dont_create_standard_group {
 sub user_migration_complete {
   my $standard_group_created = shift;
 
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} = $locale->text('User migration complete');
   $form->header();
 
@@ -315,14 +338,17 @@ sub user_migration_complete {
 }
 
 sub list_users {
-  my %members = $auth->read_all_users();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my %members = $main::auth->read_all_users();
 
   delete $members{"root login"};
 
   map { $_->{templates} =~ s|.*/||; } values %members;
 
   $form->{title}   = "Lx-Office ERP " . $locale->text('Administration');
-  $form->{LOCKED}  = -e "$userspath/nologin";
+  $form->{LOCKED}  = -e "$main::userspath/nologin";
   $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
 
   $form->header();
@@ -330,6 +356,9 @@ sub list_users {
 }
 
 sub add_user {
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} =
       "Lx-Office ERP "
@@ -349,6 +378,9 @@ sub add_user {
 }
 
 sub edit_user {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
 
   $form->{title} =
       "Lx-Office ERP "
@@ -370,29 +402,32 @@ sub edit_user {
 sub edit_user_form {
   my ($myconfig) = @_;
 
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   my @valid_dateformats = qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
   $form->{ALL_DATEFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{dateformat} } } @valid_dateformats ];
 
-  my @valid_numberformats = qw(1,000.00 1000.00 1.000,00 1000,00);
+  my @valid_numberformats = ('1,000.00', '1000.00', '1.000,00', '1000,00');
   $form->{ALL_NUMBERFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{numberformat} } } @valid_numberformats ];
 
-  %countrycodes = User->country_codes;
+  my %countrycodes = User->country_codes;
   $form->{ALL_COUNTRYCODES} = [];
-  foreach $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
+  foreach my $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
     push @{ $form->{ALL_COUNTRYCODES} }, { "value"    => $countrycode,
                                            "name"     => $countrycodes{$countrycode},
                                            "selected" => $countrycode eq $myconfig->{countrycode} };
   }
 
   # is there a templates basedir
-  if (!-d "$templates") {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $templates));
+  if (!-d "$main::templates") {
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $main::templates));
   }
 
-  opendir TEMPLATEDIR, "$templates/." or $form->error("$templates : $ERRNO");
+  opendir TEMPLATEDIR, "$main::templates/." or $form->error("$main::templates : $ERRNO");
   my @all     = readdir(TEMPLATEDIR);
-  my @alldir  = sort grep { -d "$templates/$_" && !/^\.\.?$/ } @all;
-  my @allhtml = sort grep { -f "$templates/$_" && /\.html$/ } @all;
+  my @alldir  = sort grep { -d "$main::templates/$_" && !/^\.\.?$/ } @all;
+  my @allhtml = sort grep { -f "$main::templates/$_" && /\.html$/ } @all;
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
@@ -404,10 +439,10 @@ sub edit_user_form {
 
   $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
 
-  $lastitem = $allhtml[0];
+  my $lastitem = $allhtml[0];
   $lastitem =~ s/-.*//g;
   $form->{ALL_MASTER_TEMPLATES} = [ { "name" => $lastitem, "selected" => $lastitem eq "German" } ];
-  foreach $item (@allhtml) {
+  foreach my $item (@allhtml) {
     $item =~ s/-.*//g;
     next if ($item eq $lastitem);
 
@@ -426,8 +461,8 @@ sub edit_user_form {
   my $groups = [];
 
   if ($form->{edit}) {
-    my $user_id    = $auth->get_user_id($form->{login});
-    my $all_groups = $auth->read_groups();
+    my $user_id    = $main::auth->get_user_id($form->{login});
+    my $all_groups = $main::auth->read_groups();
 
     foreach my $group (values %{ $all_groups }) {
       push @{ $groups }, $group if (grep { $user_id == $_ } @{ $group->{members} });
@@ -436,13 +471,16 @@ sub edit_user_form {
     $groups = [ sort { lc $a->{name} cmp lc $b->{name} } @{ $groups } ];
   }
 
-  $form->{CAN_CHANGE_PASSWORD} = $auth->can_change_password();
+  $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
 
   $form->header();
   print $form->parse_html_template("admin/edit_user", { 'GROUPS' => $groups });
 }
 
 sub save_user {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{dbdriver} = 'Pg';
 
   # no spaces allowed in login name
@@ -451,7 +489,7 @@ sub save_user {
 
   # check for duplicates
   if (!$form->{edit}) {
-    my %members = $auth->read_all_users();
+    my %members = $main::auth->read_all_users();
     if ($members{$form->{login}}) {
       $form->show_generic_error($locale->text('Another user with the login #1 does already exist.', $form->{login}), 'back_button' => 1);
     }
@@ -468,20 +506,20 @@ sub save_user {
   }
 
   # is there a basedir
-  if (!-d "$templates") {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $templates));
+  if (!-d "$main::templates") {
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $main::templates));
   }
 
   # add base directory to $form->{templates}
   $form->{templates} =~ s|.*/||;
-  $form->{templates} =  "$templates/$form->{templates}";
+  $form->{templates} =  "$main::templates/$form->{templates}";
 
-  $myconfig = new User($form->{login});
+  my $myconfig = new User($form->{login});
 
   $form->isblank("dbname", $locale->text('Dataset missing!'));
   $form->isblank("dbuser", $locale->text('Database User missing!'));
 
-  foreach $item (keys %{$form}) {
+  foreach my $item (keys %{$form}) {
     $myconfig->{$item} = $form->{$item};
   }
 
@@ -492,17 +530,18 @@ sub save_user {
 
   $myconfig->save_member();
 
-  if ($auth->can_change_password()
+  if ($main::auth->can_change_password()
       && defined $form->{new_password}
       && ($form->{new_password} ne '********')) {
-    $auth->change_password($form->{login}, $form->{new_password});
+    $main::auth->change_password($form->{login}, $form->{new_password});
   }
 
-  if ($webdav) {
-    @webdavdirs =
+  my ($login, $password, $newfile);
+  if ($main::webdav) {
+    my @webdavdirs =
       qw(angebote bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen);
-    foreach $directory (@webdavdirs) {
-      $file = "webdav/" . $directory . "/webdav-user";
+    foreach my $directory (@webdavdirs) {
+      my $file = "webdav/" . $directory . "/webdav-user";
       if ($form->{$directory}) {
         if (open(HTACCESS, "$file")) {
           while (<HTACCESS>) {
@@ -536,7 +575,7 @@ sub save_user {
   }
 
   $form->{templates}       =~ s|.*/||;
-  $form->{templates}       =  "${templates}/$form->{templates}";
+  $form->{templates}       =  "$main::templates/$form->{templates}";
   $form->{mastertemplates} =~ s|.*/||;
 
   # create user template directory and copy master files
@@ -548,20 +587,20 @@ sub save_user {
       umask(007);
 
       # copy templates to the directory
-      opendir TEMPLATEDIR, "$templates/." or $form - error("$templates : $ERRNO");
-      @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
+      opendir TEMPLATEDIR, "$main::templates/." or $form->error("$main::templates : $ERRNO");
+      my @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
-      foreach $file (@templates) {
-        open(TEMP, "$templates/$file")
-          or $form->error("$templates/$file : $ERRNO");
+      foreach my $file (@templates) {
+        open(TEMP, "$main::templates/$file")
+          or $form->error("$main::templates/$file : $ERRNO");
 
         $file =~ s/\Q$form->{mastertemplates}\E-//;
         open(NEW, ">$form->{templates}/$file")
           or $form->error("$form->{templates}/$file : $ERRNO");
 
-        while ($line = <TEMP>) {
+        while (my $line = <TEMP>) {
           print NEW $line;
         }
         close(TEMP);
@@ -574,8 +613,8 @@ sub save_user {
 
   # Add new user to his groups.
   if (ref $form->{new_user_group_ids} eq 'ARRAY') {
-    my $all_groups = $auth->read_groups();
-    my %user       = $auth->read_user($form->{login});
+    my $all_groups = $main::auth->read_groups();
+    my %user       = $main::auth->read_user($form->{login});
 
     foreach my $group_id (@{ $form->{new_user_group_ids} }) {
       my $group = $all_groups->{$group_id};
@@ -583,7 +622,7 @@ sub save_user {
       next if !$group;
 
       push @{ $group->{members} }, $user{id};
-      $auth->save_group($group);
+      $main::auth->save_group($group);
     }
   }
 
@@ -592,6 +631,8 @@ sub save_user {
 }
 
 sub save_user_as_new {
+  my $form     = $main::form;
+
   $form->{login} = $form->{new_user_login};
   delete @{$form}{qw(edit new_user_login)};
 
@@ -599,15 +640,18 @@ sub save_user_as_new {
 }
 
 sub delete_user {
-  my %members   = $auth->read_all_users();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my %members   = $main::auth->read_all_users();
   my $templates = $members{$form->{login}}->{templates};
 
-  $auth->delete_user($form->{login});
+  $main::auth->delete_user($form->{login});
 
   if ($templates) {
     my $templates_in_use = 0;
 
-    foreach $login (keys %members) {
+    foreach my $login (keys %members) {
       next if $form->{login} eq $login;
       next if $members{$login}->{templates} ne $templates;
       $templates_in_use = 1;
@@ -635,6 +679,8 @@ sub login_name {
 sub get_value {
   my $line = shift;
 
+  my $form     = $main::form;
+
   my ($null, $value) = split(/=/, $line, 2);
 
   # remove comments
@@ -647,6 +693,7 @@ sub get_value {
 }
 
 sub pg_database_administration {
+  my $form     = $main::form;
 
   $form->{dbdriver} = 'Pg';
   dbselect_source();
@@ -654,6 +701,9 @@ sub pg_database_administration {
 }
 
 sub dbselect_source {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{dbport}    = '5432';
   $form->{dbuser}    = 'postgres';
   $form->{dbdefault} = 'template1';
@@ -669,6 +719,9 @@ sub dbselect_source {
 }
 
 sub test_db_connection {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{dbdriver} = 'Pg';
   User::dbconnect_vars($form, $form->{dbname});
 
@@ -685,14 +738,13 @@ sub test_db_connection {
 }
 
 sub continue {
-  call_sub($form->{"nextsub"});
-}
-
-sub back {
-  call_sub($form->{"back_nextsub"});
+  call_sub($main::form->{"nextsub"});
 }
 
 sub update_dataset {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
@@ -707,6 +759,9 @@ sub update_dataset {
 }
 
 sub dbupdate {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{stylesheet} = "lx-office-erp.css";
   $form->{title}      = $locale->text("Dataset upgrade");
   $form->header();
@@ -742,12 +797,15 @@ sub dbupdate {
 }
 
 sub create_dataset {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{dbsources} = join " ", map { "[${_}]" } sort User->dbsources($form);
 
   $form->{CHARTS} = [];
 
-  opendir SQLDIR, "sql/." or $form - error($ERRNO);
-  foreach $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
+  opendir SQLDIR, "sql/." or $form->error($ERRNO);
+  foreach my $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
     next if ($item eq 'Default-chart.sql');
     $item =~ s/-chart\.sql//;
     push @{ $form->{CHARTS} }, { "name"     => $item,
@@ -755,12 +813,12 @@ sub create_dataset {
   }
   closedir SQLDIR;
 
-  my $default_charset = $dbcharset;
+  my $default_charset = $main::dbcharset;
   $default_charset ||= Common::DEFAULT_CHARSET;
 
   my $cluster_encoding = User->dbclusterencoding($form);
   if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i)) {
-    if ($dbcharset !~ m/^UTF-?8$/i) {
+    if ($main::dbcharset !~ m/^UTF-?8$/i) {
       $form->show_generic_error($locale->text('The selected  PostgreSQL installation uses UTF-8 as its encoding. ' .
                                               'Therefore you have to configure Lx-Office to use UTF-8 as well.'),
                                 'back_button' => 1);
@@ -788,6 +846,9 @@ sub create_dataset {
 }
 
 sub dbcreate {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->isblank("db", $locale->text('Dataset missing!'));
 
   User->dbcreate(\%$form);
@@ -802,7 +863,10 @@ sub dbcreate {
 }
 
 sub delete_dataset {
-  @dbsources = User->dbsources_unused($form);
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my @dbsources = User->dbsources_unused($form);
   $form->error($locale->text('Nothing to delete!')) unless @dbsources;
 
   $form->{title} =
@@ -816,6 +880,8 @@ sub delete_dataset {
 }
 
 sub dbdelete {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if (!$form->{db}) {
     $form->error($locale->text('No Dataset selected!'));
@@ -832,12 +898,15 @@ sub dbdelete {
 }
 
 sub backup_dataset {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Backup Dataset');
 
-  if ("$pg_dump_exe" eq "DISABLED") {
+  if ("$main::pg_dump_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -854,14 +923,17 @@ sub backup_dataset {
 }
 
 sub backup_dataset_start {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Backup Dataset');
 
-  $pg_dump_exe ||= "pg_dump";
+  $main::pg_dump_exe ||= "pg_dump";
 
-  if ("$pg_dump_exe" eq "DISABLED") {
+  if ("$main::pg_dump_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -887,7 +959,7 @@ sub backup_dataset_start {
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $form->{dbname};
 
-  my $cmd  = "${pg_dump_exe} " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $cmd  = "$main::pg_dump_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
   my $name = "dataset_backup_$form->{dbname}_" . strftime("%Y%m%d", localtime()) . ".tar";
 
   if ($form->{destination} ne "email") {
@@ -926,7 +998,7 @@ sub backup_dataset_start {
 
     map { $mail->{$_} = $form->{$_} } qw(from to cc subject message);
 
-    $mail->{charset}     = $dbcharset ? $dbcharset : Common::DEFAULT_CHARSET;
+    $mail->{charset}     = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
     $mail->{attachments} = [ { "filename" => $tmp, "name" => $name } ];
     $mail->send();
 
@@ -944,16 +1016,19 @@ sub backup_dataset_start {
 }
 
 sub restore_dataset {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Restore Dataset');
 
-  if ("$pg_restore_exe" eq "DISABLED") {
+  if ("$main::pg_restore_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
-  my $default_charset   = $dbcharset;
+  my $default_charset   = $main::dbcharset;
   $default_charset    ||= Common::DEFAULT_CHARSET;
 
   $form->{DBENCODINGS}  = [];
@@ -969,14 +1044,17 @@ sub restore_dataset {
 }
 
 sub restore_dataset_start {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $form->{title} =
       "Lx-Office ERP "
     . $locale->text('Database Administration') . " / "
     . $locale->text('Restore Dataset');
 
-  $pg_restore_exe ||= "pg_restore";
+  $main::pg_restore_exe ||= "pg_restore";
 
-  if ("$pg_restore_exe" eq "DISABLED") {
+  if ("$main::pg_restore_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -1063,7 +1141,7 @@ sub restore_dataset_start {
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $tmp;
 
-  my $cmd = "${pg_restore_exe} " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $cmd = "$main::pg_restore_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
 
   my $in = IO::File->new("$cmd 2>&1 |");
 
@@ -1074,7 +1152,7 @@ sub restore_dataset_start {
     $form->error($locale->text('The pg_restore process could not be started.'));
   }
 
-  $AUTOFLUSH = 1;
+  $English::AUTOFLUSH = 1;
 
   $form->header();
   print $form->parse_html_template("admin/restore_dataset_start_header");
@@ -1092,8 +1170,10 @@ sub restore_dataset_start {
 }
 
 sub unlock_system {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
-  unlink "$userspath/nologin";
+  unlink "$main::userspath/nologin";
 
   $form->{callback} = "admin.pl?action=list_users";
 
@@ -1102,8 +1182,10 @@ sub unlock_system {
 }
 
 sub lock_system {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
-  open(FH, ">$userspath/nologin")
+  open(FH, ">$main::userspath/nologin")
     or $form->error($locale->text('Cannot create Lock!'));
   close(FH);
 
@@ -1114,40 +1196,49 @@ sub lock_system {
 }
 
 sub yes {
-  call_sub($form->{yes_nextsub});
+  call_sub($main::form->{yes_nextsub});
 }
 
 sub no {
-  call_sub($form->{no_nextsub});
+  call_sub($main::form->{no_nextsub});
 }
 
 sub add {
-  call_sub($form->{add_nextsub});
+  call_sub($main::form->{add_nextsub});
 }
 
 sub edit {
+  my $form     = $main::form;
+
   $form->{edit_nextsub} ||= 'edit_user';
 
   call_sub($form->{edit_nextsub});
 }
 
 sub delete {
+  my $form     = $main::form;
+
   $form->{delete_nextsub} ||= 'delete_user';
 
   call_sub($form->{delete_nextsub});
 }
 
 sub save {
+  my $form     = $main::form;
+
   $form->{save_nextsub} ||= 'save_user';
 
   call_sub($form->{save_nextsub});
 }
 
 sub back {
-  call_sub($form->{back_nextsub});
+  call_sub($main::form->{back_nextsub});
 }
 
 sub dispatcher {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   foreach my $action (qw(create_standard_group dont_create_standard_group
                          save_user delete_user save_user_as_new)) {
     if ($form->{"action_${action}"}) {
