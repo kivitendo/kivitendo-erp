@@ -55,14 +55,18 @@ use SL::ReportGenerator;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
 1;
 
 # end of main
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{title}    = "Add";
   $form->{callback} = "$form->{script}?action=add&db=$form->{db}" unless $form->{callback};
@@ -72,13 +76,16 @@ sub add {
   &form_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
@@ -98,13 +105,17 @@ sub search {
   $form->header();
   print $form->parse_html_template('ct/search');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub list_names {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
@@ -236,13 +247,16 @@ sub list_names {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   # show history button
   $form->{javascript} = qq|<script type=text/javascript src=js/show_history.js></script>|;
@@ -259,13 +273,17 @@ sub edit {
   &form_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->get_lists("employees" => "ALL_EMPLOYEES",
                    "taxzones"  => "ALL_TAXZONES");
@@ -301,25 +319,31 @@ sub form_header {
   $form->header;
   print $form->parse_html_template('ct/form_header');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
 
   print $form->parse_html_template('ct/form_footer', { is_orphaned => $form->{status} eq 'orphaned',
                                                        is_customer => $form->{db}     eq 'customer' });
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & ' .
+  $main::auth->assert('customer_vendor_edit & ' .
                 '(general_ledger         | invoice_edit         | vendor_invoice_edit | ' .
                 ' request_quotation_edit | sales_quotation_edit | sales_order_edit    | purchase_order_edit)');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
 #  # saving the history
 #  if(!exists $form->{addition}) {
@@ -336,19 +360,22 @@ sub add_transaction {
   }
 
   $form->{callback} = $form->escape($form->{callback}, 1);
-  $name = $form->escape("$form->{name}", 1);
+  my $name = $form->escape("$form->{name}", 1);
 
   $form->{callback} =
     "$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&callback=$form->{callback}";
   $form->redirect;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_ap_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & general_ledger');
+  $main::auth->assert('customer_vendor_edit & general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{script} = "ap.pl";
   # saving the history
@@ -359,13 +386,16 @@ sub save_and_ap_transaction {
   }
   # /saving the history
   &add_transaction;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_ar_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & general_ledger');
+  $main::auth->assert('customer_vendor_edit & general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{script} = "ar.pl";
   # saving the history
@@ -376,16 +406,19 @@ sub save_and_ar_transaction {
   }
   # /saving the history
   &add_transaction;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_invoice {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   if ($form->{db} eq 'customer') {
-    $auth->assert('customer_vendor_edit & invoice_edit');
+    $main::auth->assert('customer_vendor_edit & invoice_edit');
   } else {
-    $auth->assert('customer_vendor_edit & vendor_invoice_edit');
+    $main::auth->assert('customer_vendor_edit & vendor_invoice_edit');
   }
 
   $form->{script} = ($form->{db} eq 'customer') ? "is.pl" : "ir.pl";
@@ -398,13 +431,16 @@ sub save_and_invoice {
   }
   # /saving the history
   &add_transaction;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_rfq {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & request_quotation_edit');
+  $main::auth->assert('customer_vendor_edit & request_quotation_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{script} = "oe.pl";
   $form->{type}   = "request_quotation";
@@ -416,13 +452,16 @@ sub save_and_rfq {
   }
   # /saving the history
   &add_transaction;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_quotation {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit & sales_quotation_edit');
+  $main::auth->assert('customer_vendor_edit & sales_quotation_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{script} = "oe.pl";
   $form->{type}   = "sales_quotation";
@@ -434,16 +473,19 @@ sub save_and_quotation {
   }
   # /saving the history
   &add_transaction;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   if ($form->{db} eq 'customer') {
-    $auth->assert('customer_vendor_edit & sales_order_edit');
+    $main::auth->assert('customer_vendor_edit & sales_order_edit');
   } else {
-    $auth->assert('customer_vendor_edit & purchase_order_edit');
+    $main::auth->assert('customer_vendor_edit & purchase_order_edit');
   }
 
   $form->{script} = "oe.pl";
@@ -457,18 +499,23 @@ sub save_and_order {
   }
   # /saving the history
   &add_transaction;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_close {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
 
-  $msg = ucfirst $form->{db};
-  $imsg .= " saved!";
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $msg = ucfirst $form->{db};
+  $msg .= " saved!";
 
   $form->isblank("name", $locale->text("Name missing!"));
+  my $rc;
   if ($form->{"db"} eq "customer") {
     $rc = CT->save_customer(\%myconfig, \%$form);
   } else {
@@ -486,16 +533,20 @@ sub save_and_close {
   # /saving the history
   $form->redirect($locale->text($msg));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
 
-  $msg = ucfirst $form->{db};
-  $imsg .= " saved!";
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $msg = ucfirst $form->{db};
+  $msg .= " saved!";
 
   $form->isblank("name", $locale->text("Name missing!"));
 
@@ -522,17 +573,21 @@ sub save {
   # /saving the history
   &edit;
   exit;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   CT->delete(\%myconfig, \%$form);
 
-  $msg = ucfirst $form->{db};
+  my $msg = ucfirst $form->{db};
   $msg .= " deleted!";
   # saving the history
   if(!exists $form->{addition}) {
@@ -546,70 +601,86 @@ sub delete {
   $msg = "Cannot delete $form->{db}";
   $form->error($locale->text($msg));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
 
   &form_header();
   &form_footer();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
 
   &display();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub get_contact {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   CT->get_contact(\%myconfig, \%$form);
   print $form->ajax_response_header(), join '__pjx__', map $form->{"cp_$_"},
     qw(name title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used gender);
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub get_shipto {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   CT->get_shipto(\%myconfig, \%$form);
   print $form->ajax_response_header(),  join '__pjx__', map $form->{"shipto$_"},
     qw(name department_1 department_2 street zipcode city country contact phone fax email used);
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub get_delivery {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   CT->get_delivery(\%myconfig, \%$form );
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
   print $form->ajax_response_header(), $form->parse_html_template('ct/get_delivery');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_shipto {
   $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   CT->get_shipto(\%myconfig, \%$form);
 
@@ -626,7 +697,10 @@ sub delete_shipto {
 sub delete_contact {
   $main::lxdebug->enter_sub();
 
-  $auth->assert('customer_vendor_edit');
+  $main::auth->assert('customer_vendor_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   CT->get_contact(\%myconfig, \%$form);
 
@@ -640,4 +714,4 @@ sub delete_contact {
   $main::lxdebug->leave_sub();
 }
 
-sub continue { call_sub($form->{nextsub}); }
+sub continue { call_sub($main::form->{nextsub}); }
