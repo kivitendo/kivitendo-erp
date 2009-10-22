@@ -14,7 +14,11 @@ use SL::Drafts;
 require "bin/mozilla/common.pl";
 
 sub save_draft {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if (!$form->{draft_id} && !$form->{draft_description}) {
     restore_form($form->{SAVED_FORM}, 1) if ($form->{SAVED_FORM});
@@ -26,7 +30,7 @@ sub save_draft {
     $form->header();
     print($form->parse_html_template("drafts/save_new"));
 
-    return $lxdebug->leave_sub();
+    return $main::lxdebug->leave_sub();
   }
 
   my ($draft_id, $draft_description) = ($form->{draft_id}, $form->{draft_description});
@@ -40,29 +44,35 @@ sub save_draft {
 
   update();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub remove_draft {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   Drafts->remove(\%myconfig, $form, $form->{draft_id}) if ($form->{draft_id});
 
   delete @{$form}{qw(draft_id draft_description)};
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub load_draft_maybe {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $lxdebug->leave_sub() and return 0 if ($form->{DONT_LOAD_DRAFT});
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::lxdebug->leave_sub() and return 0 if ($form->{DONT_LOAD_DRAFT});
 
   my ($draft_nextsub) = @_;
 
   my @drafts = Drafts->list(\%myconfig, $form);
 
-  $lxdebug->leave_sub() and return 0 unless (@drafts);
+  $main::lxdebug->leave_sub() and return 0 unless (@drafts);
 
   $draft_nextsub = "add" unless ($draft_nextsub);
 
@@ -75,13 +85,15 @@ sub load_draft_maybe {
                                      "SAVED_FORM"    => $saved_form,
                                      "draft_nextsub" => $draft_nextsub }));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return 1;
 }
 
 sub dont_load_draft {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my $draft_nextsub = $form->{draft_nextsub} || "add";
 
@@ -92,11 +104,14 @@ sub dont_load_draft {
 
   call_sub($draft_nextsub);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub load_draft {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my ($old_form, $id, $description) = Drafts->load(\%myconfig, $form, $form->{id});
 
@@ -104,7 +119,7 @@ sub load_draft {
     $old_form = YAML::Load($old_form);
 
     my %dont_save_vars      = map { $_ => 1 } @Drafts::dont_save;
-    my @restore_vars        = grep { !$skip_vars{$_} } keys %{ $old_form };
+    my @restore_vars        = grep { !$dont_save_vars{$_} } keys %{ $old_form };
 
     @{$form}{@restore_vars} = @{$old_form}{@restore_vars};
 
@@ -115,11 +130,14 @@ sub load_draft {
 
   update();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_drafts {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my @ids;
   foreach (keys %{$form}) {
@@ -132,11 +150,14 @@ sub delete_drafts {
 
   add();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub draft_action_dispatcher {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if ($form->{draft_action} eq $locale->text("Skip")) {
     dont_load_draft();
@@ -145,7 +166,7 @@ sub draft_action_dispatcher {
     delete_drafts();
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
