@@ -34,35 +34,45 @@
 
 use List::MoreUtils qw(uniq);
 
-sub edit_groups {
-  $lxdebug->enter_sub();
+use strict;
 
-  my @groups = sort { lc $a->{name} cmp lc $b->{name} } values %{ $auth->read_groups() };
+sub edit_groups {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
+  my @groups = sort { lc $a->{name} cmp lc $b->{name} } values %{ $main::auth->read_groups() };
 
   $form->header();
   print $form->parse_html_template("admin/edit_groups", { 'GROUPS'     => \@groups,
                                                           'num_groups' => scalar @groups });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_group {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   delete $form->{group_id};
   $form->{message} = $locale->text("The group has been added.");
 
   save_group();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_group {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->isblank('name', $locale->text('The group name is missing.'));
 
-  my $groups = $auth->read_groups();
+  my $groups = $main::auth->read_groups();
 
   foreach my $group (values %{$groups}) {
     if (($form->{group_id} != $group->{id})
@@ -88,7 +98,7 @@ sub save_group {
 
   my $is_new = !$form->{group_id};
 
-  $auth->save_group($group);
+  $main::auth->save_group($group);
 
   $form->{message} ||= $locale->text('The group has been saved.');
 
@@ -99,21 +109,24 @@ sub save_group {
     edit_group();
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_group {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  my $groups = $auth->read_groups();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my $groups = $main::auth->read_groups();
 
   if (!$form->{group_id} || !$groups->{$form->{group_id}}) {
     $form->show_generic_error($locale->text("No group has been selected, or the group does not exist anymore."));
   }
 
-  $group = $groups->{$form->{group_id}};
+  my $group = $groups->{$form->{group_id}};
 
-  my %all_users   = $auth->read_all_users();
+  my %all_users   = $main::auth->read_all_users();
   my %users_by_id = map { $_->{id} => $_ } values %all_users;
 
   my @members     = uniq sort { lc $a->{login} cmp lc $b->{login} } @users_by_id{ @{ $group->{members} } };
@@ -136,20 +149,23 @@ sub edit_group {
                                                          "name"               => $group->{name},
                                                          "description"        => $group->{description} });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_group {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  my $groups = $auth->read_groups();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my $groups = $main::auth->read_groups();
 
   if (!$form->{group_id} || !$groups->{$form->{group_id}}) {
     $form->show_generic_error($locale->text("No group has been selected, or the group does not exist anymore."));
   }
 
   if ($form->{confirmed}) {
-    $auth->delete_group($form->{"group_id"});
+    $main::auth->delete_group($form->{"group_id"});
 
     $form->{message} = $locale->text("The group has been deleted.");
     edit_groups();
@@ -160,58 +176,67 @@ sub delete_group {
     print $form->parse_html_template("admin/delete_group_confirm", $groups->{$form->{group_id}});
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_to_group {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->isblank('user_id_not_in_group', $locale->text('No user has been selected.'));
 
-  my $groups = $auth->read_groups();
+  my $groups = $main::auth->read_groups();
 
   if (!$form->{group_id} || !$groups->{$form->{group_id}}) {
     $form->show_generic_error($locale->text('No group has been selected, or the group does not exist anymore.'));
   }
 
-  $group = $groups->{$form->{group_id}};
+  my $group = $groups->{$form->{group_id}};
   $group->{members} = [ uniq @{ $group->{members} }, $form->{user_id_not_in_group} ];
 
-  $auth->save_group($group);
+  $main::auth->save_group($group);
 
   $form->{message} = $locale->text('The user has been added to this group.');
   edit_group();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub remove_from_group {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->isblank('user_id_in_group', $locale->text('No user has been selected.'));
 
-  my $groups = $auth->read_groups();
+  my $groups = $main::auth->read_groups();
 
   if (!$form->{group_id} || !$groups->{$form->{group_id}}) {
     $form->show_generic_error($locale->text('No group has been selected, or the group does not exist anymore.'));
   }
 
-  $group            = $groups->{$form->{group_id}};
+  my $group            = $groups->{$form->{group_id}};
   $group->{members} = [ uniq grep { $_ ne $form->{user_id_in_group} } @{ $group->{members} } ];
 
-  $auth->save_group($group);
+  $main::auth->save_group($group);
 
   $form->{message} = $locale->text('The user has been removed from this group.');
   edit_group();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_group_membership {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  my %users  = $auth->read_all_users();
-  my $groups = $auth->read_groups();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my %users  = $main::auth->read_all_users();
+  my $groups = $main::auth->read_groups();
   $groups    = [ sort { lc $a->{name} cmp lc $b->{name} } values %{ $groups } ];
 
   my @headings = map { { 'title' => $_ } } map { $_->{name} } @{ $groups };
@@ -245,14 +270,17 @@ sub edit_group_membership {
   $form->header();
   print $form->parse_html_template('admin/edit_group_membership', { 'HEADINGS' => \@headings, 'USERS' => \@rows });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_group_membership {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  my %users  = $auth->read_all_users();
-  my $groups = $auth->read_groups();
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my %users  = $main::auth->read_all_users();
+  my $groups = $main::auth->read_groups();
 
   foreach my $group (values %{ $groups }) {
     $group->{members} = [ ];
@@ -261,14 +289,14 @@ sub save_group_membership {
       push @{ $group->{members} }, $user->{id} if ($form->{"u_$user->{id}_g_$group->{id}"});
     }
 
-    $auth->save_group($group);
+    $main::auth->save_group($group);
   }
 
   $form->{message} = $locale->text('The group memberships have been saved.');
 
   edit_groups();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
