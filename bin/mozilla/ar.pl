@@ -40,16 +40,13 @@ use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
 
-# use strict;
-#use warnings;
-
-# imports
-our ($cgi, $form, $lxdebug, $locale, %myconfig);
-
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
+
+use strict;
+#use warnings;
 
 1;
 
@@ -83,12 +80,17 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Nov')
 # $locale->text('Dec')
 
+my $totalpaid;
+
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
 
-  return $lxdebug->leave_sub() if (load_draft_maybe());
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   # saving the history
   if(!exists $form->{addition} && ($form->{id} ne "")) {
@@ -106,13 +108,15 @@ sub add {
   &create_links;
   $form->{transdate} = $form->{initial_transdate};
   &display_form;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -123,24 +127,29 @@ sub edit {
   &create_links;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
 
   &form_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_links {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my ($duedate, $taxincluded, @curr);
 
@@ -203,13 +212,18 @@ sub create_links {
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($taxincluded, $notes, $department, $customer, $employee, $amount, $project);
@@ -798,13 +812,18 @@ $jsscript
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   my ($transdate, $closedto);
 
@@ -849,7 +868,7 @@ $follow_ups_block
 
   # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
   print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
-    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar') && (($total_paid == 0) || ($total_paid eq "")));
+    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar') && (($totalpaid == 0) || ($totalpaid eq "")));
 
   if ($form->{id}) {
     if ($form->{radier}) {
@@ -897,27 +916,33 @@ $follow_ups_block
 </html>
 ";
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub mark_as_paid {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   &mark_as_paid_common(\%myconfig,"ar");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $display = shift;
 
-  my ($totaltax, $exchangerate, $totalpaid);
+  my ($totaltax, $exchangerate);
 
   $form->{invtotal} = 0;
 
@@ -1001,16 +1026,20 @@ sub update {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 #
 # ToDO: fix $closedto and $invdate
 #
 sub post_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -1035,21 +1064,27 @@ sub post_payment {
   $form->redirect($locale->text('Payment posted!')) if (AR->post_payment(\%myconfig, \%$form));
   $form->error($locale->text('Cannot post payment!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _post {
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
 
   # inline post
   post(1);
 }
 
 sub post {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my ($inline) = @_;
 
@@ -1098,7 +1133,7 @@ sub post {
   $form->{AR}{receivables} = $form->{ARselected};
   $form->{storno}          = 0;
 
-  $lxdebug->message(0, $form->{amount});
+  $main::lxdebug->message(0, $form->{amount});
   $form->{id} = 0 if $form->{postasnew};
   $form->error($locale->text('Cannot post transaction!')) unless AR->post_transaction(\%myconfig, \%$form);
 
@@ -1113,13 +1148,16 @@ sub post {
 
   $form->redirect($locale->text('Transaction posted!')) unless $inline;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{postasnew} = 1;
   # saving the history
@@ -1131,13 +1169,16 @@ sub post_as_new {
   # /saving the history
   &post;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub use_as_template {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
@@ -1145,13 +1186,16 @@ sub use_as_template {
   $form->{invdate} = $form->current_date(\%myconfig);
   &update;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Confirm!');
 
@@ -1186,13 +1230,17 @@ sub delete {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub yes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if (AR->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
@@ -1206,13 +1254,18 @@ sub yes {
   }
   $form->error($locale->text('Cannot delete transaction!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger | invoice_edit');
+  $main::auth->assert('general_ledger | invoice_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   my ($customer, $department);
   my ($jsscript, $button1, $button2, $onload);
@@ -1458,13 +1511,16 @@ $jsscript
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_subtotal_row {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
 
@@ -1474,15 +1530,19 @@ sub create_subtotal_row {
 
   map { $totals->{$_} = 0 } @{ $subtotal_columns };
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $row;
 }
 
 sub ar_transactions {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger | invoice_edit');
+  $main::auth->assert('general_ledger | invoice_edit');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my ($callback, $href, @columns);
 
@@ -1661,13 +1721,17 @@ sub ar_transactions {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub storno {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  $main::auth->assert('general_ledger');
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   # don't cancel cancelled transactions
   if (IS->has_storno(\%myconfig, $form, 'ar')) {
@@ -1687,5 +1751,5 @@ sub storno {
 
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
