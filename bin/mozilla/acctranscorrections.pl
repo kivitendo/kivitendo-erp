@@ -6,19 +6,27 @@ use YAML;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 sub analyze_filter {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{jsscript} = 1;
   $form->{title}    = $locale->text('General ledger corrections');
   $form->header();
   print $form->parse_html_template('acctranscorrections/analyze_filter');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub analyze {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('General ledger corrections');
 
@@ -36,7 +44,7 @@ sub analyze {
   if (!scalar @problems) {
     $form->show_generic_information($locale->text('No problems were recognized.'));
 
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -46,11 +54,14 @@ sub analyze {
                                      'callback' => $callback,
                                    });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub assistant {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Assistant for general ledger corrections');
 
@@ -68,7 +79,7 @@ sub assistant {
     $form->show_generic_information($locale->text('The assistant could not find anything wrong with #1. Maybe the problem has been solved in the meantime.',
                                                   "$module $form->{trans_reference}"));
 
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -83,22 +94,28 @@ sub assistant {
     $form->show_generic_error($locale->text('Unknown problem type.'));
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub assistant_for_ap_ar_wrong_taxkeys {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Assistant for general ledger corrections');
 
   $form->header();
   print $form->parse_html_template('acctranscorrections/assistant_for_ap_ar_wrong_taxkeys');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub fix_ap_ar_wrong_taxkeys {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $analyzer = AccTransCorrections->new();
   $analyzer->fix_ap_ar_wrong_taxkeys();
@@ -107,22 +124,28 @@ sub fix_ap_ar_wrong_taxkeys {
   $form->header();
   print $form->parse_html_template('acctranscorrections/fix_ap_ar_wrong_taxkeys');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub assistant_for_invoice_inventory_with_taxkeys {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Assistant for general ledger corrections');
 
   $form->header();
   print $form->parse_html_template('acctranscorrections/assistant_for_invoice_inventory_with_taxkeys');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub fix_invoice_inventory_with_taxkeys {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $analyzer  = AccTransCorrections->new();
   $analyzer->fix_invoice_inventory_with_taxkeys();
@@ -131,11 +154,14 @@ sub fix_invoice_inventory_with_taxkeys {
   $form->header();
   print $form->parse_html_template('acctranscorrections/fix_invoice_inventory_with_taxkeys');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub assistant_for_wrong_taxes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $problem = shift;
 
@@ -144,11 +170,14 @@ sub assistant_for_wrong_taxes {
   $form->header();
   print $form->parse_html_template('acctranscorrections/assistant_for_wrong_taxes', { 'problem' => $problem, });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub assistant_for_wrong_taxkeys {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $problem = shift;
 
@@ -157,11 +186,14 @@ sub assistant_for_wrong_taxkeys {
   $form->header();
   print $form->parse_html_template('acctranscorrections/assistant_for_wrong_taxkeys', { 'problem' => $problem, });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub fix_wrong_taxkeys {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   my $fixes = ref $form->{fixes} eq 'ARRAY' ? $form->{fixes} : [];
 
@@ -172,11 +204,14 @@ sub fix_wrong_taxkeys {
   $form->header();
   print $form->parse_html_template('acctranscorrections/fix_wrong_taxkeys');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_transaction {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Delete transaction');
   $form->header();
@@ -190,18 +225,23 @@ sub delete_transaction {
     print $form->parse_html_template('acctranscorrections/delete_transaction');
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub redirect {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   $form->redirect('Missing callbcak');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub dispatcher {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   foreach my $action (qw(fix_wrong_taxkeys delete_transaction)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
