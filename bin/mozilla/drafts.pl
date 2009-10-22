@@ -13,6 +13,8 @@ use SL::Drafts;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 sub save_draft {
   $main::lxdebug->enter_sub();
 
