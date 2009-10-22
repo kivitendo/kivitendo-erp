@@ -40,8 +40,6 @@ use SL::MoreCommon;
 
 use strict;
 
-our (%myconfig, $form);
-
 sub post_transaction {
   $main::lxdebug->enter_sub();
 
@@ -526,19 +524,21 @@ sub setup_form {
 
   my ($self, $form) = @_;
 
-  my ($exchangerate, $key, $akey, $i, $j, $k, $index, $taxamount, $totaltax, $taxrate, $diff, $totalwithholding, $withholdingrate,
+  my ($exchangerate, $akey, $j, $k, $index, $taxamount, $totaltax, $taxrate, $diff, $totalwithholding, $withholdingrate,
       $totalamount, $taxincluded, $tax);
 
   # forex
   $form->{forex} = $form->{exchangerate};
   $exchangerate  = $form->{exchangerate} ? $form->{exchangerate} : 1;
 
-  foreach $key (keys %{ $form->{AR_links} }) {
+  foreach my $key (keys %{ $form->{AR_links} }) {
     # if there is a value we have an old entry
     $j = 0;
     $k = 0;
 
-    for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
+    next unless $form->{acc_trans}{$key};
+
+    for my $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
       if ($key eq "AR_paid") {
         $j++;
         $form->{"AR_paid_$j"} = $form->{acc_trans}{$key}->[$i-1]->{accno};
@@ -609,7 +609,7 @@ sub setup_form {
   if ($form->{taxincluded} && $form->{taxrate} && $totalamount) {
 
     # add tax to amounts and invtotal
-    for $i (1 .. $form->{rowcount}) {
+    for my $i (1 .. $form->{rowcount}) {
       $taxamount            = ($totaltax + $totalwithholding) * $form->{"amount_$i"} / $totalamount;
       $tax                  = $form->round_amount($taxamount, 2);
       $diff                += ($taxamount - $tax);
