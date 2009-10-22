@@ -29,8 +29,12 @@
 
 use SL::TODO;
 
+use strict;
+
 sub create_todo_list {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my %params   = @_;
   my $postfix  = '_login' if ($params{login_screen});
@@ -38,7 +42,7 @@ sub create_todo_list {
   my %todo_cfg = TODO->get_user_config('login' => $form->{login});
 
   if ($params{login_screen} && !$todo_cfg{show_after_login}) {
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return '';
   }
 
@@ -50,13 +54,16 @@ sub create_todo_list {
   @todo_items = grep { $_ } @todo_items;
   $todo_list  = join("", @todo_items);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $todo_list;
 }
 
 sub show_todo_list {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   $form->{todo_list} = create_todo_list();
   $form->{title}     = $locale->text('TODO list');
@@ -64,29 +71,29 @@ sub show_todo_list {
   $form->header();
   print $form->parse_html_template('todo/show_todo_list');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub todo_list_follow_ups {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   require "bin/mozilla/fu.pl";
 
   my $content = report_for_todo_list();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $content;
 }
 
 sub todo_list_overdue_sales_quotations {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   require "bin/mozilla/oe.pl";
 
   my $content = report_for_todo_list();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $content;
 }
