@@ -1,4 +1,4 @@
-# #=====================================================================
+#=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -46,20 +46,27 @@ require "bin/mozilla/invoice_io.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
 1;
 
 # end of main
 
+my $print_post;
+
 sub check_do_access {
-  $auth->assert($form->{type} . '_edit');
+  $main::auth->assert($main::form->{type} . '_edit');
 }
 
 sub set_headings {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
 
   my ($action) = @_;
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   if ($form->{type} eq 'purchase_delivery_order') {
     $form->{vc}    = 'vendor';
@@ -71,13 +78,15 @@ sub set_headings {
 
   $form->{heading} = $locale->text('Delivery Order');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
 
   set_headings("add");
 
@@ -87,13 +96,15 @@ sub add {
   prepare_order();
   display_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -111,15 +122,16 @@ sub edit {
       # reset rowcount
       undef $form->{rowcount};
       add();
-      $lxdebug->leave_sub();
+      $main::lxdebug->leave_sub();
       return;
 #     }
   } elsif (!$form->{id}) {
     add();
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
+  my ($language_id, $printer_id);
   if ($form->{print_and_save}) {
     $form->{action}   = "dispatcher";
     $form->{action_print} = "1";
@@ -140,19 +152,22 @@ sub edit {
 
   display_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub order_links {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   # get customer/vendor
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $webdav;
+  $form->{webdav}   = $main::webdav;
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
@@ -185,18 +200,21 @@ sub order_links {
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub prepare_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{formname} = $form->{type} unless $form->{formname};
 
   my $i = 0;
-  foreach $ref (@{ $form->{form_details} }) {
+  foreach my $ref (@{ $form->{form_details} }) {
     $form->{rowcount} = ++$i;
 
     map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
@@ -207,9 +225,9 @@ sub prepare_order {
     } else {
       $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"});
     }
-    ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+    my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec           = length $dec;
-    $decimalplaces = ($dec > 2) ? $dec : 2;
+    my $decimalplaces = ($dec > 2) ? $dec : 2;
 
     # copy reqdate from deliverydate for invoice -> order conversion
     $form->{"reqdate_$i"} = $form->{"deliverydate_$i"} unless $form->{"reqdate_$i"};
@@ -221,13 +239,16 @@ sub prepare_order {
     $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
@@ -236,7 +257,7 @@ sub form_header {
   $form->{jsscript} = 1;
 
   #write Trigger
-  $jsscript = Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1", "reqdate", "BL", "trigger2");
+  my $jsscript = Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1", "reqdate", "BL", "trigger2");
 
   my @old_project_ids = ($form->{"globalproject_id"});
   map({ push(@old_project_ids, $form->{"project_id_$_"})
@@ -282,30 +303,36 @@ sub form_header {
 
   print $form->parse_html_template('do/form_header');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
 
   $form->{PRINT_OPTIONS} = print_options('inline' => 1);
 
   print $form->parse_html_template('do/form_footer');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update_delivery_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   set_headings($form->{"id"} ? "edit" : "add");
 
   $form->{update} = 1;
 
+  my $payment_id;
   $payment_id = $form->{payment_id} if $form->{payment_id};
 
   check_name($form->{vc});
@@ -313,7 +340,7 @@ sub update_delivery_order {
   $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
 
   # for pricegroups
-  $i = $form->{rowcount};
+  my $i = $form->{rowcount};
 
   if (   ($form->{"partnumber_$i"} eq "")
       && ($form->{"description_$i"} eq "")
@@ -369,13 +396,17 @@ sub update_delivery_order {
     }
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{vc} = $form->{type} eq 'purchase_delivery_order' ? 'vendor' : 'customer';
 
@@ -393,15 +424,20 @@ sub search {
 
   print $form->parse_html_template('do/search');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub orders {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
 
-  ($form->{ $form->{vc} }, $form->{"${form->{vc}}_id"}) = split(/--/, $form->{ $form->{vc} });
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
   report_generator_set_default_sort('transdate', 1);
 
@@ -474,7 +510,7 @@ sub orders {
     push @options, $locale->text('Vendor') . " : $form->{vendor}";
   }
   if ($form->{department}) {
-    ($department) = split /--/, $form->{department};
+    my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";
   }
   if ($form->{donumber}) {
@@ -518,14 +554,14 @@ sub orders {
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
   # escape callback for href
-  $callback = $form->escape($href);
+  my $callback = $form->escape($href);
 
   my $edit_url       = build_std_url('action=edit', 'type', 'vc');
   my $edit_order_url = build_std_url('script=oe.pl', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'), 'action=edit');
 
   my $idx            = 1;
 
-  foreach $dord (@{ $form->{DO} }) {
+  foreach my $dord (@{ $form->{DO} }) {
     $dord->{open}      = $dord->{closed}    ? $locale->text('No')  : $locale->text('Yes');
     $dord->{delivered} = $dord->{delivered} ? $locale->text('Yes') : $locale->text('No');
 
@@ -548,13 +584,17 @@ sub orders {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -563,7 +603,7 @@ sub save {
   $form->{donumber} =~ s/^\s*//g;
   $form->{donumber} =~ s/\s*$//g;
 
-  $msg = ucfirst $form->{vc};
+  my $msg = ucfirst $form->{vc};
   $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
 
   # $locale->text('Customer missing!');
@@ -595,13 +635,16 @@ sub save {
     update();
     exit;
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   map { delete $form->{$_} } qw(action header login password);
   my @variables = map { { 'key' => $_, 'value' => $form->{$_} } } grep { '' eq ref $form->{$_} } keys %{ $form };
@@ -611,13 +654,17 @@ sub delete {
 
   print $form->parse_html_template('do/delete', { 'VARIABLES' => \@variables });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_delivery_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if (DO->delete()) {
     # saving the history
@@ -634,14 +681,18 @@ sub delete_delivery_order {
 
   $form->error($locale->text('Cannot delete delivery order!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub invoice {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_do_access();
-  $auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
+  $main::auth->assert($form->{type} eq 'purchase_delivery_order' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{convert_from_do_ids} = $form->{id};
   $form->{deliverydate}        = $form->{transdate};
@@ -653,6 +704,7 @@ sub invoice {
 
   delete @{$form}{qw(id closed delivered)};
 
+  my ($script, $buysell);
   if ($form->{type} eq 'purchase_delivery_order') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
     $form->{script} = 'ir.pl';
@@ -666,7 +718,7 @@ sub invoice {
     $buysell        = 'buy';
   }
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice basefactor);
   }
 
@@ -688,12 +740,12 @@ sub invoice {
   prepare_invoice();
 
   # format amounts
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"discount_$i"});
 
-    ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+    my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec           = length $dec;
-    $decimalplaces = ($dec > 2) ? $dec : 2;
+    my $decimalplaces = ($dec > 2) ? $dec : 2;
 
     # copy delivery date from reqdate for order -> invoice conversion
     $form->{"deliverydate_$i"} = $form->{"reqdate_$i"}
@@ -712,14 +764,18 @@ sub invoice {
 
   display_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub invoice_multi {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_do_access();
-  $auth->assert($form->{type} eq 'sales_delivery_order' ? 'invoice_edit' : 'vendor_invoice_edit');
+  $main::auth->assert($form->{type} eq 'sales_delivery_order' ? 'invoice_edit' : 'vendor_invoice_edit');
 
   my @do_ids = map { $form->{"trans_id_$_"} } grep { $form->{"multi_id_$_"} } (1..$form->{rowcount});
 
@@ -750,7 +806,7 @@ sub invoice_multi {
   $form->{closed}              = 0;
   $form->{defaultcurrency}     = $form->get_default_currency(\%myconfig);
 
-  my $buysell;
+  my ($script, $buysell);
   if ($source_type eq 'purchase_delivery_order') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
     $form->{script} = 'ir.pl';
@@ -786,13 +842,15 @@ sub invoice_multi {
   prepare_invoice();
   display_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
 
   $form->{saveasnew} = 1;
   $form->{closed}    = 0;
@@ -809,13 +867,15 @@ sub save_as_new {
 
   save();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub e_mail {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   check_do_access();
+
+  my $form     = $main::form;
 
   $form->{print_and_save} = 1;
 
@@ -829,20 +889,22 @@ sub e_mail {
 
   edit_e_mail();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub calculate_stock_in_out {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my $i = shift;
 
   if (!$form->{"id_${i}"}) {
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return '';
   }
 
-  AM->retrieve_all_units();
+  my $all_units = AM->retrieve_all_units();
 
   my $in_out   = $form->{type} =~ /^sales/ ? 'out' : 'in';
   my $sinfo    = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_${i}"});
@@ -856,15 +918,17 @@ sub calculate_stock_in_out {
                                             'max_places'  => 2);
   $content    .= qq| <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $content;
 }
 
 sub get_basic_bin_wh_info {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $stock_info = shift;
+
+  my $form     = $main::form;
 
   foreach my $sinfo (@{ $stock_info }) {
     next unless ($sinfo->{bin_id});
@@ -873,11 +937,13 @@ sub get_basic_bin_wh_info {
     map { $sinfo->{"${_}_description"} = $sinfo->{"${_}description"} = $bin_info->{"${_}_description"} } qw(bin warehouse);
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub stock_in_out_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   if ($form->{in_out} eq 'out') {
     stock_out_form();
@@ -885,13 +951,15 @@ sub stock_in_out_form {
     stock_in_form();
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub redo_stock_info {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my %params    = @_;
+
+  my $form     = $main::form;
 
   my @non_empty = grep { $_->{qty} } @{ $params{stock_info} };
 
@@ -904,11 +972,14 @@ sub redo_stock_info {
 
   @{ $params{stock_info} } = @non_empty;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update_stock_in {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $stock_info = [];
 
@@ -919,23 +990,29 @@ sub update_stock_in {
 
   display_stock_in_form($stock_info);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub stock_in_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my $stock_info = DO->unpack_stock_information('packed' => $form->{stock});
 
   display_stock_in_form($stock_info);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_stock_in_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $stock_info = shift;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Stock');
 
@@ -956,11 +1033,14 @@ sub display_stock_in_form {
                                                          'STOCK_INFO' => $stock_info,
                                                          'PART_INFO'  => $part_info, });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_stock_in {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $stock_info = [];
 
@@ -977,11 +1057,15 @@ sub set_stock_in {
   $form->header();
   print $form->parse_html_template('do/set_stock_in_out');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub stock_out_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->{title} = $locale->text('Release From Stock');
 
@@ -1023,11 +1107,15 @@ sub stock_out_form {
                                                           'WHCONTENTS' => $form->{delivered} ? $stock_info : \@contents,
                                                           'PART_INFO'  => $part_info, });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_stock_out {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   my $stock_info = [];
 
@@ -1061,11 +1149,15 @@ sub set_stock_out {
     print $form->parse_html_template('do/set_stock_in_out');
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub transfer_in {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if (DO->is_marked_as_delivered('id' => $form->{id})) {
     $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred in.'), 'back_button' => 1);
@@ -1108,7 +1200,7 @@ sub transfer_in {
       push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
       update();
-      $lxdebug->leave_sub();
+      $main::lxdebug->leave_sub();
 
       exit 0;
     }
@@ -1121,11 +1213,15 @@ sub transfer_in {
 
   save();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub transfer_out {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   if (DO->is_marked_as_delivered('id' => $form->{id})) {
     $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred out.'), 'back_button' => 1);
@@ -1185,7 +1281,7 @@ sub transfer_out {
         $request->{ok} = $request->{sum_base_qty} <= $inv->{qty};
       }
 
-      foreach $request (values %request_map) {
+      foreach my $request (values %request_map) {
         next if ($request->{ok});
 
         my $pinfo = $part_info_map{$request->{parts_id}};
@@ -1204,7 +1300,7 @@ sub transfer_out {
       push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
       update();
-      $lxdebug->leave_sub();
+      $main::lxdebug->leave_sub();
 
       exit 0;
     }
@@ -1217,11 +1313,13 @@ sub transfer_out {
 
   save();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub mark_closed {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   DO->close_orders('ids' => [ $form->{id} ]);
 
@@ -1229,23 +1327,26 @@ sub mark_closed {
 
   update();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub yes {
-  call_sub($form->{yes_nextsub});
+  call_sub($main::form->{yes_nextsub});
 }
 
 sub no {
-  call_sub($form->{no_nextsub});
+  call_sub($main::form->{no_nextsub});
 }
 
 sub update {
-  call_sub($form->{update_nextsub} || $form->{nextsub} || 'update_delivery_order');
+  call_sub($main::form->{update_nextsub} || $main::form->{nextsub} || 'update_delivery_order');
 }
 
 sub dispatcher {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   foreach my $action (qw(update ship_to print e_mail save transfer_out transfer_in mark_closed save_as_new invoice delete)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
