@@ -48,10 +48,6 @@ require "bin/mozilla/reportgenerator.pl";
 use strict;
 #use warnings;
 
-1;
-
-# end of main
-
 # this is for our long dates
 # $locale->text('January')
 # $locale->text('February')
@@ -1753,3 +1749,5 @@ sub storno {
 
   $main::lxdebug->leave_sub();
 }
+
+1;

@@ -13,14 +13,26 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 
 --------------------------------------------------------------------------
 
-1. Es werden keine "echten" TAB-Zeichen sondern Leerzeichen verwendet.
+1. Es werden keine echten iTabs sondern Leerzeichen verwendet.
 
 2. Die Einrückung beträgt zwei Leerzeichen.
    Beispiel:
 
-   sub debug {
-     print(STDERR "Debugging.\n");
+   foreach my $row (@data) {
+     if ($flag) {
+       # do something with $row
+     }
+
+     if ($use_modules) {
+       $row->{modules} = MODULE->retrieve(
+         id   => $row->{id},
+         date => $use_now ? localtime() : $row->{time},
+       );
+     }
+
+     $report->add($row);
    }
+
 
 3. Öffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie
    der letzte Befehl.
@@ -54,10 +66,11 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 
    do {
      ...
-   } while ($a > 0);
+   } until ($a > 0);
 
 6. Parameter von Funktionsaufrufen müssen mit runden Klammern versehen
-   werden. Davon nicht betroffen sind interne perl Funktionen.
+   werden. Davon nicht betroffen sind interne perl Funktionen,
+   und grep ähnliche Operatoren.
 
    Beispiel:
 
@@ -172,3 +185,9 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
     Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer angezeigt
     wird. Sollte Meldungen sollten nicht eingecheckt werden, und werden in den
     meisten Fällen auch vom Repository zurückgewiesen.
+
+14. Alle neuen Module müssen use strict verwenden.
+
+    $form, $auth, $locale, $lxdebug, %myconfig sowie der Inhalt der lx-erp.conf
+    werden derzeit aus dem main package importiert. Alle anderen Konstrukte
+    sollten lexikalisch lokal gehalten werden.

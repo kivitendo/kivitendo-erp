@@ -52,10 +52,6 @@ require "bin/mozilla/reportgenerator.pl";
 # should there be any missing vars, declare them globally
 use strict;
 
-1;
-
-# end of main
-
 # this is for our long dates
 # $locale->text('January')
 # $locale->text('February')
@@ -2772,3 +2768,4 @@ sub generate_bwa {
   $main::lxdebug->leave_sub();
 }
 
+1;
