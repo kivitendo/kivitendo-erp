@@ -78,7 +78,7 @@ $form->{stylesheet} = "lx-office-erp.css";
 $form->{favicon}    = "favicon.ico";
 
 if ($form->{action}) {
-  if ($auth->authenticate_root($form->{rpw}, 0) != Auth->OK()) {
+  if ($auth->authenticate_root($form->{rpw}, 0) != $auth->OK()) {
     $form->{error_message} = $locale->text('Incorrect Password!');
     adminlogin();
     exit;
@@ -88,7 +88,7 @@ if ($form->{action}) {
 
   call_sub($locale->findsub($form->{action}));
 
-} elsif ($auth->authenticate_root($form->{rpw}, 0) == Auth->OK()) {
+} elsif ($auth->authenticate_root($form->{rpw}, 0) == $auth->OK()) {
 
   $auth->create_or_refresh_session() if ($auth->session_tables_present());
 
