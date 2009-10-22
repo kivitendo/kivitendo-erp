@@ -38,12 +38,15 @@ use SL::Form;
 use Data::Dumper;
 use List::MoreUtils qw(any);
 
-1;
-
 require "bin/mozilla/common.pl";
+
+use strict;
+
+1;
 
 # end of main
 
+my $locale   = $main::locale;
 our %translations = ('text'      => $locale->text('Free-form text'),
                      'textfield' => $locale->text('Text field'),
                      'number'    => $locale->text('Number'),
@@ -75,9 +78,12 @@ sub _is_valid_module {
 }
 
 sub list_cvar_configs {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{module} = $form->{module} || $form->{cvar_module} || 'CT';
   $form->{module} = 'CT' unless _is_valid_module($form->{module});
@@ -104,26 +110,30 @@ sub list_cvar_configs {
 
   $main::lxdebug->dump(0, "modules", \@modules);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add_cvar_config {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{module} = $form->{module} || $form->{cvar_module} || 'CT';
 
   $form->{edit} = 0;
   display_cvar_config_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_cvar_config {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   my $config = CVar->get_config('id' => $form->{id});
 
@@ -132,13 +142,17 @@ sub edit_cvar_config {
   $form->{edit} = 1;
   display_cvar_config_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank('name',        $locale->text('The name is missing.'));
   $form->isblank('description', $locale->text('The description is missing.'));
@@ -163,11 +177,14 @@ sub save {
 
   list_cvar_configs();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   CVar->delete_config('id' => $form->{id});
 
@@ -175,13 +192,17 @@ sub delete {
 
   list_cvar_configs();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_cvar_config_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   my @types = map { { 'type' => $_, 'type_tr' => $translations{$_} } } @types;
 
@@ -195,20 +216,26 @@ sub display_cvar_config_form {
   print $form->parse_html_template("amcvar/display_cvar_config_form", { TYPES   => \@types,
                                                                         MODULES => \@modules });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub swap_cvar_configs {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   AM->swap_sortkeys(\%myconfig, $form, 'custom_variable_configs');
 
   list_cvar_configs();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub dispatcher {
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   foreach my $action (qw(list_cvar_configs add_cvar_config)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
