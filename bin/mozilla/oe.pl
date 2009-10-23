@@ -48,6 +48,11 @@ require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
+my $print_post;
+my %TMPL_VAR;
+
 1;
 
 # end of main
@@ -71,14 +76,19 @@ my $oe_access_map = {
 };
 
 sub check_oe_access {
+  my $form     = $main::form;
+
   my $right   = $oe_access_map->{$form->{type}};
   $right    ||= 'DOES_NOT_EXIST';
 
-  $auth->assert($right);
+  $main::auth->assert($right);
 }
 
 sub set_headings {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
@@ -113,11 +123,13 @@ sub set_headings {
     $form->{vc}      = 'customer';
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   check_oe_access();
 
@@ -131,11 +143,13 @@ sub add {
   &prepare_order;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   check_oe_access();
 
@@ -149,21 +163,23 @@ sub edit {
 
   # editing without stuff to edit? try adding it first
   if ($form->{rowcount} && !$form->{print_and_save}) {
+    my $id;
     map { $id++ if $form->{"multi_id_$_"} } (1 .. $form->{rowcount});
     if (!$id) {
 
       # reset rowcount
       undef $form->{rowcount};
       &add;
-      $lxdebug->leave_sub();
+      $main::lxdebug->leave_sub();
       return;
     }
   } elsif (!$form->{id}) {
     &add;
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
+  my ($language_id, $printer_id);
   if ($form->{print_and_save}) {
     $form->{action}   = "print";
     $form->{resubmit} = 1;
@@ -176,7 +192,7 @@ sub edit {
   &order_links;
 
   $form->{rowcount} = 0;
-  foreach $ref (@{ $form->{form_details} }) {
+  foreach my $ref (@{ $form->{form_details} }) {
     $form->{rowcount}++;
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{$ref};
   }
@@ -190,11 +206,15 @@ sub edit {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub order_links {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
@@ -202,7 +222,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $webdav;
+  $form->{webdav}   = $main::webdav;
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
@@ -243,11 +263,14 @@ sub order_links {
     $form->{"old$form->{vc}"} .= qq|--$form->{"$form->{vc}_id"}|
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub prepare_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   check_oe_access();
 
@@ -263,12 +286,17 @@ sub prepare_order {
     $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"});
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
   my @custom_hiddens;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   check_oe_access();
 
@@ -325,8 +353,8 @@ sub form_header {
   push @custom_hiddens, "select$form->{vc}";
 
   # currencies and exchangerate
-  @values = map { $_ } @{ $form->{ALL_CURRENCIES} };
-  %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
+  my @values = map { $_ } @{ $form->{ALL_CURRENCIES} };
+  my %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
   $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
   $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
@@ -335,7 +363,7 @@ sub form_header {
   push @custom_hiddens, "exchangerate" if $form->{forex};
 
   # credit remaining
-  $creditwarning = (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) ? 1 : 0;
+  my $creditwarning = (($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update}) ? 1 : 0;
   $TMPL_VAR{is_credit_remaining_negativ} = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
   # business
@@ -343,7 +371,7 @@ sub form_header {
 
   push @custom_hiddens, "customer_klass" if $form->{vc} eq 'customer';
 
-  $credittext = $locale->text('Credit Limit exceeded!!!');
+  my $credittext = $locale->text('Credit Limit exceeded!!!');
 
   my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
   $follow_up_vc                   =~ s/--\d*\s*$//;
@@ -358,7 +386,7 @@ sub form_header {
     }
   }
 
-  $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()"
+  my $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()"
           : ($form->{resubmit})                                ? "document.oe.submit()"
           : ($creditwarning)                                   ? "alert('$credittext')"
           :                                                      "";
@@ -395,18 +423,22 @@ sub form_header {
 
   print $form->parse_html_template("oe/form_header", { %TMPL_VAR });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
   $form->{invtotal} = $form->{invsubtotal};
 
-  $rows    = max 2, $form->numtextrows($form->{notes}, 25, 8);
-  $introws = max 2, $form->numtextrows($form->{intnotes}, 35, 8);
+  my $rows    = max 2, $form->numtextrows($form->{notes}, 25, 8);
+  my $introws = max 2, $form->numtextrows($form->{intnotes}, 35, 8);
   $rows    = max $rows, $introws;
 
   $TMPL_VAR{notes}    = qq|<textarea name=notes rows=$rows cols=25 wrap=soft>| . H($form->{notes}) . qq|</textarea>|;
@@ -414,7 +446,7 @@ sub form_footer {
 
   if (!$form->{taxincluded}) {
 
-    foreach $item (split / /, $form->{taxaccounts}) {
+    foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
         $form->{invtotal} += $form->{"${item}_total"} = $form->round_amount( $form->{"${item}_base"} * $form->{"${item}_rate"}, 2);
         $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
@@ -430,7 +462,7 @@ sub form_footer {
 #    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0); # template does this
 
   } else {
-    foreach $item (split / /, $form->{taxaccounts}) {
+    foreach my $item (split / /, $form->{taxaccounts}) {
       if ($form->{"${item}_base"}) {
         $form->{"${item}_total"} = $form->round_amount( ($form->{"${item}_base"} * $form->{"${item}_rate"} / (1 + $form->{"${item}_rate"})), 2);
         $form->{"${item}_netto"} = $form->round_amount( ($form->{"${item}_base"} - $form->{"${item}_total"}), 2);
@@ -454,19 +486,22 @@ sub form_footer {
 
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
-     webdav          => $webdav,
+     webdav          => $main::webdav,
      print_options   => print_options(inline => 1),
      label_edit      => $locale->text("Edit the $form->{type}"),
      label_workflow  => $locale->text("Workflow $form->{type}"),
   });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($recursive_call) = shift;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   check_oe_access();
 
@@ -477,22 +512,22 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
   $form->{update} = 1;
 
-  $payment_id = $form->{payment_id} if $form->{payment_id};
+  my $payment_id = $form->{payment_id} if $form->{payment_id};
 
   &check_name($form->{vc});
 
   $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
 
-  $buysell              = 'buy';
+  my $buysell           = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
-  $exchangerate = $form->{exchangerate} || 1;
+  my $exchangerate = $form->{exchangerate} || 1;
 
 ##################### process items ######################################
   # for pricegroups
-  $i = $form->{rowcount};
+  my $i = $form->{rowcount};
   if (   ($form->{"partnumber_$i"} eq "")
       && ($form->{"description_$i"} eq "")
       && ($form->{"partsgroup_$i"}  eq "")) {
@@ -526,7 +561,7 @@ sub update {
 
       } else {
 
-        $sellprice             = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+        my $sellprice             = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
         # hier werden parts (Artikeleigenschaften) aus item_list (retrieve_item aus IS.pm)
         # (item wahrscheinlich synonym für parts) entsprechend in die form geschrieben ...
 
@@ -543,7 +578,8 @@ sub update {
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
 
         ($sellprice || $form->{"sellprice_$i"}) =~ /\.(\d+)/;
-        $decimalplaces = max 2, length $1;
+        my $dec_qty       = length $1;
+        my $decimalplaces = max 2, $dec_qty;
 
         if ($sellprice) {
           $form->{"sellprice_$i"} = $sellprice;
@@ -552,7 +588,7 @@ sub update {
           $form->{"sellprice_$i"} /= $exchangerate;   # if there is an exchange rate adjust sellprice
         }
 
-        $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
+        my $amount = $form->{"sellprice_$i"} * $form->{"qty_$i"} * (1 - $form->{"discount_$i"} / 100);
         map { $form->{"${_}_base"} = 0 }                                 split / /, $form->{taxaccounts};
         map { $form->{"${_}_base"} += $amount }                          split / /, $form->{"taxaccounts_$i"};
         map { $amount += ($form->{"${_}_base"} * $form->{"${_}_rate"}) } split / /, $form->{taxaccounts} if !$form->{taxincluded};
@@ -591,11 +627,15 @@ sub update {
 ##################### process items ######################################
 
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
@@ -645,13 +685,16 @@ sub search {
 
   print $form->parse_html_template('oe/search', { %myconfig });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_subtotal_row {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
 
@@ -661,17 +704,22 @@ sub create_subtotal_row {
 
   map { $totals->{$_} = 0 } @{ $subtotal_columns };
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $row;
 }
 
 sub orders {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   check_oe_access();
 
-  $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
+  my $ordnumber = ($form->{type} =~ /_order$/) ? "ordnumber" : "quonumber";
 
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
@@ -810,7 +858,7 @@ sub orders {
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
   # escape callback for href
-  $callback = $form->escape($href);
+  my $callback = $form->escape($href);
 
   my @subtotal_columns = qw(netamount amount marge_total marge_percent);
 
@@ -821,7 +869,7 @@ sub orders {
 
   my $edit_url = build_std_url('action=edit', 'type', 'vc');
 
-  foreach $oe (@{ $form->{OE} }) {
+  foreach my $oe (@{ $form->{OE} }) {
     map { $oe->{$_} *= $oe->{exchangerate} } @subtotal_columns;
 
     $oe->{tax}       = $oe->{amount} - $oe->{netamount};
@@ -873,16 +921,19 @@ sub orders {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub check_delivered_flag {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   check_oe_access();
 
   if (($form->{type} ne 'sales_order') && ($form->{type} ne 'purchase_order')) {
-    return $lxdebug->leave_sub();
+    return $main::lxdebug->leave_sub();
   }
 
   my $all_delivered = 0;
@@ -901,11 +952,15 @@ sub check_delivered_flag {
 
   $form->{delivered} = 1 if $all_delivered;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_and_close {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
@@ -921,7 +976,7 @@ sub save_and_close {
   $form->{$idx} =~ s/^\s*//g;
   $form->{$idx} =~ s/\s*$//g;
 
-  $msg = ucfirst $form->{vc};
+  my $msg = ucfirst $form->{vc};
   $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
 
   # $locale->text('Customer missing!');
@@ -932,6 +987,7 @@ sub save_and_close {
 
   &validate_items;
 
+  my $payment_id;
   if($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
@@ -947,6 +1003,7 @@ sub save_and_close {
 
   $form->{id} = 0 if $form->{saveasnew};
 
+  my ($numberfld, $ordnumber, $err);
   # this is for the internal notes section for the [email] Subject
   if ($form->{type} =~ /_order$/) {
     if ($form->{type} eq 'sales_order') {
@@ -1002,11 +1059,15 @@ sub save_and_close {
   $form->redirect($form->{label} . " $form->{$ordnumber} " .
                   $locale->text('saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
@@ -1023,7 +1084,7 @@ sub save {
   $form->{$idx} =~ s/^\s*//g;
   $form->{$idx} =~ s/\s*$//g;
 
-  $msg = ucfirst $form->{vc};
+  my $msg = ucfirst $form->{vc};
   $form->isblank($form->{vc}, $locale->text($msg . " missing!"));
 
   # $locale->text('Customer missing!');
@@ -1034,6 +1095,7 @@ sub save {
 
   &validate_items;
 
+  my $payment_id;
   if($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
@@ -1048,6 +1110,8 @@ sub save {
   }
 
   $form->{id} = 0 if $form->{saveasnew};
+
+  my ($numberfld, $ordnumber, $err);
 
   # this is for the internal notes section for the [email] Subject
   if ($form->{type} =~ /_order$/) {
@@ -1105,16 +1169,20 @@ sub save {
     edit();
     exit;
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
   $form->header;
 
+  my ($msg, $ordnumber);
   if ($form->{type} =~ /_order$/) {
     $msg       = $locale->text('Are you sure you want to delete Order Number');
     $ordnumber = 'ordnumber';
@@ -1132,7 +1200,7 @@ sub delete {
   # delete action variable
   map { delete $form->{$_} } qw(action header);
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
@@ -1154,14 +1222,19 @@ sub delete {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete_order_quotation {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
+  my ($msg, $err);
   if ($form->{type} =~ /_order$/) {
     $msg = $locale->text('Order deleted!');
     $err = $locale->text('Cannot delete order!');
@@ -1169,7 +1242,7 @@ sub delete_order_quotation {
     $msg = $locale->text('Quotation deleted!');
     $err = $locale->text('Cannot delete quotation!');
   }
-  if (OE->delete(\%myconfig, \%$form, $spool)){
+  if (OE->delete(\%myconfig, \%$form, $main::spool)){
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
@@ -1182,14 +1255,18 @@ sub delete_order_quotation {
   }
   $form->error($err);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub invoice {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   check_oe_access();
-  $auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
+  $main::auth->assert($form->{type} eq 'purchase_order' || $form->{type} eq 'request_quotation' ? 'vendor_invoice_edit' : 'invoice_edit');
 
   $form->{old_salesman_id} = $form->{salesman_id};
   $form->get_employee();
@@ -1214,7 +1291,7 @@ sub invoice {
     $form->{quodate}      = $form->{transdate};
   }
 
-  $payment_id = $form->{payment_id} if $form->{payment_id};
+  my $payment_id = $form->{payment_id} if $form->{payment_id};
 
   # if the name changed get new values
   if (&check_name($form->{vc})) {
@@ -1225,12 +1302,13 @@ sub invoice {
 
   $form->{cp_id} *= 1;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     for (qw(ship qty sellprice listprice basefactor)) {
       $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
     }
   }
 
+  my ($buysell, $orddate, $exchangerate);
   if (   $form->{type} =~ /_order/
       && $form->{currency} ne $form->{defaultcurrency}) {
 
@@ -1260,6 +1338,7 @@ sub invoice {
     &create_backorder;
   }
 
+  my ($script);
   if (   $form->{type} eq 'purchase_order'
       || $form->{type} eq 'request_quotation') {
     $form->{title}  = $locale->text('Add Vendor Invoice');
@@ -1288,7 +1367,7 @@ sub invoice {
 
   map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
-  $currency = $form->{currency};
+  my $currency = $form->{currency};
   &invoice_links;
 
   $form->{currency}     = $currency;
@@ -1300,13 +1379,13 @@ sub invoice {
   &prepare_invoice;
 
   # format amounts
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     $form->{"discount_$i"} =
       $form->format_amount(\%myconfig, $form->{"discount_$i"});
 
-    ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+    my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec           = length $dec;
-    $decimalplaces = ($dec > 2) ? $dec : 2;
+    my $decimalplaces = ($dec > 2) ? $dec : 2;
 
     # copy delivery date from reqdate for order -> invoice conversion
     $form->{"deliverydate_$i"} = $form->{"reqdate_$i"}
@@ -1328,11 +1407,14 @@ sub invoice {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub backorder_exchangerate {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   check_oe_access();
 
@@ -1349,7 +1431,7 @@ sub backorder_exchangerate {
   # delete action variable
   map { delete $form->{$_} } qw(action header exchangerate);
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
@@ -1399,11 +1481,15 @@ sub backorder_exchangerate {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_exchangerate {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'));
   $form->{exchangerate} =
@@ -1414,20 +1500,26 @@ sub save_exchangerate {
 
   &invoice;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_backorder {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   $form->{shipped} = 1;
 
   # figure out if we need to create a backorder
   # items aren't saved if qty != 0
 
-  for $i (1 .. $form->{rowcount}) {
-    $totalqty  += $qty  = $form->{"qty_$i"};
-    $totalship += $ship = $form->{"ship_$i"};
+  my ($totalqty, $totalship);
+  for my $i (1 .. $form->{rowcount}) {
+    my $qty  = $form->{"qty_$i"};
+    my $ship = $form->{"ship_$i"};
+    $totalqty  += $qty;
+    $totalship += $ship;
 
     $form->{"qty_$i"} = $qty - $ship;
   }
@@ -1445,11 +1537,11 @@ sub create_backorder {
     return;
   }
 
-  @flds = (
+  my @flds = (
     qw(partnumber description qty ship unit sellprice discount id inventory_accno bin income_accno expense_accno listprice assembly taxaccounts partsgroup)
   );
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     map {
       $form->{"${_}_$i"} =
         $form->format_amount(\%myconfig, $form->{"${_}_$i"})
@@ -1461,15 +1553,15 @@ sub create_backorder {
   OE->save(\%myconfig, \%$form);
 
   # rebuild rows for invoice
-  @a     = ();
-  $count = 0;
+  my @a     = ();
+  my $count = 0;
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     $form->{"qty_$i"} = $form->{"ship_$i"};
 
     if ($form->{"qty_$i"}) {
       push @a, {};
-      $j = $#a;
+      my $j = $#a;
       map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
       $count++;
     }
@@ -1478,11 +1570,13 @@ sub create_backorder {
   $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
   $form->{rowcount} = $count;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   check_oe_access();
 
@@ -1512,11 +1606,13 @@ sub save_as_new {
 
   &save;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub check_for_direct_delivery_yes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   check_oe_access();
 
@@ -1525,11 +1621,13 @@ sub check_for_direct_delivery_yes {
   map { s/^CFDD_//; $form->{$_} = $form->{"CFDD_${_}"} } grep /^CFDD_/, keys %{ $form };
   $form->{shipto} = 1;
   purchase_order();
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub check_for_direct_delivery_no {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   check_oe_access();
 
@@ -1537,17 +1635,20 @@ sub check_for_direct_delivery_no {
   delete @{$form}{grep /^shipto/, keys %{ $form }};
   purchase_order();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub check_for_direct_delivery {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   check_oe_access();
 
   if ($form->{direct_delivery_checked}
       || (!$form->{shiptoname} && !$form->{shiptostreet} && !$form->{shipto_id})) {
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -1564,16 +1665,19 @@ sub check_for_direct_delivery {
   $form->header();
   print $form->parse_html_template("oe/check_for_direct_delivery");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   exit 0;
 }
 
 sub purchase_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   check_oe_access();
-  $auth->assert('purchase_order_edit');
+  $main::auth->assert('purchase_order_edit');
 
   if ($form->{type} eq 'sales_order') {
     check_for_direct_delivery();
@@ -1593,14 +1697,17 @@ sub purchase_order {
 
   &poso;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub sales_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   check_oe_access();
-  $auth->assert('sales_order_edit');
+  $main::auth->assert('sales_order_edit');
 
   if ($form->{type} eq "purchase_order") {
     delete($form->{ordnumber});
@@ -1616,14 +1723,17 @@ sub sales_order {
 
   &poso;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub poso {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   check_oe_access();
-  $auth->assert('purchase_order_edit | sales_order_edit');
+  $main::auth->assert('purchase_order_edit | sales_order_edit');
 
   $form->{transdate} = $form->current_date(\%myconfig);
   delete $form->{duedate};
@@ -1638,7 +1748,7 @@ sub poso {
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered
                                 ordnumber);
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount);
   }
 
@@ -1652,31 +1762,34 @@ sub poso {
 
   # prepare_order assumes that the discount is in db-notation (0.05) and not user-notation (5)
   # and therefore multiplies the values by 100 in the case of reading from db or making an order from several quotation, so we convert this back into percent-notation for the user interface by multiplying with 0.01
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 0.01);
   };
 
   # format amounts
-  for $i (1 .. $form->{rowcount} - 1) {
+  for my $i (1 .. $form->{rowcount} - 1) {
     map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit);
   }
 
   &update;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delivery_order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   if ($form->{type} =~ /^sales/) {
-    $auth->assert('sales_delivery_order_edit');
+    $main::auth->assert('sales_delivery_order_edit');
 
     $form->{vc}    = 'customer';
     $form->{type}  = 'sales_delivery_order';
 
   } else {
-    $auth->assert('purchase_delivery_order_edit');
+    $main::auth->assert('purchase_delivery_order_edit');
 
     $form->{vc}    = 'vendor';
     $form->{type}  = 'purchase_delivery_order';
@@ -1698,7 +1811,7 @@ sub delivery_order {
   # reset
   delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount);
   }
 
@@ -1712,11 +1825,13 @@ sub delivery_order {
 
   update();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub e_mail {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   check_oe_access();
 
@@ -1732,22 +1847,25 @@ sub e_mail {
 
   edit_e_mail();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub yes {
-  call_sub($form->{yes_nextsub});
+  call_sub($main::form->{yes_nextsub});
 }
 
 sub no {
-  call_sub($form->{no_nextsub});
+  call_sub($main::form->{no_nextsub});
 }
 
 ######################################################################################################
 # IO ENTKOPPLUNG
 # ###############################################################################################
 sub display_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   check_oe_access();
 
@@ -1769,7 +1887,7 @@ sub display_form {
 
   $form->language_payment(\%myconfig);
 
-  Common::webdav_folder($form) if ($webdav);
+  Common::webdav_folder($form) if ($main::webdav);
 
   &form_header;
 
@@ -1778,11 +1896,13 @@ sub display_form {
 
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub report_for_todo_list {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my $quotations = OE->transactions_for_todo_list();
   my $content;
@@ -1794,7 +1914,7 @@ sub report_for_todo_list {
                                                                            'edit_url'   => $edit_url });
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $content;
 }
