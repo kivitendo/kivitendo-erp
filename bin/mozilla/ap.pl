@@ -46,6 +46,8 @@ require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
 
+use strict;
+
 1;
 
 # end of main
@@ -79,11 +81,14 @@ require "bin/mozilla/reportgenerator.pl";
 # $locale->text('Dec')
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
-  return $lxdebug->leave_sub() if (load_draft_maybe());
+  $main::auth->assert('general_ledger');
+
+  return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
   $form->{title} = "Add";
 
@@ -95,41 +100,48 @@ sub add {
   $form->{transdate} = $form->{initial_transdate};
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+
+  $main::auth->assert('general_ledger');
 
   $form->{title} = "Edit";
 
   &create_links;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+
+  $main::auth->assert('general_ledger');
 
   &form_header;
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_links {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('general_ledger');
 
   $form->create_links("AP", \%myconfig, "vendor");
-  $taxincluded = $form->{taxincluded};
-  $duedate     = $form->{duedate};
+  my $taxincluded = $form->{taxincluded};
+  my $duedate     = $form->{duedate};
 
   IR->get_vendor(\%myconfig, \%$form);
   $form->{taxincluded} = $taxincluded;
@@ -144,7 +156,7 @@ sub create_links {
   $form->{notes} = $form->{intnotes} unless $form->{notes};
 
   # currencies
-  @curr = split(/:/, $form->{currencies});
+  my @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $curr[0];
 
@@ -176,15 +188,20 @@ sub create_links {
     ($form->datetonum($form->{transdate}, \%myconfig) <=
      $form->datetonum($form->{closedto}, \%myconfig));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
-  $title = $form->{title};
+  $main::auth->assert('general_ledger');
+
+  my $title = $form->{title};
   $form->{title} = $locale->text("$title Accounts Payables Transaction");
 
   $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
@@ -216,12 +233,12 @@ sub form_header {
   #/show hhistory button
 
   # set option selected
-  foreach $item (qw(vendor currency department)) {
+  foreach my $item (qw(vendor currency department)) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
-  $readonly = ($form->{id}) ? "readonly" : "";
+  my $readonly = ($form->{id}) ? "readonly" : "";
 
   $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
   $readonly       = ($form->{radier}) ? "" : $readonly;
@@ -241,7 +258,7 @@ sub form_header {
   $form->{creditremaining} =
     $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
-  $exchangerate = qq|
+  my $exchangerate = qq|
 <input type=hidden name=forex value=$form->{forex}>
 |;
   if ($form->{currency} ne $form->{defaultcurrency}) {
@@ -260,7 +277,7 @@ sub form_header {
     }
   }
 
-  $taxincluded = "";
+  my $taxincluded = "";
 
   $taxincluded = qq|
             <tr>
@@ -270,13 +287,14 @@ sub form_header {
             </tr>
 |;
 
+  my $rows;
   if (($rows = $form->numtextrows($form->{notes}, 50)) < 2) {
     $rows = 2;
   }
-  $notes =
+  my $notes =
     qq|<textarea name=notes rows=$rows cols=50 wrap=soft $readonly>$form->{notes}</textarea>|;
 
-  $department = qq|
+  my $department = qq|
               <tr>
 	        <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
 		<td colspan=3><select name=department>$form->{selectdepartment}</select>
@@ -285,13 +303,11 @@ sub form_header {
 	      </tr>
 | if $form->{selectdepartment};
 
-  $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
+  my $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
 
-  $vendor =
+  my $vendor =
     ($form->{selectvendor})
-    ? qq|<select name="vendor"
-onchange="document.getElementById('update_button').click();">$form->{
-selectvendor } </select>|
+    ? qq|<select name="vendor" onchange="document.getElementById('update_button').click();">$form->{selectvendor} </select>|
     : qq|<input name=vendor value="$form->{vendor}" size=35>|;
 
   my @old_project_ids = ();
@@ -357,7 +373,8 @@ selectvendor } </select>|
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
+  my ($button1, $button2);
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -394,7 +411,7 @@ selectvendor } </select>|
   $form->{javascript} .= qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
 
   $form->header;
-  $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  my $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
 <body onLoad="$onload">
@@ -506,10 +523,10 @@ $jsscript
 	</tr>
 |;
 
-  $amount  = $locale->text('Amount');
-  $project = $locale->text('Project');
+  my $amount  = $locale->text('Amount');
+  my $project = $locale->text('Project');
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
 
     # format amounts
     $form->{"amount_$i"} =
@@ -534,7 +551,7 @@ $jsscript
 
     $selected_taxchart = $taxchart_init unless ($form->{"taxchart_$i"});
 
-    $selectAP_amount =
+    my $selectAP_amount =
       NTI($cgi->popup_menu('-name' => "AP_amount_$i",
                            '-id' => "AP_amount_$i",
                            '-style' => 'width:400px',
@@ -545,7 +562,7 @@ $jsscript
       . $cgi->hidden('-name' => "previous_AP_amount_$i",
                      '-default' => $selected_accno_full);
 
-    $tax = qq|<td>| .
+    my $tax = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
                            '-id' => "taxchart_$i",
                            '-style' => 'width:200px',
@@ -573,7 +590,7 @@ $jsscript
     $project = "";
   }
 
-  $taxlabel =
+  my $taxlabel =
     ($form->{taxincluded})
     ? $locale->text('Tax Included')
     : $locale->text('Tax');
@@ -581,7 +598,7 @@ $jsscript
   $form->{invtotal_unformatted} = $form->{invtotal};
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
 
-  $APselected =
+  my $APselected =
     NTI($cgi->popup_menu('-name' => "APselected", '-id' => "APselected",
                          '-style' => 'width:400px',
                          '-values' => \@AP_values, '-labels' => \%AP_labels,
@@ -626,12 +643,14 @@ $jsscript
 	</tr>
 |;
 
+  my @column_index;
   if ($form->{currency} eq $form->{defaultcurrency}) {
     @column_index = qw(datepaid source memo paid AP_paid paid_project_id);
   } else {
     @column_index = qw(datepaid source memo paid exchangerate AP_paid paid_project_id);
   }
 
+  my %column_data;
   $column_data{datepaid}     = "<th>" . $locale->text('Date') . "</th>";
   $column_data{paid}         = "<th>" . $locale->text('Amount') . "</th>";
   $column_data{exchangerate} = "<th>" . $locale->text('Exch') . "</th>";
@@ -652,12 +671,12 @@ $jsscript
   my $totalpaid = 0;
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     print "
         <tr>
 ";
 
-    $selectAP_paid =
+    my $selectAP_paid =
       NTI($cgi->popup_menu('-name' => "AP_paid_$i",
                            '-id' => "AP_paid_$i",
                            '-values' => \@AP_paid_values,
@@ -748,13 +767,18 @@ $jsscript
 </table>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  $main::auth->assert('general_ledger');
 
   my $follow_ups_block;
   if ($form->{id}) {
@@ -789,8 +813,8 @@ $follow_ups_block
           qq|</label><br>|);
   }
 
-  $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
+  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
   print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">|;
 
@@ -801,6 +825,7 @@ $follow_ups_block
 |;
     }
     # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
+    our $total_paid;
     print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
       if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap', $form->{id}) && (($total_paid == 0) || ($total_paid eq "")));
 
@@ -830,23 +855,29 @@ $follow_ups_block
 </html>
 ";
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub mark_as_paid {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('general_ledger');
 
   &mark_as_paid_common(\%myconfig,"ap");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('general_ledger');
 
   my $display = shift;
 
@@ -857,16 +888,17 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  @flds  = qw(amount AP_amount projectnumber oldprojectnumber project_id taxchart);
-  $count = 0;
-  for $i (1 .. $form->{rowcount}) {
+  my @flds  = qw(amount AP_amount projectnumber oldprojectnumber project_id taxchart);
+  my $count = 0;
+  my (@a, $j, $totaltax);
+  for my $i (1 .. $form->{rowcount}) {
     $form->{"amount_$i"} =
       $form->parse_amount(\%myconfig, $form->{"amount_$i"});
     $form->{"tax_$i"} = $form->parse_amount(\%myconfig, $form->{"tax_$i"});
     if ($form->{"amount_$i"}) {
       push @a, {};
       $j = $#a;
-      ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
+      my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
       if ($taxkey > 1) {
         if ($form->{taxincluded}) {
           $form->{"tax_$i"} = $form->{"amount_$i"} / ($rate + 1) * $rate;
@@ -907,7 +939,8 @@ sub update {
   $form->{invtotal} =
     ($form->{taxincluded}) ? $form->{invtotal} : $form->{invtotal} + $totaltax;
 
-  for $i (1 .. $form->{paidaccounts}) {
+  my $totalpaid;
+  for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       map {
         $form->{"${_}_$i"} =
@@ -932,20 +965,25 @@ sub update {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub post_payment {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger');
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  for $i (1 .. $form->{paidaccounts}) {
+  our $invdate;
+  for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
-      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+      my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
@@ -968,26 +1006,30 @@ sub post_payment {
     $form->error($locale->text('Cannot post payment!'));
 
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 
 sub post {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger');
 
   # check if there is a vendor, invoice and due date
   $form->isblank("transdate", $locale->text("Invoice Date missing!"));
   $form->isblank("duedate",   $locale->text("Due Date missing!"));
   $form->isblank("vendor",    $locale->text('Vendor missing!'));
 
-  $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-  $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
+  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
   my $zero_amount_posting = 1;
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     if ($form->parse_amount(\%myconfig, $form->{"amount_$i"})) {
       $zero_amount_posting = 0;
       last;
@@ -1000,9 +1042,9 @@ sub post {
     if ($form->{currency} ne $form->{defaultcurrency});
   delete($form->{AP});
 
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
-      $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
+      my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
@@ -1020,14 +1062,14 @@ sub post {
   }
 
   # if old vendor ne vendor redo form
-  ($vendor) = split /--/, $form->{vendor};
+  my ($vendor) = split /--/, $form->{vendor};
   if ($form->{oldvendor} ne "$vendor--$form->{vendor_id}") {
     &update;
     exit;
   }
-  ($debitaccno,    $debittaxkey)    = split /--/, $form->{AP_amountselected};
-  ($taxkey,        $NULL)           = split /--/, $form->{taxchartselected};
-  ($payablesaccno, $payablestaxkey) = split /--/, $form->{APselected};
+  my ($debitaccno,    $debittaxkey)    = split /--/, $form->{AP_amountselected};
+  my ($taxkey,        $NULL)           = split /--/, $form->{taxchartselected};
+  my ($payablesaccno, $payablestaxkey) = split /--/, $form->{APselected};
   $form->{AP}{amount_1} = $debitaccno;
   $form->{AP}{payables} = $payablesaccno;
   $form->{taxkey}       = $taxkey;
@@ -1048,13 +1090,16 @@ sub post {
   }
   $form->error($locale->text('Cannot post transaction!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('general_ledger');
 
   $form->{postasnew} = 1;
   # saving the history
@@ -1066,13 +1111,16 @@ sub post_as_new {
   # /saving the history
   &post;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub use_as_template {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('general_ledger');
 
   map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
@@ -1080,13 +1128,16 @@ sub use_as_template {
   $form->{invdate} = $form->current_date(\%myconfig);
   &update;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub delete {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger');
 
   $form->{title} = $locale->text('Confirm!');
 
@@ -1100,7 +1151,7 @@ sub delete {
 <form method=post action=$form->{script}>
 |;
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
@@ -1121,15 +1172,19 @@ sub delete {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub yes {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
-  if (AP->delete_transaction(\%myconfig, \%$form, $spool)) {
+  $main::auth->assert('general_ledger');
+
+  if (AP->delete_transaction(\%myconfig, \%$form, $main::spool)) {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
@@ -1141,17 +1196,23 @@ sub yes {
   }
   $form->error($locale->text('Cannot delete transaction!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger | vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  $main::auth->assert('general_ledger | vendor_invoice_edit');
 
   # setup vendor selection
   $form->all_vc(\%myconfig, "vendor", "AP");
 
+  my $vendor;
   if (@{ $form->{all_vendor} }) {
     map { $vendor .= "<option>$_->{name}--$_->{id}\n" }
       @{ $form->{all_vendor} };
@@ -1170,7 +1231,7 @@ sub search {
     } (@{ $form->{all_departments} });
   }
 
-  $department = qq|
+  my $department = qq|
 	<tr>
 	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
 	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
@@ -1181,7 +1242,8 @@ sub search {
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
-  $jsscript = "";
+  my $jsscript = "";
+  my ($button1, $button2);
   if ($form->{jsscript}) {
 
     # with JavaScript Calendar
@@ -1223,7 +1285,7 @@ sub search {
                          '-labels' => \%labels));
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-  $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
+  my $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
 <body onLoad="$onload">
@@ -1369,13 +1431,16 @@ $jsscript
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub create_subtotal_row {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my ($totals, $columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
 
@@ -1385,15 +1450,19 @@ sub create_subtotal_row {
 
   map { $totals->{$_} = 0 } @{ $subtotal_columns };
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $row;
 }
 
 sub ap_transactions {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger | vendor_invoice_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger | vendor_invoice_edit');
 
   ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor});
 
@@ -1482,7 +1551,7 @@ sub ap_transactions {
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
   # escape callback for href
-  $callback = $form->escape($href);
+  my $callback = $form->escape($href);
 
   my @subtotal_columns = qw(netamount amount paid due);
 
@@ -1491,7 +1560,7 @@ sub ap_transactions {
 
   my $idx = 0;
 
-  foreach $ap (@{ $form->{AP} }) {
+  foreach my $ap (@{ $form->{AP} }) {
     $ap->{tax} = $ap->{amount} - $ap->{netamount};
     $ap->{due} = $ap->{amount} - $ap->{paid};
 
@@ -1545,13 +1614,17 @@ sub ap_transactions {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub storno {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger');
 
   if (IS->has_storno(\%myconfig, $form, 'ap')) {
     $form->{title} = $locale->text("Cancel Accounts Payables Transaction");
@@ -1570,5 +1643,5 @@ sub storno {
 
   $form->redirect(sprintf $locale->text("Transaction %d cancelled."), $form->{storno_id});
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
