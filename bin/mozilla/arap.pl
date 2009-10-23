@@ -32,12 +32,14 @@
 
 use SL::Projects;
 
+use strict;
+
 # any custom scripts for this one
 if (-f "bin/mozilla/custom_arap.pl") {
   eval { require "bin/mozilla/custom_arap.pl"; };
 }
-if (-f "bin/mozilla/$form->{login}_arap.pl") {
-  eval { require "bin/mozilla/$form->{login}_arap.pl"; };
+if (-f "bin/mozilla/$main::form->{login}_arap.pl") {
+  eval { require "bin/mozilla/$main::form->{login}_arap.pl"; };
 }
 
 1;
@@ -47,9 +49,13 @@ require "bin/mozilla/common.pl";
 # end of main
 
 sub check_name {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger               | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger               | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | cash         |' .
                 'purchase_delivery_order_edit | sales_delivery_order_edit');
 
@@ -113,14 +119,14 @@ sub check_name {
         # name is not on file
         # $locale->text('Customer not on file or locked!')
         # $locale->text('Vendor not on file or locked!')
-        $msg = ucfirst $name . " not on file or locked!";
+        my $msg = ucfirst $name . " not on file or locked!";
         $form->error($locale->text($msg));
       }
     }
   }
   $form->language_payment(\%myconfig);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   return $i;
 }
@@ -129,16 +135,20 @@ sub check_name {
 # $locale->text('Vendor not on file!')
 
 sub select_name {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   my ($table) = @_;
 
-  @column_index = qw(ndx name address);
+  my @column_index = qw(ndx name address);
 
-  $label             = ucfirst $table;
+  my $label             = ucfirst $table;
+  my %column_data;
   $column_data{ndx}  = qq|<th>&nbsp;</th>|;
   $column_data{name} =
     qq|<th class=listheading>| . $locale->text($label) . qq|</th>|;
@@ -148,7 +158,7 @@ sub select_name {
   # list items with radio button on a form
   $form->header;
 
-  $title = $locale->text('Select from one of the names below');
+  my $title = $locale->text('Select from one of the names below');
 
   print qq|
 <body>
@@ -172,8 +182,9 @@ sub select_name {
 |;
 
   my $i = 0;
-  foreach $ref (@{ $form->{name_list} }) {
-    $checked = ($i++) ? "" : "checked";
+  my $j;
+  foreach my $ref (@{ $form->{name_list} }) {
+    my $checked = ($i++) ? "" : "checked";
 
     $ref->{name} =~ s/\"/&quot;/g;
 
@@ -216,7 +227,7 @@ sub select_name {
   map { delete $form->{$_} } qw(action name_list header);
 
   # save all other form variables
-  foreach $key (keys %${form}) {
+  foreach my $key (keys %${form}) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input name=$key type=hidden value="$form->{$key}">\n|;
@@ -235,19 +246,22 @@ sub select_name {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub name_selected {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   # replace the variable with the one checked
 
   # index for new item
-  $i = $form->{ndx};
+  my $i = $form->{ndx};
 
   $form->{ $form->{vc} }    = $form->{"new_name_$i"};
   $form->{"$form->{vc}_id"} = $form->{"new_id_$i"};
@@ -266,18 +280,21 @@ sub name_selected {
 
   &update(1);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub check_project {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   my $nextsub = shift || 'update';
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     my $suffix = $i ? "_$i" : "";
     my $prefix = $i ? "" : "global";
     $form->{"${prefix}project_id${suffix}"} = "" unless $form->{"${prefix}projectnumber$suffix"};
@@ -287,6 +304,7 @@ sub check_project {
         # get new project
         $form->{projectnumber} = $form->{"${prefix}projectnumber${suffix}"};
         my %params             = map { $_ => $form->{$_} } qw(projectnumber description active);
+        my $rows;
         if (($rows = Projects->search_projects(%params)) > 1) {
 
           # check form->{project_list} how many there are
@@ -310,19 +328,24 @@ sub check_project {
     }
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub select_project {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   my ($is_global, $nextsub) = @_;
 
-  @column_index = qw(ndx projectnumber description);
+  my @column_index = qw(ndx projectnumber description);
 
+  my %column_data;
   $column_data{ndx}           = qq|<th>&nbsp;</th>|;
   $column_data{projectnumber} = qq|<th>| . $locale->text('Number') . qq|</th>|;
   $column_data{description}   =
@@ -331,7 +354,7 @@ sub select_project {
   # list items with radio button on a form
   $form->header;
 
-  $title = $locale->text('Select from one of the projects below');
+  my $title = $locale->text('Select from one of the projects below');
 
   print qq|
 <body>
@@ -357,8 +380,9 @@ sub select_project {
 |;
 
   my $i = 0;
-  foreach $ref (@{ $form->{project_list} }) {
-    $checked = ($i++) ? "" : "checked";
+  my $j;
+  foreach my $ref (@{ $form->{project_list} }) {
+    my $checked = ($i++) ? "" : "checked";
 
     $ref->{name} =~ s/\"/&quot;/g;
 
@@ -401,7 +425,7 @@ sub select_project {
   map { delete $form->{$_} } qw(action project_list header update);
 
   # save all other form variables
-  foreach $key (keys %${form}) {
+  foreach my $key (keys %${form}) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input name=$key type=hidden value="$form->{$key}">\n|;
@@ -421,19 +445,21 @@ sub select_project {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub project_selected {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   # replace the variable with the one checked
 
   # index for new item
-  $i = $form->{ndx};
+  my $i = $form->{ndx};
 
   my $prefix = $form->{"is_global"} ? "global" : "";
   my $suffix = $form->{"is_global"} ? "" : "_$form->{rownumber}";
@@ -455,8 +481,8 @@ sub project_selected {
 
   call_sub($nextsub);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
-sub continue       { call_sub($form->{"nextsub"}); }
+sub continue       { call_sub($main::form->{"nextsub"}); }
 
