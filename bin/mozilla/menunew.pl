@@ -38,11 +38,17 @@ use URI;
 
 use SL::Menu;
 
+use strict;
+
+my $locale;
+
 1;
 
 # end of main
 
 sub display {
+  my $form     = $main::form;
+
   $form->header();
 
 #   $form->{force_ul_width} = $ENV{HTTP_USER_AGENT} =~ m/MSIE\s+6\./;
@@ -59,6 +65,8 @@ sub display {
 }
 
 sub clock_line {
+  my $form     = $main::form;
+
   my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
       $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
     = localtime(time);
@@ -81,13 +89,15 @@ sub clock_line {
 }
 
 sub acc_menu {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
   $locale = Locale->new($myconfig{countrycode}, "menu");
 
   my $mainlevel =  $form->{level};
   $mainlevel    =~ s/\Q$mainlevel\E--//g;
   my $menu      = Menu->new('menu.ini');
 
-  $AUTOFLUSH    =  1;
+  $English::AUTOFLUSH    =  1;
 
   my $all_items = [];
   create_menu($menu, $all_items);
@@ -111,6 +121,9 @@ sub calculate_width {
 sub create_menu {
   my ($menu, $all_items, $parent, $depth) = @_;
   my $html;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   die if ($depth * 1 > 5);
 
