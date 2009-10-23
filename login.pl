@@ -30,22 +30,24 @@
 #
 #######################################################################
 
+use strict;
+
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
 # setup defaults, DO NOT CHANGE
-$userspath  = "users";
-$templates  = "templates";
-$memberfile = "users/members";
-$sendmail   = "| /usr/sbin/sendmail -t";
+$main::userspath  = "users";
+$main::templates  = "templates";
+$main::memberfile = "users/members";
+$main::sendmail   = "| /usr/sbin/sendmail -t";
 ########## end ###########################################
 
 $| = 1;
 
 use SL::LXDebug;
-$lxdebug = LXDebug->new();
+$main::lxdebug = LXDebug->new();
 
 eval { require "config/lx-erp.conf"; };
 eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
@@ -62,19 +64,19 @@ if ($ARGV[0]) {
   $_ = $ARGV[0];
 }
 
-%form = split /[&=]/;
+my %form = split /[&=]/;
 
 # fix for apache 2.0 bug
 map { $form{$_} =~ s/\\$// } keys %form;
 
 # name of this script
 $0 =~ tr/\\/\//;
-$pos = rindex $0, '/';
-$script = substr($0, $pos + 1);
+my $pos = rindex $0, '/';
+my $script = substr($0, $pos + 1);
 
-$form->{login} =~ s|.*/||;
+$form{login} =~ s|.*/||;
 
-if (-e "$userspath/nologin" && $script ne 'admin.pl') {
+if (-e "$main::userspath/nologin" && $script ne 'admin.pl') {
   print "content-type: text/plain
 
 Login disabled!\n";
