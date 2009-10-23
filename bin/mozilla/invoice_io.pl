@@ -661,46 +661,50 @@ sub display_form {
   #   }
   &form_header;
 
-  my $numrows    = ++$form->{rowcount};
-  my $subroutine = "display_row";
+  {
+    no strict 'refs';
 
-  if ($form->{item} eq 'part') {
+    my $numrows    = ++$form->{rowcount};
+    my $subroutine = "display_row";
 
-    #set preisgruppenanzahl
-    $numrows    = $form->{price_rows};
-    $subroutine = "price_row";
+    if ($form->{item} eq 'part') {
 
-    &{$subroutine}($numrows);
+      #set preisgruppenanzahl
+      $numrows    = $form->{price_rows};
+      $subroutine = "price_row";
 
-    $numrows    = ++$form->{makemodel_rows};
-    $subroutine = "makemodel_row";
+      &{$subroutine}($numrows);
+
+      $numrows    = ++$form->{makemodel_rows};
+      $subroutine = "makemodel_row";
+    }
+    if ($form->{item} eq 'assembly') {
+      $numrows    = $form->{price_rows};
+      $subroutine = "price_row";
+
+      &{$subroutine}($numrows);
+
+      $numrows    = ++$form->{makemodel_rows};
+      $subroutine = "makemodel_row";
+
+      # create makemodel rows
+      &{$subroutine}($numrows);
+
+      $numrows    = ++$form->{assembly_rows};
+      $subroutine = "assembly_row";
+    }
+    if ($form->{item} eq 'service') {
+      $numrows    = $form->{price_rows};
+      $subroutine = "price_row";
+
+      &{$subroutine}($numrows);
+
+      $numrows = 0;
+    }
+
+    # create rows
+    &{$subroutine}($numrows) if $numrows;
   }
-  if ($form->{item} eq 'assembly') {
-    $numrows    = $form->{price_rows};
-    $subroutine = "price_row";
-
-    &{$subroutine}($numrows);
-
-    $numrows    = ++$form->{makemodel_rows};
-    $subroutine = "makemodel_row";
-
-    # create makemodel rows
-    &{$subroutine}($numrows);
-
-    $numrows    = ++$form->{assembly_rows};
-    $subroutine = "assembly_row";
-  }
-  if ($form->{item} eq 'service') {
-    $numrows    = $form->{price_rows};
-    $subroutine = "price_row";
-
-    &{$subroutine}($numrows);
-
-    $numrows = 0;
-  }
-
-  # create rows
-  &{$subroutine}($numrows) if $numrows;
 
   &form_footer;
 
