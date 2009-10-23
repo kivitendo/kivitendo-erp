@@ -35,24 +35,26 @@ use SL::Form;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/todo.pl";
 
+use strict;
+
 # This is required because the am.pl in the root directory
 # is not scanned by locales.pl:
 # $form->parse_html_template('login/password_error')
 
-$form = new Form;
+our $form = new Form;
 
 if (! -f 'config/authentication.pl') {
   show_error('login/authentication_pl_missing');
 }
 
-$locale = new Locale $language, "login";
+our $locale = new Locale $main::language, "login";
 
 our $auth = SL::Auth->new();
 if (!$auth->session_tables_present()) {
   show_error('login/auth_db_unreachable');
 }
 $auth->expire_sessions();
-my $session_result = $auth->restore_session();
+my $session_result = $main::auth->restore_session();
 
 # customization
 if (-f "bin/mozilla/custom_$form->{script}") {
@@ -103,7 +105,7 @@ if ($action) {
 1;
 
 sub login_screen {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
   my ($msg) = @_;
 
   if (-f "css/lx-office-erp.css") {
@@ -115,20 +117,21 @@ sub login_screen {
 
   print $form->parse_html_template('login/login_screen');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub login {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   unless ($form->{login}) {
     login_screen($locale->text('You did not enter a name!'));
     exit;
   }
 
-  $user = new User $form->{login};
+  my $user = new User $form->{login};
 
   # if we get an error back, bale out
+  my $result;
   if (($result = $user->login($form)) <= -1) {
     exit if $result == -2;
     login_screen($locale->text('Incorrect username or password!'));
@@ -146,29 +149,30 @@ sub login {
   # made it this far, execute the menu
   $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display', "callback=" . $form->escape($form->{callback}));
 
-  $auth->set_cookie_environment_variable();
+  $main::auth->set_cookie_environment_variable();
 
   $form->redirect();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub logout {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->destroy_session();
+  $main::auth->destroy_session();
 
   # remove the callback to display the message
   $form->{callback} = "login.pl?action=";
   $form->redirect($locale->text('You are logged out!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub company_logo {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $locale             =  new Locale $myconfig{countrycode}, "login" if ($language ne $myconfig{countrycode});
+  my %myconfig = %main::myconfig;
+  $locale             =  new Locale $myconfig{countrycode}, "login" if ($main::language ne $myconfig{countrycode});
 
   $form->{todo_list}  =  create_todo_list('login_screen' => 1) if (!$form->{no_todo_list});
 
@@ -180,13 +184,14 @@ sub company_logo {
 
   print $form->parse_html_template('login/company_logo');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub show_error {
   my $template           = shift;
-  $locale                = Locale->new($language, 'all');
-  $myconfig{countrycode} = $language;
+  my %myconfig = %main::myconfig;
+  $locale                = Locale->new($main::language, 'all');
+  $myconfig{countrycode} = $main::language;
   $form->{stylesheet}    = 'css/lx-office-erp.css';
 
   $form->header();
