@@ -30,7 +30,7 @@
 #
 #######################################################################
 
-#use strict;
+use strict;
 
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
