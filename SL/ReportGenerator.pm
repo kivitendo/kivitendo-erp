@@ -1,7 +1,6 @@
 package SL::ReportGenerator;
 
-#use strict;
-
+use Data::Dumper;
 use Encode;
 use IO::Wrap;
 use List::Util qw(max);
@@ -338,7 +337,7 @@ sub prepare_html_content {
           next;
         }
 
-        my $col = $row->{$col_name};
+        my $col = $row->{$col_name} || { data => [] };
         $col->{CELL_ROWS} = [ ];
         foreach my $i (0 .. scalar(@{ $col->{data} }) - 1) {
           push @{ $col->{CELL_ROWS} }, {
