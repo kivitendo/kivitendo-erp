@@ -35,19 +35,24 @@
 #  2004-12-14 - New Optik - Marco Welter <mawe@linux-studio.de>
 #######################################################################
 
-$menufile = "menu.ini";
+my $menufile = "menu.ini";
 use SL::Menu;
 use Data::Dumper;
 use URI;
+
+use strict;
+
+my $framesize = ($ENV{HTTP_USER_AGENT} =~ /links/i) ? "240" : "190";
+my $mainlevel;
 
 1;
 
 # end of main
 
-$framesize = ($ENV{HTTP_USER_AGENT} =~ /links/i) ? "240" : "190";
-
 sub display {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my $callback   = $form->unescape($form->{callback});
   $callback      = URI->new($callback)->rel($callback) if $callback;
@@ -69,11 +74,15 @@ sub display {
 </HTML>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub acc_menu {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = new Menu "$menufile";
@@ -98,34 +107,40 @@ sub acc_menu {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub section_menu {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
   my ($menu, $level) = @_;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $zeige;
 
   # build tiered menus
   my @menuorder = $menu->access_control(\%myconfig, $level);
   while (@menuorder) {
-    $item  = shift @menuorder;
-    $label = $item;
-    $ml    = $item;
+    my $item  = shift @menuorder;
+    my $label = $item;
+    my $ml    = $item;
     $label =~ s/\Q$level\E--//g;
     $ml    =~ s/--.*//;
     if ($ml eq $mainlevel) { $zeige = 1; }
     else { $zeige = 0; }
     my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 1);
     $label =~ s/.*--//g;
-    $label_icon = $label . ".gif";
-    $mlab       = $label;
+    my $label_icon = $label . ".gif";
+    my $mlab       = $label;
     $label      = $locale->text($label);
 
     # multi line hack, sschoeling jul06
     # if a label is too long, try to split it at whitespaces, then join it to chunks of less
     # than 20 chars and store it in an array.
     # use this array later instead of the &nbsp;-ed label
-    @chunks = ();
+    my @chunks = ();
     my ($i,$l) = (-1, 20);
     map {
       if (($l += length $_) < 20) {
@@ -211,5 +226,5 @@ sub section_menu {
       }
     }
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
