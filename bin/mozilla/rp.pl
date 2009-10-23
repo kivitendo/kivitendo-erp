@@ -1296,7 +1296,7 @@ sub generate_trial_balance {
   RP->trial_balance(\%myconfig, \%$form, 'beginning_balances' => 1);
 
 
-  $form->{rowcount} = scalar @{ $form->{TB} };
+  $form->{rowcount} = scalar @{ $form->{TB} || [] };
   $form->{title} = sprintf($locale->text('Trial balance between %s and %s'), $form->{fromdate}, $form->{todate});
 
   my @columns = (

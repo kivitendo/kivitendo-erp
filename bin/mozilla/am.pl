@@ -194,7 +194,7 @@ sub account_header {
   }
 
   # Newaccount Folgekonto
-  if (@{ $form->{NEWACCOUNT} }) {
+  if (@{ $form->{NEWACCOUNT} || [] }) {
     if (!$form->{new_chart_valid}) {
       $form->{selectnewaccount} = qq|<option value=""> |. $locale->text('None') .q|</option>|;
     }
