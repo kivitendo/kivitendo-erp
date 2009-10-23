@@ -6,169 +6,160 @@
 Lieferanschriftimport mit Browser nach Lx-Office ERP
 
 Copyright (C) 2005
-Author: Philip Reetz
-Email: p.reetz@linet-services.de
-Web: http://www.linet-services.de
+Author: Philip Reetz, Holger Lindemann
+Email: p.reetz@linet-services.de, hli@lx-system.de
+Web: http://www.linet-services.de, http://www.lx-system.de
 
 */
-	function ende($nr) {
-		echo "Abbruch: $nr\n";
-		exit($nr);
-	}
+    require ("import_lib.php");
 
-	if ($_POST["ok"]=="Hilfe") {
-		echo "Importfelder:<br>";
-		echo "Feldname => Bedeutung<br>";
-		foreach($shiptos as $key=>$val) {
-			echo "$key => $val<br>";
-		}
-		exit(0);
-	};
+    function ende($nr) {
+        echo "Abbruch: $nr\n";
+        exit($nr);
+    }
+
+    if ($_POST["ok"]=="Hilfe") {
+        echo "Importfelder:<br>";
+        echo "Feldname => Bedeutung<br>";
+        foreach($shiptos as $key=>$val) {
+            echo "$key => $val<br>";
+        }
+        $header=implode(";",array_keys($shiptos));
+        echo $header;
+        exit(0);
+    };
 
 if (!$_SESSION["db"]) {
-	$conffile="../config/authentication.pl";
-	if (!is_file($conffile)) {
-		ende(4);
-	}
+    $conffile="../config/authentication.pl";
+    if (!is_file($conffile)) {
+        ende("authentication.pl nicht gefunden oder unlesbar");
+    }
 }
-require ("import_lib.php");
 
-if (!anmelden()) ende(5);
+if (!anmelden()) ende("Anmeldung fehlgeschlagen");
 
 /* get DB instance */
 $db=$_SESSION["db"]; //new myDB($login);
 
-
 $crm=checkCRM();
 
 if ($_POST["ok"] == "Import") {
-	$test=$_POST["test"];
-	
-	$shipto_fld = array_keys($shiptos);
-	$shipto=$shiptos;
-	
-	$nun=time();
+    $test=$_POST["test"];
+    
+    $shipto_fld = array_keys($shiptos);
+    $shipto=$shiptos;
+    
+    $nun=time();
 
+    clearstatcache ();
 
-	clearstatcache ();
+    $trenner=($_POST["trenner"])?$_POST["trenner"]:",";
 
-	$trenner=($_POST["trenner"])?$_POST["trenner"]:",";
+    if (!empty($_FILES["Datei"]["name"])) { 
+        $file=$_POST["ziel"];
+        if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file."_shipto.csv")) {
+            $file=false;
+            echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
+        } 
+    } else if (is_file($_POST["ziel"]."_shipto.csv")) {
+        $file=$_POST["ziel"];
+    } else {
+        $file=false;
+    } 
+    if (!$file) ende ("Kein Datenfile");
 
-	if (!empty($_FILES["Datei"]["name"])) { 
-		$file=$_POST["ziel"];
-		if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file."_shipto.csv")) {
-			$file=false;
-			echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
-		} 
-	} else if (is_file($_POST["ziel"]."_shipto.csv")) {
-		$file=$_POST["ziel"];
-	} else {
-		$file=false;
-	} 
-	if (!$file) ende (2);
+    if (!file_exists($file."_shipto.csv")) ende($file."_shipto.csv nicht im Ordner gefunden oder leer");
 
-	if (!file_exists($file."_shipto.csv")) ende(5);
+    $employee=chkUsr($_SESSION["employee"]);
+    if (!$employee) ende("Benutzer unbekannt");
 
-	$employee=chkUsr($_SESSION["employee"]);
-	if (!$employee) ende(4);
+    if (!$db->chkcol($file)) ende("Importspalte konnte nicht angelegt werden");
 
-	if (!$db->chkcol($file)) ende(6);
+    $f=fopen($file."_shipto.csv","r");
+    $zeile=fgetcsv($f,1000,$trenner);
+    $first=true;
 
-	$f=fopen($file."_shipto.csv","r");
-	$zeile=fgetcsv($f,1000,$trenner);
-	$first=true;
+    foreach ($zeile as $fld) {
+        $fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
+        $in_fld[]=$fld;
+    }
+    $j=0;
+    $n=0;
+    $prenumber=$_POST["prenumber"];
+    $zeile=fgetcsv($f,1000,$trenner);
 
-	foreach ($zeile as $fld) {
-		$fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
-		$in_fld[]=$fld;
-	}
-	$j=0;
-	$prenumber=$_POST["prenumber"];
-	$zeile=fgetcsv($f,1000,$trenner);
-
-while (!feof($f)){
-	$i=-1;
-	$firma="";
-	$name=false;
-	$id=false;
-	$sql="insert into shipto ";
-	$keys="(";
-	$vals=" values (";
-	foreach($zeile as $data) {
-		$i++;
-		if (!in_array($in_fld[$i],$shipto_fld)) {
-			continue;
-		}
-		$data=addslashes(trim($data));
-		if ($in_fld[$i]=="trans_id" && $data) {
-			$data=chkKdId($data);
-			if (!$id) $id = $data;
-			continue;
-		} else  if ($in_fld[$i]=="trans_id") {
-			continue;
-		}
-		if ($in_fld[$i]==$file."number" && $data) {
-			$tmp=getFirma($data,$file);
-			if ($id<>$tmp) $id=$tmp;
-			continue;
-		} else if ($in_fld[$i]==$file."number") {
-			continue;
-		}
-		if ($in_fld[$i]=="firma") {
-			if ($id) continue;
-			$data=suchFirma($file,$firma);
-			if ($data) {
-				$id=$data["cp_cv_id"];
-			}
-			continue;
-		}
-		$keys.=$in_fld[$i].",";
-		
-		if ($data==false or empty($data) or !$data) {
-                        $vals.="null,";
-                } else {
-                	if (in_array($in_fld[$i],array("cp_fax","cp_phone1","cp_phone2"))) {
-				$data=$prenumber.$data;
-			} else if ($in_fld[$i]=="cp_country" && $data) {
-				$data=mkland($data);
-			}
-			if ($in_fld[$i]=="cp_name") $name=true;
-                        $vals.="'".$data."',";
-                        // bei jedem gefuellten Datenfeld erhoehen
-                        $val_count++;
+    while (!feof($f)){
+        $i=-1;
+        $id=false;
+        $sql="insert into shipto ";
+        $keys="";
+        $vals="";
+        foreach($zeile as $data) {
+            $i++;
+            if (!in_array($in_fld[$i],$shipto_fld)) {
+                continue;
+            }
+            $data=addslashes(trim($data));
+            if ($in_fld[$i]=="trans_id" && $data) {
+                $data=chkKdId($data);
+                if (!$id) $id = $data;
+                continue;
+            } else  if ($in_fld[$i]=="trans_id") {
+                continue;
+            }
+            if ($in_fld[$i]==$file."number" && $data) {
+                $tmp=getFirma($data,$file);
+                if ($id<>$tmp) $id=$tmp;
+                continue;
+            } else if ($in_fld[$i]==$file."number") {
+                continue;
+            }
+            if ($in_fld[$i]=="firma") {
+                if ($id) continue;
+                $data=suchFirma($file,$data);
+                if ($data) {
+                    $id=$data["cp_cv_id"];
                 }
-	}
-// 	if (!$name) {
-// 		$zeile=fgetcsv($f,1000,$trenner);
-// 		continue;
-// 	}
-	if ($keys<>"(" && $id) {
-		$vals.=$id.",'CT'";
-		$keys.="trans_id,module";
-		if ($test) {
-			if ($first) {
-				echo "<table border='1'>\n";
-				echo "<tr><th>".str_replace(",","</th><th>",substr($keys,1,-1))."</th></tr>\n";
-				$first=false;
-			};
-			$vals=str_replace("',","'</td><td>",$vals);
-			echo "<tr><td>".str_replace("null,","null</td><td>",$vals)."</td></tr>\n";
-			flush();
-		} else {
-			$sql.=$keys.")";
-			$sql.=$vals.")";
-			$rc=$db->query($sql);
-			if (!$rc) echo "Fehler: ".$sql."\n";
-		}
-		$j++;
-	} else {
-		echo $keys."<br>";
-		echo $vals."<br>";
-	};
-	$zeile=fgetcsv($f,1000,$trenner);
-}
-fclose($f);
-echo $j." $file importiert.\n";} else {
+                continue;
+            }
+            $keys.=$in_fld[$i].",";
+            
+            if ($data==false or empty($data) or !$data) {
+                            $vals.="null,";
+            } else {
+                   if (in_array($in_fld[$i],array("shiptofax","shiptophone"))) {
+                    $data=$prenumber.$data;
+                } 
+                $vals.="'".$data."',";
+                // bei jedem gefuellten Datenfeld erhoehen
+                $val_count++;
+            }
+        }
+        if ($keys<>"" && $id) {
+            $vals.=$id.",'CT'";
+            $keys.="trans_id,module";
+            if ($test) {
+                if ($first) {
+                    echo "<table border='1'>\n";
+                    echo "<tr><th>".str_replace(",","</th><th>",$keys)."</th></tr>\n";
+                    $first=false;
+                };
+                echo "<tr><td>".str_replace(",","</td><td>",$vals)."</td></tr>\n";
+                flush();
+            } else {
+                $sql.="(".$keys.")";
+                $sql.="values (".$vals.")";
+                $rc=$db->query($sql);
+                if (!$rc) echo "Fehler: ".$sql."\n";
+            }
+            $j++;
+        } 
+        $n++;
+        $zeile=fgetcsv($f,1000,$trenner);
+    }
+    fclose($f);
+    echo "</table>".$j." $file shipto von $n importiert.\n";
+} else {
 ?>
 <p class="listtop">Lieferanschriftimport f&uuml;r die ERP</p>
 <form name="import" method="post" enctype="multipart/form-data" action="shiptoB.php">
