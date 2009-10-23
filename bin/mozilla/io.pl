@@ -1193,10 +1193,17 @@ sub print_options {
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
       if ((ref $form->{printers} eq 'ARRAY') && scalar @{ $form->{printers } });
 
-  {
-    no strict 'refs';
-    @SELECTS = map { sname => lc $_, DATA => \@$_, show => !$options{"hide_" . lc($_)} && scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
-  }
+  @SELECTS = map {
+    sname => $_->[1],
+    DATA  => $_->[0],
+    show  => !$options{"hide_" . $_->[1]} && scalar @{ $_->[0] }
+  },
+  [ \@FORMNAME,    'formname',    ],
+  [ \@LANGUAGE_ID, 'language_id', ],
+  [ \@FORMAT,      'format',      ],
+  [ \@SENDMODE,    'sendmode',    ],
+  [ \@MEDIA,       'media',       ],
+  [ \@PRINTER_ID,  'printer_id',  ];
 
   my %dont_display_groupitems = (
     'dunning' => 1,
