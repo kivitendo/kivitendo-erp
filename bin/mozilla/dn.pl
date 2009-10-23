@@ -42,12 +42,18 @@ require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
 require "bin/mozilla/io.pl";
 
+use strict;
+
 1;
 
 sub edit_config {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   DN->get_config(\%myconfig, \%$form);
   $form->get_lists('charts' => { 'key'       => 'ALL_CHARTS',
@@ -77,13 +83,17 @@ sub edit_config {
   $form->header();
   print $form->parse_html_template("dunning/edit_config");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub add {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('dunning_edit');
 
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
@@ -101,13 +111,17 @@ sub add {
 
   print $form->parse_html_template("dunning/add");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub show_invoices {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('dunning_edit');
 
   DN->get_invoices(\%myconfig, \%$form);
   $form->{title} = $locale->text('Start Dunning Process');
@@ -138,13 +152,17 @@ sub show_invoices {
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   for my $i (1 .. $form->{rowcount}) {
     if ($form->{"dunning_description_$i"} ne "") {
@@ -165,13 +183,17 @@ sub save {
   # /saving the history
   $form->redirect($locale->text('Dunning Process Config saved!'));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_dunning {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('dunning_edit');
 
   my $active=1;
   my @rows = ();
@@ -200,7 +222,7 @@ sub save_dunning {
       foreach my $level (values %{ $levels }) {
         next unless scalar @{ $level };
 
-        DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool);
+        DN->save_dunning(\%myconfig, $form, $level, $main::userspath, $main::spool);
       }
     }
 
@@ -213,7 +235,7 @@ sub save_dunning {
                       "customer_id"            => $form->{"customer_id_$i"},
                       "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
                       "email"                  => $form->{"email_$i"}, } ];
-      DN->save_dunning(\%myconfig, $form, $level, $userspath, $spool);
+      DN->save_dunning(\%myconfig, $form, $level, $main::userspath, $main::spool);
     }
   }
 
@@ -234,25 +256,32 @@ sub save_dunning {
     $form->redirect($locale->text('Dunning Process started for selected invoices!'));
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_email {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('dunning_edit');
 
   $form->{"title"} = $locale->text("Set eMail text");
   $form->header();
   print($form->parse_html_template("dunning/set_email"));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub search {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('dunning_edit');
 
   $form->get_lists("customers"   => "ALL_CUSTOMERS",
                    "departments" => "ALL_DEPARTMENTS");
@@ -275,14 +304,19 @@ sub search {
 
   print $form->parse_html_template("dunning/search");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub show_dunning {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
+  $main::auth->assert('dunning_edit');
 
   my @filter_field_list = qw(customer_id customer dunning_level department_id invnumber ordnumber
                              transdatefrom transdateto dunningfrom dunningto notes showold);
@@ -350,7 +384,7 @@ sub show_dunning {
 
   my $i = 0;
 
-  foreach $ref (@{ $form->{DUNNINGS} }) {
+  foreach my $ref (@{ $form->{DUNNINGS} }) {
     $i++;
 
     if ($previous_dunning_id != $ref->{dunning_id}) {
@@ -396,14 +430,16 @@ sub show_dunning {
 
   $report->generate_with_headers();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
 }
 
 sub print_dunning {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+
+  $main::auth->assert('dunning_edit');
 
   $form->{rowcount}     = 1;
   $form->{selected_1}   = 1;
@@ -411,13 +447,17 @@ sub print_dunning {
 
   print_multiple();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print_multiple {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('dunning_edit');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('dunning_edit');
 
   $form->{title} = $locale->text('Print dunnings');
 
@@ -447,11 +487,11 @@ sub print_multiple {
     $form->redirect($locale->text('Could not print dunning.'));
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub continue {
-  call_sub($form->{nextsub});
+  call_sub($main::form->{nextsub});
 }
 
 # end of main
