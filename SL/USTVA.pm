@@ -497,9 +497,9 @@ sub stichtag {
   #$stichtag =~ /([\d]\d)(\d\d)$/
   #$stichtag = "$1.$2.$yy"
   #$stichtag=$1;
-  our $description; # most probably not existant.
-  our $tage_bis;    # most probably not existant.
-  our $ical;        # most probably not existant.
+  our $description; # most probably not existent.
+  our $tage_bis;    # most probably not existent.
+  our $ical;        # most probably not existent.
 
   $main::lxdebug->leave_sub();
   return ($stichtag, $description, $tage_bis, $ical);
