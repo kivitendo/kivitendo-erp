@@ -5,15 +5,21 @@ $| = 1;
 
 use CGI::Carp qw(fatalsToBrowser);
 
+use strict;
+
+my $form     = $main::form;
+my $locale   = $main::locale;
+
 $form->header;
-$paramstring = $ENV{"QUERY_STRING"};
-@felder = split "&", $paramstring;
+my $paramstring = $ENV{"QUERY_STRING"};
+my @felder = split "&", $paramstring;
+my ($name, $wert);
 foreach (@felder) {
   ($name, $wert) = split "=", $_;
   $wert =~ tr/+/ /;
-  $$name = $wert;
+  $name = $wert;
 }
-$login =
+my $login =
     "[" . $form->{login}
   . " - <a href=\"login.pl?action=logout\" target=\"_top\">"
   . $locale->text('Logout')
@@ -33,7 +39,7 @@ my @Monatsnamen = ("",       "Januar",    "Februar", "M&auml;rz",
                    "April",  "Mai",       "Juni",    "Juli",
                    "August", "September", "Oktober", "November",
                    "Dezember");
-$datum =
+my $datum =
     $Wochentage[$Wochentag] . ", der "
   . $Monatstag . "."
   . $Monat . "."
