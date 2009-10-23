@@ -36,6 +36,8 @@ use SL::Form;
 
 use Data::Dumper;
 
+use strict;
+
 1;
 
 require "bin/mozilla/common.pl";
@@ -43,43 +45,51 @@ require "bin/mozilla/common.pl";
 # end of main
 
 sub display {
-  call_sub($form->{display_nextsub});
+  call_sub($main::form->{display_nextsub});
 }
 
 sub save {
-  call_sub($form->{save_nextsub});
+  call_sub($main::form->{save_nextsub});
 }
 
 sub edit {
-  call_sub($form->{edit_nextsub});
+  call_sub($main::form->{edit_nextsub});
 }
 
 sub display_template {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{edit} = 0;
   display_template_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub edit_template {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
 
   $form->{edit} = 1;
   display_template_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub save_template {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->isblank("formname", $locale->text("You're not editing a file.")) unless ($form->{type} eq "stylesheet");
 
@@ -91,13 +101,17 @@ sub save_template {
   $form->{edit} = 0;
   display_template_form();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_template_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('config');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('config');
 
   $form->{"formname"} =~ s|.*/||;
   my $format = $form->{"format"} eq "html" ? "html" : "tex";
@@ -233,7 +247,7 @@ sub display_template_form {
   $form->header;
   print($form->parse_html_template("am/edit_templates", \%options));
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 1;
