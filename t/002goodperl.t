@@ -70,7 +70,10 @@ foreach my $file (@testitems) {
             if ($file_line1 =~ m#\s-$flags#) {
                 ok(1,"$file uses standard perl location and -$flags");
             } else {
+              TODO: {
+                local $TODO = q(warning isn't supported globally);
                 ok(0,"$file is MISSING -$flags --WARNING");
+              }
             }
         } else {
             ok(0,"$file uses non-standard perl location");
@@ -78,8 +81,6 @@ foreach my $file (@testitems) {
     }
 }
 
-TODO: {
-local $TODO = 'strict is not implemented thoroughly yet';
 foreach my $file (@testitems) {
     my $found_use_strict = 0;
     $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
@@ -100,7 +101,6 @@ foreach my $file (@testitems) {
     } else {
         ok(0,"$file DOES NOT use strict --WARNING");
     }
-}
 }
 
 exit 0;
