@@ -31,18 +31,24 @@ use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 use SL::Common;
 use SL::DATEV;
 
+use strict;
+
 1;
 
 # end of main
 
 require "bin/mozilla/common.pl";
 
-sub continue { call_sub($form->{"nextsub"}); }
+sub continue { call_sub($main::form->{"nextsub"}); }
 
 sub export {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('datev_export');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('datev_export');
 
   $form->{title} = $locale->text("DATEX - Export Assistent");
 
@@ -123,26 +129,32 @@ sub export {
 </body>
 </html>
 |;
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub export2 {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('datev_export');
+  my $form     = $main::form;
+
+  $main::auth->assert('datev_export');
 
   if ($form->{exporttype} == 0) {
     &export_bewegungsdaten();
   } else {
     &export_stammdaten();
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub export_bewegungsdaten {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('datev_export');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('datev_export');
 
   $form->{title} = $locale->text("DATEX - Export Assistent");
 
@@ -259,13 +271,16 @@ sub export_bewegungsdaten {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub export_stammdaten {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('datev_export');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('datev_export');
 
   $form->{title} = $locale->text("DATEX - Export Assistent");
 
@@ -323,13 +338,17 @@ sub export_stammdaten {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub export3 {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('datev_export');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('datev_export');
 
   DATEV::clean_temporary_directories();
 
@@ -362,13 +381,16 @@ sub export3 {
 
   print("</body></html>");
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub download {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('datev_export');
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('datev_export');
 
   my $tmp_name = Common->tmpname();
   my $zip_name = strftime("lx-office-datev-export-%Y%m%d.zip", localtime(time()));
@@ -408,5 +430,5 @@ sub download {
 
   DATEV::clean_temporary_directories();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
