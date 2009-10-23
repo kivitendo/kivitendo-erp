@@ -43,12 +43,14 @@ use SL::IC;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 # any custom scripts for this one
 if (-f "bin/mozilla/custom_invoice_io.pl") {
   eval { require "bin/mozilla/custom_ivvoice_io.pl"; };
 }
-if (-f "bin/mozilla/$form->{login}_invoice_io.pl") {
-  eval { require "bin/mozilla/$form->{login}_invoice_io.pl"; };
+if (-f "bin/mozilla/$main::form->{login}_invoice_io.pl") {
+  eval { require "bin/mozilla/$main::form->{login}_invoice_io.pl"; };
 }
 
 1;
@@ -91,7 +93,7 @@ use Data::Dumper;
 # neue Optik im Rechnungsformular      #
 ########################################
 #sub display_row {
-#  $lxdebug->enter_sub();
+#  $main::lxdebug->enter_sub();
 #  my $numrows = shift;
 #
 #  my $is_sales =
@@ -400,7 +402,7 @@ use Data::Dumper;
 #        # for last row
 #        $column_data{sellprice_pg} = qq|<td align="right">&nbsp;</td>|;
 #        }
-#        
+#
 #      $column_data{sellprice} =
 #      qq|<td><input name="sellprice_$i" size="10" onBlur=\"check_right_number_format(this)\" value="|
 #        . $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
@@ -546,25 +548,30 @@ use Data::Dumper;
 #    $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;
 #  }
 #
-#  $lxdebug->leave_sub();
+#  $main::lxdebug->leave_sub();
 #}
 
 sub set_pricegroup {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
   my $rowcount = shift;
-  for $j (1 .. $rowcount) {
-    my $pricegroup_old = $form->{"pricegroup_old_$i"};
+  for my $j (1 .. $rowcount) {
+    my $pricegroup_old = $form->{"pricegroup_old_$j"};
     if ($form->{PRICES}{$j}) {
-      $len    = 0;
-      $prices = '<option value="--">' . $locale->text("none (pricegroup)") . '</option>';
-      $price  = 0;
-      foreach $item (@{ $form->{PRICES}{$j} }) {
+      my $len    = 0;
+      my $prices = '<option value="--">' . $locale->text("none (pricegroup)") . '</option>';
+      my $price  = 0;
+      foreach my $item (@{ $form->{PRICES}{$j} }) {
 
         #$price = $form->round_amount($myconfig,  $item->{price}, 5);
         #$price = $form->format_amount($myconfig, $item->{price}, 2);
-        $price         = $item->{price};
-        $pricegroup_id = $item->{pricegroup_id};
-        $pricegroup    = $item->{pricegroup};
+        my $price         = $item->{price};
+        my $pricegroup_id = $item->{pricegroup_id};
+        my $pricegroup    = $item->{pricegroup};
 
         # build drop down list for pricegroups
         $prices .=
@@ -590,13 +597,16 @@ sub set_pricegroup {
       $form->{"prices_$j"} = $prices;
     }
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | '.
                 'purchase_delivery_order_edit | sales_delivery_order_edit');
 
@@ -614,7 +624,7 @@ sub display_form {
     exit;
   }
 
-  Common::webdav_folder($form) if ($webdav);
+  Common::webdav_folder($form) if ($main::webdav);
 
   #   if (   $form->{print_and_post}
   #       && $form->{second_run}
@@ -651,8 +661,8 @@ sub display_form {
   #   }
   &form_header;
 
-  $numrows    = ++$form->{rowcount};
-  $subroutine = "display_row";
+  my $numrows    = ++$form->{rowcount};
+  my $subroutine = "display_row";
 
   if ($form->{item} eq 'part') {
 
@@ -694,5 +704,5 @@ sub display_form {
 
   &form_footer;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
