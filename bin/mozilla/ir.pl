@@ -166,6 +166,8 @@ sub invoice_links {
       $form->{"select$key"} .= "<option>$ref->{accno}--$ref->{description}\n";
     }
 
+    next unless $form->{acc_trans}{$key};
+
     if ($key eq "AP_paid") {
       for my $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
         $form->{"AP_paid_$i"} =
