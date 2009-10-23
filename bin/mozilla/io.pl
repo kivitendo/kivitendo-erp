@@ -48,6 +48,8 @@ use SL::IO;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 # any custom scripts for this one
 if (-f "bin/mozilla/custom_io.pl") {
   eval { require "bin/mozilla/custom_io.pl"; };
@@ -103,9 +105,14 @@ sub _check_io_auth {
 # neue Optik im Rechnungsformular      #
 ########################################
 sub display_row {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   _check_io_auth();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   my $numrows = shift;
 
@@ -169,12 +176,12 @@ sub display_row {
 
   # translations, unused commented out
 #  $runningnumber = $locale->text('No.');
-  $deliverydate  = $locale->text('Delivery Date');
-  $serialnumber  = $locale->text('Serial No.');
-  $projectnumber = $locale->text('Project');
+#  my $deliverydate  = $locale->text('Delivery Date');
+  my $serialnumber  = $locale->text('Serial No.');
+  my $projectnumber = $locale->text('Project');
 #  $partsgroup    = $locale->text('Group');
-  $reqdate       = $locale->text('Reqdate');
-  $deliverydate  = $locale->text('Required by');
+  my $reqdate       = $locale->text('Reqdate');
+  my $deliverydate  = $locale->text('Required by');
 
   # special alignings
   my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal stock_in_out);
@@ -196,7 +203,9 @@ sub display_row {
   _update_custom_variables();
 
   # rows
-  for $i (1 .. $numrows) {
+
+  my @ROWS;
+  for my $i (1 .. $numrows) {
     my %column_data = ();
 
     # undo formatting
@@ -237,15 +246,16 @@ sub display_row {
 # / unit ending
 
     $form->{"sellprice_$i"} =~ /\.(\d+)/;
-    $decimalplaces = max 2, length $1;
+    my $decimalplaces = max 2, length $1;
 
-    $price_factor   = $price_factors{$form->{"price_factor_id_$i"}} || 1;
-    $discount       = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} *        $form->{"discount_$i"}  / 100 / $price_factor, 2);
-    $linetotal      = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
+    my $price_factor   = $price_factors{$form->{"price_factor_id_$i"}} || 1;
+    my $discount       = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} *        $form->{"discount_$i"}  / 100 / $price_factor, 2);
+    my $linetotal      = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} * (100 - $form->{"discount_$i"}) / 100 / $price_factor, 2);
+    my $rows            = $form->numtextrows($form->{"description_$i"}, 30, 6);
 
     $column_data{runningnumber} = $cgi->textfield(-name => "runningnumber_$i", -size => 5,  -value => $i);    # HuT
     $column_data{partnumber}    = $cgi->textfield(-name => "partnumber_$i",    -size => 12, -value => $form->{"partnumber_$i"});
-    $column_data{description} = ((($rows = $form->numtextrows($form->{"description_$i"}, 30, 6)) > 1) # if description is too large, use a textbox instead
+    $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
                                 ? $cgi->textarea( -name => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
                                 : $cgi->textfield(-name => "description_$i",   -size => 30, -value => $form->{"description_$i"}))
                                 . $cgi->button(-value => $locale->text('L'), -onClick => "set_longdescription_window('longdescription_$i')");
@@ -385,43 +395,53 @@ sub display_row {
     $form->{marge_percent} = ($form->{sellprice_total} - $form->{lastcost_total}) / $form->{sellprice_total} * 100;
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 ##################################################
 # build html-code for pricegroups in variable $form->{prices_$j}
 
 sub set_pricegroup {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   _check_io_auth();
 
   my $rowcount = shift;
-  for $j (1 .. $rowcount) {
+  for my $j (1 .. $rowcount) {
     next unless $form->{PRICES}{$j};
     # build drop down list for pricegroups
     my $option_tmpl = qq|<option value="%s--%s" %s>%s</option>|;
     $form->{"prices_$j"}  = join '', map { sprintf $option_tmpl, @$_{qw(price pricegroup_id selected pricegroup)} }
                                          (+{ pricegroup => $locale->text("none (pricegroup)") }, @{ $form->{PRICES}{$j} });
 
-    foreach $item (@{ $form->{PRICES}{$j} }) {
+    foreach my $item (@{ $form->{PRICES}{$j} }) {
       # set new selectedpricegroup_id and prices for "Preis"
       $form->{"pricegroup_old_$j"} = $item->{pricegroup_id}   if $item->{selected} &&  $item->{pricegroup_id};
       $form->{"sellprice_$j"}      = $item->{price}           if $item->{selected} &&  $item->{pricegroup_id};
       $form->{"price_new_$j"}      = $form->{"sellprice_$j"}  if $item->{selected} || !$item->{pricegroup_id};
     }
   }
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub select_item {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
+
 # diese variable kommt schon in der methode display_row vor, kann man die besser wiederverwenden? @mb fragen.  ich check das jetzt erstmal so ein
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   _check_io_auth();
 
-  @column_index = qw(ndx partnumber description rop onhand unit sellprice);
-
+  my @column_index = qw(ndx partnumber description rop onhand unit sellprice);
+  my %column_data;
   $column_data{ndx}        = qq|<th>&nbsp;</th>|;
   $column_data{partnumber} =
     qq|<th class="listheading">| . $locale->text('Number') . qq|</th>|;
@@ -440,8 +460,8 @@ sub select_item {
   # list items with radio button on a form
   $form->header;
 
-  $title   = $locale->text('Select from one of the items below');
-  $colspan = $#column_index + 1;
+  my $title   = $locale->text('Select from one of the items below');
+  my $colspan = $#column_index + 1;
 
   print qq|
   <body>
@@ -463,17 +483,18 @@ sub select_item {
     qw(bin listprice inventory_accno income_accno expense_accno unit weight
        assembly taxaccounts partsgroup formel longdescription not_discountable
        part_payment_id partnotes id lastcost price_factor_id price_factor);
-  push @new_fields, "lizenzen" if ($lizenzen);
+  push @new_fields, "lizenzen" if ($main::lizenzen);
   push @new_fields, grep { m/^ic_cvar_/ } keys %{ $form->{item_list}->[0] };
 
   my $i = 0;
-  foreach $ref (@{ $form->{item_list} }) {
-    $checked = ($i++) ? "" : "checked";
+  my $j;
+  foreach my $ref (@{ $form->{item_list} }) {
+    my $checked = ($i++) ? "" : "checked";
 
-    if ($lizenzen) {
+    if ($main::lizenzen) {
       if ($ref->{inventory_accno} > 0) {
         $ref->{"lizenzen"} = qq|<option></option>|;
-        foreach $item (@{ $form->{LIZENZEN}{ $ref->{"id"} } }) {
+        foreach my $item (@{ $form->{LIZENZEN}{ $ref->{"id"} } }) {
           $ref->{"lizenzen"} .=
             qq|<option value=\"$item->{"id"}\">$item->{"licensenumber"}</option>|;
         }
@@ -535,7 +556,7 @@ sub select_item {
   map { delete $form->{$_} } qw(action item_list header);
 
   # save all other form variables
-  foreach $key (keys %${form}) {
+  foreach my $key (keys %${form}) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input name="$key" type="hidden" value="$form->{$key}">\n|;
@@ -553,27 +574,30 @@ sub select_item {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub item_selected {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
   # replace the last row with the checked row
-  $i = $form->{rowcount};
+  my $i = $form->{rowcount};
   $i = $form->{assembly_rows} if ($form->{item} eq 'assembly');
 
   # index for new item
-  $j = $form->{ndx};
+  my $j = $form->{ndx};
 
   #sk
   #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
   #$form->{"sellprice_$i"} = $form->{"sellprice_$i"};
 
   # if there was a price entered, override it
-  $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
+  my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
   my @new_fields =
     qw(id partnumber description sellprice listprice inventory_accno
@@ -592,13 +616,13 @@ sub item_selected {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }
 
-  if ($lizenzen) {
+  if ($main::lizenzen) {
     map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } qw(lizenzen);
   }
 
-  ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+  my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
   $dec           = length $dec;
-  $decimalplaces = ($dec > 2) ? $dec : 2;
+  my $decimalplaces = ($dec > 2) ? $dec : 2;
 
   if ($sellprice) {
     $form->{"sellprice_$i"} = $sellprice;
@@ -622,7 +646,7 @@ sub item_selected {
     $form->{"discount_$i"} = 0;
   }
 
-  $amount =
+  my $amount =
     $form->{"sellprice_$i"} * (1 - $form->{"discount_$i"} / 100) *
     $form->{"qty_$i"};
   map { $form->{"${_}_base"} += $amount }
@@ -656,11 +680,14 @@ sub item_selected {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub new_item {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
@@ -673,6 +700,7 @@ sub new_item {
   # save all form variables except action in a previousform variable
   my $previousform = join '&', map { my $value = $form->{$_}; $value =~ s/&/%26/; "$_=$value" } grep { !/action/ } keys %$form;
 
+  my @HIDDENS;
   push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit);
@@ -683,11 +711,14 @@ sub new_item {
   $form->header();
   print $form->parse_html_template("generic/new_item", { HIDDENS => [ sort { $a->{name} cmp $b->{name} } @HIDDENS ] } );
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub check_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
@@ -759,7 +790,7 @@ sub check_form {
 
           map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
           $count++;
-          if ($lizenzen) {
+          if ($main::lizenzen) {
             if ($form->{"licensenumber_$i"} == -1) {
               &new_license($i);
               exit;
@@ -793,11 +824,14 @@ sub check_form {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub invoicetotal {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
@@ -826,18 +860,21 @@ sub invoicetotal {
     if !$form->{taxincluded};
 
   $form->{oldtotalpaid} = 0;
-  for $i (1 .. $form->{paidaccounts}) {
+  for my $i (1 .. $form->{paidaccounts}) {
     $form->{oldtotalpaid} += $form->{"paid_$i"};
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 
   # return total
   return ($form->{oldinvtotal} - $form->{oldtotalpaid});
 }
 
 sub validate_items {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
@@ -847,16 +884,20 @@ sub validate_items {
     exit;
   }
 
-  for $i (1 .. $form->{rowcount} - 1) {
+  for my $i (1 .. $form->{rowcount} - 1) {
     $form->isblank("partnumber_$i",
                    $locale->text('Number missing in Row') . " $i");
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub order {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
@@ -869,6 +910,7 @@ sub order {
   $form->{old_salesman_id} = $form->{salesman_id};
 
   map { delete $form->{$_} } qw(id printed emailed queued);
+  my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'request_quotation') {
     $form->{title} = $locale->text('Add Purchase Order');
     $form->{vc}    = 'vendor';
@@ -893,11 +935,11 @@ sub order {
   my $script = $form->{"script"};
   $script =~ s|.*/||;
   $script =~ s|.pl$||;
-  $locale = new Locale($language, $script);
+  $locale = new Locale($main::language, $script);
 
   map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
-  $currency = $form->{currency};
+  my $currency = $form->{currency};
 
   &order_links;
 
@@ -905,7 +947,7 @@ sub order {
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
   $form->{exchangerate} = $form->{forex} || '';
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
         qw(ship qty sellprice listprice basefactor discount));
@@ -914,11 +956,15 @@ sub order {
   &prepare_order;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub quotation {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
@@ -927,6 +973,7 @@ sub quotation {
   }
   map { delete $form->{$_} } qw(id printed emailed queued);
 
+  my $buysell;
   if ($form->{script} eq 'ir.pl' || $form->{type} eq 'purchase_order') {
     $form->{title} = $locale->text('Add Request for Quotation');
     $form->{vc}    = 'vendor';
@@ -952,7 +999,7 @@ sub quotation {
 
   map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
-  $currency = $form->{currency};
+  my $currency = $form->{currency};
 
   &order_links;
 
@@ -960,7 +1007,7 @@ sub quotation {
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, $buysell);
   $form->{exchangerate} = $form->{forex} || '';
 
-  for $i (1 .. $form->{rowcount}) {
+  for my $i (1 .. $form->{rowcount}) {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
                                                      $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
@@ -970,7 +1017,7 @@ sub quotation {
   &prepare_order;
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub request_for_quotation {
@@ -978,7 +1025,11 @@ sub request_for_quotation {
 }
 
 sub edit_e_mail {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
@@ -994,7 +1045,7 @@ sub edit_e_mail {
     $form->{"email"} = $form->{"cp_email"};
   }
 
-  $title = $locale->text('E-mail') . " " . $form->get_formname_translation();
+  my $title = $locale->text('E-mail') . " " . $form->get_formname_translation();
 
   $form->{oldmedia} = $form->{media};
   $form->{media}    = "email";
@@ -1018,11 +1069,14 @@ sub edit_e_mail {
                                      HIDDEN        => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
                                      SHOW_BCC      => $myconfig{role} eq 'admin' });
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub send_email {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
@@ -1036,7 +1090,7 @@ sub send_email {
   $form->{callback} = $callback;
   $form->redirect();
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # generate the printing options displayed at the bottom of oe and is forms.
@@ -1049,7 +1103,11 @@ sub send_email {
 #
 # the inline options is untested, but intended to be used later in metatemplating
 sub print_options {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
@@ -1057,7 +1115,7 @@ sub print_options {
 
   # names 3 parameters and returns a hashref, for use in templates
   sub opthash { +{ value => shift, selected => shift, oname => shift } }
-  (@FORMNAME, @FORMNAME, @LANGUAGE_ID, @FORMAT, @SENDMODE, @MEDIA, @PRINTER_ID, @SELECTS) = ();
+  my (@FORMNAME, @LANGUAGE_ID, @FORMAT, @SENDMODE, @MEDIA, @PRINTER_ID, @SELECTS) = ();
 
   # note: "||"-selection is only correct for values where "0" is _not_ a correct entry
   $form->{sendmode}   = "attachment";
@@ -1107,23 +1165,24 @@ sub print_options {
 
   push @MEDIA, grep $_,
       opthash("screen",              $form->{OP}{screen},              $locale->text('Screen')),
-    (scalar @{ $form->{printers} } && $latex_templates) ?
+    (scalar @{ $form->{printers} } && $main::latex_templates) ?
       opthash("printer",             $form->{OP}{printer},             $locale->text('Printer')) : undef,
-    ($latex_templates && !$options{no_queue}) ?
+    ($main::latex_templates && !$options{no_queue}) ?
       opthash("queue",               $form->{OP}{queue},               $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
   push @FORMAT, grep $_,
-    ($opendocument_templates && $openofficeorg_writer_bin && $xvfb_bin && (-x $openofficeorg_writer_bin) && (-x $xvfb_bin)
+    ($main::opendocument_templates &&     $main::openofficeorg_writer_bin  &&     $main::xvfb_bin
+                                   && (-x $main::openofficeorg_writer_bin) && (-x $main::xvfb_bin)
      && !$options{no_opendocument_pdf}) ?
       opthash("opendocument_pdf",    $form->{DF}{"opendocument_pdf"},  $locale->text("PDF (OpenDocument/OASIS)")) : undef,
-    ($latex_templates) ?
+    ($main::latex_templates) ?
       opthash("pdf",                 $form->{DF}{pdf},                 $locale->text('PDF')) : undef,
-    ($latex_templates && !$options{no_postscript}) ?
+    ($main::latex_templates && !$options{no_postscript}) ?
       opthash("postscript",          $form->{DF}{postscript},          $locale->text('Postscript')) : undef,
     (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
-    ($opendocument_templates && !$options{no_opendocument}) ?
+    ($main::opendocument_templates && !$options{no_opendocument}) ?
       opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef;
 
   push @LANGUAGE_ID,
@@ -1134,14 +1193,17 @@ sub print_options {
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
       if ((ref $form->{printers} eq 'ARRAY') && scalar @{ $form->{printers } });
 
-  @SELECTS = map { sname => lc $_, DATA => \@$_, show => !$options{"hide_" . lc($_)} && scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
+  {
+    no strict 'refs';
+    @SELECTS = map { sname => lc $_, DATA => \@$_, show => !$options{"hide_" . lc($_)} && scalar @$_ }, qw(FORMNAME LANGUAGE_ID FORMAT SENDMODE MEDIA PRINTER_ID);
+  }
 
   my %dont_display_groupitems = (
     'dunning' => 1,
     );
 
-  %template_vars = (
-    display_copies       => scalar @{ $form->{printers} } && $latex_templates && $form->{media} ne 'email',
+  my %template_vars = (
+    display_copies       => scalar @{ $form->{printers} } && $main::latex_templates && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
     groupitems_checked   => $form->{groupitems} ? "checked" : '',
@@ -1151,27 +1213,31 @@ sub print_options {
   my $print_options = $form->parse_html_template("generic/print_options", { SELECTS  => \@SELECTS, %template_vars } );
 
   if ($options{inline}) {
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return $print_options;
   }
 
   print $print_options;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
   if ($form->{print_nextsub}) {
     call_sub($form->{print_nextsub});
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
   # if this goes to the printer pass through
+  my $old_form;
   if ($form->{media} eq 'printer' || $form->{media} eq 'queue') {
     $form->error($locale->text('Select postscript or PDF!'))
       if ($form->{format} !~ /(postscript|pdf)/);
@@ -1194,21 +1260,26 @@ sub print {
 
   &print_form($old_form);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub print_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
   _check_io_auth();
 
   my ($old_form) = @_;
 
-  $inv       = "inv";
-  $due       = "due";
-  $numberfld = "invnumber";
+  my $inv       = "inv";
+  my $due       = "due";
+  my $numberfld = "invnumber";
+  my $order;
 
-  $display_form =
+  my $display_form =
     ($form->{display_form}) ? $form->{display_form} : "display_form";
 
   # $form->{"notes"} will be overridden by the customer's/vendor's "notes" field. So save it here.
@@ -1361,10 +1432,10 @@ sub print_form {
   my ($saved_email, $saved_cc, $saved_bcc) =
     ($form->{"email"}, $form->{"cc"}, $form->{"bcc"});
 
-  $language_saved = $form->{language_id};
-  $payment_id_saved = $form->{payment_id};
-  $salesman_id_saved = $form->{salesman_id};
-  $cp_id_saved = $form->{cp_id};
+  my $language_saved = $form->{language_id};
+  my $payment_id_saved = $form->{payment_id};
+  my $salesman_id_saved = $form->{salesman_id};
+  my $cp_id_saved = $form->{cp_id};
 
   call_sub("$form->{vc}_details") if ($form->{vc});
 
@@ -1410,12 +1481,12 @@ sub print_form {
     $form->get_shipto(\%myconfig);
   }
 
-  @a = qw(name street zipcode city country contact);
+  my @a = qw(name street zipcode city country contact);
 
-  $shipto = 1;
+  my $shipto = 1;
 
   # if there is no shipto fill it in from billto
-  foreach $item (@a) {
+  foreach my $item (@a) {
     if ($form->{"shipto$item"}) {
       $shipto = 0;
       last;
@@ -1527,7 +1598,7 @@ sub print_form {
     $form->{printed} .= " $form->{formname}";
     $form->{printed} =~ s/^ //;
   }
-  $printed = $form->{printed};
+  my $printed = $form->{printed};
 
   if ($form->{media} eq 'email') {
     $form->{subject} = qq|$form->{label} $form->{"${inv}number"}|
@@ -1536,14 +1607,15 @@ sub print_form {
     $form->{emailed} .= " $form->{formname}";
     $form->{emailed} =~ s/^ //;
   }
-  $emailed = $form->{emailed};
+  my $emailed = $form->{emailed};
 
   if ($form->{media} eq 'queue') {
-    %queued = map { s|.*/|| } split / /, $form->{queued};
+    my %queued = map { s|.*/|| } split / /, $form->{queued};
 
+    my $filename;
     if ($filename = $queued{ $form->{formname} }) {
       $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
-      unlink "$spool/$filename";
+      unlink "$main::spool/$filename";
       $filename =~ s/\..*$//g;
     } else {
       $filename = time;
@@ -1551,14 +1623,14 @@ sub print_form {
     }
 
     $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{OUT} = ">$spool/$filename";
+    $form->{OUT} = ">$main::spool/$filename";
 
     # add type
     $form->{queued} .= " $form->{formname} $filename";
 
     $form->{queued} =~ s/^ //;
   }
-  $queued = $form->{queued};
+  my $queued = $form->{queued};
 
 # saving the history
   if(!exists $form->{addition}) {
@@ -1579,14 +1651,14 @@ sub print_form {
   }
   # /saving the history
 
-  $form->parse_template(\%myconfig, $userspath);
+  $form->parse_template(\%myconfig, $main::userspath);
 
   $form->{callback} = "";
 
   if ($form->{media} eq 'email') {
     $form->{message} = $locale->text('sent') unless $form->{message};
   }
-  $message = $form->{message};
+  my $message = $form->{message};
 
   # if we got back here restore the previous form
   if ($form->{media} =~ /(printer|email|queue)/) {
@@ -1594,7 +1666,7 @@ sub print_form {
     $form->update_status(\%myconfig)
       if ($form->{media} eq 'queue' && $form->{id});
 
-    return $lxdebug->leave_sub() if ($old_form eq "return");
+    return $main::lxdebug->leave_sub() if ($old_form eq "return");
 
     if ($old_form) {
 
@@ -1612,7 +1684,7 @@ sub print_form {
       map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
         qw(exchangerate creditlimit creditremaining);
 
-      for $i (1 .. $form->{paidaccounts}) {
+      for my $i (1 .. $form->{paidaccounts}) {
         map {
           $form->{"${_}_$i"} =
             $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
@@ -1623,7 +1695,7 @@ sub print_form {
       exit;
     }
 
-    $msg =
+    my $msg =
       ($form->{media} eq 'printer')
       ? $locale->text('sent to printer')
       : $locale->text('emailed to') . " $form->{email}";
@@ -1634,27 +1706,35 @@ sub print_form {
    exit;
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub customer_details {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   IS->customer_details(\%myconfig, \%$form, @_);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub vendor_details {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   IR->vendor_details(\%myconfig, \%$form, @_);
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub post_as_new {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   _check_io_auth();
 
@@ -1663,11 +1743,16 @@ sub post_as_new {
 
   &post;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub ship_to {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $cgi      = $main::cgi;
 
   _check_io_auth();
 
@@ -1675,7 +1760,7 @@ sub ship_to {
     $form->{print_and_post} = 0;
   }
 
-  $title = $form->{title};
+  my $title = $form->{title};
   $form->{title} = $locale->text('Ship to');
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
@@ -1693,7 +1778,7 @@ sub ship_to {
   # get details for name
   call_sub("$form->{vc}_details", @addr_vars);
 
-  $number =
+  my $number =
     ($form->{vc} eq 'customer')
     ? $locale->text('Customer Number')
     : $locale->text('Vendor Number');
@@ -1704,7 +1789,7 @@ sub ship_to {
   # build up html code for prices_$i
   set_pricegroup($form->{rowcount});
 
-  $nextsub = ($form->{display_form}) ? $form->{display_form} : "display_form";
+  my $nextsub = ($form->{display_form}) ? $form->{display_form} : "display_form";
 
   $form->{rowcount}--;
 
@@ -1798,7 +1883,7 @@ sub ship_to {
   map({ delete $form->{$_} } (@shipto_vars, qw(header)));
   $form->{title} = $title;
 
-  foreach $key (keys %$form) {
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
     $form->{$key} =~ s/\"/&quot;/g;
     print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
@@ -1817,11 +1902,13 @@ sub ship_to {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub new_license {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   _check_io_auth();
 
@@ -1834,12 +1921,13 @@ sub new_license {
 
   # delete action
   delete $form->{action};
-  $customer = $form->{customer};
+  my $customer = $form->{customer};
   map { $form->{"old_$_"} = $form->{"${_}_$row"} } qw(partnumber description);
 
   # save all other form variables in a previousform variable
   $form->{row} = $row;
-  foreach $key (keys %$form) {
+  my $previousform;
+  foreach my $key (keys %$form) {
     next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
 
     # escape ampersands
@@ -1851,6 +1939,8 @@ sub new_license {
 
   $form->{script} = "licenses.pl";
 
+  our $name;
+
   map { $form->{$_} = $form->{"old_$_"} } qw(partnumber description);
   map { $form->{$_} = $form->escape($form->{$_}, 1) }
     qw(partnumber description);
@@ -1858,11 +1948,14 @@ sub new_license {
     qq|$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
   $form->redirect;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub relink_accounts {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
@@ -1879,11 +1972,14 @@ sub relink_accounts {
     }
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub set_duedate {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   _check_io_auth();
 
@@ -1892,11 +1988,13 @@ sub set_duedate {
 
   print $form->ajax_response_header() . $duedate;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _update_part_information {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my %part_information = IC->get_basic_part_info('id'        => [ grep { $_ } map { $form->{"id_${_}"} } (1..$form->{rowcount}) ],
                                                  'vendor_id' => $form->{vendor_id});
@@ -1910,19 +2008,22 @@ sub _update_part_information {
     $form->{"partunit_${i}"} = $info->{unit};
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _update_ship {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   if (!$form->{ordnumber} || !$form->{id}) {
     map { $form->{"ship_$_"} = 0 } (1..$form->{rowcount});
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
-  AM->retrieve_all_units();
+  my $all_units = AM->retrieve_all_units();
 
   my %ship = DO->get_shipped_qty('type'  => ($form->{type} eq 'purchase_order') ? 'purchase' : 'sales',
                                  'oe_id' => $form->{id},);
@@ -1956,25 +2057,29 @@ sub _update_ship {
     $ship_entry->{qty}  = 0;
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _update_custom_variables {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   $form->{CVAR_CONFIGS}       ||= { };
   $form->{CVAR_CONFIGS}->{IC}   = CVar->get_configs(module => 'IC');
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub _render_custom_variables_inputs {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
 
   my %params = @_;
 
   if (!$form->{CVAR_CONFIGS}->{IC}) {
-    $lxdebug->leave_sub();
+    $main::lxdebug->leave_sub();
     return;
   }
 
@@ -2004,5 +2109,5 @@ sub _render_custom_variables_inputs {
                              };
   }
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
