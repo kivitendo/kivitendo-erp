@@ -35,18 +35,24 @@ use SL::RC;
 
 require "bin/mozilla/common.pl";
 
+use strict;
+
 1;
 
 # end of main
 
 sub reconciliation {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('cash');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('cash');
 
   RC->paymentaccounts(\%myconfig, \%$form);
 
-  $selection = "";
+  my $selection = "";
   map { $selection .= "<option>$_->{accno}--$_->{description}\n" }
     @{ $form->{PR} };
 
@@ -54,7 +60,7 @@ sub reconciliation {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{"jsscript"} = 1;
   $form->header;
-  $onload = qq|focus()|;
+  my $onload = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
 
   print qq|
@@ -107,15 +113,18 @@ sub reconciliation {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
-sub continue { call_sub($form->{"nextsub"}); }
+sub continue { call_sub($main::form->{"nextsub"}); }
 
 sub get_payments {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('cash');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('cash');
 
   ($form->{accno}, $form->{account}) = split /--/, $form->{accno};
 
@@ -123,16 +132,20 @@ sub get_payments {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub display_form {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('cash');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
-  @column_index = qw(cleared transdate source name credit debit balance);
+  $main::auth->assert('cash');
 
+  my @column_index = qw(cleared transdate source name credit debit balance);
+  my %column_header;
   $column_header{cleared} = "<th>&nbsp;</th>";
   $column_header{source}  =
     "<th class=listheading>" . $locale->text('Source') . "</a></th>";
@@ -156,6 +169,7 @@ sub display_form {
   $column_header{balance} =
     "<th class=listheading>" . $locale->text('Balance') . "</a></th>";
 
+  my $option;
   if ($form->{fromdate}) {
     $option .= "\n<br>" if ($option);
     $option .=
@@ -198,18 +212,20 @@ sub display_form {
         </tr>
 |;
 
-  $ml = ($form->{category} eq 'A') ? -1 : 1;
+  my $ml = ($form->{category} eq 'A') ? -1 : 1;
   $form->{beginningbalance} *= $ml;
-  $clearedbalance = $balance = $form->{beginningbalance};
-  $i              = 0;
-  $id             = 0;
+  my $balance        = $form->{beginningbalance};
+  my $clearedbalance = $balance;
+  my $i              = 0;
+  my $id             = 0;
 
+  my %column_data;
   map { $column_data{$_} = "<td>&nbsp;</td>" }
     qw(cleared transdate source name debit credit);
   $column_data{balance} =
     "<td align=right>"
     . $form->format_amount(\%myconfig, $balance, 2, 0) . "</td>";
-  $j = 0;
+  my $j = 0;
   print qq|
 	<tr class=listrow$j>
 |;
@@ -220,7 +236,12 @@ sub display_form {
 	</tr>
 |;
 
-  foreach $ref (@{ $form->{PR} }) {
+  my $cleared;
+  my $totaldebits;
+  my $totalcredits;
+  my $fx_transaction;
+  my $fx;
+  foreach my $ref (@{ $form->{PR} }) {
 
     $balance += $ref->{amount} * $ml;
     $cleared += $ref->{amount} * $ml if $ref->{cleared};
@@ -300,7 +321,7 @@ sub display_form {
 
   $form->{statementbalance} =
     $form->parse_amount(\%myconfig, $form->{statementbalance});
-  $difference =
+  my $difference =
     $form->format_amount(\%myconfig,
                         $form->{statementbalance} - $clearedbalance - $cleared,
                         2, 0);
@@ -310,6 +331,7 @@ sub display_form {
 
   $clearedbalance = $form->format_amount(\%myconfig, $clearedbalance, 2, 0);
 
+  my $exchdiff;
   if ($fx) {
     $fx       = $form->format_amount(\%myconfig, $fx, 2, 0);
     $exchdiff = qq|
@@ -386,17 +408,21 @@ sub display_form {
 </html>
 |;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub update {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('cash');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('cash');
 
   RC->payment_transactions(\%myconfig, \%$form);
 
-  foreach $ref (@{ $form->{PR} }) {
+  my $i;
+  foreach my $ref (@{ $form->{PR} }) {
     if (!$ref->{fx_transaction}) {
       $i++;
       $ref->{cleared} = ($form->{"cleared_$i"}) ? "checked" : "";
@@ -405,13 +431,16 @@ sub update {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub select_all {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('cash');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $main::auth->assert('cash');
 
   RC->payment_transactions(\%myconfig, \%$form);
 
@@ -420,13 +449,17 @@ sub select_all {
 
   &display_form;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 sub done {
-  $lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
-  $auth->assert('cash');
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $main::auth->assert('cash');
 
   $form->{callback} = "$form->{script}?action=reconciliation";
 
@@ -435,6 +468,6 @@ sub done {
   RC->reconcile(\%myconfig, \%$form);
   $form->redirect;
 
-  $lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
