@@ -36,19 +36,27 @@
 #  2007-10-14 - XMLified  - Holger Will  <holger@treebuilder.de>
 #######################################################################
 
-$menufile = "menu.ini";
+my $menufile = "menu.ini";
 use SL::Menu;
 
 use CGI::Carp qw(fatalsToBrowser);
 use Encode;
 use URI;
+
+use strict;
+
+my $locale;
+
 1;
 
 # end of main
 
 sub display {
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
   $locale     = Locale->new($myconfig{countrycode}, "menu");
-  my $charset = $dbcharset || 'ISO-8859-1';
+  my $charset = $main::dbcharset || 'ISO-8859-1';
   my $callback            = $form->unescape($form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
@@ -89,7 +97,9 @@ sub display {
 
 
 sub acc_menu {
-  $mainlevel = $form->{level};
+  my $form     = $main::form;
+
+  my $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
 
@@ -101,6 +111,9 @@ sub acc_menu {
 sub print_menu {
   my ($menu, $parent, $depth) = @_;
   my $html;
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
 
   die if ($depth * 1 > 5);
 
