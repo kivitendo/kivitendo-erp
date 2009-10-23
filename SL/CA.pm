@@ -304,7 +304,7 @@ sub all_transactions {
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
       qq| AND a.vendor_id = v.id | .
-      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)| .
+      qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
     push(@values,
          @where_values, @department_values, @project_values, $id,
          @where_values, @department_values, @project_values, $id,
