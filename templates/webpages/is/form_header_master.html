@@ -115,14 +115,14 @@
                  label_key  = 'description' -%]
           </td>
         </tr>
-[%- IF ALL_DEPARTMENTS %]
+[%- IF all_departments %]
         <tr>
           <th align="right" nowrap><translate>Department</translate></th>
           <td colspan="3">
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'department_id',
                  style      = 'width: 250px',
-                 DATA       = ALL_DEPARTMENTS,
+                 DATA       = all_departments,
                  id_key     = 'id',
                  label_sub  = 'department_labels',
                  show_empty = 1 -%]
