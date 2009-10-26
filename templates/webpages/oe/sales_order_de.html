@@ -25,6 +25,15 @@
      </td></tr>
    [% END %]
 
+ <!--  <script type='text/javascript'>
+     $(document).ready( $('[name^="description_"]').autocomplete("ic.pl?action=ajax_autocomplete&INPUT_ENCODING=UTF8") );
+   </script> -->
+
   </table>
  </td>
 </tr>
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ic.pl', column => 'description', selector => '[name^="description_"]' },
+  { script => 'ic.pl', column => 'partnumber',  selector => '[name^="partnumber_"]'  },
+]
+%]

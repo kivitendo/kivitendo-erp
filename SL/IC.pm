@@ -1060,6 +1060,8 @@ sub all_parts {
   }
 
   $main::lxdebug->leave_sub();
+
+  return wantarray ? @{ $form->{parts} } : $form->{parts};
 }
 
 sub _create_filter_for_priceupdate {

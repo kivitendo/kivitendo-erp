@@ -2010,4 +2010,23 @@ sub parts_language_selection {
   $lxdebug->leave_sub();
 }
 
+sub ajax_autocomplete {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $form->{column}        ||= 'description';
+  $form->{$form->{column}} = $form->{q}           || '';
+  $form->{limit}           = ($form->{limit} * 1) || 10;
+  $form->{searchitems}   ||= '';
+
+  my @results = IC->all_parts(\%myconfig, $form);
+
+  print $form->ajax_response_header(),
+        $form->parse_html_template('ic/ajax_autocomplete');
+
+  $main::lxdebug->leave_sub();
+}
+
 sub continue { call_sub($form->{"nextsub"}); }

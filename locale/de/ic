@@ -357,6 +357,7 @@ $self->{subs} = {
   '_update_ship'                => '_update_ship',
   'add'                         => 'add',
   'addtop100'                   => 'addtop100',
+  'ajax_autocomplete'           => 'ajax_autocomplete',
   'ap_transaction'              => 'ap_transaction',
   'ar_transaction'              => 'ar_transaction',
   'assembly_row'                => 'assembly_row',
