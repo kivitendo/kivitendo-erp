@@ -385,17 +385,19 @@ sub form_footer {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
 
   $main::auth->assert('invoice_edit');
 
-  $form->{invtotal} = $form->{invsubtotal};
+  $form->{invtotal}    = $form->{invsubtotal};
+  $form->{oldinvtotal} = $form->{invtotal};
 
-  my ($rows, $introws);
-  if (($rows    = $form->numtextrows($form->{notes}, 26, 8)) < 2)    { $rows    = 2; }
-  if (($introws = $form->numtextrows($form->{intnotes}, 35, 8)) < 2) { $introws = 2; }
-  $form->{rows} = ($rows > $introws) ? $rows : $introws;
+  # note rows
+  $form->{rows} = max 2,
+    $form->numtextrows($form->{notes},    26, 8),
+    $form->numtextrows($form->{intnotes}, 35, 8);
 
+
+  # tax, total and subtotal calculations
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
 
@@ -412,8 +414,6 @@ sub form_footer {
     }
   }
 
-  $form->{oldinvtotal} = $form->{invtotal};
-
   # unfortunately locales doesn't support extended syntax
   if ($form->{id}) {
     my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
@@ -424,25 +424,26 @@ sub form_footer {
     }
   }
 
-
-# payments
+  # payments
   my $totalpaid = 0;
-
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   $form->{paid_indices} = [ 1 .. $form->{paidaccounts} ];
 
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
     $form->{"selectAR_paid_$i"} =~ s/option>\Q$form->{"AR_paid_$i"}\E/option selected>$form->{"AR_paid_$i"}/;
-
-    # format amounts
     $totalpaid += $form->{"paid_$i"};
   }
 
-  $form->{print_options} = print_options(inline => 1);
-
-  print $form->parse_html_template('is/form_footer');
-# print $form->parse_html_template('is/_payments'); # parser
+  print $form->parse_html_template('is/form_footer', {
+    is_type_credit_note => ($form->{type} eq "credit_note"),
+    totalpaid           => $totalpaid,
+    paid_missing        => $form->{invtotal} - $totalpaid,
+    print_options       => print_options(inline => 1),
+    show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ar") && !$totalpaid,
+    show_delete         => ($form->current_date(\%myconfig) eq $form->{gldate}),
+  });
+##print $form->parse_html_template('is/_payments'); # parser
 
 
 
