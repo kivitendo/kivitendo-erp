@@ -397,73 +397,60 @@ sub form_footer {
   $form->{rows} = ($rows > $introws) ? $rows : $introws;
 
   my ($tax, $subtotal);
-  if (!$form->{taxincluded}) {
+  $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
 
-    foreach my $item (split / /, $form->{taxaccounts}) {
-      if ($form->{"${item}_base"}) {
+  foreach my $item (@{ $form->{taxaccounts_array} }) {
+    if ($form->{"${item}_base"}) {
+      if ($form->{taxincluded}) {
+        $form->{"${item}_total"} = $form->round_amount( ($form->{"${item}_base"} * $form->{"${item}_rate"}
+                                                                                 / (1 + $form->{"${item}_rate"})), 2);
+        $form->{"${item}_netto"} = $form->round_amount( ($form->{"${item}_base"} - $form->{"${item}_total"}), 2);
+      } else {
         $form->{"${item}_total"} = $form->round_amount( $form->{"${item}_base"} * $form->{"${item}_rate"}, 2);
         $form->{invtotal} += $form->{"${item}_total"};
-        $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
-
-        $tax .= qq|
-	      <tr>
-                <th align="right">$form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
-                <td align="right">$form->{"${item}_total"}</td>
-	      </tr> |;
       }
     }
-
-#    $form->{invsubtotal} = $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0);
-
-    $subtotal = qq|
-	      <tr>
-		<th align="right">| . $locale->text('Subtotal') . qq|</th>
-		<td align="right">$form->{invsubtotal}</td>
-	      </tr>
-|;
-
-  }
-
-  if ($form->{taxincluded}) {
-    $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
-    foreach my $item (split / /, $form->{taxaccounts}) {
-      if ($form->{"${item}_base"}) {
-        $form->{"${item}_total"} = $form->round_amount( ($form->{"${item}_base"} * $form->{"${item}_rate"} / (1 + $form->{"${item}_rate"})), 2);
-        $form->{"${item}_netto"} = $form->round_amount( ($form->{"${item}_base"} - $form->{"${item}_total"}), 2);
-        $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
-        $form->{"${item}_netto"} = $form->format_amount(\%myconfig, $form->{"${item}_netto"}, 2);
-
-#        $tax .= qq|
-#	      <tr>
-#		<th align="right">Enthaltene $form->{"${item}_description"}&nbsp;|
-#		                    . $form->{"${item}_rate"} * 100 .qq|%</th>
-#		<td align="right">$form->{"${item}_total"}</td>
-#	      </tr>
-#	      <tr>
-#	        <th align="right">Nettobetrag</th>
-#		<td align="right">$form->{"${item}_netto"}</td>
-#	      </tr>
-#|;
-      }
-    }
-
   }
 
   $form->{oldinvtotal} = $form->{invtotal};
-#  $form->{invtotal}    = $form->format_amount(\%myconfig, $form->{invtotal}, 2, 0);
 
   # unfortunately locales doesn't support extended syntax
   if ($form->{id}) {
     my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
     if (@{ $follow_ups} ) {
-      $form->{follow_ups_text} = $locale->text("There are #1 unfinished follow-ups of which #2 are due.",
-                                               scalar @{ $follow_ups },
+      $form->{follow_up_text} = $locale->text("There are #1 unfinished follow-ups of which #2 are due.",
+                                               scalar(@{ $follow_ups }),
                                                sum map { $_->{due} * 1 } @{ $follow_ups });
     }
   }
 
 
+# payments
+  my $totalpaid = 0;
+
+  $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
+  $form->{paid_indices} = [ 1 .. $form->{paidaccounts} ];
+
+  for my $i (1 .. $form->{paidaccounts}) {
+    $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
+    $form->{"selectAR_paid_$i"} =~ s/option>\Q$form->{"AR_paid_$i"}\E/option selected>$form->{"AR_paid_$i"}/;
+
+    # format amounts
+    $totalpaid += $form->{"paid_$i"};
+    if ($form->{"paid_$i"}) {
+      $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    }
+    $form->{"exchangerate_$i"} = $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
+    $form->{"exchangerate_$i"} ||= "";
+  }
+
+
+  $form->{print_options} = print_options(inline => 1);
+
   print $form->parse_html_template('is/form_footer');
+# print $form->parse_html_template('is/_payments'); # parser
+
+
 
 #  print qq|
 #  <tr>

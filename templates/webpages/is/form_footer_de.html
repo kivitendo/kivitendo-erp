@@ -58,22 +58,30 @@
   [%- END %]
        <table>
 
-        $subtotal
+[%#- subtotal %]
+[%- UNLESS taxincluded %]
+        <tr>
+         <th align="right">Zwischensumme</th>
+         <td align="right">[% LxERP.format_amount(invsubtotal, 2) %]</td>
+       </tr>
+[%- END %]
 
 [%# tax %]
 [% FOREACH item = taxaccounts_array %]
-[% SET description_ref = item _ 'description' %]
-[% SET rate_ref        = item _ 'rate' %]
-[% SET total_ref       = item _ 'total' %]
-[% SET netto_ref       = item _ 'netto' %]
+[% SET description_ref = item _ '_description' %]
+[% SET rate_ref        = item _ '_rate' %]
+[% SET total_ref       = item _ '_total' %]
+[% SET netto_ref       = item _ '_netto' %]
        <tr>
-        <th align="right">Enthaltene [% $description_ref %]&nbsp;[% $rate_ref * 100 %]%</th>
-        <td align="right">[% $total_ref %]</td>
+        <th align="right">Enthaltene [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
+        <td align="right">[% LxERP.format_amount($total_ref, 2) %]</td>
        </tr>
+  [%- IF taxincluded %]
        <tr>
         <th align="right">Nettobetrag</th>
-        <td align="right">[% $netto_ref %]</td>
+        <td align="right">[% LxERP.format_amount($netto_ref, 2) %]</td>
        </tr>
+  [%- END %]
 [%- END %]
 
         <tr>
@@ -87,6 +95,7 @@
    </td>
   </tr>
 
+[%#--------------------------- WEB DAV BLOCK %]
 [%- IF webdav %]
   <tr>
    <td><hr size="3" noshade></td>
@@ -108,34 +117,24 @@
    </table>
   </tr>
 [% END %]
+[%#--------------------------- WEB DAV BLOCK %]
 
 
-  <tr>
-   <td>
-    <table width="100%">
-     <tr class="listheading">
-[% IF is_credit_note %]
-      <th colspan="6" class="listheading">Zahlungsausgänge</th>
-[% ELSE %]
-      <th colspan="6" class="listheading">Zahlungseingänge</th>
-[%- END %]
-     </tr>
+[% PROCESS 'is/_payments_de.html' %]
 
 
-[%# INCLUDE _payments %]
 
-
-    </td>
-  </tr>
   <tr>
     <td><hr size="3" noshade></td>
   </tr>
   <tr>
     <td>
-  [% print_options %]
+[% print_options %]
     </td>
   </tr>
-</table>
+ </table>
+
+
 
   [% IF id %]
 
@@ -156,14 +155,14 @@
     <input class="submit" type="submit" name="action" value="Löschen">
 [% END %]
 
-  [%- IF invdate > closedto %]
+  [%- UNLESS locked %]
        <input class="submit" type="submit" name="action" value="Auftrag">
   [%- END %]
 
     <input type="button" class="submit" onclick="follow_up_window()" value="Wiedervorlage">
 
  [% ELSE # no id %]
-   [% IF invdate > closedto %]
+   [% UNLESS locked %]
       <input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
       <input class="submit" type="submit" name="action" value="Lieferadresse">
       <input class="submit" type="submit" name="action" value="Druckvorschau">
