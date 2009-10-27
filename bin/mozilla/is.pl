@@ -437,13 +437,7 @@ sub form_footer {
 
     # format amounts
     $totalpaid += $form->{"paid_$i"};
-    if ($form->{"paid_$i"}) {
-      $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
-    }
-    $form->{"exchangerate_$i"} = $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
-    $form->{"exchangerate_$i"} ||= "";
   }
-
 
   $form->{print_options} = print_options(inline => 1);
 

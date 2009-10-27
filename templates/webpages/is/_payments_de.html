@@ -23,41 +23,44 @@
      </tr>
 
 
-[% paidaccounts %]
-
 [% FOREACH i = paid_indices %]
-[% SET row = {} %]
-  [% SET row.datepaid    = 'datepaid_'    _ i %]
-  [% SET row.source      = 'source_'      _ i %]
-  [% SET row.memo        = 'memo_'        _ i %]
-  [% SET row.paid        = 'paid_'        _ i %]
+  [% SET datepaid      = 'datepaid_'      _ i %]
+  [% SET source        = 'source_'        _ i %]
+  [% SET memo          = 'memo_'          _ i %]
+  [% SET paid          = 'paid_'          _ i %]
+  [% SET selectAR_paid_ref = 'selectAR_paid_' _ i %]
 
      <tr>
 
     <td align="center">
-      <input id="datepaid_[% i %]" name="datepaid_[% i %]" size="11" title="$myconfig{dateformat}" value="[% row.datepaid %]" onBlur=\"check_right_date_format(this)\">
+      <input id="datepaid_[% i %]" name="datepaid_[% i %]" size="11" title="[% dateformat %]" value="[% $datepaid %]">
       <input type="button" name="datepaid_[% i %]" id="trigger_datepaid_[% i %]" value="?">
      </td>
-     <td align=center><input name="source_[% i %]" size="11" value="[% row.source %]"></td>|;
-     <td align="center"><input name="memo_[% i %]" size="11" value="[% row.memo %]"></td>|;
-     <td align="center"><input name="paid_[% i %]" size="11" value="[% row.paid %]" onBlur=\"check_right_number_format(this)\"></td>|;
-     <td align="center">
+     <td align=center><input name="source_[% i %]" size="11" value="[% $source %]"></td>
+     <td align="center"><input name="memo_[% i %]" size="11" value="[% $memo %]"></td>
+     <td align="center"><input name="paid_[% i %]" size="11" value="[% LxERP.format_amount($paid, 2, 1) %]"></td>
 [% IF show_exchangerate %]
+     <td align="center">
   [% SET row.forex        = 'forex_'        _ i %]
   [% SET row.exchangerate = 'exchangerate_' _ i %]
   [% IF row.forex %]
-        <input type="hidden" name="exchangerate_[% i %]" value="[% row.exchangerate %]">
-        [% row.exchangerate | html %]
+        <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 2) %]">
+        [% LxERP.format_amount(row.exchangerate, 2) %]
   [% ELSE %]
-        <input name="exchangerate_[% i %]" size="10" value="[% row.exchangerate %]">
+        <input name="exchangerate_[% i %]" size="10" value="[% LxERP.format_amount($exchangerate, 2, 1) %]">
   [% END %]
-        <input type="hidden" name="forex_[% i %]" value="[% row.forex %]">;
-[% END %]
+        <input type="hidden" name="forex_[% i %]" value="[% $forex %]">;
      </td>
-     <td align="center"><select name="AR_paid_$i">$form->{"selectAR_paid_$i"}</select></td>|;
+[% END %]
+     <td align="center"><select name="AR_paid_$i">[% $selectAR_paid_ref %]</select></td>
 
     </tr>
 [%#     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i"); %]
+    <script type='text/javascript'>
+     Calendar.setup({ inputField : "datepaid_[% i %]", ifFormat :"[% myconfig_jsc_dateformat %]", align : "TR", button : "trigger_datepaid_[% i %]" });
+     $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
+     $('#datepaid_[% i %]').blur(function(){ check_right_date_format(this) });
+    </script>
 
 [% END # foreach %]
 
@@ -74,11 +77,11 @@
       <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
     </tr>
 
-  <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
-  <input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
-  <input type="hidden" name="oldinvtotal" value="[% rowcount %]">
+     <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
+     <input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
+     <input type="hidden" name="oldinvtotal" value="[% rowcount %]">
 
-  <input type="hidden" name="oldtotalpaid" value="$totalpaid">
+     <input type="hidden" name="oldtotalpaid" value="$totalpaid">
     </table>
 
     </td>
