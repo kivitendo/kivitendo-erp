@@ -642,6 +642,7 @@ sub setup_form {
     $j = 0;
     $k = 0;
 
+    next unless $form->{acc_trans}{$key};
     for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
 
       if ($key eq "AP_paid") {
