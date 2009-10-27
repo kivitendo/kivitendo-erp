@@ -1355,6 +1355,7 @@ $self->{texts} = {
   'Sat. Phone'                  => 'Sat. Tel.',
   'Satz %'                      => 'Satz %',
   'Save'                        => 'Speichern',
+  'Save Draft'                  => '',
   'Save account first to insert taxkeys' => 'Einstellungen sind nach
   dem Speichern des Kontos verfügbar...',
   'Save and AP Transaction'     => 'Speichern und Kreditorenbuchung erfassen',

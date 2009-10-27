@@ -1,0 +1,100 @@
+
+
+
+
+
+
+  my @column_index;
+  if ($form->{currency} eq $form->{defaultcurrency}) {
+    @column_index = qw(datepaid source memo paid AR_paid);
+  } else {
+    @column_index = qw(datepaid source memo paid exchangerate AR_paid);
+  }
+
+  my %column_data;
+  $column_data{datepaid}     = "<th>" . $locale->text('Date') . "</th>";
+  $column_data{paid}         = "<th>" . $locale->text('Amount') . "</th>";
+  $column_data{exchangerate} = "<th>" . $locale->text('Exch') . "</th>";
+  $column_data{AR_paid}      = "<th>" . $locale->text('Account') . "</th>";
+  $column_data{source}       = "<th>" . $locale->text('Source') . "</th>";
+  $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>";
+
+    <tr>
+
+  map { print "$column_data{$_}\n" } @column_index;
+
+        </tr>
+
+  my @triggers  = ();
+  my $totalpaid = 0;
+
+  $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
+
+
+
+  [% FOREACH i = 1 .. paidaccounts %]
+
+        <tr>
+
+
+    $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
+    $form->{"selectAR_paid_$i"} =~
+      s/option>\Q$form->{"AR_paid_$i"}\E/option selected>$form->{"AR_paid_$i"}/;
+
+    # format amounts
+    $totalpaid += $form->{"paid_$i"};
+    if ($form->{"paid_$i"}) {
+      $form->{"paid_$i"} = $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+    }
+    $form->{"exchangerate_$i"} = $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
+
+    if ($form->{"exchangerate_$i"} == 0) {
+      $form->{"exchangerate_$i"} = "";
+    }
+    my $exchangerate = qq|&nbsp;|;
+    if ($form->{currency} ne $form->{defaultcurrency}) {
+      if ($form->{"forex_$i"}) {
+        $exchangerate = qq|<input type="hidden" name="exchangerate_$i" value="$form->{"exchangerate_$i"}">$form->{"exchangerate_$i"}|;
+      } else {
+        $exchangerate = qq|<input name="exchangerate_$i" size="10" value="$form->{"exchangerate_$i"}">|;
+      }
+    }
+
+    $exchangerate .= qq|<input type="hidden" name="forex_$i" value="$form->{"forex_$i"}">|;
+
+    $column_data{"paid_$i"} =
+      qq|<td align="center"><input name="paid_$i" size="11" value="$form->{"paid_$i"}" onBlur=\"check_right_number_format(this)\"></td>|;
+    $column_data{"exchangerate_$i"} = qq|<td align="center">$exchangerate</td>|;
+    $column_data{"AR_paid_$i"}      =
+      qq|<td align="center"><select name="AR_paid_$i">$form->{"selectAR_paid_$i"}</select></td>|;
+    $column_data{"datepaid_$i"} =
+      qq|<td align="center"><input id="datepaid_$i" name="datepaid_$i"  size="11" title="$myconfig{dateformat}" value="$form->{"datepaid_$i"}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
+    $column_data{"source_$i"} =
+      qq|<td align=center><input name="source_$i" size="11" value="$form->{"source_$i"}"></td>|;
+    $column_data{"memo_$i"} =
+      qq|<td align="center"><input name="memo_$i" size="11" value="$form->{"memo_$i"}"></td>|;
+
+    map { print qq|$column_data{"${_}_$i"}\n| } @column_index;
+    print "
+        </tr>\n";
+    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
+  }
+
+    <tr>
+      <td></td>
+      <td></td>
+      <td align="center">| . $locale->text('Total') . qq|</td>
+      <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td align="center">| . $locale->text('Missing amount') . qq|</td>
+      <td align="center">| . H($form->format_amount(\%myconfig, $paid_missing, 2)) . qq|</td>
+    </tr>
+
+  map({ print($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } qw(paidaccounts selectAR_paid oldinvtotal));
+
+  <input type="hidden" name="oldtotalpaid" value="$totalpaid">
+    </table>

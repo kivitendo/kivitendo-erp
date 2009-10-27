@@ -1,0 +1,194 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+  <tr>
+   <td>
+    <table width="100%">
+     <tr valign="bottom">
+      <td>
+       <table>
+        <tr>
+         <th align="left">Bemerkungen</th>
+         <th align="left">interne Bemerkungen</th>
+         <th align="right">Zahlungskonditionen</th>
+        </tr>
+        <tr valign="top">
+         <td>
+          <textarea name="notes" rows="[% rows %]" cols="26" wrap="soft">[% notes %]</textarea>
+         </td>
+         <td>
+          <textarea name="intnotes" rows="[% rows %]" cols="35" wrap="soft">[% intnotes %]</textarea>
+         </td>
+         <td>
+          <select id='payment_id' name="payment_id">
+
+           $payment
+
+          </select>
+          <script type='text/javascript'>$('#payment_id').onchange(function(){
+            if (this.value) set_duedate(['payment_id__' + this.value, 'invdate__' + invdate.value],['duedate'])})
+          </script>
+         </td>
+        </tr>
+        <tr>
+          <td colspan="2">[% follow_up_text %]</td>
+        </tr>
+
+       </table>
+      </td>
+      <td>
+       <table>
+        <tr>
+         <th  align=left>Ertrag</th>
+         <td>[% LxERP.format_amount(marge_total, 2, 0) %]</td>
+        </tr>
+        <tr>
+         <th  align=left>Ertrag prozentual</th>
+         <td>[% LxERP.format_amount(marge_percent, 2, 0) %] %</td>
+        </tr>
+        <input type=hidden name="marge_total" value="[% marge_total %]">
+        <input type=hidden name="marge_percent" value="[% marge_percent %]">
+       </table>
+      </td>
+      <td align="right">
+  [%- IF taxaccounts %]
+       <input name="taxincluded" class="checkbox" type="checkbox" [% IF taxincluded %]checked[% END %]>
+       <b>Steuer im Preis inbegriffen</b>
+       <br>
+       <br>
+  [%- END %]
+       <table>
+
+        $subtotal
+
+[%# tax %]
+[% FOREACH item = taxaccounts_array %]
+[% SET description_ref = item _ 'description' %]
+[% SET rate_ref        = item _ 'rate' %]
+[% SET total_ref       = item _ 'total' %]
+[% SET netto_ref       = item _ 'netto' %]
+       <tr>
+        <th align="right">Enthaltene [% $description_ref %]&nbsp;[% $rate_ref * 100 %]%</th>
+        <td align="right">[% $total_ref %]</td>
+       </tr>
+       <tr>
+        <th align="right">Nettobetrag</th>
+        <td align="right">[% $netto_ref %]</td>
+       </tr>
+[%- END %]
+
+        <tr>
+         <th align="right">Summe</th>
+         <td align="right">[% invtotal %]</td>
+        </tr>
+       </table>
+      </td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+
+[%- IF webdav %]
+  <tr>
+   <td><hr size="3" noshade></td>
+  </tr>
+  <tr>
+   <th class="listtop" align="left">Dokumente im Webdav-Repository</th>
+  </tr>
+   <table width="100%">
+    <tr>
+     <td align="left" width="30%"><b>Dateiname</b></td>
+     <td align="left" width="70%"><b>Webdavlink</b></td>
+    </tr>
+ [%- FOREACH file = WEBDAV %]
+    <tr>
+     <td align="left">[% file.name %]</td>
+     <td align="left"><a href="[% file.link %]">[% file.type %]</a></td>
+    </tr>
+ [%- END %]
+   </table>
+  </tr>
+[% END %]
+
+
+  <tr>
+   <td>
+    <table width="100%">
+     <tr class="listheading">
+[% IF is_credit_note %]
+      <th colspan="6" class="listheading">Zahlungsausgänge</th>
+[% ELSE %]
+      <th colspan="6" class="listheading">Zahlungseingänge</th>
+[%- END %]
+     </tr>
+
+
+[%# INCLUDE _payments %]
+
+
+    </td>
+  </tr>
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+  <tr>
+    <td>
+  [% print_options %]
+    </td>
+  </tr>
+</table>
+
+  [% IF id %]
+
+    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="Erneuern">
+    <input class="submit" type="submit" name="action" value="Lieferadresse">
+    <input class="submit" type="submit" name="action" value="Drucken">
+    <input class="submit" type="submit" name="action" value="eMail">
+[% IF  show_storno %]
+    <input class="submit" type="submit" name="action" value="Storno">
+[% END %]
+    <input class="submit" type="submit" name="action" value="Zahlung buchen">
+    <input class="submit" type="submit" name="action" value="Als Vorlage verwenden">
+
+[% IF id && is_credit_note %]
+    <input class="submit" type="submit" name="action" value="Gutschrift">
+[% END %]
+[% IF show_delete %]
+    <input class="submit" type="submit" name="action" value="Löschen">
+[% END %]
+
+  [%- IF invdate > closedto %]
+       <input class="submit" type="submit" name="action" value="Auftrag">
+  [%- END %]
+
+    <input type="button" class="submit" onclick="follow_up_window()" value="Wiedervorlage">
+
+ [% ELSE # no id %]
+   [% IF invdate > closedto %]
+      <input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
+      <input class="submit" type="submit" name="action" value="Lieferadresse">
+      <input class="submit" type="submit" name="action" value="Druckvorschau">
+      <input class="submit" type="submit" name="action" value="eMail">
+      <input class="submit" type="submit" name="action" value="Drucken und Buchen">
+      <input class="submit" type="submit" name="action" value="Buchen">
+      <input class="submit" type="submit" name="action" value="Save Draft">
+   [%- END %]
+ [% END # id %]
+
+  [% IF id %]
+      [%#- button for saving history %]
+      <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="Historie">
+
+      <input type="submit" class="submit" name="action" value="als bezahlt markieren">
+  [% END %]
+
+<input type="hidden" name="rowcount" value="[% rowcount %]">
+<input type="hidden" name="callback" value="[% callback %]">
+<input type="hidden" name="draft_id" value="[% draft_id %]">
+<input type="hidden" name="draft_description" value="[% draft_description %]">
+<input type="hidden" name="customer_discount" value="[% customer_discount %]">
+
+</form>
+
+</body>
+
+</html>

@@ -91,7 +91,7 @@
       <td align="left" width="30%"><b>Dateiname</b></td>
       <td align="left" width="70%"><b>Webdavlink</b></td>
      </tr>
- [%- FOREACH file=WEBDAV %]
+ [%- FOREACH file = WEBDAV %]
       <tr>
         <td align="left">[% HTML.escape(file.name) %]</td>
         <td align="left"><a href="[% file.link %]">[% HTML.escape(file.type) %]</a></td>
