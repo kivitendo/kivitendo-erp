@@ -32,9 +32,15 @@
 
 use strict;
 
+use Time::HiRes qw(gettimeofday tv_interval);
+
+my $time;
+
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+
+  $time = [gettimeofday];
 }
 
 # setup defaults, DO NOT CHANGE
@@ -172,5 +178,8 @@ sub _show_error {
   exit;
 }
 
+END {
+  print "<!-- time elapsed: ", tv_interval($time), "s -->";
+}
 # end
 
