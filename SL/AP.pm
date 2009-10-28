@@ -475,7 +475,7 @@ sub ap_transactions {
   }
 
   my @a = qw(transdate invnumber name);
-  push @a, "employee" if $self->{l_employee};
+  push @a, "employee" if $form->{l_employee};
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 

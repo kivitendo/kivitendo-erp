@@ -71,7 +71,7 @@ sub form_footer {
   my $form     = $main::form;
 
   my @items = qw(old_callback previousform);
-  push(@items, @{ $form->{"hidden"} });
+  push @items, @{ $form->{"hidden"} } if ref $form->{hidden} eq 'ARRAY';
   map({
       print("<input type=hidden name=$_ value=\"" . quot($form->{$_}) . "\">\n"
       );
