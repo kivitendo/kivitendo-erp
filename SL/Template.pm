@@ -269,28 +269,31 @@ sub parse_foreach {
   my $sum                          = 0;
   my $current_page                 = 1;
   my ($current_line, $corrent_row) = (0, 1);
-  my $description_array            = $self->_get_loop_variable("description",     1) || [];
-  my $longdescription_array        = $self->_get_loop_variable("longdescription", 1) || [];
-  my $linetotal_array              = $self->_get_loop_variable("linetotal",       1) || [];
+  my $description_array            = $self->_get_loop_variable("description",     1);
+  my $longdescription_array        = $self->_get_loop_variable("longdescription", 1);
+  my $linetotal_array              = $self->_get_loop_variable("linetotal",       1);
 
   $form->{TEMPLATE_ARRAYS}->{cumulatelinetotal} = [];
 
+  # forech block hasn't given us an array. ignore
+  return $new_contents unless ref $ary eq 'ARRAY';
+
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
+    # do magic markers
     $form->{"__first__"}   = $i == 1;
     $form->{"__last__"}    = ($i + 1) == scalar(@{$ary});
     $form->{"__odd__"}     = (($i + 1) % 2) == 1;
     $form->{"__counter__"} = $i + 1;
 
-    if (scalar @{$description_array} == scalar @{$ary} && $self->{"chars_per_line"} != 0) {
+    if (   ref $description_array       eq 'ARRAY'
+        && scalar @{$description_array} == scalar @{$ary}
+        && $self->{"chars_per_line"}    != 0)
+    {
       my $lines = int(length($description_array->[$i]) / $self->{"chars_per_line"});
       my $lpp;
 
       $description_array->[$i] =~ s/(\\newline\s?)*$//;
-      my $_description = $description_array->[$i];
-      while ($_description =~ /\\newline/) {
-        $lines++;
-        $_description =~ s/\\newline//;
-      }
+      $lines++ while ($description_array->[$i] =~ m/\\newline/g);
       $lines++;
 
       if ($current_page == 1) {
@@ -300,7 +303,10 @@ sub parse_foreach {
       }
 
       # Yes we need a manual page break -- or the user has forced one
-      if ((($current_line + $lines) > $lpp) || ($description_array->[$i] =~ /<pagebreak>/) || ($longdescription_array->[$i] =~ /<pagebreak>/)) {
+      if (   (($current_line + $lines) > $lpp)
+          || ($description_array->[$i]     =~ /<pagebreak>/)
+          || (   ref $longdescription_array eq 'ARRAY'
+              && $longdescription_array->[$i] =~ /<pagebreak>/)) {
         my $pb = $self->{"pagebreak_block"};
 
         # replace the special variables <%sumcarriedforward%>
@@ -320,7 +326,8 @@ sub parse_foreach {
       $current_line += $lines;
     }
 
-    if ($i < scalar(@{$linetotal_array})) {
+    if (   ref $linetotal_array eq 'ARRAY'
+        && $i < scalar(@{$linetotal_array})) {
       $sum += $form->parse_amount($self->{"myconfig"}, $linetotal_array->[$i]);
     }
 
