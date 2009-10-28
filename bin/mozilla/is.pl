@@ -264,35 +264,31 @@ sub prepare_invoice {
 
   if ($form->{id}) {
 
-
-    #     # get pricegroups for parts
-    #     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-
     my $i = 0;
 
     foreach my $ref (@{ $form->{invoice_details} }) {
       $i++;
 
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
-      $form->{"discount_$i"} =
-        $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
-      my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
-      $dec           = length $dec;
-      my $decimalplaces = ($dec > 2) ? $dec : 2;
 
-      $form->{"sellprice_$i"} =
-        $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
-                             $decimalplaces);
+      $form->{"discount_$i"}   = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
+      my ($dec)                = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
+      $dec                     = length $dec;
+      my $decimalplaces        = ($dec > 2) ? $dec : 2;
 
-      (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
-      $dec_qty = length $dec_qty;
+      $form->{"sellprice_$i"}  = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+      (my $dec_qty)            = ($form->{"qty_$i"} =~ /\.(\d+)/);
+      $dec_qty                 = length $dec_qty;
 
-      $form->{"qty_$i"} =
-        $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
+      $form->{"qty_$i"}        = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
-      $form->{rowcount} = $i;
+      $form->{rowcount}        = $i;
 
     }
+
+    # get pricegroups for parts
+    IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+    set_pricegroup($_) for 1 .. $form->{rowcount};
   }
   $main::lxdebug->leave_sub();
 }
