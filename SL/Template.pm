@@ -269,9 +269,9 @@ sub parse_foreach {
   my $sum                          = 0;
   my $current_page                 = 1;
   my ($current_line, $corrent_row) = (0, 1);
-  my $description_array            = $self->_get_loop_variable("description",     1);
-  my $longdescription_array        = $self->_get_loop_variable("longdescription", 1);
-  my $linetotal_array              = $self->_get_loop_variable("linetotal",       1);
+  my $description_array            = $self->_get_loop_variable("description",     1) || [];
+  my $longdescription_array        = $self->_get_loop_variable("longdescription", 1) || [];
+  my $linetotal_array              = $self->_get_loop_variable("linetotal",       1) || [];
 
   $form->{TEMPLATE_ARRAYS}->{cumulatelinetotal} = [];
 
