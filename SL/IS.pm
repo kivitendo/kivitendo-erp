@@ -1976,12 +1976,10 @@ sub get_pricegroups_for_parts {
     $id = $form->{"id_$i"};
 
     if (!($form->{"id_$i"}) and $form->{"new_id_$i"}) {
-
       $id = $form->{"new_id_$i"};
     }
 
-    my ($price, $selectedpricegroup_id) = split(/--/,
-      $form->{"sellprice_pg_$i"});
+    my ($price, $selectedpricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
 
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
     $form->{"new_pricegroup_$i"} = $selectedpricegroup_id;
@@ -2054,14 +2052,11 @@ sub get_pricegroups_for_parts {
 
       # if there is an exchange rate change price
       if (($form->{exchangerate} * 1) != 0) {
-
         $pkr->{price} /= $form->{exchangerate};
       }
 
       $pkr->{price} *= $form->{"basefactor_$i"};
-
       $pkr->{price} *= $basefactor;
-
       $pkr->{price} = $form->format_amount($myconfig, $pkr->{price}, 5);
 
       if ($selectedpricegroup_id eq undef) {
