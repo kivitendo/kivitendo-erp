@@ -444,6 +444,7 @@ sub form_footer {
     show_delete         => ($form->current_date(\%myconfig) eq $form->{gldate}),
   });
 ##print $form->parse_html_template('is/_payments'); # parser
+##print $form->parse_html_template('webdav/_list'); # parser
 
 
 

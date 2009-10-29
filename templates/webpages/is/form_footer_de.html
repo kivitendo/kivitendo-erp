@@ -96,27 +96,7 @@
   </tr>
 
 [%#--------------------------- WEB DAV BLOCK %]
-[%- IF webdav %]
-  <tr>
-   <td><hr size="3" noshade></td>
-  </tr>
-  <tr>
-   <th class="listtop" align="left">Dokumente im Webdav-Repository</th>
-  </tr>
-   <table width="100%">
-    <tr>
-     <td align="left" width="30%"><b>Dateiname</b></td>
-     <td align="left" width="70%"><b>Webdavlink</b></td>
-    </tr>
- [%- FOREACH file = WEBDAV %]
-    <tr>
-     <td align="left">[% file.name %]</td>
-     <td align="left"><a href="[% file.link %]">[% file.type %]</a></td>
-    </tr>
- [%- END %]
-   </table>
-  </tr>
-[% END %]
+[% PROCESS 'webdav/_list_de.html' %]
 [%#--------------------------- WEB DAV BLOCK %]
 
 
