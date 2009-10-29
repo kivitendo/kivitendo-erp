@@ -245,8 +245,7 @@ sub display_row {
     $column_data{"unit"} = AM->unit_select_html($all_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
 
-    $form->{"sellprice_$i"} =~ /\.(\d+)/;
-    my $decimalplaces = max 2, length $1;
+    my $decimalplaces = ($form->{"sellprice_$i"} =~ /\.(\d+)/) ? max 2, length $1 : 2;
 
     my $price_factor   = $price_factors{$form->{"price_factor_id_$i"}} || 1;
     my $discount       = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} *        $form->{"discount_$i"}  / 100 / $price_factor, 2);
@@ -260,8 +259,7 @@ sub display_row {
                                 : $cgi->textfield(-name => "description_$i",   -size => 30, -value => $form->{"description_$i"}))
                                 . $cgi->button(-value => $locale->text('L'), -onClick => "set_longdescription_window('longdescription_$i')");
 
-    $form->{"qty_$i"} =~ /\.(\d+)/;
-    my $qty_dec = length $1;
+    my $qty_dec = ($form->{"qty_$i"} =~ /\.(\d+)/) ? length $1 : 2;
 
     $column_data{qty}  = $cgi->textfield(-name => "qty_$i", -size => 5, -value => $form->format_amount(\%myconfig, $form->{"qty_$i"}, $qty_dec));
     $column_data{qty} .= $cgi->button(-onclick => "calculate_qty_selection_window('qty_$i','alu_$i', 'formel_$i', $i)", -value => $locale->text('*/'))
