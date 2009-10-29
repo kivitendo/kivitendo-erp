@@ -761,7 +761,7 @@ sub generate_csv_content {
           next;
         }
 
-        my $num_output = ($col->{colspan} && ($col->{colspan} > 1)) ? $col->{colspan} : 1;
+        my $num_output = ($row->{$col}{colspan} && ($row->{$col}->{colspan} > 1)) ? $row->{$col}->{colspan} : 1;
         $skip_next     = $num_output - 1;
 
         push @data, join($eol, map { s/\r?\n/$eol/g; $_ } @{ $row->{$col}->{data} });
