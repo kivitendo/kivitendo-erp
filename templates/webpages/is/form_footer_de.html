@@ -29,10 +29,15 @@
           </script>
          </td>
         </tr>
+[%- IF id %]
         <tr>
-          <td colspan="2">[% follow_up_text %]</td>
+          <td colspan="2">
+            [%- LxERP.format_string('Es gibt #1 Wiedervorlage(n), von denen #2 fällig ist/sind.',
+                                     follow_ups.size, follow_ups_unfinished) | html
+            %]
+          <td>
         </tr>
-
+[%- END %]
        </table>
       </td>
       <td>
@@ -95,14 +100,9 @@
    </td>
   </tr>
 
-[%#--------------------------- WEB DAV BLOCK %]
 [% PROCESS 'webdav/_list_de.html' %]
-[%#--------------------------- WEB DAV BLOCK %]
-
 
 [% PROCESS 'is/_payments_de.html' %]
-
-
 
   <tr>
     <td><hr size="3" noshade></td>

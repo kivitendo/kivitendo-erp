@@ -29,10 +29,15 @@
           </script>
          </td>
         </tr>
+[%- IF id %]
         <tr>
-          <td colspan="2">[% follow_up_text %]</td>
+          <td colspan="2">
+            [%- LxERP.format_string('<translate>There are #1 unfinished follow-ups of which #2 are due.</translate>',
+                                     follow_ups.size, follow_ups_unfinished) | html
+            %]
+          <td>
         </tr>
-
+[%- END %]
        </table>
       </td>
       <td>

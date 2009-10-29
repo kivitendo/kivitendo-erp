@@ -414,14 +414,10 @@ sub form_footer {
     }
   }
 
-  # unfortunately locales doesn't support extended syntax
+  # follow ups
   if ($form->{id}) {
-    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
-    if (@{ $follow_ups} ) {
-      $form->{follow_up_text} = $locale->text("There are #1 unfinished follow-ups of which #2 are due.",
-                                               scalar(@{ $follow_ups }),
-                                               sum map { $_->{due} * 1 } @{ $follow_ups });
-    }
+    $form->{follow_ups}            = FU->follow_ups('trans_id' => $form->{id}) || [];
+    $form->{follow_ups_unfinished} = sum map { $_->{due} * 1 } @{ $form->{follow_ups} };
   }
 
   # payments
