@@ -1269,7 +1269,7 @@ sub search {
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
 
-  if (@{ $form->{all_customer} }) {
+  if (@{ $form->{all_customer} || [] }) {
     map { $customer .= "<option>$_->{name}--$_->{id}\n" }
       @{ $form->{all_customer} };
     $customer = qq|<select name=customer><option>\n$customer</select>|;
