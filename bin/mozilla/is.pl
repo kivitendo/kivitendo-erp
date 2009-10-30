@@ -45,7 +45,7 @@ require "bin/mozilla/drafts.pl";
 use strict;
 
 my $edit;
-my $payment;
+#my $payment;
 my $print_post;
 
 1;
@@ -288,15 +288,6 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
-
-  $payment = qq|<option value=""></option>|;
-  foreach my $item (@{ $form->{payment_terms} }) {
-    if ($form->{payment_id} eq $item->{id}) {
-      $payment .= qq|<option value="$item->{id}" selected>$item->{description}</option>|;
-    } else {
-      $payment .= qq|<option value="$item->{id}">$item->{description}</option>|;
-    }
-  }
 
   my $set_duedate_url = "$form->{script}?action=set_duedate";
 

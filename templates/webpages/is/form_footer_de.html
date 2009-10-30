@@ -19,12 +19,15 @@
           <textarea name="intnotes" rows="[% rows %]" cols="35" wrap="soft">[% intnotes %]</textarea>
          </td>
          <td>
-          <select id='payment_id' name="payment_id">
-
-           $payment
-
-          </select>
-          <script type='text/javascript'>$('#payment_id').onchange(function(){
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'payment_id',
+                 style         = 'width: 250px',
+                 DATA          = payment_terms,
+                 id_key        = 'id',
+                 label_key     = 'description',
+                 show_empty    = 1
+                 allow_textbox = 0 -%]
+          <script type='text/javascript'>$('#payment_id').change(function(){
             if (this.value) set_duedate(['payment_id__' + this.value, 'invdate__' + invdate.value],['duedate'])})
           </script>
          </td>
