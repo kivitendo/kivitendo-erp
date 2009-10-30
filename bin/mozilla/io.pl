@@ -1208,7 +1208,7 @@ sub print_options {
     );
 
   my %template_vars = (
-    display_copies       => scalar @{ $form->{printers} } && $main::latex_templates && $form->{media} ne 'email',
+    display_copies       => scalar @{ $form->{printers} || [] } && $main::latex_templates && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
     groupitems_checked   => $form->{groupitems} ? "checked" : '',
