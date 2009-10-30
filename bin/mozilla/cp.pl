@@ -235,82 +235,82 @@ sub form_header {
     <td>
       <table width=100%>
         <tr valign=top>
-	  <td>
-	    <table>
-	      <tr>
-	        <td align=right>
-		<input name=all_vc type=checkbox style=checkbox value=Y $allvc>
-		<input type=hidden name="oldall_vc" value="$form->{all_vc}"></td>
-		<th align=left>| . $locale->text('All') . qq|</th>
-	      </tr>
-	      <tr>
-		<th align=right>$vclabel</th>
-		<td>$vc</td>
+          <td>
+            <table>
+              <tr>
+                <td align=right>
+                <input name=all_vc type=checkbox style=checkbox value=Y $allvc>
+                <input type=hidden name="oldall_vc" value="$form->{all_vc}"></td>
+                <th align=left>| . $locale->text('All') . qq|</th>
+              </tr>
+              <tr>
+                <th align=right>$vclabel</th>
+                <td>$vc</td>
                 <input type=hidden name="select$form->{vc}" value="$form->{"select$form->{vc}"}">
                 <input type=hidden name="$form->{vc}_id" value=$form->{"$form->{vc}_id"}>
-		<input type=hidden name="old$form->{vc}" value="$form->{"old$form->{vc}"}">
-	      </tr>
-	      <tr valign=top>
-		<th align=right nowrap>| . $locale->text('Address') . qq|</th>
-		<td colspan=2>
-		  <table>
-		    <tr>
-		      <td>$form->{street}</td>
-		    </tr>
-		    <tr>
-		      <td>$form->{zipcode}</td>
-		    </tr>
-		    <tr>
-		      <td>$form->{city}</td>
-		    </tr>
-		    <tr>
-		      <td>$form->{country}</td>
-		    </tr>
-		  </table>
-		</td>
-		<input type=hidden name=street value="$form->{street}">
-		<input type=hidden name=zipcode value="$form->{zipcode}">
-		<input type=hidden name=city value="$form->{city}">
-		<input type=hidden name=country value="$form->{country}">
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Memo') . qq|</th>
-		<td colspan=2><input name="memo" size=30 value="$form->{memo}"></td>
-	      </tr>
-	    </table>
-	  </td>
-	  <td align=right>
-	    <table>
-	      $department
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Account') . qq|</th>
-		<td colspan=3><select name=account>$form->{selectaccount}</select>
-		<input type=hidden name=selectaccount value="$form->{selectaccount}">
-		</td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Date') . qq|</th>
+                <input type=hidden name="old$form->{vc}" value="$form->{"old$form->{vc}"}">
+              </tr>
+              <tr valign=top>
+                <th align=right nowrap>| . $locale->text('Address') . qq|</th>
+                <td colspan=2>
+                  <table>
+                    <tr>
+                      <td>$form->{street}</td>
+                    </tr>
+                    <tr>
+                      <td>$form->{zipcode}</td>
+                    </tr>
+                    <tr>
+                      <td>$form->{city}</td>
+                    </tr>
+                    <tr>
+                      <td>$form->{country}</td>
+                    </tr>
+                  </table>
+                </td>
+                <input type=hidden name=street value="$form->{street}">
+                <input type=hidden name=zipcode value="$form->{zipcode}">
+                <input type=hidden name=city value="$form->{city}">
+                <input type=hidden name=country value="$form->{country}">
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('Memo') . qq|</th>
+                <td colspan=2><input name="memo" size=30 value="$form->{memo}"></td>
+              </tr>
+            </table>
+          </td>
+          <td align=right>
+            <table>
+              $department
+              <tr>
+                <th align=right nowrap>| . $locale->text('Account') . qq|</th>
+                <td colspan=3><select name=account>$form->{selectaccount}</select>
+                <input type=hidden name=selectaccount value="$form->{selectaccount}">
+                </td>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Date') . qq|</th>
                 $button1
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Currency') . qq|</th>
-		<td><select name=currency>$form->{selectcurrency}</select></td>
-		<input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-		<input type=hidden name=oldcurrency value=$form->{oldcurrency}>
-	      </tr>
-	      $exchangerate
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Source') . qq|</th>
-		<td colspan=3><input name=source value="$form->{source}" size=10></td>
-	      </tr>
-	      <tr>
-		<th align="right" nowrap>| . $locale->text('Amount') . qq|</th>
-		<td colspan="3"><input name="amount" size="10" value="|
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Currency') . qq|</th>
+                <td><select name=currency>$form->{selectcurrency}</select></td>
+                <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
+                <input type=hidden name=oldcurrency value=$form->{oldcurrency}>
+              </tr>
+              $exchangerate
+              <tr>
+                <th align=right nowrap>| . $locale->text('Source') . qq|</th>
+                <td colspan=3><input name=source value="$form->{source}" size=10></td>
+              </tr>
+              <tr>
+                <th align="right" nowrap>| . $locale->text('Amount') . qq|</th>
+                <td colspan="3"><input name="amount" size="10" value="|
     . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|" onBlur=\"check_right_number_format(this)\"></td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
+              </tr>
+            </table>
+          </td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -622,7 +622,7 @@ sub update {
       }
 
       # Modified by J.Zach, see abovev
-      $amount += $form->{"paid_$i"}; 
+      $amount += $form->{"paid_$i"};
 
     } else {
       $form->{"paid_$i"} = "";
@@ -636,7 +636,7 @@ sub update {
   }
 
   # Line added by J.Zach, see above
-  $form->{amount}=$amount; 
+  $form->{amount}=$amount;
 
   &form_header;
   &list_invoices;
