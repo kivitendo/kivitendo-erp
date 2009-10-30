@@ -41,6 +41,7 @@ use SL::CVar;
 use SL::DBUtils;
 use SL::DO;
 use SL::GenericTranslations;
+use SL::IO;
 use SL::MoreCommon;
 use List::Util qw(min);
 
@@ -507,9 +508,11 @@ sub post_invoice {
     }
   }
 
+  IO->set_datepaid(table => 'ap', id => $form->{id}, dbh => $dbh);
+
   if ($payments_only) {
-    $query = qq|UPDATE ap SET paid = ?, datepaid = ? WHERE id = ?|;
-    do_query($form, $dbh, $query,  $form->{paid}, $form->{paid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
+    $query = qq|UPDATE ap SET paid = ? WHERE id = ?|;
+    do_query($form, $dbh, $query, $form->{paid}, conv_i($form->{id}));
 
     if (!$provided_dbh) {
       $dbh->commit();
@@ -533,7 +536,7 @@ sub post_invoice {
   $query = qq|UPDATE ap SET
                 invnumber    = ?, ordnumber   = ?, quonumber     = ?, transdate   = ?,
                 orddate      = ?, quodate     = ?, vendor_id     = ?, amount      = ?,
-                netamount    = ?, paid        = ?, duedate       = ?, datepaid    = ?,
+                netamount    = ?, paid        = ?, duedate       = ?,
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded = ?,
                 intnotes     = ?, curr        = ?, storno_id     = ?, storno      = ?,
                 cp_id        = ?, employee_id = ?, department_id = ?,
@@ -542,7 +545,7 @@ sub post_invoice {
   @values = (
                 $form->{invnumber},          $form->{ordnumber},           $form->{quonumber},      conv_date($form->{invdate}),
       conv_date($form->{orddate}), conv_date($form->{quodate}),     conv_i($form->{vendor_id}),               $amount,
-                $netamount,                  $form->{paid},      conv_date($form->{duedate}),       $form->{paid} ? conv_date($form->{datepaid}) : undef,
+                $netamount,                  $form->{paid},      conv_date($form->{duedate}),
             '1',                             $taxzone_id,                  $form->{notes},          $form->{taxincluded} ? 't' : 'f',
                 $form->{intnotes},           $form->{currency},     conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}),

@@ -35,6 +35,7 @@
 package AP;
 
 use SL::DBUtils;
+use SL::IO;
 use SL::MoreCommon;
 
 use strict;
@@ -155,9 +156,6 @@ sub post_transaction {
   # amount for total AP
   $form->{payables} = $form->{invtotal};
 
-  $form->{datepaid} = $form->{transdate} unless ($form->{datepaid});
-  my $datepaid = ($form->{invpaid} != 0) ? $form->{datepaid} : undef;
-
   # update exchangerate
   if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
     $form->update_exchangerate($dbh, $form->{currency}, $form->{transdate}, 0,
@@ -195,14 +193,14 @@ sub post_transaction {
 
     $query = qq|UPDATE ap SET
                 invnumber = ?, transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
-                amount = ?, duedate = ?, paid = ?, datepaid = ?, netamount = ?,
+                amount = ?, duedate = ?, paid = ?, netamount = ?,
                 curr = ?, notes = ?, department_id = ?, storno = ?, storno_id = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
                   $form->{taxincluded} ? 't' : 'f', $form->{invtotal},
                   conv_date($form->{duedate}), $form->{invpaid},
-                  conv_date($datepaid), $form->{netamount},
+                  $form->{netamount},
                   $form->{currency}, $form->{notes},
                   conv_i($form->{department_id}), $form->{storno},
                   $form->{storno_id}, $form->{id});
@@ -353,6 +351,8 @@ sub post_transaction {
     $query = qq|UPDATE ap SET paid = ?, datepaid = ? WHERE id = ?|;
     do_query($form, $dbh, $query,  $form->{invpaid}, $form->{invpaid} ? conv_date($form->{datepaid}) : undef, conv_i($form->{id}));
   }
+
+  IO->set_datepaid(table => 'ap', id => $form->{id}, dbh => $dbh);
 
   my $rc = 1;
   if (!$provided_dbh) {
@@ -785,6 +785,8 @@ sub storno {
     $row->{amount}    *= -1;
     do_query($form, $dbh, $query, (values %$row));
   }
+
+  map { IO->set_datepaid(table => 'ap', id => $_, dbh => $dbh) } ($id, $new_id);
 
   $dbh->commit;
 

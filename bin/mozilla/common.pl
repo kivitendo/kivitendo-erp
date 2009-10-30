@@ -586,7 +586,7 @@ sub mark_as_paid_common {
 
   if($form->{mark_as_paid}) {
     my $dbh ||= $form->get_standard_dbh($myconfig);
-    my $query = qq|UPDATE $db_name SET paid = amount WHERE id = ?|;
+    my $query = qq|UPDATE $db_name SET paid = amount, datepaid = current_date WHERE id = ?|;
     do_query($form, $dbh, $query, $form->{id});
     $dbh->commit();
     $form->redirect($locale->text("Marked as paid"));

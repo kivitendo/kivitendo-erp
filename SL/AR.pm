@@ -36,6 +36,7 @@ package AR;
 
 use Data::Dumper;
 use SL::DBUtils;
+use SL::IO;
 use SL::MoreCommon;
 
 use strict;
@@ -141,10 +142,6 @@ sub post_transaction {
   ($null, $form->{department_id}) = split(/--/, $form->{department});
   $form->{department_id} *= 1;
 
-  # record last payment date in ar table
-  $form->{datepaid} ||= $form->{transdate} ;
-  my $datepaid = ($form->{paid} != 0) ? $form->{datepaid} : undef;
-
   # amount for AR account
   $form->{receivables} = $form->round_amount($form->{amount}, 2) * -1;
 
@@ -156,12 +153,12 @@ sub post_transaction {
     $query =
       qq|UPDATE ar set
            invnumber = ?, ordnumber = ?, transdate = ?, customer_id = ?,
-           taxincluded = ?, amount = ?, duedate = ?, paid = ?, datepaid = ?,
+           taxincluded = ?, amount = ?, duedate = ?, paid = ?,
            netamount = ?, curr = ?, notes = ?, department_id = ?,
            employee_id = ?, storno = ?, storno_id = ?
          WHERE id = ?|;
     my @values = ($form->{invnumber}, $form->{ordnumber}, conv_date($form->{transdate}), conv_i($form->{customer_id}), $form->{taxincluded} ? 't' : 'f', $form->{amount},
-                  conv_date($form->{duedate}), $form->{paid}, conv_date($datepaid), $form->{netamount}, $form->{currency}, $form->{notes}, conv_i($form->{department_id}),
+                  conv_date($form->{duedate}), $form->{paid}, $form->{netamount}, $form->{currency}, $form->{notes}, conv_i($form->{department_id}),
                   conv_i($form->{employee_id}), $form->{storno} ? 't' : 'f', $form->{storno_id}, conv_i($form->{id}));
     do_query($form, $dbh, $query, @values);
 
@@ -265,6 +262,8 @@ sub post_transaction {
         if ($form->{currency} ne $form->{defaultcurrency}) && !$form->check_exchangerate($myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
     }
   }
+
+  IO->set_datepaid(table => 'ar', id => $form->{id}, dbh => $dbh);
 
   my $rc = 1;
   if (!$provided_dbh) {
@@ -672,6 +671,8 @@ sub storno {
     $row->{amount}    *= -1;
     do_query($form, $dbh, $query, (values %$row));
   }
+
+  map { IO->set_datepaid(table => 'ap', id => $_, dbh => $dbh) } ($id, $new_id);
 
   $dbh->commit;
 
