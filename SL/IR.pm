@@ -141,9 +141,6 @@ sub post_invoice {
     # ansonsten stolpert man immer wieder viermal statt einmal heftig
     # und auch das undo discount formatting ist nicht besonders wartungsfreundlich
 
-    # keep entered selling price
-    $fxsellprice = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
-
     # keine ahnung wofür das in IS.pm gemacht wird:
     #      my ($dec) = ($fxsellprice =~ /\.(\d+)/);
     #  $dec = length $dec;
