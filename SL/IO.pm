@@ -46,7 +46,7 @@ sub set_datepaid {
 
   my ($curr_datepaid, $curr_paid) = selectfirst_array_query($form, $dbh, qq|SELECT datepaid, paid FROM $table WHERE id = ?|, $id);
 
-  $query    = <<SQL;
+  my $query    = <<SQL;
     SELECT MAX(at.transdate)
     FROM acc_trans at
     LEFT JOIN chart c ON (at.chart_id = c.id)
