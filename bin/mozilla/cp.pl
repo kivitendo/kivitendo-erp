@@ -246,9 +246,9 @@ sub form_header {
               <tr>
                 <th align=right>$vclabel</th>
                 <td>$vc</td>
-                <input type=hidden name="select$form->{vc}" value="$form->{"select$form->{vc}"}">
-                <input type=hidden name="$form->{vc}_id" value=$form->{"$form->{vc}_id"}>
-                <input type=hidden name="old$form->{vc}" value="$form->{"old$form->{vc}"}">
+                <input type=hidden name="select$form->{vc}" value="| . H($form->{"select$form->{vc}"}) . qq|">
+                <input type=hidden name="$form->{vc}_id" value="|    . H($form->{"$form->{vc}_id"}) . qq|">
+                <input type=hidden name="old$form->{vc}" value="|    . H($form->{"old$form->{vc}"}) . qq|">
               </tr>
               <tr valign=top>
                 <th align=right nowrap>| . $locale->text('Address') . qq|</th>
