@@ -45,7 +45,6 @@ require "bin/mozilla/drafts.pl";
 use strict;
 
 my $edit;
-#my $payment;
 my $print_post;
 
 1;
@@ -171,16 +170,6 @@ sub invoice_links {
 
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{selectcustomer} = 1;
-
-  # departments
-#  if ($form->{all_departments}) {
-#    $form->{selectdepartment} = "<option>\n";
-#    $form->{department}       = "$form->{department}--$form->{department_id}";
-#
-#    map {
-#      $form->{selectdepartment} .= "<option>$_->{description}--$_->{id}</option>\n"
-#    } @{ $form->{all_departments} };
-#  }
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
