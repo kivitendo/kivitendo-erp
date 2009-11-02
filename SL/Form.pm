@@ -630,6 +630,8 @@ sub create_http_response {
 sub header {
   $main::lxdebug->enter_sub();
 
+  # extra code ist currently only used by menuv3 and menuv4 to set their css.
+  # it is strongly deprecated, and will be changed in a future version.
   my ($self, $extra_code) = @_;
 
   if ($self->{header}) {
