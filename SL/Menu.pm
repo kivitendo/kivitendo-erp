@@ -71,22 +71,15 @@ sub menuitem {
 
   my $style  = 'style="vertical-align:top"';
   my $target_token = ($target)
-                   ? "target='$target'"
-                   : '';
+     ? "target='$target'" : '';
 
-#  my $str = qq|<a style="vertical-align:top" href='|;
   my $href = ($self->{$item}{href})
            ? $form->escape($self->{$item}{href})
            : "$module?action=$action&amp;level=$level";
 
   my @vars = ($self->{$item}{href})
-           ? qw(module target href)
+           ? qw(module        target href)
            : qw(module action target href);
-
-#  if ($self->{$item}{href}) {
-##    $str  = qq|<a 'href=$self->{$item}{href}|;
-#    @vars = qw(module target href);
-#  }
 
   map { delete $self->{$item}{$_} } @vars;
 
@@ -97,14 +90,6 @@ sub menuitem {
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $href .= $form->escape($value, 1);
   }
-
-#  $str .= q|'|;
-#
-#  if ($target) {
-#    $str .= qq| target=$target|;
-#  }
-
-#  $str .= ">";
 
   my $str = "<a href='$href' $target_token $style>";
 

@@ -164,7 +164,7 @@ sub section_menu {
         # expand menu
         if ($zeige) {
           print
-            qq|<tr><td valign=bottom><b>$spacer<img src="image/unterpunkt.png">$label</b></td></tr>\n|;
+            qq|<tr><td style='vertical-align:bottom'><b>$spacer<img src="image/unterpunkt.png">$label</b></td></tr>\n|;
         }
 
         # remove same level items
