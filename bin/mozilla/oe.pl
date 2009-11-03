@@ -252,7 +252,7 @@ sub order_links {
   $form->{employee}    = "$form->{employee}--$form->{employee_id}";
 
   # build vendor/customer drop down comatibility... don't ask
-  if (@{ $form->{"all_$form->{vc}"} }) {
+  if (@{ $form->{"all_$form->{vc}"} || [] }) {
     $form->{"select$form->{vc}"} = 1;
     $form->{$form->{vc}}         = qq|$form->{$form->{vc}}--$form->{"$form->{vc}_id"}|;
   }

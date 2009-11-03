@@ -95,7 +95,7 @@ sub search {
   # setup customer/vendor selection
   BP->get_vc(\%myconfig, \%$form);
 
-  if (@{ $form->{"all_$form->{vc}"} }) {
+  if (@{ $form->{"all_$form->{vc}"} || [] }) {
     map { $name .= "<option>$_->{name}--$_->{id}\n" }
       @{ $form->{"all_$form->{vc}"} };
     $name = qq|<select name=$form->{vc}><option>\n$name</select>|;

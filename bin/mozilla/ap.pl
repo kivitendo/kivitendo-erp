@@ -1213,7 +1213,7 @@ sub search {
   $form->all_vc(\%myconfig, "vendor", "AP");
 
   my $vendor;
-  if (@{ $form->{all_vendor} }) {
+  if (@{ $form->{all_vendor} || [] }) {
     map { $vendor .= "<option>$_->{name}--$_->{id}\n" }
       @{ $form->{all_vendor} };
     $vendor = qq|<select name=vendor><option>\n$vendor\n</select>|;

@@ -173,7 +173,7 @@ sub create_links {
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
   # customers
-  if (@{ $form->{all_customer} }) {
+  if (@{ $form->{all_customer} || [] }) {
     $form->{customer} = "$form->{customer}--$form->{customer_id}";
     map { $form->{selectcustomer} .= "<option>$_->{name}--$_->{id}\n" }
       (@{ $form->{all_customer} });

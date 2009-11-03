@@ -63,46 +63,50 @@ sub menuitem {
 
   my ($self, $myconfig, $form, $item) = @_;
 
-  my $module = $form->{script};
-  my $action = "section_menu";
-  my $target = "";
+  my $module = $self->{$item}{module} || $form->{script};
+  my $action = $self->{$item}{action} || "section_menu";
+  my $target = $self->{$item}{target} || "";
 
-  if ($self->{$item}{module}) {
-    $module = $self->{$item}{module};
-  }
-  if ($self->{$item}{action}) {
-    $action = $self->{$item}{action};
-  }
-  if ($self->{$item}{target}) {
-    $target = $self->{$item}{target};
-  }
+  my $level  = $form->escape($item);
 
-  my $level = $form->escape($item);
+  my $style  = 'style="vertical-align:top"';
+  my $target_token = ($target)
+                   ? "target='$target'"
+                   : '';
 
-  my $str = qq|<a style="vertical-align:top" href=$module?action=$action&level=$level|;
+#  my $str = qq|<a style="vertical-align:top" href='|;
+  my $href = ($self->{$item}{href})
+           ? $form->escape($self->{$item}{href})
+           : "$module?action=$action&amp;level=$level";
 
-  my @vars = qw(module action target href);
+  my @vars = ($self->{$item}{href})
+           ? qw(module target href)
+           : qw(module action target href);
 
-  if ($self->{$item}{href}) {
-    $str  = qq|<a href=$self->{$item}{href}|;
-    @vars = qw(module target href);
-  }
+#  if ($self->{$item}{href}) {
+##    $str  = qq|<a 'href=$self->{$item}{href}|;
+#    @vars = qw(module target href);
+#  }
 
   map { delete $self->{$item}{$_} } @vars;
 
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
-    $str .= "&" . $form->escape($key, 1) . "=";
+    $href .= "&amp;" . $form->escape($key, 1) . "=";
     my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
-    $str .= $form->escape($value, 1);
+    $href .= $form->escape($value, 1);
   }
 
-  if ($target) {
-    $str .= qq| target=$target|;
-  }
+#  $str .= q|'|;
+#
+#  if ($target) {
+#    $str .= qq| target=$target|;
+#  }
 
-  $str .= ">";
+#  $str .= ">";
+
+  my $str = "<a href='$href' $target_token $style>";
 
   $main::lxdebug->leave_sub();
 
