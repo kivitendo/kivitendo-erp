@@ -165,6 +165,5 @@ sub listify {
   my @ary = scalar @_ > 1 ? @_ : ref $_[0] eq 'ARRAY' ? @{ $_[0] } : (@_);
   return wantarray ? @ary : scalar @ary;
 }
-+
 
 1;
