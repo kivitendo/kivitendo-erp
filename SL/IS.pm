@@ -1000,11 +1000,11 @@ sub post_invoice {
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
-		donumber    = ?
+                donumber    = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
-                       $amount,                        $netamount,                       $form->{"paid"},     conv_date($form->{"datepaid"}),
+                       $amount,                        $netamount,                       $form->{"paid"},
              conv_date($form->{"duedate"}),  conv_date($form->{"deliverydate"}),    '1',                                $form->{"shippingpoint"},
                        $form->{"shipvia"},      conv_i($form->{"terms"}),                $form->{"notes"},              $form->{"intnotes"},
                        $form->{"currency"},     conv_i($form->{"department_id"}), conv_i($form->{"payment_id"}),        $form->{"taxincluded"} ? 't' : 'f',
@@ -1013,7 +1013,7 @@ sub post_invoice {
                 conv_i($form->{"cp_id"}),            1 * $form->{marge_total} ,      1 * $form->{marge_percent},
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
-		       $form->{"donumber"}, #das entsprechende feld lieferscheinnummer aus der html-form 12.02.09 jb
+                       $form->{"donumber"}, #das entsprechende feld lieferscheinnummer aus der html-form 12.02.09 jb
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
