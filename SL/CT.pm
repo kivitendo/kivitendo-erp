@@ -1071,7 +1071,7 @@ sub get_bank_info {
 
   my $table        = $params{vc} eq 'customer' ? 'customer' : 'vendor';
   my @ids          = ref $params{id} eq 'ARRAY' ? @{ $params{id} } : ($params{id});
-  my $placeholders = ('?') x scalar @ids;
+  my $placeholders = join ", ", ('?') x scalar @ids;
   my $query        = qq|SELECT id, name, account_number, bank, bank_code, iban, bic
                         FROM ${table}
                         WHERE id IN (${placeholders})|;
