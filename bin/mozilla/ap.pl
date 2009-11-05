@@ -163,7 +163,7 @@ sub create_links {
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
   # vendors
-  if (@{ $form->{all_vendor} }) {
+  if (@{ $form->{all_vendor} || [] }) {
     $form->{vendor} = qq|$form->{vendor}--$form->{vendor_id}|;
     map { $form->{selectvendor} .= "<option>$_->{name}--$_->{id}\n" }
       (@{ $form->{all_vendor} });
