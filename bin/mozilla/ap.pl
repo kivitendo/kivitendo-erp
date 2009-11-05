@@ -170,14 +170,14 @@ sub create_links {
   }
 
   # departments
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
     $form->{department}       = "$form->{department}--$form->{department_id}";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
@@ -1222,13 +1222,13 @@ sub search {
   }
 
   # departments
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   my $department = qq|

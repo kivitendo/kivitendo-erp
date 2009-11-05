@@ -196,7 +196,7 @@ sub invoice_links {
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}</option>\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";

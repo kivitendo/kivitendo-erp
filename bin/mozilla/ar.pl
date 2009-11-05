@@ -180,23 +180,23 @@ sub create_links {
   }
 
   # departments
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
     $form->{department}       = "$form->{department}--$form->{department_id}";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
   # sales staff
-  if (@{ $form->{all_employees} }) {
+  if (@{ $form->{all_employees} || [] }) {
     $form->{selectemployee} = "";
     map { $form->{selectemployee} .= "<option>$_->{name}--$_->{id}\n" }
-      (@{ $form->{all_employees} });
+      (@{ $form->{all_employees} || [] });
   }
 
   # build the popup menus
@@ -1278,13 +1278,13 @@ sub search {
   }
 
   # departments
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   $department = qq|

@@ -2740,7 +2740,7 @@ sub all_departments {
                  ORDER BY description|;
   $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
-  delete($self->{all_departments}) unless (@{ $self->{all_departments} });
+  delete($self->{all_departments}) unless (@{ $self->{all_departments} || [] });
 
   $main::lxdebug->leave_sub();
 }

@@ -110,13 +110,13 @@ sub add {
 
   # departments
   $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
@@ -146,13 +146,13 @@ sub prepare_transaction {
 
   # departments
   $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   my $i        = 1;
@@ -240,13 +240,13 @@ sub search {
   $form->all_departments(\%myconfig);
 
   # departments
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
 
     map {
       $form->{selectdepartment} .=
         "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} });
+    } (@{ $form->{all_departments} || [] });
   }
 
   my $department = qq|
