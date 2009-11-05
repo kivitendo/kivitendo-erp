@@ -1367,7 +1367,8 @@ sub invoice {
   $form->{type} = "invoice";
 
   # locale messages
-  $locale = new Locale "$myconfig{countrycode}", "$script";
+  $main::locale = new Locale "$myconfig{countrycode}", "$script";
+  $locale = $main::locale;
 
   require "bin/mozilla/$form->{script}";
 
