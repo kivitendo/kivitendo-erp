@@ -203,3 +203,82 @@ sub delete {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+SL::RecordLinks - Verlinkung von Lx-Office Objekten.
+
+=head1 SYNOPSIS
+
+  use SL::RecordLinks;
+
+  my @links = RecordLinks->get_links(
+    from_table => 'ar',
+    from_id    => 2,
+    to_table   => 'oe',
+  );
+  my @links = RecordLinks->get_links_via(
+    from_table => 'oe',
+    to_id      => '14',
+    via        => [
+      { id => 12 },
+      { id => 13},
+    ],
+  );
+
+  RecordLinks->create_links(
+    mode       => 'ids',
+    from_table => 'ar',
+    from_id    => 1,
+    to_table   => 'oe',
+    to_ids     => [4, 6, 9],
+  )
+  RecordLinks->create_links(@links);
+
+  delete
+
+=head1 DESCRIPTION
+
+=over 4
+
+Transitive RecordLinks mit get_links_via.
+
+get_links_via erwartet den zusätzlichen parameter via. via ist ein
+hashref mit den jeweils optionalen Einträgen table und id, die sich
+genauso verhalten wie die from/to_table/id werte der get_links funktion.
+
+Alternativ kann via auch ein Array dieser Hashes sein:
+
+  get_links_via(
+    from_table => 'oe',
+    from_id    => 1,
+    to_table   => 'ar',
+    via        => {
+      table      => 'delivery_orders'
+    },
+  )
+
+  get_links_via(
+    from_table => 'oe',
+    to_id      => '14',
+    via        => [
+      { id => 12 },
+      { id => 13},
+    ],
+  )
+
+Die Einträge in einem via-Array werden exakt in dieser Reihenfolge
+benutzt und sind nicht optional. Da obige Beispiel würde also die
+Verknüpfung:
+
+  oe:11 -> ar:12 -> is:13 -> do:14
+
+finden, nicht aber:
+
+  oe:11 -> ar:13 -> do:14
+
+=back
+
+=cut
