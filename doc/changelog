@@ -2,6 +2,162 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+2009-11-5 - unstable stand release-2.6.0-340-g9e15903
+
+  Größere neue Features:
+
+  - SEPA Export
+
+    Lx-Office unterstützt nun die elektronische Überweisung im SEPA Format.
+    Eine genaue Anleitung und Feature Beschreibung dazu gibt es in den
+    Releasenotes.
+
+  - Secure Cookies.
+
+    Diese Option ist standardmäßig akiviert, und sollte moderne Browser
+    anweisen, das Lx-Office Cookie nur an per https gesicherte Webseiten
+    herauszugeben. Dadurch wird die Identifikationssicherheit erhöht.
+
+  - Benutzerdefinierte Variablen in Artikelstammdaten.
+
+    Zusättzlich zu Aufträgen, Lieferscheinen und Rechnungen sind
+    benutzerdefinierte Vriabeln jetzt auch in Waren, Dienstleistungen
+    und Erzeugnissen verfügbar. Diese werden, sofern als solche markiert, auch
+    in Belegen in den Artiekln mit angezeigt, und werden wie Beschreibung und
+    Preis überlagert. In der Artikelsuche sind sie durchsuchbar.
+
+
+  Kleinere neue Features und Detailverbesserungen:
+
+  - Das alte Javascriptmenü funktioniert jetzt wieder.
+  - Der Parser für CGI Variablen wurde überarbeitet.
+  - MIME Types für PDF-Anhänge aus OpenDocument Vorlagen werden nun korrekt
+    gesetzt.
+  - Wenn Javascript ausgeschaltet ist, wird jetzt eine Warnung auf dem
+    Startbildschirm angezeigt.
+  - Die Artikelmaske ist jetzt mit Tabs aufgeräumt.
+  - Einige alte Dateien aus der SQL Ledger Basis wurden entfernt.
+  - Die Darstellung auf Browsern der KHTML Engine (z.B. Konqueror) wurde
+    verbessert.
+  - Die Darstellung des CSS Menüs wurde leicht verbessert.
+  - Die Funktionalität der Warensuche wurde deutlich erweitert, vorallem die
+    Suche nach Waren, die in Belegen verwendet werden.
+  - Charset Konvertierungen werden jetzt nur dann durchgeführt, wenn sich die
+    Charsets auch wirklich unterscheiden.
+  - Bei Lieferschein zu Rechnung Konvertierung werden jetzt die Lieferdaten in
+    die Artikelzeilen übernommen.
+  - Bei 'als neu speichern' bei Aufträgen wurden einige Felder nicht korrekt
+    gesetzt.
+  - Standardgewichtseinheit wird im unter den Stadardeinstellungen jetzt als
+    Auswahl präsentiert.
+  - Workflowaktionen in Belegen setzen jetzt den Bearbeiter korrekt.
+  - Dislogbuchen geht nicht mehr auf Überschriftskonten.
+  - Artikel haben jetzt ein Attribut, das anziegt ob sie eine Seriennummer
+    haben.
+  - Benutzerdefinierte Variablen können jetzte als ungültig markiert werden, und
+    tauchen dann für diesen Artikel nicht mehr in Belegen auf.
+  - Die Sprache American English wurde entfernt.
+  - Die Sprache British English wurde in English umbenannt.
+  - Lieferscheine werden jetzt auch im WebDAV gespeichert.
+  - In allen Masken wird bei Erneuern in der gleichen Maske jetzt der Fokus
+    beibehalten.
+  - Gewinn und Verlustrechnungen berücksichtigt jetzt partielle Zahlungen.
+  - Die Detailansicht in Belegen wird jetzt über Javascript getriggert und
+    benötigt keinen Seitenneuaufbau mehr.
+  - Aufträge behalten ihren Fokus jetzt explizit auch beim Speichern. Dadurch
+    ist es möglich während des bearbeitens eines Auftrags zwischenzuspeichern,
+    ohne den Arbeitsfluß zu unterbrechen.
+
+
+
+  API Änderungen:
+
+  - cp_greeting heisst jetzt cp_gender und ist auf die flags 'm' und 'f'
+    beschränkt.
+  - Mit SL::GenericTranslations ist ein Modul dazugekommen um beliebige Elemente
+    zu übersetzen.
+  - Die Syntax für das <%if ...%> Konstrukt in Templates wurde deutlich
+    erweitert (Dokumentation in doc/dokumentenvorlage-und-variablen.html).
+  - Das Mahnsystem exportiert jetzt mehr Felder an die Templates.
+  - SL::RecordLinks haben jetzt eine transitive Suchfunktion: get_links_via.
+    Siehe perldoc SL::RecordLinks
+  - SL::MoreCommon exportiert jetzt einige nützliche
+    Arraymanipulationsfunktionen die an Ruby angelehnt sind.
+  - SL::DBUtils hat jetzt eine Funktion zum überprüfen ob eine Tablelle
+    existiert, und einen Wrapper für große tokenbasierte Selects.
+  - SL::OE kennt jetzt die Funktion retrieve_simple, die einen Auftrag nach id
+    lädt, ohne die kompletten Kontextinformationen von retrieve zu laden.
+  - login.pl unterstützt jetzt einen callback parameter. Damit lassen sich
+    andere Webanwendungen in der menu.ini integrieren.
+  - Im Lagerbewegungsbericht wird nun eine Spalte "Dokument" angezeigt, die auf
+    die Belege verlinkt.
+  - locale stellt jetzt immer die iconv Objekte bereit um Datenbankcharset <->
+    ISO-8859-1 zu konvertieren, auch wenn die Sprache selber nicht existiert.
+  - Upgrade auf JQuery 1.3.1
+  - Das Testframework über selenium wurde entfernt.
+  - Ein neues Testframework in Anlehnung an die Tests von Bugzilla wurde
+    eingeführt.
+  - Das komplette Programm läuft jetzt im Perl strict Modus. Neuer Code muss
+    zwingend ebenfalls strict geschrieben werden.
+
+
+
+  Bugfixes:
+
+  - Eine Funktion zum Auslesen von Lieferanten war nicht gegen mehrfache Aufrufe
+    abgesichert.
+  - Der Workflow Auftrag -> Lieferschein konnte unter Umständen auf das falsche
+    Script verweisen, oder es wurden Felder nicht übernommen.
+  - Die Auftragssuche ergab bei bestimmten Werten der Listenbegrenzung
+    fehlerhafte Anzeigen.
+  - Unter Umständen gingen bei Kreditorenbuchungen die Bemerkungen verloren.
+  - Ein Fehler in der Saldenberechnung der Kontenübersicht wurde behoben.
+  - Das Zahlungsdatum bei gebuchten Zahlungen war unter Umständen nicht korrekt.
+  - Die Dimension von Datenbankfeldern war zu klein für Belege über einer
+    Milliarde.
+  - Kompatibilität zu Postgres 8.4.
+  - Beim Erzeugen einer Einkaufsrechnung aus mehreren Lieferscheinen wurde
+    fälschlicherweise iene Verkaufsrechnung erzeugt.
+  - Im Ausdruck von Angeboten/Aufträgen wurden Lieferanteninformationen unter
+    bestimmten Umständen nicht weitergegeben.
+  - Einige Codingfehler in selten benutzten Fehlermeldungen wurden behoben.
+  - In der Suche von Lieferscheinen war das Verhalten der "offen" und
+    "geschlossen" Checkboxen inkonsistent mit dem restlichen Programm.
+  - Beim Erstellen eines neuen Benutzers wurden OpenDocument Vorlagen nicht
+    kopiert.
+  - Ein IE5 Bugfix von CGI::Ajax hat Probleme bei bestimmten Werten gemacht, und
+    wurde entfernt.
+  - Nach dem speichern einer Rechnung wurde die Folgeanzeige nicht korrekt
+    befüllt.
+  - Dienstleistungen wurden beim speichern fälschlicherweise auf Warenbestand
+    überprüft.
+  - Es gab Probleme in der Auftragssuche nach Projektnummer, wenn eine niedriger
+    Auswahllistenbeschränkung eingestellt war.
+  - Fehler und potentielle Sicherheitslücken in der Historiensuchmaschine
+    beseitigt.
+  - Es wurden einige "division by zero" Fehler im Zusammenhang mit Preisfaktoren
+    behoben.
+  - Das XUL Menü zeigt jetzt wieder korrekt den Titlestring an.
+  - Es wurden in der Lieferübersicht von Lieferanten fehlerhafte Werte
+    angezeigt.
+  - In der Adminitrationsmaske gab es einen Bug der dazu führte, dass Mitglieder
+    einer Rechtegruppe mehrfach auftauchten.
+  - Suche nach Lieferscheinen mit einer bestimmten Projektnummer war fehlerhaft.
+  - Einheiten in Druckvorlagen wurden nicht lokalisiert.
+  - Daten und Zahlen wurden in Druckvorlagen unter Umständen nicht korrekt
+    formatiert.
+  - Bei Einkaufsrechnungen gab es Probleme mit der Rabattberechnung.
+  - Lieferanten in Einkaufsrechnungen wurden nicht richtig formatiert.
+
+
+
+  Liste gefixter Bugs aus dem Bugtracker:
+
+  922 940 1024 1025 1028 1030 1031 1034 1035 1037 1040 1043 1044 1046 1051 1055
+  1057 1058 1073 1077 1081 1082 1098 1100 1101 1108 1110 1118 1125 1127 1133
+  1136 1138 1147 1150 1151 1155 1164 1186 1190 1191 1199 1201
+
+
 2009-06-02 - Version 2.6.0
 
   Größere neue Features:
