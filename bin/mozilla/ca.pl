@@ -161,7 +161,7 @@ sub list {
 
   # get departments
   $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
 
     map {
