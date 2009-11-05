@@ -154,7 +154,7 @@ sub report {
 
   # get departments
   $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} }) {
+  if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
     map { $form->{selectdepartment} .= "<option>$_->{description}--$_->{id}\n" } @{ $form->{all_departments} };
   }
