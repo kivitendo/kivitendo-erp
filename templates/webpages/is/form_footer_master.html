@@ -32,7 +32,7 @@
           </script>
          </td>
         </tr>
-[%- IF id %]
+[%- IF id && follow_ups.size %]
         <tr>
           <td colspan="2">
             [%- LxERP.format_string('<translate>There are #1 unfinished follow-ups of which #2 are due.</translate>',
@@ -66,7 +66,6 @@
   [%- END %]
        <table>
 
-[%#- subtotal %]
 [%- UNLESS taxincluded %]
         <tr>
          <th align="right"><translate>Subtotal</translate></th>
