@@ -219,6 +219,7 @@ $self->{texts} = {
   'SCREENED'                    => 'SCREENED',
   'Sales Invoice'               => 'Sales Invoice',
   'Sales Order'                 => 'Sales Order',
+  'Salesperson'                 => 'Salesperson',
   'Sales quotation'             => 'Sales quotation',
   'Screen'                      => 'Screen',
   'Select a Customer'           => 'Select a Customer',

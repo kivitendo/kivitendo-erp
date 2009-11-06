@@ -618,9 +618,11 @@ sub get_dunning {
     qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount,
          ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
          da.interest, dn.dunning_description, da.transdate AS dunning_date,
-         da.duedate AS dunning_duedate, da.dunning_id, da.dunning_config_id
+         da.duedate AS dunning_duedate, da.dunning_id, da.dunning_config_id,
+         e2.name AS salesman
        FROM ar a
-       JOIN customer ct ON (a.customer_id = ct.id), dunning da
+       JOIN customer ct ON (a.customer_id = ct.id)
+       LEFT JOIN employee e2 ON (a.salesman_id = e2.id), dunning da
        LEFT JOIN dunning_config dn ON (da.dunning_config_id = dn.id)
        $where
        ORDER BY $sortorder|;

@@ -319,7 +319,7 @@ sub show_dunning {
   $main::auth->assert('dunning_edit');
 
   my @filter_field_list = qw(customer_id customer dunning_level department_id invnumber ordnumber
-                             transdatefrom transdateto dunningfrom dunningto notes showold);
+                             transdatefrom transdateto dunningfrom dunningto notes showold salesman);
 
   report_generator_set_default_sort('customername', 1);
 
@@ -360,21 +360,26 @@ sub show_dunning {
     'interest'            => { 'text' => $locale->text('Interest') },
   );
 
+  if ($form->{l_salesman}) {
+   # Show salesman column
+    $column_defs{'salesman'} = ( { 'text' =>  $locale->text('Salesperson') } );
+  }
+
   $report->set_columns(%column_defs);
   $report->set_column_order(qw(checkbox dunning_description customername invnumber transdate
-                               duedate amount dunning_date dunning_duedate fee interest));
+                               duedate amount dunning_date dunning_duedate fee interest salesman));
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my $edit_url  = build_std_url('script=is.pl', 'action=edit', 'callback') . '&id=';
   my $print_url = build_std_url('action=print_dunning', 'format=pdf', 'media=screen') . '&dunning_id=';
   my $sort_url  = build_std_url('action=show_dunning', grep { $form->{$_} } @filter_field_list);
 
-  foreach my $name (qw(dunning_description customername invnumber transdate duedate dunning_date dunning_duedate)) {
+  foreach my $name (qw(dunning_description customername invnumber transdate duedate dunning_date dunning_duedate salesman)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $sort_url . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %alignment = map { $_ => 'right' } qw(transdate duedate amount dunning_date dunning_duedate fee interest);
+  my %alignment = map { $_ => 'right' } qw(transdate duedate amount dunning_date dunning_duedate fee interest salesman);
 
   my ($current_dunning_rows, $previous_dunning_id, $first_row_for_dunning);
 

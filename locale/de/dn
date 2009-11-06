@@ -218,6 +218,7 @@ $self->{texts} = {
   'SAVED FOR DUNNING'           => 'Gespeichert',
   'SCREENED'                    => 'Angezeigt',
   'Sales Invoice'               => 'Rechnung',
+  'Salesperson'                 => 'Verkäufer/in',
   'Sales Order'                 => 'Kundenauftrag',
   'Sales quotation'             => 'Angebot',
   'Screen'                      => 'Bildschirm',
