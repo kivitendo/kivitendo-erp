@@ -1355,6 +1355,7 @@ $self->{texts} = {
   'Sat. Phone'                  => 'Sat. Tel.',
   'Satz %'                      => 'Satz %',
   'Save'                        => 'Speichern',
+  'Save Draft'                  => 'Entwurf speichern',
   'Save account first to insert taxkeys' => 'Einstellungen sind nach
   dem Speichern des Kontos verfügbar...',
   'Save and AP Transaction'     => 'Speichern und Kreditorenbuchung erfassen',
@@ -1640,7 +1641,7 @@ $self->{texts} = {
   'The wrong taxkeys for AP and AR transactions have been fixed.' => 'Die Probleme mit falschen Steuerschlüssel bei Kreditoren- und Debitorenbuchungen wurden behoben.',
   'The wrong taxkeys for inventory transactions for sales and purchase invoices have been fixed.' => 'Die falschen Steuerschlüssel für Warenbestandsbuchungen bei Einkaufs- und Verkaufsrechnungen wurden behoben.',
   'The wrong taxkeys have been fixed.' => 'Die Steuerschlüssel wurden nach Ihrer Auswahl korrigiert.',
-  'There are #1 unfinished follow-ups of which #2 are due.' => 'Es gibt #1 Wiedervorlage(n), von denen #2 f&auml;llig ist/sind.',
+  'There are #1 unfinished follow-ups of which #2 are due.' => 'Es gibt #1 Wiedervorlage(n), von denen #2 fällig ist/sind.',
   'There are four tax zones.'   => 'Es gibt vier Steuerzonen.',
   'There are no items in stock.' => 'Dieser Artikel ist nicht eingelagert.',
   'There are no items on your TODO list at the moment.' => 'Ihre Aufgabenliste enth&auml;lt momentan keine Eintr&auml;ge.',

@@ -23,6 +23,7 @@
     select        : java function call for a selection popup or other magic
     allow_textbox : allow to display a textbox instead of a drop down box if there are more entries than 'limit' entries.
     limit         : defines the limit of entries, after which a textbox is generated. defaults to vclimit, or, failing to find that, 200.
+    readonly      : softly prevents modification
 -%]
 [%- DEFAULT
   limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
@@ -44,6 +45,7 @@
  [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END -%]
  [%- IF default  %] value="[%    HTML.escape(default)  %]"[% END -%]
  [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END -%]
+ [%- IF readonly %] readonly[% END -%]
 [%- -%]>
 [%- IF select -%]
   <input type="button" onclick="[% select %]" value="?">
@@ -54,6 +56,7 @@
  [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END -%]
  [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END -%]
  [%- IF onChange %] onChange="[% HTML.escape(onChange) %]"[% END -%]
+ [%- IF readonly %] disabled[% END -%]
 [%- -%]>
   [%- IF show_empty %]
   <option value=""></option>

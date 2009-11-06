@@ -28,7 +28,7 @@
             </tr>
       [%- IF id && num_follow_ups %]
       <tr>
-       <td colspan="2">[% LxERP.format_string('Es gibt #1 Wiedervorlage(n), von denen #2 f&auml;llig ist/sind.', num_follow_ups, num_due_follow_ups) %]</td>
+       <td colspan="2">[% LxERP.format_string('Es gibt #1 Wiedervorlage(n), von denen #2 fällig ist/sind.', num_follow_ups, num_due_follow_ups) %]</td>
       </tr>
       [%- END %]
       </table>
@@ -91,7 +91,7 @@
       <td align="left" width="30%"><b>Dateiname</b></td>
       <td align="left" width="70%"><b>Webdavlink</b></td>
      </tr>
- [%- FOREACH file=WEBDAV %]
+ [%- FOREACH file = WEBDAV %]
       <tr>
         <td align="left">[% HTML.escape(file.name) %]</td>
         <td align="left"><a href="[% file.link %]">[% HTML.escape(file.type) %]</a></td>

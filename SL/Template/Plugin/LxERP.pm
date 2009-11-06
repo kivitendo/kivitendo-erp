@@ -23,6 +23,13 @@ sub format_amount {
   return '';
 }
 
+sub round_amount {
+  my ($self, $var, $places, $skip_zero) = @_;
+
+  return $main::form->round_amount($var * 1, $places) unless $skip_zero && $var == 0;
+  return '';
+}
+
 sub format_amount_units {
   my ($self, $amount, $amount_unit, $part_unit) = @_;
 
