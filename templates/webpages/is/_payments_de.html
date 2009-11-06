@@ -52,10 +52,9 @@
         <input type="hidden" name="forex_[% i %]" value="[% $forex %]">;
      </td>
 [% END %]
-     <td align="center"><select name="AR_paid_$i">[% $selectAR_paid_ref %]</select></td>
+     <td align="center"><select name="AR_paid_[% i %]">[% $selectAR_paid_ref %]</select></td>
 
     </tr>
-[%#     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i"); %]
     <script type='text/javascript'>
      Calendar.setup({ inputField : "datepaid_[% i %]", ifFormat :"[% myconfig_jsc_dateformat %]", align : "TR", button : "trigger_datepaid_[% i %]" });
      $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
@@ -81,7 +80,7 @@
      <input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
      <input type="hidden" name="oldinvtotal" value="[% rowcount %]">
 
-     <input type="hidden" name="oldtotalpaid" value="$totalpaid">
+     <input type="hidden" name="oldtotalpaid" value="[% totalpaid %]">
     </table>
 
     </td>
