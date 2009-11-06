@@ -168,8 +168,15 @@ sub invoice_links {
     $form->{customer}         = qq|$form->{customer}--$form->{"customer_id"}|;
   }
 
-  $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
-  $form->{selectcustomer} = 1;
+  $form->{"oldcustomer"}  = $form->{customer};
+
+  if ($form->{"oldcustomer"} !~ m/--\d+$/ && $form->{"customer_id"}) {
+    $form->{"oldcustomer"} .= qq|--$form->{"customer_id"}|
+  }
+
+
+#  $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
+#  $form->{selectcustomer} = 1;
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
 
