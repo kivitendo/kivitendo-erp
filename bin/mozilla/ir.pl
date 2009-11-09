@@ -1136,6 +1136,19 @@ sub post_payment {
   $main::lxdebug->leave_sub();
 }
 
+sub _max_datepaid {
+  my $form  =  $main::form;
+
+  my @dates = sort { $b->[1] cmp $a->[1] }
+              map  { [ $_, $main::locale->reformat_date(\%main::myconfig, $_, 'yyyy-mm-dd') ] }
+              grep { $_ }
+              map  { $form->{"datepaid_${_}"} }
+              (1..$form->{rowcount});
+
+  return @dates ? $dates[0]->[0] : undef;
+}
+
+
 sub post {
   $main::lxdebug->enter_sub();
 
@@ -1162,16 +1175,16 @@ sub post {
 
   &validate_items;
 
-  my $closedto = $form->datetonum($form->{closedto}, \%myconfig);
-  my $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
-  my $i        = $form->{rowcount};
+  my $closedto     = $form->datetonum($form->{closedto}, \%myconfig);
+  my $invdate      = $form->datetonum($form->{invdate},  \%myconfig);
+  my $max_datepaid = _max_datepaid();
 
-  $form->error($locale->text('Cannot post invoice for a closed period!'))
-    if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
+  $form->error($locale->text('Cannot post invoice for a closed period!')) if $max_datepaid && $form->date_closed($max_datepaid, \%myconfig);
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
 
+  my $i;
   for $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
