@@ -8,8 +8,7 @@ die("This script cannot be run from the command line.") unless ($main::form);
 
 sub mydberror {
   my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") .
-      "<br>$msg<br>" . $DBI::errstr);
+  die($dbup_locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr);
 }
 
 sub do_query {
@@ -41,14 +40,14 @@ sub query_result {
     if ($main::form->{"gender_$i"} eq "f" ) {
 			$mchecked = "";
 			$fchecked = "checked";
-	} else {
+    } else {
 			$mchecked = "checked";
 			$fchecked = "";
-	};
+    };
 
-   $gender_table .= "<tr><input type=hidden name=\"cp_id_$i\" value=\"$row->{cp_id}\"> <td>$row->{cp_givenname}</td> <td>$row->{cp_name}</td> <td>$row->{cp_title} </td> <td>$row->{cp_greeting} </td><td> <input type=\"radio\" name=\"gender_$i\" value=\"m\" $mchecked> <input type=\"radio\" name=\"gender_$i\" value=\"f\" $fchecked></td></tr>\n";
-   $i++;
-  };
+    $gender_table .= "<tr><input type=hidden name=\"cp_id_$i\" value=\"$row->{cp_id}\"> <td>$row->{cp_givenname}</td> <td>$row->{cp_name}</td> <td>$row->{cp_title} </td> <td>$row->{cp_greeting} </td><td> <input type=\"radio\" name=\"gender_$i\" value=\"m\" $mchecked> <input type=\"radio\" name=\"gender_$i\" value=\"f\" $fchecked></td></tr>\n";
+    $i++;
+  }
 
   $gender_table .= "<input type=hidden name=\"number_of_gender_entries\" value=\"$i\">";
   $gender_table .= "</table>";
@@ -67,21 +66,18 @@ sub query_result {
   my $j = 1;
   while (my $row = $sth3->fetchrow_hashref()) {
 # Vorschlagsfeld fuer neuen Titel mit Werten von cp_greeting und cp_title vorbelegen
-		  my $value = "$row->{cp_greeting}";
-		  $value .= " " if $row->{cp_greeting};
-		  $value .= "$row->{cp_title}";
+    my $value = "$row->{cp_greeting}";
+    $value .= " " if $row->{cp_greeting};
+    $value .= "$row->{cp_title}";
 
-		  $title_table .= "<tr> <td><input type=hidden name=\"cp_id_title_$j\" value=$row->{cp_id}> $row->{cp_givenname}</td> <td>$row->{cp_name}</td><td>$row->{cp_title}</td> <td>$row->{cp_greeting}</td><td><input type=\"text\" id=\"cp_title_$j\" name=\"cp_name_$j\" value=\"$value\"></td> </tr>\n";
-		  $j++;
-  };
+    $title_table .= "<tr> <td><input type=hidden name=\"cp_id_title_$j\" value=$row->{cp_id}> $row->{cp_givenname}</td> <td>$row->{cp_name}</td><td>$row->{cp_title}</td> <td>$row->{cp_greeting}</td><td><input type=\"text\" id=\"cp_title_$j\" name=\"cp_name_$j\" value=\"$value\"></td> </tr>\n";
+    $j++;
+  }
 
   $title_table .= "<input type=hidden name=\"number_of_title_entries\" value=\"$j\">";
   $title_table .= "</table>";
   $main::form->{title_table} = $title_table;
-
-};
-
-
+}
 
 sub print_question {
   query_result();
@@ -113,9 +109,9 @@ sub do_update {
   } else {
     # case 2: submit button was pressed, hidden field do_migrate was set
     migrate_data();
-  };
+  }
 
-return 1;
+  return 1;
 
 }
 
@@ -133,15 +129,15 @@ EOF
 
   for (my $i = 1; $i <= $main::form->{number_of_gender_entries}; $i++ ) {
     next unless $main::form->{"cp_id_$i"};
-	if ( $main::form->{"gender_$i"} eq "f" ) {
-	  $sqlcode .= "UPDATE contacts SET cp_gender = \'f\' WHERE cp_id = $main::form->{\"cp_id_$i\"};\n";
-    };
-  };
+    if ( $main::form->{"gender_$i"} eq "f" ) {
+      $sqlcode .= "UPDATE contacts SET cp_gender = \'f\' WHERE cp_id = $main::form->{\"cp_id_$i\"};\n";
+    }
+  }
 
   for (my $i = 1; $i <= $main::form->{number_of_title_entries}; $i++ ) {
     next unless $main::form->{"cp_id_title_$i"} and $main::form->{"cp_id_$i"};
-	$sqlcode .= "UPDATE contacts SET cp_title = \'$main::form->{\"cp_name_$i\"}\' WHERE cp_id = $main::form->{\"cp_id_$i\"};\n";
-  };
+    $sqlcode .= "UPDATE contacts SET cp_title = \'$main::form->{\"cp_name_$i\"}\' WHERE cp_id = $main::form->{\"cp_id_$i\"};\n";
+  }
   $sqlcode .= "ALTER TABLE contacts DROP COLUMN cp_greeting;";
 
   # insert chosen default values
@@ -150,22 +146,18 @@ EOF
 
   my $query  = $sqlcode;
   do_query($query);
-};
-
-
+}
 
 sub set_default_greetings {
   # add html input boxes to template so user can specify default greetings
 
-   my $default_male = "Herr";
-   my $default_female = "Frau";
-
-   my $default_greeting_text_male = "<input type=\"text\" id=\"default_male\" name=\"default_male\" value=\"$default_male\"><br>";
-   my $default_greeting_text_female = "<input type=\"text\" id=\"default_female\" name=\"default_female\" value=\"$default_female\"><br>";
-   $main::form->{default_greeting_text_male} = $default_greeting_text_male;
+   my $default_male                            = "Herr";
+   my $default_female                          = "Frau";
+   my $default_greeting_text_male              = "<input type=\"text\" id=\"default_male\" name=\"default_male\" value=\"$default_male\"><br>";
+   my $default_greeting_text_female            = "<input type=\"text\" id=\"default_female\" name=\"default_female\" value=\"$default_female\"><br>";
+   $main::form->{default_greeting_text_male}   = $default_greeting_text_male;
    $main::form->{default_greeting_text_female} = $default_greeting_text_female;
-};
-
+}
 
 return do_update();
 
