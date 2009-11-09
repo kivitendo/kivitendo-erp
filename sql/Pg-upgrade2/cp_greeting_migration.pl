@@ -88,6 +88,11 @@ sub print_question {
 sub do_update {
   # main function
 
+  # Do not ask the user anything if there are no entries in the
+  # contacts table.
+  my ($data_exists) = $dbh->selectrow_array("SELECT * FROM contacts LIMIT 1");
+  return 1 if !$data_exists;
+
   # first of all check if gender.sql was already run and thus cp_gender exists
   # if it exists there is no need for this update anymore, so return
   # without doing anything
