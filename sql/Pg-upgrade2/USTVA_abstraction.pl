@@ -12,9 +12,6 @@ use strict;
 
 die("This script cannot be run from the command line.") unless ($main::form);
 
-# import vars from caller
-our ($dbup_locale, $dbup_myconfig, $dbh, $iconv);
-
 sub mydberror {
   my ($msg) = @_;
   die($dbup_locale->text("Database update error:") .

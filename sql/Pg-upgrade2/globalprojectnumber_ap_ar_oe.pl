@@ -4,9 +4,6 @@
 
 use strict;
 
-# import vars from caller
-our ($dbup_locale, $dbup_myconfig, $dbh);
-
 die("This script cannot be run from the command line.") unless ($main::form);
 
 sub mydberror {

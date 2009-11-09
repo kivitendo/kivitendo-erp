@@ -8,9 +8,6 @@ unless ( $main::form ) {
   die("This script cannot be run from the command line.");
 }
 
-# import vars from caller
-our ($dbup_locale, $dbup_myconfig, $dbh, $iconv);
-
 if ( check_coa('Austria') ){
 
   if ( coa_is_empty() )  {
