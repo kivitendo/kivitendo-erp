@@ -341,6 +341,7 @@ $self->{subs} = {
   'NTI'                         => 'NTI',
   'Q'                           => 'Q',
   '_check_io_auth'              => '_check_io_auth',
+  '_max_datepaid'               => '_max_datepaid',
   '_render_custom_variables_inputs' => '_render_custom_variables_inputs',
   '_update_custom_variables'    => '_update_custom_variables',
   '_update_part_information'    => '_update_part_information',
