@@ -733,18 +733,13 @@ sub generate_journal {
     my $row = { };
 
     foreach my $column (@columns) {
-      next if ($column eq 'trans_type');
-
       $row->{$column} = {
         'data'  => $entry->{$column},
         'align' => $column_alignment{$column},
       };
     }
 
-    $row->{trans_type} = {
-      'raw_data' => $entry->{trans_type},
-      'align'    => $column_alignment{trans_type},
-    };
+    $row->{trans_type}->{raw_data} = $entry->{trans_type};
 
     if ($form->{l_oe_id}) {
       $row->{oe_id}->{data} = '';
