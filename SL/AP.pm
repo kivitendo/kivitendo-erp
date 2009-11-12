@@ -38,8 +38,6 @@ use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
 
-use Data::Dumper;
-
 use strict;
 
 sub post_transaction {
@@ -70,7 +68,7 @@ sub post_transaction {
       (split(/--/, $form->{"AP_amount_$i"}))[0];
   }
   ($form->{AP_amounts}{payables}) = split(/--/, $form->{APselected});
-  ($form->{AP_payables})          = split(/--/, $form->{APselected});
+  ($form->{AP}{payables})         = split(/--/, $form->{APselected});
 
   # reverse and parse amounts
   for my $i (1 .. $form->{rowcount}) {
@@ -272,7 +270,7 @@ sub post_transaction {
 
       # get paid account
 
-      ($form->{"AP_paid_account_$i"}) = split(/--/, $form->{"AP_paid_$i"});
+      ($form->{AP}{"paid_$i"}) = split(/--/, $form->{"AP_paid_$i"});
       $form->{"datepaid_$i"} = $form->{transdate}
         unless ($form->{"datepaid_$i"});
 
@@ -289,9 +287,9 @@ sub post_transaction {
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, | .
           qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = ($form->{id}, $form->{AP_payables}, $amount,
+        @values = ($form->{id}, $form->{AP}{payables}, $amount,
                    conv_date($form->{"datepaid_$i"}), $project_id,
-                   $form->{AP_payables});
+                   $form->{AP}{payables});
         do_query($form, $dbh, $query, @values);
       }
       $form->{payables} = $amount;
@@ -301,9 +299,9 @@ sub post_transaction {
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id, taxkey) | .
         qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, | .
         qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-      @values = ($form->{id}, $form->{"AP_paid_account_$i"}, $form->{"paid_$i"},
+      @values = ($form->{id}, $form->{AP}{"paid_$i"}, $form->{"paid_$i"},
                  conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
-                 $form->{"memo_$i"}, $project_id, $form->{"AP_paid_account_$i"});
+                 $form->{"memo_$i"}, $project_id, $form->{AP}{"paid_$i"});
       do_query($form, $dbh, $query, @values);
 
       # add exchange rate difference
@@ -315,9 +313,9 @@ sub post_transaction {
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
           qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = ($form->{id}, $form->{"AP_paid_account_$i"}, $amount,
+        @values = ($form->{id}, $form->{AP}{"paid_$i"}, $amount,
                    conv_date($form->{"datepaid_$i"}), $project_id,
-                   $form->{"AP_paid_account_$i"});
+                   $form->{AP}{"paid_$i"});
         do_query($form, $dbh, $query, @values);
       }
 
