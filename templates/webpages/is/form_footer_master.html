@@ -130,7 +130,7 @@
     <input class="submit" type="submit" name="action" value="<translate>Post Payment</translate>">
     <input class="submit" type="submit" name="action" value="<translate>Use As Template</translate>">
 
-[% IF id && is_type_credit_note %]
+[% IF id && !is_type_credit_note %]
     <input class="submit" type="submit" name="action" value="<translate>Credit Note</translate>">
 [% END %]
 [% IF show_delete %]

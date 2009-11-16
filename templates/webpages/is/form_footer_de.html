@@ -130,7 +130,7 @@
     <input class="submit" type="submit" name="action" value="Zahlung buchen">
     <input class="submit" type="submit" name="action" value="Als Vorlage verwenden">
 
-[% IF id && is_type_credit_note %]
+[% IF id && !is_type_credit_note %]
     <input class="submit" type="submit" name="action" value="Gutschrift">
 [% END %]
 [% IF show_delete %]
