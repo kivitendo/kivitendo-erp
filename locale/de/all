@@ -1417,6 +1417,7 @@ $self->{texts} = {
   'Shopartikel'                 => 'Shopartikel',
   'Short'                       => 'Knapp',
   'Show'                        => 'Zeigen',
+  'Show Salesman'               => 'Verkäufer anzeigen',
   'Show TODO list'              => 'Aufgabenliste anzeigen',
   'Show by default'             => 'Standardm&auml;&szlig;ig anzeigen',
   'Show custom variable search inputs' => 'Suchoptionen für Benutzerdefinierte Variablen verstecken',
