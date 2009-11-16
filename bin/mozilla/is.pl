@@ -455,7 +455,7 @@ sub update {
 
   my ($recursive_call) = shift;
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining) unless $recursive_call;
+#  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining) unless $recursive_call;
 
   $form->{print_and_post} = 0         if $form->{second_run};
   my $taxincluded            = "checked" if $form->{taxincluded};
@@ -876,8 +876,8 @@ sub credit_note {
 
   map { $form->{"select$_"} = "" } ($form->{vc}, 'currency');
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(creditlimit creditremaining);
+#  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
+#    qw(creditlimit creditremaining);
 
   my $currency = $form->{currency};
   &invoice_links;
