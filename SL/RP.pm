@@ -215,6 +215,8 @@ sub get_accounts {
   }
 
   if ($form->{project_id}) {
+	# Diese Bedingung wird derzeit niemals wahr sein, da man in Bericht->Bilanz keine 
+	# Projekte auswählen kann
     $project = qq| AND (ac.project_id = | . conv_i($form->{project_id}, 'NULL') . qq|) |;
   }
 
@@ -276,6 +278,7 @@ sub get_accounts {
          GROUP BY c.accno, c.description, c.category |;
 
     if ($form->{project_id}) {
+		# s.o. keine Projektauswahl in Bilanz
       $query .=
         qq|
          UNION ALL
@@ -344,6 +347,7 @@ sub get_accounts {
       GROUP BY c.accno, c.description, c.category |;
 
     if ($form->{project_id}) {
+		# s.o. keine Projektauswahl in Bilanz
       $query .= qq|
       UNION ALL
 
