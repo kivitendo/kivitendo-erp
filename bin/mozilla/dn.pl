@@ -358,12 +358,8 @@ sub show_dunning {
     'dunning_duedate'     => { 'text' => $locale->text('Dunning Duedate') },
     'fee'                 => { 'text' => $locale->text('Total Fees') },
     'interest'            => { 'text' => $locale->text('Interest') },
+    'salesman'            => { 'text' => $locale->text('Salesperson'), 'visible' => $form->{l_salesman} ? 1 : 0 },
   );
-
-  if ($form->{l_salesman}) {
-   # Show salesman column
-    $column_defs{'salesman'} = ( { 'text' =>  $locale->text('Salesperson') } );
-  }
 
   $report->set_columns(%column_defs);
   $report->set_column_order(qw(checkbox dunning_description customername invnumber transdate
