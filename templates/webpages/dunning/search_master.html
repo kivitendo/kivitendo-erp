@@ -92,7 +92,21 @@
         <input type="button" name="dunningto" id="trigger4" value="?">
        </td>
       </tr>
-
+      <tr>
+       <th align="right"><translate>Salesman</translate></th>
+       <td>
+        [%- INCLUDE 'generic/multibox.html'
+            name          = 'salesman_id',
+            style         = 'width: 250px',
+            DATA          =  ALL_SALESMEN,
+            id_key        = 'id',
+            label_sub     = 'salesman_labels',
+            limit         = vclimit,
+            show_empty    = 1,
+            allow_textbox = 0,
+         -%]
+       </td>
+      </tr>
      </table>
     </td>
    </tr>

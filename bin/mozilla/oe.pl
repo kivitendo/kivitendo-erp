@@ -745,7 +745,8 @@ sub orders {
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
     "delivered", "marge_total", "marge_percent",
-    "country",                 "ustid",
+    "customernumber",          "ustid",
+    "country",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -807,6 +808,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
+    'customernumber'                 => { 'text' => $locale->text('Customer Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
   );

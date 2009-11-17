@@ -600,6 +600,11 @@ sub get_dunning {
     push(@values, $form->{dunningto});
   }
 
+  if ($form->{salesman_id}) {
+    $where .= qq| AND a.salesman_id = ?|;
+    push(@values, conv_i($form->{salesman_id}));
+  }
+
   my %sort_columns = (
     'dunning_description' => [ qw(dn.dunning_description customername invnumber) ],
     'customername'        => [ qw(customername invnumber) ],
