@@ -745,7 +745,7 @@ sub orders {
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
     "delivered", "marge_total", "marge_percent",
-    "customernumber",          "ustid",
+    "vcnumber",                "ustid",
     "country",
   );
 
@@ -808,7 +808,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
-    'customernumber'                 => { 'text' => $locale->text('Customer Number'), },
+    'vcnumber'                => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
   );

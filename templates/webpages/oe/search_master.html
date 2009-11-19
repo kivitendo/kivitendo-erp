@@ -1,5 +1,6 @@
 [%- USE HTML %]
 [%- SET vclabel = vc == 'customer' ? '<translate>Customer</translate>' : '<translate>Vendor</translate>' %]
+[%- SET vcnumberlabel = vc == 'customer' ? '<translate>Customer Number</translate>' : '<translate>Vendor Number</translate>' %]
 <body>
 
 <form method="post" action="oe.pl">
@@ -227,12 +228,12 @@
         </td>
        </tr>
        <tr>
-        <td colspan=4 align=left><b><translate>Customer</translate></td>
+        <td colspan=4 align=left><b>[% HTML.escape(vclabel) %]</td>
        </tr>
        <tr>
         <td>
-         <input name="l_customernumber" id="l_customernumber" class="checkbox" type="checkbox" value="Y">
-         <label for="l_customernumber"><translate>Customer Number</translate></label>
+         <input name="l_vcnumber" id="l_vcnumber" class="checkbox" type="checkbox" value="Y">
+         <label for="l_vcnumber">[% HTML.escape(vcnumberlabel) %]</label>
         </td>
         <td>
          <input name="l_country" id="l_country" class="checkbox" type="checkbox" value="Y">
