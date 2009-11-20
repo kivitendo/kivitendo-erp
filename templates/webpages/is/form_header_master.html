@@ -115,6 +115,9 @@
                  readonly   = (id ? 1 : 0)
                  label_key  = 'description' -%]
           </td>
+  [%- IF id %]
+          <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
+  [%- END %]
         </tr>
 [%- IF all_departments %]
         <tr>
