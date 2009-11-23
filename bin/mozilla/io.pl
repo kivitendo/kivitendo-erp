@@ -317,24 +317,24 @@ sub display_row {
                    $locale->text('Subtotal'), $form->{"subtotal_$i"} ? 'checked' : '' };
 
 # begin marge calculations
-    my $marge_color;
-    my $real_sellprice     = ($form->{"sellprice_$i"} - $discount) / $price_factor;
-    my $marge_price_factor = $form->{"marge_price_factor_$i"} * 1 || 1;
-
-    $form->{"lastcost_$i"} *= 1;
+    $form->{"lastcost_$i"}     *= 1;
     $form->{"marge_percent_$i"} = 0;
 
-    if ($real_sellprice && ($form->{"qty_$i"} * 1)) {
-      $form->{"marge_percent_$i"}     = ($real_sellprice - $form->{"lastcost_$i"} / $marge_price_factor) * 100 / $real_sellprice;
-      $myconfig{marge_percent_warn} ||= 15;
-      $marge_color                    = 'color="#ff0000"' if $form->{"id_$i"} && ($form->{"marge_percent_$i"} < (1 * $myconfig{marge_percent_warn}));
+    my $marge_color;
+    my $real_sellprice           = $linetotal;
+    my $real_lastcost            = $form->{"lastcost_$i"} * $form->{"qty_$i"} / ( $form->{"marge_price_factor_$i"} || 1 );
+    my $marge_percent_warn       = $myconfig{marge_percent_warn} * 1 || 15;
+    my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
+
+    if ($real_sellprice * 1 && ($form->{"qty_$i"} * 1)) {
+      $form->{"marge_percent_$i"} = ($real_sellprice - $real_lastcost) * 100 / $real_sellprice;
+      $marge_color                = 'color="#ff0000"' if $form->{"id_$i"} && $form->{"marge_percent_$i"} < $marge_percent_warn;
     }
 
-    my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
-    $form->{"marge_absolut_$i"}  = ($real_sellprice - $form->{"lastcost_$i"} / $marge_price_factor) * $form->{"qty_$i"} * $marge_adjust_credit_note;
+    $form->{"marge_absolut_$i"}  = ($real_sellprice - $real_lastcost) * $marge_adjust_credit_note;
     $form->{"marge_total"}      += $form->{"marge_absolut_$i"};
-    $form->{"lastcost_total"}   += $form->{"lastcost_$i"} * $form->{"qty_$i"} / $marge_price_factor;
-    $form->{"sellprice_total"}  += $real_sellprice * $form->{"qty_$i"};
+    $form->{"lastcost_total"}   += $real_lastcost;
+    $form->{"sellprice_total"}  += $real_sellprice;
 
     map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
 
