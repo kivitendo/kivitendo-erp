@@ -1070,8 +1070,8 @@ sub post {
   my ($debitaccno,    $debittaxkey)    = split /--/, $form->{AP_amountselected};
   my ($taxkey,        $NULL)           = split /--/, $form->{taxchartselected};
   my ($payablesaccno, $payablestaxkey) = split /--/, $form->{APselected};
-  $form->{AP}{amount_1} = $debitaccno;
-  $form->{AP}{payables} = $payablesaccno;
+#  $form->{AP_amount_1}  = $debitaccno;
+  $form->{AP_payables}  = $payablesaccno;
   $form->{taxkey}       = $taxkey;
   $form->{storno}       = 0;
 
