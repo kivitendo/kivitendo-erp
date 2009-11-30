@@ -613,6 +613,7 @@ sub get_dunning {
     'duedate'             => [ qw(a.duedate a.invnumber) ],
     'dunning_date'        => [ qw(dunning_date a.invnumber) ],
     'dunning_duedate'     => [ qw(dunning_duedate a.invnumber) ],
+    'salesman'            => [ qw(salesman) ],
     );
 
   my $sortdir   = !defined $form->{sortdir}    ? 'ASC'         : $form->{sortdir} ? 'ASC' : 'DESC';

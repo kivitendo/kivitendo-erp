@@ -321,7 +321,7 @@ sub show_dunning {
   $main::auth->assert('dunning_edit');
 
   my @filter_field_list = qw(customer_id customer dunning_level department_id invnumber ordnumber
-                             transdatefrom transdateto dunningfrom dunningto notes showold salesman);
+                             transdatefrom transdateto dunningfrom dunningto notes showold l_salesman salesman_id);
 
   report_generator_set_default_sort('customername', 1);
 
