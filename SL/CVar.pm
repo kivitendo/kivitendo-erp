@@ -353,7 +353,7 @@ sub save_custom_variables {
 }
 
 sub render_inputs {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my $self     = shift;
   my %params   = @_;
@@ -374,7 +374,7 @@ sub render_inputs {
     $var->{VALID_BOX} = $form->parse_html_template('amcvar/render_checkboxes', { var => $var, %options });
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 }
 
 sub render_search_options {
@@ -661,7 +661,7 @@ sub save_custom_variables_validity {
 }
 
 sub get_custom_variables_validity {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my $self     = shift;
   my %params   = @_;
@@ -677,7 +677,7 @@ sub get_custom_variables_validity {
 
   my ($invalid) = selectfirst_array_query($form, $dbh, $query, conv_i($params{config_id}), conv_i($params{trans_id}));
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return !$invalid;
 }
