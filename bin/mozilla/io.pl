@@ -2077,7 +2077,7 @@ sub _update_custom_variables {
 }
 
 sub _render_custom_variables_inputs {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my $form     = $main::form;
 
@@ -2114,5 +2114,5 @@ sub _render_custom_variables_inputs {
                              };
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 }
