@@ -145,6 +145,12 @@ sub invoice_links {
 
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
 
+  # build vendor/customer drop down comatibility... don't ask
+  if (@{ $form->{"all_vendor"} || [] }) {
+    $form->{"selectvendor"} = 1;
+    $form->{vendor}         = qq|$form->{vendor}--$form->{vendor_id}|;
+  }
+
   # departments
   if ($form->{all_departments}) {
     $form->{selectdepartment} = "<option>\n";
