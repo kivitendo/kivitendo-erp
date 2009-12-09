@@ -32,7 +32,7 @@ use lib 't';
 
 use Support::Files;
 
-use Test::More tests => scalar @Support::Files::testitems * 2;
+use Test::More tests => scalar @Support::Files::testitems * 3;
 
 my @testitems = @Support::Files::testitems; # get the files to test.
 
@@ -100,6 +100,37 @@ foreach my $file (@testitems) {
         ok(1,"$file uses strict");
     } else {
         ok(0,"$file DOES NOT use strict --WARNING");
+    }
+}
+
+
+# note, the html checker is not really thorough.
+# in particular it will not find standard tags with parameters.
+# the estimate wether a file is dirty or not is still pretty helpful, as it will catch most of the closing tags.
+# if you are in doubt about a specific file, you still have to check it manually.
+my $tags = qr/b|i|u|h[1-6]|a href.*|input|form|br|textarea|table|tr|td|th|body|head|html|p|button|select|option|script/;
+foreach my $file (@testitems) {
+    my $found_html_count = 0;
+    my $found_html       = '';
+    $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
+    next if (!$file); # skip null entries
+    if (! open (FILE, $file)) {
+        ok(0,"could not open $file --WARNING");
+        next;
+    }
+    while (my $file_line = <FILE>) {
+        if ($file_line =~ m/(<\/?$tags>)/) {
+            $found_html_count++;
+            $found_html .= $1;
+        }
+    }
+    close (FILE);
+    if (!$found_html_count) {
+        ok(1,"$file does not contain HTML");
+    } else {
+    TODO: { local $TODO = q(Templating is not final.);
+        ok(0,"$file contains at least $found_html_count html tags.");
+      }
     }
 }
 
