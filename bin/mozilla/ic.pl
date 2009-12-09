@@ -2016,7 +2016,7 @@ sub ajax_autocomplete {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $form->{column}        ||= 'description';
+  $form->{column}          = 'description'     unless $form->{column} =~ /^partnumber|description$/;
   $form->{$form->{column}} = $form->{q}           || '';
   $form->{limit}           = ($form->{limit} * 1) || 10;
   $form->{searchitems}   ||= '';
