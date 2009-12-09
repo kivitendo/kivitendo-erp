@@ -714,4 +714,25 @@ sub delete_contact {
   $main::lxdebug->leave_sub();
 }
 
+sub ajax_autocomplete {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $form->{column}          = 'name'     unless $form->{column} =~ /^name$/;
+  $form->{vc}              = 'customer' unless $form->{vc} =~ /^customer|vendor$/;
+  $form->{db}              = $form->{vc}; # CT expects this
+  $form->{$form->{column}} = $form->{q}           || '';
+  $form->{limit}           = ($form->{limit} * 1) || 10;
+  $form->{searchitems}   ||= '';
+
+  CT->search(\%myconfig, $form);
+
+  print $form->ajax_response_header(),
+        $form->parse_html_template('ct/ajax_autocomplete');
+
+  $main::lxdebug->leave_sub();
+}
+
 sub continue { call_sub($main::form->{nextsub}); }
