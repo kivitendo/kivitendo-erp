@@ -16,11 +16,13 @@
    action   : action in the ajax script, defaults to 'ajax_autocomplete'
    selector : a jquery selector, specifying the input fields
    column   : specifies the column that is represented by the bound field. typically description or name.
+   params   : additional params that should be included in the request, like customer/vendor information. expects a hash.
 
   TODO FIELDS:
    - addition fields like type, vc etc.
    - additional dependencies, see jquery.autocomplete documentation
    - hook function on select, again see jquery documentation
+   - limit: maximum number of results shown.
 
   a simple SPEC would look like this:
 
@@ -43,10 +45,14 @@
 [%- DEFAULT token.script         = script              %]
 [%- DEFAULT token.action         = 'ajax_autocomplete' %]
 [%- DEFAULT token.INPUT_ENCODING = 'utf8'              %]
+[%- FOREACH key = token.params.keys %]
+[%- token.additional_url = token.additional_url _ '&' _ key _ '=' _ token.params.$key %]
+[%- END %]
 [%- token.url = token.script
               _ '?action=' _ token.action
               _ '&INPUT_ENCODING=' _ token.INPUT_ENCODING %]
 [%- SET token.url = token.url _ '&column=' _ token.column IF token.column %]
+[%- SET token.url = token.url _ token.additional_url IF token.additional_url %]
 $(document).ready( $('[% token.selector %]').autocomplete('[% token.url %]'));
 [%- END %]
 </script>
