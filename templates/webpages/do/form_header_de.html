@@ -141,6 +141,10 @@
          </td>
         </tr>
         [%- END %]
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[name="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
 
         [%- IF ALL_SHIPTO.size %]
         <tr>
