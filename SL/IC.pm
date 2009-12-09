@@ -937,7 +937,9 @@ sub all_parts {
 
   #my $order_clause = " ORDER BY $form->{sort} $sort_order";
 
-  my $limit_clause = " LIMIT 100" if $form->{top100};
+  my $limit_clause;
+  $limit_clause = " LIMIT 100"                   if $form->{top100};
+  $limit_clause = " LIMIT " . $form->{limit} * 1 if $form->{limit} * 1;
 
   #=== joins and complicated filters ========#
 
