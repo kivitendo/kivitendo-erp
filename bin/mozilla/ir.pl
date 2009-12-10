@@ -740,7 +740,7 @@ sub update {
 
   $main::auth->assert('vendor_invoice_edit');
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
+#  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
   &check_name('vendor');
 
