@@ -283,6 +283,7 @@ sub form_header {
                    "taxzones"      => "ALL_TAXZONES",
                    "currencies"    => "ALL_CURRENCIES",
                    "vendors"       => "ALL_VENDORS",
+                   "departments"   => "all_departments",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
