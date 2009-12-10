@@ -222,13 +222,7 @@
      Calendar.setup({ inputField : "orddate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_orddate" });
      Calendar.setup({ inputField : "quodate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_quodate" });
      $('document').ready(function(){
-[% IF resubmit && is_format_html %]
-       window.open('about:blank','Beleg');
-       document.invoice.target = 'Beleg';
-       document.invoice.submit();
-[% ELSIF resubmit %]
-       document.invoice.submit();
-[% ELSIF creditwarning != '' %]
+[% IF creditwarning != '' %]
        alert('Kreditlimit überschritten!');
 [% ELSE %]
        focus();
