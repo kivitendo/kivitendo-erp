@@ -47,7 +47,9 @@ foreach my $file (@testitems) {
     if (grep /\t/, <FILE>) {
         ok(0, "$file contains tabs --WARNING");
     } else {
+      TODO: { local $TODO = q(Tabfreeness is not enforced at the moment.);
         ok(1, "$file has no tabs");
+      }
     }
     close (FILE);
 }

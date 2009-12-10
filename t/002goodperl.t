@@ -127,10 +127,12 @@ foreach my $file (@testitems) {
     close (FILE);
     if (!$found_html_count) {
         ok(1,"$file does not contain HTML");
-    } else {
-    TODO: { local $TODO = q(Templating is not final.);
+    } elsif ($found_html_count < 50) {
+      TODO: { local $TODO = q(Even slow amounts should go away....);
         ok(0,"$file contains at least $found_html_count html tags.");
       }
+    } else {
+        ok(0,"$file contains at least $found_html_count html tags.");
     }
 }
 
