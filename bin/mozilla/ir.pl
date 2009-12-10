@@ -265,7 +265,6 @@ sub form_header {
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-  $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   my $set_duedate_url = "$form->{script}?action=set_duedate";
 
@@ -354,368 +353,61 @@ sub form_footer {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
 
-  $main::auth->assert('vendor_invoice_edit');
+  $main::auth->assert('invoice_edit');
 
-  $form->{invtotal} = $form->{invsubtotal};
-
-  my ($rows, $introws);
-  if (($rows = $form->numtextrows($form->{notes}, 25, 8)) < 2) {
-    $rows = 2;
-  }
-  if (($introws = $form->numtextrows($form->{intnotes}, 35, 8)) < 2) {
-    $introws = 2;
-  }
-  $rows = ($rows > $introws) ? $rows : $introws;
-  my $notes =
-    qq|<textarea name=notes rows=$rows cols=25 wrap=soft>$form->{notes}</textarea>|;
-  my $intnotes =
-    qq|<textarea name=intnotes rows=$rows cols=35 wrap=soft>$form->{intnotes}</textarea>|;
-
-  $form->{taxincluded} = ($form->{taxincluded}) ? "checked" : "";
-
-  my $taxincluded = "";
-  if ($form->{taxaccounts}) {
-    $taxincluded = qq|
-		<input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}> <b>|
-      . $locale->text('Tax Included') . qq|</b>
-|;
-  }
-
-  my ($tax, $subtotal);
-  if (!$form->{taxincluded}) {
-
-    foreach my $item (split / /, $form->{taxaccounts}) {
-      if ($form->{"${item}_base"}) {
-        $form->{invtotal} += $form->{"${item}_total"} =
-          $form->round_amount(
-                             $form->{"${item}_base"} * $form->{"${item}_rate"},
-                             2);
-        $form->{"${item}_total"} =
-          $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
-
-        $tax .= qq|
-		<tr>
-		  <th align=right>$form->{"${item}_description"}&nbsp;|
-                    . $form->{"${item}_rate"} * 100 .qq|%</th>
-		  <td align=right>$form->{"${item}_total"}</td>
-		</tr>
-|;
-      }
-    }
-
-    $form->{invsubtotal} =
-      $form->format_amount(\%myconfig, $form->{invsubtotal}, 2, 0);
-
-    $subtotal = qq|
-	      <tr>
-		<th align=right>| . $locale->text('Subtotal') . qq|</th>
-		<td align=right>$form->{invsubtotal}</td>
-	      </tr>
-|;
-
-  }
-
-  if ($form->{taxincluded}) {
-    foreach my $item (split / /, $form->{taxaccounts}) {
-      if ($form->{"${item}_base"}) {
-        $form->{"${item}_total"} =
-          $form->round_amount(
-                           ($form->{"${item}_base"} * $form->{"${item}_rate"} /
-                              (1 + $form->{"${item}_rate"})
-                           ),
-                           2);
-        $form->{"${item}_base"} =
-          $form->round_amount($form->{"${item}_base"}, 2);
-        $form->{"${item}_netto"} =
-          $form->round_amount(
-                          ($form->{"${item}_base"} - $form->{"${item}_total"}),
-                          2);
-        $form->{"${item}_netto"} =
-          $form->format_amount(\%myconfig, $form->{"${item}_netto"}, 2);
-        $form->{"${item}_total"} =
-          $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
-
-        $tax .= qq|
-	      <tr>
-		<th align=right>Enthaltene $form->{"${item}_description"}&nbsp;|
-		                    . $form->{"${item}_rate"} * 100 .qq|%</th>
-		<td align=right>$form->{"${item}_total"}</td>
-	      </tr>
-	      <tr>
-	        <th align=right>Nettobetrag</th>
-		<td align=right>$form->{"${item}_netto"}</td>
-	      </tr>
-|;
-      }
-    }
-
-  }
-
+  $form->{invtotal}    = $form->{invsubtotal};
   $form->{oldinvtotal} = $form->{invtotal};
-  $form->{invtotal}    =
-    $form->format_amount(\%myconfig, $form->{invtotal}, 2, 0);
 
-  my $follow_ups_block;
-  if ($form->{id}) {
-    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
+  # note rows
+  $form->{rows} = max 2,
+    $form->numtextrows($form->{notes},    26, 8),
+    $form->numtextrows($form->{intnotes}, 35, 8);
 
-    if (@{ $follow_ups} ) {
-      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
-      $follow_ups_block = qq|
-      <tr>
-        <td colspan="2">| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</td>
-      </tr>
-|;
-    }
-  }
 
-  our $colspan;
-  print qq|
-  <tr>
-    <td colspan=$colspan>
-      <table cellspacing="0">
-	<tr valign=bottom>
-	  <td>
-	    <table>
-	      <tr>
-		<th align=left>| . $locale->text('Notes') . qq|</th>
-		<th align=left>| . $locale->text('Internal Notes') . qq|</th>
-	      </tr>
-	      <tr valign=top>
-		<td>$notes</td>
-		<td>$intnotes</td>
-	      </tr>
-        $follow_ups_block
-	    </table>
-	  </td>
-	  <td colspan=2 align=right width=100%>
-	    $taxincluded
-	    <br>
-	    <table width=100%>
-	      $subtotal
-	      $tax
-	      <tr>
-		<th align=right>| . $locale->text('Total') . qq|</th>
-		<td align=right>$form->{invtotal}</td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-|;
-  my $webdav_list;
-  if ($main::webdav) {
-    $webdav_list = qq|
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-  <tr>
-    <th class=listtop align=left>Dokumente im Webdav-Repository</th>
-  </tr>
-    <table width=100%>
-      <td align=left width=30%><b>Dateiname</b></td>
-      <td align=left width=70%><b>Webdavlink</b></td>
-|;
-    foreach my $file (@{ $form->{WEBDAV} }) {
-      $webdav_list .= qq|
-      <tr>
-        <td align="left">$file->{name}</td>
-        <td align="left"><a href="$file->{link}">$file->{type}</a></td>
-      </tr>
-|;
-    }
-    $webdav_list .= qq|
-    </table>
-  </tr>
-|;
+  # tax, total and subtotal calculations
+  my ($tax, $subtotal);
+  $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
 
-    print $webdav_list;
-  }
-  print qq|
-  <tr>
-    <td colspan=$colspan>
-      <table width=100%>
-        <tr>
-	  <th colspan=6 class=listheading>| . $locale->text('Payments') . qq|</th>
-	</tr>
-|;
-
-  my @column_index;
-  if ($form->{currency} eq $form->{defaultcurrency}) {
-    @column_index = qw(datepaid source memo paid AP_paid);
-  } else {
-    @column_index = qw(datepaid source memo paid exchangerate AP_paid);
-  }
-
-  my %column_data;
-  $column_data{datepaid}     = "<th>" . $locale->text('Date') . "</th>";
-  $column_data{paid}         = "<th>" . $locale->text('Amount') . "</th>";
-  $column_data{exchangerate} = "<th>" . $locale->text('Exch') . "</th>";
-  $column_data{AP_paid}      = "<th>" . $locale->text('Account') . "</th>";
-  $column_data{source}       = "<th>" . $locale->text('Source') . "</th>";
-  $column_data{memo}         = "<th>" . $locale->text('Memo') . "</th>";
-
-  print qq|
-	<tr>
-|;
-  map { print "$column_data{$_}\n" } @column_index;
-  print qq|
-	</tr>
-|;
-
-  my @triggers  = ();
-  my $totalpaid = 0;
-
-  $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
-  for my $i (1 .. $form->{paidaccounts}) {
-
-    print qq|
-	<tr>
-|;
-
-    $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
-    $form->{"selectAP_paid_$i"} =~
-      s/option>\Q$form->{"AP_paid_$i"}\E/option selected>$form->{"AP_paid_$i"}/;
-
-    $totalpaid += $form->{"paid_$i"};
-
-    # format amounts
-    if ($form->{"paid_$i"}) {
-      $form->{"paid_$i"} =
-        $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
-    }
-    $form->{"exchangerate_$i"} =
-      $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
-
-    my $exchangerate = qq|&nbsp;|;
-    if ($form->{currency} ne $form->{defaultcurrency}) {
-      if ($form->{"forex_$i"}) {
-        $exchangerate =
-          qq|<input type=hidden name="exchangerate_$i" value=$form->{"exchangerate_$i"}>$form->{"exchangerate_$i"}|;
+  foreach my $item (@{ $form->{taxaccounts_array} }) {
+    if ($form->{"${item}_base"}) {
+      if ($form->{taxincluded}) {
+        $form->{"${item}_total"} = $form->round_amount( ($form->{"${item}_base"} * $form->{"${item}_rate"}
+                                                                                 / (1 + $form->{"${item}_rate"})), 2);
+        $form->{"${item}_netto"} = $form->round_amount( ($form->{"${item}_base"} - $form->{"${item}_total"}), 2);
       } else {
-        $exchangerate =
-          qq|<input name="exchangerate_$i" size=10 value=$form->{"exchangerate_$i"}>|;
+        $form->{"${item}_total"} = $form->round_amount( $form->{"${item}_base"} * $form->{"${item}_rate"}, 2);
+        $form->{invtotal} += $form->{"${item}_total"};
       }
     }
-    $exchangerate .= qq|
-<input type=hidden name="forex_$i" value=$form->{"forex_$i"}>
-|;
-
-    $column_data{"paid_$i"} =
-      qq|<td align=center><input name="paid_$i" size=11 value="$form->{"paid_$i"}" onBlur=\"check_right_number_format(this)\"></td>|;
-    $column_data{"exchangerate_$i"} = qq|<td align=center>$exchangerate</td>|;
-    $column_data{"AP_paid_$i"}      =
-      qq|<td align=center><select name="AP_paid_$i">$form->{"selectAP_paid_$i"}</select></td>|;
-    $column_data{"datepaid_$i"} =
-      qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 title="$myconfig{dateformat}" value="$form->{"datepaid_$i"}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
-    $column_data{"source_$i"} =
-      qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
-    $column_data{"memo_$i"} =
-      qq|<td align=center><input name="memo_$i" size=11 value="$form->{"memo_$i"}"></td>|;
-
-    map { print qq|$column_data{"${_}_$i"}\n| } @column_index;
-
-    print qq|
-	</tr>
-|;
-    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
-  my $paid_missing = $form->{oldinvtotal} - $totalpaid;
-
-  print qq|
-        <tr>
-          <td></td>
-          <td></td>
-          <td align="center">| . $locale->text('Total') . qq|</td>
-          <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td></td>
-          <td align="center">| . $locale->text('Missing amount') . qq|</td>
-          <td align="center">| . H($form->format_amount(\%myconfig, $paid_missing, 2)) . qq|</td>
-        </tr>
-
-	    <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
-	    <input type=hidden name=paidaccounts value=$form->{paidaccounts}>
-      	    <input type=hidden name=selectAP_paid value="$form->{selectAP_paid}">
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-<br>
-|;
-
-  my $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
-  my $closedto = $form->datetonum($form->{closedto}, \%myconfig);
-
-  print qq|<input class=submit type=submit name=action id=update_button value="|
-    . $locale->text('Update') . qq|">
-|;
-
+  # follow ups
   if ($form->{id}) {
-    my $show_storno = !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && (($totalpaid == 0) || ($totalpaid eq ""));
-
-    print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Post Payment') . qq|">
-|;
-    print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Storno') . qq|">
-| if ($show_storno);
-    if ($form->{radier}) {
-    print qq|
-    <input class=submit type=submit name=action value="|
-      . $locale->text('Delete') . qq|">
-|;
-  }
-    print qq|<input class=submit type=submit name=action value="|
-      . $locale->text('Use As Template') . qq|">
-        <input type="button" class="submit" onclick="follow_up_window()" value="|
-      . $locale->text('Follow-Up')
-      . qq|">
-|;
-
+    $form->{follow_ups}            = FU->follow_ups('trans_id' => $form->{id}) || [];
+    $form->{follow_ups_unfinished} = ( sum map { $_->{due} * 1 } @{ $form->{follow_ups} } ) || 0;
   }
 
-  if (!$form->{id} && ($invdate > $closedto)) {
-    print qq| <input class=submit type=submit name=action value="|
-      . $locale->text('Post') . qq|"> | .
-      NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'),
-                       '-class' => 'submit'));
+  # payments
+  my $totalpaid = 0;
+  $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
+  $form->{paid_indices} = [ 1 .. $form->{paidaccounts} ];
+
+  for my $i (1 .. $form->{paidaccounts}) {
+    $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
+    $form->{"selectAP_paid_$i"} =~ s/option>\Q$form->{"AP_paid_$i"}\E/option selected>$form->{"AP_paid_$i"}/;
+    $totalpaid += $form->{"paid_$i"};
   }
 
-  print $form->write_trigger(\%myconfig, scalar(@triggers) / 3, @triggers);
-  $form->hide_form(qw(rowcount callback draft_id draft_description vendor_discount));
-
-  # button for saving history
-  if($form->{id} ne "") {
-    print qq|
-  	  <input type="button" class="submit" onclick="set_history_window(|
-  	  . Q($form->{id})
-  	  . qq|);" name="history" id="history" value="|
-  	  . $locale->text('history')
-  	  . qq|">|;
-  }
-  # /button for saving history
-  # mark_as_paid button
-  if($form->{id} ne "") {
-    print qq| <input type="submit" class="submit" name="action" value="|
-          . $locale->text('mark as paid') . qq|">|;
-  }
-  # /mark_as_paid button
-print qq|</form>
-</body>
-</html>
-|;
+  print $form->parse_html_template('ir/form_footer', {
+    is_type_credit_note => ($form->{type} eq "credit_note"),
+    totalpaid           => $totalpaid,
+    paid_missing        => $form->{invtotal} - $totalpaid,
+    show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && !$totalpaid,
+    show_delete         => ($form->current_date(\%myconfig) eq $form->{gldate}),
+  });
+##print $form->parse_html_template('ir/_payments'); # parser
+##print $form->parse_html_template('webdav/_list'); # parser
 
   $main::lxdebug->leave_sub();
 }
