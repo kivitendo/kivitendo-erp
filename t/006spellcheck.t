@@ -32,6 +32,7 @@ BEGIN { # yes the indenting is off, deal with it
 @evilwords = qw(
 anyways
 arbitary
+custemer
 databasa
 dependan
 existance
