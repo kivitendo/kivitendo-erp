@@ -1202,234 +1202,29 @@ sub yes {
 sub search {
   $main::lxdebug->enter_sub();
 
+  $main::auth->assert('general_ledger | invoice_edit');
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
 
-  $main::auth->assert('general_ledger | vendor_invoice_edit');
-
-  # setup vendor selection
+  # setup customer selection
   $form->all_vc(\%myconfig, "vendor", "AP");
 
-  my $vendor;
-  if (@{ $form->{all_vendor} || [] }) {
-    map { $vendor .= "<option>$_->{name}--$_->{id}\n" }
-      @{ $form->{all_vendor} };
-    $vendor = qq|<select name=vendor><option>\n$vendor\n</select>|;
-  } else {
-    $vendor = qq|<input name=vendor size=35>|;
-  }
-
-  # departments
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
-
-  my $department = qq|
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-	</tr>
-| if $form->{selectdepartment};
-
-  $form->{title} = $locale->text('AP Transactions');
-
-  # use JavaScript Calendar or not
+  $form->{title}    = $locale->text('AP Transactions');
+  $form->{fokus}    = "search.vendor";
   $form->{jsscript} = 1;
-  my $jsscript = "";
-  my ($button1, $button2);
-  if ($form->{jsscript}) {
 
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdatefrom id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button2 = qq|
-       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdateto name=transdateto id="trigger2" value=|
-      . $locale->text('button') . qq|></td>
-     |;
+  $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
+                   "departments"  => "ALL_DEPARTMENTS",
+                   "vendors"      => "ALL_VC");
 
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "transdatefrom", "BR", "trigger1",
-                          "transdateto", "BL", "trigger2");
-  } else {
+  # constants and subs for template
+  $form->{jsscript}  = 1;
+  $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
-    # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
-
-  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 1 });
-
-  my %labels = ();
-  my @values = ("");
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@values, $item->{"id"});
-    $labels{$item->{"id"}} = $item->{"projectnumber"};
-  }
-  my $projectnumber =
-    NTI($cgi->popup_menu('-name' => 'project_id', '-values' => \@values,
-                         '-labels' => \%labels));
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
-  my $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  print qq|
-<body onLoad="$onload">
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-	<tr>
-	  <th align=right>| . $locale->text('Vendor') . qq|</th>
-	  <td colspan=3>$vendor</td>
-	</tr>
-	$department
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-	  <td colspan=3><input name=invnumber size=20></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-	  <td colspan=3><input name=ordnumber size=20></td>
-	</tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Notes') . qq|</th>
-	  <td colspan=3><input name=notes size=40></td>
-	</tr>
-        <tr>
-          <th align="right">| . $locale->text("Project Number") . qq|</th>
-          <td colspan="3">$projectnumber</td>
-        </tr>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('From') . qq|</th>
-	  $button1
-	  <th align=right>| . $locale->text('Bis') . qq|</th>
-          $button2
-	</tr>
-        <input type=hidden name=sort value=transdate>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
-	  <td>
-	    <table width=100%>
-	      <tr>
-		<td align=right><input name=open class=checkbox type=checkbox value=Y checked></td>
-		<td nowrap>| . $locale->text('Open') . qq|</td>
-		<td align=right><input name=closed class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Closed') . qq|</td>
-	      </tr>
-	      <tr>
-		<td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('ID') . qq|</td>
-		<td align=right><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
-		<td nowrap>| . $locale->text('Invoice Number') . qq|</td>
-		<td align=right><input name="l_ordnumber" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Order Number') . qq|</td>
-	      </tr>
-	      <tr>
-		<td align=right><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
-		<td nowrap>| . $locale->text('Vendor') . qq|</td>
-		<td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-		<td nowrap>| . $locale->text('Invoice Date') . qq|</td>
-		<td align=right><input name="l_netamount" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Amount') . qq|</td>
-	      </tr>
-	      <tr>
-		<td align=right><input name="l_tax" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Tax') . qq|</td>
-		<td align=right><input name="l_amount" class=checkbox type=checkbox value=Y checked></td>
-		<td nowrap>| . $locale->text('Total') . qq|</td>
-		<td align=right><input name="l_datepaid" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Date Paid') . qq|</td>
-	      </tr>
-	      <tr>
-		<td align=right><input name="l_paid" class=checkbox type=checkbox value=Y checked></td>
-		<td nowrap>| . $locale->text('Paid') . qq|</td>
-		<td align=right><input name="l_duedate" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Due Date') . qq|</td>
-		<td align=right><input name="l_due" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Amount Due') . qq|</td>
-	      </tr>
-	      <tr>
-		<td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Notes') . qq|</td>
-		<td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Employee') . qq|</td>
-	      </tr>
-	      <tr>
-		<td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Subtotal') . qq|</td>
-		<td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Project Number') . qq|</td>
-	      </tr>
-          <tr>
-        <td colspan=4 align=left><b>| . $locale->text('Vendor') . qq| </td>
-          </tr>
-          <tr>
-		<td align=right><input name="l_vendornumber" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Vendor Number') . qq|</td>
-		<td align=right><input name="l_country" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Country') . qq|</td>
-		<td align=right><input name="l_ustid" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('USt-IdNr.') . qq|</td>
-		<td align=right><input name="l_taxzone" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Steuersatz') . qq|</td>
-          </tr>
-          <tr>
-		<td align=right><input name="l_payment_terms" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Payment Terms') . qq|</td>
-		<td align=right><input name="l_charts" class=checkbox type=checkbox value=Y></td>
-		<td nowrap>| . $locale->text('Buchungskonto') . qq|</td>
-          </tr>
-	    </table>
-	  </td>
-	</tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-$jsscript
-
-<br>
-<input type=hidden name=nextsub value=$form->{nextsub}>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
+  print $form->parse_html_template('ap/search', { %myconfig });
 
   $main::lxdebug->leave_sub();
 }
