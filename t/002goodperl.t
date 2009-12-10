@@ -128,7 +128,7 @@ foreach my $file (@testitems) {
     if (!$found_html_count) {
         ok(1,"$file does not contain HTML");
     } elsif ($found_html_count < 50) {
-      TODO: { local $TODO = q(Even slow amounts should go away....);
+      TODO: { local $TODO = q(Even little amounts of HTML should go away....);
         ok(0,"$file contains at least $found_html_count html tags.");
       }
     } else {
