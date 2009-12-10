@@ -155,12 +155,21 @@ sub invoice_links {
     $ref->{name} = $form->quote($ref->{name});
   }
 
+  # Load data for a specific order and update form fields
+  my $order_data = IS->get_order_data();
+
+  # Copy the fields we need to %form
+  for my $key (qw(payment_id salesman_id orddate taxzone_id quonumber)) {
+    $form->{$key} = $order_data->{$key};
+  }
+
   $form->restore_vars(qw(id));
 
   IS->retrieve_invoice(\%myconfig, \%$form);
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id));
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $main::editing;
+
 
   # build vendor/customer drop down comatibility... don't ask
   if (@{ $form->{"all_customer"} }) {
