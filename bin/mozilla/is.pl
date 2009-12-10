@@ -34,6 +34,7 @@
 use SL::FU;
 use SL::IS;
 use SL::PE;
+use SL::OE;
 use Data::Dumper;
 use List::Util qw(max sum);
 
@@ -156,7 +157,7 @@ sub invoice_links {
   }
 
   # Load data for a specific order and update form fields
-  my $order_data = IS->get_order_data();
+  my $order_data = OE->get_order_data_by_ordnumber(%$form);
 
   # Copy the fields we need to %form
   for my $key (qw(payment_id salesman_id orddate taxzone_id quonumber)) {
