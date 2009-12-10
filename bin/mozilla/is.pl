@@ -283,7 +283,6 @@ sub form_header {
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-  $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   my $set_duedate_url = "$form->{script}?action=set_duedate";
 
