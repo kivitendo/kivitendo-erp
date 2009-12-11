@@ -8,7 +8,7 @@
    <tr>
     [%- SET start_new_row = '0' %]
     [%- END %]
-    <td>
+    <td id="[% HTML.escape(include_prefix) %]cvartd_[% HTML.escape(var.name) %]">
      <input type="checkbox"
             name="[% HTML.escape(include_prefix) %]cvar_[% HTML.escape(var.name) %]"
             id="[% HTML.escape(include_prefix) %]cvar_[% HTML.escape(var.name) %]"
