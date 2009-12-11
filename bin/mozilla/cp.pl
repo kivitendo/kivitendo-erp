@@ -145,17 +145,17 @@ sub form_header {
       $form->format_amount(\%myconfig, $form->{exchangerate});
     if ($form->{forex}) {
       $exchangerate = qq|
- 	      <tr>
-		<th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
-		<td colspan=3><input type=hidden name=exchangerate size=10 value=$form->{exchangerate}>$form->{exchangerate}</td>
-	      </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
+                <td colspan=3><input type=hidden name=exchangerate size=10 value=$form->{exchangerate}>$form->{exchangerate}</td>
+              </tr>
 |;
     } else {
       $exchangerate = qq|
- 	      <tr>
-		<th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
-		<td colspan=3><input name=exchangerate size=10 value=$form->{exchangerate}></td>
-	      </tr>
+               <tr>
+                <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
+                <td colspan=3><input name=exchangerate size=10 value=$form->{exchangerate}></td>
+              </tr>
 |;
     }
   }
@@ -340,9 +340,9 @@ sub list_invoices {
   <tr>
     <td>
       <table width=100%>
-	<tr>
-	  <th class=listheading colspan=$colspan>$invoice</th>
-	</tr>
+        <tr>
+          <th class=listheading colspan=$colspan>$invoice</th>
+        </tr>
 |;
 
   $column_data{invnumber} =
@@ -405,7 +405,7 @@ sub list_invoices {
     $j++;
     $j %= 2;
     print qq|
-	<tr class=listrow$j>
+        <tr class=listrow$j>
 |;
     map { print "$column_data{$_}\n" } @column_index;
     print qq|
@@ -466,7 +466,7 @@ sub form_footer {
     $format .= qq|
             <option value=postscript $form->{DF}{postscript}>|
       . $locale->text('Postscript') . qq|
-	    <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF');
+            <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF');
   }
 
   print qq|

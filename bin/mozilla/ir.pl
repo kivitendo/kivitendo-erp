@@ -475,9 +475,8 @@ sub update {
         # override sellprice if there is one entered
         my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
 
-	# ergaenzung fuer bug 736 Lieferanten-Rabatt auch in Einkaufsrechnungen vorbelegen jb
-        $form->{"discount_$i"} = $form->format_amount(\%myconfig,
-						      $form->{vendor_discount} * 100 );
+        # ergaenzung fuer bug 736 Lieferanten-Rabatt auch in Einkaufsrechnungen vorbelegen jb
+        $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{vendor_discount} * 100 );
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
@@ -614,14 +613,14 @@ sub post_payment {
   ($form->{AP})      = split /--/, $form->{AP};
   ($form->{AP_paid}) = split /--/, $form->{AP_paid};
   if (IR->post_payment(\%myconfig, \%$form)){
-  	if (!exists $form->{addition} && $form->{id} ne "") {
-  		# saving the history
+    if (!exists $form->{addition} && $form->{id} ne "") {
+      # saving the history
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  		$form->{addition} = "PAYMENT POSTED";
+      $form->{addition} = "PAYMENT POSTED";
       $form->{what_done} = $form->{currency} . qq| | . $form->{paid} . qq| | . $locale->text("POSTED");
-  		$form->save_history($form->dbconnect(\%myconfig));
-  		# /saving the history
-  	}
+      $form->save_history($form->dbconnect(\%myconfig));
+      # /saving the history
+    }
 
     $form->redirect($locale->text('Payment posted!'));
   }
@@ -707,16 +706,16 @@ sub post {
 
   relink_accounts();
   if (IR->post_invoice(\%myconfig, \%$form)){
-  	# saving the history
-  	if(!exists $form->{addition} && $form->{id} ne "") {
+    # saving the history
+    if(!exists $form->{addition} && $form->{id} ne "") {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "POSTED";
-  		#$form->{what_done} = $locale->text("Rechnungsnummer") . qq| | . $form->{invnumber};
-  		$form->save_history($form->dbconnect(\%myconfig));
-  	}
-	# /saving the history
+      #$form->{what_done} = $locale->text("Rechnungsnummer") . qq| | . $form->{invnumber};
+      $form->save_history($form->dbconnect(\%myconfig));
+    }
+    # /saving the history
     remove_draft() if $form->{remove_draft};
-  	$form->redirect(  $locale->text('Invoice')
+    $form->redirect(  $locale->text('Invoice')
                   . " $form->{invnumber} "
                   . $locale->text('posted!'));
   }
@@ -777,8 +776,8 @@ sub yes {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	  $form->{addition} = "DELETED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history
     $form->redirect($locale->text('Invoice deleted!'));

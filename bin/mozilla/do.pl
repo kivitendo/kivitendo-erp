@@ -624,8 +624,8 @@ sub save {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|donumber_| . $form->{donumber};
-  	$form->{addition} = "SAVED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
 
@@ -670,8 +670,8 @@ sub delete_delivery_order {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|donumber_| . $form->{donumber};
-  	  $form->{addition} = "DELETED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history
 
@@ -799,7 +799,7 @@ sub invoice_multi {
   # zwischenspeichern (DO.pm) und als ' '-separierte Liste wieder zurueckschreiben
   # Hinweis: delete gibt den wert zurueck und loescht danach das element (nett und einfach)
   # $shell: perldoc perlunc; /delete EXPR
-  $form->{donumber}	       = delete $form->{donumber_array};
+  $form->{donumber}            = delete $form->{donumber_array};
   $form->{deliverydate}        = $form->{transdate};
   $form->{transdate}           = $form->current_date(\%myconfig);
   $form->{duedate}             = $form->current_date(\%myconfig, $form->{invdate}, $form->{terms} * 1);
@@ -829,9 +829,9 @@ sub invoice_multi {
     $ref->{reqdate} ||= $ref->{dord_transdate}; # copy transdates into each invoice row
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
     map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice discount lastcost);
-		$form->{"discount_$form->{rowcount}"}	= $form->{"discount_$form->{rowcount}"}  * 100;	#s.a. Bug 1151
-		# Anm.: Eine Änderung des discounts in der SL/DO.pm->retrieve (select (doi.discount * 100) as discount) ergibt in psql einen
-		# Wert von 10.0000001490116. Ferner ist der Rabatt in der Rechnung dann bei 1.0 (?). Deswegen lasse ich das hier. jb 10.10.09
+    $form->{"discount_$form->{rowcount}"}   = $form->{"discount_$form->{rowcount}"}  * 100; #s.a. Bug 1151
+    # Anm.: Eine Änderung des discounts in der SL/DO.pm->retrieve (select (doi.discount * 100) as discount) ergibt in psql einen
+    # Wert von 10.0000001490116. Ferner ist der Rabatt in der Rechnung dann bei 1.0 (?). Deswegen lasse ich das hier. jb 10.10.09
   }
   delete $form->{form_details};
 

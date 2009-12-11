@@ -265,13 +265,13 @@ sub form_header {
     if ($form->{forex}) {
       $exchangerate .= qq|
             <tr>
-	      <th align=right>| . $locale->text('Exchangerate') . qq|</th>
+              <th align=right>| . $locale->text('Exchangerate') . qq|</th>
               <td><input type=hidden name=exchangerate value=$form->{exchangerate}>$form->{exchangerate}</td>
            </tr>
 |;
     } else {
       $exchangerate .= qq|
-	     <th align=right>| . $locale->text('Exchangerate') . qq|</th>
+             <th align=right>| . $locale->text('Exchangerate') . qq|</th>
              <td><input name=exchangerate size=10 value=$form->{exchangerate}></td>
 |;
     }
@@ -296,11 +296,11 @@ sub form_header {
 
   my $department = qq|
               <tr>
-	        <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-		<td colspan=3><select name=department>$form->{selectdepartment}</select>
-		<input type=hidden name=selectdepartment value="$form->{selectdepartment}">
-		</td>
-	      </tr>
+                <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
+                <td colspan=3><select name=department>$form->{selectdepartment}</select>
+                <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
+                </td>
+              </tr>
 | if $form->{selectdepartment};
 
   my $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
@@ -440,64 +440,64 @@ sub form_header {
     <td>
       <table width=100%>
         <tr valign=top>
-	  <td>
-	    <table>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Vendor') . qq|</th>
-		<td colspan=3>$vendor <input type="button" value="D" onclick="show_vc_details('vendor')"></td>
-		<input type=hidden name=selectvendor value="| . H($form->{selectvendor}) . qq|">
-		<input type=hidden name=oldvendor value="| . H($form->{oldvendor}) . qq|">
-		<input type=hidden name=vendor_id value="| . H($form->{vendor_id}) . qq|">
-		<input type=hidden name=terms value="| . H($form->{terms}) . qq|">
-	      </tr>
-	      <tr>
-	        <td></td>
-		<td colspan=3>
-		  <table width=100%>
-		    <tr>
-		      <th align=left nowrap>| . $locale->text('Credit Limit') . qq|</th>
-		      <td>$form->{creditlimit}</td>
-		      <th align=left nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n">$form->{creditremaining}</td>
-		      <input type=hidden name=creditlimit value=$form->{creditlimit}>
-		      <input type=hidden name=creditremaining value=$form->{creditremaining}>
-		    </tr>
-		  </table>
-		</td>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Currency') . qq|</th>
-		<td><select name=currency>$form->{selectcurrency}</select></td>
-		<input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-		<input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
-		<input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
-		<input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
-		$exchangerate
-	      </tr>
-	      $department
-	      $taxincluded
-	    </table>
-	  </td>
-	  <td align=right>
-	    <table>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-		<td><input name=invnumber size=11 value="$form->{invnumber}" $readonly></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-		<td><input name=ordnumber size=11 value="$form->{ordnumber}" $readonly></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Invoice Date') . qq|</th>
+          <td>
+            <table>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Vendor') . qq|</th>
+                <td colspan=3>$vendor <input type="button" value="D" onclick="show_vc_details('vendor')"></td>
+                <input type=hidden name=selectvendor value="| . H($form->{selectvendor}) . qq|">
+                <input type=hidden name=oldvendor value="| . H($form->{oldvendor}) . qq|">
+                <input type=hidden name=vendor_id value="| . H($form->{vendor_id}) . qq|">
+                <input type=hidden name=terms value="| . H($form->{terms}) . qq|">
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan=3>
+                  <table width=100%>
+                    <tr>
+                      <th align=left nowrap>| . $locale->text('Credit Limit') . qq|</th>
+                      <td>$form->{creditlimit}</td>
+                      <th align=left nowrap>| . $locale->text('Remaining') . qq|</th>
+                      <td class="plus$n">$form->{creditremaining}</td>
+                      <input type=hidden name=creditlimit value=$form->{creditlimit}>
+                      <input type=hidden name=creditremaining value=$form->{creditremaining}>
+                    </tr>
+                  </table>
+                </td>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Currency') . qq|</th>
+                <td><select name=currency>$form->{selectcurrency}</select></td>
+                <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
+                <input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
+                <input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
+                <input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
+                $exchangerate
+              </tr>
+              $department
+              $taxincluded
+            </table>
+          </td>
+          <td align=right>
+            <table>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
+                <td><input name=invnumber size=11 value="$form->{invnumber}" $readonly></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
+                <td><input name=ordnumber size=11 value="$form->{ordnumber}" $readonly></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Invoice Date') . qq|</th>
                 $button1
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Due Date') . qq|</th>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Due Date') . qq|</th>
                 $button2
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
+              </tr>
+            </table>
+          </td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -507,20 +507,15 @@ sub form_header {
 $jsscript
   <input type=hidden name=rowcount value=$form->{rowcount}>
   <tr>
-      <td>
-          <table width=100%>
-	   <tr class=listheading>
-	  <th class=listheading style="width:15%">|
-    . $locale->text('Account') . qq|</th>
-	  <th class=listheading style="width:10%">|
-    . $locale->text('Amount') . qq|</th>
-          <th class=listheading style="width:10%">|
-    . $locale->text('Tax') . qq|</th>
-          <th class=listheading style="width:10%">|
-    . $locale->text('Taxkey') . qq|</th>
-          <th class=listheading style="width:10%">|
-    . $locale->text('Project') . qq|</th>
-	</tr>
+    <td>
+      <table width=100%>
+        <tr class=listheading>
+          <th class=listheading style="width:15%">| . $locale->text('Account') . qq|</th>
+          <th class=listheading style="width:10%">| . $locale->text('Amount') . qq|</th>
+          <th class=listheading style="width:10%">| . $locale->text('Tax') . qq|</th>
+          <th class=listheading style="width:10%">| . $locale->text('Taxkey') . qq|</th>
+          <th class=listheading style="width:10%">| . $locale->text('Project') . qq|</th>
+        </tr>
 |;
 
   my $amount  = $locale->text('Amount');
@@ -578,13 +573,13 @@ $jsscript
                            '-default' => $form->{"project_id_$i"} ));
 
     print qq|
-	<tr>
+        <tr>
           <td>$selectAP_amount</td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
           $tax
           <td>$projectnumber</td>
-	</tr>
+        </tr>
 |;
     $amount  = "";
     $project = "";
@@ -610,37 +605,37 @@ $jsscript
           </td>
         </tr>
         <tr>
-	  <td>${APselected}</td>
-	  <th align=left>$form->{invtotal}</th>
+          <td>${APselected}</td>
+          <th align=left>$form->{invtotal}</th>
 
-	  <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
-	  <input type=hidden name=oldtotalpaid value=$form->{oldtotalpaid}>
+          <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
+          <input type=hidden name=oldtotalpaid value=$form->{oldtotalpaid}>
 
-	  <input type=hidden name=taxaccounts value="$form->{taxaccounts}">
+          <input type=hidden name=taxaccounts value="$form->{taxaccounts}">
 
-	  <td colspan=4></td>
+          <td colspan=4></td>
 
 
         </tr>
-        </table>
-        </td>
+      </table>
+     </td>
     </tr>
     <tr>
       <td>
         <table width=100%>
         <tr>
-	  <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
-	  <td align=left>$notes</td>
-	</tr>
+          <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
+          <td align=left>$notes</td>
+        </tr>
       </table>
     </td>
   </tr>
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>
-	  <th class=listheading colspan=7>| . $locale->text('Payments') . qq|</th>
-	</tr>
+        <tr class=listheading>
+          <th class=listheading colspan=7>| . $locale->text('Payments') . qq|</th>
+        </tr>
 |;
 
   my @column_index;
@@ -1105,8 +1100,8 @@ sub post_as_new {
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	$form->{addition} = "POSTED AS NEW";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "POSTED AS NEW";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
   &post;
@@ -1188,7 +1183,7 @@ sub yes {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	  $form->{addition} = "DELETED";
+      $form->{addition} = "DELETED";
       $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history

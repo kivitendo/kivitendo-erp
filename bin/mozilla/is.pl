@@ -907,10 +907,10 @@ sub yes {
 
   if (IS->delete_invoice(\%myconfig, \%$form, $main::spool)) {
     # saving the history
-  	if(!exists $form->{addition}) {
+    if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	  $form->{addition} = "DELETED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history
     $form->redirect($locale->text('Invoice deleted!'));

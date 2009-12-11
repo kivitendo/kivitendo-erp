@@ -91,8 +91,8 @@ sub add {
   # saving the history
   if(!exists $form->{addition} && ($form->{id} ne "")) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	$form->{addition} = "ADDED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "ADDED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
 
@@ -293,8 +293,8 @@ sub form_header {
   if ($form->{currency} ne $form->{defaultcurrency}) {
     if ($form->{forex}) {
       $exchangerate .= qq|
-	<th align=right>| . $locale->text('Exchangerate') . qq|</th>
-	<td><input type=hidden name=exchangerate value=$form->{exchangerate}>$form->{exchangerate}</td>
+        <th align=right>| . $locale->text('Exchangerate') . qq|</th>
+        <td><input type=hidden name=exchangerate value=$form->{exchangerate}>$form->{exchangerate}</td>
 |;
     } else {
       $exchangerate .= qq|
@@ -305,10 +305,10 @@ sub form_header {
   }
 
   $taxincluded = qq|
-	      <tr>
-		<td align=right><input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}></td>
-		<th align=left nowrap>| . $locale->text('Tax Included') . qq|</th>
-	      </tr>
+              <tr>
+                <td align=right><input name=taxincluded class=checkbox type=checkbox value=1 $form->{taxincluded}></td>
+                <th align=left nowrap>| . $locale->text('Tax Included') . qq|</th>
+              </tr>
 |;
 
   if (($rows = $form->numtextrows($form->{notes}, 50)) < 2) {
@@ -318,12 +318,12 @@ sub form_header {
     qq|<textarea name=notes rows=$rows cols=50 wrap=soft>$form->{notes}</textarea>|;
 
   $department = qq|
-	      <tr>
-		<th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-		<td colspan=3><select name=department>$form->{selectdepartment}</select>
-		<input type=hidden name=selectdepartment value="$form->{selectdepartment}">
-		</td>
-	      </tr>
+              <tr>
+                <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
+                <td colspan=3><select name=department>$form->{selectdepartment}</select>
+                <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
+                </td>
+              </tr>
 | if $form->{selectdepartment};
 
   my $n = ($form->{creditremaining} =~ /-/) ? "0" : "1";
@@ -338,11 +338,11 @@ sub form_header {
 
   if ($form->{selectemployee}) {
     $employee = qq|
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Salesperson') . qq|</th>
-		<td  colspan=2><select name=employee>$form->{selectemployee}</select></td>
-		<input type=hidden name=selectemployee value="$form->{selectemployee}">
-	      </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Salesperson') . qq|</th>
+                <td  colspan=2><select name=employee>$form->{selectemployee}</select></td>
+                <input type=hidden name=selectemployee value="$form->{selectemployee}">
+              </tr>
 |;
   }
 
@@ -478,66 +478,66 @@ sub form_header {
     <td>
       <table width=100%>
         <tr valign=top>
-	  <td>
-	    <table>
-	      <tr>
-		<th align="right" nowrap>| . $locale->text('Customer') . qq|</th>
-		<td colspan=3>$customer <input type="button" value="| . $locale->text('Details (one letter abbreviation)') . qq|" onclick="show_vc_details('customer')"></td>
-		<input type=hidden name=selectcustomer value="$form->{selectcustomer}">
-		<input type=hidden name=oldcustomer value="$form->{oldcustomer}">
-		<input type=hidden name=customer_id value="$form->{customer_id}">
-		<input type=hidden name=terms value=$form->{terms}>
-	      </tr>
-	      <tr>
-		<td></td>
-		<td colspan=3>
-		  <table width=100%>
-		    <tr>
-		      <th align=left nowrap>| . $locale->text('Credit Limit') . qq|</th>
-		      <td>$form->{creditlimit}</td>
-		      <th align=left nowrap>| . $locale->text('Remaining') . qq|</th>
-		      <td class="plus$n">$form->{creditremaining}</td>
-		      <input type=hidden name=creditlimit value=$form->{creditlimit}>
-		      <input type=hidden name=creditremaining value=$form->{creditremaining}>
-		    </tr>
-		  </table>
-		</td>
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Currency') . qq|</th>
-		<td><select name=currency>$form->{selectcurrency}</select></td>
-		<input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-		<input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
-		<input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
-		<input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
-		$exchangerate
-	      </tr>
-	      $department
-	      $taxincluded
-	    </table>
-	  </td>
-	  <td align=right>
-	    <table>
-	      $employee
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-		<td><input name=invnumber size=11 value="$form->{invnumber}"></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-		<td><input name=ordnumber size=11 value="$form->{ordnumber}"></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Invoice Date') . qq|</th>
+          <td>
+            <table>
+              <tr>
+                <th align="right" nowrap>| . $locale->text('Customer') . qq|</th>
+                <td colspan=3>$customer <input type="button" value="| . $locale->text('Details (one letter abbreviation)') . qq|" onclick="show_vc_details('customer')"></td>
+                <input type=hidden name=selectcustomer value="$form->{selectcustomer}">
+                <input type=hidden name=oldcustomer value="$form->{oldcustomer}">
+                <input type=hidden name=customer_id value="$form->{customer_id}">
+                <input type=hidden name=terms value=$form->{terms}>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan=3>
+                  <table width=100%>
+                    <tr>
+                      <th align=left nowrap>| . $locale->text('Credit Limit') . qq|</th>
+                      <td>$form->{creditlimit}</td>
+                      <th align=left nowrap>| . $locale->text('Remaining') . qq|</th>
+                      <td class="plus$n">$form->{creditremaining}</td>
+                      <input type=hidden name=creditlimit value=$form->{creditlimit}>
+                      <input type=hidden name=creditremaining value=$form->{creditremaining}>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('Currency') . qq|</th>
+                <td><select name=currency>$form->{selectcurrency}</select></td>
+                <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
+                <input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
+                <input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
+                <input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
+                $exchangerate
+              </tr>
+              $department
+              $taxincluded
+            </table>
+          </td>
+          <td align=right>
+            <table>
+              $employee
+              <tr>
+                <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
+                <td><input name=invnumber size=11 value="$form->{invnumber}"></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
+                <td><input name=ordnumber size=11 value="$form->{ordnumber}"></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Invoice Date') . qq|</th>
                 $button1
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Due Date') . qq|</th>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Due Date') . qq|</th>
                 $button2
-	      </tr>
+              </tr>
      </table>
-	  </td>
-	</tr>
+          </td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -547,10 +547,10 @@ $jsscript
   <tr>
       <td>
           <table width=100%>
-	   <tr class=listheading>
-	  <th class=listheading style="width:15%">|
+           <tr class=listheading>
+          <th class=listheading style="width:15%">|
     . $locale->text('Account') . qq|</th>
-	  <th class=listheading style="width:10%">|
+          <th class=listheading style="width:10%">|
     . $locale->text('Amount') . qq|</th>
           <th class=listheading style="width:10%">|
     . $locale->text('Tax') . qq|</th>
@@ -558,7 +558,7 @@ $jsscript
     . $locale->text('Taxkey') . qq|</th>
           <th class=listheading style="width:10%">|
     . $locale->text('Project') . qq|</th>
-	</tr>
+        </tr>
 |;
 
   $amount  = $locale->text('Amount');
@@ -622,13 +622,13 @@ $jsscript
                            '-default' => $form->{"project_id_$i"} ));
 
     print qq|
-	<tr>
+        <tr>
           <td>$selectAR_amount</td>
           <td><input name="amount_$i" size=10 value=$form->{"amount_$i"}></td>
           <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
           $tax
           <td>$projectnumber</td>
-	</tr>
+        </tr>
 |;
     $amount  = "";
     $project = "";
@@ -650,15 +650,15 @@ $jsscript
           </td>
         </tr>
         <tr>
-	  <td>${ARselected}</td>
-	  <th align=left>$form->{invtotal}</th>
+          <td>${ARselected}</td>
+          <th align=left>$form->{invtotal}</th>
 
-	  <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
-	  <input type=hidden name=oldtotalpaid value=$form->{oldtotalpaid}>
+          <input type=hidden name=oldinvtotal value=$form->{oldinvtotal}>
+          <input type=hidden name=oldtotalpaid value=$form->{oldtotalpaid}>
 
-	  <input type=hidden name=taxaccounts value="$form->{taxaccounts}">
+          <input type=hidden name=taxaccounts value="$form->{taxaccounts}">
 
-	  <td colspan=4></td>
+          <td colspan=4></td>
 
 
         </tr>
@@ -669,19 +669,19 @@ $jsscript
       <td>
         <table width=100%>
         <tr>
-	  <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
-	  <td align=left>$notes</td>
-	</tr>
+          <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
+          <td align=left>$notes</td>
+        </tr>
       </table>
     </td>
   </tr>
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>
-	  <th colspan=7 class=listheading>|
+        <tr class=listheading>
+          <th colspan=7 class=listheading>|
     . $locale->text('Incoming Payments') . qq|</th>
-	</tr>
+        </tr>
 |;
 
   if ($form->{currency} eq $form->{defaultcurrency}) {
@@ -1159,8 +1159,8 @@ sub post_as_new {
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	$form->{addition} = "POSTED AS NEW";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "POSTED AS NEW";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
   &post;
@@ -1242,8 +1242,8 @@ sub yes {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	  $form->{addition} = "DELETED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history
     $form->redirect($locale->text('Transaction deleted!'));

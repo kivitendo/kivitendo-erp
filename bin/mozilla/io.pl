@@ -750,7 +750,7 @@ sub check_form {
         #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
 
         # fuer assemblies auskommentiert. siehe oben
-	#    $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"} / ($form->{"price_factor_$i"} || 1));
+        #    $form->{sellprice} += ($form->{"qty_$i"} * $form->{"sellprice_$i"} / ($form->{"price_factor_$i"} || 1));
         $form->{weight}    += ($form->{"qty_$i"} * $form->{"weight_$i"} / ($form->{"price_factor_$i"} || 1));
         $count++;
       }
@@ -1421,10 +1421,10 @@ sub print_form {
 
       call_sub($display_form);
       # saving the history
-  	  if(!exists $form->{addition}) {
+      if(!exists $form->{addition}) {
         $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	    $form->{addition} = "PRINTED";
-  	    $form->save_history($form->dbconnect(\%myconfig));
+        $form->{addition} = "PRINTED";
+        $form->save_history($form->dbconnect(\%myconfig));
       }
       # /saving the history
       exit;
@@ -1641,16 +1641,16 @@ sub print_form {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     if($form->{media} =~ /printer/) {
-    	$form->{addition} = "PRINTED";
+      $form->{addition} = "PRINTED";
     }
     elsif($form->{media} =~ /email/) {
-    	$form->{addition} = "MAILED";
+      $form->{addition} = "MAILED";
     }
     elsif($form->{media} =~ /queue/) {
-    	$form->{addition} = "QUEUED";
+      $form->{addition} = "QUEUED";
     }
     elsif($form->{media} =~ /screen/) {
-    	$form->{addition} = "SCREENED";
+      $form->{addition} = "SCREENED";
     }
     $form->save_history($form->dbconnect(\%myconfig));
   }
@@ -1809,72 +1809,72 @@ sub ship_to {
   <tr>
     <td>
       <table>
-	<tr class="listheading">
-	  <th class="listheading" colspan="2" width="50%">|
+        <tr class="listheading">
+          <th class="listheading" colspan="2" width="50%">|
     . $locale->text('Billing Address') . qq|</th>
-	  <th class="listheading" width="50%">|
+          <th class="listheading" width="50%">|
     . $locale->text('Shipping Address') . qq|</th>
-	</tr>
-	<tr height="5"></tr>
-	<tr>
-	  <th align="right" nowrap>$number</th>
-	  <td>$form->{"$form->{vc}number"}</td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Company Name') . qq|</th>
-	  <td>$form->{name}</td>
-	  <td><input name="shiptoname" size="35" value="$form->{shiptoname}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-	  <td>$form->{department_1}</td>
-	  <td><input name="shiptodepartment_1" size="35" value="$form->{shiptodepartment_1}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>&nbsp;</th>
-	  <td>$form->{department_2}</td>
-	  <td><input name="shiptodepartment_2" size="35" value="$form->{shiptodepartment_2}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Street') . qq|</th>
-	  <td>$form->{street}</td>
-	  <td><input name="shiptostreet" size="35" value="$form->{shiptostreet}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Zipcode') . qq|</th>
-	  <td>$form->{zipcode}</td>
-	  <td><input name="shiptozipcode" size="35" value="$form->{shiptozipcode}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('City') . qq|</th>
-	  <td>$form->{city}</td>
-	  <td><input name="shiptocity" size="35" value="$form->{shiptocity}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Country') . qq|</th>
-	  <td>$form->{country}</td>
-	  <td><input name="shiptocountry" size="35" value="$form->{shiptocountry}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Contact') . qq|</th>
-	  <td>$form->{contact}</td>
-	  <td><input name="shiptocontact" size="35" value="$form->{shiptocontact}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Phone') . qq|</th>
-	  <td>$form->{phone}</td>
-	  <td><input name="shiptophone" size="20" value="$form->{shiptophone}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('Fax') . qq|</th>
-	  <td>$form->{fax}</td>
-	  <td><input name="shiptofax" size="20" value="$form->{shiptofax}"></td>
-	</tr>
-	<tr>
-	  <th align="right" nowrap>| . $locale->text('E-mail') . qq|</th>
-	  <td>$form->{email}</td>
-	  <td><input name="shiptoemail" size="35" value="$form->{shiptoemail}"></td>
-	</tr>
+        </tr>
+        <tr height="5"></tr>
+        <tr>
+          <th align="right" nowrap>$number</th>
+          <td>$form->{"$form->{vc}number"}</td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Company Name') . qq|</th>
+          <td>$form->{name}</td>
+          <td><input name="shiptoname" size="35" value="$form->{shiptoname}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
+          <td>$form->{department_1}</td>
+          <td><input name="shiptodepartment_1" size="35" value="$form->{shiptodepartment_1}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>&nbsp;</th>
+          <td>$form->{department_2}</td>
+          <td><input name="shiptodepartment_2" size="35" value="$form->{shiptodepartment_2}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Street') . qq|</th>
+          <td>$form->{street}</td>
+          <td><input name="shiptostreet" size="35" value="$form->{shiptostreet}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Zipcode') . qq|</th>
+          <td>$form->{zipcode}</td>
+          <td><input name="shiptozipcode" size="35" value="$form->{shiptozipcode}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('City') . qq|</th>
+          <td>$form->{city}</td>
+          <td><input name="shiptocity" size="35" value="$form->{shiptocity}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Country') . qq|</th>
+          <td>$form->{country}</td>
+          <td><input name="shiptocountry" size="35" value="$form->{shiptocountry}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Contact') . qq|</th>
+          <td>$form->{contact}</td>
+          <td><input name="shiptocontact" size="35" value="$form->{shiptocontact}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Phone') . qq|</th>
+          <td>$form->{phone}</td>
+          <td><input name="shiptophone" size="20" value="$form->{shiptophone}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Fax') . qq|</th>
+          <td>$form->{fax}</td>
+          <td><input name="shiptofax" size="20" value="$form->{shiptofax}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('E-mail') . qq|</th>
+          <td>$form->{email}</td>
+          <td><input name="shiptoemail" size="35" value="$form->{shiptoemail}"></td>
+        </tr>
       </table>
     </td>
   </tr>
