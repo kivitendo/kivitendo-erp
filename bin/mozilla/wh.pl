@@ -437,7 +437,7 @@ sub create_assembly {
   # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
   my %TRANSFER = (
     'transfer_type'    => 'assembly',
-    'login'	           => $form->{login},
+    'login'            => $form->{login},
     'dst_warehouse_id' => $form->{warehouse_id},
     'dst_bin_id'       => $form->{bin_id},
     'chargenumber'     => $form->{chargenumber},
