@@ -125,15 +125,15 @@
      <tr>
       <th align="right"><translate>Tax Number / SSN</translate></th>
       <td><input name="taxnumber" size="20" value="[% HTML.escape(taxnumber) %]"></td>
-      <!-- Anm.: R&B 15.11.2008 	VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
-	<th align="right"><translate>sales tax identification number</translate></th>
+      <!-- Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
+      <th align="right"><translate>sales tax identification number</translate></th>
       <td><input name="ustid" maxlength="14" size="20" value="[% HTML.escape(ustid) %]"></td>
       [%- IF is_customer %]
       <th align="right"><translate>our vendor number at customer</translate></th>
       <td><input name="c_vendor_id" size="10" value="[% HTML.escape(c_vendor_id) %]"></td>
       [%- ELSE %]
       <th align="right"><translate>Customer Number</translate></th>
-	<td><input name="v_customer_id" size="10" value="[% HTML.escape(v_customer_id) %]"></td>
+      <td><input name="v_customer_id" size="10" value="[% HTML.escape(v_customer_id) %]"></td>
       [%- END %]
      </tr>
 
@@ -605,7 +605,7 @@
      }
    }
   -->
-  
+
   </script>
 
 
