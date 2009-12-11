@@ -77,7 +77,7 @@ sub overpayment {
   $query =
     qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount) | .
     qq|VALUES (?, (SELECT id FROM chart WHERE accno = ? ), ?, ?)|;
-	@values = ($new_id, $accno, conv_date($form->{datepaid}), $fxamount * $ml);
+  @values = ($new_id, $accno, conv_date($form->{datepaid}), $fxamount * $ml);
   do_query($form, $dbh, $query, @values);
 
   # add payment
@@ -93,7 +93,7 @@ sub overpayment {
     $query =
       qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, cleared, fx_transaction) | .
       qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?)|;
-	  @values = ($new_id, $paymentaccno, conv_date($form->{datepaid}),
+    @values = ($new_id, $paymentaccno, conv_date($form->{datepaid}),
                (($fxamount - $amount) * $ml * -1), 1, 1);
     do_query($form, $dbh, $query, @values);
   }

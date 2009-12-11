@@ -111,7 +111,7 @@ sub get_all {
         # update counters and flags
         @$self{ qw( INDEX COUNT FIRST LAST ) } = ( $max, $max + 1, 0, 1 );
         $main::lxdebug->leave_sub();
-        return \@data;					    ## RETURN ##
+        return \@data;                                      ## RETURN ##
     }
     else {
         $main::lxdebug->leave_sub();

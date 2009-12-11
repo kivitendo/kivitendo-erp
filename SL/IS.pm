@@ -1754,8 +1754,8 @@ sub retrieve_item {
 
   #Es soll auch nach EAN gesucht werden, ohne Einschränkung durch Beschreibung
   if ($form->{"partnumber_$i"} && !$form->{"description_$i"}) {
-	$where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
-	push @values, $form->{"partnumber_$i"};
+    $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
+    push @values, $form->{"partnumber_$i"};
   }
 
   if ($form->{"description_$i"}) {

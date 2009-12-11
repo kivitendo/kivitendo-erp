@@ -1197,13 +1197,13 @@ sub order_details {
         }
 
         $query = qq|SELECT p.partnumber, p.description, p.unit, a.qty, | .
-	               qq|pg.partsgroup | .
-	               qq|FROM assembly a | .
-		             qq|  JOIN parts p ON (a.parts_id = p.id) | .
-		             qq|    LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id) | .
-		             qq|    WHERE a.bom = '1' | .
-		             qq|    AND a.id = ? | . $sortorder;
-		    @values = ($form->{"id_$i"});
+                 qq|pg.partsgroup | .
+                 qq|FROM assembly a | .
+                 qq|  JOIN parts p ON (a.parts_id = p.id) | .
+                 qq|    LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id) | .
+                 qq|    WHERE a.bom = '1' | .
+                 qq|    AND a.id = ? | . $sortorder;
+        @values = ($form->{"id_$i"});
         $sth = $dbh->prepare($query);
         $sth->execute(@values) || $form->dberror($query);
 
