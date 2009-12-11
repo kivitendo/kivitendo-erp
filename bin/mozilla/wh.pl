@@ -968,14 +968,6 @@ sub get_bin_idx {
   return -1;
 }
 
-=item new_item
-
-call new item dialogue from warehouse masks.
-
-PARAMS:
-  action  => name of sub to be called when new item is done
-
-=cut
 sub new_item {
   $main::lxdebug->enter_sub();
   my %params = @_;
@@ -1017,3 +1009,24 @@ sub stock {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+bin/mozilla/wh.pl - Warehouse frontend.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item new_item
+
+call new item dialogue from warehouse masks.
+
+PARAMS:
+  action  => name of sub to be called when new item is done
+
+=back
+
+=cut

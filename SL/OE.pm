@@ -43,20 +43,6 @@ use SL::IC;
 
 use strict;
 
-=head1 NAME
-
-OE.pm - Order entry module
-
-=head1 DESCRIPTION
-
-OE.pm is part of the OE module. OE is responsible for sales and purchase orders, as well as sales quotations and purchase requests. This file abstracts the database tables C<oe> and C<orderitems>.
-
-=head1 FUNCTIONS
-
-=over 4
-
-=cut
-
 sub transactions {
   $main::lxdebug->enter_sub();
 
@@ -957,22 +943,6 @@ sub retrieve {
   return $rc;
 }
 
-=item retrieve_simple PARAMS
-
-simple OE retrieval by id. does not look up customer, vendor, units or any other stuff. only oe and orderitems.
-
-  my $order = retrieve_simple(id => 2);
-
-  $order => {
-    %_OE_CONTENT,
-    orderitems => [
-      %_ORDERITEM_ROW_1,
-      %_ORDERITEM_ROW_2,
-      ...
-    ]
-  }
-
-=cut
 sub retrieve_simple {
   $main::lxdebug->enter_sub();
 
@@ -1308,3 +1278,36 @@ sub project_description {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+OE.pm - Order entry module
+
+=head1 DESCRIPTION
+
+OE.pm is part of the OE module. OE is responsible for sales and purchase orders, as well as sales quotations and purchase requests. This file abstracts the database tables C<oe> and C<orderitems>.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item retrieve_simple PARAMS
+
+simple OE retrieval by id. does not look up customer, vendor, units or any other stuff. only oe and orderitems.
+
+  my $order = retrieve_simple(id => 2);
+
+  $order => {
+    %_OE_CONTENT,
+    orderitems => [
+      %_ORDERITEM_ROW_1,
+      %_ORDERITEM_ROW_2,
+      ...
+    ]
+  }
+
+=back
+
+=cut

@@ -558,8 +558,6 @@ Dumps a query using LXDebug->message, using LEVEL for the debug-level of LXDebug
 
 =back
 
-=head1 SEE ALSO
-
 =head1 MODULE AUTHORS
 
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
