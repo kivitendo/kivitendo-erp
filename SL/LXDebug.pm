@@ -200,6 +200,11 @@ sub disable_sub_tracing {
   $self->{level} & ~ TRACE;
 }
 
+sub is_tracing_enabled {
+  my ($self) = @_;
+  return $self->{level} & TRACE;
+}
+
 sub _write {
   my ($self, $prefix, $message) = @_;
   my $date = strftime("%Y-%m-%d %H:%M:%S $$ ${prefix}: ", localtime(time()));
