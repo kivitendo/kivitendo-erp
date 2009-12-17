@@ -558,6 +558,25 @@ sub scanhtmlfile {
         $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator));
       }
 
+      while ($line =~ m/\[\%            # Template-Start-Tag
+                        [\-~#]          # Whitespace-Unterdrückung
+                        \s*             # Optional beliebig viele Whitespace
+                        [\'\"]          # Anfang des zu übersetzenden Strings
+                        (.*?)           # Der zu übersetzende String
+                        [\'\"]          # Ende des zu übersetzenden Strings
+                        \s*\|\s*        # Pipe-Zeichen mit optionalen Whitespace davor und danach
+                        \$T8            # Filteraufruf
+                        .*?             # Optionale Argumente für den Filter und Whitespaces
+                        [\-~#]          # Whitespace-Unterdrückung
+                        \%\]            # Template-Ende-Tag
+                       /ix) {
+        print "Found filter >>>$1<<<\n";
+        $cached{$_[0]}{all}{$1}  = 1;
+        $cached{$_[0]}{html}{$1} = 1;
+        $plugins{needed}->{T8}   = 1;
+        substr $line, $-[1], $+[0] - $-[0], '';
+      }
+
       while ("" ne $line) {
         if (!$copying) {
           if ($line =~ m|<translate>|i) {
@@ -608,9 +627,9 @@ sub scanhtmlfile {
   }
 
   # copy back into global arrays
-  map { $alllocales{$_} = 1 }  keys %{$cached{$_[0]}{all}};
-  map { $htmllocales{$_} = 1 } keys %{$cached{$_[0]}{html}};
-  map { $submit{$_} = 1 }      keys %{$cached{$_[0]}{submit}};
+  map { $alllocales{$_} = 1 } keys %{$cached{$_[0]}{all}};
+  map { $htmllocale{$_} = 1 } keys %{$cached{$_[0]}{html}};
+  map { $submit{$_} = 1 }     keys %{$cached{$_[0]}{submit}};
 }
 
 sub converthtmlfile {
