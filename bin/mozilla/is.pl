@@ -157,7 +157,7 @@ sub invoice_links {
   }
 
   # Load data for a specific order and update form fields
-  my $order_data = OE->get_order_data_by_ordnumber(%$form);
+  my $order_data = OE->get_order_data_by_ordnumber(%$form) if $form->{ordnumber};
 
   # Copy the fields we need to %form
   for my $key (qw(payment_id salesman_id orddate taxzone_id quonumber)) {
