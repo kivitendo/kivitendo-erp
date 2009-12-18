@@ -192,17 +192,17 @@ sub dump_sql_result {
 
 sub enable_sub_tracing {
   my ($self) = @_;
-  $self->{level} | TRACE;
+  $global_level |= TRACE;
 }
 
 sub disable_sub_tracing {
   my ($self) = @_;
-  $self->{level} & ~ TRACE;
+  $global_level &= ~ TRACE;
 }
 
 sub is_tracing_enabled {
   my ($self) = @_;
-  return $self->{level} & TRACE;
+  return $global_level & TRACE;
 }
 
 sub _write {
