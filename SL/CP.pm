@@ -358,15 +358,12 @@ sub process_payment {
     }
   }
 
-  # record a AR/AP with a payment
-  if ($form->round_amount($paymentamount, 2) > 0) {
-    $form->{invnumber} = "";
-    OP::overpayment("", $myconfig, $form, $dbh, $paymentamount, $ml, 1);
-  }
-
   my $rc;
   if ($form->round_amount($paymentamount, 2) < 0) {
-    $dbh->rollback;
+		# Hier werden negativen Zahlungseingänge abgefangen
+		# Besser: in Oberfläche schon prüfen
+		# Zahlungsein- und ausgänge sind immer positiv
+    $dbh->rollback;	
     $rc = 0;
   }
   if ($form->round_amount($paymentamount, 2) == 0) {
