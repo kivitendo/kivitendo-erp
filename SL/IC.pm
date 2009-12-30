@@ -1442,7 +1442,7 @@ sub follow_account_chain {
     qq|  cnew.accno | .
     qq|FROM chart c | .
     qq|LEFT JOIN chart cnew ON c.new_chart_id = cnew.id | .
-    qq|WHERE (c.id = ?) AND NOT c.new_chart_id ISNULL AND (c.new_chart_id > 0)|;
+    qq|WHERE (c.id = ?) AND NOT c.new_chart_id IS NULL AND (c.new_chart_id > 0)|;
   $sth = prepare_query($form, $dbh, $query);
 
   while (1) {
