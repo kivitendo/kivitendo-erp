@@ -145,6 +145,12 @@ Verzeichnisse auf einem Debian/Ubuntu-System:
 
 @code{chown -R www-data lx-office-erp/users lx-office-erp/spool lx-office-erp/webdav}
 
+Weiterhin muss der Webserver-Benutzer im Verzeichnis @code{templates} Verzeichnisse für
+jeden neuen Benutzer, der in lx-office angelegt wird, anlegen dürfen:
+
+@code{chgrp www-data lx-office-erp/templates; chmod g+w lx-office-erp/templates}
+
+
 @c ---------------------------------------------------------------
 
 @node Anpassung der PostgreSQL-Konfiguration
@@ -184,6 +190,8 @@ Unter anderen Distributionen gibt es ähnliche Methoden.
 Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und ist
 ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
 Lx-Office mit ISO-8859-15 als Encoding betrieben werden.
+
+Das Encoding einer Datenbank kann in @code{psql} mit @code{\l} geprüft werden.
 
 @node Änderungen an Konfigurationsdateien
 @section Änderungen an Konfigurationsdateien
@@ -237,7 +245,7 @@ lancompiler 'pl/pgsql';}
 Bitte beachten Sie, dass der Pfad zur Datei @code{plpgsql.so} von
 Distribution zu Distribution verschiedlich sein kann. Bei
 Debian/Ubuntu befindet sie sich unter
-@code{/usr/lib/postgresql/lib/plpgsql.so}.
+@code{/usr/lib/postgresql/lib/plpgsql.so}, bei Ubuntu 9.10 unter @code{/usr/lib/postgresql/8.4/lib/plpgsql.so}.
 
 
 @c ---------------------------------------------------------------
