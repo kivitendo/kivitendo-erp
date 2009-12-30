@@ -917,7 +917,7 @@ sub get_vendor {
   my $query =
     qq|SELECT
          v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
-	 v.creditlimit, v.terms, v.notes AS intnotes,
+         v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
          v.street, v.zipcode, v.city, v.country, v.taxzone_id,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,

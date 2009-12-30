@@ -536,7 +536,7 @@ sub query_finanzamt {
   my @vars = (
     'FA_Land_Nr',             #  0
     'FA_BUFA_Nr',             #  1
-                              #'FA_Verteiler',				#  2
+                              #'FA_Verteiler',                             #  2
     'FA_Name',                #  3
     'FA_Strasse',             #  4
     'FA_PLZ',                 #  5
@@ -549,20 +549,20 @@ sub query_finanzamt {
     'FA_BLZ_1',               # 12
     'FA_Kontonummer_1',       # 13
     'FA_Bankbezeichnung_1',   # 14
-                              #'FA_BankIBAN_1',				# 15
-                              #'FA_BankBIC_1',				# 16
-                              #'FA_BankInhaber_BUFA_Nr_1',			# 17
+                              #'FA_BankIBAN_1',                            # 15
+                              #'FA_BankBIC_1',                             # 16
+                              #'FA_BankInhaber_BUFA_Nr_1',                 # 17
     'FA_BLZ_2',               # 18
     'FA_Kontonummer_2',       # 19
     'FA_Bankbezeichnung_2',   # 20
-                              #'FA_BankIBAN_2',				# 21
-                              #'FA_BankBIC_2',				# 22
-                              #'FA_BankInhaber_BUFA_Nr_2',			# 23
+                              #'FA_BankIBAN_2',                            # 21
+                              #'FA_BankBIC_2',                             # 22
+                              #'FA_BankInhaber_BUFA_Nr_2',                 # 23
     'FA_Oeffnungszeiten',     # 24
     'FA_Email',               # 25
     'FA_Internet'             # 26
-                              #'FA_zustaendige_Hauptstelle_BUFA_Nr',		# 27
-                              #'FA_zustaendige_vorgesetzte_Finanzbehoerde'	# 28
+                              #'FA_zustaendige_Hauptstelle_BUFA_Nr',       # 27
+                              #'FA_zustaendige_vorgesetzte_Finanzbehoerde' # 28
   );
 
   my $field = join(', ', @vars);

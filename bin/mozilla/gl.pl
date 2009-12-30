@@ -250,10 +250,10 @@ sub search {
   }
 
   my $department = qq|
-  	<tr>
-	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Department') . qq|</th>
+          <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
+        </tr>
 | if $form->{selectdepartment};
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
@@ -321,83 +321,83 @@ sub search {
   <tr>
     <td>
       <table>
-	<tr>
-	  <th align=right>| . $locale->text('Reference') . qq|</th>
-	  <td><input name=reference size=20></td>
-	  <th align=right>| . $locale->text('Source') . qq|</th>
-	  <td><input name=source size=20></td>
-	</tr>
-	$department
-	<tr>
-	  <th align=right>| . $locale->text('Description') . qq|</th>
-	  <td colspan=3><input name=description size=40></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Notes') . qq|</th>
-	  <td colspan=3><input name=notes size=40></td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Project Number') . qq|</th>
-	  <td colspan=3>$projectnumber</td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('From') . qq|</th>
+        <tr>
+          <th align=right>| . $locale->text('Reference') . qq|</th>
+          <td><input name=reference size=20></td>
+          <th align=right>| . $locale->text('Source') . qq|</th>
+          <td><input name=source size=20></td>
+        </tr>
+        $department
+        <tr>
+          <th align=right>| . $locale->text('Description') . qq|</th>
+          <td colspan=3><input name=description size=40></td>
+        </tr>
+        <tr>
+          <th align=right>| . $locale->text('Notes') . qq|</th>
+          <td colspan=3><input name=notes size=40></td>
+        </tr>
+        <tr>
+          <th align=right>| . $locale->text('Project Number') . qq|</th>
+          <td colspan=3>$projectnumber</td>
+        </tr>
+        <tr>
+          <th align=right>| . $locale->text('From') . qq|</th>
           $button1
-	  <th align=right>| . $locale->text('To (time)') . qq|</th>
+          <th align=right>| . $locale->text('To (time)') . qq|</th>
           $button2
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Include in Report') . qq|</th>
-	  <td colspan=3>
-	    <table>
-	      <tr>
-		<td>
-		  <input name="category" class=radio type=radio value=X checked>&nbsp;|
+        </tr>
+        <tr>
+          <th align=right>| . $locale->text('Include in Report') . qq|</th>
+          <td colspan=3>
+            <table>
+              <tr>
+                <td>
+                  <input name="category" class=radio type=radio value=X checked>&nbsp;|
     . $locale->text('All') . qq|
-		  <input name="category" class=radio type=radio value=A>&nbsp;|
+                  <input name="category" class=radio type=radio value=A>&nbsp;|
     . $locale->text('Asset') . qq|
-		  <input name="category" class=radio type=radio value=L>&nbsp;|
+                  <input name="category" class=radio type=radio value=L>&nbsp;|
     . $locale->text('Liability') . qq|
-		  <input name="category" class=radio type=radio value=I>&nbsp;|
+                  <input name="category" class=radio type=radio value=I>&nbsp;|
     . $locale->text('Revenue') . qq|
-		  <input name="category" class=radio type=radio value=E>&nbsp;|
+                  <input name="category" class=radio type=radio value=E>&nbsp;|
     . $locale->text('Expense') . qq|
-		</td>
-	      </tr>
-	      <tr>
-		<table>
-		  <tr>
-		    <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
-		    <td>| . $locale->text('ID') . qq|</td>
-		    <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Date') . qq|</td>
-		    <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Reference') . qq|</td>
-		    <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Description') . qq|</td>
-		    <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
-		    <td>| . $locale->text('Notes') . qq|</td>
-		  </tr>
-		  <tr>
-		    <td align=right><input name="l_debit" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Debit') . qq|</td>
-		    <td align=right><input name="l_credit" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Credit') . qq|</td>
-		    <td align=right><input name="l_source" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Source') . qq|</td>
-		    <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
-		    <td>| . $locale->text('Account') . qq|</td>
-		  </tr>
-		  <tr>
-		    <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-		    <td>| . $locale->text('Subtotal') . qq|</td>
-		    <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
-		    <td>| . $locale->text('Project Number') . qq|</td>
-		  </tr>
-		</table>
-	      </tr>
-	    </table>
-	</tr>
+                </td>
+              </tr>
+              <tr>
+                <table>
+                  <tr>
+                    <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
+                    <td>| . $locale->text('ID') . qq|</td>
+                    <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Date') . qq|</td>
+                    <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Reference') . qq|</td>
+                    <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Description') . qq|</td>
+                    <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
+                    <td>| . $locale->text('Notes') . qq|</td>
+                  </tr>
+                  <tr>
+                    <td align=right><input name="l_debit" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Debit') . qq|</td>
+                    <td align=right><input name="l_credit" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Credit') . qq|</td>
+                    <td align=right><input name="l_source" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Source') . qq|</td>
+                    <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Account') . qq|</td>
+                  </tr>
+                  <tr>
+                    <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
+                    <td>| . $locale->text('Subtotal') . qq|</td>
+                    <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
+                    <td>| . $locale->text('Project Number') . qq|</td>
+                  </tr>
+                </table>
+              </tr>
+            </table>
+        </tr>
       </table>
     </td>
   </tr>
@@ -1085,11 +1085,11 @@ sub form_header {
 
   my $department;
   $department = qq|
-  	<tr>
-	  <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-	  <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-	  <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
-	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Department') . qq|</th>
+          <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
+          <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
+        </tr>
 | if $form->{selectdepartment};
   if ($init) {
     $form->{fokus} = "gl.reference";
@@ -1161,71 +1161,71 @@ sub form_header {
     . " $form->{previous_gldate}"
     . qq|</td>
         </tr>
-	<tr>
-	  <th align=right>| . $locale->text('Reference') . qq|</th>
-	  <td><input name=reference size=20 value="$form->{reference}" $readonly></td>
-	  <td align=left>
-	    <table>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Date') . qq|</th>
+        <tr>
+          <th align=right>| . $locale->text('Reference') . qq|</th>
+          <td><input name=reference size=20 value="$form->{reference}" $readonly></td>
+          <td align=left>
+            <table>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Date') . qq|</th>
                 $button1
-	      </tr>
-	    </table>
-	  </td>
-	</tr>|;
+              </tr>
+            </table>
+          </td>
+        </tr>|;
   if ($form->{id}) {
     print qq|
-	<tr>
-	  <th align=right>| . $locale->text('Belegnummer') . qq|</th>
-	  <td><input name=id size=20 value="$form->{id}" $readonly></td>
-	  <td align=left>
-	  <table>
-	      <tr>
-		<th align=right width=50%>| . $locale->text('Buchungsdatum') . qq|</th>
-		<td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly onBlur=\"check_right_date_format(this)\"></td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>|;
+        <tr>
+          <th align=right>| . $locale->text('Belegnummer') . qq|</th>
+          <td><input name=id size=20 value="$form->{id}" $readonly></td>
+          <td align=left>
+          <table>
+              <tr>
+                <th align=right width=50%>| . $locale->text('Buchungsdatum') . qq|</th>
+                <td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly onBlur=\"check_right_date_format(this)\"></td>
+              </tr>
+            </table>
+          </td>
+        </tr>|;
   }
   print qq|
-	$department|;
+        $department|;
   if ($form->{id}) {
     print qq|
-	<tr>
-	  <th align=right width=1%>| . $locale->text('Description') . qq|</th>
-	  <td width=1%>$description</td>
+        <tr>
+          <th align=right width=1%>| . $locale->text('Description') . qq|</th>
+          <td width=1%>$description</td>
           <td>
-	    <table>
-	      <tr>
-		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-		<td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
-	      </tr>
-	    </table>
-	 </td>
-	  <td align=left>
-	    <table width=100%>
-	      <tr>
-		<th align=right width=50%>| . $locale->text('Mitarbeiter') . qq|</th>
-		<td align=left><input name=employee size=20  value="| . H($form->{employee}) . qq|" readonly></td>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>|;
+            <table>
+              <tr>
+                <th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
+                <td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
+              </tr>
+            </table>
+         </td>
+          <td align=left>
+            <table width=100%>
+              <tr>
+                <th align=right width=50%>| . $locale->text('Mitarbeiter') . qq|</th>
+                <td align=left><input name=employee size=20  value="| . H($form->{employee}) . qq|" readonly></td>
+              </tr>
+            </table>
+          </td>
+        </tr>|;
   } else {
     print qq|
-	<tr>
-	  <th align=left width=1%>| . $locale->text('Description') . qq|</th>
-	  <td width=1%>$description</td>
-	  <td>
-	    <table>
-	      <tr>
-		<th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-		<td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
-	      </tr>
-	    </table>
-	 </td>
-	</tr>|;
+        <tr>
+          <th align=left width=1%>| . $locale->text('Description') . qq|</th>
+          <td width=1%>$description</td>
+          <td>
+            <table>
+              <tr>
+                <th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
+                <td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
+              </tr>
+            </table>
+         </td>
+        </tr>|;
   }
 
   print qq|
@@ -1247,13 +1247,13 @@ sub form_header {
       <tr>
       <td colspan=4>
           <table width=100%>
-	   <tr class=listheading>
-	  <th class=listheading style="width:15%">|
+           <tr class=listheading>
+          <th class=listheading style="width:15%">|
     . $locale->text('Account') . qq|</th>
-	  <th class=listheading style="width:10%">| . $locale->text('Chart balance') . qq|</th>
-	  <th class=listheading style="width:10%">|
+          <th class=listheading style="width:10%">| . $locale->text('Chart balance') . qq|</th>
+          <th class=listheading style="width:10%">|
     . $locale->text('Debit') . qq|</th>
-	  <th class=listheading style="width:10%">|
+          <th class=listheading style="width:10%">|
     . $locale->text('Credit') . qq|</th>
           <th class=listheading style="width:10%">|
     . $locale->text('Tax') . qq|</th>
@@ -1262,14 +1262,14 @@ sub form_header {
 
   if ($form->{show_details}) {
     print qq|
-	  <th class=listheading style="width:20%">| . $locale->text('Source') . qq|</th>
-	  <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
-	  <th class=listheading style="width:20%">| . $locale->text('Project Number') . qq|</th>
+          <th class=listheading style="width:20%">| . $locale->text('Source') . qq|</th>
+          <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
+          <th class=listheading style="width:20%">| . $locale->text('Project Number') . qq|</th>
 |;
   }
 
   print qq|
-	</tr>
+        </tr>
 
 $jsscript
 |;
@@ -1422,8 +1422,8 @@ sub yes {
     # saving the history
       if(!exists $form->{addition} && $form->{id} ne "") {
         $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	    $form->{addition} = "DELETED";
-  	    $form->save_history($form->dbconnect(\%myconfig));
+        $form->{addition} = "DELETED";
+        $form->save_history($form->dbconnect(\%myconfig));
       }
     # /saving the history
     $form->redirect($locale->text('Transaction deleted!'))

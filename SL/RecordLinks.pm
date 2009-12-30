@@ -241,8 +241,6 @@ SL::RecordLinks - Verlinkung von Lx-Office Objekten.
 
 =head1 DESCRIPTION
 
-=over 4
-
 Transitive RecordLinks mit get_links_via.
 
 get_links_via erwartet den zusätzlichen parameter via. via ist ein
@@ -278,7 +276,5 @@ Verknüpfung:
 finden, nicht aber:
 
   oe:11 -> ar:13 -> do:14
-
-=back
 
 =cut

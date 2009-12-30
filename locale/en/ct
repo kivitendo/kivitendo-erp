@@ -213,6 +213,7 @@ $self->{subs} = {
   'Q'                           => 'Q',
   'add'                         => 'add',
   'add_transaction'             => 'add_transaction',
+  'ajax_autocomplete'           => 'ajax_autocomplete',
   'ap_transaction'              => 'ap_transaction',
   'ar_transaction'              => 'ar_transaction',
   'build_std_url'               => 'build_std_url',

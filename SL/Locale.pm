@@ -215,7 +215,7 @@ sub findsub {
   if (exists $self->{subs}{$text_rev}) {
     $text = $self->{subs}{$text_rev};
   } elsif ($self->{countrycode} && $self->{NLS_file}) {
-    Form->error("$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
+    $main::form->error("$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
   }
 
   $main::lxdebug->leave_sub();

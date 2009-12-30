@@ -1,0 +1,6 @@
+[%- USE HTML %]
+[%- FOREACH vc = CT %]
+[%- IF loop.count < limit %]
+[% vc.$column %]
+[%- END %]
+[%- END %]

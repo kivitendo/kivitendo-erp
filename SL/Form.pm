@@ -68,62 +68,6 @@ END {
   }
 }
 
-=item _store_value()
-
-parses a complex var name, and stores it in the form.
-
-syntax:
-  $form->_store_value($key, $value);
-
-keys must start with a string, and can contain various tokens.
-supported key structures are:
-
-1. simple access
-  simple key strings work as expected
-
-  id => $form->{id}
-
-2. hash access.
-  separating two keys by a dot (.) will result in a hash lookup for the inner value
-  this is similar to the behaviour of java and templating mechanisms.
-
-  filter.description => $form->{filter}->{description}
-
-3. array+hashref access
-
-  adding brackets ([]) before the dot will cause the next hash to be put into an array.
-  using [+] instead of [] will force a new array index. this is useful for recurring
-  data structures like part lists. put a [+] into the first varname, and use [] on the
-  following ones.
-
-  repeating these names in your template:
-
-    invoice.items[+].id
-    invoice.items[].parts_id
-
-  will result in:
-
-    $form->{invoice}->{items}->[
-      {
-        id       => ...
-        parts_id => ...
-      },
-      {
-        id       => ...
-        parts_id => ...
-      }
-      ...
-    ]
-
-4. arrays
-
-  using brackets at the end of a name will result in a pure array to be created.
-  note that you mustn't use [+], which is reserved for array+hash access and will
-  result in undefined behaviour in array context.
-
-  filter.status[]  => $form->{status}->[ val1, val2, ... ]
-
-=cut
 sub _store_value {
   $main::lxdebug->enter_sub(2);
 
@@ -692,6 +636,7 @@ sub header {
 
       $jsscript = qq|
         <script type="text/javascript" src="js/jquery.js"></script>
+        <script type='text/javascript' src='js/jquery.autocomplete.js'>
         <script type="text/javascript" src="js/common.js"></script>
         <style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>
         <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
@@ -723,6 +668,8 @@ sub header {
   $ajax
 
   $fokus
+
+  <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css" />
 
   <meta name="robots" content="noindex,nofollow" />
   <script type="text/javascript" src="js/highlight_input.js"></script>
@@ -3312,19 +3259,6 @@ sub update_defaults {
   return $var;
 }
 
-=item update_business
-
-PARAMS (not named):
- \%config,     - config hashref
- $business_id, - business id
- $dbh          - optional database handle
-
-handles business (thats customer/vendor types) sequences.
-
-special behaviour for empty strings in customerinitnumber field:
-will in this case not increase the value, and return undef.
-
-=cut
 sub update_business {
   $main::lxdebug->enter_sub();
 
@@ -3498,3 +3432,93 @@ sub restore_vars {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+SL::Form.pm - main data object.
+
+=head1 SYNOPSIS
+
+This is the main data object of Lx-Office.
+Unfortunately it also acts as a god object for certain data retrieval procedures used in the entry points.
+Points of interest for a beginner are:
+
+ - $form->error            - renders a generic error in html. accepts an error message
+ - $form->get_standard_dbh - returns a database connection for the
+
+=head1 SPECIAL FUNCTIONS
+
+=over 4
+
+=item _store_value()
+
+parses a complex var name, and stores it in the form.
+
+syntax:
+  $form->_store_value($key, $value);
+
+keys must start with a string, and can contain various tokens.
+supported key structures are:
+
+1. simple access
+  simple key strings work as expected
+
+  id => $form->{id}
+
+2. hash access.
+  separating two keys by a dot (.) will result in a hash lookup for the inner value
+  this is similar to the behaviour of java and templating mechanisms.
+
+  filter.description => $form->{filter}->{description}
+
+3. array+hashref access
+
+  adding brackets ([]) before the dot will cause the next hash to be put into an array.
+  using [+] instead of [] will force a new array index. this is useful for recurring
+  data structures like part lists. put a [+] into the first varname, and use [] on the
+  following ones.
+
+  repeating these names in your template:
+
+    invoice.items[+].id
+    invoice.items[].parts_id
+
+  will result in:
+
+    $form->{invoice}->{items}->[
+      {
+        id       => ...
+        parts_id => ...
+      },
+      {
+        id       => ...
+        parts_id => ...
+      }
+      ...
+    ]
+
+4. arrays
+
+  using brackets at the end of a name will result in a pure array to be created.
+  note that you mustn't use [+], which is reserved for array+hash access and will
+  result in undefined behaviour in array context.
+
+  filter.status[]  => $form->{status}->[ val1, val2, ... ]
+
+=item update_business PARAMS
+
+PARAMS (not named):
+ \%config,     - config hashref
+ $business_id, - business id
+ $dbh          - optional database handle
+
+handles business (thats customer/vendor types) sequences.
+
+special behaviour for empty strings in customerinitnumber field:
+will in this case not increase the value, and return undef.
+
+=back
+
+=cut

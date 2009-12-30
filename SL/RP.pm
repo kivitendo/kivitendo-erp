@@ -215,8 +215,8 @@ sub get_accounts {
   }
 
   if ($form->{project_id}) {
-	# Diese Bedingung wird derzeit niemals wahr sein, da man in Bericht->Bilanz keine 
-	# Projekte auswählen kann
+    # Diese Bedingung wird derzeit niemals wahr sein, da man in Bericht->Bilanz keine
+    # Projekte auswählen kann
     $project = qq| AND (ac.project_id = | . conv_i($form->{project_id}, 'NULL') . qq|) |;
   }
 
@@ -278,7 +278,7 @@ sub get_accounts {
          GROUP BY c.accno, c.description, c.category |;
 
     if ($form->{project_id}) {
-		# s.o. keine Projektauswahl in Bilanz
+      # s.o. keine Projektauswahl in Bilanz
       $query .=
         qq|
          UNION ALL
@@ -328,8 +328,8 @@ sub get_accounts {
     }
 
   } else {                      # if ($form->{method} eq 'cash')
-	# ich sehe keinen sinn das nochmal explizit ohne conv_i aufzurufen
-	# bitte prüfen und löschen jan 15.11.2009
+    # ich sehe keinen sinn das nochmal explizit ohne conv_i aufzurufen
+    # bitte prüfen und löschen jan 15.11.2009
   #  if ($department_id) {
   #    $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
   #    $dpt_where = qq| AND t.department_id = $department_id |;
@@ -347,7 +347,7 @@ sub get_accounts {
       GROUP BY c.accno, c.description, c.category |;
 
     if ($form->{project_id}) {
-		# s.o. keine Projektauswahl in Bilanz
+      # s.o. keine Projektauswahl in Bilanz
       $query .= qq|
       UNION ALL
 
@@ -579,10 +579,10 @@ sub get_accounts_g {
     }
 
   } else {                      # if ($form->{method} eq 'cash')
-		# s.o. jan 15.11.2009
-   # if ($department_id) {
-	 #		($dpt_join, $dpt_where) = sql_department($department_id);
-   # }
+    # s.o. jan 15.11.2009
+#    if ($department_id) {
+#      ($dpt_join, $dpt_where) = sql_department($department_id);
+#    }
 
     $query = qq|
         SELECT sum(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
@@ -1812,26 +1812,26 @@ sub ustva {
   &get_accounts_g($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form, "pos_ustva");
 
   #   foreach $item (@categories_cent) {
-  #   	if ($form->{$item}{"jetzt"} > 0) {
-  #   		$form->{$item} = $form->{$item}{"jetzt"};
-  # 		delete $form->{$item}{"jetzt"};
-  # 	}
+  #     if ($form->{$item}{"jetzt"} > 0) {
+  #       $form->{$item} = $form->{$item}{"jetzt"};
+  #       delete $form->{$item}{"jetzt"};
+  #     }
   #   }
   #   foreach $item (@categories_euro) {
-  #   	if ($form->{$item}{"jetzt"} > 0) {
-  #   		$form->{$item} = $form->{$item}{"jetzt"};
-  # 		delete $form->{$item}{"jetzt"};
-  # 	}  foreach $item (@categories_cent) {
-  #   	if ($form->{$item}{"jetzt"} > 0) {
-  #   		$form->{$item} = $form->{$item}{"jetzt"};
-  # 		delete $form->{$item}{"jetzt"};
-  # 	}
+  #     if ($form->{$item}{"jetzt"} > 0) {
+  #       $form->{$item} = $form->{$item}{"jetzt"};
+  #       delete $form->{$item}{"jetzt"};
+  #     }  foreach $item (@categories_cent) {
+  #     if ($form->{$item}{"jetzt"} > 0) {
+  #       $form->{$item} = $form->{$item}{"jetzt"};
+  #       delete $form->{$item}{"jetzt"};
+  #     }
   #   }
   #   foreach $item (@categories_euro) {
-  #   	if ($form->{$item}{"jetzt"} > 0) {
-  #   		$form->{$item} = $form->{$item}{"jetzt"};
-  # 		delete $form->{$item}{"jetzt"};
-  # 	}
+  #     if ($form->{$item}{"jetzt"} > 0) {
+  #       $form->{$item} = $form->{$item}{"jetzt"};
+  #       delete $form->{$item}{"jetzt"};
+  #     }
   #   }
   #
   #    }

@@ -181,152 +181,152 @@ var isNS4 = (document.layers ? true : false);
 //var KO = (navigator.appName=="Konqueror" \|\| navigator.appName=="Opera") ;
 var KO = ((navigator.userAgent.indexOf('Opera',0) != -1) \|\| (navigator.userAgent.indexOf('Konqueror',0) != -1));
 function getRef(id) {
-	if (isDOM) return document.getElementById(id);
-	if (isIE4) return document.all[id];
-	if (isNS4) return document.layers[id];
+  if (isDOM) return document.getElementById(id);
+  if (isIE4) return document.all[id];
+  if (isNS4) return document.layers[id];
 }
 function getSty(id) {
-	return (isNS4 ? getRef(id) : getRef(id).style);
+  return (isNS4 ? getRef(id) : getRef(id).style);
 }
 var popTimer = 0;
 var litNow = new Array();
 function popOver(menuNum, itemNum) {
-	if (KO) document.getElementById("win1").style.visibility = "hidden";
-	clearTimeout(popTimer);
-	hideAllBut(menuNum);
-	litNow = getTree(menuNum, itemNum);
-	changeCol(litNow, true);
-	targetNum = menu[menuNum][itemNum].target;
-	if (targetNum > 0) {
-		thisX = parseInt(menu[menuNum][0].ref.left) + parseInt(menu[menuNum][itemNum].ref.left);
-		thisY = parseInt(menu[menuNum][0].ref.top) + parseInt(menu[menuNum][itemNum].ref.top);
-		with (menu[targetNum][0].ref) {
-			left = parseInt(thisX + menu[targetNum][0].x);
-			top = parseInt(thisY + menu[targetNum][0].y);
-			visibility = 'visible';
-		}
-	}
+  if (KO) document.getElementById("win1").style.visibility = "hidden";
+  clearTimeout(popTimer);
+  hideAllBut(menuNum);
+  litNow = getTree(menuNum, itemNum);
+  changeCol(litNow, true);
+  targetNum = menu[menuNum][itemNum].target;
+  if (targetNum > 0) {
+    thisX = parseInt(menu[menuNum][0].ref.left) + parseInt(menu[menuNum][itemNum].ref.left);
+    thisY = parseInt(menu[menuNum][0].ref.top) + parseInt(menu[menuNum][itemNum].ref.top);
+    with (menu[targetNum][0].ref) {
+      left = parseInt(thisX + menu[targetNum][0].x);
+      top = parseInt(thisY + menu[targetNum][0].y);
+      visibility = 'visible';
+    }
+  }
 }
 function popOut(menuNum, itemNum) {
-	if ((menuNum == 0) && !menu[menuNum][itemNum].target)
-		hideAllBut(0)
-		if (KO) document.getElementById("win1").style.visibility = "visible";
-	else
-		popTimer = setTimeout('hideAllBut(0)', 500);
+  if ((menuNum == 0) && !menu[menuNum][itemNum].target)
+    hideAllBut(0)
+    if (KO) document.getElementById("win1").style.visibility = "visible";
+  else
+    popTimer = setTimeout('hideAllBut(0)', 500);
 }
 function getTree(menuNum, itemNum) {
-	itemArray = new Array(menu.length);
-	while(1) {
-		itemArray[menuNum] = itemNum;
-		if (menuNum == 0) return itemArray;
-		itemNum = menu[menuNum][0].parentItem;
-		menuNum = menu[menuNum][0].parentMenu;
-	}
+  itemArray = new Array(menu.length);
+  while(1) {
+    itemArray[menuNum] = itemNum;
+    if (menuNum == 0) return itemArray;
+    itemNum = menu[menuNum][0].parentItem;
+    menuNum = menu[menuNum][0].parentMenu;
+  }
 }
 function changeCol(changeArray, isOver) {
-	for (menuCount = 0; menuCount < changeArray.length; menuCount++) {
-		if (changeArray[menuCount]) {
-			newCol = isOver ? menu[menuCount][0].overCol : menu[menuCount][0].backCol;
-			with (menu[menuCount][changeArray[menuCount]].ref) {
-				if (isNS4) bgColor = newCol;
-				else backgroundColor = newCol;
-			}
-		}
-	}
+  for (menuCount = 0; menuCount < changeArray.length; menuCount++) {
+    if (changeArray[menuCount]) {
+      newCol = isOver ? menu[menuCount][0].overCol : menu[menuCount][0].backCol;
+      with (menu[menuCount][changeArray[menuCount]].ref) {
+        if (isNS4) bgColor = newCol;
+        else backgroundColor = newCol;
+      }
+    }
+  }
 }
 function hideAllBut(menuNum) {
-	var keepMenus = getTree(menuNum, 1);
-	for (count = 0; count < menu.length; count++)
-		if (!keepMenus[count])
-			menu[count][0].ref.visibility = 'hidden';
-	changeCol(litNow, false);
+  var keepMenus = getTree(menuNum, 1);
+  for (count = 0; count < menu.length; count++)
+    if (!keepMenus[count])
+      menu[count][0].ref.visibility = 'hidden';
+  changeCol(litNow, false);
 }
 
 function Menu(isVert, popInd, x, y, width, overCol, backCol, borderClass, textClass) {
-	this.isVert = isVert;
-	this.popInd = popInd
-	this.x = x;
-	this.y = y;
-	this.width = width;
-	this.overCol = overCol;
-	this.backCol = backCol;
-	this.borderClass = borderClass;
-	this.textClass = textClass;
-	this.parentMenu = null;
-	this.parentItem = null;
-	this.ref = null;
+  this.isVert = isVert;
+  this.popInd = popInd
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.overCol = overCol;
+  this.backCol = backCol;
+  this.borderClass = borderClass;
+  this.textClass = textClass;
+  this.parentMenu = null;
+  this.parentItem = null;
+  this.ref = null;
 }
 function Item(text, href, frame, length, spacing, target) {
-	this.text = text;
-	this.href = href;
-	this.frame = frame;
-	this.length = length;
-	this.spacing = spacing;
-	this.target = target;
-	this.ref = null;
+  this.text = text;
+  this.href = href;
+  this.frame = frame;
+  this.length = length;
+  this.spacing = spacing;
+  this.target = target;
+  this.ref = null;
 }
 function go(link,frame) {
-	tmp=eval("top."+frame);
-	tmp.location=link;
+  tmp=eval("top."+frame);
+  tmp.location=link;
         //top.main_window.location=link;
 }
 function writeMenus() {
-	if (!isDOM && !isIE4 && !isNS4) return;
-	for (currMenu = 0; currMenu < menu.length; currMenu++) with (menu[currMenu][0]) {
-		var str = '', itemX = 0, itemY = 0;
-		for (currItem = 1; currItem < menu[currMenu].length; currItem++) with (menu[currMenu][currItem]) {
-			var itemID = 'menu' + currMenu + 'item' + currItem;
-			var w = (isVert ? width : length);
-			var h = (isVert ? length : width);
-			if (isDOM \|\| isIE4) {
-				str += '<div id="' + itemID + '" style="position: absolute; left: ' + itemX + '; top: ' + itemY + '; width: ' + w + '; height: ' + h + '; visibility: inherit; ';
-				if (backCol) str += 'background: ' + backCol + '; ';
-				str += '" ';
-			}
-			if (isNS4) {
-				str += '<layer id="' + itemID + '" left="' + itemX + '" top="' + itemY + '" width="' +  w + '" height="' + h + '" visibility="inherit" ';
-				if (backCol) str += 'bgcolor="' + backCol + '" ';
-			}
-			if (borderClass) str += 'class="' + borderClass + '" "';
-			str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
-			str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
-			str +='<tr><td class="' + textClass + '" style="cursor:pointer;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
-			if (target > 0) {
-				menu[target][0].parentMenu = currMenu;
-				menu[target][0].parentItem = currItem;
-				if (popInd) str += '<td class="' + textClass + '" align="right">' + popInd + '</td>';
-			}
-			str += '</tr></table>' + (isNS4 ? '</layer>' : '</div>');
-			if (isVert) itemY += length + spacing;
-			else itemX += length + spacing;
-		}
-		if (isDOM) {
-			var newDiv = document.createElement('div');
-			document.getElementsByTagName('body').item(0).appendChild(newDiv);
-			newDiv.innerHTML = str;
-			ref = newDiv.style;
-			ref.position = 'absolute';
-			ref.visibility = 'hidden';
-		}
-		if (isIE4) {
-			document.body.insertAdjacentHTML('beforeEnd', '<div id="menu' + currMenu + 'div" ' + 'style="position: absolute; visibility: hidden">' + str + '</div>');
-			ref = getSty('menu' + currMenu + 'div');
-		}
-		if (isNS4) {
-			ref = new Layer(0);
-			ref.document.write(str);
-			ref.document.close();
-		}
-		for (currItem = 1; currItem < menu[currMenu].length; currItem++) {
-			itemName = 'menu' + currMenu + 'item' + currItem;
-			if (isDOM \|\| isIE4) menu[currMenu][currItem].ref = getSty(itemName);
-			if (isNS4) menu[currMenu][currItem].ref = ref.document[itemName];
-		}
-	}
-	with(menu[0][0]) {
-		ref.left = x;
-		ref.top = y;
-		ref.visibility = 'visible';
+  if (!isDOM && !isIE4 && !isNS4) return;
+  for (currMenu = 0; currMenu < menu.length; currMenu++) with (menu[currMenu][0]) {
+    var str = '', itemX = 0, itemY = 0;
+    for (currItem = 1; currItem < menu[currMenu].length; currItem++) with (menu[currMenu][currItem]) {
+      var itemID = 'menu' + currMenu + 'item' + currItem;
+      var w = (isVert ? width : length);
+      var h = (isVert ? length : width);
+      if (isDOM \|\| isIE4) {
+        str += '<div id="' + itemID + '" style="position: absolute; left: ' + itemX + '; top: ' + itemY + '; width: ' + w + '; height: ' + h + '; visibility: inherit; ';
+        if (backCol) str += 'background: ' + backCol + '; ';
+        str += '" ';
+      }
+      if (isNS4) {
+        str += '<layer id="' + itemID + '" left="' + itemX + '" top="' + itemY + '" width="' +  w + '" height="' + h + '" visibility="inherit" ';
+        if (backCol) str += 'bgcolor="' + backCol + '" ';
+      }
+      if (borderClass) str += 'class="' + borderClass + '" "';
+      str += 'onMouseOver="popOver(' + currMenu + ',' + currItem + ')" onMouseOut="popOut(' + currMenu + ',' + currItem + ')">';
+      str += '<table width="' + (w - 8) + '" border="0" cellspacing="0" cellpadding="' + (!isNS4 && borderClass ? 3 : 0) + '">';
+      str +='<tr><td class="' + textClass + '" style="cursor:pointer;" align="left" height="' + (h - 7) + '" onClick=\\'go("' + href + '","' + frame + '")\\'>' + text + '</a></td>';
+      if (target > 0) {
+        menu[target][0].parentMenu = currMenu;
+        menu[target][0].parentItem = currItem;
+        if (popInd) str += '<td class="' + textClass + '" align="right">' + popInd + '</td>';
+      }
+      str += '</tr></table>' + (isNS4 ? '</layer>' : '</div>');
+      if (isVert) itemY += length + spacing;
+      else itemX += length + spacing;
+    }
+    if (isDOM) {
+      var newDiv = document.createElement('div');
+      document.getElementsByTagName('body').item(0).appendChild(newDiv);
+      newDiv.innerHTML = str;
+      ref = newDiv.style;
+      ref.position = 'absolute';
+      ref.visibility = 'hidden';
+    }
+    if (isIE4) {
+      document.body.insertAdjacentHTML('beforeEnd', '<div id="menu' + currMenu + 'div" ' + 'style="position: absolute; visibility: hidden">' + str + '</div>');
+      ref = getSty('menu' + currMenu + 'div');
+    }
+    if (isNS4) {
+      ref = new Layer(0);
+      ref.document.write(str);
+      ref.document.close();
+    }
+    for (currItem = 1; currItem < menu[currMenu].length; currItem++) {
+      itemName = 'menu' + currMenu + 'item' + currItem;
+      if (isDOM \|\| isIE4) menu[currMenu][currItem].ref = getSty(itemName);
+      if (isNS4) menu[currMenu][currItem].ref = ref.document[itemName];
+    }
+  }
+  with(menu[0][0]) {
+    ref.left = x;
+    ref.top = y;
+    ref.visibility = 'visible';
    }
 }
 var menu = new Array();
@@ -346,12 +346,12 @@ nsResizeHandler = new Function('if (popOldWidth != window.innerWidth) location.r
 if (isNS4) document.captureEvents(Event.CLICK);
 document.onclick = clickHandle;
 function clickHandle(evt) {
-	if (isNS4) document.routeEvent(evt);
-	hideAllBut(0);
-	if (KO) document.getElementById("win1").style.visibility = "visible";
+  if (isNS4) document.routeEvent(evt);
+  hideAllBut(0);
+  if (KO) document.getElementById("win1").style.visibility = "visible";
 }
 function moveRoot() {
-	with(menu[0][0].ref) left = ((parseInt(left) < 100) ? 100 : 5);
+  with(menu[0][0].ref) left = ((parseInt(left) < 100) ? 100 : 5);
 }
 //  End -->
 </script>
@@ -399,11 +399,11 @@ sub section_menu {
 
       # Untermen
       if ($mlz{"s$ml"} > 1) {
-		$z++;
-		$sm = 1;
+        $z++;
+        $sm = 1;
       } else {
-		$z = $sm;
-		$mlz{"s$ml"}++;
+        $z = $sm;
+        $mlz{"s$ml"}++;
       }
       print
         qq|menu[$mlz{$ml}][$z] = new Item('$label', '#', '', defLength, 0, |
@@ -435,7 +435,7 @@ sub section_menu {
         $sm    = 1;
         my $breit = 15 + length($label) * 6;
         print
-          qq|menu[0][$mm] = new Item('  $label', '#', '', $breit, 10, $pm);	\n|;
+          qq|menu[0][$mm] = new Item('  $label', '#', '', $breit, 10, $pm); \n|;
         print qq|menu[$pm] = new Array();\n|;
         print
           qq|menu[$pm][0] = new Menu(true, '>', 0, 20, 180, defOver, defBack, 'itemBorder', 'itemText');\n|;

@@ -164,9 +164,9 @@ sub get_openinvoices {
 
   my $query =
      qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, a.curr | .
-	   qq|FROM $arap a | .
+     qq|FROM $arap a | .
      qq|WHERE (a.${vc}_id = ?) AND (a.curr = ? $curr_null) AND NOT (a.amount = paid)| .
-		 qq|ORDER BY a.id|;
+     qq|ORDER BY a.id|;
   my $sth = prepare_execute_query($form, $dbh, $query,
                                   conv_i($form->{"${vc}_id"}),
                                   $form->{currency});
@@ -304,7 +304,7 @@ sub process_payment {
           qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, | .
           qq|                       cleared, fx_transaction) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?)|;
-		    @values = (conv_i($form->{"id_$i"}), $paymentaccno,
+        @values = (conv_i($form->{"id_$i"}), $paymentaccno,
                    conv_date($form->{datepaid}), ($amount * $ml * -1), '0',
                    '1');
         do_query($form, $dbh, $query, @values);
@@ -345,7 +345,7 @@ sub process_payment {
 
       # update AR/AP transaction
       $query = qq|UPDATE $arap SET $paid, datepaid = ? WHERE id = ?|;
-		  @values = (conv_date($form->{datepaid}), conv_i($form->{"id_$i"}));
+      @values = (conv_date($form->{datepaid}), conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
       # saving the history
       $form->{id} = $form->{"id_$i"};

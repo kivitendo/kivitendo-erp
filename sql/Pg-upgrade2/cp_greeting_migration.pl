@@ -38,11 +38,11 @@ sub query_result {
 
   while (my $row = $sth2->fetchrow_hashref()) {
     if ($main::form->{"gender_$i"} eq "f" ) {
-			$mchecked = "";
-			$fchecked = "checked";
+      $mchecked = "";
+      $fchecked = "checked";
     } else {
-			$mchecked = "checked";
-			$fchecked = "";
+      $mchecked = "checked";
+      $fchecked = "";
     };
 
     $gender_table .= "<tr><input type=hidden name=\"cp_id_$i\" value=\"$row->{cp_id}\"> <td>$row->{cp_givenname}</td> <td>$row->{cp_name}</td> <td>$row->{cp_title} </td> <td>$row->{cp_greeting} </td><td> <input type=\"radio\" name=\"gender_$i\" value=\"m\" $mchecked> <input type=\"radio\" name=\"gender_$i\" value=\"f\" $fchecked></td></tr>\n";

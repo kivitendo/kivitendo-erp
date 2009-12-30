@@ -96,7 +96,7 @@ sub save_partsgroup {
 
   if ($form->{id}) {
     $query = qq|UPDATE partsgroup SET partsgroup = ? WHERE id = ?|;
-		push(@values, $form->{id});
+    push(@values, $form->{id});
   } else {
     $query = qq|INSERT INTO partsgroup (partsgroup) VALUES (?)|;
   }
@@ -219,7 +219,7 @@ sub save_pricegroup {
 
   if ($form->{id}) {
     $query = qq|UPDATE pricegroup SET pricegroup = ? WHERE id = ? |;
-		push(@values, $form->{id});
+    push(@values, $form->{id});
   } else {
     $query = qq|INSERT INTO pricegroup (pricegroup) VALUES (?)|;
   }

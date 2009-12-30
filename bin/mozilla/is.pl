@@ -293,7 +293,6 @@ sub form_header {
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
-  $form->{radier}          = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
 
   my $set_duedate_url = "$form->{script}?action=set_duedate";
 
@@ -312,6 +311,7 @@ sub form_header {
                    "taxzones"      => "ALL_TAXZONES",
                    "currencies"    => "ALL_CURRENCIES",
                    "customers"     => "ALL_CUSTOMERS",
+                   "departments"   => "all_departments",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
@@ -917,10 +917,10 @@ sub yes {
 
   if (IS->delete_invoice(\%myconfig, \%$form, $main::spool)) {
     # saving the history
-  	if(!exists $form->{addition}) {
+    if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-  	  $form->{addition} = "DELETED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history
     $form->redirect($locale->text('Invoice deleted!'));

@@ -76,19 +76,19 @@ sub reconciliation {
   <tr>
     <td>
       <table>
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Account') . qq|</th>
-	  <td colspan=3><select name=accno>$selection</select>
-	  </td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('From') . qq|</th>
-	  <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-     <input type="button" name="fromdate" id="trigger_fromdate" value="?"></td>
-	  <th align=right>| . $locale->text('Until') . qq|</th>
-	  <td><input name=todate id=todate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-     <input type="button" name="todate" id="trigger_todate" value="?"></td>
-	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Account') . qq|</th>
+          <td colspan=3><select name=accno>$selection</select>
+          </td>
+        </tr>
+        <tr>
+          <th align=right>| . $locale->text('From') . qq|</th>
+          <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="fromdate" id="trigger_fromdate" value="?"></td>
+          <th align=right>| . $locale->text('Until') . qq|</th>
+          <td><input name=todate id=todate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
+         <input type="button" name="todate" id="trigger_todate" value="?"></td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -203,7 +203,7 @@ sub display_form {
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>
+        <tr class=listheading>
 |;
 
   map { print "\n$column_header{$_}" } @column_index;
@@ -227,13 +227,13 @@ sub display_form {
     . $form->format_amount(\%myconfig, $balance, 2, 0) . "</td>";
   my $j = 0;
   print qq|
-	<tr class=listrow$j>
+        <tr class=listrow$j>
 |;
 
   map { print "\n$column_data{$_}" } @column_index;
 
   print qq|
-	</tr>
+        </tr>
 |;
 
   my $cleared;
@@ -292,13 +292,13 @@ sub display_form {
     $j++;
     $j %= 2;
     print qq|
-	<tr class=listrow$j>
+        <tr class=listrow$j>
 |;
 
     map { print "\n$column_data{$_}" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 |;
 
   }
@@ -314,7 +314,7 @@ sub display_form {
     . $form->format_amount(\%myconfig, $totalcredits, 2, "&nbsp;") . "</th>";
 
   print qq|
-	<tr class=listtotal>
+        <tr class=listtotal>
 |;
 
   map { print "\n$column_data{$_}" } @column_index;
@@ -335,15 +335,14 @@ sub display_form {
   if ($fx) {
     $fx       = $form->format_amount(\%myconfig, $fx, 2, 0);
     $exchdiff = qq|
-		<th align=right nowrap>|
-      . $locale->text('Exchangerate Difference') . qq|</th>
-		<td width=10%></td>
-		<td align=right>$fx</td>
+          <th align=right nowrap>| . $locale->text('Exchangerate Difference') . qq|</th>
+          <td width=10%></td>
+          <td align=right>$fx</td>
 |;
   }
 
   print qq|
-	</tr>
+        </tr>
       </table>
     </td>
   </tr>
@@ -351,34 +350,34 @@ sub display_form {
     <td>
       <table width=100%>
         <tr valign=top>
-	  <td>
-	    <table>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Cleared Balance') . qq|</th>
-		<td width=10%></td>
-		<td align=right>$clearedbalance</td>
-	      </tr>
-	      <tr>
-		$exchdiff
-	      </tr>
-	    </table>
-	  </td>
-	  <td align=right>
-	    <table>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Statement Balance') . qq|</th>
-		<td width=10%></td>
-		<td align=right><input name=statementbalance size=11 value=$form->{statementbalance}></td>
-	      </tr>
-	      <tr>
-		<th align=right nowrap>| . $locale->text('Difference') . qq|</th>
-		<td width=10%></td>
-		<td align=right><input name=null size=11 value=$difference></td>
-		<input type=hidden name=difference value=$difference>
-	      </tr>
-	    </table>
-	  </td>
-	</tr>
+          <td>
+            <table>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Cleared Balance') . qq|</th>
+                <td width=10%></td>
+                <td align=right>$clearedbalance</td>
+              </tr>
+              <tr>
+                $exchdiff
+              </tr>
+            </table>
+          </td>
+          <td align=right>
+            <table>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Statement Balance') . qq|</th>
+                <td width=10%></td>
+                <td align=right><input name=statementbalance size=11 value=$form->{statementbalance}></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Difference') . qq|</th>
+                <td width=10%></td>
+                <td align=right><input name=null size=11 value=$difference></td>
+                <input type=hidden name=difference value=$difference>
+              </tr>
+            </table>
+          </td>
+        </tr>
       </table>
     </td>
   </tr>

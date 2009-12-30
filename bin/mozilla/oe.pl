@@ -452,10 +452,10 @@ sub form_footer {
         $form->{"${item}_total"} = $form->format_amount(\%myconfig, $form->{"${item}_total"}, 2);
 
         $TMPL_VAR{tax} .= qq|
-	      <tr>
-		<th align=right>$form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
-		<td align=right>$form->{"${item}_total"}</td>
-	      </tr> |;
+              <tr>
+                <th align=right>$form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
+                <td align=right>$form->{"${item}_total"}</td>
+              </tr> |;
       }
     }
 
@@ -470,14 +470,14 @@ sub form_footer {
         $form->{"${item}_netto"} = $form->format_amount(\%myconfig, $form->{"${item}_netto"}, 2);
 
         $TMPL_VAR{tax} .= qq|
-	      <tr>
-		<th align=right>Enthaltene $form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
-		<td align=right>$form->{"${item}_total"}</td>
-	      </tr>
-	      <tr>
-	        <th align=right>Nettobetrag</th>
-		<td align=right>$form->{"${item}_netto"}</td>
-	      </tr> |;
+              <tr>
+                <th align=right>Enthaltene $form->{"${item}_description"}&nbsp;| . $form->{"${item}_rate"} * 100 .qq|%</th>
+                <td align=right>$form->{"${item}_total"}</td>
+              </tr>
+              <tr>
+                <th align=right>Nettobetrag</th>
+                <td align=right>$form->{"${item}_netto"}</td>
+              </tr> |;
       }
     }
   }
@@ -552,7 +552,7 @@ sub update {
     my $rows = scalar @{ $form->{item_list} };
 
     # hier ist das problem fuer bug 817 $form->{discount} wird nicht durchgeschliffen
-    # ferner fallunterscheidung fuer verkauf oder einkauf s.a. bug 736	jb 04.05.2009
+    # ferner fallunterscheidung fuer verkauf oder einkauf s.a. bug 736 jb 04.05.2009
     # select discount as vendor_discount from vendor ||
     # select discount as customer_discount from customer
     $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"$form->{vc}_discount"} * 100);
@@ -1059,8 +1059,8 @@ sub save_and_close {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	$form->{addition} = "SAVED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
 
@@ -1166,8 +1166,8 @@ sub save {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	$form->{addition} = "SAVED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
 
@@ -1254,8 +1254,8 @@ sub delete_order_quotation {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
-  	  $form->{addition} = "DELETED";
-  	  $form->save_history($form->dbconnect(\%myconfig));
+      $form->{addition} = "DELETED";
+      $form->save_history($form->dbconnect(\%myconfig));
     }
     # /saving the history
     $form->info($msg);
@@ -1460,16 +1460,16 @@ sub backorder_exchangerate {
     <td>
       <table>
         <tr>
-	  <th align=right>| . $locale->text('Currency') . qq|</th>
-	  <td>$form->{currency}</td>
-	</tr>
-	<tr>
-	  <th align=right>| . $locale->text('Date') . qq|</th>
-	  <td>$orddate</td>
-	</tr>
+          <th align=right>| . $locale->text('Currency') . qq|</th>
+          <td>$form->{currency}</td>
+        </tr>
         <tr>
-	  <th align=right>| . $locale->text('Exchangerate') . qq|</th>
-	  <td><input name=exchangerate size=11></td>
+          <th align=right>| . $locale->text('Date') . qq|</th>
+          <td>$orddate</td>
+        </tr>
+        <tr>
+          <th align=right>| . $locale->text('Exchangerate') . qq|</th>
+          <td><input name=exchangerate size=11></td>
         </tr>
       </table>
     </td>

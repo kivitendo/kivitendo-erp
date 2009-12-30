@@ -154,19 +154,19 @@ sub transfer_assembly {
 
 
   # my $query    = qq|select parts_id,qty from assembly where id = ?|;
-  my $query	= qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
+  my $query = qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
   my $sth_part_qty_assembly      = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
   # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
   my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, comment, employee_id, qty, trans_id, trans_type_id)
-			    VALUES (?, ?, ?, ?, ?,(SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
-				    (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
+                           VALUES (?, ?, ?, ?, ?,(SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
+                           (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
   my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
 
-  my $kannNichtFertigen ="";	# der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
+  my $kannNichtFertigen ="";  # der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
 
-  while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) {	# Schleife für $query=select parts_id,qty from assembly
+  while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) {  # Schleife für $query=select parts_id,qty from assembly
 
     my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID = $hash_ref->{parts_id};
@@ -176,8 +176,8 @@ sub transfer_assembly {
 
     if ($partsQTY  > $max_parts){
       # Gibt es hier ein Problem mit nicht "escapten" Zeichen? 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
-      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Einheiten der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>";	# Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
-      next;	# die weiteren Überprüfungen sind unnötig
+      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Einheiten der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>"; # Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
+      next; # die weiteren Überprüfungen sind unnötig
     }
 
     # Eine kurze Vorabfrage, um den Lagerplatz und die Chargennummber zu bestimmen
@@ -187,31 +187,31 @@ sub transfer_assembly {
     # und lösen den Rest dann so wie bei xplace im Barcode-Programm
     # S.a. Kommentar im bin/mozilla-Code mb übernimmt und macht das in ordentlich
 
-    my $tempquery =	qq|SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber having SUM(qty)>0|;
-    my $tempsth	  =	prepare_execute_query($form, $dbh, $tempquery, $params{dst_warehouse_id}, $currentPart_ID);
+    my $tempquery = qq|SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber having SUM(qty)>0|;
+    my $tempsth   = prepare_execute_query($form, $dbh, $tempquery, $params{dst_warehouse_id}, $currentPart_ID);
 
     # Alle Werte zu dem einzelnen Artikel, die wir später auslagern
     my $tmpPartsQTY = $partsQTY;
 
     while (my $temphash_ref = $tempsth->fetchrow_hashref()) {
-      my $temppart_bin_id	= $temphash_ref->{bin_id}; # kann man hier den quelllagerplatz beim verbauen angeben?
-      my $temppart_chargenumber	= $temphash_ref->{chargenumber};
-      my $temppart_qty	= $temphash_ref->{sum};
-      if ($tmpPartsQTY > $temppart_qty) {	# wir haben noch mehr waren zum wegbuchen. Wir buchen den kompletten Lagerplatzbestand und zählen die Hilfsvariable runter
-	$tmpPartsQTY = $tmpPartsQTY - $temppart_qty;
-	$temppart_qty = $temppart_qty * -1;	# beim analyiseren des sql-trace, war dieser wert positiv, wenn * -1 als berechnung in der parameter-übergabe angegeben wird. Dieser Wert IST und BLEIBT positiv!! Hilfe. Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
-	do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . get_part_description($self, parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
+      my $temppart_bin_id       = $temphash_ref->{bin_id}; # kann man hier den quelllagerplatz beim verbauen angeben?
+      my $temppart_chargenumber = $temphash_ref->{chargenumber};
+      my $temppart_qty          = $temphash_ref->{sum};
+      if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen. Wir buchen den kompletten Lagerplatzbestand und zählen die Hilfsvariable runter
+        $tmpPartsQTY = $tmpPartsQTY - $temppart_qty;
+        $temppart_qty = $temppart_qty * -1; # beim analyiseren des sql-trace, war dieser wert positiv, wenn * -1 als berechnung in der parameter-übergabe angegeben wird. Dieser Wert IST und BLEIBT positiv!! Hilfe. Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
+        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . get_part_description($self, parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
 
-	# hier ist noch ein fehler am besten mit definierten erzeugnissen debuggen 02/2009 jb
-	# idee: ausbuch algorithmus mit rekursion lösen und an- und abschaltbar machen
-	# das problem könnte sein, dass strict nicht an war und sth global eine andere zuweisung bekam
-	# auf jeden fall war der internal-server-error nach aktivierung von strict und warnings plus ein paar my-definitionen weg
-      }	else {	# okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
-	$tmpPartsQTY *=-1;
+        # hier ist noch ein fehler am besten mit definierten erzeugnissen debuggen 02/2009 jb
+        # idee: ausbuch algorithmus mit rekursion lösen und an- und abschaltbar machen
+        # das problem könnte sein, dass strict nicht an war und sth global eine andere zuweisung bekam
+        # auf jeden fall war der internal-server-error nach aktivierung von strict und warnings plus ein paar my-definitionen weg
+      } else { # okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
+        $tmpPartsQTY *=-1;
         do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . get_part_description($self, parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY);
-        last;	# beendet die schleife (springt zum letzten element)
+        last; # beendet die schleife (springt zum letzten element)
       }
-    }	# ende while SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id
+    }  # ende while SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id
   } #ende while select parts_id,qty from assembly where id = ?
   if ($kannNichtFertigen) {
     return $kannNichtFertigen;
@@ -219,14 +219,14 @@ sub transfer_assembly {
 
   # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
   my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, comment, employee_id, qty, trans_id, trans_type_id)
-			    VALUES (?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
-				    (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
+                               VALUES (?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
+                               (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
   my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
   do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id}, $params{dst_bin_id}, $params{chargenumber}, $params{comment}, $params{login}, $params{qty});
   $dbh->commit();
 
   $main::lxdebug->leave_sub();
-  return 1;	# Alles erfolgreich
+  return 1; # Alles erfolgreich
 }
 
 sub get_warehouse_journal {
@@ -489,7 +489,7 @@ SQL
 #  - partsid      - will return matches with this parts_id only
 #  - description  - will return only matches where the given string is a substring of the description
 #  - chargenumber - will return only matches where the given string is a substring of the chargenumber
-#  - ean	  - will return only matches where the given string is a substring of the ean as stored in the table parts (article)
+#  - ean          - will return only matches where the given string is a substring of the ean as stored in the table parts (article)
 #  - charge_ids   - must be an arrayref. will return contents with these ids only
 #  - expires_in   - will only return matches that expire within the given number of days
 #                   will also add a column named 'has_expired' containing if the match has already expired or not
@@ -593,7 +593,7 @@ sub get_warehouse_report {
      "bindescription"       => "b.description",
      "binid"                => "b.id",
      "chargenumber"         => "i.chargenumber",
-     "ean"         	    => "p.ean",
+     "ean"                  => "p.ean",
      "chargeid"             => "c.id",
      "warehousedescription" => "w.description",
      "partunit"             => "p.unit",
@@ -771,8 +771,8 @@ sub get_basic_bin_info {
   return map { $_->{bin_id} => $_ } @{ $result };
 }
 #
-# Eingabe: 	Teilenummer, Lagernummer (warehouse)
-# Ausgabe:	Die maximale Anzahl der Teile in diesem Lager
+# Eingabe:  Teilenummer, Lagernummer (warehouse)
+# Ausgabe:  Die maximale Anzahl der Teile in diesem Lager
 #
 sub get_max_qty_parts {
 $main::lxdebug->enter_sub();
@@ -792,7 +792,7 @@ $main::lxdebug->enter_sub();
   my $sth_QTY      = prepare_execute_query($form, $dbh, $query, ,$params{parts_id}, $params{warehouse_id}); #info: aufruf an DBUtils.pm
 
   my $max_qty_parts = 0; #Initialisierung mit 0
-  while (my $ref = $sth_QTY->fetchrow_hashref()) {	# wir laufen über alle chargen und Lagerorte (s.a. SQL-Query oben)
+  while (my $ref = $sth_QTY->fetchrow_hashref()) {  # wir laufen über alle chargen und Lagerorte (s.a. SQL-Query oben)
     $max_qty_parts += $ref->{sum};
   }
 
@@ -802,8 +802,8 @@ $main::lxdebug->enter_sub();
 }
 
 #
-# Eingabe: 	Teilenummer, Lagernummer (warehouse)
-# Ausgabe:	Die Beschreibung der Ware bzw. Erzeugnis
+# Eingabe:  Teilenummer, Lagernummer (warehouse)
+# Ausgabe:  Die Beschreibung der Ware bzw. Erzeugnis
 #
 sub get_part_description {
 $main::lxdebug->enter_sub();

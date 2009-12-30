@@ -108,6 +108,10 @@
         <td>
          [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]
          <input type="text" value="[% HTML.escape(oldvcname) %]" name="[% HTML.escape(vc) %]"[% RO %]>
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[name="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
          [%- ELSE %]
          <select name="[% vc %]" class="fixed_width" onchange="document.do.update_button.click();"[% RO %]>
           [%- FOREACH row = ALL_VC %]
@@ -141,6 +145,10 @@
          </td>
         </tr>
         [%- END %]
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[name="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
 
         [%- IF ALL_SHIPTO.size %]
         <tr>

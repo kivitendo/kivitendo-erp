@@ -606,18 +606,6 @@ sub get_field_format_list {
   return ($date_fields, $number_fields);
 }
 
-=head2 VALIDITY
-
-Suppose the following scenario:
-
-You have a lot of parts in your database, and a set of properties cofigured. Now not every part has every of these properties, some combinations will just make no sense. In order to clean up your inputs a bit, you want to mark certain combinations as invalid, blocking them from modification and possibly display.
-
-Validity is assumed. If you modify validity, you actually save B<invalidity>.
-iNvalidity is saved as a function of config_id, and the trans_id
-
-In the naive way, disable an attribute for a specific id (simple)
-
-=cut
 sub save_custom_variables_validity {
   $main::lxdebug->enter_sub();
 
@@ -683,3 +671,36 @@ sub get_custom_variables_validity {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+SL::CVar.pm - Custom Variables module
+
+=head1 SYNOPSIS
+
+  # dealing with configs
+
+  my $all_configs = CVar->get_configs()
+  my $config      = CVar->get_config(id => '1234')
+
+  CVar->save_config($config);
+  CVar->delete->config($config)
+
+  # dealing with custom vars
+
+  CVar->get_custom_variables(module => 'ic')
+
+=head2 VALIDITY
+
+Suppose the following scenario:
+
+You have a lot of parts in your database, and a set of properties cofigured. Now not every part has every of these properties, some combinations will just make no sense. In order to clean up your inputs a bit, you want to mark certain combinations as invalid, blocking them from modification and possibly display.
+
+Validity is assumed. If you modify validity, you actually save B<invalidity>.
+Invalidity is saved as a function of config_id, and the trans_id
+
+In the naive way, disable an attribute for a specific id (simple)
+
+=cut

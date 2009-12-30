@@ -72,45 +72,45 @@ sub export {
   <tr valign=top>
     <td>
       <table>
-	<tr>
-	  <td align=left nowrap>| . $locale->text("Beraternummer") . qq|</td>
-	  <td><input name=beraternr size=10 maxlength=7 value="$form->{beraternr}"></td>
+        <tr>
+          <td align=left nowrap>| . $locale->text("Beraternummer") . qq|</td>
+          <td><input name=beraternr size=10 maxlength=7 value="$form->{beraternr}"></td>
 
-	  <td align=left nowrap>| . $locale->text("DFV-Kennzeichen") . qq|</td>
-	  <td><input name=dfvkz size=5 maxlength=2 value="$form->{dfvkz}"></td>
-	</tr>
-	<tr>
-	  <td align=left nowrap>| . $locale->text("Beratername") . qq|</td>
-	  <td><input name=beratername size=10 maxlength=9 value="$form->{beratername}"></td>
+          <td align=left nowrap>| . $locale->text("DFV-Kennzeichen") . qq|</td>
+          <td><input name=dfvkz size=5 maxlength=2 value="$form->{dfvkz}"></td>
+        </tr>
+        <tr>
+          <td align=left nowrap>| . $locale->text("Beratername") . qq|</td>
+          <td><input name=beratername size=10 maxlength=9 value="$form->{beratername}"></td>
 
-	  <td align=left nowrap>| . $locale->text("Password") . qq|</td>
-	  <td><input name=passwort size=5 maxlength=4 value="$form->{passwort}"></td>
-	</tr>
-	<tr>
-	  <td align=left nowrap>| . $locale->text("Mandantennummer") . qq|</td>
-	  <td><input name=mandantennr size=10 maxlength=5 value="$form->{mandantennr}"></td>
+          <td align=left nowrap>| . $locale->text("Password") . qq|</td>
+          <td><input name=passwort size=5 maxlength=4 value="$form->{passwort}"></td>
+        </tr>
+        <tr>
+          <td align=left nowrap>| . $locale->text("Mandantennummer") . qq|</td>
+          <td><input name=mandantennr size=10 maxlength=5 value="$form->{mandantennr}"></td>
 
-	  <td align=left nowrap>| . $locale->text("Medium Number") . qq|</td>
-	  <td><input name=datentraegernr size=5 maxlength=3 value="$form->{datentraegernr}"></td>
-	</tr>
-	<tr>
-	  | . # OBE-Export noch nicht implementiert! <td><input checked name=kne type=checkbox class=checkbox value=1> | . $locale->text("Kontonummernerweiterung (KNE)") . qq|</td>
+          <td align=left nowrap>| . $locale->text("Medium Number") . qq|</td>
+          <td><input name=datentraegernr size=5 maxlength=3 value="$form->{datentraegernr}"></td>
+        </tr>
+        <tr>
+          | . # OBE-Export noch nicht implementiert! <td><input checked name=kne type=checkbox class=checkbox value=1> | . $locale->text("Kontonummernerweiterung (KNE)") . qq|</td>
     qq|<td><input type="hidden" name="kne" value="1"></td>
           <td></td>
 
-	  <td align=left nowrap>| . $locale->text("Abrechnungsnummer") . qq|</td>
-	  <td><input name=abrechnungsnr size=5 maxlength=3 value="$form->{abrechnungsnr}"></td>
-	</tr>
+          <td align=left nowrap>| . $locale->text("Abrechnungsnummer") . qq|</td>
+          <td><input name=abrechnungsnr size=5 maxlength=3 value="$form->{abrechnungsnr}"></td>
+        </tr>
 
         <tr>
           <td><input name=exporttype type=radio class=radio value=0 checked> |
     . $locale->text("Export Buchungsdaten") . qq|</td>
           <td></td>
 
-	  <td><input name=exporttype type=radio class=radio value=1> |
+          <td><input name=exporttype type=radio class=radio value=1> |
     . $locale->text("Export Stammdaten") . qq|</td>
           <td></td>
-	</td>
+        </td>
       </table>
     </td>
   </tr>
@@ -214,17 +214,17 @@ sub export_bewegungsdaten {
   <tr valign=top>
     <td>
       <table>
-	<tr>
+        <tr>
           <td align=left><input checked name=zeitraum class=radio type=radio value=monat>&nbsp;</td><td align=left>|
     . $locale->text('Monat') . qq|</td>
           <td align=left></td>
-	  <td align=left></td>
+          <td align=left></td>
           <td align=left><select name=monat>$form->{allemonate}</select></td>
         </tr>
         <tr>
           <td align=left><input name=zeitraum class=radio type=radio value=quartal>&nbsp;</td><td align=left>|
     . $locale->text('Quartal') . qq|</td>
-	  <td align=left></td>
+          <td align=left></td>
           <td align=left></td>
           <td align=left><select name=quartal>$form->{allequartale}</select></td>
         </tr>
@@ -233,10 +233,10 @@ sub export_bewegungsdaten {
     . $locale->text('Datum von') . qq|</td>
           <td align=left><input id=transdatefrom name=transdatefrom size=10>
             <input type="button" name="transdatefrom" id="trigger_transdatefrom" value="?"></td>
-	  <td align=left>| . $locale->text('bis') . qq|</td>
+          <td align=left>| . $locale->text('bis') . qq|</td>
           <td align=left><input id=transdateto name=transdateto size=10>
             <input type="button" name="transdateto" id="trigger_transdateto" value="?"></td>
-	</tr>
+        </tr>
       </table>
     </td>
   </tr>
@@ -302,11 +302,11 @@ sub export_stammdaten {
     <td>
       <table>
         <tr>
-	  <td align=left>| . $locale->text('Von Konto: ') . qq|</td>
+          <td align=left>| . $locale->text('Von Konto: ') . qq|</td>
           <td align=left><input name=accnofrom size=8 maxlength=8></td>
         </tr>
         <tr>
-	  <td align=left>| . $locale->text('Bis Konto: ') . qq|</td>
+          <td align=left>| . $locale->text('Bis Konto: ') . qq|</td>
           <td align=left><input name=accnoto size=8 maxlength=8></td>
         </tr>
       </table>

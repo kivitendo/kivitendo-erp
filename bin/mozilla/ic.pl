@@ -290,14 +290,14 @@ sub update_prices {
 #      <th class=listtop colspan=6>| . $locale->text('choice part') . qq|</th>
 #     </tr>
 #        <tr height="5"></tr>
-#	<tr class=listheading>
-#	  <th>&nbsp;</th>
-#	  <th class=listheading>| . $locale->text('Part Number') . qq|</th>
-#	  <th class=listheading>| . $locale->text('Part Description') . qq|</th>
-#	  <th class=listheading>| . $locale->text('Unit of measure') . qq|</th>
-#	  <th class=listheading>| . $locale->text('Sell Price') . qq|</th>
-#	  <th class=listheading>| . $locale->text('soldtotal') . qq|</th>
-#	</tr>|;
+#        <tr class=listheading>
+#          <th>&nbsp;</th>
+#          <th class=listheading>| . $locale->text('Part Number') . qq|</th>
+#          <th class=listheading>| . $locale->text('Part Description') . qq|</th>
+#          <th class=listheading>| . $locale->text('Unit of measure') . qq|</th>
+#          <th class=listheading>| . $locale->text('Sell Price') . qq|</th>
+#          <th class=listheading>| . $locale->text('soldtotal') . qq|</th>
+#        </tr>|;
 #
 #  my $j = 0;
 #  my $i = $form->{rows};
@@ -308,20 +308,20 @@ sub update_prices {
 #        <tr class=listrow| . ($j % 2) . qq|>|;
 #    if ($j == 1) {
 #      print qq|
-#	    <td><input name=ndx class=radio type=radio value=$j checked></td>|;
+#            <td><input name=ndx class=radio type=radio value=$j checked></td>|;
 #    } else {
 #      print qq|
-#	  <td><input name=ndx class=radio type=radio value=$j></td>|;
+#          <td><input name=ndx class=radio type=radio value=$j></td>|;
 #    }
 #    print qq|
-#	  <td><input name="new_partnumber_$j" type=hidden value="$form->{"partnumber_$j"}">$form->{"partnumber_$j"}</td>
-#	  <td><input name="new_description_$j" type=hidden value="$form->{"description_$j"}">$form->{"description_$j"}</td>
-#	  <td><input name="new_unit_$j" type=hidden value="$form->{"unit_$j"}">$form->{"unit_$j"}</td>
-#	  <td><input name="new_sellprice_$j" type=hidden value="$form->{"sellprice_$j"}">$form->{"sellprice_$j"}</td>
-#	  <td><input name="new_soldtotal_$j" type=hidden value="$form->{"soldtotal_$j"}">$form->{"soldtotal_$j"}</td>
+#          <td><input name="new_partnumber_$j" type=hidden value="$form->{"partnumber_$j"}">$form->{"partnumber_$j"}</td>
+#          <td><input name="new_description_$j" type=hidden value="$form->{"description_$j"}">$form->{"description_$j"}</td>
+#          <td><input name="new_unit_$j" type=hidden value="$form->{"unit_$j"}">$form->{"unit_$j"}</td>
+#          <td><input name="new_sellprice_$j" type=hidden value="$form->{"sellprice_$j"}">$form->{"sellprice_$j"}</td>
+#          <td><input name="new_soldtotal_$j" type=hidden value="$form->{"soldtotal_$j"}">$form->{"soldtotal_$j"}</td>
 #        </tr>
 #
-#	<input name="new_id_$j" type=hidden value="$form->{"id_$j"}">|;
+#        <input name="new_id_$j" type=hidden value="$form->{"id_$j"}">|;
 #  }
 #
 #  print qq|
@@ -1781,8 +1781,8 @@ sub save {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
-  	$form->{addition} = "SAVED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
   $parts_id = $form->{id};
@@ -1914,8 +1914,8 @@ sub save_as_new {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
-  	$form->{addition} = "SAVED AS NEW";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED AS NEW";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
   $form->{id} = 0;
@@ -1935,8 +1935,8 @@ sub delete {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
-  	$form->{addition} = "DELETED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "DELETED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
   my $rc = IC->delete(\%myconfig, \%$form);
@@ -2008,6 +2008,25 @@ sub parts_language_selection {
                                                                     "onload"    => $onload });
 
   $lxdebug->leave_sub();
+}
+
+sub ajax_autocomplete {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+
+  $form->{column}          = 'description'     unless $form->{column} =~ /^partnumber|description$/;
+  $form->{$form->{column}} = $form->{q}           || '';
+  $form->{limit}           = ($form->{limit} * 1) || 10;
+  $form->{searchitems}   ||= '';
+
+  my @results = IC->all_parts(\%myconfig, $form);
+
+  print $form->ajax_response_header(),
+        $form->parse_html_template('ic/ajax_autocomplete');
+
+  $main::lxdebug->leave_sub();
 }
 
 sub continue { call_sub($form->{"nextsub"}); }

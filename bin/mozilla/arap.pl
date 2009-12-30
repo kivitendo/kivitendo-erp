@@ -173,12 +173,12 @@ sub select_name {
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>|;
+        <tr class=listheading>|;
 
   map { print "\n$column_data{$_}" } @column_index;
 
   print qq|
-	</tr>
+        </tr>
 |;
 
   my $i = 0;
@@ -197,12 +197,12 @@ sub select_name {
     $j++;
     $j %= 2;
     print qq|
-	<tr class=listrow$j>|;
+        <tr class=listrow$j>|;
 
     map { print "\n$column_data{$_}" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 
 <input name="new_id_$i" type=hidden value=$ref->{id}>
 
@@ -371,7 +371,7 @@ sub select_project {
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>|;
+        <tr class=listheading>|;
 
   map { print "\n$column_data{$_}" } @column_index;
 

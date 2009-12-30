@@ -26,6 +26,10 @@
                  show_empty    = 1,
                  allow_textbox = 1,
                  -%]
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[name="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
      </td>
     </tr>
 [%- IF ALL_DEPARTMENTS.size %]

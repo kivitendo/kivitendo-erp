@@ -170,8 +170,8 @@ sub transfer_or_removal_prepare_contents {
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id},
                                            "bin_id"       => $form->{bin_id},
                                            "chargenumber" => $form->{chargenumber},
-					   "partnumber"   => $form->{partnumber},
-					   "ean"   	  => $form->{ean},
+                                           "partnumber"   => $form->{partnumber},
+                                           "ean"          => $form->{ean},
                                            "description"  => $form->{description});
 
   $form->show_generic_error($locale->text("The selected warehouse is empty.")) if (0 == scalar(@contents));
@@ -310,7 +310,7 @@ sub transfer_stock_update_part {
   } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description} || $form->{ean}) {
 
     $form->{no_services}   = 1;
-    $form->{no_assemblies} = 0;	# assemblies duerfen eingelagert werden (z.B. bei retouren)
+    $form->{no_assemblies} = 0; # assemblies duerfen eingelagert werden (z.B. bei retouren)
 
     my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
 
@@ -424,10 +424,10 @@ sub create_assembly {
     $form->show_generic_error($locale->text('Invalid quantity.'), 'back_button' => 1);
   }
   # TODO Es wäre schön, hier schon die maximale Anzahl der zu fertigenden Erzeugnisse zu haben
-  #else { if ($form->{qty} > $maxcreate) {	#s.o.
-  #	    $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
-  #	    $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
-  #	  }
+  #else { if ($form->{qty} > $maxcreate) { #s.o.
+  #     $form->show_generic_error($locale->text('Can not create that quantity with current stock'), 'back_button' => 1);
+  #     $form->show_generic_error('Maximale Stückzahl' . $maxcreate , 'back_button' => 1);
+  #   }
   #  }
 
   if (!$form->{warehouse_id} || !$form->{bin_id}) {
@@ -437,7 +437,7 @@ sub create_assembly {
   # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
   my %TRANSFER = (
     'transfer_type'    => 'assembly',
-    'login'	           => $form->{login},
+    'login'            => $form->{login},
     'dst_warehouse_id' => $form->{warehouse_id},
     'dst_bin_id'       => $form->{bin_id},
     'chargenumber'     => $form->{chargenumber},
@@ -968,14 +968,6 @@ sub get_bin_idx {
   return -1;
 }
 
-=item new_item
-
-call new item dialogue from warehouse masks.
-
-PARAMS:
-  action  => name of sub to be called when new item is done
-
-=cut
 sub new_item {
   $main::lxdebug->enter_sub();
   my %params = @_;
@@ -1017,3 +1009,24 @@ sub stock {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+bin/mozilla/wh.pl - Warehouse frontend.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item new_item
+
+call new item dialogue from warehouse masks.
+
+PARAMS:
+  action  => name of sub to be called when new item is done
+
+=back
+
+=cut

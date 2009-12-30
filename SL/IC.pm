@@ -497,8 +497,8 @@ sub save {
       if (($form->{"make_$i"}) || ($form->{"model_$i"})) {
 
         $query = qq|INSERT INTO makemodel (parts_id, make, model) | .
-		             qq|VALUES (?, ?, ?)|;
-		    @values = (conv_i($form->{id}), conv_i($form->{"make_$i"}), $form->{"model_$i"});
+                 qq|VALUES (?, ?, ?)|;
+        @values = (conv_i($form->{id}), conv_i($form->{"make_$i"}), $form->{"model_$i"});
 
         do_query($form, $dbh, $query, @values);
       }
@@ -511,7 +511,7 @@ sub save {
       $query =
         qq|INSERT INTO partstax (parts_id, chart_id)
            VALUES (?, (SELECT id FROM chart WHERE accno = ?))|;
-			@values = (conv_i($form->{id}), $item);
+      @values = (conv_i($form->{id}), $item);
       do_query($form, $dbh, $query, @values);
     }
   }
@@ -525,8 +525,8 @@ sub save {
       if ($form->{"qty_$i"} != 0) {
         $form->{"bom_$i"} *= 1;
         $query = qq|INSERT INTO assembly (id, parts_id, qty, bom) | .
-		             qq|VALUES (?, ?, ?, ?)|;
-		    @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}), conv_i($form->{"qty_$i"}), $form->{"bom_$i"} ? 't' : 'f');
+                 qq|VALUES (?, ?, ?, ?)|;
+        @values = (conv_i($form->{id}), conv_i($form->{"id_$i"}), conv_i($form->{"qty_$i"}), $form->{"bom_$i"} ? 't' : 'f');
         do_query($form, $dbh, $query, @values);
       }
     }
@@ -937,7 +937,9 @@ sub all_parts {
 
   #my $order_clause = " ORDER BY $form->{sort} $sort_order";
 
-  my $limit_clause = " LIMIT 100" if $form->{top100};
+  my $limit_clause;
+  $limit_clause = " LIMIT 100"                   if $form->{top100};
+  $limit_clause = " LIMIT " . $form->{limit} * 1 if $form->{limit} * 1;
 
   #=== joins and complicated filters ========#
 
@@ -1060,6 +1062,8 @@ sub all_parts {
   }
 
   $main::lxdebug->leave_sub();
+
+  return wantarray ? @{ $form->{parts} } : $form->{parts};
 }
 
 sub _create_filter_for_priceupdate {

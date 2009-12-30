@@ -1,0 +1,236 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- SET follow_up_trans_info = invnumber _ ' (' _ vendor_name _ ')' %]
+<body>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/delivery_vendor_selection.js"></script>
+<script type="text/javascript" src="js/vendor_selection.js"></script>
+<script type="text/javascript" src="js/calculate_qty.js"></script>
+<script type="text/javascript" src="js/follow_up.js"></script>
+<script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
+
+<form method="post" name="invoice" action="[% script %]">
+
+<p>[% saved_message %]</p>
+
+[%- FOREACH key = HIDDENS %]
+<input type="hidden" name="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
+[%- END %]
+<input type="hidden" name="follow_up_trans_id_1" value="[% id %]">
+<input type="hidden" name="follow_up_trans_type_1" value="sales_invoice">
+<input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
+<input type="hidden" name="follow_up_rowcount" value="1">
+
+<input type="hidden" name="lizenzen" value="[% lizenzen %]">
+
+<p><div class="listtop" width="100%">[% title %]</div></p>
+
+<table width="100%">
+  <tr>
+    <td valign="top">
+      <table>
+        <tr>
+          <th align="right">Lieferant</th>
+          <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'vendor',
+                 style         = 'width: 250px',
+                 DATA          = ALL_VENDORS,
+                 id_sub        = 'vc_keys',
+                 label_key     = 'name',
+                 select        = vc_select,
+                 limit         = vclimit,
+                 allow_textbox = 1,
+                 onChange      = "document.getElementById('update_button').click();" -%]
+            <input type="button" value="D" onclick="show_vc_details('[% vc | html %]')">
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[id="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
+          </td>
+          <input type="hidden" name="vendor_klass" value="[% HTML.escape(vendor_klass) %]">
+          <input type="hidden" name="vendor_id" value="[% HTML.escape(vendor_id) %]">
+          <input type="hidden" name="oldvendor" value="[% HTML.escape(oldvendor) %]">
+          <input type="hidden" name="selectvendor" value="[% HTML.escape(selectvendor) %]">
+        </tr>
+[%- IF ALL_CONTACTS.size %]
+        <tr>
+          <th align="right">Ansprechpartner</th>
+          <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name       = 'cp_id',
+                 style      = 'width: 250px',
+                 DATA       = ALL_CONTACTS,
+                 id_key     = 'cp_id',
+                 label_sub  = 'contact_labels',
+                 show_empty = 1 -%]
+          </td>
+        </tr>
+[%- END %]
+        <tr>
+          <td align="right">Kreditlimit</td>
+          <td>
+            [% LxERP.format_amount(creditlimit, 0, '0') %]; Rest
+            <span class="plus[% IF is_credit_remaining_negativ %]0[% ELSE %]1[% END %]">[% LxERP.format_amount(creditremaining,0 ,'0') %]</span>
+          </td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>Buchen auf</th>
+          <td colspan="3"><select name="AP" style="width:250px;">[% selectAP %]</select></td>
+          <input type="hidden" name="selectAP" value="[% selectAP %]">
+        </tr>
+        <tr>
+          <th align="right">Steuersatz</th>
+          <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name       = 'taxzone_id'
+                 style      = 'width: 250px'
+                 DATA       = ALL_TAXZONES
+                 id_key     = 'id'
+                 readonly   = (id ? 1 : 0)
+                 label_key  = 'description' -%]
+          </td>
+  [%- IF id %]
+          <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
+  [%- END %]
+        </tr>
+[%- IF all_departments %]
+        <tr>
+          <th align="right" nowrap>Abteilung</th>
+          <td colspan="3">
+            [%- INCLUDE 'generic/multibox.html'
+                 name       = 'department_id',
+                 style      = 'width: 250px',
+                 DATA       = all_departments,
+                 id_key     = 'id',
+                 label_sub  = 'department_labels',
+                 show_empty = 1 -%]
+          </td>
+        </tr>
+[%- END %]
+[%- IF currencies %]
+        <tr>
+          <th align="right">Währung</th>
+          <td>[% currencies %]</td>
+        </tr>
+[%- END %]
+        <input type="hidden" name="fxgain_accno" value="[% fxgain_accno %]">
+        <input type="hidden" name="fxloss_accno" value="[% fxloss_accno %]">
+[%- IF show_exchangerate %]
+        <tr>
+          <th align="right">Wechselkurs</th>
+          <td>
+           [%- IF forex %]
+            [% LxERP.format_amount(exchangerate, 2) %]
+           [%- ELSE %]
+            <input name="exchangerate" size="10" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+           [%- END %]
+          </td>
+        </tr>
+[%- END %]
+      </table>
+    </td>
+    <td align="right" valign="top">
+      <table>
+        <tr>
+          <th align="right">Bearbeiter</th>
+          <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name       = 'employee_id',
+                 DATA       = ALL_EMPLOYEES,
+                 id_key     = 'id',
+                 label_sub  = 'sales_employee_labels' -%]
+          </td>
+        </tr>
+
+[%- IF is_type_credit_note %]
+        <tr>
+          <th align="right" nowrap>Gutschriftnummer</th>
+          <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+        </tr>
+        <tr>
+          <th align="right">Gutschriftdatum</th>
+          <td nowrap>
+            <input name="invdate" id="invdate" size="11" title="[% dateformat %]" value="[% invdate %]" onBlur="check_right_date_format(this)">
+            <input type="button" name="invdate_button" id="trigger1" value="?">
+          </td>
+        </tr>
+[%- ELSE %]
+        <tr>
+          <th align="right" nowrap>Rechnungsnummer</th>
+          <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+        </tr>
+        <tr>
+          <th align="right">Rechnungsdatum</th>
+          <td nowrap>
+            <input name="invdate" id="invdate" size="11" title="[% dateformat %]" value="[% invdate %]" onBlur="check_right_date_format(this)">
+            <input type="button" name="invdate_button" id="trigger1" value="?">
+          </td>
+        </tr>
+        <tr>
+          <th align="right">Fälligkeitsdatum</th>
+          <td width="13">
+            <input name="duedate" id="duedate" size="11" title="[% dateformat %]" value="[% duedate %]" onBlur="check_right_date_format(this)">
+            <input type="button" name="duedate_button" id="trigger2" value="?">
+          </td>
+        </tr>
+[%- END %]
+
+        <tr>
+          <th align="right" nowrap>Auftragsnummer</th>
+          <td colspan="3"><input size='11' name="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>Auftragsdatum</th>
+          <td><input name="orddate" id="orddate" size="11" title="[% dateformat %]" value="[% orddate %]" onBlur="check_right_date_format(this)">
+          <input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>Angebotsdatum</th>
+          <td><input name="quodate" id="quodate" size="11" title="[% dateformat %]" value="[% quodate %]" onBlur="check_right_date_format(this)">
+           <input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>Projektnummer</th>
+          <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name       = 'globalproject_id',
+                 DATA       = ALL_PROJECTS,
+                 id_key     = 'id',
+                 label_key  = 'projectnumber',
+                 show_empty = 1,
+                 onChange   = "document.getElementById('update_button').click();" -%]
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+    </td>
+  </tr>
+  <script type="text/javascript" src="js/show_form_details.js"></script>
+  <script type="text/javascript" src="js/show_vc_details.js"></script>
+  <script type="text/javascript" src="js/show_history.js"></script>
+  <script type="text/javascript">
+   <!--
+     Calendar.setup({ inputField : "invdate",      ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
+     Calendar.setup({ inputField : "duedate",      ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+     Calendar.setup({ inputField : "orddate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_orddate" });
+     Calendar.setup({ inputField : "quodate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger_quodate" });
+     $('document').ready(function(){
+[% IF creditwarning != '' %]
+       alert('Kreditlimit überschritten!');
+[% ELSE %]
+       focus();
+[% END %]
+       setupDateFormat('[% dateformat %]', 'Falsches Datumsformat!');
+       setupPoints('[% numberformat %]', 'Falsches Format');
+     });
+   //-->
+  </script>
+
+  <input type="hidden" name="webdav" value="[% webdav %]">

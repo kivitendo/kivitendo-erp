@@ -7,178 +7,178 @@
 
 <input type="hidden" name="action" value="show_am_history">
 
-	<table>
-		<tr>
-			<th class ="listtop"><translate>history search engine</translate></th>
-			</th>
-		</tr>
-		<tr>
-			<td>
-				<script type="text/javascript">
-					<!--
+  <table>
+    <tr>
+      <th class ="listtop"><translate>history search engine</translate></th>
+      </th>
+    </tr>
+    <tr>
+      <td>
+        <script type="text/javascript">
+          <!--
                     function uncheckOther(id) {
-						if(!(
-						    (document.getElementById('non-deleted').checked == false)
-					    	&&
-						    (document.getElementById('both').checked == false)
-						    &&
-						    (document.getElementById('deleted').checked == false)
-						  )) {
-								if(id == "deleted") {
-									document.getElementById('non-deleted').checked = false;
-									document.getElementById('both').checked = false;
-								}
-								if(id == "non-deleted") {
-									document.getElementById('deleted').checked = false;
-									document.getElementById('both').checked = false;
-								}
-								if(id == "both") {
-									document.getElementById('non-deleted').checked = false;
-									document.getElementById('deleted').checked = false;
-								}
-						}
-					}
+            if(!(
+                (document.getElementById('non-deleted').checked == false)
+                &&
+                (document.getElementById('both').checked == false)
+                &&
+                (document.getElementById('deleted').checked == false)
+              )) {
+                if(id == "deleted") {
+                  document.getElementById('non-deleted').checked = false;
+                  document.getElementById('both').checked = false;
+                }
+                if(id == "non-deleted") {
+                  document.getElementById('deleted').checked = false;
+                  document.getElementById('both').checked = false;
+                }
+                if(id == "both") {
+                  document.getElementById('non-deleted').checked = false;
+                  document.getElementById('deleted').checked = false;
+                }
+            }
+          }
 
-					var defaults = new Array('SAVED', 'DELETED', 'ADDED', 'PAYMENT POSTED', 'POSTED', 'POSTED AS NEW', 'SAVED FOR DUNNING', 'DUNNING STARTED', 'PRINTED');
-					var translated = new Object();
-					translated['SAVED'] = '<translate>SAVED</translate>';
-					translated['DELETED'] = '<translate>DELETED</translate>';
-					translated['ADDED'] = '<translate>ADDED</translate>';
-					translated['PAYMENT POSTED'] = '<translate>PAYMENT POSTED</translate>';
-					translated['POSTED'] = '<translate>POSTED</translate>';
-					translated['POSTED AS NEW'] = '<translate>POSTED AS NEW</translate>'
-					translated['SAVED FOR DUNNING'] = '<translate>SAVED FOR DUNNING</translate>';
-					translated['DUNNING STARTED'] = '<translate>DUNNING STARTED</translate>';
-					translated['PRINTED'] = '<translate>PRINTED</translate>';
+          var defaults = new Array('SAVED', 'DELETED', 'ADDED', 'PAYMENT POSTED', 'POSTED', 'POSTED AS NEW', 'SAVED FOR DUNNING', 'DUNNING STARTED', 'PRINTED');
+          var translated = new Object();
+          translated['SAVED'] = '<translate>SAVED</translate>';
+          translated['DELETED'] = '<translate>DELETED</translate>';
+          translated['ADDED'] = '<translate>ADDED</translate>';
+          translated['PAYMENT POSTED'] = '<translate>PAYMENT POSTED</translate>';
+          translated['POSTED'] = '<translate>POSTED</translate>';
+          translated['POSTED AS NEW'] = '<translate>POSTED AS NEW</translate>'
+          translated['SAVED FOR DUNNING'] = '<translate>SAVED FOR DUNNING</translate>';
+          translated['DUNNING STARTED'] = '<translate>DUNNING STARTED</translate>';
+          translated['PRINTED'] = '<translate>PRINTED</translate>';
 
-					var jscalender = "<table valign=\"top\">"
-									+ "<tr><td colspan=\"2\"><b><translate>Period</translate>:&nbsp;</b></td></tr>"
-									+ "<tr><td><translate>from (time)</translate>:&nbsp;"
-									+ "<input name=\"fromdate\" id=\"fromdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(fromdate) %]\">"
-									+ "<input type=\"button\" name=\"fromdate\" id=\"trigger1\" value=\"?\">"
-									+ "&nbsp;</td><td><translate>to (time)</translate>:&nbsp;"
-									+ "<input name=\"todate\" id=\"todate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(todate) %]\">"
-									+ "<input type=\"button\" name=\"todate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
-					var mitarbeiter = "<table valign=\"top\">"
-									+ "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
-									+ "<td><input type='text' name='mitarbeiter' id='mitarbeiter'></td>"
-									+ "</tr></table>";
+          var jscalender = "<table valign=\"top\">"
+                  + "<tr><td colspan=\"2\"><b><translate>Period</translate>:&nbsp;</b></td></tr>"
+                  + "<tr><td><translate>from (time)</translate>:&nbsp;"
+                  + "<input name=\"fromdate\" id=\"fromdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(fromdate) %]\">"
+                  + "<input type=\"button\" name=\"fromdate\" id=\"trigger1\" value=\"?\">"
+                  + "&nbsp;</td><td><translate>to (time)</translate>:&nbsp;"
+                  + "<input name=\"todate\" id=\"todate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(todate) %]\">"
+                  + "<input type=\"button\" name=\"todate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
+          var mitarbeiter = "<table valign=\"top\">"
+                  + "<tr><td><b>Mitarbeiter:</b>&nbsp;</td>"
+                  + "<td><input type='text' name='mitarbeiter' id='mitarbeiter'></td>"
+                  + "</tr></table>";
 
-					var tempString = "";
-					function addForm(last, remove) {
-						if(last == "INIT") {
-							tempString = "<select id='selectForm'><option></option>";
-							for(i=0;i<defaults.length;i++) {
-								tempString += "\<option value\=\'" + defaults[i] + "\'\ onClick=\"javascript:addForm(\'" + defaults[i] + "\', " + i + ");\">" + translated[defaults[i]] + "\<\/option\>" + "\n";
-							}
-							tempString += "</select>";
-							document.getElementById('selectEmployee').innerHTML = mitarbeiter;
-							document.getElementById('selectDate').innerHTML = jscalender;
-							document.getElementById('selectTable').innerHTML = tempString;
+          var tempString = "";
+          function addForm(last, remove) {
+            if(last == "INIT") {
+              tempString = "<select id='selectForm'><option></option>";
+              for(i=0;i<defaults.length;i++) {
+                tempString += "\<option value\=\'" + defaults[i] + "\'\ onClick=\"javascript:addForm(\'" + defaults[i] + "\', " + i + ");\">" + translated[defaults[i]] + "\<\/option\>" + "\n";
+              }
+              tempString += "</select>";
+              document.getElementById('selectEmployee').innerHTML = mitarbeiter;
+              document.getElementById('selectDate').innerHTML = jscalender;
+              document.getElementById('selectTable').innerHTML = tempString;
 
-							Calendar.setup(
-      			    		{
-		                      inputField : "fromdate",
-        		              ifFormat :"%d.%m.%Y",
-                		      align : "BL",
-		                      button : "trigger1"
-        		      		});
+              Calendar.setup(
+                    {
+                          inputField : "fromdate",
+                          ifFormat :"%d.%m.%Y",
+                          align : "BL",
+                          button : "trigger1"
+                      });
 
-		        		    Calendar.setup(
-		          			{
-        		              inputField : "todate",
-                		  	  ifFormat :"%d.%m.%Y",
-		                  	  align : "BL",
-        		          	  button : "trigger2"
-          					});
-						}
-						else {
-							defaults.splice(remove,1);
-							document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>You've already chosen the following limitations:</translate></b><br>") : ("<br>")) + translated[last];
-							if(defaults.length > 0) {
-								document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
-								tempString = "<select id='selectForm'><option></option>";
-								for(i=0;i<defaults.length;i++) {
-									tempString += "\<option value\=\'" + defaults[i] + "\'\ onClick=\"javascript:addForm(\'" + defaults[i] + "\', " + i + ");\">" + translated[defaults[i]] + "\<\/option\>" + "\n";
-								}
-								tempString += "</select>";
-								document.getElementById('selectTable').innerHTML = tempString;
-							}
-							else {
-								document.getElementById('selectTable').innerHTML = "";
-							}
-						}
-					}
+                    Calendar.setup(
+                    {
+                          inputField : "todate",
+                          ifFormat :"%d.%m.%Y",
+                          align : "BL",
+                          button : "trigger2"
+                    });
+            }
+            else {
+              defaults.splice(remove,1);
+              document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>You've already chosen the following limitations:</translate></b><br>") : ("<br>")) + translated[last];
+              if(defaults.length > 0) {
+                document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
+                tempString = "<select id='selectForm'><option></option>";
+                for(i=0;i<defaults.length;i++) {
+                  tempString += "\<option value\=\'" + defaults[i] + "\'\ onClick=\"javascript:addForm(\'" + defaults[i] + "\', " + i + ");\">" + translated[defaults[i]] + "\<\/option\>" + "\n";
+                }
+                tempString += "</select>";
+                document.getElementById('selectTable').innerHTML = tempString;
+              }
+              else {
+                document.getElementById('selectTable').innerHTML = "";
+              }
+            }
+          }
 
-					function resetAll() {
-						document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\"><translate>Yes</translate>";
-						document.getElementById('inputText').innerHTML = "";
-					}
-					//-->
-				</script>
-				<table>
-					<tr>
-						<td>
-							<translate><b>What</b> do you want to look for?</translate>:
-						</td>
-						<td>
-							<select name="what2search" id="what2search">
-								<option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer"><translate>Part Number</translate></option>
-								<option name="Kundennummer" value="Kundennummer" id="Kundennummer"><translate>Customer Number</translate></option>
-								<option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer"><translate>Vendor Number</translate></option>
-								<option name="Projektnummer" value="Projektnummer" id="Projektnummer"><translate>Project Number</translate></option>
-								<option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer"><translate>ID</translate></option>
-								<option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer"><translate>Incoming invoice number</translate></option>
-								<option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer"><translate>Sales invoice number</translate></option>
+          function resetAll() {
+            document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\"><translate>Yes</translate>";
+            document.getElementById('inputText').innerHTML = "";
+          }
+          //-->
+        </script>
+        <table>
+          <tr>
+            <td>
+              <translate><b>What</b> do you want to look for?</translate>:
+            </td>
+            <td>
+              <select name="what2search" id="what2search">
+                <option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer"><translate>Part Number</translate></option>
+                <option name="Kundennummer" value="Kundennummer" id="Kundennummer"><translate>Customer Number</translate></option>
+                <option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer"><translate>Vendor Number</translate></option>
+                <option name="Projektnummer" value="Projektnummer" id="Projektnummer"><translate>Project Number</translate></option>
+                <option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer"><translate>ID</translate></option>
+                <option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer"><translate>Incoming invoice number</translate></option>
+                <option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer"><translate>Sales invoice number</translate></option>
                 <option name="Mahnungsnummer" value="Mahnungsnummer" id="Mahnungsnummer"><translate>Dunning number</translate></option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-						 <translate>What's the <b>term</b> you're looking for?</translate>
-						</td>
-						<td>
-							<input type="text" name="searchid" id="searchid" value="[% HTML.escape(searchid) %]">
-						</td>
-					</tr>
-					<tr>
-						<td valign="top">
-						 <translate>Do you want to <b>limit</b> your search?</translate>
-						</td>
-						<td>
-							<table valign=\"top\" cellpadding=\"0\" marginheight=\"0\" marginwidth=\"0\" cellspacing=\"0\" topmargin=\"0\" leftmargin=\"0\">
-								<tr>
-									<td>
-										<div id="selectTable"><a href="javascript:addForm('INIT')"><translate>Yes</translate></div>
-										<div id="inputText"></div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div id="selectEmployee"></div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div id="selectDate"></div>
-									</td>
-								</tr>
-							</table>
-							<input type="hidden" name="einschraenkungen" id="einschraenkungen" value="">
-						</td>
-					</tr>
-					</tr>
-					<tr>
-						<td colspan="6">
-							<input type="submit" class="submit" value="<translate>submit</translate>">
-							<input type="reset" class="submit" value="<translate>reset</translate>" onClick="javascript:resetAll();">
-						</td>
-						<td>
-						</td>
-					</tr>
-				</table>
-			</td>
-		</tr>
-	</table>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+             <translate>What's the <b>term</b> you're looking for?</translate>
+            </td>
+            <td>
+              <input type="text" name="searchid" id="searchid" value="[% HTML.escape(searchid) %]">
+            </td>
+          </tr>
+          <tr>
+            <td valign="top">
+             <translate>Do you want to <b>limit</b> your search?</translate>
+            </td>
+            <td>
+              <table valign=\"top\" cellpadding=\"0\" marginheight=\"0\" marginwidth=\"0\" cellspacing=\"0\" topmargin=\"0\" leftmargin=\"0\">
+                <tr>
+                  <td>
+                    <div id="selectTable"><a href="javascript:addForm('INIT')"><translate>Yes</translate></a></div>
+                    <div id="inputText"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div id="selectEmployee"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div id="selectDate"></div>
+                  </td>
+                </tr>
+              </table>
+              <input type="hidden" name="einschraenkungen" id="einschraenkungen" value="">
+            </td>
+          </tr>
+          </tr>
+          <tr>
+            <td colspan="6">
+              <input type="submit" class="submit" value="<translate>submit</translate>">
+              <input type="reset" class="submit" value="<translate>reset</translate>" onClick="javascript:resetAll();">
+            </td>
+            <td>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </form>

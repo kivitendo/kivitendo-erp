@@ -92,7 +92,7 @@ sub select_part {
                                      "nextsub"          => "select_part_internal",
                                      "callback_sub"     => $callback_sub,
                                      "has_charge"       => $has_charge,
-                                     "has_ean"       	=> $has_ean,
+                                     "has_ean"          => $has_ean,
                                      "remap_parts_id"   => $remap_parts_id,
                                      "remap_partnumber" => $remap_partnumber });
 
@@ -477,27 +477,27 @@ sub reformat_numbers {
 # -------------------------------------------------------------------------
 
 sub show_history {
-	$main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-	my $dbh = $form->dbconnect(\%myconfig);
-	my ($sort, $sortby) = split(/\-\-/, $form->{order});
+  my $dbh = $form->dbconnect(\%myconfig);
+  my ($sort, $sortby) = split(/\-\-/, $form->{order});
   $sort =~ s/.*\.(.*)/$1/;
 
-	$form->{title} = $locale->text("History");
-    $form->header();
-    print $form->parse_html_template( "common/show_history", {
-    	"DATEN" => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
-    	"SUCCESS" => ($form->get_history($dbh,$form->{input_name}) ne "0"),
-      uc($sort) => 1,
-      uc($sort)."BY" => $sortby
-    	} );
+  $form->{title} = $locale->text("History");
+  $form->header();
+  print $form->parse_html_template( "common/show_history", {
+    "DATEN"        => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
+    "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
+    uc($sort)      => 1,
+    uc($sort)."BY" => $sortby
+  } );
 
-	$dbh->disconnect();
-	$main::lxdebug->leave_sub();
+  $dbh->disconnect();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------
@@ -531,7 +531,7 @@ sub call_sub {
 # -------------------------------------------------------------------------
 
 sub show_vc_details {
-	$main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -550,7 +550,7 @@ sub show_vc_details {
   $form->header();
   print $form->parse_html_template("common/show_vc_details", { "is_customer" => $form->{vc} eq "customer" });
 
-	$main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
 }
 
 # -------------------------------------------------------------------------

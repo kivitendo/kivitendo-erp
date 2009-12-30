@@ -33,6 +33,10 @@
      <td colspan="3">
       [%- UNLESS SHOW_VC_DROP_DOWN %]
       <input type="text" name="[% HTML.escape(vc) %]" class="fixed_width">
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[name="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
       [%- ELSE %]
       <select name="[% vc %]" class="fixed_width">
        <option></option>

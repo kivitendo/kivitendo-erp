@@ -101,10 +101,10 @@ sub search {
     $form->{title} = $locale->text('Groups');
 
     $number = qq|
-	<tr>
-	  <th align=right width=1%>| . $locale->text('Group') . qq|</th>
-	  <td><input name=partsgroup size=20></td>
-	</tr>
+  <tr>
+    <th align=right width=1%>| . $locale->text('Group') . qq|</th>
+    <td><input name=partsgroup size=20></td>
+  </tr>
 |;
 
   }
@@ -116,10 +116,10 @@ sub search {
     $form->{title} = $locale->text('Pricegroup');
 
     $number = qq|
-	<tr>
-	  <th align=right width=1%>| . $locale->text('Pricegroup') . qq|</th>
-	  <td><input name=pricegroup size=20></td>
-	</tr>
+  <tr>
+    <th align=right width=1%>| . $locale->text('Pricegroup') . qq|</th>
+    <td><input name=pricegroup size=20></td>
+  </tr>
 |;
 
   }
@@ -143,13 +143,11 @@ sub search {
     <td>
       <table width=100%>
         $number
-	<tr>
-	  <td></td>
-	  <td><input name=status class=radio type=radio value=all checked>&nbsp;|
-    . $locale->text('All') . qq|
-	  <input name=status class=radio type=radio value=orphaned>&nbsp;|
-    . $locale->text('Orphaned') . qq|</td>
-	</tr>
+        <tr>
+          <td></td>
+          <td><input name=status class=radio type=radio value=all checked>&nbsp;| . $locale->text('All') . qq|
+          <input name=status class=radio type=radio value=orphaned>&nbsp;| . $locale->text('Orphaned') . qq|</td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -196,8 +194,8 @@ sub save {
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
-  	$form->{addition} = "SAVED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "SAVED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
 
@@ -224,8 +222,8 @@ sub delete {
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
-  	$form->{addition} = "DELETED";
-  	$form->save_history($form->dbconnect(\%myconfig));
+    $form->{addition} = "DELETED";
+    $form->save_history($form->dbconnect(\%myconfig));
   }
   # /saving the history
   $main::lxdebug->leave_sub();
@@ -283,7 +281,7 @@ sub partsgroup_report {
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>
+        <tr class=listheading>
 |;
 
   map { print "$column_header{$_}\n" } @column_index;
@@ -378,11 +376,10 @@ sub form_partsgroup_header {
   <tr>
     <td>
       <table width=100%>
-	<tr>
-	  <th align=right>| . $locale->text('Group') . qq|</th>
-
+        <tr>
+          <th align=right>| . $locale->text('Group') . qq|</th>
           <td><input name=partsgroup size=30 value="$form->{partsgroup}"></td>
-	</tr>
+        </tr>
       </table>
     </td>
   </tr>
@@ -419,11 +416,11 @@ sub form_partsgroup_footer {
 
 # button for saving history
 print qq|
-  	<input type=button onclick=set_history_window(|
-  	. $form->{id}
-  	. qq|); name=history id=history value=|
-  	. $locale->text('history')
-  	. qq|>|;
+    <input type=button onclick=set_history_window(|
+    . $form->{id}
+    . qq|); name=history id=history value=|
+    . $locale->text('history')
+    . qq|>|;
 # /button for saving history
   print qq|
 </form>
@@ -491,7 +488,7 @@ sub pricegroup_report {
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>
+        <tr class=listheading>
 |;
 
   map { print "$column_header{$_}\n" } @column_index;
@@ -589,10 +586,10 @@ sub form_pricegroup_header {
   <tr>
     <td>
       <table width=100%>
-	<tr>
-	  <th align=right>| . $locale->text('Preisgruppe') . qq|</th>
+        <tr>
+          <th align=right>| . $locale->text('Preisgruppe') . qq|</th>
           <td><input name=pricegroup size=30 value="$form->{pricegroup}"></td>
-	</tr>
+        </tr>
       </table>
     </td>
   </tr>
@@ -631,11 +628,11 @@ sub form_pricegroup_footer {
 
 # button for saving history
 print qq|
-  	<input type=button onclick=set_history_window(|
-  	. $form->{id}
-  	. qq|); name=history id=history value=|
-  	. $locale->text('history')
-  	. qq|>|;
+    <input type=button onclick=set_history_window(|
+    . $form->{id}
+    . qq|); name=history id=history value=|
+    . $locale->text('history')
+    . qq|>|;
 # /button for saving history
   print qq|
 </form>

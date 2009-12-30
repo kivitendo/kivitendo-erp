@@ -43,6 +43,10 @@
                  allow_textbox = 1,
                  onChange      = "document.getElementById('update_button').click();" -%]
             <input type="button" value="D" onclick="show_vc_details('[% HTML.escape(vc) %]')">
+[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
+  { script => 'ct.pl', column => 'name', selector => 'input[id="' _ vc _ '"]', params => { vc => vc } },
+]
+%]
           </td>
           <input type="hidden" name="customer_klass" value="[% HTML.escape(customer_klass) %]">
           <input type="hidden" name="customer_id" value="[% HTML.escape(customer_id) %]">
@@ -284,7 +288,6 @@
   <script type="text/javascript" src="js/show_form_details.js"></script>
   <script type="text/javascript" src="js/show_vc_details.js"></script>
   <script type="text/javascript" src="js/show_history.js"></script>
-  <script type="text/javascript" src="js/jquery.js"></script>
   <script type="text/javascript">
    <!--
      Calendar.setup({ inputField : "invdate",      ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });

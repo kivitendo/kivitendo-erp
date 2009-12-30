@@ -123,29 +123,29 @@ sub search {
        receipt => { title => 'Receipts', name => 'Customer' });
 
   $label{invoice}{invnumber} = qq|
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-	  <td colspan=3><input name=invnumber size=20></td>
-	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
+          <td colspan=3><input name=invnumber size=20></td>
+        </tr>
 |;
   $label{invoice}{ordnumber} = qq|
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-	  <td colspan=3><input name=ordnumber size=20></td>
-	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
+          <td colspan=3><input name=ordnumber size=20></td>
+        </tr>
 |;
   $label{sales_quotation}{quonumber} = qq|
-	<tr>
-	  <th align=right nowrap>| . $locale->text('Quotation Number') . qq|</th>
-	  <td colspan=3><input name=quonumber size=20></td>
-	</tr>
+        <tr>
+          <th align=right nowrap>| . $locale->text('Quotation Number') . qq|</th>
+          <td colspan=3><input name=quonumber size=20></td>
+        </tr>
 |;
 
   $label{check}{chknumber} = qq|
-  	<tr>
-	  <th align=right nowrap>| . $locale->text('Reference') . qq|</th>
-	  <td colspan=3><input name=chknumber size=20></td>
-	</tr>
+          <tr>
+          <th align=right nowrap>| . $locale->text('Reference') . qq|</th>
+          <td colspan=3><input name=chknumber size=20></td>
+        </tr>
 |;
 
   $label{packing_list}{invnumber}      = $label{invoice}{invnumber};
@@ -164,12 +164,12 @@ sub search {
     if (BP->payment_accounts(\%myconfig, \%$form)) {
       $account = qq|
         <tr>
-      	  <th align=right>| . $locale->text('Account') . qq|</th>
+          <th align=right>| . $locale->text('Account') . qq|</th>
 |;
 
       if ($form->{accounts}) {
         $account .= qq|
-	  <td colspan=3><select name=account>
+          <td colspan=3><select name=account>
 |;
         foreach my $ref (@{ $form->{accounts} }) {
           $account .= qq|
@@ -182,13 +182,13 @@ sub search {
 |;
       } else {
         $account .= qq|
-	  <td colspan=3><input name=account></td>
+          <td colspan=3><input name=account></td>
 |;
 
       }
 
       $account .= qq|
-	</tr>
+         </tr>
 |;
 
     }
@@ -243,23 +243,23 @@ sub search {
   <tr>
     <td>
       <table>
-	<tr>
-	  <th align=right>Kunde</th>
-	  <td colspan=3>$name</td>
-	</tr>
-	$account
-	$label{$form->{type}}{invnumber}
-	$label{$form->{type}}{ordnumber}
-	$label{$form->{type}}{quonumber}
-	$label{$form->{type}}{chknumber}
-	$label{$form->{type}}{rctnumber}
-	<tr>
-	  <th align=right nowrap>| . $locale->text('From') . qq|</th>
+        <tr>
+          <th align=right>Kunde</th>
+          <td colspan=3>$name</td>
+        </tr>
+        $account
+        $label{$form->{type}}{invnumber}
+        $label{$form->{type}}{ordnumber}
+        $label{$form->{type}}{quonumber}
+        $label{$form->{type}}{chknumber}
+        $label{$form->{type}}{rctnumber}
+        <tr>
+          <th align=right nowrap>| . $locale->text('From') . qq|</th>
           $button1
-	  <th align=right>| . $locale->text('Bis') . qq|</th>
+          <th align=right>| . $locale->text('Bis') . qq|</th>
           $button2
-	</tr>
-	<input type=hidden name=sort value=transdate>
+        </tr>
+        <input type=hidden name=sort value=transdate>
       </table>
     </td>
   </tr>
@@ -535,13 +535,13 @@ sub list_spool {
   <tr>
     <td>
       <table width=100%>
-	<tr class=listheading>
+        <tr class=listheading>
 |;
 
   map { print "\n$column_header{$_}" } @column_index;
 
   print qq|
-	</tr>
+        </tr>
 |;
 
   # add sort and escape callback, this one we use for the add sub

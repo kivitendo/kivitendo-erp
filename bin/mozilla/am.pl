@@ -727,7 +727,7 @@ sub list_department {
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 |;
   }
 
@@ -929,7 +929,7 @@ sub list_lead {
   map { print "$column_header{$_}\n" } @column_index;
 
   print qq|
-        </tr>
+  </tr>
 |;
 
   my ($i, %column_data);
@@ -939,17 +939,17 @@ sub list_lead {
     $i %= 2;
 
     print qq|
-        <tr valign=top class=listrow$i>
+  <tr valign=top class=listrow$i>
 |;
 
-#	$lead = $ref->{lead};
+#    $lead = $ref->{lead};
 
     $column_data{description} = qq|<td><a href="am.pl?action=edit_lead&id=$ref->{id}&callback=$callback">$ref->{lead}</td>|;
 
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+  </tr>
 |;
   }
 
@@ -1163,7 +1163,7 @@ sub list_business {
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 |;
   }
 
@@ -1417,7 +1417,7 @@ sub list_language {
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 |;
   }
 
@@ -1769,7 +1769,7 @@ sub list_buchungsgruppe {
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 |;
 
     $row++;
@@ -1853,10 +1853,10 @@ sub buchungsgruppe_header {
   if (!$main::eur) {
     $linkaccounts = qq|
                <tr>
-		<th align=right>| . $locale->text('Inventory') . qq|</th>
-		<td><select name=inventory_accno_id>$form->{selectIC}</select></td>
-		<input name=selectIC type=hidden value="$form->{selectIC}">
-	      </tr>|;
+                <th align=right>| . $locale->text('Inventory') . qq|</th>
+                <td><select name=inventory_accno_id>$form->{selectIC}</select></td>
+                <input name=selectIC type=hidden value="$form->{selectIC}">
+              </tr>|;
   } else {
     $linkaccounts = qq|
                 <input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>|;
@@ -1864,28 +1864,28 @@ sub buchungsgruppe_header {
 
 
   $linkaccounts .= qq|
-	      <tr>
-		<th align=right>| . $locale->text('National Revenues') . qq|</th>
-		<td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('National Expenses') . qq|</th>
-		<td><select name=expense_accno_id_0>$form->{selectIC_expense}</select></td>
-	      </tr>|;
+              <tr>
+                <th align=right>| . $locale->text('National Revenues') . qq|</th>
+                <td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('National Expenses') . qq|</th>
+                <td><select name=expense_accno_id_0>$form->{selectIC_expense}</select></td>
+              </tr>|;
   if ($form->{id}) {
     $form->{selectIC_income} =~ s/selected//g;
     $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_1}\E/  value=$form->{income_accno_id_1} selected/;
     $form->{selectIC_expense} =~ s/selected//g;
     $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_1}\E/  value=$form->{expense_accno_id_1} selected/;
   }
-  $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Revenues EU with UStId') . qq|</th>
-		<td><select name=income_accno_id_1>$form->{selectIC_income}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Expenses EU with UStId') . qq|</th>
-		<td><select name=expense_accno_id_1>$form->{selectIC_expense}</select></td>
-	      </tr>|;
+  $linkaccounts .= qq|              <tr>
+                <th align=right>| . $locale->text('Revenues EU with UStId') . qq|</th>
+                <td><select name=income_accno_id_1>$form->{selectIC_income}</select></td>
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('Expenses EU with UStId') . qq|</th>
+                <td><select name=expense_accno_id_1>$form->{selectIC_expense}</select></td>
+              </tr>|;
 
   if ($form->{id}) {
     $form->{selectIC_income} =~ s/selected//g;
@@ -1894,14 +1894,14 @@ sub buchungsgruppe_header {
     $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_2}\E/  value=$form->{expense_accno_id_2} selected/;
   }
 
-  $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Revenues EU without UStId') . qq|</th>
-		<td><select name=income_accno_id_2>$form->{selectIC_income}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Expenses EU without UStId') . qq|</th>
-		<td><select name=expense_accno_id_2>$form->{selectIC_expense}</select></td>
-	      </tr>|;
+  $linkaccounts .= qq|              <tr>
+                <th align=right>| . $locale->text('Revenues EU without UStId') . qq|</th>
+                <td><select name=income_accno_id_2>$form->{selectIC_income}</select></td>
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('Expenses EU without UStId') . qq|</th>
+                <td><select name=expense_accno_id_2>$form->{selectIC_expense}</select></td>
+              </tr>|;
 
   if ($form->{id}) {
     $form->{selectIC_income} =~ s/selected//g;
@@ -1910,14 +1910,14 @@ sub buchungsgruppe_header {
     $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_3}\E/  value=$form->{expense_accno_id_3} selected/;
   }
 
-  $linkaccounts .= qq|	      <tr>
-		<th align=right>| . $locale->text('Foreign Revenues') . qq|</th>
-		<td><select name=income_accno_id_3>$form->{selectIC_income}</select></td>
-	      </tr>
-	      <tr>
-		<th align=right>| . $locale->text('Foreign Expenses') . qq|</th>
-		<td><select name=expense_accno_id_3>$form->{selectIC_expense}</select></td>
-	      </tr>
+  $linkaccounts .= qq|              <tr>
+                <th align=right>| . $locale->text('Foreign Revenues') . qq|</th>
+                <td><select name=income_accno_id_3>$form->{selectIC_income}</select></td>
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('Foreign Expenses') . qq|</th>
+                <td><select name=expense_accno_id_3>$form->{selectIC_expense}</select></td>
+              </tr>
 |;
 
 
@@ -2106,7 +2106,7 @@ sub list_printer {
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+        </tr>
 |;
   }
 
@@ -2393,7 +2393,7 @@ sub list_payment {
     map { print "$column_data{$_}\n" } @column_index;
 
     print qq|
-	</tr>
+       </tr>
 |;
     $row++;
   }
@@ -2787,10 +2787,10 @@ sub audit_control {
   <tr>
     <td>
       <table>
-	<tr>
-	  <th>| . $locale->text('Close Books up to') . qq|</th>
-	  <td><input name=closedto size=11 title="$myconfig{dateformat}" value=$form->{closedto}></td>
-	</tr>
+        <tr>
+          <th>| . $locale->text('Close Books up to') . qq|</th>
+          <td><input name=closedto size=11 title="$myconfig{dateformat}" value=$form->{closedto}></td>
+        </tr>
       </table>
     </td>
   </tr>
