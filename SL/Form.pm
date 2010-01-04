@@ -1580,7 +1580,8 @@ sub dbconnect_noauto {
 sub get_standard_dbh {
   $main::lxdebug->enter_sub(2);
 
-  my ($self, $myconfig) = @_;
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
 
   if ($standard_dbh && !$standard_dbh->{Active}) {
     $main::lxdebug->message(LXDebug->INFO(), "get_standard_dbh: \$standard_dbh is defined but not Active anymore");
