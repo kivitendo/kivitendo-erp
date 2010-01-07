@@ -5,6 +5,11 @@ use Template::Plugin;
 
 use strict;
 
+sub _H {
+  my $string = shift;
+  return $::locale->quote_special_chars('HTML', $string);
+}
+
 sub new {
   my $class   = shift;
   my $context = shift;
@@ -20,7 +25,7 @@ sub attributes {
   while (my ($name, $value) = each %{ $options }) {
     next unless $name;
     $value ||= '';
-    push @result, "${name}=\"" . $::locale->quote_special_chars('HTML', $value) . '"';
+    push @result, _H($name) . '="' . _H($value) . '"';
   }
 
   return @result ? ' ' . join(' ', @result) : '';
@@ -67,7 +72,7 @@ sub options_for_select {
       my %attributes = ( value => $result[0] );
       $attributes{selected} = 'selected' if $options->{default} && ($options->{default} eq ($result[0] || ''));
 
-      push @tags, $self->html_tag('option', $result[1], \%attributes);
+      push @tags, $self->html_tag('option', _H($result[1]), \%attributes);
     }
   }
 
