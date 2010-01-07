@@ -86,10 +86,10 @@ my @dbplfiles2 = grep { /\.pl$/ } readdir DIR;
 closedir DIR;
 
 # slurp the translations in
-my $self    = {};
-my $missing = {};
-my @missing = ();
-my @lost   = ();
+our $self    = {};
+our $missing = {};
+our @missing = ();
+our @lost    = ();
 
 if (-f 'all') {
   require 'all';
@@ -119,9 +119,9 @@ map({ handle_file($_, $dbupdir2); } @dbplfiles2);
 sub handle_file {
   my ($file, $dir) = @_;
   print "\n$file" if $opt_v;
-  my %locale = ();
-  my %submit = ();
-  my %subrt  = ();
+  %locale = ();
+  %submit = ();
+  %subrt  = ();
 
   &scanfile("$dir/$file");
 
