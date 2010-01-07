@@ -543,9 +543,9 @@ sub scanhtmlfile {
 
     open(IN, $_[0]) || die $_[0];
 
-    my $copying = 0;
+    my $copying  = 0;
     my $issubmit = 0;
-    my $text = "";
+    my $text     = "";
     while (my $line = <IN>) {
       chomp($line);
 
