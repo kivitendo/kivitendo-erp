@@ -54,6 +54,7 @@ use SL::Menu;
 use SL::Template;
 use SL::User;
 use Template;
+use URI;
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(any);
 
@@ -534,6 +535,26 @@ sub isblank {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_request_uri {
+  my $self = shift;
+
+  return URI->new($ENV{HTTP_REFERER})->canonical() if $ENV{HTTP_X_FORWARDED_FOR};
+
+  my $scheme =  $ENV{HTTPS} && (lc $ENV{HTTPS} eq 'on') ? 'https' : 'http';
+  my $port   =  $ENV{SERVER_PORT} || '';
+  $port      =  undef if (($scheme eq 'http' ) && ($port == 80))
+                      || (($scheme eq 'https') && ($port == 443));
+
+  my $uri    =  URI->new("${scheme}://");
+  $uri->scheme($scheme);
+  $uri->port($port);
+  $uri->host($ENV{HTTP_HOST} || $ENV{SERVER_ADDR});
+  $uri->path_query($ENV{REQUEST_URI});
+  $uri->query('');
+
+  return $uri;
+}
+
 sub create_http_response {
   $main::lxdebug->enter_sub();
 
@@ -543,17 +564,6 @@ sub create_http_response {
   my $cgi      = $main::cgi;
   $cgi       ||= CGI->new('');
 
-  my $base_path;
-
-  if ($ENV{HTTP_X_FORWARDED_FOR}) {
-    $base_path =  $ENV{HTTP_REFERER};
-    $base_path =~ s|^.*?://.*?/|/|;
-  } else {
-    $base_path =  $ENV{REQUEST_URI};
-  }
-  $base_path =~ s|[^/]+$||;
-  $base_path =~ s|/$||;
-
   my $session_cookie;
   if (defined $main::auth) {
     my $session_cookie_value   = $main::auth->get_session_id();
@@ -561,7 +571,7 @@ sub create_http_response {
 
     $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
                                    '-value'  => $session_cookie_value,
-                                   '-path'   => $base_path,
+                                   '-path'   => $self->_get_request_uri->path,
                                    '-secure' => $ENV{HTTPS});
   }
 
@@ -712,6 +722,20 @@ sub ajax_response_header {
   $main::lxdebug->leave_sub();
 
   return $output;
+}
+
+sub redirect_header {
+  my $self     = shift;
+  my $new_url  = shift;
+
+  my $base_uri = $self->_get_request_uri;
+  my $new_uri  = URI->new_abs($new_url, $base_uri);
+
+  die "Headers already sent" if $::self->{header};
+  $self->{header} = 1;
+
+  my $cgi = $main::cgi || CGI->new('');
+  return $cgi->redirect($new_uri);
 }
 
 sub _prepare_html_template {
@@ -3548,6 +3572,20 @@ handles business (thats customer/vendor types) sequences.
 
 special behaviour for empty strings in customerinitnumber field:
 will in this case not increase the value, and return undef.
+
+=item redirect_header $url
+
+Generates a HTTP redirection header for the new C<$url>. Constructs an
+absolute URL including scheme, host name and port. If C<$url> is a
+relative URL then it is considered relative to Lx-Office base URL.
+
+This function C<die>s if headers have already been created with
+C<$::form-E<gt>header>.
+
+Examples:
+
+  print $::form->redirect_header('oe.pl?action=edit&id=1234');
+  print $::form->redirect_header('http://www.lx-office.org/');
 
 =back
 
