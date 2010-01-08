@@ -17,6 +17,16 @@ sub new {
   return bless { }, $class;
 }
 
+sub name_to_id {
+  my $self =  shift;
+  my $name =  shift;
+
+  $name    =~ s/[^\w_]/_/g;
+  $name    =~ s/_+/_/g;
+
+  return $name;
+}
+
 sub attributes {
   my $self    = shift;
   my $options = shift || {};
@@ -48,7 +58,7 @@ sub select_tag {
   my $attributes        = shift || {};
 
   $attributes->{name}   = $name;
-  $attributes->{id}   ||= $name;
+  $attributes->{id}   ||= $self->name_to_id($name);
 
   return $self->html_tag('select', $options_str, $attributes);
 }
@@ -106,7 +116,13 @@ functions that create HTML tags from various kinds of data sources.
 
 =head1 FUNCTIONS
 
+=head2 LOW-LEVEL FUNCTIONS
+
 =over 4
+
+=item C<name_to_id $name>
+
+Converts a name to a HTML id by replacing various characters.
 
 =item C<attributes \%items>
 
@@ -120,6 +136,29 @@ Creates an opening and closing HTML tag for C<$tag_name> and puts
 C<$content_string> between the two. If C<$content_string> is undefined
 or empty then only a E<lt>tag/E<gt> tag will be created. Attributes
 are key/value pairs added to the opening tag.
+
+C<$content_string> is not HTML escaped.
+
+=back
+
+=head2 HIGH-LEVEL FUNCTIONS
+
+=over 4
+
+=item C<select_tag $name, $options_string, \%attributes>
+
+Creates a HTML 'select' tag named $name with the contents
+$options_string and with arbitrary HTML attributes from
+C<\%attributes>. The tag's C<id> defaults to C<name_to_id($name)>.
+
+The $options_string is usually created by the C<options_for_select>
+function.
+
+=back
+
+=head2 CONVERSION FUNCTIONS
+
+=over 4
 
 =item C<options_for_select \@collection, \%options>
 
@@ -148,15 +187,6 @@ respectively.
 
 For cases 3 and 4 C<$options{value}> defaults to C<id> and
 C<$options{title}> defaults to C<$options{value}>.
-
-=item C<select_tag $name, $options_string, \%attributes>
-
-Creates a HTML 'select' tag named $name with the contents
-$options_string and with arbitrary HTML attributes from
-C<\%attributes>. The tag's C<id> defaults to C<$name>.
-
-The $options_string is usually created by the C<options_for_select>
-function.
 
 =back
 
