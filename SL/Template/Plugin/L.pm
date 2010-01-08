@@ -10,6 +10,10 @@ sub _H {
   return $::locale->quote_special_chars('HTML', $string);
 }
 
+sub _hashify {
+  return (@_ && (ref($_[0]) eq 'HASH')) ? %{ $_[0] } : @_;
+}
+
 sub new {
   my $class   = shift;
   my $context = shift;
@@ -29,10 +33,10 @@ sub name_to_id {
 
 sub attributes {
   my $self    = shift;
-  my $options = shift || {};
+  my %options = _hashify(@_);
 
   my @result = ();
-  while (my ($name, $value) = each %{ $options }) {
+  while (my ($name, $value) = each %options) {
     next unless $name;
     $value ||= '';
     push @result, _H($name) . '="' . _H($value) . '"';
@@ -45,31 +49,63 @@ sub html_tag {
   my $self       = shift;
   my $tag        = shift;
   my $content    = shift;
-  my $attributes = $self->attributes(shift || {});
+  my $attributes = $self->attributes(@_);
 
   return "<${tag}${attributes}/>" unless $content;
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
 sub select_tag {
-  my $self              = shift;
-  my $name              = shift;
-  my $options_str       = shift;
-  my $attributes        = shift || {};
+  my $self            = shift;
+  my $name            = shift;
+  my $options_str     = shift;
+  my %attributes      = _hashify(@_);
 
-  $attributes->{name}   = $name;
-  $attributes->{id}   ||= $self->name_to_id($name);
+  $attributes{id}   ||= $self->name_to_id($name);
 
-  return $self->html_tag('select', $options_str, $attributes);
+  return $self->html_tag('select', $options_str, %attributes, name => $name);
+}
+
+sub checkbox_tag {
+  my $self             = shift;
+  my $name             = shift;
+  my %attributes       = _hashify(@_);
+
+  $attributes{id}    ||= $self->name_to_id($name);
+  $attributes{value}   = 1 unless defined $attributes{value};
+  my $label            = delete $attributes{label};
+
+  if ($attributes{checked}) {
+    $attributes{checked} = 'checked';
+  } else {
+    delete $attributes{checked};
+  }
+
+  my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
+  $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
+
+  return $code;
+}
+
+sub input_tag {
+  my $self            = shift;
+  my $name            = shift;
+  my $value           = shift;
+  my %attributes      = _hashify(@_);
+
+  $attributes{id}   ||= $self->name_to_id($name);
+  $attributes{type} ||= 'text';
+
+  return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
 }
 
 sub options_for_select {
   my $self          = shift;
   my $collection    = shift;
-  my $options       = shift || {};
+  my %options       = _hashify(@_);
 
-  my $value_key     = $options->{value} || 'id';
-  my $title_key     = $options->{title} || $value_key;
+  my $value_key     = $options{value} || 'id';
+  my $title_key     = $options{title} || $value_key;
 
   my @tags          = ();
   if ($collection && (ref $collection eq 'ARRAY')) {
@@ -80,9 +116,9 @@ sub options_for_select {
                  :                            ( $element->$value_key,   $element->$title_key   );
 
       my %attributes = ( value => $result[0] );
-      $attributes{selected} = 'selected' if $options->{default} && ($options->{default} eq ($result[0] || ''));
+      $attributes{selected} = 'selected' if $options{default} && ($options{default} eq ($result[0] || ''));
 
-      push @tags, $self->html_tag('option', _H($result[1]), \%attributes);
+      push @tags, $self->html_tag('option', _H($result[1]), %attributes);
     }
   }
 
@@ -124,13 +160,13 @@ functions that create HTML tags from various kinds of data sources.
 
 Converts a name to a HTML id by replacing various characters.
 
-=item C<attributes \%items>
+=item C<attributes %items>
 
-Creates a string from all elements in C<\%items> suitable for usage as
+Creates a string from all elements in C<%items> suitable for usage as
 HTML tag attributes. Keys and values are HTML escaped even though keys
 must not contain non-ASCII characters for browsers to accept them.
 
-=item C<html_tag $tag_name, $content_string, \%attributes>
+=item C<html_tag $tag_name, $content_string, %attributes>
 
 Creates an opening and closing HTML tag for C<$tag_name> and puts
 C<$content_string> between the two. If C<$content_string> is undefined
@@ -145,14 +181,30 @@ C<$content_string> is not HTML escaped.
 
 =over 4
 
-=item C<select_tag $name, $options_string, \%attributes>
+=item C<select_tag $name, $options_string, %attributes>
 
-Creates a HTML 'select' tag named $name with the contents
-$options_string and with arbitrary HTML attributes from
-C<\%attributes>. The tag's C<id> defaults to C<name_to_id($name)>.
+Creates a HTML 'select' tag named C<$name> with the contents
+C<$options_string> and with arbitrary HTML attributes from
+C<%attributes>. The tag's C<id> defaults to C<name_to_id($name)>.
 
 The $options_string is usually created by the C<options_for_select>
 function.
+
+=item C<input_tag $name, $value, %attributes>
+
+Creates a HTML 'input type=text' tag named C<$name> with the value
+C<$value> and with arbitrary HTML attributes from C<%attributes>. The
+tag's C<id> defaults to C<name_to_id($name)>.
+
+=item C<checkbox_tag $name, %attributes>
+
+Creates a HTML 'input type=checkbox' tag named C<$name> with arbitrary
+HTML attributes from C<%attributes>. The tag's C<id> defaults to
+C<name_to_id($name)>. The tag's C<value> defaults to C<1>.
+
+If C<%attributes> contains a key C<label> then a HTML 'label' tag is
+created with said C<label>. No attribute named C<label> is created in
+that case.
 
 =back
 
@@ -160,7 +212,7 @@ function.
 
 =over 4
 
-=item C<options_for_select \@collection, \%options>
+=item C<options_for_select \@collection, %options>
 
 Creates a string suitable for a HTML 'select' tag consisting of one
 'E<lt>optionE<gt>' tag for each element in C<\@collection>. The value
@@ -174,11 +226,11 @@ the value, the second element is its title.
 
 =item 2. A scalar. The scalar is both the value and the title.
 
-=item 3. A hash reference. In this case C<\%options> must contain
+=item 3. A hash reference. In this case C<%options> must contain
 I<value> and I<title> keys that name the keys in the element to use
 for the value and title respectively.
 
-=item 4. A blessed reference. In this case C<\%options> must contain
+=item 4. A blessed reference. In this case C<%options> must contain
 I<value> and I<title> keys that name functions called on the blessed
 reference whose return values are used as the value and title
 respectively.
