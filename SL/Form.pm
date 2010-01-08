@@ -788,6 +788,7 @@ sub _prepare_html_template {
     $jsc_dateformat =~ s/m+/\%m/gi;
     $jsc_dateformat =~ s/y+/\%Y/gi;
     $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
+    $additional_params->{"myconfig"} ||= \%::myconfig;
   }
 
   $additional_params->{"conf_dbcharset"}              = $main::dbcharset;
