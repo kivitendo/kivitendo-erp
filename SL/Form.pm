@@ -566,12 +566,17 @@ sub create_http_response {
 
   my $session_cookie;
   if (defined $main::auth) {
+    my $uri      = $self->_get_request_uri;
+    my @segments = $uri->path_segments;
+    pop @segments;
+    $uri->path_segments(@segments);
+
     my $session_cookie_value   = $main::auth->get_session_id();
     $session_cookie_value    ||= 'NO_SESSION';
 
     $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
                                    '-value'  => $session_cookie_value,
-                                   '-path'   => $self->_get_request_uri->path,
+                                   '-path'   => $uri->path,
                                    '-secure' => $ENV{HTTPS});
   }
 
