@@ -2714,12 +2714,20 @@ sub generate_bwa {
       };
     }
   } else {
-    my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{fromdate});
-    $form->{fromdate} = "${dd}.${mm}.${yy}";
-    ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{todate});
-    $form->{todate}          = "${dd}.${mm}.${yy}";
-    $form->{comparefromdate} = "01.01.$yy";
-    $form->{comparetodate}   = $form->{todate};
+    # die konvertierungen nur dann durchführen, wenn auch daten gesetzt sind.
+    # ansonsten ist die prüfung in RP.pm 
+    # if (defined ($form->{fromdate|todate}=='..'))
+    # immer wahr
+    if ($form->{fromdate}){
+      my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{fromdate});
+      $form->{fromdate} = "${dd}.${mm}.${yy}";
+      $form->{comparefromdate} = "01.01.$yy";
+    }
+    if ($form->{todate}){
+      my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{todate});
+      $form->{todate}          = "${dd}.${mm}.${yy}";
+      $form->{comparetodate}   = $form->{todate};
+    }
   }
 
   RP->bwa(\%myconfig, \%$form);
