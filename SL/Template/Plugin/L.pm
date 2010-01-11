@@ -107,7 +107,9 @@ sub options_for_select {
   my $value_key     = $options{value} || 'id';
   my $title_key     = $options{title} || $value_key;
 
-  my @tags          = ();
+  my @elements      = ();
+  push @elements, [ undef, $options{empty_title} || '' ] if $options{with_empty};
+
   if ($collection && (ref $collection eq 'ARRAY')) {
     foreach my $element (@{ $collection }) {
       my @result = !ref $element            ? ( $element,               $element               )
@@ -115,14 +117,19 @@ sub options_for_select {
                  :  ref $element eq 'HASH'  ? ( $element->{$value_key}, $element->{$title_key} )
                  :                            ( $element->$value_key,   $element->$title_key   );
 
-      my %attributes = ( value => $result[0] );
-      $attributes{selected} = 'selected' if $options{default} && ($options{default} eq ($result[0] || ''));
-
-      push @tags, $self->html_tag('option', _H($result[1]), %attributes);
+      push @elements, \@result;
     }
   }
 
-  return join('', @tags);
+  my $code = '';
+  foreach my $result (@elements) {
+    my %attributes = ( value => $result->[0] );
+    $attributes{selected} = 'selected' if $options{default} && ($options{default} eq ($result->[0] || ''));
+
+    $code .= $self->html_tag('option', _H($result->[1]), %attributes);
+  }
+
+  return $code;
 }
 
 1;
@@ -239,6 +246,11 @@ respectively.
 
 For cases 3 and 4 C<$options{value}> defaults to C<id> and
 C<$options{title}> defaults to C<$options{value}>.
+
+If the option C<with_empty> is set then an empty element (value
+C<undef>) will be used as the first element. The title to display for
+this element can be set with the option C<empty_title> and defaults to
+an empty string.
 
 =back
 
