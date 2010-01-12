@@ -9,6 +9,7 @@
 #
 ######################################################################
 
+use Carp;
 use SL::Common;
 use SL::DBUtils;
 use SL::Form;
@@ -508,6 +509,8 @@ sub show_history {
 
 # -------------------------------------------------------------------------
 
+my %_called_subs = ();
+
 sub call_sub {
   $main::lxdebug->enter_sub();
 
@@ -525,6 +528,9 @@ sub call_sub {
   if (!defined(&{ $name })) {
     $form->error(sprintf($locale->text("Attempt to call an undefined sub named '%s'"), $name));
   }
+
+  $_called_subs{$name}++;
+  confess "RECURSION DETECTION: call_sub($name) called " . $_called_subs{$name} . " time(s)" if $_called_subs{$name} > 10;
 
   {
     no strict "refs";
