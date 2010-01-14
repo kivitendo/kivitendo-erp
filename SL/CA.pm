@@ -50,10 +50,22 @@ sub all_accounts {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  if ($form->{method} eq "cash") {
-    $acc_cash_where = qq| AND (a.trans_id IN (SELECT id FROM ar WHERE datepaid>=(select date_trunc('year', current_date)) UNION SELECT id FROM ap WHERE datepaid>=(select date_trunc('year', current_date)) UNION SELECT id FROM gl WHERE transdate>=(select date_trunc('year', current_date)))) |;
-  } else {
-    $acc_cash_where = " AND ((select date_trunc('year', a.transdate::date)) >= (select date_trunc('year', current_date)))";
+  # bug 1071 Warum sollte bei Erreichen eines neuen Jahres die Kontenübersicht nur noch die
+  # bereits bebuchten Konten anzeigen?
+  # Folgende Erweiterung:
+  # 1.) Gehe zurück bis zu dem Datum an dem die Bücher geschlossen wurden
+  # 2.) Falls die Bücher noch nie geschlossen wurden, gehe zurück bis zum Bearbeitungsstart
+  # COALESCE((SELECT closedto FROM defaults),(SELECT itime FROM defaults))
+
+  my $closedto_sql = "COALESCE((SELECT closedto FROM defaults),(SELECT itime FROM defaults))";
+
+  if ($form->{method} eq "cash") {  # EÜR
+    $acc_cash_where = qq| AND (a.trans_id IN (SELECT id FROM ar WHERE datepaid>= $closedto_sql
+                          UNION SELECT id FROM ap WHERE datepaid>= $closedto_sql
+                          UNION SELECT id FROM gl WHERE transdate>= $closedto_sql
+                        )) |;
+  } else {  # Bilanzierung
+    $acc_cash_where = " AND ((select date_trunc('year', a.transdate::date)) >= $closedto_sql) ";
   }
 
   my $query =
