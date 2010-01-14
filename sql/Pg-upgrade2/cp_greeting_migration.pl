@@ -85,13 +85,25 @@ sub print_question {
   print $main::form->parse_html_template("dbupgrade/cp_greeting_update_form");
 }
 
+sub alter_schema_only {
+  my $sqlcode = <<SQL;
+    ALTER TABLE contacts ADD COLUMN cp_gender char(1);
+    ALTER TABLE contacts DROP COLUMN cp_greeting;
+SQL
+
+  $dbh->do($sqlcode);
+}
+
 sub do_update {
   # main function
 
   # Do not ask the user anything if there are no entries in the
   # contacts table.
   my ($data_exists) = $dbh->selectrow_array("SELECT * FROM contacts LIMIT 1");
-  return 1 if !$data_exists;
+  if (!$data_exists) {
+    alter_schema_only();
+    return 1;
+  }
 
   # first of all check if gender.sql was already run and thus cp_gender exists
   # if it exists there is no need for this update anymore, so return
