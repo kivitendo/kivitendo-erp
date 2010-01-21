@@ -33,13 +33,12 @@ use lib 't';
 
 use Support::Templates;
 
-# Bug 137589 - Disable command-line input of CGI.pm when testing
-use CGI qw(-no_debug);
-
 use File::Spec;
+use File::Slurp;
 use Template;
-use Test::More tests => ( scalar(@referenced_files) * scalar(@languages)
-                        + $num_actual_files  );
+use Test::More tests => ( scalar(@referenced_files));
+
+my $template_path = 'templates/webpages/';
 
 # Capture the TESTOUT from Test::More or Test::Builder for printing errors.
 # This will handle verbosity for us automatically.
@@ -55,98 +54,15 @@ my $fh;
     }
 }
 
-# Checks whether one of the passed files exists
-sub existOnce {
-  foreach my $file (@_) {
-    return $file  if -e $file;
-  }
-  return 0;
-}
-
-# Check to make sure all templates that are referenced in
-# Bugzilla exist in the proper place.
-
-foreach my $lang (@languages) {
-    foreach my $file (@referenced_files) {
-        my @path = map(File::Spec->catfile($_, $file),
-                       split(':', $include_path{$lang} . ":" . $include_path{"en"}));
-        if (my $path = existOnce(@path)) {
-            ok(1, "$path exists");
-        } else {
-            ok(0, "$file cannot be located --ERROR");
-            print $fh "Looked in:\n  " . join("\n  ", @path) . "\n";
-        }
+# test master files for <translate> tag
+foreach my $ref (@Support::Templates::referenced_files) {
+    my $file = "${template_path}${ref}_master.html";
+    my $data = read_file($file) || die "??? couldn't open $file";
+    if ($data =~ /<translate>/) {
+        ok(0, "$file uses deprecated <translate> tags.");
+    } else {
+        ok(1, "$file does not use <translate> tags.");
     }
-}
-
-foreach my $include_path (@include_paths) {
-    # Processes all the templates to make sure they have good syntax
-    my $provider = Template::Provider->new(
-    {
-        INCLUDE_PATH => $include_path ,
-        # Need to define filters used in the codebase, they don't
-        # actually have to function in this test, just be defined.
-        # See Template.pm for the actual codebase definitions.
-
-        # Initialize templates (f.e. by loading plugins like Hook).
-        PRE_PROCESS => "global/initialize.none.tmpl",
-
-        FILTERS =>
-        {
-            html_linebreak => sub { return $_; },
-            no_break => sub { return $_; } ,
-            js        => sub { return $_ } ,
-            base64   => sub { return $_ } ,
-            inactive => [ sub { return sub { return $_; } }, 1] ,
-            closed => [ sub { return sub { return $_; } }, 1] ,
-            obsolete => [ sub { return sub { return $_; } }, 1] ,
-            url_quote => sub { return $_ } ,
-            css_class_quote => sub { return $_ } ,
-            xml       => sub { return $_ } ,
-            quoteUrls => sub { return $_ } ,
-            bug_link => [ sub { return sub { return $_; } }, 1] ,
-            csv       => sub { return $_ } ,
-            unitconvert => sub { return $_ },
-            time      => sub { return $_ } ,
-            wrap_comment => sub { return $_ },
-            none      => sub { return $_ } ,
-            ics       => [ sub { return sub { return $_; } }, 1] ,
-        },
-    }
-    );
-
-    foreach my $file (@{$actual_files{$include_path}}) {
-        my $path = File::Spec->catfile($include_path, $file);
-        if (-e $path) {
-            my ($data, $err) = $provider->fetch($file);
-
-            if (!$err) {
-                ok(1, "$file syntax ok");
-            }
-            else {
-                ok(0, "$file has bad syntax --ERROR");
-                print $fh $data . "\n";
-            }
-        }
-        else {
-            ok(1, "$path doesn't exist, skipping test");
-        }
-    }
-
-    # check to see that all templates have a version string:
-    # disabled for lx-office
-
-#    foreach my $file (@{$actual_files{$include_path}}) {
-#        my $path = File::Spec->catfile($include_path, $file);
-#        open(TMPL, $path);
-#        my $firstline = <TMPL>;
-#        if ($firstline =~ /\d+\.\d+\@[\w\.-]+/) {
-#            ok(1,"$file has a version string");
-#        } else {
-#            ok(0,"$file does not have a version string --ERROR");
-#        }
-#        close(TMPL);
-#    }
 }
 
 exit 0;
