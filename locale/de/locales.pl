@@ -59,9 +59,9 @@ sub parse_args {
 parse_args();
 
 opendir DIR, "$bindir" or die "$!";
-my @progfiles = grep { /\.pl$/ && !/(_|^\.)/ } readdir DIR;
+my @progfiles = grep { /\.pl$/ && !/(_custom|^\.)/ } readdir DIR;
 seekdir DIR, 0;
-my @customfiles = grep /_/, readdir DIR;
+my @customfiles = grep /_custom/, readdir DIR;
 closedir DIR;
 
 # put customized files into @customfiles
