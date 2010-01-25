@@ -42,6 +42,8 @@ sub format_amount_units {
 sub format_percent {
   my ($self, $var, $places, $skip_zero) = @_;
 
+  $places ||= 2;
+
   return $self->format_amount($var * 100, $places, $skip_zero);
 }
 
