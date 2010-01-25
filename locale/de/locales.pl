@@ -567,7 +567,7 @@ sub scanhtmlfile {
       }
 
       while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
-                          LxERP\.t8\(   #   LxERP.t8(
+                          (LxERP\.t8)\( #   LxERP.t8(
                           [\'\"]        #   Anfang des zu übersetzenden Strings
                           (.*?)         #   Der zu übersetzende String
                           [\'\"]        #   Ende des zu übersetzenden Strings
@@ -579,21 +579,22 @@ sub scanhtmlfile {
                           (.*?)         #   Der zu übersetzende String
                           [\'\"]        #   Ende des zu übersetzenden Strings
                           \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
-                          \$T8          #   Filteraufruf
+                          (\$T8)        #   Filteraufruf
                           .*?           #   Optionale Argumente für den Filter
                           \s*           #   Whitespaces
                           [\-~#]*       #   Whitespace-Unterdrückung
                           \%\]          #   Template-Ende-Tag
                         )
                        /ix) {
-        my $string = $1 || $2;
+        my $module = $1 || $4;
+        my $string = $2 || $3;
         print "Found filter >>>$string<<<\n" if $debug;
         substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
 
         $cached{$_[0]}{all}{$string}    = 1;
         $cached{$_[0]}{html}{$string}   = 1;
         $cached{$_[0]}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
-        $plugins{needed}->{T8}          = 1;
+        $plugins{needed}->{T8}          = 1 if $module eq '$T8';
       }
 
       while ("" ne $line) {
