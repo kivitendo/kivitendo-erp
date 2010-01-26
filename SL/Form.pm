@@ -756,20 +756,16 @@ sub _prepare_html_template {
   }
   $language = "de" unless ($language);
 
-  if (-f "templates/webpages/${file}_${language}.html") {
-    if ((-f ".developer") &&
-        (-f "templates/webpages/${file}_master.html") &&
-        ((stat("templates/webpages/${file}_master.html"))[9] >
-         (stat("templates/webpages/${file}_${language}.html"))[9])) {
-      my $info = "Developer information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
+  if (-f "templates/webpages/${file}.html") {
+    if ((-f ".developer") && ((stat("templates/webpages/${file}.html"))[9] > (stat("locale/${language}/all"))[9])) {
+      my $info = "Developer information: templates/webpages/${file}.html is newer than the translation file locale/${language}/all.\n" .
         "Please re-run 'locales.pl' in 'locale/${language}'.";
       print(qq|<pre>$info</pre>|);
       die($info);
     }
 
-    $file = "templates/webpages/${file}_${language}.html";
-  } elsif (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
+
   } else {
     my $info = "Web page template '${file}' not found.\n" .
       "Please re-run 'locales.pl' in 'locale/${language}'.";
@@ -848,10 +844,6 @@ sub parse_html_template {
 
   my $input = join('', <$in>);
   $in->close();
-
-  if ($main::locale) {
-    $input = $main::locale->{iconv}->convert($input);
-  }
 
   my $output;
   if (!$template->process(\$input, $additional_params, \$output)) {
