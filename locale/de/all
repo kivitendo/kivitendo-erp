@@ -1080,6 +1080,7 @@ $self->{texts} = {
   'Number missing in Row'       => 'Nummer fehlt in Zeile',
   'Number of bins'              => 'Anzahl Lagerpl&auml;tze',
   'Number of copies'            => 'Anzahl Kopien',
+  'Number of entries changed: #1' => 'Anzahl geänderter Einträge: #1',
   'Number of new bins'          => 'Anzahl neuer Lagerpl&auml;tze',
   'Number pages'                => 'Seiten nummerieren',
   'Number variables: \'PRECISION=n\' forces numbers to be shown with exactly n decimal places.' => 'Zahlenvariablen: Mit \'PRECISION=n\' erzwingt man, dass Zahlen mit n Nachkommastellen formatiert werden.',
