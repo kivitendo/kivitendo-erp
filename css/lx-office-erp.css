@@ -169,7 +169,7 @@ body.menu {
 
 .listsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
-.listtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+.listtotal, .listtotal td { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
 .submit {
   font-family: Verdana, Arial, Helvetica;
