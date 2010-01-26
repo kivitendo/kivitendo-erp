@@ -388,7 +388,7 @@ sub webdav_folder {
 
         push @{ $form->{WEBDAV} }, {
           'name' => $fname,
-          'link' => "/$base_path/$file",
+          'link' => "$base_path/$file",
           'type' => $is_directory ? $main::locale->text('Directory') : $main::locale->text('File'),
         };
       }
