@@ -445,6 +445,7 @@ sub _get_transactions {
 
     my $ml             = ($trans->[0]->{'umsatz'} > 0) ? 1 : -1;
     my $rounding_error = 0;
+    my @taxed;
 
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
       if (   ($j != $notsplitindex)
@@ -491,13 +492,13 @@ sub _get_transactions {
         }
 
         push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
+        push @taxed, $form->{DATEV}->[-1];
       }
     }
 
     my $idx        = 0;
     my $correction = 0;
-    our @taxed;          # most likely defunct
-    while (abs($absumsatz) >= 0.01) {
+    while ((abs($absumsatz) >= 0.01) && (abs($absumsatz) < 1.00)) {
       if ($idx >= scalar @taxed) {
         last if (!$correction);
 
