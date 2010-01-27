@@ -238,6 +238,8 @@ sub end_request {
   my $self = shift;
   return 1 unless ($global_level & REQUEST_TIMER);
   $self->_write("time", tv_interval($self->{request_start}));
+
+  $self->{calldepth} = 0;
 }
 
 1;
