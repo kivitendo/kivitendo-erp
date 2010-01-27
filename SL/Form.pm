@@ -841,23 +841,14 @@ sub parse_html_template {
                                  'CACHE_SIZE'   => 0,
                                  'PLUGIN_BASE'  => 'SL::Template::Plugin',
                                  'INCLUDE_PATH' => '.:templates/webpages',
+                                 'COMPILE_EXT'  => $main::template_compile_ext,
+                                 'COMPILE_DIR'  => $main::template_compile_dir,
                                }) || die;
 
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
 
-  my $in = IO::File->new($file, 'r');
-
-  if (!$in) {
-    print STDERR "Error opening template file: $!";
-    $main::lxdebug->leave_sub();
-    return '';
-  }
-
-  my $input = join('', <$in>);
-  $in->close();
-
   my $output;
-  if (!$template->process(\$input, $additional_params, \$output)) {
+  if (!$template->process($file, $additional_params, \$output)) {
     print STDERR $template->error();
   }
 
