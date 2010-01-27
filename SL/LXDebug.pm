@@ -14,7 +14,7 @@ use constant DEVEL              => INFO | QUERY | TRACE | BACKTRACE_ON_ERROR | R
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
 
-use POSIX qw(strftime);
+use POSIX qw(strftime getppid);
 use Time::HiRes qw(gettimeofday tv_interval);
 use YAML;
 
@@ -75,7 +75,7 @@ sub enter_sub {
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
   my $indent = " " x $self->{"calldepth"}++;
-  my $time = $self->want_request_timer ? $self->get_request_time : '';
+  my $time = $self->get_request_time || '';
 
   if (!defined($package)) {
     $self->_write('sub' . $level, $indent . "\\ $time top-level?\n");
@@ -211,7 +211,7 @@ sub is_tracing_enabled {
 
 sub _write {
   my ($self, $prefix, $message) = @_;
-  my $date = strftime("%Y-%m-%d %H:%M:%S $$ ${prefix}: ", localtime(time()));
+  my $date = strftime("%Y-%m-%d %H:%M:%S $$ [" . getppid() . "] ${prefix}: ", localtime(time()));
   local *FILE;
 
   chomp($message);
@@ -247,7 +247,7 @@ sub end_request {
 
 sub get_request_time {
   my $self = shift;
-  tv_interval($self->{request_start});
+  return $self->want_request_timer && $self->{request_start} ? tv_interval($self->{request_start}) : undef;
 }
 
 sub set_request_timer {
