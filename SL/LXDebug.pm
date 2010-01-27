@@ -75,12 +75,13 @@ sub enter_sub {
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
   my $indent = " " x $self->{"calldepth"}++;
+  my $time = $self->want_request_timer ? $self->get_request_time : '';
 
   if (!defined($package)) {
-    $self->_write('sub' . $level, $indent . "\\ top-level?\n");
+    $self->_write('sub' . $level, $indent . "\\ $time top-level?\n");
   } else {
     $self->_write('sub' . $level, $indent
-                    . "\\ ${subroutine} in "
+                    . "\\ $time ${subroutine} in "
                     . "${self_filename}:${self_line} called from "
                     . "${filename}:${line}\n");
   }
@@ -98,11 +99,12 @@ sub leave_sub {
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
   my $indent = " " x --$self->{"calldepth"};
+  my $time = $self->want_request_timer ? $self->get_request_time : '';
 
   if (!defined($package)) {
-    $self->_write('sub' . $level, $indent . "/ top-level?\n");
+    $self->_write('sub' . $level, $indent . "/ $time top-level?\n");
   } else {
-    $self->_write('sub' . $level, $indent . "/ ${subroutine} in " . "${self_filename}:${self_line}\n");
+    $self->_write('sub' . $level, $indent . "/ $time ${subroutine} in " . "${self_filename}:${self_line}\n");
   }
   return 1;
 }
@@ -231,16 +233,30 @@ sub level2string {
 
 sub begin_request {
   my $self = shift;
-  return 1 unless ($global_level & REQUEST_TIMER);
-  $self->{request_start} = [gettimeofday];
+  return 1 unless want_request_timer();
+  $self->set_request_timer;
 }
 
 sub end_request {
   my $self = shift;
-  return 1 unless ($global_level & REQUEST_TIMER);
-  $self->_write("time", tv_interval($self->{request_start}));
+  return 1 unless want_request_timer();
+  $self->_write("time", $self->get_request_time);
 
   $self->{calldepth} = 0;
+}
+
+sub get_request_time {
+  my $self = shift;
+  tv_interval($self->{request_start});
+}
+
+sub set_request_timer {
+  my $self = shift;
+  $self->{request_start} = [gettimeofday];
+}
+
+sub want_request_timer {
+  $global_level & REQUEST_TIMER;
 }
 
 1;
