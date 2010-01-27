@@ -530,7 +530,7 @@ sub call_sub {
   }
 
   $_called_subs{$name}++;
-  confess "RECURSION DETECTION: call_sub($name) called " . $_called_subs{$name} . " time(s)" if $_called_subs{$name} > 10;
+#  confess "RECURSION DETECTION: call_sub($name) called " . $_called_subs{$name} . " time(s)" if $_called_subs{$name} > 10;
 
   {
     no strict "refs";
