@@ -24,6 +24,7 @@ my $data_dumper_available;
 
 our $global_level;
 our $watch_form;
+our $file_name;
 
 BEGIN {
   eval("use Data::Dumper");
@@ -38,7 +39,7 @@ sub new {
   my $self = {};
 
   $self->{"calldepth"}  = 0;
-  $self->{"file"}       = "/tmp/lx-office-debug.log";
+  $self->{"file"}       = $file_name || "/tmp/lx-office-debug.log";
   $self->{"target"}     = FILE_TARGET;
   $self->{"level"}      = 0;
 
