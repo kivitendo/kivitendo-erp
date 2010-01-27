@@ -531,22 +531,9 @@ sub scanmenu {
 }
 
 sub unescape_template_string {
-  my $in      = shift;
-  my $out     = '';
-  my $escaped = 0;
-
-  foreach my $char (split m//, $in) {
-    if ($escaped) {
-      $out     .= $char;
-      $escaped  = 0;
-    } elsif ($char eq '\\') {
-      $escaped  = 1;
-    } else {
-      $out     .= $char;
-    }
-  }
-
-  return $out;
+  my $in =  "$_[0]";
+  $in    =~ s/\\(.)/$1/g;
+  return $in;
 }
 
 sub scanhtmlfile {
