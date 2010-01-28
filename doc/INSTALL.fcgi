@@ -44,3 +44,9 @@ AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatch
 Variante 1 startet einfach jeden Lx-Office Request als fcgi Prozess. Für sehr große Installationen ist das die schnellste Version, benötigt aber sehr viel Arbeitspseicher (ca. 2GB).
 
 Variante 2 startet nur einen zentralen Dispatcher und lenkt alle Scripte auf diesen. Dadurch dass zur Laufzeit öfter mal Scripte neu geladen werden gibt es hier kleine Performance Einbußen.
+
+
+
+4. TODO
+
+4.1. Fehlermeldungen, die per $form->error() ausgegeben werden, werden momentan doppelt angezeigt.
