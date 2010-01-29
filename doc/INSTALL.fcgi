@@ -78,7 +78,7 @@ diesen. Dadurch dass zur Laufzeit öfter mal Scripte neu geladen werden gibt es
 hier kleine Performance Einbußen.
 
 
-=head2 Mögliche Fallstricke
+=head2 Entwicklungsaspekte
 
 Die AddHandler Direktive vom Apache ist entgegen der Dokumentation
 anscheinend nicht lokal auf das Verzeichnis beschränkt sondern global im
@@ -87,7 +87,45 @@ vhost.
 Wenn Änderungen in der Konfiguration von Lx-Office gemacht werden, oder wenn
 Templates editiert werden muss der Server neu gestartet werden.
 
+Es ist möglich die gleiche Lx-Office Version parallel unter cgi und fastcgi zu
+betreiben. Da nimmt man Variante 2 wie oben beschrieben, und ändert die
+MatchAlias Zeile auf eine andere URL, und lässt alle anderen URLs auch
+weiterleiten:
 
+
+  AliasMatch ^/web/path/to/lx-office-erp-fcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  AliasMatch ^/web/path/to/lx-office-erp-fcgi/(.*) /path/to/lx-office-erp/$1
+
+Dann ist unter C</web/path/to/lx-office-erp/> die normale Version erreichbar,
+und unter C</web/opath/to/lx-office-erp-fcgi/> die FastCGI Version.
+
+Bei der Entwicklung für FastCGI ist auf ein paar Fallstricke zu achten. Dadurch
+dass das Programm in einer Endlosschleife läuft, müssen folgende Aspekte
+geachtet werden:
+
+=head3 C<warn>, C<die>, C<exit>, C<carp>, C<confess>
+
+Fehler die normalerweise dass Programm sofort beenden (fatale Fehler) werden
+mit dem FastCGI Dispatcher abgefangen, um das Programm amLaufen zu halten. Man
+kann mit C<die>, C<confess> oder C<carp> Fehler ausgeben, die dann vom Dispatcher
+angezeigt werden. Die Lx-Office eigene C<$::form->error()> tut im Prinzip das
+Gleiche, mit ein paar Extraoptionen. C<warn> und C<exit> hingegen werden nicht
+abgefangen. C<warn> wird direkt nach STDERR, also in Server Log eine Nachricht
+schreiben, und C<exit> wird die Ausführung beenden.
+
+Prinzipiell ist es ein Beinbruch, wenn sich der Prozess beendet, fcgi wird ihn
+sofort neu starten, allerdings sollte das die Ausnahme sein. Quintessenz: Bitte
+kein C<warn> oder C<exit> benutzen, alle anderen Excepionmechanismen sind ok.
+
+=head3 Globale Variablen
+
+Um zu vermeiden, dass Informationen von einem Request in einen anderen gelangen
+müssen alle globalen Variablen vor einem Request sauber initialisiert werden.
+Das ist besonders wichtig im C<$::cgi> und C<$::auth> Objekt, weil diese nicht
+gelöscht werden pro Instanz, sondern persistent gehalten werden.
+
+Datenbankverbindungen wird noch ein Guide verfasst werden, wie man sichergeht,
+dass man die richtige erwischt.
 
 =head2 Performance und Statistiken
 
