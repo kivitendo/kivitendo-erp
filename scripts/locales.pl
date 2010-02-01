@@ -23,13 +23,12 @@ $OUTPUT_AUTOFLUSH = 1;
 my $opt_v  = 0;
 my $opt_n  = 0;
 my $opt_c  = 0;
-my $lang;
 my $debug  = 0;
 
 parse_args();
 
-my $basedir      = ".";
-my $locales_dir  = "$basedir/locale/$lang";
+my $basedir      = "../..";
+my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
@@ -185,7 +184,25 @@ sub parse_args {
     exit 0;
   }
 
-  $lang = shift @ARGV   || croak 'need language code as argument';
+  if (@ARGV) {
+    my $arg = shift @ARGV;
+    my $ok  = 0;
+    foreach my $dir ("../locale/$arg", "locale/$arg", "../$arg", $arg) {
+      next unless -d $dir && -f "$dir/all" && -f "$dir/LANGUAGE";
+      $ok = chdir $dir;
+      last;
+    }
+
+    if (!$ok) {
+      print "The locale directory '$arg' could not be found.\n";
+      exit 1;
+    }
+
+  } elsif (!-f 'all' || !-f 'LANGUAGE') {
+    print "locales.pl was not called from a locale/* subdirectory,\n"
+      .   "and no locale directory name was given.\n";
+    exit 1;
+  }
 }
 
 sub handle_file {
