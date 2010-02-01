@@ -47,16 +47,16 @@ use strict;
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $country, $NLS_file) = @_;
+  my ($type, $country) = @_;
+
+  $country ||= $::language;
+  $country   =~ s|.*/||;
+  $country   =~ s|\.||g;
 
   my $self = {};
   bless $self, $type;
 
-  $country  =~ s|.*/||;
-  $country  =~ s|\.||g;
-  $NLS_file =~ s|.*/||;
-
-  $self->_init($country, $NLS_file);
+  $self->_init($country);
 
   $main::lxdebug->leave_sub();
 
@@ -66,15 +66,13 @@ sub new {
 sub _init {
   my $self     = shift;
   my $country  = shift;
-  my $NLS_file = shift;
 
   $self->{charset}     = Common::DEFAULT_CHARSET;
   $self->{countrycode} = $country;
-  $self->{NLS_file}    = $NLS_file;
 
   if ($country && -d "locale/$country") {
     local *IN;
-    if (open(IN, "<", "locale/$country/$NLS_file")) {
+    if (open(IN, "<", "locale/$country/all")) {
       my $code = join("", <IN>);
       eval($code);
       close(IN);
@@ -212,15 +210,25 @@ sub findsub {
   my ($self, $text) = @_;
   my $text_rev      = $self->{iconv_reverse}->convert($text);
 
-  if (exists $self->{subs}{$text_rev}) {
-    $text = $self->{subs}{$text_rev};
-  } elsif ($self->{countrycode} && $self->{NLS_file}) {
-    $main::form->error("$text not defined in locale/$self->{countrycode}/$self->{NLS_file}");
+  $self->{subs}   ||= { };
+
+  if (!$self->{subs}->{$text_rev}) {
+    $self->{texts_reverse} ||= { reverse %{ $self->{texts} } };
+    my $sub_name             = $self->{texts_reverse}->{$text_rev};
+    $sub_name              ||= $text_rev if $text_rev =~ m/^[a-z][a-z0-9_]+$/;
+
+    $main::form->error("$text not defined in locale/$self->{countrycode}/all") if !$sub_name;
+
+    $sub_name =  lc $sub_name;
+    $sub_name =~ s/[^a-z0-9]/_/g;
+    $sub_name =~ s/_+/_/g;
+
+    $self->{subs}->{$text_rev} = $sub_name;
   }
 
   $main::lxdebug->leave_sub();
 
-  return $text;
+  return $self->{subs}->{$text_rev};
 }
 
 sub date {
