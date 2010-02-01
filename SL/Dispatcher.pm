@@ -33,7 +33,7 @@ sub show_error {
   $::lxdebug->enter_sub;
   my $template           = shift;
   my $error_type         = shift || '';
-  my $locale             = Locale->new($::language, 'all');
+  $::locale              = Locale->new($::language, 'all');
   $::form->{error}       = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}       = $::locale->text('Incorrect password!.')                   if ($error_type eq 'password');
   $::myconfig{countrycode} = $::language;
