@@ -239,8 +239,9 @@ sub findsub {
     }
   }
 
-  my $sub_name   = first { defined &{ "::$_" } } @{ $self->{texts_reverse}->{$text_rev} } if $self->{texts_reverse}->{$text_rev};
-  $sub_name    ||= $text_rev if ($text_rev =~ m/^[a-z][a-z0-9_]+$/) && defined &{ "::$text_rev" };
+  my $sub_name;
+  $sub_name   = first { defined(&{ "::${_}" }) } @{ $self->{texts_reverse}->{$text_rev} } if $self->{texts_reverse}->{$text_rev};
+  $sub_name ||= $text_rev if ($text_rev =~ m/^[a-z][a-z0-9_]+$/) && defined &{ "::${text_rev}" };
 
   $main::form->error("$text not defined in locale/$self->{countrycode}/all") if !$sub_name;
 
