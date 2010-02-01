@@ -47,6 +47,8 @@ use SL::Inifile;
 
 use strict;
 
+my %locales_by_country;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -56,14 +58,18 @@ sub new {
   $country   =~ s|.*/||;
   $country   =~ s|\.||g;
 
-  my $self = {};
-  bless $self, $type;
+  if (!$locales_by_country{$country}) {
+    my $self = {};
+    bless $self, $type;
 
-  $self->_init($country);
+    $self->_init($country);
+
+    $locales_by_country{$country} = $self;
+  }
 
   $main::lxdebug->leave_sub();
 
-  return $self;
+  return $locales_by_country{$country}
 }
 
 sub _init {
