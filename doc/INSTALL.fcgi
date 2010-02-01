@@ -63,19 +63,21 @@ Variante 2:
     Allow from All
   </Directory>
 
-  <DirectoryMatch //.*/users>
+  <DirectoryMatch /path/to/lx-office-erp/users>
     Order Deny,Allow
     Deny from All
   </DirectoryMatch>
 
 
-Variante 1 startet einfach jeden Lx-Office Request als fcgi Prozess. Für sehr
-große Installationen ist das die schnellste Version, benötigt aber sehr viel
-Arbeitspseicher (ca. 2GB).
+Variante 1 startet einfach jeden Lx-Office Request als fcgi
+Prozess. Für sehr große Installationen ist das die schnellste Version,
+benötigt aber sehr viel Arbeitspseicher: wurden alle Module mindestens
+einmal aufgerufen, so werden dauerhaft ca. 2GB pro Installation
+belegt.
 
 Variante 2 startet nur einen zentralen Dispatcher und lenkt alle Scripte auf
 diesen. Dadurch dass zur Laufzeit öfter mal Scripte neu geladen werden gibt es
-hier kleine Performance Einbußen.
+hier kleine Performance Einbußen. Trotzdem ist diese Variante vorzuziehen.
 
 
 =head2 Entwicklungsaspekte
@@ -89,12 +91,15 @@ Templates editiert werden muss der Server neu gestartet werden.
 
 Es ist möglich die gleiche Lx-Office Version parallel unter cgi und fastcgi zu
 betreiben. Da nimmt man Variante 2 wie oben beschrieben, und ändert die
-MatchAlias Zeile auf eine andere URL, und lässt alle anderen URLs auch
+AliasMatch Zeile auf eine andere URL, und lässt alle anderen URLs auch
 weiterleiten:
 
+  # Zugriff ohne FastCGI
+  Alias /web/path/to/lx-office-erp /path/to/lx-office-erp
 
+  # Zugriff mit FastCGI:
   AliasMatch ^/web/path/to/lx-office-erp-fcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
-  AliasMatch ^/web/path/to/lx-office-erp-fcgi/(.*) /path/to/lx-office-erp/$1
+  Alias       /web/path/to/lx-office-erp-fcgi/          /path/to/lx-office-erp/
 
 Dann ist unter C</web/path/to/lx-office-erp/> die normale Version erreichbar,
 und unter C</web/opath/to/lx-office-erp-fcgi/> die FastCGI Version.
@@ -103,23 +108,23 @@ Bei der Entwicklung für FastCGI ist auf ein paar Fallstricke zu achten. Dadurch
 dass das Programm in einer Endlosschleife läuft, müssen folgende Aspekte
 geachtet werden:
 
-=head3 C<warn>, C<die>, C<exit>, C<carp>, C<confess>
+=head3 Programmende und Ausnahmen: C<warn>, C<die>, C<exit>, C<carp>, C<confess>
 
-Fehler die normalerweise dass Programm sofort beenden (fatale Fehler) werden
-mit dem FastCGI Dispatcher abgefangen, um das Programm amLaufen zu halten. Man
+Fehler, die dass Programm normalerweise sofort beenden (fatale Fehler), werden
+mit dem FastCGI Dispatcher abgefangen, um das Programm am Laufen zu halten. Man
 kann mit C<die>, C<confess> oder C<carp> Fehler ausgeben, die dann vom Dispatcher
 angezeigt werden. Die Lx-Office eigene C<$::form->error()> tut im Prinzip das
 Gleiche, mit ein paar Extraoptionen. C<warn> und C<exit> hingegen werden nicht
 abgefangen. C<warn> wird direkt nach STDERR, also in Server Log eine Nachricht
 schreiben, und C<exit> wird die Ausführung beenden.
 
-Prinzipiell ist es ein Beinbruch, wenn sich der Prozess beendet, fcgi wird ihn
-sofort neu starten, allerdings sollte das die Ausnahme sein. Quintessenz: Bitte
-kein C<warn> oder C<exit> benutzen, alle anderen Excepionmechanismen sind ok.
+Prinzipiell ist es kein Beinbruch, wenn sich der Prozess beendet, fcgi wird ihn
+sofort neu starten. Allerdings sollte das die Ausnahme sein. Quintessenz: Bitte
+kein C<warn> oder C<exit> benutzen, alle anderen Exceptionmechanismen sind ok.
 
 =head3 Globale Variablen
 
-Um zu vermeiden, dass Informationen von einem Request in einen anderen gelangen
+Um zu vermeiden, dass Informationen von einem Request in einen anderen gelangen,
 müssen alle globalen Variablen vor einem Request sauber initialisiert werden.
 Das ist besonders wichtig im C<$::cgi> und C<$::auth> Objekt, weil diese nicht
 gelöscht werden pro Instanz, sondern persistent gehalten werden.
