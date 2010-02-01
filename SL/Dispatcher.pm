@@ -179,6 +179,7 @@ sub handle_request {
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
+  Form::disconnect_standard_dbh();
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;

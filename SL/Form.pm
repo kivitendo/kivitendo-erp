@@ -63,10 +63,13 @@ use strict;
 my $standard_dbh;
 
 END {
-  if ($standard_dbh) {
-    $standard_dbh->disconnect();
-    undef $standard_dbh;
-  }
+  disconnect_standard_dbh();
+}
+
+sub disconnect_standard_dbh {
+  return unless $standard_dbh;
+  $standard_dbh->disconnect();
+  undef $standard_dbh;
 }
 
 sub _store_value {
