@@ -125,7 +125,7 @@ if (scalar @lost) {
     delim     => '()',
     data_name => '@lost',
     data_sub  => sub {
-      _print_line($_->{text}, $_->{translation}, @_, template => "  { 'text' => %s, 'translation' => %s },") for @lost;
+      _print_line($_->{text}, $_->{translation}, @_, template => "  { 'text' => %s, 'translation' => %s },\n") for @lost;
     },
   );
 }
