@@ -37,6 +37,7 @@
 package Locale;
 
 use Text::Iconv;
+use List::Util qw(first);
 
 use SL::LXDebug;
 use SL::Common;
@@ -208,27 +209,30 @@ sub findsub {
   $main::lxdebug->enter_sub();
 
   my ($self, $text) = @_;
-  my $text_rev      = $self->{iconv_reverse}->convert($text);
+  my $text_rev      = lc $self->{iconv_reverse}->convert($text);
 
-  $self->{subs}   ||= { };
+  if (!$self->{texts_reverse}) {
+    $self->{texts_reverse} = { };
+    while (my ($original, $translation) = each %{ $self->{texts} }) {
+      $original    =  lc $original;
+      $original    =~ s/[^a-z0-9]/_/g;
+      $original    =~ s/_+/_/g;
 
-  if (!$self->{subs}->{$text_rev}) {
-    $self->{texts_reverse} ||= { reverse %{ $self->{texts} } };
-    my $sub_name             = $self->{texts_reverse}->{$text_rev};
-    $sub_name              ||= $text_rev if $text_rev =~ m/^[a-z][a-z0-9_]+$/;
+      $translation =  lc $translation;
 
-    $main::form->error("$text not defined in locale/$self->{countrycode}/all") if !$sub_name;
-
-    $sub_name =  lc $sub_name;
-    $sub_name =~ s/[^a-z0-9]/_/g;
-    $sub_name =~ s/_+/_/g;
-
-    $self->{subs}->{$text_rev} = $sub_name;
+      $self->{texts_reverse}->{$translation} ||= [ ];
+      push @{ $self->{texts_reverse}->{$translation} }, $original;
+    }
   }
+
+  my $sub_name   = first { defined &{ "::$_" } } @{ $self->{texts_reverse}->{$text_rev} } if $self->{texts_reverse}->{$text_rev};
+  $sub_name    ||= $text_rev if ($text_rev =~ m/^[a-z][a-z0-9_]+$/) && defined &{ "::$text_rev" };
+
+  $main::form->error("$text not defined in locale/$self->{countrycode}/all") if !$sub_name;
 
   $main::lxdebug->leave_sub();
 
-  return $self->{subs}->{$text_rev};
+  return $sub_name;
 }
 
 sub date {
