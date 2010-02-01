@@ -616,7 +616,7 @@ locales.pl - Collect strings for translation in Lx-Office
 
 =head1 SYNOPSIS
 
-locales.pl [options]
+locales.pl [options] lang_code
 
  Options:
   -n, --no-custom-files  Do not process files whose name contains "_"
@@ -647,7 +647,6 @@ Be more verbose.
 =head1 DESCRIPTION
 
 This script collects strings from Perl files, the menu.ini file and
-HTML templates and puts them into the file "all" for translation.  It
-also distributes those translations back to the individual files.
+HTML templates and puts them into the file "all" for translation.
 
 =cut
