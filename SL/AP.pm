@@ -46,7 +46,7 @@ sub post_transaction {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
-
+  my $rc = 0; # return code auf false setzen
   # connect to database
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
 
@@ -356,11 +356,12 @@ sub post_transaction {
 
   IO->set_datepaid(table => 'ap', id => $form->{id}, dbh => $dbh);
 
-  my $rc = 1;
   if (!$provided_dbh) {
     $dbh->commit();
     $dbh->disconnect();
   }
+
+  $rc = 1; #  Den return-code auf true setzen, aber nur falls beim commit alles i.O. ist
 
   $main::lxdebug->leave_sub();
 

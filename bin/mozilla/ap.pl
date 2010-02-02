@@ -1081,9 +1081,11 @@ sub post {
     }
     # /saving the history
     remove_draft() if $form->{remove_draft};
+    # Dieser Text wird niemals ausgegeben: Probleme beim redirect?
     $form->redirect($locale->text('Transaction posted!'));
+  } else {
+    $form->error($locale->text('Cannot post transaction!'));
   }
-  $form->error($locale->text('Cannot post transaction!'));
 
   $main::lxdebug->leave_sub();
 }
