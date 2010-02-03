@@ -151,3 +151,12 @@ werden.
 
 Bei Administrativen Tätigkeiten werden in seltenen Fällen die Locales nicht
 richtig geladen und die Maske erscheint in Englisch.
+
+Die bin/mozilla und SL/ Scripte haben teilweise noch globale Variablen mit our
+definiert, oder haben noch startup code der bei einbinden ausgeführt wird.
+Beides muss überprüft werden.
+
+Verkauf -> Rechnungen -> Weiter -> Neu erfassen Rechnung gibt einen Zugriffsfehler
+
+Template Editor funktioniert nicht
+
