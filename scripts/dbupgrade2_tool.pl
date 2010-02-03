@@ -27,6 +27,7 @@ use SL::User;
 use SL::Locale;
 use SL::DBUpgrade2;
 use SL::DBUtils;
+use SL::Dispatcher;
 
 #######
 #######
