@@ -15,6 +15,7 @@ use SL::LXDebug;
 use SL::Locale;
 use SL::Common;
 use Form;
+use List::Util qw(first);
 use Moose;
 use Rose::DB;
 use Rose::DB::Object;
@@ -114,7 +115,7 @@ sub handle_request {
   $::lxdebug->begin_request;
 
   my $interface = lc(shift || 'cgi');
-  my $script_name;
+  my ($script_name, $action);
 
   if ($interface =~ m/^(?:fastcgi|fcgid|fcgi)$/) {
     $script_name = $ENV{SCRIPT_NAME};
@@ -124,12 +125,15 @@ sub handle_request {
     $script_name = $0;
   }
 
+  $::cgi    = CGI->new('');
+  $::locale = Locale->new($::language);
+  $::form   = Form->new;
+
+  eval { ($script_name, $action) = _route_request($script_name); 1; } or return;
+
   my ($script, $path, $suffix) = fileparse($script_name, ".pl");
   require_main_code($script, $suffix);
 
-  $::cgi            = CGI->new('');
-  $::locale         = Locale->new($::language);
-  $::form           = Form->new;
   $::form->{script} = $script . $suffix;
 
   pre_request_checks();
@@ -139,7 +143,7 @@ sub handle_request {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
       ::run($::auth->restore_session);
 
-    } elsif ($::form->{action}) {
+    } elsif ($action) {
       # copy from am.pl routines
       $::form->error($::locale->text('System currently down for maintenance!')) if -e "$main::userspath/nologin" && $script ne 'admin';
 
@@ -159,10 +163,10 @@ sub handle_request {
       delete $::form->{password};
 
       map { $::form->{$_} = $::myconfig{$_} } qw(stylesheet charset)
-        unless $::form->{action} eq 'save' && $::form->{type} eq 'preferences';
+        unless $action eq 'save' && $::form->{type} eq 'preferences';
 
       $::form->set_standard_title;
-      ::call_sub('::' . $::locale->findsub($::form->{action}));
+      ::call_sub('::' . $::locale->findsub($action));
 
     } else {
       $::form->error($::locale->text('action= not defined!'));
@@ -193,6 +197,42 @@ sub unrequire_bin_mozilla {
     next if /\binstallationcheck.pl$/;
     delete $INC{$_};
   }
+}
+
+sub _route_request {
+  my $script_name = shift;
+
+  return $script_name =~ m/dispatcher\.pl$/ ? _route_dispatcher_request() : ($script_name, $::form->{action});
+}
+
+sub _route_dispatcher_request {
+  my $action_re = '[a-z0-9_\-]+';
+  my ($script_name, $action);
+
+  eval {
+    die "Unroutable request -- inavlid module name.\n" if !$::form->{M} || ($::form->{M} !~ m/^$action_re$/);
+    $script_name = $::form->{M} . '.pl';
+
+    if ($::form->{A}) {
+      $action = $::form->{A};
+
+    } else {
+      $action = first { m/^A_${action_re}$/ } keys %{ $::form };
+      die "Unroutable request -- inavlid action name.\n" if !$action;
+
+      delete $::form->{$action};
+      $action = substr $action, 2;
+    }
+
+    delete @{$::form}{qw(M A)};
+
+    1;
+  } or do {
+    $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
+    show_error('generic/error');
+  };
+
+  return ($script_name, $action);
 }
 
 package main;
