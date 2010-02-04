@@ -206,18 +206,18 @@ sub _route_request {
 }
 
 sub _route_dispatcher_request {
-  my $action_re = '[a-z0-9_\-]+';
+  my $name_re = qr{[a-z]\w*};
   my ($script_name, $action);
 
   eval {
-    die "Unroutable request -- inavlid module name.\n" if !$::form->{M} || ($::form->{M} !~ m/^$action_re$/);
+    die "Unroutable request -- inavlid module name.\n" if !$::form->{M} || ($::form->{M} !~ m/^${name_re}$/);
     $script_name = $::form->{M} . '.pl';
 
     if ($::form->{A}) {
       $action = $::form->{A};
 
     } else {
-      $action = first { m/^A_${action_re}$/ } keys %{ $::form };
+      $action = first { m/^A_${name_re}$/ } keys %{ $::form };
       die "Unroutable request -- inavlid action name.\n" if !$action;
 
       delete $::form->{$action};
