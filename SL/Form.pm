@@ -243,19 +243,16 @@ sub new {
     tie %{ $self }, 'SL::Watchdog';
   }
 
-  read(STDIN, $_, $ENV{CONTENT_LENGTH});
-
-  if ($ENV{QUERY_STRING}) {
-    $_ = $ENV{QUERY_STRING};
-  }
-
-  if ($ARGV[0]) {
-    $_ = $ARGV[0];
-  }
-
   bless $self, $type;
 
-  $self->_request_to_hash($_);
+  $self->_input_to_hash($ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
+  $self->_input_to_hash($ARGV[0])           if @ARGV && $ARGV[0];
+
+  if ($ENV{CONTENT_LENGTH}) {
+    my $content;
+    read STDIN, $content, $ENV{CONTENT_LENGTH};
+    $self->_request_to_hash($content);
+  }
 
   my $db_charset   = $main::dbcharset;
   $db_charset    ||= Common::DEFAULT_CHARSET;
