@@ -47,11 +47,16 @@ Folgende Kombinationen funktionieren nicht:
 
 =head2 Konfiguration des Webservers.
 
-Variante 1:
+Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann unter
+Debian/Ubuntu z.B. mit folgendem Befehl geschehen:
 
-  AddHandler fastcgi-script .pl
+  a2enmod fastcgi
 
-Variante 2:
+Die Konfiguration für die Verwendung von Lx-Office mit FastCGI erfolgt
+durch Anpassung der vorhandenen Alias- und Directory-Direktiven. Dabei
+wird zwischen dem Installationspfad von Lx-Office im Dateisystem
+("/path/to/lx-office-erp") und der URL unterschieden, unter der
+Lx-Office im Webbrowser erreichbar ist ("/web/path/to/lx-office-erp").
 
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 
@@ -68,16 +73,11 @@ Variante 2:
     Deny from All
   </DirectoryMatch>
 
-
-Variante 1 startet einfach jeden Lx-Office Request als fcgi
-Prozess. Für sehr große Installationen ist das die schnellste Version,
-benötigt aber sehr viel Arbeitspseicher: wurden alle Module mindestens
-einmal aufgerufen, so werden dauerhaft ca. 2GB pro Installation
-belegt.
-
-Variante 2 startet nur einen zentralen Dispatcher und lenkt alle Scripte auf
-diesen. Dadurch dass zur Laufzeit öfter mal Scripte neu geladen werden gibt es
-hier kleine Performance Einbußen. Trotzdem ist diese Variante vorzuziehen.
+Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle Zugriffe
+auf die einzelnen Scripte werden auf diesen umgeleitet. Dadurch, dass
+zur Laufzeit öfter mal Scripte neu geladen werden, gibt es hier kleine
+Performance-Einbußen. Trotzdem ist diese Variante einer globalen
+Benutzung von "AddHandler fastcgi-script .pl" vorzuziehen.
 
 
 =head2 Entwicklungsaspekte
@@ -144,10 +144,6 @@ Mit FastCGI ist die neuste Version auf 0,4 Sekunden selbst in den kritischen
 Pfaden, unter 0,15 sonst.
 
 =head2 Bekannte Probleme
-
-Bei mehreren Benutzern scheint ab und zu eine Datenbankverbidung von Rose::DB
-in den falschen Benutzer zu geraten. Das ist ein kritischer Bug und muss gefixt
-werden.
 
 Bei Administrativen Tätigkeiten werden in seltenen Fällen die Locales nicht
 richtig geladen und die Maske erscheint in Englisch.
