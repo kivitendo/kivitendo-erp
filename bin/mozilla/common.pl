@@ -692,19 +692,7 @@ sub cov_selection_internal {
 sub sales_invoice {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('invoice_edit');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{script} = 'is.pl';
-  my $script      = "is";
-  $form->{type} = "invoice";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
+  print $::form->redirect_header('is.pl?action=add&type=invoice');
 
   $main::lxdebug->leave_sub();
 }
@@ -712,18 +700,7 @@ sub sales_invoice {
 sub ar_transaction {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{script} = 'ar.pl';
-  my $script      = "ar";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
+  print $::form->redirect_header('ar.pl?action=add');
 
   $main::lxdebug->leave_sub();
 }
@@ -731,19 +708,7 @@ sub ar_transaction {
 sub vendor_invoice {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('invoice_edit');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{script} = 'ir.pl';
-  my $script      = "ir";
-  $form->{type} = "invoice";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
+  print $::form->redirect_header('ir.pl?action=add&type=invoice');
 
   $main::lxdebug->leave_sub();
 }
@@ -751,18 +716,7 @@ sub vendor_invoice {
 sub ap_transaction {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{script} = 'ap.pl';
-  my $script      = "ap";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
+  print $::form->redirect_header('ap.pl?action=add');
 
   $main::lxdebug->leave_sub();
 }
@@ -770,18 +724,7 @@ sub ap_transaction {
 sub gl_transaction {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $form->{script} = 'gl.pl';
-  my $script      = "gl";
-  $locale = new Locale "$myconfig{countrycode}", "$script";
-
-  require "bin/mozilla/$form->{script}";
-  &add;
+  print $::form->redirect_header('gl.pl?action=add');
 
   $main::lxdebug->leave_sub();
 }
