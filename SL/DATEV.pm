@@ -482,13 +482,14 @@ sub _get_transactions {
           $absumsatz               += -1 * $new_trans{'amount'};
 
         } else {
-          my $unrounded             = $trans->[$j]->{'amount'} * (1 + $tax_rate) * -1; # + $rounding_error;
+          my $unrounded             = $trans->[$j]->{'amount'} * (1 + $tax_rate) * -1 + $rounding_error;
           my $rounded               = $form->round_amount($unrounded, 2);
-          $rounding_error          += $unrounded - $rounded;
+
+          $rounding_error           = $unrounded - $rounded;
           $new_trans{'amount'}      = $rounded;
-          $new_trans{'umsatz'}      = abs($form->round_amount(($trans->[$j]->{'amount'} * (1 + $tax_rate)), 2)) * $ml;
-          $trans->[$j]->{'umsatz'}  = abs($form->round_amount(($trans->[$j]->{'amount'} * (1 + $tax_rate)), 2)) * $ml;
-          $absumsatz               += $form->round_amount($trans->[$j]->{'amount'} + $trans->[$j]->{'amount'} * $tax_rate, 2);
+          $new_trans{'umsatz'}      = abs($rounded) * $ml;
+          $trans->[$j]->{'umsatz'}  = $new_trans{umsatz};
+          $absumsatz               -= $rounded;
         }
 
         push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
