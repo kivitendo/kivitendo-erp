@@ -32,8 +32,6 @@
 #
 #======================================================================
 
-my $menufile = "menu.ini";
-
 use DBI;
 use CGI;
 use English qw(-no_match_vars);
