@@ -661,7 +661,7 @@ $jsscript
 ";
 
   my @triggers  = ();
-  my $totalpaid = 0;
+  $form->{totalpaid} = 0;
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for my $i (1 .. $form->{paidaccounts}) {
@@ -676,7 +676,7 @@ $jsscript
                            '-labels' => \%AP_paid_labels,
                            '-default' => $form->{"AP_paid_$i"}));
 
-    $totalpaid += $form->{"paid_$i"};
+    $form->{totalpaid} += $form->{"paid_$i"};
 
     # format amounts
     if ($form->{"paid_$i"}) {
@@ -732,14 +732,14 @@ $jsscript
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
-  my $paid_missing = $form->{invtotal_unformatted} - $totalpaid;
+  my $paid_missing = $form->{invtotal_unformatted} - $form->{totalpaid};
 
   print qq|
         <tr>
           <td></td>
           <td></td>
           <td align="center">| . $locale->text('Total') . qq|</td>
-          <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
+          <td align="center">| . H($form->format_amount(\%myconfig, $form->{totalpaid}, 2)) . qq|</td>
         </tr>
         <tr>
           <td></td>
@@ -818,9 +818,8 @@ $follow_ups_block
 |;
     }
     # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-    our $total_paid;
     print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
-      if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap', $form->{id}) && (($total_paid == 0) || ($total_paid eq "")));
+      if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap', $form->{id}) && (($form->{totalpaid} == 0) || ($form->{totalpaid} eq "")));
 
     print qq| <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
               <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|">
@@ -973,7 +972,6 @@ sub post_payment {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  our $invdate;
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
@@ -985,7 +983,7 @@ sub post_payment {
 
       if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
-          if ($invdate == $datepaid);
+          if ($form->{transdate} == $datepaid);
         $form->isblank("exchangerate_$i",
                        $locale->text('Exchangerate for payment missing!'));
       }

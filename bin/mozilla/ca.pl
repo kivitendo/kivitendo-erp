@@ -274,7 +274,6 @@ sub list {
         </tr>
 |;
 
-    our $checked;
     print qq|
         <tr>
                 <td align=right>
@@ -283,48 +282,41 @@ sub list {
                 <th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
         </tr>
         <tr>
-                <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"
-$checked></td>
-                <td><input name=duetyp class=radio type=radio value="A" $checked >&nbsp;1. | . $locale->text('Quarter') . qq|</td>
-|;
-    $checked = "checked";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="1" $checked >&nbsp;| . $locale->text('January') . qq|</td>
-|;
-    $checked = "";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="5" $checked >&nbsp;| . $locale->text('May') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="9" $checked >&nbsp;| . $locale->text('September') . qq|</td>
+                <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"></td>
+                <td><input name=duetyp class=radio type=radio value="A">&nbsp;1. | . $locale->text('Quarter') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="1" "checked">&nbsp;| . $locale->text('January') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="5" >&nbsp;| . $locale->text('May') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="9" >&nbsp;| . $locale->text('September') . qq|</td>
 
         </tr>
         <tr>
                 <td align= right>&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="B" $checked>&nbsp;2. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="2" $checked >&nbsp;| . $locale->text('February') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="6" $checked >&nbsp;| . $locale->text('June') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="10" $checked >&nbsp;| . $locale->text('October') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="B">&nbsp;2. | . $locale->text('Quarter') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="2" >&nbsp;| . $locale->text('February') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="6" >&nbsp;| . $locale->text('June') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="10" >&nbsp;| . $locale->text('October') . qq|</td>
         </tr>
         <tr>
                 <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="C" $checked>&nbsp;3. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="3" $checked >&nbsp;| . $locale->text('March') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="7" $checked >&nbsp;| . $locale->text('July') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="11" $checked >&nbsp;| . $locale->text('November') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="C">&nbsp;3. | . $locale->text('Quarter') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="3" >&nbsp;| . $locale->text('March') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="7" >&nbsp;| . $locale->text('July') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="11" >&nbsp;| . $locale->text('November') . qq|</td>
 
         </tr>
         <tr>
                 <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="D" $checked>&nbsp;4. | . $locale->text('Quarter') . qq|&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="4" $checked >&nbsp;| . $locale->text('April') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="8" $checked >&nbsp;| . $locale->text('August') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="12" $checked >&nbsp;| . $locale->text('December') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="D">&nbsp;4. | . $locale->text('Quarter') . qq|&nbsp;</td>
+                <td><input name=duetyp class=radio type=radio value="4" >&nbsp;| . $locale->text('April') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="8" >&nbsp;| . $locale->text('August') . qq|</td>
+                <td><input name=duetyp class=radio type=radio value="12" >&nbsp;| . $locale->text('December') . qq|</td>
 
         </tr>
         <tr>
                    <td colspan=5><hr size=3 noshade></td>
         </tr>
         <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="free" $checked> | . $locale->text('Free report period') . qq|</th>
+          <th align=left><input name=reporttype class=radio type=radio value="free"> | . $locale->text('Free report period') . qq|</th>
           <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
               $button1
               $button1_2&nbsp;

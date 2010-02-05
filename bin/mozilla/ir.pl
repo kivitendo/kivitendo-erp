@@ -258,7 +258,7 @@ sub form_header {
 
   $main::auth->assert('invoice_edit');
 
-  our %TMPL_VAR = ();
+  my %TMPL_VAR = ();
   my @custom_hiddens;
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
