@@ -67,15 +67,14 @@ sub pre_startup_setup {
   # dummy globals
   {
     no warnings 'once';
-    $::userspath   = "users";
-    $::templates   = "templates";
-    $::memberfile  = "users/members";
-    $::menufile    = "menu.ini";
-    $::sendmail    = "| /usr/sbin/sendmail -t";
-    $::lxdebug     = LXDebug->new;
-    $::auth        = SL::Auth->new;
-    %::myconfig    = ();
-    %::called_subs = ();
+    $::userspath  = "users";
+    $::templates  = "templates";
+    $::memberfile = "users/members";
+    $::menufile   = "menu.ini";
+    $::sendmail   = "| /usr/sbin/sendmail -t";
+    $::lxdebug    = LXDebug->new;
+    $::auth       = SL::Auth->new;
+    %::myconfig   = ();
   }
 }
 
@@ -127,9 +126,10 @@ sub handle_request {
     $script_name = $0;
   }
 
-  $::cgi    = CGI->new('');
-  $::locale = Locale->new($::language);
-  $::form   = Form->new;
+  $::cgi         = CGI->new('');
+  $::locale      = Locale->new($::language);
+  $::form        = Form->new;
+  %::called_subs = ();
 
   eval { ($script_name, $action) = _route_request($script_name); 1; } or return;
 
