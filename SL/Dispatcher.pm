@@ -67,14 +67,15 @@ sub pre_startup_setup {
   # dummy globals
   {
     no warnings 'once';
-    $::userspath  = "users";
-    $::templates  = "templates";
-    $::memberfile = "users/members";
-    $::menufile   = "menu.ini";
-    $::sendmail   = "| /usr/sbin/sendmail -t";
-    $::lxdebug    = LXDebug->new;
-    $::auth       = SL::Auth->new;
-    %::myconfig   = ();
+    $::userspath   = "users";
+    $::templates   = "templates";
+    $::memberfile  = "users/members";
+    $::menufile    = "menu.ini";
+    $::sendmail    = "| /usr/sbin/sendmail -t";
+    $::lxdebug     = LXDebug->new;
+    $::auth        = SL::Auth->new;
+    %::myconfig    = ();
+    %::called_subs = ();
   }
 }
 
