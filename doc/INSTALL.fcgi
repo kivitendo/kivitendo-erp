@@ -145,6 +145,3 @@ Pfaden, unter 0,15 sonst.
 
 =head2 Bekannte Probleme
 
-Bei Administrativen Tätigkeiten werden in seltenen Fällen die Locales nicht
-richtig geladen und die Maske erscheint in Englisch.
-
