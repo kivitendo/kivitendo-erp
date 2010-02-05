@@ -789,7 +789,7 @@ sub addtop100 {
 
     if ($form->{l_subtotal} eq 'Y' && !$ref->{assemblyitem}) {
       if ($sameitem ne $ref->{ $form->{sort} }) {
-        &parts_subtotal;
+        parts_subtotal(\@column_index, \$subtotalonhand, \$subtotalsellprice, \$subtotallastcost, \$subtotallistprice);
         $sameitem = $ref->{ $form->{sort} };
       }
     }
@@ -912,7 +912,7 @@ sub addtop100 {
   }
 
   if ($form->{l_subtotal} eq 'Y') {
-    &parts_subtotal;
+    parts_subtotal(\@column_index, \$subtotalonhand, \$subtotalsellprice, \$subtotallastcost, \$subtotallistprice);
   }    #fi
 
   if ($form->{"l_linetotal"}) {
@@ -1365,39 +1365,38 @@ sub parts_subtotal {
 
   $auth->assert('part_service_assembly_edit');
 
-  # imports
-  our (%column_data, @column_index);
-  our ($subtotalonhand, $totalsellprice, $totallastcost, $totallistprice, $subtotalsellprice, $subtotallastcost, $subtotallistprice);
+  my (%column_data);
+  my ($column_index, $subtotalonhand, $subtotalsellprice, $subtotallastcost, $subtotallistprice) = @_;
 
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-  $subtotalonhand = 0 if ($form->{searchitems} eq 'assembly' && $form->{bom});
+  map { $column_data{$_} = "<td>&nbsp;</td>" } @{ $column_index };
+  $$subtotalonhand = 0 if ($form->{searchitems} eq 'assembly' && $form->{bom});
 
   $column_data{onhand} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalonhand)
+    . $form->format_amount(\%myconfig, $$subtotalonhand)
     . "</th>";
 
   $column_data{linetotalsellprice} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotalsellprice, 2)
+    . $form->format_amount(\%myconfig, $$subtotalsellprice, 2)
     . "</th>";
   $column_data{linetotallistprice} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotallistprice, 2)
+    . $form->format_amount(\%myconfig, $$subtotallistprice, 2)
     . "</th>";
   $column_data{linetotallastcost} =
       "<th class=listsubtotal align=right>"
-    . $form->format_amount(\%myconfig, $subtotallastcost, 2)
+    . $form->format_amount(\%myconfig, $$subtotallastcost, 2)
     . "</th>";
 
-  $subtotalonhand    = 0;
-  $subtotalsellprice = 0;
-  $subtotallistprice = 0;
-  $subtotallastcost  = 0;
+  $$subtotalonhand    = 0;
+  $$subtotalsellprice = 0;
+  $$subtotallistprice = 0;
+  $$subtotallastcost  = 0;
 
   print "<tr class=listsubtotal>";
 
-  map { print "\n$column_data{$_}" } @column_index;
+  map { print "\n$column_data{$_}" } @{ $column_index };
 
   print qq|
   </tr>
@@ -1590,8 +1589,6 @@ sub assembly_row {
   my (@column_index);
   my ($nochange, $callback, $previousform, $linetotal, $line_purchase_price, $href);
 
-  our ($deliverydate); # ToDO: check if this indeed comes from global context
-
   @column_index = qw(runningnumber qty unit bom partnumber description partsgroup lastcost total);
 
   if ($form->{previousform}) {
@@ -1679,7 +1676,6 @@ sub assembly_row {
 
     $row{lastcost}{data}      = $line_purchase_price;
     $row{total}{data}         = $linetotal;
-    $row{deliverydate}{data}  = $deliverydate;
     $row{lastcost}{align}     = 'right';
     $row{total}{align}        = 'right';
     $row{deliverydate}{align} = 'right';
@@ -1976,8 +1972,6 @@ sub parts_language_selection {
 
   $auth->assert('part_service_assembly_edit');
 
-  our ($onload, $callback);
-
   my $languages = IC->retrieve_languages(\%myconfig, $form);
 
   if ($form->{language_values} ne "") {
@@ -2002,15 +1996,13 @@ sub parts_language_selection {
   my @header =
     map(+{ "column_title" => $header_title{$_},
            "column" => $_,
-           "callback" => $callback,
          },
         @header_sort);
 
   $form->{"title"} = $locale->text("Language Values");
   $form->header();
   print $form->parse_html_template("ic/parts_language_selection", { "HEADER"    => \@header,
-                                                                    "LANGUAGES" => $languages,
-                                                                    "onload"    => $onload });
+                                                                    "LANGUAGES" => $languages, });
 
   $lxdebug->leave_sub();
 }
