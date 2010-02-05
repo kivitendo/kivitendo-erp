@@ -330,6 +330,9 @@ sub _get_transactions {
   my ($notsplitindex);
   my @errors   = ();
 
+  $form->{net_gross_differences}     = [];
+  $form->{sum_net_gross_differences} = 0;
+
   $fromto      =~ s/transdate/ac\.transdate/g;
 
   my $taxkeys  = Taxkeys->new();
@@ -535,8 +538,13 @@ sub _get_transactions {
       $idx++;
     }
 
-    if (abs($absumsatz) >= 0.01) {
-      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz, Rundungsfehler $rounding_error)\n";
+    $absumsatz = $form->round_amount($absumsatz, 2);
+    if (abs($absumsatz) >= (0.01 * (1 + scalar @taxed))) {
+      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)\n";
+
+    } elsif (abs($absumsatz) >= 0.01) {
+      push @{ $form->{net_gross_differences} }, $absumsatz;
+      $form->{sum_net_gross_differences} += $absumsatz;
     }
   }
 
