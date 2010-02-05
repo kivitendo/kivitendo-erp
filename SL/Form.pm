@@ -872,8 +872,8 @@ sub init_template {
      'CACHE_SIZE'   => 0,
      'PLUGIN_BASE'  => 'SL::Template::Plugin',
      'INCLUDE_PATH' => '.:templates/webpages',
-     'COMPILE_EXT'  => $main::template_compile_ext,
-     'COMPILE_DIR'  => $main::template_compile_dir,
+     'COMPILE_EXT'  => '.tcc',
+     'COMPILE_DIR'  => $::userspath . '/templates-cache',
   })) || die;
 }
 
