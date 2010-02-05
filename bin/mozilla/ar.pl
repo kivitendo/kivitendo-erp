@@ -76,8 +76,6 @@ use strict;
 # $locale->text('Nov')
 # $locale->text('Dec')
 
-my $totalpaid;
-
 sub add {
   $main::lxdebug->enter_sub();
 
@@ -705,7 +703,7 @@ $jsscript
 ";
 
   my @triggers  = ();
-  my $totalpaid = 0;
+  $form->{totalpaid} = 0;
 
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   for my $i (1 .. $form->{paidaccounts}) {
@@ -720,7 +718,7 @@ $jsscript
                            '-labels' => \%AR_paid_labels,
                            '-default' => $form->{"AR_paid_$i"}));
 
-    $totalpaid += $form->{"paid_$i"};
+    $form->{totalpaid} += $form->{"paid_$i"};
 
     # format amounts
     if ($form->{"paid_$i"}) {
@@ -778,14 +776,14 @@ $jsscript
     push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
   }
 
-  my $paid_missing = $form->{invtotal_unformatted} - $totalpaid;
+  my $paid_missing = $form->{invtotal_unformatted} - $form->{totalpaid};
 
   print qq|
         <tr>
           <td></td>
           <td></td>
           <td align="center">| . $locale->text('Total') . qq|</td>
-          <td align="center">| . H($form->format_amount(\%myconfig, $totalpaid, 2)) . qq|</td>
+          <td align="center">| . H($form->format_amount(\%myconfig, $form->{totalpaid}, 2)) . qq|</td>
         </tr>
         <tr>
           <td></td>
@@ -862,7 +860,7 @@ $follow_ups_block
 
   # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
   print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
-    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar') && (($totalpaid == 0) || ($totalpaid eq "")));
+    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar') && (($form->{totalpaid} == 0) || ($form->{totalpaid} eq "")));
 
   if ($form->{id}) {
     if ($form->{radier}) {
@@ -1005,7 +1003,7 @@ sub update {
           $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
       } qw(paid exchangerate);
 
-      $totalpaid += $form->{"paid_$i"};
+      $form->{totalpaid} += $form->{"paid_$i"};
 
       $form->{"forex_$i"}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
       $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
@@ -1013,10 +1011,10 @@ sub update {
   }
 
   $form->{creditremaining} -=
-    ($form->{invtotal} - $totalpaid + $form->{oldtotalpaid} -
+    ($form->{invtotal} - $form->{totalpaid} + $form->{oldtotalpaid} -
      $form->{oldinvtotal});
   $form->{oldinvtotal}  = $form->{invtotal};
-  $form->{oldtotalpaid} = $totalpaid;
+  $form->{oldtotalpaid} = $form->{totalpaid};
 
   &display_form;
 
