@@ -74,10 +74,6 @@ use strict;
 # $locale->text('Nov')
 # $locale->text('Dec')
 
-my $tax;
-my $debitlock  = 0;
-my $creditlock = 0;
-
 sub add {
   $main::lxdebug->enter_sub();
 
@@ -95,12 +91,6 @@ sub add {
   # we use this only to set a default date
   # yep. aber er holt hier auch schon ALL_CHARTS. Aufwand / Nutzen? jb
   GL->transaction(\%myconfig, \%$form);
-
-  map {
-    $tax .=
-      qq|<option value="$_->{id}--$_->{rate}">$_->{taxdescription}  |
-      . ($_->{rate} * 100) . qq| %|
-  } @{ $form->{TAX} };
 
   $form->{rowcount}  = 2;
 
@@ -135,12 +125,6 @@ sub prepare_transaction {
   my %myconfig = %main::myconfig;
 
   GL->transaction(\%myconfig, \%$form);
-
-  map {
-    $tax .=
-      qq|<option value="$_->{id}--$_->{rate}">$_->{taxdescription}  |
-      . ($_->{rate} * 100) . qq| %|
-  } @{ $form->{TAX} };
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
 
@@ -715,19 +699,19 @@ sub update {
         $form->{"credit_$i"} = 0;
         $form->{"tax_$i"}    = 0;
         $creditcount--;
-        $creditlock = 1;
+        $form->{creditlock} = 1;
       }
       if (($creditcount >= 2) && ($debitcount == 2)) {
         $form->{"debit_$i"} = 0;
         $form->{"tax_$i"}   = 0;
         $debitcount--;
-        $debitlock = 1;
+        $form->{debitlock} = 1;
       }
       if (($creditcount == 1) && ($debitcount == 2)) {
-        $creditlock = 1;
+        $form->{creditlock} = 1;
       }
       if (($creditcount == 2) && ($debitcount == 1)) {
-        $debitlock = 1;
+        $form->{debitlock} = 1;
       }
       if ($debitcredit && $credittax) {
         $form->{"taxchart_$i"} = "0--0.00";
@@ -895,7 +879,7 @@ sub display_rows {
       . $cgi->hidden('-name' => "previous_accno_$i",
                      '-default' => $selected_accno_full)
       . qq|</td>|;
-    $tax = qq|<td>| .
+    my $tax_ddbox = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
                            '-id' => "taxchart_$i",
                            '-style' => 'width:200px',
@@ -953,9 +937,9 @@ sub display_rows {
     my $debitreadonly  = "";
     my $creditreadonly = "";
     if ($i == $form->{rowcount}) {
-      if ($debitlock) {
+      if ($form->{debitlock}) {
         $debitreadonly = "readonly";
-      } elsif ($creditlock) {
+      } elsif ($form->{creditlock}) {
         $creditreadonly = "readonly";
       }
     }
@@ -977,7 +961,7 @@ sub display_rows {
     <td><input name="debit_$i" size="8" value="$form->{"debit_$i"}" accesskey=$i $copy2credit $debitreadonly></td>
     <td><input name="credit_$i" size=8 value="$form->{"credit_$i"}" $creditreadonly></td>
     <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
-    $tax|;
+    $tax_ddbox|;
 
     if ($form->{show_details}) {
       print qq|
@@ -1491,19 +1475,19 @@ sub post_transaction {
       $form->{"credit_$i"} = 0;
       $form->{"tax_$i"}    = 0;
       $creditcount--;
-      $creditlock = 1;
+      $form->{creditlock} = 1;
     }
     if (($creditcount >= 2) && ($debitcount == 2)) {
       $form->{"debit_$i"} = 0;
       $form->{"tax_$i"}   = 0;
       $debitcount--;
-      $debitlock = 1;
+      $form->{debitlock} = 1;
     }
     if (($creditcount == 1) && ($debitcount == 2)) {
-      $creditlock = 1;
+      $form->{creditlock} = 1;
     }
     if (($creditcount == 2) && ($debitcount == 1)) {
-      $debitlock = 1;
+      $form->{debitlock} = 1;
     }
     if ($debitcredit && $credittax) {
       $form->{"taxchart_$i"} = "0--0.00";
@@ -1557,7 +1541,7 @@ sub post_transaction {
   for my $i (1 .. $form->{rowcount}) {
     my $dr  = $form->{"debit_$i"};
     my $cr  = $form->{"credit_$i"};
-    $tax = $form->{"tax_$i"};
+    my $tax = $form->{"tax_$i"};
     if ($dr && $cr) {
       $form->error($locale->text('Cannot post transaction with a debit and credit entry for the same account!'));
     }
