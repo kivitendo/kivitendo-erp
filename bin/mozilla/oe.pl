@@ -1688,7 +1688,9 @@ sub purchase_order {
   check_oe_access();
   $main::auth->assert('purchase_order_edit');
 
+  $form->{sales_order_to_purchase_order} = 0;
   if ($form->{type} eq 'sales_order') {
+    $form->{sales_order_to_purchase_order} = 1;
     check_for_direct_delivery();
   }
 
@@ -1705,6 +1707,8 @@ sub purchase_order {
   $form->get_employee();
 
   &poso;
+
+  delete $form->{sales_order_to_purchase_order};
 
   $main::lxdebug->leave_sub();
 }
@@ -1754,8 +1758,14 @@ sub poso {
   $form->{old_salesman_id}     = $form->{salesman_id};
 
   # reset
-  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered
-                                ordnumber);
+  map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
+
+  # if purchase_order was generated from sales_order, use lastcost_$i as sellprice_$i
+  if ( $form->{sales_order_to_purchase_order} ) {
+    for my $i (1 .. $form->{rowcount}) {
+      $form->{"sellprice_${i}"} = $form->parse_amount(\%myconfig, $form->{"lastcost_${i}"});
+    };
+  };
 
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount);
