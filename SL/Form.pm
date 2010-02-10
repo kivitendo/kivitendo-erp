@@ -257,16 +257,10 @@ sub new {
   my $db_charset   = $main::dbcharset;
   $db_charset    ||= Common::DEFAULT_CHARSET;
 
-  if ($self->{INPUT_ENCODING}) {
-    if (lc $self->{INPUT_ENCODING} ne lc $db_charset) {
-      require Text::Iconv;
-      my $iconv = Text::Iconv->new($self->{INPUT_ENCODING}, $db_charset);
+  my $encoding     = $self->{INPUT_ENCODING} || $db_charset;
+  delete $self->{INPUT_ENCODING};
 
-      _recode_recursively($iconv, $self);
-    }
-
-    delete $self->{INPUT_ENCODING};
-  }
+  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $self);
 
   $self->{action}  =  lc $self->{action};
   $self->{action}  =~ s/( |-|,|\#)/_/g;
