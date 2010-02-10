@@ -1547,15 +1547,21 @@ sub datetonum {
 
 # Database routines used throughout
 
+sub _dbconnect_options {
+  my $self    = shift;
+  my $options = { pg_enable_utf8 => $::locale->is_utf8,
+                  @_ };
+
+  return $options;
+}
+
 sub dbconnect {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh =
-    DBI->connect($myconfig->{dbconnect},
-                 $myconfig->{dbuser}, $myconfig->{dbpasswd})
+  my $dbh = DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, $self->_dbconnect_options)
     or $self->dberror;
 
   # set db options
@@ -1574,9 +1580,7 @@ sub dbconnect_noauto {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh =
-    DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser},
-                 $myconfig->{dbpasswd}, { AutoCommit => 0 })
+  my $dbh = DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, $self->_dbconnect_options(AutoCommit => 0))
     or $self->dberror;
 
   # set db options
