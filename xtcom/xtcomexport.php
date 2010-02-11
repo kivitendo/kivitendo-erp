@@ -18,9 +18,8 @@ echo '	<link type="text/css" REL="stylesheet" HREF="css/main.css"></link>';
 echo "<body>";
 //EOF;
 
+define("ExportMode","2");
 require_once "shoplib.php";
-
-
 /**********************************************
 * getAttribut($oid,$pid)
 *

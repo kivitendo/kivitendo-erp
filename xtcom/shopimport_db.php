@@ -8,6 +8,7 @@
 *Shop: xt:Commerce 3.04
 *ERP: Lx-Office ERP 2.4.0
 ***************************************************************/
+define("ExportMode","1");
 require_once "shoplib.php";
 
 
