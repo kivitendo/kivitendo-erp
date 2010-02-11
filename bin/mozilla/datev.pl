@@ -363,6 +363,8 @@ sub export3 {
 
       print(qq|<br><b>| . $locale->text('KNE-Export erfolgreich!') . qq|</b><br><br><a href="$link">Download</a>|);
 
+      print $form->parse_html_template('datev/net_gross_difference') if @{ $form->{net_gross_differences} };
+
     } else {
       $form->error("KNE-Export schlug fehl.");
     }

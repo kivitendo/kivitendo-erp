@@ -330,6 +330,9 @@ sub _get_transactions {
   my ($notsplitindex);
   my @errors   = ();
 
+  $form->{net_gross_differences}     = [];
+  $form->{sum_net_gross_differences} = 0;
+
   $fromto      =~ s/transdate/ac\.transdate/g;
 
   my $taxkeys  = Taxkeys->new();
@@ -445,6 +448,7 @@ sub _get_transactions {
 
     my $ml             = ($trans->[0]->{'umsatz'} > 0) ? 1 : -1;
     my $rounding_error = 0;
+    my @taxed;
 
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
       if (   ($j != $notsplitindex)
@@ -481,23 +485,24 @@ sub _get_transactions {
           $absumsatz               += -1 * $new_trans{'amount'};
 
         } else {
-          my $unrounded             = $trans->[$j]->{'amount'} * (1 + $tax_rate) * -1; # + $rounding_error;
+          my $unrounded             = $trans->[$j]->{'amount'} * (1 + $tax_rate) * -1 + $rounding_error;
           my $rounded               = $form->round_amount($unrounded, 2);
-          $rounding_error          += $unrounded - $rounded;
+
+          $rounding_error           = $unrounded - $rounded;
           $new_trans{'amount'}      = $rounded;
-          $new_trans{'umsatz'}      = abs($form->round_amount(($trans->[$j]->{'amount'} * (1 + $tax_rate)), 2)) * $ml;
-          $trans->[$j]->{'umsatz'}  = abs($form->round_amount(($trans->[$j]->{'amount'} * (1 + $tax_rate)), 2)) * $ml;
-          $absumsatz               += $form->round_amount($trans->[$j]->{'amount'} + $trans->[$j]->{'amount'} * $tax_rate, 2);
+          $new_trans{'umsatz'}      = abs($rounded) * $ml;
+          $trans->[$j]->{'umsatz'}  = $new_trans{umsatz};
+          $absumsatz               -= $rounded;
         }
 
         push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
+        push @taxed, $form->{DATEV}->[-1];
       }
     }
 
     my $idx        = 0;
     my $correction = 0;
-    our @taxed;          # most likely defunct
-    while (abs($absumsatz) >= 0.01) {
+    while ((abs($absumsatz) >= 0.01) && (abs($absumsatz) < 1.00)) {
       if ($idx >= scalar @taxed) {
         last if (!$correction);
 
@@ -533,8 +538,13 @@ sub _get_transactions {
       $idx++;
     }
 
-    if (abs($absumsatz) >= 0.01) {
-      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz, Rundungsfehler $rounding_error)\n";
+    $absumsatz = $form->round_amount($absumsatz, 2);
+    if (abs($absumsatz) >= (0.01 * (1 + scalar @taxed))) {
+      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)\n";
+
+    } elsif (abs($absumsatz) >= 0.01) {
+      push @{ $form->{net_gross_differences} }, $absumsatz;
+      $form->{sum_net_gross_differences} += $absumsatz;
     }
   }
 
