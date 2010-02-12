@@ -1259,19 +1259,22 @@ sub parse_template {
     $self->{OUT} = ">$self->{tmpfile}";
   }
 
+  my $result;
+
   if ($self->{OUT}) {
-    open(OUT, "$self->{OUT}") or $self->error("$self->{OUT} : $!");
+    open OUT, "$self->{OUT}" or $self->error("$self->{OUT} : $!");
+    $result = $template->parse(*OUT);
+    close OUT;
+
   } else {
-    open(OUT, ">-") or $self->error("STDOUT : $!");
     $self->header;
+    $result = $template->parse(*STDOUT);
   }
 
-  if (!$template->parse(*OUT)) {
+  if (!$result) {
     $self->cleanup();
     $self->error("$self->{IN} : " . $template->get_error());
   }
-
-  close(OUT);
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
 
