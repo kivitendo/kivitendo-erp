@@ -1763,7 +1763,7 @@ sub poso {
   # if purchase_order was generated from sales_order, use lastcost_$i as sellprice_$i
   if ( $form->{sales_order_to_purchase_order} ) {
     for my $i (1 .. $form->{rowcount}) {
-      $form->{"sellprice_${i}"} = $form->parse_amount(\%myconfig, $form->{"lastcost_${i}"});
+      $form->{"sellprice_${i}"} = $form->format_amount(\%myconfig,$form->{"lastcost_${i}"});
     };
   };
 
