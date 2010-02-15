@@ -32,6 +32,21 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			echo ">".$row[1]."\n";
 		}
 	}
+    /**
+     * TODO: short description.
+     * 
+     * @param string $sel 
+     * 
+     * @return TODO
+     */
+    function charset($sel) {
+        $chars = array('','latin9','utf-8');
+        foreach ($chars as $c) {
+           echo "\t<option value='$c' ";
+		   if ($sel==$c) echo " selected";
+		   echo ">$c\n";
+        }
+    }
 	function shoplang($sel,$default) {
 	global $dbM;
 		if (!$dbM) return;
@@ -188,6 +203,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			fputs($f,"\$SHOPdbname=\"".$_POST["SHOPdbname"]."\";\n");
 			fputs($f,"\$SHOPdns=\"mysql://\$SHOPuser:\$SHOPpass@\$SHOPhost/\$SHOPdbname\";\n");
 			fputs($f,"\$SHOPdir=\"".$_POST["SHOPdir"]."\";\n");
+			fputs($f,"\$SHOPchar=\"".$_POST["SHOPchar"]."\";\n");
 			fputs($f,"\$SHOPimgdir=\"".$_POST["SHOPimgdir"]."\";\n");
 			fputs($f,"\$SHOPftphost=\"".$_POST["SHOPftphost"]."\";\n");
 			fputs($f,"\$SHOPftpuser=\"".$_POST["SHOPftpuser"]."\";\n");
@@ -244,7 +260,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			fputs($f,"\$SpracheAlle=\"".$_POST["SpracheAlle"]."\";\n");
 			fputs($f,"?>");
 			fclose($f);
-			echo "<br>'conf.php' geschriebeni!<br>";
+			echo "<br>'conf.php' geschrieben!<br>";
 			if (file_exists ("conf$login.php")) {
         		        require "conf$login.php";
         		} else {
@@ -291,6 +307,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 			$SHOPpass=$_POST["SHOPpass"];
 			$SHOPhost=$_POST["SHOPhost"];
 			$SHOPport=$_POST["SHOPport"];
+			$SHOPchart=$_POST["SHOPchart"];
 			$SHOPdbname=$_POST["SHOPdbname"];
 			$SHOPlang=$_POST["SHOPlang"];
 			$SHOPdir=$_POST["SHOPdir"];
@@ -399,8 +416,10 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 <tr>
 	<td>User-ID</td>
 	<td colspan="2"><input type="text" name="ERPusrN" size="10" value="<?= $ERPusr["Name"] ?>">
-		<input type="checkbox" name="a1" <?= (empty($ERPusr["ID"])?"":"checked") ?> onFocus="blur();"></td>
-	<td></td>
+		<input type="checkbox" name="a1" <?= (empty($ERPusr["ID"])?"":"checked") ?> onFocus="blur();"> &nbsp; Charset Shop:</td>
+	<td><select name="SHOPchar">
+<? charset($SHOPchar); ?>
+	    </select></td>
 </tr>
 <tr>
 	<td>CSV-Dir</td>
@@ -428,7 +447,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 	<td><input type="text" name="SHOPftppwd" size="15" value="<?= $SHOPftppwd ?>"></td>
 </tr>
 <tr>
-	<td>ID Diverse 19%</td>
+	<td>ID Diverse 16%</td>
 	<td><input type="text" name="div16NR" size="10" value="<?= $div16["NR"] ?>">
 		<input type="checkbox" name="a1" <?= (empty($div16["ID"])?"":"checked") ?>></td>
 	<td>ID Diverse 7%</td>

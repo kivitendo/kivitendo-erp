@@ -3,7 +3,9 @@
 
 $login=$_GET["login"];
 $debug=false;
-require_once "DB.php";
+#require_once "DB.php";
+require_once "MDB2.php";
+
 if (file_exists ("conf$login.php")) {
 	require "conf$login.php";
 } else {
@@ -45,19 +47,33 @@ else { $log=false; };
 /****************************************************
 * Shopverbindung aufbauen
 ****************************************************/
-$shop=DB::connect($SHOPdns);
+/*$shop=DB::connect($SHOPdns);
 if (!$shop) shopFehler("",$shop->getDebugInfo());
 if (DB::isError($shop)) {
 	$nun=date("Y-m-d H:i:s");
 	if ($log) fputs($log,$nun.": Shop-Connect\n");
 	shopFehler("",$shop->getDebugInfo());
 	die ($shop->getDebugInfo());
+};*/
+$options = array();
+//print_r($SHOPdns);
+$shop=MDB2::factory($SHOPdns,$options);
+//echo "<pre>"; print_r($shop); echo "</pre>";
+if (!$shop) shopFehler("",$shop->getMessage());
+if (PEAR::isError($shop)) {
+        $nun=date("Y-m-d H:i:s");
+        if ($log) fputs($log,$nun.": Shop-Connect\n");
+        shopFehler("",$shop->getMessage());
+        die ($shop->getMessage());
 };
+if (ExportMode == "1") $shop->setCharset('utf8');
+$shop->setFetchMode(MDB2_FETCHMODE_ASSOC);
+
 
 /****************************************************
 * ERPverbindung aufbauen
 ****************************************************/
-$erp=DB::connect($ERPdns);
+/*$erp=DB::connect($ERPdns);
 if (!$erp) shopFehler("",$erp->getDebugInfo());
 if (DB::isError($erp)) {
 	$nun=date("Y-m-d H:i:s");
@@ -66,7 +82,25 @@ if (DB::isError($erp)) {
 	die ($erp->getDebugInfo());
 } else {
 	$erp->autoCommit(true);
+};*/
+$options = array('result_buffering' => false,);
+$erp = MDB2::factory($ERPdns,$options);
+//echo "<pre>"; print_r($erp); echo "</pre>";
+if (!$erp) shopFehler("",$erp->getMessage());
+if (PEAR::isError($erp)) {
+        $nun=date("Y-m-d H:i:s");
+        if ($log) fputs($log,$nun.": ERP-Connect\n");
+        shopFehler("",$erp->getMessage());
+        die ($erp->getMessage());
+} else {
+        if ($erp->autocommit) $erp->autocommit();
 };
+
+if ($SHOPchar and ExportMode != "1") {
+    $erp->setCharset($SHOPchar);
+} 
+$erp->setFetchMode(MDB2_FETCHMODE_ASSOC);
+
 
 
 /****************************************************
@@ -78,7 +112,8 @@ function query($db,$sql,$function="--") {
  	if ($GLOBALS["log"]) fputs($GLOBALS["log"],$nun.": ".$function."\n".$sql."\n");
  	$rc=$GLOBALS[$db]->query($sql);
  	if ($GLOBALS["log"]) fputs($GLOBALS["log"],print_r($rc,true)."\n");
- 	if ($rc!==1) {
+    if(PEAR::isError($rc)) {
+ 	//if ($rc!==1) {
  	    return -99;
  	} else {
             return true;
@@ -91,8 +126,10 @@ function query($db,$sql,$function="--") {
 function getAll($db,$sql,$function="--") {
 	$nun=date("d.m.y H:i:s");
 	if ($GLOBALS["log"]) fputs($GLOBALS["log"],$nun.": ".$function."\n".$sql."\n");
-	$rs=$GLOBALS[$db]->getAll($sql,DB_FETCHMODE_ASSOC);
-	if ($rs["message"]<>"") {
+	//$rs=$GLOBALS[$db]->getAll($sql,DB_FETCHMODE_ASSOC);
+	$rs=$GLOBALS[$db]->queryAll($sql);
+	//if ($rs["message"]<>"") {
+    if ($rs->message<>"") {
 	       	if ($GLOBALS["log"]) fputs($GLOBALS["log"],print_r($rs,true)."\n");
 		return false;
 	} else {
