@@ -398,6 +398,23 @@ sub reformat_date {
   return $output_format;
 }
 
+sub format_date {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $yy, $mm, $dd) = @_;
+
+  $main::lxdebug->leave_sub() and return "" unless $yy && $mm && $dd;
+
+  my $format = $myconfig->{dateformat};
+  $format =~ s{ d+ }{ sprintf("%0" . (length($&)) . "d", $dd) }gex;
+  $format =~ s{ m+ }{ sprintf("%0" . (length($&)) . "d", $mm) }gex;
+  $format =~ s{ y+ }{ sprintf("%4d",                     $yy) }gex;
+
+  $main::lxdebug->leave_sub();
+
+  return $format;
+}
+
 sub quote_special_chars {
   my $self   = shift;
   my $format = lc shift;
