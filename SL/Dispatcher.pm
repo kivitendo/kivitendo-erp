@@ -102,10 +102,10 @@ sub require_main_code {
     };
     $::form->error($EVAL_ERROR) if ($EVAL_ERROR);
   }
-  if ($::form->{login} && -f "bin/mozilla/$::form->{login}_$::form->{script}") {
+  if ($::form->{login} && -f "bin/mozilla/$::form->{login}_$script") {
     eval {
       package main;
-      require "bin/mozilla/$::form->{login}_$::form->{script}";
+      require "bin/mozilla/$::form->{login}_$script";
     };
     $::form->error($EVAL_ERROR) if ($EVAL_ERROR);
   }
