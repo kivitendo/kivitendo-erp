@@ -848,9 +848,7 @@ sub parse_html_template {
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
 
   my $output;
-  if (!$template->process($file, $additional_params, \$output)) {
-    print STDERR $template->error();
-  }
+  $template->process($file, $additional_params, \$output) || die $template->error();
 
   $main::lxdebug->leave_sub();
 
