@@ -417,6 +417,8 @@ sub format_date {
   my $dd       = shift;
   my $yy_len   = shift || 4;
 
+  ($yy, $mm, $dd) = ($yy->year, $yy->month, $yy->day) if ref $yy eq 'DateTime';
+
   $main::lxdebug->leave_sub() and return "" unless $yy && $mm && $dd;
 
   $yy = $yy % 100 if 2 == $yy_len;
