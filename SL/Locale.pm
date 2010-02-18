@@ -36,6 +36,7 @@
 
 package Locale;
 
+use DateTime;
 use Encode;
 use List::Util qw(first);
 use List::MoreUtils qw(any);
@@ -371,6 +372,13 @@ sub parse_date {
 
   $main::lxdebug->leave_sub();
   return ($yy, $mm, $dd);
+}
+
+sub parse_date_to_object {
+  my $self           = shift;
+  my ($yy, $mm, $dd) = $self->parse_date(@_);
+
+  return $yy && $mm && $dd ? DateTime->new(year => $yy, month => $mm, day => $dd) : undef;
 }
 
 sub reformat_date {
