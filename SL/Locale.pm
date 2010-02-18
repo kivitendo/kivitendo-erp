@@ -401,14 +401,21 @@ sub reformat_date {
 sub format_date {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $yy, $mm, $dd) = @_;
+  my $self     = shift;
+  my $myconfig = shift;
+  my $yy       = shift;
+  my $mm       = shift;
+  my $dd       = shift;
+  my $yy_len   = shift || 4;
 
   $main::lxdebug->leave_sub() and return "" unless $yy && $mm && $dd;
 
-  my $format = $myconfig->{dateformat};
+  $yy = $yy % 100 if 2 == $yy_len;
+
+  my $format = ref $myconfig eq '' ? "$myconfig" : $myconfig->{dateformat};
   $format =~ s{ d+ }{ sprintf("%0" . (length($&)) . "d", $dd) }gex;
   $format =~ s{ m+ }{ sprintf("%0" . (length($&)) . "d", $mm) }gex;
-  $format =~ s{ y+ }{ sprintf("%4d",                     $yy) }gex;
+  $format =~ s{ y+ }{ sprintf("%0${yy_len}d",            $yy) }gex;
 
   $main::lxdebug->leave_sub();
 
