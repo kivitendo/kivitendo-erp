@@ -64,17 +64,19 @@ sub pre_startup_setup {
     require "bin/mozilla/installationcheck.pl";
   } or die $EVAL_ERROR;
 
-  # dummy globals
+  # canonial globals. if it's not here, chances are it will get refactored someday.
   {
     no warnings 'once';
-    $::userspath  = "users";
-    $::templates  = "templates";
-    $::memberfile = "users/members";
-    $::menufile   = "menu.ini";
-    $::sendmail   = "| /usr/sbin/sendmail -t";
-    $::lxdebug    = LXDebug->new;
-    $::auth       = SL::Auth->new;
-    %::myconfig   = ();
+    $::userspath   = "users";
+    $::templates   = "templates";
+    $::memberfile  = "users/members";
+    $::menufile    = "menu.ini";
+    $::sendmail    = "| /usr/sbin/sendmail -t";
+    $::lxdebug     = LXDebug->new;
+    $::auth        = SL::Auth->new;
+    $::form        = undef;
+    %::myconfig    = ();
+    %::called_subs = (); # currently used for recursion detection
   }
 }
 
