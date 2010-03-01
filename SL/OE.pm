@@ -122,6 +122,10 @@ SQL
     push(@values, '%' . $form->{$vc} . '%');
   }
 
+  if (!$main::auth->assert('sales_all_edit', 1)) {
+    $query .= " AND o.employee_id = (select id from employee where login= ?)";
+    push @values, $form->{login};
+  }
   if ($form->{employee_id}) {
     $query .= " AND o.employee_id = ?";
     push @values, conv_i($form->{employee_id});

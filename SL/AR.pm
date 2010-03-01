@@ -480,6 +480,10 @@ sub ar_transactions {
     }
   }
 
+ if (!$main::auth->assert('sales_all_edit', 1)) {
+    $where .= " AND a.employee_id = (select id from employee where login= ?)";
+    push (@values, $form->{login});
+  }
   my @a = qw(transdate invnumber name);
   push @a, "employee" if $form->{l_employee};
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';

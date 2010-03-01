@@ -654,6 +654,7 @@ sub all_rights_full {
     ["sales_delivery_order_edit",      $locale->text("Create and edit sales delivery orders")],
     ["invoice_edit",                   $locale->text("Create and edit invoices and credit notes")],
     ["dunning_edit",                   $locale->text("Create and edit dunnings")],
+    ["sales_all_edit",                 $locale->text("View/edit all employees sales documents")],
     ["--ap",                           $locale->text("AP")],
     ["request_quotation_edit",         $locale->text("Create and edit RFQs")],
     ["purchase_order_edit",            $locale->text("Create and edit purchase orders")],
