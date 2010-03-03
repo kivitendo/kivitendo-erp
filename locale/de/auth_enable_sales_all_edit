@@ -5,14 +5,9 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
-  'alter_schema_only'           => 'alter_schema_only',
   'do_query'                    => 'do_query',
   'do_update'                   => 'do_update',
-  'migrate_data'                => 'migrate_data',
   'mydberror'                   => 'mydberror',
-  'print_question'              => 'print_question',
-  'query_result'                => 'query_result',
-  'set_default_greetings'       => 'set_default_greetings',
 };
 
 1;

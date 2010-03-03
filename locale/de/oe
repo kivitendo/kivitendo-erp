@@ -322,6 +322,7 @@ $self->{texts} = {
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
   'Vendor type'                 => 'Lieferantentyp',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'Workflow purchase_order'     => 'Workflow Lieferantenauftrag',
   'Workflow request_quotation'  => 'Workflow Preisanfrage',

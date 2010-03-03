@@ -142,6 +142,7 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor details'              => 'Lieferantendetails',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'You do not have the permissions to access this function.' => 'Sie verf&uuml;gen nicht &uuml;ber die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
   'You have to fill in at least an account number, the bank code, the IBAN and the BIC.' => 'Sie müssen zumindest die Kontonummer, die Bankleitzahl, die IBAN und den BIC angeben.',

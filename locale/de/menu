@@ -204,6 +204,7 @@ $self->{texts} = {
   'Vendors'                     => 'Lieferanten',
   'Version'                     => 'Version',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'WHJournal'                   => 'Lagerbuchungen',
   'Warehouse'                   => 'Lager',
   'Warehouse content'           => 'Lagerbestand',

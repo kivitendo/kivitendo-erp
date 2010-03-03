@@ -350,6 +350,7 @@ $self->{texts} = {
   'Vendor type'                 => 'Lieferantentyp',
   'Version'                     => 'Version',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'Workflow purchase_order'     => 'Workflow Lieferantenauftrag',
   'Workflow request_quotation'  => 'Workflow Preisanfrage',
