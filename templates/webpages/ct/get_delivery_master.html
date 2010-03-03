@@ -11,13 +11,17 @@
           <th class="listheading"><translate>Description</translate></th>
           <th class="listheading"><translate>Qty</translate></th>
           <th class="listheading"><translate>Unit</translate></th>
+[%- IF is_customer %]
           <th class="listheading"><translate>Sell Price</translate></th>
+[%- ELSE %]
+          <th class="listheading"><translate>Last Cost</translate></th>
+[%- END %]
         </tr>
 [%- FOREACH row = DELIVERY %]
         <tr class="listrow[% loop.count % 2 %]">
           <td>[% HTML.escape(row.shiptoname) UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
-          <td>[% IF row.id %]<a href='[% IF IS_CUSTOMER %]is[% ELSE %]ir[% END %].pl?action=edit&id=[% HTML.escape(row.id) %]'>[% END %][% HTML.escape(row.invnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
-          <td>[% IF row.oe_id %]<a href='oe.pl?action=edit&type=sales_order&vc=customer&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
+          <td>[% IF row.id %]<a href='[% IF is_customer %]is[% ELSE %]ir[% END %].pl?action=edit&id=[% HTML.escape(row.id) %]'>[% END %][% HTML.escape(row.invnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
+          <td>[% IF row.oe_id %]<a href='oe.pl?action=edit&type=[% IF is_customer %]sales_order[% ELSE %]purchase_order[% END %]&vc=customer&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
           <td>[% HTML.escape(row.transdate)   || '&nbsp;' %]</td>
           <td>[% HTML.escape(row.description) || '&nbsp;' %]</td>
           <td>[% HTML.escape(row.qty)         || '&nbsp;' %]</td>
