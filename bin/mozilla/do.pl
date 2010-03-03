@@ -618,9 +618,23 @@ sub save {
   }
 
   $form->{id} = 0 if $form->{saveasnew};
-
+  # best case fix für bug 1079. Einkaufsrabatt wird nicht richtig
+  # aus Lieferantenauftrag -> Lieferschein -> Rechnung übernommen
+  # Tritt nur auf, wenn man direkt über Lieferschein -> speichern ->
+  # Workflow Rechnung geht (beim Aufruf über edit() i.O.)
+  # Gut. DO-save() speichert den Discount im DB-Format 0.12 für
+  # 12%, die Konvertierung wird leider in $form gemacht und daher
+  # wird die Maske mit dem falschen Rabatt wieder aufgebaut.
+  # Wie immer: backup_vars verwenden um nichts anderes kaputt zu
+  # machen. jan 03.03.2010
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"backup_discount_$i"} = $form->{"discount_$i"};
+  };
   DO->save();
-
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"discount_$i"} = $form->{"backup_discount_$i"};
+    delete $form->{"backup_discount_$i"};
+  };
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|donumber_| . $form->{donumber};
