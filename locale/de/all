@@ -1771,6 +1771,7 @@ $self->{texts} = {
   'Vendor Invoice'              => 'Einkaufsrechnung',
   'Vendor Invoices'             => 'Einkaufsrechnungen',
   'Vendor Number'               => 'Lieferantennummer',
+  'Vendor Ordner Number'        => 'Bestellnummer beim Lieferanten',
   'Vendor deleted!'             => 'Lieferant gelöscht!',
   'Vendor details'              => 'Lieferantendetails',
   'Vendor missing!'             => 'Lieferant fehlt!',
