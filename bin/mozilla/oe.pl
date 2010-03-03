@@ -1101,6 +1101,7 @@ sub save {
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
     if ($form->{currency} ne $form->{defaultcurrency});
 
+  remove_emptied_rows();
   &validate_items;
 
   my $payment_id;

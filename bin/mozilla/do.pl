@@ -609,6 +609,7 @@ sub save {
   # $locale->text('Customer missing!');
   # $locale->text('Vendor missing!');
 
+  remove_emptied_rows();
   validate_items();
 
   # if the name changed get new values
