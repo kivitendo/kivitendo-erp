@@ -62,7 +62,7 @@
   <option value=""></option>
   [%- END %]
   [%- FOREACH row = DATA %]
-  <option value="[% row.id %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.label) %]</option>
+  <option value="[% row.id | html %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.label) %]</option>
   [%- END %]
 </select>
 [%- END %]
