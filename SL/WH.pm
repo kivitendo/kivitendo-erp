@@ -164,10 +164,12 @@ sub transfer_assembly {
                            (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
   my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
 
-  my $kannNichtFertigen ="";  # der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
+  # der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
+  my $kannNichtFertigen ="Für dieses Erzeugnis sind keine Einzelteile definiert.
+                          Dementsprechend kann auch nichts hergestellt werden";
 
   while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) {  # Schleife für $query=select parts_id,qty from assembly
-
+    $kannNichtFertigen ="";  # Wieder auf erfolgreich setzen LEER == keine Fehlermeldung
     my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID = $hash_ref->{parts_id};
 
@@ -176,7 +178,7 @@ sub transfer_assembly {
 
     if ($partsQTY  > $max_parts){
       # Gibt es hier ein Problem mit nicht "escapten" Zeichen? 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
-      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Einheiten der Ware:" . get_part_description($self, parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>"; # Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
+      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . " Einheiten der Ware:" . $self->get_part_description(parts_id => $currentPart_ID) . ", um das Erzeugnis herzustellen. <br>"; # Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
       next; # die weiteren Überprüfungen sind unnötig
     }
 
@@ -200,7 +202,7 @@ sub transfer_assembly {
       if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen. Wir buchen den kompletten Lagerplatzbestand und zählen die Hilfsvariable runter
         $tmpPartsQTY = $tmpPartsQTY - $temppart_qty;
         $temppart_qty = $temppart_qty * -1; # beim analyiseren des sql-trace, war dieser wert positiv, wenn * -1 als berechnung in der parameter-übergabe angegeben wird. Dieser Wert IST und BLEIBT positiv!! Hilfe. Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
-        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . get_part_description($self, parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
+        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
 
         # hier ist noch ein fehler am besten mit definierten erzeugnissen debuggen 02/2009 jb
         # idee: ausbuch algorithmus mit rekursion lösen und an- und abschaltbar machen
@@ -208,7 +210,7 @@ sub transfer_assembly {
         # auf jeden fall war der internal-server-error nach aktivierung von strict und warnings plus ein paar my-definitionen weg
       } else { # okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
         $tmpPartsQTY *=-1;
-        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . get_part_description($self, parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY);
+        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' . $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY);
         last; # beendet die schleife (springt zum letzten element)
       }
     }  # ende while SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id
@@ -811,7 +813,7 @@ $main::lxdebug->enter_sub();
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(parts_id )); #die brauchen wir
+  Common::check_params(\%params, qw(parts_id)); #die brauchen wir
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
