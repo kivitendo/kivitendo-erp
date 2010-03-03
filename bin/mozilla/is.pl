@@ -860,9 +860,6 @@ sub credit_note {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  open(FH, ">/tmp/lx.dump"); 
-  print FH Dumper($form);
-  close FH;
   $main::auth->assert('invoice_edit');
 
   $form->{transdate} = $form->{invdate} = $form->current_date(\%myconfig);
