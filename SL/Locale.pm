@@ -358,11 +358,7 @@ sub reformat_date {
     sprintf("%0" . (length($&)) . "d", $mm);
 
   $output_format =~ /y+/;
-  if (length($&) == 2) {
-    $yy -= $yy >= 2000 ? 2000 : 1900;
-  }
-  substr($output_format, $-[0], $+[0] - $-[0]) =
-    sprintf("%0" . (length($&)) . "d", $yy);
+  substr($output_format, $-[0], $+[0] - $-[0]) = $yy;
 
   $main::lxdebug->leave_sub();
 
