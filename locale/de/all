@@ -1784,6 +1784,7 @@ $self->{texts} = {
   'View License'                => 'Lizenz ansehen',
   'View SEPA export'            => 'SEPA-Export-Details ansehen',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Von Konto: '                 => 'von Konto: ',
   'WEBDAV access'               => 'WEBDAV-Zugriff',
   'WHJournal'                   => 'Lagerbuchungen',

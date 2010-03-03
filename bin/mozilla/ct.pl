@@ -662,6 +662,7 @@ sub get_delivery {
   $main::lxdebug->enter_sub();
 
   $main::auth->assert('customer_vendor_edit');
+  $main::auth->assert('sales_all_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

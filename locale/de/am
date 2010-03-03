@@ -315,6 +315,7 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor details'              => 'Lieferantendetails',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse deleted.'          => 'Lager gel&ouml;scht.',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'Warehouse saved.'            => 'Lager gespeichert.',

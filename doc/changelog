@@ -67,6 +67,11 @@
   - Aufträge behalten ihren Fokus jetzt explizit auch beim Speichern. Dadurch
     ist es möglich während des bearbeitens eines Auftrags zwischenzuspeichern,
     ohne den Arbeitsfluß zu unterbrechen.
+ - Gruppenrechte in der Benutzerverwaltung erweitert. In den Rechten für den
+    Verkauf gibt es jetzt einen Haken, um die Eigenschaft: "Nur die eigenen Verkaufs-
+    dokumente (exklusive Mahnungen) bearbeiten/einzusehen" entsprechend
+    zu setzen.
+
 
 
 
