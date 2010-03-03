@@ -898,6 +898,16 @@ sub credit_note {
 
   $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});
 
+  # bei Gutschriften werden Zahlungseingänge aus Rechnung nicht übernommen
+  for my $i (1 .. $form->{paidaccounts}) {
+    delete $form->{"paid_$i"};
+    delete $form->{"source_$i"};
+    delete $form->{"memo_$i"};
+    delete $form->{"datepaid_$i"};
+    delete $form->{"AR_paid_$i"};
+  };
+  $form->{paidaccounts} = 1;
+
   &prepare_invoice;
 
 

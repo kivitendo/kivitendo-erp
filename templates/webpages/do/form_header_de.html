@@ -318,7 +318,7 @@
        </tr>
 
        <tr>
-        <th width="70%" align="right" nowrap>Bestellnummer des Kunden</th>
+        <th width="70%" align="right" nowrap>[% IF is_customer %]Bestellnummer des Kunden[% ELSE %]Bestellnummer beim Lieferanten[% END %]</th>
         <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"[% RO %]></td>
        </tr>
 
