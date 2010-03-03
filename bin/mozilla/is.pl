@@ -656,6 +656,7 @@ sub post {
     $form->{print_and_post} = 0;
   }
 
+  remove_emptied_rows();
   &validate_items;
 
   my $closedto = $form->datetonum($form->{closedto}, \%myconfig);

@@ -765,44 +765,9 @@ sub check_form {
     map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(listprice sellprice lastcost);
 
   } else {
-    my @flds = qw(id partnumber description qty ship sellprice unit
-                  discount inventory_accno income_accno expense_accno listprice
-                  taxaccounts bin assembly weight projectnumber project_id
-                  oldprojectnumber runningnumber serialnumber partsgroup payment_id
-                  not_discountable shop ve gv buchungsgruppen_id language_values
-                  sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
-                  transdate longdescription basefactor marge_total marge_percent
-                  marge_price_factor lastcost price_factor_id partnotes
-                  stock_out stock_in has_sernumber);
+    remove_emptied_rows(1);
 
-    my $ic_cvar_configs = CVar->get_configs(module => 'IC');
-    push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
-
-    # this section applies to invoices and orders
-    # remove any empty numbers
-    if ($form->{rowcount}) {
-      for my $i (1 .. $form->{rowcount} - 1) {
-        if ($form->{"partnumber_$i"}) {
-          push @a, {};
-          my $j = $#a;
-
-          map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
-          $count++;
-          if ($main::lizenzen) {
-            if ($form->{"licensenumber_$i"} == -1) {
-              &new_license($i);
-              exit;
-            }
-          }
-        }
-      }
-
-      $form->redo_rows(\@flds, \@a, $count, $form->{rowcount});
-      $form->{rowcount} = $count;
-
-      $form->{creditremaining} -= &invoicetotal;
-
-    }
+    $form->{creditremaining} -= &invoicetotal;
   }
 
   #sk
@@ -823,6 +788,37 @@ sub check_form {
   &display_form;
 
   $main::lxdebug->leave_sub();
+}
+
+sub remove_emptied_rows {
+  my $dont_add_empty = shift;
+  my $form           = $::form;
+
+  return unless $form->{rowcount};
+
+  my @flds = qw(id partnumber description qty ship sellprice unit
+                discount inventory_accno income_accno expense_accno listprice
+                taxaccounts bin assembly weight projectnumber project_id
+                oldprojectnumber runningnumber serialnumber partsgroup payment_id
+                not_discountable shop ve gv buchungsgruppen_id language_values
+                sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
+                transdate longdescription basefactor marge_total marge_percent
+                marge_price_factor lastcost price_factor_id partnotes
+                stock_out stock_in has_sernumber);
+
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC');
+  push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
+
+  my @new_rows;
+  for my $i (1 .. $form->{rowcount} - 1) {
+    next unless $form->{"partnumber_$i"};
+
+    push @new_rows, { map { $_ => $form->{"${_}_$i" } } @flds };
+  }
+
+  my $new_rowcount = scalar @new_rows;
+  $form->redo_rows(\@flds, \@new_rows, $new_rowcount, $form->{rowcount});
+  $form->{rowcount} = $new_rowcount + ($dont_add_empty ? 0 : 1);
 }
 
 sub invoicetotal {
