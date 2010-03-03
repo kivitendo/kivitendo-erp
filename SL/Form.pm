@@ -765,6 +765,7 @@ sub _prepare_html_template {
   $additional_params->{"conf_lizenzen"}               = $main::lizenzen;
   $additional_params->{"conf_latex_templates"}        = $main::latex;
   $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
+  $additional_params->{"conf_vertreter"}              = $main::vertreter;
 
   if (%main::debug_options) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
@@ -2220,9 +2221,15 @@ sub _get_business_types {
 
   my ($self, $dbh, $key) = @_;
 
-  $key = "all_business_types" unless ($key);
-  $self->{$key} =
-    selectall_hashref_query($self, $dbh, qq|SELECT * FROM business|);
+  my $options       = ref $key eq 'HASH' ? $key : { key => $key };
+  $options->{key} ||= "all_business_types";
+  my $where         = '';
+
+  if (exists $options->{salesman}) {
+    $where = 'WHERE ' . ($options->{salesman} ? '' : 'NOT ') . 'COALESCE(salesman)';
+  }
+
+  $self->{ $options->{key} } = selectall_hashref_query($self, $dbh, qq|SELECT * FROM business $where ORDER BY lower(description)|);
 
   $main::lxdebug->leave_sub();
 }

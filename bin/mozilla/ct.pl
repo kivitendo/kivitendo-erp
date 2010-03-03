@@ -285,8 +285,9 @@ sub form_header {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->get_lists("employees" => "ALL_EMPLOYEES",
-                   "taxzones"  => "ALL_TAXZONES");
+  $form->get_lists(employees      => "ALL_EMPLOYEES",
+                   taxzones       => "ALL_TAXZONES",
+                   business_types => { key => 'ALL_SALESMAN_BUSINESSES', salesman => 1 });
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
   $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
