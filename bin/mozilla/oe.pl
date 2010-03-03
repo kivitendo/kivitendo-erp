@@ -1777,13 +1777,16 @@ sub poso {
 
   map { $form->{$_} = $saved_vars{$_} } keys %saved_vars;
 
-  &prepare_order;
-
   # prepare_order assumes that the discount is in db-notation (0.05) and not user-notation (5)
-  # and therefore multiplies the values by 100 in the case of reading from db or making an order from several quotation, so we convert this back into percent-notation for the user interface by multiplying with 0.01
+  # and therefore multiplies the values by 100 in the case of reading from db or making an order
+  # from several quotation, so we convert this back into percent-notation for the user interface by multiplying with 0.01
+  # ergänzung 03.10.2010 muss vor prepare_order passieren (s.a. Svens Kommentar zu Bug 1017)
+  # das parse_amount wird oben schon ausgeführt, deswegen an dieser stelle raus (wichtig: kommawerte bei discount testen)
   for my $i (1 .. $form->{rowcount}) {
-    $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 0.01);
+    $form->{"discount_$i"} /=100;
   };
+
+  &prepare_order;
 
   # format amounts
   for my $i (1 .. $form->{rowcount} - 1) {
