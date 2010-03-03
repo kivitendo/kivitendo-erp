@@ -109,7 +109,16 @@ if ($ok) while (!feof($f)){
             continue;
         };
         $data=trim($data);
-        $data=mb_convert_encoding($data,"ISO-8859-15","auto");
+        // seit 2.6 ist die DB-Kodierung UTF-8 @holger Ansonsten einmal vorher die DB-Encoding auslesen
+        // Falls die Daten ISO-kodiert kommen entsprechend wandeln
+        // UTF-8 MUSS als erstes stehen, da ansonsten die Prüfung bei ISO-8859-1 aufhört ...
+        // TODO Umlaute am Anfang wurden bei meinem Test nicht übernommen (Österreich). S.a.:
+        // http://forum.de.selfhtml.org/archiv/2007/1/t143904/
+
+        $encoding = mb_detect_encoding($data,"UTF-8,ISO-8859-1,ISO-8859-15");
+        if ($encoding != "UTF-8"){
+          $data=mb_convert_encoding($data, "UTF-8","$encoding");
+        }
         //$data=htmlentities($data);
         $data=addslashes($data);
         if ($in_fld[$i]==$file."number") {  // customernumber || vendornumber
