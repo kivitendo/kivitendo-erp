@@ -135,7 +135,7 @@ sub display_template_form {
 
     my %formname_setup =
       (
-        "balance_sheet" => { "translation" => $locale->text('Balance Sheet'), "html" => 1 },
+#        "balance_sheet" => { "translation" => $locale->text('Balance Sheet'), "html" => 1 },
         "bin_list" => $locale->text('Bin List'),
         "bwa" => { "translation" => $locale->text('BWA'), "html" => 1 },
         "check" => { "translation" => $locale->text('Check'), "html" => 1 },

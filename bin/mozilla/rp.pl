@@ -1112,46 +1112,40 @@ sub generate_income_statement {
 }
 
 sub generate_balance_sheet {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('report');
 
-  $main::auth->assert('report');
+  $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
+  $::form->{padding}       = "&nbsp;&nbsp;";
+  $::form->{bold}          = "<b>";
+  $::form->{endbold}       = "</b>";
+  $::form->{br}            = "<br>";
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  my $data = RP->balance_sheet(\%::myconfig, $::form);
 
-  $form->{decimalplaces} = $form->{decimalplaces} * 1 || 2;
-  $form->{padding} = "&nbsp;&nbsp;";
-  $form->{bold}    = "<b>";
-  $form->{endbold} = "</b>";
-  $form->{br}      = "<br>";
+  $::form->{asofdate} ||= $::form->current_date;
+  $::form->{period}     = $::locale->date(\%::myconfig, $::form->current_date, 1);
 
-  my $data = RP->balance_sheet(\%myconfig, \%$form);
-
-  $form->{asofdate} = $form->current_date(\%myconfig) unless $form->{asofdate};
-  $form->{period} = $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
-
-  ($form->{department}) = split /--/, $form->{department};
+  ($::form->{department}) = split /--/, $::form->{department};
 
   # define Current Earnings account
-  my $padding = ($form->{l_heading}) ? $form->{padding} : "";
-  push(@{ $form->{equity_account} }, $padding . $locale->text('Current Earnings'));
+  my $padding = $::form->{l_heading} ? $::form->{padding} : "";
+  push @{ $::form->{equity_account} }, $padding . $::locale->text('Current Earnings');
 
-  $form->{this_period} = $locale->date(\%myconfig, $form->{asofdate}, 0);
-  $form->{last_period} = $locale->date(\%myconfig, $form->{compareasofdate}, 0);
+  $::form->{this_period} = $::locale->date(\%::myconfig, $::form->{asofdate}, 0);
+  $::form->{last_period} = $::locale->date(\%::myconfig, $::form->{compareasofdate}, 0);
 
-  $form->{IN} = "balance_sheet.html";
+#  $::form->{IN} = "balance_sheet.html";
 
   # setup company variables for the form
-  map { $form->{$_} = $myconfig{$_}; } (qw(company address businessnumber nativecurr));
+  map { $::form->{$_} = $::myconfig{$_} } qw(company address businessnumber nativecurr);
 
-  $form->{templates} = $myconfig{templates};
+  $::form->{templates} = $::myconfig{templates};
 
-  $form->header();
-  print $form->parse_html_template('rp/balance_sheet', $data);
-#  $form->parse_template();
+  $::form->header;
+  print $::form->parse_html_template('rp/balance_sheet', $data);
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub generate_projects {
@@ -2715,7 +2709,7 @@ sub generate_bwa {
     }
   } else {
     # die konvertierungen nur dann durchführen, wenn auch daten gesetzt sind.
-    # ansonsten ist die prüfung in RP.pm 
+    # ansonsten ist die prüfung in RP.pm
     # if (defined ($form->{fromdate|todate}=='..'))
     # immer wahr
     if ($form->{fromdate}){

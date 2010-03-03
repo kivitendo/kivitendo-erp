@@ -2973,7 +2973,9 @@ sub lastname_used {
 sub current_date {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $thisdate, $days) = @_;
+  my $self              = shift;
+  my $myconfig          = shift  || \%::myconfig;
+  my ($thisdate, $days) = @_;
 
   my $dbh = $self->get_standard_dbh($myconfig);
   my $query;
