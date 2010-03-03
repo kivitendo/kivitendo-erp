@@ -162,6 +162,7 @@ $self->{texts} = {
   'USt-Konto'                   => 'USt-Konto',
   'Unknown dependency \'%s\'.'  => 'Unbekannte Abh&auml;ngigkeit \'%s\'.',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'YYYY'                        => 'JJJJ',
   'Year'                        => 'Jahr',

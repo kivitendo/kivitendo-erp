@@ -659,20 +659,19 @@ sub get_shipto {
 }
 
 sub get_delivery {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  $main::auth->assert('customer_vendor_edit');
-  $main::auth->assert('sales_all_edit');
+  $::auth->assert('customer_vendor_edit');
+  $::auth->assert('sales_all_edit');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  CT->get_delivery(\%::myconfig, $::form );
 
-  CT->get_delivery(\%myconfig, \%$form );
-  $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
+  print $::form->ajax_response_header,
+        $::form->parse_html_template('ct/get_delivery', {
+          is_customer =>  $::form->{db} eq 'customer',
+        });
 
-  print $form->ajax_response_header(), $form->parse_html_template('ct/get_delivery');
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub delete_shipto {

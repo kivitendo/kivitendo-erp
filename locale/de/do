@@ -280,6 +280,7 @@ $self->{texts} = {
   'Vendor not on file or locked!' => 'Dieser Lieferant existiert nicht oder ist gesperrt.',
   'Vendor not on file!'         => 'Lieferant ist nicht in der Datenbank!',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'Yes'                         => 'Ja',
   'You cannot create an invoice for delivery orders for different customers.' => 'Sie können keine Rechnung zu Lieferscheinen für verschiedene Kunden erstellen.',

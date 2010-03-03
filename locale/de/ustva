@@ -179,6 +179,7 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor details'              => 'Lieferantendetails',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'Wrong Period'                => 'Falscher Zeitraum',
   'Year'                        => 'Jahr',

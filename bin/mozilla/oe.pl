@@ -558,7 +558,7 @@ sub update {
     $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"$form->{vc}_discount"} * 100);
 
     if ($rows) {
-      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+      $form->{"qty_$i"} = 1 unless ($form->parse_amount(\%myconfig, $form->{"qty_$i"}));
 
       if ($rows > 1) {
 

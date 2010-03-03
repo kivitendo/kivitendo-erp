@@ -144,6 +144,7 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor details'              => 'Lieferantendetails',
   'View warehouse content'      => 'Lagerbestand ansehen',
+  'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'You do not have the permissions to access this function.' => 'Sie verf&uuml;gen nicht &uuml;ber die notwendigen Rechte, um auf diese Funktion zuzugreifen.',
   'You\'re not editing a file.' => 'Sie bearbeiten momentan keine Datei.',
