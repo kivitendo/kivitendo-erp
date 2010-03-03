@@ -1,8 +1,7 @@
 [% USE HTML %]
 <tr>
  <td>
-  <input type="checkbox" id="cb_show_details" name="show_details" [%- IF show_details %] checked[% END %]>
-  <label for="cb_show_details">Details anzeigen</label><br>
+  <input type="button" id="cb_show_details" name="show_details" value='Detailsanzeige'>
   <script type="text/javascript">
    $('#cb_show_details').click(function(){ $('[id$="row2"]').toggle() });
   </script>
