@@ -1438,7 +1438,7 @@ sub cleanup {
     close(FH);
   }
 
-  if ($self->{tmpfile}) {
+  if ($self->{tmpfile} && ! $::keep_temp_files) {
     $self->{tmpfile} =~ s|.*/||g;
     # strip extension
     $self->{tmpfile} =~ s/\.\w+$//g;
