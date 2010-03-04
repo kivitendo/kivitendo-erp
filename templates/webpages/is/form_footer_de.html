@@ -135,6 +135,7 @@
 [% END %]
 [% IF show_delete %]
     <input class="submit" type="submit" name="action" value="Löschen">
+    <input class="submit" type="submit" name="action" value="Buchen">
 [% END %]
 
   [%- UNLESS locked %]
@@ -167,7 +168,7 @@
 <input type="hidden" name="draft_id" value="[% draft_id %]">
 <input type="hidden" name="draft_description" value="[% draft_description %]">
 <input type="hidden" name="customer_discount" value="[% customer_discount %]">
-
+<input type="hidden" name="gldate" value="[% gldate %]">
 </form>
 
 </body>
