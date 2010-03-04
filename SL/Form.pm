@@ -2299,14 +2299,15 @@ $main::lxdebug->enter_sub();
 sub _get_customers {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $key, $limit) = @_;
+  my ($self, $dbh, $key) = @_;
 
-  $key = "all_customers" unless ($key);
-  my $limit_clause = "LIMIT $limit" if $limit;
+  my $options        = ref $key eq 'HASH' ? $key : { key => $key };
+  $options->{key}  ||= "all_customers";
+  my $limit_clause   = "LIMIT $options->{limit}" if $options->{limit};
+  my $where          = $options->{business_is_salesman} ? qq| AND business_id IN (SELECT id FROM business WHERE salesman)| : '';
 
-  my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name $limit_clause|;
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+  my $query = qq|SELECT * FROM customer WHERE NOT obsolete $where ORDER BY name $limit_clause|;
+  $self->{ $options->{key} } = selectall_hashref_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 }
@@ -2473,11 +2474,7 @@ sub get_lists {
   }
 
   if($params{"customers"}) {
-    if (ref $params{"customers"} eq 'HASH') {
-      $self->_get_customers($dbh, $params{"customers"}{key}, $params{"customers"}{limit});
-    } else {
-      $self->_get_customers($dbh, $params{"customers"});
-    }
+    $self->_get_customers($dbh, $params{"customers"});
   }
 
   if($params{"vendors"}) {

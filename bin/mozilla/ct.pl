@@ -285,10 +285,11 @@ sub form_header {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->get_lists(employees      => "ALL_EMPLOYEES",
-                   taxzones       => "ALL_TAXZONES",
-                   business_types => { key => 'ALL_SALESMAN_BUSINESSES', salesman => 1 });
+  $form->get_lists(employees => "ALL_EMPLOYEES",
+                   taxzones  => "ALL_TAXZONES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
+
+  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::vertreter;
 
   $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
