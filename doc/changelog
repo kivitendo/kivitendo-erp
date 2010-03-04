@@ -71,6 +71,10 @@
     Verkauf gibt es jetzt einen Haken, um die Eigenschaft: "Nur die eigenen Verkaufs-
     dokumente (exklusive Mahnungen) bearbeiten/einzusehen" entsprechend
     zu setzen.
+ - Wird ein Kunde in einem Auftrag geändert, so werden jetzt die dem Kunden
+   zugeordneten Zahlungskonditionen korrekt geladen, wenn der Kunde keine
+   Zahlungsonditionen zugeordnet hatte, wird auch auf keine Zahlungskondition
+   gewechselt.
 
 
 
