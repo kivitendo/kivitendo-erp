@@ -73,7 +73,7 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap>Firmenname</th>
+      <th align="right" nowrap>[% IF is_customer %]Kundenname[%- ELSE %]Lieferantenname[%- END %]</th>
       <td><input name="name" size="35" maxlength="75" value="[% HTML.escape(name) %]"></td>
      </tr>
 

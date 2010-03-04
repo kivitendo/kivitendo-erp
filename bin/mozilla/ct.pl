@@ -156,7 +156,7 @@ sub list_names {
   my %column_defs = (
     'id'                => { 'text' => $locale->text('ID'), },
     "$form->{db}number" => { 'text' => $locale->text('Number'), },
-    'name'              => { 'text' => $locale->text('Name'), },
+    'name'              => { 'text' => $form->{IS_CUSTOMER} ? $::locale->text('Customer Name') : $::locale->text('Vendor Name'), },
     'contact'           => { 'text' => $locale->text('Contact'), },
     'phone'             => { 'text' => $locale->text('Phone'), },
     'fax'               => { 'text' => $locale->text('Fax'), },
