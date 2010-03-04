@@ -1126,13 +1126,13 @@ sub round_amount {
   my ($self, $amount, $places) = @_;
   my $round_amount;
 
-  # Rounding like "Kaufmannsrunden"
-  # Descr. http://de.wikipedia.org/wiki/Rundung
-  # Inspired by
-  # http://www.perl.com/doc/FAQs/FAQ/oldfaq-html/Q4.13.html
-  # Solves Bug: 189
-  # Udo Spallek
-  $amount = $amount * (10**($places));
+  # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
+
+  # Round amounts to eight places before rounding to the requested
+  # number of places. This gets rid of errors due to internal floating
+  # point representation.
+  $amount       = $self->round_amount($amount, 8) if $places < 8;
+  $amount       = $amount * (10**($places));
   $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
 
   $main::lxdebug->leave_sub(2);
