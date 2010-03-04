@@ -1,19 +1,24 @@
-[% USE HTML %]<div class="listtop">Lagermigration</div>
+[% USE HTML %]
+<div class="listtop">Lagermigration</div>
 
 <form action="[% script %]" method="POST">
+ <p>
+  Lx-Office enth&auml;lt jetzt auch echte Lagerverwaultung anstatt reiner Mengenz&auml;hlung.
+  Dieses update &auml;ndert die Art und Weise wie Lagermengen gez&auml;lt werden.
+  Als Konsequenz k&ouml;nnen die gespeicherten Mengen entweder in ein Lager &uuml;berf&uuml;hrt werden, oder f&uuml;r eine frische Lagerverwaltung resettet werden.
+ </p>
 
-<p>Lx-Office enth&auml;lt jetzt auch echte Lagerverwaultung anstatt reiner Mengenz&auml;hlung. 
-Dieses update &auml;ndert die Art und Weise wie Lagermengen gez&auml;lt werden. 
-Als Konsequenz k&ouml;nnen die gespeicherten Mengen entweder in ein Lager &uuml;berf&uuml;hrt werden, oder f&uuml;r eine frische Lagerverwaltung resettet werden.</p>
+ <p>M&ouml;chten Sie die vorhandenen Mengendaten in ein Lager &uuml;bertragen?</p>
 
-<p>M&ouml;chten Sie die vorhandenen Mengendaten in ein Lager &uuml;bertragen?</p>
-<input id=do_migrate_Y name=do_migrate type=radio value=Y>&nbsp;<label for=do_migrate_Y>Ja</label>
-<input id=do_migrate_N name=do_migrate type=radio value=N checked>&nbsp;<label for=do_migrate_N>Nein</label>
+ <input id="do_migrate_Y" name="do_migrate" type="radio" value="Y">&nbsp;<label for="do_migrate_Y">Ja</label>
+ <input id="do_migrate_N" name="do_migrate" type="radio" value="N" checked>&nbsp;<label for="do_migrate_N">Nein</label>
 
-<p>Bitte geben Sie den Namen des Ziellagers f&uuml;r die &uuml;bernommenen Daten ein.</p>
-<input name=import_warehouse size=50>
+ <p>Bitte geben Sie den Namen des Ziellagers f&uuml;r die &uuml;bernommenen Daten ein.</p>
+ <input name="import_warehouse" size="50">
 
-<p>Da Lagerpl&auml;tze kein Pflichtfeld sind, geben Sie bitte einen Lagerplatz an, in dem Waren ohne spezifizierten Lagerplatz eingelagert werden sollen.<p>
-<input name=bin_default size=50>
+ <p>Da Lagerpl&auml;tze kein Pflichtfeld sind, geben Sie bitte einen Lagerplatz an, in dem Waren ohne spezifizierten Lagerplatz eingelagert werden sollen.<p>
 
-<p><input type=submit value="Weiter"></p>
+  <input name="bin_default" size="50">
+
+ <p><input type="submit" value="Weiter"></p>
+</form>

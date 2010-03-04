@@ -490,8 +490,7 @@ sub build_filter_query {
     }
 
     if (@sub_where) {
-      push @sub_where,  qq|cvar.sub_module = ?|;
-      push @sub_values, "$params{sub_module}";
+      add_token(\@sub_where, \@sub_values, col => 'cvar.sub_module', val => $params{sub_module} || '');
 
       push @where,
         qq|$not EXISTS(

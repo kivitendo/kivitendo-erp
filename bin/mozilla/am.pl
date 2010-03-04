@@ -1107,6 +1107,7 @@ sub list_business {
   $form->{title} = $locale->text('Type of Business');
 
   my @column_index = qw(description discount customernumberinit);
+  push @column_index, 'salesman' if $::vertreter;
   my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=60%>|
@@ -1119,6 +1120,10 @@ sub list_business {
   $column_header{customernumberinit} =
       qq|<th class=listheading>|
     . $locale->text('Customernumberinit')
+    . qq|</th>|;
+  $column_header{salesman} =
+      qq|<th class=listheading>|
+    . $locale->text('Representative')
     . qq|</th>|;
 
   $form->header;
@@ -1159,6 +1164,7 @@ sub list_business {
     $column_data{discount}           = qq|<td align=right>$discount</td>|;
     $column_data{customernumberinit} =
       qq|<td align=right>$ref->{customernumberinit}</td>|;
+    $column_data{salesman} = '<td>' . ($ref->{salesman} ? $::locale->text('Yes') : $::locale->text('No')) . '</td>';
 
     map { print "$column_data{$_}\n" } @column_index;
 
@@ -1213,6 +1219,18 @@ sub business_header {
   $form->{discount} =
     $form->format_amount(\%myconfig, $form->{discount} * 100);
 
+  my $salesman_code;
+  if ($::vertreter) {
+    $salesman_code = qq|
+  <tr>
+    <th align="right">| . $locale->text('Representative') . qq|</th>
+    <td>| . $::cgi->checkbox(-name => "salesman", -value => 1, -label => '', 'checked' => $form->{salesman} ? 1 : 0) . qq|</td>
+  </tr>
+|;
+  } else {
+    $salesman_code = $::cgi->hidden(-name => 'salesman', -value => $form->{salesman} ? 1 : 0);
+  }
+
   $form->header;
 
   print qq|
@@ -1240,6 +1258,7 @@ sub business_header {
     <th align=right>| . $locale->text('Customernumberinit') . qq|</th>
     <td><input name=customernumberinit size=10 value=$form->{customernumberinit}></td>
   </tr>
+$salesman_code
   <td colspan=2><hr size=3 noshade></td>
   </tr>
 </table>

@@ -872,6 +872,7 @@ sub save_as_new {
   $form->{closed}    = 0;
   $form->{delivered} = 0;
   map { delete $form->{$_} } qw(printed emailed queued);
+  delete @{ $form }{ grep { m/^stock_(?:in|out)_\d+/ } keys %{ $form } };
 
   # Let Lx-Office assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.

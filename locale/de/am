@@ -250,6 +250,7 @@ $self->{texts} = {
   'Ranges of numbers and default accounts' => 'Nummernkreise und Standardkonten',
   'Receipt, payment, reconciliation' => 'Zahlungseingang, Zahlungsausgang, Kontenabgleich',
   'Reports'                     => 'Berichte',
+  'Representative'              => 'Vertreter',
   'Revenue'                     => 'Erlöskonto',
   'Revenues EU with UStId'      => 'Erl&ouml;se EU m. UStId',
   'Revenues EU without UStId'   => 'Erl&ouml;se EU o. UStId',

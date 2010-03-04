@@ -518,11 +518,7 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
   $form->{update} = 1;
 
-  my $payment_id = $form->{payment_id} if $form->{payment_id};
-
   &check_name($form->{vc});
-
-  $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
 
   my $buysell           = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');

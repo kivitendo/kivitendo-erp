@@ -39,11 +39,10 @@
        <th align="right">Vertreter</th>
        <td>
         [%- INCLUDE generic/multibox.html
-              name       = 'salesman_id',
-              DATA       = ALL_SALESMAN_BUSINESSES,
-              show_empty = 1,
-              id_key     = 'id',
-              label_key  = 'description',
+              name      = 'salesman_id',
+              DATA      = ALL_SALESMAN_CUSTOMERS,
+              id_key    = 'id',
+              label_key = 'name',
         -%]
        </td>
       </tr>
@@ -245,7 +244,7 @@
              label_key  = 'description',
        -%]
       </td>
-      [%- IF is_customer && !use_vertreter %]
+      [%- IF is_customer && !conf_vertreter %]
       <th align="right">Verkäufer/in</th>
       <td>
        [%- INCLUDE generic/multibox.html

@@ -51,12 +51,10 @@ sub close_orders_if_billed {
 
   my @oe_ids = keys %oe_id_map;
 
-#   $main::lxdebug->dump(0, "oe_ids", \@oe_ids);
-
   # No orders found? Nothing to do then, so let's return.
-  return $main::lxdebug->leave_sub() if (!scalar @oe_ids);
+  return $main::lxdebug->leave_sub unless @oe_ids;
 
-  my $all_units = AM->retrieve_all_units();
+  my $all_units = AM->retrieve_all_units;
 
   my $qtyfactor = $params{table} eq 'ap' ? '* -1' : '';
   my $q_billed  = qq|SELECT i.parts_id, i.qty ${qtyfactor} AS qty, i.unit, p.unit AS partunit
@@ -101,8 +99,6 @@ sub close_orders_if_billed {
 
     my @arap_ids = keys %arap_id_map;
 
-#     $main::lxdebug->dump(0, "for $oe_id arap_ids", \@arap_ids);
-
     next if (!scalar @arap_ids);
 
     # Retrieve all positions for this order. Calculate the ordered quantity for each position.
@@ -111,7 +107,7 @@ sub close_orders_if_billed {
     do_statement($form, $h_ordered, $q_ordered, $oe_id);
 
     while (my $ref = $h_ordered->fetchrow_hashref()) {
-      $ref->{baseqty} = $ref->{qty} * $all_units->{$ref->{unit}}->{factor} / $all_units->{$ref->{partunit}}->{factor};
+      $ref->{baseqty} = $ref->{qty} * AM->convert_unit($ref->{unit}, $ref->{partunit}, $all_units);
 
       if ($ordered{$ref->{parts_id}}) {
         $ordered{$ref->{parts_id}}->{baseqty} += $ref->{baseqty};
@@ -127,7 +123,7 @@ sub close_orders_if_billed {
       do_statement($form, $h_billed, $q_billed, $arap_id);
 
       while (my $ref = $h_billed->fetchrow_hashref()) {
-        $ref->{baseqty} = $ref->{qty} * $all_units->{$ref->{unit}}->{factor} / $all_units->{$ref->{partunit}}->{factor};
+        $ref->{baseqty} = $ref->{qty} * AM->convert_unit($ref->{unit}, $ref->{partunit}, $all_units);
 
         if ($billed{$ref->{parts_id}}) {
           $billed{$ref->{parts_id}}->{baseqty} += $ref->{baseqty};
@@ -146,22 +142,18 @@ sub close_orders_if_billed {
       }
     }
 
-#     $main::lxdebug->message(0, "all_billed $all_billed");
-#     $main::lxdebug->dump(0, "ordered", \%ordered);
-#     $main::lxdebug->dump(0, "billed", \%billed);
-
     push @close_oe_ids, $oe_id if ($all_billed);
   }
 
-  $h_billed->finish();
-  $h_ordered->finish();
+  $h_billed->finish;
+  $h_ordered->finish;
 
   # Close orders that have been billed fully.
   if (scalar @close_oe_ids) {
     my $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_oe_ids) . qq|)|;
     do_query($form, $dbh, $query, @close_oe_ids);
 
-    $dbh->commit() unless ($params{dbh});
+    $dbh->commit unless $params{dbh};
   }
 
   $main::lxdebug->leave_sub();

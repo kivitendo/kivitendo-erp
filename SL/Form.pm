@@ -203,7 +203,10 @@ sub _recode_recursively {
   if (any { ref $param eq $_ } qw(Form HASH)) {
     foreach my $key (keys %{ $param }) {
       if (!ref $param->{$key}) {
-        $param->{$key} = $iconv->convert($param->{$key});
+        # Workaround for a bug: converting $param->{$key} directly
+        # leads to 'undef'. I don't know why. Converting a copy works,
+        # though.
+        $param->{$key} = $iconv->convert("" . $param->{$key});
       } else {
         _recode_recursively($iconv, $param->{$key});
       }
@@ -212,7 +215,10 @@ sub _recode_recursively {
   } elsif (ref $param eq 'ARRAY') {
     foreach my $idx (0 .. scalar(@{ $param }) - 1) {
       if (!ref $param->[$idx]) {
-        $param->[$idx] = $iconv->convert($param->[$idx]);
+        # Workaround for a bug: converting $param->[$idx] directly
+        # leads to 'undef'. I don't know why. Converting a copy works,
+        # though.
+        $param->[$idx] = $iconv->convert("" . $param->[$idx]);
       } else {
         _recode_recursively($iconv, $param->[$idx]);
       }
@@ -1120,13 +1126,13 @@ sub round_amount {
   my ($self, $amount, $places) = @_;
   my $round_amount;
 
-  # Rounding like "Kaufmannsrunden"
-  # Descr. http://de.wikipedia.org/wiki/Rundung
-  # Inspired by
-  # http://www.perl.com/doc/FAQs/FAQ/oldfaq-html/Q4.13.html
-  # Solves Bug: 189
-  # Udo Spallek
-  $amount = $amount * (10**($places));
+  # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
+
+  # Round amounts to eight places before rounding to the requested
+  # number of places. This gets rid of errors due to internal floating
+  # point representation.
+  $amount       = $self->round_amount($amount, 8) if $places < 8;
+  $amount       = $amount * (10**($places));
   $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
 
   $main::lxdebug->leave_sub(2);
@@ -2293,14 +2299,15 @@ $main::lxdebug->enter_sub();
 sub _get_customers {
   $main::lxdebug->enter_sub();
 
-  my ($self, $dbh, $key, $limit) = @_;
+  my ($self, $dbh, $key) = @_;
 
-  $key = "all_customers" unless ($key);
-  my $limit_clause = "LIMIT $limit" if $limit;
+  my $options        = ref $key eq 'HASH' ? $key : { key => $key };
+  $options->{key}  ||= "all_customers";
+  my $limit_clause   = "LIMIT $options->{limit}" if $options->{limit};
+  my $where          = $options->{business_is_salesman} ? qq| AND business_id IN (SELECT id FROM business WHERE salesman)| : '';
 
-  my $query = qq|SELECT * FROM customer WHERE NOT obsolete ORDER BY name $limit_clause|;
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
+  my $query = qq|SELECT * FROM customer WHERE NOT obsolete $where ORDER BY name $limit_clause|;
+  $self->{ $options->{key} } = selectall_hashref_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 }
@@ -2467,11 +2474,7 @@ sub get_lists {
   }
 
   if($params{"customers"}) {
-    if (ref $params{"customers"} eq 'HASH') {
-      $self->_get_customers($dbh, $params{"customers"}{key}, $params{"customers"}{limit});
-    } else {
-      $self->_get_customers($dbh, $params{"customers"});
-    }
+    $self->_get_customers($dbh, $params{"customers"});
   }
 
   if($params{"vendors"}) {
