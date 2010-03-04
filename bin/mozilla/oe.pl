@@ -685,7 +685,10 @@ sub search {
 
   $form->header();
 
-  print $form->parse_html_template('oe/search', { %myconfig });
+  print $form->parse_html_template('oe/search', {
+    %myconfig,
+    is_order => $form->{type} =~ /_order/,
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -786,7 +789,7 @@ sub orders {
   my %column_defs = (
     'ids'                     => { 'text' => '', },
     'transdate'               => { 'text' => $locale->text('Date'), },
-    'reqdate'                 => { 'text' => $locale->text('Required by'), },
+    'reqdate'                 => { 'text' => $form->{type} =~ /_order/ ? $locale->text('Required by') : $locale->text('Valid until') },
     'id'                      => { 'text' => $locale->text('ID'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },

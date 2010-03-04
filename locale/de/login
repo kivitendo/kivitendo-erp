@@ -338,6 +338,7 @@ $self->{texts} = {
   'USt-IdNr.'                   => 'USt-IdNr.',
   'Unit'                        => 'Einheit',
   'Unknown dependency \'%s\'.'  => 'Unbekannte Abh&auml;ngigkeit \'%s\'.',
+  'Valid until'                 => 'gültig bis',
   'Value'                       => 'Wert',
   'Variable'                    => 'Variable',
   'Vendor'                      => 'Lieferant',
