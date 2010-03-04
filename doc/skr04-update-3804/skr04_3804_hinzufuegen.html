@@ -1,0 +1,54 @@
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Lx-Office: SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</title>
+</head>
+<body>
+
+<h1>Umsatzsteuer 19% für Verkauf mit Steuerschlüssel "EU ohne USt.-IdNr.":</h1>
+
+Die Umsatzsteuerumstellung auf 19% für SKR04 für die Steuerschlüssel "EU ohne
+USt-ID Nummer" ist erst 2010 erfolgt. Das Upgradeskript erstellt automatisch
+das Konto 3804 und stellt die Steuereinstellungen korrekt ein, hat der Benutzer
+aber schon selber das Konto 3804 angelegt, oder gab es schon Buchungen im
+Zeitraum nach dem 01.01.2007 auf das Konto 3803, wird das Upgradeskript
+vorsichtshalber nicht ausgeführt, da der Benutzer sich vielleicht schon selbst
+geholfen hat und mit seinen Änderungen zufrieden ist. Die korrekten
+Einstellungen kann man aber auch per Hand ausführen, nachfolgend werden die
+entsprechenden Schritte anhand von Screenshots dargestellt.
+
+Für den Fall, daß Buchungen mit der Steuerschlüssel "EU ohne USt.-IdNr." nach dem
+01.01.2007 erfolgt sind, ist davon auszugehen, daß diese mit dem alten
+Umsatzsteuersatz von 16% gebucht worden sind, und diese Buchungen sollten
+entsprechend kontrolliert werden.
+
+<h2>Lx-Office: 3804 hinzufügen</h2>
+Konto 3804 anlegen:<br>
+
+System -> Kontenübersicht -> Konto erfassen<br>
+
+<img src="konto3804.png" alt="konto3804.png">
+
+
+<h2>Steuergruppe 13 für Konto 3803 anpassen (16%):</h2>
+System -> Steuern -> bearbeiten -> Eintrag mit Steuerschlüssel 13 auswählen<br>
+
+<img src="steuer3803.png" alt="steuer3803.png">
+
+<h2>Neuen Eintrag mit Steuerschlüssel 13 für Konto 3804 (19%) anlegen</h2>
+System -> Steuern -> bearbeiten -> erfassen<br>
+
+<img src="steuer3804.png" alt="steuer3804.png">
+<h2>Alle Konten, die als Steuerautomatikkonto die 3803 haben, kriegen ab 1.1.2007 auch Steuerautomatik auf 3804</h2>
+
+Steuerschlüssel für Konto 4315 anpassen (das gleiche für 4726) <br>
+
+System -> Kontenübersicht -> Konten anzeigen -> 4315<br>
+
+<img src="konto4315.png" alt="konto4315.png">
+
+<h2>Steuerliste kontrolllieren</h2>
+System -> Steuern -> bearbeiten
+
+<img src="steuerliste.png" alt="steuerliste.png">
+
+</body></html>
