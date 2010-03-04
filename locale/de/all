@@ -1098,6 +1098,7 @@ $self->{texts} = {
   'One or more Perl modules missing' => 'Ein oder mehr Perl-Module fehlen',
   'Only due follow-ups'         => 'Nur f&auml;llige Wiedervorlagen',
   'Open'                        => 'Offen',
+  'Open Amount'                 => 'Offener Betrag',
   'Open amount'                 => 'offener Betrag',
   'OpenDocument/OASIS'          => 'OpenDocument/OASIS',
   'Openings'                    => 'Öffnungszeiten',

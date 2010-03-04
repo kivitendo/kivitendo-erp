@@ -132,7 +132,7 @@ sub show_invoices {
     if ($row->{next_dunning_config_id}) {
       map { $_->{SELECTED} = $_->{id} == $row->{next_dunning_config_id} } @{ $row->{DUNNING_CONFIG } };
     }
-    map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount fee interest);
+    map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount open_amount fee interest);
   }
 
   $form->get_lists('printers'  => 'printers',
