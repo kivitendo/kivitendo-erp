@@ -35,7 +35,7 @@
 package IC;
 
 use Data::Dumper;
-use List::MoreUtils qw(all any);
+use List::MoreUtils qw(all any uniq);
 use YAML;
 
 use SL::CVar;
@@ -1005,9 +1005,23 @@ sub all_parts {
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = ' GROUP BY ' . join ', ',    map { $token_builder->($_) } @group_tokens if scalar @group_tokens;
 
-  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'IC',
-                                                            'trans_id_field' => 'p.id',
-                                                            'filter'         => $form);
+  my %oe_flag_to_cvar = (
+    bought   => 'invoice',
+    sold     => 'invoice',
+    onorder  => 'orderitems',
+    ordered  => 'orderitems',
+    rfq      => 'orderitems',
+    quoted   => 'orderitems',
+  );
+
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query(
+    module         => 'IC',
+    trans_id_field => $bsooqr ? 'ioi.id': 'p.id',
+    filter         => $form,
+    sub_module     => $bsooqr ? [ uniq grep { $oe_flag_to_cvar{$form->{$_}} } @oe_flags ] : undef,
+  );
+
+  $::lxdebug->dump(0,  "\@cvar_val", \@cvar_values);
 
   if ($cvar_where) {
     $where_clause .= qq| AND ($cvar_where)|;
