@@ -287,6 +287,7 @@ $self->{texts} = {
   'Top 100'                     => 'Top 100',
   'Top 100 hinzufuegen'         => 'Top 100 hinzufügen',
   'Transactions, AR transactions, AP transactions' => 'Dialogbuchen, Debitorenrechnungen, Kreditorenrechnungen',
+  'Transdate'                   => 'Belegdatum',
   'Transfer To Stock'           => 'Lagereingang',
   'Trying to call a sub without a name' => 'Es wurde versucht, eine Unterfunktion ohne Namen aufzurufen.',
   'Unit'                        => 'Einheit',

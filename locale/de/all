@@ -1705,6 +1705,7 @@ $self->{texts} = {
   'Transaction has been split on both the credit and the debit side' => 'Sowohl auf der Soll- als auch auf der Haben-Seite gesplittete Buchung',
   'Transaction posted!'         => 'Buchung verbucht!',
   'Transactions, AR transactions, AP transactions' => 'Dialogbuchen, Debitorenrechnungen, Kreditorenrechnungen',
+  'Transdate'                   => 'Belegdatum',
   'Transfer'                    => 'Umlagern',
   'Transfer Quantity'           => 'Umlagermenge',
   'Transfer To Stock'           => 'Lagereingang',
