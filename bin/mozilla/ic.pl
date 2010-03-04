@@ -1124,12 +1124,7 @@ sub generate_report {
   if ($form->{l_linetotal}) {
     $form->{l_onhand} = "Y";
     $form->{l_linetotalsellprice} = "Y" if $form->{l_sellprice};
-    if ($form->{l_lastcost}) {
-      $form->{l_linetotallastcost} = "Y";
-      if (($form->{searchitems} eq 'assembly') && !$form->{bom}) {
-        $form->{l_linetotallastcost} = "";
-      }
-    }
+    $form->{l_linetotallastcost}  = $form->{searchitems} eq 'assembly' && !$form->{bom} ? "" : 'Y' if  $form->{l_lastcost};
     $form->{l_linetotallistprice} = "Y" if $form->{l_listprice};
   }
 
@@ -1156,9 +1151,12 @@ sub generate_report {
 
   IC->all_parts(\%myconfig, \%$form);
 
-  my @columns =
-    qw(partnumber description partsgroup bin onhand rop unit listprice linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
-       priceupdate weight image drawing microfiche invnumber ordnumber quonumber name serialnumber soldtotal deliverydate);
+  my @columns = qw(
+    partnumber description partsgroup bin onhand rop unit listprice
+    linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
+    priceupdate weight image drawing microfiche invnumber ordnumber quonumber
+    transdate name serialnumber soldtotal deliverydate
+  );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
@@ -1190,6 +1188,7 @@ sub generate_report {
     'sellprice'          => { 'text' => $locale->text('Sell Price'), },
     'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
     'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
+    'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
     %column_defs_cvars,
