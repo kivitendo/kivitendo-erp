@@ -13,7 +13,7 @@
    </tr>
 
    <tr>
-    <th align="right" nowrap><translate>Company Name</translate></th>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer Name</translate>[%- ELSE %]<translate>Vendor Name</translate>[%- END %]</th>
     <td><input name="name" size="35"></td>
    </tr>
 
@@ -86,7 +86,7 @@
        </td>
        <td>
         <input name="l_name" id="l_name" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_name"><translate>Company Name</translate></label>
+        <label for="l_name">[% IF IS_CUSTOMER %]<translate>Customer Name</translate>[%- ELSE %]<translate>Vendor Name</translate>[%- END %]</label>
        </td>
        <td>
         <input name="l_street" id="l_street" type="checkbox" class="checkbox" value="Y" checked>
