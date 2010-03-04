@@ -647,7 +647,7 @@ sub business {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT id, description, discount, customernumberinit
+  my $query = qq|SELECT id, description, discount, customernumberinit, salesman
                  FROM business
                  ORDER BY 2|;
 
@@ -673,7 +673,7 @@ sub get_business {
   my $dbh = $form->dbconnect($myconfig);
 
   my $query =
-    qq|SELECT b.description, b.discount, b.customernumberinit
+    qq|SELECT b.description, b.discount, b.customernumberinit, b.salesman
        FROM business b
        WHERE b.id = ?|;
   my $sth = $dbh->prepare($query);
@@ -699,20 +699,20 @@ sub save_business {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  my @values = ($form->{description}, $form->{discount},
-                $form->{customernumberinit});
+  my @values = ($form->{description}, $form->{discount}, $form->{customernumberinit}, $form->{salesman} ? 't' : 'f');
   # id is the old record
   if ($form->{id}) {
     $query = qq|UPDATE business SET
                 description = ?,
                 discount = ?,
-                customernumberinit = ?
+                customernumberinit = ?,
+                salesman = ?
                 WHERE id = ?|;
     push(@values, $form->{id});
   } else {
     $query = qq|INSERT INTO business
-                (description, discount, customernumberinit)
-                VALUES (?, ?, ?)|;
+                (description, discount, customernumberinit, salesman)
+                VALUES (?, ?, ?, ?)|;
   }
   do_query($form, $dbh, $query, @values);
 
