@@ -1,4 +1,5 @@
-[% USE HTML %][% USE LxERP %]<body onLoad="fokus()">
+[% USE HTML %][% USE LxERP %]
+<body onLoad="fokus()">
 
  <div class="listtop">[% title %]</div>
 
@@ -21,6 +22,32 @@
 
     <table width="100%">
      <tr height="5"></tr>
+     [% IF conf_vertreter %]
+      <tr>
+       <th align="right">[% IF is_customer %]<translate>Type of Customer</translate>[%- ELSE %]<translate>Type of Vendor</translate>[%- END %]</th>
+       <td>
+        [%- INCLUDE generic/multibox.html
+              name       = 'business',
+              DATA       = all_business,
+              show_empty = 1,
+              id_key     = 'id',
+              label_key  = 'description',
+        -%]
+       </td>
+      </tr>
+      <tr>
+       <th align="right"><translate>Representative</translate></th>
+       <td>
+        [%- INCLUDE generic/multibox.html
+              name       = 'salesman_id',
+              DATA       = ALL_SALESMAN_BUSINESSES,
+              show_empty = 1,
+              id_key     = 'id',
+              label_key  = 'description',
+        -%]
+       </td>
+      </tr>
+     [%- END %]
      <tr>
       [%- IF is_customer %]
       <th align="right" nowrap><translate>Customer Number</translate></th>
@@ -153,17 +180,28 @@
       <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
      </tr>
 
+     [%- IF conf_vertreter %]
+      <tr>
+	     <th align="right"><translate>Username</translate></th>
+	     <td><input name="username" maxlength="50" value="[% HTML.escape(username) %]"></td>
+ 	     <th align="right"><translate>Password</translate></th>
+	     <td><input name="user_password" value="[% HTML.escape(user_password) %]"></td>
+      </tr>
+     [%- END %]
+
      <tr>
-      <th align="right"><translate>Type of Business</translate></th>
-      <td>
-       [%- INCLUDE generic/multibox.html
-             name       = 'business',
-             DATA       = all_business,
-             show_empty = 1,
-             id_key     = 'id',
-             label_key  = 'description',
-       -%]
-      </td>
+      [% UNLESS conf_vertreter %]
+       <th align="right">[% IF is_customer %]<translate>Type of Customer</translate>[% ELSE %]<translate>Type of Vendor</translate>[%- END %]</th>
+       <td>
+        [%- INCLUDE generic/multibox.html
+              name       = 'business',
+              DATA       = all_business,
+              show_empty = 1,
+              id_key     = 'id',
+              label_key  = 'description',
+        -%]
+       </td>
+      [%- END %]
       <th align="right"><translate>Language</translate></th>
       <td>
        [%- INCLUDE generic/multibox.html
@@ -207,7 +245,7 @@
              label_key  = 'description',
        -%]
       </td>
-      [%- IF is_customer %]
+      [%- IF is_customer && !use_vertreter %]
       <th align="right"><translate>Salesman</translate></th>
       <td>
        [%- INCLUDE generic/multibox.html

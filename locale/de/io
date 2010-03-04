@@ -299,6 +299,7 @@ $self->{subs} = {
   'quotation'                   => 'quotation',
   'reformat_numbers'            => 'reformat_numbers',
   'relink_accounts'             => 'relink_accounts',
+  'remove_emptied_rows'         => 'remove_emptied_rows',
   'request_for_quotation'       => 'request_for_quotation',
   'retrieve_partunits'          => 'retrieve_partunits',
   'sales_invoice'               => 'sales_invoice',

@@ -487,6 +487,7 @@ $self->{subs} = {
   'redo_stock_info'             => 'redo_stock_info',
   'reformat_numbers'            => 'reformat_numbers',
   'relink_accounts'             => 'relink_accounts',
+  'remove_emptied_rows'         => 'remove_emptied_rows',
   'report'                      => 'report',
   'report_for_todo_list'        => 'report_for_todo_list',
   'report_generator_back'       => 'report_generator_back',

@@ -397,6 +397,7 @@ $self->{subs} = {
   'quotation'                   => 'quotation',
   'reformat_numbers'            => 'reformat_numbers',
   'relink_accounts'             => 'relink_accounts',
+  'remove_emptied_rows'         => 'remove_emptied_rows',
   'report_generator_back'       => 'report_generator_back',
   'report_generator_dispatcher' => 'report_generator_dispatcher',
   'report_generator_do'         => 'report_generator_do',
