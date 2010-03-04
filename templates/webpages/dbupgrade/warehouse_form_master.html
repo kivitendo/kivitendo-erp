@@ -1,19 +1,24 @@
-[% USE HTML %]<div class="listtop"><translate>Warehouse MIgration</translate></div>
+[% USE HTML %]
+<div class="listtop"><translate>Warehouse Migration</translate></div>
 
 <form action="[% script %]" method="POST">
+ <p>
+  <translate>Lx-Office is now able to manage warehouses instead of just tracking the amount of goods in your system.</translate>
+  <translate>This update will change the nature the onhand of goods is tracked.</translate>
+  <translate>As a result, the saved onhand values of the present goods can be stored into a warehouse designated by you, or will be reset for a proper warehouse tracking</translate>
+ </p>
 
-<p><translate>Lx-Office is now able to manage warehouses instead of just tracking the amount of goods in your system.</translate> 
-<translate>This update will change the nature the onhand of goods is tracked.</translate> 
-<translate>As a result, the saved onhand values of the present goods can be stored into a warehouse designated by you, or will be reset for a proper warehouse tracking</translate></p>
+ <p><translate>Do you want to store the existing onhand values into a new warehouse?</translate></p>
 
-<p><translate>Do you want to store the existing onhand values into a new warehouse?</translate></p>
-<input id=do_migrate_Y name=do_migrate type=radio value=Y>&nbsp;<label for=do_migrate_Y><translate>Yes</translate></label>
-<input id=do_migrate_N name=do_migrate type=radio value=N checked>&nbsp;<label for=do_migrate_N><translate>No</translate></label>
+ <input id="do_migrate_Y" name="do_migrate" type="radio" value="Y">&nbsp;<label for="do_migrate_Y"><translate>Yes</translate></label>
+ <input id="do_migrate_N" name="do_migrate" type="radio" value="N" checked>&nbsp;<label for="do_migrate_N"><translate>No</translate></label>
 
-<p><translate>Please specify a description for the warehouse designated for these goods.</translate></p>
-<input name=import_warehouse size=50>
+ <p><translate>Please specify a description for the warehouse designated for these goods.</translate></p>
+ <input name="import_warehouse" size="50">
 
-<p><translate>Since bin is not enforced in the parts data, please specify a bin where goods without a specified bin will be put.</translate><p>
-<input name=bin_default size=50>
+ <p><translate>Since bin is not enforced in the parts data, please specify a bin where goods without a specified bin will be put.</translate><p>
 
-<p><input type=submit value="<translate>Continue</translate>"></p>
+  <input name="bin_default" size="50">
+
+ <p><input type="submit" value="<translate>Continue</translate>"></p>
+</form>
