@@ -463,7 +463,7 @@ sub update {
     my $rows = scalar @{ $form->{item_list} };
 
     if ($rows) {
-      $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
+      $form->{"qty_$i"} = 1 unless $form->parse_amount(\%myconfig, $form->{"qty_$i"});
 
       if ($rows > 1) {
 
