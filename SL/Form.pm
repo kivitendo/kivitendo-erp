@@ -203,7 +203,10 @@ sub _recode_recursively {
   if (any { ref $param eq $_ } qw(Form HASH)) {
     foreach my $key (keys %{ $param }) {
       if (!ref $param->{$key}) {
-        $param->{$key} = $iconv->convert($param->{$key});
+        # Workaround for a bug: converting $param->{$key} directly
+        # leads to 'undef'. I don't know why. Converting a copy works,
+        # though.
+        $param->{$key} = $iconv->convert("" . $param->{$key});
       } else {
         _recode_recursively($iconv, $param->{$key});
       }
@@ -212,7 +215,10 @@ sub _recode_recursively {
   } elsif (ref $param eq 'ARRAY') {
     foreach my $idx (0 .. scalar(@{ $param }) - 1) {
       if (!ref $param->[$idx]) {
-        $param->[$idx] = $iconv->convert($param->[$idx]);
+        # Workaround for a bug: converting $param->[$idx] directly
+        # leads to 'undef'. I don't know why. Converting a copy works,
+        # though.
+        $param->[$idx] = $iconv->convert("" . $param->[$idx]);
       } else {
         _recode_recursively($iconv, $param->[$idx]);
       }
