@@ -941,7 +941,7 @@ sub get_delivery {
     qq|SELECT s.shiptoname, i.qty $qty_sign, | .
     qq|  ${arap}.id, ${arap}.transdate, ${arap}.invnumber, ${arap}.ordnumber, | .
     qq|  i.description, i.unit, i.sellprice, | .
-    qq|  oe.id AS oe_id | .
+    qq|  oe.id AS oe_id, invoice | .
     qq|FROM $arap | .
     qq|LEFT JOIN shipto s ON | .
     ($arap eq "ar"
