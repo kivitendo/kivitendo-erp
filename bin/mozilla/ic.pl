@@ -1145,12 +1145,10 @@ sub generate_report {
 
   # special case for lastcost
   if ($form->{ledgerchecks}){
-    # zumindestens für den haken 'gekauft' muss das verhalten
-    # so sein, das der Verkaufspreis nicht angezeigt
-    # wird. In der Backend-Funktion all_parts wird nur mit
-    # price gearbeitet
+    # ledgerchecks don't know about sellprice or lastcost. they just return a
+    # price. so rename sellprice to price, and drop lastcost.
     $column_defs{sellprice}{text} = $locale->text('Price');
-    $form->{l_lastcost} = "" 
+    $form->{l_lastcost} = ""
   }
 
   if ($form->{description}) {
