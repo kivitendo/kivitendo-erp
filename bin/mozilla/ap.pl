@@ -1292,7 +1292,7 @@ sub ap_transactions {
     'duedate'                 => { 'text' => $locale->text('Due Date'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'notes'                   => { 'text' => $locale->text('Notes'), },
-    'employee'                => { 'text' => $locale->text('Salesperson'), },
+    'employee'                => { 'text' => $locale->text('Employee'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'vendornumber'            => { 'text' => $locale->text('Vendor Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
