@@ -66,23 +66,24 @@ if ($_POST["ok"]) {
     $precision = $_POST["precision"];
     $quotation = $_POST["quotation"];
     $quottype = $_POST["quottype"];
-    $file    = "parts";
+    $file    = "../users/parts.csv";
+    $table   = "parts";
 
     /* no data? */
     if (empty($_FILES["Datei"]["name"]))
         ende ("Kein Datenfile angegeben");
 
     /* copy file */
-    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file.".csv")) {
+    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file)) {
         ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
     } 
 
     /* check if file is really there */
-    if (!file_exists("$file.csv") or filesize("$file.csv")==0) 
-        ende("Datenfile ($file.csv) nicht im Ordner gefunden oder leer");
+    if (!file_exists("$file") or filesize("$file")==0) 
+        ende("Datenfile ($file) nicht im Ordner gefunden oder leer");
 
     /* Zu diesem Zeitpunkt wurde der Artikel Importiert */
-    if (!$db->chkcol($file)) 
+    if (!$db->chkcol($table)) 
         ende("Importspalte konnte nicht angelegt werden");
 
     /* first check all elements */

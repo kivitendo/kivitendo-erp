@@ -210,7 +210,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
     $parts_fld = array_keys($fields);
 
     /* open csv file */
-    $f=fopen("$file.csv","r");
+    $f=fopen("$file","r");
     
     /*
      * read first line with table descriptions
