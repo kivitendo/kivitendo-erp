@@ -1738,7 +1738,7 @@ sub check_exchangerate {
   return $exchangerate;
 }
 
-sub get_default_currency {
+sub get_all_currencies {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig) = @_;
@@ -1746,14 +1746,24 @@ sub get_default_currency {
 
   my $query = qq|SELECT curr FROM defaults|;
 
-  my ($curr)            = selectrow_query($self, $dbh, $query);
-  my ($defaultcurrency) = split m/:/, $curr;
+  my ($curr)     = selectrow_query($self, $dbh, $query);
+  my @currencies = grep { $_ } map { s/\s//g; $_ } split m/:/, $curr;
 
   $main::lxdebug->leave_sub();
 
-  return $defaultcurrency;
+  return @currencies;
 }
 
+sub get_default_currency {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig) = @_;
+  my @currencies        = $self->get_all_currencies($myconfig);
+
+  $main::lxdebug->leave_sub();
+
+  return $currencies[0];
+}
 
 sub set_payment_options {
   $main::lxdebug->enter_sub();

@@ -156,11 +156,9 @@ sub create_links {
   $form->{notes} = $form->{intnotes} unless $form->{notes};
 
   # currencies
-  my @curr = split(/:/, $form->{currencies});
-  chomp $curr[0];
-  $form->{defaultcurrency} = $curr[0];
+  $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
+  map { $form->{selectcurrency} .= "<option>$_\n" } $form->get_all_currencies(\%myconfig);
 
   # vendors
   if (@{ $form->{all_vendor} || [] }) {
@@ -261,7 +259,7 @@ sub form_header {
   my $exchangerate = qq|
 <input type=hidden name=forex value=$form->{forex}>
 |;
-  if ($form->{currency} ne $form->{defaultcurrency}) {
+  if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
     if ($form->{forex}) {
       $exchangerate .= qq|
             <tr>
@@ -639,7 +637,7 @@ $jsscript
 |;
 
   my @column_index;
-  if ($form->{currency} eq $form->{defaultcurrency}) {
+  if ($form->{defaultcurrency} && ($form->{currency} eq $form->{defaultcurrency})) {
     @column_index = qw(datepaid source memo paid AP_paid paid_project_id);
   } else {
     @column_index = qw(datepaid source memo paid exchangerate AP_paid paid_project_id);
@@ -692,7 +690,7 @@ $jsscript
     }
 
     $exchangerate = qq|&nbsp;|;
-    if ($form->{currency} ne $form->{defaultcurrency}) {
+    if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
       if ($form->{"forex_$i"}) {
         $exchangerate =
           qq|<input type=hidden name="exchangerate_$i" value=$form->{"exchangerate_$i"}>$form->{"exchangerate_$i"}|;
@@ -985,7 +983,7 @@ sub post_payment {
       $form->error($locale->text('Cannot post payment for a closed period!'))
         if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
 
-      if ($form->{currency} ne $form->{defaultcurrency}) {
+      if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
           if ($invdate == $datepaid);
         $form->isblank("exchangerate_$i",
@@ -1034,7 +1032,7 @@ sub post {
   $form->error($locale->text('Zero amount posting!')) if $zero_amount_posting;
 
   $form->isblank("exchangerate", $locale->text('Exchangerate missing!'))
-    if ($form->{currency} ne $form->{defaultcurrency});
+    if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency}));
   delete($form->{AP});
 
   for my $i (1 .. $form->{paidaccounts}) {
@@ -1046,7 +1044,7 @@ sub post {
       $form->error($locale->text('Cannot post payment for a closed period!'))
         if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
 
-      if ($form->{currency} ne $form->{defaultcurrency}) {
+      if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
           if ($transdate == $datepaid);
         $form->isblank("exchangerate_$i",
