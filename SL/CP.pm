@@ -160,16 +160,14 @@ sub get_openinvoices {
   my $buysell = $form->{vc} eq 'customer' ? "buy" : "sell";
   my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
 
-  my $curr_null = $form->{curreny} ? '' : ' OR a.curr IS NULL'; # fix: after sql-injection fix, curr is inserted as NULL, before that as ''
-
   my $query =
      qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, a.curr | .
      qq|FROM $arap a | .
-     qq|WHERE (a.${vc}_id = ?) AND (a.curr = ? $curr_null) AND NOT (a.amount = paid)| .
+     qq|WHERE (a.${vc}_id = ?) AND (COALESCE(a.curr, '') = ?) AND NOT (a.amount = a.paid)| .
      qq|ORDER BY a.id|;
   my $sth = prepare_execute_query($form, $dbh, $query,
                                   conv_i($form->{"${vc}_id"}),
-                                  $form->{currency});
+                                  "$form->{currency}");
 
   $form->{PR} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
@@ -182,6 +180,16 @@ sub get_openinvoices {
   }
 
   $sth->finish;
+
+  $query = <<SQL;
+    SELECT COUNT(*)
+    FROM $arap
+    WHERE (${vc}_id = ?)
+      AND (COALESCE(curr, '') <> ?)
+      AND (amount <> paid)
+SQL
+  ($form->{openinvoices_other_currencies}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{"${vc}_id"}), "$form->{currency}");
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -363,7 +371,7 @@ sub process_payment {
 		# Hier werden negativen Zahlungseingänge abgefangen
 		# Besser: in Oberfläche schon prüfen
 		# Zahlungsein- und ausgänge sind immer positiv
-    $dbh->rollback;	
+    $dbh->rollback;
     $rc = 0;
   }
   if ($form->round_amount($paymentamount, 2) == 0) {

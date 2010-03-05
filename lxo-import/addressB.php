@@ -48,17 +48,17 @@ function ende($txt) {
     echo "Abbruch: $txt<br>";
     exit(1);
 }
-
+$dir = "../users/";
 clearstatcache ();
 //print_r($_FILES);
 $test=$_POST["test"];
 if (!empty($_FILES["Datei"]["name"])) {
     $file=$_POST["ziel"];
-    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file.".csv")) {
+    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
         $file=false;
         echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
     }
-} else if (is_file($_POST["ziel"].".csv")) {
+} else if (is_file($dir.$_POST["ziel"].".csv")) {
     $file=$_POST["ziel"];
 } else {
     $file=false;
@@ -67,8 +67,12 @@ if (!empty($_FILES["Datei"]["name"])) {
 if (!$file) ende ("Kein Datenfile");
 
 $trenner=($_POST["trenner"])?$_POST["trenner"]:",";
+if ($trenner=="other") {
+    $trenner=trim($trennzeichen);
+    if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
+} 
 
-if (!file_exists("$file.csv")) ende("$file.csv nicht im Ordner oder leer");
+if (!file_exists($dir.$file.".csv")) ende("$file.csv nicht im Ordner oder leer");
 
 
 if (!$db->chkcol($file)) ende("Importspalte kann nicht angelegt werden");
@@ -78,7 +82,39 @@ if (!$employee) ende("Ung&uuml;ltiger User");
 
 $kunde_fld = array_keys($address);
 
-$f=fopen("$file.csv","r");
+    //Zeichencodierung des Servers
+    $tmpcode = $db->getServerCode();
+    //Leider sind die Benennungen vom Server anders als von mb_detect_encoding
+    if ($tmpcode == "UTF8") {
+         define("ServerCode","UTF-8");
+    } else if ($tmpcode == "LATIN9") {
+         define("ServerCode","ISO-8859-15");
+    } else if ($tmpcode == "LATIN1") {
+         define("ServerCode","ISO-8859-1");
+    } else {
+         define("ServerCode",$tmpcode);
+    }
+    //Zeichensatz sollte gleich sein, sonst ist die Datenkonvertierung nutzlos
+    //DB und LxO müssen ja nicht auf der gleichen Maschiene sein.
+    if($tmpcode<>$db->getClientCode()) {
+        $rc = $db->setClientCode($tmpcode);
+    }
+
+    // Zeichenkodierung File
+    if ($_POST["encoding"] == "auto") {
+         define("Auto",true);
+         define("Translate",true);
+    } else {
+         define("Auto",false);
+         if ($_POST["encoding"] == ServerCode) {
+            define("Translate",false);
+         } else {
+            define("Translate",true);
+            define("FileCode",$_POST["encoding"]);
+         }
+    }
+
+$f=fopen($dir.$file.".csv","r");
 $zeile=fgets($f,1200);
 $infld=split($trenner,strtolower($zeile));
 $first=true;
@@ -111,14 +147,14 @@ if ($ok) while (!feof($f)){
         $data=trim($data);
         // seit 2.6 ist die DB-Kodierung UTF-8 @holger Ansonsten einmal vorher die DB-Encoding auslesen
         // Falls die Daten ISO-kodiert kommen entsprechend wandeln
+        // done!
         // UTF-8 MUSS als erstes stehen, da ansonsten die Prüfung bei ISO-8859-1 aufhört ...
+        // die blöde mb_detect... tut leider nicht immer, daher die Möglichkeit der Auswahl
         // TODO Umlaute am Anfang wurden bei meinem Test nicht übernommen (Österreich). S.a.:
         // http://forum.de.selfhtml.org/archiv/2007/1/t143904/
 
-        $encoding = mb_detect_encoding($data,"UTF-8,ISO-8859-1,ISO-8859-15");
-        if ($encoding != "UTF-8"){
-          $data=mb_convert_encoding($data, "UTF-8","$encoding");
-        }
+        if (Translate) translate($data);
+
         //$data=htmlentities($data);
         $data=addslashes($data);
         if ($in_fld[$i]==$file."number") {  // customernumber || vendornumber
@@ -132,12 +168,9 @@ if ($ok) while (!feof($f)){
         } else if ($in_fld[$i]=="taxincluded"){
             $data=strtolower(substr($data,0,1));
             if ($data!="f" && $data!="t") $data="f";
-        } /*else if ($in_fld[$i]=="ustid"){
-            Was passiert hier:
-            $data=strtr(" ","",$data);
-            SUCHE IN ' ' nach dem Vorkommen von '' mit der BOOLEAN-Interpretation von $data
-            demnach gibt es immer eine leere Zeichenkette zurück.
-        }*/ /*else if ($in_fld[$i]=="matchcode") {
+        } else if ($in_fld[$i]=="ustid"){
+            $data=strtr($data," ","");
+        } /*else if ($in_fld[$i]=="matchcode") {
                   $matchcode=$data;
                   $i++;
                   continue;
@@ -208,9 +241,26 @@ echo $j." $file importiert.\n";
 <table>
 <tr><td></td><td><input type="submit" name="ok" value="Hilfe"></td></tr>
 <tr><td>Zieltabelle</td><td><input type="radio" name="ziel" value="customer" checked>customer <input type="radio" name="ziel" value="vendor">vendor</td></tr>
-<tr><td>Trennzeichen</td><td><input type="text" size="2" maxlength="1" name="trenner" value=";"></td></tr>
+<tr><td>Trennzeichen</td><td>
+        <input type="radio" name="trenner" value=";" checked>Semikolon
+        <input type="radio" name="trenner" value=",">Komma
+        <input type="radio" name="trenner" value="#9" checked>Tabulator
+        <input type="radio" name="trenner" value=" ">Leerzeichen
+        <input type="radio" name="trenner" value="other">
+        <input type="text" size="2" name="trennzeichen" value="">
+</td></tr>
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
+<tr><td>Verwendete<br />Zeichecodierung</td><td>
+        <select name="encoding">
+        <option value="auto">Automatisch (versuchen)</option>
+        <option value="UTF-8">UTF-8</option>
+        <option value="ISO-8859-1">ISO-8859-1</option>
+        <option value="ISO-8859-15">ISO-8859-15</option>
+        <option value="Windows-1252">Windows-1252</option>
+        <option value="ASCII">ASCII</option>
+        </select>
+</td></tr>
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>

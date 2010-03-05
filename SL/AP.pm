@@ -54,6 +54,7 @@ sub post_transaction {
   my $exchangerate = 0;
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  delete $form->{currency} unless $form->{defaultcurrency};
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
   $form->{department_id} *= 1;
@@ -587,11 +588,9 @@ sub post_payment {
 
   $self->setup_form($form);
 
-  ($form->{defaultcurrency}) = selectrow_query($form, $dbh, qq|SELECT curr FROM defaults|);
-  $form->{defaultcurrency}   = (split m/:/, $form->{defaultcurrency})[0];
-  $form->{currency}          = $form->{defaultcurrency} if ($form->{defaultcurrency} && ($form->{currency} =~ m/^\s*$/));
-
-  $form->{exchangerate}      = $form->format_amount($myconfig, $form->{exchangerate});
+  $form->{exchangerate}    = $form->format_amount($myconfig, $form->{exchangerate});
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  delete $form->{currency} unless $form->{defaultcurrency};
 
   # Get the AP accno.
   $query =

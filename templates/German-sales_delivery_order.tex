@@ -1,0 +1,78 @@
+\documentclass[twoside]{scrartcl}
+\usepackage{eurosym}
+\usepackage{tabularx}
+\usepackage{ifthen}
+\usepackage[utf8]{inputenc}
+\begin{document}
+
+\setlength{\parindent}{0cm}
+
+\pagestyle{empty}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{10cm}
+
+\fontfamily{cmss}\fontshape{n}\selectfont
+
+<%pagebreak 80 28 37%>
+\end{tabularx}
+
+\newpage
+
+\begin{tabularx}{\textwidth}{lrXrr}
+  \hline
+  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
+  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
+  \hline
+<%end pagebreak%>
+
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\vspace*{1.5cm}
+
+\begin{minipage}{8cm}
+  <%name%>
+
+  <%street%>
+
+  <%zipcode%> <%city%>
+
+  <%country%>
+\end{minipage}
+\hfill
+\begin{minipage}{6cm}
+  \rightline{\LARGE\textbf{\textit{Lieferschein}}} \vspace*{0.2cm}
+  \rightline{\large\textbf{\textit{Nr. <%donumber%>% \vspace*{0.2cm}
+  }}}
+
+  Lieferscheindatum:\hfill <%dodate%>
+
+  Kunden-Nr:\hfill <%customernumber%>
+
+  Telefon:\hfill <%phone%>
+
+  Telefax:\hfill <%fax%>
+
+  Ansprechpartner:\hfill <%employee%>
+\end{minipage}
+
+\vspace*{0.5cm}
+
+\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rl@{}}
+  \textbf{Nummer} & \textbf{Artikel} & \textbf{Anz} & \textbf{Einh}  \\
+
+<%foreach number%>
+  <%number%> & <%description%> & <%qty%> & <%unit%>   \\
+    & <%serialnumber%>  & & \\
+<%end number%>
+\end{tabular*}
+
+\vspace{1cm}
+<%if deliverydate%>
+        Die Auslieferung/Fertigstellung erfolgte am : <%deliverydate%>
+<%end if%>
+<%if notes%>
+  <%notes%>
+<%end if%>
+
+\end{document}
+

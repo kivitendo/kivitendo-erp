@@ -28,6 +28,8 @@ $db=$_SESSION["db"]; //new myDB($login);
 $crm=checkCRM();
 
 if ($_POST["ok"]) {
+    $dir = "../users/";
+
 	$test=$_POST["test"];
 
 	if ($crm) {
@@ -55,14 +57,19 @@ if ($_POST["ok"]) {
 	clearstatcache ();
 
 	$trenner=($_POST["trenner"])?$_POST["trenner"]:",";
+    if ($trenner=="other") {
+        $trenner=trim($trennzeichen);
+        if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
+    }
+ 
 
 if (!empty($_FILES["Datei"]["name"])) { 
 	$file=$_POST["ziel"];
-	if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file."_contact.csv")) {
+	if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file."_contact.csv")) {
 		$file=false;
 		echo "Upload von ".$_FILES["Datei"]["name"]." fehlerhaft. (".$_FILES["Datei"]["error"].")<br>";
 	} 
-} else if (is_file($_POST["ziel"]."_contact.csv")) {
+} else if (is_file($dir.$_POST["ziel"]."_contact.csv")) {
 	$file=$_POST["ziel"];
 } else {
 	$file=false;
@@ -70,16 +77,49 @@ if (!empty($_FILES["Datei"]["name"])) {
 
 if (!$file) ende (2);
 
-if (!file_exists($file."_contact.csv")) ende(5);
+if (!file_exists($dir.$file."_contact.csv")) ende(5);
 
-$prenumber=$_POST["prenumber"];
+//$prenumber=$_POST["prenumber"];
 
 $employee=chkUsr($_SESSION["employee"]);
 if (!$employee) ende(4);
 
 if (!$db->chkcol($file)) ende(6);
 
-$f=fopen($file."_contact.csv","r");
+    //Zeichencodierung des Servers
+    $tmpcode = $db->getServerCode();
+    //Leider sind die Benennungen vom Server anders als von mb_detect_encoding
+    if ($tmpcode == "UTF8") {
+         define("ServerCode","UTF-8");
+    } else if ($tmpcode == "LATIN9") {
+         define("ServerCode","ISO-8859-15");
+    } else if ($tmpcode == "LATIN1") {
+         define("ServerCode","ISO-8859-1");
+    } else {
+         define("ServerCode",$tmpcode);
+    }
+    //Zeichensatz sollte gleich sein, sonst ist die Datenkonvertierung nutzlos
+    //DB und LxO müssen ja nicht auf der gleichen Maschiene sein.
+    if($tmpcode<>$db->getClientCode()) {
+        $rc = $db->setClientCode($tmpcode);
+    }
+
+    // Zeichenkodierung File
+    if ($_POST["encoding"] == "auto") {
+         define("Auto",true);
+         define("Translate",true);
+    } else {
+         define("Auto",false);
+         if ($_POST["encoding"] == ServerCode) {
+            define("Translate",false);
+         } else {
+            define("Translate",true);
+            define("FileCode",$_POST["encoding"]);
+         }
+    }
+
+
+$f=fopen($dir.$file."_contact.csv","r");
 $zeile=fgetcsv($f,2000,$trenner);
 
 $first=true;
@@ -105,6 +145,7 @@ while (!feof($f)){
 		}
 		$data=addslashes(trim($data));
 		if ($in_fld[$i]=="firma" && $data) { 
+            if (Translate) translate($data);
 			$data=suchFirma($file,$data);
 			if ($data) {
 				$id=$data["cp_cv_id"];
@@ -149,15 +190,18 @@ while (!feof($f)){
 		if ($data==false or empty($data) or !$data) {
                         $vals.="null,";
                 } else {
-                	if (in_array($in_fld[$i],array("cp_fax","cp_phone1","cp_phone2"))) {
-				$data=$prenumber.$data;
-			} else if ($in_fld[$i]=="cp_country" && $data) {
-				$data=mkland($data);
-			}
-			if ($in_fld[$i]=="cp_name") $name=true;
-                        $vals.="'".$data."',";
-                        // bei jedem gefuellten Datenfeld erhoehen
-                        $val_count++;
+
+                    if (Translate) translate($data);
+
+                	/*if (in_array($in_fld[$i],array("cp_fax","cp_phone1","cp_phone2"))) {
+				        $data=$prenumber.$data;
+                    } else if ($in_fld[$i]=="cp_country" && $data) {
+                        $data=mkland($data);
+                    } */
+    		    	if ($in_fld[$i]=="cp_name") $name=true;
+                    $vals.="'".$data."',";
+                    // bei jedem gefuellten Datenfeld erhoehen
+                    $val_count++;
                 }
 	}
 	if (!$name) {
@@ -197,10 +241,27 @@ echo $j." $file importiert.\n";} else {
 <table>
 <tr><td></td><td><input type="submit" name="ok" value="Hilfe"></td></tr>
 <tr><td>Zieltabelle</td><td><input type="radio" name="ziel" value="customer" checked>customer <input type="radio" name="ziel" value="vendor">vendor</td></tr>
-<tr><td>Trennzeichen</td><td><input type="text" size="2" maxlength="1" name="trenner" value=";"></td></tr>
-<tr><td>Telefonvorwahl</td><td><input type="text" size="4" maxlength="1" name="prenumber" value=""></td></tr>
+<tr><td>Trennzeichen</td><td>
+        <input type="radio" name="trenner" value=";" checked>Semikolon
+        <input type="radio" name="trenner" value=",">Komma
+        <input type="radio" name="trenner" value="#9" checked>Tabulator
+        <input type="radio" name="trenner" value=" ">Leerzeichen
+        <input type="radio" name="trenner" value="other">
+        <input type="text" size="2" name="trennzeichen" value="">
+</td></tr>
+<!--tr><td>Telefonvorwahl</td><td><input type="text" size="4" maxlength="1" name="prenumber" value=""></td></tr-->
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
+<tr><td>Verwendete<br />Zeichecodierung</td><td>
+        <select name="encoding">
+        <option value="auto">Automatisch (versuchen)</option>
+        <option value="UTF-8">UTF-8</option>
+        <option value="ISO-8859-1">ISO-8859-1</option>
+        <option value="ISO-8859-15">ISO-8859-15</option>
+        <option value="Windows-1252">Windows-1252</option>
+        <option value="ASCII">ASCII</option>
+        </select>
+</td></tr>
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>

@@ -1,4 +1,4 @@
-<?
+<?php
 //Henry Margies <h.margies@maxina.de>
 //Holger Lindemann <hli@lx-system.de>
 
@@ -210,7 +210,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
     $parts_fld = array_keys($fields);
 
     /* open csv file */
-    $f=fopen("$file","r");
+    $f=fopen($file.'.csv',"r");
     
     /*
      * read first line with table descriptions
@@ -222,7 +222,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         show("weight");     show("image");      show("partsgroup_id");
         show("bg");         show("income_accno"); show("expense_accno");
         show("inventory_accno"); show("microfiche");show("drawing");show("rop");
-        show("assembly");show("makemodel");show("shop");  show("");
+        show("assembly");show("makemodel");  show("shop"); show("");
         show("</tr>\n",false);
     }
 
@@ -250,8 +250,8 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
     while ( ($zeile=fgetcsv($f,120000,$trenner)) != FALSE) {
         $m++;    /* increase line */
         $unit=false;
-   
         unset($pgroup); 
+        unset($partsgroup_id); 
         unset($notes); 
         unset($rop);
         unset($weight);
@@ -274,15 +274,22 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 
         /* Langtext zusammenbauen */
         if ($zeile[$fldpos["notes"]]) {
-            $notes = preg_replace('/""[^ ]/','"',$zeile[$fldpos["notes"]]);
-            $notes = addslashes($notes);
+            //Kundenspezifisch:
+            //$notes = preg_replace('/""[^ ]/','"',$zeile[$fldpos["notes"]]);
+            $notes = addslashes($zeile[$fldpos["notes"]]);
+            if (Translate) translate($notes);
         }
         if ($zeile[$fldpos["notes1"]]) {
-            $notes1 = preg_replace('/""[^ ]/','"',$zeile[$fldpos["notes1"]]);
+            //Kundenspezifisch:
+            //$notes1 = preg_replace('/""[^ ]/','"',$zeile[$fldpos["notes1"]]);
+            $notes1 = addslashes($zeile[$fldpos["notes1"]]);
+echo "!".$notes1."!<br>";
+            if (Translate) translate($notes1);
+echo "!".$notes1."!<br>";
             if ($notes) {
-                $notes = "\n".addslashes($notes1);
+                $notes .= "\n".$notes1;
             } else {
-                $notes = addslashes($notes1);
+                $notes = $notes1;
             }
         }
 
@@ -294,16 +301,21 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         if ($fldpos["partsgroup4"]>0 and $zeile[$fldpos["partsgroup4"]]) $pgroup[]=$zeile[$fldpos["partsgroup4"]];
         if (count($pgroup)>0) {
                 $pgname = implode($wgtrenner,$pgroup);
+                if (Translate) translate($pgname);
                 $partsgroup_id = getPartsgroupId($db, $pgname, $insert);
         }
 
         /* sind Hersteller und Modelnummer hinterlegt 
             wenn ja, erfolgt er insert später */
         if (!empty($zeile[$fldpos["makemodel"]]) and !$artikel) { 
-            $hersteller=suchFirma("vendor",$zeile[$fldpos["makemodel"]]);
+            $mm = $zeile[$fldpos["makemodel"]];
+            if (Translate) translate($mm);
+            $hersteller=suchFirma("vendor",$mm);
             $hersteller=$hersteller["cp_cv_id"];
             if (!empty($zeile[$fldpos["model"]])) {
-                $model = $zeile[$fldpos["model"]];
+                $mo = $zeile[$fldpos["model"]];
+                if (Translate) translate($mo);
+                $model = $mo;
                 $makemodel = 't';
             } else { 
                 unset($hersteller);
@@ -378,6 +390,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 
         $description = preg_replace('/""[^ ]/','"',$zeile[$fldpos["description"]]);
         $description = addslashes($description);
+        if (Translate) translate($description);
 
         // rop und weight müssen null oder Zahl sein
         if ($zeile[$fldpos["rop"]]) $rop = 1 * str_replace(",", ".",$zeile[$fldpos["rop"]]);
@@ -385,12 +398,13 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 
         // Shop-Artikel
         if ($zeile[$fldpos["shop"]]) {
-                $shop = ($zeile[$fldpos["shop"]] > 0)?'t':'f';
+                $shop = (strtolower($zeile[$fldpos["shop"]]=='t'))?'t':'f';
         } else {
                 $shop = $maske["shop"];
         }
 
         // Artikel updaten
+
         if (getPartsid($db,trim($zeile[$fldpos["partnumber"]]))) {
             /* es gibt die Artikelnummer */
             if ($Update) {
