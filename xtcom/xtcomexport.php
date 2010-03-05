@@ -181,25 +181,25 @@ global $ERPusr,$versand,$nachn,$minder,$paypal,$auftrnr;
 	};
 	if ($versandK) {
 		$sql="insert into orderitems (trans_id, parts_id, description, qty, sellprice, unit, ship, discount) values (";
-		$sql.=$rs2[0]["id"].",".$versand["ID"].",'".$versand["TXT"]."',1,".$versandK.",'mal',0,0)";
+		$sql.=$rs2[0]["id"].",".$versand["ID"].",'".$versand["TXT"]."',1,".$versandK.",'Stck',0,0)";
 		$rc=query("erp",$sql,"insAuftrag 8");
 		if ($rc === -99) echo "Auftrag $auftrag : Fehler bei den Versandkosten<br>";
 	}
 	if ($nachnK) {
 		$sql="insert into orderitems (trans_id, parts_id, description, qty, sellprice, unit, ship, discount) values (";
-		$sql.=$rs2[0]["id"].",".$nachn["ID"].",'".$nachn["TXT"]."',1,".$nachnK.",'mal',0,0)";
+		$sql.=$rs2[0]["id"].",".$nachn["ID"].",'".$nachn["TXT"]."',1,".$nachnK.",'Stck',0,0)";
 		$rc=query("erp",$sql,"insAuftrag 9");
 		if ($rc === -99) echo "Auftrag $auftrag : Fehler bei den Nachnamekosten<br>";
 	}
 	if ($mindermK) {
 		$sql="insert into orderitems (trans_id, parts_id, description, qty, sellprice, unit, ship, discount) values (";
-		$sql.=$rs2[0]["id"].",".$minder["ID"].",'".$minder["TXT"]."',1,".$mindermK.",'mal',0,0)";
+		$sql.=$rs2[0]["id"].",".$minder["ID"].",'".$minder["TXT"]."',1,".$mindermK.",'Stck',0,0)";
 		$rc=query("erp",$sql,"insAuftrag 10");
 		if ($rc === -99) echo "Auftrag $auftrag : Fehler beim Mindermengenzuschlag<br>";
 	}
 	if ($paypalK) {
 		$sql="insert into orderitems (trans_id, parts_id, description, qty, sellprice, unit, ship, discount) values (";
-		$sql.=$rs2[0]["id"].",".$paypal["ID"].",'".$paypal["TXT"]."',1,".$paypalK.",'mal',0,0)";
+		$sql.=$rs2[0]["id"].",".$paypal["ID"].",'".$paypal["TXT"]."',1,".$paypalK.",'Stck',0,0)";
 		$rc=query("erp",$sql,"insAuftrag 11");
 		if ($rc === -99) echo "Auftrag $auftrag : Fehler bei den PayPal-Kosten<br>";
 	}
