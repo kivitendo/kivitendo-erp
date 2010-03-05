@@ -477,7 +477,7 @@ sub orders {
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
-    'employee'                => { 'text' => $locale->text('Salesperson'), },
+    'employee'                => { 'text' => $locale->text('Employee'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },

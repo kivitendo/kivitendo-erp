@@ -1123,6 +1123,7 @@ sub generate_report {
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
     l_soldtotal   => $locale->text('soldtotal'),
+    ean           => $locale->text('EAN')              . ": '$form->{ean}'",
   );
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
@@ -1191,7 +1192,7 @@ sub generate_report {
     partnumber description partsgroup bin onhand rop unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
-    transdate name serialnumber soldtotal deliverydate
+    transdate name serialnumber soldtotal deliverydate ean
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -1201,8 +1202,7 @@ sub generate_report {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   %column_defs = (%column_defs,%column_defs_cvars); # nochmal die cvars als überschrift hinzufügen
-
-  map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
+    map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
   map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
 
   my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, @searchable_custom_variables, map { "l_$_" } @columns);
