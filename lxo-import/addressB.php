@@ -103,7 +103,6 @@ if ($ok) while (!feof($f)){
     $vals=" values (";
     $number=false;
     foreach($zeile as $data) {
-        print $data . "her" ;
         if (!in_array(trim($in_fld[$i]),$kunde_fld)) {
             if ($in_fld[$i]=="anrede") {  $anrede=addslashes(trim($data)); }
             $i++;
@@ -133,7 +132,7 @@ if ($ok) while (!feof($f)){
         } else if ($in_fld[$i]=="taxincluded"){
             $data=strtolower(substr($data,0,1));
             if ($data!="f" && $data!="t") $data="f";
-/*        } else if ($in_fld[$i]=="ustid"){
+        } /*else if ($in_fld[$i]=="ustid"){
             Was passiert hier:
             $data=strtr(" ","",$data);
             SUCHE IN ' ' nach dem Vorkommen von '' mit der BOOLEAN-Interpretation von $data
