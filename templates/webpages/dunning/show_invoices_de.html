@@ -51,7 +51,10 @@
      <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
      <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
      <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
-     <td><input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">[% HTML.escape(row.invnumber) %]</td>
+     <td>
+      <input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">
+      <a href="is.pl?action=edit&type=invoice&id=[% row.id | url %]">[% HTML.escape(row.invnumber) %]</a>
+     </td>
      <td><input type="hidden" name="invdate_[% loop.count %]" size="6" value="[% HTML.escape(row.transdate) %]">[% HTML.escape(row.transdate) %]</td>
      <td><input type="hidden" name="inv_duedate_[% loop.count %]" size="6" value="[% HTML.escape(row.duedate) %]">[% HTML.escape(row.duedate) %]</td>
      <td align="right"><input type="hidden" name="amount_[% loop.count %]" size="6" value="[% HTML.escape(row.amount) %]">[% HTML.escape(row.amount) %]</td>
