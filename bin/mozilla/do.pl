@@ -1209,10 +1209,10 @@ sub transfer_in {
 
       my $do_base_qty = $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
-      if ($do_base_qty != $row_sum_base_qty) {
-        push @{ $form->{ERRORS} }, $locale->text('Error in position #1: You must either assign no stock at all or the full quantity of #2 #3.',
-                                                 $i, $form->{"qty_$i"}, $form->{"unit_$i"});
-      }
+#      if ($do_base_qty != $row_sum_base_qty) {
+#        push @{ $form->{ERRORS} }, $locale->text('Error in position #1: You must either assign no stock at all or the full quantity of #2 #3.',
+#                                                 $i, $form->{"qty_$i"}, $form->{"unit_$i"});
+#      }
     }
 
     if (@{ $form->{ERRORS} }) {
@@ -1280,10 +1280,10 @@ sub transfer_out {
 
       my $do_base_qty = $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
-      if ($do_base_qty != $row_sum_base_qty) {
-        push @{ $form->{ERRORS} }, $locale->text('Error in position #1: You must either assign no transfer at all or the full quantity of #2 #3.',
-                                                 $i, $form->{"qty_$i"}, $form->{"unit_$i"});
-      }
+#      if ($do_base_qty != $row_sum_base_qty) {
+#        push @{ $form->{ERRORS} }, $locale->text('Error in position #1: You must either assign no transfer at all or the full quantity of #2 #3.',
+#                                                 $i, $form->{"qty_$i"}, $form->{"unit_$i"});
+#      }
     }
 
     if (%request_map) {

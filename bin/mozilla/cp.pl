@@ -317,6 +317,19 @@ sub form_header {
 $jsscript
 |;
 
+  if ($form->{openinvoices_other_currencies}) {
+    my $warning = $form->{vc} eq 'customer' ? $::locale->text('There are #1 more open invoices for this customer with other currencies.', $form->{openinvoices_other_currencies})
+                :                             $::locale->text('There are #1 more open invoices from this vendor with other currencies.',  $form->{openinvoices_other_currencies});
+
+    print qq|
+
+  <input type="hidden" name="openinvoices_other_currencies" value="| . H($form->{openinvoices_other_currencies}) . qq|">
+  <tr>
+   <td><b>| . $::locale->text('Note') . qq|: $warning</b></td>
+  </tr>
+|;
+  }
+
   $lxdebug->leave_sub();
 }
 

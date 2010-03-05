@@ -134,6 +134,26 @@ class myDB extends DB {
         } else { return true; };
     }
 
+    /**
+     * Zeichekodirung der DB ermitteln
+     * 
+     * @return String
+     */
+    function getServerCode() {
+        $sql="SHOW  server_encoding";
+        $rs = $this->getAll($sql);
+        return $rs[0]["server_encoding"];
+    }
+    function getClientCode() {
+        $sql="SHOW  client_encoding";
+        $rs = $this->getAll($sql);
+        return $rs[0]["client_encoding"];
+    }
+    function setClientCode($encoding) {
+        $sql="SET  client_encoding = '$encoding'";
+        $rc = $this->query($sql);
+        return $rc;
+    }
            
 }
 ?>
