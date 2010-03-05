@@ -280,7 +280,7 @@ sub save {
     $form->{"lastcost_$i"} *= 1;
 
     # set values to 0 if nothing entered
-    $form->{"discount_$i"}  = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
+    $form->{"discount_$i"}  = $form->parse_amount($myconfig, $form->{"discount_$i"});
     $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
 
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
@@ -295,7 +295,7 @@ sub save {
     @values = (conv_i($item_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $form->{"longdescription_$i"},
                $form->{"qty_$i"}, $baseqty,
-               $form->{"sellprice_$i"}, $form->{"discount_$i"},
+               $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
                $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
                $form->{"serialnumber_$i"},
                $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),

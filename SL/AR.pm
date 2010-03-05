@@ -54,6 +54,7 @@ sub post_transaction {
 
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  delete $form->{currency} unless $form->{default_currency};
 
   # set exchangerate
   $form->{exchangerate} = ($form->{currency} eq $form->{defaultcurrency}) ? 1 :
@@ -346,11 +347,9 @@ sub post_payment {
 
   $self->setup_form($form);
 
-  ($form->{defaultcurrency}) = selectrow_query($form, $dbh, qq|SELECT curr FROM defaults|);
-  $form->{defaultcurrency}   = (split m/:/, $form->{defaultcurrency})[0];
-  $form->{currency}          = $form->{defaultcurrency} if ($form->{defaultcurrency} && ($form->{currency} =~ m/^\s*$/));
-
-  $form->{exchangerate}      = $form->format_amount($myconfig, $form->{exchangerate});
+  $form->{exchangerate}    = $form->format_amount($myconfig, $form->{exchangerate});
+  $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  delete $form->{currency} unless $form->{default_currency};
 
   # Get the AR accno (which is normally done by Form::create_links()).
   $query =
