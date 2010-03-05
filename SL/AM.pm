@@ -1544,42 +1544,6 @@ sub save_preferences {
     $auth->create_or_refresh_session();
   }
 
-  if ($webdav) {
-    my @webdavdirs =
-      qw(angebote bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen);
-    foreach my $directory (@webdavdirs) {
-      my $file = "webdav/" . $directory . "/webdav-user";
-      my $newfile;
-      if ($myconfig->{$directory}) {
-        open(HTACCESS, "$file") or die "cannot open webdav-user $!\n";
-        while (<HTACCESS>) {
-          my ($login, $password) = split(/:/, $_);
-          if ($login ne $form->{login}) {
-            $newfile .= $_;
-          }
-        }
-        close(HTACCESS);
-        open(HTACCESS, "> $file") or die "cannot open webdav-user $!\n";
-        $newfile .= $myconfig->{login} . ":" . $myconfig->{password} . "\n";
-        print(HTACCESS $newfile);
-        close(HTACCESS);
-      } else {
-        $form->{$directory} = 0;
-        open(HTACCESS, "$file") or die "cannot open webdav-user $!\n";
-        while (<HTACCESS>) {
-          my ($login, $password) = split(/:/, $_);
-          if ($login ne $form->{login}) {
-            $newfile .= $_;
-          }
-        }
-        close(HTACCESS);
-        open(HTACCESS, "> $file") or die "cannot open webdav-user $!\n";
-        print(HTACCESS $newfile);
-        close(HTACCESS);
-      }
-    }
-  }
-
   $main::lxdebug->leave_sub();
 
   return $rc;

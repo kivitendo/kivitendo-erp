@@ -536,44 +536,6 @@ sub save_user {
     $main::auth->change_password($form->{login}, $form->{new_password});
   }
 
-  my ($login, $password, $newfile);
-  if ($main::webdav) {
-    my @webdavdirs =
-      qw(angebote bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen);
-    foreach my $directory (@webdavdirs) {
-      my $file = "webdav/" . $directory . "/webdav-user";
-      if ($form->{$directory}) {
-        if (open(HTACCESS, "$file")) {
-          while (<HTACCESS>) {
-            ($login, $password) = split(/:/, $_);
-            if ($login ne $form->{login}) {
-              $newfile .= $_;
-            }
-          }
-          close(HTACCESS);
-        }
-        open(HTACCESS, "> $file") or die "cannot open $file $ERRNO\n";
-        $newfile .= $myconfig->{login} . ":" . $myconfig->{password} . "\n";
-        print(HTACCESS $newfile);
-        close(HTACCESS);
-      } else {
-        $form->{$directory} = 0;
-        if (open(HTACCESS, "$file")) {
-          while (<HTACCESS>) {
-            ($login, $password) = split(/:/, $_);
-            if ($login ne $form->{login}) {
-              $newfile .= $_;
-            }
-          }
-          close(HTACCESS);
-        }
-        open(HTACCESS, "> $file") or die "cannot open $file $ERRNO\n";
-        print(HTACCESS $newfile);
-        close(HTACCESS);
-      }
-    }
-  }
-
   $form->{templates}       =~ s|.*/||;
   $form->{templates}       =  "$main::templates/$form->{templates}";
   $form->{mastertemplates} =~ s|.*/||;
