@@ -88,7 +88,7 @@ heißen.
    `apache postgresql libdbi-perl libdbd-pg-perl libpg-perl
 libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl
 libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl
-libtemplate-perl'
+libtemplate-perl libxml-writer-perl'
 
    Für Fedora Core benötigen Sie unter anderem diese Pakete:
 
