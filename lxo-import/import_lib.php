@@ -93,6 +93,7 @@ $parts = array(
     "partsgroup2" => "3.Warengruppenbezeichnung",
     "partsgroup3" => "4.Warengruppenbezeichnung",
     "partsgroup4" => "5.Warengruppenbezeichnung",
+    "shop"  => "Shopexport vorghesehen",
     );
     
 $contactscrm = array(
@@ -368,6 +369,21 @@ function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie) {
     $sql="update auth.session set mtime = '".date("Y-M-d H:i:s.100001")."' where id = '".$rs[0]["session_id"]."'";
     $db->query($sql,"authuser_3");
     return $auth;
+}
+/**
+ * Zeichencode übersetzen
+ *
+ * @param String $txt
+ */
+function translate(&$txt) {
+    if (Auto) {
+        $encoding = mb_detect_encoding($data,"UTF-8,ISO-8859-1,ISO-8859-15,Windows-1252,ASCII");
+        $txt = iconv("$encoding",ServerCode."//TRANSLIT",$txt);
+        //$txt = mb_convert_encoding($txt, ServerCode,"$encoding");
+    } else {
+        $txt = iconv(FileCode,ServerCode."//TRANSLIT",$txt);
+        //$txt = mb_convert_encoding($txt, ServerCode,FileCode);
+    }
 }
 
 ?>

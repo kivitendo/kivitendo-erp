@@ -27,11 +27,41 @@ if (!anmelden()) ende("Anmeldung fehlgeschlagen.");
 /* get DB instance */
 $db=$_SESSION["db"]; //new myDB($login);
 
-
 /* just display page or do real import? */
 if ($_POST["ok"]) {
 
     require ("parts_import.php");
+    //Zeichencodierung des Servers
+    $tmpcode = $db->getServerCode();
+    //Leider sind die Benennungen vom Server anders als von mb_detect_encoding
+    if ($tmpcode == "UTF8") {
+         define("ServerCode","UTF-8");
+    } else if ($tmpcode == "LATIN9") {
+         define("ServerCode","ISO-8859-15");
+    } else if ($tmpcode == "LATIN1") {
+         define("ServerCode","ISO-8859-1");
+    } else {
+         define("ServerCode",$tmpcode);
+    }
+    //Zeichensatz sollte gleich sein, sonst ist die Datenkonvertierung nutzlos
+    //DB und LxO müssen ja nicht auf der gleichen Maschiene sein.
+    if($tmpcode<>$db->getClientCode()) {
+        $rc = $db->setClientCode($tmpcode);
+    } 
+
+    // Zeichenkodierung File
+    if ($_POST["encoding"] == "auto") {
+         define("Auto",true);
+         define("Translate",true);
+    } else {
+         define("Auto",false);
+         if ($_POST["encoding"] == ServerCode) {
+            define("Translate",false);
+         } else {
+            define("Translate",true);
+            define("FileCode",$_POST["encoding"]);
+         }
+    }
 
     /* display help */
     if ($_POST["ok"]=="Hilfe") {
@@ -66,24 +96,24 @@ if ($_POST["ok"]) {
     $precision = $_POST["precision"];
     $quotation = $_POST["quotation"];
     $quottype = $_POST["quottype"];
-    $file    = "../users/parts.csv";
-    $table   = "parts";
+    $file    = "parts";
 
     /* no data? */
     if (empty($_FILES["Datei"]["name"]))
         ende ("Kein Datenfile angegeben");
 
     /* copy file */
-    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file)) {
+    $dir="../users/";
+    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
         ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
     } 
 
     /* check if file is really there */
-    if (!file_exists("$file") or filesize("$file")==0) 
-        ende("Datenfile ($file) nicht im Ordner gefunden oder leer");
+    if (!file_exists($dir.$file.'.csv') or filesize($dir.$file.'.csv')==0) 
+        ende("Datenfile ($file.csv) nicht im Ordner gefunden oder leer");
 
     /* Zu diesem Zeitpunkt wurde der Artikel Importiert */
-    if (!$db->chkcol($table)) 
+    if (!$db->chkcol($file)) 
         ende("Importspalte konnte nicht angelegt werden");
 
     /* first check all elements */
@@ -94,7 +124,7 @@ if ($_POST["ok"]) {
     $_test["lagerplatz"]=$_POST["lagerplatz"];
 
     /* just print data or insert it, if test is false */
-    import_parts($db, $file, $trenner, $trennzeichen, $parts, FALSE, !$test, $_POST["show"],$_POST);
+    import_parts($db, $dir.$file, $trenner, $trennzeichen, $parts, FALSE, !$test, $_POST["show"],$_POST);
 
 } else {
     $bugrus=getAllBG($db);
@@ -131,7 +161,7 @@ if ($_POST["ok"]) {
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Textupdate</td><td><input type="checkbox" name="TextUpd" value="1">ja</td></tr>
 <tr><td>Warengruppen<br>verbinder</td><td><input type="text" name="wgtrenner" value="!" size="3"></td></tr>
-<tr><td>Shopartikel,<br>falls Feld leer</td><td><input type="radio" name="shop" value="t">ja <input type="radio" name="shop" value="f" checked>nein</td></tr>
+<tr><td>Shopartikel<br />falls nicht &uuml;bergeben</td><td><input type="radio" name="shop" value="t">ja <input type="radio" name="shop" value="f" checked>nein</td></tr>
 <tr><td>Art</td><td><input type="Radio" name="ware" value="W" checked>Ware &nbsp; 
             <input type="Radio" name="ware" value="D">Dienstleistung
             <input type="Radio" name="ware" value="G">gemischt (Spalte 'art' vorhanden)</td></tr>
@@ -145,6 +175,16 @@ if ($_POST["ok"]) {
     <input type="radio" name="bugrufix" value="2">f&uuml;r Artikel ohne passende Bugru
     </td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
+<tr><td>Verwendete<br />Zeichecodierung</td><td>
+        <select name="encoding">
+        <option value="auto">Automatisch (versuchen)</option>
+        <option value="UTF-8">UTF-8</option>
+        <option value="ISO-8859-1">ISO-8859-1</option>
+        <option value="ISO-8859-15">ISO-8859-15</option>
+        <option value="Windows-1252">Windows-1252</option>
+        <option value="ASCII">ASCII</option>
+        </select>
+</td></tr>
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
