@@ -66,23 +66,24 @@ if ($_POST["ok"]) {
     $precision = $_POST["precision"];
     $quotation = $_POST["quotation"];
     $quottype = $_POST["quottype"];
-    $file    = "parts";
+    $file    = "../users/parts.csv";
+    $table   = "parts";
 
     /* no data? */
     if (empty($_FILES["Datei"]["name"]))
         ende ("Kein Datenfile angegeben");
 
     /* copy file */
-    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file.".csv")) {
+    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$file)) {
         ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
     } 
 
     /* check if file is really there */
-    if (!file_exists("$file.csv") or filesize("$file.csv")==0) 
-        ende("Datenfile ($file.csv) nicht im Ordner gefunden oder leer");
+    if (!file_exists("$file") or filesize("$file")==0) 
+        ende("Datenfile ($file) nicht im Ordner gefunden oder leer");
 
     /* Zu diesem Zeitpunkt wurde der Artikel Importiert */
-    if (!$db->chkcol($file)) 
+    if (!$db->chkcol($table)) 
         ende("Importspalte konnte nicht angelegt werden");
 
     /* first check all elements */
@@ -130,7 +131,7 @@ if ($_POST["ok"]) {
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Textupdate</td><td><input type="checkbox" name="TextUpd" value="1">ja</td></tr>
 <tr><td>Warengruppen<br>verbinder</td><td><input type="text" name="wgtrenner" value="!" size="3"></td></tr>
-<tr><td>Shopartikel</td><td><input type="radio" name="shop" value="t">ja <input type="radio" name="shop" value="f" checked>nein</td></tr>
+<tr><td>Shopartikel,<br>falls Feld leer</td><td><input type="radio" name="shop" value="t">ja <input type="radio" name="shop" value="f" checked>nein</td></tr>
 <tr><td>Art</td><td><input type="Radio" name="ware" value="W" checked>Ware &nbsp; 
             <input type="Radio" name="ware" value="D">Dienstleistung
             <input type="Radio" name="ware" value="G">gemischt (Spalte 'art' vorhanden)</td></tr>

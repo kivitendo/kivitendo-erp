@@ -30,6 +30,7 @@ function insertParts($db,$insert,$show,$data) {
         show($data["buchungsgruppen_id"]);show($data["income_accno"]);      show($data["expense_accno"]);
         show($data["inventory_accno"]);   show($data["microfiche"]);        show($data["drawing"]);
         show($data["rop"]);               show($data["assembly"]);          show($data["makemodel"]);
+        show($data["shop"]);
     }
     /*foreach ($data as $key=>$val) {
         echo $key.":".gettype($val).":".gettype($data[$key]).":".$val."<br>";
@@ -209,7 +210,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
     $parts_fld = array_keys($fields);
 
     /* open csv file */
-    $f=fopen("$file.csv","r");
+    $f=fopen("$file","r");
     
     /*
      * read first line with table descriptions
@@ -221,7 +222,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         show("weight");     show("image");      show("partsgroup_id");
         show("bg");         show("income_accno"); show("expense_accno");
         show("inventory_accno"); show("microfiche");show("drawing");show("rop");
-        show("assembly");show("makemodel");  show("");
+        show("assembly");show("makemodel");show("shop");  show("");
         show("</tr>\n",false);
     }
 
@@ -379,9 +380,17 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         $description = addslashes($description);
 
         // rop und weight müssen null oder Zahl sein
-        if ($zeile[$fldpos["rop"]]) $rop = 1 * $zeile[$fldpos["rop"]];
-        if ($zeile[$fldpos["weight"]]) $weight = 1 * $zeile[$fldpos["weight"]];
+        if ($zeile[$fldpos["rop"]]) $rop = 1 * str_replace(",", ".",$zeile[$fldpos["rop"]]);
+        if ($zeile[$fldpos["weight"]]) $weight = 1 * str_replace(",", ".", $zeile[$fldpos["weight"]]);
 
+        // Shop-Artikel
+        if ($zeile[$fldpos["shop"]]) {
+                $shop = ($zeile[$fldpos["shop"]] > 0)?'t':'f';
+        } else {
+                $shop = $maske["shop"];
+        }
+
+        // Artikel updaten
         if (getPartsid($db,trim($zeile[$fldpos["partnumber"]]))) {
             /* es gibt die Artikelnummer */
             if ($Update) {
