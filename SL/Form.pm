@@ -2576,7 +2576,7 @@ sub all_vc {
   my ($count) = selectrow_query($self, $dbh, $query);
 
   # build selection list
-  if ($count < $myconfig->{vclimit}) {
+  if ($count <= $myconfig->{vclimit}) {
     $query = qq|SELECT id, name, salesman_id
                 FROM $table WHERE NOT obsolete
                 ORDER BY name|;
