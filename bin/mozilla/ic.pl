@@ -1094,6 +1094,7 @@ sub generate_report {
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
     l_soldtotal   => $locale->text('soldtotal'),
+    ean           => $locale->text('EAN')              . ": '$form->{ean}'",
   );
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
@@ -1155,7 +1156,7 @@ sub generate_report {
     partnumber description partsgroup bin onhand rop unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
-    transdate name serialnumber soldtotal deliverydate
+    transdate name serialnumber soldtotal deliverydate ean
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -1191,6 +1192,7 @@ sub generate_report {
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
+    'ean'                => { 'text' => $locale->text('EAN'), },
     %column_defs_cvars,
   );
 
