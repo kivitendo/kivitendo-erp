@@ -469,6 +469,7 @@ sub get_invoices {
     qq|SELECT
          a.id, a.ordnumber, a.transdate, a.invnumber, a.amount,
          ct.name AS customername, a.customer_id, a.duedate,
+         a.amount - a.paid AS open_amount,
 
          cfg.dunning_description, cfg.dunning_level,
 
