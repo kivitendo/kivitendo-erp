@@ -1794,7 +1794,6 @@ $self->{texts} = {
   'View warehouse content'      => 'Lagerbestand ansehen',
   'View/edit all employees sales documents' => 'Bearbeiten/ansehen der Verkaufsdokumente aller Mitarbeiter',
   'Von Konto: '                 => 'von Konto: ',
-  'WEBDAV access'               => 'WEBDAV-Zugriff',
   'WHJournal'                   => 'Lagerbuchungen',
   'Warehouse'                   => 'Lager',
   'Warehouse From'              => 'Quelllager',

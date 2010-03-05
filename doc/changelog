@@ -77,6 +77,17 @@
    gewechselt.
 
 
+  Wichtige Änderungen für Administratoren:
+
+  - Die Möglichkeit, den Zugriff auf die WebDAV-Verzeichnisse für
+    jeden Benutzer einzustellen, wurde ersatzlos entfernt. Grund ist,
+    dass das dafür benötigte Benutzerpasswort bei
+    LDAP-Authentifizierung nicht bekannt ist. Es wird Administratoren,
+    die eine solche Zugriffskontrolle benötigen, empfohlen, die
+    Authentifizierungsmodule des Webservers entsprechend zu
+    konfigurieren. Bei Apache sind dies die Module mod_auth_pgsql für
+    in der Datenbank gespeicherte Passwörter und mod_authnz_ldap für
+    Authentifizierung gegenüber externen LDAP-Servern.
 
 
   API Änderungen:
