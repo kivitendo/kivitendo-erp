@@ -132,9 +132,12 @@ if ($ok) while (!feof($f)){
         } else if ($in_fld[$i]=="taxincluded"){
             $data=strtolower(substr($data,0,1));
             if ($data!="f" && $data!="t") $data="f";
-        } else if ($in_fld[$i]=="ustid"){
+        } /*else if ($in_fld[$i]=="ustid"){
+            Was passiert hier:
             $data=strtr(" ","",$data);
-        } /*else if ($in_fld[$i]=="matchcode") {
+            SUCHE IN ' ' nach dem Vorkommen von '' mit der BOOLEAN-Interpretation von $data
+            demnach gibt es immer eine leere Zeichenkette zurück.
+        }*/ /*else if ($in_fld[$i]=="matchcode") {
                   $matchcode=$data;
                   $i++;
                   continue;
