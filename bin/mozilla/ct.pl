@@ -654,8 +654,7 @@ sub get_shipto {
   my %myconfig = %main::myconfig;
 
   CT->get_shipto(\%myconfig, \%$form);
-  print $form->ajax_response_header(),  join '__pjx__', map $form->{"shipto$_"},
-    qw(name department_1 department_2 street zipcode city country contact phone fax email used);
+  print $form->ajax_response_header(), join('__pjx__', map($form->{"shipto$_"}, qw(name department_1 department_2 street zipcode city country contact phone fax email used)));
   $main::lxdebug->leave_sub();
 
 }

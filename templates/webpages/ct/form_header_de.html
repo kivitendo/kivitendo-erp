@@ -363,7 +363,7 @@
              name       = 'cp_id',
              id         = 'cp_id',
              DATA       = CONTACTS,
-             onChange   = "get_contact(['cp_id__'+this.value],['cp_name','cp_title','cp_givenname','cp_phone1','cp_phone2','cp_email','cp_abteilung','cp_fax','cp_mobile1','cp_mobile2','cp_satphone','cp_satfax','cp_project','cp_privatphone','cp_privatemail','cp_birthday',enable_delete_contact,set_gender])",
+             onChange   = "on_contact_changed()",
              id_key     = 'cp_id',
              label_sub  = 'contacts_label',
        -%]
@@ -387,6 +387,7 @@
        <input id="cp_title" name="cp_title" size="40" maxlength="75" value="[% HTML.escape(cp_title) %]">&nbsp;
        [%- INCLUDE generic/multibox.html
              name       = 'selected_cp_title',
+             id         = 'selected_cp_title',
              DATA       = MB_TITLES,
              show_empty = 1,
              id_key     = 'id',
@@ -401,6 +402,7 @@
        <input id="cp_abteilung" name="cp_abteilung" size="40" value="[% HTML.escape(cp_abteilung) %]">&nbsp;
        [%- INCLUDE generic/multibox.html
              name       = 'selected_cp_abteilung',
+             id         = 'selected_cp_abteilung',
              DATA       = MB_DEPARTMENT,
              show_empty = 1,
              id_key     = 'id',
@@ -633,6 +635,7 @@
 
   </div>
 
+  <script type="text/javascript" src="js/jquery.js"></script>
   <script type="text/javascript">
    <!--
    function set_gender(gender) {
@@ -641,9 +644,14 @@
        s.selectedIndex = (gender == 'f') ? 1 : 0;
      }
    }
+
+   function on_contact_changed() {
+     get_contact(['cp_id__' + $('#cp_id').attr('value')],
+                 ['cp_name','cp_title','cp_givenname','cp_phone1','cp_phone2','cp_email','cp_abteilung','cp_fax','cp_mobile1','cp_mobile2',
+                  'cp_satphone','cp_satfax','cp_project','cp_privatphone','cp_privatemail','cp_birthday',enable_delete_contact,set_gender]);
+     $('#selected_cp_title').attr('selectedIndex', 0);
+     $('#selected_cp_abteilung').attr('selectedIndex', 0);
+   }
   -->
 
   </script>
-
-
-
