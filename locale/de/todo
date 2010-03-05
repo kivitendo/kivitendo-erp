@@ -285,7 +285,6 @@ $self->{texts} = {
   'Sales Orders'                => 'Aufträge',
   'Sales quotation'             => 'Angebot',
   'Salesman'                    => 'Verkäufer/in',
-  'Salesperson'                 => 'Verkäufer',
   'Screen'                      => 'Bildschirm',
   'Select a Customer'           => 'Endkunde auswählen',
   'Select a customer'           => 'Einen Kunden ausw&auml;hlen',
