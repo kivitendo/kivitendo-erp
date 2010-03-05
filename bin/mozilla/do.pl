@@ -183,6 +183,8 @@ sub order_links {
     IR->get_vendor(\%myconfig, \%$form);
   } else {
     IS->get_customer(\%myconfig, \%$form);
+    # OFFEN tritt bug 1284 auch bei vendor auf?
+    $form->{discount} = $form->{customer_discount};
   }
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
@@ -628,14 +630,9 @@ sub save {
   # wird die Maske mit dem falschen Rabatt wieder aufgebaut.
   # Wie immer: backup_vars verwenden um nichts anderes kaputt zu
   # machen. jan 03.03.2010
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"backup_discount_$i"} = $form->{"discount_$i"};
-  };
+  # nicht mehr notwendig da für bug 1284 der backend aufruf entsprechend
+  # geändert wurde
   DO->save();
-  for my $i (1 .. $form->{rowcount}) {
-    $form->{"discount_$i"} = $form->{"backup_discount_$i"};
-    delete $form->{"backup_discount_$i"};
-  };
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|donumber_| . $form->{donumber};
@@ -734,6 +731,11 @@ sub invoice {
   }
 
   for my $i (1 .. $form->{rowcount}) {
+    # für bug 1284
+    if ($form->{discount}){ # Falls wir einen Kundenrabatt haben 
+      # und keinen anderen discount wert an $i ...
+      $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir den kundenrabatt
+    }
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice basefactor);
   }
 
