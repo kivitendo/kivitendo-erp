@@ -1021,8 +1021,6 @@ sub all_parts {
     sub_module     => $bsooqr ? [ uniq grep { $oe_flag_to_cvar{$form->{$_}} } @oe_flags ] : undef,
   );
 
-  $::lxdebug->dump(0,  "\@cvar_val", \@cvar_values);
-
   if ($cvar_where) {
     $where_clause .= qq| AND ($cvar_where)|;
     push @bind_vars, @cvar_values;
