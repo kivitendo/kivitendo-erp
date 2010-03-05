@@ -1023,6 +1023,35 @@ sub generate_report {
   $form->{title} =~ s/ys$/ies/;
   $form->{title} = $locale->text($form->{title});
 
+  my %column_defs = (
+    'bin'                => { 'text' => $locale->text('Bin'), },
+    'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
+    'description'        => { 'text' => $locale->text('Part Description'), },
+    'drawing'            => { 'text' => $locale->text('Drawing'), },
+    'image'              => { 'text' => $locale->text('Image'), },
+    'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
+    'lastcost'           => { 'text' => $locale->text('Last Cost'), },
+    'linetotallastcost'  => { 'text' => $locale->text('Extended'), },
+    'linetotallistprice' => { 'text' => $locale->text('Extended'), },
+    'linetotalsellprice' => { 'text' => $locale->text('Extended'), },
+    'listprice'          => { 'text' => $locale->text('List Price'), },
+    'microfiche'         => { 'text' => $locale->text('Microfiche'), },
+    'name'               => { 'text' => $locale->text('Name'), },
+    'onhand'             => { 'text' => $locale->text('Qty'), },
+    'ordnumber'          => { 'text' => $locale->text('Order Number'), },
+    'partnumber'         => { 'text' => $locale->text('Part Number'), },
+    'partsgroup'         => { 'text' => $locale->text('Group'), },
+    'priceupdate'        => { 'text' => $locale->text('Updated'), },
+    'quonumber'          => { 'text' => $locale->text('Quotation'), },
+    'rop'                => { 'text' => $locale->text('ROP'), },
+    'sellprice'          => { 'text' => $locale->text('Sell Price'), },
+    'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
+    'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
+    'transdate'          => { 'text' => $locale->text('Transdate'), },
+    'unit'               => { 'text' => $locale->text('Unit'), },
+    'weight'             => { 'text' => $locale->text('Weight'), },
+  );
+
   $revers     = $form->{revers};
   $lastsort   = $form->{lastsort};
 
@@ -1114,7 +1143,14 @@ sub generate_report {
   }
 
   # special case for lastcost
-  $form->{l_lastcost} = "" if $form->{ledgerchecks};
+  if ($form->{ledgerchecks}){
+    # zumindestens für den haken 'gekauft' muss das verhalten
+    # so sein, das der Verkaufspreis nicht angezeigt
+    # wird. In der Backend-Funktion all_parts wird nur mit
+    # price gearbeitet
+    $column_defs{sellprice}{text} = $locale->text('Price');
+    $form->{l_lastcost} = "" 
+  }
 
   if ($form->{description}) {
     $description = $form->{description};
@@ -1164,35 +1200,7 @@ sub generate_report {
 
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
-  my %column_defs = (
-    'bin'                => { 'text' => $locale->text('Bin'), },
-    'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
-    'description'        => { 'text' => $locale->text('Part Description'), },
-    'drawing'            => { 'text' => $locale->text('Drawing'), },
-    'image'              => { 'text' => $locale->text('Image'), },
-    'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
-    'lastcost'           => { 'text' => $locale->text('Last Cost'), },
-    'linetotallastcost'  => { 'text' => $locale->text('Extended'), },
-    'linetotallistprice' => { 'text' => $locale->text('Extended'), },
-    'linetotalsellprice' => { 'text' => $locale->text('Extended'), },
-    'listprice'          => { 'text' => $locale->text('List Price'), },
-    'microfiche'         => { 'text' => $locale->text('Microfiche'), },
-    'name'               => { 'text' => $locale->text('Name'), },
-    'onhand'             => { 'text' => $locale->text('Qty'), },
-    'ordnumber'          => { 'text' => $locale->text('Order Number'), },
-    'partnumber'         => { 'text' => $locale->text('Part Number'), },
-    'partsgroup'         => { 'text' => $locale->text('Group'), },
-    'priceupdate'        => { 'text' => $locale->text('Updated'), },
-    'quonumber'          => { 'text' => $locale->text('Quotation'), },
-    'rop'                => { 'text' => $locale->text('ROP'), },
-    'sellprice'          => { 'text' => $locale->text('Sell Price'), },
-    'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
-    'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
-    'transdate'          => { 'text' => $locale->text('Transdate'), },
-    'unit'               => { 'text' => $locale->text('Unit'), },
-    'weight'             => { 'text' => $locale->text('Weight'), },
-    %column_defs_cvars,
-  );
+  %column_defs = (%column_defs,%column_defs_cvars); # nochmal die cvars als überschrift hinzufügen
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
   map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
