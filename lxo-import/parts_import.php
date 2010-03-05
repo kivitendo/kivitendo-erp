@@ -379,8 +379,8 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         $description = addslashes($description);
 
         // rop und weight müssen null oder Zahl sein
-        if ($zeile[$fldpos["rop"]]) $rop = 1 * $zeile[$fldpos["rop"]];
-        if ($zeile[$fldpos["weight"]]) $weight = 1 * $zeile[$fldpos["weight"]];
+        if ($zeile[$fldpos["rop"]]) $rop = 1 * str_replace(",", ".",$zeile[$fldpos["rop"]]);
+        if ($zeile[$fldpos["weight"]]) $weight = 1 * str_replace(",", ".", $zeile[$fldpos["weight"]]);
 
         if (getPartsid($db,trim($zeile[$fldpos["partnumber"]]))) {
             /* es gibt die Artikelnummer */
