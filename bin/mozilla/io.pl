@@ -1881,7 +1881,7 @@ sub ship_to {
 
 
   # delete shipto
-  map({ delete $form->{$_} } (@shipto_vars, qw(header)));
+  map({ delete $form->{$_} } (@shipto_vars, qw(header shipto_id)));
   $form->{title} = $title;
 
   foreach my $key (keys %$form) {
