@@ -60,6 +60,7 @@
      <th class="listheading">Lager</th>
      <th class="listheading">Lagerplatz</th>
      <th class="listheading">Chargennummer</th>
+     <th class="listheading">Mindesthaltbarkeit</th>
      [%- UNLESS delivered %]
      <th align="right" class="listheading">Lagerbestand</th>
      [%- END %]
@@ -73,6 +74,7 @@
      <td>[% HTML.escape(row.warehousedescription) %]</td>
      <td>[% HTML.escape(row.bindescription) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
+     <td>[% HTML.escape(row.bestbefore) %]</td>
 
      [%- IF delivered %]
 
@@ -103,6 +105,7 @@
     <input type="hidden" name="warehouse_id_[% loop.count %]" value="[% HTML.escape(row.warehouse_id) %]">
     <input type="hidden" name="bin_id_[% loop.count %]"       value="[% HTML.escape(row.bin_id) %]">
     <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
+    <input type="hidden" name="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]">
     [%- END %]
    </table>
   </p>

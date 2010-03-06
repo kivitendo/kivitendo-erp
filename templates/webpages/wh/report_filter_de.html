@@ -105,6 +105,13 @@
         <td><input name="chargenumber" size=40></td>
        </tr>
        <tr>
+        <th align="right" nowrap>Mindesthaltbarkeit:</th>
+        <td>
+         <input name="bestbefore" id="bestbefore" size="11" title="[% myconfig_dateformat %]">
+         <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
+        </td>
+       </tr>
+       <tr>
         <th align="right" nowrap>Lagerbestand:</th>
         <td>
          <select name="qty_op">
@@ -147,6 +154,8 @@
         <td nowrap><label for="l_partnumber">Artikelnummer</label></td>
         <td align="right"><input name="l_chargenumber" id="l_chargenumber" class="checkbox" type="checkbox" value="Y" checked></td>
         <td nowrap><label for="l_chargenumber">Chargennummer</label></td>
+        <td align="right"><input name="l_bestbefore" id="l_bestbefore" class="checkbox" type="checkbox" value="Y" checked></td>
+        <td nowrap><label for="l_bestbefore">Mindesthaltbarkeit</label></td>
        </tr>
 
        <tr><td colspan="4"><hr noshade height="1"></td></tr>
@@ -173,6 +182,17 @@
    <input type="submit" class="submit" name="action" value="Weiter">
   </p>
  </form>
+
+ <script type="text/javascript">
+   <!--
+     Calendar.setup( {
+     inputField : "bestbefore",
+     ifFormat :"[% myconfig_jsc_dateformat %]",
+     align : "BR",
+     button : "bestbefore_trigger"
+     });
+   //-->
+ </script>
 
 </body>
 </html>

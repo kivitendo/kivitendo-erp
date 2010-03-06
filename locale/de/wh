@@ -12,6 +12,7 @@ $self->{texts} = {
   'All reports'                 => 'Alle Berichte (Konten&uuml;bersicht, Summen- u. Saldenliste, GuV, BWA, Bilanz, Projektbuchungen)',
   'Attempt to call an undefined sub named \'%s\'' => 'Es wurde versucht, eine nicht definierte Unterfunktion namens \'%s\' aufzurufen.',
   'Bcc'                         => 'Bcc',
+  'Best Before'                 => 'Mindesthaltbarkeit',
   'Bin'                         => 'Lagerplatz',
   'Bin From'                    => 'Quelllagerplatz',
   'Bin List'                    => 'Lagerliste',
