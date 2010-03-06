@@ -2,7 +2,7 @@ use Cwd;
 
 use vars qw($dbcharset $eur $ghostscript_bin $html2ps_bin $language $latex_bin $latex_templates $lizenzen $memberfile
             $opendocument_templates $openofficeorg_daemon $openofficeorg_daemon_port $openofficeorg_writer_bin
-            $pg_dump_exe $pg_restore_exe $sendmail $sid $spool $templates $userspath $vertreter $webdav $xvfb_bin);
+            $pg_dump_exe $pg_restore_exe $sendmail $show_best_before $sid $spool $templates $userspath $vertreter $webdav $xvfb_bin);
 
 # path to user configuration files
 $userspath = "users";
@@ -42,6 +42,9 @@ $ENV{PERL5LIB} .= ":/sw/lib/perl5";
 $webdav = 0;
 $lizenzen = 1;
 $vertreter = 0;
+
+# Zeige Felder für Mindesthaltbarkeitsdatum
+$show_best_before = 0;
 
 ## Support fuer OpenDocument-Vorlagen
 # Diese Option legt fest, ob OpenDocument-Vorlagen generell verfuegbar sind.
