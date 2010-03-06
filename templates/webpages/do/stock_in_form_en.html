@@ -92,7 +92,9 @@
      <th class="listheading">Warehouse</th>
      <th class="listheading">Bin</th>
      <th class="listheading">Charge Number</th>
+     [% IF conf_show_best_before %]
      <th class="listheading">Best Before</th>
+     [% END %]
      <th align="right" class="listheading">Qty</th>
      <th align="right" class="listheading">Unit</th>
     </tr>
@@ -106,7 +108,9 @@
      <td>[% HTML.escape(row.warehouse_description) %]</td>
      <td>[% HTML.escape(row.bin_description) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
+     [% IF conf_show_best_before %]
      <td>[% HTML.escape(row.bestbefore) %]</td>
+     [% END %]
      <td>[% HTML.escape(LxERP.format_amount(row.qty)) %]</td>
      <td>[% HTML.escape(row.unit) %]</td>
 
@@ -122,12 +126,12 @@
 
      <td><select name="bin_id_[% loop.count %]" id="bin_id_[% loop.count %]"></select></td>
      <td><input name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]"></td>
-
+     [% IF conf_show_best_before %]
      <td>
        <input name="bestbefore_[% loop.count %]" id="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]" size="11" title="[% myconfig_dateformat %]">
        <input type="button" name="b_bestbefore_[% loop.count %]" id="bestbefore_trigger_[% loop.count %]" value="?">
      </td>
-
+     [% END %]
      <td><input name="qty_[% loop.count %]" size="12" value="[% HTML.escape(LxERP.format_amount(row.qty)) %]"></td>
 
      <td>
@@ -158,6 +162,7 @@
  </form>
 
  [%- IF NOT delivered %]
+ [% IF conf_show_best_before %]
   <script type="text/javascript">
     <!--
     [%- FOREACH row = STOCK_INFO %]
@@ -170,6 +175,7 @@
     [%- END %]
     //-->
   </script>
+  [% END %]
   [%- END %]
 
 </body>

@@ -105,6 +105,7 @@
      <td><input name="chargenumber" size="30" value="[% HTML.escape(chargenumber) %]"></td>
     </tr>
 
+    [% IF conf_show_best_before %]
     <tr>
      <th align="right" nowrap>Best Before</th>
      <td>
@@ -112,6 +113,7 @@
        <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
      </td>
     </tr>
+    [% END %]
 
     <tr>
      <th align="right" nowrap>EAN</th>
@@ -144,6 +146,7 @@
   </p>
  </form>
 
+ [% IF conf_show_best_before %]
  <script type="text/javascript">
    <!--
      Calendar.setup( {
@@ -154,6 +157,7 @@
      });
    //-->
  </script>
+  [% END %]
 
 </body>
 </html>
